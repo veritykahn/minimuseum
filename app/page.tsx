@@ -62,7 +62,7 @@ export default function Home() {
               : 'opacity-0 translate-y-4'
           }`}
         >
-          Where history finds a room.
+          Big History. Small Spaces.
         </p>
 
         <span 
