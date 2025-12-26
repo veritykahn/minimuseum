@@ -14,13 +14,31 @@ export default function About() {
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
 
+        * {
+          box-sizing: border-box;
+        }
+
+        html {
+          overflow-x: hidden;
+          width: 100%;
+        }
+
         body {
           background: #0a0a0a;
           color: #fafafa;
+          overflow-x: hidden;
+          width: 100%;
+          margin: 0;
+          padding: 0;
         }
 
         .font-serif {
           font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+
+        img {
+          max-width: 100%;
+          height: auto;
         }
 
         .home-button {
@@ -56,9 +74,13 @@ export default function About() {
 
         @media (max-width: 768px) {
           .home-button {
-            top: 24px;
-            right: 24px;
-            font-size: 28px;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+          }
+          
+          .home-arrow {
+            font-size: 16px;
           }
         }
 
@@ -151,6 +173,13 @@ export default function About() {
           margin: 60px 0;
           opacity: 0;
           animation: fadeInUp 1.2s ease-out forwards;
+          width: 100%;
+          max-width: 100%;
+        }
+
+        .image-text-row > * {
+          min-width: 0;
+          max-width: 100%;
         }
 
         .image-text-row.reverse {
@@ -405,36 +434,9 @@ export default function About() {
           }}>
             Imagine them all in motion. A network of monthly exhibitions circulating through schools and libraries across the country. A classroom in rural Oklahoma. A library in suburban Florida. A vestibule in small-town Maine.
           </p>
-          <p style={{
-            fontSize: '16px',
-            lineHeight: 1.8,
-            color: '#a3a3a3',
-            fontWeight: 300,
-            marginBottom: '20px',
-          }}>
-            Not everyone can get to the great museums. So the museum comes to them.
-          </p>
-          <p style={{
-            fontSize: '16px',
-            lineHeight: 1.8,
-            color: '#d4d4d4',
-            fontWeight: 400,
-            marginBottom: '20px',
-          }}>
-            Apply to host. Receive the collection. Pass it on.
-          </p>
-          <p style={{
-            fontSize: '16px',
-            lineHeight: 1.8,
-            color: '#d4d4d4',
-            fontWeight: 400,
-            fontStyle: 'italic',
-          }}>
-            History shouldn't require a plane ticket. It should be waiting in the next room.
-          </p>
         </div>
 
-        {/* Letters Image Below Vision */}
+        {/* Letters Image */}
         <div className="inline-image delay-8">
           <img 
             src="/about/letters.jpeg" 
@@ -442,6 +444,37 @@ export default function About() {
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
           <p className="image-caption">Victorian Letters · Mini Museum Collection</p>
+        </div>
+
+        {/* Final Call to Action */}
+        <div className="section fade-in-up delay-8" style={{ textAlign: 'center', marginTop: '80px' }}>
+          <p style={{
+            fontSize: '17px',
+            lineHeight: 1.8,
+            color: '#d4d4d4',
+            fontWeight: 300,
+            marginBottom: '20px',
+          }}>
+            Not everyone can get to the great museums. So the museum comes to them.
+          </p>
+          <p style={{
+            fontSize: '17px',
+            lineHeight: 1.8,
+            color: '#d4d4d4',
+            fontWeight: 400,
+            marginBottom: '20px',
+          }}>
+            Apply to host. Receive the collection. Pass it on.
+          </p>
+          <p className="font-serif" style={{
+            fontSize: '20px',
+            lineHeight: 1.8,
+            color: '#fafafa',
+            fontWeight: 400,
+            fontStyle: 'italic',
+          }}>
+            History shouldn't require a plane ticket. It should be waiting in the next room.
+          </p>
         </div>
 
         <div className="divider fade-in-up delay-8"></div>

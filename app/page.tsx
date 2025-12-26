@@ -81,6 +81,7 @@ export default function Home() {
         {/* About Button */}
         <Link 
           href="/about"
+          style={{ textDecoration: 'none' }}
           className={`mt-12 transition-all duration-1000 ease-out ${
             detailsVisible 
               ? 'opacity-100 translate-y-0' 
