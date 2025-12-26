@@ -1,8 +1,16 @@
 'use client';
 
+import Link from 'next/link';
+
 export default function About() {
   return (
     <>
+      {/* Home Button */}
+      <Link href="/" className="home-button">
+        <span className="home-arrow">←</span>
+        <span>M</span>
+      </Link>
+
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
 
@@ -13,6 +21,45 @@ export default function About() {
 
         .font-serif {
           font-family: 'Cormorant Garamond', Georgia, serif;
+        }
+
+        .home-button {
+          position: fixed;
+          top: 32px;
+          right: 32px;
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #fff;
+          text-decoration: none;
+          font-size: 32px;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-weight: 300;
+          transition: all 0.3s ease;
+          opacity: 0.7;
+        }
+
+        .home-button:hover {
+          opacity: 1;
+          transform: translateX(-4px);
+        }
+
+        .home-arrow {
+          font-size: 20px;
+          transition: transform 0.3s ease;
+        }
+
+        .home-button:hover .home-arrow {
+          transform: translateX(-4px);
+        }
+
+        @media (max-width: 768px) {
+          .home-button {
+            top: 24px;
+            right: 24px;
+            font-size: 28px;
+          }
         }
 
         ::-webkit-scrollbar {
@@ -223,7 +270,7 @@ export default function About() {
             lineHeight: 0.9,
             color: '#fafafa',
             marginBottom: '24px',
-          }}>The Mini Museum</h1>
+          }}>About</h1>
         </div>
 
         <div className="divider fade-in-up delay-1"></div>
@@ -272,16 +319,7 @@ export default function About() {
         <div className="divider fade-in-up delay-3"></div>
 
         {/* The Exhibition with Moondust Image */}
-        <div className="image-text-row reverse delay-4">
-          <div>
-            <img 
-              src="/about/moondust.jpeg" 
-              alt="Lunar meteorite sample under microscope"
-              style={{ width: '100%', height: 'auto', display: 'block' }}
-            />
-            <p className="image-caption">Lunar Meteorite Adrar 013</p>
-          </div>
-
+        <div className="image-text-row delay-4">
           <div>
             <p className="section-title">The Exhibition</p>
             <p style={{
@@ -312,6 +350,15 @@ export default function About() {
               Mini exhibitions, big history.
             </p>
           </div>
+
+          <div>
+            <img 
+              src="/about/moondust.jpeg" 
+              alt="Lunar meteorite sample under microscope"
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
+            <p className="image-caption">Lunar Meteorite Adrar 013</p>
+          </div>
         </div>
 
         <div className="divider fade-in-up delay-5"></div>
@@ -319,16 +366,16 @@ export default function About() {
         {/* Access Statement */}
         <div className="quote-box fade-in-up delay-6">
           <p className="font-serif" style={{
-            fontSize: 'clamp(1.35rem, 3.5vw, 2rem)',
+            fontSize: 'clamp(1.1rem, 3vw, 1.5rem)',
             fontWeight: 400,
-            lineHeight: 1.5,
+            lineHeight: 1.6,
             color: '#fafafa',
             marginBottom: '20px',
           }}>
             Every child deserves to walk into a room and feel what it's like to stand before history itself. And every school, every teacher should have the opportunity to provide this.
           </p>
           <p style={{
-            fontSize: '16px',
+            fontSize: '15px',
             color: '#a3a3a3',
             fontWeight: 300,
             lineHeight: 1.8,

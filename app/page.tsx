@@ -87,7 +87,7 @@ export default function Home() {
               : 'opacity-0 translate-y-4'
           }`}
         >
-          <button className="group px-8 py-3 text-[10px] tracking-[0.3em] uppercase text-[#7D8471] border border-[#7D8471] hover:bg-[#7D8471] hover:text-black transition-all duration-300 ease-out">
+          <button className="px-10 py-3 text-[10px] tracking-[0.3em] uppercase text-white bg-[#737373] hover:bg-[#8a8a8a] rounded-full transition-all duration-300 ease-out">
             Learn More
           </button>
         </Link>
