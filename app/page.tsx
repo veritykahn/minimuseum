@@ -81,7 +81,7 @@ export default function Home() {
         {/* About Button */}
         <Link
           href="/about"
-          className={`mt-12 transition-all duration-1000 ease-out block ${
+          className={`mt-8 transition-all duration-1000 ease-out block ${
             detailsVisible
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4'
@@ -89,27 +89,27 @@ export default function Home() {
         >
           <button
             style={{
-              padding: '12px 40px',
-              fontSize: '13px',
-              letterSpacing: '0.05em',
-              fontWeight: 600,
+              padding: '8px 28px',
+              fontSize: '11px',
+              letterSpacing: '0.03em',
+              fontWeight: 400,
               color: '#ffffff',
               background: 'linear-gradient(145deg, #7a7a7a, #5a5a5a)',
               border: 'none',
               borderRadius: '50px',
-              boxShadow: '4px 4px 10px rgba(0, 0, 0, 0.4), -2px -2px 8px rgba(100, 100, 100, 0.2), inset 1px 1px 2px rgba(255, 255, 255, 0.1)',
+              boxShadow: '3px 3px 8px rgba(0, 0, 0, 0.35), -1px -1px 5px rgba(100, 100, 100, 0.15), inset 1px 1px 2px rgba(255, 255, 255, 0.1)',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               WebkitTextFillColor: '#ffffff',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.background = 'linear-gradient(145deg, #8a8a8a, #6a6a6a)';
-              e.currentTarget.style.boxShadow = '2px 2px 6px rgba(0, 0, 0, 0.3), -1px -1px 4px rgba(100, 100, 100, 0.15), inset 1px 1px 2px rgba(255, 255, 255, 0.15)';
+              e.currentTarget.style.boxShadow = '2px 2px 5px rgba(0, 0, 0, 0.25), -1px -1px 3px rgba(100, 100, 100, 0.1), inset 1px 1px 2px rgba(255, 255, 255, 0.15)';
               e.currentTarget.style.transform = 'translateY(-1px)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'linear-gradient(145deg, #7a7a7a, #5a5a5a)';
-              e.currentTarget.style.boxShadow = '4px 4px 10px rgba(0, 0, 0, 0.4), -2px -2px 8px rgba(100, 100, 100, 0.2), inset 1px 1px 2px rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.boxShadow = '3px 3px 8px rgba(0, 0, 0, 0.35), -1px -1px 5px rgba(100, 100, 100, 0.15), inset 1px 1px 2px rgba(255, 255, 255, 0.1)';
               e.currentTarget.style.transform = 'translateY(0)';
             }}
           >
