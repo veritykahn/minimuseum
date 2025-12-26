@@ -136,7 +136,7 @@ export default function About() {
         .delay-8 { animation-delay: 1.6s; }
 
         .container {
-          max-width: 800px;
+          max-width: 850px;
           margin: 0 auto;
           padding: 120px 100px;
           opacity: 0;
@@ -156,7 +156,7 @@ export default function About() {
         @media (max-width: 1024px) {
           .container {
             padding: 100px 60px;
-            max-width: 800px;
+            max-width: 850px;
           }
         }
 
@@ -204,23 +204,31 @@ export default function About() {
           max-width: 100%;
         }
 
-        .image-text-row.reverse {
-          direction: rtl;
-        }
-
-        .image-text-row.reverse > * {
-          direction: ltr;
-        }
-
         @media (max-width: 768px) {
           .image-text-row {
             grid-template-columns: 1fr;
             gap: 32px;
             margin: 40px 0;
+            display: flex;
+            flex-direction: column;
           }
-          
-          .image-text-row.reverse {
-            direction: ltr;
+
+          /* First row: image shows first on mobile */
+          .image-text-row .image-col {
+            order: 1;
+          }
+
+          .image-text-row .text-col {
+            order: 2;
+          }
+
+          /* Exhibition row: text shows first (between the two images) */
+          .image-text-row.exhibition-row .text-col {
+            order: 1;
+          }
+
+          .image-text-row.exhibition-row .image-col {
+            order: 2;
           }
         }
 
@@ -328,7 +336,7 @@ export default function About() {
 
         {/* Opening Statement with WWI Image */}
         <div className="image-text-row delay-2">
-          <div>
+          <div className="text-col">
             <p style={{
               fontSize: '17px',
               lineHeight: 1.8,
@@ -357,9 +365,9 @@ export default function About() {
             </p>
           </div>
 
-          <div>
-            <img 
-              src="/about/wwi.jpeg" 
+          <div className="image-col">
+            <img
+              src="/about/wwi.jpeg"
               alt="Mini Museum exhibition display with WWI artifacts"
               style={{ width: '100%', height: 'auto', display: 'block' }}
             />
@@ -370,17 +378,17 @@ export default function About() {
         <div className="divider fade-in-up delay-3"></div>
 
         {/* The Exhibition with Moondust Image */}
-        <div className="image-text-row reverse delay-4">
-          <div>
-            <img 
-              src="/about/moondust.jpeg" 
+        <div className="image-text-row exhibition-row delay-4">
+          <div className="image-col">
+            <img
+              src="/about/moondust.jpeg"
               alt="Lunar meteorite sample under microscope"
               style={{ width: '100%', height: 'auto', display: 'block' }}
             />
             <p className="image-caption">Lunar Meteorite Adrar 013</p>
           </div>
 
-          <div>
+          <div className="text-col">
             <p className="section-title">The Exhibition</p>
             <p style={{
               fontSize: '16px',

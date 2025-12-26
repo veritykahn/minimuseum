@@ -17,6 +17,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:link, a:visited, a:hover, a:active {
+  color: inherit;
+}
+
 .font-serif {
   font-family: 'Cormorant Garamond', Georgia, serif;
 }
