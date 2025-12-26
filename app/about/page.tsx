@@ -1,5 +1,3 @@
-'use client';
-
 export default function About() {
   return (
     <>
@@ -58,9 +56,9 @@ export default function About() {
         .delay-8 { animation-delay: 1.6s; }
 
         .container {
-          max-width: 800px;
+          max-width: 650px;
           margin: 0 auto;
-          padding: 120px 80px;
+          padding: 120px 100px;
         }
 
         @media (max-width: 768px) {
@@ -69,16 +67,34 @@ export default function About() {
           }
         }
 
+        .inline-image {
+          width: 100%;
+          height: auto;
+          margin: 60px 0;
+          opacity: 0;
+          animation: fadeInUp 1.2s ease-out forwards;
+        }
+
+        .image-caption {
+          font-size: 11px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: #7D8471;
+          text-align: center;
+          margin-top: 16px;
+          font-weight: 300;
+        }
+
         .section {
           margin-bottom: 100px;
         }
 
         .section-title {
-          font-size: 12px;
+          font-size: 11px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
           color: #7D8471;
-          margin-bottom: 24px;
+          margin-bottom: 20px;
           font-weight: 400;
         }
 
@@ -125,16 +141,16 @@ export default function About() {
         {/* Mission Statement */}
         <div className="section fade-in-up delay-2">
           <p style={{
-            fontSize: '20px',
+            fontSize: '17px',
             lineHeight: 1.8,
             color: '#d4d4d4',
             fontWeight: 300,
-            marginBottom: '32px',
+            marginBottom: '28px',
           }}>
             The Mini Museum is both a physical space and a concept. It is about bringing history to the places where people already are — so they can discover the unexpected in the unexpected.
           </p>
           <p style={{
-            fontSize: '20px',
+            fontSize: '17px',
             lineHeight: 1.8,
             color: '#d4d4d4',
             fontWeight: 300,
@@ -145,30 +161,40 @@ export default function About() {
 
         <div className="divider fade-in-up delay-3"></div>
 
+        {/* Inline Image 1 */}
+        <div className="inline-image delay-3">
+          <img 
+            src="/letters.jpeg" 
+            alt="Historic letters displayed in glass case"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+          <p className="image-caption">Victorian Letters · Mini Museum Collection</p>
+        </div>
+
         {/* Philosophy */}
         <div className="section fade-in-up delay-4">
           <div className="accent-border">
             <p className="section-title">Philosophy</p>
             <p className="font-serif" style={{
-              fontSize: 'clamp(2rem, 5vw, 3rem)',
+              fontSize: 'clamp(1.75rem, 4.5vw, 2.5rem)',
               fontWeight: 400,
               lineHeight: 1.3,
               color: '#fafafa',
-              marginBottom: '32px',
+              marginBottom: '28px',
             }}>
               Discovery comes before knowledge.
             </p>
             <p style={{
-              fontSize: '18px',
+              fontSize: '16px',
               lineHeight: 1.8,
               color: '#a3a3a3',
               fontWeight: 300,
-              marginBottom: '24px',
+              marginBottom: '20px',
             }}>
               We cannot expect anyone to learn about what they have never encountered. The role of a museum is not to teach, but to spark — to place something remarkable in front of someone and let curiosity do the rest.
             </p>
             <p style={{
-              fontSize: '18px',
+              fontSize: '16px',
               lineHeight: 1.8,
               color: '#a3a3a3',
               fontWeight: 300,
@@ -184,16 +210,16 @@ export default function About() {
         <div className="section fade-in-up delay-5">
           <p className="section-title">Curation</p>
           <p style={{
-            fontSize: '18px',
+            fontSize: '16px',
             lineHeight: 1.8,
             color: '#a3a3a3',
             fontWeight: 300,
-            marginBottom: '24px',
+            marginBottom: '20px',
           }}>
             Every exhibition is built around authentic artifacts and primary sources. A Victorian needle case. Letters from the 1940s. A WWI soldier's helmet. Objects that survived history and now tell its stories.
           </p>
           <p style={{
-            fontSize: '18px',
+            fontSize: '16px',
             lineHeight: 1.8,
             color: '#a3a3a3',
             fontWeight: 300,
@@ -202,20 +228,30 @@ export default function About() {
           </p>
         </div>
 
+        {/* Inline Image 2 */}
+        <div className="inline-image delay-6">
+          <img 
+            src="/moondust.jpeg" 
+            alt="Lunar meteorite sample under microscope"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+          <p className="image-caption">Lunar Meteorite Adrar 013 · Another Earth Exhibition</p>
+        </div>
+
         {/* Access Quote */}
         <div className="quote-box fade-in-up delay-6">
           <p className="font-serif" style={{
-            fontSize: 'clamp(1.5rem, 4vw, 2.25rem)',
+            fontSize: 'clamp(1.35rem, 3.5vw, 2rem)',
             fontWeight: 400,
             fontStyle: 'italic',
             lineHeight: 1.5,
             color: '#fafafa',
-            marginBottom: '24px',
+            marginBottom: '20px',
           }}>
             A child in Central Texas deserves the same sense of discovery as a child who grows up walking distance from the Natural History Museum.
           </p>
           <p style={{
-            fontSize: '18px',
+            fontSize: '16px',
             color: '#7D8471',
             fontWeight: 400,
           }}>
@@ -227,25 +263,25 @@ export default function About() {
         <div className="section fade-in-up delay-7">
           <p className="section-title">The Network</p>
           <p style={{
-            fontSize: '18px',
+            fontSize: '16px',
             lineHeight: 1.8,
             color: '#a3a3a3',
             fontWeight: 300,
-            marginBottom: '24px',
+            marginBottom: '20px',
           }}>
             The Mini Museum began in one school library. It was never meant to stay there.
           </p>
           <p style={{
-            fontSize: '18px',
+            fontSize: '16px',
             lineHeight: 1.8,
             color: '#a3a3a3',
             fontWeight: 300,
-            marginBottom: '24px',
+            marginBottom: '20px',
           }}>
             The vision is a network of traveling exhibitions. A librarian in rural Kansas. A teacher in suburban Florida. A community center in small-town Scotland.
           </p>
           <p style={{
-            fontSize: '18px',
+            fontSize: '16px',
             lineHeight: 1.8,
             color: '#d4d4d4',
             fontWeight: 400,
@@ -254,13 +290,23 @@ export default function About() {
           </p>
         </div>
 
+        {/* Inline Image 3 */}
+        <div className="inline-image delay-8">
+          <img 
+            src="/wwi.jpeg" 
+            alt="Mini Museum exhibition display with WWI artifacts"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+          <p className="image-caption">The Great War Exhibition · Holy Family Library</p>
+        </div>
+
         <div className="divider fade-in-up delay-8"></div>
 
         {/* Contact */}
         <div className="section fade-in-up delay-8">
           <p className="section-title">Contact</p>
           <p style={{
-            fontSize: '18px',
+            fontSize: '16px',
             lineHeight: 1.8,
             color: '#a3a3a3',
             fontWeight: 300,
@@ -276,14 +322,14 @@ export default function About() {
           borderTop: '1px solid rgba(125, 132, 113, 0.2)',
         }}>
           <p style={{
-            fontSize: '14px',
+            fontSize: '13px',
             color: '#737373',
             marginBottom: '8px',
           }}>
             Founded by Dr. Verity Kahn. Curated for everyone.
           </p>
           <p style={{
-            fontSize: '12px',
+            fontSize: '11px',
             color: '#525252',
             letterSpacing: '0.1em',
           }}>
