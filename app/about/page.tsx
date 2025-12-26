@@ -136,7 +136,7 @@ export default function About() {
         .delay-8 { animation-delay: 1.6s; }
 
         .container {
-          max-width: 1100px;
+          max-width: 650px;
           margin: 0 auto;
           padding: 120px 100px;
           opacity: 0;
