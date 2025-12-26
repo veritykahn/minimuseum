@@ -79,19 +79,40 @@ export default function Home() {
         </span>
 
         {/* About Button */}
-        <Link 
+        <Link
           href="/about"
-          style={{ 
-            textDecoration: 'none',
-            color: 'inherit'
-          }}
           className={`mt-12 transition-all duration-1000 ease-out block ${
-            detailsVisible 
-              ? 'opacity-100 translate-y-0' 
+            detailsVisible
+              ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4'
           }`}
         >
-          <button className="px-10 py-3 text-[10px] tracking-[0.3em] uppercase text-white bg-[#737373] hover:bg-[#8a8a8a] rounded-full transition-all duration-300 ease-out w-full">
+          <button
+            style={{
+              padding: '12px 40px',
+              fontSize: '13px',
+              letterSpacing: '0.05em',
+              fontWeight: 600,
+              color: '#ffffff',
+              background: 'linear-gradient(145deg, #7a7a7a, #5a5a5a)',
+              border: 'none',
+              borderRadius: '50px',
+              boxShadow: '4px 4px 10px rgba(0, 0, 0, 0.4), -2px -2px 8px rgba(100, 100, 100, 0.2), inset 1px 1px 2px rgba(255, 255, 255, 0.1)',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              WebkitTextFillColor: '#ffffff',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(145deg, #8a8a8a, #6a6a6a)';
+              e.currentTarget.style.boxShadow = '2px 2px 6px rgba(0, 0, 0, 0.3), -1px -1px 4px rgba(100, 100, 100, 0.15), inset 1px 1px 2px rgba(255, 255, 255, 0.15)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'linear-gradient(145deg, #7a7a7a, #5a5a5a)';
+              e.currentTarget.style.boxShadow = '4px 4px 10px rgba(0, 0, 0, 0.4), -2px -2px 8px rgba(100, 100, 100, 0.2), inset 1px 1px 2px rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+          >
             Learn More
           </button>
         </Link>
