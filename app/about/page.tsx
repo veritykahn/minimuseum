@@ -584,6 +584,15 @@ export default function About() {
           }}>
             Imagine them all in motion. A network of monthly exhibitions circulating through schools and libraries across the country. A classroom in rural Oklahoma. A library in suburban Florida. A vestibule in small-town Maine.
           </p>
+          <p style={{
+            fontSize: '16px',
+            lineHeight: 1.8,
+            color: '#a3a3a3',
+            fontWeight: 300,
+            marginBottom: '20px',
+          }}>
+            Not everyone can get to the great museums. So the museum comes to them.
+          </p>
         </div>
 
         {/* Letters Image */}
@@ -598,15 +607,6 @@ export default function About() {
 
         {/* Final Call to Action */}
         <div className="section fade-in-up delay-8 mobile-order-12" style={{ textAlign: 'center', marginTop: '80px' }}>
-          <p style={{
-            fontSize: '17px',
-            lineHeight: 1.8,
-            color: '#d4d4d4',
-            fontWeight: 300,
-            marginBottom: '20px',
-          }}>
-            Not everyone can get to the great museums. So the museum comes to them.
-          </p>
           <p style={{
             fontSize: '17px',
             lineHeight: 1.8,
