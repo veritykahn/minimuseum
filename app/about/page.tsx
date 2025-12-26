@@ -164,6 +164,44 @@ export default function About() {
           .container {
             padding: 80px 32px;
             max-width: 100%;
+            display: flex;
+            flex-direction: column;
+          }
+
+          /* Mobile reordering */
+          .mobile-order-1 { order: 1; }
+          .mobile-order-2 { order: 2; }
+          .mobile-order-3 { order: 3; }
+          .mobile-order-4 { order: 4; }
+          .mobile-order-5 { order: 5; }
+          .mobile-order-6 { order: 6; }
+          .mobile-order-7 { order: 7; }
+          .mobile-order-8 { order: 8; }
+          .mobile-order-9 { order: 9; }
+          .mobile-order-10 { order: 10; }
+          .mobile-order-11 { order: 11; }
+          .mobile-order-12 { order: 12; }
+          .mobile-order-13 { order: 13; }
+          .mobile-order-14 { order: 14; }
+
+          /* Hide dividers between reordered sections on mobile */
+          .hide-mobile {
+            display: none;
+          }
+
+          .desktop-only {
+            display: none !important;
+          }
+
+          .mobile-only {
+            display: block;
+          }
+        }
+
+        /* Desktop: hide mobile-only elements */
+        @media (min-width: 769px) {
+          .mobile-only {
+            display: none !important;
           }
         }
 
@@ -322,7 +360,7 @@ export default function About() {
 
       <div className="container">
         {/* Hero */}
-        <div className="section fade-in-up">
+        <div className="section fade-in-up mobile-order-1">
           <h1 className="font-serif" style={{
             fontSize: 'clamp(3rem, 10vw, 8rem)',
             fontWeight: 300,
@@ -332,10 +370,10 @@ export default function About() {
           }}>About</h1>
         </div>
 
-        <div className="divider fade-in-up delay-1"></div>
+        <div className="divider fade-in-up delay-1 mobile-order-2"></div>
 
-        {/* Opening Statement with WWI Image */}
-        <div className="image-text-row delay-2">
+        {/* Opening Statement - text only on mobile, combined on desktop */}
+        <div className="image-text-row delay-2 desktop-only">
           <div className="text-col">
             <p style={{
               fontSize: '17px',
@@ -375,10 +413,50 @@ export default function About() {
           </div>
         </div>
 
-        <div className="divider fade-in-up delay-3"></div>
+        {/* Mobile only: Opening text */}
+        <div className="mobile-only fade-in-up delay-2 mobile-order-3" style={{ margin: '40px 0' }}>
+          <p style={{
+            fontSize: '17px',
+            lineHeight: 1.8,
+            color: '#d4d4d4',
+            fontWeight: 300,
+            marginBottom: '28px',
+          }}>
+            The Mini Museum is both a place and a principle.
+          </p>
+          <p style={{
+            fontSize: '17px',
+            lineHeight: 1.8,
+            color: '#d4d4d4',
+            fontWeight: 300,
+            marginBottom: '28px',
+          }}>
+            The principle: discovery comes before knowledge. Wonder precedes learning. Curiosity is sparked not by explanation, but by encounter — with the real, the rare, the survived. Understanding of our world is found through history.
+          </p>
+          <p style={{
+            fontSize: '17px',
+            lineHeight: 1.8,
+            color: '#d4d4d4',
+            fontWeight: 300,
+          }}>
+            The place: anywhere. A corner of a library, the back of a classroom, the lobby of a school office. History should not be refined to great halls and marble pillars.
+          </p>
+        </div>
 
-        {/* The Exhibition with Moondust Image */}
-        <div className="image-text-row exhibition-row delay-4">
+        {/* Mobile only: WWI Image */}
+        <div className="mobile-only fade-in-up delay-2 mobile-order-4" style={{ margin: '40px 0' }}>
+          <img
+            src="/about/wwi.jpeg"
+            alt="Mini Museum exhibition display with WWI artifacts"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+          <p className="image-caption">The Great War Exhibition</p>
+        </div>
+
+        <div className="divider fade-in-up delay-3 mobile-order-5"></div>
+
+        {/* The Exhibition with Moondust Image - desktop only */}
+        <div className="image-text-row exhibition-row delay-4 desktop-only">
           <div className="image-col">
             <img
               src="/about/moondust.jpeg"
@@ -420,10 +498,52 @@ export default function About() {
           </div>
         </div>
 
-        <div className="divider fade-in-up delay-5"></div>
+        {/* Mobile only: Exhibition text */}
+        <div className="mobile-only fade-in-up delay-4 mobile-order-6" style={{ margin: '40px 0' }}>
+          <p className="section-title">The Exhibition</p>
+          <p style={{
+            fontSize: '16px',
+            lineHeight: 1.8,
+            color: '#a3a3a3',
+            fontWeight: 300,
+            marginBottom: '20px',
+          }}>
+            Each month, a new historical collection. Real artifacts. Primary sources. A WWI soldier's helmet. Moon dust from a lunar meteorite. A Victorian needle case. A first edition book from the Harlem Renaissance.
+          </p>
+          <p style={{
+            fontSize: '16px',
+            lineHeight: 1.8,
+            color: '#a3a3a3',
+            fontWeight: 300,
+            marginBottom: '20px',
+          }}>
+            The objects are authentic. The scholarship is rigorous. The presentation mirrors the care of the world's great museums — only on a small scale.
+          </p>
+          <p style={{
+            fontSize: '16px',
+            lineHeight: 1.8,
+            color: '#d4d4d4',
+            fontWeight: 400,
+            fontStyle: 'italic',
+          }}>
+            Mini exhibitions, big history.
+          </p>
+        </div>
+
+        {/* Mobile only: Moondust Image */}
+        <div className="mobile-only fade-in-up delay-4 mobile-order-7" style={{ margin: '40px 0' }}>
+          <img
+            src="/about/moondust.jpeg"
+            alt="Lunar meteorite sample under microscope"
+            style={{ width: '100%', height: 'auto', display: 'block' }}
+          />
+          <p className="image-caption">Lunar Meteorite Adrar 013</p>
+        </div>
+
+        <div className="divider fade-in-up delay-5 mobile-order-8"></div>
 
         {/* Access Statement */}
-        <div className="quote-box fade-in-up delay-6">
+        <div className="quote-box fade-in-up delay-6 mobile-order-9">
           <p className="font-serif" style={{
             fontSize: 'clamp(1.1rem, 3vw, 1.5rem)',
             fontWeight: 400,
@@ -444,7 +564,7 @@ export default function About() {
         </div>
 
         {/* The Vision */}
-        <div className="section fade-in-up delay-7">
+        <div className="section fade-in-up delay-7 mobile-order-10">
           <p className="section-title">The Vision</p>
           <p style={{
             fontSize: '16px',
@@ -467,8 +587,8 @@ export default function About() {
         </div>
 
         {/* Letters Image */}
-        <div className="inline-image delay-8">
-          <img 
+        <div className="inline-image delay-8 mobile-order-11">
+          <img
             src="/about/letters.jpeg" 
             alt="Historic letters displayed in glass case"
             style={{ width: '100%', height: 'auto', display: 'block' }}
@@ -477,7 +597,7 @@ export default function About() {
         </div>
 
         {/* Final Call to Action */}
-        <div className="section fade-in-up delay-8" style={{ textAlign: 'center', marginTop: '80px' }}>
+        <div className="section fade-in-up delay-8 mobile-order-12" style={{ textAlign: 'center', marginTop: '80px' }}>
           <p style={{
             fontSize: '17px',
             lineHeight: 1.8,
@@ -508,7 +628,7 @@ export default function About() {
         </div>
 
         {/* Footer */}
-        <footer className="fade-in-up delay-8" style={{
+        <footer className="fade-in-up delay-8 mobile-order-13" style={{
           paddingTop: '80px',
           textAlign: 'center',
           borderTop: '1px solid rgba(125, 132, 113, 0.2)',
