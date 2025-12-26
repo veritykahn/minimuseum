@@ -4,7 +4,7 @@ import Link from 'next/link';
 
 export default function About() {
   return (
-    <>
+    <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
       {/* Home Button */}
       <Link href="/" className="home-button">
         <span className="home-arrow">←</span>
@@ -16,6 +16,15 @@ export default function About() {
 
         * {
           box-sizing: border-box;
+        }
+
+        a {
+          color: inherit;
+          text-decoration: none;
+        }
+
+        a:link, a:visited, a:hover, a:active {
+          color: inherit;
         }
 
         html {
@@ -127,9 +136,21 @@ export default function About() {
         .delay-8 { animation-delay: 1.6s; }
 
         .container {
-          max-width: 650px;
+          max-width: 1100px;
           margin: 0 auto;
           padding: 120px 100px;
+          opacity: 0;
+          animation: fadeIn 1.5s ease-out forwards;
+          animation-delay: 0.5s;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
         }
 
         @media (max-width: 1024px) {
@@ -348,7 +369,16 @@ export default function About() {
         <div className="divider fade-in-up delay-3"></div>
 
         {/* The Exhibition with Moondust Image */}
-        <div className="image-text-row delay-4">
+        <div className="image-text-row reverse delay-4">
+          <div>
+            <img 
+              src="/about/moondust.jpeg" 
+              alt="Lunar meteorite sample under microscope"
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
+            <p className="image-caption">Lunar Meteorite Adrar 013</p>
+          </div>
+
           <div>
             <p className="section-title">The Exhibition</p>
             <p style={{
@@ -378,15 +408,6 @@ export default function About() {
             }}>
               Mini exhibitions, big history.
             </p>
-          </div>
-
-          <div>
-            <img 
-              src="/about/moondust.jpeg" 
-              alt="Lunar meteorite sample under microscope"
-              style={{ width: '100%', height: 'auto', display: 'block' }}
-            />
-            <p className="image-caption">Lunar Meteorite Adrar 013</p>
           </div>
         </div>
 
@@ -423,7 +444,7 @@ export default function About() {
             fontWeight: 300,
             marginBottom: '20px',
           }}>
-            The Mini Museum began in one school library in Central Texas. Each exhibition is built to travel.
+            The Mini Museum began in one school library in Central Texas. It was never meant to end there. Each exhibition is built to travel.
           </p>
           <p style={{
             fontSize: '16px',
@@ -477,13 +498,12 @@ export default function About() {
           </p>
         </div>
 
-        <div className="divider fade-in-up delay-8"></div>
-
         {/* Footer */}
         <footer className="fade-in-up delay-8" style={{
           paddingTop: '80px',
           textAlign: 'center',
           borderTop: '1px solid rgba(125, 132, 113, 0.2)',
+          marginTop: '80px',
         }}>
           <p style={{
             fontSize: '13px',
@@ -501,6 +521,6 @@ export default function About() {
           </p>
         </footer>
       </div>
-    </>
+    </div>
   );
 }

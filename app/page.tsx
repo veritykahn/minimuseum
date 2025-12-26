@@ -81,14 +81,17 @@ export default function Home() {
         {/* About Button */}
         <Link 
           href="/about"
-          style={{ textDecoration: 'none' }}
-          className={`mt-12 transition-all duration-1000 ease-out ${
+          style={{ 
+            textDecoration: 'none',
+            color: 'inherit'
+          }}
+          className={`mt-12 transition-all duration-1000 ease-out block ${
             detailsVisible 
               ? 'opacity-100 translate-y-0' 
               : 'opacity-0 translate-y-4'
           }`}
         >
-          <button className="px-10 py-3 text-[10px] tracking-[0.3em] uppercase text-white bg-[#737373] hover:bg-[#8a8a8a] rounded-full transition-all duration-300 ease-out">
+          <button className="px-10 py-3 text-[10px] tracking-[0.3em] uppercase text-white bg-[#737373] hover:bg-[#8a8a8a] rounded-full transition-all duration-300 ease-out w-full">
             Learn More
           </button>
         </Link>
