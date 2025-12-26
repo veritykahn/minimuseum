@@ -92,26 +92,26 @@ export default function Home() {
               padding: '6px 24px',
               fontSize: '9px',
               letterSpacing: '0.2em',
-              fontWeight: 200,
+              fontWeight: 100,
               textTransform: 'uppercase',
-              color: '#ffffff',
-              background: 'linear-gradient(145deg, #7a7a7a, #5a5a5a)',
+              color: '#1a1a1a',
+              background: 'linear-gradient(145deg, #ffffff, #e8e8e8)',
               border: 'none',
               borderRadius: '50px',
-              boxShadow: '3px 3px 8px rgba(0, 0, 0, 0.35), -1px -1px 5px rgba(100, 100, 100, 0.15), inset 1px 1px 2px rgba(255, 255, 255, 0.1)',
+              boxShadow: '3px 3px 8px rgba(0, 0, 0, 0.4), -2px -2px 6px rgba(255, 255, 255, 0.05), inset 1px 1px 2px rgba(255, 255, 255, 0.8)',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
-              WebkitTextFillColor: '#ffffff',
+              WebkitTextFillColor: '#1a1a1a',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(145deg, #8a8a8a, #6a6a6a)';
-              e.currentTarget.style.boxShadow = '2px 2px 5px rgba(0, 0, 0, 0.25), -1px -1px 3px rgba(100, 100, 100, 0.1), inset 1px 1px 2px rgba(255, 255, 255, 0.15)';
+              e.currentTarget.style.background = 'linear-gradient(145deg, #f5f5f5, #e0e0e0)';
+              e.currentTarget.style.boxShadow = '2px 2px 6px rgba(0, 0, 0, 0.35), -1px -1px 4px rgba(255, 255, 255, 0.05), inset 1px 1px 2px rgba(255, 255, 255, 0.9)';
               e.currentTarget.style.transform = 'translateY(-1px)';
               e.currentTarget.style.letterSpacing = '0.35em';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(145deg, #7a7a7a, #5a5a5a)';
-              e.currentTarget.style.boxShadow = '3px 3px 8px rgba(0, 0, 0, 0.35), -1px -1px 5px rgba(100, 100, 100, 0.15), inset 1px 1px 2px rgba(255, 255, 255, 0.1)';
+              e.currentTarget.style.background = 'linear-gradient(145deg, #ffffff, #e8e8e8)';
+              e.currentTarget.style.boxShadow = '3px 3px 8px rgba(0, 0, 0, 0.4), -2px -2px 6px rgba(255, 255, 255, 0.05), inset 1px 1px 2px rgba(255, 255, 255, 0.8)';
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.letterSpacing = '0.2em';
             }}
