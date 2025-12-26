@@ -382,7 +382,7 @@ export default function About() {
               fontWeight: 300,
               marginBottom: '28px',
             }}>
-              The Mini Museum is both a place and a principle.
+              The Mini Museum is both a principle and a place.
             </p>
             <p style={{
               fontSize: '17px',
@@ -422,7 +422,7 @@ export default function About() {
             fontWeight: 300,
             marginBottom: '28px',
           }}>
-            The Mini Museum is both a place and a principle.
+            The Mini Museum is both a principle and a place.
           </p>
           <p style={{
             fontSize: '17px',
