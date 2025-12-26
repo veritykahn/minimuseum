@@ -77,6 +77,35 @@ export default function About() {
           animation: fadeInUp 1.2s ease-out forwards;
         }
 
+        .image-text-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 40px;
+          align-items: center;
+          margin: 60px 0;
+          opacity: 0;
+          animation: fadeInUp 1.2s ease-out forwards;
+        }
+
+        .image-text-row.reverse {
+          direction: rtl;
+        }
+
+        .image-text-row.reverse > * {
+          direction: ltr;
+        }
+
+        @media (max-width: 768px) {
+          .image-text-row {
+            grid-template-columns: 1fr;
+            gap: 24px;
+          }
+          
+          .image-text-row.reverse {
+            direction: ltr;
+          }
+        }
+
         .image-caption {
           font-size: 11px;
           letter-spacing: 0.2em;
@@ -140,38 +169,39 @@ export default function About() {
 
         <div className="divider fade-in-up delay-1"></div>
 
-        {/* Mission Statement */}
-        <div className="section fade-in-up delay-2">
-          <p style={{
-            fontSize: '17px',
-            lineHeight: 1.8,
-            color: '#d4d4d4',
-            fontWeight: 300,
-            marginBottom: '28px',
-          }}>
-            The Mini Museum is both a physical space and a concept. It is about bringing history to the places where people already are — so they can discover the unexpected in the unexpected.
-          </p>
-          <p style={{
-            fontSize: '17px',
-            lineHeight: 1.8,
-            color: '#d4d4d4',
-            fontWeight: 300,
-          }}>
-            Each month, a new exhibition transforms an ordinary space, both physical and virtual, into a place of exploration. Real historical artifacts. Original primary sources. All presented with the same care and scholarship you'd find in a major institution.
-          </p>
+        {/* Mission Statement with WWI Image */}
+        <div className="image-text-row delay-2">
+          <div>
+            <p style={{
+              fontSize: '17px',
+              lineHeight: 1.8,
+              color: '#d4d4d4',
+              fontWeight: 300,
+              marginBottom: '28px',
+            }}>
+              The Mini Museum is both a physical space and a concept. It is about bringing history to the places where people already are — so they can discover the unexpected in the unexpected.
+            </p>
+            <p style={{
+              fontSize: '17px',
+              lineHeight: 1.8,
+              color: '#d4d4d4',
+              fontWeight: 300,
+            }}>
+              Each month, a new exhibition transforms an ordinary space, both physical and virtual, into a place of exploration. Real historical artifacts. Original primary sources. All presented with the same care and scholarship you'd find in a major institution.
+            </p>
+          </div>
+
+          <div>
+            <img 
+              src="/about/wwi.jpeg" 
+              alt="Mini Museum exhibition display with WWI artifacts"
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
+            <p className="image-caption">The Great War Exhibition</p>
+          </div>
         </div>
 
         <div className="divider fade-in-up delay-3"></div>
-
-        {/* Inline Image 1 */}
-        <div className="inline-image delay-3">
-          <img 
-            src="/about/letters.jpeg" 
-            alt="Historic letters displayed in glass case"
-            style={{ width: '100%', height: 'auto', display: 'block' }}
-          />
-          <p className="image-caption">Victorian Letters · Mini Museum Collection</p>
-        </div>
 
         {/* Philosophy */}
         <div className="section fade-in-up delay-4">
@@ -208,36 +238,37 @@ export default function About() {
 
         <div className="divider fade-in-up delay-5"></div>
 
-        {/* Curation */}
-        <div className="section fade-in-up delay-5">
-          <p className="section-title">Curation</p>
-          <p style={{
-            fontSize: '16px',
-            lineHeight: 1.8,
-            color: '#a3a3a3',
-            fontWeight: 300,
-            marginBottom: '20px',
-          }}>
-            Every exhibition is built around authentic artifacts and primary sources. A Victorian needle case. Letters from the 1940s. A WWI soldier's helmet. Objects that survived history and now tell its stories.
-          </p>
-          <p style={{
-            fontSize: '16px',
-            lineHeight: 1.8,
-            color: '#a3a3a3',
-            fontWeight: 300,
-          }}>
-            Each exhibition includes two beautifully designed posters, primary source analysis, and digital extensions linking to major museum collections worldwide.
-          </p>
-        </div>
+        {/* Curation with Moondust Image */}
+        <div className="image-text-row reverse delay-5">
+          <div>
+            <img 
+              src="/about/moondust.jpeg" 
+              alt="Lunar meteorite sample under microscope"
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
+            <p className="image-caption">Lunar Meteorite Adrar 013</p>
+          </div>
 
-        {/* Inline Image 2 */}
-        <div className="inline-image delay-6">
-          <img 
-            src="/about/moondust.jpeg" 
-            alt="Lunar meteorite sample under microscope"
-            style={{ width: '100%', height: 'auto', display: 'block' }}
-          />
-          <p className="image-caption">Lunar Meteorite Adrar 013 · Another Earth Exhibition</p>
+          <div>
+            <p className="section-title">Curation</p>
+            <p style={{
+              fontSize: '16px',
+              lineHeight: 1.8,
+              color: '#a3a3a3',
+              fontWeight: 300,
+              marginBottom: '20px',
+            }}>
+              Every exhibition is built around authentic artifacts and primary sources. A Victorian needle case. Letters from the 1940s. A WWI soldier's helmet. Objects that survived history and now tell its stories.
+            </p>
+            <p style={{
+              fontSize: '16px',
+              lineHeight: 1.8,
+              color: '#a3a3a3',
+              fontWeight: 300,
+            }}>
+              Each exhibition includes two beautifully designed posters, primary source analysis, and digital extensions linking to major museum collections worldwide.
+            </p>
+          </div>
         </div>
 
         {/* Access Quote */}
@@ -292,14 +323,14 @@ export default function About() {
           </p>
         </div>
 
-        {/* Inline Image 3 */}
+        {/* Letters Image Below Network */}
         <div className="inline-image delay-8">
           <img 
-            src="/about/wwi.jpeg" 
-            alt="Mini Museum exhibition display with WWI artifacts"
+            src="/about/letters.jpeg" 
+            alt="Historic letters displayed in glass case"
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
-          <p className="image-caption">The Great War Exhibition · Holy Family Library</p>
+          <p className="image-caption">Victorian Letters · Mini Museum Collection</p>
         </div>
 
         <div className="divider fade-in-up delay-8"></div>
