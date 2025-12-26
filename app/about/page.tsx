@@ -166,7 +166,7 @@ export default function About() {
         {/* Inline Image 1 */}
         <div className="inline-image delay-3">
           <img 
-            src="/letters.jpeg" 
+            src="/about/letters.jpeg" 
             alt="Historic letters displayed in glass case"
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
@@ -233,7 +233,7 @@ export default function About() {
         {/* Inline Image 2 */}
         <div className="inline-image delay-6">
           <img 
-            src="/moondust.jpeg" 
+            src="/about/moondust.jpeg" 
             alt="Lunar meteorite sample under microscope"
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
@@ -295,7 +295,7 @@ export default function About() {
         {/* Inline Image 3 */}
         <div className="inline-image delay-8">
           <img 
-            src="/wwi.jpeg" 
+            src="/about/wwi.jpeg" 
             alt="Mini Museum exhibition display with WWI artifacts"
             style={{ width: '100%', height: 'auto', display: 'block' }}
           />
