@@ -81,7 +81,7 @@ export default function Home() {
         {/* About Button */}
         <Link
           href="/about"
-          className={`mt-16 transition-all duration-1000 ease-out block ${
+          className={`mt-4 transition-all duration-1000 ease-out block ${
             detailsVisible
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4'
@@ -92,7 +92,7 @@ export default function Home() {
               padding: '6px 24px',
               fontSize: '9px',
               letterSpacing: '0.2em',
-              fontWeight: 300,
+              fontWeight: 200,
               textTransform: 'uppercase',
               color: '#ffffff',
               background: 'linear-gradient(145deg, #7a7a7a, #5a5a5a)',
@@ -107,11 +107,13 @@ export default function Home() {
               e.currentTarget.style.background = 'linear-gradient(145deg, #8a8a8a, #6a6a6a)';
               e.currentTarget.style.boxShadow = '2px 2px 5px rgba(0, 0, 0, 0.25), -1px -1px 3px rgba(100, 100, 100, 0.1), inset 1px 1px 2px rgba(255, 255, 255, 0.15)';
               e.currentTarget.style.transform = 'translateY(-1px)';
+              e.currentTarget.style.letterSpacing = '0.35em';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.background = 'linear-gradient(145deg, #7a7a7a, #5a5a5a)';
               e.currentTarget.style.boxShadow = '3px 3px 8px rgba(0, 0, 0, 0.35), -1px -1px 5px rgba(100, 100, 100, 0.15), inset 1px 1px 2px rgba(255, 255, 255, 0.1)';
               e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.letterSpacing = '0.2em';
             }}
           >
             Learn More
