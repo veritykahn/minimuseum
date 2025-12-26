@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function Home() {
   const [logoVisible, setLogoVisible] = useState(false);
@@ -76,6 +77,20 @@ export default function Home() {
           <br />
           <span className="text-[9px] tracking-[0.2em] uppercase text-[#525252] font-light">Coming January 2026</span>
         </span>
+
+        {/* About Button */}
+        <Link 
+          href="/about"
+          className={`mt-12 transition-all duration-1000 ease-out ${
+            detailsVisible 
+              ? 'opacity-100 translate-y-0' 
+              : 'opacity-0 translate-y-4'
+          }`}
+        >
+          <button className="group px-8 py-3 text-[10px] tracking-[0.3em] uppercase text-[#7D8471] border border-[#7D8471] hover:bg-[#7D8471] hover:text-black transition-all duration-300 ease-out">
+            Learn More
+          </button>
+        </Link>
       </div>
     </main>
   );

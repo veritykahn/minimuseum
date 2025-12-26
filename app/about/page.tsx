@@ -63,9 +63,22 @@ export default function About() {
           padding: 120px 100px;
         }
 
+        @media (max-width: 1024px) {
+          .container {
+            padding: 100px 60px;
+          }
+        }
+
         @media (max-width: 768px) {
           .container {
-            padding: 80px 40px;
+            padding: 80px 32px;
+            max-width: 100%;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .container {
+            padding: 60px 24px;
           }
         }
 
@@ -75,6 +88,12 @@ export default function About() {
           margin: 60px 0;
           opacity: 0;
           animation: fadeInUp 1.2s ease-out forwards;
+        }
+
+        @media (max-width: 768px) {
+          .inline-image {
+            margin: 40px 0;
+          }
         }
 
         .image-text-row {
@@ -98,7 +117,8 @@ export default function About() {
         @media (max-width: 768px) {
           .image-text-row {
             grid-template-columns: 1fr;
-            gap: 24px;
+            gap: 32px;
+            margin: 40px 0;
           }
           
           .image-text-row.reverse {
@@ -116,8 +136,21 @@ export default function About() {
           font-weight: 300;
         }
 
+        @media (max-width: 768px) {
+          .image-caption {
+            font-size: 10px;
+            letter-spacing: 0.15em;
+          }
+        }
+
         .section {
           margin-bottom: 100px;
+        }
+
+        @media (max-width: 768px) {
+          .section {
+            margin-bottom: 60px;
+          }
         }
 
         .section-title {
@@ -129,6 +162,13 @@ export default function About() {
           font-weight: 400;
         }
 
+        @media (max-width: 768px) {
+          .section-title {
+            font-size: 10px;
+            letter-spacing: 0.25em;
+          }
+        }
+
         .divider {
           width: 100%;
           height: 1px;
@@ -136,9 +176,21 @@ export default function About() {
           margin: 80px 0;
         }
 
+        @media (max-width: 768px) {
+          .divider {
+            margin: 50px 0;
+          }
+        }
+
         .accent-border {
           border-left: 2px solid #7D8471;
           padding-left: 32px;
+        }
+
+        @media (max-width: 768px) {
+          .accent-border {
+            padding-left: 20px;
+          }
         }
 
         .quote-box {
@@ -151,6 +203,13 @@ export default function About() {
         @media (max-width: 768px) {
           .quote-box {
             padding: 32px 24px;
+            margin: 50px 0;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .quote-box {
+            padding: 24px 20px;
           }
         }
       `}</style>
@@ -159,17 +218,17 @@ export default function About() {
         {/* Hero */}
         <div className="section fade-in-up">
           <h1 className="font-serif" style={{
-            fontSize: 'clamp(4rem, 12vw, 8rem)',
+            fontSize: 'clamp(3rem, 10vw, 8rem)',
             fontWeight: 300,
             lineHeight: 0.9,
             color: '#fafafa',
             marginBottom: '24px',
-          }}>About</h1>
+          }}>The Mini Museum</h1>
         </div>
 
         <div className="divider fade-in-up delay-1"></div>
 
-        {/* Mission Statement with WWI Image */}
+        {/* Opening Statement with WWI Image */}
         <div className="image-text-row delay-2">
           <div>
             <p style={{
@@ -179,7 +238,16 @@ export default function About() {
               fontWeight: 300,
               marginBottom: '28px',
             }}>
-              The Mini Museum is both a physical space and a concept. It is about bringing history to the places where people already are — so they can discover the unexpected in the unexpected.
+              The Mini Museum is both a place and a principle.
+            </p>
+            <p style={{
+              fontSize: '17px',
+              lineHeight: 1.8,
+              color: '#d4d4d4',
+              fontWeight: 300,
+              marginBottom: '28px',
+            }}>
+              The principle: discovery comes before knowledge. Wonder precedes learning. Curiosity is sparked not by explanation, but by encounter — with the real, the rare, the survived. Understanding of our world is found through history.
             </p>
             <p style={{
               fontSize: '17px',
@@ -187,7 +255,7 @@ export default function About() {
               color: '#d4d4d4',
               fontWeight: 300,
             }}>
-              Each month, a new exhibition transforms an ordinary space, both physical and virtual, into a place of exploration. Real historical artifacts. Original primary sources. All presented with the same care and scholarship you'd find in a major institution.
+              The place: anywhere. A corner of a library, the back of a classroom, the lobby of a school office. History should not be refined to great halls and marble pillars.
             </p>
           </div>
 
@@ -203,43 +271,8 @@ export default function About() {
 
         <div className="divider fade-in-up delay-3"></div>
 
-        {/* Philosophy */}
-        <div className="section fade-in-up delay-4">
-          <div className="accent-border">
-            <p className="section-title">Philosophy</p>
-            <p className="font-serif" style={{
-              fontSize: 'clamp(1.75rem, 4.5vw, 2.5rem)',
-              fontWeight: 400,
-              lineHeight: 1.3,
-              color: '#fafafa',
-              marginBottom: '28px',
-            }}>
-              Discovery comes before knowledge.
-            </p>
-            <p style={{
-              fontSize: '16px',
-              lineHeight: 1.8,
-              color: '#a3a3a3',
-              fontWeight: 300,
-              marginBottom: '20px',
-            }}>
-              We cannot expect anyone to learn about what they have never encountered. The role of a museum is not to teach, but to spark — to place something remarkable in front of someone and let curiosity do the rest.
-            </p>
-            <p style={{
-              fontSize: '16px',
-              lineHeight: 1.8,
-              color: '#a3a3a3',
-              fontWeight: 300,
-            }}>
-              The great museums of the world were founded on this principle: that historical objects are witnesses to the entirety of human civilization, and that stepping through their doors is to step into a schoolroom accessible to everyone.
-            </p>
-          </div>
-        </div>
-
-        <div className="divider fade-in-up delay-5"></div>
-
-        {/* Curation with Moondust Image */}
-        <div className="image-text-row reverse delay-5">
+        {/* The Exhibition with Moondust Image */}
+        <div className="image-text-row reverse delay-4">
           <div>
             <img 
               src="/about/moondust.jpeg" 
@@ -250,7 +283,7 @@ export default function About() {
           </div>
 
           <div>
-            <p className="section-title">Curation</p>
+            <p className="section-title">The Exhibition</p>
             <p style={{
               fontSize: '16px',
               lineHeight: 1.8,
@@ -258,43 +291,55 @@ export default function About() {
               fontWeight: 300,
               marginBottom: '20px',
             }}>
-              Every exhibition is built around authentic artifacts and primary sources. A Victorian needle case. Letters from the 1940s. A WWI soldier's helmet. Objects that survived history and now tell its stories.
+              Each month, a new historical collection. Real artifacts. Primary sources. A WWI soldier's helmet. Moon dust from a lunar meteorite. A Victorian needle case. A first edition book from the Harlem Renaissance.
             </p>
             <p style={{
               fontSize: '16px',
               lineHeight: 1.8,
               color: '#a3a3a3',
               fontWeight: 300,
+              marginBottom: '20px',
             }}>
-              Each exhibition includes two beautifully designed posters, primary source analysis, and digital extensions linking to major museum collections worldwide.
+              The objects are authentic. The scholarship is rigorous. The presentation mirrors the care of the world's great museums — only on a small scale.
+            </p>
+            <p style={{
+              fontSize: '16px',
+              lineHeight: 1.8,
+              color: '#d4d4d4',
+              fontWeight: 400,
+              fontStyle: 'italic',
+            }}>
+              Mini exhibitions, big history.
             </p>
           </div>
         </div>
 
-        {/* Access Quote */}
+        <div className="divider fade-in-up delay-5"></div>
+
+        {/* Access Statement */}
         <div className="quote-box fade-in-up delay-6">
           <p className="font-serif" style={{
             fontSize: 'clamp(1.35rem, 3.5vw, 2rem)',
             fontWeight: 400,
-            fontStyle: 'italic',
             lineHeight: 1.5,
             color: '#fafafa',
             marginBottom: '20px',
           }}>
-            A child in Central Texas deserves the same sense of discovery as a child who grows up walking distance from the Natural History Museum.
+            Every child deserves to walk into a room and feel what it's like to stand before history itself. And every school, every teacher should have the opportunity to provide this.
           </p>
           <p style={{
             fontSize: '16px',
-            color: '#7D8471',
-            fontWeight: 400,
+            color: '#a3a3a3',
+            fontWeight: 300,
+            lineHeight: 1.8,
           }}>
-            This is equity in its truest form.
+            No field trip required. No admission fee. No distance between the student and the thing that survived.
           </p>
         </div>
 
-        {/* The Network */}
+        {/* The Vision */}
         <div className="section fade-in-up delay-7">
-          <p className="section-title">The Network</p>
+          <p className="section-title">The Vision</p>
           <p style={{
             fontSize: '16px',
             lineHeight: 1.8,
@@ -302,7 +347,7 @@ export default function About() {
             fontWeight: 300,
             marginBottom: '20px',
           }}>
-            The Mini Museum began in one school library. It was never meant to stay there.
+            The Mini Museum began in one school library in Central Texas. Each exhibition is built to travel.
           </p>
           <p style={{
             fontSize: '16px',
@@ -311,19 +356,38 @@ export default function About() {
             fontWeight: 300,
             marginBottom: '20px',
           }}>
-            The vision is a network of traveling exhibitions. A librarian in rural Kansas. A teacher in suburban Florida. A community center in small-town Scotland.
+            Imagine them all in motion. A network of monthly exhibitions circulating through schools and libraries across the country. A classroom in rural Oklahoma. A library in suburban Florida. A vestibule in small-town Maine.
+          </p>
+          <p style={{
+            fontSize: '16px',
+            lineHeight: 1.8,
+            color: '#a3a3a3',
+            fontWeight: 300,
+            marginBottom: '20px',
+          }}>
+            Not everyone can get to the great museums. So the museum comes to them.
           </p>
           <p style={{
             fontSize: '16px',
             lineHeight: 1.8,
             color: '#d4d4d4',
             fontWeight: 400,
+            marginBottom: '20px',
           }}>
-            Apply to host. Receive a case of real artifacts. Keep it for a month. Send it on.
+            Apply to host. Receive the collection. Pass it on.
+          </p>
+          <p style={{
+            fontSize: '16px',
+            lineHeight: 1.8,
+            color: '#d4d4d4',
+            fontWeight: 400,
+            fontStyle: 'italic',
+          }}>
+            History shouldn't require a plane ticket. It should be waiting in the next room.
           </p>
         </div>
 
-        {/* Letters Image Below Network */}
+        {/* Letters Image Below Vision */}
         <div className="inline-image delay-8">
           <img 
             src="/about/letters.jpeg" 
@@ -334,19 +398,6 @@ export default function About() {
         </div>
 
         <div className="divider fade-in-up delay-8"></div>
-
-        {/* Contact */}
-        <div className="section fade-in-up delay-8">
-          <p className="section-title">Contact</p>
-          <p style={{
-            fontSize: '16px',
-            lineHeight: 1.8,
-            color: '#a3a3a3',
-            fontWeight: 300,
-          }}>
-            To learn more about hosting an exhibition or partnership opportunities.
-          </p>
-        </div>
 
         {/* Footer */}
         <footer className="fade-in-up delay-8" style={{
