@@ -391,7 +391,7 @@ export default function About() {
               fontWeight: 300,
               marginBottom: '28px',
             }}>
-              The principle: discovery comes before knowledge. Wonder precedes learning. Curiosity is sparked not by explanation, but by encounter — with the real, the rare, the survived. Understanding of our world is found through history.
+              The principle: discovery comes before knowledge. Wonder precedes learning. Curiosity is sparked not by explanation, but by encounter — with the real, the rare, the survived. Understanding the world we live in comes from confronting the world that was.
             </p>
             <p style={{
               fontSize: '17px',
@@ -431,7 +431,7 @@ export default function About() {
             fontWeight: 300,
             marginBottom: '28px',
           }}>
-            The principle: discovery comes before knowledge. Wonder precedes learning. Curiosity is sparked not by explanation, but by encounter — with the real, the rare, the survived. Understanding of our world is found through history.
+            The principle: discovery comes before knowledge. Wonder precedes learning. Curiosity is sparked not by explanation, but by encounter — with the real, the rare, the survived. Understanding the world we live in comes from confronting the world that was.
           </p>
           <p style={{
             fontSize: '17px',
