@@ -81,7 +81,7 @@ export default function Home() {
         {/* About Button */}
         <Link
           href="/about"
-          className={`mt-8 transition-all duration-1000 ease-out block ${
+          className={`mt-16 transition-all duration-1000 ease-out block ${
             detailsVisible
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4'
@@ -89,10 +89,11 @@ export default function Home() {
         >
           <button
             style={{
-              padding: '8px 28px',
-              fontSize: '11px',
-              letterSpacing: '0.03em',
-              fontWeight: 400,
+              padding: '6px 24px',
+              fontSize: '9px',
+              letterSpacing: '0.2em',
+              fontWeight: 300,
+              textTransform: 'uppercase',
               color: '#ffffff',
               background: 'linear-gradient(145deg, #7a7a7a, #5a5a5a)',
               border: 'none',
