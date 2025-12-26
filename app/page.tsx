@@ -86,7 +86,7 @@ export default function Home() {
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4'
           }`}
-          style={{ marginTop: '16px' }}
+          style={{ marginTop: '24px' }}
         >
           <button
             style={{
