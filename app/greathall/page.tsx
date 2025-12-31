@@ -506,7 +506,7 @@ export default function GreatHall() {
                 </div>
               </div>
               <div className="floor-indicator">
-                <img src="/images/stairs.png" alt="" className="stairs-icon" />
+                <img src="/stairs.png" alt="" className="stairs-icon" />
                 <span className="floor-letter">1</span>
               </div>
             </div>
@@ -525,7 +525,7 @@ export default function GreatHall() {
                 </div>
               </div>
               <div className="floor-indicator">
-                <img src="/images/stairs.png" alt="" className="stairs-icon" />
+                <img src="/stairs.png" alt="" className="stairs-icon" />
                 <span className="floor-letter">G</span>
               </div>
             </div>
