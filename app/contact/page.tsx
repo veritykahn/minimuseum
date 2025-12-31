@@ -15,15 +15,19 @@ export default function Contact() {
         .fade-in-up { animation: fadeInUp 1s ease-out forwards; }
         .delay-1 { animation-delay: 0.2s; opacity: 0; }
         .delay-2 { animation-delay: 0.4s; opacity: 0; }
-        .back-link { position: fixed; top: 32px; left: 32px; z-index: 100; display: flex; align-items: center; gap: 12px; color: #525252; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 14px; transition: all 0.3s ease; }
+        .back-link { position: fixed; top: 32px; left: 32px; z-index: 100; display: flex; align-items: center; gap: 10px; color: #525252; font-family: 'Cormorant Garamond', Georgia, serif; transition: all 0.3s ease; }
         .back-link:hover { color: #fafafa; }
-        .back-link:hover .back-arrow { transform: translateX(-4px); }
-        .back-arrow { transition: transform 0.3s ease; }
+        .back-link:hover .back-arrow { transform: translateX(-4px); color: #7D8471; }
+        .back-link:hover .back-label { opacity: 1; max-width: 100px; }
+        .back-arrow { transition: all 0.3s ease; font-size: 16px; }
+        .back-m { font-size: 28px; font-weight: 300; }
+        .back-label { font-size: 13px; font-style: italic; color: #7D8471; opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap; transition: all 0.4s ease; }
       `}</style>
 
       <Link href="/greathall" className="back-link fade-in-up">
+        <span className="back-m">M</span>
         <span className="back-arrow">←</span>
-        <span>Great Hall</span>
+        <span className="back-label">Great Hall</span>
       </Link>
 
       <div style={{ textAlign: 'center', padding: '40px' }}>

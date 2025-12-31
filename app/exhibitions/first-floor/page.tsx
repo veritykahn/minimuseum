@@ -64,8 +64,13 @@ export default function FirstFloor() {
         @keyframes float { 0%, 100% { transform: translateY(0px) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(-1deg); } }
         .ticket { background: none; border: none; cursor: pointer; animation: float 4s ease-in-out infinite; }
         .ticket:hover { animation-play-state: paused; transform: translateY(-8px) scale(1.05); }
-        .back-link { position: fixed; top: 32px; left: 32px; z-index: 1000; display: flex; align-items: center; gap: 8px; color: #525252; text-decoration: none; font-size: 14px; font-family: 'Cormorant Garamond'; transition: all 0.3s ease; }
+        .back-link { position: fixed; top: 32px; left: 32px; z-index: 1000; display: flex; align-items: center; gap: 10px; color: #525252; text-decoration: none; font-family: 'Cormorant Garamond'; transition: all 0.3s ease; }
         .back-link:hover { color: #fafafa; }
+        .back-link:hover .back-arrow { transform: translateX(-4px); color: #7D8471; }
+        .back-link:hover .back-label { opacity: 1; max-width: 100px; }
+        .back-arrow { transition: all 0.3s ease; font-size: 16px; }
+        .back-m { font-size: 28px; font-weight: 300; }
+        .back-label { font-size: 13px; font-style: italic; color: #7D8471; opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap; transition: all 0.4s ease; }
         .floor-indicator { position: fixed; top: 32px; right: 32px; z-index: 1000; text-align: right; }
         .floor-indicator-name { font-family: 'Outfit'; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: #525252; margin-bottom: 4px; }
         .floor-indicator-year { font-family: 'Cormorant Garamond'; font-size: 13px; font-style: italic; color: #7D8471; }
@@ -84,7 +89,7 @@ export default function FirstFloor() {
         .scroll-hint-line { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, #525252); }
       `}</style>
 
-      <Link href="/greathall" className="back-link"><span>←</span><span>Great Hall</span></Link>
+      <Link href="/greathall" className="back-link"><span className="back-m">M</span><span className="back-arrow">←</span><span className="back-label">Great Hall</span></Link>
       <div className="floor-indicator"><p className="floor-indicator-name">First Floor</p><p className="floor-indicator-year">2025–2026</p></div>
 
       {!activeExhibition && (

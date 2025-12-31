@@ -287,9 +287,9 @@ export default function GreatHall() {
           transition: all 0.3s ease;
         }
 
-        .stair:nth-child(3) {
+        .stair:first-child {
           width: 85%;
-          margin-top: -20px;
+          margin-bottom: -20px;
         }
 
         /* Stair step visual */
@@ -399,6 +399,22 @@ export default function GreatHall() {
           transition: transform 0.3s ease;
         }
 
+        /* Floor bottom row with enter button and stairs icon */
+        .floor-bottom {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .stairs-icon {
+          color: #333;
+          transition: all 0.3s ease;
+        }
+
+        .stair:hover .stairs-icon {
+          color: #7D8471;
+        }
+
         /* Connecting stairs visual */
         .stair-connector {
           width: 1px;
@@ -490,29 +506,7 @@ export default function GreatHall() {
         <p className="floors-title fade-in delay-6">Select a Floor</p>
 
         <div className="stairs-container">
-          {/* Ground Floor */}
-          <div className="stair">
-            <Link href="/exhibitions">
-              <div className="stair-step">
-                <div className="floor-header">
-                  <h2 className="floor-name">Ground Floor</h2>
-                  <span className="floor-year">2024–2025</span>
-                </div>
-                <div className="floor-status">
-                  <span className="status-dot"></span>
-                  <span>Under Construction</span>
-                </div>
-                <button className="enter-button">
-                  <span>Enter</span>
-                  <span className="enter-arrow">→</span>
-                </button>
-              </div>
-            </Link>
-          </div>
-
-          <div className="stair-connector"></div>
-
-          {/* First Floor */}
+          {/* First Floor - Top (smaller) */}
           <div className="stair">
             <Link href="/exhibitions/first-floor">
               <div className="stair-step">
@@ -524,10 +518,46 @@ export default function GreatHall() {
                   <span className="status-dot"></span>
                   <span>Under Construction</span>
                 </div>
-                <button className="enter-button">
-                  <span>Enter</span>
-                  <span className="enter-arrow">→</span>
-                </button>
+                <div className="floor-bottom">
+                  <button className="enter-button">
+                    <span>Enter</span>
+                    <span className="enter-arrow">→</span>
+                  </button>
+                  <svg className="stairs-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M4 20h4v-4h4v-4h4v-4h4" strokeLinecap="round" strokeLinejoin="round"/>
+                    <polyline points="20,4 20,8 16,8" strokeLinecap="round" strokeLinejoin="round"/>
+                    <line x1="20" y1="4" x2="17" y2="7" strokeLinecap="round"/>
+                  </svg>
+                </div>
+              </div>
+            </Link>
+          </div>
+
+          <div className="stair-connector"></div>
+
+          {/* Ground Floor - Bottom (wider) */}
+          <div className="stair">
+            <Link href="/exhibitions">
+              <div className="stair-step">
+                <div className="floor-header">
+                  <h2 className="floor-name">Ground Floor</h2>
+                  <span className="floor-year">2024–2025</span>
+                </div>
+                <div className="floor-status">
+                  <span className="status-dot"></span>
+                  <span>Under Construction</span>
+                </div>
+                <div className="floor-bottom">
+                  <button className="enter-button">
+                    <span>Enter</span>
+                    <span className="enter-arrow">→</span>
+                  </button>
+                  <svg className="stairs-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M4 20h4v-4h4v-4h4v-4h4" strokeLinecap="round" strokeLinejoin="round"/>
+                    <polyline points="20,4 20,8 16,8" strokeLinecap="round" strokeLinejoin="round"/>
+                    <line x1="20" y1="4" x2="17" y2="7" strokeLinecap="round"/>
+                  </svg>
+                </div>
               </div>
             </Link>
           </div>
