@@ -1,18 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 
 export default function GreatHall() {
-  const [currentFloor, setCurrentFloor] = useState(0);
+  const [showExplore, setShowExplore] = useState(true);
+  const floorsRef = useRef<HTMLDivElement>(null);
 
-  const floors = [
-    { id: 0, name: 'Ground Floor', year: '2024–2025', href: '/exhibitions' },
-    { id: 1, name: 'First Floor', year: 'Coming Soon', href: '#' },
-  ];
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowExplore(window.scrollY < 100);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToFloors = () => {
+    floorsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
-    <div style={{ background: '#000', minHeight: '100vh', overflow: 'hidden' }}>
+    <div className="great-hall-container">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
 
@@ -22,10 +30,13 @@ export default function GreatHall() {
           padding: 0;
         }
 
-        html, body {
-          overflow: hidden;
-          height: 100%;
-          background: #000;
+        html {
+          scroll-behavior: smooth;
+        }
+
+        body {
+          background: #0a0a0a;
+          color: #fafafa;
         }
 
         a {
@@ -42,75 +53,90 @@ export default function GreatHall() {
           to { opacity: 1; }
         }
 
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(40px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
         @keyframes float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-8px); }
         }
 
-        @keyframes shimmer {
-          0% { opacity: 0.3; }
-          50% { opacity: 0.6; }
-          100% { opacity: 0.3; }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.8; }
         }
 
         .fade-in {
-          animation: fadeIn 2s ease-out forwards;
+          animation: fadeIn 1.5s ease-out forwards;
         }
 
-        .delay-1 { animation-delay: 0.3s; opacity: 0; }
-        .delay-2 { animation-delay: 0.6s; opacity: 0; }
-        .delay-3 { animation-delay: 1s; opacity: 0; }
-        .delay-4 { animation-delay: 1.5s; opacity: 0; }
+        .fade-in-up {
+          animation: fadeInUp 1.2s ease-out forwards;
+        }
 
-        /* Main container */
-        .great-hall {
-          position: relative;
-          width: 100vw;
+        .delay-1 { animation-delay: 0.2s; opacity: 0; }
+        .delay-2 { animation-delay: 0.4s; opacity: 0; }
+        .delay-3 { animation-delay: 0.6s; opacity: 0; }
+        .delay-4 { animation-delay: 0.8s; opacity: 0; }
+        .delay-5 { animation-delay: 1s; opacity: 0; }
+        .delay-6 { animation-delay: 1.2s; opacity: 0; }
+
+        .great-hall-container {
+          background: #0a0a0a;
+          min-height: 100vh;
+        }
+
+        /* Hero Section */
+        .hero {
           height: 100vh;
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
-          overflow: hidden;
+          position: relative;
         }
 
-        /* Background Image */
-        .hall-background {
-          position: absolute;
-          inset: 0;
-          z-index: 0;
+        /* Title */
+        .title-container {
+          text-align: center;
         }
 
-        .hall-background img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          object-position: center;
+        .title-the {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: clamp(14px, 2vw, 18px);
+          font-weight: 300;
+          letter-spacing: 0.3em;
+          color: #525252;
+          margin-bottom: 12px;
+          text-transform: uppercase;
         }
 
-        /* Subtle vignette overlay */
-        .hall-vignette {
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            ellipse at center,
-            transparent 0%,
-            transparent 50%,
-            rgba(0, 0, 0, 0.4) 100%
-          );
-          z-index: 1;
-          pointer-events: none;
+        .title-main {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: clamp(3.5rem, 12vw, 9rem);
+          font-weight: 300;
+          line-height: 0.9;
+          color: #fafafa;
+          letter-spacing: -0.02em;
         }
 
-        /* Side navigation */
+        /* Side Navigation */
         .side-nav {
           position: fixed;
           top: 50%;
           transform: translateY(-50%);
           z-index: 100;
           display: flex;
-          flex-direction: column;
           align-items: center;
-          gap: 8px;
+          gap: 12px;
           cursor: pointer;
           transition: all 0.3s ease;
           padding: 20px;
@@ -118,19 +144,21 @@ export default function GreatHall() {
 
         .side-nav:hover .nav-label {
           opacity: 1;
-          transform: translateY(0);
+          max-width: 100px;
         }
 
-        .side-nav:hover .nav-arrow {
-          color: #d4af37;
+        .side-nav:hover .nav-m {
+          color: #fafafa;
         }
 
         .side-nav-left {
           left: 24px;
+          flex-direction: row;
         }
 
         .side-nav-right {
           right: 24px;
+          flex-direction: row-reverse;
         }
 
         @media (max-width: 768px) {
@@ -140,97 +168,46 @@ export default function GreatHall() {
           .side-nav-right {
             right: 12px;
           }
-          .side-nav {
-            padding: 12px;
-          }
+        }
+
+        .nav-m {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: 32px;
+          font-weight: 300;
+          color: #525252;
+          transition: color 0.3s ease;
         }
 
         .nav-arrow {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 28px;
-          color: rgba(212, 175, 55, 0.5);
+          font-size: 18px;
+          color: #525252;
           transition: all 0.3s ease;
+        }
+
+        .side-nav-left:hover .nav-arrow {
+          transform: translateX(-4px);
+          color: #7D8471;
+        }
+
+        .side-nav-right:hover .nav-arrow {
+          transform: translateX(4px);
+          color: #7D8471;
         }
 
         .nav-label {
           font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 13px;
+          font-size: 14px;
           font-style: italic;
-          color: #d4af37;
+          color: #7D8471;
           opacity: 0;
-          transform: translateY(-5px);
-          transition: all 0.3s ease;
-          letter-spacing: 0.1em;
-        }
-
-        /* Floor navigation - vertical on right */
-        .floor-nav {
-          position: fixed;
-          right: 32px;
-          top: 50%;
-          transform: translateY(-50%);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 8px;
-          z-index: 100;
-        }
-
-        @media (max-width: 768px) {
-          .floor-nav {
-            right: 16px;
-          }
-        }
-
-        .floor-line {
-          width: 1px;
-          height: 60px;
-          background: linear-gradient(to bottom, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.3), rgba(212, 175, 55, 0.1));
-        }
-
-        .floor-dot {
-          width: 10px;
-          height: 10px;
-          border: 1px solid rgba(212, 175, 55, 0.4);
-          border-radius: 50%;
-          background: transparent;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          position: relative;
-        }
-
-        .floor-dot:hover {
-          border-color: #d4af37;
-          background: rgba(212, 175, 55, 0.2);
-        }
-
-        .floor-dot.active {
-          border-color: #d4af37;
-          background: #d4af37;
-        }
-
-        .floor-dot-label {
-          position: absolute;
-          right: 24px;
-          top: 50%;
-          transform: translateY(-50%);
-          font-family: 'Outfit', sans-serif;
-          font-size: 9px;
-          color: rgba(212, 175, 55, 0.6);
-          letter-spacing: 0.2em;
+          max-width: 0;
+          overflow: hidden;
           white-space: nowrap;
-          opacity: 0;
-          transition: all 0.3s ease;
-          text-transform: uppercase;
+          transition: all 0.4s ease;
+          letter-spacing: 0.05em;
         }
 
-        .floor-dot:hover .floor-dot-label,
-        .floor-dot.active .floor-dot-label {
-          opacity: 1;
-          color: #d4af37;
-        }
-
-        /* Bottom explore/enter */
+        /* Explore hint */
         .explore-hint {
           position: fixed;
           bottom: 48px;
@@ -239,22 +216,25 @@ export default function GreatHall() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 12px;
-          z-index: 100;
+          gap: 16px;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: all 0.5s ease;
+          z-index: 100;
         }
 
-        .explore-hint:hover {
-          transform: translateX(-50%) translateY(-5px);
+        .explore-hint.hidden {
+          opacity: 0;
+          pointer-events: none;
         }
 
         .explore-hint:hover .explore-text {
-          color: #d4af37;
+          color: #fafafa;
         }
 
-        .explore-hint:hover .explore-arrow {
-          color: #d4af37;
+        .explore-line {
+          width: 1px;
+          height: 60px;
+          background: linear-gradient(to bottom, #525252, transparent);
         }
 
         .explore-text {
@@ -262,151 +242,297 @@ export default function GreatHall() {
           font-size: 10px;
           letter-spacing: 0.4em;
           text-transform: uppercase;
-          color: rgba(212, 175, 55, 0.5);
+          color: #525252;
           transition: color 0.3s ease;
         }
 
         .explore-arrow {
-          font-size: 18px;
-          color: rgba(212, 175, 55, 0.5);
+          font-size: 16px;
+          color: #525252;
           animation: float 2.5s ease-in-out infinite;
-          transition: color 0.3s ease;
         }
 
-        /* Floor info - bottom right */
-        .floor-info {
-          position: fixed;
-          bottom: 48px;
-          right: 32px;
-          text-align: right;
-          z-index: 100;
+        /* Floors Section */
+        .floors-section {
+          min-height: 100vh;
+          padding: 120px 24px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
         }
 
-        @media (max-width: 768px) {
-          .floor-info {
-            bottom: 100px;
-            right: 16px;
-          }
+        .floors-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.4em;
+          text-transform: uppercase;
+          color: #525252;
+          margin-bottom: 80px;
+        }
+
+        /* Stairs container */
+        .stairs-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0;
+          width: 100%;
+          max-width: 600px;
+        }
+
+        /* Individual stair/floor */
+        .stair {
+          position: relative;
+          width: 100%;
+          transition: all 0.3s ease;
+        }
+
+        .stair:nth-child(3) {
+          width: 85%;
+          margin-top: -20px;
+        }
+
+        /* Stair step visual */
+        .stair-step {
+          position: relative;
+          padding: 48px 40px;
+          border: 1px solid #252525;
+          background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
+          transition: all 0.4s ease;
+        }
+
+        .stair:hover .stair-step {
+          border-color: #7D8471;
+          background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%);
+        }
+
+        /* Stair top edge (3D effect) */
+        .stair-step::before {
+          content: '';
+          position: absolute;
+          top: -8px;
+          left: -1px;
+          right: -1px;
+          height: 8px;
+          background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+          border: 1px solid #252525;
+          border-bottom: none;
+          transition: all 0.4s ease;
+        }
+
+        .stair:hover .stair-step::before {
+          border-color: #7D8471;
+          background: linear-gradient(180deg, #1f1f1f 0%, #141414 100%);
+        }
+
+        /* Floor info */
+        .floor-header {
+          display: flex;
+          align-items: baseline;
+          justify-content: space-between;
+          margin-bottom: 16px;
         }
 
         .floor-name {
-          font-family: 'Outfit', sans-serif;
-          font-size: 9px;
-          letter-spacing: 0.3em;
-          text-transform: uppercase;
-          color: rgba(212, 175, 55, 0.4);
-          margin-bottom: 4px;
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: clamp(1.5rem, 4vw, 2rem);
+          font-weight: 300;
+          color: #fafafa;
         }
 
         .floor-year {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 13px;
-          font-style: italic;
-          color: rgba(212, 175, 55, 0.7);
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.2em;
+          color: #525252;
         }
 
-        /* Home link - top left */
-        .home-link {
-          position: fixed;
-          top: 32px;
-          left: 32px;
-          z-index: 100;
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 24px;
-          color: rgba(212, 175, 55, 0.5);
-          transition: all 0.3s ease;
+        .floor-status {
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #7D8471;
+          margin-bottom: 24px;
           display: flex;
           align-items: center;
           gap: 8px;
         }
 
-        .home-link:hover {
-          color: #d4af37;
+        .status-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #7D8471;
+          animation: pulse 2s ease-in-out infinite;
         }
 
-        .home-link-arrow {
-          font-size: 16px;
+        /* Enter button */
+        .enter-button {
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+          padding: 14px 28px;
+          border: 1px solid #333;
+          background: transparent;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: #737373;
+        }
+
+        .enter-button:hover {
+          border-color: #7D8471;
+          color: #fafafa;
+          background: rgba(125, 132, 113, 0.1);
+        }
+
+        .enter-button:hover .enter-arrow {
+          transform: translateX(4px);
+        }
+
+        .enter-arrow {
+          font-size: 14px;
           transition: transform 0.3s ease;
         }
 
-        .home-link:hover .home-link-arrow {
-          transform: translateX(-4px);
+        /* Connecting stairs visual */
+        .stair-connector {
+          width: 1px;
+          height: 40px;
+          background: linear-gradient(to bottom, #252525, transparent);
+          margin: 0 auto;
+        }
+
+        /* Scroll indicator on side */
+        .scroll-indicator {
+          position: fixed;
+          right: 32px;
+          bottom: 48px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          opacity: 0;
+          transition: opacity 0.5s ease;
+          z-index: 100;
+        }
+
+        .scroll-indicator.visible {
+          opacity: 1;
+        }
+
+        .scroll-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #333;
+          transition: all 0.3s ease;
+        }
+
+        .scroll-dot.active {
+          background: #7D8471;
         }
 
         @media (max-width: 768px) {
-          .home-link {
-            top: 20px;
-            left: 20px;
-            font-size: 20px;
+          .floors-section {
+            padding: 80px 16px;
+          }
+          
+          .stair-step {
+            padding: 32px 24px;
+          }
+
+          .stair:nth-child(3) {
+            width: 92%;
           }
         }
       `}</style>
 
-      <div className="great-hall">
-        {/* Background Image */}
-        <div className="hall-background fade-in">
-          <img 
-            src="/images/thegreathall.jpg" 
-            alt="The Great Hall"
-          />
+      {/* Hero Section */}
+      <section className="hero">
+        {/* Title */}
+        <div className="title-container fade-in-up">
+          <p className="title-the">The</p>
+          <h1 className="title-main">Great Hall</h1>
         </div>
-        <div className="hall-vignette"></div>
-
-        {/* Home Link - Top Left */}
-        <Link href="/" className="home-link fade-in delay-2">
-          <span className="home-link-arrow">←</span>
-          <span>M</span>
-        </Link>
 
         {/* Left Navigation - About */}
         <Link href="/about" className="side-nav side-nav-left fade-in delay-3">
+          <span className="nav-m">M</span>
           <span className="nav-arrow">←</span>
           <span className="nav-label">About</span>
         </Link>
 
-        {/* Right Navigation - Contact (positioned before floor nav) */}
-        <div style={{ 
-          position: 'fixed', 
-          right: '80px', 
-          top: '50%', 
-          transform: 'translateY(-50%)',
-          zIndex: 100 
-        }}>
-          <Link href="/contact" className="side-nav fade-in delay-3" style={{ position: 'relative', right: 'auto' }}>
-            <span className="nav-arrow">→</span>
-            <span className="nav-label">Contact</span>
-          </Link>
-        </div>
-
-        {/* Floor Navigation - Right Side */}
-        <div className="floor-nav fade-in delay-4">
-          <div 
-            className={`floor-dot ${currentFloor === 1 ? 'active' : ''}`}
-            onClick={() => setCurrentFloor(1)}
-          >
-            <span className="floor-dot-label">1st Floor · Coming Soon</span>
-          </div>
-          <div className="floor-line"></div>
-          <div 
-            className={`floor-dot ${currentFloor === 0 ? 'active' : ''}`}
-            onClick={() => setCurrentFloor(0)}
-          >
-            <span className="floor-dot-label">Ground Floor · 2024–2025</span>
-          </div>
-        </div>
-
-        {/* Explore Hint - Bottom Center */}
-        <Link href={floors[currentFloor].href} className="explore-hint fade-in delay-4">
-          <span className="explore-text">Enter</span>
-          <span className="explore-arrow">↓</span>
+        {/* Right Navigation - Contact */}
+        <Link href="/contact" className="side-nav side-nav-right fade-in delay-3">
+          <span className="nav-m">M</span>
+          <span className="nav-arrow">→</span>
+          <span className="nav-label">Contact</span>
         </Link>
 
-        {/* Current Floor Info - Bottom Right */}
-        <div className="floor-info fade-in delay-4">
-          <p className="floor-name">{floors[currentFloor].name}</p>
-          <p className="floor-year">{floors[currentFloor].year}</p>
+        {/* Explore hint */}
+        <div 
+          className={`explore-hint fade-in delay-5 ${!showExplore ? 'hidden' : ''}`}
+          onClick={scrollToFloors}
+        >
+          <div className="explore-line"></div>
+          <span className="explore-text">Explore</span>
+          <span className="explore-arrow">↓</span>
         </div>
-      </div>
+      </section>
+
+      {/* Floors Section */}
+      <section ref={floorsRef} className="floors-section">
+        <p className="floors-title fade-in delay-6">Select a Floor</p>
+
+        <div className="stairs-container">
+          {/* Ground Floor */}
+          <div className="stair">
+            <Link href="/exhibitions">
+              <div className="stair-step">
+                <div className="floor-header">
+                  <h2 className="floor-name">Ground Floor</h2>
+                  <span className="floor-year">2024–2025</span>
+                </div>
+                <div className="floor-status">
+                  <span className="status-dot"></span>
+                  <span>Under Construction</span>
+                </div>
+                <button className="enter-button">
+                  <span>Enter</span>
+                  <span className="enter-arrow">→</span>
+                </button>
+              </div>
+            </Link>
+          </div>
+
+          <div className="stair-connector"></div>
+
+          {/* First Floor */}
+          <div className="stair">
+            <Link href="/exhibitions/first-floor">
+              <div className="stair-step">
+                <div className="floor-header">
+                  <h2 className="floor-name">First Floor</h2>
+                  <span className="floor-year">2025–2026</span>
+                </div>
+                <div className="floor-status">
+                  <span className="status-dot"></span>
+                  <span>Under Construction</span>
+                </div>
+                <button className="enter-button">
+                  <span>Enter</span>
+                  <span className="enter-arrow">→</span>
+                </button>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
