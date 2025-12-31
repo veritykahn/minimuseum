@@ -267,160 +267,147 @@ export default function GreatHall() {
           letter-spacing: 0.4em;
           text-transform: uppercase;
           color: #525252;
-          margin-bottom: 80px;
+          margin-bottom: 60px;
         }
 
-        /* Stairs container */
-        .stairs-container {
+        /* Floors container */
+        .floors-container {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 0;
+          gap: 16px;
           width: 100%;
-          max-width: 600px;
+          max-width: 700px;
         }
 
-        /* Individual stair/floor */
-        .stair {
+        /* Individual floor row */
+        .floor-row {
           position: relative;
           width: 100%;
-          transition: all 0.3s ease;
+          cursor: pointer;
         }
 
-        .stair:first-child {
-          width: 85%;
-          margin-bottom: -20px;
-        }
-
-        /* Stair step visual */
-        .stair-step {
-          position: relative;
-          padding: 48px 40px;
-          border: 1px solid #252525;
-          background: linear-gradient(180deg, #0f0f0f 0%, #0a0a0a 100%);
-          transition: all 0.4s ease;
-        }
-
-        .stair:hover .stair-step {
-          border-color: #7D8471;
-          background: linear-gradient(180deg, #141414 0%, #0a0a0a 100%);
-        }
-
-        /* Stair top edge (3D effect) */
-        .stair-step::before {
-          content: '';
-          position: absolute;
-          top: -8px;
-          left: -1px;
-          right: -1px;
-          height: 8px;
-          background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
-          border: 1px solid #252525;
-          border-bottom: none;
-          transition: all 0.4s ease;
-        }
-
-        .stair:hover .stair-step::before {
-          border-color: #7D8471;
-          background: linear-gradient(180deg, #1f1f1f 0%, #141414 100%);
-        }
-
-        /* Floor info */
-        .floor-header {
+        /* Floor card - hidden by default, appears on hover */
+        .floor-card {
           display: flex;
-          align-items: baseline;
+          align-items: stretch;
           justify-content: space-between;
-          margin-bottom: 16px;
+          padding: 32px 40px;
+          border: 1px solid transparent;
+          background: transparent;
+          transition: all 0.4s ease;
+        }
+
+        .floor-row:hover .floor-card {
+          border-color: #333;
+          background: rgba(255, 255, 255, 0.02);
+        }
+
+        /* Left side - text content */
+        .floor-text {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 6px;
         }
 
         .floor-name {
           font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: clamp(1.5rem, 4vw, 2rem);
+          font-size: clamp(2rem, 5vw, 2.8rem);
           font-weight: 300;
           color: #fafafa;
+          line-height: 1;
+          transition: color 0.3s ease;
+        }
+
+        .floor-row:hover .floor-name {
+          color: #fff;
+        }
+
+        .floor-subtitle {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: 15px;
+          font-style: italic;
+          font-weight: 300;
+          color: #737373;
+          transition: color 0.3s ease;
+        }
+
+        .floor-row:hover .floor-subtitle {
+          color: #999;
         }
 
         .floor-year {
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
-          letter-spacing: 0.2em;
+          letter-spacing: 0.15em;
           color: #525252;
+          margin-top: 4px;
         }
 
         .floor-status {
           font-family: 'Outfit', sans-serif;
-          font-size: 10px;
-          letter-spacing: 0.15em;
+          font-size: 9px;
+          letter-spacing: 0.2em;
           text-transform: uppercase;
           color: #7D8471;
-          margin-bottom: 24px;
+          margin-top: 8px;
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
         }
 
         .status-dot {
-          width: 6px;
-          height: 6px;
+          width: 5px;
+          height: 5px;
           border-radius: 50%;
           background: #7D8471;
           animation: pulse 2s ease-in-out infinite;
         }
 
-        /* Enter button */
-        .enter-button {
-          display: inline-flex;
-          align-items: center;
-          gap: 12px;
-          padding: 14px 28px;
-          border: 1px solid #333;
-          background: transparent;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          font-family: 'Outfit', sans-serif;
-          font-size: 11px;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-          color: #737373;
-        }
-
-        .enter-button:hover {
-          border-color: #7D8471;
-          color: #fafafa;
-          background: rgba(125, 132, 113, 0.1);
-        }
-
-        .enter-button:hover .enter-arrow {
-          transform: translateX(4px);
-        }
-
-        .enter-arrow {
-          font-size: 14px;
-          transition: transform 0.3s ease;
-        }
-
-        /* Floor bottom row with enter button and stairs icon */
-        .floor-bottom {
+        /* Right side - stairs icon and floor number */
+        .floor-indicator {
           display: flex;
           align-items: center;
-          justify-content: space-between;
+          gap: 20px;
         }
 
         .stairs-icon {
-          color: #333;
-          transition: all 0.3s ease;
+          width: 32px;
+          height: auto;
+          opacity: 0.3;
+          transition: opacity 0.3s ease;
         }
 
-        .stair:hover .stairs-icon {
+        .floor-row:hover .stairs-icon {
+          opacity: 0.7;
+        }
+
+        .floor-letter {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: clamp(4rem, 10vw, 6rem);
+          font-weight: 300;
           color: #7D8471;
+          line-height: 1;
+          transition: color 0.3s ease;
         }
 
-        /* Connecting stairs visual */
-        .stair-connector {
-          width: 1px;
-          height: 40px;
-          background: linear-gradient(to bottom, #252525, transparent);
-          margin: 0 auto;
+        .floor-row:hover .floor-letter {
+          color: #9aa78f;
+        }
+
+        @media (max-width: 768px) {
+          .floor-card {
+            padding: 24px;
+          }
+          
+          .floor-indicator {
+            gap: 12px;
+          }
+
+          .stairs-icon {
+            width: 24px;
+          }
         }
 
         /* Scroll indicator on side */
@@ -505,62 +492,44 @@ export default function GreatHall() {
       <section ref={floorsRef} className="floors-section">
         <p className="floors-title fade-in delay-6">Select a Floor</p>
 
-        <div className="stairs-container">
-          {/* First Floor - Top (smaller) */}
-          <div className="stair">
-            <Link href="/exhibitions/first-floor">
-              <div className="stair-step">
-                <div className="floor-header">
-                  <h2 className="floor-name">First Floor</h2>
-                  <span className="floor-year">2025–2026</span>
-                </div>
+        <div className="floors-container">
+          {/* First Floor - Horizons */}
+          <Link href="/exhibitions/first-floor" className="floor-row">
+            <div className="floor-card">
+              <div className="floor-text">
+                <h2 className="floor-name">Horizons</h2>
+                <p className="floor-subtitle">The Second Collection</p>
+                <p className="floor-year">2025–2026</p>
                 <div className="floor-status">
                   <span className="status-dot"></span>
                   <span>Under Construction</span>
                 </div>
-                <div className="floor-bottom">
-                  <button className="enter-button">
-                    <span>Enter</span>
-                    <span className="enter-arrow">→</span>
-                  </button>
-                  <svg className="stairs-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M4 20h4v-4h4v-4h4v-4h4" strokeLinecap="round" strokeLinejoin="round"/>
-                    <polyline points="20,4 20,8 16,8" strokeLinecap="round" strokeLinejoin="round"/>
-                    <line x1="20" y1="4" x2="17" y2="7" strokeLinecap="round"/>
-                  </svg>
-                </div>
               </div>
-            </Link>
-          </div>
+              <div className="floor-indicator">
+                <img src="/images/stairs.png" alt="" className="stairs-icon" />
+                <span className="floor-letter">1</span>
+              </div>
+            </div>
+          </Link>
 
-          <div className="stair-connector"></div>
-
-          {/* Ground Floor - Bottom (wider) */}
-          <div className="stair">
-            <Link href="/exhibitions">
-              <div className="stair-step">
-                <div className="floor-header">
-                  <h2 className="floor-name">Ground Floor</h2>
-                  <span className="floor-year">2024–2025</span>
-                </div>
+          {/* Ground Floor - Origins */}
+          <Link href="/exhibitions" className="floor-row">
+            <div className="floor-card">
+              <div className="floor-text">
+                <h2 className="floor-name">Origins</h2>
+                <p className="floor-subtitle">The Founding Collection</p>
+                <p className="floor-year">2024–2025</p>
                 <div className="floor-status">
                   <span className="status-dot"></span>
                   <span>Under Construction</span>
                 </div>
-                <div className="floor-bottom">
-                  <button className="enter-button">
-                    <span>Enter</span>
-                    <span className="enter-arrow">→</span>
-                  </button>
-                  <svg className="stairs-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M4 20h4v-4h4v-4h4v-4h4" strokeLinecap="round" strokeLinejoin="round"/>
-                    <polyline points="20,4 20,8 16,8" strokeLinecap="round" strokeLinejoin="round"/>
-                    <line x1="20" y1="4" x2="17" y2="7" strokeLinecap="round"/>
-                  </svg>
-                </div>
               </div>
-            </Link>
-          </div>
+              <div className="floor-indicator">
+                <img src="/images/stairs.png" alt="" className="stairs-icon" />
+                <span className="floor-letter">G</span>
+              </div>
+            </div>
+          </Link>
         </div>
       </section>
     </div>
