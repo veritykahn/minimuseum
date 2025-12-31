@@ -375,12 +375,12 @@ export default function GreatHall() {
         .stairs-icon {
           width: 32px;
           height: auto;
-          opacity: 0.3;
+          opacity: 1;
           transition: opacity 0.3s ease;
         }
 
         .floor-row:hover .stairs-icon {
-          opacity: 0.7;
+          opacity: 1;
         }
 
         .floor-letter {
