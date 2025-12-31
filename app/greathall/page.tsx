@@ -373,8 +373,8 @@ export default function GreatHall() {
         }
 
         .stairs-icon {
-          width: 32px;
-          height: auto;
+          height: clamp(4rem, 10vw, 6rem);
+          width: auto;
           opacity: 1;
           transition: opacity 0.3s ease;
         }
@@ -384,7 +384,7 @@ export default function GreatHall() {
         }
 
         .floor-letter {
-          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-family: 'Outfit', sans-serif;
           font-size: clamp(4rem, 10vw, 6rem);
           font-weight: 300;
           color: #7D8471;
@@ -406,7 +406,7 @@ export default function GreatHall() {
           }
 
           .stairs-icon {
-            width: 24px;
+            height: clamp(3rem, 8vw, 4rem);
           }
         }
 
