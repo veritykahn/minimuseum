@@ -298,9 +298,16 @@ export default function GreatHall() {
           transition: all 0.4s ease;
         }
 
-        .floor-row:hover .floor-card {
-          border-color: #333;
-          background: rgba(255, 255, 255, 0.02);
+        /* First floor - lighter green background on hover */
+        .floor-row.first-floor:hover .floor-card {
+          border-color: #7D8471;
+          background: rgba(125, 132, 113, 0.15);
+        }
+
+        /* Ground floor - deeper green background on hover */
+        .floor-row.ground-floor:hover .floor-card {
+          border-color: #5a6350;
+          background: rgba(90, 99, 80, 0.2);
         }
 
         /* Left side - text content */
