@@ -8,10 +8,11 @@ export default function About() {
 
   return (
     <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
-      {/* Home Button */}
-      <Link href="/" className="home-button">
-        <span className="home-arrow">←</span>
-        <span>M</span>
+      {/* Back to Great Hall */}
+      <Link href="/greathall" className="back-link">
+        <span className="back-label">Great Hall</span>
+        <span className="back-arrow">→</span>
+        <span className="back-m">M</span>
       </Link>
 
       <style jsx global>{`
@@ -53,46 +54,67 @@ export default function About() {
           height: auto;
         }
 
-        .home-button {
+        .back-link {
           position: fixed;
           top: 32px;
           right: 32px;
           z-index: 1000;
           display: flex;
           align-items: center;
-          gap: 8px;
-          color: #fff;
+          gap: 10px;
+          color: #525252;
           text-decoration: none;
-          font-size: 32px;
           font-family: 'Cormorant Garamond', Georgia, serif;
-          font-weight: 300;
           transition: all 0.3s ease;
-          opacity: 0.7;
         }
 
-        .home-button:hover {
+        .back-link:hover {
+          color: #fafafa;
+        }
+
+        .back-link:hover .back-arrow {
+          transform: translateX(4px);
+          color: #7D8471;
+        }
+
+        .back-link:hover .back-label {
           opacity: 1;
-          transform: translateX(-4px);
+          max-width: 100px;
         }
 
-        .home-arrow {
-          font-size: 20px;
-          transition: transform 0.3s ease;
+        .back-arrow {
+          font-size: 16px;
+          transition: all 0.3s ease;
         }
 
-        .home-button:hover .home-arrow {
-          transform: translateX(-4px);
+        .back-m {
+          font-size: 28px;
+          font-weight: 300;
+        }
+
+        .back-label {
+          font-size: 13px;
+          font-style: italic;
+          color: #7D8471;
+          opacity: 0;
+          max-width: 0;
+          overflow: hidden;
+          white-space: nowrap;
+          transition: all 0.4s ease;
         }
 
         @media (max-width: 768px) {
-          .home-button {
+          .back-link {
             top: 20px;
             right: 20px;
+          }
+
+          .back-m {
             font-size: 24px;
           }
 
-          .home-arrow {
-            font-size: 16px;
+          .back-arrow {
+            font-size: 14px;
           }
         }
 

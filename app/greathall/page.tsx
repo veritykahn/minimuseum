@@ -164,9 +164,17 @@ export default function GreatHall() {
         @media (max-width: 768px) {
           .side-nav-left {
             left: 12px;
+            padding: 16px;
           }
           .side-nav-right {
             right: 12px;
+            padding: 16px;
+          }
+          .nav-m {
+            font-size: 26px;
+          }
+          .nav-arrow {
+            font-size: 14px;
           }
         }
 
@@ -250,6 +258,16 @@ export default function GreatHall() {
           font-size: 16px;
           color: #525252;
           animation: float 2.5s ease-in-out infinite;
+        }
+
+        @media (max-width: 768px) {
+          .explore-hint {
+            bottom: 32px;
+            gap: 12px;
+          }
+          .explore-line {
+            height: 40px;
+          }
         }
 
         /* Floors Section */

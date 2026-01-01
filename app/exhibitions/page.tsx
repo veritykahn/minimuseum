@@ -223,7 +223,25 @@ export default function GroundFloor() {
         .nav-pill:hover { background: rgba(0,0,0,0.8); border-color: rgba(255,255,255,0.4); }
         .scroll-hint { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; color: #525252; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-family: 'Outfit', sans-serif; z-index: 100; }
         .scroll-hint-line { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, #525252); }
-        @media (max-width: 768px) { .back-link { top: 20px; left: 20px; } .floor-indicator { top: 20px; right: 20px; } }
+        @media (max-width: 768px) {
+          .back-link { top: 20px; left: 20px; }
+          .back-m { font-size: 24px; }
+          .back-arrow { font-size: 14px; }
+          .floor-indicator { top: 20px; right: 20px; }
+          .exhibition-card { padding: 20px; }
+          .room-section { padding: 24px; }
+          .artifact-section { flex: 0 0 90vw; min-width: 90vw; }
+          .glass-case { padding: 24px; }
+          .artifact-placeholder { width: 150px; height: 150px; font-size: 12px; }
+          .return-button { padding: 16px 32px; font-size: 12px; }
+          .room-nav { bottom: 24px; }
+          .nav-pill { padding: 10px 20px; font-size: 11px; }
+          .scroll-hint { bottom: 24px; gap: 12px; font-size: 10px; }
+          .scroll-hint-line { width: 40px; }
+        }
+        @media (max-width: 480px) {
+          .artifact-placeholder { width: 120px; height: 120px; }
+        }
       `}</style>
 
       <Link href="/greathall" className="back-link"><span className="back-m">M</span><span className="back-arrow">←</span><span className="back-label">Great Hall</span></Link>

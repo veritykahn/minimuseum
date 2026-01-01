@@ -22,6 +22,11 @@ export default function Contact() {
         .back-arrow { transition: all 0.3s ease; font-size: 16px; }
         .back-m { font-size: 28px; font-weight: 300; }
         .back-label { font-size: 13px; font-style: italic; color: #7D8471; opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap; transition: all 0.4s ease; }
+        @media (max-width: 768px) {
+          .back-link { top: 20px; left: 20px; }
+          .back-m { font-size: 24px; }
+          .back-arrow { font-size: 14px; }
+        }
       `}</style>
 
       <Link href="/greathall" className="back-link fade-in-up">

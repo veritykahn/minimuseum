@@ -87,6 +87,17 @@ export default function FirstFloor() {
         .nav-pill { padding: 12px 24px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 100px; cursor: pointer; font-family: 'Outfit'; }
         .scroll-hint { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; color: #525252; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-family: 'Outfit'; z-index: 100; }
         .scroll-hint-line { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, #525252); }
+        @media (max-width: 768px) {
+          .back-link { top: 20px; left: 20px; }
+          .back-m { font-size: 24px; }
+          .back-arrow { font-size: 14px; }
+          .floor-indicator { top: 20px; right: 20px; }
+          .room-section { padding: 24px; }
+          .return-button { padding: 16px 32px; font-size: 12px; }
+          .nav-pill { padding: 10px 20px; font-size: 11px; }
+          .scroll-hint { bottom: 24px; gap: 12px; font-size: 10px; }
+          .scroll-hint-line { width: 40px; }
+        }
       `}</style>
 
       <Link href="/greathall" className="back-link"><span className="back-m">M</span><span className="back-arrow">←</span><span className="back-label">Great Hall</span></Link>
