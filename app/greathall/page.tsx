@@ -153,7 +153,7 @@ export default function GreatHall() {
 
         .side-nav-left {
           left: 24px;
-          flex-direction: row-reverse;
+          flex-direction: row;
         }
 
         .side-nav-right {
@@ -185,7 +185,7 @@ export default function GreatHall() {
         }
 
         .side-nav-left:hover .nav-arrow {
-          transform: translateX(4px);
+          transform: translateX(-4px);
           color: #7D8471;
         }
 
@@ -479,7 +479,7 @@ export default function GreatHall() {
         {/* Left Navigation - About */}
         <Link href="/about" className="side-nav side-nav-left fade-in delay-3">
           <span className="nav-m">M</span>
-          <span className="nav-arrow">→</span>
+          <span className="nav-arrow">←</span>
           <span className="nav-label">About</span>
         </Link>
 
