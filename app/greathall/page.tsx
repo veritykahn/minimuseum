@@ -418,7 +418,7 @@ export default function GreatHall() {
         }
 
         .floor-row:hover .stairs-icon {
-          opacity: 0.6;
+          opacity: 1;
         }
 
         .floor-letter {
