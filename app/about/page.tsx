@@ -441,7 +441,7 @@ export default function About() {
                   alt="Mini Museum exhibition display with WWI artifacts"
                   style={{ width: '100%', height: 'auto', display: 'block' }}
                 />
-                <p className="image-caption">The Great War Exhibition</p>
+                <p className="image-caption">The Great War Exhibition · Origins · The Founding Collection</p>
               </div>
             </div>
 
@@ -495,7 +495,7 @@ export default function About() {
                   alt="Lunar meteorite sample under microscope"
                   style={{ width: '100%', height: 'auto', display: 'block' }}
                 />
-                <p className="image-caption">Lunar Meteorite Adrar 013</p>
+                <p className="image-caption">Moondust from Lunar Meteorite Adrar 013 · Origins · The Founding Collection</p>
               </div>
 
               <div>
@@ -633,7 +633,7 @@ export default function About() {
                 alt="Historic letters displayed in glass case"
                 style={{ width: '100%', height: 'auto', display: 'block' }}
               />
-              <p className="image-caption">Victorian Letters · Mini Museum Collection</p>
+              <p className="image-caption">WWII Letters · Origins · The Founding Collection</p>
             </div>
 
             {/* Final Call to Action */}

@@ -128,6 +128,19 @@ export default function GreatHall() {
           letter-spacing: -0.02em;
         }
 
+        .title-main .title-word {
+          display: inline;
+        }
+
+        @media (max-width: 480px) {
+          .title-main .title-word {
+            display: block;
+          }
+          .title-main {
+            line-height: 1;
+          }
+        }
+
         /* Side Navigation */
         .side-nav {
           position: absolute;
@@ -491,7 +504,7 @@ export default function GreatHall() {
         {/* Title */}
         <div className="title-container fade-in-up">
           <p className="title-the">The</p>
-          <h1 className="title-main">Great Hall</h1>
+          <h1 className="title-main"><span className="title-word">Great</span> <span className="title-word">Hall</span></h1>
         </div>
 
         {/* Left Navigation - About */}
