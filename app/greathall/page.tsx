@@ -375,12 +375,12 @@ export default function GreatHall() {
         .stairs-icon {
           height: clamp(4rem, 10vw, 6rem);
           width: auto;
-          opacity: 1;
+          opacity: 0.3;
           transition: opacity 0.3s ease;
         }
 
         .floor-row:hover .stairs-icon {
-          opacity: 1;
+          opacity: 0.6;
         }
 
         .floor-letter {
@@ -392,7 +392,13 @@ export default function GreatHall() {
           transition: color 0.3s ease;
         }
 
-        .floor-row:hover .floor-letter {
+        /* First floor - lighter green on hover */
+        .floor-row.first-floor:hover .floor-letter {
+          color: #c8d4bc;
+        }
+
+        /* Ground floor - darker green on hover */
+        .floor-row.ground-floor:hover .floor-letter {
           color: #9aa78f;
         }
 
@@ -494,7 +500,7 @@ export default function GreatHall() {
 
         <div className="floors-container">
           {/* First Floor - Horizons */}
-          <Link href="/exhibitions/first-floor" className="floor-row">
+          <Link href="/exhibitions/first-floor" className="floor-row first-floor">
             <div className="floor-card">
               <div className="floor-text">
                 <h2 className="floor-name">Horizons</h2>
@@ -513,7 +519,7 @@ export default function GreatHall() {
           </Link>
 
           {/* Ground Floor - Origins */}
-          <Link href="/exhibitions" className="floor-row">
+          <Link href="/exhibitions" className="floor-row ground-floor">
             <div className="floor-card">
               <div className="floor-text">
                 <h2 className="floor-name">Origins</h2>
