@@ -3,8 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+type ContentItem = {
+  type: string;
+  text?: string;
+  src?: string;
+  alt?: string;
+  url?: string;
+};
+
 // Poster 1 content - Seeing is Deceiving
-const poster1Content = [
+const poster1Content: ContentItem[] = [
   { type: 'title-image', src: '/exhibitions/seeing/poster1-title.jpg', alt: 'Seeing is Deceiving' },
   {
     type: 'section-title',
@@ -83,7 +91,7 @@ const poster1Content = [
 ];
 
 // Poster 2 content - A History of Lies
-const poster2Content = [
+const poster2Content: ContentItem[] = [
   { type: 'title-image', src: '/exhibitions/seeing/poster2-title.jpg', alt: 'A History of Lies: From Magic Lanterns to AI Deepfakes' },
   {
     type: 'section-title',
