@@ -1,57 +1,140 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function FirstFloor() {
-  const [activeExhibition, setActiveExhibition] = useState<any>(null);
+  const router = useRouter();
+  const scrollRef = useRef<HTMLDivElement>(null);
 
+  // First Floor exhibitions - only "seeing" is active, others are "Installation in Progress"
   const exhibitions = [
-    { id: 'writing', title: 'The Writing Revolution', subtitle: "QWERTY's Accidental Empire", accent: '#DC2626', darkAccent: '#1f0a0a', textColor: '#fff', description: 'From scribes to typewriters to AI, the democratization of the written word.', artifacts: ['Urania Typewriter', 'Printing Block', 'Quill Pen'] },
-    { id: 'fear', title: 'Fear Lab', subtitle: 'Page Turners & Spine Tinglers', accent: '#1E3A5F', darkAccent: '#0a1525', textColor: '#F5F5DC', description: "The science of being scared and why we just can't put our horror books down.", artifacts: ['Gothic Novel', 'Memento Mori', 'Ouija Board'] },
-    { id: 'wwi', title: 'The Great War', subtitle: 'When the Guns Fell Silent', accent: '#9B2226', darkAccent: '#1a0505', textColor: '#fff', description: 'The Doughboys, the trenches, and the armistice that came at the eleventh hour of the eleventh day.', artifacts: ['Trench Periscope', "Soldier's Letter", 'Remembrance Poppy'] },
+    {
+      id: 'seeing',
+      title: 'Seeing is Deceiving',
+      subtitle: 'The Science of How We See',
+      accent: '#a8d5e5', // light blue from the poster
+      darkAccent: '#0a1a1f',
+      textColor: '#fff',
+      description: 'Optical illusions, visual perception, and why your brain lies to you.',
+      active: true,
+      path: '/exhibitions/seeing-is-deceiving'
+    },
+    {
+      id: 'writing',
+      title: 'The Writing Revolution',
+      subtitle: "QWERTY's Accidental Empire",
+      accent: '#DC2626',
+      darkAccent: '#1f0a0a',
+      textColor: '#fff',
+      description: 'From scribes to typewriters to AI, the democratization of the written word.',
+      active: false
+    },
+    {
+      id: 'fear',
+      title: 'Fear Lab',
+      subtitle: 'Page Turners & Spine Tinglers',
+      accent: '#1E3A5F',
+      darkAccent: '#0a1525',
+      textColor: '#F5F5DC',
+      description: "The science of being scared and why we just can't put our horror books down.",
+      active: false
+    },
+    {
+      id: 'wwi',
+      title: 'The Great War',
+      subtitle: 'When the Guns Fell Silent',
+      accent: '#9B2226',
+      darkAccent: '#1a0505',
+      textColor: '#fff',
+      description: 'The Doughboys, the trenches, and the armistice that came at the eleventh hour.',
+      active: false
+    },
   ];
 
-  const enterExhibition = (e: any) => { setActiveExhibition(e); document.body.style.overflow = 'hidden'; };
-  const returnToHall = () => { setActiveExhibition(null); document.body.style.overflow = 'auto'; };
+  const handleExhibitionClick = (exhibition: typeof exhibitions[0], index: number) => {
+    if (exhibition.active && exhibition.path) {
+      // Store the scroll position/index so we can return to it
+      sessionStorage.setItem('firstFloorIndex', index.toString());
+      router.push(exhibition.path);
+    }
+  };
 
-  const Ticket = ({ onClick, accentColor }: { onClick: () => void; accentColor: string }) => (
-    <button onClick={onClick} className="ticket">
+  const Ticket = ({ onClick, accentColor, isActive }: { onClick: () => void; accentColor: string; isActive: boolean }) => (
+    <button onClick={onClick} className={`ticket ${!isActive ? 'ticket-disabled' : ''}`} disabled={!isActive}>
       <svg width="180" height="80" viewBox="0 0 180 80" fill="none">
-        <path d="M0 8C0 3.58172 3.58172 0 8 0H52C52 6.62742 57.3726 12 64 12C70.6274 12 76 6.62742 76 0H172C176.418 0 180 3.58172 180 8V72C180 76.4183 176.418 80 172 80H76C76 73.3726 70.6274 68 64 68C57.3726 68 52 73.3726 52 80H8C3.58172 80 0 76.4183 0 72V8Z" fill="#faf8f5"/>
-        <line x1="64" y1="16" x2="64" y2="64" stroke="#e5e2dc" strokeWidth="1" strokeDasharray="4 3"/>
-        <text x="32" y="38" textAnchor="middle" fill="#1a1a1a" style={{ fontFamily: 'Outfit', fontSize: '8px', fontWeight: 500, letterSpacing: '0.1em' }}>ADMIT ONE</text>
-        <text x="125" y="28" textAnchor="middle" fill="#1a1a1a" style={{ fontFamily: 'Cormorant Garamond', fontSize: '10px' }}>The Mini Museum</text>
-        <text x="125" y="48" textAnchor="middle" fill={accentColor} style={{ fontFamily: 'Outfit', fontSize: '11px', letterSpacing: '0.08em' }}>Enter Exhibition</text>
+        <path d="M0 8C0 3.58172 3.58172 0 8 0H52C52 6.62742 57.3726 12 64 12C70.6274 12 76 6.62742 76 0H172C176.418 0 180 3.58172 180 8V72C180 76.4183 176.418 80 172 80H76C76 73.3726 70.6274 68 64 68C57.3726 68 52 73.3726 52 80H8C3.58172 80 0 76.4183 0 72V8Z" fill={isActive ? "#faf8f5" : "#2a2a2a"}/>
+        <line x1="64" y1="16" x2="64" y2="64" stroke={isActive ? "#e5e2dc" : "#3a3a3a"} strokeWidth="1" strokeDasharray="4 3"/>
+        <text x="32" y="38" textAnchor="middle" fill={isActive ? "#1a1a1a" : "#666"} style={{ fontFamily: 'Outfit', fontSize: '8px', fontWeight: 500, letterSpacing: '0.1em' }}>ADMIT ONE</text>
+        <text x="125" y="28" textAnchor="middle" fill={isActive ? "#1a1a1a" : "#666"} style={{ fontFamily: 'Cormorant Garamond', fontSize: '10px' }}>The Mini Museum</text>
+        <text x="125" y="48" textAnchor="middle" fill={isActive ? accentColor : "#555"} style={{ fontFamily: 'Outfit', fontSize: '11px', letterSpacing: '0.08em' }}>
+          {isActive ? 'Enter Exhibition' : 'Coming Soon'}
+        </text>
       </svg>
     </button>
   );
 
-  const ExhibitionCard = ({ exhibition, index }: { exhibition: any; index: number }) => (
-    <div className="exhibition-card" style={{ background: `radial-gradient(ellipse at center, ${exhibition.accent}20 0%, #0a0a0a 70%)` }}>
-      <div style={{ textAlign: 'center', padding: '40px' }}>
-        <p style={{ fontSize: '11px', letterSpacing: '0.4em', textTransform: 'uppercase', color: exhibition.accent, marginBottom: '16px', fontFamily: 'Outfit, sans-serif' }}>Exhibition {String(index + 1).padStart(2, '0')}</p>
-        <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 300, lineHeight: 0.95, color: '#fafafa', marginBottom: '16px' }}>{exhibition.title}</h2>
-        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1rem, 2.5vw, 1.4rem)', fontStyle: 'italic', fontWeight: 300, color: exhibition.accent, marginBottom: '48px' }}>{exhibition.subtitle}</p>
-        <Ticket onClick={() => enterExhibition(exhibition)} accentColor={exhibition.accent} />
-      </div>
-    </div>
-  );
-
-  const ExhibitionRoom = ({ exhibition, onReturn }: { exhibition: any; onReturn: () => void }) => (
-    <div className="exhibition-room">
-      <div className="room-scroll" style={{ background: `radial-gradient(ellipse at center, ${exhibition.accent}40 0%, ${exhibition.darkAccent} 70%)` }}>
-        <section className="room-section">
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '14px', letterSpacing: '0.3em', textTransform: 'uppercase', color: exhibition.accent, marginBottom: '24px', fontFamily: 'Outfit' }}>You are entering</p>
-            <h1 style={{ fontFamily: 'Cormorant Garamond', fontSize: 'clamp(4rem, 12vw, 10rem)', fontWeight: 300, lineHeight: 0.9, color: exhibition.textColor, marginBottom: '24px' }}>{exhibition.title}</h1>
-            <p style={{ fontFamily: 'Cormorant Garamond', fontSize: 'clamp(1.5rem, 4vw, 2.5rem)', fontStyle: 'italic', fontWeight: 300, color: exhibition.accent, marginBottom: '60px' }}>{exhibition.subtitle}</p>
-            <p style={{ fontSize: '16px', lineHeight: 1.8, color: 'rgba(255,255,255,0.7)', maxWidth: '500px', margin: '0 auto 60px', fontFamily: 'Outfit' }}>{exhibition.description}</p>
-            <button onClick={onReturn} className="return-button" style={{ borderColor: exhibition.accent, color: exhibition.accent }}>Return to First Floor</button>
+  const ExhibitionCard = ({ exhibition, index }: { exhibition: typeof exhibitions[0]; index: number }) => (
+    <div
+      className="exhibition-card"
+      style={{
+        background: `radial-gradient(ellipse at center, ${exhibition.accent}20 0%, #0a0a0a 70%)`,
+        position: 'relative'
+      }}
+    >
+      {/* Installation in Progress Overlay */}
+      {!exhibition.active && (
+        <div className="installation-overlay">
+          <div className="installation-sign">
+            <p className="installation-title">Installation in progress</p>
+            <p className="installation-subtitle">Thank you for your patience</p>
           </div>
-        </section>
+        </div>
+      )}
+
+      <div style={{
+        textAlign: 'center',
+        padding: '40px',
+        opacity: exhibition.active ? 1 : 0.4,
+        filter: exhibition.active ? 'none' : 'grayscale(50%)'
+      }}>
+        <p style={{
+          fontSize: '11px',
+          letterSpacing: '0.4em',
+          textTransform: 'uppercase',
+          color: exhibition.accent,
+          marginBottom: '16px',
+          fontFamily: 'Outfit, sans-serif'
+        }}>
+          Exhibition {String(index + 1).padStart(2, '0')}
+        </p>
+        <h2 style={{
+          fontFamily: 'Cormorant Garamond, serif',
+          fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+          fontWeight: 300,
+          lineHeight: 0.95,
+          color: '#fafafa',
+          marginBottom: '16px'
+        }}>
+          {exhibition.title}
+        </h2>
+        <p style={{
+          fontFamily: 'Cormorant Garamond, serif',
+          fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
+          fontStyle: 'italic',
+          fontWeight: 300,
+          color: exhibition.accent,
+          marginBottom: '48px'
+        }}>
+          {exhibition.subtitle}
+        </p>
+        <Ticket
+          onClick={() => handleExhibitionClick(exhibition, index)}
+          accentColor={exhibition.accent}
+          isActive={exhibition.active}
+        />
       </div>
-      <div className="room-nav"><button onClick={onReturn} className="nav-pill">← Return to First Floor</button></div>
     </div>
   );
 
@@ -61,58 +144,189 @@ export default function FirstFloor() {
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #0a0a0a; color: #fafafa; overflow-x: hidden; }
-        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(-1deg); } }
-        .ticket { background: none; border: none; cursor: pointer; animation: float 4s ease-in-out infinite; }
-        .ticket:hover { animation-play-state: paused; transform: translateY(-8px) scale(1.05); }
-        .back-link { position: fixed; top: 32px; left: 32px; z-index: 1000; display: flex; align-items: center; gap: 10px; color: #525252; text-decoration: none; font-family: 'Cormorant Garamond'; transition: all 0.3s ease; }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(-2deg); }
+          50% { transform: translateY(-6px) rotate(-1deg); }
+        }
+
+        .ticket {
+          background: none;
+          border: none;
+          cursor: pointer;
+          animation: float 4s ease-in-out infinite;
+          transition: all 0.3s ease;
+        }
+        .ticket:hover:not(.ticket-disabled) {
+          animation-play-state: paused;
+          transform: translateY(-8px) scale(1.05);
+        }
+        .ticket-disabled {
+          cursor: not-allowed;
+          animation: none;
+          opacity: 0.6;
+        }
+
+        .back-link {
+          position: fixed;
+          top: 32px;
+          left: 32px;
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          color: #525252;
+          text-decoration: none;
+          font-family: 'Cormorant Garamond';
+          transition: all 0.3s ease;
+        }
         .back-link:hover { color: #fafafa; }
         .back-link:hover .back-arrow { transform: translateX(-4px); color: #7D8471; }
         .back-link:hover .back-label { opacity: 1; max-width: 100px; }
         .back-arrow { transition: all 0.3s ease; font-size: 16px; }
         .back-m { font-size: 28px; font-weight: 300; }
-        .back-label { font-size: 13px; font-style: italic; color: #7D8471; opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap; transition: all 0.4s ease; }
-        .floor-indicator { position: fixed; top: 32px; right: 32px; z-index: 1000; text-align: right; }
-        .floor-indicator-name { font-family: 'Outfit'; font-size: 9px; letter-spacing: 0.3em; text-transform: uppercase; color: #525252; margin-bottom: 4px; }
-        .floor-indicator-year { font-family: 'Cormorant Garamond'; font-size: 13px; font-style: italic; color: #7D8471; }
-        .exhibitions-scroll { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; height: 100vh; }
+        .back-label {
+          font-size: 13px;
+          font-style: italic;
+          color: #7D8471;
+          opacity: 0;
+          max-width: 0;
+          overflow: hidden;
+          white-space: nowrap;
+          transition: all 0.4s ease;
+        }
+
+        .floor-indicator {
+          position: fixed;
+          top: 32px;
+          right: 32px;
+          z-index: 1000;
+          text-align: right;
+        }
+        .floor-indicator-name {
+          font-family: 'Outfit';
+          font-size: 9px;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: #525252;
+          margin-bottom: 4px;
+        }
+        .floor-indicator-year {
+          font-family: 'Cormorant Garamond';
+          font-size: 13px;
+          font-style: italic;
+          color: #7D8471;
+        }
+
+        .exhibitions-scroll {
+          display: flex;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          height: 100vh;
+        }
         .exhibitions-scroll::-webkit-scrollbar { height: 4px; }
         .exhibitions-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
-        .exhibition-card { flex: 0 0 100vw; min-width: 100vw; height: 100vh; scroll-snap-align: center; display: flex; align-items: center; justify-content: center; }
-        .exhibition-room { position: fixed; inset: 0; z-index: 500; background: #0a0a0a; }
-        .room-scroll { height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .room-section { display: flex; align-items: center; justify-content: center; padding: 40px; }
-        .return-button { padding: 20px 48px; font-size: 14px; letter-spacing: 0.15em; text-transform: uppercase; background: transparent; border: 1px solid; cursor: pointer; font-family: 'Outfit'; }
-        .return-button:hover { background: currentColor; color: #fff; }
-        .room-nav { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); z-index: 600; }
-        .nav-pill { padding: 12px 24px; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 100px; cursor: pointer; font-family: 'Outfit'; }
-        .scroll-hint { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 16px; color: #525252; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; font-family: 'Outfit'; z-index: 100; }
-        .scroll-hint-line { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, #525252); }
+
+        .exhibition-card {
+          flex: 0 0 100vw;
+          min-width: 100vw;
+          height: 100vh;
+          scroll-snap-align: center;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+
+        /* Installation in Progress Overlay */
+        .installation-overlay {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+          pointer-events: none;
+        }
+
+        .installation-sign {
+          background: rgba(20, 20, 20, 0.95);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 32px 48px;
+          text-align: center;
+        }
+
+        .installation-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: 14px;
+          font-weight: 400;
+          letter-spacing: 0.15em;
+          color: #fafafa;
+          margin-bottom: 8px;
+        }
+
+        .installation-subtitle {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 14px;
+          font-style: italic;
+          color: #737373;
+        }
+
+        .scroll-hint {
+          position: fixed;
+          bottom: 32px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          color: #525252;
+          font-size: 11px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          font-family: 'Outfit';
+          z-index: 100;
+        }
+        .scroll-hint-line {
+          width: 60px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, #525252);
+        }
+
         @media (max-width: 768px) {
           .back-link { top: 20px; left: 20px; }
           .back-m { font-size: 24px; }
           .back-arrow { font-size: 14px; }
           .floor-indicator { top: 20px; right: 20px; }
-          .room-section { padding: 24px; }
-          .return-button { padding: 16px 32px; font-size: 12px; }
-          .nav-pill { padding: 10px 20px; font-size: 11px; }
           .scroll-hint { bottom: 24px; gap: 12px; font-size: 10px; }
           .scroll-hint-line { width: 40px; }
+          .installation-sign { padding: 24px 32px; }
+          .installation-title { font-size: 12px; }
         }
       `}</style>
 
-      <Link href="/greathall" className="back-link"><span className="back-m">M</span><span className="back-arrow">←</span><span className="back-label">Great Hall</span></Link>
-      <div className="floor-indicator"><p className="floor-indicator-name">First Floor</p><p className="floor-indicator-year">2025–2026</p></div>
+      <Link href="/greathall" className="back-link">
+        <span className="back-m">M</span>
+        <span className="back-arrow">←</span>
+        <span className="back-label">Great Hall</span>
+      </Link>
 
-      {!activeExhibition && (
-        <>
-          <div className="exhibitions-scroll">
-            {exhibitions.map((exhibition, index) => (<ExhibitionCard key={exhibition.id} exhibition={exhibition} index={index} />))}
-          </div>
-          <div className="scroll-hint"><div className="scroll-hint-line" style={{ transform: 'rotate(180deg)' }}></div><span>Swipe to explore</span><div className="scroll-hint-line"></div></div>
-        </>
-      )}
+      <div className="floor-indicator">
+        <p className="floor-indicator-name">First Floor</p>
+        <p className="floor-indicator-year">2025–2026</p>
+      </div>
 
-      {activeExhibition && <ExhibitionRoom exhibition={activeExhibition} onReturn={returnToHall} />}
+      <div ref={scrollRef} className="exhibitions-scroll">
+        {exhibitions.map((exhibition, index) => (
+          <ExhibitionCard key={exhibition.id} exhibition={exhibition} index={index} />
+        ))}
+      </div>
+
+      <div className="scroll-hint">
+        <div className="scroll-hint-line" style={{ transform: 'rotate(180deg)' }}></div>
+        <span>Swipe to explore</span>
+        <div className="scroll-hint-line"></div>
+      </div>
     </div>
   );
 }
