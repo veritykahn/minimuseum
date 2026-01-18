@@ -522,8 +522,9 @@ export default function SeeingIsDeceiving() {
 
   // Colors
   const wavesBlue = '#a8d5e5';
+  const darkCharcoal = '#2a2a2a';
   const bgColor = isPoster1 ? '#e8e8e8' : '#0a0a0a';
-  const textColor = wavesBlue;
+  const textColor = isPoster1 ? darkCharcoal : wavesBlue;
 
   // Position classes
   const getPositionClass = (position?: string) => {
@@ -605,6 +606,7 @@ export default function SeeingIsDeceiving() {
           opacity: 0;
           display: inline-block;
           animation: wordFade 0.4s ease forwards;
+          margin-right: 0.3em;
         }
 
         /* Line by line fade */
