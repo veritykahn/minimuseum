@@ -33,13 +33,13 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'Right now, you believe you\'re seeing the world exactly as it is. But you\'re not. Your eyes are simply sensors that gather light – it is your brain that does all the interpreting and it takes remarkable shortcuts.',
     position: 'top-left',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
     text: 'Every second, 11 million bits of sensory information flood into your brain. You consciously process only about 40 bits. Which means your brain discards 99.999% of visual information and constructs what it thinks you need to see.',
     position: 'bottom-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
@@ -51,7 +51,7 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'To handle this impossible task, your brain doesn\'t record reality like a camera – it predicts reality. Based on past experience, it fills in gaps, smooths over inconsistencies, and makes thousands of assumptions.',
     position: 'top-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
@@ -63,7 +63,7 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'This prediction system keeps you alive—you can catch a ball, spot danger, recognize faces. But it also means you see what you expect to see, not necessarily what\'s actually there.',
     position: 'bottom-left',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'blind-spot',
@@ -87,13 +87,13 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'Inventors discovered something strange: show the eye rapid sequences of still images and the brain sees continuous motion that doesn\'t exist. The thaumatrope (1825) was a disk with different images on each side—spin it and a bird appears inside a cage. The zoetrope (1834) showed sequential drawings through slits—spin it and horses gallop, people dance.',
     position: 'top-left',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
     text: 'Nothing actually moves. Your brain creates the motion. Movies are still pictures shown fast. Every screen you look at exploits this biological quirk discovered 200 years ago.',
     position: 'bottom-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'section-title',
@@ -105,13 +105,13 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'In the 1830s, physicist Charles Wheatstone discovered that your two eyes see slightly different images, and your brain calculates depth from those differences. He built the first stereoscope—showing each eye a different flat picture. Your brain combines them and suddenly you perceive three dimensions that don\'t exist.',
     position: 'top-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
     text: 'By the late 1800s, Victorians used stereoscopes to "travel" to Egypt or Niagara Falls without leaving home. The same principle powers modern 3D movies and VR headsets. The technology evolved. Your brain didn\'t.',
     position: 'bottom-left',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'full-image',
@@ -129,13 +129,13 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'Your brain doesn\'t show you "true" color—it interprets based on context. In the checkerboard shadow illusion, two squares appear completely different shades. Measure the actual light and they\'re identical. Your brain "corrects" for the shadow, and you cannot see them as the same color even when you know they are.',
     position: 'top-left',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
     text: 'Remember the dress that broke the internet in 2015—blue and black or white and gold? Your brain\'s assumptions about lighting changed the actual colors you perceived. Two identical things can look completely different depending on what surrounds them.',
     position: 'bottom-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'section-title',
@@ -147,13 +147,13 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'Some illusions show your brain\'s pattern-finding obsession. The old woman/young woman illusion (1888) uses the same lines to create two completely different faces. The rabbit/duck illusion (1892) can be seen as either animal but never both simultaneously. The Rubin vase (1915): white vase or two black faces?',
     position: 'top-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
     text: 'Your brain organizes visual information into familiar patterns, sometimes finding multiple interpretations of the same image. What you "see" depends on which pattern your brain emphasizes.',
     position: 'bottom-left',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'section-title',
@@ -165,7 +165,7 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'Some static images appear to move. The peripheral drift illusion uses high-contrast patterns—stare at the center and edges seem to rotate, though nothing moves. The Rotating Snakes illusion (2003) shows circles that appear to spin when you glance around the image. Your brain is so committed to detecting motion that it sometimes sees movement that isn\'t there.',
     position: 'center',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'section-title',
@@ -177,7 +177,7 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'The Penrose triangle (1934) and M.C. Escher\'s impossible staircases (1960) show objects that cannot exist in three-dimensional space. Your brain tries to make sense of them and fails, creating that unsettling feeling when you see something impossible.',
     position: 'center',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'section-title',
@@ -189,7 +189,7 @@ const poster1Content: ContentItem[] = [
     type: 'paragraph',
     text: 'You don\'t see reality—you see your brain\'s interpretation based on prediction, context, pattern recognition, and efficiency shortcuts. Your brain takes these shortcuts to help you survive: you can catch balls, spot danger, recognize faces. But you can also be fooled by colors that aren\'t what they appear, motion that doesn\'t exist, depth that isn\'t there, and details your brain invents to fill gaps.',
     position: 'center',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   { type: 'end', text: 'Return to Exhibition' }
 ];
@@ -212,13 +212,13 @@ const poster2Content = [
     type: 'paragraph',
     text: 'Long before photography, humans created visual trickery. In the 1600s, camera obscura devices projected upside-down images onto walls in darkened rooms. People who didn\'t understand the optics believed they were seeing magic.',
     position: 'top-left',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
     text: 'By the 1700s, traveling showmen used magic lanterns—early projectors casting painted images onto screens. In darkened rooms, they created moving ghosts and demons that terrified audiences who\'d never seen projected light.',
     position: 'bottom-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
@@ -237,21 +237,21 @@ const poster2Content = [
     type: 'paragraph',
     text: 'In 1861, photographer William Mumler accidentally created the first spirit photograph using double exposure—exposing the same plate twice. A ghostly figure appeared beside him. Grieving families paid fortunes for photographs of dead relatives, not understanding how cameras could be manipulated.',
     position: 'top-left',
-    effect: 'word-by-word',
+    effect: 'fade-in',
     special: 'static-overlay'
   },
   {
     type: 'paragraph',
     text: 'For sixty years, spirit photography boomed. Photographers used simple tricks—double exposures, hanging cloth, accomplices in sheets—to create "proof" of the afterlife. Why did it work? Photography was new, the images looked real, people wanted to believe, and "seeing is believing" was still reliable.',
     position: 'bottom-right',
-    effect: 'word-by-word',
+    effect: 'fade-in',
     special: 'static-overlay'
   },
   {
     type: 'paragraph',
     text: 'By the 1920s, magicians like Houdini exposed the tricks, but for decades fake photographs had influenced beliefs and extracted money from grieving families.',
     position: 'center',
-    effect: 'word-by-word',
+    effect: 'fade-in',
     special: 'static-overlay'
   },
   {
@@ -264,7 +264,7 @@ const poster2Content = [
     type: 'paragraph',
     text: 'Film brought new illusions. Miniatures made tiny models look massive—King Kong (1933) was an 18-inch puppet. Matte paintings created castles and cities that didn\'t exist. Stop-motion brought creatures to life frame by frame. Rear projection put actors in exotic locations while they stood in studios.',
     position: 'top-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
@@ -283,14 +283,14 @@ const poster2Content = [
     type: 'paragraph',
     text: 'In 1990, Photoshop made photo editing accessible to anyone with a computer. Suddenly you could remove people from photographs, add things that were never there, alter faces and bodies, combine multiple images. Magazine covers showed impossible perfection. News photos were altered to remove inconvenient politicians.',
     position: 'top-left',
-    effect: 'word-by-word',
+    effect: 'fade-in',
     special: 'rgb-split'
   },
   {
     type: 'paragraph',
     text: 'The manipulation was often detectable if you looked closely—inconsistent lighting, weird shadows, wrong proportions. But most people weren\'t looking closely. They were scrolling fast, trusting their eyes. A new assumption emerged: every photograph might be fake.',
     position: 'bottom-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'full-image',
@@ -308,14 +308,14 @@ const poster2Content = [
     type: 'paragraph',
     text: 'In 2017, AI could generate photorealistic images of people who don\'t exist. By 2018, AI created convincing videos of real people saying things they never said. By 2020, these "deepfakes" were indistinguishable from authentic footage.',
     position: 'top-left',
-    effect: 'word-by-word',
+    effect: 'fade-in',
     special: 'glitch-subtle'
   },
   {
     type: 'paragraph',
     text: 'You can create deepfakes with free software, a decent computer, and hours of source footage. No expertise required. The technology also enables voice cloning from seconds of audio, AI-generated photographs of events that never happened, and face-swapping in real-time video.',
     position: 'bottom-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
@@ -357,7 +357,7 @@ const poster2Content = [
     type: 'paragraph',
     text: 'Visual manipulation has been weaponized to exploit grief, sell products, create false evidence, spread propaganda, manipulate politics, influence markets, destroy reputations, and evade accountability. The motivation hasn\'t changed in 400 years: profit, power, politics, personal gain.',
     position: 'center',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'section-title',
@@ -369,25 +369,25 @@ const poster2Content = [
     type: 'paragraph',
     text: 'Question the source: Who created this? Why? Who benefits? If you can\'t answer, you don\'t have enough information.',
     position: 'top-left',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
     text: 'Look for technical tells: Unnatural blinking, mismatched lighting, audio sync issues, weird artifacts, strangely smooth skin textures.',
     position: 'top-right',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'paragraph',
     text: 'Recognize confirmation bias: Content that confirms what you already believe is most dangerous. It feels true because you want it to be true. That\'s when you should be MOST skeptical.',
     position: 'bottom-center',
-    effect: 'word-by-word'
+    effect: 'fade-in'
   },
   {
     type: 'quote',
     text: 'Spirit photography worked because people wanted proof their loved ones weren\'t gone. Deepfakes work because your brain treats seeing as evidence. This instinct served humanity for thousands of years—until we invented ways to show you things that never happened.',
     position: 'center',
-    effect: 'typewriter'
+    effect: 'blur-to-sharp'
   },
   {
     type: 'link',
@@ -418,27 +418,6 @@ const TypewriterText = ({ text, onComplete, color }: { text: string; onComplete?
     <span style={{ color }}>
       {displayedText}
       <span className="typewriter-cursor">|</span>
-    </span>
-  );
-};
-
-// Word by word component
-const WordByWord = ({ text, color }: { text: string; color: string }) => {
-  const words = text.split(' ');
-  return (
-    <span>
-      {words.map((word, i) => (
-        <span
-          key={i}
-          className="word-fade"
-          style={{
-            animationDelay: `${i * 0.08}s`,
-            color
-          }}
-        >
-          {word}{' '}
-        </span>
-      ))}
     </span>
   );
 };
@@ -597,16 +576,13 @@ export default function SeeingIsDeceiving() {
           margin-left: 2px;
         }
 
-        /* Word by word fade */
-        @keyframes wordFade {
-          from { opacity: 0; transform: translateY(10px); }
+        /* Simple paragraph fade-in */
+        @keyframes paragraphFade {
+          from { opacity: 0; transform: translateY(15px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        .word-fade {
-          opacity: 0;
-          display: inline-block;
-          animation: wordFade 0.4s ease forwards;
-          margin-right: 0.3em;
+        .effect-fade-in {
+          animation: paragraphFade 0.8s ease forwards;
         }
 
         /* Line by line fade */
@@ -680,7 +656,7 @@ export default function SeeingIsDeceiving() {
 
         /* Mega zoom out */
         @keyframes megaZoomOut {
-          from { transform: scale(3); }
+          from { transform: scale(1.2); }
           to { transform: scale(1); }
         }
         .effect-mega-zoom-out {
@@ -720,7 +696,7 @@ export default function SeeingIsDeceiving() {
           position: absolute;
           inset: -50%;
           background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
-          opacity: 0.08;
+          opacity: 0.18;
           pointer-events: none;
           animation: staticNoise 0.2s steps(10) infinite;
           z-index: 1;
@@ -789,7 +765,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-end;
           justify-content: flex-start;
           text-align: left;
-          padding-bottom: 20vh;
+          padding-bottom: 180px;
           padding-left: 10vw;
           padding-right: 30vw;
         }
@@ -798,7 +774,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-end;
           justify-content: flex-end;
           text-align: right;
-          padding-bottom: 20vh;
+          padding-bottom: 180px;
           padding-right: 10vw;
           padding-left: 30vw;
         }
@@ -807,7 +783,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-end;
           justify-content: center;
           text-align: center;
-          padding-bottom: 20vh;
+          padding-bottom: 180px;
         }
         .pos-full-width {
           display: flex;
@@ -988,15 +964,18 @@ export default function SeeingIsDeceiving() {
         }
 
         .full-bleed-image.title-image img {
-          width: 100%;
+          width: auto;
           height: auto;
+          max-width: 100%;
+          max-height: 100%;
+          min-width: auto;
           min-height: auto;
           object-fit: contain;
         }
 
         .full-bleed-image.face-image img {
-          min-width: 150%;
-          min-height: 150%;
+          min-width: 120%;
+          min-height: 120%;
         }
 
         /* Text content wrapper */
@@ -1239,15 +1218,12 @@ export default function SeeingIsDeceiving() {
             {/* Paragraph */}
             {currentItem.type === 'paragraph' && currentItem.text && (
               <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''}`}>
-                <p className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`} style={{ color: textColor }}>
-                  {currentItem.effect === 'word-by-word' ? (
-                    <WordByWord text={currentItem.text} color={textColor} />
-                  ) : currentItem.effect === 'typewriter' ? (
+                <p
+                  className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''} ${currentItem.effect === 'fade-in' ? 'effect-fade-in' : ''} ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''} ${currentItem.effect === 'glitch' ? 'effect-glitch' : ''}`}
+                  style={{ color: textColor }}
+                >
+                  {currentItem.effect === 'typewriter' ? (
                     <TypewriterText text={currentItem.text} color={textColor} />
-                  ) : currentItem.effect === 'blur-to-sharp' ? (
-                    <span className="effect-blur-sharp">{currentItem.text}</span>
-                  ) : currentItem.effect === 'glitch' ? (
-                    <span className="effect-glitch">{currentItem.text}</span>
                   ) : (
                     currentItem.text
                   )}
@@ -1259,8 +1235,8 @@ export default function SeeingIsDeceiving() {
             {currentItem.type === 'blind-spot' && currentItem.text && (
               <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} blind-spot-container`}>
                 <div className="blind-spot-hole"></div>
-                <p className="paragraph-text" style={{ color: textColor }}>
-                  <WordByWord text={currentItem.text} color={textColor} />
+                <p className="paragraph-text effect-fade-in" style={{ color: textColor }}>
+                  {currentItem.text}
                 </p>
               </div>
             )}
@@ -1275,12 +1251,11 @@ export default function SeeingIsDeceiving() {
             {/* Quote */}
             {currentItem.type === 'quote' && currentItem.text && (
               <div className={`text-content-wrapper pos-center`}>
-                <blockquote className="quote-text" style={{ color: textColor, borderColor: textColor }}>
-                  {currentItem.effect === 'typewriter' ? (
-                    <TypewriterText text={currentItem.text} color={textColor} />
-                  ) : (
-                    currentItem.text
-                  )}
+                <blockquote
+                  className={`quote-text ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''}`}
+                  style={{ color: textColor, borderColor: textColor }}
+                >
+                  {currentItem.text}
                 </blockquote>
               </div>
             )}
