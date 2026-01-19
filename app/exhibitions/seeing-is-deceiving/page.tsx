@@ -1784,14 +1784,17 @@ export default function SeeingIsDeceiving() {
               <p className="artifact-status">Coming Soon</p>
             </div>
 
-            <div className="artifact-card">
-              <div className="artifact-pedestal">
-                <div className="artifact-glass-case">
-                  <span className="artifact-3d-icon">3D</span>
+            <div
+              className="artifact-card artifact-clickable"
+              onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}
+            >
+              <div className="artifact-pedestal artifact-active">
+                <div className="artifact-glass-case artifact-active-glow">
+                  <span className="artifact-explore-icon">↗</span>
                 </div>
               </div>
               <p className="artifact-label">Victorian Illusion Cards</p>
-              <p className="artifact-status">Coming Soon</p>
+              <p className="artifact-status artifact-status-active">Explore in 3D</p>
             </div>
 
             <div className="artifact-card">
