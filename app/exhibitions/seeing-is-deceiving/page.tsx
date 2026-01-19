@@ -1582,7 +1582,7 @@ export default function SeeingIsDeceiving() {
                 alt="Artifact Display Case"
                 className="case-image"
               />
-              <p className="case-label">Collection 2024.4</p>
+              <p className="case-label">Gallery II, Case 4</p>
               <p className="case-title">Instruments of Illusion</p>
               <p className="case-subtitle">Including Interactive Perception Lab</p>
             </div>

@@ -371,7 +371,7 @@ export default function ArtifactsCollection() {
 
       {/* Page header */}
       <div className="page-header">
-        <p className="page-label">Collection 2024.4</p>
+        <p className="page-label">Gallery II, Case 4</p>
         <h1 className="page-title">Instruments of Illusion</h1>
         <p className="page-subtitle">
           Including Interactive Perception Lab
