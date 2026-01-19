@@ -30,6 +30,7 @@ export default function IllusionRenderer({
   const [revealed, setRevealed] = useState(false);
   const [balconyView, setBalconyView] = useState<'main' | 'out' | 'over'>('main');
   const [checkerGuess, setCheckerGuess] = useState<'A' | 'B' | null>(null);
+  const [ponzoGuess, setPonzoGuess] = useState<'back' | 'front' | null>(null);
 
   const textColor = isPoster1 ? '#2a2a2a' : '#a8d5e5';
 
@@ -404,48 +405,53 @@ export default function IllusionRenderer({
   // PONZO CORRIDOR
   // ============================================
   if (illusionType === 'ponzo-corridor') {
+    const handlePonzoGuess = (guess: 'back' | 'front') => {
+      setPonzoGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetPonzo = () => {
+      setPonzoGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Ponzo Illusion</span>
         <p style={questionStyle}>{question || 'Which checkered ball is larger?'}</p>
 
         <div style={imageContainerStyle}>
-          <div style={{ ...imageWrapperStyle, position: 'relative' }}>
+          <div style={imageWrapperStyle}>
             <img
-              src={src || '/exhibitions/seeing/ponzo-corridor.jpg'}
+              src={revealed ? '/exhibitions/seeing/ponzo-corridor-reveal.png' : (src || '/exhibitions/seeing/ponzo-corridor.jpg')}
               alt="Ponzo Corridor Illusion"
               style={imageStyle}
             />
-            {revealed && (
-              <svg
-                viewBox="0 0 300 400"
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  pointerEvents: 'none'
-                }}
-              >
-                <circle cx="150" cy="85" r="28" fill="none" stroke="#fbbf24" strokeWidth="3" strokeDasharray="8,4" />
-                <circle cx="98" cy="305" r="28" fill="none" stroke="#fbbf24" strokeWidth="3" strokeDasharray="8,4" />
-                <line x1="150" y1="113" x2="98" y2="277" stroke="#fbbf24" strokeWidth="2" strokeDasharray="4,4" />
-                <text x="200" y="200" fill="#fbbf24" fontSize="14" fontWeight="bold">SAME SIZE</text>
-              </svg>
-            )}
           </div>
         </div>
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'IDENTICAL. The converging lines trick your brain into applying perspective correction. Objects "farther away" should be smaller, so when they\'re the same size, your brain inflates the distant one. Named after Italian psychologist Mario Ponzo (1911).'}
+            {ponzoGuess && `You chose the ${ponzoGuess} ball. `}
+            {answer || 'They\'re IDENTICAL. The converging lines trick your brain into applying perspective correction—objects "farther away" should be smaller, so your brain inflates the distant one. Named after Mario Ponzo (1911).'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
-          </button>
+          {!revealed ? (
+            <>
+              <button onClick={() => handlePonzoGuess('back')} style={buttonStyle}>
+                Back is Larger
+              </button>
+              <button onClick={() => handlePonzoGuess('front')} style={buttonStyle}>
+                Front is Larger
+              </button>
+            </>
+          ) : (
+            <button onClick={resetPonzo} style={buttonStyle}>
+              Try Again
+            </button>
+          )}
         </div>
       </div>
     );
@@ -463,7 +469,7 @@ export default function IllusionRenderer({
         <div style={imageContainerStyle}>
           <div style={imageWrapperStyle}>
             <img
-              src={src || '/exhibitions/seeing/jastrow-tracks.jpg'}
+              src={revealed ? '/exhibitions/seeing/jastrow-tracks-reveal.gif' : (src || '/exhibitions/seeing/jastrow-tracks.jpg')}
               alt="Jastrow Illusion"
               style={imageStyle}
             />
@@ -471,12 +477,16 @@ export default function IllusionRenderer({
         </div>
 
         <div style={answerContainerStyle}>
-          <p style={answerVisibleStyle}>
+          <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {answer || 'IDENTICAL. Your brain automatically compares adjacent edges: the short inner curve of one shape sits next to the long outer curve of the other, making it seem smaller. Discovered by Joseph Jastrow in 1889.'}
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
+            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
+          </button>
+        </div>
       </div>
     );
   }
@@ -663,7 +673,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'Three prongs at the top become two at the bottom. This "impossible object" exploits how your brain interprets 2D drawings as 3D shapes. Each end makes sense alone, but they can\'t connect in real space.'}
+            {answer || 'Two prongs at the top become three at the bottom. This "impossible object" exploits how your brain interprets 2D drawings as 3D shapes. Each end makes sense alone, but they can\'t connect in real space.'}
           </p>
         </div>
 
