@@ -73,15 +73,12 @@ export default function ArtifactViewer({ artifactId }: Props) {
     const width = container.clientWidth;
     const height = container.clientHeight;
 
-    // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x0a0a0a);
 
-    // Camera
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 0, 5);
 
-    // Renderer
     const renderer = new THREE.WebGLRenderer({
       antialias: true,
       alpha: true
@@ -93,7 +90,6 @@ export default function ArtifactViewer({ artifactId }: Props) {
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(renderer.domElement);
 
-    // Controls
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
@@ -103,7 +99,6 @@ export default function ArtifactViewer({ artifactId }: Props) {
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.5;
 
-    // Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
     scene.add(ambientLight);
 
@@ -234,7 +229,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           flex-direction: column;
         }
 
-        /* Header */
+        /* Header - just back button and info button */
         .artifact-header {
           position: fixed;
           top: 0;
@@ -265,23 +260,15 @@ export default function ArtifactViewer({ artifactId }: Props) {
         .back-btn:hover { color: #fff; }
         .back-btn span { font-size: 18px; }
 
-        .header-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 14px;
-          font-weight: 300;
-          letter-spacing: 0.1em;
-          color: #737373;
-        }
-
         .info-btn {
-          width: 44px;
-          height: 44px;
+          width: 50px;
+          height: 50px;
           border-radius: 50%;
           border: 1px solid rgba(168, 213, 229, 0.3);
           background: transparent;
           color: #a8d5e5;
           font-family: 'Cormorant Garamond', serif;
-          font-size: 22px;
+          font-size: 26px;
           font-style: italic;
           cursor: pointer;
           transition: all 0.3s ease;
@@ -303,23 +290,12 @@ export default function ArtifactViewer({ artifactId }: Props) {
           padding-top: 80px;
         }
 
-        /* 3D Viewer */
-        .viewer-section {
-          flex: 1;
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          min-height: calc(100vh - 80px);
-        }
-
+        /* 3D Viewer - takes most of the space */
         .model-container {
-          width: 100%;
           flex: 1;
+          width: 100%;
           position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          min-height: 60vh;
         }
 
         .model-container canvas {
@@ -388,12 +364,47 @@ export default function ArtifactViewer({ artifactId }: Props) {
           text-align: center;
         }
 
-        /* Controls hint - BELOW viewer, centered, hidden on mobile */
+        /* Bottom bar - title left, controls right */
+        .bottom-bar {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-end;
+          padding: 24px 32px 32px;
+          background: linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0.9) 60%, rgba(10,10,10,0) 100%);
+        }
+
+        .artifact-info {
+          flex: 1;
+        }
+
+        .artifact-date {
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: #737373;
+          margin-bottom: 8px;
+        }
+
+        .artifact-name {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.4rem, 4vw, 1.8rem);
+          font-weight: 300;
+          color: #fafafa;
+          margin-bottom: 8px;
+        }
+
+        .artifact-subtitle {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1rem;
+          font-style: italic;
+          color: #a8d5e5;
+        }
+
+        /* Controls hint - right side, hidden on mobile */
         .controls-hint {
           display: flex;
-          justify-content: center;
-          gap: 32px;
-          padding: 16px 0;
+          gap: 24px;
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
           letter-spacing: 0.1em;
@@ -414,33 +425,6 @@ export default function ArtifactViewer({ artifactId }: Props) {
           align-items: center;
           justify-content: center;
           font-size: 12px;
-        }
-
-        /* Artifact label */
-        .artifact-label {
-          text-align: center;
-          padding: 24px 32px 32px;
-        }
-        .artifact-date {
-          font-family: 'Outfit', sans-serif;
-          font-size: 10px;
-          letter-spacing: 0.2em;
-          text-transform: uppercase;
-          color: #737373;
-          margin-bottom: 8px;
-        }
-        .artifact-name {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.4rem, 4vw, 1.8rem);
-          font-weight: 300;
-          color: #fafafa;
-          margin-bottom: 8px;
-        }
-        .artifact-subtitle {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1rem;
-          font-style: italic;
-          color: #a8d5e5;
         }
 
         /* Info panel - slide over from right */
@@ -558,11 +542,11 @@ export default function ArtifactViewer({ artifactId }: Props) {
           .artifact-header {
             padding: 16px 20px;
           }
-          .header-title {
-            display: none;
-          }
           .controls-hint {
             display: none;
+          }
+          .bottom-bar {
+            padding: 20px 24px 28px;
           }
           .info-panel {
             width: 100%;
@@ -570,19 +554,15 @@ export default function ArtifactViewer({ artifactId }: Props) {
           .info-panel-content {
             padding: 80px 24px 40px;
           }
-          .artifact-label {
-            padding: 16px 24px 24px;
-          }
         }
       `}</style>
 
-      {/* Header */}
+      {/* Header - no title, just back and info buttons */}
       <header className="artifact-header">
-        <button className="back-btn" onClick={() => router.push('/exhibitions/seeing-is-deceiving')}>
+        <button className="back-btn" onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}>
           <span>←</span>
-          Back to Exhibition
+          Back to Collection
         </button>
-        <span className="header-title">Artifact Collection</span>
         <button
           className={`info-btn ${showInfo ? 'active' : ''}`}
           onClick={() => setShowInfo(!showInfo)}
@@ -593,25 +573,31 @@ export default function ArtifactViewer({ artifactId }: Props) {
 
       {/* Main content */}
       <main className="artifact-content">
-        <div className="viewer-section">
-          {/* 3D Model Container */}
-          <div className="model-container" ref={containerRef}>
-            {isLoading && (
-              <div className="loading-overlay">
-                <div className="loading-spinner"></div>
-                <span className="loading-text">Loading artifact...</span>
-              </div>
-            )}
+        {/* 3D Model Container */}
+        <div className="model-container" ref={containerRef}>
+          {isLoading && (
+            <div className="loading-overlay">
+              <div className="loading-spinner"></div>
+              <span className="loading-text">Loading artifact...</span>
+            </div>
+          )}
 
-            {!isLoading && loadError && (
-              <div className="model-placeholder">
-                <div className="placeholder-icon">◇</div>
-                <div className="placeholder-text">{loadError}</div>
-              </div>
-            )}
+          {!isLoading && loadError && (
+            <div className="model-placeholder">
+              <div className="placeholder-icon">◇</div>
+              <div className="placeholder-text">{loadError}</div>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom bar - title left, controls right */}
+        <div className="bottom-bar">
+          <div className="artifact-info">
+            <p className="artifact-date">{artifact.date}</p>
+            <h1 className="artifact-name">{artifact.title}</h1>
+            <p className="artifact-subtitle">{artifact.subtitle}</p>
           </div>
 
-          {/* Controls hint - below viewer, centered, hidden on mobile */}
           <div className="controls-hint">
             <div className="control-item">
               <div className="control-icon">↔</div>
@@ -625,13 +611,6 @@ export default function ArtifactViewer({ artifactId }: Props) {
               <div className="control-icon">⇧</div>
               <span>Shift+drag to pan</span>
             </div>
-          </div>
-
-          {/* Artifact label - centered below */}
-          <div className="artifact-label">
-            <p className="artifact-date">{artifact.date}</p>
-            <h1 className="artifact-name">{artifact.title}</h1>
-            <p className="artifact-subtitle">{artifact.subtitle}</p>
           </div>
         </div>
       </main>

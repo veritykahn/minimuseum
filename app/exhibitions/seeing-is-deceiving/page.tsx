@@ -1786,7 +1786,7 @@ export default function SeeingIsDeceiving() {
 
             <div
               className="artifact-card artifact-clickable"
-              onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts/victorian-cards')}
+              onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}
             >
               <div className="artifact-pedestal artifact-active">
                 <div className="artifact-glass-case artifact-active-glow">
