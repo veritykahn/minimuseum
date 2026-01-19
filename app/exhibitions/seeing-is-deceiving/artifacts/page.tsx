@@ -16,36 +16,36 @@ type Artifact = {
 const artifacts: Artifact[] = [
   {
     id: 'stereoscope',
-    title: '1904 Monarch Stereoscope',
+    title: 'Monarch Stereoscope',
     subtitle: 'Victorian Virtual Reality',
     image: '/exhibitions/seeing/artifacts/stereoscope-thumb.jpg',
-    status: 'coming-soon',
+    status: 'available',
     type: '3d',
     route: '/exhibitions/seeing-is-deceiving/artifacts/stereoscope'
+  },
+  {
+    id: 'stereoscope-cards',
+    title: 'Keystone View Cards',
+    subtitle: 'The World in Your Parlor',
+    image: '/exhibitions/seeing/artifacts/stereoscope-cards-thumb.jpg',
+    status: 'coming-soon',
+    type: '3d',
+    route: '/exhibitions/seeing-is-deceiving/artifacts/stereoscope-cards'
   },
   {
     id: 'victorian-cards',
     title: 'Victorian Illusion Cards',
     subtitle: 'Parlor Magic Transformed',
-    image: '/exhibitions/seeing/victorian-cards-thumb.jpg',
+    image: '/exhibitions/seeing/artifacts/victorian-cards-thumb.jpg',
     status: 'available',
     type: '3d',
     route: '/exhibitions/seeing-is-deceiving/artifacts/victorian-cards'
   },
   {
-    id: 'color-cards',
-    title: 'Color Perception Cards',
-    subtitle: 'Context Changes Everything',
-    image: '/exhibitions/seeing/artifacts/color-cards-thumb.jpg',
-    status: 'coming-soon',
-    type: '3d',
-    route: '/exhibitions/seeing-is-deceiving/artifacts/color-cards'
-  },
-  {
     id: 'perception-lab',
     title: 'Perception Lab',
     subtitle: 'Test Your Visual System',
-    image: '/exhibitions/seeing/perception-lab-thumb.jpg',
+    image: '/exhibitions/seeing/artifacts/perception-lab-thumb.jpg',
     status: 'available',
     type: 'interactive',
     route: '/exhibitions/seeing-is-deceiving/illusions'

@@ -24,7 +24,7 @@ const artifactsData: Record<string, ArtifactData> = {
     title: 'Victorian Optical Illusion Puzzle Cards',
     date: 'c.1890-1900',
     subtitle: 'Parlor Magic: When Reality Transforms',
-    model: '/exhibitions/seeing/victorian-cards.glb',
+    model: '/exhibitions/seeing/artifacts/victorian-cards.glb',
     available: true,
     description: [
       `Before television, before radio, before electric lights, Victorian families gathered for parlor entertainment. These optical illusion cards—called "transformation" or "metamorphic" cards—were popular amusements that challenged perception and sparked conversation.`,
@@ -34,15 +34,15 @@ const artifactsData: Record<string, ArtifactData> = {
     ]
   },
   'stereoscope': {
-    title: 'Monarch Stereoscope & Keystone View Cards',
+    title: 'Monarch Stereoscope',
     date: '1904',
     subtitle: 'Victorian Virtual Reality: The Original 3D Experience',
-    model: '/exhibitions/seeing/stereoscope.glb',
-    available: false,
+    model: '/exhibitions/seeing/artifacts/stereoscope.glb',
+    available: true,
     description: [
       `This Monarch Stereoscope, manufactured in 1904 by the Keystone View Company, was the cutting-edge entertainment technology of its time—the Victorian equivalent of today's VR headsets. By presenting each eye with a slightly different photographic image, it tricks your brain into perceiving depth and dimension that doesn't exist on the flat cards.`,
-      `The 42 view cards in this collection allowed families to "travel" without leaving home. You could stand at Niagara Falls, explore the Grand Canyon, walk through Parisian streets, or witness historical events—all through the magic of binocular vision.`,
-      `But stereoscopes weren't just entertainment. They were also tools of education, propaganda, and occasionally deception. Publishers could stage scenes, manipulate images, or present entirely fabricated "views" as authentic documentation. The device that brought the world into your parlor could also bring you a world that never existed.`,
+      `The device works through a principle called stereopsis: your two eyes, positioned about 2.5 inches apart, naturally see the world from slightly different angles. Your brain combines these two perspectives to calculate depth. The stereoscope exploits this biological process by showing each eye a photograph taken from a slightly different position—and suddenly, flat images appear to have three dimensions.`,
+      `Keystone View Company was one of the largest stereoscope manufacturers in the world, producing millions of cards depicting everything from world landmarks to news events. Their slogan promised to bring "the world to your parlor"—and for Victorian families who might never travel beyond their own county, these devices offered windows to places they could only dream of visiting.`,
       `The principle behind this 120-year-old device is exactly the same technology that powers modern VR: show each eye a different image, and let the brain create depth. The more things change, the more your brain stays the same.`
     ]
   }
