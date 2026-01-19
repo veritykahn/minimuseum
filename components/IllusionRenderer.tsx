@@ -63,25 +63,25 @@ export default function IllusionRenderer({
 
   // Fixed-size image container that doesn't change on reveal
   const imageContainerStyle: React.CSSProperties = {
-    flex: '1 1 auto',
+    flex: '1 1 0',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     maxWidth: '500px',
     minHeight: 0,
+    overflow: 'visible',
     margin: '16px 0'
   };
 
   const imageWrapperStyle: React.CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     maxWidth: '100%',
     maxHeight: '100%',
     borderRadius: '4px',
-    overflow: 'hidden',
-    boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
+    boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
   };
 
   const imageStyle: React.CSSProperties = {
@@ -90,7 +90,8 @@ export default function IllusionRenderer({
     width: 'auto',
     height: 'auto',
     display: 'block',
-    objectFit: 'contain'
+    objectFit: 'contain',
+    borderRadius: '4px'
   };
 
   // Reserved answer space - always present, visibility controlled
@@ -703,7 +704,7 @@ export default function IllusionRenderer({
         <div style={imageContainerStyle}>
           <div style={imageWrapperStyle}>
             <img
-              src={src || '/exhibitions/seeing/grid.jpg'}
+              src={src || '/exhibitions/seeing/ghost-dots.jpg'}
               alt="Hermann Grid"
               style={imageStyle}
             />
