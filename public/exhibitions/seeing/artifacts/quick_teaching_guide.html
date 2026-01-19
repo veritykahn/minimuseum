@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Teaching Guide: Optical Illusions & Visual Deception</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        @page {
+            margin: 0.75in;
+        }
+
+        body {
+            background: #fafafa;
+            color: #0a0a0a;
+            font-family: 'Outfit', -apple-system, sans-serif;
+            line-height: 1.6;
+            padding: 60px 40px;
+        }
+
+        .container {
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(125, 132, 113, 0.3);
+        }
+
+        .subtitle {
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #7D8471;
+            margin-bottom: 16px;
+            font-weight: 400;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 300;
+            line-height: 1;
+            color: #0a0a0a;
+            margin-bottom: 20px;
+        }
+
+        .description {
+            font-size: 16px;
+            color: #404040;
+            font-weight: 300;
+            line-height: 1.8;
+            max-width: 700px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: #7D8471;
+            margin-bottom: 16px;
+            margin-top: 40px;
+            font-weight: 400;
+        }
+
+        h2 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 28px;
+            font-weight: 400;
+            color: #0a0a0a;
+            margin-bottom: 16px;
+            margin-top: 40px;
+        }
+
+        h3 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 20px;
+            font-weight: 500;
+            color: #262626;
+            margin-bottom: 12px;
+            margin-top: 24px;
+        }
+
+        p {
+            font-size: 15px;
+            color: #404040;
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 16px;
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            font-size: 15px;
+            color: #404040;
+            font-weight: 300;
+            line-height: 1.8;
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background: rgba(125, 132, 113, 0.08);
+            border-left: 3px solid #7D8471;
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .highlight-box p {
+            color: #262626;
+            margin-bottom: 12px;
+        }
+
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+            margin: 24px 0;
+        }
+
+        .box {
+            background: #ffffff;
+            border: 1px solid rgba(125, 132, 113, 0.2);
+            padding: 20px;
+            border-radius: 4px;
+        }
+
+        .box h3 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        strong {
+            color: #0a0a0a;
+            font-weight: 500;
+        }
+
+        em {
+            color: #262626;
+            font-style: italic;
+        }
+
+        .divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(125, 132, 113, 0.3), transparent);
+            margin: 40px 0;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 40px 24px;
+            }
+
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+        }
+
+        .footer {
+            margin-top: 60px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(125, 132, 113, 0.2);
+            text-align: center;
+        }
+
+        .footer p {
+            font-size: 13px;
+            color: #737373;
+            margin-bottom: 8px;
+        }
+
+        .footer .copyright {
+            font-size: 11px;
+            color: #525252;
+            letter-spacing: 0.1em;
+        }
+
+        .quick-tips {
+            background: #ffffff;
+            border-left: 3px solid #7D8471;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .quick-tips h4 {
+            font-family: 'Cormorant Garamond', Georgia, serif;
+            font-size: 16px;
+            font-weight: 500;
+            color: #0a0a0a;
+            margin-bottom: 12px;
+        }
+
+        .quick-tips ul {
+            margin-left: 20px;
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <p class="subtitle">Quick Reference for Teachers</p>
+            <h1>Quick Teaching Guide</h1>
+            <p class="description">Everything you need to know to use the Optical Illusions & Visual Deception exhibition with your students. For detailed lesson plans with student handouts, see the grade-specific resources.</p>
+        </div>
+
+        <p class="section-title">Exhibition Overview</p>
+        <p>This exhibition explores how human vision works, why our brains deceive us, and how visual manipulation has been used throughout history—from Victorian stereoscopes to modern AI deepfakes. Students will learn that "seeing is believing" is no longer reliable and will develop critical thinking skills for evaluating visual information.</p>
+
+        <div class="highlight-box">
+            <p><strong>Core Message:</strong> Your brain makes predictions about what you see. Those predictions are usually helpful but can be exploited. Understanding how vision works helps you think more critically about everything from friendships to news to social media.</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="section-title">Key Learning Objectives</p>
+
+        <div class="two-column">
+            <div class="box">
+                <h3>PreK-2nd Grade</h3>
+                <ul>
+                    <li>Eyes can sometimes "trick" us</li>
+                    <li>It's okay to check and ask questions</li>
+                    <li>Look closer before deciding</li>
+                </ul>
+            </div>
+
+            <div class="box">
+                <h3>3rd-4th Grade</h3>
+                <ul>
+                    <li>Brain makes predictions that can be wrong</li>
+                    <li>Verify information before believing/sharing</li>
+                    <li>Practice fact-checking strategies</li>
+                </ul>
+            </div>
+
+            <div class="box">
+                <h3>5th-6th Grade</h3>
+                <ul>
+                    <li>Understand how eyes and brain work together</li>
+                    <li>Identify types of optical illusions</li>
+                    <li>Evaluate source credibility</li>
+                    <li>Recognize visual manipulation techniques</li>
+                </ul>
+            </div>
+
+            <div class="box">
+                <h3>7th-8th Grade</h3>
+                <ul>
+                    <li>Analyze historical propaganda</li>
+                    <li>Understand deepfakes and AI manipulation</li>
+                    <li>Apply verification strategies to real-world scenarios</li>
+                    <li>Connect to moral responsibility (Eighth Commandment)</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="section-title">What's in the Exhibition</p>
+
+        <h3>Artifacts Students Will See:</h3>
+        <ul>
+            <li><strong>1904 Monarch Stereoscope:</strong> Victorian "VR" device that creates 3D illusions from flat cards</li>
+            <li><strong>Victorian Optical Illusion Cards (c.1890s):</strong> Transformation cards that change as you manipulate them</li>
+            <li><strong>Color Illusion Cards:</strong> Demonstrate how context changes color perception</li>
+            <li><strong>AI Deepfake Video Example:</strong> Shows how modern technology can fabricate realistic video</li>
+        </ul>
+
+        <h3>Two Educational Posters:</h3>
+        <ul>
+            <li><strong>Poster 1:</strong> "Seeing is Deceiving" - The science of vision, early motion illusion devices, color constancy, ambiguous images</li>
+            <li><strong>Poster 2:</strong> "A History of Lies" - Visual deception from magic lanterns to deepfakes, how to verify sources</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <p class="section-title">Before Your Visit</p>
+
+        <div class="quick-tips">
+            <h4>5-Minute Pre-Visit Activity for Any Grade:</h4>
+            <ul>
+                <li><strong>PreK-2:</strong> Show duck/rabbit illusion. "Can you see it both ways?"</li>
+                <li><strong>3-4:</strong> Scrambled sentence reading: "Yuor barin can raed tihs." How did you do that?</li>
+                <li><strong>5-8:</strong> Show a viral image. "How would you verify if this is real?"</li>
+            </ul>
+        </div>
+
+        <p><strong>Set Expectations:</strong> "You'll see old machines that trick your eyes, learn why your brain lies to you, and practice skills for checking if things are real."</p>
+
+        <div class="divider"></div>
+
+        <p class="section-title">During the Visit</p>
+
+        <h3>Guided Questions by Artifact:</h3>
+
+        <p><strong>At the Stereoscope:</strong></p>
+        <ul>
+            <li>How does this create depth from two flat pictures?</li>
+            <li>What modern technology uses the same principle? (VR headsets)</li>
+            <li>If Victorians could trick eyes with cardboard, what can we do now?</li>
+        </ul>
+
+        <p><strong>At the Victorian Illusion Cards:</strong></p>
+        <ul>
+            <li>Can you see the image both ways?</li>
+            <li>What changed—the picture or your brain?</li>
+            <li>Why does your brain group the lines different ways?</li>
+        </ul>
+
+        <p><strong>At the Color Illusion Cards:</strong></p>
+        <ul>
+            <li>Which color looks darker? (Students predict, then reveal they're identical)</li>
+            <li>If context changes how you see color, what else might context change?</li>
+            <li>How might this apply to judging people's actions?</li>
+        </ul>
+
+        <p><strong>At the AI Video Example:</strong></p>
+        <ul>
+            <li>Can you spot any signs this might be fake?</li>
+            <li>How is this similar to spirit photography from 1861?</li>
+            <li>What's your responsibility when you see dramatic videos online?</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <p class="section-title">After Your Visit</p>
+
+        <div class="two-column">
+            <div class="box">
+                <h3>Quick Discussion</h3>
+                <ul>
+                    <li>What surprised you most?</li>
+                    <li>How will this change what you do online?</li>
+                    <li>Name one time you should check before believing</li>
+                </ul>
+            </div>
+
+            <div class="box">
+                <h3>Simple Extension</h3>
+                <ul>
+                    <li>Draw your own optical illusion</li>
+                    <li>Find an optical illusion online and explain how it works</li>
+                    <li>Practice fact-checking one thing this week</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="section-title">Cross-Curricular Connections</p>
+
+        <div class="two-column">
+            <div class="box">
+                <h3>Science</h3>
+                <p>Anatomy of the eye, how the brain processes visual information, neuroscience of prediction</p>
+            </div>
+
+            <div class="box">
+                <h3>Social Studies</h3>
+                <p>Historical propaganda, how visual media influenced public opinion, role of photography in documenting history</p>
+            </div>
+
+            <div class="box">
+                <h3>ELA</h3>
+                <p>Source evaluation, distinguishing fact from opinion, media literacy, research skills</p>
+            </div>
+
+            <div class="box">
+                <h3>Art</h3>
+                <p>Op Art movement, M.C. Escher, creating illusions using perspective and pattern</p>
+            </div>
+
+            <div class="box">
+                <h3>Math</h3>
+                <p>Geometry of perspective, angles creating illusions, measuring to verify what eyes see</p>
+            </div>
+
+            <div class="box">
+                <h3>Religion</h3>
+                <p>Eighth Commandment (bearing true witness), moral responsibility in digital age, seeking truth</p>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="section-title">Assessment Ideas</p>
+
+        <h3>Quick Formative Assessment:</h3>
+        <ul>
+            <li><strong>Exit Ticket:</strong> "Name one way your brain tricks you and one way you'll check before believing."</li>
+            <li><strong>Think-Pair-Share:</strong> "How does understanding optical illusions help in real life?"</li>
+            <li><strong>Quick Write:</strong> "Describe a time you should have verified something before believing it."</li>
+        </ul>
+
+        <h3>Summative Assessment Options:</h3>
+        <ul>
+            <li>Create your own optical illusion and explain the science behind it</li>
+            <li>Analyze a historical example of visual propaganda</li>
+            <li>Design a PSA teaching peers how to spot fake images</li>
+            <li>Research a specific illusion and present how it exploits vision</li>
+        </ul>
+
+        <div class="divider"></div>
+
+        <p class="section-title">Common Misconceptions to Address</p>
+
+        <div class="highlight-box">
+            <p><strong>Misconception 1:</strong> "Optical illusions mean my eyes are broken."</p>
+            <p><strong>Reality:</strong> Illusions reveal how your visual system works. The shortcuts your brain takes are features, not bugs—they help you survive.</p>
+        </div>
+
+        <div class="highlight-box">
+            <p><strong>Misconception 2:</strong> "If I'm smart, I won't be fooled by illusions."</p>
+            <p><strong>Reality:</strong> Intelligence doesn't protect you from optical illusions—they exploit biology, not IQ. Even vision scientists are fooled by illusions they understand.</p>
+        </div>
+
+        <div class="highlight-box">
+            <p><strong>Misconception 3:</strong> "Only old people fell for spirit photography; we're too smart now."</p>
+            <p><strong>Reality:</strong> Modern people fall for deepfakes and AI-generated images using the exact same psychological vulnerabilities. Technology changes; human nature doesn't.</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="section-title">Supporting Diverse Learners</p>
+
+        <p><strong>For visual learners:</strong> The artifacts themselves are highly visual. Encourage sketching what they observe.</p>
+
+        <p><strong>For kinesthetic learners:</strong> Hands-on interaction with stereoscope and illusion cards. Consider adding blind spot experiments.</p>
+
+        <p><strong>For students with color blindness:</strong> Note that color constancy illusions may work differently. Use this as a teaching moment about how perception varies.</p>
+
+        <p><strong>For English language learners:</strong> Visual nature of exhibition is accessible. Pre-teach key vocabulary: illusion, perception, manipulate, verify.</p>
+
+        <p><strong>Differentiated student handouts:</strong> Each lesson plan includes three levels (Green/Yellow/Red) for student self-selection based on challenge preference.</p>
+
+        <div class="divider"></div>
+
+        <p class="section-title">Tips for Maximum Impact</p>
+
+        <div class="quick-tips">
+            <h4>Do:</h4>
+            <ul>
+                <li>Let students interact directly with artifacts</li>
+                <li>Make connections to their daily lives (social media, friendships, news)</li>
+                <li>Emphasize that verification is a skill anyone can learn</li>
+                <li>Model checking your own assumptions</li>
+                <li>Frame as empowerment, not fear (you CAN learn to see clearly)</li>
+            </ul>
+        </div>
+
+        <div class="quick-tips">
+            <h4>Avoid:</h4>
+            <ul>
+                <li>Making students feel foolish for being tricked</li>
+                <li>Treating illusions as "magic" without explaining the science</li>
+                <li>Overwhelming with too much technical detail</li>
+                <li>Skipping the "so what?"—always connect to real-world application</li>
+            </ul>
+        </div>
+
+        <div class="divider"></div>
+
+        <p class="section-title">Additional Resources</p>
+
+        <p><strong>Full lesson plans with student handouts available for:</strong></p>
+        <ul>
+            <li>PreK-Kindergarten (General)</li>
+            <li>Grades 1-2 (General)</li>
+            <li>Grades 3-4 (General)</li>
+            <li>Grades 5-8: Science, ELA, Social Studies, Art, Math, PE, Religion</li>
+        </ul>
+
+        <p><strong>Parent Resource Guide:</strong> Curated activities, books, videos, and museum links organized by age level for families to explore at home.</p>
+
+        <p><strong>Online Extensions:</strong> Each poster in the exhibition includes QR codes linking to major museum collections for deeper exploration.</p>
+
+        <div class="highlight-box">
+            <p><strong>Questions or Need Support?</strong></p>
+            <p>This exhibition is designed to be flexible—use as much or as little as works for your classroom. Even a 10-minute visit with one good discussion question creates impact.</p>
+        </div>
+
+        <div class="footer">
+            <p>The Mini Museum • Quick Teaching Guide • Optical Illusions & Visual Deception</p>
+            <p class="copyright">© 2025 The Mini Museum • Free for Educational Use</p>
+        </div>
+    </div>
+</body>
+</html>
