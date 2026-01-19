@@ -4,8 +4,21 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import IllusionRenderer from '@/components/IllusionRenderer';
 
+type IllusionItem = {
+  type: 'intro' | 'illusion' | 'closing';
+  title?: string;
+  subtitle?: string;
+  text?: string;
+  illusionType?: string;
+  src?: string;
+  revealSrc?: string;
+  altRevealSrc?: string;
+  question?: string;
+  answer?: string;
+};
+
 // Illusion content entries
-const illusionContent = [
+const illusionContent: IllusionItem[] = [
   // SECTION INTRO
   {
     type: 'intro',
@@ -349,7 +362,7 @@ export default function IllusionsPage() {
         )}
 
         {/* Illusion */}
-        {currentItem.type === 'illusion' && (
+        {currentItem.type === 'illusion' && currentItem.illusionType && (
           <IllusionRenderer
             illusionType={currentItem.illusionType}
             src={currentItem.src}
