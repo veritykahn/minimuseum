@@ -15,6 +15,7 @@ type IllusionItem = {
   altRevealSrc?: string;
   question?: string;
   answer?: string;
+  scienceExplanation?: string;
 };
 
 // Illusion content entries
@@ -33,7 +34,8 @@ const illusionContent: IllusionItem[] = [
     src: '/exhibitions/seeing/checker-shadow.jpg',
     revealSrc: '/exhibitions/seeing/checker-reveal.jpg',
     question: 'Which square is darker — A or B?',
-    answer: 'IDENTICAL — Both squares are the exact same shade. Your brain "corrects" for the shadow.'
+    answer: 'IDENTICAL — Both squares are the exact same shade. Your brain "corrects" for the shadow.',
+    scienceExplanation: 'This is called "lightness constancy" — your visual system automatically adjusts for lighting conditions so you can recognize objects whether they\'re in shadow or sunlight. The cylinder casts a shadow over square B, so your brain assumes B must actually be lighter than it appears (otherwise it would look even darker in the shadow). This compensation is so automatic you can\'t turn it off, even knowing the trick. MIT professor Edward Adelson created this illusion in 1995 to demonstrate that perception isn\'t about measuring light — it\'s about interpreting scenes.'
   },
 
   // 2. BALCONY
@@ -44,7 +46,8 @@ const illusionContent: IllusionItem[] = [
     revealSrc: '/exhibitions/seeing/balcony-out.jpg',
     altRevealSrc: '/exhibitions/seeing/balcony-over.jpg',
     question: 'What do you see? A man on a balcony looking out — or looking over a ledge from inside?',
-    answer: 'Both interpretations are valid. The image supports both equally — your brain picks one.'
+    answer: 'Both interpretations are valid. The image supports both equally — your brain picks one.',
+    scienceExplanation: 'This is a "bistable" or "reversible" figure — an image with two equally valid interpretations that your brain cannot hold simultaneously. Your visual cortex must commit to one 3D interpretation of the 2D image. The switch happens in your brain\'s "dorsal stream," which processes spatial relationships. Interestingly, once you see both interpretations, you can often voluntarily switch between them, but you\'ll never see both at once. Your brain literally cannot perceive ambiguity — it must decide.'
   },
 
   // 3. FRASER SPIRAL
@@ -54,7 +57,8 @@ const illusionContent: IllusionItem[] = [
     src: '/exhibitions/seeing/fraser-spiral.jpg',
     revealSrc: '/exhibitions/seeing/fraser-spiral.gif',
     question: 'Is this a spiral — or something else?',
-    answer: 'CONCENTRIC CIRCLES — There is no spiral. The twisted cord pattern tricks your brain.'
+    answer: 'CONCENTRIC CIRCLES — There is no spiral. The twisted cord pattern tricks your brain.',
+    scienceExplanation: 'The "twisted cord" elements create local tilt signals that your brain integrates into a global spiral percept. Each small segment appears tilted due to the black and white pattern, and your visual system — trying to find continuous contours — links these tilts into a spiral that doesn\'t exist. This reveals how your brain constructs edges: it doesn\'t just trace lines, it interprets local orientation cues and sometimes gets fooled when those cues conflict with the actual geometry. Discovered by British psychologist James Fraser in 1908.'
   },
 
   // 4. BULGING GRID
@@ -64,7 +68,8 @@ const illusionContent: IllusionItem[] = [
     src: '/exhibitions/seeing/bulging-grid.jpg',
     revealSrc: '/exhibitions/seeing/grid.jpg',
     question: 'Does the center of this grid bulge outward?',
-    answer: 'PERFECTLY FLAT — The varying square sizes create the illusion of depth.'
+    answer: 'PERFECTLY FLAT — The varying square sizes create the illusion of depth.',
+    scienceExplanation: 'Your brain uses size gradients as depth cues — in the real world, objects appear smaller as they recede. Here, the squares get progressively smaller toward the center, triggering your depth perception system to interpret this as a surface curving away from you. The high contrast and regular geometry amplify the effect. This exploits the same neural mechanisms that let you perceive depth in photographs and paintings — mechanisms so fundamental they activate even when you know they\'re being tricked.'
   },
 
   // 5. ROTATING SNAKES
@@ -73,7 +78,8 @@ const illusionContent: IllusionItem[] = [
     illusionType: 'rotating-snakes',
     src: '/exhibitions/seeing/rotating-snakes.jpg',
     question: 'Look around the image. Do you see movement?',
-    answer: 'Nothing is moving. This is a static image. Your peripheral vision sees motion that isn\'t there.'
+    answer: 'Nothing is moving. This is a static image. Your peripheral vision sees motion that isn\'t there.',
+    scienceExplanation: 'Created by Akiyoshi Kitaoka in 2003, this illusion exploits how your brain processes motion. The specific color sequence (black → dark blue → white → yellow) creates asymmetric neural responses in your retina and visual cortex. When your eyes make tiny involuntary movements called "microsaccades," different parts of the pattern activate at slightly different times, and your motion-detection neurons interpret this as rotation. The effect is strongest in peripheral vision because those neurons are more sensitive to motion than to fine detail.'
   },
 
   // 6. PONZO CORRIDOR
@@ -82,7 +88,8 @@ const illusionContent: IllusionItem[] = [
     illusionType: 'ponzo-corridor',
     src: '/exhibitions/seeing/ponzo-corridor.jpg',
     question: 'Which checkered ball is larger?',
-    answer: 'IDENTICAL — Depth cues from the corridor make the back ball seem larger.'
+    answer: 'IDENTICAL — Depth cues from the corridor make the back ball seem larger.',
+    scienceExplanation: 'Named after Italian psychologist Mario Ponzo (1911), this illusion demonstrates "size constancy" — your brain\'s automatic adjustment for distance. The converging lines signal depth (like railway tracks receding), telling your brain the upper ball is "farther away." Since it takes up the same space on your retina as the "closer" ball, your brain concludes it must be physically larger. This compensation is essential for real-world perception — without it, people would appear to shrink as they walked away from you.'
   },
 
   // 7. JASTROW
@@ -91,7 +98,8 @@ const illusionContent: IllusionItem[] = [
     illusionType: 'jastrow',
     src: '/exhibitions/seeing/jastrow-tracks.jpg',
     question: 'Which curved shape is larger?',
-    answer: 'IDENTICAL — Your brain compares the short inner edge of one to the long outer edge of the other.'
+    answer: 'IDENTICAL — Your brain compares the short inner edge of one to the long outer edge of the other.',
+    scienceExplanation: 'Discovered by Joseph Jastrow in 1889, this illusion occurs because your brain judges size by comparing adjacent edges rather than measuring absolute dimensions. The short inner curve of one shape sits directly against the long outer curve of the other, making the first seem smaller by comparison. Your visual system evolved to make quick relative judgments (is that predator bigger than me?) rather than precise measurements — usually helpful, but exploitable by the right geometry.'
   },
 
   // 8. IMPOSSIBLE TRIDENT
@@ -100,7 +108,8 @@ const illusionContent: IllusionItem[] = [
     illusionType: 'impossible-trident',
     src: '/exhibitions/seeing/impossible-trident.jpg',
     question: 'How many prongs does this object have?',
-    answer: 'Three at the top, two at the bottom. This object cannot exist in 3D space.'
+    answer: 'Three at the top, two at the bottom. This object cannot exist in 3D space.',
+    scienceExplanation: 'Also called a "blivet," this impossible figure exploits how your brain interprets 2D line drawings as 3D objects. Each local region of the drawing is valid — you can trace any small section and it makes sense. But globally, the figure contradicts itself. Your brain uses "non-accidental properties" (junctions, parallel lines) to infer 3D structure, and here those cues create an object that violates physical law. First published in 1964, it reveals the assumptions your visual system makes — and how easily they break.'
   },
 
   // 9. HERMANN GRID
@@ -109,7 +118,8 @@ const illusionContent: IllusionItem[] = [
     illusionType: 'hermann-grid',
     src: '/exhibitions/seeing/ghost-dots.jpg',
     question: 'Do you see gray dots at the intersections?',
-    answer: 'Ghost dots appear where you\'re NOT looking. Look directly — they vanish!'
+    answer: 'Ghost dots appear where you\'re NOT looking. Look directly — they vanish!',
+    scienceExplanation: 'Discovered by Ludimar Hermann in 1870, this illusion was long attributed to "lateral inhibition" — retinal cells suppressing their neighbors. At intersections, more white surrounds each point, so more inhibition occurs, making those spots appear darker. However, recent research suggests the effect also involves neurons in your visual cortex that respond to specific spatial frequencies. The dots vanish when you look directly because your central vision (fovea) has much finer resolution than your peripheral vision, resolving the true brightness.'
   },
 
   // CLOSING
@@ -370,6 +380,7 @@ export default function IllusionsPage() {
             altRevealSrc={currentItem.altRevealSrc}
             question={currentItem.question}
             answer={currentItem.answer}
+            scienceExplanation={currentItem.scienceExplanation}
             isPoster1={false}
           />
         )}

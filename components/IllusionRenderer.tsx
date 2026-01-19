@@ -15,6 +15,7 @@ type IllusionProps = {
   altRevealSrc?: string;
   question?: string;
   answer?: string;
+  scienceExplanation?: string;
   isPoster1: boolean;
 };
 
@@ -25,12 +26,14 @@ export default function IllusionRenderer({
   altRevealSrc,
   question,
   answer,
+  scienceExplanation,
   isPoster1
 }: IllusionProps) {
   const [revealed, setRevealed] = useState(false);
   const [balconyView, setBalconyView] = useState<'main' | 'out' | 'over'>('main');
   const [checkerGuess, setCheckerGuess] = useState<'A' | 'B' | null>(null);
   const [ponzoGuess, setPonzoGuess] = useState<'back' | 'front' | null>(null);
+  const [showScience, setShowScience] = useState(false);
 
   const textColor = isPoster1 ? '#2a2a2a' : '#a8d5e5';
 
@@ -74,17 +77,17 @@ export default function IllusionRenderer({
     margin: 0
   };
 
-  // Fixed-size image container that doesn't change on reveal
+  // Fixed-size image container - NO overflow:hidden so images shrink instead of crop
   const imageContainerStyle: React.CSSProperties = {
-    flex: '1 1 auto',
+    flex: '0 1 auto',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     maxWidth: '500px',
-    maxHeight: '50vh',
-    minHeight: 0,
-    overflow: 'hidden',
+    height: 'calc(100vh - 350px)',  // Defined height so max-height: 100% works on children
+    minHeight: '200px',
+    // NO overflow: hidden - let images shrink naturally
     margin: '16px 0'
   };
 
@@ -92,8 +95,8 @@ export default function IllusionRenderer({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    maxWidth: '100%',
-    maxHeight: '100%',
+    width: '100%',
+    height: '100%',  // Fill container so image has a reference height
     borderRadius: '4px',
     boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
   };
@@ -163,6 +166,119 @@ export default function IllusionRenderer({
     transition: 'all 0.3s ease'
   };
 
+  // "How does this work?" link style
+  const scienceLinkStyle: React.CSSProperties = {
+    fontFamily: 'Cormorant Garamond, serif',
+    fontSize: '14px',
+    fontStyle: 'italic',
+    color: textColor,
+    opacity: 0.6,
+    cursor: 'pointer',
+    transition: 'opacity 0.3s ease',
+    marginTop: '12px',
+    background: 'none',
+    border: 'none',
+    padding: 0
+  };
+
+  // Bottom sheet component
+  const BottomSheet = () => {
+    if (!scienceExplanation) return null;
+
+    return (
+      <>
+        {/* Backdrop */}
+        <div
+          onClick={() => setShowScience(false)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.5)',
+            opacity: showScience ? 1 : 0,
+            visibility: showScience ? 'visible' : 'hidden',
+            transition: 'opacity 0.3s ease, visibility 0.3s ease',
+            zIndex: 1000
+          }}
+        />
+
+        {/* Sheet */}
+        <div
+          style={{
+            position: 'fixed',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            background: isPoster1 ? '#f5f5f5' : '#1a1a1a',
+            borderTopLeftRadius: '20px',
+            borderTopRightRadius: '20px',
+            padding: '20px 32px 40px',
+            transform: showScience ? 'translateY(0)' : 'translateY(100%)',
+            transition: 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)',
+            zIndex: 1001,
+            maxHeight: '60vh',
+            overflowY: 'auto'
+          }}
+        >
+          {/* Handle */}
+          <div
+            style={{
+              width: '40px',
+              height: '4px',
+              background: textColor,
+              opacity: 0.3,
+              borderRadius: '2px',
+              margin: '0 auto 24px'
+            }}
+          />
+
+          {/* Title */}
+          <h3
+            style={{
+              fontFamily: 'Outfit, sans-serif',
+              fontSize: '11px',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              color: textColor,
+              opacity: 0.5,
+              marginBottom: '16px'
+            }}
+          >
+            How does this work?
+          </h3>
+
+          {/* Explanation */}
+          <p
+            style={{
+              fontFamily: 'Cormorant Garamond, serif',
+              fontSize: '17px',
+              lineHeight: 1.8,
+              color: textColor,
+              opacity: 0.9
+            }}
+          >
+            {scienceExplanation}
+          </p>
+        </div>
+      </>
+    );
+  };
+
+  // Science link button (only shows if scienceExplanation exists)
+  const ScienceLink = () => {
+    if (!scienceExplanation) return null;
+
+    return (
+      <button
+        onClick={() => setShowScience(true)}
+        style={scienceLinkStyle}
+        onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+        onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.6')}
+      >
+        How does this work? ↑
+      </button>
+    );
+  };
+
   // ============================================
   // CHECKER SHADOW (Adelson's Checker Shadow)
   // ============================================
@@ -215,6 +331,9 @@ export default function IllusionRenderer({
             </button>
           )}
         </div>
+
+        {revealed && <ScienceLink />}
+        <BottomSheet />
       </div>
     );
   }
@@ -270,6 +389,9 @@ export default function IllusionRenderer({
             Looking In
           </button>
         </div>
+
+        {balconyView !== 'main' && <ScienceLink />}
+        <BottomSheet />
       </div>
     );
   }
@@ -304,6 +426,9 @@ export default function IllusionRenderer({
             {revealed ? 'See Illusion Again' : 'Trace the Path'}
           </button>
         </div>
+
+        {revealed && <ScienceLink />}
+        <BottomSheet />
       </div>
     );
   }
@@ -338,6 +463,9 @@ export default function IllusionRenderer({
             {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
           </button>
         </div>
+
+        {revealed && <ScienceLink />}
+        <BottomSheet />
       </div>
     );
   }
@@ -368,6 +496,9 @@ export default function IllusionRenderer({
         </div>
 
         <div style={buttonContainerStyle} />
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
@@ -398,6 +529,9 @@ export default function IllusionRenderer({
         </div>
 
         <div style={buttonContainerStyle} />
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
@@ -454,6 +588,9 @@ export default function IllusionRenderer({
             </button>
           )}
         </div>
+
+        {revealed && <ScienceLink />}
+        <BottomSheet />
       </div>
     );
   }
@@ -488,6 +625,9 @@ export default function IllusionRenderer({
             {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
           </button>
         </div>
+
+        {revealed && <ScienceLink />}
+        <BottomSheet />
       </div>
     );
   }
@@ -518,6 +658,9 @@ export default function IllusionRenderer({
         </div>
 
         <div style={buttonContainerStyle} />
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
@@ -548,6 +691,9 @@ export default function IllusionRenderer({
         </div>
 
         <div style={buttonContainerStyle} />
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
@@ -585,6 +731,9 @@ export default function IllusionRenderer({
             {revealed ? 'Read Again' : 'Show Me'}
           </button>
         </div>
+
+        {revealed && <ScienceLink />}
+        <BottomSheet />
       </div>
     );
   }
@@ -615,6 +764,9 @@ export default function IllusionRenderer({
         </div>
 
         <div style={buttonContainerStyle} />
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
@@ -649,6 +801,9 @@ export default function IllusionRenderer({
             {revealed ? 'Flip Back' : 'Flip Upside Down'}
           </button>
         </div>
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
@@ -679,6 +834,9 @@ export default function IllusionRenderer({
         </div>
 
         <div style={buttonContainerStyle} />
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
@@ -709,6 +867,9 @@ export default function IllusionRenderer({
         </div>
 
         <div style={buttonContainerStyle} />
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
@@ -739,6 +900,9 @@ export default function IllusionRenderer({
         </div>
 
         <div style={buttonContainerStyle} />
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
@@ -769,6 +933,9 @@ export default function IllusionRenderer({
         </div>
 
         <div style={buttonContainerStyle} />
+
+        <ScienceLink />
+        <BottomSheet />
       </div>
     );
   }
