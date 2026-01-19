@@ -47,17 +47,17 @@ const artifactsData: Record<string, ArtifactData> = {
     ]
   },
   'stereoscope-cards': {
-    title: 'Keystone View Company Stereoscope Cards',
-    date: 'c. 1895-1910',
-    subtitle: 'The World in Your Parlor: 42 Windows to Places You\'ll Never Visit',
+    title: 'The Village of Dalen, Lake Bandaksvand',
+    date: '1906',
+    subtitle: 'Norway in Your Parlor: A Window to a World You\'ll Never Visit',
     model: '/exhibitions/seeing/artifacts/stereoscope-card.glb',
     available: true,
     description: [
-      `This collection of 42 stereoscope view cards represents a carefully curated "world tour" that Keystone View Company marketed to middle-class American families at the turn of the 20th century. Each card presents a different destination—from Niagara Falls to the Swiss Alps, from the streets of Paris to the Holy Land.`,
-      `The cards in this collection include views of natural wonders like the Falls of Montmorency near Quebec, the dramatic Gorge of the Tamina in Switzerland, and various views of Niagara Falls—one of the most popular subjects for stereoscope photographers. Architectural marvels, city streets, and scenic landscapes round out the collection, offering viewers a comprehensive "grand tour" without leaving their parlor.`,
-      `But stereoscope cards weren't just entertainment. They were also tools of education, propaganda, and occasionally deception. Publishers could stage scenes, manipulate images, or present entirely fabricated "views" as authentic documentation. The device that brought the world into your parlor could also bring you a world that never existed.`,
-      `These cards reveal the visual culture of their era: what people wanted to see, what they considered exotic or beautiful, and how they understood places they would never physically visit. In an age before television, before cinema, before the internet, this was how ordinary people encountered the wider world—through carefully constructed, commercially produced windows of wonder.`,
-      `The question these cards raise still resonates today: How much of what we "see" of distant places is authentic documentation, and how much is carefully constructed for our consumption?`
+      `This stereoscope card, published in 1906 by the Keystone View Company, shows the village of Dalen at the western end of Lake Bandaksvand in Telemarken, Norway—a remote Scandinavian landscape that most American viewers would never see in person.`,
+      `Stereoscope cards like this one contain two nearly identical photographs taken from slightly different angles, about 2.5 inches apart—the same distance between human eyes. When viewed through a stereoscope, your brain combines these two flat images and perceives depth that doesn't actually exist. Mountains recede into the distance. Water stretches toward the horizon. A flat piece of cardboard becomes a window into three-dimensional space.`,
+      `Keystone View Company was one of the world's largest publishers of stereoscope cards, producing thousands of views organized by catalog number. Card #13399 was part of their extensive "world tour" series, which promised to bring distant lands into American parlors. For families who might never travel beyond their own county, these cards offered something remarkable: the experience of being there—standing at the edge of a Norwegian fjord, witnessing a world they could only imagine.`,
+      `But every view was a construction. Photographers chose what to show and what to leave out. Publishers selected images that matched what customers expected exotic places to look like. The "Norway" that American families experienced through their stereoscopes was not Norway itself, but a carefully curated version of it—beautiful, distant, and frozen in a single perfect moment.`,
+      `Today we scroll through countless images of places we'll never visit. The technology has changed. The question remains: How much of what we "see" is authentic, and how much is constructed for our consumption?`
     ]
   }
 };
@@ -100,7 +100,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.5;
+    renderer.toneMappingExposure = 2.0;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(renderer.domElement);
 
@@ -114,36 +114,41 @@ export default function ArtifactViewer({ artifactId }: Props) {
     controls.autoRotateSpeed = 0.5;
 
     // Strong ambient light to ensure dark objects are visible
-    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.8);
     scene.add(ambientLight);
 
-    // Main key light - strong and warm
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
+    // Main key light - strong and bright
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 2.0);
     directionalLight1.position.set(5, 5, 5);
     scene.add(directionalLight1);
 
     // Fill light from opposite side
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.0);
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.5);
     directionalLight2.position.set(-5, 3, -5);
     scene.add(directionalLight2);
 
     // Top light
-    const pointLight = new THREE.PointLight(0xffffff, 0.8);
+    const pointLight = new THREE.PointLight(0xffffff, 1.2);
     pointLight.position.set(0, 5, 0);
     scene.add(pointLight);
 
-    // Front fill light
-    const frontLight = new THREE.PointLight(0xffffff, 0.6);
+    // Front fill light - strong to illuminate face of objects
+    const frontLight = new THREE.PointLight(0xffffff, 1.0);
     frontLight.position.set(0, 0, 5);
     scene.add(frontLight);
 
     // Bottom fill to reduce shadows
-    const bottomLight = new THREE.PointLight(0xffffff, 0.4);
+    const bottomLight = new THREE.PointLight(0xffffff, 0.6);
     bottomLight.position.set(0, -3, 2);
     scene.add(bottomLight);
 
+    // Back light for rim lighting effect
+    const backLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    backLight.position.set(0, 2, -5);
+    scene.add(backLight);
+
     // Accent light with slight blue tint
-    const accentLight = new THREE.PointLight(0xa8d5e5, 0.3);
+    const accentLight = new THREE.PointLight(0xa8d5e5, 0.4);
     accentLight.position.set(-3, 2, 3);
     scene.add(accentLight);
 
