@@ -1,0 +1,399 @@
+'use client';
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import IllusionRenderer from '@/components/IllusionRenderer';
+
+// Illusion content entries
+const illusionContent = [
+  // SECTION INTRO
+  {
+    type: 'intro',
+    title: 'Test Your Perception',
+    subtitle: 'Interactive optical illusions that reveal how your brain interprets reality'
+  },
+
+  // 1. CHECKER SHADOW
+  {
+    type: 'illusion',
+    illusionType: 'checker-shadow',
+    src: '/exhibitions/seeing/checker-shadow.jpg',
+    revealSrc: '/exhibitions/seeing/checker-reveal.jpg',
+    question: 'Which square is darker — A or B?',
+    answer: 'IDENTICAL — Both squares are the exact same shade. Your brain "corrects" for the shadow.'
+  },
+
+  // 2. BALCONY
+  {
+    type: 'illusion',
+    illusionType: 'balcony',
+    src: '/exhibitions/seeing/balcony.jpg',
+    revealSrc: '/exhibitions/seeing/balcony-out.jpg',
+    altRevealSrc: '/exhibitions/seeing/balcony-over.jpg',
+    question: 'What do you see? A man on a balcony looking out — or looking over a ledge from inside?',
+    answer: 'Both interpretations are valid. The image supports both equally — your brain picks one.'
+  },
+
+  // 3. FRASER SPIRAL
+  {
+    type: 'illusion',
+    illusionType: 'fraser-spiral',
+    src: '/exhibitions/seeing/fraser-spiral.jpg',
+    revealSrc: '/exhibitions/seeing/fraser-spiral.gif',
+    question: 'Is this a spiral — or something else?',
+    answer: 'CONCENTRIC CIRCLES — There is no spiral. The twisted cord pattern tricks your brain.'
+  },
+
+  // 4. BULGING GRID
+  {
+    type: 'illusion',
+    illusionType: 'bulging-grid',
+    src: '/exhibitions/seeing/bulging-grid.jpg',
+    revealSrc: '/exhibitions/seeing/grid.jpg',
+    question: 'Does the center of this grid bulge outward?',
+    answer: 'PERFECTLY FLAT — The varying square sizes create the illusion of depth.'
+  },
+
+  // 5. ROTATING SNAKES
+  {
+    type: 'illusion',
+    illusionType: 'rotating-snakes',
+    src: '/exhibitions/seeing/rotating-snakes.jpg',
+    question: 'Look around the image. Do you see movement?',
+    answer: 'Nothing is moving. This is a static image. Your peripheral vision sees motion that isn\'t there.'
+  },
+
+  // 6. PONZO CORRIDOR
+  {
+    type: 'illusion',
+    illusionType: 'ponzo-corridor',
+    src: '/exhibitions/seeing/ponzo-corridor.jpg',
+    question: 'Which checkered ball is larger?',
+    answer: 'IDENTICAL — Depth cues from the corridor make the back ball seem larger.'
+  },
+
+  // 7. JASTROW
+  {
+    type: 'illusion',
+    illusionType: 'jastrow',
+    src: '/exhibitions/seeing/jastrow-tracks.jpg',
+    question: 'Which curved shape is larger?',
+    answer: 'IDENTICAL — Your brain compares the short inner edge of one to the long outer edge of the other.'
+  },
+
+  // 8. IMPOSSIBLE TRIDENT
+  {
+    type: 'illusion',
+    illusionType: 'impossible-trident',
+    src: '/exhibitions/seeing/impossible-trident.jpg',
+    question: 'How many prongs does this object have?',
+    answer: 'Three at the top, two at the bottom. This object cannot exist in 3D space.'
+  },
+
+  // 9. HERMANN GRID
+  {
+    type: 'illusion',
+    illusionType: 'hermann-grid',
+    src: '/exhibitions/seeing/grid.jpg',
+    question: 'Do you see gray dots at the intersections?',
+    answer: 'Ghost dots appear where you\'re NOT looking. Look directly — they vanish!'
+  },
+
+  // CLOSING
+  {
+    type: 'closing',
+    text: 'These aren\'t tricks — they\'re features. Your brain takes shortcuts to process 11 million bits of information per second. Usually it works. Sometimes it doesn\'t.'
+  }
+];
+
+export default function IllusionsPage() {
+  const router = useRouter();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [fadeIn, setFadeIn] = useState(true);
+  const [animationKey, setAnimationKey] = useState(0);
+
+  const currentItem = illusionContent[currentIndex];
+  const wavesBlue = '#a8d5e5';
+
+  const handleBack = () => {
+    router.push('/exhibitions/seeing-is-deceiving');
+  };
+
+  const nextStep = () => {
+    if (currentIndex < illusionContent.length - 1) {
+      setFadeIn(false);
+      setTimeout(() => {
+        setCurrentIndex(currentIndex + 1);
+        setAnimationKey(prev => prev + 1);
+        setFadeIn(true);
+      }, 400);
+    }
+  };
+
+  const prevStep = () => {
+    if (currentIndex > 0) {
+      setFadeIn(false);
+      setTimeout(() => {
+        setCurrentIndex(currentIndex - 1);
+        setAnimationKey(prev => prev + 1);
+        setFadeIn(true);
+      }, 400);
+    }
+  };
+
+  return (
+    <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { overflow-x: hidden; }
+
+        /* Navigation */
+        .nav-m {
+          position: fixed;
+          top: 32px;
+          z-index: 1000;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          text-decoration: none;
+          font-family: 'Cormorant Garamond', serif;
+          transition: all 0.3s ease;
+          cursor: pointer;
+        }
+        .nav-m-left { left: 32px; }
+        .nav-m:hover .nav-label { opacity: 1; max-width: 150px; }
+        .nav-m:hover .nav-arrow-left { transform: translateX(-4px); }
+        .nav-m-text { font-size: 28px; font-weight: 300; color: #525252; transition: color 0.3s ease; }
+        .nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
+        .nav-label {
+          font-size: 13px;
+          font-style: italic;
+          color: #7D8471;
+          opacity: 0;
+          max-width: 0;
+          overflow: hidden;
+          white-space: nowrap;
+          transition: all 0.4s ease;
+        }
+
+        /* Fade animation */
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        .fade-in {
+          animation: fadeIn 0.6s ease forwards;
+        }
+        .fade-out {
+          opacity: 0;
+          transition: opacity 0.4s ease;
+        }
+
+        /* Blur to sharp */
+        @keyframes blurToSharp {
+          from { filter: blur(12px); opacity: 0; }
+          to { filter: blur(0); opacity: 1; }
+        }
+        .effect-blur-sharp {
+          animation: blurToSharp 1.2s ease forwards;
+        }
+
+        /* FadeInUp for answers */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Illusion page container */
+        .illusion-page {
+          min-height: 100vh;
+          width: 100vw;
+          transition: opacity 0.4s ease;
+        }
+
+        /* Navigation arrows */
+        .walkthrough-nav {
+          position: fixed;
+          bottom: 60px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 40px;
+          z-index: 100;
+        }
+
+        .nav-arrow-btn {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          border: 1px solid #a8d5e5;
+          background: transparent;
+          color: #a8d5e5;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 20px;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+        }
+        .nav-arrow-btn:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+        .nav-arrow-btn:not(:disabled):hover {
+          transform: scale(1.1);
+          background: rgba(168, 213, 229, 0.2);
+        }
+
+        .step-indicator {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          color: #a8d5e5;
+        }
+
+        /* Intro styles */
+        .intro-container {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 40px 160px;
+          text-align: center;
+        }
+        .intro-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: clamp(1rem, 3vw, 1.3rem);
+          font-weight: 500;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #a8d5e5;
+          margin-bottom: 24px;
+        }
+        .intro-subtitle {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.2rem, 3vw, 1.6rem);
+          font-style: italic;
+          color: rgba(168, 213, 229, 0.7);
+          max-width: 500px;
+        }
+
+        /* Closing styles */
+        .closing-container {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 40px 160px;
+          text-align: center;
+        }
+        .closing-text {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.3rem, 3.5vw, 1.8rem);
+          font-style: italic;
+          font-weight: 300;
+          line-height: 1.7;
+          color: #a8d5e5;
+          max-width: 600px;
+        }
+        .return-btn {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          padding: 16px 32px;
+          background: transparent;
+          border: 1px solid #a8d5e5;
+          color: #a8d5e5;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-top: 48px;
+        }
+        .return-btn:hover {
+          background: #a8d5e5;
+          color: #0a0a0a;
+        }
+
+        @media (max-width: 768px) {
+          .nav-m-left { left: 20px; top: 20px; }
+          .nav-m-text { font-size: 24px; }
+          .walkthrough-nav { bottom: 40px; gap: 24px; }
+          .nav-arrow-btn { width: 44px; height: 44px; font-size: 18px; }
+          .intro-container, .closing-container { padding: 100px 24px 160px; }
+        }
+      `}</style>
+
+      {/* Navigation */}
+      <div className="nav-m nav-m-left" onClick={handleBack}>
+        <span className="nav-m-text">M</span>
+        <span className="nav-arrow nav-arrow-left">←</span>
+        <span className="nav-label">Exhibition</span>
+      </div>
+
+      {/* Content */}
+      <div className={`illusion-page ${fadeIn ? 'fade-in' : 'fade-out'}`} key={animationKey}>
+
+        {/* Intro */}
+        {currentItem.type === 'intro' && (
+          <div className="intro-container">
+            <h1 className="intro-title effect-blur-sharp">{currentItem.title}</h1>
+            <p className="intro-subtitle effect-blur-sharp" style={{ animationDelay: '0.2s' }}>
+              {currentItem.subtitle}
+            </p>
+          </div>
+        )}
+
+        {/* Illusion */}
+        {currentItem.type === 'illusion' && (
+          <IllusionRenderer
+            illusionType={currentItem.illusionType}
+            src={currentItem.src}
+            revealSrc={currentItem.revealSrc}
+            altRevealSrc={currentItem.altRevealSrc}
+            question={currentItem.question}
+            answer={currentItem.answer}
+            isPoster1={false}
+          />
+        )}
+
+        {/* Closing */}
+        {currentItem.type === 'closing' && (
+          <div className="closing-container">
+            <p className="closing-text effect-blur-sharp">{currentItem.text}</p>
+            <button className="return-btn" onClick={handleBack}>
+              Return to Exhibition
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Navigation */}
+      {currentItem.type !== 'closing' && (
+        <div className="walkthrough-nav">
+          <button
+            className="nav-arrow-btn"
+            onClick={prevStep}
+            disabled={currentIndex === 0}
+          >
+            ←
+          </button>
+          <span className="step-indicator">
+            {currentIndex + 1} / {illusionContent.length}
+          </span>
+          <button
+            className="nav-arrow-btn"
+            onClick={nextStep}
+            disabled={currentIndex === illusionContent.length - 1}
+          >
+            →
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

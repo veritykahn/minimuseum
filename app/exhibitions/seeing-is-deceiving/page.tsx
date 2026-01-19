@@ -81,37 +81,43 @@ const poster1Content: ContentItem[] = [
     type: 'section-title',
     text: 'The First Motion Pictures (1820s–1830s)',
     position: 'full-width',
-    effect: 'split-reveal'
+    effect: 'split-reveal',
+    special: 'vintage-film'
   },
   {
     type: 'paragraph',
     text: 'Inventors discovered something strange: show the eye rapid sequences of still images and the brain sees continuous motion that doesn\'t exist. The thaumatrope (1825) was a disk with different images on each side—spin it and a bird appears inside a cage. The zoetrope (1834) showed sequential drawings through slits—spin it and horses gallop, people dance.',
     position: 'top-left',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'vintage-film'
   },
   {
     type: 'paragraph',
     text: 'Nothing actually moves. Your brain creates the motion. Movies are still pictures shown fast. Every screen you look at exploits this biological quirk discovered 200 years ago.',
     position: 'bottom-right',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'vintage-film'
   },
   {
     type: 'section-title',
     text: 'The Stereoscope: Inventing Depth',
     position: 'full-width',
-    effect: 'split-reveal'
+    effect: 'split-reveal',
+    special: 'depth-parallax'
   },
   {
     type: 'paragraph',
     text: 'In the 1830s, physicist Charles Wheatstone discovered that your two eyes see slightly different images, and your brain calculates depth from those differences. He built the first stereoscope—showing each eye a different flat picture. Your brain combines them and suddenly you perceive three dimensions that don\'t exist.',
     position: 'top-right',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'depth-parallax'
   },
   {
     type: 'paragraph',
     text: 'By the late 1800s, Victorians used stereoscopes to "travel" to Egypt or Niagara Falls without leaving home. The same principle powers modern 3D movies and VR headsets. The technology evolved. Your brain didn\'t.',
     position: 'bottom-left',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'depth-parallax'
   },
   {
     type: 'full-image',
@@ -123,19 +129,22 @@ const poster1Content: ContentItem[] = [
     type: 'section-title',
     text: 'Color Illusions: Context Changes Everything',
     position: 'center',
-    effect: 'blur-to-sharp'
+    effect: 'blur-to-sharp',
+    special: 'color-shift'
   },
   {
     type: 'paragraph',
     text: 'Your brain doesn\'t show you "true" color—it interprets based on context. In the checkerboard shadow illusion, two squares appear completely different shades. Measure the actual light and they\'re identical. Your brain "corrects" for the shadow, and you cannot see them as the same color even when you know they are.',
     position: 'top-left',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'color-shift'
   },
   {
     type: 'paragraph',
     text: 'Remember the dress that broke the internet in 2015—blue and black or white and gold? Your brain\'s assumptions about lighting changed the actual colors you perceived. Two identical things can look completely different depending on what surrounds them.',
     position: 'bottom-right',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'color-shift'
   },
   {
     type: 'section-title',
@@ -159,13 +168,15 @@ const poster1Content: ContentItem[] = [
     type: 'section-title',
     text: 'Motion That Isn\'t There',
     position: 'full-width',
-    effect: 'split-reveal'
+    effect: 'split-reveal',
+    special: 'peripheral-drift'
   },
   {
     type: 'paragraph',
     text: 'Some static images appear to move. The peripheral drift illusion uses high-contrast patterns—stare at the center and edges seem to rotate, though nothing moves. The Rotating Snakes illusion (2003) shows circles that appear to spin when you glance around the image. Your brain is so committed to detecting motion that it sometimes sees movement that isn\'t there.',
     position: 'center',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'peripheral-drift'
   },
   {
     type: 'section-title',
@@ -258,19 +269,22 @@ const poster2Content = [
     type: 'section-title',
     text: 'Hollywood Magic: Manufacturing Reality (1920s–1980s)',
     position: 'full-width',
-    effect: 'film-credits'
+    effect: 'film-credits',
+    special: 'film-reel'
   },
   {
     type: 'paragraph',
     text: 'Film brought new illusions. Miniatures made tiny models look massive—King Kong (1933) was an 18-inch puppet. Matte paintings created castles and cities that didn\'t exist. Stop-motion brought creatures to life frame by frame. Rear projection put actors in exotic locations while they stood in studios.',
     position: 'top-right',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'film-reel'
   },
   {
     type: 'paragraph',
     text: 'Everyone knew movies were fiction, but your brain believed them anyway. You knew the monster wasn\'t real, but your heart still raced.',
     position: 'center',
-    effect: 'blur-to-sharp'
+    effect: 'blur-to-sharp',
+    special: 'film-reel'
   },
   {
     type: 'section-title',
@@ -290,7 +304,8 @@ const poster2Content = [
     type: 'paragraph',
     text: 'The manipulation was often detectable if you looked closely—inconsistent lighting, weird shadows, wrong proportions. But most people weren\'t looking closely. They were scrolling fast, trusting their eyes. A new assumption emerged: every photograph might be fake.',
     position: 'bottom-right',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'rgb-split'
   },
   {
     type: 'full-image',
@@ -302,26 +317,29 @@ const poster2Content = [
     type: 'section-title',
     text: 'Deepfakes: AI Creates Reality (2017–Present)',
     position: 'center',
-    effect: 'glitch'
+    effect: 'glitch',
+    special: 'glitch-persistent'
   },
   {
     type: 'paragraph',
     text: 'In 2017, AI could generate photorealistic images of people who don\'t exist. By 2018, AI created convincing videos of real people saying things they never said. By 2020, these "deepfakes" were indistinguishable from authentic footage.',
     position: 'top-left',
     effect: 'fade-in',
-    special: 'glitch-subtle'
+    special: 'glitch-persistent'
   },
   {
     type: 'paragraph',
     text: 'You can create deepfakes with free software, a decent computer, and hours of source footage. No expertise required. The technology also enables voice cloning from seconds of audio, AI-generated photographs of events that never happened, and face-swapping in real-time video.',
     position: 'bottom-right',
-    effect: 'fade-in'
+    effect: 'fade-in',
+    special: 'glitch-persistent'
   },
   {
     type: 'paragraph',
     text: 'We\'re now in a world where seeing something happen is no longer reliable evidence that it happened.',
     position: 'center',
-    effect: 'glitch'
+    effect: 'glitch',
+    special: 'glitch-persistent'
   },
   {
     type: 'section-title',
@@ -502,7 +520,7 @@ export default function SeeingIsDeceiving() {
   // Colors
   const wavesBlue = '#a8d5e5';
   const darkCharcoal = '#2a2a2a';
-  const bgColor = isPoster1 ? '#e8e8e8' : '#0a0a0a';
+  const bgColor = isPoster1 ? '#e0dede' : '#0a0a0a';
   const textColor = isPoster1 ? darkCharcoal : wavesBlue;
 
   // Position classes
@@ -576,10 +594,10 @@ export default function SeeingIsDeceiving() {
           margin-left: 2px;
         }
 
-        /* Simple paragraph fade-in */
+        /* Simple paragraph fade-in (opacity only, no movement) */
         @keyframes paragraphFade {
-          from { opacity: 0; transform: translateY(15px); }
-          to { opacity: 1; transform: translateY(0); }
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
         .effect-fade-in {
           animation: paragraphFade 0.8s ease forwards;
@@ -723,16 +741,206 @@ export default function SeeingIsDeceiving() {
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 150px;
-          height: 150px;
+          width: 280px;
+          height: 280px;
           border-radius: 50%;
-          background: radial-gradient(circle, rgba(232,232,232,1) 0%, rgba(232,232,232,0) 70%);
+          background: radial-gradient(circle, rgba(224,222,222,1) 0%, rgba(224,222,222,0.9) 40%, rgba(224,222,222,0) 70%);
           pointer-events: none;
           animation: blindSpotFill 3s ease forwards 1s;
           z-index: 10;
         }
         @keyframes blindSpotFill {
           to { opacity: 0; }
+        }
+
+        /* Vintage film effect */
+        .vintage-film {
+          position: relative;
+        }
+        .vintage-film::before {
+          content: '';
+          position: absolute;
+          inset: -50%;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23grain)'/%3E%3C/svg%3E");
+          opacity: 0.12;
+          pointer-events: none;
+          animation: filmGrain 0.15s steps(8) infinite;
+          z-index: 1;
+        }
+        .vintage-film::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent 0%, transparent 98%, rgba(0,0,0,0.15) 99%, transparent 100%);
+          animation: filmScratch 0.4s steps(2) infinite;
+          pointer-events: none;
+          z-index: 2;
+        }
+        @keyframes filmGrain {
+          0%, 100% { transform: translate(0, 0); }
+          25% { transform: translate(-5%, -5%); }
+          50% { transform: translate(5%, 5%); }
+          75% { transform: translate(-5%, 5%); }
+        }
+        @keyframes filmScratch {
+          0% { background-position: 0 0; }
+          100% { background-position: 100% 0; }
+        }
+        @keyframes filmFlicker {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.97; }
+          75% { opacity: 0.99; }
+        }
+        .vintage-film > * {
+          animation: filmFlicker 0.1s ease-in-out infinite;
+        }
+
+        /* Depth/parallax effect for stereoscope */
+        .depth-parallax {
+          position: relative;
+          perspective: 1000px;
+        }
+        .depth-parallax .section-title-text {
+          transform: translateZ(30px);
+          text-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .depth-parallax .paragraph-text {
+          transform: translateZ(10px);
+        }
+
+        /* Shifting color pattern for color illusions */
+        .color-shift {
+          position: relative;
+        }
+        .color-shift::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            45deg,
+            rgba(168,213,229,0.03) 0%,
+            rgba(255,200,200,0.03) 25%,
+            rgba(200,255,200,0.03) 50%,
+            rgba(200,200,255,0.03) 75%,
+            rgba(168,213,229,0.03) 100%
+          );
+          background-size: 400% 400%;
+          animation: colorShift 8s ease infinite;
+          pointer-events: none;
+          z-index: 0;
+        }
+        @keyframes colorShift {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        /* Peripheral drift effect */
+        .peripheral-drift {
+          position: relative;
+        }
+        .peripheral-drift::before,
+        .peripheral-drift::after {
+          content: '';
+          position: fixed;
+          width: 200px;
+          height: 200px;
+          border-radius: 50%;
+          background: repeating-conic-gradient(
+            from 0deg,
+            rgba(42,42,42,0.04) 0deg 10deg,
+            transparent 10deg 20deg
+          );
+          pointer-events: none;
+          animation: peripheralRotate 20s linear infinite;
+          z-index: 0;
+        }
+        .peripheral-drift::before {
+          top: 10%;
+          left: -50px;
+        }
+        .peripheral-drift::after {
+          bottom: 15%;
+          right: -50px;
+          animation-direction: reverse;
+        }
+        @keyframes peripheralRotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+
+        /* Film reel sprocket holes */
+        .film-reel {
+          position: relative;
+        }
+        .film-reel::before,
+        .film-reel::after {
+          content: '';
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          width: 40px;
+          background: repeating-linear-gradient(
+            to bottom,
+            transparent 0px,
+            transparent 20px,
+            rgba(10,10,10,0.9) 20px,
+            rgba(10,10,10,0.9) 25px,
+            transparent 25px,
+            transparent 60px
+          );
+          pointer-events: none;
+          z-index: 100;
+        }
+        .film-reel::before {
+          left: 0;
+          border-right: 2px solid rgba(255,255,255,0.1);
+        }
+        .film-reel::after {
+          right: 0;
+          border-left: 2px solid rgba(255,255,255,0.1);
+        }
+        .film-reel > * {
+          animation: projectorFlicker 0.08s ease-in-out infinite;
+        }
+        @keyframes projectorFlicker {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.96; }
+        }
+
+        /* Persistent glitch effect */
+        .glitch-persistent {
+          position: relative;
+        }
+        .glitch-persistent .paragraph-text,
+        .glitch-persistent .section-title-text {
+          animation: glitchPersistent 4s ease-in-out infinite;
+        }
+        @keyframes glitchPersistent {
+          0%, 90%, 100% {
+            transform: translate(0);
+            text-shadow: none;
+          }
+          91% {
+            transform: translate(-2px, 1px);
+            text-shadow: 2px 0 #ff0000, -2px 0 #00ffff;
+          }
+          92% {
+            transform: translate(2px, -1px);
+            text-shadow: -2px 0 #ff0000, 2px 0 #00ffff;
+          }
+          93% {
+            transform: translate(0);
+            text-shadow: none;
+          }
+          96% {
+            transform: translate(1px, 1px);
+            text-shadow: 1px 0 #ff0000, -1px 0 #00ffff;
+          }
+          97% {
+            transform: translate(-1px, -1px);
+            text-shadow: -1px 0 #ff0000, 1px 0 #00ffff;
+          }
         }
 
         /* Positions */
@@ -765,7 +973,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-end;
           justify-content: flex-start;
           text-align: left;
-          padding-bottom: 180px;
+          padding-bottom: 200px;
           padding-left: 10vw;
           padding-right: 30vw;
         }
@@ -774,7 +982,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-end;
           justify-content: flex-end;
           text-align: right;
-          padding-bottom: 180px;
+          padding-bottom: 200px;
           padding-right: 10vw;
           padding-left: 30vw;
         }
@@ -783,7 +991,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-end;
           justify-content: center;
           text-align: center;
-          padding-bottom: 180px;
+          padding-bottom: 200px;
         }
         .pos-full-width {
           display: flex;
@@ -838,8 +1046,13 @@ export default function SeeingIsDeceiving() {
             grid-template-columns: 1fr;
             gap: 32px;
           }
-          .pos-top-left, .pos-top-right, .pos-bottom-left, .pos-bottom-right {
+          .pos-top-left, .pos-top-right {
             padding: 15vh 24px 15vh 24px;
+          }
+          .pos-bottom-left, .pos-bottom-right, .pos-bottom-center {
+            padding-bottom: 180px;
+            padding-left: 24px;
+            padding-right: 24px;
           }
         }
 
@@ -963,13 +1176,18 @@ export default function SeeingIsDeceiving() {
           object-fit: cover;
         }
 
-        .full-bleed-image.title-image img {
-          width: auto;
+        /* Poster 1 title: full width horizontal bleed */
+        .full-bleed-image.title-image.poster1-title img {
+          width: 100%;
           height: auto;
-          max-width: 100%;
-          max-height: 100%;
-          min-width: auto;
-          min-height: auto;
+          min-width: 100%;
+          object-fit: cover;
+        }
+        /* Poster 2 title: full height vertical display */
+        .full-bleed-image.title-image.poster2-title img {
+          width: auto;
+          height: 100%;
+          max-height: 100vh;
           object-fit: contain;
         }
 
@@ -1119,6 +1337,96 @@ export default function SeeingIsDeceiving() {
           border-color: rgba(255,255,255,0.4);
         }
 
+        /* Artifacts Grid */
+        .artifacts-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 32px;
+          max-width: 700px;
+          width: 100%;
+        }
+        .artifact-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+          padding: 24px;
+          background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 8px;
+          transition: all 0.3s ease;
+        }
+        .artifact-clickable {
+          cursor: pointer;
+        }
+        .artifact-clickable:hover {
+          border-color: rgba(168, 213, 229, 0.4);
+          background: linear-gradient(145deg, rgba(168, 213, 229, 0.08), rgba(168, 213, 229, 0.02));
+          transform: translateY(-4px);
+        }
+        .artifact-pedestal {
+          width: 100px;
+          height: 100px;
+          background: linear-gradient(to bottom, rgba(255,255,255,0.05), transparent);
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+        }
+        .artifact-pedestal::after {
+          content: '';
+          position: absolute;
+          bottom: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 80%;
+          height: 4px;
+          background: linear-gradient(to right, transparent, rgba(255,255,255,0.1), transparent);
+        }
+        .artifact-active::after {
+          background: linear-gradient(to right, transparent, rgba(168, 213, 229, 0.3), transparent);
+        }
+        .artifact-glass-case {
+          width: 70px;
+          height: 70px;
+          border: 1px dashed rgba(255,255,255,0.2);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .artifact-active-glow {
+          border-color: rgba(168, 213, 229, 0.5);
+          box-shadow: 0 0 20px rgba(168, 213, 229, 0.2);
+        }
+        .artifact-3d-icon {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          color: rgba(255,255,255,0.3);
+        }
+        .artifact-explore-icon {
+          font-size: 20px;
+          color: #a8d5e5;
+        }
+        .artifact-label {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 16px;
+          color: #fafafa;
+          text-align: center;
+        }
+        .artifact-status {
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #525252;
+        }
+        .artifact-status-active {
+          color: #a8d5e5;
+        }
+
         @media (max-width: 768px) {
           .nav-m-left { left: 20px; top: 20px; }
           .nav-m-right { right: 20px; top: 20px; }
@@ -1128,6 +1436,14 @@ export default function SeeingIsDeceiving() {
           .nav-arrow-btn { width: 44px; height: 44px; font-size: 18px; }
           .download-btn { bottom: 20px; right: 20px; padding: 10px 16px; font-size: 10px; }
           .text-content-wrapper { padding: 100px 24px; }
+          .artifacts-grid {
+            grid-template-columns: 1fr;
+            gap: 24px;
+            max-width: 320px;
+          }
+          .artifact-card {
+            padding: 20px;
+          }
         }
       `}</style>
 
@@ -1187,7 +1503,7 @@ export default function SeeingIsDeceiving() {
 
             {/* Title Image - Full Bleed */}
             {currentItem.type === 'title-image' && (
-              <div className={`full-bleed-image title-image ${currentItem.effect === 'kenburns-in' ? 'effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'effect-drift' : ''}`}>
+              <div className={`full-bleed-image title-image ${isPoster1 ? 'poster1-title' : 'poster2-title'} ${currentItem.effect === 'kenburns-in' ? 'effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'effect-drift' : ''}`}>
                 <img src={currentItem.src} alt={currentItem.alt} />
               </div>
             )}
@@ -1205,7 +1521,7 @@ export default function SeeingIsDeceiving() {
 
             {/* Section Title */}
             {currentItem.type === 'section-title' && (
-              <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''}`}>
+              <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'film-reel' ? 'film-reel' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
                 <h2
                   className={`section-title-text ${getEffectClass(currentItem.effect)} ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
                   style={{ color: textColor }}
@@ -1217,7 +1533,7 @@ export default function SeeingIsDeceiving() {
 
             {/* Paragraph */}
             {currentItem.type === 'paragraph' && currentItem.text && (
-              <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''}`}>
+              <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'film-reel' ? 'film-reel' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
                 <p
                   className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''} ${currentItem.effect === 'fade-in' ? 'effect-fade-in' : ''} ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''} ${currentItem.effect === 'glitch' ? 'effect-glitch' : ''}`}
                   style={{ color: textColor }}
@@ -1316,56 +1632,96 @@ export default function SeeingIsDeceiving() {
         </div>
       )}
 
-      {/* Artifacts View - Placeholder */}
+      {/* Artifacts View - 2x2 Grid */}
       {activeView === 'artifacts' && (
         <div className="exhibition-main">
-          <div style={{ textAlign: 'center' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
             <p style={{
               fontFamily: 'Outfit',
               fontSize: '10px',
               letterSpacing: '0.3em',
               textTransform: 'uppercase',
               color: '#737373',
-              marginBottom: '24px'
+              marginBottom: '16px'
             }}>
               3D Artifact Viewer
             </p>
             <h2 style={{
               fontFamily: 'Cormorant Garamond',
-              fontSize: 'clamp(2rem, 6vw, 3.5rem)',
+              fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
               fontWeight: 300,
-              color: '#fafafa',
-              marginBottom: '24px'
+              color: '#fafafa'
             }}>
-              Coming Soon
+              The Collection
             </h2>
-            <p style={{
-              fontFamily: 'Cormorant Garamond',
-              fontSize: '18px',
-              fontStyle: 'italic',
-              color: '#737373',
-              marginBottom: '48px',
-              maxWidth: '500px'
-            }}>
-              The 1904 Monarch Stereoscope, Victorian optical illusion cards, and color perception demonstrations will be viewable in 3D.
-            </p>
-            <button
-              onClick={returnToMain}
-              style={{
-                fontFamily: 'Outfit',
-                fontSize: '12px',
-                letterSpacing: '0.15em',
-                textTransform: 'uppercase',
-                padding: '16px 32px',
-                background: 'transparent',
-                border: '1px solid #525252',
-                color: '#fafafa',
-                cursor: 'pointer'
-              }}
-            >
-              Return to Exhibition
-            </button>
           </div>
+
+          <div className="artifacts-grid">
+            {/* 1904 Monarch Stereoscope */}
+            <div className="artifact-card">
+              <div className="artifact-pedestal">
+                <div className="artifact-glass-case">
+                  <span className="artifact-3d-icon">3D</span>
+                </div>
+              </div>
+              <p className="artifact-label">1904 Monarch Stereoscope</p>
+              <p className="artifact-status">Coming Soon</p>
+            </div>
+
+            {/* Victorian Illusion Cards */}
+            <div className="artifact-card">
+              <div className="artifact-pedestal">
+                <div className="artifact-glass-case">
+                  <span className="artifact-3d-icon">3D</span>
+                </div>
+              </div>
+              <p className="artifact-label">Victorian Illusion Cards</p>
+              <p className="artifact-status">Coming Soon</p>
+            </div>
+
+            {/* Color Perception Cards */}
+            <div className="artifact-card">
+              <div className="artifact-pedestal">
+                <div className="artifact-glass-case">
+                  <span className="artifact-3d-icon">3D</span>
+                </div>
+              </div>
+              <p className="artifact-label">Color Perception Cards</p>
+              <p className="artifact-status">Coming Soon</p>
+            </div>
+
+            {/* Interactive Illusions - Clickable */}
+            <div
+              className="artifact-card artifact-clickable"
+              onClick={() => router.push('/exhibitions/seeing-is-deceiving/illusions')}
+            >
+              <div className="artifact-pedestal artifact-active">
+                <div className="artifact-glass-case artifact-active-glow">
+                  <span className="artifact-explore-icon">↗</span>
+                </div>
+              </div>
+              <p className="artifact-label">Interactive Illusions</p>
+              <p className="artifact-status artifact-status-active">Explore</p>
+            </div>
+          </div>
+
+          <button
+            onClick={returnToMain}
+            style={{
+              fontFamily: 'Outfit',
+              fontSize: '12px',
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase',
+              padding: '16px 32px',
+              background: 'transparent',
+              border: '1px solid #525252',
+              color: '#fafafa',
+              cursor: 'pointer',
+              marginTop: '48px'
+            }}
+          >
+            Return to Exhibition
+          </button>
         </div>
       )}
 
