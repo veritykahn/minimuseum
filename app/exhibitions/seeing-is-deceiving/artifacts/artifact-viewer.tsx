@@ -61,7 +61,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [showDisplayCard, setShowDisplayCard] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   const artifact = artifactsData[artifactId];
 
@@ -119,15 +119,12 @@ export default function ArtifactViewer({ artifactId }: Props) {
     pointLight.position.set(0, 5, 0);
     scene.add(pointLight);
 
-    // Subtle rim light from below
     const rimLight = new THREE.PointLight(0xa8d5e5, 0.2);
     rimLight.position.set(0, -3, 2);
     scene.add(rimLight);
 
-    // Store refs
     sceneRef.current = { scene, camera, renderer, controls, model: null };
 
-    // Animation loop
     const animate = () => {
       requestAnimationFrame(animate);
       controls.update();
@@ -135,19 +132,16 @@ export default function ArtifactViewer({ artifactId }: Props) {
     };
     animate();
 
-    // Handle resize
     const handleResize = () => {
       if (!containerRef.current) return;
       const newWidth = containerRef.current.clientWidth;
       const newHeight = containerRef.current.clientHeight;
-
       camera.aspect = newWidth / newHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(newWidth, newHeight);
     };
     window.addEventListener('resize', handleResize);
 
-    // Cleanup
     return () => {
       window.removeEventListener('resize', handleResize);
       controls.dispose();
@@ -178,29 +172,21 @@ export default function ArtifactViewer({ artifactId }: Props) {
       artifact.model,
       (gltf) => {
         const model = gltf.scene;
-
-        // Center and scale the model
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
         const size = box.getSize(new THREE.Vector3());
-
         const maxDim = Math.max(size.x, size.y, size.z);
         const scale = 2.5 / maxDim;
         model.scale.setScalar(scale);
         model.position.sub(center.multiplyScalar(scale));
-
         scene.add(model);
         sceneRef.current!.model = model;
-
         camera.position.set(0, 0.5, 4);
         controls.target.set(0, 0, 0);
         controls.update();
-
         setIsLoading(false);
       },
-      (progress) => {
-        console.log('Loading:', (progress.loaded / progress.total * 100).toFixed(0) + '%');
-      },
+      undefined,
       (error) => {
         console.error('Error loading model:', error);
         setIsLoading(false);
@@ -246,11 +232,10 @@ export default function ArtifactViewer({ artifactId }: Props) {
           color: #fafafa;
           display: flex;
           flex-direction: column;
-          overflow: hidden;
         }
 
         /* Header */
-        .viewer-header {
+        .artifact-header {
           position: fixed;
           top: 0;
           left: 0;
@@ -280,37 +265,71 @@ export default function ArtifactViewer({ artifactId }: Props) {
         .back-btn:hover { color: #fff; }
         .back-btn span { font-size: 18px; }
 
-        .header-center {
+        .header-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-weight: 300;
-          letter-spacing: 0.05em;
-          color: #525252;
+          letter-spacing: 0.1em;
+          color: #737373;
+        }
+
+        .info-btn {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          border: 1px solid rgba(168, 213, 229, 0.3);
+          background: transparent;
+          color: #a8d5e5;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 22px;
+          font-style: italic;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .info-btn:hover {
+          background: rgba(168, 213, 229, 0.1);
+          border-color: #a8d5e5;
+        }
+        .info-btn.active {
+          background: #a8d5e5;
+          color: #0a0a0a;
         }
 
         /* Main content */
-        .viewer-content {
+        .artifact-content {
           flex: 1;
           display: flex;
           flex-direction: column;
           padding-top: 80px;
         }
 
-        /* 3D viewport */
-        .model-viewport {
+        /* 3D Viewer */
+        .viewer-section {
           flex: 1;
           position: relative;
-          min-height: 50vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          min-height: calc(100vh - 80px);
         }
 
-        .model-viewport canvas {
+        .model-container {
+          width: 100%;
+          flex: 1;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .model-container canvas {
           cursor: grab;
         }
-        .model-viewport canvas:active {
+        .model-container canvas:active {
           cursor: grabbing;
         }
 
-        /* Loading overlay */
+        /* Loading state */
         .loading-overlay {
           position: absolute;
           inset: 0;
@@ -319,10 +338,9 @@ export default function ArtifactViewer({ artifactId }: Props) {
           align-items: center;
           justify-content: center;
           gap: 16px;
-          background: rgba(10, 10, 10, 0.9);
+          background: rgba(10, 10, 10, 0.8);
           z-index: 10;
         }
-
         .loading-spinner {
           width: 40px;
           height: 40px;
@@ -331,11 +349,9 @@ export default function ArtifactViewer({ artifactId }: Props) {
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
-
         .loading-text {
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
@@ -344,61 +360,82 @@ export default function ArtifactViewer({ artifactId }: Props) {
           color: #737373;
         }
 
-        /* Error state */
-        .error-state {
+        /* Error/placeholder state */
+        .model-placeholder {
           position: absolute;
-          inset: 0;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
           display: flex;
           flex-direction: column;
           align-items: center;
-          justify-content: center;
           gap: 16px;
+          padding: 40px;
+          border: 2px dashed rgba(168, 213, 229, 0.3);
+          border-radius: 16px;
+          z-index: 5;
         }
-
-        .error-icon {
+        .placeholder-icon {
           font-size: 48px;
           color: #525252;
         }
-
-        .error-text {
+        .placeholder-text {
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: 11px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
           color: #737373;
+          text-align: center;
         }
 
-        /* Bottom info bar */
-        .info-bar {
-          padding: 24px 32px 32px;
-          background: linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0.95) 50%, rgba(10,10,10,0) 100%);
+        /* Controls hint - BELOW viewer, centered, hidden on mobile */
+        .controls-hint {
           display: flex;
-          justify-content: space-between;
-          align-items: flex-end;
-          gap: 24px;
+          justify-content: center;
+          gap: 32px;
+          padding: 16px 0;
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          color: #525252;
+        }
+        .control-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .control-icon {
+          width: 24px;
+          height: 24px;
+          border: 1px solid #525252;
+          border-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
         }
 
-        .artifact-info {
-          flex: 1;
+        /* Artifact label */
+        .artifact-label {
+          text-align: center;
+          padding: 24px 32px 32px;
         }
-
         .artifact-date {
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #525252;
-          margin-bottom: 6px;
+          color: #737373;
+          margin-bottom: 8px;
         }
-
-        .artifact-title {
+        .artifact-name {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.3rem, 4vw, 1.6rem);
+          font-size: clamp(1.4rem, 4vw, 1.8rem);
           font-weight: 300;
           color: #fafafa;
-          margin-bottom: 4px;
+          margin-bottom: 8px;
         }
-
         .artifact-subtitle {
           font-family: 'Cormorant Garamond', serif;
           font-size: 1rem;
@@ -406,359 +443,220 @@ export default function ArtifactViewer({ artifactId }: Props) {
           color: #a8d5e5;
         }
 
-        /* Display card button - BIGGER */
-        .display-card-btn {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 18px 28px;
+        /* Info panel - slide over from right */
+        .info-panel {
+          position: fixed;
+          top: 0;
+          right: 0;
+          width: 450px;
+          max-width: 90vw;
+          height: 100vh;
+          background: linear-gradient(135deg, rgba(20,20,20,0.98) 0%, rgba(10,10,10,0.98) 100%);
+          border-left: 1px solid rgba(255,255,255,0.08);
+          transform: translateX(100%);
+          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          z-index: 200;
+          overflow-y: auto;
+        }
+        .info-panel.open {
+          transform: translateX(0);
+        }
+
+        .info-panel-content {
+          padding: 100px 40px 60px;
+        }
+
+        .info-close {
+          position: absolute;
+          top: 24px;
+          right: 24px;
+          width: 40px;
+          height: 40px;
+          border: 1px solid rgba(255,255,255,0.2);
+          border-radius: 50%;
           background: transparent;
-          border: 1px solid rgba(168, 213, 229, 0.4);
-          border-radius: 8px;
-          color: #a8d5e5;
-          font-family: 'Outfit', sans-serif;
-          font-size: 13px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
+          color: #fafafa;
+          font-size: 20px;
           cursor: pointer;
           transition: all 0.3s ease;
-          white-space: nowrap;
+        }
+        .info-close:hover {
+          background: rgba(255,255,255,0.1);
         }
 
-        .display-card-btn:hover {
-          background: rgba(168, 213, 229, 0.1);
-          border-color: #a8d5e5;
-        }
-
-        .display-card-btn .icon {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 24px;
-          font-style: italic;
-          font-weight: 500;
-        }
-
-        /* Controls hint */
-        .controls-hint {
-          position: absolute;
-          bottom: 120px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          gap: 24px;
-          padding: 12px 20px;
-          background: rgba(10, 10, 10, 0.8);
-          border: 1px solid rgba(255,255,255,0.06);
-          border-radius: 100px;
+        .info-label {
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
-          letter-spacing: 0.05em;
-          color: #525252;
-          backdrop-filter: blur(8px);
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: #a8d5e5;
+          margin-bottom: 8px;
         }
 
-        .control-item {
+        .info-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.8rem;
+          font-weight: 300;
+          color: #fafafa;
+          margin-bottom: 8px;
+          line-height: 1.3;
+        }
+
+        .info-date {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          letter-spacing: 0.1em;
+          color: #737373;
+          margin-bottom: 24px;
+        }
+
+        .info-subtitle {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.2rem;
+          font-style: italic;
+          color: #a8d5e5;
+          margin-bottom: 32px;
+          padding-bottom: 24px;
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .info-description {
           display: flex;
-          align-items: center;
-          gap: 6px;
+          flex-direction: column;
+          gap: 20px;
         }
 
-        /* ==========================================
-           MUSEUM DISPLAY CARD
-           ========================================== */
-        .display-card-overlay {
+        .info-description p {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.05rem;
+          line-height: 1.8;
+          color: #d0d0d0;
+        }
+
+        .info-description p:first-letter {
+          font-size: 1.3em;
+          color: #a8d5e5;
+        }
+
+        /* Backdrop for mobile */
+        .info-backdrop {
           position: fixed;
           inset: 0;
-          z-index: 200;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 40px;
+          background: rgba(0,0,0,0.6);
           opacity: 0;
           visibility: hidden;
-          transition: all 0.4s ease;
+          transition: all 0.3s ease;
+          z-index: 150;
         }
-
-        .display-card-overlay.open {
+        .info-backdrop.open {
           opacity: 1;
           visibility: visible;
         }
 
-        .display-card-backdrop {
-          position: absolute;
-          inset: 0;
-          background: rgba(0, 0, 0, 0.85);
-          backdrop-filter: blur(8px);
-        }
-
-        /* The actual museum card */
-        .museum-card {
-          position: relative;
-          max-width: 560px;
-          width: 100%;
-          background: linear-gradient(145deg, #f5f3ef 0%, #ebe8e2 100%);
-          border-radius: 4px;
-          padding: 48px 44px;
-          box-shadow:
-            0 25px 80px rgba(0,0,0,0.5),
-            0 10px 30px rgba(0,0,0,0.3),
-            inset 0 1px 0 rgba(255,255,255,0.8);
-          transform: translateY(30px) scale(0.95);
-          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .display-card-overlay.open .museum-card {
-          transform: translateY(0) scale(1);
-        }
-
-        /* Card texture overlay */
-        .museum-card::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='paper'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.04' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23paper)'/%3E%3C/svg%3E");
-          opacity: 0.03;
-          pointer-events: none;
-          border-radius: 4px;
-        }
-
-        /* Close button */
-        .card-close {
-          position: absolute;
-          top: 16px;
-          right: 16px;
-          width: 32px;
-          height: 32px;
-          border: none;
-          background: transparent;
-          color: #8a8680;
-          font-size: 24px;
-          cursor: pointer;
-          transition: color 0.2s ease;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .card-close:hover {
-          color: #2a2a2a;
-        }
-
-        /* Museum label styling */
-        .card-museum-label {
-          font-family: 'Outfit', sans-serif;
-          font-size: 9px;
-          letter-spacing: 0.25em;
-          text-transform: uppercase;
-          color: #a09a92;
-          margin-bottom: 20px;
-          padding-bottom: 16px;
-          border-bottom: 1px solid rgba(0,0,0,0.08);
-        }
-
-        .card-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1.6rem;
-          font-weight: 500;
-          color: #2a2a2a;
-          line-height: 1.3;
-          margin-bottom: 6px;
-        }
-
-        .card-date {
-          font-family: 'Outfit', sans-serif;
-          font-size: 11px;
-          letter-spacing: 0.1em;
-          color: #8a8680;
-          margin-bottom: 16px;
-        }
-
-        .card-subtitle {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1.15rem;
-          font-style: italic;
-          color: #5a5550;
-          margin-bottom: 28px;
-          padding-bottom: 24px;
-          border-bottom: 1px solid rgba(0,0,0,0.08);
-        }
-
-        .card-description {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          max-height: 45vh;
-          overflow-y: auto;
-          padding-right: 8px;
-        }
-
-        .card-description::-webkit-scrollbar {
-          width: 4px;
-        }
-
-        .card-description::-webkit-scrollbar-track {
-          background: rgba(0,0,0,0.05);
-          border-radius: 2px;
-        }
-
-        .card-description::-webkit-scrollbar-thumb {
-          background: rgba(0,0,0,0.15);
-          border-radius: 2px;
-        }
-
-        .card-description p {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1.05rem;
-          line-height: 1.75;
-          color: #3a3835;
-          text-align: justify;
-        }
-
-        .card-description p:first-of-type::first-letter {
-          font-size: 2.2em;
-          float: left;
-          line-height: 1;
-          margin-right: 8px;
-          margin-top: 4px;
-          color: #2a2a2a;
-        }
-
-        /* Card footer */
-        .card-footer {
-          margin-top: 24px;
-          padding-top: 20px;
-          border-top: 1px solid rgba(0,0,0,0.08);
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .card-collection {
-          font-family: 'Outfit', sans-serif;
-          font-size: 9px;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          color: #a09a92;
-        }
-
-        .card-id {
-          font-family: 'Outfit', sans-serif;
-          font-size: 9px;
-          letter-spacing: 0.1em;
-          color: #c5c0b8;
-        }
-
         /* Mobile adjustments */
         @media (max-width: 768px) {
-          .viewer-header { padding: 16px 20px; }
-          .header-center { display: none; }
-          .info-bar {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 16px;
-            padding: 20px 24px 28px;
+          .artifact-header {
+            padding: 16px 20px;
           }
-          .display-card-btn {
-            justify-content: center;
+          .header-title {
+            display: none;
           }
           .controls-hint {
-            bottom: 180px;
-            gap: 16px;
-            font-size: 9px;
+            display: none;
           }
-          .display-card-overlay {
-            padding: 20px;
+          .info-panel {
+            width: 100%;
           }
-          .museum-card {
-            padding: 32px 28px;
+          .info-panel-content {
+            padding: 80px 24px 40px;
           }
-          .card-title { font-size: 1.4rem; }
-          .card-description { max-height: 50vh; }
+          .artifact-label {
+            padding: 16px 24px 24px;
+          }
         }
       `}</style>
 
       {/* Header */}
-      <header className="viewer-header">
-        <button className="back-btn" onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}>
+      <header className="artifact-header">
+        <button className="back-btn" onClick={() => router.push('/exhibitions/seeing-is-deceiving')}>
           <span>←</span>
-          Collection
+          Back to Exhibition
         </button>
-        <span className="header-center">Artifact Viewer</span>
-        <div style={{ width: 100 }}></div>
+        <span className="header-title">Artifact Collection</span>
+        <button
+          className={`info-btn ${showInfo ? 'active' : ''}`}
+          onClick={() => setShowInfo(!showInfo)}
+        >
+          i
+        </button>
       </header>
 
       {/* Main content */}
-      <main className="viewer-content">
-        {/* 3D viewport */}
-        <div className="model-viewport" ref={containerRef}>
-          {isLoading && (
-            <div className="loading-overlay">
-              <div className="loading-spinner"></div>
-              <span className="loading-text">Loading artifact...</span>
-            </div>
-          )}
+      <main className="artifact-content">
+        <div className="viewer-section">
+          {/* 3D Model Container */}
+          <div className="model-container" ref={containerRef}>
+            {isLoading && (
+              <div className="loading-overlay">
+                <div className="loading-spinner"></div>
+                <span className="loading-text">Loading artifact...</span>
+              </div>
+            )}
 
-          {!isLoading && loadError && (
-            <div className="error-state">
-              <div className="error-icon">◇</div>
-              <div className="error-text">{loadError}</div>
-            </div>
-          )}
-
-          {/* Controls hint */}
-          {!isLoading && !loadError && (
-            <div className="controls-hint">
-              <span className="control-item">Drag to rotate</span>
-              <span className="control-item">Scroll to zoom</span>
-              <span className="control-item">Shift+drag to pan</span>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom info bar */}
-        <div className="info-bar">
-          <div className="artifact-info">
-            <p className="artifact-date">{artifact.date}</p>
-            <h1 className="artifact-title">{artifact.title}</h1>
-            <p className="artifact-subtitle">{artifact.subtitle}</p>
+            {!isLoading && loadError && (
+              <div className="model-placeholder">
+                <div className="placeholder-icon">◇</div>
+                <div className="placeholder-text">{loadError}</div>
+              </div>
+            )}
           </div>
 
-          <button className="display-card-btn" onClick={() => setShowDisplayCard(true)}>
-            <span className="icon">i</span>
-            Display Card
-          </button>
+          {/* Controls hint - below viewer, centered, hidden on mobile */}
+          <div className="controls-hint">
+            <div className="control-item">
+              <div className="control-icon">↔</div>
+              <span>Drag to rotate</span>
+            </div>
+            <div className="control-item">
+              <div className="control-icon">⊕</div>
+              <span>Scroll to zoom</span>
+            </div>
+            <div className="control-item">
+              <div className="control-icon">⇧</div>
+              <span>Shift+drag to pan</span>
+            </div>
+          </div>
+
+          {/* Artifact label - centered below */}
+          <div className="artifact-label">
+            <p className="artifact-date">{artifact.date}</p>
+            <h1 className="artifact-name">{artifact.title}</h1>
+            <p className="artifact-subtitle">{artifact.subtitle}</p>
+          </div>
         </div>
       </main>
 
-      {/* Museum Display Card Overlay */}
+      {/* Info panel backdrop */}
       <div
-        className={`display-card-overlay ${showDisplayCard ? 'open' : ''}`}
-        onClick={(e) => {
-          if (e.target === e.currentTarget) setShowDisplayCard(false);
-        }}
-      >
-        <div className="display-card-backdrop" onClick={() => setShowDisplayCard(false)} />
+        className={`info-backdrop ${showInfo ? 'open' : ''}`}
+        onClick={() => setShowInfo(false)}
+      />
 
-        <div className="museum-card">
-          <button className="card-close" onClick={() => setShowDisplayCard(false)}>×</button>
-
-          <p className="card-museum-label">Mini Museum · Seeing is Deceiving</p>
-
-          <h2 className="card-title">{artifact.title}</h2>
-          <p className="card-date">{artifact.date}</p>
-          <p className="card-subtitle">{artifact.subtitle}</p>
-
-          <div className="card-description">
+      {/* Info panel - slides over */}
+      <aside className={`info-panel ${showInfo ? 'open' : ''}`}>
+        <button className="info-close" onClick={() => setShowInfo(false)}>×</button>
+        <div className="info-panel-content">
+          <p className="info-label">Display Card</p>
+          <h2 className="info-title">{artifact.title}</h2>
+          <p className="info-date">{artifact.date}</p>
+          <p className="info-subtitle">{artifact.subtitle}</p>
+          <div className="info-description">
             {artifact.description.map((para, i) => (
               <p key={i}>{para}</p>
             ))}
           </div>
-
-          <div className="card-footer">
-            <span className="card-collection">Holy Family Library Collection</span>
-            <span className="card-id">HFL.2024.{artifactId === 'victorian-cards' ? '042' : '041'}</span>
-          </div>
         </div>
-      </div>
+      </aside>
     </div>
   );
 }
