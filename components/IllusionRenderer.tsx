@@ -29,10 +29,9 @@ export default function IllusionRenderer({
 }: IllusionProps) {
   const [revealed, setRevealed] = useState(false);
   const [balconyView, setBalconyView] = useState<'main' | 'out' | 'over'>('main');
+  const [checkerGuess, setCheckerGuess] = useState<'A' | 'B' | null>(null);
 
   const textColor = isPoster1 ? '#2a2a2a' : '#a8d5e5';
-  const btnBg = isPoster1 ? '#2a2a2a' : '#a8d5e5';
-  const btnText = isPoster1 ? '#e0dede' : '#0a0a0a';
 
   // Shared styles - fixed layout to prevent shifts
   const containerStyle: React.CSSProperties = {
@@ -42,9 +41,21 @@ export default function IllusionRenderer({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    padding: '80px 40px 140px',
+    padding: '70px 40px 140px',
     boxSizing: 'border-box',
     overflow: 'hidden'
+  };
+
+  // Illusion name label style
+  const nameLabelStyle: React.CSSProperties = {
+    fontFamily: 'Outfit, sans-serif',
+    fontSize: '10px',
+    letterSpacing: '0.2em',
+    textTransform: 'uppercase',
+    color: textColor,
+    opacity: 0.5,
+    marginBottom: '8px',
+    flexShrink: 0
   };
 
   const questionStyle: React.CSSProperties = {
@@ -54,11 +65,12 @@ export default function IllusionRenderer({
     color: textColor,
     textAlign: 'center',
     maxWidth: '600px',
-    minHeight: '60px',
+    minHeight: '50px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0
+    flexShrink: 0,
+    margin: 0
   };
 
   // Fixed-size image container that doesn't change on reveal
@@ -150,11 +162,22 @@ export default function IllusionRenderer({
   };
 
   // ============================================
-  // CHECKER SHADOW
+  // CHECKER SHADOW (Adelson's Checker Shadow)
   // ============================================
   if (illusionType === 'checker-shadow') {
+    const handleGuess = (guess: 'A' | 'B') => {
+      setCheckerGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetChecker = () => {
+      setCheckerGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Adelson's Checker Shadow</span>
         <p style={questionStyle}>{question || 'Which square is darker — A or B?'}</p>
 
         <div style={imageContainerStyle}>
@@ -169,21 +192,33 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'IDENTICAL — Both squares are the exact same shade. Your brain "corrects" for the shadow.'}
+            {checkerGuess && `You chose ${checkerGuess}. `}
+            {answer || 'They\'re IDENTICAL. Your visual system automatically compensates for shadows, making B appear lighter than it actually is. This "lightness constancy" helps you recognize objects under varying lighting—but here it deceives you.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
-          </button>
+          {!revealed ? (
+            <>
+              <button onClick={() => handleGuess('A')} style={buttonStyle}>
+                A is Darker
+              </button>
+              <button onClick={() => handleGuess('B')} style={buttonStyle}>
+                B is Darker
+              </button>
+            </>
+          ) : (
+            <button onClick={resetChecker} style={buttonStyle}>
+              Try Again
+            </button>
+          )}
         </div>
       </div>
     );
   }
 
   // ============================================
-  // BALCONY (Three-way choice)
+  // BALCONY (Bistable Perception)
   // ============================================
   if (illusionType === 'balcony') {
     const getImage = () => {
@@ -194,6 +229,7 @@ export default function IllusionRenderer({
 
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Bistable Figure</span>
         <p style={questionStyle}>
           {question || 'What do you see? A man on a balcony looking out — or looking over a ledge from inside?'}
         </p>
@@ -206,7 +242,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={balconyView !== 'main' ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'Both interpretations are valid. The image supports both equally — your brain picks one.'}
+            {answer || 'Both interpretations are equally valid—this is a "bistable" image. Your brain can\'t hold both views at once, so it picks one. The same visual information, two completely different realities.'}
           </p>
         </div>
 
@@ -242,6 +278,7 @@ export default function IllusionRenderer({
   if (illusionType === 'fraser-spiral') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Fraser Spiral Illusion</span>
         <p style={questionStyle}>{question || 'Is this a spiral — or something else?'}</p>
 
         <div style={imageContainerStyle}>
@@ -256,7 +293,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'CONCENTRIC CIRCLES — There is no spiral. The twisted cord pattern tricks your brain into seeing one.'}
+            {answer || 'These are perfect CONCENTRIC CIRCLES—no spiral exists. The tilted black and white segments create a "twisted cord" effect that your brain interprets as a continuous spiral path. Discovered by psychologist James Fraser in 1908.'}
           </p>
         </div>
 
@@ -275,6 +312,7 @@ export default function IllusionRenderer({
   if (illusionType === 'bulging-grid') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Bulge Effect</span>
         <p style={questionStyle}>{question || 'Does the center of this grid bulge outward?'}</p>
 
         <div style={imageContainerStyle}>
@@ -289,7 +327,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'PERFECTLY FLAT — The varying square sizes create the illusion of depth where none exists.'}
+            {answer || 'PERFECTLY FLAT. Every line is straight and parallel. The progressively sized squares exploit your brain\'s perspective processing—larger shapes appear closer, creating a phantom 3D bulge from a 2D image.'}
           </p>
         </div>
 
@@ -308,6 +346,7 @@ export default function IllusionRenderer({
   if (illusionType === 'rotating-snakes') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Rotating Snakes · Akiyoshi Kitaoka, 2003</span>
         <p style={questionStyle}>{question || 'Look around the image. Do you see movement?'}</p>
 
         <div style={{ ...imageContainerStyle, maxWidth: '600px' }}>
@@ -322,22 +361,11 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'Nothing is moving. This is a completely static image. Your peripheral vision interprets the high-contrast patterns as motion.'}
+            {answer || 'This image is completely static—nothing moves. The specific color sequence (black → blue → white → yellow) triggers motion-detecting neurons in your peripheral vision. Your brain literally sees movement that doesn\'t exist.'}
           </p>
         </div>
 
-        <div style={buttonContainerStyle}>
-          <p style={{
-            fontFamily: 'Cormorant Garamond, serif',
-            fontSize: '12px',
-            fontStyle: 'italic',
-            color: textColor,
-            opacity: 0.6,
-            margin: 0
-          }}>
-            "Rotating Snakes" by Akiyoshi Kitaoka, 2003
-          </p>
-        </div>
+        <div style={buttonContainerStyle} />
       </div>
     );
   }
@@ -348,6 +376,7 @@ export default function IllusionRenderer({
   if (illusionType === 'munker-hearts') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Munker-White Illusion</span>
         <p style={questionStyle}>{question || 'What colors are the hearts?'}</p>
 
         <div style={imageContainerStyle}>
@@ -362,7 +391,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'SAME COLOR — Both hearts are identical. The colored stripes shift how you perceive the hue.'}
+            {answer || 'Both hearts are the EXACT SAME COLOR. The surrounding stripes alter your perception—your brain "mixes" the heart color with the stripe color, shifting what you see. This is called color assimilation.'}
           </p>
         </div>
 
@@ -377,6 +406,7 @@ export default function IllusionRenderer({
   if (illusionType === 'ponzo-corridor') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Ponzo Illusion</span>
         <p style={questionStyle}>{question || 'Which checkered ball is larger?'}</p>
 
         <div style={imageContainerStyle}>
@@ -408,7 +438,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'IDENTICAL — Depth cues from the corridor make the back ball seem larger.'}
+            {answer || 'IDENTICAL. The converging lines trick your brain into applying perspective correction. Objects "farther away" should be smaller, so when they\'re the same size, your brain inflates the distant one. Named after Italian psychologist Mario Ponzo (1911).'}
           </p>
         </div>
 
@@ -427,6 +457,7 @@ export default function IllusionRenderer({
   if (illusionType === 'jastrow') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Jastrow Illusion</span>
         <p style={questionStyle}>{question || 'Which curved shape is larger?'}</p>
 
         <div style={imageContainerStyle}>
@@ -441,7 +472,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'IDENTICAL — Your brain compares the short inner edge of one to the long outer edge of the other.'}
+            {answer || 'IDENTICAL. Your brain automatically compares adjacent edges: the short inner curve of one shape sits next to the long outer curve of the other, making it seem smaller. Discovered by Joseph Jastrow in 1889.'}
           </p>
         </div>
 
@@ -456,6 +487,7 @@ export default function IllusionRenderer({
   if (illusionType === 'kanizsa') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Kanizsa Triangle</span>
         <p style={questionStyle}>{question || 'Do you see a white triangle?'}</p>
 
         <div style={imageContainerStyle}>
@@ -470,7 +502,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'There is no white triangle. Your brain creates illusory contours to complete the shape.'}
+            {answer || 'There IS no white triangle—no edges are drawn. Your brain creates "illusory contours" to complete shapes from incomplete information. Created by Italian psychologist Gaetano Kanizsa in 1955.'}
           </p>
         </div>
 
@@ -485,6 +517,7 @@ export default function IllusionRenderer({
   if (illusionType === 'troxler') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Troxler's Fading</span>
         <p style={questionStyle}>{question || 'Stare at the center cross for 20 seconds. What happens?'}</p>
 
         <div style={imageContainerStyle}>
@@ -499,7 +532,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'The colored blobs fade and disappear. Your brain stops paying attention to unchanging peripheral information.'}
+            {answer || 'The blobs fade and disappear. Your neurons stop responding to unchanging stimuli in peripheral vision—a process called "neural adaptation." Your brain prioritizes change over stability. Discovered in 1804.'}
           </p>
         </div>
 
@@ -514,6 +547,7 @@ export default function IllusionRenderer({
   if (illusionType === 'paris-springtime') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Predictive Processing</span>
         <p style={questionStyle}>{question || 'Read this carefully. What does it say?'}</p>
 
         <div style={imageContainerStyle}>
@@ -529,7 +563,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : { ...answerVisibleStyle }}>
             {revealed
-              ? (answer || '"THE" appears TWICE! "Paris in the THE Springtime" — your brain predicts what should be there and skips the duplicate.')
+              ? (answer || '"THE" appears TWICE! Your brain predicts familiar phrases and skips what it expects—you read what should be there, not what is. This is "top-down processing" in action.')
               : 'Read it again. Slowly.'
             }
           </p>
@@ -550,6 +584,7 @@ export default function IllusionRenderer({
   if (illusionType === 'old-man') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Hidden Figure</span>
         <p style={questionStyle}>{question || 'What do you see in this image?'}</p>
 
         <div style={imageContainerStyle}>
@@ -564,7 +599,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'An old bearded man — but look closer. Can you find the hidden figures in the leaves?'}
+            {answer || 'An old bearded man emerges—but hidden figures lurk in the leaves. Your brain groups visual elements into recognizable patterns, sometimes seeing faces where none were intended.'}
           </p>
         </div>
 
@@ -579,6 +614,7 @@ export default function IllusionRenderer({
   if (illusionType === 'concave-convex') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Light from Above</span>
         <p style={questionStyle}>{question || 'Are these bumps or dents?'}</p>
 
         <div style={imageContainerStyle}>
@@ -593,7 +629,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'Your brain assumes light comes from above. Flip the image and bumps become dents!'}
+            {answer || 'Your brain has a built-in assumption: light comes from above (like the sun). Shadows on the bottom = bump. Shadows on top = dent. Flip the image and watch your perception reverse instantly.'}
           </p>
         </div>
 
@@ -612,6 +648,7 @@ export default function IllusionRenderer({
   if (illusionType === 'impossible-trident') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Impossible Trident / Blivet</span>
         <p style={questionStyle}>{question || 'How many prongs does this object have?'}</p>
 
         <div style={imageContainerStyle}>
@@ -626,7 +663,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'Three at the top, two at the bottom. This object cannot exist in 3D space.'}
+            {answer || 'Three prongs at the top become two at the bottom. This "impossible object" exploits how your brain interprets 2D drawings as 3D shapes. Each end makes sense alone, but they can\'t connect in real space.'}
           </p>
         </div>
 
@@ -641,6 +678,7 @@ export default function IllusionRenderer({
   if (illusionType === 'poggendorff') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Poggendorff Illusion</span>
         <p style={questionStyle}>{question || 'Which line on the right continues the line on the left?'}</p>
 
         <div style={imageContainerStyle}>
@@ -655,7 +693,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'The bar disrupts your brain\'s ability to track the line\'s true trajectory.'}
+            {answer || 'When a diagonal line passes behind a rectangle, your brain misjudges where it should emerge. The bar disrupts your ability to track the line\'s true trajectory. Discovered by physicist Johann Poggendorff in 1860.'}
           </p>
         </div>
 
@@ -670,6 +708,7 @@ export default function IllusionRenderer({
   if (illusionType === 'cube-shadow') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Simultaneous Contrast</span>
         <p style={questionStyle}>{question || 'Which cube face is darker — A or B?'}</p>
 
         <div style={imageContainerStyle}>
@@ -684,7 +723,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'IDENTICAL — Like the checker shadow, your brain compensates for perceived lighting.'}
+            {answer || 'IDENTICAL. Like the checker shadow, your visual system automatically compensates for lighting conditions. The same gray appears lighter in shadow and darker in light—helping you recognize objects in varied lighting.'}
           </p>
         </div>
 
@@ -699,6 +738,7 @@ export default function IllusionRenderer({
   if (illusionType === 'hermann-grid') {
     return (
       <div style={containerStyle}>
+        <span style={nameLabelStyle}>Hermann Grid</span>
         <p style={questionStyle}>{question || 'Do you see gray dots at the intersections?'}</p>
 
         <div style={imageContainerStyle}>
@@ -713,7 +753,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={answerVisibleStyle}>
-            {answer || 'Ghostly dots appear at intersections you\'re NOT looking at. Look directly — they vanish. This is lateral inhibition in your retina.'}
+            {answer || 'Ghost dots appear where you\'re NOT looking—look directly and they vanish. Your retinal cells inhibit their neighbors ("lateral inhibition"), causing intersections in peripheral vision to appear darker. Discovered by Ludimar Hermann in 1870.'}
           </p>
         </div>
 
