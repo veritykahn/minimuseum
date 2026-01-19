@@ -107,7 +107,7 @@ const illusionContent: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'hermann-grid',
-    src: '/exhibitions/seeing/grid.jpg',
+    src: '/exhibitions/seeing/ghost-dots.jpg',
     question: 'Do you see gray dots at the intersections?',
     answer: 'Ghost dots appear where you\'re NOT looking. Look directly — they vanish!'
   },
