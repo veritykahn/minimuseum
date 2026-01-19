@@ -142,18 +142,26 @@ export default function ArtifactsCollection() {
         /* Artifacts grid */
         .artifacts-grid {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 40px;
-          max-width: 900px;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 24px;
+          max-width: 1200px;
           margin: 0 auto;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
+          .artifacts-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            max-width: 600px;
+          }
+        }
+
+        @media (max-width: 600px) {
           .artifacts-page { padding: 100px 24px 60px; }
           .artifacts-grid {
             grid-template-columns: 1fr;
-            gap: 32px;
-            max-width: 400px;
+            gap: 24px;
+            max-width: 320px;
           }
         }
 
@@ -163,8 +171,8 @@ export default function ArtifactsCollection() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 20px;
-          padding: 32px;
+          gap: 16px;
+          padding: 24px 16px;
           background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
           border: 1px solid rgba(255,255,255,0.06);
           border-radius: 16px;
@@ -196,8 +204,8 @@ export default function ArtifactsCollection() {
         /* Image container with circle mask */
         .artifact-image-container {
           position: relative;
-          width: 160px;
-          height: 160px;
+          width: 120px;
+          height: 120px;
           border-radius: 50%;
           overflow: hidden;
           background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
@@ -207,6 +215,20 @@ export default function ArtifactsCollection() {
           transition: all 0.4s ease;
         }
 
+        @media (max-width: 1024px) {
+          .artifact-image-container {
+            width: 140px;
+            height: 140px;
+          }
+        }
+
+        @media (max-width: 600px) {
+          .artifact-image-container {
+            width: 160px;
+            height: 160px;
+          }
+        }
+
         .artifact-image {
           width: 100%;
           height: 100%;
@@ -214,22 +236,6 @@ export default function ArtifactsCollection() {
           transition: transform 0.4s ease;
         }
 
-        /* Type badge */
-        .type-badge {
-          position: absolute;
-          bottom: 8px;
-          right: 8px;
-          padding: 4px 10px;
-          background: rgba(10, 10, 10, 0.9);
-          border: 1px solid rgba(168, 213, 229, 0.4);
-          border-radius: 100px;
-          font-family: 'Outfit', sans-serif;
-          font-size: 9px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          color: #a8d5e5;
-          backdrop-filter: blur(8px);
-        }
 
         /* Artifact info */
         .artifact-info {
@@ -238,18 +244,27 @@ export default function ArtifactsCollection() {
 
         .artifact-title {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.25rem;
+          font-size: 1.1rem;
           font-weight: 400;
           color: #fafafa;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
         }
 
         .artifact-subtitle {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 0.95rem;
+          font-size: 0.85rem;
           font-style: italic;
           color: #737373;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
+        }
+
+        @media (max-width: 600px) {
+          .artifact-title {
+            font-size: 1.25rem;
+          }
+          .artifact-subtitle {
+            font-size: 0.95rem;
+          }
         }
 
         /* Status indicator */
@@ -388,10 +403,6 @@ export default function ArtifactsCollection() {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}
               />
-              {/* Type badge */}
-              <div className="type-badge">
-                {artifact.type === '3d' ? '3D' : '✦'}
-              </div>
             </div>
 
             {/* Info */}
