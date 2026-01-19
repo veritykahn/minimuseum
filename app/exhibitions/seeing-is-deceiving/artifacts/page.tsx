@@ -371,10 +371,10 @@ export default function ArtifactsCollection() {
 
       {/* Page header */}
       <div className="page-header">
-        <p className="page-label">Seeing is Deceiving</p>
-        <h1 className="page-title">The Collection</h1>
+        <p className="page-label">Collection 2024.4</p>
+        <h1 className="page-title">Instruments of Illusion</h1>
         <p className="page-subtitle">
-          Authentic artifacts and interactive experiences exploring the science of visual perception
+          Including Interactive Perception Lab
         </p>
       </div>
 
