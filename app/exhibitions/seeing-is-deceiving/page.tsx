@@ -753,16 +753,25 @@ export default function SeeingIsDeceiving() {
           to { opacity: 0; }
         }
 
-        /* Vintage film effect */
+        /* ============================================
+           FIXED: Vintage film effect - more visible
+           ============================================ */
         .vintage-film {
           position: relative;
+          background: linear-gradient(
+            to bottom,
+            rgba(139, 119, 101, 0.08) 0%,
+            transparent 10%,
+            transparent 90%,
+            rgba(139, 119, 101, 0.08) 100%
+          );
         }
         .vintage-film::before {
           content: '';
           position: absolute;
-          inset: -50%;
+          inset: 0;
           background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23grain)'/%3E%3C/svg%3E");
-          opacity: 0.12;
+          opacity: 0.15;
           pointer-events: none;
           animation: filmGrain 0.15s steps(8) infinite;
           z-index: 1;
@@ -771,68 +780,149 @@ export default function SeeingIsDeceiving() {
           content: '';
           position: absolute;
           inset: 0;
-          background: linear-gradient(90deg, transparent 0%, transparent 98%, rgba(0,0,0,0.15) 99%, transparent 100%);
+          background: 
+            linear-gradient(90deg, transparent 0%, transparent 97%, rgba(0,0,0,0.3) 98%, transparent 100%),
+            linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, transparent 5%, transparent 95%, rgba(0,0,0,0.1) 100%);
           animation: filmScratch 0.4s steps(2) infinite;
           pointer-events: none;
           z-index: 2;
         }
         @keyframes filmGrain {
           0%, 100% { transform: translate(0, 0); }
-          25% { transform: translate(-5%, -5%); }
-          50% { transform: translate(5%, 5%); }
-          75% { transform: translate(-5%, 5%); }
+          25% { transform: translate(-2%, -2%); }
+          50% { transform: translate(2%, 2%); }
+          75% { transform: translate(-2%, 2%); }
         }
         @keyframes filmScratch {
           0% { background-position: 0 0; }
           100% { background-position: 100% 0; }
         }
+        .vintage-film .section-title-text,
+        .vintage-film .paragraph-text {
+          animation: filmFlicker 0.1s ease-in-out infinite;
+          position: relative;
+          z-index: 5;
+        }
         @keyframes filmFlicker {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.97; }
-          75% { opacity: 0.99; }
-        }
-        .vintage-film > * {
-          animation: filmFlicker 0.1s ease-in-out infinite;
+          50% { opacity: 0.96; }
+          75% { opacity: 0.98; }
         }
 
-        /* Depth/parallax effect for stereoscope */
+        /* ============================================
+           FIXED: Depth/parallax effect - much more visible
+           ============================================ */
         .depth-parallax {
           position: relative;
-          perspective: 1000px;
+          perspective: 800px;
+          transform-style: preserve-3d;
+        }
+        .depth-parallax::before {
+          content: '';
+          position: absolute;
+          inset: -20px;
+          background: 
+            radial-gradient(ellipse at 30% 30%, rgba(168, 213, 229, 0.15) 0%, transparent 50%),
+            radial-gradient(ellipse at 70% 70%, rgba(168, 213, 229, 0.1) 0%, transparent 50%);
+          animation: depthPulse 4s ease-in-out infinite;
+          pointer-events: none;
+          z-index: 0;
+        }
+        @keyframes depthPulse {
+          0%, 100% { transform: translateZ(-50px) scale(1.05); opacity: 0.8; }
+          50% { transform: translateZ(-30px) scale(1.1); opacity: 1; }
         }
         .depth-parallax .section-title-text {
-          transform: translateZ(30px);
-          text-shadow: 0 4px 15px rgba(0,0,0,0.15);
+          transform: translateZ(40px);
+          text-shadow: 
+            0 2px 4px rgba(0,0,0,0.1),
+            0 8px 20px rgba(0,0,0,0.15),
+            0 20px 40px rgba(168, 213, 229, 0.1);
+          position: relative;
+          z-index: 3;
         }
         .depth-parallax .paragraph-text {
-          transform: translateZ(10px);
+          transform: translateZ(20px);
+          text-shadow: 
+            0 2px 4px rgba(0,0,0,0.08),
+            0 6px 15px rgba(0,0,0,0.1);
+          position: relative;
+          z-index: 2;
+        }
+        /* Add floating layers effect */
+        .depth-parallax::after {
+          content: '';
+          position: absolute;
+          top: 10%;
+          left: 5%;
+          right: 5%;
+          bottom: 10%;
+          border: 1px solid rgba(168, 213, 229, 0.1);
+          border-radius: 8px;
+          transform: translateZ(-20px);
+          pointer-events: none;
+          animation: floatLayer 6s ease-in-out infinite;
+        }
+        @keyframes floatLayer {
+          0%, 100% { transform: translateZ(-20px) translateY(0); }
+          50% { transform: translateZ(-10px) translateY(-5px); }
         }
 
-        /* Shifting color pattern for color illusions */
+        /* ============================================
+           FIXED: Color shift effect - MUCH more visible
+           ============================================ */
         .color-shift {
           position: relative;
+          overflow: hidden;
         }
         .color-shift::before {
           content: '';
           position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            45deg,
-            rgba(168,213,229,0.03) 0%,
-            rgba(255,200,200,0.03) 25%,
-            rgba(200,255,200,0.03) 50%,
-            rgba(200,200,255,0.03) 75%,
-            rgba(168,213,229,0.03) 100%
-          );
-          background-size: 400% 400%;
-          animation: colorShift 8s ease infinite;
+          inset: -50%;
+          background: 
+            conic-gradient(
+              from 0deg at 50% 50%,
+              rgba(255, 100, 100, 0.15) 0deg,
+              rgba(255, 255, 100, 0.15) 60deg,
+              rgba(100, 255, 100, 0.15) 120deg,
+              rgba(100, 255, 255, 0.15) 180deg,
+              rgba(100, 100, 255, 0.15) 240deg,
+              rgba(255, 100, 255, 0.15) 300deg,
+              rgba(255, 100, 100, 0.15) 360deg
+            );
+          animation: colorRotate 10s linear infinite;
           pointer-events: none;
           z-index: 0;
+        }
+        .color-shift::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            135deg,
+            rgba(255, 180, 180, 0.12) 0%,
+            rgba(180, 255, 180, 0.12) 33%,
+            rgba(180, 180, 255, 0.12) 66%,
+            rgba(255, 255, 180, 0.12) 100%
+          );
+          background-size: 200% 200%;
+          animation: colorShift 5s ease infinite;
+          pointer-events: none;
+          z-index: 1;
+        }
+        @keyframes colorRotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
         @keyframes colorShift {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
+        }
+        .color-shift .section-title-text,
+        .color-shift .paragraph-text {
+          position: relative;
+          z-index: 5;
         }
 
         /* Peripheral drift effect */
@@ -869,9 +959,20 @@ export default function SeeingIsDeceiving() {
           to { transform: rotate(360deg); }
         }
 
-        /* Film reel sprocket holes */
+        /* ============================================
+           FIXED: Film reel effect - much more visible with actual sprocket holes
+           ============================================ */
         .film-reel {
           position: relative;
+          background: linear-gradient(
+            to right,
+            #0a0a0a 0px,
+            #0a0a0a 50px,
+            transparent 50px,
+            transparent calc(100% - 50px),
+            #0a0a0a calc(100% - 50px),
+            #0a0a0a 100%
+          );
         }
         .film-reel::before,
         .film-reel::after {
@@ -879,33 +980,108 @@ export default function SeeingIsDeceiving() {
           position: fixed;
           top: 0;
           bottom: 0;
-          width: 40px;
-          background: repeating-linear-gradient(
-            to bottom,
-            transparent 0px,
-            transparent 20px,
-            rgba(10,10,10,0.9) 20px,
-            rgba(10,10,10,0.9) 25px,
-            transparent 25px,
-            transparent 60px
-          );
+          width: 50px;
           pointer-events: none;
           z-index: 100;
         }
         .film-reel::before {
           left: 0;
-          border-right: 2px solid rgba(255,255,255,0.1);
+          background: 
+            /* Film strip background */
+            linear-gradient(to right, #1a1a1a 0%, #0d0d0d 100%),
+            /* Sprocket holes */
+            repeating-linear-gradient(
+              to bottom,
+              transparent 0px,
+              transparent 15px,
+              #000 15px,
+              #000 35px,
+              transparent 35px,
+              transparent 50px
+            );
+          background-size: 100% 100%, 50px 50px;
+          border-right: 3px solid #333;
+          box-shadow: inset -5px 0 15px rgba(0,0,0,0.5);
         }
         .film-reel::after {
           right: 0;
-          border-left: 2px solid rgba(255,255,255,0.1);
+          background: 
+            /* Film strip background */
+            linear-gradient(to left, #1a1a1a 0%, #0d0d0d 100%),
+            /* Sprocket holes */
+            repeating-linear-gradient(
+              to bottom,
+              transparent 0px,
+              transparent 15px,
+              #000 15px,
+              #000 35px,
+              transparent 35px,
+              transparent 50px
+            );
+          background-size: 100% 100%, 50px 50px;
+          border-left: 3px solid #333;
+          box-shadow: inset 5px 0 15px rgba(0,0,0,0.5);
         }
-        .film-reel > * {
+        /* Sprocket hole punch-outs */
+        .film-reel .sprocket-left,
+        .film-reel .sprocket-right {
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          width: 50px;
+          z-index: 101;
+          pointer-events: none;
+        }
+        .film-reel .sprocket-left { left: 0; }
+        .film-reel .sprocket-right { right: 0; }
+        
+        /* Add actual visible sprocket holes */
+        .film-reel-holes {
+          position: fixed;
+          top: 0;
+          bottom: 0;
+          width: 30px;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          gap: 25px;
+          padding-top: 20px;
+          z-index: 102;
+          pointer-events: none;
+        }
+        .film-reel-holes.left { left: 10px; }
+        .film-reel-holes.right { right: 10px; }
+        .sprocket-hole {
+          width: 18px;
+          height: 12px;
+          background: #000;
+          border-radius: 2px;
+          box-shadow: 
+            inset 0 1px 2px rgba(255,255,255,0.1),
+            0 0 3px rgba(0,0,0,0.8);
+        }
+        
+        .film-reel .section-title-text,
+        .film-reel .paragraph-text {
           animation: projectorFlicker 0.08s ease-in-out infinite;
+          position: relative;
+          z-index: 10;
         }
         @keyframes projectorFlicker {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.96; }
+          25% { opacity: 0.97; }
+          50% { opacity: 0.94; }
+          75% { opacity: 0.98; }
+        }
+        /* Add film grain overlay */
+        .film-reel > .text-content-inner::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23grain)'/%3E%3C/svg%3E");
+          opacity: 0.08;
+          pointer-events: none;
+          animation: filmGrain 0.1s steps(5) infinite;
         }
 
         /* Persistent glitch effect */
@@ -943,7 +1119,9 @@ export default function SeeingIsDeceiving() {
           }
         }
 
-        /* Positions */
+        /* ============================================
+           FIXED: Positions - increased bottom padding to avoid nav overlap
+           ============================================ */
         .pos-center {
           display: flex;
           align-items: center;
@@ -973,7 +1151,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-end;
           justify-content: flex-start;
           text-align: left;
-          padding-bottom: 200px;
+          padding-bottom: 180px; /* Increased from 200px but content will be higher */
           padding-left: 10vw;
           padding-right: 30vw;
         }
@@ -982,7 +1160,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-end;
           justify-content: flex-end;
           text-align: right;
-          padding-bottom: 200px;
+          padding-bottom: 180px; /* Increased */
           padding-right: 10vw;
           padding-left: 30vw;
         }
@@ -991,7 +1169,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-end;
           justify-content: center;
           text-align: center;
-          padding-bottom: 200px;
+          padding-bottom: 180px; /* Increased */
         }
         .pos-full-width {
           display: flex;
@@ -1050,7 +1228,7 @@ export default function SeeingIsDeceiving() {
             padding: 15vh 24px 15vh 24px;
           }
           .pos-bottom-left, .pos-bottom-right, .pos-bottom-center {
-            padding-bottom: 180px;
+            padding-bottom: 200px; /* More padding on mobile */
             padding-left: 24px;
             padding-right: 24px;
           }
@@ -1201,6 +1379,13 @@ export default function SeeingIsDeceiving() {
           min-height: 100vh;
           width: 100%;
           padding: 80px 40px;
+          /* Add padding for film reel when active */
+        }
+        
+        /* Extra padding when film reel effect is active */
+        .text-content-wrapper.film-reel {
+          padding-left: 80px;
+          padding-right: 80px;
         }
 
         /* Section title */
@@ -1269,16 +1454,23 @@ export default function SeeingIsDeceiving() {
           border-color: #a8d5e5;
         }
 
-        /* Navigation arrows */
+        /* ============================================
+           FIXED: Navigation arrows - moved higher and given background
+           ============================================ */
         .walkthrough-nav {
           position: fixed;
-          bottom: 60px;
+          bottom: 40px;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           align-items: center;
           gap: 40px;
           z-index: 100;
+          padding: 12px 24px;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(10px);
+          border-radius: 100px;
+          border: 1px solid rgba(255,255,255,0.1);
         }
 
         .nav-arrow-btn {
@@ -1293,7 +1485,6 @@ export default function SeeingIsDeceiving() {
           justify-content: center;
           font-size: 20px;
           transition: all 0.3s ease;
-          backdrop-filter: blur(10px);
         }
         .nav-arrow-btn:disabled {
           opacity: 0.3;
@@ -1432,10 +1623,11 @@ export default function SeeingIsDeceiving() {
           .nav-m-right { right: 20px; top: 20px; }
           .nav-m-text { font-size: 24px; }
           .exhibition-main { padding: 100px 24px 60px; }
-          .walkthrough-nav { bottom: 40px; gap: 24px; }
+          .walkthrough-nav { bottom: 30px; gap: 20px; padding: 10px 20px; }
           .nav-arrow-btn { width: 44px; height: 44px; font-size: 18px; }
           .download-btn { bottom: 20px; right: 20px; padding: 10px 16px; font-size: 10px; }
           .text-content-wrapper { padding: 100px 24px; }
+          .text-content-wrapper.film-reel { padding-left: 70px; padding-right: 70px; }
           .artifacts-grid {
             grid-template-columns: 1fr;
             gap: 24px;
@@ -1522,6 +1714,17 @@ export default function SeeingIsDeceiving() {
             {/* Section Title */}
             {currentItem.type === 'section-title' && (
               <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'film-reel' ? 'film-reel' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
+                {/* Film reel sprocket holes */}
+                {currentItem.special === 'film-reel' && (
+                  <>
+                    <div className="film-reel-holes left">
+                      {[...Array(20)].map((_, i) => <div key={i} className="sprocket-hole" />)}
+                    </div>
+                    <div className="film-reel-holes right">
+                      {[...Array(20)].map((_, i) => <div key={i} className="sprocket-hole" />)}
+                    </div>
+                  </>
+                )}
                 <h2
                   className={`section-title-text ${getEffectClass(currentItem.effect)} ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
                   style={{ color: textColor }}
@@ -1534,6 +1737,17 @@ export default function SeeingIsDeceiving() {
             {/* Paragraph */}
             {currentItem.type === 'paragraph' && currentItem.text && (
               <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'film-reel' ? 'film-reel' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
+                {/* Film reel sprocket holes */}
+                {currentItem.special === 'film-reel' && (
+                  <>
+                    <div className="film-reel-holes left">
+                      {[...Array(20)].map((_, i) => <div key={i} className="sprocket-hole" />)}
+                    </div>
+                    <div className="film-reel-holes right">
+                      {[...Array(20)].map((_, i) => <div key={i} className="sprocket-hole" />)}
+                    </div>
+                  </>
+                )}
                 <p
                   className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''} ${currentItem.effect === 'fade-in' ? 'effect-fade-in' : ''} ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''} ${currentItem.effect === 'glitch' ? 'effect-glitch' : ''}`}
                   style={{ color: textColor }}
