@@ -27,7 +27,7 @@ const artifacts: Artifact[] = [
     id: 'stereoscope-cards',
     title: 'Keystone View Card #13399',
     subtitle: 'Norway in Your Parlor',
-    image: '/exhibitions/seeing/artifacts/stereoscope-cards-thumb.jpg',
+    image: '/exhibitions/seeing/artifacts/stereoscope-card-thumb.jpg',
     status: 'available',
     type: '3d',
     route: '/exhibitions/seeing-is-deceiving/artifacts/stereoscope-cards'

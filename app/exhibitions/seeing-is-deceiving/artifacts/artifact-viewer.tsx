@@ -571,13 +571,17 @@ export default function ArtifactViewer({ artifactId }: Props) {
           visibility: visible;
         }
 
+        /* Tablet - hide controls */
+        @media (max-width: 1024px) {
+          .controls-hint {
+            display: none;
+          }
+        }
+
         /* Mobile adjustments */
         @media (max-width: 768px) {
           .artifact-header {
             padding: 16px 20px;
-          }
-          .controls-hint {
-            display: none;
           }
           .bottom-bar {
             padding: 20px 24px 28px;

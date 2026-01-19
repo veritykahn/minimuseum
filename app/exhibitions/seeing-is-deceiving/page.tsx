@@ -1168,7 +1168,7 @@ export default function SeeingIsDeceiving() {
           gap: 40px;
           max-width: 1200px;
           width: 100%;
-          align-items: start;
+          align-items: center;
         }
 
         @media (max-width: 900px) {
@@ -1208,31 +1208,31 @@ export default function SeeingIsDeceiving() {
         }
 
         .display-case {
-          background: linear-gradient(145deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+          background: #0a0a0a;
           border: 1px solid rgba(255,255,255,0.1);
-          padding: 40px;
+          padding: 32px 24px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          min-height: 400px;
           cursor: pointer;
           transition: all 0.4s ease;
+          overflow: hidden;
         }
         .display-case:hover {
           border-color: rgba(168, 213, 229, 0.3);
-          background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+        }
+        .display-case:hover .case-image {
+          transform: scale(1.02);
         }
 
-        .case-placeholder {
-          width: 120px;
-          height: 120px;
-          border: 1px dashed rgba(168, 213, 229, 0.4);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin-bottom: 24px;
+        .case-image {
+          width: 100%;
+          max-width: 280px;
+          height: auto;
+          object-fit: contain;
+          margin-bottom: 20px;
+          transition: transform 0.4s ease;
         }
         .case-label {
           font-family: 'Outfit', sans-serif;
@@ -1246,12 +1246,12 @@ export default function SeeingIsDeceiving() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 20px;
           color: #fafafa;
-          margin-bottom: 16px;
+          margin-bottom: 8px;
         }
-        .case-status {
-          font-family: 'Outfit', sans-serif;
-          font-size: 11px;
-          letter-spacing: 0.1em;
+        .case-subtitle {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 14px;
+          font-style: italic;
           color: #a8d5e5;
         }
 
@@ -1577,12 +1577,14 @@ export default function SeeingIsDeceiving() {
             </div>
 
             <div className="display-case" onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}>
-              <div className="case-placeholder">
-                <span style={{ color: '#a8d5e5', fontSize: '12px', letterSpacing: '0.1em' }}>3D</span>
-              </div>
-              <p className="case-label">Artifacts</p>
-              <p className="case-title">The Collection</p>
-              <p className="case-status">Coming Soon</p>
+              <img
+                src="/exhibitions/seeing/artifacts/display-case.png"
+                alt="Artifact Display Case"
+                className="case-image"
+              />
+              <p className="case-label">Explore</p>
+              <p className="case-title">The Study Collection</p>
+              <p className="case-subtitle">Including Interactive Perception Lab</p>
             </div>
 
             <div className="poster-frame" onClick={() => openPoster('poster2')}>
