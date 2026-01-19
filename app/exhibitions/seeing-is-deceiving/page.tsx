@@ -1576,7 +1576,7 @@ export default function SeeingIsDeceiving() {
               <span className="poster-hint">Click to explore</span>
             </div>
 
-            <div className="display-case" onClick={() => setActiveView('artifacts')}>
+            <div className="display-case" onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}>
               <div className="case-placeholder">
                 <span style={{ color: '#a8d5e5', fontSize: '12px', letterSpacing: '0.1em' }}>3D</span>
               </div>
@@ -1749,97 +1749,6 @@ export default function SeeingIsDeceiving() {
         </div>
       )}
 
-      {/* Artifacts View */}
-      {activeView === 'artifacts' && (
-        <div className="exhibition-main">
-          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <p style={{
-              fontFamily: 'Outfit',
-              fontSize: '10px',
-              letterSpacing: '0.3em',
-              textTransform: 'uppercase',
-              color: '#737373',
-              marginBottom: '16px'
-            }}>
-              3D Artifact Viewer
-            </p>
-            <h2 style={{
-              fontFamily: 'Cormorant Garamond',
-              fontSize: 'clamp(1.8rem, 5vw, 2.5rem)',
-              fontWeight: 300,
-              color: '#fafafa'
-            }}>
-              The Collection
-            </h2>
-          </div>
-
-          <div className="artifacts-grid">
-            <div className="artifact-card">
-              <div className="artifact-pedestal">
-                <div className="artifact-glass-case">
-                  <span className="artifact-3d-icon">3D</span>
-                </div>
-              </div>
-              <p className="artifact-label">1904 Monarch Stereoscope</p>
-              <p className="artifact-status">Coming Soon</p>
-            </div>
-
-            <div
-              className="artifact-card artifact-clickable"
-              onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}
-            >
-              <div className="artifact-pedestal artifact-active">
-                <div className="artifact-glass-case artifact-active-glow">
-                  <span className="artifact-explore-icon">↗</span>
-                </div>
-              </div>
-              <p className="artifact-label">Victorian Illusion Cards</p>
-              <p className="artifact-status artifact-status-active">Explore in 3D</p>
-            </div>
-
-            <div className="artifact-card">
-              <div className="artifact-pedestal">
-                <div className="artifact-glass-case">
-                  <span className="artifact-3d-icon">3D</span>
-                </div>
-              </div>
-              <p className="artifact-label">Color Perception Cards</p>
-              <p className="artifact-status">Coming Soon</p>
-            </div>
-
-            <div
-              className="artifact-card artifact-clickable"
-              onClick={() => router.push('/exhibitions/seeing-is-deceiving/illusions')}
-            >
-              <div className="artifact-pedestal artifact-active">
-                <div className="artifact-glass-case artifact-active-glow">
-                  <span className="artifact-explore-icon">↗</span>
-                </div>
-              </div>
-              <p className="artifact-label">Interactive Illusions</p>
-              <p className="artifact-status artifact-status-active">Explore</p>
-            </div>
-          </div>
-
-          <button
-            onClick={returnToMain}
-            style={{
-              fontFamily: 'Outfit',
-              fontSize: '12px',
-              letterSpacing: '0.15em',
-              textTransform: 'uppercase',
-              padding: '16px 32px',
-              background: 'transparent',
-              border: '1px solid #525252',
-              color: '#fafafa',
-              cursor: 'pointer',
-              marginTop: '48px'
-            }}
-          >
-            Return to Exhibition
-          </button>
-        </div>
-      )}
 
       {/* Download Resources Button */}
       {activeView === 'main' && (
