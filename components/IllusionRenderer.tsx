@@ -76,14 +76,15 @@ export default function IllusionRenderer({
 
   // Fixed-size image container that doesn't change on reveal
   const imageContainerStyle: React.CSSProperties = {
-    flex: '1 1 0',
+    flex: '1 1 auto',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     maxWidth: '500px',
+    maxHeight: '50vh',
     minHeight: 0,
-    overflow: 'visible',
+    overflow: 'hidden',
     margin: '16px 0'
   };
 
