@@ -28,7 +28,7 @@ const artifacts: Artifact[] = [
     title: 'Keystone View Cards',
     subtitle: 'The World in Your Parlor',
     image: '/exhibitions/seeing/artifacts/stereoscope-cards-thumb.jpg',
-    status: 'coming-soon',
+    status: 'available',
     type: '3d',
     route: '/exhibitions/seeing-is-deceiving/artifacts/stereoscope-cards'
   },

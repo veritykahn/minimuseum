@@ -16,7 +16,7 @@ type ArtifactData = {
 };
 
 type Props = {
-  artifactId: 'victorian-cards' | 'stereoscope';
+  artifactId: 'victorian-cards' | 'stereoscope' | 'stereoscope-cards';
 };
 
 const artifactsData: Record<string, ArtifactData> = {
@@ -44,6 +44,20 @@ const artifactsData: Record<string, ArtifactData> = {
       `The device works through a principle called stereopsis: your two eyes, positioned about 2.5 inches apart, naturally see the world from slightly different angles. Your brain combines these two perspectives to calculate depth. The stereoscope exploits this biological process by showing each eye a photograph taken from a slightly different position—and suddenly, flat images appear to have three dimensions.`,
       `Keystone View Company was one of the largest stereoscope manufacturers in the world, producing millions of cards depicting everything from world landmarks to news events. Their slogan promised to bring "the world to your parlor"—and for Victorian families who might never travel beyond their own county, these devices offered windows to places they could only dream of visiting.`,
       `The principle behind this 120-year-old device is exactly the same technology that powers modern VR: show each eye a different image, and let the brain create depth. The more things change, the more your brain stays the same.`
+    ]
+  },
+  'stereoscope-cards': {
+    title: 'Keystone View Company Stereoscope Cards',
+    date: 'c. 1895-1910',
+    subtitle: 'The World in Your Parlor: 42 Windows to Places You\'ll Never Visit',
+    model: '/exhibitions/seeing/artifacts/stereoscope-card.glb',
+    available: true,
+    description: [
+      `This collection of 42 stereoscope view cards represents a carefully curated "world tour" that Keystone View Company marketed to middle-class American families at the turn of the 20th century. Each card presents a different destination—from Niagara Falls to the Swiss Alps, from the streets of Paris to the Holy Land.`,
+      `The cards in this collection include views of natural wonders like the Falls of Montmorency near Quebec, the dramatic Gorge of the Tamina in Switzerland, and various views of Niagara Falls—one of the most popular subjects for stereoscope photographers. Architectural marvels, city streets, and scenic landscapes round out the collection, offering viewers a comprehensive "grand tour" without leaving their parlor.`,
+      `But stereoscope cards weren't just entertainment. They were also tools of education, propaganda, and occasionally deception. Publishers could stage scenes, manipulate images, or present entirely fabricated "views" as authentic documentation. The device that brought the world into your parlor could also bring you a world that never existed.`,
+      `These cards reveal the visual culture of their era: what people wanted to see, what they considered exotic or beautiful, and how they understood places they would never physically visit. In an age before television, before cinema, before the internet, this was how ordinary people encountered the wider world—through carefully constructed, commercially produced windows of wonder.`,
+      `The question these cards raise still resonates today: How much of what we "see" of distant places is authentic documentation, and how much is carefully constructed for our consumption?`
     ]
   }
 };
@@ -86,7 +100,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1;
+    renderer.toneMappingExposure = 1.5;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(renderer.domElement);
 
@@ -99,24 +113,39 @@ export default function ArtifactViewer({ artifactId }: Props) {
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.5;
 
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    // Strong ambient light to ensure dark objects are visible
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
     scene.add(ambientLight);
 
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1);
+    // Main key light - strong and warm
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 1.5);
     directionalLight1.position.set(5, 5, 5);
     scene.add(directionalLight1);
 
-    const directionalLight2 = new THREE.DirectionalLight(0xa8d5e5, 0.4);
+    // Fill light from opposite side
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 1.0);
     directionalLight2.position.set(-5, 3, -5);
     scene.add(directionalLight2);
 
-    const pointLight = new THREE.PointLight(0xffffff, 0.4);
+    // Top light
+    const pointLight = new THREE.PointLight(0xffffff, 0.8);
     pointLight.position.set(0, 5, 0);
     scene.add(pointLight);
 
-    const rimLight = new THREE.PointLight(0xa8d5e5, 0.2);
-    rimLight.position.set(0, -3, 2);
-    scene.add(rimLight);
+    // Front fill light
+    const frontLight = new THREE.PointLight(0xffffff, 0.6);
+    frontLight.position.set(0, 0, 5);
+    scene.add(frontLight);
+
+    // Bottom fill to reduce shadows
+    const bottomLight = new THREE.PointLight(0xffffff, 0.4);
+    bottomLight.position.set(0, -3, 2);
+    scene.add(bottomLight);
+
+    // Accent light with slight blue tint
+    const accentLight = new THREE.PointLight(0xa8d5e5, 0.3);
+    accentLight.position.set(-3, 2, 3);
+    scene.add(accentLight);
 
     sceneRef.current = { scene, camera, renderer, controls, model: null };
 
