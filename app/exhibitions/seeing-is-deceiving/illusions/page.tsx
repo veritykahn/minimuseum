@@ -166,7 +166,7 @@ const illusionContent: IllusionItem[] = [
     illusionType: 'ebbinghaus-circles',
     src: '/exhibitions/seeing/ebbinghaus.jpg',
     revealSrc: '/exhibitions/seeing/ebbinghaus-reveal.jpg',
-    question: 'Which orange circle is larger — left or right?',
+    question: 'Which purple circle is larger — left or right?',
     answer: 'The answer is: IDENTICAL — Size is relative. Surrounded by large circles, the center looks small; surrounded by small circles, it looks large.',
     scienceExplanation: 'Also called the Titchener circles, this illusion demonstrates that your brain judges size by context, not absolute measurement. The same circle appears smaller when surrounded by large circles (it\'s the smallest thing in view) and larger when surrounded by small circles (it\'s the largest thing in view). This relative sizing is deeply embedded in perception — even knowing the trick, you cannot see the circles as equal. The illusion works on children as young as 4 and even on some animals.'
   },
