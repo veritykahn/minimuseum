@@ -1195,62 +1195,68 @@ export default function IllusionRenderer({
       setRevealed(false);
     };
 
+    // Colors matching the specification
+    const bgColor = '#3D4A52'; // Dark blue-grey background
+    const centerColor = '#8B6B8B'; // Muted purple/mauve center
+    const surroundColor = '#E8B84A'; // Golden-yellow surrounding circles
+    const centerRadius = 22; // Medium size center circle
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Ebbinghaus Illusion</span>
-        <p style={questionStyle}>{question || 'Which orange circle is larger — A or B?'}</p>
+        <p style={questionStyle}>{question || 'Which purple circle is larger — A or B?'}</p>
 
         <div style={imageContainerStyle}>
-          <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '40px' }}>
+          <div style={{ ...imageWrapperStyle, background: bgColor, padding: '40px' }}>
             <svg
               viewBox="0 0 400 240"
               style={{ width: '100%', height: '100%', maxWidth: '400px' }}
             >
-              {/* Left group (A): center circle surrounded by large circles */}
-              <g transform="translate(100, 110)">
-                {/* Surrounding large circles - animate away when revealed */}
+              {/* Left group (A): center circle surrounded by 6 LARGE golden circles */}
+              <g transform="translate(100, 105)">
+                {/* Surrounding large circles - 6 circles like flower petals */}
                 {[0, 60, 120, 180, 240, 300].map((angle, i) => (
                   <circle
                     key={`large-${i}`}
-                    cx={Math.cos((angle * Math.PI) / 180) * (revealed ? 90 : 65)}
-                    cy={Math.sin((angle * Math.PI) / 180) * (revealed ? 90 : 65)}
-                    r={revealed ? 25 : 30}
-                    fill="#4a7c8f"
+                    cx={Math.cos((angle * Math.PI) / 180) * (revealed ? 85 : 58)}
+                    cy={Math.sin((angle * Math.PI) / 180) * (revealed ? 85 : 58)}
+                    r={revealed ? centerRadius : 32}
+                    fill={surroundColor}
                     style={{ transition: 'all 0.6s ease' }}
                   />
                 ))}
-                {/* Center circle - larger */}
-                <circle cx="0" cy="0" r="25" fill="#e89b5f" />
+                {/* Center circle - muted purple/mauve */}
+                <circle cx="0" cy="0" r={centerRadius} fill={centerColor} />
                 {/* Label */}
-                <text x="0" y="100" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif" fontWeight="500">A</text>
+                <text x="0" y="115" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif" fontWeight="500">A</text>
               </g>
 
-              {/* Right group (B): center circle surrounded by small circles */}
-              <g transform="translate(300, 110)">
-                {/* Surrounding small circles - animate to same size when revealed */}
-                {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
+              {/* Right group (B): center circle surrounded by 10 SMALL golden circles */}
+              <g transform="translate(300, 105)">
+                {/* Surrounding small circles - 10 circles in tighter ring */}
+                {[0, 36, 72, 108, 144, 180, 216, 252, 288, 324].map((angle, i) => (
                   <circle
                     key={`small-${i}`}
-                    cx={Math.cos((angle * Math.PI) / 180) * (revealed ? 90 : 50)}
-                    cy={Math.sin((angle * Math.PI) / 180) * (revealed ? 90 : 50)}
-                    r={revealed ? 25 : 10}
-                    fill="#4a7c8f"
+                    cx={Math.cos((angle * Math.PI) / 180) * (revealed ? 85 : 38)}
+                    cy={Math.sin((angle * Math.PI) / 180) * (revealed ? 85 : 38)}
+                    r={revealed ? centerRadius : 10}
+                    fill={surroundColor}
                     style={{ transition: 'all 0.6s ease' }}
                   />
                 ))}
-                {/* Center circle - larger */}
-                <circle cx="0" cy="0" r="25" fill="#e89b5f" />
+                {/* Center circle - IDENTICAL muted purple/mauve, SAME SIZE */}
+                <circle cx="0" cy="0" r={centerRadius} fill={centerColor} />
                 {/* Label */}
-                <text x="0" y="100" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif" fontWeight="500">B</text>
+                <text x="0" y="115" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif" fontWeight="500">B</text>
               </g>
 
               {/* Comparison line when revealed */}
               {revealed && (
                 <line
                   x1="100"
-                  y1="110"
+                  y1="105"
                   x2="300"
-                  y2="110"
+                  y2="105"
                   stroke="#a8d5e5"
                   strokeWidth="1"
                   strokeDasharray="4"
@@ -1979,7 +1985,7 @@ export default function IllusionRenderer({
             <img
               src={getRubinImage()}
               alt="Rubin's Vase"
-              style={imageStyle}
+              style={{ ...imageStyle, transition: 'opacity 0.8s ease' }}
             />
           </div>
         </div>
