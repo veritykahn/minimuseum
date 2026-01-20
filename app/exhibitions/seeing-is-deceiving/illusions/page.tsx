@@ -108,7 +108,7 @@ const illusionContent: IllusionItem[] = [
     illusionType: 'impossible-trident',
     src: '/exhibitions/seeing/impossible-trident.jpg',
     question: 'How many prongs does this object have?',
-    answer: 'Three at the top, two at the bottom. This object cannot exist in 3D space.',
+    answer: 'Two at the top, three at the bottom. This object cannot exist in 3D space.',
     scienceExplanation: 'Also called a "blivet," this impossible figure exploits how your brain interprets 2D line drawings as 3D objects. Each local region of the drawing is valid — you can trace any small section and it makes sense. But globally, the figure contradicts itself. Your brain uses "non-accidental properties" (junctions, parallel lines) to infer 3D structure, and here those cues create an object that violates physical law. First published in 1964, it reveals the assumptions your visual system makes — and how easily they break.'
   },
 
@@ -459,10 +459,10 @@ export default function IllusionsPage() {
         )}
       </div>
 
-      {/* Navigation - only show for illusions (not intro or closing) */}
+      {/* Navigation - show for illusions (counter + both arrows) */}
       {currentItem.type === 'illusion' && (
         <>
-          {/* Top counter - shows illusion number (excluding intro) */}
+          {/* Top counter - shows illusion number (excluding intro and closing) */}
           <div className="top-counter">
             <span className="step-indicator">
               {currentIndex} / {illusionContent.length - 2}
@@ -480,7 +480,6 @@ export default function IllusionsPage() {
           <button
             className="side-nav-arrow right"
             onClick={nextStep}
-            disabled={currentIndex === illusionContent.length - 2}
           >
             →
           </button>
