@@ -37,7 +37,7 @@ export default function IllusionRenderer({
 
   const textColor = isPoster1 ? '#2a2a2a' : '#a8d5e5';
 
-  // Shared styles - fixed layout to prevent shifts
+  // Shared styles - FIXED LAYOUT to prevent any shifts on reveal
   const containerStyle: React.CSSProperties = {
     height: '100vh',
     width: '100%',
@@ -59,7 +59,8 @@ export default function IllusionRenderer({
     color: textColor,
     opacity: 0.5,
     marginBottom: '8px',
-    flexShrink: 0
+    flexShrink: 0,
+    height: '16px'
   };
 
   const questionStyle: React.CSSProperties = {
@@ -69,7 +70,7 @@ export default function IllusionRenderer({
     color: textColor,
     textAlign: 'center',
     maxWidth: '600px',
-    minHeight: '50px',
+    height: '60px',  // FIXED height, not minHeight
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -77,17 +78,16 @@ export default function IllusionRenderer({
     margin: 0
   };
 
-  // Fixed-size image container - NO overflow:hidden so images shrink instead of crop
+  // FIXED-size image container - absolutely no flex growth/shrink
   const imageContainerStyle: React.CSSProperties = {
-    flex: '0 1 auto',
+    flex: '0 0 auto',  // No grow, no shrink
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     maxWidth: '500px',
-    height: 'calc(100vh - 350px)',  // Defined height so max-height: 100% works on children
+    height: 'calc(100vh - 380px)',  // FIXED height
     minHeight: '200px',
-    // NO overflow: hidden - let images shrink naturally
     margin: '16px 0'
   };
 
@@ -96,7 +96,7 @@ export default function IllusionRenderer({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    height: '100%',  // Fill container so image has a reference height
+    height: '100%',
     borderRadius: '4px',
     boxShadow: '0 10px 40px rgba(0,0,0,0.3)'
   };
@@ -111,9 +111,9 @@ export default function IllusionRenderer({
     borderRadius: '4px'
   };
 
-  // Reserved answer space - always present, visibility controlled
+  // Answer space - FIXED height, visibility controlled
   const answerContainerStyle: React.CSSProperties = {
-    minHeight: '50px',
+    height: '60px',  // FIXED height, not minHeight
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -142,13 +142,13 @@ export default function IllusionRenderer({
     visibility: 'hidden'
   };
 
-  // Button area - fixed position above nav
+  // Button area - FIXED height
   const buttonContainerStyle: React.CSSProperties = {
-    minHeight: '50px',
+    height: '50px',  // FIXED height
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '16px',
+    gap: '12px',
     flexWrap: 'wrap',
     flexShrink: 0
   };
@@ -166,23 +166,23 @@ export default function IllusionRenderer({
     transition: 'all 0.3s ease'
   };
 
-  // "How does this work?" link style
-  const scienceLinkStyle: React.CSSProperties = {
-    fontFamily: 'Cormorant Garamond, serif',
-    fontSize: '14px',
-    fontStyle: 'italic',
+  // "How does this work?" button style - same as other buttons
+  const scienceButtonStyle: React.CSSProperties = {
+    fontFamily: 'Outfit, sans-serif',
+    fontSize: '11px',
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    padding: '12px 24px',
+    background: 'transparent',
+    border: `1px solid ${textColor}`,
     color: textColor,
-    opacity: 0.6,
     cursor: 'pointer',
-    transition: 'opacity 0.3s ease',
-    marginTop: '12px',
-    background: 'none',
-    border: 'none',
-    padding: 0
+    transition: 'all 0.3s ease',
+    opacity: 0.7
   };
 
-  // Bottom sheet component
-  const BottomSheet = () => {
+  // Museum card modal component
+  const MuseumCard = () => {
     if (!scienceExplanation) return null;
 
     return (
@@ -193,7 +193,7 @@ export default function IllusionRenderer({
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
+            background: 'rgba(0, 0, 0, 0.6)',
             opacity: showScience ? 1 : 0,
             visibility: showScience ? 'visible' : 'hidden',
             transition: 'opacity 0.3s ease, visibility 0.3s ease',
@@ -201,49 +201,69 @@ export default function IllusionRenderer({
           }}
         />
 
-        {/* Sheet */}
+        {/* Card */}
         <div
           style={{
             position: 'fixed',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: isPoster1 ? '#f5f5f5' : '#1a1a1a',
-            borderTopLeftRadius: '20px',
-            borderTopRightRadius: '20px',
-            padding: '20px 32px 40px',
-            transform: showScience ? 'translateY(0)' : 'translateY(100%)',
-            transition: 'transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)',
-            zIndex: 1001,
-            maxHeight: '60vh',
-            overflowY: 'auto'
+            top: '50%',
+            left: '50%',
+            transform: showScience
+              ? 'translate(-50%, -50%) rotate(0deg)'
+              : 'translate(-50%, -40%) rotate(-2deg) scale(0.95)',
+            opacity: showScience ? 1 : 0,
+            visibility: showScience ? 'visible' : 'hidden',
+            background: isPoster1 ? '#f8f7f4' : '#1c1c1c',
+            borderRadius: '8px',
+            padding: '32px',
+            width: 'calc(100% - 48px)',
+            maxWidth: '420px',
+            maxHeight: '70vh',
+            overflowY: 'auto',
+            boxShadow: '0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
+            transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            zIndex: 1001
           }}
         >
-          {/* Handle */}
-          <div
+          {/* Close button */}
+          <button
+            onClick={() => setShowScience(false)}
             style={{
-              width: '40px',
-              height: '4px',
-              background: textColor,
-              opacity: 0.3,
-              borderRadius: '2px',
-              margin: '0 auto 24px'
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              width: '28px',
+              height: '28px',
+              borderRadius: '50%',
+              background: 'transparent',
+              border: `1px solid ${textColor}`,
+              color: textColor,
+              opacity: 0.5,
+              cursor: 'pointer',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'opacity 0.2s ease'
             }}
-          />
+            onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
+            onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.5')}
+          >
+            ×
+          </button>
 
           {/* Title */}
           <h3
             style={{
               fontFamily: 'Outfit, sans-serif',
-              fontSize: '11px',
-              letterSpacing: '0.15em',
+              fontSize: '10px',
+              letterSpacing: '0.2em',
               textTransform: 'uppercase',
               color: textColor,
-              opacity: 0.5,
-              marginBottom: '16px'
+              opacity: 0.4,
+              marginBottom: '20px'
             }}
           >
-            How does this work?
+            The Science
           </h3>
 
           {/* Explanation */}
@@ -251,9 +271,10 @@ export default function IllusionRenderer({
             style={{
               fontFamily: 'Cormorant Garamond, serif',
               fontSize: '17px',
-              lineHeight: 1.8,
+              lineHeight: 1.9,
               color: textColor,
-              opacity: 0.9
+              opacity: 0.9,
+              margin: 0
             }}
           >
             {scienceExplanation}
@@ -263,18 +284,22 @@ export default function IllusionRenderer({
     );
   };
 
-  // Science link button (only shows if scienceExplanation exists)
-  const ScienceLink = () => {
+  // Science button component (shows alongside other buttons)
+  const ScienceButton = () => {
     if (!scienceExplanation) return null;
 
     return (
       <button
         onClick={() => setShowScience(true)}
-        style={scienceLinkStyle}
-        onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-        onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.6')}
+        style={scienceButtonStyle}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.opacity = '1';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.opacity = '0.7';
+        }}
       >
-        How does this work? ↑
+        How Does This Work?
       </button>
     );
   };
@@ -326,14 +351,16 @@ export default function IllusionRenderer({
               </button>
             </>
           ) : (
-            <button onClick={resetChecker} style={buttonStyle}>
-              Try Again
-            </button>
+            <>
+              <button onClick={resetChecker} style={buttonStyle}>
+                Try Again
+              </button>
+              <ScienceButton />
+            </>
           )}
         </div>
 
-        {revealed && <ScienceLink />}
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -388,10 +415,10 @@ export default function IllusionRenderer({
           >
             Looking In
           </button>
+          {balconyView !== 'main' && <ScienceButton />}
         </div>
 
-        {balconyView !== 'main' && <ScienceLink />}
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -425,10 +452,10 @@ export default function IllusionRenderer({
           <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
             {revealed ? 'See Illusion Again' : 'Trace the Path'}
           </button>
+          {revealed && <ScienceButton />}
         </div>
 
-        {revealed && <ScienceLink />}
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -462,10 +489,10 @@ export default function IllusionRenderer({
           <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
             {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
           </button>
+          {revealed && <ScienceButton />}
         </div>
 
-        {revealed && <ScienceLink />}
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -495,10 +522,11 @@ export default function IllusionRenderer({
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <ScienceButton />
+        </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -528,10 +556,11 @@ export default function IllusionRenderer({
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <ScienceButton />
+        </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -583,14 +612,16 @@ export default function IllusionRenderer({
               </button>
             </>
           ) : (
-            <button onClick={resetPonzo} style={buttonStyle}>
-              Try Again
-            </button>
+            <>
+              <button onClick={resetPonzo} style={buttonStyle}>
+                Try Again
+              </button>
+              <ScienceButton />
+            </>
           )}
         </div>
 
-        {revealed && <ScienceLink />}
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -624,10 +655,10 @@ export default function IllusionRenderer({
           <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
             {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
           </button>
+          {revealed && <ScienceButton />}
         </div>
 
-        {revealed && <ScienceLink />}
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -657,10 +688,11 @@ export default function IllusionRenderer({
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <ScienceButton />
+        </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -690,10 +722,11 @@ export default function IllusionRenderer({
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <ScienceButton />
+        </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -730,10 +763,10 @@ export default function IllusionRenderer({
           <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
             {revealed ? 'Read Again' : 'Show Me'}
           </button>
+          {revealed && <ScienceButton />}
         </div>
 
-        {revealed && <ScienceLink />}
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -763,10 +796,11 @@ export default function IllusionRenderer({
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <ScienceButton />
+        </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -800,10 +834,10 @@ export default function IllusionRenderer({
           <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
             {revealed ? 'Flip Back' : 'Flip Upside Down'}
           </button>
+          <ScienceButton />
         </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -833,10 +867,11 @@ export default function IllusionRenderer({
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <ScienceButton />
+        </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -866,10 +901,11 @@ export default function IllusionRenderer({
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <ScienceButton />
+        </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -899,10 +935,11 @@ export default function IllusionRenderer({
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <ScienceButton />
+        </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
@@ -932,10 +969,11 @@ export default function IllusionRenderer({
           </p>
         </div>
 
-        <div style={buttonContainerStyle} />
+        <div style={buttonContainerStyle}>
+          <ScienceButton />
+        </div>
 
-        <ScienceLink />
-        <BottomSheet />
+        <MuseumCard />
       </div>
     );
   }
