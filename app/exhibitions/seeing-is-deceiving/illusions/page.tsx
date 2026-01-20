@@ -160,12 +160,14 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'Discovered by Joseph Jastrow in 1889, this illusion occurs because your brain judges size by comparing adjacent edges rather than measuring absolute dimensions. The short inner curve of one shape sits directly against the long outer curve of the other, making the first seem smaller by comparison. Your visual system evolved to make quick relative judgments (is that predator bigger than me?) rather than precise measurements — usually helpful, but exploitable by the right geometry.'
   },
 
-  // 14. EBBINGHAUS CIRCLES (SVG)
+  // 14. EBBINGHAUS CIRCLES (Image-based)
   {
     type: 'illusion',
     illusionType: 'ebbinghaus-circles',
-    question: 'Which purple circle is larger — A or B?',
-    answer: 'Size is relative — surrounded by large circles, the center looks small; surrounded by small circles, it looks large.',
+    src: '/exhibitions/seeing/ebbinghaus.jpg',
+    revealSrc: '/exhibitions/seeing/ebbinghaus-reveal.jpg',
+    question: 'Which orange circle is larger — left or right?',
+    answer: 'IDENTICAL — Size is relative. Surrounded by large circles, the center looks small; surrounded by small circles, it looks large.',
     scienceExplanation: 'Also called the Titchener circles, this illusion demonstrates that your brain judges size by context, not absolute measurement. The same circle appears smaller when surrounded by large circles (it\'s the smallest thing in view) and larger when surrounded by small circles (it\'s the largest thing in view). This relative sizing is deeply embedded in perception — even knowing the trick, you cannot see the circles as equal. The illusion works on children as young as 4 and even on some animals.'
   },
 
@@ -183,8 +185,8 @@ const illusionContent: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'kanizsa-triangle-svg',
-    question: 'Do you see a white triangle?',
-    answer: 'There IS no white triangle — your brain creates edges where none exist.',
+    question: 'Do you see a black triangle?',
+    answer: 'There IS no black triangle — your brain creates edges where none exist.',
     scienceExplanation: 'Created by Italian psychologist Gaetano Kanizsa in 1955, this demonstrates "illusory contours" or "subjective contours." Your brain\'s visual cortex contains neurons that respond to edges — but these neurons can be activated by implied edges too. The pac-man shapes suggest a triangle occluding them, so your brain "completes" the triangle, even perceiving it as slightly brighter than the background (which it isn\'t). This completion happens automatically, revealing how much your brain constructs rather than passively receives.'
   },
 
