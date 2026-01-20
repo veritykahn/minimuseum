@@ -5,7 +5,14 @@ import Link from 'next/link';
 
 export default function GreatHall() {
   const [showExplore, setShowExplore] = useState(true);
+  const [showInstallationMessage, setShowInstallationMessage] = useState(false);
   const floorsRef = useRef<HTMLDivElement>(null);
+
+  const handleGroundFloorClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowInstallationMessage(true);
+    setTimeout(() => setShowInstallationMessage(false), 3000);
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -484,6 +491,123 @@ export default function GreatHall() {
           background: #7D8471;
         }
 
+        /* Installation in progress overlay */
+        .floor-row.installation-in-progress {
+          cursor: default;
+        }
+
+        .floor-row.installation-in-progress .floor-card {
+          position: relative;
+        }
+
+        .floor-row.installation-in-progress:hover .floor-card {
+          border-color: #3a3a3a;
+          background: rgba(40, 40, 40, 0.3);
+        }
+
+        .floor-row.installation-in-progress .floor-name,
+        .floor-row.installation-in-progress .floor-subtitle,
+        .floor-row.installation-in-progress .floor-year {
+          opacity: 0.5;
+        }
+
+        .floor-row.installation-in-progress:hover .floor-name {
+          color: #888;
+        }
+
+        .floor-row.installation-in-progress:hover .floor-letter {
+          color: #666;
+        }
+
+        .floor-row.installation-in-progress .stairs-icon {
+          opacity: 0.15;
+        }
+
+        .floor-row.installation-in-progress:hover .stairs-icon {
+          opacity: 0.3;
+        }
+
+        .installation-badge {
+          position: absolute;
+          top: 50%;
+          right: 140px;
+          transform: translateY(-50%);
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 16px;
+          background: rgba(60, 60, 60, 0.6);
+          border: 1px solid #4a4a4a;
+          border-radius: 4px;
+        }
+
+        .installation-badge-icon {
+          font-size: 14px;
+        }
+
+        .installation-badge-text {
+          font-family: 'Outfit', sans-serif;
+          font-size: 9px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #888;
+        }
+
+        /* Installation message toast */
+        .installation-message {
+          position: fixed;
+          bottom: 40px;
+          left: 50%;
+          transform: translateX(-50%) translateY(20px);
+          background: rgba(30, 30, 30, 0.95);
+          border: 1px solid #3a3a3a;
+          border-radius: 8px;
+          padding: 20px 32px;
+          text-align: center;
+          z-index: 1000;
+          opacity: 0;
+          pointer-events: none;
+          transition: all 0.4s ease;
+          max-width: 90vw;
+        }
+
+        .installation-message.visible {
+          opacity: 1;
+          transform: translateX(-50%) translateY(0);
+          pointer-events: auto;
+        }
+
+        .installation-message-title {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: 18px;
+          font-style: italic;
+          color: #fafafa;
+          margin-bottom: 8px;
+        }
+
+        .installation-message-text {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          color: #888;
+          line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+          .installation-badge {
+            right: 100px;
+            padding: 6px 12px;
+          }
+
+          .installation-badge-text {
+            font-size: 8px;
+          }
+
+          .installation-message {
+            padding: 16px 24px;
+            bottom: 24px;
+          }
+        }
+
         @media (max-width: 768px) {
           .floors-section {
             padding: 80px 16px;
@@ -556,8 +680,8 @@ export default function GreatHall() {
             </div>
           </Link>
 
-          {/* Ground Floor - Origins */}
-          <Link href="/exhibitions" className="floor-row ground-floor">
+          {/* Ground Floor - Origins (Installation in Progress) */}
+          <div className="floor-row ground-floor installation-in-progress" onClick={handleGroundFloorClick}>
             <div className="floor-card">
               <div className="floor-text">
                 <h2 className="floor-name">Origins</h2>
@@ -565,17 +689,27 @@ export default function GreatHall() {
                 <p className="floor-year">2024–2025</p>
                 <div className="floor-status">
                   <span className="status-dot"></span>
-                  <span>Under Construction</span>
+                  <span>Installation in Progress</span>
                 </div>
+              </div>
+              <div className="installation-badge">
+                <span className="installation-badge-icon">🚧</span>
+                <span className="installation-badge-text">Coming Soon</span>
               </div>
               <div className="floor-indicator">
                 <img src="/stairs.png" alt="" className="stairs-icon" />
                 <span className="floor-letter">G</span>
               </div>
             </div>
-          </Link>
+          </div>
         </div>
       </section>
+
+      {/* Installation Message Toast */}
+      <div className={`installation-message ${showInstallationMessage ? 'visible' : ''}`}>
+        <p className="installation-message-title">Exhibits Currently Being Installed</p>
+        <p className="installation-message-text">We're preparing something special. Check back soon!</p>
+      </div>
     </div>
   );
 }
