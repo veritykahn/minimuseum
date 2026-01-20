@@ -343,7 +343,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {checkerTrueFalse && <><span style={{ color: '#888' }}>You said {checkerTrueFalse}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'IDENTICAL — Both squares are the exact same shade. Your brain "corrects" for the shadow.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'IDENTICAL — Both squares are the exact same shade. Your brain "corrects" for the shadow.'}</span>
           </p>
         </div>
 
@@ -464,7 +464,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {fraserGuess && <><span style={{ color: '#888' }}>You said {fraserGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'CIRCLES — These are perfect concentric circles. The tilted black and white segments create a "twisted cord" effect that your brain interprets as a spiral path.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'CIRCLES — These are perfect concentric circles. The tilted black and white segments create a "twisted cord" effect that your brain interprets as a spiral path.'}</span>
           </p>
         </div>
 
@@ -527,7 +527,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {bulgeGuess && <><span style={{ color: '#888' }}>You said {bulgeGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'FALSE — It\'s perfectly flat. Every line is straight and parallel. The progressively sized squares exploit your brain\'s perspective processing, creating a phantom 3D bulge.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'FALSE — It\'s perfectly flat. Every line is straight and parallel. The progressively sized squares exploit your brain\'s perspective processing, creating a phantom 3D bulge.'}</span>
           </p>
         </div>
 
@@ -656,7 +656,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {ponzoGuess && <><span style={{ color: '#888' }}>You chose {ponzoGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'IDENTICAL — The converging lines trick your brain into applying perspective correction—objects "farther away" should be smaller, so your brain inflates the distant one.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'IDENTICAL — The converging lines trick your brain into applying perspective correction—objects "farther away" should be smaller, so your brain inflates the distant one.'}</span>
           </p>
         </div>
 
@@ -969,7 +969,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {poggGuess && <><span style={{ color: '#888' }}>You chose {poggGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'PURPLE — When a diagonal line passes behind a rectangle, your brain misjudges where it should emerge. The bar disrupts your ability to track the line\'s true trajectory.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'PURPLE — When a diagonal line passes behind a rectangle, your brain misjudges where it should emerge. The bar disrupts your ability to track the line\'s true trajectory.'}</span>
           </p>
         </div>
 
@@ -1157,7 +1157,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {mullerGuess && <><span style={{ color: '#888' }}>You chose line {mullerGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'IDENTICAL — The arrows create a false sense of depth — outward arrows suggest the line recedes, inward arrows suggest it projects toward you.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'IDENTICAL — The arrows create a false sense of depth — outward arrows suggest the line recedes, inward arrows suggest it projects toward you.'}</span>
           </p>
         </div>
 
@@ -1220,7 +1220,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {ebbinghausGuess && <><span style={{ color: '#888' }}>You chose {ebbinghausGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'IDENTICAL — Size is relative. Surrounded by large circles, the center looks small; surrounded by small circles, it looks large.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'IDENTICAL — Size is relative. Surrounded by large circles, the center looks small; surrounded by small circles, it looks large.'}</span>
           </p>
         </div>
 
@@ -1333,7 +1333,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {contrastGuess && <><span style={{ color: '#888' }}>You said {contrastGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'IDENTICAL — Your brain judges color by comparison. The same cyan appears more blue-green on orange and more greenish on purple.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'IDENTICAL — Your brain judges color by comparison. The same cyan appears more blue-green on orange and more greenish on purple.'}</span>
           </p>
         </div>
 
@@ -1450,7 +1450,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {ponzoRailGuess && <><span style={{ color: '#888' }}>You said {ponzoRailGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'FALSE — They\'re identical. The converging lines create false depth cues. Your brain assumes the "distant" bar must be larger to appear the same size.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'FALSE — They\'re identical. The converging lines create false depth cues. Your brain assumes the "distant" bar must be larger to appear the same size.'}</span>
           </p>
         </div>
 
@@ -1551,7 +1551,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {cafeGuess && <><span style={{ color: '#888' }}>You said {cafeGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'NEITHER — They\'re perfectly parallel. The offset black and white tiles create a wedge-like appearance that tricks your visual cortex into perceiving tilt.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'NEITHER — They\'re perfectly parallel. The offset black and white tiles create a wedge-like appearance that tricks your visual cortex into perceiving tilt.'}</span>
           </p>
         </div>
 
@@ -1614,7 +1614,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {userGuess && <><span style={{ color: '#888' }}>You chose {userGuess === 'ab' ? 'A-B' : 'B-C'}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'IDENTICAL — Both lines are exactly the same length. The angled lines create a false sense of perspective.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'IDENTICAL — Both lines are exactly the same length. The angled lines create a false sense of perspective.'}</span>
           </p>
         </div>
 
@@ -1721,7 +1721,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {userGuess && <><span style={{ color: '#888' }}>You chose {userGuess === 'top' ? 'A' : 'B'}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'B (BOTTOM) — When a diagonal passes behind a rectangle, your brain misjudges where it emerges. The vertical edge disrupts your ability to track the true trajectory.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'B (BOTTOM) — When a diagonal passes behind a rectangle, your brain misjudges where it emerges. The vertical edge disrupts your ability to track the true trajectory.'}</span>
           </p>
         </div>
 
@@ -1784,7 +1784,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {gradientGuess && <><span style={{ color: '#888' }}>You said {gradientGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'SOLID — The bar is uniform throughout. The gradient background creates simultaneous contrast — making the left side appear lighter and the right side darker.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'SOLID — The bar is uniform throughout. The gradient background creates simultaneous contrast — making the left side appear lighter and the right side darker.'}</span>
           </p>
         </div>
 
@@ -1936,7 +1936,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {rubinChoice && <><span style={{ color: '#888' }}>You saw {rubinChoice === 'vase' ? 'a vase' : 'faces'}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'BOTH — This is a "bistable" image. Your brain can interpret the same contour as either the edge of a vase or the profile of two faces. Press the buttons to see each interpretation.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'BOTH — This is a "bistable" image. Your brain can interpret the same contour as either the edge of a vase or the profile of two faces. Press the buttons to see each interpretation.'}</span>
           </p>
         </div>
 
@@ -2151,7 +2151,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'This image is completely flat — yet it appears 3D. Red and blue light focus at different depths in your eye, creating a false sense of depth where none exists.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'This image is completely flat — yet it appears 3D. Red and blue light focus at different depths in your eye, creating a false sense of depth where none exists.'}</span>
           </p>
         </div>
 
@@ -2201,7 +2201,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {seesawGuess && <><span style={{ color: '#888' }}>You chose {seesawGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'BALANCED — Your brain uses visual cues like size and position to estimate weight, but these cues can be deceiving.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'BALANCED — Your brain uses visual cues like size and position to estimate weight, but these cues can be deceiving.'}</span>
           </p>
         </div>
 
