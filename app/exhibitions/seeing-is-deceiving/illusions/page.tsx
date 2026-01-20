@@ -540,6 +540,15 @@ export default function IllusionsPage() {
           color: #0a0a0a;
         }
 
+        .closing-buttons {
+          display: flex;
+          gap: 16px;
+          margin-top: 48px;
+        }
+        .closing-buttons .return-btn {
+          margin-top: 0;
+        }
+
         @media (max-width: 768px) {
           .nav-m-left { left: 20px; top: 20px; }
           .nav-m-text { font-size: 24px; }
@@ -593,9 +602,21 @@ export default function IllusionsPage() {
         {currentItem.type === 'closing' && (
           <div className="closing-container">
             <p className="closing-text effect-blur-sharp">{currentItem.text}</p>
-            <button className="return-btn" onClick={handleBack}>
-              Return to Exhibition
-            </button>
+            <div className="closing-buttons">
+              <button className="return-btn" onClick={() => {
+                setFadeIn(false);
+                setTimeout(() => {
+                  setCurrentIndex(0);
+                  setAnimationKey(prev => prev + 1);
+                  setFadeIn(true);
+                }, 400);
+              }}>
+                Start Over
+              </button>
+              <button className="return-btn" onClick={handleBack}>
+                Return to Exhibition
+              </button>
+            </div>
           </div>
         )}
       </div>
