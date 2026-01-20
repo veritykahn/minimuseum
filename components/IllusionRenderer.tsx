@@ -1936,7 +1936,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {rubinChoice && <><span style={{ color: '#888' }}>You saw {rubinChoice === 'vase' ? 'a vase' : 'faces'}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>{answer || 'BOTH — This is a "bistable" image. Your brain can interpret the same contour as either the edge of a vase or the profile of two faces. Press the buttons to see each interpretation.'}</span>
+            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'BOTH — This is a "bistable" image. Your brain can interpret the same contour as either the edge of a vase or the profile of two faces. Press the buttons to see each interpretation.'}</span>
           </p>
         </div>
 
@@ -2151,7 +2151,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            <span style={{ color: '#a8d5e5' }}>{answer || 'This image is completely flat — yet it appears 3D. Red and blue light focus at different depths in your eye, creating a false sense of depth where none exists.'}</span>
+            <span style={{ color: '#a8d5e5' }}>The answer is: {answer || 'This image is completely flat — yet it appears 3D. Red and blue light focus at different depths in your eye, creating a false sense of depth where none exists.'}</span>
           </p>
         </div>
 
