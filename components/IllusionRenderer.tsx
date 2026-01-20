@@ -1309,6 +1309,11 @@ export default function IllusionRenderer({
       setRevealed(false);
     };
 
+    // Colors: same orange in center, against red (dark) vs yellow (light) backgrounds
+    const centerColor = '#e89b5f'; // warm orange
+    const darkBg = '#8b2942'; // deep burgundy/red
+    const lightBg = '#f5d76e'; // bright yellow
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Simultaneous Contrast</span>
@@ -1320,13 +1325,13 @@ export default function IllusionRenderer({
               viewBox="0 0 400 200"
               style={{ width: '100%', height: '100%', maxWidth: '400px' }}
             >
-              {/* Left: gray square on very dark background */}
+              {/* Left: orange square on dark red/burgundy background */}
               <rect
                 x="20"
                 y="20"
                 width="160"
                 height="160"
-                fill={revealed ? '#1a1a1a' : '#0a0a0a'}
+                fill={revealed ? '#1a1a1a' : darkBg}
                 style={{ transition: 'fill 0.5s ease' }}
               />
               <rect
@@ -1334,16 +1339,16 @@ export default function IllusionRenderer({
                 y="55"
                 width="90"
                 height="90"
-                fill="#808080"
+                fill={centerColor}
               />
 
-              {/* Right: gray square on very light background */}
+              {/* Right: orange square on bright yellow background */}
               <rect
                 x="220"
                 y="20"
                 width="160"
                 height="160"
-                fill={revealed ? '#1a1a1a' : '#f0f0f0'}
+                fill={revealed ? '#1a1a1a' : lightBg}
                 style={{ transition: 'fill 0.5s ease' }}
               />
               <rect
@@ -1351,7 +1356,7 @@ export default function IllusionRenderer({
                 y="55"
                 width="90"
                 height="90"
-                fill="#808080"
+                fill={centerColor}
               />
 
               {/* Labels */}
@@ -1361,8 +1366,8 @@ export default function IllusionRenderer({
               {/* Color value label when revealed */}
               {revealed && (
                 <>
-                  <text x="100" y="105" fill="#a8d5e5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">#808080</text>
-                  <text x="300" y="105" fill="#a8d5e5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">#808080</text>
+                  <text x="100" y="105" fill="#a8d5e5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">#e89b5f</text>
+                  <text x="300" y="105" fill="#a8d5e5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">#e89b5f</text>
                 </>
               )}
             </svg>
@@ -1372,7 +1377,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {contrastGuess && `You said ${contrastGuess}. `}
-            {answer || 'FALSE — They\'re IDENTICAL. Your brain judges brightness by comparison, not absolute value. The same gray looks darker on white and lighter on black.'}
+            {answer || 'FALSE — They\'re IDENTICAL. Your brain judges color by comparison, not absolute value. The same orange looks darker on yellow and lighter on red.'}
           </p>
         </div>
 
@@ -2127,41 +2132,29 @@ export default function IllusionRenderer({
         <div style={imageContainerStyle}>
           <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '40px' }}>
             <svg
-              viewBox="0 0 300 260"
+              viewBox="0 0 300 280"
               style={{ width: '100%', height: '100%', maxWidth: '300px' }}
             >
-              {/* Triangle */}
+              {/* Triangle - lilac filled */}
               <polygon
-                points="150,20 20,240 280,240"
-                fill="none"
-                stroke="#a8d5e5"
-                strokeWidth="3"
+                points="150,15 15,265 285,265"
+                fill="#c9a0dc"
+                stroke="#c9a0dc"
+                strokeWidth="2"
               />
 
-              {/* Text inside */}
-              <text x="150" y="100" fill="#a8d5e5" fontSize="20" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic">
+              {/* Text inside - centered and larger */}
+              <text x="150" y="100" fill="#1a1a1a" fontSize="28" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
                 I love
               </text>
-              <text x="150" y="140" fill="#a8d5e5" fontSize="20" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic">
-                Paris in the
+              <text x="150" y="145" fill="#1a1a1a" fontSize="28" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
+                Paris in{' '}
+                <tspan fill={revealed ? '#cc3333' : '#1a1a1a'} style={{ transition: 'fill 0.3s ease' }}>the</tspan>
               </text>
-              <text x="150" y="180" fill={revealed ? '#ff6b6b' : '#a8d5e5'} fontSize="20" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" style={{ transition: 'fill 0.3s ease' }}>
-                the springtime
+              <text x="150" y="190" fontSize="28" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
+                <tspan fill={revealed ? '#cc3333' : '#1a1a1a'} style={{ transition: 'fill 0.3s ease' }}>the</tspan>
+                <tspan fill="#1a1a1a"> springtime</tspan>
               </text>
-
-              {/* Highlight box around duplicate THE when revealed */}
-              {revealed && (
-                <rect
-                  x="85"
-                  y="119"
-                  width="45"
-                  height="25"
-                  fill="none"
-                  stroke="#ff6b6b"
-                  strokeWidth="2"
-                  rx="3"
-                />
-              )}
             </svg>
           </div>
         </div>
