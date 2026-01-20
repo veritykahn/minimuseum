@@ -427,10 +427,22 @@ export default function IllusionRenderer({
   // FRASER SPIRAL
   // ============================================
   if (illusionType === 'fraser-spiral') {
+    const [fraserGuess, setFraserGuess] = useState<'spirals' | 'circles' | null>(null);
+
+    const handleFraserGuess = (guess: 'spirals' | 'circles') => {
+      setFraserGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetFraser = () => {
+      setFraserGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Fraser Spiral Illusion</span>
-        <p style={questionStyle}>{question || 'Is this a spiral — or something else?'}</p>
+        <p style={questionStyle}>{question || 'What shape is this — spirals or circles?'}</p>
 
         <div style={imageContainerStyle}>
           <div style={imageWrapperStyle}>
@@ -444,15 +456,29 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'These are perfect CONCENTRIC CIRCLES—no spiral exists. The tilted black and white segments create a "twisted cord" effect that your brain interprets as a continuous spiral path. Discovered by psychologist James Fraser in 1908.'}
+            {fraserGuess && `You said ${fraserGuess}. `}
+            {answer || 'CIRCLES! These are perfect concentric circles — no spiral exists. The tilted black and white segments create a "twisted cord" effect that your brain interprets as a spiral path.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Trace the Path'}
-          </button>
-          {revealed && <ScienceButton />}
+          {!revealed ? (
+            <>
+              <button onClick={() => handleFraserGuess('spirals')} style={buttonStyle}>
+                Spirals
+              </button>
+              <button onClick={() => handleFraserGuess('circles')} style={buttonStyle}>
+                Circles
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetFraser} style={buttonStyle}>
+                See Illusion Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -464,10 +490,22 @@ export default function IllusionRenderer({
   // BULGING GRID
   // ============================================
   if (illusionType === 'bulging-grid') {
+    const [bulgeGuess, setBulgeGuess] = useState<'true' | 'false' | null>(null);
+
+    const handleBulgeGuess = (guess: 'true' | 'false') => {
+      setBulgeGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetBulge = () => {
+      setBulgeGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Bulge Effect</span>
-        <p style={questionStyle}>{question || 'Does the center of this grid bulge outward?'}</p>
+        <p style={questionStyle}>{question || 'The center of this grid bulges outward — true or false?'}</p>
 
         <div style={imageContainerStyle}>
           <div style={imageWrapperStyle}>
@@ -481,15 +519,29 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'PERFECTLY FLAT. Every line is straight and parallel. The progressively sized squares exploit your brain\'s perspective processing—larger shapes appear closer, creating a phantom 3D bulge from a 2D image.'}
+            {bulgeGuess && `You said ${bulgeGuess}. `}
+            {answer || 'FALSE — It\'s perfectly flat. Every line is straight and parallel. The progressively sized squares exploit your brain\'s perspective processing, creating a phantom 3D bulge.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
-          </button>
-          {revealed && <ScienceButton />}
+          {!revealed ? (
+            <>
+              <button onClick={() => handleBulgeGuess('true')} style={buttonStyle}>
+                True
+              </button>
+              <button onClick={() => handleBulgeGuess('false')} style={buttonStyle}>
+                False
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetBulge} style={buttonStyle}>
+                See Illusion Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -877,18 +929,30 @@ export default function IllusionRenderer({
   }
 
   // ============================================
-  // POGGENDORFF
+  // POGGENDORFF (Image-based)
   // ============================================
   if (illusionType === 'poggendorff') {
+    const [poggGuess, setPoggGuess] = useState<'grey' | 'purple' | null>(null);
+
+    const handlePoggGuess = (guess: 'grey' | 'purple') => {
+      setPoggGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetPogg = () => {
+      setPoggGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Poggendorff Illusion</span>
-        <p style={questionStyle}>{question || 'Which line on the right continues the line on the left?'}</p>
+        <p style={questionStyle}>{question || 'Which line does the yellow line connect to — grey or purple?'}</p>
 
         <div style={imageContainerStyle}>
           <div style={imageWrapperStyle}>
             <img
-              src={src || '/exhibitions/seeing/poggendorff.jpg'}
+              src={revealed ? (revealSrc || '/exhibitions/seeing/poggendorf-reveal.jpg') : (src || '/exhibitions/seeing/poggendorf.jpg')}
               alt="Poggendorff Illusion"
               style={imageStyle}
             />
@@ -896,13 +960,30 @@ export default function IllusionRenderer({
         </div>
 
         <div style={answerContainerStyle}>
-          <p style={answerVisibleStyle}>
-            {answer || 'When a diagonal line passes behind a rectangle, your brain misjudges where it should emerge. The bar disrupts your ability to track the line\'s true trajectory. Discovered by physicist Johann Poggendorff in 1860.'}
+          <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
+            {poggGuess && `You chose ${poggGuess}. `}
+            {answer || 'PURPLE — When a diagonal line passes behind a rectangle, your brain misjudges where it should emerge. The bar disrupts your ability to track the line\'s true trajectory.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <ScienceButton />
+          {!revealed ? (
+            <>
+              <button onClick={() => handlePoggGuess('grey')} style={buttonStyle}>
+                Grey
+              </button>
+              <button onClick={() => handlePoggGuess('purple')} style={buttonStyle}>
+                Purple
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetPogg} style={buttonStyle}>
+                See Illusion Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -982,10 +1063,22 @@ export default function IllusionRenderer({
   // MÜLLER-LYER (SVG)
   // ============================================
   if (illusionType === 'muller-lyer') {
+    const [mullerGuess, setMullerGuess] = useState<'1' | '2' | null>(null);
+
+    const handleMullerGuess = (guess: '1' | '2') => {
+      setMullerGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetMuller = () => {
+      setMullerGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Müller-Lyer Illusion</span>
-        <p style={questionStyle}>{question || 'Which horizontal line is longer?'}</p>
+        <p style={questionStyle}>{question || 'Which line is longer — 1 or 2?'}</p>
 
         <div style={imageContainerStyle}>
           <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '40px' }}>
@@ -993,59 +1086,61 @@ export default function IllusionRenderer({
               viewBox="0 0 400 200"
               style={{ width: '100%', height: '100%', maxWidth: '400px' }}
             >
-              {/* Top line with outward arrows (appears shorter) */}
-              <g transform="translate(50, 60)">
+              {/* Line 1: with outward arrows (appears shorter) - centered */}
+              <g transform="translate(100, 60)">
+                {/* Number label */}
+                <text x="-30" y="5" fill="#a8d5e5" fontSize="16" fontFamily="Outfit, sans-serif" fontWeight="500">1</text>
                 <line
                   x1="0"
                   y1="0"
-                  x2={revealed ? 200 : 150}
+                  x2="200"
                   y2="0"
                   stroke="#a8d5e5"
                   strokeWidth="3"
-                  style={{ transition: 'all 0.5s ease' }}
                 />
                 {!revealed && (
                   <>
-                    {/* Left outward arrow */}
-                    <polyline points="30,-20 0,0 30,20" fill="none" stroke="#a8d5e5" strokeWidth="3" />
-                    {/* Right outward arrow */}
-                    <polyline points="120,-20 150,0 120,20" fill="none" stroke="#a8d5e5" strokeWidth="3" />
+                    {/* Left outward arrow - longer */}
+                    <polyline points="50,-30 0,0 50,30" fill="none" stroke="#a8d5e5" strokeWidth="3" />
+                    {/* Right outward arrow - longer */}
+                    <polyline points="150,-30 200,0 150,30" fill="none" stroke="#a8d5e5" strokeWidth="3" />
                   </>
                 )}
                 {revealed && (
-                  <text x="100" y="-10" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif">200px</text>
+                  <text x="100" y="-15" fill="#a8d5e5" fontSize="12" textAnchor="middle" fontFamily="Outfit, sans-serif">200px</text>
                 )}
               </g>
 
-              {/* Bottom line with inward arrows (appears longer) */}
-              <g transform="translate(50, 140)">
+              {/* Line 2: with inward arrows (appears longer) - centered */}
+              <g transform="translate(100, 140)">
+                {/* Number label */}
+                <text x="-30" y="5" fill="#a8d5e5" fontSize="16" fontFamily="Outfit, sans-serif" fontWeight="500">2</text>
                 <line
-                  x1={revealed ? 50 : 0}
+                  x1="0"
                   y1="0"
-                  x2={revealed ? 250 : 150}
+                  x2="200"
                   y2="0"
                   stroke="#a8d5e5"
                   strokeWidth="3"
-                  style={{ transition: 'all 0.5s ease' }}
                 />
                 {!revealed && (
                   <>
-                    {/* Left inward arrow */}
-                    <polyline points="-30,-20 0,0 -30,20" fill="none" stroke="#a8d5e5" strokeWidth="3" />
-                    {/* Right inward arrow */}
-                    <polyline points="180,-20 150,0 180,20" fill="none" stroke="#a8d5e5" strokeWidth="3" />
+                    {/* Left inward arrow - longer */}
+                    <polyline points="-50,-30 0,0 -50,30" fill="none" stroke="#a8d5e5" strokeWidth="3" />
+                    {/* Right inward arrow - longer */}
+                    <polyline points="250,-30 200,0 250,30" fill="none" stroke="#a8d5e5" strokeWidth="3" />
                   </>
                 )}
                 {revealed && (
-                  <text x="150" y="-10" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif">200px</text>
+                  <text x="100" y="-15" fill="#a8d5e5" fontSize="12" textAnchor="middle" fontFamily="Outfit, sans-serif">200px</text>
                 )}
               </g>
 
               {/* Alignment guide when revealed */}
               {revealed && (
                 <>
-                  <line x1="50" y1="50" x2="50" y2="150" stroke="#a8d5e5" strokeWidth="1" strokeDasharray="4" opacity="0.5" />
-                  <line x1="250" y1="50" x2="250" y2="150" stroke="#a8d5e5" strokeWidth="1" strokeDasharray="4" opacity="0.5" />
+                  <line x1="100" y1="45" x2="100" y2="155" stroke="#a8d5e5" strokeWidth="1" strokeDasharray="4" opacity="0.5" />
+                  <line x1="300" y1="45" x2="300" y2="155" stroke="#a8d5e5" strokeWidth="1" strokeDasharray="4" opacity="0.5" />
                 </>
               )}
             </svg>
@@ -1054,15 +1149,29 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'IDENTICAL. The arrows create a false sense of depth — outward arrows suggest the line recedes, inward arrows suggest it projects toward you. Your brain adjusts for "distance" that isn\'t there.'}
+            {mullerGuess && `You chose line ${mullerGuess}. `}
+            {answer || 'IDENTICAL. The arrows create a false sense of depth — outward arrows suggest the line recedes, inward arrows suggest it projects toward you.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
-          </button>
-          {revealed && <ScienceButton />}
+          {!revealed ? (
+            <>
+              <button onClick={() => handleMullerGuess('1')} style={buttonStyle}>
+                Line 1
+              </button>
+              <button onClick={() => handleMullerGuess('2')} style={buttonStyle}>
+                Line 2
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetMuller} style={buttonStyle}>
+                See Illusion Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -1074,58 +1183,74 @@ export default function IllusionRenderer({
   // EBBINGHAUS CIRCLES (SVG)
   // ============================================
   if (illusionType === 'ebbinghaus-circles') {
+    const [ebbinghausGuess, setEbbinghausGuess] = useState<'A' | 'B' | null>(null);
+
+    const handleEbbinghausGuess = (guess: 'A' | 'B') => {
+      setEbbinghausGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetEbbinghaus = () => {
+      setEbbinghausGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Ebbinghaus Illusion</span>
-        <p style={questionStyle}>{question || 'Which orange circle is larger?'}</p>
+        <p style={questionStyle}>{question || 'Which orange circle is larger — A or B?'}</p>
 
         <div style={imageContainerStyle}>
           <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '40px' }}>
             <svg
-              viewBox="0 0 400 200"
+              viewBox="0 0 400 240"
               style={{ width: '100%', height: '100%', maxWidth: '400px' }}
             >
-              {/* Left group: center circle surrounded by large circles */}
-              <g transform="translate(100, 100)">
+              {/* Left group (A): center circle surrounded by large circles */}
+              <g transform="translate(100, 110)">
                 {/* Surrounding large circles - animate away when revealed */}
                 {[0, 60, 120, 180, 240, 300].map((angle, i) => (
                   <circle
                     key={`large-${i}`}
-                    cx={Math.cos((angle * Math.PI) / 180) * (revealed ? 80 : 55)}
-                    cy={Math.sin((angle * Math.PI) / 180) * (revealed ? 80 : 55)}
-                    r={revealed ? 20 : 25}
+                    cx={Math.cos((angle * Math.PI) / 180) * (revealed ? 90 : 65)}
+                    cy={Math.sin((angle * Math.PI) / 180) * (revealed ? 90 : 65)}
+                    r={revealed ? 25 : 30}
                     fill="#4a7c8f"
                     style={{ transition: 'all 0.6s ease' }}
                   />
                 ))}
-                {/* Center circle */}
-                <circle cx="0" cy="0" r="20" fill="#e89b5f" />
+                {/* Center circle - larger */}
+                <circle cx="0" cy="0" r="25" fill="#e89b5f" />
+                {/* Label */}
+                <text x="0" y="100" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif" fontWeight="500">A</text>
               </g>
 
-              {/* Right group: center circle surrounded by small circles */}
-              <g transform="translate(300, 100)">
+              {/* Right group (B): center circle surrounded by small circles */}
+              <g transform="translate(300, 110)">
                 {/* Surrounding small circles - animate to same size when revealed */}
                 {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
                   <circle
                     key={`small-${i}`}
-                    cx={Math.cos((angle * Math.PI) / 180) * (revealed ? 80 : 40)}
-                    cy={Math.sin((angle * Math.PI) / 180) * (revealed ? 80 : 40)}
-                    r={revealed ? 20 : 8}
+                    cx={Math.cos((angle * Math.PI) / 180) * (revealed ? 90 : 50)}
+                    cy={Math.sin((angle * Math.PI) / 180) * (revealed ? 90 : 50)}
+                    r={revealed ? 25 : 10}
                     fill="#4a7c8f"
                     style={{ transition: 'all 0.6s ease' }}
                   />
                 ))}
-                {/* Center circle */}
-                <circle cx="0" cy="0" r="20" fill="#e89b5f" />
+                {/* Center circle - larger */}
+                <circle cx="0" cy="0" r="25" fill="#e89b5f" />
+                {/* Label */}
+                <text x="0" y="100" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif" fontWeight="500">B</text>
               </g>
 
               {/* Comparison line when revealed */}
               {revealed && (
                 <line
                   x1="100"
-                  y1="100"
+                  y1="110"
                   x2="300"
-                  y2="100"
+                  y2="110"
                   stroke="#a8d5e5"
                   strokeWidth="1"
                   strokeDasharray="4"
@@ -1138,15 +1263,29 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'IDENTICAL. Size is relative — surrounded by large circles, the center looks small; surrounded by small circles, it looks large. Your brain judges size by comparison, not measurement.'}
+            {ebbinghausGuess && `You chose ${ebbinghausGuess}. `}
+            {answer || 'IDENTICAL. Size is relative — surrounded by large circles, the center looks small; surrounded by small circles, it looks large.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
-          </button>
-          {revealed && <ScienceButton />}
+          {!revealed ? (
+            <>
+              <button onClick={() => handleEbbinghausGuess('A')} style={buttonStyle}>
+                A
+              </button>
+              <button onClick={() => handleEbbinghausGuess('B')} style={buttonStyle}>
+                B
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetEbbinghaus} style={buttonStyle}>
+                See Illusion Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -1158,10 +1297,22 @@ export default function IllusionRenderer({
   // SIMULTANEOUS CONTRAST (SVG)
   // ============================================
   if (illusionType === 'simultaneous-contrast') {
+    const [contrastGuess, setContrastGuess] = useState<'true' | 'false' | null>(null);
+
+    const handleContrastGuess = (guess: 'true' | 'false') => {
+      setContrastGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetContrast = () => {
+      setContrastGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Simultaneous Contrast</span>
-        <p style={questionStyle}>{question || 'Which gray square is darker?'}</p>
+        <p style={questionStyle}>{question || 'A is darker than B — true or false?'}</p>
 
         <div style={imageContainerStyle}>
           <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '40px' }}>
@@ -1169,13 +1320,13 @@ export default function IllusionRenderer({
               viewBox="0 0 400 200"
               style={{ width: '100%', height: '100%', maxWidth: '400px' }}
             >
-              {/* Left: gray square on dark background */}
+              {/* Left: gray square on very dark background */}
               <rect
                 x="20"
                 y="20"
                 width="160"
                 height="160"
-                fill={revealed ? '#1a1a1a' : '#2a2a2a'}
+                fill={revealed ? '#1a1a1a' : '#0a0a0a'}
                 style={{ transition: 'fill 0.5s ease' }}
               />
               <rect
@@ -1186,13 +1337,13 @@ export default function IllusionRenderer({
                 fill="#808080"
               />
 
-              {/* Right: gray square on light background */}
+              {/* Right: gray square on very light background */}
               <rect
                 x="220"
                 y="20"
                 width="160"
                 height="160"
-                fill={revealed ? '#1a1a1a' : '#d0d0d0'}
+                fill={revealed ? '#1a1a1a' : '#f0f0f0'}
                 style={{ transition: 'fill 0.5s ease' }}
               />
               <rect
@@ -1204,8 +1355,8 @@ export default function IllusionRenderer({
               />
 
               {/* Labels */}
-              <text x="100" y="190" fill="#a8d5e5" fontSize="12" textAnchor="middle" fontFamily="Outfit, sans-serif" opacity="0.7">A</text>
-              <text x="300" y="190" fill="#a8d5e5" fontSize="12" textAnchor="middle" fontFamily="Outfit, sans-serif" opacity="0.7">B</text>
+              <text x="100" y="190" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif" fontWeight="500">A</text>
+              <text x="300" y="190" fill="#a8d5e5" fontSize="14" textAnchor="middle" fontFamily="Outfit, sans-serif" fontWeight="500">B</text>
 
               {/* Color value label when revealed */}
               {revealed && (
@@ -1220,15 +1371,29 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'IDENTICAL. Your brain judges brightness by comparison, not absolute value. The same gray looks darker on white and lighter on black — helping you see consistent colors under varied lighting.'}
+            {contrastGuess && `You said ${contrastGuess}. `}
+            {answer || 'FALSE — They\'re IDENTICAL. Your brain judges brightness by comparison, not absolute value. The same gray looks darker on white and lighter on black.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
-          </button>
-          {revealed && <ScienceButton />}
+          {!revealed ? (
+            <>
+              <button onClick={() => handleContrastGuess('true')} style={buttonStyle}>
+                True
+              </button>
+              <button onClick={() => handleContrastGuess('false')} style={buttonStyle}>
+                False
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetContrast} style={buttonStyle}>
+                Try Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -1240,10 +1405,22 @@ export default function IllusionRenderer({
   // PONZO RAILROAD (SVG)
   // ============================================
   if (illusionType === 'ponzo-railroad') {
+    const [ponzoRailGuess, setPonzoRailGuess] = useState<'true' | 'false' | null>(null);
+
+    const handlePonzoRailGuess = (guess: 'true' | 'false') => {
+      setPonzoRailGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetPonzoRail = () => {
+      setPonzoRailGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Ponzo Illusion</span>
-        <p style={questionStyle}>{question || 'Which yellow bar is longer?'}</p>
+        <p style={questionStyle}>{question || 'The top yellow bar is longer than the bottom — true or false?'}</p>
 
         <div style={imageContainerStyle}>
           <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '40px' }}>
@@ -1275,10 +1452,10 @@ export default function IllusionRenderer({
                 </>
               )}
 
-              {/* Top yellow bar */}
+              {/* Top yellow bar - centered */}
               <rect
-                x={revealed ? 75 : 100}
-                y={revealed ? 80 : 60}
+                x={revealed ? 100 : 100}
+                y={revealed ? 120 : 60}
                 width="100"
                 height="20"
                 fill="#e8c85f"
@@ -1286,10 +1463,10 @@ export default function IllusionRenderer({
                 style={{ transition: 'all 0.5s ease' }}
               />
 
-              {/* Bottom yellow bar */}
+              {/* Bottom yellow bar - centered */}
               <rect
-                x={revealed ? 75 : 75}
-                y={revealed ? 120 : 200}
+                x={revealed ? 100 : 100}
+                y={revealed ? 160 : 200}
                 width="100"
                 height="20"
                 fill="#e8c85f"
@@ -1300,9 +1477,9 @@ export default function IllusionRenderer({
               {/* Measurement guides when revealed */}
               {revealed && (
                 <>
-                  <line x1="75" y1="70" x2="75" y2="150" stroke="#a8d5e5" strokeWidth="1" strokeDasharray="4" opacity="0.5" />
-                  <line x1="175" y1="70" x2="175" y2="150" stroke="#a8d5e5" strokeWidth="1" strokeDasharray="4" opacity="0.5" />
-                  <text x="125" y="170" fill="#a8d5e5" fontSize="12" textAnchor="middle" fontFamily="Outfit, sans-serif">100px each</text>
+                  <line x1="100" y1="110" x2="100" y2="190" stroke="#a8d5e5" strokeWidth="1" strokeDasharray="4" opacity="0.5" />
+                  <line x1="200" y1="110" x2="200" y2="190" stroke="#a8d5e5" strokeWidth="1" strokeDasharray="4" opacity="0.5" />
+                  <text x="150" y="210" fill="#a8d5e5" fontSize="12" textAnchor="middle" fontFamily="Outfit, sans-serif">Same length</text>
                 </>
               )}
             </svg>
@@ -1311,15 +1488,29 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'IDENTICAL. The converging lines create false depth cues — like railroad tracks receding. Your brain assumes the "distant" bar must be larger to appear the same size. Mario Ponzo, 1911.'}
+            {ponzoRailGuess && `You said ${ponzoRailGuess}. `}
+            {answer || 'FALSE — They\'re identical. The converging lines create false depth cues. Your brain assumes the "distant" bar must be larger to appear the same size.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
-          </button>
-          {revealed && <ScienceButton />}
+          {!revealed ? (
+            <>
+              <button onClick={() => handlePonzoRailGuess('true')} style={buttonStyle}>
+                True
+              </button>
+              <button onClick={() => handlePonzoRailGuess('false')} style={buttonStyle}>
+                False
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetPonzoRail} style={buttonStyle}>
+                See Illusion Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -1331,15 +1522,26 @@ export default function IllusionRenderer({
   // CAFÉ WALL (SVG)
   // ============================================
   if (illusionType === 'cafe-wall') {
+    const [cafeGuess, setCafeGuess] = useState<'left' | 'right' | null>(null);
     const rows = 8;
     const cols = 10;
     const tileSize = 30;
     const mortarHeight = 3;
 
+    const handleCafeGuess = (guess: 'left' | 'right') => {
+      setCafeGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetCafe = () => {
+      setCafeGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Café Wall Illusion</span>
-        <p style={questionStyle}>{question || 'Are the horizontal gray lines parallel or tilted?'}</p>
+        <p style={questionStyle}>{question || 'Which way do the gray lines tilt — left or right?'}</p>
 
         <div style={imageContainerStyle}>
           <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '20px' }}>
@@ -1387,15 +1589,29 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'PERFECTLY PARALLEL. The offset black and white tiles create a wedge-like appearance that tricks your visual cortex into perceiving tilt. Discovered on a café wall in Bristol, 1979.'}
+            {cafeGuess && `You said ${cafeGuess}. `}
+            {answer || 'NEITHER! They\'re perfectly parallel. The offset black and white tiles create a wedge-like appearance that tricks your visual cortex into perceiving tilt.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
-          </button>
-          {revealed && <ScienceButton />}
+          {!revealed ? (
+            <>
+              <button onClick={() => handleCafeGuess('left')} style={buttonStyle}>
+                Left
+              </button>
+              <button onClick={() => handleCafeGuess('right')} style={buttonStyle}>
+                Right
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetCafe} style={buttonStyle}>
+                See Illusion Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -1404,64 +1620,66 @@ export default function IllusionRenderer({
   }
 
   // ============================================
-  // SANDER PARALLELOGRAM (SVG)
+  // SANDER PARALLELOGRAM (Image-based)
   // ============================================
   if (illusionType === 'sander-parallelogram') {
+    const [userGuess, setUserGuess] = useState<'ab' | 'bc' | null>(null);
+
+    const handleGuess = (guess: 'ab' | 'bc') => {
+      setUserGuess(guess);
+      setRevealed(true);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Sander Illusion</span>
-        <p style={questionStyle}>{question || 'Which diagonal line is longer?'}</p>
+        <p style={questionStyle}>{question || 'Which line is longer — A-B or B-C?'}</p>
+
+        {/* A-B / B-C choice buttons */}
+        {!revealed && (
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
+            <button
+              onClick={() => handleGuess('ab')}
+              style={{
+                ...buttonStyle,
+                background: userGuess === 'ab' ? '#a8d5e5' : 'transparent',
+                color: userGuess === 'ab' ? '#0a0a0a' : '#a8d5e5',
+              }}
+            >
+              A-B
+            </button>
+            <button
+              onClick={() => handleGuess('bc')}
+              style={{
+                ...buttonStyle,
+                background: userGuess === 'bc' ? '#a8d5e5' : 'transparent',
+                color: userGuess === 'bc' ? '#0a0a0a' : '#a8d5e5',
+              }}
+            >
+              B-C
+            </button>
+          </div>
+        )}
 
         <div style={imageContainerStyle}>
-          <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '40px' }}>
-            <svg
-              viewBox="0 0 400 200"
-              style={{ width: '100%', height: '100%', maxWidth: '400px' }}
-            >
-              {!revealed ? (
-                <>
-                  {/* Large parallelogram with diagonal */}
-                  <polygon
-                    points="20,150 120,50 280,50 180,150"
-                    fill="none"
-                    stroke="#4a7c8f"
-                    strokeWidth="2"
-                  />
-                  <line x1="20" y1="150" x2="280" y2="50" stroke="#e89b5f" strokeWidth="3" />
-
-                  {/* Small parallelogram with diagonal */}
-                  <polygon
-                    points="280,50 340,50 380,150 320,150"
-                    fill="none"
-                    stroke="#4a7c8f"
-                    strokeWidth="2"
-                  />
-                  <line x1="280" y1="50" x2="380" y2="150" stroke="#a8d5e5" strokeWidth="3" />
-                </>
-              ) : (
-                <>
-                  {/* Show lines side by side for comparison */}
-                  <line x1="50" y1="60" x2="310" y2="160" stroke="#e89b5f" strokeWidth="3" />
-                  <line x1="90" y1="60" x2="350" y2="160" stroke="#a8d5e5" strokeWidth="3" />
-
-                  {/* Length labels */}
-                  <text x="180" y="180" fill="#e89b5f" fontSize="12" textAnchor="middle" fontFamily="Outfit, sans-serif">Orange: 269px</text>
-                  <text x="220" y="40" fill="#a8d5e5" fontSize="12" textAnchor="middle" fontFamily="Outfit, sans-serif">Blue: 128px</text>
-                </>
-              )}
-            </svg>
+          <div style={imageWrapperStyle}>
+            <img
+              src={revealed ? (revealSrc || '/exhibitions/seeing/line-comparison-reveal.gif') : (src || '/exhibitions/seeing/line-comparison.jpg')}
+              alt="Sander Illusion"
+              style={imageStyle}
+            />
           </div>
         </div>
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'The ORANGE line is actually longer! The enclosing parallelograms distort your size judgment — the smaller shape makes its diagonal appear proportionally larger. Named after Friedrich Sander, 1926.'}
+            {answer || 'IDENTICAL — Both lines are exactly the same length. The angled lines create a false sense of perspective.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
+          <button onClick={() => { setRevealed(!revealed); if (revealed) setUserGuess(null); }} style={buttonStyle}>
+            {revealed ? 'Try Again' : 'Reveal the Truth'}
           </button>
           {revealed && <ScienceButton />}
         </div>
@@ -1579,66 +1797,61 @@ export default function IllusionRenderer({
   }
 
   // ============================================
-  // GRADIENT BAR (SVG)
+  // GRADIENT BAR (Image-based)
   // ============================================
   if (illusionType === 'gradient-bar') {
+    const [gradientGuess, setGradientGuess] = useState<'gradient' | 'solid' | null>(null);
+
+    const handleGradientGuess = (guess: 'gradient' | 'solid') => {
+      setGradientGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetGradient = () => {
+      setGradientGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Gradient Illusion</span>
-        <p style={questionStyle}>{question || 'Is this bar a gradient or solid color?'}</p>
+        <p style={questionStyle}>{question || 'Is the bar a gradient or solid color?'}</p>
 
         <div style={imageContainerStyle}>
-          <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '40px' }}>
-            <svg
-              viewBox="0 0 350 200"
-              style={{ width: '100%', height: '100%', maxWidth: '350px' }}
-            >
-              {/* Gradient background definition */}
-              <defs>
-                <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#2a2a2a" />
-                  <stop offset="100%" stopColor="#e0e0e0" />
-                </linearGradient>
-              </defs>
-
-              {/* Background gradient (removed when revealed) */}
-              <rect
-                x="25"
-                y="40"
-                width="300"
-                height="120"
-                fill={revealed ? '#1a1a1a' : 'url(#bgGradient)'}
-                style={{ transition: 'fill 0.5s ease' }}
-              />
-
-              {/* Solid gray bar */}
-              <rect
-                x="25"
-                y="80"
-                width="300"
-                height="40"
-                fill="#808080"
-              />
-
-              {/* Label when revealed */}
-              {revealed && (
-                <text x="175" y="105" fill="#a8d5e5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">Uniform #808080</text>
-              )}
-            </svg>
+          <div style={imageWrapperStyle}>
+            <img
+              src={revealed ? (revealSrc || '/exhibitions/seeing/gradient-reveal.jpg') : (src || '/exhibitions/seeing/gradient.jpg')}
+              alt="Gradient Bar Illusion"
+              style={imageStyle}
+            />
           </div>
         </div>
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'SOLID COLOR. The bar is uniform gray throughout. The gradient background creates simultaneous contrast — making the left side appear lighter and the right side darker than they actually are.'}
+            {gradientGuess && `You said ${gradientGuess}. `}
+            {answer || 'SOLID COLOR! The bar is uniform throughout. The gradient background creates simultaneous contrast — making the left side appear lighter and the right side darker.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
-            {revealed ? 'See Illusion Again' : 'Reveal the Truth'}
-          </button>
-          {revealed && <ScienceButton />}
+          {!revealed ? (
+            <>
+              <button onClick={() => handleGradientGuess('gradient')} style={buttonStyle}>
+                Gradient
+              </button>
+              <button onClick={() => handleGradientGuess('solid')} style={buttonStyle}>
+                Solid
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetGradient} style={buttonStyle}>
+                See Illusion Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -1650,7 +1863,7 @@ export default function IllusionRenderer({
   // KANIZSA TRIANGLE SVG
   // ============================================
   if (illusionType === 'kanizsa-triangle-svg') {
-    const pacmanRadius = 40;
+    const pacmanRadius = 45;
 
     return (
       <div style={containerStyle}>
@@ -1663,45 +1876,47 @@ export default function IllusionRenderer({
               viewBox="0 0 300 280"
               style={{ width: '100%', height: '100%', maxWidth: '300px' }}
             >
-              {/* Three pac-man shapes */}
-              {/* Top pac-man */}
+              {/* Three pac-man shapes - mouth points toward center when not revealed */}
+              {/* Top pac-man - mouth points down */}
               <path
-                d={revealed
-                  ? `M 150 50 m -${pacmanRadius}, 0 a ${pacmanRadius},${pacmanRadius} 0 1,0 ${pacmanRadius * 2},0 a ${pacmanRadius},${pacmanRadius} 0 1,0 -${pacmanRadius * 2},0`
-                  : `M 150 50 L ${150 + pacmanRadius * Math.cos(-Math.PI / 6)} ${50 + pacmanRadius * Math.sin(-Math.PI / 6)} A ${pacmanRadius} ${pacmanRadius} 0 1 0 ${150 + pacmanRadius * Math.cos(-5 * Math.PI / 6)} ${50 + pacmanRadius * Math.sin(-5 * Math.PI / 6)} Z`
-                }
+                d={`M 150 55
+                    L ${150 + pacmanRadius * Math.cos(Math.PI / 3)} ${55 + pacmanRadius * Math.sin(Math.PI / 3)}
+                    A ${pacmanRadius} ${pacmanRadius} 0 1 0 ${150 + pacmanRadius * Math.cos(2 * Math.PI / 3)} ${55 + pacmanRadius * Math.sin(2 * Math.PI / 3)}
+                    Z`}
                 fill="#a8d5e5"
-                style={{ transition: 'all 0.5s ease', transformOrigin: '150px 50px', transform: revealed ? 'rotate(60deg)' : 'rotate(0deg)' }}
+                style={{
+                  transition: 'transform 0.5s ease',
+                  transformOrigin: '150px 55px',
+                  transform: revealed ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}
               />
 
-              {/* Bottom-left pac-man */}
+              {/* Bottom-left pac-man - mouth points toward top-right */}
               <path
-                d={revealed
-                  ? `M 70 220 m -${pacmanRadius}, 0 a ${pacmanRadius},${pacmanRadius} 0 1,0 ${pacmanRadius * 2},0 a ${pacmanRadius},${pacmanRadius} 0 1,0 -${pacmanRadius * 2},0`
-                  : `M 70 220 L ${70 + pacmanRadius * Math.cos(Math.PI / 6)} ${220 + pacmanRadius * Math.sin(Math.PI / 6)} A ${pacmanRadius} ${pacmanRadius} 0 1 0 ${70 + pacmanRadius * Math.cos(-Math.PI / 2)} ${220 + pacmanRadius * Math.sin(-Math.PI / 2)} Z`
-                }
+                d={`M 75 215
+                    L ${75 + pacmanRadius * Math.cos(-Math.PI / 3)} ${215 + pacmanRadius * Math.sin(-Math.PI / 3)}
+                    A ${pacmanRadius} ${pacmanRadius} 0 1 0 ${75 + pacmanRadius * Math.cos(0)} ${215 + pacmanRadius * Math.sin(0)}
+                    Z`}
                 fill="#a8d5e5"
-                style={{ transition: 'all 0.5s ease', transformOrigin: '70px 220px', transform: revealed ? 'rotate(-60deg)' : 'rotate(0deg)' }}
+                style={{
+                  transition: 'transform 0.5s ease',
+                  transformOrigin: '75px 215px',
+                  transform: revealed ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}
               />
 
-              {/* Bottom-right pac-man */}
+              {/* Bottom-right pac-man - mouth points toward top-left */}
               <path
-                d={revealed
-                  ? `M 230 220 m -${pacmanRadius}, 0 a ${pacmanRadius},${pacmanRadius} 0 1,0 ${pacmanRadius * 2},0 a ${pacmanRadius},${pacmanRadius} 0 1,0 -${pacmanRadius * 2},0`
-                  : `M 230 220 L ${230 + pacmanRadius * Math.cos(Math.PI / 2)} ${220 + pacmanRadius * Math.sin(Math.PI / 2)} A ${pacmanRadius} ${pacmanRadius} 0 1 0 ${230 + pacmanRadius * Math.cos(5 * Math.PI / 6)} ${220 + pacmanRadius * Math.sin(5 * Math.PI / 6)} Z`
-                }
+                d={`M 225 215
+                    L ${225 + pacmanRadius * Math.cos(Math.PI)} ${215 + pacmanRadius * Math.sin(Math.PI)}
+                    A ${pacmanRadius} ${pacmanRadius} 0 1 0 ${225 + pacmanRadius * Math.cos(-2 * Math.PI / 3)} ${215 + pacmanRadius * Math.sin(-2 * Math.PI / 3)}
+                    Z`}
                 fill="#a8d5e5"
-                style={{ transition: 'all 0.5s ease', transformOrigin: '230px 220px', transform: revealed ? 'rotate(60deg)' : 'rotate(0deg)' }}
-              />
-
-              {/* Outline triangle (incomplete) */}
-              <polygon
-                points="80,80 150,200 220,80"
-                fill="none"
-                stroke="#a8d5e5"
-                strokeWidth="2"
-                opacity={revealed ? 0.3 : 1}
-                style={{ transition: 'opacity 0.5s ease' }}
+                style={{
+                  transition: 'transform 0.5s ease',
+                  transformOrigin: '225px 215px',
+                  transform: revealed ? 'rotate(180deg)' : 'rotate(0deg)'
+                }}
               />
             </svg>
           </div>
@@ -1709,7 +1924,7 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'There IS no white triangle — no edges are drawn. Your brain creates "illusory contours" from the pac-man shapes, completing a triangle that exists only in your perception. Created by Gaetano Kanizsa, 1955.'}
+            {answer || 'There IS no white triangle — no edges are drawn. Your brain creates "illusory contours" from the pac-man shapes, completing a triangle that exists only in your perception.'}
           </p>
         </div>
 
@@ -1726,80 +1941,89 @@ export default function IllusionRenderer({
   }
 
   // ============================================
-  // RUBIN'S VASE (SVG)
+  // RUBIN'S VASE (Image-based)
   // ============================================
   if (illusionType === 'rubins-vase') {
-    const [viewMode, setViewMode] = useState<'neutral' | 'vase' | 'faces'>('neutral');
+    const [rubinChoice, setRubinChoice] = useState<'vase' | 'faces' | null>(null);
+    const [rubinView, setRubinView] = useState<'main' | 'vase' | 'faces'>('main');
+
+    const handleRubinChoice = (choice: 'vase' | 'faces') => {
+      setRubinChoice(choice);
+      setRevealed(true);
+    };
+
+    const resetRubin = () => {
+      setRubinChoice(null);
+      setRubinView('main');
+      setRevealed(false);
+    };
+
+    const getRubinImage = () => {
+      if (rubinView === 'vase') return revealSrc || '/exhibitions/seeing/rubins-vase-vase.jpg';
+      if (rubinView === 'faces') return altRevealSrc || '/exhibitions/seeing/rubins-vase-face.jpg';
+      return src || '/exhibitions/seeing/rubins-vase.jpg';
+    };
 
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Rubin's Vase</span>
-        <p style={questionStyle}>{question || 'What do you see — a vase or two faces?'}</p>
+        <p style={questionStyle}>{question || 'Do you see a vase or two faces?'}</p>
 
         <div style={imageContainerStyle}>
-          <div style={{ ...imageWrapperStyle, background: '#1a1a1a', padding: '40px' }}>
-            <svg
-              viewBox="0 0 300 300"
-              style={{ width: '100%', height: '100%', maxWidth: '300px' }}
-            >
-              {/* Background */}
-              <rect
-                x="0"
-                y="0"
-                width="300"
-                height="300"
-                fill={viewMode === 'faces' ? '#a8d5e5' : (viewMode === 'vase' ? '#2a2a2a' : '#4a4a4a')}
-                style={{ transition: 'fill 0.4s ease' }}
-              />
-
-              {/* Vase shape (or negative space between faces) */}
-              <path
-                d="M 150 20
-                   C 120 20, 100 40, 100 60
-                   C 100 80, 115 90, 115 100
-                   C 115 110, 90 130, 80 160
-                   C 70 190, 80 230, 100 260
-                   C 110 275, 130 280, 150 280
-                   C 170 280, 190 275, 200 260
-                   C 220 230, 230 190, 220 160
-                   C 210 130, 185 110, 185 100
-                   C 185 90, 200 80, 200 60
-                   C 200 40, 180 20, 150 20 Z"
-                fill={viewMode === 'faces' ? '#2a2a2a' : (viewMode === 'vase' ? '#a8d5e5' : '#a8d5e5')}
-                style={{ transition: 'fill 0.4s ease' }}
-              />
-            </svg>
+          <div style={imageWrapperStyle}>
+            <img
+              src={getRubinImage()}
+              alt="Rubin's Vase"
+              style={imageStyle}
+            />
           </div>
         </div>
 
         <div style={answerContainerStyle}>
-          <p style={answerVisibleStyle}>
-            {answer || 'Both! This is a "bistable" image — your brain can interpret the same contour as either the edge of a vase or the profile of two faces. You cannot see both simultaneously. Created by Edgar Rubin, 1915.'}
+          <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
+            {rubinChoice && `You saw ${rubinChoice === 'vase' ? 'a vase' : 'faces'}. `}
+            {answer || 'BOTH! This is a "bistable" image — your brain can interpret the same contour as either the edge of a vase or the profile of two faces. You cannot see both simultaneously.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button
-            onClick={() => setViewMode(viewMode === 'vase' ? 'neutral' : 'vase')}
-            style={{
-              ...buttonStyle,
-              background: viewMode === 'vase' ? textColor : 'transparent',
-              color: viewMode === 'vase' ? '#0a0a0a' : textColor
-            }}
-          >
-            See Vase
-          </button>
-          <button
-            onClick={() => setViewMode(viewMode === 'faces' ? 'neutral' : 'faces')}
-            style={{
-              ...buttonStyle,
-              background: viewMode === 'faces' ? textColor : 'transparent',
-              color: viewMode === 'faces' ? '#0a0a0a' : textColor
-            }}
-          >
-            See Faces
-          </button>
-          <ScienceButton />
+          {!revealed ? (
+            <>
+              <button onClick={() => handleRubinChoice('vase')} style={buttonStyle}>
+                Vase
+              </button>
+              <button onClick={() => handleRubinChoice('faces')} style={buttonStyle}>
+                Faces
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setRubinView(rubinView === 'vase' ? 'main' : 'vase')}
+                style={{
+                  ...buttonStyle,
+                  background: rubinView === 'vase' ? textColor : 'transparent',
+                  color: rubinView === 'vase' ? '#0a0a0a' : textColor
+                }}
+              >
+                See Vase
+              </button>
+              <button
+                onClick={() => setRubinView(rubinView === 'faces' ? 'main' : 'faces')}
+                style={{
+                  ...buttonStyle,
+                  background: rubinView === 'faces' ? textColor : 'transparent',
+                  color: rubinView === 'faces' ? '#0a0a0a' : textColor
+                }}
+              >
+                See Faces
+              </button>
+              <button onClick={resetRubin} style={buttonStyle}>
+                Start Over
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -1830,16 +2054,23 @@ export default function IllusionRenderer({
         <p style={questionStyle}>{question || 'Stare at the center cross for 15 seconds. What do you see?'}</p>
 
         <div style={imageContainerStyle}>
-          <div style={{ ...imageWrapperStyle, background: '#808080', padding: '40px', position: 'relative' }}>
+          <div style={{ ...imageWrapperStyle, background: '#909090', padding: '40px', position: 'relative' }}>
             <svg
               viewBox="0 0 250 250"
               style={{ width: '100%', height: '100%', maxWidth: '250px' }}
             >
-              {/* Center fixation cross */}
-              <line x1="115" y1="125" x2="135" y2="125" stroke="#1a1a1a" strokeWidth="2" />
-              <line x1="125" y1="115" x2="125" y2="135" stroke="#1a1a1a" strokeWidth="2" />
+              {/* Blur filter for fuzzy edges */}
+              <defs>
+                <filter id="fuzzy" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+                </filter>
+              </defs>
 
-              {/* Lilac dots in a circle */}
+              {/* Center fixation cross */}
+              <line x1="115" y1="125" x2="135" y2="125" stroke="#2a2a2a" strokeWidth="2" />
+              <line x1="125" y1="115" x2="125" y2="135" stroke="#2a2a2a" strokeWidth="2" />
+
+              {/* Lilac dots in a circle with fuzzy edges */}
               {Array.from({ length: dotCount }).map((_, i) => {
                 const angle = (i * 360 / dotCount) * (Math.PI / 180);
                 const cx = 125 + radius * Math.cos(angle);
@@ -1852,7 +2083,8 @@ export default function IllusionRenderer({
                     cx={cx}
                     cy={cy}
                     r="15"
-                    fill="#d87bba"
+                    fill="#e0a0d0"
+                    filter="url(#fuzzy)"
                     className={isRunning ? 'lilac-dot' : ''}
                     style={{
                       animationDelay: isRunning ? `${delay}s` : '0s',
@@ -1948,6 +2180,135 @@ export default function IllusionRenderer({
             {revealed ? 'Read Again' : 'Show Me'}
           </button>
           {revealed && <ScienceButton />}
+        </div>
+
+        <MuseumCard />
+      </div>
+    );
+  }
+
+  // ============================================
+  // CHROMOSTEREOPSIS (Image-based)
+  // ============================================
+  if (illusionType === 'chromostereopsis') {
+    const [chromoGuess, setChromoGuess] = useState<'true' | 'false' | null>(null);
+
+    const handleChromoGuess = (guess: 'true' | 'false') => {
+      setChromoGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetChromo = () => {
+      setChromoGuess(null);
+      setRevealed(false);
+    };
+
+    return (
+      <div style={containerStyle}>
+        <span style={nameLabelStyle}>Chromostereopsis</span>
+        <p style={questionStyle}>{question || 'This image is 3D — true or false?'}</p>
+
+        <div style={imageContainerStyle}>
+          <div style={imageWrapperStyle}>
+            <img
+              src={src || '/exhibitions/seeing/chromostereopsis.jpg'}
+              alt="Chromostereopsis"
+              style={imageStyle}
+            />
+          </div>
+        </div>
+
+        <div style={answerContainerStyle}>
+          <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
+            {chromoGuess && `You said ${chromoGuess}. `}
+            {answer || 'FALSE — It\'s completely flat! Red and blue light focus at different depths in your eye, creating a false sense of depth where none exists.'}
+          </p>
+        </div>
+
+        <div style={buttonContainerStyle}>
+          {!revealed ? (
+            <>
+              <button onClick={() => handleChromoGuess('true')} style={buttonStyle}>
+                True
+              </button>
+              <button onClick={() => handleChromoGuess('false')} style={buttonStyle}>
+                False
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetChromo} style={buttonStyle}>
+                Try Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
+        </div>
+
+        <MuseumCard />
+      </div>
+    );
+  }
+
+  // ============================================
+  // SEESAW ILLUSION (Image-based)
+  // ============================================
+  if (illusionType === 'seesaw') {
+    const [seesawGuess, setSeesawGuess] = useState<'left' | 'right' | 'balanced' | null>(null);
+
+    const handleSeesawGuess = (guess: 'left' | 'right' | 'balanced') => {
+      setSeesawGuess(guess);
+      setRevealed(true);
+    };
+
+    const resetSeesaw = () => {
+      setSeesawGuess(null);
+      setRevealed(false);
+    };
+
+    return (
+      <div style={containerStyle}>
+        <span style={nameLabelStyle}>Seesaw Illusion</span>
+        <p style={questionStyle}>{question || 'Which side is heavier?'}</p>
+
+        <div style={imageContainerStyle}>
+          <div style={imageWrapperStyle}>
+            <img
+              src={revealed ? (revealSrc || '/exhibitions/seeing/seesaw-reveal.jpg') : (src || '/exhibitions/seeing/seesaw.jpg')}
+              alt="Seesaw Illusion"
+              style={imageStyle}
+            />
+          </div>
+        </div>
+
+        <div style={answerContainerStyle}>
+          <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
+            {seesawGuess && `You chose ${seesawGuess}. `}
+            {answer || 'They\'re balanced! Your brain uses visual cues like size and position to estimate weight, but these cues can be deceiving.'}
+          </p>
+        </div>
+
+        <div style={buttonContainerStyle}>
+          {!revealed ? (
+            <>
+              <button onClick={() => handleSeesawGuess('left')} style={buttonStyle}>
+                Left
+              </button>
+              <button onClick={() => handleSeesawGuess('right')} style={buttonStyle}>
+                Right
+              </button>
+              <button onClick={() => handleSeesawGuess('balanced')} style={buttonStyle}>
+                Balanced
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetSeesaw} style={buttonStyle}>
+                Try Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
