@@ -43,8 +43,8 @@ export default function IllusionRenderer({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    justifyContent: 'flex-start',
-    padding: 'clamp(70px, 10vh, 80px) clamp(16px, 5vw, 40px) clamp(80px, 12vh, 100px)',
+    justifyContent: 'center',
+    padding: 'clamp(70px, 8vh, 100px) clamp(16px, 5vw, 40px) clamp(80px, 10vh, 120px)',
     boxSizing: 'border-box',
     overflowX: 'hidden',
     overflowY: 'auto'
@@ -53,42 +53,42 @@ export default function IllusionRenderer({
   // Illusion name label style
   const nameLabelStyle: React.CSSProperties = {
     fontFamily: 'Outfit, sans-serif',
-    fontSize: '10px',
+    fontSize: 'clamp(10px, 1.5vw, 12px)',
     letterSpacing: '0.2em',
     textTransform: 'uppercase',
     color: textColor,
     opacity: 0.5,
-    marginBottom: '8px',
+    marginBottom: '12px',
     flexShrink: 0,
-    height: '16px'
+    height: '18px'
   };
 
   const questionStyle: React.CSSProperties = {
     fontFamily: 'Cormorant Garamond, serif',
-    fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
+    fontSize: 'clamp(1.1rem, 3vw, 1.5rem)',
     fontStyle: 'italic',
     color: textColor,
     textAlign: 'center',
-    maxWidth: '600px',
+    maxWidth: '650px',
     minHeight: '50px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
     margin: 0,
-    padding: '0 10px'
+    padding: '0 16px'
   };
 
-  // Responsive image container
+  // Responsive image container - larger for iPad
   const imageContainerStyle: React.CSSProperties = {
     flex: '0 0 auto',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    maxWidth: '500px',
-    height: 'clamp(200px, 45vh, 400px)',
-    margin: '12px 0'
+    maxWidth: 'clamp(300px, 70vw, 550px)',
+    height: 'clamp(220px, 50vh, 450px)',
+    margin: '16px 0'
   };
 
   const imageWrapperStyle: React.CSSProperties = {
@@ -123,12 +123,12 @@ export default function IllusionRenderer({
 
   const answerStyle: React.CSSProperties = {
     fontFamily: 'Outfit, sans-serif',
-    fontSize: 'clamp(11px, 2.5vw, 13px)',
+    fontSize: 'clamp(12px, 2.5vw, 14px)',
     color: textColor,
     textAlign: 'center',
-    maxWidth: '90vw',
-    lineHeight: 1.6,
-    padding: '0 16px'
+    maxWidth: '85vw',
+    lineHeight: 1.7,
+    padding: '0 20px'
   };
 
   const answerVisibleStyle: React.CSSProperties = {
@@ -158,10 +158,10 @@ export default function IllusionRenderer({
 
   const buttonStyle: React.CSSProperties = {
     fontFamily: 'Outfit, sans-serif',
-    fontSize: 'clamp(10px, 2.5vw, 11px)',
+    fontSize: 'clamp(11px, 2.5vw, 12px)',
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
-    padding: 'clamp(10px, 2vw, 12px) clamp(16px, 4vw, 24px)',
+    padding: 'clamp(12px, 2.5vw, 14px) clamp(20px, 5vw, 28px)',
     background: 'transparent',
     border: `1px solid ${textColor}`,
     color: textColor,
@@ -173,10 +173,10 @@ export default function IllusionRenderer({
   // "How does this work?" button style - same as other buttons
   const scienceButtonStyle: React.CSSProperties = {
     fontFamily: 'Outfit, sans-serif',
-    fontSize: 'clamp(10px, 2.5vw, 11px)',
+    fontSize: 'clamp(11px, 2.5vw, 12px)',
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
-    padding: 'clamp(10px, 2vw, 12px) clamp(16px, 4vw, 24px)',
+    padding: 'clamp(12px, 2.5vw, 14px) clamp(20px, 5vw, 28px)',
     background: 'transparent',
     border: `1px solid ${textColor}`,
     color: textColor,
