@@ -1556,7 +1556,7 @@ export default function SeeingIsDeceiving() {
         </span>
       </div>
 
-      <div className="nav-m nav-m-right">
+      <div className="nav-m nav-m-right" onClick={() => router.push('/exhibitions/seeing-is-deceiving/resources')}>
         <span className="nav-label" style={{ color: '#7D8471' }}>Resources</span>
         <span className="nav-arrow nav-arrow-right" style={{ color: '#7D8471' }}>→</span>
         <span className="nav-m-text" style={{ color: '#525252' }}>M</span>
@@ -1754,7 +1754,7 @@ export default function SeeingIsDeceiving() {
 
       {/* Download Resources Button */}
       {activeView === 'main' && (
-        <button className="download-btn">
+        <button className="download-btn" onClick={() => router.push('/exhibitions/seeing-is-deceiving/resources')}>
           <span>↓</span>
           <span>Resources</span>
         </button>
