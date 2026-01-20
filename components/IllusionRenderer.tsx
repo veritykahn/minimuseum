@@ -1309,10 +1309,10 @@ export default function IllusionRenderer({
       setRevealed(false);
     };
 
-    // Colors: same orange in center, against red (dark) vs yellow (light) backgrounds
-    const centerColor = '#e89b5f'; // warm orange
-    const darkBg = '#8b2942'; // deep burgundy/red
-    const lightBg = '#f5d76e'; // bright yellow
+    // Colors: middle-value cyan/teal center on orange vs purple backgrounds (hue shift)
+    const centerColor = '#5fb8b8'; // mid-value cyan/teal
+    const orangeBg = '#e07830'; // vivid orange background
+    const purpleBg = '#7040a0'; // rich purple background
 
     return (
       <div style={containerStyle}>
@@ -1325,37 +1325,37 @@ export default function IllusionRenderer({
               viewBox="0 0 400 200"
               style={{ width: '100%', height: '100%', maxWidth: '400px' }}
             >
-              {/* Left: orange square on dark red/burgundy background */}
+              {/* Left: cyan square on orange background */}
               <rect
                 x="20"
                 y="20"
                 width="160"
                 height="160"
-                fill={revealed ? '#1a1a1a' : darkBg}
+                fill={revealed ? '#1a1a1a' : orangeBg}
                 style={{ transition: 'fill 0.5s ease' }}
               />
               <rect
-                x="55"
-                y="55"
-                width="90"
-                height="90"
+                x="60"
+                y="60"
+                width="80"
+                height="80"
                 fill={centerColor}
               />
 
-              {/* Right: orange square on bright yellow background */}
+              {/* Right: cyan square on purple background */}
               <rect
                 x="220"
                 y="20"
                 width="160"
                 height="160"
-                fill={revealed ? '#1a1a1a' : lightBg}
+                fill={revealed ? '#1a1a1a' : purpleBg}
                 style={{ transition: 'fill 0.5s ease' }}
               />
               <rect
-                x="255"
-                y="55"
-                width="90"
-                height="90"
+                x="260"
+                y="60"
+                width="80"
+                height="80"
                 fill={centerColor}
               />
 
@@ -1366,8 +1366,8 @@ export default function IllusionRenderer({
               {/* Color value label when revealed */}
               {revealed && (
                 <>
-                  <text x="100" y="105" fill="#a8d5e5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">#e89b5f</text>
-                  <text x="300" y="105" fill="#a8d5e5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">#e89b5f</text>
+                  <text x="100" y="105" fill="#a8d5e5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">#5fb8b8</text>
+                  <text x="300" y="105" fill="#a8d5e5" fontSize="11" textAnchor="middle" fontFamily="Outfit, sans-serif">#5fb8b8</text>
                 </>
               )}
             </svg>
@@ -1377,7 +1377,7 @@ export default function IllusionRenderer({
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
             {contrastGuess && `You said ${contrastGuess}. `}
-            {answer || 'FALSE — They\'re IDENTICAL. Your brain judges color by comparison, not absolute value. The same orange looks darker on yellow and lighter on red.'}
+            {answer || 'FALSE — They\'re IDENTICAL. Your brain judges color by comparison. The same cyan appears more blue-green on orange and more greenish on purple.'}
           </p>
         </div>
 
