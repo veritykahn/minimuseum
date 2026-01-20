@@ -2149,10 +2149,10 @@ export default function IllusionRenderer({
               </text>
               <text x="150" y="160" fill="#1a1a1a" fontSize="26" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
                 Paris in{' '}
-                <tspan fill={revealed ? '#cc3333' : '#1a1a1a'} style={{ transition: 'fill 0.3s ease' }}>the</tspan>
+                <tspan fill={revealed ? '#cc3333' : '#1a1a1a'} fontWeight="700" style={{ transition: 'fill 0.3s ease' }}>the</tspan>
               </text>
               <text x="150" y="200" fontSize="26" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
-                <tspan fill={revealed ? '#cc3333' : '#1a1a1a'} style={{ transition: 'fill 0.3s ease' }}>the</tspan>
+                <tspan fill={revealed ? '#cc3333' : '#1a1a1a'} fontWeight="700" style={{ transition: 'fill 0.3s ease' }}>the</tspan>
                 <tspan fill="#1a1a1a"> springtime</tspan>
               </text>
             </svg>
