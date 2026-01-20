@@ -45,7 +45,7 @@ export default function IllusionRenderer({
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    padding: '70px 40px 140px',
+    padding: '80px 40px 40px',  // More top padding for nav, less bottom
     boxSizing: 'border-box',
     overflow: 'hidden'
   };
@@ -86,7 +86,7 @@ export default function IllusionRenderer({
     justifyContent: 'center',
     width: '100%',
     maxWidth: '500px',
-    height: 'calc(100vh - 380px)',  // FIXED height
+    height: 'calc(100vh - 340px)',  // FIXED height (more space with top nav)
     minHeight: '200px',
     margin: '16px 0'
   };

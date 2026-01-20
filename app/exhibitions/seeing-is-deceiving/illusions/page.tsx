@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import IllusionRenderer from '@/components/IllusionRenderer';
 
@@ -134,38 +134,71 @@ export default function IllusionsPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
   const [animationKey, setAnimationKey] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   const currentItem = illusionContent[currentIndex];
-  const wavesBlue = '#a8d5e5';
 
   const handleBack = () => {
     router.push('/exhibitions/seeing-is-deceiving');
   };
 
-  const nextStep = () => {
+  const nextStep = useCallback(() => {
     if (currentIndex < illusionContent.length - 1) {
       setFadeIn(false);
       setTimeout(() => {
-        setCurrentIndex(currentIndex + 1);
+        setCurrentIndex(prev => prev + 1);
         setAnimationKey(prev => prev + 1);
         setFadeIn(true);
       }, 400);
     }
-  };
+  }, [currentIndex]);
 
-  const prevStep = () => {
+  const prevStep = useCallback(() => {
     if (currentIndex > 0) {
       setFadeIn(false);
       setTimeout(() => {
-        setCurrentIndex(currentIndex - 1);
+        setCurrentIndex(prev => prev - 1);
         setAnimationKey(prev => prev + 1);
         setFadeIn(true);
       }, 400);
     }
+  }, [currentIndex]);
+
+  // Swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+
+    const distance = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50;
+
+    if (distance > minSwipeDistance) {
+      // Swiped left -> go next
+      nextStep();
+    } else if (distance < -minSwipeDistance) {
+      // Swiped right -> go prev
+      prevStep();
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
   };
 
   return (
-    <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
+    <div
+      style={{ background: '#0a0a0a', minHeight: '100vh' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -235,47 +268,49 @@ export default function IllusionsPage() {
           transition: opacity 0.4s ease;
         }
 
-        /* Navigation arrows */
-        .walkthrough-nav {
+        /* Top Navigation */
+        .top-nav {
           position: fixed;
-          bottom: 60px;
+          top: 28px;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           align-items: center;
-          gap: 40px;
+          gap: 20px;
           z-index: 100;
         }
 
-        .nav-arrow-btn {
-          width: 50px;
-          height: 50px;
+        .top-nav-arrow {
+          width: 36px;
+          height: 36px;
           border-radius: 50%;
-          border: 1px solid #a8d5e5;
+          border: 1px solid rgba(168, 213, 229, 0.4);
           background: transparent;
           color: #a8d5e5;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 20px;
+          font-size: 16px;
           transition: all 0.3s ease;
           backdrop-filter: blur(10px);
         }
-        .nav-arrow-btn:disabled {
-          opacity: 0.3;
+        .top-nav-arrow:disabled {
+          opacity: 0.2;
           cursor: not-allowed;
         }
-        .nav-arrow-btn:not(:disabled):hover {
-          transform: scale(1.1);
-          background: rgba(168, 213, 229, 0.2);
+        .top-nav-arrow:not(:disabled):hover {
+          border-color: #a8d5e5;
+          background: rgba(168, 213, 229, 0.1);
         }
 
         .step-indicator {
           font-family: 'Outfit', sans-serif;
-          font-size: 11px;
-          letter-spacing: 0.1em;
-          color: #a8d5e5;
+          font-size: 12px;
+          letter-spacing: 0.15em;
+          color: rgba(168, 213, 229, 0.6);
+          min-width: 50px;
+          text-align: center;
         }
 
         /* Intro styles */
@@ -345,9 +380,10 @@ export default function IllusionsPage() {
         @media (max-width: 768px) {
           .nav-m-left { left: 20px; top: 20px; }
           .nav-m-text { font-size: 24px; }
-          .walkthrough-nav { bottom: 40px; gap: 24px; }
-          .nav-arrow-btn { width: 44px; height: 44px; font-size: 18px; }
-          .intro-container, .closing-container { padding: 100px 24px 160px; }
+          .top-nav { top: 20px; gap: 16px; }
+          .top-nav-arrow { width: 32px; height: 32px; font-size: 14px; }
+          .step-indicator { font-size: 11px; }
+          .intro-container, .closing-container { padding: 100px 24px 80px; }
         }
       `}</style>
 
@@ -396,11 +432,11 @@ export default function IllusionsPage() {
         )}
       </div>
 
-      {/* Navigation */}
+      {/* Top Navigation */}
       {currentItem.type !== 'closing' && (
-        <div className="walkthrough-nav">
+        <div className="top-nav">
           <button
-            className="nav-arrow-btn"
+            className="top-nav-arrow"
             onClick={prevStep}
             disabled={currentIndex === 0}
           >
@@ -410,7 +446,7 @@ export default function IllusionsPage() {
             {currentIndex + 1} / {illusionContent.length}
           </span>
           <button
-            className="nav-arrow-btn"
+            className="top-nav-arrow"
             onClick={nextStep}
             disabled={currentIndex === illusionContent.length - 1}
           >
