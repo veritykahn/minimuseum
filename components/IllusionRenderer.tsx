@@ -36,17 +36,18 @@ export default function IllusionRenderer({
 
   const textColor = isPoster1 ? '#2a2a2a' : '#a8d5e5';
 
-  // Shared styles - FIXED LAYOUT to prevent any shifts on reveal
+  // Shared styles - RESPONSIVE LAYOUT for mobile/tablet
   const containerStyle: React.CSSProperties = {
-    height: '100vh',
+    minHeight: '100vh',
     width: '100%',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'flex-start',
-    padding: '80px 40px 40px',  // More top padding for nav, less bottom
+    padding: 'clamp(70px, 10vh, 80px) clamp(16px, 5vw, 40px) clamp(80px, 12vh, 100px)',
     boxSizing: 'border-box',
-    overflow: 'hidden'
+    overflowX: 'hidden',
+    overflowY: 'auto'
   };
 
   // Illusion name label style
@@ -64,30 +65,30 @@ export default function IllusionRenderer({
 
   const questionStyle: React.CSSProperties = {
     fontFamily: 'Cormorant Garamond, serif',
-    fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)',
+    fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
     fontStyle: 'italic',
     color: textColor,
     textAlign: 'center',
     maxWidth: '600px',
-    height: '60px',  // FIXED height, not minHeight
+    minHeight: '50px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    margin: 0
+    margin: 0,
+    padding: '0 10px'
   };
 
-  // FIXED-size image container - absolutely no flex growth/shrink
+  // Responsive image container
   const imageContainerStyle: React.CSSProperties = {
-    flex: '0 0 auto',  // No grow, no shrink
+    flex: '0 0 auto',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
     maxWidth: '500px',
-    height: 'calc(100vh - 340px)',  // FIXED height (more space with top nav)
-    minHeight: '200px',
-    margin: '16px 0'
+    height: 'clamp(200px, 45vh, 400px)',
+    margin: '12px 0'
   };
 
   const imageWrapperStyle: React.CSSProperties = {
@@ -110,23 +111,24 @@ export default function IllusionRenderer({
     borderRadius: '4px'
   };
 
-  // Answer space - FIXED height, visibility controlled
+  // Answer space - responsive height for longer text on mobile
   const answerContainerStyle: React.CSSProperties = {
-    height: '60px',  // FIXED height, not minHeight
+    minHeight: '80px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    flexShrink: 0
+    flexShrink: 0,
+    padding: '8px 0'
   };
 
   const answerStyle: React.CSSProperties = {
     fontFamily: 'Outfit, sans-serif',
-    fontSize: '13px',
+    fontSize: 'clamp(11px, 2.5vw, 13px)',
     color: textColor,
     textAlign: 'center',
-    maxWidth: '450px',
-    lineHeight: 1.5,
-    padding: '0 20px'
+    maxWidth: '90vw',
+    lineHeight: 1.6,
+    padding: '0 16px'
   };
 
   const answerVisibleStyle: React.CSSProperties = {
@@ -141,43 +143,47 @@ export default function IllusionRenderer({
     visibility: 'hidden'
   };
 
-  // Button area - FIXED height
+  // Button area - responsive
   const buttonContainerStyle: React.CSSProperties = {
-    height: '50px',  // FIXED height
+    minHeight: '50px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: '12px',
+    gap: 'clamp(8px, 2vw, 12px)',
     flexWrap: 'wrap',
-    flexShrink: 0
+    flexShrink: 0,
+    padding: '8px 0',
+    marginTop: '4px'
   };
 
   const buttonStyle: React.CSSProperties = {
     fontFamily: 'Outfit, sans-serif',
-    fontSize: '11px',
+    fontSize: 'clamp(10px, 2.5vw, 11px)',
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
-    padding: '12px 24px',
-    background: 'transparent',
-    border: `1px solid ${textColor}`,
-    color: textColor,
-    cursor: 'pointer',
-    transition: 'all 0.3s ease'
-  };
-
-  // "How does this work?" button style - same as other buttons
-  const scienceButtonStyle: React.CSSProperties = {
-    fontFamily: 'Outfit, sans-serif',
-    fontSize: '11px',
-    letterSpacing: '0.1em',
-    textTransform: 'uppercase',
-    padding: '12px 24px',
+    padding: 'clamp(10px, 2vw, 12px) clamp(16px, 4vw, 24px)',
     background: 'transparent',
     border: `1px solid ${textColor}`,
     color: textColor,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    opacity: 0.7
+    whiteSpace: 'nowrap'
+  };
+
+  // "How does this work?" button style - same as other buttons
+  const scienceButtonStyle: React.CSSProperties = {
+    fontFamily: 'Outfit, sans-serif',
+    fontSize: 'clamp(10px, 2.5vw, 11px)',
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    padding: 'clamp(10px, 2vw, 12px) clamp(16px, 4vw, 24px)',
+    background: 'transparent',
+    border: `1px solid ${textColor}`,
+    color: textColor,
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    opacity: 0.7,
+    whiteSpace: 'nowrap'
   };
 
   // Museum card modal component
@@ -213,10 +219,10 @@ export default function IllusionRenderer({
             visibility: showScience ? 'visible' : 'hidden',
             background: isPoster1 ? '#f8f7f4' : '#1c1c1c',
             borderRadius: '8px',
-            padding: '32px',
-            width: 'calc(100% - 48px)',
+            padding: 'clamp(20px, 5vw, 32px)',
+            width: 'calc(100% - 32px)',
             maxWidth: '420px',
-            maxHeight: '70vh',
+            maxHeight: '80vh',
             overflowY: 'auto',
             boxShadow: '0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
             transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
@@ -269,8 +275,8 @@ export default function IllusionRenderer({
           <p
             style={{
               fontFamily: 'Cormorant Garamond, serif',
-              fontSize: '17px',
-              lineHeight: 1.9,
+              fontSize: 'clamp(15px, 3.5vw, 17px)',
+              lineHeight: 1.8,
               color: textColor,
               opacity: 0.9,
               margin: 0
