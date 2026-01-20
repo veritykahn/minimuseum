@@ -1641,36 +1641,15 @@ export default function IllusionRenderer({
       setRevealed(true);
     };
 
+    const resetSander = () => {
+      setUserGuess(null);
+      setRevealed(false);
+    };
+
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Sander Illusion</span>
         <p style={questionStyle}>{question || 'Which line is longer — A-B or B-C?'}</p>
-
-        {/* A-B / B-C choice buttons */}
-        {!revealed && (
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '20px' }}>
-            <button
-              onClick={() => handleGuess('ab')}
-              style={{
-                ...buttonStyle,
-                background: userGuess === 'ab' ? '#a8d5e5' : 'transparent',
-                color: userGuess === 'ab' ? '#0a0a0a' : '#a8d5e5',
-              }}
-            >
-              A-B
-            </button>
-            <button
-              onClick={() => handleGuess('bc')}
-              style={{
-                ...buttonStyle,
-                background: userGuess === 'bc' ? '#a8d5e5' : 'transparent',
-                color: userGuess === 'bc' ? '#0a0a0a' : '#a8d5e5',
-              }}
-            >
-              B-C
-            </button>
-          </div>
-        )}
 
         <div style={imageContainerStyle}>
           <div style={imageWrapperStyle}>
@@ -1684,15 +1663,29 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {answer || 'IDENTICAL — Both lines are exactly the same length. The angled lines create a false sense of perspective.'}
+            {userGuess && <>You chose {userGuess === 'ab' ? 'A-B' : 'B-C'}... the answer is <span style={{ color: '#a8d5e5' }}>they're identical</span>. </>}
+            {answer || 'Both lines are exactly the same length. The angled lines create a false sense of perspective.'}
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          <button onClick={() => { setRevealed(!revealed); if (revealed) setUserGuess(null); }} style={buttonStyle}>
-            {revealed ? 'Try Again' : 'Reveal the Truth'}
-          </button>
-          {revealed && <ScienceButton />}
+          {!revealed ? (
+            <>
+              <button onClick={() => handleGuess('ab')} style={buttonStyle}>
+                A-B
+              </button>
+              <button onClick={() => handleGuess('bc')} style={buttonStyle}>
+                B-C
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={resetSander} style={buttonStyle}>
+                Try Again
+              </button>
+              <ScienceButton />
+            </>
+          )}
         </div>
 
         <MuseumCard />
@@ -2149,15 +2142,16 @@ export default function IllusionRenderer({
                 strokeWidth="2"
               />
 
-              {/* Text inside - centered and larger */}
-              <text x="150" y="100" fill="#1a1a1a" fontSize="28" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
+              {/* Text inside - centered vertically and horizontally in triangle */}
+              {/* Triangle centroid is at y ≈ 182, text block centered around that */}
+              <text x="150" y="120" fill="#1a1a1a" fontSize="26" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
                 I love
               </text>
-              <text x="150" y="145" fill="#1a1a1a" fontSize="28" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
+              <text x="150" y="160" fill="#1a1a1a" fontSize="26" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
                 Paris in{' '}
                 <tspan fill={revealed ? '#cc3333' : '#1a1a1a'} style={{ transition: 'fill 0.3s ease' }}>the</tspan>
               </text>
-              <text x="150" y="190" fontSize="28" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
+              <text x="150" y="200" fontSize="26" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
                 <tspan fill={revealed ? '#cc3333' : '#1a1a1a'} style={{ transition: 'fill 0.3s ease' }}>the</tspan>
                 <tspan fill="#1a1a1a"> springtime</tspan>
               </text>
