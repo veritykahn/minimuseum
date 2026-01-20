@@ -56,68 +56,53 @@ export default function Home() {
 
       {/* Text */}
       <div className="flex flex-col items-center mt-6">
-        <p 
+        <p
           className={`font-serif text-lg md:text-xl text-[#737373] italic font-light tracking-wide transition-all duration-1000 ease-out ${
-            taglineVisible 
-              ? 'opacity-100 translate-y-0' 
+            taglineVisible
+              ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4'
           }`}
         >
           Big History. Small Spaces.
         </p>
 
-        <span 
-          className={`text-center transition-all duration-1000 ease-out ${
-            detailsVisible 
-              ? 'opacity-100 translate-y-0' 
-              : 'opacity-0 translate-y-4'
-          }`}
-        >
-          <span className="text-[9px] tracking-[0.3em] uppercase text-[#3a3a3a]">Monthly Curated Exhibitions</span>
-          <br />
-          <span className="text-[9px] tracking-[0.2em] uppercase text-[#525252] font-light">Coming January 2026</span>
-        </span>
-
-        {/* About Button */}
+        {/* Enter Button */}
         <Link
-          href="/about"
+          href="/greathall"
           className={`transition-all duration-1000 ease-out block ${
             detailsVisible
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4'
           }`}
-          style={{ marginTop: '24px' }}
+          style={{ marginTop: '32px' }}
         >
           <button
             style={{
-              padding: '6px 24px',
-              fontSize: '9px',
-              letterSpacing: '0.2em',
-              fontWeight: 100,
+              padding: '12px 48px',
+              fontSize: '11px',
+              letterSpacing: '0.3em',
+              fontWeight: 300,
               textTransform: 'uppercase',
-              color: '#1a1a1a',
-              background: 'linear-gradient(145deg, #ffffff, #e8e8e8)',
-              border: 'none',
-              borderRadius: '50px',
-              boxShadow: '3px 3px 8px rgba(0, 0, 0, 0.4), -2px -2px 6px rgba(255, 255, 255, 0.05), inset 1px 1px 2px rgba(255, 255, 255, 0.8)',
+              color: '#fafafa',
+              background: 'transparent',
+              border: '1px solid rgba(250, 250, 250, 0.3)',
+              borderRadius: '0',
               cursor: 'pointer',
-              transition: 'all 0.3s ease',
-              WebkitTextFillColor: '#1a1a1a',
+              transition: 'all 0.4s ease',
+              fontFamily: 'Outfit, sans-serif',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(145deg, #f5f5f5, #e0e0e0)';
-              e.currentTarget.style.boxShadow = '2px 2px 6px rgba(0, 0, 0, 0.35), -1px -1px 4px rgba(255, 255, 255, 0.05), inset 1px 1px 2px rgba(255, 255, 255, 0.9)';
-              e.currentTarget.style.transform = 'translateY(-1px)';
-              e.currentTarget.style.letterSpacing = '0.35em';
+              e.currentTarget.style.borderColor = 'rgba(250, 250, 250, 0.6)';
+              e.currentTarget.style.background = 'rgba(250, 250, 250, 0.05)';
+              e.currentTarget.style.letterSpacing = '0.4em';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'linear-gradient(145deg, #ffffff, #e8e8e8)';
-              e.currentTarget.style.boxShadow = '3px 3px 8px rgba(0, 0, 0, 0.4), -2px -2px 6px rgba(255, 255, 255, 0.05), inset 1px 1px 2px rgba(255, 255, 255, 0.8)';
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.letterSpacing = '0.2em';
+              e.currentTarget.style.borderColor = 'rgba(250, 250, 250, 0.3)';
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.letterSpacing = '0.3em';
             }}
           >
-            Learn More
+            Enter
           </button>
         </Link>
       </div>
