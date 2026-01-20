@@ -38,7 +38,16 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'This is called "lightness constancy" — your visual system automatically adjusts for lighting conditions so you can recognize objects whether they\'re in shadow or sunlight. The cylinder casts a shadow over square B, so your brain assumes B must actually be lighter than it appears (otherwise it would look even darker in the shadow). This compensation is so automatic you can\'t turn it off, even knowing the trick. MIT professor Edward Adelson created this illusion in 1995 to demonstrate that perception isn\'t about measuring light — it\'s about interpreting scenes.'
   },
 
-  // 2. BALCONY
+  // 2. SIMULTANEOUS CONTRAST (SVG) - pairs well with checker shadow
+  {
+    type: 'illusion',
+    illusionType: 'simultaneous-contrast',
+    question: 'Which gray square is darker?',
+    answer: 'IDENTICAL — Your brain judges brightness by comparison, not absolute value.',
+    scienceExplanation: 'Your visual system evolved to detect differences, not absolute values. When the same gray sits on a dark background, your neurons compare it to the surroundings and signal "lighter than background." On a white background, they signal "darker than background." This relative coding is efficient — it lets you recognize objects under wildly different lighting conditions. But it means you never see "true" brightness; you only see relationships.'
+  },
+
+  // 3. BALCONY
   {
     type: 'illusion',
     illusionType: 'balcony',
@@ -50,7 +59,16 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'This is a "bistable" or "reversible" figure — an image with two equally valid interpretations that your brain cannot hold simultaneously. Your visual cortex must commit to one 3D interpretation of the 2D image. The switch happens in your brain\'s "dorsal stream," which processes spatial relationships. Interestingly, once you see both interpretations, you can often voluntarily switch between them, but you\'ll never see both at once. Your brain literally cannot perceive ambiguity — it must decide.'
   },
 
-  // 3. FRASER SPIRAL
+  // 4. RUBIN'S VASE (SVG) - another bistable figure
+  {
+    type: 'illusion',
+    illusionType: 'rubins-vase',
+    question: 'What do you see — a vase or two faces?',
+    answer: 'Both! Your brain can interpret the same contour as either — but never both at once.',
+    scienceExplanation: 'Created by Danish psychologist Edgar Rubin in 1915, this demonstrates "figure-ground segregation" — your brain\'s need to decide what\'s the object and what\'s the background. The same curved line can be the edge of a vase OR the profile of a face, but not both simultaneously. This happens in your visual cortex\'s "border ownership" neurons, which must assign each edge to one side or the other. The ambiguity reveals a fundamental choice your brain makes thousands of times per second, usually without you noticing.'
+  },
+
+  // 5. FRASER SPIRAL
   {
     type: 'illusion',
     illusionType: 'fraser-spiral',
@@ -61,7 +79,16 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'The "twisted cord" elements create local tilt signals that your brain integrates into a global spiral percept. Each small segment appears tilted due to the black and white pattern, and your visual system — trying to find continuous contours — links these tilts into a spiral that doesn\'t exist. This reveals how your brain constructs edges: it doesn\'t just trace lines, it interprets local orientation cues and sometimes gets fooled when those cues conflict with the actual geometry. Discovered by British psychologist James Fraser in 1908.'
   },
 
-  // 4. BULGING GRID
+  // 6. CAFÉ WALL (SVG)
+  {
+    type: 'illusion',
+    illusionType: 'cafe-wall',
+    question: 'Are the horizontal gray lines parallel or tilted?',
+    answer: 'PERFECTLY PARALLEL — The offset tiles create a powerful tilt illusion.',
+    scienceExplanation: 'Discovered on an actual café wall in Bristol, England in 1979, this illusion occurs because your brain\'s edge-detection neurons respond differently to high-contrast boundaries. Where black tiles meet the gray mortar on one side and white tiles on the other, your visual system perceives a subtle "wedge" shape. These local wedge signals accumulate across the image, creating a compelling sense of alternating tilt in lines that are perfectly horizontal. The gray mortar is essential — without it, the illusion disappears.'
+  },
+
+  // 7. BULGING GRID
   {
     type: 'illusion',
     illusionType: 'bulging-grid',
@@ -72,7 +99,7 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'Your brain uses size gradients as depth cues — in the real world, objects appear smaller as they recede. Here, the squares get progressively smaller toward the center, triggering your depth perception system to interpret this as a surface curving away from you. The high contrast and regular geometry amplify the effect. This exploits the same neural mechanisms that let you perceive depth in photographs and paintings — mechanisms so fundamental they activate even when you know they\'re being tricked.'
   },
 
-  // 5. ROTATING SNAKES
+  // 8. ROTATING SNAKES
   {
     type: 'illusion',
     illusionType: 'rotating-snakes',
@@ -82,7 +109,16 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'Created by Akiyoshi Kitaoka in 2003, this illusion exploits how your brain processes motion. The specific color sequence (black → dark blue → white → yellow) creates asymmetric neural responses in your retina and visual cortex. When your eyes make tiny involuntary movements called "microsaccades," different parts of the pattern activate at slightly different times, and your motion-detection neurons interpret this as rotation. The effect is strongest in peripheral vision because those neurons are more sensitive to motion than to fine detail.'
   },
 
-  // 6. PONZO CORRIDOR
+  // 9. LILAC CHASER (SVG Animation)
+  {
+    type: 'illusion',
+    illusionType: 'lilac-chaser',
+    question: 'Stare at the center cross for 15 seconds. What do you see?',
+    answer: 'A GREEN DOT appears to chase the gap! With prolonged fixation, the dots may fade entirely.',
+    scienceExplanation: 'This illusion combines multiple phenomena. First, Troxler\'s fading: when you fixate steadily, unchanging peripheral stimuli fade from awareness as neurons stop responding to constant input. Second, negative afterimages: the lilac (magenta) dots fatigue the red and blue cone cells, so when a dot disappears, you see its complementary color — green. The result is a phantom green dot that seems to "chase" the gap around the circle, even though nothing green exists in the image.'
+  },
+
+  // 10. PONZO CORRIDOR
   {
     type: 'illusion',
     illusionType: 'ponzo-corridor',
@@ -92,7 +128,25 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'Named after Italian psychologist Mario Ponzo (1911), this illusion demonstrates "size constancy" — your brain\'s automatic adjustment for distance. The converging lines signal depth (like railway tracks receding), telling your brain the upper ball is "farther away." Since it takes up the same space on your retina as the "closer" ball, your brain concludes it must be physically larger. This compensation is essential for real-world perception — without it, people would appear to shrink as they walked away from you.'
   },
 
-  // 7. JASTROW
+  // 11. PONZO RAILROAD (SVG) - simpler version
+  {
+    type: 'illusion',
+    illusionType: 'ponzo-railroad',
+    question: 'Which yellow bar is longer?',
+    answer: 'IDENTICAL — The converging lines create false depth, making the "distant" bar seem larger.',
+    scienceExplanation: 'This simplified version of the Ponzo illusion strips away realistic imagery to show the pure geometry. The converging lines mimic railway tracks or a corridor receding into the distance. Your brain automatically applies perspective correction: if two objects cast the same retinal image but one is "farther away," the distant one must be physically larger. This correction happens before conscious perception — you can\'t turn it off even when you know the lines are equal.'
+  },
+
+  // 12. MÜLLER-LYER (SVG)
+  {
+    type: 'illusion',
+    illusionType: 'muller-lyer',
+    question: 'Which horizontal line is longer?',
+    answer: 'IDENTICAL — The arrow direction creates a powerful length illusion.',
+    scienceExplanation: 'Discovered by Franz Carl Müller-Lyer in 1889, this is one of the most studied illusions in psychology. One theory: outward-pointing arrows resemble the inside corners of a room (which recede from you), while inward arrows resemble outside corners (which project toward you). Your brain applies size constancy, making the "receding" line seem longer. Remarkably, people from cultures without rectangular architecture (like the San of the Kalahari) are less susceptible — suggesting the illusion is partially learned.'
+  },
+
+  // 13. JASTROW
   {
     type: 'illusion',
     illusionType: 'jastrow',
@@ -102,7 +156,16 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'Discovered by Joseph Jastrow in 1889, this illusion occurs because your brain judges size by comparing adjacent edges rather than measuring absolute dimensions. The short inner curve of one shape sits directly against the long outer curve of the other, making the first seem smaller by comparison. Your visual system evolved to make quick relative judgments (is that predator bigger than me?) rather than precise measurements — usually helpful, but exploitable by the right geometry.'
   },
 
-  // 8. IMPOSSIBLE TRIDENT
+  // 14. EBBINGHAUS CIRCLES (SVG)
+  {
+    type: 'illusion',
+    illusionType: 'ebbinghaus-circles',
+    question: 'Which orange circle is larger?',
+    answer: 'IDENTICAL — Size is relative. Surrounding circles distort your perception.',
+    scienceExplanation: 'Also called the Titchener circles, this illusion demonstrates that your brain judges size by context, not absolute measurement. The same circle appears smaller when surrounded by large circles (it\'s the smallest thing in view) and larger when surrounded by small circles (it\'s the largest thing in view). This relative sizing is deeply embedded in perception — even knowing the trick, you cannot see the circles as equal. The illusion works on children as young as 4 and even on some animals.'
+  },
+
+  // 15. IMPOSSIBLE TRIDENT
   {
     type: 'illusion',
     illusionType: 'impossible-trident',
@@ -112,7 +175,43 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'Also called a "blivet," this impossible figure exploits how your brain interprets 2D line drawings as 3D objects. Each local region of the drawing is valid — you can trace any small section and it makes sense. But globally, the figure contradicts itself. Your brain uses "non-accidental properties" (junctions, parallel lines) to infer 3D structure, and here those cues create an object that violates physical law. First published in 1964, it reveals the assumptions your visual system makes — and how easily they break.'
   },
 
-  // 9. HERMANN GRID
+  // 16. KANIZSA TRIANGLE (SVG)
+  {
+    type: 'illusion',
+    illusionType: 'kanizsa-triangle-svg',
+    question: 'Do you see a white triangle?',
+    answer: 'There IS no white triangle — your brain creates edges where none exist.',
+    scienceExplanation: 'Created by Italian psychologist Gaetano Kanizsa in 1955, this demonstrates "illusory contours" or "subjective contours." Your brain\'s visual cortex contains neurons that respond to edges — but these neurons can be activated by implied edges too. The pac-man shapes suggest a triangle occluding them, so your brain "completes" the triangle, even perceiving it as slightly brighter than the background (which it isn\'t). This completion happens automatically, revealing how much your brain constructs rather than passively receives.'
+  },
+
+  // 17. SANDER PARALLELOGRAM (SVG)
+  {
+    type: 'illusion',
+    illusionType: 'sander-parallelogram',
+    question: 'Which diagonal line is longer?',
+    answer: 'The ORANGE line is actually longer! The enclosing shapes distort your judgment.',
+    scienceExplanation: 'Named after German psychologist Friedrich Sander (1926), this illusion shows how context shapes size perception. The diagonal of a large parallelogram is judged against the full shape, making it seem proportionally smaller. The diagonal of a small parallelogram dominates its enclosure, making it seem proportionally larger. Your brain doesn\'t measure lines in isolation — it evaluates them relative to their surroundings, and this comparative judgment can be dramatically wrong.'
+  },
+
+  // 18. POGGENDORFF (SVG)
+  {
+    type: 'illusion',
+    illusionType: 'poggendorff-svg',
+    question: 'Which line on the right continues the diagonal on the left?',
+    answer: 'The BOTTOM line is correct — the rectangle disrupts your ability to track the trajectory.',
+    scienceExplanation: 'Discovered by physicist Johann Poggendorff in 1860, this illusion reveals a flaw in how your brain tracks lines across interruptions. When a diagonal line disappears behind an occluding rectangle, your visual system must "continue" it mentally — but it systematically errs, typically perceiving the continuation as too high. This may relate to how your brain processes acute angles: the diagonal\'s angle with the vertical edge is misperceived, throwing off the trajectory. The wider the rectangle, the stronger the illusion.'
+  },
+
+  // 19. GRADIENT BAR (SVG)
+  {
+    type: 'illusion',
+    illusionType: 'gradient-bar',
+    question: 'Is this bar a gradient or solid color?',
+    answer: 'SOLID COLOR — The gradient background creates the illusion of variation.',
+    scienceExplanation: 'This is simultaneous contrast in action. Your visual neurons encode brightness relative to their surroundings, not absolutely. On the dark end of the gradient, the gray bar appears lighter (it\'s brighter than its background). On the light end, the same gray appears darker (it\'s dimmer than its background). This relative encoding is extremely useful — it lets you see objects consistently under varying illumination. But it means you can never see "true" colors, only relationships.'
+  },
+
+  // 20. HERMANN GRID
   {
     type: 'illusion',
     illusionType: 'hermann-grid',
@@ -120,6 +219,15 @@ const illusionContent: IllusionItem[] = [
     question: 'Do you see gray dots at the intersections?',
     answer: 'Ghost dots appear where you\'re NOT looking. Look directly — they vanish!',
     scienceExplanation: 'Discovered by Ludimar Hermann in 1870, this illusion was long attributed to "lateral inhibition" — retinal cells suppressing their neighbors. At intersections, more white surrounds each point, so more inhibition occurs, making those spots appear darker. However, recent research suggests the effect also involves neurons in your visual cortex that respond to specific spatial frequencies. The dots vanish when you look directly because your central vision (fovea) has much finer resolution than your peripheral vision, resolving the true brightness.'
+  },
+
+  // 21. PARIS IN THE SPRINGTIME (SVG)
+  {
+    type: 'illusion',
+    illusionType: 'paris-springtime-svg',
+    question: 'Read the text inside the triangle carefully.',
+    answer: '"THE" appears TWICE! Your brain predicts familiar phrases and skips what it expects.',
+    scienceExplanation: 'This isn\'t a visual illusion — it\'s a demonstration of "predictive processing." Your brain doesn\'t passively receive information; it actively predicts what\'s coming based on context. When you read a familiar phrase like "Paris in the springtime," your brain predicts the words and only checks for confirmation, not for accuracy. The duplicate "THE" slips past because it matches the predicted word. This predictive efficiency usually helps (reading would be impossibly slow otherwise) but creates blind spots for unexpected repetitions.'
   },
 
   // CLOSING
