@@ -242,13 +242,13 @@ const illusionContent: IllusionItem[] = [
     scienceExplanation: 'This isn\'t a visual illusion — it\'s a demonstration of "predictive processing." Your brain doesn\'t passively receive information; it actively predicts what\'s coming based on context. When you read a familiar phrase like "Paris in the springtime," your brain predicts the words and only checks for confirmation, not for accuracy. The duplicate "THE" slips past because it matches the predicted word. This predictive efficiency usually helps (reading would be impossibly slow otherwise) but creates blind spots for unexpected repetitions.'
   },
 
-  // 22. CHROMOSTEREOPSIS
+  // 22. CHROMOSTEREOPSIS (Observational)
   {
     type: 'illusion',
     illusionType: 'chromostereopsis',
     src: '/exhibitions/seeing/chromostereopsis.jpg',
-    question: 'This image is 3D — true or false?',
-    answer: 'FALSE — It\'s completely flat! Red and blue light focus at different depths in your eye, creating a false sense of depth.',
+    question: 'Does the red appear to float above the blue?',
+    answer: 'This image is completely flat — yet it appears 3D. Red and blue light focus at different depths in your eye, creating a false sense of depth where none exists.',
     scienceExplanation: 'Chromostereopsis occurs because different wavelengths of light focus at slightly different distances within your eye. Red light focuses slightly behind your retina while blue focuses in front, creating a depth difference your brain interprets as real 3D. This "chromatic aberration" is usually too subtle to notice, but with high-contrast red and blue placed together, the effect becomes striking. Some people see red in front, others see blue in front — it depends on subtle differences in eye physiology.'
   },
 

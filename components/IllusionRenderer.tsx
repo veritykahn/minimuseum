@@ -2125,25 +2125,13 @@ export default function IllusionRenderer({
   }
 
   // ============================================
-  // CHROMOSTEREOPSIS (Image-based)
+  // CHROMOSTEREOPSIS (Image-based - Observational)
   // ============================================
   if (illusionType === 'chromostereopsis') {
-    const [chromoGuess, setChromoGuess] = useState<'true' | 'false' | null>(null);
-
-    const handleChromoGuess = (guess: 'true' | 'false') => {
-      setChromoGuess(guess);
-      setRevealed(true);
-    };
-
-    const resetChromo = () => {
-      setChromoGuess(null);
-      setRevealed(false);
-    };
-
     return (
       <div style={containerStyle}>
         <span style={nameLabelStyle}>Chromostereopsis</span>
-        <p style={questionStyle}>{question || 'This image is 3D — true or false?'}</p>
+        <p style={questionStyle}>{question || 'Does the red appear to float above the blue?'}</p>
 
         <div style={imageContainerStyle}>
           <div style={imageWrapperStyle}>
@@ -2157,29 +2145,15 @@ export default function IllusionRenderer({
 
         <div style={answerContainerStyle}>
           <p style={revealed ? answerVisibleStyle : answerHiddenStyle}>
-            {chromoGuess && <><span style={{ color: '#888' }}>You said {chromoGuess}.</span> </>}
-            <span style={{ color: '#a8d5e5' }}>{answer || 'FALSE — It\'s completely flat! Red and blue light focus at different depths in your eye, creating a false sense of depth where none exists.'}</span>
+            <span style={{ color: '#a8d5e5' }}>{answer || 'This image is completely flat — yet it appears 3D. Red and blue light focus at different depths in your eye, creating a false sense of depth where none exists.'}</span>
           </p>
         </div>
 
         <div style={buttonContainerStyle}>
-          {!revealed ? (
-            <>
-              <button onClick={() => handleChromoGuess('true')} style={buttonStyle}>
-                True
-              </button>
-              <button onClick={() => handleChromoGuess('false')} style={buttonStyle}>
-                False
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={resetChromo} style={buttonStyle}>
-                Try Again
-              </button>
-              <ScienceButton />
-            </>
-          )}
+          <button onClick={() => setRevealed(!revealed)} style={buttonStyle}>
+            {revealed ? 'View Again' : 'Reveal'}
+          </button>
+          {revealed && <ScienceButton />}
         </div>
 
         <MuseumCard />
