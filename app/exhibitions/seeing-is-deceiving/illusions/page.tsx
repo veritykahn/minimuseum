@@ -268,40 +268,13 @@ export default function IllusionsPage() {
           transition: opacity 0.4s ease;
         }
 
-        /* Top Navigation */
-        .top-nav {
+        /* Top Counter */
+        .top-counter {
           position: fixed;
           top: 28px;
           left: 50%;
           transform: translateX(-50%);
-          display: flex;
-          align-items: center;
-          gap: 20px;
           z-index: 100;
-        }
-
-        .top-nav-arrow {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          border: 1px solid rgba(168, 213, 229, 0.4);
-          background: transparent;
-          color: #a8d5e5;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 16px;
-          transition: all 0.3s ease;
-          backdrop-filter: blur(10px);
-        }
-        .top-nav-arrow:disabled {
-          opacity: 0.2;
-          cursor: not-allowed;
-        }
-        .top-nav-arrow:not(:disabled):hover {
-          border-color: #a8d5e5;
-          background: rgba(168, 213, 229, 0.1);
         }
 
         .step-indicator {
@@ -309,8 +282,57 @@ export default function IllusionsPage() {
           font-size: 12px;
           letter-spacing: 0.15em;
           color: rgba(168, 213, 229, 0.6);
-          min-width: 50px;
-          text-align: center;
+        }
+
+        /* Side Navigation Arrows */
+        .side-nav-arrow {
+          position: fixed;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          border: 1px solid rgba(168, 213, 229, 0.3);
+          background: transparent;
+          color: #a8d5e5;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(10px);
+          z-index: 100;
+        }
+        .side-nav-arrow.left { left: 20px; }
+        .side-nav-arrow.right { right: 20px; }
+        .side-nav-arrow:disabled {
+          opacity: 0.15;
+          cursor: not-allowed;
+        }
+        .side-nav-arrow:not(:disabled):hover {
+          border-color: #a8d5e5;
+          background: rgba(168, 213, 229, 0.1);
+          transform: translateY(-50%) scale(1.05);
+        }
+
+        /* Begin button for intro */
+        .begin-btn {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          padding: 16px 40px;
+          background: transparent;
+          border: 1px solid #a8d5e5;
+          color: #a8d5e5;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          margin-top: 48px;
+        }
+        .begin-btn:hover {
+          background: #a8d5e5;
+          color: #0a0a0a;
         }
 
         /* Intro styles */
@@ -380,9 +402,11 @@ export default function IllusionsPage() {
         @media (max-width: 768px) {
           .nav-m-left { left: 20px; top: 20px; }
           .nav-m-text { font-size: 24px; }
-          .top-nav { top: 20px; gap: 16px; }
-          .top-nav-arrow { width: 32px; height: 32px; font-size: 14px; }
+          .top-counter { top: 20px; }
           .step-indicator { font-size: 11px; }
+          .side-nav-arrow { width: 36px; height: 36px; font-size: 16px; }
+          .side-nav-arrow.left { left: 12px; }
+          .side-nav-arrow.right { right: 12px; }
           .intro-container, .closing-container { padding: 100px 24px 80px; }
         }
       `}</style>
@@ -404,6 +428,9 @@ export default function IllusionsPage() {
             <p className="intro-subtitle effect-blur-sharp" style={{ animationDelay: '0.2s' }}>
               {currentItem.subtitle}
             </p>
+            <button className="begin-btn effect-blur-sharp" style={{ animationDelay: '0.4s' }} onClick={nextStep}>
+              Begin
+            </button>
           </div>
         )}
 
@@ -432,27 +459,32 @@ export default function IllusionsPage() {
         )}
       </div>
 
-      {/* Top Navigation */}
-      {currentItem.type !== 'closing' && (
-        <div className="top-nav">
+      {/* Navigation - only show for illusions (not intro or closing) */}
+      {currentItem.type === 'illusion' && (
+        <>
+          {/* Top counter - shows illusion number (excluding intro) */}
+          <div className="top-counter">
+            <span className="step-indicator">
+              {currentIndex} / {illusionContent.length - 2}
+            </span>
+          </div>
+
+          {/* Side arrows */}
           <button
-            className="top-nav-arrow"
+            className="side-nav-arrow left"
             onClick={prevStep}
-            disabled={currentIndex === 0}
+            disabled={currentIndex <= 1}
           >
             ←
           </button>
-          <span className="step-indicator">
-            {currentIndex + 1} / {illusionContent.length}
-          </span>
           <button
-            className="top-nav-arrow"
+            className="side-nav-arrow right"
             onClick={nextStep}
-            disabled={currentIndex === illusionContent.length - 1}
+            disabled={currentIndex === illusionContent.length - 2}
           >
             →
           </button>
-        </div>
+        </>
       )}
     </div>
   );
