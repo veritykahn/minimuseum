@@ -33,7 +33,7 @@ const illusionContent: IllusionItem[] = [
     illusionType: 'checker-shadow',
     src: '/exhibitions/seeing/checker-shadow.jpg',
     revealSrc: '/exhibitions/seeing/checker-reveal.jpg',
-    question: 'Which square is darker — A or B?',
+    question: 'A is darker than B — true or false?',
     answer: 'IDENTICAL — Both squares are the exact same shade. Your brain "corrects" for the shadow.',
     scienceExplanation: 'This is called "lightness constancy" — your visual system automatically adjusts for lighting conditions so you can recognize objects whether they\'re in shadow or sunlight. The cylinder casts a shadow over square B, so your brain assumes B must actually be lighter than it appears (otherwise it would look even darker in the shadow). This compensation is so automatic you can\'t turn it off, even knowing the trick. MIT professor Edward Adelson created this illusion in 1995 to demonstrate that perception isn\'t about measuring light — it\'s about interpreting scenes.'
   },
