@@ -42,9 +42,9 @@ const illusionContent: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'simultaneous-contrast',
-    question: 'A is darker than B — true or false?',
-    answer: 'FALSE — They\'re IDENTICAL. Your brain judges brightness by comparison, not absolute value.',
-    scienceExplanation: 'Your visual system evolved to detect differences, not absolute values. When the same gray sits on a dark background, your neurons compare it to the surroundings and signal "lighter than background." On a white background, they signal "darker than background." This relative coding is efficient — it lets you recognize objects under wildly different lighting conditions. But it means you never see "true" brightness; you only see relationships.'
+    question: 'Which is darker — A or B?',
+    answer: 'Your brain judges color by comparison. The same cyan appears more blue-green on orange and more greenish on purple.',
+    scienceExplanation: 'Your visual system evolved to detect differences, not absolute values. When the same color sits on different backgrounds, your neurons compare it to the surroundings. On orange, the cyan appears to shift toward blue-green. On purple, it appears more greenish. This relative coding is efficient — it lets you recognize objects under wildly different lighting conditions. But it means you never see "true" colors; you only see relationships.'
   },
 
   // 3. BALCONY
