@@ -3,14 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
-type UserType = 'parent' | 'teacher' | null;
+type UserType = 'parent' | 'teacher' | 'librarian' | null;
 type GradeLevel = 'prek-k' | 'grades-1-2' | 'grades-3-4' | 'grades-5-8' | null;
+type LibrarianGradeLevel = 'prek-k' | 'grades-1-2' | 'grades-3-5' | 'grades-6-8' | null;
 type Subject = 'science' | 'ela' | 'social-studies' | 'art' | 'math' | 'pe' | 'religion' | null;
 
 export default function ResourcesPage() {
   const router = useRouter();
   const [userType, setUserType] = useState<UserType>(null);
   const [gradeLevel, setGradeLevel] = useState<GradeLevel>(null);
+  const [librarianGradeLevel, setLibrarianGradeLevel] = useState<LibrarianGradeLevel>(null);
   const [subject, setSubject] = useState<Subject>(null);
   const [fadeState, setFadeState] = useState<'in' | 'out'>('in');
 
@@ -34,6 +36,10 @@ export default function ResourcesPage() {
     animateTransition(() => setGradeLevel(grade));
   };
 
+  const selectLibrarianGradeLevel = (grade: LibrarianGradeLevel) => {
+    animateTransition(() => setLibrarianGradeLevel(grade));
+  };
+
   const selectSubject = (subj: Subject) => {
     animateTransition(() => setSubject(subj));
   };
@@ -42,6 +48,7 @@ export default function ResourcesPage() {
     animateTransition(() => {
       setUserType(null);
       setGradeLevel(null);
+      setLibrarianGradeLevel(null);
       setSubject(null);
     });
   };
@@ -52,6 +59,8 @@ export default function ResourcesPage() {
   const showGradeSelection = userType === 'teacher' && gradeLevel === null;
   const showSubjectSelection = userType === 'teacher' && gradeLevel === 'grades-5-8' && subject === null;
   const showTeacherDownloads = userType === 'teacher' && gradeLevel !== null && (gradeLevel !== 'grades-5-8' || subject !== null);
+  const showLibrarianGradeSelection = userType === 'librarian' && librarianGradeLevel === null;
+  const showLibrarianDownloads = userType === 'librarian' && librarianGradeLevel !== null;
 
   // Get grade folder name for file paths
   const getGradeFolder = () => {
@@ -86,6 +95,13 @@ export default function ResourcesPage() {
     'grades-1-2': 'Grades 1–2',
     'grades-3-4': 'Grades 3–4',
     'grades-5-8': 'Grades 5–8'
+  };
+
+  const librarianGradeLabels: Record<string, string> = {
+    'prek-k': 'PreK–K',
+    'grades-1-2': 'Grades 1–2',
+    'grades-3-5': 'Grades 3–5',
+    'grades-6-8': 'Grades 6–8'
   };
 
   const subjectLabels: Record<string, string> = {
@@ -401,6 +417,9 @@ export default function ResourcesPage() {
               <button className="selection-btn" onClick={() => selectUserType('teacher')}>
                 Teacher
               </button>
+              <button className="selection-btn" onClick={() => selectUserType('librarian')}>
+                Librarian
+              </button>
             </div>
           </>
         )}
@@ -578,6 +597,63 @@ export default function ResourcesPage() {
                 </div>
                 <a
                   href={getHandoutPath('red')}
+                  download
+                  className="download-btn"
+                >
+                  Download
+                </a>
+              </div>
+            </div>
+
+            <button className="start-over" onClick={startOver}>
+              ← Start Over
+            </button>
+          </>
+        )}
+
+        {/* Librarian - Grade Selection */}
+        {showLibrarianGradeSelection && (
+          <>
+            <p className="question-text">What grade level do you serve?</p>
+            <div className="button-grid">
+              <button className="selection-btn" onClick={() => selectLibrarianGradeLevel('prek-k')}>
+                PreK–K
+              </button>
+              <button className="selection-btn" onClick={() => selectLibrarianGradeLevel('grades-1-2')}>
+                Grades 1–2
+              </button>
+              <button className="selection-btn" onClick={() => selectLibrarianGradeLevel('grades-3-5')}>
+                Grades 3–5
+              </button>
+              <button className="selection-btn" onClick={() => selectLibrarianGradeLevel('grades-6-8')}>
+                Grades 6–8
+              </button>
+            </div>
+            <button className="start-over" onClick={startOver}>
+              ← Start Over
+            </button>
+          </>
+        )}
+
+        {/* Librarian Downloads */}
+        {showLibrarianDownloads && (
+          <>
+            <p className="context-breadcrumb">
+              Librarian → <span>{librarianGradeLabels[librarianGradeLevel || '']}</span>
+            </p>
+
+            <p className="description-text">
+              Our Librarian Resource Guide includes book recommendations, discussion questions, and activity ideas to complement the exhibition in your library space.
+            </p>
+
+            <div className="download-section">
+              <div className="download-item">
+                <div className="download-info">
+                  <span className="download-name">Librarian Resource Guide</span>
+                  <span className="download-subtitle">PDF • Book lists & activities</span>
+                </div>
+                <a
+                  href={`/resources/seeing-is-deceiving/librarians/${librarianGradeLevel}/librarian-resource-guide.pdf`}
                   download
                   className="download-btn"
                 >
