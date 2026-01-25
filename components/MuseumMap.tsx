@@ -191,11 +191,6 @@ export default function MuseumMap() {
   const currentRoom = MUSEUM_ROOMS.find(room => room.path === pathname) ||
     MUSEUM_ROOMS.find(room => pathname.startsWith(room.path) && room.path !== '/');
 
-  // Don't render anything on home page
-  if (isHomePage) {
-    return null;
-  }
-
   // Close map on route change
   useEffect(() => {
     setIsOpen(false);
@@ -209,6 +204,11 @@ export default function MuseumMap() {
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, []);
+
+  // Don't render anything on home page (must be after all hooks)
+  if (isHomePage) {
+    return null;
+  }
 
   const handleRoomClick = (room: MapRoom) => {
     if (!room.comingSoon) {
