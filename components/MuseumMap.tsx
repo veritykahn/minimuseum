@@ -77,6 +77,7 @@ const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#7D8471',
     comingSoon: true,
     parent: 'greathall',
+    children: ['egypt', 'victorian', 'holocaust', 'black-barbie', 'womens-history'],
   },
   // First Floor Exhibitions
   {
@@ -161,6 +162,67 @@ const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#a8d5e5',
     parent: 'seeing-is-deceiving',
   },
+  // Ground Floor Exhibitions
+  {
+    id: 'egypt',
+    label: 'Ancient Egypt',
+    path: '/exhibitions/egypt',
+    x: 15,
+    y: 410,
+    width: 80,
+    height: 45,
+    accentColor: '#E85D04',
+    comingSoon: true,
+    parent: 'ground-floor',
+  },
+  {
+    id: 'victorian',
+    label: 'Victorian Britain',
+    path: '/exhibitions/victorian',
+    x: 110,
+    y: 410,
+    width: 90,
+    height: 45,
+    accentColor: '#7D8471',
+    comingSoon: true,
+    parent: 'ground-floor',
+  },
+  {
+    id: 'holocaust',
+    label: 'The Holocaust',
+    path: '/exhibitions/holocaust',
+    x: 215,
+    y: 410,
+    width: 80,
+    height: 45,
+    accentColor: '#78716C',
+    comingSoon: true,
+    parent: 'ground-floor',
+  },
+  {
+    id: 'black-barbie',
+    label: 'Black Barbie',
+    path: '/exhibitions/black-barbie',
+    x: 310,
+    y: 410,
+    width: 75,
+    height: 45,
+    accentColor: '#EC4899',
+    comingSoon: true,
+    parent: 'ground-floor',
+  },
+  {
+    id: 'womens-history',
+    label: "Women's History",
+    path: '/exhibitions/womens-history',
+    x: 400,
+    y: 410,
+    width: 90,
+    height: 45,
+    accentColor: '#1D3557',
+    comingSoon: true,
+    parent: 'ground-floor',
+  },
 ];
 
 // Connection lines between rooms
@@ -176,6 +238,11 @@ const CONNECTIONS: [string, string][] = [
   ['seeing-is-deceiving', 'illusions'],
   ['seeing-is-deceiving', 'artifacts'],
   ['seeing-is-deceiving', 'resources'],
+  ['ground-floor', 'egypt'],
+  ['ground-floor', 'victorian'],
+  ['ground-floor', 'holocaust'],
+  ['ground-floor', 'black-barbie'],
+  ['ground-floor', 'womens-history'],
 ];
 
 export default function MuseumMap() {
@@ -278,7 +345,7 @@ export default function MuseumMap() {
 
             {/* SVG Map */}
             <svg
-              viewBox="0 0 500 400"
+              viewBox="0 0 500 470"
               className="map-svg"
               preserveAspectRatio="xMidYMid meet"
             >
@@ -413,10 +480,6 @@ export default function MuseumMap() {
 
             {/* Legend */}
             <div className="map-legend">
-              <div className="legend-item">
-                <span className="legend-dot current" />
-                <span>You are here</span>
-              </div>
               <div className="legend-item">
                 <span className="legend-line solid" />
                 <span>Open</span>
