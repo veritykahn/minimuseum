@@ -1420,33 +1420,6 @@ export default function SeeingIsDeceiving() {
           text-align: center;
         }
 
-        /* Download button */
-        .download-btn {
-          position: fixed;
-          bottom: 32px;
-          right: 32px;
-          z-index: 1000;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 20px;
-          background: rgba(0,0,0,0.6);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255,255,255,0.2);
-          border-radius: 100px;
-          color: #fff;
-          font-family: 'Outfit', sans-serif;
-          font-size: 11px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-        .download-btn:hover {
-          background: rgba(0,0,0,0.8);
-          border-color: rgba(255,255,255,0.4);
-        }
-
         /* Artifacts Grid */
         .artifacts-grid {
           display: grid;
@@ -1537,7 +1510,6 @@ export default function SeeingIsDeceiving() {
           .exhibition-main { padding: 100px 24px 60px; }
           .walkthrough-nav { bottom: 20px; gap: 16px; }
           .nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
-          .download-btn { bottom: 20px; right: 20px; padding: 10px 16px; font-size: 10px; }
           .text-content-wrapper { padding: 100px 24px; }
           .artifacts-grid { grid-template-columns: 1fr; gap: 24px; max-width: 320px; }
           .artifact-card { padding: 20px; }
@@ -1752,13 +1724,6 @@ export default function SeeingIsDeceiving() {
       )}
 
 
-      {/* Download Resources Button */}
-      {activeView === 'main' && (
-        <button className="download-btn" onClick={() => router.push('/exhibitions/seeing-is-deceiving/resources')}>
-          <span>↓</span>
-          <span>Resources</span>
-        </button>
-      )}
     </div>
   );
 }
