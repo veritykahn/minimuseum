@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 type UserType = 'parent' | 'teacher' | 'librarian' | null;
 type GradeLevel = 'prek-k' | 'grades-1-2' | 'grades-3-4' | 'grades-5-8' | null;
 type LibrarianGradeLevel = 'prek-k' | 'grades-1-2' | 'grades-3-5' | 'grades-6-8' | null;
-type Subject = 'science' | 'ela' | 'social-studies' | 'art' | 'math' | 'pe' | 'religion' | 'spanish' | null;
+type Subject = 'science' | 'ela' | 'social-studies' | 'art' | 'math' | 'pe' | 'religion' | 'spanish' | 'theater' | 'music' | null;
 
 export default function ResourcesPage() {
   const router = useRouter();
@@ -97,6 +97,8 @@ export default function ResourcesPage() {
     'pe': 'Lesson Plan_ Vision and Athletics (PE 5-8) - Teacher Guide.pdf',
     'religion': 'Lesson Plan_ Bearing True Witness (Religion 5-8) - Teacher Guide.pdf',
     'spanish': 'Spanish Lesson Plan_ ¿Verdad o Mentira_ (Grades 5-8) - Teacher Guide.pdf',
+    'theater': 'Theatre Lesson Plan_ The Art of Illusion (Grades 5-8) - Teacher Guide.pdf',
+    'music': 'Music Lesson Plan_ Sound Illusions (Grades 5-8) - Teacher Guide.pdf',
   };
 
   const subjectHandouts: Record<string, Record<string, string>> = {
@@ -139,6 +141,16 @@ export default function ResourcesPage() {
       green: 'Student Handout_ ¿Verdad o Mentira_ - Green Level (Spanish 5-8).pdf',
       yellow: 'Student Handout_ ¿Verdad o Mentira_ - Yellow Level (Spanish 5-8).pdf',
       red: 'Student Handout_ ¿Verdad o Mentira_ - Red Level (Spanish 5-8).pdf',
+    },
+    'theater': {
+      green: 'Student Handout_ The Art of Illusion - Green Level (Theatre 5-8).pdf',
+      yellow: 'Student Handout_ The Art of Illusion - Yellow Level (Theatre 5-8).pdf',
+      red: 'Student Handout_ The Art of Illusion - Red Level (Theatre 5-8).pdf',
+    },
+    'music': {
+      green: 'Student Handout_ Sound Illusions - Green Level (Music 5-8).pdf',
+      yellow: 'Student Handout_ Sound Illusions - Yellow Level (Music 5-8).pdf',
+      red: 'Student Handout_ Sound Illusions - Red Level (Music 5-8).pdf',
     },
   };
 
@@ -235,7 +247,9 @@ export default function ResourcesPage() {
     'math': 'Math',
     'pe': 'PE',
     'religion': 'Religion',
-    'spanish': 'Spanish'
+    'spanish': 'Spanish',
+    'theater': 'Theater',
+    'music': 'Music'
   };
 
   return (
@@ -630,6 +644,12 @@ export default function ResourcesPage() {
               </button>
               <button className="selection-btn" onClick={() => selectSubject('spanish')}>
                 Spanish
+              </button>
+              <button className="selection-btn" onClick={() => selectSubject('theater')}>
+                Theater
+              </button>
+              <button className="selection-btn" onClick={() => selectSubject('music')}>
+                Music
               </button>
             </div>
             <button className="start-over" onClick={startOver}>
