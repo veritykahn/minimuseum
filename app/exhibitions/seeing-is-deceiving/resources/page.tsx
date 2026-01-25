@@ -561,7 +561,7 @@ export default function ResourcesPage() {
                   <span className="download-subtitle">PDF • Activities & conversation starters</span>
                 </div>
                 <a
-                  href="/resources/seeing-is-deceiving/parents/parent-resource-guide.pdf"
+                  href="/resources/seeing-is-deceiving/parents/Parent Resource Guide_ Optical Illusions & Visual Deception.pdf"
                   download
                   className="download-btn"
                 >
@@ -654,7 +654,7 @@ export default function ResourcesPage() {
                   <span className="download-subtitle">PDF • Overview & key concepts</span>
                 </div>
                 <a
-                  href="/resources/seeing-is-deceiving/teachers/quick-teaching-guide.pdf"
+                  href="/resources/seeing-is-deceiving/Teaching Guide_ Optical Illusions & Visual Deception.pdf"
                   download
                   className="download-btn"
                 >
@@ -667,7 +667,7 @@ export default function ResourcesPage() {
                   <span className="download-subtitle">PDF • Detailed background info</span>
                 </div>
                 <a
-                  href="/resources/seeing-is-deceiving/teachers/teacher-explanation-sheet.pdf"
+                  href="/resources/seeing-is-deceiving/Using Differentiated Student Handouts.pdf"
                   download
                   className="download-btn"
                 >
