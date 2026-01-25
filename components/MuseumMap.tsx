@@ -441,7 +441,7 @@ export default function MuseumMap() {
                       textAnchor="middle"
                       dominantBaseline="middle"
                       fill={room.comingSoon ? 'rgba(250, 250, 250, 0.4)' : '#fafafa'}
-                      fontSize={room.width > 100 ? '10' : '8'}
+                      fontSize={room.width > 100 ? '12' : '10'}
                       fontFamily="var(--font-outfit), sans-serif"
                       style={{ pointerEvents: 'none' }}
                     >
@@ -466,7 +466,7 @@ export default function MuseumMap() {
                         y={room.y + room.height + 12}
                         textAnchor="middle"
                         fill="rgba(250, 250, 250, 0.3)"
-                        fontSize="7"
+                        fontSize="9"
                         fontFamily="var(--font-outfit), sans-serif"
                         fontStyle="italic"
                       >
