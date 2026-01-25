@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 type UserType = 'parent' | 'teacher' | 'librarian' | null;
 type GradeLevel = 'prek-k' | 'grades-1-2' | 'grades-3-4' | 'grades-5-8' | null;
 type LibrarianGradeLevel = 'prek-k' | 'grades-1-2' | 'grades-3-5' | 'grades-6-8' | null;
-type Subject = 'science' | 'ela' | 'social-studies' | 'art' | 'math' | 'pe' | 'religion' | null;
+type Subject = 'science' | 'ela' | 'social-studies' | 'art' | 'math' | 'pe' | 'religion' | 'spanish' | null;
 
 export default function ResourcesPage() {
   const router = useRouter();
@@ -62,32 +62,155 @@ export default function ResourcesPage() {
   const showLibrarianGradeSelection = userType === 'librarian' && librarianGradeLevel === null;
   const showLibrarianDownloads = userType === 'librarian' && librarianGradeLevel !== null;
 
-  // Get grade folder name for file paths
-  const getGradeFolder = () => {
-    return gradeLevel || '';
+  // Teacher file mappings by grade level
+  const teacherLessonPlans: Record<string, string> = {
+    'prek-k': 'Lesson Plan_ My Eyes Can Trick Me! (PreK-K) - Teacher Guide.pdf',
+    'grades-1-2': 'Lesson Plan_ Brain Detective (Grades 1-2) - Teacher Guide.pdf',
+    'grades-3-4': 'Lesson Plan_ Fact-Checkers (Grades 3-4) - Teacher Guide.pdf',
   };
 
-  // Get subject folder for grades 5-8
-  const getSubjectFolder = () => {
-    return subject || '';
+  const teacherHandouts: Record<string, Record<string, string>> = {
+    'prek-k': {
+      green: 'My Eyes Can Play Tricks! - Green Level (PreK-K).pdf',
+      yellow: 'My Eyes Can Play Tricks! - Yellow Level (PreK-K).pdf',
+      red: 'My Eyes Can Play Tricks! - Red Level (PreK-K).pdf',
+    },
+    'grades-1-2': {
+      green: 'Student Handout_ Brain Detective - Green Level (Grades 1-2).pdf',
+      yellow: 'Student Handout_ Brain Detective - Yellow Level (Grades 1-2).pdf',
+      red: 'Student Handout_ Brain Detective - Red Level (Grades 1-2).pdf',
+    },
+    'grades-3-4': {
+      green: 'Student Handout_ Fact-Checker Training - Green Level (Grades 3-4).pdf',
+      yellow: 'Student Handout_ Fact-Checker Training - Yellow Level (Grades 3-4).pdf',
+      red: 'Student Handout_ Fact-Checker Training - Red Level (Grades 3-4).pdf',
+    },
+  };
+
+  // 5-8 subject-specific file mappings
+  const subjectLessonPlans: Record<string, string> = {
+    'science': 'Lesson Plan_ How Vision Works (Science 5-8) - Teacher Guide.pdf',
+    'ela': 'Lesson Plan_ Evaluating Sources (ELA 5-8) - Teacher Guide.pdf',
+    'social-studies': 'Lesson Plan_ Visual Propaganda Through History (Social Studies 5-8) - Teacher Guide.pdf',
+    'art': 'Lesson Plan_ Creating Optical Illusions (Art, Grades 5-8) - Teacher Guide.pdf',
+    'math': 'Lesson Plan_ Geometry of Perspective (Math 5-8) - Teacher Guide.pdf',
+    'pe': 'Lesson Plan_ Vision and Athletics (PE 5-8) - Teacher Guide.pdf',
+    'religion': 'Lesson Plan_ Bearing True Witness (Religion 5-8) - Teacher Guide.pdf',
+    'spanish': 'Spanish Lesson Plan_ ¿Verdad o Mentira_ (Grades 5-8) - Teacher Guide.pdf',
+  };
+
+  const subjectHandouts: Record<string, Record<string, string>> = {
+    'science': {
+      green: 'Student Handout_ The Science of Seeing - Green Level (Science 5-8).pdf',
+      yellow: 'Student Handout_ The Science of Seeing - Yellow Level (Science 5-8).pdf',
+      red: 'Student Handout_ The Science of Seeing - Red Level (Science 5-8).pdf',
+    },
+    'ela': {
+      green: 'Student Handout_ Source Detective - Green Level (ELA 5-8).pdf',
+      yellow: 'Student Handout_ Source Detective - Yellow Level (ELA 5-8).pdf',
+      red: 'Student Handout_ Source Detective - Red Level (ELA 5-8).pdf',
+    },
+    'social-studies': {
+      green: 'Student Handout_ Spotting Propaganda - Green Level (Social Studies 5-8).pdf',
+      yellow: 'Student Handout_ Spotting Propaganda - Yellow Level (Social Studies 5-8).pdf',
+      red: 'Student Handout_ Spotting Propaganda - Red Level (Social Studies 5-8).pdf',
+    },
+    'art': {
+      green: 'Student Handout_ Seeing Is Deceiving - Green Level (Art 5-8).pdf',
+      yellow: 'Student Handout_ Seeing Is Deceiving - Yellow Level (Art 5-8).pdf',
+      red: 'Student Handout_ Seeing Is Deceiving - Red Level (Art 5-8).pdf',
+    },
+    'math': {
+      green: 'Student Handout_ Math vs. Your Eyes - Green Level (Math 5-8).pdf',
+      yellow: 'Student Handout_ Math vs. Your Eyes - Yellow Level (Math 5-8).pdf',
+      red: 'Student Handout_ Math vs. Your Eyes - Red Level (Math 5-8).pdf',
+    },
+    'pe': {
+      green: 'Student Handout_ Vision Training for Athletes - Green Level (PE 5-8).pdf',
+      yellow: 'Student Handout_ Vision Training for Athletes - Yellow Level (PE 5-8).pdf',
+      red: 'Student Handout_ Vision Training for Athletes - Red Level (PE 5-8).pdf',
+    },
+    'religion': {
+      green: 'Student Handout_ Bearing True Witness - Green Level (Religion 5-8).pdf',
+      yellow: 'Student Handout_ Bearing True Witness - Yellow Level (Religion 5-8).pdf',
+      red: 'Student Handout_ Bearing True Witness - Red Level (Religion 5-8).pdf',
+    },
+    'spanish': {
+      green: 'Student Handout_ ¿Verdad o Mentira_ - Green Level (Spanish 5-8).pdf',
+      yellow: 'Student Handout_ ¿Verdad o Mentira_ - Yellow Level (Spanish 5-8).pdf',
+      red: 'Student Handout_ ¿Verdad o Mentira_ - Red Level (Spanish 5-8).pdf',
+    },
   };
 
   // Build lesson plan path
   const getLessonPlanPath = () => {
-    const base = `/resources/seeing-is-deceiving/teachers/${getGradeFolder()}`;
+    const base = `/resources/seeing-is-deceiving/teachers`;
     if (gradeLevel === 'grades-5-8' && subject) {
-      return `${base}/${getSubjectFolder()}/lesson-plan.pdf`;
+      return `${base}/grades-5-8/${subject}/${encodeURIComponent(subjectLessonPlans[subject])}`;
     }
-    return `${base}/lesson-plan.pdf`;
+    if (gradeLevel && teacherLessonPlans[gradeLevel]) {
+      return `${base}/${gradeLevel}/${encodeURIComponent(teacherLessonPlans[gradeLevel])}`;
+    }
+    return '';
   };
 
   // Build handout paths
   const getHandoutPath = (level: 'green' | 'yellow' | 'red') => {
-    const base = `/resources/seeing-is-deceiving/teachers/${getGradeFolder()}`;
+    const base = `/resources/seeing-is-deceiving/teachers`;
     if (gradeLevel === 'grades-5-8' && subject) {
-      return `${base}/${getSubjectFolder()}/handout-${level}.pdf`;
+      return `${base}/grades-5-8/${subject}/${encodeURIComponent(subjectHandouts[subject][level])}`;
     }
-    return `${base}/handout-${level}.pdf`;
+    if (gradeLevel && teacherHandouts[gradeLevel]) {
+      return `${base}/${gradeLevel}/${encodeURIComponent(teacherHandouts[gradeLevel][level])}`;
+    }
+    return '';
+  };
+
+  // Librarian file mappings by grade level
+  const librarianLessonPlans: Record<string, string> = {
+    'prek-k': 'Lesson Plan_ My Eyes Can Play Tricks! (PreK-K Library) - Teacher Guide.pdf',
+    'grades-1-2': 'Library Lesson Plan_ Look Again! Finding Hidden Pictures (Grades 1-2) - Teacher Guide.pdf',
+    'grades-3-5': 'Library Lesson Plan_ Don\'t Be Fooled! Information Detective Skills (Grades 3-5) - Teacher Guide.pdf',
+    'grades-6-8': 'Library Lesson Plan_ Seeing Through Deception (Grades 6-8) - Teacher Guide.pdf',
+  };
+
+  const librarianHandouts: Record<string, Record<string, string>> = {
+    'prek-k': {
+      green: 'My Eyes Can Play Tricks! - Green Level (PreK-K).pdf',
+      yellow: 'My Eyes Can Play Tricks! - Yellow Level (PreK-K).pdf',
+      red: 'My Eyes Can Play Tricks! - Red Level (PreK-K).pdf',
+    },
+    'grades-1-2': {
+      green: 'Student Handout_ Look Again! - Green Level (Library 1-2).pdf',
+      yellow: 'Student Handout_ Look Again! - Yellow Level (Library 1-2).pdf',
+      red: 'Student Handout_ Look Again! - Red Level (Library 1-2).pdf',
+    },
+    'grades-3-5': {
+      green: 'Student Handout_ Information Detective! - Green Level (Library 3-5).pdf',
+      yellow: 'Student Handout_ Information Detective! - Yellow Level (Library 3-5).pdf',
+      red: 'Student Handout_ Information Detective! - Red Level (Library 3-5).pdf',
+    },
+    'grades-6-8': {
+      green: 'Student Handout_ Seeing Through Deception - Green Level (Library 6-8).pdf',
+      yellow: 'Student Handout_ Seeing Through Deception - Yellow Level (Library 6-8).pdf',
+      red: 'Student Handout_ Seeing Through Deception - Red Level (Library 6-8).pdf',
+    },
+  };
+
+  // Build librarian lesson plan path
+  const getLibrarianLessonPlanPath = () => {
+    if (librarianGradeLevel && librarianLessonPlans[librarianGradeLevel]) {
+      return `/resources/seeing-is-deceiving/librarians/${librarianGradeLevel}/${encodeURIComponent(librarianLessonPlans[librarianGradeLevel])}`;
+    }
+    return '';
+  };
+
+  // Build librarian handout paths
+  const getLibrarianHandoutPath = (level: 'green' | 'yellow' | 'red') => {
+    if (librarianGradeLevel && librarianHandouts[librarianGradeLevel]) {
+      return `/resources/seeing-is-deceiving/librarians/${librarianGradeLevel}/${encodeURIComponent(librarianHandouts[librarianGradeLevel][level])}`;
+    }
+    return '';
   };
 
   const gradeLabels: Record<string, string> = {
@@ -111,7 +234,8 @@ export default function ResourcesPage() {
     'art': 'Art',
     'math': 'Math',
     'pe': 'PE',
-    'religion': 'Religion'
+    'religion': 'Religion',
+    'spanish': 'Spanish'
   };
 
   return (
@@ -504,6 +628,9 @@ export default function ResourcesPage() {
               <button className="selection-btn" onClick={() => selectSubject('religion')}>
                 Religion
               </button>
+              <button className="selection-btn" onClick={() => selectSubject('spanish')}>
+                Spanish
+              </button>
             </div>
             <button className="start-over" onClick={startOver}>
               ← Start Over
@@ -642,18 +769,56 @@ export default function ResourcesPage() {
               Librarian → <span>{librarianGradeLabels[librarianGradeLevel || '']}</span>
             </p>
 
-            <p className="description-text">
-              Our Librarian Resource Guide includes book recommendations, discussion questions, and activity ideas to complement the exhibition in your library space.
-            </p>
-
             <div className="download-section">
+              <h3 className="section-header">Lesson Plan</h3>
               <div className="download-item">
                 <div className="download-info">
-                  <span className="download-name">Librarian Resource Guide</span>
-                  <span className="download-subtitle">PDF • Book lists & activities</span>
+                  <span className="download-name">Library Lesson Plan</span>
+                  <span className="download-subtitle">PDF • Full lesson with objectives</span>
                 </div>
                 <a
-                  href={`/resources/seeing-is-deceiving/librarians/${librarianGradeLevel}/librarian-resource-guide.pdf`}
+                  href={getLibrarianLessonPlanPath()}
+                  download
+                  className="download-btn"
+                >
+                  Download
+                </a>
+              </div>
+
+              <h3 className="section-header">Student Handouts</h3>
+              <div className="download-item">
+                <div className="download-info">
+                  <span className="download-name">Green Level</span>
+                  <span className="download-subtitle">More Support</span>
+                </div>
+                <a
+                  href={getLibrarianHandoutPath('green')}
+                  download
+                  className="download-btn"
+                >
+                  Download
+                </a>
+              </div>
+              <div className="download-item">
+                <div className="download-info">
+                  <span className="download-name">Yellow Level</span>
+                  <span className="download-subtitle">Grade Level</span>
+                </div>
+                <a
+                  href={getLibrarianHandoutPath('yellow')}
+                  download
+                  className="download-btn"
+                >
+                  Download
+                </a>
+              </div>
+              <div className="download-item">
+                <div className="download-info">
+                  <span className="download-name">Red Level</span>
+                  <span className="download-subtitle">Go Deeper</span>
+                </div>
+                <a
+                  href={getLibrarianHandoutPath('red')}
                   download
                   className="download-btn"
                 >
