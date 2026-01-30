@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -55,7 +54,6 @@ const artifacts: Artifact[] = [
 
 export default function ArtifactsCollection() {
   const router = useRouter();
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
 
   const handleArtifactClick = (artifact: Artifact) => {
     if (artifact.status === 'available') {
@@ -386,8 +384,6 @@ export default function ArtifactsCollection() {
             key={artifact.id}
             className={`artifact-card ${artifact.status}`}
             onClick={() => handleArtifactClick(artifact)}
-            onMouseEnter={() => setHoveredId(artifact.id)}
-            onMouseLeave={() => setHoveredId(null)}
           >
             {/* Hover arrow for available items */}
             {artifact.status === 'available' && (

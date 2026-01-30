@@ -70,7 +70,7 @@ export default function GroundFloor() {
     },
   ];
 
-  const Ticket = ({ accentColor }: { accentColor: string }) => (
+  const Ticket = () => (
     <div className="ticket ticket-disabled">
       <svg width="180" height="80" viewBox="0 0 180 80" fill="none">
         <path d="M0 8C0 3.58172 3.58172 0 8 0H52C52 6.62742 57.3726 12 64 12C70.6274 12 76 6.62742 76 0H172C176.418 0 180 3.58172 180 8V72C180 76.4183 176.418 80 172 80H76C76 73.3726 70.6274 68 64 68C57.3726 68 52 73.3726 52 80H8C3.58172 80 0 76.4183 0 72V8Z" fill="#2a2a2a"/>
@@ -134,7 +134,7 @@ export default function GroundFloor() {
         }}>
           {exhibition.subtitle}
         </p>
-        <Ticket accentColor={exhibition.accent} />
+        <Ticket />
       </div>
     </div>
   );

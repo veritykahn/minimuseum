@@ -1545,11 +1545,13 @@ export default function SeeingIsDeceiving() {
 
           <div className="exhibition-grid">
             <div className="poster-frame" onClick={() => openPoster('poster1')}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/seeing/poster1.jpg" alt="Seeing is Deceiving poster" />
               <span className="poster-hint">Click to explore</span>
             </div>
 
             <div className="display-case" onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/exhibitions/seeing/artifacts/display-case.png"
                 alt="Artifact Display Case"
@@ -1561,6 +1563,7 @@ export default function SeeingIsDeceiving() {
             </div>
 
             <div className="poster-frame" onClick={() => openPoster('poster2')}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/seeing/poster2.jpg" alt="A History of Lies poster" />
               <span className="poster-hint">Click to explore</span>
             </div>
@@ -1576,6 +1579,7 @@ export default function SeeingIsDeceiving() {
             {/* Title Image - Full Bleed */}
             {currentItem.type === 'title-image' && (
               <div className={`full-bleed-image title-image ${isPoster1 ? 'poster1-title' : 'poster2-title'} ${currentItem.effect === 'kenburns-in' ? 'effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'effect-drift' : ''}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
                 <img src={currentItem.src} alt={currentItem.alt} />
               </div>
             )}
@@ -1583,6 +1587,7 @@ export default function SeeingIsDeceiving() {
             {/* Full Image - Mega Zoom */}
             {currentItem.type === 'full-image' && (
               <div className={`full-bleed-image ${currentItem.effect === 'mega-zoom-out' ? 'face-image' : ''}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
                 <img
                   src={currentItem.src}
                   alt={currentItem.alt}

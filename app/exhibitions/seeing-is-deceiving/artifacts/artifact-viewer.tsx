@@ -191,9 +191,8 @@ export default function ArtifactViewer({ artifactId }: Props) {
 
     const { scene, camera, controls } = sceneRef.current;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: reset loading state before async load
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: reset state before async model load
     setIsLoading(true);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: clear error before async load
     setLoadError(null);
 
     const loader = new GLTFLoader();
