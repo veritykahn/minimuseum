@@ -1,18 +1,60 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, RefObject } from 'react';
 import { MapRoom } from './types';
+
+type ZoomState = {
+  scale: number;
+  translateX: number;
+  translateY: number;
+};
+
+type ZoomHandlers = {
+  onWheel: (e: React.WheelEvent) => void;
+  onMouseDown: (e: React.MouseEvent) => void;
+  onMouseMove: (e: React.MouseEvent) => void;
+  onMouseUp: () => void;
+  onMouseLeave: () => void;
+  onTouchStart: (e: React.TouchEvent) => void;
+  onTouchMove: (e: React.TouchEvent) => void;
+  onTouchEnd: () => void;
+  onDoubleClick: (e: React.MouseEvent | React.TouchEvent) => void;
+};
 
 type MapOverlayProps = {
   currentRoom: MapRoom | undefined;
   onClose: () => void;
   children: ReactNode;
+  zoom?: ZoomState;
+  zoomHandlers?: ZoomHandlers;
+  containerRef?: RefObject<HTMLDivElement | null>;
+  onZoomIn?: () => void;
+  onZoomOut?: () => void;
+  onResetZoom?: () => void;
+  canZoomIn?: boolean;
+  canZoomOut?: boolean;
+  isZoomed?: boolean;
 };
 
 /**
- * Full-screen overlay containing the map
+ * Full-screen overlay containing the map with zoom/pan support
  */
-export function MapOverlay({ currentRoom, onClose, children }: MapOverlayProps) {
+export function MapOverlay({
+  currentRoom,
+  onClose,
+  children,
+  zoom,
+  zoomHandlers,
+  containerRef,
+  onZoomIn,
+  onZoomOut,
+  onResetZoom,
+  canZoomIn = true,
+  canZoomOut = false,
+  isZoomed = false,
+}: MapOverlayProps) {
+  const hasZoom = zoom && zoomHandlers;
+
   return (
     <>
       <div className="map-overlay" onClick={onClose}>
@@ -28,9 +70,61 @@ export function MapOverlay({ currentRoom, onClose, children }: MapOverlayProps) 
             )}
           </div>
 
-          {children}
+          {/* Zoomable map area */}
+          {hasZoom ? (
+            <div
+              ref={containerRef}
+              className={`map-viewport ${isZoomed ? 'zoomed' : ''}`}
+              {...zoomHandlers}
+            >
+              <div
+                className="map-content"
+                style={{
+                  transform: `scale(${zoom.scale}) translate(${zoom.translateX / zoom.scale}px, ${zoom.translateY / zoom.scale}px)`,
+                }}
+              >
+                {children}
+              </div>
+            </div>
+          ) : (
+            children
+          )}
 
-          {/* Close hint */}
+          {/* Zoom controls */}
+          {hasZoom && (
+            <div className="zoom-controls">
+              <button
+                className="zoom-btn"
+                onClick={onZoomIn}
+                disabled={!canZoomIn}
+                aria-label="Zoom in"
+              >
+                +
+              </button>
+              <button
+                className="zoom-btn"
+                onClick={onZoomOut}
+                disabled={!canZoomOut}
+                aria-label="Zoom out"
+              >
+                −
+              </button>
+              {isZoomed && (
+                <button
+                  className="zoom-btn reset"
+                  onClick={onResetZoom}
+                  aria-label="Reset zoom"
+                >
+                  ⟲
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Instructions */}
+          <p className="zoom-hint">
+            {isZoomed ? 'Drag to pan • Pinch or scroll to zoom' : 'Pinch or scroll to zoom • Double-tap to zoom in'}
+          </p>
           <p className="close-hint">Click anywhere outside or press ESC to close</p>
         </div>
       </div>
@@ -59,11 +153,12 @@ export function MapOverlay({ currentRoom, onClose, children }: MapOverlayProps) 
           border: 1px solid rgba(125, 132, 113, 0.3);
           border-radius: 12px;
           padding: 24px;
-          max-width: 560px;
+          max-width: 600px;
           width: 100%;
           max-height: 90vh;
-          overflow-y: auto;
+          overflow: hidden;
           animation: slideUp 0.3s ease;
+          position: relative;
         }
 
         @keyframes slideUp {
@@ -121,22 +216,107 @@ export function MapOverlay({ currentRoom, onClose, children }: MapOverlayProps) 
           }
         }
 
+        /* Zoomable viewport */
+        .map-viewport {
+          width: 100%;
+          overflow: hidden;
+          border-radius: 8px;
+          background: rgba(0, 0, 0, 0.3);
+          touch-action: none;
+          user-select: none;
+          cursor: grab;
+        }
+
+        .map-viewport.zoomed {
+          cursor: grab;
+        }
+
+        .map-viewport:active {
+          cursor: grabbing;
+        }
+
+        .map-content {
+          transform-origin: center center;
+          transition: transform 0.1s ease-out;
+        }
+
+        /* Zoom controls */
+        .zoom-controls {
+          position: absolute;
+          right: 16px;
+          top: 80px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          z-index: 10;
+        }
+
+        .zoom-btn {
+          width: 32px;
+          height: 32px;
+          border: 1px solid rgba(125, 132, 113, 0.4);
+          border-radius: 6px;
+          background: rgba(20, 20, 20, 0.9);
+          color: #fafafa;
+          font-size: 18px;
+          font-weight: 300;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+
+        .zoom-btn:hover:not(:disabled) {
+          background: rgba(125, 132, 113, 0.3);
+          border-color: rgba(125, 132, 113, 0.6);
+        }
+
+        .zoom-btn:disabled {
+          opacity: 0.3;
+          cursor: not-allowed;
+        }
+
+        .zoom-btn.reset {
+          font-size: 14px;
+        }
+
+        .zoom-hint {
+          text-align: center;
+          font-family: var(--font-outfit), sans-serif;
+          font-size: 0.65rem;
+          color: rgba(250, 250, 250, 0.4);
+          margin: 8px 0 0 0;
+        }
+
         .close-hint {
           text-align: center;
           font-family: var(--font-outfit), sans-serif;
           font-size: 0.7rem;
           color: rgba(250, 250, 250, 0.3);
-          margin: 12px 0 0 0;
+          margin: 4px 0 0 0;
         }
 
         @media (max-width: 480px) {
           .map-container {
             padding: 16px;
             margin: 12px;
+            max-height: 85vh;
           }
 
           .map-header h2 {
             font-size: 1.5rem;
+          }
+
+          .zoom-controls {
+            right: 8px;
+            top: 70px;
+          }
+
+          .zoom-btn {
+            width: 36px;
+            height: 36px;
+            font-size: 20px;
           }
         }
       `}</style>

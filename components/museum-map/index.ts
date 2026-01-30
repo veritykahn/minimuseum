@@ -19,6 +19,7 @@ export { CONNECTIONS } from './data/connections';
 
 // Hooks
 export { useMapState } from './hooks/useMapState';
+export { useMapZoom } from './hooks/useMapZoom';
 
 // Components
 export { MapToggleButton } from './MapToggleButton';
