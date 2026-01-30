@@ -544,6 +544,12 @@ export default function SeeingIsDeceiving() {
           justify-content: center;
         }
 
+        .poster2-title img {
+          object-fit: contain;
+          width: 100%;
+          height: 100%;
+        }
+
         .face-image {
           display: flex;
           align-items: center;
