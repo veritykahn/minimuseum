@@ -480,9 +480,11 @@ export default function About() {
 
             {/* Mobile: WWI Image */}
             <div className="mobile-only mobile-order-2" style={{ margin: '40px 0' }}>
-              <img
+              <Image
                 src="/about/wwi.jpeg"
                 alt="Mini Museum exhibition display with WWI artifacts"
+                width={800}
+                height={600}
                 style={{ width: '100%', height: 'auto', display: 'block' }}
               />
               <p className="image-caption">The Great War Exhibition</p>
@@ -569,9 +571,11 @@ export default function About() {
 
             {/* Mobile: Moondust Image */}
             <div className="mobile-only mobile-order-5" style={{ margin: '40px 0' }}>
-              <img
+              <Image
                 src="/about/moondust.jpeg"
                 alt="Lunar meteorite sample under microscope"
+                width={800}
+                height={600}
                 style={{ width: '100%', height: 'auto', display: 'block' }}
               />
               <p className="image-caption">Lunar Meteorite Adrar 013</p>

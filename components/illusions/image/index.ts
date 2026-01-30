@@ -1,1 +1,15 @@
 export { CheckerShadowIllusion } from './CheckerShadowIllusion';
+export { BalconyIllusion } from './BalconyIllusion';
+export { FraserSpiralIllusion } from './FraserSpiralIllusion';
+export { BulgingGridIllusion } from './BulgingGridIllusion';
+export { PonzoCorridorIllusion } from './PonzoCorridorIllusion';
+export { JastrowIllusion } from './JastrowIllusion';
+export { EbbinghausCirclesIllusion } from './EbbinghausCirclesIllusion';
+export { SanderParallelogramIllusion } from './SanderParallelogramIllusion';
+export { PoggendorffIllusion } from './PoggendorffIllusion';
+export { RubinsVaseIllusion } from './RubinsVaseIllusion';
+export { ChromostereopsisIllusion } from './ChromostereopsisIllusion';
+export { SeesawIllusion } from './SeesawIllusion';
+export { ParisSpringtimeIllusion } from './ParisSpringtimeIllusion';
+export { OldManIllusion } from './OldManIllusion';
+export { KanizsaIllusion } from './KanizsaIllusion';

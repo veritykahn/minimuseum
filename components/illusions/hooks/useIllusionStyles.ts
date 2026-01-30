@@ -115,6 +115,18 @@ export function useIllusionStyles(isPoster1: boolean) {
         animation: 'fadeInUp 0.5s ease forwards',
       } as CSSProperties,
 
+      answerHidden: {
+        fontFamily: 'Outfit, sans-serif',
+        fontSize: 'clamp(12px, 2.5vw, 14px)',
+        color: textColor,
+        textAlign: 'center',
+        maxWidth: '85vw',
+        lineHeight: 1.7,
+        padding: '0 20px',
+        opacity: 0,
+        visibility: 'hidden',
+      } as CSSProperties,
+
       buttonContainer: {
         minHeight: '50px',
         display: 'flex',

@@ -8,6 +8,7 @@ type IllusionButtonProps = {
   isPoster1: boolean;
   children: React.ReactNode;
   variant?: 'primary' | 'secondary';
+  active?: boolean;
 };
 
 /**
@@ -18,12 +19,15 @@ export function IllusionButton({
   isPoster1,
   children,
   variant = 'primary',
+  active = false,
 }: IllusionButtonProps) {
   const styles = useIllusionStyles(isPoster1);
 
   const buttonStyle: CSSProperties = {
     ...styles.button,
     opacity: variant === 'secondary' ? 0.7 : 1,
+    background: active ? styles.textColor : 'transparent',
+    color: active ? (isPoster1 ? '#e0dede' : '#0a0a0a') : styles.textColor,
   };
 
   return (
@@ -31,10 +35,14 @@ export function IllusionButton({
       onClick={onClick}
       style={buttonStyle}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = `${styles.textColor}15`;
+        if (!active) {
+          e.currentTarget.style.background = `${styles.textColor}15`;
+        }
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'transparent';
+        if (!active) {
+          e.currentTarget.style.background = 'transparent';
+        }
       }}
     >
       {children}

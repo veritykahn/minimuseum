@@ -60,11 +60,7 @@ export function CheckerShadowIllusion({
             <IllusionButton onClick={reset} isPoster1={isPoster1}>
               Try Again
             </IllusionButton>
-            <ScienceButton
-              onClick={openScience}
-              isPoster1={isPoster1}
-              hasExplanation={!!scienceExplanation}
-            />
+            <ScienceButton onClick={openScience} isPoster1={isPoster1} />
           </>
         )
       }

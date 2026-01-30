@@ -2,7 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import IllusionRenderer from '@/components/IllusionRenderer';
+import IllusionRenderer from '@/components/illusions/IllusionDispatcher';
 
 type IllusionItem = {
   type: 'intro' | 'illusion' | 'closing';

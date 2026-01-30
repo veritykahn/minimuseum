@@ -20,3 +20,12 @@ export { IllusionWrapper } from './IllusionWrapper';
 export { MuseumCard } from './MuseumCard';
 export { ScienceButton } from './ScienceButton';
 export { IllusionButton } from './IllusionButton';
+
+// Image-based illusions
+export * from './image';
+
+// SVG-based illusions
+export * from './svg';
+
+// Static/display illusions
+export * from './static';
