@@ -546,8 +546,9 @@ export default function SeeingIsDeceiving() {
 
         .poster2-title img {
           object-fit: contain;
-          width: 100%;
-          height: 100%;
+          width: auto;
+          height: 100vh;
+          max-width: 100%;
         }
 
         .face-image {
