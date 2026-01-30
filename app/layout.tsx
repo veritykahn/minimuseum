@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import MuseumMap from "@/components/MuseumMap";
+import { OrganizationJsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
   title: "The Mini Museum | Big History. Small Spaces.",
@@ -33,8 +34,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <OrganizationJsonLd />
+      </head>
       <body>
-        {children}
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <main id="main-content">
+          {children}
+        </main>
         <MuseumMap />
       </body>
     </html>

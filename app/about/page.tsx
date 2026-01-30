@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function About() {
   const [activeTab, setActiveTab] = useState<'physical' | 'virtual'>('physical');
@@ -436,9 +437,11 @@ export default function About() {
               </div>
 
               <div>
-                <img
+                <Image
                   src="/about/wwi.jpeg"
                   alt="Mini Museum exhibition display with WWI artifacts"
+                  width={600}
+                  height={400}
                   style={{ width: '100%', height: 'auto', display: 'block' }}
                 />
                 <p className="image-caption">The Great War Exhibition · Origins · The Founding Collection</p>
@@ -490,9 +493,11 @@ export default function About() {
             {/* Desktop: The Exhibition with Moondust Image */}
             <div className="image-text-row desktop-only">
               <div>
-                <img
+                <Image
                   src="/about/moondust.jpeg"
                   alt="Lunar meteorite sample under microscope"
+                  width={600}
+                  height={400}
                   style={{ width: '100%', height: 'auto', display: 'block' }}
                 />
                 <p className="image-caption">Moondust from Lunar Meteorite Adrar 013 · Origins · The Founding Collection</p>
@@ -507,7 +512,7 @@ export default function About() {
                   fontWeight: 300,
                   marginBottom: '20px',
                 }}>
-                  Each month, a new historical collection. Real artifacts. Primary sources. A WWI soldier's helmet. Moon dust from a lunar meteorite. A Victorian needle case. A first edition book from the Harlem Renaissance.
+                  Each month, a new historical collection. Real artifacts. Primary sources. A WWI soldier&apos;s helmet. Moon dust from a lunar meteorite. A Victorian needle case. A first edition book from the Harlem Renaissance.
                 </p>
                 <p style={{
                   fontSize: '16px',
@@ -516,7 +521,7 @@ export default function About() {
                   fontWeight: 300,
                   marginBottom: '20px',
                 }}>
-                  The objects are authentic. The scholarship is rigorous. The presentation mirrors the care of the world's great museums — only on a smaller scale.
+                  The objects are authentic. The scholarship is rigorous. The presentation mirrors the care of the world&apos;s great museums — only on a smaller scale.
                 </p>
                 <p style={{
                   fontSize: '16px',
@@ -540,7 +545,7 @@ export default function About() {
                 fontWeight: 300,
                 marginBottom: '20px',
               }}>
-                Each month, a new historical collection. Real artifacts. Primary sources. A WWI soldier's helmet. Moon dust from a lunar meteorite. A Victorian needle case. A first edition book from the Harlem Renaissance.
+                Each month, a new historical collection. Real artifacts. Primary sources. A WWI soldier&apos;s helmet. Moon dust from a lunar meteorite. A Victorian needle case. A first edition book from the Harlem Renaissance.
               </p>
               <p style={{
                 fontSize: '16px',
@@ -549,7 +554,7 @@ export default function About() {
                 fontWeight: 300,
                 marginBottom: '20px',
               }}>
-                The objects are authentic. The scholarship is rigorous. The presentation mirrors the care of the world's great museums — only on a smaller scale.
+                The objects are authentic. The scholarship is rigorous. The presentation mirrors the care of the world&apos;s great museums — only on a smaller scale.
               </p>
               <p style={{
                 fontSize: '16px',
@@ -583,7 +588,7 @@ export default function About() {
                 color: '#fafafa',
                 marginBottom: '20px',
               }}>
-                Every child deserves to walk into a room and feel what it's like to stand before history itself. And every school, every teacher should have the opportunity to provide this.
+                Every child deserves to walk into a room and feel what it&apos;s like to stand before history itself. And every school, every teacher should have the opportunity to provide this.
               </p>
               <p style={{
                 fontSize: '15px',
@@ -628,9 +633,11 @@ export default function About() {
 
             {/* Letters Image */}
             <div className="inline-image mobile-order-9">
-              <img
+              <Image
                 src="/about/letters.jpeg"
                 alt="Historic letters displayed in glass case"
+                width={800}
+                height={500}
                 style={{ width: '100%', height: 'auto', display: 'block' }}
               />
               <p className="image-caption">WWII Letters · Origins · The Founding Collection</p>
@@ -654,7 +661,7 @@ export default function About() {
                 fontWeight: 400,
                 fontStyle: 'italic',
               }}>
-                History shouldn't require a plane ticket. It should be waiting in the next room.
+                History shouldn&apos;t require a plane ticket. It should be waiting in the next room.
               </p>
             </div>
           </div>
@@ -706,7 +713,7 @@ export default function About() {
                 color: '#a3a3a3',
                 fontWeight: 300,
               }}>
-                Wonder doesn't end at the school door. It follows children home.
+                Wonder doesn&apos;t end at the school door. It follows children home.
               </p>
             </div>
 
@@ -730,7 +737,7 @@ export default function About() {
                 color: '#a3a3a3',
                 fontWeight: 300,
               }}>
-                The virtual museum is designed to work alongside your curriculum — whether you're teaching the Great War, the Space Race, Women's History, or any of our rotating exhibitions.
+                The virtual museum is designed to work alongside your curriculum — whether you&apos;re teaching the Great War, the Space Race, Women&apos;s History, or any of our rotating exhibitions.
               </p>
             </div>
 
@@ -746,7 +753,7 @@ export default function About() {
                 fontWeight: 300,
                 marginBottom: '20px',
               }}>
-                Even if your school isn't hosting a physical exhibition, the virtual collection is yours to use. Share it with teachers. Embed it in your library's resources. Point students toward primary sources they can explore independently.
+                Even if your school isn&apos;t hosting a physical exhibition, the virtual collection is yours to use. Share it with teachers. Embed it in your library&apos;s resources. Point students toward primary sources they can explore independently.
               </p>
               <p style={{
                 fontSize: '16px',
@@ -754,7 +761,7 @@ export default function About() {
                 color: '#a3a3a3',
                 fontWeight: 300,
               }}>
-                The Mini Museum believes that history doesn't belong to one person, one school, or one nation. These resources exist to be used — widely, freely, without restriction.
+                The Mini Museum believes that history doesn&apos;t belong to one person, one school, or one nation. These resources exist to be used — widely, freely, without restriction.
               </p>
             </div>
 
@@ -781,7 +788,7 @@ export default function About() {
 
             {/* What's Online */}
             <div className="section">
-              <p className="section-title">What You'll Find Online</p>
+              <p className="section-title">What You&apos;ll Find Online</p>
               <p style={{
                 fontSize: '16px',
                 lineHeight: 1.8,

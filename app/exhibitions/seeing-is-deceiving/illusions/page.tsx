@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import IllusionRenderer from '@/components/IllusionRenderer';
 
@@ -305,6 +305,22 @@ export default function IllusionsPage() {
       }, 400);
     }
   }, [currentIndex]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        nextStep();
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        prevStep();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [nextStep, prevStep]);
 
   // Swipe handlers
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -637,12 +653,15 @@ export default function IllusionsPage() {
             className="side-nav-arrow left"
             onClick={prevStep}
             disabled={currentIndex <= 1}
+            aria-label="Previous illusion"
           >
             ←
           </button>
           <button
             className="side-nav-arrow right"
             onClick={nextStep}
+            disabled={currentIndex >= illusionContent.length - 1}
+            aria-label="Next illusion"
           >
             →
           </button>

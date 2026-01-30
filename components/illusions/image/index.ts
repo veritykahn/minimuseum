@@ -1,0 +1,1 @@
+export { CheckerShadowIllusion } from './CheckerShadowIllusion';

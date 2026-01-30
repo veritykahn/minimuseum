@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function GreatHall() {
   const [showExplore, setShowExplore] = useState(true);
@@ -674,7 +675,7 @@ export default function GreatHall() {
                 </div>
               </div>
               <div className="floor-indicator">
-                <img src="/stairs.png" alt="" className="stairs-icon" />
+                <Image src="/stairs.png" alt="" width={80} height={80} className="stairs-icon" aria-hidden="true" />
                 <span className="floor-letter">1</span>
               </div>
             </div>
@@ -697,7 +698,7 @@ export default function GreatHall() {
                 <span className="installation-badge-text">Coming Soon</span>
               </div>
               <div className="floor-indicator">
-                <img src="/stairs.png" alt="" className="stairs-icon" />
+                <Image src="/stairs.png" alt="" width={80} height={80} className="stairs-icon" aria-hidden="true" />
                 <span className="floor-letter">G</span>
               </div>
             </div>

@@ -1,5 +1,5 @@
-import ArtifactViewer from '../artifact-viewer';
+import LazyArtifactViewer from '@/components/LazyArtifactViewer';
 
 export default function StereoscopePage() {
-  return <ArtifactViewer artifactId="stereoscope" />;
+  return <LazyArtifactViewer artifactId="stereoscope" />;
 }

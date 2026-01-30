@@ -430,6 +430,7 @@ const TypewriterText = ({ text, onComplete, color }: { text: string; onComplete?
     } else if (onComplete) {
       onComplete();
     }
+    return undefined;
   }, [currentIndex, text, onComplete]);
 
   return (
