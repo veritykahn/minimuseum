@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 type Artifact = {
   id: string;
@@ -395,10 +396,13 @@ export default function ArtifactsCollection() {
 
             {/* Image container */}
             <div className="artifact-image-container">
-              <img
+              <Image
                 src={artifact.image}
                 alt={artifact.title}
                 className="artifact-image"
+                width={300}
+                height={200}
+                style={{ width: '100%', height: 'auto' }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).style.display = 'none';
                 }}

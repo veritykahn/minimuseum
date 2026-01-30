@@ -709,7 +709,7 @@ export default function GreatHall() {
       {/* Installation Message Toast */}
       <div className={`installation-message ${showInstallationMessage ? 'visible' : ''}`}>
         <p className="installation-message-title">Exhibits Currently Being Installed</p>
-        <p className="installation-message-text">We're preparing something special. Check back soon!</p>
+        <p className="installation-message-text">We&apos;re preparing something special. Check back soon!</p>
       </div>
     </div>
   );

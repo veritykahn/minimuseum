@@ -204,11 +204,11 @@ export default function ResourcesPage() {
         {currentStep.showIntro && (
           <>
             <p className="intro-text">
-              The Mini Museum believes learning doesn't end at the glass case. These materials are designed to extend the exhibition into your home or classroom—sparking conversations, deepening understanding, and encouraging the kind of critical thinking that lasts long after the visit.
+              The Mini Museum believes learning doesn&apos;t end at the glass case. These materials are designed to extend the exhibition into your home or classroom—sparking conversations, deepening understanding, and encouraging the kind of critical thinking that lasts long after the visit.
               <br /><br />
-              Whether you're a parent exploring with your child at the kitchen table or a teacher building a full lesson, everything here is free to download, print, and share.
+              Whether you&apos;re a parent exploring with your child at the kitchen table or a teacher building a full lesson, everything here is free to download, print, and share.
             </p>
-            <p className="question-text">Let's begin. I am a...</p>
+            <p className="question-text">Let&apos;s begin. I am a...</p>
             <div className="button-grid">
               <SelectionButton onClick={() => selectUserType('parent')}>Parent</SelectionButton>
               <SelectionButton onClick={() => selectUserType('teacher')}>Teacher</SelectionButton>

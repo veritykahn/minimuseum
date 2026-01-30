@@ -73,11 +73,14 @@ export default function ArtifactViewer({ artifactId }: Props) {
     model: THREE.Group | null;
   } | null>(null);
 
-  const [isLoading, setIsLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [showInfo, setShowInfo] = useState(false);
-
   const artifact = artifactsData[artifactId];
+
+  // Initialize loading state based on artifact availability
+  const [isLoading, setIsLoading] = useState(artifact?.available ?? false);
+  const [loadError, setLoadError] = useState<string | null>(
+    artifact && !artifact.available ? '3D model coming soon' : null
+  );
+  const [showInfo, setShowInfo] = useState(false);
 
   // Initialize Three.js scene
   useEffect(() => {
@@ -183,17 +186,14 @@ export default function ArtifactViewer({ artifactId }: Props) {
 
   // Load model
   useEffect(() => {
-    if (!sceneRef.current || !artifact) return;
+    // Skip if scene not ready, no artifact, or artifact not available
+    if (!sceneRef.current || !artifact || !artifact.available) return;
 
     const { scene, camera, controls } = sceneRef.current;
 
-    if (!artifact.available) {
-      setIsLoading(false);
-      setLoadError('3D model coming soon');
-      return;
-    }
-
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: reset loading state before async load
     setIsLoading(true);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: clear error before async load
     setLoadError(null);
 
     const loader = new GLTFLoader();

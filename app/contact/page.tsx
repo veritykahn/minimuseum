@@ -44,7 +44,7 @@ export default function Contact() {
         </div>
 
         <p className="fade-in-up delay-2" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1rem, 2.5vw, 1.3rem)', fontStyle: 'italic', fontWeight: 300, color: '#525252', marginTop: '48px', maxWidth: '400px', lineHeight: 1.6 }}>
-          We're preparing something special. Check back soon.
+          We&apos;re preparing something special. Check back soon.
         </p>
       </div>
     </div>

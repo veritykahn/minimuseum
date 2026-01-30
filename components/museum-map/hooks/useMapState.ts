@@ -22,6 +22,7 @@ export function useMapState() {
 
   // Close map on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: close modal on navigation
     setIsOpen(false);
   }, [pathname]);
 

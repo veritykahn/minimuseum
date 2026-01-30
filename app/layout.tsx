@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import MuseumMap from "@/components/MuseumMap";
+import MuseumMap from "@/components/museum-map/MuseumMapRefactored";
 import { OrganizationJsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
