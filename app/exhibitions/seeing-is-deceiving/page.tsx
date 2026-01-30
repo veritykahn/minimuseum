@@ -747,19 +747,19 @@ export default function SeeingIsDeceiving() {
 
             {/* Title Image - Full Bleed */}
             {currentItem.type === 'title-image' && (
-              <div className={`full-bleed-image title-image ${isPoster1 ? 'poster1-title' : 'poster2-title'} ${currentItem.effect === 'kenburns-in' ? 'effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'effect-drift' : ''}`} style={{ position: 'relative' }}>
-                <Image src={currentItem.src!} alt={currentItem.alt || ''} fill style={{ objectFit: 'cover' }} priority />
+              <div className={`full-bleed-image title-image ${isPoster1 ? 'poster1-title' : 'poster2-title'} ${currentItem.effect === 'kenburns-in' ? 'effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'effect-drift' : ''}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={currentItem.src} alt={currentItem.alt || ''} />
               </div>
             )}
 
             {/* Full Image - Mega Zoom */}
             {currentItem.type === 'full-image' && (
-              <div className={`full-bleed-image ${currentItem.effect === 'mega-zoom-out' ? 'face-image' : ''}`} style={{ position: 'relative' }}>
-                <Image
-                  src={currentItem.src!}
+              <div className={`full-bleed-image ${currentItem.effect === 'mega-zoom-out' ? 'face-image' : ''}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={currentItem.src}
                   alt={currentItem.alt || ''}
-                  fill
-                  style={{ objectFit: 'cover' }}
                   className={currentItem.effect === 'mega-zoom-out' ? 'effect-mega-zoom-out' : currentItem.effect === 'waves-drift' ? 'effect-waves-drift' : ''}
                 />
               </div>
