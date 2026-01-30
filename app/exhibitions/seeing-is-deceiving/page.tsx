@@ -228,61 +228,88 @@ export default function SeeingIsDeceiving() {
         }
 
         .film-overlay {
-          position: absolute;
+          position: fixed;
           inset: 0;
           pointer-events: none;
-          z-index: 5;
+          z-index: 50;
           overflow: hidden;
         }
 
+        /* Traveling vertical scratches */
         .film-scratch {
           position: absolute;
+          top: -100%;
           width: 2px;
-          height: 100%;
-          background: linear-gradient(to bottom, transparent 0%, rgba(255,255,255,0.3) 20%, rgba(255,255,255,0.3) 80%, transparent 100%);
-          animation: filmScratchMove 0.3s steps(3) infinite;
+          height: 200%;
+          background: linear-gradient(
+            to bottom,
+            transparent 0%,
+            rgba(255,255,255,0.3) 20%,
+            rgba(255,255,255,0.5) 50%,
+            rgba(255,255,255,0.3) 80%,
+            transparent 100%
+          );
+          animation: scratchMove 0.8s linear infinite;
         }
-        .scratch-1 { left: 15%; animation-delay: 0s; }
-        .scratch-2 { left: 45%; animation-delay: 0.1s; }
-        .scratch-3 { left: 75%; animation-delay: 0.2s; }
+        .scratch-1 { left: 15%; animation-delay: 0s; animation-duration: 0.6s; }
+        .scratch-2 { left: 45%; animation-delay: 0.2s; animation-duration: 0.5s; opacity: 0.7; }
+        .scratch-3 { left: 78%; animation-delay: 0.4s; animation-duration: 0.7s; opacity: 0.5; }
 
-        @keyframes filmScratchMove {
-          0% { transform: translateY(-100%); opacity: 0.6; }
-          50% { opacity: 0.3; }
-          100% { transform: translateY(100%); opacity: 0; }
+        @keyframes scratchMove {
+          0% { transform: translateY(0); }
+          100% { transform: translateY(50%); }
         }
 
+        /* Random dust specks that appear and disappear */
         .film-dust {
           position: absolute;
           width: 4px;
           height: 4px;
+          background: rgba(255,255,255,0.8);
           border-radius: 50%;
-          background: rgba(255,255,255,0.4);
-          animation: filmDustFlicker 0.5s steps(2) infinite;
+          animation: dustFlash 0.15s ease-in-out infinite;
         }
-        .dust-1 { top: 10%; left: 20%; animation-delay: 0s; }
-        .dust-2 { top: 30%; left: 60%; animation-delay: 0.1s; }
-        .dust-3 { top: 50%; left: 40%; animation-delay: 0.2s; }
-        .dust-4 { top: 70%; left: 80%; animation-delay: 0.15s; }
-        .dust-5 { top: 85%; left: 25%; animation-delay: 0.25s; }
-        .dust-6 { top: 20%; left: 90%; animation-delay: 0.05s; }
+        .dust-1 { top: 20%; left: 30%; animation-delay: 0s; }
+        .dust-2 { top: 45%; left: 70%; animation-delay: 0.05s; }
+        .dust-3 { top: 70%; left: 20%; animation-delay: 0.1s; }
+        .dust-4 { top: 15%; left: 80%; animation-delay: 0.08s; width: 6px; height: 6px; }
+        .dust-5 { top: 60%; left: 50%; animation-delay: 0.12s; width: 3px; height: 3px; }
+        .dust-6 { top: 85%; left: 35%; animation-delay: 0.03s; }
 
-        @keyframes filmDustFlicker {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0; }
+        @keyframes dustFlash {
+          0%, 100% { opacity: 0; }
+          50% { opacity: 1; }
         }
 
+        /* Vignette darkening around edges */
         .film-vignette {
           position: absolute;
           inset: 0;
-          background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%);
+          background: radial-gradient(
+            ellipse at center,
+            transparent 50%,
+            rgba(0,0,0,0.3) 100%
+          );
         }
 
+        /* Sepia/warm tint */
         .film-sepia {
           position: absolute;
           inset: 0;
           background: rgba(112, 66, 20, 0.08);
           mix-blend-mode: multiply;
+        }
+
+        /* Flicker effect on content */
+        .vintage-film .section-title-text,
+        .vintage-film .paragraph-text {
+          animation: filmFlicker 0.1s ease-in-out infinite;
+        }
+        @keyframes filmFlicker {
+          0%, 100% { opacity: 1; }
+          30% { opacity: 0.97; }
+          60% { opacity: 0.94; }
+          90% { opacity: 0.98; }
         }
 
         /* Depth parallax */
@@ -354,32 +381,21 @@ export default function SeeingIsDeceiving() {
           to { transform: rotate(360deg); }
         }
 
-        /* Glitch persistent */
+        /* Persistent glitch effect */
         .glitch-persistent {
           position: relative;
         }
-        .glitch-persistent::before,
-        .glitch-persistent::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: inherit;
-          animation: glitchPersistent 2s steps(2) infinite;
-          pointer-events: none;
-          opacity: 0.05;
-        }
-        .glitch-persistent::before {
-          animation-delay: 0.1s;
-          clip-path: inset(20% 0 40% 0);
-        }
-        .glitch-persistent::after {
-          animation-delay: 0.2s;
-          clip-path: inset(60% 0 10% 0);
+        .glitch-persistent .paragraph-text,
+        .glitch-persistent .section-title-text {
+          animation: glitchPersistent 4s ease-in-out infinite;
         }
         @keyframes glitchPersistent {
-          0%, 100% { transform: translateX(0); }
-          25% { transform: translateX(-3px); }
-          75% { transform: translateX(3px); }
+          0%, 90%, 100% { transform: translate(0); text-shadow: none; }
+          91% { transform: translate(-2px, 1px); text-shadow: 2px 0 #ff0000, -2px 0 #00ffff; }
+          92% { transform: translate(2px, -1px); text-shadow: -2px 0 #ff0000, 2px 0 #00ffff; }
+          93% { transform: translate(0); text-shadow: none; }
+          96% { transform: translate(1px, 1px); text-shadow: 1px 0 #ff0000, -1px 0 #00ffff; }
+          97% { transform: translate(-1px, -1px); text-shadow: -1px 0 #ff0000, 1px 0 #00ffff; }
         }
 
         /* Exhibition main view */
