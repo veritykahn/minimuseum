@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import IllusionRenderer from '@/components/illusions/IllusionDispatcher';
+import IllusionRenderer from '@/components/IllusionRenderer';
 import { ILLUSION_CONTENT } from './data';
 import { useCarousel, useSwipeNavigation } from './hooks';
 
