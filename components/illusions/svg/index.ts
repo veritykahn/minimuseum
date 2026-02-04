@@ -1,9 +1,0 @@
-export { MullerLyerIllusion } from './MullerLyerIllusion';
-export { SimultaneousContrastIllusion } from './SimultaneousContrastIllusion';
-export { CafeWallIllusion } from './CafeWallIllusion';
-export { PonzoRailroadIllusion } from './PonzoRailroadIllusion';
-export { KanizsaTriangleSvgIllusion } from './KanizsaTriangleSvgIllusion';
-export { LilacChaserIllusion } from './LilacChaserIllusion';
-export { ParisSpringtimeSvgIllusion } from './ParisSpringtimeSvgIllusion';
-export { PoggendorffSvgIllusion } from './PoggendorffSvgIllusion';
-export { GradientBarIllusion } from './GradientBarIllusion';
