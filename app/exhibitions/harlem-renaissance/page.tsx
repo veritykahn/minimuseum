@@ -1521,10 +1521,10 @@ export default function HarlemRenaissance() {
               <span className="hr-poster-hint">Click to explore</span>
             </div>
 
-            <div className="hr-display-case">
-              <p className="hr-case-label">Gallery II, Case 5</p>
-              <p className="hr-case-title">Coming Soon</p>
-              <p className="hr-case-subtitle">Display case in preparation</p>
+            <div className="hr-display-case" onClick={() => router.push('/exhibitions/harlem-renaissance/jazz-lab')}>
+              <p className="hr-case-label">The Jazz Lab</p>
+              <p className="hr-case-title">Jazz Lab</p>
+              <p className="hr-case-subtitle">Build a band & test your ear</p>
             </div>
 
             <div className="hr-poster-frame" onClick={() => openPoster('poster2')}>
