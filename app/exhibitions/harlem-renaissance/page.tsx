@@ -682,18 +682,20 @@ export default function HarlemRenaissance() {
           animation: hrPanLR 12s ease-in-out forwards;
         }
 
-        /* Erase — image appears then slowly dissolves away */
+        /* Erase — rises into view then slowly scrubbed out, forgotten */
         @keyframes hrEraseReveal {
-          0% { opacity: 0; }
-          15% { opacity: 1; filter: blur(0); }
-          65% { opacity: 1; filter: blur(0); }
-          100% { opacity: 0; filter: blur(8px); }
+          0%   { opacity: 0; transform: translateY(30vh); filter: blur(0); }
+          20%  { opacity: 1; transform: translateY(0);    filter: blur(0); }
+          50%  { opacity: 1; transform: translateY(0);    filter: blur(0); }
+          70%  { opacity: 0.5; transform: translateY(0);  filter: blur(2px); }
+          85%  { opacity: 0.15; transform: translateY(0); filter: blur(6px); }
+          100% { opacity: 0; transform: translateY(0);    filter: blur(14px); }
         }
         .hr-full-bleed-image.hr-effect-erase {
           align-items: flex-start;
         }
         .hr-full-bleed-image.hr-effect-erase img {
-          animation: hrEraseReveal 8s ease forwards;
+          animation: hrEraseReveal 10s ease forwards;
         }
 
         /* Rise and expand — image rises from below then scales past full width */
