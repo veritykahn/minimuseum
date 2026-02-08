@@ -1,12 +1,21 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function FirstFloor() {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const savedIndex = sessionStorage.getItem('firstFloorIndex');
+    if (savedIndex && scrollRef.current) {
+      const index = parseInt(savedIndex, 10);
+      scrollRef.current.scrollTo({ left: index * window.innerWidth, behavior: 'instant' });
+      sessionStorage.removeItem('firstFloorIndex');
+    }
+  }, []);
 
   // First Floor exhibitions - only "seeing" is active, others are "Installation in Progress"
   const exhibitions = [

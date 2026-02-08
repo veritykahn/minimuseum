@@ -27,7 +27,7 @@ const poster1Content: ContentItem[] = [
     type: 'title-image',
     src: '/exhibitions/harlem/poster1-title1.jpg',
     alt: 'The Great Migration And',
-    effect: 'kenburns-in',
+    effect: 'pan-lr',
     special: 'height'
   },
   {
@@ -191,14 +191,14 @@ const poster2Content: ContentItem[] = [
     type: 'title-image',
     src: '/exhibitions/harlem/poster2-title1.jpg',
     alt: 'Walter White',
-    effect: 'drift',
-    special: 'width'
+    effect: 'erase',
+    special: 'width-top'
   },
   {
     type: 'title-image',
     src: '/exhibitions/harlem/poster2-title2.jpg',
     alt: 'The Civil Rights Hero You\'ve Never Heard Of',
-    effect: 'drift',
+    effect: 'rise-expand',
     special: 'width'
   },
   {
@@ -428,6 +428,7 @@ export default function HarlemRenaissance() {
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
   const handleBack = () => {
+    sessionStorage.setItem('firstFloorIndex', '1');
     router.push('/exhibitions/first-floor');
   };
 
@@ -482,7 +483,34 @@ export default function HarlemRenaissance() {
   const poster2Slate = '#696f7f';
   const lavender = '#b485d2';
 
-  const bgColor = isPoster1 ? poster1Purple : poster2Slate;
+  // Per-section background colors — uses all palette colours
+  const getBgColor = () => {
+    if (!currentItem) return isPoster1 ? poster1Purple : poster2Slate;
+
+    // Title images keep their poster title colour
+    if (currentItem.type === 'title-image') {
+      return isPoster1 ? poster1Purple : poster2Slate;
+    }
+
+    if (isPoster1) {
+      switch (currentItem.special) {
+        case 'train-journey': return '#381a2f';   // dark wine
+        case 'ink-spread':    return '#1a0f2a';   // deep purple-black
+        case 'art-deco-rays': return '#885a99';   // medium purple
+        case 'jazz-swing':    return '#381a2f';   // dark wine
+        default:              return '#1a0f2a';   // deep purple-black
+      }
+    } else {
+      switch (currentItem.special) {
+        case 'dual-identity': return '#17142f';   // deep indigo
+        case 'harlem-night':  return '#4e568f';   // night blue
+        case 'ink-spread':    return '#17142f';   // deep indigo
+        default:              return '#4e568f';   // night blue
+      }
+    }
+  };
+
+  const bgColor = getBgColor();
   const textColor = isPoster1 ? poster1Cream : poster2Sage;
 
   // Per-section color palette
@@ -643,6 +671,39 @@ export default function HarlemRenaissance() {
         }
         .hr-effect-drift {
           animation: hrDrift 6s ease-in-out infinite;
+        }
+
+        /* Pan left to right — full-height image drifts across the viewport */
+        @keyframes hrPanLR {
+          0% { transform: translateX(-25vw); }
+          100% { transform: translateX(25vw); }
+        }
+        .hr-full-bleed-image.hr-effect-pan-lr img {
+          animation: hrPanLR 12s ease-in-out forwards;
+        }
+
+        /* Erase — image appears then slowly dissolves away */
+        @keyframes hrEraseReveal {
+          0% { opacity: 0; }
+          15% { opacity: 1; filter: blur(0); }
+          65% { opacity: 1; filter: blur(0); }
+          100% { opacity: 0; filter: blur(8px); }
+        }
+        .hr-full-bleed-image.hr-effect-erase {
+          align-items: flex-start;
+        }
+        .hr-full-bleed-image.hr-effect-erase img {
+          animation: hrEraseReveal 8s ease forwards;
+        }
+
+        /* Rise and expand — image rises from below then scales past full width */
+        @keyframes hrRiseExpand {
+          0% { transform: translateY(80vh) scale(1); opacity: 0; }
+          35% { transform: translateY(0) scale(1); opacity: 1; }
+          100% { transform: translateY(0) scale(1.4); opacity: 1; }
+        }
+        .hr-full-bleed-image.hr-effect-rise-expand img {
+          animation: hrRiseExpand 8s ease-out forwards;
         }
 
         /* ============================================
@@ -1173,11 +1234,15 @@ export default function HarlemRenaissance() {
           object-fit: contain;
         }
         /* Title shown full width (cover) — wide/horizontal images */
-        .hr-full-bleed-image.hr-title-width img {
+        .hr-full-bleed-image.hr-title-width img,
+        .hr-full-bleed-image.hr-title-width-top img {
           width: 100%;
           height: auto;
           min-width: 100%;
           object-fit: cover;
+        }
+        .hr-full-bleed-image.hr-title-width-top {
+          align-items: flex-start;
         }
         /* Full image (photographs etc) */
         .hr-full-bleed-image.hr-full-image img {
@@ -1455,7 +1520,7 @@ export default function HarlemRenaissance() {
             </div>
 
             <div className="hr-display-case">
-              <p className="hr-case-label">Gallery I, Case 1</p>
+              <p className="hr-case-label">Gallery II, Case 5</p>
               <p className="hr-case-title">Coming Soon</p>
               <p className="hr-case-subtitle">Display case in preparation</p>
             </div>
@@ -1478,7 +1543,7 @@ export default function HarlemRenaissance() {
 
             {/* Title Image — Full Bleed */}
             {currentItem.type === 'title-image' && (
-              <div className={`hr-full-bleed-image ${currentItem.special === 'height' ? 'hr-title-height' : 'hr-title-width'} ${currentItem.effect === 'kenburns-in' ? 'hr-effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'hr-effect-drift' : ''}`}>
+              <div className={`hr-full-bleed-image ${currentItem.special === 'height' ? 'hr-title-height' : currentItem.special === 'width-top' ? 'hr-title-width-top' : 'hr-title-width'} ${currentItem.effect ? `hr-effect-${currentItem.effect}` : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} />
               </div>
