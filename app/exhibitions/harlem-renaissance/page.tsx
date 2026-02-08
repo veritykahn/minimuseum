@@ -25,15 +25,17 @@ type ContentItem = {
 const poster1Content: ContentItem[] = [
   {
     type: 'title-image',
-    src: '/exhibitions/harlem/poster1.jpg',
-    alt: 'The Great Migration and The Harlem Renaissance',
-    effect: 'kenburns-in'
+    src: '/exhibitions/harlem/poster1-title1.jpg',
+    alt: 'The Great Migration And',
+    effect: 'kenburns-in',
+    special: 'height'
   },
   {
-    type: 'section-title',
-    text: 'The Great Migration and The Harlem Renaissance',
-    position: 'full-width',
-    effect: 'blur-to-sharp'
+    type: 'title-image',
+    src: '/exhibitions/harlem/poster1-title2.jpg',
+    alt: 'The Harlem Renaissance',
+    effect: 'kenburns-in',
+    special: 'width'
   },
   {
     type: 'section-title',
@@ -92,7 +94,7 @@ const poster1Content: ContentItem[] = [
   },
   {
     type: 'artwork-display',
-    src: '/exhibitions/harlem/poster1.jpg',
+    src: '/exhibitions/harlem/aspiration.jpg',
     alt: 'Aspiration by Aaron Douglas, 1936',
     artworkTitle: 'Aspiration',
     artworkArtist: 'Aaron Douglas',
@@ -187,9 +189,17 @@ const poster1Content: ContentItem[] = [
 const poster2Content: ContentItem[] = [
   {
     type: 'title-image',
-    src: '/exhibitions/harlem/poster2.jpg',
-    alt: 'Walter White: The Civil Rights Hero You\'ve Never Heard Of',
-    effect: 'drift'
+    src: '/exhibitions/harlem/poster2-title1.jpg',
+    alt: 'Walter White',
+    effect: 'drift',
+    special: 'width'
+  },
+  {
+    type: 'title-image',
+    src: '/exhibitions/harlem/poster2-title2.jpg',
+    alt: 'The Civil Rights Hero You\'ve Never Heard Of',
+    effect: 'drift',
+    special: 'width'
   },
   {
     type: 'paragraph',
@@ -255,12 +265,12 @@ const poster2Content: ContentItem[] = [
   },
   {
     type: 'artwork-display',
-    src: '/exhibitions/harlem/poster2.jpg',
-    alt: 'The Creation by Aaron Douglas, 1927',
-    artworkTitle: 'The Creation',
-    artworkArtist: 'Aaron Douglas',
-    artworkDate: '1927',
-    artworkDescription: 'From his series of illustrations for James Weldon Johnson\'s book God\'s Trombones: Seven Negro Sermons in Verse. Douglas\'s signature style — silhouetted figures bathed in concentric circles of light — became the defining visual language of the Harlem Renaissance.',
+    src: '/exhibitions/harlem/poster2-photograph.jpg',
+    alt: 'Walter Francis White, photograph by Clara Sipprell',
+    artworkTitle: 'Walter Francis White',
+    artworkArtist: 'Clara Sipprell',
+    artworkDate: 'c. 1940',
+    artworkDescription: 'Gelatin silver print. Civil rights leader and executive secretary of the NAACP from 1931 to 1955. National Portrait Gallery, Washington D.C.',
   },
   {
     type: 'section-title',
@@ -312,6 +322,15 @@ const poster2Content: ContentItem[] = [
     position: 'bottom-left',
     effect: 'fade-in',
     special: 'ink-spread'
+  },
+  {
+    type: 'artwork-display',
+    src: '/exhibitions/harlem/creation.jpg',
+    alt: 'The Creation by Aaron Douglas, 1927',
+    artworkTitle: 'The Creation',
+    artworkArtist: 'Aaron Douglas',
+    artworkDate: '1927',
+    artworkDescription: 'From his series of illustrations for James Weldon Johnson\'s book God\'s Trombones: Seven Negro Sermons in Verse. Douglas\'s signature style — silhouetted figures bathed in concentric circles of light — became the defining visual language of the Harlem Renaissance.',
   },
   {
     type: 'section-title',
@@ -463,8 +482,28 @@ export default function HarlemRenaissance() {
   const poster2Slate = '#696f7f';
   const lavender = '#b485d2';
 
-  const bgColor = isPoster1 ? '#1a0f2a' : '#17142f';
+  const bgColor = isPoster1 ? poster1Purple : poster2Slate;
   const textColor = isPoster1 ? poster1Cream : poster2Sage;
+
+  // Per-section color palette
+  const getSectionColors = (special?: string) => {
+    if (isPoster1) {
+      switch (special) {
+        case 'train-journey': return { title: '#efd9b4', text: '#efd9b4' }; // cream/gold
+        case 'ink-spread': return { title: '#d992ba', text: '#efd9b4' }; // pink titles
+        case 'art-deco-rays': return { title: '#efd9b4', text: '#b195a4' }; // dusty mauve text
+        case 'jazz-swing': return { title: '#d992ba', text: '#efd9b4' }; // pink titles, cream text
+        default: return { title: '#efd9b4', text: '#efd9b4' };
+      }
+    } else {
+      switch (special) {
+        case 'dual-identity': return { title: '#b485d2', text: '#ced5bc' }; // lavender titles
+        case 'harlem-night': return { title: '#b485d2', text: '#ced5bc' }; // lavender titles
+        case 'ink-spread': return { title: '#ced5bc', text: '#9298a8' }; // blue-gray text
+        default: return { title: '#ced5bc', text: '#ced5bc' };
+      }
+    }
+  };
 
   // Position classes
   const getPositionClass = (position?: string) => {
@@ -843,28 +882,28 @@ export default function HarlemRenaissance() {
           inset: 0;
           background: linear-gradient(
             90deg,
-            rgba(206, 213, 188, 0.06) 0%,
-            rgba(206, 213, 188, 0.06) 48%,
+            rgba(255, 255, 255, 0.18) 0%,
+            rgba(240, 235, 225, 0.14) 46%,
             transparent 50%,
-            rgba(23, 20, 47, 0.3) 52%,
-            rgba(23, 20, 47, 0.3) 100%
+            rgba(15, 10, 30, 0.4) 54%,
+            rgba(10, 5, 20, 0.45) 100%
           );
           animation: hrIdentityShift 8s ease-in-out infinite;
           pointer-events: none;
           z-index: 0;
         }
         @keyframes hrIdentityShift {
-          0%, 100% { background-position: 0% 50%; opacity: 0.8; }
-          50% { background-position: 100% 50%; opacity: 0.5; }
+          0%, 100% { opacity: 0.9; }
+          50% { opacity: 0.5; }
         }
-        /* Subtle text shadow that alternates */
+        /* Text shadow that alternates between light and dark identity */
         .hr-dual-identity .hr-paragraph-text,
         .hr-dual-identity .hr-section-title-text {
           animation: hrIdentityText 6s ease-in-out infinite;
         }
         @keyframes hrIdentityText {
-          0%, 100% { text-shadow: -1px 0 rgba(206, 213, 188, 0.2), 1px 0 rgba(23, 20, 47, 0.3); }
-          50% { text-shadow: 1px 0 rgba(206, 213, 188, 0.2), -1px 0 rgba(23, 20, 47, 0.3); }
+          0%, 100% { text-shadow: -2px 0 rgba(255, 255, 255, 0.25), 2px 0 rgba(10, 5, 20, 0.4); }
+          50% { text-shadow: 2px 0 rgba(255, 255, 255, 0.25), -2px 0 rgba(10, 5, 20, 0.4); }
         }
 
         /* ============================================
@@ -1126,19 +1165,40 @@ export default function HarlemRenaissance() {
           align-items: center;
           justify-content: center;
         }
-        /* Poster 1: show full length (contain) */
-        .hr-full-bleed-image.hr-poster1-title img {
+        /* Title shown full height (contain) — tall/vertical images */
+        .hr-full-bleed-image.hr-title-height img {
           width: auto;
           height: 100%;
           max-height: 100vh;
           object-fit: contain;
         }
-        /* Poster 2: fill width (cover) */
-        .hr-full-bleed-image.hr-poster2-title img {
+        /* Title shown full width (cover) — wide/horizontal images */
+        .hr-full-bleed-image.hr-title-width img {
           width: 100%;
           height: auto;
           min-width: 100%;
           object-fit: cover;
+        }
+        /* Full image (photographs etc) */
+        .hr-full-bleed-image.hr-full-image img {
+          max-width: 90%;
+          max-height: 90vh;
+          width: auto;
+          height: auto;
+          object-fit: contain;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .hr-image-caption {
+          position: absolute;
+          bottom: 40px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.12em;
+          opacity: 0.6;
+          text-align: center;
+          white-space: nowrap;
         }
 
         /* Text content wrapper */
@@ -1197,9 +1257,9 @@ export default function HarlemRenaissance() {
           transition: all 0.3s ease;
         }
         .hr-content-link:hover {
-          background: #b485d2;
+          background: #d992ba;
           color: #0a0a0a;
-          border-color: #b485d2;
+          border-color: #d992ba;
         }
 
         /* End button */
@@ -1418,9 +1478,20 @@ export default function HarlemRenaissance() {
 
             {/* Title Image — Full Bleed */}
             {currentItem.type === 'title-image' && (
-              <div className={`hr-full-bleed-image ${isPoster1 ? 'hr-poster1-title' : 'hr-poster2-title'} ${currentItem.effect === 'kenburns-in' ? 'hr-effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'hr-effect-drift' : ''}`}>
+              <div className={`hr-full-bleed-image ${currentItem.special === 'height' ? 'hr-title-height' : 'hr-title-width'} ${currentItem.effect === 'kenburns-in' ? 'hr-effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'hr-effect-drift' : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} />
+              </div>
+            )}
+
+            {/* Full Image (photograph etc) */}
+            {currentItem.type === 'full-image' && (
+              <div className={`hr-full-bleed-image hr-full-image ${currentItem.effect === 'kenburns-in' ? 'hr-effect-kenburns-in' : ''}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={currentItem.src} alt={currentItem.alt} />
+                {currentItem.text && (
+                  <span className="hr-image-caption" style={{ color: textColor }}>{currentItem.text}</span>
+                )}
               </div>
             )}
 
@@ -1445,7 +1516,7 @@ export default function HarlemRenaissance() {
                 )}
                 <h2
                   className={`hr-section-title-text ${getEffectClass(currentItem.effect)}`}
-                  style={{ color: textColor }}
+                  style={{ color: getSectionColors(currentItem.special).title }}
                 >
                   {currentItem.text}
                 </h2>
@@ -1473,7 +1544,7 @@ export default function HarlemRenaissance() {
                 )}
                 <p
                   className={`hr-paragraph-text ${getEffectClass(currentItem.effect)}`}
-                  style={{ color: textColor }}
+                  style={{ color: getSectionColors(currentItem.special).text }}
                 >
                   {currentItem.text}
                 </p>
@@ -1512,7 +1583,7 @@ export default function HarlemRenaissance() {
               <div className="hr-text-content-wrapper hr-pos-center">
                 <blockquote
                   className={`hr-quote-text ${getEffectClass(currentItem.effect)}`}
-                  style={{ color: textColor, borderColor: textColor }}
+                  style={{ color: isPoster1 ? '#d992ba' : '#b485d2', borderColor: isPoster1 ? '#885a99' : '#4e568f' }}
                 >
                   {currentItem.text}
                 </blockquote>
