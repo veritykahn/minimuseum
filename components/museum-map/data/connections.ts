@@ -12,7 +12,7 @@ export const CONNECTIONS: RoomConnection[] = [
 
   // First Floor connections
   ['first-floor', 'seeing-is-deceiving'],
-  ['first-floor', 'writing-revolution'],
+  ['first-floor', 'harlem-renaissance'],
   ['first-floor', 'fear-lab'],
   ['first-floor', 'great-war'],
 

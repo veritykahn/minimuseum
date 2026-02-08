@@ -22,14 +22,15 @@ export default function FirstFloor() {
       path: '/exhibitions/seeing-is-deceiving'
     },
     {
-      id: 'writing',
-      title: 'The Writing Revolution',
-      subtitle: "QWERTY's Accidental Empire",
-      accent: '#DC2626',
-      darkAccent: '#1f0a0a',
+      id: 'harlem',
+      title: 'The Harlem Renaissance',
+      subtitle: 'The Great Migration & a Cultural Revolution',
+      accent: '#b485d2',
+      darkAccent: '#1a0f2a',
       textColor: '#fff',
-      description: 'From scribes to typewriters to AI, the democratization of the written word.',
-      active: false
+      description: 'How over one million Black Americans reshaped culture through literature, art, music, and activism.',
+      active: true,
+      path: '/exhibitions/harlem-renaissance'
     },
     {
       id: 'fear',

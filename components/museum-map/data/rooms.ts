@@ -51,7 +51,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 40,
     accentColor: '#9aa091', // Lighter shade of Great Hall sage
     parent: 'greathall',
-    children: ['seeing-is-deceiving', 'writing-revolution', 'fear-lab', 'great-war'],
+    children: ['seeing-is-deceiving', 'harlem-renaissance', 'fear-lab', 'great-war'],
   },
   // Ground Floor
   {
@@ -81,15 +81,14 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     children: ['illusions', 'artifacts', 'resources'],
   },
   {
-    id: 'writing-revolution',
-    label: 'Writing Revolution',
-    path: '/exhibitions/writing-revolution',
+    id: 'harlem-renaissance',
+    label: 'Harlem Renaissance',
+    path: '/exhibitions/harlem-renaissance',
     x: 165,
     y: 190,
-    width: 90,
+    width: 110,
     height: 50,
-    accentColor: '#9aa091',
-    comingSoon: true,
+    accentColor: '#b485d2',
     parent: 'first-floor',
   },
   {
