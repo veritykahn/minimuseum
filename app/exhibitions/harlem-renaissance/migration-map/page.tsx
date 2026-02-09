@@ -401,38 +401,44 @@ export default function MigrationMapPage() {
         }
 
         /* === HEADER === */
-        .mg-header { text-align: center; padding: 36px 20px 8px; }
+        .mg-header { text-align: center; padding: 24px 20px 0; }
         .mg-header h1 {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(24px, 5vw, 40px); font-weight: 900;
+          font-size: clamp(20px, 4vw, 32px); font-weight: 900;
           color: var(--mg-gold); letter-spacing: 3px;
           text-transform: uppercase;
           text-shadow: 0 0 40px rgba(201,169,78,0.3);
         }
         .mg-header .mg-subtitle {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(13px, 2.5vw, 17px);
+          font-size: clamp(12px, 2vw, 15px);
           font-style: italic; color: var(--mg-text-dim);
-          margin-top: 6px; font-weight: 300;
+          margin-top: 4px; font-weight: 300;
         }
 
         .mg-intro {
           max-width: 580px; margin: 0 auto;
-          padding: 16px 24px 20px; text-align: center;
+          padding: 8px 24px 8px; text-align: center;
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 13px; line-height: 1.8;
+          font-size: 12px; line-height: 1.7;
           color: var(--mg-text-dim); font-weight: 300;
         }
         .mg-intro em { color: var(--mg-gold-light); font-style: normal; }
 
         .mg-map-container {
           margin: 0 auto; flex: 1;
-          padding: 0 24px;
-          display: flex; align-items: center;
+          padding: 0;
+          display: flex; align-items: center; justify-content: center;
+          width: 100%;
+          min-height: 0;
         }
-        .mg-map-svg-wrap { width: 100%; overflow: hidden; border-radius: 8px; }
+        .mg-map-svg-wrap {
+          width: 100%; max-width: 100%;
+          overflow: visible;
+        }
         .mg-map-svg-wrap svg {
           width: 100%; height: auto; display: block;
+          max-height: calc(100vh - 180px);
           transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -443,29 +449,27 @@ export default function MigrationMapPage() {
         .mg-water { fill: rgba(201,169,78,0.015); stroke: rgba(201,169,78,0.04); stroke-width: 0.5; }
         .mg-state-outline { fill: none; stroke: rgba(201,169,78,0.04); stroke-width: 0.5; }
 
-        /* City dots */
+        /* City dots — each city has its own color from CITY_COLORS applied inline */
         .city-dot { cursor: pointer; }
-        .mg-dot-outer { fill: var(--mg-burgundy-deep); stroke: var(--mg-burgundy); stroke-width: 2; transition: all 0.4s ease; }
-        .mg-dot-inner { fill: var(--mg-burgundy); transition: all 0.4s ease; }
-        .city-dot.visited .mg-dot-outer { stroke: var(--mg-gold-dim); }
-        .city-dot.visited .mg-dot-inner { fill: var(--mg-gold-dim); }
-        .city-dot.current .mg-dot-outer { stroke: var(--mg-gold); filter: drop-shadow(0 0 16px rgba(201,169,78,0.5)); }
-        .city-dot.current .mg-dot-inner { fill: var(--mg-burgundy-light); }
-        .city-dot.next-stop .mg-dot-outer { stroke: var(--mg-burgundy-light); animation: mg-next-pulse 2s ease-in-out infinite; }
+        .mg-dot-outer { stroke-width: 2; transition: all 0.4s ease; }
+        .mg-dot-inner { transition: all 0.4s ease; }
+        .city-dot.visited .mg-dot-outer { opacity: 0.7; }
+        .city-dot.visited .mg-dot-inner { opacity: 0.7; }
+        .city-dot.current .mg-dot-outer { filter: drop-shadow(0 0 16px var(--dot-glow, rgba(201,169,78,0.5))); }
+        .city-dot.next-stop .mg-dot-outer { animation: mg-next-pulse 2s ease-in-out infinite; }
         @keyframes mg-next-pulse {
-          0%, 100% { filter: drop-shadow(0 0 6px rgba(107,29,42,0.3)); }
-          50% { filter: drop-shadow(0 0 18px rgba(107,29,42,0.7)); }
+          0%, 100% { filter: drop-shadow(0 0 6px var(--dot-glow, rgba(107,29,42,0.3))); }
+          50% { filter: drop-shadow(0 0 18px var(--dot-glow, rgba(107,29,42,0.7))); }
         }
         .mg-city-label {
           font-family: 'Josefin Sans', sans-serif; font-size: 12px;
           letter-spacing: 2px; text-transform: uppercase;
-          fill: var(--mg-text-dim); font-weight: 600;
+          font-weight: 600;
           pointer-events: none; transition: fill 0.3s;
         }
-        .city-dot.current .mg-city-label, .city-dot.visited .mg-city-label { fill: var(--mg-gold-dim); }
 
         /* Board button */
-        .mg-board-btn-wrap { text-align: center; padding: 20px 20px 36px; }
+        .mg-board-btn-wrap { text-align: center; padding: 12px 20px 20px; }
         .mg-board-btn {
           font-family: 'Josefin Sans', sans-serif; font-size: 11px;
           letter-spacing: 3px; text-transform: uppercase; font-weight: 600;
@@ -528,11 +532,11 @@ export default function MigrationMapPage() {
         }
         .mg-city-photo-credit {
           position: relative; z-index: 6;
-          padding: 14px 28px;
+          padding: 16px 28px;
           max-width: 960px; margin: 0 auto;
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px; line-height: 1.5;
-          color: rgba(232,224,208,0.45); font-style: italic; font-weight: 300;
+          font-size: 13px; line-height: 1.7;
+          color: rgba(232,224,208,0.6); font-style: italic; font-weight: 300;
           background: rgba(74,14,28,0.4);
           border-bottom: 1px solid rgba(232,224,208,0.06);
         }
@@ -648,9 +652,9 @@ export default function MigrationMapPage() {
         .mg-arrival-link:hover { background: rgba(201,169,78,0.1); border-color: var(--mg-gold); }
 
         .mg-footer {
-          text-align: center; padding: 24px 20px 36px;
+          text-align: center; padding: 8px 20px 16px;
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px; color: var(--mg-text-dim);
+          font-size: 10px; color: var(--mg-text-dim);
           letter-spacing: 2px; font-weight: 300;
         }
 
@@ -781,34 +785,39 @@ export default function MigrationMapPage() {
               </defs>
 
               {/* City dots */}
-              {CITIES.map((c, i) => (
+              {CITIES.map((c, i) => {
+                const cc = CITY_COLORS[i];
+                return (
                 <g key={c.id} className={getDotClass(i)} onClick={() => {
                   if (i <= currentCityIdx) expandCity(i);
-                }}>
-                  <circle className="mg-dot-outer" cx={c.cx} cy={c.cy} r="14" />
-                  <circle className="mg-dot-inner" cx={c.cx} cy={c.cy} r="8" />
+                }} style={{ '--dot-glow': `${cc.main}88` } as React.CSSProperties}>
+                  <circle className="mg-dot-outer" cx={c.cx} cy={c.cy} r="14"
+                    fill={cc.dim} stroke={cc.main} />
+                  <circle className="mg-dot-inner" cx={c.cx} cy={c.cy} r="8"
+                    fill={cc.main} />
                   {c.id === 'delta' && (<>
-                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 22} textAnchor="end">Mississippi</text>
-                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 36} textAnchor="end">Delta</text>
+                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 22} textAnchor="end" fill={cc.dim}>Mississippi</text>
+                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 36} textAnchor="end" fill={cc.dim}>Delta</text>
                   </>)}
                   {c.id === 'new-orleans' && (<>
-                    <text className="mg-city-label" x={c.cx + 36} y={c.cy - 5}>New</text>
-                    <text className="mg-city-label" x={c.cx + 36} y={c.cy + 9}>Orleans</text>
+                    <text className="mg-city-label" x={c.cx + 36} y={c.cy - 5} fill={cc.dim}>New</text>
+                    <text className="mg-city-label" x={c.cx + 36} y={c.cy + 9} fill={cc.dim}>Orleans</text>
                   </>)}
                   {c.id === 'memphis' && (
-                    <text className="mg-city-label" x={c.cx - 44} y={c.cy + 4} textAnchor="end">Memphis</text>
+                    <text className="mg-city-label" x={c.cx - 44} y={c.cy + 4} textAnchor="end" fill={cc.dim}>Memphis</text>
                   )}
                   {c.id === 'st-louis' && (
-                    <text className="mg-city-label" x={c.cx - 44} y={c.cy + 4} textAnchor="end">St. Louis</text>
+                    <text className="mg-city-label" x={c.cx - 44} y={c.cy + 4} textAnchor="end" fill={cc.dim}>St. Louis</text>
                   )}
                   {c.id === 'chicago' && (
-                    <text className="mg-city-label" x={c.cx - 44} y={c.cy - 4} textAnchor="end">Chicago</text>
+                    <text className="mg-city-label" x={c.cx - 44} y={c.cy - 4} textAnchor="end" fill={cc.dim}>Chicago</text>
                   )}
                   {c.id === 'harlem' && (
-                    <text className="mg-city-label" x={c.cx - 44} y={c.cy - 6} textAnchor="end">Harlem</text>
+                    <text className="mg-city-label" x={c.cx - 44} y={c.cy - 6} textAnchor="end" fill={cc.dim}>Harlem</text>
                   )}
                 </g>
-              ))}
+                );
+              })}
             </svg>
           </div>
         </div>

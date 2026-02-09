@@ -703,11 +703,11 @@ export default function JazzLabPage() {
         }
         .jl-welcome-premise {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: clamp(12px, 2vw, 14px);
+          font-size: clamp(14px, 2.5vw, 17px);
           line-height: 1.8;
-          color: rgba(232,224,208,0.5);
+          color: rgba(232,224,208,0.65);
           font-weight: 300;
-          max-width: 400px;
+          max-width: 460px;
           margin: 0 auto 24px;
         }
         .jl-welcome-tagline {
