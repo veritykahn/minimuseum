@@ -88,6 +88,15 @@ const CITIES: CityData[] = [
   },
 ];
 
+const CITY_COLORS = [
+  { main: '#D4A847', light: '#E8D48B', dim: '#8B7535' },     // Delta — warm gold
+  { main: '#5CBFAA', light: '#8DD9C9', dim: '#3D8072' },     // New Orleans — teal
+  { main: '#D4864A', light: '#E8B088', dim: '#8B5A32' },     // Memphis — amber
+  { main: '#7BA3C7', light: '#A8C4DD', dim: '#526D86' },     // St. Louis — steel blue
+  { main: '#D4645A', light: '#E89B94', dim: '#8B433C' },     // Chicago — brick red
+  { main: '#B485D2', light: '#D0ACE8', dim: '#785A8B' },     // Harlem — lavender
+];
+
 const ROUTE_PATH = 'M280,550 C290,530 305,515 310,505 Q315,480 295,440 Q290,425 285,410 Q280,390 278,370 Q275,350 275,330 Q280,290 310,260 Q330,240 345,225 Q360,200 370,170 Q375,160 370,155 Q390,140 430,115 Q470,95 510,75 Q550,55 580,42 Q595,37 610,35';
 
 export default function MigrationMapPage() {
@@ -399,8 +408,8 @@ export default function MigrationMapPage() {
         .mg-intro em { color: var(--mg-gold-light); font-style: normal; }
 
         .mg-map-container {
-          max-width: 700px; margin: 0 auto;
-          padding: 0 16px; flex: 1;
+          max-width: 1100px; margin: 0 auto;
+          padding: 0 24px; flex: 1;
           display: flex; align-items: center;
         }
         .mg-map-svg-wrap { width: 100%; }
@@ -471,7 +480,7 @@ export default function MigrationMapPage() {
         }
         .mg-city-content.visible { opacity: 1; }
 
-        .mg-city-photo-wrap { width: 100%; height: 50vh; min-height: 300px; position: relative; overflow: hidden; }
+        .mg-city-photo-wrap { width: 100%; height: 65vh; min-height: 400px; position: relative; overflow: hidden; }
         .mg-city-photo {
           width: 100%; height: 100%; object-fit: cover;
           filter: sepia(15%); transition: all 1.2s ease;
@@ -497,13 +506,16 @@ export default function MigrationMapPage() {
           backdrop-filter: blur(8px); border-radius: 3px;
         }
         .mg-city-photo-credit {
-          position: relative; z-index: 6; padding: 10px 28px 0;
-          max-width: 640px; margin: 0 auto;
+          position: relative; z-index: 6;
+          padding: 14px 28px;
+          max-width: 960px; margin: 0 auto;
           font-family: 'Josefin Sans', sans-serif;
           font-size: 11px; line-height: 1.5;
-          color: rgba(232,224,208,0.35); font-style: italic; font-weight: 300;
+          color: rgba(232,224,208,0.45); font-style: italic; font-weight: 300;
+          background: rgba(74,14,28,0.4);
+          border-bottom: 1px solid rgba(232,224,208,0.06);
         }
-        .mg-city-body { padding: 16px 28px 40px; max-width: 640px; margin: -60px auto 0; position: relative; z-index: 5; }
+        .mg-city-body { padding: 32px 28px 40px; max-width: 960px; margin: 0 auto; position: relative; z-index: 5; }
         .mg-city-stop-number {
           font-family: 'Josefin Sans', sans-serif; font-size: 10px;
           letter-spacing: 4px; text-transform: uppercase;
@@ -522,14 +534,23 @@ export default function MigrationMapPage() {
         .mg-city-text {
           font-family: 'Josefin Sans', sans-serif;
           font-size: 14px; line-height: 1.9;
-          color: rgba(232,224,208,0.8); font-weight: 300; margin-bottom: 28px;
+          color: rgba(232,224,208,0.8); font-weight: 300;
         }
+
+        .mg-city-columns {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 40px;
+          margin-top: 28px;
+        }
+        .mg-city-col-left { display: flex; flex-direction: column; gap: 28px; }
+        .mg-city-col-right { display: flex; flex-direction: column; gap: 24px; }
 
         /* Music player */
         .mg-city-music {
           background: rgba(201,169,78,0.05); border: 1px solid rgba(201,169,78,0.12);
           border-radius: 8px; padding: 18px 22px;
-          display: flex; align-items: center; gap: 14px; margin-bottom: 28px;
+          display: flex; align-items: center; gap: 14px;
         }
         .mg-city-music-play {
           width: 48px; height: 48px; border-radius: 50%;
@@ -554,7 +575,7 @@ export default function MigrationMapPage() {
         .mg-city-music-year { font-family: 'Josefin Sans', sans-serif; font-size: 10px; color: rgba(232,224,208,0.3); margin-top: 2px; font-weight: 300; letter-spacing: 1px; }
 
         /* Quote */
-        .mg-city-quote { text-align: center; padding: 24px 0; border-top: 1px solid rgba(201,169,78,0.08); margin-bottom: 32px; }
+        .mg-city-quote { text-align: center; padding: 24px 0; border-top: 1px solid rgba(201,169,78,0.08); }
         .mg-city-quote blockquote {
           font-family: 'Playfair Display', serif;
           font-size: clamp(16px, 3vw, 20px);
@@ -636,12 +657,15 @@ export default function MigrationMapPage() {
           .mg-city-back { left: 16px; top: 16px; }
           .mg-city-back-text { font-size: 24px; }
         }
+        @media (max-width: 768px) {
+          .mg-city-columns { grid-template-columns: 1fr; gap: 24px; }
+        }
         @media (max-width: 600px) {
           .mg-city-body { padding: 16px 20px 32px; }
           .mg-city-name { font-size: 28px; }
           .mg-city-text { font-size: 13px; }
-          .mg-city-photo-wrap { height: 38vh; min-height: 240px; }
-          .mg-city-photo-credit { padding: 8px 20px 0; font-size: 10px; }
+          .mg-city-photo-wrap { height: 45vh; min-height: 260px; }
+          .mg-city-photo-credit { padding: 10px 20px; font-size: 10px; }
           .mg-city-station-badge { top: 16px; right: 16px; padding: 6px 12px; font-size: 9px; }
           .mg-train-ticket { padding: 20px; }
           .mg-ticket-destination { font-size: 18px; }
@@ -784,7 +808,11 @@ export default function MigrationMapPage() {
             <span className="mg-city-back-label">Map</span>
           </button>
 
-          <div className={`mg-city-content ${cityContentVisible ? 'visible' : ''}`}>
+          <div className={`mg-city-content ${cityContentVisible ? 'visible' : ''}`} style={{
+              '--mg-gold': CITY_COLORS[currentCityIdx].main,
+              '--mg-gold-light': CITY_COLORS[currentCityIdx].light,
+              '--mg-gold-dim': CITY_COLORS[currentCityIdx].dim,
+            } as React.CSSProperties}>
             <div className="mg-city-photo-wrap">
               {!photoLoaded && (
                 <div className="mg-city-photo-placeholder">Photograph loading&hellip;</div>
@@ -808,45 +836,51 @@ export default function MigrationMapPage() {
               <div className="mg-city-stop-number">Stop {currentCityIdx + 1}</div>
               <h2 className="mg-city-name">{city.name}</h2>
               <div className="mg-city-period">{city.period}</div>
-              <div className="mg-city-text">{city.text}</div>
 
-              <div className="mg-city-music">
-                <button
-                  className={`mg-city-music-play ${currentAudioRef.current && !currentAudioRef.current.paused ? 'playing' : ''}`}
-                  onClick={toggleMusic}
-                >
-                  <span>{currentAudioRef.current && !currentAudioRef.current.paused ? '\u23F8' : '\u25B6'}</span>
-                </button>
-                <div className="mg-city-music-info">
-                  <div className="mg-city-music-title">{city.music.title}</div>
-                  <div className="mg-city-music-artist">{city.music.artist}</div>
-                  <div className="mg-city-music-year">{city.music.year}</div>
-                </div>
-              </div>
-
-              <div className="mg-city-quote">
-                <blockquote>{'\u201C'}{city.quote.text}{'\u201D'}</blockquote>
-                <cite>{'\u2014'} {city.quote.author}</cite>
-              </div>
-
-              {currentCityIdx < CITIES.length - 1 ? (
-                <div className="mg-train-ticket" onClick={boardToNext}>
-                  <div className="mg-ticket-label">Next Stop</div>
-                  <div className="mg-ticket-destination">{CITIES[currentCityIdx + 1].name}</div>
-                  <div className="mg-ticket-line" />
-                  <div className="mg-ticket-action">{'\u25C6'} Board the Train {'\u25C6'}</div>
-                </div>
-              ) : (
-                <div className="mg-arrival-ticket">
-                  <div className="mg-ticket-label">You Have Arrived</div>
-                  <div className="mg-ticket-destination">The music made it. So did the people.</div>
-                  <div className="mg-ticket-line" />
-                  <div className="mg-arrival-links">
-                    <button className="mg-arrival-link" onClick={restartJourney}>Ride Again</button>
-                    <button className="mg-arrival-link" onClick={backToMap}>View Map</button>
+              <div className="mg-city-columns">
+                <div className="mg-city-col-left">
+                  <div className="mg-city-text">{city.text}</div>
+                  <div className="mg-city-quote">
+                    <blockquote>{'\u201C'}{city.quote.text}{'\u201D'}</blockquote>
+                    <cite>{'\u2014'} {city.quote.author}</cite>
                   </div>
                 </div>
-              )}
+
+                <div className="mg-city-col-right">
+                  <div className="mg-city-music">
+                    <button
+                      className={`mg-city-music-play ${currentAudioRef.current && !currentAudioRef.current.paused ? 'playing' : ''}`}
+                      onClick={toggleMusic}
+                    >
+                      <span>{currentAudioRef.current && !currentAudioRef.current.paused ? '\u23F8' : '\u25B6'}</span>
+                    </button>
+                    <div className="mg-city-music-info">
+                      <div className="mg-city-music-title">{city.music.title}</div>
+                      <div className="mg-city-music-artist">{city.music.artist}</div>
+                      <div className="mg-city-music-year">{city.music.year}</div>
+                    </div>
+                  </div>
+
+                  {currentCityIdx < CITIES.length - 1 ? (
+                    <div className="mg-train-ticket" onClick={boardToNext}>
+                      <div className="mg-ticket-label">Next Stop</div>
+                      <div className="mg-ticket-destination">{CITIES[currentCityIdx + 1].name}</div>
+                      <div className="mg-ticket-line" />
+                      <div className="mg-ticket-action">{'\u25C6'} Board the Train {'\u25C6'}</div>
+                    </div>
+                  ) : (
+                    <div className="mg-arrival-ticket">
+                      <div className="mg-ticket-label">You Have Arrived</div>
+                      <div className="mg-ticket-destination">The music made it. So did the people.</div>
+                      <div className="mg-ticket-line" />
+                      <div className="mg-arrival-links">
+                        <button className="mg-arrival-link" onClick={restartJourney}>Ride Again</button>
+                        <button className="mg-arrival-link" onClick={backToMap}>View Map</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
