@@ -89,12 +89,12 @@ const CITIES: CityData[] = [
 ];
 
 const CITY_COLORS = [
-  { main: '#D4A847', light: '#E8D48B', dim: '#8B7535' },     // Delta — warm gold
-  { main: '#5CBFAA', light: '#8DD9C9', dim: '#3D8072' },     // New Orleans — teal
-  { main: '#D4864A', light: '#E8B088', dim: '#8B5A32' },     // Memphis — amber
-  { main: '#7BA3C7', light: '#A8C4DD', dim: '#526D86' },     // St. Louis — steel blue
-  { main: '#D4645A', light: '#E89B94', dim: '#8B433C' },     // Chicago — brick red
-  { main: '#B485D2', light: '#D0ACE8', dim: '#785A8B' },     // Harlem — lavender
+  { main: '#D4A847', light: '#E8D48B', dim: '#8B7535', bg: '#1C1608' },     // Delta — warm gold
+  { main: '#5CBFAA', light: '#8DD9C9', dim: '#3D8072', bg: '#0A1C18' },     // New Orleans — teal
+  { main: '#D4864A', light: '#E8B088', dim: '#8B5A32', bg: '#1C1008' },     // Memphis — amber
+  { main: '#7BA3C7', light: '#A8C4DD', dim: '#526D86', bg: '#0C1420' },     // St. Louis — steel blue
+  { main: '#D4645A', light: '#E89B94', dim: '#8B433C', bg: '#1C0C0A' },     // Chicago — brick red
+  { main: '#B485D2', light: '#D0ACE8', dim: '#785A8B', bg: '#160C20' },     // Harlem — lavender
 ];
 
 const ROUTE_PATH = 'M280,550 C290,530 305,515 310,505 Q315,480 295,440 Q290,425 285,410 Q280,390 278,370 Q275,350 275,330 Q280,290 310,260 Q330,240 345,225 Q360,200 370,170 Q375,160 370,155 Q390,140 430,115 Q470,95 510,75 Q550,55 580,42 Q595,37 610,35';
@@ -264,7 +264,9 @@ export default function MigrationMapPage() {
       setTrainVisible(true);
       const startPct = fromIdx >= 0 ? positions[fromIdx] : positions[0];
       const endPct = positions[toIdx];
-      const duration = 5000;
+      // Match animation to train audio duration
+      const audioDur = trainAudioRef.current?.duration;
+      const duration = (audioDur && isFinite(audioDur)) ? audioDur * 1000 : 5000;
       const startTime = performance.now();
 
       function animate(now: number) {
@@ -483,12 +485,17 @@ export default function MigrationMapPage() {
         /* === EXPAND CIRCLE === */
         .mg-expand-bg {
           position: fixed; border-radius: 50%;
-          background: var(--mg-burgundy-deep); z-index: 199;
+          z-index: 199;
           pointer-events: none; width: 20px; height: 20px;
         }
         .mg-expand-bg.positioned { display: block; }
         .mg-expand-bg.expanded {
-          transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                      height 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                      top 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                      left 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                      border-radius 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                      background 0.6s ease 0.3s;
           border-radius: 0; top: 0 !important; left: 0 !important;
           width: 100vw !important; height: 100vh !important;
         }
@@ -524,7 +531,8 @@ export default function MigrationMapPage() {
         }
         .mg-city-station-badge {
           position: absolute; top: 24px; right: 24px;
-          background: rgba(74,14,28,0.8); border: 1px solid rgba(201,169,78,0.3);
+          background: color-mix(in srgb, var(--mg-burgundy-deep) 80%, transparent);
+          border: 1px solid color-mix(in srgb, var(--mg-gold) 30%, transparent);
           padding: 8px 16px; font-family: 'Josefin Sans', sans-serif;
           font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
           color: var(--mg-gold); font-weight: 600;
@@ -537,7 +545,7 @@ export default function MigrationMapPage() {
           font-family: 'Josefin Sans', sans-serif;
           font-size: 13px; line-height: 1.7;
           color: rgba(232,224,208,0.6); font-style: italic; font-weight: 300;
-          background: rgba(74,14,28,0.4);
+          background: color-mix(in srgb, var(--mg-burgundy-deep) 60%, transparent);
           border-bottom: 1px solid rgba(232,224,208,0.06);
         }
         .mg-city-body { padding: 32px 28px 40px; max-width: 960px; margin: 0 auto; position: relative; z-index: 5; }
@@ -700,14 +708,21 @@ export default function MigrationMapPage() {
       {/* Hidden audio */}
       <audio ref={trainAudioRef} preload="auto" src={AUDIO_BASE + 'train.mp3'} />
 
-      {/* Expanding circle */}
+      {/* Expanding circle — starts as city color from the dot, fades to dark bg */}
       {expandState !== 'hidden' && (
         <div
           className={`mg-expand-bg ${expandState}`}
-          style={expandState === 'positioned' ? {
-            left: expandOrigin.x - 10, top: expandOrigin.y - 10,
-            width: 20, height: 20, display: 'block',
-          } : undefined}
+          style={{
+            ...(expandState === 'positioned' ? {
+              left: expandOrigin.x - 10, top: expandOrigin.y - 10,
+              width: 20, height: 20, display: 'block',
+            } : {}),
+            background: currentCityIdx >= 0
+              ? (expandState === 'positioned'
+                ? CITY_COLORS[currentCityIdx].main
+                : CITY_COLORS[currentCityIdx].bg)
+              : undefined,
+          }}
         />
       )}
 
@@ -824,7 +839,7 @@ export default function MigrationMapPage() {
 
         <div className="mg-board-btn-wrap">
           <button className="mg-board-btn" onClick={startJourney}>
-            {'\u25C6'} Board the Train {'\u25C6'}
+            {'\u25C6'} Begin in the Delta {'\u25C6'}
           </button>
         </div>
 
@@ -846,6 +861,7 @@ export default function MigrationMapPage() {
               '--mg-gold': CITY_COLORS[currentCityIdx].main,
               '--mg-gold-light': CITY_COLORS[currentCityIdx].light,
               '--mg-gold-dim': CITY_COLORS[currentCityIdx].dim,
+              '--mg-burgundy-deep': CITY_COLORS[currentCityIdx].bg,
             } as React.CSSProperties}>
             <div className="mg-city-photo-wrap">
               {!photoLoaded && (
@@ -908,7 +924,7 @@ export default function MigrationMapPage() {
                       <div className="mg-ticket-destination">The music made it. So did the people.</div>
                       <div className="mg-ticket-line" />
                       <div className="mg-arrival-links">
-                        <button className="mg-arrival-link" onClick={restartJourney}>Ride Again</button>
+                        <button className="mg-arrival-link" onClick={restartJourney}>Make the Journey Again</button>
                         <button className="mg-arrival-link" onClick={backToMap}>View Map</button>
                       </div>
                     </div>
