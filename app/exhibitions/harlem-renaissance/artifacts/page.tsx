@@ -49,6 +49,24 @@ const artifacts: Artifact[] = [
     route: '/exhibitions/harlem-renaissance/jazz-lab',
     emoji: '\u{1F3B7}',
   },
+  {
+    id: 'migration-map',
+    title: 'The Great Migration Map',
+    subtitle: 'Trace the Journey North',
+    status: 'available',
+    type: 'interactive',
+    route: '/exhibitions/harlem-renaissance/migration-map',
+    emoji: '\u{1F5FA}\u{FE0F}',
+  },
+  {
+    id: 'harlem-in-words',
+    title: 'Harlem in Words',
+    subtitle: 'Poetry of the Renaissance',
+    status: 'coming-soon',
+    type: 'interactive',
+    route: '',
+    emoji: '\u{270D}\u{FE0F}',
+  },
 ];
 
 export default function ArtifactsCollection() {
@@ -137,17 +155,17 @@ export default function ArtifactsCollection() {
 
         .hr-art-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(3, 1fr);
           gap: 24px;
-          max-width: 1200px;
+          max-width: 960px;
           margin: 0 auto;
         }
 
-        @media (max-width: 1024px) {
+        @media (max-width: 900px) {
           .hr-art-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 32px;
-            max-width: 600px;
+            max-width: 500px;
           }
         }
 

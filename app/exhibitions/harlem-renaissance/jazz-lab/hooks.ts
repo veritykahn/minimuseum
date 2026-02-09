@@ -160,7 +160,7 @@ export function useBandBuilder(audio: AudioEngine) {
     if (id) {
       audio.setVolume(id, 0.8);
       currentPlaying.forEach((_, instId) => {
-        if (instId !== id) audio.setVolume(instId, 0.15);
+        if (instId !== id) audio.setVolume(instId, 0.3);
       });
     } else {
       currentPlaying.forEach((_, instId) => {
@@ -195,7 +195,7 @@ export function useBandBuilder(audio: AudioEngine) {
     if (!playing.has(id)) return;
     const instrument = INSTRUMENT_MAP[id];
     const variant = instrument.variants[variantIndex];
-    const volume = spotlight === id ? 0.8 : spotlight ? 0.15 : 0.5;
+    const volume = spotlight === id ? 0.8 : spotlight ? 0.3 : 0.5;
     audio.playLoop(id, variant.audioSrc, volume);
     setPlaying(prev => new Map(prev).set(id, variantIndex));
   }, [playing, spotlight, audio]);
@@ -242,8 +242,20 @@ type QuizRound = {
 };
 
 function generateRounds(): QuizRound[] {
-  const shuffled = [...QUIZ_AUDIO_POOL].sort(() => Math.random() - 0.5);
-  return shuffled.map(item => ({
+  // Shuffle, then re-shuffle until no two consecutive rounds share the same instrument
+  const items = [...QUIZ_AUDIO_POOL];
+  for (let attempt = 0; attempt < 100; attempt++) {
+    items.sort(() => Math.random() - 0.5);
+    let valid = true;
+    for (let i = 1; i < items.length; i++) {
+      if (items[i].instrument === items[i - 1].instrument) {
+        valid = false;
+        break;
+      }
+    }
+    if (valid) break;
+  }
+  return items.map(item => ({
     audioSrc: item.src,
     correctAnswer: item.instrument,
   }));
