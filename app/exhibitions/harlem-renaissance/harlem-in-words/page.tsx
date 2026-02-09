@@ -3,217 +3,361 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef, useCallback } from 'react';
 
-/* ─── Word bank data ─── */
+/* ═══════════════════════════════════════════════════════════
+   WORD BANK DATA
+   ═══════════════════════════════════════════════════════════ */
 type WordCategory = 'dream' | 'nature' | 'music' | 'emotion' | 'action' | 'harlem';
 
-type WordDef = {
-  word: string;
-  plural?: string;
-  category: WordCategory;
-};
-
-const CATEGORY_META: Record<WordCategory, { label: string; color: string }> = {
-  dream:   { label: 'Dream',   color: '#C9A94E' },
-  nature:  { label: 'Nature',  color: '#7BA3C7' },
-  music:   { label: 'Music',   color: '#D4864A' },
-  emotion: { label: 'Emotion', color: '#D4645A' },
-  action:  { label: 'Action',  color: '#5CBFAA' },
-  harlem:  { label: 'Harlem',  color: '#B485D2' },
+const CATEGORY_META: Record<WordCategory, { label: string; dot: string }> = {
+  dream:   { label: 'Dreams',  dot: 'rgba(147,112,219,0.6)' },
+  nature:  { label: 'Nature',  dot: 'rgba(76,145,100,0.6)' },
+  music:   { label: 'Music',   dot: 'rgba(201,169,78,0.7)' },
+  emotion: { label: 'Emotion', dot: 'rgba(178,60,60,0.6)' },
+  action:  { label: 'Action',  dot: 'rgba(70,130,180,0.6)' },
+  harlem:  { label: 'Harlem',  dot: 'rgba(201,120,50,0.6)' },
 };
 
 const CATEGORY_ORDER: WordCategory[] = ['dream', 'nature', 'music', 'emotion', 'action', 'harlem'];
 
-const WORDS_UNSORTED: WordDef[] = [
-  // Dream
-  { word: 'a dream', plural: 'dreams', category: 'dream' as const },
-  { word: 'deferred', category: 'dream' as const },
-  { word: 'freedom', category: 'dream' as const },
-  { word: 'hope', plural: 'hopes', category: 'dream' as const },
-  { word: 'tomorrow', plural: 'tomorrows', category: 'dream' as const },
-  { word: 'vision', plural: 'visions', category: 'dream' as const },
-  // Nature
-  { word: 'a river', plural: 'rivers', category: 'nature' as const },
-  { word: 'dawn', plural: 'dawns', category: 'nature' as const },
-  { word: 'night', plural: 'nights', category: 'nature' as const },
-  { word: 'rain', plural: 'rains', category: 'nature' as const },
-  { word: 'stars', category: 'nature' as const },
-  { word: 'the sun', category: 'nature' as const },
-  // Music
-  { word: 'blues', category: 'music' as const },
-  { word: 'drum', plural: 'drums', category: 'music' as const },
-  { word: 'jazz', category: 'music' as const },
-  { word: 'rhythm', plural: 'rhythms', category: 'music' as const },
-  { word: 'a song', plural: 'songs', category: 'music' as const },
-  { word: 'trumpet', plural: 'trumpets', category: 'music' as const },
-  // Emotion
-  { word: 'beautiful', category: 'emotion' as const },
-  { word: 'dark', category: 'emotion' as const },
-  { word: 'deep', category: 'emotion' as const },
-  { word: 'fierce', category: 'emotion' as const },
-  { word: 'proud', category: 'emotion' as const },
-  { word: 'weary', category: 'emotion' as const },
-  // Action
-  { word: 'cry', plural: 'cries', category: 'action' as const },
-  { word: 'dance', plural: 'dances', category: 'action' as const },
-  { word: 'hold', plural: 'holds', category: 'action' as const },
-  { word: 'rise', plural: 'rises', category: 'action' as const },
-  { word: 'sing', plural: 'sings', category: 'action' as const },
-  { word: 'speak', plural: 'speaks', category: 'action' as const },
-  // Harlem
-  { word: 'America', category: 'harlem' as const },
-  { word: 'Harlem', category: 'harlem' as const },
-  { word: 'Lenox Avenue', category: 'harlem' as const },
-  { word: 'my people', category: 'harlem' as const },
-  { word: 'the Negro', category: 'harlem' as const },
-  { word: 'uptown', category: 'harlem' as const },
-];
-
-const WORDS = WORDS_UNSORTED.sort((a, b) => a.word.localeCompare(b.word, 'en', { sensitivity: 'base' }));
+const CATEGORY_WORDS: Record<WordCategory, string[]> = {
+  dream: [
+    'dream', 'dreaming', 'hope', 'wish', 'tomorrow', 'someday', 'freedom', 'rising',
+    'awake', 'imagine', 'vision', 'promise', 'believe', 'bright', 'new', 'waiting',
+    'becoming', 'wings', 'sky', 'beyond', 'possible', 'future', 'light', 'open',
+  ],
+  nature: [
+    'river', 'rain', 'sun', 'moon', 'star', 'night', 'morning', 'shadow',
+    'stone', 'dust', 'wind', 'sea', 'fire', 'earth', 'water', 'tree',
+    'flower', 'root', 'dawn', 'dark', 'deep', 'wild', 'golden', 'winter',
+  ],
+  music: [
+    'jazz', 'blues', 'rhythm', 'drum', 'song', 'trumpet', 'piano', 'swing',
+    'dance', 'beat', 'melody', 'sound', 'voice', 'sing', 'note', 'horn',
+    'loud', 'soft', 'slow', 'sweet', 'low', 'cry', 'hum', 'riff',
+  ],
+  emotion: [
+    'love', 'sorrow', 'proud', 'weary', 'beautiful', 'lonely', 'angry', 'gentle',
+    'fierce', 'tender', 'aching', 'joyful', 'broken', 'whole', 'strong', 'quiet',
+    'burning', 'still', 'heavy', 'warm', 'cold', 'lost', 'found', 'free',
+  ],
+  action: [
+    'rise', 'fall', 'run', 'walk', 'hold', 'let go', 'build', 'break',
+    'carry', 'remember', 'forget', 'speak', 'whisper', 'shout', 'stand', 'fly',
+    'stay', 'leave', 'return', 'reach', 'keep', 'give', 'take',
+  ],
+  harlem: [
+    'Harlem', 'Lenox', 'Beale Street', 'South Side', 'uptown', 'corner',
+    'stoop', 'avenue', 'church', 'club', 'rent', 'room', 'train', 'north',
+    'south', 'home', 'stranger', 'neighbor', 'crowd', 'street', 'door',
+    'window', 'roof', 'basement',
+  ],
+};
 
 const CONNECTORS = [
-  'I', 'you', 'we', 'the', 'my', 'our',
-  'is', 'was', 'are', 'of', 'in', 'and',
-  'to', 'for', 'with', 'like', 'but', 'no',
-  'too', 'not',
-].sort((a, b) => a.localeCompare(b, 'en', { sensitivity: 'base' }));
+  'I', 'you', 'we', 'my', 'your', 'our', 'the', 'a', 'an', 'this', 'that',
+  'of', 'in', 'on', 'to', 'from', 'with', 'and', 'but', 'or', 'not', 'no',
+  'so', 'is', 'was', 'are', 'will', 'can', 'do', 'like', 'never', 'always',
+  'too', 'still', 'here', 'there', 'where', 'when', 'how', 'who', 'for', 'at',
+];
 
-type PoemWord = {
-  id: string;
+// Words that don't pluralise
+const NO_PLURAL = new Set([
+  ...CONNECTORS.map(c => c.toLowerCase()),
+  'jazz', 'blues', 'north', 'south',
+]);
+
+function pluralise(word: string): string | null {
+  if (word.length < 2) return null;
+  if (NO_PLURAL.has(word.toLowerCase())) return null;
+  const lower = word.toLowerCase();
+  if (lower.endsWith('y') && !/[aeiou]/.test(lower.charAt(lower.length - 2))) {
+    return word.slice(0, -1) + 'ies';
+  }
+  if (/(?:s|x|z|ch|sh)$/.test(lower)) {
+    return word + 'es';
+  }
+  return word + 's';
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TYPES
+   ═══════════════════════════════════════════════════════════ */
+type PoemEntry = {
+  uid: string;
   text: string;
   category: WordCategory | 'connector';
+  sourceWord?: string; // original word (for returning to bank)
   isLineBreak?: boolean;
 };
 
-const DISPLAY_THEMES = [
-  { name: 'cascade', label: 'Cascade' },
-  { name: 'spotlight', label: 'Spotlight' },
-  { name: 'typewriter', label: 'Typewriter' },
-  { name: 'wave', label: 'Wave' },
-];
+type UndoAction = {
+  type: 'add' | 'remove' | 'linebreak' | 'clear' | 'plural';
+  entries?: PoemEntry[];
+  entry?: PoemEntry;
+  prevText?: string;
+};
 
+/* ═══════════════════════════════════════════════════════════
+   COMPONENT
+   ═══════════════════════════════════════════════════════════ */
 export default function HarlemInWordsPage() {
   const router = useRouter();
   const [view, setView] = useState<'welcome' | 'compose'>('welcome');
-  const [poem, setPoem] = useState<PoemWord[]>([]);
-  const [undoStack, setUndoStack] = useState<PoemWord[][]>([]);
+  const [poem, setPoem] = useState<PoemEntry[]>([]);
+  const [undoStack, setUndoStack] = useState<UndoAction[]>([]);
+  const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
+  const [activeCategory, setActiveCategory] = useState<WordCategory>('dream');
+  const [shuffledOrders, setShuffledOrders] = useState<Record<WordCategory, string[]>>({} as Record<WordCategory, string[]>);
   const [displayMode, setDisplayMode] = useState(false);
-  const [displayTheme, setDisplayTheme] = useState('cascade');
+  const [displayTheme, setDisplayTheme] = useState(0);
   const [displayReady, setDisplayReady] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const wordIdCounter = useRef(0);
+  const [shimmerActive, setShimmerActive] = useState(false);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const audioGainRef = useRef<GainNode | null>(null);
+  const uidCounter = useRef(0);
+  const tapTimerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const lastTapRef = useRef<Record<string, number>>({});
 
-  const nextId = () => {
-    wordIdCounter.current += 1;
-    return `w-${wordIdCounter.current}`;
+  const nextUid = () => {
+    uidCounter.current += 1;
+    return `w-${uidCounter.current}`;
   };
 
-  const pushUndo = useCallback(() => {
-    setUndoStack(prev => [...prev.slice(-20), poem]);
-  }, [poem]);
-
-  const addWord = useCallback((text: string, category: WordCategory | 'connector') => {
-    pushUndo();
-    setPoem(prev => [...prev, { id: nextId(), text, category }]);
-  }, [pushUndo]);
-
-  const addLineBreak = useCallback(() => {
-    pushUndo();
-    setPoem(prev => [...prev, { id: nextId(), text: '\n', category: 'connector', isLineBreak: true }]);
-  }, [pushUndo]);
-
-  const togglePlural = useCallback((id: string) => {
-    setPoem(prev => prev.map(w => {
-      if (w.id !== id || w.isLineBreak) return w;
-      const def = WORDS.find(d => d.word === w.text || d.plural === w.text);
-      if (!def || !def.plural) return w;
-      return { ...w, text: w.text === def.word ? def.plural : def.word };
-    }));
-  }, []);
-
-  const removeWord = useCallback((id: string) => {
-    pushUndo();
-    setPoem(prev => prev.filter(w => w.id !== id));
-  }, [pushUndo]);
-
-  const handleUndo = useCallback(() => {
-    if (undoStack.length === 0) return;
-    const prev = undoStack[undoStack.length - 1];
-    setUndoStack(s => s.slice(0, -1));
-    setPoem(prev);
-  }, [undoStack]);
-
-  const handleClear = useCallback(() => {
-    if (poem.length === 0) return;
-    pushUndo();
-    setPoem([]);
-  }, [poem, pushUndo]);
-
-  const handleShuffle = useCallback(() => {
-    if (poem.length <= 1) return;
-    pushUndo();
-    setPoem(prev => {
-      const arr = [...prev];
+  // Initialise shuffled orders
+  useEffect(() => {
+    const orders: Record<string, string[]> = {};
+    for (const cat of CATEGORY_ORDER) {
+      const arr = [...CATEGORY_WORDS[cat]];
       for (let i = arr.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
-      return arr;
-    });
-  }, [poem, pushUndo]);
-
-  // Display mode audio
-  useEffect(() => {
-    if (displayMode) {
-      const timer = setTimeout(() => setDisplayReady(true), 100);
-      const audio = new Audio('/exhibitions/harlem/audio/poetry/poem-bg.mp3');
-      audio.loop = true;
-      audio.volume = 0;
-      audioRef.current = audio;
-      audio.play().then(() => {
-        let vol = 0;
-        const fade = setInterval(() => {
-          vol = Math.min(vol + 0.05, 0.4);
-          audio.volume = vol;
-          if (vol >= 0.4) clearInterval(fade);
-        }, 80);
-      }).catch(() => {});
-      return () => {
-        clearTimeout(timer);
-        setDisplayReady(false);
-        if (audioRef.current) {
-          const a = audioRef.current;
-          let vol = a.volume;
-          const fade = setInterval(() => {
-            vol = Math.max(vol - 0.05, 0);
-            a.volume = vol;
-            if (vol <= 0) {
-              clearInterval(fade);
-              a.pause();
-            }
-          }, 60);
-        }
-      };
+      orders[cat] = arr;
     }
-    return undefined;
+    setShuffledOrders(orders as Record<WordCategory, string[]>);
+  }, []);
+
+  const triggerShimmer = useCallback(() => {
+    setShimmerActive(true);
+    setTimeout(() => setShimmerActive(false), 800);
+  }, []);
+
+  // Add a category word (single-use)
+  const addCategoryWord = useCallback((word: string, category: WordCategory) => {
+    const entry: PoemEntry = { uid: nextUid(), text: word, category, sourceWord: word };
+    setPoem(prev => [...prev, entry]);
+    setUsedWords(prev => new Set(prev).add(word));
+    setUndoStack(prev => [...prev, { type: 'add', entry }]);
+    triggerShimmer();
+  }, [triggerShimmer]);
+
+  // Add a connector (reusable)
+  const addConnector = useCallback((word: string) => {
+    const entry: PoemEntry = { uid: nextUid(), text: word, category: 'connector' };
+    setPoem(prev => [...prev, entry]);
+    setUndoStack(prev => [...prev, { type: 'add', entry }]);
+    triggerShimmer();
+  }, [triggerShimmer]);
+
+  // Add line break
+  const addLineBreak = useCallback(() => {
+    // Don't add consecutive breaks
+    if (poem.length > 0 && poem[poem.length - 1].isLineBreak) return;
+    const entry: PoemEntry = { uid: nextUid(), text: '\n', category: 'connector', isLineBreak: true };
+    setPoem(prev => [...prev, entry]);
+    setUndoStack(prev => [...prev, { type: 'linebreak', entry }]);
+  }, [poem]);
+
+  // Remove a word from the poem
+  const removeEntry = useCallback((uid: string) => {
+    const entry = poem.find(e => e.uid === uid);
+    if (!entry) return;
+    setPoem(prev => prev.filter(e => e.uid !== uid));
+    if (entry.category !== 'connector' && entry.sourceWord) {
+      setUsedWords(prev => {
+        const next = new Set(prev);
+        next.delete(entry.sourceWord!);
+        return next;
+      });
+    }
+    setUndoStack(prev => [...prev, { type: 'remove', entry }]);
+  }, [poem]);
+
+  // Pluralise a word
+  const pluraliseEntry = useCallback((uid: string) => {
+    const entry = poem.find(e => e.uid === uid);
+    if (!entry || entry.isLineBreak) return;
+    const p = pluralise(entry.text);
+    if (!p) return;
+    const prevText = entry.text;
+    setPoem(prev => prev.map(e => e.uid === uid ? { ...e, text: p } : e));
+    setUndoStack(prev => [...prev, { type: 'plural', entry: { ...entry }, prevText }]);
+  }, [poem]);
+
+  // Handle tap on poem word (300ms delay for single tap, cancel on double tap)
+  const handlePoemWordTap = useCallback((uid: string) => {
+    const now = Date.now();
+    const last = lastTapRef.current[uid] || 0;
+    lastTapRef.current[uid] = now;
+
+    if (now - last < 350) {
+      // Double tap — cancel pending removal, pluralise
+      if (tapTimerRef.current[uid]) {
+        clearTimeout(tapTimerRef.current[uid]);
+        delete tapTimerRef.current[uid];
+      }
+      pluraliseEntry(uid);
+    } else {
+      // Single tap — schedule removal
+      tapTimerRef.current[uid] = setTimeout(() => {
+        removeEntry(uid);
+        delete tapTimerRef.current[uid];
+      }, 300);
+    }
+  }, [removeEntry, pluraliseEntry]);
+
+  // Undo
+  const handleUndo = useCallback(() => {
+    if (undoStack.length === 0) return;
+    const action = undoStack[undoStack.length - 1];
+    setUndoStack(prev => prev.slice(0, -1));
+
+    if (action.type === 'add' && action.entry) {
+      setPoem(prev => prev.filter(e => e.uid !== action.entry!.uid));
+      if (action.entry.category !== 'connector' && action.entry.sourceWord) {
+        setUsedWords(prev => {
+          const next = new Set(prev);
+          next.delete(action.entry!.sourceWord!);
+          return next;
+        });
+      }
+    } else if (action.type === 'remove' && action.entry) {
+      setPoem(prev => [...prev, action.entry!]);
+      if (action.entry.category !== 'connector' && action.entry.sourceWord) {
+        setUsedWords(prev => new Set(prev).add(action.entry!.sourceWord!));
+      }
+    } else if (action.type === 'linebreak' && action.entry) {
+      setPoem(prev => prev.filter(e => e.uid !== action.entry!.uid));
+    } else if (action.type === 'clear' && action.entries) {
+      setPoem(action.entries);
+      const words = new Set<string>();
+      action.entries.forEach(e => {
+        if (e.category !== 'connector' && e.sourceWord) words.add(e.sourceWord);
+      });
+      setUsedWords(words);
+    } else if (action.type === 'plural' && action.entry && action.prevText) {
+      setPoem(prev => prev.map(e => e.uid === action.entry!.uid ? { ...e, text: action.prevText! } : e));
+    }
+  }, [undoStack]);
+
+  // Clear
+  const handleClear = useCallback(() => {
+    if (poem.length === 0) return;
+    setUndoStack(prev => [...prev, { type: 'clear', entries: [...poem] }]);
+    setPoem([]);
+    setUsedWords(new Set());
+  }, [poem]);
+
+  // Shuffle current category
+  const handleShuffle = useCallback(() => {
+    setShuffledOrders(prev => {
+      const arr = [...(prev[activeCategory] || CATEGORY_WORDS[activeCategory])];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return { ...prev, [activeCategory]: arr };
+    });
+  }, [activeCategory]);
+
+  // Available words for active category
+  const availableWords = (shuffledOrders[activeCategory] || CATEGORY_WORDS[activeCategory])
+    .filter(w => !usedWords.has(w));
+
+  // Display mode audio (Web Audio API)
+  useEffect(() => {
+    if (!displayMode) return undefined;
+    setDisplayTheme(Math.floor(Math.random() * 5));
+    const timer = setTimeout(() => setDisplayReady(true), 100);
+
+    let ctx: AudioContext;
+    let gain: GainNode;
+    let stopped = false;
+
+    const initAudio = async () => {
+      try {
+        ctx = new AudioContext();
+        audioCtxRef.current = ctx;
+        gain = ctx.createGain();
+        gain.gain.value = 0;
+        gain.connect(ctx.destination);
+        audioGainRef.current = gain;
+
+        const resp = await fetch('/exhibitions/harlem/audio/poetry/poem-bg.mp3');
+        const buf = await resp.arrayBuffer();
+        const audioBuf = await ctx.decodeAudioData(buf);
+        if (stopped) return;
+
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuf;
+        source.loop = true;
+        source.connect(gain);
+        source.start();
+        audioSourceRef.current = source;
+
+        // Fade in over 2s
+        gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 2);
+      } catch {
+        // Audio unavailable — display works fine without it
+      }
+    };
+    initAudio();
+
+    return () => {
+      stopped = true;
+      clearTimeout(timer);
+      setDisplayReady(false);
+      // Fade out over 1.5s
+      if (audioGainRef.current && audioCtxRef.current) {
+        const g = audioGainRef.current;
+        const c = audioCtxRef.current;
+        g.gain.linearRampToValueAtTime(0, c.currentTime + 1.5);
+        setTimeout(() => {
+          try {
+            audioSourceRef.current?.stop();
+            c.close();
+          } catch { /* */ }
+        }, 1600);
+      }
+    };
   }, [displayMode]);
 
-  const poemText = poem.filter(w => !w.isLineBreak).map(w => w.text).join(' ');
-  const poemLines: PoemWord[][] = [];
-  let currentLine: PoemWord[] = [];
-  poem.forEach(w => {
-    if (w.isLineBreak) {
+  // Build poem lines for display
+  const poemLines: PoemEntry[][] = [];
+  let currentLine: PoemEntry[] = [];
+  poem.forEach(e => {
+    if (e.isLineBreak) {
       poemLines.push(currentLine);
       currentLine = [];
     } else {
-      currentLine.push(w);
+      currentLine.push(e);
     }
   });
   if (currentLine.length > 0) poemLines.push(currentLine);
 
-  const getWordColor = (category: WordCategory | 'connector') => {
-    if (category === 'connector') return 'rgba(232,224,208,0.7)';
-    return CATEGORY_META[category].color;
-  };
+  // Auto-capitalise first letter of each line
+  const displayLines = poemLines.map(line =>
+    line.map((w, i) => {
+      if (i === 0) return { ...w, text: w.text.charAt(0).toUpperCase() + w.text.slice(1) };
+      return w;
+    })
+  );
+
+  const hasWords = poem.some(e => !e.isLineBreak);
+
+  // Theme names for display
+  const THEME_NAMES = ['Sunburst', 'Circles', 'Particles', 'Chevrons', 'Spirograph'];
 
   return (
     <div className="hw-root">
@@ -226,16 +370,21 @@ export default function HarlemInWordsPage() {
           --hw-gold: #C9A94E;
           --hw-gold-light: #E8D48B;
           --hw-gold-dim: #8B7535;
+          --hw-burgundy: #6B1D2A;
+          --hw-burgundy-deep: #4A0E1C;
           --hw-bg: #0A0A0A;
           --hw-text: #E8E0D0;
           --hw-text-dim: #8A8070;
-          --hw-burgundy: #8B2020;
+          --hw-cream: #F5ECD7;
+          --hw-cream-dark: #E0D5BC;
+          --hw-ink: #1A1208;
         }
 
         .hw-root {
           min-height: 100vh;
           background: var(--hw-bg);
           color: var(--hw-text);
+          position: relative;
         }
 
         /* ── Welcome Screen ── */
@@ -386,7 +535,26 @@ export default function HarlemInWordsPage() {
           .hw-welcome-deco-top, .hw-welcome-deco-bottom { width: 200px; }
         }
 
-        /* ── Compose View Nav ── */
+        /* ── Compose Layout: Split Screen ── */
+        .hw-compose-page {
+          min-height: 100vh;
+          display: flex;
+          position: relative;
+          background:
+            radial-gradient(ellipse at 25% 30%, rgba(201,169,78,0.03) 0%, transparent 50%),
+            radial-gradient(ellipse at 75% 70%, rgba(107,29,42,0.03) 0%, transparent 50%);
+        }
+        .hw-compose-page::before, .hw-compose-page::after {
+          content: '';
+          position: absolute;
+          left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(201,169,78,0.15), transparent);
+        }
+        .hw-compose-page::before { top: 0; }
+        .hw-compose-page::after { bottom: 0; }
+
+        /* Nav */
         .hw-nav {
           position: fixed;
           top: 32px;
@@ -395,358 +563,484 @@ export default function HarlemInWordsPage() {
           display: flex;
           align-items: center;
           gap: 10px;
-          text-decoration: none;
-          font-family: 'Cormorant Garamond', 'Playfair Display', serif;
-          transition: all 0.3s ease;
-          cursor: pointer;
           background: none;
           border: none;
+          cursor: pointer;
+          font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+          transition: all 0.3s ease;
         }
         .hw-nav:hover .hw-nav-label { opacity: 1; max-width: 150px; }
         .hw-nav:hover .hw-nav-arrow { transform: translateX(-4px); }
-        .hw-nav-text { font-size: 28px; font-weight: 300; color: #525252; transition: color 0.3s ease; }
+        .hw-nav-text { font-size: 28px; font-weight: 300; color: #525252; }
         .hw-nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
         .hw-nav-label {
-          font-size: 13px;
-          font-style: italic;
-          color: #7D8471;
-          opacity: 0;
-          max-width: 0;
-          overflow: hidden;
-          white-space: nowrap;
+          font-size: 13px; font-style: italic; color: #7D8471;
+          opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap;
           transition: all 0.4s ease;
         }
 
-        @media (max-width: 768px) {
-          .hw-nav { left: 20px; top: 20px; }
-          .hw-nav-text { font-size: 24px; }
+        /* Left panel — Poem Frame */
+        .hw-left-panel {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          overflow: hidden;
+          min-height: 100vh;
         }
 
-        /* ── Header ── */
-        .hw-header {
-          text-align: center;
-          padding: 40px 20px 10px;
+        /* Sunburst behind frame */
+        .hw-sunburst {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          width: 600px; height: 600px;
+          pointer-events: none;
+          opacity: 0.04;
         }
-        .hw-header h1 {
+
+        /* The ornate frame */
+        .hw-frame {
+          position: relative;
+          width: 90%;
+          max-width: 440px;
+          min-height: 400px;
+          display: flex;
+          flex-direction: column;
+          padding: 28px 24px 20px;
+          border: 2px solid rgba(201,169,78,0.3);
+          z-index: 2;
+        }
+        .hw-frame-inner-border {
+          position: absolute;
+          top: 8px; left: 8px; right: 8px; bottom: 8px;
+          border: 1px solid rgba(201,169,78,0.15);
+          pointer-events: none;
+        }
+
+        /* Corner ornaments */
+        .hw-corner {
+          position: absolute;
+          width: 20px; height: 20px;
+          pointer-events: none;
+        }
+        .hw-corner svg { width: 100%; height: 100%; }
+        .hw-corner.tl { top: -1px; left: -1px; }
+        .hw-corner.tr { top: -1px; right: -1px; transform: scaleX(-1); }
+        .hw-corner.bl { bottom: -1px; left: -1px; transform: scaleY(-1); }
+        .hw-corner.br { bottom: -1px; right: -1px; transform: scale(-1,-1); }
+
+        /* Top diamond ornament */
+        .hw-top-diamond {
+          position: absolute;
+          top: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          pointer-events: none;
+        }
+
+        /* Shimmer overlay */
+        .hw-shimmer {
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          pointer-events: none;
+          overflow: hidden;
+          z-index: 10;
+        }
+        .hw-shimmer.active::after {
+          content: '';
+          position: absolute;
+          top: 0; left: -100%; right: 0; bottom: 0;
+          background: linear-gradient(
+            45deg,
+            transparent 30%,
+            rgba(201,169,78,0.06) 45%,
+            rgba(201,169,78,0.06) 55%,
+            transparent 70%
+          );
+          animation: hw-shimmerSlide 0.8s ease forwards;
+        }
+        @keyframes hw-shimmerSlide {
+          from { transform: translateX(0); }
+          to { transform: translateX(200%); }
+        }
+
+        /* Frame title */
+        .hw-frame-title {
+          text-align: center;
+          margin-bottom: 4px;
+        }
+        .hw-frame-title h2 {
           font-family: 'Playfair Display', serif;
-          font-size: clamp(24px, 5vw, 40px);
+          font-size: 16px;
           font-weight: 900;
           color: var(--hw-gold);
           letter-spacing: 4px;
           text-transform: uppercase;
-          text-shadow: 0 0 40px rgba(201,169,78,0.3);
+          text-shadow: 0 0 20px rgba(201,169,78,0.2);
         }
-        .hw-header-sub {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px;
-          letter-spacing: 3px;
-          text-transform: uppercase;
-          color: var(--hw-text-dim);
-          margin-top: 8px;
-        }
-
-        /* ── Compose Layout ── */
-        .hw-compose-layout {
-          max-width: 960px;
-          margin: 0 auto;
-          padding: 0 20px 60px;
-        }
-
-        /* ── Word Bank ── */
-        .hw-bank-section {
-          margin-bottom: 20px;
-        }
-        .hw-bank-category-label {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
-          letter-spacing: 3px;
-          text-transform: uppercase;
-          font-weight: 600;
-          margin-bottom: 10px;
-          padding-left: 2px;
-        }
-        .hw-bank-words {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 8px;
-        }
-        .hw-word-chip {
-          font-family: 'Playfair Display', serif;
-          font-size: clamp(16px, 2.5vw, 20px);
-          padding: 8px 18px;
-          border-radius: 6px;
-          border: 1.5px solid;
-          background: rgba(255,255,255,0.02);
-          cursor: pointer;
-          transition: all 0.25s ease;
-          white-space: nowrap;
-          user-select: none;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .hw-word-chip:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 16px rgba(0,0,0,0.3);
-        }
-        .hw-word-chip:active {
-          transform: scale(0.96);
-        }
-
-        /* ── Connectors ── */
-        .hw-connectors-section {
-          margin-bottom: 24px;
-        }
-        .hw-connector-chip {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: clamp(14px, 2vw, 16px);
-          padding: 6px 14px;
-          border-radius: 4px;
-          border: 1px solid rgba(232,224,208,0.15);
-          background: rgba(255,255,255,0.02);
-          color: rgba(232,224,208,0.7);
-          cursor: pointer;
-          transition: all 0.25s ease;
-          white-space: nowrap;
-          user-select: none;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .hw-connector-chip:hover {
-          border-color: rgba(232,224,208,0.35);
-          background: rgba(255,255,255,0.04);
-          transform: translateY(-1px);
-        }
-        .hw-connector-chip:active {
-          transform: scale(0.96);
-        }
-
-        /* ── Poem Composition ── */
-        .hw-poem-area {
-          position: relative;
-          min-height: 180px;
-          padding: 32px 24px;
-          margin-top: 8px;
-          margin-bottom: 20px;
-          background: rgba(255,255,255,0.01);
-          border: 1px solid rgba(201,169,78,0.15);
-          border-radius: 8px;
-        }
-        .hw-poem-area::before {
-          content: '';
-          position: absolute;
-          top: 6px; left: 6px; right: 6px; bottom: 6px;
-          border: 1px solid rgba(201,169,78,0.08);
-          border-radius: 4px;
-          pointer-events: none;
-        }
-        .hw-poem-corner {
-          position: absolute;
-          width: 16px;
-          height: 16px;
-        }
-        .hw-poem-corner::before, .hw-poem-corner::after {
-          content: '';
-          position: absolute;
-          background: var(--hw-gold-dim);
-        }
-        .hw-poem-corner::before { width: 16px; height: 1px; }
-        .hw-poem-corner::after { width: 1px; height: 16px; }
-        .hw-poem-corner.tl { top: -1px; left: -1px; }
-        .hw-poem-corner.tl::before { top: 0; left: 0; }
-        .hw-poem-corner.tl::after { top: 0; left: 0; }
-        .hw-poem-corner.tr { top: -1px; right: -1px; }
-        .hw-poem-corner.tr::before { top: 0; right: 0; }
-        .hw-poem-corner.tr::after { top: 0; right: 0; }
-        .hw-poem-corner.bl { bottom: -1px; left: -1px; }
-        .hw-poem-corner.bl::before { bottom: 0; left: 0; }
-        .hw-poem-corner.bl::after { bottom: 0; left: 0; }
-        .hw-poem-corner.br { bottom: -1px; right: -1px; }
-        .hw-poem-corner.br::before { bottom: 0; right: 0; }
-        .hw-poem-corner.br::after { bottom: 0; right: 0; }
-
-        .hw-poem-placeholder {
-          font-family: 'Playfair Display', serif;
-          font-size: 18px;
-          font-style: italic;
-          color: rgba(201,169,78,0.2);
-          text-align: center;
-          padding-top: 60px;
-        }
-        .hw-poem-words {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          align-items: baseline;
-          position: relative;
-          z-index: 2;
-        }
-        .hw-poem-word {
-          font-family: 'Playfair Display', serif;
-          font-size: clamp(18px, 3vw, 24px);
-          padding: 4px 10px;
-          border-radius: 4px;
-          cursor: pointer;
-          transition: all 0.2s ease;
-          animation: hw-wordAppear 0.3s ease;
-          user-select: none;
-          -webkit-tap-highlight-color: transparent;
-          position: relative;
-        }
-        .hw-poem-word:hover {
-          background: rgba(139,32,32,0.2);
-        }
-        .hw-poem-word:hover::after {
-          content: '\u00D7';
-          position: absolute;
-          top: -6px;
-          right: -6px;
-          width: 16px;
-          height: 16px;
-          border-radius: 50%;
-          background: var(--hw-burgundy);
-          color: #fff;
-          font-size: 10px;
+        .hw-frame-title-deco {
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: sans-serif;
+          gap: 8px;
+          margin-top: 6px;
         }
-        @keyframes hw-wordAppear {
-          from { opacity: 0; transform: translateY(8px) scale(0.9); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+        .hw-frame-title-deco::before, .hw-frame-title-deco::after {
+          content: '';
+          width: 40px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(201,169,78,0.3), transparent);
         }
-        .hw-line-break-marker {
-          width: 100%;
-          height: 0;
-          flex-basis: 100%;
-        }
-        .hw-poem-word.plural-flash {
-          animation: hw-pluralFlash 0.3s ease;
-        }
-        @keyframes hw-pluralFlash {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.15); }
-          100% { transform: scale(1); }
+        .hw-frame-title-deco span {
+          color: var(--hw-gold-dim);
+          font-size: 8px;
         }
 
-        /* ── Controls ── */
-        .hw-controls {
+        /* Poem area */
+        .hw-poem-display {
+          flex: 1;
           display: flex;
+          align-items: center;
           justify-content: center;
-          flex-wrap: wrap;
-          gap: 10px;
-          margin-bottom: 30px;
+          padding: 16px 8px;
+          min-height: 200px;
         }
-        .hw-btn {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
-          letter-spacing: 3px;
-          text-transform: uppercase;
-          font-weight: 600;
-          padding: 10px 22px;
-          border: 1px solid rgba(201,169,78,0.3);
-          background: transparent;
-          color: var(--hw-gold);
+        .hw-poem-text {
+          text-align: center;
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(18px, 3vw, 28px);
+          font-weight: 400;
+          color: var(--hw-gold-light);
+          line-height: 2;
+          width: 100%;
+        }
+        .hw-poem-text span {
           cursor: pointer;
-          transition: all 0.3s ease;
-          border-radius: 2px;
+          transition: all 0.2s;
           -webkit-tap-highlight-color: transparent;
         }
-        .hw-btn:hover {
-          background: rgba(201,169,78,0.08);
-          border-color: var(--hw-gold);
+        .hw-poem-text span:hover {
+          color: #fff;
+          text-shadow: 0 0 12px rgba(201,169,78,0.4);
         }
-        .hw-btn:disabled {
-          opacity: 0.3;
-          cursor: default;
+        .hw-poem-placeholder {
+          text-align: center;
+          opacity: 0.15;
         }
-        .hw-btn.display {
-          border-color: var(--hw-gold);
-          background: rgba(201,169,78,0.08);
+        .hw-poem-placeholder-icon {
+          font-size: 28px;
+          color: var(--hw-gold);
+          margin-bottom: 8px;
         }
-        .hw-btn.display:hover {
+        .hw-poem-placeholder-text {
+          font-family: 'Playfair Display', serif;
+          font-size: 14px;
+          font-style: italic;
+          color: var(--hw-gold);
+          line-height: 1.6;
+        }
+
+        /* Hint */
+        .hw-hint {
+          text-align: center;
+          font-family: 'Playfair Display', serif;
+          font-size: 9px;
+          font-style: italic;
+          color: rgba(201,169,78,0.2);
+          margin-bottom: 10px;
+          transition: opacity 0.4s;
+        }
+
+        /* Frame buttons */
+        .hw-frame-btns {
+          display: flex;
+          justify-content: center;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+        .hw-frame-btn {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 9px;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          font-weight: 600;
+          padding: 6px 12px;
+          border: 1px solid rgba(201,169,78,0.15);
+          background: transparent;
+          color: var(--hw-gold-dim);
+          cursor: pointer;
+          transition: all 0.3s ease;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hw-frame-btn:hover {
+          border-color: rgba(201,169,78,0.4);
+          color: var(--hw-gold);
+          background: rgba(201,169,78,0.04);
+        }
+        .hw-frame-btn:disabled { opacity: 0.3; cursor: default; }
+        .hw-frame-btn.primary {
+          border-color: rgba(201,169,78,0.3);
+          background: rgba(201,169,78,0.05);
+          color: var(--hw-gold);
+        }
+        .hw-frame-btn.primary:hover {
+          background: rgba(201,169,78,0.12);
+        }
+
+        /* Divider */
+        .hw-divider {
+          width: 1px;
           background: rgba(201,169,78,0.15);
+          align-self: stretch;
+        }
+
+        /* Right panel — Word Bank */
+        .hw-right-panel {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 100vh;
+          overflow-y: auto;
+        }
+
+        /* Connectors strip */
+        .hw-connectors {
+          padding: 16px 20px 12px;
+          border-bottom: 1px solid rgba(201,169,78,0.1);
+        }
+        .hw-connectors-label {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 8px;
+          letter-spacing: 2.5px;
+          text-transform: uppercase;
+          color: rgba(138,128,112,0.6);
+          margin-bottom: 8px;
+        }
+        .hw-connectors-grid {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+        .hw-connector-tile {
+          font-family: 'Playfair Display', serif;
+          font-size: 12px;
+          font-style: italic;
+          color: var(--hw-text-dim);
+          background: rgba(201,169,78,0.04);
+          border: 1px solid rgba(201,169,78,0.08);
+          border-radius: 3px;
+          padding: 4px 8px;
+          cursor: pointer;
+          transition: all 0.2s;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hw-connector-tile:hover {
+          color: var(--hw-gold-dim);
+          border-color: rgba(201,169,78,0.2);
+          background: rgba(201,169,78,0.08);
+        }
+
+        /* Category tabs */
+        .hw-cat-tabs {
+          display: flex;
+          flex-wrap: wrap;
+          padding: 12px 20px 0;
+          gap: 0;
+        }
+        .hw-cat-tab {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 8px;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          font-weight: 600;
+          padding: 8px 12px;
+          border: none;
+          background: transparent;
+          color: var(--hw-text-dim);
+          cursor: pointer;
+          transition: all 0.3s;
+          border-bottom: 2px solid transparent;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hw-cat-tab:hover { color: var(--hw-gold-dim); }
+        .hw-cat-tab.active {
+          color: var(--hw-gold);
+          border-bottom-color: var(--hw-gold);
+        }
+        .hw-cat-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+        }
+
+        /* Word tray */
+        .hw-word-tray {
+          flex: 1;
+          padding: 16px 20px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          align-content: flex-start;
+          overflow-y: auto;
+        }
+        .hw-word-tile {
+          font-family: 'Playfair Display', serif;
+          font-size: 14px;
+          font-weight: 700;
+          color: var(--hw-ink);
+          background: linear-gradient(to bottom, var(--hw-cream), var(--hw-cream-dark));
+          border: 1px solid rgba(201,169,78,0.2);
+          border-left: 3px solid transparent;
+          border-radius: 4px;
+          padding: 6px 12px;
+          cursor: pointer;
+          transition: all 0.2s;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hw-word-tile:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.4);
+        }
+        .hw-word-tile:active {
+          transform: translateY(0);
+        }
+
+        /* Shuffle button */
+        .hw-shuffle-btn {
+          margin: 8px 20px 16px;
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 9px;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          padding: 8px 16px;
+          border: 1px solid rgba(201,169,78,0.15);
+          background: transparent;
+          color: var(--hw-gold-dim);
+          cursor: pointer;
+          transition: all 0.3s;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hw-shuffle-btn:hover {
+          border-color: rgba(201,169,78,0.3);
+          color: var(--hw-gold);
+        }
+
+        /* ── Mobile: stacked layout ── */
+        @media (max-width: 900px) {
+          .hw-compose-page {
+            flex-direction: column;
+          }
+          .hw-left-panel {
+            min-height: 50vh;
+            flex: none;
+            height: 50vh;
+          }
+          .hw-divider {
+            width: 100%;
+            height: 1px;
+          }
+          .hw-right-panel {
+            min-height: 50vh;
+            flex: none;
+            height: 50vh;
+          }
+          .hw-nav { left: 20px; top: 20px; }
+          .hw-nav-text { font-size: 24px; }
+          .hw-frame { max-width: 360px; min-height: 300px; padding: 20px 16px 16px; }
+        }
+
+        @media (max-width: 600px) {
+          .hw-left-panel { height: 45vh; }
+          .hw-right-panel { height: 55vh; }
+          .hw-frame { max-width: 300px; min-height: 240px; }
+          .hw-poem-text { font-size: 16px; }
+          .hw-word-tile { font-size: 13px; padding: 5px 10px; padding-left: 13px; }
+          .hw-frame-btn { font-size: 8px; padding: 5px 8px; }
         }
 
         /* ── Display Mode ── */
         .hw-display-overlay {
           position: fixed;
           top: 0; left: 0; right: 0; bottom: 0;
-          background: #050505;
+          background: var(--hw-bg);
           z-index: 2000;
           display: flex;
-          flex-direction: column;
           align-items: center;
           justify-content: center;
           animation: hw-displayFadeIn 1s ease;
+          overflow: hidden;
         }
         @keyframes hw-displayFadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        .hw-display-overlay::before {
-          content: '';
+
+        /* Display BG animations container */
+        .hw-display-bg {
           position: absolute;
           top: 0; left: 0; right: 0; bottom: 0;
-          background:
-            radial-gradient(ellipse at 50% 50%, rgba(201,169,78,0.06) 0%, transparent 60%);
           pointer-events: none;
+          overflow: hidden;
         }
 
         /* Display frame */
         .hw-display-frame {
           position: relative;
-          max-width: 700px;
+          max-width: 540px;
           width: 90%;
-          padding: 60px 50px;
+          padding: 48px 40px;
           z-index: 2;
+          opacity: 0;
+          transform: scale(0.8);
+          animation: hw-frameEntrance 1s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s forwards;
         }
-        .hw-display-frame::before {
-          content: '';
+        @keyframes hw-frameEntrance {
+          to { opacity: 1; transform: scale(1); }
+        }
+        .hw-display-frame-outer {
           position: absolute;
           top: 0; left: 0; right: 0; bottom: 0;
-          border: 1px solid rgba(201,169,78,0.2);
+          border: 3px solid rgba(201,169,78,0.4);
+          pointer-events: none;
         }
-        .hw-display-frame::after {
-          content: '';
+        .hw-display-frame-inner {
           position: absolute;
-          top: 8px; left: 8px; right: 8px; bottom: 8px;
-          border: 1px solid rgba(201,169,78,0.1);
+          top: 12px; left: 12px; right: 12px; bottom: 12px;
+          border: 1px solid rgba(201,169,78,0.2);
+          pointer-events: none;
         }
+
+        /* Display corner ornaments */
         .hw-display-corner {
           position: absolute;
-          width: 24px;
-          height: 24px;
+          width: 44px; height: 44px;
+          pointer-events: none;
         }
-        .hw-display-corner::before, .hw-display-corner::after {
-          content: '';
-          position: absolute;
-          background: var(--hw-gold);
-        }
-        .hw-display-corner::before { width: 24px; height: 1px; }
-        .hw-display-corner::after { width: 1px; height: 24px; }
-        .hw-display-corner.tl { top: -1px; left: -1px; }
-        .hw-display-corner.tl::before { top: 0; left: 0; }
-        .hw-display-corner.tl::after { top: 0; left: 0; }
-        .hw-display-corner.tr { top: -1px; right: -1px; }
-        .hw-display-corner.tr::before { top: 0; right: 0; }
-        .hw-display-corner.tr::after { top: 0; right: 0; }
-        .hw-display-corner.bl { bottom: -1px; left: -1px; }
-        .hw-display-corner.bl::before { bottom: 0; left: 0; }
-        .hw-display-corner.bl::after { bottom: 0; left: 0; }
-        .hw-display-corner.br { bottom: -1px; right: -1px; }
-        .hw-display-corner.br::before { bottom: 0; right: 0; }
-        .hw-display-corner.br::after { bottom: 0; right: 0; }
+        .hw-display-corner svg { width: 100%; height: 100%; }
+        .hw-display-corner.tl { top: -2px; left: -2px; }
+        .hw-display-corner.tr { top: -2px; right: -2px; transform: scaleX(-1); }
+        .hw-display-corner.bl { bottom: -2px; left: -2px; transform: scaleY(-1); }
+        .hw-display-corner.br { bottom: -2px; right: -2px; transform: scale(-1,-1); }
 
+        /* Display deco lines */
         .hw-display-deco {
           position: absolute;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
           width: 200px;
+          pointer-events: none;
         }
-        .hw-display-deco.top { top: -1px; }
-        .hw-display-deco.bottom { bottom: -1px; }
+        .hw-display-deco.top { top: -2px; }
+        .hw-display-deco.bottom { bottom: -2px; }
         .hw-display-deco::before, .hw-display-deco::after {
           content: '';
           flex: 1;
@@ -760,98 +1054,199 @@ export default function HarlemInWordsPage() {
           transform: rotate(45deg);
         }
 
+        /* Fan ornament */
+        .hw-display-fan {
+          text-align: center;
+          margin-bottom: 16px;
+          opacity: 0;
+          animation: hw-fadeUp 0.6s ease 1.0s forwards;
+        }
+
+        /* Display content animations */
+        .hw-display-label {
+          text-align: center;
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 9px;
+          letter-spacing: 6px;
+          text-transform: uppercase;
+          color: var(--hw-gold-dim);
+          margin-bottom: 20px;
+          opacity: 0;
+          animation: hw-fadeUp 0.6s ease 1.1s forwards;
+        }
         .hw-display-poem {
           text-align: center;
-          min-height: 120px;
-        }
-        .hw-display-line {
-          margin-bottom: 12px;
-        }
-        .hw-display-word {
-          font-family: 'Playfair Display', serif;
-          font-size: clamp(22px, 4vw, 32px);
-          font-weight: 400;
-          line-height: 1.6;
-          display: inline;
-        }
-
-        /* Theme animations */
-        .hw-theme-cascade .hw-display-word {
+          min-height: 80px;
+          margin-bottom: 20px;
           opacity: 0;
-          animation: hw-cascadeIn 0.6s ease forwards;
+          animation: hw-fadeUp 0.8s ease 1.3s forwards;
         }
-        @keyframes hw-cascadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        .hw-display-poem-line {
+          margin-bottom: 4px;
         }
-        .hw-theme-spotlight .hw-display-word {
-          opacity: 0;
-          animation: hw-spotlightIn 0.8s ease forwards;
+        .hw-display-poem-word {
+          font-family: 'Poiret One', sans-serif;
+          font-size: clamp(16px, 3vw, 22px);
+          color: var(--hw-gold-light);
+          line-height: 2.4;
+          letter-spacing: 3px;
+          text-transform: uppercase;
+          text-shadow: 0 0 16px rgba(201,169,78,0.15);
         }
-        @keyframes hw-spotlightIn {
-          0% { opacity: 0; text-shadow: none; }
-          50% { opacity: 1; text-shadow: 0 0 30px rgba(201,169,78,0.6); }
-          100% { opacity: 1; text-shadow: none; }
-        }
-        .hw-theme-typewriter .hw-display-word {
-          opacity: 0;
-          animation: hw-typewriterIn 0.1s steps(1) forwards;
-        }
-        @keyframes hw-typewriterIn {
-          to { opacity: 1; }
-        }
-        .hw-theme-wave .hw-display-word {
-          opacity: 0;
-          animation: hw-waveIn 0.8s ease forwards;
-        }
-        @keyframes hw-waveIn {
-          0% { opacity: 0; transform: translateY(30px) rotate(-3deg); }
-          60% { opacity: 1; transform: translateY(-5px) rotate(1deg); }
-          100% { opacity: 1; transform: translateY(0) rotate(0); }
-        }
-
-        /* Display controls */
-        .hw-display-controls {
-          position: fixed;
-          bottom: 40px;
-          left: 50%;
-          transform: translateX(-50%);
+        .hw-display-divider {
           display: flex;
-          gap: 12px;
-          z-index: 2001;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          margin-bottom: 16px;
+          opacity: 0;
+          animation: hw-fadeUp 0.6s ease 1.6s forwards;
         }
-        .hw-display-btn {
+        .hw-display-divider::before, .hw-display-divider::after {
+          content: '';
+          width: 50px;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(201,169,78,0.3), transparent);
+        }
+        .hw-display-divider span {
+          color: var(--hw-gold-dim);
+          font-size: 8px;
+        }
+        .hw-display-byline {
+          text-align: center;
           font-family: 'Josefin Sans', sans-serif;
           font-size: 10px;
           letter-spacing: 3px;
           text-transform: uppercase;
+          color: var(--hw-text-dim);
+          font-weight: 300;
+          margin-bottom: 24px;
+          opacity: 0;
+          animation: hw-fadeUp 0.6s ease 1.8s forwards;
+        }
+        .hw-display-actions {
+          display: flex;
+          justify-content: center;
+          gap: 10px;
+          opacity: 0;
+          animation: hw-fadeUp 0.6s ease 2.0s forwards;
+        }
+        .hw-display-btn {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 9px;
+          letter-spacing: 2px;
+          text-transform: uppercase;
           font-weight: 600;
-          padding: 12px 24px;
-          border: 1px solid rgba(201,169,78,0.3);
-          background: rgba(5,5,5,0.8);
-          color: var(--hw-gold);
+          padding: 8px 18px;
+          border: 1px solid rgba(201,169,78,0.2);
+          background: transparent;
+          color: var(--hw-gold-dim);
           cursor: pointer;
           transition: all 0.3s ease;
-          border-radius: 2px;
-          backdrop-filter: blur(10px);
         }
         .hw-display-btn:hover {
-          background: rgba(201,169,78,0.1);
-          border-color: var(--hw-gold);
+          border-color: rgba(201,169,78,0.5);
+          color: var(--hw-gold);
+          background: rgba(201,169,78,0.05);
         }
 
-        /* ── Responsive ── */
+        @keyframes hw-fadeUp {
+          from { opacity: 0; transform: translateY(12px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Floating diamonds (used by themes) */
+        @keyframes hw-floatDiamond {
+          0% { opacity: 0; transform: rotate(45deg) scale(0.5); }
+          20% { opacity: 1; }
+          80% { opacity: 1; }
+          100% { opacity: 0; transform: rotate(45deg) scale(0.5) translateY(-30px); }
+        }
+        .hw-floating-diamond {
+          position: absolute;
+          border: 1px solid rgba(201,169,78,0.3);
+          animation: hw-floatDiamond var(--dur, 12s) ease-in-out var(--delay, 0s) infinite;
+        }
+
+        /* Theme: sunburst pulse */
+        .hw-display-sunburst {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+          opacity: 0;
+          animation: hw-sunburstPulse 4s ease-in-out infinite;
+        }
+        @keyframes hw-sunburstPulse {
+          0%, 100% { opacity: 0.06; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 0.036; transform: translate(-50%, -50%) scale(0.95); }
+        }
+
+        /* Theme: concentric circles */
+        .hw-concentric-circle {
+          position: absolute;
+          top: 50%; left: 50%;
+          border-radius: 50%;
+          border: 1px solid rgba(201,169,78,0.1);
+          transform: translate(-50%, -50%);
+          animation: hw-concentricPulse 3s ease-in-out infinite;
+        }
+        @keyframes hw-concentricPulse {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.8; }
+        }
+
+        /* Theme: particles */
+        .hw-particle {
+          position: absolute;
+          width: 2px; height: 2px;
+          border-radius: 50%;
+          background: var(--hw-gold);
+          animation: hw-particleFall var(--dur, 10s) linear var(--delay, 0s) infinite;
+        }
+        @keyframes hw-particleFall {
+          0% { transform: translateY(-10px); opacity: 0; }
+          10% { opacity: var(--opacity, 0.3); }
+          90% { opacity: var(--opacity, 0.3); }
+          100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* Theme: chevrons */
+        .hw-chevron-row {
+          position: absolute;
+          left: 0; right: 0;
+          display: flex;
+          justify-content: space-evenly;
+          animation: hw-chevronWave 4s ease-in-out var(--delay, 0s) infinite;
+        }
+        .hw-chevron-row span {
+          font-size: 14px;
+          color: rgba(201,169,78,0.08);
+        }
+        @keyframes hw-chevronWave {
+          0%, 100% { opacity: 0; }
+          50% { opacity: 1; }
+        }
+
+        /* Theme: spirograph petals */
+        .hw-petal-ring {
+          position: absolute;
+          top: 50%; left: 50%;
+          transform: translate(-50%, -50%);
+        }
+        .hw-petal-ring.outer { animation: hw-spinCW 30s linear infinite; }
+        .hw-petal-ring.inner { animation: hw-spinCCW 20s linear infinite; }
+        @keyframes hw-spinCW { to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes hw-spinCCW { to { transform: translate(-50%, -50%) rotate(-360deg); } }
+        .hw-petal {
+          position: absolute;
+          border: 1px solid rgba(201,169,78,0.08);
+          border-radius: 50%;
+        }
+
         @media (max-width: 600px) {
-          .hw-compose-layout { padding: 0 12px 40px; }
-          .hw-word-chip { font-size: 15px; padding: 6px 14px; }
-          .hw-connector-chip { font-size: 13px; padding: 5px 10px; }
-          .hw-poem-area { padding: 24px 16px; min-height: 140px; }
-          .hw-poem-word { font-size: 18px; }
-          .hw-btn { padding: 8px 16px; font-size: 9px; letter-spacing: 2px; }
-          .hw-display-frame { padding: 40px 24px; }
-          .hw-display-word { font-size: 20px !important; }
-          .hw-display-controls { bottom: 24px; gap: 8px; }
-          .hw-display-btn { padding: 10px 16px; font-size: 9px; }
+          .hw-display-frame { padding: 36px 24px; }
+          .hw-display-poem-word { font-size: 16px; letter-spacing: 2px; }
+          .hw-display-btn { padding: 6px 14px; font-size: 8px; }
         }
       `}</style>
 
@@ -886,141 +1281,322 @@ export default function HarlemInWordsPage() {
 
       {/* ── COMPOSE VIEW ── */}
       {view === 'compose' && !displayMode && (
-        <>
+        <div className="hw-compose-page">
           <button className="hw-nav" onClick={() => setView('welcome')}>
             <span className="hw-nav-text">M</span>
             <span className="hw-nav-arrow">{'\u2190'}</span>
             <span className="hw-nav-label">Back</span>
           </button>
 
-          <div className="hw-header">
-            <h1>Harlem in Words</h1>
-            <p className="hw-header-sub">Tap words to compose your poem</p>
+          {/* LEFT PANEL: Poem Frame */}
+          <div className="hw-left-panel">
+            {/* Sunburst */}
+            <svg className="hw-sunburst" viewBox="0 0 200 200">
+              {Array.from({ length: 24 }).map((_, i) => {
+                const angle = (i / 24) * 360;
+                const rad = (angle * Math.PI) / 180;
+                return (
+                  <line
+                    key={i}
+                    x1="100" y1="100"
+                    x2={100 + Math.cos(rad) * 100}
+                    y2={100 + Math.sin(rad) * 100}
+                    stroke="var(--hw-gold)"
+                    strokeWidth="0.5"
+                  />
+                );
+              })}
+            </svg>
+
+            <div className="hw-frame">
+              <div className="hw-frame-inner-border" />
+
+              {/* Corner ornaments */}
+              {['tl', 'tr', 'bl', 'br'].map(pos => (
+                <div key={pos} className={`hw-corner ${pos}`}>
+                  <svg viewBox="0 0 20 20">
+                    <path d="M0,0 L20,0 M0,0 L0,20" stroke="rgba(201,169,78,0.4)" strokeWidth="1.5" fill="none" />
+                    <path d="M2,2 L14,14" stroke="rgba(201,169,78,0.25)" strokeWidth="0.5" fill="none" />
+                    <rect x="0" y="0" width="4" height="4" fill="rgba(201,169,78,0.3)" />
+                  </svg>
+                </div>
+              ))}
+
+              {/* Top diamond */}
+              <div className="hw-top-diamond">
+                <svg width="24" height="16" viewBox="0 0 24 16">
+                  <path d="M12,0 L24,8 L12,16 L0,8 Z" stroke="rgba(201,169,78,0.35)" strokeWidth="1" fill="none" />
+                  <path d="M12,4 L18,8 L12,12 L6,8 Z" fill="rgba(201,169,78,0.15)" />
+                </svg>
+              </div>
+
+              {/* Shimmer */}
+              <div className={`hw-shimmer ${shimmerActive ? 'active' : ''}`} />
+
+              {/* Frame title */}
+              <div className="hw-frame-title">
+                <h2>Harlem in Words</h2>
+                <div className="hw-frame-title-deco">
+                  <span>{'\u25C6'}</span>
+                </div>
+              </div>
+
+              {/* Poem display */}
+              <div className="hw-poem-display">
+                {!hasWords ? (
+                  <div className="hw-poem-placeholder">
+                    <div className="hw-poem-placeholder-icon">{'\u270E'}</div>
+                    <div className="hw-poem-placeholder-text">
+                      Tap words to build<br />your poem here
+                    </div>
+                  </div>
+                ) : (
+                  <div className="hw-poem-text">
+                    {poem.map((entry, i) => {
+                      if (entry.isLineBreak) return <br key={entry.uid} />;
+                      return (
+                        <span
+                          key={entry.uid}
+                          onClick={() => handlePoemWordTap(entry.uid)}
+                          onTouchEnd={(e) => {
+                            e.preventDefault();
+                            handlePoemWordTap(entry.uid);
+                          }}
+                        >
+                          {entry.text}{' '}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Hint */}
+              <div className="hw-hint" style={{ opacity: hasWords ? 1 : 0 }}>
+                double-tap a word in your poem to add {'\u2018'}s{'\u2019'}
+              </div>
+
+              {/* Buttons */}
+              <div className="hw-frame-btns">
+                <button className="hw-frame-btn" onClick={addLineBreak} disabled={!hasWords}>
+                  {'\u21B5'} Line
+                </button>
+                <button className="hw-frame-btn" onClick={handleUndo} disabled={undoStack.length === 0}>
+                  {'\u21A9'} Undo
+                </button>
+                <button className="hw-frame-btn" onClick={handleClear} disabled={!hasWords}>
+                  Clear
+                </button>
+                <button className="hw-frame-btn primary" onClick={() => setDisplayMode(true)} disabled={!hasWords}>
+                  {'\u25C6'} Display
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div className="hw-compose-layout">
-            {/* Word bank by category */}
-            {CATEGORY_ORDER.map(cat => {
-              const meta = CATEGORY_META[cat];
-              const words = WORDS.filter(w => w.category === cat);
-              return (
-                <div key={cat} className="hw-bank-section">
-                  <div className="hw-bank-category-label" style={{ color: meta.color }}>{meta.label}</div>
-                  <div className="hw-bank-words">
-                    {words.map(w => (
-                      <button
-                        key={w.word}
-                        className="hw-word-chip"
-                        style={{
-                          color: meta.color,
-                          borderColor: `${meta.color}33`,
-                        }}
-                        onClick={() => addWord(w.word, cat)}
-                        onMouseEnter={e => {
-                          (e.target as HTMLElement).style.borderColor = meta.color;
-                          (e.target as HTMLElement).style.background = `${meta.color}12`;
-                        }}
-                        onMouseLeave={e => {
-                          (e.target as HTMLElement).style.borderColor = `${meta.color}33`;
-                          (e.target as HTMLElement).style.background = 'rgba(255,255,255,0.02)';
-                        }}
-                      >
-                        {w.word}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
+          {/* Divider */}
+          <div className="hw-divider" />
 
+          {/* RIGHT PANEL: Word Bank */}
+          <div className="hw-right-panel">
             {/* Connectors */}
-            <div className="hw-connectors-section">
-              <div className="hw-bank-category-label" style={{ color: 'rgba(232,224,208,0.5)' }}>Connectors</div>
-              <div className="hw-bank-words">
+            <div className="hw-connectors">
+              <div className="hw-connectors-label">Connectors {'\u2014'} tap to add (reusable)</div>
+              <div className="hw-connectors-grid">
                 {CONNECTORS.map(c => (
-                  <button
-                    key={c}
-                    className="hw-connector-chip"
-                    onClick={() => addWord(c, 'connector')}
-                  >
+                  <button key={c} className="hw-connector-tile" onClick={() => addConnector(c)}>
                     {c}
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Poem composition area */}
-            <div className="hw-poem-area">
-              <div className="hw-poem-corner tl" />
-              <div className="hw-poem-corner tr" />
-              <div className="hw-poem-corner bl" />
-              <div className="hw-poem-corner br" />
+            {/* Category tabs */}
+            <div className="hw-cat-tabs">
+              {CATEGORY_ORDER.map(cat => (
+                <button
+                  key={cat}
+                  className={`hw-cat-tab ${activeCategory === cat ? 'active' : ''}`}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  <span className="hw-cat-dot" style={{ background: CATEGORY_META[cat].dot }} />
+                  {CATEGORY_META[cat].label}
+                </button>
+              ))}
+            </div>
 
-              {poem.length === 0 ? (
-                <div className="hw-poem-placeholder">
-                  Tap words above to begin your poem...
-                </div>
-              ) : (
-                <div className="hw-poem-words">
-                  {poem.map(w => {
-                    if (w.isLineBreak) {
-                      return <div key={w.id} className="hw-line-break-marker" />;
-                    }
-                    const def = WORDS.find(d => d.word === w.text || d.plural === w.text);
-                    const canPlural = def && def.plural;
-                    return (
-                      <span
-                        key={w.id}
-                        className="hw-poem-word"
-                        style={{ color: getWordColor(w.category) }}
-                        onClick={() => removeWord(w.id)}
-                        onDoubleClick={canPlural ? (e) => {
-                          e.stopPropagation();
-                          togglePlural(w.id);
-                        } : undefined}
-                      >
-                        {w.text}
-                      </span>
-                    );
-                  })}
+            {/* Word tray */}
+            <div className="hw-word-tray">
+              {availableWords.map(word => (
+                <button
+                  key={word}
+                  className="hw-word-tile"
+                  style={{ borderLeftColor: CATEGORY_META[activeCategory].dot }}
+                  onClick={() => addCategoryWord(word, activeCategory)}
+                >
+                  {word}
+                </button>
+              ))}
+              {availableWords.length === 0 && (
+                <div style={{
+                  fontFamily: "'Josefin Sans', sans-serif",
+                  fontSize: '11px',
+                  color: 'var(--hw-text-dim)',
+                  fontStyle: 'italic',
+                  padding: '20px',
+                  opacity: 0.5,
+                }}>
+                  All {CATEGORY_META[activeCategory].label.toLowerCase()} words used
                 </div>
               )}
             </div>
 
-            {/* Controls */}
-            <div className="hw-controls">
-              <button className="hw-btn" onClick={addLineBreak} disabled={poem.length === 0}>
-                Line Break
-              </button>
-              <button className="hw-btn" onClick={handleUndo} disabled={undoStack.length === 0}>
-                Undo
-              </button>
-              <button className="hw-btn" onClick={handleShuffle} disabled={poem.length <= 1}>
-                Shuffle
-              </button>
-              <button className="hw-btn" onClick={handleClear} disabled={poem.length === 0}>
-                Clear
-              </button>
-              <button
-                className="hw-btn display"
-                onClick={() => setDisplayMode(true)}
-                disabled={poem.filter(w => !w.isLineBreak).length === 0}
-              >
-                Display Poem
-              </button>
-            </div>
+            {/* Shuffle button */}
+            <button className="hw-shuffle-btn" onClick={handleShuffle}>
+              {'\u21BB'} Shuffle Words
+            </button>
           </div>
-        </>
+        </div>
       )}
 
       {/* ── DISPLAY MODE ── */}
       {displayMode && (
         <div className="hw-display-overlay">
-          <div className={`hw-display-frame hw-theme-${displayTheme}`}>
-            <div className="hw-display-corner tl" />
-            <div className="hw-display-corner tr" />
-            <div className="hw-display-corner bl" />
-            <div className="hw-display-corner br" />
+          {/* Background animations */}
+          <div className="hw-display-bg">
+            {displayTheme === 0 && <>
+              {/* Sunburst + floating diamonds */}
+              <svg className="hw-display-sunburst" width="120vmin" height="120vmin" viewBox="0 0 200 200" style={{ width: '120vmin', height: '120vmin' }}>
+                {Array.from({ length: 36 }).map((_, i) => {
+                  const angle = (i / 36) * 360;
+                  const rad = (angle * Math.PI) / 180;
+                  return <line key={i} x1="100" y1="100" x2={100 + Math.cos(rad) * 100} y2={100 + Math.sin(rad) * 100} stroke="var(--hw-gold)" strokeWidth="0.5" />;
+                })}
+              </svg>
+              {Array.from({ length: 20 }).map((_, i) => (
+                <div key={i} className="hw-floating-diamond" style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${6 + Math.random() * 10}px`,
+                  height: `${6 + Math.random() * 10}px`,
+                  '--dur': `${8 + Math.random() * 12}s`,
+                  '--delay': `${Math.random() * 3}s`,
+                } as React.CSSProperties} />
+              ))}
+            </>}
+
+            {displayTheme === 1 && <>
+              {/* Concentric pulsing circles */}
+              {[15, 30, 45, 60, 75, 90].map((size, i) => (
+                <div key={i} className="hw-concentric-circle" style={{
+                  width: `${size}vmin`,
+                  height: `${size}vmin`,
+                  animationDelay: `${i * 0.3}s`,
+                }} />
+              ))}
+              {Array.from({ length: 15 }).map((_, i) => (
+                <div key={i} className="hw-floating-diamond" style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${6 + Math.random() * 10}px`,
+                  height: `${6 + Math.random() * 10}px`,
+                  '--dur': `${8 + Math.random() * 12}s`,
+                  '--delay': `${Math.random() * 3}s`,
+                } as React.CSSProperties} />
+              ))}
+            </>}
+
+            {displayTheme === 2 && <>
+              {/* Gold particle rain */}
+              {Array.from({ length: 40 }).map((_, i) => (
+                <div key={i} className="hw-particle" style={{
+                  left: `${Math.random() * 100}%`,
+                  '--dur': `${6 + Math.random() * 8}s`,
+                  '--delay': `${Math.random() * 6}s`,
+                  '--opacity': `${0.2 + Math.random() * 0.3}`,
+                } as React.CSSProperties} />
+              ))}
+            </>}
+
+            {displayTheme === 3 && <>
+              {/* Chevron waves */}
+              {Array.from({ length: 8 }).map((_, row) => (
+                <div key={row} className="hw-chevron-row" style={{
+                  top: `${12 + row * 12}%`,
+                  '--delay': `${row * 0.4}s`,
+                } as React.CSSProperties}>
+                  {Array.from({ length: 12 }).map((_, j) => (
+                    <span key={j}>{'\u2303'}</span>
+                  ))}
+                </div>
+              ))}
+              {Array.from({ length: 12 }).map((_, i) => (
+                <div key={i} className="hw-floating-diamond" style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${6 + Math.random() * 10}px`,
+                  height: `${6 + Math.random() * 10}px`,
+                  '--dur': `${8 + Math.random() * 12}s`,
+                  '--delay': `${Math.random() * 3}s`,
+                } as React.CSSProperties} />
+              ))}
+            </>}
+
+            {displayTheme === 4 && <>
+              {/* Spirograph petals */}
+              <div className="hw-petal-ring outer" style={{ width: '80vmin', height: '80vmin' }}>
+                {Array.from({ length: 8 }).map((_, i) => {
+                  const angle = (i / 8) * 360;
+                  return (
+                    <div key={i} className="hw-petal" style={{
+                      width: '30vmin', height: '10vmin',
+                      left: '50%', top: '50%',
+                      transform: `translate(-50%, -50%) rotate(${angle}deg) translateX(20vmin)`,
+                    }} />
+                  );
+                })}
+              </div>
+              <div className="hw-petal-ring inner" style={{ width: '50vmin', height: '50vmin' }}>
+                {Array.from({ length: 6 }).map((_, i) => {
+                  const angle = (i / 6) * 360 + 15;
+                  return (
+                    <div key={i} className="hw-petal" style={{
+                      width: '20vmin', height: '7vmin',
+                      left: '50%', top: '50%',
+                      transform: `translate(-50%, -50%) rotate(${angle}deg) translateX(12vmin)`,
+                    }} />
+                  );
+                })}
+              </div>
+              {Array.from({ length: 18 }).map((_, i) => (
+                <div key={i} className="hw-floating-diamond" style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  width: `${6 + Math.random() * 10}px`,
+                  height: `${6 + Math.random() * 10}px`,
+                  '--dur': `${8 + Math.random() * 12}s`,
+                  '--delay': `${Math.random() * 3}s`,
+                } as React.CSSProperties} />
+              ))}
+            </>}
+          </div>
+
+          {/* Frame */}
+          <div className="hw-display-frame">
+            <div className="hw-display-frame-outer" />
+            <div className="hw-display-frame-inner" />
+
+            {/* Large corner ornaments */}
+            {['tl', 'tr', 'bl', 'br'].map(pos => (
+              <div key={pos} className={`hw-display-corner ${pos}`}>
+                <svg viewBox="0 0 44 44">
+                  <path d="M0,0 L44,0 M0,0 L0,44" stroke="rgba(201,169,78,0.4)" strokeWidth="2" fill="none" />
+                  <path d="M4,4 L30,30" stroke="rgba(201,169,78,0.2)" strokeWidth="0.5" fill="none" />
+                  <rect x="0" y="0" width="6" height="6" fill="rgba(201,169,78,0.3)" />
+                </svg>
+              </div>
+            ))}
+
             <div className="hw-display-deco top">
               <div className="hw-display-deco-diamond" />
             </div>
@@ -1028,56 +1604,51 @@ export default function HarlemInWordsPage() {
               <div className="hw-display-deco-diamond" />
             </div>
 
+            {/* Fan ornament */}
+            <div className="hw-display-fan">
+              <svg width="60" height="30" viewBox="0 0 60 30">
+                {Array.from({ length: 9 }).map((_, i) => {
+                  const angle = -80 + (i / 8) * 160;
+                  const rad = (angle * Math.PI) / 180;
+                  const opacity = 0.2 + (1 - Math.abs(i - 4) / 4) * 0.2;
+                  return <line key={i} x1="30" y1="30" x2={30 + Math.cos(rad) * 28} y2={30 + Math.sin(rad) * 28} stroke="var(--hw-gold)" strokeWidth="0.5" opacity={opacity} />;
+                })}
+              </svg>
+            </div>
+
+            <div className="hw-display-label">Harlem in Words</div>
+
             <div className="hw-display-poem">
-              {poemLines.map((line, li) => (
-                <div key={li} className="hw-display-line">
-                  {line.map((w, wi) => {
-                    const globalIdx = poemLines.slice(0, li).reduce((sum, l) => sum + l.length, 0) + wi;
-                    const delay = displayTheme === 'typewriter'
-                      ? globalIdx * 0.15
-                      : globalIdx * 0.12;
-                    return (
-                      <span
-                        key={w.id}
-                        className="hw-display-word"
-                        style={{
-                          color: getWordColor(w.category),
-                          animationDelay: displayReady ? `${delay}s` : '99s',
-                        }}
-                      >
-                        {w.text}{wi < line.length - 1 ? ' ' : ''}
-                      </span>
-                    );
-                  })}
+              {displayLines.map((line, li) => (
+                <div key={li} className="hw-display-poem-line">
+                  {line.map((w, wi) => (
+                    <span key={w.uid} className="hw-display-poem-word">
+                      {w.text}{wi < line.length - 1 ? ' ' : ''}
+                    </span>
+                  ))}
                 </div>
               ))}
             </div>
-          </div>
 
-          <div className="hw-display-controls">
-            {DISPLAY_THEMES.map(t => (
-              <button
-                key={t.name}
-                className="hw-display-btn"
-                style={displayTheme === t.name ? {
-                  background: 'rgba(201,169,78,0.12)',
-                  borderColor: 'var(--hw-gold)',
-                } : undefined}
-                onClick={() => {
-                  setDisplayReady(false);
-                  setDisplayTheme(t.name);
-                  setTimeout(() => setDisplayReady(true), 100);
-                }}
-              >
-                {t.label}
+            <div className="hw-display-divider">
+              <span>{'\u25C6'}</span>
+            </div>
+
+            <div className="hw-display-byline">
+              {'\u2014'} A Visitor to the Mini Museum {'\u2014'}
+            </div>
+
+            <div className="hw-display-actions">
+              <button className="hw-display-btn" onClick={() => setDisplayMode(false)}>
+                Back to Editing
               </button>
-            ))}
-            <button
-              className="hw-display-btn"
-              onClick={() => setDisplayMode(false)}
-            >
-              Close
-            </button>
+              <button className="hw-display-btn" onClick={() => {
+                setDisplayMode(false);
+                handleClear();
+              }}>
+                New Poem
+              </button>
+            </div>
           </div>
         </div>
       )}
