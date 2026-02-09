@@ -62,9 +62,9 @@ const artifacts: Artifact[] = [
     id: 'harlem-in-words',
     title: 'Harlem in Words',
     subtitle: 'Poetry of the Renaissance',
-    status: 'coming-soon',
+    status: 'available',
     type: 'interactive',
-    route: '',
+    route: '/exhibitions/harlem-renaissance/harlem-in-words',
     emoji: '\u{270D}\u{FE0F}',
   },
 ];
