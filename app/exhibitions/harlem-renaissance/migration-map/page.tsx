@@ -113,6 +113,7 @@ export default function MigrationMapPage() {
   const [trainPos, setTrainPos] = useState({ x: 0, y: 0 });
   const [traveledOffset, setTraveledOffset] = useState(1);
   const [travelTransition, setTravelTransition] = useState(true);
+  const [mapZoom, setMapZoom] = useState({ originX: 50, originY: 50, scale: 1 });
 
   const routePathRef = useRef<SVGPathElement>(null);
   const routeLengthRef = useRef(0);
@@ -245,6 +246,21 @@ export default function MigrationMapPage() {
       const positions = cityPathPositionsRef.current;
       if (!path || !len) { resolve(); return; }
 
+      // Zoom into section between the two cities
+      const c1 = CITIES[Math.max(0, fromIdx)];
+      const c2 = CITIES[toIdx];
+      const centerX = (c1.cx + c2.cx) / 2;
+      const centerY = (c1.cy + c2.cy) / 2;
+      const dx = Math.abs(c2.cx - c1.cx);
+      const dy = Math.abs(c2.cy - c1.cy);
+      const span = Math.max(dx, dy, 100);
+      const scale = Math.min(2.5, Math.max(1.5, 300 / span));
+      setMapZoom({
+        originX: (centerX / 700) * 100,
+        originY: (centerY / 620) * 100,
+        scale,
+      });
+
       setTrainVisible(true);
       const startPct = fromIdx >= 0 ? positions[fromIdx] : positions[0];
       const endPct = positions[toIdx];
@@ -266,6 +282,8 @@ export default function MigrationMapPage() {
           requestAnimationFrame(animate);
         } else {
           setTrainVisible(false);
+          // Zoom back out
+          setMapZoom({ originX: 50, originY: 50, scale: 1 });
           resolve();
         }
       }
@@ -408,36 +426,39 @@ export default function MigrationMapPage() {
         .mg-intro em { color: var(--mg-gold-light); font-style: normal; }
 
         .mg-map-container {
-          max-width: 1100px; margin: 0 auto;
-          padding: 0 24px; flex: 1;
+          margin: 0 auto; flex: 1;
+          padding: 0 24px;
           display: flex; align-items: center;
         }
-        .mg-map-svg-wrap { width: 100%; }
-        .mg-map-svg-wrap svg { width: 100%; height: auto; display: block; }
+        .mg-map-svg-wrap { width: 100%; overflow: hidden; border-radius: 8px; }
+        .mg-map-svg-wrap svg {
+          width: 100%; height: auto; display: block;
+          transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
         /* Route */
-        .mg-route-path { stroke: var(--mg-gold); stroke-width: 2; fill: none; opacity: 0.35; filter: drop-shadow(0 0 4px rgba(201,169,78,0.2)); }
-        .mg-route-traveled { stroke: var(--mg-gold); stroke-width: 2.5; fill: none; opacity: 0.8; filter: drop-shadow(0 0 8px rgba(201,169,78,0.4)); }
+        .mg-route-path { stroke: var(--mg-gold); stroke-width: 3; fill: none; opacity: 0.35; filter: drop-shadow(0 0 6px rgba(201,169,78,0.2)); }
+        .mg-route-traveled { stroke: var(--mg-gold); stroke-width: 3.5; fill: none; opacity: 0.8; filter: drop-shadow(0 0 10px rgba(201,169,78,0.4)); }
         .mg-route-chevrons { opacity: 0.15; }
         .mg-water { fill: rgba(201,169,78,0.015); stroke: rgba(201,169,78,0.04); stroke-width: 0.5; }
         .mg-state-outline { fill: none; stroke: rgba(201,169,78,0.04); stroke-width: 0.5; }
 
         /* City dots */
         .city-dot { cursor: pointer; }
-        .mg-dot-outer { fill: var(--mg-burgundy-deep); stroke: var(--mg-burgundy); stroke-width: 1.5; transition: all 0.4s ease; }
+        .mg-dot-outer { fill: var(--mg-burgundy-deep); stroke: var(--mg-burgundy); stroke-width: 2; transition: all 0.4s ease; }
         .mg-dot-inner { fill: var(--mg-burgundy); transition: all 0.4s ease; }
         .city-dot.visited .mg-dot-outer { stroke: var(--mg-gold-dim); }
         .city-dot.visited .mg-dot-inner { fill: var(--mg-gold-dim); }
-        .city-dot.current .mg-dot-outer { stroke: var(--mg-gold); filter: drop-shadow(0 0 12px rgba(201,169,78,0.5)); }
+        .city-dot.current .mg-dot-outer { stroke: var(--mg-gold); filter: drop-shadow(0 0 16px rgba(201,169,78,0.5)); }
         .city-dot.current .mg-dot-inner { fill: var(--mg-burgundy-light); }
         .city-dot.next-stop .mg-dot-outer { stroke: var(--mg-burgundy-light); animation: mg-next-pulse 2s ease-in-out infinite; }
         @keyframes mg-next-pulse {
-          0%, 100% { filter: drop-shadow(0 0 4px rgba(107,29,42,0.3)); }
-          50% { filter: drop-shadow(0 0 14px rgba(107,29,42,0.7)); }
+          0%, 100% { filter: drop-shadow(0 0 6px rgba(107,29,42,0.3)); }
+          50% { filter: drop-shadow(0 0 18px rgba(107,29,42,0.7)); }
         }
         .mg-city-label {
-          font-family: 'Josefin Sans', sans-serif; font-size: 9px;
-          letter-spacing: 1.5px; text-transform: uppercase;
+          font-family: 'Josefin Sans', sans-serif; font-size: 12px;
+          letter-spacing: 2px; text-transform: uppercase;
           fill: var(--mg-text-dim); font-weight: 600;
           pointer-events: none; transition: fill 0.3s;
         }
@@ -707,7 +728,11 @@ export default function MigrationMapPage() {
 
         <div className="mg-map-container">
           <div className="mg-map-svg-wrap">
-            <svg ref={svgRef} viewBox="0 0 700 620" xmlns="http://www.w3.org/2000/svg">
+            <svg ref={svgRef} viewBox="0 0 700 620" xmlns="http://www.w3.org/2000/svg"
+              style={{
+                transform: `scale(${mapZoom.scale})`,
+                transformOrigin: `${mapZoom.originX}% ${mapZoom.originY}%`,
+              }}>
               {/* Geography */}
               <path d="M310,570 Q300,500 290,450 Q285,400 295,350 Q305,300 300,250 Q290,200 285,150 Q280,100 275,60" className="mg-water" strokeWidth="7" opacity="0.3" />
               <ellipse cx="420" cy="130" rx="75" ry="35" className="mg-water" />
@@ -742,9 +767,9 @@ export default function MigrationMapPage() {
 
               {/* Train icon */}
               {trainVisible && (
-                <g transform={`translate(${trainPos.x},${trainPos.y})`}>
-                  <circle r="6" fill="var(--mg-gold)" opacity="0.9" />
-                  <circle r="3" fill="var(--mg-bg)" />
+                <g transform={`translate(${trainPos.x},${trainPos.y})`} filter="url(#mgTrainGlow)">
+                  <circle r="10" fill="var(--mg-gold)" opacity="0.9" />
+                  <circle r="5" fill="var(--mg-bg)" />
                 </g>
               )}
 
@@ -760,27 +785,27 @@ export default function MigrationMapPage() {
                 <g key={c.id} className={getDotClass(i)} onClick={() => {
                   if (i <= currentCityIdx) expandCity(i);
                 }}>
-                  <circle className="mg-dot-outer" cx={c.cx} cy={c.cy} r="9" />
-                  <circle className="mg-dot-inner" cx={c.cx} cy={c.cy} r="5" />
+                  <circle className="mg-dot-outer" cx={c.cx} cy={c.cy} r="14" />
+                  <circle className="mg-dot-inner" cx={c.cx} cy={c.cy} r="8" />
                   {c.id === 'delta' && (<>
-                    <text className="mg-city-label" x={c.cx - 32} y={c.cy + 18} textAnchor="end">Mississippi</text>
-                    <text className="mg-city-label" x={c.cx - 32} y={c.cy + 29} textAnchor="end">Delta</text>
+                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 22} textAnchor="end">Mississippi</text>
+                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 36} textAnchor="end">Delta</text>
                   </>)}
                   {c.id === 'new-orleans' && (<>
-                    <text className="mg-city-label" x={c.cx + 30} y={c.cy - 5}>New</text>
-                    <text className="mg-city-label" x={c.cx + 30} y={c.cy + 6}>Orleans</text>
+                    <text className="mg-city-label" x={c.cx + 36} y={c.cy - 5}>New</text>
+                    <text className="mg-city-label" x={c.cx + 36} y={c.cy + 9}>Orleans</text>
                   </>)}
                   {c.id === 'memphis' && (
-                    <text className="mg-city-label" x={c.cx - 37} y={c.cy - 2} textAnchor="end">Memphis</text>
+                    <text className="mg-city-label" x={c.cx - 44} y={c.cy + 4} textAnchor="end">Memphis</text>
                   )}
                   {c.id === 'st-louis' && (
-                    <text className="mg-city-label" x={c.cx - 37} y={c.cy - 2} textAnchor="end">St. Louis</text>
+                    <text className="mg-city-label" x={c.cx - 44} y={c.cy + 4} textAnchor="end">St. Louis</text>
                   )}
                   {c.id === 'chicago' && (
-                    <text className="mg-city-label" x={c.cx - 37} y={c.cy - 5} textAnchor="end">Chicago</text>
+                    <text className="mg-city-label" x={c.cx - 44} y={c.cy - 4} textAnchor="end">Chicago</text>
                   )}
                   {c.id === 'harlem' && (
-                    <text className="mg-city-label" x={c.cx - 37} y={c.cy - 7} textAnchor="end">Harlem</text>
+                    <text className="mg-city-label" x={c.cx - 44} y={c.cy - 6} textAnchor="end">Harlem</text>
                   )}
                 </g>
               ))}

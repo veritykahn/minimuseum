@@ -35,8 +35,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
   },
   {
     id: 'bass',
-    name: 'Bass',
-    emoji: '\u{1F3B8}',
+    name: 'Double Bass',
+    emoji: '\u{1F3BB}',
     variants: [
       { id: 'doublebass-1', audioSrc: '/exhibitions/harlem/audio/doublebass-1.mp3', label: 'Walking' },
       { id: 'doublebass-2', audioSrc: '/exhibitions/harlem/audio/doublebass-2.mp3', label: 'Pizzicato' },

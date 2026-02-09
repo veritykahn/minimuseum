@@ -701,6 +701,15 @@ export default function JazzLabPage() {
           margin-bottom: 16px;
           line-height: 1.1;
         }
+        .jl-welcome-premise {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: clamp(12px, 2vw, 14px);
+          line-height: 1.8;
+          color: rgba(232,224,208,0.5);
+          font-weight: 300;
+          max-width: 400px;
+          margin: 0 auto 24px;
+        }
         .jl-welcome-tagline {
           font-family: 'Playfair Display', serif;
           font-size: clamp(16px, 3vw, 22px);
@@ -796,6 +805,7 @@ export default function JazzLabPage() {
           <div className="jl-welcome-content">
             <div className="jl-welcome-subtitle-top">The Mini Museum Presents</div>
             <h1 className="jl-welcome-title">The Jazz Lab</h1>
+            <p className="jl-welcome-premise">Born from the genius of Black musicians in the clubs and dance halls of Harlem, jazz became America{'\u2019'}s great art form.</p>
             <p className="jl-welcome-tagline">Step inside. The band is waiting.</p>
             <button className="jl-welcome-enter" onClick={() => setView('lab')}>
               Enter
