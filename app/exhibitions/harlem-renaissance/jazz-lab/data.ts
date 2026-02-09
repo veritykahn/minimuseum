@@ -20,6 +20,34 @@ export type InstrumentDef = {
 
 export const INSTRUMENTS: InstrumentDef[] = [
   {
+    id: 'drums',
+    name: 'Drums',
+    emoji: '\u{1F941}',
+    variants: [
+      { id: 'drum-1', audioSrc: '/exhibitions/harlem/audio/drum-1.mp3', label: 'Swing' },
+      { id: 'drum-2', audioSrc: '/exhibitions/harlem/audio/drum-2.mp3', label: 'Brush' },
+    ],
+    fact: {
+      title: 'The Drums in Jazz',
+      text: 'Chick Webb, the tiny drummer with the thunderous sound, ruled the Savoy Ballroom from 1931. His drum battles were legendary \u2014 even Benny Goodman\'s band couldn\'t outswing him.',
+      quote: '"The rhythm is below everything." \u2014 Chick Webb',
+    },
+  },
+  {
+    id: 'bass',
+    name: 'Bass',
+    emoji: '\u{1F3B8}',
+    variants: [
+      { id: 'doublebass-1', audioSrc: '/exhibitions/harlem/audio/doublebass-1.mp3', label: 'Walking' },
+      { id: 'doublebass-2', audioSrc: '/exhibitions/harlem/audio/doublebass-2.mp3', label: 'Pizzicato' },
+    ],
+    fact: {
+      title: 'The Bass in Jazz',
+      text: 'The upright bass was the heartbeat of every Harlem jazz combo. Players like Jimmy Blanton revolutionized the instrument, turning the bass from timekeeper into soloist.',
+      quote: '"The bass is the link between harmony and rhythm." \u2014 Ray Brown',
+    },
+  },
+  {
     id: 'piano',
     name: 'Piano',
     emoji: '\u{1F3B9}',
@@ -76,41 +104,13 @@ export const INSTRUMENTS: InstrumentDef[] = [
       quote: '"I live my daydreams in music." \u2014 Sidney Bechet',
     },
   },
-  {
-    id: 'drums',
-    name: 'Drums',
-    emoji: '\u{1F941}',
-    variants: [
-      { id: 'drum-1', audioSrc: '/exhibitions/harlem/audio/drum-1.mp3', label: 'Swing' },
-      { id: 'drum-2', audioSrc: '/exhibitions/harlem/audio/drum-2.mp3', label: 'Brush' },
-    ],
-    fact: {
-      title: 'The Drums in Jazz',
-      text: 'Chick Webb, the tiny drummer with the thunderous sound, ruled the Savoy Ballroom from 1931. His drum battles were legendary \u2014 even Benny Goodman\'s band couldn\'t outswing him.',
-      quote: '"The rhythm is below everything." \u2014 Chick Webb',
-    },
-  },
-  {
-    id: 'bass',
-    name: 'Bass',
-    emoji: '\u{1F3B8}',
-    variants: [
-      { id: 'doublebass-1', audioSrc: '/exhibitions/harlem/audio/doublebass-1.mp3', label: 'Walking' },
-      { id: 'doublebass-2', audioSrc: '/exhibitions/harlem/audio/doublebass-2.mp3', label: 'Pizzicato' },
-    ],
-    fact: {
-      title: 'The Bass in Jazz',
-      text: 'The upright bass was the heartbeat of every Harlem jazz combo. Players like Jimmy Blanton revolutionized the instrument, turning the bass from timekeeper into soloist.',
-      quote: '"The bass is the link between harmony and rhythm." \u2014 Ray Brown',
-    },
-  },
 ];
 
 export const INSTRUMENT_MAP: Record<InstrumentId, InstrumentDef> = Object.fromEntries(
   INSTRUMENTS.map(i => [i.id, i])
 ) as Record<InstrumentId, InstrumentDef>;
 
-export const ALL_INSTRUMENT_IDS: InstrumentId[] = ['piano', 'trumpet', 'saxophone', 'clarinet', 'drums', 'bass'];
+export const ALL_INSTRUMENT_IDS: InstrumentId[] = ['drums', 'bass', 'piano', 'trumpet', 'saxophone', 'clarinet'];
 
 // Quiz data
 export type QuizAudioItem = {
@@ -134,7 +134,7 @@ export const QUIZ_AUDIO_POOL: QuizAudioItem[] = [
   { src: '/exhibitions/harlem/audio/doublebass-2.mp3', instrument: 'bass' },
 ];
 
-export const TOTAL_QUIZ_ROUNDS = 10;
+export const TOTAL_QUIZ_ROUNDS = 13;
 
 export type ScoreRating = {
   min: number;
@@ -143,9 +143,9 @@ export type ScoreRating = {
 };
 
 export const SCORE_RATINGS: ScoreRating[] = [
-  { min: 10, label: 'Jazz Master', message: 'Perfect score! Duke Ellington would be proud.' },
-  { min: 8, label: 'Jazz Aficionado', message: "You've got a serious ear for jazz!" },
-  { min: 6, label: 'Bandstand Regular', message: 'Not bad! Keep listening.' },
+  { min: 13, label: 'Jazz Master', message: 'Perfect score! Duke Ellington would be proud.' },
+  { min: 10, label: 'Jazz Aficionado', message: "You've got a serious ear for jazz!" },
+  { min: 7, label: 'Bandstand Regular', message: 'Not bad! Keep listening.' },
   { min: 4, label: 'Jazz Newcomer', message: 'Keep exploring the sounds of jazz.' },
   { min: 0, label: 'First Night at the Club', message: 'The Harlem jazz scene awaits your return!' },
 ];

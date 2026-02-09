@@ -171,14 +171,15 @@ export function useBandBuilder(audio: AudioEngine) {
 
   const tapInstrument = useCallback((id: InstrumentId) => {
     if (!playing.has(id)) {
-      // Not playing -> add it
+      // Not playing -> add it AND spotlight it
       addInstrument(id, 0);
-      // If there's a spotlight, dim the new one too
-      if (spotlight) {
-        setTimeout(() => audio.setVolume(id, 0.15), 50);
-      }
+      // Spotlight the newly added instrument
+      setTimeout(() => {
+        const newPlaying = new Map(playing).set(id, 0);
+        setSpotlightInstrument(id, newPlaying);
+      }, 50);
     } else if (spotlight !== id) {
-      // Playing but not spotlighted -> spotlight it
+      // Playing but not spotlighted -> move spotlight to it
       setSpotlightInstrument(id, playing);
     } else {
       // Already spotlighted -> remove it
@@ -242,7 +243,7 @@ type QuizRound = {
 
 function generateRounds(): QuizRound[] {
   const shuffled = [...QUIZ_AUDIO_POOL].sort(() => Math.random() - 0.5);
-  return shuffled.slice(0, TOTAL_QUIZ_ROUNDS).map(item => ({
+  return shuffled.map(item => ({
     audioSrc: item.src,
     correctAnswer: item.instrument,
   }));

@@ -7,6 +7,7 @@ import { INSTRUMENTS, INSTRUMENT_MAP, ALL_INSTRUMENT_IDS, type InstrumentId } fr
 
 export default function JazzLabPage() {
   const router = useRouter();
+  const [view, setView] = useState<'welcome' | 'lab'>('welcome');
   const [activeTab, setActiveTab] = useState<'band' | 'quiz'>('band');
   const [loaded, setLoaded] = useState(false);
   const audioEngine = useAudioEngine();
@@ -21,7 +22,7 @@ export default function JazzLabPage() {
   const handleBack = () => {
     band.stopAll();
     audioEngine.stopAll();
-    router.push('/exhibitions/harlem-renaissance');
+    router.push('/exhibitions/harlem-renaissance/artifacts');
   };
 
   const handleTabChange = (tab: 'band' | 'quiz') => {
@@ -629,6 +630,140 @@ export default function JazzLabPage() {
           font-weight: 300;
         }
 
+        /* ── Welcome Screen ── */
+        .jl-welcome {
+          min-height: 100vh;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          overflow: hidden;
+          background: #0A0A0A;
+        }
+        .jl-welcome::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background:
+            radial-gradient(ellipse at 30% 20%, rgba(201,169,78,0.08) 0%, transparent 50%),
+            radial-gradient(ellipse at 70% 80%, rgba(139,32,32,0.06) 0%, transparent 50%);
+          pointer-events: none;
+        }
+        .jl-welcome-deco-top,
+        .jl-welcome-deco-bottom {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          width: 300px;
+        }
+        .jl-welcome-deco-top { top: 60px; }
+        .jl-welcome-deco-bottom { bottom: 60px; }
+        .jl-welcome-deco-top::before, .jl-welcome-deco-top::after,
+        .jl-welcome-deco-bottom::before, .jl-welcome-deco-bottom::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(201,169,78,0.4), transparent);
+        }
+        .jl-welcome-deco-diamond {
+          width: 8px;
+          height: 8px;
+          background: var(--jl-gold-dim);
+          transform: rotate(45deg);
+        }
+        .jl-welcome-content {
+          position: relative;
+          z-index: 2;
+          text-align: center;
+          animation: jl-fadeIn 1s ease;
+        }
+        .jl-welcome-subtitle-top {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 11px;
+          letter-spacing: 5px;
+          text-transform: uppercase;
+          color: var(--jl-gold-dim);
+          margin-bottom: 20px;
+          font-weight: 600;
+        }
+        .jl-welcome-title {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(36px, 8vw, 64px);
+          font-weight: 900;
+          color: var(--jl-gold);
+          letter-spacing: 6px;
+          text-transform: uppercase;
+          text-shadow: 0 0 60px rgba(201,169,78,0.25);
+          margin-bottom: 16px;
+          line-height: 1.1;
+        }
+        .jl-welcome-tagline {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(16px, 3vw, 22px);
+          font-style: italic;
+          color: var(--jl-text-dim);
+          font-weight: 400;
+          margin-bottom: 50px;
+        }
+        .jl-welcome-enter {
+          display: inline-block;
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 12px;
+          letter-spacing: 5px;
+          text-transform: uppercase;
+          font-weight: 600;
+          padding: 16px 48px;
+          border: 1.5px solid var(--jl-gold);
+          background: transparent;
+          color: var(--jl-gold);
+          cursor: pointer;
+          transition: all 0.4s ease;
+          border-radius: 2px;
+        }
+        .jl-welcome-enter:hover {
+          background: rgba(201,169,78,0.12);
+          box-shadow: 0 0 40px rgba(201,169,78,0.15);
+          letter-spacing: 7px;
+        }
+        .jl-welcome-back {
+          position: fixed;
+          top: 32px;
+          left: 32px;
+          z-index: 10;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: none;
+          border: none;
+          cursor: pointer;
+          font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+          transition: all 0.3s ease;
+        }
+        .jl-welcome-back-text { font-size: 28px; font-weight: 300; color: #525252; }
+        .jl-welcome-back-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
+        .jl-welcome-back-label {
+          font-size: 13px;
+          font-style: italic;
+          color: #7D8471;
+          opacity: 0;
+          max-width: 0;
+          overflow: hidden;
+          white-space: nowrap;
+          transition: all 0.4s ease;
+        }
+        .jl-welcome-back:hover .jl-welcome-back-label { opacity: 1; max-width: 150px; }
+        .jl-welcome-back:hover .jl-welcome-back-arrow { transform: translateX(-4px); }
+
+        @media (max-width: 768px) {
+          .jl-welcome-back { left: 20px; top: 20px; }
+          .jl-welcome-back-text { font-size: 24px; }
+          .jl-welcome-deco-top, .jl-welcome-deco-bottom { width: 200px; }
+        }
+
         /* ── Responsive ── */
         @media (max-width: 768px) {
           .jl-nav { left: 20px; top: 20px; }
@@ -647,6 +782,33 @@ export default function JazzLabPage() {
         }
       `}</style>
 
+      {/* ── WELCOME SCREEN ── */}
+      {view === 'welcome' && (
+        <div className="jl-welcome">
+          <button className="jl-welcome-back" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+            <span className="jl-welcome-back-text">M</span>
+            <span className="jl-welcome-back-arrow">{'\u2190'}</span>
+            <span className="jl-welcome-back-label">Collection</span>
+          </button>
+          <div className="jl-welcome-deco-top">
+            <div className="jl-welcome-deco-diamond" />
+          </div>
+          <div className="jl-welcome-content">
+            <div className="jl-welcome-subtitle-top">The Mini Museum Presents</div>
+            <h1 className="jl-welcome-title">The Jazz Lab</h1>
+            <p className="jl-welcome-tagline">Step inside. The band is waiting.</p>
+            <button className="jl-welcome-enter" onClick={() => setView('lab')}>
+              Enter
+            </button>
+          </div>
+          <div className="jl-welcome-deco-bottom">
+            <div className="jl-welcome-deco-diamond" />
+          </div>
+        </div>
+      )}
+
+      {/* ── LAB VIEW ── */}
+      {view === 'lab' && <>
       {/* Loading overlay */}
       <div className={`jl-loading ${loaded ? 'hidden' : ''}`}>
         <div className="jl-loading-text">Loading instruments...</div>
@@ -656,7 +818,7 @@ export default function JazzLabPage() {
       <div className="jl-nav" onClick={handleBack}>
         <span className="jl-nav-text">M</span>
         <span className="jl-nav-arrow">{'\u2190'}</span>
-        <span className="jl-nav-label">Exhibition</span>
+        <span className="jl-nav-label">Collection</span>
       </div>
 
       {/* Header */}
@@ -799,7 +961,7 @@ export default function JazzLabPage() {
                     }
                   </div>
                   <div className="jl-quiz-hint">
-                    {quiz.gameState === 'idle' ? '10 rounds' : 'Listen carefully...'}
+                    {quiz.gameState === 'idle' ? '13 rounds' : 'Listen carefully...'}
                   </div>
                   {quiz.gameState !== 'idle' && (
                     <div className="jl-quiz-progress">
@@ -872,6 +1034,7 @@ export default function JazzLabPage() {
       <div className="jl-footer">
         The Mini Museum &mdash; Harlem Renaissance Exhibition
       </div>
+      </>}
     </div>
   );
 }
