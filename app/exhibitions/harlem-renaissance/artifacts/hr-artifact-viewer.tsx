@@ -87,8 +87,16 @@ export default function HrArtifactViewer({ artifactId }: Props) {
 
   // Audio state
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const [playingSide, setPlayingSide] = useState<'A' | 'B' | null>(null);
+  const [selectedSide, setSelectedSide] = useState<'A' | 'B'>('A');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const formatTime = (t: number) => {
+    const m = Math.floor(t / 60);
+    const s = Math.floor(t % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  };
 
   const stopAudio = useCallback(() => {
     if (audioRef.current) {
@@ -97,35 +105,56 @@ export default function HrArtifactViewer({ artifactId }: Props) {
       audioRef.current = null;
     }
     setIsPlaying(false);
-    setPlayingSide(null);
+    setCurrentTime(0);
+    setDuration(0);
   }, []);
 
-  const playSide = useCallback((side: 'A' | 'B') => {
+  const playTrack = useCallback((side: 'A' | 'B') => {
     if (!artifact.audio) return;
     const track = side === 'A' ? artifact.audio.sideA : artifact.audio.sideB;
 
-    // If already playing this side, toggle pause/play
-    if (playingSide === side && audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current.play().catch(() => {});
-        setIsPlaying(true);
-      }
-      return;
-    }
-
-    // Switch sides
     stopAudio();
     const audio = new Audio(AUDIO_BASE + track.file);
     audio.volume = 0.8;
+    audio.onloadedmetadata = () => setDuration(audio.duration);
+    audio.ontimeupdate = () => setCurrentTime(audio.currentTime);
+    audio.onended = () => { setIsPlaying(false); setCurrentTime(0); audioRef.current = null; };
     audio.play().catch(() => {});
-    audio.onended = () => { setIsPlaying(false); setPlayingSide(null); audioRef.current = null; };
     audioRef.current = audio;
-    setPlayingSide(side);
+    setSelectedSide(side);
     setIsPlaying(true);
-  }, [artifact.audio, playingSide, isPlaying, stopAudio]);
+  }, [artifact.audio, stopAudio]);
+
+  const togglePlay = useCallback(() => {
+    if (!artifact.audio) return;
+
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    if (!isPlaying && audioRef.current) {
+      audioRef.current.play().catch(() => {});
+      setIsPlaying(true);
+      return;
+    }
+
+    // Nothing loaded yet — start fresh
+    playTrack(selectedSide);
+  }, [artifact.audio, isPlaying, selectedSide, playTrack]);
+
+  const switchSide = useCallback((side: 'A' | 'B') => {
+    if (side === selectedSide && !isPlaying) return;
+    if (side === selectedSide && isPlaying) { togglePlay(); return; }
+    if (isPlaying) {
+      playTrack(side);
+    } else {
+      setSelectedSide(side);
+      setCurrentTime(0);
+      setDuration(0);
+    }
+  }, [selectedSide, isPlaying, playTrack, togglePlay]);
 
   // Initialize Three.js scene
   useEffect(() => {
@@ -145,7 +174,7 @@ export default function HrArtifactViewer({ artifactId }: Props) {
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 2.0;
+    renderer.toneMappingExposure = 1.2;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(renderer.domElement);
 
@@ -158,35 +187,35 @@ export default function HrArtifactViewer({ artifactId }: Props) {
     controls.autoRotate = true;
     controls.autoRotateSpeed = 0.5;
 
-    // Lighting
-    scene.add(new THREE.AmbientLight(0xffffff, 1.8));
+    // Lighting — subdued museum-style
+    scene.add(new THREE.AmbientLight(0xffffff, 1.0));
 
-    const key = new THREE.DirectionalLight(0xffffff, 2.0);
+    const key = new THREE.DirectionalLight(0xffffff, 1.2);
     key.position.set(5, 5, 5);
     scene.add(key);
 
-    const fill = new THREE.DirectionalLight(0xffffff, 1.5);
+    const fill = new THREE.DirectionalLight(0xffffff, 0.9);
     fill.position.set(-5, 3, -5);
     scene.add(fill);
 
-    const top = new THREE.PointLight(0xffffff, 1.2);
+    const top = new THREE.PointLight(0xffffff, 0.7);
     top.position.set(0, 5, 0);
     scene.add(top);
 
-    const front = new THREE.PointLight(0xffffff, 1.0);
+    const front = new THREE.PointLight(0xffffff, 0.5);
     front.position.set(0, 0, 5);
     scene.add(front);
 
-    const bottom = new THREE.PointLight(0xffffff, 0.6);
+    const bottom = new THREE.PointLight(0xffffff, 0.3);
     bottom.position.set(0, -3, 2);
     scene.add(bottom);
 
-    const back = new THREE.DirectionalLight(0xffffff, 0.8);
+    const back = new THREE.DirectionalLight(0xffffff, 0.5);
     back.position.set(0, 2, -5);
     scene.add(back);
 
-    // Warm gold accent instead of blue
-    const accent = new THREE.PointLight(0xc9a94e, 0.4);
+    // Warm gold accent
+    const accent = new THREE.PointLight(0xc9a94e, 0.3);
     accent.position.set(-3, 2, 3);
     scene.add(accent);
 
@@ -282,9 +311,10 @@ export default function HrArtifactViewer({ artifactId }: Props) {
 
   if (!artifact) return <div>Artifact not found</div>;
 
-  const currentTrack = playingSide
-    ? (playingSide === 'A' ? artifact.audio?.sideA : artifact.audio?.sideB)
+  const selectedTrack = artifact.audio
+    ? (selectedSide === 'A' ? artifact.audio.sideA : artifact.audio.sideB)
     : null;
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
     <div className="hr-av">
@@ -415,45 +445,84 @@ export default function HrArtifactViewer({ artifactId }: Props) {
         }
 
         /* Audio player */
-        .hra-audio-player {
-          display: flex; align-items: center; gap: 16px;
-          background: rgba(201,169,78,0.05); border: 1px solid rgba(201,169,78,0.12);
-          border-radius: 8px; padding: 14px 20px; margin-top: 16px; max-width: 440px;
+        .hra-player {
+          margin-top: 24px; max-width: 420px;
+          background: rgba(201,169,78,0.04); border: 1px solid rgba(201,169,78,0.1);
+          border-radius: 12px; padding: 24px; text-align: center;
         }
-        .hra-side-btns { display: flex; gap: 8px; flex-shrink: 0; }
-        .hra-side-btn {
-          width: 44px; height: 44px; border-radius: 50%;
-          border: 1.5px solid var(--hra-gold-dim); background: rgba(201,169,78,0.08);
-          color: var(--hra-gold); font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px; font-weight: 600; letter-spacing: 1px;
-          cursor: pointer; transition: all 0.3s; display: flex;
-          align-items: center; justify-content: center;
+        .hra-player-head {
+          display: flex; align-items: center; justify-content: center; gap: 8px;
+          margin-bottom: 20px;
+        }
+        .hra-player-icon {
+          font-size: 14px; color: var(--hra-gold-dim);
+        }
+        .hra-player-prompt {
+          font-family: 'Josefin Sans', sans-serif; font-size: 10px;
+          letter-spacing: 0.25em; text-transform: uppercase; color: var(--hra-gold-dim);
+        }
+        .hra-player-sides {
+          display: flex; gap: 8px; justify-content: center; margin-bottom: 20px;
+        }
+        .hra-player-side {
+          padding: 8px 20px; border-radius: 20px;
+          border: 1px solid rgba(201,169,78,0.2); background: transparent;
+          color: var(--hra-text-dim); font-family: 'Josefin Sans', sans-serif;
+          font-size: 11px; font-weight: 400; letter-spacing: 0.12em;
+          text-transform: uppercase; cursor: pointer; transition: all 0.3s;
           -webkit-tap-highlight-color: transparent;
         }
-        .hra-side-btn:hover { border-color: var(--hra-gold); background: rgba(201,169,78,0.15); }
-        .hra-side-btn.active {
-          border-color: var(--hra-gold); background: rgba(201,169,78,0.2);
+        .hra-player-side:hover { border-color: var(--hra-gold-dim); color: var(--hra-text); }
+        .hra-player-side.sel {
+          border-color: var(--hra-gold); background: rgba(201,169,78,0.12);
+          color: var(--hra-gold);
         }
-        .hra-side-btn.playing {
+        .hra-player-track {
+          margin-bottom: 20px;
+        }
+        .hra-player-track-name {
+          font-family: 'Playfair Display', serif; font-size: 16px;
+          font-style: italic; color: var(--hra-gold-light); margin-bottom: 4px;
+        }
+        .hra-player-track-artist {
+          font-family: 'Josefin Sans', sans-serif; font-size: 11px;
+          color: rgba(232,224,208,0.4); font-weight: 300;
+        }
+        .hra-player-btn {
+          width: 64px; height: 64px; border-radius: 50%;
+          border: 2px solid var(--hra-gold); background: rgba(201,169,78,0.08);
+          color: var(--hra-gold); font-size: 22px;
+          cursor: pointer; transition: all 0.3s;
+          display: inline-flex; align-items: center; justify-content: center;
+          margin-bottom: 20px;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hra-player-btn:hover {
+          background: rgba(201,169,78,0.18); transform: scale(1.05);
+        }
+        .hra-player-btn.playing {
           animation: hra-pulse 2s ease-in-out infinite;
         }
         @keyframes hra-pulse {
           0%, 100% { box-shadow: 0 0 8px rgba(201,169,78,0.1); }
-          50% { box-shadow: 0 0 22px rgba(201,169,78,0.3); }
+          50% { box-shadow: 0 0 28px rgba(201,169,78,0.3); }
         }
-        .hra-track-info { flex: 1; min-width: 0; }
-        .hra-track-title {
-          font-family: 'Playfair Display', serif; font-size: 14px;
-          color: var(--hra-gold-light); font-style: italic;
-          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        .hra-player-progress {
+          display: flex; align-items: center; gap: 12px;
         }
-        .hra-track-artist {
-          font-family: 'Josefin Sans', sans-serif; font-size: 11px;
-          color: rgba(232,224,208,0.5); margin-top: 2px; font-weight: 300;
+        .hra-player-bar {
+          flex: 1; height: 3px; background: rgba(201,169,78,0.12);
+          border-radius: 2px; overflow: hidden; position: relative;
+          cursor: pointer;
         }
-        .hra-track-idle {
-          font-family: 'Josefin Sans', sans-serif; font-size: 11px;
-          color: rgba(232,224,208,0.3); font-weight: 300; font-style: italic;
+        .hra-player-bar-fill {
+          height: 100%; background: var(--hra-gold); border-radius: 2px;
+          transition: width 0.3s linear;
+        }
+        .hra-player-time {
+          font-family: 'Josefin Sans', sans-serif; font-size: 10px;
+          color: var(--hra-text-dim); font-weight: 300; letter-spacing: 0.05em;
+          white-space: nowrap; min-width: 70px; text-align: right;
         }
 
         /* Info panel */
@@ -544,7 +613,7 @@ export default function HrArtifactViewer({ artifactId }: Props) {
           .hra-bottom { padding: 20px 24px 28px; flex-direction: column; align-items: flex-start; gap: 12px; }
           .hra-panel { width: 100%; }
           .hra-panel-inner { padding: 80px 24px 40px; }
-          .hra-audio-player { max-width: 100%; }
+          .hra-player { max-width: 100%; }
           .hra-info-btn { width: 42px; height: 42px; font-size: 22px; }
         }
       `}</style>
@@ -589,33 +658,32 @@ export default function HrArtifactViewer({ artifactId }: Props) {
             <p className="hra-subtitle">{artifact.subtitle}</p>
 
             {/* Audio player for phonograph */}
-            {artifact.audio && (
-              <div className="hra-audio-player">
-                <div className="hra-side-btns">
-                  <button
-                    className={`hra-side-btn ${playingSide === 'A' ? 'active' : ''} ${playingSide === 'A' && isPlaying ? 'playing' : ''}`}
-                    onClick={() => playSide('A')}
-                    title="Side A"
-                  >
-                    {playingSide === 'A' && isPlaying ? '\u23F8' : 'A'}
-                  </button>
-                  <button
-                    className={`hra-side-btn ${playingSide === 'B' ? 'active' : ''} ${playingSide === 'B' && isPlaying ? 'playing' : ''}`}
-                    onClick={() => playSide('B')}
-                    title="Side B"
-                  >
-                    {playingSide === 'B' && isPlaying ? '\u23F8' : 'B'}
-                  </button>
+            {artifact.audio && selectedTrack && (
+              <div className="hra-player">
+                <div className="hra-player-head">
+                  <span className="hra-player-icon">{'\u266B'}</span>
+                  <span className="hra-player-prompt">Play the 78</span>
                 </div>
-                <div className="hra-track-info">
-                  {currentTrack ? (
-                    <>
-                      <div className="hra-track-title">{'\u201C'}{currentTrack.title}{'\u201D'}</div>
-                      <div className="hra-track-artist">Bessie Smith {'\u2014'} Columbia Records</div>
-                    </>
-                  ) : (
-                    <div className="hra-track-idle">Choose a side to play</div>
-                  )}
+
+                <div className="hra-player-sides">
+                  <button className={`hra-player-side ${selectedSide === 'A' ? 'sel' : ''}`} onClick={() => switchSide('A')}>Side A</button>
+                  <button className={`hra-player-side ${selectedSide === 'B' ? 'sel' : ''}`} onClick={() => switchSide('B')}>Side B</button>
+                </div>
+
+                <div className="hra-player-track">
+                  <div className="hra-player-track-name">{'\u201C'}{selectedTrack.title}{'\u201D'}</div>
+                  <div className="hra-player-track-artist">Bessie Smith {'\u2014'} Columbia Records</div>
+                </div>
+
+                <button className={`hra-player-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay}>
+                  {isPlaying ? '\u23F8' : '\u25B6'}
+                </button>
+
+                <div className="hra-player-progress">
+                  <div className="hra-player-bar">
+                    <div className="hra-player-bar-fill" style={{ width: `${progress}%` }} />
+                  </div>
+                  <span className="hra-player-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
                 </div>
               </div>
             )}

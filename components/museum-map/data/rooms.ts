@@ -90,6 +90,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 50,
     accentColor: '#b485d2',
     parent: 'first-floor',
+    children: ['hr-artifacts', 'hr-resources'],
   },
   {
     id: 'fear-lab',
@@ -148,6 +149,30 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 35,
     accentColor: '#9aa091',
     parent: 'seeing-is-deceiving',
+  },
+  // Harlem Renaissance sub-pages
+  {
+    id: 'hr-artifacts',
+    label: 'Artifacts',
+    path: '/exhibitions/harlem-renaissance/artifacts',
+    x: 225,
+    y: 265,
+    width: 60,
+    height: 35,
+    accentColor: '#b485d2',
+    parent: 'harlem-renaissance',
+  },
+  {
+    id: 'hr-resources',
+    label: 'Resources',
+    path: '/exhibitions/harlem-renaissance/resources',
+    x: 295,
+    y: 265,
+    width: 65,
+    height: 35,
+    accentColor: '#b485d2',
+    comingSoon: true,
+    parent: 'harlem-renaissance',
   },
 ];
 

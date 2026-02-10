@@ -21,6 +21,10 @@ export const CONNECTIONS: RoomConnection[] = [
   ['seeing-is-deceiving', 'artifacts'],
   ['seeing-is-deceiving', 'resources'],
 
+  // Harlem Renaissance sub-pages
+  ['harlem-renaissance', 'hr-artifacts'],
+  ['harlem-renaissance', 'hr-resources'],
+
   // Ground Floor connections (for future)
   ['ground-floor', 'egypt'],
   ['ground-floor', 'victorian'],
