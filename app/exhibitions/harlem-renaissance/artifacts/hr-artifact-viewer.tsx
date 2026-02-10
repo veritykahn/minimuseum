@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
+
 
 const AUDIO_BASE = '/exhibitions/harlem/artifacts/audio/';
 
@@ -148,11 +148,6 @@ export default function HrArtifactViewer({ artifactId }: Props) {
     renderer.toneMappingExposure = 2.0;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     container.appendChild(renderer.domElement);
-
-    // Environment map for PBR metallic materials (phonograph horn, etc.)
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    scene.environment = pmremGenerator.fromScene(new RoomEnvironment()).texture;
-    pmremGenerator.dispose();
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
