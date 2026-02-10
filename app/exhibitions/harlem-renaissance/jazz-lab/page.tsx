@@ -298,21 +298,40 @@ export default function JazzLabPage() {
         .jl-slot.active .jl-slot-name { color: rgba(201,169,78,0.7); }
         .jl-slot.spotlight .jl-slot-name { color: var(--jl-gold); font-weight: 700; }
 
-        /* ── Variant Dots ── */
-        .jl-variant-dots { display: flex; gap: 6px; margin-top: 2px; }
-        .jl-variant-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          border: 1.5px solid rgba(201,169,78,0.3);
+        /* ── Variant Toggles ── */
+        .jl-variant-toggles {
+          display: flex;
+          gap: 4px;
+          margin-top: 4px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+        .jl-variant-pill {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 9px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          font-weight: 600;
+          padding: 6px 10px;
+          min-height: 28px;
+          min-width: 44px;
+          border-radius: 14px;
+          border: 1.5px solid rgba(201,169,78,0.25);
           background: transparent;
+          color: var(--jl-text-dim);
           cursor: pointer;
           transition: all 0.3s;
           -webkit-tap-highlight-color: transparent;
-          padding: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
-        .jl-variant-dot:hover { border-color: var(--jl-gold); }
-        .jl-variant-dot.selected { background: var(--jl-gold); border-color: var(--jl-gold); }
+        .jl-variant-pill:hover { border-color: var(--jl-gold); color: var(--jl-gold-light); }
+        .jl-variant-pill.selected {
+          background: rgba(201,169,78,0.15);
+          border-color: var(--jl-gold);
+          color: var(--jl-gold);
+        }
 
         /* ── Now Playing / EQ ── */
         .jl-now-playing {
@@ -774,16 +793,26 @@ export default function JazzLabPage() {
         }
 
         /* ── Responsive ── */
+        /* Tablet */
         @media (max-width: 768px) {
           .jl-nav { left: 20px; top: 20px; }
           .jl-nav-text { font-size: 24px; }
+          .jl-band-slots {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px 12px;
+            justify-items: center;
+          }
+          .jl-slot { width: 100%; max-width: 130px; }
+          .jl-variant-pill { font-size: 10px; padding: 7px 12px; min-height: 32px; }
         }
+        /* Phone */
         @media (max-width: 600px) {
-          .jl-band-slots { gap: 8px; }
-          .jl-slot { width: 85px; }
+          .jl-band-slots { gap: 14px 8px; }
+          .jl-slot { max-width: 110px; }
           .jl-slot-icon { width: 64px; height: 64px; font-size: 28px; }
           .jl-slot-name { font-size: 9px; letter-spacing: 1px; }
-          .jl-variant-dot { width: 12px; height: 12px; }
+          .jl-variant-pill { font-size: 9px; padding: 5px 8px; min-height: 28px; min-width: 38px; }
           .jl-controls { gap: 10px; }
           .jl-btn { padding: 10px 16px; font-size: 10px; letter-spacing: 2px; }
           .jl-quiz-answers { grid-template-columns: repeat(2, 1fr); }
@@ -885,17 +914,19 @@ export default function JazzLabPage() {
                       </div>
                       <div className="jl-slot-name">{inst.name}</div>
                       {isActive && inst.variants.length > 1 && (
-                        <div className="jl-variant-dots">
+                        <div className="jl-variant-toggles">
                           {inst.variants.map((v, vi) => (
                             <button
                               key={v.id}
-                              className={`jl-variant-dot ${vi === currentVariant ? 'selected' : ''}`}
+                              className={`jl-variant-pill ${vi === currentVariant ? 'selected' : ''}`}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 band.changeVariant(inst.id, vi);
                               }}
                               aria-label={v.label}
-                            />
+                            >
+                              {v.label}
+                            </button>
                           ))}
                         </div>
                       )}

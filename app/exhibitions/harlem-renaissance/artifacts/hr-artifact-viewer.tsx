@@ -317,7 +317,7 @@ export default function HrArtifactViewer({ artifactId }: Props) {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="hr-av">
+    <div className={`hr-av ${artifact.audio ? 'has-audio' : ''}`}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Josefin+Sans:wght@300;400;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -444,86 +444,77 @@ export default function HrArtifactViewer({ artifactId }: Props) {
           display: flex; align-items: center; justify-content: center; font-size: 12px;
         }
 
-        /* Audio player */
-        .hra-player {
-          margin-top: 24px; max-width: 420px;
-          background: rgba(201,169,78,0.04); border: 1px solid rgba(201,169,78,0.1);
-          border-radius: 12px; padding: 24px; text-align: center;
+        /* Slim bottom-bar audio player */
+        .hra-player-bar {
+          position: fixed; bottom: 0; left: 0; right: 0;
+          height: 64px;
+          background: rgba(10,10,10,0.95);
+          border-top: 1px solid rgba(201,169,78,0.1);
+          display: flex; align-items: center;
+          padding: 0 28px; gap: 20px;
+          z-index: 50;
+          backdrop-filter: blur(12px);
         }
-        .hra-player-head {
-          display: flex; align-items: center; justify-content: center; gap: 8px;
-          margin-bottom: 20px;
+        .hra-pbar-label {
+          font-family: 'Josefin Sans', sans-serif; font-size: 9px;
+          letter-spacing: 0.2em; text-transform: uppercase;
+          color: var(--hra-gold-dim); white-space: nowrap;
+          display: flex; align-items: center; gap: 6px; flex-shrink: 0;
         }
-        .hra-player-icon {
-          font-size: 14px; color: var(--hra-gold-dim);
-        }
-        .hra-player-prompt {
-          font-family: 'Josefin Sans', sans-serif; font-size: 10px;
-          letter-spacing: 0.25em; text-transform: uppercase; color: var(--hra-gold-dim);
-        }
-        .hra-player-sides {
-          display: flex; gap: 8px; justify-content: center; margin-bottom: 20px;
-        }
-        .hra-player-side {
-          padding: 8px 20px; border-radius: 20px;
+        .hra-pbar-sides { display: flex; gap: 6px; flex-shrink: 0; }
+        .hra-pbar-side {
+          padding: 5px 14px; border-radius: 14px;
           border: 1px solid rgba(201,169,78,0.2); background: transparent;
           color: var(--hra-text-dim); font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px; font-weight: 400; letter-spacing: 0.12em;
-          text-transform: uppercase; cursor: pointer; transition: all 0.3s;
+          font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+          cursor: pointer; transition: all 0.3s;
           -webkit-tap-highlight-color: transparent;
         }
-        .hra-player-side:hover { border-color: var(--hra-gold-dim); color: var(--hra-text); }
-        .hra-player-side.sel {
+        .hra-pbar-side:hover { border-color: var(--hra-gold-dim); color: var(--hra-text); }
+        .hra-pbar-side.sel {
           border-color: var(--hra-gold); background: rgba(201,169,78,0.12);
           color: var(--hra-gold);
         }
-        .hra-player-track {
-          margin-bottom: 20px;
+        .hra-pbar-track { flex-shrink: 0; min-width: 0; }
+        .hra-pbar-track-name {
+          font-family: 'Playfair Display', serif; font-size: 13px;
+          font-style: italic; color: var(--hra-gold-light);
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .hra-player-track-name {
-          font-family: 'Playfair Display', serif; font-size: 16px;
-          font-style: italic; color: var(--hra-gold-light); margin-bottom: 4px;
+        .hra-pbar-track-artist {
+          font-family: 'Josefin Sans', sans-serif; font-size: 10px;
+          color: rgba(232,224,208,0.35); font-weight: 300;
         }
-        .hra-player-track-artist {
-          font-family: 'Josefin Sans', sans-serif; font-size: 11px;
-          color: rgba(232,224,208,0.4); font-weight: 300;
-        }
-        .hra-player-btn {
-          width: 64px; height: 64px; border-radius: 50%;
-          border: 2px solid var(--hra-gold); background: rgba(201,169,78,0.08);
-          color: var(--hra-gold); font-size: 22px;
+        .hra-pbar-play {
+          width: 40px; height: 40px; border-radius: 50%;
+          border: 1.5px solid var(--hra-gold); background: rgba(201,169,78,0.06);
+          color: var(--hra-gold); font-size: 16px;
           cursor: pointer; transition: all 0.3s;
-          display: inline-flex; align-items: center; justify-content: center;
-          margin-bottom: 20px;
+          display: flex; align-items: center; justify-content: center; flex-shrink: 0;
           -webkit-tap-highlight-color: transparent;
         }
-        .hra-player-btn:hover {
-          background: rgba(201,169,78,0.18); transform: scale(1.05);
-        }
-        .hra-player-btn.playing {
+        .hra-pbar-play:hover { background: rgba(201,169,78,0.15); }
+        .hra-pbar-play.playing {
           animation: hra-pulse 2s ease-in-out infinite;
         }
         @keyframes hra-pulse {
-          0%, 100% { box-shadow: 0 0 8px rgba(201,169,78,0.1); }
-          50% { box-shadow: 0 0 28px rgba(201,169,78,0.3); }
+          0%, 100% { box-shadow: 0 0 6px rgba(201,169,78,0.1); }
+          50% { box-shadow: 0 0 20px rgba(201,169,78,0.3); }
         }
-        .hra-player-progress {
-          display: flex; align-items: center; gap: 12px;
+        .hra-pbar-progress { flex: 1; display: flex; align-items: center; gap: 10px; min-width: 80px; }
+        .hra-pbar-prog-bar {
+          flex: 1; height: 2px; background: rgba(201,169,78,0.12);
+          border-radius: 1px; overflow: hidden;
         }
-        .hra-player-bar {
-          flex: 1; height: 3px; background: rgba(201,169,78,0.12);
-          border-radius: 2px; overflow: hidden; position: relative;
-          cursor: pointer;
-        }
-        .hra-player-bar-fill {
-          height: 100%; background: var(--hra-gold); border-radius: 2px;
+        .hra-pbar-prog-fill {
+          height: 100%; background: var(--hra-gold); border-radius: 1px;
           transition: width 0.3s linear;
         }
-        .hra-player-time {
+        .hra-pbar-time {
           font-family: 'Josefin Sans', sans-serif; font-size: 10px;
-          color: var(--hra-text-dim); font-weight: 300; letter-spacing: 0.05em;
-          white-space: nowrap; min-width: 70px; text-align: right;
+          color: var(--hra-text-dim); font-weight: 300; white-space: nowrap;
         }
+        .hr-av.has-audio .hra-bottom { padding-bottom: 96px; }
 
         /* Info panel */
         .hra-backdrop {
@@ -613,7 +604,9 @@ export default function HrArtifactViewer({ artifactId }: Props) {
           .hra-bottom { padding: 20px 24px 28px; flex-direction: column; align-items: flex-start; gap: 12px; }
           .hra-panel { width: 100%; }
           .hra-panel-inner { padding: 80px 24px 40px; }
-          .hra-player { max-width: 100%; }
+          .hra-player-bar { padding: 0 16px; gap: 12px; height: 56px; }
+          .hra-pbar-label { display: none; }
+          .hra-pbar-track-name { font-size: 12px; }
           .hra-info-btn { width: 42px; height: 42px; font-size: 22px; }
         }
       `}</style>
@@ -656,37 +649,6 @@ export default function HrArtifactViewer({ artifactId }: Props) {
             <p className="hra-date">{artifact.date}</p>
             <h1 className="hra-title">{artifact.title}</h1>
             <p className="hra-subtitle">{artifact.subtitle}</p>
-
-            {/* Audio player for phonograph */}
-            {artifact.audio && selectedTrack && (
-              <div className="hra-player">
-                <div className="hra-player-head">
-                  <span className="hra-player-icon">{'\u266B'}</span>
-                  <span className="hra-player-prompt">Play the 78</span>
-                </div>
-
-                <div className="hra-player-sides">
-                  <button className={`hra-player-side ${selectedSide === 'A' ? 'sel' : ''}`} onClick={() => switchSide('A')}>Side A</button>
-                  <button className={`hra-player-side ${selectedSide === 'B' ? 'sel' : ''}`} onClick={() => switchSide('B')}>Side B</button>
-                </div>
-
-                <div className="hra-player-track">
-                  <div className="hra-player-track-name">{'\u201C'}{selectedTrack.title}{'\u201D'}</div>
-                  <div className="hra-player-track-artist">Bessie Smith {'\u2014'} Columbia Records</div>
-                </div>
-
-                <button className={`hra-player-btn ${isPlaying ? 'playing' : ''}`} onClick={togglePlay}>
-                  {isPlaying ? '\u23F8' : '\u25B6'}
-                </button>
-
-                <div className="hra-player-progress">
-                  <div className="hra-player-bar">
-                    <div className="hra-player-bar-fill" style={{ width: `${progress}%` }} />
-                  </div>
-                  <span className="hra-player-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
-                </div>
-              </div>
-            )}
           </div>
 
           <div className="hra-controls">
@@ -737,6 +699,34 @@ export default function HrArtifactViewer({ artifactId }: Props) {
           </div>
         </div>
       </aside>
+
+      {/* Slim bottom-bar audio player */}
+      {artifact.audio && selectedTrack && (
+        <div className="hra-player-bar">
+          <span className="hra-pbar-label">{'\u266B'} Play the 78</span>
+
+          <div className="hra-pbar-sides">
+            <button className={`hra-pbar-side ${selectedSide === 'A' ? 'sel' : ''}`} onClick={() => switchSide('A')}>Side A</button>
+            <button className={`hra-pbar-side ${selectedSide === 'B' ? 'sel' : ''}`} onClick={() => switchSide('B')}>Side B</button>
+          </div>
+
+          <div className="hra-pbar-track">
+            <div className="hra-pbar-track-name">{'\u201C'}{selectedTrack.title}{'\u201D'}</div>
+            <div className="hra-pbar-track-artist">Bessie Smith {'\u2014'} Columbia Records</div>
+          </div>
+
+          <button className={`hra-pbar-play ${isPlaying ? 'playing' : ''}`} onClick={togglePlay}>
+            {isPlaying ? '\u23F8' : '\u25B6'}
+          </button>
+
+          <div className="hra-pbar-progress">
+            <div className="hra-pbar-prog-bar">
+              <div className="hra-pbar-prog-fill" style={{ width: `${progress}%` }} />
+            </div>
+            <span className="hra-pbar-time">{formatTime(currentTime)} / {formatTime(duration)}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

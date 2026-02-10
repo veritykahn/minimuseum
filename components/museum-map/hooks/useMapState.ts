@@ -53,6 +53,7 @@ export function useMapState() {
     isOpen,
     isHomePage,
     currentRoom,
+    currentPath: pathname,
     hoveredRoom,
     setHoveredRoom,
     toggle,

@@ -9,21 +9,54 @@ type MapSvgProps = {
   setHoveredRoom: (id: string | null) => void;
   onRoomClick: (room: MapRoom) => void;
   isCurrentRoom: (room: MapRoom) => boolean;
+  currentPath: string;
 };
 
 /**
  * SVG map visualization of museum rooms
+ * Sub-pages of exhibitions are only shown when the user is inside that exhibition.
  */
 export function MapSvg({
   hoveredRoom,
   setHoveredRoom,
   onRoomClick,
   isCurrentRoom,
+  currentPath,
 }: MapSvgProps) {
   const getRoomCenter = (room: MapRoom) => ({
     x: room.x + room.width / 2,
     y: room.y + room.height / 2,
   });
+
+  // A room is an exhibition sub-page if its parent is an exhibition
+  // (i.e. the parent's own parent is 'first-floor' and it has children)
+  const isExhibitionSubPage = (room: MapRoom): boolean => {
+    if (!room.parent) return false;
+    const parentRoom = MUSEUM_ROOMS.find(r => r.id === room.parent);
+    return !!parentRoom && parentRoom.parent === 'first-floor' && !!parentRoom.children;
+  };
+
+  // Only show sub-pages for the exhibition the user is currently inside
+  const visibleRooms = MUSEUM_ROOMS.filter(room => {
+    if (!isExhibitionSubPage(room)) return true;
+    const parentRoom = MUSEUM_ROOMS.find(r => r.id === room.parent)!;
+    return currentPath.startsWith(parentRoom.path);
+  });
+
+  const visibleIds = new Set(visibleRooms.map(r => r.id));
+
+  const visibleConnections = CONNECTIONS.filter(
+    ([fromId, toId]) => visibleIds.has(fromId) && visibleIds.has(toId)
+  );
+
+  // Split long labels into two lines for narrow boxes
+  const splitLabel = (room: MapRoom): string[] => {
+    if (room.label.length <= 14 || room.width > 130) return [room.label];
+    const words = room.label.split(' ');
+    if (words.length < 2) return [room.label];
+    const mid = Math.ceil(words.length / 2);
+    return [words.slice(0, mid).join(' '), words.slice(mid).join(' ')];
+  };
 
   return (
     <>
@@ -61,7 +94,7 @@ export function MapSvg({
         <rect width="100%" height="100%" fill="url(#grid)" />
 
         {/* Connection lines */}
-        {CONNECTIONS.map(([fromId, toId]) => {
+        {visibleConnections.map(([fromId, toId]) => {
           const fromRoom = MUSEUM_ROOMS.find(r => r.id === fromId);
           const toRoom = MUSEUM_ROOMS.find(r => r.id === toId);
           if (!fromRoom || !toRoom) return null;
@@ -84,10 +117,14 @@ export function MapSvg({
         })}
 
         {/* Rooms */}
-        {MUSEUM_ROOMS.map((room) => {
+        {visibleRooms.map((room) => {
           const isCurrent = isCurrentRoom(room);
           const isHovered = hoveredRoom === room.id;
           const isClickable = !room.comingSoon;
+          const lines = splitLabel(room);
+          const fontSize = room.width > 100 ? 12 : 10;
+          const cx = room.x + room.width / 2;
+          const cy = room.y + room.height / 2;
 
           return (
             <g
@@ -117,19 +154,32 @@ export function MapSvg({
                 }}
               />
 
-              {/* Room label */}
-              <text
-                x={room.x + room.width / 2}
-                y={room.y + room.height / 2}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fill={room.comingSoon ? 'rgba(250, 250, 250, 0.4)' : '#fafafa'}
-                fontSize={room.width > 100 ? '12' : '10'}
-                fontFamily="var(--font-outfit), sans-serif"
-                style={{ pointerEvents: 'none' }}
-              >
-                {room.label}
-              </text>
+              {/* Room label — single or two lines */}
+              {lines.length === 1 ? (
+                <text
+                  x={cx}
+                  y={cy}
+                  textAnchor="middle"
+                  dominantBaseline="middle"
+                  fill={room.comingSoon ? 'rgba(250, 250, 250, 0.4)' : '#fafafa'}
+                  fontSize={fontSize}
+                  fontFamily="var(--font-outfit), sans-serif"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  {room.label}
+                </text>
+              ) : (
+                <text
+                  textAnchor="middle"
+                  fill={room.comingSoon ? 'rgba(250, 250, 250, 0.4)' : '#fafafa'}
+                  fontSize={fontSize}
+                  fontFamily="var(--font-outfit), sans-serif"
+                  style={{ pointerEvents: 'none' }}
+                >
+                  <tspan x={cx} y={cy - fontSize * 0.45}>{lines[0]}</tspan>
+                  <tspan x={cx} y={cy + fontSize * 0.65}>{lines[1]}</tspan>
+                </text>
+              )}
 
               {/* "You are here" indicator */}
               {isCurrent && (

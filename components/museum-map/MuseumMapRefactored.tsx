@@ -23,6 +23,7 @@ export default function MuseumMap() {
     isOpen,
     isHomePage,
     currentRoom,
+    currentPath,
     hoveredRoom,
     setHoveredRoom,
     toggle,
@@ -71,6 +72,7 @@ export default function MuseumMap() {
             setHoveredRoom={setHoveredRoom}
             onRoomClick={navigateToRoom}
             isCurrentRoom={isCurrentRoom}
+            currentPath={currentPath}
           />
           <MapLegend />
         </MapOverlay>
