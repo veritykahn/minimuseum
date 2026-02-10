@@ -1522,6 +1522,8 @@ export default function HarlemRenaissance() {
             </div>
 
             <div className="hr-display-case" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/exhibitions/harlem/artifacts/display-case.png" alt="Artifact Display Case" className="hr-case-image" />
               <p className="hr-case-label">Gallery II, Case 5</p>
               <p className="hr-case-title">Voices of Harlem</p>
               <p className="hr-case-subtitle">Artifacts & Experiences from the Renaissance</p>

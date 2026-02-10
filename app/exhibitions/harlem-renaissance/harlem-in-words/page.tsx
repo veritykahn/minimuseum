@@ -54,16 +54,35 @@ const CATEGORY_WORDS: Record<WordCategory, string[]> = {
 };
 
 const CONNECTORS = [
-  'I', 'you', 'we', 'my', 'your', 'our', 'the', 'a', 'an', 'this', 'that',
-  'of', 'in', 'on', 'to', 'from', 'with', 'and', 'but', 'or', 'not', 'no',
-  'so', 'is', 'was', 'are', 'will', 'can', 'do', 'like', 'never', 'always',
-  'too', 'still', 'here', 'there', 'where', 'when', 'how', 'who', 'for', 'at',
+  'a', 'always', 'an', 'and', 'are', 'at', 'but', 'can', 'do', 'for',
+  'from', 'here', 'how', 'I', 'in', 'is', 'like', 'my', 'never', 'no',
+  'not', 'of', 'on', 'or', 'our', 'so', 'still', 'that', 'the', 'there',
+  'this', 'to', 'too', 'was', 'we', 'when', 'where', 'who', 'will', 'with',
+  'you', 'your',
 ];
 
 // Words that don't pluralise
 const NO_PLURAL = new Set([
   ...CONNECTORS.map(c => c.toLowerCase()),
+  // Already excluded
   'jazz', 'blues', 'north', 'south',
+  // Adjectives & adverbs
+  'bright', 'new', 'open', 'dark', 'deep', 'wild', 'golden', 'loud', 'soft',
+  'slow', 'sweet', 'low', 'proud', 'weary', 'beautiful', 'lonely', 'angry',
+  'gentle', 'fierce', 'tender', 'joyful', 'broken', 'whole', 'strong', 'quiet',
+  'heavy', 'warm', 'cold', 'free', 'possible',
+  // Verb forms / -ing words
+  'dreaming', 'rising', 'awake', 'waiting', 'becoming', 'aching', 'burning',
+  'imagine',
+  // Verbs
+  'rise', 'fall', 'run', 'walk', 'hold', 'let go', 'build', 'break', 'carry',
+  'remember', 'forget', 'speak', 'whisper', 'shout', 'stand', 'fly', 'stay',
+  'leave', 'return', 'reach', 'keep', 'give', 'take', 'sing', 'cry', 'hum',
+  'believe',
+  // Proper nouns / places
+  'harlem', 'lenox', 'beale street', 'south side', 'uptown',
+  // Already plural or uncountable
+  'dust', 'water', 'earth', 'rain', 'found', 'lost', 'still',
 ]);
 
 function pluralise(word: string): string | null {
@@ -91,10 +110,9 @@ type PoemEntry = {
 };
 
 type UndoAction = {
-  type: 'add' | 'remove' | 'linebreak' | 'clear' | 'plural';
+  type: 'add' | 'remove' | 'linebreak' | 'clear';
   entries?: PoemEntry[];
   entry?: PoemEntry;
-  prevText?: string;
 };
 
 /* ═══════════════════════════════════════════════════════════
@@ -112,12 +130,12 @@ export default function HarlemInWordsPage() {
   const [displayTheme, setDisplayTheme] = useState(0);
   const [displayReady, setDisplayReady] = useState(false);
   const [shimmerActive, setShimmerActive] = useState(false);
+  const [pluralMode, setPluralMode] = useState(false);
+  const [poetName, setPoetName] = useState('');
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const audioGainRef = useRef<GainNode | null>(null);
   const uidCounter = useRef(0);
-  const tapTimerRef = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
-  const lastTapRef = useRef<Record<string, number>>({});
 
   const nextUid = () => {
     uidCounter.current += 1;
@@ -143,14 +161,15 @@ export default function HarlemInWordsPage() {
     setTimeout(() => setShimmerActive(false), 800);
   }, []);
 
-  // Add a category word (single-use)
+  // Add a category word (single-use) — respects pluralMode
   const addCategoryWord = useCallback((word: string, category: WordCategory) => {
-    const entry: PoemEntry = { uid: nextUid(), text: word, category, sourceWord: word };
+    const text = pluralMode ? (pluralise(word) ?? word) : word;
+    const entry: PoemEntry = { uid: nextUid(), text, category, sourceWord: word };
     setPoem(prev => [...prev, entry]);
     setUsedWords(prev => new Set(prev).add(word));
     setUndoStack(prev => [...prev, { type: 'add', entry }]);
     triggerShimmer();
-  }, [triggerShimmer]);
+  }, [triggerShimmer, pluralMode]);
 
   // Add a connector (reusable)
   const addConnector = useCallback((word: string) => {
@@ -162,14 +181,13 @@ export default function HarlemInWordsPage() {
 
   // Add line break
   const addLineBreak = useCallback(() => {
-    // Don't add consecutive breaks
     if (poem.length > 0 && poem[poem.length - 1].isLineBreak) return;
     const entry: PoemEntry = { uid: nextUid(), text: '\n', category: 'connector', isLineBreak: true };
     setPoem(prev => [...prev, entry]);
     setUndoStack(prev => [...prev, { type: 'linebreak', entry }]);
   }, [poem]);
 
-  // Remove a word from the poem
+  // Remove a word from the poem (immediate — no delay)
   const removeEntry = useCallback((uid: string) => {
     const entry = poem.find(e => e.uid === uid);
     if (!entry) return;
@@ -183,39 +201,6 @@ export default function HarlemInWordsPage() {
     }
     setUndoStack(prev => [...prev, { type: 'remove', entry }]);
   }, [poem]);
-
-  // Pluralise a word
-  const pluraliseEntry = useCallback((uid: string) => {
-    const entry = poem.find(e => e.uid === uid);
-    if (!entry || entry.isLineBreak) return;
-    const p = pluralise(entry.text);
-    if (!p) return;
-    const prevText = entry.text;
-    setPoem(prev => prev.map(e => e.uid === uid ? { ...e, text: p } : e));
-    setUndoStack(prev => [...prev, { type: 'plural', entry: { ...entry }, prevText }]);
-  }, [poem]);
-
-  // Handle tap on poem word (300ms delay for single tap, cancel on double tap)
-  const handlePoemWordTap = useCallback((uid: string) => {
-    const now = Date.now();
-    const last = lastTapRef.current[uid] || 0;
-    lastTapRef.current[uid] = now;
-
-    if (now - last < 350) {
-      // Double tap — cancel pending removal, pluralise
-      if (tapTimerRef.current[uid]) {
-        clearTimeout(tapTimerRef.current[uid]);
-        delete tapTimerRef.current[uid];
-      }
-      pluraliseEntry(uid);
-    } else {
-      // Single tap — schedule removal
-      tapTimerRef.current[uid] = setTimeout(() => {
-        removeEntry(uid);
-        delete tapTimerRef.current[uid];
-      }, 300);
-    }
-  }, [removeEntry, pluraliseEntry]);
 
   // Undo
   const handleUndo = useCallback(() => {
@@ -246,8 +231,6 @@ export default function HarlemInWordsPage() {
         if (e.category !== 'connector' && e.sourceWord) words.add(e.sourceWord);
       });
       setUsedWords(words);
-    } else if (action.type === 'plural' && action.entry && action.prevText) {
-      setPoem(prev => prev.map(e => e.uid === action.entry!.uid ? { ...e, text: action.prevText! } : e));
     }
   }, [undoStack]);
 
@@ -274,6 +257,9 @@ export default function HarlemInWordsPage() {
   // Available words for active category
   const availableWords = (shuffledOrders[activeCategory] || CATEGORY_WORDS[activeCategory])
     .filter(w => !usedWords.has(w));
+
+  // Check if current category has any pluralizable words
+  const categoryHasPluralizable = availableWords.some(w => pluralise(w) !== null);
 
   // Display mode audio (Web Audio API)
   useEffect(() => {
@@ -318,7 +304,6 @@ export default function HarlemInWordsPage() {
       stopped = true;
       clearTimeout(timer);
       setDisplayReady(false);
-      // Fade out over 1.5s
       if (audioGainRef.current && audioCtxRef.current) {
         const g = audioGainRef.current;
         const c = audioCtxRef.current;
@@ -356,8 +341,109 @@ export default function HarlemInWordsPage() {
 
   const hasWords = poem.some(e => !e.isLineBreak);
 
-  // Theme names for display
-  const THEME_NAMES = ['Sunburst', 'Circles', 'Particles', 'Chevrons', 'Spirograph'];
+  // Save as image
+  const handleSaveImage = useCallback(() => {
+    const canvas = document.createElement('canvas');
+    const W = 800;
+    const H = 1000;
+    canvas.width = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Background
+    ctx.fillStyle = '#0A0A0A';
+    ctx.fillRect(0, 0, W, H);
+
+    // Gold border frame
+    ctx.strokeStyle = 'rgba(201,169,78,0.5)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(60, 60, W - 120, H - 120);
+    // Inner border
+    ctx.strokeStyle = 'rgba(201,169,78,0.2)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(72, 72, W - 144, H - 144);
+
+    // Corner squares
+    const corners = [[60, 60], [W - 66, 60], [60, H - 66], [W - 66, H - 66]];
+    ctx.fillStyle = 'rgba(201,169,78,0.35)';
+    corners.forEach(([x, y]) => ctx.fillRect(x, y, 6, 6));
+
+    // "Poetry Workshop" label
+    ctx.fillStyle = '#8B7535';
+    ctx.font = '10px sans-serif';
+    ctx.letterSpacing = '4px';
+    ctx.textAlign = 'center';
+    ctx.fillText('POETRY WORKSHOP', W / 2, 120);
+
+    // Diamond divider under label
+    ctx.fillStyle = 'rgba(201,169,78,0.4)';
+    ctx.save();
+    ctx.translate(W / 2, 140);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-3, -3, 6, 6);
+    ctx.restore();
+
+    // Poem text
+    ctx.fillStyle = '#E8D48B';
+    ctx.font = '22px "Poiret One", sans-serif';
+    ctx.textAlign = 'center';
+    let y = 200;
+    const lineHeight = 44;
+
+    displayLines.forEach(line => {
+      const lineText = line.map(w => w.text).join(' ').toUpperCase();
+      ctx.fillText(lineText, W / 2, y);
+      y += lineHeight;
+    });
+
+    // Divider diamond
+    y += 20;
+    ctx.fillStyle = 'rgba(201,169,78,0.4)';
+    ctx.save();
+    ctx.translate(W / 2, y);
+    ctx.rotate(Math.PI / 4);
+    ctx.fillRect(-3, -3, 6, 6);
+    ctx.restore();
+
+    // Divider lines
+    ctx.strokeStyle = 'rgba(201,169,78,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 80, y);
+    ctx.lineTo(W / 2 - 10, y);
+    ctx.moveTo(W / 2 + 10, y);
+    ctx.lineTo(W / 2 + 80, y);
+    ctx.stroke();
+
+    // Byline
+    y += 30;
+    ctx.fillStyle = '#8A8070';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    const byName = poetName.trim() || 'A Visitor';
+    ctx.fillText(`\u2014 ${byName} \u2014`, W / 2, y);
+
+    // Footer
+    ctx.fillStyle = 'rgba(138,128,112,0.5)';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('The Mini Museum \u2014 Harlem Renaissance Exhibition', W / 2, H - 80);
+
+    canvas.toBlob(blob => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'my-poem.png';
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  }, [displayLines, poetName]);
+
+  // Print
+  const handlePrint = useCallback(() => {
+    window.print();
+  }, []);
 
   return (
     <div className="hw-root">
@@ -579,15 +665,28 @@ export default function HarlemInWordsPage() {
           transition: all 0.4s ease;
         }
 
-        /* Left panel — Poem Frame */
+        /* Left panel — Poem Frame (wider) */
         .hw-left-panel {
-          flex: 1;
+          flex: 1.4;
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
           position: relative;
           overflow: hidden;
           min-height: 100vh;
+        }
+
+        /* Workshop label above frame */
+        .hw-workshop-label {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 9px;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          color: var(--hw-gold-dim);
+          text-align: center;
+          margin-bottom: 12px;
+          z-index: 2;
         }
 
         /* Sunburst behind frame */
@@ -796,9 +895,9 @@ export default function HarlemInWordsPage() {
           align-self: stretch;
         }
 
-        /* Right panel — Word Bank */
+        /* Right panel — Word Bank (narrower) */
         .hw-right-panel {
-          flex: 1;
+          flex: 0 0 320px;
           display: flex;
           flex-direction: column;
           min-height: 100vh;
@@ -807,7 +906,7 @@ export default function HarlemInWordsPage() {
 
         /* Connectors strip */
         .hw-connectors {
-          padding: 16px 20px 12px;
+          padding: 16px 16px 12px;
           border-bottom: 1px solid rgba(201,169,78,0.1);
         }
         .hw-connectors-label {
@@ -825,13 +924,13 @@ export default function HarlemInWordsPage() {
         }
         .hw-connector-tile {
           font-family: 'Playfair Display', serif;
-          font-size: 12px;
+          font-size: 14px;
           font-style: italic;
           color: var(--hw-text-dim);
           background: rgba(201,169,78,0.04);
           border: 1px solid rgba(201,169,78,0.08);
           border-radius: 3px;
-          padding: 4px 8px;
+          padding: 5px 10px;
           cursor: pointer;
           transition: all 0.2s;
           -webkit-tap-highlight-color: transparent;
@@ -846,7 +945,7 @@ export default function HarlemInWordsPage() {
         .hw-cat-tabs {
           display: flex;
           flex-wrap: wrap;
-          padding: 12px 20px 0;
+          padding: 12px 16px 0;
           gap: 0;
         }
         .hw-cat-tab {
@@ -855,7 +954,7 @@ export default function HarlemInWordsPage() {
           letter-spacing: 1.5px;
           text-transform: uppercase;
           font-weight: 600;
-          padding: 8px 12px;
+          padding: 8px 10px;
           border: none;
           background: transparent;
           color: var(--hw-text-dim);
@@ -878,10 +977,79 @@ export default function HarlemInWordsPage() {
           border-radius: 50%;
         }
 
+        /* Plural toggle + shuffle row */
+        .hw-tray-controls {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 8px 16px;
+          gap: 8px;
+        }
+        .hw-plural-toggle {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 9px;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          color: var(--hw-text-dim);
+          font-weight: 600;
+        }
+        .hw-plural-toggle .active-label {
+          color: var(--hw-gold);
+        }
+        .hw-toggle-switch {
+          position: relative;
+          width: 36px;
+          height: 18px;
+          border-radius: 9px;
+          border: 1px solid rgba(201,169,78,0.25);
+          background: rgba(201,169,78,0.06);
+          cursor: pointer;
+          transition: all 0.3s ease;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hw-toggle-switch.on {
+          background: rgba(201,169,78,0.15);
+          border-color: rgba(201,169,78,0.5);
+        }
+        .hw-toggle-knob {
+          position: absolute;
+          top: 2px;
+          left: 2px;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: var(--hw-gold-dim);
+          transition: all 0.3s ease;
+        }
+        .hw-toggle-switch.on .hw-toggle-knob {
+          left: 20px;
+          background: var(--hw-gold);
+        }
+        .hw-shuffle-sm {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 9px;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          padding: 5px 10px;
+          border: 1px solid rgba(201,169,78,0.15);
+          background: transparent;
+          color: var(--hw-gold-dim);
+          cursor: pointer;
+          transition: all 0.3s;
+          -webkit-tap-highlight-color: transparent;
+        }
+        .hw-shuffle-sm:hover {
+          border-color: rgba(201,169,78,0.3);
+          color: var(--hw-gold);
+        }
+
         /* Word tray */
         .hw-word-tray {
           flex: 1;
-          padding: 16px 20px;
+          padding: 8px 16px 16px;
           display: flex;
           flex-wrap: wrap;
           gap: 6px;
@@ -909,26 +1077,6 @@ export default function HarlemInWordsPage() {
         }
         .hw-word-tile:active {
           transform: translateY(0);
-        }
-
-        /* Shuffle button */
-        .hw-shuffle-btn {
-          margin: 8px 20px 16px;
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 9px;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          padding: 8px 16px;
-          border: 1px solid rgba(201,169,78,0.15);
-          background: transparent;
-          color: var(--hw-gold-dim);
-          cursor: pointer;
-          transition: all 0.3s;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .hw-shuffle-btn:hover {
-          border-color: rgba(201,169,78,0.3);
-          color: var(--hw-gold);
         }
 
         /* ── Mobile: stacked layout ── */
@@ -962,6 +1110,9 @@ export default function HarlemInWordsPage() {
           .hw-poem-text { font-size: 16px; }
           .hw-word-tile { font-size: 13px; padding: 5px 10px; padding-left: 13px; }
           .hw-frame-btn { font-size: 8px; padding: 5px 8px; }
+          .hw-connector-tile { font-size: 12px; padding: 4px 8px; }
+          .hw-cat-tab { padding: 6px 8px; font-size: 7px; }
+          .hw-tray-controls { padding: 6px 12px; }
         }
 
         /* ── Display Mode ── */
@@ -1098,7 +1249,7 @@ export default function HarlemInWordsPage() {
           align-items: center;
           justify-content: center;
           gap: 8px;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
           opacity: 0;
           animation: hw-fadeUp 0.6s ease 1.6s forwards;
         }
@@ -1112,22 +1263,52 @@ export default function HarlemInWordsPage() {
           color: var(--hw-gold-dim);
           font-size: 8px;
         }
-        .hw-display-byline {
+
+        /* Name input in display */
+        .hw-display-name-wrap {
           text-align: center;
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
-          letter-spacing: 3px;
-          text-transform: uppercase;
-          color: var(--hw-text-dim);
-          font-weight: 300;
-          margin-bottom: 24px;
+          margin-bottom: 20px;
           opacity: 0;
           animation: hw-fadeUp 0.6s ease 1.8s forwards;
         }
+        .hw-display-name-input {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 11px;
+          letter-spacing: 3px;
+          text-transform: uppercase;
+          color: var(--hw-gold);
+          text-align: center;
+          background: transparent;
+          border: none;
+          border-bottom: 1px solid rgba(201,169,78,0.25);
+          padding: 4px 12px;
+          width: 220px;
+          outline: none;
+          font-weight: 400;
+          transition: border-color 0.3s;
+        }
+        .hw-display-name-input:focus {
+          border-bottom-color: rgba(201,169,78,0.6);
+        }
+        .hw-display-name-input::placeholder {
+          color: rgba(138,128,112,0.5);
+          font-style: italic;
+          text-transform: none;
+          letter-spacing: 1px;
+        }
+        .hw-display-name-prefix {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 10px;
+          color: var(--hw-text-dim);
+          font-weight: 300;
+          margin-right: 4px;
+        }
+
         .hw-display-actions {
           display: flex;
           justify-content: center;
-          gap: 10px;
+          gap: 8px;
+          flex-wrap: wrap;
           opacity: 0;
           animation: hw-fadeUp 0.6s ease 2.0s forwards;
         }
@@ -1137,7 +1318,7 @@ export default function HarlemInWordsPage() {
           letter-spacing: 2px;
           text-transform: uppercase;
           font-weight: 600;
-          padding: 8px 18px;
+          padding: 8px 16px;
           border: 1px solid rgba(201,169,78,0.2);
           background: transparent;
           color: var(--hw-gold-dim);
@@ -1246,7 +1427,48 @@ export default function HarlemInWordsPage() {
         @media (max-width: 600px) {
           .hw-display-frame { padding: 36px 24px; }
           .hw-display-poem-word { font-size: 16px; letter-spacing: 2px; }
-          .hw-display-btn { padding: 6px 14px; font-size: 8px; }
+          .hw-display-btn { padding: 6px 12px; font-size: 8px; }
+          .hw-display-name-input { width: 180px; font-size: 10px; }
+          .hw-display-actions { gap: 6px; }
+        }
+
+        /* ── Print Styles ── */
+        @media print {
+          body, .hw-root { background: white !important; }
+          .hw-compose-page, .hw-welcome, .hw-display-bg { display: none !important; }
+          .hw-display-overlay {
+            position: static !important;
+            background: white !important;
+            animation: none !important;
+          }
+          .hw-display-frame {
+            opacity: 1 !important;
+            transform: none !important;
+            animation: none !important;
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 40px !important;
+          }
+          .hw-display-frame-outer { border-color: #C9A94E !important; }
+          .hw-display-frame-inner { border-color: rgba(201,169,78,0.4) !important; }
+          .hw-display-poem-word {
+            color: #1A1208 !important;
+            text-shadow: none !important;
+          }
+          .hw-display-label { color: #8B7535 !important; animation: none !important; opacity: 1 !important; }
+          .hw-display-divider { animation: none !important; opacity: 1 !important; }
+          .hw-display-divider::before, .hw-display-divider::after { background: #C9A94E !important; }
+          .hw-display-divider span { color: #C9A94E !important; }
+          .hw-display-name-wrap { animation: none !important; opacity: 1 !important; }
+          .hw-display-name-input { color: #1A1208 !important; border-bottom-color: #C9A94E !important; }
+          .hw-display-name-prefix { color: #666 !important; }
+          .hw-display-fan { animation: none !important; opacity: 1 !important; }
+          .hw-display-fan svg line { stroke: #C9A94E !important; }
+          .hw-display-poem { animation: none !important; opacity: 1 !important; }
+          .hw-display-actions { display: none !important; }
+          .hw-display-corner svg path { stroke: rgba(201,169,78,0.6) !important; }
+          .hw-display-corner svg rect { fill: rgba(201,169,78,0.5) !important; }
+          .hw-display-deco-diamond { background: #C9A94E !important; }
         }
       `}</style>
 
@@ -1308,6 +1530,9 @@ export default function HarlemInWordsPage() {
               })}
             </svg>
 
+            {/* Workshop label */}
+            <div className="hw-workshop-label">Poetry Workshop</div>
+
             <div className="hw-frame">
               <div className="hw-frame-inner-border" />
 
@@ -1352,15 +1577,15 @@ export default function HarlemInWordsPage() {
                   </div>
                 ) : (
                   <div className="hw-poem-text">
-                    {poem.map((entry, i) => {
+                    {poem.map((entry) => {
                       if (entry.isLineBreak) return <br key={entry.uid} />;
                       return (
                         <span
                           key={entry.uid}
-                          onClick={() => handlePoemWordTap(entry.uid)}
+                          onClick={() => removeEntry(entry.uid)}
                           onTouchEnd={(e) => {
                             e.preventDefault();
-                            handlePoemWordTap(entry.uid);
+                            removeEntry(entry.uid);
                           }}
                         >
                           {entry.text}{' '}
@@ -1373,7 +1598,7 @@ export default function HarlemInWordsPage() {
 
               {/* Hint */}
               <div className="hw-hint" style={{ opacity: hasWords ? 1 : 0 }}>
-                double-tap a word in your poem to add {'\u2018'}s{'\u2019'}
+                tap a word in your poem to remove it
               </div>
 
               {/* Buttons */}
@@ -1425,6 +1650,27 @@ export default function HarlemInWordsPage() {
               ))}
             </div>
 
+            {/* Plural toggle + shuffle */}
+            <div className="hw-tray-controls">
+              {categoryHasPluralizable ? (
+                <div className="hw-plural-toggle">
+                  <span className={!pluralMode ? 'active-label' : ''}>Singular</span>
+                  <button
+                    className={`hw-toggle-switch ${pluralMode ? 'on' : ''}`}
+                    onClick={() => setPluralMode(!pluralMode)}
+                  >
+                    <span className="hw-toggle-knob" />
+                  </button>
+                  <span className={pluralMode ? 'active-label' : ''}>Plural</span>
+                </div>
+              ) : (
+                <div />
+              )}
+              <button className="hw-shuffle-sm" onClick={handleShuffle}>
+                {'\u21BB'} Shuffle
+              </button>
+            </div>
+
             {/* Word tray */}
             <div className="hw-word-tray">
               {availableWords.map(word => (
@@ -1434,7 +1680,7 @@ export default function HarlemInWordsPage() {
                   style={{ borderLeftColor: CATEGORY_META[activeCategory].dot }}
                   onClick={() => addCategoryWord(word, activeCategory)}
                 >
-                  {word}
+                  {pluralMode && pluralise(word) ? pluralise(word) : word}
                 </button>
               ))}
               {availableWords.length === 0 && (
@@ -1450,11 +1696,6 @@ export default function HarlemInWordsPage() {
                 </div>
               )}
             </div>
-
-            {/* Shuffle button */}
-            <button className="hw-shuffle-btn" onClick={handleShuffle}>
-              {'\u21BB'} Shuffle Words
-            </button>
           </div>
         </div>
       )}
@@ -1616,7 +1857,7 @@ export default function HarlemInWordsPage() {
               </svg>
             </div>
 
-            <div className="hw-display-label">Harlem in Words</div>
+            <div className="hw-display-label">Poetry Workshop</div>
 
             <div className="hw-display-poem">
               {displayLines.map((line, li) => (
@@ -1634,8 +1875,16 @@ export default function HarlemInWordsPage() {
               <span>{'\u25C6'}</span>
             </div>
 
-            <div className="hw-display-byline">
-              {'\u2014'} A Visitor to the Mini Museum {'\u2014'}
+            <div className="hw-display-name-wrap">
+              <span className="hw-display-name-prefix">{'\u2014'}</span>
+              <input
+                className="hw-display-name-input"
+                type="text"
+                placeholder="Your name here"
+                value={poetName}
+                onChange={e => setPoetName(e.target.value)}
+              />
+              <span className="hw-display-name-prefix">{'\u2014'}</span>
             </div>
 
             <div className="hw-display-actions">
@@ -1647,6 +1896,12 @@ export default function HarlemInWordsPage() {
                 handleClear();
               }}>
                 New Poem
+              </button>
+              <button className="hw-display-btn" onClick={handlePrint}>
+                Print
+              </button>
+              <button className="hw-display-btn" onClick={handleSaveImage}>
+                Save Image
               </button>
             </div>
           </div>

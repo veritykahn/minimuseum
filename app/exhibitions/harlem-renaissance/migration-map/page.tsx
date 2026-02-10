@@ -207,9 +207,9 @@ export default function MigrationMapPage() {
       setCityViewOpen(true);
       setCityContentVisible(true);
       if (cityViewRef.current) cityViewRef.current.scrollTop = 0;
-      // Auto-play music
+      // Auto-play music after expand fills the screen
       playMusic(idx);
-    }, 500);
+    }, 900);
   }, [getDotScreenPos, playMusic]);
 
   const collapseCity = useCallback((): Promise<void> => {
@@ -264,9 +264,8 @@ export default function MigrationMapPage() {
       setTrainVisible(true);
       const startPct = fromIdx >= 0 ? positions[fromIdx] : positions[0];
       const endPct = positions[toIdx];
-      // Match animation to train audio duration
-      const audioDur = trainAudioRef.current?.duration;
-      const duration = (audioDur && isFinite(audioDur)) ? audioDur * 1000 : 5000;
+      // Fixed 4-second train journey — the last second is the expanding dot
+      const duration = 4000;
       const startTime = performance.now();
 
       function animate(now: number) {
@@ -490,12 +489,12 @@ export default function MigrationMapPage() {
         }
         .mg-expand-bg.positioned { display: block; }
         .mg-expand-bg.expanded {
-          transition: width 0.9s cubic-bezier(0.4, 0, 0.2, 1),
-                      height 0.9s cubic-bezier(0.4, 0, 0.2, 1),
-                      top 0.9s cubic-bezier(0.4, 0, 0.2, 1),
-                      left 0.9s cubic-bezier(0.4, 0, 0.2, 1),
-                      border-radius 0.9s cubic-bezier(0.4, 0, 0.2, 1),
-                      background 0.6s ease 0.3s;
+          transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1),
+                      height 1.4s cubic-bezier(0.4, 0, 0.2, 1),
+                      top 1.4s cubic-bezier(0.4, 0, 0.2, 1),
+                      left 1.4s cubic-bezier(0.4, 0, 0.2, 1),
+                      border-radius 1.4s cubic-bezier(0.4, 0, 0.2, 1),
+                      background 0.8s ease 0.4s;
           border-radius: 0; top: 0 !important; left: 0 !important;
           width: 100vw !important; height: 100vh !important;
         }
