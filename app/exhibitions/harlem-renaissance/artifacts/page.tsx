@@ -32,15 +32,6 @@ const artifacts: Artifact[] = [
     emoji: '\u{1F4D6}',
   },
   {
-    id: 'blackbirds-sheet-music',
-    title: 'Blackbirds of 1928',
-    subtitle: 'Original Sheet Music',
-    status: 'coming-soon',
-    type: '3d',
-    route: '',
-    emoji: '\u{1F3B5}',
-  },
-  {
     id: 'jazz-lab',
     title: 'The Jazz Lab',
     subtitle: 'Build a Band & Test Your Ear',
@@ -155,11 +146,18 @@ export default function ArtifactsCollection() {
 
         .hr-art-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(6, 1fr);
           gap: 24px;
           max-width: 960px;
           margin: 0 auto;
         }
+        /* Row 1: 2 items centered (each spans 3 of 6 cols) */
+        .hr-art-card:nth-child(1) { grid-column: 1 / span 3; }
+        .hr-art-card:nth-child(2) { grid-column: 4 / span 3; }
+        /* Row 2: 3 items (each spans 2 of 6 cols) */
+        .hr-art-card:nth-child(3) { grid-column: 1 / span 2; }
+        .hr-art-card:nth-child(4) { grid-column: 3 / span 2; }
+        .hr-art-card:nth-child(5) { grid-column: 5 / span 2; }
 
         @media (max-width: 900px) {
           .hr-art-grid {
@@ -167,6 +165,7 @@ export default function ArtifactsCollection() {
             gap: 32px;
             max-width: 500px;
           }
+          .hr-art-card:nth-child(n) { grid-column: auto; }
         }
 
         @media (max-width: 600px) {

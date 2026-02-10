@@ -417,21 +417,60 @@ export default function MigrationMapPage() {
           margin-top: 4px; font-weight: 300;
         }
 
+        /* === MAIN 3-COL LAYOUT === */
+        .mg-main-layout {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          padding: 0 24px;
+          max-width: 1400px;
+          margin: 0 auto;
+          width: 100%;
+        }
+        .mg-left-col {
+          flex: 0 0 280px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          padding-right: 24px;
+        }
+        .mg-right-col {
+          flex: 0 0 280px;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          padding-left: 24px;
+        }
         .mg-intro {
-          max-width: 580px; margin: 0 auto;
-          padding: 8px 24px 8px; text-align: center;
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 12px; line-height: 1.7;
+          font-size: 15px; line-height: 1.85;
           color: var(--mg-text-dim); font-weight: 300;
         }
         .mg-intro em { color: var(--mg-gold-light); font-style: normal; }
+        .mg-journey-prompt { text-align: center; }
+        .mg-prompt-label {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 9px; letter-spacing: 4px;
+          text-transform: uppercase;
+          color: var(--mg-gold-dim); font-weight: 600;
+          margin-bottom: 12px;
+        }
+        .mg-prompt-text {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 13px; line-height: 1.8;
+          color: var(--mg-text-dim); font-weight: 300;
+          margin-bottom: 24px;
+        }
+        .mg-prompt-text em { color: var(--mg-gold-light); font-style: normal; }
 
         .mg-map-container {
-          margin: 0 auto; flex: 1;
+          flex: 1;
           padding: 0;
           display: flex; align-items: center; justify-content: center;
           width: 100%;
           min-height: 0;
+          min-width: 0;
         }
         .mg-map-svg-wrap {
           width: 100%; max-width: 100%;
@@ -439,7 +478,7 @@ export default function MigrationMapPage() {
         }
         .mg-map-svg-wrap svg {
           width: 100%; height: auto; display: block;
-          max-height: calc(100vh - 180px);
+          max-height: calc(100vh - 140px);
           transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
@@ -470,7 +509,6 @@ export default function MigrationMapPage() {
         }
 
         /* Board button */
-        .mg-board-btn-wrap { text-align: center; padding: 12px 20px 20px; }
         .mg-board-btn {
           font-family: 'Josefin Sans', sans-serif; font-size: 11px;
           letter-spacing: 3px; text-transform: uppercase; font-weight: 600;
@@ -683,6 +721,31 @@ export default function MigrationMapPage() {
           transition: all 0.4s ease;
         }
 
+        @media (max-width: 1100px) {
+          .mg-left-col { flex: 0 0 220px; }
+          .mg-right-col { flex: 0 0 220px; }
+          .mg-intro { font-size: 13px; }
+          .mg-prompt-text { font-size: 12px; }
+        }
+        @media (max-width: 900px) {
+          .mg-main-layout {
+            flex-direction: column;
+            padding: 0 24px;
+            gap: 8px;
+          }
+          .mg-left-col {
+            flex: none;
+            padding: 0;
+            max-width: 500px;
+            text-align: center;
+          }
+          .mg-right-col {
+            flex: none;
+            padding: 0;
+          }
+          .mg-map-container { flex: none; }
+          .mg-map-svg-wrap svg { max-height: 50vh; }
+        }
         @media (max-width: 768px) {
           .mg-nav { left: 20px; top: 20px; }
           .mg-nav-text { font-size: 24px; }
@@ -738,13 +801,16 @@ export default function MigrationMapPage() {
           <div className="mg-subtitle">Follow the Music North</div>
         </div>
 
-        <div className="mg-intro">
-          Between 1910 and 1940, over <em>1.5 million</em> African Americans left the rural South
-          and traveled north, carrying their music with them. Tap the button below to board the train
-          and follow the journey from the cotton fields to Harlem.
-        </div>
+        <div className="mg-main-layout">
+          <div className="mg-left-col">
+            <div className="mg-intro">
+              Between 1910 and 1940, over <em>1.5 million</em> African Americans left the rural South
+              and traveled north, carrying their music with them &mdash; from the cotton fields of the
+              Mississippi Delta to the stages of Harlem.
+            </div>
+          </div>
 
-        <div className="mg-map-container">
+          <div className="mg-map-container">
           <div className="mg-map-svg-wrap">
             <svg ref={svgRef} viewBox="0 0 700 620" xmlns="http://www.w3.org/2000/svg"
               style={{
@@ -836,10 +902,18 @@ export default function MigrationMapPage() {
           </div>
         </div>
 
-        <div className="mg-board-btn-wrap">
-          <button className="mg-board-btn" onClick={startJourney}>
-            {'\u25C6'} Begin in the Delta {'\u25C6'}
-          </button>
+          <div className="mg-right-col">
+            <div className="mg-journey-prompt">
+              <div className="mg-prompt-label">Your Journey</div>
+              <p className="mg-prompt-text">
+                Board the train and <em>ride from stop to stop</em> {'\u2014'} hear the music,
+                see the photographs, and trace the path that changed America.
+              </p>
+              <button className="mg-board-btn" onClick={startJourney}>
+                {'\u25C6'} Begin in the Delta {'\u25C6'}
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="mg-footer">
