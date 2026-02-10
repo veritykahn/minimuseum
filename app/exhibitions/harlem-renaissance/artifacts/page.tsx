@@ -18,9 +18,9 @@ const artifacts: Artifact[] = [
     id: 'phonograph',
     title: 'Electric Phonograph & Bessie Smith 78',
     subtitle: 'The Empress of the Blues',
-    status: 'available',
+    status: 'coming-soon',
     type: '3d',
-    route: '/exhibitions/harlem-renaissance/artifacts/phonograph',
+    route: '',
     emoji: '\u{1F4FB}',
   },
   {
