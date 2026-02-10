@@ -10,6 +10,7 @@ type Artifact = {
   type: '3d' | 'interactive';
   route: string;
   emoji: string;
+  thumb?: string;
 };
 
 const artifacts: Artifact[] = [
@@ -39,6 +40,7 @@ const artifacts: Artifact[] = [
     type: 'interactive',
     route: '/exhibitions/harlem-renaissance/jazz-lab',
     emoji: '\u{1F3B7}',
+    thumb: '/exhibitions/harlem/artifacts/jazz-thumb.jpg',
   },
   {
     id: 'migration-map',
@@ -48,6 +50,7 @@ const artifacts: Artifact[] = [
     type: 'interactive',
     route: '/exhibitions/harlem-renaissance/migration-map',
     emoji: '\u{1F5FA}\u{FE0F}',
+    thumb: '/exhibitions/harlem/artifacts/migration-thumb.jpg',
   },
   {
     id: 'harlem-in-words',
@@ -57,6 +60,7 @@ const artifacts: Artifact[] = [
     type: 'interactive',
     route: '/exhibitions/harlem-renaissance/harlem-in-words',
     emoji: '\u{270D}\u{FE0F}',
+    thumb: '/exhibitions/harlem/artifacts/words-thumb.jpg',
   },
 ];
 
@@ -224,6 +228,15 @@ export default function ArtifactsCollection() {
           justify-content: center;
           font-size: 48px;
         }
+        .hr-art-thumb {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.4s ease;
+        }
+        .hr-art-card.available:hover .hr-art-thumb {
+          transform: scale(1.08);
+        }
 
         @media (max-width: 1024px) {
           .hr-art-image-container {
@@ -382,7 +395,10 @@ export default function ArtifactsCollection() {
             )}
 
             <div className="hr-art-image-container">
-              {artifact.emoji}
+              {artifact.thumb ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="hr-art-thumb" src={artifact.thumb} alt={artifact.title} />
+              ) : artifact.emoji}
             </div>
 
             <div className="hr-art-info">

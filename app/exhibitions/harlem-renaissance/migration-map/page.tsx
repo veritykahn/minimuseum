@@ -703,23 +703,16 @@ export default function MigrationMapPage() {
           letter-spacing: 2px; font-weight: 300;
         }
 
-        /* Back button in city view */
-        .mg-city-back {
-          position: fixed; top: 24px; left: 24px; z-index: 210;
-          display: flex; align-items: center; gap: 10px;
+        /* Return to map link in city view */
+        .mg-return-map {
+          display: block; margin: 16px auto 0;
           background: none; border: none; cursor: pointer;
-          font-family: 'Cormorant Garamond', 'Playfair Display', serif;
+          font-family: 'Josefin Sans', sans-serif; font-size: 11px;
+          letter-spacing: 2px; color: var(--mg-gold-dim);
           transition: all 0.3s ease;
+          -webkit-tap-highlight-color: transparent;
         }
-        .mg-city-back:hover .mg-city-back-label { opacity: 1; max-width: 150px; }
-        .mg-city-back:hover .mg-city-back-arrow { transform: translateX(-4px); }
-        .mg-city-back-text { font-size: 28px; font-weight: 300; color: rgba(201,169,78,0.4); }
-        .mg-city-back-arrow { font-size: 16px; color: rgba(201,169,78,0.3); transition: all 0.3s ease; }
-        .mg-city-back-label {
-          font-size: 13px; font-style: italic; color: rgba(201,169,78,0.4);
-          opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap;
-          transition: all 0.4s ease;
-        }
+        .mg-return-map:hover { color: var(--mg-gold); }
 
         @media (max-width: 1100px) {
           .mg-left-col { flex: 0 0 220px; }
@@ -749,8 +742,6 @@ export default function MigrationMapPage() {
         @media (max-width: 768px) {
           .mg-nav { left: 20px; top: 20px; }
           .mg-nav-text { font-size: 24px; }
-          .mg-city-back { left: 16px; top: 16px; }
-          .mg-city-back-text { font-size: 24px; }
         }
         @media (max-width: 768px) {
           .mg-city-columns { grid-template-columns: 1fr; gap: 24px; }
@@ -790,7 +781,7 @@ export default function MigrationMapPage() {
 
       {/* === MAP VIEW === */}
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <div className="mg-nav" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+        <div className="mg-nav" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')} style={{ display: cityViewOpen ? 'none' : 'flex' }}>
           <span className="mg-nav-text">M</span>
           <span className="mg-nav-arrow">{'\u2190'}</span>
           <span className="mg-nav-label">Collection</span>
@@ -924,12 +915,6 @@ export default function MigrationMapPage() {
       {/* === CITY VIEW === */}
       {cityViewOpen && city && (
         <div className="mg-city-view" ref={cityViewRef}>
-          <button className="mg-city-back" onClick={backToMap}>
-            <span className="mg-city-back-text">M</span>
-            <span className="mg-city-back-arrow">{'\u2190'}</span>
-            <span className="mg-city-back-label">Map</span>
-          </button>
-
           <div className={`mg-city-content ${cityContentVisible ? 'visible' : ''}`} style={{
               '--mg-gold': CITY_COLORS[currentCityIdx].main,
               '--mg-gold-light': CITY_COLORS[currentCityIdx].light,
@@ -984,14 +969,17 @@ export default function MigrationMapPage() {
                     </div>
                   </div>
 
-                  {currentCityIdx < CITIES.length - 1 ? (
+                  {currentCityIdx < CITIES.length - 1 ? (<>
                     <div className="mg-train-ticket" onClick={boardToNext}>
                       <div className="mg-ticket-label">Next Stop</div>
                       <div className="mg-ticket-destination">{CITIES[currentCityIdx + 1].name}</div>
                       <div className="mg-ticket-line" />
                       <div className="mg-ticket-action">{'\u25C6'} Board the Train {'\u25C6'}</div>
                     </div>
-                  ) : (
+                    <button className="mg-return-map" onClick={backToMap}>
+                      {'\u2190'} Return to Map
+                    </button>
+                  </>) : (
                     <div className="mg-arrival-ticket">
                       <div className="mg-ticket-label">You Have Arrived</div>
                       <div className="mg-ticket-destination">The music made it. So did the people.</div>
