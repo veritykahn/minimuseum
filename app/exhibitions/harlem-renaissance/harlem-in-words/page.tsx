@@ -55,8 +55,8 @@ const CATEGORY_WORDS: Record<WordCategory, string[]> = {
 
 const CONNECTORS = [
   'a', 'always', 'an', 'and', 'are', 'at', 'but', 'can', 'do', 'for',
-  'from', 'here', 'how', 'I', 'in', 'is', 'like', 'my', 'never', 'no',
-  'not', 'of', 'on', 'or', 'our', 'so', 'still', 'that', 'the', 'there',
+  'from', 'he', 'here', 'how', 'I', 'in', 'is', 'like', 'my', 'never', 'no',
+  'not', 'of', 'on', 'or', 'our', 'she', 'so', 'still', 'that', 'the', 'there',
   'this', 'to', 'too', 'was', 'we', 'when', 'where', 'who', 'will', 'with',
   'you', 'your',
 ];
@@ -83,6 +83,7 @@ const NO_PLURAL = new Set([
   'harlem', 'lenox', 'beale street', 'south side', 'uptown',
   // Already plural or uncountable
   'dust', 'water', 'earth', 'rain', 'found', 'lost', 'still',
+  'wings',
 ]);
 
 function pluralise(word: string): string | null {
@@ -1345,7 +1346,7 @@ export default function HarlemInWordsPage() {
         }
         .hw-floating-diamond {
           position: absolute;
-          border: 1px solid rgba(201,169,78,0.3);
+          border: 1px solid rgba(201,169,78,0.5);
           animation: hw-floatDiamond var(--dur, 12s) ease-in-out var(--delay, 0s) infinite;
         }
 
@@ -1358,8 +1359,8 @@ export default function HarlemInWordsPage() {
           animation: hw-sunburstPulse 4s ease-in-out infinite;
         }
         @keyframes hw-sunburstPulse {
-          0%, 100% { opacity: 0.06; transform: translate(-50%, -50%) scale(1); }
-          50% { opacity: 0.036; transform: translate(-50%, -50%) scale(0.95); }
+          0%, 100% { opacity: 0.12; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 0.07; transform: translate(-50%, -50%) scale(0.95); }
         }
 
         /* Theme: concentric circles */
@@ -1367,13 +1368,13 @@ export default function HarlemInWordsPage() {
           position: absolute;
           top: 50%; left: 50%;
           border-radius: 50%;
-          border: 1px solid rgba(201,169,78,0.1);
+          border: 1px solid rgba(201,169,78,0.2);
           transform: translate(-50%, -50%);
           animation: hw-concentricPulse 3s ease-in-out infinite;
         }
         @keyframes hw-concentricPulse {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.8; }
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
         }
 
         /* Theme: particles */
@@ -1386,8 +1387,8 @@ export default function HarlemInWordsPage() {
         }
         @keyframes hw-particleFall {
           0% { transform: translateY(-10px); opacity: 0; }
-          10% { opacity: var(--opacity, 0.3); }
-          90% { opacity: var(--opacity, 0.3); }
+          10% { opacity: var(--opacity, 0.5); }
+          90% { opacity: var(--opacity, 0.5); }
           100% { transform: translateY(100vh); opacity: 0; }
         }
 
@@ -1401,7 +1402,7 @@ export default function HarlemInWordsPage() {
         }
         .hw-chevron-row span {
           font-size: 14px;
-          color: rgba(201,169,78,0.08);
+          color: rgba(201,169,78,0.18);
         }
         @keyframes hw-chevronWave {
           0%, 100% { opacity: 0; }
@@ -1420,7 +1421,7 @@ export default function HarlemInWordsPage() {
         @keyframes hw-spinCCW { to { transform: translate(-50%, -50%) rotate(-360deg); } }
         .hw-petal {
           position: absolute;
-          border: 1px solid rgba(201,169,78,0.08);
+          border: 1px solid rgba(201,169,78,0.18);
           border-radius: 50%;
         }
 
@@ -1754,7 +1755,7 @@ export default function HarlemInWordsPage() {
                   left: `${Math.random() * 100}%`,
                   '--dur': `${6 + Math.random() * 8}s`,
                   '--delay': `${Math.random() * 6}s`,
-                  '--opacity': `${0.2 + Math.random() * 0.3}`,
+                  '--opacity': `${0.35 + Math.random() * 0.4}`,
                 } as React.CSSProperties} />
               ))}
             </>}

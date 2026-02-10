@@ -209,7 +209,7 @@ export default function MigrationMapPage() {
       if (cityViewRef.current) cityViewRef.current.scrollTop = 0;
       // Auto-play music after expand fills the screen
       playMusic(idx);
-    }, 900);
+    }, 1400);
   }, [getDotScreenPos, playMusic]);
 
   const collapseCity = useCallback((): Promise<void> => {
@@ -264,8 +264,8 @@ export default function MigrationMapPage() {
       setTrainVisible(true);
       const startPct = fromIdx >= 0 ? positions[fromIdx] : positions[0];
       const endPct = positions[toIdx];
-      // Fixed 4-second train journey — the last second is the expanding dot
-      const duration = 4000;
+      // Fixed 5-second train journey — the last stretch is the expanding dot
+      const duration = 5000;
       const startTime = performance.now();
 
       function animate(now: number) {
@@ -489,12 +489,12 @@ export default function MigrationMapPage() {
         }
         .mg-expand-bg.positioned { display: block; }
         .mg-expand-bg.expanded {
-          transition: width 1.4s cubic-bezier(0.4, 0, 0.2, 1),
-                      height 1.4s cubic-bezier(0.4, 0, 0.2, 1),
-                      top 1.4s cubic-bezier(0.4, 0, 0.2, 1),
-                      left 1.4s cubic-bezier(0.4, 0, 0.2, 1),
-                      border-radius 1.4s cubic-bezier(0.4, 0, 0.2, 1),
-                      background 0.8s ease 0.4s;
+          transition: width 2s cubic-bezier(0.4, 0, 0.2, 1),
+                      height 2s cubic-bezier(0.4, 0, 0.2, 1),
+                      top 2s cubic-bezier(0.4, 0, 0.2, 1),
+                      left 2s cubic-bezier(0.4, 0, 0.2, 1),
+                      border-radius 2s cubic-bezier(0.4, 0, 0.2, 1),
+                      background 1s ease 0.6s;
           border-radius: 0; top: 0 !important; left: 0 !important;
           width: 100vw !important; height: 100vh !important;
         }
