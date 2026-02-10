@@ -18,9 +18,9 @@ const artifacts: Artifact[] = [
     id: 'phonograph',
     title: 'Electric Phonograph & Bessie Smith 78 RPM',
     subtitle: 'Columbia Records, c. 1924',
-    status: 'coming-soon',
+    status: 'available',
     type: '3d',
-    route: '',
+    route: '/exhibitions/harlem-renaissance/artifacts/phonograph',
     emoji: '\u{1F4FB}',
   },
   {
