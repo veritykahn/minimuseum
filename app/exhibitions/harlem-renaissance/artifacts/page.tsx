@@ -16,8 +16,8 @@ type Artifact = {
 const artifacts: Artifact[] = [
   {
     id: 'phonograph',
-    title: 'Electric Phonograph & Bessie Smith 78',
-    subtitle: 'The Empress of the Blues',
+    title: 'Electric Phonograph & Bessie Smith 78 RPM',
+    subtitle: 'Columbia Records, c. 1924',
     status: 'coming-soon',
     type: '3d',
     route: '',
@@ -26,7 +26,7 @@ const artifacts: Artifact[] = [
   {
     id: 'fire-in-the-flint',
     title: 'The Fire in the Flint',
-    subtitle: 'Walter F. White, First Edition, 1924',
+    subtitle: 'Walter F. White, Alfred A. Knopf, 1924',
     status: 'available',
     type: '3d',
     route: '/exhibitions/harlem-renaissance/artifacts/fire-in-the-flint',
