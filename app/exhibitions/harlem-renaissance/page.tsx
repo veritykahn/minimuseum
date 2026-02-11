@@ -46,14 +46,14 @@ const poster1Content: ContentItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'Between 1916 and 1940, more than one million Black Americans fled the South. They boarded trains in Mississippi, Alabama, Georgia, and Louisiana — leaving behind sharecropping, Jim Crow, and white supremacist violence. They followed rumors of factory jobs and real wages to Chicago, Detroit, Cleveland, and Philadelphia. And they poured into a fifteen-block neighborhood at the northern tip of Manhattan called Harlem.',
+    text: 'Between 1916 and 1930, more than one million Black Americans fled the South. They boarded trains in Mississippi, Alabama, Georgia, and Louisiana — escaping Jim Crow laws, sharecropping debt, and the constant threat of racial violence. They followed rumors of factory jobs and real wages to Chicago, Detroit, Cleveland, and Philadelphia. And they poured into a three-square-mile neighborhood at the northern tip of Manhattan called Harlem.',
     position: 'top-left',
     effect: 'fade-in',
     special: 'train-journey'
   },
   {
     type: 'paragraph',
-    text: 'By 1920, Harlem had 175,000 Black residents — the largest concentration of Black Americans in the United States. They came from Southern farms and Caribbean colonies, from African nations and Northern cities. They found desperate factory workers, immigrants from Jamaica deskside with migrants from Georgia. A self-contained Black world emerged: Black-owned businesses, churches, newspapers, and social clubs that catered to a community that lasted thousands.',
+    text: 'By 1930, Harlem held 175,000 Black residents — the largest concentration of Black Americans in the United States. They came from Southern farms and Caribbean islands, from African nations and Northern cities. Doctors lived alongside factory workers. Immigrants from Jamaica debated with migrants from Georgia. A self-contained Black world emerged: Black-owned businesses on 125th Street, Black newspapers like the Amsterdam News, Black churches that seated thousands.',
     position: 'bottom-right',
     effect: 'fade-in',
     special: 'train-journey'
@@ -73,7 +73,7 @@ const poster1Content: ContentItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'The writers came first — or at least, they got the credit. Langston Hughes arrived from Missouri and became the movement\'s poet laureate, capturing Harlem\'s rhythms in collections like The Weary Blues (1926) and Fine Clothes to the Jew (1927). Zora Neale Hurston came from Florida, trained as an anthropologist, and transformed Black Southern folk culture into novels like Their Eyes Were Watching God (1937). Claude McKay, born in Jamaica, wrote the defiant poem "If We Must Die" and the novel Home to Harlem (1928).',
+    text: 'The writers came first — or at least, they got the credit. Langston Hughes arrived from Missouri and became the movement\'s poet laureate, capturing Harlem\'s rhythms in collections like The Weary Blues (1926). Zora Neale Hurston came from Florida, trained as an anthropologist, and transformed Black Southern folk culture into novels like Their Eyes Were Watching God (1937). Claude McKay, born in Jamaica, wrote the defiant poem "If We Must Die" and the novel Home to Harlem (1928).',
     position: 'top-left',
     effect: 'fade-in',
     special: 'ink-spread'
@@ -244,7 +244,7 @@ const poster2Content: ContentItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'In September 1906, when Walter was thirteen, a white mob rampaged through Atlanta. Fueled by inflammatory newspaper headlines about alleged Black crimes, thousands of white men attacked Black neighborhoods, beating and killing Black residents and destroying Black businesses. At least twenty-five Black people died, although it was likely many more.',
+    text: 'In September 1906, when Walter was twelve, a white mob rampaged through Atlanta. Fueled by inflammatory newspaper headlines about alleged Black crimes, thousands of white men attacked Black neighborhoods, beating and killing Black residents and destroying Black businesses. At least twenty-five Black people died, although it was likely many more.',
     position: 'top-left',
     effect: 'fade-in',
     special: 'harlem-night'
@@ -292,7 +292,7 @@ const poster2Content: ContentItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'Over twelve years, White personally investigated forty-one killings and eight race riots. He traveled to Arkansas after the Elaine massacre of 1919, where white mobs murdered hundreds of Black sharecroppers. He investigated violence in Florida, Texas, Georgia, and throughout the South. The evidence he gathered helped expose the reality of racial terror to national and international audiences.',
+    text: 'Over twelve years, White personally investigated forty-one lynchings and eight race riots. He traveled to Arkansas after the Elaine massacre of 1919, where white mobs murdered hundreds of Black sharecroppers. He investigated violence in Florida, Texas, Georgia, and throughout the South. The evidence he gathered helped expose the reality of racial terror to national and international audiences.',
     position: 'top-left',
     effect: 'fade-in'
   },
@@ -311,7 +311,7 @@ const poster2Content: ContentItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'White channeled what he witnessed into literature. His first novel, The Fire in the Flint (1924), tells the story of Kenneth Harper, a Black doctor educated in the North who returns to his Georgia hometown determined to help his community. The novel ends with Harper\'s death at the hands of a white mob. White wrote the entire manuscript in twelve days. Every detail came from his investigations.',
+    text: 'White channeled what he witnessed into literature. His first novel, The Fire in the Flint (1924), tells the story of Kenneth Harper, a Black doctor educated in the North who returns to his Georgia hometown determined to help his community. The novel ends with Harper\'s death at the hands of a white mob. White wrote the entire manuscript in twelve days. Every detail came from his investigations. The book received immediate critical acclaim while some Southern newspapers denounced it as slander. White considered that a success.',
     position: 'top-right',
     effect: 'fade-in',
     special: 'ink-spread'
@@ -340,7 +340,7 @@ const poster2Content: ContentItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'In 1931, White became executive secretary of the NAACP — the organization\'s top position. He held it for twenty-four years, through the Great Depression, World War II, and the early Civil Rights era. Under his leadership, the NAACP pursued legal challenges to segregation. White lobbied presidents — Roosevelt, Truman, Eisenhower — for civil rights legislation, pushed for federal anti-lynching laws, though Southern senators blocked them repeatedly, and advocated for desegregation of the military, which Truman finally ordered in 1948.',
+    text: 'In 1931, White became executive secretary of the NAACP — the organization\'s top position. He held it for twenty-four years, through the Great Depression, World War II, and the early Civil Rights era. Under his leadership, the NAACP pursued legal challenges to segregation. White lobbied presidents — Roosevelt, Truman, Eisenhower — for civil rights legislation, pushed for federal anti-lynching laws, though Southern senators blocked them repeatedly, and advocated for desegregation of the military, which Truman finally ordered in 1948. White also advised Eleanor Roosevelt on racial issues and testified before Congress on these same issues. While doing all this, he wrote a nationally syndicated newspaper column.',
     position: 'top-left',
     effect: 'fade-in'
   },
