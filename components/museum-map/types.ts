@@ -17,3 +17,17 @@ export interface MapRoom {
 }
 
 export type RoomConnection = [string, string];
+
+export type MapLevel = 'museum' | 'floor' | 'exhibition';
+
+export type TransitionState = 'idle' | 'exiting' | 'entering';
+
+export interface MapLevelConfig {
+  level: MapLevel;
+  viewBox: string;
+  rooms: MapRoom[];
+  connections: RoomConnection[];
+  title?: string;
+  backTarget?: { label: string; path: string };
+  siblingExhibitions?: MapRoom[];
+}

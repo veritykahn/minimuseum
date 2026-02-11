@@ -1,7 +1,7 @@
 'use client';
 
 import { ReactNode, RefObject } from 'react';
-import { MapRoom } from './types';
+import { MapRoom, MapLevelConfig } from './types';
 
 type ZoomState = {
   scale: number;
@@ -25,6 +25,8 @@ type MapOverlayProps = {
   currentRoom: MapRoom | undefined;
   onClose: () => void;
   children: ReactNode;
+  levelConfig: MapLevelConfig;
+  onBack?: () => void;
   zoom?: ZoomState;
   zoomHandlers?: ZoomHandlers;
   containerRef?: RefObject<HTMLDivElement | null>;
@@ -37,12 +39,15 @@ type MapOverlayProps = {
 };
 
 /**
- * Full-screen overlay containing the map with zoom/pan support
+ * Full-screen overlay containing the map with zoom/pan support.
+ * Shows dynamic title, back navigation, and breadcrumb based on level.
  */
 export function MapOverlay({
   currentRoom,
   onClose,
   children,
+  levelConfig,
+  onBack,
   zoom,
   zoomHandlers,
   containerRef,
@@ -55,13 +60,48 @@ export function MapOverlay({
 }: MapOverlayProps) {
   const hasZoom = zoom && zoomHandlers;
 
+  // Build breadcrumb based on level
+  const breadcrumb = (() => {
+    if (levelConfig.level === 'museum') return null;
+    if (levelConfig.level === 'floor') {
+      return [{ label: 'Museum', path: '/greathall' }];
+    }
+    // exhibition level
+    return [
+      { label: 'Museum', path: '/greathall' },
+      { label: '1st Floor', path: '/exhibitions/first-floor' },
+    ];
+  })();
+
   return (
     <>
       <div className="map-overlay" onClick={onClose}>
         <div className="map-container" onClick={(e) => e.stopPropagation()}>
           {/* Header */}
           <div className="map-header">
-            <h2>Museum Map</h2>
+            {/* Back button */}
+            {levelConfig.backTarget && onBack && (
+              <button className="map-back-btn" onClick={onBack}>
+                <span aria-hidden="true">&larr;</span> {levelConfig.backTarget.label}
+              </button>
+            )}
+
+            <h2>{levelConfig.title || 'Museum Map'}</h2>
+
+            {/* Breadcrumb */}
+            {breadcrumb && (
+              <div className="map-breadcrumb">
+                {breadcrumb.map((crumb, i) => (
+                  <span key={crumb.path}>
+                    {i > 0 && <span className="breadcrumb-sep">&rsaquo;</span>}
+                    <span className="breadcrumb-label">{crumb.label}</span>
+                  </span>
+                ))}
+                <span className="breadcrumb-sep">&rsaquo;</span>
+                <span className="breadcrumb-current">{levelConfig.title}</span>
+              </div>
+            )}
+
             {currentRoom && (
               <p className="current-location">
                 <span className="you-are-here-dot" />
@@ -177,13 +217,58 @@ export function MapOverlay({
           text-align: center;
         }
 
+        .map-back-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: none;
+          border: none;
+          color: rgba(250, 250, 250, 0.5);
+          font-family: var(--font-outfit), sans-serif;
+          font-size: 0.75rem;
+          letter-spacing: 0.05em;
+          cursor: pointer;
+          padding: 4px 8px;
+          border-radius: 4px;
+          transition: all 0.2s ease;
+          margin-bottom: 6px;
+        }
+
+        .map-back-btn:hover {
+          color: #fafafa;
+          background: rgba(125, 132, 113, 0.2);
+        }
+
         .map-header h2 {
           font-family: var(--font-cormorant), serif;
           font-size: 1.75rem;
           font-weight: 400;
           color: #fafafa;
-          margin: 0 0 8px 0;
+          margin: 0 0 4px 0;
           letter-spacing: 0.05em;
+        }
+
+        .map-breadcrumb {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          margin-bottom: 8px;
+          font-family: var(--font-outfit), sans-serif;
+          font-size: 0.7rem;
+          color: rgba(250, 250, 250, 0.35);
+        }
+
+        .breadcrumb-sep {
+          color: rgba(250, 250, 250, 0.2);
+        }
+
+        .breadcrumb-label {
+          color: rgba(250, 250, 250, 0.35);
+        }
+
+        .breadcrumb-current {
+          color: rgba(250, 250, 250, 0.6);
         }
 
         .current-location {

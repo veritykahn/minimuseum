@@ -23,6 +23,9 @@ export const CONNECTIONS: RoomConnection[] = [
 
   // Harlem Renaissance sub-pages
   ['harlem-renaissance', 'hr-artifacts'],
+  ['harlem-renaissance', 'hr-jazz-lab'],
+  ['harlem-renaissance', 'hr-harlem-in-words'],
+  ['harlem-renaissance', 'hr-migration-map'],
   ['harlem-renaissance', 'hr-resources'],
 
   // Ground Floor connections (for future)

@@ -1,6 +1,8 @@
 'use client';
 
+import { useEffect } from 'react';
 import { useMapState } from './hooks/useMapState';
+import { useMapLevel } from './hooks/useMapLevel';
 import { useMapZoom } from './hooks/useMapZoom';
 import { MapToggleButton } from './MapToggleButton';
 import { MapOverlay } from './MapOverlay';
@@ -8,15 +10,12 @@ import { MapSvg } from './MapSvg';
 import { MapLegend } from './MapLegend';
 
 /**
- * Museum Map - Interactive navigation component
+ * Museum Map — Interactive hierarchical navigation component.
  *
- * Refactored version with extracted sub-components:
- * - useMapState: State management hook
- * - useMapZoom: Zoom/pan functionality hook
- * - MapToggleButton: Floating toggle button
- * - MapOverlay: Full-screen overlay container with zoom controls
- * - MapSvg: SVG visualization of rooms
- * - MapLegend: Map legend
+ * Three zoom levels auto-determined by the current route:
+ * 1. Museum Overview (Great Hall, floors)
+ * 2. Floor View (exhibitions within a floor)
+ * 3. Exhibition View (sub-rooms as a floor plan)
  */
 export default function MuseumMap() {
   const {
@@ -29,8 +28,11 @@ export default function MuseumMap() {
     toggle,
     close,
     navigateToRoom,
+    navigateBack,
     isCurrentRoom,
   } = useMapState();
+
+  const { config, level, transition } = useMapLevel(currentPath);
 
   const {
     zoom,
@@ -44,7 +46,11 @@ export default function MuseumMap() {
     handlers: zoomHandlers,
   } = useMapZoom();
 
-  // Don't render on home page
+  // Reset manual zoom/pan when the level changes
+  useEffect(() => {
+    resetZoom();
+  }, [level, config.title, resetZoom]);
+
   if (isHomePage) {
     return null;
   }
@@ -57,6 +63,8 @@ export default function MuseumMap() {
         <MapOverlay
           currentRoom={currentRoom}
           onClose={close}
+          levelConfig={config}
+          onBack={config.backTarget ? () => navigateBack(config.backTarget!.path) : undefined}
           zoom={zoom}
           zoomHandlers={zoomHandlers}
           containerRef={containerRef}
@@ -68,11 +76,12 @@ export default function MuseumMap() {
           isZoomed={isZoomed}
         >
           <MapSvg
+            config={config}
             hoveredRoom={hoveredRoom}
             setHoveredRoom={setHoveredRoom}
             onRoomClick={navigateToRoom}
             isCurrentRoom={isCurrentRoom}
-            currentPath={currentPath}
+            transition={transition}
           />
           <MapLegend />
         </MapOverlay>
