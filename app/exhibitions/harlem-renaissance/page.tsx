@@ -382,8 +382,8 @@ const poster2Content: ContentItem[] = [
   },
   {
     type: 'link',
-    text: 'Watch: Forgotten Hero — Walter White and the NAACP (PBS)',
-    url: 'https://www.pbs.org/wgbh/americanexperience/features/forgotten-hero-walter-white-and-naacp-trailer/'
+    text: 'Explore More: Walter White — Smithsonian Black History Month',
+    url: 'https://www.si.edu/events/black-history-month?trumbaEmbed=view%3Devent%26eventid%3D180126734'
   },
   { type: 'end', text: 'Return to Exhibition' }
 ];
