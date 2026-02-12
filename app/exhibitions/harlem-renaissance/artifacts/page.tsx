@@ -22,6 +22,7 @@ const artifacts: Artifact[] = [
     type: '3d',
     route: '/exhibitions/harlem-renaissance/artifacts/phonograph',
     emoji: '\u{1F4FB}',
+    thumb: '/exhibitions/harlem/artifacts/phonograph-thumb.png',
   },
   {
     id: 'fire-in-the-flint',
@@ -31,6 +32,7 @@ const artifacts: Artifact[] = [
     type: '3d',
     route: '/exhibitions/harlem-renaissance/artifacts/fire-in-the-flint',
     emoji: '\u{1F4D6}',
+    thumb: '/exhibitions/harlem/artifacts/flint-thumb.png',
   },
   {
     id: 'jazz-lab',

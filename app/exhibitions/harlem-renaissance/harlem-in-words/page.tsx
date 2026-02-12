@@ -1505,10 +1505,10 @@ export default function HarlemInWordsPage() {
       {/* ── COMPOSE VIEW ── */}
       {view === 'compose' && !displayMode && (
         <div className="hw-compose-page">
-          <button className="hw-nav" onClick={() => setView('welcome')}>
+          <button className="hw-nav" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
             <span className="hw-nav-text">M</span>
             <span className="hw-nav-arrow">{'\u2190'}</span>
-            <span className="hw-nav-label">Back</span>
+            <span className="hw-nav-label">Collection</span>
           </button>
 
           {/* LEFT PANEL: Poem Frame */}

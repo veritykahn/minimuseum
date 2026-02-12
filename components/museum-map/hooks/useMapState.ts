@@ -2,60 +2,83 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { MapRoom } from '../types';
+import { MapRoom, FloorPlanRoom } from '../types';
 import { getRoomByPath } from '../data/rooms';
 
 /**
  * Hook for managing museum map state.
  *
- * Smart close logic: clicking a room that has children (floor/exhibition)
- * keeps the map open for the level transition. Clicking a leaf room
- * closes the map and navigates.
+ * The map has its own internal viewPath so you can browse levels
+ * (Great Hall → 1st Floor → Exhibition) without leaving the current page.
+ * Only clicking a leaf room (no children) actually navigates.
  */
 export function useMapState() {
   const [isOpen, setIsOpen] = useState(false);
+  const [viewPath, setViewPath] = useState<string | null>(null);
   const [hoveredRoom, setHoveredRoom] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
   const isHomePage = pathname === '/';
 
+  // The actual current page (for "You are here")
   const currentRoom = getRoomByPath(pathname);
+
+  // What the map is displaying — defaults to current pathname
+  const effectiveViewPath = isOpen ? (viewPath ?? pathname) : pathname;
 
   // Handle escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === 'Escape') {
+        setIsOpen(false);
+        setViewPath(null);
+      }
     };
     window.addEventListener('keydown', handleEscape);
     return () => window.removeEventListener('keydown', handleEscape);
   }, []);
 
-  const toggle = useCallback(() => setIsOpen(prev => !prev), []);
-  const close = useCallback(() => setIsOpen(false), []);
+  const toggle = useCallback(() => {
+    setIsOpen(prev => {
+      if (!prev) {
+        // Opening — initialize view to current route
+        setViewPath(pathname);
+      } else {
+        // Closing — reset
+        setViewPath(null);
+      }
+      return !prev;
+    });
+  }, [pathname]);
 
-  const navigateToRoom = useCallback((room: MapRoom) => {
-    if (room.comingSoon) return;
+  const close = useCallback(() => {
+    setIsOpen(false);
+    setViewPath(null);
+  }, []);
 
-    // If the room has children, it can zoom deeper — keep map open
-    const hasChildren = room.children && room.children.length > 0;
+  // Navigate within the map only (change what's displayed, don't change URL)
+  const navigateInMap = useCallback((path: string) => {
+    setViewPath(path);
+  }, []);
 
-    router.push(room.path);
+  // Click a room on the map
+  const navigateToRoom = useCallback((room: MapRoom | FloorPlanRoom) => {
+    if ('comingSoon' in room && room.comingSoon) return;
 
-    if (!hasChildren) {
-      // Leaf node — close the map, user has arrived at destination
-      setIsOpen(false);
+    const hasChildren = 'children' in room && room.children && room.children.length > 0;
+
+    if (hasChildren) {
+      // Has children → browse deeper in the map (don't navigate page)
+      navigateInMap(room.path);
+    } else {
+      // Leaf node → actually navigate and close the map
+      router.push(room.path);
+      close();
     }
-    // Otherwise map stays open for the level transition
-  }, [router]);
+  }, [router, close, navigateInMap]);
 
-  // Navigate back (from the back button in the map overlay)
-  const navigateBack = useCallback((path: string) => {
-    router.push(path);
-    // Map stays open — the level transition will animate
-  }, [router]);
-
-  const isCurrentRoom = useCallback((room: MapRoom) => {
+  const isCurrentRoom = useCallback((room: { path: string; id?: string }) => {
     return currentRoom?.id === room.id || pathname.startsWith(room.path);
   }, [currentRoom, pathname]);
 
@@ -64,12 +87,13 @@ export function useMapState() {
     isHomePage,
     currentRoom,
     currentPath: pathname,
+    viewPath: effectiveViewPath,
     hoveredRoom,
     setHoveredRoom,
     toggle,
     close,
     navigateToRoom,
-    navigateBack,
+    navigateInMap,
     isCurrentRoom,
   };
 }

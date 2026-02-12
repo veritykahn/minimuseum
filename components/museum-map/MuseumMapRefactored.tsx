@@ -15,24 +15,28 @@ import { MapLegend } from './MapLegend';
  * Three zoom levels auto-determined by the current route:
  * 1. Museum Overview (Great Hall, floors)
  * 2. Floor View (exhibitions within a floor)
- * 3. Exhibition View (sub-rooms as a floor plan)
+ * 3. Exhibition View (architectural floor plan)
+ *
+ * The map has its own internal browsing state — clicking ancestors
+ * or rooms with children changes what the map displays without
+ * navigating the page. Only leaf rooms trigger actual navigation.
  */
 export default function MuseumMap() {
   const {
     isOpen,
     isHomePage,
     currentRoom,
-    currentPath,
+    viewPath,
     hoveredRoom,
     setHoveredRoom,
     toggle,
     close,
     navigateToRoom,
-    navigateBack,
+    navigateInMap,
     isCurrentRoom,
   } = useMapState();
 
-  const { config, level, transition } = useMapLevel(currentPath);
+  const { config, level, transition } = useMapLevel(viewPath);
 
   const {
     zoom,
@@ -64,7 +68,6 @@ export default function MuseumMap() {
           currentRoom={currentRoom}
           onClose={close}
           levelConfig={config}
-          onBack={config.backTarget ? () => navigateBack(config.backTarget!.path) : undefined}
           zoom={zoom}
           zoomHandlers={zoomHandlers}
           containerRef={containerRef}
@@ -80,6 +83,7 @@ export default function MuseumMap() {
             hoveredRoom={hoveredRoom}
             setHoveredRoom={setHoveredRoom}
             onRoomClick={navigateToRoom}
+            onAncestorClick={(ancestor) => navigateInMap(ancestor.viewPath)}
             isCurrentRoom={isCurrentRoom}
             transition={transition}
           />
