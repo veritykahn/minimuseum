@@ -1038,7 +1038,7 @@ export default function JazzLabPage() {
                     }
                   </div>
                   <div className="jl-quiz-hint">
-                    {quiz.gameState === 'idle' ? '18 rounds' : 'Listen carefully...'}
+                    {quiz.gameState === 'idle' ? '12 rounds' : 'Listen carefully...'}
                   </div>
                   {quiz.gameState !== 'idle' && (
                     <div className="jl-quiz-progress">

@@ -146,7 +146,7 @@ export const QUIZ_AUDIO_POOL: QuizAudioItem[] = [
   { src: `${AUDIO_BASE}/double-bass-3.mp3`, instrument: 'bass' },
 ];
 
-export const TOTAL_QUIZ_ROUNDS = 18;
+export const TOTAL_QUIZ_ROUNDS = 12;
 
 export type ScoreRating = {
   min: number;
@@ -155,9 +155,9 @@ export type ScoreRating = {
 };
 
 export const SCORE_RATINGS: ScoreRating[] = [
-  { min: 18, label: 'Jazz Master', message: 'Perfect score! Duke Ellington would be proud.' },
-  { min: 14, label: 'Jazz Aficionado', message: "You've got a serious ear for jazz!" },
-  { min: 10, label: 'Bandstand Regular', message: 'Not bad! Keep listening.' },
-  { min: 5, label: 'Jazz Newcomer', message: 'Keep exploring the sounds of jazz.' },
+  { min: 12, label: 'Jazz Master', message: 'Perfect score! Duke Ellington would be proud.' },
+  { min: 10, label: 'Jazz Aficionado', message: "You've got a serious ear for jazz!" },
+  { min: 7, label: 'Bandstand Regular', message: 'Not bad! Keep listening.' },
+  { min: 4, label: 'Jazz Newcomer', message: 'Keep exploring the sounds of jazz.' },
   { min: 0, label: 'First Night at the Club', message: 'The Harlem jazz scene awaits your return!' },
 ];

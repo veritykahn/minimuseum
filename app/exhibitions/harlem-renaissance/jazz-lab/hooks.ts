@@ -201,20 +201,22 @@ export function useBandBuilder(audio: AudioEngine) {
   }, [playing, spotlight, audio]);
 
   const surpriseMe = useCallback(() => {
-    const toAdd = INSTRUMENTS.filter(inst => !playing.has(inst.id));
-    // Add 2-4 random instruments
-    const shuffled = [...toAdd].sort(() => Math.random() - 0.5);
-    const count = Math.min(shuffled.length, 2 + Math.floor(Math.random() * 3));
-    for (let i = 0; i < count; i++) {
-      const inst = shuffled[i];
+    // Stop everything first so each click is a fresh combo
+    audio.stopAll();
+    setPlaying(new Map());
+    setSpotlight(null);
+
+    // Pick a random count between 2 and 6
+    const count = 2 + Math.floor(Math.random() * 5);
+    const shuffled = [...INSTRUMENTS].sort(() => Math.random() - 0.5);
+    const chosen = shuffled.slice(0, count);
+
+    for (const inst of chosen) {
       const variantIdx = Math.floor(Math.random() * inst.variants.length);
-      addInstrument(inst.id, variantIdx);
+      audio.playLoop(inst.id, inst.variants[variantIdx].audioSrc, 0.5);
+      setPlaying(prev => new Map(prev).set(inst.id, variantIdx));
     }
-    // Clear spotlight so all play equally
-    if (spotlight) {
-      setSpotlightInstrument(null, playing);
-    }
-  }, [playing, spotlight, addInstrument, setSpotlightInstrument]);
+  }, [audio]);
 
   const stopAll = useCallback(() => {
     audio.stopAll();
@@ -242,20 +244,35 @@ type QuizRound = {
 };
 
 function generateRounds(): QuizRound[] {
-  // Shuffle, then re-shuffle until no two consecutive rounds share the same instrument
-  const items = [...QUIZ_AUDIO_POOL];
+  // Group samples by instrument, then pick 2 random samples from each
+  // This gives 12 rounds with a different subset every playthrough
+  const byInstrument = new Map<InstrumentId, typeof QUIZ_AUDIO_POOL>();
+  for (const item of QUIZ_AUDIO_POOL) {
+    const arr = byInstrument.get(item.instrument) || [];
+    arr.push(item);
+    byInstrument.set(item.instrument, arr);
+  }
+
+  const picked: typeof QUIZ_AUDIO_POOL = [];
+  for (const samples of byInstrument.values()) {
+    const shuffled = [...samples].sort(() => Math.random() - 0.5);
+    picked.push(...shuffled.slice(0, 2));
+  }
+
+  // Shuffle the picked items, ensuring no two consecutive share the same instrument
   for (let attempt = 0; attempt < 100; attempt++) {
-    items.sort(() => Math.random() - 0.5);
+    picked.sort(() => Math.random() - 0.5);
     let valid = true;
-    for (let i = 1; i < items.length; i++) {
-      if (items[i].instrument === items[i - 1].instrument) {
+    for (let i = 1; i < picked.length; i++) {
+      if (picked[i].instrument === picked[i - 1].instrument) {
         valid = false;
         break;
       }
     }
     if (valid) break;
   }
-  return items.map(item => ({
+
+  return picked.map(item => ({
     audioSrc: item.src,
     correctAnswer: item.instrument,
   }));
