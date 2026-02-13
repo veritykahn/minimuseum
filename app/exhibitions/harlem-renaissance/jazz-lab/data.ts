@@ -18,14 +18,17 @@ export type InstrumentDef = {
   };
 };
 
+const AUDIO_BASE = '/exhibitions/harlem/audio/jazz-lab-FINAL';
+
 export const INSTRUMENTS: InstrumentDef[] = [
   {
     id: 'drums',
     name: 'Drums',
     emoji: '\u{1F941}',
     variants: [
-      { id: 'drum-1', audioSrc: '/exhibitions/harlem/audio/drum-1.mp3', label: 'Swing' },
-      { id: 'drum-2', audioSrc: '/exhibitions/harlem/audio/drum-2.mp3', label: 'Brush' },
+      { id: 'drums-1', audioSrc: `${AUDIO_BASE}/drums-1.mp3`, label: '1' },
+      { id: 'drums-2', audioSrc: `${AUDIO_BASE}/drums-2.mp3`, label: '2' },
+      { id: 'drums-3', audioSrc: `${AUDIO_BASE}/drums-3.mp3`, label: '3' },
     ],
     fact: {
       title: 'The Drums in Jazz',
@@ -38,8 +41,9 @@ export const INSTRUMENTS: InstrumentDef[] = [
     name: 'Double Bass',
     emoji: '\u{1F3BB}',
     variants: [
-      { id: 'doublebass-1', audioSrc: '/exhibitions/harlem/audio/doublebass-1.mp3', label: 'Walking' },
-      { id: 'doublebass-2', audioSrc: '/exhibitions/harlem/audio/doublebass-2.mp3', label: 'Pizzicato' },
+      { id: 'double-bass-1', audioSrc: `${AUDIO_BASE}/double-bass-1.mp3`, label: '1' },
+      { id: 'double-bass-2', audioSrc: `${AUDIO_BASE}/double-bass-2.mp3`, label: '2' },
+      { id: 'double-bass-3', audioSrc: `${AUDIO_BASE}/double-bass-3.mp3`, label: '3' },
     ],
     fact: {
       title: 'The Bass in Jazz',
@@ -52,9 +56,9 @@ export const INSTRUMENTS: InstrumentDef[] = [
     name: 'Piano',
     emoji: '\u{1F3B9}',
     variants: [
-      { id: 'piano-1', audioSrc: '/exhibitions/harlem/audio/piano-1.mp3', label: 'Stride' },
-      { id: 'piano-2', audioSrc: '/exhibitions/harlem/audio/piano-2.mp3', label: 'Bebop' },
-      { id: 'piano-3', audioSrc: '/exhibitions/harlem/audio/piano-3.mp3', label: 'Blues' },
+      { id: 'piano-1', audioSrc: `${AUDIO_BASE}/piano-1.mp3`, label: '1' },
+      { id: 'piano-2', audioSrc: `${AUDIO_BASE}/piano-2.mp3`, label: '2' },
+      { id: 'piano-3', audioSrc: `${AUDIO_BASE}/piano-3.mp3`, label: '3' },
     ],
     fact: {
       title: 'The Piano in Jazz',
@@ -67,8 +71,9 @@ export const INSTRUMENTS: InstrumentDef[] = [
     name: 'Trumpet',
     emoji: '\u{1F3BA}',
     variants: [
-      { id: 'trumpet-1', audioSrc: '/exhibitions/harlem/audio/trumpet-1.mp3', label: 'Bright' },
-      { id: 'trumpet-2', audioSrc: '/exhibitions/harlem/audio/trumpet-2.mp3', label: 'Muted' },
+      { id: 'trumpet-1', audioSrc: `${AUDIO_BASE}/trumpet-1.mp3`, label: '1' },
+      { id: 'trumpet-2', audioSrc: `${AUDIO_BASE}/trumpet-2.mp3`, label: '2' },
+      { id: 'trumpet-3', audioSrc: `${AUDIO_BASE}/trumpet-3.mp3`, label: '3' },
     ],
     fact: {
       title: 'The Trumpet in Jazz',
@@ -81,8 +86,9 @@ export const INSTRUMENTS: InstrumentDef[] = [
     name: 'Saxophone',
     emoji: '\u{1F3B7}',
     variants: [
-      { id: 'saxophone-1', audioSrc: '/exhibitions/harlem/audio/saxophone-1.mp3', label: 'Smooth' },
-      { id: 'saxophone-2', audioSrc: '/exhibitions/harlem/audio/saxophone-2.mp3', label: 'Swing' },
+      { id: 'saxophone-1', audioSrc: `${AUDIO_BASE}/saxophone-1.mp3`, label: '1' },
+      { id: 'saxophone-2', audioSrc: `${AUDIO_BASE}/saxophone-2.mp3`, label: '2' },
+      { id: 'saxophone-3', audioSrc: `${AUDIO_BASE}/saxophone-3.mp3`, label: '3' },
     ],
     fact: {
       title: 'The Saxophone in Jazz',
@@ -95,8 +101,9 @@ export const INSTRUMENTS: InstrumentDef[] = [
     name: 'Clarinet',
     emoji: '\u{1FA88}',
     variants: [
-      { id: 'clarinet-1', audioSrc: '/exhibitions/harlem/audio/clarinet-1.mp3', label: 'Sweet' },
-      { id: 'clarinet-2', audioSrc: '/exhibitions/harlem/audio/clarinet-2.mp3', label: 'Hot' },
+      { id: 'clarinet-1', audioSrc: `${AUDIO_BASE}/clarinet-1.mp3`, label: '1' },
+      { id: 'clarinet-2', audioSrc: `${AUDIO_BASE}/clarinet-2.mp3`, label: '2' },
+      { id: 'clarinet-3', audioSrc: `${AUDIO_BASE}/clarinet-3.mp3`, label: '3' },
     ],
     fact: {
       title: 'The Clarinet in Jazz',
@@ -119,22 +126,27 @@ export type QuizAudioItem = {
 };
 
 export const QUIZ_AUDIO_POOL: QuizAudioItem[] = [
-  { src: '/exhibitions/harlem/audio/piano-1.mp3', instrument: 'piano' },
-  { src: '/exhibitions/harlem/audio/piano-2.mp3', instrument: 'piano' },
-  { src: '/exhibitions/harlem/audio/piano-3.mp3', instrument: 'piano' },
-  { src: '/exhibitions/harlem/audio/trumpet-1.mp3', instrument: 'trumpet' },
-  { src: '/exhibitions/harlem/audio/trumpet-2.mp3', instrument: 'trumpet' },
-  { src: '/exhibitions/harlem/audio/saxophone-1.mp3', instrument: 'saxophone' },
-  { src: '/exhibitions/harlem/audio/saxophone-2.mp3', instrument: 'saxophone' },
-  { src: '/exhibitions/harlem/audio/clarinet-1.mp3', instrument: 'clarinet' },
-  { src: '/exhibitions/harlem/audio/clarinet-2.mp3', instrument: 'clarinet' },
-  { src: '/exhibitions/harlem/audio/drum-1.mp3', instrument: 'drums' },
-  { src: '/exhibitions/harlem/audio/drum-2.mp3', instrument: 'drums' },
-  { src: '/exhibitions/harlem/audio/doublebass-1.mp3', instrument: 'bass' },
-  { src: '/exhibitions/harlem/audio/doublebass-2.mp3', instrument: 'bass' },
+  { src: `${AUDIO_BASE}/piano-1.mp3`, instrument: 'piano' },
+  { src: `${AUDIO_BASE}/piano-2.mp3`, instrument: 'piano' },
+  { src: `${AUDIO_BASE}/piano-3.mp3`, instrument: 'piano' },
+  { src: `${AUDIO_BASE}/trumpet-1.mp3`, instrument: 'trumpet' },
+  { src: `${AUDIO_BASE}/trumpet-2.mp3`, instrument: 'trumpet' },
+  { src: `${AUDIO_BASE}/trumpet-3.mp3`, instrument: 'trumpet' },
+  { src: `${AUDIO_BASE}/saxophone-1.mp3`, instrument: 'saxophone' },
+  { src: `${AUDIO_BASE}/saxophone-2.mp3`, instrument: 'saxophone' },
+  { src: `${AUDIO_BASE}/saxophone-3.mp3`, instrument: 'saxophone' },
+  { src: `${AUDIO_BASE}/clarinet-1.mp3`, instrument: 'clarinet' },
+  { src: `${AUDIO_BASE}/clarinet-2.mp3`, instrument: 'clarinet' },
+  { src: `${AUDIO_BASE}/clarinet-3.mp3`, instrument: 'clarinet' },
+  { src: `${AUDIO_BASE}/drums-1.mp3`, instrument: 'drums' },
+  { src: `${AUDIO_BASE}/drums-2.mp3`, instrument: 'drums' },
+  { src: `${AUDIO_BASE}/drums-3.mp3`, instrument: 'drums' },
+  { src: `${AUDIO_BASE}/double-bass-1.mp3`, instrument: 'bass' },
+  { src: `${AUDIO_BASE}/double-bass-2.mp3`, instrument: 'bass' },
+  { src: `${AUDIO_BASE}/double-bass-3.mp3`, instrument: 'bass' },
 ];
 
-export const TOTAL_QUIZ_ROUNDS = 13;
+export const TOTAL_QUIZ_ROUNDS = 18;
 
 export type ScoreRating = {
   min: number;
@@ -143,9 +155,9 @@ export type ScoreRating = {
 };
 
 export const SCORE_RATINGS: ScoreRating[] = [
-  { min: 13, label: 'Jazz Master', message: 'Perfect score! Duke Ellington would be proud.' },
-  { min: 10, label: 'Jazz Aficionado', message: "You've got a serious ear for jazz!" },
-  { min: 7, label: 'Bandstand Regular', message: 'Not bad! Keep listening.' },
-  { min: 4, label: 'Jazz Newcomer', message: 'Keep exploring the sounds of jazz.' },
+  { min: 18, label: 'Jazz Master', message: 'Perfect score! Duke Ellington would be proud.' },
+  { min: 14, label: 'Jazz Aficionado', message: "You've got a serious ear for jazz!" },
+  { min: 10, label: 'Bandstand Regular', message: 'Not bad! Keep listening.' },
+  { min: 5, label: 'Jazz Newcomer', message: 'Keep exploring the sounds of jazz.' },
   { min: 0, label: 'First Night at the Club', message: 'The Harlem jazz scene awaits your return!' },
 ];

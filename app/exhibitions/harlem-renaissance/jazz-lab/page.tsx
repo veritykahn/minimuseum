@@ -1,9 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useAudioEngine, useBandBuilder, useQuiz } from './hooks';
-import { INSTRUMENTS, INSTRUMENT_MAP, ALL_INSTRUMENT_IDS, type InstrumentId } from './data';
+import { INSTRUMENTS, INSTRUMENT_MAP, ALL_INSTRUMENT_IDS, type InstrumentId, type InstrumentVariant } from './data';
 
 export default function JazzLabPage() {
   const router = useRouter();
@@ -298,39 +298,84 @@ export default function JazzLabPage() {
         .jl-slot.active .jl-slot-name { color: rgba(201,169,78,0.7); }
         .jl-slot.spotlight .jl-slot-name { color: var(--jl-gold); font-weight: 700; }
 
-        /* ── Variant Toggles ── */
-        .jl-variant-toggles {
-          display: flex;
-          gap: 4px;
-          margin-top: 4px;
-          flex-wrap: wrap;
-          justify-content: center;
-        }
-        .jl-variant-pill {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 9px;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-          font-weight: 600;
-          padding: 6px 10px;
-          min-height: 28px;
-          min-width: 44px;
-          border-radius: 14px;
-          border: 1.5px solid rgba(201,169,78,0.25);
-          background: transparent;
-          color: var(--jl-text-dim);
-          cursor: pointer;
-          transition: all 0.3s;
-          -webkit-tap-highlight-color: transparent;
+        /* ── Mixer Fader ── */
+        .jl-fader {
+          position: relative;
+          width: 44px;
+          height: 76px;
+          margin-top: 6px;
           display: flex;
           align-items: center;
           justify-content: center;
+          touch-action: none;
+          -webkit-tap-highlight-color: transparent;
         }
-        .jl-variant-pill:hover { border-color: var(--jl-gold); color: var(--jl-gold-light); }
-        .jl-variant-pill.selected {
-          background: rgba(201,169,78,0.15);
-          border-color: var(--jl-gold);
+        .jl-fader-track {
+          position: absolute;
+          left: 50%;
+          top: 6px;
+          bottom: 6px;
+          width: 2px;
+          background: rgba(201,169,78,0.2);
+          transform: translateX(-50%);
+          border-radius: 1px;
+        }
+        .jl-fader-notch {
+          position: absolute;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          cursor: pointer;
+          z-index: 2;
+        }
+        .jl-fader-tick {
+          width: 12px;
+          height: 2px;
+          background: rgba(201,169,78,0.25);
+          border-radius: 1px;
+          transition: background 0.3s;
+        }
+        .jl-fader-notch.active .jl-fader-tick {
+          background: var(--jl-gold);
+        }
+        .jl-fader-label {
+          position: absolute;
+          left: 26px;
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 8px;
+          letter-spacing: 1px;
+          color: rgba(201,169,78,0.3);
+          font-weight: 600;
+          white-space: nowrap;
+          transition: color 0.3s;
+        }
+        .jl-fader-notch.active .jl-fader-label {
           color: var(--jl-gold);
+        }
+        .jl-fader-knob {
+          position: absolute;
+          left: 50%;
+          width: 16px;
+          height: 10px;
+          background: linear-gradient(to bottom, var(--jl-gold-light), var(--jl-gold));
+          border-radius: 3px;
+          transform: translate(-50%, -50%);
+          transition: top 0.2s ease;
+          z-index: 3;
+          cursor: grab;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.4), 0 0 8px rgba(201,169,78,0.2);
+        }
+        .jl-fader-knob:active { cursor: grabbing; }
+        .jl-fader-knob::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 3px;
+          right: 3px;
+          height: 1px;
+          background: rgba(0,0,0,0.25);
+          transform: translateY(-50%);
         }
 
         /* ── Now Playing / EQ ── */
@@ -804,7 +849,7 @@ export default function JazzLabPage() {
             justify-items: center;
           }
           .jl-slot { width: 100%; max-width: 130px; }
-          .jl-variant-pill { font-size: 10px; padding: 7px 12px; min-height: 32px; }
+          .jl-fader { height: 70px; }
         }
         /* Phone */
         @media (max-width: 600px) {
@@ -812,7 +857,8 @@ export default function JazzLabPage() {
           .jl-slot { max-width: 110px; }
           .jl-slot-icon { width: 64px; height: 64px; font-size: 28px; }
           .jl-slot-name { font-size: 9px; letter-spacing: 1px; }
-          .jl-variant-pill { font-size: 9px; padding: 5px 8px; min-height: 28px; min-width: 38px; }
+          .jl-fader { height: 64px; width: 38px; }
+          .jl-fader-knob { width: 14px; height: 8px; }
           .jl-controls { gap: 10px; }
           .jl-btn { padding: 10px 16px; font-size: 10px; letter-spacing: 2px; }
           .jl-quiz-answers { grid-template-columns: repeat(2, 1fr); }
@@ -913,22 +959,12 @@ export default function JazzLabPage() {
                         {inst.emoji}
                       </div>
                       <div className="jl-slot-name">{inst.name}</div>
-                      {isActive && inst.variants.length > 1 && (
-                        <div className="jl-variant-toggles">
-                          {inst.variants.map((v, vi) => (
-                            <button
-                              key={v.id}
-                              className={`jl-variant-pill ${vi === currentVariant ? 'selected' : ''}`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                band.changeVariant(inst.id, vi);
-                              }}
-                              aria-label={v.label}
-                            >
-                              {v.label}
-                            </button>
-                          ))}
-                        </div>
+                      {isActive && (
+                        <MixerFader
+                          variants={inst.variants}
+                          currentVariant={currentVariant}
+                          onChange={(vi) => band.changeVariant(inst.id, vi)}
+                        />
                       )}
                     </div>
                   );
@@ -1002,7 +1038,7 @@ export default function JazzLabPage() {
                     }
                   </div>
                   <div className="jl-quiz-hint">
-                    {quiz.gameState === 'idle' ? '13 rounds' : 'Listen carefully...'}
+                    {quiz.gameState === 'idle' ? '18 rounds' : 'Listen carefully...'}
                   </div>
                   {quiz.gameState !== 'idle' && (
                     <div className="jl-quiz-progress">
@@ -1114,6 +1150,84 @@ function EqBars({ isPlaying }: { isPlaying: boolean }) {
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="jl-eq-bar" style={{ height: '4px' }} />
       ))}
+    </div>
+  );
+}
+
+// ── Mixer Fader sub-component ──
+function MixerFader({
+  variants,
+  currentVariant,
+  onChange,
+}: {
+  variants: InstrumentVariant[];
+  currentVariant: number;
+  onChange: (index: number) => void;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const dragging = useRef(false);
+
+  // Position as percentage (8% top padding, 92% bottom — gives even spacing)
+  const pct = (index: number) => {
+    if (variants.length <= 1) return 50;
+    return 8 + (index / (variants.length - 1)) * 84;
+  };
+
+  const resolveIndex = useCallback((clientY: number) => {
+    if (!trackRef.current) return currentVariant;
+    const rect = trackRef.current.getBoundingClientRect();
+    const relY = Math.max(0, Math.min(clientY - rect.top, rect.height));
+    const ratio = relY / rect.height;
+    return Math.round(ratio * (variants.length - 1));
+  }, [currentVariant, variants.length]);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    dragging.current = true;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!dragging.current) return;
+    e.stopPropagation();
+    const idx = resolveIndex(e.clientY);
+    if (idx !== currentVariant) onChange(idx);
+  }, [resolveIndex, currentVariant, onChange]);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    if (!dragging.current) return;
+    dragging.current = false;
+    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    const idx = resolveIndex(e.clientY);
+    if (idx !== currentVariant) onChange(idx);
+  }, [resolveIndex, currentVariant, onChange]);
+
+  return (
+    <div
+      ref={trackRef}
+      className="jl-fader"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="jl-fader-track" />
+      {variants.map((v, vi) => (
+        <div
+          key={v.id}
+          className={`jl-fader-notch ${vi === currentVariant ? 'active' : ''}`}
+          style={{ top: `${pct(vi)}%` }}
+          onClick={(e) => { e.stopPropagation(); onChange(vi); }}
+        >
+          <div className="jl-fader-tick" />
+          <span className="jl-fader-label">{v.label}</span>
+        </div>
+      ))}
+      <div
+        className="jl-fader-knob"
+        style={{ top: `${pct(currentVariant)}%` }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+      />
     </div>
   );
 }
