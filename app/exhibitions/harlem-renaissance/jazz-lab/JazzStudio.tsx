@@ -301,25 +301,35 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
 
   // ── Block Management ──
 
-  const addBlock = useCallback((loop: LoopDef, startTime: number): string | null => {
+  const findNextAvailable = useCallback((loop: LoopDef, blocks: PlacedBlock[]): number | null => {
     const dur = loopDuration(session.bpm, loop.bars);
-    const snapped = snapToBar(Math.max(0, Math.min(startTime, TIMELINE_DURATION - dur)), session.bpm);
-    if (snapped < 0) return null;
-    let added: string | null = null;
-    setBlocks(prev => {
-      const hasOverlap = prev.some(b => {
-        if (b.lane !== loop.instrument) return false;
+    const barLen = 240 / session.bpm;
+    const laneBlocks = blocks
+      .filter(b => b.lane === loop.instrument)
+      .sort((a, c) => a.startTime - c.startTime);
+    // Walk from time 0 bar-by-bar until we find a gap
+    for (let t = 0; t + dur <= TIMELINE_DURATION; t = snapToBar(t + barLen, session.bpm)) {
+      const hasOverlap = laneBlocks.some(b => {
         const bl = session.loops.find(x => x.id === b.loopId);
         const bd = bl ? loopDuration(session.bpm, bl.bars) : 0;
-        return snapped < b.startTime + bd && snapped + dur > b.startTime;
+        return t < b.startTime + bd && t + dur > b.startTime;
       });
-      if (hasOverlap) return prev;
+      if (!hasOverlap) return t;
+    }
+    return null;
+  }, [session]);
+
+  const addBlock = useCallback((loop: LoopDef): string | null => {
+    let added: string | null = null;
+    setBlocks(prev => {
+      const startTime = findNextAvailable(loop, prev);
+      if (startTime === null) return prev;
       const uid = nuid();
       added = uid;
-      return [...prev, { uid, loopId: loop.id, lane: loop.instrument, startTime: snapped }];
+      return [...prev, { uid, loopId: loop.id, lane: loop.instrument, startTime }];
     });
     return added;
-  }, [session]);
+  }, [findNextAvailable]);
 
   const moveBlock = useCallback((uid: string, newStart: number) => {
     setBlocks(prev => {
@@ -427,8 +437,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
             const rect = lane.getBoundingClientRect();
             if (ev.clientY >= rect.top && ev.clientY <= rect.bottom &&
                 lane.dataset.lane === loop.instrument) {
-              const time = ((ev.clientX - rect.left) / rect.width) * TIMELINE_DURATION;
-              addBlock(loop, time);
+              addBlock(loop);
             }
           });
         }
@@ -445,6 +454,8 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   // ── Block Interaction (tap → "+", drag horizontal → reposition, drag off → remove) ──
 
   const handleBlockDown = useCallback((uid: string, e: React.PointerEvent) => {
+    // Don't intercept clicks on the "+" button
+    if ((e.target as HTMLElement).closest('.js-block-add')) return;
     e.stopPropagation();
     e.preventDefault();
     const el = e.currentTarget as HTMLElement;
