@@ -57,8 +57,6 @@ export default function JazzStudio() {
         .js-arr-meta{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--jl-text-dim);font-weight:600}
         .js-vinyl-mini{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle,var(--jl-gold) 20%,transparent 21%),radial-gradient(circle,#111 0%,#1a1a1a 100%);flex-shrink:0}
         .js-spinning{animation:js-spin 2s linear infinite}
-        .js-selected-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;margin-bottom:10px;border:1px solid;border-radius:6px;background:rgba(201,169,78,0.08);font-family:'Josefin Sans',sans-serif;font-size:12px;color:var(--jl-text)}
-        .js-selected-bar button{background:none;border:none;color:var(--jl-text-dim);cursor:pointer;font-size:16px;padding:0 4px}
         .js-timeline{display:flex;border:1px solid rgba(201,169,78,0.15);border-radius:8px;background:var(--jl-bg-stage);overflow:hidden}
         .js-labels{flex-shrink:0;width:80px;border-right:1px solid rgba(201,169,78,0.1)}
         .js-ruler-label{height:28px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(201,169,78,0.1);font-family:'Josefin Sans',sans-serif;font-size:7px;letter-spacing:2px;color:var(--jl-text-dim);text-transform:uppercase}
@@ -71,12 +69,15 @@ export default function JazzStudio() {
         .js-ruler-tick{width:1px;height:8px;background:rgba(201,169,78,0.3)}
         .js-ruler-time{position:absolute;top:10px;left:2px;font-family:'Josefin Sans',sans-serif;font-size:8px;color:var(--jl-text-dim);white-space:nowrap}
         .js-lane{height:52px;position:relative;border-bottom:1px solid rgba(201,169,78,0.06);transition:background 0.2s}
-        .js-lane-active{background:rgba(201,169,78,0.06);cursor:crosshair}
-        .js-lane-active::after{content:'';position:absolute;inset:0;border:1px dashed rgba(201,169,78,0.2);pointer-events:none;border-radius:2px}
-        .js-block{position:absolute;top:4px;bottom:4px;border:1px solid;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none;z-index:2;overflow:hidden;transition:opacity 0.15s}
+        .js-lane-drop{background:rgba(201,169,78,0.08)}
+        .js-block{position:absolute;top:4px;bottom:4px;border:1px solid;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none;z-index:2;overflow:visible;transition:opacity 0.15s}
         .js-block:hover{filter:brightness(1.2)}
         .js-block:active{cursor:grabbing;z-index:20}
+        .js-block-inner{display:flex;align-items:center;justify-content:center;width:100%;height:100%;overflow:hidden;border-radius:3px}
         .js-block-label{font-family:'Josefin Sans',sans-serif;font-size:9px;font-weight:600;color:var(--jl-text);letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+        .js-block-add{position:absolute;top:-10px;right:-10px;width:22px;height:22px;border-radius:50%;background:var(--jl-gold);color:#0a0a0a;border:2px solid var(--jl-bg-stage);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:30;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:transform 0.15s}
+        .js-block-add:hover{transform:scale(1.15)}
+        .js-block-removing{opacity:0.3;transform:translateY(-20px);transition:all 0.2s}
         .js-playhead{position:absolute;top:28px;bottom:0;width:2px;background:var(--jl-gold);z-index:10;pointer-events:none;box-shadow:0 0 8px rgba(201,169,78,0.5)}
         .js-transport{display:flex;justify-content:center;gap:10px;padding:16px 0 12px;flex-wrap:wrap}
         .js-transport .jl-btn.active{background:rgba(201,169,78,0.15);border-color:var(--jl-gold)}
@@ -89,11 +90,12 @@ export default function JazzStudio() {
         .js-crate-group:last-child{margin-bottom:0}
         .js-crate-title{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:8px}
         .js-crate-tiles{display:flex;flex-wrap:wrap;gap:6px}
-        .js-tile{background:rgba(255,255,255,0.03);border:1px solid;border-radius:4px;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;-webkit-tap-highlight-color:transparent}
+        .js-tile{background:rgba(255,255,255,0.03);border:1px solid;border-radius:4px;padding:5px 10px;cursor:grab;display:flex;align-items:center;gap:6px;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:none;user-select:none}
         .js-tile:hover{background:rgba(201,169,78,0.08)}
-        .js-tile-sel{box-shadow:0 0 8px rgba(201,169,78,0.3)}
+        .js-tile-playing{box-shadow:0 0 10px rgba(201,169,78,0.4);background:rgba(201,169,78,0.12)}
         .js-tile-name{font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;color:var(--jl-text)}
         .js-tile-info{font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--jl-text-dim)}
+        .js-drag-ghost{position:fixed;z-index:9999;pointer-events:none;border:1px solid;border-radius:4px;padding:4px 10px;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;color:var(--jl-text);opacity:0.85;box-shadow:0 4px 16px rgba(0,0,0,0.4);white-space:nowrap}
         .js-loading{text-align:center;padding:60px 20px}
         .js-loading-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--jl-gold);margin-bottom:16px}
         .js-loading-subtitle{font-family:'Josefin Sans',sans-serif;font-size:12px;color:var(--jl-text-dim);letter-spacing:2px;margin-bottom:24px;font-weight:300}
@@ -113,8 +115,8 @@ export default function JazzStudio() {
       {!session ? (
         <div className="js-select">
           <div className="js-select-subtitle">
-            Step into the recording studio. Pick a session, then select loops
-            from the crate and tap the timeline to arrange your own jazz record.
+            Step into the recording studio. Pick a session, then drag loops
+            from the crate onto the timeline to arrange your own jazz record.
           </div>
           <div className="js-kits">
             {SESSIONS.map(s => (
@@ -143,6 +145,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   const startRef = useRef(0);
   const loopRef = useRef(false);
   const playRef = useRef<() => void>(() => {});
+  const previewRef = useRef<AudioBufferSourceNode | null>(null);
 
   const tracksRef = useRef<HTMLDivElement>(null);
   const playheadRef = useRef<HTMLDivElement>(null);
@@ -152,9 +155,17 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   const [progress, setProgress] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [looping, setLooping] = useState(false);
-  const [selected, setSelected] = useState<LoopDef | null>(null);
+  const [activeBlockId, setActiveBlockId] = useState<string | null>(null);
+  const [previewingId, setPreviewingId] = useState<string | null>(null);
   const [crateOpen, setCrateOpen] = useState(true);
   const [downloading, setDownloading] = useState(false);
+  const [dragGhost, setDragGhost] = useState<{ loop: LoopDef; x: number; y: number } | null>(null);
+  const [dropLane, setDropLane] = useState<InstrumentCategory | null>(null);
+
+  // Refs for drag state that shouldn't trigger re-renders
+  const dragLoopRef = useRef<LoopDef | null>(null);
+  const dragStartPos = useRef<{ x: number; y: number } | null>(null);
+  const isDraggingCrate = useRef(false);
 
   useEffect(() => { loopRef.current = looping; }, [looping]);
 
@@ -202,9 +213,41 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     return () => {
       sourcesRef.current.forEach(s => { try { s.stop(); } catch { /* noop */ } s.disconnect(); });
       cancelAnimationFrame(animRef.current);
+      if (previewRef.current) { try { previewRef.current.stop(); } catch { /* noop */ } }
       if (ctxRef.current) { ctxRef.current.close(); ctxRef.current = null; }
     };
   }, []);
+
+  // ── Preview Playback ──
+
+  const stopPreview = useCallback(() => {
+    if (previewRef.current) {
+      try { previewRef.current.stop(); } catch { /* noop */ }
+      previewRef.current.disconnect();
+      previewRef.current = null;
+    }
+    setPreviewingId(null);
+  }, []);
+
+  const previewLoop = useCallback((loop: LoopDef) => {
+    stopPreview();
+    const ctx = ensureCtx();
+    const buf = cacheRef.current.get(loop.file);
+    if (!buf) return;
+    const s = ctx.createBufferSource();
+    s.buffer = buf;
+    const g = ctx.createGain();
+    g.gain.value = 0.8;
+    s.connect(g);
+    g.connect(ctx.destination);
+    s.start(0);
+    s.onended = () => {
+      previewRef.current = null;
+      setPreviewingId(null);
+    };
+    previewRef.current = s;
+    setPreviewingId(loop.id);
+  }, [ensureCtx, stopPreview]);
 
   // ── Playback ──
 
@@ -258,10 +301,11 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
 
   // ── Block Management ──
 
-  const addBlock = useCallback((loop: LoopDef, startTime: number) => {
+  const addBlock = useCallback((loop: LoopDef, startTime: number): string | null => {
     const dur = loopDuration(session.bpm, loop.bars);
     const snapped = snapToBar(Math.max(0, Math.min(startTime, TIMELINE_DURATION - dur)), session.bpm);
-    if (snapped < 0) return;
+    if (snapped < 0) return null;
+    let added: string | null = null;
     setBlocks(prev => {
       const hasOverlap = prev.some(b => {
         if (b.lane !== loop.instrument) return false;
@@ -270,8 +314,11 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
         return snapped < b.startTime + bd && snapped + dur > b.startTime;
       });
       if (hasOverlap) return prev;
-      return [...prev, { uid: nuid(), loopId: loop.id, lane: loop.instrument, startTime: snapped }];
+      const uid = nuid();
+      added = uid;
+      return [...prev, { uid, loopId: loop.id, lane: loop.instrument, startTime: snapped }];
     });
+    return added;
   }, [session]);
 
   const moveBlock = useCallback((uid: string, newStart: number) => {
@@ -294,23 +341,108 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   }, [session]);
 
   const removeBlock = useCallback((uid: string) => {
-    stopPlay();
     setBlocks(prev => prev.filter(b => b.uid !== uid));
-  }, [stopPlay]);
+  }, []);
 
-  const clearAll = useCallback(() => { stopPlay(); setBlocks([]); }, [stopPlay]);
+  const clearAll = useCallback(() => { stopPlay(); setBlocks([]); setActiveBlockId(null); }, [stopPlay]);
 
-  // ── Lane Click (tap-to-place) ──
+  // ── Add another copy (tap block → "+") ──
 
-  const handleLaneClick = useCallback((lane: InstrumentCategory, e: React.MouseEvent<HTMLDivElement>) => {
-    if (!selected || selected.instrument !== lane) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const time = ((e.clientX - rect.left) / rect.width) * TIMELINE_DURATION;
-    addBlock(selected, time);
-    setSelected(null);
-  }, [selected, addBlock]);
+  const addAnotherCopy = useCallback((blockUid: string) => {
+    setBlocks(prev => {
+      const block = prev.find(b => b.uid === blockUid);
+      if (!block) return prev;
+      const loop = session.loops.find(x => x.id === block.loopId);
+      if (!loop) return prev;
+      const dur = loopDuration(session.bpm, loop.bars);
+      // Try to place right after this block
+      let startTime = snapToBar(block.startTime + dur, session.bpm);
+      // Find first non-overlapping position in same lane
+      const laneBlocks = prev.filter(b => b.lane === block.lane).sort((a, c) => a.startTime - c.startTime);
+      let placed = false;
+      for (let attempt = 0; attempt < 100; attempt++) {
+        if (startTime + dur > TIMELINE_DURATION) break;
+        const hasOverlap = laneBlocks.some(b => {
+          const bl = session.loops.find(x => x.id === b.loopId);
+          const bd = bl ? loopDuration(session.bpm, bl.bars) : 0;
+          return startTime < b.startTime + bd && startTime + dur > b.startTime;
+        });
+        if (!hasOverlap) { placed = true; break; }
+        startTime = snapToBar(startTime + 240 / session.bpm, session.bpm);
+      }
+      if (!placed) return prev;
+      return [...prev, { uid: nuid(), loopId: block.loopId, lane: block.lane, startTime }];
+    });
+    setActiveBlockId(null);
+  }, [session]);
 
-  // ── Block Drag (reposition) ──
+  // ── Crate Drag (drag from crate to timeline) ──
+
+  const handleCratePointerDown = useCallback((loop: LoopDef, e: React.PointerEvent) => {
+    e.preventDefault();
+    const sx = e.clientX, sy = e.clientY;
+    dragStartPos.current = { x: sx, y: sy };
+    dragLoopRef.current = loop;
+    isDraggingCrate.current = false;
+
+    const onMove = (ev: PointerEvent) => {
+      const dx = ev.clientX - sx, dy = ev.clientY - sy;
+      if (!isDraggingCrate.current && Math.sqrt(dx * dx + dy * dy) < 6) return;
+
+      if (!isDraggingCrate.current) {
+        isDraggingCrate.current = true;
+        stopPreview();
+      }
+      setDragGhost({ loop, x: ev.clientX, y: ev.clientY });
+
+      // Determine which lane we're hovering over
+      if (tracksRef.current) {
+        const lanes = tracksRef.current.querySelectorAll<HTMLElement>('[data-lane]');
+        let found: InstrumentCategory | null = null;
+        lanes.forEach(lane => {
+          const rect = lane.getBoundingClientRect();
+          if (ev.clientY >= rect.top && ev.clientY <= rect.bottom) {
+            found = lane.dataset.lane as InstrumentCategory;
+          }
+        });
+        // Only highlight if the loop matches this lane's instrument
+        setDropLane(found === loop.instrument ? found : null);
+      }
+    };
+
+    const onUp = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      setDragGhost(null);
+      setDropLane(null);
+
+      if (!isDraggingCrate.current) {
+        // It was a tap — preview the loop
+        previewLoop(loop);
+      } else {
+        // It was a drag — try to drop on the matching lane
+        if (tracksRef.current) {
+          const lanes = tracksRef.current.querySelectorAll<HTMLElement>('[data-lane]');
+          lanes.forEach(lane => {
+            const rect = lane.getBoundingClientRect();
+            if (ev.clientY >= rect.top && ev.clientY <= rect.bottom &&
+                lane.dataset.lane === loop.instrument) {
+              const time = ((ev.clientX - rect.left) / rect.width) * TIMELINE_DURATION;
+              addBlock(loop, time);
+            }
+          });
+        }
+      }
+      dragLoopRef.current = null;
+      dragStartPos.current = null;
+      isDraggingCrate.current = false;
+    };
+
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }, [previewLoop, stopPreview, addBlock]);
+
+  // ── Block Interaction (tap → "+", drag horizontal → reposition, drag off → remove) ──
 
   const handleBlockDown = useCallback((uid: string, e: React.PointerEvent) => {
     e.stopPropagation();
@@ -319,28 +451,57 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     const laneEl = el.parentElement;
     if (!laneEl) return;
     const startX = e.clientX;
+    const startY = e.clientY;
     const laneW = laneEl.clientWidth;
     const block = blocks.find(b => b.uid === uid);
     if (!block) return;
     const origTime = block.startTime;
+    let moved = false;
+    let removedVisual = false;
 
     const onMove = (ev: PointerEvent) => {
-      el.style.transform = `translateX(${ev.clientX - startX}px)`;
-      el.style.opacity = '0.7';
+      const dx = ev.clientX - startX;
+      const dy = ev.clientY - startY;
+      if (!moved && Math.sqrt(dx * dx + dy * dy) < 5) return;
+      moved = true;
+
+      // If dragged far enough vertically off the lane, show removal visual
+      if (Math.abs(dy) > 40) {
+        el.style.transform = `translate(${dx}px, ${dy}px)`;
+        el.style.opacity = '0.3';
+        removedVisual = true;
+      } else {
+        el.style.transform = `translateX(${dx}px)`;
+        el.style.opacity = '0.7';
+        removedVisual = false;
+      }
     };
+
     const onUp = (ev: PointerEvent) => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
       el.style.transform = '';
       el.style.opacity = '';
-      const dx = ev.clientX - startX;
-      if (Math.abs(dx) > 3) {
-        moveBlock(uid, origTime + (dx / laneW) * TIMELINE_DURATION);
+
+      if (!moved) {
+        // It was a tap → toggle the "+" button
+        setActiveBlockId(prev => prev === uid ? null : uid);
+      } else if (removedVisual || Math.abs(ev.clientY - startY) > 40) {
+        // Dragged off → remove the block
+        removeBlock(uid);
+        setActiveBlockId(null);
+      } else {
+        // Horizontal drag → reposition
+        const dx = ev.clientX - startX;
+        if (Math.abs(dx) > 3) {
+          moveBlock(uid, origTime + (dx / laneW) * TIMELINE_DURATION);
+        }
       }
     };
+
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
-  }, [blocks, moveBlock]);
+  }, [blocks, moveBlock, removeBlock]);
 
   // ── Download WAV ──
 
@@ -395,6 +556,11 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     return marks;
   }, []);
 
+  // Dismiss activeBlock when clicking outside
+  const handleTimelineClick = useCallback(() => {
+    setActiveBlockId(null);
+  }, []);
+
   // ── Loading ──
 
   if (!loaded) {
@@ -414,23 +580,13 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   return (
     <div className="js-workspace">
       <div className="js-arr-header">
-        <button className="js-arr-back" onClick={() => { stopPlay(); onBack(); }}>{'\u2190'}</button>
+        <button className="js-arr-back" onClick={() => { stopPlay(); stopPreview(); onBack(); }}>{'\u2190'}</button>
         <div className="js-arr-title">{session.name}</div>
         {playing && <div className="js-vinyl-mini js-spinning" />}
         <div className="js-arr-meta">{session.bpm} BPM &middot; Key of {session.key}</div>
       </div>
 
-      {selected && (
-        <div className="js-selected-bar" style={{ borderColor: INST_COLORS[selected.instrument] }}>
-          <span>
-            Tap the <strong>{INST_NAMES[selected.instrument]}</strong> lane to
-            place <strong>{selected.label}</strong> ({selected.bars} bars)
-          </span>
-          <button onClick={() => setSelected(null)}>{'\u2715'}</button>
-        </div>
-      )}
-
-      <div className="js-timeline">
+      <div className="js-timeline" onClick={handleTimelineClick}>
         <div className="js-labels">
           <div className="js-ruler-label">TIME</div>
           {session.instruments.map(inst => (
@@ -454,14 +610,14 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
           {session.instruments.map(inst => (
             <div
               key={inst}
-              className={`js-lane${selected?.instrument === inst ? ' js-lane-active' : ''}`}
+              className={`js-lane${dropLane === inst ? ' js-lane-drop' : ''}`}
               data-lane={inst}
-              onClick={(e) => handleLaneClick(inst, e)}
             >
               {blocks.filter(b => b.lane === inst).map(block => {
                 const loop = session.loops.find(x => x.id === block.loopId);
                 if (!loop) return null;
                 const dur = loopDuration(session.bpm, loop.bars);
+                const isActive = activeBlockId === block.uid;
                 return (
                   <div
                     key={block.uid}
@@ -474,10 +630,20 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
                     }}
                     onClick={(e) => e.stopPropagation()}
                     onPointerDown={(e) => handleBlockDown(block.uid, e)}
-                    onDoubleClick={() => removeBlock(block.uid)}
-                    title={`${loop.label} (${loop.bars} bars) \u2014 drag to move, double-click to remove`}
+                    title={`${loop.label} (${loop.bars} bars)`}
                   >
-                    <span className="js-block-label">{loop.label}</span>
+                    <span className="js-block-inner">
+                      <span className="js-block-label">{loop.label}</span>
+                    </span>
+                    {isActive && (
+                      <button
+                        className="js-block-add"
+                        onClick={(e) => { e.stopPropagation(); addAnotherCopy(block.uid); }}
+                        title="Add another copy"
+                      >
+                        +
+                      </button>
+                    )}
                   </div>
                 );
               })}
@@ -517,29 +683,38 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
                   {INST_EMOJI[inst]} {INST_NAMES[inst]}
                 </div>
                 <div className="js-crate-tiles">
-                  {(loopsByInst.get(inst) || []).map(loop => {
-                    const isSel = selected?.id === loop.id;
-                    return (
-                      <button
-                        key={loop.id}
-                        className={`js-tile${isSel ? ' js-tile-sel' : ''}`}
-                        style={{
-                          borderColor: INST_COLORS[inst],
-                          background: isSel ? `${INST_COLORS[inst]}25` : undefined,
-                        }}
-                        onClick={() => setSelected(isSel ? null : loop)}
-                      >
-                        <span className="js-tile-name">{loop.label}</span>
-                        <span className="js-tile-info">{loop.bars}b</span>
-                      </button>
-                    );
-                  })}
+                  {(loopsByInst.get(inst) || []).map(loop => (
+                    <button
+                      key={loop.id}
+                      className={`js-tile${previewingId === loop.id ? ' js-tile-playing' : ''}`}
+                      style={{ borderColor: INST_COLORS[inst] }}
+                      onPointerDown={(e) => handleCratePointerDown(loop, e)}
+                    >
+                      <span className="js-tile-name">{loop.label}</span>
+                      <span className="js-tile-info">{loop.bars}b</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+
+      {/* Drag ghost */}
+      {dragGhost && (
+        <div
+          className="js-drag-ghost"
+          style={{
+            left: dragGhost.x - 30,
+            top: dragGhost.y - 16,
+            background: `${INST_COLORS[dragGhost.loop.instrument]}cc`,
+            borderColor: INST_COLORS[dragGhost.loop.instrument],
+          }}
+        >
+          {dragGhost.loop.label}
+        </div>
+      )}
     </div>
   );
 }
