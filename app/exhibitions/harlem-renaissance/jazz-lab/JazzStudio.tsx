@@ -1,723 +1,378 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback, Fragment } from 'react';
-import { STUDIO_KITS, type StudioKit } from './studio-data';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import {
+  SESSIONS, SESSION_MAP, TIMELINE_DURATION, loopDuration, snapToBar,
+  INST_COLORS, INST_EMOJI, INST_NAMES,
+  type SessionDef, type LoopDef, type InstrumentCategory,
+} from './studio-data';
 
-// ─── Types ──────────────────────────────────────────────────────────────────
+type PlacedBlock = { uid: string; loopId: string; lane: InstrumentCategory; startTime: number };
+let _u = 0;
+function nuid() { return `b${++_u}`; }
 
-type SlotState = {
-  section: number;
-  activeTracks: Set<string>;
-};
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-function createDefaultSlots(kit: StudioKit): SlotState[] {
-  return kit.defaultArrangement.map(section => ({
-    section,
-    activeTracks: new Set(
-      kit.tracks
-        .filter(t => t.sections[section] !== undefined)
-        .map(t => t.id)
-    ),
-  }));
-}
-
-function encodeWav(buffer: AudioBuffer): Blob {
-  const numCh = buffer.numberOfChannels;
-  const sr = buffer.sampleRate;
-  const len = buffer.length;
-  const dataSize = len * numCh * 2;
-  const buf = new ArrayBuffer(44 + dataSize);
-  const v = new DataView(buf);
-
-  const w = (o: number, s: string) => {
-    for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i));
-  };
-  w(0, 'RIFF');
-  v.setUint32(4, 36 + dataSize, true);
-  w(8, 'WAVE');
-  w(12, 'fmt ');
-  v.setUint32(16, 16, true);
-  v.setUint16(20, 1, true);
-  v.setUint16(22, numCh, true);
-  v.setUint32(24, sr, true);
-  v.setUint32(28, sr * numCh * 2, true);
-  v.setUint16(32, numCh * 2, true);
-  v.setUint16(34, 16, true);
-  w(36, 'data');
-  v.setUint32(40, dataSize, true);
-
-  const channels = Array.from({ length: numCh }, (_, i) => buffer.getChannelData(i));
-  let offset = 44;
-  for (let i = 0; i < len; i++) {
-    for (let ch = 0; ch < numCh; ch++) {
-      const s = Math.max(-1, Math.min(1, channels[ch][i]));
-      v.setInt16(offset, s * (s < 0 ? 0x8000 : 0x7FFF), true);
-      offset += 2;
-    }
+function encodeWav(buf: AudioBuffer): Blob {
+  const nc = buf.numberOfChannels, sr = buf.sampleRate, len = buf.length;
+  const ds = len * nc * 2, ab = new ArrayBuffer(44 + ds), v = new DataView(ab);
+  const w = (o: number, s: string) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  w(0, 'RIFF'); v.setUint32(4, 36 + ds, true); w(8, 'WAVE'); w(12, 'fmt ');
+  v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, nc, true);
+  v.setUint32(24, sr, true); v.setUint32(28, sr * nc * 2, true); v.setUint16(32, nc * 2, true);
+  v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, ds, true);
+  const ch = Array.from({ length: nc }, (_, i) => buf.getChannelData(i));
+  let off = 44;
+  for (let i = 0; i < len; i++) for (let c = 0; c < nc; c++) {
+    const s = Math.max(-1, Math.min(1, ch[c][i]));
+    v.setInt16(off, s * (s < 0 ? 0x8000 : 0x7FFF), true); off += 2;
   }
-  return new Blob([buf], { type: 'audio/wav' });
+  return new Blob([ab], { type: 'audio/wav' });
 }
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
 export default function JazzStudio() {
-  const [selectedKitId, setSelectedKitId] = useState<string | null>(null);
-  const kit = selectedKitId ? STUDIO_KITS.find(k => k.id === selectedKitId) ?? null : null;
+  const [sid, setSid] = useState<string | null>(null);
+  const session = sid ? SESSION_MAP[sid] ?? null : null;
 
   return (
     <div>
       <style jsx global>{`
-        /* ── Kit Selector ── */
-        .js-select {
-          text-align: center;
-          padding: 10px 20px 40px;
-        }
-        .js-select-subtitle {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 13px;
-          color: var(--jl-text-dim);
-          font-weight: 300;
-          letter-spacing: 1px;
-          margin-bottom: 30px;
-          line-height: 1.6;
-        }
-        .js-kits {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-          gap: 28px;
-          max-width: 720px;
-          margin: 0 auto;
-          justify-items: center;
-        }
-        .js-record {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 12px;
-          background: none;
-          border: none;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-          transition: transform 0.3s;
-        }
-        .js-record:hover { transform: translateY(-6px); }
-        .js-record:hover .js-vinyl { animation: js-spin 3s linear infinite; }
-        .js-vinyl {
-          width: 120px;
-          height: 120px;
-          border-radius: 50%;
-          background:
-            radial-gradient(circle, #1a1a1a 18%, transparent 19%),
-            radial-gradient(circle, rgba(201,169,78,0.5) 19%, transparent 20%),
-            radial-gradient(circle, #1a1a1a 20%, transparent 21%),
-            repeating-radial-gradient(circle, transparent 22%, rgba(60,60,60,0.3) 24%, transparent 26%),
-            radial-gradient(circle, #111 0%, #1a1a1a 100%);
-          position: relative;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-          transition: box-shadow 0.3s;
-        }
-        .js-record:hover .js-vinyl {
-          box-shadow: 0 4px 30px rgba(201,169,78,0.2), 0 4px 20px rgba(0,0,0,0.5);
-        }
-        @keyframes js-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        .js-vinyl-label {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 44px;
-          height: 44px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, var(--jl-gold), var(--jl-gold-dim));
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-family: 'Playfair Display', serif;
-          font-size: 11px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: 1px;
-        }
-        .js-record-name {
-          font-family: 'Playfair Display', serif;
-          font-size: 15px;
-          font-weight: 700;
-          color: var(--jl-text);
-        }
-        .js-record-meta {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          color: var(--jl-text-dim);
-          font-weight: 600;
-        }
-
-        /* ── Arranger ── */
-        .js-arranger {
-          max-width: 900px;
-          margin: 0 auto;
-          padding: 0 20px 40px;
-        }
-        .js-arr-header {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 10px 0 20px;
-          flex-wrap: wrap;
-        }
-        .js-arr-back {
-          background: none;
-          border: 1px solid rgba(201,169,78,0.2);
-          color: var(--jl-gold-dim);
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 14px;
-          padding: 6px 12px;
-          cursor: pointer;
-          border-radius: 4px;
-          transition: all 0.3s;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .js-arr-back:hover { border-color: var(--jl-gold); color: var(--jl-gold); }
-        .js-arr-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 22px;
-          font-weight: 700;
-          color: var(--jl-gold);
-          flex: 1;
-        }
-        .js-arr-meta {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          color: var(--jl-text-dim);
-          font-weight: 600;
-        }
-
-        /* ── Grid ── */
-        .js-grid-wrap {
-          position: relative;
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
-          border: 1px solid rgba(201,169,78,0.15);
-          border-radius: 8px;
-          background: var(--jl-bg-stage);
-        }
-        .js-grid {
-          display: grid;
-          min-width: max-content;
-        }
-        .js-grid-corner {
-          position: sticky;
-          left: 0;
-          z-index: 4;
-          background: var(--jl-bg-stage);
-          border-right: 1px solid rgba(201,169,78,0.1);
-          border-bottom: 1px solid rgba(201,169,78,0.1);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 8px;
-        }
-        .js-grid-slot-header {
-          border-bottom: 1px solid rgba(201,169,78,0.1);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          padding: 10px 6px;
-          min-width: 80px;
-        }
-        .js-grid-slot-label {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 8px;
-          letter-spacing: 2px;
-          text-transform: uppercase;
-          color: var(--jl-text-dim);
-          font-weight: 600;
-        }
-        .js-section-stepper {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-        .js-section-arrow {
-          background: none;
-          border: 1px solid rgba(201,169,78,0.2);
-          color: var(--jl-gold-dim);
-          width: 22px;
-          height: 22px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .js-section-arrow:hover { border-color: var(--jl-gold); color: var(--jl-gold); }
-        .js-section-num {
-          font-family: 'Playfair Display', serif;
-          font-size: 16px;
-          font-weight: 700;
-          color: var(--jl-gold);
-          min-width: 22px;
-          text-align: center;
-        }
-        .js-grid-track-label {
-          position: sticky;
-          left: 0;
-          z-index: 3;
-          background: var(--jl-bg-stage);
-          border-right: 1px solid rgba(201,169,78,0.1);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 10px 12px;
-          min-width: 110px;
-        }
-        .js-track-emoji { font-size: 20px; }
-        .js-track-name {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
-          letter-spacing: 1px;
-          text-transform: uppercase;
-          color: var(--jl-text-dim);
-          font-weight: 600;
-          white-space: nowrap;
-        }
-        .js-cell {
-          min-width: 80px;
-          height: 48px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.2s;
-          border: 1px solid transparent;
-          margin: 2px;
-          border-radius: 4px;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .js-cell:hover { border-color: rgba(201,169,78,0.3); }
-        .js-cell.active {
-          background: rgba(201,169,78,0.15);
-          border-color: rgba(201,169,78,0.3);
-          box-shadow: inset 0 0 12px rgba(201,169,78,0.1);
-        }
-        .js-cell.active .js-cell-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          background: var(--jl-gold);
-          box-shadow: 0 0 8px rgba(201,169,78,0.4);
-        }
-        .js-cell.inactive {
-          background: rgba(255,255,255,0.02);
-        }
-        .js-cell.inactive .js-cell-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-          border: 1px solid rgba(201,169,78,0.2);
-        }
-        .js-cell.unavailable {
-          opacity: 0.12;
-          cursor: not-allowed;
-          pointer-events: none;
-          background: repeating-linear-gradient(
-            45deg, transparent, transparent 4px, rgba(201,169,78,0.05) 4px, rgba(201,169,78,0.05) 8px
-          );
-        }
-        .js-cell.playing-now {
-          background: rgba(201,169,78,0.25);
-          box-shadow: inset 0 0 20px rgba(201,169,78,0.15);
-        }
-
-        /* ── Add/Remove Slot ── */
-        .js-grid-add {
-          border-bottom: 1px solid rgba(201,169,78,0.1);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 4px;
-          min-width: 44px;
-        }
-        .js-add-btn, .js-remove-btn {
-          background: none;
-          border: 1px solid rgba(201,169,78,0.15);
-          color: var(--jl-gold-dim);
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          cursor: pointer;
-          font-size: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.2s;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .js-add-btn:hover, .js-remove-btn:hover {
-          border-color: var(--jl-gold);
-          color: var(--jl-gold);
-        }
-        .js-remove-btn { font-size: 14px; }
-        .js-grid-add-spacer {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-width: 44px;
-        }
-
-        /* ── Playhead ── */
-        .js-playhead {
-          position: absolute;
-          top: 0;
-          bottom: 0;
-          width: 2px;
-          background: var(--jl-gold);
-          z-index: 5;
-          pointer-events: none;
-          box-shadow: 0 0 8px rgba(201,169,78,0.5);
-          transition: left 60ms linear;
-        }
-
-        /* ── Transport ── */
-        .js-transport {
-          display: flex;
-          justify-content: center;
-          gap: 12px;
-          padding: 24px 0 10px;
-          flex-wrap: wrap;
-        }
-        .js-transport .jl-btn.active {
-          background: rgba(201,169,78,0.15);
-          border-color: var(--jl-gold);
-        }
-        .js-transport .jl-btn:disabled {
-          opacity: 0.3;
-          cursor: not-allowed;
-        }
-
-        /* ── Loading ── */
-        .js-loading {
-          text-align: center;
-          padding: 60px 20px;
-        }
-        .js-loading-title {
-          font-family: 'Playfair Display', serif;
-          font-size: 20px;
-          color: var(--jl-gold);
-          margin-bottom: 16px;
-        }
-        .js-loading-subtitle {
-          font-family: 'Josefin Sans', sans-serif;
-          font-size: 12px;
-          color: var(--jl-text-dim);
-          letter-spacing: 2px;
-          margin-bottom: 24px;
-          font-weight: 300;
-        }
-        .js-progress-track {
-          width: 200px;
-          height: 3px;
-          background: rgba(201,169,78,0.15);
-          border-radius: 2px;
-          margin: 0 auto;
-          overflow: hidden;
-        }
-        .js-progress-fill {
-          height: 100%;
-          background: var(--jl-gold);
-          border-radius: 2px;
-          transition: width 0.3s;
-        }
-
-        /* ── Responsive ── */
-        @media (max-width: 600px) {
-          .js-kits { gap: 20px; grid-template-columns: repeat(2, 1fr); }
-          .js-vinyl { width: 100px; height: 100px; }
-          .js-vinyl-label { width: 36px; height: 36px; font-size: 9px; }
-          .js-record-name { font-size: 13px; }
-          .js-arr-title { font-size: 18px; }
-          .js-grid-track-label { min-width: 90px; padding: 8px; }
-          .js-track-emoji { font-size: 16px; }
-          .js-track-name { font-size: 8px; }
-          .js-cell { min-width: 64px; height: 40px; }
-          .js-grid-slot-header { min-width: 64px; }
+        .js-select{text-align:center;padding:10px 20px 40px}
+        .js-select-subtitle{font-family:'Josefin Sans',sans-serif;font-size:13px;color:var(--jl-text-dim);font-weight:300;letter-spacing:1px;margin-bottom:30px;line-height:1.6}
+        .js-kits{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:28px;max-width:720px;margin:0 auto;justify-items:center}
+        .js-record{display:flex;flex-direction:column;align-items:center;gap:12px;background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 0.3s}
+        .js-record:hover{transform:translateY(-6px)}
+        .js-record:hover .js-vinyl{animation:js-spin 3s linear infinite}
+        .js-vinyl{width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#1a1a1a 18%,transparent 19%),radial-gradient(circle,rgba(201,169,78,0.5) 19%,transparent 20%),radial-gradient(circle,#1a1a1a 20%,transparent 21%),repeating-radial-gradient(circle,transparent 22%,rgba(60,60,60,0.3) 24%,transparent 26%),radial-gradient(circle,#111 0%,#1a1a1a 100%);position:relative;box-shadow:0 4px 20px rgba(0,0,0,0.5);transition:box-shadow 0.3s}
+        .js-record:hover .js-vinyl{box-shadow:0 4px 30px rgba(201,169,78,0.2),0 4px 20px rgba(0,0,0,0.5)}
+        @keyframes js-spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+        .js-vinyl-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--jl-gold),var(--jl-gold-dim));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:11px;font-weight:700;color:#0a0a0a;letter-spacing:1px}
+        .js-record-name{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--jl-text)}
+        .js-record-meta{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--jl-text-dim);font-weight:600}
+        .js-workspace{max-width:960px;margin:0 auto;padding:0 16px 40px}
+        .js-arr-header{display:flex;align-items:center;gap:14px;padding:10px 0 16px;flex-wrap:wrap}
+        .js-arr-back{background:none;border:1px solid rgba(201,169,78,0.2);color:var(--jl-gold-dim);font-family:'Josefin Sans',sans-serif;font-size:14px;padding:6px 12px;cursor:pointer;border-radius:4px;transition:all 0.3s;-webkit-tap-highlight-color:transparent}
+        .js-arr-back:hover{border-color:var(--jl-gold);color:var(--jl-gold)}
+        .js-arr-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--jl-gold);flex:1}
+        .js-arr-meta{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--jl-text-dim);font-weight:600}
+        .js-vinyl-mini{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle,var(--jl-gold) 20%,transparent 21%),radial-gradient(circle,#111 0%,#1a1a1a 100%);flex-shrink:0}
+        .js-spinning{animation:js-spin 2s linear infinite}
+        .js-selected-bar{display:flex;align-items:center;justify-content:space-between;padding:8px 14px;margin-bottom:10px;border:1px solid;border-radius:6px;background:rgba(201,169,78,0.08);font-family:'Josefin Sans',sans-serif;font-size:12px;color:var(--jl-text)}
+        .js-selected-bar button{background:none;border:none;color:var(--jl-text-dim);cursor:pointer;font-size:16px;padding:0 4px}
+        .js-timeline{display:flex;border:1px solid rgba(201,169,78,0.15);border-radius:8px;background:var(--jl-bg-stage);overflow:hidden}
+        .js-labels{flex-shrink:0;width:80px;border-right:1px solid rgba(201,169,78,0.1)}
+        .js-ruler-label{height:28px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(201,169,78,0.1);font-family:'Josefin Sans',sans-serif;font-size:7px;letter-spacing:2px;color:var(--jl-text-dim);text-transform:uppercase}
+        .js-lane-label{height:52px;display:flex;align-items:center;gap:6px;padding:0 8px;border-bottom:1px solid rgba(201,169,78,0.06);border-left:3px solid}
+        .js-lane-emoji{font-size:16px}
+        .js-lane-name{font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--jl-text-dim);font-weight:600}
+        .js-tracks{flex:1;position:relative;overflow-x:auto;min-width:0}
+        .js-ruler{height:28px;position:relative;border-bottom:1px solid rgba(201,169,78,0.15)}
+        .js-ruler-mark{position:absolute;top:0;bottom:0}
+        .js-ruler-tick{width:1px;height:8px;background:rgba(201,169,78,0.3)}
+        .js-ruler-time{position:absolute;top:10px;left:2px;font-family:'Josefin Sans',sans-serif;font-size:8px;color:var(--jl-text-dim);white-space:nowrap}
+        .js-lane{height:52px;position:relative;border-bottom:1px solid rgba(201,169,78,0.06);transition:background 0.2s}
+        .js-lane-active{background:rgba(201,169,78,0.06);cursor:crosshair}
+        .js-lane-active::after{content:'';position:absolute;inset:0;border:1px dashed rgba(201,169,78,0.2);pointer-events:none;border-radius:2px}
+        .js-block{position:absolute;top:4px;bottom:4px;border:1px solid;border-radius:4px;display:flex;align-items:center;justify-content:center;cursor:grab;touch-action:none;z-index:2;overflow:hidden;transition:opacity 0.15s}
+        .js-block:hover{filter:brightness(1.2)}
+        .js-block:active{cursor:grabbing;z-index:20}
+        .js-block-label{font-family:'Josefin Sans',sans-serif;font-size:9px;font-weight:600;color:var(--jl-text);letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
+        .js-playhead{position:absolute;top:28px;bottom:0;width:2px;background:var(--jl-gold);z-index:10;pointer-events:none;box-shadow:0 0 8px rgba(201,169,78,0.5)}
+        .js-transport{display:flex;justify-content:center;gap:10px;padding:16px 0 12px;flex-wrap:wrap}
+        .js-transport .jl-btn.active{background:rgba(201,169,78,0.15);border-color:var(--jl-gold)}
+        .js-transport .jl-btn:disabled{opacity:0.3;cursor:not-allowed}
+        .js-crate{border:1px solid rgba(201,169,78,0.12);border-radius:8px;background:var(--jl-bg-stage);overflow:hidden;margin-top:12px}
+        .js-crate-toggle{width:100%;background:none;border:none;border-bottom:1px solid rgba(201,169,78,0.08);color:var(--jl-gold-dim);font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;padding:10px;cursor:pointer;transition:color 0.2s;-webkit-tap-highlight-color:transparent}
+        .js-crate-toggle:hover{color:var(--jl-gold)}
+        .js-crate-body{padding:12px 14px 16px}
+        .js-crate-group{margin-bottom:14px}
+        .js-crate-group:last-child{margin-bottom:0}
+        .js-crate-title{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:8px}
+        .js-crate-tiles{display:flex;flex-wrap:wrap;gap:6px}
+        .js-tile{background:rgba(255,255,255,0.03);border:1px solid;border-radius:4px;padding:5px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;-webkit-tap-highlight-color:transparent}
+        .js-tile:hover{background:rgba(201,169,78,0.08)}
+        .js-tile-sel{box-shadow:0 0 8px rgba(201,169,78,0.3)}
+        .js-tile-name{font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;color:var(--jl-text)}
+        .js-tile-info{font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--jl-text-dim)}
+        .js-loading{text-align:center;padding:60px 20px}
+        .js-loading-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--jl-gold);margin-bottom:16px}
+        .js-loading-subtitle{font-family:'Josefin Sans',sans-serif;font-size:12px;color:var(--jl-text-dim);letter-spacing:2px;margin-bottom:24px;font-weight:300}
+        .js-progress-track{width:200px;height:3px;background:rgba(201,169,78,0.15);border-radius:2px;margin:0 auto;overflow:hidden}
+        .js-progress-fill{height:100%;background:var(--jl-gold);border-radius:2px;transition:width 0.3s}
+        @media(max-width:600px){
+          .js-kits{gap:20px;grid-template-columns:repeat(2,1fr)}
+          .js-vinyl{width:100px;height:100px}
+          .js-vinyl-label{width:36px;height:36px;font-size:9px}
+          .js-record-name{font-size:13px}
+          .js-arr-title{font-size:18px}
+          .js-labels{width:60px}
+          .js-lane-emoji{font-size:14px}
+          .js-lane-name{font-size:7px}
         }
       `}</style>
-
-      {!kit ? (
+      {!session ? (
         <div className="js-select">
           <div className="js-select-subtitle">
-            Pick a song, arrange the sections, and create your own jazz recording.
+            Step into the recording studio. Pick a session, then select loops
+            from the crate and tap the timeline to arrange your own jazz record.
           </div>
           <div className="js-kits">
-            {STUDIO_KITS.map(k => (
-              <button key={k.id} className="js-record" onClick={() => setSelectedKitId(k.id)}>
-                <div className="js-vinyl">
-                  <div className="js-vinyl-label">
-                    {k.id.toUpperCase()}
-                  </div>
-                </div>
-                <div className="js-record-name">{k.name}</div>
-                <div className="js-record-meta">{k.bpm} BPM &middot; {k.musicalKey}</div>
+            {SESSIONS.map(s => (
+              <button key={s.id} className="js-record" onClick={() => setSid(s.id)}>
+                <div className="js-vinyl"><div className="js-vinyl-label">{s.id.toUpperCase()}</div></div>
+                <div className="js-record-name">{s.name}</div>
+                <div className="js-record-meta">{s.bpm} BPM &middot; Key of {s.key}</div>
               </button>
             ))}
           </div>
         </div>
       ) : (
-        <StudioArranger
-          key={kit.id}
-          kit={kit}
-          onBack={() => setSelectedKitId(null)}
-        />
+        <StudioWorkspace key={session.id} session={session} onBack={() => setSid(null)} />
       )}
     </div>
   );
 }
 
-// ─── Studio Arranger ────────────────────────────────────────────────────────
+// ─── Studio Workspace ────────────────────────────────────────────────────────
 
-function StudioArranger({ kit, onBack }: { kit: StudioKit; onBack: () => void }) {
-  // Audio
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const bufferCacheRef = useRef<Map<string, AudioBuffer>>(new Map());
-  const scheduledRef = useRef<AudioBufferSourceNode[]>([]);
+function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () => void }) {
+  const ctxRef = useRef<AudioContext | null>(null);
+  const cacheRef = useRef<Map<string, AudioBuffer>>(new Map());
+  const sourcesRef = useRef<AudioBufferSourceNode[]>([]);
   const animRef = useRef<number>(0);
-  const isLoopingRef = useRef(false);
-  const lastSlotRef = useRef(-1);
+  const startRef = useRef(0);
+  const loopRef = useRef(false);
+  const playRef = useRef<() => void>(() => {});
 
-  // DOM refs for playhead
-  const gridRef = useRef<HTMLDivElement>(null);
+  const tracksRef = useRef<HTMLDivElement>(null);
   const playheadRef = useRef<HTMLDivElement>(null);
 
-  // State
-  const [slots, setSlots] = useState<SlotState[]>(() => createDefaultSlots(kit));
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [loadProgress, setLoadProgress] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isLooping, setIsLooping] = useState(false);
-  const [currentSlot, setCurrentSlot] = useState(-1);
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [blocks, setBlocks] = useState<PlacedBlock[]>([]);
+  const [loaded, setLoaded] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [looping, setLooping] = useState(false);
+  const [selected, setSelected] = useState<LoopDef | null>(null);
+  const [crateOpen, setCrateOpen] = useState(true);
+  const [downloading, setDownloading] = useState(false);
 
-  // Sync loop ref
-  useEffect(() => { isLoopingRef.current = isLooping; }, [isLooping]);
+  useEffect(() => { loopRef.current = looping; }, [looping]);
 
-  const ensureContext = useCallback((): AudioContext => {
-    if (!audioCtxRef.current) {
-      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      audioCtxRef.current = new Ctx();
+  const ensureCtx = useCallback((): AudioContext => {
+    if (!ctxRef.current) {
+      const C = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      ctxRef.current = new C();
     }
-    if (audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume();
-    }
-    return audioCtxRef.current;
+    if (ctxRef.current.state === 'suspended') ctxRef.current.resume();
+    return ctxRef.current;
   }, []);
 
-  // Stop helper (no state reset)
-  const stopSources = useCallback(() => {
-    scheduledRef.current.forEach(source => {
-      try { source.stop(); } catch { /* already stopped */ }
-      source.disconnect();
-    });
-    scheduledRef.current = [];
-    cancelAnimationFrame(animRef.current);
-  }, []);
+  const loopsByInst = useMemo(() => {
+    const m = new Map<InstrumentCategory, LoopDef[]>();
+    for (const l of session.loops) {
+      const a = m.get(l.instrument) || [];
+      a.push(l);
+      m.set(l.instrument, a);
+    }
+    return m;
+  }, [session]);
 
-  // Full stop
-  const stop = useCallback(() => {
-    stopSources();
-    setIsPlaying(false);
-    setCurrentSlot(-1);
-    lastSlotRef.current = -1;
-    if (playheadRef.current) playheadRef.current.style.display = 'none';
-  }, [stopSources]);
-
-  // Preload all audio for the kit
+  // Preload all audio
   useEffect(() => {
-    let cancelled = false;
-    const ctx = ensureContext();
-    const allPaths: string[] = [];
-
-    kit.tracks.forEach(track => {
-      Object.values(track.sections).forEach(path => {
-        if (!bufferCacheRef.current.has(path)) allPaths.push(path);
-      });
-    });
-
-    if (allPaths.length === 0) {
-      setIsLoaded(true);
-      setLoadProgress(1);
-      return;
-    }
-
-    let loaded = 0;
-    Promise.all(allPaths.map(async (src) => {
+    let off = false;
+    const ctx = ensureCtx();
+    const paths = session.loops.map(l => l.file).filter(f => !cacheRef.current.has(f));
+    if (!paths.length) { setLoaded(true); setProgress(1); return; }
+    let done = 0;
+    Promise.all(paths.map(async src => {
       try {
-        const response = await fetch(src);
-        const arrayBuffer = await response.arrayBuffer();
-        const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-        bufferCacheRef.current.set(src, audioBuffer);
-      } catch (e) {
-        console.warn(`Failed to load ${src}`, e);
-      }
-      loaded++;
-      if (!cancelled) setLoadProgress(loaded / allPaths.length);
-    })).then(() => {
-      if (!cancelled) setIsLoaded(true);
-    });
+        const r = await fetch(src);
+        const ab = await r.arrayBuffer();
+        const buf = await ctx.decodeAudioData(ab);
+        cacheRef.current.set(src, buf);
+      } catch (e) { console.warn(`Failed: ${src}`, e); }
+      done++;
+      if (!off) setProgress(done / paths.length);
+    })).then(() => { if (!off) setLoaded(true); });
+    return () => { off = true; };
+  }, [session, ensureCtx]);
 
-    return () => { cancelled = true; };
-  }, [kit, ensureContext]);
-
-  // Cleanup on unmount
+  // Cleanup
   useEffect(() => {
     return () => {
-      stopSources();
-      if (audioCtxRef.current) {
-        audioCtxRef.current.close();
-        audioCtxRef.current = null;
-      }
+      sourcesRef.current.forEach(s => { try { s.stop(); } catch { /* noop */ } s.disconnect(); });
+      cancelAnimationFrame(animRef.current);
+      if (ctxRef.current) { ctxRef.current.close(); ctxRef.current = null; }
     };
-  }, [stopSources]);
+  }, []);
 
-  // ── Slot duration helper ──
-  const getSlotDuration = useCallback((slot: SlotState): number => {
-    let maxDur = 0;
-    for (const trackId of slot.activeTracks) {
-      const track = kit.tracks.find(t => t.id === trackId);
-      if (!track) continue;
-      const src = track.sections[slot.section];
-      if (!src) continue;
-      const buffer = bufferCacheRef.current.get(src);
-      if (buffer) maxDur = Math.max(maxDur, buffer.duration);
-    }
-    return maxDur || 2;
-  }, [kit]);
+  // ── Playback ──
 
-  // ── Play ──
+  const stopPlay = useCallback(() => {
+    sourcesRef.current.forEach(s => { try { s.stop(); } catch { /* noop */ } s.disconnect(); });
+    sourcesRef.current = [];
+    cancelAnimationFrame(animRef.current);
+    setPlaying(false);
+  }, []);
+
   const play = useCallback(() => {
-    stopSources();
-    const ctx = ensureContext();
-    const sources: AudioBufferSourceNode[] = [];
-    const slotDurations: number[] = [];
-
-    let time = ctx.currentTime + 0.05;
-    const startTime = time;
-
-    for (const slot of slots) {
-      const dur = getSlotDuration(slot);
-      slotDurations.push(dur);
-
-      for (const trackId of slot.activeTracks) {
-        const track = kit.tracks.find(t => t.id === trackId);
-        if (!track) continue;
-        const srcPath = track.sections[slot.section];
-        if (!srcPath) continue;
-        const buffer = bufferCacheRef.current.get(srcPath);
-        if (!buffer) continue;
-
-        const source = ctx.createBufferSource();
-        source.buffer = buffer;
-        source.connect(ctx.destination);
-        source.start(time);
-        sources.push(source);
-      }
-      time += dur;
+    if (!blocks.length) return;
+    stopPlay();
+    const ctx = ensureCtx();
+    const t0 = ctx.currentTime + 0.05;
+    startRef.current = t0;
+    const srcs: AudioBufferSourceNode[] = [];
+    for (const b of blocks) {
+      const l = session.loops.find(x => x.id === b.loopId);
+      if (!l) continue;
+      const buf = cacheRef.current.get(l.file);
+      if (!buf) continue;
+      const s = ctx.createBufferSource();
+      s.buffer = buf;
+      s.connect(ctx.destination);
+      const dur = loopDuration(session.bpm, l.bars);
+      s.start(t0 + b.startTime);
+      s.stop(t0 + b.startTime + dur);
+      srcs.push(s);
     }
+    sourcesRef.current = srcs;
+    setPlaying(true);
 
-    scheduledRef.current = sources;
-    const totalDuration = time - startTime;
-    setIsPlaying(true);
-
-    // Show playhead
-    if (playheadRef.current) playheadRef.current.style.display = 'block';
-
-    // Playhead animation
-    const animate = () => {
-      if (!audioCtxRef.current) return;
-      const elapsed = audioCtxRef.current.currentTime - startTime;
-
-      if (elapsed >= totalDuration) {
-        if (isLoopingRef.current) {
-          play(); // re-schedule
-        } else {
-          stop();
-        }
+    const tick = () => {
+      if (!ctxRef.current) return;
+      const el = ctxRef.current.currentTime - startRef.current;
+      if (el >= TIMELINE_DURATION) {
+        if (loopRef.current) playRef.current();
+        else stopPlay();
         return;
       }
-
-      let accum = 0;
-      for (let i = 0; i < slotDurations.length; i++) {
-        if (elapsed < accum + slotDurations[i]) {
-          // Update current slot state only when it changes
-          if (i !== lastSlotRef.current) {
-            setCurrentSlot(i);
-            lastSlotRef.current = i;
-          }
-          // Update playhead position via ref (no re-render)
-          if (playheadRef.current && gridRef.current) {
-            const gridWidth = gridRef.current.scrollWidth;
-            const trackLabelW = 110;
-            const addBtnW = 44;
-            const slotAreaWidth = gridWidth - trackLabelW - addBtnW;
-            const pct = (i + (elapsed - accum) / slotDurations[i]) / slots.length;
-            playheadRef.current.style.left = `${trackLabelW + pct * slotAreaWidth}px`;
-          }
-          break;
-        }
-        accum += slotDurations[i];
+      if (playheadRef.current) {
+        playheadRef.current.style.left = `${(el / TIMELINE_DURATION) * 100}%`;
       }
-      animRef.current = requestAnimationFrame(animate);
+      animRef.current = requestAnimationFrame(tick);
     };
-    animRef.current = requestAnimationFrame(animate);
-  }, [slots, kit, ensureContext, stopSources, stop, getSlotDuration]);
+    animRef.current = requestAnimationFrame(tick);
+  }, [blocks, session, ensureCtx, stopPlay]);
 
-  // ── Download ──
-  const download = useCallback(async () => {
-    setIsDownloading(true);
-    try {
-      const slotDurations = slots.map(s => getSlotDuration(s));
-      const totalDuration = slotDurations.reduce((a, b) => a + b, 0);
-      if (totalDuration <= 0) return;
+  useEffect(() => { playRef.current = play; }, [play]);
 
-      const sampleRate = 44100;
-      const offline = new OfflineAudioContext(2, Math.ceil(totalDuration * sampleRate), sampleRate);
+  // ── Block Management ──
 
-      let time = 0;
-      for (let i = 0; i < slots.length; i++) {
-        const slot = slots[i];
-        for (const trackId of slot.activeTracks) {
-          const track = kit.tracks.find(t => t.id === trackId);
-          if (!track) continue;
-          const srcPath = track.sections[slot.section];
-          if (!srcPath) continue;
-          const buffer = bufferCacheRef.current.get(srcPath);
-          if (!buffer) continue;
+  const addBlock = useCallback((loop: LoopDef, startTime: number) => {
+    const dur = loopDuration(session.bpm, loop.bars);
+    const snapped = snapToBar(Math.max(0, Math.min(startTime, TIMELINE_DURATION - dur)), session.bpm);
+    if (snapped < 0) return;
+    setBlocks(prev => {
+      const hasOverlap = prev.some(b => {
+        if (b.lane !== loop.instrument) return false;
+        const bl = session.loops.find(x => x.id === b.loopId);
+        const bd = bl ? loopDuration(session.bpm, bl.bars) : 0;
+        return snapped < b.startTime + bd && snapped + dur > b.startTime;
+      });
+      if (hasOverlap) return prev;
+      return [...prev, { uid: nuid(), loopId: loop.id, lane: loop.instrument, startTime: snapped }];
+    });
+  }, [session]);
 
-          const source = offline.createBufferSource();
-          source.buffer = buffer;
-          source.connect(offline.destination);
-          source.start(time);
-        }
-        time += slotDurations[i];
+  const moveBlock = useCallback((uid: string, newStart: number) => {
+    setBlocks(prev => {
+      const b = prev.find(x => x.uid === uid);
+      if (!b) return prev;
+      const l = session.loops.find(x => x.id === b.loopId);
+      if (!l) return prev;
+      const dur = loopDuration(session.bpm, l.bars);
+      const snapped = snapToBar(Math.max(0, Math.min(newStart, TIMELINE_DURATION - dur)), session.bpm);
+      const hasOverlap = prev.some(x => {
+        if (x.uid === uid || x.lane !== b.lane) return false;
+        const xl = session.loops.find(ll => ll.id === x.loopId);
+        const xd = xl ? loopDuration(session.bpm, xl.bars) : 0;
+        return snapped < x.startTime + xd && snapped + dur > x.startTime;
+      });
+      if (hasOverlap) return prev;
+      return prev.map(x => x.uid === uid ? { ...x, startTime: snapped } : x);
+    });
+  }, [session]);
+
+  const removeBlock = useCallback((uid: string) => {
+    stopPlay();
+    setBlocks(prev => prev.filter(b => b.uid !== uid));
+  }, [stopPlay]);
+
+  const clearAll = useCallback(() => { stopPlay(); setBlocks([]); }, [stopPlay]);
+
+  // ── Lane Click (tap-to-place) ──
+
+  const handleLaneClick = useCallback((lane: InstrumentCategory, e: React.MouseEvent<HTMLDivElement>) => {
+    if (!selected || selected.instrument !== lane) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const time = ((e.clientX - rect.left) / rect.width) * TIMELINE_DURATION;
+    addBlock(selected, time);
+    setSelected(null);
+  }, [selected, addBlock]);
+
+  // ── Block Drag (reposition) ──
+
+  const handleBlockDown = useCallback((uid: string, e: React.PointerEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const el = e.currentTarget as HTMLElement;
+    const laneEl = el.parentElement;
+    if (!laneEl) return;
+    const startX = e.clientX;
+    const laneW = laneEl.clientWidth;
+    const block = blocks.find(b => b.uid === uid);
+    if (!block) return;
+    const origTime = block.startTime;
+
+    const onMove = (ev: PointerEvent) => {
+      el.style.transform = `translateX(${ev.clientX - startX}px)`;
+      el.style.opacity = '0.7';
+    };
+    const onUp = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      el.style.transform = '';
+      el.style.opacity = '';
+      const dx = ev.clientX - startX;
+      if (Math.abs(dx) > 3) {
+        moveBlock(uid, origTime + (dx / laneW) * TIMELINE_DURATION);
       }
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }, [blocks, moveBlock]);
 
+  // ── Download WAV ──
+
+  const download = useCallback(async () => {
+    if (!blocks.length) return;
+    setDownloading(true);
+    try {
+      let end = 0;
+      for (const b of blocks) {
+        const l = session.loops.find(x => x.id === b.loopId);
+        if (l) end = Math.max(end, b.startTime + loopDuration(session.bpm, l.bars));
+      }
+      if (end <= 0) return;
+      const sr = 44100;
+      const offline = new OfflineAudioContext(2, Math.ceil(end * sr), sr);
+      for (const b of blocks) {
+        const l = session.loops.find(x => x.id === b.loopId);
+        if (!l) continue;
+        const buf = cacheRef.current.get(l.file);
+        if (!buf) continue;
+        const s = offline.createBufferSource();
+        s.buffer = buf;
+        s.connect(offline.destination);
+        s.start(b.startTime);
+        s.stop(b.startTime + loopDuration(session.bpm, l.bars));
+      }
       const rendered = await offline.startRendering();
       const blob = encodeWav(rendered);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `jazz-studio-${kit.name.toLowerCase().replace(/\s+/g, '-')}.wav`;
+      a.download = `jazz-studio-${session.name.toLowerCase().replace(/\s+/g, '-')}.wav`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -725,155 +380,165 @@ function StudioArranger({ kit, onBack }: { kit: StudioKit; onBack: () => void })
     } catch (e) {
       console.error('Download failed:', e);
     } finally {
-      setIsDownloading(false);
+      setDownloading(false);
     }
-  }, [slots, kit, getSlotDuration]);
+  }, [blocks, session]);
 
-  // ── Slot mutations (stop playback on change) ──
-  const changeSection = useCallback((index: number, direction: 1 | -1) => {
-    stop();
-    setSlots(prev => prev.map((slot, i) => {
-      if (i !== index) return slot;
-      const secs = kit.allSections;
-      const cur = secs.indexOf(slot.section);
-      const next = (cur + direction + secs.length) % secs.length;
-      const newSection = secs[next];
-      // Keep tracks that are available in new section
-      const newActive = new Set<string>();
-      slot.activeTracks.forEach(trackId => {
-        const track = kit.tracks.find(t => t.id === trackId);
-        if (track && track.sections[newSection] !== undefined) newActive.add(trackId);
-      });
-      return { section: newSection, activeTracks: newActive };
-    }));
-  }, [kit, stop]);
+  // ── Ruler Marks ──
 
-  const toggleTrack = useCallback((slotIndex: number, trackId: string) => {
-    stop();
-    setSlots(prev => prev.map((slot, i) => {
-      if (i !== slotIndex) return slot;
-      const next = new Set(slot.activeTracks);
-      if (next.has(trackId)) next.delete(trackId);
-      else next.add(trackId);
-      return { ...slot, activeTracks: next };
-    }));
-  }, [stop]);
+  const rulerMarks = useMemo(() => {
+    const marks: { t: number; label: string }[] = [];
+    for (let t = 0; t <= TIMELINE_DURATION; t += 30) {
+      const m = Math.floor(t / 60), s = t % 60;
+      marks.push({ t, label: `${m}:${s.toString().padStart(2, '0')}` });
+    }
+    return marks;
+  }, []);
 
-  const addSlot = useCallback(() => {
-    if (slots.length >= 8) return;
-    stop();
-    const section = kit.allSections[0];
-    setSlots(prev => [...prev, {
-      section,
-      activeTracks: new Set(kit.tracks.filter(t => t.sections[section] !== undefined).map(t => t.id)),
-    }]);
-  }, [slots.length, kit, stop]);
+  // ── Loading ──
 
-  const removeSlot = useCallback(() => {
-    if (slots.length <= 2) return;
-    stop();
-    setSlots(prev => prev.slice(0, -1));
-  }, [slots.length, stop]);
-
-  // ── Loading screen ──
-  if (!isLoaded) {
+  if (!loaded) {
     return (
       <div className="js-loading">
-        <div className="js-loading-title">{kit.name}</div>
-        <div className="js-loading-subtitle">Loading tracks...</div>
+        <div className="js-loading-title">{session.name}</div>
+        <div className="js-loading-subtitle">Loading loops&hellip;</div>
         <div className="js-progress-track">
-          <div className="js-progress-fill" style={{ width: `${loadProgress * 100}%` }} />
+          <div className="js-progress-fill" style={{ width: `${progress * 100}%` }} />
         </div>
       </div>
     );
   }
 
-  // ── Grid column template ──
-  const gridCols = `110px repeat(${slots.length}, minmax(80px, 1fr)) 44px`;
+  // ── Render ──
 
   return (
-    <div className="js-arranger">
-      {/* Header */}
+    <div className="js-workspace">
       <div className="js-arr-header">
-        <button className="js-arr-back" onClick={() => { stop(); onBack(); }}>{'\u2190'}</button>
-        <div className="js-arr-title">{kit.name}</div>
-        <div className="js-arr-meta">{kit.bpm} BPM &middot; Key of {kit.musicalKey}</div>
+        <button className="js-arr-back" onClick={() => { stopPlay(); onBack(); }}>{'\u2190'}</button>
+        <div className="js-arr-title">{session.name}</div>
+        {playing && <div className="js-vinyl-mini js-spinning" />}
+        <div className="js-arr-meta">{session.bpm} BPM &middot; Key of {session.key}</div>
       </div>
 
-      {/* Grid */}
-      <div className="js-grid-wrap">
-        {/* Playhead */}
-        <div ref={playheadRef} className="js-playhead" style={{ display: 'none' }} />
+      {selected && (
+        <div className="js-selected-bar" style={{ borderColor: INST_COLORS[selected.instrument] }}>
+          <span>
+            Tap the <strong>{INST_NAMES[selected.instrument]}</strong> lane to
+            place <strong>{selected.label}</strong> ({selected.bars} bars)
+          </span>
+          <button onClick={() => setSelected(null)}>{'\u2715'}</button>
+        </div>
+      )}
 
-        <div ref={gridRef} className="js-grid" style={{ gridTemplateColumns: gridCols }}>
-          {/* Header row */}
-          <div className="js-grid-corner">
-            <span style={{ fontFamily: "'Josefin Sans', sans-serif", fontSize: '8px', letterSpacing: '2px', color: 'var(--jl-gold-dim)', fontWeight: 600, textTransform: 'uppercase' as const }}>
-              Tracks
-            </span>
-          </div>
-          {slots.map((slot, si) => (
-            <div key={si} className="js-grid-slot-header">
-              <div className="js-grid-slot-label">Slot {si + 1}</div>
-              <div className="js-section-stepper">
-                <button className="js-section-arrow" onClick={() => changeSection(si, -1)}>{'\u2039'}</button>
-                <span className="js-section-num">{slot.section}</span>
-                <button className="js-section-arrow" onClick={() => changeSection(si, 1)}>{'\u203A'}</button>
-              </div>
+      <div className="js-timeline">
+        <div className="js-labels">
+          <div className="js-ruler-label">TIME</div>
+          {session.instruments.map(inst => (
+            <div key={inst} className="js-lane-label" style={{ borderLeftColor: INST_COLORS[inst] }}>
+              <span className="js-lane-emoji">{INST_EMOJI[inst]}</span>
+              <span className="js-lane-name">{INST_NAMES[inst]}</span>
             </div>
           ))}
-          <div className="js-grid-add">
-            <button className="js-add-btn" onClick={addSlot} title="Add slot">+</button>
-            <button className="js-remove-btn" onClick={removeSlot} title="Remove slot">&minus;</button>
+        </div>
+
+        <div className="js-tracks" ref={tracksRef}>
+          <div className="js-ruler">
+            {rulerMarks.map(m => (
+              <div key={m.t} className="js-ruler-mark" style={{ left: `${(m.t / TIMELINE_DURATION) * 100}%` }}>
+                <div className="js-ruler-tick" />
+                <span className="js-ruler-time">{m.label}</span>
+              </div>
+            ))}
           </div>
 
-          {/* Track rows */}
-          {kit.tracks.map(track => (
-            <Fragment key={track.id}>
-              <div className="js-grid-track-label">
-                <span className="js-track-emoji">{track.emoji}</span>
-                <span className="js-track-name">{track.name}</span>
-              </div>
-              {slots.map((slot, si) => {
-                const available = track.sections[slot.section] !== undefined;
-                const active = slot.activeTracks.has(track.id);
-                const playingNow = isPlaying && currentSlot === si && active;
+          {session.instruments.map(inst => (
+            <div
+              key={inst}
+              className={`js-lane${selected?.instrument === inst ? ' js-lane-active' : ''}`}
+              data-lane={inst}
+              onClick={(e) => handleLaneClick(inst, e)}
+            >
+              {blocks.filter(b => b.lane === inst).map(block => {
+                const loop = session.loops.find(x => x.id === block.loopId);
+                if (!loop) return null;
+                const dur = loopDuration(session.bpm, loop.bars);
                 return (
                   <div
-                    key={`${track.id}-${si}`}
-                    className={`js-cell ${!available ? 'unavailable' : active ? 'active' : 'inactive'} ${playingNow ? 'playing-now' : ''}`}
-                    onClick={() => available && toggleTrack(si, track.id)}
+                    key={block.uid}
+                    className="js-block"
+                    style={{
+                      left: `${(block.startTime / TIMELINE_DURATION) * 100}%`,
+                      width: `${(dur / TIMELINE_DURATION) * 100}%`,
+                      background: `${INST_COLORS[inst]}35`,
+                      borderColor: INST_COLORS[inst],
+                    }}
+                    onClick={(e) => e.stopPropagation()}
+                    onPointerDown={(e) => handleBlockDown(block.uid, e)}
+                    onDoubleClick={() => removeBlock(block.uid)}
+                    title={`${loop.label} (${loop.bars} bars) \u2014 drag to move, double-click to remove`}
                   >
-                    <div className="js-cell-dot" />
+                    <span className="js-block-label">{loop.label}</span>
                   </div>
                 );
               })}
-              <div className="js-grid-add-spacer" />
-            </Fragment>
+            </div>
           ))}
+
+          <div
+            ref={playheadRef}
+            className="js-playhead"
+            style={{ display: playing ? 'block' : 'none', left: '0%' }}
+          />
         </div>
       </div>
 
-      {/* Transport */}
       <div className="js-transport">
-        {!isPlaying ? (
-          <button className="jl-btn" onClick={play}>{'\u25B6'} Play</button>
+        {!playing ? (
+          <button className="jl-btn" onClick={play} disabled={!blocks.length}>{'\u25B6'} Play</button>
         ) : (
-          <button className="jl-btn jl-btn-stop" onClick={stop}>{'\u25A0'} Stop</button>
+          <button className="jl-btn jl-btn-stop" onClick={stopPlay}>{'\u25A0'} Stop</button>
         )}
-        <button
-          className={`jl-btn ${isLooping ? 'active' : ''}`}
-          onClick={() => setIsLooping(prev => !prev)}
-        >
-          {'\u27F3'} Loop
+        <button className={`jl-btn${looping ? ' active' : ''}`} onClick={() => setLooping(p => !p)}>{'\u27F3'} Loop</button>
+        <button className="jl-btn" onClick={clearAll} disabled={!blocks.length}>Clear All</button>
+        <button className="jl-btn" onClick={download} disabled={!blocks.length || downloading}>
+          {downloading ? 'Preparing\u2026' : '\u2913 Download'}
         </button>
-        <button
-          className="jl-btn"
-          onClick={download}
-          disabled={isDownloading}
-        >
-          {isDownloading ? 'Preparing...' : '\u2913 Download'}
+      </div>
+
+      <div className="js-crate">
+        <button className="js-crate-toggle" onClick={() => setCrateOpen(p => !p)}>
+          {crateOpen ? '\u25BE' : '\u25B4'} Sample Crate
         </button>
+        {crateOpen && (
+          <div className="js-crate-body">
+            {session.instruments.map(inst => (
+              <div key={inst} className="js-crate-group">
+                <div className="js-crate-title" style={{ color: INST_COLORS[inst] }}>
+                  {INST_EMOJI[inst]} {INST_NAMES[inst]}
+                </div>
+                <div className="js-crate-tiles">
+                  {(loopsByInst.get(inst) || []).map(loop => {
+                    const isSel = selected?.id === loop.id;
+                    return (
+                      <button
+                        key={loop.id}
+                        className={`js-tile${isSel ? ' js-tile-sel' : ''}`}
+                        style={{
+                          borderColor: INST_COLORS[inst],
+                          background: isSel ? `${INST_COLORS[inst]}25` : undefined,
+                        }}
+                        onClick={() => setSelected(isSel ? null : loop)}
+                      >
+                        <span className="js-tile-name">{loop.label}</span>
+                        <span className="js-tile-info">{loop.bars}b</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

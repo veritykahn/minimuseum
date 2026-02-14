@@ -187,22 +187,22 @@ export function useBandBuilder(audio: AudioEngine) {
       next.add(id);
       setActive(next);
       setSpotlight(id);
-    } else if (spotlight !== id) {
-      // Active but not spotlight → spotlight it
-      audio.setVolume(id, 1.0);
-      active.forEach(otherId => {
-        if (otherId !== id) audio.setVolume(otherId, 0.4);
-      });
-      setSpotlight(id);
+    } else if (spotlight === id) {
+      // Currently spotlighted → un-solo but keep playing
+      setSpotlight(null);
+      active.forEach(otherId => audio.setVolume(otherId, 0.7));
     } else {
-      // Currently spotlighted → remove
+      // Active but not spotlight → remove from stage
       audio.fadeOutAndStop(id);
       const next = new Set(active);
       next.delete(id);
       setActive(next);
-      // Restore volumes for remaining instruments
-      setSpotlight(null);
-      next.forEach(otherId => audio.setVolume(otherId, 0.7));
+      if (spotlight) {
+        // Keep spotlight volumes intact
+        next.forEach(otherId => audio.setVolume(otherId, otherId === spotlight ? 1.0 : 0.4));
+      } else {
+        next.forEach(otherId => audio.setVolume(otherId, 0.7));
+      }
     }
   }, [active, section, spotlight, audio]);
 
