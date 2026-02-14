@@ -1,14 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAudioEngine, useBandBuilder, useQuiz } from './hooks';
-import { INSTRUMENTS, INSTRUMENT_MAP, ALL_INSTRUMENT_IDS, type InstrumentId, type InstrumentVariant } from './data';
+import { INSTRUMENTS, INSTRUMENT_MAP, type InstrumentId, BAND_INSTRUMENTS, BAND_INSTRUMENT_MAP, SECTIONS, type BandInstrumentId } from './data';
+import JazzStudio from './JazzStudio';
 
 export default function JazzLabPage() {
   const router = useRouter();
   const [view, setView] = useState<'welcome' | 'lab'>('welcome');
-  const [activeTab, setActiveTab] = useState<'band' | 'quiz'>('band');
+  const [activeTab, setActiveTab] = useState<'band' | 'studio' | 'quiz'>('band');
   const [loaded, setLoaded] = useState(false);
   const audioEngine = useAudioEngine();
   const band = useBandBuilder(audioEngine);
@@ -25,18 +26,18 @@ export default function JazzLabPage() {
     router.push('/exhibitions/harlem-renaissance/artifacts');
   };
 
-  const handleTabChange = (tab: 'band' | 'quiz') => {
+  const handleTabChange = (tab: 'band' | 'studio' | 'quiz') => {
     band.stopAll();
     audioEngine.stopAll();
     setActiveTab(tab);
   };
 
   // Spotlight instrument for info card
-  const spotlightInstrument = band.spotlight ? INSTRUMENT_MAP[band.spotlight] : null;
+  const spotlightInstrument = band.spotlight ? BAND_INSTRUMENT_MAP[band.spotlight] : null;
 
   // Compute spotlight position for stage glow
-  const spotlightIdx = band.spotlight ? INSTRUMENTS.findIndex(i => i.id === band.spotlight) : -1;
-  const spotlightX = spotlightIdx >= 0 ? `${((spotlightIdx + 0.5) / INSTRUMENTS.length) * 100}%` : '50%';
+  const spotlightIdx = band.spotlight ? BAND_INSTRUMENTS.findIndex(i => i.id === band.spotlight) : -1;
+  const spotlightX = spotlightIdx >= 0 ? `${((spotlightIdx + 0.5) / BAND_INSTRUMENTS.length) * 100}%` : '50%';
 
   return (
     <div style={{ background: 'var(--jl-bg)', minHeight: '100vh' }}>
@@ -298,84 +299,89 @@ export default function JazzLabPage() {
         .jl-slot.active .jl-slot-name { color: rgba(201,169,78,0.7); }
         .jl-slot.spotlight .jl-slot-name { color: var(--jl-gold); font-weight: 700; }
 
-        /* ── Mixer Fader ── */
-        .jl-fader {
-          position: relative;
-          width: 44px;
-          height: 76px;
-          margin-top: 6px;
+        /* ── Section Selector ── */
+        .jl-section-container {
+          max-width: 900px;
+          margin: 0 auto 20px;
+          padding: 0 20px;
+          text-align: center;
+        }
+        .jl-section-label {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 10px;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          color: var(--jl-gold-dim);
+          font-weight: 600;
+          margin-bottom: 14px;
+        }
+        .jl-section-selector {
+          display: flex;
+          justify-content: center;
+          gap: 6px;
+          flex-wrap: wrap;
+        }
+        .jl-section-btn {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          padding: 12px 6px 8px;
+          border: none;
+          background: transparent;
+          cursor: pointer;
+          transition: all 0.3s;
+          -webkit-tap-highlight-color: transparent;
+          min-width: 65px;
+        }
+        .jl-section-num {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          touch-action: none;
-          -webkit-tap-highlight-color: transparent;
+          border: 1.5px solid rgba(201,169,78,0.2);
+          background: rgba(201,169,78,0.03);
+          font-family: 'Playfair Display', serif;
+          font-size: 15px;
+          font-weight: 700;
+          color: var(--jl-text-dim);
+          transition: all 0.3s;
         }
-        .jl-fader-track {
-          position: absolute;
-          left: 50%;
-          top: 6px;
-          bottom: 6px;
-          width: 2px;
-          background: rgba(201,169,78,0.2);
-          transform: translateX(-50%);
-          border-radius: 1px;
+        .jl-section-btn:hover .jl-section-num {
+          border-color: rgba(201,169,78,0.5);
+          color: var(--jl-gold-light);
         }
-        .jl-fader-notch {
-          position: absolute;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          align-items: center;
-          cursor: pointer;
-          z-index: 2;
+        .jl-section-btn.active .jl-section-num {
+          border-color: var(--jl-gold);
+          background: rgba(201,169,78,0.15);
+          color: var(--jl-gold);
+          box-shadow: 0 0 20px rgba(201,169,78,0.3), 0 0 40px rgba(201,169,78,0.1);
         }
-        .jl-fader-tick {
-          width: 12px;
-          height: 2px;
-          background: rgba(201,169,78,0.25);
-          border-radius: 1px;
-          transition: background 0.3s;
-        }
-        .jl-fader-notch.active .jl-fader-tick {
-          background: var(--jl-gold);
-        }
-        .jl-fader-label {
-          position: absolute;
-          left: 26px;
+        .jl-section-name {
           font-family: 'Josefin Sans', sans-serif;
           font-size: 8px;
           letter-spacing: 1px;
-          color: rgba(201,169,78,0.3);
+          text-transform: uppercase;
+          color: var(--jl-text-dim);
           font-weight: 600;
           white-space: nowrap;
           transition: color 0.3s;
         }
-        .jl-fader-notch.active .jl-fader-label {
-          color: var(--jl-gold);
+        .jl-section-btn.active .jl-section-name {
+          color: var(--jl-gold-light);
         }
-        .jl-fader-knob {
-          position: absolute;
-          left: 50%;
-          width: 16px;
-          height: 10px;
-          background: linear-gradient(to bottom, var(--jl-gold-light), var(--jl-gold));
-          border-radius: 3px;
-          transform: translate(-50%, -50%);
-          transition: top 0.2s ease;
-          z-index: 3;
-          cursor: grab;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.4), 0 0 8px rgba(201,169,78,0.2);
+
+        /* ── Unavailable instrument ── */
+        .jl-slot.unavailable {
+          opacity: 0.15;
+          cursor: not-allowed;
+          pointer-events: none;
         }
-        .jl-fader-knob:active { cursor: grabbing; }
-        .jl-fader-knob::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 3px;
-          right: 3px;
-          height: 1px;
-          background: rgba(0,0,0,0.25);
-          transform: translateY(-50%);
+        .jl-slot.unavailable .jl-slot-icon {
+          filter: grayscale(100%);
+          border-color: rgba(201,169,78,0.06);
         }
 
         /* ── Now Playing / EQ ── */
@@ -849,7 +855,6 @@ export default function JazzLabPage() {
             justify-items: center;
           }
           .jl-slot { width: 100%; max-width: 130px; }
-          .jl-fader { height: 70px; }
         }
         /* Phone */
         @media (max-width: 600px) {
@@ -857,12 +862,18 @@ export default function JazzLabPage() {
           .jl-slot { max-width: 110px; }
           .jl-slot-icon { width: 64px; height: 64px; font-size: 28px; }
           .jl-slot-name { font-size: 9px; letter-spacing: 1px; }
-          .jl-fader { height: 64px; width: 38px; }
-          .jl-fader-knob { width: 14px; height: 8px; }
           .jl-controls { gap: 10px; }
           .jl-btn { padding: 10px 16px; font-size: 10px; letter-spacing: 2px; }
           .jl-quiz-answers { grid-template-columns: repeat(2, 1fr); }
           .jl-tab { padding: 12px 18px; font-size: 10px; letter-spacing: 2px; }
+          .jl-section-selector {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+          }
+          .jl-section-btn { min-width: unset; padding: 8px 4px; }
+          .jl-section-num { width: 32px; height: 32px; font-size: 14px; }
+          .jl-section-name { font-size: 7px; }
         }
       `}</style>
 
@@ -920,6 +931,12 @@ export default function JazzLabPage() {
           Build a Band
         </button>
         <button
+          className={`jl-tab ${activeTab === 'studio' ? 'active' : ''}`}
+          onClick={() => handleTabChange('studio')}
+        >
+          Jazz Studio
+        </button>
+        <button
           className={`jl-tab ${activeTab === 'quiz' ? 'active' : ''}`}
           onClick={() => handleTabChange('quiz')}
         >
@@ -931,10 +948,28 @@ export default function JazzLabPage() {
       {activeTab === 'band' && (
         <div>
           <div className="jl-instructions">
-            Tap to <em>add an instrument</em>. Tap a playing instrument to <em>give it the solo</em>.<br />
+            Tap to <em>add an instrument</em>. Tap a playing instrument to <em>give it the spotlight</em>.<br />
             Tap the soloist again to <em>take it off stage</em>.
           </div>
 
+          {/* Section Selector */}
+          <div className="jl-section-container">
+            <div className="jl-section-label">{'\u{25C6}'} Song Section {'\u{25C6}'}</div>
+            <div className="jl-section-selector">
+              {SECTIONS.map(s => (
+                <button
+                  key={s.number}
+                  className={`jl-section-btn ${band.section === s.number ? 'active' : ''}`}
+                  onClick={() => band.changeSection(s.number)}
+                >
+                  <span className="jl-section-num">{s.number}</span>
+                  <span className="jl-section-name">{s.name}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Stage */}
           <div className="jl-stage-container">
             <div
               className={`jl-stage ${band.spotlight ? 'has-spotlight' : ''}`}
@@ -942,30 +977,23 @@ export default function JazzLabPage() {
             >
               <div className="jl-stage-label">{'\u{25C6}'} The Stage {'\u{25C6}'}</div>
               <div className="jl-band-slots">
-                {INSTRUMENTS.map((inst) => {
-                  const isActive = band.playing.has(inst.id);
+                {BAND_INSTRUMENTS.map((inst) => {
+                  const isAvailable = inst.sections.includes(band.section);
+                  const isActive = band.active.has(inst.id);
                   const isSpotlight = band.spotlight === inst.id;
                   const isBacking = isActive && band.spotlight !== null && !isSpotlight;
-                  const isDimmed = !isActive && band.playing.size > 0 && band.spotlight !== null;
-                  const currentVariant = band.playing.get(inst.id) ?? 0;
+                  const isDimmed = !isActive && band.active.size > 0 && band.spotlight !== null;
 
                   return (
                     <div
                       key={inst.id}
-                      className={`jl-slot ${isActive ? 'active' : ''} ${isSpotlight ? 'spotlight' : ''} ${isBacking ? 'backing' : ''} ${isDimmed ? 'dimmed' : ''}`}
-                      onClick={() => band.tapInstrument(inst.id)}
+                      className={`jl-slot ${isActive ? 'active' : ''} ${isSpotlight ? 'spotlight' : ''} ${isBacking ? 'backing' : ''} ${isDimmed ? 'dimmed' : ''} ${!isAvailable ? 'unavailable' : ''}`}
+                      onClick={() => isAvailable && band.tapInstrument(inst.id)}
                     >
                       <div className="jl-slot-icon">
                         {inst.emoji}
                       </div>
                       <div className="jl-slot-name">{inst.name}</div>
-                      {isActive && (
-                        <MixerFader
-                          variants={inst.variants}
-                          currentVariant={currentVariant}
-                          onChange={(vi) => band.changeVariant(inst.id, vi)}
-                        />
-                      )}
                     </div>
                   );
                 })}
@@ -974,13 +1002,13 @@ export default function JazzLabPage() {
           </div>
 
           <div className="jl-now-playing">
-            <EqBars isPlaying={band.playing.size > 0} />
+            <EqBars isPlaying={band.active.size > 0} />
             <div>
-              {band.playing.size === 0
+              {band.active.size === 0
                 ? 'Tap an instrument to begin'
                 : band.spotlight
-                  ? <><span>{INSTRUMENT_MAP[band.spotlight].name}</span> soloing</>
-                  : <><span>{band.playing.size}</span> instrument{band.playing.size > 1 ? 's' : ''} playing</>
+                  ? <><span>{BAND_INSTRUMENT_MAP[band.spotlight].name}</span> soloing &mdash; {SECTIONS.find(s => s.number === band.section)?.name}</>
+                  : <><span>{band.active.size}</span> instrument{band.active.size > 1 ? 's' : ''} playing &mdash; {SECTIONS.find(s => s.number === band.section)?.name}</>
               }
             </div>
           </div>
@@ -1005,6 +1033,9 @@ export default function JazzLabPage() {
           </div>
         </div>
       )}
+
+      {/* ── JAZZ STUDIO ── */}
+      {activeTab === 'studio' && <JazzStudio />}
 
       {/* ── NAME THAT INSTRUMENT ── */}
       {activeTab === 'quiz' && (
@@ -1154,80 +1185,3 @@ function EqBars({ isPlaying }: { isPlaying: boolean }) {
   );
 }
 
-// ── Mixer Fader sub-component ──
-function MixerFader({
-  variants,
-  currentVariant,
-  onChange,
-}: {
-  variants: InstrumentVariant[];
-  currentVariant: number;
-  onChange: (index: number) => void;
-}) {
-  const trackRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
-
-  // Position as percentage (8% top padding, 92% bottom — gives even spacing)
-  const pct = (index: number) => {
-    if (variants.length <= 1) return 50;
-    return 8 + (index / (variants.length - 1)) * 84;
-  };
-
-  const resolveIndex = useCallback((clientY: number) => {
-    if (!trackRef.current) return currentVariant;
-    const rect = trackRef.current.getBoundingClientRect();
-    const relY = Math.max(0, Math.min(clientY - rect.top, rect.height));
-    const ratio = relY / rect.height;
-    return Math.round(ratio * (variants.length - 1));
-  }, [currentVariant, variants.length]);
-
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-    dragging.current = true;
-    (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, []);
-
-  const handlePointerMove = useCallback((e: React.PointerEvent) => {
-    if (!dragging.current) return;
-    e.stopPropagation();
-    const idx = resolveIndex(e.clientY);
-    if (idx !== currentVariant) onChange(idx);
-  }, [resolveIndex, currentVariant, onChange]);
-
-  const handlePointerUp = useCallback((e: React.PointerEvent) => {
-    if (!dragging.current) return;
-    dragging.current = false;
-    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-    const idx = resolveIndex(e.clientY);
-    if (idx !== currentVariant) onChange(idx);
-  }, [resolveIndex, currentVariant, onChange]);
-
-  return (
-    <div
-      ref={trackRef}
-      className="jl-fader"
-      onClick={(e) => e.stopPropagation()}
-    >
-      <div className="jl-fader-track" />
-      {variants.map((v, vi) => (
-        <div
-          key={v.id}
-          className={`jl-fader-notch ${vi === currentVariant ? 'active' : ''}`}
-          style={{ top: `${pct(vi)}%` }}
-          onClick={(e) => { e.stopPropagation(); onChange(vi); }}
-        >
-          <div className="jl-fader-tick" />
-          <span className="jl-fader-label">{v.label}</span>
-        </div>
-      ))}
-      <div
-        className="jl-fader-knob"
-        style={{ top: `${pct(currentVariant)}%` }}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-      />
-    </div>
-  );
-}

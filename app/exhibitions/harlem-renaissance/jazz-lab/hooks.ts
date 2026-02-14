@@ -8,6 +8,11 @@ import {
   QUIZ_AUDIO_POOL,
   TOTAL_QUIZ_ROUNDS,
   SCORE_RATINGS,
+  type BandInstrumentId,
+  BAND_INSTRUMENTS,
+  BAND_INSTRUMENT_MAP,
+  SECTIONS,
+  getBandAudioSrc,
 } from './data';
 
 // ─── useAudioEngine ─────────────────────────────────────────────────────────
@@ -69,7 +74,8 @@ export function useAudioEngine() {
     source.loop = true;
 
     const gainNode = ctx.createGain();
-    gainNode.gain.value = volume;
+    gainNode.gain.setValueAtTime(0, ctx.currentTime);
+    gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.1);
 
     source.connect(gainNode);
     gainNode.connect(ctx.destination);
@@ -104,7 +110,26 @@ export function useAudioEngine() {
   const setVolume = useCallback((id: string, volume: number) => {
     const entry = activeSourcesRef.current.get(id);
     if (entry && audioCtxRef.current) {
-      entry.gain.gain.setTargetAtTime(volume, audioCtxRef.current.currentTime, 0.1);
+      const now = audioCtxRef.current.currentTime;
+      entry.gain.gain.cancelScheduledValues(now);
+      entry.gain.gain.setValueAtTime(entry.gain.gain.value, now);
+      entry.gain.gain.linearRampToValueAtTime(volume, now + 0.2);
+    }
+  }, []);
+
+  const fadeOutAndStop = useCallback((id: string) => {
+    const entry = activeSourcesRef.current.get(id);
+    if (entry && audioCtxRef.current) {
+      const now = audioCtxRef.current.currentTime;
+      entry.gain.gain.cancelScheduledValues(now);
+      entry.gain.gain.setValueAtTime(entry.gain.gain.value, now);
+      entry.gain.gain.linearRampToValueAtTime(0, now + 0.1);
+      setTimeout(() => {
+        try { entry.source.stop(); } catch { /* already stopped */ }
+        entry.source.disconnect();
+        entry.gain.disconnect();
+        activeSourcesRef.current.delete(id);
+      }, 150);
     }
   }, []);
 
@@ -127,7 +152,7 @@ export function useAudioEngine() {
     };
   }, []);
 
-  return { ensureContext, loadAudio, playLoop, playOnce, setVolume, stopSource, stopAll, isPlaying };
+  return { ensureContext, loadAudio, playLoop, playOnce, setVolume, stopSource, fadeOutAndStop, stopAll, isPlaying };
 }
 
 // ─── useBandBuilder ─────────────────────────────────────────────────────────
@@ -135,100 +160,116 @@ export function useAudioEngine() {
 type AudioEngine = ReturnType<typeof useAudioEngine>;
 
 export function useBandBuilder(audio: AudioEngine) {
-  const [playing, setPlaying] = useState<Map<InstrumentId, number>>(new Map());
-  const [spotlight, setSpotlight] = useState<InstrumentId | null>(null);
+  const [active, setActive] = useState<Set<BandInstrumentId>>(new Set());
+  const [section, setSection] = useState(3); // Piano Solo — all 6 instruments available
+  const [spotlight, setSpotlight] = useState<BandInstrumentId | null>(null);
 
-  const addInstrument = useCallback((id: InstrumentId, variantIndex: number = 0) => {
-    const instrument = INSTRUMENT_MAP[id];
-    const variant = instrument.variants[variantIndex];
-    audio.playLoop(id, variant.audioSrc, 0.5);
-    setPlaying(prev => new Map(prev).set(id, variantIndex));
-  }, [audio]);
-
-  const removeInstrument = useCallback((id: InstrumentId) => {
-    audio.stopSource(id);
-    setPlaying(prev => {
-      const next = new Map(prev);
-      next.delete(id);
-      return next;
+  // Preload audio for the current section
+  useEffect(() => {
+    BAND_INSTRUMENTS.forEach(inst => {
+      if (inst.sections.includes(section)) {
+        audio.loadAudio(getBandAudioSrc(inst.id, section));
+      }
     });
-    setSpotlight(prev => prev === id ? null : prev);
-  }, [audio]);
+  }, [section, audio]);
 
-  const setSpotlightInstrument = useCallback((id: InstrumentId | null, currentPlaying: Map<InstrumentId, number>) => {
-    setSpotlight(id);
-    if (id) {
-      audio.setVolume(id, 0.8);
-      currentPlaying.forEach((_, instId) => {
-        if (instId !== id) audio.setVolume(instId, 0.3);
-      });
-    } else {
-      currentPlaying.forEach((_, instId) => {
-        audio.setVolume(instId, 0.5);
-      });
-    }
-  }, [audio]);
+  const tapInstrument = useCallback((id: BandInstrumentId) => {
+    const inst = BAND_INSTRUMENT_MAP[id];
+    if (!inst.sections.includes(section)) return;
 
-  const tapInstrument = useCallback((id: InstrumentId) => {
-    if (!playing.has(id)) {
-      // Not playing -> add it AND spotlight it
-      addInstrument(id, 0);
-      // Spotlight the newly added instrument
-      setTimeout(() => {
-        const newPlaying = new Map(playing).set(id, 0);
-        setSpotlightInstrument(id, newPlaying);
-      }, 50);
+    if (!active.has(id)) {
+      // Not active → activate + spotlight
+      const src = getBandAudioSrc(id, section);
+      audio.playLoop(id, src, 1.0);
+      // Duck all currently active instruments
+      active.forEach(otherId => audio.setVolume(otherId, 0.4));
+      const next = new Set(active);
+      next.add(id);
+      setActive(next);
+      setSpotlight(id);
     } else if (spotlight !== id) {
-      // Playing but not spotlighted -> move spotlight to it
-      setSpotlightInstrument(id, playing);
-    } else {
-      // Already spotlighted -> remove it
-      removeInstrument(id);
-      // Restore volumes for remaining instruments
-      playing.forEach((_, instId) => {
-        if (instId !== id) audio.setVolume(instId, 0.5);
+      // Active but not spotlight → spotlight it
+      audio.setVolume(id, 1.0);
+      active.forEach(otherId => {
+        if (otherId !== id) audio.setVolume(otherId, 0.4);
       });
+      setSpotlight(id);
+    } else {
+      // Currently spotlighted → remove
+      audio.fadeOutAndStop(id);
+      const next = new Set(active);
+      next.delete(id);
+      setActive(next);
+      // Restore volumes for remaining instruments
+      setSpotlight(null);
+      next.forEach(otherId => audio.setVolume(otherId, 0.7));
     }
-  }, [playing, spotlight, addInstrument, removeInstrument, setSpotlightInstrument, audio]);
+  }, [active, section, spotlight, audio]);
 
-  const changeVariant = useCallback((id: InstrumentId, variantIndex: number) => {
-    if (!playing.has(id)) return;
-    const instrument = INSTRUMENT_MAP[id];
-    const variant = instrument.variants[variantIndex];
-    const volume = spotlight === id ? 0.8 : spotlight ? 0.3 : 0.5;
-    audio.playLoop(id, variant.audioSrc, volume);
-    setPlaying(prev => new Map(prev).set(id, variantIndex));
-  }, [playing, spotlight, audio]);
+  const changeSection = useCallback((newSection: number) => {
+    setSection(newSection);
+
+    // Determine which active instruments are still available
+    const stillActive = new Set<BandInstrumentId>();
+    active.forEach(id => {
+      const inst = BAND_INSTRUMENT_MAP[id];
+      if (inst.sections.includes(newSection)) {
+        stillActive.add(id);
+      } else {
+        audio.fadeOutAndStop(id);
+      }
+    });
+
+    // Update spotlight
+    const newSpotlight = spotlight && stillActive.has(spotlight) ? spotlight : null;
+
+    // Restart all remaining instruments with new section audio (synchronized)
+    stillActive.forEach(id => {
+      const vol = newSpotlight ? (id === newSpotlight ? 1.0 : 0.4) : 0.7;
+      audio.playLoop(id, getBandAudioSrc(id, newSection), vol);
+    });
+
+    setActive(stillActive);
+    setSpotlight(newSpotlight);
+  }, [active, spotlight, audio]);
 
   const surpriseMe = useCallback(() => {
-    // Stop everything first so each click is a fresh combo
     audio.stopAll();
-    setPlaying(new Map());
+
+    // Pick a random section
+    const randomSection = SECTIONS[Math.floor(Math.random() * SECTIONS.length)].number;
+
+    // Get available instruments for this section
+    const available = BAND_INSTRUMENTS.filter(i => i.sections.includes(randomSection));
+
+    // Pick 3-4 random instruments
+    const count = 3 + Math.floor(Math.random() * 2);
+    const shuffled = [...available].sort(() => Math.random() - 0.5);
+    const chosen = shuffled.slice(0, Math.min(count, available.length));
+
+    const newActive = new Set<BandInstrumentId>();
+    chosen.forEach(inst => {
+      newActive.add(inst.id);
+      audio.playLoop(inst.id, getBandAudioSrc(inst.id, randomSection), 0.7);
+    });
+
+    setSection(randomSection);
+    setActive(newActive);
     setSpotlight(null);
-
-    // Pick a random count between 2 and 6
-    const count = 2 + Math.floor(Math.random() * 5);
-    const shuffled = [...INSTRUMENTS].sort(() => Math.random() - 0.5);
-    const chosen = shuffled.slice(0, count);
-
-    for (const inst of chosen) {
-      const variantIdx = Math.floor(Math.random() * inst.variants.length);
-      audio.playLoop(inst.id, inst.variants[variantIdx].audioSrc, 0.5);
-      setPlaying(prev => new Map(prev).set(inst.id, variantIdx));
-    }
   }, [audio]);
 
   const stopAll = useCallback(() => {
     audio.stopAll();
-    setPlaying(new Map());
+    setActive(new Set());
     setSpotlight(null);
   }, [audio]);
 
   return {
-    playing,
+    active,
+    section,
     spotlight,
     tapInstrument,
-    changeVariant,
+    changeSection,
     surpriseMe,
     stopAll,
   };

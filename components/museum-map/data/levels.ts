@@ -165,39 +165,47 @@ export const GROUND_FLOOR: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 
 const SID_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 130, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 170, rx: 3 },
   accentColor: COLORS.seeingIsDeceiving,
   walls: [
+    // Horizontal wall between Exhibition Hall and rooms (with doorway)
+    ...wallWithDoorway(40, 130, 460, 130, 20),
     // Vertical wall between Illusions and Artifacts (with doorway)
-    ...wallWithDoorway(180, 80, 180, 210),
+    ...wallWithDoorway(180, 130, 180, 250),
     // Vertical wall between Artifacts and Resources (with doorway)
-    ...wallWithDoorway(320, 80, 320, 210),
+    ...wallWithDoorway(320, 130, 320, 250),
   ],
   rooms: [
     {
+      id: 'sid-entrance', label: 'Exhibition Hall', path: '/exhibitions/seeing-is-deceiving',
+      accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
+      x: 40, y: 80, width: 420, height: 50,
+      labelX: 250, labelY: 105,
+    },
+    {
       id: 'illusions', label: 'Illusions', path: '/exhibitions/seeing-is-deceiving/illusions',
       accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
-      x: 40, y: 80, width: 140, height: 130,
-      labelX: 110, labelY: 145,
+      x: 40, y: 130, width: 140, height: 120,
+      labelX: 110, labelY: 190,
     },
     {
       id: 'artifacts', label: 'Artifacts', path: '/exhibitions/seeing-is-deceiving/artifacts',
       accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
-      x: 180, y: 80, width: 140, height: 130,
-      labelX: 250, labelY: 145,
+      x: 180, y: 130, width: 140, height: 120,
+      labelX: 250, labelY: 190,
     },
     {
       id: 'resources', label: 'Resources', path: '/exhibitions/seeing-is-deceiving/resources',
       accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
-      x: 320, y: 80, width: 140, height: 130,
-      labelX: 390, labelY: 145,
+      x: 320, y: 130, width: 140, height: 120,
+      labelX: 390, labelY: 190,
     },
   ],
 };
 
 export const SEEING_IS_DECEIVING: MapLevelConfig = {
   level: 'exhibition',
-  viewBox: '0 0 500 260',
+  viewBox: '0 0 500 300',
   rooms: [],
   connections: [],
   title: 'Seeing is Deceiving',
@@ -228,60 +236,70 @@ export const SEEING_IS_DECEIVING: MapLevelConfig = {
 
 const HR_FLOOR_PLAN: ExhibitionFloorPlan = {
   outline: {
-    x: 40, y: 80, width: 420, height: 230, rx: 3,
+    x: 40, y: 80, width: 420, height: 280, rx: 3,
   },
   accentColor: COLORS.harlemRenaissance,
   walls: [
+    // Horizontal wall between Exhibition Hall and top row (with doorway)
+    ...wallWithDoorway(40, 130, 460, 130, 20),
+
     // Top row vertical walls
-    ...wallWithDoorway(180, 80, 180, 195),   // between Artifacts and Jazz Lab
-    ...wallWithDoorway(320, 80, 320, 195),   // between Jazz Lab and Harlem in Words
+    ...wallWithDoorway(180, 130, 180, 245),   // between Artifacts and Jazz Lab
+    ...wallWithDoorway(320, 130, 320, 245),   // between Jazz Lab and Harlem in Words
 
     // Horizontal wall (top/bottom row separator)
-    ...wallWithDoorway(40, 195, 180, 195),   // under Artifacts
-    ...wallWithDoorway(180, 195, 320, 195),  // under Jazz Lab
+    ...wallWithDoorway(40, 245, 180, 245),   // under Artifacts
+    ...wallWithDoorway(180, 245, 320, 245),  // under Jazz Lab
 
     // Bottom row vertical wall
-    ...wallWithDoorway(220, 195, 220, 310),  // between Migration Map and Resources
+    ...wallWithDoorway(220, 245, 220, 360),  // between Migration Map and Resources
   ],
   rooms: [
+    // Exhibition Hall entrance
+    {
+      id: 'hr-entrance', label: 'Exhibition Hall', path: '/exhibitions/harlem-renaissance',
+      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
+      x: 40, y: 80, width: 420, height: 50,
+      labelX: 250, labelY: 105,
+    },
     // Top row
     {
       id: 'hr-artifacts', label: 'Artifacts', path: '/exhibitions/harlem-renaissance/artifacts',
       accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 40, y: 80, width: 140, height: 115,
-      labelX: 110, labelY: 138,
+      x: 40, y: 130, width: 140, height: 115,
+      labelX: 110, labelY: 188,
     },
     {
       id: 'hr-jazz-lab', label: 'Jazz Lab', path: '/exhibitions/harlem-renaissance/jazz-lab',
       accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 180, y: 80, width: 140, height: 115,
-      labelX: 250, labelY: 138,
+      x: 180, y: 130, width: 140, height: 115,
+      labelX: 250, labelY: 188,
     },
     {
       id: 'hr-harlem-in-words', label: 'Harlem in Words', path: '/exhibitions/harlem-renaissance/harlem-in-words',
       accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 320, y: 80, width: 140, height: 230,
-      labelX: 390, labelY: 195,
+      x: 320, y: 130, width: 140, height: 230,
+      labelX: 390, labelY: 245,
     },
     // Bottom row
     {
       id: 'hr-migration-map', label: 'Great Migration Map', path: '/exhibitions/harlem-renaissance/migration-map',
       accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 40, y: 195, width: 180, height: 115,
-      labelX: 130, labelY: 252,
+      x: 40, y: 245, width: 180, height: 115,
+      labelX: 130, labelY: 302,
     },
     {
       id: 'hr-resources', label: 'Resources', path: '/exhibitions/harlem-renaissance/resources',
       accentColor: COLORS.harlemRenaissance, comingSoon: true, parent: 'harlem-renaissance',
-      x: 220, y: 195, width: 100, height: 115,
-      labelX: 270, labelY: 252,
+      x: 220, y: 245, width: 100, height: 115,
+      labelX: 270, labelY: 302,
     },
   ],
 };
 
 export const HARLEM_RENAISSANCE: MapLevelConfig = {
   level: 'exhibition',
-  viewBox: '0 0 500 360',
+  viewBox: '0 0 500 410',
   rooms: [],
   connections: [],
   title: 'Harlem Renaissance',

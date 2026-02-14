@@ -161,3 +161,114 @@ export const SCORE_RATINGS: ScoreRating[] = [
   { min: 4, label: 'Jazz Newcomer', message: 'Keep exploring the sounds of jazz.' },
   { min: 0, label: 'First Night at the Club', message: 'The Harlem jazz scene awaits your return!' },
 ];
+
+// ─── Build a Band (Section-based) ───────────────────────────────────────────
+
+export type BandInstrumentId = 'drums' | 'bass' | 'piano' | 'saxophone' | 'trumpet' | 'horns';
+
+export type BandInstrumentDef = {
+  id: BandInstrumentId;
+  name: string;
+  emoji: string;
+  sections: number[];
+  fact: {
+    title: string;
+    text: string;
+    quote: string;
+  };
+};
+
+export type SectionDef = {
+  number: number;
+  name: string;
+};
+
+const BAND_AUDIO_BASE = '/exhibitions/harlem/audio/build-a-band';
+
+export function getBandAudioSrc(id: BandInstrumentId, section: number): string {
+  return `${BAND_AUDIO_BASE}/${id}-${section}.mp3`;
+}
+
+export const SECTIONS: SectionDef[] = [
+  { number: 1, name: 'Intro' },
+  { number: 2, name: 'Head' },
+  { number: 3, name: 'Piano Solo' },
+  { number: 4, name: 'Horn Solo' },
+  { number: 5, name: 'Walking Bass' },
+  { number: 6, name: 'Groove' },
+  { number: 7, name: 'Bridge' },
+  { number: 8, name: 'Finale' },
+];
+
+export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
+  {
+    id: 'drums',
+    name: 'Drums',
+    emoji: '\u{1F941}',
+    sections: [1, 2, 3, 4, 5, 6, 7, 8],
+    fact: {
+      title: 'The Drums in Jazz',
+      text: 'Chick Webb, the tiny drummer with the thunderous sound, ruled the Savoy Ballroom from 1931. His drum battles were legendary \u2014 even Benny Goodman\'s band couldn\'t outswing him.',
+      quote: '"The rhythm is below everything." \u2014 Chick Webb',
+    },
+  },
+  {
+    id: 'bass',
+    name: 'Bass',
+    emoji: '\u{1F3B8}',
+    sections: [1, 2, 3, 4, 5, 6, 7, 8],
+    fact: {
+      title: 'The Bass in Jazz',
+      text: 'The upright bass was the heartbeat of every Harlem jazz combo. Players like Jimmy Blanton revolutionized the instrument, turning the bass from timekeeper into soloist.',
+      quote: '"The bass is the link between harmony and rhythm." \u2014 Ray Brown',
+    },
+  },
+  {
+    id: 'piano',
+    name: 'Piano',
+    emoji: '\u{1F3B9}',
+    sections: [1, 2, 3, 4, 5, 6, 7, 8],
+    fact: {
+      title: 'The Piano in Jazz',
+      text: 'Fats Waller and James P. Johnson pioneered "stride piano" at Harlem rent parties, where tenants would hire pianists to play while guests paid admission to help cover rent.',
+      quote: '"Jazz is not just music, it\'s a way of life." \u2014 Fats Waller',
+    },
+  },
+  {
+    id: 'saxophone',
+    name: 'Saxophone',
+    emoji: '\u{1F3B7}',
+    sections: [2, 3, 4, 5, 6, 7],
+    fact: {
+      title: 'The Saxophone in Jazz',
+      text: 'Coleman Hawkins established the tenor saxophone as a jazz instrument with his 1939 recording of "Body and Soul." The sax became the voice of Harlem\'s nightlife.',
+      quote: '"If you don\'t make mistakes, you aren\'t really trying." \u2014 Coleman Hawkins',
+    },
+  },
+  {
+    id: 'trumpet',
+    name: 'Trumpet',
+    emoji: '\u{1F3BA}',
+    sections: [1, 2, 3, 4, 5, 7],
+    fact: {
+      title: 'The Trumpet in Jazz',
+      text: 'Louis Armstrong transformed the trumpet from an ensemble instrument into a solo voice. His improvisations at the Cotton Club and Savoy Ballroom defined the sound of the Harlem Renaissance.',
+      quote: '"What we play is life." \u2014 Louis Armstrong',
+    },
+  },
+  {
+    id: 'horns',
+    name: 'Ensemble',
+    emoji: '\u{1F3B6}',
+    sections: [3, 4, 8],
+    fact: {
+      title: 'The Horn Section',
+      text: 'Big bands of the Harlem Renaissance era featured powerful horn sections \u2014 trumpets, trombones, and saxophones playing arranged harmonies that could fill the Cotton Club or the Savoy Ballroom.',
+      quote: '"It don\'t mean a thing if it ain\'t got that swing." \u2014 Duke Ellington',
+    },
+  },
+];
+
+export const BAND_INSTRUMENT_MAP: Record<BandInstrumentId, BandInstrumentDef> = Object.fromEntries(
+  BAND_INSTRUMENTS.map(i => [i.id, i])
+) as Record<BandInstrumentId, BandInstrumentDef>;
