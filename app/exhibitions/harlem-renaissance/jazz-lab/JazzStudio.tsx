@@ -64,6 +64,7 @@ export default function JazzStudio() {
         .js-lane-emoji{font-size:16px}
         .js-lane-name{font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--jl-text-dim);font-weight:600}
         .js-tracks{flex:1;position:relative;overflow-x:auto;min-width:0}
+        .js-tracks-inner{min-width:1800px;position:relative}
         .js-ruler{height:28px;position:relative;border-bottom:1px solid rgba(201,169,78,0.15)}
         .js-ruler-mark{position:absolute;top:0;bottom:0}
         .js-ruler-tick{width:1px;height:8px;background:rgba(201,169,78,0.3)}
@@ -609,63 +610,65 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
         </div>
 
         <div className="js-tracks" ref={tracksRef}>
-          <div className="js-ruler">
-            {rulerMarks.map(m => (
-              <div key={m.t} className="js-ruler-mark" style={{ left: `${(m.t / TIMELINE_DURATION) * 100}%` }}>
-                <div className="js-ruler-tick" />
-                <span className="js-ruler-time">{m.label}</span>
+          <div className="js-tracks-inner">
+            <div className="js-ruler">
+              {rulerMarks.map(m => (
+                <div key={m.t} className="js-ruler-mark" style={{ left: `${(m.t / TIMELINE_DURATION) * 100}%` }}>
+                  <div className="js-ruler-tick" />
+                  <span className="js-ruler-time">{m.label}</span>
+                </div>
+              ))}
+            </div>
+
+            {session.instruments.map(inst => (
+              <div
+                key={inst}
+                className={`js-lane${dropLane === inst ? ' js-lane-drop' : ''}`}
+                data-lane={inst}
+              >
+                {blocks.filter(b => b.lane === inst).map(block => {
+                  const loop = session.loops.find(x => x.id === block.loopId);
+                  if (!loop) return null;
+                  const dur = loopDuration(session.bpm, loop.bars);
+                  const isActive = activeBlockId === block.uid;
+                  return (
+                    <div
+                      key={block.uid}
+                      className="js-block"
+                      style={{
+                        left: `${(block.startTime / TIMELINE_DURATION) * 100}%`,
+                        width: `${(dur / TIMELINE_DURATION) * 100}%`,
+                        background: `${INST_COLORS[inst]}35`,
+                        borderColor: INST_COLORS[inst],
+                      }}
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => handleBlockDown(block.uid, e)}
+                      title={`${loop.label} (${loop.bars} bars)`}
+                    >
+                      <span className="js-block-inner">
+                        <span className="js-block-label">{loop.label}</span>
+                      </span>
+                      {isActive && (
+                        <button
+                          className="js-block-add"
+                          onClick={(e) => { e.stopPropagation(); addAnotherCopy(block.uid); }}
+                          title="Add another copy"
+                        >
+                          +
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             ))}
-          </div>
 
-          {session.instruments.map(inst => (
             <div
-              key={inst}
-              className={`js-lane${dropLane === inst ? ' js-lane-drop' : ''}`}
-              data-lane={inst}
-            >
-              {blocks.filter(b => b.lane === inst).map(block => {
-                const loop = session.loops.find(x => x.id === block.loopId);
-                if (!loop) return null;
-                const dur = loopDuration(session.bpm, loop.bars);
-                const isActive = activeBlockId === block.uid;
-                return (
-                  <div
-                    key={block.uid}
-                    className="js-block"
-                    style={{
-                      left: `${(block.startTime / TIMELINE_DURATION) * 100}%`,
-                      width: `${(dur / TIMELINE_DURATION) * 100}%`,
-                      background: `${INST_COLORS[inst]}35`,
-                      borderColor: INST_COLORS[inst],
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                    onPointerDown={(e) => handleBlockDown(block.uid, e)}
-                    title={`${loop.label} (${loop.bars} bars)`}
-                  >
-                    <span className="js-block-inner">
-                      <span className="js-block-label">{loop.label}</span>
-                    </span>
-                    {isActive && (
-                      <button
-                        className="js-block-add"
-                        onClick={(e) => { e.stopPropagation(); addAnotherCopy(block.uid); }}
-                        title="Add another copy"
-                      >
-                        +
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          ))}
-
-          <div
-            ref={playheadRef}
-            className="js-playhead"
-            style={{ display: playing ? 'block' : 'none', left: '0%' }}
-          />
+              ref={playheadRef}
+              className="js-playhead"
+              style={{ display: playing ? 'block' : 'none', left: '0%' }}
+            />
+          </div>
         </div>
       </div>
 
