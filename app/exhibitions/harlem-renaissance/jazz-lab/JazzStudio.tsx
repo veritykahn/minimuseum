@@ -65,7 +65,7 @@ export default function JazzStudio() {
         .js-lane-name{font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--jl-text-dim);font-weight:600}
         .js-tracks{flex:1;position:relative;overflow-x:auto;min-width:0}
         .js-tracks-inner{min-width:1800px;position:relative}
-        .js-ruler{height:28px;position:relative;border-bottom:1px solid rgba(201,169,78,0.15)}
+        .js-ruler{height:28px;position:relative;border-bottom:1px solid rgba(201,169,78,0.15);cursor:pointer}
         .js-ruler-mark{position:absolute;top:0;bottom:0}
         .js-ruler-tick{width:1px;height:8px;background:rgba(201,169,78,0.3)}
         .js-ruler-time{position:absolute;top:10px;left:2px;font-family:'Josefin Sans',sans-serif;font-size:8px;color:var(--jl-text-dim);white-space:nowrap}
@@ -162,6 +162,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   const [downloading, setDownloading] = useState(false);
   const [dragGhost, setDragGhost] = useState<{ loop: LoopDef; x: number; y: number } | null>(null);
   const [dropLane, setDropLane] = useState<InstrumentCategory | null>(null);
+  const [seekTime, setSeekTime] = useState(0);
 
   // Refs for drag state that shouldn't trigger re-renders
   const dragLoopRef = useRef<LoopDef | null>(null);
@@ -266,17 +267,32 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     const t0 = ctx.currentTime + 0.05;
     startRef.current = t0;
     const srcs: AudioBufferSourceNode[] = [];
+    const seek = seekTime;
+
     for (const b of blocks) {
       const l = session.loops.find(x => x.id === b.loopId);
       if (!l) continue;
       const buf = cacheRef.current.get(l.file);
       if (!buf) continue;
+      const dur = loopDuration(session.bpm, l.bars);
+      const blockEnd = b.startTime + dur;
+
+      // Skip blocks that end at or before seek position
+      if (blockEnd <= seek) continue;
+
       const s = ctx.createBufferSource();
       s.buffer = buf;
       s.connect(ctx.destination);
-      const dur = loopDuration(session.bpm, l.bars);
-      s.start(t0 + b.startTime);
-      s.stop(t0 + b.startTime + dur);
+
+      if (b.startTime >= seek) {
+        // Block starts after seek — schedule relative to seek
+        s.start(t0 + (b.startTime - seek));
+        s.stop(t0 + (b.startTime - seek) + dur);
+      } else {
+        // Block spans the seek point — start with buffer offset
+        const bufOffset = seek - b.startTime;
+        s.start(t0, bufOffset, dur - bufOffset);
+      }
       srcs.push(s);
     }
     sourcesRef.current = srcs;
@@ -284,19 +300,20 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
 
     const tick = () => {
       if (!ctxRef.current) return;
-      const el = ctxRef.current.currentTime - startRef.current;
-      if (el >= TIMELINE_DURATION) {
+      const elapsed = ctxRef.current.currentTime - startRef.current;
+      const pos = seek + elapsed; // actual position on timeline
+      if (pos >= TIMELINE_DURATION) {
         if (loopRef.current) playRef.current();
         else stopPlay();
         return;
       }
       if (playheadRef.current) {
-        playheadRef.current.style.left = `${(el / TIMELINE_DURATION) * 100}%`;
+        playheadRef.current.style.left = `${(pos / TIMELINE_DURATION) * 100}%`;
       }
       animRef.current = requestAnimationFrame(tick);
     };
     animRef.current = requestAnimationFrame(tick);
-  }, [blocks, session, ensureCtx, stopPlay]);
+  }, [blocks, session, ensureCtx, stopPlay, seekTime]);
 
   useEffect(() => { playRef.current = play; }, [play]);
 
@@ -573,6 +590,17 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     setActiveBlockId(null);
   }, []);
 
+  // Click ruler to set seek position
+  const handleRulerClick = useCallback((e: React.MouseEvent) => {
+    const el = e.currentTarget as HTMLElement;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const pct = x / rect.width;
+    const t = Math.max(0, Math.min(pct * TIMELINE_DURATION, TIMELINE_DURATION));
+    if (playing) stopPlay();
+    setSeekTime(t);
+  }, [playing, stopPlay]);
+
   // ── Loading ──
 
   if (!loaded) {
@@ -611,7 +639,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
 
         <div className="js-tracks" ref={tracksRef}>
           <div className="js-tracks-inner">
-            <div className="js-ruler">
+            <div className="js-ruler" onClick={handleRulerClick}>
               {rulerMarks.map(m => (
                 <div key={m.t} className="js-ruler-mark" style={{ left: `${(m.t / TIMELINE_DURATION) * 100}%` }}>
                   <div className="js-ruler-tick" />
@@ -666,7 +694,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
             <div
               ref={playheadRef}
               className="js-playhead"
-              style={{ display: playing ? 'block' : 'none', left: '0%' }}
+              style={{ left: `${(seekTime / TIMELINE_DURATION) * 100}%`, opacity: playing ? 1 : 0.5 }}
             />
           </div>
         </div>
