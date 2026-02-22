@@ -1504,6 +1504,12 @@ export default function HarlemRenaissance() {
         </span>
       </div>
 
+      <div className="hr-nav hr-nav-right" onClick={() => router.push('/exhibitions/harlem-renaissance/resources')}>
+        <span className="hr-nav-label" style={{ color: '#7D8471' }}>Resources</span>
+        <span className="hr-nav-arrow hr-nav-arrow-right" style={{ color: '#7D8471' }}>&#8594;</span>
+        <span className="hr-nav-text" style={{ color: '#525252' }}>M</span>
+      </div>
+
       {/* ============================================
           MAIN EXHIBITION VIEW
           ============================================ */}

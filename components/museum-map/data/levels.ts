@@ -290,7 +290,7 @@ const HR_FLOOR_PLAN: ExhibitionFloorPlan = {
     },
     {
       id: 'hr-resources', label: 'Resources', path: '/exhibitions/harlem-renaissance/resources',
-      accentColor: COLORS.harlemRenaissance, comingSoon: true, parent: 'harlem-renaissance',
+      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
       x: 220, y: 245, width: 100, height: 115,
       labelX: 270, labelY: 302,
     },

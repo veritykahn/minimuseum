@@ -180,7 +180,6 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     path: '/exhibitions/harlem-renaissance/resources',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#b485d2',
-    comingSoon: true,
     parent: 'harlem-renaissance',
   },
 ];
