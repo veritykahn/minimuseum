@@ -260,6 +260,19 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     setPlaying(false);
   }, []);
 
+  const pausePlay = useCallback(() => {
+    if (!ctxRef.current) { stopPlay(); return; }
+    // Capture current playhead position before stopping
+    const elapsed = ctxRef.current.currentTime - startRef.current;
+    const pos = Math.min(seekTime + elapsed, TIMELINE_DURATION);
+    stopPlay();
+    setSeekTime(pos);
+    // Update playhead visual to paused position
+    if (playheadRef.current) {
+      playheadRef.current.style.left = `${(pos / TIMELINE_DURATION) * 100}%`;
+    }
+  }, [stopPlay, seekTime]);
+
   const play = useCallback(() => {
     if (!blocks.length) return;
     stopPlay();
@@ -372,7 +385,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     setBlocks(prev => prev.filter(b => b.uid !== uid));
   }, []);
 
-  const clearAll = useCallback(() => { stopPlay(); setBlocks([]); setActiveBlockId(null); }, [stopPlay]);
+  const clearAll = useCallback(() => { stopPlay(); setBlocks([]); setActiveBlockId(null); setSeekTime(0); }, [stopPlay]);
 
   // ── Add another copy (tap block → "+") ──
 
@@ -704,7 +717,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
         {!playing ? (
           <button className="jl-btn" onClick={play} disabled={!blocks.length}>{'\u25B6'} Play</button>
         ) : (
-          <button className="jl-btn jl-btn-stop" onClick={stopPlay}>{'\u25A0'} Stop</button>
+          <button className="jl-btn" onClick={pausePlay}>{'\u23F8'} Pause</button>
         )}
         <button className={`jl-btn${looping ? ' active' : ''}`} onClick={() => setLooping(p => !p)}>{'\u27F3'} Loop</button>
         <button className="jl-btn" onClick={clearAll} disabled={!blocks.length}>Clear All</button>
