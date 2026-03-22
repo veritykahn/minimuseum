@@ -101,17 +101,11 @@ const poster1Content: ContentItem[] = [
     special: 'scrolls'
   },
   {
-    type: 'paragraph',
+    type: 'text-image-stacked',
     text: 'Inside were ancient clay jars containing scrolls — the oldest surviving manuscripts of the Hebrew Bible, hidden by the Essenes before the Roman destruction of Jerusalem in 70 AD.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'scrolls'
-  },
-  {
-    type: 'full-image',
     src: '/exhibitions/in-their-hands/poster1-dead-sea-scrolls.jpg',
     alt: 'The Great Isaiah Scroll',
-    effect: 'kenburns-in'
+    special: 'scrolls'
   },
   {
     type: 'paragraph',
@@ -1620,6 +1614,22 @@ export default function InTheirHands() {
                 >
                   {currentItem.text}
                 </p>
+              </div>
+            )}
+
+            {/* Text above image — stacked vertically */}
+            {currentItem.type === 'text-image-stacked' && (
+              <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
+                <p
+                  className="ith-paragraph-text ith-effect-fade-in"
+                  style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
+                >
+                  {currentItem.text}
+                </p>
+                <div className="ith-stacked-image">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={currentItem.src} alt={currentItem.alt} />
+                </div>
               </div>
             )}
 
