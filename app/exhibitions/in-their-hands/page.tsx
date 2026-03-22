@@ -31,22 +31,14 @@ const poster1Content: ContentItem[] = [
     special: 'poster1-title'
   },
   {
-    type: 'paragraph',
-    text: 'In 1927, a Belgian Catholic priest named Georges Lemaître proposed that the universe had begun from a single point of unimaginable density: that space and time themselves had an origin, and that everything had been expanding ever since.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'parchment'
-  },
-  {
     type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster1-lemaitre.jpg',
     alt: 'Georges Lemaître',
     artworkTitle: 'Georges Lemaître',
     artworkArtist: 'Belgian Catholic priest',
     artworkDate: '1894–1966',
-    artworkDescription: 'Father of the Big Bang theory.',
-    special: 'parchment',
-    position: 'right'
+    text: 'In 1927, a Belgian Catholic priest named Georges Lemaître proposed that the universe had begun from a single point of unimaginable density: that space and time themselves had an origin, and that everything had been expanding ever since.',
+    special: 'parchment'
   },
   {
     type: 'paragraph',
@@ -69,15 +61,9 @@ const poster1Content: ContentItem[] = [
     artworkTitle: 'Gregor Mendel',
     artworkArtist: 'Augustinian friar',
     artworkDate: '1822–1884',
-    artworkDescription: 'Founder of genetics.',
-    special: 'parchment'
-  },
-  {
-    type: 'paragraph',
     text: 'Gregor Mendel, the Augustinian friar, founded genetics in a monastery garden. The Dominican scholars of the École Biblique in Jerusalem were among the first to work on the Dead Sea Scrolls.',
-    position: 'top-right',
-    effect: 'fade-in',
-    special: 'parchment'
+    special: 'parchment',
+    position: 'right'
   },
   {
     type: 'image-text-stacked',
@@ -218,17 +204,11 @@ const poster2Content: ContentItem[] = [
     special: 'passion'
   },
   {
-    type: 'paragraph',
+    type: 'text-image-stacked',
     text: 'The account exists in four texts written within living memory of the events. Then archaeologists began to dig.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'passion'
-  },
-  {
-    type: 'full-image',
     src: '/exhibitions/in-their-hands/poster2-image1.jpg',
     alt: 'The Passion',
-    effect: 'kenburns-in'
+    special: 'passion'
   },
   {
     type: 'paragraph',
@@ -245,17 +225,15 @@ const poster2Content: ContentItem[] = [
     special: 'passion'
   },
   {
-    type: 'paragraph',
-    text: 'For decades, some scholars questioned whether Pontius Pilate was a historical figure. Then in 1961, a construction crew at Caesarea Maritima uncovered a limestone block inscribed PONTIVS PILATVS PRAEFECTVS IVDAEAE.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'passion'
-  },
-  {
-    type: 'full-image',
+    type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster2-pilate-coin.jpg',
     alt: 'Pontius Pilate prutah',
-    effect: 'blur-to-sharp'
+    artworkTitle: 'Pontius Pilate Prutah',
+    artworkArtist: 'Prefect of Judaea',
+    artworkDate: '26–36 AD',
+    text: 'For decades, some scholars questioned whether Pontius Pilate was a historical figure. Then in 1961, a construction crew at Caesarea Maritima uncovered a limestone block inscribed PONTIVS PILATVS PRAEFECTVS IVDAEAE.',
+    special: 'passion',
+    position: 'right'
   },
   {
     type: 'paragraph',
@@ -279,17 +257,14 @@ const poster2Content: ContentItem[] = [
     special: 'thirty-pieces'
   },
   {
-    type: 'paragraph',
-    text: 'The currency is not named in Matthew\'s Gospel, but scholars identify it with near-unanimous agreement as Tyrian shekels — minted at the Phoenician city of Tyre from exceptionally pure silver, bearing the image of Melqart, chief deity of Tyre. A pagan coin, by every measure of Jewish religious law.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'full-image',
+    type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster2-tyrian-shekel.jpg',
     alt: 'Tyrian Shekel',
-    effect: 'blur-to-sharp'
+    artworkTitle: 'Tyrian Shekel',
+    artworkArtist: 'Mint of Tyre',
+    artworkDate: '126 BC – 56 AD',
+    text: 'The currency is not named in Matthew\'s Gospel, but scholars identify it with near-unanimous agreement as Tyrian shekels — minted at the Phoenician city of Tyre from exceptionally pure silver, bearing the image of Melqart, chief deity of Tyre. A pagan coin, by every measure of Jewish religious law.',
+    special: 'thirty-pieces'
   },
   {
     type: 'paragraph',
@@ -299,17 +274,11 @@ const poster2Content: ContentItem[] = [
     special: 'thirty-pieces'
   },
   {
-    type: 'paragraph',
+    type: 'text-image-stacked',
     text: 'The Temple authorities had made a pragmatic compromise: the purity of the metal overrode the offensiveness of the image.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'full-image',
     src: '/exhibitions/in-their-hands/poster2-image2.jpg',
     alt: 'The Passion narrative',
-    effect: 'drift'
+    special: 'thirty-pieces'
   },
   {
     type: 'paragraph',
@@ -326,17 +295,11 @@ const poster2Content: ContentItem[] = [
     special: 'thirty-pieces'
   },
   {
-    type: 'paragraph',
+    type: 'text-image-stacked',
     text: 'Sacred money, contaminated by betrayal, went to buy ground for the dead. Matthew saw the irony and in it the fulfilment of ancient prophecy.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'full-image',
     src: '/exhibitions/in-their-hands/poster2-potters-field.jpg',
     alt: 'Judas Returns the Price of Blood — James Tissot',
-    effect: 'blur-to-sharp'
+    special: 'thirty-pieces'
   },
   {
     type: 'section-title',
@@ -353,17 +316,11 @@ const poster2Content: ContentItem[] = [
     special: 'accident'
   },
   {
-    type: 'paragraph',
+    type: 'text-image-stacked',
     text: 'Inside were twelve ossuaries — bone boxes used to collect the remains of the dead. One was ornately carved, inscribed: Yehosef bar Qayafa. Joseph, son of Caiaphas.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'accident'
-  },
-  {
-    type: 'full-image',
     src: '/exhibitions/in-their-hands/poster2-caiaphas-ossuary.png',
     alt: 'The Caiaphas Ossuary',
-    effect: 'blur-to-sharp'
+    special: 'accident'
   },
   {
     type: 'paragraph',
@@ -723,12 +680,10 @@ export default function InTheirHands() {
           content: '';
           position: absolute;
           inset: 0;
-          background: repeating-linear-gradient(
-            0deg,
-            transparent 0px,
-            transparent 28px,
-            rgba(201,168,76,0.06) 28px,
-            rgba(201,168,76,0.06) 29px
+          background: radial-gradient(
+            ellipse at 60% 55%,
+            rgba(201,168,76,0.04) 0%,
+            transparent 50%
           );
           pointer-events: none;
           z-index: 0;
@@ -778,27 +733,26 @@ export default function InTheirHands() {
         .ith-scrolls::before {
           content: '';
           position: absolute;
-          inset: 0;
-          background: repeating-linear-gradient(
-            90deg,
-            transparent 0px,
-            transparent 180px,
-            rgba(168,196,160,0.08) 180px,
-            rgba(168,196,160,0.08) 182px
-          );
+          inset: -10%;
+          background:
+            radial-gradient(ellipse at 40% 50%, rgba(168,196,160,0.08) 0%, transparent 55%),
+            radial-gradient(ellipse at 65% 60%, rgba(168,196,160,0.05) 0%, transparent 40%);
+          animation: ithScrollPulse 7s ease-in-out infinite;
           pointer-events: none;
           z-index: 0;
+        }
+        @keyframes ithScrollPulse {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
         }
         .ith-scrolls::after {
           content: '';
           position: absolute;
           inset: 0;
-          background: repeating-linear-gradient(
-            0deg,
-            transparent 0px,
-            transparent 22px,
-            rgba(168,196,160,0.05) 22px,
-            rgba(168,196,160,0.05) 23px
+          background: radial-gradient(
+            ellipse at 50% 50%,
+            rgba(168,196,160,0.03) 0%,
+            transparent 60%
           );
           pointer-events: none;
           z-index: 0;
@@ -1464,13 +1418,14 @@ export default function InTheirHands() {
         }
         .ith-artwork-image-side {
           flex: 0 1 auto;
-          max-width: 35%;
+          max-width: 30%;
           display: flex;
+          flex-direction: column;
           align-items: center;
-          justify-content: center;
+          gap: 12px;
         }
         .ith-artwork-image-side img {
-          max-height: 50vh;
+          max-height: 45vh;
           width: auto;
           max-width: 100%;
           object-fit: contain;
@@ -1481,34 +1436,34 @@ export default function InTheirHands() {
           from { opacity: 0; transform: scale(0.95); }
           to { opacity: 1; transform: scale(1); }
         }
-        .ith-artwork-info-side {
+        .ith-artwork-caption {
+          text-align: center;
+          animation: ithFadeIn 1s ease forwards 0.6s;
+          opacity: 0;
+        }
+        .ith-artwork-caption-title {
+          display: block;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 15px;
+          font-style: italic;
+          font-weight: 400;
+          margin-bottom: 2px;
+        }
+        .ith-artwork-caption-meta {
+          display: block;
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          opacity: 0.6;
+        }
+        .ith-artwork-text-side {
           flex: 1;
-          max-width: 400px;
+          max-width: 500px;
           position: relative;
           z-index: 10;
           animation: ithFadeIn 1s ease forwards 0.4s;
           opacity: 0;
-        }
-        .ith-artwork-info-side h3 {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.8rem, 4vw, 2.5rem);
-          font-weight: 300;
-          font-style: italic;
-          margin-bottom: 8px;
-        }
-        .ith-artwork-info-side .ith-artwork-meta {
-          font-family: 'Outfit', sans-serif;
-          font-size: 12px;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          margin-bottom: 24px;
-          opacity: 0.7;
-        }
-        .ith-artwork-info-side .ith-artwork-desc {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.1rem, 2.5vw, 1.4rem);
-          line-height: 1.8;
-          opacity: 0.9;
         }
 
         /* ============================================
@@ -1653,7 +1608,7 @@ export default function InTheirHands() {
         <div className={`ith-poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey}>
 
           {/* Poster 1 persistent background — Tissot Jerusalem watercolour */}
-          {isPoster1 && currentItem.type !== 'full-image' && (
+          {isPoster1 && (currentItem.type !== 'full-image' || currentItem.special === 'frost') && (
             <>
               <div className="ith-poster1-bg" />
               {currentItem.special !== 'poster1-title' && <div className="ith-poster1-overlay" />}
@@ -1800,20 +1755,20 @@ export default function InTheirHands() {
               </div>
             )}
 
-            {/* Artwork Display — Full image with info alongside */}
+            {/* Artwork Display — Image with caption on one side, paragraph text on other */}
             {currentItem.type === 'artwork-display' && (
               <div className={`ith-artwork-display ${currentItem.position === 'right' ? 'ith-artwork-reversed' : ''} ${getSpecialClass(currentItem.special)}`}>
                 <div className="ith-artwork-image-side">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={currentItem.src} alt={currentItem.alt} />
+                  <div className="ith-artwork-caption" style={{ color: textColor }}>
+                    <span className="ith-artwork-caption-title">{currentItem.artworkTitle}</span>
+                    <span className="ith-artwork-caption-meta">{currentItem.artworkArtist}, {currentItem.artworkDate}</span>
+                  </div>
                 </div>
-                <div className="ith-artwork-info-side" style={{ color: textColor }}>
-                  <h3>{currentItem.artworkTitle}</h3>
-                  <p className="ith-artwork-meta">
-                    {currentItem.artworkArtist}, {currentItem.artworkDate}
-                  </p>
-                  <p className="ith-artwork-desc">
-                    {currentItem.artworkDescription}
+                <div className="ith-artwork-text-side" style={{ color: getSectionColors(currentItem.special).text }}>
+                  <p className="ith-paragraph-text ith-effect-fade-in">
+                    {currentItem.text}
                   </p>
                 </div>
               </div>
