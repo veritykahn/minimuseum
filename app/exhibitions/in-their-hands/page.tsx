@@ -73,17 +73,10 @@ const poster1Content: ContentItem[] = [
     special: 'parchment'
   },
   {
-    type: 'full-image',
+    type: 'image-text-stacked',
     src: '/exhibitions/in-their-hands/poster1-vatican-observatory.jpg',
     alt: 'Vatican Observatory',
-    effect: 'drift',
-    special: 'observatory'
-  },
-  {
-    type: 'paragraph',
     text: 'The Vatican Observatory, still operating today, is one of the oldest astronomical research institutions in the world.',
-    position: 'center',
-    effect: 'blur-to-sharp',
     special: 'observatory'
   },
   {
@@ -783,7 +776,7 @@ export default function InTheirHands() {
           z-index: 0;
         }
         .ith-scrolls .ith-paragraph-text {
-          animation: ithInkSpread 1.4s ease forwards;
+          text-shadow: 0 0 20px rgba(168,196,160,0.1);
         }
 
         /* ============================================
@@ -1320,6 +1313,36 @@ export default function InTheirHands() {
         }
 
         /* ============================================
+           IMAGE-TEXT STACKED — Image above, text below
+           ============================================ */
+        .ith-image-text-stacked {
+          min-height: 100vh;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 80px 40px;
+          gap: 40px;
+          position: relative;
+          z-index: 2;
+        }
+        .ith-stacked-image {
+          max-width: 60%;
+          display: flex;
+          justify-content: center;
+        }
+        .ith-stacked-image img {
+          max-width: 100%;
+          max-height: 50vh;
+          width: auto;
+          height: auto;
+          object-fit: contain;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+          animation: ithFadeIn 1s ease forwards;
+        }
+
+        /* ============================================
            ARTWORK DISPLAY — Full image + info alongside
            ============================================ */
         .ith-artwork-display {
@@ -1578,6 +1601,22 @@ export default function InTheirHands() {
                 <p
                   className={`ith-paragraph-text ${getEffectClass(currentItem.effect)}`}
                   style={{ color: getSectionColors(currentItem.special).text }}
+                >
+                  {currentItem.text}
+                </p>
+              </div>
+            )}
+
+            {/* Image above text — stacked vertically */}
+            {currentItem.type === 'image-text-stacked' && (
+              <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
+                <div className="ith-stacked-image">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={currentItem.src} alt={currentItem.alt} />
+                </div>
+                <p
+                  className="ith-paragraph-text ith-effect-fade-in"
+                  style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
                 >
                   {currentItem.text}
                 </p>
