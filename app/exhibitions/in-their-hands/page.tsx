@@ -1118,6 +1118,17 @@ export default function InTheirHands() {
         .ith-display-case:hover {
           border-color: rgba(201,168,76,0.3);
         }
+        .ith-display-case:hover .ith-case-image {
+          transform: scale(1.02);
+        }
+        .ith-case-image {
+          width: 100%;
+          max-width: 280px;
+          height: auto;
+          object-fit: contain;
+          margin-bottom: 20px;
+          transition: transform 0.4s ease;
+        }
         .ith-case-label {
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
@@ -1137,44 +1148,6 @@ export default function InTheirHands() {
           font-size: 14px;
           font-style: italic;
           color: ${gold};
-        }
-
-        /* ============================================
-           INTERACTIVE ENTRY CARDS
-           ============================================ */
-        .ith-entry-cards {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 32px;
-          max-width: 1200px;
-          width: 100%;
-        }
-        .ith-entry-card {
-          background: #0a0a0a;
-          border: 1px solid rgba(255,255,255,0.08);
-          padding: 32px 28px;
-          cursor: pointer;
-          transition: all 0.4s ease;
-          text-align: left;
-        }
-        .ith-entry-card:hover {
-          transform: translateY(-6px);
-          border-color: rgba(201,168,76,0.4);
-          box-shadow: 0 12px 40px rgba(0,0,0,0.4);
-        }
-        .ith-entry-card-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 22px;
-          font-weight: 400;
-          color: #F0EDD8;
-          margin-bottom: 8px;
-        }
-        .ith-entry-card-subtitle {
-          font-family: 'Outfit', sans-serif;
-          font-size: 12px;
-          font-style: italic;
-          color: #737373;
-          letter-spacing: 0.05em;
         }
 
         /* ============================================
@@ -1526,20 +1499,6 @@ export default function InTheirHands() {
             </div>
           </div>
 
-          <div className="ith-entry-cards">
-            <div className="ith-entry-card" onClick={() => router.push('/exhibitions/in-their-hands/timeline')}>
-              <p className="ith-entry-card-title">The Gospel Timeline</p>
-              <p className="ith-entry-card-subtitle">Follow the coins through the New Testament</p>
-            </div>
-            <div className="ith-entry-card" onClick={() => router.push('/exhibitions/in-their-hands/hands')}>
-              <p className="ith-entry-card-title">Hands of History</p>
-              <p className="ith-entry-card-subtitle">Who held these coins — and when?</p>
-            </div>
-            <div className="ith-entry-card" onClick={() => router.push('/exhibitions/in-their-hands/real-or-replica')}>
-              <p className="ith-entry-card-title">Real or Replica?</p>
-              <p className="ith-entry-card-subtitle">Learn to authenticate ancient coins</p>
-            </div>
-          </div>
         </div>
       )}
 
