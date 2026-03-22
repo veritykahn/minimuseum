@@ -94,6 +94,13 @@ const poster1Content: ContentItem[] = [
     special: 'parchment'
   },
   {
+    type: 'full-image',
+    src: '/exhibitions/in-their-hands/poster1-image.jpg',
+    alt: 'Jerusalem — James Tissot',
+    effect: 'none',
+    special: 'frost'
+  },
+  {
     type: 'section-title',
     text: 'The Dead Sea Scrolls',
     position: 'full-width',
@@ -141,12 +148,6 @@ const poster1Content: ContentItem[] = [
     position: 'bottom-right',
     effect: 'fade-in',
     special: 'scrolls'
-  },
-  {
-    type: 'full-image',
-    src: '/exhibitions/in-their-hands/poster1-pilate-stone.jpg',
-    alt: 'The Pilate Stone',
-    effect: 'blur-to-sharp'
   },
   {
     type: 'section-title',
@@ -1216,6 +1217,27 @@ export default function InTheirHands() {
           white-space: nowrap;
         }
 
+        /* Frost image — full height with frosted glass backdrop */
+        .ith-frost-image {
+          z-index: 2;
+        }
+        .ith-frost-image img {
+          width: auto;
+          height: 100%;
+          max-height: 100vh;
+          object-fit: contain;
+          position: relative;
+          z-index: 2;
+        }
+        .ith-frost-backdrop {
+          position: absolute;
+          inset: 0;
+          background: rgba(20, 14, 6, 0.3);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          z-index: 1;
+        }
+
         /* Text content wrapper */
         .ith-text-content-wrapper {
           min-height: 100vh;
@@ -1573,8 +1595,17 @@ export default function InTheirHands() {
               </div>
             )}
 
+            {/* Full Image — frost variant (full-height, frosted backdrop) */}
+            {currentItem.type === 'full-image' && currentItem.special === 'frost' && (
+              <div className="ith-full-bleed-image ith-frost-image">
+                <div className="ith-frost-backdrop" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={currentItem.src} alt={currentItem.alt} />
+              </div>
+            )}
+
             {/* Full Image (photograph etc) */}
-            {currentItem.type === 'full-image' && (
+            {currentItem.type === 'full-image' && currentItem.special !== 'frost' && (
               <div className={`ith-full-bleed-image ith-full-image ${currentItem.effect === 'kenburns-in' ? 'ith-effect-kenburns-in' : currentItem.effect === 'drift' ? 'ith-effect-drift' : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} />
