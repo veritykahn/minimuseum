@@ -42,6 +42,17 @@ export default function FirstFloor() {
       path: '/exhibitions/harlem-renaissance'
     },
     {
+      id: 'in-their-hands',
+      title: 'In Their Hands',
+      subtitle: 'New Testament Coins of the Passion',
+      accent: '#C9A84C',
+      darkAccent: '#1C1409',
+      textColor: '#F5EDD8',
+      description: 'Coins minted by the rulers of the New Testament — held by real people, in a real world.',
+      active: true,
+      path: '/exhibitions/in-their-hands'
+    },
+    {
       id: 'fear',
       title: 'Fear Lab',
       subtitle: 'Page Turners & Spine Tinglers',

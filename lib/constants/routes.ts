@@ -21,6 +21,9 @@ export const ROUTES = {
   ARTIFACTS: '/exhibitions/seeing-is-deceiving/artifacts',
   RESOURCES: '/exhibitions/seeing-is-deceiving/resources',
 
+  // In Their Hands exhibition
+  IN_THEIR_HANDS: '/exhibitions/in-their-hands',
+
   // Artifact sub-pages
   STEREOSCOPE: '/exhibitions/seeing-is-deceiving/artifacts/stereoscope',
   STEREOSCOPE_CARDS: '/exhibitions/seeing-is-deceiving/artifacts/stereoscope-cards',
