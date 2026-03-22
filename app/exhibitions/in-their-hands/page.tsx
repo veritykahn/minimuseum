@@ -44,7 +44,7 @@ const poster1Content: ContentItem[] = [
     artworkTitle: 'Georges Lemaître',
     artworkArtist: 'Belgian Catholic priest',
     artworkDate: '1894–1966',
-    artworkDescription: 'Father of the Big Bang theory. He proposed that the universe began from a single primordial atom — two years before Hubble\'s observations confirmed it.',
+    artworkDescription: 'Father of the Big Bang theory.',
     special: 'parchment',
     position: 'right'
   },
@@ -69,7 +69,14 @@ const poster1Content: ContentItem[] = [
     artworkTitle: 'Gregor Mendel',
     artworkArtist: 'Augustinian friar',
     artworkDate: '1822–1884',
-    artworkDescription: 'Founded genetics in a monastery garden. The Dominican scholars of the École Biblique in Jerusalem were among the first to work on the Dead Sea Scrolls.',
+    artworkDescription: 'Founder of genetics.',
+    special: 'parchment'
+  },
+  {
+    type: 'paragraph',
+    text: 'Gregor Mendel, the Augustinian friar, founded genetics in a monastery garden. The Dominican scholars of the École Biblique in Jerusalem were among the first to work on the Dead Sea Scrolls.',
+    position: 'top-right',
+    effect: 'fade-in',
     special: 'parchment'
   },
   {
@@ -1322,13 +1329,13 @@ export default function InTheirHands() {
           z-index: 2;
         }
         .ith-stacked-image {
-          max-width: 60%;
+          max-width: 45%;
           display: flex;
           justify-content: center;
         }
         .ith-stacked-image img {
           max-width: 100%;
-          max-height: 50vh;
+          max-height: 40vh;
           width: auto;
           height: auto;
           object-fit: contain;
@@ -1353,18 +1360,18 @@ export default function InTheirHands() {
           flex-direction: row-reverse;
         }
         .ith-artwork-image-side {
-          flex: 1;
-          max-width: 50%;
+          flex: 0 1 auto;
+          max-width: 35%;
           display: flex;
           align-items: center;
           justify-content: center;
         }
         .ith-artwork-image-side img {
-          max-height: 80vh;
+          max-height: 50vh;
           width: auto;
           max-width: 100%;
           object-fit: contain;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+          box-shadow: 0 16px 48px rgba(0,0,0,0.4);
           animation: ithArtworkReveal 1.2s ease forwards;
         }
         @keyframes ithArtworkReveal {
