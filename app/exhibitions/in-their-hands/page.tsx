@@ -711,9 +711,10 @@ export default function InTheirHands() {
         .ith-parchment::before {
           content: '';
           position: absolute;
-          inset: 0;
+          inset: -10%;
           background:
-            radial-gradient(ellipse at 50% 50%, rgba(201,168,76,0.06) 0%, transparent 70%);
+            radial-gradient(ellipse at 40% 45%, rgba(201,168,76,0.12) 0%, transparent 60%),
+            radial-gradient(ellipse at 70% 65%, rgba(201,168,76,0.08) 0%, transparent 50%);
           animation: ithParchmentPulse 6s ease-in-out infinite;
           pointer-events: none;
           z-index: 0;
@@ -726,19 +727,44 @@ export default function InTheirHands() {
             0deg,
             transparent 0px,
             transparent 28px,
-            rgba(201,168,76,0.03) 28px,
-            rgba(201,168,76,0.03) 29px
+            rgba(201,168,76,0.06) 28px,
+            rgba(201,168,76,0.06) 29px
           );
           pointer-events: none;
           z-index: 0;
         }
         @keyframes ithParchmentPulse {
-          0%, 100% { opacity: 0.7; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.04); }
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.06); }
         }
         .ith-parchment .ith-paragraph-text,
         .ith-parchment .ith-section-title-text {
-          text-shadow: 0 0 30px rgba(201,168,76,0.15);
+          text-shadow: 0 0 40px rgba(201,168,76,0.2);
+        }
+
+        /* Parchment decorative corner flourishes */
+        .ith-deco-flourish {
+          position: fixed;
+          pointer-events: none;
+          z-index: 1;
+          border: 1px solid rgba(201,168,76,0.1);
+          opacity: 0;
+          animation: ithFlourishFade 5s ease-in-out infinite;
+        }
+        .ith-deco-flourish-1 {
+          width: 120px; height: 120px;
+          top: 12%; right: 8%;
+          border-radius: 0 50% 0 50%;
+        }
+        .ith-deco-flourish-2 {
+          width: 80px; height: 80px;
+          bottom: 18%; left: 10%;
+          border-radius: 50% 0 50% 0;
+          animation-delay: -2s;
+        }
+        @keyframes ithFlourishFade {
+          0%, 100% { opacity: 0; }
+          30%, 70% { opacity: 0.5; }
         }
 
         /* ============================================
@@ -757,8 +783,8 @@ export default function InTheirHands() {
             90deg,
             transparent 0px,
             transparent 180px,
-            rgba(168,196,160,0.04) 180px,
-            rgba(168,196,160,0.04) 181px
+            rgba(168,196,160,0.08) 180px,
+            rgba(168,196,160,0.08) 182px
           );
           pointer-events: none;
           z-index: 0;
@@ -771,14 +797,41 @@ export default function InTheirHands() {
             0deg,
             transparent 0px,
             transparent 22px,
-            rgba(168,196,160,0.025) 22px,
-            rgba(168,196,160,0.025) 23px
+            rgba(168,196,160,0.05) 22px,
+            rgba(168,196,160,0.05) 23px
           );
           pointer-events: none;
           z-index: 0;
         }
-        .ith-scrolls .ith-paragraph-text {
-          text-shadow: 0 0 20px rgba(168,196,160,0.1);
+        .ith-scrolls .ith-paragraph-text,
+        .ith-scrolls .ith-section-title-text {
+          text-shadow: 0 0 25px rgba(168,196,160,0.15);
+        }
+
+        /* Scroll decorative ruled lines */
+        .ith-deco-scroll-line {
+          position: fixed;
+          height: 1px;
+          pointer-events: none;
+          z-index: 1;
+          background: linear-gradient(90deg, transparent, rgba(168,196,160,0.12), transparent);
+        }
+        .ith-deco-scroll-line-1 {
+          width: 40%;
+          top: 25%;
+          left: 5%;
+          animation: ithScrollLineFade 4s ease-in-out infinite;
+        }
+        .ith-deco-scroll-line-2 {
+          width: 35%;
+          top: 75%;
+          right: 5%;
+          animation: ithScrollLineFade 5s ease-in-out infinite;
+          animation-delay: -1.5s;
+        }
+        @keyframes ithScrollLineFade {
+          0%, 100% { opacity: 0; }
+          40%, 60% { opacity: 1; }
         }
 
         /* ============================================
@@ -843,7 +896,28 @@ export default function InTheirHands() {
         }
         .ith-observatory .ith-paragraph-text,
         .ith-observatory .ith-section-title-text {
-          text-shadow: 0 0 20px rgba(160,184,208,0.15);
+          text-shadow: 0 0 30px rgba(160,184,208,0.25);
+        }
+
+        /* Observatory decorative star clusters */
+        .ith-deco-star {
+          position: fixed;
+          width: 3px;
+          height: 3px;
+          border-radius: 50%;
+          background: rgba(200,210,240,0.5);
+          pointer-events: none;
+          z-index: 1;
+          animation: ithStarTwinkle 3s ease-in-out infinite;
+        }
+        .ith-deco-star-1 { top: 10%; left: 15%; animation-delay: 0s; }
+        .ith-deco-star-2 { top: 25%; right: 12%; animation-delay: -1s; width: 2px; height: 2px; }
+        .ith-deco-star-3 { top: 65%; left: 8%; animation-delay: -2s; }
+        .ith-deco-star-4 { top: 80%; right: 20%; animation-delay: -0.5s; width: 2px; height: 2px; }
+        .ith-deco-star-5 { top: 45%; right: 6%; animation-delay: -1.5s; }
+        @keyframes ithStarTwinkle {
+          0%, 100% { opacity: 0.2; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.5); }
         }
 
         /* ============================================
@@ -858,18 +932,20 @@ export default function InTheirHands() {
           content: '';
           position: absolute;
           inset: -10%;
-          background: radial-gradient(
-            ellipse at 50% 50%,
-            rgba(120,20,20,0.08) 0%,
-            transparent 60%
-          );
+          background:
+            radial-gradient(ellipse at 50% 50%, rgba(120,20,20,0.12) 0%, transparent 55%),
+            radial-gradient(ellipse at 30% 70%, rgba(80,10,10,0.06) 0%, transparent 40%);
           animation: ithPassionPulse 8s ease-in-out infinite;
           pointer-events: none;
           z-index: 0;
         }
         @keyframes ithPassionPulse {
-          0%, 100% { opacity: 0.5; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.06); }
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.08); }
+        }
+        .ith-passion .ith-paragraph-text,
+        .ith-passion .ith-section-title-text {
+          text-shadow: 0 0 35px rgba(120,20,20,0.2);
         }
 
         /* ============================================
@@ -884,11 +960,10 @@ export default function InTheirHands() {
           content: '';
           position: absolute;
           inset: 0;
-          background: radial-gradient(
-            ellipse at 50% 50%,
-            rgba(192,192,200,0.04) 0%,
-            transparent 70%
-          );
+          background:
+            radial-gradient(ellipse at 50% 50%, rgba(192,192,200,0.08) 0%, transparent 60%),
+            radial-gradient(ellipse at 25% 35%, rgba(200,200,210,0.05) 0%, transparent 40%),
+            radial-gradient(ellipse at 75% 65%, rgba(200,200,210,0.05) 0%, transparent 40%);
           pointer-events: none;
           z-index: 0;
         }
@@ -902,14 +977,18 @@ export default function InTheirHands() {
           background: linear-gradient(
             120deg,
             transparent 0%,
-            rgba(200,200,210,0.04) 45%,
-            rgba(220,220,225,0.06) 50%,
-            rgba(200,200,210,0.04) 55%,
+            rgba(200,200,210,0.06) 45%,
+            rgba(220,220,225,0.1) 50%,
+            rgba(200,200,210,0.06) 55%,
             transparent 100%
           );
           animation: ithSilverSweep 12s ease-in-out infinite;
           pointer-events: none;
           z-index: 0;
+        }
+        .ith-thirty-pieces .ith-paragraph-text,
+        .ith-thirty-pieces .ith-section-title-text {
+          text-shadow: 0 0 30px rgba(200,200,210,0.15);
         }
         @keyframes ithSilverSweep {
           0% { transform: translate(-30%, -10%) rotate(30deg); }
@@ -928,14 +1007,16 @@ export default function InTheirHands() {
           content: '';
           position: absolute;
           inset: -10%;
-          background: radial-gradient(
-            ellipse at 45% 55%,
-            rgba(180,140,60,0.06) 0%,
-            transparent 50%
-          );
+          background:
+            radial-gradient(ellipse at 45% 55%, rgba(180,140,60,0.1) 0%, transparent 45%),
+            radial-gradient(ellipse at 60% 40%, rgba(160,120,40,0.06) 0%, transparent 35%);
           animation: ithTorchFlicker 3s ease-in-out infinite;
           pointer-events: none;
           z-index: 0;
+        }
+        .ith-accident .ith-paragraph-text,
+        .ith-accident .ith-section-title-text {
+          text-shadow: 0 0 25px rgba(180,140,60,0.15);
         }
         @keyframes ithTorchFlicker {
           0%, 100% { opacity: 0.4; }
@@ -1618,6 +1699,30 @@ export default function InTheirHands() {
             {/* Section Title */}
             {currentItem.type === 'section-title' && (
               <div className={`ith-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
+                {/* Parchment decorative flourishes */}
+                {(currentItem.special === 'parchment' || currentItem.special === 'authentication') && (
+                  <>
+                    <div className="ith-deco-flourish ith-deco-flourish-1" />
+                    <div className="ith-deco-flourish ith-deco-flourish-2" />
+                  </>
+                )}
+                {/* Scrolls decorative ruled lines */}
+                {currentItem.special === 'scrolls' && (
+                  <>
+                    <div className="ith-deco-scroll-line ith-deco-scroll-line-1" />
+                    <div className="ith-deco-scroll-line ith-deco-scroll-line-2" />
+                  </>
+                )}
+                {/* Observatory decorative stars */}
+                {currentItem.special === 'observatory' && (
+                  <>
+                    <div className="ith-deco-star ith-deco-star-1" />
+                    <div className="ith-deco-star ith-deco-star-2" />
+                    <div className="ith-deco-star ith-deco-star-3" />
+                    <div className="ith-deco-star ith-deco-star-4" />
+                    <div className="ith-deco-star ith-deco-star-5" />
+                  </>
+                )}
                 <h2
                   className={`ith-section-title-text ${getEffectClass(currentItem.effect)}`}
                   style={{ color: getSectionColors(currentItem.special).title }}
@@ -1630,6 +1735,30 @@ export default function InTheirHands() {
             {/* Paragraph */}
             {currentItem.type === 'paragraph' && currentItem.text && (
               <div className={`ith-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
+                {/* Parchment decorative flourishes */}
+                {(currentItem.special === 'parchment' || currentItem.special === 'authentication') && (
+                  <>
+                    <div className="ith-deco-flourish ith-deco-flourish-1" />
+                    <div className="ith-deco-flourish ith-deco-flourish-2" />
+                  </>
+                )}
+                {/* Scrolls decorative ruled lines */}
+                {currentItem.special === 'scrolls' && (
+                  <>
+                    <div className="ith-deco-scroll-line ith-deco-scroll-line-1" />
+                    <div className="ith-deco-scroll-line ith-deco-scroll-line-2" />
+                  </>
+                )}
+                {/* Observatory decorative stars */}
+                {currentItem.special === 'observatory' && (
+                  <>
+                    <div className="ith-deco-star ith-deco-star-1" />
+                    <div className="ith-deco-star ith-deco-star-2" />
+                    <div className="ith-deco-star ith-deco-star-3" />
+                    <div className="ith-deco-star ith-deco-star-4" />
+                    <div className="ith-deco-star ith-deco-star-5" />
+                  </>
+                )}
                 <p
                   className={`ith-paragraph-text ${getEffectClass(currentItem.effect)}`}
                   style={{ color: getSectionColors(currentItem.special).text }}
