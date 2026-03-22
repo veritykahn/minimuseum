@@ -25,16 +25,10 @@ type ContentItem = {
 const poster1Content: ContentItem[] = [
   {
     type: 'title-image',
-    src: '/exhibitions/in-their-hands/poster1-title-card.jpg',
+    src: '/exhibitions/in-their-hands/poster1-title-card.png',
     alt: 'Faith and Reason',
-    effect: 'kenburns-in'
-  },
-  {
-    type: 'section-title',
-    text: 'Faith and Reason',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'parchment'
+    effect: 'breathe',
+    special: 'poster1-title'
   },
   {
     type: 'paragraph',
@@ -44,10 +38,15 @@ const poster1Content: ContentItem[] = [
     special: 'parchment'
   },
   {
-    type: 'full-image',
+    type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster1-lemaitre.jpg',
     alt: 'Georges Lemaître',
-    effect: 'blur-to-sharp'
+    artworkTitle: 'Georges Lemaître',
+    artworkArtist: 'Belgian Catholic priest',
+    artworkDate: '1894–1966',
+    artworkDescription: 'Father of the Big Bang theory. He proposed that the universe began from a single primordial atom — two years before Hubble\'s observations confirmed it.',
+    special: 'parchment',
+    position: 'right'
   },
   {
     type: 'paragraph',
@@ -64,16 +63,13 @@ const poster1Content: ContentItem[] = [
     special: 'parchment'
   },
   {
-    type: 'full-image',
+    type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster1-mendel.jpg',
     alt: 'Gregor Mendel',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'paragraph',
-    text: 'Gregor Mendel, the Augustinian friar, founded genetics in a monastery garden. The Dominican scholars of the École Biblique in Jerusalem were among the first to work on the Dead Sea Scrolls.',
-    position: 'top-right',
-    effect: 'fade-in',
+    artworkTitle: 'Gregor Mendel',
+    artworkArtist: 'Augustinian friar',
+    artworkDate: '1822–1884',
+    artworkDescription: 'Founded genetics in a monastery garden. The Dominican scholars of the École Biblique in Jerusalem were among the first to work on the Dead Sea Scrolls.',
     special: 'parchment'
   },
   {
@@ -1186,6 +1182,24 @@ export default function InTheirHands() {
           min-width: 100%;
           object-fit: cover;
         }
+        /* Centered PNG title card — no background, transparent */
+        .ith-full-bleed-image.ith-title-centered {
+          z-index: 2;
+        }
+        .ith-full-bleed-image.ith-title-centered img {
+          max-width: 60%;
+          max-height: 70vh;
+          width: auto;
+          height: auto;
+          object-fit: contain;
+        }
+        @keyframes ithBreathe {
+          0%, 100% { transform: scale(1); opacity: 0.95; }
+          50% { transform: scale(1.03); opacity: 1; }
+        }
+        .ith-effect-breathe {
+          animation: ithBreathe 5s ease-in-out infinite;
+        }
         /* Full image (photographs etc) */
         .ith-full-bleed-image.ith-full-image img {
           max-width: 90%;
@@ -1317,6 +1331,9 @@ export default function InTheirHands() {
           padding: 80px 40px;
           gap: 60px;
           position: relative;
+        }
+        .ith-artwork-reversed {
+          flex-direction: row-reverse;
         }
         .ith-artwork-image-side {
           flex: 1;
@@ -1509,17 +1526,23 @@ export default function InTheirHands() {
         <div className={`ith-poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey}>
 
           {/* Poster 1 persistent background — Tissot Jerusalem watercolour */}
-          {isPoster1 && currentItem.type !== 'title-image' && currentItem.type !== 'full-image' && (
+          {isPoster1 && currentItem.type !== 'full-image' && (
             <>
               <div className="ith-poster1-bg" />
-              <div className="ith-poster1-overlay" />
+              {currentItem.special !== 'poster1-title' && <div className="ith-poster1-overlay" />}
             </>
           )}
 
           <div className="ith-walkthrough-content">
 
-            {/* Title Image — Full Bleed */}
-            {currentItem.type === 'title-image' && (
+            {/* Title Image — Full Bleed or Centered PNG */}
+            {currentItem.type === 'title-image' && currentItem.special === 'poster1-title' && (
+              <div className="ith-full-bleed-image ith-title-centered">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={currentItem.src} alt={currentItem.alt} className="ith-effect-breathe" />
+              </div>
+            )}
+            {currentItem.type === 'title-image' && currentItem.special !== 'poster1-title' && (
               <div className={`ith-full-bleed-image ith-title-width ${currentItem.effect ? `ith-effect-${currentItem.effect}` : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} />
@@ -1563,7 +1586,7 @@ export default function InTheirHands() {
 
             {/* Artwork Display — Full image with info alongside */}
             {currentItem.type === 'artwork-display' && (
-              <div className={`ith-artwork-display ${getSpecialClass(currentItem.special)}`}>
+              <div className={`ith-artwork-display ${currentItem.position === 'right' ? 'ith-artwork-reversed' : ''} ${getSpecialClass(currentItem.special)}`}>
                 <div className="ith-artwork-image-side">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={currentItem.src} alt={currentItem.alt} />
