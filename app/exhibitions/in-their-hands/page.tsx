@@ -103,7 +103,7 @@ const poster1Content: ContentItem[] = [
   {
     type: 'text-image-stacked',
     text: 'Inside were ancient clay jars containing scrolls — the oldest surviving manuscripts of the Hebrew Bible, hidden by the Essenes before the Roman destruction of Jerusalem in 70 AD.',
-    src: '/exhibitions/in-their-hands/poster1-dead-sea-scrolls.png',
+    src: '/exhibitions/in-their-hands/poster1-dead-sea-scrolls.jpg',
     alt: 'The Great Isaiah Scroll',
     special: 'scrolls'
   },
