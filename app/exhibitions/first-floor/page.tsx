@@ -49,8 +49,7 @@ export default function FirstFloor() {
       darkAccent: '#1C1409',
       textColor: '#F5EDD8',
       description: 'Coins minted by the rulers of the New Testament — held by real people, in a real world.',
-      active: true,
-      path: '/exhibitions/in-their-hands'
+      active: false
     },
     {
       id: 'fear',
