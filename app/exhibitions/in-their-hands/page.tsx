@@ -468,10 +468,10 @@ export default function InTheirHands() {
 
   // Per-section background colors
   const getBgColor = () => {
-    if (!currentItem) return isPoster1 ? '#2C2416' : '#1A0A0A';
+    if (!currentItem) return isPoster1 ? '#2C2416' : '#130b08';
 
     if (currentItem.type === 'title-image') {
-      return isPoster1 ? '#2C2416' : '#1A0A0A';
+      return isPoster1 ? '#2C2416' : '#130b08';
     }
 
     if (isPoster1) {
@@ -483,12 +483,7 @@ export default function InTheirHands() {
         default:                return '#2C2416';
       }
     } else {
-      switch (currentItem.special) {
-        case 'passion':         return '#0F0A04';
-        case 'thirty-pieces':   return '#1A0A0A';
-        case 'accident':        return '#0A0F0A';
-        default:                return '#1A0A0A';
-      }
+      return '#130b08';
     }
   };
 
