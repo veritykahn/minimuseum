@@ -187,7 +187,7 @@ const poster2Content: ContentItem[] = [
     type: 'title-image',
     src: '/exhibitions/in-their-hands/poster2-title-card.jpg',
     alt: 'The Weight of Thirty Pieces',
-    effect: 'drift'
+    effect: 'shrink-back'
   },
   {
     type: 'section-title',
@@ -468,10 +468,10 @@ export default function InTheirHands() {
 
   // Per-section background colors
   const getBgColor = () => {
-    if (!currentItem) return isPoster1 ? '#2C2416' : '#130b08';
+    if (!currentItem) return isPoster1 ? '#2C2416' : '#110b08';
 
     if (currentItem.type === 'title-image') {
-      return isPoster1 ? '#2C2416' : '#130b08';
+      return isPoster1 ? '#2C2416' : '#110b08';
     }
 
     if (isPoster1) {
@@ -483,7 +483,7 @@ export default function InTheirHands() {
         default:                return '#2C2416';
       }
     } else {
-      return '#130b08';
+      return '#110b08';
     }
   };
 
@@ -650,6 +650,14 @@ export default function InTheirHands() {
         }
         .ith-effect-drift {
           animation: ithDrift 6s ease-in-out infinite;
+        }
+
+        @keyframes ithShrinkBack {
+          from { transform: scale(1.15); }
+          to { transform: scale(0.92); }
+        }
+        .ith-effect-shrink-back {
+          animation: ithShrinkBack 8s ease-out forwards;
         }
 
         /* ============================================
