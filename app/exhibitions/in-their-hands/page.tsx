@@ -190,13 +190,6 @@ const poster2Content: ContentItem[] = [
     effect: 'shrink-back'
   },
   {
-    type: 'section-title',
-    text: 'The Weight of Thirty Pieces',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'passion'
-  },
-  {
     type: 'paragraph',
     text: 'In the spring of approximately 30 AD, a series of events unfolded in Jerusalem that would reshape the history of the world.',
     position: 'center',
@@ -204,10 +197,10 @@ const poster2Content: ContentItem[] = [
     special: 'passion'
   },
   {
-    type: 'text-image-stacked',
+    type: 'paragraph',
     text: 'The account exists in four texts written within living memory of the events. Then archaeologists began to dig.',
-    src: '/exhibitions/in-their-hands/poster2-image1.jpg',
-    alt: 'The Passion',
+    position: 'center',
+    effect: 'fade-in',
     special: 'passion'
   },
   {
@@ -226,11 +219,8 @@ const poster2Content: ContentItem[] = [
   },
   {
     type: 'artwork-display',
-    src: '/exhibitions/in-their-hands/poster2-pilate-coin.jpg',
-    alt: 'Pontius Pilate prutah',
-    artworkTitle: 'Pontius Pilate Prutah',
-    artworkArtist: 'Prefect of Judaea',
-    artworkDate: '26–36 AD',
+    src: '/exhibitions/in-their-hands/poster2-pilate-stone.jpg',
+    alt: 'The Pilate Stone',
     text: 'For decades, some scholars questioned whether Pontius Pilate was a historical figure. Then in 1961, a construction crew at Caesarea Maritima uncovered a limestone block inscribed PONTIVS PILATVS PRAEFECTVS IVDAEAE.',
     special: 'passion',
     position: 'right'
@@ -240,6 +230,12 @@ const poster2Content: ContentItem[] = [
     text: 'The Pilate Stone settled the question, but Pilate\'s coins had been evidence all along — small bronze prutot stamped with pagan religious symbols as deliberate acts of provocation against Jewish religious law.',
     position: 'center',
     effect: 'fade-in',
+    special: 'passion'
+  },
+  {
+    type: 'full-image',
+    src: '/exhibitions/in-their-hands/poster2-image1.jpg',
+    alt: 'The Passion',
     special: 'passion'
   },
   {
