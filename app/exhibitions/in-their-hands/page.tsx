@@ -368,16 +368,11 @@ const poster2Content: ContentItem[] = [
     position: 'center',
     effect: 'line-by-line',
     items: [
-      'Before the Story',
-      '63 BC — Tyrian shekel minting begins at Tyre. The coin that will become the thirty pieces of silver enters the world.',
-      'The King\'s Decree',
-      '4 BC — Death of Herod the Great. The king who ordered the Massacre of the Innocents dies the same year as his own command.',
-      'The Provocateur Arrives',
-      '26 AD — Pontius Pilate appointed Prefect of Judaea. His first coins are minted bearing pagan symbols.',
-      'The Passion',
-      'c. 30 AD — The Passion. Thirty Tyrian shekels change hands. Pilate washes his hands. A potter\'s field is purchased.',
-      'The Last Ruler',
-      '59 AD — Paul appeals to Caesar before Porcius Festus. The last named ruler of the New Testament mints this coin.'
+      'Before the Story — 63 BC — Tyrian shekel minting begins at Tyre. The coin that will become the thirty pieces of silver enters the world.',
+      'The King\'s Decree — 4 BC — Death of Herod the Great. The king who ordered the Massacre of the Innocents dies the same year as his own command.',
+      'The Provocateur Arrives — 26 AD — Pontius Pilate appointed Prefect of Judaea. His first coins are minted bearing pagan symbols.',
+      'The Passion — c. 30 AD — Thirty Tyrian shekels change hands. Pilate washes his hands. A potter\'s field is purchased.',
+      'The Last Ruler — 59 AD — Paul appeals to Caesar before Porcius Festus. The last named ruler of the New Testament mints this coin.'
     ]
   },
   { type: 'end', text: 'Return to Exhibition' }
@@ -1352,17 +1347,6 @@ export default function InTheirHands() {
           flex-direction: column;
           gap: 0;
         }
-        .ith-timeline-chapter {
-          padding: 24px 0 8px 0;
-        }
-        .ith-timeline-chapter-text {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.1rem, 2.8vw, 1.4rem);
-          font-weight: 600;
-          font-style: italic;
-          letter-spacing: 0.08em;
-          color: ${gold};
-        }
         .ith-timeline-item {
           display: flex;
           gap: 20px;
@@ -1817,18 +1801,15 @@ export default function InTheirHands() {
                   <h2 className="ith-timeline-title" style={{ animation: 'ithFadeIn 0.8s ease forwards', opacity: 0 }}>{currentItem.text}</h2>
                 )}
                 <div className="ith-timeline">
-                  {currentItem.items.map((item, i) => {
-                    const isChapterHeading = !item.includes(' — ');
-                    return (
-                      <div
-                        key={i}
-                        className={isChapterHeading ? 'ith-timeline-chapter' : 'ith-timeline-item'}
-                        style={{ animation: `ithFadeIn 0.6s ease forwards ${i * 0.15}s`, opacity: 0 }}
-                      >
-                        <span className={isChapterHeading ? 'ith-timeline-chapter-text' : 'ith-timeline-text'}>{item}</span>
-                      </div>
-                    );
-                  })}
+                  {currentItem.items.map((item, i) => (
+                    <div
+                      key={i}
+                      className="ith-timeline-item"
+                      style={{ animation: `ithFadeIn 0.6s ease forwards ${i * 0.15}s`, opacity: 0 }}
+                    >
+                      <span className="ith-timeline-text">{item}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
