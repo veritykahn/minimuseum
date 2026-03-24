@@ -270,10 +270,10 @@ const poster2Content: ContentItem[] = [
     special: 'thirty-pieces'
   },
   {
-    type: 'text-image-stacked',
+    type: 'paragraph',
     text: 'The Temple authorities had made a pragmatic compromise: the purity of the metal overrode the offensiveness of the image.',
-    src: '/exhibitions/in-their-hands/poster2-image2.jpg',
-    alt: 'The Passion narrative',
+    position: 'center',
+    effect: 'fade-in',
     special: 'thirty-pieces'
   },
   {
@@ -284,17 +284,27 @@ const poster2Content: ContentItem[] = [
     special: 'thirty-pieces'
   },
   {
-    type: 'paragraph',
+    type: 'artwork-display',
+    src: '/exhibitions/in-their-hands/poster2-potters-field.jpg',
+    alt: 'Judas Returns the Money by James Tissot',
+    artworkTitle: 'Judas Returns the Money (Judas rend l\'argent)',
+    artworkArtist: 'James Tissot',
     text: 'When Judas returned the thirty pieces in remorse, the priests refused to receive them back — blood money could not re-enter the treasury — and used them instead to purchase a potter\'s field for the burial of strangers.',
-    position: 'bottom-left',
+    special: 'thirty-pieces',
+    position: 'right'
+  },
+  {
+    type: 'paragraph',
+    text: 'Sacred money, contaminated by betrayal, went to buy ground for the dead. Matthew saw the irony and in it the fulfilment of ancient prophecy.',
+    position: 'center',
     effect: 'fade-in',
     special: 'thirty-pieces'
   },
   {
-    type: 'text-image-stacked',
-    text: 'Sacred money, contaminated by betrayal, went to buy ground for the dead. Matthew saw the irony and in it the fulfilment of ancient prophecy.',
-    src: '/exhibitions/in-their-hands/poster2-potters-field.jpg',
-    alt: 'Judas Returns the Price of Blood — James Tissot',
+    type: 'full-image',
+    src: '/exhibitions/in-their-hands/poster2-image2.jpg',
+    alt: 'The Passion narrative',
+    effect: 'kenburns-in',
     special: 'thirty-pieces'
   },
   {
@@ -347,22 +357,28 @@ const poster2Content: ContentItem[] = [
     special: 'accident'
   },
   {
-    type: 'timeline',
-    position: 'center',
-    effect: 'line-by-line',
-    items: [
-      '63 BC — Tyrian shekel minting begins at Tyre. The coin that will become the thirty pieces of silver enters the world.',
-      '4 BC — Death of Herod the Great. The king who ordered the Massacre of the Innocents dies the same year as his own command.',
-      '26 AD — Pontius Pilate appointed Prefect of Judaea. His first coins are minted bearing pagan symbols.',
-      'c. 30 AD — The Passion. Thirty Tyrian shekels change hands. Pilate washes his hands. A potter\'s field is purchased.',
-      '59 AD — Paul appeals to Caesar before Porcius Festus. The last named ruler of the New Testament mints this coin.'
-    ]
-  },
-  {
     type: 'quote',
     position: 'center',
     effect: 'blur-to-sharp',
     text: 'These coins do not prove the Resurrection. Faith is not proved by archaeology. But they prove something important: the world the Gospels describe was a real world.'
+  },
+  {
+    type: 'timeline',
+    text: 'Coins Across the Gospel',
+    position: 'center',
+    effect: 'line-by-line',
+    items: [
+      'Before the Story',
+      '63 BC — Tyrian shekel minting begins at Tyre. The coin that will become the thirty pieces of silver enters the world.',
+      'The King\'s Decree',
+      '4 BC — Death of Herod the Great. The king who ordered the Massacre of the Innocents dies the same year as his own command.',
+      'The Provocateur Arrives',
+      '26 AD — Pontius Pilate appointed Prefect of Judaea. His first coins are minted bearing pagan symbols.',
+      'The Passion',
+      'c. 30 AD — The Passion. Thirty Tyrian shekels change hands. Pilate washes his hands. A potter\'s field is purchased.',
+      'The Last Ruler',
+      '59 AD — Paul appeals to Caesar before Porcius Festus. The last named ruler of the New Testament mints this coin.'
+    ]
   },
   { type: 'end', text: 'Return to Exhibition' }
 ];
@@ -1318,6 +1334,16 @@ export default function InTheirHands() {
         }
 
         /* Timeline */
+        .ith-timeline-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.4rem, 3.5vw, 2rem);
+          font-weight: 300;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: ${gold};
+          text-align: center;
+          margin-bottom: 32px;
+        }
         .ith-timeline {
           position: relative;
           z-index: 10;
@@ -1325,6 +1351,17 @@ export default function InTheirHands() {
           display: flex;
           flex-direction: column;
           gap: 0;
+        }
+        .ith-timeline-chapter {
+          padding: 24px 0 8px 0;
+        }
+        .ith-timeline-chapter-text {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.1rem, 2.8vw, 1.4rem);
+          font-weight: 600;
+          font-style: italic;
+          letter-spacing: 0.08em;
+          color: ${gold};
         }
         .ith-timeline-item {
           display: flex;
@@ -1776,16 +1813,22 @@ export default function InTheirHands() {
             {/* Timeline */}
             {currentItem.type === 'timeline' && currentItem.items && (
               <div className={`ith-text-content-wrapper ith-pos-center ${getSpecialClass(currentItem.special)}`}>
+                {currentItem.text && (
+                  <h2 className="ith-timeline-title" style={{ animation: 'ithFadeIn 0.8s ease forwards', opacity: 0 }}>{currentItem.text}</h2>
+                )}
                 <div className="ith-timeline">
-                  {currentItem.items.map((item, i) => (
-                    <div
-                      key={i}
-                      className="ith-timeline-item"
-                      style={{ animation: `ithFadeIn 0.6s ease forwards ${i * 0.15}s`, opacity: 0 }}
-                    >
-                      <span className="ith-timeline-text">{item}</span>
-                    </div>
-                  ))}
+                  {currentItem.items.map((item, i) => {
+                    const isChapterHeading = !item.includes(' — ');
+                    return (
+                      <div
+                        key={i}
+                        className={isChapterHeading ? 'ith-timeline-chapter' : 'ith-timeline-item'}
+                        style={{ animation: `ithFadeIn 0.6s ease forwards ${i * 0.15}s`, opacity: 0 }}
+                      >
+                        <span className={isChapterHeading ? 'ith-timeline-chapter-text' : 'ith-timeline-text'}>{item}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
