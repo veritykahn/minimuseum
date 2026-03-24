@@ -254,7 +254,7 @@ const poster2Content: ContentItem[] = [
   },
   {
     type: 'artwork-display',
-    src: '/exhibitions/in-their-hands/poster2-tyrian-shekel.jpg',
+    src: '/exhibitions/in-their-hands/poster2-tyrian-shekel.png',
     alt: 'Tyrian Shekel',
     artworkTitle: 'Tyrian Shekel',
     artworkArtist: 'Mint of Tyre',
