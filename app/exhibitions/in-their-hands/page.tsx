@@ -1331,13 +1331,13 @@ export default function InTheirHands() {
         /* Timeline */
         .ith-timeline-title {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.4rem, 3.5vw, 2rem);
+          font-size: clamp(1.2rem, 3vw, 1.6rem);
           font-weight: 300;
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: ${gold};
           text-align: center;
-          margin-bottom: 32px;
+          margin-bottom: 16px;
         }
         .ith-timeline {
           position: relative;
@@ -1349,26 +1349,26 @@ export default function InTheirHands() {
         }
         .ith-timeline-item {
           display: flex;
-          gap: 20px;
-          padding: 20px 0;
+          gap: 12px;
+          padding: 8px 0;
           border-left: 2px solid rgba(201,168,76,0.2);
-          padding-left: 24px;
+          padding-left: 18px;
           position: relative;
         }
         .ith-timeline-item::before {
           content: '';
           position: absolute;
-          left: -5px;
-          top: 26px;
-          width: 8px;
-          height: 8px;
+          left: -4px;
+          top: 14px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
           background: ${gold};
         }
         .ith-timeline-text {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1rem, 2.5vw, 1.3rem);
-          line-height: 1.7;
+          font-size: clamp(0.8rem, 1.8vw, 1rem);
+          line-height: 1.5;
           color: #F0ECD8;
         }
 
