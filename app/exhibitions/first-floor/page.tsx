@@ -44,7 +44,7 @@ export default function FirstFloor() {
     {
       id: 'in-their-hands',
       title: 'In Their Hands',
-      subtitle: 'New Testament Coins of the Passion',
+      subtitle: 'The Coins of the New Testament',
       accent: '#C9A84C',
       darkAccent: '#1C1409',
       textColor: '#F5EDD8',
