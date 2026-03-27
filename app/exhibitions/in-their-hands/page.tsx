@@ -1104,18 +1104,11 @@ export default function InTheirHands() {
 
         .ith-exhibition-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 24px;
-          max-width: 1200px;
+          grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+          gap: 20px;
+          max-width: 1400px;
           width: 100%;
-          align-items: center;
-        }
-
-        .ith-cases-row {
-          grid-column: 1 / -1;
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 24px;
+          align-items: stretch;
         }
 
         .ith-poster-frame {
@@ -1127,13 +1120,14 @@ export default function InTheirHands() {
         .ith-poster-frame:hover .ith-poster-hint { opacity: 1; }
         .ith-poster-frame img {
           width: 100%;
-          height: auto;
+          height: 100%;
+          object-fit: cover;
           display: block;
           box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
         .ith-poster-hint {
           position: absolute;
-          bottom: -30px;
+          bottom: -20px;
           left: 50%;
           transform: translateX(-50%);
           font-family: 'Outfit', sans-serif;
@@ -1165,8 +1159,8 @@ export default function InTheirHands() {
         }
         .ith-case-image {
           width: 100%;
-          max-width: 280px;
-          height: auto;
+          height: 45vh;
+          object-fit: contain;
           object-fit: contain;
           margin-bottom: 20px;
           transition: transform 0.4s ease;
@@ -1611,36 +1605,34 @@ export default function InTheirHands() {
               <span className="ith-poster-hint">Click to explore</span>
             </div>
 
+            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts')}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Coins from the World of Jesus" />
+              <p className="ith-case-label">Gallery II, Case 6</p>
+              <p className="ith-case-title">In Their Hands</p>
+              <p className="ith-case-subtitle">Coins from the World of Jesus</p>
+            </div>
+
+            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts')}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Coins from Jesus' Ministry and Passion" />
+              <p className="ith-case-label">Gallery II, Case 7</p>
+              <p className="ith-case-title">In Their Hands</p>
+              <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
+            </div>
+
+            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts')}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Coins from the Early Church" />
+              <p className="ith-case-label">Gallery II, Case 8</p>
+              <p className="ith-case-title">In Their Hands</p>
+              <p className="ith-case-subtitle">Coins from the Early Church</p>
+            </div>
+
             <div className="ith-poster-frame" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/in-their-hands/poster2-hero.jpg" alt="The Weight of Thirty Pieces" />
               <span className="ith-poster-hint">Click to explore</span>
-            </div>
-
-            <div className="ith-cases-row">
-              <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts')}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Coins from the World of Jesus" />
-                <p className="ith-case-label">Gallery II, Case 6</p>
-                <p className="ith-case-title">In Their Hands</p>
-                <p className="ith-case-subtitle">Coins from the World of Jesus</p>
-              </div>
-
-              <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts')}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Coins from Jesus' Ministry and Passion" />
-                <p className="ith-case-label">Gallery II, Case 7</p>
-                <p className="ith-case-title">In Their Hands</p>
-                <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
-              </div>
-
-              <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts')}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Coins from the Early Church" />
-                <p className="ith-case-label">Gallery II, Case 8</p>
-                <p className="ith-case-title">In Their Hands</p>
-                <p className="ith-case-subtitle">Coins from the Early Church</p>
-              </div>
             </div>
           </div>
 
