@@ -1103,26 +1103,25 @@ export default function InTheirHands() {
         }
 
         .ith-exhibition-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+          display: flex;
           gap: 20px;
-          max-width: 1400px;
+          max-width: 95vw;
           width: 100%;
           align-items: center;
-          justify-items: center;
+          justify-content: center;
         }
 
         .ith-poster-frame {
           cursor: pointer;
           transition: all 0.4s ease;
           position: relative;
+          flex-shrink: 0;
         }
         .ith-poster-frame:hover { transform: translateY(-8px); }
         .ith-poster-frame:hover .ith-poster-hint { opacity: 1; }
         .ith-poster-frame img {
-          width: 100%;
-          max-height: 60vh;
-          object-fit: contain;
+          height: 50vh;
+          width: auto;
           display: block;
           box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
@@ -1162,7 +1161,6 @@ export default function InTheirHands() {
         .ith-case-image {
           height: 50vh;
           width: auto;
-          max-width: 100%;
           object-fit: contain;
           margin-bottom: 12px;
           transition: transform 0.4s ease;
