@@ -1120,7 +1120,7 @@ export default function InTheirHands() {
         .ith-poster-frame:hover { transform: translateY(-8px); }
         .ith-poster-frame:hover .ith-poster-hint { opacity: 1; }
         .ith-poster-frame img {
-          height: 50vh;
+          height: 30vh;
           width: auto;
           display: block;
           box-shadow: 0 20px 60px rgba(0,0,0,0.5);
@@ -1159,7 +1159,7 @@ export default function InTheirHands() {
           transform: scale(1.02);
         }
         .ith-case-image {
-          height: 50vh;
+          height: 30vh;
           width: auto;
           object-fit: contain;
           margin-bottom: 12px;
