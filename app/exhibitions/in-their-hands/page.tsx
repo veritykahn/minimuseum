@@ -1108,7 +1108,8 @@ export default function InTheirHands() {
           gap: 20px;
           max-width: 1400px;
           width: 100%;
-          align-items: stretch;
+          align-items: center;
+          justify-items: center;
         }
 
         .ith-poster-frame {
@@ -1120,8 +1121,8 @@ export default function InTheirHands() {
         .ith-poster-frame:hover .ith-poster-hint { opacity: 1; }
         .ith-poster-frame img {
           width: 100%;
-          height: 100%;
-          object-fit: cover;
+          max-height: 60vh;
+          object-fit: contain;
           display: block;
           box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
@@ -1142,14 +1143,15 @@ export default function InTheirHands() {
         .ith-display-case {
           background: #0a0a0a;
           border: 1px solid rgba(255,255,255,0.1);
-          padding: 20px 16px;
+          padding: 12px 8px;
           display: flex;
           flex-direction: column;
           align-items: center;
           justify-content: center;
           cursor: pointer;
           transition: all 0.4s ease;
-          overflow: hidden;
+          overflow: visible;
+          width: 100%;
         }
         .ith-display-case:hover {
           border-color: rgba(201,168,76,0.3);
@@ -1158,11 +1160,11 @@ export default function InTheirHands() {
           transform: scale(1.02);
         }
         .ith-case-image {
-          width: 100%;
-          height: 45vh;
+          height: 50vh;
+          width: auto;
+          max-width: 100%;
           object-fit: contain;
-          object-fit: contain;
-          margin-bottom: 20px;
+          margin-bottom: 12px;
           transition: transform 0.4s ease;
         }
         .ith-case-label {
