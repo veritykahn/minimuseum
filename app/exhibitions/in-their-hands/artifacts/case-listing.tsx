@@ -245,6 +245,14 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           transform: translateX(0);
         }
 
+        .cl-card.cl-card-interactive {
+          grid-column: 1 / -1;
+          flex-direction: row;
+          justify-content: center;
+          max-width: 400px;
+          margin: 0 auto;
+        }
+
         .cl-card.coming-soon {
           opacity: 0.6;
           cursor: default;
@@ -339,7 +347,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
         {interactive && (
           <div
-            className={`cl-card ${interactive.status}`}
+            className={`cl-card cl-card-interactive ${interactive.status}`}
             onClick={() => interactive.status === 'available' && router.push(interactive.route)}
           >
             {interactive.status === 'available' && (
