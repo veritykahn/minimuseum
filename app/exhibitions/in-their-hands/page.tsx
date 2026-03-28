@@ -1118,7 +1118,6 @@ export default function InTheirHands() {
           flex-shrink: 0;
         }
         .ith-poster-frame:hover { transform: translateY(-8px); }
-        .ith-poster-frame:hover .ith-poster-hint { opacity: 1; }
         .ith-poster-frame img {
           height: 30vh;
           width: auto;
@@ -1126,17 +1125,14 @@ export default function InTheirHands() {
           box-shadow: 0 20px 60px rgba(0,0,0,0.5);
         }
         .ith-poster-hint {
-          position: absolute;
-          bottom: -20px;
-          left: 50%;
-          transform: translateX(-50%);
+          display: block;
+          text-align: center;
+          margin-top: 12px;
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: #7D8471;
-          opacity: 0;
-          transition: opacity 0.3s ease;
         }
 
         .ith-display-case {
