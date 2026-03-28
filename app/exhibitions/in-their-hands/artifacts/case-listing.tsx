@@ -102,9 +102,9 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
         .cl-grid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
           gap: 24px;
-          max-width: 960px;
+          max-width: 1100px;
           margin: 0 auto;
         }
 

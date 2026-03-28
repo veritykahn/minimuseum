@@ -158,7 +158,7 @@ export const case7Coins: CoinData[] = [
     verseText: 'He plied him with many questions, but Jesus gave him no answer.',
     description: [
       'Herod Antipas was the son of Herod the Great and tetrarch of Galilee. He executed John the Baptist, and during the Passion Pilate sent Jesus to him for questioning. Antipas mocked Jesus and dressed him in an elegant robe before sending him back.',
-      'Jesus, who spoke to Pilate, to the High Priest, and to his accusers, gave Antipas nothing — not one word. It is the only figure in the entire Passion narrative to receive only silence. Jesus had called him \'that fox\' (Luke 13:32). Original examples are of exceptional rarity; this is a museum-quality replica.',
+      'Jesus, who spoke to Pilate, to the High Priest, and to his accusers, gave Antipas nothing — not one word. He is the only figure in the entire Passion narrative to receive only silence. Jesus had called him \'that fox\' (Luke 13:32). Original examples are of exceptional rarity; this is a museum-quality replica.',
     ],
     frontImage: `${basePath}/coins/antipas-front.png`,
     backImage: `${basePath}/coins/antipas-back.png`,
