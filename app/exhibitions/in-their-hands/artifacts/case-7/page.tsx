@@ -10,6 +10,14 @@ export default function Case7() {
       subtitle="Coins from Jesus' Ministry and Passion"
       coins={case7Coins}
       basePath="/exhibitions/in-their-hands/artifacts/case-7"
+      interactive={{
+        id: 'hands',
+        title: 'Hands of History',
+        subtitle: 'Who held these coins — and when?',
+        emoji: '\u{270B}',
+        route: '/exhibitions/in-their-hands/hands',
+        status: 'coming-soon',
+      }}
     />
   );
 }

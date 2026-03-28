@@ -3,6 +3,15 @@
 import { useRouter } from 'next/navigation';
 import { CoinData } from './coin-data';
 
+type InteractiveFeature = {
+  id: string;
+  title: string;
+  subtitle: string;
+  emoji: string;
+  route: string;
+  status: 'available' | 'coming-soon';
+};
+
 type Props = {
   caseNumber: number;
   galleryLabel: string;
@@ -10,9 +19,10 @@ type Props = {
   subtitle: string;
   coins: CoinData[];
   basePath: string;
+  interactive?: InteractiveFeature;
 };
 
-export default function CaseListing({ caseNumber, galleryLabel, title, subtitle, coins, basePath }: Props) {
+export default function CaseListing({ caseNumber, galleryLabel, title, subtitle, coins, basePath, interactive }: Props) {
   const router = useRouter();
 
   return (
@@ -235,6 +245,82 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           transform: translateX(0);
         }
 
+        .cl-interactive {
+          max-width: 960px;
+          margin: 40px auto 0;
+        }
+
+        .cl-interactive-card {
+          display: flex;
+          align-items: center;
+          gap: 24px;
+          padding: 24px 32px;
+          background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 16px;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .cl-interactive-card:hover {
+          border-color: rgba(201, 168, 76, 0.3);
+          background: linear-gradient(145deg, rgba(201, 168, 76, 0.06), rgba(201, 168, 76, 0.02));
+          transform: translateY(-4px);
+        }
+        .cl-interactive-card.disabled {
+          opacity: 0.5;
+          cursor: default;
+        }
+        .cl-interactive-card.disabled:hover {
+          border-color: rgba(255,255,255,0.06);
+          background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+          transform: none;
+        }
+
+        .cl-interactive-emoji {
+          font-size: 36px;
+          flex-shrink: 0;
+        }
+
+        .cl-interactive-info { flex: 1; }
+
+        .cl-interactive-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.2rem;
+          font-weight: 400;
+          color: #fafafa;
+          margin-bottom: 4px;
+        }
+
+        .cl-interactive-subtitle {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 0.9rem;
+          font-style: italic;
+          color: #737373;
+        }
+
+        .cl-interactive-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 14px;
+          border-radius: 100px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          flex-shrink: 0;
+        }
+        .cl-interactive-badge.available {
+          background: rgba(201, 168, 76, 0.1);
+          color: #C9A84C;
+          border: 1px solid rgba(201, 168, 76, 0.3);
+        }
+        .cl-interactive-badge.coming-soon {
+          background: rgba(255,255,255,0.03);
+          color: #525252;
+          border: 1px solid rgba(255,255,255,0.08);
+        }
+
         .cl-return-btn {
           display: block;
           margin: 60px auto 0;
@@ -301,6 +387,24 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           </div>
         ))}
       </div>
+
+      {interactive && (
+        <div className="cl-interactive">
+          <div
+            className={`cl-interactive-card ${interactive.status === 'coming-soon' ? 'disabled' : ''}`}
+            onClick={() => interactive.status === 'available' && router.push(interactive.route)}
+          >
+            <span className="cl-interactive-emoji">{interactive.emoji}</span>
+            <div className="cl-interactive-info">
+              <h3 className="cl-interactive-title">{interactive.title}</h3>
+              <p className="cl-interactive-subtitle">{interactive.subtitle}</p>
+            </div>
+            <div className={`cl-interactive-badge ${interactive.status}`}>
+              {interactive.status === 'available' ? 'Explore' : 'Coming Soon'}
+            </div>
+          </div>
+        </div>
+      )}
 
       <button className="cl-return-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
         Return to Exhibition

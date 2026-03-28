@@ -10,6 +10,14 @@ export default function Case8() {
       subtitle="Coins from the Early Church"
       coins={case8Coins}
       basePath="/exhibitions/in-their-hands/artifacts/case-8"
+      interactive={{
+        id: 'real-or-replica',
+        title: 'Real or Replica?',
+        subtitle: 'Learn to authenticate ancient coins',
+        emoji: '\u{1F50D}',
+        route: '/exhibitions/in-their-hands/real-or-replica',
+        status: 'coming-soon',
+      }}
     />
   );
 }

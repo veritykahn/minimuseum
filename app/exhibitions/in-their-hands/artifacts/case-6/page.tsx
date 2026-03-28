@@ -10,6 +10,14 @@ export default function Case6() {
       subtitle="Coins from the World of Jesus"
       coins={case6Coins}
       basePath="/exhibitions/in-their-hands/artifacts/case-6"
+      interactive={{
+        id: 'timeline',
+        title: 'The Gospel Timeline',
+        subtitle: 'Follow the coins through the New Testament',
+        emoji: '\u{1F4DC}',
+        route: '/exhibitions/in-their-hands/timeline',
+        status: 'coming-soon',
+      }}
     />
   );
 }
