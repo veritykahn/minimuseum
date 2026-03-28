@@ -1118,6 +1118,7 @@ export default function InTheirHands() {
           flex-shrink: 0;
         }
         .ith-poster-frame:hover { transform: translateY(-8px); }
+        .ith-poster-frame:hover .ith-poster-hint { opacity: 1; }
         .ith-poster-frame img {
           height: 30vh;
           width: auto;
@@ -1133,6 +1134,8 @@ export default function InTheirHands() {
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: #7D8471;
+          opacity: 0;
+          transition: opacity 0.3s ease;
         }
 
         .ith-display-case {
