@@ -1605,7 +1605,7 @@ export default function InTheirHands() {
               <span className="ith-poster-hint">Click to explore</span>
             </div>
 
-            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts')}>
+            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-6')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Coins from the World of Jesus" />
               <p className="ith-case-label">Gallery II, Case 6</p>
@@ -1613,7 +1613,7 @@ export default function InTheirHands() {
               <p className="ith-case-subtitle">Coins from the World of Jesus</p>
             </div>
 
-            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts')}>
+            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-7')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Coins from Jesus' Ministry and Passion" />
               <p className="ith-case-label">Gallery II, Case 7</p>
@@ -1621,7 +1621,7 @@ export default function InTheirHands() {
               <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
             </div>
 
-            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts')}>
+            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-8')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Coins from the Early Church" />
               <p className="ith-case-label">Gallery II, Case 8</p>
