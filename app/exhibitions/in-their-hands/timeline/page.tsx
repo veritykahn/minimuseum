@@ -280,9 +280,9 @@ export default function GospelTimeline() {
           z-index: 10;
           display: flex;
           align-items: center;
-          justify-content: center;
+          justify-content: flex-start;
           height: 100vh;
-          padding: 80px 60px 100px;
+          padding: 80px 35vw 100px 60px;
           gap: 48px;
         }
 
@@ -414,27 +414,24 @@ export default function GospelTimeline() {
         /* ========== PAINTING INSET ========== */
         .tl-painting-inset {
           position: fixed;
-          bottom: 80px;
+          top: 50%;
           right: 32px;
-          z-index: 20;
+          transform: translateY(-50%);
+          z-index: 5;
           transition: opacity 0.5s ease;
         }
         .tl-painting-inset.fading { opacity: 0; }
 
         .tl-painting-inset img {
-          height: 18vh;
+          height: 55vh;
+          max-height: 500px;
           width: auto;
           object-fit: contain;
           border-radius: 4px;
           box-shadow:
-            0 8px 30px rgba(0,0,0,0.5),
-            0 2px 8px rgba(0,0,0,0.3);
-          border: 1px solid rgba(201, 168, 76, 0.15);
-          opacity: 0.85;
-          transition: opacity 0.3s ease;
-        }
-        .tl-painting-inset img:hover {
-          opacity: 1;
+            0 16px 50px rgba(0,0,0,0.5),
+            0 4px 12px rgba(0,0,0,0.3);
+          border: 1px solid rgba(201, 168, 76, 0.12);
         }
 
         /* ========== NAVIGATION ========== */
