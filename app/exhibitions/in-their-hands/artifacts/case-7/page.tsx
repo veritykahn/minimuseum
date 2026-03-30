@@ -14,7 +14,7 @@ export default function Case7() {
         id: 'hands',
         title: 'Hands of History',
         subtitle: 'Who held these coins — and when?',
-        emoji: '\u{270B}',
+        thumb: '/exhibitions/in-their-hands/hands.jpg',
         route: '/exhibitions/in-their-hands/hands',
         status: 'available',
       }}

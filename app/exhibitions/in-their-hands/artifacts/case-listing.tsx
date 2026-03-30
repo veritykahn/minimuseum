@@ -7,7 +7,8 @@ type InteractiveFeature = {
   id: string;
   title: string;
   subtitle: string;
-  emoji: string;
+  emoji?: string;
+  thumb?: string;
   route: string;
   status: 'available' | 'coming-soon';
 };
@@ -358,7 +359,12 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
               <div className="cl-hover-arrow">{'\u2197'}</div>
             )}
             <div className="cl-card-image-container">
-              <span className="cl-card-emoji">{interactive.emoji}</span>
+              {interactive.thumb ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img className="cl-card-image" src={interactive.thumb} alt={interactive.title} />
+              ) : (
+                <span className="cl-card-emoji">{interactive.emoji}</span>
+              )}
             </div>
             <div className="cl-card-info">
               <h3 className="cl-card-title">{interactive.title}</h3>

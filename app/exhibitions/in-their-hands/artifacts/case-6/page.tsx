@@ -14,7 +14,7 @@ export default function Case6() {
         id: 'timeline',
         title: 'The Gospel Timeline',
         subtitle: 'Follow the coins through the New Testament',
-        emoji: '\u{1F4DC}',
+        thumb: '/exhibitions/in-their-hands/timeline.jpg',
         route: '/exhibitions/in-their-hands/timeline',
         status: 'available',
       }}
