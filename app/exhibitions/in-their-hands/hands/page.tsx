@@ -9,63 +9,77 @@ const handsCharacters = [
     character: "The Roman Soldier",
     coinName: "Pontius Pilate Prutah",
     coinDate: "26–36 AD",
+    prompt: "Whose hands held this Pilate Prutah?",
+    caption: "Pontius Pilate Prutah \u00B7 26\u201336 AD",
     fullImage: "/exhibitions/in-their-hands/Hands/roman-soldier-full-v1.jpg",
     handsImage: "/exhibitions/in-their-hands/Hands/roman-soldier-hands-v1.jpg",
-    story: "A Roman prefect's treasury in Jerusalem, 30 AD. This coin was minted here, in this city, in the year of the trial. A soldier received it as pay. A merchant passed it in change. A priest handled it in the Temple precincts that the man who minted it deliberately provoked. How many hands between then and now?"
+    story: "A Roman soldier garrisoned in Jerusalem. Soldiers were paid in local currency, and in Judaea that meant small bronze prutot minted by the Roman prefect Pontius Pilate. These coins carried pagan symbols \u2014 a simpulum and a lituus \u2014 that were deliberately provocative in a Jewish province. A soldier would have used coins like this one to buy food and supplies in the Jerusalem market. This particular coin was minted in 29 or 30 AD, the precise year of the Crucifixion. The man who made it sentenced Jesus to death."
   },
   {
     id: 2,
     character: "The Temple Priest",
     coinName: "Tyrian Shekel",
-    coinDate: "1st century BC–1st century AD",
+    coinDate: "1st century BC\u20131st century AD",
+    prompt: "Whose hands held this Tyrian Shekel?",
+    caption: "Tyrian Shekel \u00B7 1st century BC\u20131st century AD",
     fullImage: "/exhibitions/in-their-hands/Hands/temple-priest-full-v1.jpg",
     handsImage: "/exhibitions/in-their-hands/Hands/temple-priest-hands-v2.jpg",
-    story: "The Temple treasury, Jerusalem. The High Priest's hands counted these out: thirty of them, one by one. The coin required for worship — the purest silver in circulation — became the price of betrayal. It may also have been the coin a fisherman found in a fish's mouth by the Sea of Galilee."
+    story: "A priest working at the Temple treasury in Jerusalem. Every Jewish man over twenty owed a half-shekel Temple tax each year, and the Temple only accepted one coin: the Tyrian shekel, because it had the highest silver purity in circulation. Priests handled hundreds of these every day. In Matthew 26:15, the chief priests count out thirty silver coins to pay Judas for betraying Jesus. Those thirty coins were almost certainly Tyrian shekels \u2014 the same type this priest is holding. The coin required for worship became the price of betrayal."
   },
   {
     id: 3,
     character: "The Widow",
-    coinName: "Widow's Mite — Lepton",
-    coinDate: "1st century BC, circulating 1st century AD",
+    coinName: "Widow\u2019s Mite \u2014 Lepton",
+    coinDate: "1st century AD",
+    prompt: "Whose hands held this Lepton?",
+    caption: "Widow\u2019s Mite \u2014 Lepton \u00B7 1st century AD",
     fullImage: "/exhibitions/in-their-hands/Hands/widow-full-v4.jpg",
     handsImage: "/exhibitions/in-their-hands/Hands/widow-hands-v2.jpg",
-    story: "A widow at the Temple treasury, Jerusalem. She held both of them — two leptons, the smallest coins in circulation, worth almost nothing. She dropped them into the treasury and walked away. Jesus watched. He said she had given more than anyone. These are her coins."
+    story: "A widow at the Temple treasury in Jerusalem. Being a widow, she would have had very little. The lepton was the smallest denomination in circulation \u2014 worth less than half a penny. In Mark 12:41\u201344, Jesus watches people putting money into the treasury. Many rich people throw in large amounts. Then a poor widow puts in two leptons \u2014 everything she has. Jesus tells his disciples that she has given more than all the others, because they gave from their surplus but she gave from her poverty. Two specimens are displayed in this exhibition because the Gospel specifies two coins."
   },
   {
     id: 4,
     character: "The Merchant",
     coinName: "Augustus AE As",
-    coinDate: "5–4 BC",
+    coinDate: "5\u20134 BC",
+    prompt: "Whose hands held this Augustus As?",
+    caption: "Augustus AE As \u00B7 5\u20134 BC",
     fullImage: "/exhibitions/in-their-hands/Hands/merchant-full-v1.jpg",
     handsImage: "/exhibitions/in-their-hands/Hands/merchant-hands-v2.jpg",
-    story: "An imperial administrator in Rome, 5 BC. He was processing census returns from across the empire — from Egypt, from Gaul, from Judaea. Somewhere in the returns: a carpenter and his pregnant wife, registered in Bethlehem. The administrator never looked up from his ledger."
+    story: "A merchant in the marketplace, handling the day\u2019s takings. Roman coins circulated throughout the empire, and a trader would have handled bronze asses bearing the face of Augustus Caesar regularly. Augustus is the emperor who ordered the census described in Luke 2:1 \u2014 the census that sent Mary and Joseph from Nazareth to Bethlehem, where Jesus was born. Augustus ruled the entire Roman world from Rome. He never visited Judaea and almost certainly never thought about it. But his administrative order set the Nativity in motion."
   },
   {
     id: 5,
     character: "The Mother",
     coinName: "Herod the Great Prutah",
-    coinDate: "40–4 BC",
+    coinDate: "40\u20134 BC",
+    prompt: "Whose hands held this Herod Prutah?",
+    caption: "Herod the Great Prutah \u00B7 40\u20134 BC",
     fullImage: "/exhibitions/in-their-hands/Hands/mother-full-v1.jpg",
     handsImage: "/exhibitions/in-their-hands/Hands/mother-hands-v1.jpg",
-    story: "A soldier in Herod's service, Bethlehem, 4 BC. He was given orders he did not question. He was paid in these. The coin carries no human face — Jewish law forbade it — but it carries the weight of everything Herod built and everything Herod destroyed."
+    story: "A mother in Bethlehem, 4 BC. Small bronze prutot minted by Herod were the everyday currency in Judaea \u2014 used to buy bread, oil, and household goods. The coins carry no human image because Jewish law forbade it. In Matthew 2:13\u201316, Herod orders the killing of all boys in Bethlehem under the age of two after learning from the Magi that a new king has been born. An angel warns Joseph in a dream, and the Holy Family flees to Egypt. Other families in Bethlehem received no warning. A mother holding one of Herod\u2019s coins may not yet have known what his soldiers had been ordered to do."
   },
   {
     id: 6,
     character: "Paul of Tarsus",
     coinName: "Porcius Festus Prutah",
-    coinDate: "59–62 AD",
+    coinDate: "59\u201362 AD",
+    prompt: "Whose hands held this Festus Prutah?",
+    caption: "Porcius Festus Prutah \u00B7 59\u201362 AD",
     fullImage: "/exhibitions/in-their-hands/Hands/paul-full-v1.jpg",
     handsImage: "/exhibitions/in-their-hands/Hands/paul-hands-v1.jpg",
-    story: "A Roman court in Caesarea, 59 AD. A prisoner stands before the procurator. He is a Roman citizen. He invokes the law. 'I appeal to Caesar.' The procurator's hands hold this coin — his own coin, his authority made metal — as he renders his decision. 'To Caesar you will go.'"
+    story: "Paul of Tarsus, a prisoner in Caesarea. He had been held for two years when Porcius Festus arrived as the new Roman governor. Festus minted his own coins in Judaea \u2014 small bronze prutot like this one. In Acts 25:10\u201312, Festus tries to send Paul back to Jerusalem to face trial, but Paul knows an ambush is waiting. He invokes his right as a Roman citizen and appeals directly to the Emperor. Festus confers with his council and replies: \u201CYou have appealed to Caesar. To Caesar you will go.\u201D This coin was minted by the man who sent Paul to Rome."
   },
   {
     id: 7,
     character: "The Daughter of Aretas",
     coinName: "Aretas IV Prutah",
-    coinDate: "9 BC–40 AD",
+    coinDate: "9 BC\u201340 AD",
+    prompt: "Whose hands held this Aretas Prutah?",
+    caption: "Aretas IV Prutah \u00B7 9 BC\u201340 AD",
     fullImage: "/exhibitions/in-their-hands/Hands/aretas-daughter-full-v2.jpg",
     handsImage: "/exhibitions/in-their-hands/Hands/aretas-daughter-hands-v1.jpg",
-    story: "A Nabataean princess at Petra, returned from Judaea. Her husband Herod Antipas divorced her to marry another woman. John the Baptist condemned the marriage and was beheaded. Her father went to war. She is never named in the Gospels. She is the invisible figure whose humiliation set everything in motion. This is her father's coin — the coin of the kingdom she came home to."
+    story: "The daughter of King Aretas IV of Nabataea. She was married to Herod Antipas, but Antipas divorced her to marry Herodias, his own brother\u2019s wife. The princess returned to her father\u2019s court in Petra. In Mark 6:17\u201318, John the Baptist publicly condemns the marriage between Antipas and Herodias. He is arrested and eventually beheaded. Aretas later went to war against Antipas in retaliation for the divorce and defeated him. She is never named in the Gospels, but her divorce is the event that triggered John\u2019s condemnation, his imprisonment, and his death. This is her father\u2019s coin \u2014 the coin of the Nabataean kingdom she returned to."
   }
 ];
 
@@ -216,6 +230,16 @@ export default function HandsOfHistory() {
           inset: 0;
           background: linear-gradient(to right, transparent 60%, rgba(0,0,0,0.7) 100%);
           pointer-events: none;
+        }
+        .hh-image-caption {
+          position: absolute;
+          bottom: 24px;
+          left: 24px;
+          z-index: 5;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1rem;
+          color: #C9A84C;
+          opacity: 0.8;
         }
 
         /* ========== RIGHT PANEL ========== */
@@ -491,13 +515,14 @@ export default function HandsOfHistory() {
               alt={character.character}
             />
             <div className="hh-image-gradient" />
+            <p className="hh-image-caption">{character.caption}</p>
           </div>
 
           {/* Right: question panel */}
           <div className="hh-panel">
             {roundState === 'guessing' ? (
               <>
-                <h2 className="hh-question">Whose hands are these?</h2>
+                <h2 className="hh-question">{character.prompt}</h2>
                 <div className="hh-options">
                   {options.map((opt) => (
                     <button
