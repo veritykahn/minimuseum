@@ -271,8 +271,8 @@ export default function GospelTimeline() {
           align-items: center;
           justify-content: center;
           height: 100vh;
-          padding: 80px 60px 100px;
-          gap: 48px;
+          padding: 80px 40px 100px;
+          gap: 36px;
         }
 
         /* ========== COIN ========== */
@@ -389,6 +389,41 @@ export default function GospelTimeline() {
           color: #3D3428;
         }
 
+        /* ========== PAINTING PANEL ========== */
+        .tl-painting-area {
+          flex: 0 0 auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .tl-painting-wrapper {
+          transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tl-painting-wrapper.entering-right {
+          opacity: 0;
+          transform: translateX(40px);
+        }
+        .tl-painting-wrapper.entering-left {
+          opacity: 0;
+          transform: translateX(-40px);
+        }
+        .tl-painting-wrapper.visible {
+          opacity: 1;
+          transform: translateX(0);
+        }
+
+        .tl-painting-img {
+          height: min(55vh, 50vw);
+          max-height: 480px;
+          width: auto;
+          object-fit: contain;
+          border-radius: 4px;
+          box-shadow:
+            0 20px 60px rgba(0,0,0,0.5),
+            0 4px 16px rgba(0,0,0,0.3);
+        }
+
         /* ========== NAVIGATION ========== */
         .tl-nav {
           position: fixed;
@@ -500,6 +535,9 @@ export default function GospelTimeline() {
           .tl-card-area {
             max-width: 100%;
           }
+          .tl-painting-area {
+            display: none;
+          }
         }
 
         @media (max-width: 600px) {
@@ -565,6 +603,18 @@ export default function GospelTimeline() {
                 Back to Exhibition {'\u2192'}
               </button>
             )}
+          </div>
+        </div>
+
+        {/* Painting */}
+        <div className="tl-painting-area">
+          <div className={`tl-painting-wrapper ${transitioning ? (direction === 'right' ? 'entering-right' : 'entering-left') : 'visible'}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="tl-painting-img"
+              src={stop.painting}
+              alt={`${stop.ruler} — painting`}
+            />
           </div>
         </div>
       </main>
