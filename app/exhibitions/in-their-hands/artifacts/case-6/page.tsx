@@ -16,7 +16,7 @@ export default function Case6() {
         subtitle: 'Follow the coins through the New Testament',
         emoji: '\u{1F4DC}',
         route: '/exhibitions/in-their-hands/timeline',
-        status: 'coming-soon',
+        status: 'available',
       }}
     />
   );
