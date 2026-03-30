@@ -11,7 +11,8 @@ const timelineStops = [
     coin: "AE As · 5–4 BC · RPC I 4248",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/augustus-front.png",
     painting: "/exhibitions/in-their-hands/timeline/augustus-tissot.jpg",
-    story: "Caesar Augustus issued a decree that a census should be taken of the entire Roman world. This order sent Mary and Joseph from Nazareth to Bethlehem. Augustus never knew what his bureaucratic command had set in motion."
+    passage: "In those days Caesar Augustus issued a decree that a census should be taken of the entire Roman world.",
+    story: "This is the coin of the man who accidentally set the Nativity in motion. Augustus never visited Judaea and almost certainly never thought about it. But his bureaucratic command — a census, for tax purposes — sent a carpenter and his pregnant wife from Nazareth to Bethlehem. The decree was nothing to Augustus. It was everything to the world."
   },
   {
     id: 2,
@@ -20,6 +21,7 @@ const timelineStops = [
     coin: "AE Prutah · 40–4 BC · Hendin 1177",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/herod-great-front.png",
     painting: "/exhibitions/in-their-hands/timeline/great-tissot.jpg",
+    passage: "An angel of the Lord appeared to Joseph in a dream. 'Get up,' he said, 'take the child and his mother and escape to Egypt. Stay there until I tell you, for Herod is going to search for the child to kill him.'",
     story: "Herod ordered the Massacre of the Innocents in Bethlehem. The Holy Family fled to Egypt. He died in 4 BC, the same year as his own command. His coins carry no human image — Jewish law forbade it — so the symbols on this prutah reflect the compromise between Roman power and Jewish practice."
   },
   {
@@ -29,7 +31,8 @@ const timelineStops = [
     coin: "AE Prutah · 9 BC–40 AD · Hendin CB168",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/aretas-front.png",
     painting: "/exhibitions/in-their-hands/timeline/baptist-tissot.jpg",
-    story: "When Herod Antipas divorced the daughter of Aretas IV to marry Herodias, John the Baptist condemned the union publicly. He was arrested and beheaded. Aretas went to war against Antipas in revenge. Years later, Paul escaped from Damascus to evade Aretas's governor by being lowered in a basket from the city wall (2 Cor 11:32–33)."
+    passage: "For Herod himself had given orders to have John arrested, and he had him bound and put in prison. He did this because of Herodias, his brother Philip's wife, whom he had married. For John had been saying to Herod, 'It is not lawful for you to have your brother's wife.'",
+    story: "When Herod Antipas divorced the daughter of Aretas IV to marry Herodias, John the Baptist condemned the union publicly. He was arrested and beheaded. Aretas went to war against Antipas in revenge. Years later, Paul escaped from Damascus to evade Aretas's governor by being lowered in a basket from the city wall (2 Cor 11:32–33). This single coin connects three New Testament stories."
   },
   {
     id: 4,
@@ -38,25 +41,28 @@ const timelineStops = [
     coin: "Lepton · 103–76 BC, circulating 1st c. AD · Hendin 1150",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/widow-1-front.png",
     painting: "/exhibitions/in-their-hands/timeline/widow-tissot.jpg",
-    story: "A poor widow put two leptons into the Temple treasury — the smallest denomination in circulation, less than a penny. Jesus declared her gift greater than all others because she gave from poverty, not surplus. Two specimens are displayed because the Gospel specifies two coins. This was Jesus's last public teaching before the Passion."
+    passage: "Jesus sat down opposite the place where the offerings were put and watched the crowd putting their money into the temple treasury. Many rich people threw in large amounts. But a poor widow came and put in two very small copper coins, worth only a few pence. Calling his disciples to him, Jesus said, 'Truly I tell you, this poor widow has put more into the treasury than all the others.'",
+    story: "Two leptons — the smallest denomination in circulation, worth almost nothing. She dropped them into the treasury and walked away. Jesus declared her gift greater than all others because she gave from poverty, not surplus. Two specimens are displayed in this exhibition because the Gospel specifies two coins. This was Jesus's last public teaching before the Passion."
   },
   {
     id: 5,
-    ruler: "Tiberius Denarius",
-    reference: "Matthew 22:21",
+    ruler: "The Tribute Penny",
+    reference: "Matthew 22:19–21",
     coin: "Silver Denarius · 14–37 AD · RIC I 30 · REPLICA",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/tribute-front.png",
     painting: "/exhibitions/in-their-hands/timeline/tribute-tissot.jpg",
-    story: "The Pharisees tried to trap Jesus with a question about paying Roman taxes. He asked whose image and inscription the coin bore. The reverse reads PONTIF MAXIM — High Priest — an assertion of Caesar's religious authority offensive to Jewish sensibility. Render unto Caesar what is Caesar's, and to God what is God's."
+    passage: "'Show me the coin used for paying the tax.' They brought him a denarius, and he asked them, 'Whose image is this? And whose inscription?' 'Caesar's,' they replied. Then he said to them, 'So give back to Caesar what is Caesar's, and to God what is God's.'",
+    story: "The Pharisees tried to trap Jesus with a question about paying Roman taxes. The coin they produced bore the face of Tiberius. The reverse reads PONTIF MAXIM — High Priest — an assertion of Caesar's religious authority offensive to Jewish sensibility. Jesus's answer is one of the most quoted sentences in history. This replica is the exact coin type he held."
   },
   {
     id: 6,
-    ruler: "Tyrian Shekel",
-    reference: "Matthew 26:14–15 · Matthew 17:27",
+    ruler: "The Tyrian Shekel",
+    reference: "Matthew 26:14–15",
     coin: "Silver Shekel · 1 BC–1 AD · Hendin 1621 · REPLICA",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/shekel.png",
     painting: "/exhibitions/in-their-hands/timeline/judas-tissot.jpg",
-    story: "The thirty pieces of silver paid to Judas were almost certainly Tyrian shekels — the only coin accepted for the Temple tax. The coin mandatory for Temple worship became the price of betrayal. The same coin type also appears in Matthew 17:27: Jesus tells Peter to catch a fish and in its mouth he will find a stater — a Tyrian shekel, exactly enough for the Temple tax for two people."
+    passage: "Then one of the Twelve — the one called Judas Iscariot — went to the chief priests and asked, 'What are you willing to give me if I deliver him over to you?' So they counted out for him thirty pieces of silver.",
+    story: "The thirty pieces of silver paid to Judas were almost certainly Tyrian shekels — the only coin accepted for the Temple tax because of its high silver purity. The coin mandatory for worship became the price of betrayal. The same coin type also appears in Matthew 17:27, when Jesus tells Peter to catch a fish and find a stater in its mouth — exactly enough for the Temple tax for two. One coin, two of the most famous stories ever told."
   },
   {
     id: 7,
@@ -65,43 +71,48 @@ const timelineStops = [
     coin: "AE Prutah · 29/30 AD (RY16 of Tiberius) · Hendin 6370",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/pilate-front.png",
     painting: "/exhibitions/in-their-hands/timeline/pilate-tissot.jpg",
-    story: "This coin was minted in the precise year of the Passion. Pilate's existence was doubted by some scholars until 1961, when an inscribed limestone block bearing his name was found at Caesarea Maritima. Obverse: simpulum (Roman libation ladle). Reverse: three bound ears of grain. Both symbols deliberately provocative on Jewish coinage."
+    passage: "When Pilate saw that he was getting nowhere, but that instead an uproar was starting, he took water and washed his hands in front of the crowd. 'I am innocent of this man's blood,' he said. 'It is your responsibility!'",
+    story: "This coin was minted in the precise year of the Passion. Pilate's existence was doubted by some scholars until 1961, when an inscribed limestone block bearing his name was found at Caesarea Maritima. Obverse: a simpulum, a Roman libation ladle. Reverse: three bound ears of grain. Both symbols deliberately provocative on Jewish coinage. You are looking at a coin made by the man who sentenced Jesus to death, in the year he did it."
   },
   {
     id: 8,
     ruler: "Herod Antipas",
-    reference: "Luke 23:9",
+    reference: "Luke 23:8–9",
     coin: "AE Prutah · 4 BC–39 AD · Hendin 1204 · REPLICA",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/antipas-front.png",
     painting: "/exhibitions/in-their-hands/timeline/herod-tissot.jpg",
+    passage: "When Herod saw Jesus, he was greatly pleased, because for a long time he had been wanting to see him. From what he had heard about him, he hoped to see him perform a sign of some sort. He plied him with many questions, but Jesus gave him no answer.",
     story: "Pilate sent Jesus to Antipas for questioning during the Passion. Antipas mocked Jesus and dressed him in an elegant robe before sending him back. Jesus — who spoke to Pilate, the High Priest, and his accusers — gave Antipas nothing. Not one word. It is the only silence in the entire Passion narrative."
   },
   {
     id: 9,
     ruler: "Herod Agrippa I",
-    reference: "Acts 12:2–3",
+    reference: "Acts 12:1–3",
     coin: "AE Prutah · 41–44 AD · Hendin 1244",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/agrippa-front.png",
     painting: "/exhibitions/in-their-hands/timeline/agrippa-zurbaran.jpg",
+    passage: "It was about this time that King Herod arrested some who belonged to the church, intending to persecute them. He had James, the brother of John, put to death with the sword. When he saw that this met with approval among the Jews, he proceeded to seize Peter also.",
     story: "Grandson of Herod the Great. He had James — the first apostle to be martyred — executed with the sword, and imprisoned Peter. His death shortly after is described in both Acts and by the historian Josephus in almost identical terms: struck down by an angel of the Lord, eaten by worms."
   },
   {
     id: 10,
     ruler: "Emperor Claudius",
-    reference: "Acts 18:2",
+    reference: "Acts 18:1–3",
     coin: "AE As · 41–54 AD · RIC I 100",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/claudius-front.png",
     painting: "/exhibitions/in-their-hands/timeline/paul-tissot.jpg",
+    passage: "After this, Paul left Athens and went to Corinth. There he met a Jew named Aquila, a native of Pontus, who had recently come from Italy with his wife Priscilla, because Claudius had ordered all Jews to leave Rome. Paul went to see them, and because he was a tentmaker as they were, he stayed and worked with them.",
     story: "Claudius expelled all Jews from Rome — confirmed by the historian Suetonius and dated to approximately 49 AD. This order directly caused Aquila and Priscilla to travel to Corinth, where Paul met them and worked with them as tentmakers. Without Claudius's edict, two of Paul's most important co-workers would not have been there."
   },
   {
     id: 11,
     ruler: "Porcius Festus",
-    reference: "Acts 25:12",
+    reference: "Acts 25:10–12",
     coin: "AE Prutah · 59–62 AD · Hendin 1348 · NGC Certified",
     coinImage: "/exhibitions/in-their-hands/artifacts/coins/festus-front.png",
     painting: "/exhibitions/in-their-hands/timeline/festus-surikov.jpg",
-    story: "Paul had been held in Caesarea for two years. When Festus took office and reopened the case, Paul invoked his right as a Roman citizen: 'I appeal to Caesar.' Festus replied: 'To Caesar you will go.' This set Paul on his journey to Rome. Festus minted this exact coin during the years described in Acts."
+    passage: "Paul answered: 'I am now standing before Caesar's court, where I ought to be tried. I have not done any wrong to the Jews, as you yourself know very well. I appeal to Caesar!' After Festus had conferred with his advisers, he declared: 'You have appealed to Caesar. To Caesar you will go!'",
+    story: "Paul had been held in Caesarea for two years. When Festus took office and reopened the case, Paul invoked his right as a Roman citizen. Festus minted this exact coin during the years described in Acts. The NGC certification on this specimen means it has been independently authenticated by the world's largest coin grading service — professional numismatists have examined it in person and confirmed it genuine. You are looking at a coin made by the man who sent Paul to Rome."
   }
 ];
 
@@ -271,8 +282,8 @@ export default function GospelTimeline() {
           align-items: center;
           justify-content: center;
           height: 100vh;
-          padding: 80px 40px 100px;
-          gap: 36px;
+          padding: 80px 60px 100px;
+          gap: 48px;
         }
 
         /* ========== COIN ========== */
@@ -382,6 +393,17 @@ export default function GospelTimeline() {
           border-bottom: 1px solid rgba(139, 125, 107, 0.2);
         }
 
+        .tl-card-passage {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(0.95rem, 1.4vw, 1.05rem);
+          font-style: italic;
+          line-height: 1.7;
+          color: #5A4E3E;
+          margin-bottom: 16px;
+          padding-bottom: 16px;
+          border-bottom: 1px solid rgba(139, 125, 107, 0.15);
+        }
+
         .tl-card-story {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(0.95rem, 1.5vw, 1.1rem);
@@ -389,39 +411,30 @@ export default function GospelTimeline() {
           color: #3D3428;
         }
 
-        /* ========== PAINTING PANEL ========== */
-        .tl-painting-area {
-          flex: 0 0 auto;
-          display: flex;
-          align-items: center;
-          justify-content: center;
+        /* ========== PAINTING INSET ========== */
+        .tl-painting-inset {
+          position: fixed;
+          bottom: 80px;
+          right: 32px;
+          z-index: 20;
+          transition: opacity 0.5s ease;
         }
+        .tl-painting-inset.fading { opacity: 0; }
 
-        .tl-painting-wrapper {
-          transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .tl-painting-wrapper.entering-right {
-          opacity: 0;
-          transform: translateX(40px);
-        }
-        .tl-painting-wrapper.entering-left {
-          opacity: 0;
-          transform: translateX(-40px);
-        }
-        .tl-painting-wrapper.visible {
-          opacity: 1;
-          transform: translateX(0);
-        }
-
-        .tl-painting-img {
-          height: min(55vh, 50vw);
-          max-height: 480px;
+        .tl-painting-inset img {
+          height: 18vh;
           width: auto;
           object-fit: contain;
           border-radius: 4px;
           box-shadow:
-            0 20px 60px rgba(0,0,0,0.5),
-            0 4px 16px rgba(0,0,0,0.3);
+            0 8px 30px rgba(0,0,0,0.5),
+            0 2px 8px rgba(0,0,0,0.3);
+          border: 1px solid rgba(201, 168, 76, 0.15);
+          opacity: 0.85;
+          transition: opacity 0.3s ease;
+        }
+        .tl-painting-inset img:hover {
+          opacity: 1;
         }
 
         /* ========== NAVIGATION ========== */
@@ -535,7 +548,7 @@ export default function GospelTimeline() {
           .tl-card-area {
             max-width: 100%;
           }
-          .tl-painting-area {
+          .tl-painting-inset {
             display: none;
           }
         }
@@ -596,6 +609,7 @@ export default function GospelTimeline() {
             <h2 className="tl-card-ruler">{stop.ruler}</h2>
             <p className="tl-card-coin">{stop.coin}</p>
             <p className="tl-card-reference">{stop.reference}</p>
+            <p className="tl-card-passage">&ldquo;{stop.passage}&rdquo;</p>
             <p className="tl-card-story">{stop.story}</p>
 
             {isLast && (
@@ -606,18 +620,13 @@ export default function GospelTimeline() {
           </div>
         </div>
 
-        {/* Painting */}
-        <div className="tl-painting-area">
-          <div className={`tl-painting-wrapper ${transitioning ? (direction === 'right' ? 'entering-right' : 'entering-left') : 'visible'}`}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className="tl-painting-img"
-              src={stop.painting}
-              alt={`${stop.ruler} — painting`}
-            />
-          </div>
-        </div>
       </main>
+
+      {/* Painting inset — bottom right corner */}
+      <div className={`tl-painting-inset ${transitioning ? 'fading' : ''}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={stop.painting} alt={`${stop.ruler} — painting`} />
+      </div>
 
       {/* Navigation */}
       <nav className="tl-nav">
