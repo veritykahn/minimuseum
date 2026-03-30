@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 
 const handsCharacters = [
@@ -69,79 +69,73 @@ const handsCharacters = [
   }
 ];
 
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+type RoundState = 'guessing' | 'revealed' | 'finished';
+
 export default function HandsOfHistory() {
   const router = useRouter();
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [revealed, setRevealed] = useState(false);
-  const [transitioning, setTransitioning] = useState(false);
-  const [direction, setDirection] = useState<'left' | 'right'>('right');
+  const [currentRound, setCurrentRound] = useState(0);
+  const [roundState, setRoundState] = useState<RoundState>('guessing');
+  const [chosenName, setChosenName] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
   const [loaded, setLoaded] = useState(false);
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
 
-  const character = handsCharacters[currentIndex];
-  const isFirst = currentIndex === 0;
-  const isLast = currentIndex === handsCharacters.length - 1;
+  // Randomise the order of rounds on mount
+  const roundOrder = useMemo(() => shuffle(handsCharacters), []);
 
-  const goTo = useCallback((index: number) => {
-    if (index < 0 || index >= handsCharacters.length || transitioning) return;
-    setDirection(index > currentIndex ? 'right' : 'left');
-    setTransitioning(true);
-    setRevealed(false);
-    setTimeout(() => {
-      setCurrentIndex(index);
-      setTimeout(() => setTransitioning(false), 50);
-    }, 400);
-  }, [currentIndex, transitioning]);
-
-  const goNext = useCallback(() => goTo(currentIndex + 1), [currentIndex, goTo]);
-  const goPrev = useCallback(() => goTo(currentIndex - 1), [currentIndex, goTo]);
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') goNext();
-      if (e.key === 'ArrowLeft') goPrev();
-      if (e.key === 'Escape') setRevealed(false);
-    };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
-  }, [goNext, goPrev]);
-
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
-  const handleTouchMove = (e: React.TouchEvent) => { touchEndX.current = e.touches[0].clientX; };
-  const handleTouchEnd = () => {
-    const diff = touchStartX.current - touchEndX.current;
-    if (Math.abs(diff) > 60) {
-      if (diff > 0) goNext();
-      else goPrev();
-    }
-  };
+  // For each round, generate 4 shuffled options (correct + 3 random others)
+  const roundOptions = useMemo(() => {
+    return roundOrder.map((char) => {
+      const others = handsCharacters.filter(c => c.id !== char.id);
+      const picked = shuffle(others).slice(0, 3);
+      return shuffle([char, ...picked]);
+    });
+  }, [roundOrder]);
 
   useEffect(() => {
     const t = setTimeout(() => setLoaded(true), 100);
     return () => clearTimeout(t);
   }, []);
 
-  // Preload adjacent images
-  useEffect(() => {
-    const preload = (src: string) => { const img = new Image(); img.src = src; };
-    if (currentIndex > 0) {
-      preload(handsCharacters[currentIndex - 1].fullImage);
-      preload(handsCharacters[currentIndex - 1].handsImage);
+  const character = roundOrder[currentRound];
+  const options = roundOptions[currentRound];
+  const isCorrect = chosenName === character.character;
+  const isLastRound = currentRound === roundOrder.length - 1;
+
+  const handleChoice = (name: string) => {
+    if (roundState !== 'guessing') return;
+    setChosenName(name);
+    if (name === character.character) setScore(s => s + 1);
+    setRoundState('revealed');
+  };
+
+  const nextRound = () => {
+    if (isLastRound) {
+      setRoundState('finished');
+    } else {
+      setCurrentRound(r => r + 1);
+      setChosenName(null);
+      setRoundState('guessing');
     }
-    if (currentIndex < handsCharacters.length - 1) {
-      preload(handsCharacters[currentIndex + 1].fullImage);
-      preload(handsCharacters[currentIndex + 1].handsImage);
-    }
-  }, [currentIndex]);
+  };
+
+  const getOptionClass = (name: string) => {
+    if (roundState !== 'revealed') return '';
+    if (name === character.character) return 'hh-opt-correct';
+    if (name === chosenName) return 'hh-opt-incorrect';
+    return 'hh-opt-dim';
+  };
 
   return (
-    <div
-      className={`hh-page ${loaded ? 'hh-loaded' : ''}`}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
-    >
+    <div className={`hh-page ${loaded ? 'hh-loaded' : ''}`}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
 
@@ -158,36 +152,6 @@ export default function HandsOfHistory() {
         }
         .hh-page.hh-loaded { opacity: 1; }
 
-        /* ========== BACKGROUND IMAGES ========== */
-        .hh-bg {
-          position: absolute;
-          inset: 0;
-          z-index: 0;
-        }
-        .hh-bg-img {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: opacity 0.6s ease;
-        }
-        .hh-bg-img.hidden { opacity: 0; }
-        .hh-bg-img.visible { opacity: 1; }
-
-        .hh-bg-gradient {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            to top,
-            rgba(0,0,0,0.7) 0%,
-            rgba(0,0,0,0.1) 40%,
-            rgba(0,0,0,0.05) 60%,
-            rgba(0,0,0,0.4) 100%
-          );
-          z-index: 1;
-        }
-
         /* ========== HEADER ========== */
         .hh-header {
           position: fixed;
@@ -195,7 +159,11 @@ export default function HandsOfHistory() {
           left: 0;
           right: 0;
           z-index: 50;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
           padding: 20px 32px;
+          background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0) 100%);
         }
         .hh-back-btn {
           display: flex;
@@ -214,163 +182,153 @@ export default function HandsOfHistory() {
         .hh-back-btn:hover { color: #fafafa; }
         .hh-back-btn span { font-size: 18px; }
 
-        /* ========== BOTTOM CAPTION (State 1) ========== */
-        .hh-caption {
-          position: fixed;
-          bottom: 70px;
-          left: 32px;
-          z-index: 20;
-          transition: opacity 0.4s ease;
-        }
-        .hh-caption.hidden { opacity: 0; pointer-events: none; }
-
-        .hh-caption-coin {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1.1rem;
-          color: #C9A84C;
-          margin-bottom: 4px;
-        }
-        .hh-caption-date {
-          font-family: 'Outfit', sans-serif;
-          font-size: 10px;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          color: rgba(201, 168, 76, 0.6);
-        }
-
-        /* ========== TAP PROMPT ========== */
-        .hh-tap-prompt {
-          position: fixed;
-          bottom: 70px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 20;
+        .hh-round-info {
           font-family: 'Outfit', sans-serif;
           font-size: 12px;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
+          letter-spacing: 0.1em;
           color: #C9A84C;
-          animation: hh-pulse 2.5s ease-in-out infinite;
-          cursor: pointer;
-          transition: opacity 0.4s ease;
-        }
-        .hh-tap-prompt.hidden { opacity: 0; pointer-events: none; }
-
-        @keyframes hh-pulse {
-          0%, 100% { opacity: 0.9; }
-          50% { opacity: 0.4; }
+          opacity: 0.8;
         }
 
-        /* ========== CLICK AREA (State 1) ========== */
-        .hh-click-area {
+        /* ========== MAIN LAYOUT ========== */
+        .hh-main {
+          display: flex;
+          height: 100vh;
+          padding-top: 70px;
+        }
+
+        /* ========== HANDS IMAGE (left side) ========== */
+        .hh-image-area {
+          flex: 1;
+          position: relative;
+          overflow: hidden;
+        }
+        .hh-image-area img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: opacity 0.5s ease;
+        }
+        .hh-image-area .hh-img-hidden { opacity: 0; position: absolute; inset: 0; }
+        .hh-image-area .hh-img-visible { opacity: 1; }
+        .hh-image-gradient {
           position: absolute;
           inset: 0;
-          z-index: 15;
-          cursor: pointer;
+          background: linear-gradient(to right, transparent 60%, rgba(0,0,0,0.7) 100%);
+          pointer-events: none;
         }
 
-        /* ========== STORY CARD (State 2) ========== */
-        .hh-card-backdrop {
-          position: fixed;
-          inset: 0;
-          z-index: 30;
-          background: transparent;
-          opacity: 0;
-          visibility: hidden;
-          transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .hh-card-backdrop.open {
-          opacity: 1;
-          visibility: visible;
-        }
-
-        .hh-card {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          z-index: 40;
-          background: #F5EDD8;
-          border-radius: 20px 20px 0 0;
-          padding: 36px 40px 40px;
-          max-height: 65vh;
-          overflow-y: auto;
-          transform: translateY(100%);
-          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          box-shadow: 0 -10px 60px rgba(0,0,0,0.4);
-        }
-        .hh-card.open {
-          transform: translateY(0);
-        }
-        .hh-card::-webkit-scrollbar { width: 4px; }
-        .hh-card::-webkit-scrollbar-track { background: transparent; }
-        .hh-card::-webkit-scrollbar-thumb { background: rgba(139,125,107,0.3); border-radius: 2px; }
-
-        .hh-card-top {
+        /* ========== RIGHT PANEL ========== */
+        .hh-panel {
+          width: 420px;
           display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 20px;
+          flex-direction: column;
+          padding: 32px;
+          overflow-y: auto;
         }
 
-        .hh-card-character {
+        .hh-question {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.6rem, 3vw, 2.2rem);
+          font-weight: 300;
+          color: #C9A84C;
+          margin-bottom: 32px;
+          line-height: 1.3;
+        }
+
+        /* ========== OPTIONS (guessing state) ========== */
+        .hh-options {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .hh-option-btn {
+          padding: 16px 24px;
+          border-radius: 12px;
+          border: 1px solid rgba(201, 168, 76, 0.3);
+          background: rgba(255,255,255,0.03);
+          color: #fafafa;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.15rem;
+          text-align: left;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .hh-option-btn:hover {
+          background: rgba(201, 168, 76, 0.1);
+          border-color: #C9A84C;
+        }
+        .hh-option-btn:disabled {
+          cursor: default;
+        }
+        .hh-option-btn.hh-opt-correct {
+          background: rgba(74, 124, 89, 0.2);
+          border-color: #4A7C59;
+          color: #6BBF7A;
+        }
+        .hh-option-btn.hh-opt-incorrect {
+          background: rgba(201, 168, 76, 0.12);
+          border-color: #C9A84C;
+          color: #C9A84C;
+        }
+        .hh-option-btn.hh-opt-dim {
+          opacity: 0.3;
+        }
+
+        /* ========== REVEAL CARD ========== */
+        .hh-reveal {
+          animation: hh-fade-in 0.4s ease;
+        }
+        @keyframes hh-fade-in {
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hh-reveal-verdict {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.5rem;
+          font-weight: 500;
+          margin-bottom: 16px;
+        }
+        .hh-reveal-verdict.correct { color: #4A7C59; }
+        .hh-reveal-verdict.incorrect { color: #C9A84C; }
+
+        .hh-reveal-character {
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #8B7D6B;
+          color: #737373;
           margin-bottom: 6px;
         }
 
-        .hh-card-coin-name {
+        .hh-reveal-coin {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.6rem, 4vw, 2.2rem);
-          font-weight: 400;
+          font-size: 1.5rem;
           color: #C9A84C;
-          line-height: 1.2;
+          margin-bottom: 4px;
         }
 
-        .hh-card-coin-date {
+        .hh-reveal-date {
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.1em;
-          color: #8B7D6B;
-          margin-top: 6px;
+          color: #737373;
           margin-bottom: 20px;
           padding-bottom: 16px;
-          border-bottom: 1px solid rgba(139, 125, 107, 0.2);
+          border-bottom: 1px solid rgba(255,255,255,0.08);
         }
 
-        .hh-card-close {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          border: 1px solid rgba(139, 125, 107, 0.3);
-          background: transparent;
-          color: #8B7D6B;
-          font-size: 18px;
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          transition: all 0.3s ease;
-          flex-shrink: 0;
-          margin-left: 16px;
-        }
-        .hh-card-close:hover {
-          background: rgba(139, 125, 107, 0.1);
-          color: #3D3428;
-        }
-
-        .hh-card-story {
+        .hh-reveal-story {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.1rem, 2vw, 1.3rem);
-          line-height: 1.9;
-          color: #3D3428;
+          font-size: 1.1rem;
+          line-height: 1.8;
+          color: #d0d0d0;
           margin-bottom: 28px;
         }
 
-        .hh-card-next {
+        .hh-next-btn {
           display: inline-flex;
           align-items: center;
           gap: 10px;
@@ -385,25 +343,20 @@ export default function HandsOfHistory() {
           text-transform: uppercase;
           cursor: pointer;
           transition: all 0.3s ease;
-          float: right;
+          align-self: flex-end;
         }
-        .hh-card-next:hover {
+        .hh-next-btn:hover {
           background: rgba(201, 168, 76, 0.1);
           border-color: #C9A84C;
         }
 
-        /* ========== NAVIGATION ========== */
-        .hh-nav {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          z-index: 25;
+        /* ========== DOTS ========== */
+        .hh-dots {
           display: flex;
-          align-items: center;
-          justify-content: center;
           gap: 10px;
-          padding: 20px 32px;
+          justify-content: center;
+          margin-top: auto;
+          padding-top: 24px;
         }
         .hh-dot {
           width: 8px;
@@ -413,47 +366,100 @@ export default function HandsOfHistory() {
           padding: 0;
           cursor: pointer;
           transition: all 0.3s ease;
-          background: rgba(245, 237, 216, 0.3);
-        }
-        .hh-dot:hover {
-          background: rgba(245, 237, 216, 0.6);
-          transform: scale(1.3);
+          background: rgba(245, 237, 216, 0.2);
         }
         .hh-dot.active {
           background: #C9A84C;
           box-shadow: 0 0 10px rgba(201, 168, 76, 0.5);
-          transform: scale(1.2);
+          transform: scale(1.3);
+        }
+        .hh-dot.done {
+          background: rgba(201, 168, 76, 0.4);
+        }
+
+        /* ========== FINAL SCREEN ========== */
+        .hh-final {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          height: 100vh;
+          padding: 80px 40px;
+          text-align: center;
+        }
+
+        .hh-final-score {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(4rem, 12vw, 7rem);
+          font-weight: 300;
+          color: #C9A84C;
+          line-height: 1;
+          margin-bottom: 8px;
+        }
+
+        .hh-final-of {
+          font-family: 'Outfit', sans-serif;
+          font-size: 14px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: #737373;
+          margin-bottom: 40px;
+        }
+
+        .hh-final-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.8rem, 5vw, 2.6rem);
+          font-weight: 300;
+          font-style: italic;
+          color: #C9A84C;
+          margin-bottom: 32px;
+        }
+
+        .hh-final-text {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.1rem;
+          line-height: 1.8;
+          color: #d0d0d0;
+          max-width: 600px;
+          margin-bottom: 48px;
+        }
+
+        .hh-final-btn {
+          padding: 16px 36px;
+          border-radius: 100px;
+          border: 1px solid rgba(201, 168, 76, 0.4);
+          background: transparent;
+          color: #C9A84C;
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .hh-final-btn:hover {
+          background: rgba(201, 168, 76, 0.1);
+          border-color: #C9A84C;
         }
 
         /* ========== MOBILE ========== */
-        @media (max-width: 768px) {
-          .hh-header { padding: 16px 20px; }
-          .hh-caption { left: 20px; bottom: 60px; }
-          .hh-tap-prompt { bottom: 60px; }
-          .hh-card {
-            padding: 28px 24px 32px;
-            max-height: 70vh;
+        @media (max-width: 900px) {
+          .hh-main {
+            flex-direction: column;
           }
-          .hh-nav { padding: 14px 20px; }
+          .hh-image-area {
+            flex: none;
+            height: 40vh;
+          }
+          .hh-image-gradient {
+            background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.8) 100%);
+          }
+          .hh-panel {
+            width: 100%;
+            padding: 24px;
+          }
         }
       `}</style>
-
-      {/* Background images */}
-      <div className="hh-bg">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className={`hh-bg-img ${revealed ? 'hidden' : 'visible'}`}
-          src={character.fullImage}
-          alt={character.character}
-        />
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          className={`hh-bg-img ${revealed ? 'visible' : 'hidden'}`}
-          src={character.handsImage}
-          alt={`${character.character} — hands`}
-        />
-        <div className="hh-bg-gradient" />
-      </div>
 
       {/* Header */}
       <header className="hh-header">
@@ -461,67 +467,88 @@ export default function HandsOfHistory() {
           <span>{'\u2190'}</span>
           Exhibition
         </button>
+        {roundState !== 'finished' && (
+          <span className="hh-round-info">
+            Round {currentRound + 1} of {roundOrder.length} &middot; Score: {score}
+          </span>
+        )}
       </header>
 
-      {/* Click area for State 1 */}
-      {!revealed && (
-        <div className="hh-click-area" onClick={() => setRevealed(true)} />
-      )}
-
-      {/* Caption (State 1) */}
-      <div className={`hh-caption ${revealed ? 'hidden' : ''}`}>
-        <p className="hh-caption-coin">{character.coinName}</p>
-        <p className="hh-caption-date">{character.coinDate}</p>
-      </div>
-
-      {/* Tap prompt (State 1) */}
-      <div
-        className={`hh-tap-prompt ${revealed ? 'hidden' : ''}`}
-        onClick={() => setRevealed(true)}
-      >
-        Tap to discover
-      </div>
-
-      {/* Card backdrop (State 2) */}
-      <div
-        className={`hh-card-backdrop ${revealed ? 'open' : ''}`}
-        onClick={() => setRevealed(false)}
-      />
-
-      {/* Story card (State 2) */}
-      <div className={`hh-card ${revealed ? 'open' : ''}`}>
-        <div className="hh-card-top">
-          <div>
-            <p className="hh-card-character">{character.character}</p>
-            <h2 className="hh-card-coin-name">{character.coinName}</h2>
+      {roundState !== 'finished' ? (
+        <main className="hh-main">
+          {/* Left: hands image, crossfade to full on reveal */}
+          <div className="hh-image-area">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={roundState === 'revealed' ? 'hh-img-hidden' : 'hh-img-visible'}
+              src={character.handsImage}
+              alt="Whose hands?"
+            />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className={roundState === 'revealed' ? 'hh-img-visible' : 'hh-img-hidden'}
+              src={character.fullImage}
+              alt={character.character}
+            />
+            <div className="hh-image-gradient" />
           </div>
-          <button className="hh-card-close" onClick={() => setRevealed(false)}>{'\u00D7'}</button>
-        </div>
-        <p className="hh-card-coin-date">{character.coinDate}</p>
-        <p className="hh-card-story">{character.story}</p>
 
-        {isLast ? (
-          <button className="hh-card-next" onClick={() => router.push('/exhibitions/in-their-hands')}>
+          {/* Right: question panel */}
+          <div className="hh-panel">
+            {roundState === 'guessing' ? (
+              <>
+                <h2 className="hh-question">Whose hands are these?</h2>
+                <div className="hh-options">
+                  {options.map((opt) => (
+                    <button
+                      key={opt.id}
+                      className="hh-option-btn"
+                      onClick={() => handleChoice(opt.character)}
+                    >
+                      {opt.character}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="hh-reveal">
+                <p className={`hh-reveal-verdict ${isCorrect ? 'correct' : 'incorrect'}`}>
+                  {isCorrect ? 'Correct!' : 'Not quite!'}
+                </p>
+                <p className="hh-reveal-character">{character.character}</p>
+                <h3 className="hh-reveal-coin">{character.coinName}</h3>
+                <p className="hh-reveal-date">{character.coinDate}</p>
+                <p className="hh-reveal-story">{character.story}</p>
+                <button className="hh-next-btn" onClick={nextRound}>
+                  {isLastRound ? 'See Results' : 'Next'} {'\u2192'}
+                </button>
+              </div>
+            )}
+
+            {/* Progress dots */}
+            <div className="hh-dots">
+              {roundOrder.map((_, i) => (
+                <span
+                  key={i}
+                  className={`hh-dot ${i === currentRound ? 'active' : i < currentRound ? 'done' : ''}`}
+                />
+              ))}
+            </div>
+          </div>
+        </main>
+      ) : (
+        <div className="hh-final">
+          <p className="hh-final-score">{score}</p>
+          <p className="hh-final-of">out of {roundOrder.length}</p>
+          <h1 className="hh-final-title">You know these hands.</h1>
+          <p className="hh-final-text">
+            Every coin in this exhibition was held by someone. A soldier, a priest, a widow, a mother, a prisoner, a princess. The coins survived. The hands did not. But the stories connect us to the people who held them — across two thousand years of history, through hands just like yours.
+          </p>
+          <button className="hh-final-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
             Back to Exhibition {'\u2192'}
           </button>
-        ) : (
-          <button className="hh-card-next" onClick={() => { setRevealed(false); setTimeout(() => goNext(), 300); }}>
-            Next {'\u2192'}
-          </button>
-        )}
-      </div>
-
-      {/* Navigation dots */}
-      <nav className="hh-nav">
-        {handsCharacters.map((_, i) => (
-          <button
-            key={i}
-            className={`hh-dot ${i === currentIndex ? 'active' : ''}`}
-            onClick={() => goTo(i)}
-            aria-label={`Go to character ${i + 1}`}
-          />
-        ))}
-      </nav>
+        </div>
+      )}
     </div>
   );
 }
