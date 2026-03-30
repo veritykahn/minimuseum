@@ -210,8 +210,8 @@ export default function HandsOfHistory() {
           align-items: center;
           justify-content: center;
           height: 100vh;
-          padding: 80px 32px 40px 48px;
-          gap: 32px;
+          padding: 80px 48px 40px;
+          gap: 40px;
         }
 
         /* ========== HANDS IMAGE (left side) ========== */
@@ -252,9 +252,7 @@ export default function HandsOfHistory() {
 
         /* ========== RIGHT PANEL ========== */
         .hh-panel {
-          flex: 1;
-          min-width: 340px;
-          max-width: 480px;
+          flex: 0 1 420px;
           display: flex;
           flex-direction: column;
           padding: 16px 0;
