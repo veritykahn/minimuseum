@@ -122,6 +122,7 @@ export default function GospelTimeline() {
   const [transitioning, setTransitioning] = useState(false);
   const [direction, setDirection] = useState<'left' | 'right'>('right');
   const [loaded, setLoaded] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
@@ -334,13 +335,38 @@ export default function GospelTimeline() {
         .tl-card {
           background: #F5EDD8;
           border-radius: 4px;
-          padding: 40px 36px;
+          padding: 32px 36px;
+          height: 55vh;
+          max-height: 500px;
+          display: flex;
+          flex-direction: column;
           box-shadow:
             0 20px 60px rgba(0,0,0,0.4),
             0 2px 10px rgba(0,0,0,0.2),
             inset 0 1px 0 rgba(255,255,255,0.3);
           transition: opacity 0.4s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
+        }
+
+        .tl-card-header {
+          flex-shrink: 0;
+        }
+
+        .tl-card-body {
+          flex: 1;
+          overflow-y: auto;
+          min-height: 0;
+          padding-right: 8px;
+        }
+        .tl-card-body::-webkit-scrollbar {
+          width: 4px;
+        }
+        .tl-card-body::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .tl-card-body::-webkit-scrollbar-thumb {
+          background: rgba(139, 125, 107, 0.3);
+          border-radius: 2px;
         }
         .tl-card::before {
           content: '';
@@ -432,6 +458,61 @@ export default function GospelTimeline() {
             0 16px 50px rgba(0,0,0,0.5),
             0 4px 12px rgba(0,0,0,0.3);
           border: 1px solid rgba(201, 168, 76, 0.12);
+          cursor: pointer;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .tl-painting-inset img:hover {
+          transform: scale(1.02);
+          box-shadow:
+            0 20px 60px rgba(0,0,0,0.6),
+            0 6px 16px rgba(0,0,0,0.4);
+        }
+
+        /* ========== PAINTING MODAL ========== */
+        .tl-modal-backdrop {
+          position: fixed;
+          inset: 0;
+          z-index: 300;
+          background: rgba(0, 0, 0, 0.9);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          opacity: 0;
+          visibility: hidden;
+          transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .tl-modal-backdrop.open {
+          opacity: 1;
+          visibility: visible;
+        }
+        .tl-modal-backdrop img {
+          max-width: 90vw;
+          max-height: 90vh;
+          object-fit: contain;
+          border-radius: 4px;
+          box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+        }
+        .tl-modal-close {
+          position: fixed;
+          top: 24px;
+          right: 24px;
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          border: 1px solid rgba(255,255,255,0.3);
+          background: rgba(0,0,0,0.5);
+          color: #fafafa;
+          font-size: 22px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.3s ease;
+          z-index: 310;
+        }
+        .tl-modal-close:hover {
+          background: rgba(255,255,255,0.15);
         }
 
         /* ========== NAVIGATION ========== */
@@ -603,24 +684,35 @@ export default function GospelTimeline() {
         {/* Parchment card */}
         <div className="tl-card-area">
           <div className={`tl-card ${transitioning ? (direction === 'right' ? 'entering-right' : 'entering-left') : 'visible'}`}>
-            <h2 className="tl-card-ruler">{stop.ruler}</h2>
-            <p className="tl-card-coin">{stop.coin}</p>
-            <p className="tl-card-reference">{stop.reference}</p>
-            <p className="tl-card-passage">&ldquo;{stop.passage}&rdquo;</p>
-            <p className="tl-card-story">{stop.story}</p>
+            <div className="tl-card-header">
+              <h2 className="tl-card-ruler">{stop.ruler}</h2>
+              <p className="tl-card-coin">{stop.coin}</p>
+              <p className="tl-card-reference">{stop.reference}</p>
+            </div>
+            <div className="tl-card-body">
+              <p className="tl-card-passage">&ldquo;{stop.passage}&rdquo;</p>
+              <p className="tl-card-story">{stop.story}</p>
 
-            {isLast && (
-              <button className="tl-end-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
-                Back to Exhibition {'\u2192'}
-              </button>
-            )}
+              {isLast && (
+                <button className="tl-end-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
+                  Back to Exhibition {'\u2192'}
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
       </main>
 
-      {/* Painting inset — bottom right corner */}
+      {/* Painting inset — right side, click for fullscreen */}
       <div className={`tl-painting-inset ${transitioning ? 'fading' : ''}`}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={stop.painting} alt={`${stop.ruler} — painting`} onClick={() => setShowModal(true)} />
+      </div>
+
+      {/* Fullscreen painting modal */}
+      <div className={`tl-modal-backdrop ${showModal ? 'open' : ''}`} onClick={() => setShowModal(false)}>
+        <button className="tl-modal-close" onClick={() => setShowModal(false)}>{'\u00D7'}</button>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={stop.painting} alt={`${stop.ruler} — painting`} />
       </div>

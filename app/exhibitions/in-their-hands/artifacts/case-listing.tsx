@@ -247,6 +247,11 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           transform: translateX(0);
         }
 
+        .cl-card-row-break {
+          flex-basis: 100%;
+          height: 0;
+        }
+
         .cl-card.cl-card-interactive {
           width: 180px;
         }
@@ -343,6 +348,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           </div>
         ))}
 
+        {interactive && <div className="cl-card-row-break" />}
         {interactive && (
           <div
             className={`cl-card cl-card-interactive ${interactive.status}`}
