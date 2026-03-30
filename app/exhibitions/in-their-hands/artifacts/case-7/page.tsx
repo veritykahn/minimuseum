@@ -16,7 +16,7 @@ export default function Case7() {
         subtitle: 'Who held these coins — and when?',
         emoji: '\u{270B}',
         route: '/exhibitions/in-their-hands/hands',
-        status: 'coming-soon',
+        status: 'available',
       }}
     />
   );

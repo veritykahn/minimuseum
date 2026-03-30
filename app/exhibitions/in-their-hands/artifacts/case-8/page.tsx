@@ -16,7 +16,7 @@ export default function Case8() {
         subtitle: 'Learn to authenticate ancient coins',
         emoji: '\u{1F50D}',
         route: '/exhibitions/in-their-hands/real-or-replica',
-        status: 'coming-soon',
+        status: 'available',
       }}
     />
   );
