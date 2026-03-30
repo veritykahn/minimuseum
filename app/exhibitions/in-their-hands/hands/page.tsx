@@ -46,7 +46,7 @@ const handsCharacters = [
     caption: "Augustus AE As \u00B7 5\u20134 BC",
     fullImage: "/exhibitions/in-their-hands/Hands/merchant-full-v1.jpg",
     handsImage: "/exhibitions/in-their-hands/Hands/merchant-hands-v2.jpg",
-    story: "A merchant in the marketplace, handling the day\u2019s takings. Roman coins circulated throughout the empire, and a trader would have handled bronze asses bearing the face of Augustus Caesar regularly. Augustus is the emperor who ordered the census described in Luke 2:1 \u2014 the census that sent Mary and Joseph from Nazareth to Bethlehem, where Jesus was born. Augustus ruled the entire Roman world from Rome. He never visited Judaea and almost certainly never thought about it. But his administrative order set the Nativity in motion."
+    story: "A merchant in the marketplace, handling the day\u2019s takings. Roman coins circulated throughout the empire, and a trader would have handled bronze coins bearing the face of Augustus Caesar regularly. Augustus is the emperor who ordered the census described in Luke 2:1 \u2014 the census that sent Mary and Joseph from Nazareth to Bethlehem, where Jesus was born. Augustus ruled the entire Roman world from Rome. He never visited Judaea and almost certainly never thought about it. But his administrative order set the Nativity in motion."
   },
   {
     id: 5,
