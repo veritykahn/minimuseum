@@ -207,51 +207,59 @@ export default function HandsOfHistory() {
         /* ========== MAIN LAYOUT ========== */
         .hh-main {
           display: flex;
+          align-items: center;
+          justify-content: center;
           height: 100vh;
-          padding-top: 70px;
+          padding: 80px 48px 40px;
+          gap: 40px;
         }
 
         /* ========== HANDS IMAGE (left side) ========== */
         .hh-image-area {
           flex: 0 0 auto;
-          position: relative;
-          overflow: hidden;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
           height: 100%;
         }
-        .hh-image-area img {
+        .hh-image-frame {
+          position: relative;
+          flex: 1;
+          min-height: 0;
+          border: 1px solid rgba(201, 168, 76, 0.2);
+          border-radius: 8px;
+          overflow: hidden;
+          box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        .hh-image-frame img {
           height: 100%;
           width: auto;
           object-fit: contain;
+          display: block;
           transition: opacity 0.5s ease;
         }
-        .hh-image-area .hh-img-hidden { opacity: 0; position: absolute; inset: 0; }
-        .hh-image-area .hh-img-visible { opacity: 1; }
-        .hh-image-gradient {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(to right, transparent 60%, rgba(0,0,0,0.7) 100%);
-          pointer-events: none;
-        }
+        .hh-image-frame .hh-img-hidden { opacity: 0; position: absolute; inset: 0; }
+        .hh-image-frame .hh-img-visible { opacity: 1; }
         .hh-image-caption {
-          position: absolute;
-          bottom: 24px;
-          left: 24px;
-          z-index: 5;
           font-family: 'Cormorant Garamond', serif;
           font-size: 1rem;
           color: #C9A84C;
           opacity: 0.8;
+          text-align: center;
+          flex-shrink: 0;
         }
 
         /* ========== RIGHT PANEL ========== */
         .hh-panel {
           flex: 1;
-          min-width: 360px;
-          max-width: 520px;
+          min-width: 340px;
+          max-width: 480px;
           display: flex;
           flex-direction: column;
-          padding: 32px;
+          padding: 16px 0;
           overflow-y: auto;
+          max-height: calc(100vh - 120px);
         }
 
         .hh-question {
@@ -473,17 +481,19 @@ export default function HandsOfHistory() {
         @media (max-width: 900px) {
           .hh-main {
             flex-direction: column;
+            padding: 80px 24px 32px;
+            gap: 16px;
           }
           .hh-image-area {
             flex: none;
-            height: 40vh;
-          }
-          .hh-image-gradient {
-            background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.8) 100%);
+            height: 35vh;
+            width: 100%;
           }
           .hh-panel {
             width: 100%;
-            padding: 24px;
+            min-width: 0;
+            max-width: 100%;
+            padding: 8px 0;
           }
         }
       `}</style>
@@ -505,19 +515,20 @@ export default function HandsOfHistory() {
         <main className="hh-main">
           {/* Left: hands image, crossfade to full on reveal */}
           <div className="hh-image-area">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className={roundState === 'revealed' ? 'hh-img-hidden' : 'hh-img-visible'}
-              src={character.handsImage}
-              alt="Whose hands?"
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className={roundState === 'revealed' ? 'hh-img-visible' : 'hh-img-hidden'}
-              src={character.fullImage}
-              alt={character.character}
-            />
-            <div className="hh-image-gradient" />
+            <div className="hh-image-frame">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={roundState === 'revealed' ? 'hh-img-hidden' : 'hh-img-visible'}
+                src={character.handsImage}
+                alt="Whose hands?"
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={roundState === 'revealed' ? 'hh-img-visible' : 'hh-img-hidden'}
+                src={character.fullImage}
+                alt={character.character}
+              />
+            </div>
             <p className="hh-image-caption">{character.caption}</p>
           </div>
 
