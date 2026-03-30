@@ -1594,7 +1594,7 @@ export default function InTheirHands() {
         <div className="ith-exhibition-main">
           <div className="ith-exhibition-title">
             <h1>In Their Hands</h1>
-            <p>New Testament Coins of the Passion</p>
+            <p>Coins of the New Testament</p>
           </div>
 
           <div className="ith-exhibition-grid">
