@@ -101,8 +101,9 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
         }
 
         .cl-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
           gap: 24px;
           max-width: 1100px;
           margin: 0 auto;
@@ -120,6 +121,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           border-radius: 16px;
           cursor: pointer;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          width: 180px;
         }
 
         .cl-card:hover {
@@ -246,11 +248,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
         }
 
         .cl-card.cl-card-interactive {
-          grid-column: 1 / -1;
-          flex-direction: row;
-          justify-content: center;
-          max-width: 400px;
-          margin: 0 auto;
+          width: 180px;
         }
 
         .cl-card.coming-soon {
