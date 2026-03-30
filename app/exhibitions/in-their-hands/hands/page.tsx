@@ -213,14 +213,15 @@ export default function HandsOfHistory() {
 
         /* ========== HANDS IMAGE (left side) ========== */
         .hh-image-area {
-          flex: 1;
+          flex: 0 0 auto;
           position: relative;
           overflow: hidden;
+          height: 100%;
         }
         .hh-image-area img {
-          width: 100%;
           height: 100%;
-          object-fit: cover;
+          width: auto;
+          object-fit: contain;
           transition: opacity 0.5s ease;
         }
         .hh-image-area .hh-img-hidden { opacity: 0; position: absolute; inset: 0; }
@@ -244,7 +245,9 @@ export default function HandsOfHistory() {
 
         /* ========== RIGHT PANEL ========== */
         .hh-panel {
-          width: 420px;
+          flex: 1;
+          min-width: 360px;
+          max-width: 520px;
           display: flex;
           flex-direction: column;
           padding: 32px;
