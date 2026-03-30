@@ -210,8 +210,8 @@ export default function HandsOfHistory() {
           align-items: center;
           justify-content: center;
           height: 100vh;
-          padding: 80px 48px 40px;
-          gap: 40px;
+          padding: 80px 48px 40px 32px;
+          gap: 32px;
         }
 
         /* ========== HANDS IMAGE (left side) ========== */
