@@ -16,6 +16,7 @@ const COLORS = {
   sageLighter: '#9aa091',
   seeingIsDeceiving: '#a8d5e5',
   harlemRenaissance: '#b485d2',
+  inTheirHands: '#C9A84C',
   fearLab: '#1E3A5F',
   greatWar: '#9B2226',
 };
@@ -65,7 +66,7 @@ const LEVEL1_ROOMS: MapRoom[] = [
     id: 'first-floor', label: '1st Floor: Horizons', path: '/exhibitions/first-floor',
     x: 100, y: 140, width: 300, height: 80, accentColor: COLORS.sageLighter,
     parent: 'greathall',
-    children: ['seeing-is-deceiving', 'harlem-renaissance', 'fear-lab', 'great-war'],
+    children: ['seeing-is-deceiving', 'harlem-renaissance', 'in-their-hands', 'fear-lab', 'great-war'],
   },
   {
     id: 'ground-floor', label: 'Ground Floor: Origins', path: '/exhibitions/ground-floor',
@@ -94,34 +95,43 @@ export const MUSEUM_OVERVIEW: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 
 const FIRST_FLOOR_ROOMS: MapRoom[] = [
+  // Top row — open exhibitions
   {
     id: 'seeing-is-deceiving', label: 'Seeing is Deceiving', path: '/exhibitions/seeing-is-deceiving',
-    x: 30, y: 80, width: 200, height: 120, accentColor: COLORS.seeingIsDeceiving,
+    x: 25, y: 80, width: 140, height: 120, accentColor: COLORS.seeingIsDeceiving,
     parent: 'first-floor',
     children: ['illusions', 'artifacts', 'resources'],
   },
   {
     id: 'harlem-renaissance', label: 'Harlem Renaissance', path: '/exhibitions/harlem-renaissance',
-    x: 270, y: 80, width: 200, height: 120, accentColor: COLORS.harlemRenaissance,
+    x: 180, y: 80, width: 140, height: 120, accentColor: COLORS.harlemRenaissance,
     parent: 'first-floor',
     children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources'],
   },
   {
+    id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
+    x: 335, y: 80, width: 140, height: 120, accentColor: COLORS.inTheirHands,
+    parent: 'first-floor',
+    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica'],
+  },
+  // Bottom row — installation in progress
+  {
     id: 'fear-lab', label: 'Fear Lab', path: '/exhibitions/fear-lab',
-    x: 30, y: 240, width: 200, height: 100, accentColor: COLORS.fearLab,
+    x: 102, y: 240, width: 140, height: 100, accentColor: COLORS.fearLab,
     comingSoon: true, parent: 'first-floor',
   },
   {
     id: 'great-war', label: 'The Great War', path: '/exhibitions/great-war',
-    x: 270, y: 240, width: 200, height: 100, accentColor: COLORS.greatWar,
+    x: 257, y: 240, width: 140, height: 100, accentColor: COLORS.greatWar,
     comingSoon: true, parent: 'first-floor',
   },
 ];
 
 const FIRST_FLOOR_CONNECTIONS: RoomConnection[] = [
   ['seeing-is-deceiving', 'harlem-renaissance'],
+  ['harlem-renaissance', 'in-their-hands'],
   ['seeing-is-deceiving', 'fear-lab'],
-  ['harlem-renaissance', 'great-war'],
+  ['in-their-hands', 'great-war'],
   ['fear-lab', 'great-war'],
 ];
 
@@ -312,12 +322,108 @@ export const HARLEM_RENAISSANCE: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — In Their Hands (Floor Plan)
+//
+// Layout: each display case sits above the interactive it leads to
+// ┌──────────┬──────────┬──────────┐
+// │  Case 6  │  Case 7  │  Case 8  │
+// ├── ───────┼── ───────┼── ───────┤
+// │  Gospel  │ Hands of │  Real or │
+// │ Timeline │ History  │ Replica? │
+// └──────────┴──────────┴──────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const ITH_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 280, rx: 3 },
+  accentColor: COLORS.inTheirHands,
+  walls: [
+    // Horizontal wall between Exhibition Hall and the cases (with doorway)
+    ...wallWithDoorway(40, 130, 460, 130, 20),
+
+    // Case row vertical walls
+    ...wallWithDoorway(180, 130, 180, 245),  // between Case 6 and Case 7
+    ...wallWithDoorway(320, 130, 320, 245),  // between Case 7 and Case 8
+
+    // Horizontal wall between each case and its interactive
+    ...wallWithDoorway(40, 245, 180, 245),   // Case 6 → Gospel Timeline
+    ...wallWithDoorway(180, 245, 320, 245),  // Case 7 → Hands of History
+    ...wallWithDoorway(320, 245, 460, 245),  // Case 8 → Real or Replica?
+
+    // Interactive row vertical walls
+    ...wallWithDoorway(180, 245, 180, 360),
+    ...wallWithDoorway(320, 245, 320, 360),
+  ],
+  rooms: [
+    // Exhibition Hall entrance
+    {
+      id: 'ith-entrance', label: 'Exhibition Hall', path: '/exhibitions/in-their-hands',
+      accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
+      x: 40, y: 80, width: 420, height: 50,
+      labelX: 250, labelY: 105,
+    },
+    // Display cases
+    {
+      id: 'ith-case-6', label: 'Case 6', path: '/exhibitions/in-their-hands/artifacts/case-6',
+      accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
+      x: 40, y: 130, width: 140, height: 115,
+      labelX: 110, labelY: 188,
+    },
+    {
+      id: 'ith-case-7', label: 'Case 7', path: '/exhibitions/in-their-hands/artifacts/case-7',
+      accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
+      x: 180, y: 130, width: 140, height: 115,
+      labelX: 250, labelY: 188,
+    },
+    {
+      id: 'ith-case-8', label: 'Case 8', path: '/exhibitions/in-their-hands/artifacts/case-8',
+      accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
+      x: 320, y: 130, width: 140, height: 115,
+      labelX: 390, labelY: 188,
+    },
+    // Interactives
+    {
+      id: 'ith-timeline', label: 'The Gospel Timeline', path: '/exhibitions/in-their-hands/timeline',
+      accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
+      x: 40, y: 245, width: 140, height: 115,
+      labelX: 110, labelY: 302,
+    },
+    {
+      id: 'ith-hands', label: 'Hands of History', path: '/exhibitions/in-their-hands/hands',
+      accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
+      x: 180, y: 245, width: 140, height: 115,
+      labelX: 250, labelY: 302,
+    },
+    {
+      id: 'ith-real-or-replica', label: 'Real or Replica?', path: '/exhibitions/in-their-hands/real-or-replica',
+      accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
+      x: 320, y: 245, width: 140, height: 115,
+      labelX: 390, labelY: 302,
+    },
+  ],
+};
+
+export const IN_THEIR_HANDS: MapLevelConfig = {
+  level: 'exhibition',
+  viewBox: '0 0 500 410',
+  rooms: [],
+  connections: [],
+  title: 'In Their Hands',
+  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
+  ],
+  floorPlan: ITH_FLOOR_PLAN,
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Level resolver
 // ═══════════════════════════════════════════════════════════════════
 
 export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/seeing-is-deceiving')) return SEEING_IS_DECEIVING;
   if (pathname.startsWith('/exhibitions/harlem-renaissance')) return HARLEM_RENAISSANCE;
+  if (pathname.startsWith('/exhibitions/in-their-hands')) return IN_THEIR_HANDS;
   if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
   if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;

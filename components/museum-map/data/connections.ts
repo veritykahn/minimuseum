@@ -13,6 +13,7 @@ export const CONNECTIONS: RoomConnection[] = [
   // First Floor connections
   ['first-floor', 'seeing-is-deceiving'],
   ['first-floor', 'harlem-renaissance'],
+  ['first-floor', 'in-their-hands'],
   ['first-floor', 'fear-lab'],
   ['first-floor', 'great-war'],
 
@@ -27,6 +28,14 @@ export const CONNECTIONS: RoomConnection[] = [
   ['harlem-renaissance', 'hr-harlem-in-words'],
   ['harlem-renaissance', 'hr-migration-map'],
   ['harlem-renaissance', 'hr-resources'],
+
+  // In Their Hands sub-pages
+  ['in-their-hands', 'ith-case-6'],
+  ['in-their-hands', 'ith-case-7'],
+  ['in-their-hands', 'ith-case-8'],
+  ['in-their-hands', 'ith-timeline'],
+  ['in-their-hands', 'ith-hands'],
+  ['in-their-hands', 'ith-real-or-replica'],
 
   // Ground Floor connections (for future)
   ['ground-floor', 'egypt'],
