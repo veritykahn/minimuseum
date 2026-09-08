@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { getWebGLStatus, WEBGL_UNAVAILABLE_MESSAGE } from '@/lib/webgl';
+import { disposeScene } from '@/lib/three-utils';
 
 type ArtifactData = {
   title: string;
@@ -86,6 +88,16 @@ export default function ArtifactViewer({ artifactId }: Props) {
   useEffect(() => {
     if (!containerRef.current) return;
 
+    // The browser can refuse WebGL entirely (hardware acceleration off, GPU
+    // blocklisted). Probe before building anything so we can explain rather
+    // than throw into the error boundary.
+    if (getWebGLStatus() === 'unavailable') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Report unsupported browsers instead of crashing
+      setIsLoading(false);
+      setLoadError(WEBGL_UNAVAILABLE_MESSAGE);
+      return;
+    }
+
     const container = containerRef.current;
     const width = container.clientWidth;
     const height = container.clientHeight;
@@ -96,10 +108,18 @@ export default function ArtifactViewer({ artifactId }: Props) {
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 0, 5);
 
-    const renderer = new THREE.WebGLRenderer({
-      antialias: true,
-      alpha: true
-    });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: true,
+        alpha: true
+      });
+    } catch {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Report unsupported browsers instead of crashing
+      setIsLoading(false);
+      setLoadError(WEBGL_UNAVAILABLE_MESSAGE);
+      return;
+    }
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -157,12 +177,24 @@ export default function ArtifactViewer({ artifactId }: Props) {
 
     sceneRef.current = { scene, camera, renderer, controls, model: null };
 
+    let frameId = 0;
     const animate = () => {
-      requestAnimationFrame(animate);
+      frameId = requestAnimationFrame(animate);
       controls.update();
       renderer.render(scene, camera);
     };
     animate();
+
+    // A lost context leaves a permanently blank canvas; stop the loop and tell
+    // the visitor rather than rendering into nothing.
+    const canvas = renderer.domElement;
+    const handleContextLost = (event: Event) => {
+      event.preventDefault();
+      cancelAnimationFrame(frameId);
+      setIsLoading(false);
+      setLoadError('3D view was interrupted. Please reload the page.');
+    };
+    canvas.addEventListener('webglcontextlost', handleContextLost);
 
     const handleResize = () => {
       if (!containerRef.current) return;
@@ -176,11 +208,18 @@ export default function ArtifactViewer({ artifactId }: Props) {
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      canvas.removeEventListener('webglcontextlost', handleContextLost);
+      cancelAnimationFrame(frameId);
       controls.dispose();
+      disposeScene(scene);
       renderer.dispose();
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
+      // dispose() alone does not release the GPU context; without this every
+      // artifact visit leaks one and the browser hits its context cap.
+      renderer.forceContextLoss();
+      if (container.contains(canvas)) {
+        container.removeChild(canvas);
       }
+      sceneRef.current = null;
     };
   }, []);
 
@@ -195,10 +234,17 @@ export default function ArtifactViewer({ artifactId }: Props) {
     setIsLoading(true);
     setLoadError(null);
 
+    // The load is async; the viewer can unmount before it resolves.
+    let cancelled = false;
+
     const loader = new GLTFLoader();
     loader.load(
       artifact.model,
       (gltf) => {
+        if (cancelled || !sceneRef.current) {
+          disposeScene(gltf.scene);
+          return;
+        }
         const model = gltf.scene;
         const box = new THREE.Box3().setFromObject(model);
         const center = box.getCenter(new THREE.Vector3());
@@ -208,7 +254,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
         model.scale.setScalar(scale);
         model.position.sub(center.multiplyScalar(scale));
         scene.add(model);
-        sceneRef.current!.model = model;
+        sceneRef.current.model = model;
         camera.position.set(0, 0.5, 4);
         controls.target.set(0, 0, 0);
         controls.update();
@@ -216,11 +262,16 @@ export default function ArtifactViewer({ artifactId }: Props) {
       },
       undefined,
       (error) => {
+        if (cancelled) return;
         console.error('Error loading model:', error);
         setIsLoading(false);
         setLoadError('Failed to load 3D model');
       }
     );
+
+    return () => {
+      cancelled = true;
+    };
   }, [artifact]);
 
   // Stop auto-rotate on user interaction
