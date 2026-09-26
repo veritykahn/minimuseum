@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
     title: 'Artifacts Gallery | Seeing is Deceiving',
     description:
       'Explore 3D models of historical optical instruments including stereoscopes and Victorian optical toys.',
-    url: 'https://minimuseumproject.com/exhibitions/seeing-is-deceiving/artifacts',
+    url: `${SITE_URL}/exhibitions/seeing-is-deceiving/artifacts`,
   },
 };
 

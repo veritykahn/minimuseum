@@ -1,7 +1,8 @@
+import { SITE_URL } from '@/lib/site';
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = 'https://minimuseumproject.com';
+  const baseUrl = SITE_URL;
   const lastModified = new Date();
 
   return [
@@ -130,6 +131,114 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/timeline`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/hands`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/real-or-replica`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-6`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-6/augustus`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-6/herod-great`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-6/aretas`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-7`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-7/widow-mite`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-7/tribute-penny`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-7/shekel`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-7/pilate`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-7/antipas`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-8`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-8/agrippa`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-8/claudius`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/artifacts/case-8/festus`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
     },
   ];
 }

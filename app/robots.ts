@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site';
 import { MetadataRoute } from 'next';
 
 export default function robots(): MetadataRoute.Robots {
@@ -5,8 +6,10 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/api/', '/_next/', '/private/'],
+      // /_next/ must stay crawlable: it serves the CSS and JavaScript Google
+      // needs to render the pages. Blocking it makes pages look empty to Google.
+      disallow: ['/api/', '/private/'],
     },
-    sitemap: 'https://minimuseumproject.com/sitemap.xml',
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

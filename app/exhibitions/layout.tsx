@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -7,7 +8,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Exhibitions | The Mini Museum',
     description: 'Monthly curated collections featuring real artifacts and primary sources.',
-    url: 'https://minimuseumproject.com/exhibitions',
+    url: `${SITE_URL}/exhibitions`,
   },
 };
 

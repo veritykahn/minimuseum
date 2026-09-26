@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
     title: 'The Harlem Renaissance Exhibition',
     description:
       'The Great Migration and the cultural revolution that reshaped America.',
-    url: 'https://minimuseumproject.com/exhibitions/harlem-renaissance',
+    url: `${SITE_URL}/exhibitions/harlem-renaissance`,
   },
 };
 

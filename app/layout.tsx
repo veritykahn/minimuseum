@@ -1,9 +1,11 @@
+import { SITE_URL } from '@/lib/site';
 import type { Metadata } from "next";
 import "./globals.css";
 import MuseumMap from "@/components/museum-map/MuseumMapRefactored";
 import { OrganizationJsonLd } from "@/components/JsonLd";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "The Mini Museum | Big History. Small Spaces.",
   description: "Monthly curated exhibitions bringing museum experiences to intimate spaces. Discovery comes before knowledge.",
   keywords: ["museum", "education", "history", "exhibitions", "Austin", "Texas", "school museum"],
@@ -11,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "The Mini Museum",
     description: "Big History. Small Spaces. Monthly curated exhibitions coming January 2026.",
-    url: "https://minimuseumproject.com",
+    url: SITE_URL,
     siteName: "The Mini Museum",
     locale: "en_US",
     type: "website",
