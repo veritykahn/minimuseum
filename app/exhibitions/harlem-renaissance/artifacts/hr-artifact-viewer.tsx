@@ -5,6 +5,19 @@ import { useRouter } from 'next/navigation';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+
+// The scans are Draco-compressed, which cuts each from 5-15MB to 1-2MB. One
+// decoder serves every model; its files are in public/draco/gltf and are only
+// fetched when a model is first opened.
+let dracoLoader: DRACOLoader | null = null;
+function getDracoLoader() {
+  if (!dracoLoader) {
+    dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderPath('/draco/gltf/');
+  }
+  return dracoLoader;
+}
 
 
 const AUDIO_BASE = '/exhibitions/harlem/artifacts/audio/';
@@ -258,6 +271,7 @@ export default function HrArtifactViewer({ artifactId }: Props) {
     setLoadError(null);
 
     const loader = new GLTFLoader();
+    loader.setDRACOLoader(getDracoLoader());
     loader.load(
       artifact.model,
       (gltf) => {
