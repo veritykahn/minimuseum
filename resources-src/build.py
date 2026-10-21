@@ -18,6 +18,20 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC = os.path.join(ROOT, "resources-src")
 CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 SITE = "minimuseumproject.org"
+
+# Each exhibition's name, web address and colors. accent is the exhibition's
+# own color (rules, bands, the 45-minute bar); text is a darker shade that
+# passes 4.5:1 for small labels on white, big for large numerals, and dark
+# for small labels on the tinted student handouts.
+EXHIBITIONS = {
+    "in-their-hands":      {"name": "In Their Hands", "slug": "in-their-hands",
+                            "accent": "#C9A84C", "text": "#86671A", "big": "#A2802A", "dark": "#6B5212"},
+    "harlem-renaissance":  {"name": "The Harlem Renaissance", "slug": "harlem-renaissance",
+                            "accent": "#b485d2", "text": "#7A4B9A", "big": "#8E62AD", "dark": "#6A3F88"},
+    "seeing-is-deceiving": {"name": "Seeing is Deceiving", "slug": "seeing-is-deceiving",
+                            "accent": "#a8d5e5", "text": "#2E6E85", "big": "#3E7F96", "dark": "#255C70"},
+}
+EX = EXHIBITIONS["in-their-hands"]      # set by build() for the exhibition being printed
 YEAR = "2026"
 
 # name, subtitle, color. Each passes 4.5:1 against white for small text,
@@ -74,7 +88,7 @@ def block(kind, d):
         return f'<div class="levels">{cells}</div>'
     if kind == "connection":        # the Mini Museum connection box
         return (f'<aside class="conn"><p class="label">Mini Museum connection</p>{paras(d)}'
-                f'<p class="url">{SITE}/exhibitions/in-their-hands</p></aside>')
+                f'<p class="url">{SITE}/exhibitions/{EX["slug"]}</p></aside>')
     if kind == "verse":             # a scripture passage set apart
         return (f'<blockquote class="verse"><p>{inline(d["text"])}</p>'
                 f'<cite>{inline(d["ref"])}</cite></blockquote>')
@@ -276,7 +290,7 @@ table.fill td:first-child { width: 42%; }
 .coindraw { display: grid; place-items: center; margin: 6pt 0 8pt; }
 .coindraw > div { width: 122pt; height: 122pt; border-radius: 50%; border: 2pt solid #b9a46a;
   box-shadow: inset 0 0 0 7pt #f6f1e4, inset 0 0 0 8pt #b9a46a; display: grid; place-items: end center; }
-.coindraw span { font: 500 7pt 'Outfit'; letter-spacing: .22em; text-transform: uppercase; color: #86671A; padding-bottom: 16pt; }
+.coindraw span { font: 500 7pt 'Outfit'; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-text); padding-bottom: 16pt; }
 .timing { margin: 0 0 13pt; }
 .timing .bar { display: flex; gap: 2pt; }
 .timing .bar > div { background: var(--c); color: #fff; padding: 6pt 7pt 5pt; border-radius: 3pt; }
@@ -293,7 +307,8 @@ table.fill td:first-child { width: 42%; }
 .card h4 { margin-top: 2pt; }
 """
 
-def render(doc, accent="#C9A84C"):
+def render(doc):
+    accent = EX["accent"]
     level = doc.get("level")
     band, badge = "", ""
     if level:
@@ -305,7 +320,7 @@ def render(doc, accent="#C9A84C"):
     if level:
         # on the deeper ground, small text darkens to keep 4.5:1
         tint_css = (f"@page {{ background: {TINTS[level]}; @bottom-left {{ color: #454B3D; }} @bottom-right {{ color: #454B3D; }} }} "
-                    f"html {{ background: {TINTS[level]}; }} body {{ --gold-text: #6B5212; --gold-big: #7E6220; }} "
+                    f"html {{ background: {TINTS[level]}; }} body {{ --gold-text: {EX['dark']}; --gold-big: {EX['dark']}; }} "
                     ".context, .conn, .specimen, .ticket, .card {{ background: rgba(255,255,255,.72); }} "
                     ".coindraw > div {{ background: rgba(255,255,255,.55); }}")
     hero = doc.get("hero")
@@ -321,10 +336,10 @@ def render(doc, accent="#C9A84C"):
                 f'<h1>{inline(doc["title"])}</h1><p class="sub">{inline(doc["sub"])}</p></div>{badge}</header>')
     context = f'<div class="context">{paras(doc["context"])}</div>' if doc.get("context") else ""
     body = "".join(block(k, v) for k, v in doc["blocks"])
-    foot = f"The Mini Museum · In Their Hands · {doc['foot']}  ·  © {YEAR} The Mini Museum · Free for educational use"
+    foot = f"The Mini Museum · {EX['name']} · {doc['foot']}  ·  © {YEAR} The Mini Museum · Free for educational use"
     foot_css = "@page { @bottom-left { content: \"" + foot.replace("\\", "").replace('"', "'") + "\"; } }"
     return f"""<!doctype html><html><head><meta charset="utf-8"><title>{html.escape(doc['title'])}</title>
-<style>{FONTS}{CSS}{foot_css}{tint_css}{doc.get("css", "")}</style></head><body class="{'student' if level else 'adult'}{' young' if doc.get('young') else ''}" style="--accent:{accent}">
+<style>{FONTS}{CSS}{foot_css}{tint_css}{doc.get("css", "")}</style></head><body class="{'student' if level else 'adult'}{' young' if doc.get('young') else ''}" style="--accent:{accent}; --gold-text:{EX['text']}; --gold-big:{EX['big']}">
 {head}{band}{context}{body}</body></html>"""
 
 def load(exhibition):
@@ -343,6 +358,8 @@ def load(exhibition):
     return docs
 
 def build(exhibition, match=None):
+    global EX
+    EX = EXHIBITIONS[exhibition]
     out_root = os.path.join(ROOT, "public", "resources", exhibition)
     tmp = tempfile.mkdtemp()
     for doc in load(exhibition):
