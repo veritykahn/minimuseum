@@ -10,7 +10,9 @@ import {
   SectionHeader,
   StartOverButton,
   ContextBreadcrumb,
+  LessonModeLink,
 } from './components';
+import { getLesson } from '@/lib/lessons';
 import {
   GRADE_LABELS,
   LIBRARIAN_GRADE_LABELS,
@@ -19,6 +21,7 @@ import {
   GradeLevel,
   LibrarianGradeLevel,
   Subject,
+  ON_SCREEN_LESSONS,
 } from './data/resource-data';
 
 export default function ResourcesPage() {
@@ -60,6 +63,10 @@ export default function ResourcesPage() {
     { key: 'grades-3-5', label: 'Grades 3\u20135' },
     { key: 'grades-6-8', label: 'Grades 6\u20138' },
   ];
+
+  // A lesson that can also be taught on the classroom screen (Lesson mode)
+  const onScreenSlug = gradeLevel && subject ? ON_SCREEN_LESSONS[`${gradeLevel}/${subject}`] : undefined;
+  const onScreen = onScreenSlug ? getLesson('in-their-hands', onScreenSlug) : undefined;
 
   // Subject options for grades 5-8
   const subjects: { key: Subject; label: string }[] = [
@@ -271,6 +278,13 @@ export default function ResourcesPage() {
                 ...(subject ? [SUBJECT_LABELS[subject]] : []),
               ]}
             />
+
+            {onScreen && (
+              <LessonModeLink
+                href={`/exhibitions/in-their-hands/lessons/${onScreen.slug}`}
+                title={onScreen.title}
+              />
+            )}
 
             <div className="download-section">
               <SectionHeader isFirst>For All Teachers</SectionHeader>

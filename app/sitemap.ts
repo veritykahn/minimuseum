@@ -1,5 +1,6 @@
 import { SITE_URL } from '@/lib/site';
 import { MetadataRoute } from 'next';
+import { lessonsFor } from '@/lib/lessons';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_URL;
@@ -144,6 +145,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/exhibitions/in-their-hands/lessons`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    ...lessonsFor('in-their-hands').map((l) => ({
+      url: `${baseUrl}/exhibitions/in-their-hands/lessons/${l.slug}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    })),
     {
       url: `${baseUrl}/exhibitions/in-their-hands/timeline`,
       lastModified,

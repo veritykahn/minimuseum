@@ -6,3 +6,4 @@ export { DownloadItem } from './DownloadItem';
 export { SectionHeader } from './SectionHeader';
 export { StartOverButton } from './StartOverButton';
 export { ContextBreadcrumb } from './ContextBreadcrumb';
+export { LessonModeLink } from './LessonModeLink';

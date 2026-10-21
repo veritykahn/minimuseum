@@ -1,0 +1,186 @@
+.page {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow-y: auto;
+  --umber: #1c1409;
+  --parchment: #f5edd8;
+  --gold: #c9a84c;
+  --muted: #9c8f78;
+  padding: 104px 24px 96px;
+  background:
+    radial-gradient(ellipse 60% 40% at 50% 0%, rgba(201, 168, 76, 0.08), transparent 70%),
+    var(--umber);
+  color: var(--parchment);
+  font-family: var(--font-outfit), 'Outfit', system-ui, sans-serif;
+}
+:where(.page) :where(h1, h2, p, ul, li) {
+  margin: 0;
+  padding: 0;
+}
+.page :focus-visible {
+  outline: 3px solid var(--parchment);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.crumbs {
+  position: absolute;
+  top: 32px;
+  left: 32px;
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.crumbs a {
+  color: var(--gold);
+}
+.crumbs a:hover {
+  color: var(--parchment);
+}
+.head {
+  max-width: 760px;
+  margin: 0 auto 56px;
+  text-align: center;
+}
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.title {
+  margin: 14px 0 22px !important;
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(2.6rem, 6vw, 4rem);
+  font-weight: 300;
+  line-height: 1.05;
+}
+.lede {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.35rem);
+  line-height: 1.7;
+  color: #cfc4ab;
+}
+.list {
+  list-style: none;
+  display: grid;
+  gap: 32px;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  background: #251b0e;
+  border: 1px solid rgba(201, 168, 76, 0.16);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.cardImg {
+  position: relative;
+  min-height: 320px;
+}
+.cardImg img {
+  object-fit: cover;
+  /* the scan has a pale margin; crop it */
+  transform: scale(1.06);
+}
+.cardBody {
+  padding: 36px 40px;
+}
+.cardTitle {
+  margin: 10px 0 16px !important;
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  font-size: 2.4rem;
+  font-weight: 400;
+  line-height: 1.1;
+}
+.cardText {
+  font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  color: #d9cfb8;
+}
+.bar {
+  display: flex;
+  gap: 3px;
+  height: 10px;
+  margin-top: 26px;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--parchment);
+}
+.bar span {
+  border-radius: 999px;
+}
+.barLabels {
+  display: flex;
+  gap: 3px;
+  margin-top: 8px !important;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.barLabels span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  transition: background 0.25s ease, border-color 0.25s ease;
+}
+.primary,
+.primary:link,
+.primary:visited {
+  background: var(--gold);
+  border: 1px solid var(--gold);
+  color: var(--umber);
+}
+.primary:hover {
+  background: #d8bb67;
+}
+.secondary,
+.secondary:link,
+.secondary:visited {
+  border: 1px solid rgba(201, 168, 76, 0.45);
+  color: var(--gold);
+}
+.secondary:hover {
+  border-color: var(--gold);
+  background: rgba(201, 168, 76, 0.1);
+}
+@media (max-width: 800px) {
+  .card {
+    grid-template-columns: 1fr;
+  }
+  .cardImg {
+    min-height: 220px;
+  }
+  .cardBody {
+    padding: 28px 24px;
+  }
+  .crumbs {
+    left: 20px;
+    top: 24px;
+  }
+}
