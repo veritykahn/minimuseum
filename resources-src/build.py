@@ -27,6 +27,9 @@ LEVELS = {
     "yellow": ("Yellow Level", "Grade Level",   "#86671A"),
     "red":    ("Red Level",    "Go Deeper",     "#A8452F"),
 }
+# the page ground for each level: a soft tint, like colored copy paper,
+# light enough to write on and to print without flooding the page with ink
+TINTS = {"green": "#E9F0E6", "yellow": "#F7EFD7", "red": "#F6E5DF"}
 
 FONTS = open(os.path.join(SRC, "assets", "fonts", "fonts.css"), encoding="utf-8").read().replace(
     "url('fonts/", "url('file://" + os.path.join(SRC, "assets", "fonts") + "/")
@@ -234,15 +237,15 @@ table.fill td:first-child { width: 42%; }
 /* ── the livelier layer ── */
 .hero { position: relative; height: 2.3in; margin: 0 0 13pt; overflow: hidden; color: #f6f1e4; border-radius: 6pt; }
 .hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.hshade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,12,10,.55) 0%, rgba(14,12,10,0) 32%, rgba(14,12,10,.15) 52%, rgba(14,12,10,.86) 100%); }
+.hshade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,12,10,.7) 0%, rgba(14,12,10,.15) 34%, rgba(14,12,10,.25) 50%, rgba(14,12,10,.92) 100%); }
 .htop { position: absolute; top: 14pt; left: 18pt; right: 16pt; display: flex; justify-content: space-between; align-items: flex-start; }
-.hero .lockup .addr { color: #f6f1e4; }
+.hero .lockup .addr { color: #fff8e8; font-size: 6.5pt; font-weight: 500; text-shadow: 0 0 4pt rgba(0,0,0,.9); }
 .htext { position: absolute; left: 18pt; right: 18pt; bottom: 15pt; }
-.hero .eyebrow { color: #e3c46f; margin: 0; }
+.hero .eyebrow { color: #f3dc9a; margin: 0; background: rgba(14,12,10,.78); padding: 4pt 8pt 3pt; border-radius: 3pt; }
 .hbrand { display: flex; gap: 11pt; align-items: center; }
 .hero h1 { font-size: 34pt; color: #fff8e8; margin-bottom: 5pt; text-shadow: 0 1pt 10pt rgba(0,0,0,.35); }
-.hero .sub { color: #e9e2cf; font-size: 9.5pt; }
-.credit { position: absolute; right: 12pt; top: auto; bottom: 5pt; font: 400 6.5pt 'Outfit'; letter-spacing: .08em; color: rgba(246,241,228,.7); margin: 0; }
+.hero .sub { color: #f4efe2; font-size: 9.5pt; font-weight: 400; }
+.credit { position: absolute; right: 10pt; top: auto; bottom: 5pt; font: 400 6.5pt 'Outfit'; background: rgba(14,12,10,.7); padding: 2pt 5pt; border-radius: 2pt; letter-spacing: .08em; color: rgba(246,241,228,.7); margin: 0; }
 .badge { font: 500 8pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; background: var(--lv); color: #fff;
   padding: 6pt 12pt 5pt; border-radius: 99pt; text-align: center; line-height: 1.2; }
 .badge small { display: block; font-weight: 300; font-size: 6.5pt; letter-spacing: .16em; opacity: .9; }
@@ -292,6 +295,11 @@ def render(doc, accent="#C9A84C"):
         badge = f'<span class="badge" style="--lv:{col}">{name}<small>{sub}</small></span>'
         band = ('<div class="ticket"><div class="stub"><span>Admit one</span></div>'
                 '<div class="tfields"><span>Name</span><span>Date</span><span>Class</span></div></div>')
+    tint_css = ""
+    if level:
+        tint_css = (f"html {{ background: {TINTS[level]}; }} "
+                    ".context, .conn, .specimen, .ticket, .card {{ background: rgba(255,255,255,.72); }} "
+                    ".coindraw > div {{ background: rgba(255,255,255,.55); }}")
     hero = doc.get("hero")
     if hero:
         head = (f'<header class="hero"><img src="{hero["img"]}" style="object-position:{hero.get("pos", "center")}" alt="">'
@@ -308,7 +316,7 @@ def render(doc, accent="#C9A84C"):
     foot = f"The Mini Museum · In Their Hands · {doc['foot']}  ·  © {YEAR} The Mini Museum · Free for educational use"
     foot_css = "@page { @bottom-left { content: \"" + foot.replace("\\", "").replace('"', "'") + "\"; } }"
     return f"""<!doctype html><html><head><meta charset="utf-8"><title>{html.escape(doc['title'])}</title>
-<style>{FONTS}{CSS}{foot_css}</style></head><body class="{'student' if level else 'adult'}" style="--accent:{accent}">
+<style>{FONTS}{CSS}{foot_css}{tint_css}</style></head><body class="{'student' if level else 'adult'}" style="--accent:{accent}">
 {head}{band}{context}{body}</body></html>"""
 
 def load(exhibition):

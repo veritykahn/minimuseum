@@ -23,7 +23,7 @@ LESSON = {
   "out": DIR + "ITH_LP_Religion.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
   "foot": "Teacher Lesson Plan · Grades 5–8 Religion", "hero": HERO,
   "blocks": [
-    ("timing", [("Hook", 5, "#7D8471"), ("Teach", 12, "#2F4A5A"), ("Activity", 22, "#C9A84C"), ("Prayer", 6, "#A8452F")]),
+    ("timing", [("Hook", 5, "#7D8471"), ("Teach", 12, "#2F4A5A"), ("Activity", 22, "#86671A"), ("Prayer", 6, "#A8452F")]),
     ("section", {"label": "Learning objective", "title": "What students will understand",
       "body": ["Students will read Jesus’ answer about the Tribute Penny as more than a ruling on taxes. The coin bears Caesar’s image, so it belongs to Caesar; every human person bears God’s image, so every person belongs to God. Students will connect Matthew 22:15–22 to Genesis 1:27 and to the Church’s teaching on the duties of citizens, and reflect on what it means to *give back to God* the life that carries his image."]}),
     ("section", {"label": "Standards and themes", "list": [
