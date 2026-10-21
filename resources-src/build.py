@@ -285,7 +285,7 @@ table.fill td:first-child { width: 42%; }
 .glab { font: 500 6.5pt 'Outfit'; letter-spacing: .28em; text-transform: uppercase; color: #e3c46f; margin: 4pt 0 6pt; }
 .grow { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 8pt; margin-bottom: 6pt; }
 .grow figure { margin: 0; text-align: center; }
-.grow img { width: 64pt; height: 64pt; object-fit: contain; filter: drop-shadow(0 3pt 8pt rgba(0,0,0,.6)); }
+.grow img { width: 64pt; height: 64pt; object-fit: contain; }
 .grow figcaption { font: 400 7.5pt/1.3 'Outfit'; color: #e4dcc7; margin-top: 3pt; }
 .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 9pt; margin: 4pt 0 12pt; }
 .card { background: #f6f1e4; border-top: 3pt solid var(--accent); padding: 8pt 10pt 4pt; break-inside: avoid; }
@@ -333,7 +333,12 @@ def load(exhibition):
     for f in sorted(os.listdir(folder)):
         if f.endswith(".py") and not f.startswith("_"):
             spec = importlib.util.spec_from_file_location(f[:-3], os.path.join(folder, f))
-            m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)
+            m = importlib.util.module_from_spec(spec)
+            try:
+                spec.loader.exec_module(m)
+            except Exception as e:      # one broken file must not stop the rest
+                print(f"skipped {f}: {type(e).__name__}: {e}", file=sys.stderr)
+                continue
             docs.extend(m.DOCS)
     return docs
 
@@ -344,8 +349,14 @@ def build(exhibition, match=None):
         if match and match.lower() not in doc["out"].lower():
             continue
         page = os.path.join(tmp, re.sub(r"\W+", "_", doc["out"]) + ".html")
-        # images are referenced from public/, so the HTML resolves them there
-        h = render(doc).replace('src="/', f'src="file://{ROOT}/public/')
+        # images are referenced from public/; print from right-sized copies
+        h = render(doc)
+        srcs = sorted(set(re.findall(r'src="(/[^"]+\.(?:png|jpe?g))"', h)))
+        cache = os.path.join(SRC, ".cache")
+        if srcs:
+            subprocess.run(["node", os.path.join(SRC, "print-images.mjs"), ROOT, cache, *srcs],
+                           check=True, cwd=ROOT)
+        h = h.replace('src="/', f'src="file://{cache}/')
         open(page, "w", encoding="utf-8").write(h)
         out = os.path.join(out_root, doc["out"])
         os.makedirs(os.path.dirname(out), exist_ok=True)

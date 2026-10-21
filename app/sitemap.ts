@@ -139,6 +139,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/exhibitions/in-their-hands/resources`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/exhibitions/in-their-hands/timeline`,
       lastModified,
       changeFrequency: 'monthly',
