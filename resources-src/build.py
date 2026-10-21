@@ -297,7 +297,7 @@ def render(doc, accent="#C9A84C"):
                 '<div class="tfields"><span>Name</span><span>Date</span><span>Class</span></div></div>')
     tint_css = ""
     if level:
-        tint_css = (f"html {{ background: {TINTS[level]}; }} "
+        tint_css = (f"@page {{ background: {TINTS[level]}; }} html {{ background: {TINTS[level]}; }} "
                     ".context, .conn, .specimen, .ticket, .card {{ background: rgba(255,255,255,.72); }} "
                     ".coindraw > div {{ background: rgba(255,255,255,.55); }}")
     hero = doc.get("hero")
