@@ -371,7 +371,9 @@ def build(exhibition, match=None):
         srcs = sorted(set(re.findall(r'src="(/[^"]+\.(?:png|jpe?g))"', h)))
         cache = os.path.join(SRC, ".cache")
         if srcs:
-            subprocess.run(["node", os.path.join(SRC, "print-images.mjs"), ROOT, cache, *srcs],
+            hero = (doc.get("hero") or {}).get("img")
+            args = ["@" + x if x == hero else x for x in srcs]
+            subprocess.run(["node", os.path.join(SRC, "print-images.mjs"), ROOT, cache, *args],
                            check=True, cwd=ROOT)
         h = h.replace('src="/', f'src="file://{cache}/')
         open(page, "w", encoding="utf-8").write(h)
