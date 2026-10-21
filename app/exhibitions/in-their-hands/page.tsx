@@ -1581,11 +1581,8 @@ export default function InTheirHands() {
         </span>
       </div>
 
-      <div className="ith-nav ith-nav-right" onClick={() => router.push('/exhibitions/in-their-hands/resources')}>
-        <span className="ith-nav-label" style={{ color: '#7D8471' }}>Resources</span>
-        <span className="ith-nav-arrow ith-nav-arrow-right" style={{ color: '#7D8471' }}>&#8594;</span>
-        <span className="ith-nav-text" style={{ color: '#525252' }}>M</span>
-      </div>
+      {/* Resources link hidden until the In Their Hands resources page exists:
+          it led to a 404. Restore it pointing at /exhibitions/in-their-hands/resources. */}
 
       {/* ============================================
           MAIN EXHIBITION VIEW

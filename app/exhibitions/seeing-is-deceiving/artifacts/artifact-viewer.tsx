@@ -181,14 +181,22 @@ export default function ArtifactViewer({ artifactId }: Props) {
       if (!containerRef.current) return;
       const newWidth = containerRef.current.clientWidth;
       const newHeight = containerRef.current.clientHeight;
+      if (!newWidth || !newHeight) return;
       camera.aspect = newWidth / newHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(newWidth, newHeight);
     };
     window.addEventListener('resize', handleResize);
+    // A tab opened with target=_blank can lay out at zero width while it is
+    // still in the background, so the mount-time measurement is wrong and the
+    // model renders tiny until something forces a resize. Watch the element
+    // itself: this fires the moment it gets its real size.
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       controls.dispose();
       renderer.dispose();
       if (container.contains(renderer.domElement)) {

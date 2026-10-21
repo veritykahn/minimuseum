@@ -245,14 +245,22 @@ export default function HrArtifactViewer({ artifactId }: Props) {
       if (!containerRef.current) return;
       const w = containerRef.current.clientWidth;
       const h = containerRef.current.clientHeight;
+      if (!w || !h) return;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     };
     window.addEventListener('resize', handleResize);
+    // A tab opened with target=_blank can lay out at zero width while it is
+    // still in the background, so the mount-time measurement is wrong and the
+    // model renders tiny until something forces a resize. Watch the element
+    // itself: this fires the moment it gets its real size.
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      resizeObserver.disconnect();
       controls.dispose();
       renderer.dispose();
       if (container.contains(renderer.domElement)) {

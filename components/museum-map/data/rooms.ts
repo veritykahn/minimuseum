@@ -51,7 +51,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 40,
     accentColor: '#9aa091', // Lighter shade of Great Hall sage
     parent: 'greathall',
-    children: ['seeing-is-deceiving', 'harlem-renaissance', 'fear-lab', 'great-war'],
+    children: ['seeing-is-deceiving', 'harlem-renaissance', 'in-their-hands', 'fear-lab', 'great-war'],
   },
   // Ground Floor
   {
@@ -91,6 +91,18 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#b485d2',
     parent: 'first-floor',
     children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources'],
+  },
+  {
+    id: 'in-their-hands',
+    label: 'In Their Hands',
+    path: '/exhibitions/in-their-hands',
+    x: 335,
+    y: 80,
+    width: 140,
+    height: 120,
+    accentColor: '#C9A84C',
+    parent: 'first-floor',
+    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica'],
   },
   {
     id: 'fear-lab',
@@ -181,6 +193,55 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#b485d2',
     parent: 'harlem-renaissance',
+  },
+  // In Their Hands sub-pages
+  {
+    id: 'ith-case-6',
+    label: 'Case 6',
+    path: '/exhibitions/in-their-hands/artifacts/case-6',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#C9A84C',
+    parent: 'in-their-hands',
+  },
+  {
+    id: 'ith-case-7',
+    label: 'Case 7',
+    path: '/exhibitions/in-their-hands/artifacts/case-7',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#C9A84C',
+    parent: 'in-their-hands',
+  },
+  {
+    id: 'ith-case-8',
+    label: 'Case 8',
+    path: '/exhibitions/in-their-hands/artifacts/case-8',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#C9A84C',
+    parent: 'in-their-hands',
+  },
+  {
+    id: 'ith-timeline',
+    label: 'The Gospel Timeline',
+    path: '/exhibitions/in-their-hands/timeline',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#C9A84C',
+    parent: 'in-their-hands',
+  },
+  {
+    id: 'ith-hands',
+    label: 'Hands of History',
+    path: '/exhibitions/in-their-hands/hands',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#C9A84C',
+    parent: 'in-their-hands',
+  },
+  {
+    id: 'ith-real-or-replica',
+    label: 'Real or Replica?',
+    path: '/exhibitions/in-their-hands/real-or-replica',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#C9A84C',
+    parent: 'in-their-hands',
   },
 ];
 
