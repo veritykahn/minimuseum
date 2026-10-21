@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { srOnly } from '@/lib/a11y';
 import { useRouter } from 'next/navigation';
 
 const rounds = [
@@ -91,6 +92,22 @@ export default function RealOrReplica() {
       setGameState('playing');
     }
   };
+
+  // After a guess the Fake buttons are disabled, so move focus to the
+  // verdict; on a new round, to the first coin's button; at the end, to
+  // the final result.
+  const verdictRef = useRef<HTMLParagraphElement>(null);
+  const firstBtnRef = useRef<HTMLButtonElement>(null);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return; }
+    if (gameState === 'answered') verdictRef.current?.focus();
+    else if (gameState === 'playing') firstBtnRef.current?.focus();
+    else {
+      const title = document.querySelector<HTMLElement>('.rr-final-title');
+      if (title) { title.tabIndex = -1; title.style.outline = 'none'; title.focus(); }
+    }
+  }, [gameState, currentRound]);
 
   const getBtnClass = (side: 'a' | 'b') => {
     if (gameState !== 'answered') return '';
@@ -425,6 +442,14 @@ export default function RealOrReplica() {
         )}
       </header>
 
+      <div style={srOnly} role="status" aria-live="polite">
+        {gameState === 'answered'
+          ? `${isCorrect ? 'Correct!' : 'Not quite!'} Coin ${fakeOnA ? 'A' : 'B'} was the fake.`
+          : gameState === 'finished'
+            ? `You scored ${score} out of ${rounds.length}.`
+            : currentRound > 0 ? `Round ${currentRound + 1} of ${rounds.length}.` : ''}
+      </div>
+
       {gameState !== 'finished' ? (
         <main className="rr-main">
           <h1 className="rr-title">Which is the fake?</h1>
@@ -438,6 +463,9 @@ export default function RealOrReplica() {
               </div>
               <span className="rr-coin-label">Coin A</span>
               <button
+                type="button"
+                ref={firstBtnRef}
+                aria-label="Coin A is the fake"
                 className={`rr-fake-btn ${getBtnClass('a')}`}
                 onClick={() => handleChoice('a')}
                 disabled={gameState === 'answered'}
@@ -454,6 +482,8 @@ export default function RealOrReplica() {
               </div>
               <span className="rr-coin-label">Coin B</span>
               <button
+                type="button"
+                aria-label="Coin B is the fake"
                 className={`rr-fake-btn ${getBtnClass('b')}`}
                 onClick={() => handleChoice('b')}
                 disabled={gameState === 'answered'}
@@ -466,14 +496,14 @@ export default function RealOrReplica() {
           {/* Result card */}
           {gameState === 'answered' && (
             <div className="rr-result">
-              <p className={`rr-result-verdict ${isCorrect ? 'correct' : 'incorrect'}`}>
+              <p className={`rr-result-verdict ${isCorrect ? 'correct' : 'incorrect'}`} ref={verdictRef} tabIndex={-1} style={{ outline: 'none' }}>
                 {isCorrect ? 'Correct!' : 'Not quite!'}
               </p>
               <p className="rr-result-coin">{round.coinName}</p>
               <p className="rr-result-method">Method: {round.method}</p>
               <p className="rr-result-explanation">{round.explanation}</p>
-              <button className="rr-next-btn" onClick={nextRound}>
-                {isLastRound ? 'See Results' : 'Next Round'} {'\u2192'}
+              <button type="button" className="rr-next-btn" onClick={nextRound}>
+                {isLastRound ? 'See Results' : 'Next Round'} <span aria-hidden="true">{'\u2192'}</span>
               </button>
             </div>
           )}
