@@ -5,11 +5,13 @@
 import sharp from 'sharp';
 import fs from 'fs'; import path from 'path';
 const [root, cache, ...srcs] = process.argv.slice(2);
-for (const src of srcs) {
+for (const arg of srcs) {
+  // a leading @ marks the document's cover picture, printed full width
+  const hero = arg.startsWith('@'), src = hero ? arg.slice(1) : arg;
   const from = path.join(root, 'public', src), to = path.join(cache, src);
-  if (fs.existsSync(to) && fs.statSync(to).mtimeMs >= fs.statSync(from).mtimeMs) continue;
+  if (fs.existsSync(to) && fs.statSync(to).mtimeMs >= fs.statSync(from).mtimeMs && (!hero || (await sharp(to).metadata()).width >= 1200 || (await sharp(from).metadata()).width < 1200)) continue;
   fs.mkdirSync(path.dirname(to), { recursive: true });
-  const max = /\/(timeline|Hands)\/|hands\.jpg$/.test(src) ? 1500 : 450;
+  const max = hero || /\/(timeline|Hands)\/|hands\.jpg$/.test(src) ? 1500 : 450;
   const img = sharp(from).rotate().resize({ width: max, height: max, fit: 'inside', withoutEnlargement: true });
   const buf = /\.png$/i.test(src)
     ? await img.png({ palette: true, quality: 88, effort: 10 }).toBuffer()
