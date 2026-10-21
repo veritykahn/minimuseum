@@ -29,7 +29,7 @@ LEVELS = {
 }
 # the page ground for each level: a soft tint, like colored copy paper,
 # light enough to write on and to print without flooding the page with ink
-TINTS = {"green": "#E9F0E6", "yellow": "#F7EFD7", "red": "#F6E5DF"}
+TINTS = {"green": "#D6E5D0", "yellow": "#F1DFA8", "red": "#EFCEC2"}
 
 FONTS = open(os.path.join(SRC, "assets", "fonts", "fonts.css"), encoding="utf-8").read().replace(
     "url('fonts/", "url('file://" + os.path.join(SRC, "assets", "fonts") + "/")
@@ -297,7 +297,9 @@ def render(doc, accent="#C9A84C"):
                 '<div class="tfields"><span>Name</span><span>Date</span><span>Class</span></div></div>')
     tint_css = ""
     if level:
-        tint_css = (f"@page {{ background: {TINTS[level]}; }} html {{ background: {TINTS[level]}; }} "
+        # on the deeper ground, small text darkens to keep 4.5:1
+        tint_css = (f"@page {{ background: {TINTS[level]}; @bottom-left {{ color: #454B3D; }} @bottom-right {{ color: #454B3D; }} }} "
+                    f"html {{ background: {TINTS[level]}; }} body {{ --gold-text: #6B5212; --gold-big: #7E6220; }} "
                     ".context, .conn, .specimen, .ticket, .card {{ background: rgba(255,255,255,.72); }} "
                     ".coindraw > div {{ background: rgba(255,255,255,.55); }}")
     hero = doc.get("hero")
