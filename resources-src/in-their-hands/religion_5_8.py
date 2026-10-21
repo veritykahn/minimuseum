@@ -19,7 +19,18 @@ COIN = {"img": C + "tribute-front.png", "label": "Case 7 · Ministry and Passion
 HERO = {"img": "/exhibitions/in-their-hands/timeline/tribute-tissot.jpg", "pos": "center 35%",
         "credit": "James Tissot (1836–1902), Brooklyn Museum"}
 
+# Said in the plan and shown on the classroom screen, so written once.
+HOOK_Q = "Whose face is on this? What words are written on it? What is the coin claiming?"
+PRAYER = "Lord, the coin carries the image of the one who made it. We carry yours. Help us to give back to you what is yours — our time, our gifts, and our whole selves. Amen."
+
+# "screen" on a section is for the site's Lesson mode only (resources-src/
+# export_lessons.py); build.py ignores it, so the PDF is unchanged. It names
+# what students see on the projector while the teacher reads the section's
+# script. A list splits one section into several timed steps; "script" picks
+# which of the section's paragraphs belong to each.
+
 LESSON = {
+  "slug": "whose-image-is-this",
   "out": DIR + "ITH_LP_Religion.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
   "foot": "Teacher Lesson Plan · Grades 5–8 Religion", "hero": HERO,
   "blocks": [
@@ -37,19 +48,28 @@ LESSON = {
       "Any coin from a student’s pocket or purse",
       "Differentiated handouts, one per student"]}),
     ("section", {"label": "Hook · 5 minutes", "title": "Read a coin",
-      "body": ["Hold up an ordinary coin. *“Whose face is on this? What words are written on it? What is the coin claiming?”* Take answers: a president, a motto, a date, a country. Then: *“Every coin tells you who is in charge. Two thousand years ago, someone handed Jesus a coin and tried to trap him with it.”*"]}),
+      "screen": {"phase": "Hook", "show": "question", "question": HOOK_Q},
+      "body": [f"Hold up an ordinary coin. *“{HOOK_Q}”* Take answers: a president, a motto, a date, a country. Then: *“Every coin tells you who is in charge. Two thousand years ago, someone handed Jesus a coin and tried to trap him with it.”*"]}),
     ("section", {"label": "Direct instruction · 12 minutes", "title": "The trap and the answer",
+      "screen": [
+        {"phase": "Teach", "minutes": 4, "script": [0], "title": "The trap", "show": "painting", "img": HERO, "verse": VERSE_MATT},
+        {"phase": "Teach", "minutes": 4, "script": [1], "title": "The coin", "show": "coin", "coin": COIN,
+         "back": C + "tribute-back.png", "alt": "The Tribute Penny, a silver denarius of Tiberius: the emperor’s head",
+         "backAlt": "The reverse of the Tribute Penny, inscribed PONTIF MAXIM"},
+        {"phase": "Teach", "minutes": 4, "script": [2], "title": "Whose image?", "show": "verse", "verse": VERSE_GEN,
+         "question": "What carries God’s image?"}],
       "body": [
         "Read Matthew 22:15–22 aloud. Set out the trap: if Jesus says *pay the tax*, he sides with the occupying power and loses the crowd; if he says *don’t*, he can be reported to Rome as a rebel.",
         "Show the Tribute Penny. The face is Tiberius; the inscription calls him the son of a god; the reverse names him High Priest. For a faithful Jew this was not neutral money — it was an image claiming divine and religious authority.",
         "Jesus asks his questioners to produce the coin — and they can. *“Whose image is this? And whose inscription?”* The coin carries Caesar’s image, so give it back to Caesar. Then the turn: what carries *God’s* image? Read Genesis 1:27. St. Augustine and other early Christian writers drew exactly this line: Caesar looks for his image on his coin; God looks for his image in us."]}),
-    ("section", {"label": "Activity · 22 minutes", "body": ["Students choose a handout. All three levels read the same passage and the same coin."]}),
+    ("section", {"label": "Activity · 22 minutes", "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout"}, "body": ["Students choose a handout. All three levels read the same passage and the same coin."]}),
     ("levels", {
       "green": "Read the passage in short parts. Label the coin’s image and inscription, match each to Caesar or to God, and finish the sentence: *I carry God’s image, so…* Draw yourself as a coin stamped with God’s image.",
       "yellow": "Explain the trap and why Jesus’ answer escapes it. Compare the coin with Genesis 1:27 in a two-column chart, then write a paragraph on what *giving back to God* asks of a twelve-year-old today.",
       "red": "Write a structured reflection: is Jesus’ answer about taxes, about idolatry, or about the human person? Use the coin’s inscription, Genesis 1:27 and CCC 2242, and judge a modern case where obeying the state and obeying God might conflict."}),
     ("section", {"label": "Closing prayer · 6 minutes",
-      "body": ["Ask students to hold a coin in an open hand. Pray together: *“Lord, the coin carries the image of the one who made it. We carry yours. Help us to give back to you what is yours — our time, our gifts, and our whole selves. Amen.”*"]}),
+      "screen": {"phase": "Prayer", "show": "prayer", "prayer": PRAYER},
+      "body": [f"Ask students to hold a coin in an open hand. Pray together: *“{PRAYER}”*"]}),
     ("connection", ["**Visit the exhibition:** find the Tribute Penny in Case 7, *Ministry and Passion*, and look for the inscription. Then walk to the Shekel of Tyre beside it — the coin that paid for the betrayal.",
                     "**Virtual visit:** the coin, its reverse and the full Gospel Timeline are online."]),
     ("section", {"label": "Theological framework", "title": "Image and belonging",
