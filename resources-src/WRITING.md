@@ -87,3 +87,27 @@ Teacher plans and handouts go in `teachers/<grade-folder>/` (and
 `ITH_LP_<Key>.pdf`, `ITH_Handout_Green_<Key>.pdf`, `…_Yellow_…`, `…_Red_…`.
 Keys: `PreK_K`, `Grades1_2`, `Grades3_4`, `Religion`, `SocialStudies`,
 `Math`, `Art`.
+
+## Lesson mode (teaching on screen)
+
+A lesson plan can also run on the site, on the classroom projector, with a
+presenter view for the teacher. The same Python is the source: give the
+plan's `LESSON` a `"slug"`, and each timed section (`"Hook · 5 minutes"`…)
+a `"screen"` naming what students see while the teacher reads that
+section's paragraphs. `build.py` ignores `screen`, so the PDF is unchanged.
+
+    "screen": {"phase": "Hook", "show": "question", "question": HOOK_Q}
+
+`phase` must be a name in the plan's `timing` bar. `show` is one of
+`question`, `painting` (`img`, `verse`), `coin` (`coin`, `back`, `alt`,
+`backAlt`), `verse` (`verse`, `question`, `echo`), `levels`, `prayer`
+(`prayer`). A list of screens splits a section into several steps; each
+then takes `minutes` (they must add up to the section's) and `script`, the
+indexes of the paragraphs it uses. Write anything shown on screen and said
+in the plan once, as a constant, as `HOOK_Q` and `PRAYER` are.
+
+    python3 resources-src/export_lessons.py in-their-hands
+
+writes `lib/lessons/<exhibition>/<slug>.json`; import it in
+`lib/lessons/index.ts`. To offer it on the Resources page, add the
+`'<grade>/<subject>'` key to `ON_SCREEN_LESSONS` in its `resource-data.ts`.
