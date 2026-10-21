@@ -57,7 +57,7 @@ LESSON = {
          "back": C + "tribute-back.png", "alt": "The Tribute Penny, a silver denarius of Tiberius: the emperor’s head",
          "backAlt": "The reverse of the Tribute Penny, inscribed PONTIF MAXIM"},
         {"phase": "Teach", "minutes": 4, "script": [2], "title": "Whose image?", "show": "verse", "verse": VERSE_GEN,
-         "question": "What carries God’s image?"}],
+         "question": "What carries God’s image?", "echo": C + "tribute-front.png"}],
       "body": [
         "Read Matthew 22:15–22 aloud. Set out the trap: if Jesus says *pay the tax*, he sides with the occupying power and loses the crowd; if he says *don’t*, he can be reported to Rome as a rebel.",
         "Show the Tribute Penny. The face is Tiberius; the inscription calls him the son of a god; the reverse names him High Priest. For a faithful Jew this was not neutral money — it was an image claiming divine and religious authority.",
