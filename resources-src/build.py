@@ -26,14 +26,15 @@ LEVELS = {
     "red":    ("Red Level",    "Go Deeper",     "#A8452F"),
 }
 
-def monogram():
-    s = open(os.path.join(SRC, "assets", "mm-monogram.svg"), encoding="utf-8").read()
+def monogram(cream=False):
+    f = "mm-monogram-cream.svg" if cream else "mm-monogram.svg"
+    s = open(os.path.join(SRC, "assets", f), encoding="utf-8").read()
     s = re.sub(r"<metadata>.*?</metadata>", "", s, flags=re.S)
     return re.sub(r'\s(width|height)="[^"]*"', "", s, count=2)
 
-def lockup():
+def lockup(cream=False):
     """The MM monogram over the address, as on the site."""
-    return (f'<div class="lockup">{monogram()}'
+    return (f'<div class="lockup">{monogram(cream)}'
             f'<span class="addr">project.org</span></div>')
 
 def inline(t):
@@ -53,7 +54,8 @@ def paras(items):
 def block(kind, d):
     if kind == "section":           # label, title?, body paragraphs
         t = f'<h3>{inline(d["title"])}</h3>' if d.get("title") else ""
-        return (f'<section class="sec"><p class="label">{inline(d["label"])}</p>{t}'
+        lone = "" if (d.get("body") or d.get("list")) else " lone"
+        return (f'<section class="sec{lone}"><p class="label">{inline(d["label"])}</p>{t}'
                 f'{paras(d.get("body", []))}{bullets(d.get("list"))}</section>')
     if kind == "chips":
         return '<div class="chips">' + "".join(f"<span>{inline(c)}</span>" for c in d) + "</div>"
@@ -87,10 +89,13 @@ def block(kind, d):
     if kind == "task":              # a student activity: label, prompt, answer space
         lines = d.get("lines", 0)
         box = f'<div class="write" style="--n:{lines}"></div>' if lines else ""
-        extra = "".join(block(k, v) for k, v in d.get("blocks", []) if k != "draw")
-        box += "".join(block(k, v) for k, v in d.get("blocks", []) if k == "draw")
-        return (f'<section class="task"><p class="label">{inline(d["label"])}</p>'
-                f'<h3>{inline(d["title"])}</h3>{extra}{paras(d.get("body", []))}{box}</section>')
+        late = ("draw", "coindraw")
+        extra = "".join(block(k, v) for k, v in d.get("blocks", []) if k not in late)
+        box += "".join(block(k, v) for k, v in d.get("blocks", []) if k in late)
+        m = re.match(r"Part (\d+)", d["label"])
+        num = f'<span class="pnum">{int(m.group(1)):02d}</span>' if m else ""
+        return (f'<section class="task{" numbered" if m else ""}">{num}<div><p class="label">{inline(d["label"])}</p>'
+                f'<h3>{inline(d["title"])}</h3>{extra}{paras(d.get("body", []))}{box}</div></section>')
     if kind == "table":             # rows to fill in: header, rows, blank columns
         head = "".join(f"<th>{inline(h)}</th>" for h in d["head"])
         rows = "".join("<tr>" + "".join(f"<td>{inline(c)}</td>" for c in r) + "</tr>" for r in d["rows"])
@@ -104,6 +109,29 @@ def block(kind, d):
     if kind == "cols":              # two columns of blocks
         return '<div class="cols">' + "".join(
             "<div>" + "".join(block(k, v) for k, v in col) + "</div>" for col in d) + "</div>"
+    if kind == "specimen":          # the coin as a museum label
+        stamp = '<span class="stamp">Replica</span>' if d.get("replica") else ""
+        facts = "".join(f"<dt>{inline(a)}</dt><dd>{inline(b)}</dd>" for a, b in d["facts"])
+        return (f'<figure class="specimen"><div class="spimg"><img src="{d["img"]}" alt="">{stamp}</div>'
+                f'<figcaption><p class="label">{inline(d["label"])}</p><h4>{inline(d["title"])}</h4>'
+                f'<dl>{facts}</dl>{paras(d.get("body", []))}</figcaption></figure>')
+    if kind == "coindraw":          # draw inside a coin
+        return f'<div class="coindraw"><div><span>{inline(d)}</span></div></div>'
+    if kind == "timing":            # the lesson's minutes as a bar
+        tot = sum(m for _, m, _ in d)
+        segs = "".join(f'<div style="flex:{m};--c:{c}"><b>{m} min</b><span>{inline(n)}</span></div>' for n, m, c in d)
+        return f'<div class="timing"><p class="label">The {tot} minutes</p><div class="bar">{segs}</div></div>'
+    if kind == "gallery":           # coins on a dark ground, by row
+        rows = ""
+        for r in d:
+            rows += (f'<p class="glab">{inline(r["label"])}</p><div class="grow" style="--n:{len(r["items"])}">'
+                     + "".join(f'<figure><img src="{c["img"]}" alt=""><figcaption>{inline(c["cap"])}</figcaption></figure>' for c in r["items"])
+                     + "</div>")
+        return f'<div class="gallery">{rows}</div>'
+    if kind == "cards":             # numbered idea cards, two across
+        return '<div class="cards">' + "".join(
+            f'<div class="card"><span class="cn">{i:02d}</span><h4>{inline(t)}</h4>{paras(b)}</div>'
+            for i, (t, b) in enumerate(d, 1)) + "</div>"
     if kind == "pagebreak":
         return '<div class="pb"></div>'
     if kind == "html":
@@ -131,6 +159,7 @@ p { margin: 0 0 6pt; }
   padding-bottom: 12pt; border-bottom: 1.2pt solid var(--accent); margin-bottom: 14pt; }
 .lockup { display: grid; justify-items: center; gap: 3pt; }
 .lockup svg { width: 34pt; height: auto; display: block; }
+.hero .lockup svg { width: 26pt; }
 .lockup .addr { font: 400 6pt 'Outfit'; letter-spacing: .32em; text-transform: lowercase; color: #1d1c1a; margin-right: -.32em; }
 .eyebrow { font: 400 7.5pt 'Outfit'; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); margin: 0 0 3pt; }
 h1 { font: 500 27pt/1.05 'Cormorant Garamond', serif; margin: 0 0 4pt; letter-spacing: -.01em; }
@@ -141,7 +170,11 @@ h1 { font: 500 27pt/1.05 'Cormorant Garamond', serif; margin: 0 0 4pt; letter-sp
 .label { font: 500 7pt 'Outfit'; letter-spacing: .26em; text-transform: uppercase; color: var(--accent); margin: 0 0 3pt; }
 h3 { font: 600 13.5pt/1.15 'Cormorant Garamond', serif; margin: 0 0 4pt; }
 h4 { font: 600 12pt/1.15 'Cormorant Garamond', serif; margin: 0 0 3pt; }
-.sec, .task { margin: 0 0 11pt; break-inside: avoid; }
+.sec { margin: 0 0 11pt; break-inside: avoid; }
+.sec.lone { break-after: avoid; margin-bottom: 4pt; }
+.task { margin: 0 0 11pt; }
+.task h3, .task .label { break-after: avoid; }
+.write, .verse, table.fill, .coindraw { break-inside: avoid; }
 ul { margin: 2pt 0 6pt; padding-left: 13pt; } li { margin: 0 0 2.5pt; }
 .levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8pt; margin: 4pt 0 11pt; break-inside: avoid; }
 .lv { border-top: 3pt solid var(--lv); padding: 6pt 0 0; font-size: 8.8pt; }
@@ -169,7 +202,7 @@ ul { margin: 2pt 0 6pt; padding-left: 13pt; } li { margin: 0 0 2.5pt; }
 .drawbox span { position: absolute; left: 8pt; top: 6pt; font: 400 7pt 'Outfit'; letter-spacing: .14em; text-transform: uppercase; color: #a9a69b; }
 table.fill { width: 100%; border-collapse: collapse; margin: 4pt 0 6pt; font-size: 8.8pt; break-inside: avoid; }
 table.fill th { font: 500 7pt 'Outfit'; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); text-align: left; padding: 0 6pt 4pt 0; border-bottom: 1pt solid var(--accent); }
-table.fill td { border-bottom: .6pt solid #c8c5bb; padding: 6pt 6pt 14pt 0; vertical-align: top; }
+table.fill td { border-bottom: .6pt solid #c8c5bb; padding: 5pt 6pt 11pt 0; vertical-align: top; }
 table.fill td:first-child { width: 42%; }
 .levelband { display: flex; justify-content: space-between; align-items: baseline;
   border-top: 3pt solid var(--lv); padding-top: 6pt; margin: 0 0 10pt; }
@@ -181,15 +214,78 @@ table.fill td:first-child { width: 42%; }
 .prayer p:not(.label) { font: italic 400 11pt/1.4 'Cormorant Garamond', serif; }
 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 16pt; }
 .pb { break-after: page; }
+/* ── the livelier layer ── */
+.hero { position: relative; height: 2.3in; margin: 0 0 13pt; overflow: hidden; color: #f6f1e4; border-radius: 6pt; }
+.hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hshade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(14,12,10,.55) 0%, rgba(14,12,10,0) 32%, rgba(14,12,10,.15) 52%, rgba(14,12,10,.86) 100%); }
+.htop { position: absolute; top: 14pt; left: 18pt; right: 16pt; display: flex; justify-content: space-between; align-items: flex-start; }
+.hero .lockup .addr { color: #f6f1e4; }
+.htext { position: absolute; left: 18pt; right: 18pt; bottom: 15pt; }
+.hero .eyebrow { color: #e3c46f; margin: 0; }
+.hbrand { display: flex; gap: 11pt; align-items: center; }
+.hero h1 { font-size: 34pt; color: #fff8e8; margin-bottom: 5pt; text-shadow: 0 1pt 10pt rgba(0,0,0,.35); }
+.hero .sub { color: #e9e2cf; font-size: 9.5pt; }
+.credit { position: absolute; right: 12pt; top: auto; bottom: 5pt; font: 300 6pt 'Outfit'; letter-spacing: .08em; color: rgba(246,241,228,.7); margin: 0; }
+.badge { font: 500 8pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; background: var(--lv); color: #fff;
+  padding: 6pt 12pt 5pt; border-radius: 99pt; text-align: center; line-height: 1.2; }
+.badge small { display: block; font-weight: 300; font-size: 6.5pt; letter-spacing: .16em; opacity: .9; }
+.mast .badge { align-self: start; }
+.mast { grid-template-columns: auto 1fr auto; }
+.ticket { display: grid; grid-template-columns: 40pt 1fr; border: 1pt solid #1d1c1a; border-radius: 6pt; margin: 0 0 14pt; overflow: hidden; }
+.stub { background: var(--accent); border-right: 1.2pt dashed #1d1c1a; display: grid; place-items: center; }
+.stub span { writing-mode: vertical-rl; transform: rotate(180deg); font: 500 7pt 'Outfit'; letter-spacing: .3em; text-transform: uppercase; color: #1d1c1a; }
+.tfields { display: grid; grid-template-columns: 2.2fr 1fr 1fr; gap: 14pt; padding: 9pt 12pt 6pt; font: 400 7.5pt 'Outfit'; letter-spacing: .14em; text-transform: uppercase; color: #5b5a55; }
+.tfields span { border-bottom: .8pt solid #8d8a80; padding-bottom: 14pt; }
+.task.numbered { display: grid; grid-template-columns: 34pt 1fr; gap: 8pt; }
+.pnum { font: 500 26pt/1 'Cormorant Garamond', serif; color: var(--accent); }
+.specimen { display: grid; grid-template-columns: 118pt 1fr; gap: 14pt; align-items: center; background: #f6f1e4;
+  border: 1pt solid #1d1c1a; padding: 9pt 14pt; margin: 4pt 0 9pt; break-inside: avoid; }
+.spimg { position: relative; }
+.spimg img { width: 118pt; height: 118pt; object-fit: contain; filter: drop-shadow(0 4pt 6pt rgba(0,0,0,.28)); }
+.stamp { position: absolute; right: -6pt; bottom: 8pt; transform: rotate(-12deg); border: 1.6pt solid #A8452F; color: #A8452F;
+  font: 500 9pt 'Outfit'; letter-spacing: .28em; text-transform: uppercase; padding: 3pt 7pt 2pt; border-radius: 3pt; background: rgba(246,241,228,.75); }
+.specimen dl { display: grid; grid-template-columns: max-content 1fr; gap: 1pt 10pt; margin: 4pt 0 6pt; font-size: 8.5pt; }
+.specimen dt { font: 500 6.5pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; color: #7D8471; padding-top: 2pt; }
+.specimen dd { margin: 0; }
+.coindraw { display: grid; place-items: center; margin: 6pt 0 8pt; }
+.coindraw > div { width: 132pt; height: 132pt; border-radius: 50%; border: 2pt solid #b9a46a;
+  box-shadow: inset 0 0 0 7pt #f6f1e4, inset 0 0 0 8pt #b9a46a; display: grid; place-items: end center; }
+.coindraw span { font: 400 6.5pt 'Outfit'; letter-spacing: .24em; text-transform: uppercase; color: #a39058; padding-bottom: 16pt; }
+.timing { margin: 0 0 13pt; }
+.timing .bar { display: flex; gap: 2pt; }
+.timing .bar > div { background: var(--c); color: #fff; padding: 6pt 7pt 5pt; border-radius: 3pt; }
+.timing b { display: block; font: 500 10pt 'Outfit'; } .timing span { font: 300 7pt 'Outfit'; letter-spacing: .12em; text-transform: uppercase; }
+.gallery { background: #14120f; color: #e9e2cf; margin: 6pt 0 14pt; padding: 12pt 16pt 8pt; border-radius: 6pt; break-inside: avoid; }
+.glab { font: 500 6.5pt 'Outfit'; letter-spacing: .28em; text-transform: uppercase; color: #e3c46f; margin: 4pt 0 6pt; }
+.grow { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 8pt; margin-bottom: 6pt; }
+.grow figure { margin: 0; text-align: center; }
+.grow img { width: 64pt; height: 64pt; object-fit: contain; filter: drop-shadow(0 3pt 8pt rgba(0,0,0,.6)); }
+.grow figcaption { font: 300 7pt/1.3 'Outfit'; color: #cfc7b2; margin-top: 3pt; }
+.cards { display: grid; grid-template-columns: 1fr 1fr; gap: 9pt; margin: 4pt 0 12pt; }
+.card { background: #f6f1e4; border-top: 3pt solid var(--accent); padding: 8pt 10pt 4pt; break-inside: avoid; }
+.cn { font: 500 20pt/1 'Cormorant Garamond', serif; color: var(--accent); }
+.card h4 { margin-top: 2pt; }
 """
 
 def render(doc, accent="#C9A84C"):
     level = doc.get("level")
-    band = ""
+    band, badge = "", ""
     if level:
         name, sub, col = LEVELS[level]
-        band = (f'<div class="levelband" style="--lv:{col}"><p class="lvname">{name}<span>{sub}</span></p></div>'
-                '<div class="namebar"><span>Name</span><span>Date</span><span>Class</span></div>')
+        badge = f'<span class="badge" style="--lv:{col}">{name}<small>{sub}</small></span>'
+        band = ('<div class="ticket"><div class="stub"><span>Admit one</span></div>'
+                '<div class="tfields"><span>Name</span><span>Date</span><span>Class</span></div></div>')
+    hero = doc.get("hero")
+    if hero:
+        head = (f'<header class="hero"><img src="{hero["img"]}" style="object-position:{hero.get("pos", "center")}" alt="">'
+                f'<div class="hshade"></div><div class="htop"><div class="hbrand">{lockup(cream=True)}'
+                f'<p class="eyebrow">{inline(doc["eyebrow"])}</p></div>{badge}</div>'
+                f'<div class="htext"><h1>{inline(doc["title"])}</h1>'
+                f'<p class="sub">{inline(doc["sub"])}</p></div>'
+                + (f'<p class="credit">{inline(hero["credit"])}</p>' if hero.get("credit") else "") + '</header>')
+    else:
+        head = (f'<header class="mast">{lockup()}<div><p class="eyebrow">{inline(doc["eyebrow"])}</p>'
+                f'<h1>{inline(doc["title"])}</h1><p class="sub">{inline(doc["sub"])}</p></div>{badge}</header>')
     context = f'<div class="context">{paras(doc["context"])}</div>' if doc.get("context") else ""
     body = "".join(block(k, v) for k, v in doc["blocks"])
     foot = f"The Mini Museum · In Their Hands · {doc['foot']}  ·  © {YEAR} The Mini Museum · Free for educational use"
@@ -197,9 +293,7 @@ def render(doc, accent="#C9A84C"):
     return f"""<!doctype html><html><head><meta charset="utf-8"><title>{html.escape(doc['title'])}</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
 <style>{CSS}{foot_css}</style></head><body style="--accent:{accent}">
-<header class="mast">{lockup()}<div><p class="eyebrow">{inline(doc['eyebrow'])}</p>
-<h1>{inline(doc['title'])}</h1><p class="sub">{inline(doc['sub'])}</p></div></header>
-{band}{context}{body}</body></html>"""
+{head}{band}{context}{body}</body></html>"""
 
 def load(exhibition):
     docs = []
