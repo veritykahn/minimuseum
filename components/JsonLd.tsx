@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site';
 /**
  * JSON-LD Structured Data Components for SEO
  * These components add schema.org markup for better search engine understanding
@@ -15,8 +16,8 @@ type OrganizationJsonLdProps = {
  */
 export function OrganizationJsonLd({
   name = 'The Mini Museum',
-  url = 'https://minimuseumproject.com',
-  logo = 'https://minimuseumproject.com/logo.png',
+  url = SITE_URL,
+  logo = `${SITE_URL}/logo.png`,
   description = 'Big History. Small Spaces. Monthly curated exhibitions bringing museum experiences to schools and libraries.',
 }: OrganizationJsonLdProps) {
   const jsonLd = {
@@ -85,7 +86,7 @@ export function ExhibitionJsonLd({
     organizer: {
       '@type': 'Organization',
       name: 'The Mini Museum',
-      url: 'https://minimuseumproject.com',
+      url: SITE_URL,
     },
   };
 
@@ -126,7 +127,7 @@ export function EducationalResourceJsonLd({
     provider: {
       '@type': 'Organization',
       name: 'The Mini Museum',
-      url: 'https://minimuseumproject.com',
+      url: SITE_URL,
     },
     isAccessibleForFree: true,
   };

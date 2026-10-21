@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     title: 'Educational Resources | Seeing is Deceiving',
     description:
       'Free lesson plans and handouts for teachers, librarians, and parents. Grades PreK-8.',
-    url: 'https://minimuseumproject.com/exhibitions/seeing-is-deceiving/resources',
+    url: `${SITE_URL}/exhibitions/seeing-is-deceiving/resources`,
   },
 };
 

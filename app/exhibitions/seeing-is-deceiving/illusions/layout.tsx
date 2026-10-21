@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     title: 'Interactive Optical Illusions',
     description:
       'Test your perception with 25+ interactive optical illusions and learn the science behind each one.',
-    url: 'https://minimuseumproject.com/exhibitions/seeing-is-deceiving/illusions',
+    url: `${SITE_URL}/exhibitions/seeing-is-deceiving/illusions`,
   },
 };
 

@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
     title: 'About The Mini Museum',
     description:
       'Discovery comes before knowledge. Wonder precedes learning. Monthly curated exhibitions for schools and libraries.',
-    url: 'https://minimuseumproject.com/about',
+    url: `${SITE_URL}/about`,
   },
 };
 

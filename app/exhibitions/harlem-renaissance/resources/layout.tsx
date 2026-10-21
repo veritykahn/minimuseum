@@ -1,3 +1,4 @@
+import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     title: 'Educational Resources | The Harlem Renaissance',
     description:
       'Free lesson plans and handouts for teachers, librarians, and parents. Grades PreK-8.',
-    url: 'https://minimuseumproject.com/exhibitions/harlem-renaissance/resources',
+    url: `${SITE_URL}/exhibitions/harlem-renaissance/resources`,
   },
 };
 
