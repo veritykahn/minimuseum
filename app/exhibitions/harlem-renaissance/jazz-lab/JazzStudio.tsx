@@ -1,11 +1,17 @@
 'use client';
 
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { Fragment, useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   SESSIONS, SESSION_MAP, TIMELINE_DURATION, loopDuration, snapToBar,
   INST_COLORS, INST_EMOJI, INST_NAMES,
   type SessionDef, type LoopDef, type InstrumentCategory,
 } from './studio-data';
+import { srOnly } from '@/lib/a11y';
+
+function fmtTime(t: number) {
+  const m = Math.floor(t / 60), s = Math.floor(t % 60);
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
 
 type PlacedBlock = { uid: string; loopId: string; lane: InstrumentCategory; startTime: number };
 let _u = 0;
@@ -78,6 +84,15 @@ export default function JazzStudio() {
         .js-block-label{font-family:'Josefin Sans',sans-serif;font-size:9px;font-weight:600;color:var(--jl-text);letter-spacing:0.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px}
         .js-block-add{position:absolute;top:-10px;right:-10px;width:22px;height:22px;border-radius:50%;background:var(--jl-gold);color:#0a0a0a;border:2px solid var(--jl-bg-stage);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:30;line-height:1;box-shadow:0 2px 8px rgba(0,0,0,0.4);transition:transform 0.15s}
         .js-block-add:hover{transform:scale(1.15)}
+        .js-block-tools{position:absolute;top:-10px;right:-10px;display:flex;gap:3px;z-index:30}
+        .js-block-tools .js-block-add{position:static}
+        .js-block:focus-visible{outline:2px solid #a8d5e5;outline-offset:2px;z-index:15}
+        .js-ruler:focus-visible{outline:2px solid #a8d5e5;outline-offset:-2px}
+        .js-tile-wrap{display:flex;align-items:stretch}
+        .js-tile-wrap .js-tile{border-top-right-radius:0;border-bottom-right-radius:0}
+        .js-tile-preview{background:rgba(255,255,255,0.03);border:1px solid;border-left:none;border-radius:0 4px 4px 0;padding:0 8px;min-width:26px;cursor:pointer;color:var(--jl-text-dim);font-size:10px;transition:all 0.2s;-webkit-tap-highlight-color:transparent}
+        .js-tile-preview:hover{background:rgba(201,169,78,0.08);color:var(--jl-text)}
+        .js-tile-preview[aria-pressed="true"]{background:rgba(201,169,78,0.12);color:var(--jl-gold)}
         .js-block-removing{opacity:0.3;transform:translateY(-20px);transition:all 0.2s}
         .js-playhead{position:absolute;top:28px;bottom:0;width:2px;background:var(--jl-gold);z-index:10;pointer-events:none;box-shadow:0 0 8px rgba(201,169,78,0.5)}
         .js-transport{display:flex;justify-content:center;gap:10px;padding:16px 0 12px;flex-wrap:wrap}
@@ -163,6 +178,9 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   const [dragGhost, setDragGhost] = useState<{ loop: LoopDef; x: number; y: number } | null>(null);
   const [dropLane, setDropLane] = useState<InstrumentCategory | null>(null);
   const [seekTime, setSeekTime] = useState(0);
+  const [announcement, setAnnouncement] = useState('');
+  const blockRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const tracksFocusRef = useRef<HTMLDivElement>(null);
 
   // Refs for drag state that shouldn't trigger re-renders
   const dragLoopRef = useRef<LoopDef | null>(null);
@@ -250,6 +268,11 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     previewRef.current = s;
     setPreviewingId(loop.id);
   }, [ensureCtx, stopPreview]);
+
+  const togglePreview = useCallback((loop: LoopDef) => {
+    if (previewingId === loop.id) stopPreview();
+    else previewLoop(loop);
+  }, [previewingId, previewLoop, stopPreview]);
 
   // ── Playback ──
 
@@ -385,6 +408,57 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     setBlocks(prev => prev.filter(b => b.uid !== uid));
   }, []);
 
+  // Single-pointer and keyboard alternative to dragging: tap or press a
+  // loop in the crate and it goes into the first free space in its lane.
+  const addLoopFromCrate = useCallback((loop: LoopDef) => {
+    const t = findNextAvailable(loop, blocks);
+    if (t === null) {
+      setAnnouncement(`No room left in the ${INST_NAMES[loop.instrument]} lane.`);
+      return;
+    }
+    addBlock(loop);
+    setAnnouncement(`Added ${loop.label} to the ${INST_NAMES[loop.instrument]} lane at ${fmtTime(t)}.`);
+  }, [blocks, findNextAvailable, addBlock]);
+
+  const nudgeBlock = useCallback((uid: string, dir: -1 | 1) => {
+    const b = blocks.find(x => x.uid === uid);
+    const l = b && session.loops.find(x => x.id === b.loopId);
+    if (!b || !l) return;
+    const target = snapToBar(b.startTime + dir * (240 / session.bpm), session.bpm);
+    const dur = loopDuration(session.bpm, l.bars);
+    const free = target >= 0 && target + dur <= TIMELINE_DURATION + 1e-6 && !blocks.some(x => {
+      if (x.uid === uid || x.lane !== b.lane) return false;
+      const xl = session.loops.find(ll => ll.id === x.loopId);
+      const xd = xl ? loopDuration(session.bpm, xl.bars) : 0;
+      return target < x.startTime + xd && target + dur > x.startTime;
+    });
+    if (!free || target === b.startTime) {
+      setAnnouncement(`${l.label} can't move further ${dir < 0 ? 'left' : 'right'}.`);
+      return;
+    }
+    moveBlock(uid, target);
+    setAnnouncement(`${l.label} now starts at ${fmtTime(target)}.`);
+  }, [blocks, session, moveBlock]);
+
+  const deleteBlock = useCallback((uid: string) => {
+    const b = blocks.find(x => x.uid === uid);
+    const l = b && session.loops.find(x => x.id === b.loopId);
+    // Keep keyboard focus nearby: the next block in the lane, else the timeline.
+    const sameLane = blocks.filter(x => b && x.lane === b.lane && x.uid !== uid).sort((a, c) => a.startTime - c.startTime);
+    const nextUid = sameLane.find(x => b && x.startTime > b.startTime)?.uid ?? sameLane[sameLane.length - 1]?.uid;
+    const hadFocus = !!(document.activeElement && blockRefs.current.get(uid)?.contains(document.activeElement));
+    removeBlock(uid);
+    setActiveBlockId(null);
+    if (l) setAnnouncement(`Removed ${l.label}.`);
+    if (hadFocus) {
+      requestAnimationFrame(() => {
+        const next = nextUid ? blockRefs.current.get(nextUid) : null;
+        if (next) next.focus();
+        else tracksFocusRef.current?.focus();
+      });
+    }
+  }, [blocks, session, removeBlock]);
+
   const clearAll = useCallback(() => { stopPlay(); setBlocks([]); setActiveBlockId(null); setSeekTime(0); }, [stopPlay]);
 
   // ── Add another copy (tap block → "+") ──
@@ -458,8 +532,8 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
       setDropLane(null);
 
       if (!isDraggingCrate.current) {
-        // It was a tap — preview the loop
-        previewLoop(loop);
+        // It was a tap — add the loop to its lane (the \u25B6 beside it previews)
+        addLoopFromCrate(loop);
       } else {
         // It was a drag — try to drop on the matching lane
         if (tracksRef.current) {
@@ -480,13 +554,13 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
 
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
-  }, [previewLoop, stopPreview, addBlock]);
+  }, [stopPreview, addBlock, addLoopFromCrate]);
 
   // ── Block Interaction (tap → "+", drag horizontal → reposition, drag off → remove) ──
 
   const handleBlockDown = useCallback((uid: string, e: React.PointerEvent) => {
     // Don't intercept clicks on the "+" button
-    if ((e.target as HTMLElement).closest('.js-block-add')) return;
+    if ((e.target as HTMLElement).closest('.js-block-tools')) return;
     e.stopPropagation();
     e.preventDefault();
     const el = e.currentTarget as HTMLElement;
@@ -614,14 +688,41 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     setSeekTime(t);
   }, [playing, stopPlay]);
 
+  // The ruler is also a slider: arrows move a bar, Page keys 30 seconds.
+  const handleRulerKey = useCallback((e: React.KeyboardEvent) => {
+    const bar = 240 / session.bpm;
+    let t: number | null = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') t = seekTime + bar;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') t = seekTime - bar;
+    else if (e.key === 'PageUp') t = seekTime + 30;
+    else if (e.key === 'PageDown') t = seekTime - 30;
+    else if (e.key === 'Home') t = 0;
+    else if (e.key === 'End') t = TIMELINE_DURATION;
+    if (t === null) return;
+    e.preventDefault();
+    t = Math.max(0, Math.min(t, TIMELINE_DURATION));
+    if (playing) stopPlay();
+    setSeekTime(t);
+    if (playheadRef.current) playheadRef.current.style.left = `${(t / TIMELINE_DURATION) * 100}%`;
+  }, [session.bpm, seekTime, playing, stopPlay]);
+
+  const handleBlockKey = useCallback((uid: string, e: React.KeyboardEvent) => {
+    if (e.target !== e.currentTarget) return; // keys on the tool buttons act as clicks
+    if (e.key === 'ArrowLeft') { e.preventDefault(); nudgeBlock(uid, -1); }
+    else if (e.key === 'ArrowRight') { e.preventDefault(); nudgeBlock(uid, 1); }
+    else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteBlock(uid); }
+    else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setActiveBlockId(prev => prev === uid ? null : uid); }
+    else if (e.key === 'Escape') { setActiveBlockId(null); }
+  }, [nudgeBlock, deleteBlock]);
+
   // ── Loading ──
 
   if (!loaded) {
     return (
-      <div className="js-loading">
+      <div className="js-loading" role="status" aria-live="polite">
         <div className="js-loading-title">{session.name}</div>
         <div className="js-loading-subtitle">Loading loops&hellip;</div>
-        <div className="js-progress-track">
+        <div className="js-progress-track" role="progressbar" aria-label="Loading loops" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}>
           <div className="js-progress-fill" style={{ width: `${progress * 100}%` }} />
         </div>
       </div>
@@ -632,10 +733,11 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
 
   return (
     <div className="js-workspace">
+      <div style={srOnly} role="status" aria-live="polite">{announcement}</div>
       <div className="js-arr-header">
-        <button className="js-arr-back" onClick={() => { stopPlay(); stopPreview(); onBack(); }}>{'\u2190'}</button>
-        <div className="js-arr-title">{session.name}</div>
-        {playing && <div className="js-vinyl-mini js-spinning" />}
+        <button type="button" className="js-arr-back" aria-label="Back to sessions" onClick={() => { stopPlay(); stopPreview(); onBack(); }}><span aria-hidden="true">{'\u2190'}</span></button>
+        <h2 className="js-arr-title" style={{ margin: 0 }}>{session.name}</h2>
+        {playing && <div className="js-vinyl-mini js-spinning" aria-hidden="true" />}
         <div className="js-arr-meta">{session.bpm} BPM &middot; Key of {session.key}</div>
       </div>
 
@@ -644,15 +746,20 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
           <div className="js-ruler-label">TIME</div>
           {session.instruments.map(inst => (
             <div key={inst} className="js-lane-label" style={{ borderLeftColor: INST_COLORS[inst] }}>
-              <span className="js-lane-emoji">{INST_EMOJI[inst]}</span>
+              <span className="js-lane-emoji" aria-hidden="true">{INST_EMOJI[inst]}</span>
               <span className="js-lane-name">{INST_NAMES[inst]}</span>
             </div>
           ))}
         </div>
 
-        <div className="js-tracks" ref={tracksRef}>
+        <span id="js-block-hint" style={srOnly}>Enter shows buttons to move, copy or remove this loop. Arrow keys move it a bar; Delete removes it.</span>
+        <div className="js-tracks" ref={(el) => { tracksRef.current = el; tracksFocusRef.current = el; }}
+          tabIndex={0} role="region" aria-label={`${session.name} timeline`}>
           <div className="js-tracks-inner">
-            <div className="js-ruler" onClick={handleRulerClick}>
+            <div className="js-ruler" onClick={handleRulerClick}
+              role="slider" tabIndex={0} aria-label="Playback start position"
+              aria-valuemin={0} aria-valuemax={TIMELINE_DURATION} aria-valuenow={Math.round(seekTime)}
+              aria-valuetext={fmtTime(seekTime)} onKeyDown={handleRulerKey}>
               {rulerMarks.map(m => (
                 <div key={m.t} className="js-ruler-mark" style={{ left: `${(m.t / TIMELINE_DURATION) * 100}%` }}>
                   <div className="js-ruler-tick" />
@@ -666,6 +773,8 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
                 key={inst}
                 className={`js-lane${dropLane === inst ? ' js-lane-drop' : ''}`}
                 data-lane={inst}
+                role="group"
+                aria-label={`${INST_NAMES[inst]} lane`}
               >
                 {blocks.filter(b => b.lane === inst).map(block => {
                   const loop = session.loops.find(x => x.id === block.loopId);
@@ -673,8 +782,16 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
                   const dur = loopDuration(session.bpm, loop.bars);
                   const isActive = activeBlockId === block.uid;
                   return (
+                    <Fragment key={block.uid}>
                     <div
-                      key={block.uid}
+                      ref={(el) => { if (el) blockRefs.current.set(block.uid, el); else blockRefs.current.delete(block.uid); }}
+                      tabIndex={0}
+                      role="button"
+                      aria-expanded={isActive}
+                      aria-label={`${loop.label}, ${INST_NAMES[inst]}, starts at ${fmtTime(block.startTime)}`}
+                      aria-keyshortcuts="ArrowLeft ArrowRight Delete"
+                      aria-describedby="js-block-hint"
+                      onKeyDown={(e) => handleBlockKey(block.uid, e)}
                       className="js-block"
                       style={{
                         left: `${(block.startTime / TIMELINE_DURATION) * 100}%`,
@@ -689,16 +806,51 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
                       <span className="js-block-inner">
                         <span className="js-block-label">{loop.label}</span>
                       </span>
-                      {isActive && (
-                        <button
-                          className="js-block-add"
-                          onClick={(e) => { e.stopPropagation(); addAnotherCopy(block.uid); }}
-                          title="Add another copy"
-                        >
-                          +
-                        </button>
-                      )}
                     </div>
+                      {isActive && (
+                        <span className="js-block-tools" role="group" aria-label={`${loop.label} tools`}
+                          style={block.startTime < TIMELINE_DURATION / 2
+                            ? { left: `calc(${(block.startTime / TIMELINE_DURATION) * 100}% + 2px)`, right: 'auto', top: -6 }
+                            : { left: `calc(${((block.startTime + dur) / TIMELINE_DURATION) * 100}% - 2px)`, right: 'auto', top: -6, transform: 'translateX(-100%)' }}>
+                          <button
+                            type="button"
+                            className="js-block-add"
+                            onClick={(e) => { e.stopPropagation(); nudgeBlock(block.uid, -1); }}
+                            aria-label={`Move ${loop.label} left`}
+                            title="Move left"
+                          >
+                            <span aria-hidden="true">{'\u2039'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="js-block-add"
+                            onClick={(e) => { e.stopPropagation(); nudgeBlock(block.uid, 1); }}
+                            aria-label={`Move ${loop.label} right`}
+                            title="Move right"
+                          >
+                            <span aria-hidden="true">{'\u203A'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="js-block-add"
+                            onClick={(e) => { e.stopPropagation(); addAnotherCopy(block.uid); setAnnouncement(`Added another copy of ${loop.label}.`); }}
+                            aria-label={`Add another copy of ${loop.label}`}
+                            title="Add another copy"
+                          >
+                            <span aria-hidden="true">+</span>
+                          </button>
+                          <button
+                            type="button"
+                            className="js-block-add"
+                            onClick={(e) => { e.stopPropagation(); deleteBlock(block.uid); }}
+                            aria-label={`Remove ${loop.label}`}
+                            title="Remove"
+                          >
+                            <span aria-hidden="true">{'\u00D7'}</span>
+                          </button>
+                        </span>
+                      )}
+                    </Fragment>
                   );
                 })}
               </div>
@@ -707,6 +859,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
             <div
               ref={playheadRef}
               className="js-playhead"
+              aria-hidden="true"
               style={{ left: `${(seekTime / TIMELINE_DURATION) * 100}%`, opacity: playing ? 1 : 0.5 }}
             />
           </div>
@@ -715,39 +868,55 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
 
       <div className="js-transport">
         {!playing ? (
-          <button className="jl-btn" onClick={play} disabled={!blocks.length}>{'\u25B6'} Play</button>
+          <button type="button" className="jl-btn" onClick={play} disabled={!blocks.length}><span aria-hidden="true">{'\u25B6'}</span> Play</button>
         ) : (
-          <button className="jl-btn" onClick={pausePlay}>{'\u23F8'} Pause</button>
+          <button type="button" className="jl-btn" onClick={pausePlay}><span aria-hidden="true">{'\u23F8'}</span> Pause</button>
         )}
-        <button className={`jl-btn${looping ? ' active' : ''}`} onClick={() => setLooping(p => !p)}>{'\u27F3'} Loop</button>
+        <button type="button" className={`jl-btn${looping ? ' active' : ''}`} aria-pressed={looping} onClick={() => setLooping(p => !p)}><span aria-hidden="true">{'\u27F3'}</span> Loop</button>
         <button className="jl-btn" onClick={clearAll} disabled={!blocks.length}>Clear All</button>
         <button className="jl-btn" onClick={download} disabled={!blocks.length || downloading}>
-          {downloading ? 'Preparing\u2026' : '\u2913 Download'}
+          {downloading ? 'Preparing\u2026' : <><span aria-hidden="true">{'\u2913'}</span> Download</>}
         </button>
       </div>
 
       <div className="js-crate">
-        <button className="js-crate-toggle" onClick={() => setCrateOpen(p => !p)}>
-          {crateOpen ? '\u25BE' : '\u25B4'} Sample Crate
+        <button type="button" className="js-crate-toggle" aria-expanded={crateOpen} aria-controls="js-crate-body" onClick={() => setCrateOpen(p => !p)}>
+          <span aria-hidden="true">{crateOpen ? '\u25BE' : '\u25B4'}</span> Sample Crate
         </button>
+        <span id="js-tile-hint" style={srOnly}>Adds this loop to the first free space in its lane on the timeline.</span>
         {crateOpen && (
-          <div className="js-crate-body">
+          <div className="js-crate-body" id="js-crate-body">
             {session.instruments.map(inst => (
               <div key={inst} className="js-crate-group">
                 <div className="js-crate-title" style={{ color: INST_COLORS[inst] }}>
-                  {INST_EMOJI[inst]} {INST_NAMES[inst]}
+                  <span aria-hidden="true">{INST_EMOJI[inst]}</span> {INST_NAMES[inst]}
                 </div>
                 <div className="js-crate-tiles">
                   {(loopsByInst.get(inst) || []).map(loop => (
-                    <button
-                      key={loop.id}
-                      className={`js-tile${previewingId === loop.id ? ' js-tile-playing' : ''}`}
-                      style={{ borderColor: INST_COLORS[inst] }}
-                      onPointerDown={(e) => handleCratePointerDown(loop, e)}
-                    >
-                      <span className="js-tile-name">{loop.label}</span>
-                      <span className="js-tile-info">{loop.bars}b</span>
-                    </button>
+                    <span key={loop.id} className="js-tile-wrap">
+                      <button
+                        type="button"
+                        className={`js-tile${previewingId === loop.id ? ' js-tile-playing' : ''}`}
+                        style={{ borderColor: INST_COLORS[inst] }}
+                        aria-describedby="js-tile-hint"
+                        onPointerDown={(e) => handleCratePointerDown(loop, e)}
+                        onClick={(e) => { if (e.detail === 0) addLoopFromCrate(loop); }}
+                      >
+                        <span className="js-tile-name">{loop.label}</span>
+                        <span className="js-tile-info">{loop.bars}b</span>
+                      </button>
+                      <button
+                        type="button"
+                        className="js-tile-preview"
+                        style={{ borderColor: INST_COLORS[inst] }}
+                        aria-label={`Preview ${loop.label}`}
+                        aria-pressed={previewingId === loop.id}
+                        title="Preview"
+                        onClick={() => togglePreview(loop)}
+                      >
+                        <span aria-hidden="true">{previewingId === loop.id ? '\u25A0' : '\u25B6'}</span>
+                      </button>
+                    </span>
                   ))}
                 </div>
               </div>
