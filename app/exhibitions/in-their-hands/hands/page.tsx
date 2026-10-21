@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { srOnly } from '@/lib/a11y';
 import { useRouter } from 'next/navigation';
 
 const handsCharacters = [
@@ -140,6 +141,21 @@ export default function HandsOfHistory() {
       setRoundState('guessing');
     }
   };
+
+  // Keyboard and screen-reader flow: after a guess, focus the verdict; on
+  // the next round, focus the new question; at the end, focus the result.
+  const verdictRef = useRef<HTMLParagraphElement>(null);
+  const questionRef = useRef<HTMLHeadingElement>(null);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return; }
+    if (roundState === 'revealed') verdictRef.current?.focus();
+    else if (roundState === 'guessing') questionRef.current?.focus();
+    else {
+      const title = document.querySelector<HTMLElement>('.hh-final-title');
+      if (title) { title.tabIndex = -1; title.style.outline = 'none'; title.focus(); }
+    }
+  }, [roundState, currentRound]);
 
   const getOptionClass = (name: string) => {
     if (roundState !== 'revealed') return '';
@@ -509,6 +525,14 @@ export default function HandsOfHistory() {
         )}
       </header>
 
+      <div style={srOnly} role="status" aria-live="polite">
+        {roundState === 'revealed'
+          ? `${isCorrect ? 'Correct!' : 'Not quite!'} These were the hands of ${character.character}.`
+          : roundState === 'finished'
+            ? `You scored ${score} out of ${roundOrder.length}.`
+            : ''}
+      </div>
+
       {roundState !== 'finished' ? (
         <div className="hh-main">
           {/* Left: hands image, crossfade to full on reveal */}
@@ -518,13 +542,16 @@ export default function HandsOfHistory() {
               <img
                 className={roundState === 'revealed' ? 'hh-img-hidden' : 'hh-img-visible'}
                 src={character.handsImage}
-                alt="Whose hands?"
+                alt={roundState === 'revealed' ? '' : 'Whose hands?'}
+                aria-hidden={roundState === 'revealed' || undefined}
               />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 className={roundState === 'revealed' ? 'hh-img-visible' : 'hh-img-hidden'}
                 src={character.fullImage}
-                alt={character.character}
+                // Not exposed until the reveal, so the answer isn't read out early.
+                alt={roundState === 'revealed' ? character.character : ''}
+                aria-hidden={roundState !== 'revealed' || undefined}
               />
             </div>
             <p className="hh-image-caption">{character.caption}</p>
@@ -534,10 +561,11 @@ export default function HandsOfHistory() {
           <div className="hh-panel">
             {roundState === 'guessing' ? (
               <>
-                <h2 className="hh-question">{character.prompt}</h2>
-                <div className="hh-options">
+                <h2 className="hh-question" id="hh-question" ref={questionRef} tabIndex={-1} style={{ outline: 'none' }}>{character.prompt}</h2>
+                <div className="hh-options" role="group" aria-labelledby="hh-question">
                   {options.map((opt) => (
                     <button
+                      type="button"
                       key={opt.id}
                       className="hh-option-btn"
                       onClick={() => handleChoice(opt.character)}
@@ -549,21 +577,21 @@ export default function HandsOfHistory() {
               </>
             ) : (
               <div className="hh-reveal">
-                <p className={`hh-reveal-verdict ${isCorrect ? 'correct' : 'incorrect'}`}>
+                <p className={`hh-reveal-verdict ${isCorrect ? 'correct' : 'incorrect'}`} ref={verdictRef} tabIndex={-1} style={{ outline: 'none' }}>
                   {isCorrect ? 'Correct!' : 'Not quite!'}
                 </p>
                 <p className="hh-reveal-character">{character.character}</p>
                 <h3 className="hh-reveal-coin">{character.coinName}</h3>
                 <p className="hh-reveal-date">{character.coinDate}</p>
                 <p className="hh-reveal-story">{character.story}</p>
-                <button className="hh-next-btn" onClick={nextRound}>
-                  {isLastRound ? 'See Results' : 'Next'} {'\u2192'}
+                <button type="button" className="hh-next-btn" onClick={nextRound}>
+                  {isLastRound ? 'See Results' : 'Next'} <span aria-hidden="true">{'\u2192'}</span>
                 </button>
               </div>
             )}
 
             {/* Progress dots */}
-            <div className="hh-dots">
+            <div className="hh-dots" aria-hidden="true">
               {roundOrder.map((_, i) => (
                 <span
                   key={i}

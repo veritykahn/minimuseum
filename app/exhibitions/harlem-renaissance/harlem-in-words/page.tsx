@@ -2,6 +2,23 @@
 
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { srOnly, useDialogFocus } from '@/lib/a11y';
+
+/**
+ * A button that removes itself when pressed would drop keyboard focus to
+ * <body>. Before it goes, find its neighbour in the same container and
+ * focus that once React has re-rendered (or `fallback` if none is left).
+ */
+function keepFocusNear(btn: HTMLElement, container: HTMLElement | null = btn.parentElement, fallback?: () => HTMLElement | null) {
+  if (!container) return;
+  const items = Array.from(container.querySelectorAll<HTMLElement>('button'));
+  const i = items.indexOf(btn);
+  const candidates = [...items.slice(i + 1), ...items.slice(0, i).reverse()];
+  requestAnimationFrame(() => {
+    const next = candidates.find(el => el.isConnected && !(el as HTMLButtonElement).disabled);
+    (next ?? fallback?.())?.focus();
+  });
+}
 
 /* ═══════════════════════════════════════════════════════════
    WORD BANK DATA
@@ -136,6 +153,43 @@ export default function HarlemInWordsPage() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const audioSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const audioGainRef = useRef<GainNode | null>(null);
+  // Background music in display mode: on by default, with a labelled
+  // control; turning it off sticks for later displays.
+  const [musicOn, setMusicOn] = useState(true);
+  const musicOnRef = useRef(true);
+  const [announcement, setAnnouncement] = useState('');
+  const displayRef = useRef<HTMLDivElement>(null);
+  const undoBtnRef = useRef<HTMLButtonElement>(null);
+  const closeDisplay = useCallback(() => setDisplayMode(false), []);
+  useDialogFocus(displayRef, displayMode, {
+    onEscape: closeDisplay,
+    initialFocus: displayRef,
+    // The editor re-mounts when display closes: return to its Display
+    // button, or (after New Poem empties it) to the first word.
+    returnFocus: () => {
+      const btn = document.querySelector<HTMLButtonElement>('.hw-frame-btn.primary');
+      return btn && !btn.disabled ? btn : document.querySelector<HTMLElement>('.hw-word-tile');
+    },
+  });
+
+  const toggleMusic = useCallback(() => {
+    const on = !musicOnRef.current;
+    musicOnRef.current = on;
+    setMusicOn(on);
+    const ctx = audioCtxRef.current;
+    const g = audioGainRef.current;
+    if (!ctx || !g) return;
+    if (on) {
+      ctx.resume().catch(() => {});
+      g.gain.cancelScheduledValues(ctx.currentTime);
+      g.gain.setValueAtTime(g.gain.value, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 1);
+    } else {
+      g.gain.cancelScheduledValues(ctx.currentTime);
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      ctx.suspend().catch(() => {});
+    }
+  }, []);
   const uidCounter = useRef(0);
 
   const nextUid = () => {
@@ -293,8 +347,9 @@ export default function HarlemInWordsPage() {
         source.start();
         audioSourceRef.current = source;
 
-        // Fade in over 2s
-        gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 2);
+        // Fade in over 2s, unless the visitor has turned music off
+        if (musicOnRef.current) gain.gain.linearRampToValueAtTime(0.35, ctx.currentTime + 2);
+        else ctx.suspend().catch(() => {});
       } catch {
         // Audio unavailable — display works fine without it
       }
@@ -816,12 +871,19 @@ export default function HarlemInWordsPage() {
           line-height: 2;
           width: 100%;
         }
-        .hw-poem-text span {
+        .hw-poem-text .hw-word-remove {
+          font: inherit;
+          color: inherit;
+          line-height: inherit;
+          letter-spacing: inherit;
+          background: none;
+          border: none;
+          padding: 0;
           cursor: pointer;
           transition: all 0.2s;
           -webkit-tap-highlight-color: transparent;
         }
-        .hw-poem-text span:hover {
+        .hw-poem-text .hw-word-remove:hover, .hw-poem-text .hw-word-remove:focus-visible {
           color: #fff;
           text-shadow: 0 0 12px rgba(201,169,78,0.4);
         }
@@ -1291,6 +1353,10 @@ export default function HarlemInWordsPage() {
         .hw-display-name-input:focus {
           border-bottom-color: rgba(201,169,78,0.6);
         }
+        .hw-display-name-input:focus-visible {
+          outline: 2px solid #a8d5e5;
+          outline-offset: 4px;
+        }
         .hw-display-name-input::placeholder {
           color: rgba(138,128,112,0.5);
           font-style: italic;
@@ -1577,25 +1643,35 @@ export default function HarlemInWordsPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="hw-poem-text">
+                  <div className="hw-poem-text" role="group" aria-label="Your poem">
                     {poem.map((entry) => {
                       if (entry.isLineBreak) return <br key={entry.uid} />;
                       return (
-                        <span
-                          key={entry.uid}
-                          onClick={() => removeEntry(entry.uid)}
-                          onTouchEnd={(e) => {
-                            e.preventDefault();
-                            removeEntry(entry.uid);
-                          }}
-                        >
-                          {entry.text}{' '}
+                        <span key={entry.uid}>
+                          <button
+                            type="button"
+                            className="hw-word-remove"
+                            aria-label={`Remove \u201C${entry.text}\u201D`}
+                            onClick={(e) => {
+                              keepFocusNear(e.currentTarget, e.currentTarget.closest<HTMLElement>('.hw-poem-text'), () => undoBtnRef.current);
+                              removeEntry(entry.uid);
+                              setAnnouncement(`Removed \u201C${entry.text}\u201D.`);
+                            }}
+                            onTouchEnd={(e) => {
+                              e.preventDefault();
+                              removeEntry(entry.uid);
+                            }}
+                          >
+                            {entry.text}
+                          </button>{' '}
                         </span>
                       );
                     })}
                   </div>
                 )}
               </div>
+
+              <div style={srOnly} role="status" aria-live="polite">{announcement}</div>
 
               {/* Hint */}
               <div className="hw-hint" style={{ opacity: hasWords ? 1 : 0 }}>
@@ -1605,16 +1681,16 @@ export default function HarlemInWordsPage() {
               {/* Buttons */}
               <div className="hw-frame-btns">
                 <button className="hw-frame-btn" onClick={addLineBreak} disabled={!hasWords}>
-                  {'\u21B5'} Line
+                  <span aria-hidden="true">{'\u21B5'}</span> Line
                 </button>
-                <button className="hw-frame-btn" onClick={handleUndo} disabled={undoStack.length === 0}>
-                  {'\u21A9'} Undo
+                <button className="hw-frame-btn" ref={undoBtnRef} onClick={handleUndo} disabled={undoStack.length === 0}>
+                  <span aria-hidden="true">{'\u21A9'}</span> Undo
                 </button>
                 <button className="hw-frame-btn" onClick={handleClear} disabled={!hasWords}>
                   Clear
                 </button>
                 <button className="hw-frame-btn primary" onClick={() => setDisplayMode(true)} disabled={!hasWords}>
-                  {'\u25C6'} Display
+                  <span aria-hidden="true">{'\u25C6'}</span> Display
                 </button>
               </div>
             </div>
@@ -1642,10 +1718,12 @@ export default function HarlemInWordsPage() {
               {CATEGORY_ORDER.map(cat => (
                 <button
                   key={cat}
+                  type="button"
                   className={`hw-cat-tab ${activeCategory === cat ? 'active' : ''}`}
+                  aria-pressed={activeCategory === cat}
                   onClick={() => setActiveCategory(cat)}
                 >
-                  <span className="hw-cat-dot" style={{ background: CATEGORY_META[cat].dot }} />
+                  <span className="hw-cat-dot" aria-hidden="true" style={{ background: CATEGORY_META[cat].dot }} />
                   {CATEGORY_META[cat].label}
                 </button>
               ))}
@@ -1655,20 +1733,24 @@ export default function HarlemInWordsPage() {
             <div className="hw-tray-controls">
               {categoryHasPluralizable ? (
                 <div className="hw-plural-toggle">
-                  <span className={!pluralMode ? 'active-label' : ''}>Singular</span>
+                  <span className={!pluralMode ? 'active-label' : ''} aria-hidden="true">Singular</span>
                   <button
+                    type="button"
+                    role="switch"
+                    aria-checked={pluralMode}
+                    aria-label="Plural"
                     className={`hw-toggle-switch ${pluralMode ? 'on' : ''}`}
                     onClick={() => setPluralMode(!pluralMode)}
                   >
                     <span className="hw-toggle-knob" />
                   </button>
-                  <span className={pluralMode ? 'active-label' : ''}>Plural</span>
+                  <span className={pluralMode ? 'active-label' : ''} aria-hidden="true">Plural</span>
                 </div>
               ) : (
                 <div />
               )}
               <button className="hw-shuffle-sm" onClick={handleShuffle}>
-                {'\u21BB'} Shuffle
+                <span aria-hidden="true">{'\u21BB'}</span> Shuffle
               </button>
             </div>
 
@@ -1677,9 +1759,14 @@ export default function HarlemInWordsPage() {
               {availableWords.map(word => (
                 <button
                   key={word}
+                  type="button"
                   className="hw-word-tile"
                   style={{ borderLeftColor: CATEGORY_META[activeCategory].dot }}
-                  onClick={() => addCategoryWord(word, activeCategory)}
+                  onClick={(e) => {
+                    keepFocusNear(e.currentTarget);
+                    addCategoryWord(word, activeCategory);
+                    setAnnouncement(`Added \u201C${pluralMode && pluralise(word) ? pluralise(word) : word}\u201D.`);
+                  }}
                 >
                   {pluralMode && pluralise(word) ? pluralise(word) : word}
                 </button>
@@ -1703,7 +1790,15 @@ export default function HarlemInWordsPage() {
 
       {/* ── DISPLAY MODE ── */}
       {displayMode && (
-        <div className="hw-display-overlay">
+        <div
+          className="hw-display-overlay"
+          ref={displayRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Your poem on display"
+          tabIndex={-1}
+          style={{ outline: 'none' }}
+        >
           {/* Background animations */}
           <div className="hw-display-bg">
             {displayTheme === 0 && <>
@@ -1880,6 +1975,7 @@ export default function HarlemInWordsPage() {
               <span className="hw-display-name-prefix">{'\u2014'}</span>
               <input
                 className="hw-display-name-input"
+                aria-label="Your name"
                 type="text"
                 placeholder="Your name here"
                 value={poetName}
@@ -1889,6 +1985,9 @@ export default function HarlemInWordsPage() {
             </div>
 
             <div className="hw-display-actions">
+              <button type="button" className="hw-display-btn" onClick={toggleMusic}>
+                {musicOn ? 'Music off' : 'Music on'}
+              </button>
               <button className="hw-display-btn" onClick={() => setDisplayMode(false)}>
                 Back to Editing
               </button>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { srOnly, useDialogFocus } from '@/lib/a11y';
 import { useRouter } from 'next/navigation';
 
 const timelineStops = [
@@ -143,15 +144,25 @@ export default function GospelTimeline() {
   const goNext = useCallback(() => goTo(currentIndex + 1), [currentIndex, goTo]);
   const goPrev = useCallback(() => goTo(currentIndex - 1), [currentIndex, goTo]);
 
+  // Fullscreen painting is a modal dialog: focus moves to Close, Tab stays
+  // inside, Escape closes, and focus returns to the painting button.
+  const modalRef = useRef<HTMLDivElement>(null);
+  const modalCloseRef = useRef<HTMLButtonElement>(null);
+  const closeModal = useCallback(() => setShowModal(false), []);
+  useDialogFocus(modalRef, showModal, { onEscape: closeModal, initialFocus: modalCloseRef });
+
   // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
+      if (showModal) return;
+      const t = e.target as HTMLElement | null;
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
       if (e.key === 'ArrowRight') goNext();
       if (e.key === 'ArrowLeft') goPrev();
     };
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [goNext, goPrev]);
+  }, [goNext, goPrev, showModal]);
 
   // Touch swipe
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -448,6 +459,14 @@ export default function GospelTimeline() {
         }
         .tl-painting-inset.fading { opacity: 0; }
 
+        .tl-painting-btn {
+          display: block;
+          padding: 0;
+          border: none;
+          background: none;
+          cursor: pointer;
+          border-radius: 4px;
+        }
         .tl-painting-inset img {
           height: 55vh;
           max-height: 500px;
@@ -556,25 +575,38 @@ export default function GospelTimeline() {
 
         .tl-dots {
           display: flex;
-          gap: 10px;
+          gap: 0;
           align-items: center;
         }
 
+        /* A 24px target around each 8px dot (WCAG 2.5.8); the dot is drawn by ::before */
         .tl-dot {
-          width: 8px;
-          height: 8px;
+          position: relative;
+          width: 24px;
+          height: 24px;
           border-radius: 50%;
           border: none;
           padding: 0;
           cursor: pointer;
+          background: transparent;
+        }
+        .tl-dot::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 8px;
+          height: 8px;
+          margin: -4px 0 0 -4px;
+          border-radius: 50%;
           transition: all 0.3s ease;
           background: rgba(245, 237, 216, 0.3);
         }
-        .tl-dot:hover {
+        .tl-dot:hover::before {
           background: rgba(245, 237, 216, 0.6);
           transform: scale(1.3);
         }
-        .tl-dot.active {
+        .tl-dot.active::before {
           background: #C9A84C;
           box-shadow: 0 0 10px rgba(201, 168, 76, 0.5);
           transform: scale(1.2);
@@ -646,8 +678,10 @@ export default function GospelTimeline() {
           .tl-nav {
             padding: 16px 20px;
           }
-          .tl-dots { gap: 7px; }
-          .tl-dot { width: 7px; height: 7px; }
+          /* Narrow screens keep the original 14px pitch; the 44px arrows
+             reach every stop too (the 2.5.8 "equivalent control" exception). */
+          .tl-dot { width: 14px; }
+          .tl-dot::before { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; }
         }
       `}</style>
 
@@ -656,6 +690,10 @@ export default function GospelTimeline() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={stop.painting} alt="" aria-hidden="true" />
         <div className="tl-bg-overlay" />
+      </div>
+
+      <div style={srOnly} role="status" aria-live="polite">
+        {loaded ? `Stop ${currentIndex + 1} of ${timelineStops.length}: ${stop.ruler}` : ''}
       </div>
 
       {/* Header */}
@@ -689,7 +727,7 @@ export default function GospelTimeline() {
               <p className="tl-card-coin">{stop.coin}</p>
               <p className="tl-card-reference">{stop.reference}</p>
             </div>
-            <div className="tl-card-body">
+            <div className="tl-card-body" tabIndex={0} role="region" aria-label={`${stop.ruler}: passage and story`}>
               <p className="tl-card-passage">&ldquo;{stop.passage}&rdquo;</p>
               <p className="tl-card-story">{stop.story}</p>
 
@@ -706,13 +744,24 @@ export default function GospelTimeline() {
 
       {/* Painting inset — right side, click for fullscreen */}
       <div className={`tl-painting-inset ${transitioning ? 'fading' : ''}`}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={stop.painting} alt={`${stop.ruler} — painting`} onClick={() => setShowModal(true)} />
+        <button type="button" className="tl-painting-btn" onClick={() => setShowModal(true)}
+          aria-haspopup="dialog" aria-label={`View painting full screen: ${stop.ruler}`}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={stop.painting} alt="" />
+        </button>
       </div>
 
       {/* Fullscreen painting modal */}
-      <div className={`tl-modal-backdrop ${showModal ? 'open' : ''}`} onClick={() => setShowModal(false)}>
-        <button className="tl-modal-close" onClick={() => setShowModal(false)}>{'\u00D7'}</button>
+      <div
+        ref={modalRef}
+        className={`tl-modal-backdrop ${showModal ? 'open' : ''}`}
+        onClick={() => setShowModal(false)}
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${stop.ruler} — painting`}
+        inert={!showModal}
+      >
+        <button type="button" ref={modalCloseRef} className="tl-modal-close" onClick={() => setShowModal(false)} aria-label="Close"><span aria-hidden="true">{'\u00D7'}</span></button>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={stop.painting} alt={`${stop.ruler} — painting`} />
       </div>
@@ -723,18 +772,20 @@ export default function GospelTimeline() {
           className="tl-nav-arrow"
           onClick={goPrev}
           disabled={isFirst}
-          aria-label="Previous"
+          aria-label="Previous stop"
         >
-          {'\u2190'}
+          <span aria-hidden="true">{'\u2190'}</span>
         </button>
 
         <div className="tl-dots">
           {timelineStops.map((_, i) => (
             <button
               key={i}
+              type="button"
               className={`tl-dot ${i === currentIndex ? 'active' : ''}`}
               onClick={() => goTo(i)}
               aria-label={`Go to stop ${i + 1}`}
+              aria-current={i === currentIndex ? 'step' : undefined}
             />
           ))}
         </div>
@@ -743,9 +794,9 @@ export default function GospelTimeline() {
           className="tl-nav-arrow"
           onClick={goNext}
           disabled={isLast}
-          aria-label="Next"
+          aria-label="Next stop"
         >
-          {'\u2192'}
+          <span aria-hidden="true">{'\u2192'}</span>
         </button>
       </nav>
     </div>

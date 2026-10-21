@@ -1,11 +1,13 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { srOnly, useDialogFocus } from '@/lib/a11y';
+import { useOrbitA11y, OrbitButtons, ORBIT_KEY_HELP } from '@/lib/orbit-a11y';
 
 // The scans are Draco-compressed, which cuts each from 5-15MB to 1-2MB. One
 // decoder serves every model; its files are in public/draco/gltf and are only
@@ -245,25 +247,15 @@ export default function ArtifactViewer({ artifactId }: Props) {
     );
   }, [artifact]);
 
-  // Stop auto-rotate on user interaction
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !sceneRef.current) return;
+  // Keyboard and button alternatives to dragging; auto-rotate stops on
+  // drag, and starts off for visitors who prefer reduced motion.
+  const orbit = useOrbitA11y(sceneRef, containerRef);
 
-    const stopAutoRotate = () => {
-      if (sceneRef.current) {
-        sceneRef.current.controls.autoRotate = false;
-      }
-    };
-
-    container.addEventListener('mousedown', stopAutoRotate);
-    container.addEventListener('touchstart', stopAutoRotate);
-
-    return () => {
-      container.removeEventListener('mousedown', stopAutoRotate);
-      container.removeEventListener('touchstart', stopAutoRotate);
-    };
-  }, []);
+  // The display card is a modal dialog while open.
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const closeInfo = useCallback(() => setShowInfo(false), []);
+  useDialogFocus(panelRef, showInfo, { onEscape: closeInfo, initialFocus: closeRef });
 
   if (!artifact) {
     return <div>Artifact not found</div>;
@@ -351,7 +343,10 @@ export default function ArtifactViewer({ artifactId }: Props) {
           width: 100%;
           position: relative;
           min-height: 60vh;
+          --orbit-accent: #a8d5e5;
         }
+        .model-container:focus-visible { outline-offset: -4px; }
+        .artifact-viewer { --orbit-accent: #a8d5e5; }
 
         .model-container canvas {
           cursor: grab;
@@ -623,17 +618,29 @@ export default function ArtifactViewer({ artifactId }: Props) {
           Back to Collection
         </button>
         <button
+          type="button"
           className={`info-btn ${showInfo ? 'active' : ''}`}
           onClick={() => setShowInfo(!showInfo)}
+          aria-label="About this artifact"
+          aria-expanded={showInfo}
+          aria-controls="artifact-info-panel"
         >
-          i
+          <span aria-hidden="true">i</span>
         </button>
       </header>
 
       {/* Main content */}
       <div className="artifact-content">
         {/* 3D Model Container */}
-        <div className="model-container" ref={containerRef}>
+        <div
+          className="model-container"
+          ref={containerRef}
+          tabIndex={0}
+          role="img"
+          aria-label={`${artifact.title}, ${artifact.date}: ${artifact.subtitle}. Interactive 3D model.`}
+          aria-describedby="artifact-orbit-help"
+          onKeyDown={orbit.onKeyDown}
+        >
           {isLoading && (
             <div className="loading-overlay">
               <div className="loading-spinner"></div>
@@ -648,6 +655,9 @@ export default function ArtifactViewer({ artifactId }: Props) {
             </div>
           )}
         </div>
+
+        <span id="artifact-orbit-help" style={srOnly}>{ORBIT_KEY_HELP}</span>
+        {!loadError && <OrbitButtons orbit={orbit} label={artifact.title} />}
 
         {/* Bottom bar - title left, controls right */}
         <div className="bottom-bar">
@@ -678,14 +688,23 @@ export default function ArtifactViewer({ artifactId }: Props) {
       <div
         className={`info-backdrop ${showInfo ? 'open' : ''}`}
         onClick={() => setShowInfo(false)}
+        aria-hidden="true"
       />
 
       {/* Info panel - slides over */}
-      <aside className={`info-panel ${showInfo ? 'open' : ''}`}>
-        <button className="info-close" onClick={() => setShowInfo(false)}>×</button>
+      <div
+        id="artifact-info-panel"
+        ref={panelRef}
+        className={`info-panel ${showInfo ? 'open' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="artifact-info-title"
+        inert={!showInfo}
+      >
+        <button type="button" ref={closeRef} className="info-close" onClick={() => setShowInfo(false)} aria-label="Close"><span aria-hidden="true">×</span></button>
         <div className="info-panel-content">
           <p className="info-label">Display Card</p>
-          <h2 className="info-title">{artifact.title}</h2>
+          <h2 className="info-title" id="artifact-info-title">{artifact.title}</h2>
           <p className="info-date">{artifact.date}</p>
           <p className="info-subtitle">{artifact.subtitle}</p>
           <div className="info-description">
@@ -694,7 +713,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
             ))}
           </div>
         </div>
-      </aside>
+      </div>
     </div>
   );
 }

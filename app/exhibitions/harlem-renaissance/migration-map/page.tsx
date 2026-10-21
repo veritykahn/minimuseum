@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
+import { srOnly, activateOnKey, prefersReducedMotion } from '@/lib/a11y';
 
 const AUDIO_BASE = '/exhibitions/harlem/audio/migration/';
 const PHOTO_BASE = '/exhibitions/harlem/images/migration/';
@@ -97,6 +98,17 @@ const CITY_COLORS = [
   { main: '#B485D2', light: '#D0ACE8', dim: '#785A8B', bg: '#160C20' },     // Harlem — lavender
 ];
 
+// The names the map shows beside each dot, used to begin each dot's
+// accessible name so speech users can say what they see.
+const DOT_LABELS: Record<string, string> = {
+  delta: 'Mississippi Delta',
+  'new-orleans': 'New Orleans',
+  memphis: 'Memphis',
+  'st-louis': 'St. Louis',
+  chicago: 'Chicago',
+  harlem: 'Harlem',
+};
+
 const ROUTE_PATH = 'M280,550 C290,530 305,515 310,505 Q315,480 295,440 Q290,425 285,410 Q280,390 278,370 Q275,350 275,330 Q280,290 310,260 Q330,240 345,225 Q360,200 370,170 Q375,160 370,155 Q390,140 430,115 Q470,95 510,75 Q550,55 580,42 Q595,37 610,35';
 
 export default function MigrationMapPage() {
@@ -113,6 +125,15 @@ export default function MigrationMapPage() {
   const [traveledOffset, setTraveledOffset] = useState(1);
   const [travelTransition, setTravelTransition] = useState(true);
   const [mapZoom, setMapZoom] = useState({ originX: 50, originY: 50, scale: 1 });
+  // Music: whether the current city's track is playing, and whether the
+  // visitor wants music at all. Turning it off stops arrivals autoplaying.
+  const [musicPlaying, setMusicPlaying] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const soundOnRef = useRef(true);
+  const [announcement, setAnnouncement] = useState('');
+  const cityHeadingRef = useRef<HTMLHeadingElement>(null);
+  const dotRefs = useRef<(SVGGElement | null)[]>([]);
+  const boardBtnRef = useRef<HTMLButtonElement>(null);
 
   const routePathRef = useRef<SVGPathElement>(null);
   const routeLengthRef = useRef(0);
@@ -155,6 +176,7 @@ export default function MigrationMapPage() {
       currentAudioRef.current.currentTime = 0;
       currentAudioRef.current = null;
     }
+    setMusicPlaying(false);
   }, []);
 
   const playMusic = useCallback((cityIdx: number) => {
@@ -162,9 +184,11 @@ export default function MigrationMapPage() {
     const city = CITIES[cityIdx];
     const audio = new Audio(AUDIO_BASE + city.music.file);
     audio.volume = 0.8;
-    audio.play().catch(() => {});
-    audio.onended = () => { currentAudioRef.current = null; };
+    audio.onplay = () => setMusicPlaying(true);
+    audio.onpause = () => setMusicPlaying(false);
+    audio.onended = () => { currentAudioRef.current = null; setMusicPlaying(false); };
     currentAudioRef.current = audio;
+    audio.play().catch(() => setMusicPlaying(false));
   }, [stopMusic]);
 
   const toggleMusic = useCallback(() => {
@@ -172,10 +196,29 @@ export default function MigrationMapPage() {
     if (audio && !audio.paused) {
       audio.pause();
       currentAudioRef.current = null;
+      setMusicPlaying(false);
+      // Pausing is a choice: later stops stay quiet until music is turned on.
+      soundOnRef.current = false;
+      setSoundOn(false);
       return;
     }
+    soundOnRef.current = true;
+    setSoundOn(true);
     playMusic(currentCityIdxRef.current);
   }, [playMusic]);
+
+  const toggleSound = useCallback(() => {
+    if (soundOnRef.current) {
+      soundOnRef.current = false;
+      setSoundOn(false);
+      stopMusic();
+      if (trainAudioRef.current) trainAudioRef.current.pause();
+    } else {
+      soundOnRef.current = true;
+      setSoundOn(true);
+      if (currentCityIdxRef.current >= 0) playMusic(currentCityIdxRef.current);
+    }
+  }, [playMusic, stopMusic]);
 
   const getDotScreenPos = useCallback((idx: number) => {
     const svg = svgRef.current;
@@ -206,9 +249,12 @@ export default function MigrationMapPage() {
       setCityViewOpen(true);
       setCityContentVisible(true);
       if (cityViewRef.current) cityViewRef.current.scrollTop = 0;
-      // Auto-play music after expand fills the screen
-      playMusic(idx);
-    }, 1400);
+      setAnnouncement(`Stop ${idx + 1} of ${CITIES.length}: ${CITIES[idx].name}`);
+      requestAnimationFrame(() => cityHeadingRef.current?.focus({ preventScroll: true }));
+      // Auto-play music after expand fills the screen, unless the visitor
+      // has turned music off. The Music on/off control is first in the view.
+      if (soundOnRef.current) playMusic(idx);
+    }, prefersReducedMotion() ? 300 : 1400);
   }, [getDotScreenPos, playMusic]);
 
   const collapseCity = useCallback((): Promise<void> => {
@@ -231,7 +277,7 @@ export default function MigrationMapPage() {
   }, [stopMusic, getDotScreenPos]);
 
   const playTrainSound = useCallback(() => {
-    if (trainAudioRef.current) {
+    if (trainAudioRef.current && soundOnRef.current) {
       trainAudioRef.current.currentTime = 0;
       trainAudioRef.current.volume = 0.5;
       trainAudioRef.current.play().catch(() => {});
@@ -263,8 +309,9 @@ export default function MigrationMapPage() {
       setTrainVisible(true);
       const startPct = fromIdx >= 0 ? positions[fromIdx] : positions[0];
       const endPct = positions[toIdx];
-      // Fixed 5-second train journey — the last stretch is the expanding dot
-      const duration = 5000;
+      // Fixed 5-second train journey — the last stretch is the expanding dot.
+      // With reduced motion the train jumps straight to the next stop.
+      const duration = prefersReducedMotion() ? 1 : 5000;
       const startTime = performance.now();
 
       function animate(now: number) {
@@ -313,6 +360,7 @@ export default function MigrationMapPage() {
     if (nextIdx >= CITIES.length) { setIsAnimating(false); return; }
 
     await collapseCity();
+    setAnnouncement(`Boarding the train to ${CITIES[nextIdx].name}\u2026`);
     playTrainSound();
     await animateTrainToCity(currentCityIdxRef.current, nextIdx);
 
@@ -341,6 +389,9 @@ export default function MigrationMapPage() {
     setIsAnimating(true);
     await collapseCity();
     setIsAnimating(false);
+    setAnnouncement('Back to the map');
+    const idx = currentCityIdxRef.current;
+    requestAnimationFrame(() => (dotRefs.current[idx] || boardBtnRef.current)?.focus({ preventScroll: true }));
   }, [isAnimating, collapseCity]);
 
   // Cleanup audio on unmount
@@ -452,7 +503,7 @@ export default function MigrationMapPage() {
           font-family: 'Josefin Sans', sans-serif;
           font-size: 9px; letter-spacing: 4px;
           text-transform: uppercase;
-          color: var(--mg-gold-dim); font-weight: 600;
+          color: #94803B; font-weight: 600;
           margin-bottom: 12px;
         }
         .mg-prompt-text {
@@ -489,7 +540,9 @@ export default function MigrationMapPage() {
         .mg-state-outline { fill: none; stroke: rgba(201,169,78,0.04); stroke-width: 0.5; }
 
         /* City dots — each city has its own color from CITY_COLORS applied inline */
-        .city-dot { cursor: pointer; }
+        .city-dot { cursor: pointer; outline: none; }
+        .city-dot:focus-visible .mg-dot-outer { stroke: #a8d5e5; stroke-width: 3; }
+        .city-dot:focus-visible .mg-dot-inner { stroke: #a8d5e5; stroke-width: 1; }
         .mg-dot-outer { stroke-width: 2; transition: all 0.4s ease; }
         .mg-dot-inner { transition: all 0.4s ease; }
         .city-dot.visited .mg-dot-outer { opacity: 0.7; }
@@ -639,6 +692,23 @@ export default function MigrationMapPage() {
           50% { box-shadow: 0 0 22px rgba(201,169,78,0.3); }
         }
         .mg-city-music-info { flex: 1; min-width: 0; }
+        .mg-sound-toggle {
+          position: absolute; top: 24px; left: 24px; z-index: 3;
+          font-family: 'Josefin Sans', sans-serif; font-size: 10px;
+          letter-spacing: 3px; text-transform: uppercase; font-weight: 600;
+          padding: 8px 16px; border-radius: 3px; cursor: pointer;
+          backdrop-filter: blur(8px);
+          background: color-mix(in srgb, var(--mg-burgundy-deep) 80%, transparent);
+          border: 1px solid color-mix(in srgb, var(--mg-gold) 30%, transparent);
+          color: var(--mg-gold);
+          -webkit-tap-highlight-color: transparent;
+        }
+        .mg-sound-toggle:hover { border-color: var(--mg-gold); }
+        .mg-city-name:focus { outline: none; }
+        @media (prefers-reduced-motion: reduce) {
+          .mg-map-svg-wrap svg { transition: none; }
+          .city-dot.next-stop .mg-dot-outer, .mg-city-music-play.playing { animation: none; }
+        }
         .mg-city-music-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--mg-gold-light); font-style: italic; }
         .mg-city-music-artist { font-family: 'Josefin Sans', sans-serif; font-size: 11px; color: rgba(232,224,208,0.5); margin-top: 3px; font-weight: 300; }
         .mg-city-music-year { font-family: 'Josefin Sans', sans-serif; font-size: 10px; color: rgba(232,224,208,0.3); margin-top: 2px; font-weight: 300; letter-spacing: 1px; }
@@ -660,6 +730,7 @@ export default function MigrationMapPage() {
 
         /* Train ticket */
         .mg-train-ticket {
+          display: block; width: 100%; font: inherit; color: inherit;
           background: rgba(201,169,78,0.04); border: 1.5px solid rgba(201,169,78,0.2);
           border-radius: 8px; padding: 24px; text-align: center;
           cursor: pointer; transition: all 0.3s; position: relative;
@@ -752,6 +823,7 @@ export default function MigrationMapPage() {
           .mg-city-photo-wrap { height: 45vh; min-height: 260px; }
           .mg-city-photo-credit { padding: 10px 20px; font-size: 10px; }
           .mg-city-station-badge { top: 16px; right: 16px; padding: 6px 12px; font-size: 9px; }
+          .mg-sound-toggle { top: 16px; left: 16px; padding: 6px 12px; font-size: 9px; }
           .mg-train-ticket { padding: 20px; }
           .mg-ticket-destination { font-size: 18px; }
         }
@@ -779,7 +851,9 @@ export default function MigrationMapPage() {
       )}
 
       {/* === MAP VIEW === */}
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <div style={srOnly} aria-live="polite" role="status">{announcement}</div>
+
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }} inert={cityViewOpen}>
         <ExhibitionNav className="mg-nav" href="/exhibitions/harlem-renaissance/artifacts" style={{ display: cityViewOpen ? 'none' : 'flex' }}>
           <span className="mg-nav-text" aria-hidden="true">M</span>
           <span className="mg-nav-arrow" aria-hidden="true">{'\u2190'}</span>
@@ -860,17 +934,24 @@ export default function MigrationMapPage() {
                 return (
                 <g key={c.id} className={getDotClass(i)} onClick={() => {
                   if (i <= currentCityIdx) expandCity(i);
-                }} style={{ '--dot-glow': `${cc.main}88` } as React.CSSProperties}>
+                }}
+                  ref={(el) => { dotRefs.current[i] = el; }}
+                  role="button"
+                  tabIndex={i <= currentCityIdx ? 0 : -1}
+                  aria-disabled={i <= currentCityIdx ? undefined : true}
+                  aria-label={`${DOT_LABELS[c.id] ?? c.name}, stop ${i + 1}${i <= currentCityIdx ? '' : ', not yet reached'}`}
+                  onKeyDown={activateOnKey(() => { if (i <= currentCityIdx) expandCity(i); })}
+                  style={{ '--dot-glow': `${cc.main}88` } as React.CSSProperties}>
                   <circle className="mg-dot-outer" cx={c.cx} cy={c.cy} r="14"
                     fill={cc.dim} stroke={cc.main} />
                   <circle className="mg-dot-inner" cx={c.cx} cy={c.cy} r="8"
                     fill={cc.main} />
                   {c.id === 'delta' && (<>
-                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 22} textAnchor="end" fill={cc.dim}>Mississippi</text>
+                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 22} textAnchor="end" fill={cc.dim}>Mississippi{' '}</text>
                     <text className="mg-city-label" x={c.cx - 40} y={c.cy + 36} textAnchor="end" fill={cc.dim}>Delta</text>
                   </>)}
                   {c.id === 'new-orleans' && (<>
-                    <text className="mg-city-label" x={c.cx + 36} y={c.cy - 5} fill={cc.dim}>New</text>
+                    <text className="mg-city-label" x={c.cx + 36} y={c.cy - 5} fill={cc.dim}>New{' '}</text>
                     <text className="mg-city-label" x={c.cx + 36} y={c.cy + 9} fill={cc.dim}>Orleans</text>
                   </>)}
                   {c.id === 'memphis' && (
@@ -899,7 +980,7 @@ export default function MigrationMapPage() {
                 Board the train and <em>ride from stop to stop</em> {'\u2014'} hear the music,
                 see the photographs, and trace the path that changed America.
               </p>
-              <button className="mg-board-btn" onClick={startJourney}>
+              <button ref={boardBtnRef} className="mg-board-btn" onClick={startJourney}>
                 {'\u25C6'} Begin in the Delta {'\u25C6'}
               </button>
             </div>
@@ -913,7 +994,7 @@ export default function MigrationMapPage() {
 
       {/* === CITY VIEW === */}
       {cityViewOpen && city && (
-        <div className="mg-city-view" ref={cityViewRef}>
+        <div className="mg-city-view" ref={cityViewRef} role="region" aria-labelledby="mg-city-name">
           <div className={`mg-city-content ${cityContentVisible ? 'visible' : ''}`} style={{
               '--mg-gold': CITY_COLORS[currentCityIdx].main,
               '--mg-gold-light': CITY_COLORS[currentCityIdx].light,
@@ -934,6 +1015,9 @@ export default function MigrationMapPage() {
                 onError={() => setPhotoLoaded(false)}
               />
               <div className="mg-city-photo-overlay" />
+              <button type="button" className="mg-sound-toggle" onClick={toggleSound}>
+                {soundOn ? '\u266A Turn music off' : '\u266A Turn music on'}
+              </button>
               <div className="mg-city-station-badge">Stop {currentCityIdx + 1} of 6</div>
             </div>
 
@@ -941,7 +1025,7 @@ export default function MigrationMapPage() {
 
             <div className="mg-city-body">
               <div className="mg-city-stop-number">Stop {currentCityIdx + 1}</div>
-              <h2 className="mg-city-name">{city.name}</h2>
+              <h2 className="mg-city-name" id="mg-city-name" tabIndex={-1} ref={cityHeadingRef}>{city.name}</h2>
               <div className="mg-city-period">{city.period}</div>
 
               <div className="mg-city-columns">
@@ -956,10 +1040,13 @@ export default function MigrationMapPage() {
                 <div className="mg-city-col-right">
                   <div className="mg-city-music">
                     <button
-                      className={`mg-city-music-play ${currentAudioRef.current && !currentAudioRef.current.paused ? 'playing' : ''}`}
+                      type="button"
+                      className={`mg-city-music-play ${musicPlaying ? 'playing' : ''}`}
                       onClick={toggleMusic}
+                      aria-label={`Play ${city.music.title}`}
+                      aria-pressed={musicPlaying}
                     >
-                      <span>{currentAudioRef.current && !currentAudioRef.current.paused ? '\u23F8' : '\u25B6'}</span>
+                      <span aria-hidden="true">{musicPlaying ? '\u23F8' : '\u25B6'}</span>
                     </button>
                     <div className="mg-city-music-info">
                       <div className="mg-city-music-title">{city.music.title}</div>
@@ -969,12 +1056,12 @@ export default function MigrationMapPage() {
                   </div>
 
                   {currentCityIdx < CITIES.length - 1 ? (<>
-                    <div className="mg-train-ticket" onClick={boardToNext}>
-                      <div className="mg-ticket-label">Next Stop</div>
-                      <div className="mg-ticket-destination">{CITIES[currentCityIdx + 1].name}</div>
-                      <div className="mg-ticket-line" />
-                      <div className="mg-ticket-action">{'\u25C6'} Board the Train {'\u25C6'}</div>
-                    </div>
+                    <button type="button" className="mg-train-ticket" onClick={boardToNext}>
+                      <span className="mg-ticket-label" style={{ display: 'block' }}>Next Stop</span>
+                      <span className="mg-ticket-destination" style={{ display: 'block' }}>{CITIES[currentCityIdx + 1].name}</span>
+                      <span className="mg-ticket-line" style={{ display: 'block' }} />
+                      <span className="mg-ticket-action" style={{ display: 'block' }}><span aria-hidden="true">{'\u25C6'}</span> Board the Train <span aria-hidden="true">{'\u25C6'}</span></span>
+                    </button>
                     <button className="mg-return-map" onClick={backToMap}>
                       {'\u2190'} Return to Map
                     </button>
