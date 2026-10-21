@@ -240,7 +240,7 @@ export default function About() {
           font-family: 'Cormorant Garamond', Georgia, serif;
           font-size: 18px;
           font-weight: 400;
-          color: #525252;
+          color: #8a8a8a;
           background: none;
           border: none;
           cursor: pointer;

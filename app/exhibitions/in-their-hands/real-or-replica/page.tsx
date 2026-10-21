@@ -248,7 +248,7 @@ export default function RealOrReplica() {
           font-size: 12px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #737373;
+          color: #8a8a8a;
         }
 
         .rr-fake-btn {
