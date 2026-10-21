@@ -350,6 +350,7 @@ def build(exhibition, match=None):
         out = os.path.join(out_root, doc["out"])
         os.makedirs(os.path.dirname(out), exist_ok=True)
         subprocess.run([CHROME, "--headless", "--disable-gpu", "--no-pdf-header-footer",
+                        f"--user-data-dir={tempfile.mkdtemp()}",
                         "--allow-file-access-from-files", "--virtual-time-budget=8000",
                         f"--print-to-pdf={out}", "file://" + page],
                        check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
