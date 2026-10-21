@@ -15,8 +15,8 @@ SUB = "Grades 5–8 · Art · Portrait, symbol and inscription"
 HERO = {"img": "/exhibitions/in-their-hands/timeline/judas-tissot.jpg", "pos": "center 30%",
         "credit": "James Tissot (1836–1902), Brooklyn Museum"}
 
-# NB: in the image files, pilate-front.png shows the ears of grain and
-# pilate-back.png the simpulum, so captions name what is pictured.
+# pilate-front.png shows the simpulum (the obverse), pilate-back.png the
+# three bound ears of grain; captions name what is pictured.
 TRIBUTE = {"img": C + "tribute-front.png", "label": "Case 7 · Replica", "title": "The Tribute Penny",
            "body": ["Silver denarius, 14–37 AD. A museum-quality replica. One side carries the face of the emperor Tiberius; the other the inscription PONTIF MAXIM — *High Priest*."]}
 TRIBUTE_BACK = {"img": C + "tribute-back.png", "label": "Case 7 · Replica · the reverse", "title": "PONTIF MAXIM",
@@ -78,8 +78,8 @@ LESSON = {
         {"img": C + "shekel.png", "cap": "Shekel of Tyre · Melqart · replica"}]},
       {"label": "Symbol · an object that stands for an idea", "items": [
         {"img": C + "herod-great-front.png", "cap": "Herod the Great · no human image"},
-        {"img": C + "pilate-back.png", "cap": "Pilate · the simpulum"},
-        {"img": C + "pilate-front.png", "cap": "Pilate · three bound ears of grain"}]},
+        {"img": C + "pilate-front.png", "cap": "Pilate · the simpulum"},
+        {"img": C + "pilate-back.png", "cap": "Pilate · three bound ears of grain"}]},
     ]),
     ("section", {"label": "From Real or Replica?", "title": "How a fake gives itself away"}),
     ("table", {"head": ["How the fake was made", "The visual clue"], "rows": [
