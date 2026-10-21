@@ -177,7 +177,7 @@ REL_Y = handout("Religion", "Religion", R_T, "yellow", R_HERO, [
   ("task", {"label": "Part 2", "title": "Apply CST to two examples", "blocks": [
       P("For each example below, explain how it either affirms or violates CST Principle 1:"),
       ("table", {"head": ["Example", "Affirms or violates dignity?", "Explain using CST language"], "rows": [
-          ["Langston Hughes writing \"I, Too, Sing America\" — claiming Black Americans belong in the national story", "", ""],
+          ["Langston Hughes writing \"I, Too\" — claiming Black Americans belong in the national story", "", ""],
           ["Jim Crow laws requiring Black Americans to use separate facilities and preventing them from voting", "", ""],
           ["Aaron Douglas painting Black figures as noble, powerful, and spiritually significant", "", ""]]})]}),
   ("task", {"label": "Part 3", "title": "Reflective paragraph", "blocks": q(
@@ -453,7 +453,7 @@ THE_R = handout("Theater", "Theater", T_T, "red", T_HERO, [
       "Anna Deavere Smith says \"identity is found in the act of becoming another.\" **What did you discover about the Harlem Renaissance — or about yourself — through performing this character that you could not have found through reading? What are the limits of this kind of historical performance? What risks does it carry?**", 4)}),
   ("cols", [[aside("Mini Museum deep dive", ["The **Harlem in Words** section includes actual language from Harlem Renaissance texts. Use three words or phrases from the exhibition in your performance — not as quotation, but woven naturally into your character's speech. After performing, reflect: how did using authentic language change the quality of the performance?"])],
             [note("Research extension", ["Find and read one scene from a Zora Neale Hurston play (*Color Struck*, 1926, is freely available online). Analyze: how does Hurston use dialect, rhythm, and silence? How do those choices serve her characters?"])]]),
-], ["**Dramaturgical frame:** The actor and scholar Anna Deavere Smith (whose work is directly in the Harlem Renaissance oral tradition) says: \"Identity is found in the act of becoming another.\" When you step into a historical character with full commitment — their fears, their hopes, their specific historical context — you gain a form of knowledge that reading alone cannot provide. This is the unique power of theater."], css=".tfields span { padding-bottom: 10pt; }")
+], ["**Dramaturgical frame:** The actor and playwright Anna Deavere Smith, whose documentary theater is built from interviews and testimony, says: \"Identity is found in the act of becoming another.\" When you step into a historical character with full commitment — their fears, their hopes, their specific historical context — you gain a form of knowledge that reading alone cannot provide. This is the unique power of theater."], css=".tfields span { padding-bottom: 10pt; }")
 
 # ════════════════════════════════════════════════════════════════════
 # MUSIC · The Sound of Harlem
@@ -496,7 +496,7 @@ MUS_LP = lesson("Music", "Music", M_T, M_HERO, [
     "**Big band:** Duke Ellington — \"Take the A Train\" (1941); \"It Don't Mean a Thing (If It Ain't Got That Swing)\" (1932) — the title is a lesson in itself",
     "**Stride piano:** Fats Waller — \"Ain't Misbehavin'\" (1929) — demonstrates the stride piano style: left hand alternates bass note and chord, right hand improvises melody"],
     "body": []}),
-  P("All recordings pre-1928 are in the public domain. All are freely available on YouTube, Smithsonian Folkways, or the Internet Archive."),
+  P("Recordings made before 1926 are now in the US public domain. All of these can be heard free on YouTube, Smithsonian Folkways, or the Internet Archive."),
   ("section", {"label": "African roots — teaching notes", "body": ["Jazz did not appear from nowhere. Its structural DNA is deeply African:"], "list": [
     "**Call-and-response:** Central to West African vocal and instrumental music, and to the work songs and spirituals of enslaved people in America",
     "**Polyrhythm:** Multiple simultaneous rhythmic patterns — the drum kit in jazz is essentially a polyrhythmic instrument",
@@ -609,3 +609,9 @@ def walk(x, key=None):
 
 DOCS = [walk(d) for d in [REL_LP, REL_G, REL_Y, REL_R, SPA_LP, SPA_G, SPA_Y, SPA_R,
                           THE_LP, THE_G, THE_Y, THE_R, MUS_LP, MUS_G, MUS_Y, MUS_R]]
+
+# links to the paintings this module names (see _links.py)
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(__file__))
+from _links import add_links as _add_links
+_add_links(DOCS)

@@ -114,8 +114,7 @@ def handout(out, title, sub, foot, level, hero, blocks, context=None, young=Fals
 
 # a timing bar whose label does not claim a total: in three of the plans the
 # steps add up to a little more or less than the session length stated
-RELABEL = (".timing > .label { font-size: 0; } "
-           ".timing > .label::after { content: 'Lesson timing'; font-size: 7.5pt; letter-spacing: .24em; }")
+RELABEL = ""   # every plan now states the length its steps add up to
 
 # ════════════════════════════════════════════════════════════════════════
 # PreK–K · My Eyes Can Play Tricks!
@@ -126,8 +125,8 @@ PK_TITLE = "My Eyes Can Play Tricks!"
 
 PK_PLAN = plan(
   PK + "Lesson Plan_ My Eyes Can Play Tricks! (PreK-K Library) - Teacher Guide.pdf",
-  PK_TITLE, "PreK–Kindergarten · Library · 20 minutes", "Library Lesson Plan · PreK–K", HERO_PK,
-  ["PreK–K", "20 minutes", "Library"],
+  PK_TITLE, "PreK–Kindergarten · Library · 18 minutes", "Library Lesson Plan · PreK–K", HERO_PK,
+  ["PreK–K", "18 minutes", "Library"],
   "A read-aloud and exploration session where our youngest learners discover that what they see isn’t always what’s really there — building early foundations for critical thinking.",
   [
     ("timing", [("Gathering & hook", 3, C1), ("Read-aloud", 8, C2), ("Mini Museum", 5, C4), ("Closing", 2, C5)]),
@@ -231,8 +230,8 @@ G12_TITLE = "Look Again!"
 
 G12_PLAN = plan(
   G12 + "Library Lesson Plan_ Look Again! Finding Hidden Pictures (Grades 1-2) - Teacher Guide.pdf",
-  "Look Again! Finding Hidden Pictures", "Grades 1–2 · Library · 25 minutes", "Library Lesson Plan · Grades 1–2", HERO_12,
-  ["Grades 1–2", "25 minutes", "Library"],
+  "Look Again! Finding Hidden Pictures", "Grades 1–2 · Library · 27 minutes", "Library Lesson Plan · Grades 1–2", HERO_12,
+  ["Grades 1–2", "27 minutes", "Library"],
   "Students develop observation skills through “I Spy” and hidden picture books, connecting careful looking to the library skill of finding information and the life skill of looking carefully before believing what we see.",
   [
     ("timing", [("Gathering & hook", 3, C1), ("Interactive search", 10, C2), ("Mini Museum", 7, C4), ("Partner hunt", 5, C3), ("Closing", 2, C5)]),
@@ -368,8 +367,8 @@ STOP_CHECK_ASK = steps([
 
 G35_PLAN = plan(
   G35 + "Library Lesson Plan_ Don't Be Fooled! Information Detective Skills (Grades 3-5) - Teacher Guide.pdf",
-  "Don’t Be Fooled! Information Detective Skills", "Grades 3–5 · Library · 30 minutes", "Library Lesson Plan · Grades 3–5", HERO_35,
-  ["Grades 3–5", "30 minutes", "Library"],
+  "Don’t Be Fooled! Information Detective Skills", "Grades 3–5 · Library · 31 minutes", "Library Lesson Plan · Grades 3–5", HERO_35,
+  ["Grades 3–5", "31 minutes", "Library"],
   "Students connect optical illusions to information literacy, learning that just as our eyes can be tricked, we can be fooled by unreliable information — and developing the detective skills to tell the difference.",
   [
     ("timing", [("Hook", 5, C1), ("Spirit photography", 5, C6), ("Stop-Check-Ask", 8, C2), ("Real or fake?", 8, C4), ("Museum", 3, C3), ("Close", 2, C5)]),

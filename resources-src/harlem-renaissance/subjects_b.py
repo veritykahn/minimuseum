@@ -100,7 +100,6 @@ ART_LP = {
       "red": "Full formal analysis of three works across all five technique dimensions. Write a 2-paragraph critical interpretation arguing what Douglas’s visual choices communicate about Black identity and history. Optional studio: respond in your own silhouette composition with written rationale."}),
     ("connection", ["**Option 1 — Visit the exhibition:** bring your class to experience the phonograph, the Great Migration Map, the Jazz Lab, and more. Ask your librarian to arrange a visit.",
                     "**Option 2 — Virtual visit:** online at the address below."]),
-    ("pagebreak", None),
     ("section", {"label": "Douglas’s biography", "title": "Key facts"}),
     ("refs", [
       ("Born", "1899, Topeka, Kansas"),
@@ -114,6 +113,7 @@ ART_LP = {
       ("Flat Silhouettes", ["By removing facial features, Douglas creates figures that are universal and archetypal rather than individual. This connects to African sculptural traditions and Egyptian hieroglyphic art — and implicitly argues that Black figures deserve the same archetypal status as figures in European classical art."]),
       ("Concentric Circles", ["The radiating circles that appear in almost every Douglas work suggest sound (jazz resonance), spiritual energy (divine light), and shared emotion. They give the paintings a sense of vibration and pulse — as if the image itself is making sound."]),
       ("African Geometric Design", ["Douglas was deeply influenced by his study of West African art and Egyptian imagery. The geometric patterns in his backgrounds deliberately evoke pre-colonial African visual culture — arguing that Black Americans have a rich aesthetic heritage predating slavery."]),
+      ("Limited, Symbolic Color Palette", ["Each painting uses 3–5 colors with specific emotional associations."]),
       ("Layered Transparency", ["The semi-transparent overlapping figures suggest that multiple historical moments coexist — past, present, and future simultaneously visible. This is Douglas’s visual equivalent of what W.E.B. Du Bois called “double consciousness.”"])]),
     ("section", {"label": "Cross-curricular and assessment notes", "list": [
       "**ELA connection:** Douglas and Langston Hughes were close collaborators — Douglas illustrated Hughes’s books. Have students compare a Hughes poem to a Douglas image on a similar theme",
@@ -147,8 +147,8 @@ ART_GREEN = art_handout("green", "HR_Handout_Green_Art.pdf", [
 ART_YELLOW = art_handout("yellow", "HR_Handout_Yellow_Art.pdf", [
   ("task", {"label": "Activity 1 · Compare two works", "title": "Same Artist, Different Story",
             "blocks": [works([("Song of the Towers", "Aaron Douglas, 1934"),
-                              ("Aspects of Negro Life: From Slavery to Reconstruction", "Aaron Douglas, 1934")])]}),
-  ("table", {"head": ["Technique", "Song of the Towers", "Slavery to Reconstruction"], "rows": [
+                              ("Aspects of Negro Life: From Slavery Through Reconstruction", "Aaron Douglas, 1934")])]}),
+  ("table", {"head": ["Technique", "Song of the Towers", "Slavery Through Reconstruction"], "rows": [
       ["Mood / emotion", "", ""], ["Use of color", "", ""], ["Role of figures", "", ""],
       ["What the circles suggest", "", ""], ["The narrative / story told", "", ""]]}),
   Q(0, "What do both paintings share, despite their different subjects?", 3),
@@ -171,7 +171,7 @@ ART_RED = art_handout("red", "HR_Handout_Red_Art.pdf", [
   ("task", {"label": "Activity 2 · Critical interpretation", "title": "What Does Douglas Argue?",
             "body": ["Write a two-paragraph critical interpretation. **Paragraph 1:** What visual argument does Douglas make about Black history and identity across all three works? **Paragraph 2:** How do his formal choices (silhouette, circle, color, geometry) make that argument more powerful than if he had painted realistically?"], "lines": 6}),
   ("task", {"label": "Activity 3", "title": "The collaboration",
-            "blocks": [works([("Untitled", "Aaron Douglas, c. 1930s. Note the concentric circles, silhouettes, and African imagery.")])],
+            "blocks": [works([("Aspects of Negro Life: The Negro in an African Setting", "Aaron Douglas, 1934. Note the concentric circles, silhouettes, and African imagery.")])],
             "body": ["Douglas and Langston Hughes worked together closely — Douglas illustrated Hughes’s books and magazines. Look at this Douglas image and the Hughes poem “The Negro Speaks of Rivers” (1921). What visual and verbal techniques do they share? What does each medium do that the other cannot?"], "lines": 3}),
   ("section", {"label": "Critical question"}),
   Q(0, "Douglas removed facial features from his figures, making them archetypes rather than individuals. Some critics argued this dehumanized his subjects. How would you defend Douglas’s choice against this criticism?", 3),
@@ -247,7 +247,7 @@ MATH_LP = {
       "Graph paper or handout graph grids (included on handouts)",
       "Optional: project the Great Migration Map to give geographic context before the data work"]}),
     ("section", {"label": "Hook · 5 minutes", "title": "How big is a million?",
-      "body": ["*“Six million people moved north during the Great Migration. That’s a number that’s hard to visualize. Let’s try: Holy Family has about 650 students. How many Holy Family schools would you need to fill to get 6 million students? Take 30 seconds and work it out.”*",
+      "body": ["*“Six million people moved north during the Great Migration. That’s a number that’s hard to visualize. Let’s try: imagine a school of about 650 students. How many schools that size would you need to fill to get 6 million students? Take 30 seconds and work it out.”*",
                "Answer: **~9,230 schools.** Then: *“Each one of those 6 million people made a decision — pack up, leave everything, travel north. Today we’re going to look at what those decisions look like in numbers.”*"]}),
     ("section", {"label": "Direct instruction · 8 minutes", "title": "Reading the data",
       "body": ["Walk through the core dataset on the board — Chicago’s Black population: 1910 (44,103), 1920 (109,458), 1930 (233,903), 1940 (277,731), 1950 (492,265), 1960 (812,637). Ask: before we calculate anything, what does this data tell us just by looking at it? What years show the fastest growth?",
@@ -273,7 +273,7 @@ MATH_LP = {
                "**Chicago 1950 → 1960:** (812,637 − 492,265) ÷ 492,265 × 100 = 320,372 ÷ 492,265 × 100 = **65.1% increase**",
                "**Note:** the 1910–1920 decade shows proportionally faster growth (148%) than the 1950–1960 decade (65%), even though the absolute increase was larger in 1950–1960. This is a key teaching moment for percentage change vs absolute change."]}),
     ("section", {"label": "Discussion questions", "list": [
-      "Detroit grew by 610% between 1910 and 1920. What was happening in Detroit’s economy at that time that explains this? *(Ford Motor Company, WWI armaments production)*",
+      "Detroit grew by 611% between 1910 and 1920. What was happening in Detroit’s economy at that time that explains this? *(Ford Motor Company, WWI armaments production)*",
       "New York’s Black population in 1960 was over 1 million. Harlem is one neighborhood. What does this tell us about the limits of the “Harlem Renaissance” label?",
       "What does the data not show? *(Living conditions, discrimination, wages, segregation in Northern cities)*"]}),
     ("section", {"label": "Cross-curricular connections", "list": [
@@ -325,7 +325,7 @@ MATH_YELLOW = math_handout("yellow", "HR_Handout_Yellow_Math.pdf", [
   ("task", {"label": "Activity 3", "title": "Interpret and compare", "blocks": [
     ("html", f'<div class="cols"><div>{Q(0, "Which decade shows the highest percentage change?", 1)[1]}</div><div>{Q(0, "Which shows the highest absolute change?", 1)[1]}</div></div>'),
     Q(0, "Why are these different? Explain in your own words:", 4),
-    Q(0, "New York’s Black population in 1960 was **1,087,931**. Chicago’s was **812,637**. Calculate the ratio of New York to Chicago (simplify to nearest whole number):", 3)]}),
+    Q(0, "New York’s Black population in 1960 was **1,087,931**. Chicago’s was **812,637**. Calculate the ratio of New York to Chicago, rounded to the nearest tenth (__ : 1):", 3)]}),
   ("task", {"label": "Activity 4", "title": "What the data shows — and doesn’t",
             "blocks": [P("Census population data shows how many people moved. Write two things the data shows clearly, and two things it cannot tell us about the Great Migration:"),
                        ("table", {"head": ["The data SHOWS us…", "The data CANNOT tell us…"], "rows": [["1.", "1."], ["2.", "2."]]})]}),
@@ -456,7 +456,7 @@ PE_YELLOW = pe_handout("yellow", "HR_Handout_Yellow_PE.pdf", [
   ("section", {"label": "Reflection", "title": "Movement, Music, and Meaning"}),
   Q(1, "In the creative sequence activity, your group used movement to express a concept. Describe what you created and explain the connection between your movement choices and your concept word:", 7),
   Q(2, "The Lindy Hop rock-step lands on the off-beat (the syncopated beat). How did feeling syncopation physically change your understanding of it as a musical concept?", 7),
-  Q(3, "Dance historian Frankie Manning said the Lindy Hop was “conversation — you have to listen and respond.” How does this connect to the call-and-response structure in jazz?", 7),
+  Q(3, "Lindy Hop dancers describe the dance as a conversation between partners — you have to listen and respond. How does this connect to the call-and-response structure in jazz?", 7),
   Q(4, "What does it mean for a physical activity — dancing — to be a form of cultural resistance?", 7),
   ("connection", ["**At the Jazz Lab:** listen to Chick Webb’s “Stompin’ at the Savoy.” Try clapping the off-beat (the “and” between counts). You’re clapping the same beat you stepped on today."]),
 ], ["**Context:** The Lindy Hop and Charleston were not simply entertainment — they were cultural expression and, in the context of Jim Crow America, a form of resistance and celebration. The Savoy Ballroom was one of the few integrated public spaces in New York City. Dance was a language that crossed racial barriers that law and custom enforced everywhere else."])
@@ -467,9 +467,15 @@ PE_RED = pe_handout("red", "HR_Handout_Red_PE.pdf", [
   Q(2, "Gottschild argues that Black aesthetic contributions to American dance were systematically uncredited. How does this connect to patterns you’ve seen in the Harlem Renaissance more broadly — in music, art, and literature?", 7),
   Q(3, "The Lindy Hop is described as “conversation between partners.” You physically experienced this today. What did that teach you about the difference between performing and communicating?", 7),
   Q(4, "The Savoy Ballroom was demolished in 1958 to build public housing. What is lost when a cultural site is destroyed — and who decides what gets preserved?", 6),
-  ("connection", ["**Deep dive:** research Frankie Manning (1914–2009), who helped create the Lindy Hop’s aerial moves at the Savoy. He taught the dance for 70 years. What does his story reveal about how cultural knowledge is transmitted — and what risks that transmission faces?"]),
+  ("connection", ["**Deep dive:** research Frankie Manning (1914–2009), who helped create the Lindy Hop’s aerial moves at the Savoy. He danced and taught it for most of his long life, and led its revival in the 1980s. What does his story reveal about how cultural knowledge is transmitted — and what risks that transmission faces?"]),
 ], ["**Critical frame:** Dance scholar Brenda Dixon Gottschild argues that the Lindy Hop was the first time African American aesthetics — improvisation, polyrhythm, call-and-response, groundedness — were adopted wholesale by mainstream American culture, though rarely credited to their Black originators. The Savoy Ballroom was simultaneously a space of genuine integration and a site where Black cultural ownership was later erased."])
 
 DOCS = [ART_LP, ART_GREEN, ART_YELLOW, ART_RED,
         MATH_LP, MATH_GREEN, MATH_YELLOW, MATH_RED,
         PE_LP, PE_GREEN, PE_YELLOW, PE_RED]
+
+# links to the paintings this module names (see _links.py)
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(__file__))
+from _links import add_links as _add_links
+_add_links(DOCS)

@@ -254,7 +254,7 @@ SCI_G = handout("Science", "science", "green", "The Science of Seeing",
            + f"<p>The blind spot is where the {bl(80)} {bl(80)} connects to my eye.</p>"
            + f"<p>Optical illusions work by tricking either my {bl(100)} or my {bl(100)}.</p></div>"),
   ("family", ["Try the blind spot experiment with your family! Can they find their blind spot too?",
-              "**Fun fact to share:** Your blind spot is about the size of 17 full moons in the sky — but you never notice it because your brain fills it in!"]),
+              "**Fun fact to share:** Your blind spot is wide enough to hide about ten full moons side by side in the sky — but you never notice it because your brain fills it in!"]),
 ], SCI_CONTEXT_G, SCI_HERO)
 
 SCI_Y = handout("Science", "science", "yellow", "The Science of Seeing",

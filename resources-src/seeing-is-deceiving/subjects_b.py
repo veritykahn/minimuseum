@@ -148,7 +148,7 @@ ART_LP = {
       "**Completed artwork:** Assess: (1) Correct application of technique, (2) Neatness and precision, (3) Effectiveness—does it work?",
       "**Exit ticket:** *“Name one technique we learned today and explain how it tricks the brain.”*"]}),
     handouts("Three levels of student handouts are provided as separate files. Students self-select their challenge level:", {
-      "green": "*“I want more support”* — Step-by-step impossible triangle instructions",
+      "green": "*“I want more support”* — Guided impossible-figure drawing, following the step-by-step board demonstration",
       "yellow": "*“I’m ready for a challenge”* — Create original illusion using one technique",
       "red": "*“I want to go deeper”* — Combine multiple techniques, write artist statement"}),
     ("section", {"label": "Artist background (for teacher reference)"}),
@@ -273,9 +273,9 @@ MATH_LP = {
     cards([
       ("Müller-Lyer (angles)",
        ["*“The arrows at the ends create angles. Your brain interprets these as depth cues:”*"],
-       ["Outward arrows (><) look like outside corner of room",
-        "Inward arrows (<>) look like inside corner",
-        "Brain “adjusts” length based on perceived distance"],
+       ["Outward fins (>—<) look like the inside corner of a room — farther away",
+        "Inward arrowheads (<—>) look like the outside corner of a building — closer",
+        "Brain “adjusts” length based on perceived distance: the line that seems farther away looks longer"],
        ["**Math:** Arrow angles (45° or 30°) determine illusion strength."]),
       ("Ponzo (converging lines)",
        ["Display the Ponzo illusion (two identical horizontal lines between converging “tracks”)."],
@@ -341,7 +341,7 @@ MATH_GREEN = math_handout("green", [
     P("**My prediction:** (circle one)    Top line is longer   |   Bottom line is longer   |   Same length"),
     P(f"**Now measure with your ruler!**    Top line: {B} cm     Bottom line: {B} cm"),
     P("**Was your prediction correct?**   Yes  /  No"),
-    ("html", f'<div class="why"><p>{md("**Why does this illusion work?** The arrows create *angles* that trick your brain into thinking one line is closer (and shorter) than the other!")}</p></div>')]}),
+    ("html", f'<div class="why"><p>{md("**Why does this illusion work?** The arrows create *angles* that trick your brain into thinking one line is farther away — so it looks longer than the other!")}</p></div>')]}),
   ("task", {"label": "Part 2", "title": "Simple perspective drawing", "blocks": [
     P("Follow these steps to draw a 3D box using math:"),
     OL(["Put a dot in the center of the box below (this is your **vanishing point**)",

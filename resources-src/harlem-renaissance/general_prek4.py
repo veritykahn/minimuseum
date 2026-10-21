@@ -348,7 +348,7 @@ FAMILY = {
   "context": ["Welcome to the Harlem Renaissance at The Mini Museum. This guide gives your family everything you need to explore the exhibition together — conversation starters, recommended books and recordings, activity ideas for home, and context to help the exhibition make sense. No background knowledge needed. Curiosity is enough."],
   "blocks": [
     ("section", {"label": "What is the Harlem Renaissance?", "title": "A cultural explosion, 100 years ago", "body": [
-      "Between roughly 1920 and 1940, the neighborhood of Harlem in New York City became one of the most creative places in the world. Hundreds of Black artists, writers, musicians, and thinkers had moved north from the South during what historians call the Great Migration — escaping the injustice of Jim Crow laws to find better lives in Northern cities. When they found each other in Harlem, something extraordinary happened.",
+      "Between roughly 1920 and the mid-1930s, the neighborhood of Harlem in New York City became one of the most creative places in the world. Hundreds of Black artists, writers, musicians, and thinkers had moved north from the South during what historians call the Great Migration — escaping the injustice of Jim Crow laws to find better lives in Northern cities. When they found each other in Harlem, something extraordinary happened.",
       "Poets like Langston Hughes wrote about what it meant to be Black and American at the same time. Painters like Aaron Douglas invented a bold new visual language rooted in African art. Musicians like Duke Ellington and Bessie Smith created jazz and blues that would change music forever. Writers like Zora Neale Hurston collected and celebrated the folk traditions that had survived slavery. Together, they created a Renaissance — a rebirth — that insisted, loudly and beautifully, on the dignity and worth of Black life."]}),
     ("section", {"label": "Key people to know"}),
     ("cols", [
@@ -390,24 +390,24 @@ FAMILY = {
       ("Picture books — PreK through Grade 2", [
         ("Duke Ellington: The Piano Prince", "Andrea Davis Pinkney — Caldecott Honor; a warm, musical introduction to Ellington’s life and music"),
         ("Harlem", "Walter Dean Myers / Christopher Myers — a love letter to Harlem in poetry and vibrant illustration; Caldecott Honor"),
-        ("Before She Was Harriet", "Lesa Cline-Ransome — beautiful silhouette illustration style that echoes Aaron Douglas; ideal pairing"),
+        ("Before She Was Harriet", "Lesa Cline-Ransome, illustrated by James E. Ransome — a life told backward in verse"),
         ("Jazz", "Walter Dean Myers — poetry and illustration that captures the sound of jazz for young readers"),
         ("Ruth and the Green Book", "Calvin Alexander Ramsey — the Great Migration and the reality of traveling while Black, told accessibly")]),
       ("Middle grade — Grades 3 through 6", [
         ("The Dream Keeper and Other Poems", "Langston Hughes — selected poems designed for young readers; the ideal introduction to Hughes"),
         ("Harlem Stomp!", "Laban Carrick Hill — comprehensive, readable history of the Harlem Renaissance with photographs"),
-        ("Stompin’ at the Savoy", "Karen Deans — the Lindy Hop and the Savoy Ballroom, told through story"),
+        ("Stompin’ at the Savoy: The Story of Norma Miller", "Norma Miller with Alan Govenar — the Lindy Hop and the Savoy Ballroom, told by a dancer who was there"),
         ("Zora and Me", "Victoria Bond / T.R. Simon — fiction inspired by Zora Neale Hurston’s childhood; mystery format, excellent"),
         ("Poetry for Young People: Langston Hughes", "Selected and illustrated edition with teaching notes; ideal for reading poems aloud together")]),
       ("Older readers — Grades 7 and up", [
         ("Their Eyes Were Watching God", "Zora Neale Hurston — the defining novel of the Harlem Renaissance; one of the great American novels"),
         ("The Collected Poems of Langston Hughes", "The complete poems — dip in anywhere; every poem is accessible and worth re-reading"),
-        ("The Warmth of Other Suns", "Isabel Wilkerson — the definitive account of the Great Migration; Pulitzer Prize; adult read, excerpts for Gr 8+"),
+        ("The Warmth of Other Suns", "Isabel Wilkerson — the definitive account of the Great Migration; National Book Critics Circle Award; adult read, excerpts for Gr 8+"),
         ("The New Negro (1925)", "Edited by Alain Locke — the anthology that launched the Renaissance; free via HathiTrust online")]),
     ])),
     ("html", books([
       ("Online resources — free", [
-        ("poets.org / Poetry Foundation", "All Harlem Renaissance poetry freely available with biographical context and teaching notes"),
+        ("poets.org / poetryfoundation.org", "Many Harlem Renaissance poems free, with biographical context and teaching notes"),
         ("Smithsonian Folkways", "Free streaming of Bessie Smith, Louis Armstrong, Duke Ellington, Langston Hughes reading his own poetry"),
         ("Schomburg Center", "schomburgcenter.org — the world’s greatest archive of African American culture; free digital resources")])]).replace("<i>", "").replace("</i>", "")),
 
@@ -416,7 +416,7 @@ FAMILY = {
       "The Harlem Renaissance was, at its heart, a sustained affirmation of this truth against a society that refused to acknowledge it. When Langston Hughes wrote “I, too, am America” — he was making a claim that Catholic Social Teaching Principle 1 would affirm unreservedly. When Aaron Douglas painted Black figures as noble, powerful, and spiritually radiant — he was making visible what God had already declared about every human person."]}),
     ("html", '<aside class="talk"><p class="label">A conversation for Catholic families</p><p>“The Church teaches that every person is made in God’s image. The artists of the Harlem Renaissance were saying the same thing through their art — insisting that the world see what it was refusing to acknowledge. What do you think it takes to keep believing in your own dignity when the world is telling you otherwise? Where did the Harlem Renaissance artists find that strength?”</p></aside>'),
     ("section", {"label": "About the Mini Museum", "body": [
-      "The Mini Museum is Holy Family Catholic School’s permanent exhibition space, bringing museum-quality experiences directly into student learning. The Harlem Renaissance exhibition includes an original 1920s electric phonograph, interactive jazz and poetry stations, authentic artifacts, Aaron Douglas reproductions, and the digital exhibition portal at minimuseumproject.org/exhibitions/harlem-renaissance.",
+      "The Mini Museum brings museum-quality experiences directly into student learning. The Harlem Renaissance exhibition includes an original 1920s electric phonograph, interactive jazz and poetry stations, authentic artifacts, Aaron Douglas reproductions, and the digital exhibition portal at minimuseumproject.org/exhibitions/harlem-renaissance.",
       "To arrange a family visit, speak with your child’s teacher or contact the library directly. Saturday family sessions are available by appointment."]}),
     ("html", '<div class="goal"><p class="label">Thank you for exploring with us</p><p>The Harlem Renaissance lasted about 20 years. The art it produced has lasted 100. Some of the people who made it are still alive in their work — in the poems your child reads, the music still playing on streaming platforms, the paintings in museum collections around the world. When you explore this with your family, you’re joining a conversation that has been going on for a century — and that still has things to say.</p></div>'),
   ]}
@@ -623,12 +623,12 @@ G34_LP = {
       ("NCSS Standards I & II", "Culture: understand art as cultural expression; Time & Continuity: historical causes and effects of the Great Migration"),
       ("National Arts VA:Cr1.1 / MU:Re7", "Generate and conceptualize artistic ideas; analyze how music connects to personal and cultural identity")])],
               [("section", {"label": "Materials needed", "list": [
-      "Device to play 60 seconds of Duke Ellington (“Take the A Train”) or Billie Holiday (“Strange Fruit” — emotionally powerful, teacher preview recommended)",
+      "Device to play 60 seconds of Duke Ellington (“Take the A Train”)",
       "Optional: printed or projected image of Aaron Douglas artwork (e.g. *Aspects of Negro Life*, 1934)",
       "Differentiated handouts (Green / Yellow / Red) — one per student; pencils and optional colored pencils"]})]]),
     ("section", {"label": "Hook · 5 minutes", "title": "What does injustice sound like?", "body": [
       "Play 60–90 seconds of “Take the A Train.” No introduction — just let it play.",
-      "*“That piece of music was written in 1941 by a man named Billy Strayhorn, who had just moved to New York City from the South. Duke Ellington told him: take the A train — that’s the subway line to Harlem. And he did. And he wrote that. What do you think he felt when he arrived in Harlem for the first time?”*",
+      "*“That piece of music was written in 1939 by a man named Billy Strayhorn, who had just moved to New York City from Pittsburgh. Duke Ellington told him: take the A train — that’s the subway line to Harlem. And he did. And he wrote that. What do you think he felt when he arrived in Harlem for the first time?”*",
       "Take 3–4 responses. Then:",
       "*“Today we’re going to look at what happens when a whole community of people — all at the same time — decide to make something new and powerful. What happens when artists, musicians, and writers all gather in one place and say: we have something to say, and we’re going to say it beautifully.”*"]}),
     ("section", {"label": "Direct instruction · 10 minutes", "title": "The Harlem Renaissance", "body": [
@@ -736,3 +736,9 @@ DOCS = [GUIDE, DIFF, FAMILY,
         G34_LP, G34_GREEN, G34_YELLOW, G34_RED]
 for _d in DOCS:
     in_order(_d["blocks"])
+
+# links to the paintings this module names (see _links.py)
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(__file__))
+from _links import add_links as _add_links
+_add_links(DOCS)

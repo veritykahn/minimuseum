@@ -186,7 +186,7 @@ SCI_G = handout("green", "Science", "SCIENCE", "science", SCI_T, SCI_HERO, CTX_G
         "Draw and label a sound wave in the box below. Use the word bank to label the parts:",
         ("chips", ["Crest", "Trough", "Wavelength", "Amplitude"]),
         ("draw", "Draw your labeled sound wave here"),
-        fillin("A **high note** has a ___ frequency (fast / slow).", "A **loud sound** has a ___ amplitude (high / low).")),
+        fillin("A **high note** has a ___ frequency (high / low).", "A **loud sound** has a ___ amplitude (high / low).")),
     act(2, "Instrument match", "High, Low, or In Between?", keep=True, *[
         "Draw a line from each instrument to its typical range:",
         match(["Double Bass", "Trumpet", "Saxophone", "Piano"],
@@ -305,7 +305,7 @@ ELA_Y = handout("yellow", "ELA", "ELA", "ela", ELA_T, ELA_HERO, CTX_YELLOW, flat
 
 ELA_R = handout("red", "ELA", "ELA", "ela", ELA_T, ELA_HERO, CTX_RED, flat(
     act(1, "Literature as activism", "The Political Art of Writing",
-        "In the Harlem Renaissance, writing was not merely art — it was argument. W.E.B. Du Bois wrote in *The Crisis*: “We want to be Americans, full-fledged Americans, with all the social rights, the dignity, the freedom and the opportunity of Americans.” Alain Locke argued that cultural achievement by Black Americans would force white America to reconsider its racial assumptions.",
+        "In the Harlem Renaissance, writing was not merely art — it was argument. W.E.B. Du Bois wrote in *The Crisis* (“Criteria of Negro Art,” 1926): “We want to be Americans, full-fledged Americans, with all the rights of other American citizens.” Alain Locke argued that cultural achievement by Black Americans would force white America to reconsider its racial assumptions.",
         "**Evaluate this strategy:** Was using cultural achievement as a civil rights argument effective? What were its strengths? What were its limitations?",
         lines(5)),
     act(2, "Close reading", "Analyzing the New Negro",
@@ -335,7 +335,7 @@ SS_LP = lesson("Social Studies", "SS", "social-studies", SS_T, SS_HERO, [
               ("CCSS.ELA-LITERACY RH.6-8.1", "Cite specific textual evidence to support analysis of primary and secondary sources")]),
     ("section", {"label": "Materials", "list": [
       f"Exhibition’s Great Migration Map (physical or virtual — {URL})",
-      "Optional: Jacob Lawrence’s *Migration Series* images (public domain, freely available online)",
+      "Optional: Jacob Lawrence’s *Migration Series* images (free to view on the Phillips Collection and MoMA websites)",
       "Differentiated student handouts"]}),
     ("section", {"label": "Hook · 5 minutes", "title": "Why do people move?",
       "body": ["Ask students to brainstorm: what reasons might cause people to leave their homes? Collect responses on the board without comment. Then reveal: between 1910 and 1940, over one million Black Americans left the South — the largest internal migration in American history at that time.",
@@ -413,8 +413,14 @@ SS_R = handout("red", "Social Studies", "SS", "social-studies", SS_T, SS_HERO,
     act(3, "The geography of power", "Why Did the Renaissance Happen in Harlem Specifically?",
         "By 1930, Harlem had become the largest Black urban community in America — 175,000 people in a few square miles. Analyze the geographic, economic, and social factors that made Harlem — rather than Chicago’s South Side, or Detroit’s Paradise Valley — the epicenter of the Renaissance:",
         lines(3)),
-    ("cols", [[callout("Critical question:", "Jacob Lawrence’s *Migration Series* (1941) depicted the Great Migration in 60 paintings. He donated half to the Museum of Modern Art and half to the Phillips Collection — splitting a single work between two institutions. What does this act tell us about how he understood the relationship between Black experience and mainstream American culture?", "red", 4)], [callout("Research extension:", "The Reverse Migration began in the 1970s and continues today — Black Americans moving back to the South. Research this movement. What does it tell us about how the push/pull dynamics of the original Great Migration have changed? What does it mean for cities like Atlanta, Charlotte, and Houston?", "red"), conn(CONN_SHORT)]]),
+    ("cols", [[callout("Critical question:", "Jacob Lawrence’s *Migration Series* (1941) depicted the Great Migration in 60 paintings. In 1942 the Museum of Modern Art and the Phillips Collection each acquired half of the series — splitting a single work between two institutions. What does it mean that a work about the Black experience entered two of America’s leading museums so early in Lawrence’s career?", "red", 4)], [callout("Research extension:", "The Reverse Migration began in the 1970s and continues today — Black Americans moving back to the South. Research this movement. What does it tell us about how the push/pull dynamics of the original Great Migration have changed? What does it mean for cities like Atlanta, Charlotte, and Houston?", "red"), conn(CONN_SHORT)]]),
 ), "table.fill.first td:first-child { width: 22%; } table.fill td { padding: 4pt 6pt 3pt 0; } table.fill td + td { padding-left: 7pt; }"
    " body.student { --line: 21pt; } .cols .callout { margin-top: 2pt; } .cols .conn { margin: 5pt 0 0; } .cols .conn span { white-space: normal !important; } .task { margin-bottom: 5pt; } .cols { margin-top: 2pt; }")
 
 DOCS = [SCI_LP, SCI_G, SCI_Y, SCI_R, ELA_LP, ELA_G, ELA_Y, ELA_R, SS_LP, SS_G, SS_Y, SS_R]
+
+# links to the paintings this module names (see _links.py)
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(__file__))
+from _links import add_links as _add_links
+_add_links(DOCS)

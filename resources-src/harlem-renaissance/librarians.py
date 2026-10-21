@@ -107,9 +107,9 @@ def P(s):
 
 SONG = "<b>Aaron Douglas</b> — <i>Song of the Towers</i>, 1934"
 CREATION = "<b>Aaron Douglas</b> — <i>The Creation</i>, c.1935"
-ASPECTS = "<b>Aaron Douglas</b> — <i>Aspects of Negro Life: From Slavery to Reconstruction</i>, 1934"
+ASPECTS = "<b>Aaron Douglas</b> — <i>Aspects of Negro Life: From Slavery Through Reconstruction</i>, 1934"
 
-CONN = ["**Option 1 — Visit the Exhibition:** Bring your class to experience the phonograph, the Great Migration Map, the Jazz Lab, and more. Ask your librarian to arrange a visit.",
+CONN = ["**Option 1 — Visit the Exhibition:** Bring your class to experience the phonograph, the Great Migration Map, the Jazz Lab, and more.",
         "**Option 2 — Virtual Visit:**"]
 CARD_CONN = ("html", '<aside class="conn mini"><p class="label">Mini Museum</p>'
              '<p>Visit: <b>minimuseumproject.org/exhibitions/harlem-renaissance</b></p></aside>')
@@ -140,7 +140,7 @@ LP_PK = plan(PK, "PreK–Kindergarten", ["PreK–K", "25 minutes", "Whole group 
   ("section", {"label": "Preparation", "list": [
     "**Display:** large-format print of Aaron Douglas’s *Song of the Towers* (or project from exhibition link)",
     "**Tables set:** one Green Activity Card per child, crayons, black marker",
-    "**Optional read-aloud:** *The Watcher* by Nikki Jones or *Duke Ellington* by Andrea Davis Pinkney"]}),
+    "**Optional read-aloud:** *The Watcher* by Nikki Grimes or *Duke Ellington* by Andrea Davis Pinkney"]}),
   ("section", {"label": "0–3 min", "title": "Gathering",
     "body": ["Children sit on the rug. *“Today we’re going to look at a very special painting and listen to some music that was made a long, long time ago in a place called Harlem, New York. I’m going to play some music — I want you to close your eyes and tell me what color it sounds like.”* Play 20 seconds of jazz. Take 3–4 color responses."]}),
   ("section", {"label": "3–8 min", "title": "Picture walk",
@@ -158,9 +158,9 @@ LP_PK = plan(PK, "PreK–Kindergarten", ["PreK–K", "25 minutes", "Whole group 
     [("section", {"label": "Primary picks"}),
      ("refs", [
        ("*Duke Ellington: The Piano Prince and His Orchestra*", "Andrea Davis Pinkney (1998) — Caldecott Honor; introduces jazz biography accessibly"),
-       ("*The Watcher*", "Nikki Jones — beautiful introduction to Harlem childhood"),
+       ("*The Watcher*", "Nikki Grimes — a poet’s picture book, illustrated by Bryan Collier"),
        ("*Ruth and the Green Book*", "Calvin Alexander Ramsey — Great Migration through a child’s eyes"),
-       ("*Before She Was Harriet*", "Lesa Cline-Ransome — silhouette illustration style directly echoes Douglas")])],
+       ("*Before She Was Harriet*", "Lesa Cline-Ransome, illustrated by James E. Ransome — a life told backward in verse")])],
     [("section", {"label": "Display and extension"}),
      ("refs", [
        ("Langston Hughes", "Any picture-book adaptations (several exist for young readers)"),
@@ -240,12 +240,10 @@ LP_12 = plan(G12, "Grades 1–2", ["Grades 1–2", "35 minutes", "Read-aloud + c
      ("refs", [
        ("*Harlem*", "Walter Dean Myers / Christopher Myers (1997) — Caldecott Honor; the essential Grades 1–2 Harlem text"),
        ("*Jazz*", "Walter Dean Myers (2006) — stunning visual poetry about jazz"),
-       ("*A Sweet Smell of Roses*", "Angela Johnson — civil rights context, accessible"),
-       ("*Zora and Me*", "Victoria Bond / T.R. Simon — fiction based on Hurston’s childhood")])],
+       ("*A Sweet Smell of Roses*", "Angela Johnson — civil rights context, accessible")])],
     [("section", {"label": "Supporting reads"}),
      ("refs", [
        ("*Poetry for Young People: Langston Hughes*", "selected and illustrated edition; ideal for read-aloud"),
-       ("*When Angels Sing: The Story of Rock Legend Carlos Santana*", "Michael Mahin — music biography accessible format"),
        ("*Let the Children March*", "Monica Clark-Robinson — civil rights, age-appropriate"),
        ("Aaron Douglas artist profile cards", "printable from museum education sites")])]]),
   ("section", {"label": "Differentiation notes",
@@ -318,17 +316,16 @@ LP_35 = plan(G35, "Grades 3–5", ["Grades 3–5", "40 minutes", "Research skill
     [("section", {"label": "Biography and history"}),
      ("refs", [
        ("*Langston Hughes: A Biography*", "Milton Meltzer — comprehensive, accessible"),
-       ("*Voice of Freedom: Fannie Lou Hamer*", "Carole Boston Weatherford — award-winning format"),
        ("*Zora Hurston and the Chinaberry Tree*", "William Miller — picture-book biography"),
        ("*Duke Ellington: The Piano Prince*", "Andrea Davis Pinkney — excellent at this level"),
-       ("*Stompin’ at the Savoy*", "Karen Deans — Lindy Hop at the Savoy Ballroom")])],
+       ("*Stompin’ at the Savoy: The Story of Norma Miller*", "Norma Miller with Alan Govenar — Lindy Hop at the Savoy Ballroom")])],
     [("section", {"label": "Primary text access"}),
      ("refs", [
        ("*Poetry for Young People: Langston Hughes*", "selected with classroom notes"),
        ("*The Dream Keeper and Other Poems*", "Langston Hughes — designed for young readers"),
        ("*Soul Looks Back in Wonder*", "Tom Feelings — anthology with Harlem Renaissance figures"),
        ("*Harlem Renaissance: A Brief History with Documents*", "higher level, for Red extension"),
-       ("Online", "Poetry Foundation (poets.org) has all Hughes poems freely accessible")])]]),
+       ("Online", "The Poetry Foundation (poetryfoundation.org) and the Academy of American Poets (poets.org) both offer many Hughes poems free")])]]),
   ("section", {"label": "Research skills integration",
     "body": ["This session is an ideal opportunity to integrate research skills instruction:"],
     "list": [
@@ -406,7 +403,7 @@ LP_68 = plan(G68, "Grades 6–8", ["Grades 6–8", "45 minutes", "Research + cri
   ("cols", [
     [("section", {"label": "History and biography"}),
      ("refs", [
-       ("*The Warmth of Other Suns*", "Isabel Wilkerson — the definitive Great Migration account; excerpts suitable for Grades 7–8"),
+       ("*The Warmth of Other Suns*", "Isabel Wilkerson — the definitive Great Migration account (National Book Critics Circle Award); excerpts suitable for Grades 7–8"),
        ("*Up From Slavery*", "Booker T. Washington — important context; free online"),
        ("*The Souls of Black Folk*", "W.E.B. Du Bois — foundational text; excerpts appropriate for advanced Grade 8"),
        ("*Harlem Stomp!*", "Laban Carrick Hill — age-appropriate history with primary source excerpts"),
@@ -417,7 +414,7 @@ LP_68 = plan(G68, "Grades 6–8", ["Grades 6–8", "45 minutes", "Research + cri
        ("*Their Eyes Were Watching God*", "Zora Neale Hurston — Grade 8+ excerpt-level; full novel for strong readers"),
        ("*The New Negro*", "ed. Alain Locke (1925) — the defining anthology of the Renaissance; free online via HathiTrust"),
        ("*If We Must Die: The Life of Claude McKay*", "Gary Edward Holcomb"),
-       ("Poetry Foundation (poets.org)", "all Renaissance-era poetry free, with teaching notes")])]]),
+       ("poetryfoundation.org and poets.org", "many Renaissance-era poems free, with teaching notes")])]]),
   ("section", {"label": "Optional research station cards"}),
   ("cards", [
     ("Station A — The Poets", ["Find two poems by different Harlem Renaissance poets. What do they have in common? What is different about their voices and arguments?"]),
@@ -451,7 +448,7 @@ YELLOW_68 = card(G68, "Grades 6–8", "yellow", "Yellow Level",
   HERO_68, css=L20)
 
 RED_68 = card(G68, "Grades 6–8", "red", "Go Deeper",
-  ["**Research question:** Alain Locke, writing in 1925, called the Harlem Renaissance “a spiritual coming of age.” W.E.B. Du Bois called it “a cultural weapon in the fight for civil rights.” Were they describing the same thing — or fundamentally different visions of what the Renaissance was for?"],
+  ["**Research question:** Alain Locke (*The New Negro*, 1925) saw a spiritual and cultural awakening. W.E.B. Du Bois (“Criteria of Negro Art,” 1926) insisted “all Art is propaganda.” Were they describing the same thing — or fundamentally different visions of what the Renaissance was for?"],
   [("task", {"label": "Part 1", "title": "Independent research",
      "blocks": [P("Use the library catalog and at least two sources to find evidence for both Locke’s and Du Bois’s positions. Record your sources using proper citation format:"), H('<div class="pair2"><div>' + fill("Source 1:") + fill("Evidence for Locke’s view:") + '<div class="write"><i></i><i></i></div></div>'
                   + '<div>' + fill("Source 2:") + fill("Evidence for Du Bois’s view:") + '<div class="write"><i></i><i></i></div></div></div>')]}),
@@ -495,3 +492,9 @@ DOCS = [LP_PK, GREEN_PK, YELLOW_PK, RED_PK,
         LP_12, GREEN_12, YELLOW_12, RED_12,
         LP_35, GREEN_35, YELLOW_35, RED_35,
         LP_68, GREEN_68, YELLOW_68, RED_68]
+
+# links to the paintings this module names (see _links.py)
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(__file__))
+from _links import add_links as _add_links
+_add_links(DOCS)
