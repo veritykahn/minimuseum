@@ -20,11 +20,16 @@ CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 SITE = "minimuseumproject.org"
 YEAR = "2026"
 
+# name, subtitle, color. Each passes 4.5:1 against white for small text,
+# and white text on it passes too (the badges).
 LEVELS = {
-    "green":  ("Green Level",  "More Support",  "#5E8B5A"),
-    "yellow": ("Yellow Level", "Grade Level",   "#C9A84C"),
+    "green":  ("Green Level",  "More Support",  "#4A7346"),
+    "yellow": ("Yellow Level", "Grade Level",   "#86671A"),
     "red":    ("Red Level",    "Go Deeper",     "#A8452F"),
 }
+
+FONTS = open(os.path.join(SRC, "assets", "fonts", "fonts.css"), encoding="utf-8").read().replace(
+    "url('fonts/", "url('file://" + os.path.join(SRC, "assets", "fonts") + "/")
 
 def monogram(cream=False):
     f = "mm-monogram-cream.svg" if cream else "mm-monogram.svg"
@@ -88,7 +93,7 @@ def block(kind, d):
             for c in d) + "</div>"
     if kind == "task":              # a student activity: label, prompt, answer space
         lines = d.get("lines", 0)
-        box = f'<div class="write" style="--n:{lines}"></div>' if lines else ""
+        box = write(lines) if lines else ""
         late = ("draw", "coindraw")
         extra = "".join(block(k, v) for k, v in d.get("blocks", []) if k not in late)
         box += "".join(block(k, v) for k, v in d.get("blocks", []) if k in late)
@@ -132,11 +137,18 @@ def block(kind, d):
         return '<div class="cards">' + "".join(
             f'<div class="card"><span class="cn">{i:02d}</span><h4>{inline(t)}</h4>{paras(b)}</div>'
             for i, (t, b) in enumerate(d, 1)) + "</div>"
+    if kind == "lines":
+        return write(d)
     if kind == "pagebreak":
         return '<div class="pb"></div>'
     if kind == "html":
         return d
     raise ValueError(kind)
+
+def write(n):
+    """Writing lines as real rules: a background gradient drops out of
+       print inside a grid column."""
+    return '<div class="write">' + "<i></i>" * n + "</div>"
 
 def bullets(items):
     if not items:
@@ -146,13 +158,15 @@ def bullets(items):
 # ── page ───────────────────────────────────────────────────────────────
 
 CSS = """
-@page { size: letter; margin: 0.6in 0.65in 0.75in;
-  @bottom-left { font: 300 7pt 'Outfit'; color: #7D8471; letter-spacing: .03em; }
-  @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 300 7.5pt 'Outfit'; color: #7D8471; letter-spacing: .04em; }
+@page { size: letter; margin: 0.5in 0.6in 0.7in;
+  @bottom-left { font: 300 7pt 'Outfit'; color: #5F6655; letter-spacing: .03em; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 300 7.5pt 'Outfit'; color: #5F6655; letter-spacing: .04em; }
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; font-variant-ligatures: none; font-feature-settings: 'liga' 0, 'calt' 0, 'clig' 0; }
 html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-body { margin: 0; font: 300 9.6pt/1.5 'Outfit', sans-serif; color: #1d1c1a; }
+body { margin: 0; font: 300 9.8pt/1.5 'Outfit', sans-serif; color: #1d1c1a; --gold-text: #86671A; --gold-big: #A2802A; --line: 20pt; }
+body.student { font-size: 10.6pt; --line: 23pt; }
+body.student .label { font-size: 8pt; }
 b { font-weight: 500; } i { font-style: italic; }
 p { margin: 0 0 6pt; }
 .mast { display: grid; grid-template-columns: auto 1fr; gap: 18pt; align-items: end;
@@ -161,30 +175,33 @@ p { margin: 0 0 6pt; }
 .lockup svg { width: 34pt; height: auto; display: block; }
 .hero .lockup svg { width: 26pt; }
 .lockup .addr { font: 400 6pt 'Outfit'; letter-spacing: .32em; text-transform: lowercase; color: #1d1c1a; margin-right: -.32em; }
-.eyebrow { font: 400 7.5pt 'Outfit'; letter-spacing: .3em; text-transform: uppercase; color: var(--accent); margin: 0 0 3pt; }
+.eyebrow { font: 500 7.5pt 'Outfit'; letter-spacing: .3em; text-transform: uppercase; color: var(--gold-text); margin: 0 0 3pt; }
 h1 { font: 500 27pt/1.05 'Cormorant Garamond', serif; margin: 0 0 4pt; letter-spacing: -.01em; }
 .sub { font: 300 9pt 'Outfit'; color: #5b5a55; margin: 0; letter-spacing: .02em; }
 .chips { display: flex; flex-wrap: wrap; gap: 5pt; margin: 0 0 12pt; }
 .chips span { font: 400 7pt 'Outfit'; letter-spacing: .16em; text-transform: uppercase;
   border: .8pt solid #1d1c1a; border-radius: 99pt; padding: 3pt 9pt; }
-.label { font: 500 7pt 'Outfit'; letter-spacing: .26em; text-transform: uppercase; color: var(--accent); margin: 0 0 3pt; }
+.label { font: 500 7.5pt 'Outfit'; letter-spacing: .24em; text-transform: uppercase; color: var(--gold-text); margin: 0 0 3pt; }
 h3 { font: 600 13.5pt/1.15 'Cormorant Garamond', serif; margin: 0 0 4pt; }
 h4 { font: 600 12pt/1.15 'Cormorant Garamond', serif; margin: 0 0 3pt; }
-.sec { margin: 0 0 11pt; break-inside: avoid; }
+.sec { margin: 0 0 10pt; break-inside: avoid; }
 .sec.lone { break-after: avoid; margin-bottom: 4pt; }
-.task { margin: 0 0 11pt; }
+.task { margin: 0 0 9pt; }
+body.student .hero { height: 2.0in; }
+body.student .ticket { margin-bottom: 10pt; }
+body.student .context { margin-bottom: 10pt; }
 .task h3, .task .label { break-after: avoid; }
 .write, .verse, table.fill, .coindraw { break-inside: avoid; }
 ul { margin: 2pt 0 6pt; padding-left: 13pt; } li { margin: 0 0 2.5pt; }
 .levels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8pt; margin: 4pt 0 11pt; break-inside: avoid; }
 .lv { border-top: 3pt solid var(--lv); padding: 6pt 0 0; font-size: 8.8pt; }
 .lvname { font: 500 7.5pt 'Outfit'; letter-spacing: .14em; text-transform: uppercase; color: var(--lv); margin: 0 0 4pt; }
-.lvname span { display: block; color: #7D8471; font-weight: 300; letter-spacing: .1em; }
-.conn { background: #f6f1e4; border-left: 3pt solid var(--accent); padding: 9pt 11pt 6pt; margin: 4pt 0 11pt; break-inside: avoid; }
-.conn .url { font: 400 7.5pt 'Outfit'; letter-spacing: .1em; color: #7D8471; }
+.lvname span { display: block; color: #5F6655; font-weight: 300; letter-spacing: .1em; }
+.conn { background: #f6f1e4; border-left: 3pt solid var(--accent); padding: 7pt 10pt 4pt; margin: 4pt 0 9pt; break-inside: avoid; }
+.conn .url { font: 400 7.5pt 'Outfit'; letter-spacing: .1em; color: #5F6655; }
 .verse { margin: 4pt 0 9pt; padding: 0 0 0 11pt; border-left: 1.2pt solid var(--accent); break-inside: avoid; }
 .verse p { font: italic 400 11.5pt/1.35 'Cormorant Garamond', serif; margin: 0 0 2pt; }
-.verse cite { font: 400 7pt 'Outfit'; letter-spacing: .18em; text-transform: uppercase; font-style: normal; color: #7D8471; }
+.verse cite { font: 400 7.5pt 'Outfit'; letter-spacing: .18em; text-transform: uppercase; font-style: normal; color: #5F6655; }
 .verses { display: grid; grid-template-columns: 1fr 1fr; gap: 12pt; }
 .refs { display: grid; grid-template-columns: max-content 1fr; gap: 3pt 11pt; margin: 2pt 0 6pt; }
 .refs dt { font-weight: 500; } .refs dd { margin: 0; }
@@ -195,13 +212,13 @@ ul { margin: 2pt 0 6pt; padding-left: 13pt; } li { margin: 0 0 2.5pt; }
 .coinrow figure { margin: 0; text-align: center; }
 .coinrow img { width: 62pt; height: 62pt; object-fit: contain; }
 .rowlab { margin-top: 6pt; border-bottom: .6pt solid #d8d4c8; padding-bottom: 3pt; }
-.coinrow figcaption { font: 400 7.5pt/1.3 'Outfit'; color: #5b5a55; margin-top: 3pt; }
-.write { height: calc(var(--n) * 19pt); margin: 4pt 0 2pt;
-  background: repeating-linear-gradient(to bottom, transparent 0 18.2pt, #b9b6ab 18.2pt 19pt); }
+.coinrow figcaption { font: 400 8pt/1.3 'Outfit'; color: #3f3e3a; margin-top: 3pt; }
+.write { margin: 4pt 0 2pt; }
+.write i { display: block; height: var(--line); border-bottom: .8pt solid #a9a69b; }
 .drawbox { border: .8pt dashed #a9a69b; border-radius: 4pt; height: 130pt; margin: 4pt 0 6pt; position: relative; }
-.drawbox span { position: absolute; left: 8pt; top: 6pt; font: 400 7pt 'Outfit'; letter-spacing: .14em; text-transform: uppercase; color: #a9a69b; }
+.drawbox span { position: absolute; left: 8pt; top: 6pt; font: 400 7.5pt 'Outfit'; letter-spacing: .14em; text-transform: uppercase; color: #7c796f; }
 table.fill { width: 100%; border-collapse: collapse; margin: 4pt 0 6pt; font-size: 8.8pt; break-inside: avoid; }
-table.fill th { font: 500 7pt 'Outfit'; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); text-align: left; padding: 0 6pt 4pt 0; border-bottom: 1pt solid var(--accent); }
+table.fill th { font: 500 7.5pt 'Outfit'; letter-spacing: .16em; text-transform: uppercase; color: var(--gold-text); text-align: left; padding: 0 6pt 4pt 0; border-bottom: 1pt solid var(--accent); }
 table.fill td { border-bottom: .6pt solid #c8c5bb; padding: 5pt 6pt 11pt 0; vertical-align: top; }
 table.fill td:first-child { width: 42%; }
 .levelband { display: flex; justify-content: space-between; align-items: baseline;
@@ -225,7 +242,7 @@ table.fill td:first-child { width: 42%; }
 .hbrand { display: flex; gap: 11pt; align-items: center; }
 .hero h1 { font-size: 34pt; color: #fff8e8; margin-bottom: 5pt; text-shadow: 0 1pt 10pt rgba(0,0,0,.35); }
 .hero .sub { color: #e9e2cf; font-size: 9.5pt; }
-.credit { position: absolute; right: 12pt; top: auto; bottom: 5pt; font: 300 6pt 'Outfit'; letter-spacing: .08em; color: rgba(246,241,228,.7); margin: 0; }
+.credit { position: absolute; right: 12pt; top: auto; bottom: 5pt; font: 400 6.5pt 'Outfit'; letter-spacing: .08em; color: rgba(246,241,228,.7); margin: 0; }
 .badge { font: 500 8pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; background: var(--lv); color: #fff;
   padding: 6pt 12pt 5pt; border-radius: 99pt; text-align: center; line-height: 1.2; }
 .badge small { display: block; font-weight: 300; font-size: 6.5pt; letter-spacing: .16em; opacity: .9; }
@@ -234,10 +251,10 @@ table.fill td:first-child { width: 42%; }
 .ticket { display: grid; grid-template-columns: 40pt 1fr; border: 1pt solid #1d1c1a; border-radius: 6pt; margin: 0 0 14pt; overflow: hidden; }
 .stub { background: var(--accent); border-right: 1.2pt dashed #1d1c1a; display: grid; place-items: center; }
 .stub span { writing-mode: vertical-rl; transform: rotate(180deg); font: 500 7pt 'Outfit'; letter-spacing: .3em; text-transform: uppercase; color: #1d1c1a; }
-.tfields { display: grid; grid-template-columns: 2.2fr 1fr 1fr; gap: 14pt; padding: 9pt 12pt 6pt; font: 400 7.5pt 'Outfit'; letter-spacing: .14em; text-transform: uppercase; color: #5b5a55; }
+.tfields { display: grid; grid-template-columns: 2.2fr 1fr 1fr; gap: 14pt; padding: 9pt 12pt 6pt; font: 500 7.5pt 'Outfit'; letter-spacing: .14em; text-transform: uppercase; color: #3f3e3a; }
 .tfields span { border-bottom: .8pt solid #8d8a80; padding-bottom: 14pt; }
 .task.numbered { display: grid; grid-template-columns: 34pt 1fr; gap: 8pt; }
-.pnum { font: 500 26pt/1 'Cormorant Garamond', serif; color: var(--accent); }
+.pnum { font: 500 26pt/1 'Cormorant Garamond', serif; color: var(--gold-big); }
 .specimen { display: grid; grid-template-columns: 118pt 1fr; gap: 14pt; align-items: center; background: #f6f1e4;
   border: 1pt solid #1d1c1a; padding: 9pt 14pt; margin: 4pt 0 9pt; break-inside: avoid; }
 .spimg { position: relative; }
@@ -245,25 +262,25 @@ table.fill td:first-child { width: 42%; }
 .stamp { position: absolute; right: -6pt; bottom: 8pt; transform: rotate(-12deg); border: 1.6pt solid #A8452F; color: #A8452F;
   font: 500 9pt 'Outfit'; letter-spacing: .28em; text-transform: uppercase; padding: 3pt 7pt 2pt; border-radius: 3pt; background: rgba(246,241,228,.75); }
 .specimen dl { display: grid; grid-template-columns: max-content 1fr; gap: 1pt 10pt; margin: 4pt 0 6pt; font-size: 8.5pt; }
-.specimen dt { font: 500 6.5pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; color: #7D8471; padding-top: 2pt; }
+.specimen dt { font: 500 7pt 'Outfit'; letter-spacing: .18em; text-transform: uppercase; color: #5F6655; padding-top: 2pt; }
 .specimen dd { margin: 0; }
 .coindraw { display: grid; place-items: center; margin: 6pt 0 8pt; }
-.coindraw > div { width: 132pt; height: 132pt; border-radius: 50%; border: 2pt solid #b9a46a;
+.coindraw > div { width: 122pt; height: 122pt; border-radius: 50%; border: 2pt solid #b9a46a;
   box-shadow: inset 0 0 0 7pt #f6f1e4, inset 0 0 0 8pt #b9a46a; display: grid; place-items: end center; }
-.coindraw span { font: 400 6.5pt 'Outfit'; letter-spacing: .24em; text-transform: uppercase; color: #a39058; padding-bottom: 16pt; }
+.coindraw span { font: 500 7pt 'Outfit'; letter-spacing: .22em; text-transform: uppercase; color: #86671A; padding-bottom: 16pt; }
 .timing { margin: 0 0 13pt; }
 .timing .bar { display: flex; gap: 2pt; }
 .timing .bar > div { background: var(--c); color: #fff; padding: 6pt 7pt 5pt; border-radius: 3pt; }
-.timing b { display: block; font: 500 10pt 'Outfit'; } .timing span { font: 300 7pt 'Outfit'; letter-spacing: .12em; text-transform: uppercase; }
+.timing b { display: block; font: 500 10pt 'Outfit'; } .timing span { font: 400 7.5pt 'Outfit'; letter-spacing: .12em; text-transform: uppercase; }
 .gallery { background: #14120f; color: #e9e2cf; margin: 6pt 0 14pt; padding: 12pt 16pt 8pt; border-radius: 6pt; break-inside: avoid; }
 .glab { font: 500 6.5pt 'Outfit'; letter-spacing: .28em; text-transform: uppercase; color: #e3c46f; margin: 4pt 0 6pt; }
 .grow { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 8pt; margin-bottom: 6pt; }
 .grow figure { margin: 0; text-align: center; }
 .grow img { width: 64pt; height: 64pt; object-fit: contain; filter: drop-shadow(0 3pt 8pt rgba(0,0,0,.6)); }
-.grow figcaption { font: 300 7pt/1.3 'Outfit'; color: #cfc7b2; margin-top: 3pt; }
+.grow figcaption { font: 400 7.5pt/1.3 'Outfit'; color: #e4dcc7; margin-top: 3pt; }
 .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 9pt; margin: 4pt 0 12pt; }
 .card { background: #f6f1e4; border-top: 3pt solid var(--accent); padding: 8pt 10pt 4pt; break-inside: avoid; }
-.cn { font: 500 20pt/1 'Cormorant Garamond', serif; color: var(--accent); }
+.cn { font: 500 20pt/1 'Cormorant Garamond', serif; color: var(--gold-big); }
 .card h4 { margin-top: 2pt; }
 """
 
@@ -291,8 +308,7 @@ def render(doc, accent="#C9A84C"):
     foot = f"The Mini Museum · In Their Hands · {doc['foot']}  ·  © {YEAR} The Mini Museum · Free for educational use"
     foot_css = "@page { @bottom-left { content: \"" + foot.replace("\\", "").replace('"', "'") + "\"; } }"
     return f"""<!doctype html><html><head><meta charset="utf-8"><title>{html.escape(doc['title'])}</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500&display=swap" rel="stylesheet">
-<style>{CSS}{foot_css}</style></head><body style="--accent:{accent}">
+<style>{FONTS}{CSS}{foot_css}</style></head><body class="{'student' if level else 'adult'}" style="--accent:{accent}">
 {head}{band}{context}{body}</body></html>"""
 
 def load(exhibition):

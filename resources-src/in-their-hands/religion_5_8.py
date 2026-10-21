@@ -98,7 +98,7 @@ GREEN = handout("green", "ITH_Handout_Green_Religion.pdf", [
             "blocks": [("verse", VERSE_GEN)],
             "body": ["The coin belongs to Caesar because it carries Caesar’s image. Genesis says you carry God’s image.",
                      "Finish the sentence: **I carry God’s image, so I belong to…**"], "lines": 2}),
-  ("task", {"label": "Part 4", "title": "Give back to God", "body": ["Name **two** things you could give back to God this week. One can be time, one can be a gift or a kindness."], "lines": 3}),
+  ("task", {"label": "Part 4", "title": "Give back to God", "body": ["Name **two** things you could give back to God this week. One can be time, one can be a gift or a kindness."], "lines": 2}),
   ("task", {"label": "Part 5", "title": "Draw your coin", "body": ["Draw yourself as a coin. What image is stamped on you? What words go around the edge?"],
             "blocks": [("coindraw", "Your coin")]}),
   ("family", ["Find a coin at home together. Whose face is on it? What do the words say? Then ask: *what does it mean that we carry God’s image?*"]),
@@ -115,7 +115,7 @@ YELLOW = handout("yellow", "ITH_Handout_Yellow_Religion.pdf", [
   ("table", {"head": ["The coin", "The human person"], "rows": [
       ["Whose image does it carry?", ""], ["Who made it?", ""], ["So who does it belong to?", ""], ["What is owed back?", ""]]}),
   ("task", {"label": "Part 4", "title": "Reflect",
-            "body": ["Write a paragraph (5–6 sentences): if you carry God’s image, what does *give back to God what is God’s* ask of you this year — at home, at school and online?"], "lines": 6}),
+            "body": ["Write a paragraph (5–6 sentences): if you carry God’s image, what does *give back to God what is God’s* ask of you this year — at home, at school and online?"], "lines": 5}),
   ("cols", [[("connection", ["In Case 7, the Tribute Penny sits beside the Shekel of Tyre, the coin that paid Judas. Which coin served Caesar, and which betrayed God?"])],
             [("prayer", ["Lord, the coin carries the image of the one who made it. We carry yours. Help us give back to you our time, our gifts and our whole selves. Amen."])]]),
 ], CONTEXT)
@@ -124,14 +124,14 @@ RED = handout("red", "ITH_Handout_Red_Religion.pdf", [
   ("verses", [VERSE_MATT, VERSE_GEN]),
   ("specimen", COIN),
   ("task", {"label": "Part 1", "title": "What is the answer really about?",
-            "body": ["Some readers think Jesus’ answer is about taxes. Others think it is about idolatry, because the coin called the emperor divine. Others think it is about the human person, who carries God’s image. Which reading is strongest? Use evidence from the coin and from both passages."], "lines": 6}),
+            "body": ["Some readers think Jesus’ answer is about taxes. Others think it is about idolatry, because the coin called the emperor divine. Others think it is about the human person, who carries God’s image. Which reading is strongest? Use evidence from the coin and from both passages."], "lines": 5}),
   ("task", {"label": "Part 2", "title": "Two duties",
             "body": ["The Catechism teaches that citizens should pay taxes and share responsibility for the common good (CCC 2240), but that conscience must refuse a command that goes against the moral order (CCC 2242). Peter puts it simply in Acts 5:29: *“We must obey God rather than human beings.”*",
-                     "Describe a real or realistic modern situation where a law or an authority asks for something that belongs to God. What should a Christian give to Caesar, and what must be kept for God? Defend your answer."], "lines": 7}),
-  ("task", {"label": "Part 3", "title": "Design a coin",
-            "body": ["If a coin declares who is in charge, what would a coin for the Kingdom of God look like? Sketch it and explain the image and inscription you chose."],
-            "blocks": [("coindraw", "Your coin")]}),
-  ("connection", ["In the exhibition, compare the Tribute Penny with Herod the Great’s prutah in Case 6, which carries no human face because Jewish law forbade it. What does each coin’s design say about who its ruler thought he was?"]),
+                     "Describe a real or realistic modern situation where a law or an authority asks for something that belongs to God. What should a Christian give to Caesar, and what must be kept for God? Defend your answer."], "lines": 5}),
+  ("task", {"label": "Part 3", "title": "Design a coin", "blocks": [
+            ("html", "<p>If a coin declares who is in charge, what would a coin for the Kingdom of God look like? Sketch it, then explain the image and inscription you chose.</p>"),
+            ("cols", [[("coindraw", "Your coin")], [("lines", 6)]])]}),
+  ("connection", ["Compare the Tribute Penny with Herod the Great’s prutah in Case 6, which carries no face because Jewish law forbade it. What does each design say about its ruler?"]),
 ], CONTEXT)
 
 DOCS = [LESSON, GREEN, YELLOW, RED]
