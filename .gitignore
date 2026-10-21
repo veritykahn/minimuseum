@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# print-sized image copies for the resource PDFs
+/resources-src/.cache/
+__pycache__/
