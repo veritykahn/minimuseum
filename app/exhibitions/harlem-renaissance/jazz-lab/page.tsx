@@ -5,6 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAudioEngine, useBandBuilder, useQuiz } from './hooks';
 import { INSTRUMENTS, INSTRUMENT_MAP, type InstrumentId, BAND_INSTRUMENTS, BAND_INSTRUMENT_MAP, SECTIONS, type BandInstrumentId } from './data';
 import JazzStudio from './JazzStudio';
+import ExhibitionNav from '@/components/ExhibitionNav';
 
 export default function JazzLabPage() {
   const router = useRouter();
@@ -20,10 +21,9 @@ export default function JazzLabPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleBack = () => {
+  const stopAudio = () => {
     band.stopAll();
     audioEngine.stopAll();
-    router.push('/exhibitions/harlem-renaissance/artifacts');
   };
 
   const handleTabChange = (tab: 'band' | 'studio' | 'quiz') => {
@@ -93,8 +93,8 @@ export default function JazzLabPage() {
           transition: all 0.3s ease;
           cursor: pointer;
         }
-        .jl-nav:hover .jl-nav-label { opacity: 1; max-width: 150px; }
-        .jl-nav:hover .jl-nav-arrow { transform: translateX(-4px); }
+        .jl-nav:hover .jl-nav-label, .jl-nav:focus-visible .jl-nav-label { opacity: 1; max-width: 150px; }
+        .jl-nav:hover .jl-nav-arrow, .jl-nav:focus-visible .jl-nav-arrow { transform: translateX(-4px); }
         .jl-nav-text { font-size: 28px; font-weight: 300; color: #525252; transition: color 0.3s ease; }
         .jl-nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
         .jl-nav-label {
@@ -911,11 +911,11 @@ export default function JazzLabPage() {
       </div>
 
       {/* Navigation */}
-      <div className="jl-nav" onClick={handleBack}>
-        <span className="jl-nav-text">M</span>
-        <span className="jl-nav-arrow">{'\u2190'}</span>
+      <ExhibitionNav className="jl-nav" href="/exhibitions/harlem-renaissance/artifacts" onClick={stopAudio}>
+        <span className="jl-nav-text" aria-hidden="true">M</span>
+        <span className="jl-nav-arrow" aria-hidden="true">{'\u2190'}</span>
         <span className="jl-nav-label">Collection</span>
-      </div>
+      </ExhibitionNav>
 
       {/* Header */}
       <div className="jl-header">

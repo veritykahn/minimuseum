@@ -3,11 +3,17 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 
 export default function Home() {
-  const [logoVisible, setLogoVisible] = useState(false);
-  const [taglineVisible, setTaglineVisible] = useState(false);
-  const [detailsVisible, setDetailsVisible] = useState(false);
+  const reduceMotion = usePrefersReducedMotion();
+  const [logoTimerDone, setLogoVisible] = useState(false);
+  const [taglineTimerDone, setTaglineVisible] = useState(false);
+  const [detailsTimerDone, setDetailsVisible] = useState(false);
+  // Visitors who prefer reduced motion get everything at once, no slow reveal
+  const logoVisible = reduceMotion || logoTimerDone;
+  const taglineVisible = reduceMotion || taglineTimerDone;
+  const detailsVisible = reduceMotion || detailsTimerDone;
 
   useEffect(() => {
     const logoTimer = setTimeout(() => setLogoVisible(true), 300);
@@ -22,7 +28,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden">
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div 
@@ -36,11 +42,14 @@ export default function Home() {
       </div>
 
       {/* Logo */}
-      <div 
+      <h1
         style={{
           opacity: logoVisible ? 1 : 0,
           transform: logoVisible ? 'scale(1)' : 'scale(0.85)',
           transition: 'opacity 6s ease-out, transform 6s ease-out',
+          margin: 0,
+          fontSize: 'inherit',
+          fontWeight: 'inherit',
         }}
         className="relative z-10"
       >
@@ -52,12 +61,12 @@ export default function Home() {
           className="w-auto h-auto max-w-[70vw] md:max-w-[450px] lg:max-w-[530px]"
           priority
         />
-      </div>
+      </h1>
 
       {/* Text */}
       <div className="flex flex-col items-center mt-6">
         <p
-          className={`font-serif text-lg md:text-xl text-[#737373] italic font-light tracking-wide transition-all duration-1000 ease-out ${
+          className={`font-serif text-lg md:text-xl text-[#808080] italic font-light tracking-wide transition-all duration-1000 ease-out ${
             taglineVisible
               ? 'opacity-100 translate-y-0'
               : 'opacity-0 translate-y-4'
@@ -66,22 +75,25 @@ export default function Home() {
           Big History. Small Spaces.
         </p>
 
-        {/* Enter Button */}
-        <Link
-          href="/greathall"
-          className={`transition-all duration-1000 ease-out block ${
+        {/* Enter Button — the link itself carries the button styling. Until it
+            fades in it is visibility:hidden, so it can't take focus unseen. */}
+        <div
+          className={`transition-all duration-1000 ease-out ${
             detailsVisible
-              ? 'opacity-100 translate-y-0'
-              : 'opacity-0 translate-y-4'
+              ? 'opacity-100 translate-y-0 visible'
+              : 'opacity-0 translate-y-4 invisible'
           }`}
           style={{ marginTop: '32px' }}
         >
-          <button
+          <Link
+            href="/greathall"
+            className="block"
             style={{
               padding: '12px 48px',
               fontSize: '11px',
               letterSpacing: '0.3em',
               fontWeight: 300,
+              lineHeight: 'normal',
               textTransform: 'uppercase',
               color: '#fafafa',
               background: 'transparent',
@@ -103,9 +115,9 @@ export default function Home() {
             }}
           >
             Enter
-          </button>
-        </Link>
+          </Link>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -426,7 +426,7 @@ export default function RealOrReplica() {
       </header>
 
       {gameState !== 'finished' ? (
-        <main className="rr-main">
+        <div className="rr-main">
           <h1 className="rr-title">Which is the fake?</h1>
 
           <div className="rr-coins-row">
@@ -477,7 +477,7 @@ export default function RealOrReplica() {
               </button>
             </div>
           )}
-        </main>
+        </div>
       ) : (
         <div className="rr-final">
           <p className="rr-final-score">{score}</p>

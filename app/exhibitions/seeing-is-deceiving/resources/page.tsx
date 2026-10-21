@@ -1,6 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRef } from 'react';
+import ExhibitionNav from '@/components/ExhibitionNav';
+import { useFocusOnStepChange } from '@/lib/a11y/focus';
 import { useResourceWizard } from './hooks';
 import {
   SelectionButton,
@@ -20,7 +22,6 @@ import {
 } from './data/resource-data';
 
 export default function ResourcesPage() {
-  const router = useRouter();
   const {
     gradeLevel,
     librarianGradeLevel,
@@ -38,9 +39,11 @@ export default function ResourcesPage() {
     getLibrarianHandoutPath,
   } = useResourceWizard();
 
-  const handleBack = () => {
-    router.push('/exhibitions/seeing-is-deceiving');
-  };
+  // Move focus to the new step's first line so keyboard and screen reader
+  // users land on the question they're being asked.
+  const contentRef = useRef<HTMLDivElement>(null);
+  const stepKey = Object.entries(currentStep).find(([, on]) => on)?.[0] ?? '';
+  useFocusOnStepChange(stepKey, contentRef, '.intro-text, .context-breadcrumb, .question-text, .description-text');
 
   // Grade options for teachers
   const teacherGrades: { key: GradeLevel; label: string }[] = [
@@ -103,8 +106,8 @@ export default function ResourcesPage() {
           cursor: pointer;
         }
         .nav-m-left { left: 32px; }
-        .nav-m:hover .nav-label { opacity: 1; max-width: 150px; }
-        .nav-m:hover .nav-arrow-left { transform: translateX(-4px); }
+        .nav-m:hover .nav-label, .nav-m:focus-visible .nav-label { opacity: 1; max-width: 150px; }
+        .nav-m:hover .nav-arrow-left, .nav-m:focus-visible .nav-arrow-left { transform: translateX(-4px); }
         .nav-m-text { font-size: 28px; font-weight: 300; color: #525252; }
         .nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
         .nav-label {
@@ -191,13 +194,13 @@ export default function ResourcesPage() {
       `}</style>
 
       {/* Navigation */}
-      <div className="nav-m nav-m-left" onClick={handleBack}>
-        <span className="nav-m-text">M</span>
-        <span className="nav-arrow nav-arrow-left">←</span>
+      <ExhibitionNav className="nav-m nav-m-left" href="/exhibitions/seeing-is-deceiving">
+        <span className="nav-m-text" aria-hidden="true">M</span>
+        <span className="nav-arrow nav-arrow-left" aria-hidden="true">←</span>
         <span className="nav-label">Exhibition</span>
-      </div>
+      </ExhibitionNav>
 
-      <div className={`content-container ${fadeState === 'out' ? 'fade-out' : ''}`}>
+      <div ref={contentRef} className={`content-container ${fadeState === 'out' ? 'fade-out' : ''}`}>
         <h1 className="page-title">Resources</h1>
 
         {/* Initial State - User Type Selection */}

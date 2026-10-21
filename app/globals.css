@@ -58,6 +58,11 @@ a:link, a:visited, a:hover, a:active {
   outline: none;
 }
 
+/* Headings and panels that receive focus programmatically (tabindex=-1) */
+[data-focus-target]:focus {
+  outline: none;
+}
+
 /* Skip to main content link */
 .skip-link {
   position: absolute;
@@ -76,6 +81,32 @@ a:link, a:visited, a:hover, a:active {
 
 .skip-link:focus {
   top: 16px;
+}
+
+/* Strip native button chrome so a <button> can wear a page's own classes.
+   Zero specificity, so any page class overrides it. */
+:where(.btn-reset) {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+/* Visually hidden but available to assistive technology */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* Reduced motion preference */

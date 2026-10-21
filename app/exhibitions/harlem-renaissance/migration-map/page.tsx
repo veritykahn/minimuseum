@@ -1,7 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useState, useRef, useCallback, useEffect } from 'react';
+import ExhibitionNav from '@/components/ExhibitionNav';
 
 const AUDIO_BASE = '/exhibitions/harlem/audio/migration/';
 const PHOTO_BASE = '/exhibitions/harlem/images/migration/';
@@ -100,7 +100,6 @@ const CITY_COLORS = [
 const ROUTE_PATH = 'M280,550 C290,530 305,515 310,505 Q315,480 295,440 Q290,425 285,410 Q280,390 278,370 Q275,350 275,330 Q280,290 310,260 Q330,240 345,225 Q360,200 370,170 Q375,160 370,155 Q390,140 430,115 Q470,95 510,75 Q550,55 580,42 Q595,37 610,35';
 
 export default function MigrationMapPage() {
-  const router = useRouter();
 
   const [currentCityIdx, setCurrentCityIdx] = useState(-1);
   const [cityViewOpen, setCityViewOpen] = useState(false);
@@ -391,8 +390,8 @@ export default function MigrationMapPage() {
           font-family: 'Cormorant Garamond', 'Playfair Display', serif;
           transition: all 0.3s ease; cursor: pointer;
         }
-        .mg-nav:hover .mg-nav-label { opacity: 1; max-width: 150px; }
-        .mg-nav:hover .mg-nav-arrow { transform: translateX(-4px); }
+        .mg-nav:hover .mg-nav-label, .mg-nav:focus-visible .mg-nav-label { opacity: 1; max-width: 150px; }
+        .mg-nav:hover .mg-nav-arrow, .mg-nav:focus-visible .mg-nav-arrow { transform: translateX(-4px); }
         .mg-nav-text { font-size: 28px; font-weight: 300; color: #525252; }
         .mg-nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
         .mg-nav-label {
@@ -781,11 +780,11 @@ export default function MigrationMapPage() {
 
       {/* === MAP VIEW === */}
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-        <div className="mg-nav" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')} style={{ display: cityViewOpen ? 'none' : 'flex' }}>
-          <span className="mg-nav-text">M</span>
-          <span className="mg-nav-arrow">{'\u2190'}</span>
+        <ExhibitionNav className="mg-nav" href="/exhibitions/harlem-renaissance/artifacts" style={{ display: cityViewOpen ? 'none' : 'flex' }}>
+          <span className="mg-nav-text" aria-hidden="true">M</span>
+          <span className="mg-nav-arrow" aria-hidden="true">{'\u2190'}</span>
           <span className="mg-nav-label">Collection</span>
-        </div>
+        </ExhibitionNav>
 
         <div className="mg-header">
           <h1>The Great Migration</h1>

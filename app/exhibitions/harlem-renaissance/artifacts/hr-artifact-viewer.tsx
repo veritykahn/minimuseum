@@ -649,7 +649,7 @@ export default function HrArtifactViewer({ artifactId }: Props) {
       </header>
 
       {/* Content */}
-      <main className="hra-content">
+      <div className="hra-content">
         <div className="hra-model" ref={containerRef}>
           {isLoading && (
             <div className="hra-loading">
@@ -688,7 +688,7 @@ export default function HrArtifactViewer({ artifactId }: Props) {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Info backdrop */}
       <div className={`hra-backdrop ${showInfo ? 'open' : ''}`} onClick={() => setShowInfo(false)} />

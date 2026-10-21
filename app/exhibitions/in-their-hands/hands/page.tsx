@@ -510,7 +510,7 @@ export default function HandsOfHistory() {
       </header>
 
       {roundState !== 'finished' ? (
-        <main className="hh-main">
+        <div className="hh-main">
           {/* Left: hands image, crossfade to full on reveal */}
           <div className="hh-image-area">
             <div className="hh-image-frame">
@@ -572,7 +572,7 @@ export default function HandsOfHistory() {
               ))}
             </div>
           </div>
-        </main>
+        </div>
       ) : (
         <div className="hh-final">
           <p className="hh-final-score">{score}</p>

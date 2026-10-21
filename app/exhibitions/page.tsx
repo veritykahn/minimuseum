@@ -71,7 +71,7 @@ export default function GroundFloor() {
   ];
 
   const Ticket = () => (
-    <div className="ticket ticket-disabled">
+    <div className="ticket ticket-disabled" aria-hidden="true">
       <svg width="180" height="80" viewBox="0 0 180 80" fill="none">
         <path d="M0 8C0 3.58172 3.58172 0 8 0H52C52 6.62742 57.3726 12 64 12C70.6274 12 76 6.62742 76 0H172C176.418 0 180 3.58172 180 8V72C180 76.4183 176.418 80 172 80H76C76 73.3726 70.6274 68 64 68C57.3726 68 52 73.3726 52 80H8C3.58172 80 0 76.4183 0 72V8Z" fill="#2a2a2a"/>
         <line x1="64" y1="16" x2="64" y2="64" stroke="#3a3a3a" strokeWidth="1" strokeDasharray="4 3"/>
@@ -98,17 +98,18 @@ export default function GroundFloor() {
         </div>
       </div>
 
+      {/* Dimmed with muted, still-legible colors rather than opacity, so the
+          "coming soon" state doesn't push the text below 4.5:1 */}
       <div style={{
         textAlign: 'center',
         padding: '40px',
-        opacity: 0.4,
         filter: 'grayscale(50%)'
       }}>
         <p style={{
           fontSize: '11px',
           letterSpacing: '0.4em',
           textTransform: 'uppercase',
-          color: exhibition.accent,
+          color: '#8a8a8a',
           marginBottom: '16px',
           fontFamily: 'Outfit, sans-serif'
         }}>
@@ -119,7 +120,7 @@ export default function GroundFloor() {
           fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
           fontWeight: 300,
           lineHeight: 0.95,
-          color: '#fafafa',
+          color: '#a3a3a3',
           marginBottom: '16px'
         }}>
           {exhibition.title}
@@ -129,7 +130,7 @@ export default function GroundFloor() {
           fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
           fontStyle: 'italic',
           fontWeight: 300,
-          color: exhibition.accent,
+          color: '#8a8a8a',
           marginBottom: '48px'
         }}>
           {exhibition.subtitle}
@@ -147,7 +148,8 @@ export default function GroundFloor() {
         body { background: #0a0a0a; color: #fafafa; overflow-x: hidden; }
 
         .ticket-disabled {
-          opacity: 0.6;
+          /* was 0.6 inside a 0.4-opacity card; the ticket is decorative */
+          opacity: 0.24;
         }
 
         .back-link {
@@ -163,9 +165,9 @@ export default function GroundFloor() {
           font-family: 'Cormorant Garamond';
           transition: all 0.3s ease;
         }
-        .back-link:hover { color: #fafafa; }
-        .back-link:hover .back-arrow { transform: translateX(-4px); color: #7D8471; }
-        .back-link:hover .back-label { opacity: 1; max-width: 100px; }
+        .back-link:hover, .back-link:focus-visible { color: #fafafa; }
+        .back-link:hover .back-arrow, .back-link:focus-visible .back-arrow { transform: translateX(-4px); color: #7D8471; }
+        .back-link:hover .back-label, .back-link:focus-visible .back-label { opacity: 1; max-width: 100px; }
         .back-arrow { transition: all 0.3s ease; font-size: 16px; }
         .back-m { font-size: 28px; font-weight: 300; }
         .back-label {
@@ -191,7 +193,7 @@ export default function GroundFloor() {
           font-size: 9px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #525252;
+          color: #808080;
           margin-bottom: 4px;
         }
         .floor-indicator-year {
@@ -252,7 +254,7 @@ export default function GroundFloor() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-style: italic;
-          color: #737373;
+          color: #8a8a8a;
         }
 
         .scroll-hint {
@@ -263,7 +265,7 @@ export default function GroundFloor() {
           display: flex;
           align-items: center;
           gap: 16px;
-          color: #525252;
+          color: #808080;
           font-size: 11px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
@@ -288,9 +290,11 @@ export default function GroundFloor() {
         }
       `}</style>
 
+      <h1 className="visually-hidden">Ground Floor: Origins</h1>
+
       <Link href="/greathall" className="back-link">
-        <span className="back-m">M</span>
-        <span className="back-arrow">←</span>
+        <span className="back-m" aria-hidden="true">M</span>
+        <span className="back-arrow" aria-hidden="true">←</span>
         <span className="back-label">Great Hall</span>
       </Link>
 
@@ -299,7 +303,7 @@ export default function GroundFloor() {
         <p className="floor-indicator-year">2024–2025</p>
       </div>
 
-      <div ref={scrollRef} className="exhibitions-scroll">
+      <div ref={scrollRef} className="exhibitions-scroll" tabIndex={0} role="region" aria-label="Ground Floor exhibitions">
         {exhibitions.map((exhibition, index) => (
           <ExhibitionCard key={exhibition.id} exhibition={exhibition} index={index} />
         ))}

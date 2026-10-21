@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import ExhibitionNav from '@/components/ExhibitionNav';
+import { focusElement, focusHeadingIn, usePendingFocus } from '@/lib/a11y/focus';
 
 type ContentItem = {
   type: string;
@@ -409,22 +411,25 @@ const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void
 // MAIN COMPONENT
 // ============================================
 export default function InTheirHands() {
-  const router = useRouter();
   const [activeView, setActiveView] = useState<'main' | 'poster1' | 'poster2'>('main');
   const [posterStep, setPosterStep] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
   const [animationKey, setAnimationKey] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const lastPoster = useRef<'poster1' | 'poster2'>('poster1');
+  const requestFocus = usePendingFocus();
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
-  const handleBack = () => {
+  const rememberFloorPosition = () => {
     sessionStorage.setItem('firstFloorIndex', '2');
-    router.push('/exhibitions/first-floor');
   };
 
   const openPoster = (poster: 'poster1' | 'poster2') => {
+    lastPoster.current = poster;
     setFadeIn(false);
     setTimeout(() => {
+      requestFocus(() => focusHeadingIn(contentRef.current));
       setActiveView(poster);
       setPosterStep(0);
       setAnimationKey(prev => prev + 1);
@@ -436,6 +441,7 @@ export default function InTheirHands() {
     if (posterStep < currentPosterContent.length - 1) {
       setFadeIn(false);
       setTimeout(() => {
+        requestFocus(() => focusHeadingIn(contentRef.current));
         setPosterStep(posterStep + 1);
         setAnimationKey(prev => prev + 1);
         setFadeIn(true);
@@ -447,6 +453,7 @@ export default function InTheirHands() {
     if (posterStep > 0) {
       setFadeIn(false);
       setTimeout(() => {
+        requestFocus(() => focusHeadingIn(contentRef.current));
         setPosterStep(posterStep - 1);
         setAnimationKey(prev => prev + 1);
         setFadeIn(true);
@@ -457,6 +464,7 @@ export default function InTheirHands() {
   const returnToMain = () => {
     setFadeIn(false);
     setTimeout(() => {
+      requestFocus(() => focusElement(document.querySelector<HTMLElement>(`[data-poster="${lastPoster.current}"]`)));
       setActiveView('main');
       setPosterStep(0);
       setFadeIn(true);
@@ -580,9 +588,9 @@ export default function InTheirHands() {
         }
         .ith-nav-left { left: 32px; }
         .ith-nav-right { right: 32px; }
-        .ith-nav:hover .ith-nav-label { opacity: 1; max-width: 150px; }
-        .ith-nav:hover .ith-nav-arrow-left { transform: translateX(-4px); }
-        .ith-nav:hover .ith-nav-arrow-right { transform: translateX(4px); }
+        .ith-nav:hover .ith-nav-label, .ith-nav:focus-visible .ith-nav-label { opacity: 1; max-width: 150px; }
+        .ith-nav:hover .ith-nav-arrow-left, .ith-nav:focus-visible .ith-nav-arrow-left { transform: translateX(-4px); }
+        .ith-nav:hover .ith-nav-arrow-right, .ith-nav:focus-visible .ith-nav-arrow-right { transform: translateX(4px); }
         .ith-nav-text { font-size: 28px; font-weight: 300; transition: color 0.3s ease; }
         .ith-nav-arrow { font-size: 16px; transition: all 0.3s ease; }
         .ith-nav-label {
@@ -1117,8 +1125,8 @@ export default function InTheirHands() {
           position: relative;
           flex-shrink: 0;
         }
-        .ith-poster-frame:hover { transform: translateY(-8px); }
-        .ith-poster-frame:hover .ith-poster-hint { opacity: 1; }
+        .ith-poster-frame:hover, .ith-poster-frame:focus-visible { transform: translateY(-8px); }
+        .ith-poster-frame:hover .ith-poster-hint, .ith-poster-frame:focus-visible .ith-poster-hint { opacity: 1; }
         .ith-poster-frame img {
           height: 30vh;
           width: auto;
@@ -1151,7 +1159,7 @@ export default function InTheirHands() {
           overflow: visible;
           width: 100%;
         }
-        .ith-display-case:hover {
+        .ith-display-case:hover, .ith-display-case:focus-visible {
           border-color: rgba(201,168,76,0.3);
         }
         .ith-display-case:hover .ith-case-image {
@@ -1169,7 +1177,7 @@ export default function InTheirHands() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 8px;
         }
         .ith-case-title {
@@ -1533,7 +1541,9 @@ export default function InTheirHands() {
            RESPONSIVE
            ============================================ */
         @media (max-width: 900px) {
-          .ith-exhibition-grid { grid-template-columns: 1fr; gap: 32px; }
+          .ith-exhibition-grid { flex-direction: column; gap: 32px; }
+          .ith-display-case { max-width: 360px; }
+          .ith-poster-frame img, .ith-case-image { height: auto; max-height: 40vh; max-width: 100%; }
           .ith-entry-cards { grid-template-columns: 1fr; gap: 20px; }
           .ith-pos-top-left, .ith-pos-top-right { padding: 15vh 24px 15vh 24px; }
           .ith-pos-bottom-left, .ith-pos-bottom-right, .ith-pos-bottom-center {
@@ -1570,22 +1580,23 @@ export default function InTheirHands() {
       {/* ============================================
           NAVIGATION
           ============================================ */}
-      <div
+      <ExhibitionNav
         className="ith-nav ith-nav-left"
-        onClick={activeView === 'main' ? handleBack : returnToMain}
+        href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
+        onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
       >
-        <span className="ith-nav-text" style={{ color: '#525252' }}>M</span>
-        <span className="ith-nav-arrow ith-nav-arrow-left" style={{ color: '#7D8471' }}>&#8592;</span>
+        <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+        <span className="ith-nav-arrow ith-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
         <span className="ith-nav-label" style={{ color: '#7D8471' }}>
           {activeView === 'main' ? 'First Floor' : 'Exhibition'}
         </span>
-      </div>
+      </ExhibitionNav>
 
-      <div className="ith-nav ith-nav-right" onClick={() => router.push('/exhibitions/in-their-hands/resources')}>
+      <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
         <span className="ith-nav-label" style={{ color: '#7D8471' }}>Resources</span>
-        <span className="ith-nav-arrow ith-nav-arrow-right" style={{ color: '#7D8471' }}>&#8594;</span>
-        <span className="ith-nav-text" style={{ color: '#525252' }}>M</span>
-      </div>
+        <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>&#8594;</span>
+        <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+      </ExhibitionNav>
 
       {/* ============================================
           MAIN EXHIBITION VIEW
@@ -1598,45 +1609,49 @@ export default function InTheirHands() {
           </div>
 
           <div className="ith-exhibition-grid">
-            <div className="ith-poster-frame" onClick={() => openPoster('poster1')}>
+            <button type="button" className="btn-reset ith-poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/in-their-hands/poster1-hero.jpg" alt="Faith and Reason" />
               <span className="ith-poster-hint">Click to explore</span>
-            </div>
+            </button>
 
-            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-6')}>
+            <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Coins from the World of Jesus" />
               <p className="ith-case-label">Gallery II, Case 6</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the World of Jesus</p>
-            </div>
+            </Link>
 
-            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-7')}>
+            <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Coins from Jesus' Ministry and Passion" />
               <p className="ith-case-label">Gallery II, Case 7</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
-            </div>
+            </Link>
 
-            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-8')}>
+            <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Coins from the Early Church" />
               <p className="ith-case-label">Gallery II, Case 8</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the Early Church</p>
-            </div>
+            </Link>
 
-            <div className="ith-poster-frame" onClick={() => openPoster('poster2')}>
+            <button type="button" className="btn-reset ith-poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/in-their-hands/poster2-hero.jpg" alt="The Weight of Thirty Pieces" />
               <span className="ith-poster-hint">Click to explore</span>
-            </div>
+            </button>
           </div>
 
         </div>
       )}
+
+      <p className="visually-hidden" aria-live="polite" aria-atomic="true">
+        {activeView === 'main' ? '' : `Panel ${posterStep + 1} of ${currentPosterContent.length}`}
+      </p>
 
       {/* ============================================
           POSTER WALKTHROUGH VIEW
@@ -1652,7 +1667,7 @@ export default function InTheirHands() {
             </>
           )}
 
-          <div className="ith-walkthrough-content">
+          <div className="ith-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
 
             {/* Title Image — Full Bleed or Centered PNG */}
             {currentItem.type === 'title-image' && currentItem.special === 'poster1-title' && (
@@ -1864,17 +1879,19 @@ export default function InTheirHands() {
                 className="ith-nav-arrow-btn"
                 onClick={prevStep}
                 disabled={posterStep === 0}
+                aria-label="Previous panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 &#8592;
               </button>
-              <span className="ith-step-indicator" style={{ color: textColor }}>
+              <span className="ith-step-indicator" style={{ color: textColor }} aria-hidden="true">
                 {posterStep + 1} / {currentPosterContent.length}
               </span>
               <button
                 className="ith-nav-arrow-btn"
                 onClick={nextStep}
                 disabled={posterStep === currentPosterContent.length - 1}
+                aria-label="Next panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 &#8594;

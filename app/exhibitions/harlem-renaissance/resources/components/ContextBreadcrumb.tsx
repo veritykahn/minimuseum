@@ -25,7 +25,7 @@ export function ContextBreadcrumb({ items }: ContextBreadcrumbProps) {
           font-size: 11px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: #525252;
+          color: #808080;
           margin-bottom: 24px;
         }
         .context-breadcrumb :global(.highlight) {

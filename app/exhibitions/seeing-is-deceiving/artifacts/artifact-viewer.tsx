@@ -631,7 +631,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
       </header>
 
       {/* Main content */}
-      <main className="artifact-content">
+      <div className="artifact-content">
         {/* 3D Model Container */}
         <div className="model-container" ref={containerRef}>
           {isLoading && (
@@ -672,7 +672,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Info panel backdrop */}
       <div

@@ -1,5 +1,10 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ROUTES } from '@/lib/constants';
+
+export const metadata: Metadata = {
+  title: 'Page Not Found | The Mini Museum',
+};
 
 export default function NotFound() {
   return (
@@ -8,7 +13,7 @@ export default function NotFound() {
         404
       </h1>
 
-      <h2 className="font-serif text-[clamp(1.25rem,4vw,2rem)] font-light italic text-[#737373] mb-8">
+      <h2 className="font-serif text-[clamp(1.25rem,4vw,2rem)] font-light italic text-[#8a8a8a] mb-8">
         Exhibition Not Found
       </h2>
 

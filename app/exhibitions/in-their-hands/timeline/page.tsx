@@ -668,7 +668,7 @@ export default function GospelTimeline() {
       </header>
 
       {/* Main content */}
-      <main className="tl-main">
+      <div className="tl-main">
         {/* Coin */}
         <div className="tl-coin-area">
           <div className={`tl-coin-wrapper ${transitioning ? (direction === 'right' ? 'entering-right' : 'entering-left') : 'visible'}`}>
@@ -702,7 +702,7 @@ export default function GospelTimeline() {
           </div>
         </div>
 
-      </main>
+      </div>
 
       {/* Painting inset — right side, click for fullscreen */}
       <div className={`tl-painting-inset ${transitioning ? 'fading' : ''}`}>

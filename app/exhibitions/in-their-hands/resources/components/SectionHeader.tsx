@@ -11,7 +11,7 @@ type SectionHeaderProps = {
 export function SectionHeader({ children, isFirst }: SectionHeaderProps) {
   return (
     <>
-      <h3 className={`section-header ${isFirst ? 'first' : ''}`}>{children}</h3>
+      <h2 className={`section-header ${isFirst ? 'first' : ''}`}>{children}</h2>
 
       <style jsx>{`
         .section-header {

@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef } from 'react';
+import Link from 'next/link';
+import ExhibitionNav from '@/components/ExhibitionNav';
+import TypewriterText from '@/components/TypewriterText';
+import { focusElement, focusHeadingIn, usePendingFocus } from '@/lib/a11y/focus';
 
 type ContentItem = {
   type: string;
@@ -415,32 +418,6 @@ const poster2Content = [
   { type: 'end', text: 'Return to Exhibition' }
 ];
 
-// Typewriter component
-const TypewriterText = ({ text, onComplete, color }: { text: string; onComplete?: () => void; color: string }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, 30);
-      return () => clearTimeout(timeout);
-    } else if (onComplete) {
-      onComplete();
-    }
-    return undefined;
-  }, [currentIndex, text, onComplete]);
-
-  return (
-    <span style={{ color }}>
-      {displayedText}
-      <span className="typewriter-cursor">|</span>
-    </span>
-  );
-};
-
 // Line by line component
 const LineByLine = ({ items, color }: { items: string[]; color: string }) => {
   return (
@@ -485,21 +462,21 @@ const FilmOverlay = () => {
 };
 
 export default function SeeingIsDeceiving() {
-  const router = useRouter();
   const [activeView, setActiveView] = useState<'main' | 'poster1' | 'poster2' | 'artifacts'>('main');
   const [posterStep, setPosterStep] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
   const [animationKey, setAnimationKey] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const lastPoster = useRef<'poster1' | 'poster2'>('poster1');
+  const requestFocus = usePendingFocus();
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
-  const handleBack = () => {
-    router.push('/exhibitions/first-floor');
-  };
-
   const openPoster = (poster: 'poster1' | 'poster2') => {
+    lastPoster.current = poster;
     setFadeIn(false);
     setTimeout(() => {
+      requestFocus(() => focusHeadingIn(contentRef.current));
       setActiveView(poster);
       setPosterStep(0);
       setAnimationKey(prev => prev + 1);
@@ -511,6 +488,7 @@ export default function SeeingIsDeceiving() {
     if (posterStep < currentPosterContent.length - 1) {
       setFadeIn(false);
       setTimeout(() => {
+        requestFocus(() => focusHeadingIn(contentRef.current));
         setPosterStep(posterStep + 1);
         setAnimationKey(prev => prev + 1);
         setFadeIn(true);
@@ -522,6 +500,7 @@ export default function SeeingIsDeceiving() {
     if (posterStep > 0) {
       setFadeIn(false);
       setTimeout(() => {
+        requestFocus(() => focusHeadingIn(contentRef.current));
         setPosterStep(posterStep - 1);
         setAnimationKey(prev => prev + 1);
         setFadeIn(true);
@@ -532,6 +511,7 @@ export default function SeeingIsDeceiving() {
   const returnToMain = () => {
     setFadeIn(false);
     setTimeout(() => {
+      requestFocus(() => focusElement(document.querySelector<HTMLElement>(`[data-poster="${lastPoster.current}"]`)));
       setActiveView('main');
       setPosterStep(0);
       setFadeIn(true);
@@ -593,9 +573,9 @@ export default function SeeingIsDeceiving() {
         }
         .nav-m-left { left: 32px; }
         .nav-m-right { right: 32px; }
-        .nav-m:hover .nav-label { opacity: 1; max-width: 150px; }
-        .nav-m:hover .nav-arrow-left { transform: translateX(-4px); }
-        .nav-m:hover .nav-arrow-right { transform: translateX(4px); }
+        .nav-m:hover .nav-label, .nav-m:focus-visible .nav-label { opacity: 1; max-width: 150px; }
+        .nav-m:hover .nav-arrow-left, .nav-m:focus-visible .nav-arrow-left { transform: translateX(-4px); }
+        .nav-m:hover .nav-arrow-right, .nav-m:focus-visible .nav-arrow-right { transform: translateX(4px); }
         .nav-m-text { font-size: 28px; font-weight: 300; transition: color 0.3s ease; }
         .nav-arrow { font-size: 16px; transition: all 0.3s ease; }
         .nav-label {
@@ -1186,8 +1166,8 @@ export default function SeeingIsDeceiving() {
           transition: all 0.4s ease;
           position: relative;
         }
-        .poster-frame:hover { transform: translateY(-8px); }
-        .poster-frame:hover .poster-hint { opacity: 1; }
+        .poster-frame:hover, .poster-frame:focus-visible { transform: translateY(-8px); }
+        .poster-frame:hover .poster-hint, .poster-frame:focus-visible .poster-hint { opacity: 1; }
         .poster-frame img {
           width: 100%;
           height: auto;
@@ -1220,7 +1200,7 @@ export default function SeeingIsDeceiving() {
           transition: all 0.4s ease;
           overflow: hidden;
         }
-        .display-case:hover {
+        .display-case:hover, .display-case:focus-visible {
           border-color: rgba(168, 213, 229, 0.3);
         }
         .display-case:hover .case-image {
@@ -1240,7 +1220,7 @@ export default function SeeingIsDeceiving() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 8px;
         }
         .case-title {
@@ -1518,22 +1498,23 @@ export default function SeeingIsDeceiving() {
       `}</style>
 
       {/* Navigation */}
-      <div
+      <ExhibitionNav
         className="nav-m nav-m-left"
-        onClick={activeView === 'main' ? handleBack : returnToMain}
+        href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
+        onClick={activeView === 'main' ? undefined : returnToMain}
       >
-        <span className="nav-m-text" style={{ color: '#525252' }}>M</span>
-        <span className="nav-arrow nav-arrow-left" style={{ color: '#7D8471' }}>←</span>
+        <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+        <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>←</span>
         <span className="nav-label" style={{ color: '#7D8471' }}>
           {activeView === 'main' ? 'First Floor' : 'Exhibition'}
         </span>
-      </div>
+      </ExhibitionNav>
 
-      <div className="nav-m nav-m-right" onClick={() => router.push('/exhibitions/seeing-is-deceiving/resources')}>
+      <ExhibitionNav className="nav-m nav-m-right" href="/exhibitions/seeing-is-deceiving/resources">
         <span className="nav-label" style={{ color: '#7D8471' }}>Resources</span>
-        <span className="nav-arrow nav-arrow-right" style={{ color: '#7D8471' }}>→</span>
-        <span className="nav-m-text" style={{ color: '#525252' }}>M</span>
-      </div>
+        <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>→</span>
+        <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+      </ExhibitionNav>
 
       {/* Main Exhibition View */}
       {activeView === 'main' && (
@@ -1544,13 +1525,13 @@ export default function SeeingIsDeceiving() {
           </div>
 
           <div className="exhibition-grid">
-            <div className="poster-frame" onClick={() => openPoster('poster1')}>
+            <button type="button" className="btn-reset poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/seeing/poster1.jpg" alt="Seeing is Deceiving poster" />
               <span className="poster-hint">Click to explore</span>
-            </div>
+            </button>
 
-            <div className="display-case" onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}>
+            <Link href="/exhibitions/seeing-is-deceiving/artifacts" className="display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/exhibitions/seeing/artifacts/display-case.png"
@@ -1560,21 +1541,25 @@ export default function SeeingIsDeceiving() {
               <p className="case-label">Gallery II, Case 4</p>
               <p className="case-title">Instruments of Illusion</p>
               <p className="case-subtitle">Including Interactive Perception Lab</p>
-            </div>
+            </Link>
 
-            <div className="poster-frame" onClick={() => openPoster('poster2')}>
+            <button type="button" className="btn-reset poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/seeing/poster2.jpg" alt="A History of Lies poster" />
               <span className="poster-hint">Click to explore</span>
-            </div>
+            </button>
           </div>
         </div>
       )}
 
+      <p className="visually-hidden" aria-live="polite" aria-atomic="true">
+        {activeView === 'main' ? '' : `Panel ${posterStep + 1} of ${currentPosterContent.length}`}
+      </p>
+
       {/* Poster Walkthrough View */}
       {(activeView === 'poster1' || activeView === 'poster2') && (
         <div className={`poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey}>
-          <div className="walkthrough-content">
+          <div className="walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
 
             {/* Title Image - Full Bleed */}
             {currentItem.type === 'title-image' && (
@@ -1636,7 +1621,7 @@ export default function SeeingIsDeceiving() {
                   style={{ color: textColor, position: 'relative', zIndex: 10 }}
                 >
                   {currentItem.effect === 'typewriter' ? (
-                    <TypewriterText text={currentItem.text} color={textColor} />
+                    <TypewriterText text={currentItem.text} color={textColor} cursorClassName="typewriter-cursor" />
                   ) : (
                     currentItem.text
                   )}
@@ -1709,17 +1694,19 @@ export default function SeeingIsDeceiving() {
                 className="nav-arrow-btn"
                 onClick={prevStep}
                 disabled={posterStep === 0}
+                aria-label="Previous panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 ←
               </button>
-              <span className="step-indicator" style={{ color: textColor }}>
+              <span className="step-indicator" style={{ color: textColor }} aria-hidden="true">
                 {posterStep + 1} / {currentPosterContent.length}
               </span>
               <button
                 className="nav-arrow-btn"
                 onClick={nextStep}
                 disabled={posterStep === currentPosterContent.length - 1}
+                aria-label="Next panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 →

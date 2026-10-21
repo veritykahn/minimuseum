@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import IllusionRenderer from '@/components/IllusionRenderer';
+import ExhibitionNav from '@/components/ExhibitionNav';
 import { ILLUSION_CONTENT } from './data';
 import { useCarousel, useSwipeNavigation } from './hooks';
 
@@ -56,8 +57,8 @@ export default function IllusionsPage() {
           cursor: pointer;
         }
         .nav-m-left { left: 32px; }
-        .nav-m:hover .nav-label { opacity: 1; max-width: 150px; }
-        .nav-m:hover .nav-arrow-left { transform: translateX(-4px); }
+        .nav-m:hover .nav-label, .nav-m:focus-visible .nav-label { opacity: 1; max-width: 150px; }
+        .nav-m:hover .nav-arrow-left, .nav-m:focus-visible .nav-arrow-left { transform: translateX(-4px); }
         .nav-m-text { font-size: 28px; font-weight: 300; color: #525252; transition: color 0.3s ease; }
         .nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
         .nav-label {
@@ -203,11 +204,11 @@ export default function IllusionsPage() {
       `}</style>
 
       {/* Navigation */}
-      <div className="nav-m nav-m-left" onClick={handleBack}>
-        <span className="nav-m-text">M</span>
-        <span className="nav-arrow nav-arrow-left">←</span>
+      <ExhibitionNav className="nav-m nav-m-left" href="/exhibitions/seeing-is-deceiving">
+        <span className="nav-m-text" aria-hidden="true">M</span>
+        <span className="nav-arrow nav-arrow-left" aria-hidden="true">←</span>
         <span className="nav-label">Exhibition</span>
-      </div>
+      </ExhibitionNav>
 
       {/* Content */}
       <div className={`illusion-page ${fadeIn ? 'fade-in' : 'fade-out'}`} key={animationKey}>

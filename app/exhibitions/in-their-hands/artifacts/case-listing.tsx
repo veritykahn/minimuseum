@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { CoinData } from './coin-data';
 
 type InteractiveFeature = {
@@ -80,7 +81,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           font-size: 10px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 16px;
         }
 
@@ -125,13 +126,13 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           width: 180px;
         }
 
-        .cl-card:hover {
+        .cl-card:hover, .cl-card:focus-visible {
           border-color: rgba(201, 168, 76, 0.3);
           background: linear-gradient(145deg, rgba(201, 168, 76, 0.06), rgba(201, 168, 76, 0.02));
           transform: translateY(-8px);
         }
 
-        .cl-card:hover .cl-card-image {
+        .cl-card:hover .cl-card-image, .cl-card:focus-visible .cl-card-image {
           box-shadow: 0 20px 60px rgba(201, 168, 76, 0.15);
         }
 
@@ -155,7 +156,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           object-fit: cover;
           transition: transform 0.4s ease;
         }
-        .cl-card:hover .cl-card-image {
+        .cl-card:hover .cl-card-image, .cl-card:focus-visible .cl-card-image {
           transform: scale(1.08);
         }
 
@@ -173,7 +174,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           font-family: 'Cormorant Garamond', serif;
           font-size: 0.85rem;
           font-style: italic;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 10px;
         }
 
@@ -243,7 +244,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           color: #C9A84C;
           font-size: 14px;
         }
-        .cl-card:hover .cl-hover-arrow {
+        .cl-card:hover .cl-hover-arrow, .cl-card:focus-visible .cl-hover-arrow {
           opacity: 1;
           transform: translateX(0);
         }
@@ -273,7 +274,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
         .cl-card-badge-coming-soon {
           background: rgba(255,255,255,0.03);
-          color: #525252;
+          color: #808080;
           border: 1px solid rgba(255,255,255,0.08);
         }
 
@@ -290,7 +291,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           background: transparent;
           border: 1px solid rgba(255,255,255,0.15);
           border-radius: 100px;
-          color: #737373;
+          color: #8a8a8a;
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
@@ -325,18 +326,18 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
       <div className="cl-grid">
         {coins.map((coin) => (
-          <div
+          <Link
             key={coin.id}
             className="cl-card"
-            onClick={() => router.push(`${basePath}/${coin.id}`)}
+            href={`${basePath}/${coin.id}`}
           >
-            <div className="cl-hover-arrow">{'\u2197'}</div>
-            <div className="cl-card-image-container">
+            <div className="cl-hover-arrow" aria-hidden="true">{'\u2197'}</div>
+            <div className="cl-card-image-container" aria-hidden="true">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="cl-card-image" src={coin.frontImage} alt={coin.title} />
             </div>
             <div className="cl-card-info">
-              <h3 className="cl-card-title">{coin.title.split(' — ')[0]}</h3>
+              <h2 className="cl-card-title">{coin.title.split(' — ')[0]}</h2>
               <p className="cl-card-subtitle">{coin.date}</p>
               <div className="cl-card-badge">
                 <span className="cl-card-badge-dot" />
@@ -346,36 +347,41 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
                 {coin.authenticity}
               </div>
             </div>
-          </div>
+          </Link>
         ))}
 
         {interactive && <div className="cl-card-row-break" />}
-        {interactive && (
-          <div
-            className={`cl-card cl-card-interactive ${interactive.status}`}
-            onClick={() => interactive.status === 'available' && router.push(interactive.route)}
-          >
-            {interactive.status === 'available' && (
-              <div className="cl-hover-arrow">{'\u2197'}</div>
-            )}
-            <div className="cl-card-image-container">
-              {interactive.thumb ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className="cl-card-image" src={interactive.thumb} alt={interactive.title} />
-              ) : (
-                <span className="cl-card-emoji">{interactive.emoji}</span>
+        {interactive && (() => {
+          const content = (
+            <>
+              {interactive.status === 'available' && (
+                <div className="cl-hover-arrow" aria-hidden="true">{'\u2197'}</div>
               )}
-            </div>
-            <div className="cl-card-info">
-              <h3 className="cl-card-title">{interactive.title}</h3>
-              <p className="cl-card-subtitle">{interactive.subtitle}</p>
-              <div className={`cl-card-badge ${interactive.status === 'coming-soon' ? 'cl-card-badge-coming-soon' : ''}`}>
-                <span className={`cl-card-badge-dot ${interactive.status === 'coming-soon' ? 'inactive' : ''}`} />
-                {interactive.status === 'available' ? 'Explore' : 'Coming Soon'}
+              <div className="cl-card-image-container" aria-hidden="true">
+                {interactive.thumb ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="cl-card-image" src={interactive.thumb} alt={interactive.title} />
+                ) : (
+                  <span className="cl-card-emoji">{interactive.emoji}</span>
+                )}
               </div>
-            </div>
-          </div>
-        )}
+              <div className="cl-card-info">
+                <h2 className="cl-card-title">{interactive.title}</h2>
+                <p className="cl-card-subtitle">{interactive.subtitle}</p>
+                <div className={`cl-card-badge ${interactive.status === 'coming-soon' ? 'cl-card-badge-coming-soon' : ''}`}>
+                  <span className={`cl-card-badge-dot ${interactive.status === 'coming-soon' ? 'inactive' : ''}`} />
+                  {interactive.status === 'available' ? 'Explore' : 'Coming Soon'}
+                </div>
+              </div>
+            </>
+          );
+          const cardClass = `cl-card cl-card-interactive ${interactive.status}`;
+          return interactive.status === 'available' ? (
+            <Link className={cardClass} href={interactive.route}>{content}</Link>
+          ) : (
+            <div className={cardClass}>{content}</div>
+          );
+        })()}
       </div>
 
       <button className="cl-return-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>

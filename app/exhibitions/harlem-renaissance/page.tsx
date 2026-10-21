@@ -1,7 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+import ExhibitionNav from '@/components/ExhibitionNav';
+import { focusElement, focusHeadingIn, usePendingFocus } from '@/lib/a11y/focus';
 
 type ContentItem = {
   type: string;
@@ -419,22 +421,25 @@ const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void
 // MAIN COMPONENT
 // ============================================
 export default function HarlemRenaissance() {
-  const router = useRouter();
   const [activeView, setActiveView] = useState<'main' | 'poster1' | 'poster2'>('main');
   const [posterStep, setPosterStep] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
   const [animationKey, setAnimationKey] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const lastPoster = useRef<'poster1' | 'poster2'>('poster1');
+  const requestFocus = usePendingFocus();
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
-  const handleBack = () => {
+  const rememberFloorPosition = () => {
     sessionStorage.setItem('firstFloorIndex', '1');
-    router.push('/exhibitions/first-floor');
   };
 
   const openPoster = (poster: 'poster1' | 'poster2') => {
+    lastPoster.current = poster;
     setFadeIn(false);
     setTimeout(() => {
+      requestFocus(() => focusHeadingIn(contentRef.current));
       setActiveView(poster);
       setPosterStep(0);
       setAnimationKey(prev => prev + 1);
@@ -446,6 +451,7 @@ export default function HarlemRenaissance() {
     if (posterStep < currentPosterContent.length - 1) {
       setFadeIn(false);
       setTimeout(() => {
+        requestFocus(() => focusHeadingIn(contentRef.current));
         setPosterStep(posterStep + 1);
         setAnimationKey(prev => prev + 1);
         setFadeIn(true);
@@ -457,6 +463,7 @@ export default function HarlemRenaissance() {
     if (posterStep > 0) {
       setFadeIn(false);
       setTimeout(() => {
+        requestFocus(() => focusHeadingIn(contentRef.current));
         setPosterStep(posterStep - 1);
         setAnimationKey(prev => prev + 1);
         setFadeIn(true);
@@ -467,6 +474,7 @@ export default function HarlemRenaissance() {
   const returnToMain = () => {
     setFadeIn(false);
     setTimeout(() => {
+      requestFocus(() => focusElement(document.querySelector<HTMLElement>(`[data-poster="${lastPoster.current}"]`)));
       setActiveView('main');
       setPosterStep(0);
       setFadeIn(true);
@@ -594,9 +602,9 @@ export default function HarlemRenaissance() {
         }
         .hr-nav-left { left: 32px; }
         .hr-nav-right { right: 32px; }
-        .hr-nav:hover .hr-nav-label { opacity: 1; max-width: 150px; }
-        .hr-nav:hover .hr-nav-arrow-left { transform: translateX(-4px); }
-        .hr-nav:hover .hr-nav-arrow-right { transform: translateX(4px); }
+        .hr-nav:hover .hr-nav-label, .hr-nav:focus-visible .hr-nav-label { opacity: 1; max-width: 150px; }
+        .hr-nav:hover .hr-nav-arrow-left, .hr-nav:focus-visible .hr-nav-arrow-left { transform: translateX(-4px); }
+        .hr-nav:hover .hr-nav-arrow-right, .hr-nav:focus-visible .hr-nav-arrow-right { transform: translateX(4px); }
         .hr-nav-text { font-size: 28px; font-weight: 300; transition: color 0.3s ease; }
         .hr-nav-arrow { font-size: 16px; transition: all 0.3s ease; }
         .hr-nav-label {
@@ -1129,8 +1137,8 @@ export default function HarlemRenaissance() {
           transition: all 0.4s ease;
           position: relative;
         }
-        .hr-poster-frame:hover { transform: translateY(-8px); }
-        .hr-poster-frame:hover .hr-poster-hint { opacity: 1; }
+        .hr-poster-frame:hover, .hr-poster-frame:focus-visible { transform: translateY(-8px); }
+        .hr-poster-frame:hover .hr-poster-hint, .hr-poster-frame:focus-visible .hr-poster-hint { opacity: 1; }
         .hr-poster-frame img {
           width: 100%;
           height: auto;
@@ -1164,7 +1172,7 @@ export default function HarlemRenaissance() {
           transition: all 0.4s ease;
           overflow: hidden;
         }
-        .hr-display-case:hover {
+        .hr-display-case:hover, .hr-display-case:focus-visible {
           border-color: rgba(180, 133, 210, 0.3);
         }
         .hr-display-case:hover .hr-case-image {
@@ -1184,7 +1192,7 @@ export default function HarlemRenaissance() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 8px;
         }
         .hr-case-title {
@@ -1493,22 +1501,23 @@ export default function HarlemRenaissance() {
       {/* ============================================
           NAVIGATION
           ============================================ */}
-      <div
+      <ExhibitionNav
         className="hr-nav hr-nav-left"
-        onClick={activeView === 'main' ? handleBack : returnToMain}
+        href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
+        onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
       >
-        <span className="hr-nav-text" style={{ color: '#525252' }}>M</span>
-        <span className="hr-nav-arrow hr-nav-arrow-left" style={{ color: '#7D8471' }}>&#8592;</span>
+        <span className="hr-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+        <span className="hr-nav-arrow hr-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
         <span className="hr-nav-label" style={{ color: '#7D8471' }}>
           {activeView === 'main' ? 'First Floor' : 'Exhibition'}
         </span>
-      </div>
+      </ExhibitionNav>
 
-      <div className="hr-nav hr-nav-right" onClick={() => router.push('/exhibitions/harlem-renaissance/resources')}>
+      <ExhibitionNav className="hr-nav hr-nav-right" href="/exhibitions/harlem-renaissance/resources">
         <span className="hr-nav-label" style={{ color: '#7D8471' }}>Resources</span>
-        <span className="hr-nav-arrow hr-nav-arrow-right" style={{ color: '#7D8471' }}>&#8594;</span>
-        <span className="hr-nav-text" style={{ color: '#525252' }}>M</span>
-      </div>
+        <span className="hr-nav-arrow hr-nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>&#8594;</span>
+        <span className="hr-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+      </ExhibitionNav>
 
       {/* ============================================
           MAIN EXHIBITION VIEW
@@ -1521,35 +1530,39 @@ export default function HarlemRenaissance() {
           </div>
 
           <div className="hr-exhibition-grid">
-            <div className="hr-poster-frame" onClick={() => openPoster('poster1')}>
+            <button type="button" className="btn-reset hr-poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/harlem/poster1.jpg" alt="The Great Migration and The Harlem Renaissance" />
               <span className="hr-poster-hint">Click to explore</span>
-            </div>
+            </button>
 
-            <div className="hr-display-case" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+            <Link href="/exhibitions/harlem-renaissance/artifacts" className="hr-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/harlem/artifacts/display-case.png" alt="Artifact Display Case" className="hr-case-image" />
               <p className="hr-case-label">Gallery II, Case 5</p>
               <p className="hr-case-title">Voices of Harlem</p>
               <p className="hr-case-subtitle">Artifacts & Experiences from the Renaissance</p>
-            </div>
+            </Link>
 
-            <div className="hr-poster-frame" onClick={() => openPoster('poster2')}>
+            <button type="button" className="btn-reset hr-poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/harlem/poster2.jpg" alt="Walter White: The Civil Rights Hero You've Never Heard Of" />
               <span className="hr-poster-hint">Click to explore</span>
-            </div>
+            </button>
           </div>
         </div>
       )}
+
+      <p className="visually-hidden" aria-live="polite" aria-atomic="true">
+        {activeView === 'main' ? '' : `Panel ${posterStep + 1} of ${currentPosterContent.length}`}
+      </p>
 
       {/* ============================================
           POSTER WALKTHROUGH VIEW
           ============================================ */}
       {(activeView === 'poster1' || activeView === 'poster2') && (
         <div className={`hr-poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey}>
-          <div className="hr-walkthrough-content">
+          <div className="hr-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
 
             {/* Title Image — Full Bleed */}
             {currentItem.type === 'title-image' && (
@@ -1701,17 +1714,19 @@ export default function HarlemRenaissance() {
                 className="hr-nav-arrow-btn"
                 onClick={prevStep}
                 disabled={posterStep === 0}
+                aria-label="Previous panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 &#8592;
               </button>
-              <span className="hr-step-indicator" style={{ color: textColor }}>
+              <span className="hr-step-indicator" style={{ color: textColor }} aria-hidden="true">
                 {posterStep + 1} / {currentPosterContent.length}
               </span>
               <button
                 className="hr-nav-arrow-btn"
                 onClick={nextStep}
                 disabled={posterStep === currentPosterContent.length - 1}
+                aria-label="Next panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 &#8594;

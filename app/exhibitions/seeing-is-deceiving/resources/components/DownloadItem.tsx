@@ -17,7 +17,7 @@ export function DownloadItem({ name, subtitle, href }: DownloadItemProps) {
           <span className="download-name">{name}</span>
           <span className="download-subtitle">{subtitle}</span>
         </div>
-        <a href={href} download className="download-btn">
+        <a href={href} download className="download-btn" aria-label={`Download ${name}`}>
           Download
         </a>
       </div>
@@ -49,7 +49,7 @@ export function DownloadItem({ name, subtitle, href }: DownloadItemProps) {
         .download-subtitle {
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
-          color: #666;
+          color: #8a8a8a;
           letter-spacing: 0.05em;
         }
 

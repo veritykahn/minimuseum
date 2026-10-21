@@ -441,7 +441,7 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
       </header>
 
       {/* Main content */}
-      <main className="cv-content">
+      <div className="cv-content">
         {/* Coin display */}
         <div className="cv-coin-stage">
           <div className={`cv-coin-container ${showBack ? 'flipped' : ''}`}>
@@ -474,7 +474,7 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
             <p className="cv-artifact-subtitle">{coin.subtitle}</p>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Info backdrop */}
       <div
