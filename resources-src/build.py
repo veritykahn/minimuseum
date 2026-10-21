@@ -170,6 +170,12 @@ html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 body { margin: 0; font: 300 9.8pt/1.5 'Outfit', sans-serif; color: #1d1c1a; --gold-text: #86671A; --gold-big: #A2802A; --line: 20pt; }
 body.student { font-size: 10.6pt; --line: 23pt; }
 body.student .label { font-size: 8pt; }
+/* PreK–2: bigger type, roomier lines, bigger boxes to draw in */
+body.young { font-size: 13pt; line-height: 1.45; --line: 30pt; }
+body.young h3 { font-size: 17pt; }
+body.young .label { font-size: 8.5pt; }
+body.young .drawbox { height: 190pt; }
+body.young .coindraw > div { width: 160pt; height: 160pt; }
 b { font-weight: 500; } i { font-style: italic; }
 p { margin: 0 0 6pt; }
 .mast { display: grid; grid-template-columns: auto 1fr; gap: 18pt; align-items: end;
@@ -318,7 +324,7 @@ def render(doc, accent="#C9A84C"):
     foot = f"The Mini Museum · In Their Hands · {doc['foot']}  ·  © {YEAR} The Mini Museum · Free for educational use"
     foot_css = "@page { @bottom-left { content: \"" + foot.replace("\\", "").replace('"', "'") + "\"; } }"
     return f"""<!doctype html><html><head><meta charset="utf-8"><title>{html.escape(doc['title'])}</title>
-<style>{FONTS}{CSS}{foot_css}{tint_css}</style></head><body class="{'student' if level else 'adult'}" style="--accent:{accent}">
+<style>{FONTS}{CSS}{foot_css}{tint_css}{doc.get("css", "")}</style></head><body class="{'student' if level else 'adult'}{' young' if doc.get('young') else ''}" style="--accent:{accent}">
 {head}{band}{context}{body}</body></html>"""
 
 def load(exhibition):
