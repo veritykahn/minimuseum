@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback, useId } from 'react';
+import { useDialogFocus } from '@/lib/a11y';
 
 // ============================================
 // ILLUSION RENDERER COMPONENT
@@ -33,6 +34,18 @@ export default function IllusionRenderer({
   const [balconyView, setBalconyView] = useState<'main' | 'out' | 'over'>('main');
   const [ponzoGuess, setPonzoGuess] = useState<'back' | 'front' | null>(null);
   const [showScience, setShowScience] = useState(false);
+
+  // "The Science" card is a modal dialog: focus moves to Close, Tab stays
+  // inside, Escape closes, and focus returns to "How Does This Work?".
+  const scienceCardRef = useRef<HTMLDivElement>(null);
+  const scienceCloseRef = useRef<HTMLButtonElement>(null);
+  const scienceTitleId = useId();
+  const closeScience = useCallback(() => setShowScience(false), []);
+  useDialogFocus(scienceCardRef, showScience, {
+    onEscape: closeScience,
+    initialFocus: scienceCloseRef,
+    returnFocus: () => document.querySelector<HTMLElement>('[data-science-btn]'),
+  });
 
   const textColor = isPoster1 ? '#2a2a2a' : '#a8d5e5';
 
@@ -195,6 +208,7 @@ export default function IllusionRenderer({
         {/* Backdrop */}
         <div
           onClick={() => setShowScience(false)}
+          aria-hidden="true"
           style={{
             position: 'fixed',
             inset: 0,
@@ -208,6 +222,11 @@ export default function IllusionRenderer({
 
         {/* Card */}
         <div
+          ref={scienceCardRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby={scienceTitleId}
+          inert={!showScience}
           style={{
             position: 'fixed',
             top: '50%',
@@ -231,6 +250,9 @@ export default function IllusionRenderer({
         >
           {/* Close button */}
           <button
+            type="button"
+            ref={scienceCloseRef}
+            aria-label="Close"
             onClick={() => setShowScience(false)}
             style={{
               position: 'absolute',
@@ -253,11 +275,12 @@ export default function IllusionRenderer({
             onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
             onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.5')}
           >
-            ×
+            <span aria-hidden="true">×</span>
           </button>
 
           {/* Title */}
           <h3
+            id={scienceTitleId}
             style={{
               fontFamily: 'Outfit, sans-serif',
               fontSize: '10px',
@@ -295,6 +318,9 @@ export default function IllusionRenderer({
 
     return (
       <button
+        type="button"
+        data-science-btn=""
+        aria-haspopup="dialog"
         onClick={() => setShowScience(true)}
         style={scienceButtonStyle}
         onMouseEnter={(e) => {

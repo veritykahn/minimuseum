@@ -12,11 +12,17 @@ export function MapToggleButton({ isOpen, onClick }: MapToggleButtonProps) {
   return (
     <>
       <button
+        type="button"
         onClick={onClick}
         className="map-toggle-btn"
         aria-label={isOpen ? 'Close map' : 'Open museum map'}
+        aria-expanded={isOpen}
+        aria-controls="museum-map-dialog"
+        aria-haspopup="dialog"
       >
         <svg
+          aria-hidden="true"
+          focusable="false"
           width="24"
           height="24"
           viewBox="0 0 24 24"

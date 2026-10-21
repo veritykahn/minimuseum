@@ -1,6 +1,7 @@
 'use client';
 
-import { ReactNode, RefObject } from 'react';
+import { ReactNode, RefObject, useEffect, useRef } from 'react';
+import { useDialogFocus } from '@/lib/a11y';
 import { MapRoom, MapLevelConfig } from './types';
 
 type ZoomState = {
@@ -19,6 +20,7 @@ type ZoomHandlers = {
   onTouchMove: (e: React.TouchEvent) => void;
   onTouchEnd: () => void;
   onDoubleClick: (e: React.MouseEvent | React.TouchEvent) => void;
+  onKeyDown?: (e: React.KeyboardEvent) => void;
 };
 
 type MapOverlayProps = {
@@ -57,22 +59,45 @@ export function MapOverlay({
   isZoomed = false,
 }: MapOverlayProps) {
   const hasZoom = zoom && zoomHandlers;
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+
+  // A modal dialog: focus starts on Close, Tab stays inside, and focus goes
+  // back to the Map button when it closes. (Escape is handled by useMapState.)
+  useDialogFocus(dialogRef, true, { initialFocus: closeRef });
+
+  // Browsing to another level replaces the room that had focus; move focus
+  // to the new level's heading so keyboard users are not dropped to <body>.
+  const firstLevel = useRef(true);
+  useEffect(() => {
+    if (firstLevel.current) { firstLevel.current = false; return; }
+    headingRef.current?.focus({ preventScroll: true });
+  }, [levelConfig.title, levelConfig.level]);
 
   return (
     <>
       <div className="map-overlay" onClick={onClose}>
-        <div className="map-container" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="map-container"
+          id="museum-map-dialog"
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="museum-map-title"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Close button */}
-          <button className="map-close-btn" onClick={onClose} aria-label="Close map">
-            &times;
+          <button type="button" ref={closeRef} className="map-close-btn" onClick={onClose} aria-label="Close map">
+            <span aria-hidden="true">&times;</span>
           </button>
 
           {/* Header */}
           <div className="map-header">
-            <h2>{levelConfig.title || 'Museum Map'}</h2>
+            <h2 id="museum-map-title" ref={headingRef} tabIndex={-1} style={{ outline: 'none' }}>{levelConfig.title || 'Museum Map'}</h2>
             {currentRoom && (
               <p className="current-location">
-                <span className="you-are-here-dot" />
+                <span className="you-are-here-dot" aria-hidden="true" />
                 You are here: {currentRoom.label}
               </p>
             )}
@@ -84,6 +109,9 @@ export function MapOverlay({
               ref={containerRef}
               className={`map-viewport ${isZoomed ? 'zoomed' : ''}`}
               {...zoomHandlers}
+              tabIndex={isZoomed ? 0 : -1}
+              role={isZoomed ? 'group' : undefined}
+              aria-label={isZoomed ? 'Zoomed map. Use the arrow keys to pan.' : undefined}
             >
               <div
                 className="map-content"
@@ -101,16 +129,16 @@ export function MapOverlay({
           {/* Zoom controls */}
           {hasZoom && (
             <div className="zoom-controls">
-              <button className="zoom-btn" onClick={onZoomIn} disabled={!canZoomIn} aria-label="Zoom in">+</button>
-              <button className="zoom-btn" onClick={onZoomOut} disabled={!canZoomOut} aria-label="Zoom out">−</button>
+              <button type="button" className="zoom-btn" onClick={onZoomIn} disabled={!canZoomIn} aria-label="Zoom in">+</button>
+              <button type="button" className="zoom-btn" onClick={onZoomOut} disabled={!canZoomOut} aria-label="Zoom out">−</button>
               {isZoomed && (
-                <button className="zoom-btn reset" onClick={onResetZoom} aria-label="Reset zoom">⟲</button>
+                <button type="button" className="zoom-btn reset" onClick={onResetZoom} aria-label="Reset zoom">⟲</button>
               )}
             </div>
           )}
 
           <p className="zoom-hint">
-            {isZoomed ? 'Drag to pan • Pinch or scroll to zoom' : 'Pinch or scroll to zoom • Double-tap to zoom in'}
+            {isZoomed ? 'Drag or use arrow keys to pan • Pinch or scroll to zoom' : 'Pinch or scroll to zoom • Double-tap to zoom in'}
           </p>
           <p className="close-hint">Click outside, press ESC, or use &times; to close</p>
         </div>
@@ -229,6 +257,7 @@ export function MapOverlay({
         }
 
         .map-viewport.zoomed { cursor: grab; }
+        .map-viewport:focus-visible { outline: 2px solid #a8d5e5; outline-offset: 2px; }
         .map-viewport:active { cursor: grabbing; }
 
         .map-content {

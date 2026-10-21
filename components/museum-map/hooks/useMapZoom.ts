@@ -63,6 +63,25 @@ export function useMapZoom() {
     setZoom({ scale: 1, translateX: 0, translateY: 0 });
   }, []);
 
+  // Keyboard alternative to dragging: arrow keys pan a zoomed map.
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const step = 40;
+    let dx = 0, dy = 0;
+    if (e.key === 'ArrowLeft') dx = step;
+    else if (e.key === 'ArrowRight') dx = -step;
+    else if (e.key === 'ArrowUp') dy = step;
+    else if (e.key === 'ArrowDown') dy = -step;
+    else if (e.key === '+' || e.key === '=') { e.preventDefault(); zoomIn(); return; }
+    else if (e.key === '-' || e.key === '_') { e.preventDefault(); zoomOut(); return; }
+    else return;
+    if (zoom.scale <= 1) return;
+    e.preventDefault();
+    setZoom(prev => {
+      const clamped = clampTranslate(prev.translateX + dx, prev.translateY + dy, prev.scale);
+      return { ...prev, translateX: clamped.x, translateY: clamped.y };
+    });
+  }, [zoom.scale, clampTranslate, zoomIn, zoomOut]);
+
   // Handle mouse wheel zoom
   const handleWheel = useCallback((e: React.WheelEvent) => {
     e.preventDefault();
@@ -196,6 +215,7 @@ export function useMapZoom() {
       onTouchMove: handleTouchMove,
       onTouchEnd: handleTouchEnd,
       onDoubleClick: handleDoubleClick,
+      onKeyDown: handleKeyDown,
     },
   };
 }
