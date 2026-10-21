@@ -18,7 +18,8 @@ export type InstrumentDef = {
   };
 };
 
-const AUDIO_BASE = '/exhibitions/harlem/audio/jazz-lab-FINAL';
+// the clips moved to guess-instrument/ in February 2026; this path was missed
+const AUDIO_BASE = '/exhibitions/harlem/audio/guess-instrument';
 
 export const INSTRUMENTS: InstrumentDef[] = [
   {
