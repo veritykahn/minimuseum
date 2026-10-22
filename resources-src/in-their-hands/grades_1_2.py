@@ -33,6 +33,106 @@ PEOPLE = {
 }
 ORDER = ["widow", "merchant", "mother", "priest"]
 
+# Each person's story, as printed on the plan's "Show your class" page and
+# read aloud from the classroom screen: (name, scripture, story).
+CARDS = {
+  "widow": ("The Widow", "Mark 12:41–44", "At the Temple, rich people put in large gifts. A poor widow came and put in two tiny coins — all she had. Jesus told his friends she had given more than all the others. Her coin, the lepton, was the smallest coin people used. The exhibition shows **two**, because the Gospel says two."),
+  "merchant": ("The Merchant", "Luke 2:1", "In a busy market, a merchant counts the day’s coins. Many show the face of Augustus Caesar, the emperor in faraway Rome. Augustus ordered a census, a counting of all the people — and that is why Mary and Joseph traveled to Bethlehem, where Jesus was born."),
+  "mother": ("The Mother in Bethlehem", "Matthew 2:13–15", "A mother uses small coins to buy bread and oil for her family. King Herod made these coins, and they have no face on them, because Jewish law did not allow it. When Jesus was born, an angel told Joseph in a dream to take Mary and the baby to Egypt, where they would be safe."),
+  "priest": ("The Temple Priest", None, "A priest works at the Temple, where people paid a Temple tax each year. The Temple accepted only one coin for it, the shekel of Tyre, because its silver was the purest. The priest held hundreds every day. Ours is a **replica** — a careful copy — because real ones are very rare."),
+}
+
+# Said in the plan and shown on the classroom screen, so written once.
+PRAYER = "Jesus, the widow gave you everything in her hands. Here are my hands. Help me to give with a happy heart — my time, my kindness and my love. Amen."
+
+# What children will be able to do, set up front in the plan and on the
+# cover screen, then asked back in the Look back: (objective, the same as
+# a question, go deeper?).
+OBJECTIVES = {
+  "heading": "By the end of this lesson you will be able to:",
+  "items": [
+    ("match each coin to the person who held it, using picture clues",
+     "match each coin to the hands that held it?", False),
+    ("tell the story of the widow’s two tiny coins, and why Jesus called her gift the biggest",
+     "tell why the widow’s two tiny coins were the biggest gift?", False),
+    ("say how the emperor’s census brought Mary and Joseph to Bethlehem",
+     "say why Mary and Joseph went to Bethlehem?", False),
+    ("speak or write as one of the people, telling what is in your hands",
+     "be one of the people, and tell their story?", True)],
+  "why": "Every coin here was held by someone, two thousand years ago, in the land where Jesus lived. Their stories reach us through hands just like yours."}
+LOOK_BACK = "Can you now…"
+THUMBS = "Show me: thumb up, sideways or down."
+
+# ── on the classroom screen (Lesson mode; build.py ignores "screen") ─────
+# The screen shows each person by their hands, as the Hands of History game
+# does; the full portraits stay on the printed page.
+HANDS = {
+  "widow": (H + "widow-hands-v2.jpg", "center 50%", "Old, cupped hands holding two tiny coins"),
+  "merchant": (H + "merchant-hands-v2.jpg", "center 60%", "Hands counting coins on a market table"),
+  "mother": (H + "mother-hands-v1.jpg", "center 50%", "Open hands holding one small bronze coin"),
+  "priest": (H + "temple-priest-hands-v2.jpg", "center 35%", "Hands lifting a silver coin up to a lamp"),
+}
+COIN_ALT = {
+  "widow": "The Widow’s Mite, a tiny bronze coin",
+  "merchant": "A bronze coin of Augustus Caesar, showing the emperor’s face",
+  "mother": "A small bronze coin of King Herod, with no face on it",
+  "priest": "The Shekel of Tyre, a silver coin; a museum-quality replica",
+}
+
+def screen_person(k, named=True):
+    img, pos, alt = HANDS[k]
+    p = PEOPLE[k]
+    return {"img": img, "pos": pos, "alt": alt, "coin": p["coin"], "coinAlt": COIN_ALT[k],
+            **({"name": p["name"], "label": p["place"]} if named else {})}
+
+PERSON_TASKS = {
+  "widow": ["Look at her hands. What is she doing?", "How many coins did she give?"],
+  "merchant": ["What are his hands doing?", "Whose face is on his coins?"],
+  "mother": ["What will she buy with her coins?", "King Herod’s coin has no face. Why not?"],
+  "priest": ["Where does the priest work?", "Is his coin real, or a careful copy?"],
+}
+PERSON_WHY = {
+  "widow": "Hear the widow’s story: the smallest gift, and the biggest to Jesus.",
+  "merchant": "Connect an emperor’s coin to the census that brought Mary and Joseph to Bethlehem.",
+  "mother": "Meet an everyday coin with no face, and hear how God kept the Holy Family safe.",
+  "priest": "See the Temple’s own coin, and tell a real coin from a careful copy.",
+}
+
+def person_step(k):
+    name, ref, story = CARDS[k]
+    p = PEOPLE[k]
+    return {"phase": "Story time", "minutes": 2, "title": name, "show": "person",
+            "script": ["**Read the card aloud.** " + story],
+            "person": screen_person(k), "coinName": p["coinname"].replace(" (replica)", ""),
+            **({"replica": True} if "(replica)" in p["coinname"] else {}),
+            "story": story, **({"ref": ref} if ref else {}),
+            "purpose": PERSON_WHY[k], "students": PERSON_TASKS[k]}
+
+# the corner game: each coin by its clue, in the handouts' order
+CLUE_COINS = [{"img": PEOPLE[k]["coin"], "name": PEOPLE[k]["clue"], "alt": COIN_ALT[k],
+               **({"replica": True, "feature": False} if "(replica)" in PEOPLE[k]["coinname"] else {})}
+              for k in ["merchant", "widow", "priest", "mother"]]
+
+# the objectives block; styled here, so the handouts print unchanged
+OBJ_CSS = """
+.objectives { background: #f6f1e4; border-left: 3pt solid var(--accent); padding: 8pt 12pt 3pt; margin-bottom: 12pt; }
+.objectives h3 { font-size: 12.5pt; margin-bottom: 5pt; }
+.objectives ol { margin: 0 0 7pt; padding: 0; list-style: none; counter-reset: obj; }
+.objectives li { counter-increment: obj; display: grid; grid-template-columns: 16pt 1fr; margin: 0 0 3.5pt; font-size: 10pt; line-height: 1.4; }
+.objectives li::before { content: counter(obj); font: 600 12.5pt/1.1 'Cormorant Garamond', serif; color: var(--gold-big); }
+.objectives li.deep::before { color: #A8452F; }
+.deeptag { font: 500 6.8pt 'Outfit'; letter-spacing: .18em; text-transform: uppercase; color: #fff; background: #A8452F;
+  padding: 1.5pt 5pt 1pt; border-radius: 99pt; margin-right: 3pt; vertical-align: 1pt; }
+.why { border-top: .6pt solid #d8d0b8; padding-top: 5pt; }
+.why b { font: 500 7pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-text); margin-right: 5pt; }
+/* the plan's sections may run on across a page, so no page ends half empty */
+.sec { break-inside: auto; }
+.sec .label, .sec h3 { break-after: avoid; }
+.sec p { orphans: 2; widows: 2; }
+/* the "Show your class" page starts a page, even when the plan fills the one before to the foot */
+.pb { break-after: auto; break-before: page; }
+"""
+
 # ── custom blocks: portraits and the matching exercise ───────────────────
 
 CSS = """
@@ -107,56 +207,81 @@ def match(coins, persons, clues=True, letters=False):
 # ── the lesson plan ──────────────────────────────────────────────────────
 
 LESSON = {
+  "slug": "whose-hands-held-this", "large": True,
   "out": DIR + "ITH_LP_Grades1_2.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
-  "foot": "Teacher Lesson Plan · Grades 1–2", "hero": HERO, "css": CSS,
+  "foot": "Teacher Lesson Plan · Grades 1–2", "hero": HERO, "css": CSS + OBJ_CSS,
+  "screen_hero": {"img": "/exhibitions/in-their-hands/hands.jpg", "pos": "center 40%"},
   "blocks": [
-    ("timing", [("Hook", 4, "#7D8471"), ("Story time", 10, "#2F4A5A"), ("Activity", 12, "#86671A"), ("Prayer", 4, "#A8452F")]),
-    ("section", {"label": "Learning objective", "title": "What children will understand",
-      "body": ["Children will learn that the coins in the exhibition were really used, two thousand years ago, by people in the land where Jesus lived. They will meet four of those people, match each coin to the hands that held it, and hear how two of the coins belong to stories in the Gospels: the widow who gave everything, and the census that brought Mary and Joseph to Bethlehem."]}),
+    ("timing", [("Hook", 4, "#7D8471"), ("Story time", 10, "#2F4A5A"), ("Activity", 12, "#86671A"), ("Close", 4, "#A8452F")]),
     ("cols", [
-      [("section", {"label": "Standards and themes", "list": [
+      [("objectives", OBJECTIVES)],
+      [("section", {"label": "Learning objective", "title": "What children will understand",
+      "body": ["Children will learn that the coins in the exhibition were really used, two thousand years ago, by people in the land where Jesus lived. They will meet four of those people, match each coin to the hands that held it, and hear how two of the coins belong to stories in the Gospels: the widow who gave everything, and the census that brought Mary and Joseph to Bethlehem."]}),
+       ("section", {"label": "Standards and themes", "list": [
         "**Scripture** — Mark 12:41–44; Luke 2:1–7; Matthew 2:13–15",
         "**Catechism** — CCC 2544: the poor widow who gave all she had to live on",
         "**Social Studies** — people long ago: work, home, market and worship",
-        "**Virtue** — generosity: giving what truly costs us something"]})],
-      [("section", {"label": "Materials needed", "list": [
-        "Page 3 of this plan, projected or printed: the four people and their coins",
-        "A few coins from a pocket or purse",
-        "Four signs for the corners of the room: *Widow, Merchant, Mother, Priest*",
-        "Differentiated handouts, one per child; crayons"]})]]),
+        "**Virtue** — generosity: giving what truly costs us something"]})]]),
+    ("section", {"label": "Materials needed", "list": [
+      "Page 3 of this plan, projected or printed: the four people and their coins",
+      "A few coins from a pocket or purse",
+      "Four signs for the corners of the room: *Widow, Merchant, Mother, Priest*",
+      "Differentiated handouts, one per child; crayons"]}),
     ("section", {"label": "Hook · 4 minutes", "title": "Who held this before you?",
+      "screen": {"phase": "Hook", "show": "people", "people": [screen_person(k, named=False) for k in ORDER],
+                 "purpose": "Wonder who held a coin before us: coins pass from hand to hand.",
+                 "students": ["Pass the coin around the circle.", "Whose hands held it before you?"]},
       "body": ["Pass a coin from your pocket around the circle. *“Before this coin came to me, whose hands held it? A shopkeeper? A bus driver? Someone’s grandma?”* Let children guess. Then: *“Some coins are very, very old. Today we will meet people who held coins two thousand years ago, in the land where Jesus lived.”*"]}),
     ("section", {"label": "Story time · 10 minutes", "title": "Four people, four coins",
+      "screen": [{"phase": "Story time", "minutes": 2, "script": [0], "title": "Four people, four coins", "show": "people",
+                  "people": [screen_person(k) for k in ORDER],
+                  "purpose": "Meet all four people, and guess before hearing each story.",
+                  "students": ["Who do you think this is?", "What is in their hands?"]}]
+                + [person_step(k) for k in ORDER],
       "body": ["Show page 3. Point to each person and ask *“Who do you think this is? What is in their hands?”* Then read their story from the card beneath."]}),
     ("section", {"label": "Activity · 12 minutes", "title": "Find the hands",
-      "body": ["Put a sign in each corner. Show one coin at a time from page 3 and say its clue (*“the smallest coin of all”*). Children walk to the person who held it. In each corner, invite one or two children to step into the story and speak as that person: *“I am the widow. I am giving my two little coins to God.”* Then children choose a handout. All three levels match the same four coins to the same four people."]}),
+      "screen": [
+        {"phase": "Activity", "minutes": 6, "script": [0], "title": "Find the hands", "show": "coins", "coins": CLUE_COINS,
+         "purpose": "Match each coin to its person by moving, then step into the story.",
+         "students": ["Listen to the clue.", "Walk to the person who held that coin.", "Speak as them: *“I am the widow…”*"]},
+        {"phase": "Activity", "minutes": 6, "script": [1], "title": "Choose a handout", "show": "levels",
+         "purpose": "Match the coins on paper, at the right level of challenge.",
+         "students": ["Choose Green, Yellow or Red. All three match the same four coins to the same four people."]}],
+      "body": ["Put a sign in each corner. Show one coin at a time from page 3 and say its clue (*“the smallest coin of all”*). Children walk to the person who held it. In each corner, invite one or two children to step into the story and speak as that person: *“I am the widow. I am giving my two little coins to God.”*",
+               "Then children choose a handout. All three levels match the same four coins to the same four people."]}),
     ("levels", {
       "green": "Draw a line from each coin to the person who held it, using picture clues. Circle how many coins the widow gave, and draw a gift you could give to God.",
       "yellow": "Write the right letter under each coin. Finish four short sentences from a word bank, then say which person you would like to meet, and why.",
       "red": "Match the coins, then choose one person and write two or three sentences as if you were them. Invent the journey of a coin from hand to hand."}),
-    ("section", {"label": "Closing prayer · 4 minutes",
-      "body": ["Ask the children to hold out their open hands. Pray together, a line at a time: *“Jesus, the widow gave you everything in her hands. Here are my hands. Help me to give with a happy heart — my time, my kindness and my love. Amen.”*"]}),
-    ("connection", ["**Visit the exhibition:** the Widow’s Mite, the Shekel of Tyre and Herod’s coin are all in the cases. Play **Hands of History** together: look at the hands and guess whose they are.",
-                    "**Virtual visit:** the game, the coins and their stories are all online."]),
+    ("section", {"label": "Look back and pray · 4 minutes",
+      "screen": [
+        {"phase": "Close", "minutes": 2, "script": [0], "title": "Look back", "show": "review", "lead": LOOK_BACK,
+         "hint": THUMBS,
+         "purpose": "Check what each child can now do against the objectives.",
+         "students": [q for _, q, _ in OBJECTIVES["items"]],
+         "deeper": [k for k, (_, _, deep) in enumerate(OBJECTIVES["items"]) if deep]},
+        {"phase": "Close", "minutes": 2, "script": [1], "title": "Closing prayer", "show": "prayer", "prayer": PRAYER,
+         "purpose": "Give the lesson back to God with open hands.",
+         "students": ["Hold out your open hands, and pray a line at a time."]}],
+      "body": ["Ask the objectives back as questions, from the screen or page 1: *“Can you now…?”* For each one, children show a thumb up, sideways or down. Ask one child to answer each aloud; for the last, ask a Red Level child to speak as their person.",
+               f"Ask the children to hold out their open hands. Pray together, a line at a time: *“{PRAYER}”*"]}),
+    ("cols", [[("connection", ["**Visit the exhibition:** the Widow’s Mite, the Shekel of Tyre and Herod’s coin are all in the cases. Play **Hands of History** together: look at the hands and guess whose they are.",
+                               "**Virtual visit:** the game, the coins and their stories are all online."])],
+              [("section", {"label": "Questions for story time", "list": [
+      "Look at each person’s hands. What are they doing — giving, counting, holding, working?",
+      "Which coin is the smallest? Why do you think the widow’s tiny gift was the biggest to Jesus?",
+      "Herod’s coin has no face on it. Whose face is on our coins? Why did Herod leave the face off?",
+      "If you could ask one of these people a question, what would you ask?"]})]]),
     ("section", {"label": "For the teacher", "title": "Telling the stories at this age",
       "body": [
         "**Bethlehem, gently.** The exhibition sets the mother’s story beside Herod’s order in Matthew 2:16. For six- to eight-year-olds, tell only Matthew 2:13–15: the angel’s warning and the Holy Family’s safe journey to Egypt. If a child already knows that Herod was cruel, it is enough to say that he was a bad king and that God kept Jesus safe.",
         "**The priest’s coin.** The Shekel of Tyre is also the coin that, almost certainly, paid Judas (Matthew 26:15). That story belongs to older grades; here the priest is simply at work in God’s house.",
         "**Real or copy?** The widow’s, the merchant’s and the mother’s coins are genuine. The shekel is a museum-quality replica, because original examples are exceptionally rare. Children like being told which is which.",
         "**The widow and the priest** both stand at the Temple treasury in the exhibition’s stories. Children may notice that the priest could have seen the widow give; let them imagine it, as long as they know it is imagining."]}),
-    ("section", {"label": "Questions for story time", "list": [
-      "Look at each person’s hands. What are they doing — giving, counting, holding, working?",
-      "Which coin is the smallest? Why do you think the widow’s tiny gift was the biggest to Jesus?",
-      "Herod’s coin has no face on it. Whose face is on our coins? Why did Herod leave the face off?",
-      "If you could ask one of these people a question, what would you ask?"]}),
     ("pagebreak", None),
     ("section", {"label": "Show your class", "title": "Whose hands held this?", "body": ["Project or print this page for story time and the corner game. Each coin sits beside the person who held it."]}),
     people(ORDER, big=True),
-    ("cards", [
-      ("The Widow · Mark 12:41–44", "At the Temple, rich people put in large gifts. A poor widow came and put in two tiny coins — all she had. Jesus told his friends she had given more than all the others. Her coin, the lepton, was the smallest coin people used. The exhibition shows **two**, because the Gospel says two."),
-      ("The Merchant · Luke 2:1", "In a busy market, a merchant counts the day’s coins. Many show the face of Augustus Caesar, the emperor in faraway Rome. Augustus ordered a census, a counting of all the people — and that is why Mary and Joseph traveled to Bethlehem, where Jesus was born."),
-      ("The Mother in Bethlehem · Matthew 2:13–15", "A mother uses small coins to buy bread and oil for her family. King Herod made these coins, and they have no face on them, because Jewish law did not allow it. When Jesus was born, an angel told Joseph in a dream to take Mary and the baby to Egypt, where they would be safe."),
-      ("The Temple Priest", "A priest works at the Temple, where people paid a Temple tax each year. The Temple accepted only one coin for it, the shekel of Tyre, because its silver was the purest. The priest held hundreds every day. Ours is a **replica** — a careful copy — because real ones are very rare.")]),
+    ("cards", [(name + (f" · {ref}" if ref else ""), story) for name, ref, story in (CARDS[k] for k in ORDER)]),
   ]}
 
 # ── the handouts ─────────────────────────────────────────────────────────

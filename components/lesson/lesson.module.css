@@ -1257,12 +1257,16 @@
   letter-spacing: 0.06em;
   color: var(--muted);
 }
-.segLabels span {
+.segLabels > span {
   min-width: 0;
   padding-left: 2px;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* a short phase lets its minutes drop under its name, rather than cut it */
+.segLabels b,
+.segMin {
+  white-space: nowrap;
 }
 .segLabels b {
   font-weight: 500;
@@ -1812,8 +1816,12 @@
 .pSteps ol {
   list-style: none;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  /* one row however many steps, so the bar never grows over the script */
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(112px, 1fr);
   gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
 }
 .pSteps button {
   width: 100%;
@@ -1855,6 +1863,22 @@
 }
 .pStepDone {
   color: var(--muted);
+}
+/* many steps: the number sits over the name, so each button stays narrow */
+.pSteps[data-many] button {
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto auto;
+  align-content: start;
+  row-gap: 2px;
+  padding: 8px 10px;
+}
+.pSteps[data-many] .pStepNum {
+  grid-row: auto;
+  font-size: 1.05rem;
+  line-height: 1;
+}
+.pSteps[data-many] .pStepName {
+  font-size: 1rem;
 }
 .pSteps .pStepNow {
   background: rgba(201, 168, 76, 0.12);
@@ -2851,5 +2875,526 @@
   }
   .stage[data-variant='worked'] .nNote {
     top: 0;
+  }
+}
+
+/* ═══════════ picture-led steps, for the youngest classes ═══════════ */
+
+/* pair and people: the head and the task on the left, the pictures right */
+.stage[data-kind='pair'] .content {
+  grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+  grid-template-rows: 1fr auto auto auto 1fr;
+  grid-template-areas: '. visual' 'head visual' 'task visual' 'note visual' '. visual';
+  column-gap: 4.4cqw;
+  row-gap: 3.6cqh;
+  align-content: stretch;
+}
+/* people: the heading and the task side by side, the row of hands below */
+.stage[data-kind='people'] .content {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-rows: auto auto;
+  grid-template-areas: 'head task' 'visual visual';
+  column-gap: 4.4cqw;
+  row-gap: 4cqh;
+}
+.stage[data-kind='people'] .task {
+  align-self: end;
+}
+.pairView,
+.peopleView,
+.personView {
+  display: contents;
+}
+.stage[data-kind='pair'] .head,
+.stage[data-kind='person'] .head {
+  align-self: end;
+}
+.stage[data-kind='pair'] .task,
+.stage[data-kind='people'] .task,
+.stage[data-kind='person'] .task {
+  grid-area: task;
+}
+
+/* two pictures to compare, each with the big label students point to */
+.pair {
+  grid-area: visual;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: center;
+  gap: 2.4cqw;
+  min-height: 0;
+}
+.pairItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  text-align: center;
+}
+.pairFrame {
+  position: relative;
+  width: 100%;
+  height: min(58cqh, 32cqw);
+  border: 1px solid rgba(201, 168, 76, 0.28);
+  border-radius: 4px;
+  overflow: hidden;
+  background: radial-gradient(ellipse 70% 60% at 50% 45%, rgba(201, 168, 76, 0.1), rgba(18, 12, 5, 0.55) 75%);
+}
+.pairImg {
+  position: absolute;
+  inset: 6%;
+}
+.pairImg img {
+  filter: drop-shadow(0 1.4cqw 1.8cqw rgba(0, 0, 0, 0.6));
+}
+.pairCover {
+  box-shadow: 0 2cqw 5cqw rgba(0, 0, 0, 0.55);
+}
+.pairCover .pairImg {
+  inset: 0;
+}
+.pairCover .pairImg img {
+  filter: none;
+}
+.pairStamp {
+  position: absolute;
+  top: 2.2cqh;
+  left: 1.4cqw;
+  padding: 0.7cqh 1.1cqw 0.6cqh;
+  border-radius: 999px;
+  background: var(--gold);
+  box-shadow: 0 0.4cqw 1.2cqw rgba(0, 0, 0, 0.45);
+  font-size: max(13px, 1.05cqw);
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--umber);
+}
+.pairStampRed {
+  background: var(--red-on-dark);
+}
+.pairLabel {
+  margin-top: 2.4cqh !important;
+  font-family: var(--display);
+  font-size: 2.8cqw;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--parchment);
+}
+.pairCaption {
+  margin-top: 1.2cqh !important;
+  font-size: max(12px, 0.85cqw);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.pairNote {
+  grid-area: note;
+}
+.pairNote p {
+  font-size: 1.65cqw;
+}
+.pairNote cite {
+  margin-top: 1.4cqh;
+}
+
+/* people: a row of hands, each with the coin it held */
+.people {
+  grid-area: visual;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 4), minmax(0, 1fr));
+  align-content: center;
+  gap: 1.8cqw;
+  min-height: 0;
+}
+.people li {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.personFrame {
+  position: relative;
+}
+.personImg {
+  position: relative;
+  width: 100%;
+  height: 32cqh;
+  border: 1px solid rgba(201, 168, 76, 0.28);
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 1.6cqw 4cqw rgba(0, 0, 0, 0.5);
+}
+.personImg img {
+  object-fit: cover;
+}
+.personCoin {
+  position: absolute;
+  right: -0.8cqw;
+  bottom: -2.6cqh;
+  width: 30%;
+  aspect-ratio: 1;
+  filter: drop-shadow(0 1cqw 1.2cqw rgba(0, 0, 0, 0.75));
+}
+.personCoin img {
+  object-fit: contain;
+}
+.personLetter {
+  position: absolute;
+  top: 1.6cqh;
+  left: 1cqw;
+  display: grid;
+  place-items: center;
+  width: 3.6cqw;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--parchment);
+  box-shadow: 0 0.4cqw 1.2cqw rgba(0, 0, 0, 0.45);
+  font-family: var(--display);
+  font-size: 2.4cqw;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--ink);
+}
+.personCap {
+  margin-top: 2.4cqh;
+  padding-right: 30%;
+}
+.personPlace {
+  font-size: max(12px, 0.78cqw);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.personName {
+  margin-top: 0.8cqh !important;
+  font-family: var(--display);
+  font-size: 1.9cqw;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--parchment);
+}
+
+/* one person: their hands on the left, their story on a museum label */
+.stage[data-kind='person'] .content {
+  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-rows: 1fr auto auto auto 1fr;
+  grid-template-areas: 'visual .' 'visual head' 'visual body' 'visual task' 'visual .';
+  column-gap: 5.4cqw;
+  row-gap: 3.2cqh;
+  align-content: stretch;
+}
+.personBig {
+  grid-area: visual;
+  align-self: center;
+  margin-right: 2cqw;
+}
+.personBig .personImg {
+  width: auto;
+  height: 60cqh;
+  max-height: none;
+  aspect-ratio: 0.6;
+}
+.personBig .personCoin {
+  width: 46%;
+  right: -3.4cqw;
+  bottom: -3cqh;
+}
+.storyCard {
+  grid-area: body;
+  align-self: start;
+  position: relative;
+  padding: 2.6cqh 2.4cqw 2.6cqh;
+  border-radius: 3px;
+  background: var(--parchment);
+  box-shadow: 0 1.6cqw 4cqw rgba(0, 0, 0, 0.45);
+  color: var(--ink);
+}
+.storyCoin {
+  display: flex;
+  align-items: center;
+  gap: 1.2cqw;
+  margin-top: 0.8cqh !important;
+  font-family: var(--display);
+  font-size: 2.1cqw;
+  font-weight: 500;
+  line-height: 1.1;
+  color: var(--ink);
+}
+.storyStamp {
+  padding: 0.3cqh 0.7cqw;
+  border: 1.5px solid #a8452f;
+  border-radius: 2px;
+  font-family: var(--body);
+  font-size: max(11px, 0.72cqw);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #a8452f;
+  transform: rotate(-3deg);
+}
+.storyText {
+  margin-top: 1.8cqh !important;
+  padding-top: 1.6cqh !important;
+  border-top: 1px solid rgba(139, 125, 107, 0.3);
+  font-family: var(--display);
+  font-size: 1.5cqw;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.storyText strong {
+  font-weight: 700;
+}
+
+/* many coins: the task over them, the coins in a row across the frame */
+/* the heading and the task side by side, the coins in a row below */
+.stage[data-many] .content {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas: 'head task' 'visual visual';
+  column-gap: 4.4cqw;
+  row-gap: 7cqh;
+}
+.stage[data-many] .qWrap {
+  display: contents;
+}
+.stage[data-many] .hookTask {
+  grid-area: task;
+  align-self: end;
+}
+.stage[data-many] .coinTrio {
+  grid-area: visual;
+}
+.stage[data-many] .hookTask .taskKicker {
+  margin-bottom: 2.2cqh;
+}
+.stage[data-many] .questions {
+  gap: 1.4cqh;
+}
+.stage[data-many] .questions li {
+  font-size: 2.2cqw;
+}
+.questionOne {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 2.6cqw;
+  line-height: 1.2;
+  color: var(--parchment);
+}
+.stage[data-many] .coinTrio {
+  grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+  gap: 2.4cqw;
+  margin-right: 0 !important;
+}
+.stage[data-many] .trioSlot {
+  height: min(11cqw, 23cqh);
+  margin-bottom: 2.2cqh;
+}
+.stage[data-many] .trioImg {
+  width: min(9.5cqw, 20cqh);
+}
+.stage[data-many] .coinFeature .trioImg {
+  width: min(11cqw, 23cqh);
+}
+.stage[data-many] .trioName {
+  font-size: 1.7cqw;
+  line-height: 1.15;
+}
+
+/* the look back: how to answer, said on the screen */
+.reviewHint {
+  font-size: max(14px, 1.25cqw);
+  letter-spacing: 0.04em;
+  color: #d9cfb8;
+}
+
+/* the youngest classes: larger type for the working lines */
+.stage[data-large] .taskList li,
+.stage[data-large] .taskOne {
+  font-size: 2.5cqw;
+}
+.stage[data-large] .taskList li {
+  grid-template-columns: 3cqw 1fr;
+}
+.stage[data-large] .taskList li::before {
+  font-size: 1.8cqw;
+}
+.stage[data-large] .taskCenter .taskOne {
+  font-size: 1.9cqw;
+}
+.stage[data-large] .reviewLead {
+  font-size: 3.4cqw;
+}
+.stage[data-large] .reviewView {
+  max-width: none;
+}
+.stage[data-large] .reviewList li {
+  font-size: 3cqw;
+}
+.stage[data-large] .objHeading {
+  font-size: 2.1cqw;
+}
+.stage[data-large] .objList li {
+  padding: 1.5cqh 0;
+  font-size: 1.75cqw;
+}
+.stage[data-large] .whyText {
+  font-size: 2cqw;
+}
+.stage[data-large] .prayer {
+  font-size: 3.1cqw;
+}
+.stage[data-large][data-kind='painting'] .verseCard p {
+  font-size: 1.75cqw;
+}
+
+/* two coins: set large, to count */
+.stage[data-few] .trioSlot {
+  height: min(19cqw, 38cqh);
+}
+.stage[data-few] .trioImg {
+  width: min(17cqw, 34cqh);
+}
+.stage[data-few] .trioName {
+  font-size: 2.6cqw;
+}
+/* a long passage beside a painting sets smaller, so the task still fits */
+.stage[data-kind='painting'] .verseCard.verseLong p {
+  font-size: 1.4cqw;
+  line-height: 1.38;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .stage[data-kind='pair'] .content,
+  .stage[data-kind='people'] .content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas: 'head' 'visual' 'task' 'note';
+    row-gap: 20px;
+  }
+  .questionOne {
+    font-size: 1.5rem;
+  }
+  .stage[data-kind='person'] .content {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+    grid-template-areas: 'head' 'visual' 'body' 'task';
+    row-gap: 20px;
+  }
+  .pair {
+    gap: 12px;
+  }
+  .pairFrame {
+    height: 44vw;
+  }
+  .pairLabel {
+    font-size: 1.4rem;
+  }
+  .pairStamp {
+    font-size: 11px;
+  }
+  .pairNote p {
+    font-size: 1.1rem;
+  }
+  .people {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .personImg {
+    height: 52vw;
+  }
+  .personLetter {
+    width: 36px;
+    font-size: 1.3rem;
+  }
+  .personName {
+    font-size: 1.1rem;
+  }
+  .personBig {
+    justify-self: center;
+    margin-right: 0;
+  }
+  .personBig .personImg {
+    height: auto;
+    width: min(62vw, 340px);
+  }
+  .personBig .personCoin {
+    right: -16px;
+  }
+  .storyCard {
+    padding: 18px 18px 16px;
+  }
+  .storyCoin {
+    font-size: 1.3rem;
+  }
+  .storyText {
+    font-size: 1.05rem;
+  }
+  .stage[data-many] .content {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'head' 'task' 'visual';
+    row-gap: 20px;
+  }
+  .stage[data-many] .coinTrio {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 16px;
+  }
+  .stage[data-many] .trioImg,
+  .stage[data-many] .coinFeature .trioImg {
+    width: 22vw;
+  }
+  .stage[data-many] .trioSlot {
+    height: 24vw;
+  }
+  .stage[data-many] .trioName {
+    font-size: 1rem;
+  }
+  .stage[data-many] .questions li {
+    font-size: 1.5rem;
+  }
+  .reviewHint {
+    font-size: 1rem;
+  }
+  .stage[data-few] .trioImg {
+    width: 34vw;
+  }
+  .stage[data-few] .trioSlot {
+    height: 36vw;
+  }
+  .stage[data-few] .trioName {
+    font-size: 1.3rem;
+  }
+  .stage[data-large] .taskList li,
+  .stage[data-large] .taskOne {
+    font-size: 1.4rem;
+  }
+  .stage[data-large] .taskList li {
+    grid-template-columns: 1.8rem 1fr;
+  }
+  .stage[data-large] .taskList li::before {
+    font-size: 1.1rem;
+  }
+  .stage[data-large] .taskCenter .taskOne {
+    font-size: 1.15rem;
+  }
+  .stage[data-large] .reviewLead {
+    font-size: 1.7rem;
+  }
+  .stage[data-large] .reviewList li {
+    font-size: 1.5rem;
+  }
+  .stage[data-large] .objHeading {
+    font-size: 1.35rem;
+  }
+  .stage[data-large] .objList li,
+  .stage[data-large] .whyText {
+    font-size: 1.15rem;
+  }
+  .stage[data-large] .prayer {
+    font-size: 1.6rem;
+  }
+  .stage[data-large][data-kind='painting'] .verseCard p {
+    font-size: 1.2rem;
   }
 }

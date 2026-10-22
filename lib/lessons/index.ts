@@ -1,4 +1,7 @@
 import type { Lesson } from './types';
+import twoTinyCoins from './in-their-hands/two-tiny-coins.json';
+import whoseHands from './in-their-hands/whose-hands-held-this.json';
+import coinDetectives from './in-their-hands/coin-detectives.json';
 import whoseImage from './in-their-hands/whose-image-is-this.json';
 import whoRuledJudaea from './in-their-hands/who-ruled-judaea.json';
 import numbersInTheCoins from './in-their-hands/the-numbers-in-the-coins.json';
@@ -14,6 +17,9 @@ export type { Lesson, Step, Screen, Phase, Handout } from './types';
  */
 export const LESSONS: Record<string, Lesson[]> = {
   'in-their-hands': [
+    twoTinyCoins as Lesson,
+    whoseHands as Lesson,
+    coinDetectives as Lesson,
     whoseImage as Lesson,
     whoRuledJudaea as Lesson,
     numbersInTheCoins as Lesson,

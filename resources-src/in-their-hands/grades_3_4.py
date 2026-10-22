@@ -81,61 +81,173 @@ PILATE = {"img": C + "pilate-front.png", "label": "Case 7 · Ministry and Passio
           "facts": [("Coin", "Bronze prutah, genuine"), ("Date", "29/30 AD"), ("Reference", "Hendin 6370"), ("Scripture", "Matthew 27:24")],
           "body": ["Pilate was the Roman prefect of Judaea from 26 to 36 AD. This coin was minted in the year of the Passion. One side shows a simpulum, a Roman ladle used in pagan worship; the other shows three ears of grain tied together. For decades some scholars questioned whether Pilate was real. In 1961 a stone carved with his name and title was found at Caesarea Maritima. This coin existed before that discovery. It was evidence all along."]}
 
+# Said in the plan and shown on the classroom screen, so written once.
+CLUE = "If a lepton looks perfect, be suspicious. The imperfection is the proof of authenticity."
+ANSWER_WIDOW = "**Coin B.** A real lepton is crude, off-center and irregular; the fake is too clean and symmetrical, its patina applied by chemicals."
+
+# What students will be able to do, set up front in the plan and on the
+# cover screen, then asked back in the Look back: (objective, the same as
+# a question, go deeper?).
+OBJECTIVES = {
+  "heading": "By the end of this lesson you will be able to:",
+  "items": [
+    ("read an ancient coin as evidence: who made it, when, and what it helps show",
+     "read a coin as evidence?", False),
+    ("use the clues experts use to tell a genuine coin from a fake",
+     "use an expert’s clues to spot a fake?", False),
+    ("put the coins of the New Testament in time order",
+     "put the Gospel’s coins in order?", False),
+    ("explain why a genuine coin is stronger evidence for the Gospel than a replica",
+     "explain why a genuine coin is stronger evidence than a replica?", True)],
+  "why": "A coin made by a real ruler, in a real year, is a witness. It helps show that the Gospel happened in real places, among real people."}
+LOOK_BACK = "Can you now…"
+THUMBS = "Show me: thumb up, sideways or down."
+# the plan's last section, one paragraph in print, two steps on screen
+LINE_UP_P = "Give five students the coins on page 3: Augustus, the Widow’s Mite, Pilate, Agrippa and Festus. The class arranges them in Gospel order, from the census at Jesus’ birth to Paul’s appeal to Caesar."
+LOOK_BACK_P = "Then ask the objectives back, from the screen or page 1: *“Can you now…?”* Students show a thumb up, sideways or down. Exit question: *“Name one coin and tell me what it is evidence for.”*"
+
+# ── on the classroom screen (Lesson mode; build.py ignores "screen") ─────
+
+def screen_pair(key, stamps=False):
+    """the Real or Replica? pair as the handouts set it: A and B, no answer
+       until stamps=True."""
+    name, a, b = PAIRS[key]
+    fake_b = key != "deka"
+    def item(img, label, fake):
+        return {"img": img, "label": label,
+                "alt": f"{label}: a {name.split(' · ')[0].lower()}, both sides" if not stamps else
+                       f"{label}: {'the fake' if fake else 'the genuine coin'}, both sides",
+                **({"stamp": "Fake" if fake else "Genuine", "stampTone": "red" if fake else "gold"} if stamps else {})}
+    return [item(a, "Coin A", not fake_b), item(b, "Coin B", fake_b)]
+
+def screen_coin(k, name=None, sub=None, alt=None, **kw):
+    img = TL[k][0] if k in TL else C + f"{k}-front.png"
+    return {"img": img, "name": name or TL[k][1], **({"sub": sub} if sub else {}), "alt": alt or name or TL[k][1], **kw}
+
+STRUCK = [screen_coin("widow", "Widow’s Mite", "Genuine", "The Widow’s Mite, a small, worn bronze coin"),
+          screen_coin("pilate", "Pontius Pilate", "Genuine", "The coin of Pontius Pilate: a ladle, the simpulum", feature=True),
+          screen_coin("agrippa", "Herod Agrippa I", "Genuine", "A bronze coin of Herod Agrippa I")]
+WITNESSES = [screen_coin("tribute", "Tiberius", "The Tribute Penny", "The Tribute Penny, a silver denarius of the emperor Tiberius; a replica",
+                         replica=True, feature=False),
+             screen_coin("pilate", "Pontius Pilate", "Genuine", "The coin of Pontius Pilate: a ladle, the simpulum", feature=True),
+             screen_coin("antipas", "Herod Antipas", "Tetrarch of Galilee", "A coin of Herod Antipas; a replica",
+                         replica=True, feature=False)]
+# the human timeline, shuffled: the class puts them in Gospel order
+LINE_UP = [screen_coin(k, sub=TL[k][3].split(" · ")[0], alt=f"The coin of {TL[k][1]}" if k != "widow" else "The Widow’s Mite")
+           for k in ["festus", "widow", "augustus", "agrippa", "pilate"]]
+GOSPEL_ORDER = ", ".join(TL[k][1] for k in ["augustus", "widow", "pilate", "agrippa", "festus"])
+
+# the objectives block; styled here, so the handouts print unchanged
+OBJ_CSS = """
+.objectives { background: #f6f1e4; border-left: 3pt solid var(--accent); padding: 8pt 12pt 3pt; margin-bottom: 12pt; }
+.objectives h3 { font-size: 12.5pt; margin-bottom: 5pt; }
+.objectives ol { margin: 0 0 7pt; padding: 0; list-style: none; counter-reset: obj; }
+.objectives li { counter-increment: obj; display: grid; grid-template-columns: 16pt 1fr; margin: 0 0 3.5pt; font-size: 10pt; line-height: 1.4; }
+.objectives li::before { content: counter(obj); font: 600 12.5pt/1.1 'Cormorant Garamond', serif; color: var(--gold-big); }
+.objectives li.deep::before { color: #A8452F; }
+.deeptag { font: 500 6.8pt 'Outfit'; letter-spacing: .18em; text-transform: uppercase; color: #fff; background: #A8452F;
+  padding: 1.5pt 5pt 1pt; border-radius: 99pt; margin-right: 3pt; vertical-align: 1pt; }
+.why { border-top: .6pt solid #d8d0b8; padding-top: 5pt; }
+.why b { font: 500 7pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-text); margin-right: 5pt; }
+/* the plan's sections may run on across a page, so no page ends half empty */
+.sec { break-inside: auto; }
+.sec .label, .sec h3 { break-after: avoid; }
+.sec p { orphans: 2; widows: 2; }
+/* the background and answer keys, for reference, set a size smaller */
+.cols:has(.conn) { font-size: 9pt; }
+/* the "Show your class" page starts a page, even when the plan fills the one before to the foot */
+.pb { break-after: auto; break-before: page; }
+"""
+
 # ── lesson plan ────────────────────────────────────────────────────────
 
 LESSON = {
+  "slug": "coin-detectives", "large": True,
   "out": DIR + "ITH_LP_Grades3_4.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
   "foot": "Teacher Lesson Plan · Grades 3–4", "hero": HERO_LP,
-  "css": CSS + ".grow img { width: 54pt; height: 54pt; } .gallery { padding-top: 9pt; margin-bottom: 10pt; } .specimen { margin-bottom: 6pt; }",
+  "css": CSS + OBJ_CSS + ".grow img { width: 54pt; height: 54pt; } .gallery { padding-top: 9pt; margin-bottom: 10pt; } .specimen { margin-bottom: 6pt; }",
   "blocks": [
-    ("timing", [("Hook", 5, "#7D8471"), ("Teach", 10, "#2F4A5A"), ("Detective work", 20, "#86671A"), ("Line up", 5, "#A8452F")]),
-    ("section", {"label": "Learning objective", "title": "What students will understand",
-      "body": ["Students will read an ancient coin as a piece of evidence. They will use the clues experts use to tell a genuine coin from a fake, put the coins of the New Testament in time order, and explain how a coin made by a real ruler, in a real year, helps show that the Gospel happened in real places among real people."]}),
-    ("section", {"label": "Standards and themes", "list": [
-      "**Social Studies** — artifacts as primary sources; chronology and BC/AD dates",
-      "**Science and ELA** — close observation with a hand lens; stating a claim and backing it with evidence",
-      "**Religion** — Luke 2:1 and Luke 3:1, where the Gospel names the rulers of its day; CCC 423 (Jesus born in Bethlehem in the time of Herod the Great and Caesar Augustus) and CCC 126 (the Church affirms that the Gospels are historical)"]}),
-    ("cols", [
-      [("section", {"label": "Materials needed", "list": [
-        "*Real or Replica?* projected",
-        "Magnifying glasses, if you have them",
-        "A modern coin; page 3 of this plan",
-        "Differentiated handouts, one per student"]})],
-      [("section", {"label": "Words for detectives"}),
+    ("timing", [("Hook", 5, "#7D8471"), ("Teach", 10, "#2F4A5A"), ("Detective work", 20, "#86671A"), ("Close", 5, "#A8452F")]),
+    ("cols", [[("objectives", OBJECTIVES),
+               ("section", {"label": "Words for detectives"}),
        ("refs", [
         ("Genuine", "really made in ancient times"),
         ("Replica", "an honest copy, labeled as a copy"),
         ("Fake", "a copy made to fool people"),
         ("Struck", "stamped between two dies"),
         ("Patina", "the color old metal gains over time"),
-        ("Evidence", "a clue that helps show what is true")])]]),
+        ("Evidence", "a clue that helps show what is true")])],
+              [("section", {"label": "Learning objective", "title": "What students will understand",
+      "body": ["Students will read an ancient coin as a piece of evidence. They will use the clues experts use to tell a genuine coin from a fake, put the coins of the New Testament in time order, and explain how a coin made by a real ruler, in a real year, helps show that the Gospel happened in real places among real people."]}),
+               ("section", {"label": "Standards and themes", "list": [
+      "**Social Studies** — artifacts as primary sources; chronology and BC/AD dates",
+      "**Science and ELA** — close observation with a hand lens; stating a claim and backing it with evidence",
+      "**Religion** — Luke 2:1 and Luke 3:1, where the Gospel names the rulers of its day; CCC 423 (Jesus born in Bethlehem in the time of Herod the Great and Caesar Augustus) and CCC 126 (the Church affirms that the Gospels are historical)"]}),
+               ("section", {"label": "Materials needed", "list": [
+        "*Real or Replica?* projected",
+        "Magnifying glasses, if you have them",
+        "A modern coin; page 3 of this plan",
+        "Differentiated handouts, one per student"]})]]),
     ("section", {"label": "Hook · 5 minutes", "title": "How do you know it’s real?",
+      "screen": {"phase": "Hook", "show": "coin", "coin": PILATE, "back": C + "pilate-back.png",
+                 "alt": "The coin of Pontius Pilate, a bronze prutah: a ladle, the simpulum",
+                 "backAlt": "The other side of Pilate’s coin: three ears of grain tied together",
+                 "purpose": "Start from what students already know about telling a real coin from a toy, then hand them the expert’s job.",
+                 "students": ["How do you know a coin is real, and not a toy?", "Pilate had this coin made. What clues can you see?"]},
       "body": ["Hold up a modern coin. *“How do you know this coin is real and not a toy?”* Take answers: the weight, the shine, the words, where it came from. Then show the coin of Pontius Pilate on page 3. *“The man who put Jesus on trial had this coin made. An expert says it is real. Today you are the expert.”*"]}),
-    ("connection", ["**Online,** *Real or Replica?* gives five rounds, each with how the fake was made, and the **Gospel Timeline** sets the eleven coins in order. **In the exhibition,** find Pilate’s coin in Case 7 and look for the ladle and the grain."]),
     ("section", {"label": "Direct instruction · 10 minutes", "title": "Struck, cast and copied",
+      "screen": [
+        {"phase": "Teach", "minutes": 3, "script": [0], "title": "Struck by hand", "show": "coins", "coins": STRUCK,
+         "purpose": "Know what a genuine ancient coin looks like, so a fake can stand out.",
+         "students": ["Look for crisp, sharp detail.", "Is each design in the middle of its coin?"]},
+        {"phase": "Teach", "minutes": 2, "script": [1], "title": "Real or fake?", "show": "pair", "items": screen_pair("widow"),
+         "purpose": "Use the clues as a detective would, before the answer is given.",
+         "students": ["One is a real widow’s mite. One is a modern fake.", "Which is the fake? Vote: Coin A or Coin B."]},
+        {"phase": "Teach", "minutes": 2, "script": ["**The answer:** " + ANSWER_WIDOW], "title": "The proof", "show": "pair",
+         "items": screen_pair("widow", stamps=True), "note": {"text": CLUE, "ref": "Real or Replica? · The widow’s mite"},
+         "purpose": "Name the clue that proves it: the real coin is crude; the fake is too perfect.",
+         "students": ["Which clue gave the fake away?"]},
+        {"phase": "Teach", "minutes": 3, "script": [2], "title": "Witnesses", "show": "coins", "coins": WITNESSES,
+         "purpose": "See why a genuine coin matters: a witness from the same years as the Gospel.",
+         "students": ["Luke 3:1 names three rulers. Here are their coins.", "Only one is genuine. Why does that matter?"]}],
       "body": [
         "**How ancient coins were made.** A blank of metal was struck between two engraved dies, by hand, one at a time. Striking leaves crisp, sharp detail — and everyday coins were often struck crude and off-center.",
-        "**How fakes are made.** Some are *cast*: molten metal is poured into a mold made from a real coin, which leaves soft detail, tiny bubbles or a grainy surface. Some are struck from *false dies*, copied by hand. Some are given fake age with a tumbler or sandpaper, or a patina painted on chemically. Play the widow’s mite round of *Real or Replica?* together and read its clue aloud: *“If a lepton looks perfect, be suspicious. The imperfection is the proof of authenticity.”*",
+        "**How fakes are made.** Some are *cast*: molten metal is poured into a mold made from a real coin, which leaves soft detail, tiny bubbles or a grainy surface. Some are struck from *false dies*, copied by hand. Some are given fake age with a tumbler or sandpaper, or a patina painted on chemically. Play the widow’s mite round of *Real or Replica?* together and read its clue aloud: *“" + CLUE + "”*",
         "**Why it matters.** Read Luke 3:1 aloud: Luke dates the start of John the Baptist’s preaching by naming Tiberius, Pontius Pilate and Herod, tetrarch of Galilee. The exhibition holds coins of all three: Pilate’s is genuine, and the coins of Tiberius and Herod Antipas are museum-quality replicas. A genuine coin is a witness from the same years as the Gospel."]}),
-    ("section", {"label": "Detective work · 20 minutes", "body": ["Students choose a handout. All three levels compare real and fake coins and put coins of the Gospel in order."]}),
+    ("section", {"label": "Detective work · 20 minutes",
+      "screen": {"phase": "Detective work", "show": "levels", "title": "Choose a handout",
+                 "purpose": "Practice the detective’s skills independently, at the right level of challenge.",
+                 "students": ["Choose Green, Yellow or Red. All three compare real and fake coins, and put coins of the Gospel in order."]},
+      "body": ["Students choose a handout. All three levels compare real and fake coins and put coins of the Gospel in order."]}),
     ("levels", {
       "green": "Spot the difference between a real and a fake widow’s mite using a checklist of clues. Read Pilate’s coin as evidence. Number four coins in story order, with pictures and dates.",
       "yellow": "Find the fake in two pairs and explain the clues in a table. Tell struck from cast. Order five coins by date, then explain why Pilate’s coin is evidence for the Gospel.",
       "red": "Weigh strong and weak evidence on the hardest kind of fake. Explain why it matters that three exhibition coins are replicas. Order five coins and explain the one that breaks the pattern."}),
-    ("section", {"label": "Line up · 5 minutes", "title": "A human timeline",
-      "body": ["Give five students the coins on page 3: Augustus, the Widow’s Mite, Pilate, Agrippa and Festus. The class arranges them in Gospel order, from the census at Jesus’ birth to Paul’s appeal to Caesar. Exit question: *“Name one coin and tell me what it is evidence for.”*"]}),
+    ("section", {"label": "Line up and look back · 5 minutes", "title": "A human timeline",
+      "screen": [
+        {"phase": "Close", "minutes": 3, "script": [LINE_UP_P, f"**Gospel order:** {GOSPEL_ORDER}."], "title": "A human timeline",
+         "show": "coins", "coins": LINE_UP,
+         "purpose": "Put the coins in time order by putting the stories in order.",
+         "students": ["Put the five coins in Gospel order, from Jesus’ birth to Paul’s appeal to Caesar."]},
+        {"phase": "Close", "minutes": 2, "script": [LOOK_BACK_P], "title": "Look back", "show": "review", "lead": LOOK_BACK,
+         "hint": THUMBS,
+         "purpose": "Check what each student can now do against the objectives.",
+         "students": [q for _, q, _ in OBJECTIVES["items"]],
+         "deeper": [k for k, (_, _, deep) in enumerate(OBJECTIVES["items"]) if deep]}],
+      "body": [LINE_UP_P + " " + LOOK_BACK_P]}),
     ("cols", [
       [("section", {"label": "Background · replicas in the exhibition", "body": [
         "Eight coins are genuine. Three — the Tribute Penny, the Shekel of Tyre and the coin of Herod Antipas — are museum-quality replicas, because originals are exceptionally rare. Each is labeled as a replica. A replica tells the truth about itself; a fake is made to fool. The Festus coin has been independently authenticated by NGC, a professional coin grading service."]}),
+       ("connection", ["**Online,** *Real or Replica?* gives five rounds, each with how the fake was made, and the **Gospel Timeline** sets the eleven coins in order. **In the exhibition,** find Pilate’s coin in Case 7 and look for the ladle and the grain."])],
+      [("section", {"label": "Answer key · the fakes and their clues", "list": [
+        "**Widow’s mite** (Green): " + ANSWER_WIDOW,
+        "**Dekadrachm** (Yellow): **Coin A**, a cast fake. Its owl’s feathers are softer and blurred; its surface is unnaturally uniform.",
+        "**Lysimachus** (Yellow): **Coin B**, sand cast. Grainy surface, mushy curls, a different edge.",
+        "**Greek drachm** (Red): **Coin B**, a die transfer. Flatter, grayer, less sharp, the wrong metal. Experts compare known genuine coins, and sometimes use X-rays."]}),
        ("section", {"label": "Answer key · the orders", "list": [
         "**Green:** Augustus, Pilate, Agrippa, Festus",
         "**Yellow:** Augustus, Shekel of Tyre, Pilate, Agrippa, Festus",
-        "**Red, by date made:** Widow’s Mite, Augustus, Pilate, Agrippa, Festus. The mite was made long before, but was still being spent in Jesus’ day."]})],
-      [("section", {"label": "Answer key · the fakes and their clues", "list": [
-        "**Widow’s mite** (Green): **Coin B.** A real lepton is crude, off-center and irregular; the fake is too clean and symmetrical, its patina applied by chemicals.",
-        "**Dekadrachm** (Yellow): **Coin A**, a cast fake. Its owl’s feathers are softer and blurred; its surface is unnaturally uniform.",
-        "**Lysimachus** (Yellow): **Coin B**, sand cast. Grainy surface, mushy curls, a different edge.",
-        "**Greek drachm** (Red): **Coin B**, a die transfer. Flatter, grayer, less sharp, the wrong metal. Experts compare known genuine coins, and sometimes use X-rays."]})]]),
+        "**Red, by date made:** Widow’s Mite, Augustus, Pilate, Agrippa, Festus. The mite was made long before, but was still being spent in Jesus’ day."]})]]),
     ("pagebreak", None),
     ("section", {"label": "Show your class", "title": "The Gospel in coins, in order", "body": ["The eleven coins of the Gospel Timeline, from Jesus’ birth to Paul’s journey to Rome. Use it for the hook and the line-up."]}),
     ("gallery", [
