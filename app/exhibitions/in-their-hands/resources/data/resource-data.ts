@@ -69,6 +69,9 @@ export const SUBJECT_HANDOUTS: Record<string, Record<string, string>> = {
 // '<grade>/<subject>'. The slug is a lesson in lib/lessons.
 export const ON_SCREEN_LESSONS: Record<string, string> = {
   'grades-5-8/religion': 'whose-image-is-this',
+  'grades-5-8/social-studies': 'who-ruled-judaea',
+  'grades-5-8/math': 'the-numbers-in-the-coins',
+  'grades-5-8/art': 'small-works-of-power',
 };
 
 // Librarian file mappings

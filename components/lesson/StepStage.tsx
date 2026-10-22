@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import type { ReactNode } from 'react';
-import type { Lesson, Objectives, Step } from '@/lib/lessons/types';
+import type { GalleryGroup, Lesson, NumberLine, Objectives, Step, WorkedExample } from '@/lib/lessons/types';
 import {
   type Session,
   clock,
@@ -49,10 +49,12 @@ export function StepStage({ lesson, session, now, minutes, mini, controls, cover
   else if (finished) content = <Finish lesson={lesson} mini={mini} />;
   else content = <Cover lesson={lesson} mini={mini} actions={coverActions} />;
 
+  // a number line with a worked example lays out in three rows
+  const variant = step?.screen.kind === 'numberline' && step.screen.worked ? 'worked' : undefined;
   const bg = step?.screen.kind === 'painting' ? step.screen.img.img : !step && !finished ? lesson.hero?.img : undefined;
 
   return (
-    <div className={`${styles.stage} ${mini ? styles.stageMini : ''}`} data-kind={step?.screen.kind ?? (finished ? 'finish' : 'cover')}>
+    <div className={`${styles.stage} ${mini ? styles.stageMini : ''}`} data-kind={step?.screen.kind ?? (finished ? 'finish' : 'cover')} data-variant={variant}>
       {bg && (
         <div className={styles.stageBg} aria-hidden="true">
           <Image src={bg} alt="" fill sizes={mini ? '30vw' : '100vw'} style={{ objectPosition: lesson.hero?.pos ?? 'center' }} priority={!mini} />
@@ -194,9 +196,9 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
               ))}
             </ol>
           </section>
-          <ul className={styles.coinTrio}>
+          <ul className={styles.coinTrio} style={{ ['--n' as string]: s.coins.length }}>
             {s.coins.map((c) => (
-              <li key={c.img} className={c.replica ? styles.coinFeature : undefined}>
+              <li key={c.img} className={(c.feature ?? c.replica) ? styles.coinFeature : undefined}>
                 <div className={styles.trioSlot}>
                   <div className={styles.trioImg}>
                     <Image src={c.img} alt={mini ? '' : c.alt} fill sizes="20vw" />
@@ -233,11 +235,14 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
       const qs = s.question.split(/(?<=\?)\s+/);
       return (
         <div className={styles.qWrap}>
-          <ol className={styles.questions}>
-            {qs.map((q) => (
-              <li key={q}>{q}</li>
-            ))}
-          </ol>
+          <div className={styles.qMain}>
+            <ol className={`${styles.questions} ${qs.length === 1 ? styles.questionsOne : ''}`}>
+              {qs.map((q) => (
+                <li key={q}>{q}</li>
+              ))}
+            </ol>
+            {task}
+          </div>
           <div className={styles.coinRings} aria-hidden="true">
             <span />
             <span />
@@ -251,7 +256,7 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
         <div className={styles.painting}>
           <figure className={styles.frame}>
             <div className={styles.frameImg}>
-              <Image src={s.img.img} alt={mini ? '' : 'Jesus and his questioners over the tribute coin, painted by James Tissot'} fill sizes="40vw" style={{ objectPosition: 'center 30%' }} />
+              <Image src={s.img.img} alt={mini ? '' : (s.alt ?? 'Jesus and his questioners over the tribute coin, painted by James Tissot')} fill sizes="40vw" style={{ objectPosition: 'center 30%' }} />
             </div>
             {s.img.credit && <figcaption>{s.img.credit}</figcaption>}
           </figure>
@@ -348,6 +353,95 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
           </ul>
         </div>
       );
+    case 'chart':
+      return (
+        <div className={styles.wideView}>
+          {task}
+          <div className={styles.chartCard} tabIndex={mini ? undefined : 0} role={mini ? undefined : 'region'} aria-label={mini ? undefined : s.caption}>
+            <table className={styles.chart}>
+              <caption className={styles.srOnly}>{s.caption}</caption>
+              <thead>
+                <tr>
+                  <td className={styles.chartThumb} />
+                  {s.columns.map((c) => (
+                    <th key={c} scope="col">
+                      {c}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {s.rows.map((r) => (
+                  <tr key={r.cells[0]}>
+                    <td className={styles.chartThumb}>
+                      {r.img && (
+                        <span className={styles.chartImg}>
+                          <Image src={r.img} alt="" fill sizes="5vw" />
+                        </span>
+                      )}
+                    </td>
+                    {r.cells.map((c, k) =>
+                      k === 0 ? (
+                        <th key={k} scope="row">
+                          <Inline text={c} />
+                          {r.replica && <span className={styles.chartStamp}>Replica</span>}
+                        </th>
+                      ) : (
+                        <td key={k}>
+                          <Inline text={c} />
+                        </td>
+                      ),
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    case 'gallery':
+      return (
+        <div className={styles.wideView}>
+          {task}
+          <Gallery groups={s.groups} mini={mini} />
+        </div>
+      );
+    case 'numberline':
+      // with a worked example: the rule beside the heading, the line across,
+      // then the example and the task side by side
+      return (
+        <div className={styles.wideView}>
+          {task}
+          <Line line={s.line} mini={mini} />
+          {s.rule && (
+            <p className={styles.lineRule}>
+              <span className={styles.ruleKicker}>The rule</span>
+              {/* a line break in the rule starts a new line on screen */}
+              {s.rule.split('\n').map((line) => (
+                <span key={line} className={styles.ruleText}>
+                  <Inline text={line} />
+                </span>
+              ))}
+            </p>
+          )}
+          {s.worked && (
+            <div className={styles.lineWorked}>
+              <Worked ex={s.worked} mini={mini} />
+            </div>
+          )}
+        </div>
+      );
+    case 'worked':
+      return (
+        <div className={styles.wideView}>
+          {task}
+          <div className={styles.workedRow} style={{ ['--n' as string]: s.examples.length }}>
+            {s.examples.map((ex) => (
+              <Worked key={ex.title} ex={ex} mini={mini} />
+            ))}
+          </div>
+        </div>
+      );
     case 'prayer':
       return (
         <div className={styles.prayerView}>
@@ -358,6 +452,111 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
         </div>
       );
   }
+}
+
+/** Labelled pictures in groups, side by side. */
+function Gallery({ groups, mini }: { groups: GalleryGroup[]; mini?: boolean }) {
+  const H = mini ? 'p' : 'h2';
+  const count = groups.reduce((a, g) => a + g.items.length, 0);
+  // fewer pictures, larger pictures
+  const size = count <= 2 ? 'galleryLarge' : count <= 4 ? 'galleryMid' : 'gallerySmall';
+  return (
+    <div className={`${styles.gallery} ${styles[size]}`} style={{ ['--n' as string]: groups.length }}>
+      {groups.map((g) => (
+        <section key={g.label} className={styles.galleryGroup}>
+          <H className={styles.galleryLabel}>
+            <Inline text={g.label} />
+          </H>
+          {g.text && (
+            <p className={styles.galleryText}>
+              <Inline text={g.text} />
+            </p>
+          )}
+          <ul className={styles.galleryItems}>
+            {g.items.map((it) => (
+              <li key={it.img + it.caption}>
+                <div className={styles.gallerySlot}>
+                  <div className={styles.galleryImg} style={it.aspect ? { aspectRatio: String(it.aspect), ['--w' as string]: it.aspect } : undefined}>
+                    <Image src={it.img} alt={mini ? '' : it.alt} fill sizes="25vw" />
+                  </div>
+                </div>
+                <p className={styles.galleryCap}>
+                  <Inline text={it.caption} />
+                </p>
+                {it.sub && (
+                  <p className={styles.gallerySub}>
+                    <Inline text={it.sub} />
+                  </p>
+                )}
+                {it.replica && <span className={styles.trioStamp}>Replica</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+/** A number line drawn in HTML; read out as one picture. */
+function Line({ line, mini }: { line: NumberLine; mini?: boolean }) {
+  return (
+    <figure className={styles.nline} role={mini ? undefined : 'img'} aria-label={mini ? undefined : line.alt}>
+      <div className={styles.nAxis} aria-hidden="true" />
+      {line.hops?.map(([a, b], k) => (
+        <div key={`${a}-${b}`} className={styles.nHop} style={{ left: `${a}%`, width: `${b - a}%` }} aria-hidden="true">
+          <span>{k + 1}</span>
+        </div>
+      ))}
+      {line.ticks.map((t) => (
+        <div key={t.at} className={`${styles.nTick} ${t.edge ? styles.nEdge : ''}`} style={{ left: `${t.at}%` }} aria-hidden="true">
+          <span>{t.label}</span>
+        </div>
+      ))}
+      {line.notes?.map((n) => (
+        <div key={n.at} className={styles.nNote} style={{ left: `${n.at}%` }} aria-hidden="true">
+          {n.text}
+        </div>
+      ))}
+    </figure>
+  );
+}
+
+/** A worked example on a parchment card, its steps numbered. */
+function Worked({ ex, mini }: { ex: WorkedExample; mini?: boolean }) {
+  const H = mini ? 'p' : 'h2';
+  return (
+    <section className={styles.worked}>
+      <div className={styles.workedHead}>
+        {ex.img && (
+          <span className={styles.workedImg}>
+            <Image src={ex.img} alt={mini ? '' : (ex.alt ?? '')} fill sizes="8vw" />
+          </span>
+        )}
+        <div>
+          <p className={styles.labelCase}>Worked example</p>
+          <H className={styles.workedTitle}>
+            <Inline text={ex.title} />
+          </H>
+          {ex.replica && <span className={styles.workedStamp}>Replica</span>}
+        </div>
+      </div>
+      <ol className={styles.workedSteps}>
+        {ex.steps.map((t) => (
+          <li key={t}>
+            <span>
+              <Inline text={t} />
+            </span>
+          </li>
+        ))}
+      </ol>
+      {ex.answer && (
+        <p className={styles.workedAnswer}>
+          <Inline text={ex.answer} />
+        </p>
+      )}
+    </section>
+  );
 }
 
 function Cover({ lesson, mini, actions }: { lesson: Lesson; mini?: boolean; actions?: ReactNode }) {

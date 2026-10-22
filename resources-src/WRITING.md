@@ -103,6 +103,13 @@ section's paragraphs. `build.py` ignores `screen`, so the PDF is unchanged.
 `replica`), `painting` (`img`, `verse`), `coin` (`coin`, `back`, `alt`,
 `backAlt`), `verse` (`verse`, `question`, `echo`), `levels`, `review`
 (`lead`, `deeper`: indexes to mark), `prayer` (`prayer`).
+For reading and comparing: `chart` (`caption`, `columns`, `rows` of
+`{cells, img?, replica?}`), `gallery` (`groups` of `{label, text?, items}`,
+each item `{img, caption, sub?, alt, replica?, aspect?}`), `numberline`
+(`line` `{alt, ticks, notes?, hops?}`, optional `worked` and `rule`; a `\n`
+in the rule starts a new line) and `worked` (`examples`, each `{title, img?,
+alt?, replica?, steps, answer?}`). `painting` takes an `alt` for its picture.
+A timed section may sit inside `cols`.
 
 Every screen should also say what the step is for and what students do:
 

@@ -88,12 +88,110 @@ def chart():
         rows += "<tr>" + "".join(cells) + "</tr>"
     return f'<table class="chart"><thead><tr>{head}</tr></thead><tbody>{rows}</tbody></table>'
 
+# ── lesson mode ────────────────────────────────────────────────────────
+# What students will be able to do, set up front in the plan and on the
+# cover screen, then asked back as questions in the Look back. Each is
+# (objective, the same as a question, go deeper?).
+OBJECTIVES = {
+  "heading": "By the end of this lesson you will be able to:",
+  "items": [
+    ("read a coin as a primary source: who made it, for whom, and what its design reveals",
+     "read a coin as a primary source?", False),
+    ("name the four kinds of ruler in New Testament Judaea, and say who answered to whom",
+     "name the four kinds of ruler, and say who answered to whom?", False),
+    ("use the trials of Jesus and Paul to show how power was layered",
+     "show how the trials of Jesus and Paul reveal layered power?", False),
+    ("corroborate a coin with independent evidence, and judge what coins cannot prove",
+     "corroborate a coin, and judge what it cannot prove?", True)],
+  "why": "No single person ruled Judaea in Jesus’ lifetime. Coins show us who held power, and checking one source against another is how historians decide what to trust."}
+LOOK_BACK = "Can you now…"
+# the Look back, as the teacher says it; the screen sets the questions out
+LOOK_BACK_SAY = ("Put the objectives back on the screen, asked as questions: *“Can you now…?”* For each one, students show "
+                 "a thumb up, sideways or down. Ask one student to answer each aloud; for the last, ask a Red Level reader.")
+
+# the four cards in one row and the chart a little tighter, so the plan keeps
+# to three pages with its objectives
+FIT_CSS = """
+.cards { grid-template-columns: repeat(4, 1fr); gap: 7pt; }
+.card { padding: 6pt 8pt 2pt; }
+.card .cn { display: none; }
+.card h4 { margin-top: 0; }
+.card p { font-size: 8.6pt; line-height: 1.36; }
+.pb { break-after: auto; height: 0; } .pb + .sec { break-before: page; }
+table.chart td { padding-top: 3.5pt; padding-bottom: 3.5pt; }
+table.chart td.th img { width: 27pt; height: 27pt; }
+"""
+
+# the objectives block's look, as in the Religion plan; the handouts print unchanged
+OBJ_CSS = """
+.objectives { background: #f6f1e4; border-left: 3pt solid var(--accent); padding: 8pt 12pt 3pt; margin-bottom: 12pt; }
+.objectives h3 { font-size: 12.5pt; margin-bottom: 5pt; }
+.objectives ol { margin: 0 0 7pt; padding: 0; list-style: none; counter-reset: obj; }
+.objectives li { counter-increment: obj; display: grid; grid-template-columns: 16pt 1fr; margin: 0 0 3.5pt; font-size: 10pt; line-height: 1.4; }
+.objectives li::before { content: counter(obj); font: 600 12.5pt/1.1 'Cormorant Garamond', serif; color: var(--gold-big); }
+.objectives li.deep::before { color: #A8452F; }
+.deeptag { font: 500 6.8pt 'Outfit'; letter-spacing: .18em; text-transform: uppercase; color: #fff; background: #A8452F;
+  padding: 1.5pt 5pt 1pt; border-radius: 99pt; margin-right: 3pt; vertical-align: 1pt; }
+.why { border-top: .6pt solid #d8d0b8; padding-top: 5pt; }
+.why b { font: 500 7pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-text); margin-right: 5pt; }
+"""
+
+def coin(key, name, sub, alt, replica=False):
+    c = {"img": f"{C}{key}-front.png", "name": name, "sub": sub, "alt": alt, "feature": False}
+    if replica:
+        c["replica"] = True
+    return c
+
+def item(key, caption, sub, alt, replica=False):
+    i = {"img": f"{C}{key}-front.png", "caption": caption, "sub": sub, "alt": alt}
+    if replica:
+        i["replica"] = True
+    return i
+
+HOOK_COINS = [
+  coin("tribute", "Tiberius", "The Tribute Penny",
+       "The Tribute Penny, a silver denarius of Tiberius: the emperor’s head. A museum-quality replica", True),
+  coin("pilate", "Pontius Pilate", "Bronze prutah",
+       "Pontius Pilate’s bronze prutah: a simpulum, a Roman ladle for pouring offerings, and no face")]
+
+# the four kinds of ruler, from the cards below, each with its coins
+FOUR_KINDS = [
+  {"label": "The emperor in Rome",
+   "text": "Ruled the whole Roman Empire from Rome. Augustus never visited Judaea, yet his census sent Mary and Joseph to Bethlehem.",
+   "items": [item("augustus", "Augustus", "27 BC–14 AD", "A bronze coin of Augustus: the emperor’s head"),
+             item("tribute", "Tiberius", "The Tribute Penny", "The Tribute Penny of Tiberius: the emperor’s head. A museum-quality replica", True),
+             item("claudius", "Claudius", "41–54 AD", "A bronze coin of the emperor Claudius: his head")]},
+  {"label": "Herod’s family",
+   "text": "Local rulers for Rome. Herod’s coins carry no human image: Jewish law forbade it.",
+   "items": [item("herod-great", "Herod the Great", "37–4 BC", "Herod the Great’s bronze prutah: symbols and no human image"),
+             item("antipas", "Herod Antipas", "Galilee", "The bronze prutah of Herod Antipas, tetrarch of Galilee. A museum-quality replica", True),
+             item("agrippa", "Agrippa I", "From 41 AD", "The bronze prutah of Herod Agrippa I")]},
+  {"label": "The Roman governors",
+   "text": "Roman governors of Judaea. Pilate dated his coin by the sixteenth year of Tiberius.",
+   "items": [item("pilate", "Pilate", "26–36 AD", "Pontius Pilate’s bronze prutah: a simpulum, a Roman ladle"),
+             item("festus", "Festus", "c. 59–62 AD", "The bronze prutah of Porcius Festus")]},
+  {"label": "Beyond the border",
+   "text": "Aretas IV ruled the Nabataean Kingdom, east of Judaea. When Antipas divorced his daughter, Aretas went to war against him.",
+   "items": [item("aretas", "Aretas IV", "Nabataea", "The bronze prutah of Aretas IV, king of Nabataea")]}]
+
+# the passage, in the Gospel Timeline's own wording
+VERSE_ACTS = {"text": "Paul answered: ‘I am now standing before Caesar’s court, where I ought to be tried. I have not done any wrong to the Jews, as you yourself know very well. I appeal to Caesar!’ After Festus had conferred with his advisers, he declared: ‘You have appealed to Caesar. To Caesar you will go!’",
+              "ref": "Acts 25:10–12"}
+
+# the chart on page 3, for the projector: ruler, title, where, years, scripture
+CHART_SCREEN = {"caption": "Who ruled when: every ruler with a coin in the exhibition, in the order the exhibition shows them",
+                "columns": ["Ruler", "Title", "Where", "Years", "Scripture"],
+                "rows": [{"img": f"{C}{IMG[r[0]]}-front.png", "cells": [r[0], r[1], r[2], r[3], r[5]],
+                          **({"replica": True} if "replica" in r[4] else {})} for r in CHART]}
+
 # ── lesson plan ────────────────────────────────────────────────────────
 LESSON = {
+  "slug": "who-ruled-judaea",
   "out": DIR + "ITH_LP_SocialStudies.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
-  "foot": "Teacher Lesson Plan · Grades 5–8 Social Studies", "hero": HERO, "css": CHART_CSS,
+  "foot": "Teacher Lesson Plan · Grades 5–8 Social Studies", "hero": HERO, "css": CHART_CSS + OBJ_CSS + FIT_CSS,
   "blocks": [
     ("timing", [("Hook", 5, "#7D8471"), ("Teach", 13, "#2F4A5A"), ("Activity", 20, "#86671A"), ("Debrief", 7, "#A8452F")]),
+    ("objectives", OBJECTIVES),
     ("section", {"label": "Learning objective", "title": "What students will understand",
       "body": ["Students will use coins as primary sources to describe how power was layered in New Testament Judaea: an **emperor** in Rome, **local rulers from Herod’s family**, and **Roman governors**, with an independent **neighboring king** across the border. They will read what a coin’s design reveals about its maker and its audience, and practice **corroboration** — checking one source against independent evidence — using the Pilate stone, Josephus and Suetonius."]}),
     ("section", {"label": "Standards and themes", "list": [
@@ -106,25 +204,51 @@ LESSON = {
       "Luke 23:6–12 and Acts 25:10–12, in Bibles or projected; the Gospel Timeline on a screen if you have one",
       "Differentiated handouts, one per student"]}),
     ("section", {"label": "Hook · 5 minutes", "title": "A face, and no face",
+      "screen": {"phase": "Hook", "show": "coins", "coins": HOOK_COINS,
+                 "purpose": "Start reading coins as messages from the people in charge.",
+                 "students": ["One coin shows a face, one a ladle. Who made each one?",
+                              "Why would they choose such different pictures?"]},
       "body": ["Show the Tribute Penny beside Pilate’s prutah. Both were in people’s hands in Judaea in Jesus’ lifetime. *“One shows a man’s face. The other shows a ladle and three ears of grain. Who made each one — and why would they choose such different pictures?”* Take guesses, then: *“Coins are messages from the people in charge. Today we use them to find out who was in charge.”*"]}),
     ("section", {"label": "Direct instruction · 13 minutes", "title": "Four kinds of power, one small land",
-      "body": ["Walk through the four kinds of ruler on the chart (page 3), showing each coin. Then show the layers at work: Pilate sent Jesus to Antipas because Jesus was from Galilee, Antipas’s territory (Luke 23:6–12); Paul, a Roman citizen, went over the governor’s head — *“I appeal to Caesar!”* (Acts 25:10–12). Ask: *who answered to whom?*"]}),
+      "screen": [
+        {"phase": "Teach", "minutes": 8, "script": [0], "title": "Four kinds of power", "show": "gallery", "groups": FOUR_KINDS,
+         "purpose": "Set out the four layers of power the coins reveal, and who sat at the top.",
+         "students": ["Name one ruler of each kind.", "Who did a Roman governor answer to?"]},
+        {"phase": "Teach", "minutes": 5, "script": [1], "title": "Who answered to whom?", "show": "painting", "img": HERO,
+         "verse": VERSE_ACTS,
+         "alt": "Paul, standing in a gray robe, makes his case to three seated rulers in a Roman hall; painted by Vasily Surikov",
+         "purpose": "See the layers of power at work in two trials.",
+         "students": ["Pilate sent Jesus to Herod Antipas. Why him?", "Paul went over the governor’s head. To whom?"]}],
+      "body": ["Walk through the four kinds of ruler on the chart (page 3), showing each coin.", "Then show the layers at work: Pilate sent Jesus to Antipas because Jesus was from Galilee, Antipas’s territory (Luke 23:6–12); Paul, a Roman citizen, went over the governor’s head — *“I appeal to Caesar!”* (Acts 25:10–12). Ask: *who answered to whom?*"]}),
     ("cards", [
       ("The emperor in Rome", ["Augustus (27 BC–14 AD) never visited Judaea, yet his census sent Mary and Joseph to Bethlehem. The Tribute Penny carries Tiberius’ face and the title PONTIF MAXIM — *High Priest*. Claudius (41–54 AD) expelled Jews from Rome."]),
       ("Herod’s family", ["Herod the Great was client king of Judaea for Rome, 37–4 BC. His son Antipas was tetrarch of Galilee; his grandson Agrippa I was made king by the emperor Caligula in 41 AD. Herod’s coins carry no human image: Jewish law forbade it."]),
       ("The Roman governors", ["Pilate was prefect, 26–36 AD; Festus succeeded Felix as procurator in about 59 AD. Pilate’s coin is dated by the sixteenth year of Tiberius — the governor counted time by the emperor — and its pagan symbols were deliberately provocative."]),
       ("Beyond the border", ["Aretas IV ruled the Nabataean Kingdom east of Judaea, on the caravan routes from Arabia to the Mediterranean. His daughter was Herod Antipas’s first wife; when Antipas divorced her, Aretas went to war against him."])]),
-    ("section", {"label": "Activity · 20 minutes", "body": ["Students choose a handout. All three levels work from the same rulers and the same coins."]}),
+    ("section", {"label": "Activity · 20 minutes",
+      "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+                 "purpose": "Practice reading coins as sources at the right level of challenge.",
+                 "students": ["Choose Green, Yellow or Red. All three levels work from the same rulers and the same coins."]},
+      "body": ["Students choose a handout. All three levels work from the same rulers and the same coins."]}),
     ("levels", {
       "green": "Sort nine rulers by their coins into emperor, Herod’s family, Roman governor or neighboring king; complete a guided timeline; answer *who would you be sent to?*",
       "yellow": "Analyze Herod’s and Pilate’s prutahs as primary sources. Complete the ruler chart, then explain what the trials of Jesus and Paul show about layered power.",
       "red": "Test three New Testament claims against coins, the Pilate stone, Josephus and Suetonius. Then argue what coins can prove about the past, and what they cannot."}),
     ("section", {"label": "Debrief · 7 minutes", "title": "Who was really in charge?",
-      "body": ["Each group places one ruler on the chart and gives its clue. Then ask: *a coin shows who claimed power — how can we check what the Gospels and Acts say about these rulers?* Let Red-level students answer."]}),
+      "screen": [
+        {"phase": "Debrief", "minutes": 4, "script": [0], "title": "Who ruled when", "show": "chart", **CHART_SCREEN,
+         "purpose": "Pull the lesson together on one chart, then ask how a claim can be checked.",
+         "students": ["Place one ruler: his kind of power, and his coin’s clue.",
+                      "How could we check what the Gospels and Acts say about him?"]},
+        {"phase": "Debrief", "minutes": 3, "script": [1], "title": "Look back", "show": "review", "lead": LOOK_BACK,
+         "purpose": "Check what each student can now do against the objectives.",
+         "students": [q for _, q, _ in OBJECTIVES["items"]],
+         "deeper": [k for k, (_, _, deep) in enumerate(OBJECTIVES["items"]) if deep]}],
+      "body": ["Each group places one ruler on the chart and gives its clue. Then ask: *a coin shows who claimed power — how can we check what the Gospels and Acts say about these rulers?* Let Red-level students answer.",
+               LOOK_BACK_SAY]}),
     ("section", {"label": "Answer notes and assessment", "list": [
       "**Green sort:** emperors — Augustus, Tiberius, Claudius; Herod’s family — Herod the Great, Antipas, Agrippa I; governors — Pilate, Festus; neighboring king — Aretas IV. Timeline: Herod the Great (37 BC, 4 BC), Augustus, Pilate, Agrippa I, Festus. Pilate sent Jesus to **Herod Antipas**; Paul appealed to **Caesar**, the emperor.",
       "**Exit ticket:** *name one ruler, his level of power, and one piece of evidence that he was real.*"]}),
-    ("connection", ["**Visit the exhibition:** the cases run in order — the rulers of the Nativity in Case 6, of the trial in Case 7, of the apostles in Case 8. At each case, have students name each coin’s level of power. Online, the Gospel Timeline sets all eleven coins beside their passages."]),
     ("pagebreak", None),
     ("section", {"label": "Show your class", "title": "Who ruled when",
       "body": ["Project or print this page for the lesson and the debrief. Every ruler here has a coin in the exhibition, listed in the order the exhibition shows them. Dates are as the exhibition gives them; where it gives only the coin’s dates, the chart says so."]}),
@@ -134,6 +258,8 @@ LESSON = {
         "**Who made it, and for whom?** A coin is an official message in metal. Herod’s prutah was made to be acceptable to Jewish users; Pilate’s was not. Design is evidence of what a ruler wanted, and of whom he was willing to offend.",
         "**Corroboration.** A coin shows that a ruler held power and issued money; it grows stronger when independent sources agree. For decades some scholars questioned whether Pilate was a historical figure, until a limestone block bearing his name and title was found at Caesarea Maritima in 1961 (now in the Israel Museum). His coins had been evidence all along. Josephus (*Antiquities* 19.8.2) describes the death of Agrippa I in terms almost identical to Acts 12:23; Suetonius (*Claudius* 25.4) confirms Claudius’s expulsion of Jews from Rome, about 49 AD.",
         "**Limits.** Coins circulate long after they are minted: the widow’s lepton, struck under the Hasmonaean king Alexander Jannaeus, was still in use a century later. Three coins here — the Tribute Penny, the Shekel of Tyre and Herod Antipas — are museum-quality replicas, because originals are exceptionally rare."]}),
+    # after the chart, so the plan keeps to three pages with its objectives
+    ("connection", ["**Visit the exhibition:** the cases run in order — the rulers of the Nativity in Case 6, of the trial in Case 7, of the apostles in Case 8. At each case, have students name each coin’s level of power. Online, the Gospel Timeline sets all eleven coins beside their passages."]),
   ]}
 
 # ── handouts ───────────────────────────────────────────────────────────
