@@ -15,7 +15,7 @@ function getSnapshot() {
   return typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia(QUERY).matches;
 }
 
-/** True when the visitor has asked the OS to minimise motion. False on the server. */
+/** True when the visitor has asked the OS to minimize motion. False on the server. */
 export function usePrefersReducedMotion(): boolean {
   return useSyncExternalStore(subscribe, getSnapshot, () => false);
 }
