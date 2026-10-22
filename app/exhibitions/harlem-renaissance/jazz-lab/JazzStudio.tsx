@@ -131,8 +131,8 @@ export default function JazzStudio() {
       {!session ? (
         <div className="js-select">
           <div className="js-select-subtitle">
-            Step into the recording studio. Pick a session, then drag loops
-            from the crate onto the timeline to arrange your own jazz record.
+            Step into the recording studio. Pick a session, then tap or drag
+            loops from the crate onto the timeline to arrange your own jazz record.
           </div>
           <div className="js-kits">
             {SESSIONS.map(s => (
