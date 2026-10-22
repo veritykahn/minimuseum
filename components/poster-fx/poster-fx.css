@@ -50,11 +50,11 @@
   --pfx-off: 4.5vw;
   transition: translate 0.95s var(--pfx-ease), opacity 0.3s ease;
 }
-.pfx-stage :is(.depth-orb, .film-overlay, .hr-deco-circle, .hr-jazz-note, .ith-deco-flourish, .ith-deco-scroll-line, .ith-deco-star, .ith-poster1-bg, .pfx-bg) {
+.pfx-stage :is(.depth-orb, .hr-deco-circle, .hr-jazz-note, .ith-deco-flourish, .ith-deco-scroll-line, .ith-deco-star, .pfx-bg) {
   --pfx-off: 1.4vw;
   transition: translate 1.5s var(--pfx-ease);
 }
-.pfx-stage:not([data-entered]) :is(.pfx-line, .pfx-fg, .depth-orb, .film-overlay, .hr-deco-circle, .hr-jazz-note, .ith-deco-flourish, .ith-deco-scroll-line, .ith-deco-star, .ith-poster1-bg, .pfx-bg) {
+.pfx-stage:not([data-entered]) :is(.pfx-line, .pfx-fg, .depth-orb, .hr-deco-circle, .hr-jazz-note, .ith-deco-flourish, .ith-deco-scroll-line, .ith-deco-star, .pfx-bg) {
   translate: calc(var(--pfx-dir) * var(--pfx-off)) 0;
 }
 /* Copy that a page fades in on its own clock is handed to the reveal. */

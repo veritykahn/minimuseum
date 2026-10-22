@@ -5,7 +5,7 @@ import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
-import { FxText, FxVeil, PosterProgress, chapterMarks, fxKindFor, usePosterFxStage } from '@/components/poster-fx/PosterFx';
+import { FxText, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 
 type ContentItem = {
   type: string;
@@ -474,11 +474,12 @@ export default function InTheirHands() {
   const bgColor = getBgColor();
   const textColor = isPoster1 ? poster1Cream : poster2Cream;
   const fx = usePosterFxStage('ith', direction, currentItem?.type ?? '', bgColor, textColor);
-  const kind = currentItem ? fxKindFor(currentItem) : 'body';
   const marks = isPoster1 ? poster1Marks : poster2Marks;
-  const veilKind = !currentItem || ['title-image', 'full-image', 'artwork-display', 'image-text-stacked', 'text-image-stacked'].includes(currentItem.type)
-    ? 'media'
-    : currentItem.type === 'section-title' ? 'title' : 'text';
+  /**
+   * Gilt light crosses the panel only as the poster opens and at each chapter
+   * title. Every other panel keeps its own authored entrance.
+   */
+  const gilt = posterStep === 0 || currentItem?.type === 'section-title';
   /** Coins are transparent cut-outs: they get a shadow that follows the metal and a glint. */
   const isCoin = (item: ContentItem) => item.special === 'thirty-pieces' && !!item.src?.endsWith('.png');
 
@@ -512,6 +513,18 @@ export default function InTheirHands() {
       case 'bottom-center': return 'ith-pos-bottom-center';
       case 'full-width': return 'ith-pos-full-width';
       default: return 'ith-pos-center';
+    }
+  };
+
+  // Effect classes
+  const getEffectClass = (effect?: string) => {
+    switch(effect) {
+      case 'blur-to-sharp': return 'ith-effect-blur-sharp';
+      case 'split-reveal': return 'ith-effect-split-reveal';
+      case 'fade-in': return 'ith-effect-fade-in';
+      case 'ink-spread': return 'ith-effect-ink-spread';
+      case 'line-by-line': return 'ith-effect-fade-in';
+      default: return '';
     }
   };
 
@@ -1642,7 +1655,7 @@ export default function InTheirHands() {
           )}
 
           <div className="ith-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
-            <FxVeil theme="ith" kind={veilKind} />
+            {gilt && <FxVeil theme="ith" kind={posterStep === 0 ? 'media' : 'title'} />}
 
             {/* Title Image — Full Bleed or Centered PNG */}
             {currentItem.type === 'title-image' && currentItem.special === 'poster1-title' && (
@@ -1708,7 +1721,7 @@ export default function InTheirHands() {
                 <h2
                   className="ith-section-title-text"
                   style={{ color: getSectionColors(currentItem.special).title }}
-                  data-fx={kind}
+                  data-fx="title"
                 >
                   <FxText text={currentItem.text ?? ''} />
                 </h2>
@@ -1743,11 +1756,10 @@ export default function InTheirHands() {
                   </>
                 )}
                 <p
-                  className="ith-paragraph-text"
+                  className={`ith-paragraph-text ${getEffectClass(currentItem.effect)}`}
                   style={{ color: getSectionColors(currentItem.special).text }}
-                  data-fx={kind}
                 >
-                  <FxText text={currentItem.text} words={kind === 'statement'} />
+                  {currentItem.text}
                 </p>
               </div>
             )}
@@ -1760,11 +1772,10 @@ export default function InTheirHands() {
                   <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
                 </div>
                 <p
-                  className="ith-paragraph-text"
+                  className="ith-paragraph-text ith-effect-fade-in"
                   style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
-                  data-fx="body"
                 >
-                  <FxText text={currentItem.text ?? ''} />
+                  {currentItem.text}
                 </p>
               </div>
             )}
@@ -1773,11 +1784,10 @@ export default function InTheirHands() {
             {currentItem.type === 'text-image-stacked' && (
               <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
                 <p
-                  className="ith-paragraph-text"
+                  className="ith-paragraph-text ith-effect-fade-in"
                   style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
-                  data-fx="body"
                 >
-                  <FxText text={currentItem.text ?? ''} />
+                  {currentItem.text}
                 </p>
                 <div className="ith-stacked-image">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -1804,8 +1814,8 @@ export default function InTheirHands() {
                     <span className="ith-artwork-caption-meta">{currentItem.artworkArtist}, {currentItem.artworkDate}</span>
                   </div>
                 </div>
-                <div className="ith-artwork-text-side pfx-fg pfx-fg-copy" style={{ color: getSectionColors(currentItem.special).text }}>
-                  <p className="ith-paragraph-text">
+                <div className="ith-artwork-text-side" style={{ color: getSectionColors(currentItem.special).text }}>
+                  <p className="ith-paragraph-text ith-effect-fade-in">
                     {currentItem.text}
                   </p>
                 </div>
@@ -1818,7 +1828,7 @@ export default function InTheirHands() {
                 {currentItem.text && (
                   <h2 className="ith-timeline-title" style={{ animation: 'ithFadeIn 0.8s ease forwards', opacity: 0 }}>{currentItem.text}</h2>
                 )}
-                <div className="ith-timeline pfx-fg">
+                <div className="ith-timeline">
                   {currentItem.items.map((item, i) => (
                     <div
                       key={i}
@@ -1836,11 +1846,10 @@ export default function InTheirHands() {
             {currentItem.type === 'quote' && currentItem.text && (
               <div className="ith-text-content-wrapper ith-pos-center">
                 <blockquote
-                  className="ith-quote-text"
-                  data-fx="quote"
+                  className={`ith-quote-text ${getEffectClass(currentItem.effect)}`}
                   style={{ color: isPoster1 ? poster1Gold : poster2Antique, borderColor: isPoster1 ? 'rgba(201,168,76,0.4)' : 'rgba(200,196,160,0.3)' }}
                 >
-                  <FxText text={currentItem.text} words />
+                  {currentItem.text}
                 </blockquote>
               </div>
             )}
@@ -1849,7 +1858,7 @@ export default function InTheirHands() {
             {currentItem.type === 'end' && (
               <div className="ith-text-content-wrapper ith-pos-center">
                 <button
-                  className="ith-content-end pfx-fg"
+                  className="ith-content-end"
                   onClick={returnToMain}
                   style={{ color: textColor, borderColor: textColor }}
                 >

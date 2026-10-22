@@ -5,7 +5,7 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import TypewriterText from '@/components/TypewriterText';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
-import { FxChannelGhosts, FxDefs, FxText, FxVeil, PosterProgress, chapterMarks, fxKindFor, usePosterFxStage } from '@/components/poster-fx/PosterFx';
+import { FxChannelGhosts, FxDefs, FxText, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 
 type ContentItem = {
   type: string;
@@ -496,7 +496,12 @@ export default function SeeingIsDeceiving() {
   const bgColor = isPoster1 ? '#e0dede' : '#0a0a0a';
   const textColor = isPoster1 ? darkCharcoal : wavesBlue;
   const fx = usePosterFxStage('sid', direction, currentItem?.type ?? '', bgColor, isPoster1 ? 'rgba(42,42,42,0.55)' : 'rgba(168,213,229,0.6)');
-  const kind = currentItem ? fxKindFor(currentItem) : 'body';
+  /**
+   * The panels keep their own authored entrances. The chromatic slat reveal is
+   * reserved for the split-reveal section titles, so it marks a new chapter
+   * rather than every click.
+   */
+  const fxTitle = currentItem?.type === 'section-title' && currentItem.effect === 'split-reveal';
 
   // Position classes
   const getPositionClass = (position?: string) => {
@@ -508,6 +513,17 @@ export default function SeeingIsDeceiving() {
       case 'bottom-center': return 'pos-bottom-center';
       case 'full-width': return 'pos-full-width';
       default: return 'pos-center';
+    }
+  };
+
+  // Effect classes
+  const getEffectClass = (effect?: string) => {
+    switch(effect) {
+      case 'blur-to-sharp': return 'effect-blur-sharp';
+      case 'split-reveal': return 'effect-split-reveal';
+      case 'glitch': return 'effect-glitch';
+      case 'film-credits': return 'effect-film-credits';
+      default: return '';
     }
   };
 
@@ -1531,10 +1547,8 @@ export default function SeeingIsDeceiving() {
           key={animationKey}
         >
           <div className="walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
-            <FxVeil
-              theme="sid"
-              kind={currentItem.type === 'title-image' || currentItem.type === 'full-image' || kind === 'statement' || kind === 'quote' ? 'media' : kind === 'title' ? 'title' : 'text'}
-            />
+            {/* The split-colour scan runs once, as the poster opens. */}
+            {posterStep === 0 && <FxVeil theme="sid" kind="media" />}
 
             {/* Title Image - Full Bleed */}
             {currentItem.type === 'title-image' && (
@@ -1580,11 +1594,11 @@ export default function SeeingIsDeceiving() {
                   </>
                 )}
                 <h2
-                  className={`section-title-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
+                  className={`section-title-text ${fxTitle ? '' : getEffectClass(currentItem.effect)} ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
                   style={{ color: textColor, position: 'relative', zIndex: 10 }}
-                  data-fx={kind}
+                  data-fx={fxTitle ? 'title' : undefined}
                 >
-                  <FxText text={currentItem.text ?? ''} />
+                  {fxTitle ? <FxText text={currentItem.text ?? ''} /> : currentItem.text}
                 </h2>
               </div>
             )}
@@ -1603,14 +1617,13 @@ export default function SeeingIsDeceiving() {
                   </>
                 )}
                 <p
-                  className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
+                  className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''} ${currentItem.effect === 'fade-in' ? 'effect-fade-in' : ''} ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''} ${currentItem.effect === 'glitch' ? 'effect-glitch' : ''}`}
                   style={{ color: textColor, position: 'relative', zIndex: 10 }}
-                  data-fx={currentItem.effect === 'typewriter' ? undefined : kind}
                 >
                   {currentItem.effect === 'typewriter' ? (
                     <TypewriterText text={currentItem.text} color={textColor} cursorClassName="typewriter-cursor" />
                   ) : (
-                    <FxText text={currentItem.text} words={kind === 'statement'} />
+                    currentItem.text
                   )}
                 </p>
               </div>
@@ -1620,8 +1633,8 @@ export default function SeeingIsDeceiving() {
             {currentItem.type === 'blind-spot' && currentItem.text && (
               <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} blind-spot-container`}>
                 <div className="blind-spot-hole"></div>
-                <p className="paragraph-text" style={{ color: textColor }} data-fx="body">
-                  <FxText text={currentItem.text} />
+                <p className="paragraph-text effect-fade-in" style={{ color: textColor }}>
+                  {currentItem.text}
                 </p>
               </div>
             )}
@@ -1629,9 +1642,7 @@ export default function SeeingIsDeceiving() {
             {/* Timeline */}
             {currentItem.type === 'timeline' && currentItem.items && (
               <div className={`text-content-wrapper ${getPositionClass(currentItem.position)}`}>
-                <div className="pfx-fg">
-                  <LineByLine items={currentItem.items} color={textColor} />
-                </div>
+                <LineByLine items={currentItem.items} color={textColor} />
               </div>
             )}
 
@@ -1639,11 +1650,10 @@ export default function SeeingIsDeceiving() {
             {currentItem.type === 'quote' && currentItem.text && (
               <div className={`text-content-wrapper pos-center`}>
                 <blockquote
-                  className="quote-text"
+                  className={`quote-text ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''}`}
                   style={{ color: textColor, borderColor: textColor }}
-                  data-fx="quote"
                 >
-                  <FxText text={currentItem.text} words />
+                  {currentItem.text}
                 </blockquote>
               </div>
             )}
@@ -1655,7 +1665,7 @@ export default function SeeingIsDeceiving() {
                   href={currentItem.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="content-link pfx-fg"
+                  className="content-link"
                   style={{ color: textColor, borderColor: textColor }}
                 >
                   {currentItem.text}
@@ -1667,7 +1677,7 @@ export default function SeeingIsDeceiving() {
             {currentItem.type === 'end' && (
               <div className="text-content-wrapper pos-center">
                 <button
-                  className="content-end pfx-fg"
+                  className="content-end"
                   onClick={returnToMain}
                   style={{ color: textColor, borderColor: textColor }}
                 >
