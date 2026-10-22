@@ -322,8 +322,9 @@ export default function HarlemInWordsPage() {
     setDisplayTheme(Math.floor(Math.random() * 5));
     const timer = setTimeout(() => setDisplayReady(true), 100);
 
-    let ctx: AudioContext;
-    let gain: GainNode;
+    let ctx: AudioContext | undefined;
+    let gain: GainNode | undefined;
+    let source: AudioBufferSourceNode | undefined;
     let stopped = false;
 
     const initAudio = async () => {
@@ -340,7 +341,7 @@ export default function HarlemInWordsPage() {
         const audioBuf = await ctx.decodeAudioData(buf);
         if (stopped) return;
 
-        const source = ctx.createBufferSource();
+        source = ctx.createBufferSource();
         source.buffer = audioBuf;
         source.loop = true;
         source.connect(gain);
@@ -360,15 +361,23 @@ export default function HarlemInWordsPage() {
       stopped = true;
       clearTimeout(timer);
       setDisplayReady(false);
-      if (audioGainRef.current && audioCtxRef.current) {
-        const g = audioGainRef.current;
-        const c = audioCtxRef.current;
-        g.gain.linearRampToValueAtTime(0, c.currentTime + 1.5);
+      // Fade this display's own music out, then stop it and close its
+      // context. Locals, not the refs: a display opened again within the
+      // fade has already put its own nodes in the refs.
+      if (audioSourceRef.current === source) audioSourceRef.current = null;
+      if (audioCtxRef.current === ctx) { audioCtxRef.current = null; audioGainRef.current = null; }
+      if (ctx && gain) {
+        const c = ctx;
+        const g = gain;
+        const s = source;
+        try {
+          g.gain.cancelScheduledValues(c.currentTime);
+          g.gain.setValueAtTime(g.gain.value, c.currentTime);
+          g.gain.linearRampToValueAtTime(0, c.currentTime + 1.5);
+        } catch { /* context already closed */ }
         setTimeout(() => {
-          try {
-            audioSourceRef.current?.stop();
-            c.close();
-          } catch { /* */ }
+          try { s?.stop(); } catch { /* */ }
+          c.close().catch(() => {});
         }, 1600);
       }
     };
