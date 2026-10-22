@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { srOnly, useDialogFocus } from '@/lib/a11y';
+import { MENTOR_POEM, MENTOR_NOTICES, PROMPT_CARDS } from './mentor-poem';
 
 /**
  * A button that removes itself when pressed would drop keyboard focus to
@@ -31,7 +32,9 @@ const CATEGORY_META: Record<WordCategory, { label: string; dot: string }> = {
   music:   { label: 'Music',   dot: 'rgba(201,169,78,0.7)' },
   emotion: { label: 'Emotion', dot: 'rgba(178,60,60,0.6)' },
   action:  { label: 'Action',  dot: 'rgba(70,130,180,0.6)' },
-  harlem:  { label: 'Harlem',  dot: 'rgba(201,120,50,0.6)' },
+  // Beale Street is Memphis and the South Side is Chicago: the places and
+  // journeys of the Great Migration, not Harlem alone.
+  harlem:  { label: 'City & Migration', dot: 'rgba(201,120,50,0.6)' },
 };
 
 const CATEGORY_ORDER: WordCategory[] = ['dream', 'nature', 'music', 'emotion', 'action', 'harlem'];
@@ -138,7 +141,11 @@ type UndoAction = {
    ═══════════════════════════════════════════════════════════ */
 export default function HarlemInWordsPage() {
   const router = useRouter();
-  const [view, setView] = useState<'welcome' | 'compose'>('welcome');
+  const [view, setView] = useState<'welcome' | 'mentor' | 'compose'>('welcome');
+  const [promptIdx, setPromptIdx] = useState<number | null>(null);
+  const mentorHeadingRef = useRef<HTMLHeadingElement>(null);
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [frameOutOfView, setFrameOutOfView] = useState(false);
   const [poem, setPoem] = useState<PoemEntry[]>([]);
   const [undoStack, setUndoStack] = useState<UndoAction[]>([]);
   const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
@@ -196,6 +203,25 @@ export default function HarlemInWordsPage() {
     uidCounter.current += 1;
     return `w-${uidCounter.current}`;
   };
+
+  // Each new screen starts at the top, with focus on its heading.
+  useEffect(() => {
+    if (view === 'mentor') {
+      window.scrollTo(0, 0);
+      mentorHeadingRef.current?.focus();
+    }
+  }, [view]);
+
+  // Phones stack the poem above the word bank. Once half the poem has
+  // scrolled out of view, a slim preview of it stays pinned above the words.
+  useEffect(() => {
+    if (view !== 'compose' || displayMode) return;
+    const el = frameRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return;
+    const io = new IntersectionObserver(([e]) => setFrameOutOfView(e.intersectionRatio < 0.5), { threshold: [0, 0.5, 1] });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [view, displayMode]);
 
   // Initialise shuffled orders
   useEffect(() => {
@@ -1142,39 +1168,268 @@ export default function HarlemInWordsPage() {
           transform: translateY(0);
         }
 
+        /* ── Mentor poem ── */
+        .hw-mentor {
+          min-height: 100vh;
+          background:
+            radial-gradient(ellipse at 30% 10%, rgba(201,169,78,0.07) 0%, transparent 50%),
+            #0A0A0A;
+          padding: 88px 24px 64px;
+        }
+        .hw-mentor-back { position: absolute; }
+        .hw-mentor-inner { max-width: 680px; margin: 0 auto; }
+        .hw-mentor-kicker {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 11px;
+          letter-spacing: 5px;
+          text-transform: uppercase;
+          color: var(--hw-gold);
+          font-weight: 600;
+          text-align: center;
+          margin: 0 0 12px;
+        }
+        .hw-mentor-heading {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(28px, 5vw, 40px);
+          font-weight: 700;
+          color: var(--hw-gold);
+          text-align: center;
+          margin: 0 0 12px;
+          outline: none;
+        }
+        .hw-mentor-intro {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 15px;
+          line-height: 1.7;
+          color: rgba(232,224,208,0.8);
+          text-align: center;
+          margin: 0 auto 32px;
+          max-width: 520px;
+        }
+        .hw-mentor-poem {
+          margin: 0 0 36px;
+          padding: 32px clamp(20px, 5vw, 44px);
+          background: var(--hw-cream);
+          color: var(--hw-ink);
+          border: 1px solid var(--hw-gold-dim);
+          box-shadow: 0 0 0 6px #0A0A0A, 0 0 0 7px rgba(201,169,78,0.35);
+        }
+        .hw-mentor-title {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(22px, 4vw, 28px);
+          font-weight: 700;
+          margin: 0 0 4px;
+          color: var(--hw-ink);
+        }
+        .hw-mentor-author {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 12px;
+          letter-spacing: 3px;
+          text-transform: uppercase;
+          color: #5C4A1E;
+          margin: 0 0 24px;
+        }
+        .hw-mentor-stanza { margin: 0 0 18px; }
+        .hw-mentor-line {
+          display: block;
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(17px, 2.4vw, 20px);
+          line-height: 1.55;
+          padding-left: 1.5em;
+          text-indent: -1.5em;
+        }
+        .hw-mentor-credit {
+          margin-top: 24px;
+          padding-top: 14px;
+          border-top: 1px solid rgba(26,18,8,0.2);
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #4A3D22;
+        }
+        .hw-mentor-section { margin: 0 0 32px; }
+        .hw-mentor-h2 {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 12px;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          color: var(--hw-gold);
+          font-weight: 600;
+          margin: 0 0 14px;
+        }
+        .hw-notice-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+        .hw-notice-list li {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 15px;
+          line-height: 1.65;
+          color: rgba(232,224,208,0.85);
+          padding-left: 16px;
+          border-left: 2px solid rgba(201,169,78,0.4);
+        }
+        .hw-notice-list strong { color: var(--hw-gold-light); font-weight: 600; }
+        .hw-prompt-grid {
+          margin: 0; padding: 0; list-style: none;
+          display: grid; gap: 10px;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+        .hw-prompt-card {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          gap: 12px;
+          align-items: flex-start;
+          text-align: left;
+          padding: 14px 16px;
+          background: rgba(201,169,78,0.06);
+          border: 1px solid rgba(201,169,78,0.3);
+          border-radius: 2px;
+          color: var(--hw-text);
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 14px;
+          line-height: 1.55;
+          cursor: pointer;
+          transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .hw-prompt-card:hover { background: rgba(201,169,78,0.14); border-color: var(--hw-gold); }
+        .hw-prompt-num {
+          flex-shrink: 0;
+          width: 24px; height: 24px;
+          border: 1px solid var(--hw-gold);
+          border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 12px;
+          color: var(--hw-gold);
+        }
+        .hw-mentor-actions {
+          display: flex; flex-wrap: wrap; gap: 16px;
+          align-items: center; justify-content: center;
+          margin: 8px 0 28px;
+        }
+        .hw-mentor-print {
+          background: none;
+          border: none;
+          color: var(--hw-gold-light);
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 13px;
+          letter-spacing: 1px;
+          text-decoration: underline;
+          text-underline-offset: 4px;
+          cursor: pointer;
+          padding: 8px 4px;
+        }
+        .hw-teacher {
+          border-top: 1px solid rgba(201,169,78,0.2);
+          padding-top: 14px;
+          font-family: 'Josefin Sans', sans-serif;
+          color: rgba(232,224,208,0.85);
+        }
+        .hw-teacher summary {
+          cursor: pointer;
+          font-size: 12px;
+          letter-spacing: 3px;
+          text-transform: uppercase;
+          color: var(--hw-gold);
+          font-weight: 600;
+          padding: 6px 0;
+        }
+        .hw-teacher p { font-size: 14px; line-height: 1.7; margin: 10px 0 0; }
+        .hw-mentor button:focus-visible, .hw-teacher summary:focus-visible,
+        .hw-prompt-strip button:focus-visible {
+          outline: 2px solid #E8D48B;
+          outline-offset: 2px;
+        }
+
+        /* ── Prompt strip and phone mini-preview (compose) ── */
+        .hw-prompt-strip {
+          padding: 14px 16px 12px;
+          border-bottom: 1px solid rgba(201,169,78,0.1);
+        }
+        .hw-prompt-text {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 13px;
+          line-height: 1.55;
+          color: rgba(232,224,208,0.85);
+          margin: 0 0 8px;
+        }
+        .hw-prompt-tag {
+          font-size: 10px;
+          letter-spacing: 2px;
+          text-transform: uppercase;
+          color: var(--hw-gold);
+          font-weight: 600;
+        }
+        .hw-prompt-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+        .hw-mini { display: none; }
+
         /* ── Mobile: stacked layout ── */
         @media (max-width: 900px) {
           .hw-compose-page {
             flex-direction: column;
           }
+          /* The page scrolls as one column: frame first, then the words */
           .hw-left-panel {
-            min-height: 50vh;
+            min-height: 0;
             flex: none;
-            height: 50vh;
+            height: auto;
+            padding: 72px 0 28px;
           }
           .hw-divider {
             width: 100%;
             height: 1px;
           }
           .hw-right-panel {
-            min-height: 50vh;
+            min-height: 0;
             flex: none;
-            height: 50vh;
+            height: auto;
+            overflow: visible;
           }
-          .hw-nav { left: 20px; top: 20px; }
+          /* The corner "M" scrolls away with the page instead of sitting on the frame */
+          .hw-nav { position: absolute; left: 20px; top: 20px; }
+          .hw-mini {
+            display: block;
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            margin-bottom: -1px;
+            padding: 8px 16px 10px;
+            background: #0A0A0A;
+            border-bottom: 1px solid rgba(201,169,78,0.35);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+            visibility: hidden;
+            height: 0;
+            padding-top: 0; padding-bottom: 0;
+            overflow: hidden;
+          }
+          .hw-mini.on { visibility: visible; height: auto; padding-top: 8px; padding-bottom: 10px; }
+          .hw-mini-label {
+            display: block;
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 9px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--hw-gold);
+            margin-bottom: 2px;
+          }
+          .hw-mini-line {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: var(--hw-gold-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
           .hw-nav-text { font-size: 24px; }
           .hw-frame { max-width: 360px; min-height: 300px; padding: 20px 16px 16px; }
         }
 
         @media (max-width: 600px) {
-          .hw-left-panel { height: 45vh; }
-          .hw-right-panel { height: 55vh; }
           .hw-frame { max-width: 300px; min-height: 240px; }
           .hw-poem-text { font-size: 16px; }
           .hw-word-tile { font-size: 13px; padding: 5px 10px; padding-left: 13px; }
           .hw-frame-btn { font-size: 8px; padding: 5px 8px; }
           .hw-connector-tile { font-size: 12px; padding: 4px 8px; }
-          .hw-cat-tab { padding: 6px 8px; font-size: 7px; }
+          .hw-cat-tab { padding: 6px 8px; font-size: 8px; min-height: 28px; }
           .hw-tray-controls { padding: 6px 12px; }
         }
 
@@ -1503,6 +1758,12 @@ export default function HarlemInWordsPage() {
         @media print {
           body, .hw-root { background: white !important; }
           .hw-compose-page, .hw-welcome, .hw-display-bg { display: none !important; }
+          .hw-mentor { background: white !important; padding: 0 !important; }
+          .hw-mentor-back, .hw-mentor-actions, .hw-teacher, .hw-mentor-intro { display: none !important; }
+          .hw-mentor-poem { box-shadow: none !important; background: white !important; }
+          .hw-mentor-kicker, .hw-mentor-heading, .hw-mentor-h2, .hw-notice-list li, .hw-notice-list strong,
+          .hw-prompt-card, .hw-prompt-num { color: #1A1208 !important; }
+          .hw-prompt-card { background: none !important; }
           .hw-display-overlay {
             position: static !important;
             background: white !important;
@@ -1558,7 +1819,7 @@ export default function HarlemInWordsPage() {
               to the dreams, struggles, and beauty of Black life in America. Their words became anthems of a movement.
             </p>
             <p className="hw-welcome-tagline">Now it{'\u2019'}s your turn to compose.</p>
-            <button className="hw-welcome-enter" onClick={() => setView('compose')}>
+            <button className="hw-welcome-enter" onClick={() => setView('mentor')}>
               Enter
             </button>
           </div>
@@ -1568,9 +1829,88 @@ export default function HarlemInWordsPage() {
         </div>
       )}
 
+      {/* ── MENTOR POEM ── */}
+      {view === 'mentor' && (
+        <div className="hw-mentor">
+          <button className="hw-welcome-back hw-mentor-back" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+            <span className="hw-welcome-back-text" aria-hidden="true">M</span>
+            <span className="hw-welcome-back-arrow" aria-hidden="true">{'\u2190'}</span>
+            <span className="hw-welcome-back-label">Collection</span>
+          </button>
+          <div className="hw-mentor-inner">
+            <p className="hw-mentor-kicker">Before you write</p>
+            <h1 className="hw-mentor-heading" ref={mentorHeadingRef} tabIndex={-1}>Read a mentor poem</h1>
+            <p className="hw-mentor-intro">
+              Poets learn from other poets. Read this poem aloud, slowly, then borrow one of its moves for your own.
+            </p>
+
+            <figure className="hw-mentor-poem">
+              <h2 className="hw-mentor-title">{MENTOR_POEM.title}</h2>
+              <p className="hw-mentor-author">{MENTOR_POEM.author}</p>
+              <div className="hw-mentor-stanzas">
+                {MENTOR_POEM.stanzas.map((st, i) => (
+                  <p key={i} className="hw-mentor-stanza">
+                    {st.map((line, j) => (
+                      <span key={j} className="hw-mentor-line">{line}</span>
+                    ))}
+                  </p>
+                ))}
+              </div>
+              <figcaption className="hw-mentor-credit">
+                {MENTOR_POEM.author}, {'\u201C'}{MENTOR_POEM.title}.{'\u201D'}{' '}
+                {MENTOR_POEM.credit.split('The Crisis')[0]}<cite>The Crisis</cite>{MENTOR_POEM.credit.split('The Crisis')[1]}
+              </figcaption>
+            </figure>
+
+            <section className="hw-mentor-section" aria-labelledby="hw-notice-h">
+              <h2 id="hw-notice-h" className="hw-mentor-h2">What to notice</h2>
+              <ul className="hw-notice-list">
+                {MENTOR_NOTICES.map(n => (
+                  <li key={n.title}><strong>{n.title}.</strong> {n.text}</li>
+                ))}
+              </ul>
+            </section>
+
+            <section className="hw-mentor-section" aria-labelledby="hw-prompts-h">
+              <h2 id="hw-prompts-h" className="hw-mentor-h2">Pick a prompt</h2>
+              <ul className="hw-prompt-grid">
+                {PROMPT_CARDS.map((p, i) => (
+                  <li key={i}>
+                    <button type="button" className="hw-prompt-card" onClick={() => { setPromptIdx(i); setView('compose'); }}>
+                      <span className="hw-prompt-num" aria-hidden="true">{i + 1}</span>
+                      <span>{p}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+
+            <div className="hw-mentor-actions">
+              <button type="button" className="hw-welcome-enter" onClick={() => { setPromptIdx(null); setView('compose'); }}>
+                Start writing
+              </button>
+              <button type="button" className="hw-mentor-print" onClick={() => window.print()}>
+                Print poem and prompts
+              </button>
+            </div>
+
+            <details className="hw-teacher">
+              <summary>Teacher tip</summary>
+              <p>
+                Read the poem aloud twice. On the second reading, ask students to raise a hand at each repeated line,
+                then name the four rivers. Hughes uses &ldquo;Negro,&rdquo; the respectful term of his time; it is
+                worth a word before you read. After writing, Display shows each poem framed, and Print gives you a
+                copy for the classroom wall.
+              </p>
+            </details>
+          </div>
+        </div>
+      )}
+
       {/* ── COMPOSE VIEW ── */}
       {view === 'compose' && !displayMode && (
         <div className="hw-compose-page">
+          <h1 style={srOnly}>Harlem in Words: compose your poem</h1>
           <button className="hw-nav" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
             <span className="hw-nav-text">M</span>
             <span className="hw-nav-arrow">{'\u2190'}</span>
@@ -1634,7 +1974,7 @@ export default function HarlemInWordsPage() {
               </div>
 
               {/* Poem display */}
-              <div className="hw-poem-display">
+              <div className="hw-poem-display" ref={frameRef}>
                 {!hasWords ? (
                   <div className="hw-poem-placeholder">
                     <div className="hw-poem-placeholder-icon">{'\u270E'}</div>
@@ -1701,6 +2041,35 @@ export default function HarlemInWordsPage() {
 
           {/* RIGHT PANEL: Word Bank */}
           <div className="hw-right-panel">
+            {/* Phones: the poem so far, pinned above the words once the frame scrolls away */}
+            <div className={`hw-mini ${frameOutOfView && hasWords ? 'on' : ''}`} aria-hidden="true">
+              <span className="hw-mini-label">Your poem</span>
+              <span className="hw-mini-text">
+                {displayLines.slice(-2).map((line, i) => (
+                  <span key={i} className="hw-mini-line">{line.map(w => w.text).join(' ') || '\u00A0'}</span>
+                ))}
+              </span>
+            </div>
+
+            <div className="hw-prompt-strip">
+              <p className="hw-prompt-text">
+                <span className="hw-prompt-tag">{promptIdx === null ? 'Need an idea?' : 'Your prompt'}</span>{' '}
+                {promptIdx === null ? 'Try a prompt inspired by Langston Hughes.' : PROMPT_CARDS[promptIdx]}
+              </p>
+              <div className="hw-prompt-btns">
+                <button type="button" className="hw-shuffle-sm" onClick={() => {
+                  const next = promptIdx === null ? 0 : (promptIdx + 1) % PROMPT_CARDS.length;
+                  setPromptIdx(next);
+                  setAnnouncement(`Prompt: ${PROMPT_CARDS[next]}`);
+                }}>
+                  {promptIdx === null ? 'Show a prompt' : 'Next prompt'}
+                </button>
+                <button type="button" className="hw-shuffle-sm" onClick={() => setView('mentor')}>
+                  Reread the poem
+                </button>
+              </div>
+            </div>
+
             {/* Connectors */}
             <div className="hw-connectors">
               <div className="hw-connectors-label">Connectors {'\u2014'} tap to add (reusable)</div>

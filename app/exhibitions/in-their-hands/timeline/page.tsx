@@ -3,118 +3,25 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { srOnly, useDialogFocus } from '@/lib/a11y';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { timelineStops } from './timeline-data';
+import { RIBBON_START, RIBBON_END, formatYear, ribbonPosition, windowPosition, parseStopParam } from './chronology';
+import { coinHref, HANDS_HREF, HANDS_COIN_NAME, COIN_LESSON, lessonHref } from '../story-links';
 
-const timelineStops = [
-  {
-    id: 1,
-    ruler: "Augustus Caesar",
-    reference: "Luke 2:1",
-    coin: "AE As · 5–4 BC · RPC I 4248",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/augustus-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/augustus-tissot.jpg",
-    passage: "In those days Caesar Augustus issued a decree that a census should be taken of the entire Roman world.",
-    story: "Augustus ordered a census of the entire empire for tax purposes. This meant everyone had to return to their ancestral town to register. It is the reason Mary and Joseph travelled from Nazareth to Bethlehem, where Jesus was born. Augustus ruled from Rome and never visited Judaea. This bronze coin was minted during his reign and would have circulated widely across the empire."
-  },
-  {
-    id: 2,
-    ruler: "Herod the Great",
-    reference: "Matthew 2:13\u201316",
-    coin: "AE Prutah · 40–4 BC · Hendin 1177",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/herod-great-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/great-tissot.jpg",
-    passage: "An angel of the Lord appeared to Joseph in a dream. \u2018Get up,\u2019 he said, \u2018take the child and his mother and escape to Egypt. Stay there until I tell you, for Herod is going to search for the child to kill him.\u2019",
-    story: "After the Magi told Herod that a new king had been born in Bethlehem, Herod ordered the killing of all boys under two in the town. Joseph was warned in a dream and the Holy Family fled to Egypt. Herod died in 4 BC, the same year as his command. His coins carry no human image because Jewish law forbade it \u2014 the symbols on this small bronze prutah reflect the compromise between Roman power and Jewish religious practice."
-  },
-  {
-    id: 3,
-    ruler: "Aretas IV",
-    reference: "Mark 6:17\u201318",
-    coin: "AE Prutah · 9 BC–40 AD · Hendin CB168",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/aretas-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/baptist-tissot.jpg",
-    passage: "For Herod himself had given orders to have John arrested, and he had him bound and put in prison. He did this because of Herodias, his brother Philip\u2019s wife, whom he had married. For John had been saying to Herod, \u2018It is not lawful for you to have your brother\u2019s wife.\u2019",
-    story: "Herod Antipas divorced his first wife \u2014 the daughter of King Aretas IV of Nabataea \u2014 to marry Herodias. John the Baptist publicly condemned the marriage and was arrested and beheaded. Aretas later went to war against Antipas in revenge for the divorce and defeated him. Years later, Paul had to escape from Damascus to avoid Aretas\u2019s governor, and was lowered over the city wall in a basket (2 Corinthians 11:32\u201333). This single coin connects to three different New Testament stories."
-  },
-  {
-    id: 4,
-    ruler: "The Widow\u2019s Mite",
-    reference: "Mark 12:41\u201344",
-    coin: "Lepton · 103–76 BC, circulating 1st c. AD · Hendin 1150",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/widow-1-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/widow-tissot.jpg",
-    passage: "Jesus sat down opposite the place where the offerings were put and watched the crowd putting their money into the temple treasury. Many rich people threw in large amounts. But a poor widow came and put in two very small copper coins, worth only a few pence. Calling his disciples to him, Jesus said, \u2018Truly I tell you, this poor widow has put more into the treasury than all the others. They all gave out of their wealth; but she, out of her poverty, put in everything \u2014 all she had to live on.\u2019",
-    story: "The lepton was the smallest denomination in circulation, worth less than half a penny. Jesus said this widow\u2019s two tiny coins were worth more than all the large donations because she gave everything she had. This was his last public teaching before the Passion. Two specimens are displayed in the exhibition because the Gospel specifies two coins."
-  },
-  {
-    id: 5,
-    ruler: "The Tribute Penny",
-    reference: "Matthew 22:19\u201321",
-    coin: "Silver Denarius · 14–37 AD · RIC I 30 · REPLICA",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/tribute-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/tribute-tissot.jpg",
-    passage: "\u2018Show me the coin used for paying the tax.\u2019 They brought him a denarius, and he asked them, \u2018Whose image is this? And whose inscription?\u2019 \u2018Caesar\u2019s,\u2019 they replied. Then he said to them, \u2018So give back to Caesar what is Caesar\u2019s, and to God what is God\u2019s.\u2019",
-    story: "The Pharisees were trying to trap Jesus. If he said people should pay the Roman tax, he would anger the Jewish crowd. If he said they shouldn\u2019t, he could be reported to Rome. Jesus asked to see the coin and pointed out that it carried Caesar\u2019s image. The denarius bore the face of Tiberius on one side and the inscription PONTIF MAXIM \u2014 meaning High Priest \u2014 on the other. The claim that Caesar was a high priest would have been offensive to Jewish belief. This replica is the exact type of coin Jesus would have held."
-  },
-  {
-    id: 6,
-    ruler: "The Tyrian Shekel",
-    reference: "Matthew 26:14\u201315",
-    coin: "Silver Shekel · 1 BC–1 AD · Hendin 1621 · REPLICA",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/shekel.png",
-    painting: "/exhibitions/in-their-hands/timeline/judas-tissot.jpg",
-    passage: "Then one of the Twelve \u2014 the one called Judas Iscariot \u2014 went to the chief priests and asked, \u2018What are you willing to give me if I deliver him over to you?\u2019 So they counted out for him thirty pieces of silver.",
-    story: "The thirty pieces of silver were almost certainly Tyrian shekels. The Temple only accepted Tyrian shekels for the annual tax because they had the highest silver purity in circulation. So the coin that every Jewish man used for worship became the coin used to pay for betrayal. The same coin type appears in another Gospel story: in Matthew 17:27, Jesus tells Peter to go fishing and says he will find a coin in the mouth of the first fish he catches \u2014 a stater, worth exactly one Tyrian shekel, enough to pay the Temple tax for both of them."
-  },
-  {
-    id: 7,
-    ruler: "Pontius Pilate",
-    reference: "Matthew 27:24",
-    coin: "AE Prutah · 29/30 AD (RY16 of Tiberius) · Hendin 6370",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/pilate-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/pilate-tissot.jpg",
-    passage: "When Pilate saw that he was getting nowhere, but that instead an uproar was starting, he took water and washed his hands in front of the crowd. \u2018I am innocent of this man\u2019s blood,\u2019 he said. \u2018It is your responsibility!\u2019",
-    story: "Pontius Pilate was the Roman prefect of Judaea from 26 to 36 AD. Some scholars doubted he existed at all until 1961, when a limestone block inscribed with his name was found at Caesarea Maritima. This coin was minted in 29 or 30 AD \u2014 the precise year of the Crucifixion. It carries pagan religious symbols that were deliberately provocative on Jewish coinage. You are looking at a coin made by the man who sentenced Jesus to death, struck in the year he did it."
-  },
-  {
-    id: 8,
-    ruler: "Herod Antipas",
-    reference: "Luke 23:8\u20139",
-    coin: "AE Prutah · 4 BC–39 AD · Hendin 1204 · REPLICA",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/antipas-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/herod-tissot.jpg",
-    passage: "When Herod saw Jesus, he was greatly pleased, because for a long time he had been wanting to see him. From what he had heard about him, he hoped to see him perform a sign of some sort. He plied him with many questions, but Jesus gave him no answer.",
-    story: "During the trial, Pilate sent Jesus to Herod Antipas for questioning because Jesus was from Galilee, which was Antipas\u2019s territory. Antipas had been curious about Jesus for a long time and hoped to see him perform a miracle. But Jesus refused to speak to him at all. Antipas mocked him, dressed him in a fine robe, and sent him back to Pilate. Jesus spoke to Pilate, to the High Priest, and to his accusers \u2014 but he gave Antipas nothing. Not one word. It is the only silence in the entire Passion narrative."
-  },
-  {
-    id: 9,
-    ruler: "Herod Agrippa I",
-    reference: "Acts 12:1\u20133",
-    coin: "AE Prutah · 41–44 AD · Hendin 1244",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/agrippa-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/agrippa-zurbaran.jpg",
-    passage: "It was about this time that King Herod arrested some who belonged to the church, intending to persecute them. He had James, the brother of John, put to death with the sword. When he saw that this met with approval among the Jews, he proceeded to seize Peter also.",
-    story: "Herod Agrippa I was the grandson of Herod the Great. He had the apostle James executed \u2014 making James the first of the twelve apostles to be martyred. He then arrested Peter as well. Shortly afterwards, Agrippa himself died. His death is described in both Acts 12:23 and by the Jewish historian Josephus in almost identical terms: he was struck down and eaten by worms. This small bronze prutah was minted during the brief years of his reign."
-  },
-  {
-    id: 10,
-    ruler: "Emperor Claudius",
-    reference: "Acts 18:1\u20133",
-    coin: "AE As · 41–54 AD · RIC I 100",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/claudius-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/paul-tissot.jpg",
-    passage: "After this, Paul left Athens and went to Corinth. There he met a Jew named Aquila, a native of Pontus, who had recently come from Italy with his wife Priscilla, because Claudius had ordered all Jews to leave Rome. Paul went to see them, and because he was a tentmaker as they were, he stayed and worked with them.",
-    story: "Around 49 AD, the Emperor Claudius expelled all Jews from Rome. The Roman historian Suetonius confirms this. The expulsion forced a married couple called Aquila and Priscilla to leave Italy and travel to Corinth. When Paul arrived in Corinth, he met them and they worked together as tentmakers. Aquila and Priscilla became two of Paul\u2019s most important partners in spreading the early Church. Without Claudius\u2019s edict, they would never have been in Corinth when Paul arrived. This coin was minted during Claudius\u2019s reign."
-  },
-  {
-    id: 11,
-    ruler: "Porcius Festus",
-    reference: "Acts 25:10\u201312",
-    coin: "AE Prutah · 59–62 AD · Hendin 1348 · NGC Certified",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/festus-front.png",
-    painting: "/exhibitions/in-their-hands/timeline/festus-surikov.jpg",
-    passage: "Paul answered: \u2018I am now standing before Caesar\u2019s court, where I ought to be tried. I have not done any wrong to the Jews, as you yourself know very well. I appeal to Caesar!\u2019 After Festus had conferred with his advisers, he declared: \u2018You have appealed to Caesar. To Caesar you will go!\u2019",
-    story: "Paul had been held prisoner in Caesarea for two years. When Porcius Festus arrived as the new governor, he tried to send Paul back to Jerusalem to face trial, but Paul knew an ambush was planned for the journey. He used his right as a Roman citizen to appeal directly to the Emperor. Festus had no choice but to grant the appeal. This is what sent Paul on his journey to Rome. This coin was minted by Festus during the exact years described in Acts, and has been independently authenticated by NGC, the world\u2019s largest coin grading service. Professional numismatists have confirmed it is genuine."
-  }
+
+// Axis labels: the two ends and the turn of the era. There is no year 0,
+// so "1 AD" sits exactly one year after "1 BC" would.
+// The axis runs between the centers of the first and last stop buttons, so
+// its ends line up with the button row below it.
+const N_STOPS = timelineStops.length;
+const AXIS_LO = 0.5 / N_STOPS;
+const toAxis = (p: number) => (AXIS_LO + p * (1 - 2 * AXIS_LO)) * 100;
+
+const AXIS_TICKS = [
+  { label: formatYear(RIBBON_START), pos: 0, edge: 'start' },
+  { label: '1 AD', pos: ribbonPosition({ year: 1, era: 'AD' }), edge: 'era' },
+  { label: '30 AD', pos: ribbonPosition({ year: 30, era: 'AD' }), edge: '' },
+  { label: formatYear(RIBBON_END), pos: 1, edge: 'end' },
 ];
 
 export default function GospelTimeline() {
@@ -144,6 +51,56 @@ export default function GospelTimeline() {
   const goNext = useCallback(() => goTo(currentIndex + 1), [currentIndex, goTo]);
   const goPrev = useCallback(() => goTo(currentIndex - 1), [currentIndex, goTo]);
 
+  // Deep link: /timeline?stop=N opens on stop N (1-based). Read once on
+  // arrival; afterwards the address follows the visitor so it can be shared.
+  const urlReady = useRef(false);
+  useEffect(() => {
+    const i = parseStopParam(new URLSearchParams(window.location.search).get('stop'), timelineStops.length);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-off sync from the address bar
+    if (i !== null) setCurrentIndex(i);
+    urlReady.current = true;
+  }, []);
+  useEffect(() => {
+    if (!urlReady.current) return;
+    const url = new URL(window.location.href);
+    const want = String(currentIndex + 1);
+    if (url.searchParams.get('stop') === want) return;
+    url.searchParams.set('stop', want);
+    window.history.replaceState(window.history.state, '', url.toString());
+  }, [currentIndex]);
+
+  // The story card scrolls on larger screens. Show a cue while more text
+  // waits below, and keep it in step with scrolling, resizing and new stops.
+  const bodyRef = useRef<HTMLDivElement>(null);
+  const [moreBelow, setMoreBelow] = useState(false);
+  const measureBody = useCallback(() => {
+    const el = bodyRef.current;
+    if (!el) return;
+    setMoreBelow(el.scrollHeight - el.scrollTop - el.clientHeight > 6);
+  }, []);
+  useEffect(() => {
+    const el = bodyRef.current;
+    if (el) el.scrollTop = 0;
+    measureBody();
+    window.addEventListener('resize', measureBody);
+    const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
+    fonts?.ready.then(measureBody).catch(() => {});
+    return () => window.removeEventListener('resize', measureBody);
+  }, [currentIndex, measureBody]);
+  const scrollBodyDown = useCallback(() => {
+    const el = bodyRef.current;
+    if (el) el.scrollBy({ top: el.clientHeight * 0.8, behavior: 'smooth' });
+  }, []);
+
+  // If a ribbon stop has focus when the stop changes (arrow keys), move
+  // focus to the new stop's button so keyboard users keep their place.
+  const ribbonRef = useRef<HTMLOListElement>(null);
+  useEffect(() => {
+    const list = ribbonRef.current;
+    if (!list || !list.contains(document.activeElement)) return;
+    list.querySelectorAll<HTMLButtonElement>('button')[currentIndex]?.focus();
+  }, [currentIndex]);
+
   // Fullscreen painting is a modal dialog: focus moves to Close, Tab stays
   // inside, Escape closes, and focus returns to the painting button.
   const modalRef = useRef<HTMLDivElement>(null);
@@ -167,6 +124,7 @@ export default function GospelTimeline() {
   // Touch swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = e.touches[0].clientX;
   };
   const handleTouchMove = (e: React.TouchEvent) => {
     touchEndX.current = e.touches[0].clientX;
@@ -294,7 +252,8 @@ export default function GospelTimeline() {
           align-items: center;
           justify-content: flex-start;
           height: 100vh;
-          padding: 80px 35vw 100px 60px;
+          height: 100dvh;
+          padding: 80px 35vw 130px 60px;
           gap: 48px;
         }
 
@@ -346,9 +305,8 @@ export default function GospelTimeline() {
         .tl-card {
           background: #F5EDD8;
           border-radius: 4px;
-          padding: 32px 36px;
-          height: 55vh;
-          max-height: 500px;
+          padding: 28px 36px 22px;
+          height: min(68vh, 620px);
           display: flex;
           flex-direction: column;
           box-shadow:
@@ -468,9 +426,11 @@ export default function GospelTimeline() {
           border-radius: 4px;
         }
         .tl-painting-inset img {
-          height: 55vh;
-          max-height: 500px;
+          display: block;
+          height: auto;
           width: auto;
+          max-height: min(55vh, 500px);
+          max-width: calc(35vw - 56px);
           object-fit: contain;
           border-radius: 4px;
           box-shadow:
@@ -544,9 +504,9 @@ export default function GospelTimeline() {
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 32px;
-          padding: 24px 32px;
-          background: linear-gradient(to top, rgba(28, 20, 9, 0.95) 0%, rgba(28, 20, 9, 0) 100%);
+          gap: 20px;
+          padding: 28px 32px 18px;
+          background: linear-gradient(to top, rgba(28, 20, 9, 0.97) 0%, rgba(28, 20, 9, 0.85) 60%, rgba(28, 20, 9, 0) 100%);
         }
 
         .tl-nav-arrow {
@@ -573,67 +533,206 @@ export default function GospelTimeline() {
           pointer-events: none;
         }
 
-        .tl-dots {
+        /* ========== DATE RIBBON ========== */
+        .tl-ribbon {
+          flex: 1;
+          max-width: 620px;
+          min-width: 0;
           display: flex;
-          gap: 0;
-          align-items: center;
+          flex-direction: column;
         }
-
-        /* A 24px target around each 8px dot (WCAG 2.5.8); the dot is drawn by ::before */
-        .tl-dot {
+        .tl-axis {
           position: relative;
-          width: 24px;
-          height: 24px;
-          border-radius: 50%;
-          border: none;
-          padding: 0;
-          cursor: pointer;
-          background: transparent;
+          height: 26px;
         }
-        .tl-dot::before {
-          content: '';
+        .tl-axis-line {
           position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 8px;
-          height: 8px;
-          margin: -4px 0 0 -4px;
+          left: calc(50% / var(--n));
+          right: calc(50% / var(--n));
+          top: 19px;
+          height: 1px;
+          background: rgba(245, 237, 216, 0.35);
+        }
+        .tl-axis-tick {
+          position: absolute;
+          top: 15px;
+          width: 1px;
+          height: 9px;
+          background: rgba(245, 237, 216, 0.45);
+        }
+        .tl-axis-label {
+          position: absolute;
+          bottom: 11px;
+          left: 0;
+          transform: translateX(-50%);
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.08em;
+          color: rgba(245, 237, 216, 0.75);
+          white-space: nowrap;
+        }
+        .tl-axis-tick.start .tl-axis-label, .tl-axis-tick.era .tl-axis-label { transform: none; }
+        .tl-axis-tick.end .tl-axis-label { transform: translateX(-100%); }
+        .tl-axis-mark {
+          position: absolute;
+          top: 17px;
+          height: 5px;
+          border-radius: 3px;
+          background: rgba(201, 168, 76, 0.55);
+          transform: translateX(-1px);
+        }
+        .tl-axis-mark.active {
+          top: 15px;
+          height: 9px;
+          background: #E2C36B;
+          box-shadow: 0 0 8px rgba(201, 168, 76, 0.6);
+        }
+        .tl-leaders {
+          display: block;
+          width: 100%;
+          height: 14px;
+          overflow: visible;
+        }
+        .tl-leaders line {
+          stroke: rgba(201, 168, 76, 0.35);
+          stroke-width: 1;
+        }
+        .tl-leaders line.active {
+          stroke: #E2C36B;
+          stroke-width: 1.5;
+        }
+        .tl-stops {
+          list-style: none;
+          display: grid;
+          margin: 0;
+          padding: 0;
+        }
+        .tl-stops li { display: flex; justify-content: center; }
+        .tl-stop {
+          width: 26px;
+          height: 26px;
           border-radius: 50%;
-          transition: all 0.3s ease;
-          background: rgba(245, 237, 216, 0.3);
+          border: 1px solid rgba(201, 168, 76, 0.5);
+          background: rgba(28, 20, 9, 0.75);
+          color: #F5EDD8;
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          line-height: 1;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0;
+          transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
         }
-        .tl-dot:hover::before {
-          background: rgba(245, 237, 216, 0.6);
-          transform: scale(1.3);
-        }
-        .tl-dot.active::before {
-          background: #C9A84C;
+        .tl-stop:hover { border-color: #E2C36B; background: rgba(201, 168, 76, 0.18); }
+        .tl-stop.active {
+          background: #E2C36B;
+          border-color: #E2C36B;
+          color: #1C1409;
+          font-weight: 500;
           box-shadow: 0 0 10px rgba(201, 168, 76, 0.5);
-          transform: scale(1.2);
+        }
+        .tl-stop:focus-visible, .tl-nav-arrow:focus-visible, .tl-link:focus-visible,
+        .tl-end-btn:focus-visible, .tl-back-btn:focus-visible {
+          outline: 2px solid #F5EDD8;
+          outline-offset: 2px;
         }
 
-        /* ========== FINAL STOP BUTTON ========== */
-        .tl-end-btn {
+        /* ========== CARD FOOTER: LINKS AND EXIT ========== */
+        .tl-card-when {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: #7A5F1E;
+          margin-bottom: 4px;
+        }
+        .tl-card-scroll {
+          position: relative;
+          flex: 1;
+          min-height: 0;
+          display: flex;
+          flex-direction: column;
+        }
+        .tl-card-more {
+          position: absolute;
+          left: 0;
+          right: 8px;
+          bottom: 0;
+          height: 56px;
+          display: flex;
+          align-items: flex-end;
+          justify-content: center;
+          background: linear-gradient(to bottom, rgba(245, 237, 216, 0) 0%, #F5EDD8 75%);
+          pointer-events: none;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+        }
+        .tl-card-more.on { opacity: 1; }
+        .tl-card-more.on .tl-card-more-btn { pointer-events: auto; }
+        .tl-card-more-btn {
+          border: 1px solid rgba(122, 95, 30, 0.45);
+          border-radius: 100px;
+          background: #F5EDD8;
+          color: #5E4914;
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          padding: 4px 12px;
+          cursor: pointer;
+        }
+        .tl-card-footer {
+          flex-shrink: 0;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px 16px;
+          padding-top: 14px;
+          margin-top: 8px;
+          border-top: 1px solid rgba(139, 125, 107, 0.25);
+        }
+        .tl-links {
+          list-style: none;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px 18px;
+          margin: 0;
+          padding: 0;
+        }
+        /* a:link in globals.css is (0,1,1): out-rank it */
+        .tl-links a.tl-link {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          letter-spacing: 0.04em;
+          color: #6B4F12;
+          text-decoration: underline;
+          text-decoration-color: rgba(107, 79, 18, 0.4);
+          text-underline-offset: 3px;
+          display: inline-block;
+          padding: 4px 0;
+        }
+        .tl-links a.tl-link:hover { color: #3D2C06; text-decoration-color: currentColor; }
+        .tl-card-footer a.tl-end-btn {
           display: inline-flex;
           align-items: center;
-          gap: 10px;
-          margin-top: 24px;
-          padding: 12px 28px;
+          gap: 8px;
+          padding: 9px 20px;
           border-radius: 100px;
-          border: 1px solid rgba(201, 168, 76, 0.4);
-          background: transparent;
-          color: #C9A84C;
+          border: 1px solid #6B4F12;
+          background: #3D3428;
+          color: #F5EDD8;
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.12em;
           text-transform: uppercase;
+          text-decoration: none;
           cursor: pointer;
-          transition: all 0.3s ease;
+          transition: background 0.3s ease;
         }
-        .tl-end-btn:hover {
-          background: rgba(201, 168, 76, 0.1);
-          border-color: #C9A84C;
-        }
+        .tl-card-footer a.tl-end-btn:hover { background: #1C1409; }
 
         /* ========== LOAD ANIMATION ========== */
         .tl-page { opacity: 0; transition: opacity 0.6s ease; }
@@ -654,7 +753,15 @@ export default function GospelTimeline() {
           }
           .tl-card {
             padding: 28px 24px;
+            height: auto;
+            max-height: none;
           }
+          /* One scroll (the page), not a scroll inside a scroll */
+          .tl-card-body { overflow: visible; padding-right: 0; }
+          .tl-card-more { display: none; }
+          /* The page scrolls under the header and the ribbon here: give them ground */
+          .tl-header { background: linear-gradient(to bottom, #1C1409 0%, #1C1409 70%, rgba(28, 20, 9, 0) 100%); padding-bottom: 28px; }
+          .tl-nav { background: linear-gradient(to top, #1C1409 0%, #1C1409 82%, rgba(28, 20, 9, 0) 100%); }
           .tl-card-area {
             max-width: 100%;
           }
@@ -675,13 +782,15 @@ export default function GospelTimeline() {
           .tl-card {
             padding: 24px 20px;
           }
+          /* Sit clear of the site's MAP button in the bottom-right corner */
+          .tl-main { padding-bottom: 190px; }
           .tl-nav {
-            padding: 16px 20px;
+            gap: 6px;
+            padding: 24px 10px 76px;
           }
-          /* Narrow screens keep the original 14px pitch; the 44px arrows
-             reach every stop too (the 2.5.8 "equivalent control" exception). */
-          .tl-dot { width: 14px; }
-          .tl-dot::before { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; }
+          .tl-nav-arrow { width: 34px; height: 34px; font-size: 16px; flex-shrink: 0; }
+          .tl-stop { width: 24px; height: 24px; font-size: 10px; }
+          .tl-axis-tick.era .tl-axis-label { display: none; }
         }
       `}</style>
 
@@ -693,7 +802,7 @@ export default function GospelTimeline() {
       </div>
 
       <div style={srOnly} role="status" aria-live="polite">
-        {loaded ? `Stop ${currentIndex + 1} of ${timelineStops.length}: ${stop.ruler}` : ''}
+        {loaded ? `Stop ${currentIndex + 1} of ${timelineStops.length}: ${stop.ruler}, ${stop.when.label}` : ''}
       </div>
 
       {/* Header */}
@@ -723,18 +832,38 @@ export default function GospelTimeline() {
         <div className="tl-card-area">
           <div className={`tl-card ${transitioning ? (direction === 'right' ? 'entering-right' : 'entering-left') : 'visible'}`}>
             <div className="tl-card-header">
+              <p className="tl-card-when">{stop.when.label}</p>
               <h2 className="tl-card-ruler">{stop.ruler}</h2>
               <p className="tl-card-coin">{stop.coin}</p>
               <p className="tl-card-reference">{stop.reference}</p>
             </div>
-            <div className="tl-card-body" tabIndex={0} role="region" aria-label={`${stop.ruler}: passage and story`}>
-              <p className="tl-card-passage">&ldquo;{stop.passage}&rdquo;</p>
-              <p className="tl-card-story">{stop.story}</p>
-
-              {isLast && (
-                <button className="tl-end-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
-                  Back to Exhibition {'\u2192'}
+            <div className="tl-card-scroll">
+              <div className="tl-card-body" ref={bodyRef} onScroll={measureBody} tabIndex={0} role="region" aria-label={`${stop.ruler}: passage and story`}>
+                <p className="tl-card-passage">&ldquo;{stop.passage}&rdquo;</p>
+                <p className="tl-card-story">{stop.story}</p>
+              </div>
+              <div className={`tl-card-more ${moreBelow ? 'on' : ''}`} aria-hidden="true">
+                <button type="button" tabIndex={-1} className="tl-card-more-btn" onClick={scrollBodyDown}>
+                  More below <span>{'\u2193'}</span>
                 </button>
+              </div>
+            </div>
+
+            {/* Links and the exit sit outside the scrolling text, always in view */}
+            <div className="tl-card-footer">
+              <ul className="tl-links" aria-label={`More about the ${stop.ruler} coin`}>
+                <li><Link className="tl-link" href={coinHref(stop.coinId)}>See the coin in 3D</Link></li>
+                {HANDS_COIN_NAME[stop.coinId] && (
+                  <li><Link className="tl-link" href={HANDS_HREF}>Hands of History</Link></li>
+                )}
+                {COIN_LESSON[stop.coinId] && (
+                  <li><Link className="tl-link" href={lessonHref(COIN_LESSON[stop.coinId]!.slug)}>Lesson: {COIN_LESSON[stop.coinId]!.title}</Link></li>
+                )}
+              </ul>
+              {isLast && (
+                <Link className="tl-end-btn" href="/exhibitions/in-their-hands">
+                  Back to Exhibition <span aria-hidden="true">{'\u2192'}</span>
+                </Link>
               )}
             </div>
           </div>
@@ -766,10 +895,10 @@ export default function GospelTimeline() {
         <img src={stop.painting} alt={`${stop.ruler} — painting`} />
       </div>
 
-      {/* Navigation */}
-      <nav className="tl-nav">
+      {/* Navigation: arrows either side of a date ribbon, 5 BC to 62 AD */}
+      <nav className="tl-nav" aria-label="Timeline stops">
         <button
-          className="tl-nav-arrow"
+          className="tl-nav-arrow tl-prev"
           onClick={goPrev}
           disabled={isFirst}
           aria-label="Previous stop"
@@ -777,21 +906,52 @@ export default function GospelTimeline() {
           <span aria-hidden="true">{'\u2190'}</span>
         </button>
 
-        <div className="tl-dots">
-          {timelineStops.map((_, i) => (
-            <button
-              key={i}
-              type="button"
-              className={`tl-dot ${i === currentIndex ? 'active' : ''}`}
-              onClick={() => goTo(i)}
-              aria-label={`Go to stop ${i + 1}`}
-              aria-current={i === currentIndex ? 'step' : undefined}
-            />
-          ))}
+        <div className="tl-ribbon" style={{ '--n': N_STOPS } as React.CSSProperties}>
+          <div className="tl-axis" aria-hidden="true">
+            <span className="tl-axis-line" />
+            {AXIS_TICKS.map(t => (
+              <span key={t.label} className={`tl-axis-tick ${t.edge}`} style={{ left: `${toAxis(t.pos)}%` }}>
+                <span className="tl-axis-label">{t.label}</span>
+              </span>
+            ))}
+            {timelineStops.map((s, i) => {
+              const a = ribbonPosition(s.when.from);
+              const b = s.when.to ? ribbonPosition(s.when.to) : a;
+              return (
+                <span key={s.id}
+                  className={`tl-axis-mark ${i === currentIndex ? 'active' : ''}`}
+                  style={{ left: `${toAxis(a)}%`, width: `max(3px, ${toAxis(b) - toAxis(a)}%)` }} />
+              );
+            })}
+          </div>
+          <svg className="tl-leaders" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            {timelineStops.map((s, i) => (
+              <line key={s.id}
+                className={i === currentIndex ? 'active' : ''}
+                x1={toAxis(windowPosition(s.when.from, s.when.to))} y1={0}
+                x2={((i + 0.5) / timelineStops.length) * 100} y2={10}
+                vectorEffect="non-scaling-stroke" />
+            ))}
+          </svg>
+          <ol className="tl-stops" ref={ribbonRef} style={{ gridTemplateColumns: `repeat(${timelineStops.length}, 1fr)` }}>
+            {timelineStops.map((s, i) => (
+              <li key={s.id}>
+                <button
+                  type="button"
+                  className={`tl-stop ${i === currentIndex ? 'active' : ''}`}
+                  onClick={() => goTo(i)}
+                  aria-label={`Stop ${i + 1}: ${s.ruler}, ${s.when.label}`}
+                  aria-current={i === currentIndex ? 'step' : undefined}
+                >
+                  <span aria-hidden="true">{i + 1}</span>
+                </button>
+              </li>
+            ))}
+          </ol>
         </div>
 
         <button
-          className="tl-nav-arrow"
+          className="tl-nav-arrow tl-next"
           onClick={goNext}
           disabled={isLast}
           aria-label="Next stop"

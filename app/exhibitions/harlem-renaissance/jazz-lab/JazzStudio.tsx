@@ -3,10 +3,17 @@
 import { Fragment, useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
   SESSIONS, SESSION_MAP, TIMELINE_DURATION, loopDuration, snapToBar,
-  INST_COLORS, INST_EMOJI, INST_NAMES,
+  INST_COLORS, INST_EMOJI, INST_NAMES, TEMPLATES, checkAABA,
   type SessionDef, type LoopDef, type InstrumentCategory,
 } from './studio-data';
 import { srOnly } from '@/lib/a11y';
+
+/** Mix a #rrggbb color toward white, for small text on the dark stage (AA contrast). */
+function lighten(hex: string, amount: number) {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = (v: number) => Math.round(v + (255 - v) * amount).toString(16).padStart(2, '0');
+  return `#${ch(n >> 16)}${ch((n >> 8) & 255)}${ch(n & 255)}`;
+}
 
 function fmtTime(t: number) {
   const m = Math.floor(t / 60), s = Math.floor(t % 60);
@@ -99,7 +106,7 @@ export default function JazzStudio() {
         .js-transport .jl-btn.active{background:rgba(201,169,78,0.15);border-color:var(--jl-gold)}
         .js-transport .jl-btn:disabled{opacity:0.3;cursor:not-allowed}
         .js-crate{border:1px solid rgba(201,169,78,0.12);border-radius:8px;background:var(--jl-bg-stage);overflow:hidden;margin-top:12px}
-        .js-crate-toggle{width:100%;background:none;border:none;border-bottom:1px solid rgba(201,169,78,0.08);color:var(--jl-gold-dim);font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;padding:10px;cursor:pointer;transition:color 0.2s;-webkit-tap-highlight-color:transparent}
+        .js-crate-toggle{width:100%;background:none;border:none;border-bottom:1px solid rgba(201,169,78,0.08);color:var(--jl-gold);font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;font-weight:600;padding:10px;cursor:pointer;transition:color 0.2s;-webkit-tap-highlight-color:transparent}
         .js-crate-toggle:hover{color:var(--jl-gold)}
         .js-crate-body{padding:12px 14px 16px}
         .js-crate-group{margin-bottom:14px}
@@ -109,7 +116,7 @@ export default function JazzStudio() {
         .js-tile{background:rgba(255,255,255,0.03);border:1px solid;border-radius:4px;padding:5px 10px;cursor:grab;display:flex;align-items:center;gap:6px;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:none;user-select:none}
         .js-tile:hover{background:rgba(201,169,78,0.08)}
         .js-tile-playing{box-shadow:0 0 10px rgba(201,169,78,0.4);background:rgba(201,169,78,0.12)}
-        .js-tile-name{font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;color:var(--jl-text)}
+        .js-tile-name{font-family:'Josefin Sans',sans-serif;font-size:12px;font-weight:600;color:var(--jl-text)}
         .js-tile-info{font-family:'Josefin Sans',sans-serif;font-size:9px;color:var(--jl-text-dim)}
         .js-drag-ghost{position:fixed;z-index:9999;pointer-events:none;border:1px solid;border-radius:4px;padding:4px 10px;font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:600;color:var(--jl-text);opacity:0.85;box-shadow:0 4px 16px rgba(0,0,0,0.4);white-space:nowrap}
         .js-loading{text-align:center;padding:60px 20px}
@@ -117,6 +124,25 @@ export default function JazzStudio() {
         .js-loading-subtitle{font-family:'Josefin Sans',sans-serif;font-size:12px;color:var(--jl-text-dim);letter-spacing:2px;margin-bottom:24px;font-weight:300}
         .js-progress-track{width:200px;height:3px;background:rgba(201,169,78,0.15);border-radius:2px;margin:0 auto;overflow:hidden}
         .js-progress-fill{height:100%;background:var(--jl-gold);border-radius:2px;transition:width 0.3s}
+        .js-guide{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px;align-items:start}
+        .js-guide-card{border:1px solid rgba(201,169,78,0.18);border-radius:8px;background:var(--jl-bg-stage);padding:12px 14px}
+        .js-guide-title{font-family:'Josefin Sans',sans-serif;font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:600;color:var(--jl-gold);margin:0 0 6px}
+        .js-guide-text{font-family:'Josefin Sans',sans-serif;font-size:13px;line-height:1.55;color:var(--jl-text);margin:0 0 10px}
+        .js-guide-dim{color:var(--jl-text-dim)}
+        .js-guide summary{cursor:pointer;list-style:none}
+        .js-guide summary::-webkit-details-marker{display:none}
+        .js-guide summary .js-guide-title{display:inline}
+        .js-guide summary:focus-visible,.js-guide .jl-btn:focus-visible{outline:2px solid #a8d5e5;outline-offset:2px}
+        .js-checks{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+        .js-checks li{font-family:'Josefin Sans',sans-serif;font-size:13px;line-height:1.45;color:var(--jl-text-dim);display:flex;gap:8px}
+        .js-checks li.ok{color:var(--jl-text)}
+        .js-check-mark{flex-shrink:0;width:16px;text-align:center;color:var(--jl-text-dim)}
+        .js-checks li.ok .js-check-mark{color:#9BC77A}
+        .js-done{font-family:'Playfair Display',serif;font-size:15px;color:var(--jl-gold);margin:10px 0 0}
+        @media(max-width:768px){
+          .js-arr-header{padding-left:64px;min-height:56px}
+          .js-guide{grid-template-columns:1fr}
+        }
         @media(max-width:600px){
           .js-kits{gap:20px;grid-template-columns:repeat(2,1fr)}
           .js-vinyl{width:100px;height:100px}
@@ -460,6 +486,26 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   }, [blocks, session, removeBlock]);
 
   const clearAll = useCallback(() => { stopPlay(); setBlocks([]); setActiveBlockId(null); setSeekTime(0); }, [stopPlay]);
+
+  // ── Starter template and AABA challenge ──
+  const template = TEMPLATES[session.id];
+  const loadTemplate = useCallback(() => {
+    if (!template) return;
+    if (blocks.length && !window.confirm('Replace your arrangement with the Head \u2192 Solo \u2192 Head template?')) return;
+    stopPlay();
+    const bar = 240 / session.bpm;
+    const next: PlacedBlock[] = [];
+    for (const p of template.placements) {
+      const l = session.loops.find(x => x.id === p.loopId);
+      if (l) next.push({ uid: nuid(), loopId: l.id, lane: l.instrument, startTime: p.bar * bar });
+    }
+    setBlocks(next);
+    setActiveBlockId(null);
+    setSeekTime(0);
+    if (playheadRef.current) playheadRef.current.style.left = '0%';
+    setAnnouncement('Loaded the template: the head in bars 1 to 8, a solo in bars 9 to 16, the head again in bars 17 to 24. Press Play.');
+  }, [template, blocks.length, stopPlay, session]);
+  const aaba = useMemo(() => checkAABA(blocks, session), [blocks, session]);
 
   // ── Add another copy (tap block → "+") ──
 
@@ -879,6 +925,41 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
         </button>
       </div>
 
+      <div className="js-guide">
+        {template && (
+          <div className="js-guide-card">
+            <h3 className="js-guide-title">Start from a template</h3>
+            <p className="js-guide-text">
+              <strong>Head {'\u2192'} Solo {'\u2192'} Head</strong>: play the tune (the head), take a solo, then play the tune again.
+              <span className="js-guide-dim"> Bars 1{'\u2013'}8, 9{'\u2013'}16 and 17{'\u2013'}24.</span>
+            </p>
+            <button type="button" className="jl-btn" onClick={loadTemplate}>Load template</button>
+          </div>
+        )}
+        <details className="js-guide-card">
+          <summary><h3 className="js-guide-title">Challenge: build a 32-bar AABA tune</h3></summary>
+          <p className="js-guide-text" style={{ marginTop: 8 }}>
+            AABA is the shape of many jazz standards: a tune (A) played twice, a different
+            section called the bridge (B), then the tune once more. Four 8-bar sections make 32 bars.
+          </p>
+          <ul className="js-checks" aria-label="Challenge progress">
+            {[
+              { ok: aaba.firstA, text: 'A: a horn or piano loop starts in bars 1\u20138' },
+              { ok: aaba.secondA, text: 'A again: the same loop starts in bars 9\u201316' },
+              { ok: aaba.bridge, text: 'B, the bridge: a different horn or piano loop in bars 17\u201324' },
+              { ok: aaba.lastA, text: 'A to finish: the first loop returns in bars 25\u201332' },
+              { ok: aaba.rhythm, text: 'Rhythm: drums or bass playing in all four sections' },
+            ].map(c => (
+              <li key={c.text} className={c.ok ? 'ok' : ''}>
+                <span className="js-check-mark" aria-hidden="true">{c.ok ? '\u2713' : '\u25CB'}</span>
+                <span>{c.text}<span style={srOnly}>{c.ok ? ', done' : ', not yet'}</span></span>
+              </li>
+            ))}
+          </ul>
+          <div role="status">{aaba.done && <p className="js-done">You built a 32-bar AABA tune. Press Play to hear it.</p>}</div>
+        </details>
+      </div>
+
       <div className="js-crate">
         <button type="button" className="js-crate-toggle" aria-expanded={crateOpen} aria-controls="js-crate-body" onClick={() => setCrateOpen(p => !p)}>
           <span aria-hidden="true">{crateOpen ? '\u25BE' : '\u25B4'}</span> Sample Crate
@@ -888,7 +969,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
           <div className="js-crate-body" id="js-crate-body">
             {session.instruments.map(inst => (
               <div key={inst} className="js-crate-group">
-                <div className="js-crate-title" style={{ color: INST_COLORS[inst] }}>
+                <div className="js-crate-title" style={{ color: lighten(INST_COLORS[inst], 0.25) }}>
                   <span aria-hidden="true">{INST_EMOJI[inst]}</span> {INST_NAMES[inst]}
                 </div>
                 <div className="js-crate-tiles">
@@ -903,13 +984,13 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
                         onClick={(e) => { if (e.detail === 0) addLoopFromCrate(loop); }}
                       >
                         <span className="js-tile-name">{loop.label}</span>
-                        <span className="js-tile-info">{loop.bars}b</span>
+                        <span className="js-tile-info">{loop.bars} {loop.bars === 1 ? 'bar' : 'bars'}</span>
                       </button>
                       <button
                         type="button"
                         className="js-tile-preview"
                         style={{ borderColor: INST_COLORS[inst] }}
-                        aria-label={`Preview ${loop.label}`}
+                        aria-label={`Preview ${loop.label}, ${loop.bars} ${loop.bars === 1 ? 'bar' : 'bars'}`}
                         aria-pressed={previewingId === loop.id}
                         title="Preview"
                         onClick={() => togglePreview(loop)}
