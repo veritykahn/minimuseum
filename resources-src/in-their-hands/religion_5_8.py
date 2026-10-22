@@ -23,6 +23,30 @@ HERO = {"img": "/exhibitions/in-their-hands/timeline/tribute-tissot.jpg", "pos":
 HOOK_Q = "Whose face is on this? What words are written on it? What is the coin claiming?"
 PRAYER = "Lord, the coin carries the image of the one who made it. We carry yours. Help us to give back to you what is yours — our time, our gifts, and our whole selves. Amen."
 
+# What students will be able to do, set up front in the plan and on the
+# cover screen, then asked back as questions in the Look back. Each is
+# (objective, the same as a question, go deeper?).
+OBJECTIVES = {
+  "heading": "By the end of this lesson you will be able to:",
+  "items": [
+    ("read a Roman coin as evidence: whose image, whose inscription, and what it claims",
+     "read a coin as evidence?", False),
+    ("explain the trap set for Jesus, and how his answer escapes it",
+     "explain the trap, and how Jesus’ answer escapes it?", False),
+    ("connect “give back to Caesar what is Caesar’s” (Matthew 22:21) to being made in God’s image (Genesis 1:27)",
+     "connect Caesar’s coin to God’s image in you?", False),
+    ("judge when obedience to the state must give way to conscience",
+     "judge when obedience to the state must give way to conscience?", True)],
+  "why": "Coins, flags and screens all ask for our loyalty every day. Jesus’ question gives us a way to tell what belongs to God."}
+LOOK_BACK = "Can you now…"
+
+# The three faces for the hook: who was in charge, on the coins themselves.
+HOOK_COINS = [
+  {"img": C + "augustus-front.png", "name": "Augustus", "alt": "A bronze coin of Augustus Caesar: the emperor’s head"},
+  {"img": C + "tribute-front.png", "name": "Tiberius", "sub": "The Tribute Penny", "replica": True,
+   "alt": "The Tribute Penny, a silver denarius of Tiberius: the emperor’s head. A museum-quality replica"},
+  {"img": C + "claudius-front.png", "name": "Claudius", "alt": "A bronze coin of the emperor Claudius: his head"}]
+
 # "screen" on a section is for the site's Lesson mode only (resources-src/
 # export_lessons.py); build.py ignores it, so the PDF is unchanged. It names
 # what students see on the projector while the teacher reads the section's
@@ -33,8 +57,21 @@ LESSON = {
   "slug": "whose-image-is-this",
   "out": DIR + "ITH_LP_Religion.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
   "foot": "Teacher Lesson Plan · Grades 5–8 Religion", "hero": HERO,
+  "css": """
+.objectives { background: #f6f1e4; border-left: 3pt solid var(--accent); padding: 8pt 12pt 3pt; margin-bottom: 12pt; }
+.objectives h3 { font-size: 12.5pt; margin-bottom: 5pt; }
+.objectives ol { margin: 0 0 7pt; padding: 0; list-style: none; counter-reset: obj; }
+.objectives li { counter-increment: obj; display: grid; grid-template-columns: 16pt 1fr; margin: 0 0 3.5pt; font-size: 10pt; line-height: 1.4; }
+.objectives li::before { content: counter(obj); font: 600 12.5pt/1.1 'Cormorant Garamond', serif; color: var(--gold-big); }
+.objectives li.deep::before { color: #A8452F; }
+.deeptag { font: 500 6.8pt 'Outfit'; letter-spacing: .18em; text-transform: uppercase; color: #fff; background: #A8452F;
+  padding: 1.5pt 5pt 1pt; border-radius: 99pt; margin-right: 3pt; vertical-align: 1pt; }
+.why { border-top: .6pt solid #d8d0b8; padding-top: 5pt; }
+.why b { font: 500 7pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-text); margin-right: 5pt; }
+""",
   "blocks": [
-    ("timing", [("Hook", 5, "#7D8471"), ("Teach", 12, "#2F4A5A"), ("Activity", 22, "#86671A"), ("Prayer", 6, "#A8452F")]),
+    ("timing", [("Hook", 5, "#7D8471"), ("Teach", 12, "#2F4A5A"), ("Activity", 22, "#86671A"), ("Close", 6, "#A8452F")]),
+    ("objectives", OBJECTIVES),
     ("section", {"label": "Learning objective", "title": "What students will understand",
       "body": ["Students will read Jesus’ answer about the Tribute Penny as more than a ruling on taxes. The coin bears Caesar’s image, so it belongs to Caesar; every human person bears God’s image, so every person belongs to God. Students will connect Matthew 22:15–22 to Genesis 1:27 and to the Church’s teaching on the duties of citizens, and reflect on what it means to *give back to God* the life that carries his image."]}),
     ("section", {"label": "Standards and themes", "list": [
@@ -48,28 +85,47 @@ LESSON = {
       "Any coin from a student’s pocket or purse",
       "Differentiated handouts, one per student"]}),
     ("section", {"label": "Hook · 5 minutes", "title": "Read a coin",
-      "screen": {"phase": "Hook", "show": "question", "question": HOOK_Q},
+      "screen": {"phase": "Hook", "show": "coins", "coins": HOOK_COINS,
+                 "purpose": "Get students reading a coin as a message before the story begins.",
+                 "students": ["Whose face is on it?", "What do the words say?", "What is the coin claiming?"]},
       "body": [f"Hold up an ordinary coin. *“{HOOK_Q}”* Take answers: a president, a motto, a date, a country. Then: *“Every coin tells you who is in charge. Two thousand years ago, someone handed Jesus a coin and tried to trap him with it.”*"]}),
     ("section", {"label": "Direct instruction · 12 minutes", "title": "The trap and the answer",
       "screen": [
-        {"phase": "Teach", "minutes": 4, "script": [0], "title": "The trap", "show": "painting", "img": HERO, "verse": VERSE_MATT},
+        {"phase": "Teach", "minutes": 4, "script": [0], "title": "The trap", "show": "painting", "img": HERO, "verse": VERSE_MATT,
+         "purpose": "Understand the dilemma Jesus was put in.",
+         "students": ["What happens to Jesus if he says *yes*?", "What if he says *no*?"]},
         {"phase": "Teach", "minutes": 4, "script": [1], "title": "The coin", "show": "coin", "coin": COIN,
          "back": C + "tribute-back.png", "alt": "The Tribute Penny, a silver denarius of Tiberius: the emperor’s head",
-         "backAlt": "The reverse of the Tribute Penny, inscribed PONTIF MAXIM"},
+         "backAlt": "The reverse of the Tribute Penny, inscribed PONTIF MAXIM",
+         "purpose": "See why this coin was a provocation to a faithful Jew.",
+         "students": ["Find the face.", "Read the words: PONTIF MAXIM means “High Priest”.", "Who does this coin belong to?"]},
         {"phase": "Teach", "minutes": 4, "script": [2], "title": "Whose image?", "show": "verse", "verse": VERSE_GEN,
-         "question": "What carries God’s image?", "echo": C + "tribute-front.png"}],
+         "echo": C + "tribute-front.png",
+         "purpose": "Make the turn from the coin to the person.",
+         "students": ["What carries God’s image?", "Finish the sentence: *“I carry God’s image, so…”*"]}],
       "body": [
         "Read Matthew 22:15–22 aloud. Set out the trap: if Jesus says *pay the tax*, he sides with the occupying power and loses the crowd; if he says *don’t*, he can be reported to Rome as a rebel.",
         "Show the Tribute Penny. The face is Tiberius; the inscription calls him the son of a god; the reverse names him High Priest. For a faithful Jew this was not neutral money — it was an image claiming divine and religious authority.",
         "Jesus asks his questioners to produce the coin — and they can. *“Whose image is this? And whose inscription?”* The coin carries Caesar’s image, so give it back to Caesar. Then the turn: what carries *God’s* image? Read Genesis 1:27. St. Augustine and other early Christian writers drew exactly this line: Caesar looks for his image on his coin; God looks for his image in us."]}),
-    ("section", {"label": "Activity · 22 minutes", "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout"}, "body": ["Students choose a handout. All three levels read the same passage and the same coin."]}),
+    ("section", {"label": "Activity · 22 minutes", "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+             "purpose": "Practice the idea independently at the right level of challenge.",
+             "students": ["Choose Green, Yellow or Red. All three read the same passage and the same coin."]}, "body": ["Students choose a handout. All three levels read the same passage and the same coin."]}),
     ("levels", {
       "green": "Read the passage in short parts. Label the coin’s image and inscription, match each to Caesar or to God, and finish the sentence: *I carry God’s image, so…* Draw yourself as a coin stamped with God’s image.",
       "yellow": "Explain the trap and why Jesus’ answer escapes it. Compare the coin with Genesis 1:27 in a two-column chart, then write a paragraph on what *giving back to God* asks of a twelve-year-old today.",
       "red": "Write a structured reflection: is Jesus’ answer about taxes, about idolatry, or about the human person? Use the coin’s inscription, Genesis 1:27 and CCC 2242, and judge a modern case where obeying the state and obeying God might conflict."}),
-    ("section", {"label": "Closing prayer · 6 minutes",
-      "screen": {"phase": "Prayer", "show": "prayer", "prayer": PRAYER},
-      "body": [f"Ask students to hold a coin in an open hand. Pray together: *“{PRAYER}”*"]}),
+    ("section", {"label": "Look back and pray · 6 minutes",
+      "screen": [
+        {"phase": "Close", "minutes": 3, "script": [0], "title": "Look back", "show": "review", "lead": LOOK_BACK,
+         "purpose": "Check what each student can now do against the objectives.",
+         "students": [q for _, q, _ in OBJECTIVES["items"]],
+         "deeper": [k for k, (_, _, deep) in enumerate(OBJECTIVES["items"]) if deep]},
+        {"phase": "Close", "minutes": 3, "script": [1], "title": "Closing prayer", "show": "prayer", "prayer": PRAYER,
+         "purpose": "Gather the learning and give it back to God.",
+         "students": ["Hold a coin in an open hand, and pray together."]}],
+      "body": ["Put the objectives back on the screen. For each one, students show a thumb up, sideways or down: *“Can you now "
+               + " Can you ".join(q for _, q, _ in OBJECTIVES["items"]) + "”* Ask one student to answer each aloud; for the last, ask a Red Level reader.",
+               f"Ask students to hold a coin in an open hand. Pray together: *“{PRAYER}”*"]}),
     ("connection", ["**Visit the exhibition:** find the Tribute Penny in Case 7, *Ministry and Passion*, and look for the inscription. Then walk to the Shekel of Tyre beside it — the coin that paid for the betrayal.",
                     "**Virtual visit:** the coin, its reverse and the full Gospel Timeline are online."]),
     ("section", {"label": "Theological framework", "title": "Image and belonging",

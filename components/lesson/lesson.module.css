@@ -22,6 +22,8 @@
   --gold: #c9a84c;
   --gold-text: #86671a;
   --gold-dark: #6b5212;
+  /* the Red level's #A8452F, lifted for the dark ground (6.5:1 on umber) */
+  --red-on-dark: #c88c76;
   --muted: #9c8f78;
   --hair: rgba(201, 168, 76, 0.22);
   --focus: #f5edd8;
@@ -617,6 +619,400 @@
   text-wrap: balance;
 }
 
+/* ── what students do: the working line of every step ── */
+.task {
+  align-self: start;
+  position: relative;
+  padding: 2.4cqh 2.2cqw 2.6cqh;
+  border: 1px solid rgba(201, 168, 76, 0.34);
+  border-left: 0.32cqw solid var(--gold);
+  border-radius: 3px;
+  background: rgba(18, 12, 5, 0.55);
+}
+.taskKicker {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  font-family: var(--body);
+  font-size: max(13px, 0.92cqw);
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.taskList {
+  list-style: none;
+  display: grid;
+  gap: 1.3cqh;
+  margin-top: 1.6cqh !important;
+  counter-reset: t;
+}
+.taskList li {
+  counter-increment: t;
+  display: grid;
+  grid-template-columns: 2.4cqw 1fr;
+  align-items: baseline;
+  font-family: var(--display);
+  font-size: 2cqw;
+  font-weight: 500;
+  line-height: 1.22;
+  color: var(--parchment);
+}
+.taskList li::before {
+  content: counter(t);
+  font-size: 1.5cqw;
+  color: var(--gold);
+}
+.taskOne {
+  margin-top: 1.4cqh !important;
+  font-family: var(--display);
+  font-size: 2cqw;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--parchment);
+}
+.task em,
+.reviewView em,
+.questions em {
+  font-style: italic;
+}
+/* the prayer screen: an instruction, not a task card */
+.taskCenter {
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+}
+.taskCenter .taskKicker {
+  justify-content: center;
+}
+.taskCenter .taskOne {
+  margin-top: 1cqh !important;
+  font-size: 1.6cqw;
+  font-weight: 400;
+  color: #d9cfb8;
+}
+
+/* hook: the questions are the task; three rulers' coins beside them */
+.hookTask .taskKicker {
+  margin-bottom: 3.4cqh;
+}
+.hookTask .taskKicker::after {
+  content: '';
+  width: 3cqw;
+  height: 1px;
+  background: var(--hair);
+}
+.coinTrio {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, auto);
+  align-items: start;
+  gap: 2.6cqw;
+  margin-right: 1cqw !important;
+}
+.coinTrio li {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+/* every coin centered in the same height, so the names share a line */
+.trioSlot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: min(15cqw, 32cqh);
+  margin-bottom: 2.6cqh;
+}
+.trioImg {
+  position: relative;
+  width: min(12cqw, 26cqh);
+  aspect-ratio: 1;
+  filter: drop-shadow(0 2cqw 2.4cqw rgba(0, 0, 0, 0.6)) drop-shadow(0 0 2.4cqw rgba(201, 168, 76, 0.1));
+}
+.coinFeature .trioImg {
+  width: min(15cqw, 32cqh);
+}
+.trioImg img {
+  object-fit: contain;
+}
+.trioName {
+  font-family: var(--display);
+  font-size: 2.1cqw;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--parchment);
+}
+.trioSub {
+  margin-top: 1cqh !important;
+  font-size: max(12px, 0.78cqw);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.trioStamp {
+  margin-top: 1.4cqh;
+  padding: 0.4cqh 0.7cqw;
+  border: 1.5px solid var(--red-on-dark);
+  border-radius: 2px;
+  font-size: max(11px, 0.68cqw);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--red-on-dark);
+}
+
+.stage[data-kind='painting'] .task,
+.stage[data-kind='coin'] .task {
+  grid-area: task;
+}
+
+/* the coin: the evidence on the left, the task on the right */
+.stage[data-kind='coin'] .content {
+  grid-template-columns: 1.14fr 0.86fr;
+  grid-template-rows: 1fr auto auto 1fr;
+  grid-template-areas: 'visual .' 'visual head' 'visual task' 'visual .';
+}
+.evidence {
+  grid-area: visual;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3cqh;
+  min-height: 0;
+}
+.evidence .coinPair {
+  flex: 0 1 auto;
+}
+.evidence .coinImg {
+  width: min(17cqw, 32cqh);
+}
+.evidence .label {
+  align-self: stretch;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 2.4cqw;
+  padding: 2.4cqh 2cqw 2.2cqh;
+}
+.evidence .labelCase,
+.evidence .labelTitle {
+  grid-column: 1;
+}
+.evidence .labelTitle {
+  font-size: 2cqw;
+}
+.evidence .stamp {
+  position: static;
+  grid-column: 1;
+  justify-self: start;
+  margin-top: 1.4cqh;
+  transform: rotate(-3deg);
+}
+.evidence .facts {
+  grid-column: 2;
+  grid-row: 1 / span 3;
+  grid-template-columns: auto auto;
+  column-gap: 2.4cqw;
+  align-self: center;
+  margin: 0;
+  padding: 0 0 0 2cqw;
+  border: 0;
+  border-left: 1px solid rgba(139, 125, 107, 0.3);
+}
+.evidence .facts dd {
+  font-size: 1.2cqw;
+}
+.evidence .labelBody {
+  grid-column: 1 / -1;
+  margin-top: 1.8cqh !important;
+  padding-top: 1.6cqh;
+  border-top: 1px solid rgba(139, 125, 107, 0.3);
+  font-size: 1.2cqw;
+  line-height: 1.45;
+}
+
+/* the trap: the painting, the passage, then the task */
+.stage[data-kind='painting'] .content {
+  grid-template-rows: 1fr auto auto auto 1fr;
+  grid-template-areas: 'visual .' 'visual head' 'visual body' 'visual task' 'visual .';
+  row-gap: 3.2cqh;
+}
+.stage[data-kind='painting'] .verseCard p {
+  font-size: 1.6cqw;
+}
+.stage[data-kind='painting'] .verseCard {
+  padding: 2.6cqh 2.4cqw 2.4cqh;
+}
+.stage[data-kind='painting'] .verseCard cite {
+  margin-top: 1.4cqh;
+}
+
+/* the look back: the objectives, asked back */
+.reviewView {
+  grid-area: body;
+  display: grid;
+  align-content: center;
+  gap: 3.4cqh;
+  max-width: 78cqw;
+}
+.reviewLead {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 3cqw;
+  line-height: 1;
+  color: var(--gold);
+}
+.reviewList {
+  list-style: none;
+  display: grid;
+  gap: 2.4cqh;
+  counter-reset: r;
+}
+.reviewList li {
+  counter-increment: r;
+  display: grid;
+  grid-template-columns: 3.2cqw auto 1fr;
+  align-items: baseline;
+  column-gap: 1.4cqw;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 2.7cqw;
+  line-height: 1.15;
+  color: var(--parchment);
+}
+.reviewList li::before {
+  content: counter(r);
+  font-style: normal;
+  font-size: 2cqw;
+  color: var(--gold);
+}
+.reviewText {
+  grid-column: 2 / -1;
+}
+.reviewDeep .reviewText {
+  grid-column: 2;
+}
+.reviewList li.reviewDeep::before {
+  color: var(--deep);
+}
+.deepTag {
+  display: inline-block;
+  padding: 0.5cqh 0.8cqw 0.4cqh;
+  border-radius: 999px;
+  background: var(--deep);
+  font-family: var(--body);
+  font-style: normal;
+  font-size: max(12px, 0.72cqw);
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: #fff;
+}
+.reviewDeep .deepTag {
+  align-self: center;
+  justify-self: start;
+  color: var(--umber);
+}
+
+/* the cover: the lesson on the left, its objectives on a label */
+.cover.coverSplit {
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
+  align-items: center;
+  column-gap: 5cqw;
+}
+.coverSplit .coverTitle {
+  margin-bottom: 4cqh;
+  font-size: 5.8cqw;
+}
+.why {
+  max-width: 40cqw;
+  padding-left: 1.6cqw;
+  border-left: 1px solid rgba(201, 168, 76, 0.5);
+}
+.whyKicker {
+  font-size: max(12px, 0.8cqw);
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.whyText {
+  margin-top: 1cqh !important;
+  font-family: var(--display);
+  font-size: 1.75cqw;
+  line-height: 1.4;
+  color: var(--parchment);
+}
+.cover.coverSplit .credit {
+  bottom: auto;
+  top: 100%;
+  margin-top: 1.2cqh;
+}
+.objectives {
+  position: relative;
+  background: var(--parchment);
+  color: var(--ink);
+  border-radius: 3px;
+  padding: 4cqh 2.8cqw 3.4cqh;
+  box-shadow: 0 1.6cqw 4cqw rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.objectives::before {
+  content: '';
+  position: absolute;
+  left: 2.8cqw;
+  top: 0;
+  width: 3cqw;
+  height: 0.35cqh;
+  min-height: 3px;
+  background: var(--gold);
+}
+.objHeading {
+  font-family: var(--display);
+  font-size: 1.95cqw;
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--ink);
+}
+.objList {
+  list-style: none;
+  display: grid;
+  margin-top: 2cqh !important;
+  counter-reset: o;
+}
+.objList li {
+  counter-increment: o;
+  display: grid;
+  grid-template-columns: 3cqw 1fr;
+  align-items: baseline;
+  padding: 1.7cqh 0;
+  border-top: 1px solid rgba(139, 125, 107, 0.28);
+  font-family: var(--display);
+  font-size: 1.6cqw;
+  line-height: 1.32;
+  color: var(--ink);
+}
+.objList li::before {
+  content: counter(o);
+  grid-row: 1 / span 2;
+  font-size: 2.3cqw;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--gold-dark);
+}
+.objList li.objDeep::before {
+  color: var(--deep);
+}
+.objDeep .deepTag {
+  justify-self: start;
+  margin-bottom: 0.8cqh;
+}
+
 /* cover and finish */
 .cover {
   grid-area: body;
@@ -1043,6 +1439,95 @@
   font-size: 1.2rem;
   line-height: 1.5;
   color: #e6dcc4;
+}
+/* why this step, and what students do: the plan's reasons, set apart */
+.aims {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px !important;
+}
+.notesLarge .aims {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+  max-width: 64rem;
+}
+.purpose {
+  padding: 14px 18px 15px;
+  border-left: 3px solid var(--gold);
+  background: rgba(201, 168, 76, 0.08);
+  border-radius: 0 3px 3px 0;
+}
+.purposeText {
+  margin-top: 6px !important;
+  font-family: var(--display);
+  font-size: 1.25rem;
+  line-height: 1.45;
+  color: var(--parchment);
+}
+.studentsDo {
+  padding: 14px 18px 15px;
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: 3px;
+}
+.studentsDo ul {
+  display: grid;
+  gap: 0.25em;
+  margin-top: 6px !important;
+  padding-left: 1.1em !important;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  line-height: 1.45;
+  color: #e6dcc4;
+}
+.notesLarge .purposeText {
+  font-size: 1.45rem;
+}
+.notesObjectives {
+  display: grid;
+  gap: 0.45em;
+  margin-top: 12px !important;
+  padding-left: 1.4em !important;
+  font-family: var(--display);
+  font-size: 1.2rem;
+  line-height: 1.45;
+  color: #e6dcc4;
+}
+.notesObjectives li::marker {
+  color: var(--gold);
+}
+.notesDeep {
+  margin-right: 8px;
+  padding: 2px 9px 1px;
+  border-radius: 999px;
+  background: var(--red-on-dark);
+  font-family: var(--body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  vertical-align: 2px;
+  color: var(--umber);
+}
+.notesWhy {
+  margin-top: 14px !important;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.45;
+  color: var(--muted);
+}
+.notesWhyLabel {
+  margin-right: 6px;
+  font-family: var(--body);
+  font-style: normal;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.notesGap {
+  margin-top: 28px !important;
 }
 .upNext {
   margin-top: 32px;
@@ -1551,4 +2036,123 @@
   .levels {
     grid-template-columns: 1fr;
   }
+}
+
+/* the objectives, folded away in the presenter once the lesson runs */
+.pObjectives {
+  margin-top: 10px;
+}
+.pObjectives .notesTitle {
+  display: none;
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .cover.coverSplit {
+    grid-template-columns: 1fr;
+    row-gap: 24px;
+  }
+  .coverSplit .coverTitle {
+    font-size: 2.8rem;
+  }
+  .cover.coverSplit .credit {
+    position: static;
+    margin-top: 0;
+  }
+  .why {
+    max-width: none;
+  }
+  .whyText,
+  .objList li {
+    font-size: 1.1rem;
+  }
+  .objHeading {
+    font-size: 1.3rem;
+  }
+  .objList li {
+    grid-template-columns: 2rem 1fr;
+  }
+  .objList li::before {
+    font-size: 1.4rem;
+  }
+  .objectives {
+    padding: 20px 18px 16px;
+  }
+  .coinTrio {
+    gap: 12px;
+    margin-right: 0 !important;
+  }
+  .trioImg,
+  .coinFeature .trioImg {
+    width: 26vw;
+  }
+  .trioSlot {
+    height: 28vw;
+  }
+  .trioName {
+    font-size: 1.2rem;
+  }
+  .taskList li,
+  .taskOne {
+    grid-template-columns: 1.6rem 1fr;
+    font-size: 1.3rem;
+  }
+  .taskList li::before {
+    font-size: 1rem;
+  }
+  .task {
+    padding: 14px 16px;
+  }
+  .stage[data-kind='painting'] .verseCard p {
+    font-size: 1.2rem;
+  }
+  .stage[data-kind='painting'] .content,
+  .stage[data-kind='coin'] .content {
+    grid-template-areas: 'head' 'visual' 'body' 'task';
+    grid-template-rows: auto auto auto auto;
+  }
+  .evidence .coinImg {
+    width: 38vw;
+  }
+  .evidence .label {
+    grid-template-columns: 1fr;
+  }
+  .evidence .facts {
+    grid-column: 1;
+    grid-row: auto;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 12px;
+    padding: 12px 0 0;
+    border-left: 0;
+    border-top: 1px solid rgba(139, 125, 107, 0.3);
+  }
+  .evidence .facts dd,
+  .evidence .labelBody {
+    font-size: 1.05rem;
+  }
+  .evidence .labelTitle {
+    font-size: 1.5rem;
+  }
+  .reviewLead {
+    font-size: 1.6rem;
+  }
+  .reviewList li {
+    grid-template-columns: 2rem 1fr;
+    font-size: 1.4rem;
+  }
+  .reviewList li::before {
+    font-size: 1.1rem;
+  }
+  .reviewDeep .reviewText {
+    grid-column: 2;
+  }
+  .reviewDeep .deepTag {
+    grid-column: 2;
+    margin-top: 6px;
+  }
+}
+
+/* the handout choice: the task sits over the cards, as wide as its line */
+.levelsView .task {
+  justify-self: start;
+  padding-right: 3cqw;
 }

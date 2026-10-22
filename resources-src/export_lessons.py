@@ -22,6 +22,9 @@ sys.path.insert(0, HERE)
 import build  # noqa: E402  (colors and levels, so the screen matches the print)
 
 
+SHOWS = ("question", "coins", "painting", "coin", "verse", "levels", "review", "prayer")
+
+
 def load_module(path):
     spec = importlib.util.spec_from_file_location(os.path.basename(path)[:-3], path)
     m = importlib.util.module_from_spec(spec)
@@ -77,6 +80,11 @@ def export(exhibition, module):
             script = [body[i] for i in picks] if picks is not None else list(body)
             title = s.pop("title", None) or d.get("title") or section_name(d["label"])
             show = s.pop("show")
+            if show not in SHOWS:
+                raise ValueError(f"{d['label']}: show {show!r} is not one of {SHOWS}")
+            # what the step is for (the teacher's) and what students do (the screen's)
+            purpose = s.pop("purpose", None)
+            students = s.pop("students", None)
             screen_data = {"kind": show, **s}
             if show == "levels":
                 levels = next((v for k, v in blocks if k == "levels"), {})
@@ -84,10 +92,18 @@ def export(exhibition, module):
                     {"key": key, "name": build.LEVELS[key][0], "sub": build.LEVELS[key][1],
                      "color": build.LEVELS[key][2], "summary": text}
                     for key, text in levels.items()]
-                screen_data.setdefault("note", body[0] if body else "")
-            steps.append({"id": slugify(title), "phase": phase, "color": colors[phase],
-                          "section": section_name(d["label"]), "title": title,
-                          "minutes": minutes, "script": script, "screen": screen_data})
+                if not students:
+                    screen_data.setdefault("note", body[0] if body else "")
+            if show in ("coins", "review") and not students:
+                raise ValueError(f"{d['label']}: a {show!r} screen shows its students list, and has none")
+            step = {"id": slugify(title), "phase": phase, "color": colors[phase],
+                    "section": section_name(d["label"]), "title": title,
+                    "minutes": minutes, "script": script, "screen": screen_data}
+            if purpose:
+                step["purpose"] = purpose
+            if students:
+                step["students"] = list(students)
+            steps.append(step)
 
     planned = sum(p["minutes"] for p in phases)
     stepped = sum(s["minutes"] for s in steps)
@@ -113,6 +129,13 @@ def export(exhibition, module):
         d = by_label.get(key)
         return d.get("list", []) if d else []
 
+    obj = next((v for k, v in blocks if k == "objectives"), None)
+    objectives = None
+    if obj:
+        objectives = {"heading": obj["heading"], "why": obj.get("why", ""),
+                      "items": [{"text": t, "question": q, **({"deeper": True} if deep else {})}
+                                for t, q, deep in obj["items"]]}
+
     ex = build.EXHIBITIONS[exhibition]
     connection = next((v for k, v in blocks if k == "connection"), [])
     return {
@@ -125,6 +148,7 @@ def export(exhibition, module):
         "sub": lesson["sub"],
         "hero": lesson.get("hero"),
         "objective": body_of("learning objective"),
+        **({"objectives": objectives} if objectives else {}),
         "materials": list_of("materials needed"),
         "questions": list_of("questions to ask in front of the case"),
         "connection": connection,

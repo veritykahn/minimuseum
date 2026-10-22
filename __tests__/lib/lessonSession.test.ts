@@ -95,10 +95,21 @@ describe('exported lesson', () => {
     expect(phases).toBe(45);
   });
 
-  it('gives every step a script and a screen', () => {
+  it('gives every step a script, a screen, a purpose and a task', () => {
     for (const s of lesson!.steps) {
       expect(s.script.length).toBeGreaterThan(0);
       expect(s.screen.kind).toBeTruthy();
+      expect(s.purpose).toBeTruthy();
+      expect(s.students?.length).toBeGreaterThan(0);
     }
+  });
+
+  it('carries four objectives, the last to go deeper, asked back in the look back', () => {
+    const o = lesson!.objectives!;
+    expect(o.items).toHaveLength(4);
+    expect(o.items.map((i) => Boolean(i.deeper))).toEqual([false, false, false, true]);
+    expect(o.why).toBeTruthy();
+    const review = lesson!.steps.find((s) => s.screen.kind === 'review')!;
+    expect(review.students).toEqual(o.items.map((i) => i.question));
   });
 });

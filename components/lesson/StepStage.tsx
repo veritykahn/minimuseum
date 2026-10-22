@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import type { ReactNode } from 'react';
-import type { Lesson, Step } from '@/lib/lessons/types';
+import type { Lesson, Objectives, Step } from '@/lib/lessons/types';
 import {
   type Session,
   clock,
@@ -13,6 +13,9 @@ import {
 import { Inline } from './Inline';
 import { TimingBar } from './TimingBar';
 import { onDark } from './color';
+
+/** the Red level's color, which marks the go-deeper objective */
+const DEEPER = '#A8452F';
 import styles from './lesson.module.css';
 
 type Props = {
@@ -145,9 +148,87 @@ function StepClock({ step, session, now, minutes }: { step: Step; session: Sessi
   );
 }
 
+/** What students do in this step, set large: the screen's working line. */
+function Task({ items, mini, center }: { items: string[]; mini?: boolean; center?: boolean }) {
+  const H = mini ? 'p' : 'h2';
+  return (
+    <section className={`${styles.task} ${center ? styles.taskCenter : ''}`}>
+      <H className={styles.taskKicker}>Your task</H>
+      {items.length > 1 ? (
+        <ol className={styles.taskList}>
+          {items.map((t) => (
+            <li key={t}>
+              <span>
+                <Inline text={t} />
+              </span>
+            </li>
+          ))}
+        </ol>
+      ) : (
+        <p className={styles.taskOne}>
+          <Inline text={items[0]} />
+        </p>
+      )}
+    </section>
+  );
+}
+
 function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
   const s = step.screen;
+  const students = step.students ?? [];
+  const task = students.length > 0 ? <Task items={students} mini={mini} /> : null;
   switch (s.kind) {
+    case 'coins': {
+      const H = mini ? 'p' : 'h2';
+      return (
+        <div className={styles.qWrap}>
+          <section className={styles.hookTask}>
+            <H className={styles.taskKicker}>Your task</H>
+            <ol className={styles.questions}>
+              {students.map((q) => (
+                <li key={q}>
+                  <span>
+                    <Inline text={q} />
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+          <ul className={styles.coinTrio}>
+            {s.coins.map((c) => (
+              <li key={c.img} className={c.replica ? styles.coinFeature : undefined}>
+                <div className={styles.trioSlot}>
+                  <div className={styles.trioImg}>
+                    <Image src={c.img} alt={mini ? '' : c.alt} fill sizes="20vw" />
+                  </div>
+                </div>
+                <p className={styles.trioName}>{c.name}</p>
+                {c.sub && <p className={styles.trioSub}>{c.sub}</p>}
+                {c.replica && <span className={styles.trioStamp}>Museum-quality replica</span>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    }
+    case 'review': {
+      const deeper = new Set(s.deeper ?? []);
+      return (
+        <div className={styles.reviewView}>
+          <p className={styles.reviewLead}>{s.lead}</p>
+          <ol className={styles.reviewList}>
+            {students.map((q, k) => (
+              <li key={q} className={deeper.has(k) ? styles.reviewDeep : undefined} style={deeper.has(k) ? { ['--deep' as string]: onDark(DEEPER) } : undefined}>
+                <span className={styles.reviewText}>
+                  <Inline text={q} />
+                </span>
+                {deeper.has(k) && <span className={styles.deepTag}>Go deeper</span>}
+              </li>
+            ))}
+          </ol>
+        </div>
+      );
+    }
     case 'question': {
       const qs = s.question.split(/(?<=\?)\s+/);
       return (
@@ -180,11 +261,13 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
             </p>
             <cite>{s.verse.ref}</cite>
           </blockquote>
+          {task}
         </div>
       );
     case 'coin':
       return (
         <div className={styles.coinView}>
+          <div className={styles.evidence}>
           <div className={styles.coinPair}>
             <figure>
               <div className={styles.coinImg}>
@@ -219,6 +302,8 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
               </p>
             ))}
           </div>
+          </div>
+          {task}
         </div>
       );
     case 'verse':
@@ -232,6 +317,7 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
               </p>
               <cite>{s.verse.ref}</cite>
             </blockquote>
+            {task}
           </div>
           {s.echo && (
             <div className={styles.echo} aria-hidden="true">
@@ -243,7 +329,8 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
     case 'levels':
       return (
         <div className={styles.levelsView}>
-          {s.note && (
+          {task}
+          {!task && s.note && (
             <p className={styles.note}>
               <Inline text={s.note} />
             </p>
@@ -264,6 +351,7 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
     case 'prayer':
       return (
         <div className={styles.prayerView}>
+          {students.length > 0 && <Task items={students} mini={mini} center />}
           <span className={styles.rule} aria-hidden="true" />
           <p className={styles.prayer}>{s.prayer}</p>
           <span className={styles.rule} aria-hidden="true" />
@@ -275,17 +363,51 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
 function Cover({ lesson, mini, actions }: { lesson: Lesson; mini?: boolean; actions?: ReactNode }) {
   const H = mini ? 'p' : 'h1';
   return (
-    <div className={styles.cover}>
-      <p className={styles.eyebrow}>Lesson · {lesson.sub}</p>
-      <H className={styles.coverTitle}>{lesson.title}</H>
-      {lesson.objective[0] && (
-        <p className={styles.coverLede}>
-          <Inline text={lesson.objective[0]} />
-        </p>
-      )}
-      {actions}
+    <div className={`${styles.cover} ${lesson.objectives ? styles.coverSplit : ''}`}>
+      <div className={styles.coverMain}>
+        <p className={styles.eyebrow}>Lesson · {lesson.sub}</p>
+        <H className={styles.coverTitle}>{lesson.title}</H>
+        {lesson.objectives ? (
+          lesson.objectives.why && (
+            <div className={styles.why}>
+              <p className={styles.whyKicker}>Why this matters</p>
+              <p className={styles.whyText}>
+                <Inline text={lesson.objectives.why} />
+              </p>
+            </div>
+          )
+        ) : (
+          lesson.objective[0] && (
+            <p className={styles.coverLede}>
+              <Inline text={lesson.objective[0]} />
+            </p>
+          )
+        )}
+        {actions}
+      </div>
+      {lesson.objectives && <ObjectivesCard objectives={lesson.objectives} mini={mini} />}
       {lesson.hero?.credit && <p className={styles.credit}>{lesson.hero.credit}</p>}
     </div>
+  );
+}
+
+/** The learning objectives, set on a parchment card like the museum labels. */
+function ObjectivesCard({ objectives, mini }: { objectives: Objectives; mini?: boolean }) {
+  const H = mini ? 'p' : 'h2';
+  return (
+    <section className={styles.objectives}>
+      <H className={styles.objHeading}>{objectives.heading}</H>
+      <ol className={styles.objList}>
+        {objectives.items.map((o) => (
+          <li key={o.text} className={o.deeper ? styles.objDeep : undefined} style={o.deeper ? { ['--deep' as string]: DEEPER } : undefined}>
+            {o.deeper && <span className={styles.deepTag}>Go deeper</span>}
+            <span>
+              <Inline text={o.text} />
+            </span>
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
