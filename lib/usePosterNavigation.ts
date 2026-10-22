@@ -187,7 +187,15 @@ export function usePosterNavigation({ active, step, count, goTo, goBy, onClose }
  * The open → step → close state machine for an exhibition's posters.
  * `lengths` gives the number of panels in each poster, keyed by poster id.
  */
-export function usePosterWalkthrough<K extends string>(lengths: Record<K, number>) {
+export type PosterWalkthroughOptions = {
+  /**
+   * False suppresses the first-open tip (and its spoken copy). Projector mode
+   * passes false: it shows its own key hints, and Escape does not close there.
+   */
+  hint?: boolean;
+};
+
+export function usePosterWalkthrough<K extends string>(lengths: Record<K, number>, options: PosterWalkthroughOptions = {}) {
   const [activeView, setActiveView] = useState<'main' | K>('main');
   const [posterStep, setPosterStep] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
@@ -204,6 +212,10 @@ export function usePosterWalkthrough<K extends string>(lengths: Record<K, number
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closing = useRef(false);
   const requestFocus = usePendingFocus();
+  const hintAllowed = useRef(options.hint !== false);
+  useLayoutEffect(() => {
+    hintAllowed.current = options.hint !== false;
+  });
 
   const isOpen = activeView !== 'main';
   const count = isOpen ? lengths[activeView as K] : 0;
@@ -220,25 +232,31 @@ export function usePosterWalkthrough<K extends string>(lengths: Record<K, number
     }, delay);
   }, []);
 
-  const openPoster = useCallback((poster: K) => {
+  /** Opens a poster at its first panel, or at `at` (a deep link into projector mode). */
+  const openPoster = useCallback((poster: K, at = 0) => {
+    const start = Math.max(0, Math.min(Math.floor(at) || 0, lengths[poster] - 1));
     lastPoster.current = poster;
     closing.current = false;
-    target.current = 0;
+    target.current = start;
     setFadeIn(false);
+    setHintVisible(false);
+    setHintAnnounced(false);
     schedule(OPEN_DELAY, () => {
       requestFocus(() => focusHeadingIn(contentRef.current));
       setActiveView(poster);
-      setPosterStep(0);
-      setFromStep(0);
+      setPosterStep(start);
+      setFromStep(start);
       setDirection(1);
       setAnimationKey(prev => prev + 1);
       setFadeIn(true);
-      if (!hintAlreadySeen()) {
+      if (hintAllowed.current && !hintAlreadySeen()) {
         markHintSeen();
         setHintVisible(true);
         setHintAnnounced(true);
       }
     });
+    // `lengths` is a fresh object literal each render; only its values matter.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [requestFocus, schedule]);
 
   const goToStep = useCallback((next: number) => {

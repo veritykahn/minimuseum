@@ -91,4 +91,17 @@ describe('usePosterWalkthrough', () => {
     expect(e.defaultPrevented).toBe(false);
     expect(result.current.posterStep).toBe(0);
   });
+
+  it('opens at a given panel, and without the tip when hints are off (projector mode)', () => {
+    const { result } = renderHook(() => usePosterWalkthrough({ poster1: 5, poster2: 3 }, { hint: false }));
+    act(() => result.current.openPoster('poster1', 3));
+    act(() => { jest.advanceTimersByTime(300); });
+    expect(result.current.posterStep).toBe(3);
+    expect(result.current.hintVisible).toBe(false);
+    expect(result.current.announcement).toBe('Panel 4 of 5.');
+    act(() => result.current.openPoster('poster2', 99));
+    act(() => { jest.advanceTimersByTime(300); });
+    expect(result.current.activeView).toBe('poster2');
+    expect(result.current.posterStep).toBe(2);
+  });
 });

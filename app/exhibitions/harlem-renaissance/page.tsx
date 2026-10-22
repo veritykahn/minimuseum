@@ -5,6 +5,11 @@ import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
+import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
+import TeachToggle from '@/components/projector/TeachToggle';
+import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
+import { HARLEM_TALK } from '@/components/projector/posterTalk';
+import { HARLEM_POSTER_THEME, HARLEM_POSTER_LINKS } from '@/components/projector/themes';
 import { FxText, FxVeil, PosterProgress, chapterMarks, fxKindFor, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 
 type ContentItem = {
@@ -422,10 +427,19 @@ const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void
 const poster1Marks = chapterMarks(poster1Content);
 const poster2Marks = chapterMarks(poster2Content);
 
+/* Teacher projector mode: the two posters, their chapter questions and the picker images. */
+const POSTER_IDS = ['poster1', 'poster2'] as const;
+const POSTER_LENGTHS = { poster1: poster1Content.length, poster2: poster2Content.length };
+const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
+  { id: 'poster1', title: 'The Great Migration and the Harlem Renaissance', thumb: '/exhibitions/harlem/poster1.jpg', items: poster1Content, talk: HARLEM_TALK.poster1 },
+  { id: 'poster2', title: 'Walter White: The Civil Rights Hero You’ve Never Heard Of', thumb: '/exhibitions/harlem/poster2.jpg', items: poster2Content, talk: HARLEM_TALK.poster2 },
+];
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
 export default function HarlemRenaissance() {
+  const [projector, setProjector] = useProjectorMode();
   const {
     activeView,
     posterStep,
@@ -435,6 +449,7 @@ export default function HarlemRenaissance() {
     animationKey,
     contentRef,
     openPoster,
+    goToStep,
     nextStep,
     prevStep,
     returnToMain,
@@ -442,7 +457,8 @@ export default function HarlemRenaissance() {
     hintVisible,
     dismissHint,
     announcement,
-  } = usePosterWalkthrough({ poster1: poster1Content.length, poster2: poster2Content.length });
+  } = usePosterWalkthrough(POSTER_LENGTHS, { hint: !projector });
+  usePosterDeepLink(POSTER_IDS, POSTER_LENGTHS, openPoster);
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
@@ -1463,35 +1479,40 @@ export default function HarlemRenaissance() {
         }
       `}</style>
 
-      {/* ============================================
-          NAVIGATION
-          ============================================ */}
-      <ExhibitionNav
-        className="hr-nav hr-nav-left"
-        href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
-        onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
-      >
-        <span className="hr-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-        <span className="hr-nav-arrow hr-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
-        <span className="hr-nav-label" style={{ color: '#7D8471' }}>
-          {activeView === 'main' ? 'First Floor' : 'Exhibition'}
-        </span>
-      </ExhibitionNav>
+      {!projector && (
+        <>
+        {/* ============================================
+            NAVIGATION
+            ============================================ */}
+        <ExhibitionNav
+          className="hr-nav hr-nav-left"
+          href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
+          onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
+        >
+          <span className="hr-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+          <span className="hr-nav-arrow hr-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
+          <span className="hr-nav-label" style={{ color: '#7D8471' }}>
+            {activeView === 'main' ? 'First Floor' : 'Exhibition'}
+          </span>
+        </ExhibitionNav>
 
-      <ExhibitionNav className="hr-nav hr-nav-right" href="/exhibitions/harlem-renaissance/resources">
-        <span className="hr-nav-label" style={{ color: '#7D8471' }}>Resources</span>
-        <span className="hr-nav-arrow hr-nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>&#8594;</span>
-        <span className="hr-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-      </ExhibitionNav>
+        <ExhibitionNav className="hr-nav hr-nav-right" href="/exhibitions/harlem-renaissance/resources">
+          <span className="hr-nav-label" style={{ color: '#7D8471' }}>Resources</span>
+          <span className="hr-nav-arrow hr-nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>&#8594;</span>
+          <span className="hr-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+        </ExhibitionNav>
+        </>
+      )}
 
       {/* ============================================
           MAIN EXHIBITION VIEW
           ============================================ */}
-      {activeView === 'main' && (
+      {activeView === 'main' && !projector && (
         <div className="hr-exhibition-main">
           <div className="hr-exhibition-title">
             <h1>The Harlem Renaissance</h1>
             <p>The Great Migration &amp; the Birth of a Cultural Revolution</p>
+            <TeachToggle onClick={() => setProjector(true)} style={{ '--teach-color': '#d992ba', '--teach-border': 'rgba(217,146,186,0.55)', marginTop: 24 } as React.CSSProperties} />
           </div>
 
           <div className="hr-exhibition-grid">
@@ -1521,7 +1542,7 @@ export default function HarlemRenaissance() {
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
         {announcement}
       </p>
-      <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
+      <PosterNavHint visible={hintVisible && !projector} onDismiss={dismissHint} />
       {activeView !== 'main' && (
         <h1 className="visually-hidden">{activeView === 'poster1' ? 'The Great Migration and the Harlem Renaissance' : 'Walter White: The Civil Rights Hero You’ve Never Heard Of'}</h1>
       )}
@@ -1529,195 +1550,212 @@ export default function HarlemRenaissance() {
       {/* ============================================
           POSTER WALKTHROUGH VIEW
           ============================================ */}
-      {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div
-          {...stageProps}
-          {...fx}
-          className={`hr-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
-          key={animationKey}
-        >
-          <div className="hr-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
-            <FxVeil theme="hr" kind={veilKind} />
+      <PosterProjector
+        on={projector}
+        onExit={() => setProjector(false)}
+        exhibition="The Harlem Renaissance"
+        theme={HARLEM_POSTER_THEME}
+        links={HARLEM_POSTER_LINKS}
+        posters={PROJECTOR_POSTERS}
+        activeView={activeView}
+        step={posterStep}
+        openPoster={openPoster}
+        goToStep={goToStep}
+        nextStep={nextStep}
+        prevStep={prevStep}
+        returnToMain={returnToMain}
+      >
+        {(activeView === 'poster1' || activeView === 'poster2') && (
+          <div
+            {...stageProps}
+            {...fx}
+            className={`hr-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
+            key={animationKey}
+          >
+            <div className="hr-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
+              <FxVeil theme="hr" kind={veilKind} />
 
-            {/* Title Image — Full Bleed */}
-            {currentItem.type === 'title-image' && (
-              <div className={`hr-full-bleed-image pfx-media ${currentItem.special === 'height' ? 'hr-title-height' : currentItem.special === 'width-top' ? 'hr-title-width-top' : 'hr-title-width'} ${currentItem.effect ? `hr-effect-${currentItem.effect}` : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={currentItem.src} alt={currentItem.alt} />
-              </div>
-            )}
-
-            {/* Full Image (photograph etc) */}
-            {currentItem.type === 'full-image' && (
-              <div className={`hr-full-bleed-image hr-full-image pfx-media ${currentItem.effect === 'kenburns-in' ? 'hr-effect-kenburns-in' : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={currentItem.src} alt={currentItem.alt} />
-                {currentItem.text && (
-                  <span className="hr-image-caption" style={{ color: textColor }}>{currentItem.text}</span>
-                )}
-              </div>
-            )}
-
-            {/* Section Title */}
-            {currentItem.type === 'section-title' && (
-              <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
-                {/* Art Deco decorative circles */}
-                {currentItem.special === 'art-deco-rays' && (
-                  <>
-                    <div className="hr-deco-circle hr-deco-circle-1"></div>
-                    <div className="hr-deco-circle hr-deco-circle-2"></div>
-                    <div className="hr-deco-circle hr-deco-circle-3"></div>
-                  </>
-                )}
-                {/* Jazz notes */}
-                {currentItem.special === 'jazz-swing' && (
-                  <>
-                    <span className="hr-jazz-note hr-jazz-note-1">&#9835;</span>
-                    <span className="hr-jazz-note hr-jazz-note-2">&#9834;</span>
-                    <span className="hr-jazz-note hr-jazz-note-3">&#9833;</span>
-                  </>
-                )}
-                <h2
-                  className="hr-section-title-text"
-                  style={{ color: getSectionColors(currentItem.special).title }}
-                  data-fx={kind}
-                >
-                  <FxText text={currentItem.text ?? ''} />
-                </h2>
-              </div>
-            )}
-
-            {/* Paragraph */}
-            {currentItem.type === 'paragraph' && currentItem.text && (
-              <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
-                {/* Art Deco decorative circles */}
-                {currentItem.special === 'art-deco-rays' && (
-                  <>
-                    <div className="hr-deco-circle hr-deco-circle-1"></div>
-                    <div className="hr-deco-circle hr-deco-circle-2"></div>
-                    <div className="hr-deco-circle hr-deco-circle-3"></div>
-                  </>
-                )}
-                {/* Jazz notes */}
-                {currentItem.special === 'jazz-swing' && (
-                  <>
-                    <span className="hr-jazz-note hr-jazz-note-1">&#9835;</span>
-                    <span className="hr-jazz-note hr-jazz-note-2">&#9834;</span>
-                    <span className="hr-jazz-note hr-jazz-note-3">&#9833;</span>
-                  </>
-                )}
-                <p
-                  className="hr-paragraph-text"
-                  style={{ color: getSectionColors(currentItem.special).text }}
-                  data-fx={kind}
-                >
-                  <FxText text={currentItem.text} words={kind === 'statement'} />
-                </p>
-              </div>
-            )}
-
-            {/* Artwork Display — Full image with info alongside */}
-            {currentItem.type === 'artwork-display' && (
-              <div className={`hr-artwork-display ${getSpecialClass(currentItem.special)}`}>
-                {/* Art Deco decorative circles for Aspiration */}
-                {currentItem.special === 'art-deco-rays' && (
-                  <>
-                    <div className="hr-deco-circle hr-deco-circle-1"></div>
-                    <div className="hr-deco-circle hr-deco-circle-2"></div>
-                    <div className="hr-deco-circle hr-deco-circle-3"></div>
-                  </>
-                )}
-                <div className="hr-artwork-image-side">
+              {/* Title Image — Full Bleed */}
+              {currentItem.type === 'title-image' && (
+                <div className={`hr-full-bleed-image pfx-media ${currentItem.special === 'height' ? 'hr-title-height' : currentItem.special === 'width-top' ? 'hr-title-width-top' : 'hr-title-width'} ${currentItem.effect ? `hr-effect-${currentItem.effect}` : ''}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentItem.src} alt={currentItem.alt} className="pfx-art-img" />
+                  <img src={currentItem.src} alt={currentItem.alt} />
                 </div>
-                <div className="hr-artwork-info-side pfx-fg pfx-fg-copy" style={{ color: textColor }}>
-                  <h2>{currentItem.artworkTitle}</h2>
-                  <p className="hr-artwork-meta">
-                    {currentItem.artworkArtist}, {currentItem.artworkDate}
-                  </p>
-                  <p className="hr-artwork-desc">
-                    {currentItem.artworkDescription}
+              )}
+
+              {/* Full Image (photograph etc) */}
+              {currentItem.type === 'full-image' && (
+                <div className={`hr-full-bleed-image hr-full-image pfx-media ${currentItem.effect === 'kenburns-in' ? 'hr-effect-kenburns-in' : ''}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={currentItem.src} alt={currentItem.alt} />
+                  {currentItem.text && (
+                    <span className="hr-image-caption" style={{ color: textColor }}>{currentItem.text}</span>
+                  )}
+                </div>
+              )}
+
+              {/* Section Title */}
+              {currentItem.type === 'section-title' && (
+                <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
+                  {/* Art Deco decorative circles */}
+                  {currentItem.special === 'art-deco-rays' && (
+                    <>
+                      <div className="hr-deco-circle hr-deco-circle-1"></div>
+                      <div className="hr-deco-circle hr-deco-circle-2"></div>
+                      <div className="hr-deco-circle hr-deco-circle-3"></div>
+                    </>
+                  )}
+                  {/* Jazz notes */}
+                  {currentItem.special === 'jazz-swing' && (
+                    <>
+                      <span className="hr-jazz-note hr-jazz-note-1">&#9835;</span>
+                      <span className="hr-jazz-note hr-jazz-note-2">&#9834;</span>
+                      <span className="hr-jazz-note hr-jazz-note-3">&#9833;</span>
+                    </>
+                  )}
+                  <h2
+                    className="hr-section-title-text"
+                    style={{ color: getSectionColors(currentItem.special).title }}
+                    data-fx={kind}
+                  >
+                    <FxText text={currentItem.text ?? ''} />
+                  </h2>
+                </div>
+              )}
+
+              {/* Paragraph */}
+              {currentItem.type === 'paragraph' && currentItem.text && (
+                <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
+                  {/* Art Deco decorative circles */}
+                  {currentItem.special === 'art-deco-rays' && (
+                    <>
+                      <div className="hr-deco-circle hr-deco-circle-1"></div>
+                      <div className="hr-deco-circle hr-deco-circle-2"></div>
+                      <div className="hr-deco-circle hr-deco-circle-3"></div>
+                    </>
+                  )}
+                  {/* Jazz notes */}
+                  {currentItem.special === 'jazz-swing' && (
+                    <>
+                      <span className="hr-jazz-note hr-jazz-note-1">&#9835;</span>
+                      <span className="hr-jazz-note hr-jazz-note-2">&#9834;</span>
+                      <span className="hr-jazz-note hr-jazz-note-3">&#9833;</span>
+                    </>
+                  )}
+                  <p
+                    className="hr-paragraph-text"
+                    style={{ color: getSectionColors(currentItem.special).text }}
+                    data-fx={kind}
+                  >
+                    <FxText text={currentItem.text} words={kind === 'statement'} />
                   </p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Quote */}
-            {currentItem.type === 'quote' && currentItem.text && (
-              <div className="hr-text-content-wrapper hr-pos-center">
-                <blockquote
-                  className="hr-quote-text"
-                  style={{ color: isPoster1 ? '#d992ba' : '#b485d2', borderColor: isPoster1 ? '#885a99' : '#4e568f' }}
-                  data-fx="quote"
-                >
-                  <FxText text={currentItem.text} words />
-                </blockquote>
-              </div>
-            )}
+              {/* Artwork Display — Full image with info alongside */}
+              {currentItem.type === 'artwork-display' && (
+                <div className={`hr-artwork-display ${getSpecialClass(currentItem.special)}`}>
+                  {/* Art Deco decorative circles for Aspiration */}
+                  {currentItem.special === 'art-deco-rays' && (
+                    <>
+                      <div className="hr-deco-circle hr-deco-circle-1"></div>
+                      <div className="hr-deco-circle hr-deco-circle-2"></div>
+                      <div className="hr-deco-circle hr-deco-circle-3"></div>
+                    </>
+                  )}
+                  <div className="hr-artwork-image-side">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={currentItem.src} alt={currentItem.alt} className="pfx-art-img" />
+                  </div>
+                  <div className="hr-artwork-info-side pfx-fg pfx-fg-copy" style={{ color: textColor }}>
+                    <h2>{currentItem.artworkTitle}</h2>
+                    <p className="hr-artwork-meta">
+                      {currentItem.artworkArtist}, {currentItem.artworkDate}
+                    </p>
+                    <p className="hr-artwork-desc">
+                      {currentItem.artworkDescription}
+                    </p>
+                  </div>
+                </div>
+              )}
 
-            {/* Link */}
-            {currentItem.type === 'link' && (
-              <div className="hr-text-content-wrapper hr-pos-center">
-                <a
-                  href={currentItem.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hr-content-link pfx-fg"
-                  style={{ color: textColor, borderColor: textColor }}
-                >
-                  {currentItem.text}
-                </a>
-              </div>
-            )}
+              {/* Quote */}
+              {currentItem.type === 'quote' && currentItem.text && (
+                <div className="hr-text-content-wrapper hr-pos-center">
+                  <blockquote
+                    className="hr-quote-text"
+                    style={{ color: isPoster1 ? '#d992ba' : '#b485d2', borderColor: isPoster1 ? '#885a99' : '#4e568f' }}
+                    data-fx="quote"
+                  >
+                    <FxText text={currentItem.text} words />
+                  </blockquote>
+                </div>
+              )}
 
-            {/* End */}
-            {currentItem.type === 'end' && (
-              <div className="hr-text-content-wrapper hr-pos-center">
+              {/* Link */}
+              {currentItem.type === 'link' && (
+                <div className="hr-text-content-wrapper hr-pos-center">
+                  <a
+                    href={currentItem.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hr-content-link pfx-fg"
+                    style={{ color: textColor, borderColor: textColor }}
+                  >
+                    {currentItem.text}
+                  </a>
+                </div>
+              )}
+
+              {/* End */}
+              {currentItem.type === 'end' && projector && <PosterProjectorEnd />}
+              {currentItem.type === 'end' && !projector && (
+                <div className="hr-text-content-wrapper hr-pos-center">
+                  <button
+                    className="hr-content-end pfx-fg"
+                    onClick={returnToMain}
+                    style={{ color: textColor, borderColor: textColor }}
+                  >
+                    {currentItem.text}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Walkthrough Navigation */}
+            {currentItem.type !== 'end' && (
+              <div className="hr-walkthrough-nav">
                 <button
-                  className="hr-content-end pfx-fg"
-                  onClick={returnToMain}
+                  className="hr-nav-arrow-btn"
+                  onClick={prevStep}
+                  disabled={posterStep === 0}
+                  aria-label="Previous panel"
                   style={{ color: textColor, borderColor: textColor }}
                 >
-                  {currentItem.text}
+                  &#8592;
+                </button>
+                <PosterProgress
+                  theme="hr"
+                  step={posterStep}
+                  fromStep={fromStep}
+                  count={currentPosterContent.length}
+                  marks={marks}
+                  color={textColor}
+                />
+                <button
+                  className="hr-nav-arrow-btn"
+                  onClick={nextStep}
+                  disabled={posterStep === currentPosterContent.length - 1}
+                  aria-label="Next panel"
+                  style={{ color: textColor, borderColor: textColor }}
+                >
+                  &#8594;
                 </button>
               </div>
             )}
           </div>
-
-          {/* Walkthrough Navigation */}
-          {currentItem.type !== 'end' && (
-            <div className="hr-walkthrough-nav">
-              <button
-                className="hr-nav-arrow-btn"
-                onClick={prevStep}
-                disabled={posterStep === 0}
-                aria-label="Previous panel"
-                style={{ color: textColor, borderColor: textColor }}
-              >
-                &#8592;
-              </button>
-              <PosterProgress
-                theme="hr"
-                step={posterStep}
-                fromStep={fromStep}
-                count={currentPosterContent.length}
-                marks={marks}
-                color={textColor}
-              />
-              <button
-                className="hr-nav-arrow-btn"
-                onClick={nextStep}
-                disabled={posterStep === currentPosterContent.length - 1}
-                aria-label="Next panel"
-                style={{ color: textColor, borderColor: textColor }}
-              >
-                &#8594;
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </PosterProjector>
     </div>
   );
 }

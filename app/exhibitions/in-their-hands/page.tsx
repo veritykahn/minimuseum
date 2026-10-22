@@ -5,6 +5,11 @@ import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
+import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
+import TeachToggle from '@/components/projector/TeachToggle';
+import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
+import { ITH_TALK } from '@/components/projector/posterTalk';
+import { ITH_POSTER_THEME, ITH_POSTER_LINKS } from '@/components/projector/themes';
 import { FxText, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 
 type ContentItem = {
@@ -412,10 +417,19 @@ const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void
 const poster1Marks = chapterMarks(poster1Content);
 const poster2Marks = chapterMarks(poster2Content);
 
+/* Teacher projector mode: the two posters, their chapter questions and the picker images. */
+const POSTER_IDS = ['poster1', 'poster2'] as const;
+const POSTER_LENGTHS = { poster1: poster1Content.length, poster2: poster2Content.length };
+const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
+  { id: 'poster1', title: 'Faith and Reason', thumb: '/exhibitions/in-their-hands/poster1-hero.jpg', items: poster1Content, talk: ITH_TALK.poster1 },
+  { id: 'poster2', title: 'The Weight of Thirty Pieces', thumb: '/exhibitions/in-their-hands/poster2-hero.jpg', items: poster2Content, talk: ITH_TALK.poster2 },
+];
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
 export default function InTheirHands() {
+  const [projector, setProjector] = useProjectorMode();
   const {
     activeView,
     posterStep,
@@ -425,6 +439,7 @@ export default function InTheirHands() {
     animationKey,
     contentRef,
     openPoster,
+    goToStep,
     nextStep,
     prevStep,
     returnToMain,
@@ -432,7 +447,8 @@ export default function InTheirHands() {
     hintVisible,
     dismissHint,
     announcement,
-  } = usePosterWalkthrough({ poster1: poster1Content.length, poster2: poster2Content.length });
+  } = usePosterWalkthrough(POSTER_LENGTHS, { hint: !projector });
+  usePosterDeepLink(POSTER_IDS, POSTER_LENGTHS, openPoster);
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
@@ -1555,35 +1571,40 @@ export default function InTheirHands() {
         }
       `}</style>
 
-      {/* ============================================
-          NAVIGATION
-          ============================================ */}
-      <ExhibitionNav
-        className="ith-nav ith-nav-left"
-        href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
-        onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
-      >
-        <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-        <span className="ith-nav-arrow ith-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
-        <span className="ith-nav-label" style={{ color: '#7D8471' }}>
-          {activeView === 'main' ? 'First Floor' : 'Exhibition'}
-        </span>
-      </ExhibitionNav>
+      {!projector && (
+        <>
+        {/* ============================================
+            NAVIGATION
+            ============================================ */}
+        <ExhibitionNav
+          className="ith-nav ith-nav-left"
+          href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
+          onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
+        >
+          <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+          <span className="ith-nav-arrow ith-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
+          <span className="ith-nav-label" style={{ color: '#7D8471' }}>
+            {activeView === 'main' ? 'First Floor' : 'Exhibition'}
+          </span>
+        </ExhibitionNav>
 
-      <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
-        <span className="ith-nav-label" style={{ color: '#7D8471' }}>Resources</span>
-        <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>&#8594;</span>
-        <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-      </ExhibitionNav>
+        <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
+          <span className="ith-nav-label" style={{ color: '#7D8471' }}>Resources</span>
+          <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>&#8594;</span>
+          <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+        </ExhibitionNav>
+        </>
+      )}
 
       {/* ============================================
           MAIN EXHIBITION VIEW
           ============================================ */}
-      {activeView === 'main' && (
+      {activeView === 'main' && !projector && (
         <div className="ith-exhibition-main">
           <div className="ith-exhibition-title">
             <h1>In Their Hands</h1>
             <p>Coins of the New Testament</p>
+            <TeachToggle onClick={() => setProjector(true)} style={{ '--teach-color': '#c9a84c', '--teach-border': 'rgba(201,168,76,0.55)', marginTop: 24 } as React.CSSProperties} />
           </div>
 
           <div className="ith-exhibition-grid">
@@ -1630,7 +1651,7 @@ export default function InTheirHands() {
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
         {announcement}
       </p>
-      <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
+      <PosterNavHint visible={hintVisible && !projector} onDismiss={dismissHint} />
       {activeView !== 'main' && (
         <h1 className="visually-hidden">{activeView === 'poster1' ? 'Faith and Reason' : 'The Weight of Thirty Pieces'}</h1>
       )}
@@ -1638,269 +1659,286 @@ export default function InTheirHands() {
       {/* ============================================
           POSTER WALKTHROUGH VIEW
           ============================================ */}
-      {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div
-          {...stageProps}
-          {...fx}
-          className={`ith-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
-          key={animationKey}
-        >
+      <PosterProjector
+        on={projector}
+        onExit={() => setProjector(false)}
+        exhibition="In Their Hands"
+        theme={ITH_POSTER_THEME}
+        links={ITH_POSTER_LINKS}
+        posters={PROJECTOR_POSTERS}
+        activeView={activeView}
+        step={posterStep}
+        openPoster={openPoster}
+        goToStep={goToStep}
+        nextStep={nextStep}
+        prevStep={prevStep}
+        returnToMain={returnToMain}
+      >
+        {(activeView === 'poster1' || activeView === 'poster2') && (
+          <div
+            {...stageProps}
+            {...fx}
+            className={`ith-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
+            key={animationKey}
+          >
 
-          {/* Poster 1 persistent background — Tissot Jerusalem watercolour */}
-          {isPoster1 && (currentItem.type !== 'full-image' || currentItem.special === 'frost') && (
-            <>
-              <div className="ith-poster1-bg" />
-              {currentItem.special !== 'poster1-title' && <div className="ith-poster1-overlay" />}
-            </>
-          )}
-
-          <div className="ith-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
-            {gilt && <FxVeil theme="ith" kind={posterStep === 0 ? 'media' : 'title'} />}
-
-            {/* Title Image — Full Bleed or Centered PNG */}
-            {currentItem.type === 'title-image' && currentItem.special === 'poster1-title' && (
-              <div className="ith-full-bleed-image ith-title-centered pfx-media">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={currentItem.src} alt={currentItem.alt} className="ith-effect-breathe" />
-              </div>
-            )}
-            {currentItem.type === 'title-image' && currentItem.special !== 'poster1-title' && (
-              <div className={`ith-full-bleed-image ith-title-width pfx-media ${currentItem.effect ? `ith-effect-${currentItem.effect}` : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={currentItem.src} alt={currentItem.alt} />
-              </div>
+            {/* Poster 1 persistent background — Tissot Jerusalem watercolour */}
+            {isPoster1 && (currentItem.type !== 'full-image' || currentItem.special === 'frost') && (
+              <>
+                <div className="ith-poster1-bg" />
+                {currentItem.special !== 'poster1-title' && <div className="ith-poster1-overlay" />}
+              </>
             )}
 
-            {/* Full Image — frost variant (full-height, frosted backdrop) */}
-            {currentItem.type === 'full-image' && currentItem.special === 'frost' && (
-              <div className="ith-full-bleed-image ith-frost-image pfx-media">
-                <div className="ith-frost-backdrop" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={currentItem.src} alt={currentItem.alt} />
-              </div>
-            )}
+            <div className="ith-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
+              {gilt && <FxVeil theme="ith" kind={posterStep === 0 ? 'media' : 'title'} />}
 
-            {/* Full Image (photograph etc) */}
-            {currentItem.type === 'full-image' && currentItem.special !== 'frost' && (
-              <div className={`ith-full-bleed-image ith-full-image pfx-media ${currentItem.effect === 'kenburns-in' ? 'ith-effect-kenburns-in' : currentItem.effect === 'drift' ? 'ith-effect-drift' : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={currentItem.src} alt={currentItem.alt} />
-                {currentItem.text && (
-                  <span className="ith-image-caption" style={{ color: textColor }}>{currentItem.text}</span>
-                )}
-              </div>
-            )}
-
-            {/* Section Title */}
-            {currentItem.type === 'section-title' && (
-              <div className={`ith-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
-                {/* Parchment decorative flourishes */}
-                {(currentItem.special === 'parchment' || currentItem.special === 'authentication') && (
-                  <>
-                    <div className="ith-deco-flourish ith-deco-flourish-1" />
-                    <div className="ith-deco-flourish ith-deco-flourish-2" />
-                  </>
-                )}
-                {/* Scrolls decorative ruled lines */}
-                {currentItem.special === 'scrolls' && (
-                  <>
-                    <div className="ith-deco-scroll-line ith-deco-scroll-line-1" />
-                    <div className="ith-deco-scroll-line ith-deco-scroll-line-2" />
-                  </>
-                )}
-                {/* Observatory decorative stars */}
-                {currentItem.special === 'observatory' && (
-                  <>
-                    <div className="ith-deco-star ith-deco-star-1" />
-                    <div className="ith-deco-star ith-deco-star-2" />
-                    <div className="ith-deco-star ith-deco-star-3" />
-                    <div className="ith-deco-star ith-deco-star-4" />
-                    <div className="ith-deco-star ith-deco-star-5" />
-                  </>
-                )}
-                <h2
-                  className="ith-section-title-text"
-                  style={{ color: getSectionColors(currentItem.special).title }}
-                  data-fx="title"
-                >
-                  <FxText text={currentItem.text ?? ''} />
-                </h2>
-              </div>
-            )}
-
-            {/* Paragraph */}
-            {currentItem.type === 'paragraph' && currentItem.text && (
-              <div className={`ith-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
-                {/* Parchment decorative flourishes */}
-                {(currentItem.special === 'parchment' || currentItem.special === 'authentication') && (
-                  <>
-                    <div className="ith-deco-flourish ith-deco-flourish-1" />
-                    <div className="ith-deco-flourish ith-deco-flourish-2" />
-                  </>
-                )}
-                {/* Scrolls decorative ruled lines */}
-                {currentItem.special === 'scrolls' && (
-                  <>
-                    <div className="ith-deco-scroll-line ith-deco-scroll-line-1" />
-                    <div className="ith-deco-scroll-line ith-deco-scroll-line-2" />
-                  </>
-                )}
-                {/* Observatory decorative stars */}
-                {currentItem.special === 'observatory' && (
-                  <>
-                    <div className="ith-deco-star ith-deco-star-1" />
-                    <div className="ith-deco-star ith-deco-star-2" />
-                    <div className="ith-deco-star ith-deco-star-3" />
-                    <div className="ith-deco-star ith-deco-star-4" />
-                    <div className="ith-deco-star ith-deco-star-5" />
-                  </>
-                )}
-                <p
-                  className={`ith-paragraph-text ${getEffectClass(currentItem.effect)}`}
-                  style={{ color: getSectionColors(currentItem.special).text }}
-                >
-                  {currentItem.text}
-                </p>
-              </div>
-            )}
-
-            {/* Image above text — stacked vertically */}
-            {currentItem.type === 'image-text-stacked' && (
-              <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
-                <div className="ith-stacked-image">
+              {/* Title Image — Full Bleed or Centered PNG */}
+              {currentItem.type === 'title-image' && currentItem.special === 'poster1-title' && (
+                <div className="ith-full-bleed-image ith-title-centered pfx-media">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+                  <img src={currentItem.src} alt={currentItem.alt} className="ith-effect-breathe" />
                 </div>
-                <p
-                  className="ith-paragraph-text ith-effect-fade-in"
-                  style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
-                >
-                  {currentItem.text}
-                </p>
-              </div>
-            )}
-
-            {/* Text above image — stacked vertically */}
-            {currentItem.type === 'text-image-stacked' && (
-              <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
-                <p
-                  className="ith-paragraph-text ith-effect-fade-in"
-                  style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
-                >
-                  {currentItem.text}
-                </p>
-                <div className="ith-stacked-image">
+              )}
+              {currentItem.type === 'title-image' && currentItem.special !== 'poster1-title' && (
+                <div className={`ith-full-bleed-image ith-title-width pfx-media ${currentItem.effect ? `ith-effect-${currentItem.effect}` : ''}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+                  <img src={currentItem.src} alt={currentItem.alt} />
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Artwork Display — Image with caption on one side, paragraph text on other */}
-            {currentItem.type === 'artwork-display' && (
-              <div className={`ith-artwork-display ${currentItem.position === 'right' ? 'ith-artwork-reversed' : ''} ${getSpecialClass(currentItem.special)}`}>
-                <div className="ith-artwork-image-side">
-                  {isCoin(currentItem) ? (
-                    <span className="pfx-coin" style={{ '--pfx-mask': `url(${currentItem.src})` } as React.CSSProperties}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={currentItem.src} alt={currentItem.alt} />
-                    </span>
-                  ) : (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+              {/* Full Image — frost variant (full-height, frosted backdrop) */}
+              {currentItem.type === 'full-image' && currentItem.special === 'frost' && (
+                <div className="ith-full-bleed-image ith-frost-image pfx-media">
+                  <div className="ith-frost-backdrop" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={currentItem.src} alt={currentItem.alt} />
+                </div>
+              )}
+
+              {/* Full Image (photograph etc) */}
+              {currentItem.type === 'full-image' && currentItem.special !== 'frost' && (
+                <div className={`ith-full-bleed-image ith-full-image pfx-media ${currentItem.effect === 'kenburns-in' ? 'ith-effect-kenburns-in' : currentItem.effect === 'drift' ? 'ith-effect-drift' : ''}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={currentItem.src} alt={currentItem.alt} />
+                  {currentItem.text && (
+                    <span className="ith-image-caption" style={{ color: textColor }}>{currentItem.text}</span>
                   )}
-                  <div className="ith-artwork-caption" style={{ color: textColor }}>
-                    <span className="ith-artwork-caption-title">{currentItem.artworkTitle}</span>
-                    <span className="ith-artwork-caption-meta">{currentItem.artworkArtist}, {currentItem.artworkDate}</span>
-                  </div>
                 </div>
-                <div className="ith-artwork-text-side" style={{ color: getSectionColors(currentItem.special).text }}>
-                  <p className="ith-paragraph-text ith-effect-fade-in">
+              )}
+
+              {/* Section Title */}
+              {currentItem.type === 'section-title' && (
+                <div className={`ith-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
+                  {/* Parchment decorative flourishes */}
+                  {(currentItem.special === 'parchment' || currentItem.special === 'authentication') && (
+                    <>
+                      <div className="ith-deco-flourish ith-deco-flourish-1" />
+                      <div className="ith-deco-flourish ith-deco-flourish-2" />
+                    </>
+                  )}
+                  {/* Scrolls decorative ruled lines */}
+                  {currentItem.special === 'scrolls' && (
+                    <>
+                      <div className="ith-deco-scroll-line ith-deco-scroll-line-1" />
+                      <div className="ith-deco-scroll-line ith-deco-scroll-line-2" />
+                    </>
+                  )}
+                  {/* Observatory decorative stars */}
+                  {currentItem.special === 'observatory' && (
+                    <>
+                      <div className="ith-deco-star ith-deco-star-1" />
+                      <div className="ith-deco-star ith-deco-star-2" />
+                      <div className="ith-deco-star ith-deco-star-3" />
+                      <div className="ith-deco-star ith-deco-star-4" />
+                      <div className="ith-deco-star ith-deco-star-5" />
+                    </>
+                  )}
+                  <h2
+                    className="ith-section-title-text"
+                    style={{ color: getSectionColors(currentItem.special).title }}
+                    data-fx="title"
+                  >
+                    <FxText text={currentItem.text ?? ''} />
+                  </h2>
+                </div>
+              )}
+
+              {/* Paragraph */}
+              {currentItem.type === 'paragraph' && currentItem.text && (
+                <div className={`ith-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
+                  {/* Parchment decorative flourishes */}
+                  {(currentItem.special === 'parchment' || currentItem.special === 'authentication') && (
+                    <>
+                      <div className="ith-deco-flourish ith-deco-flourish-1" />
+                      <div className="ith-deco-flourish ith-deco-flourish-2" />
+                    </>
+                  )}
+                  {/* Scrolls decorative ruled lines */}
+                  {currentItem.special === 'scrolls' && (
+                    <>
+                      <div className="ith-deco-scroll-line ith-deco-scroll-line-1" />
+                      <div className="ith-deco-scroll-line ith-deco-scroll-line-2" />
+                    </>
+                  )}
+                  {/* Observatory decorative stars */}
+                  {currentItem.special === 'observatory' && (
+                    <>
+                      <div className="ith-deco-star ith-deco-star-1" />
+                      <div className="ith-deco-star ith-deco-star-2" />
+                      <div className="ith-deco-star ith-deco-star-3" />
+                      <div className="ith-deco-star ith-deco-star-4" />
+                      <div className="ith-deco-star ith-deco-star-5" />
+                    </>
+                  )}
+                  <p
+                    className={`ith-paragraph-text ${getEffectClass(currentItem.effect)}`}
+                    style={{ color: getSectionColors(currentItem.special).text }}
+                  >
                     {currentItem.text}
                   </p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Timeline */}
-            {currentItem.type === 'timeline' && currentItem.items && (
-              <div className={`ith-text-content-wrapper ith-pos-center ${getSpecialClass(currentItem.special)}`}>
-                {currentItem.text && (
-                  <h2 className="ith-timeline-title" style={{ animation: 'ithFadeIn 0.8s ease forwards', opacity: 0 }}>{currentItem.text}</h2>
-                )}
-                <div className="ith-timeline">
-                  {currentItem.items.map((item, i) => (
-                    <div
-                      key={i}
-                      className="ith-timeline-item"
-                      style={{ animation: `ithFadeIn 0.6s ease forwards ${i * 0.15}s`, opacity: 0 }}
-                    >
-                      <span className="ith-timeline-text">{item}</span>
-                    </div>
-                  ))}
+              {/* Image above text — stacked vertically */}
+              {currentItem.type === 'image-text-stacked' && (
+                <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
+                  <div className="ith-stacked-image">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+                  </div>
+                  <p
+                    className="ith-paragraph-text ith-effect-fade-in"
+                    style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
+                  >
+                    {currentItem.text}
+                  </p>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Quote */}
-            {currentItem.type === 'quote' && currentItem.text && (
-              <div className="ith-text-content-wrapper ith-pos-center">
-                <blockquote
-                  className={`ith-quote-text ${getEffectClass(currentItem.effect)}`}
-                  style={{ color: isPoster1 ? poster1Gold : poster2Antique, borderColor: isPoster1 ? 'rgba(201,168,76,0.4)' : 'rgba(200,196,160,0.3)' }}
-                >
-                  {currentItem.text}
-                </blockquote>
-              </div>
-            )}
+              {/* Text above image — stacked vertically */}
+              {currentItem.type === 'text-image-stacked' && (
+                <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
+                  <p
+                    className="ith-paragraph-text ith-effect-fade-in"
+                    style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
+                  >
+                    {currentItem.text}
+                  </p>
+                  <div className="ith-stacked-image">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+                  </div>
+                </div>
+              )}
 
-            {/* End */}
-            {currentItem.type === 'end' && (
-              <div className="ith-text-content-wrapper ith-pos-center">
+              {/* Artwork Display — Image with caption on one side, paragraph text on other */}
+              {currentItem.type === 'artwork-display' && (
+                <div className={`ith-artwork-display ${currentItem.position === 'right' ? 'ith-artwork-reversed' : ''} ${getSpecialClass(currentItem.special)}`}>
+                  <div className="ith-artwork-image-side">
+                    {isCoin(currentItem) ? (
+                      <span className="pfx-coin" style={{ '--pfx-mask': `url(${currentItem.src})` } as React.CSSProperties}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={currentItem.src} alt={currentItem.alt} />
+                      </span>
+                    ) : (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+                    )}
+                    <div className="ith-artwork-caption" style={{ color: textColor }}>
+                      <span className="ith-artwork-caption-title">{currentItem.artworkTitle}</span>
+                      <span className="ith-artwork-caption-meta">{currentItem.artworkArtist}, {currentItem.artworkDate}</span>
+                    </div>
+                  </div>
+                  <div className="ith-artwork-text-side" style={{ color: getSectionColors(currentItem.special).text }}>
+                    <p className="ith-paragraph-text ith-effect-fade-in">
+                      {currentItem.text}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Timeline */}
+              {currentItem.type === 'timeline' && currentItem.items && (
+                <div className={`ith-text-content-wrapper ith-pos-center ${getSpecialClass(currentItem.special)}`}>
+                  {currentItem.text && (
+                    <h2 className="ith-timeline-title" style={{ animation: 'ithFadeIn 0.8s ease forwards', opacity: 0 }}>{currentItem.text}</h2>
+                  )}
+                  <div className="ith-timeline">
+                    {currentItem.items.map((item, i) => (
+                      <div
+                        key={i}
+                        className="ith-timeline-item"
+                        style={{ animation: `ithFadeIn 0.6s ease forwards ${i * 0.15}s`, opacity: 0 }}
+                      >
+                        <span className="ith-timeline-text">{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Quote */}
+              {currentItem.type === 'quote' && currentItem.text && (
+                <div className="ith-text-content-wrapper ith-pos-center">
+                  <blockquote
+                    className={`ith-quote-text ${getEffectClass(currentItem.effect)}`}
+                    style={{ color: isPoster1 ? poster1Gold : poster2Antique, borderColor: isPoster1 ? 'rgba(201,168,76,0.4)' : 'rgba(200,196,160,0.3)' }}
+                  >
+                    {currentItem.text}
+                  </blockquote>
+                </div>
+              )}
+
+              {/* End */}
+              {currentItem.type === 'end' && projector && <PosterProjectorEnd />}
+              {currentItem.type === 'end' && !projector && (
+                <div className="ith-text-content-wrapper ith-pos-center">
+                  <button
+                    className="ith-content-end"
+                    onClick={returnToMain}
+                    style={{ color: textColor, borderColor: textColor }}
+                  >
+                    {currentItem.text}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Walkthrough Navigation */}
+            {currentItem.type !== 'end' && (
+              <div className="ith-walkthrough-nav">
                 <button
-                  className="ith-content-end"
-                  onClick={returnToMain}
+                  className="ith-nav-arrow-btn"
+                  onClick={prevStep}
+                  disabled={posterStep === 0}
+                  aria-label="Previous panel"
                   style={{ color: textColor, borderColor: textColor }}
                 >
-                  {currentItem.text}
+                  &#8592;
+                </button>
+                <PosterProgress
+                  theme="ith"
+                  step={posterStep}
+                  fromStep={fromStep}
+                  count={currentPosterContent.length}
+                  marks={marks}
+                  color={textColor}
+                />
+                <button
+                  className="ith-nav-arrow-btn"
+                  onClick={nextStep}
+                  disabled={posterStep === currentPosterContent.length - 1}
+                  aria-label="Next panel"
+                  style={{ color: textColor, borderColor: textColor }}
+                >
+                  &#8594;
                 </button>
               </div>
             )}
           </div>
-
-          {/* Walkthrough Navigation */}
-          {currentItem.type !== 'end' && (
-            <div className="ith-walkthrough-nav">
-              <button
-                className="ith-nav-arrow-btn"
-                onClick={prevStep}
-                disabled={posterStep === 0}
-                aria-label="Previous panel"
-                style={{ color: textColor, borderColor: textColor }}
-              >
-                &#8592;
-              </button>
-              <PosterProgress
-                theme="ith"
-                step={posterStep}
-                fromStep={fromStep}
-                count={currentPosterContent.length}
-                marks={marks}
-                color={textColor}
-              />
-              <button
-                className="ith-nav-arrow-btn"
-                onClick={nextStep}
-                disabled={posterStep === currentPosterContent.length - 1}
-                aria-label="Next panel"
-                style={{ color: textColor, borderColor: textColor }}
-              >
-                &#8594;
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </PosterProjector>
     </div>
   );
 }
