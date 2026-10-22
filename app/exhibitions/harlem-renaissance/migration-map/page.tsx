@@ -204,6 +204,9 @@ export default function MigrationMapPage() {
   const svgRef = useRef<SVGSVGElement>(null);
   const cityViewRef = useRef<HTMLDivElement>(null);
   const currentCityIdxRef = useRef(-1);
+  // False once the page has gone: the journey's timers can still fire after
+  // the visitor leaves, and must not start a song nobody can stop.
+  const aliveRef = useRef(true);
 
   // Keep ref in sync
   useEffect(() => { currentCityIdxRef.current = currentCityIdx; }, [currentCityIdx]);
@@ -242,6 +245,7 @@ export default function MigrationMapPage() {
 
   const playMusic = useCallback((cityIdx: number) => {
     stopMusic();
+    if (!aliveRef.current) return;
     const city = CITIES[cityIdx];
     const audio = new Audio(AUDIO_BASE + city.music.file);
     audio.volume = 0.8;
@@ -362,7 +366,7 @@ export default function MigrationMapPage() {
   }, [stopMusic, getDotScreenPos, pace]);
 
   const playTrainSound = useCallback(() => {
-    if (trainAudioRef.current && soundOnRef.current) {
+    if (aliveRef.current && trainAudioRef.current && soundOnRef.current) {
       trainAudioRef.current.currentTime = 0;
       trainAudioRef.current.volume = 0.5;
       trainAudioRef.current.play().catch(() => {});
@@ -492,13 +496,24 @@ export default function MigrationMapPage() {
       : (dotRefs.current[idx] || boardBtnRef.current))?.focus({ preventScroll: true }));
   }, [isAnimating, collapseCity]);
 
-  // Cleanup audio on unmount
+  // Stop every sound on unmount, and when the page is hidden for good
+  // (closing the tab, or going into the back-forward cache).
   useEffect(() => {
-    return () => {
+    aliveRef.current = true;
+    const train = trainAudioRef.current;
+    const silence = () => {
       if (currentAudioRef.current) {
         currentAudioRef.current.pause();
         currentAudioRef.current = null;
       }
+      train?.pause();
+    };
+    const onPageHide = () => { silence(); setMusicPlaying(false); };
+    window.addEventListener('pagehide', onPageHide);
+    return () => {
+      aliveRef.current = false;
+      window.removeEventListener('pagehide', onPageHide);
+      silence();
     };
   }, []);
 
