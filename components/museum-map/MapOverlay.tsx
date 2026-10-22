@@ -97,7 +97,7 @@ export function MapOverlay({
             <h2 id="museum-map-title" ref={headingRef} tabIndex={-1} style={{ outline: 'none' }}>{levelConfig.title || 'Museum Map'}</h2>
             {currentRoom && (
               <p className="current-location">
-                <span className="you-are-here-dot" aria-hidden="true" />
+                <span className="you-are-here-dot" aria-hidden="true" style={{ background: currentRoom.accentColor }} />
                 You are here: {currentRoom.label}
               </p>
             )}
@@ -211,6 +211,8 @@ export function MapOverlay({
         .map-header {
           margin-bottom: 16px;
           text-align: center;
+          /* Keep the title and location clear of the close button. */
+          padding: 0 44px;
         }
 
         .map-header h2 {
@@ -234,9 +236,9 @@ export function MapOverlay({
         }
 
         .you-are-here-dot {
+          flex: none;
           width: 8px;
           height: 8px;
-          background: #a8d5e5;
           border-radius: 50%;
           animation: pulse 2s ease-in-out infinite;
         }
@@ -244,6 +246,10 @@ export function MapOverlay({
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.6; transform: scale(1.2); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .map-overlay, .map-container, .you-are-here-dot { animation: none; }
         }
 
         .map-viewport {
@@ -321,7 +327,8 @@ export function MapOverlay({
             margin: 12px;
             max-height: 85vh;
           }
-          .map-header h2 { font-size: 1.5rem; }
+          .map-header { padding: 0 40px; }
+          .map-header h2 { font-size: 1.35rem; line-height: 1.2; }
           .zoom-controls { right: 8px; top: 70px; }
           .zoom-btn { width: 36px; height: 36px; font-size: 20px; }
           .map-close-btn { top: 8px; right: 8px; }

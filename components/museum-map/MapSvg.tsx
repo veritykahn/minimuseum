@@ -33,7 +33,7 @@ type MapSvgProps = {
   setHoveredRoom: (id: string | null) => void;
   onRoomClick: (room: MapRoom | FloorPlanRoom) => void;
   onAncestorClick: (ancestor: MapAncestor) => void;
-  isCurrentRoom: (room: { path: string; id?: string }) => boolean;
+  isCurrentRoom: (room: { path: string; id?: string; children?: string[] }) => boolean;
   transition: TransitionState;
 };
 

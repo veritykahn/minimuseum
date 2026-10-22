@@ -1,12 +1,23 @@
 'use client';
 
+type MapLegendProps = {
+  /** Color of the "you are here" dot, so the key matches the map. */
+  hereColor?: string;
+};
+
 /**
  * Legend showing map symbols
  */
-export function MapLegend() {
+export function MapLegend({ hereColor }: MapLegendProps) {
   return (
     <>
       <div className="map-legend">
+        {hereColor && (
+          <div className="legend-item">
+            <span className="legend-dot" style={{ background: hereColor }} />
+            <span>You are here</span>
+          </div>
+        )}
         <div className="legend-item">
           <span className="legend-line solid" />
           <span>Open</span>
@@ -34,6 +45,12 @@ export function MapLegend() {
           font-family: var(--font-outfit), sans-serif;
           font-size: 0.75rem;
           color: rgba(250, 250, 250, 0.6);
+        }
+
+        .legend-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
         }
 
         .legend-line {
