@@ -1,20 +1,23 @@
 'use client';
 
+import type { MapButtonPlacement } from './placement';
+
 type MapToggleButtonProps = {
   isOpen: boolean;
   onClick: () => void;
+  placement?: MapButtonPlacement;
 };
 
 /**
  * Floating button to toggle the museum map
  */
-export function MapToggleButton({ isOpen, onClick }: MapToggleButtonProps) {
+export function MapToggleButton({ isOpen, onClick, placement = 'corner' }: MapToggleButtonProps) {
   return (
     <>
       <button
         type="button"
         onClick={onClick}
-        className="map-toggle-btn"
+        className={`map-toggle-btn place-${placement}`}
         aria-label={isOpen ? 'Close map' : 'Open museum map'}
         aria-expanded={isOpen}
         aria-controls="museum-map-dialog"
@@ -78,6 +81,14 @@ export function MapToggleButton({ isOpen, onClick }: MapToggleButtonProps) {
           transform: scale(1.05);
         }
 
+        /* Beside a 3D viewer's info button (50px, 24px from the top and 32px
+           from the right), level with it and 12px to its left. */
+        .map-toggle-btn.place-top {
+          top: 21px;
+          bottom: auto;
+          right: 94px;
+        }
+
         .map-toggle-label {
           font-size: 9px;
           font-family: var(--font-outfit), sans-serif;
@@ -97,6 +108,27 @@ export function MapToggleButton({ isOpen, onClick }: MapToggleButtonProps) {
           .map-toggle-label {
             display: none;
           }
+        }
+
+        /* On a phone the viewers' info button is 42-50px, 16px from the top. */
+        @media (max-width: 768px) {
+          .map-toggle-btn.place-top {
+            top: 13px;
+            right: 80px;
+          }
+        }
+
+        /* Too narrow to sit beside the info button without touching the
+           back link: drop below it instead, clear of the view controls. */
+        @media (max-width: 360px) {
+          .map-toggle-btn.place-top {
+            top: 84px;
+            right: 18px;
+          }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .map-toggle-btn, .map-toggle-btn:hover { transition: none; transform: none; }
         }
       `}</style>
     </>

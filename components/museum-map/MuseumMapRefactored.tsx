@@ -9,6 +9,7 @@ import { MapToggleButton } from './MapToggleButton';
 import { MapOverlay } from './MapOverlay';
 import { MapSvg } from './MapSvg';
 import { MapLegend } from './MapLegend';
+import { mapButtonPlacement } from './placement';
 
 /**
  * Museum Map — Interactive hierarchical navigation component.
@@ -60,6 +61,15 @@ export default function MuseumMap() {
   // tool: no floating map button over the projector.
   const pathname = usePathname();
   const isLessonScreen = /\/lessons\/[^/]+/.test(pathname ?? '');
+  const placement = mapButtonPlacement(pathname);
+
+  // Tell the page's CSS where the button is, so a page that scrolls can
+  // leave room for it (html[data-map-fab='clear'] in globals.css).
+  useEffect(() => {
+    const root = document.documentElement;
+    root.dataset.mapFab = placement;
+    return () => { delete root.dataset.mapFab; };
+  }, [placement]);
 
   if (isHomePage || isLessonScreen) {
     return null;
@@ -67,7 +77,7 @@ export default function MuseumMap() {
 
   return (
     <>
-      <MapToggleButton isOpen={isOpen} onClick={toggle} />
+      <MapToggleButton isOpen={isOpen} onClick={toggle} placement={placement} />
 
       {isOpen && (
         <MapOverlay
@@ -93,7 +103,7 @@ export default function MuseumMap() {
             isCurrentRoom={isCurrentRoom}
             transition={transition}
           />
-          <MapLegend />
+          <MapLegend hereColor={currentRoom?.accentColor} />
         </MapOverlay>
       )}
     </>

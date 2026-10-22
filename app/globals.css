@@ -171,3 +171,20 @@ a:link, a:visited, a:hover, a:active {
 @media (max-width: 768px) {
   .poster-nav-hint { bottom: 76px; font-size: 12px; }
 }
+
+/* 3D viewer hints: mouse wording for a fine pointer, touch wording for a
+   finger. Both lists are always rendered (see ORBIT_HINTS in
+   lib/orbit-a11y.tsx); only the one that fits the device is shown. */
+@media (hover: hover), (pointer: fine), (pointer: none) {
+  .orbit-hints-touch { display: none !important; }
+}
+@media (hover: none) and (pointer: coarse) {
+  .orbit-hints-pointer { display: none !important; }
+}
+
+/* The floating Map button covers the foot of a scrolling page on a phone.
+   Pages listed as 'clear' in components/museum-map/placement.ts get room to
+   scroll their last row above it. */
+@media (max-width: 768px) {
+  html[data-map-fab='clear'] body { padding-bottom: 88px; }
+}
