@@ -14,7 +14,8 @@ import { focusElement, focusHeadingIn, usePendingFocus } from '@/lib/a11y/focus'
  */
 
 const OPEN_DELAY = 300;
-const STEP_DELAY = 400;
+/** How long the outgoing panel takes to leave. Kept short: the reveal belongs to the incoming one. */
+const STEP_DELAY = 260;
 const SWIPE_THRESHOLD = 50;
 /** Tapping at or right of this fraction of the stage width goes forward. */
 const FORWARD_FROM = 0.4;
@@ -60,6 +61,12 @@ export type PosterNavigationOptions = {
   step: number;
   count: number;
   goTo: (step: number) => void;
+  /**
+   * Move relative to where the walkthrough is heading. When given, arrows,
+   * swipes and taps use it, so a second press during a transition goes one
+   * further instead of being swallowed.
+   */
+  goBy?: (delta: number) => void;
   onClose: () => void;
 };
 
@@ -77,11 +84,11 @@ export type PosterStageProps = {
  * side-tap navigation for a step-by-step walkthrough. Spread the returned
  * props onto the element that fills the stage.
  */
-export function usePosterNavigation({ active, step, count, goTo, onClose }: PosterNavigationOptions): PosterStageProps {
+export function usePosterNavigation({ active, step, count, goTo, goBy, onClose }: PosterNavigationOptions): PosterStageProps {
   // Read the latest values from inside listeners without re-subscribing.
-  const latest = useRef({ step, count, goTo, onClose });
+  const latest = useRef({ step, count, goTo, onClose, by: (d: number) => goTo(step + d) });
   useLayoutEffect(() => {
-    latest.current = { step, count, goTo, onClose };
+    latest.current = { step, count, goTo, onClose, by: goBy ?? ((d: number) => goTo(step + d)) };
   });
 
   useEffect(() => {
@@ -89,15 +96,15 @@ export function usePosterNavigation({ active, step, count, goTo, onClose }: Post
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
       if (isFormField(e.target) || isFormField(document.activeElement)) return;
-      const { step: s, count: n, goTo: go, onClose: close } = latest.current;
+      const { count: n, goTo: go, onClose: close, by } = latest.current;
       switch (e.key) {
         case 'ArrowRight':
         case 'PageDown':
-          go(s + 1);
+          by(1);
           break;
         case 'ArrowLeft':
         case 'PageUp':
-          go(s - 1);
+          by(-1);
           break;
         case 'Home':
           go(0);
@@ -139,8 +146,7 @@ export function usePosterNavigation({ active, step, count, goTo, onClose }: Post
     // Mostly-vertical moves are scrolls, not swipes.
     if (Math.abs(dx) < SWIPE_THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.5) return;
     lastSwipe.current = Date.now();
-    const { step: s, goTo: go } = latest.current;
-    go(dx < 0 ? s + 1 : s - 1);
+    latest.current.by(dx < 0 ? 1 : -1);
   }, []);
 
   const onClick = useCallback((e: React.MouseEvent<HTMLElement>) => {
@@ -154,8 +160,7 @@ export function usePosterNavigation({ active, step, count, goTo, onClose }: Post
     const rect = e.currentTarget.getBoundingClientRect();
     if (rect.width === 0) return;
     const forward = (e.clientX - rect.left) / rect.width >= FORWARD_FROM;
-    const { step: s, goTo: go } = latest.current;
-    go(forward ? s + 1 : s - 1);
+    latest.current.by(forward ? 1 : -1);
   }, []);
 
   // A cursor hint for mouse users: e-resize on the forward side, w-resize on
@@ -187,6 +192,10 @@ export function usePosterWalkthrough<K extends string>(lengths: Record<K, number
   const [posterStep, setPosterStep] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
   const [animationKey, setAnimationKey] = useState(0);
+  /** 1 when moving forward, -1 when moving back. Drives directional motion. */
+  const [direction, setDirection] = useState<1 | -1>(1);
+  /** The panel the visitor came from, so a progress bar can travel from it. */
+  const [fromStep, setFromStep] = useState(0);
   const [hintVisible, setHintVisible] = useState(false);
   const [hintAnnounced, setHintAnnounced] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -220,6 +229,8 @@ export function usePosterWalkthrough<K extends string>(lengths: Record<K, number
       requestFocus(() => focusHeadingIn(contentRef.current));
       setActiveView(poster);
       setPosterStep(0);
+      setFromStep(0);
+      setDirection(1);
       setAnimationKey(prev => prev + 1);
       setFadeIn(true);
       if (!hintAlreadySeen()) {
@@ -240,17 +251,26 @@ export function usePosterWalkthrough<K extends string>(lengths: Record<K, number
     setHintVisible(false);
     setHintAnnounced(false);
     if (inFlight) return;
+    const from = posterStep;
+    setDirection(clamped > from ? 1 : -1);
     setFadeIn(false);
     schedule(STEP_DELAY, () => {
       requestFocus(() => focusHeadingIn(contentRef.current));
+      setDirection(target.current > from ? 1 : -1);
+      setFromStep(from);
       setPosterStep(target.current);
       setAnimationKey(prev => prev + 1);
       setFadeIn(true);
     });
   }, [isOpen, count, posterStep, requestFocus, schedule]);
 
-  const nextStep = useCallback(() => goToStep(posterStep + 1), [goToStep, posterStep]);
-  const prevStep = useCallback(() => goToStep(posterStep - 1), [goToStep, posterStep]);
+  /** Relative moves count from the panel already on its way in, if any. */
+  const goBy = useCallback((delta: number) => {
+    const base = timer.current !== null && !closing.current ? target.current : posterStep;
+    goToStep(base + delta);
+  }, [goToStep, posterStep]);
+  const nextStep = useCallback(() => goBy(1), [goBy]);
+  const prevStep = useCallback(() => goBy(-1), [goBy]);
 
   const returnToMain = useCallback(() => {
     if (closing.current) return;
@@ -274,6 +294,7 @@ export function usePosterWalkthrough<K extends string>(lengths: Record<K, number
     step: posterStep,
     count,
     goTo: goToStep,
+    goBy,
     onClose: returnToMain,
   });
 
@@ -287,6 +308,8 @@ export function usePosterWalkthrough<K extends string>(lengths: Record<K, number
   return {
     activeView,
     posterStep,
+    fromStep,
+    direction,
     fadeIn,
     animationKey,
     contentRef,

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
+import { FxText, FxVeil, PosterProgress, chapterMarks, fxKindFor, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 
 type ContentItem = {
   type: string;
@@ -408,6 +409,9 @@ const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void
   );
 };
 
+const poster1Marks = chapterMarks(poster1Content);
+const poster2Marks = chapterMarks(poster2Content);
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -415,6 +419,8 @@ export default function InTheirHands() {
   const {
     activeView,
     posterStep,
+    fromStep,
+    direction,
     fadeIn,
     animationKey,
     contentRef,
@@ -467,6 +473,14 @@ export default function InTheirHands() {
 
   const bgColor = getBgColor();
   const textColor = isPoster1 ? poster1Cream : poster2Cream;
+  const fx = usePosterFxStage('ith', direction, currentItem?.type ?? '', bgColor, textColor);
+  const kind = currentItem ? fxKindFor(currentItem) : 'body';
+  const marks = isPoster1 ? poster1Marks : poster2Marks;
+  const veilKind = !currentItem || ['title-image', 'full-image', 'artwork-display', 'image-text-stacked', 'text-image-stacked'].includes(currentItem.type)
+    ? 'media'
+    : currentItem.type === 'section-title' ? 'title' : 'text';
+  /** Coins are transparent cut-outs: they get a shadow that follows the metal and a glint. */
+  const isCoin = (item: ContentItem) => item.special === 'thirty-pieces' && !!item.src?.endsWith('.png');
 
   // Per-section color palette
   const getSectionColors = (special?: string) => {
@@ -498,18 +512,6 @@ export default function InTheirHands() {
       case 'bottom-center': return 'ith-pos-bottom-center';
       case 'full-width': return 'ith-pos-full-width';
       default: return 'ith-pos-center';
-    }
-  };
-
-  // Effect classes
-  const getEffectClass = (effect?: string) => {
-    switch(effect) {
-      case 'blur-to-sharp': return 'ith-effect-blur-sharp';
-      case 'split-reveal': return 'ith-effect-split-reveal';
-      case 'fade-in': return 'ith-effect-fade-in';
-      case 'ink-spread': return 'ith-effect-ink-spread';
-      case 'line-by-line': return 'ith-effect-fade-in';
-      default: return '';
     }
   };
 
@@ -1162,7 +1164,7 @@ export default function InTheirHands() {
         .ith-poster-walkthrough {
           min-height: 100vh;
           width: 100vw;
-          transition: opacity 0.4s ease;
+          transition: opacity 0.25s ease;
           overflow: hidden;
         }
         .ith-poster-walkthrough.fade-out { opacity: 0; }
@@ -1616,12 +1618,20 @@ export default function InTheirHands() {
         {announcement}
       </p>
       <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
+      {activeView !== 'main' && (
+        <h1 className="visually-hidden">{activeView === 'poster1' ? 'Faith and Reason' : 'The Weight of Thirty Pieces'}</h1>
+      )}
 
       {/* ============================================
           POSTER WALKTHROUGH VIEW
           ============================================ */}
       {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div className={`ith-poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey} {...stageProps}>
+        <div
+          {...stageProps}
+          {...fx}
+          className={`ith-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
+          key={animationKey}
+        >
 
           {/* Poster 1 persistent background — Tissot Jerusalem watercolour */}
           {isPoster1 && (currentItem.type !== 'full-image' || currentItem.special === 'frost') && (
@@ -1632,16 +1642,17 @@ export default function InTheirHands() {
           )}
 
           <div className="ith-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
+            <FxVeil theme="ith" kind={veilKind} />
 
             {/* Title Image — Full Bleed or Centered PNG */}
             {currentItem.type === 'title-image' && currentItem.special === 'poster1-title' && (
-              <div className="ith-full-bleed-image ith-title-centered">
+              <div className="ith-full-bleed-image ith-title-centered pfx-media">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} className="ith-effect-breathe" />
               </div>
             )}
             {currentItem.type === 'title-image' && currentItem.special !== 'poster1-title' && (
-              <div className={`ith-full-bleed-image ith-title-width ${currentItem.effect ? `ith-effect-${currentItem.effect}` : ''}`}>
+              <div className={`ith-full-bleed-image ith-title-width pfx-media ${currentItem.effect ? `ith-effect-${currentItem.effect}` : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} />
               </div>
@@ -1649,7 +1660,7 @@ export default function InTheirHands() {
 
             {/* Full Image — frost variant (full-height, frosted backdrop) */}
             {currentItem.type === 'full-image' && currentItem.special === 'frost' && (
-              <div className="ith-full-bleed-image ith-frost-image">
+              <div className="ith-full-bleed-image ith-frost-image pfx-media">
                 <div className="ith-frost-backdrop" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} />
@@ -1658,7 +1669,7 @@ export default function InTheirHands() {
 
             {/* Full Image (photograph etc) */}
             {currentItem.type === 'full-image' && currentItem.special !== 'frost' && (
-              <div className={`ith-full-bleed-image ith-full-image ${currentItem.effect === 'kenburns-in' ? 'ith-effect-kenburns-in' : currentItem.effect === 'drift' ? 'ith-effect-drift' : ''}`}>
+              <div className={`ith-full-bleed-image ith-full-image pfx-media ${currentItem.effect === 'kenburns-in' ? 'ith-effect-kenburns-in' : currentItem.effect === 'drift' ? 'ith-effect-drift' : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} />
                 {currentItem.text && (
@@ -1695,10 +1706,11 @@ export default function InTheirHands() {
                   </>
                 )}
                 <h2
-                  className={`ith-section-title-text ${getEffectClass(currentItem.effect)}`}
+                  className="ith-section-title-text"
                   style={{ color: getSectionColors(currentItem.special).title }}
+                  data-fx={kind}
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text ?? ''} />
                 </h2>
               </div>
             )}
@@ -1731,10 +1743,11 @@ export default function InTheirHands() {
                   </>
                 )}
                 <p
-                  className={`ith-paragraph-text ${getEffectClass(currentItem.effect)}`}
+                  className="ith-paragraph-text"
                   style={{ color: getSectionColors(currentItem.special).text }}
+                  data-fx={kind}
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text} words={kind === 'statement'} />
                 </p>
               </div>
             )}
@@ -1744,13 +1757,14 @@ export default function InTheirHands() {
               <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
                 <div className="ith-stacked-image">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentItem.src} alt={currentItem.alt} />
+                  <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
                 </div>
                 <p
-                  className="ith-paragraph-text ith-effect-fade-in"
+                  className="ith-paragraph-text"
                   style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
+                  data-fx="body"
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text ?? ''} />
                 </p>
               </div>
             )}
@@ -1759,14 +1773,15 @@ export default function InTheirHands() {
             {currentItem.type === 'text-image-stacked' && (
               <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
                 <p
-                  className="ith-paragraph-text ith-effect-fade-in"
+                  className="ith-paragraph-text"
                   style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
+                  data-fx="body"
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text ?? ''} />
                 </p>
                 <div className="ith-stacked-image">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentItem.src} alt={currentItem.alt} />
+                  <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
                 </div>
               </div>
             )}
@@ -1775,15 +1790,22 @@ export default function InTheirHands() {
             {currentItem.type === 'artwork-display' && (
               <div className={`ith-artwork-display ${currentItem.position === 'right' ? 'ith-artwork-reversed' : ''} ${getSpecialClass(currentItem.special)}`}>
                 <div className="ith-artwork-image-side">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentItem.src} alt={currentItem.alt} />
+                  {isCoin(currentItem) ? (
+                    <span className="pfx-coin" style={{ '--pfx-mask': `url(${currentItem.src})` } as React.CSSProperties}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={currentItem.src} alt={currentItem.alt} />
+                    </span>
+                  ) : (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+                  )}
                   <div className="ith-artwork-caption" style={{ color: textColor }}>
                     <span className="ith-artwork-caption-title">{currentItem.artworkTitle}</span>
                     <span className="ith-artwork-caption-meta">{currentItem.artworkArtist}, {currentItem.artworkDate}</span>
                   </div>
                 </div>
-                <div className="ith-artwork-text-side" style={{ color: getSectionColors(currentItem.special).text }}>
-                  <p className="ith-paragraph-text ith-effect-fade-in">
+                <div className="ith-artwork-text-side pfx-fg pfx-fg-copy" style={{ color: getSectionColors(currentItem.special).text }}>
+                  <p className="ith-paragraph-text">
                     {currentItem.text}
                   </p>
                 </div>
@@ -1796,7 +1818,7 @@ export default function InTheirHands() {
                 {currentItem.text && (
                   <h2 className="ith-timeline-title" style={{ animation: 'ithFadeIn 0.8s ease forwards', opacity: 0 }}>{currentItem.text}</h2>
                 )}
-                <div className="ith-timeline">
+                <div className="ith-timeline pfx-fg">
                   {currentItem.items.map((item, i) => (
                     <div
                       key={i}
@@ -1814,10 +1836,11 @@ export default function InTheirHands() {
             {currentItem.type === 'quote' && currentItem.text && (
               <div className="ith-text-content-wrapper ith-pos-center">
                 <blockquote
-                  className={`ith-quote-text ${getEffectClass(currentItem.effect)}`}
+                  className="ith-quote-text"
+                  data-fx="quote"
                   style={{ color: isPoster1 ? poster1Gold : poster2Antique, borderColor: isPoster1 ? 'rgba(201,168,76,0.4)' : 'rgba(200,196,160,0.3)' }}
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text} words />
                 </blockquote>
               </div>
             )}
@@ -1826,7 +1849,7 @@ export default function InTheirHands() {
             {currentItem.type === 'end' && (
               <div className="ith-text-content-wrapper ith-pos-center">
                 <button
-                  className="ith-content-end"
+                  className="ith-content-end pfx-fg"
                   onClick={returnToMain}
                   style={{ color: textColor, borderColor: textColor }}
                 >
@@ -1848,9 +1871,14 @@ export default function InTheirHands() {
               >
                 &#8592;
               </button>
-              <span className="ith-step-indicator" style={{ color: textColor }} aria-hidden="true">
-                {posterStep + 1} / {currentPosterContent.length}
-              </span>
+              <PosterProgress
+                theme="ith"
+                step={posterStep}
+                fromStep={fromStep}
+                count={currentPosterContent.length}
+                marks={marks}
+                color={textColor}
+              />
               <button
                 className="ith-nav-arrow-btn"
                 onClick={nextStep}

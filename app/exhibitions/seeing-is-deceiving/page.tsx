@@ -5,6 +5,7 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import TypewriterText from '@/components/TypewriterText';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
+import { FxChannelGhosts, FxDefs, FxText, FxVeil, PosterProgress, chapterMarks, fxKindFor, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 
 type ContentItem = {
   type: string;
@@ -439,6 +440,9 @@ const LineByLine = ({ items, color }: { items: string[]; color: string }) => {
 };
 
 // Film dust/scratch component for old film effect
+const poster1Marks = chapterMarks(poster1Content);
+const poster2Marks = chapterMarks(poster2Content);
+
 const FilmOverlay = () => {
   return (
     <div className="film-overlay">
@@ -465,6 +469,8 @@ export default function SeeingIsDeceiving() {
   const {
     activeView,
     posterStep,
+    fromStep,
+    direction,
     fadeIn,
     animationKey,
     contentRef,
@@ -482,12 +488,15 @@ export default function SeeingIsDeceiving() {
 
   const currentItem = currentPosterContent[posterStep];
   const isPoster1 = activeView === 'poster1';
+  const marks = activeView === 'poster1' ? poster1Marks : poster2Marks;
 
   // Colors
   const wavesBlue = '#a8d5e5';
   const darkCharcoal = '#2a2a2a';
   const bgColor = isPoster1 ? '#e0dede' : '#0a0a0a';
   const textColor = isPoster1 ? darkCharcoal : wavesBlue;
+  const fx = usePosterFxStage('sid', direction, currentItem?.type ?? '', bgColor, isPoster1 ? 'rgba(42,42,42,0.55)' : 'rgba(168,213,229,0.6)');
+  const kind = currentItem ? fxKindFor(currentItem) : 'body';
 
   // Position classes
   const getPositionClass = (position?: string) => {
@@ -499,17 +508,6 @@ export default function SeeingIsDeceiving() {
       case 'bottom-center': return 'pos-bottom-center';
       case 'full-width': return 'pos-full-width';
       default: return 'pos-center';
-    }
-  };
-
-  // Effect classes
-  const getEffectClass = (effect?: string) => {
-    switch(effect) {
-      case 'blur-to-sharp': return 'effect-blur-sharp';
-      case 'split-reveal': return 'effect-split-reveal';
-      case 'glitch': return 'effect-glitch';
-      case 'film-credits': return 'effect-film-credits';
-      default: return '';
     }
   };
 
@@ -1202,7 +1200,7 @@ export default function SeeingIsDeceiving() {
         .poster-walkthrough {
           min-height: 100vh;
           width: 100vw;
-          transition: opacity 0.4s ease;
+          transition: opacity 0.25s ease;
           overflow: hidden;
         }
         .poster-walkthrough.fade-out { opacity: 0; }
@@ -1518,30 +1516,54 @@ export default function SeeingIsDeceiving() {
         {announcement}
       </p>
       <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
+      {activeView !== 'main' && (
+        <h1 className="visually-hidden">{activeView === 'poster1' ? 'Seeing is Deceiving: The Science of How We See' : 'A History of Lies: From Magic Lanterns to AI Deepfakes'}</h1>
+      )}
+      <FxDefs />
 
       {/* Poster Walkthrough View */}
       {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div className={`poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey} {...stageProps}>
+        <div
+          {...stageProps}
+          {...fx}
+          className={`poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
+          data-tone={isPoster1 ? 'light' : 'dark'}
+          key={animationKey}
+        >
           <div className="walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
+            <FxVeil
+              theme="sid"
+              kind={currentItem.type === 'title-image' || currentItem.type === 'full-image' || kind === 'statement' || kind === 'quote' ? 'media' : kind === 'title' ? 'title' : 'text'}
+            />
 
             {/* Title Image - Full Bleed */}
             {currentItem.type === 'title-image' && (
-              <div className={`full-bleed-image title-image ${isPoster1 ? 'poster1-title' : 'poster2-title'} ${currentItem.effect === 'kenburns-in' ? 'effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'effect-drift' : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
-                <img src={currentItem.src} alt={currentItem.alt} />
-              </div>
+              <>
+                <div className={`full-bleed-image title-image pfx-media ${isPoster1 ? 'poster1-title' : 'poster2-title'} ${currentItem.effect === 'kenburns-in' ? 'effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'effect-drift' : ''}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
+                  <img src={currentItem.src} alt={currentItem.alt} />
+                </div>
+                <FxChannelGhosts className={`full-bleed-image title-image ${isPoster1 ? 'poster1-title' : 'poster2-title'}`} src={currentItem.src} />
+              </>
             )}
 
             {/* Full Image - Mega Zoom */}
             {currentItem.type === 'full-image' && (
-              <div className={`full-bleed-image ${currentItem.effect === 'mega-zoom-out' ? 'face-image' : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
-                <img
+              <>
+                <div className={`full-bleed-image pfx-media ${currentItem.effect === 'mega-zoom-out' ? 'face-image' : ''}`}>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
+                  <img
+                    src={currentItem.src}
+                    alt={currentItem.alt}
+                    className={currentItem.effect === 'mega-zoom-out' ? 'effect-mega-zoom-out' : currentItem.effect === 'waves-drift' ? 'effect-waves-drift' : ''}
+                  />
+                </div>
+                <FxChannelGhosts
+                  className={`full-bleed-image ${currentItem.effect === 'mega-zoom-out' ? 'face-image' : ''}`}
                   src={currentItem.src}
-                  alt={currentItem.alt}
-                  className={currentItem.effect === 'mega-zoom-out' ? 'effect-mega-zoom-out' : currentItem.effect === 'waves-drift' ? 'effect-waves-drift' : ''}
+                  imgClassName={currentItem.effect === 'mega-zoom-out' ? 'effect-mega-zoom-out' : ''}
                 />
-              </div>
+              </>
             )}
 
             {/* Section Title */}
@@ -1558,10 +1580,11 @@ export default function SeeingIsDeceiving() {
                   </>
                 )}
                 <h2
-                  className={`section-title-text ${getEffectClass(currentItem.effect)} ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
+                  className={`section-title-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
                   style={{ color: textColor, position: 'relative', zIndex: 10 }}
+                  data-fx={kind}
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text ?? ''} />
                 </h2>
               </div>
             )}
@@ -1580,13 +1603,14 @@ export default function SeeingIsDeceiving() {
                   </>
                 )}
                 <p
-                  className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''} ${currentItem.effect === 'fade-in' ? 'effect-fade-in' : ''} ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''} ${currentItem.effect === 'glitch' ? 'effect-glitch' : ''}`}
+                  className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
                   style={{ color: textColor, position: 'relative', zIndex: 10 }}
+                  data-fx={currentItem.effect === 'typewriter' ? undefined : kind}
                 >
                   {currentItem.effect === 'typewriter' ? (
                     <TypewriterText text={currentItem.text} color={textColor} cursorClassName="typewriter-cursor" />
                   ) : (
-                    currentItem.text
+                    <FxText text={currentItem.text} words={kind === 'statement'} />
                   )}
                 </p>
               </div>
@@ -1596,8 +1620,8 @@ export default function SeeingIsDeceiving() {
             {currentItem.type === 'blind-spot' && currentItem.text && (
               <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} blind-spot-container`}>
                 <div className="blind-spot-hole"></div>
-                <p className="paragraph-text effect-fade-in" style={{ color: textColor }}>
-                  {currentItem.text}
+                <p className="paragraph-text" style={{ color: textColor }} data-fx="body">
+                  <FxText text={currentItem.text} />
                 </p>
               </div>
             )}
@@ -1605,7 +1629,9 @@ export default function SeeingIsDeceiving() {
             {/* Timeline */}
             {currentItem.type === 'timeline' && currentItem.items && (
               <div className={`text-content-wrapper ${getPositionClass(currentItem.position)}`}>
-                <LineByLine items={currentItem.items} color={textColor} />
+                <div className="pfx-fg">
+                  <LineByLine items={currentItem.items} color={textColor} />
+                </div>
               </div>
             )}
 
@@ -1613,10 +1639,11 @@ export default function SeeingIsDeceiving() {
             {currentItem.type === 'quote' && currentItem.text && (
               <div className={`text-content-wrapper pos-center`}>
                 <blockquote
-                  className={`quote-text ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''}`}
+                  className="quote-text"
                   style={{ color: textColor, borderColor: textColor }}
+                  data-fx="quote"
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text} words />
                 </blockquote>
               </div>
             )}
@@ -1628,7 +1655,7 @@ export default function SeeingIsDeceiving() {
                   href={currentItem.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="content-link"
+                  className="content-link pfx-fg"
                   style={{ color: textColor, borderColor: textColor }}
                 >
                   {currentItem.text}
@@ -1640,7 +1667,7 @@ export default function SeeingIsDeceiving() {
             {currentItem.type === 'end' && (
               <div className="text-content-wrapper pos-center">
                 <button
-                  className="content-end"
+                  className="content-end pfx-fg"
                   onClick={returnToMain}
                   style={{ color: textColor, borderColor: textColor }}
                 >
@@ -1662,9 +1689,14 @@ export default function SeeingIsDeceiving() {
               >
                 ←
               </button>
-              <span className="step-indicator" style={{ color: textColor }} aria-hidden="true">
-                {posterStep + 1} / {currentPosterContent.length}
-              </span>
+              <PosterProgress
+                theme="sid"
+                step={posterStep}
+                fromStep={fromStep}
+                count={currentPosterContent.length}
+                marks={marks}
+                color={textColor}
+              />
               <button
                 className="nav-arrow-btn"
                 onClick={nextStep}

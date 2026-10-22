@@ -5,6 +5,7 @@ import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
+import { FxText, FxVeil, PosterProgress, chapterMarks, fxKindFor, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 
 type ContentItem = {
   type: string;
@@ -418,6 +419,9 @@ const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void
   );
 };
 
+const poster1Marks = chapterMarks(poster1Content);
+const poster2Marks = chapterMarks(poster2Content);
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -425,6 +429,8 @@ export default function HarlemRenaissance() {
   const {
     activeView,
     posterStep,
+    fromStep,
+    direction,
     fadeIn,
     animationKey,
     contentRef,
@@ -483,6 +489,15 @@ export default function HarlemRenaissance() {
 
   const bgColor = getBgColor();
   const textColor = isPoster1 ? poster1Cream : poster2Sage;
+  const fx = usePosterFxStage('hr', direction, currentItem?.type ?? '', bgColor, textColor);
+  const kind = currentItem ? fxKindFor(currentItem) : 'body';
+  const marks = isPoster1 ? poster1Marks : poster2Marks;
+  const veilKind =
+    !currentItem ? 'media'
+    : currentItem.type === 'artwork-display' ? 'art'
+    : currentItem.type === 'section-title' ? 'title'
+    : kind === 'body' && currentItem.type === 'paragraph' ? 'text'
+    : 'media';
 
   // Per-section color palette
   const getSectionColors = (special?: string) => {
@@ -514,17 +529,6 @@ export default function HarlemRenaissance() {
       case 'bottom-center': return 'hr-pos-bottom-center';
       case 'full-width': return 'hr-pos-full-width';
       default: return 'hr-pos-center';
-    }
-  };
-
-  // Effect classes
-  const getEffectClass = (effect?: string) => {
-    switch(effect) {
-      case 'blur-to-sharp': return 'hr-effect-blur-sharp';
-      case 'split-reveal': return 'hr-effect-split-reveal';
-      case 'fade-in': return 'hr-effect-fade-in';
-      case 'ink-spread': return 'hr-effect-ink-spread';
-      default: return '';
     }
   };
 
@@ -1177,7 +1181,7 @@ export default function HarlemRenaissance() {
         .hr-poster-walkthrough {
           min-height: 100vh;
           width: 100vw;
-          transition: opacity 0.4s ease;
+          transition: opacity 0.25s ease;
           overflow: hidden;
         }
         .hr-poster-walkthrough.fade-out { opacity: 0; }
@@ -1358,7 +1362,7 @@ export default function HarlemRenaissance() {
           animation: hrFadeIn 1s ease forwards 0.4s;
           opacity: 0;
         }
-        .hr-artwork-info-side h3 {
+        .hr-artwork-info-side h2 {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(1.8rem, 4vw, 2.5rem);
           font-weight: 300;
@@ -1371,13 +1375,11 @@ export default function HarlemRenaissance() {
           letter-spacing: 0.15em;
           text-transform: uppercase;
           margin-bottom: 24px;
-          opacity: 0.7;
         }
         .hr-artwork-info-side .hr-artwork-desc {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(1.1rem, 2.5vw, 1.4rem);
           line-height: 1.8;
-          opacity: 0.9;
         }
 
         /* ============================================
@@ -1520,17 +1522,26 @@ export default function HarlemRenaissance() {
         {announcement}
       </p>
       <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
+      {activeView !== 'main' && (
+        <h1 className="visually-hidden">{activeView === 'poster1' ? 'The Great Migration and the Harlem Renaissance' : 'Walter White: The Civil Rights Hero You’ve Never Heard Of'}</h1>
+      )}
 
       {/* ============================================
           POSTER WALKTHROUGH VIEW
           ============================================ */}
       {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div className={`hr-poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey} {...stageProps}>
+        <div
+          {...stageProps}
+          {...fx}
+          className={`hr-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
+          key={animationKey}
+        >
           <div className="hr-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
+            <FxVeil theme="hr" kind={veilKind} />
 
             {/* Title Image — Full Bleed */}
             {currentItem.type === 'title-image' && (
-              <div className={`hr-full-bleed-image ${currentItem.special === 'height' ? 'hr-title-height' : currentItem.special === 'width-top' ? 'hr-title-width-top' : 'hr-title-width'} ${currentItem.effect ? `hr-effect-${currentItem.effect}` : ''}`}>
+              <div className={`hr-full-bleed-image pfx-media ${currentItem.special === 'height' ? 'hr-title-height' : currentItem.special === 'width-top' ? 'hr-title-width-top' : 'hr-title-width'} ${currentItem.effect ? `hr-effect-${currentItem.effect}` : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} />
               </div>
@@ -1538,7 +1549,7 @@ export default function HarlemRenaissance() {
 
             {/* Full Image (photograph etc) */}
             {currentItem.type === 'full-image' && (
-              <div className={`hr-full-bleed-image hr-full-image ${currentItem.effect === 'kenburns-in' ? 'hr-effect-kenburns-in' : ''}`}>
+              <div className={`hr-full-bleed-image hr-full-image pfx-media ${currentItem.effect === 'kenburns-in' ? 'hr-effect-kenburns-in' : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={currentItem.src} alt={currentItem.alt} />
                 {currentItem.text && (
@@ -1567,10 +1578,11 @@ export default function HarlemRenaissance() {
                   </>
                 )}
                 <h2
-                  className={`hr-section-title-text ${getEffectClass(currentItem.effect)}`}
+                  className="hr-section-title-text"
                   style={{ color: getSectionColors(currentItem.special).title }}
+                  data-fx={kind}
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text ?? ''} />
                 </h2>
               </div>
             )}
@@ -1595,10 +1607,11 @@ export default function HarlemRenaissance() {
                   </>
                 )}
                 <p
-                  className={`hr-paragraph-text ${getEffectClass(currentItem.effect)}`}
+                  className="hr-paragraph-text"
                   style={{ color: getSectionColors(currentItem.special).text }}
+                  data-fx={kind}
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text} words={kind === 'statement'} />
                 </p>
               </div>
             )}
@@ -1616,10 +1629,10 @@ export default function HarlemRenaissance() {
                 )}
                 <div className="hr-artwork-image-side">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentItem.src} alt={currentItem.alt} />
+                  <img src={currentItem.src} alt={currentItem.alt} className="pfx-art-img" />
                 </div>
-                <div className="hr-artwork-info-side" style={{ color: textColor }}>
-                  <h3>{currentItem.artworkTitle}</h3>
+                <div className="hr-artwork-info-side pfx-fg pfx-fg-copy" style={{ color: textColor }}>
+                  <h2>{currentItem.artworkTitle}</h2>
                   <p className="hr-artwork-meta">
                     {currentItem.artworkArtist}, {currentItem.artworkDate}
                   </p>
@@ -1634,10 +1647,11 @@ export default function HarlemRenaissance() {
             {currentItem.type === 'quote' && currentItem.text && (
               <div className="hr-text-content-wrapper hr-pos-center">
                 <blockquote
-                  className={`hr-quote-text ${getEffectClass(currentItem.effect)}`}
+                  className="hr-quote-text"
                   style={{ color: isPoster1 ? '#d992ba' : '#b485d2', borderColor: isPoster1 ? '#885a99' : '#4e568f' }}
+                  data-fx="quote"
                 >
-                  {currentItem.text}
+                  <FxText text={currentItem.text} words />
                 </blockquote>
               </div>
             )}
@@ -1649,7 +1663,7 @@ export default function HarlemRenaissance() {
                   href={currentItem.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hr-content-link"
+                  className="hr-content-link pfx-fg"
                   style={{ color: textColor, borderColor: textColor }}
                 >
                   {currentItem.text}
@@ -1661,7 +1675,7 @@ export default function HarlemRenaissance() {
             {currentItem.type === 'end' && (
               <div className="hr-text-content-wrapper hr-pos-center">
                 <button
-                  className="hr-content-end"
+                  className="hr-content-end pfx-fg"
                   onClick={returnToMain}
                   style={{ color: textColor, borderColor: textColor }}
                 >
@@ -1683,9 +1697,14 @@ export default function HarlemRenaissance() {
               >
                 &#8592;
               </button>
-              <span className="hr-step-indicator" style={{ color: textColor }} aria-hidden="true">
-                {posterStep + 1} / {currentPosterContent.length}
-              </span>
+              <PosterProgress
+                theme="hr"
+                step={posterStep}
+                fromStep={fromStep}
+                count={currentPosterContent.length}
+                marks={marks}
+                color={textColor}
+              />
               <button
                 className="hr-nav-arrow-btn"
                 onClick={nextStep}

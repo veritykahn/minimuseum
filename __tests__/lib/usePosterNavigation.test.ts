@@ -46,6 +46,19 @@ describe('usePosterWalkthrough', () => {
     expect(result.current.posterStep).toBe(0);
   });
 
+  it('counts a second press during a transition from the panel on its way in', () => {
+    const { result } = openPoster();
+    act(() => { key('ArrowRight'); jest.advanceTimersByTime(50); key('ArrowRight'); jest.advanceTimersByTime(400); });
+    expect(result.current.posterStep).toBe(2);
+    expect(result.current.direction).toBe(1);
+    expect(result.current.fromStep).toBe(0);
+    act(() => { key('ArrowLeft'); jest.advanceTimersByTime(50); key('ArrowLeft'); jest.advanceTimersByTime(50); key('ArrowLeft'); jest.advanceTimersByTime(400); });
+    expect(result.current.posterStep).toBe(0);
+    expect(result.current.direction).toBe(-1);
+    act(() => { key('End'); jest.advanceTimersByTime(50); key('ArrowRight'); jest.advanceTimersByTime(400); });
+    expect(result.current.posterStep).toBe(4);
+  });
+
   it('ignores keys typed into form fields', () => {
     const { result } = openPoster();
     const input = document.createElement('input');
