@@ -65,7 +65,7 @@ export default function ResourcesPage() {
   ];
 
   // A lesson that can also be taught on the classroom screen (Lesson mode)
-  const onScreenSlug = gradeLevel && subject ? ON_SCREEN_LESSONS[`${gradeLevel}/${subject}`] : undefined;
+  const onScreenSlug = gradeLevel ? ON_SCREEN_LESSONS[subject ? `${gradeLevel}/${subject}` : gradeLevel] : undefined;
   const onScreen = onScreenSlug ? getLesson('in-their-hands', onScreenSlug) : undefined;
 
   // Subject options for grades 5-8

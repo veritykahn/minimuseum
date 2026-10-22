@@ -158,7 +158,7 @@ export function PresenterView({ lesson, basePath }: Props) {
 
           {lesson.questions.length > 0 && (
             <details className={styles.pMore}>
-              <summary>Questions to ask in front of the case</summary>
+              <summary>{lesson.questionsLabel ?? 'Questions to ask in front of the case'}</summary>
               <ul>
                 {lesson.questions.map((q) => (
                   <li key={q}>
@@ -171,7 +171,7 @@ export function PresenterView({ lesson, basePath }: Props) {
         </div>
       </div>
 
-      <nav className={styles.pSteps} aria-label="Steps">
+      <nav className={styles.pSteps} aria-label="Steps" data-many={lesson.steps.length > 8 ? '' : undefined}>
         <ol>
           {lesson.steps.map((s, k) => (
             <li key={s.id}>

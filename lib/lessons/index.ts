@@ -1,4 +1,7 @@
 import type { Lesson } from './types';
+import twoTinyCoins from './in-their-hands/two-tiny-coins.json';
+import whoseHands from './in-their-hands/whose-hands-held-this.json';
+import coinDetectives from './in-their-hands/coin-detectives.json';
 import whoseImage from './in-their-hands/whose-image-is-this.json';
 
 export type { Lesson, Step, Screen, Phase, Handout } from './types';
@@ -10,7 +13,12 @@ export type { Lesson, Step, Screen, Phase, Handout } from './types';
  * here.
  */
 export const LESSONS: Record<string, Lesson[]> = {
-  'in-their-hands': [whoseImage as Lesson],
+  'in-their-hands': [
+    twoTinyCoins as Lesson,
+    whoseHands as Lesson,
+    coinDetectives as Lesson,
+    whoseImage as Lesson,
+  ],
 };
 
 export function lessonsFor(exhibition: string): Lesson[] {

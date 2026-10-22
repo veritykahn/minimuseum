@@ -54,7 +54,7 @@ export function TimingBar({ lesson, progress, current, valueText, elapsedMinutes
             style={{ flex: p.minutes }}
             className={current === p.name ? styles.segLabelNow : undefined}
           >
-            <b>{p.name}</b> {p.minutes} min
+            <b>{p.name}</b> <span className={styles.segMin}>{p.minutes} min</span>
           </span>
         ))}
       </div>

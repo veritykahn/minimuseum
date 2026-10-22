@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import type { ReactNode } from 'react';
-import type { Lesson, Objectives, Step } from '@/lib/lessons/types';
+import type { Lesson, Objectives, PairItem, Person, Step } from '@/lib/lessons/types';
 import {
   type Session,
   clock,
@@ -52,7 +52,13 @@ export function StepStage({ lesson, session, now, minutes, mini, controls, cover
   const bg = step?.screen.kind === 'painting' ? step.screen.img.img : !step && !finished ? lesson.hero?.img : undefined;
 
   return (
-    <div className={`${styles.stage} ${mini ? styles.stageMini : ''}`} data-kind={step?.screen.kind ?? (finished ? 'finish' : 'cover')}>
+    <div
+      className={`${styles.stage} ${mini ? styles.stageMini : ''}`}
+      data-kind={step?.screen.kind ?? (finished ? 'finish' : 'cover')}
+      data-large={lesson.large ? '' : undefined}
+      data-many={step?.screen.kind === 'coins' && step.screen.coins.length > 3 ? '' : undefined}
+      data-few={step?.screen.kind === 'coins' && step.screen.coins.length < 3 ? '' : undefined}
+    >
       {bg && (
         <div className={styles.stageBg} aria-hidden="true">
           <Image src={bg} alt="" fill sizes={mini ? '30vw' : '100vw'} style={{ objectPosition: lesson.hero?.pos ?? 'center' }} priority={!mini} />
@@ -184,19 +190,25 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
         <div className={styles.qWrap}>
           <section className={styles.hookTask}>
             <H className={styles.taskKicker}>Your task</H>
-            <ol className={styles.questions}>
-              {students.map((q) => (
-                <li key={q}>
-                  <span>
-                    <Inline text={q} />
-                  </span>
-                </li>
-              ))}
-            </ol>
+            {students.length === 1 ? (
+              <p className={styles.questionOne}>
+                <Inline text={students[0]} />
+              </p>
+            ) : (
+              <ol className={styles.questions}>
+                {students.map((q) => (
+                  <li key={q}>
+                    <span>
+                      <Inline text={q} />
+                    </span>
+                  </li>
+                ))}
+              </ol>
+            )}
           </section>
-          <ul className={styles.coinTrio}>
+          <ul className={styles.coinTrio} style={{ ['--n' as string]: s.coins.length }}>
             {s.coins.map((c) => (
-              <li key={c.img} className={c.replica ? styles.coinFeature : undefined}>
+              <li key={c.img} className={(c.feature ?? c.replica) ? styles.coinFeature : undefined}>
                 <div className={styles.trioSlot}>
                   <div className={styles.trioImg}>
                     <Image src={c.img} alt={mini ? '' : c.alt} fill sizes="20vw" />
@@ -226,9 +238,73 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
               </li>
             ))}
           </ol>
+          {s.hint && (
+            <p className={styles.reviewHint}>
+              <Inline text={s.hint} />
+            </p>
+          )}
         </div>
       );
     }
+    case 'pair':
+      return (
+        <div className={styles.pairView}>
+          <ul className={styles.pair}>
+            {s.items.map((it) => (
+              <PairFigure key={it.img} item={it} mini={mini} />
+            ))}
+          </ul>
+          {task}
+          {s.note && (
+            <blockquote className={`${styles.verseCard} ${styles.pairNote}`}>
+              <p>
+                <Inline text={s.note.text} />
+              </p>
+              <cite>{s.note.ref}</cite>
+            </blockquote>
+          )}
+        </div>
+      );
+    case 'people':
+      return (
+        <div className={styles.peopleView}>
+          <ul className={styles.people} style={{ ['--n' as string]: s.people.length }}>
+            {s.people.map((p, k) => (
+              <li key={p.img}>
+                <PersonFrame person={p} mini={mini} letter={s.letters ? String.fromCharCode(65 + k) : undefined} />
+                {(p.label || p.name) && (
+                  <div className={styles.personCap}>
+                    {p.label && <p className={styles.personPlace}>{p.label}</p>}
+                    {p.name && <p className={styles.personName}>{p.name}</p>}
+                  </div>
+                )}
+              </li>
+            ))}
+          </ul>
+          {task}
+        </div>
+      );
+    case 'person':
+      return (
+        <div className={styles.personView}>
+          <div className={styles.personBig}>
+            <PersonFrame person={s.person} mini={mini} />
+          </div>
+          <div className={styles.storyCard}>
+            {(s.person.label || s.ref) && (
+              <p className={styles.labelCase}>{[s.person.label, s.ref].filter(Boolean).join(' · ')}</p>
+            )}
+            <p className={styles.storyCoin}>
+              {s.coinName}
+              {s.replica && <span className={styles.storyStamp}>Replica</span>}
+            </p>
+            <p className={styles.storyText}>
+              <Inline text={s.story} />
+            </p>
+          </div>
+          {task}
+        </div>
+      );
     case 'question': {
       const qs = s.question.split(/(?<=\?)\s+/);
       return (
@@ -251,11 +327,17 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
         <div className={styles.painting}>
           <figure className={styles.frame}>
             <div className={styles.frameImg}>
-              <Image src={s.img.img} alt={mini ? '' : 'Jesus and his questioners over the tribute coin, painted by James Tissot'} fill sizes="40vw" style={{ objectPosition: 'center 30%' }} />
+              <Image
+                src={s.img.img}
+                alt={mini ? '' : (s.alt ?? 'Jesus and his questioners over the tribute coin, painted by James Tissot')}
+                fill
+                sizes="40vw"
+                style={{ objectPosition: s.pos ?? 'center 30%' }}
+              />
             </div>
             {s.img.credit && <figcaption>{s.img.credit}</figcaption>}
           </figure>
-          <blockquote className={styles.verseCard}>
+          <blockquote className={`${styles.verseCard} ${s.verse.text.length > 280 ? styles.verseLong : ''}`}>
             <p>
               <Inline text={s.verse.text} />
             </p>
@@ -396,13 +478,13 @@ function ObjectivesCard({ objectives, mini }: { objectives: Objectives; mini?: b
   const H = mini ? 'p' : 'h2';
   return (
     <section className={styles.objectives}>
-      <H className={styles.objHeading}>{objectives.heading}</H>
+      <H className={styles.objHeading}>{objectives.screenHeading ?? objectives.heading}</H>
       <ol className={styles.objList}>
         {objectives.items.map((o) => (
           <li key={o.text} className={o.deeper ? styles.objDeep : undefined} style={o.deeper ? { ['--deep' as string]: DEEPER } : undefined}>
             {o.deeper && <span className={styles.deepTag}>Go deeper</span>}
             <span>
-              <Inline text={o.text} />
+              <Inline text={o.screen ?? o.text} />
             </span>
           </li>
         ))}
@@ -423,6 +505,52 @@ function Finish({ lesson, mini }: { lesson: Lesson; mini?: boolean }) {
         </p>
       ))}
       <p className={styles.url}>minimuseumproject.org/exhibitions/{lesson.exhibition.slug}</p>
+    </div>
+  );
+}
+
+/** One of two pictures to compare, with the big label students point to. */
+function PairFigure({ item, mini }: { item: PairItem; mini?: boolean }) {
+  const cover = item.fit === 'cover';
+  return (
+    <li className={styles.pairItem}>
+      <div className={`${styles.pairFrame} ${cover ? styles.pairCover : ''}`}>
+        <div className={styles.pairImg}>
+          <Image
+            src={item.img}
+            alt={mini ? '' : item.alt}
+            fill
+            sizes="40vw"
+            style={{ objectFit: cover ? 'cover' : 'contain', objectPosition: item.pos ?? 'center' }}
+          />
+        </div>
+        {item.stamp && (
+          <span className={`${styles.pairStamp} ${item.stampTone === 'red' ? styles.pairStampRed : ''}`}>{item.stamp}</span>
+        )}
+      </div>
+      <p className={styles.pairLabel}>{item.label}</p>
+      {item.caption && <p className={styles.pairCaption}>{item.caption}</p>}
+    </li>
+  );
+}
+
+/** A person shown by their hands, the coin they held set over the corner. */
+function PersonFrame({ person, mini, letter }: { person: Person; mini?: boolean; letter?: string }) {
+  return (
+    <div className={styles.personFrame}>
+      <div className={styles.personImg}>
+        <Image src={person.img} alt={mini ? '' : person.alt} fill sizes="25vw" style={{ objectPosition: person.pos ?? 'center' }} />
+      </div>
+      {letter && (
+        <span className={styles.personLetter} aria-hidden={mini ? true : undefined}>
+          {letter}
+        </span>
+      )}
+      {person.coin && (
+        <div className={styles.personCoin}>
+          <Image src={person.coin} alt={mini ? '' : (person.coinAlt ?? '')} fill sizes="10vw" />
+        </div>
+      )}
     </div>
   );
 }
