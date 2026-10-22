@@ -1,13 +1,32 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import IllusionRenderer from '@/components/IllusionRenderer';
+import { useMemo, useState, type CSSProperties } from 'react';
+import Link from 'next/link';
+import IllusionRenderer, { judge } from '@/components/IllusionRenderer';
 import ExhibitionNav from '@/components/ExhibitionNav';
+import Announcer from '@/components/games/Announcer';
+import GameResult from '@/components/games/GameResult';
 import { ILLUSION_CONTENT } from './data';
 import { useCarousel, useSwipeNavigation } from './hooks';
+import { perceptionTally, PERCEPTION_TIERS, shortcutsTitle } from './scoring';
+import { tierFor } from '@/components/games/scoring';
+
+const RESULT_THEME = {
+  '--game-accent': '#a8d5e5',
+  '--game-text': '#cfe5ee',
+  '--game-muted': '#8fb3c0',
+  '--game-right': '#8fe0a5',
+  '--game-wrong': '#f2b880',
+  '--game-surface': '#0a0a0a',
+  '--game-display': "'Cormorant Garamond', serif",
+  '--game-body': "'Outfit', sans-serif",
+  '--game-radius': '0',
+  // Cormorant's figures read as letters at this size ("11" looks like "I I").
+  '--game-number': "'Outfit', sans-serif",
+  '--game-number-weight': '200',
+} as CSSProperties;
 
 export default function IllusionsPage() {
-  const router = useRouter();
   const {
     currentIndex,
     fadeIn,
@@ -15,8 +34,33 @@ export default function IllusionsPage() {
     canGoPrev,
     next,
     prev,
+    goTo,
     reset,
-  } = useCarousel({ totalItems: ILLUSION_CONTENT.length });
+  } = useCarousel({ totalItems: ILLUSION_CONTENT.length, minIndex: 1 });
+
+  // The first answer to each illusion, by illusion id. Kept while the visitor
+  // moves back and forth, so an answered illusion stays answered.
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [announcement, setAnnouncement] = useState('');
+  const tally = useMemo(() => perceptionTally(ILLUSION_CONTENT, answers), [answers]);
+
+  const handleAnswer = (id: string, choiceId: string) => {
+    if (answers[id]) return;
+    const nextAnswers = { ...answers, [id]: choiceId };
+    setAnswers(nextAnswers);
+    const item = ILLUSION_CONTENT.find((i) => i.id === id);
+    if (!item) return;
+    const outcome = judge(item, choiceId);
+    const line = outcome === 'sharp' ? item.sharpLine : outcome === 'fooled' ? item.fooledLine : item.neutralLine;
+    const t = perceptionTally(ILLUSION_CONTENT, nextAnswers);
+    setAnnouncement(`${line ?? ''} Fooled ${t.fooled} of ${t.answered}.`);
+  };
+
+  const startOver = () => {
+    setAnswers({});
+    setAnnouncement('');
+    reset();
+  };
 
   const { handleTouchStart, handleTouchMove, handleTouchEnd } = useSwipeNavigation({
     onSwipeLeft: next,
@@ -24,10 +68,6 @@ export default function IllusionsPage() {
   });
 
   const currentItem = ILLUSION_CONTENT[currentIndex];
-
-  const handleBack = () => {
-    router.push('/exhibitions/seeing-is-deceiving');
-  };
 
   // Check if current item is an illusion (for showing navigation)
   const isIllusion = currentItem.type === 'illusion';
@@ -84,8 +124,66 @@ export default function IllusionsPage() {
 
         .illusion-page {
           min-height: 100vh;
-          width: 100vw;
+          width: 100%;
           transition: opacity 0.4s ease;
+        }
+        .score-indicator {
+          display: block;
+          margin-top: 6px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.12em;
+          color: #8fb3c0;
+          text-align: center;
+          white-space: nowrap;
+        }
+        .pl-verdict-line {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.25rem, 3.4vw, 1.6rem);
+          font-weight: 500;
+        }
+        .pl-fooled-list {
+          list-style: none;
+          display: flex;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 8px;
+          margin: 4px auto 28px;
+          max-width: 620px;
+        }
+        .pl-fooled-list button {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          letter-spacing: 0.06em;
+          padding: 8px 14px;
+          min-height: 36px;
+          border: 1px solid rgba(168, 213, 229, 0.45);
+          background: transparent;
+          color: #cfe5ee;
+          cursor: pointer;
+        }
+        .pl-fooled-list button:hover { background: rgba(168, 213, 229, 0.1); }
+        .pl-fooled-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.2em;
+          text-transform: uppercase;
+          color: #8fb3c0;
+          margin-bottom: 10px;
+        }
+        .pl-closing-text {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.1rem, 3vw, 1.35rem);
+          font-style: italic;
+          font-weight: 300;
+          line-height: 1.7;
+          color: #a8d5e5;
+          max-width: 600px;
+          margin: 0 auto 28px;
+        }
+        .side-nav-arrow:focus-visible, .begin-btn:focus-visible, .return-btn:focus-visible, .pl-fooled-list button:focus-visible {
+          outline: 2px solid #a8d5e5;
+          outline-offset: 3px;
         }
 
         .top-counter {
@@ -94,6 +192,7 @@ export default function IllusionsPage() {
           left: 50%;
           transform: translateX(-50%);
           z-index: 100;
+          text-align: center;
         }
         .step-indicator {
           font-family: 'Outfit', sans-serif;
@@ -203,6 +302,8 @@ export default function IllusionsPage() {
         }
       `}</style>
 
+      <Announcer message={announcement} />
+
       {/* Navigation */}
       <ExhibitionNav className="nav-m nav-m-left" href="/exhibitions/seeing-is-deceiving">
         <span className="nav-m-text" aria-hidden="true">M</span>
@@ -228,29 +329,62 @@ export default function IllusionsPage() {
         {/* Illusion */}
         {currentItem.type === 'illusion' && currentItem.illusionType && (
           <IllusionRenderer
-            illusionType={currentItem.illusionType}
-            src={currentItem.src}
-            revealSrc={currentItem.revealSrc}
-            altRevealSrc={currentItem.altRevealSrc}
-            question={currentItem.question}
-            answer={currentItem.answer}
-            scienceExplanation={currentItem.scienceExplanation}
-            isPoster1={false}
+            item={currentItem}
+            answer={answers[currentItem.id ?? ''] ?? null}
+            onAnswer={(choiceId) => handleAnswer(currentItem.id ?? '', choiceId)}
           />
         )}
 
         {/* Closing */}
         {currentItem.type === 'closing' && (
           <div className="closing-container">
-            <p className="closing-text effect-blur-sharp">{currentItem.text}</p>
-            <div className="closing-buttons">
-              <button className="return-btn" onClick={reset}>
-                Start Over
-              </button>
-              <button className="return-btn" onClick={handleBack}>
-                Return to Exhibition
-              </button>
-            </div>
+            {tally.answered === 0 ? (
+              <>
+                <p className="closing-text effect-blur-sharp">{currentItem.text}</p>
+                <div className="closing-buttons">
+                  <button className="return-btn" onClick={startOver}>
+                    Start Over
+                  </button>
+                  <Link className="return-btn" href="/exhibitions/seeing-is-deceiving" style={{ textDecoration: "none" }}>
+                    Return to Exhibition
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <GameResult
+                level={1}
+                style={RESULT_THEME}
+                eyebrow="Perception Lab"
+                score={tally.fooled}
+                scoreCaption={`of ${tally.answered} illusions fooled you`}
+                title={shortcutsTitle(tally.fooled)}
+                message={<p>{tierFor(tally.fooled, tally.answered, PERCEPTION_TIERS).message}</p>}
+                pips={tally.results.map((r) => ({
+                  label: r.name,
+                  correct: !r.fooled,
+                  status: r.fooled ? 'fooled you' : 'saw through it',
+                }))}
+                pipsLabel="Illusion by illusion: filled dots are the ones you saw through"
+                actions={[
+                  { label: 'Start Over', onClick: startOver, primary: true },
+                  { label: 'Return to Exhibition', href: '/exhibitions/seeing-is-deceiving' },
+                ]}
+              >
+                {tally.results.some((r) => r.fooled) && (
+                  <>
+                    <p className="pl-fooled-title" id="pl-fooled-title">Look again at the ones that fooled you</p>
+                    <ul className="pl-fooled-list" aria-labelledby="pl-fooled-title">
+                      {tally.results.filter((r) => r.fooled).map((r) => (
+                        <li key={r.index}>
+                          <button type="button" onClick={() => goTo(r.index)}>{r.name}</button>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                <p className="pl-closing-text">{currentItem.text}</p>
+              </GameResult>
+            )}
           </div>
         )}
       </div>
@@ -262,6 +396,11 @@ export default function IllusionsPage() {
             <span className="step-indicator">
               {currentIndex} / {ILLUSION_CONTENT.length - 2}
             </span>
+            {tally.answered > 0 && (
+              <span className="score-indicator">
+                Fooled {tally.fooled} of {tally.answered}
+              </span>
+            )}
           </div>
 
           <button

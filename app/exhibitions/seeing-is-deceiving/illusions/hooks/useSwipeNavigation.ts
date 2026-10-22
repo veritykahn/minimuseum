@@ -20,6 +20,13 @@ export function useSwipeNavigation({
   const touchEndX = useRef<number | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    touchEndX.current = null;
+    // A slider or an open dialog keeps its own horizontal drags.
+    const t = e.target as HTMLElement;
+    if (t.closest?.('input, [role="slider"], [role="dialog"]')) {
+      touchStartX.current = null;
+      return;
+    }
     touchStartX.current = e.targetTouches[0].clientX;
   };
 
@@ -28,7 +35,10 @@ export function useSwipeNavigation({
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
+    if (touchStartX.current === null || touchEndX.current === null) {
+      touchStartX.current = null;
+      return;
+    }
 
     const distance = touchStartX.current - touchEndX.current;
 

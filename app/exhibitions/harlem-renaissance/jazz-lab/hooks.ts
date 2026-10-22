@@ -1,13 +1,12 @@
 'use client';
 
 import { useRef, useCallback, useEffect, useState } from 'react';
+import { shuffle } from '@/components/games/scoring';
 import {
   type InstrumentId,
-  INSTRUMENTS,
-  INSTRUMENT_MAP,
   QUIZ_AUDIO_POOL,
+  type QuizAudioItem,
   TOTAL_QUIZ_ROUNDS,
-  SCORE_RATINGS,
   type BandInstrumentId,
   BAND_INSTRUMENTS,
   BAND_INSTRUMENT_MAP,
@@ -159,10 +158,24 @@ export function useAudioEngine() {
 
 type AudioEngine = ReturnType<typeof useAudioEngine>;
 
+/** Loudness of each player: the soloist up front, the rest backing, or all even. */
+export function bandVolume(id: BandInstrumentId, spotlight: BandInstrumentId | null): number {
+  if (!spotlight) return 0.7;
+  return id === spotlight ? 1.0 : 0.4;
+}
+
+/**
+ * Build a Band. Tapping an instrument always does one thing — gives it the
+ * spotlight — bringing it on stage first if it isn't playing. Tapping the
+ * soloist again hands the music back to the whole band. Players leave the
+ * stage only through their own remove control. `lastTouched` drives the fact
+ * card, so it shows whatever the visitor last tapped, solo or not.
+ */
 export function useBandBuilder(audio: AudioEngine) {
   const [active, setActive] = useState<Set<BandInstrumentId>>(new Set());
   const [section, setSection] = useState(3); // Piano Solo — all 6 instruments available
   const [spotlight, setSpotlight] = useState<BandInstrumentId | null>(null);
+  const [lastTouched, setLastTouched] = useState<BandInstrumentId | null>(null);
 
   // Preload audio for the current section
   useEffect(() => {
@@ -173,38 +186,44 @@ export function useBandBuilder(audio: AudioEngine) {
     });
   }, [section, audio]);
 
+  const applyVolumes = useCallback((players: Set<BandInstrumentId>, spot: BandInstrumentId | null) => {
+    players.forEach(id => audio.setVolume(id, bandVolume(id, spot)));
+  }, [audio]);
+
   const tapInstrument = useCallback((id: BandInstrumentId) => {
     const inst = BAND_INSTRUMENT_MAP[id];
     if (!inst.sections.includes(section)) return;
+    setLastTouched(id);
 
     if (!active.has(id)) {
-      // Not active → activate + spotlight
-      const src = getBandAudioSrc(id, section);
-      audio.playLoop(id, src, 1.0);
-      // Duck all currently active instruments
-      active.forEach(otherId => audio.setVolume(otherId, 0.4));
+      // Not playing → bring it on stage, in the spotlight.
+      audio.playLoop(id, getBandAudioSrc(id, section), bandVolume(id, id));
+      applyVolumes(active, id);
       const next = new Set(active);
       next.add(id);
       setActive(next);
       setSpotlight(id);
     } else if (spotlight === id) {
-      // Currently spotlighted → un-solo but keep playing
+      // The soloist again → the whole band plays evenly.
       setSpotlight(null);
-      active.forEach(otherId => audio.setVolume(otherId, 0.7));
+      applyVolumes(active, null);
     } else {
-      // Active but not spotlight → remove from stage
-      audio.fadeOutAndStop(id);
-      const next = new Set(active);
-      next.delete(id);
-      setActive(next);
-      if (spotlight) {
-        // Keep spotlight volumes intact
-        next.forEach(otherId => audio.setVolume(otherId, otherId === spotlight ? 1.0 : 0.4));
-      } else {
-        next.forEach(otherId => audio.setVolume(otherId, 0.7));
-      }
+      // Another player → it takes the spotlight.
+      setSpotlight(id);
+      applyVolumes(active, id);
     }
-  }, [active, section, spotlight, audio]);
+  }, [active, section, spotlight, audio, applyVolumes]);
+
+  const removeInstrument = useCallback((id: BandInstrumentId) => {
+    if (!active.has(id)) return;
+    audio.fadeOutAndStop(id);
+    const next = new Set(active);
+    next.delete(id);
+    const nextSpot = spotlight === id ? null : spotlight;
+    applyVolumes(next, nextSpot);
+    setActive(next);
+    setSpotlight(nextSpot);
+  }, [active, spotlight, audio, applyVolumes]);
 
   const changeSection = useCallback((newSection: number) => {
     setSection(newSection);
@@ -225,8 +244,7 @@ export function useBandBuilder(audio: AudioEngine) {
 
     // Restart all remaining instruments with new section audio (synchronized)
     stillActive.forEach(id => {
-      const vol = newSpotlight ? (id === newSpotlight ? 1.0 : 0.4) : 0.7;
-      audio.playLoop(id, getBandAudioSrc(id, newSection), vol);
+      audio.playLoop(id, getBandAudioSrc(id, newSection), bandVolume(id, newSpotlight));
     });
 
     setActive(stillActive);
@@ -244,8 +262,7 @@ export function useBandBuilder(audio: AudioEngine) {
 
     // Pick 3-4 random instruments
     const count = 3 + Math.floor(Math.random() * 2);
-    const shuffled = [...available].sort(() => Math.random() - 0.5);
-    const chosen = shuffled.slice(0, Math.min(count, available.length));
+    const chosen = shuffle(available).slice(0, Math.min(count, available.length));
 
     const newActive = new Set<BandInstrumentId>();
     chosen.forEach(inst => {
@@ -268,7 +285,9 @@ export function useBandBuilder(audio: AudioEngine) {
     active,
     section,
     spotlight,
+    lastTouched,
     tapInstrument,
+    removeInstrument,
     changeSection,
     surpriseMe,
     stopAll,
@@ -279,124 +298,144 @@ export function useBandBuilder(audio: AudioEngine) {
 
 type QuizState = 'idle' | 'playing' | 'answered' | 'gameover';
 
-type QuizRound = {
+export type QuizRound = {
+  id: string;
   audioSrc: string;
   correctAnswer: InstrumentId;
 };
 
-function generateRounds(): QuizRound[] {
-  // Group samples by instrument, then pick 2 random samples from each
-  // This gives 12 rounds with a different subset every playthrough
-  const byInstrument = new Map<InstrumentId, typeof QUIZ_AUDIO_POOL>();
-  for (const item of QUIZ_AUDIO_POOL) {
+export type QuizRecord = {
+  round: QuizRound;
+  chosen: InstrumentId;
+  correct: boolean;
+};
+
+/**
+ * Twelve rounds: two different clips of each instrument, in an order where
+ * the same instrument never plays twice running. Pass a seeded rng to test.
+ */
+export function generateRounds(rng: () => number = Math.random, pool: readonly QuizAudioItem[] = QUIZ_AUDIO_POOL): QuizRound[] {
+  const byInstrument = new Map<InstrumentId, QuizAudioItem[]>();
+  for (const item of pool) {
     const arr = byInstrument.get(item.instrument) || [];
     arr.push(item);
     byInstrument.set(item.instrument, arr);
   }
 
-  const picked: typeof QUIZ_AUDIO_POOL = [];
+  const picked: QuizAudioItem[] = [];
   for (const samples of byInstrument.values()) {
-    const shuffled = [...samples].sort(() => Math.random() - 0.5);
-    picked.push(...shuffled.slice(0, 2));
+    picked.push(...shuffle(samples, rng).slice(0, 2));
   }
 
-  // Shuffle the picked items, ensuring no two consecutive share the same instrument
-  for (let attempt = 0; attempt < 100; attempt++) {
-    picked.sort(() => Math.random() - 0.5);
-    let valid = true;
-    for (let i = 1; i < picked.length; i++) {
-      if (picked[i].instrument === picked[i - 1].instrument) {
-        valid = false;
-        break;
-      }
-    }
-    if (valid) break;
-  }
-
-  return picked.map(item => ({
+  return noRepeats(picked, rng).map(item => ({
+    id: item.src,
     audioSrc: item.src,
     correctAnswer: item.instrument,
   }));
+}
+
+/** Shuffles until no two neighbors share an instrument (or gives the last try). */
+function noRepeats(items: QuizAudioItem[], rng: () => number): QuizAudioItem[] {
+  let order = shuffle(items, rng);
+  for (let attempt = 0; attempt < 200; attempt++) {
+    if (order.every((it, i) => i === 0 || it.instrument !== order[i - 1].instrument)) return order;
+    order = shuffle(items, rng);
+  }
+  return order;
+}
+
+/** The rounds a player missed, reshuffled for "Replay the ones you missed". */
+export function missedRounds(records: readonly QuizRecord[], rng: () => number = Math.random): QuizRound[] {
+  return shuffle(records.filter(r => !r.correct).map(r => r.round), rng);
+}
+
+/** Per-instrument tally for the ending, in the order the answer buttons use. */
+export function instrumentBreakdown(records: readonly QuizRecord[], order: readonly InstrumentId[]) {
+  return order
+    .map(id => {
+      const mine = records.filter(r => r.round.correctAnswer === id);
+      return { id, correct: mine.filter(r => r.correct).length, total: mine.length };
+    })
+    .filter(row => row.total > 0);
 }
 
 export function useQuiz(audio: AudioEngine) {
   const [gameState, setGameState] = useState<QuizState>('idle');
   const [rounds, setRounds] = useState<QuizRound[]>([]);
   const [currentRound, setCurrentRound] = useState(0);
-  const [score, setScore] = useState(0);
-  const [totalAnswered, setTotalAnswered] = useState(0);
-  const [lastAnswer, setLastAnswer] = useState<{ chosen: InstrumentId; correct: boolean; correctAnswer: InstrumentId } | null>(null);
+  const [records, setRecords] = useState<QuizRecord[]>([]);
+  /** 'replay' while replaying only the rounds missed in the last full game. */
+  const [mode, setMode] = useState<'full' | 'replay'>('full');
   const [isQuizPlaying, setIsQuizPlaying] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastFullRecords = useRef<QuizRecord[]>([]);
 
-  const startGame = useCallback(() => {
-    audio.stopAll();
-    const newRounds = generateRounds();
-    setRounds(newRounds);
-    setCurrentRound(0);
-    setScore(0);
-    setTotalAnswered(0);
-    setLastAnswer(null);
-    setGameState('playing');
+  const playRound = useCallback((round: QuizRound) => {
     setIsQuizPlaying(true);
-    audio.playOnce('quiz', newRounds[0].audioSrc);
+    audio.playOnce('quiz', round.audioSrc);
   }, [audio]);
 
+  const begin = useCallback((newRounds: QuizRound[], newMode: 'full' | 'replay') => {
+    audio.stopAll();
+    setRounds(newRounds);
+    setCurrentRound(0);
+    setRecords([]);
+    setMode(newMode);
+    setGameState('playing');
+    playRound(newRounds[0]);
+  }, [audio, playRound]);
+
+  const startGame = useCallback(() => begin(generateRounds(), 'full'), [begin]);
+
+  const replayMissed = useCallback(() => {
+    const again = missedRounds(lastFullRecords.current);
+    if (again.length > 0) begin(again, 'replay');
+  }, [begin]);
+
   const replaySound = useCallback(() => {
-    if (rounds[currentRound]) {
-      setIsQuizPlaying(true);
-      audio.playOnce('quiz', rounds[currentRound].audioSrc);
-    }
-  }, [audio, rounds, currentRound]);
+    if (rounds[currentRound]) playRound(rounds[currentRound]);
+  }, [rounds, currentRound, playRound]);
 
   const submitAnswer = useCallback((answer: InstrumentId) => {
     if (gameState !== 'playing') return;
-
-    const correct = answer === rounds[currentRound].correctAnswer;
-    if (correct) setScore(prev => prev + 1);
-    setTotalAnswered(prev => prev + 1);
-    setLastAnswer({ chosen: answer, correct, correctAnswer: rounds[currentRound].correctAnswer });
+    const round = rounds[currentRound];
+    const next = [...records, { round, chosen: answer, correct: answer === round.correctAnswer }];
+    setRecords(next);
+    if (mode === 'full' && currentRound + 1 >= rounds.length) lastFullRecords.current = next;
     setGameState('answered');
     setIsQuizPlaying(false);
     audio.stopSource('quiz');
+  }, [gameState, rounds, currentRound, records, mode, audio]);
 
-    timeoutRef.current = setTimeout(() => {
-      if (currentRound + 1 >= TOTAL_QUIZ_ROUNDS) {
-        setGameState('gameover');
-      } else {
-        const nextRound = currentRound + 1;
-        setCurrentRound(nextRound);
-        setLastAnswer(null);
-        setGameState('playing');
-        setIsQuizPlaying(true);
-        audio.playOnce('quiz', rounds[nextRound].audioSrc);
-      }
-    }, 1500);
-  }, [gameState, rounds, currentRound, audio]);
+  // The player decides when to move on: no timer races the feedback.
+  const nextRound = useCallback(() => {
+    if (gameState !== 'answered') return;
+    if (currentRound + 1 >= rounds.length) {
+      setGameState('gameover');
+      return;
+    }
+    const n = currentRound + 1;
+    setCurrentRound(n);
+    setGameState('playing');
+    playRound(rounds[n]);
+  }, [gameState, currentRound, rounds, playRound]);
 
-  const getRating = useCallback(() => {
-    return SCORE_RATINGS.find(r => score >= r.min) || SCORE_RATINGS[SCORE_RATINGS.length - 1];
-  }, [score]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    };
-  }, []);
+  const score = records.filter(r => r.correct).length;
+  const lastRecord = gameState === 'answered' ? records[records.length - 1] ?? null : null;
 
   return {
     gameState,
+    mode,
     currentRound,
-    totalRounds: TOTAL_QUIZ_ROUNDS,
+    totalRounds: rounds.length || TOTAL_QUIZ_ROUNDS,
     score,
-    totalAnswered,
-    lastAnswer,
+    records,
+    lastRecord,
     currentQuestion: rounds[currentRound] || null,
     isQuizPlaying,
     startGame,
+    replayMissed,
     replaySound,
     submitAnswer,
-    getRating,
+    nextRound,
   };
 }

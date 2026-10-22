@@ -1,0 +1,310 @@
+/*
+ * Shared game pieces. Each game themes them through custom properties set on
+ * an ancestor (or passed in `style`), so the ending in the Jazz Lab looks
+ * Art Deco and the one in In Their Hands looks like the rest of that room:
+ *
+ *   --game-accent    headline and number color
+ *   --game-text      body text
+ *   --game-muted     captions (must still pass 4.5:1 on the ground)
+ *   --game-right     "right" color      --game-wrong   "missed" color
+ *   --game-surface   ground behind buttons when filled
+ *   --game-display   display font       --game-body    body font
+ *   --game-number    the score's font (defaults to the display font)
+ */
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ───────── Ending ───────── */
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
+  max-width: 640px;
+  margin: 0 auto;
+  color: var(--game-text, #e8e0d0);
+  animation: gameRise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.eyebrow {
+  font-family: var(--game-body, inherit);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--game-muted, #a59c8c);
+  margin: 0 0 10px;
+}
+
+.score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 0 18px;
+}
+
+.scoreNumber {
+  font-family: var(--game-number, var(--game-display, inherit));
+  font-size: clamp(4rem, 12vw, 6.5rem);
+  font-weight: var(--game-number-weight, 300);
+  line-height: 1;
+  color: var(--game-accent, #c9a94e);
+  font-variant-numeric: lining-nums;
+  animation: gamePop 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) 0.1s both;
+}
+
+.scoreCaption {
+  font-family: var(--game-body, inherit);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--game-muted, #a59c8c);
+  margin-top: 10px;
+}
+
+.title {
+  font-family: var(--game-display, inherit);
+  font-size: clamp(1.6rem, 4.5vw, 2.4rem);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.25;
+  color: var(--game-accent, #c9a94e);
+  margin: 0 0 16px;
+  outline: none;
+}
+
+.message {
+  font-family: var(--game-display, inherit);
+  font-size: 1.1rem;
+  line-height: 1.75;
+  color: var(--game-text, #e8e0d0);
+  max-width: 560px;
+  margin: 0 0 24px;
+}
+.message p + p {
+  margin-top: 12px;
+}
+
+.pips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 0;
+  margin: 0 0 28px;
+}
+
+.pip {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid var(--game-muted, #a59c8c);
+  animation: gamePop 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  animation-delay: calc(0.35s + var(--i, 0) * 0.06s);
+}
+.pipGood {
+  background: var(--game-right, #6bbf7a);
+  border-color: var(--game-right, #6bbf7a);
+}
+.pipMiss {
+  background: transparent;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 12px 28px;
+  border-radius: var(--game-radius, 100px);
+  border: 1px solid var(--game-accent, #c9a94e);
+  background: transparent;
+  color: var(--game-accent, #c9a94e);
+  font-family: var(--game-body, inherit);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.action:hover {
+  background: color-mix(in srgb, var(--game-accent, #c9a94e) 14%, transparent);
+}
+.actionPrimary {
+  background: var(--game-accent, #c9a94e);
+  color: var(--game-surface, #111);
+}
+.actionPrimary:hover {
+  background: color-mix(in srgb, var(--game-accent, #c9a94e) 85%, white);
+}
+.action:focus-visible {
+  outline: 2px solid var(--game-accent, #c9a94e);
+  outline-offset: 3px;
+}
+
+/* ───────── Verdict ───────── */
+
+.verdict {
+  outline: none;
+  animation: gameRise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.verdictLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.verdictMark {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  font-size: 0.8em;
+  font-style: normal;
+  line-height: 1;
+  border: 1.5px solid currentColor;
+  animation: gamePop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) 0.05s both;
+}
+.verdict[data-tone='right'] .verdictLine { color: var(--game-right, #6bbf7a); }
+.verdict[data-tone='wrong'] .verdictLine { color: var(--game-wrong, #e0a458); }
+.verdict[data-tone='neutral'] .verdictLine { color: var(--game-accent, #c9a94e); }
+
+/* ───────── Teacher note ───────── */
+
+.teacherNote {
+  margin: 16px 0 0;
+  border: 1px dashed color-mix(in srgb, var(--game-muted, #a59c8c) 70%, transparent);
+  border-radius: 8px;
+  padding: 0 14px;
+  font-family: var(--game-body, inherit);
+  color: var(--game-text, #e8e0d0);
+}
+.teacherNote summary {
+  cursor: pointer;
+  padding: 10px 0;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--game-muted, #a59c8c);
+  min-height: 24px;
+}
+.teacherNote summary:focus-visible {
+  outline: 2px solid var(--game-accent, #c9a94e);
+  outline-offset: 2px;
+}
+.teacherNote p {
+  font-size: 14px;
+  line-height: 1.65;
+  margin: 0 0 12px;
+}
+
+/* ───────── Magnifier ───────── */
+
+.magnifier {
+  position: relative;
+  display: block;
+  margin: 0 auto;
+  cursor: zoom-in;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  border-radius: 6px;
+}
+.magnifier[data-touch-lens] {
+  /* While the lens is on under a finger, a drag moves it instead of the page. */
+  touch-action: none;
+}
+.magnifier:focus-visible {
+  outline: 2px solid var(--game-accent, #c9a94e);
+  outline-offset: 4px;
+}
+
+.magnifierImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+}
+
+.lens {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-color: #0d0a04;
+  border: 2px solid var(--game-accent, #c9a94e);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+  z-index: 3;
+}
+
+.callout {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--game-body, sans-serif);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  color: #111;
+  background: var(--game-accent, #c9a94e);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.55), 0 0 0 6px color-mix(in srgb, var(--game-accent, #c9a94e) 30%, transparent);
+  pointer-events: none;
+  z-index: 2;
+  animation: gamePop 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+  animation-delay: calc(0.15s + var(--i, 0) * 0.12s);
+}
+.callout[data-tone='right'] { background: var(--game-right, #6bbf7a); }
+.callout[data-tone='wrong'] { background: var(--game-wrong, #e0a458); }
+
+/* ───────── Motion ───────── */
+
+@keyframes gameRise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes gamePop {
+  0% { opacity: 0; transform: scale(0.6); }
+  100% { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result,
+  .scoreNumber,
+  .pip,
+  .verdict,
+  .verdictMark,
+  .callout {
+    animation: none;
+  }
+}

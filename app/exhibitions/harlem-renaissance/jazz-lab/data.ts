@@ -1,3 +1,5 @@
+import type { Tier } from '@/components/games/scoring';
+
 export type InstrumentId = 'piano' | 'trumpet' | 'saxophone' | 'clarinet' | 'drums' | 'bass';
 
 export type InstrumentVariant = {
@@ -9,7 +11,8 @@ export type InstrumentVariant = {
 export type InstrumentDef = {
   id: InstrumentId;
   name: string;
-  emoji: string;
+  /** What to listen for: one generic sentence, shown after a quiz answer. */
+  tip: string;
   variants: InstrumentVariant[];
   fact: {
     title: string;
@@ -25,7 +28,7 @@ export const INSTRUMENTS: InstrumentDef[] = [
   {
     id: 'drums',
     name: 'Drums',
-    emoji: '\u{1F941}',
+    tip: 'Rhythm without a tune: struck drums and shimmering cymbals. Those are the drums.',
     variants: [
       { id: 'drums-1', audioSrc: `${AUDIO_BASE}/drums-1.mp3`, label: '1' },
       { id: 'drums-2', audioSrc: `${AUDIO_BASE}/drums-2.mp3`, label: '2' },
@@ -40,7 +43,7 @@ export const INSTRUMENTS: InstrumentDef[] = [
   {
     id: 'bass',
     name: 'Double Bass',
-    emoji: '\u{1F3BB}',
+    tip: 'Deep, round, plucked notes underneath everything. That’s the double bass.',
     variants: [
       { id: 'double-bass-1', audioSrc: `${AUDIO_BASE}/double-bass-1.mp3`, label: '1' },
       { id: 'double-bass-2', audioSrc: `${AUDIO_BASE}/double-bass-2.mp3`, label: '2' },
@@ -55,7 +58,7 @@ export const INSTRUMENTS: InstrumentDef[] = [
   {
     id: 'piano',
     name: 'Piano',
-    emoji: '\u{1F3B9}',
+    tip: 'Hammered notes that ring and fade, often several at once. That’s the piano.',
     variants: [
       { id: 'piano-1', audioSrc: `${AUDIO_BASE}/piano-1.mp3`, label: '1' },
       { id: 'piano-2', audioSrc: `${AUDIO_BASE}/piano-2.mp3`, label: '2' },
@@ -70,7 +73,7 @@ export const INSTRUMENTS: InstrumentDef[] = [
   {
     id: 'trumpet',
     name: 'Trumpet',
-    emoji: '\u{1F3BA}',
+    tip: 'A bright, brassy attack. That’s the trumpet.',
     variants: [
       { id: 'trumpet-1', audioSrc: `${AUDIO_BASE}/trumpet-1.mp3`, label: '1' },
       { id: 'trumpet-2', audioSrc: `${AUDIO_BASE}/trumpet-2.mp3`, label: '2' },
@@ -85,7 +88,7 @@ export const INSTRUMENTS: InstrumentDef[] = [
   {
     id: 'saxophone',
     name: 'Saxophone',
-    emoji: '\u{1F3B7}',
+    tip: 'A reedy, breathy tone that bends like a voice. That’s the saxophone.',
     variants: [
       { id: 'saxophone-1', audioSrc: `${AUDIO_BASE}/saxophone-1.mp3`, label: '1' },
       { id: 'saxophone-2', audioSrc: `${AUDIO_BASE}/saxophone-2.mp3`, label: '2' },
@@ -100,7 +103,7 @@ export const INSTRUMENTS: InstrumentDef[] = [
   {
     id: 'clarinet',
     name: 'Clarinet',
-    emoji: '\u{1FA88}',
+    tip: 'A smooth, woody tone, sweet up high and dark down low. That’s the clarinet.',
     variants: [
       { id: 'clarinet-1', audioSrc: `${AUDIO_BASE}/clarinet-1.mp3`, label: '1' },
       { id: 'clarinet-2', audioSrc: `${AUDIO_BASE}/clarinet-2.mp3`, label: '2' },
@@ -163,6 +166,13 @@ export const SCORE_RATINGS: ScoreRating[] = [
   { min: 0, label: 'First Night at the Club', message: 'The Harlem jazz scene awaits your return!' },
 ];
 
+/** The same ratings as shares of the rounds played, for the shared ending. */
+export const QUIZ_TIERS: Tier[] = SCORE_RATINGS.map((r) => ({
+  min: r.min / TOTAL_QUIZ_ROUNDS,
+  title: r.label,
+  message: r.message,
+}));
+
 // ─── Build a Band (Section-based) ───────────────────────────────────────────
 
 export type BandInstrumentId = 'drums' | 'bass' | 'piano' | 'saxophone' | 'trumpet' | 'horns';
@@ -170,7 +180,6 @@ export type BandInstrumentId = 'drums' | 'bass' | 'piano' | 'saxophone' | 'trump
 export type BandInstrumentDef = {
   id: BandInstrumentId;
   name: string;
-  emoji: string;
   sections: number[];
   fact: {
     title: string;
@@ -182,6 +191,8 @@ export type BandInstrumentDef = {
 export type SectionDef = {
   number: number;
   name: string;
+  /** One sentence on what this part of a jazz tune is (general music theory). */
+  description: string;
 };
 
 const BAND_AUDIO_BASE = '/exhibitions/harlem/audio/build-a-band';
@@ -191,21 +202,20 @@ export function getBandAudioSrc(id: BandInstrumentId, section: number): string {
 }
 
 export const SECTIONS: SectionDef[] = [
-  { number: 1, name: 'Intro' },
-  { number: 2, name: 'Head' },
-  { number: 3, name: 'Piano Solo' },
-  { number: 4, name: 'Horn Solo' },
-  { number: 5, name: 'Walking Bass' },
-  { number: 6, name: 'Groove' },
-  { number: 7, name: 'Bridge' },
-  { number: 8, name: 'Finale' },
+  { number: 1, name: 'Intro', description: 'The opening bars that set the tempo and the mood before the tune begins.' },
+  { number: 2, name: 'Head', description: 'The main melody of the tune, played before the solos and usually again at the end.' },
+  { number: 3, name: 'Piano Solo', description: 'The pianist improvises, inventing a new melody on the spot over the tune’s chords.' },
+  { number: 4, name: 'Horn Solo', description: 'A horn takes its turn to improvise while the rhythm section keeps time underneath.' },
+  { number: 5, name: 'Walking Bass', description: 'The bass plays a steady note on every beat, walking up and down through the chords.' },
+  { number: 6, name: 'Groove', description: 'The rhythm section locks into a repeating pattern: the feel that makes you want to dance.' },
+  { number: 7, name: 'Bridge', description: 'A contrasting middle section with new chords that leads back to the main melody.' },
+  { number: 8, name: 'Finale', description: 'The ending, where the whole band comes together to bring the tune home.' },
 ];
 
 export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
   {
     id: 'drums',
     name: 'Drums',
-    emoji: '\u{1F941}',
     sections: [1, 2, 3, 4, 5, 6, 7, 8],
     fact: {
       title: 'The Drums in Jazz',
@@ -216,7 +226,6 @@ export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
   {
     id: 'bass',
     name: 'Bass',
-    emoji: '\u{1F3B8}',
     sections: [1, 2, 3, 4, 5, 6, 7, 8],
     fact: {
       title: 'The Bass in Jazz',
@@ -227,7 +236,6 @@ export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
   {
     id: 'piano',
     name: 'Piano',
-    emoji: '\u{1F3B9}',
     sections: [1, 2, 3, 4, 5, 6, 7, 8],
     fact: {
       title: 'The Piano in Jazz',
@@ -238,7 +246,6 @@ export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
   {
     id: 'saxophone',
     name: 'Saxophone',
-    emoji: '\u{1F3B7}',
     sections: [2, 3, 4, 5, 6, 7],
     fact: {
       title: 'The Saxophone in Jazz',
@@ -249,7 +256,6 @@ export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
   {
     id: 'trumpet',
     name: 'Trumpet',
-    emoji: '\u{1F3BA}',
     sections: [1, 2, 3, 4, 5, 7],
     fact: {
       title: 'The Trumpet in Jazz',
@@ -260,7 +266,6 @@ export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
   {
     id: 'horns',
     name: 'Ensemble',
-    emoji: '\u{1F3B6}',
     sections: [3, 4, 8],
     fact: {
       title: 'The Horn Section',

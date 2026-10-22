@@ -2,8 +2,26 @@
  * Illusion content data for the carousel
  */
 
-export type IllusionItem = {
+import type { GameItemMeta } from '@/components/games/types';
+
+export type IllusionChoice = { id: string; label: string };
+
+export type IllusionItem = Partial<GameItemMeta> & {
   type: 'intro' | 'illusion' | 'closing';
+  /** Display name, shown above the question and in the ending. */
+  name?: string;
+  /** The answers offered. Without them the illusion has nothing to choose. */
+  choices?: IllusionChoice[];
+  /** Choice ids that see through the illusion. Empty for "no wrong answer". */
+  truth?: string[];
+  /** Counted toward "fooled X of N". False for ambiguous figures. */
+  scored?: boolean;
+  /** Verdict when the illusion got the player (scored items). */
+  fooledLine?: string;
+  /** Verdict when the player saw through it (scored items). */
+  sharpLine?: string;
+  /** Verdict for unscored items, whatever the choice. */
+  neutralLine?: string;
   title?: string;
   subtitle?: string;
   text?: string;
@@ -28,9 +46,16 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'checker-shadow',
+    id: 'checker-shadow',
+    name: "Adelson’s Checker Shadow",
+    choices: [{ id: 'a', label: "A" }, { id: 'b', label: "B" }, { id: 'same', label: "They’re the same" }],
+    scored: true,
+    truth: ['same'],
+    fooledLine: "Fooled you — they’re identical.",
+    sharpLine: "Sharp eyes! They’re identical.",
     src: '/exhibitions/seeing/checker-shadow.jpg',
     revealSrc: '/exhibitions/seeing/checker-reveal.jpg',
-    question: 'A is darker than B — true or false?',
+    question: "Which square is darker — A or B?",
     answer: 'The answer is: IDENTICAL — Both squares are the exact same shade. Your brain "corrects" for the shadow.',
     scienceExplanation: 'This is called "lightness constancy" — your visual system automatically adjusts for lighting conditions so you can recognize objects whether they\'re in shadow or sunlight. The cylinder casts a shadow over square B, so your brain assumes B must actually be lighter than it appears (otherwise it would look even darker in the shadow). This compensation is so automatic you can\'t turn it off, even knowing the trick. MIT professor Edward Adelson created this illusion in 1995 to demonstrate that perception isn\'t about measuring light — it\'s about interpreting scenes.'
   },
@@ -39,15 +64,28 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'simultaneous-contrast',
-    question: 'Which is darker — A or B?',
-    answer: 'The answer is: Your brain judges color by comparison. The same cyan appears more blue-green on orange and more greenish on purple.',
-    scienceExplanation: 'Your visual system evolved to detect differences, not absolute values. When the same color sits on different backgrounds, your neurons compare it to the surroundings. On orange, the cyan appears to shift toward blue-green. On purple, it appears more greenish. This relative coding is efficient — it lets you recognize objects under wildly different lighting conditions. But it means you never see "true" colors; you only see relationships.'
+    id: 'simultaneous-contrast',
+    name: "Simultaneous Contrast",
+    choices: [{ id: 'a', label: "A" }, { id: 'b', label: "B" }, { id: 'same', label: "They’re the same" }],
+    scored: true,
+    truth: ['same'],
+    fooledLine: "Fooled you — they’re identical.",
+    sharpLine: "Sharp eyes! They’re identical.",
+    question: "Which small square is darker — A or B?",
+    answer: 'The answer is: IDENTICAL — Both small squares are exactly the same gray. On the light background the gray looks darker; on the dark background the same gray looks lighter.',
+    scienceExplanation: 'Your visual system evolved to detect differences, not absolute values. When the same gray sits on different backgrounds, your neurons compare it to its surroundings: against a light field it reads as darker, against a dark field it reads as lighter. The same thing happens with color — a hue shifts depending on what surrounds it. This relative coding is efficient: it lets you recognize objects under wildly different lighting conditions. But it means you never see "true" values; you only see relationships.'
   },
 
   // 3. BALCONY
   {
     type: 'illusion',
     illusionType: 'balcony',
+    id: 'balcony',
+    name: "Bistable Figure",
+    choices: [{ id: 'out', label: "Looking out" }, { id: 'in', label: "Looking in" }],
+    scored: false,
+    truth: [],
+    neutralLine: "Both are right — your brain just picks one.",
     src: '/exhibitions/seeing/balcony.jpg',
     revealSrc: '/exhibitions/seeing/balcony-out.jpg',
     altRevealSrc: '/exhibitions/seeing/balcony-over.jpg',
@@ -60,6 +98,12 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'rubins-vase',
+    id: 'rubins-vase',
+    name: "Rubin’s Vase",
+    choices: [{ id: 'vase', label: "A vase" }, { id: 'faces', label: "Two faces" }],
+    scored: false,
+    truth: [],
+    neutralLine: "Both are right — but never at the same time.",
     src: '/exhibitions/seeing/rubins-vase.jpg',
     revealSrc: '/exhibitions/seeing/rubins-vase-vase.jpg',
     altRevealSrc: '/exhibitions/seeing/rubins-vase-face.jpg',
@@ -72,6 +116,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'fraser-spiral',
+    id: 'fraser-spiral',
+    name: "Fraser Spiral Illusion",
+    choices: [{ id: 'spirals', label: "Spirals" }, { id: 'circles', label: "Circles" }],
+    scored: true,
+    truth: ['circles'],
+    fooledLine: "Fooled you — they’re circles.",
+    sharpLine: "Sharp eyes! Perfect circles.",
     src: '/exhibitions/seeing/fraser-spiral.jpg',
     revealSrc: '/exhibitions/seeing/fraser-spiral.gif',
     question: 'What shape is this — spirals or circles?',
@@ -83,6 +134,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'cafe-wall',
+    id: 'cafe-wall',
+    name: "Café Wall Illusion",
+    choices: [{ id: 'left', label: "Left" }, { id: 'right', label: "Right" }, { id: 'neither', label: "Neither — they’re level" }],
+    scored: true,
+    truth: ['neither'],
+    fooledLine: "Fooled you — every line is level.",
+    sharpLine: "Sharp eyes! Every line is level.",
     question: 'Which way do the gray lines tilt — left or right?',
     answer: 'The answer is: NEITHER! They\'re perfectly parallel. The offset tiles create a powerful tilt illusion.',
     scienceExplanation: 'Discovered on an actual café wall in Bristol, England in 1979, this illusion occurs because your brain\'s edge-detection neurons respond differently to high-contrast boundaries. Where black tiles meet the gray mortar on one side and white tiles on the other, your visual system perceives a subtle "wedge" shape. These local wedge signals accumulate across the image, creating a compelling sense of alternating tilt in lines that are perfectly horizontal. The gray mortar is essential — without it, the illusion disappears.'
@@ -92,6 +150,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'bulging-grid',
+    id: 'bulging-grid',
+    name: "Bulge Effect",
+    choices: [{ id: 'true', label: "True" }, { id: 'false', label: "False" }],
+    scored: true,
+    truth: ['false'],
+    fooledLine: "Fooled you — it’s flat.",
+    sharpLine: "Sharp eyes! It’s perfectly flat.",
     src: '/exhibitions/seeing/bulging-grid.jpg',
     revealSrc: '/exhibitions/seeing/grid.jpg',
     question: 'The center of this grid bulges outward — true or false?',
@@ -103,6 +168,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'rotating-snakes',
+    id: 'rotating-snakes',
+    name: "Rotating Snakes · Akiyoshi Kitaoka, 2003",
+    choices: [{ id: 'moves', label: "Yes, it moves" }, { id: 'still', label: "No, it’s still" }],
+    scored: true,
+    truth: ['still'],
+    fooledLine: "Fooled you — nothing is moving.",
+    sharpLine: "Steady eyes! It’s a still image.",
     src: '/exhibitions/seeing/rotating-snakes.jpg',
     question: 'Look around the image. Do you see movement?',
     answer: 'The answer is: Nothing is moving. This is a static image. Your peripheral vision sees motion that isn\'t there.',
@@ -113,6 +185,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'lilac-chaser',
+    id: 'lilac-chaser',
+    name: "Lilac Chaser / Pac-Man Effect",
+    choices: [{ id: 'green', label: "A green dot" }, { id: 'lilac', label: "Only lilac dots" }],
+    scored: true,
+    truth: ['lilac'],
+    fooledLine: "That green dot isn’t there — your brain painted it.",
+    sharpLine: "No green? Keep your eyes on the cross a little longer.",
     question: 'Stare at the center cross for 15 seconds. What do you see?',
     answer: 'The answer is: A GREEN DOT appears to chase the gap! With prolonged fixation, the dots may fade entirely.',
     scienceExplanation: 'This illusion combines multiple phenomena. First, Troxler\'s fading: when you fixate steadily, unchanging peripheral stimuli fade from awareness as neurons stop responding to constant input. Second, negative afterimages: the lilac (magenta) dots fatigue the red and blue cone cells, so when a dot disappears, you see its complementary color — green. The result is a phantom green dot that seems to "chase" the gap around the circle, even though nothing green exists in the image.'
@@ -122,6 +201,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'ponzo-corridor',
+    id: 'ponzo-corridor',
+    name: "Ponzo Illusion",
+    choices: [{ id: 'back', label: "The back ball" }, { id: 'front', label: "The front ball" }, { id: 'same', label: "They’re the same" }],
+    scored: true,
+    truth: ['same'],
+    fooledLine: "Fooled you — they’re identical.",
+    sharpLine: "Sharp eyes! They’re identical.",
     src: '/exhibitions/seeing/ponzo-corridor.jpg',
     question: 'Which checkered ball is larger?',
     answer: 'The answer is: IDENTICAL — Depth cues from the corridor make the back ball seem larger.',
@@ -132,6 +218,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'ponzo-railroad',
+    id: 'ponzo-railroad',
+    name: "Ponzo Illusion",
+    choices: [{ id: 'true', label: "True" }, { id: 'false', label: "False" }],
+    scored: true,
+    truth: ['false'],
+    fooledLine: "Fooled you — they’re the same length.",
+    sharpLine: "Sharp eyes! They’re the same length.",
     question: 'The top yellow bar is longer than the bottom — true or false?',
     answer: 'The answer is: FALSE — They\'re identical. The converging lines create false depth, making the "distant" bar seem larger.',
     scienceExplanation: 'This simplified version of the Ponzo illusion strips away realistic imagery to show the pure geometry. The converging lines mimic railway tracks or a corridor receding into the distance. Your brain automatically applies perspective correction: if two objects cast the same retinal image but one is "farther away," the distant one must be physically larger. This correction happens before conscious perception — you can\'t turn it off even when you know the lines are equal.'
@@ -141,6 +234,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'muller-lyer',
+    id: 'muller-lyer',
+    name: "Müller-Lyer Illusion",
+    choices: [{ id: '1', label: "Line 1" }, { id: '2', label: "Line 2" }, { id: 'same', label: "They’re the same" }],
+    scored: true,
+    truth: ['same'],
+    fooledLine: "Fooled you — they’re the same length.",
+    sharpLine: "Sharp eyes! They’re the same length.",
     question: 'Which line is longer — 1 or 2?',
     answer: 'The answer is: IDENTICAL — The arrow direction creates a powerful length illusion.',
     scienceExplanation: 'Discovered by Franz Carl Müller-Lyer in 1889, this is one of the most studied illusions in psychology. One theory: outward-pointing arrows resemble the inside corners of a room (which recede from you), while inward arrows resemble outside corners (which project toward you). Your brain applies size constancy, making the "receding" line seem longer. Remarkably, people from cultures without rectangular architecture (like the San of the Kalahari) are less susceptible — suggesting the illusion is partially learned.'
@@ -150,6 +250,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'jastrow',
+    id: 'jastrow',
+    name: "Jastrow Illusion",
+    choices: [{ id: 'top', label: "The gray one" }, { id: 'bottom', label: "The dark one" }, { id: 'same', label: "They’re the same" }],
+    scored: true,
+    truth: ['same'],
+    fooledLine: "Fooled you — they’re identical.",
+    sharpLine: "Sharp eyes! They’re identical.",
     src: '/exhibitions/seeing/jastrow-tracks.jpg',
     revealSrc: '/exhibitions/seeing/jastrow-tracks-reveal.gif',
     question: 'Which curved shape is larger?',
@@ -161,6 +268,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'ebbinghaus-circles',
+    id: 'ebbinghaus-circles',
+    name: "Ebbinghaus Illusion",
+    choices: [{ id: 'left', label: "Left" }, { id: 'right', label: "Right" }, { id: 'same', label: "They’re the same" }],
+    scored: true,
+    truth: ['same'],
+    fooledLine: "Fooled you — they’re identical.",
+    sharpLine: "Sharp eyes! They’re identical.",
     src: '/exhibitions/seeing/ebbinghaus.jpg',
     revealSrc: '/exhibitions/seeing/ebbinghaus-reveal.jpg',
     question: 'Which purple circle is larger — left or right?',
@@ -172,6 +286,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'impossible-trident',
+    id: 'impossible-trident',
+    name: "Impossible Trident / Blivet",
+    choices: [{ id: 'two', label: "Two" }, { id: 'three', label: "Three" }, { id: 'impossible', label: "It can’t exist" }],
+    scored: true,
+    truth: ['impossible'],
+    fooledLine: "Count again — two at the top, three at the bottom.",
+    sharpLine: "Sharp eyes! It’s an impossible object.",
     src: '/exhibitions/seeing/impossible-trident.jpg',
     question: 'How many prongs does this object have?',
     answer: 'The answer is: Two at the top, three at the bottom. This object cannot exist in 3D space.',
@@ -182,6 +303,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'kanizsa-triangle-svg',
+    id: 'kanizsa-triangle-svg',
+    name: "Kanizsa Triangle",
+    choices: [{ id: 'yes', label: "Yes" }, { id: 'no', label: "No" }],
+    scored: true,
+    truth: ['no'],
+    fooledLine: "Your brain drew it — there’s no triangle there.",
+    sharpLine: "Sharp eyes! No edges are drawn.",
     question: 'Do you see a black triangle?',
     answer: 'The answer is: There IS no black triangle — your brain creates edges where none exist.',
     scienceExplanation: 'Created by Italian psychologist Gaetano Kanizsa in 1955, this demonstrates "illusory contours" or "subjective contours." Your brain\'s visual cortex contains neurons that respond to edges — but these neurons can be activated by implied edges too. The pac-man shapes suggest a triangle occluding them, so your brain "completes" the triangle, even perceiving it as slightly brighter than the background (which it isn\'t). This completion happens automatically, revealing how much your brain constructs rather than passively receives.'
@@ -191,6 +319,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'sander-parallelogram',
+    id: 'sander-parallelogram',
+    name: "Sander Illusion",
+    choices: [{ id: 'ab', label: "A-B" }, { id: 'bc', label: "B-C" }, { id: 'same', label: "They’re the same" }],
+    scored: true,
+    truth: ['same'],
+    fooledLine: "Fooled you — they’re the same length.",
+    sharpLine: "Sharp eyes! They’re the same length.",
     src: '/exhibitions/seeing/line-comparison.jpg',
     revealSrc: '/exhibitions/seeing/line-comparison-reveal.gif',
     question: 'Which line is longer — A-B or B-C?',
@@ -202,9 +337,16 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'poggendorff',
+    id: 'poggendorff',
+    name: "Poggendorff Illusion",
+    choices: [{ id: 'gray', label: "Gray" }, { id: 'purple', label: "Purple" }],
+    scored: true,
+    truth: ['purple'],
+    fooledLine: "Fooled you — it’s the purple line.",
+    sharpLine: "Sharp eyes! It’s the purple line.",
     src: '/exhibitions/seeing/poggendorf.jpg',
     revealSrc: '/exhibitions/seeing/poggendorf-reveal.jpg',
-    question: 'Which line does the yellow line connect to — grey or purple?',
+    question: "Which line does the yellow line connect to — gray or purple?",
     answer: 'The answer is: PURPLE — The rectangle disrupts your ability to track the trajectory.',
     scienceExplanation: 'Discovered by physicist Johann Poggendorff in 1860, this illusion reveals a flaw in how your brain tracks lines across interruptions. When a diagonal line disappears behind an occluding rectangle, your visual system must "continue" it mentally — but it systematically errs, typically perceiving the continuation as too high. This may relate to how your brain processes acute angles: the diagonal\'s angle with the vertical edge is misperceived, throwing off the trajectory. The wider the rectangle, the stronger the illusion.'
   },
@@ -213,6 +355,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'gradient-bar',
+    id: 'gradient-bar',
+    name: "Gradient Illusion",
+    choices: [{ id: 'gradient', label: "Gradient" }, { id: 'solid', label: "Solid" }],
+    scored: true,
+    truth: ['solid'],
+    fooledLine: "Fooled you — it’s one solid color.",
+    sharpLine: "Sharp eyes! It’s one solid color.",
     src: '/exhibitions/seeing/gradient.jpg',
     revealSrc: '/exhibitions/seeing/gradient-reveal.jpg',
     question: 'Is the bar a gradient or solid color?',
@@ -224,6 +373,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'hermann-grid',
+    id: 'hermann-grid',
+    name: "Hermann Grid",
+    choices: [{ id: 'yes', label: "Yes" }, { id: 'no', label: "No" }],
+    scored: true,
+    truth: ['no'],
+    fooledLine: "Those dots aren’t there — look straight at one and it vanishes.",
+    sharpLine: "Sharp eyes! Every intersection is white.",
     src: '/exhibitions/seeing/ghost-dots.jpg',
     question: 'Do you see gray dots at the intersections?',
     answer: 'The answer is: Ghost dots appear where you\'re NOT looking. Look directly — they vanish!',
@@ -234,6 +390,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'paris-springtime-svg',
+    id: 'paris-springtime-svg',
+    name: "Predictive Processing",
+    choices: [{ id: 'fine', label: "It reads fine" }, { id: 'odd', label: "Something’s off" }],
+    scored: true,
+    truth: ['odd'],
+    fooledLine: "Fooled you — read it word by word.",
+    sharpLine: "Sharp eyes! You caught it.",
     question: 'Read the text inside the triangle carefully.',
     answer: 'The answer is: "THE" appears TWICE! Your brain predicts familiar phrases and skips what it expects.',
     scienceExplanation: 'This isn\'t a visual illusion — it\'s a demonstration of "predictive processing." Your brain doesn\'t passively receive information; it actively predicts what\'s coming based on context. When you read a familiar phrase like "Paris in the springtime," your brain predicts the words and only checks for confirmation, not for accuracy. The duplicate "THE" slips past because it matches the predicted word. This predictive efficiency usually helps (reading would be impossibly slow otherwise) but creates blind spots for unexpected repetitions.'
@@ -243,6 +406,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'chromostereopsis',
+    id: 'chromostereopsis',
+    name: "Chromostereopsis",
+    choices: [{ id: 'yes', label: "Yes" }, { id: 'no', label: "No" }],
+    scored: true,
+    truth: ['no'],
+    fooledLine: "Fooled you — it’s completely flat.",
+    sharpLine: "Steady eyes! It’s completely flat.",
     src: '/exhibitions/seeing/chromostereopsis.jpg',
     question: 'Does the red appear to float above the blue?',
     answer: 'The answer is: This image is completely flat — yet it appears 3D. Red and blue light focus at different depths in your eye, creating a false sense of depth where none exists.',
@@ -253,6 +423,13 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
   {
     type: 'illusion',
     illusionType: 'seesaw',
+    id: 'seesaw',
+    name: "Seesaw Illusion",
+    choices: [{ id: 'left', label: "Left" }, { id: 'right', label: "Right" }, { id: 'balanced', label: "Balanced" }],
+    scored: true,
+    truth: ['balanced'],
+    fooledLine: "Fooled you — it’s balanced.",
+    sharpLine: "Sharp eyes! It’s balanced.",
     src: '/exhibitions/seeing/seesaw.jpg',
     revealSrc: '/exhibitions/seeing/seesaw-reveal.gif',
     question: 'Which side is heavier?',
