@@ -92,6 +92,7 @@ function buildItems(rounds: QuizRound[], audio: Audio): ProjectorItem[] {
       ),
       teacherTip: inst.teacherTip,
       play,
+      onLeave: () => audio.stopSource('quiz'),
       onEnter: (stage) => {
         if (stage === 'question' && mayAutoplay()) play();
       },

@@ -262,6 +262,10 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     g.connect(ctx.destination);
     s.start(0);
     s.onended = () => {
+      // A stopped preview's "ended" arrives after the next preview has
+      // started; only clear the ref if it still points at this one, or the
+      // newer preview could never be stopped.
+      if (previewRef.current !== s) return;
       previewRef.current = null;
       setPreviewingId(null);
     };
@@ -352,6 +356,14 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   }, [blocks, session, ensureCtx, stopPlay, seekTime]);
 
   useEffect(() => { playRef.current = play; }, [play]);
+
+  // Leaving the page (closing the tab, or going into the back-forward cache)
+  // stops the transport and any preview.
+  useEffect(() => {
+    const onPageHide = () => { stopPlay(); stopPreview(); };
+    window.addEventListener('pagehide', onPageHide);
+    return () => window.removeEventListener('pagehide', onPageHide);
+  }, [stopPlay, stopPreview]);
 
   // ── Block Management ──
 

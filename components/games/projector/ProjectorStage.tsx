@@ -44,6 +44,8 @@ export type ProjectorItem = {
   onEnter?: (stage: Stage) => void;
   /** P: play the sound again. */
   play?: () => void;
+  /** Called when the class moves off this item (next, back, the ending, exit): stops its sound. */
+  onLeave?: () => void;
 };
 
 export type ProjectorEnding = {
@@ -214,6 +216,15 @@ export default function ProjectorStage({ title, noun, nounPlural, items, layout,
   useEffect(() => {
     focusRef.current?.focus({ preventScroll: true });
   }, [state.stage, state.index, items]);
+
+  // Moving to another item, reaching the ending, restarting or leaving
+  // projector mode lets the item stop anything it started.
+  const ended = state.stage === 'ended';
+  useEffect(() => {
+    if (!item || ended) return undefined;
+    const leaving = item;
+    return () => leaving.onLeave?.();
+  }, [item, ended]);
 
   useEffect(() => {
     if (item && state.stage !== 'ended') item.onEnter?.(state.stage);

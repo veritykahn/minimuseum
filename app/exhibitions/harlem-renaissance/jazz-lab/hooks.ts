@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback, useEffect, useState } from 'react';
+import { useRef, useCallback, useEffect, useMemo, useState } from 'react';
 import { shuffle } from '@/components/games/scoring';
 import {
   type InstrumentId,
@@ -21,10 +21,29 @@ type ActiveSource = {
   gain: GainNode;
 };
 
+/**
+ * One Web Audio context for the Jazz Lab's band and quiz, with sounds keyed by
+ * id ('bass', 'quiz'…). Starting a sound is asynchronous (the file may still
+ * be loading), so every start takes a ticket for its id. Anything that stops
+ * that id — or stopAll — tears the ticket up, and a start whose ticket is no
+ * longer current when its buffer arrives never makes a sound. Every node the
+ * engine starts is also kept in one set, so stopAll silences all of them even
+ * if a bookkeeping slip ever lost one from the map.
+ */
 export function useAudioEngine() {
   const audioCtxRef = useRef<AudioContext | null>(null);
   const bufferCacheRef = useRef<Map<string, AudioBuffer>>(new Map());
+  const loadingRef = useRef<Map<string, Promise<AudioBuffer>>>(new Map());
   const activeSourcesRef = useRef<Map<string, ActiveSource>>(new Map());
+  /** Every node started and not yet torn down, whatever its id. */
+  const allSourcesRef = useRef<Set<ActiveSource>>(new Set());
+  /** The current start ticket for each id; a missing or newer one cancels. */
+  const ticketsRef = useRef<Map<string, number>>(new Map());
+  const ticketCounterRef = useRef(0);
+  /** The volume each id should play at, kept even while it is still loading. */
+  const volumesRef = useRef<Map<string, number>>(new Map());
+  const aliveRef = useRef(true);
+  const stopListenersRef = useRef<Set<() => void>>(new Set());
 
   const ensureContext = useCallback((): AudioContext => {
     if (!audioCtxRef.current) {
@@ -32,81 +51,117 @@ export function useAudioEngine() {
       audioCtxRef.current = new Ctx();
     }
     if (audioCtxRef.current.state === 'suspended') {
-      audioCtxRef.current.resume();
+      audioCtxRef.current.resume().catch(() => {});
     }
     return audioCtxRef.current;
   }, []);
 
-  const loadAudio = useCallback(async (src: string): Promise<AudioBuffer> => {
+  const loadAudio = useCallback((src: string): Promise<AudioBuffer> => {
     const cached = bufferCacheRef.current.get(src);
-    if (cached) return cached;
+    if (cached) return Promise.resolve(cached);
+    const pending = loadingRef.current.get(src);
+    if (pending) return pending;
 
     const ctx = ensureContext();
-    const response = await fetch(src);
-    const arrayBuffer = await response.arrayBuffer();
-    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-    bufferCacheRef.current.set(src, audioBuffer);
-    return audioBuffer;
+    const p = (async () => {
+      const response = await fetch(src);
+      const arrayBuffer = await response.arrayBuffer();
+      const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+      bufferCacheRef.current.set(src, audioBuffer);
+      return audioBuffer;
+    })();
+    loadingRef.current.set(src, p);
+    p.then(
+      () => loadingRef.current.delete(src),
+      () => loadingRef.current.delete(src),
+    );
+    return p;
   }, [ensureContext]);
 
-  const stopSource = useCallback((id: string) => {
-    const entry = activeSourcesRef.current.get(id);
-    if (entry) {
-      try { entry.source.stop(); } catch { /* already stopped */ }
-      entry.source.disconnect();
-      entry.gain.disconnect();
-      activeSourcesRef.current.delete(id);
-    }
+  const kill = useCallback((entry: ActiveSource) => {
+    try { entry.source.stop(); } catch { /* already stopped */ }
+    try { entry.source.disconnect(); } catch { /* noop */ }
+    try { entry.gain.disconnect(); } catch { /* noop */ }
+    allSourcesRef.current.delete(entry);
   }, []);
 
-  const stopAll = useCallback(() => {
-    activeSourcesRef.current.forEach((_, id) => stopSource(id));
-  }, [stopSource]);
-
-  const playLoop = useCallback(async (id: string, src: string, volume: number = 0.5) => {
-    stopSource(id);
-    const ctx = ensureContext();
-    const buffer = await loadAudio(src);
-
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.loop = true;
-
-    const gainNode = ctx.createGain();
-    gainNode.gain.setValueAtTime(0, ctx.currentTime);
-    gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + 0.1);
-
-    source.connect(gainNode);
-    gainNode.connect(ctx.destination);
-    source.start(0);
-
-    activeSourcesRef.current.set(id, { source, gain: gainNode });
-  }, [ensureContext, loadAudio, stopSource]);
-
-  const playOnce = useCallback(async (id: string, src: string, volume: number = 0.8) => {
-    stopSource(id);
-    const ctx = ensureContext();
-    const buffer = await loadAudio(src);
-
-    const source = ctx.createBufferSource();
-    source.buffer = buffer;
-    source.loop = false;
-
-    const gainNode = ctx.createGain();
-    gainNode.gain.value = volume;
-
-    source.connect(gainNode);
-    gainNode.connect(ctx.destination);
-    source.start(0);
-
-    source.onended = () => {
+  /** Stops the sound playing under this id and cancels any start still loading. */
+  const stopSource = useCallback((id: string) => {
+    ticketsRef.current.delete(id);
+    const entry = activeSourcesRef.current.get(id);
+    if (entry) {
       activeSourcesRef.current.delete(id);
-    };
+      kill(entry);
+    }
+  }, [kill]);
 
-    activeSourcesRef.current.set(id, { source, gain: gainNode });
+  const stopAll = useCallback(() => {
+    ticketsRef.current.clear();
+    activeSourcesRef.current.clear();
+    allSourcesRef.current.forEach(kill);
+    allSourcesRef.current.clear();
+  }, [kill]);
+
+  /**
+   * Shared by playLoop and playOnce. Resolves once the sound has started, or
+   * once it has been cancelled by a newer start or a stop.
+   */
+  const start = useCallback(async (id: string, src: string, volume: number, loop: boolean, fadeIn: boolean) => {
+    stopSource(id);
+    const ticket = ++ticketCounterRef.current;
+    ticketsRef.current.set(id, ticket);
+    volumesRef.current.set(id, volume);
+    const current = () => aliveRef.current && ticketsRef.current.get(id) === ticket;
+
+    ensureContext();
+    let buffer: AudioBuffer;
+    try {
+      buffer = await loadAudio(src);
+    } catch (err) {
+      if (current()) ticketsRef.current.delete(id);
+      throw err;
+    }
+    // Stopped, superseded, or unmounted while the file was loading.
+    if (!current()) return;
+
+    const ctx = ensureContext();
+    const level = volumesRef.current.get(id) ?? volume;
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.loop = loop;
+
+    const gainNode = ctx.createGain();
+    if (fadeIn) {
+      gainNode.gain.setValueAtTime(0, ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(level, ctx.currentTime + 0.1);
+    } else {
+      gainNode.gain.value = level;
+    }
+
+    source.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    const entry: ActiveSource = { source, gain: gainNode };
+    source.onended = () => {
+      // Only forget this id if it still points at this node: a stopped node's
+      // "ended" arrives after its replacement has taken the id.
+      if (activeSourcesRef.current.get(id) === entry) {
+        activeSourcesRef.current.delete(id);
+        ticketsRef.current.delete(id);
+      }
+      allSourcesRef.current.delete(entry);
+    };
+    activeSourcesRef.current.set(id, entry);
+    allSourcesRef.current.add(entry);
+    source.start(0);
   }, [ensureContext, loadAudio, stopSource]);
+
+  const playLoop = useCallback((id: string, src: string, volume: number = 0.5) => start(id, src, volume, true, true), [start]);
+
+  const playOnce = useCallback((id: string, src: string, volume: number = 0.8) => start(id, src, volume, false, false), [start]);
 
   const setVolume = useCallback((id: string, volume: number) => {
+    volumesRef.current.set(id, volume);
     const entry = activeSourcesRef.current.get(id);
     if (entry && audioCtxRef.current) {
       const now = audioCtxRef.current.currentTime;
@@ -116,42 +171,64 @@ export function useAudioEngine() {
     }
   }, []);
 
+  /**
+   * A short fade, then stop. The id is released at once, so the instrument can
+   * come straight back on without the old fade's timer cutting it off.
+   */
   const fadeOutAndStop = useCallback((id: string) => {
+    ticketsRef.current.delete(id);
     const entry = activeSourcesRef.current.get(id);
-    if (entry && audioCtxRef.current) {
-      const now = audioCtxRef.current.currentTime;
-      entry.gain.gain.cancelScheduledValues(now);
-      entry.gain.gain.setValueAtTime(entry.gain.gain.value, now);
-      entry.gain.gain.linearRampToValueAtTime(0, now + 0.1);
-      setTimeout(() => {
-        try { entry.source.stop(); } catch { /* already stopped */ }
-        entry.source.disconnect();
-        entry.gain.disconnect();
-        activeSourcesRef.current.delete(id);
-      }, 150);
-    }
+    if (!entry) return;
+    activeSourcesRef.current.delete(id);
+    const ctx = audioCtxRef.current;
+    if (!ctx) { kill(entry); return; }
+    const now = ctx.currentTime;
+    entry.gain.gain.cancelScheduledValues(now);
+    entry.gain.gain.setValueAtTime(entry.gain.gain.value, now);
+    entry.gain.gain.linearRampToValueAtTime(0, now + 0.1);
+    setTimeout(() => kill(entry), 150);
+  }, [kill]);
+
+  /** True while the id is playing or still loading to play. */
+  const isPlaying = useCallback((id: string): boolean => {
+    return activeSourcesRef.current.has(id) || ticketsRef.current.has(id);
   }, []);
 
-  const isPlaying = useCallback((id: string): boolean => {
-    return activeSourcesRef.current.has(id);
+  /** Called whenever the engine silences everything on its own (leaving the page). */
+  const onSilenced = useCallback((fn: () => void) => {
+    stopListenersRef.current.add(fn);
+    return () => { stopListenersRef.current.delete(fn); };
   }, []);
+
+  // Leaving the page (closing the tab, or going into the back-forward cache)
+  // stops every sound, and says so, so the band's stage empties too.
+  useEffect(() => {
+    const onPageHide = () => {
+      stopAll();
+      stopListenersRef.current.forEach((fn) => fn());
+    };
+    window.addEventListener('pagehide', onPageHide);
+    return () => window.removeEventListener('pagehide', onPageHide);
+  }, [stopAll]);
 
   useEffect(() => {
+    aliveRef.current = true;
     return () => {
-      activeSourcesRef.current.forEach((entry) => {
-        try { entry.source.stop(); } catch { /* noop */ }
-        entry.source.disconnect();
-        entry.gain.disconnect();
-      });
-      activeSourcesRef.current.clear();
+      aliveRef.current = false;
+      stopAll();
       if (audioCtxRef.current) {
-        audioCtxRef.current.close();
+        audioCtxRef.current.close().catch(() => {});
         audioCtxRef.current = null;
       }
     };
-  }, []);
+  }, [stopAll]);
 
-  return { ensureContext, loadAudio, playLoop, playOnce, setVolume, stopSource, fadeOutAndStop, stopAll, isPlaying };
+  // One stable object, so hooks that take the engine as a dependency don't
+  // re-run on every render.
+  return useMemo(
+    () => ({ ensureContext, loadAudio, playLoop, playOnce, setVolume, stopSource, fadeOutAndStop, stopAll, isPlaying, onSilenced }),
+    [ensureContext, loadAudio, playLoop, playOnce, setVolume, stopSource, fadeOutAndStop, stopAll, isPlaying, onSilenced],
+  );
 }
 
 // ─── useBandBuilder ─────────────────────────────────────────────────────────
@@ -181,10 +258,17 @@ export function useBandBuilder(audio: AudioEngine) {
   useEffect(() => {
     BAND_INSTRUMENTS.forEach(inst => {
       if (inst.sections.includes(section)) {
-        audio.loadAudio(getBandAudioSrc(inst.id, section));
+        audio.loadAudio(getBandAudioSrc(inst.id, section)).catch(() => {});
       }
     });
   }, [section, audio]);
+
+  // If the engine silences everything itself (the page is going away), the
+  // stage empties with it rather than showing players who make no sound.
+  useEffect(() => audio.onSilenced(() => {
+    setActive(new Set());
+    setSpotlight(null);
+  }), [audio]);
 
   const applyVolumes = useCallback((players: Set<BandInstrumentId>, spot: BandInstrumentId | null) => {
     players.forEach(id => audio.setVolume(id, bandVolume(id, spot)));
@@ -371,8 +455,10 @@ export function useQuiz(audio: AudioEngine) {
 
   const playRound = useCallback((round: QuizRound) => {
     setIsQuizPlaying(true);
-    audio.playOnce('quiz', round.audioSrc);
+    audio.playOnce('quiz', round.audioSrc).catch(() => setIsQuizPlaying(false));
   }, [audio]);
+
+  useEffect(() => audio.onSilenced(() => setIsQuizPlaying(false)), [audio]);
 
   const begin = useCallback((newRounds: QuizRound[], newMode: 'full' | 'replay') => {
     audio.stopAll();
