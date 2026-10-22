@@ -165,7 +165,8 @@ export function ClassroomView({ lesson, basePath }: Props) {
         {tools}
       </div>
       {notes && (
-        <aside className={styles.notesPanel} aria-label="Teacher notes">
+        // focusable, so the notes scroll from the keyboard when they overflow
+        <aside className={styles.notesPanel} aria-label="Teacher notes" tabIndex={0}>
           <Notes lesson={lesson} session={session} />
         </aside>
       )}

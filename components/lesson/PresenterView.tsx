@@ -4,7 +4,7 @@ import Link from 'next/link';
 import type { Lesson } from '@/lib/lessons/types';
 import { clock, stepDuration, stepElapsed, totalElapsed, spokenRemaining } from '@/lib/lessons/session';
 import { MiniStage } from './MiniStage';
-import { Notes, UpNext } from './Notes';
+import { Notes, ObjectivesNotes, UpNext } from './Notes';
 import { Inline } from './Inline';
 import { useLessonSession } from './useLessonSession';
 import { useLessonKeys, releaseAfterPointer } from './useLessonKeys';
@@ -146,6 +146,15 @@ export function PresenterView({ lesson, basePath }: Props) {
               </li>
             </ul>
           </section>
+
+          {lesson.objectives && i >= 0 && (
+            <details className={styles.pMore}>
+              <summary>Learning objectives</summary>
+              <div className={styles.pObjectives}>
+                <ObjectivesNotes objectives={lesson.objectives} />
+              </div>
+            </details>
+          )}
 
           {lesson.questions.length > 0 && (
             <details className={styles.pMore}>

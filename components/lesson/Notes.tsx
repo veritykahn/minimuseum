@@ -1,4 +1,4 @@
-import type { Lesson } from '@/lib/lessons/types';
+import type { Lesson, Objectives } from '@/lib/lessons/types';
 import type { Session } from '@/lib/lessons/session';
 import { Inline } from './Inline';
 import { onDark } from './color';
@@ -22,6 +22,28 @@ export function Notes({ lesson, session, large, showNext = true }: Props) {
             {step.section} <span className={styles.notesDash}>·</span> {step.title}
             <span className={styles.notesMin}>{step.minutes} min</span>
           </h2>
+          <div className={styles.aims}>
+          {step.purpose && (
+            <div className={styles.purpose}>
+              <p className={styles.notesKicker}>Why this step</p>
+              <p className={styles.purposeText}>
+                <Inline text={step.purpose} />
+              </p>
+            </div>
+          )}
+          {step.students && step.students.length > 0 && (
+            <div className={styles.studentsDo}>
+              <p className={styles.notesKicker}>Students</p>
+              <ul>
+                {step.students.map((t) => (
+                  <li key={t}>
+                    <Inline text={t} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          </div>
           <div className={styles.script}>
             {step.script.map((p) => (
               <p key={p}>
@@ -32,7 +54,8 @@ export function Notes({ lesson, session, large, showNext = true }: Props) {
         </>
       ) : i < 0 ? (
         <>
-          <h2 className={styles.notesTitle}>Materials</h2>
+          {lesson.objectives && <ObjectivesNotes objectives={lesson.objectives} />}
+          <h2 className={`${styles.notesTitle} ${lesson.objectives ? styles.notesGap : ''}`}>Materials</h2>
           <ul className={styles.materials}>
             {lesson.materials.map((m) => (
               <li key={m}>
@@ -52,6 +75,29 @@ export function Notes({ lesson, session, large, showNext = true }: Props) {
       )}
       {showNext && <UpNext lesson={lesson} session={session} />}
     </div>
+  );
+}
+
+/** The lesson's objectives, for the teacher before the start. */
+export function ObjectivesNotes({ objectives }: { objectives: Objectives }) {
+  return (
+    <>
+      <h2 className={styles.notesTitle}>Learning objectives</h2>
+      <p className={styles.notesWhy}>{objectives.heading}</p>
+      <ol className={styles.notesObjectives}>
+        {objectives.items.map((o) => (
+          <li key={o.text}>
+            {o.deeper && <span className={styles.notesDeep}>Go deeper</span>}
+            <Inline text={o.text} />
+          </li>
+        ))}
+      </ol>
+      {objectives.why && (
+        <p className={styles.notesWhy}>
+          <span className={styles.notesWhyLabel}>Why this matters</span> <Inline text={objectives.why} />
+        </p>
+      )}
+    </>
   );
 }
 

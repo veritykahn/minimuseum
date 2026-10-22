@@ -79,6 +79,18 @@ def block(kind, d):
         lone = "" if (d.get("body") or d.get("list")) else " lone"
         return (f'<section class="sec{lone}"><p class="label">{inline(d["label"])}</p>{t}'
                 f'{paras(d.get("body", []))}{bullets(d.get("list"))}</section>')
+    if kind == "objectives":        # what students will be able to do: heading, (text, question, deeper?) items, why
+        # styled by the document's own css, so documents without it print unchanged
+        items = "".join(
+            f'<li{" class=deep" if deep else ""}><span>'
+            + ('<span class="deeptag">Go deeper</span> ' if deep else "") + f"{inline(t)}</span></li>"
+            for t, _, deep in d["items"])
+        why = f'<p class="why"><b>Why this matters</b> {inline(d["why"])}</p>' if d.get("why") else ""
+        # the label says "By the end of this lesson", so the heading goes on from it
+        head = re.sub(r"^By the end of this lesson\s+", "", d["heading"])
+        head = head[:1].upper() + head[1:]
+        return (f'<section class="sec objectives"><p class="label">By the end of this lesson</p>'
+                f'<h3>{inline(head)}</h3><ol>{items}</ol>{why}</section>')
     if kind == "chips":
         return '<div class="chips">' + "".join(f"<span>{inline(c)}</span>" for c in d) + "</div>"
     if kind == "levels":            # green/yellow/red activity summaries
