@@ -1,7 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import ExhibitionNav from '@/components/ExhibitionNav';
+import TypewriterText from '@/components/TypewriterText';
+import PosterNavHint from '@/components/PosterNavHint';
+import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 
 type ContentItem = {
   type: string;
@@ -122,7 +125,7 @@ const poster1Content: ContentItem[] = [
   {
     type: 'full-image',
     src: '/exhibitions/seeing/face.jpg',
-    alt: 'Abstract face illustration',
+    alt: 'Continuous black line drawing of half a face: one eye, a nose and lips',
     effect: 'mega-zoom-out'
   },
   {
@@ -310,7 +313,7 @@ const poster2Content = [
   {
     type: 'full-image',
     src: '/exhibitions/seeing/waves.jpg',
-    alt: 'Optical illusion waves',
+    alt: 'Op-art pattern of rippling black and pale blue stripes',
     effect: 'waves-drift'
   },
   {
@@ -415,32 +418,6 @@ const poster2Content = [
   { type: 'end', text: 'Return to Exhibition' }
 ];
 
-// Typewriter component
-const TypewriterText = ({ text, onComplete, color }: { text: string; onComplete?: () => void; color: string }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, 30);
-      return () => clearTimeout(timeout);
-    } else if (onComplete) {
-      onComplete();
-    }
-    return undefined;
-  }, [currentIndex, text, onComplete]);
-
-  return (
-    <span style={{ color }}>
-      {displayedText}
-      <span className="typewriter-cursor">|</span>
-    </span>
-  );
-};
-
 // Line by line component
 const LineByLine = ({ items, color }: { items: string[]; color: string }) => {
   return (
@@ -485,58 +462,23 @@ const FilmOverlay = () => {
 };
 
 export default function SeeingIsDeceiving() {
-  const router = useRouter();
-  const [activeView, setActiveView] = useState<'main' | 'poster1' | 'poster2' | 'artifacts'>('main');
-  const [posterStep, setPosterStep] = useState(0);
-  const [fadeIn, setFadeIn] = useState(true);
-  const [animationKey, setAnimationKey] = useState(0);
+  const {
+    activeView,
+    posterStep,
+    fadeIn,
+    animationKey,
+    contentRef,
+    openPoster,
+    nextStep,
+    prevStep,
+    returnToMain,
+    stageProps,
+    hintVisible,
+    dismissHint,
+    announcement,
+  } = usePosterWalkthrough({ poster1: poster1Content.length, poster2: poster2Content.length });
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
-
-  const handleBack = () => {
-    router.push('/exhibitions/first-floor');
-  };
-
-  const openPoster = (poster: 'poster1' | 'poster2') => {
-    setFadeIn(false);
-    setTimeout(() => {
-      setActiveView(poster);
-      setPosterStep(0);
-      setAnimationKey(prev => prev + 1);
-      setFadeIn(true);
-    }, 300);
-  };
-
-  const nextStep = () => {
-    if (posterStep < currentPosterContent.length - 1) {
-      setFadeIn(false);
-      setTimeout(() => {
-        setPosterStep(posterStep + 1);
-        setAnimationKey(prev => prev + 1);
-        setFadeIn(true);
-      }, 400);
-    }
-  };
-
-  const prevStep = () => {
-    if (posterStep > 0) {
-      setFadeIn(false);
-      setTimeout(() => {
-        setPosterStep(posterStep - 1);
-        setAnimationKey(prev => prev + 1);
-        setFadeIn(true);
-      }, 400);
-    }
-  };
-
-  const returnToMain = () => {
-    setFadeIn(false);
-    setTimeout(() => {
-      setActiveView('main');
-      setPosterStep(0);
-      setFadeIn(true);
-    }, 300);
-  };
 
   const currentItem = currentPosterContent[posterStep];
   const isPoster1 = activeView === 'poster1';
@@ -593,9 +535,9 @@ export default function SeeingIsDeceiving() {
         }
         .nav-m-left { left: 32px; }
         .nav-m-right { right: 32px; }
-        .nav-m:hover .nav-label { opacity: 1; max-width: 150px; }
-        .nav-m:hover .nav-arrow-left { transform: translateX(-4px); }
-        .nav-m:hover .nav-arrow-right { transform: translateX(4px); }
+        .nav-m:hover .nav-label, .nav-m:focus-visible .nav-label { opacity: 1; max-width: 150px; }
+        .nav-m:hover .nav-arrow-left, .nav-m:focus-visible .nav-arrow-left { transform: translateX(-4px); }
+        .nav-m:hover .nav-arrow-right, .nav-m:focus-visible .nav-arrow-right { transform: translateX(4px); }
         .nav-m-text { font-size: 28px; font-weight: 300; transition: color 0.3s ease; }
         .nav-arrow { font-size: 16px; transition: all 0.3s ease; }
         .nav-label {
@@ -1186,8 +1128,8 @@ export default function SeeingIsDeceiving() {
           transition: all 0.4s ease;
           position: relative;
         }
-        .poster-frame:hover { transform: translateY(-8px); }
-        .poster-frame:hover .poster-hint { opacity: 1; }
+        .poster-frame:hover, .poster-frame:focus-visible { transform: translateY(-8px); }
+        .poster-frame:hover .poster-hint, .poster-frame:focus-visible .poster-hint { opacity: 1; }
         .poster-frame img {
           width: 100%;
           height: auto;
@@ -1220,7 +1162,7 @@ export default function SeeingIsDeceiving() {
           transition: all 0.4s ease;
           overflow: hidden;
         }
-        .display-case:hover {
+        .display-case:hover, .display-case:focus-visible {
           border-color: rgba(168, 213, 229, 0.3);
         }
         .display-case:hover .case-image {
@@ -1240,7 +1182,7 @@ export default function SeeingIsDeceiving() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 8px;
         }
         .case-title {
@@ -1518,22 +1460,23 @@ export default function SeeingIsDeceiving() {
       `}</style>
 
       {/* Navigation */}
-      <div
+      <ExhibitionNav
         className="nav-m nav-m-left"
-        onClick={activeView === 'main' ? handleBack : returnToMain}
+        href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
+        onClick={activeView === 'main' ? undefined : returnToMain}
       >
-        <span className="nav-m-text" style={{ color: '#525252' }}>M</span>
-        <span className="nav-arrow nav-arrow-left" style={{ color: '#7D8471' }}>←</span>
+        <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+        <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>←</span>
         <span className="nav-label" style={{ color: '#7D8471' }}>
           {activeView === 'main' ? 'First Floor' : 'Exhibition'}
         </span>
-      </div>
+      </ExhibitionNav>
 
-      <div className="nav-m nav-m-right" onClick={() => router.push('/exhibitions/seeing-is-deceiving/resources')}>
+      <ExhibitionNav className="nav-m nav-m-right" href="/exhibitions/seeing-is-deceiving/resources">
         <span className="nav-label" style={{ color: '#7D8471' }}>Resources</span>
-        <span className="nav-arrow nav-arrow-right" style={{ color: '#7D8471' }}>→</span>
-        <span className="nav-m-text" style={{ color: '#525252' }}>M</span>
-      </div>
+        <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>→</span>
+        <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+      </ExhibitionNav>
 
       {/* Main Exhibition View */}
       {activeView === 'main' && (
@@ -1544,37 +1487,42 @@ export default function SeeingIsDeceiving() {
           </div>
 
           <div className="exhibition-grid">
-            <div className="poster-frame" onClick={() => openPoster('poster1')}>
+            <button type="button" className="btn-reset poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/exhibitions/seeing/poster1.jpg" alt="Seeing is Deceiving poster" />
+              <img src="/exhibitions/seeing/poster1.jpg" alt="Seeing is Deceiving poster: the title in black capitals, reflected upside down, beneath a one-line drawing of a face" />
               <span className="poster-hint">Click to explore</span>
-            </div>
+            </button>
 
-            <div className="display-case" onClick={() => router.push('/exhibitions/seeing-is-deceiving/artifacts')}>
+            <Link href="/exhibitions/seeing-is-deceiving/artifacts" className="display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/exhibitions/seeing/artifacts/display-case.png"
-                alt="Artifact Display Case"
+                alt="Acrylic display case holding a wooden stereoscope, a stereoview card and a small illustrated card"
                 className="case-image"
               />
               <p className="case-label">Gallery II, Case 4</p>
               <p className="case-title">Instruments of Illusion</p>
               <p className="case-subtitle">Including Interactive Perception Lab</p>
-            </div>
+            </Link>
 
-            <div className="poster-frame" onClick={() => openPoster('poster2')}>
+            <button type="button" className="btn-reset poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/exhibitions/seeing/poster2.jpg" alt="A History of Lies poster" />
+              <img src="/exhibitions/seeing/poster2.jpg" alt="A History of Lies: From Magic Lanterns to AI Deepfakes poster: the title wrapped around a column of rippling blue and black stripes" />
               <span className="poster-hint">Click to explore</span>
-            </div>
+            </button>
           </div>
         </div>
       )}
 
+      <p className="visually-hidden" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </p>
+      <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
+
       {/* Poster Walkthrough View */}
       {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div className={`poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey}>
-          <div className="walkthrough-content">
+        <div className={`poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey} {...stageProps}>
+          <div className="walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
 
             {/* Title Image - Full Bleed */}
             {currentItem.type === 'title-image' && (
@@ -1636,7 +1584,7 @@ export default function SeeingIsDeceiving() {
                   style={{ color: textColor, position: 'relative', zIndex: 10 }}
                 >
                   {currentItem.effect === 'typewriter' ? (
-                    <TypewriterText text={currentItem.text} color={textColor} />
+                    <TypewriterText text={currentItem.text} color={textColor} cursorClassName="typewriter-cursor" />
                   ) : (
                     currentItem.text
                   )}
@@ -1709,17 +1657,19 @@ export default function SeeingIsDeceiving() {
                 className="nav-arrow-btn"
                 onClick={prevStep}
                 disabled={posterStep === 0}
+                aria-label="Previous panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 ←
               </button>
-              <span className="step-indicator" style={{ color: textColor }}>
+              <span className="step-indicator" style={{ color: textColor }} aria-hidden="true">
                 {posterStep + 1} / {currentPosterContent.length}
               </span>
               <button
                 className="nav-arrow-btn"
                 onClick={nextStep}
                 disabled={posterStep === currentPosterContent.length - 1}
+                aria-label="Next panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 →

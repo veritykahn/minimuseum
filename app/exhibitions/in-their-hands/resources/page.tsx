@@ -1,6 +1,8 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRef } from 'react';
+import ExhibitionNav from '@/components/ExhibitionNav';
+import { useFocusOnStepChange } from '@/lib/a11y/focus';
 import { useResourceWizard } from './hooks';
 import {
   SelectionButton,
@@ -8,7 +10,9 @@ import {
   SectionHeader,
   StartOverButton,
   ContextBreadcrumb,
+  LessonModeLink,
 } from './components';
+import { getLesson } from '@/lib/lessons';
 import {
   GRADE_LABELS,
   LIBRARIAN_GRADE_LABELS,
@@ -17,10 +21,10 @@ import {
   GradeLevel,
   LibrarianGradeLevel,
   Subject,
+  ON_SCREEN_LESSONS,
 } from './data/resource-data';
 
 export default function ResourcesPage() {
-  const router = useRouter();
   const {
     gradeLevel,
     librarianGradeLevel,
@@ -38,9 +42,11 @@ export default function ResourcesPage() {
     getLibrarianHandoutPath,
   } = useResourceWizard();
 
-  const handleBack = () => {
-    router.push('/exhibitions/in-their-hands');
-  };
+  // Move focus to the new step's first line so keyboard and screen reader
+  // users land on the question they're being asked.
+  const contentRef = useRef<HTMLDivElement>(null);
+  const stepKey = Object.entries(currentStep).find(([, on]) => on)?.[0] ?? '';
+  useFocusOnStepChange(stepKey, contentRef, '.intro-text, .context-breadcrumb, .question-text, .description-text');
 
   // Grade options for teachers
   const teacherGrades: { key: GradeLevel; label: string }[] = [
@@ -57,6 +63,10 @@ export default function ResourcesPage() {
     { key: 'grades-3-5', label: 'Grades 3\u20135' },
     { key: 'grades-6-8', label: 'Grades 6\u20138' },
   ];
+
+  // A lesson that can also be taught on the classroom screen (Lesson mode)
+  const onScreenSlug = gradeLevel && subject ? ON_SCREEN_LESSONS[`${gradeLevel}/${subject}`] : undefined;
+  const onScreen = onScreenSlug ? getLesson('in-their-hands', onScreenSlug) : undefined;
 
   // Subject options for grades 5-8
   const subjects: { key: Subject; label: string }[] = [
@@ -97,8 +107,8 @@ export default function ResourcesPage() {
           cursor: pointer;
         }
         .nav-m-left { left: 32px; }
-        .nav-m:hover .nav-label { opacity: 1; max-width: 150px; }
-        .nav-m:hover .nav-arrow-left { transform: translateX(-4px); }
+        .nav-m:hover .nav-label, .nav-m:focus-visible .nav-label { opacity: 1; max-width: 150px; }
+        .nav-m:hover .nav-arrow-left, .nav-m:focus-visible .nav-arrow-left { transform: translateX(-4px); }
         .nav-m-text { font-size: 28px; font-weight: 300; color: #525252; }
         .nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
         .nav-label {
@@ -185,13 +195,13 @@ export default function ResourcesPage() {
       `}</style>
 
       {/* Navigation */}
-      <div className="nav-m nav-m-left" onClick={handleBack}>
-        <span className="nav-m-text">M</span>
-        <span className="nav-arrow nav-arrow-left">&larr;</span>
+      <ExhibitionNav className="nav-m nav-m-left" href="/exhibitions/in-their-hands">
+        <span className="nav-m-text" aria-hidden="true">M</span>
+        <span className="nav-arrow nav-arrow-left" aria-hidden="true">&larr;</span>
         <span className="nav-label">Exhibition</span>
-      </div>
+      </ExhibitionNav>
 
-      <div className={`content-container ${fadeState === 'out' ? 'fade-out' : ''}`}>
+      <div ref={contentRef} className={`content-container ${fadeState === 'out' ? 'fade-out' : ''}`}>
         <h1 className="page-title">Resources</h1>
 
         {/* Initial State - User Type Selection */}
@@ -268,6 +278,13 @@ export default function ResourcesPage() {
                 ...(subject ? [SUBJECT_LABELS[subject]] : []),
               ]}
             />
+
+            {onScreen && (
+              <LessonModeLink
+                href={`/exhibitions/in-their-hands/lessons/${onScreen.slug}`}
+                title={onScreen.title}
+              />
+            )}
 
             <div className="download-section">
               <SectionHeader isFirst>For All Teachers</SectionHeader>

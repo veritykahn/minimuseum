@@ -3,14 +3,14 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { focusElement } from '@/lib/a11y/focus';
 
 export default function GreatHall() {
   const [showExplore, setShowExplore] = useState(true);
   const [showInstallationMessage, setShowInstallationMessage] = useState(false);
   const floorsRef = useRef<HTMLDivElement>(null);
 
-  const handleGroundFloorClick = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleGroundFloorClick = () => {
     setShowInstallationMessage(true);
     setTimeout(() => setShowInstallationMessage(false), 3000);
   };
@@ -25,6 +25,8 @@ export default function GreatHall() {
 
   const scrollToFloors = () => {
     floorsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // Keyboard users follow the scroll rather than staying on the (now hidden) hint
+    focusElement(floorsRef.current);
   };
 
   return (
@@ -122,7 +124,7 @@ export default function GreatHall() {
           font-size: clamp(14px, 2vw, 18px);
           font-weight: 300;
           letter-spacing: 0.3em;
-          color: #525252;
+          color: #808080;
           margin-bottom: 12px;
           text-transform: uppercase;
         }
@@ -163,12 +165,12 @@ export default function GreatHall() {
           padding: 20px;
         }
 
-        .side-nav:hover .nav-label {
+        .side-nav:hover .nav-label, .side-nav:focus-visible .nav-label {
           opacity: 1;
           max-width: 100px;
         }
 
-        .side-nav:hover .nav-m {
+        .side-nav:hover .nav-m, .side-nav:focus-visible .nav-m {
           color: #fafafa;
         }
 
@@ -213,12 +215,12 @@ export default function GreatHall() {
           transition: all 0.3s ease;
         }
 
-        .side-nav-left:hover .nav-arrow {
+        .side-nav-left:hover .nav-arrow, .side-nav-left:focus-visible .nav-arrow {
           transform: translateX(-4px);
           color: #7D8471;
         }
 
-        .side-nav-right:hover .nav-arrow {
+        .side-nav-right:hover .nav-arrow, .side-nav-right:focus-visible .nav-arrow {
           transform: translateX(4px);
           color: #7D8471;
         }
@@ -256,11 +258,12 @@ export default function GreatHall() {
           pointer-events: none;
         }
 
-        .explore-hint:hover .explore-text {
+        .explore-hint:hover .explore-text, .explore-hint:focus-visible .explore-text {
           color: #fafafa;
         }
 
         .explore-line {
+          display: block;
           width: 1px;
           height: 60px;
           background: linear-gradient(to bottom, #525252, transparent);
@@ -271,13 +274,13 @@ export default function GreatHall() {
           font-size: 10px;
           letter-spacing: 0.4em;
           text-transform: uppercase;
-          color: #525252;
+          color: #808080;
           transition: color 0.3s ease;
         }
 
         .explore-arrow {
           font-size: 16px;
-          color: #525252;
+          color: #808080;
           animation: float 2.5s ease-in-out infinite;
         }
 
@@ -305,7 +308,7 @@ export default function GreatHall() {
           font-size: 10px;
           letter-spacing: 0.4em;
           text-transform: uppercase;
-          color: #525252;
+          color: #808080;
           margin-bottom: 60px;
         }
 
@@ -338,13 +341,13 @@ export default function GreatHall() {
         }
 
         /* First floor - lighter green background on hover */
-        .floor-row.first-floor:hover .floor-card {
+        .floor-row.first-floor:hover .floor-card, .floor-row.first-floor:focus-visible .floor-card {
           border-color: #7D8471;
           background: rgba(125, 132, 113, 0.15);
         }
 
         /* Ground floor - deeper green background on hover */
-        .floor-row.ground-floor:hover .floor-card {
+        .floor-row.ground-floor:hover .floor-card, .floor-row.ground-floor:focus-visible .floor-card {
           border-color: #5a6350;
           background: rgba(90, 99, 80, 0.2);
         }
@@ -375,7 +378,7 @@ export default function GreatHall() {
           font-size: 15px;
           font-style: italic;
           font-weight: 300;
-          color: #737373;
+          color: #919191;
           transition: color 0.3s ease;
         }
 
@@ -387,7 +390,7 @@ export default function GreatHall() {
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
-          color: #525252;
+          color: #858585;
           margin-top: 4px;
         }
 
@@ -501,15 +504,20 @@ export default function GreatHall() {
           position: relative;
         }
 
-        .floor-row.installation-in-progress:hover .floor-card {
+        .floor-row.installation-in-progress:hover .floor-card, .floor-row.installation-in-progress:focus-visible .floor-card {
           border-color: #3a3a3a;
           background: rgba(40, 40, 40, 0.3);
         }
 
-        .floor-row.installation-in-progress .floor-name,
-        .floor-row.installation-in-progress .floor-subtitle,
-        .floor-row.installation-in-progress .floor-year {
+        /* Dimmed, but the small text stays at 4.5:1 or better */
+        .floor-row.installation-in-progress .floor-name {
           opacity: 0.5;
+        }
+        .floor-row.installation-in-progress .floor-subtitle {
+          color: #858585;
+        }
+        .floor-row.installation-in-progress .floor-year {
+          color: #808080;
         }
 
         .floor-row.installation-in-progress:hover .floor-name {
@@ -551,7 +559,7 @@ export default function GreatHall() {
           font-size: 9px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #888;
+          color: #a0a0a0;
         }
 
         /* Installation message toast */
@@ -634,31 +642,35 @@ export default function GreatHall() {
 
         {/* Left Navigation - About */}
         <Link href="/about" className="side-nav side-nav-left fade-in delay-3">
-          <span className="nav-m">M</span>
-          <span className="nav-arrow">←</span>
+          <span className="nav-m" aria-hidden="true">M</span>
+          <span className="nav-arrow" aria-hidden="true">←</span>
           <span className="nav-label">About</span>
         </Link>
 
         {/* Right Navigation - Contact */}
         <Link href="/contact" className="side-nav side-nav-right fade-in delay-3">
-          <span className="nav-m">M</span>
-          <span className="nav-arrow">→</span>
+          <span className="nav-m" aria-hidden="true">M</span>
+          <span className="nav-arrow" aria-hidden="true">→</span>
           <span className="nav-label">Contact</span>
         </Link>
 
         {/* Explore hint */}
-        <div 
-          className={`explore-hint fade-in delay-5 ${!showExplore ? 'hidden' : ''}`}
+        <button
+          type="button"
+          className={`btn-reset explore-hint fade-in delay-5 ${!showExplore ? 'hidden' : ''}`}
           onClick={scrollToFloors}
+          aria-label="Explore the floors"
+          tabIndex={showExplore ? 0 : -1}
+          aria-hidden={showExplore ? undefined : true}
         >
-          <div className="explore-line"></div>
+          <span className="explore-line"></span>
           <span className="explore-text">Explore</span>
           <span className="explore-arrow">↓</span>
-        </div>
+        </button>
       </section>
 
       {/* Floors Section */}
-      <section ref={floorsRef} className="floors-section">
+      <section ref={floorsRef} className="floors-section" aria-label="Select a Floor">
         <p className="floors-title fade-in delay-6">Select a Floor</p>
 
         <div className="floors-container">
@@ -682,7 +694,11 @@ export default function GreatHall() {
           </Link>
 
           {/* Ground Floor - Origins (Installation in Progress) */}
-          <div className="floor-row ground-floor installation-in-progress" onClick={handleGroundFloorClick}>
+          <button
+            type="button"
+            className="btn-reset floor-row ground-floor installation-in-progress"
+            onClick={handleGroundFloorClick}
+          >
             <div className="floor-card">
               <div className="floor-text">
                 <h2 className="floor-name">Origins</h2>
@@ -694,20 +710,23 @@ export default function GreatHall() {
                 </div>
               </div>
               <div className="installation-badge">
-                <span className="installation-badge-icon">🚧</span>
+                <span className="installation-badge-icon" aria-hidden="true">🚧</span>
                 <span className="installation-badge-text">Coming Soon</span>
               </div>
-              <div className="floor-indicator">
+              <div className="floor-indicator" aria-hidden="true">
                 <Image src="/stairs.png" alt="" width={80} height={80} className="stairs-icon" aria-hidden="true" />
                 <span className="floor-letter">G</span>
               </div>
             </div>
-          </div>
+          </button>
         </div>
       </section>
 
       {/* Installation Message Toast */}
-      <div className={`installation-message ${showInstallationMessage ? 'visible' : ''}`}>
+      <p className="visually-hidden" role="status">
+        {showInstallationMessage ? 'Exhibits currently being installed. Check back soon!' : ''}
+      </p>
+      <div className={`installation-message ${showInstallationMessage ? 'visible' : ''}`} aria-hidden="true">
         <p className="installation-message-title">Exhibits Currently Being Installed</p>
         <p className="installation-message-text">We&apos;re preparing something special. Check back soon!</p>
       </div>

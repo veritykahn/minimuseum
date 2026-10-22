@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import Image from 'next/image';
 
 type Artifact = {
@@ -54,12 +55,6 @@ const artifacts: Artifact[] = [
 
 export default function ArtifactsCollection() {
   const router = useRouter();
-
-  const handleArtifactClick = (artifact: Artifact) => {
-    if (artifact.status === 'available') {
-      router.push(artifact.route);
-    }
-  };
 
   return (
     <div className="artifacts-page">
@@ -117,7 +112,7 @@ export default function ArtifactsCollection() {
           font-size: 10px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 16px;
         }
 
@@ -182,17 +177,17 @@ export default function ArtifactsCollection() {
           cursor: pointer;
         }
 
-        .artifact-card.available:hover {
+        .artifact-card.available:hover, .artifact-card.available:focus-visible {
           border-color: rgba(168, 213, 229, 0.3);
           background: linear-gradient(145deg, rgba(168, 213, 229, 0.06), rgba(168, 213, 229, 0.02));
           transform: translateY(-8px);
         }
 
-        .artifact-card.available:hover .artifact-image-container {
+        .artifact-card.available:hover .artifact-image-container, .artifact-card.available:focus-visible .artifact-image-container {
           box-shadow: 0 20px 60px rgba(168, 213, 229, 0.15);
         }
 
-        .artifact-card.available:hover .artifact-image {
+        .artifact-card.available:hover .artifact-image, .artifact-card.available:focus-visible .artifact-image {
           transform: scale(1.05);
         }
 
@@ -253,7 +248,7 @@ export default function ArtifactsCollection() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 0.85rem;
           font-style: italic;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 10px;
         }
 
@@ -287,7 +282,7 @@ export default function ArtifactsCollection() {
 
         .status-coming-soon {
           background: rgba(255, 255, 255, 0.03);
-          color: #525252;
+          color: #808080;
           border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
@@ -332,7 +327,7 @@ export default function ArtifactsCollection() {
           font-size: 14px;
         }
 
-        .artifact-card.available:hover .hover-arrow {
+        .artifact-card.available:hover .hover-arrow, .artifact-card.available:focus-visible .hover-arrow {
           opacity: 1;
           transform: translateX(0);
         }
@@ -345,7 +340,7 @@ export default function ArtifactsCollection() {
           background: transparent;
           border: 1px solid rgba(255,255,255,0.15);
           border-radius: 100px;
-          color: #737373;
+          color: #8a8a8a;
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
@@ -379,45 +374,52 @@ export default function ArtifactsCollection() {
 
       {/* Artifacts grid */}
       <div className="artifacts-grid">
-        {artifacts.map((artifact) => (
-          <div
-            key={artifact.id}
-            className={`artifact-card ${artifact.status}`}
-            onClick={() => handleArtifactClick(artifact)}
-          >
-            {/* Hover arrow for available items */}
-            {artifact.status === 'available' && (
-              <div className="hover-arrow">↗</div>
-            )}
+        {artifacts.map((artifact) => {
+          const content = (
+            <>
+              {/* Hover arrow for available items */}
+              {artifact.status === 'available' && (
+                <div className="hover-arrow" aria-hidden="true">↗</div>
+              )}
 
-            {/* Image container */}
-            <div className="artifact-image-container">
-              <Image
-                src={artifact.image}
-                alt={artifact.title}
-                className="artifact-image"
-                width={300}
-                height={200}
-                style={{ width: '100%', height: 'auto' }}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            </div>
-
-            {/* Info */}
-            <div className="artifact-info">
-              <h3 className="artifact-title">{artifact.title}</h3>
-              <p className="artifact-subtitle">{artifact.subtitle}</p>
-
-              {/* Status */}
-              <div className={`artifact-status ${artifact.status === 'available' ? 'status-available' : 'status-coming-soon'}`}>
-                <span className={`status-dot ${artifact.status === 'available' ? 'active' : 'inactive'}`}></span>
-                {artifact.status === 'available' ? 'Explore' : 'Coming Soon'}
+              {/* Image container */}
+              <div className="artifact-image-container" aria-hidden="true">
+                <Image
+                  src={artifact.image}
+                  alt={artifact.title}
+                  className="artifact-image"
+                  width={300}
+                  height={200}
+                  style={{ width: '100%', height: 'auto' }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = 'none';
+                  }}
+                />
               </div>
+
+              {/* Info */}
+              <div className="artifact-info">
+                <h2 className="artifact-title">{artifact.title}</h2>
+                <p className="artifact-subtitle">{artifact.subtitle}</p>
+
+                {/* Status */}
+                <div className={`artifact-status ${artifact.status === 'available' ? 'status-available' : 'status-coming-soon'}`}>
+                  <span className={`status-dot ${artifact.status === 'available' ? 'active' : 'inactive'}`}></span>
+                  {artifact.status === 'available' ? 'Explore' : 'Coming Soon'}
+                </div>
+              </div>
+            </>
+          );
+          return artifact.status === 'available' ? (
+            <Link key={artifact.id} href={artifact.route} className={`artifact-card ${artifact.status}`}>
+              {content}
+            </Link>
+          ) : (
+            <div key={artifact.id} className={`artifact-card ${artifact.status}`}>
+              {content}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Return button */}

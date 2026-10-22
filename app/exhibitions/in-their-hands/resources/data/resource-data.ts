@@ -65,6 +65,12 @@ export const SUBJECT_HANDOUTS: Record<string, Record<string, string>> = {
   },
 };
 
+// Lessons that can also be taught on screen (Lesson mode), by
+// '<grade>/<subject>'. The slug is a lesson in lib/lessons.
+export const ON_SCREEN_LESSONS: Record<string, string> = {
+  'grades-5-8/religion': 'whose-image-is-this',
+};
+
 // Librarian file mappings
 // No librarian sets for In Their Hands yet; the page hides the Librarian choice.
 export const LIBRARIAN_LESSON_PLANS: Record<string, string> = {};

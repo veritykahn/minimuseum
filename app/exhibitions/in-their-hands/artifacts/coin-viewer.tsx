@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useDialogFocus } from '@/lib/a11y';
 
 type CoinData = {
   id: string;
@@ -30,6 +31,12 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
   const router = useRouter();
   const [showInfo, setShowInfo] = useState(false);
   const [showBack, setShowBack] = useState(false);
+
+  // The display card is a modal dialog while open.
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const closeInfo = useCallback(() => setShowInfo(false), []);
+  useDialogFocus(panelRef, showInfo, { onEscape: closeInfo, initialFocus: closeRef });
 
   return (
     <div className="coin-viewer-page">
@@ -433,30 +440,34 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
           {backLabel}
         </button>
         <button
+          type="button"
           className={`cv-info-btn ${showInfo ? 'active' : ''}`}
           onClick={() => setShowInfo(!showInfo)}
+          aria-label="About this artifact"
+          aria-expanded={showInfo}
+          aria-controls="cv-info-panel"
         >
-          i
+          <span aria-hidden="true">i</span>
         </button>
       </header>
 
       {/* Main content */}
-      <main className="cv-content">
+      <div className="cv-content">
         {/* Coin display */}
         <div className="cv-coin-stage">
           <div className={`cv-coin-container ${showBack ? 'flipped' : ''}`}>
-            <div className="cv-coin-face">
+            <div className="cv-coin-face" aria-hidden={showBack}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={coin.frontImage} alt={`${coin.title} — obverse`} />
             </div>
-            <div className="cv-coin-face cv-coin-back">
+            <div className="cv-coin-face cv-coin-back" aria-hidden={!showBack}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={coin.backImage} alt={`${coin.title} — reverse`} />
             </div>
           </div>
 
-          <button className="cv-flip-btn" onClick={() => setShowBack(!showBack)}>
-            <span className="cv-flip-icon">{'\u21C4'}</span>
+          <button type="button" className="cv-flip-btn" onClick={() => setShowBack(!showBack)}>
+            <span className="cv-flip-icon" aria-hidden="true">{'\u21C4'}</span>
             {showBack ? 'Show Obverse' : 'Show Reverse'}
           </button>
         </div>
@@ -474,23 +485,32 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
             <p className="cv-artifact-subtitle">{coin.subtitle}</p>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Info backdrop */}
       <div
         className={`cv-info-backdrop ${showInfo ? 'open' : ''}`}
         onClick={() => setShowInfo(false)}
+        aria-hidden="true"
       />
 
       {/* Info panel */}
-      <aside className={`cv-info-panel ${showInfo ? 'open' : ''}`}>
-        <button className="cv-info-close" onClick={() => setShowInfo(false)}>{'\u00D7'}</button>
+      <div
+        id="cv-info-panel"
+        ref={panelRef}
+        className={`cv-info-panel ${showInfo ? 'open' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="cv-info-title"
+        inert={!showInfo}
+      >
+        <button type="button" ref={closeRef} className="cv-info-close" onClick={() => setShowInfo(false)} aria-label="Close"><span aria-hidden="true">{'\u00D7'}</span></button>
         <div className="cv-info-panel-content">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="cv-info-display-card" src={coin.displayCard} alt={`${coin.title} display card`} />
 
           <p className="cv-info-label">Artifact</p>
-          <h2 className="cv-info-title">{coin.title}</h2>
+          <h2 className="cv-info-title" id="cv-info-title">{coin.title}</h2>
           <p className="cv-info-date">{coin.date} &middot; {coin.material} &middot; {coin.reference}</p>
           <p className="cv-info-material">
             {coin.authenticity === 'AUTHENTIC' ? 'Authentic ancient coin' : 'Museum-quality replica'}
@@ -505,7 +525,7 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
             ))}
           </div>
         </div>
-      </aside>
+      </div>
     </div>
   );
 }

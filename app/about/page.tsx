@@ -240,7 +240,7 @@ export default function About() {
           font-family: 'Cormorant Garamond', Georgia, serif;
           font-size: 18px;
           font-weight: 400;
-          color: #525252;
+          color: #8a8a8a;
           background: none;
           border: none;
           cursor: pointer;
@@ -845,14 +845,14 @@ export default function About() {
         }}>
           <p style={{
             fontSize: '13px',
-            color: '#737373',
+            color: '#8a8a8a',
             marginBottom: '8px',
           }}>
             Founded by Dr. Verity Kahn. Curated for everyone.
           </p>
           <p style={{
             fontSize: '11px',
-            color: '#525252',
+            color: '#808080',
             letterSpacing: '0.1em',
           }}>
             © 2025 The Mini Museum

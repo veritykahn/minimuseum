@@ -82,9 +82,15 @@ export default function FirstFloor() {
     }
   };
 
-  const Ticket = ({ onClick, accentColor, isActive }: { onClick: () => void; accentColor: string; isActive: boolean }) => (
-    <button onClick={onClick} className={`ticket ${!isActive ? 'ticket-disabled' : ''}`} disabled={!isActive}>
-      <svg width="180" height="80" viewBox="0 0 180 80" fill="none">
+  const Ticket = ({ onClick, accentColor, isActive, title }: { onClick: () => void; accentColor: string; isActive: boolean; title: string }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`ticket ${!isActive ? 'ticket-disabled' : ''}`}
+      disabled={!isActive}
+    >
+      <span className="visually-hidden">{isActive ? `Enter Exhibition: ${title}` : `Coming Soon: ${title}`}</span>
+      <svg width="180" height="80" viewBox="0 0 180 80" fill="none" aria-hidden="true" focusable="false">
         <path d="M0 8C0 3.58172 3.58172 0 8 0H52C52 6.62742 57.3726 12 64 12C70.6274 12 76 6.62742 76 0H172C176.418 0 180 3.58172 180 8V72C180 76.4183 176.418 80 172 80H76C76 73.3726 70.6274 68 64 68C57.3726 68 52 73.3726 52 80H8C3.58172 80 0 76.4183 0 72V8Z" fill={isActive ? "#faf8f5" : "#2a2a2a"}/>
         <line x1="64" y1="16" x2="64" y2="64" stroke={isActive ? "#e5e2dc" : "#3a3a3a"} strokeWidth="1" strokeDasharray="4 3"/>
         <text x="32" y="38" textAnchor="middle" fill={isActive ? "#1a1a1a" : "#666"} style={{ fontFamily: 'Outfit', fontSize: '8px', fontWeight: 500, letterSpacing: '0.1em' }}>ADMIT ONE</text>
@@ -114,17 +120,18 @@ export default function FirstFloor() {
         </div>
       )}
 
+      {/* Inactive cards are dimmed with muted, still-legible colors rather than
+          opacity, so "coming soon" doesn't push the text below 4.5:1 */}
       <div style={{
         textAlign: 'center',
         padding: '40px',
-        opacity: exhibition.active ? 1 : 0.4,
         filter: exhibition.active ? 'none' : 'grayscale(50%)'
       }}>
         <p style={{
           fontSize: '11px',
           letterSpacing: '0.4em',
           textTransform: 'uppercase',
-          color: exhibition.accent,
+          color: exhibition.active ? exhibition.accent : '#8a8a8a',
           marginBottom: '16px',
           fontFamily: 'Outfit, sans-serif'
         }}>
@@ -135,7 +142,7 @@ export default function FirstFloor() {
           fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
           fontWeight: 300,
           lineHeight: 0.95,
-          color: '#fafafa',
+          color: exhibition.active ? '#fafafa' : '#a3a3a3',
           marginBottom: '16px'
         }}>
           {exhibition.title}
@@ -145,7 +152,7 @@ export default function FirstFloor() {
           fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
           fontStyle: 'italic',
           fontWeight: 300,
-          color: exhibition.accent,
+          color: exhibition.active ? exhibition.accent : '#8a8a8a',
           marginBottom: '48px'
         }}>
           {exhibition.subtitle}
@@ -154,6 +161,7 @@ export default function FirstFloor() {
           onClick={() => handleExhibitionClick(exhibition, index)}
           accentColor={exhibition.accent}
           isActive={exhibition.active}
+          title={exhibition.title}
         />
       </div>
     </div>
@@ -178,7 +186,7 @@ export default function FirstFloor() {
           animation: float 4s ease-in-out infinite;
           transition: all 0.3s ease;
         }
-        .ticket:hover:not(.ticket-disabled) {
+        .ticket:hover:not(.ticket-disabled), .ticket:focus-visible:not(.ticket-disabled) {
           animation-play-state: paused;
           transform: translateY(-8px) scale(1.05);
         }
@@ -201,9 +209,9 @@ export default function FirstFloor() {
           font-family: 'Cormorant Garamond';
           transition: all 0.3s ease;
         }
-        .back-link:hover { color: #fafafa; }
-        .back-link:hover .back-arrow { transform: translateX(-4px); color: #7D8471; }
-        .back-link:hover .back-label { opacity: 1; max-width: 100px; }
+        .back-link:hover, .back-link:focus-visible { color: #fafafa; }
+        .back-link:hover .back-arrow, .back-link:focus-visible .back-arrow { transform: translateX(-4px); color: #7D8471; }
+        .back-link:hover .back-label, .back-link:focus-visible .back-label { opacity: 1; max-width: 100px; }
         .back-arrow { transition: all 0.3s ease; font-size: 16px; }
         .back-m { font-size: 28px; font-weight: 300; }
         .back-label {
@@ -229,7 +237,7 @@ export default function FirstFloor() {
           font-size: 9px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #525252;
+          color: #808080;
           margin-bottom: 4px;
         }
         .floor-indicator-year {
@@ -290,7 +298,7 @@ export default function FirstFloor() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-style: italic;
-          color: #737373;
+          color: #8a8a8a;
         }
 
         .scroll-hint {
@@ -301,7 +309,7 @@ export default function FirstFloor() {
           display: flex;
           align-items: center;
           gap: 16px;
-          color: #525252;
+          color: #808080;
           font-size: 11px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
@@ -326,9 +334,11 @@ export default function FirstFloor() {
         }
       `}</style>
 
+      <h1 className="visually-hidden">First Floor: Horizons</h1>
+
       <Link href="/greathall" className="back-link">
-        <span className="back-m">M</span>
-        <span className="back-arrow">←</span>
+        <span className="back-m" aria-hidden="true">M</span>
+        <span className="back-arrow" aria-hidden="true">←</span>
         <span className="back-label">Great Hall</span>
       </Link>
 

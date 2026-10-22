@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 type Artifact = {
   id: string;
@@ -69,12 +70,6 @@ const artifacts: Artifact[] = [
 export default function ArtifactsCollection() {
   const router = useRouter();
 
-  const handleArtifactClick = (artifact: Artifact) => {
-    if (artifact.status === 'available') {
-      router.push(artifact.route);
-    }
-  };
-
   return (
     <div className="hr-artifacts-page">
       <style jsx global>{`
@@ -129,7 +124,7 @@ export default function ArtifactsCollection() {
           font-size: 10px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 16px;
         }
 
@@ -200,13 +195,13 @@ export default function ArtifactsCollection() {
           cursor: pointer;
         }
 
-        .hr-art-card.available:hover {
+        .hr-art-card.available:hover, .hr-art-card.available:focus-visible {
           border-color: rgba(180, 133, 210, 0.3);
           background: linear-gradient(145deg, rgba(180, 133, 210, 0.06), rgba(180, 133, 210, 0.02));
           transform: translateY(-8px);
         }
 
-        .hr-art-card.available:hover .hr-art-image-container {
+        .hr-art-card.available:hover .hr-art-image-container, .hr-art-card.available:focus-visible .hr-art-image-container {
           box-shadow: 0 20px 60px rgba(180, 133, 210, 0.15);
         }
 
@@ -236,7 +231,7 @@ export default function ArtifactsCollection() {
           object-fit: cover;
           transition: transform 0.4s ease;
         }
-        .hr-art-card.available:hover .hr-art-thumb {
+        .hr-art-card.available:hover .hr-art-thumb, .hr-art-card.available:focus-visible .hr-art-thumb {
           transform: scale(1.08);
         }
 
@@ -270,7 +265,7 @@ export default function ArtifactsCollection() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 0.85rem;
           font-style: italic;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 10px;
         }
 
@@ -299,7 +294,7 @@ export default function ArtifactsCollection() {
 
         .hr-art-status-coming-soon {
           background: rgba(255, 255, 255, 0.03);
-          color: #525252;
+          color: #808080;
           border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
@@ -343,7 +338,7 @@ export default function ArtifactsCollection() {
           font-size: 14px;
         }
 
-        .hr-art-card.available:hover .hr-art-hover-arrow {
+        .hr-art-card.available:hover .hr-art-hover-arrow, .hr-art-card.available:focus-visible .hr-art-hover-arrow {
           opacity: 1;
           transform: translateX(0);
         }
@@ -355,7 +350,7 @@ export default function ArtifactsCollection() {
           background: transparent;
           border: 1px solid rgba(255,255,255,0.15);
           border-radius: 100px;
-          color: #737373;
+          color: #8a8a8a;
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
@@ -386,34 +381,41 @@ export default function ArtifactsCollection() {
       </div>
 
       <div className="hr-art-grid">
-        {artifacts.map((artifact) => (
-          <div
-            key={artifact.id}
-            className={`hr-art-card ${artifact.status}`}
-            onClick={() => handleArtifactClick(artifact)}
-          >
-            {artifact.status === 'available' && (
-              <div className="hr-art-hover-arrow">{'\u2197'}</div>
-            )}
+        {artifacts.map((artifact) => {
+          const content = (
+            <>
+              {artifact.status === 'available' && (
+                <div className="hr-art-hover-arrow" aria-hidden="true">{'\u2197'}</div>
+              )}
 
-            <div className="hr-art-image-container">
-              {artifact.thumb ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img className="hr-art-thumb" src={artifact.thumb} alt={artifact.title} />
-              ) : artifact.emoji}
-            </div>
-
-            <div className="hr-art-info">
-              <h3 className="hr-art-title">{artifact.title}</h3>
-              <p className="hr-art-subtitle">{artifact.subtitle}</p>
-
-              <div className={`hr-art-status ${artifact.status === 'available' ? 'hr-art-status-available' : 'hr-art-status-coming-soon'}`}>
-                <span className={`hr-art-status-dot ${artifact.status === 'available' ? 'active' : 'inactive'}`}></span>
-                {artifact.status === 'available' ? 'Explore' : 'Coming Soon'}
+              <div className="hr-art-image-container" aria-hidden="true">
+                {artifact.thumb ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="hr-art-thumb" src={artifact.thumb} alt={artifact.title} />
+                ) : artifact.emoji}
               </div>
+
+              <div className="hr-art-info">
+                <h2 className="hr-art-title">{artifact.title}</h2>
+                <p className="hr-art-subtitle">{artifact.subtitle}</p>
+
+                <div className={`hr-art-status ${artifact.status === 'available' ? 'hr-art-status-available' : 'hr-art-status-coming-soon'}`}>
+                  <span className={`hr-art-status-dot ${artifact.status === 'available' ? 'active' : 'inactive'}`}></span>
+                  {artifact.status === 'available' ? 'Explore' : 'Coming Soon'}
+                </div>
+              </div>
+            </>
+          );
+          return artifact.status === 'available' ? (
+            <Link key={artifact.id} href={artifact.route} className={`hr-art-card ${artifact.status}`}>
+              {content}
+            </Link>
+          ) : (
+            <div key={artifact.id} className={`hr-art-card ${artifact.status}`}>
+              {content}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <button className="hr-art-return-btn" onClick={() => router.push('/exhibitions/harlem-renaissance')}>

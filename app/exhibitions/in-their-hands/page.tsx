@@ -1,7 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import ExhibitionNav from '@/components/ExhibitionNav';
+import PosterNavHint from '@/components/PosterNavHint';
+import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 
 type ContentItem = {
   type: string;
@@ -33,7 +36,7 @@ const poster1Content: ContentItem[] = [
   {
     type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster1-lemaitre.jpg',
-    alt: 'Georges Lemaître',
+    alt: 'Black-and-white portrait photograph of Georges Lemaître in round glasses and a clerical collar',
     artworkTitle: 'Georges Lemaître',
     artworkArtist: 'Belgian Catholic priest',
     artworkDate: '1894–1966',
@@ -57,7 +60,7 @@ const poster1Content: ContentItem[] = [
   {
     type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster1-mendel.jpg',
-    alt: 'Gregor Mendel',
+    alt: 'Black-and-white portrait photograph of Gregor Mendel in spectacles and a clerical collar',
     artworkTitle: 'Gregor Mendel',
     artworkArtist: 'Augustinian friar',
     artworkDate: '1822–1884',
@@ -68,7 +71,7 @@ const poster1Content: ContentItem[] = [
   {
     type: 'image-text-stacked',
     src: '/exhibitions/in-their-hands/poster1-vatican-observatory.jpg',
-    alt: 'Vatican Observatory',
+    alt: 'A domed observatory building lit gold beneath a star-filled night sky',
     text: 'The Vatican Observatory, still operating today, is one of the oldest astronomical research institutions in the world.',
     special: 'observatory'
   },
@@ -82,7 +85,7 @@ const poster1Content: ContentItem[] = [
   {
     type: 'full-image',
     src: '/exhibitions/in-their-hands/poster1-image.jpg',
-    alt: 'Jerusalem — James Tissot',
+    alt: 'James Tissot watercolor of the old city walls and citadel of Jerusalem, with a slender minaret against a hazy sky',
     effect: 'none',
     special: 'frost'
   },
@@ -104,7 +107,7 @@ const poster1Content: ContentItem[] = [
     type: 'text-image-stacked',
     text: 'Inside were ancient clay jars containing scrolls — the oldest surviving manuscripts of the Hebrew Bible, hidden by the Essenes before the Roman destruction of Jerusalem in 70 AD.',
     src: '/exhibitions/in-their-hands/poster1-dead-sea-scrolls.jpg',
-    alt: 'The Great Isaiah Scroll',
+    alt: 'The Great Isaiah Scroll, unrolled in three long strips of columned Hebrew text on worn parchment',
     special: 'scrolls'
   },
   {
@@ -220,7 +223,7 @@ const poster2Content: ContentItem[] = [
   {
     type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster2-pilate-stone.jpg',
-    alt: 'The Pilate Stone',
+    alt: 'The Pilate Stone: a weathered limestone block carved with Latin lettering naming Pontius Pilate',
     text: 'For decades, some scholars questioned whether Pontius Pilate was a historical figure. Then in 1961, a construction crew at Caesarea Maritima uncovered a limestone block inscribed PONTIVS PILATVS PRAEFECTVS IVDAEAE.',
     special: 'passion',
     position: 'right'
@@ -235,7 +238,7 @@ const poster2Content: ContentItem[] = [
   {
     type: 'full-image',
     src: '/exhibitions/in-their-hands/poster2-image1.jpg',
-    alt: 'The Passion',
+    alt: 'Painting of Christ carrying the cross through a crowd of soldiers, horsemen and mourning women, fading into darkness',
     special: 'passion'
   },
   {
@@ -255,7 +258,7 @@ const poster2Content: ContentItem[] = [
   {
     type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster2-tyrian-shekel.png',
-    alt: 'Tyrian Shekel',
+    alt: 'Both faces of a worn silver Tyrian shekel: the laureate head of Melqart, and an eagle',
     artworkTitle: 'Tyrian Shekel',
     artworkArtist: 'Mint of Tyre',
     artworkDate: '126 BC – 56 AD',
@@ -286,7 +289,7 @@ const poster2Content: ContentItem[] = [
   {
     type: 'artwork-display',
     src: '/exhibitions/in-their-hands/poster2-potters-field.jpg',
-    alt: 'Judas Returns the Money by James Tissot',
+    alt: 'Watercolor of Judas in a swirling brown robe flinging coins across a pillared Temple court as elders look on',
     artworkTitle: 'Judas Returns the Money (Judas rend l\'argent)',
     artworkArtist: 'James Tissot',
     text: 'When Judas returned the thirty pieces in remorse, the priests refused to receive them back — blood money could not re-enter the treasury — and used them instead to purchase a potter\'s field for the burial of strangers.',
@@ -303,7 +306,7 @@ const poster2Content: ContentItem[] = [
   {
     type: 'full-image',
     src: '/exhibitions/in-their-hands/poster2-image2.jpg',
-    alt: 'The Passion narrative',
+    alt: 'Painting of a crowded square beneath tall palm trees, a tiled building at left and a fort on the horizon, fading into darkness',
     effect: 'kenburns-in',
     special: 'thirty-pieces'
   },
@@ -325,7 +328,7 @@ const poster2Content: ContentItem[] = [
     type: 'text-image-stacked',
     text: 'Inside were twelve ossuaries — bone boxes used to collect the remains of the dead. One was ornately carved, inscribed: Yehosef bar Qayafa. Joseph, son of Caiaphas.',
     src: '/exhibitions/in-their-hands/poster2-caiaphas-ossuary.png',
-    alt: 'The Caiaphas Ossuary',
+    alt: 'The Caiaphas Ossuary: a limestone bone box carved with rosettes, its end scratched with an Aramaic inscription',
     special: 'accident'
   },
   {
@@ -409,58 +412,26 @@ const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void
 // MAIN COMPONENT
 // ============================================
 export default function InTheirHands() {
-  const router = useRouter();
-  const [activeView, setActiveView] = useState<'main' | 'poster1' | 'poster2'>('main');
-  const [posterStep, setPosterStep] = useState(0);
-  const [fadeIn, setFadeIn] = useState(true);
-  const [animationKey, setAnimationKey] = useState(0);
+  const {
+    activeView,
+    posterStep,
+    fadeIn,
+    animationKey,
+    contentRef,
+    openPoster,
+    nextStep,
+    prevStep,
+    returnToMain,
+    stageProps,
+    hintVisible,
+    dismissHint,
+    announcement,
+  } = usePosterWalkthrough({ poster1: poster1Content.length, poster2: poster2Content.length });
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
-  const handleBack = () => {
+  const rememberFloorPosition = () => {
     sessionStorage.setItem('firstFloorIndex', '2');
-    router.push('/exhibitions/first-floor');
-  };
-
-  const openPoster = (poster: 'poster1' | 'poster2') => {
-    setFadeIn(false);
-    setTimeout(() => {
-      setActiveView(poster);
-      setPosterStep(0);
-      setAnimationKey(prev => prev + 1);
-      setFadeIn(true);
-    }, 300);
-  };
-
-  const nextStep = () => {
-    if (posterStep < currentPosterContent.length - 1) {
-      setFadeIn(false);
-      setTimeout(() => {
-        setPosterStep(posterStep + 1);
-        setAnimationKey(prev => prev + 1);
-        setFadeIn(true);
-      }, 400);
-    }
-  };
-
-  const prevStep = () => {
-    if (posterStep > 0) {
-      setFadeIn(false);
-      setTimeout(() => {
-        setPosterStep(posterStep - 1);
-        setAnimationKey(prev => prev + 1);
-        setFadeIn(true);
-      }, 400);
-    }
-  };
-
-  const returnToMain = () => {
-    setFadeIn(false);
-    setTimeout(() => {
-      setActiveView('main');
-      setPosterStep(0);
-      setFadeIn(true);
-    }, 300);
   };
 
   const currentItem = currentPosterContent[posterStep];
@@ -580,9 +551,9 @@ export default function InTheirHands() {
         }
         .ith-nav-left { left: 32px; }
         .ith-nav-right { right: 32px; }
-        .ith-nav:hover .ith-nav-label { opacity: 1; max-width: 150px; }
-        .ith-nav:hover .ith-nav-arrow-left { transform: translateX(-4px); }
-        .ith-nav:hover .ith-nav-arrow-right { transform: translateX(4px); }
+        .ith-nav:hover .ith-nav-label, .ith-nav:focus-visible .ith-nav-label { opacity: 1; max-width: 150px; }
+        .ith-nav:hover .ith-nav-arrow-left, .ith-nav:focus-visible .ith-nav-arrow-left { transform: translateX(-4px); }
+        .ith-nav:hover .ith-nav-arrow-right, .ith-nav:focus-visible .ith-nav-arrow-right { transform: translateX(4px); }
         .ith-nav-text { font-size: 28px; font-weight: 300; transition: color 0.3s ease; }
         .ith-nav-arrow { font-size: 16px; transition: all 0.3s ease; }
         .ith-nav-label {
@@ -1117,8 +1088,8 @@ export default function InTheirHands() {
           position: relative;
           flex-shrink: 0;
         }
-        .ith-poster-frame:hover { transform: translateY(-8px); }
-        .ith-poster-frame:hover .ith-poster-hint { opacity: 1; }
+        .ith-poster-frame:hover, .ith-poster-frame:focus-visible { transform: translateY(-8px); }
+        .ith-poster-frame:hover .ith-poster-hint, .ith-poster-frame:focus-visible .ith-poster-hint { opacity: 1; }
         .ith-poster-frame img {
           height: 30vh;
           width: auto;
@@ -1151,7 +1122,7 @@ export default function InTheirHands() {
           overflow: visible;
           width: 100%;
         }
-        .ith-display-case:hover {
+        .ith-display-case:hover, .ith-display-case:focus-visible {
           border-color: rgba(201,168,76,0.3);
         }
         .ith-display-case:hover .ith-case-image {
@@ -1169,7 +1140,7 @@ export default function InTheirHands() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #737373;
+          color: #8a8a8a;
           margin-bottom: 8px;
         }
         .ith-case-title {
@@ -1533,7 +1504,9 @@ export default function InTheirHands() {
            RESPONSIVE
            ============================================ */
         @media (max-width: 900px) {
-          .ith-exhibition-grid { grid-template-columns: 1fr; gap: 32px; }
+          .ith-exhibition-grid { flex-direction: column; gap: 32px; }
+          .ith-display-case { max-width: 360px; }
+          .ith-poster-frame img, .ith-case-image { height: auto; max-height: 40vh; max-width: 100%; }
           .ith-entry-cards { grid-template-columns: 1fr; gap: 20px; }
           .ith-pos-top-left, .ith-pos-top-right { padding: 15vh 24px 15vh 24px; }
           .ith-pos-bottom-left, .ith-pos-bottom-right, .ith-pos-bottom-center {
@@ -1570,22 +1543,23 @@ export default function InTheirHands() {
       {/* ============================================
           NAVIGATION
           ============================================ */}
-      <div
+      <ExhibitionNav
         className="ith-nav ith-nav-left"
-        onClick={activeView === 'main' ? handleBack : returnToMain}
+        href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
+        onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
       >
-        <span className="ith-nav-text" style={{ color: '#525252' }}>M</span>
-        <span className="ith-nav-arrow ith-nav-arrow-left" style={{ color: '#7D8471' }}>&#8592;</span>
+        <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+        <span className="ith-nav-arrow ith-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
         <span className="ith-nav-label" style={{ color: '#7D8471' }}>
           {activeView === 'main' ? 'First Floor' : 'Exhibition'}
         </span>
-      </div>
+      </ExhibitionNav>
 
-      <div className="ith-nav ith-nav-right" onClick={() => router.push('/exhibitions/in-their-hands/resources')}>
+      <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
         <span className="ith-nav-label" style={{ color: '#7D8471' }}>Resources</span>
-        <span className="ith-nav-arrow ith-nav-arrow-right" style={{ color: '#7D8471' }}>&#8594;</span>
-        <span className="ith-nav-text" style={{ color: '#525252' }}>M</span>
-      </div>
+        <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>&#8594;</span>
+        <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+      </ExhibitionNav>
 
       {/* ============================================
           MAIN EXHIBITION VIEW
@@ -1598,51 +1572,56 @@ export default function InTheirHands() {
           </div>
 
           <div className="ith-exhibition-grid">
-            <div className="ith-poster-frame" onClick={() => openPoster('poster1')}>
+            <button type="button" className="btn-reset ith-poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/exhibitions/in-their-hands/poster1-hero.jpg" alt="Faith and Reason" />
+              <img src="/exhibitions/in-their-hands/poster1-hero.jpg" alt="Faith and Reason poster: the title in script above panels of text, over a watercolor of the walls of Jerusalem" />
               <span className="ith-poster-hint">Click to explore</span>
-            </div>
+            </button>
 
-            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-6')}>
+            <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Coins from the World of Jesus" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Lit display case with three coins in round holders before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 6</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the World of Jesus</p>
-            </div>
+            </Link>
 
-            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-7')}>
+            <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Coins from Jesus' Ministry and Passion" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Lit display case with six coins in round holders before two printed information cards" />
               <p className="ith-case-label">Gallery II, Case 7</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
-            </div>
+            </Link>
 
-            <div className="ith-display-case" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-8')}>
+            <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Coins from the Early Church" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 8</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the Early Church</p>
-            </div>
+            </Link>
 
-            <div className="ith-poster-frame" onClick={() => openPoster('poster2')}>
+            <button type="button" className="btn-reset ith-poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/exhibitions/in-their-hands/poster2-hero.jpg" alt="The Weight of Thirty Pieces" />
+              <img src="/exhibitions/in-their-hands/poster2-hero.jpg" alt="The Weight of Thirty Pieces poster: the title in script above a timeline and columns of text, with paintings of the Passion" />
               <span className="ith-poster-hint">Click to explore</span>
-            </div>
+            </button>
           </div>
 
         </div>
       )}
 
+      <p className="visually-hidden" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </p>
+      <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
+
       {/* ============================================
           POSTER WALKTHROUGH VIEW
           ============================================ */}
       {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div className={`ith-poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey}>
+        <div className={`ith-poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey} {...stageProps}>
 
           {/* Poster 1 persistent background — Tissot Jerusalem watercolour */}
           {isPoster1 && (currentItem.type !== 'full-image' || currentItem.special === 'frost') && (
@@ -1652,7 +1631,7 @@ export default function InTheirHands() {
             </>
           )}
 
-          <div className="ith-walkthrough-content">
+          <div className="ith-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
 
             {/* Title Image — Full Bleed or Centered PNG */}
             {currentItem.type === 'title-image' && currentItem.special === 'poster1-title' && (
@@ -1864,17 +1843,19 @@ export default function InTheirHands() {
                 className="ith-nav-arrow-btn"
                 onClick={prevStep}
                 disabled={posterStep === 0}
+                aria-label="Previous panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 &#8592;
               </button>
-              <span className="ith-step-indicator" style={{ color: textColor }}>
+              <span className="ith-step-indicator" style={{ color: textColor }} aria-hidden="true">
                 {posterStep + 1} / {currentPosterContent.length}
               </span>
               <button
                 className="ith-nav-arrow-btn"
                 onClick={nextStep}
                 disabled={posterStep === currentPosterContent.length - 1}
+                aria-label="Next panel"
                 style={{ color: textColor, borderColor: textColor }}
               >
                 &#8594;

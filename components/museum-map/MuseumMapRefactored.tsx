@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import { useMapState } from './hooks/useMapState';
 import { useMapLevel } from './hooks/useMapLevel';
 import { useMapZoom } from './hooks/useMapZoom';
@@ -55,7 +56,12 @@ export default function MuseumMap() {
     resetZoom();
   }, [level, config.title, resetZoom]);
 
-  if (isHomePage) {
+  // A lesson on the classroom screen, or its presenter view, is a full-screen
+  // tool: no floating map button over the projector.
+  const pathname = usePathname();
+  const isLessonScreen = /\/lessons\/[^/]+/.test(pathname ?? '');
+
+  if (isHomePage || isLessonScreen) {
     return null;
   }
 

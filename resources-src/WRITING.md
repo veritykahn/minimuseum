@@ -87,3 +87,49 @@ Teacher plans and handouts go in `teachers/<grade-folder>/` (and
 `ITH_LP_<Key>.pdf`, `ITH_Handout_Green_<Key>.pdf`, `…_Yellow_…`, `…_Red_…`.
 Keys: `PreK_K`, `Grades1_2`, `Grades3_4`, `Religion`, `SocialStudies`,
 `Math`, `Art`.
+
+## Lesson mode (teaching on screen)
+
+A lesson plan can also run on the site, on the classroom projector, with a
+presenter view for the teacher. The same Python is the source: give the
+plan's `LESSON` a `"slug"`, and each timed section (`"Hook · 5 minutes"`…)
+a `"screen"` naming what students see while the teacher reads that
+section's paragraphs. `build.py` ignores `screen`, so the PDF is unchanged.
+
+    "screen": {"phase": "Hook", "show": "question", "question": HOOK_Q}
+
+`phase` must be a name in the plan's `timing` bar. `show` is one of
+`question`, `coins` (`coins`: `img`, `name`, `alt`, optional `sub` and
+`replica`), `painting` (`img`, `verse`), `coin` (`coin`, `back`, `alt`,
+`backAlt`), `verse` (`verse`, `question`, `echo`), `levels`, `review`
+(`lead`, `deeper`: indexes to mark), `prayer` (`prayer`).
+
+Every screen should also say what the step is for and what students do:
+
+    "purpose": "Make the turn from the coin to the person.",
+    "students": ["What carries God’s image?", "Finish the sentence: …"]
+
+`purpose` is the teacher's: the presenter view and the notes show it as
+*Why this step*. `students` goes on the classroom screen, large, as *Your
+task*; a `coins` or `review` screen sets the list as its main text.
+
+Learning objectives go in the plan's blocks, near the top:
+
+    ("objectives", {"heading": "By the end of this lesson you will be able to:",
+                    "items": [(objective, the same as a question, go_deeper)],
+                    "why": "Why this matters…"})
+
+The PDF prints them under *By the end of this lesson*; the lesson's cover
+screen sets them on a card, the go-deeper one in the Red level's color; a
+`review` screen near the end asks them back (`students` = the questions).
+The block's look comes from the document's own `css`, so plans without it,
+and the handouts, print unchanged. A list of screens splits a section into several steps; each
+then takes `minutes` (they must add up to the section's) and `script`, the
+indexes of the paragraphs it uses. Write anything shown on screen and said
+in the plan once, as a constant, as `HOOK_Q` and `PRAYER` are.
+
+    python3 resources-src/export_lessons.py in-their-hands
+
+writes `lib/lessons/<exhibition>/<slug>.json`; import it in
+`lib/lessons/index.ts`. To offer it on the Resources page, add the
+`'<grade>/<subject>'` key to `ON_SCREEN_LESSONS` in its `resource-data.ts`.

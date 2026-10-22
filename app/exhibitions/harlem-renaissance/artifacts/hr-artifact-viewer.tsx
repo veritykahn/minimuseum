@@ -6,6 +6,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
+import { srOnly, useDialogFocus } from '@/lib/a11y';
+import { useOrbitA11y, OrbitButtons, ORBIT_KEY_HELP } from '@/lib/orbit-a11y';
 
 // The scans are Draco-compressed, which cuts each from 5-15MB to 1-2MB. One
 // decoder serves every model; its files are in public/draco/gltf and are only
@@ -307,19 +309,15 @@ export default function HrArtifactViewer({ artifactId }: Props) {
     );
   }, [artifact]);
 
-  // Stop auto-rotate on user interaction
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container || !sceneRef.current) return;
+  // Keyboard and button alternatives to dragging; auto-rotate stops on
+  // drag, and starts off for visitors who prefer reduced motion.
+  const orbit = useOrbitA11y(sceneRef, containerRef);
 
-    const stop = () => { if (sceneRef.current) sceneRef.current.controls.autoRotate = false; };
-    container.addEventListener('mousedown', stop);
-    container.addEventListener('touchstart', stop);
-    return () => {
-      container.removeEventListener('mousedown', stop);
-      container.removeEventListener('touchstart', stop);
-    };
-  }, []);
+  // The museum label is a modal dialog while open.
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const closeInfo = useCallback(() => setShowInfo(false), []);
+  useDialogFocus(panelRef, showInfo, { onEscape: closeInfo, initialFocus: closeRef });
 
   // Cleanup audio on unmount
   useEffect(() => {
@@ -400,6 +398,8 @@ export default function HrArtifactViewer({ artifactId }: Props) {
 
         /* 3D container */
         .hra-model { flex: 1; width: 100%; position: relative; min-height: 50vh; }
+        .hra-model:focus-visible { outline-offset: -4px; }
+        .hr-av { --orbit-accent: var(--hra-gold); }
         .hra-model canvas { cursor: grab; }
         .hra-model canvas:active { cursor: grabbing; }
 
@@ -641,16 +641,28 @@ export default function HrArtifactViewer({ artifactId }: Props) {
           <span className="hra-back-label">Collection</span>
         </button>
         <button
+          type="button"
           className={`hra-info-btn ${showInfo ? 'active' : ''}`}
           onClick={() => setShowInfo(!showInfo)}
+          aria-label="About this artifact"
+          aria-expanded={showInfo}
+          aria-controls="hra-info-panel"
         >
-          i
+          <span aria-hidden="true">i</span>
         </button>
       </header>
 
       {/* Content */}
-      <main className="hra-content">
-        <div className="hra-model" ref={containerRef}>
+      <div className="hra-content">
+        <div
+          className="hra-model"
+          ref={containerRef}
+          tabIndex={0}
+          role="img"
+          aria-label={`${artifact.title}, ${artifact.date}: ${artifact.subtitle}. Interactive 3D model.`}
+          aria-describedby="hra-orbit-help"
+          onKeyDown={orbit.onKeyDown}
+        >
           {isLoading && (
             <div className="hra-loading">
               <div className="hra-spinner" />
@@ -664,6 +676,9 @@ export default function HrArtifactViewer({ artifactId }: Props) {
             </div>
           )}
         </div>
+
+        <span id="hra-orbit-help" style={srOnly}>{ORBIT_KEY_HELP}</span>
+        {!loadError && <OrbitButtons orbit={orbit} label={artifact.title} />}
 
         {/* Bottom bar */}
         <div className="hra-bottom">
@@ -688,17 +703,25 @@ export default function HrArtifactViewer({ artifactId }: Props) {
             </div>
           </div>
         </div>
-      </main>
+      </div>
 
       {/* Info backdrop */}
-      <div className={`hra-backdrop ${showInfo ? 'open' : ''}`} onClick={() => setShowInfo(false)} />
+      <div className={`hra-backdrop ${showInfo ? 'open' : ''}`} onClick={() => setShowInfo(false)} aria-hidden="true" />
 
       {/* Info panel */}
-      <aside className={`hra-panel ${showInfo ? 'open' : ''}`}>
-        <button className="hra-panel-close" onClick={() => setShowInfo(false)}>{'\u00D7'}</button>
+      <div
+        id="hra-info-panel"
+        ref={panelRef}
+        className={`hra-panel ${showInfo ? 'open' : ''}`}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="hra-info-title"
+        inert={!showInfo}
+      >
+        <button type="button" ref={closeRef} className="hra-panel-close" onClick={() => setShowInfo(false)} aria-label="Close"><span aria-hidden="true">{'\u00D7'}</span></button>
         <div className="hra-panel-inner">
           <p className="hra-panel-label">Museum Label</p>
-          <h2 className="hra-panel-title">{artifact.title}</h2>
+          <h2 className="hra-panel-title" id="hra-info-title">{artifact.title}</h2>
           <p className="hra-panel-date">{artifact.date}</p>
           <p className="hra-panel-subtitle">{artifact.subtitle}</p>
           {artifact.portrait && (
@@ -720,16 +743,16 @@ export default function HrArtifactViewer({ artifactId }: Props) {
             <div className="hra-panel-accession-value">{artifact.collection}</div>
           </div>
         </div>
-      </aside>
+      </div>
 
       {/* Slim bottom-bar audio player */}
       {artifact.audio && selectedTrack && (
-        <div className="hra-player-bar">
-          <span className="hra-pbar-label">{'\u266B'} Play the 78</span>
+        <div className="hra-player-bar" role="region" aria-label="Play the 78">
+          <span className="hra-pbar-label"><span aria-hidden="true">{'\u266B'}</span> Play the 78</span>
 
-          <div className="hra-pbar-sides">
-            <button className={`hra-pbar-side ${selectedSide === 'A' ? 'sel' : ''}`} onClick={() => switchSide('A')}>Side A</button>
-            <button className={`hra-pbar-side ${selectedSide === 'B' ? 'sel' : ''}`} onClick={() => switchSide('B')}>Side B</button>
+          <div className="hra-pbar-sides" role="group" aria-label="Record side">
+            <button type="button" className={`hra-pbar-side ${selectedSide === 'A' ? 'sel' : ''}`} aria-pressed={selectedSide === 'A'} onClick={() => switchSide('A')}>Side A</button>
+            <button type="button" className={`hra-pbar-side ${selectedSide === 'B' ? 'sel' : ''}`} aria-pressed={selectedSide === 'B'} onClick={() => switchSide('B')}>Side B</button>
           </div>
 
           <div className="hra-pbar-track">
@@ -737,8 +760,14 @@ export default function HrArtifactViewer({ artifactId }: Props) {
             <div className="hra-pbar-track-artist">Bessie Smith {'\u2014'} Columbia Records</div>
           </div>
 
-          <button className={`hra-pbar-play ${isPlaying ? 'playing' : ''}`} onClick={togglePlay}>
-            {isPlaying ? '\u23F8' : '\u25B6'}
+          <button
+            type="button"
+            className={`hra-pbar-play ${isPlaying ? 'playing' : ''}`}
+            onClick={togglePlay}
+            aria-label={`Play \u201C${selectedTrack.title}\u201D`}
+            aria-pressed={isPlaying}
+          >
+            <span aria-hidden="true">{isPlaying ? '\u23F8' : '\u25B6'}</span>
           </button>
 
           <div className="hra-pbar-progress">

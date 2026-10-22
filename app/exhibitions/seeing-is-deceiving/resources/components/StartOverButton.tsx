@@ -20,7 +20,7 @@ export function StartOverButton({ onClick }: StartOverButtonProps) {
           font-size: 12px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: #525252;
+          color: #808080;
           background: none;
           border: none;
           cursor: pointer;

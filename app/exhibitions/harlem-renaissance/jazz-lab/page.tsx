@@ -5,6 +5,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useAudioEngine, useBandBuilder, useQuiz } from './hooks';
 import { INSTRUMENTS, INSTRUMENT_MAP, type InstrumentId, BAND_INSTRUMENTS, BAND_INSTRUMENT_MAP, SECTIONS, type BandInstrumentId } from './data';
 import JazzStudio from './JazzStudio';
+import ExhibitionNav from '@/components/ExhibitionNav';
+import { prefersReducedMotion } from '@/lib/a11y';
+
+const TABS = [
+  { id: 'band', label: 'Build a Band' },
+  { id: 'studio', label: 'Jazz Studio' },
+  { id: 'quiz', label: 'Name That Instrument' },
+] as const;
 
 export default function JazzLabPage() {
   const router = useRouter();
@@ -20,10 +28,9 @@ export default function JazzLabPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleBack = () => {
+  const stopAudio = () => {
     band.stopAll();
     audioEngine.stopAll();
-    router.push('/exhibitions/harlem-renaissance/artifacts');
   };
 
   const handleTabChange = (tab: 'band' | 'studio' | 'quiz') => {
@@ -31,6 +38,32 @@ export default function JazzLabPage() {
     audioEngine.stopAll();
     setActiveTab(tab);
   };
+
+  // Tabs follow the ARIA pattern: arrows, Home and End move between them.
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const handleTabKey = (e: React.KeyboardEvent, idx: number) => {
+    let next = -1;
+    if (e.key === 'ArrowRight') next = (idx + 1) % TABS.length;
+    else if (e.key === 'ArrowLeft') next = (idx - 1 + TABS.length) % TABS.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = TABS.length - 1;
+    if (next < 0) return;
+    e.preventDefault();
+    handleTabChange(TABS[next].id);
+    tabRefs.current[next]?.focus();
+  };
+
+  // When the quiz ends the answer buttons go away; move focus to the result.
+  const gameoverRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (quiz.gameState === 'gameover') gameoverRef.current?.focus();
+  }, [quiz.gameState]);
+
+  // Entering the lab removes the Enter button; put focus on the lab heading.
+  const labHeadingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (view === 'lab') labHeadingRef.current?.focus({ preventScroll: true });
+  }, [view]);
 
   // Spotlight instrument for info card
   const spotlightInstrument = band.spotlight ? BAND_INSTRUMENT_MAP[band.spotlight] : null;
@@ -93,8 +126,8 @@ export default function JazzLabPage() {
           transition: all 0.3s ease;
           cursor: pointer;
         }
-        .jl-nav:hover .jl-nav-label { opacity: 1; max-width: 150px; }
-        .jl-nav:hover .jl-nav-arrow { transform: translateX(-4px); }
+        .jl-nav:hover .jl-nav-label, .jl-nav:focus-visible .jl-nav-label { opacity: 1; max-width: 150px; }
+        .jl-nav:hover .jl-nav-arrow, .jl-nav:focus-visible .jl-nav-arrow { transform: translateX(-4px); }
         .jl-nav-text { font-size: 28px; font-weight: 300; color: #525252; transition: color 0.3s ease; }
         .jl-nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
         .jl-nav-label {
@@ -229,6 +262,7 @@ export default function JazzLabPage() {
           z-index: 2;
         }
         .jl-slot {
+          font: inherit; color: inherit; border: none; background: none; padding: 0;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -567,6 +601,7 @@ export default function JazzLabPage() {
           margin-right: auto;
         }
         .jl-quiz-answer {
+          color: inherit;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -906,47 +941,46 @@ export default function JazzLabPage() {
       {/* ── LAB VIEW ── */}
       {view === 'lab' && <>
       {/* Loading overlay */}
-      <div className={`jl-loading ${loaded ? 'hidden' : ''}`}>
-        <div className="jl-loading-text">Loading instruments...</div>
+      <div className={`jl-loading ${loaded ? 'hidden' : ''}`} role="status" aria-live="polite">
+        <div className="jl-loading-text">{loaded ? '' : 'Loading instruments...'}</div>
       </div>
 
       {/* Navigation */}
-      <div className="jl-nav" onClick={handleBack}>
-        <span className="jl-nav-text">M</span>
-        <span className="jl-nav-arrow">{'\u2190'}</span>
+      <ExhibitionNav className="jl-nav" href="/exhibitions/harlem-renaissance/artifacts" onClick={stopAudio}>
+        <span className="jl-nav-text" aria-hidden="true">M</span>
+        <span className="jl-nav-arrow" aria-hidden="true">{'\u2190'}</span>
         <span className="jl-nav-label">Collection</span>
-      </div>
+      </ExhibitionNav>
 
       {/* Header */}
       <div className="jl-header">
-        <h1>The Jazz Lab</h1>
+        <h1 tabIndex={-1} ref={labHeadingRef} style={{ outline: 'none' }}>The Jazz Lab</h1>
       </div>
 
       {/* Tabs */}
-      <div className="jl-tabs">
-        <button
-          className={`jl-tab ${activeTab === 'band' ? 'active' : ''}`}
-          onClick={() => handleTabChange('band')}
-        >
-          Build a Band
-        </button>
-        <button
-          className={`jl-tab ${activeTab === 'studio' ? 'active' : ''}`}
-          onClick={() => handleTabChange('studio')}
-        >
-          Jazz Studio
-        </button>
-        <button
-          className={`jl-tab ${activeTab === 'quiz' ? 'active' : ''}`}
-          onClick={() => handleTabChange('quiz')}
-        >
-          Name That Instrument
-        </button>
+      <div className="jl-tabs" role="tablist" aria-label="Jazz Lab activities">
+        {TABS.map((t, i) => (
+          <button
+            key={t.id}
+            ref={(el) => { tabRefs.current[i] = el; }}
+            type="button"
+            role="tab"
+            id={`jl-tab-${t.id}`}
+            aria-selected={activeTab === t.id}
+            aria-controls={`jl-panel-${t.id}`}
+            tabIndex={activeTab === t.id ? 0 : -1}
+            className={`jl-tab ${activeTab === t.id ? 'active' : ''}`}
+            onClick={() => handleTabChange(t.id)}
+            onKeyDown={(e) => handleTabKey(e, i)}
+          >
+            {t.label}
+          </button>
+        ))}
       </div>
 
       {/* ── BUILD A BAND ── */}
       {activeTab === 'band' && (
-        <div>
+        <div role="tabpanel" id="jl-panel-band" aria-labelledby="jl-tab-band">
           <div className="jl-instructions">
             Tap to <em>add an instrument</em>. Tap a playing instrument to <em>give it the spotlight</em>.<br />
             Tap the soloist again to <em>take it off stage</em>.
@@ -955,14 +989,16 @@ export default function JazzLabPage() {
           {/* Section Selector */}
           <div className="jl-section-container">
             <div className="jl-section-label">{'\u{25C6}'} Song Section {'\u{25C6}'}</div>
-            <div className="jl-section-selector">
+            <div className="jl-section-selector" role="group" aria-label="Song section">
               {SECTIONS.map(s => (
                 <button
                   key={s.number}
+                  type="button"
                   className={`jl-section-btn ${band.section === s.number ? 'active' : ''}`}
+                  aria-pressed={band.section === s.number}
                   onClick={() => band.changeSection(s.number)}
                 >
-                  <span className="jl-section-num">{s.number}</span>
+                  <span className="jl-section-num" aria-hidden="true">{s.number}</span>
                   <span className="jl-section-name">{s.name}</span>
                 </button>
               ))}
@@ -976,7 +1012,7 @@ export default function JazzLabPage() {
               style={{ '--spotlight-x': spotlightX } as React.CSSProperties}
             >
               <div className="jl-stage-label">{'\u{25C6}'} The Stage {'\u{25C6}'}</div>
-              <div className="jl-band-slots">
+              <div className="jl-band-slots" role="group" aria-label="Instruments on stage">
                 {BAND_INSTRUMENTS.map((inst) => {
                   const isAvailable = inst.sections.includes(band.section);
                   const isActive = band.active.has(inst.id);
@@ -985,16 +1021,20 @@ export default function JazzLabPage() {
                   const isDimmed = !isActive && band.active.size > 0 && band.spotlight !== null;
 
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={inst.id}
                       className={`jl-slot ${isActive ? 'active' : ''} ${isSpotlight ? 'spotlight' : ''} ${isBacking ? 'backing' : ''} ${isDimmed ? 'dimmed' : ''} ${!isAvailable ? 'unavailable' : ''}`}
+                      aria-pressed={isActive}
+                      aria-disabled={!isAvailable || undefined}
+                      aria-label={`${inst.name}${isSpotlight ? ', soloing' : ''}${!isAvailable ? ', not in this section' : ''}`}
                       onClick={() => isAvailable && band.tapInstrument(inst.id)}
                     >
-                      <div className="jl-slot-icon">
+                      <span className="jl-slot-icon" aria-hidden="true">
                         {inst.emoji}
-                      </div>
-                      <div className="jl-slot-name">{inst.name}</div>
-                    </div>
+                      </span>
+                      <span className="jl-slot-name">{inst.name}</span>
+                    </button>
                   );
                 })}
               </div>
@@ -1003,7 +1043,7 @@ export default function JazzLabPage() {
 
           <div className="jl-now-playing">
             <EqBars isPlaying={band.active.size > 0} />
-            <div>
+            <div role="status" aria-live="polite">
               {band.active.size === 0
                 ? 'Tap an instrument to begin'
                 : band.spotlight
@@ -1035,11 +1075,13 @@ export default function JazzLabPage() {
       )}
 
       {/* ── JAZZ STUDIO ── */}
-      {activeTab === 'studio' && <JazzStudio />}
+      {activeTab === 'studio' && (
+        <div role="tabpanel" id="jl-panel-studio" aria-labelledby="jl-tab-studio"><JazzStudio /></div>
+      )}
 
       {/* ── NAME THAT INSTRUMENT ── */}
       {activeTab === 'quiz' && (
-        <div>
+        <div role="tabpanel" id="jl-panel-quiz" aria-labelledby="jl-tab-quiz">
           <div className="jl-instructions">
             Listen to the sound and <em>tap the instrument</em> you think it is.
           </div>
@@ -1049,6 +1091,8 @@ export default function JazzLabPage() {
               <>
                 <div className="jl-quiz-stage">
                   <button
+                    type="button"
+                    aria-label={quiz.gameState === 'idle' ? 'Start the quiz' : 'Play the sound again'}
                     className={`jl-quiz-play-btn ${quiz.isQuizPlaying ? 'playing' : ''}`}
                     onClick={() => {
                       if (quiz.gameState === 'idle') {
@@ -1058,9 +1102,9 @@ export default function JazzLabPage() {
                       }
                     }}
                   >
-                    {quiz.isQuizPlaying ? '\u{266A}' : '\u{25B6}'}
+                    <span aria-hidden="true">{quiz.isQuizPlaying ? '\u{266A}' : '\u{25B6}'}</span>
                   </button>
-                  <div className="jl-quiz-prompt">
+                  <div className="jl-quiz-prompt" role="status" aria-live="polite">
                     {quiz.gameState === 'idle'
                       ? 'Tap play to start the quiz'
                       : quiz.gameState === 'answered'
@@ -1079,7 +1123,7 @@ export default function JazzLabPage() {
                 </div>
 
                 {quiz.gameState !== 'idle' && (
-                  <div className="jl-quiz-answers">
+                  <div className="jl-quiz-answers" role="group" aria-label="Which instrument is it?">
                     {INSTRUMENTS.map((inst) => {
                       const isAnswered = quiz.gameState === 'answered';
                       const isChosen = quiz.lastAnswer?.chosen === inst.id;
@@ -1093,18 +1137,20 @@ export default function JazzLabPage() {
                       }
 
                       return (
-                        <div
+                        <button
+                          type="button"
                           key={inst.id}
                           className={className}
+                          aria-disabled={isAnswered || undefined}
                           onClick={() => {
                             if (quiz.gameState === 'playing') {
                               quiz.submitAnswer(inst.id);
                             }
                           }}
                         >
-                          <span className="jl-answer-emoji">{inst.emoji}</span>
+                          <span className="jl-answer-emoji" aria-hidden="true">{inst.emoji}</span>
                           <span className="jl-answer-name">{inst.name}</span>
-                        </div>
+                        </button>
                       );
                     })}
                   </div>
@@ -1122,7 +1168,7 @@ export default function JazzLabPage() {
                 </div>
               </>
             ) : (
-              <div className="jl-gameover">
+              <div className="jl-gameover" ref={gameoverRef} tabIndex={-1} role="status" style={{ outline: 'none' }}>
                 <div className="jl-gameover-title">{quiz.getRating()?.label}</div>
                 <div className="jl-gameover-score">
                   You got <span>{quiz.score}</span> out of <span>{quiz.totalRounds}</span> correct.<br />
@@ -1154,6 +1200,13 @@ function EqBars({ isPlaying }: { isPlaying: boolean }) {
   useEffect(() => {
     if (!isPlaying || !barsRef.current) return;
     const bars = barsRef.current.children;
+    // Decorative motion: hold the bars still for visitors who ask for reduced motion.
+    if (prefersReducedMotion()) {
+      for (let i = 0; i < bars.length; i++) {
+        (bars[i] as HTMLDivElement).style.height = `${8 + ((i * 7) % 10)}px`;
+      }
+      return;
+    }
     let animId: number;
 
     const animate = () => {
@@ -1162,7 +1215,6 @@ function EqBars({ isPlaying }: { isPlaying: boolean }) {
         const h = 4 + Math.random() * 18;
         bar.style.height = `${h}px`;
       }
-      animId = requestAnimationFrame(animate);
     };
 
     // Throttle to ~15fps for performance
@@ -1177,7 +1229,7 @@ function EqBars({ isPlaying }: { isPlaying: boolean }) {
   }, [isPlaying]);
 
   return (
-    <div ref={barsRef} className={`jl-eq-bars ${isPlaying ? 'playing' : ''}`}>
+    <div ref={barsRef} className={`jl-eq-bars ${isPlaying ? 'playing' : ''}`} aria-hidden="true">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="jl-eq-bar" style={{ height: '4px' }} />
       ))}

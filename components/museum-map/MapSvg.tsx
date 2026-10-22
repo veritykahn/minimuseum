@@ -1,6 +1,31 @@
 'use client';
 
 import { MapRoom, MapLevelConfig, TransitionState, FloorPlanRoom, MapAncestor } from './types';
+import { activateOnKey } from '@/lib/a11y';
+
+/**
+ * Keyboard and screen-reader props for a room on the map. A room with
+ * children opens its floor in the map (a button); a leaf room goes to its
+ * page (a link). Rooms not yet open are announced but not focusable.
+ */
+function roomA11y(room: MapRoom | FloorPlanRoom, isCurrent: boolean, onActivate: () => void) {
+  const hasChildren = !!room.children && room.children.length > 0;
+  const name = room.label.replace(/\n/g, ' ');
+  const parts = [name];
+  if (isCurrent) parts.push('you are here');
+  if (room.comingSoon) parts.push('coming soon');
+  else if (hasChildren) parts.push('show on map');
+  return {
+    role: hasChildren ? 'button' : 'link',
+    tabIndex: room.comingSoon ? -1 : 0,
+    'aria-label': parts.join(', '),
+    'aria-disabled': room.comingSoon ? true : undefined,
+    'aria-current': isCurrent && !hasChildren ? ('page' as const) : undefined,
+    onKeyDown: room.comingSoon ? undefined : (hasChildren ? activateOnKey(onActivate) : (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') { e.preventDefault(); onActivate(); }
+    }),
+  };
+}
 
 type MapSvgProps = {
   config: MapLevelConfig;
@@ -59,9 +84,12 @@ export function MapSvg({
       <g
         key={room.id}
         className="map-room"
+        {...roomA11y(room, isCurrent, () => onRoomClick(room))}
         onClick={() => onRoomClick(room)}
         onMouseEnter={() => setHoveredRoom(room.id)}
         onMouseLeave={() => setHoveredRoom(null)}
+        onFocus={() => setHoveredRoom(room.id)}
+        onBlur={() => setHoveredRoom(null)}
         style={{ cursor: isClickable ? 'pointer' : 'not-allowed' }}
       >
         <rect
@@ -157,9 +185,13 @@ export function MapSvg({
 
           return (
             <g key={room.id}
+              className="map-room map-fp-room"
+              {...roomA11y(room, isCurrent, () => onRoomClick(room))}
               onClick={() => onRoomClick(room)}
               onMouseEnter={() => setHoveredRoom(room.id)}
               onMouseLeave={() => setHoveredRoom(null)}
+              onFocus={() => setHoveredRoom(room.id)}
+              onBlur={() => setHoveredRoom(null)}
               style={{ cursor: isClickable ? 'pointer' : 'not-allowed' }}
             >
               {/* Invisible hit area */}
@@ -228,6 +260,13 @@ export function MapSvg({
 
           return (
             <g key={ancestor.viewPath}
+              className="map-room"
+              role="button"
+              tabIndex={0}
+              aria-label={`${ancestor.label}, show on map`}
+              onKeyDown={activateOnKey(() => onAncestorClick(ancestor))}
+              onFocus={() => setHoveredRoom(`ancestor-${i}`)}
+              onBlur={() => setHoveredRoom(null)}
               onClick={() => onAncestorClick(ancestor)}
               onMouseEnter={() => setHoveredRoom(`ancestor-${i}`)}
               onMouseLeave={() => setHoveredRoom(null)}
@@ -359,6 +398,12 @@ export function MapSvg({
         }
         :global(.map-room) {
           transition: all 0.3s ease;
+          outline: none;
+        }
+        :global(.map-room:focus-visible > rect) {
+          stroke: #a8d5e5;
+          stroke-width: 2.5;
+          opacity: 1;
         }
         :global(.pulse-dot) {
           animation: pulse 2s ease-in-out infinite;
@@ -369,6 +414,7 @@ export function MapSvg({
         }
         @media (prefers-reduced-motion: reduce) {
           .map-level-wrapper { transition: none; }
+          :global(.pulse-dot) { animation: none; }
           .map-level-entering { animation: none; opacity: 1; transform: scale(1); }
         }
       `}</style>
