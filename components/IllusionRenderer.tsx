@@ -22,6 +22,12 @@ type IllusionProps = {
   /** The choice id already given for this illusion, or null. */
   answer: string | null;
   onAnswer: (choiceId: string) => void;
+  /**
+   * Teacher projector mode: draw only the picture and its "test it" controls,
+   * as large as the frame allows. The projector shows the question, the
+   * choices and the verdict itself.
+   */
+  projector?: boolean;
 };
 
 /** Whether a choice saw through the illusion; null for unscored items. */
@@ -40,7 +46,7 @@ const CONTRAST_DARK = '#3d2560';
 
 const subscribeNoop = () => () => {};
 
-export default function IllusionRenderer({ item, answer, onAnswer }: IllusionProps) {
+export default function IllusionRenderer({ item, answer, onAnswer, projector = false }: IllusionProps) {
   const { illusionType = '', src, revealSrc, altRevealSrc, question, scienceExplanation } = item;
 
   const [showScience, setShowScience] = useState(false);
@@ -76,8 +82,20 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
   // For two-view figures the chosen reading is shown first.
   const shownView = view ?? (answered ? answer : null);
 
+  // In projector mode the pictures are capped by the frame, not by pixels.
+  const cap = (px: string) => (projector ? '100%' : px);
+
   // ── Styles ──
-  const containerStyle: CSSProperties = {
+  const containerStyle: CSSProperties = projector ? {
+    width: '100%',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 'calc(var(--u) * 0.8)',
+    minHeight: 0,
+  } : {
     minHeight: '100vh',
     width: '100%',
     display: 'flex',
@@ -115,7 +133,14 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
     margin: 0,
     padding: '0 16px',
   };
-  const imageContainerStyle: CSSProperties = {
+  const imageContainerStyle: CSSProperties = projector ? {
+    flex: '1 1 auto',
+    minHeight: 0,
+    width: '100%',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  } : {
     flex: '0 0 auto',
     display: 'flex',
     alignItems: 'center',
@@ -134,7 +159,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
     borderRadius: '4px',
     boxShadow: '0 10px 40px rgba(0,0,0,0.3)',
   };
-  const svgWrapperStyle: CSSProperties = { ...imageWrapperStyle, background: '#1a1a1a', padding: 'clamp(16px, 4vw, 40px)' };
+  const svgWrapperStyle: CSSProperties = { ...imageWrapperStyle, background: '#1a1a1a', padding: projector ? 'calc(var(--u) * 1.5)' : 'clamp(16px, 4vw, 40px)' };
   const imageStyle: CSSProperties = {
     maxWidth: '100%',
     maxHeight: '100%',
@@ -144,7 +169,19 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
     objectFit: 'contain',
     borderRadius: '4px',
   };
-  const buttonStyle: CSSProperties = {
+  const buttonStyle: CSSProperties = projector ? {
+    fontFamily: 'Outfit, sans-serif',
+    fontSize: 'max(14px, calc(var(--u) * 1.05))',
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
+    padding: '0 calc(var(--u) * 1.4)',
+    minHeight: 'max(44px, calc(var(--u) * 3))',
+    borderRadius: '100px',
+    background: 'transparent',
+    border: `1px solid ${TEXT}`,
+    color: TEXT,
+    cursor: 'pointer',
+  } : {
     fontFamily: 'Outfit, sans-serif',
     fontSize: 'clamp(11px, 2.5vw, 12px)',
     letterSpacing: '0.1em',
@@ -208,7 +245,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
           revealed ? 'The same grid without the small squares: every line is straight' : 'A checkerboard grid with small squares that seems to bulge in the middle',
         );
       case 'rotating-snakes':
-        return img(pick(src, '/exhibitions/seeing/rotating-snakes.jpg'), 'Rotating Snakes: rings of black, blue, white and yellow shapes', { maxWidth: '600px' });
+        return img(pick(src, '/exhibitions/seeing/rotating-snakes.jpg'), 'Rotating Snakes: rings of black, blue, white and yellow shapes', { maxWidth: cap('600px') });
       case 'ponzo-corridor':
         return img(
           revealed ? '/exhibitions/seeing/ponzo-corridor-reveal.png' : pick(src, '/exhibitions/seeing/ponzo-corridor.jpg'),
@@ -254,7 +291,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
         const hideBg = answered && test;
         return (
           <div style={svgWrapperStyle}>
-            <svg viewBox="0 0 400 220" style={{ width: '100%', height: '100%', maxWidth: '400px' }} role="img" aria-label="Two equal gray squares, A on a light orange field and B on a dark purple field">
+            <svg viewBox="0 0 400 220" style={{ width: '100%', height: '100%', maxWidth: cap('400px') }} role="img" aria-label="Two equal gray squares, A on a light orange field and B on a dark purple field">
               <rect x="20" y="10" width="160" height="160" fill={hideBg ? '#1a1a1a' : CONTRAST_LIGHT} style={{ transition: 'fill 0.6s ease' }} />
               <rect x="60" y="50" width="80" height="80" fill={CONTRAST_GRAY} />
               <rect x="220" y="10" width="160" height="160" fill={hideBg ? '#1a1a1a' : CONTRAST_DARK} style={{ transition: 'fill 0.6s ease' }} />
@@ -278,7 +315,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
         const mortar = 3;
         return (
           <div style={{ ...svgWrapperStyle, padding: '20px' }}>
-            <svg viewBox={`0 0 ${cols * tile} ${rows * (tile + mortar)}`} style={{ width: '100%', height: '100%', maxWidth: '350px' }} role="img" aria-label={revealed ? 'The café wall with its tiles lined up: the gray lines are level' : 'Rows of black and white tiles, offset row by row, between gray lines'}>
+            <svg viewBox={`0 0 ${cols * tile} ${rows * (tile + mortar)}`} style={{ width: '100%', height: '100%', maxWidth: cap('350px') }} role="img" aria-label={revealed ? 'The café wall with its tiles lined up: the gray lines are level' : 'Rows of black and white tiles, offset row by row, between gray lines'}>
               {Array.from({ length: rows + 1 }).map((_, i) => (
                 <rect key={`m-${i}`} x="0" y={i * (tile + mortar)} width={cols * tile} height={mortar} fill={revealed ? '#ff6b6b' : '#808080'} style={{ transition: 'fill 0.3s ease' }} />
               ))}
@@ -308,7 +345,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
         const arrows = !(answered && test);
         return (
           <div style={svgWrapperStyle}>
-            <svg viewBox="0 0 400 200" style={{ width: '100%', height: '100%', maxWidth: '400px' }} role="img" aria-label={arrows ? 'Line 1 with arrowheads pointing in, line 2 with fins pointing out' : 'The two lines without arrowheads: the same length'}>
+            <svg viewBox="0 0 400 200" style={{ width: '100%', height: '100%', maxWidth: cap('400px') }} role="img" aria-label={arrows ? 'Line 1 with arrowheads pointing in, line 2 with fins pointing out' : 'The two lines without arrowheads: the same length'}>
               <g transform="translate(100, 60)">
                 <text x="-30" y="5" fill={TEXT} fontSize="16" fontFamily="Outfit, sans-serif" fontWeight="500">1</text>
                 <line x1="0" y1="0" x2="200" y2="0" stroke={TEXT} strokeWidth="3" />
@@ -340,7 +377,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
         const topY = 60 + (slide / 100) * 112;
         return (
           <div style={svgWrapperStyle}>
-            <svg viewBox="0 0 300 300" style={{ width: '100%', height: '100%', maxWidth: '300px' }} role="img" aria-label="Two equal yellow bars between converging railroad tracks, one near the top and one near the bottom">
+            <svg viewBox="0 0 300 300" style={{ width: '100%', height: '100%', maxWidth: cap('300px') }} role="img" aria-label="Two equal yellow bars between converging railroad tracks, one near the top and one near the bottom">
               <line x1="50" y1="280" x2="150" y2="20" stroke="#666" strokeWidth="3" />
               <line x1="250" y1="280" x2="150" y2="20" stroke="#666" strokeWidth="3" />
               {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => {
@@ -369,7 +406,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
               @keyframes lilacFade { 0%, 8.33% { opacity: 0; } 8.34%, 100% { opacity: 1; } }
               .lilac-dot { animation: lilacFade 1.2s infinite; }
             `}</style>
-            <svg viewBox="0 0 250 250" style={{ width: '100%', height: '100%', maxWidth: '250px' }} role="img" aria-label="Twelve blurred lilac dots in a ring around a cross, one disappearing at a time in turn">
+            <svg viewBox="0 0 250 250" style={{ width: '100%', height: '100%', maxWidth: cap('250px') }} role="img" aria-label="Twelve blurred lilac dots in a ring around a cross, one disappearing at a time in turn">
               <defs>
                 <filter id="fuzzy" x="-50%" y="-50%" width="200%" height="200%">
                   <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
@@ -407,7 +444,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
         });
         return (
           <div style={svgWrapperStyle}>
-            <svg viewBox="0 0 300 280" style={{ width: '100%', height: '100%', maxWidth: '300px' }} role="img" aria-label={revealed ? 'The three pac-man shapes turned away: no triangle' : 'Three pac-man shapes whose mouths face each other'}>
+            <svg viewBox="0 0 300 280" style={{ width: '100%', height: '100%', maxWidth: cap('300px') }} role="img" aria-label={revealed ? 'The three pac-man shapes turned away: no triangle' : 'Three pac-man shapes whose mouths face each other'}>
               <path d={pac(150, 55, Math.PI / 3, (2 * Math.PI) / 3)} fill={TEXT} style={turn(150, 55)} />
               <path d={pac(75, 215, -Math.PI / 3, 0)} fill={TEXT} style={turn(75, 215)} />
               <path d={pac(225, 215, Math.PI, (-2 * Math.PI) / 3)} fill={TEXT} style={turn(225, 215)} />
@@ -418,7 +455,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
       case 'paris-springtime-svg':
         return (
           <div style={svgWrapperStyle}>
-            <svg viewBox="0 0 300 280" style={{ width: '100%', height: '100%', maxWidth: '300px' }} role="img" aria-label={revealed ? 'The triangle reads: I love Paris in the the springtime — the word “the” appears twice' : 'A lilac triangle with a three-line phrase about Paris'}>
+            <svg viewBox="0 0 300 280" style={{ width: '100%', height: '100%', maxWidth: cap('300px') }} role="img" aria-label={revealed ? 'The triangle reads: I love Paris in the the springtime — the word “the” appears twice' : 'A lilac triangle with a three-line phrase about Paris'}>
               <polygon points="150,15 15,265 285,265" fill="#c9a0dc" stroke="#c9a0dc" strokeWidth="2" />
               <text x="150" y="120" fill="#1a1a1a" fontSize="26" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">I love</text>
               <text x="150" y="160" fill="#1a1a1a" fontSize="26" textAnchor="middle" fontFamily="Cormorant Garamond, serif" fontStyle="italic" fontWeight="500">
@@ -495,7 +532,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
           opacity: showScience ? 1 : 0,
           visibility: showScience ? 'visible' : 'hidden',
           transition: 'opacity 0.3s ease, visibility 0.3s ease',
-          zIndex: 2000,
+          zIndex: projector ? 3100 : 2000,
         }}
       />
       <div
@@ -515,12 +552,12 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
           borderRadius: '8px',
           padding: 'clamp(20px, 5vw, 32px)',
           width: 'calc(100% - 32px)',
-          maxWidth: '440px',
+          maxWidth: projector ? 'min(1000px, 72vw)' : '440px',
           maxHeight: '80vh',
           overflowY: 'auto',
           boxShadow: '0 25px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05)',
           transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-          zIndex: 2001,
+          zIndex: projector ? 3101 : 2001,
         }}
       >
         <button
@@ -561,7 +598,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
         >
           The Science
         </h2>
-        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(15px, 3.5vw, 17px)', lineHeight: 1.8, color: TEXT, margin: 0 }}>
+        <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: projector ? 'clamp(17px, 1.7vw, 34px)' : 'clamp(15px, 3.5vw, 17px)', lineHeight: projector ? 1.6 : 1.8, color: TEXT, margin: 0 }}>
           {scienceExplanation}
         </p>
       </div>
@@ -570,6 +607,68 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
 
   const questionId = `q-${item.id ?? illusionType}`;
 
+  const sliderLabelStyle: CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: '6px',
+    fontFamily: 'Outfit, sans-serif',
+    fontSize: projector ? 'max(14px, calc(var(--u) * 1.05))' : '12px',
+    letterSpacing: '0.08em',
+    color: TEXT,
+    marginBottom: '8px',
+  };
+  const slider = illusionType === 'ponzo-railroad' && answered && (
+    <label style={sliderLabelStyle}>
+      Test it: slide the top bar down the tracks
+      <input
+        type="range"
+        min={0}
+        max={100}
+        value={slide}
+        onChange={(e) => setSlide(Number(e.target.value))}
+        style={{ width: projector ? 'min(520px, 40vw)' : 'min(260px, 70vw)', accentColor: '#e8c85f' }}
+        aria-valuetext={slide >= 95 ? 'Right above the bottom bar' : `${slide}% of the way down`}
+      />
+    </label>
+  );
+  const lilacToggle = illusionType === 'lilac-chaser' && (
+    <button type="button" style={buttonStyle} onClick={() => setLilacRunning(!lilacRunning)}>
+      {lilacRunning ? 'Pause Animation' : 'Start Animation'}
+    </button>
+  );
+  const afterControls = answered && (
+    <>
+      {canPeek && (
+        <button type="button" style={pressedStyle(peek)} aria-pressed={peek} onClick={() => setPeek((p) => !p)}>
+          See the illusion again
+        </button>
+      )}
+      {renderTest()}
+      {scienceExplanation && (
+        <button type="button" data-science-btn="" aria-haspopup="dialog" onClick={() => setShowScience(true)} style={buttonStyle}>
+          How Does This Work?
+        </button>
+      )}
+    </>
+  );
+
+  if (projector) {
+    return (
+      <div style={containerStyle}>
+        <div style={imageContainerStyle}>{renderVisual()}</div>
+        {slider}
+        {(lilacToggle || afterControls) && (
+          <div style={{ display: 'flex', gap: 'calc(var(--u) * 0.8)', flexWrap: 'wrap', justifyContent: 'center' }}>
+            {lilacToggle}
+            {afterControls}
+          </div>
+        )}
+        {mounted && scienceCard ? createPortal(scienceCard, document.body) : null}
+      </div>
+    );
+  }
+
   return (
     <div style={containerStyle}>
       <span style={nameLabelStyle}>{item.name}</span>
@@ -577,20 +676,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
 
       <div style={imageContainerStyle}>{renderVisual()}</div>
 
-      {illusionType === 'ponzo-railroad' && answered && (
-        <label style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', fontFamily: 'Outfit, sans-serif', fontSize: '12px', letterSpacing: '0.08em', color: TEXT, marginBottom: '8px' }}>
-          Test it: slide the top bar down the tracks
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={slide}
-            onChange={(e) => setSlide(Number(e.target.value))}
-            style={{ width: 'min(260px, 70vw)', accentColor: '#e8c85f' }}
-            aria-valuetext={slide >= 95 ? 'Right above the bottom bar' : `${slide}% of the way down`}
-          />
-        </label>
-      )}
+      {slider}
 
       <div style={{ minHeight: '96px', width: '100%', display: 'flex', justifyContent: 'center', padding: '4px 0' }}>
         {answered && (
@@ -620,11 +706,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
       </div>
 
       <div style={{ minHeight: '50px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 2vw, 12px)', flexWrap: 'wrap', padding: '8px 0', marginTop: '4px' }}>
-        {illusionType === 'lilac-chaser' && (
-          <button type="button" style={buttonStyle} onClick={() => setLilacRunning(!lilacRunning)}>
-            {lilacRunning ? 'Pause Animation' : 'Start Animation'}
-          </button>
-        )}
+        {lilacToggle}
         {!answered ? (
           <div role="group" aria-labelledby={questionId} style={{ display: 'flex', gap: 'clamp(8px, 2vw, 12px)', flexWrap: 'wrap', justifyContent: 'center' }}>
             {item.choices?.map((c) => (
@@ -634,19 +716,7 @@ export default function IllusionRenderer({ item, answer, onAnswer }: IllusionPro
             ))}
           </div>
         ) : (
-          <>
-            {canPeek && (
-              <button type="button" style={pressedStyle(peek)} aria-pressed={peek} onClick={() => setPeek((p) => !p)}>
-                See the illusion again
-              </button>
-            )}
-            {renderTest()}
-            {scienceExplanation && (
-              <button type="button" data-science-btn="" aria-haspopup="dialog" onClick={() => setShowScience(true)} style={buttonStyle}>
-                How Does This Work?
-              </button>
-            )}
-          </>
+          afterControls
         )}
       </div>
 

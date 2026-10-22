@@ -11,7 +11,10 @@ import { tierFor } from '@/components/games/scoring';
 import { srOnly } from '@/lib/a11y';
 import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import { useScoredGame } from '@/components/games/useScoredGame';
+import TeachToggle from '@/components/games/projector/TeachToggle';
+import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
 import { CLOSING, OWN_CASE, ROUNDS, TIERS, fakeSides, type ReplicaRound, type Side } from './data';
+import RealOrReplicaProjector from './RealOrReplicaProjector';
 
 /** Numbered markers for one photograph, numbered in the order of the round's list. */
 function calloutsFor(round: ReplicaRound, on: 'fake' | 'real'): Callout[] {
@@ -81,6 +84,25 @@ export default function RealOrReplica() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [game.index, play]);
 
+  // Teacher projector mode: its own order of fakes, so the game a visitor
+  // was playing is still there, unchanged, when the teacher exits.
+  const [projector, setProjector] = useProjectorMode();
+  const [projectorPlay, setProjectorPlay] = useState(0);
+  const projectorSides = useMemo(
+    () => (seed === null ? null : fakeSides(nextSeed(seed, 1000 + projectorPlay), ROUNDS.length)),
+    [seed, projectorPlay],
+  );
+
+  if (projector) {
+    return (
+      <RealOrReplicaProjector
+        sides={projectorSides}
+        onExit={() => setProjector(false)}
+        onRestart={() => setProjectorPlay((p) => p + 1)}
+      />
+    );
+  }
+
   return (
     <div className="rr-page" style={THEME}>
       <style jsx global>{`
@@ -127,6 +149,7 @@ export default function RealOrReplica() {
         .rr-back-btn:hover { color: #fafafa; }
         .rr-back-btn span { font-size: 18px; }
 
+        .rr-header-right { display: flex; align-items: center; gap: 20px; }
         .rr-score-display {
           font-family: 'Outfit', sans-serif;
           font-size: 12px;
@@ -477,6 +500,7 @@ export default function RealOrReplica() {
         }
         @media (max-width: 700px) {
           .rr-header { padding: 14px 16px; }
+          .rr-header-right { gap: 10px; }
           .rr-main { padding: 84px 16px 40px; }
           .rr-coins-row {
             flex-direction: column;
@@ -498,11 +522,14 @@ export default function RealOrReplica() {
           <span aria-hidden="true">{'←'}</span>
           Exhibition
         </button>
-        {stage === 'rounds' && (
-          <span className="rr-score-display">
-            Round {game.index + 1} of {ROUNDS.length} &middot; Score: {game.score}
-          </span>
-        )}
+        <div className="rr-header-right">
+          {stage === 'rounds' && (
+            <span className="rr-score-display">
+              Round {game.index + 1} of {ROUNDS.length} &middot; Score: {game.score}
+            </span>
+          )}
+          <TeachToggle onClick={() => setProjector(true)} style={{ color: '#C9A84C', fontFamily: "'Outfit', sans-serif" }} />
+        </div>
       </header>
 
       <Announcer message={announcement} />

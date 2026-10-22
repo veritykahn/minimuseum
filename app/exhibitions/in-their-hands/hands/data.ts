@@ -17,6 +17,8 @@ export type HandsCharacter = GameItemMeta & {
 export const HANDS_CHARACTERS: HandsCharacter[] = [
   {
     id: 'hands-1',
+    teacherTip:
+      'Ask what a soldier in Judaea was paid with, and where he would have spent it.',
     character: "The Roman Soldier",
     coinName: "Pontius Pilate Prutah",
     coinDate: "26–36 AD",
@@ -29,6 +31,8 @@ export const HANDS_CHARACTERS: HandsCharacter[] = [
   },
   {
     id: 'hands-2',
+    teacherTip:
+      'Ask why the Temple accepted only the Tyrian shekel, then point to the thirty silver coins paid to Judas.',
     character: "The Temple Priest",
     coinName: "Tyrian Shekel",
     coinDate: "1st century BC\u20131st century AD",
@@ -41,6 +45,8 @@ export const HANDS_CHARACTERS: HandsCharacter[] = [
   },
   {
     id: 'hands-3',
+    teacherTip:
+      'Ask how many leptons the widow gave, and why Jesus said she gave more than all the others.',
     character: "The Widow",
     coinName: "Widow\u2019s Mite \u2014 Lepton",
     coinDate: "1st century AD",
@@ -53,6 +59,8 @@ export const HANDS_CHARACTERS: HandsCharacter[] = [
   },
   {
     id: 'hands-4',
+    teacherTip:
+      'Ask whose face is on the coin, and which of his orders sent Mary and Joseph to Bethlehem.',
     character: "The Merchant",
     coinName: "Augustus AE As",
     coinDate: "5\u20134 BC",
@@ -65,6 +73,8 @@ export const HANDS_CHARACTERS: HandsCharacter[] = [
   },
   {
     id: 'hands-5',
+    teacherTip:
+      'Ask what a mother in Bethlehem would have bought with these coins, and why they carry no human image.',
     teacherNote: "This round is about the Massacre of the Innocents (Matthew 2:13–16): Herod orders the killing of all boys in Bethlehem under the age of two. You may want to read it yourself before playing with younger grades.",
     character: "The Mother",
     coinName: "Herod the Great Prutah",
@@ -78,6 +88,8 @@ export const HANDS_CHARACTERS: HandsCharacter[] = [
   },
   {
     id: 'hands-6',
+    teacherTip:
+      'Ask what right Paul invoked when Festus tried to send him back to Jerusalem.',
     character: "Paul of Tarsus",
     coinName: "Porcius Festus Prutah",
     coinDate: "59\u201362 AD",
@@ -90,6 +102,8 @@ export const HANDS_CHARACTERS: HandsCharacter[] = [
   },
   {
     id: 'hands-7',
+    teacherTip:
+      'Ask whose coin this is, and how her divorce led to John the Baptist’s arrest.',
     character: "The Daughter of Aretas",
     coinName: "Aretas IV Prutah",
     coinDate: "9 BC\u201340 AD",

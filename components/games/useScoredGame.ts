@@ -6,9 +6,10 @@ import { countCorrect, type AnswerRecord } from './scoring';
 /*
  * The question → feedback → … → ended loop every scored game shares.
  *
- * A later "teacher projector mode" slots in here: it can hold the game in a
- * class-vote pause between 'question' and 'feedback' by dispatching 'answer'
- * only once the teacher reveals, without the games themselves changing.
+ * Teacher projector mode (components/games/projector) runs beside this loop
+ * rather than through it: a classroom steps backwards as well as forwards and
+ * the class's answer is optional, so it keeps its own question → vote →
+ * reveal machine and leaves a visitor's game here untouched.
  */
 
 export type GamePhase = 'question' | 'feedback' | 'ended';

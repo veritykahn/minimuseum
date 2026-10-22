@@ -9,6 +9,7 @@ import { MapToggleButton } from './MapToggleButton';
 import { MapOverlay } from './MapOverlay';
 import { MapSvg } from './MapSvg';
 import { MapLegend } from './MapLegend';
+import { useProjectorScreenUp } from '@/components/games/projector/useProjectorMode';
 
 /**
  * Museum Map — Interactive hierarchical navigation component.
@@ -60,8 +61,10 @@ export default function MuseumMap() {
   // tool: no floating map button over the projector.
   const pathname = usePathname();
   const isLessonScreen = /\/lessons\/[^/]+/.test(pathname ?? '');
+  // The same for a game in teacher projector mode.
+  const projectorUp = useProjectorScreenUp();
 
-  if (isHomePage || isLessonScreen) {
+  if (isHomePage || isLessonScreen || projectorUp) {
     return null;
   }
 

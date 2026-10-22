@@ -29,6 +29,8 @@ const IMG = '/exhibitions/in-their-hands/real-or-fake';
 export const ROUNDS: ReplicaRound[] = [
   {
     id: 'dekadrachm',
+    teacherTip:
+      'Point at the owl on each coin and ask which one has crisp, individual feather lines.',
     coinName: 'Dekadrachm of Athens',
     fakeImage: `${IMG}/Dekadrachm-fake.png`,
     realImage: `${IMG}/Dekadrachm-real.png`,
@@ -44,6 +46,8 @@ export const ROUNDS: ReplicaRound[] = [
   },
   {
     id: 'die-transfer',
+    teacherTip:
+      'Ask which coin looks flatter and grayer, and which keeps the sharpness of the original strike.',
     coinName: 'Greek Drachm — Die Transfer Counterfeit',
     fakeImage: `${IMG}/die-transfer-fake.png`,
     realImage: `${IMG}/die-transfer-real.png`,
@@ -58,6 +62,8 @@ export const ROUNDS: ReplicaRound[] = [
   },
   {
     id: 'lysimachus',
+    teacherTip:
+      'Compare the hair on the two portraits: which has sharp, defined curls, and which looks mushy?',
     coinName: 'Lysimachus Tetradrachm',
     fakeImage: `${IMG}/Lysimachus-fake.png`,
     realImage: `${IMG}/Lysimachus-real.png`,
@@ -73,6 +79,8 @@ export const ROUNDS: ReplicaRound[] = [
   },
   {
     id: 'nero',
+    teacherTip:
+      'Point at the high points of each portrait and ask whether the wear looks even or artificial.',
     coinName: 'Sestertius of Nero',
     fakeImage: `${IMG}/nero-fake.png`,
     realImage: `${IMG}/nero-real.png`,
@@ -86,6 +94,8 @@ export const ROUNDS: ReplicaRound[] = [
   },
   {
     id: 'widow',
+    teacherTip:
+      'Ask why a lepton that looks too clean and too perfect should make an expert suspicious.',
     coinName: "Widow's Mite — Lepton",
     fakeImage: `${IMG}/widow-fake.png`,
     realImage: `${IMG}/widow-real.png`,

@@ -7,8 +7,8 @@ export type GameItemMeta = {
   /** Stable id, used for scoring and "replay the ones you missed". */
   id: string;
   /**
-   * Shown to a teacher in projector mode (not built yet): a prompt for the
-   * class discussion before or after the reveal. Leave unset until written.
+   * Shown to a teacher in projector mode, with the reveal: one sentence on
+   * what to ask or point at, drawn only from the item's own explanation.
    */
   teacherTip?: string;
   /**

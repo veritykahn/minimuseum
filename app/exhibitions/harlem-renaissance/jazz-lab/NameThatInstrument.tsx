@@ -9,6 +9,7 @@ import type { GameAction } from '@/components/games/types';
 import { ALL_INSTRUMENT_IDS, INSTRUMENTS, INSTRUMENT_MAP, QUIZ_TIERS } from './data';
 import { instrumentBreakdown, type useQuiz } from './hooks';
 import InstrumentIcon from './InstrumentIcon';
+import TeachToggle from '@/components/games/projector/TeachToggle';
 
 type Quiz = ReturnType<typeof useQuiz>;
 
@@ -25,7 +26,7 @@ const THEME = {
 } as CSSProperties;
 
 /** The Name That Instrument tab. Uses the page's jl- styles plus the few below. */
-export default function NameThatInstrument({ quiz }: { quiz: Quiz }) {
+export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTeach?: () => void }) {
   const last = quiz.lastRecord;
   const answered = quiz.gameState === 'answered';
   const isReplay = quiz.mode === 'replay';
@@ -127,6 +128,7 @@ export default function NameThatInstrument({ quiz }: { quiz: Quiz }) {
           color: var(--jl-gold);
         }
         .jl-quiz-result { padding: 30px 0 10px; }
+        .jl-teach { display: flex; justify-content: center; margin: -6px 0 18px; }
         @media (max-width: 600px) {
           .jl-breakdown { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
@@ -137,6 +139,11 @@ export default function NameThatInstrument({ quiz }: { quiz: Quiz }) {
       <div className="jl-instructions">
         Listen to the sound and <em>tap the instrument</em> you think it is.
       </div>
+      {onTeach && (
+        <div className="jl-teach">
+          <TeachToggle onClick={onTeach} style={{ color: 'var(--jl-gold)', fontFamily: "'Josefin Sans', sans-serif" }} />
+        </div>
+      )}
 
       <div className="jl-quiz-container">
         {quiz.gameState !== 'gameover' ? (

@@ -265,15 +265,15 @@
 
 .callout {
   position: absolute;
-  width: 26px;
-  height: 26px;
-  margin: -13px 0 0 -13px;
+  width: var(--callout-size, 26px);
+  height: var(--callout-size, 26px);
+  margin: calc(var(--callout-size, 26px) / -2) 0 0 calc(var(--callout-size, 26px) / -2);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--game-body, sans-serif);
-  font-size: 13px;
+  font-size: calc(var(--callout-size, 26px) / 2);
   font-weight: 600;
   line-height: 1;
   color: #111;

@@ -47,6 +47,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'checker-shadow',
     id: 'checker-shadow',
+    teacherTip:
+      'Point at the shadow the cylinder casts over square B, and ask why the brain decides B must be lighter than it looks.',
     name: "Adelson’s Checker Shadow",
     choices: [{ id: 'a', label: "A" }, { id: 'b', label: "B" }, { id: 'same', label: "They’re the same" }],
     scored: true,
@@ -65,6 +67,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'simultaneous-contrast',
     id: 'simultaneous-contrast',
+    teacherTip:
+      'Hide the backgrounds, then ask what made the same gray look darker on the light field and lighter on the dark one.',
     name: "Simultaneous Contrast",
     choices: [{ id: 'a', label: "A" }, { id: 'b', label: "B" }, { id: 'same', label: "They’re the same" }],
     scored: true,
@@ -81,6 +85,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'balcony',
     id: 'balcony',
+    teacherTip:
+      'Switch between Looking out and Looking in, and ask whether anyone can see both at once.',
     name: "Bistable Figure",
     choices: [{ id: 'out', label: "Looking out" }, { id: 'in', label: "Looking in" }],
     scored: false,
@@ -99,6 +105,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'rubins-vase',
     id: 'rubins-vase',
+    teacherTip:
+      'Ask who saw the vase first and who saw the faces, then ask whether anyone can hold both at the same time.',
     name: "Rubin’s Vase",
     choices: [{ id: 'vase', label: "A vase" }, { id: 'faces', label: "Two faces" }],
     scored: false,
@@ -117,6 +125,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'fraser-spiral',
     id: 'fraser-spiral',
+    teacherTip:
+      'Ask the class to follow one ring all the way round with their eyes: does it ever lead to the center?',
     name: "Fraser Spiral Illusion",
     choices: [{ id: 'spirals', label: "Spirals" }, { id: 'circles', label: "Circles" }],
     scored: true,
@@ -135,6 +145,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'cafe-wall',
     id: 'cafe-wall',
+    teacherTip:
+      'Point at the gray mortar lines between the rows of tiles, and ask what changes if they were taken away.',
     name: "Café Wall Illusion",
     choices: [{ id: 'left', label: "Left" }, { id: 'right', label: "Right" }, { id: 'neither', label: "Neither — they’re level" }],
     scored: true,
@@ -151,6 +163,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'bulging-grid',
     id: 'bulging-grid',
+    teacherTip:
+      'Point at the squares getting smaller toward the center, and ask what size usually tells us about distance.',
     name: "Bulge Effect",
     choices: [{ id: 'true', label: "True" }, { id: 'false', label: "False" }],
     scored: true,
@@ -169,6 +183,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'rotating-snakes',
     id: 'rotating-snakes',
+    teacherTip:
+      'Ask the class to stare at one spot: does the part they look straight at move, or only the parts at the edges?',
     name: "Rotating Snakes · Akiyoshi Kitaoka, 2003",
     choices: [{ id: 'moves', label: "Yes, it moves" }, { id: 'still', label: "No, it’s still" }],
     scored: true,
@@ -186,6 +202,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'lilac-chaser',
     id: 'lilac-chaser',
+    teacherTip:
+      'Keep the class staring at the cross, then ask what color the moving gap seems to be.',
     name: "Lilac Chaser / Pac-Man Effect",
     choices: [{ id: 'green', label: "A green dot" }, { id: 'lilac', label: "Only lilac dots" }],
     scored: true,
@@ -202,6 +220,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'ponzo-corridor',
     id: 'ponzo-corridor',
+    teacherTip:
+      'Point at the lines of the corridor running into the distance, and ask which ball the brain thinks is farther away.',
     name: "Ponzo Illusion",
     choices: [{ id: 'back', label: "The back ball" }, { id: 'front', label: "The front ball" }, { id: 'same', label: "They’re the same" }],
     scored: true,
@@ -219,6 +239,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'ponzo-railroad',
     id: 'ponzo-railroad',
+    teacherTip:
+      'Slide the top bar down the tracks and ask the class to call out when the two bars look the same.',
     name: "Ponzo Illusion",
     choices: [{ id: 'true', label: "True" }, { id: 'false', label: "False" }],
     scored: true,
@@ -235,6 +257,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'muller-lyer',
     id: 'muller-lyer',
+    teacherTip:
+      'Hide the arrows and ask what the arrowheads were doing to the lines.',
     name: "Müller-Lyer Illusion",
     choices: [{ id: '1', label: "Line 1" }, { id: '2', label: "Line 2" }, { id: 'same', label: "They’re the same" }],
     scored: true,
@@ -251,6 +275,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'jastrow',
     id: 'jastrow',
+    teacherTip:
+      'Point at where the short inner edge of one shape sits against the long outer edge of the other.',
     name: "Jastrow Illusion",
     choices: [{ id: 'top', label: "The gray one" }, { id: 'bottom', label: "The dark one" }, { id: 'same', label: "They’re the same" }],
     scored: true,
@@ -269,6 +295,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'ebbinghaus-circles',
     id: 'ebbinghaus-circles',
+    teacherTip:
+      'Ask what surrounds each purple circle, and how the circles around it change how big it looks.',
     name: "Ebbinghaus Illusion",
     choices: [{ id: 'left', label: "Left" }, { id: 'right', label: "Right" }, { id: 'same', label: "They’re the same" }],
     scored: true,
@@ -287,6 +315,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'impossible-trident',
     id: 'impossible-trident',
+    teacherTip:
+      'Ask the class to count the prongs at the top, then count them again at the bottom.',
     name: "Impossible Trident / Blivet",
     choices: [{ id: 'two', label: "Two" }, { id: 'three', label: "Three" }, { id: 'impossible', label: "It can’t exist" }],
     scored: true,
@@ -304,6 +334,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'kanizsa-triangle-svg',
     id: 'kanizsa-triangle-svg',
+    teacherTip:
+      'Ask where the edges of the triangle are actually drawn, and why the brain fills in a shape that isn’t there.',
     name: "Kanizsa Triangle",
     choices: [{ id: 'yes', label: "Yes" }, { id: 'no', label: "No" }],
     scored: true,
@@ -320,6 +352,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'sander-parallelogram',
     id: 'sander-parallelogram',
+    teacherTip:
+      'Ask the class to compare each diagonal with the shape around it: which one fills more of its own parallelogram?',
     name: "Sander Illusion",
     choices: [{ id: 'ab', label: "A-B" }, { id: 'bc', label: "B-C" }, { id: 'same', label: "They’re the same" }],
     scored: true,
@@ -338,6 +372,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'poggendorff',
     id: 'poggendorff',
+    teacherTip:
+      'Ask the class to trace with a finger where the yellow line should come out, then show where it really goes.',
     name: "Poggendorff Illusion",
     choices: [{ id: 'gray', label: "Gray" }, { id: 'purple', label: "Purple" }],
     scored: true,
@@ -356,6 +392,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'gradient-bar',
     id: 'gradient-bar',
+    teacherTip:
+      'Point at each end of the bar and ask whether it looks lighter or darker than the background right behind it.',
     name: "Gradient Illusion",
     choices: [{ id: 'gradient', label: "Gradient" }, { id: 'solid', label: "Solid" }],
     scored: true,
@@ -374,6 +412,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'hermann-grid',
     id: 'hermann-grid',
+    teacherTip:
+      'Ask the class to look straight at one intersection, then ask what happened to the gray dot there.',
     name: "Hermann Grid",
     choices: [{ id: 'yes', label: "Yes" }, { id: 'no', label: "No" }],
     scored: true,
@@ -391,6 +431,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'paris-springtime-svg',
     id: 'paris-springtime-svg',
+    teacherTip:
+      'Ask a volunteer to read the phrase aloud one word at a time, pointing at each word.',
     name: "Predictive Processing",
     choices: [{ id: 'fine', label: "It reads fine" }, { id: 'odd', label: "Something’s off" }],
     scored: true,
@@ -407,6 +449,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'chromostereopsis',
     id: 'chromostereopsis',
+    teacherTip:
+      'Ask who sees the red in front and who sees the blue in front, since it depends on each person’s eyes.',
     name: "Chromostereopsis",
     choices: [{ id: 'yes', label: "Yes" }, { id: 'no', label: "No" }],
     scored: true,
@@ -424,6 +468,8 @@ export const ILLUSION_CONTENT: IllusionItem[] = [
     type: 'illusion',
     illusionType: 'seesaw',
     id: 'seesaw',
+    teacherTip:
+      'Ask which clues, size or position, made one side look heavier.',
     name: "Seesaw Illusion",
     choices: [{ id: 'left', label: "Left" }, { id: 'right', label: "Right" }, { id: 'balanced', label: "Balanced" }],
     scored: true,

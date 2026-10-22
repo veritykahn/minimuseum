@@ -13,6 +13,8 @@ export type InstrumentDef = {
   name: string;
   /** What to listen for: one generic sentence, shown after a quiz answer. */
   tip: string;
+  /** For a teacher in projector mode: what to ask the class after the reveal. */
+  teacherTip?: string;
   variants: InstrumentVariant[];
   fact: {
     title: string;
@@ -29,6 +31,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'drums',
     name: 'Drums',
     tip: 'Rhythm without a tune: struck drums and shimmering cymbals. Those are the drums.',
+    teacherTip:
+      'Ask whether there is a tune or only rhythm, then listen again for the shimmer of the cymbals.',
     variants: [
       { id: 'drums-1', audioSrc: `${AUDIO_BASE}/drums-1.mp3`, label: '1' },
       { id: 'drums-2', audioSrc: `${AUDIO_BASE}/drums-2.mp3`, label: '2' },
@@ -44,6 +48,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'bass',
     name: 'Double Bass',
     tip: 'Deep, round, plucked notes underneath everything. That’s the double bass.',
+    teacherTip:
+      'Ask whether the notes sit high or low, and point out that they are plucked and sit underneath everything.',
     variants: [
       { id: 'double-bass-1', audioSrc: `${AUDIO_BASE}/double-bass-1.mp3`, label: '1' },
       { id: 'double-bass-2', audioSrc: `${AUDIO_BASE}/double-bass-2.mp3`, label: '2' },
@@ -59,6 +65,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'piano',
     name: 'Piano',
     tip: 'Hammered notes that ring and fade, often several at once. That’s the piano.',
+    teacherTip:
+      'Ask whether more than one note sounds at once, then listen for notes that ring and fade.',
     variants: [
       { id: 'piano-1', audioSrc: `${AUDIO_BASE}/piano-1.mp3`, label: '1' },
       { id: 'piano-2', audioSrc: `${AUDIO_BASE}/piano-2.mp3`, label: '2' },
@@ -74,6 +82,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'trumpet',
     name: 'Trumpet',
     tip: 'A bright, brassy attack. That’s the trumpet.',
+    teacherTip:
+      'Ask the class to describe the very start of each note: is it bright and brassy?',
     variants: [
       { id: 'trumpet-1', audioSrc: `${AUDIO_BASE}/trumpet-1.mp3`, label: '1' },
       { id: 'trumpet-2', audioSrc: `${AUDIO_BASE}/trumpet-2.mp3`, label: '2' },
@@ -89,6 +99,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'saxophone',
     name: 'Saxophone',
     tip: 'A reedy, breathy tone that bends like a voice. That’s the saxophone.',
+    teacherTip:
+      'Ask whether the sound bends like a singing voice, then listen again for its reedy, breathy tone.',
     variants: [
       { id: 'saxophone-1', audioSrc: `${AUDIO_BASE}/saxophone-1.mp3`, label: '1' },
       { id: 'saxophone-2', audioSrc: `${AUDIO_BASE}/saxophone-2.mp3`, label: '2' },
@@ -104,6 +116,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'clarinet',
     name: 'Clarinet',
     tip: 'A smooth, woody tone, sweet up high and dark down low. That’s the clarinet.',
+    teacherTip:
+      'Ask the class to compare its high and low notes: sweet up high, dark down low.',
     variants: [
       { id: 'clarinet-1', audioSrc: `${AUDIO_BASE}/clarinet-1.mp3`, label: '1' },
       { id: 'clarinet-2', audioSrc: `${AUDIO_BASE}/clarinet-2.mp3`, label: '2' },

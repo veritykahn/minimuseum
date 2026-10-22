@@ -9,7 +9,10 @@ import Verdict from '@/components/games/Verdict';
 import { tierFor } from '@/components/games/scoring';
 import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import { useScoredGame } from '@/components/games/useScoredGame';
+import TeachToggle from '@/components/games/projector/TeachToggle';
+import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
 import { CLOSING, HANDS_CHARACTERS, TIERS, buildRounds } from './data';
+import HandsProjector from './HandsProjector';
 
 const THEME = {
   '--game-accent': '#C9A84C',
@@ -78,6 +81,25 @@ export default function HandsOfHistory() {
       : '';
 
   const tier = tierFor(game.score, total, TIERS);
+
+  // Teacher projector mode: its own shuffle, so the game a visitor was
+  // playing is still there, unchanged, when the teacher exits.
+  const [projector, setProjector] = useProjectorMode();
+  const [projectorPlay, setProjectorPlay] = useState(0);
+  const projectorRounds = useMemo(
+    () => (seed === null ? null : buildRounds(nextSeed(seed, 1000 + projectorPlay))),
+    [seed, projectorPlay],
+  );
+
+  if (projector) {
+    return (
+      <HandsProjector
+        rounds={projectorRounds}
+        onExit={() => setProjector(false)}
+        onRestart={() => setProjectorPlay((p) => p + 1)}
+      />
+    );
+  }
 
   return (
     <div className={`hh-page ${loaded ? 'hh-loaded' : ''} ${roundState === 'finished' ? 'hh-scroll' : ''}`} style={THEME}>
@@ -155,6 +177,10 @@ export default function HandsOfHistory() {
         .hh-back-btn:hover { color: #fafafa; }
         .hh-back-btn span { font-size: 18px; }
 
+        .hh-header-right { display: flex; align-items: center; gap: 20px; }
+        @media (max-width: 600px) {
+          .hh-header-right { gap: 10px; }
+        }
         .hh-round-info {
           font-family: 'Outfit', sans-serif;
           font-size: 12px;
@@ -410,11 +436,14 @@ export default function HandsOfHistory() {
           <span aria-hidden="true">{'\u2190'}</span>
           Exhibition
         </button>
-        {roundState !== 'finished' && (
-          <span className="hh-round-info">
-            Round {game.index + 1} of {total} &middot; Score: {game.score}
-          </span>
-        )}
+        <div className="hh-header-right">
+          {roundState !== 'finished' && (
+            <span className="hh-round-info">
+              Round {game.index + 1} of {total} &middot; Score: {game.score}
+            </span>
+          )}
+          <TeachToggle onClick={() => setProjector(true)} style={{ color: '#C9A84C', fontFamily: "'Outfit', sans-serif" }} />
+        </div>
       </header>
 
       <Announcer message={announcement} />

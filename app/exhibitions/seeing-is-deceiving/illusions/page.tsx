@@ -10,6 +10,9 @@ import { ILLUSION_CONTENT } from './data';
 import { useCarousel, useSwipeNavigation } from './hooks';
 import { perceptionTally, PERCEPTION_TIERS, shortcutsTitle } from './scoring';
 import { tierFor } from '@/components/games/scoring';
+import TeachToggle from '@/components/games/projector/TeachToggle';
+import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
+import PerceptionLabProjector from './PerceptionLabProjector';
 
 const RESULT_THEME = {
   '--game-accent': '#a8d5e5',
@@ -71,6 +74,11 @@ export default function IllusionsPage() {
 
   // Check if current item is an illusion (for showing navigation)
   const isIllusion = currentItem.type === 'illusion';
+
+  // Teacher projector mode (?projector=1): a separate run through the
+  // illusions; the visitor's own answers here stay as they were.
+  const [projector, setProjector] = useProjectorMode();
+  if (projector) return <PerceptionLabProjector onExit={() => setProjector(false)} />;
 
   return (
     <div
@@ -186,6 +194,7 @@ export default function IllusionsPage() {
           outline-offset: 3px;
         }
 
+        .pl-teach { position: fixed; top: 22px; right: 28px; z-index: 1000; }
         .top-counter {
           position: fixed;
           top: 28px;
@@ -292,8 +301,10 @@ export default function IllusionsPage() {
 
         @media (max-width: 768px) {
           .nav-m-left { left: 20px; top: 20px; }
+          .pl-teach { top: 14px; right: 14px; }
           .nav-m-text { font-size: 24px; }
-          .top-counter { top: 20px; }
+          .pl-teach { position: fixed; top: 22px; right: 28px; z-index: 1000; }
+        .top-counter { top: 20px; }
           .step-indicator { font-size: 11px; }
           .side-nav-arrow { width: 36px; height: 36px; font-size: 16px; }
           .side-nav-arrow.left { left: 12px; }
@@ -310,6 +321,10 @@ export default function IllusionsPage() {
         <span className="nav-arrow nav-arrow-left" aria-hidden="true">←</span>
         <span className="nav-label">Exhibition</span>
       </ExhibitionNav>
+
+      <div className="pl-teach">
+        <TeachToggle onClick={() => setProjector(true)} style={{ color: '#a8d5e5', fontFamily: "'Outfit', sans-serif" }} />
+      </div>
 
       {/* Content */}
       <div className={`illusion-page ${fadeIn ? 'fade-in' : 'fade-out'}`} key={animationKey}>

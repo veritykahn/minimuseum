@@ -23,6 +23,8 @@ type MagnifierProps = {
   calloutTone?: 'right' | 'wrong' | 'neutral';
   /** Tallest the image may be drawn, in CSS pixels; it keeps its own shape. */
   maxHeight?: number;
+  /** Diameter of the numbered markers in CSS pixels (default 26). */
+  calloutSize?: number;
   className?: string;
   style?: CSSProperties;
 };
@@ -48,6 +50,7 @@ export default function Magnifier({
   callouts,
   calloutTone = 'neutral',
   maxHeight = 320,
+  calloutSize,
   className,
   style,
 }: MagnifierProps) {
@@ -159,7 +162,11 @@ export default function Magnifier({
     <div
       ref={boxRef}
       className={`${styles.magnifier} ${className ?? ''}`}
-      style={{ width: `min(100%, ${Math.round(maxHeight * ratio)}px)`, ...style }}
+      style={{
+        width: `min(100%, ${Math.round(maxHeight * ratio)}px)`,
+        ...(calloutSize ? ({ '--callout-size': `${calloutSize}px` } as CSSProperties) : null),
+        ...style,
+      }}
       data-touch-lens={mode === 'touch' && active ? '' : undefined}
       tabIndex={0}
       role="group"

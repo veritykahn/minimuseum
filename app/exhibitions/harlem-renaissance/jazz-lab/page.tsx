@@ -7,6 +7,9 @@ import JazzStudio from './JazzStudio';
 import BuildABand from './BuildABand';
 import NameThatInstrument from './NameThatInstrument';
 import ExhibitionNav from '@/components/ExhibitionNav';
+import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
+import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
+import NameThatInstrumentProjector from './NameThatInstrumentProjector';
 
 const TABS = [
   { id: 'band', label: 'Build a Band' },
@@ -58,6 +61,32 @@ export default function JazzLabPage() {
   useEffect(() => {
     if (view === 'lab') labHeadingRef.current?.focus({ preventScroll: true });
   }, [view]);
+
+  // Teacher projector mode for Name That Instrument (?projector=1 opens it).
+  // It keeps its own rounds, so a quiz in progress is untouched on exit.
+  const [projector, setProjector] = useProjectorMode();
+  const seed = useClientSeed();
+  const [projectorPlay, setProjectorPlay] = useState(0);
+  const openProjector = () => {
+    stopAudio();
+    setProjector(true);
+  };
+
+  if (projector) {
+    return (
+      <NameThatInstrumentProjector
+        seed={seed === null ? null : nextSeed(seed, 1000 + projectorPlay)}
+        playOnce={audioEngine.playOnce}
+        stopSource={audioEngine.stopSource}
+        onExit={() => {
+          setView('lab');
+          setActiveTab('quiz');
+          setProjector(false);
+        }}
+        onRestart={() => setProjectorPlay((p) => p + 1)}
+      />
+    );
+  }
 
   return (
     <div style={{ background: 'var(--jl-bg)', minHeight: '100vh' }}>
@@ -974,7 +1003,7 @@ export default function JazzLabPage() {
       )}
 
       {/* ── NAME THAT INSTRUMENT ── */}
-      {activeTab === 'quiz' && <NameThatInstrument quiz={quiz} />}
+      {activeTab === 'quiz' && <NameThatInstrument quiz={quiz} onTeach={openProjector} />}
 
       <div className="jl-deco-line"><div className="jl-deco-diamond" /></div>
 
