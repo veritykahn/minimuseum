@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import TypewriterText from '@/components/TypewriterText';
-import { focusElement, focusHeadingIn, usePendingFocus } from '@/lib/a11y/focus';
+import PosterNavHint from '@/components/PosterNavHint';
+import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 
 type ContentItem = {
   type: string;
@@ -125,7 +125,7 @@ const poster1Content: ContentItem[] = [
   {
     type: 'full-image',
     src: '/exhibitions/seeing/face.jpg',
-    alt: 'Abstract face illustration',
+    alt: 'Continuous black line drawing of half a face: one eye, a nose and lips',
     effect: 'mega-zoom-out'
   },
   {
@@ -313,7 +313,7 @@ const poster2Content = [
   {
     type: 'full-image',
     src: '/exhibitions/seeing/waves.jpg',
-    alt: 'Optical illusion waves',
+    alt: 'Op-art pattern of rippling black and pale blue stripes',
     effect: 'waves-drift'
   },
   {
@@ -462,61 +462,23 @@ const FilmOverlay = () => {
 };
 
 export default function SeeingIsDeceiving() {
-  const [activeView, setActiveView] = useState<'main' | 'poster1' | 'poster2' | 'artifacts'>('main');
-  const [posterStep, setPosterStep] = useState(0);
-  const [fadeIn, setFadeIn] = useState(true);
-  const [animationKey, setAnimationKey] = useState(0);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const lastPoster = useRef<'poster1' | 'poster2'>('poster1');
-  const requestFocus = usePendingFocus();
+  const {
+    activeView,
+    posterStep,
+    fadeIn,
+    animationKey,
+    contentRef,
+    openPoster,
+    nextStep,
+    prevStep,
+    returnToMain,
+    stageProps,
+    hintVisible,
+    dismissHint,
+    announcement,
+  } = usePosterWalkthrough({ poster1: poster1Content.length, poster2: poster2Content.length });
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
-
-  const openPoster = (poster: 'poster1' | 'poster2') => {
-    lastPoster.current = poster;
-    setFadeIn(false);
-    setTimeout(() => {
-      requestFocus(() => focusHeadingIn(contentRef.current));
-      setActiveView(poster);
-      setPosterStep(0);
-      setAnimationKey(prev => prev + 1);
-      setFadeIn(true);
-    }, 300);
-  };
-
-  const nextStep = () => {
-    if (posterStep < currentPosterContent.length - 1) {
-      setFadeIn(false);
-      setTimeout(() => {
-        requestFocus(() => focusHeadingIn(contentRef.current));
-        setPosterStep(posterStep + 1);
-        setAnimationKey(prev => prev + 1);
-        setFadeIn(true);
-      }, 400);
-    }
-  };
-
-  const prevStep = () => {
-    if (posterStep > 0) {
-      setFadeIn(false);
-      setTimeout(() => {
-        requestFocus(() => focusHeadingIn(contentRef.current));
-        setPosterStep(posterStep - 1);
-        setAnimationKey(prev => prev + 1);
-        setFadeIn(true);
-      }, 400);
-    }
-  };
-
-  const returnToMain = () => {
-    setFadeIn(false);
-    setTimeout(() => {
-      requestFocus(() => focusElement(document.querySelector<HTMLElement>(`[data-poster="${lastPoster.current}"]`)));
-      setActiveView('main');
-      setPosterStep(0);
-      setFadeIn(true);
-    }, 300);
-  };
 
   const currentItem = currentPosterContent[posterStep];
   const isPoster1 = activeView === 'poster1';
@@ -1527,7 +1489,7 @@ export default function SeeingIsDeceiving() {
           <div className="exhibition-grid">
             <button type="button" className="btn-reset poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/exhibitions/seeing/poster1.jpg" alt="Seeing is Deceiving poster" />
+              <img src="/exhibitions/seeing/poster1.jpg" alt="Seeing is Deceiving poster: the title in black capitals, reflected upside down, beneath a one-line drawing of a face" />
               <span className="poster-hint">Click to explore</span>
             </button>
 
@@ -1535,7 +1497,7 @@ export default function SeeingIsDeceiving() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/exhibitions/seeing/artifacts/display-case.png"
-                alt="Artifact Display Case"
+                alt="Acrylic display case holding a wooden stereoscope, a stereoview card and a small illustrated card"
                 className="case-image"
               />
               <p className="case-label">Gallery II, Case 4</p>
@@ -1545,7 +1507,7 @@ export default function SeeingIsDeceiving() {
 
             <button type="button" className="btn-reset poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/exhibitions/seeing/poster2.jpg" alt="A History of Lies poster" />
+              <img src="/exhibitions/seeing/poster2.jpg" alt="A History of Lies: From Magic Lanterns to AI Deepfakes poster: the title wrapped around a column of rippling blue and black stripes" />
               <span className="poster-hint">Click to explore</span>
             </button>
           </div>
@@ -1553,12 +1515,13 @@ export default function SeeingIsDeceiving() {
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
-        {activeView === 'main' ? '' : `Panel ${posterStep + 1} of ${currentPosterContent.length}`}
+        {announcement}
       </p>
+      <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
 
       {/* Poster Walkthrough View */}
       {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div className={`poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey}>
+        <div className={`poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey} {...stageProps}>
           <div className="walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
 
             {/* Title Image - Full Bleed */}

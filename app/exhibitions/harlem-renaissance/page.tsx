@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
-import { focusElement, focusHeadingIn, usePendingFocus } from '@/lib/a11y/focus';
+import PosterNavHint from '@/components/PosterNavHint';
+import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 
 type ContentItem = {
   type: string;
@@ -28,7 +29,7 @@ const poster1Content: ContentItem[] = [
   {
     type: 'title-image',
     src: '/exhibitions/harlem/poster1-title1.jpg',
-    alt: 'The Great Migration And',
+    alt: 'The Great Migration and',
     effect: 'pan-lr',
     special: 'height'
   },
@@ -97,7 +98,7 @@ const poster1Content: ContentItem[] = [
   {
     type: 'artwork-display',
     src: '/exhibitions/harlem/aspiration.jpg',
-    alt: 'Aspiration by Aaron Douglas, 1936',
+    alt: 'Painting in purples of three silhouetted figures looking and pointing toward a city of towers on a hill, above rows of raised, shackled hands',
     artworkTitle: 'Aspiration',
     artworkArtist: 'Aaron Douglas',
     artworkDate: '1936',
@@ -268,7 +269,7 @@ const poster2Content: ContentItem[] = [
   {
     type: 'artwork-display',
     src: '/exhibitions/harlem/poster2-photograph.jpg',
-    alt: 'Walter Francis White, photograph by Clara Sipprell',
+    alt: 'Sepia portrait photograph of Walter White, seated in a dark suit and tie, looking to one side',
     artworkTitle: 'Walter Francis White',
     artworkArtist: 'Clara Sipprell',
     artworkDate: 'c. 1940',
@@ -328,7 +329,7 @@ const poster2Content: ContentItem[] = [
   {
     type: 'artwork-display',
     src: '/exhibitions/harlem/creation.jpg',
-    alt: 'The Creation by Aaron Douglas, 1927',
+    alt: 'Painting of a lone silhouetted figure on a hill beneath concentric rainbow arcs, with a great hand reaching down from the sky',
     artworkTitle: 'The Creation',
     artworkArtist: 'Aaron Douglas',
     artworkDate: '1927',
@@ -421,64 +422,26 @@ const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void
 // MAIN COMPONENT
 // ============================================
 export default function HarlemRenaissance() {
-  const [activeView, setActiveView] = useState<'main' | 'poster1' | 'poster2'>('main');
-  const [posterStep, setPosterStep] = useState(0);
-  const [fadeIn, setFadeIn] = useState(true);
-  const [animationKey, setAnimationKey] = useState(0);
-  const contentRef = useRef<HTMLDivElement>(null);
-  const lastPoster = useRef<'poster1' | 'poster2'>('poster1');
-  const requestFocus = usePendingFocus();
+  const {
+    activeView,
+    posterStep,
+    fadeIn,
+    animationKey,
+    contentRef,
+    openPoster,
+    nextStep,
+    prevStep,
+    returnToMain,
+    stageProps,
+    hintVisible,
+    dismissHint,
+    announcement,
+  } = usePosterWalkthrough({ poster1: poster1Content.length, poster2: poster2Content.length });
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
   const rememberFloorPosition = () => {
     sessionStorage.setItem('firstFloorIndex', '1');
-  };
-
-  const openPoster = (poster: 'poster1' | 'poster2') => {
-    lastPoster.current = poster;
-    setFadeIn(false);
-    setTimeout(() => {
-      requestFocus(() => focusHeadingIn(contentRef.current));
-      setActiveView(poster);
-      setPosterStep(0);
-      setAnimationKey(prev => prev + 1);
-      setFadeIn(true);
-    }, 300);
-  };
-
-  const nextStep = () => {
-    if (posterStep < currentPosterContent.length - 1) {
-      setFadeIn(false);
-      setTimeout(() => {
-        requestFocus(() => focusHeadingIn(contentRef.current));
-        setPosterStep(posterStep + 1);
-        setAnimationKey(prev => prev + 1);
-        setFadeIn(true);
-      }, 400);
-    }
-  };
-
-  const prevStep = () => {
-    if (posterStep > 0) {
-      setFadeIn(false);
-      setTimeout(() => {
-        requestFocus(() => focusHeadingIn(contentRef.current));
-        setPosterStep(posterStep - 1);
-        setAnimationKey(prev => prev + 1);
-        setFadeIn(true);
-      }, 400);
-    }
-  };
-
-  const returnToMain = () => {
-    setFadeIn(false);
-    setTimeout(() => {
-      requestFocus(() => focusElement(document.querySelector<HTMLElement>(`[data-poster="${lastPoster.current}"]`)));
-      setActiveView('main');
-      setPosterStep(0);
-      setFadeIn(true);
-    }, 300);
   };
 
   const currentItem = currentPosterContent[posterStep];
@@ -1532,13 +1495,13 @@ export default function HarlemRenaissance() {
           <div className="hr-exhibition-grid">
             <button type="button" className="btn-reset hr-poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/exhibitions/harlem/poster1.jpg" alt="The Great Migration and The Harlem Renaissance" />
+              <img src="/exhibitions/harlem/poster1.jpg" alt="The Great Migration and The Harlem Renaissance poster: columns of text above the title in cream and gold lettering on purple" />
               <span className="hr-poster-hint">Click to explore</span>
             </button>
 
             <Link href="/exhibitions/harlem-renaissance/artifacts" className="hr-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/exhibitions/harlem/artifacts/display-case.png" alt="Artifact Display Case" className="hr-case-image" />
+              <img src="/exhibitions/harlem/artifacts/display-case.png" alt="Display case holding a copy of The Fire in the Flint by Walter F. White, a Vocalion 78 rpm record and sheet music for I Just Couldn't Take It Baby" className="hr-case-image" />
               <p className="hr-case-label">Gallery II, Case 5</p>
               <p className="hr-case-title">Voices of Harlem</p>
               <p className="hr-case-subtitle">Artifacts & Experiences from the Renaissance</p>
@@ -1546,7 +1509,7 @@ export default function HarlemRenaissance() {
 
             <button type="button" className="btn-reset hr-poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/exhibitions/harlem/poster2.jpg" alt="Walter White: The Civil Rights Hero You've Never Heard Of" />
+              <img src="/exhibitions/harlem/poster2.jpg" alt="Walter White: The Civil Rights Hero You've Never Heard Of poster: columns of text over a slate-blue painting of a lone figure on a hill" />
               <span className="hr-poster-hint">Click to explore</span>
             </button>
           </div>
@@ -1554,14 +1517,15 @@ export default function HarlemRenaissance() {
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
-        {activeView === 'main' ? '' : `Panel ${posterStep + 1} of ${currentPosterContent.length}`}
+        {announcement}
       </p>
+      <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
 
       {/* ============================================
           POSTER WALKTHROUGH VIEW
           ============================================ */}
       {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div className={`hr-poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey}>
+        <div className={`hr-poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey} {...stageProps}>
           <div className="hr-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
 
             {/* Title Image — Full Bleed */}
