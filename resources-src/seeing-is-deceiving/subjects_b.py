@@ -303,7 +303,7 @@ MATH_TECH = [
     "Brain “adjusts” length based on perceived distance: the line that seems farther away looks longer"],
    ["**Math:** Arrow angles (45° or 30°) determine illusion strength."]),
   ("Ponzo (converging lines)",
-   ["Display the Ponzo illusion (two identical horizontal lines between converging “tracks”)."],
+   ["Display the Ponzo illusion (the Perception Lab’s Ponzo Corridor: two identical balls in a corridor whose walls converge into the distance)."],
    ["Converging lines signal “distance” to your brain",
     "Objects “farther away” must be larger",
     "Brain scales up the top line"],
@@ -372,8 +372,8 @@ MATH_LP = {
          "purpose": "The reveal, and the question for the lesson: why do these illusions work?",
          "students": ["Today we’re going to explore WHY these illusions work—and the answer is geometry."]}],
       "body": [
-        "Display the Müller-Lyer illusion (two horizontal lines of equal length—one with arrows pointing outward, one with arrows pointing inward).",
-        "*“Which line is longer—the top one or the bottom one?”* Take a class vote. Most students will say the one with outward-pointing arrows looks longer. *“Now let’s check with math.”* Have a student measure both lines with a ruler.",
+        "Display the Müller-Lyer illusion (two horizontal lines of equal length—one with fins flaring outward at both ends, >—<, and one with arrowheads, <—>).",
+        "*“Which line is longer—the top one or the bottom one?”* Take a class vote. Most students will say the one with outward fins (>—<) looks longer. *“Now let’s check with math.”* Have a student measure both lines with a ruler.",
         "**Reveal:** *“They’re exactly the same length! Your eyes told you one thing, but mathematics tells you another. Today we’re going to explore WHY these illusions work—and the answer is geometry.”*"]}),
     ("section", {"label": "Direct instruction · 10 minutes", "title": "The math behind illusions",
       "screen": [
@@ -564,7 +564,7 @@ PE_SKILLS = [
   ("Depth perception", [], ["Both eyes judge distance", "**Critical for:** catching, hitting, shooting",
                             "A 90 mph baseball gives you <0.5 sec to judge position"]),
   ("Peripheral vision", [], ["“Corner of your eye” vision", "**Critical for:** soccer, basketball, hockey",
-                             "Elite athletes see almost 180°"]),
+                             "Athletes train to notice more at the edges"]),
   ("Reaction time", [], ["Speed of visual processing", "**Critical for:** goalkeeping, batting",
                          "Pros vs amateurs = milliseconds"])]
 PE_DRILLS = "*“Professional athletes train these visual skills just like they train their muscles. Let’s try some of their drills!”*"
@@ -707,7 +707,7 @@ PE_YELLOW = pe_handout("yellow", [
     ("html", "<h4>Station 2: Peripheral vision map</h4>"),
     P("How far back could you detect the ball (estimate in degrees from center)?"),
     P(f"Left side: {B}°       Right side: {B}°"),
-    P(f"Total peripheral range: approximately {B}°     (Elite athletes reach nearly 180°!)"),
+    P(f"Total peripheral range: approximately {B}°     (Most people’s eyes together cover about 180°!)"),
     ("html", "<h4>Station 3: Reaction time</h4>"),
     P(f"Score: {B} / 10 correct      Which response was slowest (clap/jump/touch ground)? {B}"),
     *Q("Why do you think that one was harder?", 1)]}),

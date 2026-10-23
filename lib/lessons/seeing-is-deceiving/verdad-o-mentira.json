@@ -332,11 +332,11 @@
       "minutes": 4,
       "script": [
         "Show spirit photography example.",
-        "“En 1860, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?” (In 1860, a photographer said: ‘I can photograph ghosts.’ Many people believed. Is it truth or lie?)"
+        "“En 1862, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?” (In 1862, a photographer said: ‘I can photograph ghosts.’ Many people believed. Is it truth or lie?)"
       ],
       "screen": {
         "kind": "question",
-        "question": "En 1860, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?"
+        "question": "En 1862, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?"
       },
       "purpose": "A real fake from history, in simple Spanish.",
       "students": [

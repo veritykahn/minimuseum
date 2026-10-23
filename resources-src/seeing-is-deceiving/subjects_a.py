@@ -401,7 +401,7 @@ SCI_R = handout("Science", "science", "red", "The Science of Seeing",
 ELA_HERO = {"img": S + "poster2.jpg", "pos": "center 45%"}
 
 ELA_SAY1 = "“This photograph was taken in the 1860s. The photographer charged grieving families a lot of money because he claimed he could photograph the spirits of their dead loved ones. Look at it carefully. Do you think it’s real?”"
-ELA_REVEAL = "Let students share initial reactions. Then reveal: *“This is a fake. The photographer used a technique called double exposure to add ‘ghosts’ to his pictures. He made a fortune before being exposed as a fraud.”*"
+ELA_REVEAL = "Let students share initial reactions. Then reveal: *“This is a fake. The photographer used a technique called double exposure to add ‘ghosts’ to his pictures. He made a fortune before he was put on trial for fraud.”*"
 ELA_SAY2 = "“People have been manipulating images since photography was invented. Today we have Photoshop and AI deepfakes. The technology changes, but the challenge remains the same: How do we know what to believe? Today, you’re going to learn a systematic way to evaluate ANY source — visual or written — so you can protect yourself from being fooled.”"
 CRAAP = [("C", "Currency", "When was this created or updated?", ["Is the information recent enough for your topic?", "Are links functional? Is the site maintained?", "For images: When was the photo actually taken vs. when was it shared?"]),
          ("R", "Relevance", "Does this relate to your needs?", ["Does it answer your question?", "Who is the intended audience?", "Is it at an appropriate level?"]),
@@ -509,8 +509,8 @@ ELA_LP = {
                 "red": "“I want to go deeper” — Find real misinformation, analyze how it spread, create verification guide"}),
     ("html", NEWPAGE),
     ("section", {"label": "Teacher resources & background", "title": "Background: spirit photography", "body": [
-      "William H. Mumler (1832–1884) was a Boston jewelry engraver who “discovered” he could photograph spirits in 1861. He charged $10 per photograph (about $350 today) to grieving families who wanted images of their deceased loved ones. His most famous client was Mary Todd Lincoln, who received a photograph showing Abraham Lincoln’s “ghost” behind her.",
-      "Mumler was put on trial for fraud in 1869. Photographers testified that his technique was simple double exposure — he used previously exposed plates to superimpose faint images onto new photographs. Despite strong evidence, Mumler was acquitted because the prosecution couldn’t definitively prove HOW the fakes were made. He continued practicing until his death."]}),
+      "William H. Mumler (1832–1884) was a Boston jewelry engraver who “discovered” he could photograph spirits in 1862. He charged about $10 — several times the price of an ordinary portrait — to grieving families who wanted images of their deceased loved ones. His most famous client was Mary Todd Lincoln, who received a photograph showing Abraham Lincoln’s “ghost” behind her.",
+      "Mumler was put on trial for fraud in 1869. Photographers testified that his technique was simple double exposure — he used previously exposed plates to superimpose faint images onto new photographs. Despite strong evidence, Mumler was acquitted because the prosecution couldn’t definitively prove HOW the fakes were made. His reputation never recovered, though he kept working as a photographer until he died in 1884."]}),
     ("section", {"label": "Why this history matters today", "body": ["Spirit photography teaches students several important lessons:"], "list": [
       "**Visual evidence has always been manipulable** — This isn’t a new problem created by Photoshop or AI",
       "**Emotional vulnerability increases susceptibility** — Mumler targeted grieving families; modern misinformation often targets fear, anger, or hope",
@@ -626,7 +626,7 @@ ELA_R = handout("ELA", "ela", "red", "Source Detective",
                      "**Question:** If we can’t always prove something is fake, how should we decide what to believe? What’s the role of trust, reputation, and multiple sources?"], "lines": 4}),
   ("html", box("Mini Museum deep dive", [
       "**Research Question:** How did newspapers and scientists eventually expose spirit photography as fraud? What techniques did investigators use, and how do modern fact-checkers use similar methods today?",
-      "**Historical Context:** Spirit photography emerged during the American Civil War, when hundreds of thousands of families were grieving lost soldiers. Mumler charged about $10 per photograph — equivalent to roughly $350 today. He targeted people at their most emotionally vulnerable.",
+      "**Historical Context:** Spirit photography emerged during the American Civil War, when hundreds of thousands of families were grieving lost soldiers. Mumler charged about $10 — several times the price of an ordinary portrait. He targeted people at their most emotionally vulnerable.",
       "**Modern Parallel:** Today’s misinformation often targets strong emotions: fear, anger, grief, hope. The technology changes, but the psychology remains the same."])),
   ("html", '<aside class="family"><p class="label">Share with your family</p>'
            + p("**Interview Project:** Interview an older family member about how they verified information before the internet existed. Ask them:")

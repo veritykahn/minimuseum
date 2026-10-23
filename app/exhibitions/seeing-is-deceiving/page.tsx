@@ -257,7 +257,7 @@ const poster2Content = [
   },
   {
     type: 'paragraph',
-    text: 'In 1861, photographer William Mumler accidentally created the first spirit photograph using double exposure—exposing the same plate twice. A ghostly figure appeared beside him. Grieving families paid fortunes for photographs of dead relatives, not understanding how cameras could be manipulated.',
+    text: 'In 1862, photographer William Mumler accidentally created the first spirit photograph using double exposure—exposing the same plate twice. A ghostly figure appeared beside him. Grieving families paid fortunes for photographs of dead relatives, not understanding how cameras could be manipulated.',
     position: 'top-left',
     effect: 'fade-in',
     special: 'static-overlay'
