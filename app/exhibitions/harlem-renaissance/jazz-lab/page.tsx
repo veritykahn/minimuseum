@@ -3,10 +3,13 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { useAudioEngine, useBandBuilder, useQuiz } from './hooks';
-import { INSTRUMENTS, INSTRUMENT_MAP, type InstrumentId, BAND_INSTRUMENTS, BAND_INSTRUMENT_MAP, SECTIONS, type BandInstrumentId } from './data';
 import JazzStudio from './JazzStudio';
+import BuildABand from './BuildABand';
+import NameThatInstrument from './NameThatInstrument';
 import ExhibitionNav from '@/components/ExhibitionNav';
-import { prefersReducedMotion } from '@/lib/a11y';
+import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
+import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
+import NameThatInstrumentProjector from './NameThatInstrumentProjector';
 
 const TABS = [
   { id: 'band', label: 'Build a Band' },
@@ -53,24 +56,37 @@ export default function JazzLabPage() {
     tabRefs.current[next]?.focus();
   };
 
-  // When the quiz ends the answer buttons go away; move focus to the result.
-  const gameoverRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (quiz.gameState === 'gameover') gameoverRef.current?.focus();
-  }, [quiz.gameState]);
-
   // Entering the lab removes the Enter button; put focus on the lab heading.
   const labHeadingRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (view === 'lab') labHeadingRef.current?.focus({ preventScroll: true });
   }, [view]);
 
-  // Spotlight instrument for info card
-  const spotlightInstrument = band.spotlight ? BAND_INSTRUMENT_MAP[band.spotlight] : null;
+  // Teacher projector mode for Name That Instrument (?projector=1 opens it).
+  // It keeps its own rounds, so a quiz in progress is untouched on exit.
+  const [projector, setProjector] = useProjectorMode();
+  const seed = useClientSeed();
+  const [projectorPlay, setProjectorPlay] = useState(0);
+  const openProjector = () => {
+    stopAudio();
+    setProjector(true);
+  };
 
-  // Compute spotlight position for stage glow
-  const spotlightIdx = band.spotlight ? BAND_INSTRUMENTS.findIndex(i => i.id === band.spotlight) : -1;
-  const spotlightX = spotlightIdx >= 0 ? `${((spotlightIdx + 0.5) / BAND_INSTRUMENTS.length) * 100}%` : '50%';
+  if (projector) {
+    return (
+      <NameThatInstrumentProjector
+        seed={seed === null ? null : nextSeed(seed, 1000 + projectorPlay)}
+        playOnce={audioEngine.playOnce}
+        stopSource={audioEngine.stopSource}
+        onExit={() => {
+          setView('lab');
+          setActiveTab('quiz');
+          setProjector(false);
+        }}
+        onRestart={() => setProjectorPlay((p) => p + 1)}
+      />
+    );
+  }
 
   return (
     <div style={{ background: 'var(--jl-bg)', minHeight: '100vh' }}>
@@ -979,100 +995,7 @@ export default function JazzLabPage() {
       </div>
 
       {/* ── BUILD A BAND ── */}
-      {activeTab === 'band' && (
-        <div role="tabpanel" id="jl-panel-band" aria-labelledby="jl-tab-band">
-          <div className="jl-instructions">
-            Tap to <em>add an instrument</em>. Tap a playing instrument to <em>give it the spotlight</em>.<br />
-            Tap the soloist again to <em>take it off stage</em>.
-          </div>
-
-          {/* Section Selector */}
-          <div className="jl-section-container">
-            <div className="jl-section-label">{'\u{25C6}'} Song Section {'\u{25C6}'}</div>
-            <div className="jl-section-selector" role="group" aria-label="Song section">
-              {SECTIONS.map(s => (
-                <button
-                  key={s.number}
-                  type="button"
-                  className={`jl-section-btn ${band.section === s.number ? 'active' : ''}`}
-                  aria-pressed={band.section === s.number}
-                  onClick={() => band.changeSection(s.number)}
-                >
-                  <span className="jl-section-num" aria-hidden="true">{s.number}</span>
-                  <span className="jl-section-name">{s.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Stage */}
-          <div className="jl-stage-container">
-            <div
-              className={`jl-stage ${band.spotlight ? 'has-spotlight' : ''}`}
-              style={{ '--spotlight-x': spotlightX } as React.CSSProperties}
-            >
-              <div className="jl-stage-label">{'\u{25C6}'} The Stage {'\u{25C6}'}</div>
-              <div className="jl-band-slots" role="group" aria-label="Instruments on stage">
-                {BAND_INSTRUMENTS.map((inst) => {
-                  const isAvailable = inst.sections.includes(band.section);
-                  const isActive = band.active.has(inst.id);
-                  const isSpotlight = band.spotlight === inst.id;
-                  const isBacking = isActive && band.spotlight !== null && !isSpotlight;
-                  const isDimmed = !isActive && band.active.size > 0 && band.spotlight !== null;
-
-                  return (
-                    <button
-                      type="button"
-                      key={inst.id}
-                      className={`jl-slot ${isActive ? 'active' : ''} ${isSpotlight ? 'spotlight' : ''} ${isBacking ? 'backing' : ''} ${isDimmed ? 'dimmed' : ''} ${!isAvailable ? 'unavailable' : ''}`}
-                      aria-pressed={isActive}
-                      aria-disabled={!isAvailable || undefined}
-                      aria-label={`${inst.name}${isSpotlight ? ', soloing' : ''}${!isAvailable ? ', not in this section' : ''}`}
-                      onClick={() => isAvailable && band.tapInstrument(inst.id)}
-                    >
-                      <span className="jl-slot-icon" aria-hidden="true">
-                        {inst.emoji}
-                      </span>
-                      <span className="jl-slot-name">{inst.name}</span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          <div className="jl-now-playing">
-            <EqBars isPlaying={band.active.size > 0} />
-            <div role="status" aria-live="polite">
-              {band.active.size === 0
-                ? 'Tap an instrument to begin'
-                : band.spotlight
-                  ? <><span>{BAND_INSTRUMENT_MAP[band.spotlight].name}</span> soloing &mdash; {SECTIONS.find(s => s.number === band.section)?.name}</>
-                  : <><span>{band.active.size}</span> instrument{band.active.size > 1 ? 's' : ''} playing &mdash; {SECTIONS.find(s => s.number === band.section)?.name}</>
-              }
-            </div>
-          </div>
-
-          <div className="jl-controls">
-            <button className="jl-btn jl-btn-stop" onClick={band.stopAll}>
-              Stop All
-            </button>
-            <button className="jl-btn" onClick={band.surpriseMe}>
-              Surprise Me
-            </button>
-          </div>
-
-          <div className="jl-info-panel">
-            {spotlightInstrument && (
-              <div className="jl-info-card" key={spotlightInstrument.id}>
-                <h3>{spotlightInstrument.fact.title}</h3>
-                <p>{spotlightInstrument.fact.text}</p>
-                <div className="jl-fact">{spotlightInstrument.fact.quote}</div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {activeTab === 'band' && <BuildABand band={band} />}
 
       {/* ── JAZZ STUDIO ── */}
       {activeTab === 'studio' && (
@@ -1080,108 +1003,7 @@ export default function JazzLabPage() {
       )}
 
       {/* ── NAME THAT INSTRUMENT ── */}
-      {activeTab === 'quiz' && (
-        <div role="tabpanel" id="jl-panel-quiz" aria-labelledby="jl-tab-quiz">
-          <div className="jl-instructions">
-            Listen to the sound and <em>tap the instrument</em> you think it is.
-          </div>
-
-          <div className="jl-quiz-container">
-            {quiz.gameState !== 'gameover' ? (
-              <>
-                <div className="jl-quiz-stage">
-                  <button
-                    type="button"
-                    aria-label={quiz.gameState === 'idle' ? 'Start the quiz' : 'Play the sound again'}
-                    className={`jl-quiz-play-btn ${quiz.isQuizPlaying ? 'playing' : ''}`}
-                    onClick={() => {
-                      if (quiz.gameState === 'idle') {
-                        quiz.startGame();
-                      } else {
-                        quiz.replaySound();
-                      }
-                    }}
-                  >
-                    <span aria-hidden="true">{quiz.isQuizPlaying ? '\u{266A}' : '\u{25B6}'}</span>
-                  </button>
-                  <div className="jl-quiz-prompt" role="status" aria-live="polite">
-                    {quiz.gameState === 'idle'
-                      ? 'Tap play to start the quiz'
-                      : quiz.gameState === 'answered'
-                        ? quiz.lastAnswer?.correct ? 'Correct!' : `That was the ${INSTRUMENT_MAP[quiz.lastAnswer?.correctAnswer ?? 'piano'].name}`
-                        : 'What instrument is this?'
-                    }
-                  </div>
-                  <div className="jl-quiz-hint">
-                    {quiz.gameState === 'idle' ? '12 rounds' : 'Listen carefully...'}
-                  </div>
-                  {quiz.gameState !== 'idle' && (
-                    <div className="jl-quiz-progress">
-                      Round {quiz.currentRound + 1} of {quiz.totalRounds}
-                    </div>
-                  )}
-                </div>
-
-                {quiz.gameState !== 'idle' && (
-                  <div className="jl-quiz-answers" role="group" aria-label="Which instrument is it?">
-                    {INSTRUMENTS.map((inst) => {
-                      const isAnswered = quiz.gameState === 'answered';
-                      const isChosen = quiz.lastAnswer?.chosen === inst.id;
-                      const isCorrectAnswer = quiz.lastAnswer?.correctAnswer === inst.id;
-                      let className = 'jl-quiz-answer';
-                      if (isAnswered) {
-                        if (isChosen && quiz.lastAnswer?.correct) className += ' correct';
-                        else if (isChosen && !quiz.lastAnswer?.correct) className += ' wrong';
-                        else if (isCorrectAnswer) className += ' correct';
-                        else className += ' disabled';
-                      }
-
-                      return (
-                        <button
-                          type="button"
-                          key={inst.id}
-                          className={className}
-                          aria-disabled={isAnswered || undefined}
-                          onClick={() => {
-                            if (quiz.gameState === 'playing') {
-                              quiz.submitAnswer(inst.id);
-                            }
-                          }}
-                        >
-                          <span className="jl-answer-emoji" aria-hidden="true">{inst.emoji}</span>
-                          <span className="jl-answer-name">{inst.name}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-
-                <div className="jl-quiz-score-bar">
-                  <div className="jl-score-item">
-                    <div className="jl-score-number">{quiz.score}</div>
-                    <div className="jl-score-label">Correct</div>
-                  </div>
-                  <div className="jl-score-item">
-                    <div className="jl-score-number">{quiz.totalAnswered}</div>
-                    <div className="jl-score-label">Played</div>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="jl-gameover" ref={gameoverRef} tabIndex={-1} role="status" style={{ outline: 'none' }}>
-                <div className="jl-gameover-title">{quiz.getRating()?.label}</div>
-                <div className="jl-gameover-score">
-                  You got <span>{quiz.score}</span> out of <span>{quiz.totalRounds}</span> correct.<br />
-                  {quiz.getRating()?.message}
-                </div>
-                <button className="jl-btn" onClick={quiz.startGame}>
-                  Play Again
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {activeTab === 'quiz' && <NameThatInstrument quiz={quiz} onTeach={openProjector} />}
 
       <div className="jl-deco-line"><div className="jl-deco-diamond" /></div>
 
@@ -1192,48 +1014,3 @@ export default function JazzLabPage() {
     </div>
   );
 }
-
-// ── EQ Bars sub-component ──
-function EqBars({ isPlaying }: { isPlaying: boolean }) {
-  const barsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isPlaying || !barsRef.current) return;
-    const bars = barsRef.current.children;
-    // Decorative motion: hold the bars still for visitors who ask for reduced motion.
-    if (prefersReducedMotion()) {
-      for (let i = 0; i < bars.length; i++) {
-        (bars[i] as HTMLDivElement).style.height = `${8 + ((i * 7) % 10)}px`;
-      }
-      return;
-    }
-    let animId: number;
-
-    const animate = () => {
-      for (let i = 0; i < bars.length; i++) {
-        const bar = bars[i] as HTMLDivElement;
-        const h = 4 + Math.random() * 18;
-        bar.style.height = `${h}px`;
-      }
-    };
-
-    // Throttle to ~15fps for performance
-    const interval = setInterval(() => {
-      animId = requestAnimationFrame(animate);
-    }, 66);
-
-    return () => {
-      clearInterval(interval);
-      cancelAnimationFrame(animId);
-    };
-  }, [isPlaying]);
-
-  return (
-    <div ref={barsRef} className={`jl-eq-bars ${isPlaying ? 'playing' : ''}`} aria-hidden="true">
-      {Array.from({ length: 12 }).map((_, i) => (
-        <div key={i} className="jl-eq-bar" style={{ height: '4px' }} />
-      ))}
-    </div>
-  );
-}
-

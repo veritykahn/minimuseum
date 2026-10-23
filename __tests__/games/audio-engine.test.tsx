@@ -1,5 +1,6 @@
-import { act, renderHook } from '@testing-library/react';
-import { useAudioEngine, useBandBuilder, useQuiz } from '@/app/exhibitions/harlem-renaissance/jazz-lab/hooks';
+import { act, fireEvent, render, renderHook } from '@testing-library/react';
+import { useAudioEngine, useBandBuilder } from '@/app/exhibitions/harlem-renaissance/jazz-lab/hooks';
+import ProjectorStage, { type ProjectorItem } from '@/components/games/projector/ProjectorStage';
 
 /*
  * The Jazz Lab's sounds start asynchronously (fetch + decode), so a stop can
@@ -202,40 +203,43 @@ describe('useAudioEngine', () => {
   });
 });
 
-describe('useQuiz', () => {
-  it('a tab change inside the pause after an answer brings the next round up silently', async () => {
-    jest.useFakeTimers();
-    instant = true;
-    const { result } = renderHook(() => {
-      const audio = useAudioEngine();
-      return { audio, quiz: useQuiz(audio) };
-    });
-    act(() => result.current.quiz.startGame());
-    await flush();
-    expect(live.size).toBe(1);
-    act(() => result.current.quiz.submitAnswer('piano'));
-    expect(live.size).toBe(0);
-    act(() => result.current.audio.stopAll()); // what a tab change does
-    act(() => { jest.advanceTimersByTime(1600); });
-    await flush();
-    expect(result.current.quiz.currentRound).toBe(1);
-    expect(result.current.quiz.isQuizPlaying).toBe(false);
-    expect(created.length).toBe(1);
-    expect(live.size).toBe(0);
-    jest.useRealTimers();
+describe('ProjectorStage onLeave', () => {
+  beforeAll(() => {
+    window.matchMedia = window.matchMedia || ((q: string) => ({ matches: false, media: q, addEventListener() {}, removeEventListener() {} }) as unknown as MediaQueryList);
   });
 
-  it('without an interruption the next round still plays its clip', async () => {
-    jest.useFakeTimers();
-    instant = true;
-    const { result } = renderHook(() => useQuiz(useAudioEngine()));
-    act(() => result.current.startGame());
-    await flush();
-    act(() => result.current.submitAnswer('piano'));
-    act(() => { jest.advanceTimersByTime(1600); });
-    await flush();
-    expect(result.current.isQuizPlaying).toBe(true);
-    expect(live.size).toBe(1);
-    jest.useRealTimers();
+  it('runs when the class moves to the next item and when the projector closes, not between stages', () => {
+    const left: string[] = [];
+    const items: ProjectorItem[] = ['one', 'two'].map((id) => ({
+      id,
+      prompt: `Question ${id}?`,
+      choices: [{ id: 'a', label: 'A' }, { id: 'b', label: 'B' }],
+      judge: (c: string) => c === 'a',
+      verdict: () => ({ tone: 'neutral' as const, title: 'It was A.' }),
+      media: () => <p>media {id}</p>,
+      explanation: <p>Because.</p>,
+      onLeave: () => left.push(id),
+    }));
+    const ending = {
+      eyebrow: 'Test',
+      result: (t: { correct: number; voted: number }) => ({ value: t.correct, caption: `of ${t.voted}`, title: 'Done.' }),
+      discuss: <p>Talk.</p>,
+      missedLabel: 'Again',
+      links: [],
+    };
+    const { unmount } = render(<ProjectorStage title="T" noun="Sound" nounPlural="sounds" items={items} layout="side" theme={{}} ending={ending} onExit={() => {}} />);
+    const key = (k: string) => act(() => { fireEvent.keyDown(window, { key: k }); });
+    key('ArrowRight'); // vote
+    key('ArrowRight'); // reveal
+    expect(left).toEqual([]);
+    key('ArrowRight'); // item two
+    expect(left).toEqual(['one']);
+    key('ArrowRight');
+    key('ArrowRight');
+    key('ArrowRight'); // the ending
+    expect(left).toEqual(['one', 'two']);
+    key('ArrowLeft'); // back to item two's reveal
+    unmount();
+    expect(left).toEqual(['one', 'two', 'two']);
   });
 });

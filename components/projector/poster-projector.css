@@ -1,0 +1,250 @@
+/*
+ * Poster panels at projector scale. Inside the projector's stage (.pjp-stage)
+ * the page's own walkthrough is drawn unchanged — the same reveals, colors and
+ * progress rail — but sized for a classroom: it fills the stage rather than
+ * the window, the copy is set to read from the back of the room (32px or more
+ * at 1080p), and pictures take as much of the stage as they can.
+ *
+ * Every size is a multiple of --pjp-u, a hundredth of the projector frame's
+ * width (19.2px at 1920×1080, 12.8px at 1280×720). Registering it makes it
+ * resolve once, on the frame, rather than against the stage it is used in.
+ *
+ * PosterProjector's fitStage() gives each panel's copy a size step,
+ * data-pj-len, from its length, and steps it down if it would spill.
+ */
+
+@property --pjp-u {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 19.2px;
+}
+
+/* ───────── The walkthrough fills the stage, not the window ───────── */
+
+.pjp-stage > [data-poster-stage] {
+  position: relative;
+  /* The page paints the poster's ground on its own root, which the projector covers. */
+  background: var(--pfx-bg, transparent);
+  transition: background 0.5s ease;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+.pjp-stage :is(.walkthrough-content, .hr-walkthrough-content, .ith-walkthrough-content) {
+  height: 100%;
+  min-height: 0;
+}
+.pjp-stage :is(
+    .text-content-wrapper,
+    .hr-text-content-wrapper,
+    .ith-text-content-wrapper,
+    .hr-artwork-display,
+    .ith-artwork-display,
+    .ith-image-text-stacked
+  ) {
+  height: 100%;
+  min-height: 0;
+  padding: calc(var(--pjp-u) * 2.4) calc(var(--pjp-u) * 5) calc(var(--pjp-u) * 5.2);
+}
+
+/* The poster's composition stays (left, right, top), with room-sized margins. */
+.pjp-stage :is(
+    .pos-top-left, .pos-top-right, .pos-bottom-left, .pos-bottom-right,
+    .hr-pos-top-left, .hr-pos-top-right, .hr-pos-bottom-left, .hr-pos-bottom-right,
+    .ith-pos-top-left, .ith-pos-top-right, .ith-pos-bottom-left, .ith-pos-bottom-right
+  ) {
+  padding-left: calc(var(--pjp-u) * 7);
+  padding-right: calc(var(--pjp-u) * 7);
+}
+.pjp-stage :is(.pos-top-left, .pos-top-right, .hr-pos-top-left, .hr-pos-top-right, .ith-pos-top-left, .ith-pos-top-right) {
+  padding-top: calc(var(--pjp-u) * 4);
+}
+
+/* ───────── Type ───────── */
+
+.pjp-stage :is(.section-title-text, .hr-section-title-text, .ith-section-title-text) {
+  max-width: 30em;
+  font-size: calc(var(--pjp-u) * 2.6);
+  line-height: 1.3;
+  letter-spacing: 0.12em;
+}
+
+.pjp-stage :is(.paragraph-text, .hr-paragraph-text, .ith-paragraph-text) {
+  max-width: min(36em, 100%);
+  font-size: calc(var(--pjp-u) * 2.05);
+  line-height: 1.45;
+}
+.pjp-stage :is(.quote-text, .hr-quote-text, .ith-quote-text) {
+  max-width: min(34em, 100%);
+  padding: calc(var(--pjp-u) * 1.2) calc(var(--pjp-u) * 2.2);
+  border-left-width: max(3px, calc(var(--pjp-u) * 0.25));
+  font-size: calc(var(--pjp-u) * 2.2);
+  line-height: 1.4;
+}
+
+/* Size steps, longest copy to shortest. xs is the floor: 33.6px at 1080p. */
+.pjp-stage [data-pj-len][data-pj-len='xl'] { font-size: calc(var(--pjp-u) * 3.6); line-height: 1.22; max-width: min(22em, 100%); }
+.pjp-stage [data-pj-len][data-pj-len='l']  { font-size: calc(var(--pjp-u) * 2.85); line-height: 1.32; max-width: min(27em, 100%); }
+.pjp-stage [data-pj-len][data-pj-len='m']  { font-size: calc(var(--pjp-u) * 2.35); line-height: 1.38; max-width: min(33em, 100%); }
+.pjp-stage [data-pj-len][data-pj-len='s']  { font-size: calc(var(--pjp-u) * 2.0); line-height: 1.4; max-width: min(38em, 100%); }
+.pjp-stage [data-pj-len][data-pj-len='xs'] { font-size: calc(var(--pjp-u) * 1.75); line-height: 1.4; max-width: min(42em, 100%); }
+
+/* Seeing is Deceiving: the 400-year timeline and the blind spot */
+.pjp-stage .line-fade {
+  font-size: calc(var(--pjp-u) * 1.95);
+  line-height: 1.35;
+  margin-bottom: calc(var(--pjp-u) * 0.9);
+}
+.pjp-stage .blind-spot-hole {
+  width: calc(var(--pjp-u) * 22);
+  height: calc(var(--pjp-u) * 22);
+}
+
+/* In Their Hands: the coin timeline */
+.pjp-stage .ith-timeline-title {
+  font-size: calc(var(--pjp-u) * 2.2);
+  margin-bottom: calc(var(--pjp-u) * 1);
+}
+.pjp-stage .ith-timeline {
+  max-width: min(60em, 100%);
+  text-align: left;
+}
+.pjp-stage .ith-timeline-item {
+  gap: calc(var(--pjp-u) * 0.6);
+  padding: calc(var(--pjp-u) * 0.45) 0 calc(var(--pjp-u) * 0.45) calc(var(--pjp-u) * 1.2);
+  border-left-width: 3px;
+}
+.pjp-stage .ith-timeline-item::before {
+  left: calc(var(--pjp-u) * -0.35);
+  top: calc(var(--pjp-u) * 1.1);
+  width: calc(var(--pjp-u) * 0.55);
+  height: calc(var(--pjp-u) * 0.55);
+}
+.pjp-stage .ith-timeline-text {
+  font-size: calc(var(--pjp-u) * 1.7);
+  line-height: 1.32;
+}
+
+/* Links out of the poster and the captions under pictures */
+.pjp-stage :is(.content-link, .hr-content-link) {
+  max-width: 80cqw;
+  padding: calc(var(--pjp-u) * 1) calc(var(--pjp-u) * 2);
+  font-size: calc(var(--pjp-u) * 1.3);
+  line-height: 1.4;
+  white-space: normal;
+}
+.pjp-stage :is(.hr-image-caption, .ith-image-caption) {
+  bottom: calc(var(--pjp-u) * 4.6);
+  width: max-content;
+  max-width: 80%;
+  font-size: calc(var(--pjp-u) * 1.15);
+  white-space: normal;
+  opacity: 0.9;
+}
+
+/* ───────── Pictures as large as the stage allows ───────── */
+
+.pjp-stage .full-bleed-image.title-image.poster2-title img,
+.pjp-stage .hr-full-bleed-image.hr-title-height img,
+.pjp-stage .ith-frost-image img {
+  max-height: 100%;
+}
+.pjp-stage :is(.hr-full-bleed-image.hr-full-image, .ith-full-bleed-image.ith-full-image) img {
+  max-width: 94%;
+  max-height: calc(100% - var(--pjp-u) * 9);
+}
+.pjp-stage .ith-full-bleed-image.ith-title-centered img {
+  max-width: 70%;
+  max-height: 84%;
+}
+
+/* Harlem: the artwork beside its label */
+.pjp-stage .hr-artwork-display {
+  gap: calc(var(--pjp-u) * 3);
+  padding-left: calc(var(--pjp-u) * 3);
+  padding-right: calc(var(--pjp-u) * 3);
+}
+.pjp-stage .hr-artwork-image-side {
+  max-width: 52%;
+  height: 100%;
+}
+.pjp-stage .hr-artwork-image-side img {
+  max-height: 100%;
+}
+.pjp-stage .hr-artwork-info-side {
+  max-width: 44%;
+}
+.pjp-stage .hr-artwork-info-side h2 {
+  font-size: calc(var(--pjp-u) * 2.9);
+  line-height: 1.15;
+  margin-bottom: calc(var(--pjp-u) * 0.5);
+}
+.pjp-stage .hr-artwork-info-side .hr-artwork-meta {
+  font-size: calc(var(--pjp-u) * 1.15);
+  margin-bottom: calc(var(--pjp-u) * 1.2);
+}
+.pjp-stage .hr-artwork-info-side .hr-artwork-desc {
+  max-width: none;
+  line-height: 1.42;
+}
+
+/* In Their Hands: the picture and its caption beside the copy */
+.pjp-stage .ith-artwork-display {
+  gap: calc(var(--pjp-u) * 3.5);
+  padding-left: calc(var(--pjp-u) * 4);
+  padding-right: calc(var(--pjp-u) * 4);
+}
+.pjp-stage .ith-artwork-image-side {
+  max-width: 40%;
+  gap: calc(var(--pjp-u) * 0.8);
+}
+.pjp-stage .ith-artwork-image-side img {
+  max-height: calc(100cqh - var(--pjp-u) * 15);
+}
+.pjp-stage .ith-artwork-caption-title {
+  font-size: calc(var(--pjp-u) * 1.5);
+}
+.pjp-stage .ith-artwork-caption-meta {
+  font-size: calc(var(--pjp-u) * 1);
+  opacity: 0.85;
+}
+.pjp-stage .ith-artwork-text-side {
+  max-width: 54%;
+}
+.pjp-stage .ith-artwork-text-side .ith-paragraph-text {
+  max-width: none;
+}
+
+/* In Their Hands: picture above or below a line of copy */
+.pjp-stage .ith-image-text-stacked {
+  gap: calc(var(--pjp-u) * 1.6);
+}
+.pjp-stage .ith-stacked-image {
+  max-width: 80%;
+}
+.pjp-stage .ith-stacked-image img {
+  max-height: 44cqh;
+}
+.pjp-stage .ith-image-text-stacked .ith-paragraph-text {
+  max-width: min(40em, 100%);
+}
+
+/* Harlem, the Aspiration section: the dusty mauve copy sits at about 1.6:1 on
+   its purple, which a projector washes out entirely. On the projector it takes
+   the poster's cream, as the section's titles already do (3.8:1, and all copy
+   here is large text). */
+.pjp-stage .hr-art-deco-rays .hr-paragraph-text {
+  color: #efd9b4 !important;
+}
+
+/* The coin timeline: its heading above the list, not beside it. */
+.pjp-stage .ith-text-content-wrapper:has(> .ith-timeline) {
+  flex-direction: column;
+  gap: calc(var(--pjp-u) * 0.6);
+}
+
+/* An artwork's label stays smaller than its title. */
+.pjp-stage .hr-artwork-info-side .hr-artwork-desc:is([data-pj-len='xl'], [data-pj-len='l']) {
+  font-size: calc(var(--pjp-u) * 2.2);
+  line-height: 1.4;
+}

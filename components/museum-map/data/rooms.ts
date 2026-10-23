@@ -37,7 +37,6 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     width: 70,
     height: 50,
     accentColor: '#7D8471',
-    comingSoon: true,
     parent: 'greathall',
   },
   // First Floor
@@ -252,12 +251,33 @@ export function getRoomById(id: string): MapRoom | undefined {
   return MUSEUM_ROOMS.find((room) => room.id === id);
 }
 
+/** True when `pathname` is `roomPath` or a page inside it (whole segments only). */
+export function isWithinPath(pathname: string, roomPath: string): boolean {
+  if (roomPath === '/') return pathname === '/';
+  return pathname === roomPath || pathname.startsWith(`${roomPath}/`);
+}
+
 /**
- * Find a room by its path
+ * Find a room by its path. A page with no room of its own (a single coin,
+ * an artifact viewer) belongs to the most specific room that contains it.
  */
 export function getRoomByPath(path: string): MapRoom | undefined {
-  return (
-    MUSEUM_ROOMS.find((room) => room.path === path) ||
-    MUSEUM_ROOMS.find((room) => path.startsWith(room.path) && room.path !== '/')
-  );
+  let best: MapRoom | undefined;
+  for (const room of MUSEUM_ROOMS) {
+    if (!isWithinPath(path, room.path)) continue;
+    if (!best || room.path.length > best.path.length) best = room;
+  }
+  return best;
+}
+
+/**
+ * Whether a room on the map marks where the visitor is. A room that holds
+ * other rooms (a floor, an exhibition) is lit for every page inside it; a
+ * leaf room only when no more specific room holds the page, so an
+ * exhibition's entrance hall is not lit while the visitor is in its Jazz Lab.
+ */
+export function isRoomCurrent(room: { path: string; children?: string[] }, pathname: string): boolean {
+  if (!isWithinPath(pathname, room.path)) return false;
+  if (room.children && room.children.length > 0) return true;
+  return !MUSEUM_ROOMS.some((r) => r.path.length > room.path.length && isWithinPath(pathname, r.path));
 }

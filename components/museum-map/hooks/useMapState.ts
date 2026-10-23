@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { MapRoom, FloorPlanRoom } from '../types';
-import { getRoomByPath } from '../data/rooms';
+import { getRoomByPath, isRoomCurrent } from '../data/rooms';
 
 /**
  * Hook for managing museum map state.
@@ -78,9 +78,9 @@ export function useMapState() {
     }
   }, [router, close, navigateInMap]);
 
-  const isCurrentRoom = useCallback((room: { path: string; id?: string }) => {
-    return currentRoom?.id === room.id || pathname.startsWith(room.path);
-  }, [currentRoom, pathname]);
+  const isCurrentRoom = useCallback((room: { path: string; id?: string; children?: string[] }) => {
+    return isRoomCurrent(room, pathname);
+  }, [pathname]);
 
   return {
     isOpen,

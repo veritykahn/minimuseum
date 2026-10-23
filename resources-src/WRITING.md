@@ -102,7 +102,29 @@ section's paragraphs. `build.py` ignores `screen`, so the PDF is unchanged.
 `question`, `coins` (`coins`: `img`, `name`, `alt`, optional `sub` and
 `replica`), `painting` (`img`, `verse`), `coin` (`coin`, `back`, `alt`,
 `backAlt`), `verse` (`verse`, `question`, `echo`), `levels`, `review`
-(`lead`, `deeper`: indexes to mark), `prayer` (`prayer`).
+(`lead`, `deeper`: indexes to mark, optional `hint`), `prayer` (`prayer`).
+For reading and comparing: `chart` (`caption`, `columns`, `rows` of
+`{cells, img?, replica?}`), `gallery` (`groups` of `{label, text?, items}`,
+each item `{img, caption, sub?, alt, replica?, aspect?}`), `numberline`
+(`line` `{alt, ticks, notes?, hops?}`, optional `worked` and `rule`; a `\n`
+in the rule starts a new line) and `worked` (`examples`, each `{title, img?,
+alt?, replica?, steps, answer?}`).
+For picture-led steps: `pair` (two `items`, each `img`, `alt`, `label`,
+optional `caption`, `fit`, `pos`, and a revealed `stamp`/`stampTone`; an
+optional quoted `note`), `people` (a row of `people`: `img`, `alt`, `pos`,
+`coin`, `coinAlt`, `name`, `label`; `letters` marks them A, B…) and
+`person` (one `person`, `coinName`, `replica`, `story`, `ref`). A `painting`
+can take `alt` and `pos` for a picture other than the Tribute painting.
+A timed section may sit inside `cols`.
+
+For the youngest classes, `"large": True` on the `LESSON` sets the task
+lines larger, sets more than three coins in a row beneath the task and fewer
+than three large, and the objectives block can carry `"screen": {"heading":
+"I can…", "items": [...]}`, one child's line per objective, used on the
+classroom cover only; the PDF and the notes keep the teacher's wording.
+`"screen_hero"` gives the cover a picture other than the PDF's hero. A
+step's `script` may name a string as well as an index, for a line the
+screen needs that the plan says elsewhere.
 
 Every screen should also say what the step is for and what students do:
 

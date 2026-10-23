@@ -66,9 +66,16 @@ export const SUBJECT_HANDOUTS: Record<string, Record<string, string>> = {
 };
 
 // Lessons that can also be taught on screen (Lesson mode), by
-// '<grade>/<subject>'. The slug is a lesson in lib/lessons.
+// '<grade>/<subject>', or '<grade>' alone for the grades without subjects.
+// The slug is a lesson in lib/lessons.
 export const ON_SCREEN_LESSONS: Record<string, string> = {
+  'prek-k': 'two-tiny-coins',
+  'grades-1-2': 'whose-hands-held-this',
+  'grades-3-4': 'coin-detectives',
   'grades-5-8/religion': 'whose-image-is-this',
+  'grades-5-8/social-studies': 'who-ruled-judaea',
+  'grades-5-8/math': 'the-numbers-in-the-coins',
+  'grades-5-8/art': 'small-works-of-power',
 };
 
 // Librarian file mappings

@@ -46,6 +46,19 @@ describe('usePosterWalkthrough', () => {
     expect(result.current.posterStep).toBe(0);
   });
 
+  it('counts a second press during a transition from the panel on its way in', () => {
+    const { result } = openPoster();
+    act(() => { key('ArrowRight'); jest.advanceTimersByTime(50); key('ArrowRight'); jest.advanceTimersByTime(400); });
+    expect(result.current.posterStep).toBe(2);
+    expect(result.current.direction).toBe(1);
+    expect(result.current.fromStep).toBe(0);
+    act(() => { key('ArrowLeft'); jest.advanceTimersByTime(50); key('ArrowLeft'); jest.advanceTimersByTime(50); key('ArrowLeft'); jest.advanceTimersByTime(400); });
+    expect(result.current.posterStep).toBe(0);
+    expect(result.current.direction).toBe(-1);
+    act(() => { key('End'); jest.advanceTimersByTime(50); key('ArrowRight'); jest.advanceTimersByTime(400); });
+    expect(result.current.posterStep).toBe(4);
+  });
+
   it('ignores keys typed into form fields', () => {
     const { result } = openPoster();
     const input = document.createElement('input');
@@ -77,5 +90,18 @@ describe('usePosterWalkthrough', () => {
     const e = key('ArrowRight');
     expect(e.defaultPrevented).toBe(false);
     expect(result.current.posterStep).toBe(0);
+  });
+
+  it('opens at a given panel, and without the tip when hints are off (projector mode)', () => {
+    const { result } = renderHook(() => usePosterWalkthrough({ poster1: 5, poster2: 3 }, { hint: false }));
+    act(() => result.current.openPoster('poster1', 3));
+    act(() => { jest.advanceTimersByTime(300); });
+    expect(result.current.posterStep).toBe(3);
+    expect(result.current.hintVisible).toBe(false);
+    expect(result.current.announcement).toBe('Panel 4 of 5.');
+    act(() => result.current.openPoster('poster2', 99));
+    act(() => { jest.advanceTimersByTime(300); });
+    expect(result.current.activeView).toBe('poster2');
+    expect(result.current.posterStep).toBe(2);
   });
 });

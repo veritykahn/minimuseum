@@ -445,7 +445,7 @@ S_RED["css"] += "body.student { --line: 21pt; }"
 TH = "teachers/grades-5-8/theater/"
 TH_HERO = {"img": SEE + "balcony.jpg", "pos": "center 62%"}
 
-TH_LP = lesson("Theater", TH + "Theatre Lesson Plan_ The Art of Illusion (Grades 5-8) - Teacher Guide.pdf",
+TH_LP = lesson("Theater", TH + "Theater Lesson Plan_ The Art of Illusion (Grades 5-8) - Teacher Guide.pdf",
   "The Art of Illusion", "Theater’s Willing Deception · Grades 5–8 · Theater · 30 minutes", TH_HERO,
   "Students explore how theater creates “willing suspension of disbelief” through acting, staging, and special effects — connecting performance illusion to the visual deceptions in the Mini Museum.",
   [
@@ -505,7 +505,7 @@ TH_LP = lesson("Theater", TH + "Theatre Lesson Plan_ The Art of Illusion (Grades
 def th_handout(level, out, blocks, css=""):
     return handout("Theater", level, TH + out, "The Art of Illusion", "Grades 5–8 · Theater", TH_HERO, blocks, css=css)
 
-TH_GREEN = th_handout("green", "Student Handout_ The Art of Illusion - Green Level (Theatre 5-8).pdf", [
+TH_GREEN = th_handout("green", "Student Handout_ The Art of Illusion - Green Level (Theater 5-8).pdf", [
   T(1, "What is Suspension of Disbelief?", body=[
     "When you watch a play or movie, you KNOW it’s not real. The actors aren’t really the characters, and the set isn’t a real place. But you choose to pretend it’s real so you can enjoy the story!",
     "**Big Idea:** Theater illusion is like a game — the audience agrees to “believe” even though they know it’s fake. This is different from being tricked without your permission!"]),
@@ -529,7 +529,7 @@ TH_GREEN = th_handout("green", "Student Handout_ The Art of Illusion - Green Lev
   ("family", ["Watch a movie or show with your family. Talk about what theatrical tricks help you “believe” the story!"]),
   ], css=".match { row-gap: 22pt; margin-top: 14pt; } .match div { padding: 10pt 12pt; } .circ .row { padding: 10pt 0; }")
 
-TH_YELLOW = th_handout("yellow", "Student Handout_ The Art of Illusion - Yellow Level (Theatre 5-8).pdf", [
+TH_YELLOW = th_handout("yellow", "Student Handout_ The Art of Illusion - Yellow Level (Theater 5-8).pdf", [
   T(1, "Suspension of Disbelief", body=[
     "“Suspension of disbelief” is the audience’s willingness to accept theatrical conventions as “real” for the duration of a performance. It’s a contract between performers and audience.",
     "**Key Concept:** Theater illusion is consensual — audiences know it’s fake but choose to go along. Deception is non-consensual — victims don’t know they’re being fooled."]),
@@ -548,7 +548,7 @@ TH_YELLOW = th_handout("yellow", "Student Handout_ The Art of Illusion - Yellow 
   ("family", ["Watch a movie with your family and identify moments where you “suspend disbelief.” Discuss: Why are we willing to go along with these illusions?"]),
   ], css="table.fill td { height: 46pt; } table.fill.blankrows td { height: 30pt; }")
 
-TH_RED = th_handout("red", "Student Handout_ The Art of Illusion - Red Level (Theatre 5-8).pdf", [
+TH_RED = th_handout("red", "Student Handout_ The Art of Illusion - Red Level (Theater 5-8).pdf", [
   T(1, "The Ethics of Illusion", body=[
     "Theater, magic shows, and movies all create illusions — but so do con artists, propagandists, and manipulators. The same techniques can be used for entertainment OR deception. What makes the difference?",
     "**Key Question:** Is it the technique that’s ethical or unethical, or is it the context and consent?"]),

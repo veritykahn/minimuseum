@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useDialogFocus } from '@/lib/a11y';
+import CoinStoryLinks from './CoinStoryLinks';
 
 type CoinData = {
   id: string;
@@ -483,6 +484,7 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
               </span>
             </h1>
             <p className="cv-artifact-subtitle">{coin.subtitle}</p>
+            <CoinStoryLinks coinId={coin.id} />
           </div>
         </div>
       </div>

@@ -60,7 +60,7 @@ const LEVEL1_ROOMS: MapRoom[] = [
   {
     id: 'contact', label: 'Contact', path: '/contact',
     x: 360, y: 30, width: 90, height: 60, accentColor: COLORS.sage,
-    comingSoon: true, parent: 'greathall',
+    parent: 'greathall',
   },
   {
     id: 'first-floor', label: '1st Floor: Horizons', path: '/exhibitions/first-floor',
