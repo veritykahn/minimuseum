@@ -22,7 +22,8 @@ sys.path.insert(0, HERE)
 import build  # noqa: E402  (colors and levels, so the screen matches the print)
 
 
-SHOWS = ("question", "coins", "painting", "coin", "verse", "levels", "review", "prayer")
+SHOWS = ("question", "coins", "painting", "coin", "verse", "levels", "review", "prayer",
+         "chart", "gallery", "numberline", "worked", "pair", "people", "person")
 
 
 def load_module(path):
@@ -30,6 +31,17 @@ def load_module(path):
     m = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(m)
     return m
+
+
+def flat(blocks):
+    """The blocks in reading order, with any set side by side in "cols"
+    taken out of their columns, so a timed section can sit in one."""
+    for k, d in blocks:
+        if k == "cols":
+            for col in d:
+                yield from flat(col)
+        else:
+            yield k, d
 
 
 def section_minutes(label):
@@ -56,7 +68,7 @@ def export(exhibition, module):
     colors = {name: color for name, _, color in timing}
     phases = [{"name": n, "minutes": mins, "color": c} for n, mins, c in timing]
 
-    sections = [d for k, d in blocks if k == "section"]
+    sections = [d for k, d in flat(blocks) if k == "section"]
     by_label = {section_name(d["label"]).lower(): d for d in sections}
 
     steps = []
@@ -77,7 +89,10 @@ def export(exhibition, module):
                 raise ValueError(f"{d['label']}: phase {phase!r} is not in the timing bar")
             minutes = s.pop("minutes", total)
             picks = s.pop("script", None)
-            script = [body[i] for i in picks] if picks is not None else list(body)
+            # an index picks one of the section's paragraphs; a string is read
+            # as it stands (a card from the plan's "Show your class" page)
+            script = ([body[i] if isinstance(i, int) else i for i in picks]
+                      if picks is not None else list(body))
             title = s.pop("title", None) or d.get("title") or section_name(d["label"])
             show = s.pop("show")
             if show not in SHOWS:
@@ -94,8 +109,16 @@ def export(exhibition, module):
                     for key, text in levels.items()]
                 if not students:
                     screen_data.setdefault("note", body[0] if body else "")
-            if show in ("coins", "review") and not students:
+            if show in ("coins", "review", "pair", "people", "person") and not students:
                 raise ValueError(f"{d['label']}: a {show!r} screen shows its students list, and has none")
+            if show == "chart":
+                bad = [r["cells"][0] for r in s["rows"] if len(r["cells"]) != len(s["columns"])]
+                if bad:
+                    raise ValueError(f"{d['label']}: chart rows {bad} do not match its {len(s['columns'])} columns")
+            if show == "numberline":
+                for a, b in s["line"].get("hops", []):
+                    if not 0 <= a < b <= 100:
+                        raise ValueError(f"{d['label']}: a hop must run left to right inside the line")
             step = {"id": slugify(title), "phase": phase, "color": colors[phase],
                     "section": section_name(d["label"]), "title": title,
                     "minutes": minutes, "script": script, "screen": screen_data}
@@ -129,28 +152,45 @@ def export(exhibition, module):
         d = by_label.get(key)
         return d.get("list", []) if d else []
 
-    obj = next((v for k, v in blocks if k == "objectives"), None)
+    obj = next((v for k, v in flat(blocks) if k == "objectives"), None)
     objectives = None
     if obj:
+        # "screen": the same objectives in a young child's words, for the
+        # classroom screen only; the plan and the notes keep the teacher's
+        young = obj.get("screen") or {}
+        said = young.get("items", [])
+        if said and len(said) != len(obj["items"]):
+            raise ValueError("objectives: the screen wording needs one line per objective")
         objectives = {"heading": obj["heading"], "why": obj.get("why", ""),
-                      "items": [{"text": t, "question": q, **({"deeper": True} if deep else {})}
-                                for t, q, deep in obj["items"]]}
+                      **({"screenHeading": young["heading"]} if young.get("heading") else {}),
+                      "items": [{"text": t, "question": q, **({"deeper": True} if deep else {}),
+                                 **({"screen": said[k]} if said else {})}
+                                for k, (t, q, deep) in enumerate(obj["items"])]}
+
+    # the plan's questions for the class: "in front of the case" by default,
+    # or whatever the plan calls them ("Questions for story time")
+    asked = next((d for d in sections if d["label"].lower().startswith("questions") and d.get("list")), None)
+    questions = {"questions": asked["list"] if asked else []}
+    if asked and asked["label"].lower() != "questions to ask in front of the case":
+        questions["questionsLabel"] = asked["label"]
 
     ex = build.EXHIBITIONS[exhibition]
-    connection = next((v for k, v in blocks if k == "connection"), [])
+    connection = next((v for k, v in flat(blocks) if k == "connection"), [])
     return {
         "_source": f"Generated by resources-src/export_lessons.py from resources-src/{exhibition}/"
                    f"{os.path.basename(module.__file__)}. Edit the Python, not this file.",
         "slug": lesson["slug"],
+        **({"large": True} if lesson.get("large") else {}),
         "exhibition": {"slug": ex["slug"], "name": ex["name"], "accent": ex["accent"],
                        "text": ex["text"], "big": ex["big"]},
         "title": lesson["title"],
         "sub": lesson["sub"],
-        "hero": lesson.get("hero"),
+        # the cover's picture: the plan's own, unless the screen wants another
+        "hero": lesson.get("screen_hero") or lesson.get("hero"),
         "objective": body_of("learning objective"),
         **({"objectives": objectives} if objectives else {}),
         "materials": list_of("materials needed"),
-        "questions": list_of("questions to ask in front of the case"),
+        **questions,
         "connection": connection,
         "totalMinutes": planned,
         "phases": phases,
@@ -171,7 +211,7 @@ def main(exhibition):
         lesson = getattr(m, "LESSON", None)
         if not lesson or "slug" not in lesson:
             continue
-        if not any(k == "section" and d.get("screen") for k, d in lesson["blocks"]):
+        if not any(k == "section" and d.get("screen") for k, d in flat(lesson["blocks"])):
             continue
         data = export(exhibition, m)
         out = os.path.join(out_dir, data["slug"] + ".json")

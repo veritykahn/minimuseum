@@ -68,13 +68,123 @@ AUGUSTUS = worked("How long did Augustus rule?",
    "Count back from 27 BC to the join: 27 years. Count on from the join to AD 14: 14 years. <b>27 + 14 = 41.</b>",
    "The dates cross from BC to AD, and there is no year zero to stand on, so take away one: <b>41 − 1 = 40 years.</b>"])
 
+# ── lesson mode ─────────────────────────────────────────────────────────
+# What students will be able to do, set up front in the plan and on the
+# cover screen, then asked back as questions in the Look back. Each is
+# (objective, the same as a question, go deeper?).
+OBJECTIVES = {
+  "heading": "By the end of this lesson you will be able to:",
+  "items": [
+    ("find the span of years between two dates: both AD, both BC, or across the join",
+     "find a span of years, even across BC and AD?", False),
+    ("explain why there is no year zero, and why a span from *b* BC to *a* AD is *a* + *b* − 1 years",
+     "explain why you take away one across the join?", False),
+    ("use a ratio and a percent to explain why the widow’s two small coins were more than all the others gave",
+     "use a percent to explain the widow’s gift?", False),
+    ("prove the no-year-zero rule with algebra",
+     "prove the no-year-zero rule with algebra?", True)],
+  "why": "Every date and amount on a coin is a number with a meaning. Reading it right means remembering there is no year zero, and asking what a number is a share of."}
+LOOK_BACK = "Can you now…"
+# the Look back, as the teacher says it; the screen sets the questions out
+LOOK_BACK_SAY = ("Put the objectives back on the screen, asked as questions: *“Can you now…?”* For each one, students show "
+                 "a thumb up, sideways or down. Ask one student to answer each aloud; for the last, ask a Red Level reader.")
+
+# the objectives block's look, as in the Religion plan; the handouts print unchanged
+OBJ_CSS = """
+.objectives { background: #f6f1e4; border-left: 3pt solid var(--accent); padding: 8pt 12pt 3pt; margin-bottom: 12pt; }
+.objectives h3 { font-size: 12.5pt; margin-bottom: 5pt; }
+.objectives ol { margin: 0 0 7pt; padding: 0; list-style: none; counter-reset: obj; }
+.objectives li { counter-increment: obj; display: grid; grid-template-columns: 16pt 1fr; margin: 0 0 3.5pt; font-size: 10pt; line-height: 1.4; }
+.objectives li::before { content: counter(obj); font: 600 12.5pt/1.1 'Cormorant Garamond', serif; color: var(--gold-big); }
+.objectives li.deep::before { color: #A8452F; }
+.deeptag { font: 500 6.8pt 'Outfit'; letter-spacing: .18em; text-transform: uppercase; color: #fff; background: #A8452F;
+  padding: 1.5pt 5pt 1pt; border-radius: 99pt; margin-right: 3pt; vertical-align: 1pt; }
+.why { border-top: .6pt solid #d8d0b8; padding-top: 5pt; }
+.why b { font: 500 7pt 'Outfit'; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-text); margin-right: 5pt; }
+"""
+
+# a little tighter on the page, so the plan keeps to three pages with its objectives
+FIT_CSS = """
+body { font-size: 9.6pt; line-height: 1.44; }
+.hero { height: 2in; }
+p { margin-bottom: 4.5pt; }
+.objectives li { margin-bottom: 2pt; }
+.levels { margin: 3pt 0 5pt; }
+.lv { font-size: 8.5pt; }
+.cols:not(.key) { grid-template-columns: 1.3fr 1fr; }
+.sec { margin-bottom: 6pt; }
+.worked { padding: 5pt 10pt 1pt; margin: 2pt 0 6pt; }
+.nline { margin: 2pt 14pt 2pt; }
+.cols .conn .url { letter-spacing: .03em; }
+"""
+
+# The number lines on screen: the same six years as YEARS above, at the
+# same positions. A tick is (position 0–100, label, on the join?).
+def screen_line(alt, labels, notes=(), hops=()):
+    pos = [0, 20, 40, 60, 80, 100]
+    return {"alt": alt,
+            "ticks": [{"at": p, "label": l, **({"edge": True} if p in (40, 60) else {})} for p, l in zip(pos, labels)],
+            **({"notes": [{"at": a, "text": t} for a, t in notes]} if notes else {}),
+            **({"hops": [list(h) for h in hops]} if hops else {})}
+
+SIX = ["3 BC", "2 BC", "1 BC", "AD 1", "AD 2", "AD 3"]
+LINE_ASK = screen_line("A number line of years: AD 1, AD 2 and AD 3 on the right. The year just before AD 1 is a question mark.",
+                       ["", "", "?", "AD 1", "AD 2", "AD 3"])
+LINE_NO_ZERO = screen_line("A number line from 3 BC to AD 3. 1 BC is followed straight away by AD 1: there is no year zero between them.",
+                           SIX, notes=[(50, "no year zero")])
+LINE_HOPS = screen_line("A number line from 3 BC to AD 3, with no year zero between 1 BC and AD 1. Three hops run from 2 BC to AD 2: to 1 BC, to AD 1, to AD 2.",
+                        SIX, notes=[(50, "no year zero")], hops=[(20, 40), (40, 60), (60, 80)])
+
+# Augustus, worked one step at a time: the same steps as AUGUSTUS above
+WORKED_AUGUSTUS = {"title": "How long did Augustus rule?", "img": C + "augustus-front.png",
+                   "alt": "A bronze coin of Augustus: the emperor’s head",
+                   "steps": ["Augustus ruled from **27 BC** until his death in **AD 14**.",
+                             "Count back from 27 BC to the join: 27 years. Count on from the join to AD 14: 14 years. **27 + 14 = 41.**",
+                             "The dates cross from BC to AD, and there is no year zero to stand on, so take away one: **41 − 1 = 40 years.**"]}
+RULE = "From *b* BC to *a* AD is *a* + *b* − 1 years.\nFrom 2 BC to AD 2: 2 + 2 − 1 = **3**."
+
+WORKED_SPANS = [
+  {"title": "Both dates AD", "img": C + "claudius-front.png", "alt": "A bronze coin of the emperor Claudius: his head",
+   "steps": ["Claudius reigned from **AD 41** to **AD 54**.",
+             "Both dates are AD, so subtract as usual: **54 − 41**."],
+   "answer": "13 years"},
+  {"title": "Both dates BC", "img": C + "herod-great-front.png", "alt": "Herod the Great’s bronze prutah: symbols and no human image",
+   "steps": ["Herod the Great ruled from **37 BC** until his death in **4 BC**.",
+             "BC numbers count *down* toward the join, so the earlier date is the bigger number.",
+             "Subtract: **37 − 4**."],
+   "answer": "33 years"}]
+
+WORKED_SHARES = [
+  {"title": "The Temple tax", "img": C + "shekel.png", "replica": True,
+   "alt": "The Shekel of Tyre, a silver coin. A museum-quality replica",
+   "steps": ["Every Jewish man over twenty owed a **half-shekel** Temple tax each year.",
+             "In Matthew 17:27, one coin worth a shekel pays for two people: Jesus and Peter.",
+             "Half-shekel : shekel ="],
+   "answer": "1 : 2"},
+  {"title": "The widow’s gift", "img": C + "widow-1-front.png",
+   "alt": "One of the widow’s two lepta: a small, worn bronze coin",
+   "steps": ["She gave two lepta: *everything* she had.",
+             "Fraction given: 2 out of 2 = 2/2 = 1.",
+             "As a percent:"],
+   "answer": "100%"}]
+
+EXIT_COINS = [
+  {"img": C + "antipas-front.png", "name": "Herod Antipas", "sub": "4 BC–AD 39", "replica": True, "feature": False,
+   "alt": "The bronze prutah of Herod Antipas. A museum-quality replica"},
+  {"img": C + "widow-1-front.png", "name": "The widow’s mite", "sub": "Two lepta", "feature": False,
+   "alt": "One of the widow’s two lepta: a small, worn bronze coin"}]
+EXIT_Q = ["How many years from 4 BC to AD 39, the dates on the coin of Herod Antipas?",
+          "The widow gave the least money. In what mathematical sense did she give the most?"]
+
 # ── the lesson plan ─────────────────────────────────────────────────────
 
 LESSON = {
+  "slug": "the-numbers-in-the-coins",
   "out": DIR + "ITH_LP_Math.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
-  "foot": "Teacher Lesson Plan · Grades 5–8 Math", "hero": HERO, "css": CSS,
+  "foot": "Teacher Lesson Plan · Grades 5–8 Math", "hero": HERO, "css": CSS + OBJ_CSS + FIT_CSS,
   "blocks": [
     ("timing", [("Hook", 5, "#7D8471"), ("Teach", 12, "#2F4A5A"), ("Activity", 22, "#86671A"), ("Close", 6, "#A8452F")]),
+    ("objectives", OBJECTIVES),
     ("section", {"label": "Learning objective", "title": "What students will be able to do",
       "body": ["Students will use the numbers on the eleven coins of *In Their Hands* to find spans of years on a BC/AD timeline, using the rule that there is no year zero; place dates on a number line, using negative numbers as a model; compare measured coins in grams and millimeters; work with the ratio of a half-shekel to a shekel; and explain, as a fraction of all she had, why Jesus said the widow’s two small coins were more than all the others gave."]}),
     ("section", {"label": "Standards", "list": [
@@ -86,10 +196,31 @@ LESSON = {
       "A strip of tape on the board for a class timeline; centimeter rulers (Red level)",
       "The Pilate prutah card on the handouts, or the coin on the exhibition page",
       "Differentiated handouts, one per student; the answer key is page 3"]}),
+    ("section", {"label": "Cross-curricular and assessment notes", "body": [
+      "**Religion:** Mark 12:41–44, giving from poverty rather than surplus. **Social Studies:** who governed Judaea when. **Assessment:** the handout, the exit ticket, and at Red the written explanation in Part 4."]}),
     ("section", {"label": "Hook · 5 minutes", "title": "What year came before AD 1?",
-      "body": ["Ask: *“If this is AD 1, what year came just before it?”* Most students say *year zero*. Draw the line below and tell them there was none: the years are counted from one, so 1 BC is followed straight away by AD 1. Then ask how long the Shekel of Tyre’s dates, 1 BC to AD 1, really span. One year — not two."]}),
+      "screen": [
+        {"phase": "Hook", "minutes": 2, "script": [0], "show": "numberline", "line": LINE_ASK,
+         "purpose": "Bring out the year-zero mistake before the rule is taught.",
+         "students": ["If this is AD 1, what year came just before it?"]},
+        {"phase": "Hook", "minutes": 3, "script": [1], "title": "No year zero", "show": "numberline", "line": LINE_NO_ZERO,
+         "purpose": "Fix the fact the whole lesson rests on: 1 BC is followed straight away by AD 1.",
+         "students": ["The Shekel of Tyre (a replica) is dated 1 BC–AD 1. How many years is that?", "Why is the answer not 2?"]}],
+      "body": ["Ask: *“If this is AD 1, what year came just before it?”* Most students say *year zero*.", "Draw the line below and tell them there was none: the years are counted from one, so 1 BC is followed straight away by AD 1. Then ask how long the Shekel of Tyre’s dates, 1 BC to AD 1, really span. One year — not two."]}),
     ("html", YEARS),
     ("section", {"label": "Direct instruction · 12 minutes", "title": "Three kinds of span",
+      "screen": [
+        {"phase": "Teach", "minutes": 4, "script": [0, 1], "title": "Both AD, or both BC", "show": "worked", "examples": WORKED_SPANS,
+         "purpose": "Practice the two simpler spans, and see why BC numbers count down.",
+         "students": ["Why is the earlier BC date the bigger number?", "Try Pilate, prefect from AD 26 to AD 36."]},
+        {"phase": "Teach", "minutes": 5, "script": [2, 3], "title": "Across the join", "show": "numberline", "line": LINE_HOPS,
+         "worked": WORKED_AUGUSTUS, "rule": RULE,
+         "purpose": "Learn the rule for crossing from BC to AD, and why it takes away one.",
+         "students": ["Count the hops from 2 BC to AD 2. Does the rule agree?", "On a number line, −27 to 14 is 41. Why is that one too many?"]},
+        {"phase": "Teach", "minutes": 3, "script": [4], "title": "Half a shekel, all she had", "show": "worked", "examples": WORKED_SHARES,
+         "purpose": "Meet the other two strands of the handouts: a ratio and a percent.",
+         "students": ["How many shekels pay the Temple tax for 6 men?",
+                      "*Invented numbers:* someone has 100 coins and gives 10. What percent is that?"]}],
       "body": [
         "**Both dates AD.** Subtract as usual. Claudius reigned from AD 41 to 54: 54 − 41 = 13 years.",
         "**Both dates BC.** BC numbers count *down* toward the join, so the earlier date is the bigger number. Herod the Great ruled from 37 BC until his death in 4 BC: 37 − 4 = 33 years.",
@@ -97,16 +228,29 @@ LESSON = {
         "**The model and its flaw.** Treat BC years as negative numbers: 27 BC sits at −27, AD 14 at +14. The distance from −27 to 14 is 41: one too many, because a number line has a zero and the calendar does not.",
         "**Two more strands.** Every Jewish man over twenty owed a half-shekel Temple tax each year: a ratio of 1 : 2, so in Matthew 17:27 one coin worth a shekel pays for Jesus and Peter. And the widow gave two lepta, *everything* she had: 2 out of 2 is 100%."]}),
     ("html", AUGUSTUS),
-    ("section", {"label": "Activity · 22 minutes", "body": ["Students choose a handout. All three use the same coins and dates."]}),
+    ("section", {"label": "Activity · 22 minutes",
+      "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+                 "purpose": "Practice the rules independently at the right level of challenge.",
+                 "students": ["Choose Green, Yellow or Red. All three use the same coins and dates."]},
+      "body": ["Students choose a handout. All three use the same coins and dates."]}),
     ("levels", {
       "green": "A worked example, then guided spans: AD dates, BC dates, and dates across the join. Place five coins on a number line. Find the widow’s gift as a fraction and a percent, and the Temple tax for a group of men.",
       "yellow": "Mixed problems: the no-year-zero rule, a table of six spans to rank, Pilate’s coin and the regnal year of Tiberius, the two measured coins, thirty shekels and the Temple tax, and three givers compared by amount and by percent.",
       "red": "Prove the no-year-zero rule with algebra, solve multi-step date problems, build a timeline to scale from 103 BC to AD 62, and use an equation to compare the widow’s gift with a large gift that is a small fraction of great wealth."}),
-    ("section", {"label": "Close · 6 minutes", "title": "Exit ticket",
-      "body": ["*1. How many years from 4 BC to AD 39, the dates on the coin of Herod Antipas?* (42.) *2. The widow gave the least money. In what mathematical sense did she give the most?* (The largest share of what she had: 100%.)"]}),
-    ("connection", ["**Visit the exhibition:** the Gospel Timeline walks the eleven coins in date order, from the census under Augustus to Paul’s appeal before Festus; students can check each span as they go. In Case 7, find the widow’s two lepta and Pilate’s prutah, 1.79 g and 16 mm."]),
-    ("section", {"label": "Cross-curricular and assessment notes", "body": [
-      "**Religion:** Mark 12:41–44, giving from poverty rather than surplus. **Social Studies:** who governed Judaea when. **Assessment:** the handout, the exit ticket, and at Red the written explanation in Part 4."]}),
+    # the close and the connection side by side, so the plan keeps to three pages
+    ("cols", [
+      [("section", {"label": "Close · 6 minutes", "title": "Exit ticket",
+      "screen": [
+        {"phase": "Close", "minutes": 3, "script": [0], "show": "coins", "coins": EXIT_COINS,
+         "purpose": "Check that each student can use the rule and the idea of a share on their own.",
+         "students": EXIT_Q},
+        {"phase": "Close", "minutes": 3, "script": [1], "title": "Look back", "show": "review", "lead": LOOK_BACK,
+         "purpose": "Check what each student can now do against the objectives.",
+         "students": [q for _, q, _ in OBJECTIVES["items"]],
+         "deeper": [k for k, (_, _, deep) in enumerate(OBJECTIVES["items"]) if deep]}],
+      "body": [f"*1. {EXIT_Q[0]}* (42.) *2. {EXIT_Q[1]}* (The largest share of what she had: 100%.)",
+               LOOK_BACK_SAY]})],
+      [("connection", ["**Visit the exhibition:** the Gospel Timeline walks the eleven coins in date order, from the census under Augustus to Paul’s appeal before Festus; students can check each span as they go. In Case 7, find the widow’s two lepta and Pilate’s prutah, 1.79 g and 16 mm."])]]),
     ("pagebreak", None),
     ("section", {"label": "Answer key", "title": "Answers with working",
       "body": ["**The rule.** From *b* BC to *a* AD is *a* + *b* − 1 years; from 1 BC to AD 1 is one year. A number line measures from zero; the calendar counts from one, so the BC years model as negatives with a missing zero. **Approximate dates.** Claudius’ edict (about AD 49), Festus’ arrival (about AD 59) and the widow’s gift (about AD 30) are approximate, and so are answers built on them. Pilate’s coin is AD 29/30 because year 16 of Tiberius ran across two calendar years. **Invented numbers.** The exhibition gives no ancient prices, wealth or exchange rates. Every wealth figure in the widow problems is invented for the math, and the handouts say so."]}),
