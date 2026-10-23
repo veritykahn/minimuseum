@@ -89,11 +89,6 @@ type EndContext = {
 
 const ProjectorEndContext = createContext<EndContext | null>(null);
 
-/** "Grades 5–8", or with `parts` 2 "Grades 5–8 · Religion", from "Grades 5–8 · Religion · The Tribute Penny". */
-function gradeOf(l: LessonCard, parts = 1) {
-  return l.sub.split(' · ').slice(0, parts).join(' · ');
-}
-
 /** After a mouse or touch press, hand focus back so Space means "next". */
 function release(e: MouseEvent<HTMLElement>) {
   if (e.detail > 0) e.currentTarget.blur();
@@ -506,7 +501,7 @@ function ProjectorScreen<K extends string>({
                   {allLessons.map((l) => (
                     <li key={l.slug}>
                       <Link href={lessonPath(exhibitionSlug, l.slug)} className={styles.link}>
-                        {l.title} <span className={styles.lessonSub}>{gradeOf(l)}</span> <span aria-hidden="true">→</span>
+                        {l.title} <span className={styles.lessonSub}>{l.grade}</span> <span aria-hidden="true">→</span>
                       </Link>
                     </li>
                   ))}
@@ -632,7 +627,7 @@ export function PosterProjectorEnd() {
               {ctx.lessons.map((l) => (
                 <li key={l.slug}>
                   <Link href={ctx.lessonHref(l.slug)} className={styles.link}>
-                    {l.title} <span className={styles.lessonSub}>{gradeOf(l, 2)}</span> <span aria-hidden="true">→</span>
+                    {l.title} <span className={styles.lessonSub}>{l.grade}</span> <span aria-hidden="true">→</span>
                   </Link>
                 </li>
               ))}

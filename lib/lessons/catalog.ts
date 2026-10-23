@@ -15,19 +15,21 @@ export interface LessonCard {
   slug: string;
   title: string;
   sub: string;
+  /** who it is for, short enough for a link: "Grades 5–8 · Religion" */
+  grade: string;
   minutes: number;
   posters: string[];
 }
 
 export const LESSON_CATALOG: Record<string, LessonCard[]> = {
   'in-their-hands': [
-    { slug: 'two-tiny-coins', title: 'Two Tiny Coins', sub: 'PreK–Kindergarten · The Widow’s Mite', minutes: 25, posters: [] },
-    { slug: 'whose-hands-held-this', title: 'Whose Hands Held This?', sub: 'Grades 1–2 · Hands of History · Coins and the people who held them', minutes: 30, posters: ['poster2'] },
-    { slug: 'coin-detectives', title: 'Coin Detectives', sub: 'Grades 3–4 · Real or Replica? · Coins as evidence', minutes: 40, posters: ['poster1', 'poster2'] },
-    { slug: 'whose-image-is-this', title: 'Whose Image Is This?', sub: 'Grades 5–8 · Religion · The Tribute Penny', minutes: 45, posters: ['poster2'] },
-    { slug: 'who-ruled-judaea', title: 'Who Ruled Judaea?', sub: 'Grades 5–8 · Social Studies · Coins as primary sources', minutes: 45, posters: ['poster2'] },
-    { slug: 'the-numbers-in-the-coins', title: 'The Numbers in the Coins', sub: 'Grades 5–8 · Math · Timelines, ratios and the widow’s gift', minutes: 45, posters: ['poster2'] },
-    { slug: 'small-works-of-power', title: 'Small Works of Power', sub: 'Grades 5–8 · Art · Portrait, symbol and inscription', minutes: 45, posters: ['poster1'] },
+    { slug: 'two-tiny-coins', title: 'Two Tiny Coins', sub: 'PreK–Kindergarten · The Widow’s Mite', grade: 'PreK–K', minutes: 25, posters: [] },
+    { slug: 'whose-hands-held-this', title: 'Whose Hands Held This?', sub: 'Grades 1–2 · Hands of History · Coins and the people who held them', grade: 'Grades 1–2', minutes: 30, posters: ['poster2'] },
+    { slug: 'coin-detectives', title: 'Coin Detectives', sub: 'Grades 3–4 · Real or Replica? · Coins as evidence', grade: 'Grades 3–4', minutes: 40, posters: ['poster1', 'poster2'] },
+    { slug: 'whose-image-is-this', title: 'Whose Image Is This?', sub: 'Grades 5–8 · Religion · The Tribute Penny', grade: 'Grades 5–8 · Religion', minutes: 45, posters: ['poster2'] },
+    { slug: 'who-ruled-judaea', title: 'Who Ruled Judaea?', sub: 'Grades 5–8 · Social Studies · Coins as primary sources', grade: 'Grades 5–8 · Social Studies', minutes: 45, posters: ['poster2'] },
+    { slug: 'the-numbers-in-the-coins', title: 'The Numbers in the Coins', sub: 'Grades 5–8 · Math · Timelines, ratios and the widow’s gift', grade: 'Grades 5–8 · Math', minutes: 45, posters: ['poster2'] },
+    { slug: 'small-works-of-power', title: 'Small Works of Power', sub: 'Grades 5–8 · Art · Portrait, symbol and inscription', grade: 'Grades 5–8 · Art', minutes: 45, posters: ['poster1'] },
   ],
 };
 

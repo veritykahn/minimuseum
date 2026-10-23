@@ -24,7 +24,7 @@ export default function PosterLessons({ exhibition, poster, color }: { exhibitio
               <Link href={lessonPath(exhibition, l.slug)} className={styles.lesson}>
                 <span className={styles.title}>{l.title}</span>
                 <span className={styles.sub}>
-                  {l.sub.split(' · ')[0]} · {l.minutes} min
+                  {l.grade} · {l.minutes} min
                 </span>
               </Link>
             </li>
