@@ -116,6 +116,14 @@ optional quoted `note`), `people` (a row of `people`: `img`, `alt`, `pos`,
 `person` (one `person`, `coinName`, `replica`, `story`, `ref`). A `painting`
 can take `alt` and `pos` for a picture other than the Tribute painting.
 A timed section may sit inside `cols`.
+For any exhibition: `words` (`text`, a line from the plan set large, `\n`
+for new lines; optional `cite`), `artwork` (`work`, `artist`, `date`, and
+either `img` — a picture `{img, pos, credit}` — or `links`, `{label, href}`
+to a museum's page for a work still in copyright) and `listen` (`clips`,
+each `{src, label, sub?, credit?}` from the exhibition's own audio, and an
+optional `question`). A module holding several plans gives each its own
+`"slug"`; a plan printed without a timing bar names its phases in
+`"screen_timing"`.
 
 For the youngest classes, `"large": True` on the `LESSON` sets the task
 lines larger, sets more than three coins in a row beneath the task and fewer

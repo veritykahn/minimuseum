@@ -3398,3 +3398,203 @@
     font-size: 1.2rem;
   }
 }
+
+/* ── words, artwork, listen ── */
+
+/* words: a line from the plan, set large on a parchment card */
+.wordsView {
+  grid-area: body;
+  display: grid;
+  justify-items: start;
+  gap: 4cqh;
+}
+.words {
+  position: relative;
+  max-width: 66cqw;
+  background: var(--parchment);
+  color: var(--ink);
+  border-radius: 3px;
+  padding: 3.4cqh 3cqw 3.2cqh;
+  box-shadow: 0 1.6cqw 4cqw rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.words::before {
+  content: '';
+  position: absolute;
+  left: 3cqw;
+  top: 0;
+  width: 3cqw;
+  height: 0.35cqh;
+  min-height: 3px;
+  background: var(--gold);
+}
+.words p {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 2.6cqw;
+  line-height: 1.32;
+  text-wrap: pretty;
+}
+.wordsLong p {
+  font-size: 1.85cqw;
+  line-height: 1.42;
+}
+.wordsLine {
+  display: block;
+}
+.words cite {
+  display: block;
+  margin-top: 2cqh;
+  font-family: var(--body);
+  font-style: normal;
+  font-size: max(13px, 0.85cqw);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+}
+.stage[data-large] .words p {
+  font-size: 3.2cqw;
+}
+
+/* artwork: the picture beside its label, or the label alone with where to see it */
+.artworkView {
+  grid-area: body;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  grid-template-rows: auto auto;
+  align-items: start;
+  column-gap: 4cqw;
+  row-gap: 3.6cqh;
+}
+.artworkView .frame {
+  grid-area: auto;
+  grid-row: span 2;
+  height: 52cqh;
+}
+.artworkView .frameImg img {
+  transform: none;
+}
+.artworkNamed {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+.artworkNamed .task {
+  align-self: start;
+}
+.artworkLabel {
+  position: relative;
+  background: var(--parchment);
+  color: var(--ink);
+  border-radius: 3px;
+  padding: 2.8cqh 2.4cqw 2.6cqh;
+  box-shadow: 0 1.6cqw 4cqw rgba(0, 0, 0, 0.45);
+  border-top: 0.35cqh solid var(--gold);
+}
+.artworkLabel .labelTitle {
+  font-size: 3cqw;
+  font-style: italic;
+}
+.artworkLinks {
+  margin-top: 2.4cqh;
+  padding-top: 2cqh;
+  border-top: 1px solid rgba(139, 125, 107, 0.3);
+}
+.artworkKicker {
+  font-size: max(11px, 0.72cqw);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.artworkLinks ul {
+  list-style: none;
+  display: grid;
+  gap: 0.8cqh;
+  margin-top: 1cqh;
+}
+.artworkLinks li {
+  font-family: var(--display);
+  font-size: max(15px, 1.2cqw);
+  line-height: 1.3;
+}
+.artworkLinks a {
+  color: var(--gold-dark);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* listen: the clips in a row, each with its player */
+.listenView {
+  grid-area: body;
+  display: grid;
+  justify-items: start;
+  gap: 4cqh;
+}
+.listenView .bigQuestion {
+  font-size: 2.6cqw;
+}
+.listenView {
+  gap: 3cqh;
+}
+.clips {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(var(--n, 1), minmax(0, 1fr));
+  gap: 2cqw;
+  width: 100%;
+}
+.clip {
+  background: var(--parchment);
+  color: var(--ink);
+  border-radius: 3px;
+  padding: 2cqh 1.8cqw 1.8cqh;
+  border-top: 0.35cqh solid var(--gold);
+  box-shadow: 0 1.6cqw 4cqw rgba(0, 0, 0, 0.4);
+}
+.clipLabel {
+  font-family: var(--display);
+  font-size: 2.2cqw;
+  font-weight: 500;
+  line-height: 1.1;
+}
+.clipSub {
+  margin-top: 0.8cqh !important;
+  font-size: max(12px, 0.78cqw);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold-dark);
+}
+.clipPlayer {
+  display: block;
+  width: 100%;
+  margin-top: 2cqh;
+}
+.clipCredit {
+  margin-top: 1.4cqh !important;
+  font-size: max(11px, 0.72cqw);
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .words p {
+    font-size: 1.35rem;
+  }
+  .wordsLong p {
+    font-size: 1.1rem;
+  }
+  .artworkView,
+  .artworkNamed {
+    grid-template-columns: 1fr;
+  }
+  .artworkView .frame {
+    grid-row: auto;
+    height: 40vh;
+  }
+  .artworkLabel .labelTitle {
+    font-size: 1.6rem;
+  }
+  .clips {
+    grid-template-columns: 1fr;
+  }
+  .clipLabel {
+    font-size: 1.3rem;
+  }
+}

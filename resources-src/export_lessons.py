@@ -9,7 +9,9 @@ screen can never disagree:
     python3 resources-src/export_lessons.py in-their-hands
 
 A module takes part when its LESSON has a "slug" and at least one section
-carries a "screen" (see religion_5_8.py). Each screened section becomes one
+carries a "screen" (see religion_5_8.py); a module holding several plans
+(harlem-renaissance/general_prek4.py) gives each a "slug" of its own, and
+each takes the handouts in its own folder. Each screened section becomes one
 or more timed steps; its paragraphs become the teacher's script. Output goes
 to lib/lessons/<exhibition>/<slug>.json. Copy keeps its **bold** / *italic*
 markup; the site renders it.
@@ -23,7 +25,8 @@ import build  # noqa: E402  (colors and levels, so the screen matches the print)
 
 
 SHOWS = ("question", "coins", "painting", "coin", "verse", "levels", "review", "prayer",
-         "chart", "gallery", "numberline", "worked", "pair", "people", "person")
+         "chart", "gallery", "numberline", "worked", "pair", "people", "person",
+         "words", "artwork", "listen")
 
 
 def load_module(path):
@@ -61,10 +64,21 @@ def pdf_href(exhibition, out):
     return f"/resources/{exhibition}/{out}"
 
 
-def export(exhibition, module):
-    lesson = module.LESSON
+def lessons_of(module):
+    """The plans in a module that run on screen: every document with a
+    "slug" (one module may hold several grades' plans), else its LESSON."""
+    docs = [d for d in getattr(module, "DOCS", []) if d.get("slug")]
+    lesson = getattr(module, "LESSON", None)
+    if not docs and lesson and "slug" in lesson:
+        docs = [lesson]
+    return [d for d in docs if any(k == "section" and v.get("screen") for k, v in flat(d["blocks"]))]
+
+
+def export(exhibition, module, lesson=None):
+    lesson = lesson or module.LESSON
     blocks = lesson["blocks"]
-    timing = next((d for k, d in blocks if k == "timing"), [])
+    # a plan printed without a timing bar names its phases for the screen
+    timing = next((d for k, d in blocks if k == "timing"), lesson.get("screen_timing", []))
     colors = {name: color for name, _, color in timing}
     phases = [{"name": n, "minutes": mins, "color": c} for n, mins, c in timing]
 
@@ -105,10 +119,16 @@ def export(exhibition, module):
                 levels = next((v for k, v in blocks if k == "levels"), {})
                 screen_data["levels"] = [
                     {"key": key, "name": build.LEVELS[key][0], "sub": build.LEVELS[key][1],
-                     "color": build.LEVELS[key][2], "summary": text}
+                     "color": build.LEVELS[key][2],
+                     # a level may run to two paragraphs; the card reads them as one
+                     "summary": text if isinstance(text, str) else " ".join(text)}
                     for key, text in levels.items()]
                 if not students:
                     screen_data.setdefault("note", body[0] if body else "")
+            if show == "listen" and not s.get("clips"):
+                raise ValueError(f"{d['label']}: a 'listen' screen plays its clips, and has none")
+            if show == "artwork" and not s.get("work"):
+                raise ValueError(f"{d['label']}: an 'artwork' screen names its work")
             if show in ("coins", "review", "pair", "people", "person") and not students:
                 raise ValueError(f"{d['label']}: a {show!r} screen shows its students list, and has none")
             if show == "chart":
@@ -136,10 +156,12 @@ def export(exhibition, module):
     if len(set(ids)) != len(ids):
         raise ValueError(f"step titles must be unique: {ids}")
 
+    # the handouts printed beside this plan, in its own folder
+    folder = os.path.dirname(lesson["out"])
     handouts = []
     for doc in module.DOCS:
         lv = doc.get("level")
-        if lv:
+        if lv and os.path.dirname(doc["out"]) == folder:
             name, sub, color = build.LEVELS[lv]
             handouts.append({"key": lv, "name": name, "sub": sub, "color": color,
                              "href": pdf_href(exhibition, doc["out"])})
@@ -148,8 +170,8 @@ def export(exhibition, module):
         d = by_label.get(key)
         return d.get("body", []) if d else []
 
-    def list_of(key):
-        d = by_label.get(key)
+    def list_of(*keys):
+        d = next((by_label[k] for k in keys if k in by_label), None)
         return d.get("list", []) if d else []
 
     obj = next((v for k, v in flat(blocks) if k == "objectives"), None)
@@ -189,7 +211,7 @@ def export(exhibition, module):
         "hero": lesson.get("screen_hero") or lesson.get("hero"),
         "objective": body_of("learning objective"),
         **({"objectives": objectives} if objectives else {}),
-        "materials": list_of("materials needed"),
+        "materials": list_of("materials needed", "materials"),
         **questions,
         "connection": connection,
         "totalMinutes": planned,
@@ -208,17 +230,13 @@ def main(exhibition):
         if not f.endswith(".py") or f.startswith("_"):
             continue
         m = load_module(os.path.join(folder, f))
-        lesson = getattr(m, "LESSON", None)
-        if not lesson or "slug" not in lesson:
-            continue
-        if not any(k == "section" and d.get("screen") for k, d in flat(lesson["blocks"])):
-            continue
-        data = export(exhibition, m)
-        out = os.path.join(out_dir, data["slug"] + ".json")
-        with open(out, "w", encoding="utf-8") as fh:
-            json.dump(data, fh, ensure_ascii=False, indent=2)
-            fh.write("\n")
-        print("exported", os.path.relpath(out, ROOT), f"({len(data['steps'])} steps)")
+        for lesson in lessons_of(m):
+            data = export(exhibition, m, lesson)
+            out = os.path.join(out_dir, data["slug"] + ".json")
+            with open(out, "w", encoding="utf-8") as fh:
+                json.dump(data, fh, ensure_ascii=False, indent=2)
+                fh.write("\n")
+            print("exported", os.path.relpath(out, ROOT), f"({len(data['steps'])} steps)")
 
 
 if __name__ == "__main__":

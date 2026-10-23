@@ -10,7 +10,7 @@ import {
   totalElapsed,
   MINUTE,
 } from '@/lib/lessons/session';
-import { Inline } from './Inline';
+import { Inline, plain } from './Inline';
 import { TimingBar } from './TimingBar';
 import { onDark } from './color';
 
@@ -527,6 +527,83 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
               <Worked key={ex.title} ex={ex} mini={mini} />
             ))}
           </div>
+        </div>
+      );
+    case 'words': {
+      const lines = s.text.split('\n');
+      return (
+        <div className={styles.wordsView}>
+          <blockquote className={`${styles.words} ${s.text.length > 220 ? styles.wordsLong : ''}`}>
+            <p>
+              {lines.map((line) => (
+                <span key={line} className={styles.wordsLine}>
+                  <Inline text={line} />
+                </span>
+              ))}
+            </p>
+            {s.cite && <cite>{s.cite}</cite>}
+          </blockquote>
+          {task}
+        </div>
+      );
+    }
+    case 'artwork':
+      return (
+        <div className={`${styles.artworkView} ${s.img ? '' : styles.artworkNamed}`}>
+          {s.img && (
+            <figure className={styles.frame}>
+              <div className={styles.frameImg}>
+                <Image src={s.img.img} alt={mini ? '' : (s.alt ?? plain(s.work))} fill sizes="40vw" style={{ objectPosition: s.img.pos ?? 'center' }} />
+              </div>
+              {s.img.credit && <figcaption>{s.img.credit}</figcaption>}
+            </figure>
+          )}
+          <div className={styles.artworkLabel}>
+            {(s.artist || s.date) && <p className={styles.labelCase}>{[s.artist, s.date].filter(Boolean).join(' · ')}</p>}
+            <p className={styles.labelTitle}>
+              <Inline text={s.work} />
+            </p>
+            {s.links && s.links.length > 0 && (
+              <div className={styles.artworkLinks}>
+                <p className={styles.artworkKicker}>Show it from the museum’s page</p>
+                <ul>
+                  {s.links.map((l) => (
+                    <li key={l.href}>
+                      {mini ? (
+                        <span>{l.label}</span>
+                      ) : (
+                        <a href={l.href} target="_blank" rel="noopener">
+                          {l.label}
+                          <span className={styles.srOnly}> (opens in a new tab)</span>
+                        </a>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+          {task}
+        </div>
+      );
+    case 'listen':
+      return (
+        <div className={styles.listenView}>
+          {s.question && <p className={styles.bigQuestion}>{s.question}</p>}
+          <ul className={styles.clips} style={{ ['--n' as string]: s.clips.length }}>
+            {s.clips.map((c) => (
+              <li key={c.src} className={styles.clip}>
+                <p className={styles.clipLabel}>
+                  <Inline text={c.label} />
+                </p>
+                {c.sub && <p className={styles.clipSub}>{c.sub}</p>}
+                {/* the presenter's thumbnail shows the clips, the classroom plays them */}
+                {!mini && <audio controls preload="none" src={c.src} className={styles.clipPlayer} aria-label={plain(c.label)} />}
+                {c.credit && <p className={styles.clipCredit}>{c.credit}</p>}
+              </li>
+            ))}
+          </ul>
+          {task}
         </div>
       );
     case 'prayer':
