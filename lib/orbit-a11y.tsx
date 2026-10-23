@@ -104,6 +104,28 @@ export function useOrbitA11y(
   return { autoRotate, setAutoRotate, rotateLeft, rotateRight, zoomIn, zoomOut, reset, onKeyDown };
 }
 
+export type OrbitHint = { icon: string; label: string };
+
+/**
+ * The on-screen hints for handling a model, in two versions: one for a mouse
+ * or trackpad and one for touch, where there is no scroll wheel or Shift key.
+ * Render both and give the lists the classes `orbit-hints-pointer` and
+ * `orbit-hints-touch`; globals.css shows whichever suits the device's
+ * primary pointer, so the server and client render the same markup.
+ */
+export const ORBIT_HINTS: { pointer: OrbitHint[]; touch: OrbitHint[] } = {
+  pointer: [
+    { icon: '\u2194', label: 'Drag to rotate' },
+    { icon: '\u2295', label: 'Scroll to zoom' },
+    { icon: '\u21E7', label: 'Shift+drag to pan' },
+  ],
+  touch: [
+    { icon: '\u2194', label: 'Drag to rotate' },
+    { icon: '\u2295', label: 'Pinch to zoom' },
+    { icon: '\u21C4', label: 'Two-finger drag to pan' },
+  ],
+};
+
 export const ORBIT_KEY_HELP =
   'Use the arrow keys to rotate, plus and minus to zoom, 0 to reset, and R to pause or resume turning.';
 

@@ -44,7 +44,7 @@ export const SUBJECT_LESSON_PLANS: Record<string, string> = {
   'pe': 'Lesson Plan_ Vision and Athletics (PE 5-8) - Teacher Guide.pdf',
   'religion': 'Lesson Plan_ Bearing True Witness (Religion 5-8) - Teacher Guide.pdf',
   'spanish': 'Spanish Lesson Plan_ ¿Verdad o Mentira_ (Grades 5-8) - Teacher Guide.pdf',
-  'theater': 'Theatre Lesson Plan_ The Art of Illusion (Grades 5-8) - Teacher Guide.pdf',
+  'theater': 'Theater Lesson Plan_ The Art of Illusion (Grades 5-8) - Teacher Guide.pdf',
   'music': 'Music Lesson Plan_ Sound Illusions (Grades 5-8) - Teacher Guide.pdf',
 };
 
@@ -90,9 +90,9 @@ export const SUBJECT_HANDOUTS: Record<string, Record<string, string>> = {
     red: 'Student Handout_ ¿Verdad o Mentira_ - Red Level (Spanish 5-8).pdf',
   },
   'theater': {
-    green: 'Student Handout_ The Art of Illusion - Green Level (Theatre 5-8).pdf',
-    yellow: 'Student Handout_ The Art of Illusion - Yellow Level (Theatre 5-8).pdf',
-    red: 'Student Handout_ The Art of Illusion - Red Level (Theatre 5-8).pdf',
+    green: 'Student Handout_ The Art of Illusion - Green Level (Theater 5-8).pdf',
+    yellow: 'Student Handout_ The Art of Illusion - Yellow Level (Theater 5-8).pdf',
+    red: 'Student Handout_ The Art of Illusion - Red Level (Theater 5-8).pdf',
   },
   'music': {
     green: 'Student Handout_ Sound Illusions - Green Level (Music 5-8).pdf',

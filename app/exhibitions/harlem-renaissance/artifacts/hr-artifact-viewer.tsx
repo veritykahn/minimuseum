@@ -7,7 +7,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { srOnly, useDialogFocus } from '@/lib/a11y';
-import { useOrbitA11y, OrbitButtons, ORBIT_KEY_HELP } from '@/lib/orbit-a11y';
+import { useOrbitA11y, OrbitButtons, ORBIT_KEY_HELP, ORBIT_HINTS } from '@/lib/orbit-a11y';
 
 // The scans are Draco-compressed, which cuts each from 5-15MB to 1-2MB. One
 // decoder serves every model; its files are in public/draco/gltf and are only
@@ -458,11 +458,11 @@ export default function HrArtifactViewer({ artifactId }: Props) {
         .hra-controls {
           display: flex; gap: 24px;
           font-family: 'Josefin Sans', sans-serif; font-size: 10px;
-          letter-spacing: 0.1em; text-transform: uppercase; color: #525252;
+          letter-spacing: 0.1em; text-transform: uppercase; color: #8a8a8a;
         }
         .hra-ctrl { display: flex; align-items: center; gap: 8px; }
         .hra-ctrl-icon {
-          width: 24px; height: 24px; border: 1px solid #525252; border-radius: 4px;
+          width: 24px; height: 24px; border: 1px solid #6b6b6b; border-radius: 4px;
           display: flex; align-items: center; justify-content: center; font-size: 12px;
         }
 
@@ -688,20 +688,16 @@ export default function HrArtifactViewer({ artifactId }: Props) {
             <p className="hra-subtitle">{artifact.subtitle}</p>
           </div>
 
-          <div className="hra-controls">
-            <div className="hra-ctrl">
-              <div className="hra-ctrl-icon">{'\u2194'}</div>
-              <span>Drag to rotate</span>
+          {(['pointer', 'touch'] as const).map((kind) => (
+            <div key={kind} className={`hra-controls orbit-hints-${kind}`}>
+              {ORBIT_HINTS[kind].map((hint) => (
+                <div key={hint.label} className="hra-ctrl">
+                  <div className="hra-ctrl-icon" aria-hidden="true">{hint.icon}</div>
+                  <span>{hint.label}</span>
+                </div>
+              ))}
             </div>
-            <div className="hra-ctrl">
-              <div className="hra-ctrl-icon">{'\u2295'}</div>
-              <span>Scroll to zoom</span>
-            </div>
-            <div className="hra-ctrl">
-              <div className="hra-ctrl-icon">{'\u21E7'}</div>
-              <span>Shift+drag to pan</span>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 

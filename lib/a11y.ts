@@ -53,7 +53,7 @@ const FOCUSABLE =
   'a[href], area[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
 
 /**
- * Dialog behaviour for an element that is open while `active` is true:
+ * Dialog behavior for an element that is open while `active` is true:
  * focus moves into it (to `initialFocus`, else the first focusable child),
  * Tab and Shift+Tab stay inside it, Escape calls `onEscape`, and focus goes
  * back to whatever had it before the dialog opened once it closes.

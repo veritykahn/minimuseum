@@ -406,6 +406,14 @@ export default function GreatHall() {
           gap: 6px;
         }
 
+        .floor-status-open {
+          color: #a9b39c;
+        }
+
+        .floor-status-open .status-dot {
+          background: #a9b39c;
+        }
+
         .status-dot {
           width: 5px;
           height: 5px;
@@ -536,31 +544,6 @@ export default function GreatHall() {
           opacity: 0.3;
         }
 
-        .installation-badge {
-          position: absolute;
-          top: 50%;
-          right: 140px;
-          transform: translateY(-50%);
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 16px;
-          background: rgba(60, 60, 60, 0.6);
-          border: 1px solid #4a4a4a;
-          border-radius: 4px;
-        }
-
-        .installation-badge-icon {
-          font-size: 14px;
-        }
-
-        .installation-badge-text {
-          font-family: 'Outfit', sans-serif;
-          font-size: 9px;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          color: #a0a0a0;
-        }
 
         /* Installation message toast */
         .installation-message {
@@ -602,14 +585,6 @@ export default function GreatHall() {
         }
 
         @media (max-width: 768px) {
-          .installation-badge {
-            right: 100px;
-            padding: 6px 12px;
-          }
-
-          .installation-badge-text {
-            font-size: 8px;
-          }
 
           .installation-message {
             padding: 16px 24px;
@@ -681,9 +656,9 @@ export default function GreatHall() {
                 <h2 className="floor-name">Horizons</h2>
                 <p className="floor-subtitle">The Second Collection</p>
                 <p className="floor-year">2025–2026</p>
-                <div className="floor-status">
-                  <span className="status-dot"></span>
-                  <span>Under Construction</span>
+                <div className="floor-status floor-status-open">
+                  <span className="status-dot" aria-hidden="true"></span>
+                  <span>Now Open · Three Exhibitions</span>
                 </div>
               </div>
               <div className="floor-indicator">
@@ -705,13 +680,9 @@ export default function GreatHall() {
                 <p className="floor-subtitle">The Founding Collection</p>
                 <p className="floor-year">2024–2025</p>
                 <div className="floor-status">
-                  <span className="status-dot"></span>
+                  <span className="status-dot" aria-hidden="true"></span>
                   <span>Installation in Progress</span>
                 </div>
-              </div>
-              <div className="installation-badge">
-                <span className="installation-badge-icon" aria-hidden="true">🚧</span>
-                <span className="installation-badge-text">Coming Soon</span>
               </div>
               <div className="floor-indicator" aria-hidden="true">
                 <Image src="/stairs.png" alt="" width={80} height={80} className="stairs-icon" aria-hidden="true" />

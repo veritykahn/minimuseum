@@ -1,8 +1,10 @@
 import { SITE_URL } from '@/lib/site';
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import MuseumMap from "@/components/museum-map/MuseumMapRefactored";
 import { OrganizationJsonLd } from "@/components/JsonLd";
+import StyledJsxRegistry from "@/components/StyledJsxRegistry";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -40,13 +42,20 @@ export default function RootLayout({
         <OrganizationJsonLd />
       </head>
       <body>
-        <a href="#main-content" className="skip-link">
-          Skip to main content
-        </a>
-        <main id="main-content">
-          {children}
-        </main>
-        <MuseumMap />
+        <StyledJsxRegistry>
+          <a href="#main-content" className="skip-link">
+            Skip to main content
+          </a>
+          <main id="main-content">
+            {/* A page whose script has not arrived yet waits inside its own
+                boundary, so hydrating it cannot unsettle the layout around
+                it (React error #418, intermittent, on every route). */}
+            <Suspense>{children}</Suspense>
+          </main>
+          <Suspense>
+            <MuseumMap />
+          </Suspense>
+        </StyledJsxRegistry>
       </body>
     </html>
   );

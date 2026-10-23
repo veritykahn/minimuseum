@@ -14,10 +14,16 @@ type CityData = {
   cx: number;
   cy: number;
   photo: string;
+  /** What the photograph shows, for people who cannot see it. */
+  photoAlt: string;
   photoCredit: string;
   text: string;
-  music: { file: string; title: string; artist: string; year: string };
-  quote: { text: string; author: string };
+  music: { file: string; title: string; artist: string; year: string; note?: string };
+  /**
+   * A quotation, or, when `paraphrase` is set, a saying whose exact wording
+   * cannot be traced to the person: shown without quotation marks.
+   */
+  quote: { text: string; author: string; paraphrase?: boolean };
 };
 
 const CITIES: CityData[] = [
@@ -27,10 +33,14 @@ const CITIES: CityData[] = [
     period: 'Before 1910',
     cx: 280, cy: 550,
     photo: 'delta.jpg',
-    photoCredit: '\u201CA Georgia Cotton Field,\u201D 1907. Photograph by Marcus L. Brown, Decatur, Georgia. Library of Congress Prints and Photographs Division.',
+    photoAlt: 'Workers picking cotton in a wide field in Georgia, 1907',
+    photoCredit: '\u201CA Georgia Cotton Field,\u201D 1907. Photograph by Marcus L. Brown, Decatur, Georgia. Library of Congress Prints and Photographs Division. This field is in Georgia, not the Delta: the same work was done in cotton fields across the South.',
     text: 'It began here \u2014 in the flat cotton fields along the Mississippi River, where African Americans had been enslaved for generations. After emancipation, most stayed as sharecroppers, trapped in cycles of debt and poverty. But they carried something no one could take from them: their music. Work songs, field hollers, and spirituals echoed across the Delta \u2014 the raw material that would become the blues.',
-    music: { file: 'delta.mp3', title: '\u201CSwing Low, Sweet Chariot\u201D', artist: 'Fisk Jubilee Singers', year: 'Victor Records, 1909' },
-    quote: { text: 'I\u2019d rather be in a deep, dark grave than to be a slave.', author: 'Traditional spiritual' },
+    music: {
+      file: 'delta.mp3', title: '\u201CSwing Low, Sweet Chariot\u201D', artist: 'Fisk University Jubilee Quartet', year: 'Victor Records, 1909',
+      note: 'Sung by a quartet from Fisk University in Nashville, not in the Delta: one of the earliest recordings of a spiritual, the kind of song sung across the South.',
+    },
+    quote: { text: 'Before I\u2019d be a slave, I\u2019d be buried in my grave, and go home to my Lord and be saved.', author: 'Traditional spiritual, \u201CBefore I\u2019d Be a Slave\u201D' },
   },
   {
     id: 'new-orleans',
@@ -38,10 +48,11 @@ const CITIES: CityData[] = [
     period: '1890s\u20131920s',
     cx: 310, cy: 505,
     photo: 'new-orleans.jpg',
+    photoAlt: 'Oscar \u201CPapa\u201D Celestin\u2019s Original Tuxedo Band, early 1900s',
     photoCredit: 'Oscar "Papa" Celestin\'s Original Tuxedo Band, early 1900s. William Russell Jazz Collection, The Historic New Orleans Collection, acquisition made possible by the Clarisse Claiborne Grima Fund.',
-    text: 'Where the Mississippi meets the Gulf, New Orleans was the most musical city in America. It was the only place where enslaved people had been allowed to gather and play music \u2014 in Congo Square. By the 1890s, brass bands, ragtime, blues, and Caribbean rhythms were all colliding in the streets. They called the new sound \u201Cjass.\u201D King Oliver, Louis Armstrong, and Sidney Bechet all grew up hearing it.',
+    text: 'Where the Mississippi meets the Gulf, New Orleans was the most musical city in America. In Congo Square, enslaved people of African descent gathered on Sunday afternoons to drum, sing, and dance \u2014 something few other places in the South allowed. By the 1890s, brass bands, ragtime, blues, and Caribbean rhythms were all colliding in the streets. They called the new sound \u201Cjass.\u201D King Oliver, Louis Armstrong, and Sidney Bechet all grew up hearing it.',
     music: { file: 'new-orleans.mp3', title: '\u201CWay Down Yonder in New Orleans\u201D', artist: 'The Georgians, Frank Guarente', year: 'Columbia Records, 1922' },
-    quote: { text: 'Jazz was born in New Orleans and grew up in Chicago.', author: 'Louis Armstrong' },
+    quote: { text: 'Jazz was born in New Orleans and grew up in Chicago.', author: 'A popular saying, sometimes credited to Louis Armstrong', paraphrase: true },
   },
   {
     id: 'memphis',
@@ -49,10 +60,11 @@ const CITIES: CityData[] = [
     period: '1900s\u20131920s',
     cx: 285, cy: 410,
     photo: 'memphis.jpg',
-    photoCredit: 'W.C. Handy (far right) with associates outside the Tri-State Bank of Memphis, Tennessee. Handy published "Memphis Blues" in 1912 \u2014 the first blues song to appear in sheet music.',
-    text: 'Memphis sat at the crossroads \u2014 halfway between the Delta and the North. Beale Street became the main street of Black America, lined with clubs, theaters, and juke joints. W.C. Handy heard the blues here and wrote them down for the first time, publishing \u201CMemphis Blues\u201D in 1912. It was the bridge between rural folk music and the commercial recording industry.',
+    photoAlt: 'W.C. Handy and associates outside the Tri-State Bank of Memphis',
+    photoCredit: 'W.C. Handy (far right) with associates outside the Tri-State Bank of Memphis, Tennessee. Handy published "Memphis Blues" in 1912 \u2014 among the first blues ever published as sheet music.',
+    text: 'Memphis sat at the crossroads \u2014 halfway between the Delta and the North. Beale Street became the main street of Black America, lined with clubs, theaters, and juke joints. W.C. Handy heard the blues here and wrote them down, publishing \u201CMemphis Blues\u201D in 1912 \u2014 one of the first blues ever printed as sheet music. It was the bridge between rural folk music and the commercial recording industry.',
     music: { file: 'memphis.mp3', title: '\u201CMemphis Blues\u201D', artist: 'Morton Harvey, vocal \u2014 W.C. Handy, composer', year: 'Victor Records, 1914' },
-    quote: { text: 'The blues come from nothingness, from want, from desire.', author: 'W.C. Handy' },
+    quote: { text: 'The blues came from nothingness, from want, from desire.', author: 'W.C. Handy' },
   },
   {
     id: 'st-louis',
@@ -60,8 +72,9 @@ const CITIES: CityData[] = [
     period: '1890s\u20131920s',
     cx: 275, cy: 330,
     photo: 'st-louis.jpg',
+    photoAlt: 'Fate Marable\u2019s Society Syncopators aboard a Mississippi riverboat, about 1919',
     photoCredit: 'Fate Marable\u2019s Society Syncopators aboard a Mississippi riverboat, c.\u20091919. Marable\u2019s band played the steamships between New Orleans and St. Louis. A young Louis Armstrong played cornet in this band before leaving for Chicago.',
-    text: 'St. Louis was where the river met the railroad. Fate Marable\u2019s band played jazz on Mississippi riverboats, carrying the sound from New Orleans upriver to St. Louis and beyond. Scott Joplin had already made the city famous for ragtime \u2014 the first Black American music to become a national craze. When jazz came through on its way north, it picked up ragtime\u2019s sophistication and kept moving.',
+    text: 'St. Louis was where the river met the railroad. Fate Marable\u2019s band played jazz on Mississippi riverboats, carrying the sound from New Orleans upriver to St. Louis and beyond. Scott Joplin had already made the city famous for ragtime \u2014 one of the first Black American styles to sweep the nation. When jazz came through on its way north, it picked up ragtime\u2019s sophistication and kept moving.',
     music: { file: 'st-louis.mp3', title: '\u201CSt. Louis Blues\u201D', artist: 'Original Dixieland Jazz Band with Al Bernard', year: 'Victor Records, 1921' },
     quote: { text: 'Syncopations are no indication of light or trashy music.', author: 'Scott Joplin' },
   },
@@ -71,10 +84,11 @@ const CITIES: CityData[] = [
     period: '1910s\u20131930s',
     cx: 370, cy: 155,
     photo: 'chicago.jpg',
+    photoAlt: 'King Oliver\u2019s Creole Jazz Band posing with their instruments, Chicago, about 1923',
     photoCredit: 'King Oliver\u2019s Creole Jazz Band, Chicago, c.\u20091923. Photograph by Daguerre Studio. Left to right: Baby Dodds (drums), Honor\u00E9 Dutrey (trombone), King Oliver (cornet), Louis Armstrong (cornet), Lil Hardin (piano), Bill Johnson (banjo), Johnny Dodds (clarinet).',
-    text: 'The trains from the South ended at Chicago\u2019s Illinois Central station. Between 1910 and 1930, over 500,000 Black Southerners arrived. They settled on the South Side, and the music followed. King Oliver brought his Creole Jazz Band from New Orleans in 1918, then sent for young Louis Armstrong in 1922. The South Side became a laboratory where blues and jazz fused, electrified, and evolved.',
+    text: 'The trains from the South ended at Chicago\u2019s Illinois Central station. Most of the people who rode those trains came from Mississippi and its neighbors, straight up the Illinois Central line. Between 1910 and 1930, Chicago\u2019s Black population grew more than fivefold, from about 44,000 to about 234,000. They settled on the South Side, and the music followed. King Oliver moved from New Orleans to Chicago in 1918, then sent for young Louis Armstrong in 1922. The South Side became a laboratory where blues and jazz fused and evolved.',
     music: { file: 'chicago.mp3', title: '\u201CRiverside Blues\u201D', artist: 'King Oliver\u2019s Creole Jazz Band', year: 'Recorded 1923' },
-    quote: { text: 'I got on the train in New Orleans and I didn\u2019t stop until I got to Chicago.', author: 'Louis Armstrong' },
+    quote: { text: 'In the summer of 1922, Louis Armstrong took the train from New Orleans all the way to Chicago to join King Oliver\u2019s band.', author: 'Louis Armstrong\u2019s journey, in paraphrase', paraphrase: true },
   },
   {
     id: 'harlem',
@@ -82,8 +96,9 @@ const CITIES: CityData[] = [
     period: '1920s\u20131930s',
     cx: 610, cy: 35,
     photo: 'harlem.jpg',
+    photoAlt: 'A crowd lines a Harlem street as a parade passes; one sign reads \u201CThe New Negro has no fear\u201D',
     photoCredit: 'Harlem, New York, 1920s. A parade or rally passes through the neighborhood; a sign reads "THE NEW NEGRO HAS NO FEAR." By the 1920s, Harlem was the cultural capital of Black America.',
-    text: 'Harlem was the destination \u2014 the Promised Land. By the 1920s it was the cultural capital of Black America. The Cotton Club, the Apollo Theater, the Savoy Ballroom \u2014 music was everywhere. But the Harlem Renaissance was more than jazz. It was poetry, painting, philosophy, and pride. Langston Hughes, Zora Neale Hurston, Duke Ellington, and Bessie Smith all called Harlem home. A people who had been told they were nothing created an explosion of art that changed the world.',
+    text: 'Harlem was the destination \u2014 the Promised Land. Most of its newcomers had come up the Atlantic coast, from Virginia, the Carolinas, Georgia, and Florida; the music arrived from every direction, and in 1924 Louis Armstrong left Chicago for New York to join Fletcher Henderson\u2019s orchestra. By the 1920s Harlem was the cultural capital of Black America. The Cotton Club, the Apollo Theater, the Savoy Ballroom \u2014 music was everywhere. But the Harlem Renaissance was more than jazz. It was poetry, painting, philosophy, and pride. Langston Hughes, Zora Neale Hurston, and Duke Ellington all called Harlem home. A people who had been told they were nothing created an explosion of art that changed the world.',
     music: { file: 'harlem.mp3', title: '\u201CAny Woman\u2019s Blues\u201D', artist: 'Bessie Smith, vocal \u2014 Fletcher Henderson, piano', year: 'Columbia Records, 1923' },
     quote: { text: 'I, too, sing America.', author: 'Langston Hughes' },
   },
@@ -111,6 +126,43 @@ const DOT_LABELS: Record<string, string> = {
 
 const ROUTE_PATH = 'M280,550 C290,530 305,515 310,505 Q315,480 295,440 Q290,425 285,410 Q280,390 278,370 Q275,350 275,330 Q280,290 310,260 Q330,240 345,225 Q360,200 370,170 Q375,160 370,155 Q390,140 430,115 Q470,95 510,75 Q550,55 580,42 Q595,37 610,35';
 
+// ─── How the people moved ─────────────────────────────────────────
+// The journey above follows the music. The people mostly took the railroad
+// nearest home: up the Atlantic coast to Washington, Philadelphia and New
+// York, or up the middle of the country to Chicago. Positions are schematic,
+// like the rest of this map.
+const EAST_COAST_PATH = 'M500,575 Q470,535 478,500 Q500,455 545,420 Q578,365 585,300 Q594,262 598,228 Q606,185 606,140 Q610,90 610,35';
+const CENTRAL_PATH = 'M280,550 Q300,480 285,410 Q290,300 330,230 Q352,190 370,155';
+
+type PeopleRoute = { id: string; label: string; detail: string; color: string; path: string };
+const PEOPLE_ROUTES: PeopleRoute[] = [
+  {
+    id: 'east',
+    label: 'Up the Atlantic coast to New York',
+    detail: 'From Florida, Georgia, the Carolinas, and Virginia, on the railroad lines along the seaboard. This is how most of Harlem\u2019s newcomers came.',
+    color: '#D0ACE8',
+    path: EAST_COAST_PATH,
+  },
+  {
+    id: 'central',
+    label: 'Up the middle of the country to Chicago',
+    detail: 'From Mississippi and its neighbors, on the Illinois Central Railroad.',
+    color: '#E89B94',
+    path: CENTRAL_PATH,
+  },
+];
+
+const PEOPLE_PLACES: { name: string; x: number; y: number; anchor: 'start' | 'end' }[] = [
+  { name: 'Florida', x: 500, y: 575, anchor: 'start' },
+  { name: 'Georgia', x: 478, y: 500, anchor: 'start' },
+  { name: 'The Carolinas', x: 545, y: 420, anchor: 'start' },
+  { name: 'Virginia', x: 585, y: 300, anchor: 'start' },
+  { name: 'Washington', x: 598, y: 228, anchor: 'end' },
+  { name: 'Philadelphia', x: 606, y: 140, anchor: 'end' },
+];
+
+type RouteView = 'music' | 'people';
+
 export default function MigrationMapPage() {
 
   const [currentCityIdx, setCurrentCityIdx] = useState(-1);
@@ -131,9 +183,18 @@ export default function MigrationMapPage() {
   const [soundOn, setSoundOn] = useState(true);
   const soundOnRef = useRef(true);
   const [announcement, setAnnouncement] = useState('');
+  // Which story the map tells: the music's road (the journey) or the people's.
+  const [routeView, setRouteView] = useState<RouteView>('music');
+  // Shorter rides between stops, and a way to skip the one under way.
+  const [quickTrips, setQuickTrips] = useState(false);
+  const quickRef = useRef(false);
+  const [traveling, setTraveling] = useState(false);
+  const skipRef = useRef(false);
+  const skipBtnRef = useRef<HTMLButtonElement>(null);
   const cityHeadingRef = useRef<HTMLHeadingElement>(null);
   const dotRefs = useRef<(SVGGElement | null)[]>([]);
   const boardBtnRef = useRef<HTMLButtonElement>(null);
+  const peopleBtnRef = useRef<HTMLButtonElement>(null);
 
   const routePathRef = useRef<SVGPathElement>(null);
   const routeLengthRef = useRef(0);
@@ -224,6 +285,30 @@ export default function MigrationMapPage() {
     }
   }, [playMusic, stopMusic]);
 
+  /** How long each part of a hop takes: scenic, quick, or reduced motion. */
+  const pace = useCallback((scenic: number, quick: number, reduced = 1) => {
+    if (prefersReducedMotion()) return reduced;
+    if (skipRef.current) return Math.min(quick, 300);
+    return quickRef.current ? quick : scenic;
+  }, []);
+
+  const toggleQuickTrips = useCallback(() => {
+    quickRef.current = !quickRef.current;
+    setQuickTrips(quickRef.current);
+  }, []);
+
+  const skipRide = useCallback(() => {
+    skipRef.current = true;
+    setAnnouncement('Skipping ahead\u2026');
+  }, []);
+
+  const chooseView = useCallback((view: RouteView) => {
+    setRouteView(view);
+    setAnnouncement(view === 'people'
+      ? 'Showing how the people moved: up the Atlantic coast to New York, and up the middle of the country to Chicago.'
+      : 'Showing how the music moved: the journey from the Mississippi Delta to Harlem.');
+  }, []);
+
   const getDotScreenPos = useCallback((idx: number) => {
     const svg = svgRef.current;
     if (!svg) return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
@@ -258,8 +343,8 @@ export default function MigrationMapPage() {
       // Auto-play music after expand fills the screen, unless the visitor
       // has turned music off. The Music on/off control is first in the view.
       if (soundOnRef.current) playMusic(idx);
-    }, prefersReducedMotion() ? 300 : 1400);
-  }, [getDotScreenPos, playMusic]);
+    }, pace(1400, 500, 300));
+  }, [getDotScreenPos, playMusic, pace]);
 
   const collapseCity = useCallback((): Promise<void> => {
     return new Promise((resolve) => {
@@ -275,10 +360,10 @@ export default function MigrationMapPage() {
           setCityViewOpen(false);
           setExpandState('hidden');
           resolve();
-        }, 800);
-      }, 400);
+        }, pace(800, 300, 1));
+      }, pace(400, 150, 1));
     });
-  }, [stopMusic, getDotScreenPos]);
+  }, [stopMusic, getDotScreenPos, pace]);
 
   const playTrainSound = useCallback(() => {
     if (aliveRef.current && trainAudioRef.current && soundOnRef.current) {
@@ -313,14 +398,15 @@ export default function MigrationMapPage() {
       setTrainVisible(true);
       const startPct = fromIdx >= 0 ? positions[fromIdx] : positions[0];
       const endPct = positions[toIdx];
-      // Fixed 5-second train journey — the last stretch is the expanding dot.
-      // With reduced motion the train jumps straight to the next stop.
-      const duration = prefersReducedMotion() ? 1 : 5000;
+      // A 5-second train journey (1.5 seconds with quick trips) — the last
+      // stretch is the expanding dot. With reduced motion the train jumps
+      // straight to the next stop, and Skip ends the ride at once.
+      const duration = pace(5000, 1500);
       const startTime = performance.now();
 
       function animate(now: number) {
         const elapsed = now - startTime;
-        const t = Math.min(elapsed / duration, 1);
+        const t = skipRef.current ? 1 : Math.min(elapsed / duration, 1);
         const eased = t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
         const pct = startPct + (endPct - startPct) * eased;
         const pt = path!.getPointAtLength(len * pct);
@@ -340,7 +426,7 @@ export default function MigrationMapPage() {
       }
       requestAnimationFrame(animate);
     });
-  }, []);
+  }, [pace]);
 
   const startJourney = useCallback(() => {
     if (isAnimating) return;
@@ -363,8 +449,13 @@ export default function MigrationMapPage() {
     const nextIdx = currentCityIdxRef.current + 1;
     if (nextIdx >= CITIES.length) { setIsAnimating(false); return; }
 
+    skipRef.current = false;
+    setTraveling(true);
     await collapseCity();
     setAnnouncement(`Boarding the train to ${CITIES[nextIdx].name}\u2026`);
+    // The city view has gone; keep keyboard focus on the one control that
+    // matters during the ride.
+    requestAnimationFrame(() => skipBtnRef.current?.focus({ preventScroll: true }));
     playTrainSound();
     await animateTrainToCity(currentCityIdxRef.current, nextIdx);
 
@@ -372,8 +463,10 @@ export default function MigrationMapPage() {
     setTimeout(() => {
       expandCity(nextIdx);
       setIsAnimating(false);
-    }, 300);
-  }, [isAnimating, collapseCity, playTrainSound, animateTrainToCity, expandCity]);
+      setTraveling(false);
+      skipRef.current = false;
+    }, pace(300, 150, 1));
+  }, [isAnimating, collapseCity, playTrainSound, animateTrainToCity, expandCity, pace]);
 
   const restartJourney = useCallback(async () => {
     if (isAnimating) return;
@@ -388,14 +481,19 @@ export default function MigrationMapPage() {
     }, 500);
   }, [isAnimating, collapseCity, startJourney]);
 
-  const backToMap = useCallback(async () => {
+  const backToMap = useCallback(async (view?: RouteView) => {
     if (isAnimating) return;
     setIsAnimating(true);
     await collapseCity();
     setIsAnimating(false);
-    setAnnouncement('Back to the map');
+    if (view) setRouteView(view);
+    setAnnouncement(view === 'people'
+      ? 'Back to the map, showing how the people moved'
+      : 'Back to the map');
     const idx = currentCityIdxRef.current;
-    requestAnimationFrame(() => (dotRefs.current[idx] || boardBtnRef.current)?.focus({ preventScroll: true }));
+    requestAnimationFrame(() => (view === 'people'
+      ? peopleBtnRef.current
+      : (dotRefs.current[idx] || boardBtnRef.current))?.focus({ preventScroll: true }));
   }, [isAnimating, collapseCity]);
 
   // Stop every sound on unmount, and when the page is hidden for good
@@ -656,7 +754,7 @@ export default function MigrationMapPage() {
         .mg-city-stop-number {
           font-family: 'Josefin Sans', sans-serif; font-size: 10px;
           letter-spacing: 4px; text-transform: uppercase;
-          color: var(--mg-gold-dim); font-weight: 600; margin-bottom: 8px;
+          color: var(--mg-gold); font-weight: 600; margin-bottom: 8px;
         }
         .mg-city-name {
           font-family: 'Playfair Display', serif;
@@ -666,7 +764,7 @@ export default function MigrationMapPage() {
         }
         .mg-city-period {
           font-family: 'Playfair Display', serif; font-size: 14px;
-          font-style: italic; color: var(--mg-gold-dim); margin-bottom: 24px;
+          font-style: italic; color: var(--mg-gold); margin-bottom: 24px;
         }
         .mg-city-text {
           font-family: 'Josefin Sans', sans-serif;
@@ -725,22 +823,22 @@ export default function MigrationMapPage() {
           .city-dot.next-stop .mg-dot-outer, .mg-city-music-play.playing { animation: none; }
         }
         .mg-city-music-title { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--mg-gold-light); font-style: italic; }
-        .mg-city-music-artist { font-family: 'Josefin Sans', sans-serif; font-size: 11px; color: rgba(232,224,208,0.5); margin-top: 3px; font-weight: 300; }
-        .mg-city-music-year { font-family: 'Josefin Sans', sans-serif; font-size: 10px; color: rgba(232,224,208,0.3); margin-top: 2px; font-weight: 300; letter-spacing: 1px; }
+        .mg-city-music-artist { font-family: 'Josefin Sans', sans-serif; font-size: 11px; color: rgba(232,224,208,0.78); margin-top: 3px; font-weight: 300; }
+        .mg-city-music-year { font-family: 'Josefin Sans', sans-serif; font-size: 10px; color: rgba(232,224,208,0.7); margin-top: 2px; font-weight: 300; letter-spacing: 1px; }
 
         /* Quote */
         .mg-city-quote { text-align: center; padding: 24px 0; border-top: 1px solid rgba(201,169,78,0.08); }
-        .mg-city-quote blockquote {
+        .mg-city-quote .mg-quote-text {
           font-family: 'Playfair Display', serif;
           font-size: clamp(16px, 3vw, 20px);
-          font-style: italic; color: rgba(201,169,78,0.6);
+          font-style: italic; color: var(--mg-gold-light);
           line-height: 1.6; font-weight: 300;
         }
         .mg-city-quote cite {
           display: block; margin-top: 10px;
           font-family: 'Josefin Sans', sans-serif; font-size: 10px;
           letter-spacing: 3px; text-transform: uppercase;
-          color: var(--mg-gold-dim); font-style: normal;
+          color: var(--mg-gold); font-style: normal;
         }
 
         /* Train ticket */
@@ -759,10 +857,10 @@ export default function MigrationMapPage() {
         }
         .mg-train-ticket::before { left: -10px; }
         .mg-train-ticket::after { right: -10px; }
-        .mg-ticket-label { font-family: 'Josefin Sans', sans-serif; font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--mg-gold-dim); font-weight: 600; margin-bottom: 6px; }
+        .mg-ticket-label { font-family: 'Josefin Sans', sans-serif; font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--mg-gold); font-weight: 600; margin-bottom: 6px; }
         .mg-ticket-destination { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--mg-gold); font-weight: 700; margin-bottom: 4px; }
         .mg-ticket-line { width: 40px; height: 1px; background: var(--mg-gold-dim); margin: 10px auto; }
-        .mg-ticket-action { font-family: 'Josefin Sans', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--mg-gold-dim); font-weight: 600; }
+        .mg-ticket-action { font-family: 'Josefin Sans', sans-serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--mg-gold); font-weight: 600; }
 
         /* Final arrival */
         .mg-arrival-ticket { text-align: center; padding: 32px 24px; }
@@ -781,6 +879,72 @@ export default function MigrationMapPage() {
         }
         .mg-arrival-link:hover { background: rgba(201,169,78,0.1); border-color: var(--mg-gold); }
 
+        /* Music or people: which story the map tells */
+        .mg-view-toggle {
+          display: inline-flex; flex-wrap: wrap; justify-content: center;
+          margin-top: 14px; padding: 3px; gap: 3px;
+          border: 1px solid rgba(201,169,78,0.35); border-radius: 999px;
+        }
+        .mg-view-btn {
+          font-family: 'Josefin Sans', sans-serif; font-size: 10px; font-weight: 600;
+          letter-spacing: 2px; text-transform: uppercase;
+          min-height: 32px; padding: 8px 16px; border: none; border-radius: 999px;
+          background: transparent; color: var(--mg-text); cursor: pointer;
+          transition: background 0.3s, color 0.3s;
+        }
+        .mg-view-btn:hover { background: rgba(201,169,78,0.12); }
+        .mg-view-btn[aria-pressed='true'] { background: var(--mg-gold); color: var(--mg-bg); }
+        .mg-view-btn:focus-visible, .mg-pace-btn:focus-visible, .mg-skip-btn:focus-visible,
+        .mg-board-btn:focus-visible, .mg-arrival-link:focus-visible, .mg-return-map:focus-visible,
+        .mg-train-ticket:focus-visible { outline: 2px solid #a8d5e5; outline-offset: 3px; }
+        .mg-music-dim { opacity: 0.3; }
+
+        .mg-pace-btn {
+          display: block; margin: 16px auto 0; min-height: 32px; padding: 6px 14px;
+          font-family: 'Josefin Sans', sans-serif; font-size: 11px; letter-spacing: 1px;
+          background: none; border: 1px solid rgba(201,169,78,0.3); border-radius: 4px;
+          color: rgba(232,224,208,0.8); cursor: pointer;
+        }
+        .mg-pace-btn[aria-pressed='true'] { border-color: var(--mg-gold); color: var(--mg-gold-light); }
+
+        .mg-people-key { max-width: 280px; }
+        .mg-people-key ul { list-style: none; display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+        .mg-people-key li {
+          display: flex; gap: 10px; align-items: flex-start;
+          font-family: 'Josefin Sans', sans-serif; font-size: 13px; line-height: 1.6;
+          color: rgba(232,224,208,0.75); font-weight: 300;
+        }
+        .mg-people-key strong { color: var(--mg-text); font-weight: 600; }
+        .mg-key-swatch { flex: none; width: 22px; height: 4px; border-radius: 2px; margin-top: 9px; }
+        .mg-key-music {
+          background: repeating-linear-gradient(90deg, var(--mg-gold) 0 5px, transparent 5px 9px);
+        }
+
+        .mg-skip-btn {
+          position: fixed; left: 50%; bottom: 32px; transform: translateX(-50%); z-index: 300;
+          font-family: 'Josefin Sans', sans-serif; font-size: 11px; font-weight: 600;
+          letter-spacing: 3px; text-transform: uppercase;
+          padding: 12px 24px; min-height: 44px; border-radius: 999px; cursor: pointer;
+          background: rgba(10,10,10,0.9); border: 1.5px solid var(--mg-gold); color: var(--mg-gold);
+        }
+        .mg-skip-btn:hover { background: rgba(201,169,78,0.15); }
+
+        .mg-city-music-note {
+          font-family: 'Josefin Sans', sans-serif; font-size: 12px; line-height: 1.7;
+          font-style: italic; font-weight: 300; color: rgba(232,224,208,0.75);
+          margin-top: -12px;
+        }
+
+        .mg-reflect { text-align: left; margin: 0 0 24px; }
+        .mg-reflect-label {
+          font-family: 'Josefin Sans', sans-serif; font-size: 10px; letter-spacing: 4px;
+          text-transform: uppercase; color: var(--mg-gold); font-weight: 600; margin-bottom: 8px;
+        }
+        .mg-reflect p {
+          font-family: 'Josefin Sans', sans-serif; font-size: 14px; line-height: 1.8;
+          color: rgba(232,224,208,0.85); font-weight: 300;
+        }
+
         .mg-footer {
           text-align: center; padding: 8px 20px 16px;
           font-family: 'Josefin Sans', sans-serif;
@@ -793,7 +957,7 @@ export default function MigrationMapPage() {
           display: block; margin: 16px auto 0;
           background: none; border: none; cursor: pointer;
           font-family: 'Josefin Sans', sans-serif; font-size: 11px;
-          letter-spacing: 2px; color: var(--mg-gold-dim);
+          letter-spacing: 2px; color: var(--mg-gold);
           transition: all 0.3s ease;
           -webkit-tap-highlight-color: transparent;
         }
@@ -827,6 +991,15 @@ export default function MigrationMapPage() {
         @media (max-width: 768px) {
           .mg-nav { left: 20px; top: 20px; }
           .mg-nav-text { font-size: 24px; }
+          /* Clear the back link, which sits over the title on a phone. */
+          .mg-header { padding-top: 64px; }
+          .mg-people-key { max-width: 500px; }
+          /* Room for the city's last buttons to scroll clear of the Map button. */
+          .mg-city-body { padding-bottom: 96px; }
+        }
+        @media (max-width: 480px) {
+          .mg-view-toggle { flex-wrap: nowrap; }
+          .mg-view-btn { letter-spacing: 0.5px; padding: 8px 10px; }
         }
         @media (max-width: 768px) {
           .mg-city-columns { grid-template-columns: 1fr; gap: 24px; }
@@ -877,16 +1050,34 @@ export default function MigrationMapPage() {
 
         <div className="mg-header">
           <h1>The Great Migration</h1>
-          <div className="mg-subtitle">Follow the Music North</div>
+          <div className="mg-subtitle">{routeView === 'music' ? 'Follow the Music North' : 'Follow the People North'}</div>
+          <div className="mg-view-toggle" role="group" aria-label="What the map shows">
+            <button type="button" className="mg-view-btn" aria-pressed={routeView === 'music'} onClick={() => chooseView('music')}>
+              How the music moved
+            </button>
+            <button type="button" ref={peopleBtnRef} className="mg-view-btn" aria-pressed={routeView === 'people'} onClick={() => chooseView('people')}>
+              How the people moved
+            </button>
+          </div>
         </div>
 
         <div className="mg-main-layout">
           <div className="mg-left-col">
-            <div className="mg-intro">
-              Between 1910 and 1940, over <em>1.5 million</em> African Americans left the rural South
-              and traveled north, carrying their music with them &mdash; from the cotton fields of the
-              Mississippi Delta to the stages of Harlem.
-            </div>
+            {routeView === 'music' ? (
+              <div className="mg-intro">
+                Between 1910 and 1940, over <em>1.5 million</em> African Americans left the rural South
+                and traveled north, carrying their music with them. This journey follows the music
+                &mdash; from the cotton fields of the Mississippi Delta, up the river to Chicago, and
+                on to the stages of Harlem.
+              </div>
+            ) : (
+              <div className="mg-intro">
+                Most of the people who built Harlem did <em>not</em> come by way of Chicago. They
+                came up the Atlantic coast &mdash; from Virginia, the Carolinas, Georgia, and
+                Florida &mdash; on the railroad lines that ran north along the seaboard. People
+                mostly took the line nearest home; the music took every road.
+              </div>
+            )}
           </div>
 
           <div className="mg-map-container">
@@ -906,6 +1097,7 @@ export default function MigrationMapPage() {
               <path d="M310,150 L400,150 L400,300 L310,300 Z" className="mg-state-outline" />
 
               {/* Route paths */}
+              <g className={routeView === 'people' ? 'mg-music-dim' : undefined}>
               <path ref={routePathRef} d={ROUTE_PATH} className="mg-route-path" />
               <path
                 d={ROUTE_PATH}
@@ -927,6 +1119,24 @@ export default function MigrationMapPage() {
                 <path d="M470,95 l6,-4 l3,6" />
                 <path d="M555,50 l7,-3 l2,6" />
               </g>
+              </g>
+
+              {/* How the people moved: the two main railroad streams */}
+              {routeView === 'people' && (
+                <g aria-hidden="true">
+                  {PEOPLE_ROUTES.map((r) => (
+                    <path key={r.id} d={r.path} fill="none" stroke={r.color} strokeWidth="3.5"
+                      strokeLinecap="round" opacity="0.9" className="mg-people-route" />
+                  ))}
+                  {PEOPLE_PLACES.map((pl) => (
+                    <g key={pl.name}>
+                      <circle cx={pl.x} cy={pl.y} r="5" fill={PEOPLE_ROUTES[0].color} />
+                      <text className="mg-city-label" x={pl.anchor === 'start' ? pl.x + 14 : pl.x - 14} y={pl.y + 4}
+                        textAnchor={pl.anchor} fill={PEOPLE_ROUTES[0].color}>{pl.name}</text>
+                    </g>
+                  ))}
+                </g>
+              )}
 
               {/* Train icon */}
               {trainVisible && (
@@ -948,14 +1158,15 @@ export default function MigrationMapPage() {
                 const cc = CITY_COLORS[i];
                 return (
                 <g key={c.id} className={getDotClass(i)} onClick={() => {
-                  if (i <= currentCityIdx) expandCity(i);
+                  if (routeView === 'music' && i <= currentCityIdx) expandCity(i);
                 }}
                   ref={(el) => { dotRefs.current[i] = el; }}
                   role="button"
-                  tabIndex={i <= currentCityIdx ? 0 : -1}
+                  tabIndex={routeView === 'music' && i <= currentCityIdx ? 0 : -1}
+                  aria-hidden={routeView === 'people' ? true : undefined}
                   aria-disabled={i <= currentCityIdx ? undefined : true}
                   aria-label={`${DOT_LABELS[c.id] ?? c.name}, stop ${i + 1}${i <= currentCityIdx ? '' : ', not yet reached'}`}
-                  onKeyDown={activateOnKey(() => { if (i <= currentCityIdx) expandCity(i); })}
+                  onKeyDown={activateOnKey(() => { if (routeView === 'music' && i <= currentCityIdx) expandCity(i); })}
                   style={{ '--dot-glow': `${cc.main}88` } as React.CSSProperties}>
                   <circle className="mg-dot-outer" cx={c.cx} cy={c.cy} r="14"
                     fill={cc.dim} stroke={cc.main} />
@@ -989,16 +1200,40 @@ export default function MigrationMapPage() {
         </div>
 
           <div className="mg-right-col">
-            <div className="mg-journey-prompt">
-              <div className="mg-prompt-label">Your Journey</div>
-              <p className="mg-prompt-text">
-                Board the train and <em>ride from stop to stop</em> {'\u2014'} hear the music,
-                see the photographs, and trace the path that changed America.
-              </p>
-              <button ref={boardBtnRef} className="mg-board-btn" onClick={startJourney}>
-                {'\u25C6'} Begin in the Delta {'\u25C6'}
-              </button>
-            </div>
+            {routeView === 'music' ? (
+              <div className="mg-journey-prompt">
+                <div className="mg-prompt-label">Your Journey</div>
+                <p className="mg-prompt-text">
+                  Board the train and <em>ride from stop to stop</em> {'\u2014'} hear the music,
+                  see the photographs, and trace the path the music took north.
+                </p>
+                <button ref={boardBtnRef} className="mg-board-btn" onClick={startJourney}>
+                  {'\u25C6'} Begin in the Delta {'\u25C6'}
+                </button>
+                <button type="button" className="mg-pace-btn" aria-pressed={quickTrips} onClick={toggleQuickTrips}>
+                  Quick trips between stops: {quickTrips ? 'on' : 'off'}
+                </button>
+              </div>
+            ) : (
+              <div className="mg-people-key">
+                <div className="mg-prompt-label">Map Key</div>
+                <ul>
+                  {PEOPLE_ROUTES.map((r) => (
+                    <li key={r.id}>
+                      <span className="mg-key-swatch" style={{ background: r.color }} aria-hidden="true" />
+                      <span><strong>{r.label}.</strong> {r.detail}</span>
+                    </li>
+                  ))}
+                  <li>
+                    <span className="mg-key-swatch mg-key-music" aria-hidden="true" />
+                    <span><strong>How the music moved.</strong> The journey on this map, by river, rail, and road.</span>
+                  </li>
+                </ul>
+                <button type="button" className="mg-board-btn" onClick={() => chooseView('music')}>
+                  {'\u25C6'} Follow the Music {'\u25C6'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1006,6 +1241,13 @@ export default function MigrationMapPage() {
           The Mini Museum &mdash; Harlem Renaissance Exhibition
         </div>
       </div>
+
+      {/* Skip control while the train is moving between stops */}
+      {traveling && (
+        <button type="button" ref={skipBtnRef} className="mg-skip-btn" onClick={skipRide}>
+          Skip the ride <span aria-hidden="true">{'\u25B8\u25B8'}</span>
+        </button>
+      )}
 
       {/* === CITY VIEW === */}
       {cityViewOpen && city && (
@@ -1024,7 +1266,7 @@ export default function MigrationMapPage() {
               <img
                 className="mg-city-photo"
                 src={PHOTO_BASE + city.photo}
-                alt={city.name}
+                alt={city.photoAlt}
                 style={{ opacity: photoLoaded ? 1 : 0, position: photoLoaded ? 'relative' : 'absolute' }}
                 onLoad={() => setPhotoLoaded(true)}
                 onError={() => setPhotoLoaded(false)}
@@ -1046,10 +1288,14 @@ export default function MigrationMapPage() {
               <div className="mg-city-columns">
                 <div className="mg-city-col-left">
                   <div className="mg-city-text">{city.text}</div>
-                  <div className="mg-city-quote">
-                    <blockquote>{'\u201C'}{city.quote.text}{'\u201D'}</blockquote>
-                    <cite>{'\u2014'} {city.quote.author}</cite>
-                  </div>
+                  <figure className="mg-city-quote">
+                    {city.quote.paraphrase ? (
+                      <p className="mg-quote-text">{city.quote.text}</p>
+                    ) : (
+                      <blockquote className="mg-quote-text">{'\u201C'}{city.quote.text}{'\u201D'}</blockquote>
+                    )}
+                    <figcaption><cite>{'\u2014'} {city.quote.author}</cite></figcaption>
+                  </figure>
                 </div>
 
                 <div className="mg-city-col-right">
@@ -1069,6 +1315,7 @@ export default function MigrationMapPage() {
                       <div className="mg-city-music-year">{city.music.year}</div>
                     </div>
                   </div>
+                  {city.music.note && <p className="mg-city-music-note">{city.music.note}</p>}
 
                   {currentCityIdx < CITIES.length - 1 ? (<>
                     <button type="button" className="mg-train-ticket" onClick={boardToNext}>
@@ -1077,7 +1324,10 @@ export default function MigrationMapPage() {
                       <span className="mg-ticket-line" style={{ display: 'block' }} />
                       <span className="mg-ticket-action" style={{ display: 'block' }}><span aria-hidden="true">{'\u25C6'}</span> Board the Train <span aria-hidden="true">{'\u25C6'}</span></span>
                     </button>
-                    <button className="mg-return-map" onClick={backToMap}>
+                    <button type="button" className="mg-pace-btn" aria-pressed={quickTrips} onClick={toggleQuickTrips}>
+                      Quick trips between stops: {quickTrips ? 'on' : 'off'}
+                    </button>
+                    <button className="mg-return-map" onClick={() => backToMap()}>
                       {'\u2190'} Return to Map
                     </button>
                   </>) : (
@@ -1085,9 +1335,19 @@ export default function MigrationMapPage() {
                       <div className="mg-ticket-label">You Have Arrived</div>
                       <div className="mg-ticket-destination">The music made it. So did the people.</div>
                       <div className="mg-ticket-line" />
+                      <div className="mg-reflect">
+                        <h3 className="mg-reflect-label">Think About It</h3>
+                        <p>
+                          Most of the people who built Harlem came up the Atlantic coast, but much of
+                          its music came by way of New Orleans and Chicago. Why might a song travel a
+                          different road from the people who sing it? What carries music from place
+                          to place today?
+                        </p>
+                      </div>
                       <div className="mg-arrival-links">
+                        <button className="mg-arrival-link" onClick={() => backToMap('people')}>See How the People Moved</button>
                         <button className="mg-arrival-link" onClick={restartJourney}>Make the Journey Again</button>
-                        <button className="mg-arrival-link" onClick={backToMap}>View Map</button>
+                        <button className="mg-arrival-link" onClick={() => backToMap()}>View Map</button>
                       </div>
                     </div>
                   )}
