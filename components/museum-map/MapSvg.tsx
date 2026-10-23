@@ -407,6 +407,9 @@ export function MapSvg({
         }
         :global(.pulse-dot) {
           animation: pulse 2s ease-in-out infinite;
+          /* scale around the dot itself, not the map's top-left corner */
+          transform-box: fill-box;
+          transform-origin: center;
         }
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
