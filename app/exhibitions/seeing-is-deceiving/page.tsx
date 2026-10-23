@@ -5,6 +5,12 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import TypewriterText from '@/components/TypewriterText';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
+import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
+import TeachToggle from '@/components/projector/TeachToggle';
+import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
+import { SEEING_TALK } from '@/components/projector/posterTalk';
+import { SEEING_POSTER_THEME, SEEING_POSTER_LINKS } from '@/components/projector/themes';
+import { FxChannelGhosts, FxDefs, FxText, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 
 type ContentItem = {
   type: string;
@@ -439,6 +445,17 @@ const LineByLine = ({ items, color }: { items: string[]; color: string }) => {
 };
 
 // Film dust/scratch component for old film effect
+const poster1Marks = chapterMarks(poster1Content);
+const poster2Marks = chapterMarks(poster2Content);
+
+/* Teacher projector mode: the two posters, their chapter questions and the picker images. */
+const POSTER_IDS = ['poster1', 'poster2'] as const;
+const POSTER_LENGTHS = { poster1: poster1Content.length, poster2: poster2Content.length };
+const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
+  { id: 'poster1', title: 'Seeing is Deceiving: The Science of How We See', thumb: '/exhibitions/seeing/poster1.jpg', items: poster1Content, talk: SEEING_TALK.poster1 },
+  { id: 'poster2', title: 'A History of Lies: From Magic Lanterns to AI Deepfakes', thumb: '/exhibitions/seeing/poster2.jpg', items: poster2Content, talk: SEEING_TALK.poster2 },
+];
+
 const FilmOverlay = () => {
   return (
     <div className="film-overlay">
@@ -462,13 +479,17 @@ const FilmOverlay = () => {
 };
 
 export default function SeeingIsDeceiving() {
+  const [projector, setProjector] = useProjectorMode();
   const {
     activeView,
     posterStep,
+    fromStep,
+    direction,
     fadeIn,
     animationKey,
     contentRef,
     openPoster,
+    goToStep,
     nextStep,
     prevStep,
     returnToMain,
@@ -476,18 +497,27 @@ export default function SeeingIsDeceiving() {
     hintVisible,
     dismissHint,
     announcement,
-  } = usePosterWalkthrough({ poster1: poster1Content.length, poster2: poster2Content.length });
+  } = usePosterWalkthrough(POSTER_LENGTHS, { hint: !projector });
+  usePosterDeepLink(POSTER_IDS, POSTER_LENGTHS, openPoster);
 
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
   const currentItem = currentPosterContent[posterStep];
   const isPoster1 = activeView === 'poster1';
+  const marks = activeView === 'poster1' ? poster1Marks : poster2Marks;
 
   // Colors
   const wavesBlue = '#a8d5e5';
   const darkCharcoal = '#2a2a2a';
   const bgColor = isPoster1 ? '#e0dede' : '#0a0a0a';
   const textColor = isPoster1 ? darkCharcoal : wavesBlue;
+  const fx = usePosterFxStage('sid', direction, currentItem?.type ?? '', bgColor, isPoster1 ? 'rgba(42,42,42,0.55)' : 'rgba(168,213,229,0.6)');
+  /**
+   * The panels keep their own authored entrances. The chromatic slat reveal is
+   * reserved for the split-reveal section titles, so it marks a new chapter
+   * rather than every click.
+   */
+  const fxTitle = currentItem?.type === 'section-title' && currentItem.effect === 'split-reveal';
 
   // Position classes
   const getPositionClass = (position?: string) => {
@@ -1202,7 +1232,7 @@ export default function SeeingIsDeceiving() {
         .poster-walkthrough {
           min-height: 100vh;
           width: 100vw;
-          transition: opacity 0.4s ease;
+          transition: opacity 0.25s ease;
           overflow: hidden;
         }
         .poster-walkthrough.fade-out { opacity: 0; }
@@ -1459,31 +1489,36 @@ export default function SeeingIsDeceiving() {
         }
       `}</style>
 
-      {/* Navigation */}
-      <ExhibitionNav
-        className="nav-m nav-m-left"
-        href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
-        onClick={activeView === 'main' ? undefined : returnToMain}
-      >
-        <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-        <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>←</span>
-        <span className="nav-label" style={{ color: '#7D8471' }}>
-          {activeView === 'main' ? 'First Floor' : 'Exhibition'}
-        </span>
-      </ExhibitionNav>
+      {!projector && (
+        <>
+        {/* Navigation */}
+        <ExhibitionNav
+          className="nav-m nav-m-left"
+          href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
+          onClick={activeView === 'main' ? undefined : returnToMain}
+        >
+          <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+          <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>←</span>
+          <span className="nav-label" style={{ color: '#7D8471' }}>
+            {activeView === 'main' ? 'First Floor' : 'Exhibition'}
+          </span>
+        </ExhibitionNav>
 
-      <ExhibitionNav className="nav-m nav-m-right" href="/exhibitions/seeing-is-deceiving/resources">
-        <span className="nav-label" style={{ color: '#7D8471' }}>Resources</span>
-        <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>→</span>
-        <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-      </ExhibitionNav>
+        <ExhibitionNav className="nav-m nav-m-right" href="/exhibitions/seeing-is-deceiving/resources">
+          <span className="nav-label" style={{ color: '#7D8471' }}>Resources</span>
+          <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>→</span>
+          <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+        </ExhibitionNav>
+        </>
+      )}
 
       {/* Main Exhibition View */}
-      {activeView === 'main' && (
+      {activeView === 'main' && !projector && (
         <div className="exhibition-main">
           <div className="exhibition-title">
             <h1>Seeing is Deceiving</h1>
             <p>The Science of How We See</p>
+            <TeachToggle onClick={() => setProjector(true)} style={{ '--teach-color': '#a8d5e5', '--teach-border': 'rgba(168,213,229,0.55)', marginTop: 24 } as React.CSSProperties} />
           </div>
 
           <div className="exhibition-grid">
@@ -1517,167 +1552,212 @@ export default function SeeingIsDeceiving() {
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
         {announcement}
       </p>
-      <PosterNavHint visible={hintVisible} onDismiss={dismissHint} />
+      <PosterNavHint visible={hintVisible && !projector} onDismiss={dismissHint} />
+      {activeView !== 'main' && (
+        <h1 className="visually-hidden">{activeView === 'poster1' ? 'Seeing is Deceiving: The Science of How We See' : 'A History of Lies: From Magic Lanterns to AI Deepfakes'}</h1>
+      )}
+      <FxDefs />
 
       {/* Poster Walkthrough View */}
-      {(activeView === 'poster1' || activeView === 'poster2') && (
-        <div className={`poster-walkthrough ${fadeIn ? '' : 'fade-out'}`} key={animationKey} {...stageProps}>
-          <div className="walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
+      <PosterProjector
+        on={projector}
+        onExit={() => setProjector(false)}
+        exhibition="Seeing is Deceiving"
+        theme={SEEING_POSTER_THEME}
+        links={SEEING_POSTER_LINKS}
+        posters={PROJECTOR_POSTERS}
+        activeView={activeView}
+        step={posterStep}
+        openPoster={openPoster}
+        goToStep={goToStep}
+        nextStep={nextStep}
+        prevStep={prevStep}
+        returnToMain={returnToMain}
+      >
+        {(activeView === 'poster1' || activeView === 'poster2') && (
+          <div
+            {...stageProps}
+            {...fx}
+            className={`poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
+            data-tone={isPoster1 ? 'light' : 'dark'}
+            key={animationKey}
+          >
+            <div className="walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
+              {/* The split-colour scan runs once, as the poster opens. */}
+              {posterStep === 0 && <FxVeil theme="sid" kind="media" />}
 
-            {/* Title Image - Full Bleed */}
-            {currentItem.type === 'title-image' && (
-              <div className={`full-bleed-image title-image ${isPoster1 ? 'poster1-title' : 'poster2-title'} ${currentItem.effect === 'kenburns-in' ? 'effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'effect-drift' : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
-                <img src={currentItem.src} alt={currentItem.alt} />
-              </div>
-            )}
+              {/* Title Image - Full Bleed */}
+              {currentItem.type === 'title-image' && (
+                <>
+                  <div className={`full-bleed-image title-image pfx-media ${isPoster1 ? 'poster1-title' : 'poster2-title'} ${currentItem.effect === 'kenburns-in' ? 'effect-kenburns-in' : ''} ${currentItem.effect === 'drift' ? 'effect-drift' : ''}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
+                    <img src={currentItem.src} alt={currentItem.alt} />
+                  </div>
+                  <FxChannelGhosts className={`full-bleed-image title-image ${isPoster1 ? 'poster1-title' : 'poster2-title'}`} src={currentItem.src} />
+                </>
+              )}
 
-            {/* Full Image - Mega Zoom */}
-            {currentItem.type === 'full-image' && (
-              <div className={`full-bleed-image ${currentItem.effect === 'mega-zoom-out' ? 'face-image' : ''}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
-                <img
-                  src={currentItem.src}
-                  alt={currentItem.alt}
-                  className={currentItem.effect === 'mega-zoom-out' ? 'effect-mega-zoom-out' : currentItem.effect === 'waves-drift' ? 'effect-waves-drift' : ''}
-                />
-              </div>
-            )}
+              {/* Full Image - Mega Zoom */}
+              {currentItem.type === 'full-image' && (
+                <>
+                  <div className={`full-bleed-image pfx-media ${currentItem.effect === 'mega-zoom-out' ? 'face-image' : ''}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- Required for CSS animations */}
+                    <img
+                      src={currentItem.src}
+                      alt={currentItem.alt}
+                      className={currentItem.effect === 'mega-zoom-out' ? 'effect-mega-zoom-out' : currentItem.effect === 'waves-drift' ? 'effect-waves-drift' : ''}
+                    />
+                  </div>
+                  <FxChannelGhosts
+                    className={`full-bleed-image ${currentItem.effect === 'mega-zoom-out' ? 'face-image' : ''}`}
+                    src={currentItem.src}
+                    imgClassName={currentItem.effect === 'mega-zoom-out' ? 'effect-mega-zoom-out' : ''}
+                  />
+                </>
+              )}
 
-            {/* Section Title */}
-            {currentItem.type === 'section-title' && (
-              <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
-                {/* Film overlay for vintage film sections */}
-                {currentItem.special === 'vintage-film' && <FilmOverlay />}
-                {/* Depth orbs for stereoscope sections */}
-                {currentItem.special === 'depth-parallax' && (
-                  <>
-                    <div className="depth-orb depth-orb-1"></div>
-                    <div className="depth-orb depth-orb-2"></div>
-                    <div className="depth-orb depth-orb-3"></div>
-                  </>
-                )}
-                <h2
-                  className={`section-title-text ${getEffectClass(currentItem.effect)} ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
-                  style={{ color: textColor, position: 'relative', zIndex: 10 }}
-                >
-                  {currentItem.text}
-                </h2>
-              </div>
-            )}
-
-            {/* Paragraph */}
-            {currentItem.type === 'paragraph' && currentItem.text && (
-              <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
-                {/* Film overlay for vintage film sections */}
-                {currentItem.special === 'vintage-film' && <FilmOverlay />}
-                {/* Depth orbs for stereoscope sections */}
-                {currentItem.special === 'depth-parallax' && (
-                  <>
-                    <div className="depth-orb depth-orb-1"></div>
-                    <div className="depth-orb depth-orb-2"></div>
-                    <div className="depth-orb depth-orb-3"></div>
-                  </>
-                )}
-                <p
-                  className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''} ${currentItem.effect === 'fade-in' ? 'effect-fade-in' : ''} ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''} ${currentItem.effect === 'glitch' ? 'effect-glitch' : ''}`}
-                  style={{ color: textColor, position: 'relative', zIndex: 10 }}
-                >
-                  {currentItem.effect === 'typewriter' ? (
-                    <TypewriterText text={currentItem.text} color={textColor} cursorClassName="typewriter-cursor" />
-                  ) : (
-                    currentItem.text
+              {/* Section Title */}
+              {currentItem.type === 'section-title' && (
+                <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
+                  {/* Film overlay for vintage film sections */}
+                  {currentItem.special === 'vintage-film' && <FilmOverlay />}
+                  {/* Depth orbs for stereoscope sections */}
+                  {currentItem.special === 'depth-parallax' && (
+                    <>
+                      <div className="depth-orb depth-orb-1"></div>
+                      <div className="depth-orb depth-orb-2"></div>
+                      <div className="depth-orb depth-orb-3"></div>
+                    </>
                   )}
-                </p>
-              </div>
-            )}
+                  <h2
+                    className={`section-title-text ${fxTitle ? '' : getEffectClass(currentItem.effect)} ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
+                    style={{ color: textColor, position: 'relative', zIndex: 10 }}
+                    data-fx={fxTitle ? 'title' : undefined}
+                  >
+                    {fxTitle ? <FxText text={currentItem.text ?? ''} /> : currentItem.text}
+                  </h2>
+                </div>
+              )}
 
-            {/* Blind Spot */}
-            {currentItem.type === 'blind-spot' && currentItem.text && (
-              <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} blind-spot-container`}>
-                <div className="blind-spot-hole"></div>
-                <p className="paragraph-text effect-fade-in" style={{ color: textColor }}>
-                  {currentItem.text}
-                </p>
-              </div>
-            )}
+              {/* Paragraph */}
+              {currentItem.type === 'paragraph' && currentItem.text && (
+                <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
+                  {/* Film overlay for vintage film sections */}
+                  {currentItem.special === 'vintage-film' && <FilmOverlay />}
+                  {/* Depth orbs for stereoscope sections */}
+                  {currentItem.special === 'depth-parallax' && (
+                    <>
+                      <div className="depth-orb depth-orb-1"></div>
+                      <div className="depth-orb depth-orb-2"></div>
+                      <div className="depth-orb depth-orb-3"></div>
+                    </>
+                  )}
+                  <p
+                    className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''} ${currentItem.effect === 'fade-in' ? 'effect-fade-in' : ''} ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''} ${currentItem.effect === 'glitch' ? 'effect-glitch' : ''}`}
+                    style={{ color: textColor, position: 'relative', zIndex: 10 }}
+                  >
+                    {currentItem.effect === 'typewriter' ? (
+                      <TypewriterText text={currentItem.text} color={textColor} cursorClassName="typewriter-cursor" />
+                    ) : (
+                      currentItem.text
+                    )}
+                  </p>
+                </div>
+              )}
 
-            {/* Timeline */}
-            {currentItem.type === 'timeline' && currentItem.items && (
-              <div className={`text-content-wrapper ${getPositionClass(currentItem.position)}`}>
-                <LineByLine items={currentItem.items} color={textColor} />
-              </div>
-            )}
+              {/* Blind Spot */}
+              {currentItem.type === 'blind-spot' && currentItem.text && (
+                <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} blind-spot-container`}>
+                  <div className="blind-spot-hole"></div>
+                  <p className="paragraph-text effect-fade-in" style={{ color: textColor }}>
+                    {currentItem.text}
+                  </p>
+                </div>
+              )}
 
-            {/* Quote */}
-            {currentItem.type === 'quote' && currentItem.text && (
-              <div className={`text-content-wrapper pos-center`}>
-                <blockquote
-                  className={`quote-text ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''}`}
-                  style={{ color: textColor, borderColor: textColor }}
-                >
-                  {currentItem.text}
-                </blockquote>
-              </div>
-            )}
+              {/* Timeline */}
+              {currentItem.type === 'timeline' && currentItem.items && (
+                <div className={`text-content-wrapper ${getPositionClass(currentItem.position)}`}>
+                  <LineByLine items={currentItem.items} color={textColor} />
+                </div>
+              )}
 
-            {/* Link */}
-            {currentItem.type === 'link' && (
-              <div className="text-content-wrapper pos-center">
-                <a
-                  href={currentItem.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="content-link"
-                  style={{ color: textColor, borderColor: textColor }}
-                >
-                  {currentItem.text}
-                </a>
-              </div>
-            )}
+              {/* Quote */}
+              {currentItem.type === 'quote' && currentItem.text && (
+                <div className={`text-content-wrapper pos-center`}>
+                  <blockquote
+                    className={`quote-text ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''}`}
+                    style={{ color: textColor, borderColor: textColor }}
+                  >
+                    {currentItem.text}
+                  </blockquote>
+                </div>
+              )}
 
-            {/* End */}
-            {currentItem.type === 'end' && (
-              <div className="text-content-wrapper pos-center">
+              {/* Link */}
+              {currentItem.type === 'link' && (
+                <div className="text-content-wrapper pos-center">
+                  <a
+                    href={currentItem.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="content-link"
+                    style={{ color: textColor, borderColor: textColor }}
+                  >
+                    {currentItem.text}
+                  </a>
+                </div>
+              )}
+
+              {/* End */}
+              {currentItem.type === 'end' && projector && <PosterProjectorEnd />}
+              {currentItem.type === 'end' && !projector && (
+                <div className="text-content-wrapper pos-center">
+                  <button
+                    className="content-end"
+                    onClick={returnToMain}
+                    style={{ color: textColor, borderColor: textColor }}
+                  >
+                    {currentItem.text}
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Navigation - minimal and transparent */}
+            {currentItem.type !== 'end' && (
+              <div className="walkthrough-nav">
                 <button
-                  className="content-end"
-                  onClick={returnToMain}
+                  className="nav-arrow-btn"
+                  onClick={prevStep}
+                  disabled={posterStep === 0}
+                  aria-label="Previous panel"
                   style={{ color: textColor, borderColor: textColor }}
                 >
-                  {currentItem.text}
+                  ←
+                </button>
+                <PosterProgress
+                  theme="sid"
+                  step={posterStep}
+                  fromStep={fromStep}
+                  count={currentPosterContent.length}
+                  marks={marks}
+                  color={textColor}
+                />
+                <button
+                  className="nav-arrow-btn"
+                  onClick={nextStep}
+                  disabled={posterStep === currentPosterContent.length - 1}
+                  aria-label="Next panel"
+                  style={{ color: textColor, borderColor: textColor }}
+                >
+                  →
                 </button>
               </div>
             )}
           </div>
-
-          {/* Navigation - minimal and transparent */}
-          {currentItem.type !== 'end' && (
-            <div className="walkthrough-nav">
-              <button
-                className="nav-arrow-btn"
-                onClick={prevStep}
-                disabled={posterStep === 0}
-                aria-label="Previous panel"
-                style={{ color: textColor, borderColor: textColor }}
-              >
-                ←
-              </button>
-              <span className="step-indicator" style={{ color: textColor }} aria-hidden="true">
-                {posterStep + 1} / {currentPosterContent.length}
-              </span>
-              <button
-                className="nav-arrow-btn"
-                onClick={nextStep}
-                disabled={posterStep === currentPosterContent.length - 1}
-                aria-label="Next panel"
-                style={{ color: textColor, borderColor: textColor }}
-              >
-                →
-              </button>
-            </div>
-          )}
-        </div>
-      )}
+        )}
+      </PosterProjector>
 
 
     </div>

@@ -1,0 +1,430 @@
+/*
+ * Poster projector mode: the classroom frame around a poster walkthrough.
+ * It follows the games' projector (components/games/projector on
+ * feat/projector-mode): the screen is a fixed frame and every size is a share
+ * of it, so the same layout reads from the back of a room on a 1920×1080 or a
+ * 1280×720 projector. One unit, --pjp-u, is a hundredth of the frame's width
+ * on a 16:9 screen (and shrinks to fit a squarer one). It is registered in
+ * poster-projector.css so it resolves here, once, and the poster panels
+ * inside the stage use the same value.
+ */
+
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+  container-type: size;
+  background: var(--pj-bg, #111);
+  color: var(--pj-ink, #f2ede2);
+  font-family: var(--pj-body, system-ui, sans-serif);
+}
+
+.frame {
+  --pjp-u: min(1cqw, 1.7778cqh);
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: calc(var(--pjp-u) * 0.7);
+  padding: calc(var(--pjp-u) * 0.8) calc(var(--pjp-u) * 1.4) calc(var(--pjp-u) * 0.7);
+  background: var(--pj-bg, #111);
+  overflow: hidden;
+}
+
+.frame *,
+.frame *::before,
+.frame *::after {
+  box-sizing: border-box;
+}
+
+.frame :focus-visible {
+  outline: max(3px, calc(var(--pjp-u) * 0.2)) solid var(--pj-ink, #f2ede2);
+  outline-offset: max(3px, calc(var(--pjp-u) * 0.18));
+  border-radius: 4px;
+}
+.frame [tabindex='-1']:focus-visible {
+  outline: none;
+}
+
+.frame kbd,
+.blank kbd {
+  font-family: var(--pj-body, system-ui, sans-serif);
+  font-size: 0.85em;
+  line-height: 1;
+  padding: 0.12em 0.42em;
+  border: 1px solid color-mix(in srgb, currentColor 45%, transparent);
+  border-radius: 4px;
+  color: inherit;
+  white-space: nowrap;
+}
+
+/* ───────── Top bar ───────── */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--pjp-u) * 1.6);
+  min-height: max(44px, calc(var(--pjp-u) * 3));
+}
+
+.barTitle {
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--pjp-u) * 1);
+  margin: 0;
+  font-family: var(--pj-display, Georgia, serif);
+  font-size: max(16px, calc(var(--pjp-u) * 1.5));
+  color: var(--pj-accent, #c9a84c);
+  white-space: nowrap;
+}
+.barCount {
+  font-family: var(--pj-body, system-ui, sans-serif);
+  font-size: max(14px, calc(var(--pjp-u) * 1.05));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--pj-muted, #a89c84);
+}
+
+.tools {
+  display: flex;
+  gap: calc(var(--pjp-u) * 0.5);
+  margin-left: auto;
+}
+.tool {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: max(44px, calc(var(--pjp-u) * 2.6));
+  padding: 0 calc(var(--pjp-u) * 1);
+  border-radius: 100px;
+  border: 1px solid color-mix(in srgb, var(--pj-ink, #f2ede2) 30%, transparent);
+  background: transparent;
+  color: var(--pj-ink, #f2ede2);
+  font: inherit;
+  font-size: max(13px, calc(var(--pjp-u) * 0.9));
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tool:hover {
+  background: color-mix(in srgb, var(--pj-ink, #f2ede2) 10%, transparent);
+}
+.tool[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--pj-accent, #c9a84c) 22%, transparent);
+  border-color: var(--pj-accent, #c9a84c);
+}
+.tool:disabled {
+  visibility: hidden;
+}
+.toolExit {
+  border-color: var(--pj-accent, #c9a84c);
+  color: var(--pj-accent, #c9a84c);
+}
+
+/* ───────── Stage: the poster itself ───────── */
+
+.stage {
+  position: relative;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  /* Its own size container: panels size their images against the stage (cqw/cqh),
+     and fixed-position layers inside a panel stay inside it. */
+  container-type: size;
+  contain: layout paint;
+  border-radius: calc(var(--pjp-u) * 0.35);
+}
+
+/* ───────── Footer: teacher strip and keys ───────── */
+
+.foot {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--pjp-u) * 1.4);
+  min-height: max(30px, calc(var(--pjp-u) * 2.2));
+}
+
+.strip {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  align-items: baseline;
+  gap: calc(var(--pjp-u) * 1.4);
+  padding: calc(var(--pjp-u) * 0.45) calc(var(--pjp-u) * 1);
+  border-left: 3px solid var(--pj-accent, #c9a84c);
+  background: color-mix(in srgb, var(--pj-ink, #f2ede2) 6%, transparent);
+  border-radius: 0 6px 6px 0;
+  font-size: max(15px, calc(var(--pjp-u) * 1.1));
+  line-height: 1.35;
+}
+.where {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  max-width: 32%;
+  margin: 0;
+}
+.panelOf {
+  font-size: 0.78em;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--pj-muted, #a89c84);
+  white-space: nowrap;
+}
+.chapterName {
+  font-family: var(--pj-display, Georgia, serif);
+  font-size: 1.05em;
+  color: var(--pj-ink, #f2ede2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.talk {
+  margin: 0;
+  min-width: 0;
+  color: var(--pj-ink, #f2ede2);
+}
+.talkLabel {
+  font-size: 0.78em;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pj-accent, #c9a84c);
+  margin-right: 0.5em;
+  white-space: nowrap;
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: calc(var(--pjp-u) * 0.3) calc(var(--pjp-u) * 1.1);
+  margin: 0 0 0 auto;
+  max-width: 44%;
+  font-size: max(13px, calc(var(--pjp-u) * 0.85));
+  color: var(--pj-muted, #a89c84);
+}
+.keys span {
+  white-space: nowrap;
+}
+
+/* ───────── Blank ───────── */
+
+.blank {
+  position: fixed;
+  inset: 0;
+  z-index: 3100;
+  background: #000;
+  cursor: pointer;
+}
+.blankHint {
+  position: absolute;
+  right: 20px;
+  bottom: 16px;
+  margin: 0;
+  font-family: var(--pj-body, system-ui, sans-serif);
+  font-size: 14px;
+  color: #8f8f8f;
+}
+
+/* ───────── Shared pieces: headings, actions, links ───────── */
+
+.eyebrow {
+  margin: 0;
+  font-size: max(14px, calc(var(--pjp-u) * 1.1));
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--pj-muted, #a89c84);
+}
+.smallHeading {
+  margin: 0 0 calc(var(--pjp-u) * 0.6);
+  font-size: max(13px, calc(var(--pjp-u) * 0.95));
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pj-muted, #a89c84);
+}
+.action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  min-height: max(44px, calc(var(--pjp-u) * 3.4));
+  padding: 0 calc(var(--pjp-u) * 1.8);
+  border-radius: 100px;
+  border: 2px solid var(--pj-accent, #c9a84c);
+  background: transparent;
+  color: var(--pj-accent, #c9a84c);
+  font: inherit;
+  font-size: max(15px, calc(var(--pjp-u) * 1.15));
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.action:hover {
+  background: color-mix(in srgb, var(--pj-accent, #c9a84c) 14%, transparent);
+}
+.actionPrimary {
+  background: var(--pj-accent, #c9a84c);
+  color: var(--pj-on-accent, #111);
+}
+.actionPrimary:hover {
+  background: color-mix(in srgb, var(--pj-accent, #c9a84c) 85%, white);
+}
+.link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  gap: 0.4em;
+  font-size: max(16px, calc(var(--pjp-u) * 1.3));
+  color: var(--pj-accent, #c9a84c);
+  text-underline-offset: 0.2em;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--pjp-u) * 0.5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.chip {
+  min-height: max(44px, calc(var(--pjp-u) * 2.5));
+  padding: 0 calc(var(--pjp-u) * 1);
+  border-radius: 100px;
+  border: 1px solid color-mix(in srgb, var(--pj-accent, #c9a84c) 60%, transparent);
+  background: transparent;
+  color: var(--pj-ink, #f2ede2);
+  font: inherit;
+  font-size: max(14px, calc(var(--pjp-u) * 1));
+  text-align: left;
+  cursor: pointer;
+}
+.chip:hover {
+  background: color-mix(in srgb, var(--pj-accent, #c9a84c) 14%, transparent);
+}
+
+/* ───────── Picker ───────── */
+
+.picker {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--pjp-u) * 1.2);
+  text-align: center;
+}
+.pickerTitle {
+  margin: 0;
+  font-family: var(--pj-display, Georgia, serif);
+  font-size: max(30px, calc(var(--pjp-u) * 3.6));
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--pj-ink, #f2ede2);
+  outline: none;
+}
+.pickerList {
+  display: flex;
+  justify-content: center;
+  gap: calc(var(--pjp-u) * 4);
+  margin: calc(var(--pjp-u) * 0.6) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.pickerCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(var(--pjp-u) * 0.6);
+  width: calc(var(--pjp-u) * 30);
+  padding: calc(var(--pjp-u) * 1);
+  border: 1px solid color-mix(in srgb, var(--pj-accent, #c9a84c) 40%, transparent);
+  border-radius: calc(var(--pjp-u) * 0.6);
+  background: color-mix(in srgb, var(--pj-ink, #f2ede2) 4%, transparent);
+  color: var(--pj-ink, #f2ede2);
+  font: inherit;
+  cursor: pointer;
+}
+.pickerCard:hover {
+  border-color: var(--pj-accent, #c9a84c);
+  background: color-mix(in srgb, var(--pj-accent, #c9a84c) 10%, transparent);
+}
+.pickerImg {
+  display: block;
+  height: 40cqh;
+  max-width: 100%;
+  object-fit: contain;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+.pickerLabel {
+  font-size: max(13px, calc(var(--pjp-u) * 0.95));
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pj-muted, #a89c84);
+}
+.pickerName {
+  font-family: var(--pj-display, Georgia, serif);
+  font-size: max(18px, calc(var(--pjp-u) * 1.7));
+  line-height: 1.2;
+}
+.pickerLinks ul,
+.endLinks ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: calc(var(--pjp-u) * 0.4) calc(var(--pjp-u) * 1.6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* ───────── End of a poster ───────── */
+
+.end {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: calc(var(--pjp-u) * 4);
+  align-items: center;
+  padding: calc(var(--pjp-u) * 3) calc(var(--pjp-u) * 5);
+  background: var(--pj-bg, #111);
+  color: var(--pj-ink, #f2ede2);
+  font-family: var(--pj-body, system-ui, sans-serif);
+  text-align: left;
+}
+.endCol {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--pjp-u) * 1.4);
+  min-width: 0;
+}
+.endTitle {
+  margin: 0;
+  font-family: var(--pj-display, Georgia, serif);
+  font-size: max(28px, calc(var(--pjp-u) * 3.4));
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.15;
+  color: var(--pj-ink, #f2ede2);
+  outline: none;
+}
+.endActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--pjp-u) * 0.8);
+}
+.nextName {
+  margin: 0;
+  font-family: var(--pj-display, Georgia, serif);
+  font-size: max(17px, calc(var(--pjp-u) * 1.5));
+  color: var(--pj-muted, #a89c84);
+}
+.endLinks ul {
+  justify-content: flex-start;
+}

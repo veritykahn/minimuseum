@@ -10,6 +10,7 @@ import { MapOverlay } from './MapOverlay';
 import { MapSvg } from './MapSvg';
 import { MapLegend } from './MapLegend';
 import { mapButtonPlacement } from './placement';
+import { useProjectorScreenUp } from '@/components/projector/useProjectorMode';
 
 /**
  * Museum Map — Interactive hierarchical navigation component.
@@ -71,7 +72,10 @@ export default function MuseumMap() {
     return () => { delete root.dataset.mapFab; };
   }, [placement]);
 
-  if (isHomePage || isLessonScreen) {
+  // The same for a teacher projector screen (the poster walkthroughs).
+  const projectorUp = useProjectorScreenUp();
+
+  if (isHomePage || isLessonScreen || projectorUp) {
     return null;
   }
 
