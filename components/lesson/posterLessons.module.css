@@ -1,0 +1,64 @@
+.box {
+  margin: 40px auto 0;
+  width: 100%;
+  max-width: 560px;
+  padding-top: 28px;
+  border-top: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+  font-family: var(--font-outfit), 'Outfit', system-ui, sans-serif;
+  text-align: left;
+}
+.heading {
+  margin: 0 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 0;
+  list-style: none;
+}
+.lesson {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid color-mix(in srgb, currentColor 35%, transparent);
+  color: inherit;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+.lesson:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+.title {
+  font-size: 17px;
+}
+.sub {
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  opacity: 0.75;
+}
+.all {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  min-height: 44px;
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: inherit;
+  text-underline-offset: 0.25em;
+}
+.lesson:focus-visible,
+.all:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}

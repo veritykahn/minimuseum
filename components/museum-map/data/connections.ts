@@ -1,4 +1,5 @@
 import { RoomConnection } from '../types';
+import { LESSON_ROOM_IDS, hasLessons } from '@/lib/lessons/catalog';
 
 /**
  * Connection lines between rooms on the museum map
@@ -36,6 +37,11 @@ export const CONNECTIONS: RoomConnection[] = [
   ['in-their-hands', 'ith-timeline'],
   ['in-their-hands', 'ith-hands'],
   ['in-their-hands', 'ith-real-or-replica'],
+
+  // Each exhibition's Lessons room, once it has lessons
+  ...Object.keys(LESSON_ROOM_IDS)
+    .filter(hasLessons)
+    .map((exhibition): RoomConnection => [exhibition, LESSON_ROOM_IDS[exhibition]]),
 
   // Ground Floor connections (for future)
   ['ground-floor', 'egypt'],

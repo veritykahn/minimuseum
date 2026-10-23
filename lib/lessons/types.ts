@@ -189,7 +189,12 @@ export type Screen =
   /** a work of art: its picture, or, when the site cannot show it, its name and where to see it */
   | { kind: 'artwork'; work: string; artist?: string; date?: string; img?: Picture; alt?: string; links?: WorkLink[] }
   /** recordings to play to the class, with what to listen for */
-  | { kind: 'listen'; clips: Clip[]; question?: string };
+  | { kind: 'listen'; clips: Clip[]; question?: string }
+  /**
+   * one picture, set large, to look at closely (an illusion, an object);
+   * `caption` under it. A reveal is the next step, showing the answer.
+   */
+  | { kind: 'image'; img: Picture; alt: string; caption?: string; fit?: 'cover' | 'contain' };
 
 export interface Phase {
   name: string;

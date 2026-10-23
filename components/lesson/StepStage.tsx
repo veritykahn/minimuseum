@@ -312,6 +312,35 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
           {task}
         </div>
       );
+    case 'image':
+      return (
+        <div className={styles.imageView}>
+          <figure className={styles.imageFigure}>
+            <div className={`${styles.imageFrame} ${s.fit === 'cover' ? styles.pairCover : ''}`}>
+              <div className={styles.imageImg}>
+                <Image
+                  src={s.img.img}
+                  alt={mini ? '' : s.alt}
+                  fill
+                  sizes="60vw"
+                  style={{ objectFit: s.fit ?? 'contain', objectPosition: s.img.pos ?? 'center' }}
+                />
+              </div>
+            </div>
+            {(s.caption || s.img.credit) && (
+              <figcaption>
+                {s.caption && (
+                  <span className={styles.imageCaption}>
+                    <Inline text={s.caption} />
+                  </span>
+                )}
+                {s.img.credit && <span className={styles.imageCredit}>{s.img.credit}</span>}
+              </figcaption>
+            )}
+          </figure>
+          {task}
+        </div>
+      );
     case 'question': {
       const qs = s.question.split(/(?<=\?)\s+/);
       return (

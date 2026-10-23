@@ -93,7 +93,30 @@ body.adult .why { background: #f6f1e4; }
 ART = "teachers/grades-5-8/art/"
 ART_HERO = {"img": IMG + "impossible-trident.jpg", "pos": "center 82%"}
 
+# Lesson mode (resources-src/export_lessons.py): "screen" on a section, and
+# "screen_sections", are for the site only; build.py ignores them, so the PDF
+# is unchanged. What the plan prints and the screen shows is written once.
+ART_TECH = [
+  ("Impossible objects", ["**What:** Shapes that look 3D but violate geometry",
+                          "**How:** Local parts look correct, but whole is impossible",
+                          "**Artists:** M.C. Escher, Oscar Reutersvärd (invented impossible triangle, 1934)"]),
+  ("Op Art patterns", ["**What:** Geometric patterns creating movement, depth, vibration",
+                       "**How:** High-contrast repetitive patterns overwhelm visual processing",
+                       "**Artists:** Bridget Riley, Victor Vasarely, Jesús Rafael Soto"]),
+  ("Ambiguous figures", ["**What:** Images interpreted two or more ways",
+                         "**How:** Brain can only hold one interpretation, so it “flips”",
+                         "**Artists:** Salvador Dalí, Octavio Ocampo, Sandro del Prete",
+                         "**Examples:** Young/old woman, vase/faces, duck/rabbit"])]
+# a card's line without its bold lead-in ("**What:** …" → "…")
+after_lead = lambda line: line.split(":** ", 1)[1]
+TRIDENT = {"img": IMG + "impossible-trident.jpg"}
+TRIDENT_ALT = "The impossible trident: three round prongs at one end that become two square prongs at the other"
+VASE_OR_FACES = [
+  {"img": IMG + "rubins-vase-vase.jpg", "label": "A vase", "alt": "Rubin’s Vase with the vase picked out"},
+  {"img": IMG + "rubins-vase-face.jpg", "label": "Two faces", "alt": "Rubin’s Vase with the two faces picked out"}]
+
 ART_LP = {
+  "slug": "creating-optical-illusions",
   "out": ART + "Lesson Plan_ Creating Optical Illusions (Art, Grades 5-8) - Teacher Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "Creating Optical Illusions",
   "sub": "Art Meets Science · Grades 5–8 · Art · 30 minutes",
@@ -113,30 +136,59 @@ ART_LP = {
       f"Mini Museum Perception Lab: {SITE}/illusions",
       "Recommended from Perception Lab: Impossible Trident (#15), Café Wall (#6), Fraser Spiral (#5), Bulging Grid (#7)"]}),
     ("section", {"label": "Hook · 5 minutes", "title": "The art that tricks your brain",
+      "screen": [
+        {"phase": "Hook", "minutes": 3, "script": [0, 1], "title": "Trace the water", "show": "question",
+         "question": "Trace the path of the water with your finger. Where does it go?",
+         "purpose": "Let students discover the impossibility for themselves.",
+         "students": ["At first glance, this looks normal."]},
+        {"phase": "Hook", "minutes": 2, "script": [2, 3], "title": "Is it moving?", "show": "question",
+         "question": "This painting isn’t moving—but your brain thinks it is!",
+         "purpose": "A second kind of trick: Op Art, short for ‘optical art.’",
+         "students": ["This is Op Art, short for ‘optical art.’"]}],
       "body": [
         "Display M.C. Escher’s *Waterfall* (water appears to flow uphill in an impossible loop).",
         "*“At first glance, this looks normal. But trace the path of the water with your finger. Where does it go?”* Let students discover the impossibility. *“This is an ‘impossible object’—something that can exist in 2D but never in real life. Dutch artist M.C. Escher was a master at these.”*",
         "Show a Bridget Riley Op Art piece (black and white patterns that appear to move).",
         "*“This painting isn’t moving—but your brain thinks it is! This is Op Art, short for ‘optical art.’ Artists in the 1960s deliberately created works that trick your visual system.”*"]}),
-    ("section", {"label": "Direct instruction · 10 minutes", "title": "Three illusion techniques"}),
-    cards([
-      ("Impossible objects", ["**What:** Shapes that look 3D but violate geometry",
-                              "**How:** Local parts look correct, but whole is impossible",
-                              "**Artists:** M.C. Escher, Oscar Reutersvärd (invented impossible triangle, 1934)"]),
-      ("Op Art patterns", ["**What:** Geometric patterns creating movement, depth, vibration",
-                           "**How:** High-contrast repetitive patterns overwhelm visual processing",
-                           "**Artists:** Bridget Riley, Victor Vasarely, Jesús Rafael Soto"]),
-      ("Ambiguous figures", ["**What:** Images interpreted two or more ways",
-                             "**How:** Brain can only hold one interpretation, so it “flips”",
-                             "**Artists:** Salvador Dalí, Octavio Ocampo, Sandro del Prete",
-                             "**Examples:** Young/old woman, vase/faces, duck/rabbit"])]),
+    ("section", {"label": "Direct instruction · 10 minutes", "title": "Three illusion techniques",
+      "screen": [
+        {"phase": "Direct instruction", "minutes": 4, "script": [f"**{t}** — " + " ".join(ls) for t, ls in ART_TECH],
+         "show": "chart", "caption": "Three illusion techniques", "columns": ["Technique", "What", "How", "Artists"],
+         "rows": [{"cells": [t] + [after_lead(x) for x in ls[:3]], **({"img": im} if im else {})}
+                  for (t, ls), im in zip(ART_TECH, [TRIDENT["img"], None, IMG + "rubins-vase.jpg"])],
+         "purpose": "Three ways artists trick the eye, and the artists who used them.",
+         "students": ["Which technique will you try?"]},
+        {"phase": "Direct instruction", "minutes": 3, "script": ART_TECH[0][1], "title": "Impossible objects", "show": "image",
+         "img": TRIDENT, "alt": TRIDENT_ALT, "caption": "Impossible Trident",
+         "purpose": "Look closely at one impossible object: every part makes sense, the whole does not.",
+         "students": ART_TECH[0][1][:2]},
+        {"phase": "Direct instruction", "minutes": 3, "script": ART_TECH[2][1], "title": "Ambiguous figures", "show": "pair",
+         "items": VASE_OR_FACES,
+         "purpose": "One picture, two readings: the brain can hold only one at a time.",
+         "students": ART_TECH[2][1][:2]}]}),
+    cards(ART_TECH),
     ("section", {"label": "Activity · 12 minutes", "title": "Create your own optical illusion",
+      "screen": {"phase": "Activity", "show": "gallery",
+                 "groups": [{"label": "Recommended from Perception Lab", "items": [
+                   {"img": TRIDENT["img"], "caption": "Impossible Trident", "alt": TRIDENT_ALT},
+                   {"img": IMG + "fraser-spiral.jpg", "caption": "Fraser Spiral",
+                    "alt": "The Fraser spiral: rings of black shapes on lavender that seem to spiral in to the center"},
+                   {"img": IMG + "bulging-grid.jpg", "caption": "Bulging Grid",
+                    "alt": "A dark and pale blue checkerboard, small squares set near its center, that seems to bulge out"}]}],
+                 "purpose": "Students pick a technique and make an illusion, then test it on a classmate.",
+                 "students": ["**Option A: Impossible Triangle** (Recommended for beginners)",
+                              "**Option B: Op Art Pattern**",
+                              "**Option C: Ambiguous Figure** (advanced)",
+                              "Test it on a classmate: *“Does it trick their eyes?”*"]},
       "body": [
         "**Option A: Impossible Triangle** (Recommended for beginners) — Walk through step-by-step on board.",
         "**Option B: Op Art Pattern** — Draw grid, systematically distort, fill alternating sections black.",
         "**Option C: Ambiguous Figure** — Design image that can be seen two ways (advanced).",
         "Circulate and assist. Encourage students to test illusions on classmates: *“Does it trick their eyes?”*"]}),
     ("section", {"label": "Closing · 3 minutes", "title": "The science behind the art",
+      "screen": {"phase": "Closing", "show": "question",
+                 "question": "Which technique was most challenging? Why? What did you learn about how your brain sees? How might you use these techniques in other artwork?",
+                 "purpose": "Reflect on what making an illusion taught about how the brain sees."},
       "body": [
         "*“Every optical illusion you created today works because you understand something about how the brain processes visual information. Artists like Escher and Riley weren’t just making pretty pictures—they were exploring the limits of human perception.”*",
         "**Reflection questions:** *“Which technique was most challenging? Why?”* / *“What did you learn about how your brain sees?”* / *“How might you use these techniques in other artwork?”*"]}),
@@ -243,7 +295,52 @@ ART_RED = art_handout("red", [
 MATH = "teachers/grades-5-8/math/"
 MATH_HERO = {"img": IMG + "line-comparison.jpg", "pos": "center 52%"}
 
+MATH_TECH = [
+  ("Müller-Lyer (angles)",
+   ["*“The arrows at the ends create angles. Your brain interprets these as depth cues:”*"],
+   ["Outward fins (>—<) look like the inside corner of a room — farther away",
+    "Inward arrowheads (<—>) look like the outside corner of a building — closer",
+    "Brain “adjusts” length based on perceived distance: the line that seems farther away looks longer"],
+   ["**Math:** Arrow angles (45° or 30°) determine illusion strength."]),
+  ("Ponzo (converging lines)",
+   ["Display the Ponzo illusion (two identical horizontal lines between converging “tracks”)."],
+   ["Converging lines signal “distance” to your brain",
+    "Objects “farther away” must be larger",
+    "Brain scales up the top line"],
+   ["**Math:** Ratio of line to track width changes."]),
+  ("One-point perspective (vanishing points)",
+   ["Artists use mathematical perspective: all parallel lines converge to a single vanishing point, objects get proportionally smaller, and the rate of shrinking follows mathematical ratios."])]
+MATH_P1 = ["Predict which line/shape is larger", "Measure with ruler/protractor to find actual values",
+           "Calculate the difference between perception and reality", "Record findings in a data table"]
+MATH_P2 = ["Draw a horizon line across the middle of the page", "Mark a vanishing point on the horizon",
+           "Draw a rectangle (front of a box or building) below the horizon",
+           "Connect corners to the vanishing point with light lines",
+           "Draw back edge of box parallel to front edge; erase construction lines"]
+MATH_P2_SAY = "*“You’ve just used geometry to trick someone’s eye into seeing depth on a flat page!”*"
+
+def math_card(n, minutes, **screen):
+    """One of the three cards, read aloud, its points set as the task."""
+    t, paras = MATH_TECH[n][0], MATH_TECH[n][1]
+    rest = (MATH_TECH[n][2] if len(MATH_TECH[n]) > 2 else []) + (MATH_TECH[n][3] if len(MATH_TECH[n]) > 3 else [])
+    return {"phase": "Direct instruction", "minutes": minutes, "title": t, "script": paras + rest,
+            "students": rest or None, **screen}
+
 MATH_LP = {
+  "slug": "geometry-of-perspective",
+  "screen_sections": [
+    {"label": "Activity · 12 minutes", "after": "Direct instruction · 10 minutes", "title": "Prove it with math",
+     "body": ["**Part 1: Measurement challenge (5 minutes)** — Distribute printed illusions. Students work in pairs to:"] + MATH_P1
+             + ["**Part 2: Create a one-point perspective drawing (7 minutes)** — Using graph paper:"] + MATH_P2 + [MATH_P2_SAY],
+     "screen": [
+       {"phase": "Activity", "minutes": 5, "script": [0, 1, 2, 3, 4], "title": "Measurement challenge", "show": "image",
+        "img": {"img": IMG + "ponzo-corridor.jpg"}, "caption": "Ponzo Corridor",
+        "alt": "Two identical yellow checkered balls in a corridor that runs into the distance; the far one looks bigger",
+        "purpose": "Students test perception against measurement, in pairs.",
+        "students": MATH_P1},
+       {"phase": "Activity", "minutes": 7, "script": [5, 6, 7, 8, 9, 10, 11], "title": "One-point perspective drawing",
+        "show": "question", "question": "You’ve just used geometry to trick someone’s eye into seeing depth on a flat page!",
+        "purpose": "Students use the vanishing point to make depth on a flat page.",
+        "students": MATH_P2}]}],
   "out": MATH + "Lesson Plan_ Geometry of Perspective (Math 5-8) - Teacher Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "Geometry of Perspective",
   "sub": "Math Behind Optical Illusions · Grades 5–8 · Math · 30 minutes",
@@ -265,39 +362,43 @@ MATH_LP = {
         f"Mini Museum Perception Lab: {SITE}/illusions",
         "Recommended from Perception Lab: Müller-Lyer (#12), Ponzo Corridor (#10), Ponzo Railroad (#11), Sander Parallelogram (#17), Ebbinghaus Circles (#14)"]})]]),
     ("section", {"label": "Hook · 5 minutes", "title": "Your eyes vs. math",
+      "screen": [
+        {"phase": "Hook", "minutes": 3, "script": [0, 1], "show": "question",
+         "question": "Which line is longer—the top one or the bottom one?",
+         "purpose": "A class vote first, then a ruler: perception against measurement.",
+         "students": ["Take a class vote.", "Now let’s check with math."]},
+        {"phase": "Hook", "minutes": 2, "script": [2], "title": "They’re exactly the same length!", "show": "question",
+         "question": "Your eyes told you one thing, but mathematics tells you another.",
+         "purpose": "The reveal, and the question for the lesson: why do these illusions work?",
+         "students": ["Today we’re going to explore WHY these illusions work—and the answer is geometry."]}],
       "body": [
         "Display the Müller-Lyer illusion (two horizontal lines of equal length—one with arrows pointing outward, one with arrows pointing inward).",
         "*“Which line is longer—the top one or the bottom one?”* Take a class vote. Most students will say the one with outward-pointing arrows looks longer. *“Now let’s check with math.”* Have a student measure both lines with a ruler.",
         "**Reveal:** *“They’re exactly the same length! Your eyes told you one thing, but mathematics tells you another. Today we’re going to explore WHY these illusions work—and the answer is geometry.”*"]}),
-    ("section", {"label": "Direct instruction · 10 minutes", "title": "The math behind illusions"}),
-    cards([
-      ("Müller-Lyer (angles)",
-       ["*“The arrows at the ends create angles. Your brain interprets these as depth cues:”*"],
-       ["Outward fins (>—<) look like the inside corner of a room — farther away",
-        "Inward arrowheads (<—>) look like the outside corner of a building — closer",
-        "Brain “adjusts” length based on perceived distance: the line that seems farther away looks longer"],
-       ["**Math:** Arrow angles (45° or 30°) determine illusion strength."]),
-      ("Ponzo (converging lines)",
-       ["Display the Ponzo illusion (two identical horizontal lines between converging “tracks”)."],
-       ["Converging lines signal “distance” to your brain",
-        "Objects “farther away” must be larger",
-        "Brain scales up the top line"],
-       ["**Math:** Ratio of line to track width changes."]),
-      ("One-point perspective (vanishing points)",
-       ["Artists use mathematical perspective: all parallel lines converge to a single vanishing point, objects get proportionally smaller, and the rate of shrinking follows mathematical ratios."])]),
+    ("section", {"label": "Direct instruction · 10 minutes", "title": "The math behind illusions",
+      "screen": [
+        math_card(0, 4, show="question", question="The arrows at the ends create angles. Your brain interprets these as depth cues:",
+                  purpose="Angles read as depth: why one line looks longer."),
+        math_card(1, 3, show="image", img={"img": IMG + "ponzo-corridor.jpg"}, caption="Ponzo Corridor",
+                  alt="Two identical yellow checkered balls in a corridor that runs into the distance; the far one looks bigger",
+                  purpose="Converging lines read as distance, so the brain scales up what looks farther away."),
+        math_card(2, 3, show="question", question=MATH_TECH[2][1][0],
+                  purpose="The same rule artists use on purpose, ready for the drawing in the activity.",
+                  students=["Find the vanishing point."])]}),
+    cards(MATH_TECH),
     sec("Activity · 12 minutes", "Prove it with math", extra=
         '<div class="cols"><div><h4>Part 1: Measurement challenge (5 minutes)</h4>'
         "<p>Distribute printed illusions. Students work in pairs to:</p>"
-        + ol(["Predict which line/shape is larger", "Measure with ruler/protractor to find actual values",
-              "Calculate the difference between perception and reality", "Record findings in a data table"])
+        + ol(MATH_P1)
  + '</div><div><h4>Part 2: Create a one-point perspective drawing (7 minutes)</h4>'
         "<p>Using graph paper:</p>"
-        + ol(["Draw a horizon line across the middle of the page", "Mark a vanishing point on the horizon",
-              "Draw a rectangle (front of a box or building) below the horizon",
-              "Connect corners to the vanishing point with light lines",
-              "Draw back edge of box parallel to front edge; erase construction lines"])
-        + f"<p>{md('*“You’ve just used geometry to trick someone’s eye into seeing depth on a flat page!”*')}</p></div></div>"),
+        + ol(MATH_P2)
+        + f"<p>{md(MATH_P2_SAY)}</p></div></div>"),
     ("section", {"label": "Closing · 3 minutes", "title": "Math as a tool for truth",
+      "screen": {"phase": "Closing", "show": "question",
+                 "question": "Can you think of real-world situations where measuring is more reliable than just looking?",
+                 "purpose": "When perception and measurement disagree, measurement wins.",
+                 "students": ["When perception and measurement disagree, measurement wins."]},
       "body": [
         "*“Today you learned that your eyes can be fooled, but math doesn’t lie. When perception and measurement disagree, measurement wins. This is why scientists, engineers, and artists all rely on mathematical tools.”*",
         "**Discussion:** *“Can you think of real-world situations where measuring is more reliable than just looking?”* (Construction, medicine, sports photo finishes, cooking, etc.)"]}),
@@ -459,7 +560,35 @@ MATH_RED = math_handout("red", [
 PE = "teachers/grades-5-8/pe/"
 PE_HERO = {"img": IMG + "ponzo-corridor.jpg", "pos": "center 62%"}
 
+PE_SKILLS = [
+  ("Depth perception", [], ["Both eyes judge distance", "**Critical for:** catching, hitting, shooting",
+                            "A 90 mph baseball gives you <0.5 sec to judge position"]),
+  ("Peripheral vision", [], ["“Corner of your eye” vision", "**Critical for:** soccer, basketball, hockey",
+                             "Elite athletes see almost 180°"]),
+  ("Reaction time", [], ["Speed of visual processing", "**Critical for:** goalkeeping, batting",
+                         "Pros vs amateurs = milliseconds"])]
+PE_DRILLS = "*“Professional athletes train these visual skills just like they train their muscles. Let’s try some of their drills!”*"
+PE_STATIONS = [
+  ("Depth perception challenge",
+   ["**Setup:** Partners 10–15 feet apart. Toss ball with both eyes (count catches out of 5), then one eye covered (repeat). Switch roles.",
+    "**Discussion:** *“How much harder with one eye? This is why depth perception matters!”*"]),
+  ("Peripheral vision drill",
+   ["**Setup:** Student faces forward, partner to the side. Partner slowly moves ball from behind toward field of vision. Student says “NOW” when they first see it (without moving eyes). Repeat on other side, switch.",
+    "**Challenge:** Can you detect the ball earlier with practice?"]),
+  ("Reaction time challenge",
+   ["**Setup:** Partners face each other with colored objects. Partner A holds up color; Partner B calls color AND performs action (Red = clap, Blue = jump, Yellow = touch ground). Count correct out of 10, switch."])]
+
+def pe_station(n, **screen):
+    """A station: its card read aloud, its setup one sentence a line."""
+    title, paras = PE_STATIONS[n]
+    setup = after_lead(paras[0])
+    return {"phase": "Activity stations", "minutes": 5, "title": f"Station {n + 1}: {title}", "show": "question",
+            "script": [0, f"**Station {n + 1} · {title}**"] + paras,
+            "purpose": "Students rotate to this station and run the drill in pairs.",
+            "students": re.split(r"(?<=\.)\s+(?=[A-Z])", setup), **screen}
+
 PE_LP = {
+  "slug": "vision-and-athletics",
   "out": PE + "Lesson Plan_ Vision and Athletics (PE 5-8) - Teacher Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "Vision and Athletics",
   "sub": "How Your Eyes Affect Performance · Grades 5–8 · PE · 25 minutes",
@@ -481,30 +610,33 @@ PE_LP = {
         "Different colored balls or objects (for color recognition drill)",
         "Optional: Student handouts (three levels available)"]})]]),
     ("section", {"label": "Hook · 3 minutes", "title": "The one-eye challenge",
+      "screen": {"phase": "Hook", "show": "question",
+                 "question": "Why was that so much harder with one eye?",
+                 "purpose": "Feel depth perception at work before naming it.",
+                 "students": ["First with both eyes open.", "Then with one eye covered."]},
       "body": [
         "**Quick demonstration:** Ask for a volunteer. Have them stand 10 feet away and toss them a ball to catch—first with both eyes open (easy catch), then with one eye covered (much harder).",
         "*“Why was that so much harder with one eye? Your two eyes work together to create depth perception—the ability to judge how far away things are. When you lose one eye’s input, catching becomes really difficult because you can’t tell exactly where the ball is in space. Today we’re going to explore how your vision affects your athletic performance!”*"]}),
-    ("section", {"label": "Brief instruction · 4 minutes", "title": "Three visual skills in sports"}),
-    cards([
-      ("Depth perception", [], ["Both eyes judge distance", "**Critical for:** catching, hitting, shooting",
-                                "A 90 mph baseball gives you <0.5 sec to judge position"]),
-      ("Peripheral vision", [], ["“Corner of your eye” vision", "**Critical for:** soccer, basketball, hockey",
-                                 "Elite athletes see almost 180°"]),
-      ("Reaction time", [], ["Speed of visual processing", "**Critical for:** goalkeeping, batting",
-                             "Pros vs amateurs = milliseconds"])]),
-    P("*“Professional athletes train these visual skills just like they train their muscles. Let’s try some of their drills!”*"),
+    ("section", {"label": "Brief instruction · 4 minutes", "title": "Three visual skills in sports",
+      "screen": {"phase": "Instruction", "show": "chart",
+                 "script": [f"**{t}:** " + "; ".join(ls) for t, _, ls in PE_SKILLS] + [PE_DRILLS],
+                 "caption": "Three visual skills in sports", "columns": ["Skill", "What it is", "Critical for", "In sport"],
+                 "rows": [{"cells": [t, ls[0], after_lead(ls[1]), ls[2]]} for t, _, ls in PE_SKILLS],
+                 "purpose": "Name the three skills the stations will train.",
+                 "students": ["Let’s try some of their drills!"]}}),
+    cards(PE_SKILLS),
+    P(PE_DRILLS),
     ("section", {"label": "Activity stations · 15 minutes",
+      "screen": [pe_station(0, question="How much harder with one eye?"),
+                 pe_station(1, question="Can you detect the ball earlier with practice?"),
+                 pe_station(2, question="Red = clap, Blue = jump, Yellow = touch ground")],
       "body": ["Set up three stations. Students rotate through each (4–5 minutes per station)."]}),
-    cards(prefix="Station ", items=[
-      ("Depth perception challenge",
-       ["**Setup:** Partners 10–15 feet apart. Toss ball with both eyes (count catches out of 5), then one eye covered (repeat). Switch roles.",
-        "**Discussion:** *“How much harder with one eye? This is why depth perception matters!”*"]),
-      ("Peripheral vision drill",
-       ["**Setup:** Student faces forward, partner to the side. Partner slowly moves ball from behind toward field of vision. Student says “NOW” when they first see it (without moving eyes). Repeat on other side, switch.",
-        "**Challenge:** Can you detect the ball earlier with practice?"]),
-      ("Reaction time challenge",
-       ["**Setup:** Partners face each other with colored objects. Partner A holds up color; Partner B calls color AND performs action (Red = clap, Blue = jump, Yellow = touch ground). Count correct out of 10, switch."])]),
+    cards(prefix="Station ", items=PE_STATIONS),
     ("section", {"label": "Closing · 3 minutes", "title": "Connect to the exhibition",
+      "screen": {"phase": "Closing", "show": "question",
+                 "question": "The more you train your visual system, the better your predictions become.",
+                 "purpose": "Tie the drills back to the exhibition: the brain predicts, sometimes wrong, sometimes right.",
+                 "students": ["Sometimes wrong (illusions), sometimes right (catching)."]},
       "body": ["*“Your brain constantly processes visual info and makes predictions—sometimes wrong (illusions), sometimes right (catching). The more you train your visual system, the better your predictions become.”*"]}),
     ("cols", [
       [("connection", ["**Option 1 — Visit:** The stereoscope shows how two slightly different images create depth perception.",

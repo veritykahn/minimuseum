@@ -7,6 +7,8 @@ import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
+import LessonsLink from '@/components/lesson/LessonsLink';
+import PosterLessons from '@/components/lesson/PosterLessons';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { SEEING_TALK } from '@/components/projector/posterTalk';
 import { SEEING_POSTER_THEME, SEEING_POSTER_LINKS } from '@/components/projector/themes';
@@ -1518,7 +1520,10 @@ export default function SeeingIsDeceiving() {
           <div className="exhibition-title">
             <h1>Seeing is Deceiving</h1>
             <p>The Science of How We See</p>
-            <TeachToggle onClick={() => setProjector(true)} style={{ '--teach-color': '#a8d5e5', '--teach-border': 'rgba(168,213,229,0.55)', marginTop: 24 } as React.CSSProperties} />
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
+              <TeachToggle onClick={() => setProjector(true)} style={{ '--teach-color': '#a8d5e5', '--teach-border': 'rgba(168,213,229,0.55)' } as React.CSSProperties} />
+              <LessonsLink exhibition="seeing-is-deceiving" style={{ '--teach-color': '#a8d5e5', '--teach-border': 'rgba(168,213,229,0.55)' } as React.CSSProperties} />
+            </div>
           </div>
 
           <div className="exhibition-grid">
@@ -1561,6 +1566,7 @@ export default function SeeingIsDeceiving() {
       {/* Poster Walkthrough View */}
       <PosterProjector
         on={projector}
+        exhibitionSlug="seeing-is-deceiving"
         onExit={() => setProjector(false)}
         exhibition="Seeing is Deceiving"
         theme={SEEING_POSTER_THEME}
@@ -1712,7 +1718,7 @@ export default function SeeingIsDeceiving() {
               {/* End */}
               {currentItem.type === 'end' && projector && <PosterProjectorEnd />}
               {currentItem.type === 'end' && !projector && (
-                <div className="text-content-wrapper pos-center">
+                <div className="text-content-wrapper pos-center" style={{ flexDirection: 'column' }}>
                   <button
                     className="content-end"
                     onClick={returnToMain}
@@ -1720,6 +1726,7 @@ export default function SeeingIsDeceiving() {
                   >
                     {currentItem.text}
                   </button>
+                  <PosterLessons exhibition="seeing-is-deceiving" poster={activeView} color={textColor} />
                 </div>
               )}
             </div>

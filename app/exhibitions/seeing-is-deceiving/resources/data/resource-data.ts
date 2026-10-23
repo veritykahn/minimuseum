@@ -160,5 +160,23 @@ export const SUBJECT_LABELS: Record<string, string> = {
   'music': 'Music',
 };
 
+// Lessons that can also be taught on the classroom screen (Lesson mode),
+// by grade, or by 'grades-5-8/<subject>'. Slugs from lib/lessons.
+export const ON_SCREEN_LESSONS: Record<string, string> = {
+  'prek-k': 'my-eyes-can-trick-me',
+  'grades-1-2': 'brain-detective',
+  'grades-3-4': 'fact-checkers',
+  'grades-5-8/science': 'how-vision-works',
+  'grades-5-8/ela': 'evaluating-sources',
+  'grades-5-8/social-studies': 'visual-propaganda-through-history',
+  'grades-5-8/art': 'creating-optical-illusions',
+  'grades-5-8/math': 'geometry-of-perspective',
+  'grades-5-8/pe': 'vision-and-athletics',
+  'grades-5-8/religion': 'bearing-true-witness',
+  'grades-5-8/spanish': 'verdad-o-mentira',
+  'grades-5-8/theater': 'the-art-of-illusion',
+  'grades-5-8/music': 'sound-illusions',
+};
+
 // Parent resource
 export const PARENT_RESOURCE_PATH = '/resources/seeing-is-deceiving/parents/Parent Resource Guide_ Optical Illusions & Visual Deception.pdf';

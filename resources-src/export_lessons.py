@@ -8,11 +8,13 @@ screen can never disagree:
 
     python3 resources-src/export_lessons.py in-their-hands
 
-A module takes part when its LESSON has a "slug" and at least one section
-carries a "screen" (see religion_5_8.py); a module holding several plans
-(harlem-renaissance/general_prek4.py) gives each a "slug" of its own, and
-each takes the handouts in its own folder. Each screened section becomes one
-or more timed steps; its paragraphs become the teacher's script. Output goes
+A lesson plan takes part when it has a "slug" and at least one section
+carries a "screen" (see religion_5_8.py). A module may hold several plans
+(harlem-renaissance/general_prek4.py, seeing-is-deceiving/subjects_a.py):
+each plan in its DOCS with a "slug" is exported, with the leveled handouts
+printed into the same folder. Each screened section becomes one or more
+timed steps; its paragraphs (or its bullets, if it has no paragraphs) become
+the teacher's script. Output goes
 to lib/lessons/<exhibition>/<slug>.json. Copy keeps its **bold** / *italic*
 markup; the site renders it.
 """
@@ -26,7 +28,7 @@ import build  # noqa: E402  (colors and levels, so the screen matches the print)
 
 SHOWS = ("question", "coins", "painting", "coin", "verse", "levels", "review", "prayer",
          "chart", "gallery", "numberline", "worked", "pair", "people", "person",
-         "words", "artwork", "listen")
+         "words", "artwork", "listen", "image")
 
 
 def load_module(path):
@@ -64,6 +66,21 @@ def pdf_href(exhibition, out):
     return f"/resources/{exhibition}/{out}"
 
 
+def with_screen_sections(lesson):
+    """The plan's sections in reading order, with its "screen_sections" set
+    in: the screens for a part of the plan that prints as html rather than
+    as a section (a numbered list, a row of cards). Each names the printed
+    section it follows ("after") and carries a label, paragraphs and a
+    screen as a section would. It is never printed."""
+    sections = [d for k, d in flat(lesson["blocks"]) if k == "section"]
+    for extra in lesson.get("screen_sections", []):
+        at = next((n for n, d in enumerate(sections) if d["label"] == extra["after"]), None)
+        if at is None:
+            raise ValueError(f"screen section {extra['label']!r}: no section {extra['after']!r} to follow")
+        sections.insert(at + 1, extra)
+    return sections
+
+
 def lessons_of(module):
     """The plans in a module that run on screen: every document with a
     "slug" (one module may hold several grades' plans), else its LESSON."""
@@ -71,7 +88,7 @@ def lessons_of(module):
     lesson = getattr(module, "LESSON", None)
     if not docs and lesson and "slug" in lesson:
         docs = [lesson]
-    return [d for d in docs if any(k == "section" and v.get("screen") for k, v in flat(d["blocks"]))]
+    return [d for d in docs if any(s.get("screen") for s in with_screen_sections(d))]
 
 
 def export(exhibition, module, lesson=None):
@@ -82,7 +99,7 @@ def export(exhibition, module, lesson=None):
     colors = {name: color for name, _, color in timing}
     phases = [{"name": n, "minutes": mins, "color": c} for n, mins, c in timing]
 
-    sections = [d for k, d in flat(blocks) if k == "section"]
+    sections = with_screen_sections(lesson)
     by_label = {section_name(d["label"]).lower(): d for d in sections}
 
     steps = []
@@ -92,6 +109,8 @@ def export(exhibition, module, lesson=None):
             continue
         screens = screen if isinstance(screen, list) else [screen]
         body = d.get("body", [])
+        # what the teacher reads: the paragraphs, then the bullets
+        lines = list(body) + list(d.get("list", []))
         total = section_minutes(d["label"])
         split = sum(s.get("minutes", 0) for s in screens)
         if len(screens) > 1 and total is not None and split != total:
@@ -103,10 +122,11 @@ def export(exhibition, module, lesson=None):
                 raise ValueError(f"{d['label']}: phase {phase!r} is not in the timing bar")
             minutes = s.pop("minutes", total)
             picks = s.pop("script", None)
-            # an index picks one of the section's paragraphs; a string is read
-            # as it stands (a card from the plan's "Show your class" page)
-            script = ([body[i] if isinstance(i, int) else i for i in picks]
-                      if picks is not None else list(body))
+            # an index picks one of the section's paragraphs, counting on into
+            # its bullets; a string is read as it stands (a card from the
+            # plan's "Show your class" page, a line the plan sets in html)
+            script = ([lines[i] if isinstance(i, int) else i for i in picks]
+                      if picks is not None else list(body or lines))
             title = s.pop("title", None) or d.get("title") or section_name(d["label"])
             show = s.pop("show")
             if show not in SHOWS:
@@ -116,7 +136,7 @@ def export(exhibition, module, lesson=None):
             students = s.pop("students", None)
             screen_data = {"kind": show, **s}
             if show == "levels":
-                levels = next((v for k, v in blocks if k == "levels"), {})
+                levels = next((v for k, v in flat(blocks) if k == "levels"), {})
                 screen_data["levels"] = [
                     {"key": key, "name": build.LEVELS[key][0], "sub": build.LEVELS[key][1],
                      "color": build.LEVELS[key][2],
@@ -135,6 +155,8 @@ def export(exhibition, module, lesson=None):
                 bad = [r["cells"][0] for r in s["rows"] if len(r["cells"]) != len(s["columns"])]
                 if bad:
                     raise ValueError(f"{d['label']}: chart rows {bad} do not match its {len(s['columns'])} columns")
+            if show == "image" and not (s.get("img", {}).get("img") and s.get("alt")):
+                raise ValueError(f"{d['label']}: an 'image' screen needs img {{img}} and alt")
             if show == "numberline":
                 for a, b in s["line"].get("hops", []):
                     if not 0 <= a < b <= 100:
@@ -197,7 +219,8 @@ def export(exhibition, module, lesson=None):
         questions["questionsLabel"] = asked["label"]
 
     ex = build.EXHIBITIONS[exhibition]
-    connection = next((v for k, v in flat(blocks) if k == "connection"), [])
+    connection = (lesson.get("screen_connection")
+                  or next((v for k, v in flat(blocks) if k == "connection"), []))
     return {
         "_source": f"Generated by resources-src/export_lessons.py from resources-src/{exhibition}/"
                    f"{os.path.basename(module.__file__)}. Edit the Python, not this file.",
@@ -211,7 +234,9 @@ def export(exhibition, module, lesson=None):
         "hero": lesson.get("screen_hero") or lesson.get("hero"),
         "objective": body_of("learning objective"),
         **({"objectives": objectives} if objectives else {}),
-        "materials": list_of("materials needed", "materials"),
+        # "screen_materials" and "screen_connection" carry the plan's own lists
+        # when it prints them as html rather than as a section or block
+        "materials": lesson.get("screen_materials") or list_of("materials needed", "materials"),
         **questions,
         "connection": connection,
         "totalMinutes": planned,
