@@ -167,7 +167,12 @@ export type Screen =
       replica?: boolean;
       story: string;
       ref?: string;
-    };
+    }
+  /**
+   * one picture, set large, to look at closely (an illusion, an object);
+   * `caption` under it. A reveal is the next step, showing the answer.
+   */
+  | { kind: 'image'; img: Picture; alt: string; caption?: string; fit?: 'cover' | 'contain' };
 
 export interface Phase {
   name: string;
