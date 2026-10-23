@@ -18,6 +18,7 @@ import { srOnly } from '@/lib/a11y';
 import { focusHeadingIn } from '@/lib/a11y/focus';
 import { chapterAt, posterChapters, type Chapter, type PosterTalk } from './posterTalk';
 import { posterKeyCommand } from './posterKeys';
+import { catalogFor, lessonPath, lessonsForPoster, lessonsPath, type LessonCard } from '@/lib/lessons/catalog';
 import { holdProjectorScreen, takeJustExited, writeProjectorParams } from './useProjectorMode';
 import styles from './posterProjector.module.css';
 import './poster-projector.css';
@@ -53,6 +54,8 @@ type Props<K extends string> = {
   /** --pj-* custom properties (see themes.ts). */
   theme: CSSProperties;
   links: { label: string; href: string }[];
+  /** "seeing-is-deceiving": lists the exhibition's on-screen lessons, and each poster's own. */
+  exhibitionSlug?: string;
   posters: ProjectorPoster<K>[];
   activeView: 'main' | K;
   step: number;
@@ -72,6 +75,11 @@ type EndContext = {
   nextTitle: string | null;
   chapters: Chapter[];
   links: { label: string; href: string }[];
+  /** the lessons that go with this poster, and where the exhibition's whole list is */
+  lessons: LessonCard[];
+  lessonCount: number;
+  lessonHref: (slug: string) => string;
+  allLessonsHref: string;
   continueOn: () => void;
   backToFirst: () => void;
   goToStep: (step: number) => void;
@@ -175,6 +183,7 @@ function ProjectorScreen<K extends string>({
   exhibition,
   theme,
   links,
+  exhibitionSlug,
   posters,
   activeView,
   step,
@@ -198,6 +207,7 @@ function ProjectorScreen<K extends string>({
   const count = poster?.items.length ?? 0;
   const chapters = useMemo(() => (poster ? posterChapters(poster.items, poster.title) : []), [poster]);
   const chapter = open ? chapterAt(chapters, step) : null;
+  const allLessons = exhibitionSlug ? catalogFor(exhibitionSlug) : [];
   const question = chapter ? poster?.talk[chapter.key] : undefined;
   const atEnd = open && poster?.items[step]?.type === 'end';
 
@@ -364,6 +374,10 @@ function ProjectorScreen<K extends string>({
         nextTitle: posters[posterIndex + 1]?.title ?? null,
         chapters,
         links,
+        lessons: exhibitionSlug && poster ? lessonsForPoster(exhibitionSlug, poster.id) : [],
+        lessonCount: allLessons.length,
+        lessonHref: (slug) => lessonPath(exhibitionSlug ?? '', slug),
+        allLessonsHref: lessonsPath(exhibitionSlug ?? ''),
         continueOn,
         backToFirst,
         goToStep,
@@ -480,6 +494,20 @@ function ProjectorScreen<K extends string>({
                 </li>
               ))}
             </ul>
+            {allLessons.length > 0 && exhibitionSlug && (
+              <div className={styles.pickerLinks}>
+                <h2 className={styles.smallHeading}>Or teach a whole lesson</h2>
+                <ul>
+                  {allLessons.map((l) => (
+                    <li key={l.slug}>
+                      <Link href={lessonPath(exhibitionSlug, l.slug)} className={styles.link}>
+                        {l.title} <span className={styles.lessonSub}>{l.grade}</span> <span aria-hidden="true">→</span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {links.length > 0 && (
               <div className={styles.pickerLinks}>
                 <h2 className={styles.smallHeading}>For the classroom</h2>
@@ -592,6 +620,25 @@ export function PosterProjectorEnd() {
         {!last && ctx.nextTitle && <p className={styles.nextName}>Next: {ctx.nextTitle}</p>}
       </div>
       <div className={styles.endCol}>
+        {ctx.lessonCount > 0 && (
+          <div className={styles.endLinks}>
+            <h3 className={styles.smallHeading}>Teach a lesson with this poster</h3>
+            <ul className={styles.lessonList}>
+              {ctx.lessons.map((l) => (
+                <li key={l.slug}>
+                  <Link href={ctx.lessonHref(l.slug)} className={styles.link}>
+                    {l.title} <span className={styles.lessonSub}>{l.grade}</span> <span aria-hidden="true">→</span>
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href={ctx.allLessonsHref} className={styles.link}>
+                  {ctx.lessons.length > 0 ? `All ${ctx.lessonCount} lessons` : `${ctx.lessonCount} lessons for this exhibition`} <span aria-hidden="true">→</span>
+                </Link>
+              </li>
+            </ul>
+          </div>
+        )}
         {ctx.chapters.length > 0 && (
           <div>
             <h3 className={styles.smallHeading}>Look back at a chapter</h3>

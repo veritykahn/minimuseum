@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { catalogFor, posterProjectorPath } from '@/lib/lessons/catalog';
 import type { Lesson } from '@/lib/lessons/types';
 import { clock, stepDuration, stepElapsed, totalElapsed, spokenRemaining } from '@/lib/lessons/session';
 import { MiniStage } from './MiniStage';
@@ -28,6 +29,7 @@ export function PresenterView({ lesson, basePath }: Props) {
   const left = step ? stepDuration(session, minutes, i) - stepElapsed(session, i, now) : 0;
   const elapsed = totalElapsed(session, now);
   const classroomHref = `${basePath}/${lesson.slug}`;
+  const posters = catalogFor(lesson.exhibition.slug).find((c) => c.slug === lesson.slug)?.posters ?? [];
 
   const act = (type: 'prev' | 'next' | 'toggle' | 'addMinute' | 'start') => (e: React.MouseEvent<HTMLButtonElement>) => {
     releaseAfterPointer(e);
@@ -132,6 +134,17 @@ export function PresenterView({ lesson, basePath }: Props) {
                       {h.name} handout <small>{h.sub}</small>
                     </span>
                     <span className={styles.srOnly}> (PDF, opens in a new tab)</span>
+                  </a>
+                </li>
+              ))}
+              {posters.map((p) => (
+                <li key={p}>
+                  <a href={posterProjectorPath(lesson.exhibition.slug, p)} target="_blank" rel="noopener">
+                    <span className={styles.hDot} aria-hidden="true" />
+                    <span>
+                      Poster {p.replace(/\D/g, '')} <small>Projector mode</small>
+                    </span>
+                    <span className={styles.srOnly}> (opens in a new tab)</span>
                   </a>
                 </li>
               ))}
