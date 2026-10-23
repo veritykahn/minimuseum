@@ -31,6 +31,21 @@ export const LESSON_CATALOG: Record<string, LessonCard[]> = {
     { slug: 'the-numbers-in-the-coins', title: 'The Numbers in the Coins', sub: 'Grades 5–8 · Math · Timelines, ratios and the widow’s gift', grade: 'Grades 5–8 · Math', minutes: 45, posters: ['poster2'] },
     { slug: 'small-works-of-power', title: 'Small Works of Power', sub: 'Grades 5–8 · Art · Portrait, symbol and inscription', grade: 'Grades 5–8 · Art', minutes: 45, posters: ['poster1'] },
   ],
+  'seeing-is-deceiving': [
+    { slug: 'my-eyes-can-trick-me', title: 'My Eyes Can Trick Me!', sub: 'PreK–K · 20 minutes · General / Homeroom', grade: 'PreK–K', minutes: 20, posters: ['poster1'] },
+    { slug: 'brain-detective', title: 'Brain Detective', sub: 'Looking Closer at What We See · Grades 1–2 · 25 minutes · General / Homeroom', grade: 'Grades 1–2', minutes: 25, posters: ['poster1'] },
+    { slug: 'fact-checkers', title: 'Fact-Checkers', sub: 'How to Know What’s Real · Grades 3–4 · 30 minutes · General / Homeroom', grade: 'Grades 3–4', minutes: 30, posters: ['poster1', 'poster2'] },
+    { slug: 'how-vision-works', title: 'How Vision Works', sub: 'The Science of Seeing · Grades 5–8 · Science · 30 minutes', grade: 'Grades 5–8 · Science', minutes: 30, posters: ['poster1'] },
+    { slug: 'evaluating-sources', title: 'Evaluating Sources', sub: 'Visual and Written Evidence · Grades 5–8 · ELA · 30 minutes', grade: 'Grades 5–8 · ELA', minutes: 30, posters: ['poster2'] },
+    { slug: 'visual-propaganda-through-history', title: 'Visual Propaganda Through History', sub: 'Grades 5–8 · Social Studies · 30 minutes', grade: 'Grades 5–8 · Social Studies', minutes: 30, posters: ['poster2'] },
+    { slug: 'creating-optical-illusions', title: 'Creating Optical Illusions', sub: 'Art Meets Science · Grades 5–8 · Art · 30 minutes', grade: 'Grades 5–8 · Art', minutes: 30, posters: ['poster1'] },
+    { slug: 'geometry-of-perspective', title: 'Geometry of Perspective', sub: 'Math Behind Optical Illusions · Grades 5–8 · Math · 30 minutes', grade: 'Grades 5–8 · Math', minutes: 30, posters: ['poster1'] },
+    { slug: 'vision-and-athletics', title: 'Vision and Athletics', sub: 'How Your Eyes Affect Performance · Grades 5–8 · PE · 25 minutes', grade: 'Grades 5–8 · PE', minutes: 25, posters: ['poster1'] },
+    { slug: 'bearing-true-witness', title: 'Bearing True Witness', sub: 'Faith and Truth in a World of Deception · Grades 5–8 · Religion · 30 minutes', grade: 'Grades 5–8 · Religion', minutes: 30, posters: ['poster2'] },
+    { slug: 'verdad-o-mentira', title: '¿Verdad o Mentira?', sub: 'Truth or Lie? · Grades 5–8 · Spanish · 30 minutes', grade: 'Grades 5–8 · Spanish', minutes: 30, posters: ['poster1', 'poster2'] },
+    { slug: 'the-art-of-illusion', title: 'The Art of Illusion', sub: 'Theater’s Willing Deception · Grades 5–8 · Theater · 30 minutes', grade: 'Grades 5–8 · Theater', minutes: 30, posters: ['poster2'] },
+    { slug: 'sound-illusions', title: 'Sound Illusions', sub: 'When Your Ears Deceive You · Grades 5–8 · Music · 30 minutes', grade: 'Grades 5–8 · Music', minutes: 30, posters: ['poster1', 'poster2'] },
+  ],
 };
 
 /** The id of each exhibition's Lessons room on the museum map. */

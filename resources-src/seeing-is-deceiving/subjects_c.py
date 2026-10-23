@@ -151,6 +151,21 @@ EX_20 = {"text": "You shall not bear false witness against your neighbor.", "ref
 JN_8 = {"text": "You will know the truth, and the truth will set you free.", "ref": "John 8:32"}
 JN_14 = {"text": "Jesus said to him, ‘I am the way, and the truth, and the life.’", "ref": "John 14:6"}
 
+# Lesson mode (resources-src/export_lessons.py): "screen" on a section is for
+# the site only; build.py ignores it, so the PDF is unchanged. What the plan
+# prints and the screen shows is written once, here.
+R_OPEN = "*“Lord, help us to be seekers and speakers of truth. Give us the wisdom to recognize falsehood, the courage to speak honestly, and the charity to do so with love. Through Christ our Lord. Amen.”*"
+R_UNPACK = "**Unpack:** Originally about courtroom testimony, but the Church teaches it extends to all truth-telling. Read CCC 2464: “The eighth commandment forbids misrepresenting the truth in our relations with others.”"
+R_DISCUSS = "**Discussion:** What are ways we can “bear false witness” without being in a courtroom? (Gossip, rumors, sharing unverified info, manipulating images.) Did the spirit photographer bear false witness even though he used images, not words? (Yes.)"
+R_PLEDGE = ["I will verify before I share", "I will not spread gossip or rumors",
+            "I will have courage to speak truth, even when difficult", "I will admit when I am wrong or uncertain",
+            "I will treat others’ reputations as sacred"]
+R_TWO = ["**1. Verification:** Seek truth before we speak or share. Check sources, be skeptical of sensational claims.",
+         "**2. Moral courage:** Speaking up when difficult — correcting misinformation, admitting when wrong, refusing gossip."]
+R_CLOSE = "*“Lord, you are the Way, the Truth, and the Life. Help us to be witnesses to your truth in our words, our actions, and what we share with others. Give us wisdom to recognize deception and courage to speak honestly. Through Christ our Lord, Amen.”*"
+# a prayer as the screen sets it: the words alone, without the plan's italics and quotation marks
+said = lambda t: t.strip("*“”")
+
 R_LP = lesson("Religion", R + "Lesson Plan_ Bearing True Witness (Religion 5-8) - Teacher Guide.pdf",
   "Bearing True Witness", "Faith and Truth in a World of Deception · Grades 5–8 · Religion · 30 minutes", R_HERO,
   "Students connect the Eighth Commandment to modern challenges with deepfakes and misinformation, exploring how bearing true witness requires both verification and moral courage.",
@@ -161,7 +176,7 @@ R_LP = lesson("Religion", R + "Lesson Plan_ Bearing True Witness (Religion 5-8) 
   ("cols", [
     [("section", {"label": "Catechism connection", "list": [
       "**CCC 2464:** The eighth commandment forbids misrepresenting the truth in our relations with others.",
-      "**CCC 2475–2476:** Respect for reputation forbids every attitude and word likely to cause unjust injury.",
+      "**CCC 2477:** Respect for the reputation of persons forbids every attitude and word likely to cause them unjust injury.",
       "**CCC 2488–2489:** The right to communication of truth is not unconditional."]})],
     [("section", {"label": "Materials needed", "list": [
       "Bible (Exodus 20:16, John 8:32, John 14:6)",
@@ -169,29 +184,64 @@ R_LP = lesson("Religion", R + "Lesson Plan_ Bearing True Witness (Religion 5-8) 
       "Spirit photography examples (1860s–1900s)",
       "Modern misinformation example (age-appropriate)",
       "Chart paper for class pledge"]})]]),
-  ("section", {"label": "Opening prayer · 2 minutes"}),
+  ("section", {"label": "Opening prayer · 2 minutes",
+    "screen": {"phase": "Prayer", "script": [f"{JN_14['text']} ({JN_14['ref']})", R_OPEN], "show": "prayer",
+               "prayer": said(R_OPEN),
+               "purpose": "Begin by asking for the wisdom and courage the lesson is about.",
+               "students": ["Pray together."]}}),
   ("cols", [[("verse", JN_14)],
-            [P("*“Lord, help us to be seekers and speakers of truth. Give us the wisdom to recognize falsehood, the courage to speak honestly, and the charity to do so with love. Through Christ our Lord. Amen.”*")]]),
-  ("section", {"label": "Hook · 5 minutes", "title": "The Spirit Photography Deception", "body": [
+            [P(R_OPEN)]]),
+  ("section", {"label": "Hook · 5 minutes", "title": "The Spirit Photography Deception",
+    "screen": {"phase": "Hook", "show": "question",
+               "question": "He bore false witness through images.",
+               "purpose": "A fake from history sets up the commandment and its meaning today.",
+               "students": ["Look at the spirit photographs.", "What made them fake?"]},
+    "body": [
     "Display spirit photography examples from the 1860s–1900s.",
-    "*“After the Civil War, a photographer named William Mumler claimed he could photograph spirits of the dead. He charged grieving families large sums for these fake images — double exposures. He bore false witness through images. Today we’ll explore what the Eighth Commandment teaches about truth in a world of deepfakes and viral misinformation.”*"]}),
-  ("section", {"label": "Scripture study · 8 minutes", "title": "The Eighth Commandment"}),
+    "*“During the Civil War, a photographer named William Mumler claimed he could photograph spirits of the dead. He charged grieving families large sums for these fake images — double exposures. He bore false witness through images. Today we’ll explore what the Eighth Commandment teaches about truth in a world of deepfakes and viral misinformation.”*"]}),
+  ("section", {"label": "Scripture study · 8 minutes", "title": "The Eighth Commandment",
+    "screen": [
+      {"phase": "Scripture", "minutes": 3, "script": [R_UNPACK], "show": "verse", "verse": EX_20,
+       "purpose": "Read the commandment, and how the Church extends it to all truth-telling.",
+       "students": ["Read it together."]},
+      {"phase": "Scripture", "minutes": 2, "script": [f"{JN_8['text']} ({JN_8['ref']})"], "title": "The truth will set you free",
+       "show": "verse", "verse": JN_8,
+       "purpose": "Truth as freedom, not only as a rule.",
+       "students": ["Read it together."]},
+      {"phase": "Scripture", "minutes": 3, "script": [R_DISCUSS], "title": "Bearing false witness", "show": "question",
+       "question": "What are ways we can “bear false witness” without being in a courtroom? Did the spirit photographer bear false witness even though he used images, not words?",
+       "purpose": "Widen the commandment from the courtroom to everyday words and images.",
+       "students": ["Discuss with your class."]}]}),
   ("verses", [EX_20, JN_8]),
-  P("**Unpack:** Originally about courtroom testimony, but the Church teaches it extends to all truth-telling. Read CCC 2464: “The eighth commandment forbids misrepresenting the truth in our relations with others.”",
-    "**Discussion:** What are ways we can “bear false witness” without being in a courtroom? (Gossip, rumors, sharing unverified info, manipulating images.) Did the spirit photographer bear false witness even though he used images, not words? (Yes.)"),
-  ("section", {"label": "Modern application · 8 minutes", "title": "Deepfakes and Our Responsibility", "body": [
+  P(R_UNPACK, R_DISCUSS),
+  ("section", {"label": "Modern application · 8 minutes", "title": "Deepfakes and Our Responsibility",
+    "screen": [
+      {"phase": "Deepfakes", "minutes": 4, "script": [0, 1], "show": "question",
+       "question": "Why is this a moral issue and not just a technology issue? What responsibilities do we have as Christians when we encounter information online?",
+       "purpose": "From the 1860s to AI: the same moral question.",
+       "students": ["Today, AI can create videos of people saying things they never said."]},
+      {"phase": "Deepfakes", "minutes": 4, "script": [2, 3, 4], "title": "Two dimensions of bearing true witness", "show": "chart",
+       "caption": "Two dimensions of bearing true witness today", "columns": ["Dimension", "What it asks of us"],
+       "rows": [{"cells": [x.split(":** ")[0].strip("*"), x.split(":** ")[1]]} for x in R_TWO],
+       "purpose": "Two things bearing true witness needs: careful checking and the courage to speak.",
+       "students": ["Which is harder for you?"]}],
+    "body": [
     "*“Spirit photography was the deepfake of the 1860s. Today, AI can create videos of people saying things they never said.”*",
     "**Discuss:** Why is this a moral issue and not just a technology issue? What responsibilities do we have as Christians when we encounter information online?",
-    "Two dimensions of bearing true witness today:"], "list": [
-    "**1. Verification:** Seek truth before we speak or share. Check sources, be skeptical of sensational claims.",
-    "**2. Moral courage:** Speaking up when difficult — correcting misinformation, admitting when wrong, refusing gossip."]}),
-  ("section", {"label": "Activity · 5 minutes", "title": "Our Commitment to Truth", "body": [
+    "Two dimensions of bearing true witness today:"], "list": R_TWO}),
+  ("section", {"label": "Activity · 5 minutes", "title": "Our Commitment to Truth",
+    "screen": {"phase": "Pledge", "script": [0] + R_PLEDGE, "show": "question",
+               "question": "Create a “Commitment to Truth” pledge.",
+               "purpose": "The class writes its own pledge together on chart paper.",
+               "students": R_PLEDGE},
+    "body": [
     "As a class, create a “Commitment to Truth” pledge on chart paper. Guide students toward including:"]}),
-  ("html", '<ul class="two"><li>I will verify before I share</li><li>I will not spread gossip or rumors</li>'
-           '<li>I will have courage to speak truth, even when difficult</li><li>I will admit when I am wrong or uncertain</li>'
-           '<li>I will treat others’ reputations as sacred</li></ul>'),
-  ("section", {"label": "Closing prayer and reflection · 2 minutes", "body": [
-    "*“Lord, you are the Way, the Truth, and the Life. Help us to be witnesses to your truth in our words, our actions, and what we share with others. Give us wisdom to recognize deception and courage to speak honestly. Through Christ our Lord, Amen.”*"]}),
+  ("html", '<ul class="two">' + "".join(f"<li>{x}</li>" for x in R_PLEDGE) + '</ul>'),
+  ("section", {"label": "Closing prayer and reflection · 2 minutes",
+    "screen": {"phase": "Close", "title": "Closing prayer", "show": "prayer", "prayer": said(R_CLOSE),
+               "purpose": "Close by giving the pledge back to God in prayer.",
+               "students": ["Pray together."]},
+    "body": [R_CLOSE]}),
   ("cols", [[("connection", [
     "**Option 1 — Visit:** Spirit photography in the exhibition shows how visual deception exploited grief. William Mumler exploited people’s vulnerability for profit — bearing false witness through images rather than words.",
     "**Option 2 — Virtual:** Explore the exhibition online."])],
@@ -204,6 +254,8 @@ R_LP = lesson("Religion", R + "Lesson Plan_ Bearing True Witness (Religion 5-8) 
                 "yellow": "Apply commandment to multiple scenarios, write commitment",
                 "red": "Research Catholic figure, theological analysis, extended reflection"})]]),
   ])
+
+R_LP["slug"] = "bearing-true-witness"
 
 def r_handout(level, out, blocks, css=""):
     return handout("Religion", level, R + out, "Bearing True Witness", "Grades 5–8 · Religion",
@@ -252,9 +304,9 @@ R_RED = r_handout("red", "Student Handout_ Bearing True Witness - Red Level (Rel
     body="For Christians, truth is not merely factual accuracy — it is a Person. Jesus identifies himself AS truth. This means our commitment to truthfulness is inseparable from our commitment to Christ. Every act of deception distances us from the One who is Truth itself."),
   T(2, "Catechism Deep Dive",
     P("The Catechism addresses truth in paragraphs 2464–2513. Key teachings:"),
-    ("html", "<ul><li><b>CCC 2475–2476:</b> Respect for reputation forbids “rash judgment, detraction, and calumny”</li>"
+    ("html", "<ul><li><b>CCC 2477:</b> Respect for reputation forbids “rash judgment,” “detraction,” and “calumny”</li>"
              "<li><b>CCC 2489:</b> We must balance truth with charity — not all true things should be shared</li>"
-             "<li><b>CCC 2497:</b> Information must serve the common good and respect justice and charity</li></ul>"),
+             "<li><b>CCC 2494:</b> Information must serve the common good and respect justice and charity</li></ul>"),
     Q("**Reflection:** How does the teaching that “not all true things should be shared” balance with the call to bear true witness?", 2)),
   T(3, "Research: Witnesses to Truth",
     P("Throughout history, Catholics have shown moral courage by bearing witness to truth despite persecution. Research ONE:"),
@@ -292,6 +344,18 @@ S_CSS = """
 .tfields span:nth-child(3)::before { content: 'Período'; }
 """
 
+S_VOCAB = [("la verdad", "the truth"), ("la mentira", "the lie"), ("real", "real"), ("falso/falsa", "false/fake"),
+           ("verdadero/a", "true"), ("creer", "to believe"), ("ver", "to see"), ("engañar", "to trick/deceive"),
+           ("los ojos", "the eyes"), ("la foto(grafía)", "the photo")]
+S_FRAMES = [("Creo que es…", "I believe it is…"), ("Pienso que es…", "I think it is…"),
+            ("¿Es verdad o mentira?", "Is it truth or lie?"), ("Mis ojos ven…", "My eyes see…"),
+            ("La foto es real/falsa.", "The photo is real/fake.")]
+S_TPR = [("Verdad", "thumbs up, nod head"), ("Mentira", "thumbs down, shake head"), ("Real", "touch something solid"),
+         ("Falso", "wave hand like “no”"), ("Creer", "hand on heart")]
+S_PRACTICE = "**Quick practice:** Show images, students respond “¡Verdad!” or “¡Mentira!”"
+# the hook's first words: ver, los ojos, engañar, la verdad, la mentira
+S_FIRST = [S_VOCAB[i] for i in (6, 8, 7, 0, 1)]
+
 S_LP = lesson("Spanish", S + "Spanish Lesson Plan_ ¿Verdad o Mentira_ (Grades 5-8) - Teacher Guide.pdf",
   "¿Verdad o Mentira?", "Truth or Lie? · Grades 5–8 · Spanish · 30 minutes", S_HERO,
   "Students learn vocabulary for truth, lies, and visual deception while exploring how optical illusions connect to the theme of appearances vs. reality. Designed for novice-low to novice-mid learners with heritage speaker support.",
@@ -309,29 +373,77 @@ S_LP = lesson("Spanish", S + "Spanish Lesson Plan_ ¿Verdad o Mentira_ (Grades 5
       "Student handouts (three levels available)",
       "Mini Museum Perception Lab: " + ILL]})]]),
   ("section", {"label": "Key vocabulary"}),
-  refs_grid([("la verdad", "the truth"), ("la mentira", "the lie"), ("real", "real"), ("falso/falsa", "false/fake"),
-             ("verdadero/a", "true"), ("creer", "to believe"), ("ver", "to see"), ("engañar", "to trick/deceive"),
-             ("los ojos", "the eyes"), ("la foto(grafía)", "the photo")], 3),
+  refs_grid(S_VOCAB, 3),
   ("section", {"label": "Sentence frames (for all levels)"}),
-  refs_grid([("Creo que es…", "I believe it is…"), ("Pienso que es…", "I think it is…"),
-             ("¿Es verdad o mentira?", "Is it truth or lie?"), ("Mis ojos ven…", "My eyes see…"),
-             ("La foto es real/falsa.", "The photo is real/fake.")], 2),
-  ("section", {"label": "Hook · 5 minutes", "title": "¿Qué ves? — What do you see?", "body": [
+  refs_grid(S_FRAMES, 2),
+  ("section", {"label": "Hook · 5 minutes", "title": "¿Qué ves? — What do you see?",
+    "screen": [
+      {"phase": "Hook", "minutes": 2, "script": [0, 1], "title": "¿Qué ven tus ojos?", "show": "image",
+       "img": {"img": SEE + "checker-shadow.jpg"}, "caption": "¿Qué ven tus ojos?",
+       "alt": "A checkerboard with a brown cylinder casting a shadow across it; square A sits outside the shadow, square B inside it",
+       "purpose": "Students call out what they see before the reveal.",
+       "students": ["What do your eyes see?"]},
+      {"phase": "Hook", "minutes": 1, "script": [1], "title": "¡Tus ojos te engañan!", "show": "image",
+       "img": {"img": SEE + "checker-reveal.jpg"}, "caption": "¡Tus ojos te engañan!",
+       "alt": "The checkerboard taken away: squares A and B alone on black, the same gray",
+       "purpose": "The reveal, said in Spanish.",
+       "students": ["Your eyes trick you!"]},
+      {"phase": "Hook", "minutes": 2, "script": [2], "title": "Key vocabulary", "show": "chart",
+       "caption": "Key vocabulary", "columns": ["Español", "English"],
+       "rows": [{"cells": [a, b]} for a, b in S_FIRST],
+       "purpose": "The first five words, with gestures and visuals.",
+       "students": ["Say each word with its gesture."]}],
+    "body": [
     "Display an optical illusion. Point to your eyes.",
     "“¿Qué ven tus ojos?” (What do your eyes see?) — Have students call out what they see. Then reveal the illusion. “¡Tus ojos te engañan!” (Your eyes trick you!)",
     "Introduce key vocabulary: *ver, los ojos, engañar, la verdad, la mentira.* Use gestures and visuals."]}),
-  ("section", {"label": "Vocabulary introduction · 8 minutes", "body": [
+  ("section", {"label": "Vocabulary introduction · 8 minutes",
+    "screen": [
+      {"phase": "Vocabulary", "minutes": 3, "script": [0], "title": "La verdad y la mentira", "show": "chart",
+       "caption": "Key vocabulary", "columns": ["Español", "English"],
+       "rows": [{"cells": [a, b]} for a, b in S_VOCAB],
+       "purpose": "All ten words, heard and seen.",
+       "students": ["Listen, then repeat."]},
+      {"phase": "Vocabulary", "minutes": 3, "script": [f"**{a}** — {b}" for a, b in S_TPR], "title": "Total Physical Response",
+       "show": "chart", "caption": "A gesture for each word", "columns": ["Palabra", "Gesture"],
+       "rows": [{"cells": [a, b]} for a, b in S_TPR],
+       "purpose": "A gesture for each word, so the whole class answers at once.",
+       "students": ["Do the gesture as you say the word."]},
+      {"phase": "Vocabulary", "minutes": 2, "script": [S_PRACTICE], "title": "Quick practice", "show": "question",
+       "question": "¿Es verdad o mentira?",
+       "purpose": "A quick check before the Mini Museum connection.",
+       "students": ["¡Verdad!", "¡Mentira!"]}],
+    "body": [
     "Present vocabulary with Total Physical Response (TPR) and comprehensible input:"]}),
-  ("html", '<ul class="two"><li><b>Verdad</b> — thumbs up, nod head</li><li><b>Mentira</b> — thumbs down, shake head</li>'
-           '<li><b>Real</b> — touch something solid</li><li><b>Falso</b> — wave hand like “no”</li><li><b>Creer</b> — hand on heart</li></ul>'),
-  P("**Quick practice:** Show images, students respond “¡Verdad!” or “¡Mentira!”"),
-  ("section", {"label": "Mini Museum connection · 10 minutes", "title": "La Fotografía de Espíritus", "body": [
+  ("html", '<ul class="two">' + "".join(f"<li><b>{a}</b> — {b}</li>" for a, b in S_TPR) + '</ul>'),
+  P(S_PRACTICE),
+  ("section", {"label": "Mini Museum connection · 10 minutes", "title": "La Fotografía de Espíritus",
+    "screen": [
+      {"phase": "Spirit photos", "minutes": 4, "script": [0, 1], "show": "question",
+       "question": "En 1862, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?",
+       "purpose": "A real fake from history, in simple Spanish.",
+       "students": ["Is it truth or lie?"]},
+      {"phase": "Spirit photos", "minutes": 6, "script": [2], "title": "Partner practice", "show": "chart",
+       "caption": "Sentence frames", "columns": ["Español", "English"],
+       "rows": [{"cells": [a, b]} for a, b in S_FRAMES],
+       "purpose": "Partners give their opinion with a sentence frame; heritage speakers help with vocabulary.",
+       "students": ["“Creo que es mentira porque…”"]}],
+    "body": [
     "Show spirit photography example.",
-    "“En 1860, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?” (In 1860, a photographer said: ‘I can photograph ghosts.’ Many people believed. Is it truth or lie?)",
+    "“En 1862, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?” (In 1862, a photographer said: ‘I can photograph ghosts.’ Many people believed. Is it truth or lie?)",
     "**Partner practice:** Students discuss using sentence frames: “Creo que es mentira porque…” (I believe it’s a lie because…). Heritage speakers can help partners with vocabulary."]}),
-  ("section", {"label": "Activity · 5 minutes", "title": "¿Verdad o Mentira? Game", "body": [
+  ("section", {"label": "Activity · 5 minutes", "title": "¿Verdad o Mentira? Game",
+    "screen": {"phase": "Game", "show": "question", "question": "¿Por qué crees eso?",
+               "purpose": "Students judge real and manipulated images, and say why.",
+               "students": ["Hold up VERDAD or MENTIRA.", "Creo que es… / Pienso que es…"]},
+    "body": [
     "Show 4–5 images (mix of real and manipulated). Students hold up VERDAD or MENTIRA cards. After each: “¿Por qué crees eso?” (Why do you believe that?) — Students respond using sentence frames."]}),
-  ("section", {"label": "Closing · 2 minutes", "title": "Reflection", "body": [
+  ("section", {"label": "Closing · 2 minutes", "title": "Reflection",
+    "screen": {"phase": "Close", "show": "question",
+               "question": "No todo lo que vemos es verdad. Debemos pensar antes de creer.",
+               "purpose": "One sentence to remember, then the exit ticket.",
+               "students": ["Write one sentence using new vocabulary."]},
+    "body": [
     "“No todo lo que vemos es verdad. Debemos pensar antes de creer.” (Not everything we see is truth. We should think before believing.)",
     "**Exit ticket:** Students write one sentence using new vocabulary."]}),
   ("connection", [
@@ -347,6 +459,8 @@ S_LP = lesson("Spanish", S + "Spanish Lesson Plan_ ¿Verdad o Mentira_ (Grades 5
       "**Exit ticket:** Write one sentence: “Creo que _____ es verdad/mentira porque _____.”"]})]]),
   ])
 
+
+S_LP["slug"] = "verdad-o-mentira"
 
 def s_handout(level, out, blocks):
     return handout("Spanish", level, S + out, "¿Verdad o Mentira?", "Truth or Lie? · Grades 5–8 · Spanish",
@@ -367,7 +481,7 @@ S_GREEN = s_handout("green", "Student Handout_ ¿Verdad o Mentira_ - Green Level
     P("Complete the sentence about the spirit photograph:"),
     ("html", '<p class="fillin big">Creo que la foto es <span class="blank" style="width:190pt"></span> .</p>'),
     P("(verdad / mentira / real / falsa)", cls="en")),
-  conn(["In 1860, a photographer said he could photograph ghosts. Many people believed him!"],
+  conn(["In 1862, a photographer said he could photograph ghosts. Many people believed him!"],
        None, label="Mini Museum", url=ILL,
        extra='<p class="fillin">¿Es verdad o mentira? <span class="blank" style="width:200pt"></span></p>'),
   fam(["Teach your family these words: *verdad, mentira, real, falso*",
@@ -395,12 +509,12 @@ S_YELLOW = s_handout("yellow", "Student Handout_ ¿Verdad o Mentira_ - Yellow Le
     P("Read each statement. Is it *verdad* or *mentira*? Write your opinion using the sentence frames."),
     ("html", '<div class="q">' + es("“¡Los científicos dicen que el chocolate es más saludable que las verduras!”", "(“Scientists say chocolate is healthier than vegetables!”)")
              + '<p class="fillin">Creo que es <span class="blank" style="width:120pt"></span> porque <span class="blank" style="width:220pt"></span></p>' + _lines(1) + "</div>"),
-    ("html", '<div class="q">' + es("“En 1860, las personas no sabían que las fotos podían ser falsas.”", "(“In 1860, people didn’t know photos could be fake.”)")
+    ("html", '<div class="q">' + es("“En 1862, las personas no sabían que las fotos podían ser falsas.”", "(“In 1862, people didn’t know photos could be fake.”)")
              + '<p class="fillin">Pienso que es <span class="blank" style="width:115pt"></span> porque <span class="blank" style="width:220pt"></span></p>' + _lines(1) + "</div>"),
     ("html", '<div class="q">' + es("“Hoy es fácil crear videos falsos con inteligencia artificial.”", "(“Today it’s easy to create fake videos with artificial intelligence.”)")
              + '<p class="fillin">Creo que es <span class="blank" style="width:120pt"></span> porque <span class="blank" style="width:220pt"></span></p>' + _lines(1) + "</div>")),
   T(4, "La Fotografía de Espíritus — Spirit Photography",
-    ("html", es("En 1860, un fotógrafo dijo: “Puedo fotografiar fantasmas.”", "(In 1860, a photographer said: “I can photograph ghosts.”)")
+    ("html", es("En 1862, un fotógrafo dijo: “Puedo fotografiar fantasmas.”", "(In 1862, a photographer said: “I can photograph ghosts.”)")
              + es("Muchas personas creyeron. Pagaron mucho dinero.", "(Many people believed. They paid a lot of money.)")),
     Q("¿Por qué creyeron las personas? (Why did people believe?)", 2),
     Q("¿La fotografía de espíritus es verdad o mentira?", 1)),
@@ -418,8 +532,8 @@ S_RED = s_handout("red", "Student Handout_ ¿Verdad o Mentira_ - Red Level (Span
       ("la verdad", "truth"), ("la mentira", "lie"), ("engañar", "to deceive/trick"), ("confiar", "to trust"),
       ("verificar", "to verify"), ("la fuente", "the source"), ("dudar", "to doubt"), ("investigar", "to investigate")])),
   T(2, "Lee y Analiza — Read and Analyze",
-    ("html", es("En 1860, William Mumler inventó la “fotografía de espíritus.” Él dijo que podía fotografiar a personas muertas. Muchas familias tristes pagaron mucho dinero para ver a sus familiares. Pero todo era mentira. Mumler usó un truco llamado “doble exposición.”",
-                "(In 1860, William Mumler invented “spirit photography.” He said he could photograph dead people. Many sad families paid a lot of money to see their relatives. But it was all a lie. Mumler used a trick called “double exposure.”)")),
+    ("html", es("En 1862, William Mumler inventó la “fotografía de espíritus.” Él dijo que podía fotografiar a personas muertas. Muchas familias tristes pagaron mucho dinero para ver a sus familiares. Pero todo era mentira. Mumler usó un truco llamado “doble exposición.”",
+                "(In 1862, William Mumler invented “spirit photography.” He said he could photograph dead people. Many sad families paid a lot of money to see their relatives. But it was all a lie. Mumler used a trick called “double exposure.”)")),
     Q("1. ¿Por qué las familias creyeron a Mumler? (Why did families believe Mumler?)", 2),
     Q("2. ¿Cómo podían verificar si las fotos eran reales? (How could they verify if the photos were real?)", 2),
     Q("3. ¿Qué significa “ver para creer”? ¿Es siempre verdad? (What does “seeing is believing” mean? Is it always true?)", 2)),
@@ -445,6 +559,15 @@ S_RED["css"] += "body.student { --line: 21pt; }"
 TH = "teachers/grades-5-8/theater/"
 TH_HERO = {"img": SEE + "balcony.jpg", "pos": "center 62%"}
 
+TH_VIC = [("Pepper’s Ghost", "Using angled glass to make “ghosts” appear on stage"),
+          ("Trap doors", "Actors appearing and disappearing"),
+          ("Lighting effects", "Colored gels, limelight for dramatic effect"),
+          ("Sound effects", "Thunder sheets, wind machines")]
+TH_SAY = "*“The Victorians LOVED theatrical illusions. Stage ghosts used angled glass; spirit photographers used double exposure. Both made ghosts appear — the difference? Theater audiences knew it was fake. Spirit photography victims didn’t.”*"
+TH_OPTIONS = [
+  "**Option A — Performance:** In small groups, students create a 30-second scene using simple staging tricks: pretending to open a door that isn’t there, miming drinking from an invisible cup, or using a flashlight to create “moonlight.”",
+  "**Option B — Analysis:** Watch a clip from a stage production. Students identify: What illusions are being used? What are we “agreeing” to believe? What theatrical elements help us suspend disbelief?"]
+
 TH_LP = lesson("Theater", TH + "Theater Lesson Plan_ The Art of Illusion (Grades 5-8) - Teacher Guide.pdf",
   "The Art of Illusion", "Theater’s Willing Deception · Grades 5–8 · Theater · 30 minutes", TH_HERO,
   "Students explore how theater creates “willing suspension of disbelief” through acting, staging, and special effects — connecting performance illusion to the visual deceptions in the Mini Museum.",
@@ -462,26 +585,53 @@ TH_LP = lesson("Theater", TH + "Theater Lesson Plan_ The Art of Illusion (Grades
       "Simple props for demonstration (scarf, box, flashlight)",
       "Images of Victorian theater special effects (Pepper’s Ghost, trap doors)",
       "Mini Museum spirit photography examples for comparison"]})]]),
-  ("section", {"label": "Hook · 5 minutes", "title": "The Magic Box", "body": [
+  ("section", {"label": "Hook · 5 minutes", "title": "The Magic Box",
+    "screen": {"phase": "Hook", "show": "question", "question": "Did the scarf really disappear?",
+               "purpose": "Students enjoy a trick they know is a trick: the start of suspension of disbelief.",
+               "students": ["Watch the box."]},
+    "body": [
     "Perform a simple “illusion” — make a scarf “disappear” into a box (with obvious false bottom or sleeve).",
     "*“Did the scarf really disappear? No! You all know it’s a trick. But here’s the interesting thing — even though you KNOW it’s fake, part of you still enjoyed watching it ‘disappear.’ That’s called the ‘suspension of disbelief,’ and it’s the foundation of ALL theater.”*"]}),
-  ("section", {"label": "Concept · 5 minutes", "title": "Suspension of Disbelief", "body": [
+  ("section", {"label": "Concept · 5 minutes", "title": "Suspension of Disbelief",
+    "screen": {"phase": "Concept", "show": "question",
+               "question": "This is a contract between audience and performers.",
+               "purpose": "The key distinction: illusion the audience agrees to, and deception it does not.",
+               "students": ["Theater illusion is consensual.",
+                            "This is different from deception, where someone is tricked WITHOUT their consent."]},
+    "body": [
     "*“When you watch a play, you KNOW the actors aren’t really the characters. You KNOW the set isn’t a real castle. But you agree to pretend — to suspend your disbelief — so you can enjoy the story. This is a contract between audience and performers.”*",
     "**Key distinction:** Theater illusion is consensual. The audience KNOWS it’s not real and chooses to go along. This is different from deception, where someone is tricked WITHOUT their consent."]}),
-  ("section", {"label": "Victorian theater technology · 8 minutes", "body": [
+  ("section", {"label": "Victorian theater technology · 8 minutes",
+    "screen": [
+      {"phase": "Victorian", "minutes": 5, "script": [0] + [f"**{a}:** {b}" for a, b in TH_VIC], "show": "chart",
+       "caption": "Victorian theatrical illusions", "columns": ["Technique", "What it does"],
+       "rows": [{"cells": [a, b]} for a, b in TH_VIC],
+       "purpose": "Four tools of Victorian stage illusion.",
+       "students": ["Which would fool you?"]},
+      {"phase": "Victorian", "minutes": 3, "script": [TH_SAY], "title": "The difference", "show": "question",
+       "question": "The difference? Theater audiences knew it was fake. Spirit photography victims didn’t.",
+       "purpose": "Stage ghosts and spirit photographs: the difference is consent.",
+       "students": ["The Victorians LOVED theatrical illusions."]}],
+    "body": [
     "Show images or video of Victorian theatrical illusions:"]}),
-  ("html", '<ul class="two"><li><b>Pepper’s Ghost:</b> Using angled glass to make “ghosts” appear on stage</li>'
-           '<li><b>Trap doors:</b> Actors appearing and disappearing</li>'
-           '<li><b>Lighting effects:</b> Colored gels, limelight for dramatic effect</li>'
-           '<li><b>Sound effects:</b> Thunder sheets, wind machines</li></ul>'),
-  P("*“The Victorians LOVED theatrical illusions. The same technology used to create stage ghosts was later used by spirit photographers to fake ‘real’ ghost photos. The difference? Theater audiences knew it was fake. Spirit photography victims didn’t.”*"),
-  ("section", {"label": "Activity · 10 minutes", "title": "Creating Theatrical Illusion", "body": [
-    "**Option A — Performance:** In small groups, students create a 30-second scene using simple staging tricks: pretending to open a door that isn’t there, miming drinking from an invisible cup, or using a flashlight to create “moonlight.”",
-    "**Option B — Analysis:** Watch a clip from a stage production. Students identify: What illusions are being used? What are we “agreeing” to believe? What theatrical elements help us suspend disbelief?"]}),
-  ("section", {"label": "Closing · 2 minutes", "title": "The Ethics of Illusion", "body": [
+  ("html", '<ul class="two">' + "".join(f"<li><b>{a}:</b> {b}</li>" for a, b in TH_VIC) + '</ul>'),
+  P(TH_SAY),
+  ("section", {"label": "Activity · 10 minutes", "title": "Creating Theatrical Illusion",
+    "screen": {"phase": "Activity", "show": "chart",
+               "caption": "Two options", "columns": ["Option", "What to do"],
+               "rows": [{"cells": [x.split(":** ")[0].strip("*"), x.split(":** ")[1]]} for x in TH_OPTIONS],
+               "purpose": "Students make an illusion on stage, or find the illusions in a production.",
+               "students": ["What are we “agreeing” to believe?"]},
+    "body": TH_OPTIONS}),
+  ("section", {"label": "Closing · 2 minutes", "title": "The Ethics of Illusion",
+    "screen": {"phase": "Close", "show": "question",
+               "question": "But what happens when the same techniques are used to deceive people who DON’T know it’s fake?",
+               "purpose": "Where entertainment crosses into manipulation.",
+               "students": ["Entertainment or manipulation?"]},
+    "body": [
     "*“Theater and magic shows create illusions that audiences enjoy and consent to. But what happens when the same techniques are used to deceive people who DON’T know it’s fake? That’s where we cross from entertainment into manipulation. The Mini Museum shows us examples of both — and helps us understand the difference.”*"]}),
   ("cols", [[("connection", [
-    "**Option 1 — Visit:** The stereoscope and spirit photographs use techniques similar to stage illusions. Pepper’s Ghost (theater) and spirit photography (fraud) used the SAME technology — the difference was consent and intent.",
+    "**Option 1 — Visit:** The stereoscope and spirit photographs are illusions, like those on the stage. Pepper’s Ghost (theater, angled glass) and spirit photography (fraud, double exposure) used different tricks to make the same thing appear — a ghost. The difference was consent and intent.",
     "**Option 2 — Virtual:** Explore the exhibition online."])],
    [("section", {"label": "Assessment", "list": [
     "**Discussion:** Can students articulate the difference between theatrical illusion and deception?",
@@ -501,6 +651,8 @@ TH_LP = lesson("Theater", TH + "Theater Lesson Plan_ The Art of Illusion (Grades
       "**Pepper’s Ghost:** Victorian stage illusion using angled glass to project ghostly images.",
       "**Theatrical convention:** Accepted practices that audiences understand (aside, spotlight, etc.)."]})]]),
   ])
+
+TH_LP["slug"] = "the-art-of-illusion"
 
 def th_handout(level, out, blocks, css=""):
     return handout("Theater", level, TH + out, "The Art of Illusion", "Grades 5–8 · Theater", TH_HERO, blocks, css=css)
@@ -583,6 +735,15 @@ TH_RED = th_handout("red", "Student Handout_ The Art of Illusion - Red Level (Th
 M = "teachers/grades-5-8/music/"
 M_HERO = {"img": SEE + "waves.jpg", "pos": "center 40%"}
 
+M_VERSIONS = ["**Version 1:** Happy, upbeat music", "**Version 2:** Tense, minor-key music"]
+M_SAY = "*“How did the music change what you felt about this scene? The visuals were identical — only the sound changed. Filmmakers, advertisers, and game designers use this technique constantly.”*"
+M_DISCUSS = "**Discuss:** How do horror movies use sound? How do commercials use music? How do video games use audio cues?"
+M_ELEMENTS = ["**Tempo:** Fast = excitement/anxiety; Slow = calm/sadness",
+              "**Mode:** Major = happy/triumphant; Minor = sad/scary",
+              "**Dynamics:** Sudden loud = surprise/fear; Quiet = tension/intimacy",
+              "**Instrumentation:** Strings = emotion; Brass = power; Synth = futuristic/unsettling"]
+M_KNOW = "*“Once you know these tricks, you can recognize when someone is trying to manipulate your emotions through sound — and you can make conscious choices about how to respond.”*"
+
 M_LP = lesson("Music", M + "Music Lesson Plan_ Sound Illusions (Grades 5-8) - Teacher Guide.pdf",
   "Sound Illusions", "When Your Ears Deceive You · Grades 5–8 · Music · 30 minutes", M_HERO,
   "Students explore auditory illusions and how composers, advertisers, and media creators use sound to manipulate perception and emotion — connecting to the Mini Museum theme that our senses can be deceived.",
@@ -600,26 +761,56 @@ M_LP = lesson("Music", M + "Music Lesson Plan_ Sound Illusions (Grades 5-8) - Te
       "Two versions of same scene with different music (happy vs. scary)",
       "Speakers or headphones for clear audio playback",
       "Optional: Mini Museum stereoscope for visual/audio comparison"]})]]),
-  ("section", {"label": "Hook · 5 minutes", "title": "The Endless Staircase of Sound", "body": [
+  ("section", {"label": "Hook · 5 minutes", "title": "The Endless Staircase of Sound",
+    "screen": {"phase": "Hook", "show": "question",
+               "question": "Listen to this sound. What do you notice? Does it seem to go up… and up… and up?",
+               "purpose": "Ears can be fooled just as eyes can.",
+               "students": ["Listen."]},
+    "body": [
     "Play the Shepard Tone (an auditory illusion that seems to rise forever).",
     "*“Listen to this sound. What do you notice? Does it seem to go up… and up… and up? But here’s the trick — it’s actually looping. Your ears are being fooled, just like your eyes can be fooled by optical illusions. Today we’re going to explore how sound can deceive us.”*"]}),
-  ("section", {"label": "Auditory illusions · 8 minutes", "body": [
+  ("section", {"label": "Auditory illusions · 8 minutes",
+    "screen": [
+      {"phase": "Illusions", "minutes": 4, "script": [0], "title": "Yanny or Laurel?", "show": "question",
+       "question": "Yanny or Laurel?",
+       "purpose": "One clip, two answers: the brain decides what it hears.",
+       "students": ["Vote!"]},
+      {"phase": "Illusions", "minutes": 4, "script": [1, 2], "title": "McGurk Effect", "show": "question",
+       "question": "Your brain doesn’t just passively receive sound — it actively interprets it.",
+       "purpose": "What we see changes what we hear.",
+       "students": ["What do you hear?"]}],
+    "body": [
     "**Illusion 1: Yanny or Laurel?** Play the famous clip. Have students vote. Reveal that the same sound can be heard differently based on which frequencies your brain focuses on.",
     "**Illusion 2: McGurk Effect** (if video available). Show how what we SEE changes what we HEAR — demonstrating that our senses work together and can be fooled together.",
     "*“Your brain doesn’t just passively receive sound — it actively interprets it. And that interpretation can be manipulated.”*"]}),
-  ("section", {"label": "Music and emotion manipulation · 10 minutes", "body": [
-    "Show the same neutral video clip twice with different background music:"], "list": [
-    "**Version 1:** Happy, upbeat music", "**Version 2:** Tense, minor-key music"]}),
-  P("*“How did the music change what you felt about this scene? The visuals were identical — only the sound changed. Filmmakers, advertisers, and game designers use this technique constantly.”*",
-    "**Discuss:** How do horror movies use sound? How do commercials use music? How do video games use audio cues?"),
-  ("section", {"label": "Musical elements of manipulation · 5 minutes", "body": [
-    "Quick analysis of HOW music manipulates:"], "list": [
-    "**Tempo:** Fast = excitement/anxiety; Slow = calm/sadness",
-    "**Mode:** Major = happy/triumphant; Minor = sad/scary",
-    "**Dynamics:** Sudden loud = surprise/fear; Quiet = tension/intimacy",
-    "**Instrumentation:** Strings = emotion; Brass = power; Synth = futuristic/unsettling"]}),
-  P("*“Once you know these tricks, you can recognize when someone is trying to manipulate your emotions through sound — and you can make conscious choices about how to respond.”*"),
-  ("section", {"label": "Closing · 2 minutes", "title": "The Aware Listener", "body": [
+  ("section", {"label": "Music and emotion manipulation · 10 minutes",
+    "screen": [
+      {"phase": "Emotion", "minutes": 5, "script": [0, 1, 2, M_SAY], "title": "Same scene, different music", "show": "question",
+       "question": "How did the music change what you felt about this scene?",
+       "purpose": "The visuals stay the same; only the sound changes.",
+       "students": M_VERSIONS},
+      {"phase": "Emotion", "minutes": 5, "script": [M_DISCUSS], "title": "Discuss", "show": "question",
+       "question": M_DISCUSS.split(":** ", 1)[1],
+       "purpose": "Find the same technique in films, ads and games.",
+       "students": ["Discuss with your class."]}],
+    "body": [
+    "Show the same neutral video clip twice with different background music:"], "list": M_VERSIONS}),
+  P(M_SAY, M_DISCUSS),
+  ("section", {"label": "Musical elements of manipulation · 5 minutes",
+    "screen": {"phase": "Elements", "script": [0, 1, 2, 3, 4, M_KNOW], "show": "chart",
+               "caption": "How music manipulates", "columns": ["Element", "Effect"],
+               "rows": [{"cells": [x.split(":** ")[0].strip("*"), x.split(":** ")[1]]} for x in M_ELEMENTS],
+               "purpose": "Four elements to listen for, so students can recognize them.",
+               "students": ["Which did you hear in the clip?"]},
+    "body": [
+    "Quick analysis of HOW music manipulates:"], "list": M_ELEMENTS}),
+  P(M_KNOW),
+  ("section", {"label": "Closing · 2 minutes", "title": "The Aware Listener",
+    "screen": {"phase": "Close", "show": "question",
+               "question": "But now you know — and knowing is the first step to not being manipulated.",
+               "purpose": "Ears, like eyes, can be tricked; knowing is the first defence.",
+               "students": ["Name one way you’ll listen more critically to music in media this week."]},
+    "body": [
     "*“Just like the Mini Museum shows us that our eyes can be tricked by photographs and illusions, today we learned that our ears can be tricked too. The Victorians were fooled by spirit photographs because the technology was new. We can be fooled by sound design because we don’t always notice it. But now you know — and knowing is the first step to not being manipulated.”*"]}),
   ("cols", [[("connection", [
     "**Option 1 — Visit:** The stereoscope creates a 3D illusion for the eyes, just as binaural audio creates spatial illusions for the ears. Spirit photography manipulated visual trust; film scores manipulate emotional trust.",
@@ -637,6 +828,8 @@ M_LP = lesson("Music", M + "Music Lesson Plan_ Sound Illusions (Grades 5-8) - Te
     "Analyze the soundtrack of a movie trailer: what emotions are being manufactured?",
     "Research: How did Victorian music halls use sound effects to enhance magic shows?"]}),
   ])
+
+M_LP["slug"] = "sound-illusions"
 
 def m_handout(level, out, blocks):
     return handout("Music", level, M + out, "Sound Illusions", "Grades 5–8 · Music", M_HERO, blocks)

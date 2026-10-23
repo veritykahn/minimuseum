@@ -10,7 +10,9 @@ import {
   SectionHeader,
   StartOverButton,
   ContextBreadcrumb,
+  LessonModeLink,
 } from './components';
+import { getLesson } from '@/lib/lessons';
 import {
   GRADE_LABELS,
   LIBRARIAN_GRADE_LABELS,
@@ -19,6 +21,7 @@ import {
   GradeLevel,
   LibrarianGradeLevel,
   Subject,
+  ON_SCREEN_LESSONS,
 } from './data/resource-data';
 
 export default function ResourcesPage() {
@@ -44,6 +47,10 @@ export default function ResourcesPage() {
   const contentRef = useRef<HTMLDivElement>(null);
   const stepKey = Object.entries(currentStep).find(([, on]) => on)?.[0] ?? '';
   useFocusOnStepChange(stepKey, contentRef, '.intro-text, .context-breadcrumb, .question-text, .description-text');
+
+  // A lesson that can also be taught on the classroom screen (Lesson mode)
+  const onScreenSlug = gradeLevel ? ON_SCREEN_LESSONS[subject ? `${gradeLevel}/${subject}` : gradeLevel] : undefined;
+  const onScreen = onScreenSlug ? getLesson('seeing-is-deceiving', onScreenSlug) : undefined;
 
   // Grade options for teachers
   const teacherGrades: { key: GradeLevel; label: string }[] = [
@@ -278,6 +285,14 @@ export default function ResourcesPage() {
                 ...(subject ? [SUBJECT_LABELS[subject]] : []),
               ]}
             />
+
+            {onScreen && (
+              <LessonModeLink
+                href={`/exhibitions/seeing-is-deceiving/lessons/${onScreen.slug}`}
+                title={onScreen.title}
+                minutes={onScreen.totalMinutes}
+              />
+            )}
 
             <div className="download-section">
               <SectionHeader isFirst>For All Teachers</SectionHeader>

@@ -399,7 +399,31 @@ body { line-height: 1.45; } li { margin-bottom: 1.5pt; }
 .card p { font-size: 9pt; }
 """
 
+# Lesson mode (resources-src/export_lessons.py): "screen" on a section, and
+# the "screen_…" keys, are for the site only; build.py ignores them, so the
+# PDF is unchanged. What the plan says once is written once, here.
+PK_MATERIALS = [
+    "Large printout of the duck/rabbit illusion",
+    "Two identical colors of construction paper in different contexts (one surrounded by dark paper, one by light paper)",
+    f"**Mini Museum Perception Lab:** {LAB}",
+    "**Recommended from Perception Lab:** Rubin’s Vase (#4 — faces or vase?)"]
+PK_CHECK = "It’s okay if you weren’t sure! Our eyes can trick us sometimes. That’s why it’s always good to look closer and check."
+PK_REAL = [
+    "“If you think someone took your toy, check first—maybe it’s just in a different spot”",
+    "“If you think someone isn’t being nice, ask them what they meant before getting upset”",
+    "“If something looks scary from far away, get closer to see what it really is”"]
+PK_CONN = ["**Option 1 — Visit the Mini Museum:** *“When you visit the Mini Museum, you’ll see old toys that tricked people’s eyes over 100 years ago! You’ll see a special old camera called a stereoscope that makes flat pictures look 3D, and cards that change when you move them.”*",
+           f"**Option 2 — Virtual Visit:** Show the exhibition online at {WEB} or view individual artifacts at {WEB}/artifacts"]
+# Rubin's Vase, as the Perception Lab shows it, and its two readings
+VASE = {"img": EXH + "rubins-vase.jpg"}
+VASE_ALT = "Rubin’s Vase: a white vase on black, or two dark faces looking at each other"
+VASE_OR_FACES = [
+  {"img": EXH + "rubins-vase-vase.jpg", "label": "A vase", "alt": "Rubin’s Vase with the vase picked out"},
+  {"img": EXH + "rubins-vase-face.jpg", "label": "Two faces", "alt": "Rubin’s Vase with the two faces picked out"}]
+
 PK_LESSON = {
+  "slug": "my-eyes-can-trick-me", "large": True,
+  "screen_materials": PK_MATERIALS, "screen_connection": PK_CONN,
   "out": PK + "Lesson Plan_ My Eyes Can Trick Me! (PreK-K) - Teacher Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "My Eyes Can Trick Me!",
   "sub": "PreK–K · 20 minutes · General / Homeroom", "foot": "Lesson Plan · PreK–K",
@@ -408,39 +432,68 @@ PK_LESSON = {
   "blocks": [
     ("timing", [("Introduction", 5, "#7D8471"), ("What do you see?", 10, "#2F4A5A"), ("Real life", 3, "#86671A"), ("Closing", 2, "#A8452F")]),
     ("section", {"label": "Learning objective", "body": ["Students will understand that their eyes and brain can sometimes see things differently than they actually are, and that it’s okay to check and ask questions."]}),
-    H('<section class="sec mat"><p class="label">Materials needed</p>', bl([
-        "Large printout of the duck/rabbit illusion",
-        "Two identical colors of construction paper in different contexts (one surrounded by dark paper, one by light paper)",
-        f"**Mini Museum Perception Lab:** {LAB}",
-        "**Recommended from Perception Lab:** Rubin’s Vase (#4 — faces or vase?)"]), "</section>"),
+    H('<section class="sec mat"><p class="label">Materials needed</p>', bl(PK_MATERIALS), "</section>"),
     ("section", {"label": "Introduction · 5 minutes", "title": "Our eyes are amazing",
+      "screen": [
+        {"phase": "Introduction", "minutes": 2, "script": [0, 1], "show": "question",
+         "question": "Has anyone ever thought they saw something, but it turned out to be something different?",
+         "purpose": "Start from the children’s own times when their eyes played a trick.",
+         "students": ["Our eyes are amazing, but sometimes they play tricks on us!"]},
+        {"phase": "Introduction", "minutes": 3, "script": [2], "title": "Duck or rabbit?", "show": "question",
+         "question": "Is this a duck or a rabbit?",
+         "purpose": "Meet a first optical illusion: one picture the brain can see two ways.",
+         "students": ["What do you see first?"]}],
       "body": [
         "*“Today we’re going to learn that our eyes are amazing, but sometimes they play tricks on us! Has anyone ever thought they saw something, but it turned out to be something different?”*",
         "Share a personal, age-appropriate story. Example: *“One time I thought I saw my friend across the street and I waved, but when I got closer, it was someone else who just looked like my friend from far away!”*",
         "**Introduce the duck/rabbit:** Show the picture. *“Is this a duck or a rabbit?”* [Let students share what they see first.] *“It’s both! Your brain can see it two different ways. That’s called an optical illusion—when your eyes trick you.”*"]}),
     ("section", {"label": "Activity · 10 minutes", "title": "“What Do You See?” Game"}),
-    ("section", {"label": "Round 1 · Simple illusions · 5 minutes", "list": [
+    ("section", {"label": "Round 1 · Simple illusions · 5 minutes",
+      "screen": [
+        {"phase": "What do you see?", "minutes": 3, "script": [0, 1], "title": "Faces or vase?", "show": "image",
+         "img": VASE, "alt": VASE_ALT, "caption": "Rubin’s Vase",
+         "purpose": "Look at one illusion together, and let every child say what they see.",
+         "students": ["What do you see first?", "Can you see it a different way?"]},
+        {"phase": "What do you see?", "minutes": 2, "script": [2], "title": "Both are right!", "show": "pair",
+         "items": VASE_OR_FACES,
+         "purpose": "Celebrate every answer: the same picture can be seen two ways.",
+         "students": ["Some people see it one way, some see it another way. Both are right!"]}],
+      "list": [
       "Show 2–3 age-appropriate optical illusions",
       "For each: *“What do you see first? Can you see it a different way?”*",
       "Celebrate all answers: *“Great! Some people see it one way, some see it another way. Both are right!”*"]}),
-    ("section", {"label": "Round 2 · Color matching · 5 minutes", "list": [
+    ("section", {"label": "Round 2 · Color matching · 5 minutes",
+      "screen": [
+        {"phase": "What do you see?", "minutes": 3, "script": [0, 1], "title": "Same or different?", "show": "question",
+         "question": "Are these the same color or different colors?",
+         "purpose": "Children predict before they check.",
+         "students": ["Take a guess!"]},
+        {"phase": "What do you see?", "minutes": 2, "script": [2, 3, f"*“{PK_CHECK}”*"], "title": "Side by side", "show": "question",
+         "question": PK_CHECK,
+         "purpose": "Reveal that the colors are the same, and make it safe to have been fooled.",
+         "students": ["What’s around them changed how they looked!"]}],
+      "list": [
       "Show two pieces of identical construction paper surrounded by different colored backgrounds",
       "*“Are these the same color or different colors?”* Take predictions",
       "Put them side by side to reveal they’re identical",
       "*“See? What’s around them changed how they looked! Your eyes got tricked by what was next to the colors.”*"]}),
-    H('<div class="big"><p><i>“It’s okay if you weren’t sure! Our eyes can trick us sometimes. That’s why it’s always good to look closer and check.”</i></p></div>'),
+    H(f'<div class="big"><p><i>“{PK_CHECK}”</i></p></div>'),
     ("section", {"label": "Connection to real life · 3 minutes",
+      "screen": {"phase": "Real life", "script": [0, 1, 2, 3, 4], "title": "Before we decide", "show": "question",
+                 "question": "Before we decide how someone feels, we should ask them!",
+                 "purpose": "Carry “check first” from pictures into friendships and everyday life.",
+                 "students": PK_REAL},
       "body": ["*“Sometimes we might think a friend is mad at us because of how their face looks, but maybe they’re just tired or thinking hard. Before we decide how someone feels, we should ask them! Just like checking if the colors are really the same.”*",
                "**Examples for young students:**"],
-      "list": [
-        "“If you think someone took your toy, check first—maybe it’s just in a different spot”",
-        "“If you think someone isn’t being nice, ask them what they meant before getting upset”",
-        "“If something looks scary from far away, get closer to see what it really is”"]}),
+      "list": PK_REAL}),
     ("section", {"label": "Closing · 2 minutes",
+      "screen": {"phase": "Closing", "title": "Look closer and ask", "show": "question",
+                 "question": "If your friend sees something different than you, what should you do?",
+                 "purpose": "The exit question: what to do when we see things differently.",
+                 "students": ["Look again!", "Ask questions!", "Both can be right!"]},
       "body": ["*“Remember: It’s always okay to look closer and ask questions. Even grown-ups’ eyes play tricks on them sometimes!”*",
                "**Exit question:** *“If your friend sees something different than you, what should you do?”* (Look again! / Ask questions! / Both can be right!)"]}),
-    conn(["**Option 1 — Visit the Mini Museum:** *“When you visit the Mini Museum, you’ll see old toys that tricked people’s eyes over 100 years ago! You’ll see a special old camera called a stereoscope that makes flat pictures look 3D, and cards that change when you move them.”*",
-          f"**Option 2 — Virtual Visit:** Show the exhibition online at {WEB} or view individual artifacts at {WEB}/artifacts"], url=None),
+    conn(PK_CONN, url=None),
     ("section", {"label": "Assessment", "body": [
       "**Informal observation:** During the activity, notice which students can identify that the images can be seen multiple ways, and which students grasp that “checking” is a good strategy.",
       "**Exit question:** *“Can anyone tell me one thing you learned today about your eyes?”* Accept answers like “eyes can trick you,” “check before you decide,” “look closer,” etc."]}),
@@ -507,7 +560,22 @@ G12 = "teachers/grades-1-2/"
 G12_HERO = {"img": EXH + "balcony.jpg", "pos": "center 40%"}
 SCRAMBLED = "“I cna raed tihs eevn wehn its msesed up”"
 
+G12_MATERIALS = [
+    f"Paper with scrambled sentence: {SCRAMBLED}",
+    "Two pictures that look similar but have small differences",
+    "Chart paper and markers",
+    f"**Mini Museum Perception Lab:** {LAB}",
+    "**Recommended from Perception Lab:** Rubin’s Vase (#4 — faces or vase?), Balcony (#3 — bistable figure)"]
+G12_HOOK = ["*“Can you read this even though the letters are mixed up? Raise your hand if you could read it!”* (Most students will be able to.)",
+            "*“How did you do that? Your brain is so smart that it predicts what words should be there. It knows what makes sense, so it fills in the blanks. But sometimes our brains predict wrong things too!”*"]
+G12_RULES = ["Look closer", "Ask questions", "Check if I have all the information", "Remember my brain might be making a prediction"]
+G12_CONTRIBUTE = "Let students contribute their own ideas. Hang the chart in the classroom as a reminder."
+G12_CONN = ["**Option 1 — Visit:** Students use a stereoscope that makes flat pictures look 3D, and see cards that change when you move them—fun tricks just like today’s optical illusions!",
+            f"**Option 2 — Virtual:** {WEB}"]
+
 G12_LESSON = {
+  "slug": "brain-detective", "large": True,
+  "screen_materials": G12_MATERIALS, "screen_connection": G12_CONN,
   "out": G12 + "Lesson Plan_ Brain Detective (Grades 1-2) - Teacher Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "Brain Detective",
   "sub": "Looking Closer at What We See · Grades 1–2 · 25 minutes · General / Homeroom",
@@ -516,38 +584,73 @@ G12_LESSON = {
   "blocks": [
     ("timing", [("Hook", 5, "#7D8471"), ("Exploration", 12, "#2F4A5A"), ("Application", 6, "#86671A"), ("Closing", 2, "#A8452F")]),
     ("section", {"label": "Learning objective", "body": ["Students will learn that their brains make predictions about what they see, and will practice the skill of checking their assumptions before deciding."]}),
-    H('<section class="sec mat"><p class="label">Materials needed</p>', bl([
-        f"Paper with scrambled sentence: {SCRAMBLED}",
-        "Two pictures that look similar but have small differences",
-        "Chart paper and markers",
-        f"**Mini Museum Perception Lab:** {LAB}",
-        "**Recommended from Perception Lab:** Rubin’s Vase (#4 — faces or vase?), Balcony (#3 — bistable figure)"]), "</section>"),
+    H('<section class="sec mat"><p class="label">Materials needed</p>', bl(G12_MATERIALS), "</section>"),
     ("section", {"label": "Hook · 5 minutes", "title": "Can you read this?",
+      "screen": [
+        {"phase": "Hook", "minutes": 3, "script": [0, G12_HOOK[0]], "show": "question",
+         "question": SCRAMBLED.strip("“”"),
+         "purpose": "Show the class that their brains read what the letters only suggest.",
+         "students": ["Can you read this even though the letters are mixed up?", "Raise your hand if you could read it!"]},
+        {"phase": "Hook", "minutes": 2, "script": [G12_HOOK[1]], "title": "How did you do that?", "show": "question",
+         "question": "How did you do that?",
+         "purpose": "Name what happened: the brain predicts, and sometimes it predicts wrong.",
+         "students": ["Your brain is so smart that it predicts what words should be there."]}],
       "body": ["Write the scrambled sentence on the board:"]}),
-    H(f'<p class="scr">{SCRAMBLED}</p>',
-      P("*“Can you read this even though the letters are mixed up? Raise your hand if you could read it!”* (Most students will be able to.)",
-        "*“How did you do that? Your brain is so smart that it predicts what words should be there. It knows what makes sense, so it fills in the blanks. But sometimes our brains predict wrong things too!”*")),
+    H(f'<p class="scr">{SCRAMBLED}</p>', P(*G12_HOOK)),
     ("section", {"label": "Exploration · 12 minutes", "title": "Be a Brain Detective"}),
-    ("section", {"label": "Activity 1 · Picture Detective · 6 minutes", "list": [
+    ("section", {"label": "Activity 1 · Picture Detective · 6 minutes",
+      "screen": [
+        {"phase": "Exploration", "minutes": 3, "script": [0, 1], "title": "Picture Detective", "show": "image",
+         "img": VASE, "alt": VASE_ALT, "caption": "Rubin’s Vase",
+         "purpose": "First impressions: every child says what they see.",
+         "students": ["What do you see?"]},
+        {"phase": "Exploration", "minutes": 3, "script": [2, 3], "title": "A different way", "show": "pair",
+         "items": VASE_OR_FACES,
+         "purpose": "Find the second reading: the same picture, two ways to see it.",
+         "students": ["Can anyone see it a different way?"]}],
+      "list": [
       "Show the old woman/young woman illusion (or vase/faces): *“What do you see?”*",
       "Let students share their first impressions",
       "Guide them to see the alternate interpretation: *“Can anyone see it a different way?”*",
       "*“Your eyes are looking at the same picture, but your brain can see it two different ways! This is called an optical illusion.”*"]}),
-    ("section", {"label": "Activity 2 · Spot the Difference · 6 minutes", "list": [
+    ("section", {"label": "Activity 2 · Spot the Difference · 6 minutes",
+      "screen": [
+        {"phase": "Exploration", "minutes": 3, "script": [0, 1], "title": "Spot the Difference", "show": "question",
+         "question": "At first glance, do these look the same or different?",
+         "purpose": "A quick first look, before any checking.",
+         "students": ["Same or different?"]},
+        {"phase": "Exploration", "minutes": 3, "script": [2, 3, 4], "title": "Look closer", "show": "question",
+         "question": "Now let’s be Brain Detectives and look closer…",
+         "purpose": "Students find the differences, and see why it pays to look again.",
+         "students": ["Sometimes we need to look closer before we decide what we’re seeing!"]}],
+      "list": [
       "Show two similar pictures with subtle differences",
       "*“At first glance, do these look the same or different?”* (Most will say same)",
       "*“Now let’s be Brain Detectives and look closer…”*",
       "Students identify differences",
       "*“See? Sometimes we need to look closer before we decide what we’re seeing!”*"]}),
     ("section", {"label": "Application · 6 minutes", "title": "Creating our class rules",
+      "screen": [
+        {"phase": "Application", "minutes": 2, "script": [0], "title": "Think about real life", "show": "question",
+         "question": "Has anyone ever thought someone took their pencil, but it was actually just in their desk? Or thought a friend was ignoring them, but they just didn’t hear?",
+         "purpose": "Bring the Brain Detective habit from pictures into everyday life.",
+         "students": ["Let’s think about real life."]},
+        {"phase": "Application", "minutes": 4, "script": [1, 2, 3, 4, 5, G12_CONTRIBUTE], "title": "Before I Decide, I Will…", "show": "question",
+         "question": "Before I Decide, I Will…",
+         "purpose": "Build the class chart together; children add their own ideas.",
+         "students": G12_RULES}],
       "body": ["*“Let’s think about real life. Has anyone ever thought someone took their pencil, but it was actually just in their desk? Or thought a friend was ignoring them, but they just didn’t hear?”*",
                "Create a class chart on chart paper: **“Before I Decide, I Will…”**"],
-      "list": ["Look closer", "Ask questions", "Check if I have all the information", "Remember my brain might be making a prediction"]}),
-    H(P("Let students contribute their own ideas. Hang the chart in the classroom as a reminder.")),
-    ("section", {"label": "Closing · 2 minutes", "body": [
+      "list": G12_RULES}),
+    H(P(G12_CONTRIBUTE)),
+    ("section", {"label": "Closing · 2 minutes",
+      "screen": {"phase": "Closing", "title": "This week, be a Brain Detective!", "show": "question",
+                 "question": "This week, be a Brain Detective!",
+                 "purpose": "Send the class off with one habit to practise this week.",
+                 "students": ["When you think you know what you’re seeing, pause and look closer first."]},
+      "body": [
       "*“This week, be a Brain Detective! When you think you know what you’re seeing, pause and look closer first. Sometimes our brains make guesses that aren’t quite right.”*"]}),
-    conn(["**Option 1 — Visit:** Students use a stereoscope that makes flat pictures look 3D, and see cards that change when you move them—fun tricks just like today’s optical illusions!",
-          f"**Option 2 — Virtual:** {WEB}"], url=None),
+    conn(G12_CONN, url=None),
     ("section", {"label": "Assessment", "body": [
       "**Exit ticket:** *“Draw or write about one time this week when you’ll be a Brain Detective and check before deciding.”*"]}),
     ("section", {"label": "Differentiated student handouts", "body": [
@@ -640,7 +743,32 @@ G12_RED = g12_handout("red", [
 G34 = "teachers/grades-3-4/"
 G34_HERO = {"img": EXH + "checker-shadow.jpg", "pos": "center 45%"}
 
+G34_MATERIALS = [
+    "Teacher-created fake social media post example (age-appropriate, obviously fictional)",
+    "Chart paper and markers for creating class “Fact-Checker Rules”",
+    f"**Mini Museum Perception Lab:** {LAB}",
+    "**Recommended from Perception Lab:** Checker Shadow (#1), Rotating Snakes (#8), Simultaneous Contrast (#2)"]
+G34_RULES = [
+    ("STOP before you share", "Take a breath. Don’t pass along information just because it’s exciting or upsetting."),
+    ("CHECK the source", "Who created this? Is it from a real, trusted place?"),
+    ("SEARCH for more", "Can you find this same information from other sources? If only one website says it, be suspicious."),
+    ("ASK an adult", "When in doubt, check with a parent, teacher, or librarian before believing or sharing."),
+    ("TRUST your gut", "If something seems too amazing, too scary, or too perfect—it might be fake.")]
+G34_SCENARIOS = [
+    "*“Your friend shows you a video of a celebrity saying something mean. What rules should you use?”* (CHECK the source, SEARCH for more)",
+    "*“You see a post saying school is canceled tomorrow, but it’s not from the school website.”* (CHECK the source, ASK an adult)",
+    "*“A website says you won a free video game, just click here!”* (TRUST your gut, ASK an adult)"]
+# each scenario as the class sees it, and the rules the plan gives for it
+G34_ASK = [re.sub(r"\s*\(([^)]*)\)$", "", s) for s in G34_SCENARIOS]
+G34_ANSWER = [re.search(r"\(([^)]*)\)$", s).group(1) for s in G34_SCENARIOS]
+G34_CLOSE = "*“When you visit the Mini Museum, you’ll see real artifacts that tricked people’s eyes over 100 years ago: a stereoscope from 1904 that makes flat pictures look 3D, and illusion cards that transform when you move them. Remember: Understanding HOW tricks work makes you harder to fool!”*"
+G34_CONN = ["**Option 1 — Visit the Mini Museum:** The exhibition features a 1904 Monarch Stereoscope with original Keystone view cards. Victorian audiences were amazed by these devices just as we’re amazed (and sometimes fooled) by digital manipulation today.",
+            f"**Option 2 — Virtual Visit:** Explore at {WEB} or view artifacts at {WEB}/artifacts"]
+OBJ = EXH + "artifacts/"
+
 G34_LESSON = {
+  "slug": "fact-checkers",
+  "screen_materials": G34_MATERIALS, "screen_connection": G34_CONN,
   "out": G34 + "Lesson Plan_ Fact-Checkers (Grades 3-4) - Teacher Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "Fact-Checkers",
   "sub": "How to Know What’s Real · Grades 3–4 · 30 minutes · General / Homeroom",
@@ -649,43 +777,86 @@ G34_LESSON = {
   "blocks": [
     ("timing", [("Hook", 5, "#7D8471"), ("Introduction", 5, "#2F4A5A"), ("Activity", 12, "#4A7346"), ("Practice", 5, "#86671A"), ("Closing", 3, "#A8452F")]),
     ("section", {"label": "Learning objective", "body": ["Students will understand that optical illusions demonstrate how easily our eyes and brains can be deceived, and will develop and apply five practical strategies for verifying information before believing or sharing it."]}),
-    H('<section class="sec mat"><p class="label">Materials needed</p>', bl([
-        "Teacher-created fake social media post example (age-appropriate, obviously fictional)",
-        "Chart paper and markers for creating class “Fact-Checker Rules”",
-        f"**Mini Museum Perception Lab:** {LAB}",
-        "**Recommended from Perception Lab:** Checker Shadow (#1), Rotating Snakes (#8), Simultaneous Contrast (#2)"]), "</section>"),
-    ("section", {"label": "Hook · 5 minutes", "title": "“Trust Your Eyes?” Challenge", "body": [
+    H('<section class="sec mat"><p class="label">Materials needed</p>', bl(G34_MATERIALS), "</section>"),
+    ("section", {"label": "Hook · 5 minutes", "title": "“Trust Your Eyes?” Challenge",
+      "screen": [
+        {"phase": "Hook", "minutes": 2, "script": [0, 1], "title": "Same or different?", "show": "image",
+         "img": {"img": EXH + "checker-shadow.jpg"}, "caption": "Checker Shadow",
+         "alt": "A checkerboard with a brown cylinder casting a shadow across it; square A sits outside the shadow, square B inside it",
+         "purpose": "Take a vote before the reveal, so every student commits to what they see.",
+         "students": ["Are they the same color or different colors?", "Vote with a show of hands."]},
+        {"phase": "Hook", "minutes": 1, "script": [1], "title": "Exactly the same color", "show": "image",
+         "img": {"img": EXH + "checker-reveal.jpg"}, "caption": "These squares are EXACTLY the same color!",
+         "alt": "The checkerboard taken away: squares A and B alone on black, the same gray",
+         "purpose": "The reveal: the eyes were fooled by the shadow around the squares.",
+         "students": ["Your brain changed what you saw based on shadows around them."]},
+        {"phase": "Hook", "minutes": 2, "script": [2, 3], "title": "Is this picture moving?", "show": "image",
+         "img": {"img": EXH + "rotating-snakes.jpg", "credit": "Rotating Snakes · Akiyoshi Kitaoka, 2003"},
+         "caption": "Rotating Snakes",
+         "alt": "Circles of blue, yellow and black snake-like rings that seem to turn",
+         "purpose": "A second trick, then the turn: what if someone tries to trick you on purpose?",
+         "students": ["Is this picture moving?"]}],
+      "body": [
       "**Opening demonstration:** Show the checkerboard shadow illusion (where two squares appear different colors but are identical).",
       "*“I’m going to show you two squares. Tell me: Are they the same color or different colors?”* Take a vote by show of hands. Reveal that they’re identical: *“These squares are EXACTLY the same color! Your brain changed what you saw based on shadows around them.”*",
       "**Second demonstration:** Show a motion illusion (rotating snakes or similar). *“Is this picture moving?”* (It’s completely still, but appears to move.)",
       "*“Your eyes are sending your brain information that isn’t true. This is fun with pictures—but what happens when someone TRIES to trick you on purpose?”*"]}),
-    ("section", {"label": "Introduction · 5 minutes", "title": "From optical illusions to real deception", "body": [
+    ("section", {"label": "Introduction · 5 minutes", "title": "From optical illusions to real deception",
+      "screen": {"phase": "Introduction", "show": "image",
+                 "img": {"img": EXH + "poster2.jpg"}, "caption": "A History of Lies: From Magic Lanterns to AI Deepfakes",
+                 "alt": "A History of Lies: From Magic Lanterns to AI Deepfakes poster: the title wrapped around a column of rippling blue and black stripes",
+                 "purpose": "Turn from tricks we enjoy to tricks played on people on purpose, then and now.",
+                 "students": ["Optical illusions are fun because we know they’re tricks.",
+                              "Today, you’re becoming Fact-Checkers!"]},
+      "body": [
       "*“Optical illusions are fun because we know they’re tricks. But throughout history, people have used visual tricks to fool others on purpose.”*",
       "**Historical example:** Briefly explain spirit photography (1860s–1900s): *“Over 100 years ago, photographers discovered they could make ‘ghosts’ appear in pictures by double-exposing film. They charged grieving families money to ‘photograph’ their dead relatives.”*",
       "**Modern connection:** *“Today, we have ‘deepfakes’—videos made by computers that make it look like someone said or did something they never actually did. And fake pictures and posts spread online every day.”*",
       "*“The good news? Just like you learned the shadow illusion was a trick, you can learn to spot fakes too. Today, you’re becoming Fact-Checkers!”*"]}),
     ("section", {"label": "Activity · 12 minutes", "title": "Creating our Fact-Checker Rules"}),
-    ("section", {"label": "Part 1 · Examining a fake post · 4 minutes", "body": [
+    ("section", {"label": "Part 1 · Examining a fake post · 4 minutes",
+      "screen": {"phase": "Activity", "title": "Examining a fake post", "show": "question",
+                 "question": "Before I tell you if this is real or fake, what questions should we ask about it?",
+                 "purpose": "Students find the questions a Fact-Checker asks before they are given the rules.",
+                 "students": ["Who said this?", "Where did it come from?", "Does this seem too good to be true?"]},
+      "body": [
       "Show your teacher-created fake social media post. Example: A post claiming “Scientists discover chocolate is healthier than vegetables!” with a fake news source.",
       "*“Before I tell you if this is real or fake, what questions should we ask about it?”*",
       "Guide students to generate questions: Who said this? Where did it come from? Does this seem too good to be true?"]}),
-    ("section", {"label": "Part 2 · Building our 5 Fact-Checker Rules · 8 minutes", "body": [
+    ("section", {"label": "Part 2 · Building our 5 Fact-Checker Rules · 8 minutes",
+      "screen": {"phase": "Activity", "script": [0] + [f"**{a}:** {b}" for a, b in G34_RULES],
+                 "title": "Our 5 Fact-Checker Rules", "show": "chart",
+                 "caption": "The five Fact-Checker Rules", "columns": ["Rule", "What it means"],
+                 "rows": [{"cells": [a, b]} for a, b in G34_RULES],
+                 "purpose": "Build the class chart together, one rule at a time.",
+                 "students": ["Create the class “Fact-Checker Rules” together."]},
+      "body": [
       "On chart paper, create the class “Fact-Checker Rules” together. Guide students toward these five strategies:"]}),
-    ("cards", [
-      ("STOP before you share", "Take a breath. Don’t pass along information just because it’s exciting or upsetting."),
-      ("CHECK the source", "Who created this? Is it from a real, trusted place?"),
-      ("SEARCH for more", "Can you find this same information from other sources? If only one website says it, be suspicious."),
-      ("ASK an adult", "When in doubt, check with a parent, teacher, or librarian before believing or sharing."),
-      ("TRUST your gut", "If something seems too amazing, too scary, or too perfect—it might be fake.")]),
-    ("section", {"label": "Practice · 5 minutes", "title": "Applying the rules", "body": [
-      "Give 2–3 quick scenarios and have students identify which Fact-Checker Rule(s) apply:"], "list": [
-      "*“Your friend shows you a video of a celebrity saying something mean. What rules should you use?”* (CHECK the source, SEARCH for more)",
-      "*“You see a post saying school is canceled tomorrow, but it’s not from the school website.”* (CHECK the source, ASK an adult)",
-      "*“A website says you won a free video game, just click here!”* (TRUST your gut, ASK an adult)"]}),
-    ("section", {"label": "Closing · 3 minutes", "title": "Connection to the Mini Museum", "body": [
-      "*“When you visit the Mini Museum, you’ll see real artifacts that tricked people’s eyes over 100 years ago: a stereoscope from 1904 that makes flat pictures look 3D, and illusion cards that transform when you move them. Remember: Understanding HOW tricks work makes you harder to fool!”*"]}),
-    conn(["**Option 1 — Visit the Mini Museum:** The exhibition features a 1904 Monarch Stereoscope with original Keystone view cards. Victorian audiences were amazed by these devices just as we’re amazed (and sometimes fooled) by digital manipulation today.",
-          f"**Option 2 — Virtual Visit:** Explore at {WEB} or view artifacts at {WEB}/artifacts"], url=None),
+    ("cards", G34_RULES),
+    ("section", {"label": "Practice · 5 minutes", "title": "Applying the rules",
+      "screen": [
+        {"phase": "Practice", "minutes": 3, "script": [0, 1, 2, 3], "title": "Which rules apply?", "show": "question",
+         "question": "Which Fact-Checker Rule(s) apply?",
+         "purpose": "Students try the rules on everyday situations.",
+         "students": G34_ASK},
+        {"phase": "Practice", "minutes": 2, "script": [1, 2, 3], "title": "The rules to use", "show": "chart",
+         "caption": "Which Fact-Checker Rules apply", "columns": ["Scenario", "Rules"],
+         "rows": [{"cells": [q, a]} for q, a in zip(G34_ASK, G34_ANSWER)],
+         "purpose": "Check the class’s answers against the plan’s.",
+         "students": ["Did you pick the same rules?"]}],
+      "body": [
+      "Give 2–3 quick scenarios and have students identify which Fact-Checker Rule(s) apply:"], "list": G34_SCENARIOS}),
+    ("section", {"label": "Closing · 3 minutes", "title": "Connection to the Mini Museum",
+      "screen": {"phase": "Closing", "show": "pair",
+                 "items": [
+                   {"img": OBJ + "stereoscope-thumb.jpg", "label": "Monarch Stereoscope",
+                    "alt": "The Monarch Stereoscope: a wooden viewer with a hooded eyepiece, a handle and a long arm that holds the card"},
+                   {"img": OBJ + "victorian-cards-thumb.jpg", "label": "Victorian Illusion Cards",
+                    "alt": "A Victorian illusion card on a stand, a red picture titled “Fish & Fishermann”"}],
+                 "purpose": "Link today’s tricks to the real objects in the exhibition.",
+                 "students": ["Understanding HOW tricks work makes you harder to fool!"]},
+      "body": [G34_CLOSE]}),
+    conn(G34_CONN, url=None),
     ("section", {"label": "Assessment", "list": [
       "**Formative:** During practice scenarios, observe which students can correctly identify appropriate Fact-Checker Rules.",
       "**Exit ticket:** *“Write down the 5 Fact-Checker Rules in your own words, OR draw a picture showing one time you’ll use them this week.”*",

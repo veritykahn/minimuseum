@@ -137,7 +137,40 @@ CARDS_CSS = """
 def bscard():
     return '<div class="bscard"><span class="cut">Cut along dashed line</span><span class="plus"></span><span class="dot"></span></div>'
 
+# Lesson mode (resources-src/export_lessons.py): "screen" on a section is for
+# the site only; build.py ignores it, so the PDF is unchanged. What the plan
+# says once and the screen shows again is written once, here.
+SCI_BLIND = ["Close left eye", "Hold card at arm’s length, focus on + with right eye",
+             "Slowly bring card closer — the dot will disappear!"]
+SCI_HOOK_SAY = "“The dot didn’t actually disappear — your brain just can’t see it. You have a REAL blind spot where the optic nerve connects. Your brain usually fills in this gap so you never notice. What does this tell us about how we see?”"
+SCI_EYE = [("1. Cornea", "Clear outer layer that bends (refracts) light"),
+           ("2. Pupil", "Opening that controls how much light enters (like camera aperture)"),
+           ("3. Lens", "Focuses light onto the back of the eye"),
+           ("4. Retina", "Light-sensitive layer with *rods* (light/dark, peripheral) and *cones* (color, center)"),
+           ("5. Optic nerve", "Carries electrical signals to brain (location of blind spot!)")]
+SCI_PART2 = "**Part 2: The Brain’s Role (3 min)**"
+SCI_BRAIN_SAY = "“Your eyes don’t ‘see’ anything. They just collect light and convert it to electrical signals. Your BRAIN creates the image. The retinal image is upside-down — your brain flips it. Your brain fills in gaps and makes predictions. Processing happens in the visual cortex at the back of your brain.”"
+SCI_PART3 = "**Part 3: Why This Matters (3 min)** — Illusions exploit these processes:"
+SCI_KINDS = [("Eye-based", "Afterimages (tire out cones), peripheral motion (rods vs. cones)"),
+             ("Brain-based", "Size illusions (context clues), ambiguous figures (brain picks interpretation)")]
+SCI_ILL = [("Color Afterimage", "Stare at colored image 30 sec, look at white paper.", "See opposite colors", "Cone cells fatigue; opposite cones fire stronger", "Retina (eye-based)"),
+           ("Hermann Grid", "White grid on black — gray dots at intersections.", "See dots that aren’t there", "Lateral inhibition — edge cells suppress neighbors", "Retina + early processing"),
+           ("Müller-Lyer", "Equal lines look different due to arrow endings.", "One line looks longer", "Brain interprets arrows as depth cues", "Visual cortex (brain-based)"),
+           ("Stereoscope", "Two flat images become 3D.", "Depth from flat images", "Each eye sees different image; brain combines", "Visual cortex")]
+SCI_CLOSE_SAY = "“Your visual system is sophisticated — but it has real limitations. Every illusion teaches us something about how we see. If your brain can be fooled by simple lines and colors, what else might it misinterpret? This is why scientists don’t just trust what they see — they measure, test, and verify.”"
+SCI_WHERE = "Where in the visual system does it occur?"
+
+def sci_ill(n, minutes, **screen):
+    """One of the four illusions: its card read aloud, shown as the plan
+       describes it, and the question of where it happens."""
+    t, d, w, y, l = SCI_ILL[n]
+    return {"phase": "Activity", "minutes": minutes, "script": [0, f"**Illusion {n + 1}: {t}** — {d}"],
+            "title": f"Illusion {n + 1}: {t}",
+            "purpose": "Students see the illusion, then decide where in the visual system it happens.",
+            "students": [SCI_WHERE], **screen}
+
 SCI_LP = {
+  "slug": "how-vision-works",
   "out": G + "science/Lesson Plan_ How Vision Works (Science 5-8) - Teacher Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "How Vision Works",
   "sub": "The Science of Seeing · Grades 5–8 · Science · 30 minutes", "foot": "Teacher Lesson Plan · Grades 5–8 Science",
@@ -157,32 +190,68 @@ SCI_LP = {
         "body": []}),
        ("html", p("**Recommended illusions from Perception Lab:** Hermann Grid (#20), Müller-Lyer (#12), Checker Shadow (#1), Lilac Chaser (#9 — afterimage), Simultaneous Contrast (#2), Ponzo Corridor (#10 — size constancy)"))]]),
     ("section", {"label": "Hook · 5 minutes", "title": "The Blind Spot Experiment",
-      "body": ["**Setup:** Distribute blind spot test cards. Instructions: (1) Close left eye, (2) Hold card at arm’s length, focus on + with right eye, (3) Slowly bring card closer — the dot will disappear!"]}),
-    ("html", say("“The dot didn’t actually disappear — your brain just can’t see it. You have a REAL blind spot where the optic nerve connects. Your brain usually fills in this gap so you never notice. What does this tell us about how we see?”")),
+      "screen": [
+        {"phase": "Hook", "minutes": 3, "script": [0], "show": "question",
+         "question": "Slowly bring card closer — the dot will disappear!",
+         "purpose": "Every student finds their own blind spot before any explanation.",
+         "students": SCI_BLIND},
+        {"phase": "Hook", "minutes": 2, "script": [SCI_HOOK_SAY], "title": "What does this tell us?", "show": "question",
+         "question": "What does this tell us about how we see?",
+         "purpose": "Name the blind spot, and raise the question the lesson answers.",
+         "students": ["The dot didn’t actually disappear — your brain just can’t see it."]}],
+      "body": ["**Setup:** Distribute blind spot test cards. Instructions: "
+               + ", ".join(f"({n}) {s}" for n, s in enumerate(SCI_BLIND, 1))]}),
+    ("html", say(SCI_HOOK_SAY)),
     ("section", {"label": "Direct instruction · 10 minutes", "title": "Eye Anatomy & Visual Processing",
+      "screen": [
+        {"phase": "Teach", "minutes": 4, "script": [0] + [f"**{a}** — {b}" for a, b in SCI_EYE],
+         "title": "The Eye as a Camera", "show": "chart",
+         "caption": "The path of light through the eye", "columns": ["Part", "What it does"],
+         "rows": [{"cells": [a, b]} for a, b in SCI_EYE],
+         "purpose": "Follow the path of light from the cornea to the optic nerve.",
+         "students": ["Follow the path of light from the cornea to the optic nerve."]},
+        {"phase": "Teach", "minutes": 3, "script": [SCI_PART2, SCI_BRAIN_SAY], "title": "The Brain’s Role", "show": "question",
+         "question": "Your BRAIN creates the image.",
+         "purpose": "The eye collects light; the brain makes the picture.",
+         "students": ["The retinal image is upside-down — your brain flips it.",
+                      "Your brain fills in gaps and makes predictions."]},
+        {"phase": "Teach", "minutes": 3, "script": [SCI_PART3] + [f"**{a}:** {b}" for a, b in SCI_KINDS],
+         "title": "Why This Matters", "show": "chart",
+         "caption": "Illusions exploit these processes", "columns": ["Kind", "Illusions"],
+         "rows": [{"cells": [a, b]} for a, b in SCI_KINDS],
+         "purpose": "Sort illusions into those that happen in the eye and those that happen in the brain.",
+         "students": ["Illusions exploit these processes."]}],
       "body": ["**Part 1: The Eye as a Camera (4 min)** — Using eye diagram, explain path of light:"]}),
-    ("refs", [("1. Cornea", "Clear outer layer that bends (refracts) light"),
-              ("2. Pupil", "Opening that controls how much light enters (like camera aperture)"),
-              ("3. Lens", "Focuses light onto the back of the eye"),
-              ("4. Retina", "Light-sensitive layer with *rods* (light/dark, peripheral) and *cones* (color, center)"),
-              ("5. Optic nerve", "Carries electrical signals to brain (location of blind spot!)")]),
-    ("html", p("**Part 2: The Brain’s Role (3 min)**")
-             + say("“Your eyes don’t ‘see’ anything. They just collect light and convert it to electrical signals. Your BRAIN creates the image. The retinal image is upside-down — your brain flips it. Your brain fills in gaps and makes predictions. Processing happens in the visual cortex at the back of your brain.”")
-             + p("**Part 3: Why This Matters (3 min)** — Illusions exploit these processes:")
-             + "<ul><li>" + md("**Eye-based:** Afterimages (tire out cones), peripheral motion (rods vs. cones)") + "</li><li>"
-             + md("**Brain-based:** Size illusions (context clues), ambiguous figures (brain picks interpretation)") + "</li></ul>"),
+    ("refs", SCI_EYE),
+    ("html", p(SCI_PART2)
+             + say(SCI_BRAIN_SAY)
+             + p(SCI_PART3)
+             + "<ul><li>" + "</li><li>".join(md(f"**{a}:** {b}") for a, b in SCI_KINDS) + "</li></ul>"),
     ("section", {"label": "Activity · 12 minutes", "title": "Analyzing Illusions Scientifically",
+      "screen": [
+        sci_ill(0, 2, show="question", question=SCI_ILL[0][1]),
+        sci_ill(1, 3, show="image", img={"img": S + "ghost-dots.jpg"}, caption=SCI_ILL[1][1],
+                alt="A white grid on black: gray dots seem to flicker where the white lines cross"),
+        sci_ill(2, 2, show="question", question=SCI_ILL[2][1]),
+        sci_ill(3, 2, show="image", img={"img": S + "artifacts/stereoscope-card-thumb.jpg"}, caption=SCI_ILL[3][1],
+                alt="A Keystone stereoscope card: two nearly identical photographs of a valley, side by side"),
+        {"phase": "Activity", "minutes": 3, "title": "Where does it happen?", "show": "chart",
+         "script": [f"**Illusion {n}: {t}** — *What:* {w} *Why:* {y} *Location:* {l}" for n, (t, d, w, y, l) in enumerate(SCI_ILL, 1)],
+         "caption": "Where in the visual system each illusion occurs", "columns": ["Illusion", "What", "Why", "Location"],
+         "rows": [{"cells": [t, w, y, l]} for t, d, w, y, l in SCI_ILL],
+         "purpose": "Check each answer: eye-based or brain-based, and why.",
+         "students": ["Eye-based or brain-based?"]}],
       "body": ["Present 3–4 illusions; students identify WHERE in visual system each occurs:"]}),
     ("html", '<div class="ill4">' + "".join(
         f'<div><span class="cn">{i:02d}</span><h4>Illusion {i}: {t}</h4>{p(d)}'
         f'<p><i>What:</i> {md(w)}</p><p><i>Why:</i> {md(y)}</p><p><i>Location:</i> {md(l)}</p></div>'
-        for i, (t, d, w, y, l) in enumerate([
-          ("Color Afterimage", "Stare at colored image 30 sec, look at white paper.", "See opposite colors", "Cone cells fatigue; opposite cones fire stronger", "Retina (eye-based)"),
-          ("Hermann Grid", "White grid on black — gray dots at intersections.", "See dots that aren’t there", "Lateral inhibition — edge cells suppress neighbors", "Retina + early processing"),
-          ("Müller-Lyer", "Equal lines look different due to arrow endings.", "One line looks longer", "Brain interprets arrows as depth cues", "Visual cortex (brain-based)"),
-          ("Stereoscope", "Two flat images become 3D.", "Depth from flat images", "Each eye sees different image; brain combines", "Visual cortex")], 1)) + "</div>"),
-    ("section", {"label": "Closing · 3 minutes", "title": "Connection to Critical Thinking"}),
-    ("html", say("“Your visual system is sophisticated — but it has real limitations. Every illusion teaches us something about how we see. If your brain can be fooled by simple lines and colors, what else might it misinterpret? This is why scientists don’t just trust what they see — they measure, test, and verify.”")),
+        for i, (t, d, w, y, l) in enumerate(SCI_ILL, 1)) + "</div>"),
+    ("section", {"label": "Closing · 3 minutes", "title": "Connection to Critical Thinking",
+      "screen": {"phase": "Closing", "script": [SCI_CLOSE_SAY], "show": "question",
+                 "question": "If your brain can be fooled by simple lines and colors, what else might it misinterpret?",
+                 "purpose": "Carry the lesson into how scientists work: measure, test, verify.",
+                 "students": ["This is why scientists don’t just trust what they see — they measure, test, and verify."]}}),
+    ("html", say(SCI_CLOSE_SAY)),
     ("cols", [
       [("connection", ["**Option 1 — Visit:** The 1904 Monarch Stereoscope demonstrates binocular vision. Each Keystone view card has two slightly different photographs — one for each eye. Your visual cortex fuses them into a single 3D scene.",
                        "**Option 2 — Virtual:** Explore the exhibition online:"])],
@@ -331,7 +400,33 @@ SCI_R = handout("Science", "science", "red", "The Science of Seeing",
 # ═══════════════════════════════════════════════════════════════════════
 ELA_HERO = {"img": S + "poster2.jpg", "pos": "center 45%"}
 
+ELA_SAY1 = "“This photograph was taken in the 1860s. The photographer charged grieving families a lot of money because he claimed he could photograph the spirits of their dead loved ones. Look at it carefully. Do you think it’s real?”"
+ELA_REVEAL = "Let students share initial reactions. Then reveal: *“This is a fake. The photographer used a technique called double exposure to add ‘ghosts’ to his pictures. He made a fortune before he was put on trial for fraud.”*"
+ELA_SAY2 = "“People have been manipulating images since photography was invented. Today we have Photoshop and AI deepfakes. The technology changes, but the challenge remains the same: How do we know what to believe? Today, you’re going to learn a systematic way to evaluate ANY source — visual or written — so you can protect yourself from being fooled.”"
+CRAAP = [("C", "Currency", "When was this created or updated?", ["Is the information recent enough for your topic?", "Are links functional? Is the site maintained?", "For images: When was the photo actually taken vs. when was it shared?"]),
+         ("R", "Relevance", "Does this relate to your needs?", ["Does it answer your question?", "Who is the intended audience?", "Is it at an appropriate level?"]),
+         ("A", "Authority", "Who created this?", ["Who is the author/creator? What are their credentials?", "Is there contact information?", "What does the URL tell you? (.edu, .gov, .org, .com)"]),
+         ("A", "Accuracy", "Is the information correct?", ["Can you verify this information elsewhere?", "Are sources cited?", "Are there spelling/grammar errors (often a red flag)?", "For images: Has this been altered? Does reverse image search show different contexts?"]),
+         ("P", "Purpose", "Why does this exist?", ["Is it trying to inform, persuade, sell, or entertain?", "Is it fact, opinion, or propaganda?", "Does the author/creator have a bias or agenda?", "For images: Was this created to document reality or to manipulate emotions?"])]
+ELA_PART2 = ["**Part 2: Independent/Partner Practice (7 minutes)** — Provide 2–3 sources for students to evaluate (mix of reliable and unreliable). Students can work individually or in pairs to apply the CRAAP test.",
+             "Suggested sources to include:"]
+ELA_SOURCES = ["A Wikipedia article (discuss: useful starting point, but check the citations)",
+               "A news article from a reputable source",
+               "A clearly biased website or social media post",
+               "An image shared out of context (reverse image search reveals the truth)"]
+ELA_CLOSE = ["“One more important distinction: Primary sources are original, firsthand accounts — a photograph taken at an event, a diary entry, an interview. Secondary sources analyze or interpret primary sources — a textbook chapter, a documentary, a news article about something.”",
+             "“Neither is automatically better, but knowing the difference matters. The spirit photographs we saw were PRIMARY sources — but they were still fake! Primary doesn’t mean true. You still need to apply the CRAAP test.”"]
+
+def craap(n, minutes):
+    """One letter of the CRAAP test: its question, and what to ask under it."""
+    L, t, q, xs = CRAAP[n]
+    return {"phase": "Teach", "minutes": minutes, "title": f"{L} · {t}", "show": "question",
+            "script": [f"**{L} — {t}:** {q}"] + xs, "question": " ".join(xs),
+            "purpose": "Take one letter of the test at a time, with the questions to ask under it.",
+            "students": [q]}
+
 ELA_LP = {
+  "slug": "evaluating-sources",
   "out": G + "ela/Lesson Plan_ Evaluating Sources (ELA 5-8) - Teacher Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "Evaluating Sources",
   "sub": "Visual and Written Evidence · Grades 5–8 · ELA · 30 minutes", "foot": "Teacher Lesson Plan · Grades 5–8 ELA",
@@ -353,34 +448,55 @@ ELA_LP = {
         "3–4 sources for practice evaluation (mix of reliable and unreliable)",
         "Optional: Student handouts (three levels available)"]})]]),
     ("section", {"label": "Hook · 5 minutes", "title": "The Ghost in the Photograph",
+      "screen": [
+        {"phase": "Hook", "minutes": 2, "script": [0, ELA_SAY1], "show": "question",
+         "question": "Look at it carefully. Do you think it’s real?",
+         "purpose": "Students judge a spirit photograph before they know how it was made.",
+         "students": ["Share your first reaction."]},
+        {"phase": "Hook", "minutes": 1, "script": [ELA_REVEAL], "title": "This is a fake", "show": "question",
+         "question": "The photographer used a technique called double exposure to add ‘ghosts’ to his pictures.",
+         "purpose": "The reveal: how the ghost got into the picture.",
+         "students": ["This is a fake."]},
+        {"phase": "Hook", "minutes": 2, "script": [ELA_SAY2], "title": "How do we know what to believe?", "show": "question",
+         "question": "The technology changes, but the challenge remains the same: How do we know what to believe?",
+         "purpose": "From one old fake to a method for judging any source today.",
+         "students": ["Today, you’re going to learn a systematic way to evaluate ANY source — visual or written."]}],
       "body": ["Display a spirit photograph from the 1860s–1900s (William Mumler’s work is a good example)."]}),
-    ("html", say("“This photograph was taken in the 1860s. The photographer charged grieving families a lot of money because he claimed he could photograph the spirits of their dead loved ones. Look at it carefully. Do you think it’s real?”")
-             + p("Let students share initial reactions. Then reveal: *“This is a fake. The photographer used a technique called double exposure to add ‘ghosts’ to his pictures. He made a fortune before being exposed as a fraud.”*")
-             + say("“People have been manipulating images since photography was invented. Today we have Photoshop and AI deepfakes. The technology changes, but the challenge remains the same: How do we know what to believe? Today, you’re going to learn a systematic way to evaluate ANY source — visual or written — so you can protect yourself from being fooled.”")),
+    ("html", say(ELA_SAY1) + p(ELA_REVEAL) + say(ELA_SAY2)),
     ("section", {"label": "Direct instruction · 10 minutes", "title": "The CRAAP Test",
+      "screen": [
+        {"phase": "Teach", "minutes": 2, "script": [0], "show": "chart",
+         "caption": "The CRAAP test", "columns": ["Criterion", "Ask"],
+         "rows": [{"cells": [f"**{L}** · {t}", q]} for L, t, q, xs in CRAAP],
+         "purpose": "The five letters at a glance, before taking each in turn.",
+         "students": ["Five questions to ask of any source."]},
+        craap(0, 1), craap(1, 1), craap(2, 2), craap(3, 2), craap(4, 2)],
       "body": ["*“Librarians and researchers use something called the CRAAP test to evaluate sources. Yes, it’s a funny name — but it helps you remember it!”*"]}),
     ("html", '<div class="ill4 craap">' + "".join(
         f'<div><span class="cn">{L}</span><h4>{md(t)}</h4><p class="q">{md(q)}</p>' + "".join(p(x) for x in xs) + "</div>"
-        for L, t, q, xs in [
-          ("C", "Currency", "When was this created or updated?", ["Is the information recent enough for your topic?", "Are links functional? Is the site maintained?", "For images: When was the photo actually taken vs. when was it shared?"]),
-          ("R", "Relevance", "Does this relate to your needs?", ["Does it answer your question?", "Who is the intended audience?", "Is it at an appropriate level?"]),
-          ("A", "Authority", "Who created this?", ["Who is the author/creator? What are their credentials?", "Is there contact information?", "What does the URL tell you? (.edu, .gov, .org, .com)"]),
-          ("A", "Accuracy", "Is the information correct?", ["Can you verify this information elsewhere?", "Are sources cited?", "Are there spelling/grammar errors (often a red flag)?", "For images: Has this been altered? Does reverse image search show different contexts?"]),
-          ("P", "Purpose", "Why does this exist?", ["Is it trying to inform, persuade, sell, or entertain?", "Is it fact, opinion, or propaganda?", "Does the author/creator have a bias or agenda?", "For images: Was this created to document reality or to manipulate emotions?"])]) + "</div>"),
+        for L, t, q, xs in CRAAP) + "</div>"),
     ("section", {"label": "Activity · 12 minutes", "title": "Evaluating Real Sources",
+      "screen": [
+        {"phase": "Activity", "minutes": 5, "script": [0, 1, 2, 3], "title": "Practice Together", "show": "question",
+         "question": "Let’s check Currency first. When was this written? Who’s the Authority here? Can we find information about the author? What’s the Purpose? Is this trying to inform us or persuade us?",
+         "purpose": "Walk through the test together on a clearly unreliable source.",
+         "students": ["Walk through the CRAAP test together."]},
+        {"phase": "Activity", "minutes": 7, "script": ELA_PART2 + ELA_SOURCES, "title": "Independent/Partner Practice", "show": "question",
+         "question": "Apply the CRAAP test.",
+         "purpose": "Students test a mix of reliable and unreliable sources on their own or in pairs.",
+         "students": ["Work individually or in pairs.", "Evaluate 2–3 sources: a mix of reliable and unreliable."]}],
       "body": ["**Part 1: Practice Together (5 minutes)** — Display a clearly unreliable source (example: a satirical news site, an outdated webpage, or a heavily biased blog). Walk through the CRAAP test together:"],
       "list": ["*“Let’s check Currency first. When was this written?”*",
                "*“Who’s the Authority here? Can we find information about the author?”*",
                "*“What’s the Purpose? Is this trying to inform us or persuade us?”*"]}),
-    ("section", {"label": "", "body": ["**Part 2: Independent/Partner Practice (7 minutes)** — Provide 2–3 sources for students to evaluate (mix of reliable and unreliable). Students can work individually or in pairs to apply the CRAAP test.",
-      "Suggested sources to include:"],
-      "list": ["A Wikipedia article (discuss: useful starting point, but check the citations)",
-               "A news article from a reputable source",
-               "A clearly biased website or social media post",
-               "An image shared out of context (reverse image search reveals the truth)"]}),
-    ("section", {"label": "Closing · 3 minutes", "title": "Primary vs. Secondary Sources"}),
-    ("html", say("“One more important distinction: Primary sources are original, firsthand accounts — a photograph taken at an event, a diary entry, an interview. Secondary sources analyze or interpret primary sources — a textbook chapter, a documentary, a news article about something.”",
-                 "“Neither is automatically better, but knowing the difference matters. The spirit photographs we saw were PRIMARY sources — but they were still fake! Primary doesn’t mean true. You still need to apply the CRAAP test.”")),
+    ("section", {"label": "", "body": ELA_PART2, "list": ELA_SOURCES}),
+    ("section", {"label": "Closing · 3 minutes", "title": "Primary vs. Secondary Sources",
+      "screen": {"phase": "Closing", "script": ELA_CLOSE, "show": "question",
+                 "question": "Primary doesn’t mean true.",
+                 "purpose": "Primary or secondary, a source still needs the CRAAP test.",
+                 "students": ["Primary sources are original, firsthand accounts.",
+                              "Secondary sources analyze or interpret primary sources."]}}),
+    ("html", say(*ELA_CLOSE)),
     ("connection", ["**Option 1 — Visit the Mini Museum:** The exhibition includes Victorian optical illusion cards and a stereoscope — both of which demonstrate how Victorians were fascinated by visual trickery. Spirit photography exploited this fascination AND people’s grief. The same principles apply today: manipulated images exploit our emotions and our trust in visual “evidence.”",
                     f"**Option 2 — Virtual Visit:** Explore the exhibition online, or view individual artifacts at {SITE}/artifacts"]),
     ("section", {"label": "Assessment", "body": [
@@ -393,8 +509,8 @@ ELA_LP = {
                 "red": "“I want to go deeper” — Find real misinformation, analyze how it spread, create verification guide"}),
     ("html", NEWPAGE),
     ("section", {"label": "Teacher resources & background", "title": "Background: spirit photography", "body": [
-      "William H. Mumler (1832–1884) was a Boston jewelry engraver who “discovered” he could photograph spirits in 1861. He charged $10 per photograph (about $350 today) to grieving families who wanted images of their deceased loved ones. His most famous client was Mary Todd Lincoln, who received a photograph showing Abraham Lincoln’s “ghost” behind her.",
-      "Mumler was put on trial for fraud in 1869. Photographers testified that his technique was simple double exposure — he used previously exposed plates to superimpose faint images onto new photographs. Despite strong evidence, Mumler was acquitted because the prosecution couldn’t definitively prove HOW the fakes were made. He continued practicing until his death."]}),
+      "William H. Mumler (1832–1884) was a Boston jewelry engraver who “discovered” he could photograph spirits in 1862. He charged about $10 — several times the price of an ordinary portrait — to grieving families who wanted images of their deceased loved ones. His most famous client was Mary Todd Lincoln, who received a photograph showing Abraham Lincoln’s “ghost” behind her.",
+      "Mumler was put on trial for fraud in 1869. Photographers testified that his technique was simple double exposure — he used previously exposed plates to superimpose faint images onto new photographs. Despite strong evidence, Mumler was acquitted because the prosecution couldn’t definitively prove HOW the fakes were made. His reputation never recovered, though he kept working as a photographer until he died in 1884."]}),
     ("section", {"label": "Why this history matters today", "body": ["Spirit photography teaches students several important lessons:"], "list": [
       "**Visual evidence has always been manipulable** — This isn’t a new problem created by Photoshop or AI",
       "**Emotional vulnerability increases susceptibility** — Mumler targeted grieving families; modern misinformation often targets fear, anger, or hope",
@@ -510,7 +626,7 @@ ELA_R = handout("ELA", "ela", "red", "Source Detective",
                      "**Question:** If we can’t always prove something is fake, how should we decide what to believe? What’s the role of trust, reputation, and multiple sources?"], "lines": 4}),
   ("html", box("Mini Museum deep dive", [
       "**Research Question:** How did newspapers and scientists eventually expose spirit photography as fraud? What techniques did investigators use, and how do modern fact-checkers use similar methods today?",
-      "**Historical Context:** Spirit photography emerged during the American Civil War, when hundreds of thousands of families were grieving lost soldiers. Mumler charged about $10 per photograph — equivalent to roughly $350 today. He targeted people at their most emotionally vulnerable.",
+      "**Historical Context:** Spirit photography emerged during the American Civil War, when hundreds of thousands of families were grieving lost soldiers. Mumler charged about $10 — several times the price of an ordinary portrait. He targeted people at their most emotionally vulnerable.",
       "**Modern Parallel:** Today’s misinformation often targets strong emotions: fear, anger, grief, hope. The technology changes, but the psychology remains the same."])),
   ("html", '<aside class="family"><p class="label">Share with your family</p>'
            + p("**Interview Project:** Interview an older family member about how they verified information before the internet existed. Ask them:")
@@ -526,7 +642,27 @@ ELA_R = handout("ELA", "ela", "red", "Source Detective",
 # ═══════════════════════════════════════════════════════════════════════
 SS_HERO = {"img": S + "poster1.jpg", "pos": "center 47%"}
 
+SS_SAY1 = "“These are the same photograph, taken on the same day. What’s different?”"
+SS_FIND = "Let students identify the missing person."
+SS_SAY2 = "“In the Soviet Union under Stalin, when political leaders fell out of favor — often executed — they were literally erased from photographs. The government controlled what people could see, rewriting history by manipulating images.”"
+SS_TECH = [("Bandwagon", "“Everyone is doing it — join in!” Appeals to desire to belong."),
+           ("Fear", "“Something terrible will happen if you don’t act.” Appeals to survival."),
+           ("Name-Calling", "Negative labels to create prejudice. Depicts enemies as subhuman."),
+           ("Glittering Generalities", "Vague positive words: “Freedom,” “Honor,” “Patriotism.”"),
+           ("Transfer", "Connecting respected symbols (flag, family) to your cause."),
+           ("Testimonial", "Famous or trusted person endorses something.")]
+SS_POSTER_QS = ["“What do you notice first?” (Visual hook)",
+                "“What emotion does this create?” (Fear, pride, anger, guilt)",
+                "“Which propaganda technique(s) is this using?”",
+                "“Who was the intended audience? What action did they want?”"]
+SS_ACT2 = [
+  "**Part 2: Photo Manipulation (4 min)** — Show examples: Soviet erasure of political enemies, Nazi manipulation of crowd sizes, Civil Rights–era photo cropping that changed meaning.",
+  "**Discussion:** *“Why is changing a photograph different from creating a poster? What makes doctored photos more dangerous?”*",
+  "**Part 3: Modern Connection (3 min)** — Briefly show a modern example (political ad, manipulated social media image, deepfake concept). *“The techniques are identical — only the technology has changed. How can you apply what you’ve learned to images you see today?”*"]
+SS_TAKEAWAYS = "**Key takeaways:** Ask: Who made this? What do they want me to feel/do/believe? Identify the technique being used. Check: Is this fact, opinion, or manipulation? Seek multiple perspectives before forming opinions."
+
 SS_LP = {
+  "slug": "visual-propaganda-through-history",
   "out": G + "social-studies/Lesson Plan_ Visual Propaganda Through History (Social Studies 5-8) - Teacher Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "Visual Propaganda Through History",
   "sub": "Grades 5–8 · Social Studies · 30 minutes", "foot": "Teacher Lesson Plan · Grades 5–8 Social Studies",
@@ -545,33 +681,54 @@ SS_LP = {
         "Soviet-era doctored photographs (showing removed political figures)",
         "Modern examples of political image manipulation (age-appropriate)"]})]]),
     ("section", {"label": "Hook · 5 minutes", "title": "The Disappearing Commissar",
+      "screen": [
+        {"phase": "Hook", "minutes": 3, "script": [0, SS_SAY1, SS_FIND], "show": "question",
+         "question": "These are the same photograph, taken on the same day. What’s different?",
+         "purpose": "Students spot the erased man before they hear why he was erased.",
+         "students": ["Find the missing person."]},
+        {"phase": "Hook", "minutes": 2, "script": [SS_SAY2], "title": "Erased from photographs", "show": "question",
+         "question": "The government controlled what people could see, rewriting history by manipulating images.",
+         "purpose": "Name what the erasure was for: control of what people could see.",
+         "students": ["Why erase someone from a photograph?"]}],
       "body": ["Display two versions of the famous Soviet photograph — the original showing Stalin with Nikolai Yezhov at the Moscow Canal, and the altered version with Yezhov removed after his 1940 execution."]}),
-    ("html", say("“These are the same photograph, taken on the same day. What’s different?”")
-             + p("Let students identify the missing person.")
-             + say("“In the Soviet Union under Stalin, when political leaders fell out of favor — often executed — they were literally erased from photographs. The government controlled what people could see, rewriting history by manipulating images.”")),
+    ("html", say(SS_SAY1) + p(SS_FIND) + say(SS_SAY2)),
     ("section", {"label": "Direct instruction · 10 minutes", "title": "Six Propaganda Techniques",
+      "screen": [
+        {"phase": "Teach", "minutes": 3, "script": [0], "title": "Define propaganda", "show": "question",
+         "question": "Information — especially biased or misleading — used to promote a political cause.",
+         "purpose": "A working definition to test every example against.",
+         "students": ["Not always lies; often selective truth, emotional manipulation, or exaggeration."]},
+        {"phase": "Teach", "minutes": 7, "script": [f"**{t}:** {d}" for t, d in SS_TECH], "show": "chart",
+         "caption": "Six propaganda techniques", "columns": ["Technique", "How it works"],
+         "rows": [{"cells": [f"{i:02d} · {t}", d]} for i, (t, d) in enumerate(SS_TECH, 1)],
+         "purpose": "Six names for the tricks students will look for in the activity.",
+         "students": ["Which of these have you seen before?"]}],
       "body": ["**Define propaganda:** Information — especially biased or misleading — used to promote a political cause. Not always lies; often selective truth, emotional manipulation, or exaggeration."]}),
     ("html", '<div class="ill4 six">' + "".join(
         f'<div><span class="cn">{i:02d}</span><h4>{md(t)}</h4>{p(d)}</div>'
-        for i, (t, d) in enumerate([
-          ("Bandwagon", "“Everyone is doing it — join in!” Appeals to desire to belong."),
-          ("Fear", "“Something terrible will happen if you don’t act.” Appeals to survival."),
-          ("Name-Calling", "Negative labels to create prejudice. Depicts enemies as subhuman."),
-          ("Glittering Generalities", "Vague positive words: “Freedom,” “Honor,” “Patriotism.”"),
-          ("Transfer", "Connecting respected symbols (flag, family) to your cause."),
-          ("Testimonial", "Famous or trusted person endorses something.")], 1)) + "</div>"),
+        for i, (t, d) in enumerate(SS_TECH, 1)) + "</div>"),
     ("section", {"label": "Activity · 12 minutes", "title": "Analyzing Propaganda Through Time",
+      "screen": [
+        {"phase": "Activity", "minutes": 5, "script": [0, 1, 2, 3, 4], "title": "WWI/WWII Posters", "show": "question",
+         "question": " ".join(_re.sub(r"\s*\([^)]*\)$", "", q).strip("“”") for q in SS_POSTER_QS),
+         "purpose": "Read each wartime poster with the same four questions.",
+         "students": ["Ask these of each poster."]},
+        {"phase": "Activity", "minutes": 4, "script": SS_ACT2[:2], "title": "Photo Manipulation", "show": "question",
+         "question": "Why is changing a photograph different from creating a poster? What makes doctored photos more dangerous?",
+         "purpose": "Compare a poster everyone knows is made with a photograph people trust.",
+         "students": ["Discuss with your class."]},
+        {"phase": "Activity", "minutes": 3, "script": SS_ACT2[2:], "title": "Modern Connection", "show": "question",
+         "question": "How can you apply what you’ve learned to images you see today?",
+         "purpose": "Bring the same techniques forward to images students see now.",
+         "students": ["The techniques are identical — only the technology has changed."]}],
       "body": ["**Part 1: WWI/WWII Posters (5 min)** — Display 2–3 wartime posters. For each, ask:"],
-      "list": ["“What do you notice first?” (Visual hook)",
-               "“What emotion does this create?” (Fear, pride, anger, guilt)",
-               "“Which propaganda technique(s) is this using?”",
-               "“Who was the intended audience? What action did they want?”"]}),
-    ("section", {"label": "", "body": [
-      "**Part 2: Photo Manipulation (4 min)** — Show examples: Soviet erasure of political enemies, Nazi manipulation of crowd sizes, Civil Rights–era photo cropping that changed meaning.",
-      "**Discussion:** *“Why is changing a photograph different from creating a poster? What makes doctored photos more dangerous?”*",
-      "**Part 3: Modern Connection (3 min)** — Briefly show a modern example (political ad, manipulated social media image, deepfake concept). *“The techniques are identical — only the technology has changed. How can you apply what you’ve learned to images you see today?”*"]}),
+      "list": SS_POSTER_QS}),
+    ("section", {"label": "", "body": SS_ACT2}),
     ("section", {"label": "Closing · 3 minutes", "title": "From Awareness to Action",
-      "body": ["**Key takeaways:** Ask: Who made this? What do they want me to feel/do/believe? Identify the technique being used. Check: Is this fact, opinion, or manipulation? Seek multiple perspectives before forming opinions."]}),
+      "screen": {"phase": "Closing", "show": "question",
+                 "question": SS_TAKEAWAYS.split(":** ", 1)[1],
+                 "purpose": "The key takeaways: habits to take from the lesson to every image."},
+      "body": [SS_TAKEAWAYS]}),
     ("cols", [
       [("connection", ["**Option 1 — Visit:** Spirit photography examples show how visual manipulation exploited grief for profit. Victorian illusion cards demonstrate the era’s fascination with visual trickery.",
                        "**Option 2 — Virtual:** Explore the exhibition online:"])],

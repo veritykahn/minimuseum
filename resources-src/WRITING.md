@@ -115,7 +115,20 @@ optional quoted `note`), `people` (a row of `people`: `img`, `alt`, `pos`,
 `coin`, `coinAlt`, `name`, `label`; `letters` marks them A, B…) and
 `person` (one `person`, `coinName`, `replica`, `story`, `ref`). A `painting`
 can take `alt` and `pos` for a picture other than the Tribute painting.
+`image` sets one picture large to look at closely (an illusion, an object):
+`img` `{img, pos?, credit?}`, `alt`, optional `caption` and `fit`. To reveal
+an answer, follow it with a second step showing the answer picture.
 A timed section may sit inside `cols`.
+
+A module may hold several plans (as `seeing-is-deceiving/subjects_a.py`
+does): every document in `DOCS` with a `"slug"` is exported, and its
+handouts are the leveled documents printed into the same folder. Where a
+plan prints a part as html rather than as a section, its own lists can still
+reach the screen: `"screen_materials"` and `"screen_connection"` on the plan
+give the materials and the Mini Museum connection, and `"screen_sections"`
+gives screens for a timed part printed as html — each `{label, after, body,
+screen}`, set after the printed section named by `after`, never printed. A
+`script` index counts through a section's paragraphs and then its bullets.
 
 For the youngest classes, `"large": True` on the `LESSON` sets the task
 lines larger, sets more than three coins in a row beneath the task and fewer
