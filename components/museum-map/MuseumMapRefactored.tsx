@@ -72,7 +72,7 @@ export default function MuseumMap() {
     return () => { delete root.dataset.mapFab; };
   }, [placement]);
 
-  // The same for a teacher projector screen (the poster walkthroughs).
+  // The same for a teacher projector screen (a game or a poster walkthrough).
   const projectorUp = useProjectorScreenUp();
 
   if (isHomePage || isLessonScreen || projectorUp) {

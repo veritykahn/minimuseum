@@ -1,132 +1,110 @@
 'use client';
 
-import { useState, useEffect, useMemo, useRef } from 'react';
-import { srOnly } from '@/lib/a11y';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Announcer from '@/components/games/Announcer';
+import GameResult from '@/components/games/GameResult';
+import Magnifier, { type Callout } from '@/components/games/Magnifier';
+import Verdict from '@/components/games/Verdict';
+import { tierFor } from '@/components/games/scoring';
+import { srOnly } from '@/lib/a11y';
+import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
+import { useScoredGame } from '@/components/games/useScoredGame';
+import TeachToggle from '@/components/games/projector/TeachToggle';
+import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
+import { CLOSING, OWN_CASE, ROUNDS, TIERS, fakeSides, type ReplicaRound, type Side } from './data';
+import RealOrReplicaProjector from './RealOrReplicaProjector';
 
-const rounds = [
-  {
-    id: 1,
-    coinName: "Dekadrachm of Athens",
-    fakeImage: "/exhibitions/in-their-hands/real-or-fake/Dekadrachm-fake.png",
-    realImage: "/exhibitions/in-their-hands/real-or-fake/Dekadrachm-real.png",
-    method: "Casting",
-    explanation: "This is a cast counterfeit. Look at the surface: the genuine coin has natural depth and variation in its patina built up over two thousand years. The fake has an unnaturally uniform surface. Cast reproductions copy the shape of an original coin by pouring molten metal into a mould, but they lack the die-stress lines of a struck coin. Small bubbles, reduced detail, and a different edge profile are all telltale signs. The owl on the genuine coin has crisp, individual feather lines — the fake's owl is softer and slightly blurred."
-  },
-  {
-    id: 2,
-    coinName: "Greek Drachm — Die Transfer Counterfeit",
-    fakeImage: "/exhibitions/in-their-hands/real-or-fake/die-transfer-fake.png",
-    realImage: "/exhibitions/in-their-hands/real-or-fake/die-transfer-real.png",
-    method: "Die Transfer",
-    explanation: "This is a die transfer counterfeit — one of the hardest fakes to spot. The counterfeiter created a mould from a genuine coin's die and used it to strike a new coin on a different blank. The design looks accurate at first glance, but compare the two carefully: the fake has a flatter, greyer appearance and the details lack the sharpness of the original strike. The metal composition is wrong — ancient coins have a specific alloy that modern fakes rarely match exactly. Experts use visual comparison with known genuine examples and sometimes X-ray analysis to catch these."
-  },
-  {
-    id: 3,
-    coinName: "Lysimachus Tetradrachm",
-    fakeImage: "/exhibitions/in-their-hands/real-or-fake/Lysimachus-fake.png",
-    realImage: "/exhibitions/in-their-hands/real-or-fake/Lysimachus-real.png",
-    method: "Sand Casting",
-    explanation: "This is a sand cast counterfeit. In sand casting, the counterfeiter presses a genuine coin into fine sand to make a mould, then pours molten metal into it. The result looks roughly right but the surface is grainy and soft. Compare the hair on the portrait: the genuine coin has sharp, individually defined curls with natural die-wear. The fake's hair is mushy and indistinct. The edge is also a giveaway — sand cast coins have a different edge texture to coins struck between two dies. The patina on the fake sits on the surface rather than penetrating the metal."
-  },
-  {
-    id: 4,
-    coinName: "Sestertius of Nero",
-    fakeImage: "/exhibitions/in-their-hands/real-or-fake/nero-fake.png",
-    realImage: "/exhibitions/in-their-hands/real-or-fake/nero-real.png",
-    method: "False Dies",
-    explanation: "This counterfeit was made using false dies — hand-engraved copies of the original dies used to strike coins that look very close to genuine. But look carefully at the portrait: the genuine coin has natural wear that softens the high points evenly, the way two thousand years of handling would. The fake's wear is artificial — made with a tumbler or sandpaper — and under magnification you would see small fractures instead of genuine smoothing. The genuine coin also has a lustrous quality when rotated that the fake lacks, because the metal composition is different."
-  },
-  {
-    id: 5,
-    coinName: "Widow's Mite — Lepton",
-    fakeImage: "/exhibitions/in-their-hands/real-or-fake/widow-fake.png",
-    realImage: "/exhibitions/in-their-hands/real-or-fake/widow-real.png",
-    method: "Modern Reproduction",
-    explanation: "This is a modern reproduction of a widow's mite. Ironically, fakes of cheap ancient coins often look too good. A genuine lepton was a low-denomination bronze coin mass-produced for daily use — the striking is crude, off-centre, and irregular. That's not poor quality, it's exactly what you expect. The fake is too clean, too symmetrical, too well-defined. The patina is chemically applied and sits on the surface unnaturally. If a lepton looks perfect, be suspicious. The imperfection is the proof of authenticity."
-  }
-];
+/** Numbered markers for one photograph, numbered in the order of the round's list. */
+function calloutsFor(round: ReplicaRound, on: 'fake' | 'real'): Callout[] {
+  return round.callouts
+    .map((c, i) => ({ ...c, n: i + 1 }))
+    .filter((c) => c.on === on)
+    .map(({ n, x, y }) => ({ n, x, y }));
+}
 
-type GameState = 'playing' | 'answered' | 'finished';
+const THEME = {
+  '--game-accent': '#C9A84C',
+  '--game-text': '#e8e0d0',
+  '--game-muted': '#a8a08e',
+  '--game-right': '#7cc98a',
+  '--game-wrong': '#e0b45c',
+  '--game-surface': '#1C1409',
+  '--game-display': "'Cormorant Garamond', serif",
+  '--game-body': "'Outfit', sans-serif",
+} as CSSProperties;
 
 export default function RealOrReplica() {
   const router = useRouter();
-  const [currentRound, setCurrentRound] = useState(0);
-  const [gameState, setGameState] = useState<GameState>('playing');
-  const [chosenSide, setChosenSide] = useState<'a' | 'b' | null>(null);
-  const [score, setScore] = useState(0);
-  const [loaded, setLoaded] = useState(false);
+  const seed = useClientSeed();
+  const [play, setPlay] = useState(0);
+  const [stage, setStage] = useState<'rounds' | 'own-case' | 'results'>('rounds');
+  const game = useScoredGame(ROUNDS.length);
 
-  // Randomise fake position per round on mount
-  const positions = useMemo(() =>
-    rounds.map(() => Math.random() < 0.5 ? 'a' : 'b'),
-    []
+  const sides = useMemo(
+    () => (seed === null ? null : fakeSides(nextSeed(seed, play), ROUNDS.length)),
+    [seed, play],
   );
 
+  const round = ROUNDS[game.index];
+  const fakeSide = sides?.[game.index] ?? 'a';
+  const imageFor = (side: Side) => (side === fakeSide ? round.fakeImage : round.realImage);
+  const answered = game.phase === 'feedback';
+  const chosen = game.current?.choice as Side | undefined;
+  const correct = game.current?.correct ?? false;
+
+  const choose = (side: Side) => game.answer(round.id, side, side === fakeSide);
+
+  const next = () => {
+    if (game.isLast) setStage('own-case');
+    game.next();
+  };
+
+  const restart = () => {
+    game.reset();
+    setPlay((p) => p + 1);
+    setStage('rounds');
+  };
+
+  const fakeLabel = `Coin ${fakeSide.toUpperCase()}`;
+  const announcement =
+    stage === 'rounds' && answered
+      ? `${correct ? 'Correct!' : 'Not quite.'} ${fakeLabel} is the fake. Score: ${game.score} of ${game.records.length}.`
+      : '';
+
+  const tier = tierFor(game.score, ROUNDS.length, TIERS);
+
+  // A new round removes the feedback that had focus: put focus on the question.
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const firstIndex = useRef(true);
   useEffect(() => {
-    const t = setTimeout(() => setLoaded(true), 100);
-    return () => clearTimeout(t);
-  }, []);
+    if (firstIndex.current) { firstIndex.current = false; return; }
+    if (game.phase === 'question') titleRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game.index, play]);
 
-  const round = rounds[currentRound];
-  const fakeOnA = positions[currentRound] === 'a';
-  const coinA = fakeOnA ? round.fakeImage : round.realImage;
-  const coinB = fakeOnA ? round.realImage : round.fakeImage;
-  const isCorrect = chosenSide !== null && ((chosenSide === 'a' && fakeOnA) || (chosenSide === 'b' && !fakeOnA));
-  const isLastRound = currentRound === rounds.length - 1;
+  // Teacher projector mode: its own order of fakes, so the game a visitor
+  // was playing is still there, unchanged, when the teacher exits.
+  const [projector, setProjector] = useProjectorMode();
+  const [projectorPlay, setProjectorPlay] = useState(0);
+  const projectorSides = useMemo(
+    () => (seed === null ? null : fakeSides(nextSeed(seed, 1000 + projectorPlay), ROUNDS.length)),
+    [seed, projectorPlay],
+  );
 
-  const handleChoice = (side: 'a' | 'b') => {
-    if (gameState !== 'playing') return;
-    setChosenSide(side);
-    const correct = (side === 'a' && fakeOnA) || (side === 'b' && !fakeOnA);
-    if (correct) setScore(s => s + 1);
-    setGameState('answered');
-  };
-
-  const nextRound = () => {
-    if (isLastRound) {
-      setGameState('finished');
-    } else {
-      setCurrentRound(r => r + 1);
-      setChosenSide(null);
-      setGameState('playing');
-    }
-  };
-
-  // After a guess the Fake buttons are disabled, so move focus to the
-  // verdict; on a new round, to the first coin's button; at the end, to
-  // the final result.
-  const verdictRef = useRef<HTMLParagraphElement>(null);
-  const firstBtnRef = useRef<HTMLButtonElement>(null);
-  const firstRender = useRef(true);
-  useEffect(() => {
-    if (firstRender.current) { firstRender.current = false; return; }
-    if (gameState === 'answered') verdictRef.current?.focus();
-    else if (gameState === 'playing') firstBtnRef.current?.focus();
-    else {
-      const title = document.querySelector<HTMLElement>('.rr-final-title');
-      if (title) { title.tabIndex = -1; title.style.outline = 'none'; title.focus(); }
-    }
-  }, [gameState, currentRound]);
-
-  const getBtnClass = (side: 'a' | 'b') => {
-    if (gameState !== 'answered') return '';
-    const isFake = (side === 'a' && fakeOnA) || (side === 'b' && !fakeOnA);
-    if (isFake) return 'rr-correct';
-    if (chosenSide === side) return 'rr-incorrect';
-    return '';
-  };
-
-  const getImageBorder = (side: 'a' | 'b') => {
-    if (gameState !== 'answered') return '';
-    const isFake = (side === 'a' && fakeOnA) || (side === 'b' && !fakeOnA);
-    if (isFake) return 'rr-img-correct';
-    if (chosenSide === side) return 'rr-img-incorrect';
-    return '';
-  };
+  if (projector) {
+    return (
+      <RealOrReplicaProjector
+        sides={projectorSides}
+        onExit={() => setProjector(false)}
+        onRestart={() => setProjectorPlay((p) => p + 1)}
+      />
+    );
+  }
 
   return (
-    <div className={`rr-page ${loaded ? 'rr-loaded' : ''}`}>
+    <div className="rr-page" style={THEME}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
 
@@ -136,10 +114,9 @@ export default function RealOrReplica() {
           min-height: 100vh;
           background: #1C1409;
           color: #fafafa;
-          opacity: 0;
-          transition: opacity 0.6s ease;
+          animation: rr-fade 0.6s ease both;
         }
-        .rr-page.rr-loaded { opacity: 1; }
+        @keyframes rr-fade { from { opacity: 0; } to { opacity: 1; } }
 
         /* ========== HEADER ========== */
         .rr-header {
@@ -167,16 +144,17 @@ export default function RealOrReplica() {
           text-transform: uppercase;
           cursor: pointer;
           transition: color 0.3s ease;
+          min-height: 44px;
         }
         .rr-back-btn:hover { color: #fafafa; }
         .rr-back-btn span { font-size: 18px; }
 
+        .rr-header-right { display: flex; align-items: center; gap: 20px; }
         .rr-score-display {
           font-family: 'Outfit', sans-serif;
           font-size: 12px;
           letter-spacing: 0.1em;
           color: #C9A84C;
-          opacity: 0.8;
         }
 
         /* ========== MAIN GAME AREA ========== */
@@ -194,7 +172,16 @@ export default function RealOrReplica() {
           font-weight: 300;
           color: #C9A84C;
           text-align: center;
-          margin-bottom: 40px;
+          margin-bottom: 8px;
+          outline: none;
+        }
+        .rr-hint {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          letter-spacing: 0.08em;
+          color: #a8a08e;
+          text-align: center;
+          margin-bottom: 32px;
         }
 
         .rr-coins-row {
@@ -204,12 +191,12 @@ export default function RealOrReplica() {
           justify-content: center;
           margin-bottom: 32px;
           width: 100%;
-          max-width: 900px;
+          max-width: 960px;
         }
 
         .rr-coin-slot {
           flex: 1;
-          max-width: 400px;
+          max-width: 440px;
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -218,21 +205,15 @@ export default function RealOrReplica() {
 
         .rr-coin-img-wrap {
           width: 100%;
-          aspect-ratio: 1;
+          min-height: 260px;
           border-radius: 12px;
-          overflow: hidden;
           background: #0d0a04;
           border: 3px solid transparent;
           transition: border-color 0.4s ease, box-shadow 0.4s ease;
           display: flex;
           align-items: center;
           justify-content: center;
-        }
-        .rr-coin-img-wrap img {
-          width: 100%;
-          height: 100%;
-          object-fit: contain;
-          padding: 12px;
+          padding: 16px;
         }
         .rr-coin-img-wrap.rr-img-correct {
           border-color: #4A7C59;
@@ -248,13 +229,26 @@ export default function RealOrReplica() {
           font-size: 12px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #8a8a8a;
+          color: #a8a08e;
+          display: flex;
+          gap: 8px;
+          align-items: center;
         }
+        .rr-tag {
+          font-size: 10px;
+          padding: 3px 8px;
+          border-radius: 100px;
+          border: 1px solid currentColor;
+          letter-spacing: 0.12em;
+        }
+        .rr-tag-fake { color: #e0b45c; }
+        .rr-tag-real { color: #7cc98a; }
 
         .rr-fake-btn {
+          min-height: 44px;
           padding: 10px 32px;
           border-radius: 100px;
-          border: 1px solid rgba(201, 168, 76, 0.4);
+          border: 1px solid rgba(201, 168, 76, 0.6);
           background: transparent;
           color: #C9A84C;
           font-family: 'Outfit', sans-serif;
@@ -268,78 +262,105 @@ export default function RealOrReplica() {
           background: rgba(201, 168, 76, 0.1);
           border-color: #C9A84C;
         }
-        .rr-fake-btn:disabled {
-          cursor: default;
-          opacity: 0.4;
-        }
-        .rr-fake-btn.rr-correct {
-          background: rgba(74, 124, 89, 0.2);
-          border-color: #4A7C59;
-          color: #6BBF7A;
-        }
-        .rr-fake-btn.rr-incorrect {
-          background: rgba(201, 168, 76, 0.15);
-          border-color: #C9A84C;
-          color: #C9A84C;
-        }
 
         /* ========== RESULT CARD ========== */
         .rr-result {
           width: 100%;
-          max-width: 900px;
+          max-width: 960px;
           background: #F5EDD8;
           border-radius: 12px;
           padding: 32px 36px;
-          margin-top: 24px;
-          animation: rr-slide-up 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-top: 8px;
+          --game-right: #2f6b40;
+          --game-wrong: #8a5a00;
+          --game-accent: #8a6a1c;
+          --game-muted: #6b5f4d;
+          --game-text: #3D3428;
         }
-        @keyframes rr-slide-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
         .rr-result-verdict {
           font-family: 'Cormorant Garamond', serif;
           font-size: 1.6rem;
           font-weight: 500;
-          margin-bottom: 4px;
+          margin-bottom: 8px;
         }
-        .rr-result-verdict.correct { color: #4A7C59; }
-        .rr-result-verdict.incorrect { color: #B8860B; }
-
         .rr-result-coin {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.2rem;
-          color: #C9A84C;
+          font-size: 1.25rem;
+          color: #7a5c14;
           margin-bottom: 4px;
         }
-
         .rr-result-method {
           font-family: 'Outfit', sans-serif;
-          font-size: 10px;
+          font-size: 11px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #8B7D6B;
+          color: #6b5f4d;
           margin-bottom: 16px;
           padding-bottom: 12px;
-          border-bottom: 1px solid rgba(139, 125, 107, 0.2);
+          border-bottom: 1px solid rgba(139, 125, 107, 0.25);
         }
-
         .rr-result-explanation {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.05rem;
+          font-size: 1.1rem;
           line-height: 1.8;
           color: #3D3428;
+          margin-bottom: 20px;
+        }
+        .rr-look-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
+          color: #6b5f4d;
+          margin-bottom: 10px;
+        }
+        .rr-look {
+          list-style: none;
+          display: grid;
+          gap: 8px;
           margin-bottom: 24px;
         }
-
+        .rr-look li {
+          display: flex;
+          gap: 12px;
+          align-items: baseline;
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.05rem;
+          line-height: 1.5;
+          color: #3D3428;
+        }
+        .rr-look-n {
+          flex: 0 0 auto;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          color: #111;
+          transform: translateY(-2px);
+        }
+        .rr-look-n.fake { background: #e0b45c; }
+        .rr-look-n.real { background: #7cc98a; }
+        .rr-look-where {
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          color: #6b5f4d;
+          margin-right: 6px;
+        }
+        .rr-result-foot { display: flex; justify-content: flex-end; }
         .rr-next-btn {
-          float: right;
+          min-height: 44px;
           padding: 12px 28px;
           border-radius: 100px;
           border: none;
-          background: #C9A84C;
-          color: #1C1409;
+          background: #2a1f0e;
+          color: #F5EDD8;
           font-family: 'Outfit', sans-serif;
           font-size: 12px;
           letter-spacing: 0.12em;
@@ -347,180 +368,344 @@ export default function RealOrReplica() {
           cursor: pointer;
           transition: all 0.3s ease;
         }
-        .rr-next-btn:hover {
-          background: #D4B35C;
+        .rr-next-btn:hover { background: #4a3818; }
+        .rr-next-btn:focus-visible, .rr-fake-btn:focus-visible, .rr-back-btn:focus-visible, .rr-flip:focus-visible {
+          outline: 2px solid #C9A84C;
+          outline-offset: 3px;
         }
+        .rr-result .rr-next-btn:focus-visible { outline-color: #2a1f0e; }
 
-        /* ========== FINAL SCREEN ========== */
-        .rr-final {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 100vh;
-          padding: 80px 40px;
+        /* ========== OUR OWN CASE ========== */
+        .rr-own {
+          max-width: 1040px;
+          width: 100%;
           text-align: center;
         }
-
-        .rr-final-score {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(4rem, 12vw, 7rem);
-          font-weight: 300;
-          color: #C9A84C;
-          line-height: 1;
-          margin-bottom: 8px;
-        }
-
-        .rr-final-of {
+        .rr-own-kicker {
           font-family: 'Outfit', sans-serif;
-          font-size: 14px;
+          font-size: 11px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #737373;
+          color: #a8a08e;
+          margin-bottom: 10px;
+        }
+        .rr-own-intro {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.2rem;
+          line-height: 1.75;
+          color: #e8e0d0;
+          max-width: 680px;
+          margin: 0 auto 36px;
+        }
+        .rr-own-grid {
+          list-style: none;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 28px;
+          text-align: left;
           margin-bottom: 40px;
         }
-
-        .rr-final-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1.8rem, 5vw, 2.6rem);
-          font-weight: 300;
-          font-style: italic;
-          color: #C9A84C;
-          margin-bottom: 32px;
+        .rr-own-card {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          animation: rr-rise 0.5s cubic-bezier(0.2, 0.7, 0.2, 1) both;
         }
-
-        .rr-final-text {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1.1rem;
-          line-height: 1.8;
-          color: #d0d0d0;
-          max-width: 600px;
-          margin-bottom: 48px;
+        .rr-own-card:nth-child(2) { animation-delay: 0.1s; }
+        .rr-own-card:nth-child(3) { animation-delay: 0.2s; }
+        @keyframes rr-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+        .rr-own-frame {
+          background: #0d0a04;
+          border-radius: 12px;
+          padding: 36px 18px 18px;
+          height: 320px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
         }
-
-        .rr-final-btn {
-          padding: 16px 36px;
+        .rr-own-badge {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          z-index: 4;
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          padding: 4px 9px;
           border-radius: 100px;
-          border: 1px solid rgba(201, 168, 76, 0.4);
+          background: #e0b45c;
+          color: #1C1409;
+        }
+        .rr-own-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.3rem;
+          color: #C9A84C;
+          line-height: 1.3;
+        }
+        .rr-own-meta {
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          letter-spacing: 0.08em;
+          color: #a8a08e;
+          line-height: 1.6;
+        }
+        .rr-own-why {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.05rem;
+          line-height: 1.6;
+          color: #e8e0d0;
+        }
+        .rr-own-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+        .rr-flip {
+          min-height: 36px;
+          padding: 6px 16px;
+          border-radius: 100px;
+          border: 1px solid rgba(201, 168, 76, 0.6);
           background: transparent;
           color: #C9A84C;
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
-          letter-spacing: 0.15em;
+          font-size: 11px;
+          letter-spacing: 0.12em;
           text-transform: uppercase;
           cursor: pointer;
-          transition: all 0.3s ease;
         }
-        .rr-final-btn:hover {
-          background: rgba(201, 168, 76, 0.1);
-          border-color: #C9A84C;
+        .rr-flip[aria-pressed='true'] { background: rgba(201, 168, 76, 0.15); }
+        .rr-own-link {
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          color: #C9A84C;
+          text-underline-offset: 3px;
+        }
+        .rr-final {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 100vh;
+          padding: 100px 32px 60px;
+        }
+        .rr-final-closing {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.05rem;
+          line-height: 1.8;
+          color: #c9c2b4;
+          max-width: 600px;
+          margin: 4px auto 32px;
         }
 
         /* ========== MOBILE ========== */
+        @media (max-width: 860px) {
+          .rr-own-grid { grid-template-columns: 1fr; max-width: 420px; margin-left: auto; margin-right: auto; }
+        }
         @media (max-width: 700px) {
-          .rr-main { padding: 90px 20px 40px; }
+          .rr-header { padding: 14px 16px; }
+          .rr-header-right { gap: 10px; }
+          .rr-main { padding: 84px 16px 40px; }
           .rr-coins-row {
             flex-direction: column;
-            gap: 24px;
+            gap: 28px;
             align-items: center;
           }
-          .rr-coin-slot { max-width: 280px; }
+          .rr-coin-slot { max-width: 100%; width: 100%; }
           .rr-result { padding: 24px 20px; }
+          .rr-final { padding: 90px 16px 40px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .rr-page, .rr-own-card { animation: none; }
         }
       `}</style>
 
       {/* Header */}
       <header className="rr-header">
         <button className="rr-back-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
-          <span>{'\u2190'}</span>
+          <span aria-hidden="true">{'←'}</span>
           Exhibition
         </button>
-        {gameState !== 'finished' && (
-          <span className="rr-score-display">
-            Round {currentRound + 1} of {rounds.length} &middot; Score: {score}
-          </span>
-        )}
+        <div className="rr-header-right">
+          {stage === 'rounds' && (
+            <span className="rr-score-display">
+              Round {game.index + 1} of {ROUNDS.length} &middot; Score: {game.score}
+            </span>
+          )}
+          <TeachToggle onClick={() => setProjector(true)} style={{ color: '#C9A84C', fontFamily: "'Outfit', sans-serif" }} />
+        </div>
       </header>
 
-      <div style={srOnly} role="status" aria-live="polite">
-        {gameState === 'answered'
-          ? `${isCorrect ? 'Correct!' : 'Not quite!'} Coin ${fakeOnA ? 'A' : 'B'} was the fake.`
-          : gameState === 'finished'
-            ? `You scored ${score} out of ${rounds.length}.`
-            : currentRound > 0 ? `Round ${currentRound + 1} of ${rounds.length}.` : ''}
-      </div>
+      <Announcer message={announcement} />
 
-      {gameState !== 'finished' ? (
+      {stage === 'rounds' && (
         <div className="rr-main">
-          <h1 className="rr-title">Which is the fake?</h1>
+          <h1 className="rr-title" ref={titleRef} tabIndex={-1}>Which is the fake?</h1>
+          <p className="rr-hint">Hover, tap or focus a coin to look through the magnifier.</p>
 
-          <div className="rr-coins-row">
-            {/* Coin A */}
-            <div className="rr-coin-slot">
-              <div className={`rr-coin-img-wrap ${getImageBorder('a')}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={coinA} alt="Coin A" />
-              </div>
-              <span className="rr-coin-label">Coin A</span>
-              <button
-                type="button"
-                ref={firstBtnRef}
-                aria-label="Coin A is the fake"
-                className={`rr-fake-btn ${getBtnClass('a')}`}
-                onClick={() => handleChoice('a')}
-                disabled={gameState === 'answered'}
-              >
-                Fake
-              </button>
+          {sides && (
+            <div className="rr-coins-row">
+              {(['a', 'b'] as Side[]).map((side) => {
+                const isFake = side === fakeSide;
+                const border = !answered ? '' : isFake ? 'rr-img-correct' : chosen === side ? 'rr-img-incorrect' : '';
+                return (
+                  <div className="rr-coin-slot" key={`${round.id}-${side}`}>
+                    <div className={`rr-coin-img-wrap ${border}`}>
+                      <Magnifier
+                        src={imageFor(side)}
+                        alt={`Coin ${side.toUpperCase()}: ${round.coinName}, both faces`}
+                        callouts={answered ? calloutsFor(round, isFake ? 'fake' : 'real') : undefined}
+                        calloutTone={isFake ? 'wrong' : 'right'}
+                      />
+                    </div>
+                    <span className="rr-coin-label">
+                      Coin {side.toUpperCase()}
+                      {answered && (
+                        <span className={`rr-tag ${isFake ? 'rr-tag-fake' : 'rr-tag-real'}`}>
+                          {isFake ? 'Fake' : 'Genuine'}
+                        </span>
+                      )}
+                    </span>
+                    {!answered && (
+                      <button
+                        type="button"
+                        aria-label={`Coin ${side.toUpperCase()} is the fake`}
+                        className="rr-fake-btn"
+                        onClick={() => choose(side)}
+                      >
+                        Fake
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
+          )}
 
-            {/* Coin B */}
-            <div className="rr-coin-slot">
-              <div className={`rr-coin-img-wrap ${getImageBorder('b')}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={coinB} alt="Coin B" />
-              </div>
-              <span className="rr-coin-label">Coin B</span>
-              <button
-                type="button"
-                aria-label="Coin B is the fake"
-                className={`rr-fake-btn ${getBtnClass('b')}`}
-                onClick={() => handleChoice('b')}
-                disabled={gameState === 'answered'}
-              >
-                Fake
-              </button>
-            </div>
-          </div>
-
-          {/* Result card */}
-          {gameState === 'answered' && (
+          {answered && (
             <div className="rr-result">
-              <p className={`rr-result-verdict ${isCorrect ? 'correct' : 'incorrect'}`} ref={verdictRef} tabIndex={-1} style={{ outline: 'none' }}>
-                {isCorrect ? 'Correct!' : 'Not quite!'}
-              </p>
-              <p className="rr-result-coin">{round.coinName}</p>
-              <p className="rr-result-method">Method: {round.method}</p>
-              <p className="rr-result-explanation">{round.explanation}</p>
-              <button type="button" className="rr-next-btn" onClick={nextRound}>
-                {isLastRound ? 'See Results' : 'Next Round'} <span aria-hidden="true">{'\u2192'}</span>
-              </button>
+              <Verdict
+                tone={correct ? 'right' : 'wrong'}
+                titleClassName="rr-result-verdict"
+                title={correct ? `Correct! ${fakeLabel} is the fake.` : `Not quite — ${fakeLabel} is the fake.`}
+              >
+                <p className="rr-result-coin">{round.coinName}</p>
+                <p className="rr-result-method">Method: {round.method}</p>
+                <p className="rr-result-explanation">{round.explanation}</p>
+                <p className="rr-look-title" id="rr-look-title">Look closer — the numbers on the coins</p>
+                <ol className="rr-look" aria-labelledby="rr-look-title">
+                  {round.callouts.map((c, i) => (
+                    <li key={i}>
+                      <span className={`rr-look-n ${c.on}`} aria-hidden="true">{i + 1}</span>
+                      <span>
+                        <span className="rr-look-where">
+                          {c.on === 'fake' ? 'Fake' : 'Genuine'} (coin {(c.on === 'fake' ? fakeSide : fakeSide === 'a' ? 'b' : 'a').toUpperCase()})
+                        </span>
+                        {c.text}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+                <div className="rr-result-foot">
+                  <button type="button" className="rr-next-btn" onClick={next}>
+                    {game.isLast ? 'One more case' : 'Next Round'} <span aria-hidden="true">{'→'}</span>
+                  </button>
+                </div>
+              </Verdict>
             </div>
           )}
         </div>
-      ) : (
+      )}
+
+      {stage === 'own-case' && <OwnCase onDone={() => setStage('results')} />}
+
+      {stage === 'results' && (
         <div className="rr-final">
-          <p className="rr-final-score">{score}</p>
-          <p className="rr-final-of">out of {rounds.length}</p>
-          <h1 className="rr-final-title">You are now a numismatist.</h1>
-          <p className="rr-final-text">
-            Every coin in this exhibition was once held by someone. The question of whether a coin is genuine is not an academic exercise — it is the question of whether the object in front of you really was there. A genuine Pontius Pilate prutah was minted in Jerusalem in the year of the Crucifixion. Someone held it. That matters. Authentication is how we protect that connection between the present and the past.
-          </p>
-          <button className="rr-final-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
-            Back to Exhibition {'\u2192'}
-          </button>
+          <GameResult
+            level={1}
+            eyebrow="Real or Replica?"
+            score={game.score}
+            scoreCaption={`out of ${ROUNDS.length}`}
+            title={tier.title}
+            message={<p>{tier.message}</p>}
+            pips={game.records.map((r) => ({
+              label: ROUNDS.find((x) => x.id === r.itemId)?.coinName ?? r.itemId,
+              correct: r.correct,
+            }))}
+            pipsLabel="Your rounds"
+            actions={[
+              { label: 'Play again', onClick: restart, primary: true },
+              { label: 'Back to Exhibition', href: '/exhibitions/in-their-hands' },
+            ]}
+          >
+            <p className="rr-final-closing">{CLOSING}</p>
+          </GameResult>
         </div>
       )}
+    </div>
+  );
+}
+
+function OwnCase({ onDone }: { onDone: () => void }) {
+  const [flipped, setFlipped] = useState<Record<string, boolean>>({});
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  useEffect(() => { headingRef.current?.focus(); }, []);
+  return (
+    <div className="rr-main">
+      <section className="rr-own" aria-labelledby="rr-own-title">
+        <p className="rr-own-kicker">Final round · Our own case</p>
+        <h1
+          className="rr-title"
+          id="rr-own-title"
+          tabIndex={-1}
+          ref={headingRef}
+        >
+          Three replicas — and we say so
+        </h1>
+        <p className="rr-own-intro">
+          Three coins in Case 7 of this exhibition are replicas, and their labels say so. Original
+          examples are exceptionally rare, so the museum shows museum-quality replicas instead —
+          and tells you which ones they are. Look closely, then turn each one over.
+        </p>
+        <ul className="rr-own-grid">
+          {OWN_CASE.map((c) => {
+            const back = !!flipped[c.id];
+            return (
+              <li className="rr-own-card" key={c.id}>
+                <div className="rr-own-frame">
+                  <span className="rr-own-badge">Replica</span>
+                  <Magnifier
+                    src={back ? c.backImage : c.frontImage}
+                    alt={`${c.title}, ${back ? 'reverse' : 'obverse'} (replica)`}
+                    lens={140}
+                    maxHeight={250}
+                  />
+                </div>
+                <h2 className="rr-own-title">{c.title}</h2>
+                <p className="rr-own-meta">
+                  {c.date} · {c.material} · {c.reference}
+                </p>
+                <p className="rr-own-why">{c.why}</p>
+                <div className="rr-own-actions">
+                  <button
+                    type="button"
+                    className="rr-flip"
+                    aria-pressed={back}
+                    onClick={() => setFlipped((f) => ({ ...f, [c.id]: !f[c.id] }))}
+                  >
+                    {back ? 'Show the front' : 'Turn it over'}
+                    <span style={srOnly}>
+                      {` (${c.title})`}
+                    </span>
+                  </button>
+                  <Link className="rr-own-link" href={`/exhibitions/in-their-hands/artifacts/case-7/${c.id}`}>
+                    See it in Case 7
+                  </Link>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+        <button type="button" className="rr-next-btn" style={{ background: '#C9A84C', color: '#1C1409' }} onClick={onDone}>
+          See your results <span aria-hidden="true">{'→'}</span>
+        </button>
+      </section>
     </div>
   );
 }

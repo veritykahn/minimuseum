@@ -6,7 +6,31 @@ type UseCarouselOptions = {
   totalItems: number;
   initialIndex?: number;
   fadeDuration?: number;
+  /**
+   * The lowest index "previous" may reach once past it. The illusions page
+   * passes 1 so ← from the first illusion stays put (its button is disabled)
+   * instead of falling back to the intro.
+   */
+  minIndex?: number;
 };
+
+/**
+ * Whether a keydown belongs to something else on the page: a control that
+ * uses arrow keys itself (sliders, text fields, a magnifier), or an open modal
+ * dialog — "The Science" card, the museum map — which owns the keyboard.
+ */
+export function keyBelongsElsewhere(e: KeyboardEvent): boolean {
+  if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return true;
+  const t = e.target as HTMLElement | null;
+  if (t && t.closest?.('input, textarea, select, [contenteditable="true"], [role="slider"], [aria-roledescription="magnifier"]')) return true;
+  const dialogs = document.querySelectorAll<HTMLElement>('[role="dialog"][aria-modal="true"], dialog[open]');
+  for (const d of dialogs) {
+    if (d.hasAttribute('inert')) continue;
+    const style = window.getComputedStyle(d);
+    if (style.visibility !== 'hidden' && style.display !== 'none') return true;
+  }
+  return false;
+}
 
 /**
  * Hook for managing carousel navigation with fade transitions
@@ -15,13 +39,14 @@ export function useCarousel({
   totalItems,
   initialIndex = 0,
   fadeDuration = 400,
+  minIndex = 0,
 }: UseCarouselOptions) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [fadeIn, setFadeIn] = useState(true);
   const [animationKey, setAnimationKey] = useState(0);
 
   const canGoNext = currentIndex < totalItems - 1;
-  const canGoPrev = currentIndex > 0;
+  const canGoPrev = currentIndex > minIndex;
 
   const animateTransition = useCallback(
     (callback: () => void) => {
@@ -63,10 +88,12 @@ export function useCarousel({
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      if (keyBelongsElsewhere(e)) return;
+      // Left and right only: up and down still scroll a tall slide.
+      if (e.key === 'ArrowRight') {
         e.preventDefault();
         next();
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      } else if (e.key === 'ArrowLeft') {
         e.preventDefault();
         prev();
       }
