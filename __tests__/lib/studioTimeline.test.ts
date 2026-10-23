@@ -83,7 +83,7 @@ describe('coin story links', () => {
   });
 
   it('links to Hands of History only for coins that are a round there, without naming the character', () => {
-    const hands = fs.readFileSync(path.join(root, 'app/exhibitions/in-their-hands/hands/page.tsx'), 'utf8');
+    const hands = fs.readFileSync(path.join(root, 'app/exhibitions/in-their-hands/hands/data.ts'), 'utf8');
     const roundNames = [...hands.matchAll(/coinName: "([^"]+)"/g)].map(m =>
       m[1].replace(/\\u([0-9A-Fa-f]{4})/g, (_, h) => String.fromCharCode(parseInt(h, 16))));
     expect(Object.values(HANDS_COIN_NAME).sort()).toEqual([...roundNames].sort());
