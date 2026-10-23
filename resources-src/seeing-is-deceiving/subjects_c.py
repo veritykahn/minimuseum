@@ -176,7 +176,7 @@ R_LP = lesson("Religion", R + "Lesson Plan_ Bearing True Witness (Religion 5-8) 
   ("cols", [
     [("section", {"label": "Catechism connection", "list": [
       "**CCC 2464:** The eighth commandment forbids misrepresenting the truth in our relations with others.",
-      "**CCC 2475–2476:** Respect for reputation forbids every attitude and word likely to cause unjust injury.",
+      "**CCC 2477:** Respect for the reputation of persons forbids every attitude and word likely to cause them unjust injury.",
       "**CCC 2488–2489:** The right to communication of truth is not unconditional."]})],
     [("section", {"label": "Materials needed", "list": [
       "Bible (Exodus 20:16, John 8:32, John 14:6)",
@@ -198,7 +198,7 @@ R_LP = lesson("Religion", R + "Lesson Plan_ Bearing True Witness (Religion 5-8) 
                "students": ["Look at the spirit photographs.", "What made them fake?"]},
     "body": [
     "Display spirit photography examples from the 1860s–1900s.",
-    "*“After the Civil War, a photographer named William Mumler claimed he could photograph spirits of the dead. He charged grieving families large sums for these fake images — double exposures. He bore false witness through images. Today we’ll explore what the Eighth Commandment teaches about truth in a world of deepfakes and viral misinformation.”*"]}),
+    "*“During the Civil War, a photographer named William Mumler claimed he could photograph spirits of the dead. He charged grieving families large sums for these fake images — double exposures. He bore false witness through images. Today we’ll explore what the Eighth Commandment teaches about truth in a world of deepfakes and viral misinformation.”*"]}),
   ("section", {"label": "Scripture study · 8 minutes", "title": "The Eighth Commandment",
     "screen": [
       {"phase": "Scripture", "minutes": 3, "script": [R_UNPACK], "show": "verse", "verse": EX_20,
@@ -304,9 +304,9 @@ R_RED = r_handout("red", "Student Handout_ Bearing True Witness - Red Level (Rel
     body="For Christians, truth is not merely factual accuracy — it is a Person. Jesus identifies himself AS truth. This means our commitment to truthfulness is inseparable from our commitment to Christ. Every act of deception distances us from the One who is Truth itself."),
   T(2, "Catechism Deep Dive",
     P("The Catechism addresses truth in paragraphs 2464–2513. Key teachings:"),
-    ("html", "<ul><li><b>CCC 2475–2476:</b> Respect for reputation forbids “rash judgment, detraction, and calumny”</li>"
+    ("html", "<ul><li><b>CCC 2477:</b> Respect for reputation forbids “rash judgment,” “detraction,” and “calumny”</li>"
              "<li><b>CCC 2489:</b> We must balance truth with charity — not all true things should be shared</li>"
-             "<li><b>CCC 2497:</b> Information must serve the common good and respect justice and charity</li></ul>"),
+             "<li><b>CCC 2494:</b> Information must serve the common good and respect justice and charity</li></ul>"),
     Q("**Reflection:** How does the teaching that “not all true things should be shared” balance with the call to bear true witness?", 2)),
   T(3, "Research: Witnesses to Truth",
     P("Throughout history, Catholics have shown moral courage by bearing witness to truth despite persecution. Research ONE:"),
@@ -420,7 +420,7 @@ S_LP = lesson("Spanish", S + "Spanish Lesson Plan_ ¿Verdad o Mentira_ (Grades 5
   ("section", {"label": "Mini Museum connection · 10 minutes", "title": "La Fotografía de Espíritus",
     "screen": [
       {"phase": "Spirit photos", "minutes": 4, "script": [0, 1], "show": "question",
-       "question": "En 1860, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?",
+       "question": "En 1862, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?",
        "purpose": "A real fake from history, in simple Spanish.",
        "students": ["Is it truth or lie?"]},
       {"phase": "Spirit photos", "minutes": 6, "script": [2], "title": "Partner practice", "show": "chart",
@@ -430,7 +430,7 @@ S_LP = lesson("Spanish", S + "Spanish Lesson Plan_ ¿Verdad o Mentira_ (Grades 5
        "students": ["“Creo que es mentira porque…”"]}],
     "body": [
     "Show spirit photography example.",
-    "“En 1860, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?” (In 1860, a photographer said: ‘I can photograph ghosts.’ Many people believed. Is it truth or lie?)",
+    "“En 1862, un fotógrafo dijo: ‘Puedo fotografiar fantasmas.’ Muchas personas creyeron. ¿Es verdad o mentira?” (In 1862, a photographer said: ‘I can photograph ghosts.’ Many people believed. Is it truth or lie?)",
     "**Partner practice:** Students discuss using sentence frames: “Creo que es mentira porque…” (I believe it’s a lie because…). Heritage speakers can help partners with vocabulary."]}),
   ("section", {"label": "Activity · 5 minutes", "title": "¿Verdad o Mentira? Game",
     "screen": {"phase": "Game", "show": "question", "question": "¿Por qué crees eso?",
@@ -481,7 +481,7 @@ S_GREEN = s_handout("green", "Student Handout_ ¿Verdad o Mentira_ - Green Level
     P("Complete the sentence about the spirit photograph:"),
     ("html", '<p class="fillin big">Creo que la foto es <span class="blank" style="width:190pt"></span> .</p>'),
     P("(verdad / mentira / real / falsa)", cls="en")),
-  conn(["In 1860, a photographer said he could photograph ghosts. Many people believed him!"],
+  conn(["In 1862, a photographer said he could photograph ghosts. Many people believed him!"],
        None, label="Mini Museum", url=ILL,
        extra='<p class="fillin">¿Es verdad o mentira? <span class="blank" style="width:200pt"></span></p>'),
   fam(["Teach your family these words: *verdad, mentira, real, falso*",
@@ -509,12 +509,12 @@ S_YELLOW = s_handout("yellow", "Student Handout_ ¿Verdad o Mentira_ - Yellow Le
     P("Read each statement. Is it *verdad* or *mentira*? Write your opinion using the sentence frames."),
     ("html", '<div class="q">' + es("“¡Los científicos dicen que el chocolate es más saludable que las verduras!”", "(“Scientists say chocolate is healthier than vegetables!”)")
              + '<p class="fillin">Creo que es <span class="blank" style="width:120pt"></span> porque <span class="blank" style="width:220pt"></span></p>' + _lines(1) + "</div>"),
-    ("html", '<div class="q">' + es("“En 1860, las personas no sabían que las fotos podían ser falsas.”", "(“In 1860, people didn’t know photos could be fake.”)")
+    ("html", '<div class="q">' + es("“En 1862, las personas no sabían que las fotos podían ser falsas.”", "(“In 1862, people didn’t know photos could be fake.”)")
              + '<p class="fillin">Pienso que es <span class="blank" style="width:115pt"></span> porque <span class="blank" style="width:220pt"></span></p>' + _lines(1) + "</div>"),
     ("html", '<div class="q">' + es("“Hoy es fácil crear videos falsos con inteligencia artificial.”", "(“Today it’s easy to create fake videos with artificial intelligence.”)")
              + '<p class="fillin">Creo que es <span class="blank" style="width:120pt"></span> porque <span class="blank" style="width:220pt"></span></p>' + _lines(1) + "</div>")),
   T(4, "La Fotografía de Espíritus — Spirit Photography",
-    ("html", es("En 1860, un fotógrafo dijo: “Puedo fotografiar fantasmas.”", "(In 1860, a photographer said: “I can photograph ghosts.”)")
+    ("html", es("En 1862, un fotógrafo dijo: “Puedo fotografiar fantasmas.”", "(In 1862, a photographer said: “I can photograph ghosts.”)")
              + es("Muchas personas creyeron. Pagaron mucho dinero.", "(Many people believed. They paid a lot of money.)")),
     Q("¿Por qué creyeron las personas? (Why did people believe?)", 2),
     Q("¿La fotografía de espíritus es verdad o mentira?", 1)),
@@ -532,8 +532,8 @@ S_RED = s_handout("red", "Student Handout_ ¿Verdad o Mentira_ - Red Level (Span
       ("la verdad", "truth"), ("la mentira", "lie"), ("engañar", "to deceive/trick"), ("confiar", "to trust"),
       ("verificar", "to verify"), ("la fuente", "the source"), ("dudar", "to doubt"), ("investigar", "to investigate")])),
   T(2, "Lee y Analiza — Read and Analyze",
-    ("html", es("En 1860, William Mumler inventó la “fotografía de espíritus.” Él dijo que podía fotografiar a personas muertas. Muchas familias tristes pagaron mucho dinero para ver a sus familiares. Pero todo era mentira. Mumler usó un truco llamado “doble exposición.”",
-                "(In 1860, William Mumler invented “spirit photography.” He said he could photograph dead people. Many sad families paid a lot of money to see their relatives. But it was all a lie. Mumler used a trick called “double exposure.”)")),
+    ("html", es("En 1862, William Mumler inventó la “fotografía de espíritus.” Él dijo que podía fotografiar a personas muertas. Muchas familias tristes pagaron mucho dinero para ver a sus familiares. Pero todo era mentira. Mumler usó un truco llamado “doble exposición.”",
+                "(In 1862, William Mumler invented “spirit photography.” He said he could photograph dead people. Many sad families paid a lot of money to see their relatives. But it was all a lie. Mumler used a trick called “double exposure.”)")),
     Q("1. ¿Por qué las familias creyeron a Mumler? (Why did families believe Mumler?)", 2),
     Q("2. ¿Cómo podían verificar si las fotos eran reales? (How could they verify if the photos were real?)", 2),
     Q("3. ¿Qué significa “ver para creer”? ¿Es siempre verdad? (What does “seeing is believing” mean? Is it always true?)", 2)),
@@ -563,7 +563,7 @@ TH_VIC = [("Pepper’s Ghost", "Using angled glass to make “ghosts” appear o
           ("Trap doors", "Actors appearing and disappearing"),
           ("Lighting effects", "Colored gels, limelight for dramatic effect"),
           ("Sound effects", "Thunder sheets, wind machines")]
-TH_SAY = "*“The Victorians LOVED theatrical illusions. The same technology used to create stage ghosts was later used by spirit photographers to fake ‘real’ ghost photos. The difference? Theater audiences knew it was fake. Spirit photography victims didn’t.”*"
+TH_SAY = "*“The Victorians LOVED theatrical illusions. Stage ghosts used angled glass; spirit photographers used double exposure. Both made ghosts appear — the difference? Theater audiences knew it was fake. Spirit photography victims didn’t.”*"
 TH_OPTIONS = [
   "**Option A — Performance:** In small groups, students create a 30-second scene using simple staging tricks: pretending to open a door that isn’t there, miming drinking from an invisible cup, or using a flashlight to create “moonlight.”",
   "**Option B — Analysis:** Watch a clip from a stage production. Students identify: What illusions are being used? What are we “agreeing” to believe? What theatrical elements help us suspend disbelief?"]
@@ -631,7 +631,7 @@ TH_LP = lesson("Theater", TH + "Theater Lesson Plan_ The Art of Illusion (Grades
     "body": [
     "*“Theater and magic shows create illusions that audiences enjoy and consent to. But what happens when the same techniques are used to deceive people who DON’T know it’s fake? That’s where we cross from entertainment into manipulation. The Mini Museum shows us examples of both — and helps us understand the difference.”*"]}),
   ("cols", [[("connection", [
-    "**Option 1 — Visit:** The stereoscope and spirit photographs use techniques similar to stage illusions. Pepper’s Ghost (theater) and spirit photography (fraud) used the SAME technology — the difference was consent and intent.",
+    "**Option 1 — Visit:** The stereoscope and spirit photographs are illusions, like those on the stage. Pepper’s Ghost (theater, angled glass) and spirit photography (fraud, double exposure) used different tricks to make the same thing appear — a ghost. The difference was consent and intent.",
     "**Option 2 — Virtual:** Explore the exhibition online."])],
    [("section", {"label": "Assessment", "list": [
     "**Discussion:** Can students articulate the difference between theatrical illusion and deception?",

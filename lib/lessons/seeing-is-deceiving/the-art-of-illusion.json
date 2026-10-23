@@ -25,7 +25,7 @@
   ],
   "questions": [],
   "connection": [
-    "**Option 1 — Visit:** The stereoscope and spirit photographs use techniques similar to stage illusions. Pepper’s Ghost (theater) and spirit photography (fraud) used the SAME technology — the difference was consent and intent.",
+    "**Option 1 — Visit:** The stereoscope and spirit photographs are illusions, like those on the stage. Pepper’s Ghost (theater, angled glass) and spirit photography (fraud, double exposure) used different tricks to make the same thing appear — a ghost. The difference was consent and intent.",
     "**Option 2 — Virtual:** Explore the exhibition online."
   ],
   "totalMinutes": 30,
@@ -159,7 +159,7 @@
       "title": "The difference",
       "minutes": 3,
       "script": [
-        "*“The Victorians LOVED theatrical illusions. The same technology used to create stage ghosts was later used by spirit photographers to fake ‘real’ ghost photos. The difference? Theater audiences knew it was fake. Spirit photography victims didn’t.”*"
+        "*“The Victorians LOVED theatrical illusions. Stage ghosts used angled glass; spirit photographers used double exposure. Both made ghosts appear — the difference? Theater audiences knew it was fake. Spirit photography victims didn’t.”*"
       ],
       "screen": {
         "kind": "question",

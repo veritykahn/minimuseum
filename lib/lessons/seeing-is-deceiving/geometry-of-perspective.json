@@ -60,8 +60,8 @@
       "title": "Your eyes vs. math",
       "minutes": 3,
       "script": [
-        "Display the Müller-Lyer illusion (two horizontal lines of equal length—one with arrows pointing outward, one with arrows pointing inward).",
-        "*“Which line is longer—the top one or the bottom one?”* Take a class vote. Most students will say the one with outward-pointing arrows looks longer. *“Now let’s check with math.”* Have a student measure both lines with a ruler."
+        "Display the Müller-Lyer illusion (two horizontal lines of equal length—one with fins flaring outward at both ends, >—<, and one with arrowheads, <—>).",
+        "*“Which line is longer—the top one or the bottom one?”* Take a class vote. Most students will say the one with outward fins (>—<) looks longer. *“Now let’s check with math.”* Have a student measure both lines with a ruler."
       ],
       "screen": {
         "kind": "question",
@@ -126,7 +126,7 @@
       "title": "Ponzo (converging lines)",
       "minutes": 3,
       "script": [
-        "Display the Ponzo illusion (two identical horizontal lines between converging “tracks”).",
+        "Display the Ponzo illusion (the Perception Lab’s Ponzo Corridor: two identical balls in a corridor whose walls converge into the distance).",
         "Converging lines signal “distance” to your brain",
         "Objects “farther away” must be larger",
         "Brain scales up the top line",
