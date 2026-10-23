@@ -570,7 +570,7 @@ G12_LP = {
       "Play 60 seconds of Bessie Smith or a Harlem-era jazz recording. Let students simply listen with eyes closed.",
       f"*“{G12_HOOK_Q}”*",
       "Take two or three responses, then:",
-      "*“This music is almost 100 years old! It was made by people who had just finished one of the longest, bravest journeys in American history. Today we are going to find out who they were — and what they made.”*"]}),
+      "*“This music is more than 100 years old! It was made by people who had just finished one of the longest, bravest journeys in American history. Today we are going to find out who they were — and what they made.”*"]}),
     ("section", {"label": "Direct instruction · 8 minutes", "title": "The big move",
       "screen": {"phase": "The big move", "show": "gallery",
                  "groups": [{"label": "The South", "items": [photo("delta", "A cotton field in Georgia")]},
@@ -670,7 +670,7 @@ G34_HOOK_Q = "What do you think he felt when he arrived in Harlem for the first 
 G34_LOOK_Q = "What do you notice? What do the shapes and silhouettes tell you about the mood?"
 G34_CLOSE_Q = "When you write a story, or draw something, or make music — what are you saying about yourself?"
 # who was making what, in the plan's own words
-G34_NEIGHBORS = [["Langston Hughes", "writing poetry"], ["Louis Armstrong", "rehearsing jazz"],
+G34_NEIGHBORS = [["Langston Hughes", "writing poetry"], ["Duke Ellington", "rehearsing jazz"],
                  ["Zora Neale Hurston", "collecting folk stories"],
                  ["Aaron Douglas", "painting murals in geometric shapes and bold silhouettes"]]
 
@@ -713,7 +713,7 @@ G34_LP = {
          "purpose": "Look closely at the Renaissance’s visual language.",
          "students": [G34_LOOK_Q]}],
       "body": [
-      "*“From around 1910, hundreds of thousands of Black families left the South — escaping laws designed to keep them poor and afraid. They moved to Chicago, Detroit, Philadelphia, and especially Harlem in New York City. And in Harlem, something happened that no one had quite planned: every building was full of talent. Your neighbor might be Langston Hughes writing poetry. Across the street, Louis Armstrong was rehearsing jazz. Down the road, Zora Neale Hurston was collecting folk stories. Aaron Douglas was painting murals in geometric shapes and bold silhouettes.”*",
+      "*“From around 1910, hundreds of thousands of Black families left the South — escaping laws designed to keep them poor and afraid. They moved to Chicago, Detroit, Philadelphia, and especially Harlem in New York City. And in Harlem, something happened that no one had quite planned: every building was full of talent. Your neighbor might be Langston Hughes writing poetry. Across the street, Duke Ellington was rehearsing jazz. Down the road, Zora Neale Hurston was collecting folk stories. Aaron Douglas was painting murals in geometric shapes and bold silhouettes.”*",
       "*“They weren’t just making art. They were making a statement: Black life is rich, complex, beautiful, and important. This movement — this burst of creativity — we call the Harlem Renaissance.”*",
       f"Show the Aaron Douglas image if available. Ask: *“{G34_LOOK_Q}”*"]}),
     ("section", {"label": "Activity · 15 minutes", "title": "Your creative voice",

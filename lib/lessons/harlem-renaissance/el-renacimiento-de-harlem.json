@@ -19,7 +19,7 @@
   ],
   "materials": [
     "Differentiated handouts (Green / Yellow / Red) — one per student",
-    "Optional: audio clip of Afro-Cuban jazz (Celia Cruz, Tito Puente) to open the connection between Harlem jazz and Latin music",
+    "Optional: audio clip of Afro-Cuban jazz (Machito and his Afro-Cubans, Tito Puente) to open the connection between Harlem jazz and Latin music",
     "Optional: short reading in Spanish about Nicolás Guillén (Cuban poet influenced by the Harlem Renaissance) for Red-level extension"
   ],
   "questions": [],
@@ -58,7 +58,7 @@
       "title": "La música conecta",
       "minutes": 5,
       "script": [
-        "*“Antes de hablar del Renacimiento de Harlem, quiero que escuchen esto.”* [Play 30 seconds of Afro-Cuban jazz or salsa.] *“¿Reconocen algo? Esta música viene de Cuba — pero sus raíces están en el jazz de Harlem. Los músicos afrocubanos y los músicos afroamericanos de Harlem estaban creando algo nuevo al mismo tiempo, inspirados por las mismas tradiciones africanas. Hoy vamos a explorar estas conexiones.”*"
+        "*“Antes de hablar del Renacimiento de Harlem, quiero que escuchen esto.”* [Play 30 seconds of Afro-Cuban jazz or salsa.] *“¿Reconocen algo? Esta música tiene raíces cubanas — y comparte raíces africanas con el jazz de Harlem. Los músicos afrocubanos y los músicos afroamericanos de Harlem estaban creando algo nuevo al mismo tiempo, inspirados por las mismas tradiciones africanas. Hoy vamos a explorar estas conexiones.”*"
       ],
       "screen": {
         "kind": "question",

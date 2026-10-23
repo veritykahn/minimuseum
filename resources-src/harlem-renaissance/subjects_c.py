@@ -281,13 +281,13 @@ SPA_LP = lesson("Spanish", "Spanish", S_T, S_HERO, [
     "**ACTFL Presentational** — Present information and ideas on familiar topics with accuracy and detail appropriate to proficiency level"]}),
   ("section", {"label": "Materials needed", "list": [
     "Differentiated handouts (Green / Yellow / Red) — one per student",
-    "Optional: audio clip of Afro-Cuban jazz (Celia Cruz, Tito Puente) to open the connection between Harlem jazz and Latin music",
+    "Optional: audio clip of Afro-Cuban jazz (Machito and his Afro-Cubans, Tito Puente) to open the connection between Harlem jazz and Latin music",
     "Optional: short reading in Spanish about Nicolás Guillén (Cuban poet influenced by the Harlem Renaissance) for Red-level extension"]}),
   ("section", {"label": "Hook · 5 minutes", "title": "La música conecta",
     "screen": {"phase": "Hook", "show": "question", "question": S_HOOK_Q,
                "purpose": "Open with the music, and the connection between Harlem and the Caribbean.",
                "students": ["Escuchen."]},
-    "body": [f"*\"Antes de hablar del Renacimiento de Harlem, quiero que escuchen esto.\"* [Play 30 seconds of Afro-Cuban jazz or salsa.] *\"{S_HOOK_Q} Esta música viene de Cuba — pero sus raíces están en el jazz de Harlem. Los músicos afrocubanos y los músicos afroamericanos de Harlem estaban creando algo nuevo al mismo tiempo, inspirados por las mismas tradiciones africanas. Hoy vamos a explorar estas conexiones.\"*"]}),
+    "body": [f"*\"Antes de hablar del Renacimiento de Harlem, quiero que escuchen esto.\"* [Play 30 seconds of Afro-Cuban jazz or salsa.] *\"{S_HOOK_Q} Esta música tiene raíces cubanas — y comparte raíces africanas con el jazz de Harlem. Los músicos afrocubanos y los músicos afroamericanos de Harlem estaban creando algo nuevo al mismo tiempo, inspirados por las mismas tradiciones africanas. Hoy vamos a explorar estas conexiones.\"*"]}),
   ("section", {"label": "Direct instruction · 10 minutes", "title": "Vocabulario clave",
     "screen": {"phase": "Vocabulario", "show": "chart", "caption": "Vocabulario principal",
                "columns": ["Spanish", "English", "Example sentence"], "rows": [{"cells": r} for r in S_VOCAB],
@@ -358,7 +358,7 @@ SPA_G = handout("Spanish", "Spanish", S_T, "green", S_HERO, [
 
 SPA_Y = handout("Spanish", "Spanish", S_T, "yellow", S_HERO, [
   TICKET_ES,
-  ctx(["**Contexto:** El Renacimiento de Harlem (1920–1940) fue un movimiento cultural extraordinario en Nueva York. Artistas, poetas y músicos afroamericanos crearon obras que afirmaban la belleza, la dignidad y la herencia de la cultura negra. Al mismo tiempo, en Cuba y Puerto Rico, poetas como Nicolás Guillén estaban haciendo algo muy similar: celebrando la herencia africana en el mundo hispanohablante."]),
+  ctx(["**Contexto:** El Renacimiento de Harlem (c. 1920–1935) fue un movimiento cultural extraordinario en Nueva York. Artistas, poetas y músicos afroamericanos crearon obras que afirmaban la belleza, la dignidad y la herencia de la cultura negra. Al mismo tiempo, en Cuba y Puerto Rico, poetas como Nicolás Guillén estaban haciendo algo muy similar: celebrando la herencia africana en el mundo hispanohablante."]),
   ("task", {"label": "Actividad 1", "title": "Vocabulario en contexto", "blocks": [
       P("Completa las frases con la forma correcta de la palabra:"),
       ("html", '<div class="bank">' + "".join(f"<span>{w}</span>" for w in ["la resistencia", "el orgullo", "afirmar", "la herencia", "la identidad", "migrar"]) + "</div>"),
@@ -409,7 +409,7 @@ T_NOTICE = "Now stand normally and notice:"
 T_Q = "which posture felt more like you? Which felt like a choice?"
 # the oral performance tradition: (form, who and what)
 T_TRADITION = [("blues shouters", "(Bessie Smith, Ma Rainey) who used the voice as an instrument of testimony"),
-               ("preacher rhetoric", "(Marcus Garvey, Adam Clayton Powell Sr.) using call-and-response with audiences"),
+               ("preacher rhetoric", "(Adam Clayton Powell Sr. at Abyssinian Baptist Church) using call-and-response with congregations; street-corner oratory (Marcus Garvey)"),
                ("spoken word and poetry readings", "in Harlem salons and speakeasies"),
                ("theatrical performance", "at venues like the Lafayette Theater")]
 T_STEP_IN = "Today you're going to step into one of those stories."
@@ -442,7 +442,7 @@ THE_LP = lesson("Theater", "Theater", T_T, T_HERO, [
        "purpose": "Move from the tradition to the students’ own performance.",
        "students": [T_STEP_IN]}],
     "body": ["The Harlem Renaissance had a rich oral performance tradition: " + "; ".join(f"**{f}** {w}" for f, w in T_TRADITION) + ".",
-             f"*\"Zora Neale Hurston — folklorist, novelist, playwright — said the Black oral tradition was 'the greatest cultural wealth of the American people.' She spent years collecting the stories, the sermons, the songs. She believed that how a community tells its stories is as important as the stories themselves. {T_STEP_IN}\"*"]}),
+             f"*\"Zora Neale Hurston — folklorist, novelist, playwright — spent years collecting the stories, the sermons, the songs. She believed that how a community tells its stories is as important as the stories themselves. {T_STEP_IN}\"*"]}),
   ("section", {"label": "Activity: character work and performance · 25 minutes",
     "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
                "purpose": "Write and perform a Harlem Renaissance voice at the right level of challenge.",
@@ -467,7 +467,7 @@ THE_LP = lesson("Theater", "Theater", T_T, T_HERO, [
   ("section", {"label": "Cross-curricular connections", "list": [
     "**ELA:** Monologue writing is first-person narrative with compressed dramatic arc — same craft skills as memoir and personal essay",
     "**Social Studies:** Stepping into a historical character builds perspective-taking — essential for historical empathy and analysis",
-    "**Religion:** The preacher's prophetic voice (Amos, Isaiah, Garvey) is a direct connection between the Harlem oral tradition and the biblical prophetic tradition",
+    "**Religion:** The preacher's prophetic voice (Amos, Isaiah) is a direct connection between the Harlem oral tradition and the biblical prophetic tradition",
     "**Music:** The blues shout, the jazz vocal style, and theatrical performance share rhythmic and tonal vocabulary"]}),
 ])
 
@@ -517,10 +517,10 @@ THE_Y = handout("Theater", "Theater", T_T, "yellow", T_HERO, [
   ("task", {"label": "Step 3", "title": "Performance reflection", "blocks": q(
       "**1. Where did you place your pause — and why? What does the silence do at that moment?**", 2) + q(
       "**2. When you performed, what did your body do that surprised you?**", 2) + q(
-      "**3. Zora Neale Hurston said storytelling is \"the greatest cultural wealth.\" What does your monologue add to the historical record that a textbook could not?**", 3)}),
+      "**3. Zora Neale Hurston spent years collecting Black folk stories so they would not be lost. What does your monologue add to the historical record that a textbook could not?**", 3)}),
   ("cols", [[("connection", ["The **Harlem in Words** section of the exhibition uses vocabulary from real Harlem Renaissance writing. Choose 3 words from the exhibit and work them into a revised version of your monologue. Does adding authentic language from the period change how it feels to perform?"])],
             [note("Extension", ["Find a recording of Langston Hughes reading \"The Negro Speaks of Rivers\" aloud. Listen for his pace, his pauses, his emphasis. What can you learn from how he performs his own poem?"])]]),
-], ["**Context:** The Harlem Renaissance had a rich oral performance tradition. Zora Neale Hurston called the Black oral tradition \"the greatest cultural wealth of the American people.\" Blues singers, preachers, poets, and storytellers all used voice and body to claim space, express truth, and build community. Today you will step into that tradition."])
+], ["**Context:** The Harlem Renaissance had a rich oral performance tradition. Zora Neale Hurston spent years collecting its folktales, sermons and songs. Blues singers, preachers, poets, and storytellers all used voice and body to claim space, express truth, and build community. Today you will step into that tradition."])
 
 THE_R = handout("Theater", "Theater", T_T, "red", T_HERO, [
   ("task", {"label": "Step 1", "title": "Character development: build your character with historical precision", "blocks": [
@@ -536,10 +536,10 @@ THE_R = handout("Theater", "Theater", T_T, "red", T_HERO, [
   ("task", {"label": "Step 3", "title": "Dramaturgical note", "blocks": q(
       "A dramaturgical note explains the research and choices behind a performance. Write yours (5–7 sentences): what historical sources did you draw on? What choices did you make about status, subtext, and voice — and why? What does your performance argue about this character or this moment in history?", 4)}),
   ("task", {"label": "Critical reflection", "title": "", "blocks": q(
-      "Anna Deavere Smith says \"identity is found in the act of becoming another.\" **What did you discover about the Harlem Renaissance — or about yourself — through performing this character that you could not have found through reading? What are the limits of this kind of historical performance? What risks does it carry?**", 4)}),
+      "Anna Deavere Smith performs real people in their own words. **What did you discover about the Harlem Renaissance — or about yourself — through performing this character that you could not have found through reading? What are the limits of this kind of historical performance? What risks does it carry?**", 4)}),
   ("cols", [[aside("Mini Museum deep dive", ["The **Harlem in Words** section includes actual language from Harlem Renaissance texts. Use three words or phrases from the exhibition in your performance — not as quotation, but woven naturally into your character's speech. After performing, reflect: how did using authentic language change the quality of the performance?"])],
             [note("Research extension", ["Find and read one scene from a Zora Neale Hurston play (*Color Struck*, 1926, is freely available online). Analyze: how does Hurston use dialect, rhythm, and silence? How do those choices serve her characters?"])]]),
-], ["**Dramaturgical frame:** The actor and playwright Anna Deavere Smith, whose documentary theater is built from interviews and testimony, says: \"Identity is found in the act of becoming another.\" When you step into a historical character with full commitment — their fears, their hopes, their specific historical context — you gain a form of knowledge that reading alone cannot provide. This is the unique power of theater."], css=".tfields span { padding-bottom: 10pt; }")
+], ["**Dramaturgical frame:** The actor and playwright Anna Deavere Smith, builds her plays from interviews and testimony. When you step into a historical character with full commitment — their fears, their hopes, their specific historical context — you gain a form of knowledge that reading alone cannot provide. This is the unique power of theater."], css=".tfields span { padding-bottom: 10pt; }")
 
 # ════════════════════════════════════════════════════════════════════
 # MUSIC · The Sound of Harlem
@@ -623,7 +623,7 @@ MUS_LP = lesson("Music", "Music", M_T, M_HERO, [
       "**Science:** Physics of sound — frequency, resonance, the phonograph; how the electric microphone (1925) changed what could be recorded",
       "**Social Studies:** The Great Migration explains why so many musicians ended up in Harlem simultaneously — critical mass of talent created jazz as a distinct genre",
       "**ELA:** Langston Hughes wrote about jazz as the sound of the people; his poetry is directly influenced by blues and jazz rhythm and structure",
-      "**Art:** Aaron Douglas's *Song of the Towers* is a visual representation of jazz — the concentric circles are literally sound waves"]})],
+      "**Art:** Aaron Douglas's *Song of the Towers* is a visual representation of jazz — the concentric circles are often read as sound waves"]})],
     [("section", {"label": "Assessment ideas", "list": [
       "**Listening journal:** Students listen to three recordings at home and write one paragraph each describing structure, mood, and one musical choice they found interesting",
       "**Composition:** Compose and perform a 4-bar melody over the 12-bar blues progression — can be done with voice, any instrument, or body percussion",
@@ -653,7 +653,7 @@ MUS_G = handout("Music", "Music", M_T, "green", M_HERO, [
           f'<div class="{"iv" if r == "IV" else "v" if r == "V" else ""}"><b>Bar {i}</b>{c} ({r})</div>' for i, (c, r) in enumerate(BARS, 1)) + "</div>")] + q(
       "**6. Why do you think musicians liked this repeating pattern? What does it allow them to do?**", 3) + [
       P("*Aaron Douglas — Song of the Towers, 1934*", "cap")] + q(
-      "**7. Aaron Douglas painted *Song of the Towers* while listening to jazz in Harlem. What do you think he was seeing or feeling?**", 4)}),
+      "**7. Aaron Douglas painted *Song of the Towers* about Harlem and its music. What do you think he was seeing or feeling?**", 4)}),
   ("connection", ["The **Jazz Lab** in the exhibition lets you layer different jazz instruments to build a full band sound. Try removing one instrument at a time — which one changes the feel of the music most?"]),
 ], ["**Big idea:** Jazz was born in the early 1900s and became the soundtrack of the Harlem Renaissance. It mixed African musical traditions (call-and-response, rhythm, improvisation) with American instruments and city energy. Listening carefully to jazz can tell you a lot about how it works — and what it means."])
 
@@ -671,8 +671,8 @@ MUS_Y = handout("Music", "Music", M_T, "yellow", M_HERO, [
   ("task", {"label": "Activity 3", "title": "African roots paragraph: where did jazz come from?", "blocks": q(
       "Jazz did not appear from nowhere. Write a paragraph (5–6 sentences) connecting the musical structures you've analyzed to their African roots. Use at least three of these terms: *call-and-response, polyrhythm, improvisation, griot tradition, blue notes, work songs.*", 5)}),
   ("task", {"label": "Activity 4", "title": "Art and music", "blocks": [
-      P("Aaron Douglas painted *Song of the Towers* in 1934 — the same year Duke Ellington recorded \"Sophisticated Lady.\" Both are about Harlem's creative energy."),
-      P("*Aaron Douglas — Song of the Towers, 1934.* Note the concentric circles — Douglas said they represented sound waves.", "cap")] + q(
+      P("Aaron Douglas painted *Song of the Towers* in 1934, a year after Duke Ellington recorded \"Sophisticated Lady.\" Both are about Harlem's creative energy."),
+      P("*Aaron Douglas — Song of the Towers, 1934.* Note the concentric circles — often read as sound waves.", "cap")] + q(
       "**What specific musical element do you think the concentric circles represent? What about the figure with the saxophone?**", 3)}),
   ("connection", ["The **Jazz Lab** lets you build a jazz arrangement by layering instruments. Try building the same melody in both a blues style and a big band style. What changes — and what stays the same?"]),
 ], ["**Context:** Jazz emerged from the collision of African musical traditions (call-and-response, polyrhythm, improvisation, blue notes) with American instruments and urban energy. Understanding its structure reveals why it sounded so new — and why it was so powerful."],
@@ -695,9 +695,9 @@ MUS_R = handout("Music", "Music", M_T, "red", M_HERO, [
       ("html", '<div class="fl" style="grid-template-columns:1fr 1fr"><span>What blue note did you use?</span><span>What effect does it create?</span></div>'),
       ("lines", 1)]}),
   ("task", {"label": "Activity 3", "title": "Critical essay", "blocks": q(
-      "Duke Ellington said jazz is \"a way of life, a way of feeling, a way of thinking.\" Using your structural analysis and what you know about the Harlem Renaissance, write 4–5 sentences arguing: **what did jazz make possible for Black Americans in the 1920s that other art forms could not?**", 7)}),
+      "Duke Ellington's 1932 hit insisted: \"It don't mean a thing if it ain't got that swing.\" Using your structural analysis and what you know about the Harlem Renaissance, write 4–5 sentences arguing: **what did jazz make possible for Black Americans in the 1920s that other art forms could not?**", 7)}),
   aside("Mini Museum deep dive", ["In the **Jazz Lab**, isolate the rhythm section (bass, drums, piano). Listen to how the music changes without it. What does the rhythm section actually do — is it accompaniment, or something more fundamental? How does your answer connect to the African rhythmic traditions that gave jazz its foundation?"]),
-], ["**Critical frame:** Duke Ellington said: \"Jazz is not just music — it is a way of life, a way of feeling, a way of thinking.\" Analyze one recording's full structural architecture, then compose an original phrase within the blues framework, and write a critical essay connecting jazz structure to its cultural and historical context."],
+], ["**Critical frame:** Duke Ellington's 1932 hit insisted: \"It don't mean a thing if it ain't got that swing.\" Analyze one recording's full structural architecture, then compose an original phrase within the blues framework, and write a critical essay connecting jazz structure to its cultural and historical context."],
   css="table.fill td:first-child { width: 30%; } table.fill td { padding-bottom: 16pt; }")
 
 # ── typography: straight quotes to curly, outside markup ──

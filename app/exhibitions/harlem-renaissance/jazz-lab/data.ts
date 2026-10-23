@@ -19,7 +19,8 @@ export type InstrumentDef = {
   fact: {
     title: string;
     text: string;
-    quote: string;
+    /** a line the musician is on record as saying; left out when none can be sourced */
+    quote?: string;
   };
 };
 
@@ -41,7 +42,6 @@ export const INSTRUMENTS: InstrumentDef[] = [
     fact: {
       title: 'The Drums in Jazz',
       text: 'Chick Webb, the tiny drummer with the thunderous sound, ruled the Savoy Ballroom from 1931. His drum battles were legendary \u2014 even Benny Goodman\'s band couldn\'t outswing him.',
-      quote: '"The rhythm is below everything." \u2014 Chick Webb',
     },
   },
   {
@@ -58,7 +58,6 @@ export const INSTRUMENTS: InstrumentDef[] = [
     fact: {
       title: 'The Bass in Jazz',
       text: 'The upright bass was the heartbeat of every Harlem jazz combo. Players like Jimmy Blanton revolutionized the instrument, turning the bass from timekeeper into soloist.',
-      quote: '"The bass is the link between harmony and rhythm." \u2014 Ray Brown',
     },
   },
   {
@@ -75,7 +74,7 @@ export const INSTRUMENTS: InstrumentDef[] = [
     fact: {
       title: 'The Piano in Jazz',
       text: 'Fats Waller and James P. Johnson pioneered "stride piano" at Harlem rent parties, where tenants would hire pianists to play while guests paid admission to help cover rent.',
-      quote: '"Jazz is not just music, it\'s a way of life." \u2014 Fats Waller',
+      quote: '"One never knows, do one?" \u2014 Fats Waller\u2019s catchphrase',
     },
   },
   {
@@ -126,7 +125,6 @@ export const INSTRUMENTS: InstrumentDef[] = [
     fact: {
       title: 'The Clarinet in Jazz',
       text: 'The clarinet was the dominant melodic voice of early jazz. Sidney Bechet and Benny Goodman brought it from New Orleans to Harlem, where it sang over the big bands of the swing era.',
-      quote: '"I live my daydreams in music." \u2014 Sidney Bechet',
     },
   },
 ];
@@ -198,7 +196,8 @@ export type BandInstrumentDef = {
   fact: {
     title: string;
     text: string;
-    quote: string;
+    /** a line the musician is on record as saying; left out when none can be sourced */
+    quote?: string;
   };
 };
 
@@ -234,7 +233,6 @@ export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
     fact: {
       title: 'The Drums in Jazz',
       text: 'Chick Webb, the tiny drummer with the thunderous sound, ruled the Savoy Ballroom from 1931. His drum battles were legendary \u2014 even Benny Goodman\'s band couldn\'t outswing him.',
-      quote: '"The rhythm is below everything." \u2014 Chick Webb',
     },
   },
   {
@@ -244,7 +242,6 @@ export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
     fact: {
       title: 'The Bass in Jazz',
       text: 'The upright bass was the heartbeat of every Harlem jazz combo. Players like Jimmy Blanton revolutionized the instrument, turning the bass from timekeeper into soloist.',
-      quote: '"The bass is the link between harmony and rhythm." \u2014 Ray Brown',
     },
   },
   {
@@ -254,7 +251,7 @@ export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
     fact: {
       title: 'The Piano in Jazz',
       text: 'Fats Waller and James P. Johnson pioneered "stride piano" at Harlem rent parties, where tenants would hire pianists to play while guests paid admission to help cover rent.',
-      quote: '"Jazz is not just music, it\'s a way of life." \u2014 Fats Waller',
+      quote: '"One never knows, do one?" \u2014 Fats Waller\u2019s catchphrase',
     },
   },
   {

@@ -196,7 +196,7 @@ ART_YELLOW = art_handout("yellow", "HR_Handout_Yellow_Art.pdf", [
 
 ART_RED = art_handout("red", "HR_Handout_Red_Art.pdf", [
   ("task", {"label": "Activity 1", "title": "Three-work formal analysis",
-            "blocks": [works([("Song of the Towers", "Aaron Douglas, 1934"), ("The Creation", "Aaron Douglas, c. 1935"), ("Harriet Tubman", "Aaron Douglas")])]}),
+            "blocks": [works([("Song of the Towers", "Aaron Douglas, 1934"), ("The Creation", "Aaron Douglas, 1935"), ("Harriet Tubman", "Aaron Douglas")])]}),
   ("table", {"head": ["Dimension", "Song of the Towers", "The Creation", "Harriet Tubman"], "rows": [
       ["Silhouette use", "", "", ""], ["Circle / light", "", "", ""], ["Color palette + meaning", "", "", ""],
       ["African influence", "", "", ""], ["Narrative / argument", "", "", ""]]}),
@@ -371,7 +371,7 @@ MATH_GREEN = math_handout("green", "HR_Handout_Green_Math.pdf", [
     Q(3, "Why do you think Chicago’s Black population grew so fast between 1910 and 1920?", 3),
     Q(4, "The population grew by over 148% in one decade. What does that mean in plain English?", 3),
     Q(5, "Numbers can tell us how many people moved. What can’t numbers tell us about the Great Migration?", 3)]}),
-  ("cols", [[("connection", ["The Great Migration Map in the exhibition shows the route from the Mississippi Delta to Harlem. The journey was about 1,500 miles. Each dot on the map represents tens of thousands of real people making that journey."])],
+  ("cols", [[("connection", ["The Great Migration Map in the exhibition shows the route the music traveled from the Mississippi Delta to Harlem. Straight from the Delta to New York is more than 1,000 miles. Each dot on the map is a stop on that route."])],
             [("family", ["Tell someone at home: *“Chicago’s Black population grew by 148% in just 10 years.”* Ask them: what does that kind of growth do to a city?"])]]),
 ], ["**Big idea:** During the Great Migration, millions of Black Americans moved from the South to Northern cities. We can use **data** to see how quickly cities like Chicago changed. A **percentage change** tells us how much something grew compared to where it started.",
     "**Formula:** (New − Old) ÷ Old × 100"],
@@ -395,7 +395,7 @@ MATH_YELLOW = math_handout("yellow", "HR_Handout_Yellow_Math.pdf", [
   ("task", {"label": "Activity 4", "title": "What the data shows — and doesn’t",
             "blocks": [P("Census population data shows how many people moved. Write two things the data shows clearly, and two things it cannot tell us about the Great Migration:"),
                        ("table", {"head": ["The data SHOWS us…", "The data CANNOT tell us…"], "rows": [["1.", "1."], ["2.", "2."]]})]}),
-  ("connection", ["The Great Migration Map in the exhibition shows six origin cities and four destination cities. Use your percentage change data: which destination city grew proportionally fastest? What might explain that pattern?",
+  ("connection", ["The Great Migration Map in the exhibition follows the music north, to Chicago and to Harlem. Use your percentage change data: which destination city grew proportionally fastest? What might explain that pattern?",
                   "**Extension:** the 1930s shows the slowest growth in the data. Research: what was happening in America in the 1930s that might explain this? (Hint: think about employment and the economy.)"]),
 ], ["**Data:** Chicago’s Black population — 1910: 44,103  |  1920: 109,458  |  1930: 233,903  |  1940: 277,731  |  1950: 492,265  |  1960: 812,637",
     "**Formula:** Percentage change = (New − Old) ÷ Old × 100"],
@@ -425,7 +425,7 @@ MATH_RED = math_handout("red", "HR_Handout_Red_Math.pdf", [
       [P("Now calculate the average rate for just the 1910–1920 decade (per year). Compare the two rates — what does this tell you about when migration was most intense?"), ("lines", 3)]])]}),
   ("section", {"label": "Critical reflection"}),
   Q(0, "A statistician and a historian might look at this same data and draw very different conclusions. The statistician sees growth rates and patterns. The historian asks: what caused each spike? What does the 1930s slowdown reveal? Choose one decade and write: what would each perspective say about it?", 3),
-  ("connection", ["The Great Migration Map shows six origin cities and four destinations. Using your data: if 6 million people migrated total, and New York received roughly 1 million by 1960, what percentage of total migrants went to New York? What assumptions are you making in that calculation?",
+  ("connection", ["The Great Migration Map follows the journey north, to Chicago and to Harlem. Using your data: if 6 million people migrated total, and New York received roughly 1 million by 1960, what percentage of total migrants went to New York? What assumptions are you making in that calculation?",
                   "**Research extension:** find data on the total US Black population in 1910 and 1960. What percentage of all Black Americans had moved north by 1960? How does this change your understanding of the scale of the migration?"]),
 ], [],
    css="table.fill td { padding: 3pt 6pt 4pt 0; } .task table.fill td { padding: 4pt 6pt 9pt 0; }")
@@ -443,12 +443,12 @@ PE_CONTEXT = "The Savoy Ballroom opened in Harlem in 1926. It held 4,000 people.
 # the warm-up's four calls: (call, what to do)
 PE_CALLS = [("freeze", "hold pose"), ("slow motion", "half speed"), ("double time", "double speed"),
             ("mirror", "copy teacher’s arm movements while walking")]
-PE_COOL_Q = "Where in your body did you feel the rhythm most? What did it feel like to move to music that was made almost 100 years ago?"
+PE_COOL_Q = "Where in your body did you feel the rhythm most? What did it feel like to move to music that was made about 100 years ago?"
 # the core activity's three phases: (label, minutes, title, what to teach)
 PE_PHASES = [
   (8, "Charleston Step", ["Teach the basic Charleston: step forward on right, kick left foot forward; step back on left, kick right foot back. Count 1-2-3-4.",
                           "Once secure: add arm swing.", "Once secure: try with partner in mirror."]),
-  (10, "Lindy Hop Basics", ["Introduce the rock-step: step back on left (count 1), step back on right (count 2), triple step forward left-right-left (counts 3-and-4), triple step right-left-right (counts 5-and-6). This is the 6-count Lindy Hop basic.",
+  (10, "Lindy Hop Basics", ["Introduce the rock-step: rock back on left (count 1), replace weight onto right (count 2); then triple step left-right-left (counts 3-and-4) and triple step right-left-right (counts 5-and-6). This is the 6-count basic, the first step most Lindy Hop classes teach.",
                             "Practice solo, then in loose pairs (not holding hands — just facing)."]),
   (7, "Creative Response", ["Students in groups of 3–4. Give each group a card: **Joy / Protest / Journey / Arrival in Harlem**.",
                             "Groups create a 16-count movement sequence using the vocabulary they’ve learned that expresses their word.",
@@ -517,7 +517,7 @@ PE_LP = {
       "**Students uncomfortable with partner work:** all phases can be completed solo or in parallel with others — no physical contact is required at any point in this lesson.",
       "**Extension for confident movers:** teach the “air step” — one partner lifts the other. This requires significant trust and should only be introduced if safety permits and students request it."]}),
     ("section", {"label": "Cross-curricular connections", "list": [
-      "**Music:** syncopation and the off-beat are felt physically in Lindy Hop — the rock-step lands on the off-beat. PE makes the music theory visceral.",
+      "**Music:** syncopation and swing are felt physically in Lindy Hop — dancers feel the accents swing music puts where you don’t expect them. PE makes the music theory visceral.",
       "**Social Studies:** the Savoy Ballroom was an integrated space in segregated New York — this is a history lesson about resistance expressed through joy",
       "**Science:** center of gravity, momentum, and rhythm as temporal pattern are all physically experienced in partner dance",
       "**Catholic Social Teaching:** the Savoy Ballroom’s integration was a practical expression of human dignity — people of different races choosing to celebrate together when the law said otherwise"]}),
@@ -558,10 +558,10 @@ PE_GREEN = pe_handout("green", "HR_Handout_Green_PE.pdf", [
 PE_YELLOW = pe_handout("yellow", "HR_Handout_Yellow_PE.pdf", [
   ("section", {"label": "Reflection", "title": "Movement, Music, and Meaning"}),
   Q(1, "In the creative sequence activity, your group used movement to express a concept. Describe what you created and explain the connection between your movement choices and your concept word:", 7),
-  Q(2, "The Lindy Hop rock-step lands on the off-beat (the syncopated beat). How did feeling syncopation physically change your understanding of it as a musical concept?", 7),
+  Q(2, "Swing music accents the off-beat (the syncopated beat). How did feeling syncopation physically change your understanding of it as a musical concept?", 7),
   Q(3, "Lindy Hop dancers describe the dance as a conversation between partners — you have to listen and respond. How does this connect to the call-and-response structure in jazz?", 7),
   Q(4, "What does it mean for a physical activity — dancing — to be a form of cultural resistance?", 7),
-  ("connection", ["**At the Jazz Lab:** listen to Chick Webb’s “Stompin’ at the Savoy.” Try clapping the off-beat (the “and” between counts). You’re clapping the same beat you stepped on today."]),
+  ("connection", ["**At the Jazz Lab:** listen to Chick Webb’s “Stompin’ at the Savoy.” Try clapping the off-beat (the “and” between counts) while you step the beat — the feel you danced to today."]),
 ], ["**Context:** The Lindy Hop and Charleston were not simply entertainment — they were cultural expression and, in the context of Jim Crow America, a form of resistance and celebration. The Savoy Ballroom was one of the few integrated public spaces in New York City. Dance was a language that crossed racial barriers that law and custom enforced everywhere else."])
 
 PE_RED = pe_handout("red", "HR_Handout_Red_PE.pdf", [

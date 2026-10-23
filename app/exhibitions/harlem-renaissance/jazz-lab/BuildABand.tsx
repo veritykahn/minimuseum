@@ -208,7 +208,7 @@ export default function BuildABand({ band }: { band: Band }) {
             </p>
             <h2>{factInstrument.fact.title}</h2>
             <p>{factInstrument.fact.text}</p>
-            <div className="jl-fact">{factInstrument.fact.quote}</div>
+            {factInstrument.fact.quote && <div className="jl-fact">{factInstrument.fact.quote}</div>}
           </div>
         ) : (
           <p className="jl-info-empty">Tap an instrument to meet it.</p>

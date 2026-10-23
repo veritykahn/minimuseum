@@ -106,7 +106,7 @@ def P(s):
     return ("html", f"<p>{s}</p>")
 
 SONG = "<b>Aaron Douglas</b> — <i>Song of the Towers</i>, 1934"
-CREATION = "<b>Aaron Douglas</b> — <i>The Creation</i>, c.1935"
+CREATION = "<b>Aaron Douglas</b> — <i>The Creation</i>, 1935"
 ASPECTS = "<b>Aaron Douglas</b> — <i>Aspects of Negro Life: From Slavery Through Reconstruction</i>, 1934"
 
 CONN = ["**Option 1 — Visit the Exhibition:** Bring your class to experience the phonograph, the Great Migration Map, the Jazz Lab, and more.",
