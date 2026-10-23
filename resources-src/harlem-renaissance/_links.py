@@ -24,12 +24,31 @@ WORKS = [
 # "Aspects of Negro Life" named on its own means the whole mural
 WHOLE_MURAL = "Aspects of Negro Life"
 
+def _printed(blocks):
+    """The blocks as printed: Lesson mode's "screen" keys left out."""
+    out = []
+    for k, v in blocks:
+        if k == "cols":
+            v = [_printed(c) for c in v]
+        elif isinstance(v, dict) and "screen" in v:
+            v = {x: y for x, y in v.items() if x != "screen"}
+        out.append((k, v))
+    return out
+
 def _found(doc):
-    text = repr(doc["blocks"]) + doc.get("title", "") + doc.get("sub", "")
+    text = repr(_printed(doc["blocks"])) + doc.get("title", "") + doc.get("sub", "")
     hits = [w for w in WORKS if w[0] in text]
     if WHOLE_MURAL in text and not any(w[1].startswith(WHOLE_MURAL) for w in hits):
         hits = [w for w in WORKS if w[1].startswith(WHOLE_MURAL)] + hits
     return hits
+
+def screen_links(*keys):
+    """The same links for Lesson mode's artwork screen: each key is the
+    first field of a WORKS entry, or WHOLE_MURAL for its four panels."""
+    hits = []
+    for key in keys:
+        hits += [w for w in WORKS if (w[1].startswith(WHOLE_MURAL) if key == WHOLE_MURAL else w[0] == key)]
+    return [{"label": f"{t} — {where}", "href": u} for _, t, where, u in hits]
 
 def links_block(hits):
     items = " · ".join(f'<a href="{u}">{t}</a>' for _, t, where, u in hits)

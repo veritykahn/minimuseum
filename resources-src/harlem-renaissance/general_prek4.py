@@ -5,6 +5,10 @@ Resource Guide, and the PreK–K, Grades 1–2 and Grades 3–4 lesson plans wit
 their Green / Yellow / Red handouts."""
 
 import html, re
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(__file__))
+from _links import screen_links, WHOLE_MURAL
+from _screen import photo, BESSIE
 
 M = "/exhibitions/harlem/images/migration/"
 P = "/exhibitions/harlem/"
@@ -428,7 +432,15 @@ PK = "teachers/prek-k/"
 PK_TITLE = "Music, Stories & Movement"
 PK_HERO = {"img": M + "chicago.jpg", "pos": "center 30%"}
 
+# "screen" on a section is for the site's Lesson mode only (resources-src/
+# export_lessons.py); build.py ignores it, so the PDF is unchanged. It names
+# what the class sees while the teacher reads that section. Anything said in
+# the plan and shown on screen is written once, as a constant.
+PK_HOOK_Q = "When you heard that music, what did you feel in your body?"
+PK_BIG = "They made music. They made paintings. They made poems. They made stories. All to say: we are here, and we are wonderful."
+
 PK_LP = {
+  "slug": "music-stories-and-movement", "large": True,
   "out": PK + "HR_LP_PreK_K.pdf", "eyebrow": "Teacher lesson plan", "title": PK_TITLE,
   "sub": "PreK–K · Homeroom / General", "foot": "Teacher Lesson Plan · PreK–Kindergarten", "hero": PK_HERO, "css": LP_CSS,
   "blocks": [
@@ -445,17 +457,35 @@ PK_LP = {
       "Optional: scarves or ribbons for movement activity (one per child)",
       "Differentiated handouts (Green / Yellow / Red) — one per child, printed before class",
       "Large crayons or thick markers"]})]]),
-    ("section", {"label": "Hook · 5 minutes", "title": "Can you feel the music?", "body": [
+    ("section", {"label": "Hook · 5 minutes", "title": "Can you feel the music?",
+      "screen": {"phase": "Hook", "show": "question", "question": PK_HOOK_Q,
+                 "purpose": "Let the music come first: children feel it before they hear about it.",
+                 "students": ["Listen to the music.", "Stand up and move!"]},
+      "body": [
       "Play the music clip. Let children respond however they want — nodding, swaying, smiling.",
       "*“This music was made a long, long time ago — before your parents were born, before your grandparents were born! A group of really special musicians lived in a place called Harlem in New York City, and they made music that was so joyful and so new that the whole world stopped to listen.”*",
-      "*“When you heard that music, what did you feel in your body?”*",
+      f"*“{PK_HOOK_Q}”*",
       "Take responses — there are no wrong answers. Then stand up together and move to 30 more seconds of music."]}),
-    ("section", {"label": "Direct instruction · 8 minutes", "title": "A big move and a big idea", "body": [
+    ("section", {"label": "Direct instruction · 8 minutes", "title": "A big move and a big idea",
+      "screen": [
+        {"phase": "Big idea", "minutes": 5, "script": [0, 1, 2], "title": "A big move and a big idea", "show": "words", "text": PK_BIG,
+         "purpose": "Tell the story of the big move, and what the people of Harlem made.",
+         "students": ["What would you make?"]},
+        {"phase": "Big idea", "minutes": 3, "script": [3], "title": "Look at Harlem", "show": "gallery",
+         "groups": [{"label": "Harlem", "items": [photo("harlem", "A Harlem street scene")]},
+                    {"label": "Music", "items": [photo("chicago", "A jazz band")]}],
+         "purpose": "Put pictures to the story: the place and the music.",
+         "students": ["What do you see?"]}],
+      "body": [
       "Sit children in a circle or on the carpet.",
       "*“A long time ago, many families moved from one part of America to another — a very long journey, like if you packed all your favorite things in a suitcase and moved to a whole new place. When they arrived in Harlem, something magical happened: musicians, storytellers, and painters all found each other and started making beautiful things together. We call that the Harlem Renaissance — that means ‘Harlem Reborn’.”*",
-      "*“They made music. They made paintings. They made poems. They made stories. All to say: we are here, and we are wonderful.”*",
+      f"*“{PK_BIG}”*",
       "Show two or three images if available — a Harlem street scene, a jazz band, or Aaron Douglas artwork."]}),
-    ("section", {"label": "Activity · 10 minutes", "title": "Making something beautiful", "body": [
+    ("section", {"label": "Activity · 10 minutes", "title": "Making something beautiful",
+      "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+                 "purpose": "Children make something of their own while the music plays.",
+                 "students": ["Choose Green, Yellow or Red. Draw while the music plays."]},
+      "body": [
       "Distribute handouts. Play gentle jazz quietly in the background while children work."]}),
     ("levels", {
       "green": "Children draw how the music makes them feel using colors and shapes. A single sentence frame (*“The music makes me feel ___”*) with a very large drawing box. Designed for pre-writers — drawing IS the response.",
@@ -463,7 +493,11 @@ PK_LP = {
       "red": "Children draw two things: what Harlem music looked like to them, and something they would contribute. They complete a simple sentence about why they would make it. A full writing line for children ready to write independently."}),
     ("html", '<div class="sec"><p><b>Note:</b> All three levels use the same large type and large drawing boxes — differentiation is in task complexity, not presentation.</p>'
              '<p>Circulate and talk to children about what they’re drawing. With 2 minutes remaining, invite two or three children to share.</p></div>'),
-    ("section", {"label": "Closing · 2 minutes", "title": "We made something too", "body": [
+    ("section", {"label": "Closing · 2 minutes", "title": "We made something too",
+      "screen": {"phase": "Closing", "show": "words", "text": "You drew your feelings, your ideas. That’s what artists do.",
+                 "purpose": "Join the children’s work to the artists of Harlem.",
+                 "students": ["Show what you made."]},
+      "body": [
       "*“Just like the people in Harlem made music and paintings to share how they felt — today you made something too! You drew your feelings, your ideas. That’s what artists do. The Harlem Renaissance was made by people just like you, who had something beautiful inside them and decided to share it.”*"]}),
     ("cols", [[("section", {"label": "Teacher notes", "list": [
       "**Pacing:** With younger PreK children, cut the direct instruction to 5 minutes and extend the movement to 2 minutes. The music itself does the work at this age.",
@@ -508,7 +542,11 @@ G12 = "teachers/grades-1-2/"
 G12_TITLE = "Stories of a Great Journey"
 G12_HERO = {"img": M + "harlem.jpg", "pos": "center 45%"}
 
+G12_HOOK_Q = "Close your eyes and just listen. What do you feel? What pictures do you see in your mind?"
+G12_CLOSE = "But they brought their music, their stories, their faith, and their creativity."
+
 G12_LP = {
+  "slug": "stories-of-a-great-journey", "large": True,
   "out": G12 + "HR_LP_Grades1_2.pdf", "eyebrow": "Teacher lesson plan", "title": G12_TITLE,
   "sub": "Grades 1–2 · Homeroom / General", "foot": "Teacher Lesson Plan · Grades 1–2", "hero": G12_HERO, "css": LP_CSS,
   "blocks": [
@@ -524,15 +562,29 @@ G12_LP = {
       "Simple projected or printed US map showing Southern states and New York",
       "Differentiated student handouts (Green / Yellow / Red) — print one per student before class",
       "Crayons or colored pencils for drawing activities"]})]]),
-    ("section", {"label": "Hook · 5 minutes", "title": "A song from far away", "body": [
+    ("section", {"label": "Hook · 5 minutes", "title": "A song from far away",
+      "screen": {"phase": "Hook", "show": "listen", "clips": [BESSIE], "question": G12_HOOK_Q,
+                 "purpose": "Listen before learning anything: let the music raise the questions.",
+                 "students": ["Close your eyes and listen.", "What do you feel?"]},
+      "body": [
       "Play 60 seconds of Bessie Smith or a Harlem-era jazz recording. Let students simply listen with eyes closed.",
-      "*“Close your eyes and just listen. What do you feel? What pictures do you see in your mind?”*",
+      f"*“{G12_HOOK_Q}”*",
       "Take two or three responses, then:",
       "*“This music is almost 100 years old! It was made by people who had just finished one of the longest, bravest journeys in American history. Today we are going to find out who they were — and what they made.”*"]}),
-    ("section", {"label": "Direct instruction · 8 minutes", "title": "The big move", "body": [
+    ("section", {"label": "Direct instruction · 8 minutes", "title": "The big move",
+      "screen": {"phase": "The big move", "show": "gallery",
+                 "groups": [{"label": "The South", "items": [photo("delta", "A cotton field in Georgia")]},
+                            {"label": "Harlem, New York", "items": [photo("harlem", "A neighborhood called Harlem")]}],
+                 "purpose": "Trace the Great Migration from the South to Harlem.",
+                 "students": ["Where did the families start?", "Where did they go?"]},
+      "body": [
       "Show the US map. Point to the Deep South, then trace a path north to New York.",
       "*“A long time ago, many Black families lived in the South of America — places like Mississippi and Georgia. Life was very hard and unfair there. So families packed everything they owned and moved north — to cities like Chicago and New York. We call this the Great Migration. When they arrived in a neighborhood called Harlem, something amazing happened: musicians, writers, poets, and painters all found each other. They started making something the world had never seen before — a Renaissance. That means a great burst of new ideas and beauty.”*"]}),
-    ("section", {"label": "Activity · 12 minutes", "title": "Our great journey", "body": [
+    ("section", {"label": "Activity · 12 minutes", "title": "Our great journey",
+      "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+                 "purpose": "Connect the great journey to each child’s own story of change.",
+                 "students": ["Choose Green, Yellow or Red. You can switch at any time."]},
+      "body": [
       "Distribute differentiated handouts. Let students self-select their level, or assign based on your knowledge of their needs."]}),
     ("levels", {
       "green": "Students draw their family’s journey on a map outline, label where they came from and where they live now, and draw one thing their family brought with them. Sentence frames support emerging writers.",
@@ -540,8 +592,12 @@ G12_LP = {
       "red": ["Students write a first-person “interview” with an imaginary Great Migration traveler, then independently research one real Harlem Renaissance figure and write three facts.",
               "Suggest: Langston Hughes, Bessie Smith, Duke Ellington, Zora Neale Hurston, Aaron Douglas, or Walter F. White."]}),
     ("html", '<div class="sec"><p>Circulate and prompt with open questions. With 3 minutes remaining, invite two or three students to share.</p></div>'),
-    ("section", {"label": "Closing · 5 minutes", "title": "What they carried", "body": [
-      "*“The people who made the Great Migration left behind their homes and sometimes their families. But they brought their music, their stories, their faith, and their creativity. And in Harlem, they used all of that to make something so beautiful it still lives today — in every jazz song, every poem, every painting.”*"]}),
+    ("section", {"label": "Closing · 5 minutes", "title": "What they carried",
+      "screen": {"phase": "Closing", "show": "words", "text": G12_CLOSE,
+                 "purpose": "Close on what the travelers carried with them, and what it became.",
+                 "students": ["What would you bring with you?"]},
+      "body": [
+      f"*“The people who made the Great Migration left behind their homes and sometimes their families. {G12_CLOSE} And in Harlem, they used all of that to make something so beautiful it still lives today — in every jazz song, every poem, every painting.”*"]}),
     ("cols", [[("section", {"label": "Differentiation notes", "body": [
       "Green uses sentence frames and large drawing boxes — ideal for younger students or emerging writers. Yellow is independent, grade-level writing with a personal connection. Red adds historical research and first-person creative writing. Students may self-select or switch levels at any time."]})], [connection_lp()]]),
   ]}
@@ -610,7 +666,16 @@ G34 = "teachers/grades-3-4/"
 G34_TITLE = "Making Something New"
 G34_HERO = {"img": P + "poster1.jpg", "pos": "center 62%"}
 
+G34_HOOK_Q = "What do you think he felt when he arrived in Harlem for the first time?"
+G34_LOOK_Q = "What do you notice? What do the shapes and silhouettes tell you about the mood?"
+G34_CLOSE_Q = "When you write a story, or draw something, or make music — what are you saying about yourself?"
+# who was making what, in the plan's own words
+G34_NEIGHBORS = [["Langston Hughes", "writing poetry"], ["Louis Armstrong", "rehearsing jazz"],
+                 ["Zora Neale Hurston", "collecting folk stories"],
+                 ["Aaron Douglas", "painting murals in geometric shapes and bold silhouettes"]]
+
 G34_LP = {
+  "slug": "making-something-new", "large": True,
   "out": G34 + "HR_LP_Grades3_4.pdf", "eyebrow": "Teacher lesson plan", "title": G34_TITLE,
   "sub": "Grades 3–4 · Homeroom / General", "foot": "Teacher Lesson Plan · Grades 3–4", "hero": G34_HERO, "css": LP_CSS + " .hero { height: 1.6in; } .sec { margin-bottom: 7pt; } p { margin-bottom: 4.5pt; } .cols:last-child, .cols:last-child .conn, .cols:last-child .sec { margin-bottom: 0; } .levels { margin: 2pt 0 7pt; } h3 { margin-bottom: 2pt; }",
   "blocks": [
@@ -626,16 +691,36 @@ G34_LP = {
       "Device to play 60 seconds of Duke Ellington (“Take the A Train”)",
       "Optional: printed or projected image of Aaron Douglas artwork (e.g. *Aspects of Negro Life*, 1934)",
       "Differentiated handouts (Green / Yellow / Red) — one per student; pencils and optional colored pencils"]})]]),
-    ("section", {"label": "Hook · 5 minutes", "title": "What does injustice sound like?", "body": [
+    ("section", {"label": "Hook · 5 minutes", "title": "What does injustice sound like?",
+      "screen": {"phase": "Hook", "show": "question", "question": G34_HOOK_Q,
+                 "purpose": "Start with one newcomer to Harlem, and the music he made there.",
+                 "students": ["Listen to “Take the A Train.”"]},
+      "body": [
       "Play 60–90 seconds of “Take the A Train.” No introduction — just let it play.",
-      "*“That piece of music was written in 1939 by a man named Billy Strayhorn, who had just moved to New York City from Pittsburgh. Duke Ellington told him: take the A train — that’s the subway line to Harlem. And he did. And he wrote that. What do you think he felt when he arrived in Harlem for the first time?”*",
+      f"*“That piece of music was written in 1939 by a man named Billy Strayhorn, who had just moved to New York City from Pittsburgh. Duke Ellington told him: take the A train — that’s the subway line to Harlem. And he did. And he wrote that. {G34_HOOK_Q}”*",
       "Take 3–4 responses. Then:",
       "*“Today we’re going to look at what happens when a whole community of people — all at the same time — decide to make something new and powerful. What happens when artists, musicians, and writers all gather in one place and say: we have something to say, and we’re going to say it beautifully.”*"]}),
-    ("section", {"label": "Direct instruction · 10 minutes", "title": "The Harlem Renaissance", "body": [
+    ("section", {"label": "Direct instruction · 10 minutes", "title": "The Harlem Renaissance",
+      "screen": [
+        {"phase": "Teach", "minutes": 6, "script": [0, 1], "title": "Every building was full of talent", "show": "chart",
+         "caption": "Every building was full of talent", "columns": ["Who", "Making"],
+         "rows": [{"cells": r} for r in G34_NEIGHBORS],
+         "purpose": "Meet the neighbors: four makers, four forms, one statement.",
+         "students": ["What were they all saying? *Black life is rich, complex, beautiful, and important.*"]},
+        {"phase": "Teach", "minutes": 4, "script": [2], "title": "Aaron Douglas", "show": "artwork",
+         "work": "Aspects of Negro Life", "artist": "Aaron Douglas", "date": "1934",
+         "links": screen_links(WHOLE_MURAL),
+         "purpose": "Look closely at the Renaissance’s visual language.",
+         "students": [G34_LOOK_Q]}],
+      "body": [
       "*“From around 1910, hundreds of thousands of Black families left the South — escaping laws designed to keep them poor and afraid. They moved to Chicago, Detroit, Philadelphia, and especially Harlem in New York City. And in Harlem, something happened that no one had quite planned: every building was full of talent. Your neighbor might be Langston Hughes writing poetry. Across the street, Louis Armstrong was rehearsing jazz. Down the road, Zora Neale Hurston was collecting folk stories. Aaron Douglas was painting murals in geometric shapes and bold silhouettes.”*",
       "*“They weren’t just making art. They were making a statement: Black life is rich, complex, beautiful, and important. This movement — this burst of creativity — we call the Harlem Renaissance.”*",
-      "Show the Aaron Douglas image if available. Ask: *“What do you notice? What do the shapes and silhouettes tell you about the mood?”*"]}),
-    ("section", {"label": "Activity · 15 minutes", "title": "Your creative voice", "body": [
+      f"Show the Aaron Douglas image if available. Ask: *“{G34_LOOK_Q}”*"]}),
+    ("section", {"label": "Activity · 15 minutes", "title": "Your creative voice",
+      "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+                 "purpose": "Each student finds a creative voice of their own.",
+                 "students": ["Choose Green, Yellow or Red. You can switch at any time."]},
+      "body": [
       "Distribute differentiated handouts. Students may self-select or be assigned."]}),
     ("levels", {
       "green": "Students choose a creative form (music, painting, story, poem) and fill in a planning frame: What will I make? Who am I making it for? What do I want them to feel? Then they sketch or draft a small sample.",
@@ -643,8 +728,13 @@ G34_LP = {
       "red": ["Students analyze how two different creative forms — one visual, one musical or literary — made the same kind of argument in different ways. They choose two real figures and compare their approach, then write a critical response.",
               "Suggested pairings: Aaron Douglas + Langston Hughes / Duke Ellington + Zora Neale Hurston"]}),
     ("html", '<div class="sec"><p>Circulate and engage students with their choices. In the final 3 minutes, invite sharing — particularly Red level students doing comparative analysis.</p></div>'),
-    ("section", {"label": "Closing · 5 minutes", "title": "Art as argument", "body": [
-      "*“In the 1920s, some people said that Black people were not capable of great art or deep thinking. The Harlem Renaissance was, in a way, a very long answer to that. Every painting, every jazz record, every poem said: look at what we made. Art can be an argument. It can be a protest. It can be a declaration of who you are. When you write a story, or draw something, or make music — what are you saying about yourself?”*"]}),
+    ("section", {"label": "Closing · 5 minutes", "title": "Art as argument",
+      "screen": {"phase": "Closing", "show": "words",
+                 "text": "Art can be an argument. It can be a protest. It can be a declaration of who you are.",
+                 "purpose": "Name what the Renaissance shows: what you make says who you are.",
+                 "students": [G34_CLOSE_Q]},
+      "body": [
+      f"*“In the 1920s, some people said that Black people were not capable of great art or deep thinking. The Harlem Renaissance was, in a way, a very long answer to that. Every painting, every jazz record, every poem said: look at what we made. Art can be an argument. It can be a protest. It can be a declaration of who you are. {G34_CLOSE_Q}”*"]}),
     ("cols", [[("section", {"label": "Differentiation & Catholic context", "body": [
       "Green uses planning frames to reduce the blank-page problem. Yellow requires first-person perspective-taking and historical context. Red requires analysis and comparison across creative forms. Allow students to move between levels; Red extension works well as homework.",
       "**Catholic school connection:** The Harlem Renaissance connects naturally to CST Principle 1 (Human Dignity). The movement’s central claim — that every human life is rich with worth and beauty — is deeply consonant with the Church’s teaching on the inherent dignity of every person."]})], [connection_lp()]]),

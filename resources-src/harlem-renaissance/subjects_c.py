@@ -5,6 +5,9 @@ words: see resources-src/CONVERTING.md. Aaron Douglas's paintings, which the
 old handouts reproduced, are still in copyright, so they are named and not
 shown; the teacher shows the work in class."""
 import html as _h, re
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(__file__))
+from _links import screen_links
 
 D = "teachers/grades-5-8/"
 HX = "/exhibitions/harlem/"
@@ -104,6 +107,20 @@ def q(text, lines):
 R_T = "Created in God's Image"
 R_HERO = {"img": HX + "poster2-photograph.jpg", "pos": "center 30%"}
 
+GEN = {"text": "\"Then God said, 'Let us make humankind in our image, according to our likeness'... So God created humankind in his image, in the image of God he created them.\"", "ref": "Genesis 1:26–27"}
+
+# "screen" on a section is for the site's Lesson mode only (resources-src/
+# export_lessons.py); build.py ignores it, so the PDF is unchanged. Anything
+# printed and shown on screen is written once, as a constant.
+CHOOSE = ["Choose Green, Yellow or Red. You can switch at any time."]
+R_Q1 = "what does it mean to be made in God's image?"
+R_Q2 = "if every person is made in God's image — equally — what does it mean when a society treats some people as less than others?"
+R_HUGHES = "Langston Hughes was saying: 'I, too, am America.'"
+R_SOLIDARITY = "what happens to one member of the human family affects all of us."
+R_PRAYER = "Creator God, you made every person in your image. Give us the courage of the Harlem Renaissance artists — to see beauty and dignity in every face, and to insist that the world see it too. Amen."
+R_WORK = {"work": "Song of the Towers", "artist": "Aaron Douglas", "date": "1934",
+          "links": screen_links("Song of the Towers")}
+
 REL_LP = lesson("Religion", "Religion", R_T, R_HERO, [
   ("timing", [("Hook", 5, "#7D8471"), ("Teach", 12, "#2F4A5A"), ("Activity", 22, "#7A4B9A"), ("Prayer", 6, "#A8452F")]),
   ("section", {"label": "Learning objective", "title": "What students will understand",
@@ -118,18 +135,38 @@ REL_LP = lesson("Religion", "Religion", R_T, R_HERO, [
     "Projected or printed Aaron Douglas image — *Song of the Towers* or *Aspects of Negro Life*",
     "Differentiated handouts — one per student"]}),
   ("section", {"label": "Hook · 5 minutes", "title": "Two questions",
-    "body": ["*\"I'm going to ask you two questions. First: what does it mean to be made in God's image? Take 30 seconds and write one sentence. Second: if every person is made in God's image — equally — what does it mean when a society treats some people as less than others?\"*",
+    "screen": {"phase": "Hook", "show": "question", "question": f"{R_Q1[0].upper()}{R_Q1[1:]} {R_Q2[0].upper()}{R_Q2[1:]}",
+               "purpose": "Hold the tension between the theological claim and the historical reality. Don’t resolve it yet.",
+               "students": ["Take 30 seconds and write one sentence for each."]},
+    "body": [f"*\"I'm going to ask you two questions. First: {R_Q1} Take 30 seconds and write one sentence. Second: {R_Q2}\"*",
              "Take 4–5 responses to each. Hold the tension between the theological claim and the historical reality. Don't resolve it yet."]}),
   ("section", {"label": "Direct instruction · 12 minutes", "title": "Imago Dei and the Harlem Renaissance",
+    "screen": [
+      {"phase": "Teach", "minutes": 4, "script": [0], "title": "Imago Dei", "show": "verse", "verse": GEN,
+       "purpose": "Establish the theological foundation: dignity is given, not earned.",
+       "students": ["What does this passage say about every person’s value?"]},
+      {"phase": "Teach", "minutes": 4, "script": [1], "title": "In paint and poetry and jazz", "show": "artwork", **R_WORK,
+       "purpose": "See the claim of *imago Dei* made in art.",
+       "students": [R_HUGHES, "How does this painting affirm the idea of *imago Dei*?"]},
+      {"phase": "Teach", "minutes": 4, "script": [2], "title": "Solidarity", "show": "words",
+       "text": R_SOLIDARITY[0].upper() + R_SOLIDARITY[1:], "cite": "CST Principle 7 — Solidarity",
+       "purpose": "Connect the Renaissance’s response to injustice to the call to solidarity.",
+       "students": ["What does solidarity ask of us today?"]}],
     "body": ["Establish the theological foundation: *imago Dei* (Genesis 1:26–27) means every human person possesses inherent, irreducible dignity — not earned by achievement, status, race, or talent. This is not a social convention; it is a theological claim about the nature of reality.",
-             "*\"The artists, writers, and musicians of the Harlem Renaissance were making exactly this claim — but in paint and poetry and jazz. Langston Hughes was saying: 'I, too, am America.' Aaron Douglas was painting figures without individual faces because the point was not one person's dignity — it was every Black person's dignity. That is a theological argument expressed in art.\"*",
-             "Introduce the historical context briefly: Jim Crow laws, segregation, and the cultural response of the Harlem Renaissance as an assertion that Black life, art, and culture were not only equal but magnificent. Connect to CST Principle 7 — Solidarity: what happens to one member of the human family affects all of us."]}),
-  ("section", {"label": "Activity · 22 minutes"}),
+             f"*\"The artists, writers, and musicians of the Harlem Renaissance were making exactly this claim — but in paint and poetry and jazz. {R_HUGHES} Aaron Douglas was painting figures without individual faces because the point was not one person's dignity — it was every Black person's dignity. That is a theological argument expressed in art.\"*",
+             f"Introduce the historical context briefly: Jim Crow laws, segregation, and the cultural response of the Harlem Renaissance as an assertion that Black life, art, and culture were not only equal but magnificent. Connect to CST Principle 7 — Solidarity: {R_SOLIDARITY}"]}),
+  ("section", {"label": "Activity · 22 minutes",
+    "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+               "purpose": "Connect scripture and Catholic Social Teaching to the Renaissance at the right level of challenge.",
+               "students": CHOOSE}}),
   ("levels", {
     "green": "Read Genesis 1:26–27 and a short summary of CST Principle 1. Answer four guided questions connecting the theological text to the Harlem Renaissance. Draw or describe one moment from the Renaissance that expressed human dignity.",
     "yellow": "Read two scripture passages and apply CST Principle 1 to two specific examples from the Harlem Renaissance. Write a reflective paragraph on what it means to affirm someone's *imago Dei* through creative work — and what students' responsibility is today.",
     "red": "Theological analysis: how does the Harlem Renaissance represent a response to the systematic violation of *imago Dei*? Write a structured theological reflection using scripture, CST, and specific Renaissance examples. Respond to: can art be a form of prayer or prophetic witness?"}),
   ("section", {"label": "Closing prayer · 6 minutes",
+    "screen": {"phase": "Prayer", "show": "prayer", "title": "Closing prayer", "prayer": R_PRAYER,
+               "purpose": "Give thanks for the artists who insisted on the dignity of every person, and ask for their courage.",
+               "students": ["A student leads a brief prayer of gratitude — or pray the handout’s prayer together."]},
     "body": ["Invite a student to lead a brief prayer of gratitude for the artists, writers, and musicians who insisted on the dignity of every person — and a prayer for the courage to do the same in their own lives."]}),
   conn_lp(),
   ("section", {"label": "Theological framework", "body": [
@@ -149,8 +186,7 @@ REL_LP = lesson("Religion", "Religion", R_T, R_HERO, [
     "**Social Studies:** The contrast between CST's affirmation of human dignity and the legal reality of Jim Crow is a powerful case study in structural sin",
     "**Assessment:** Reflective journal entry; prayer or psalm written in the style of the biblical texts; presentation connecting one artist or writer to a specific CST principle"]}),
 ])
-
-GEN = {"text": "\"Then God said, 'Let us make humankind in our image, according to our likeness'... So God created humankind in his image, in the image of God he created them.\"", "ref": "Genesis 1:26–27"}
+REL_LP["slug"] = "created-in-gods-image"
 
 REL_G = handout("Religion", "Religion", R_T, "green", R_HERO, [
   ("task", {"label": "Part 1", "title": "The scripture", "blocks": [("verse", GEN)] + q(
@@ -186,7 +222,7 @@ REL_Y = handout("Religion", "Religion", R_T, "yellow", R_HERO, [
       P("CST Principle 7 — Solidarity — says we are one human family, and what affects one member affects all of us. The Harlem Renaissance happened in Harlem — but its impact was felt by all Americans.")] + q(
       "**What does solidarity require of someone who witnessed injustice but was not directly affected by it? Use one specific example from the Harlem Renaissance to illustrate your answer:**", 3)}),
   ("cols", [[("connection", ["As you explore the exhibition, choose one artwork, poem, or piece of music and ask: what theological claim is this making? Write down your answer and bring it to class for discussion."])],
-            [("prayer", ["Creator God, you made every person in your image. Give us the courage of the Harlem Renaissance artists — to see beauty and dignity in every face, and to insist that the world see it too. Amen."])]]),
+            [("prayer", [R_PRAYER])]]),
 ], ["**Catholic Social Teaching Principle 1 — Life and Dignity of the Human Person:** Every human being is created in the image and likeness of God (*imago Dei*). This sacred dignity is the foundation of all Catholic Social Teaching. Society must be structured to protect and affirm this dignity — and any law, system, or cultural attitude that denies it is a violation of God's order."],
   css="table.fill td:first-child { width: 48%; } table.fill td:nth-child(2) { width: 17%; } table.fill td { padding-bottom: 9pt; } table.fill th { font-size: 7pt; letter-spacing: .12em; } .task { margin-bottom: 4pt; }")
 
@@ -220,6 +256,21 @@ TICKET_ES = ("html", '<div class="ticket es"><div class="stub"><span>Admit one</
 def ctx(t):
     return ("html", f'<div class="context">{"".join(f"<p>{il(p)}</p>" for p in t)}</div>')
 
+S_HOOK_Q = "¿Reconocen algo?"
+S_CLOSE = "Estas conversaciones cruzaron fronteras y océanos."
+# the teacher's vocabulary table: Spanish, English, example sentence
+S_VOCAB = [
+    ["**el renacimiento**", "the renaissance / rebirth", "*El Renacimiento de Harlem fue un movimiento cultural.*"],
+    ["**la silueta**", "the silhouette", "*Aaron Douglas pintaba siluetas sin rasgos individuales.*"],
+    ["**la dignidad**", "dignity", "*Los artistas afirmaban la dignidad de la vida negra.*"],
+    ["**la migración**", "migration", "*La Gran Migración transformó las ciudades del norte.*"],
+    ["**la herencia**", "heritage / inheritance", "*El jazz celebraba la herencia africana.*"],
+    ["**la identidad**", "identity", "*Los poetas exploraban su identidad cultural.*"],
+    ["**la resistencia**", "resistance", "*El arte fue una forma de resistencia.*"],
+    ["**la libertad**", "freedom / liberty", "*La música expresaba el deseo de libertad.*"],
+    ["**el orgullo**", "pride", "*Había un nuevo orgullo en la cultura negra.*"],
+    ["**afrocubano/a**", "Afro-Cuban", "*La música afrocubana tenía raíces africanas similares.*"]]
+
 SPA_LP = lesson("Spanish", "Spanish", S_T, S_HERO, [
   ("timing", [("Hook", 5, "#7D8471"), ("Vocabulario", 10, "#2F4A5A"), ("Activity", 25, "#7A4B9A"), ("Closing", 5, "#A8452F")]),
   ("section", {"label": "Learning objective", "title": "What students will understand",
@@ -233,29 +284,32 @@ SPA_LP = lesson("Spanish", "Spanish", S_T, S_HERO, [
     "Optional: audio clip of Afro-Cuban jazz (Celia Cruz, Tito Puente) to open the connection between Harlem jazz and Latin music",
     "Optional: short reading in Spanish about Nicolás Guillén (Cuban poet influenced by the Harlem Renaissance) for Red-level extension"]}),
   ("section", {"label": "Hook · 5 minutes", "title": "La música conecta",
-    "body": ["*\"Antes de hablar del Renacimiento de Harlem, quiero que escuchen esto.\"* [Play 30 seconds of Afro-Cuban jazz or salsa.] *\"¿Reconocen algo? Esta música viene de Cuba — pero sus raíces están en el jazz de Harlem. Los músicos afrocubanos y los músicos afroamericanos de Harlem estaban creando algo nuevo al mismo tiempo, inspirados por las mismas tradiciones africanas. Hoy vamos a explorar estas conexiones.\"*"]}),
+    "screen": {"phase": "Hook", "show": "question", "question": S_HOOK_Q,
+               "purpose": "Open with the music, and the connection between Harlem and the Caribbean.",
+               "students": ["Escuchen."]},
+    "body": [f"*\"Antes de hablar del Renacimiento de Harlem, quiero que escuchen esto.\"* [Play 30 seconds of Afro-Cuban jazz or salsa.] *\"{S_HOOK_Q} Esta música viene de Cuba — pero sus raíces están en el jazz de Harlem. Los músicos afrocubanos y los músicos afroamericanos de Harlem estaban creando algo nuevo al mismo tiempo, inspirados por las mismas tradiciones africanas. Hoy vamos a explorar estas conexiones.\"*"]}),
   ("section", {"label": "Direct instruction · 10 minutes", "title": "Vocabulario clave",
+    "screen": {"phase": "Vocabulario", "show": "chart", "caption": "Vocabulario principal",
+               "columns": ["Spanish", "English", "Example sentence"], "rows": [{"cells": r} for r in S_VOCAB],
+               "purpose": "Practice the core vocabulary in the context of the Harlem Renaissance.",
+               "students": ["Say each word.", "Use it in a sentence about the Harlem Renaissance."]},
     "body": ["Introduce and practice the core vocabulary set with visual and contextual support. Use the images on handouts: *la silueta, el renacimiento, la dignidad, la migración, el jazz, la pintura, el poeta / la poeta, la identidad, la libertad, la resistencia, la herencia.* For each word: model pronunciation, ask students to use it in a sentence, then use it in the context of the Harlem Renaissance."]}),
-  ("section", {"label": "Activity · 25 minutes"}),
+  ("section", {"label": "Activity · 25 minutes",
+    "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+               "purpose": "Use the vocabulary in reading, writing and discussion at the right level of challenge.",
+               "students": CHOOSE}}),
   ("levels", {
     "green": "Vocabulary matching and fill-in with word bank (all words with English glosses provided). Describe Aaron Douglas's *Song of the Towers* in 3 Spanish sentences using the vocabulary. Answer 3 comprehension questions in Spanish.",
     "yellow": "Vocabulary in context (sentences and short paragraph). Write a 5-sentence description of the Harlem Renaissance in Spanish. Respond in Spanish to: *¿Por qué era importante el Renacimiento de Harlem?* Connect to a Spanish-speaking cultural figure or movement.",
     "red": "Read a short paragraph in Spanish about Nicolás Guillén (Cuban Negrismo poet). Analyze: what connections can you find between Guillén's poetry and the Harlem Renaissance? Write a comparative paragraph in Spanish. Discussion question: *¿Puede el arte cambiar la sociedad?*"}),
   ("section", {"label": "Closing · 5 minutes",
-    "body": ["*\"El Renacimiento de Harlem no fue sólo un movimiento americano — fue parte de un despertar cultural global de la diáspora africana. En Cuba, en Puerto Rico, en Brasil — artistas y poetas estaban haciendo lo mismo: afirmando la belleza y la dignidad de la cultura africana. Estas conversaciones cruzaron fronteras y océanos.\"*"]}),
+    "screen": {"phase": "Closing", "show": "words", "title": "Closing", "text": S_CLOSE,
+               "purpose": "Set the Harlem Renaissance within the African diaspora across the Americas.",
+               "students": ["¿Puede el arte cambiar la sociedad?"]},
+    "body": [f"*\"El Renacimiento de Harlem no fue sólo un movimiento americano — fue parte de un despertar cultural global de la diáspora africana. En Cuba, en Puerto Rico, en Brasil — artistas y poetas estaban haciendo lo mismo: afirmando la belleza y la dignidad de la cultura africana. {S_CLOSE}\"*"]}),
   conn_lp(),
   ("section", {"label": "Vocabulario principal — teacher reference"}),
-  ("table", {"head": ["Spanish", "English", "Example sentence"], "rows": [
-    ["**el renacimiento**", "the renaissance / rebirth", "*El Renacimiento de Harlem fue un movimiento cultural.*"],
-    ["**la silueta**", "the silhouette", "*Aaron Douglas pintaba siluetas sin rasgos individuales.*"],
-    ["**la dignidad**", "dignity", "*Los artistas afirmaban la dignidad de la vida negra.*"],
-    ["**la migración**", "migration", "*La Gran Migración transformó las ciudades del norte.*"],
-    ["**la herencia**", "heritage / inheritance", "*El jazz celebraba la herencia africana.*"],
-    ["**la identidad**", "identity", "*Los poetas exploraban su identidad cultural.*"],
-    ["**la resistencia**", "resistance", "*El arte fue una forma de resistencia.*"],
-    ["**la libertad**", "freedom / liberty", "*La música expresaba el deseo de libertad.*"],
-    ["**el orgullo**", "pride", "*Había un nuevo orgullo en la cultura negra.*"],
-    ["**afrocubano/a**", "Afro-Cuban", "*La música afrocubana tenía raíces africanas similares.*"]]}),
+  ("table", {"head": ["Spanish", "English", "Example sentence"], "rows": S_VOCAB}),
   ("section", {"label": "Caribbean connection — teacher notes", "body": [
     "**Negrismo (Cuba/Puerto Rico, 1920s–30s):** A literary movement parallel to the Harlem Renaissance, led by poets like Nicolás Guillén (Cuba) and Luis Palés Matos (Puerto Rico). Both movements celebrated African heritage, used African-influenced rhythms in poetry, and asserted the dignity of Afro-Caribbean identity. Guillén and Langston Hughes knew each other and corresponded — the movements were genuinely interconnected.",
     "**Afro-Cuban music:** Rooted in the same African traditions as jazz (call-and-response, polyrhythm, improvisation), Afro-Cuban music developed simultaneously with Harlem jazz. By the 1940s, musicians like Dizzy Gillespie were fusing both traditions into what became known as Afro-Cuban jazz or Cubop."]}),
@@ -264,6 +318,7 @@ SPA_LP = lesson("Spanish", "Spanish", S_T, S_HERO, [
     "**Music:** The jazz/salsa/cumbia connection can be traced musically — same African rhythmic roots, different cultural expressions",
     "**Religion:** *La dignidad humana* is a key term in Catholic Social Teaching in Spanish — the vocabulary connects directly to CST Principle 1"]}),
 ], css="table.fill { font-size: 8.8pt; } table.fill td { padding: 2.5pt 6pt 2.5pt 0; } table.fill td:first-child { width: 22%; } table.fill td:nth-child(2) { width: 24%; }")
+SPA_LP["slug"] = "el-renacimiento-de-harlem"
 
 def blanks(items):
     return ("html", '<div class="blanks">' + "".join(f"<p>{il(t)}</p>" for t in items) + "</div>")
@@ -348,6 +403,17 @@ SPA_R = handout("Spanish", "Spanish", S_T, "red", S_HERO, [
 T_T = "Voice, Body, Story"
 T_HERO = {"img": MIG + "harlem.jpg", "pos": "center 75%"}
 
+T_BIG = "Stand up. Take up as much space as possible — arms wide, feet apart, chin up. Hold it for 10 seconds."
+T_SMALL = "Now make yourself as small as possible — shoulders in, head down. Hold it."
+T_NOTICE = "Now stand normally and notice:"
+T_Q = "which posture felt more like you? Which felt like a choice?"
+# the oral performance tradition: (form, who and what)
+T_TRADITION = [("blues shouters", "(Bessie Smith, Ma Rainey) who used the voice as an instrument of testimony"),
+               ("preacher rhetoric", "(Marcus Garvey, Adam Clayton Powell Sr.) using call-and-response with audiences"),
+               ("spoken word and poetry readings", "in Harlem salons and speakeasies"),
+               ("theatrical performance", "at venues like the Lafayette Theater")]
+T_STEP_IN = "Today you're going to step into one of those stories."
+
 THE_LP = lesson("Theater", "Theater", T_T, T_HERO, [
   chips("Grades 5–8", "45 minutes", "Theater arts"),
   ("section", {"label": "Learning objective", "title": "What students will understand",
@@ -361,11 +427,26 @@ THE_LP = lesson("Theater", "Theater", T_T, T_HERO, [
     "Optional: audio of a Harlem Renaissance monologue or spoken word for model — recordings of Paul Robeson, Langston Hughes reading his own work, or a scene from a Zora Neale Hurston play",
     "Open space for performance — desks cleared if possible; alternatively, students remain seated for in-class reading performances"]}),
   ("section", {"label": "Hook · 5 minutes", "title": "The body remembers",
-    "body": ["*\"Before we talk about the Harlem Renaissance, I want you to do something. Stand up. Take up as much space as possible — arms wide, feet apart, chin up. Hold it for 10 seconds. Now make yourself as small as possible — shoulders in, head down. Hold it. Now stand normally and notice: which posture felt more like you? Which felt like a choice? The performers of the Harlem Renaissance made a choice to take up space — physically, artistically, politically. Today we're going to explore what that means through performance.\"*"]}),
+    "screen": {"phase": "Hook", "show": "question", "question": T_Q[0].upper() + T_Q[1:],
+               "purpose": "Feel, in the body, what it means to choose to take up space.",
+               "students": [T_BIG, T_SMALL, T_NOTICE.rstrip(":") + "."]},
+    "body": [f"*\"Before we talk about the Harlem Renaissance, I want you to do something. {T_BIG} {T_SMALL} {T_NOTICE} {T_Q} The performers of the Harlem Renaissance made a choice to take up space — physically, artistically, politically. Today we're going to explore what that means through performance.\"*"]}),
   ("section", {"label": "Direct instruction · 10 minutes", "title": "The oral tradition",
-    "body": ["The Harlem Renaissance had a rich oral performance tradition: **blues shouters** (Bessie Smith, Ma Rainey) who used the voice as an instrument of testimony; **preacher rhetoric** (Marcus Garvey, Adam Clayton Powell Sr.) using call-and-response with audiences; **spoken word and poetry readings** in Harlem salons and speakeasies; **theatrical performance** at venues like the Lafayette Theater.",
-             "*\"Zora Neale Hurston — folklorist, novelist, playwright — said the Black oral tradition was 'the greatest cultural wealth of the American people.' She spent years collecting the stories, the sermons, the songs. She believed that how a community tells its stories is as important as the stories themselves. Today you're going to step into one of those stories.\"*"]}),
-  ("section", {"label": "Activity: character work and performance · 25 minutes"}),
+    "screen": [
+      {"phase": "Teach", "minutes": 5, "script": [0], "show": "chart", "caption": "The Harlem Renaissance oral performance tradition",
+       "columns": ["Form", "Who and where"], "rows": [{"cells": [f[0].upper() + f[1:], w]} for f, w in T_TRADITION],
+       "purpose": "Meet the voices of the oral tradition: testimony, call-and-response, the spoken word, the stage.",
+       "students": ["Which of these have you heard?"]},
+      {"phase": "Teach", "minutes": 5, "script": [1], "title": "Step into a story", "show": "words",
+       "text": "How a community tells its stories is as important as the stories themselves.", "cite": "What Zora Neale Hurston believed",
+       "purpose": "Move from the tradition to the students’ own performance.",
+       "students": [T_STEP_IN]}],
+    "body": ["The Harlem Renaissance had a rich oral performance tradition: " + "; ".join(f"**{f}** {w}" for f, w in T_TRADITION) + ".",
+             f"*\"Zora Neale Hurston — folklorist, novelist, playwright — said the Black oral tradition was 'the greatest cultural wealth of the American people.' She spent years collecting the stories, the sermons, the songs. She believed that how a community tells its stories is as important as the stories themselves. {T_STEP_IN}\"*"]}),
+  ("section", {"label": "Activity: character work and performance · 25 minutes",
+    "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+               "purpose": "Write and perform a Harlem Renaissance voice at the right level of challenge.",
+               "students": CHOOSE}}),
   ("levels", {
     "green": "Receive a character card with background, situation, and sentence starters. Develop a 5–8 sentence first-person monologue. Practice with a partner, then share with the class (can be seated). Focus: speaking in first person and making one physical choice (gesture, posture).",
     "yellow": "Choose a character from the provided list or create your own within the historical context. Write and perform a 60–90 second monologue. Must include one moment of silence (held pause) and one moment of vocal variety (volume, pace, or pitch change). Written reflection required.",
@@ -389,6 +470,11 @@ THE_LP = lesson("Theater", "Theater", T_T, T_HERO, [
     "**Religion:** The preacher's prophetic voice (Amos, Isaiah, Garvey) is a direct connection between the Harlem oral tradition and the biblical prophetic tradition",
     "**Music:** The blues shout, the jazz vocal style, and theatrical performance share rhythmic and tonal vocabulary"]}),
 ])
+
+THE_LP["slug"] = "voice-body-story"
+# printed without a timing bar (its chips say 45 minutes); on screen, the
+# timed sections' own minutes
+THE_LP["screen_timing"] = [("Hook", 5, "#7D8471"), ("Teach", 10, "#2F4A5A"), ("Activity", 25, "#7A4B9A")]
 
 THE_G = handout("Theater", "Theater", T_T, "green", T_HERO, [
   ("task", {"label": "Your monologue", "title": "Write your first-person speech", "blocks": [
@@ -461,6 +547,14 @@ THE_R = handout("Theater", "Theater", T_T, "red", T_HERO, [
 M_T = "The Sound of Harlem"
 M_HERO = {"img": MIG + "chicago.jpg", "pos": "center 40%"}
 
+M_TASK = "In the next 30 seconds, write down three things that make the jazz sound different from the classical piece. Be specific — not just 'it's more fun.'"
+M_CALL = "one voice calls, another answers."
+M_SYNC = "Emphasis on the off-beat — the \"and\" between the beats rather than the beat itself."
+M_FREEDOM = "The structure gave him the rules; improvisation gave him the freedom."
+# the 12-bar blues in C, as the Green handout sets it out: (chord, numeral)
+BARS = [("C", "I"), ("C", "I"), ("C", "I"), ("C", "I"), ("F", "IV"), ("F", "IV"), ("C", "I"), ("C", "I"),
+        ("G", "V"), ("F", "IV"), ("C", "I"), ("G", "V")]
+
 MUS_LP = lesson("Music", "Music", M_T, M_HERO, [
   chips("Grades 5–8", "45 minutes", "Music"),
   ("section", {"label": "Learning objective", "title": "What students will understand",
@@ -474,17 +568,39 @@ MUS_LP = lesson("Music", "Music", M_T, M_HERO, [
     "Optional: piano or keyboard for demonstrating the 12-bar blues chord progression live",
     "Differentiated handouts — one per student; pencils for notation work"]}),
   ("section", {"label": "Hook · 5 minutes", "title": "What makes jazz sound like jazz?",
+    "screen": {"phase": "Hook", "show": "question", "title": "Listen and compare", "question": "What makes jazz sound like jazz?",
+               "purpose": "Hear the difference first; name it after.",
+               "students": [M_TASK]},
     "body": ["Play 30 seconds of straight classical music, then 30 seconds of Louis Armstrong. No introduction.",
-             "*\"Same instruments — woodwinds, brass, strings in the classical piece, brass in the jazz. But they sound completely different. In the next 30 seconds, write down three things that make the jazz sound different from the classical piece. Be specific — not just 'it's more fun.'\"*",
+             f"*\"Same instruments — woodwinds, brass, strings in the classical piece, brass in the jazz. But they sound completely different. {M_TASK}\"*",
              "Take responses. Students will typically identify: rhythm (swung/syncopated vs straight), improvisation, call-and-response, the feel of the beat, expression. Affirm and build on these."]}),
   ("section", {"label": "Direct instruction · 12 minutes", "title": "Jazz structure",
+    "screen": [
+      {"phase": "Teach", "minutes": 3, "script": [0, 1], "title": "Call-and-response", "show": "words",
+       "text": M_CALL[0].upper() + M_CALL[1:],
+       "purpose": "Hear call-and-response, and where it comes from.",
+       "students": ["Listen: which instrument calls? Which responds?"]},
+      {"phase": "Teach", "minutes": 2, "script": [2], "title": "Syncopation", "show": "words", "text": M_SYNC,
+       "purpose": "Feel the off-beat in the body before naming it.",
+       "students": ["Clap a regular beat.", "Now clap the syncopated version."]},
+      {"phase": "Teach", "minutes": 3, "script": [3], "title": "12-bar blues form", "show": "chart",
+       "caption": "12-bar blues pattern (key of C)", "columns": ["", "1", "2", "3", "4"],
+       "rows": [{"cells": [f"Bars {r * 4 + 1}–{r * 4 + 4}"] + [f"{c} ({n})" for c, n in BARS[r * 4:r * 4 + 4]]} for r in range(3)],
+       "purpose": "See the framework that gives musicians something to improvise within.",
+       "students": ["The same 12 bars repeat. What does that let musicians do?"]},
+      {"phase": "Teach", "minutes": 4, "script": [4, 5], "title": "Structure and freedom", "show": "words", "text": M_FREEDOM,
+       "purpose": "Put the pieces together: the defining idea of jazz.",
+       "students": ["Where do you hear the structure? Where do you hear the freedom?"]}],
     "body": ["Build the structural vocabulary in layers:",
-             "**Call-and-response:** Rooted in West African music and work songs — one voice calls, another answers. In jazz, the trumpet \"calls,\" the rhythm section \"responds.\" Play an example, ask students to identify it.",
-             "**Syncopation:** Emphasis on the off-beat — the \"and\" between the beats rather than the beat itself. The defining rhythmic feel of jazz and blues. Clap a regular beat, then clap the syncopated version.",
+             f"**Call-and-response:** Rooted in West African music and work songs — {M_CALL} In jazz, the trumpet \"calls,\" the rhythm section \"responds.\" Play an example, ask students to identify it.",
+             f"**Syncopation:** {M_SYNC} The defining rhythmic feel of jazz and blues. Clap a regular beat, then clap the syncopated version.",
              "**12-bar blues form:** The harmonic foundation of most early jazz. Play or demonstrate the I–IV–I–V–I progression. Point out: the same 12 bars repeating gives musicians a framework to improvise within.",
              "**Improvisation:** Creating melody spontaneously within the harmonic structure. Not random — constrained by key, chord changes, and musical conversation with other players.",
-             "*\"Louis Armstrong wasn't just playing notes — he was having a conversation with the other musicians in real time. The structure gave him the rules; improvisation gave him the freedom. That combination — structure and freedom — is the defining idea of jazz.\"*"]}),
-  ("section", {"label": "Activity: structured listening and response · 22 minutes"}),
+             f"*\"Louis Armstrong wasn't just playing notes — he was having a conversation with the other musicians in real time. {M_FREEDOM} That combination — structure and freedom — is the defining idea of jazz.\"*"]}),
+  ("section", {"label": "Activity: structured listening and response · 22 minutes",
+    "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+               "purpose": "Listen, analyze or compose at the right level of challenge.",
+               "students": CHOOSE}}),
   ("levels", {
     "green": "Guided listening response to one jazz recording — identify instruments, describe mood, mark where they hear call-and-response, and answer five structured questions. No notation required.",
     "yellow": "Listen to two contrasting recordings (blues and big band jazz). Complete a comparison framework covering structure, instrumentation, improvisation, and emotional effect. Write a paragraph connecting jazz structure to African musical roots.",
@@ -513,9 +629,10 @@ MUS_LP = lesson("Music", "Music", M_T, M_HERO, [
       "**Composition:** Compose and perform a 4-bar melody over the 12-bar blues progression — can be done with voice, any instrument, or body percussion",
       "**Critical essay:** \"Jazz is both African and American — explain how its structure reflects both traditions\""]})]]),
 ], css="body { font-size: 8.8pt; line-height: 1.37; } .chips { margin-bottom: 8pt; } li { margin-bottom: 1pt; } .cols { grid-template-columns: 1.15fr 1fr; gap: 14pt; } .conn { margin-bottom: 6pt; }")
-
-BARS = [("C", "I"), ("C", "I"), ("C", "I"), ("C", "I"), ("F", "IV"), ("F", "IV"), ("C", "I"), ("C", "I"),
-        ("G", "V"), ("F", "IV"), ("C", "I"), ("G", "V")]
+MUS_LP["slug"] = "the-sound-of-harlem"
+# printed without a timing bar (its chips say 45 minutes); on screen, the
+# timed sections' own minutes
+MUS_LP["screen_timing"] = [("Hook", 5, "#7D8471"), ("Teach", 12, "#2F4A5A"), ("Activity", 22, "#7A4B9A")]
 
 MUS_G = handout("Music", "Music", M_T, "green", M_HERO, [
   ("task", {"label": "Part 1", "title": "Listening response: listen to one jazz recording", "blocks": [

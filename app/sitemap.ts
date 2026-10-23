@@ -134,6 +134,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/exhibitions/harlem-renaissance/lessons`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    ...lessonsFor('harlem-renaissance').map((l) => ({
+      url: `${baseUrl}/exhibitions/harlem-renaissance/lessons/${l.slug}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    })),
+    {
       url: `${baseUrl}/exhibitions/in-their-hands`,
       lastModified,
       changeFrequency: 'weekly',

@@ -4,8 +4,16 @@ words: "Seeing in Silhouette" (Art), "Migration by Numbers" (Math) and
 "Move Like Harlem" (PE). Aaron Douglas's paintings are still in copyright,
 so the handouts name each work and the teacher projects it."""
 import html, re
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(__file__))
+from _links import screen_links
 
 G = "teachers/grades-5-8/"
+
+# "screen" on a section is for the site's Lesson mode only (resources-src/
+# export_lessons.py); build.py ignores it, so the PDF is unchanged. Anything
+# printed in the plan and shown on screen is written once, as a constant.
+CHOOSE = ["Choose Green, Yellow or Red. You can switch at any time."]
 HARLEM = "/exhibitions/harlem/"
 
 def P(t, cls=""):
@@ -64,7 +72,19 @@ ART = G + "art/"
 ART_TITLE = "Seeing in Silhouette"
 ART_HERO = {"img": HARLEM + "poster1.jpg", "pos": "center 62%"}
 
+ART_LOOK = "Don’t tell me what it means yet. Tell me what you see. Be specific — shapes, colors, positions of figures, what’s in the background, what’s in the foreground."
+# Douglas's five signature techniques: (name, what it does)
+ART_TECHNIQUES = [
+  ("Flat silhouettes", "figures rendered without facial features — universal, archetypal, collective rather than individual"),
+  ("Concentric circles", "light radiating outward from a center — spiritual energy, sound waves, divine presence"),
+  ("African geometric pattern", "influenced by Egyptian hieroglyphics and West African textile design — a deliberate reclamation of African visual heritage"),
+  ("Limited, symbolic color palette", "each painting uses 3–5 colors with specific emotional associations"),
+  ("Layered transparency", "figures overlap in semi-transparent layers — collective history, multiple times existing simultaneously")]
+ART_SAY = "Douglas was trained in European art — he knew exactly what ‘mainstream’ painting looked like. He chose not to paint that way. Every choice he made was deliberate: the silhouettes say ‘this is everyone, not one person.’ The concentric circles say ‘there is spiritual power here.’ The African patterns say ‘we come from somewhere ancient and magnificent.’ His paintings were arguments made in color and shape."
+ART_SONG = {"work": "Song of the Towers", "artist": "Aaron Douglas", "date": "1934", "links": screen_links("Song of the Towers")}
+
 ART_LP = {
+  "slug": "seeing-in-silhouette",
   "out": ART + "HR_LP_Art.pdf", "eyebrow": "Teacher lesson plan", "title": ART_TITLE,
   "sub": "Grades 5–8 · Art · Aaron Douglas and the visual language of the Harlem Renaissance",
   "foot": "Teacher Lesson Plan · Grades 5–8 Art", "hero": ART_HERO, "css": CSS,
@@ -82,18 +102,30 @@ ART_LP = {
       "For studio activity: black card or paper, scissors, colored backgrounds (construction paper or watercolor wash on white card); alternatively, pencil and colored pencils for composition sketches",
       "Differentiated handouts — one per student"]}),
     ("section", {"label": "Hook · 5 minutes", "title": "What do you see?",
+      "screen": {"phase": "Hook", "show": "artwork", **ART_SONG,
+                 "purpose": "Look before interpreting: observations first, meaning later.",
+                 "students": ["Write three observations in 60 seconds — not interpretations, just observations.", ART_LOOK]},
       "body": ["Project *Song of the Towers* (1934) without any introduction. Ask students to write three observations in 60 seconds — not interpretations, just observations.",
-               "*“Don’t tell me what it means yet. Tell me what you see. Be specific — shapes, colors, positions of figures, what’s in the background, what’s in the foreground.”*",
+               f"*“{ART_LOOK}”*",
                "Take 5–6 responses. Then: *“This painting was made in 1934 by Aaron Douglas. He was the leading visual artist of the Harlem Renaissance. Today we’re going to figure out how he made it work — and why.”*"]}),
     ("section", {"label": "Direct instruction · 12 minutes", "title": "Douglas’s visual language",
-      "body": ["Walk through Douglas’s five signature techniques:"], "list": [
-      "**Flat silhouettes:** figures rendered without facial features — universal, archetypal, collective rather than individual",
-      "**Concentric circles:** light radiating outward from a center — spiritual energy, sound waves, divine presence",
-      "**African geometric pattern:** influenced by Egyptian hieroglyphics and West African textile design — a deliberate reclamation of African visual heritage",
-      "**Limited, symbolic color palette:** each painting uses 3–5 colors with specific emotional associations",
-      "**Layered transparency:** figures overlap in semi-transparent layers — collective history, multiple times existing simultaneously"]}),
-    ("html", '<p class="say">“Douglas was trained in European art — he knew exactly what ‘mainstream’ painting looked like. He chose not to paint that way. Every choice he made was deliberate: the silhouettes say ‘this is everyone, not one person.’ The concentric circles say ‘there is spiritual power here.’ The African patterns say ‘we come from somewhere ancient and magnificent.’ His paintings were arguments made in color and shape.”</p>'),
-    ("section", {"label": "Activity · 22 minutes", "body": ["Students choose a handout."]}),
+      "screen": [
+        {"phase": "Direct instruction", "minutes": 8, "script": [0] + [f"**{t}:** {d}" for t, d in ART_TECHNIQUES],
+         "title": "Five signature techniques", "show": "chart", "caption": "Douglas’s five signature techniques",
+         "columns": ["Technique", "What it does"], "rows": [{"cells": [t, d]} for t, d in ART_TECHNIQUES],
+         "purpose": "Give students the vocabulary to read Douglas’s formal choices.",
+         "students": ["Find each technique in *Song of the Towers*."]},
+        {"phase": "Direct instruction", "minutes": 4, "script": [f"*“{ART_SAY}”*"],
+         "title": "Every choice was deliberate", "show": "words", "text": ART_SAY,
+         "purpose": "Read the formal choices as an argument.",
+         "students": ["What does each choice say?"]}],
+      "body": ["Walk through Douglas’s five signature techniques:"], "list": [f"**{t}:** {d}" for t, d in ART_TECHNIQUES]}),
+    ("html", f'<p class="say">“{ART_SAY}”</p>'),
+    ("section", {"label": "Activity · 22 minutes",
+      "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+                 "purpose": "Analyze and make in Douglas’s visual language, at the right level of challenge.",
+                 "students": CHOOSE},
+      "body": ["Students choose a handout."]}),
     ("levels", {
       "green": "Complete a structured visual analysis of *Song of the Towers* using five guided questions. Then create a simple silhouette figure in the style of Douglas — black on colored background, one symbol added.",
       "yellow": "Analyze two Douglas works — compare how he uses the same techniques in different emotional contexts. Create a silhouette composition with at least three figures and a symbolic background. Write a 3-sentence artist statement.",
@@ -228,7 +260,16 @@ def graph_grid():
                     f'<div class="plot" style="height:{h}pt;margin-right:8pt">{minor}{grid}{vl}</div>'
                     f'<div class="xl grid" style="margin-right:8pt">{xl}</div></div>')
 
+MATH_Q = "How many schools that size would you need to fill to get 6 million students?"
+MATH_LOOK = ["Before we calculate anything, what does this data tell us just by looking at it?", "What years show the fastest growth?"]
+MATH_FORMULA = "(new − old) ÷ old × 100"
+# the plan's two worked examples: (title, working, answer)
+MATH_WORKED = [("Chicago 1910 → 1920", "(109,458 − 44,103) ÷ 44,103 × 100 = 65,355 ÷ 44,103 × 100", "148.2% increase"),
+               ("Chicago 1950 → 1960", "(812,637 − 492,265) ÷ 492,265 × 100 = 320,372 ÷ 492,265 × 100", "65.1% increase")]
+MATH_HUMAN = "These numbers represent human beings."
+
 MATH_LP = {
+  "slug": "migration-by-numbers",
   "out": MATH + "HR_LP_Math.pdf", "eyebrow": "Teacher lesson plan", "title": MATH_TITLE,
   "sub": "Grades 5–8 · Mathematics · The Great Migration in data",
   "foot": "Teacher Lesson Plan · Grades 5–8 Math", "hero": MATH_HERO, "css": CSS,
@@ -247,18 +288,44 @@ MATH_LP = {
       "Graph paper or handout graph grids (included on handouts)",
       "Optional: project the Great Migration Map to give geographic context before the data work"]}),
     ("section", {"label": "Hook · 5 minutes", "title": "How big is a million?",
-      "body": ["*“Six million people moved north during the Great Migration. That’s a number that’s hard to visualize. Let’s try: imagine a school of about 650 students. How many schools that size would you need to fill to get 6 million students? Take 30 seconds and work it out.”*",
+      "screen": [
+        {"phase": "Hook", "minutes": 3, "script": [0], "show": "question", "question": MATH_Q,
+         "purpose": "Make a number too big to picture into one you can.",
+         "students": ["Imagine a school of about 650 students.", "Take 30 seconds and work it out."]},
+        {"phase": "Hook", "minutes": 2, "script": [1], "title": "The answer", "show": "worked",
+         "examples": [{"title": "Six million students", "steps": ["Imagine a school of about 650 students.", MATH_Q],
+                       "answer": "~9,230 schools"}],
+         "purpose": "Turn the scale back into people: every one made a decision.",
+         "students": ["Each one of those 6 million people made a decision — pack up, leave everything, travel north."]}],
+      "body": [f"*“Six million people moved north during the Great Migration. That’s a number that’s hard to visualize. Let’s try: imagine a school of about 650 students. {MATH_Q} Take 30 seconds and work it out.”*",
                "Answer: **~9,230 schools.** Then: *“Each one of those 6 million people made a decision — pack up, leave everything, travel north. Today we’re going to look at what those decisions look like in numbers.”*"]}),
     ("section", {"label": "Direct instruction · 8 minutes", "title": "Reading the data",
-      "body": ["Walk through the core dataset on the board — Chicago’s Black population: 1910 (44,103), 1920 (109,458), 1930 (233,903), 1940 (277,731), 1950 (492,265), 1960 (812,637). Ask: before we calculate anything, what does this data tell us just by looking at it? What years show the fastest growth?",
-               "*“Percentage change is the mathematician’s way of making fair comparisons. A city growing by 10,000 people means something very different if it started with 50,000 versus 5 million. We calculate: (new − old) ÷ old × 100.”*"]}),
-    ("section", {"label": "Activity · 25 minutes", "body": ["Students choose a handout."]}),
+      "screen": [
+        {"phase": "Teach", "minutes": 4, "script": [0], "show": "chart", "caption": "Chicago’s Black population, 1910–1960",
+         "columns": ["Year", "Chicago’s Black population"], "rows": [{"cells": [y, f"{n:,}"]} for y, n in CHI],
+         "purpose": "Read the data before calculating anything.",
+         "students": MATH_LOOK},
+        {"phase": "Teach", "minutes": 4, "script": [1], "title": "Percentage change", "show": "worked",
+         "examples": [{"title": t, "steps": [MATH_FORMULA, w], "answer": a} for t, w, a in MATH_WORKED],
+         "purpose": "Learn the fair way to compare growth.",
+         "students": ["Which decade grew faster proportionally? Which added more people?"]}],
+      "body": ["Walk through the core dataset on the board — Chicago’s Black population: "
+               + ", ".join(f"{y} ({n:,})" for y, n in CHI) + ". Ask: " + MATH_LOOK[0][0].lower() + MATH_LOOK[0][1:] + " " + MATH_LOOK[1],
+               f"*“Percentage change is the mathematician’s way of making fair comparisons. A city growing by 10,000 people means something very different if it started with 50,000 versus 5 million. We calculate: {MATH_FORMULA}.”*"]}),
+    ("section", {"label": "Activity · 25 minutes",
+      "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+                 "purpose": "Work with the census data at the right level of challenge.",
+                 "students": CHOOSE},
+      "body": ["Students choose a handout."]}),
     ("levels", {
       "green": "Read a pre-drawn bar chart of Chicago’s Black population growth. Identify the decade of fastest growth, calculate one percentage change with scaffolding, and answer interpretation questions in complete sentences.",
       "yellow": "Calculate percentage change for all six decades. Create a line graph from the data table. Identify and explain the pattern. Compare Chicago to one other Northern city using a ratio.",
       "red": "Full percentage change table for three cities (Chicago, New York, Detroit). Calculate rates of change. Analyze: which city’s Black population grew fastest proportionally vs absolutely? Write a statistical summary paragraph and evaluate what the data does not show."}),
     ("section", {"label": "Closing · 7 minutes",
-      "body": ["*“These numbers represent human beings. Every percentage point of growth is thousands of families who packed their belongings and moved north. Mathematics helps us understand the scale of history — but it can’t tell us what it felt like. That’s what the poets and painters were for.”*"]}),
+      "screen": {"phase": "Closing", "show": "words", "title": "Closing", "text": MATH_HUMAN,
+                 "purpose": "Return from the numbers to the people they count.",
+                 "students": ["Numbers can tell us how many people moved. What can’t numbers tell us about the Great Migration?"]},
+      "body": [f"*“{MATH_HUMAN} Every percentage point of growth is thousands of families who packed their belongings and moved north. Mathematics helps us understand the scale of history — but it can’t tell us what it felt like. That’s what the poets and painters were for.”*"]}),
     ("connection", ["**Option 1 — Visit the exhibition:** bring your class to experience the phonograph, the Great Migration Map, the Jazz Lab, and more. Ask your librarian to arrange a visit.",
                     "**Option 2 — Virtual visit:** online at the address below."]),
     ("pagebreak", None),
@@ -269,8 +336,7 @@ MATH_LP = {
       ["**Detroit, MI**", "5,741", "40,838", "120,066", "149,119", "300,506", "482,223"],
       ["**Philadelphia, PA**", "84,459", "134,229", "219,599", "250,880", "376,041", "529,240"]]}),
     ("section", {"label": "Worked example", "title": "Percentage change",
-      "body": ["**Chicago 1910 → 1920:** (109,458 − 44,103) ÷ 44,103 × 100 = 65,355 ÷ 44,103 × 100 = **148.2% increase**",
-               "**Chicago 1950 → 1960:** (812,637 − 492,265) ÷ 492,265 × 100 = 320,372 ÷ 492,265 × 100 = **65.1% increase**",
+      "body": [f"**{t}:** {w} = **{a}**" for t, w, a in MATH_WORKED] + [
                "**Note:** the 1910–1920 decade shows proportionally faster growth (148%) than the 1950–1960 decade (65%), even though the absolute increase was larger in 1950–1960. This is a key teaching moment for percentage change vs absolute change."]}),
     ("section", {"label": "Discussion questions", "list": [
       "Detroit grew by 611% between 1910 and 1920. What was happening in Detroit’s economy at that time that explains this? *(Ford Motor Company, WWI armaments production)*",
@@ -373,7 +439,29 @@ PE = G + "pe/"
 PE_TITLE = "Move Like Harlem"
 PE_HERO = {"img": HARLEM + "images/migration/chicago.jpg", "pos": "center 30%"}
 
+PE_CONTEXT = "The Savoy Ballroom opened in Harlem in 1926. It held 4,000 people. Black and white dancers danced together — which was illegal in many other places in America. The Lindy Hop was born there. It was named after Charles Lindbergh’s transatlantic flight in 1927 — people said the dancers looked like they were flying. Today we’re going to move the way Harlem moved."
+# the warm-up's four calls: (call, what to do)
+PE_CALLS = [("freeze", "hold pose"), ("slow motion", "half speed"), ("double time", "double speed"),
+            ("mirror", "copy teacher’s arm movements while walking")]
+PE_COOL_Q = "Where in your body did you feel the rhythm most? What did it feel like to move to music that was made almost 100 years ago?"
+# the core activity's three phases: (label, minutes, title, what to teach)
+PE_PHASES = [
+  (8, "Charleston Step", ["Teach the basic Charleston: step forward on right, kick left foot forward; step back on left, kick right foot back. Count 1-2-3-4.",
+                          "Once secure: add arm swing.", "Once secure: try with partner in mirror."]),
+  (10, "Lindy Hop Basics", ["Introduce the rock-step: step back on left (count 1), step back on right (count 2), triple step forward left-right-left (counts 3-and-4), triple step right-left-right (counts 5-and-6). This is the 6-count Lindy Hop basic.",
+                            "Practice solo, then in loose pairs (not holding hands — just facing)."]),
+  (7, "Creative Response", ["Students in groups of 3–4. Give each group a card: **Joy / Protest / Journey / Arrival in Harlem**.",
+                            "Groups create a 16-count movement sequence using the vocabulary they’ve learned that expresses their word.",
+                            "Share with one other group."])]
+
+def pe_phases_html():
+    cells = "".join(f'<div><p class="label">Phase {i} · {m} min</p><h4>{t}</h4><p>'
+                    + re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", " ".join(text)) + "</p></div>\n"
+                    for i, (m, t, text) in enumerate(PE_PHASES, 1))
+    return '<div class="phases">\n' + cells + "</div>"
+
 PE_LP = {
+  "slug": "move-like-harlem",
   "out": PE + "HR_LP_PE.pdf", "eyebrow": "Teacher lesson plan", "title": PE_TITLE,
   "sub": "Grades 5–8 · Physical Education · The Lindy Hop, the Charleston and the Savoy Ballroom",
   "foot": "Teacher Lesson Plan · Grades 5–8 PE", "hero": PE_HERO, "css": CSS,
@@ -391,17 +479,32 @@ PE_LP = {
       "Optional: short video clip of Lindy Hop dancers at the Savoy Ballroom (several authentic clips on YouTube)",
       "Differentiated reflection handouts — one per student (completed after activity)"]}),
     ("section", {"label": "Context · 3 minutes · before going to the gym",
-      "body": ["*“The Savoy Ballroom opened in Harlem in 1926. It held 4,000 people. Black and white dancers danced together — which was illegal in many other places in America. The Lindy Hop was born there. It was named after Charles Lindbergh’s transatlantic flight in 1927 — people said the dancers looked like they were flying. Today we’re going to move the way Harlem moved.”*"]}),
+      "screen": {"phase": "Context", "show": "words", "title": "The Savoy Ballroom", "text": PE_CONTEXT,
+                 "purpose": "Set the dances in their place and time before anyone moves.",
+                 "students": ["Today we’re going to move the way Harlem moved."]},
+      "body": [f"*“{PE_CONTEXT}”*"]}),
     ("section", {"label": "Warm-up · 8 minutes", "title": "Jazz walk and rhythm",
-      "body": ["Students walk to the beat of jazz music. Teacher calls out: **freeze** (hold pose), **slow motion** (half speed), **double time** (double speed), **mirror** (copy teacher’s arm movements while walking). Purpose: establishes rhythmic listening and body awareness before structured movement."]}),
-    ("section", {"label": "Core activity · 25 minutes", "title": "Movement vocabulary"}),
-    ("html", """<div class="phases">
-<div><p class="label">Phase 1 · 8 min</p><h4>Charleston Step</h4><p>Teach the basic Charleston: step forward on right, kick left foot forward; step back on left, kick right foot back. Count 1-2-3-4. Once secure: add arm swing. Once secure: try with partner in mirror.</p></div>
-<div><p class="label">Phase 2 · 10 min</p><h4>Lindy Hop Basics</h4><p>Introduce the rock-step: step back on left (count 1), step back on right (count 2), triple step forward left-right-left (counts 3-and-4), triple step right-left-right (counts 5-and-6). This is the 6-count Lindy Hop basic. Practice solo, then in loose pairs (not holding hands — just facing).</p></div>
-<div><p class="label">Phase 3 · 7 min</p><h4>Creative Response</h4><p>Students in groups of 3–4. Give each group a card: <b>Joy / Protest / Journey / Arrival in Harlem</b>. Groups create a 16-count movement sequence using the vocabulary they’ve learned that expresses their word. Share with one other group.</p></div>
-</div>"""),
+      "screen": {"phase": "Warm-up", "show": "chart", "caption": "The teacher calls out", "columns": ["Call", "What to do"],
+                 "rows": [{"cells": [c, w]} for c, w in PE_CALLS],
+                 "purpose": "Establish rhythmic listening and body awareness before structured movement.",
+                 "students": ["Walk to the beat of the music.", "Listen for the call."]},
+      "body": ["Students walk to the beat of jazz music. Teacher calls out: "
+               + ", ".join(f"**{c}** ({w})" for c, w in PE_CALLS)
+               + ". Purpose: establishes rhythmic listening and body awareness before structured movement."]}),
+    ("section", {"label": "Core activity · 25 minutes", "title": "Movement vocabulary",
+      # the three phases are printed as one block below; each is a step on screen
+      "screen": [{"phase": "Movement vocabulary", "minutes": m, "script": [" ".join(text)], "title": t, "show": "words",
+                  "text": text[0], "purpose": p, "students": text[1:]}
+                 for (m, t, text), p in zip(PE_PHASES, [
+                   "Learn the basic Charleston step to a count of four.",
+                   "Learn the 6-count Lindy Hop basic.",
+                   "Use the new vocabulary to say something in movement."])]}),
+    ("html", pe_phases_html()),
     ("section", {"label": "Cool-down and reflection · 9 minutes",
-      "body": ["Slow walk to music cooling down. Ask: *“Where in your body did you feel the rhythm most? What did it feel like to move to music that was made almost 100 years ago?”* Students complete reflection handout."]}),
+      "screen": {"phase": "Cool-down", "show": "question", "title": "Cool-down and reflection", "question": PE_COOL_Q,
+                 "purpose": "Slow down, and reflect on dance as embodied history.",
+                 "students": ["Slow walk to the music.", "Complete the reflection handout."]},
+      "body": [f"Slow walk to music cooling down. Ask: *“{PE_COOL_Q}”* Students complete reflection handout."]}),
     ("connection", ["**Option 1 — Visit the exhibition:** bring your class to experience the phonograph, the Great Migration Map, the Jazz Lab, and more. Ask your librarian to arrange a visit.",
                     "**Option 2 — Virtual visit:** online at the address below."]),
     ("pagebreak", None),

@@ -162,3 +162,22 @@ export const SUBJECT_LABELS: Record<string, string> = {
 
 // Parent resource
 export const PARENT_RESOURCE_PATH = '/resources/harlem-renaissance/parents/HR_Parent_Guide.pdf';
+
+// Lessons that can also be taught on screen (Lesson mode), by
+// '<grade>/<subject>', or '<grade>' alone for the grades without subjects.
+// The slug is a lesson in lib/lessons.
+export const ON_SCREEN_LESSONS: Record<string, string> = {
+  'prek-k': 'music-stories-and-movement',
+  'grades-1-2': 'stories-of-a-great-journey',
+  'grades-3-4': 'making-something-new',
+  'grades-5-8/science': 'rhythm-sound-and-the-science-of-music',
+  'grades-5-8/ela': 'voice-and-verse',
+  'grades-5-8/social-studies': 'why-people-move',
+  'grades-5-8/art': 'seeing-in-silhouette',
+  'grades-5-8/math': 'migration-by-numbers',
+  'grades-5-8/pe': 'move-like-harlem',
+  'grades-5-8/religion': 'created-in-gods-image',
+  'grades-5-8/spanish': 'el-renacimiento-de-harlem',
+  'grades-5-8/theater': 'voice-body-story',
+  'grades-5-8/music': 'the-sound-of-harlem',
+};
