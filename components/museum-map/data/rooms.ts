@@ -1,4 +1,24 @@
 import { MapRoom } from '../types';
+import { LESSON_ROOM_IDS, hasLessons, lessonsPath } from '@/lib/lessons/catalog';
+
+const EXHIBITION_ACCENTS: Record<string, string> = {
+  'seeing-is-deceiving': '#a8d5e5',
+  'harlem-renaissance': '#b485d2',
+  'in-their-hands': '#C9A84C',
+};
+
+/** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
+const LESSON_ROOMS: MapRoom[] = Object.keys(EXHIBITION_ACCENTS)
+  .filter(hasLessons)
+  .map((exhibition) => ({
+    id: LESSON_ROOM_IDS[exhibition],
+    label: 'Lessons',
+    path: lessonsPath(exhibition),
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: EXHIBITION_ACCENTS[exhibition],
+    parent: exhibition,
+  }));
+const lessonsChild = (exhibition: string) => (hasLessons(exhibition) ? [LESSON_ROOM_IDS[exhibition]] : []);
 
 /**
  * Museum room definitions
@@ -77,7 +97,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 50,
     accentColor: '#a8d5e5',
     parent: 'first-floor',
-    children: ['illusions', 'artifacts', 'resources'],
+    children: ['illusions', 'artifacts', 'resources', ...lessonsChild('seeing-is-deceiving')],
   },
   {
     id: 'harlem-renaissance',
@@ -89,7 +109,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 50,
     accentColor: '#b485d2',
     parent: 'first-floor',
-    children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources'],
+    children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources', ...lessonsChild('harlem-renaissance')],
   },
   {
     id: 'in-their-hands',
@@ -101,7 +121,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 120,
     accentColor: '#C9A84C',
     parent: 'first-floor',
-    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica'],
+    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', ...lessonsChild('in-their-hands')],
   },
   {
     id: 'fear-lab',
@@ -242,6 +262,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#C9A84C',
     parent: 'in-their-hands',
   },
+  ...LESSON_ROOMS,
 ];
 
 /**
