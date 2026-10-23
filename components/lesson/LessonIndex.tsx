@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import { catalogFor, posterProjectorPath } from '@/lib/lessons/catalog';
 import type { Lesson } from '@/lib/lessons/types';
 import { Inline } from './Inline';
 import styles from './lessonIndex.module.css';
@@ -68,6 +69,11 @@ export function LessonIndex({ lessons, basePath, exhibitionHref, resourcesHref, 
                 <a href={l.lessonPlan} className={styles.secondary} target="_blank" rel="noopener">
                   Lesson plan (PDF)
                 </a>
+                {(catalogFor(l.exhibition.slug).find((c) => c.slug === l.slug)?.posters ?? []).map((p) => (
+                  <Link key={p} href={posterProjectorPath(l.exhibition.slug, p)} className={styles.secondary}>
+                    Poster {p.replace(/\D/g, '')} on the projector
+                  </Link>
+                ))}
               </div>
             </div>
           </li>

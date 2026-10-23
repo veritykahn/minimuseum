@@ -428,3 +428,14 @@
 .endLinks ul {
   justify-content: flex-start;
 }
+
+/* A lesson's grade band, beside its title in a lesson link. */
+.lessonSub {
+  font-size: 0.75em;
+  letter-spacing: 0.06em;
+  color: var(--pj-muted, #a89c84);
+}
+.endLinks ul.lessonList {
+  flex-direction: column;
+  gap: 0;
+}

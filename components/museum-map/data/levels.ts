@@ -1,4 +1,5 @@
 import { MapRoom, RoomConnection, MapLevelConfig, ExhibitionFloorPlan, FloorPlanWall } from '../types';
+import { LESSON_ROOM_IDS, hasLessons, lessonsPath } from '@/lib/lessons/catalog';
 
 /**
  * Per-level layout configurations for the hierarchical museum map.
@@ -42,6 +43,39 @@ function wallWithDoorway(
     { x1: midX + half, y1, x2, y2 },
   ];
 }
+
+// An exhibition with on-screen lessons gets a Lessons room along the foot of
+// its plan, through a doorway in the old outer wall; the view grows to hold it.
+const LESSONS_ROOM_HEIGHT = 50;
+
+function withLessons(
+  plan: ExhibitionFloorPlan, viewBox: string, exhibition: string,
+): { floorPlan: ExhibitionFloorPlan; viewBox: string } {
+  if (!hasLessons(exhibition)) return { floorPlan: plan, viewBox };
+  const { x, y, width, height } = plan.outline;
+  const foot = y + height;
+  const [vx, vy, vw, vh] = viewBox.split(' ').map(Number);
+  return {
+    viewBox: `${vx} ${vy} ${vw} ${vh + LESSONS_ROOM_HEIGHT}`,
+    floorPlan: {
+      ...plan,
+      outline: { ...plan.outline, height: height + LESSONS_ROOM_HEIGHT },
+      walls: [...plan.walls, ...wallWithDoorway(x, foot, x + width, foot, 20)],
+      rooms: [
+        ...plan.rooms,
+        {
+          id: LESSON_ROOM_IDS[exhibition], label: 'Lessons', path: lessonsPath(exhibition),
+          accentColor: plan.accentColor, parent: exhibition,
+          x, y: foot, width, height: LESSONS_ROOM_HEIGHT,
+          labelX: x + width / 2, labelY: foot + LESSONS_ROOM_HEIGHT / 2,
+        },
+      ],
+    },
+  };
+}
+
+/** The exhibition's Lessons room, as a child id, once it has lessons. */
+const lessonsChild = (exhibition: string) => (hasLessons(exhibition) ? [LESSON_ROOM_IDS[exhibition]] : []);
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 1 — Museum Overview
@@ -100,19 +134,19 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'seeing-is-deceiving', label: 'Seeing is Deceiving', path: '/exhibitions/seeing-is-deceiving',
     x: 25, y: 80, width: 140, height: 120, accentColor: COLORS.seeingIsDeceiving,
     parent: 'first-floor',
-    children: ['illusions', 'artifacts', 'resources'],
+    children: ['illusions', 'artifacts', 'resources', ...lessonsChild('seeing-is-deceiving')],
   },
   {
     id: 'harlem-renaissance', label: 'Harlem Renaissance', path: '/exhibitions/harlem-renaissance',
     x: 180, y: 80, width: 140, height: 120, accentColor: COLORS.harlemRenaissance,
     parent: 'first-floor',
-    children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources'],
+    children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources', ...lessonsChild('harlem-renaissance')],
   },
   {
     id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
     x: 335, y: 80, width: 140, height: 120, accentColor: COLORS.inTheirHands,
     parent: 'first-floor',
-    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica'],
+    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', ...lessonsChild('in-their-hands')],
   },
   // Bottom row — installation in progress
   {
@@ -215,7 +249,6 @@ const SID_FLOOR_PLAN: ExhibitionFloorPlan = {
 
 export const SEEING_IS_DECEIVING: MapLevelConfig = {
   level: 'exhibition',
-  viewBox: '0 0 500 300',
   rooms: [],
   connections: [],
   title: 'Seeing is Deceiving',
@@ -224,7 +257,7 @@ export const SEEING_IS_DECEIVING: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
   ],
-  floorPlan: SID_FLOOR_PLAN,
+  ...withLessons(SID_FLOOR_PLAN, '0 0 500 300', 'seeing-is-deceiving'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -309,7 +342,6 @@ const HR_FLOOR_PLAN: ExhibitionFloorPlan = {
 
 export const HARLEM_RENAISSANCE: MapLevelConfig = {
   level: 'exhibition',
-  viewBox: '0 0 500 410',
   rooms: [],
   connections: [],
   title: 'Harlem Renaissance',
@@ -318,7 +350,7 @@ export const HARLEM_RENAISSANCE: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
   ],
-  floorPlan: HR_FLOOR_PLAN,
+  ...withLessons(HR_FLOOR_PLAN, '0 0 500 410', 'harlem-renaissance'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -404,7 +436,6 @@ const ITH_FLOOR_PLAN: ExhibitionFloorPlan = {
 
 export const IN_THEIR_HANDS: MapLevelConfig = {
   level: 'exhibition',
-  viewBox: '0 0 500 410',
   rooms: [],
   connections: [],
   title: 'In Their Hands',
@@ -413,7 +444,7 @@ export const IN_THEIR_HANDS: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
   ],
-  floorPlan: ITH_FLOOR_PLAN,
+  ...withLessons(ITH_FLOOR_PLAN, '0 0 500 410', 'in-their-hands'),
 };
 
 // ═══════════════════════════════════════════════════════════════════

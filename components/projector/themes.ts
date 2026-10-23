@@ -48,6 +48,5 @@ export const HARLEM_POSTER_LINKS = [
 ];
 
 export const ITH_POSTER_LINKS = [
-  { label: 'In Their Hands lessons', href: '/exhibitions/in-their-hands/lessons' },
   { label: 'Teacher resources', href: '/exhibitions/in-their-hands/resources' },
 ];
