@@ -119,6 +119,14 @@ can take `alt` and `pos` for a picture other than the Tribute painting.
 `img` `{img, pos?, credit?}`, `alt`, optional `caption` and `fit`. To reveal
 an answer, follow it with a second step showing the answer picture.
 A timed section may sit inside `cols`.
+For any exhibition: `words` (`text`, a line from the plan set large, `\n`
+for new lines; optional `cite`), `artwork` (`work`, `artist`, `date`, and
+either `img` — a picture `{img, pos, credit}` — or `links`, `{label, href}`
+to a museum's page for a work still in copyright) and `listen` (`clips`,
+each `{src, label, sub?, credit?}` from the exhibition's own audio, and an
+optional `question`). A module holding several plans gives each its own
+`"slug"`; a plan printed without a timing bar names its phases in
+`"screen_timing"`.
 
 A module may hold several plans (as `seeing-is-deceiving/subjects_a.py`
 does): every document in `DOCS` with a `"slug"` is exported, and its

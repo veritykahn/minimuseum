@@ -2,8 +2,20 @@
 The existing lesson plans and Green / Yellow / Red handouts, re-set in the
 branded design with their own words (see CONVERTING.md)."""
 import html as _html, re as _re
+import os as _os, sys as _sys
+_sys.path.insert(0, _os.path.dirname(__file__))
+from _screen import photo, instrument
 
 D = "teachers/grades-5-8/"
+
+# "screen" on a section is for the site's Lesson mode only (resources-src/
+# export_lessons.py); build.py ignores it, so the PDF is unchanged.
+def screened(block, screen):
+    """A shared section (the work time, the closing) with this plan's screen."""
+    kind, d = block
+    return (kind, {**d, "screen": screen})
+
+CHOOSE = ["Choose Green, Yellow or Red. You can switch at any time."]
 LV = {"green": "#4A7346", "yellow": "#86671A", "red": "#A8452F"}
 
 # ── small helpers (the build's own blocks do the rest) ─────────────────
@@ -124,9 +136,22 @@ LEVELS_GENERIC = ("levels", {
     "yellow": "Independent grade-level analysis. Students apply concepts, make connections, and express their own thinking without heavy scaffolding.",
     "red": "Extended critical thinking and research. Students synthesize across sources, evaluate arguments, and produce original analysis or creative work."})
 NOTE_RED = P("**Note:** Red level activities may extend beyond the lesson period — they are designed to continue at home.")
+CLOSE_LINE = "ordinary people — with talent, community, and courage — can create something that changes the world."
 CLOSING_GENERIC = ("section", {"label": "Closing · 5 minutes", "body": [
     "Bring the class back together. Ask 2–3 students from different levels to share one thing they discovered or created. Close with:",
-    "*“The Harlem Renaissance wasn’t just a historical event. It was a demonstration that ordinary people — with talent, community, and courage — can create something that changes the world. The work you’ve done today connects you to that tradition.”*"]})
+    f"*“The Harlem Renaissance wasn’t just a historical event. It was a demonstration that {CLOSE_LINE} The work you’ve done today connects you to that tradition.”*"]})
+
+def closing(subject):
+    """The shared closing, with the plan's own exit ticket as the task."""
+    return screened(CLOSING_GENERIC, {
+        "phase": "Closing", "show": "words", "title": "Closing", "text": CLOSE_LINE[0].upper() + CLOSE_LINE[1:],
+        "purpose": "Share across the levels, and connect today’s work to the tradition.",
+        "students": ["Share one thing you discovered or created.",
+                     f"Exit ticket: *What is one connection between the Harlem Renaissance and {subject}?*"]})
+
+def worktime(purpose):
+    return screened(WORKTIME, {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+                               "purpose": purpose, "students": CHOOSE})
 WORKTIME = ("section", {"label": "Activity · 15 minutes", "title": "Differentiated work time",
     "body": ["Distribute student handouts. Students self-select their challenge level. Circulate with targeted questions to push thinking at each level."]})
 
@@ -156,6 +181,12 @@ def flat(*parts):
 SCI_HERO = {"img": "/exhibitions/harlem/images/migration/chicago.jpg", "pos": "center 30%"}
 SCI_T = "The Science of Sound"
 
+SCI_HOOK_Q = "What is sound, actually? What’s physically happening when you hear music?"
+# the plan's waves, as a table to read from
+SCI_WAVES = [["High notes", "vibrate faster (high frequency)"], ["Low notes", "vibrate slower (low frequency)"],
+             ["Loud sounds", "have bigger waves (high amplitude)"], ["Soft sounds", "have smaller waves"]]
+SCI_TIMBRE = "The timbre — the unique color of each instrument — comes from its overtones."
+
 SCI_LP = lesson("Science", "SCIENCE", "science", "Rhythm, Sound & the Science of Music", SCI_HERO, [
     timing(),
     ("section", {"label": "Learning objective", "title": "What students will understand",
@@ -170,11 +201,28 @@ SCI_LP = lesson("Science", "SCIENCE", "science", "Rhythm, Sound & the Science of
       "Differentiated student handouts",
       "Optional: tuning fork to demonstrate vibration"]}),
     ("section", {"label": "Hook · 5 minutes",
-      "body": ["Hold up a tuning fork (or tap a glass). Ask: *“What is sound, actually? What’s physically happening when you hear music?”* Take responses. Then play 10 seconds each of a trumpet, a bass, and a piano from the Jazz Lab — ask students what’s physically different between them."]}),
+      "screen": {"phase": "Hook", "show": "listen", "title": "What is sound?", "question": SCI_HOOK_Q,
+                 "clips": [instrument("Trumpet", "trumpet-1.mp3"), instrument("Double bass", "double-bass-1.mp3"),
+                           instrument("Piano", "piano-1.mp3")],
+                 "purpose": "Turn listening into a physics question.",
+                 "students": ["Listen to each instrument for 10 seconds.", "What’s physically different between them?"]},
+      "body": [f"Hold up a tuning fork (or tap a glass). Ask: *“{SCI_HOOK_Q}”* Take responses. Then play 10 seconds each of a trumpet, a bass, and a piano from the Jazz Lab — ask students what’s physically different between them."]}),
     ("section", {"label": "Direct instruction · 10 minutes",
-      "body": ["*“Every sound you hear is a wave — a vibration moving through air. High notes vibrate faster (high frequency). Low notes vibrate slower (low frequency). Loud sounds have bigger waves (high amplitude). Soft sounds have smaller waves. When Duke Ellington’s band played in Harlem in 1927, every instrument in that room was creating its own unique wave pattern — and your ears were doing the extraordinary work of separating them all out.”*",
-               "*“The timbre — the unique color of each instrument — comes from its overtones. A trumpet playing middle C and a piano playing middle C produce the same fundamental frequency. But the trumpet has different overtone patterns from the piano, which is why they sound completely different. Jazz composers like Ellington understood this intuitively — he wrote specific parts for specific instruments because he knew exactly what wave patterns each one produced.”*"]}),
-    WORKTIME, LEVELS_GENERIC, NOTE_RED, CLOSING_GENERIC,
+      "screen": [
+        {"phase": "Teach", "minutes": 5, "script": [0], "title": "Every sound is a wave", "show": "chart",
+         "caption": "Every sound you hear is a wave — a vibration moving through air", "columns": ["Sound", "Wave"],
+         "rows": [{"cells": r} for r in SCI_WAVES],
+         "purpose": "Name the two properties of a wave: frequency and amplitude.",
+         "students": ["Every sound you hear is a wave — a vibration moving through air.", "Which is high frequency? Which is high amplitude?"]},
+        {"phase": "Teach", "minutes": 5, "script": [1], "title": "Timbre", "show": "words", "text": SCI_TIMBRE,
+         "purpose": "Explain why two instruments on the same note sound different.",
+         "students": ["Why do a trumpet and a piano playing middle C sound different?"]}],
+      "body": ["*“Every sound you hear is a wave — a vibration moving through air. "
+               + " ".join(f"{a} {b}." for a, b in SCI_WAVES)
+               + " When Duke Ellington’s band played in Harlem in 1927, every instrument in that room was creating its own unique wave pattern — and your ears were doing the extraordinary work of separating them all out.”*",
+               f"*“{SCI_TIMBRE} A trumpet playing middle C and a piano playing middle C produce the same fundamental frequency. But the trumpet has different overtone patterns from the piano, which is why they sound completely different. Jazz composers like Ellington understood this intuitively — he wrote specific parts for specific instruments because he knew exactly what wave patterns each one produced.”*"]}),
+    worktime("Apply the physics of sound to jazz instruments at the right level of challenge."),
+    LEVELS_GENERIC, NOTE_RED, closing("Science"),
     ("section", {"label": "Assessment", "body": [
       "**Formative:** Circulate during work time and check for understanding of the core concepts. Use targeted questions to assess depth of thinking.",
       "**Exit ticket:** *“What is one connection between the Harlem Renaissance and Science?”*"]}),
@@ -240,6 +288,13 @@ SCI_R = handout("red", "Science", "SCIENCE", "science", SCI_T, SCI_HERO, CTX_RED
 ELA_HERO = {"img": "/exhibitions/harlem/images/migration/harlem.jpg", "pos": "center 40%"}
 ELA_T = "Reading the Renaissance"
 
+ELA_HOOK_Q = "What does your voice sound like on paper?"
+ELA_HOOK_ASK = "Does your writing sound like YOU, or does it sound like how you think you’re supposed to write?"
+# who wrote in their own voice, and how, in the plan's own words
+ELA_VOICES = [["Langston Hughes", "wrote poetry that used the rhythms of jazz and blues"],
+              ["Zora Neale Hurston", "captured the dialect of Black Southern speech in her novels"]]
+ELA_EVIDENCE = "Every poem published, every novel reviewed in major newspapers, every prize won was evidence that the dominant narrative was wrong."
+
 ELA_LP = lesson("ELA", "ELA", "ela", "Voice & Verse", ELA_HERO, [
     timing(),
     ("section", {"label": "Learning objective", "title": "What students will understand",
@@ -253,17 +308,34 @@ ELA_LP = lesson("ELA", "ELA", "ela", "Voice & Verse", ELA_HERO, [
       "Access to exhibition’s Harlem in Words poetry workshop",
       "Optional: printed or projected excerpts from public domain Harlem Renaissance texts"]}),
     ("section", {"label": "Hook · 5 minutes",
-      "body": ["Write on the board: *“What does your voice sound like on paper?”* Ask students to write for 90 seconds — anything, no rules. Then ask: *“Does your writing sound like YOU, or does it sound like how you think you’re supposed to write?”* This is exactly the question Harlem Renaissance writers were asking."]}),
+      "screen": {"phase": "Hook", "show": "question", "title": "Your voice on paper", "question": ELA_HOOK_Q,
+                 "purpose": "Ask the question the Harlem Renaissance writers were asking.",
+                 "students": ["Write for 90 seconds — anything, no rules.", ELA_HOOK_ASK]},
+      "body": [f"Write on the board: *“{ELA_HOOK_Q}”* Ask students to write for 90 seconds — anything, no rules. Then ask: *“{ELA_HOOK_ASK}”* This is exactly the question Harlem Renaissance writers were asking."]}),
     ("section", {"label": "Direct instruction · 10 minutes",
-      "body": ["*“The writers of the Harlem Renaissance made a radical decision: they would write in their own voices. Not the formal English of white academic tradition. Their own rhythms, their own vernacular, their own truth. Langston Hughes wrote poetry that used the rhythms of jazz and blues. Zora Neale Hurston captured the dialect of Black Southern speech in her novels. They were saying: our way of speaking is not a deficiency. It is literature.”*",
-               "*“This was a political act as much as an artistic one. In a country that told Black Americans their culture was inferior, writing beautiful, powerful, innovative literature was an act of resistance. Every poem published, every novel reviewed in major newspapers, every prize won was evidence that the dominant narrative was wrong.”*"]}),
-    WORKTIME, LEVELS_GENERIC, NOTE_RED, CLOSING_GENERIC,
+      "screen": [
+        {"phase": "Teach", "minutes": 5, "script": [0], "title": "Their own voices", "show": "chart",
+         "caption": "The writers of the Harlem Renaissance would write in their own voices", "columns": ["Writer", "Their own voice"],
+         "rows": [{"cells": r} for r in ELA_VOICES],
+         "purpose": "See the choice to write in one’s own voice as a literary technique.",
+         "students": ["*Our way of speaking is not a deficiency. It is literature.*", "What does each writer bring from speech or music into writing?"]},
+        {"phase": "Teach", "minutes": 5, "script": [1], "title": "Art and activism", "show": "words", "text": ELA_EVIDENCE,
+         "purpose": "Read the writing as an argument, as well as art.",
+         "students": ["Why was writing beautiful, powerful, innovative literature an act of resistance?"]}],
+      "body": ["*“The writers of the Harlem Renaissance made a radical decision: they would write in their own voices. Not the formal English of white academic tradition. Their own rhythms, their own vernacular, their own truth. "
+               + " ".join(f"{a} {b}." for a, b in ELA_VOICES)
+               + " They were saying: our way of speaking is not a deficiency. It is literature.”*",
+               f"*“This was a political act as much as an artistic one. In a country that told Black Americans their culture was inferior, writing beautiful, powerful, innovative literature was an act of resistance. {ELA_EVIDENCE}”*"]}),
+    worktime("Analyze the writers’ craft, and find a voice of your own, at the right level of challenge."),
+    LEVELS_GENERIC, NOTE_RED, closing("ELA"),
     ("section", {"label": "Assessment", "body": [
       "**Formative:** Circulate during work time and check for understanding of the core concepts. Use targeted questions to assess depth of thinking.",
       "**Exit ticket:** *“What is one connection between the Harlem Renaissance and ELA?”*"]}),
     conn(CONN_FULL),
 ])
 ELA_LP["sub"] = "The Literature of the Harlem Renaissance · Grades 5–8 · ELA"
+SCI_LP["slug"] = "rhythm-sound-and-the-science-of-music"
+ELA_LP["slug"] = "voice-and-verse"
 
 ELA_G = handout("green", "ELA", "ELA", "ela", ELA_T, ELA_HERO, CTX_GREEN, flat(
     act(1, "Literary terms warm-up", "Tools of the Writer",
@@ -325,6 +397,21 @@ SS_T = "Why People Move: The Great Migration"
 URL = "minimuseumproject.org/exhibitions/harlem-renaissance"
 SS_FAMILY = family([f"Explore the Great Migration Map at **{URL}** with your family. Trace the journey together and discuss: where did your own family come from? What did they carry?"])
 
+SS_HOOK_Q = "what reasons might cause people to leave their homes?"
+SS_PUSH = ["Jim Crow laws enforced racial segregation in every area of life.",
+           "The sharecropping system trapped Black families in debt they could never escape.",
+           "Lynching was used as a tool of terror.", "The Ku Klux Klan was resurging.",
+           "Black veterans returned from WWI to find the country they fought for still treated them as less than citizens."]
+SS_PULL = ["Northern factories needed workers — World War I had cut off European immigration while demand for labor surged.",
+           "Black newspapers like the Chicago Defender actively recruited Southern readers, publishing stories of higher wages, better schools, and relative freedom.",
+           "Word spread through churches and community networks: go north."]
+SS_FOUND = "What they also found was each other."
+SS_CLOSE = "we are here, we are extraordinary, and we will not be erased."
+SS_TICKET = "Name two push factors and two pull factors of the Great Migration. Then name one thing that was different about the North from what migrants expected."
+# the six stops on the exhibition's Great Migration Map, with its photographs
+SS_CITIES = [("delta", "Mississippi Delta"), ("new-orleans", "New Orleans"), ("memphis", "Memphis"),
+             ("st-louis", "St. Louis"), ("chicago", "Chicago"), ("harlem", "Harlem")]
+
 SS_LP = lesson("Social Studies", "SS", "social-studies", SS_T, SS_HERO, [
     timing(),
     ("section", {"label": "Learning objective", "title": "What students will understand",
@@ -338,23 +425,49 @@ SS_LP = lesson("Social Studies", "SS", "social-studies", SS_T, SS_HERO, [
       "Optional: Jacob Lawrence’s *Migration Series* images (free to view on the Phillips Collection and MoMA websites)",
       "Differentiated student handouts"]}),
     ("section", {"label": "Hook · 5 minutes", "title": "Why do people move?",
-      "body": ["Ask students to brainstorm: what reasons might cause people to leave their homes? Collect responses on the board without comment. Then reveal: between 1910 and 1940, over one million Black Americans left the South — the largest internal migration in American history at that time.",
+      "screen": {"phase": "Hook", "show": "question", "title": "Brainstorm", "question": "Why do people move?",
+                 "purpose": "Draw out push and pull from students’ own ideas before naming them.",
+                 "students": [f"Brainstorm: {SS_HOOK_Q}"]},
+      "body": [f"Ask students to brainstorm: {SS_HOOK_Q} Collect responses on the board without comment. Then reveal: between 1910 and 1940, over one million Black Americans left the South — the largest internal migration in American history at that time.",
                "*“Every migration in history has push factors — reasons people leave — and pull factors — reasons they’re drawn somewhere new. The Great Migration had both. Today we’re going to investigate what those were, trace the routes people took, and understand what happened when they arrived.”*"]}),
     ("section", {"label": "Direct instruction · 10 minutes",
-      "body": ["*“The push factors were brutal. Jim Crow laws enforced racial segregation in every area of life. The sharecropping system trapped Black families in debt they could never escape. Lynching was used as a tool of terror. The Ku Klux Klan was resurging. Black veterans returned from WWI to find the country they fought for still treated them as less than citizens.”*",
-               "*“The pull factors were powerful. Northern factories needed workers — World War I had cut off European immigration while demand for labor surged. Black newspapers like the Chicago Defender actively recruited Southern readers, publishing stories of higher wages, better schools, and relative freedom. Word spread through churches and community networks: go north.”*",
-               "*“When migrants arrived in Harlem, they didn’t find paradise — they found overcrowded housing, discrimination in employment, and a Northern racism that was less explicit but no less real. What they also found was each other. A community dense enough to support Black-owned newspapers, theaters, churches, restaurants, and eventually — the Harlem Renaissance.”*",
-               "Show the Great Migration Map from the exhibition. Walk through the six cities — Mississippi Delta, New Orleans, Memphis, St. Louis, Chicago, Harlem — and the changes at each stop."]}),
-    ("section", {"label": "Activity · 15 minutes"}),
+      "screen": [
+        {"phase": "Teach", "minutes": 3, "script": [0], "title": "Push factors", "show": "words", "text": "\n".join(SS_PUSH),
+         "purpose": "Name the reasons people left the South.",
+         "students": ["A push factor: a reason people leave."]},
+        {"phase": "Teach", "minutes": 3, "script": [1], "title": "Pull factors", "show": "words", "text": "\n".join(SS_PULL),
+         "purpose": "Name the reasons people were drawn north.",
+         "students": ["A pull factor: a reason people are drawn somewhere new."]},
+        {"phase": "Teach", "minutes": 2, "script": [2], "title": "Arriving in Harlem", "show": "words", "text": SS_FOUND,
+         "purpose": "Set what migrants found in the North against what they hoped for.",
+         "students": ["What did migrants find when they arrived in Harlem?"]},
+        {"phase": "Teach", "minutes": 2, "script": [3], "title": "The six cities", "show": "gallery",
+         "groups": [{"label": "The Great Migration Map", "items": [photo(k, c) for k, c in SS_CITIES]}],
+         "purpose": "Trace the route on the exhibition’s map, city by city.",
+         "students": ["What changed at each stop?"]}],
+      "body": ["*“The push factors were brutal. " + " ".join(SS_PUSH) + "”*",
+               "*“The pull factors were powerful. " + " ".join(SS_PULL) + "”*",
+               f"*“When migrants arrived in Harlem, they didn’t find paradise — they found overcrowded housing, discrimination in employment, and a Northern racism that was less explicit but no less real. {SS_FOUND} A community dense enough to support Black-owned newspapers, theaters, churches, restaurants, and eventually — the Harlem Renaissance.”*",
+               "Show the Great Migration Map from the exhibition. Walk through the six cities — " + ", ".join(c for _, c in SS_CITIES) + " — and the changes at each stop."]}),
+    ("section", {"label": "Activity · 15 minutes",
+      "screen": {"phase": "Activity", "show": "levels", "title": "Choose a handout",
+                 "purpose": "Work with the evidence of the migration at the right level of challenge.",
+                 "students": CHOOSE}}),
     ("levels", {
       "green": "Students complete a push/pull factors chart, label cities on the migration map, and write three sentences explaining why families made the journey.",
       "yellow": "Students analyze a primary source document (a letter, newspaper excerpt, or photograph from the exhibition) using the SOAPS method, then write a paragraph evaluating it as historical evidence.",
       "red": "Students research and compare two waves of the Great Migration (1910–1940 and 1940–1970), analyze why the second wave occurred even after the Harlem Renaissance, and evaluate what “success” meant for the movement as a whole."}),
-    ("section", {"label": "Closing", "body": [
-      "*“The Harlem Renaissance happened because people refused to let injustice silence them. They used every form of expression available to them — music, poetry, painting, movement, story — to say: we are here, we are extraordinary, and we will not be erased. That courage lives in every lesson you take from this work.”*",
-      "**Exit ticket:** *“Name two push factors and two pull factors of the Great Migration. Then name one thing that was different about the North from what migrants expected.”*"]}),
+    ("section", {"label": "Closing",
+      "screen": {"phase": "Closing", "minutes": 5, "show": "words", "title": "Closing",
+                 "text": SS_CLOSE[0].upper() + SS_CLOSE[1:],
+                 "purpose": "Close on the courage behind the movement, then check understanding.",
+                 "students": [f"Exit ticket: *{SS_TICKET}*"]},
+      "body": [
+      f"*“The Harlem Renaissance happened because people refused to let injustice silence them. They used every form of expression available to them — music, poetry, painting, movement, story — to say: {SS_CLOSE} That courage lives in every lesson you take from this work.”*",
+      f"**Exit ticket:** *“{SS_TICKET}”*"]}),
     conn(CONN_SHORT),
 ])
+SS_LP["slug"] = "why-people-move"
 
 SS_G = handout("green", "Social Studies", "SS", "social-studies", SS_T, SS_HERO,
     ["The Harlem Renaissance (c. 1920–1935) was an explosion of Black music, art, and literature in Harlem, New York, growing from the Great Migration of over one million Black Americans who moved north seeking better lives and opportunities."], flat(

@@ -135,6 +135,22 @@ export interface Person {
   coinAlt?: string;
 }
 
+/** a recording from the exhibition, to play to the class */
+export interface Clip {
+  src: string;
+  /** what it is, e.g. "Trumpet" or a song title */
+  label: string;
+  /** where it comes from, e.g. "Jazz Lab" */
+  sub?: string;
+  credit?: string;
+}
+
+/** where to see a work the site does not show (a painting still in copyright) */
+export interface WorkLink {
+  label: string;
+  href: string;
+}
+
 export type Screen =
   /** the question, large; the step's students list, if any, beneath */
   | { kind: 'question'; question: string }
@@ -168,6 +184,12 @@ export type Screen =
       story: string;
       ref?: string;
     }
+  /** words from the plan set large: a key line, a quotation; a \n starts a new line */
+  | { kind: 'words'; text: string; cite?: string }
+  /** a work of art: its picture, or, when the site cannot show it, its name and where to see it */
+  | { kind: 'artwork'; work: string; artist?: string; date?: string; img?: Picture; alt?: string; links?: WorkLink[] }
+  /** recordings to play to the class, with what to listen for */
+  | { kind: 'listen'; clips: Clip[]; question?: string }
   /**
    * one picture, set large, to look at closely (an illusion, an object);
    * `caption` under it. A reveal is the next step, showing the answer.

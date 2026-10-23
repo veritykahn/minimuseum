@@ -340,8 +340,8 @@ const poster2Content: ContentItem[] = [
     alt: 'Painting of a lone silhouetted figure on a hill beneath concentric rainbow arcs, with a great hand reaching down from the sky',
     artworkTitle: 'The Creation',
     artworkArtist: 'Aaron Douglas',
-    artworkDate: '1927',
-    artworkDescription: 'From his series of illustrations for James Weldon Johnson\'s book God\'s Trombones: Seven Negro Sermons in Verse. Douglas\'s signature style — silhouetted figures bathed in concentric circles of light — became the defining visual language of the Harlem Renaissance.',
+    artworkDate: '1935',
+    artworkDescription: 'Douglas first pictured this sermon in 1927, in his illustrations for James Weldon Johnson\'s book God\'s Trombones: Seven Negro Sermons in Verse, and returned to it in this painting. Douglas\'s signature style — silhouetted figures bathed in concentric circles of light — became the defining visual language of the Harlem Renaissance.',
   },
   {
     type: 'section-title',

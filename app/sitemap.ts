@@ -68,6 +68,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/exhibitions/seeing-is-deceiving/lessons`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    ...lessonsFor('seeing-is-deceiving').map((l) => ({
+      url: `${baseUrl}/exhibitions/seeing-is-deceiving/lessons/${l.slug}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    })),
+    {
       url: `${baseUrl}/exhibitions/seeing-is-deceiving/artifacts/stereoscope`,
       lastModified,
       changeFrequency: 'monthly',
@@ -133,6 +145,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    {
+      url: `${baseUrl}/exhibitions/harlem-renaissance/lessons`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    ...lessonsFor('harlem-renaissance').map((l) => ({
+      url: `${baseUrl}/exhibitions/harlem-renaissance/lessons/${l.slug}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.5,
+    })),
     {
       url: `${baseUrl}/exhibitions/in-their-hands`,
       lastModified,
