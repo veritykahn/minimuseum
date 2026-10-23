@@ -626,8 +626,11 @@ export function PosterProjectorEnd() {
             <ul className={styles.lessonList}>
               {ctx.lessons.map((l) => (
                 <li key={l.slug}>
-                  <Link href={ctx.lessonHref(l.slug)} className={styles.link}>
-                    {l.title} <span className={styles.lessonSub}>{l.grade}</span> <span aria-hidden="true">→</span>
+                  <Link href={ctx.lessonHref(l.slug)} className={`${styles.link} ${styles.lessonLink}`}>
+                    <span>
+                      {l.title} <span aria-hidden="true">→</span>
+                    </span>
+                    <span className={styles.lessonSub}>{l.grade}</span>
                   </Link>
                 </li>
               ))}
