@@ -622,7 +622,7 @@ export function PosterProjectorEnd() {
       <div className={styles.endCol}>
         {ctx.lessonCount > 0 && (
           <div className={styles.endLinks}>
-            <h3 className={styles.smallHeading}>Teach a lesson with this poster</h3>
+            <h3 className={styles.smallHeading}>{ctx.lessons.length > 0 ? 'Teach a lesson with this poster' : 'Teach a lesson'}</h3>
             <ul className={styles.lessonList}>
               {ctx.lessons.map((l) => (
                 <li key={l.slug}>
