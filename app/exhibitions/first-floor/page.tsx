@@ -67,11 +67,12 @@ export default function FirstFloor() {
       id: 'wwi',
       title: 'The Great War',
       subtitle: 'When the Guns Fell Silent',
-      accent: '#9B2226',
-      darkAccent: '#1a0505',
-      textColor: '#fff',
+      accent: '#E8372C', // the posters' red for the date and time
+      darkAccent: '#1C1C1C',
+      textColor: '#EDE6DA',
       description: 'The Doughboys, the trenches, and the armistice that came at the eleventh hour.',
-      active: false
+      active: true,
+      path: '/exhibitions/great-war'
     },
   ];
 

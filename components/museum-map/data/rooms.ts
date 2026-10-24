@@ -6,6 +6,7 @@ const EXHIBITION_ACCENTS: Record<string, string> = {
   'harlem-renaissance': '#b485d2',
   'in-their-hands': '#C9A84C',
   'fear-lab': '#F2B33D',
+  'great-war': '#E8372C',
 };
 
 /** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
@@ -144,9 +145,9 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     y: 190,
     width: 100,
     height: 50,
-    accentColor: '#9B2226',
-    comingSoon: true,
+    accentColor: '#E8372C',
     parent: 'first-floor',
+    children: ['gw-case', ...lessonsChild('great-war')],
   },
   // Seeing is Deceiving sub-pages
   {
@@ -262,6 +263,15 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#C9A84C',
     parent: 'in-their-hands',
+  },
+  // The Great War sub-pages
+  {
+    id: 'gw-case',
+    label: 'Display Case',
+    path: '/exhibitions/great-war/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#E8372C',
+    parent: 'great-war',
   },
   ...LESSON_ROOMS,
 ];

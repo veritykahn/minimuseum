@@ -289,5 +289,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
+    {
+      url: `${baseUrl}/exhibitions/great-war`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/exhibitions/great-war/artifacts/case`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
   ];
 }

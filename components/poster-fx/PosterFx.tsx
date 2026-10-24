@@ -12,7 +12,10 @@ import './poster-fx.css';
  * Renaissance opens through Deco doors and Aaron Douglas's concentric irises,
  * In Their Hands unfolds like parchment with gilt light passing across, and
  * the Fear Lab is found by torchlight: each panel waits in the dark until a
- * beam picks it out and the lights come up.
+ * beam picks it out and the lights come up. The Great War is quiet: a hush
+ * lifts off each chapter, copy surfaces slowly out of the dark, and the
+ * photographs develop like prints in a tray, pale sepia deepening to the
+ * picture.
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -21,7 +24,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -124,6 +127,13 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
   if (theme === 'fl') {
     return (
       <div className={`pfx-veil pfx-fl-torch is-${kind}`} aria-hidden="true">
+        <i />
+      </div>
+    );
+  }
+  if (theme === 'gw') {
+    return (
+      <div className={`pfx-veil pfx-gw-hush is-${kind}`} aria-hidden="true">
         <i />
       </div>
     );

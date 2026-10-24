@@ -61,6 +61,18 @@ export type PanelDecor = {
   width?: string;
 };
 
+/**
+ * Short lines set at a panel's head or foot, one at each side, as a poster
+ * prints a date in its corners ("11.11.1918" … "11:00"). Copy, not ornament:
+ * it is read out with the panel.
+ */
+export type PanelMarks = {
+  left?: string;
+  right?: string;
+  /** 'foot' (the default) or 'head'. */
+  placement?: 'head' | 'foot';
+};
+
 type PanelBase = {
   /** Names a section in the poster's `sections`, which sets its colors and look. */
   section?: string;
@@ -68,6 +80,7 @@ type PanelBase = {
   /** Extra classes for this panel's wrapper, for an exhibition's own CSS. */
   className?: string;
   decor?: PanelDecor;
+  marks?: PanelMarks;
 };
 
 export type ParagraphItem = PanelBase & {

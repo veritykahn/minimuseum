@@ -5,7 +5,7 @@ import { FxText, type FxKind } from '@/components/poster-fx/PosterFx';
 import { PosterProjectorEnd } from '@/components/projector/PosterProjector';
 import PosterLessons from '@/components/lesson/PosterLessons';
 import { effectClass, emphasisRuns, panelClasses, positionClass } from './helpers';
-import type { ExhibitionConfig, PanelDecor, PosterConfig, PosterItem, PosterItemType } from './types';
+import type { ExhibitionConfig, PanelDecor, PanelMarks, PosterConfig, PosterItem, PosterItemType } from './types';
 
 /*
  * One panel of a poster walkthrough. Each panel type has a renderer in
@@ -178,12 +178,23 @@ function Decor({ decor }: { decor: PanelDecor }) {
   );
 }
 
+/** A poster's running head or foot: a short line at each side of the panel. */
+function Marks({ marks }: { marks: PanelMarks }) {
+  return (
+    <p className={`pe-marks pe-marks-${marks.placement ?? 'foot'} pfx-fg`}>
+      {marks.left && <span className="pe-marks-left">{marks.left}</span>}
+      {marks.right && <span className="pe-marks-right">{marks.right}</span>}
+    </p>
+  );
+}
+
 export default function PosterPanel(props: PanelProps) {
   const render = PANEL_RENDERERS[props.item.type] as (p: PanelProps) => ReactNode;
   return (
     <>
       {props.item.decor && <Decor decor={props.item.decor} />}
       {render(props)}
+      {props.item.marks && <Marks marks={props.item.marks} />}
     </>
   );
 }

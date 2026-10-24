@@ -38,6 +38,9 @@ export const CONNECTIONS: RoomConnection[] = [
   ['in-their-hands', 'ith-hands'],
   ['in-their-hands', 'ith-real-or-replica'],
 
+  // The Great War sub-pages
+  ['great-war', 'gw-case'],
+
   // Each exhibition's Lessons room, once it has lessons
   ...Object.keys(LESSON_ROOM_IDS)
     .filter(hasLessons)
