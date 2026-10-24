@@ -102,7 +102,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'title-text', section: 'faces', text: "The Doughboys: America's Sons in The Great War", marks: DATE_FOOT },
         { type: 'paragraph', position: 'center', text: 'They were farmers from Iowa, factory workers from Pittsburgh, teenagers from small Texas towns who lied about their age to enlist.' },
         { type: 'paragraph', position: 'top-left', text: `When America entered "The Great War" in April 1917, two million young men—many barely out of high school—crossed the Atlantic to fight in the muddy, rat-infested trenches of France.` },
-        { type: 'paragraph', position: 'bottom-right', text: `They were called "doughboys," possibly because the clay-covered brass buttons on their uniforms resembled dough, or perhaps from the flour-dust that covered infantry during the Mexican-American War. Whatever the origin, the nickname stuck, and these American soldiers carried it with pride into the bloodiest conflict the world had ever seen.` },
+        { type: 'paragraph', position: 'bottom-right', text: `They were called "doughboys," possibly because the large brass buttons on their uniforms resembled small fried-dough pastries, or perhaps from the dust that coated infantry on the march in the Mexican-American War, as if they'd been rolled in flour. Whatever the origin, the nickname stuck, and these American soldiers carried it with pride into the bloodiest conflict the world had ever seen.` },
 
         { type: 'section-title', section: 'dusk', text: 'Life in the trenches was a nightmare of mud, rats, lice, and constant danger.' },
         {
@@ -113,11 +113,11 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
         },
         { type: 'paragraph', section: 'dusk', position: 'top-left', text: `Soldiers spent weeks at a time in waterlogged ditches, their feet rotting from "trench foot," their lungs burning from poison gas attacks, their ears ringing from artillery bombardments that never seemed to stop.` },
         { type: 'paragraph', section: 'dusk', position: 'bottom-right', text: `They witnessed horrors that would haunt them for the rest of their lives: friends cut down by machine gun fire, landscapes transformed into cratered moonscapes, horses and men drowning in the sucking mud of No Man's Land.` },
-        { type: 'paragraph', section: 'faces', position: 'center', text: 'The average age of an American doughboy was just 26 years old, but many were teenagers—boys who should have been finishing high school or starting their first jobs, not charging into a hail of bullets.' },
+        { type: 'paragraph', section: 'faces', position: 'center', text: 'Most American doughboys were in their early twenties, but many were teenagers—boys who should have been finishing high school or starting their first jobs, not charging into a hail of bullets.' },
 
         { type: 'section-title', text: 'Yet these ordinary young men showed extraordinary courage.' },
-        { type: 'paragraph', position: 'top-left', text: `They fought in decisive battles like Belleau Wood, where U.S. Marines earned the nickname "Devil Dogs" from impressed German soldiers. They pushed through the Argonne Forest in the largest American offensive of the war.` },
-        { type: 'paragraph', position: 'bottom-right', text: 'By the time the guns fell silent on November 11, 1918, over 116,000 American soldiers had died—53,000 in combat, and another 63,000 from disease and accidents. Millions more came home with physical wounds and invisible scars we now recognize as PTSD.' },
+        { type: 'paragraph', position: 'top-left', text: `They fought in decisive battles like Belleau Wood, where U.S. Marines fought so fiercely that legend says German soldiers called them "Devil Dogs." They pushed through the Argonne Forest in the largest American offensive of the war.` },
+        { type: 'paragraph', position: 'bottom-right', text: 'In all, over 116,000 American soldiers died—53,000 in combat, and another 63,000 from disease and accidents. Millions more came home with physical wounds and invisible scars we now recognize as PTSD.' },
         { type: 'paragraph', section: 'dusk', position: 'center', text: "The doughboys didn't just fight for victory; they fought so that future generations—all of us—would never have to know the horror of such a war." },
         { type: 'paragraph', section: 'dusk', position: 'center', className: 'gw-closing', text: "That's why we remember them.", marks: DATE_FOOT },
 
@@ -158,18 +158,18 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', position: 'top-left', text: 'At 11:00 AM on November 11, 1918, the armistice—the peace agreement—took effect, and an eerie silence fell over battlefields that had thundered with artillery for 1,568 days.' },
         { type: 'paragraph', position: 'bottom-right', text: "Soldiers on both sides climbed out of their trenches, stunned and uncertain. Some shook hands with enemies they'd been trying to kill just minutes before. Some wept. Some couldn't believe they'd actually survived. Church bells rang across Europe." },
         { type: 'paragraph', section: 'dusk', position: 'top-left', text: "But that final hour wasn't peaceful—knowing the war would end at 11:00 AM, some commanders still ordered attacks that morning. Nearly 11,000 soldiers became casualties on November 11th alone, including many who died in the final minutes before the ceasefire." },
-        { type: 'paragraph', section: 'dusk', position: 'center', text: 'The very last Allied soldier killed was Canadian Private George Lawrence Price, shot at 10:58 AM—just two minutes before the armistice took effect.' },
+        { type: 'paragraph', section: 'dusk', position: 'center', text: 'The last Commonwealth soldier killed was Canadian Private George Lawrence Price, shot at 10:58 AM. A minute later, Private Henry Gunther became the last American to die.' },
 
-        { type: 'section-title', className: 'gw-long', text: `World War I was supposed to be "the war to end all wars," but it became the deadliest conflict in human history up to that point.` },
+        { type: 'section-title', className: 'gw-long', text: `World War I was supposed to be "the war to end all wars," but it became one of the deadliest conflicts in human history.` },
         { type: 'paragraph', position: 'top-left', text: 'Over 17 million people died—9 million soldiers and 8 million civilians. Entire towns in France and Belgium were erased from the map.' },
         { type: 'paragraph', position: 'bottom-right', text: 'A generation of young men was lost—Britain alone lost 880,000 men, France lost 1.4 million, Germany lost 2 million.' },
-        { type: 'paragraph', position: 'top-left', decor: POPPIES, text: `In the poem "In Flanders Fields," Canadian doctor and soldier John McCrae wrote about the endless rows of white crosses marking graves in Flanders, where bright red poppies grew wild among the devastation.` },
+        { type: 'paragraph', position: 'top-left', decor: POPPIES, text: `In the poem "In Flanders Fields," Canadian doctor and soldier John McCrae wrote about the crosses, row on row, marking graves in Flanders, where bright red poppies grew wild among the devastation.` },
         { type: 'paragraph', position: 'top-left', decor: POPPIES, text: "The poppies became a symbol of remembrance because they were often the only living things that could grow in the churned, blood-soaked soil of the battlefields. When we wear poppies in November, we're remembering all those who gave their lives, and we're making a promise: we will never forget their sacrifice." },
 
         { type: 'section-title', section: 'dusk', text: 'The armistice of November 11, 1918 became a sacred day.' },
-        { type: 'paragraph', section: 'dusk', position: 'top-left', text: `In 1919, President Woodrow Wilson proclaimed it "Armistice Day," declaring that the day should be "filled with solemn pride in the heroism of those who died in the country's service." At 11:00 AM each year, Americans paused for two minutes of silence to honor the fallen.` },
+        { type: 'paragraph', section: 'dusk', position: 'top-left', text: `In 1919, President Woodrow Wilson proclaimed it "Armistice Day," declaring that the day should be "filled with solemn pride in the heroism of those who died in the country's service." At 11:00 AM, Americans paused their work for two minutes to honor the fallen.` },
         { type: 'paragraph', section: 'dusk', position: 'bottom-right', text: 'After World War II and the Korean War, Congress changed the name to "Veterans Day" in 1954 to honor all American veterans, not just those from WWI. But many countries—including Canada, Britain, and France—still call it Remembrance Day and observe the tradition of the two-minute silence at the eleventh hour.' },
-        { type: 'paragraph', section: 'dusk', position: 'center', text: "In Arlington National Cemetery, a wreath is placed at the Tomb of the Unknown Soldier every Veterans Day by the President of the United States, honoring all those whose names we'll never know but whose sacrifice we'll never forget." },
+        { type: 'paragraph', section: 'dusk', position: 'center', text: "In Arlington National Cemetery, a wreath is placed at the Tomb of the Unknown Soldier on Veterans Day, by tradition by the President of the United States, honoring all those whose names we'll never know but whose sacrifice we'll never forget." },
 
         { type: 'section-title', text: 'Why do we still remember a war that ended over a century ago?' },
         { type: 'paragraph', position: 'top-left', text: "Because those young men—the doughboys in their steel helmets, the soldiers who carried shaving kits and rosaries into battle—went to war so that we might live in peace. They endured unimaginable horrors so that future generations wouldn't have to." },
@@ -181,7 +181,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
       ],
       talk: {
         '': 'Imagine the moment the guns stopped. What do you think the soldiers on both sides felt in that silence?',
-        'World War I was supposed to be "the war to end all wars," but it became the deadliest conflict in human history up to that point.':
+        'World War I was supposed to be "the war to end all wars," but it became one of the deadliest conflicts in human history.':
           'Why do you think a small flower like the poppy became a way to remember so many people?',
         'The armistice of November 11, 1918 became a sacred day.':
           'Why might people choose silence, rather than words, to honor those who died?',
