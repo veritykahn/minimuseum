@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { floorReturnFor } from '@/lib/floors';
 import type { ExhibitionConfig, PanelDecor, PanelMarks } from '@/components/exhibition/types';
 
 /*
@@ -63,11 +64,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
     accent: RED_TEXT,
     teach: { color: RED_TEXT, border: 'rgba(236,74,63,0.55)' },
   },
-  back: {
-    href: '/exhibitions/first-floor',
-    label: 'First Floor',
-    remember: { key: 'firstFloorIndex', value: '4' },
-  },
+  back: floorReturnFor('great-war'),
   fx: { theme: 'gw', veil: 'chapters', text: 'all' },
   projector: {
     theme: GREAT_WAR_PROJECTOR_THEME,

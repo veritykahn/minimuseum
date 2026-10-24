@@ -7,12 +7,16 @@ const nextConfig: NextConfig = {
   // permanently redirects to the same page on www.minimuseumproject.org, so
   // search engines see one site instead of two identical copies.
   async redirects() {
-    return ['minimuseumproject.com', 'www.minimuseumproject.com'].map((host) => ({
-      source: '/:path*',
-      has: [{ type: 'host' as const, value: host }],
-      destination: `${SITE_URL}/:path*`,
-      permanent: true,
-    }));
+    return [
+      ...['minimuseumproject.com', 'www.minimuseumproject.com'].map((host) => ({
+        source: '/:path*',
+        has: [{ type: 'host' as const, value: host }],
+        destination: `${SITE_URL}/:path*`,
+        permanent: true,
+      })),
+      // The old all-exhibitions page; both floors now start in the Great Hall.
+      { source: '/exhibitions', destination: '/greathall', permanent: true },
+    ];
   },
 
   // Tell search engines the preferred address of every page with a

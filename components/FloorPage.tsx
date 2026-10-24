@@ -1,88 +1,59 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { type Floor, type FloorExhibition, exhibitionPath } from '@/lib/floors';
 
-export default function GroundFloor() {
+/**
+ * A floor of the museum: a horizontal carousel of exhibition cards, one per
+ * screen. Open exhibitions have an "Enter Exhibition" ticket; the rest show
+ * "Installation in progress". Entering an exhibition remembers its card, so
+ * its back link (see `floorReturnFor`) returns to the same place.
+ */
+export default function FloorPage({ floor }: { floor: Floor }) {
+  const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { exhibitions, storageKey } = floor;
 
-  // Ground Floor: All exhibitions are "Installation in Progress" for now
-  const exhibitions = [
-    {
-      id: 'egypt',
-      title: 'Ancient Egypt',
-      subtitle: 'The Mysteries of the Nile',
-      accent: '#E85D04',
-      darkAccent: '#1a0d02',
-      textColor: '#fff',
-      description: 'Gods and goddesses, mummification, and the civilization that shaped human history for three thousand years.',
-      active: false,
-    },
-    {
-      id: 'victorian',
-      title: 'Victorian Britain',
-      subtitle: 'Revolution & Christmas',
-      accent: '#7D8471',
-      darkAccent: '#1a1c18',
-      textColor: '#fff',
-      description: 'From the V&A to Dickens, the era that invented the modern Christmas and transformed the world.',
-      active: false,
-    },
-    {
-      id: 'holocaust',
-      title: 'The Holocaust',
-      subtitle: 'Never Forget',
-      accent: '#78716C',
-      darkAccent: '#1c1917',
-      textColor: '#fff',
-      description: 'Remembering the six million, honoring the Righteous Among the Nations, and the imperative of memory.',
-      active: false,
-    },
-    {
-      id: 'black-history',
-      title: 'Black Barbie',
-      subtitle: 'The Importance of Representation',
-      accent: '#EC4899',
-      darkAccent: '#2d0a1f',
-      textColor: '#fff',
-      description: "Carter G. Woodson's vision, cultural preservation, and the revolutionary history of representation in play.",
-      active: false,
-    },
-    {
-      id: 'womens-history',
-      title: "Women's History",
-      subtitle: 'Moving Forward Together',
-      accent: '#1D3557',
-      darkAccent: '#0a1220',
-      textColor: '#fff',
-      description: 'From Hilma af Klimt to working women like Violet Dina Want, celebrating contributions too long overlooked.',
-      active: false,
-    },
-    {
-      id: 'space',
-      title: 'Another Earth',
-      subtitle: 'Our Incredible Moon',
-      accent: '#7B2CBF',
-      darkAccent: '#1a0a2e',
-      textColor: '#fff',
-      description: 'From lunar dust to exoplanets, exploring the cosmic questions that define our place in the universe.',
-      active: false,
-    },
-  ];
+  useEffect(() => {
+    const savedIndex = sessionStorage.getItem(storageKey);
+    if (savedIndex && scrollRef.current) {
+      const index = parseInt(savedIndex, 10);
+      scrollRef.current.scrollTo({ left: index * window.innerWidth, behavior: 'instant' });
+      sessionStorage.removeItem(storageKey);
+    }
+  }, [storageKey]);
 
-  const Ticket = () => (
-    <div className="ticket ticket-disabled" aria-hidden="true">
-      <svg width="180" height="80" viewBox="0 0 180 80" fill="none">
-        <path d="M0 8C0 3.58172 3.58172 0 8 0H52C52 6.62742 57.3726 12 64 12C70.6274 12 76 6.62742 76 0H172C176.418 0 180 3.58172 180 8V72C180 76.4183 176.418 80 172 80H76C76 73.3726 70.6274 68 64 68C57.3726 68 52 73.3726 52 80H8C3.58172 80 0 76.4183 0 72V8Z" fill="#2a2a2a"/>
-        <line x1="64" y1="16" x2="64" y2="64" stroke="#3a3a3a" strokeWidth="1" strokeDasharray="4 3"/>
-        <text x="32" y="38" textAnchor="middle" fill="#666" style={{ fontFamily: 'Outfit', fontSize: '8px', fontWeight: 500, letterSpacing: '0.1em' }}>ADMIT ONE</text>
-        <text x="125" y="28" textAnchor="middle" fill="#666" style={{ fontFamily: 'Cormorant Garamond', fontSize: '10px' }}>The Mini Museum</text>
-        <text x="125" y="48" textAnchor="middle" fill="#555" style={{ fontFamily: 'Outfit', fontSize: '11px', letterSpacing: '0.08em' }}>Coming Soon</text>
+  const handleExhibitionClick = (exhibition: FloorExhibition, index: number) => {
+    if (exhibition.active) {
+      // Store the scroll position/index so we can return to it
+      sessionStorage.setItem(storageKey, index.toString());
+      router.push(exhibitionPath(exhibition.slug));
+    }
+  };
+
+  const Ticket = ({ onClick, accentColor, isActive, title }: { onClick: () => void; accentColor: string; isActive: boolean; title: string }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`ticket ${!isActive ? 'ticket-disabled' : ''}`}
+      disabled={!isActive}
+    >
+      <span className="visually-hidden">{isActive ? `Enter Exhibition: ${title}` : `Coming Soon: ${title}`}</span>
+      <svg width="180" height="80" viewBox="0 0 180 80" fill="none" aria-hidden="true" focusable="false">
+        <path d="M0 8C0 3.58172 3.58172 0 8 0H52C52 6.62742 57.3726 12 64 12C70.6274 12 76 6.62742 76 0H172C176.418 0 180 3.58172 180 8V72C180 76.4183 176.418 80 172 80H76C76 73.3726 70.6274 68 64 68C57.3726 68 52 73.3726 52 80H8C3.58172 80 0 76.4183 0 72V8Z" fill={isActive ? "#faf8f5" : "#2a2a2a"}/>
+        <line x1="64" y1="16" x2="64" y2="64" stroke={isActive ? "#e5e2dc" : "#3a3a3a"} strokeWidth="1" strokeDasharray="4 3"/>
+        <text x="32" y="38" textAnchor="middle" fill={isActive ? "#1a1a1a" : "#666"} style={{ fontFamily: 'Outfit', fontSize: '8px', fontWeight: 500, letterSpacing: '0.1em' }}>ADMIT ONE</text>
+        <text x="125" y="28" textAnchor="middle" fill={isActive ? "#1a1a1a" : "#666"} style={{ fontFamily: 'Cormorant Garamond', fontSize: '10px' }}>The Mini Museum</text>
+        <text x="125" y="48" textAnchor="middle" fill={isActive ? accentColor : "#555"} style={{ fontFamily: 'Outfit', fontSize: '11px', letterSpacing: '0.08em' }}>
+          {isActive ? 'Enter Exhibition' : 'Coming Soon'}
+        </text>
       </svg>
-    </div>
+    </button>
   );
 
-  const ExhibitionCard = ({ exhibition, index }: { exhibition: typeof exhibitions[0]; index: number }) => (
+  const ExhibitionCard = ({ exhibition, index }: { exhibition: FloorExhibition; index: number }) => (
     <div
       className="exhibition-card"
       style={{
@@ -91,25 +62,27 @@ export default function GroundFloor() {
       }}
     >
       {/* Installation in Progress Overlay */}
-      <div className="installation-overlay">
-        <div className="installation-sign">
-          <p className="installation-title">Installation in progress</p>
-          <p className="installation-subtitle">Thank you for your patience</p>
+      {!exhibition.active && (
+        <div className="installation-overlay">
+          <div className="installation-sign">
+            <p className="installation-title">Installation in progress</p>
+            <p className="installation-subtitle">Thank you for your patience</p>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Dimmed with muted, still-legible colors rather than opacity, so the
-          "coming soon" state doesn't push the text below 4.5:1 */}
+      {/* Inactive cards are dimmed with muted, still-legible colors rather than
+          opacity, so "coming soon" doesn't push the text below 4.5:1 */}
       <div style={{
         textAlign: 'center',
         padding: '40px',
-        filter: 'grayscale(50%)'
+        filter: exhibition.active ? 'none' : 'grayscale(50%)'
       }}>
         <p style={{
           fontSize: '11px',
           letterSpacing: '0.4em',
           textTransform: 'uppercase',
-          color: '#8a8a8a',
+          color: exhibition.active ? exhibition.accent : '#8a8a8a',
           marginBottom: '16px',
           fontFamily: 'Outfit, sans-serif'
         }}>
@@ -120,7 +93,7 @@ export default function GroundFloor() {
           fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
           fontWeight: 300,
           lineHeight: 0.95,
-          color: '#a3a3a3',
+          color: exhibition.active ? '#fafafa' : '#a3a3a3',
           marginBottom: '16px'
         }}>
           {exhibition.title}
@@ -130,12 +103,17 @@ export default function GroundFloor() {
           fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
           fontStyle: 'italic',
           fontWeight: 300,
-          color: '#8a8a8a',
+          color: exhibition.active ? exhibition.accent : '#8a8a8a',
           marginBottom: '48px'
         }}>
           {exhibition.subtitle}
         </p>
-        <Ticket />
+        <Ticket
+          onClick={() => handleExhibitionClick(exhibition, index)}
+          accentColor={exhibition.accent}
+          isActive={exhibition.active}
+          title={exhibition.title}
+        />
       </div>
     </div>
   );
@@ -147,9 +125,26 @@ export default function GroundFloor() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { background: #0a0a0a; color: #fafafa; overflow-x: hidden; }
 
+        @keyframes float {
+          0%, 100% { transform: translateY(0px) rotate(-2deg); }
+          50% { transform: translateY(-6px) rotate(-1deg); }
+        }
+
+        .ticket {
+          background: none;
+          border: none;
+          cursor: pointer;
+          animation: float 4s ease-in-out infinite;
+          transition: all 0.3s ease;
+        }
+        .ticket:hover:not(.ticket-disabled), .ticket:focus-visible:not(.ticket-disabled) {
+          animation-play-state: paused;
+          transform: translateY(-8px) scale(1.05);
+        }
         .ticket-disabled {
-          /* was 0.6 inside a 0.4-opacity card; the ticket is decorative */
-          opacity: 0.24;
+          cursor: not-allowed;
+          animation: none;
+          opacity: 0.6;
         }
 
         .back-link {
@@ -290,7 +285,7 @@ export default function GroundFloor() {
         }
       `}</style>
 
-      <h1 className="visually-hidden">Ground Floor: Origins</h1>
+      <h1 className="visually-hidden">{floor.heading}</h1>
 
       <Link href="/greathall" className="back-link">
         <span className="back-m" aria-hidden="true">M</span>
@@ -299,13 +294,13 @@ export default function GroundFloor() {
       </Link>
 
       <div className="floor-indicator">
-        <p className="floor-indicator-name">Ground Floor</p>
-        <p className="floor-indicator-year">2024–2025</p>
+        <p className="floor-indicator-name">{floor.name}</p>
+        <p className="floor-indicator-year">{floor.theme}</p>
       </div>
 
-      <div ref={scrollRef} className="exhibitions-scroll" tabIndex={0} role="region" aria-label="Ground Floor exhibitions">
+      <div ref={scrollRef} className="exhibitions-scroll">
         {exhibitions.map((exhibition, index) => (
-          <ExhibitionCard key={exhibition.id} exhibition={exhibition} index={index} />
+          <ExhibitionCard key={exhibition.slug} exhibition={exhibition} index={index} />
         ))}
       </div>
 
