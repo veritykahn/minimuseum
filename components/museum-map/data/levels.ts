@@ -159,7 +159,7 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'great-war', label: 'The Great War', path: '/exhibitions/great-war',
     x: 257, y: 240, width: 140, height: 100, accentColor: COLORS.greatWar,
     parent: 'first-floor',
-    children: ['gw-case', ...lessonsChild('great-war')],
+    children: ['gw-case', 'gw-silence', 'gw-memorial', ...lessonsChild('great-war')],
   },
 ];
 
@@ -488,19 +488,25 @@ export const FEAR_LAB: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — The Great War (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the two
+// interactive rooms beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// └────────────────────────────────┘
+// ├───────╴ ╶───────┬──────╴ ╶─────┤
+// │ When the Guns…  ╎ The Memorial │
+// └─────────────────┴──────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const GREAT_WAR_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.greatWar,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 250, 280),
+    ...wallWithDoorway(250, 280, 460, 280),
+    ...wallWithDoorway(250, 280, 250, 380),
   ],
   rooms: [
     {
@@ -515,6 +521,18 @@ const GREAT_WAR_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'gw-silence', label: 'When the Guns Fell Silent', path: '/exhibitions/great-war/silence',
+      accentColor: COLORS.greatWar, parent: 'great-war',
+      x: 40, y: 280, width: 210, height: 100,
+      labelX: 145, labelY: 330,
+    },
+    {
+      id: 'gw-memorial', label: 'The Memorial', path: '/exhibitions/great-war/memorial',
+      accentColor: COLORS.greatWar, parent: 'great-war',
+      x: 250, y: 280, width: 210, height: 100,
+      labelX: 355, labelY: 330,
+    },
   ],
 };
 
@@ -528,7 +546,7 @@ export const GREAT_WAR: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
   ],
-  ...withLessons(GREAT_WAR_FLOOR_PLAN, '0 0 500 330', 'great-war'),
+  ...withLessons(GREAT_WAR_FLOOR_PLAN, '0 0 500 430', 'great-war'),
 };
 
 // ═══════════════════════════════════════════════════════════════════

@@ -40,6 +40,8 @@ export const CONNECTIONS: RoomConnection[] = [
 
   // The Great War sub-pages
   ['great-war', 'gw-case'],
+  ['great-war', 'gw-silence'],
+  ['great-war', 'gw-memorial'],
 
   // Each exhibition's Lessons room, once it has lessons
   ...Object.keys(LESSON_ROOM_IDS)

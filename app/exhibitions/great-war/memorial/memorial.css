@@ -1,0 +1,338 @@
+/* ==========================================================================
+   The memorial: printed cards, a field of poppies, the silence at 11:00.
+   ========================================================================== */
+.gwm-contents {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px 28px;
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.gw-room .gwm-contents a { color: #c9c1b4; text-decoration: none; padding: 6px 2px; border-bottom: 1px solid transparent; }
+.gw-room .gwm-contents a:hover,
+.gw-room .gwm-contents a:focus-visible { color: #ec4a3f; border-bottom-color: #ec4a3f; }
+
+.gwm-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  scroll-margin-top: 24px;
+  padding-top: 24px;
+}
+.gwm-h2 {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4.6vw, 3rem);
+  color: #ede6da;
+  text-align: center;
+}
+.gwm-h2::after {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 1px;
+  margin: 18px auto 0;
+  background: #e8372c;
+}
+.gwm-intro {
+  font-family: var(--pe-body);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  line-height: 1.5;
+  text-align: center;
+  max-width: 34em;
+  color: #ede6da;
+}
+
+/* The backlit silhouette, as it stood on the installation's table. */
+.gwm-backlit {
+  padding: 18px;
+  background: #151413;
+  border: 1px solid rgba(237, 230, 218, 0.12);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+}
+.gwm-backlit-frame {
+  position: relative;
+  width: min(300px, 70vw);
+  aspect-ratio: 430 / 578;
+  overflow: hidden;
+  background: radial-gradient(ellipse 55% 48% at 52% 50%, #fff6e2 0%, #f1dfba 45%, #c9ae84 100%);
+}
+.gwm-backlit-frame img {
+  position: absolute;
+  top: 0;
+  left: -5%;
+  width: auto;
+  max-width: none;
+  height: 100%;
+  mix-blend-mode: multiply;
+  filter: grayscale(1) brightness(2.3) contrast(2.4);
+}
+
+/* ───────── The cards ───────── */
+.gwm-cards {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 28px;
+  align-items: start;
+}
+.gwm-card {
+  --card-paper: #f0e9dc;
+  --card-ink: #2a2622;
+  --card-soft: #5d554b;
+  --card-red: #b42318;
+  display: flex;
+  flex-direction: column;
+  perspective: 1600px;
+}
+.gwm-card-faces {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.8s cubic-bezier(0.3, 0.1, 0.2, 1);
+}
+.gwm-card.is-turned .gwm-card-faces { transform: rotateY(180deg); }
+.gwm-card-face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: var(--card-paper);
+  color: var(--card-ink);
+  padding: 26px 24px 24px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+  border-top: 4px solid #e8372c;
+  min-height: 420px;
+}
+.gwm-card-back { transform: rotateY(180deg); }
+/* The side facing away takes no room: the card is as tall as the side shown. */
+.gwm-card:not(.is-turned) .gwm-card-back,
+.gwm-card.is-turned .gwm-card-front { position: absolute; inset: 0; overflow: hidden; }
+.gwm-card-kicker {
+  font-family: var(--pe-ui);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--card-red);
+  margin-bottom: 18px;
+}
+.gwm-card-rank {
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--card-soft);
+  margin-bottom: 6px;
+}
+.gwm-card-name {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: 2rem;
+  line-height: 1.1;
+  color: var(--card-ink);
+}
+.gwm-card-aka {
+  margin-top: 8px;
+  font-family: var(--pe-body);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--card-soft);
+}
+.gwm-card-rule { display: block; width: 44px; height: 1px; background: #e8372c; margin: 18px 0; }
+.gwm-card-facts { display: flex; flex-direction: column; gap: 12px; margin: 0; }
+.gwm-card-facts dd { margin: 0; }
+.gwm-card-facts dt {
+  font-family: var(--pe-ui);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--card-soft);
+  margin-bottom: 2px;
+}
+.gwm-card-facts dd {
+  font-family: var(--pe-body);
+  font-weight: 500;
+  font-size: 1.08rem;
+  line-height: 1.38;
+}
+.gwm-card-ranknote {
+  font-family: var(--pe-body);
+  font-style: italic;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--card-soft);
+  margin-bottom: 12px;
+}
+.gwm-card-story p {
+  font-family: var(--pe-body);
+  font-weight: 500;
+  font-size: 1.08rem;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+.gwm-card-facts-back { margin-top: 8px; padding-top: 14px; border-top: 1px solid rgba(42, 38, 34, 0.18); }
+.gwm-card-plot {
+  display: block;
+  font-family: var(--pe-ui);
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: var(--card-ink);
+  margin-top: 4px;
+}
+.gwm-card-burial-note { display: block; font-style: italic; color: var(--card-soft); margin-top: 4px; font-size: 0.98rem; }
+.gwm-card-notes {
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: rgba(42, 38, 34, 0.06);
+  border-left: 2px solid var(--card-red);
+}
+.gwm-card-notes-head {
+  font-family: var(--pe-ui);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--card-red);
+  margin-bottom: 4px;
+}
+.gwm-card-notes p:not(.gwm-card-notes-head) { font-family: var(--pe-body); font-style: italic; font-size: 1rem; line-height: 1.4; }
+.gwm-card-sources { margin-top: 14px; }
+.gwm-card-sources summary {
+  cursor: pointer;
+  font-family: var(--pe-ui);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--card-ink);
+  padding: 6px 0;
+}
+.gwm-card-sources ul { list-style: none; margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+.gw-room .gwm-card-sources a {
+  font-family: var(--pe-body);
+  font-size: 0.98rem;
+  line-height: 1.35;
+  color: var(--card-red);
+  overflow-wrap: anywhere;
+}
+.gw-room .gwm-card-sources a:hover { color: var(--card-ink); }
+.gwm-card :focus-visible { outline: 2px solid #b42318; outline-offset: 2px; }
+.gwm-card-turn {
+  margin-top: 12px;
+  align-self: center;
+  font-family: var(--pe-ui);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ede6da;
+  background: transparent;
+  border: 1px solid rgba(237, 230, 218, 0.4);
+  padding: 12px 20px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.gwm-card-turn:hover,
+.gwm-card-turn:focus-visible { border-color: #ec4a3f; color: #ec4a3f; }
+.gwm-card-turn:focus-visible { outline: 2px solid #ec4a3f; outline-offset: 3px; }
+
+/* ───────── The field ───────── */
+.gwm-field { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.gwm-field-ground {
+  width: 100%;
+  height: clamp(240px, 38vw, 420px);
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 110%, #2a2420 0%, transparent 70%),
+    linear-gradient(to bottom, #161514 0%, #1f1c19 40%, #26211c 100%);
+  border-top: 1px solid rgba(237, 230, 218, 0.08);
+  border-bottom: 1px solid rgba(237, 230, 218, 0.08);
+}
+.gwm-field-canvas { display: block; width: 100%; height: 100%; }
+.gwm-field-count {
+  font-family: var(--pe-ui);
+  font-weight: 600;
+  font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+  letter-spacing: 0.04em;
+  color: #e8372c;
+  text-align: center;
+}
+.gwm-field-count[data-status='offline'] { color: #c9c1b4; font-weight: 400; }
+.gwm-place-icon {
+  width: 22px;
+  height: 22px;
+  background: url('/exhibitions/great-war/poppies.png') no-repeat;
+  /* the middle poppy of the spray */
+  background-size: calc(590px * 22 / 196) calc(710px * 22 / 196);
+  background-position: calc(-332px * 22 / 196) calc(-316px * 22 / 196);
+  clip-path: ellipse(44% 46% at 48% 50%);
+}
+.gwm-field-message {
+  font-family: var(--pe-body);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: #c9c1b4;
+  text-align: center;
+  min-height: 1.5em;
+}
+
+/* ───────── The silence ───────── */
+.gwm-silence { display: flex; flex-direction: column; align-items: center; gap: 26px; }
+.gwm-silence-line {
+  font-family: var(--pe-body);
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  text-align: center;
+  max-width: 30em;
+}
+.gwm-clock { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.gwm-clock-time {
+  font-family: var(--pe-ui);
+  font-weight: 600;
+  font-size: clamp(2.4rem, 8vw, 4.4rem);
+  letter-spacing: 0.04em;
+  color: #e8372c;
+  font-variant-numeric: tabular-nums;
+}
+.gwm-clock-date { font-family: var(--pe-ui); font-size: 15px; color: #ede6da; letter-spacing: 0.06em; }
+.gwm-clock-note { font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #a59d90; }
+
+.gwm-silence-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  color: #ede6da;
+  animation: gwm-dim 2.4s ease both;
+}
+.gwm-silence-veil.is-leaving { animation: gwm-undim 1.5s ease both; pointer-events: none; }
+@keyframes gwm-dim { from { opacity: 0; } to { opacity: 1; } }
+@keyframes gwm-undim { from { opacity: 1; } to { opacity: 0; } }
+.gwm-silence-inner { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 24px; text-align: center; }
+.gwm-silence-title { font-family: 'Italiana', 'Cormorant Garamond', Georgia, serif; font-size: clamp(2rem, 6vw, 3.4rem); }
+.gwm-silence-time {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  color: #b5ada0;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+}
+.gwm-silence-veil .gw-button { font-family: 'Outfit', system-ui, sans-serif; }
+.gwm-silence-veil .gw-button:focus-visible { outline: 2px solid #ec4a3f; outline-offset: 3px; }
+.gwm-silence-hint { font-family: 'Outfit', system-ui, sans-serif; font-size: 12px; letter-spacing: 0.08em; color: #8f887d; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gwm-card-faces { transition: none; }
+  .gwm-silence-veil,
+  .gwm-silence-veil.is-leaving { animation: none; }
+  .gwm-silence-veil.is-leaving { display: none; }
+}
+@media (max-width: 560px) {
+  .gwm-card-face { padding: 22px 18px 20px; min-height: 0; }
+  .gwm-card-name { font-size: 1.75rem; }
+}

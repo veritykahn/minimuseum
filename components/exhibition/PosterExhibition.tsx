@@ -12,7 +12,7 @@ import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useP
 import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import PosterPanel from './PosterPanel';
 import { colorsFor, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
-import type { ExhibitionConfig, PosterConfig } from './types';
+import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
 
 /*
@@ -28,7 +28,7 @@ import './poster-exhibition.css';
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function PosterExhibition<K extends string>({ config }: { config: ExhibitionConfig<K> }) {
-  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], fx: fxConfig, projector: projectorConfig } = config;
+  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives = [], fx: fxConfig, projector: projectorConfig } = config;
 
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
@@ -92,6 +92,24 @@ export default function PosterExhibition<K extends string>({ config }: { config:
     </button>
   );
 
+  const caseLink = (c: DisplayCase) => (
+    <Link key={c.href} href={c.href} className={`pe-display-case ${c.image ? '' : 'pe-display-case-emblem'}`}>
+      {c.image ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="pe-case-image" src={c.image.src} alt={c.image.alt} />
+      ) : (
+        c.emblem && (
+          <span className="pe-case-emblem" aria-hidden="true">
+            {c.emblem}
+          </span>
+        )
+      )}
+      <p className="pe-case-label">{c.label}</p>
+      <p className="pe-case-title">{c.title}</p>
+      {c.subtitle && <p className="pe-case-subtitle">{c.subtitle}</p>}
+    </Link>
+  );
+
   return (
     <div className="pe-root" data-exhibition={slug} style={rootStyle}>
       {/* The exhibition's faces, loaded as the other exhibitions load theirs. */}
@@ -132,17 +150,11 @@ export default function PosterExhibition<K extends string>({ config }: { config:
 
           <div className="pe-exhibition-grid">
             {first && posterButton(first)}
-            {cases.map((c) => (
-              <Link key={c.href} href={c.href} className="pe-display-case">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className="pe-case-image" src={c.image.src} alt={c.image.alt} />
-                <p className="pe-case-label">{c.label}</p>
-                <p className="pe-case-title">{c.title}</p>
-                {c.subtitle && <p className="pe-case-subtitle">{c.subtitle}</p>}
-              </Link>
-            ))}
+            {cases.map(caseLink)}
             {rest.map(posterButton)}
           </div>
+
+          {interactives.length > 0 && <div className="pe-exhibition-grid pe-interactives">{interactives.map(caseLink)}</div>}
         </div>
       )}
 

@@ -191,6 +191,18 @@ body:has(.pe-root) { margin: 0; overflow-x: hidden; }
 }
 .pe-case-title { font-family: var(--pe-display); font-size: 20px; color: #fafafa; margin-bottom: 8px; }
 .pe-case-subtitle { font-family: var(--pe-body); font-size: 14px; font-style: italic; color: var(--pe-accent); }
+.pe-interactives { margin-top: 40px; flex-wrap: wrap; }
+.pe-case-emblem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 140px;
+  margin-bottom: 12px;
+  font-family: var(--pe-ui);
+  font-size: clamp(2.4rem, 6vw, 3.6rem);
+  letter-spacing: 0.04em;
+  color: var(--pe-accent);
+}
 
 /* ───────── Walkthrough ───────── */
 .pe-poster-walkthrough {
