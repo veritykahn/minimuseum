@@ -17,7 +17,7 @@ export default function FirstFloor() {
     }
   }, []);
 
-  // First Floor exhibitions - only "seeing" is active, others are "Installation in Progress"
+  // First Floor exhibitions: the active ones open; the rest show "Installation in Progress"
   const exhibitions = [
     {
       id: 'seeing',
@@ -56,11 +56,12 @@ export default function FirstFloor() {
       id: 'fear',
       title: 'Fear Lab',
       subtitle: 'Page Turners & Spine Tinglers',
-      accent: '#1E3A5F',
-      darkAccent: '#0a1525',
-      textColor: '#F5F5DC',
+      accent: '#F2B33D', // marigold from the posters (their navy is too dark to read on this floor)
+      darkAccent: '#1F3A5F',
+      textColor: '#FBF6EC',
       description: "The science of being scared and why we just can't put our horror books down.",
-      active: false
+      active: true,
+      path: '/exhibitions/fear-lab'
     },
     {
       id: 'wwi',

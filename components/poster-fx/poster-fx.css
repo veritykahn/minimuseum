@@ -521,6 +521,87 @@
 }
 
 /* ==========================================================================
+   FEAR LAB — found by torchlight
+   Each panel waits in the dark. A beam finds it (from the side you are
+   travelling toward), widens, and the lights come up. Copy surfaces out of
+   the dark; pictures arrive as eyes adjusting to it.
+   ========================================================================== */
+.pfx-fl { --pfx-gold: #f2b33d; }
+
+@property --pfx-beam {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --pfx-bx {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 50%;
+}
+.pfx-fl-torch i {
+  position: absolute;
+  inset: 0;
+  --pfx-beam: 160vmax;
+  --pfx-bx: 50%;
+  background: radial-gradient(circle at var(--pfx-bx) 48%, transparent 0, transparent calc(var(--pfx-beam) * 0.5), rgba(4, 8, 15, 0.96) var(--pfx-beam));
+  opacity: 0;
+  animation: pfxTorchSweep 1.5s var(--pfx-ease-io) backwards;
+}
+@keyframes pfxTorchSweep {
+  0% { --pfx-beam: 0vmax; --pfx-bx: calc(50% + var(--pfx-dir) * 32%); opacity: 1; }
+  40% { --pfx-beam: 24vmax; --pfx-bx: 50%; opacity: 1; }
+  100% { --pfx-beam: 160vmax; --pfx-bx: 50%; opacity: 0; }
+}
+/* Titles: the torch is switched on where you stand. */
+.pfx-fl-torch.is-title i { animation-name: pfxTorchOn; animation-duration: 1.4s; }
+@keyframes pfxTorchOn {
+  0% { --pfx-beam: 0vmax; opacity: 1; }
+  45% { --pfx-beam: 20vmax; opacity: 1; }
+  100% { --pfx-beam: 160vmax; opacity: 0; }
+}
+/* Pictures: a slower, wider beam. */
+.pfx-fl-torch.is-media i,
+.pfx-fl-torch.is-art i { animation-name: pfxTorchOn; animation-duration: 1.9s; }
+
+/* Copy surfaces out of the dark. */
+.pfx-fl .pfx-line {
+  animation: pfxFlSurface 1.1s 0.25s var(--pfx-ease) backwards;
+}
+@keyframes pfxFlSurface {
+  from { opacity: 0; filter: blur(5px); }
+}
+/* Titles settle their tracking with a low marigold glow, as if lit. */
+.pfx-fl [data-fx='title'] .pfx-line {
+  animation: pfxFlTitle 1.3s 0.3s var(--pfx-ease) backwards;
+}
+@keyframes pfxFlTitle {
+  0% { opacity: 0; letter-spacing: var(--pfx-ls); filter: blur(6px); text-shadow: 0 0 0 rgba(242, 179, 61, 0); }
+  45% { opacity: 1; filter: blur(0); text-shadow: 0 0 26px rgba(242, 179, 61, 0.35); }
+  100% { opacity: 1; text-shadow: 0 0 0 rgba(242, 179, 61, 0); }
+}
+/* Short statements and quotes: a word at a time. */
+.pfx-fl :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }
+.pfx-fl .pfx-w {
+  animation: pfxFlWord 0.9s var(--pfx-ease) backwards;
+  animation-delay: calc(0.3s + var(--d));
+}
+@keyframes pfxFlWord {
+  from { opacity: 0; filter: blur(6px); transform: scale(0.94); }
+}
+/* Pictures: eyes adjusting to the dark. */
+.pfx-fl .pfx-media {
+  animation: pfxFlAdjust 1.9s var(--pfx-ease) backwards;
+}
+@keyframes pfxFlAdjust {
+  0% { opacity: 0; filter: brightness(0.15) saturate(0.3) blur(4px); scale: 1.04; }
+  35% { opacity: 1; }
+  100% { opacity: 1; filter: brightness(1) saturate(1) blur(0); scale: 1; }
+}
+.pfx-fl .pfx-fg:not(.pfx-line) {
+  animation: pfxFlSurface 1.1s 0.35s var(--pfx-ease) backwards;
+}
+
+/* ==========================================================================
    PROGRESS
    ========================================================================== */
 .pfx-progress {
@@ -657,6 +738,20 @@
   from { transform: rotate(calc(var(--pfx-dir, 1) * -300deg)); box-shadow: 0 0 0 1px currentColor, 0 0 14px rgba(255, 220, 140, 0.95); }
 }
 
+/* Fear Lab: small dots for chapters; a torch spot that brightens as it lands. */
+.pfx-progress-fl .pfx-progress-mark { border-radius: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; }
+.pfx-progress-fl .pfx-progress-head {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: radial-gradient(circle, #fff6dc 0, #f2b33d 55%, #c98a17 100%);
+  box-shadow: 0 0 10px 2px rgba(242, 179, 61, 0.45);
+  animation: pfxTorchHead 0.9s var(--pfx-ease, ease) backwards;
+}
+@keyframes pfxTorchHead {
+  from { box-shadow: 0 0 0 0 rgba(242, 179, 61, 0); filter: brightness(0.4); }
+}
+
 @media (max-width: 480px) {
   .pfx-progress { gap: 10px; }
   .pfx-progress-cur { font-size: 13px; }
@@ -674,7 +769,7 @@
   .pfx-progress * {
     animation-delay: 0s !important;
   }
-  .pfx-stage :is(.pfx-line, .pfx-w, .pfx-media, .pfx-lift, .pfx-art-img, .pfx-fg-copy),
+  .pfx-stage :is(.pfx-line, .pfx-w, .pfx-media, .pfx-lift, .pfx-art-img, .pfx-fg-copy, .pfx-fg),
   .pfx-stage .pfx-line::before,
   .pfx-stage .pfx-line::after,
   .pfx-coin img,

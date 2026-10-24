@@ -1,0 +1,447 @@
+/* ==========================================================================
+   Poster exhibitions drawn by PosterExhibition. The layout follows the
+   existing exhibition pages; the faces and colors come from each
+   exhibition's config through custom properties on .pe-root:
+     --pe-display  title face          --pe-accent   subtitle, hovers
+     --pe-body     copy face           --pe-heading  landing title
+     --pe-ui       labels and nav
+   An exhibition's own look (its sections' grounds and ornaments) goes in its
+   own stylesheet, keyed on [data-exhibition='<slug>'] and section classes.
+   ========================================================================== */
+
+.pe-root,
+.pe-root *,
+.pe-root *::before,
+.pe-root *::after {
+  box-sizing: border-box;
+}
+.pe-root :where(h1, h2, h3, p, blockquote, ul, figure) { margin: 0; padding: 0; }
+.pe-root {
+  min-height: 100vh;
+  transition: background 0.5s ease;
+  font-family: var(--pe-body);
+}
+body:has(.pe-root) { margin: 0; overflow-x: hidden; }
+
+/* ───────── Corner navigation ───────── */
+.pe-nav {
+  position: fixed;
+  top: 32px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+.pe-nav-left { left: 32px; }
+.pe-nav-right { right: 32px; }
+.pe-nav:hover .pe-nav-label, .pe-nav:focus-visible .pe-nav-label { opacity: 1; max-width: 150px; }
+.pe-nav:hover .pe-nav-arrow-left, .pe-nav:focus-visible .pe-nav-arrow-left { transform: translateX(-4px); }
+.pe-nav:hover .pe-nav-arrow-right, .pe-nav:focus-visible .pe-nav-arrow-right { transform: translateX(4px); }
+.pe-nav-text { font-size: 28px; font-weight: 300; color: var(--pe-nav-m, #525252); transition: color 0.3s ease; }
+.pe-nav-arrow { font-size: 16px; color: var(--pe-nav-ink, #7D8471); transition: all 0.3s ease; }
+.pe-nav-label {
+  font-size: 13px;
+  font-style: italic;
+  color: var(--pe-nav-ink, #7D8471);
+  opacity: 0;
+  max-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: all 0.4s ease;
+}
+
+/* ───────── Panel effects ───────── */
+@keyframes peFadeIn { from { opacity: 0; } to { opacity: 1; } }
+.pe-effect-fade-in { animation: peFadeIn 0.8s ease forwards; }
+@keyframes peBlurToSharp { from { filter: blur(12px); opacity: 0; } to { filter: blur(0); opacity: 1; } }
+.pe-effect-blur-to-sharp { animation: peBlurToSharp 1.2s ease forwards; }
+@keyframes peSplitReveal { from { clip-path: inset(0 50% 0 50%); opacity: 0; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+.pe-effect-split-reveal { animation: peSplitReveal 0.8s ease forwards; }
+@keyframes peKenburnsIn { from { transform: scale(1); } to { transform: scale(1.08); } }
+.pe-effect-kenburns-in { animation: peKenburnsIn 8s ease forwards; }
+@keyframes peDrift { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
+.pe-effect-drift { animation: peDrift 6s ease-in-out infinite; }
+@keyframes peBreathe { 0%, 100% { transform: scale(1); opacity: 0.95; } 50% { transform: scale(1.03); opacity: 1; } }
+.pe-effect-breathe { animation: peBreathe 5s ease-in-out infinite; }
+@keyframes peShrinkBack { from { transform: scale(1.15); } to { transform: scale(0.92); } }
+.pe-effect-shrink-back { animation: peShrinkBack 8s ease-out forwards; }
+
+/* ───────── Text panels: the box, then where the copy sits in it ───────── */
+.pe-text-content-wrapper {
+  min-height: 100vh;
+  width: 100%;
+  padding: 80px 40px;
+  position: relative;
+  z-index: 2;
+}
+
+/* ───────── Positions ───────── */
+.pe-pos-center, .pe-pos-bottom-center, .pe-pos-full-width {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.pe-pos-full-width { width: 100%; }
+.pe-pos-top-left {
+  display: flex; align-items: flex-start; justify-content: flex-start; text-align: left;
+  padding-top: 15vh; padding-left: 10vw; padding-right: 30vw;
+}
+.pe-pos-top-right {
+  display: flex; align-items: flex-start; justify-content: flex-end; text-align: right;
+  padding-top: 15vh; padding-right: 10vw; padding-left: 30vw;
+}
+.pe-pos-bottom-left {
+  display: flex; align-items: center; justify-content: flex-start; text-align: left;
+  padding-left: 10vw; padding-right: 30vw;
+}
+.pe-pos-bottom-right {
+  display: flex; align-items: center; justify-content: flex-end; text-align: right;
+  padding-right: 10vw; padding-left: 30vw;
+}
+
+/* ───────── Landing page ───────── */
+.pe-exhibition-main {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 40px 40px;
+  gap: 32px;
+}
+.pe-exhibition-title { text-align: center; margin-bottom: 8px; }
+.pe-exhibition-title h1 {
+  font-family: var(--pe-display);
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 400;
+  color: var(--pe-heading);
+  margin-bottom: 12px;
+  line-height: 1.05;
+}
+.pe-exhibition-title p {
+  font-family: var(--pe-body);
+  font-size: clamp(1rem, 3vw, 1.4rem);
+  color: var(--pe-accent);
+}
+.pe-teach-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
+
+.pe-exhibition-grid {
+  display: flex;
+  gap: 20px;
+  max-width: 95vw;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}
+.pe-poster-frame {
+  cursor: pointer;
+  transition: all 0.4s ease;
+  position: relative;
+  flex-shrink: 0;
+}
+.pe-poster-frame:hover, .pe-poster-frame:focus-visible { transform: translateY(-8px); }
+.pe-poster-frame:hover .pe-poster-hint, .pe-poster-frame:focus-visible .pe-poster-hint { opacity: 1; }
+.pe-poster-frame img {
+  height: var(--pe-poster-h, 30vh);
+  width: auto;
+  display: block;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.pe-poster-hint {
+  display: block;
+  text-align: center;
+  margin-top: 12px;
+  font-family: var(--pe-ui);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--pe-hint, #7D8471);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.pe-display-case {
+  background: #0a0a0a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  overflow: visible;
+  width: 100%;
+  text-decoration: none;
+}
+.pe-display-case:hover, .pe-display-case:focus-visible { border-color: color-mix(in srgb, var(--pe-accent) 30%, transparent); }
+.pe-display-case:hover .pe-case-image { transform: scale(1.02); }
+.pe-case-image { height: 30vh; width: auto; object-fit: contain; margin-bottom: 12px; transition: transform 0.4s ease; }
+.pe-case-label {
+  font-family: var(--pe-ui);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #8a8a8a;
+  margin-bottom: 8px;
+}
+.pe-case-title { font-family: var(--pe-display); font-size: 20px; color: #fafafa; margin-bottom: 8px; }
+.pe-case-subtitle { font-family: var(--pe-body); font-size: 14px; font-style: italic; color: var(--pe-accent); }
+
+/* ───────── Walkthrough ───────── */
+.pe-poster-walkthrough {
+  min-height: 100vh;
+  width: 100vw;
+  transition: opacity 0.25s ease;
+  overflow: hidden;
+  position: relative;
+}
+.pe-poster-walkthrough.fade-out { opacity: 0; }
+.pe-walkthrough-content {
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.pe-full-bleed-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.pe-full-bleed-image.pe-title-width img { width: 100%; height: auto; min-width: 100%; object-fit: cover; }
+.pe-full-bleed-image.pe-title-centered img { max-width: 60%; max-height: 70vh; width: auto; height: auto; object-fit: contain; }
+.pe-full-bleed-image.pe-full-image img {
+  max-width: 90%;
+  max-height: 84vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.pe-image-caption {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--pe-ui);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  opacity: 0.8;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.pe-section-title-text {
+  font-family: var(--pe-display);
+  font-size: clamp(1.4rem, 4vw, 2.4rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 1.25;
+  text-transform: uppercase;
+  max-width: 22em;
+  position: relative;
+  z-index: 10;
+}
+
+.pe-paragraph-text {
+  font-family: var(--pe-body);
+  font-size: clamp(1.1rem, 2.6vw, 1.45rem);
+  font-weight: 500;
+  line-height: 1.7;
+  max-width: 640px;
+  position: relative;
+  z-index: 10;
+}
+
+.pe-quote-text {
+  font-family: var(--pe-body);
+  font-size: clamp(1.2rem, 3vw, 1.6rem);
+  font-weight: 500;
+  line-height: 1.6;
+  max-width: 700px;
+  padding: 32px 40px;
+  border-left: 3px solid;
+  text-align: left;
+  position: relative;
+  z-index: 10;
+}
+
+/* A title card set in type */
+.pe-title-card { flex-direction: column; gap: 40px; }
+.pe-title-text {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  line-height: 0.95;
+  font-size: clamp(3rem, 11vw, 9rem);
+  letter-spacing: 0.02em;
+  max-width: 11em;
+  position: relative;
+  z-index: 10;
+}
+.pe-title-kicker {
+  display: block;
+  font-size: 0.42em;
+  line-height: 1.05;
+  margin-bottom: 0.18em;
+}
+.pe-badge {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  width: clamp(180px, 18vw, 240px);
+  aspect-ratio: 1;
+  padding: 0 34px;
+  background: var(--pe-badge-bg, var(--pe-accent));
+  color: var(--pe-badge-ink, #111);
+  clip-path: polygon(50% 0%, 61% 11%, 75% 6%, 79% 21%, 94% 25%, 89% 39%, 100% 50%, 89% 61%, 94% 75%, 79% 79%, 75% 94%, 61% 89%, 50% 100%, 39% 89%, 25% 94%, 21% 79%, 6% 75%, 11% 61%, 0% 50%, 11% 39%, 6% 25%, 21% 21%, 25% 6%, 39% 11%);
+  transform: rotate(-6deg);
+}
+.pe-badge-text {
+  font-family: var(--pe-body);
+  font-weight: 800;
+  font-size: clamp(0.95rem, 1.6vw, 1.25rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.pe-content-link, .pe-content-end {
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  border: 1px solid;
+  background: transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+.pe-content-link:hover, .pe-content-end:hover {
+  background: var(--pe-accent);
+  color: #0a0a0a !important;
+  border-color: var(--pe-accent) !important;
+}
+.pe-end { flex-direction: column; }
+
+/* A boxed call to action, like a poster's footer panel */
+.pe-callout {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  max-width: 760px;
+  padding: 28px 32px;
+  background: var(--pe-callout-bg, #faf6ec);
+  color: var(--pe-callout-ink, #1a1a1a);
+  text-align: left;
+  text-decoration: none;
+}
+.pe-callout-img { width: 180px; height: 180px; flex-shrink: 0; object-fit: contain; }
+.pe-callout-img.is-pixelated { image-rendering: pixelated; }
+.pe-callout-text {
+  font-family: var(--pe-display);
+  font-size: clamp(1.1rem, 2.4vw, 1.7rem);
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+a.pe-callout:hover, a.pe-callout:focus-visible { outline: 2px solid var(--pe-accent); outline-offset: 4px; }
+/* globals.css gives every a:link color: inherit, which would put the callout's ink back to the panel's. */
+a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink, #1a1a1a); }
+
+/* ───────── Decorative pictures ───────── */
+.pe-decor {
+  position: absolute;
+  z-index: 3;
+  width: var(--pe-decor-w, min(30vw, 360px));
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+.pe-decor-top-left { top: 0; left: 0; }
+.pe-decor-top-right { top: 0; right: 0; }
+.pe-decor-bottom-left { bottom: 0; left: 0; }
+.pe-decor-bottom-right { bottom: 0; right: 0; }
+/* Drops on a thread from the top edge, and settles with a slight bounce. */
+.pe-decor-drop { animation: peDecorDrop 1.6s 0.3s cubic-bezier(0.34, 1.3, 0.64, 1) backwards; }
+@keyframes peDecorDrop { from { transform: translateY(-105%); } }
+/* Rises from the bottom edge, slowly. */
+.pe-decor-rise { animation: peDecorRise 1.8s 0.25s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+@keyframes peDecorRise { from { transform: translateY(70%); } }
+
+/* ───────── Walkthrough navigation ───────── */
+.pe-walkthrough-nav {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  z-index: 100;
+}
+.pe-nav-arrow-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+.pe-nav-arrow-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.pe-nav-arrow-btn:not(:disabled):hover {
+  transform: scale(1.1);
+  background: color-mix(in srgb, var(--pe-accent) 20%, transparent);
+}
+
+/* ───────── Responsive ───────── */
+@media (max-width: 900px) {
+  .pe-exhibition-grid { flex-direction: column; gap: 32px; }
+  .pe-display-case { max-width: 360px; }
+  .pe-poster-frame img, .pe-case-image { height: auto; max-height: 40vh; max-width: 100%; }
+  .pe-pos-top-left, .pe-pos-top-right { padding: 15vh 24px; }
+  .pe-pos-bottom-left, .pe-pos-bottom-right, .pe-pos-bottom-center { padding-left: 24px; padding-right: 24px; }
+  .pe-callout { flex-direction: column; text-align: center; gap: 20px; }
+}
+@media (max-width: 768px) {
+  .pe-nav-left { left: 20px; top: 20px; }
+  .pe-nav-right { right: 20px; top: 20px; }
+  .pe-nav-text { font-size: 24px; }
+  .pe-exhibition-main { padding: 100px 24px 60px; }
+  .pe-walkthrough-nav { bottom: 20px; gap: 16px; }
+  .pe-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
+  .pe-text-content-wrapper { padding: 100px 24px; }
+  .pe-decor { --pe-decor-w: 44vw; }
+}
+
+/* ───────── Reduced motion: panels and pictures simply appear ───────── */
+@media (prefers-reduced-motion: reduce) {
+  .pe-root [class*='pe-effect-'],
+  .pe-decor {
+    animation: none !important;
+  }
+  .pe-poster-frame, .pe-poster-frame:hover, .pe-poster-frame:focus-visible { transform: none; }
+}
+
+/* An "&" in a display title is set in the body face (see withAmp in PosterFx). */
+.pe-title-text .pfx-amp,
+.pe-section-title-text .pfx-amp { font-family: var(--pe-body); font-weight: 700; }

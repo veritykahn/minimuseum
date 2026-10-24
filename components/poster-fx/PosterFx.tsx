@@ -10,7 +10,9 @@ import './poster-fx.css';
  * Every panel arrives through an exhibition-specific reveal: Seeing is
  * Deceiving resolves out of an op-art blind and a chromatic split, the Harlem
  * Renaissance opens through Deco doors and Aaron Douglas's concentric irises,
- * and In Their Hands unfolds like parchment with gilt light passing across.
+ * In Their Hands unfolds like parchment with gilt light passing across, and
+ * the Fear Lab is found by torchlight: each panel waits in the dark until a
+ * beam picks it out and the lights come up.
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -19,7 +21,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -69,15 +71,21 @@ export function usePosterFxStage(theme: FxTheme, direction: 1 | -1, panel: strin
  * Text that takes part in the reveal. `words` splits it into spans that rise
  * in sequence; the spaces stay as text so it wraps, copies and reads normally.
  */
+/** "&" in its own span, so a display face whose ampersand misleads (Righteous's reads as "€") can set it in another. */
+function withAmp(text: string) {
+  if (!text.includes('&')) return text;
+  return text.split('&').flatMap((part, i) => (i === 0 ? [part] : [<span key={i} className="pfx-amp">&amp;</span>, part]));
+}
+
 export function FxText({ text, words = false, delay = 0, span = 0.9 }: { text: string; words?: boolean; delay?: number; span?: number }) {
-  if (!words) return <span className="pfx-line">{text}</span>;
+  if (!words) return <span className="pfx-line">{withAmp(text)}</span>;
   const parts = text.trim().split(/\s+/);
   const per = Math.min(0.055, span / Math.max(parts.length, 1));
   return (
     <span className="pfx-line pfx-words">
       {parts.map((w, i) => (
         <span key={i}>
-          <span className="pfx-w" style={{ '--d': `${(delay + i * per).toFixed(3)}s` } as CssVars}>{w}</span>
+          <span className="pfx-w" style={{ '--d': `${(delay + i * per).toFixed(3)}s` } as CssVars}>{withAmp(w)}</span>
           {i < parts.length - 1 ? ' ' : null}
         </span>
       ))}
@@ -110,6 +118,13 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
     return (
       <div className={`pfx-veil pfx-hr-rings ${kind === 'art' ? 'is-art' : ''}`} aria-hidden="true">
         {[0, 1, 2, 3, 4, 5].map(i => <i key={i} style={{ '--i': i } as CssVars} />)}
+      </div>
+    );
+  }
+  if (theme === 'fl') {
+    return (
+      <div className={`pfx-veil pfx-fl-torch is-${kind}`} aria-hidden="true">
+        <i />
       </div>
     );
   }
