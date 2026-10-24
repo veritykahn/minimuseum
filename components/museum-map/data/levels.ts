@@ -18,7 +18,7 @@ const COLORS = {
   seeingIsDeceiving: '#a8d5e5',
   harlemRenaissance: '#b485d2',
   inTheirHands: '#C9A84C',
-  fearLab: '#1E3A5F',
+  fearLab: '#F2B33D',
   greatWar: '#9B2226',
 };
 
@@ -148,11 +148,12 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     parent: 'first-floor',
     children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', ...lessonsChild('in-their-hands')],
   },
-  // Bottom row — installation in progress
+  // Bottom row
   {
     id: 'fear-lab', label: 'Fear Lab', path: '/exhibitions/fear-lab',
     x: 102, y: 240, width: 140, height: 100, accentColor: COLORS.fearLab,
-    comingSoon: true, parent: 'first-floor',
+    parent: 'first-floor',
+    children: [...lessonsChild('fear-lab')],
   },
   {
     id: 'great-war', label: 'The Great War', path: '/exhibitions/great-war',
@@ -448,6 +449,42 @@ export const IN_THEIR_HANDS: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — Fear Lab (Floor Plan)
+//
+// Layout: the Exhibition Hall alone for now (no cases or interactives yet)
+// ┌────────────────────────────────┐
+// │        Exhibition Hall         │
+// └────────────────────────────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const FEAR_LAB_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 120, rx: 3 },
+  accentColor: COLORS.fearLab,
+  walls: [],
+  rooms: [
+    {
+      id: 'fl-entrance', label: 'Exhibition Hall', path: '/exhibitions/fear-lab',
+      accentColor: COLORS.fearLab, parent: 'fear-lab',
+      x: 40, y: 80, width: 420, height: 120,
+      labelX: 250, labelY: 140,
+    },
+  ],
+};
+
+export const FEAR_LAB: MapLevelConfig = {
+  level: 'exhibition',
+  rooms: [],
+  connections: [],
+  title: 'Fear Lab',
+  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
+  ],
+  ...withLessons(FEAR_LAB_FLOOR_PLAN, '0 0 500 250', 'fear-lab'),
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Level resolver
 // ═══════════════════════════════════════════════════════════════════
 
@@ -455,6 +492,7 @@ export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/seeing-is-deceiving')) return SEEING_IS_DECEIVING;
   if (pathname.startsWith('/exhibitions/harlem-renaissance')) return HARLEM_RENAISSANCE;
   if (pathname.startsWith('/exhibitions/in-their-hands')) return IN_THEIR_HANDS;
+  if (pathname.startsWith('/exhibitions/fear-lab')) return FEAR_LAB;
   if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
   if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;

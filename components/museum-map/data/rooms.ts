@@ -5,6 +5,7 @@ const EXHIBITION_ACCENTS: Record<string, string> = {
   'seeing-is-deceiving': '#a8d5e5',
   'harlem-renaissance': '#b485d2',
   'in-their-hands': '#C9A84C',
+  'fear-lab': '#F2B33D',
 };
 
 /** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
@@ -131,9 +132,9 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     y: 190,
     width: 70,
     height: 50,
-    accentColor: '#1E3A5F',
-    comingSoon: true,
+    accentColor: '#F2B33D',
     parent: 'first-floor',
+    children: [...lessonsChild('fear-lab')],
   },
   {
     id: 'great-war',
