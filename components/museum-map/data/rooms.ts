@@ -142,7 +142,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
   },
   {
     id: 'fear-lab',
-    label: 'Fear Lab',
+    label: 'The Fear Lab',
     path: '/exhibitions/fear-lab',
     x: 270,
     y: 190,

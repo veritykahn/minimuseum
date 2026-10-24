@@ -234,7 +234,7 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     children: ['illusions', 'artifacts', 'resources', ...lessonsChild('seeing-is-deceiving')],
   },
   {
-    id: 'fear-lab', label: 'Fear Lab', path: '/exhibitions/fear-lab',
+    id: 'fear-lab', label: 'The Fear Lab', path: '/exhibitions/fear-lab',
     x: COL[3], ...BOTTOM, accentColor: COLORS.fearLab,
     parent: 'first-floor',
     children: [...lessonsChild('fear-lab')],
@@ -541,7 +541,7 @@ export const FEAR_LAB: MapLevelConfig = {
   level: 'exhibition',
   rooms: [],
   connections: [],
-  title: 'Fear Lab',
+  title: 'The Fear Lab',
   backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
   ancestors: [
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },

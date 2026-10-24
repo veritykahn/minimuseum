@@ -28,8 +28,8 @@ export type Floor = {
   heading: string;
   /** The small floor name in the top-right corner, and the back link's label. */
   name: string;
-  /** The years in the top-right corner. */
-  years: string;
+  /** What the floor holds, under its name. */
+  theme: string;
   /** sessionStorage key holding the card to return to. */
   storageKey: string;
   exhibitions: FloorExhibition[];
@@ -39,7 +39,7 @@ export const GROUND_FLOOR: Floor = {
   path: '/exhibitions/ground-floor',
   heading: 'Ground Floor: Origins',
   name: 'Ground Floor',
-  years: '2024–2025',
+  theme: 'The deep past to 1900',
   storageKey: 'groundFloorIndex',
   exhibitions: [
     {
@@ -99,7 +99,7 @@ export const FIRST_FLOOR: Floor = {
   path: '/exhibitions/first-floor',
   heading: 'First Floor: Horizons',
   name: 'First Floor',
-  years: '2025–2026',
+  theme: 'The 20th century and the mind',
   storageKey: 'firstFloorIndex',
   exhibitions: [
     {
@@ -174,7 +174,7 @@ export const FIRST_FLOOR: Floor = {
     },
     {
       slug: 'fear-lab',
-      title: 'Fear Lab',
+      title: 'The Fear Lab',
       subtitle: 'Page Turners & Spine Tinglers',
       accent: '#F2B33D', // marigold from the posters (their navy is too dark to read on this floor)
       darkAccent: '#1F3A5F',

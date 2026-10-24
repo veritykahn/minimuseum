@@ -444,7 +444,7 @@ export default function About() {
                   height={400}
                   style={{ width: '100%', height: 'auto', display: 'block' }}
                 />
-                <p className="image-caption">The Great War Exhibition · Origins · The Founding Collection</p>
+                <p className="image-caption">The Great War Exhibition · Horizons</p>
               </div>
             </div>
 
@@ -502,7 +502,7 @@ export default function About() {
                   height={400}
                   style={{ width: '100%', height: 'auto', display: 'block' }}
                 />
-                <p className="image-caption">Moondust from Lunar Meteorite Adrar 013 · Origins · The Founding Collection</p>
+                <p className="image-caption">Moondust from Lunar Meteorite Adrar 013 · Origins</p>
               </div>
 
               <div>
@@ -644,7 +644,7 @@ export default function About() {
                 height={500}
                 style={{ width: '100%', height: 'auto', display: 'block' }}
               />
-              <p className="image-caption">WWII Letters · Origins · The Founding Collection</p>
+              <p className="image-caption">WWII Letters · Horizons</p>
             </div>
 
             {/* Final Call to Action */}

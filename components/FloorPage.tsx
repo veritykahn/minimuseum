@@ -295,7 +295,7 @@ export default function FloorPage({ floor }: { floor: Floor }) {
 
       <div className="floor-indicator">
         <p className="floor-indicator-name">{floor.name}</p>
-        <p className="floor-indicator-year">{floor.years}</p>
+        <p className="floor-indicator-year">{floor.theme}</p>
       </div>
 
       <div ref={scrollRef} className="exhibitions-scroll">

@@ -568,8 +568,7 @@ export default function GreatHall() {
             <div className="floor-card">
               <div className="floor-text">
                 <h2 className="floor-name">Horizons</h2>
-                <p className="floor-subtitle">The Second Collection</p>
-                <p className="floor-year">2025–2026</p>
+                <p className="floor-subtitle">The 20th century and the mind</p>
                 <div className="floor-status floor-status-open">
                   <span className="status-dot" aria-hidden="true"></span>
                   <span>Now Open · {openCount(FIRST_FLOOR)}</span>
@@ -587,8 +586,7 @@ export default function GreatHall() {
             <div className="floor-card">
               <div className="floor-text">
                 <h2 className="floor-name">Origins</h2>
-                <p className="floor-subtitle">The Founding Collection</p>
-                <p className="floor-year">2024–2025</p>
+                <p className="floor-subtitle">The deep past to 1900</p>
                 <div className="floor-status floor-status-open">
                   <span className="status-dot" aria-hidden="true"></span>
                   <span>Now Open · {openCount(GROUND_FLOOR)}</span>

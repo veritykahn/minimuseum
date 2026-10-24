@@ -37,7 +37,7 @@ export const FEAR_LAB_PROJECTOR_THEME = {
 
 export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
   slug: 'fear-lab',
-  name: 'Fear Lab',
+  name: 'The Fear Lab',
   subtitle: 'Page Turners & Spine Tinglers',
   fonts: {
     href: 'https://fonts.googleapis.com/css2?family=Righteous&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap',
