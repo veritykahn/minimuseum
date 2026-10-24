@@ -19,7 +19,7 @@ const COLORS = {
   harlemRenaissance: '#b485d2',
   inTheirHands: '#C9A84C',
   fearLab: '#F2B33D',
-  greatWar: '#9B2226',
+  greatWar: '#E8372C',
 };
 
 // Helper: create a wall segment with a doorway gap in the middle
@@ -158,7 +158,8 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
   {
     id: 'great-war', label: 'The Great War', path: '/exhibitions/great-war',
     x: 257, y: 240, width: 140, height: 100, accentColor: COLORS.greatWar,
-    comingSoon: true, parent: 'first-floor',
+    parent: 'first-floor',
+    children: ['gw-case', ...lessonsChild('great-war')],
   },
 ];
 
@@ -485,6 +486,52 @@ export const FEAR_LAB: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — The Great War (Floor Plan)
+//
+// Layout: the Exhibition Hall, and the display case beyond it
+// ┌────────────────────────────────┐
+// │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
+// └────────────────────────────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const GREAT_WAR_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  accentColor: COLORS.greatWar,
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+  ],
+  rooms: [
+    {
+      id: 'gw-entrance', label: 'Exhibition Hall', path: '/exhibitions/great-war',
+      accentColor: COLORS.greatWar, parent: 'great-war',
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'gw-case', label: 'Display Case', path: '/exhibitions/great-war/artifacts/case',
+      accentColor: COLORS.greatWar, parent: 'great-war',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
+    },
+  ],
+};
+
+export const GREAT_WAR: MapLevelConfig = {
+  level: 'exhibition',
+  rooms: [],
+  connections: [],
+  title: 'The Great War',
+  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
+  ],
+  ...withLessons(GREAT_WAR_FLOOR_PLAN, '0 0 500 330', 'great-war'),
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Level resolver
 // ═══════════════════════════════════════════════════════════════════
 
@@ -493,6 +540,7 @@ export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/harlem-renaissance')) return HARLEM_RENAISSANCE;
   if (pathname.startsWith('/exhibitions/in-their-hands')) return IN_THEIR_HANDS;
   if (pathname.startsWith('/exhibitions/fear-lab')) return FEAR_LAB;
+  if (pathname.startsWith('/exhibitions/great-war')) return GREAT_WAR;
   if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
   if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;
