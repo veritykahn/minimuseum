@@ -10,7 +10,9 @@ import './poster-fx.css';
  * Every panel arrives through an exhibition-specific reveal: Seeing is
  * Deceiving resolves out of an op-art blind and a chromatic split, the Harlem
  * Renaissance opens through Deco doors and Aaron Douglas's concentric irises,
- * and In Their Hands unfolds like parchment with gilt light passing across.
+ * In Their Hands unfolds like parchment with gilt light passing across, and
+ * the Fear Lab is found by torchlight: each panel waits in the dark until a
+ * beam picks it out and the lights come up.
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -19,7 +21,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -110,6 +112,13 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
     return (
       <div className={`pfx-veil pfx-hr-rings ${kind === 'art' ? 'is-art' : ''}`} aria-hidden="true">
         {[0, 1, 2, 3, 4, 5].map(i => <i key={i} style={{ '--i': i } as CssVars} />)}
+      </div>
+    );
+  }
+  if (theme === 'fl') {
+    return (
+      <div className={`pfx-veil pfx-fl-torch is-${kind}`} aria-hidden="true">
+        <i />
       </div>
     );
   }
