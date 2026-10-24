@@ -102,7 +102,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'title-text', section: 'faces', text: "The Doughboys: America's Sons in The Great War", marks: DATE_FOOT },
         { type: 'paragraph', position: 'center', text: 'They were farmers from Iowa, factory workers from Pittsburgh, teenagers from small Texas towns who lied about their age to enlist.' },
         { type: 'paragraph', position: 'top-left', text: `When America entered "The Great War" in April 1917, two million young men—many barely out of high school—crossed the Atlantic to fight in the muddy, rat-infested trenches of France.` },
-        { type: 'paragraph', position: 'bottom-right', text: `They were called "doughboys," possibly because the large brass buttons on their uniforms resembled small fried-dough pastries, or perhaps from the dust that coated infantry on the march in the Mexican-American War, as if they'd been rolled in flour. Whatever the origin, the nickname stuck, and these American soldiers carried it with pride into the bloodiest conflict the world had ever seen.` },
+        { type: 'paragraph', position: 'bottom-right', text: `They were called "doughboys," possibly because the large brass buttons on their uniforms resembled small fried-dough pastries, or perhaps from the dust that coated infantry on the march in the Mexican-American War, as if they'd been rolled in flour. Whatever the origin, the nickname stuck, and these American soldiers carried it with pride into one of the bloodiest conflicts the world had ever seen.` },
 
         { type: 'section-title', section: 'dusk', text: 'Life in the trenches was a nightmare of mud, rats, lice, and constant danger.' },
         {
