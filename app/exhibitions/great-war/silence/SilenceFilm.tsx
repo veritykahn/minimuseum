@@ -50,7 +50,7 @@ function announce(s: Scene, pastHour: boolean): string {
         ? `11:00. ${RECORD.after.join(' ')}`
         : `The record, Nov. 11, 1918. ${RECORD.before.join(' ')}`;
     case 'end':
-      return 'The guns fell silent at 11:00 on 11 November 1918.';
+      return 'The guns fell silent at 11:00 on November 11, 1918.';
     default:
       return '';
   }
@@ -313,7 +313,7 @@ export default function SilenceFilm() {
       {phase === 'done' && (
         <div className="gws-after">
           <p className="gws-closing">
-            At 11:00 on 11 November 1918, the guns fell silent.
+            At 11:00 on November 11, 1918, the guns fell silent.
           </p>
           <figure className="gws-iwm">
             {/* eslint-disable-next-line @next/next/no-img-element */}

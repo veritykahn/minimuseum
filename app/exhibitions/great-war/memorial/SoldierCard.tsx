@@ -67,7 +67,7 @@ export default function SoldierCard({ soldier }: { soldier: Soldier }) {
             </div>
             {s.honours && (
               <div>
-                <dt>Honours</dt>
+                <dt>Honors</dt>
                 <dd>{s.honours}</dd>
               </div>
             )}

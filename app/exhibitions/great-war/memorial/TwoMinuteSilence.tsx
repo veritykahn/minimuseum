@@ -6,7 +6,7 @@ import { MEMORIAL_TEXT } from './soldiers';
 
 /*
  * The silence at 11:00. A clock in the visitor's own time. From 11:00 to
- * 11:02 on 11 November the page dims and holds two minutes' silence by
+ * 11:02 on November 11 the page dims and holds two minutes' silence by
  * itself; at any other time the visitor can keep two minutes' silence now.
  * The countdown is quiet: no sound at all. Focus is never trapped: the
  * page behind stays reachable, and Esc (or "End the silence") ends it.
@@ -14,7 +14,7 @@ import { MEMORIAL_TEXT } from './soldiers';
 
 export const SILENCE_MS = 2 * 60 * 1000;
 
-/** True from 11:00:00 up to 11:02:00 on 11 November, local time. */
+/** True from 11:00:00 up to 11:02:00 on November 11, local time. */
 export function inArmisticeSilence(d: Date): boolean {
   return d.getMonth() === 10 && d.getDate() === 11 && d.getHours() === 11 && d.getMinutes() < 2;
 }
@@ -67,7 +67,7 @@ export default function TwoMinuteSilence() {
     silenceRef.current = s;
     setSilence(s);
     setNow(at);
-    setAnnouncement(auto ? 'It is 11:00 on 11 November. Two minutes’ silence.' : 'Two minutes’ silence. Press Escape to end it.');
+    setAnnouncement(auto ? 'It is 11:00 on November 11. Two minutes’ silence.' : 'Two minutes’ silence. Press Escape to end it.');
   }, []);
 
   // The clock, once a second; it also starts and ends the silences.

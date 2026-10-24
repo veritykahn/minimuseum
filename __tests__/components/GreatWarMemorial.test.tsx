@@ -40,7 +40,7 @@ describe('the soldier cards', () => {
     expect(by.stockham.born).toMatch(/Detroit/);
     expect(by.stockham.born).toMatch(/New York City/);
     expect(by.kocak.born).toMatch(/^1882/);
-    expect(by.kocak.notes?.join(' ')).toMatch(/3 December 1882.*31 December 1882/);
+    expect(by.kocak.notes?.join(' ')).toMatch(/December 3, 1882.*December 31, 1882/);
   });
 
   it('gives Olson no rank and no burial place', () => {

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 /*
- * Our sound reconstruction of the last minutes before 11:00 on 11 November
+ * Our sound reconstruction of the last minutes before 11:00 on November 11
  * 1918, made in the browser with Web Audio. Not a recording.
  *
  * Distant artillery: each report is a burst of low, filtered noise with a
