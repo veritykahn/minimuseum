@@ -6,9 +6,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
  * Our sound reconstruction of the last minutes before 11:00 on November 11
  * 1918, made in the browser with Web Audio. Not a recording.
  *
- * Distant artillery: each report is a burst of low, filtered noise with a
- * soft sub-bass thump under it, at irregular intervals that come faster as
- * the hour approaches. At the hour every sound stops dead, and nothing more
+ * Distant artillery: under a continuous far-off rumble, each report is a
+ * boom of filtered noise with a short crack at its front and a low thump
+ * beneath, at irregular intervals that come faster as the hour approaches.
+ * It is voiced in the range laptop and phone speakers actually reproduce
+ * (roughly 150 Hz up); a sound kept below that is felt on headphones and
+ * lost everywhere else. At the hour every sound stops dead, and nothing more
  * is scheduled: what follows is silence.
  *
  * Nothing sounds until the visitor presses Begin (browsers allow sound only
@@ -54,13 +57,13 @@ export function thudSchedule(from: number, until: number, seed = 1918): Thud[] {
     out.push({
       at: t,
       level: 0.35 + rand() * 0.65 * (0.6 + 0.4 * p),
-      cutoff: 110 + rand() * 170,
+      cutoff: 260 + rand() * 360,
       decay: 1.4 + rand() * 1.6,
     });
     // Sometimes a second gun answers almost at once.
     if (rand() < 0.18 + 0.2 * p) {
       const echo = t + 0.12 + rand() * 0.35;
-      if (echo < until - 0.15) out.push({ at: echo, level: 0.3 + rand() * 0.4, cutoff: 100 + rand() * 120, decay: 1.2 + rand() * 1.2 });
+      if (echo < until - 0.15) out.push({ at: echo, level: 0.3 + rand() * 0.4, cutoff: 220 + rand() * 260, decay: 1.2 + rand() * 1.2 });
     }
     const gap = 3.4 - 2.9 * Math.pow(p, 1.4); // 3.4 s apart at first, about 0.5 s at the end
     t += gap * (0.6 + rand() * 0.8);
@@ -92,6 +95,7 @@ export class ArmisticeSound {
   private ctx: Ctx;
   private master: GainNode;
   private bus: GainNode;
+  private distance: BiquadFilterNode;
   private sources = new Set<AudioScheduledSourceNode>();
   private noise: AudioBuffer | null = null;
   private closed = false;
@@ -99,15 +103,23 @@ export class ArmisticeSound {
   constructor(Ctor: typeof AudioContext) {
     this.ctx = new Ctor();
     this.master = this.ctx.createGain();
-    this.master.gain.value = 0.9;
+    this.master.gain.value = 1;
     this.bus = this.ctx.createGain();
     this.bus.gain.value = 1;
-    // Everything passes through a gentle low-pass: the guns are miles off.
-    const distance = this.ctx.createBiquadFilter();
-    distance.type = 'lowpass';
-    distance.frequency.value = 420;
-    this.bus.connect(distance);
-    distance.connect(this.master);
+    // Everything passes through a low-pass (the guns are miles off) and a
+    // compressor, so the quiet reports still carry on small speakers.
+    this.distance = this.ctx.createBiquadFilter();
+    this.distance.type = 'lowpass';
+    this.distance.frequency.value = 2400;
+    const comp = this.ctx.createDynamicsCompressor();
+    comp.threshold.value = -24;
+    comp.knee.value = 12;
+    comp.ratio.value = 4;
+    comp.attack.value = 0.005;
+    comp.release.value = 0.25;
+    this.bus.connect(this.distance);
+    this.distance.connect(comp);
+    comp.connect(this.master);
     this.master.connect(this.ctx.destination);
   }
 
@@ -125,6 +137,7 @@ export class ArmisticeSound {
     if (hour <= now) return; // already past the hour: silence
 
     this.noise ??= brownNoise(this.ctx, 5);
+    this.rumble(Math.max(now, toCtx(startAt)), hour);
     for (const thud of thudSchedule(startAt / 1000, hourAt / 1000)) {
       const at = toCtx(thud.at * 1000);
       if (at < now) continue;
@@ -143,6 +156,29 @@ export class ArmisticeSound {
     };
   }
 
+  /** The far-off rumble of the whole front, from the first report to the hour. */
+  private rumble(from: number, hour: number) {
+    if (hour <= from) return;
+    const ctx = this.ctx;
+    const src = ctx.createBufferSource();
+    src.buffer = this.noise;
+    src.loop = true;
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 320;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, from);
+    env.gain.exponentialRampToValueAtTime(0.22, from + 3);
+    env.gain.setValueAtTime(0.22, Math.max(from + 3, hour - 0.02));
+    env.gain.linearRampToValueAtTime(0, hour);
+    src.connect(filter);
+    filter.connect(env);
+    env.connect(this.bus);
+    src.start(from);
+    src.stop(hour);
+    this.keep(src);
+  }
+
   private report(at: number, thud: Thud, hour: number) {
     const ctx = this.ctx;
     const end = Math.min(at + thud.decay, hour);
@@ -156,7 +192,7 @@ export class ArmisticeSound {
     filter.Q.value = 0.7;
     const env = ctx.createGain();
     env.gain.setValueAtTime(0.0001, at);
-    env.gain.exponentialRampToValueAtTime(thud.level, at + 0.025);
+    env.gain.exponentialRampToValueAtTime(thud.level * 1.6, at + 0.025);
     env.gain.exponentialRampToValueAtTime(0.0001, at + thud.decay);
     src.connect(filter);
     filter.connect(env);
@@ -165,11 +201,32 @@ export class ArmisticeSound {
     src.stop(end);
     this.keep(src);
 
-    // The thump under it: a low sine that falls in pitch.
+    // The crack at its front: a short burst of brighter noise, much quieter
+    // the further off the gun (a lower cutoff means further away).
+    const crackSrc = ctx.createBufferSource();
+    crackSrc.buffer = this.noise;
+    const crackBand = ctx.createBiquadFilter();
+    crackBand.type = 'bandpass';
+    crackBand.frequency.value = 900 + thud.cutoff;
+    crackBand.Q.value = 0.9;
+    const crack = ctx.createGain();
+    const crackLevel = thud.level * 0.5 * (thud.cutoff / 620);
+    crack.gain.setValueAtTime(0.0001, at);
+    crack.gain.exponentialRampToValueAtTime(Math.max(0.001, crackLevel), at + 0.006);
+    crack.gain.exponentialRampToValueAtTime(0.0001, at + 0.16);
+    crackSrc.connect(crackBand);
+    crackBand.connect(crack);
+    crack.connect(this.bus);
+    crackSrc.start(at, Math.random() * 1.5);
+    crackSrc.stop(Math.min(at + 0.2, hour));
+    this.keep(crackSrc);
+
+    // The thump under it: a low sine that falls in pitch, pitched high enough
+    // for small speakers to give it body.
     const osc = ctx.createOscillator();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(52 + thud.cutoff / 20, at);
-    osc.frequency.exponentialRampToValueAtTime(30, at + 0.5);
+    osc.frequency.setValueAtTime(95 + thud.cutoff / 12, at);
+    osc.frequency.exponentialRampToValueAtTime(55, at + 0.5);
     const thump = ctx.createGain();
     thump.gain.setValueAtTime(0.0001, at);
     thump.gain.exponentialRampToValueAtTime(thud.level * 0.8, at + 0.012);
@@ -186,7 +243,7 @@ export class ArmisticeSound {
     const now = this.ctx.currentTime;
     this.master.gain.cancelScheduledValues(now);
     this.master.gain.setValueAtTime(this.master.gain.value, now);
-    this.master.gain.linearRampToValueAtTime(muted ? 0 : 0.9, now + 0.08);
+    this.master.gain.linearRampToValueAtTime(muted ? 0 : 1, now + 0.08);
   }
 
   pause() {

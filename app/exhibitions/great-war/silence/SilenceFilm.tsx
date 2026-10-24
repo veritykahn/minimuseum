@@ -286,7 +286,7 @@ export default function SilenceFilm() {
         )}
         {phase !== 'ready' && sound.available && (
           <button type="button" className="gw-button" aria-pressed={sound.muted} onClick={() => sound.setMuted(!sound.muted)}>
-            {sound.muted ? 'Sound off' : 'Sound on'}
+            {sound.muted ? 'Unmute' : 'Mute'}
           </button>
         )}
         {running && (
