@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
+import { floorReturnFor } from '@/lib/floors';
 import TypewriterText from '@/components/TypewriterText';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
@@ -478,6 +479,12 @@ const FilmOverlay = () => {
       <div className="film-sepia"></div>
     </div>
   );
+};
+
+/** The top-left link back to this exhibition's floor, at its card. */
+const FLOOR_RETURN = floorReturnFor('seeing-is-deceiving');
+const rememberFloorPosition = () => {
+  sessionStorage.setItem(FLOOR_RETURN.remember.key, FLOOR_RETURN.remember.value);
 };
 
 export default function SeeingIsDeceiving() {
@@ -1496,13 +1503,13 @@ export default function SeeingIsDeceiving() {
         {/* Navigation */}
         <ExhibitionNav
           className="nav-m nav-m-left"
-          href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
-          onClick={activeView === 'main' ? undefined : returnToMain}
+          href={activeView === 'main' ? FLOOR_RETURN.href : undefined}
+          onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
         >
           <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
           <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>←</span>
           <span className="nav-label" style={{ color: '#7D8471' }}>
-            {activeView === 'main' ? 'First Floor' : 'Exhibition'}
+            {activeView === 'main' ? FLOOR_RETURN.label : 'Exhibition'}
           </span>
         </ExhibitionNav>
 

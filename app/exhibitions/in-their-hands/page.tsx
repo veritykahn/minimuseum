@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
+import { floorReturnFor } from '@/lib/floors';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
@@ -430,6 +431,9 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
 // ============================================
 // MAIN COMPONENT
 // ============================================
+/** The top-left link back to this exhibition's floor, at its card. */
+const FLOOR_RETURN = floorReturnFor('in-their-hands');
+
 export default function InTheirHands() {
   const [projector, setProjector] = useProjectorMode();
   const {
@@ -455,7 +459,7 @@ export default function InTheirHands() {
   const currentPosterContent = activeView === 'poster1' ? poster1Content : poster2Content;
 
   const rememberFloorPosition = () => {
-    sessionStorage.setItem('firstFloorIndex', '2');
+    sessionStorage.setItem(FLOOR_RETURN.remember.key, FLOOR_RETURN.remember.value);
   };
 
   const currentItem = currentPosterContent[posterStep];
@@ -1580,13 +1584,13 @@ export default function InTheirHands() {
             ============================================ */}
         <ExhibitionNav
           className="ith-nav ith-nav-left"
-          href={activeView === 'main' ? '/exhibitions/first-floor' : undefined}
+          href={activeView === 'main' ? FLOOR_RETURN.href : undefined}
           onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
         >
           <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
           <span className="ith-nav-arrow ith-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
           <span className="ith-nav-label" style={{ color: '#7D8471' }}>
-            {activeView === 'main' ? 'First Floor' : 'Exhibition'}
+            {activeView === 'main' ? FLOOR_RETURN.label : 'Exhibition'}
           </span>
         </ExhibitionNav>
 

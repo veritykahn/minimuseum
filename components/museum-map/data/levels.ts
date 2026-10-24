@@ -1,5 +1,6 @@
 import { MapRoom, RoomConnection, MapLevelConfig, ExhibitionFloorPlan, FloorPlanWall } from '../types';
 import { LESSON_ROOM_IDS, hasLessons, lessonsPath } from '@/lib/lessons/catalog';
+import { GROUND_FLOOR as GROUND_FLOOR_PAGE, FIRST_FLOOR as FIRST_FLOOR_PAGE } from '@/lib/floors';
 
 /**
  * Per-level layout configurations for the hierarchical museum map.
@@ -77,6 +78,18 @@ function withLessons(
 /** The exhibition's Lessons room, as a child id, once it has lessons. */
 const lessonsChild = (exhibition: string) => (hasLessons(exhibition) ? [LESSON_ROOM_IDS[exhibition]] : []);
 
+// Each floor's exhibitions, in the order of its floor page (see lib/floors.ts).
+// The ids are the exhibitions' slugs: /exhibitions/<id>.
+const GROUND_FLOOR_IDS = GROUND_FLOOR_PAGE.exhibitions.map((e) => e.slug);
+const FIRST_FLOOR_IDS = FIRST_FLOOR_PAGE.exhibitions.map((e) => e.slug);
+
+/** An exhibition still being installed: shown on its floor, not yet open. */
+function comingSoonRoom(
+  id: string, label: string, parent: string, box: { x: number; y: number; width: number; height: number },
+): MapRoom {
+  return { id, label, path: `/exhibitions/${id}`, ...box, accentColor: COLORS.sage, comingSoon: true, parent };
+}
+
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 1 — Museum Overview
 // ═══════════════════════════════════════════════════════════════════
@@ -100,13 +113,13 @@ const LEVEL1_ROOMS: MapRoom[] = [
     id: 'first-floor', label: '1st Floor: Horizons', path: '/exhibitions/first-floor',
     x: 100, y: 140, width: 300, height: 80, accentColor: COLORS.sageLighter,
     parent: 'greathall',
-    children: ['seeing-is-deceiving', 'harlem-renaissance', 'in-their-hands', 'fear-lab', 'great-war'],
+    children: FIRST_FLOOR_IDS,
   },
   {
     id: 'ground-floor', label: 'Ground Floor: Origins', path: '/exhibitions/ground-floor',
     x: 100, y: 280, width: 300, height: 80, accentColor: COLORS.sage,
-    comingSoon: true, parent: 'greathall',
-    children: ['egypt', 'victorian', 'holocaust', 'black-barbie', 'womens-history'],
+    parent: 'greathall',
+    children: GROUND_FLOOR_IDS,
   },
 ];
 
@@ -125,50 +138,118 @@ export const MUSEUM_OVERVIEW: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// LEVEL 2 — First Floor
+// LEVEL 2 — Ground Floor: Origins
+//
+// The deep past up to about 1900, in historical order, read left to right
+// and top to bottom:
+// ┌──────────┐ ┌──────────┐ ┌──────────┐
+// │   Moon   │─│  Egypt   │─│ In Their │
+// └──────────┘ └──────────┘ │  Hands   │
+//      │                    └──────────┘
+//   ┌──────────┐ ┌──────────┐    │
+//   │ America  │─│Victorian │────┘
+//   │   250    │ │ Britain  │
+//   └──────────┘ └──────────┘
 // ═══════════════════════════════════════════════════════════════════
 
-const FIRST_FLOOR_ROOMS: MapRoom[] = [
-  // Top row — open exhibitions
+const GROUND_FLOOR_ROOMS: MapRoom[] = [
+  // Top row
+  comingSoonRoom('moon', 'Our Incredible\nMoon', 'ground-floor', { x: 25, y: 80, width: 140, height: 110 }),
+  comingSoonRoom('egypt', 'Ancient Egypt', 'ground-floor', { x: 180, y: 80, width: 140, height: 110 }),
   {
-    id: 'seeing-is-deceiving', label: 'Seeing is Deceiving', path: '/exhibitions/seeing-is-deceiving',
-    x: 25, y: 80, width: 140, height: 120, accentColor: COLORS.seeingIsDeceiving,
+    id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
+    x: 335, y: 80, width: 140, height: 110, accentColor: COLORS.inTheirHands,
+    parent: 'ground-floor',
+    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', ...lessonsChild('in-their-hands')],
+  },
+  // Bottom row
+  comingSoonRoom('america-250', 'America 250', 'ground-floor', { x: 102, y: 230, width: 140, height: 100 }),
+  comingSoonRoom('victorian', 'Victorian\nBritain', 'ground-floor', { x: 257, y: 230, width: 140, height: 100 }),
+];
+
+const GROUND_FLOOR_CONNECTIONS: RoomConnection[] = [
+  ['moon', 'egypt'],
+  ['egypt', 'in-their-hands'],
+  ['moon', 'america-250'],
+  ['in-their-hands', 'victorian'],
+  ['america-250', 'victorian'],
+];
+
+export const GROUND_FLOOR: MapLevelConfig = {
+  level: 'floor',
+  viewBox: '0 0 500 380',
+  rooms: GROUND_FLOOR_ROOMS,
+  connections: GROUND_FLOOR_CONNECTIONS,
+  title: 'Ground Floor: Origins',
+  backTarget: { label: 'Museum Overview', path: '/greathall' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// LEVEL 2 — First Floor: Horizons
+//
+// The 20th century and the mind, two rows of four, read left to right
+// and top to bottom:
+// ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐
+// │ Great│─│Harlem│─│Women │─│Holoc.│
+// │  War │ │ Ren. │ │ Hist.│ │ Mem. │
+// └──────┘ └──────┘ └──────┘ └──────┘
+//    │                          │
+// ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐
+// │Black │─│Writ. │─│Seeing│─│ Fear │
+// │ Hist.│ │ Rev. │ │ Dec. │ │  Lab │
+// └──────┘ └──────┘ └──────┘ └──────┘
+// ═══════════════════════════════════════════════════════════════════
+
+// Four 108-wide rooms with 12 between them, centred in the 500-wide view
+const COL = [16, 136, 256, 376];
+const TOP = { y: 80, width: 108, height: 110 };
+const BOTTOM = { y: 230, width: 108, height: 110 };
+
+const FIRST_FLOOR_ROOMS: MapRoom[] = [
+  // Top row
+  {
+    id: 'great-war', label: 'The Great War', path: '/exhibitions/great-war',
+    x: COL[0], ...TOP, accentColor: COLORS.greatWar,
+    parent: 'first-floor',
+    children: ['gw-case', 'gw-silence', 'gw-memorial', ...lessonsChild('great-war')],
+  },
+  {
+    id: 'harlem-renaissance', label: 'Harlem\nRenaissance', path: '/exhibitions/harlem-renaissance',
+    x: COL[1], ...TOP, accentColor: COLORS.harlemRenaissance,
+    parent: 'first-floor',
+    children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources', ...lessonsChild('harlem-renaissance')],
+  },
+  comingSoonRoom('womens-history', "Women's\nHistory Month", 'first-floor', { x: COL[2], ...TOP }),
+  comingSoonRoom('holocaust', 'Holocaust\nMemorial Day', 'first-floor', { x: COL[3], ...TOP }),
+  // Bottom row
+  comingSoonRoom('black-history', 'Black History\nMonth', 'first-floor', { x: COL[0], ...BOTTOM }),
+  comingSoonRoom('writing-revolution', 'The Writing\nRevolution', 'first-floor', { x: COL[1], ...BOTTOM }),
+  {
+    id: 'seeing-is-deceiving', label: 'Seeing is\nDeceiving', path: '/exhibitions/seeing-is-deceiving',
+    x: COL[2], ...BOTTOM, accentColor: COLORS.seeingIsDeceiving,
     parent: 'first-floor',
     children: ['illusions', 'artifacts', 'resources', ...lessonsChild('seeing-is-deceiving')],
   },
   {
-    id: 'harlem-renaissance', label: 'Harlem Renaissance', path: '/exhibitions/harlem-renaissance',
-    x: 180, y: 80, width: 140, height: 120, accentColor: COLORS.harlemRenaissance,
-    parent: 'first-floor',
-    children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources', ...lessonsChild('harlem-renaissance')],
-  },
-  {
-    id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
-    x: 335, y: 80, width: 140, height: 120, accentColor: COLORS.inTheirHands,
-    parent: 'first-floor',
-    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', ...lessonsChild('in-their-hands')],
-  },
-  // Bottom row
-  {
     id: 'fear-lab', label: 'Fear Lab', path: '/exhibitions/fear-lab',
-    x: 102, y: 240, width: 140, height: 100, accentColor: COLORS.fearLab,
+    x: COL[3], ...BOTTOM, accentColor: COLORS.fearLab,
     parent: 'first-floor',
     children: [...lessonsChild('fear-lab')],
-  },
-  {
-    id: 'great-war', label: 'The Great War', path: '/exhibitions/great-war',
-    x: 257, y: 240, width: 140, height: 100, accentColor: COLORS.greatWar,
-    parent: 'first-floor',
-    children: ['gw-case', 'gw-silence', 'gw-memorial', ...lessonsChild('great-war')],
   },
 ];
 
 const FIRST_FLOOR_CONNECTIONS: RoomConnection[] = [
-  ['seeing-is-deceiving', 'harlem-renaissance'],
-  ['harlem-renaissance', 'in-their-hands'],
+  ['great-war', 'harlem-renaissance'],
+  ['harlem-renaissance', 'womens-history'],
+  ['womens-history', 'holocaust'],
+  ['great-war', 'black-history'],
+  ['holocaust', 'fear-lab'],
+  ['black-history', 'writing-revolution'],
+  ['writing-revolution', 'seeing-is-deceiving'],
   ['seeing-is-deceiving', 'fear-lab'],
-  ['in-their-hands', 'great-war'],
-  ['fear-lab', 'great-war'],
 ];
 
 export const FIRST_FLOOR: MapLevelConfig = {
@@ -177,22 +258,6 @@ export const FIRST_FLOOR: MapLevelConfig = {
   rooms: FIRST_FLOOR_ROOMS,
   connections: FIRST_FLOOR_CONNECTIONS,
   title: '1st Floor: Horizons',
-  backTarget: { label: 'Museum Overview', path: '/greathall' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-  ],
-};
-
-// ═══════════════════════════════════════════════════════════════════
-// LEVEL 2 — Ground Floor (placeholder for future)
-// ═══════════════════════════════════════════════════════════════════
-
-export const GROUND_FLOOR: MapLevelConfig = {
-  level: 'floor',
-  viewBox: '0 0 500 380',
-  rooms: [],
-  connections: [],
-  title: 'Ground Floor: Origins',
   backTarget: { label: 'Museum Overview', path: '/greathall' },
   ancestors: [
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
@@ -441,10 +506,10 @@ export const IN_THEIR_HANDS: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'In Their Hands',
-  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
+  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
   ancestors: [
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
+    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
   ],
   ...withLessons(ITH_FLOOR_PLAN, '0 0 500 410', 'in-their-hands'),
 };
