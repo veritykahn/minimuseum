@@ -81,16 +81,16 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'dark', position: 'center', text: `Because your brain's #1 fear isn't spiders or snakes—it's the UNKNOWN. And your imagination is programmed to fill that unknown with the worst possible thing.` },
 
         { type: 'section-title', text: `Fear of the Unknown: Your Brain's Biggest Trick` },
-        { type: 'paragraph', section: 'night', position: 'top-left', text: `Scientists call it "ambiguity aversion"—we'd rather face a known danger than an unknown possibility. In experiments, people choose guaranteed small electric shocks over only maybe getting a bigger one.` },
-        { type: 'paragraph', section: 'night', position: 'bottom-right', text: `Why? Because uncertainty activates the amygdala (your brain's alarm system) MORE than actual danger. When you can't see what's in that box, your brain screams "THREAT!" louder than if you saw an actual spider.` },
+        { type: 'paragraph', section: 'night', position: 'top-left', text: `Scientists call it "ambiguity aversion"—we'd rather face a known danger than an unknown possibility. In experiments, a 50% chance of a small electric shock stressed people out more than knowing for certain they'd get one.` },
+        { type: 'paragraph', section: 'night', position: 'bottom-right', text: `Uncertainty itself sets off the amygdala (your brain's alarm system). When you can't see what's in that box, your brain screams "THREAT!" louder than if you saw an actual spider.` },
 
         { type: 'section-title', text: 'Anticipation Makes Everything Scarier' },
-        { type: 'paragraph', section: 'night', position: 'top-right', text: `Brain scans show that waiting for something bad is literally more stressful than experiencing it e.g. the anticipation of an injection activates more stress responses than the injection itself.` },
+        { type: 'paragraph', section: 'night', position: 'top-right', text: `Brain scans show that dread is real: in one study, some people chose a stronger shock right away rather than wait for a weaker one.` },
         { type: 'paragraph', section: 'night', position: 'bottom-left', text: `That's why reaching into a mystery box feels scarier than touching what's actually inside—your imagination creates horrors worse than reality.` },
         { type: 'paragraph', section: 'dark', position: 'center', decor: SPIDER, text: `Your brain invents poisonous spiders, slimy worms or nibbling rodents when it's really just a pinecone.` },
 
         { type: 'section-title', text: 'Pareidolia: Seeing Monsters Everywhere' },
-        { type: 'paragraph', section: 'shadows', position: 'top-left', text: `Your brain is a pattern-seeking machine that sees faces and threats where none exist. In experiments, 90% of imaginary faces appear male and angry—because historically, angry male faces meant danger.` },
+        { type: 'paragraph', section: 'shadows', position: 'top-left', text: `Your brain is a pattern-seeking machine that sees faces and threats where none exist. In experiments, people saw imaginary faces as male about four times as often as female.` },
         { type: 'paragraph', section: 'shadows', position: 'center', text: `Shadow people? Just your brain turning random darkness into human shapes.` },
         { type: 'paragraph', section: 'shadows', position: 'bottom-right', text: `This isn't a flaw—it's by design. Our brains know it is better to see 100 fake threats than miss one real predator.` },
 
@@ -101,8 +101,8 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
         {
           type: 'callout',
           section: 'footer',
-          text: 'SCAN HERE TO VISIT THE EDGAR ALLEN POE MUSEUM, THE ORIGINAL MASTER OF FEAR!',
-          image: { src: '/exhibitions/fear-lab/poe-museum-qr.png', alt: 'QR code from the poster' },
+          text: 'VISIT THE EDGAR ALLAN POE MUSEUM, THE ORIGINAL MASTER OF FEAR!',
+          url: 'https://poemuseum.org/',
         },
         { type: 'end', text: 'Return to Exhibition' },
       ],
@@ -154,7 +154,7 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'dark', position: 'center', colors: { text: MARIGOLD }, text: 'Why do we willingly read stories designed to scare us?' },
         { type: 'paragraph', section: 'night', position: 'bottom-left', text: `The answer lies in our brain's irresistible urge to practice survival—without actual danger. When we read horror, we're conducting risk-free rehearsals for dangerous situations, gaining a sense of mastery as we face monsters and survive.` },
 
-        { type: 'section-title', text: 'The Gothic Originals:' },
+        { type: 'section-title', text: 'The Gothic Originals' },
         { type: 'paragraph', section: 'storm', position: 'top-left', text: `It began with Mary Shelley's "Frankenstein" (1818). Then came Robert Louis Stevenson's "Jekyll and Hyde" (1886), Wilde's "Picture of Dorian Gray" (1890), and Stoker's "Dracula" (1897).` },
         { type: 'paragraph', section: 'storm', position: 'bottom-right', text: `These Gothic classics established horror's golden rule: the real terror isn't the creature, it's what it represents—fear of new technology, anxiety about moral decay, losing your humanity.` },
         { type: 'paragraph', section: 'night', position: 'top-right', text: `While the educated read these novels, working-class Victorians devoured "penny dreadfuls"—cheap weekly serials like "Varney the Vampire" and "Spring-Heeled Jack", proving that horror tapped into something innate to the human condition.` },
@@ -165,7 +165,7 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'night', position: 'bottom-right', text: `With titles like "The Babysitter" and "The Boyfriend," these books moved horror from Gothic castles to high school hallways.` },
 
         { type: 'section-title', text: 'Red Eye: Horror for the Digital Generation' },
-        { type: 'paragraph', section: 'night', position: 'top-right', text: `Today's Red Eye series (Scholastic's modern horror line) features books like "Frozen Charlotte" and "Sleepless"—updating classic fears for the Instagram age.` },
+        { type: 'paragraph', section: 'night', position: 'top-right', text: `Today's Red Eye series (Stripes Publishing's modern horror line) features books like "Frozen Charlotte" and "Sleepless"—updating classic fears for the Instagram age.` },
         { type: 'paragraph', section: 'dark', position: 'center', text: 'But these contemporary horrors retain their Gothic DNA: isolation, transformation, and the terrifying realization that you might BE the monster.' },
         {
           type: 'full-image',
@@ -174,14 +174,14 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
           alt: 'Illustration of a caped vampire in a red-lined cloak, seen from behind against a stormy, moonlit sky',
         },
         { type: 'paragraph', section: 'night', position: 'bottom-left', text: 'From Gothic novels to Point Horror to Red Eye, each generation gets the monsters it needs to face its anxieties.' },
-        { type: 'quote', section: 'dark', text: `But perhaps the real reason we love these spine tinglers is that scary books bring us together. Reading horror activates brain regions involved in empathy and social bonding. We're literally wired to bond over being scared together.` },
+        { type: 'quote', section: 'dark', text: `But perhaps the real reason we love these spine tinglers is that scary books bring us together. Psychologists have known since a famous 1959 experiment that frightened people seek each other's company. We're literally wired to bond over being scared together.` },
 
-        { type: 'callout', section: 'footer', text: 'Submit your own spine-tingler to the Edgar Allen Poe Museum HERE' },
+        { type: 'callout', section: 'footer', text: 'Explore Mary Shelley’s House of Frankenstein', url: 'https://www.houseoffrankenstein.com/' },
         { type: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
         '': 'Why do you think people choose to read stories that are designed to scare them? Do you?',
-        'The Gothic Originals:':
+        'The Gothic Originals':
           'The poster says the real terror isn’t the creature, it’s what it represents. Pick a monster you know. What might it stand for?',
         'Point Horror: Horror Grows Up (By Growing Down)':
           'If you wrote a scary story set in your own school’s hallways, what would it be about?',

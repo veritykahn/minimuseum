@@ -106,3 +106,15 @@
     animation: none !important;
   }
 }
+
+/* On a phone the clawed hand stays small enough to clear the walkthrough's arrows. */
+@media (max-width: 700px) {
+  [data-exhibition='fear-lab'] .pe-decor-bottom-left { width: 17vw; }
+}
+
+/* Righteous's "&" reads as "€"; where the projector sets a poster's title in the
+   display face (its strip, picker and end screen) use the body face instead. */
+[data-exhibition='fear-lab'] [data-projector] :is([class*='endTitle'], [class*='chapterName'], [class*='pickerName']) {
+  font-family: var(--pe-body);
+  font-weight: 700;
+}

@@ -242,10 +242,14 @@ describe('The Fear Lab', () => {
     for (const c of chapters) expect(p.talk[c.key]).toBeTruthy();
   });
 
-  it('keeps the posters’ own wording', () => {
-    const text = FEAR_LAB.posters.flatMap((p) => p.items.map((it) => ('text' in it ? it.text : ''))).join('\n');
-    expect(text).toContain('SCAN HERE TO VISIT THE EDGAR ALLEN POE MUSEUM, THE ORIGINAL MASTER OF FEAR!');
-    expect(text).toContain('Submit your own spine-tingler to the Edgar Allen Poe Museum HERE');
-    expect(text).toContain("Today's Red Eye series (Scholastic's modern horror line)");
+  it('carries the approved fact fixes, and links the two museums', () => {
+    const items = FEAR_LAB.posters.flatMap((p) => p.items);
+    const text = items.map((it) => ('text' in it ? it.text : '')).join('\n');
+    expect(text).not.toMatch(/Allen Poe|ALLEN POE/);
+    expect(text).toContain("Today's Red Eye series (Stripes Publishing's modern horror line)");
+    expect(text).toContain('people saw imaginary faces as male about four times as often as female');
+    expect(text).not.toContain('90%');
+    const links = items.flatMap((it) => (it.type === 'callout' && it.url ? [it.url] : []));
+    expect(links).toEqual(['https://poemuseum.org/', 'https://www.houseoffrankenstein.com/']);
   });
 });

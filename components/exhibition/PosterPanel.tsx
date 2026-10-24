@@ -126,7 +126,16 @@ const PANEL_RENDERERS: Renderers = {
           // eslint-disable-next-line @next/next/no-img-element -- a small picture from the poster
           <img src={item.image.src} alt={item.image.alt} className={`pe-callout-img ${item.image.pixelated ? 'is-pixelated' : ''}`} />
         )}
-        <span className="pe-callout-text">{item.text}</span>
+        <span className="pe-callout-text">
+          {item.text}
+          {item.url && (
+            <>
+              {' '}
+              <span aria-hidden="true">↗</span>
+              <span className="visually-hidden"> (opens in a new tab)</span>
+            </>
+          )}
+        </span>
       </>
     );
     return (

@@ -360,6 +360,8 @@ body:has(.pe-root) { margin: 0; overflow-x: hidden; }
   text-transform: uppercase;
 }
 a.pe-callout:hover, a.pe-callout:focus-visible { outline: 2px solid var(--pe-accent); outline-offset: 4px; }
+/* globals.css gives every a:link color: inherit, which would put the callout's ink back to the panel's. */
+a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink, #1a1a1a); }
 
 /* ───────── Decorative pictures ───────── */
 .pe-decor {
@@ -439,3 +441,7 @@ a.pe-callout:hover, a.pe-callout:focus-visible { outline: 2px solid var(--pe-acc
   }
   .pe-poster-frame, .pe-poster-frame:hover, .pe-poster-frame:focus-visible { transform: none; }
 }
+
+/* An "&" in a display title is set in the body face (see withAmp in PosterFx). */
+.pe-title-text .pfx-amp,
+.pe-section-title-text .pfx-amp { font-family: var(--pe-body); font-weight: 700; }
