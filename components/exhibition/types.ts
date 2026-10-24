@@ -194,10 +194,16 @@ export type PosterConfig<K extends string = string> = {
   talk: PosterTalk;
 };
 
-/** A display case on the landing page: a link to its own page. */
+/**
+ * A display case on the landing page: a link to its own page. It shows a
+ * photograph, or, for a room with no photograph (an interactive), a short
+ * typographic emblem in its place ("11:00").
+ */
 export type DisplayCase = {
   href: string;
-  image: { src: string; alt: string };
+  image?: { src: string; alt: string };
+  /** Set large where a photograph would be; decorative (the title names the link). */
+  emblem?: string;
   /** "Gallery II, Case 6" */
   label: string;
   title: string;
@@ -244,6 +250,11 @@ export type ExhibitionConfig<K extends string = string> = {
    * cases, then the other posters. Leave out when there are none yet.
    */
   cases?: DisplayCase[];
+  /**
+   * Interactive rooms, set as display cases in a row of their own under the
+   * posters. Leave out when there are none.
+   */
+  interactives?: DisplayCase[];
   /** The panel reveal (components/poster-fx). */
   fx: {
     theme: FxTheme;

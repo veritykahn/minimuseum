@@ -147,7 +147,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 50,
     accentColor: '#E8372C',
     parent: 'first-floor',
-    children: ['gw-case', ...lessonsChild('great-war')],
+    children: ['gw-case', 'gw-silence', 'gw-memorial', ...lessonsChild('great-war')],
   },
   // Seeing is Deceiving sub-pages
   {
@@ -269,6 +269,22 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     id: 'gw-case',
     label: 'Display Case',
     path: '/exhibitions/great-war/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#E8372C',
+    parent: 'great-war',
+  },
+  {
+    id: 'gw-silence',
+    label: 'When the Guns Fell Silent',
+    path: '/exhibitions/great-war/silence',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#E8372C',
+    parent: 'great-war',
+  },
+  {
+    id: 'gw-memorial',
+    label: 'The Memorial',
+    path: '/exhibitions/great-war/memorial',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#E8372C',
     parent: 'great-war',

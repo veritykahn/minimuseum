@@ -240,3 +240,53 @@ a.gw-case-return:focus-visible { border-color: #ec4a3f; color: #ec4a3f; }
   .gw-case-main { padding: 100px 24px 60px; gap: 44px; }
   .gw-case-photo-row { grid-template-columns: 1fr; }
 }
+
+/* ==========================================================================
+   The rooms (the silence, the memorial): the display case page's frame,
+   and one quiet button style.
+   ========================================================================== */
+.gw-room { min-height: 100vh; color: #ede6da; }
+.gw-room-main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 120px 40px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+.gw-room a:not(.gw-button):not(.gw-case-return):not(.exh-nav) { color: #ec4a3f; text-underline-offset: 3px; }
+.gw-room a:not(.gw-button):not(.gw-case-return):not(.exh-nav):hover { color: #ede6da; }
+.gw-room :focus-visible { outline: 2px solid #ec4a3f; outline-offset: 3px; }
+
+.gw-button {
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 14px 26px;
+  min-height: 44px;
+  border: 1px solid rgba(237, 230, 218, 0.5);
+  background: transparent;
+  color: #ede6da;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: border-color 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+}
+a.gw-button:is(:link, :visited) { color: #ede6da; }
+.gw-button:hover,
+.gw-button:focus-visible { border-color: #ec4a3f; color: #ec4a3f; }
+.gw-button[aria-pressed='true'] { border-color: rgba(237, 230, 218, 0.25); color: #b5ada0; }
+.gw-button-primary { border-color: #e8372c; padding: 16px 40px; font-size: 13px; }
+.gw-button:disabled { opacity: 0.45; cursor: default; border-color: rgba(237, 230, 218, 0.3); color: #b5ada0; }
+
+@media (max-width: 768px) {
+  .gw-room-main { padding: 100px 16px 60px; gap: 40px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gw-button { transition: none; }
+}

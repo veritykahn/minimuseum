@@ -85,7 +85,7 @@ describe('The Great War display case page', () => {
 
   it('is on the museum map, inside The Great War', () => {
     expect(getLevelConfig('/exhibitions/great-war').title).toBe('The Great War');
-    expect(getLevelConfig('/exhibitions/great-war/artifacts/case').floorPlan?.rooms.map((r) => r.id)).toEqual(['gw-entrance', 'gw-case']);
+    expect(getLevelConfig('/exhibitions/great-war/artifacts/case').floorPlan?.rooms.map((r) => r.id)).toEqual(['gw-entrance', 'gw-case', 'gw-silence', 'gw-memorial']);
     expect(getRoomByPath('/exhibitions/great-war/artifacts/case')?.id).toBe('gw-case');
     expect(getRoomByPath('/exhibitions/great-war')?.comingSoon).toBeFalsy();
   });

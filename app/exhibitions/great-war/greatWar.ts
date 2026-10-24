@@ -69,7 +69,13 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
     remember: { key: 'firstFloorIndex', value: '4' },
   },
   fx: { theme: 'gw', veil: 'chapters', text: 'all' },
-  projector: { theme: GREAT_WAR_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: GREAT_WAR_PROJECTOR_THEME,
+    links: [
+      { label: 'When the Guns Fell Silent (film)', href: '/exhibitions/great-war/silence' },
+      { label: 'The Memorial: soldier cards, poppies and the silence', href: '/exhibitions/great-war/memorial' },
+    ],
+  },
   cases: [
     {
       href: '/exhibitions/great-war/artifacts/case',
@@ -80,6 +86,25 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
       label: 'Display Case',
       title: 'Artifacts',
       subtitle: 'Photographs of the installation',
+    },
+  ],
+  interactives: [
+    {
+      href: '/exhibitions/great-war/silence',
+      emblem: '11:00',
+      label: 'Interactive',
+      title: 'When the Guns Fell Silent',
+      subtitle: 'The last minute of the war',
+    },
+    {
+      href: '/exhibitions/great-war/memorial',
+      image: {
+        src: '/exhibitions/great-war/silhouette.jpg',
+        alt: 'A soldier silhouetted beside a wooden cross on a hill, with red poppies',
+      },
+      label: 'Interactive',
+      title: 'The Memorial',
+      subtitle: 'Soldier cards, a field of poppies, and the silence',
     },
   ],
   posters: [
@@ -161,7 +186,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'dusk', position: 'center', text: 'The last Commonwealth soldier killed was Canadian Private George Lawrence Price, shot at 10:58 AM. A minute later, Private Henry Gunther became the last American to die.' },
 
         { type: 'section-title', className: 'gw-long', text: `World War I was supposed to be "the war to end all wars," but it became one of the deadliest conflicts in human history.` },
-        { type: 'paragraph', position: 'top-left', text: 'Over 17 million people died—9 million soldiers and 8 million civilians. Entire towns in France and Belgium were erased from the map.' },
+        { type: 'paragraph', position: 'top-left', text: 'Around 20 million people died, soldiers and civilians alike. Entire towns in France and Belgium were erased from the map.' },
         { type: 'paragraph', position: 'bottom-right', text: 'A generation of young men was lost—Britain alone lost 880,000 men, France lost 1.4 million, Germany lost 2 million.' },
         { type: 'paragraph', position: 'top-left', decor: POPPIES, text: `In the poem "In Flanders Fields," Canadian doctor and soldier John McCrae wrote about the crosses, row on row, marking graves in Flanders, where bright red poppies grew wild among the devastation.` },
         { type: 'paragraph', position: 'top-left', decor: POPPIES, text: "The poppies became a symbol of remembrance because they were often the only living things that could grow in the churned, blood-soaked soil of the battlefields. When we wear poppies in November, we're remembering all those who gave their lives, and we're making a promise: we will never forget their sacrifice." },
