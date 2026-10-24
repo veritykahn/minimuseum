@@ -602,6 +602,84 @@
 }
 
 /* ==========================================================================
+   THE GREAT WAR — a silence falling
+   Quiet and slow; nothing moves far. A dark hush lifts off the panel, and at
+   a chapter a single red hairline, the posters' 11:00 red, draws out and
+   fades. Copy surfaces out of the dark; short lines come a word at a time,
+   unhurried. Photographs develop like prints: a pale, flat sepia ghost
+   deepens into the picture.
+   ========================================================================== */
+.pfx-gw { --pfx-red: #e8372c; }
+/* Hardly any lateral travel: the panel settles rather than slides. */
+.pfx-gw .pfx-line,
+.pfx-gw .pfx-fg { --pfx-off: 0.6vw; transition: translate 2s var(--pfx-ease), opacity 0.6s ease; }
+.pfx-gw .pfx-bg { --pfx-off: 0.3vw; transition: translate 2.4s var(--pfx-ease); }
+.pfx-gw .pfx-words { --pfx-off: 0.3vw; }
+
+.pfx-gw-hush::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.92);
+  opacity: 0;
+  animation: pfxGwHush 1.8s ease-out backwards;
+}
+@keyframes pfxGwHush {
+  from { opacity: 1; }
+}
+.pfx-gw-hush.is-title::before { animation-duration: 2.6s; animation-timing-function: ease-in-out; }
+.pfx-gw-hush.is-title i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(40vw, 420px);
+  height: 1px;
+  margin-left: calc(min(40vw, 420px) / -2);
+  background: var(--pfx-red);
+  transform-origin: 50% 50%;
+  transform: scaleX(0);
+  animation: pfxGwRule 2.4s var(--pfx-ease) backwards;
+}
+@keyframes pfxGwRule {
+  0% { transform: scaleX(0); opacity: 1; }
+  45% { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(1); opacity: 0; }
+}
+
+/* Copy surfaces slowly out of the dark. */
+.pfx-gw .pfx-line {
+  animation: pfxGwSurface 1.8s 0.45s ease-out backwards;
+}
+@keyframes pfxGwSurface {
+  from { opacity: 0; filter: blur(3px); }
+}
+/* Titles: the same, a little slower, settling their tracking. */
+.pfx-gw [data-fx='title'] .pfx-line {
+  animation: pfxGwTitle 2.2s 0.6s ease-out backwards;
+}
+@keyframes pfxGwTitle {
+  from { opacity: 0; filter: blur(4px); letter-spacing: 0.08em; }
+}
+/* Short statements: a word at a time, unhurried. */
+.pfx-gw :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }
+.pfx-gw .pfx-w {
+  animation: pfxGwSurface 1.4s ease-out backwards;
+  animation-delay: calc(0.5s + var(--d) * 3);
+}
+/* Photographs develop: a pale, flat sepia ghost deepens into the print. */
+.pfx-gw .pfx-media {
+  animation: pfxGwDevelop 3.2s ease-out backwards;
+}
+@keyframes pfxGwDevelop {
+  0% { opacity: 0; filter: sepia(1) contrast(0.35) brightness(1.1) blur(1.5px); }
+  30% { opacity: 1; }
+  100% { opacity: 1; filter: sepia(0) contrast(1) brightness(1) blur(0); }
+}
+.pfx-gw .pfx-fg:not(.pfx-line) {
+  animation: pfxGwSurface 1.8s 0.8s ease-out backwards;
+}
+
+/* ==========================================================================
    PROGRESS
    ========================================================================== */
 .pfx-progress {
@@ -750,6 +828,16 @@
 }
 @keyframes pfxTorchHead {
   from { box-shadow: 0 0 0 0 rgba(242, 179, 61, 0); filter: brightness(0.4); }
+}
+
+/* The Great War: hairline ticks for chapters; a small red mark, still. */
+.pfx-progress-gw .pfx-progress-mark { width: 1px; height: 8px; margin: -4px 0 0 0; }
+.pfx-progress-gw .pfx-progress-head {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  background: #e8372c;
+  box-shadow: 0 0 0 2px #1c1c1c;
 }
 
 @media (max-width: 480px) {

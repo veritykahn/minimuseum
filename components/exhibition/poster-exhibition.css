@@ -383,6 +383,30 @@ a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink,
 .pe-decor-rise { animation: peDecorRise 1.8s 0.25s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
 @keyframes peDecorRise { from { transform: translateY(70%); } }
 
+/* ───────── Running head and foot (PanelMarks) ───────── */
+.pe-marks {
+  position: absolute;
+  left: 10vw;
+  right: 10vw;
+  z-index: 11;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  font-family: var(--pe-ui);
+  font-size: clamp(1.1rem, 2.2vw, 1.6rem);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  color: var(--pe-marks, currentColor);
+  pointer-events: none;
+}
+.pe-marks-head { top: clamp(84px, 12vh, 128px); }
+.pe-marks-foot { bottom: 40px; }
+.pe-marks-right { margin-left: auto; }
+.pjp-stage .pe-marks { left: calc(var(--pjp-u) * 7); right: calc(var(--pjp-u) * 7); font-size: calc(var(--pjp-u) * 2); }
+.pjp-stage .pe-marks-head { top: calc(var(--pjp-u) * 2.4); }
+.pjp-stage .pe-marks-foot { bottom: calc(var(--pjp-u) * 2.4); }
+
 /* ───────── Walkthrough navigation ───────── */
 .pe-walkthrough-nav {
   position: fixed;
@@ -431,6 +455,9 @@ a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink,
   .pe-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
   .pe-text-content-wrapper { padding: 100px 24px; }
   .pe-decor { --pe-decor-w: 44vw; }
+  /* the foot clears the walkthrough's arrows */
+  .pe-marks { left: 24px; right: 24px; }
+  .pe-marks-foot { bottom: 84px; }
 }
 
 /* ───────── Reduced motion: panels and pictures simply appear ───────── */
