@@ -93,7 +93,7 @@ describe('the film’s words and timing', () => {
     expect(IWM.record.credit).toBe('© IWM (Q 47886)');
     expect(IWM.record.url).toBe('https://www.iwm.org.uk/collections/item/object/205281906');
     expect(IWM.trench.credit).toBe('Image: IWM (Q 1)');
-    expect(IWM.reconstruction.label).toBe('Hear IWM’s reconstruction');
+    expect(IWM.reconstruction.label).toBe('How sound ranging worked, at the Imperial War Museum');
   });
 });
 
@@ -154,7 +154,7 @@ describe('the sound', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Begin' }));
     fireEvent.click(screen.getByRole('button', { name: 'Skip to the end' }));
     expect(live.size).toBe(0);
-    expect(screen.getByRole('link', { name: /Hear IWM’s reconstruction/ })).toHaveAttribute('href', IWM.reconstruction.url);
+    expect(screen.getByRole('link', { name: /How sound ranging worked, at the Imperial War Museum/ })).toHaveAttribute('href', IWM.reconstruction.url);
     expect(screen.getByRole('link', { name: '© IWM (Q 47886)' })).toHaveAttribute('href', IWM.record.url);
     expect(screen.getByRole('button', { name: 'Watch again' })).toHaveFocus();
   });

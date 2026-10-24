@@ -81,7 +81,7 @@ export const SOLDIERS: Soldier[] = [
     cause: 'Killed in action (mortally wounded while leading the attack)',
     burial: { place: 'Meuse-Argonne American Cemetery, Romagne-sous-Montfaucon, France', plot: 'Plot F, Row 36, Grave 40' },
     story: [
-      'Freddie Stowers grew up on his family’s farm near Sandy Springs and worked there before he was drafted in 1917. He served in an all-Black regiment organised at Camp Jackson, South Carolina.',
+      'Freddie Stowers grew up on his family’s farm near Sandy Springs and worked there before he was drafted in 1917. He served in an all-Black regiment organized at Camp Jackson, South Carolina.',
       'In the attack on Hill 188, about half his company was killed or wounded. He took charge, helped capture the first German trench, and was mortally wounded leading the advance on the second trench, still urging his men forward.',
     ],
     honours:
@@ -127,7 +127,7 @@ export const SOLDIERS: Soldier[] = [
     cause: 'Killed in action (by machine-gun fire while advancing)',
     burial: {
       place: 'The churchyard of the C. H. Cook Memorial Church, Sacaton, Arizona',
-      note: 'He was first buried in France. In 1921 his remains were returned to Arizona at his mother’s request, and he was buried with honours on April 9, 1921.',
+      note: 'He was first buried in France. In 1921 his remains were returned to Arizona at his mother’s request, and he was buried with honors on April 9, 1921.',
     },
     memorial: 'The Matthew B. Juan–Ira H. Hayes Veterans Memorial Park, Sacaton',
     story: [
@@ -178,13 +178,14 @@ export const SOLDIERS: Soldier[] = [
     died: 'July 21, 1918, Second Battle of the Marne, France',
     age: '15 (his service record says 18)',
     cause: 'Killed in action',
-    memorial: 'The East Haven First World War monument, one of five East Haven men who died. His burial place has not been found.',
+    memorial: 'Missing in action. Named on the Tablets of the Missing at the Aisne-Marne American Cemetery, Belleau, France, and on the East Haven First World War monument, one of five East Haven men who died.',
     story: [
       'In a military questionnaire filed after the war, his mother wrote that John enlisted in New Haven’s 102nd Regiment at 14. She agreed to it only after he threatened to run away to New York and claim he was old enough.',
       'A local newspaper said his “great size and robust appearance” got him through the physical, and called him the youngest soldier in the regiment. He was killed less than a week before his 16th birthday.',
     ],
     notes: ['By his mother’s account he was 14 when he enlisted and 15 when he died. His service record gave his age as 18.'],
     sources: [
+      { label: 'American Battle Monuments Commission, Tablets of the Missing record', url: 'https://www.abmc.gov/decedent-search/healey%3Djohn' },
       { label: 'Connecticut in World War I, “East Haven teen 1 of 5 from town who died in WWI”', url: 'https://ctinworldwar1.org/east-haven-teen-1-of-5-from-town-who-died-in-wwi/' },
       { label: 'ABMC, “Hometown boys from Connecticut”', url: 'https://www.abmc.gov/news-events/news/hometown-boys-connecticut-information-and-statistics-about-wwi-service-members/' },
     ],
@@ -219,7 +220,7 @@ export const SOLDIERS: Soldier[] = [
     died: 'October 4, 1918, Blanc Mont Ridge (Champagne), France',
     age: '35',
     cause: 'Killed in action',
-    burial: { place: 'Meuse-Argonne American Cemetery, Romagne, France' },
+    burial: { place: 'Meuse-Argonne American Cemetery, Romagne, France', plot: 'Plot D, Row 41, Grave 32' },
     story: [
       'Matej Kocak emigrated from what is now Slovakia in 1906. In Binghamton he belonged to a Slovak Catholic Sokol, a gymnastics society. He joined the Marines in 1907 and served at Vera Cruz and in the Dominican Republic before the war.',
       'On July 18, 1918, near Soissons, he went forward alone with his bayonet against a hidden machine-gun nest that had stopped his battalion. He then led a group of French colonial soldiers against a second one. He was killed less than three months later at Blanc Mont Ridge.',
@@ -227,6 +228,7 @@ export const SOLDIERS: Soldier[] = [
     honours: 'The Medal of Honor from both the Army and the Navy, after his death. He was one of 13 immigrants awarded the Medal of Honor in the First World War.',
     notes: ['His biography gives his birth date as December 3, 1882; his Medal of Honor citations give December 31, 1882.'],
     sources: [
+      { label: 'American Battle Monuments Commission, burial record', url: 'https://www.abmc.gov/decedent-search/kocak%3Dmatej' },
       { label: 'USCIS History Office, “The Immigrant Army”', url: 'https://uscis.gov/about-us/our-history/stories-from-the-archives/the-immigrant-army-immigrant-service-members-in-world-war-i' },
       { label: 'Wikipedia, “Matej Kocak”', url: 'https://en.wikipedia.org/wiki/Matej_Kocak' },
       { label: 'USMC History Division, “Sergeant Matej Kocak” (archived)', url: 'https://web.archive.org/web/20110516221907/http://www.tecom.usmc.mil/HD/Whos_Who/Kocak_M.htm' },
@@ -270,13 +272,14 @@ export const SOLDIERS: Soldier[] = [
     born: 'About 1890',
     died: 'November 11, 1918, Meuse-Argonne, France, on the morning of the Armistice, before it took effect',
     cause: 'Killed in action (reportedly by shellfire while carrying ammunition)',
-    burial: { place: 'St. Mihiel American Cemetery, Thiaucourt, France' },
+    burial: { place: 'St. Mihiel American Cemetery, Thiaucourt, France', plot: 'Plot B, Row 14, Grave 17' },
     story: [
       'Wayne Miner was the son of Ned and Emily Minor, who had both been enslaved. Before the war he was a coal miner in Iowa. He enlisted in Kansas City in October 1917 and trained at Camp Dodge, Iowa.',
       'On the last morning of the war he volunteered, with three other soldiers, to carry ammunition to a machine-gun position under fire, and he was killed doing it.',
       'Kansas City’s Black American Legion post, Wayne Miner Post 149, founded in 1919, is named for him.',
     ],
     sources: [
+      { label: 'American Battle Monuments Commission, burial record', url: 'https://www.abmc.gov/decedent-search/miner%3Dwayne' },
       { label: 'Wikipedia, “Wayne Miner”', url: 'https://en.wikipedia.org/wiki/Wayne_Miner' },
       { label: 'Kansas City Black History, “Wayne Miner”', url: 'https://kcblackhistory.org/articles/wayne-miner' },
       { label: 'JoeLouis Mattox, “Raising Private Miner” (PDF)', url: 'https://static1.squarespace.com/static/51181e81e4b04512ec820440/t/58da666559cc68c4bc17bba5/1490708071527/privateminer.pdf' },

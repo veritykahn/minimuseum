@@ -66,7 +66,7 @@ export const IWM = {
   },
   reconstruction: {
     url: 'https://www.iwm.org.uk/history/first-world-war/western-front/sound-ranging-explained',
-    label: 'Hear IWM’s reconstruction',
+    label: 'How sound ranging worked, at the Imperial War Museum',
   },
   licence: {
     url: 'https://www.iwm.org.uk/corporate/policies/non-commercial-licence',

@@ -50,14 +50,17 @@ describe('the soldier cards', () => {
     expect(olson.memorial).toMatch(/Bismarck/);
   });
 
-  it('shows the grave plots the notes give', () => {
+  it('shows the grave plots the notes give, and the two Verity added from ABMC', () => {
     const plots = Object.fromEntries(SOLDIERS.filter((s) => s.burial?.plot).map((s) => [s.id, s.burial!.plot]));
     expect(plots).toEqual({
       stowers: 'Plot F, Row 36, Grave 40',
       stout: 'Plot C, Row 41, Grave 14',
       stockham: 'Section C, Block 9, Lot 13, Grave 4',
       henry: 'Section 12, Grave 3434',
+      kocak: 'Plot D, Row 41, Grave 32',
+      miner: 'Plot B, Row 14, Grave 17',
     });
+    expect(SOLDIERS.find((s) => s.id === 'healey')!.memorial).toMatch(/Tablets of the Missing at the Aisne-Marne/);
   });
 
   it('turns with a button, and the hidden side is inert', () => {
