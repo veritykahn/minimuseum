@@ -1,0 +1,316 @@
+import type { CSSProperties } from 'react';
+import type { ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
+import { floorReturnFor } from '@/lib/floors';
+
+/*
+ * America 250: every word on screen, and the look.
+ *
+ * The poster copy is set exactly as printed on the two posters, with only the
+ * owner's seven approved fixes:
+ *   1. the epigraph is credited "attributed to Benjamin Franklin";
+ *   2. Franklin's "self-evident" and "pursuit of happiness" sentences stay as
+ *      printed;
+ *   3. the Carroll episode is told as a story ("The story goes that …"), with
+ *      his reason for signing that way (his father, Charles Carroll of
+ *      Annapolis);
+ *   4. dates in US style ("July 3, 1776", "the July 4 Fair Copy");
+ *   5. "Congress did not order the Engrossed Copy until July 19, and most
+ *      delegates signed it on August 2." in place of the sentence about its
+ *      completion;
+ *   6. George III "is reported to have said" Washington's choice would make
+ *      him the greatest man in the world;
+ *   7. the first pull quote is credited to Verity Kahn, *The Myth of the
+ *      Declaration of Independence*.
+ * Typesetting only: the two doubled spaces on poster 2 are single, and the
+ * title of Paine's pamphlet is set in italics, as are the two stressed words
+ * the poster italicizes (*wanted*, *needed*). "*…*" marks italics.
+ *
+ * Each sentence lives in one place below, so a fix to the posters is a
+ * one-line edit here. Where a poster paragraph runs across several panels it
+ * is split only between sentences; nothing is reworded. Each poster's section
+ * titles open its chapters, as the posters set them.
+ *
+ * The pictures are the two paintings the posters are built around, from the
+ * public-domain originals on Wikimedia Commons, each credited where it
+ * appears: John Trumbull's Declaration of Independence (U.S. Capitol) and
+ * Emanuel Leutze's Washington Crossing the Delaware (The Metropolitan Museum
+ * of Art). There is no display case: the exhibition has no installation
+ * photographs yet.
+ *
+ * The "Talk about it" questions are for the projector's teacher strip: open
+ * discussion questions, one per chapter, keyed by the section title exactly
+ * as it is set (OPENING, '', is the panels before the first section title).
+ * They make no factual claims.
+ */
+
+// The posters' palette: cream paper, framed in slate (poster 1) or rust
+// (poster 2), set in a warm near-black ink.
+const PAPER = '#F8F6F0';
+const INK = '#2A2724';
+/* Poster 1's frame and script: 5.5:1 on the paper, so it serves small text too. */
+const SLATE = '#56656F';
+/* Poster 2's frame and script: 4.9:1 on the paper. */
+const RUST = '#A84F33';
+
+/* The titles are set in a flowing monoline script, as on the posters
+   (Allison, loaded below; america250.css sets it as --ap-script). */
+/* Section heads, quotes and copy: Caslon, the face of the 1776 broadsides. */
+const SERIF = "'Libre Caslon Text', 'Big Caslon', Georgia, serif";
+/* Subtitles and labels: the posters' thin light sans. */
+const SANS = "'IBM Plex Sans', 'Helvetica Neue', system-ui, sans-serif";
+
+export const NARA_DECLARATION_URL = 'https://www.archives.gov/founding-docs/declaration';
+export const NARA_SIGNERS_URL = 'https://www.archives.gov/founding-docs/signers-factsheet';
+
+export const TRUMBULL_CREDIT = 'John Trumbull, *Declaration of Independence*, 1818. U.S. Capitol. Public domain.';
+export const TRUMBULL_SOURCE = 'https://commons.wikimedia.org/wiki/File:Declaration_of_Independence_(1819),_by_John_Trumbull.jpg';
+export const LEUTZE_CREDIT = 'Emanuel Leutze, *Washington Crossing the Delaware*, 1851. The Metropolitan Museum of Art. Public domain.';
+export const LEUTZE_SOURCE = 'https://commons.wikimedia.org/wiki/File:Washington_Crossing_the_Delaware_by_Emanuel_Leutze,_MMA-NYC,_1851.jpg';
+
+const trumbull = { text: TRUMBULL_CREDIT, href: TRUMBULL_SOURCE };
+const leutze = { text: LEUTZE_CREDIT, href: LEUTZE_SOURCE };
+
+// Details of the paintings, set beside the copy.
+const DELEGATES: PanelFigure = {
+  src: '/exhibitions/america-250/trumbull-delegates.jpg',
+  alt: 'A detail of Trumbull’s painting: delegates of the Continental Congress in powdered wigs and knee breeches, seated and standing at green-covered tables, one writing',
+  side: 'right',
+  credit: trumbull,
+};
+const DRAFT: PanelFigure = {
+  src: '/exhibitions/america-250/trumbull-draft.jpg',
+  alt: 'A detail of Trumbull’s painting: a hand laying the handwritten draft on a table covered in green cloth, among rolled papers, books and an inkstand with a quill',
+  side: 'left',
+  credit: trumbull,
+};
+const HANCOCK: PanelFigure = {
+  src: '/exhibitions/america-250/trumbull-hancock.jpg',
+  alt: 'A detail of Trumbull’s painting: John Hancock, president of the Congress, seated in a red armchair at the table, with delegates standing behind him',
+  side: 'right',
+  credit: trumbull,
+};
+const ROWERS: PanelFigure = {
+  src: '/exhibitions/america-250/leutze-rowers.jpg',
+  alt: 'A detail of Leutze’s painting: soldiers at the bow of the boat pushing through ice floes with poles and oars, the far shore white with snow',
+  side: 'left',
+  credit: leutze,
+};
+const CROSSING: PanelFigure = {
+  src: '/exhibitions/america-250/leutze-crossing.jpg',
+  alt: 'A detail of Leutze’s painting: a soldier in a fur cap leaning on his oar at the stern, and behind him more boats crowded with men and horses crossing the icy river',
+  side: 'right',
+  credit: leutze,
+};
+const WASHINGTON: PanelFigure = {
+  src: '/exhibitions/america-250/leutze-washington.jpg',
+  alt: 'A detail of Leutze’s painting: George Washington standing in the boat in a dark cloak and tricorn hat, gazing ahead, as an officer behind him holds up a flag of stars and stripes',
+  side: 'left',
+  credit: leutze,
+};
+
+export const AMERICA_PROJECTOR_THEME = {
+  '--pj-bg': PAPER,
+  '--pj-ink': INK,
+  '--pj-muted': '#5E5850',
+  '--pj-accent': SLATE,
+  '--pj-on-accent': PAPER,
+  '--pj-display': SERIF,
+  '--pj-body': SERIF,
+} as CSSProperties;
+
+const END = 'Return to Exhibition';
+
+export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
+  slug: 'america-250',
+  name: 'America 250',
+  subtitle: 'The Declaration of Independence at 250',
+  fonts: {
+    href: 'https://fonts.googleapis.com/css2?family=Allison&family=IBM+Plex+Sans:wght@200;300;400&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap',
+    display: SERIF,
+    body: SERIF,
+    ui: SANS,
+  },
+  palette: {
+    page: PAPER,
+    heading: SLATE,
+    accent: RUST,
+    teach: { color: SLATE, border: 'rgba(86,101,111,0.55)' },
+  },
+  back: floorReturnFor('america-250'),
+  fx: { theme: 'ap', veil: 'chapters', text: 'all' },
+  projector: { theme: AMERICA_PROJECTOR_THEME, links: [] },
+  posters: [
+    // ============================================
+    // POSTER 1: Before it was Sacred
+    // ============================================
+    {
+      id: 'poster1',
+      title: 'Before it was Sacred',
+      hero: {
+        src: '/exhibitions/america-250/poster1.jpg',
+        alt: 'Before it was Sacred poster: cream paper in a slate-blue border, the title in a large flowing slate script across John Trumbull’s painting of the Declaration being presented to Congress, set as three panels, with a pull quote and six columns of text',
+      },
+      colors: { bg: PAPER, text: INK, title: SLATE, quoteRule: SLATE },
+      sections: {
+        title: { className: 'ap-p1 ap-title' },
+        head: { className: 'ap-p1 ap-head', title: INK },
+        copy: { className: 'ap-p1 ap-copy' },
+        quote: { className: 'ap-p1 ap-quote' },
+        picture: { className: 'ap-p1 ap-picture' },
+        link: { className: 'ap-p1 ap-link' },
+        end: { className: 'ap-p1 ap-end' },
+      },
+      items: [
+        {
+          type: 'title-text',
+          section: 'title',
+          text: 'Before it was Sacred',
+          subtitle: 'The Declaration of Independence: What It Was, What It Became, and Why the Difference Matters',
+        },
+        {
+          type: 'full-image',
+          section: 'picture',
+          src: '/exhibitions/america-250/trumbull.jpg',
+          alt: 'John Trumbull’s Declaration of Independence: in a high-ceilinged hall hung with red curtains and captured flags, five men stand at the center presenting the draft to John Hancock, seated at the right, while the delegates of the Congress look on',
+          text: TRUMBULL_CREDIT,
+          href: TRUMBULL_SOURCE,
+        },
+        { type: 'paragraph', section: 'copy', text: "If the Declaration of Independence is America's birth certificate, it raises an immediate question: why didn't the Father of America sign it? For most Americans, the Declaration is precisely that — a birth certificate, a cosmogony, the moment the Founding Fathers created a nation in a single spontaneous act. It is not slow or meandering, uncertain or at risk. It is momentous and sudden and instantaneous." },
+        { type: 'paragraph', section: 'copy', text: 'The entirety of the war, the Constitutional Convention, the years of a fragile and failing republic — all of it is swallowed into one mythic moment on the Fourth of July 1776, when godlike Founders put pen to parchment and America was suddenly there where it had not before been. And presiding over it all, signing the nation into existence as a father signs a birth certificate, is George Washington.' },
+        { type: 'paragraph', section: 'copy', text: 'Except that Washington never signed the Declaration of Independence. He was not even in the room: he was commanding the army. In fact, almost none of the story Americans tell about this document is accurate.' },
+        {
+          type: 'quote',
+          section: 'quote',
+          text: '"Independence is not understood as having needed to be won, but by virtue of the Declaration alone, America was suddenly there where it had not before been."',
+          cite: '— Verity Kahn, *The Myth of the Declaration of Independence*',
+        },
+
+        { type: 'section-title', section: 'head', text: 'The Wrong Date' },
+        { type: 'paragraph', section: 'copy', figure: DELEGATES, text: 'On July 3, 1776, John Adams wrote to his wife Abigail in a state of elation that Independence had been resolved the previous day, and Adams was certain of its significance. The Second of July, he declared, would be celebrated by future generations as the great anniversary — marked with pomp, parades, and illuminations from one end of the continent to the other.' },
+        { type: 'paragraph', section: 'copy', text: 'Adams was remarkably prescient about everything, except the date. Independence was resolved on July 2, 1776. The Declaration, adopted two days later, was merely the formal explanation of a decision already made — a statement of justification, not an act of independence.' },
+        { type: 'paragraph', section: 'copy', text: "July 4th was, in Adams' own understanding, a formality. Yet the myth settled on it regardless, and Adams' prediction was displaced by the very story he had helped to create." },
+
+        { type: 'section-title', section: 'head', text: 'The Wrong Document' },
+        { type: 'paragraph', section: 'copy', figure: DRAFT, text: "What most people picture as the Declaration of Independence was not the actual document present at the Continental Congress. It is, in fact, an engraving made in 1823 by William J. Stone — itself an imperfect copy of the Engrossed parchment, now in the National Archives, which was a reproduction of the July 4 Fair Copy, itself an edited version of Jefferson's Rough Draft." },
+        { type: 'paragraph', section: 'copy', text: 'Congress did not order the Engrossed Copy until July 19, and most delegates signed it on August 2. Even the transcription offered by the National Archives is a transcription of the Stone engraving, not the original. The document Americans venerate is a copy of a copy, made nearly fifty years after the fact.' },
+        { type: 'quote', section: 'quote', text: 'Before it was sacred, the Declaration was a formality. Understanding what it actually was makes what it became considerably more remarkable.' },
+
+        { type: 'section-title', section: 'head', text: 'The Wrong Author' },
+        {
+          type: 'full-image',
+          section: 'picture',
+          src: '/exhibitions/america-250/trumbull-committee.jpg',
+          alt: 'A detail of Trumbull’s painting: the five-man drafting committee — John Adams, Roger Sherman, Robert Livingston, Thomas Jefferson and Benjamin Franklin — standing at the table as Jefferson lays down the draft',
+          text: TRUMBULL_CREDIT,
+          href: TRUMBULL_SOURCE,
+        },
+        { type: 'paragraph', section: 'copy', text: 'Jefferson was the author but not the sole author. In fact, there were at least four. "We hold these truths to be self-evident" was Franklin\'s alteration of Jefferson\'s original "sacred and undeniable." The "pursuit of happiness" was also shaped by Franklin\'s pen.' },
+        { type: 'paragraph', section: 'copy', text: "Congress made further changes, most significantly removing Jefferson's charge against George III for the slave trade, whose removal left Jefferson so despondent that he needed consolation. What survived was a cooler, more measured document than Jefferson intended." },
+        { type: 'paragraph', section: 'copy', text: "The preamble that Americans now consider the Declaration's heart was, in 1776, its least important section. The twenty-seven charges against the King — the longest part of the text — were the whole point. The Declaration was a legal and diplomatic argument designed above all to persuade France to enter the war, not a birth certificate or even a philosophical promise for the new Republic." },
+
+        { type: 'section-title', section: 'head', text: 'The Wrong Significance' },
+        { type: 'paragraph', section: 'copy', figure: HANCOCK, text: 'For the first fifteen years after its adoption the Declaration was largely ignored, kept in poor conditions, its parchment already deteriorating. Adams himself called it "hackneyed" — not an idea in it that had not been discussed in Congress for two years prior.' },
+        { type: 'paragraph', section: 'copy', text: "It was Jefferson's rising political career, and then his death in 1826 on the fiftieth anniversary of its adoption — the same day Adams also died, an event widely interpreted as divine providence — that transformed the document into something approaching scripture." },
+        { type: 'paragraph', section: 'copy', text: 'Abraham Lincoln completed the transformation at Gettysburg, elevating the preamble above the Constitution itself and making "all men are created equal" the founding promise of the nation. The charges against the King, which had been the Declaration\'s entire purpose, were forgotten. The philosophy, which had been secondary, became everything.' },
+
+        { type: 'callout', section: 'link', text: 'Read the Declaration at the National Archives', url: NARA_DECLARATION_URL },
+        { type: 'end', section: 'end', text: END },
+      ],
+      talk: {
+        '': 'Many people picture the Declaration as the moment the nation suddenly began. Why do you think people are drawn to stories in which something begins in a single moment?',
+        'The Wrong Date': 'John Adams expected a different day to become the great anniversary. Why do you think some dates are remembered and others are forgotten?',
+        'The Wrong Document': 'The document many people picture is a copy of a copy. Does it matter to you whether you see an original or a copy? Why or why not?',
+        'The Wrong Author': 'Several people shaped the words of the Declaration. How might a piece of writing change when more than one person works on it?',
+        'The Wrong Significance': 'What a document meant to the people who wrote it can be different from what it means to people later. Can you think of something whose meaning has changed over time?',
+      },
+    },
+
+    // ============================================
+    // POSTER 2: We Shall All Hang Together
+    // ============================================
+    {
+      id: 'poster2',
+      title: 'We Shall All Hang Together',
+      hero: {
+        src: '/exhibitions/america-250/poster2.jpg',
+        alt: 'We Shall All Hang Together poster: cream paper in a rust border, a quotation at the top, the title in a large flowing rust script across Emanuel Leutze’s painting of Washington crossing the icy Delaware, set as three panels, and five sections of text with a pull quote',
+      },
+      colors: { bg: PAPER, text: INK, title: RUST, quoteRule: RUST },
+      sections: {
+        title: { className: 'ap-p2 ap-title' },
+        head: { className: 'ap-p2 ap-head', title: INK },
+        copy: { className: 'ap-p2 ap-copy' },
+        quote: { className: 'ap-p2 ap-quote' },
+        epigraph: { className: 'ap-p2 ap-quote ap-epigraph' },
+        picture: { className: 'ap-p2 ap-picture' },
+        link: { className: 'ap-p2 ap-link' },
+        end: { className: 'ap-p2 ap-end' },
+      },
+      items: [
+        {
+          type: 'title-text',
+          section: 'title',
+          text: 'We Shall All Hang Together',
+          subtitle: 'The Wager Fifty-Six Men Made With Their Signatures',
+        },
+        {
+          type: 'quote',
+          section: 'epigraph',
+          text: '"We must all hang together, or assuredly we shall all hang separately."',
+          cite: '— attributed to Benjamin Franklin, upon signing the Declaration of Independence',
+        },
+        {
+          type: 'full-image',
+          section: 'picture',
+          src: '/exhibitions/america-250/leutze.jpg',
+          alt: 'Emanuel Leutze’s Washington Crossing the Delaware: George Washington stands in a crowded rowboat as soldiers push it through ice floes on a gray winter river, an officer behind him raising a flag of stars and stripes, and more boats following under a stormy sky',
+          text: LEUTZE_CREDIT,
+          href: LEUTZE_SOURCE,
+        },
+        { type: 'paragraph', section: 'copy', text: 'The fifty-six men who signed the Declaration of Independence did so in the knowledge that a British victory meant, for the leaders of the rebellion, a public execution. High treason against the Crown carried a very specific sentence under eighteenth-century British law: death by hanging, drawing, and quartering.' },
+        { type: 'paragraph', section: 'copy', text: 'These men were not signing a certificate of triumph, but a death warrant. The war had been going badly. It would get considerably worse. When they lifted their pens to sign, not one of those men could say with certainty what the outcome would be.' },
+
+        { type: 'section-title', section: 'head', text: 'The War That Nearly Was Not Won' },
+        { type: 'paragraph', section: 'copy', figure: ROWERS, text: 'The popular memory of the Revolution treats American independence as inevitable: a righteous cause whose triumph was always assured. Benjamin Rush, writing to Richard Price in 1786, offered a more accurate account: "The American war is over; but this is far from being the case with the American revolution. On the contrary, nothing but the first act of the drama is closed."' },
+        { type: 'paragraph', section: 'copy', text: 'When the Declaration was signed in the summer of 1776, Washington commanded approximately 19,000 men, many sick, poorly equipped, serving on enlistments already expiring. By contrast they were up against the greatest military in the world: Britain had landed 32,000 troops on Staten Island, the largest expeditionary force the Empire had ever assembled.' },
+        { type: 'paragraph', section: 'copy', text: 'Within weeks, the Battle of Long Island had become a near-catastrophe for the colonists. By November, Washington was retreating across New Jersey with perhaps 3,000 effective troops remaining.' },
+        {
+          type: 'full-image',
+          section: 'picture',
+          src: '/exhibitions/america-250/leutze-ice.jpg',
+          alt: 'A detail of Leutze’s painting: jagged blocks of ice and churning gray-green water at the foot of the boat, an oar dipping in among the floes',
+          text: LEUTZE_CREDIT,
+          href: LEUTZE_SOURCE,
+        },
+        { type: 'paragraph', section: 'copy', text: 'Thomas Paine wrote *The American Crisis* in those weeks — "These are the times that try men\'s souls" — not as the rhetoric of a winning side but as a desperate attempt to hold together an army that was dissolving.' },
+        { type: 'paragraph', section: 'copy', text: 'The British, from occupied New York, published declarations urging colonists to return to their allegiance while terms were still available. Many believed they would.' },
+
+        { type: 'section-title', section: 'head', text: 'What Signing Actually Meant' },
+        { type: 'paragraph', section: 'copy', figure: CROSSING, text: 'The signers were now identified men. They had put their names to an act of treason and this meant real consequences. Richard Stockton, a New Jersey delegate, was captured by the British, imprisoned, and tortured. His home was burned, his library destroyed. Under those conditions he recanted his signature.' },
+        { type: 'paragraph', section: 'copy', text: 'It is the most human moment in the whole story of the Declaration: a man in pain, in fear, saying what his captors *wanted* him to say and what he *needed* to say to avoid execution.' },
+        { type: 'paragraph', section: 'copy', text: 'Stockton never recovered his health and died in 1781, broken by what had been done to him and what he had done under duress. He had pledged everything the Declaration asked of him, yet by the time of his death Independence had still not been won.' },
+        { type: 'quote', section: 'quote', text: 'It took fifty-six signatures, seven years of war, and a generation of men willing to lose everything to fulfill the Declaration.' },
+
+        { type: 'section-title', section: 'head', text: 'The Catholic Who Refused To Be Anonymous' },
+        { type: 'paragraph', section: 'copy', text: 'Charles Carroll of Carrollton was the only Catholic among the fifty-six signers. In 1776, Catholics could still not hold public office in most of the American colonies.' },
+        { type: 'paragraph', section: 'copy', text: 'The story goes that when it was observed that there were many men named Charles Carroll and he might escape personal consequence, Carroll responded by adding his full address to his signature — "of Carrollton" — so there could be no mistaking which Charles Carroll had signed. (He often signed that way to tell himself apart from his father, Charles Carroll of Annapolis.) He refused the protection of ambiguity to stand in life and death with his fellow signers.' },
+        { type: 'paragraph', section: 'copy', text: "Carroll eventually outlived every other signatory, dying in 1832 at the age of ninety-five as the last living connection to that room, that day, that decision. When asked what he considered his most important contribution, he did not mention his wealth or his longevity. Carroll's answer was his signature on the Declaration, and the fact that he had made sure it could be read." },
+
+        { type: 'section-title', section: 'head', text: 'The Long Wager' },
+        { type: 'paragraph', section: 'copy', text: 'The signatures of 1776 did not end the wager on the colonies\' independence, rather they began it. The independence the Declaration asserted so assuredly still had to be built through the failed confederation, the Constitutional Convention held in secret, and the ratification process that was anything but certain. America was constantly and consistently referred to as an experiment by the same men who were attempting to forge it.' },
+        { type: 'paragraph', section: 'copy', figure: WASHINGTON, text: "Washington fought the war, presided over the Constitutional Convention, served two terms as the republic's first president, and then voluntarily surrendered power and returned to his farm, a choice King George III is reported to have said would make Washington the greatest man in the world." },
+        { type: 'paragraph', section: 'copy', text: 'The wager fifty-six men made with their signatures in 1776 was not settled on a battlefield. It was settled by what they built, and what they were willing to give up, in the decades that followed.' },
+
+        { type: 'callout', section: 'link', text: 'Meet the signers at the National Archives', url: NARA_SIGNERS_URL },
+        { type: 'end', section: 'end', text: END },
+      ],
+      talk: {
+        '': 'The signers could not know how the war would turn out. What makes it hard to stand up for something when you cannot know how it will end?',
+        'The War That Nearly Was Not Won': 'Looking back, the outcome of a war can seem certain. Why do you think stories about the past can make events feel more certain than they felt at the time?',
+        'What Signing Actually Meant': 'Richard Stockton said what he needed to say to survive. How should we think about what people say or do when they are in pain or afraid?',
+        'The Catholic Who Refused To Be Anonymous': 'Charles Carroll made sure his signature could not be mistaken. When might it matter to put your own name to what you believe?',
+        'The Long Wager': 'The poster says the wager was settled by what the signers built and what they were willing to give up. What is something worth building that takes many years to finish?',
+      },
+    },
+  ],
+};

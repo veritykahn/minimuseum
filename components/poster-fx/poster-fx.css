@@ -896,6 +896,80 @@
 }
 
 /* ==========================================================================
+   AMERICA 250 — the press
+   A broadsheet being printed, calmly. As each poster opens and at each
+   chapter the panel is a blank sheet; the platen of a press comes down on
+   it as a soft shadow from the top, and as it lifts the page is printed.
+   Copy inks into the paper, a little soft at first and then crisp; short
+   lines and quotes are set a word at a time, like type; pictures print up
+   like engravings, from a pale, hard proof to the painting. (The titles are
+   written in, and a quill draws the rule under each section head, in the
+   exhibition's own stylesheet.) The sheet stays inside the poster's border.
+   ========================================================================== */
+.pfx-ap { --pfx-gold: #56656f; }
+/* Hardly any lateral travel: the sheet does not slide under the press. */
+.pfx-ap .pfx-line,
+.pfx-ap .pfx-fg { --pfx-off: 0.6vw; transition: translate 1.6s var(--pfx-ease), opacity 0.5s ease; }
+.pfx-ap .pfx-bg { --pfx-off: 0.3vw; transition: translate 2s var(--pfx-ease); }
+.pfx-ap .pfx-words { --pfx-off: 0.3vw; }
+
+/* The blank sheet, inside the border; it is gone once the platen is down. */
+.pfx-ap-press {
+  inset: var(--ap-fw, 0);
+  background: var(--pfx-bg, #f8f6f0);
+  animation: pfxApSheet 2.2s ease-in backwards;
+  opacity: 0;
+}
+@keyframes pfxApSheet {
+  0%, 42% { opacity: 1; }
+  62%, 100% { opacity: 0; }
+}
+/* The platen: a soft shadow that comes down over the sheet, and lifts. */
+.pfx-ap-press i {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: linear-gradient(to bottom, rgba(42, 39, 36, 0.06), rgba(42, 39, 36, 0.16) 88%, rgba(42, 39, 36, 0.3));
+  animation: pfxApPlaten 2.2s cubic-bezier(0.5, 0, 0.3, 1) backwards;
+}
+@keyframes pfxApPlaten {
+  0% { opacity: 1; transform: translateY(-100%); }
+  45% { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(0); }
+}
+
+/* Copy inks into the paper: soft, then crisp. */
+@keyframes pfxApInk {
+  0% { opacity: 0; filter: blur(1.6px); }
+  45% { opacity: 0.8; filter: blur(0.6px); }
+}
+.pfx-ap .pfx-line {
+  animation: pfxApInk 1.5s 0.35s ease-out backwards;
+}
+/* At the press (the poster's opening and each chapter), after the platen lifts. */
+.pfx-ap [data-fx='title'] .pfx-line {
+  animation: pfxApInk 1.6s 1.05s ease-out backwards;
+}
+/* Short lines and quotes: set a word at a time, like type. */
+.pfx-ap :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }
+.pfx-ap .pfx-w {
+  animation: pfxApInk 1.1s ease-out backwards;
+  animation-delay: calc(0.35s + var(--d) * 2.4);
+}
+/* Pictures print up like engravings: a pale, hard proof deepening to the painting. */
+.pfx-ap .pfx-media {
+  animation: pfxApProof 2.4s 0.2s ease-out backwards;
+}
+@keyframes pfxApProof {
+  0% { opacity: 0; filter: grayscale(1) contrast(1.5) brightness(1.3); }
+  30% { opacity: 1; }
+  100% { opacity: 1; filter: grayscale(0) contrast(1) brightness(1); }
+}
+.pfx-ap .pfx-fg:not(.pfx-line) {
+  animation: pfxApInk 1.5s 0.9s ease-out backwards;
+}
+
+/* ==========================================================================
    PROGRESS
    ========================================================================== */
 .pfx-progress {
@@ -1087,6 +1161,24 @@
 }
 @keyframes pfxMoHead {
   from { box-shadow: 0 0 0 rgba(185, 166, 230, 0), inset 8px 0 0 0 #2a2245; }
+}
+
+/* America 250: chapters are small printer's lozenges; the head is a drop of
+   ink that spreads as it lands. */
+.pfx-progress-ap .pfx-progress-mark {
+  width: 5px;
+  height: 5px;
+  margin: -2.5px 0 0 -2.5px;
+  transform: rotate(45deg);
+}
+.pfx-progress-ap .pfx-progress-head {
+  width: 11px;
+  height: 11px;
+  margin: -5.5px 0 0 -5.5px;
+  animation: pfxApDrop 0.9s var(--pfx-ease, ease) backwards;
+}
+@keyframes pfxApDrop {
+  from { transform: scale(0.35); }
 }
 
 @media (max-width: 480px) {

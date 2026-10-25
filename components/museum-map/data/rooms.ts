@@ -10,6 +10,7 @@ const EXHIBITION_ACCENTS: Record<string, string> = {
   'great-war': '#E8372C',
   egypt: '#F04A1A',
   moon: '#A88BEB',
+  'america-250': '#56656F',
 };
 
 /** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
@@ -149,6 +150,17 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#A88BEB',
     parent: 'moon',
+  },
+  {
+    id: 'america-250',
+    label: 'America 250',
+    path: '/exhibitions/america-250',
+    x: 102,
+    y: 230,
+    width: 140,
+    height: 100,
+    accentColor: '#56656F',
+    parent: 'ground-floor',
   },
   {
     id: 'egypt',

@@ -610,3 +610,11 @@ a.pe-case-page-return:focus-visible { border-color: var(--pe-accent); color: var
 @media (prefers-reduced-motion: reduce) {
   .pe-case-page-return { transition: none; }
 }
+
+/* ───────── A quote's citation, a title's subtitle (QuoteItem.cite, TitleTextItem.subtitle) ───────── */
+.pe-has-cite { flex-direction: column; gap: 20px; }
+.pe-quote-cite,
+.pe-title-subtitle { position: relative; z-index: 10; font-family: var(--pe-ui, var(--pe-body)); }
+.pe-quote-cite { font-size: clamp(0.95rem, 1.8vw, 1.15rem); opacity: 0.85; }
+.pe-title-subtitle { font-size: clamp(1.1rem, 2.6vw, 1.8rem); }
+.pe-image-caption a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }

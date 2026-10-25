@@ -23,6 +23,7 @@ const COLORS = {
   greatWar: '#E8372C',
   egypt: '#F04A1A',
   moon: '#A88BEB',
+  america250: '#56656F',
 };
 
 // Helper: create a wall segment with a doorway gap in the middle
@@ -175,7 +176,11 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', ...lessonsChild('in-their-hands')],
   },
   // Bottom row
-  comingSoonRoom('america-250', 'America 250', 'ground-floor', { x: 102, y: 230, width: 140, height: 100 }),
+  {
+    id: 'america-250', label: 'America 250', path: '/exhibitions/america-250',
+    x: 102, y: 230, width: 140, height: 100, accentColor: COLORS.america250,
+    parent: 'ground-floor',
+  },
   comingSoonRoom('victorian', 'Victorian\nBritain', 'ground-floor', { x: 257, y: 230, width: 140, height: 100 }),
 ];
 
@@ -719,6 +724,44 @@ export const MOON: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — America 250 (Floor Plan)
+//
+// Layout: the Exhibition Hall alone (there is no display case)
+// ┌────────────────────────────────┐
+// │                                │
+// │        Exhibition Hall         │
+// │                                │
+// └────────────────────────────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const AMERICA_250_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  accentColor: COLORS.america250,
+  walls: [],
+  rooms: [
+    {
+      id: 'ap-entrance', label: 'Exhibition Hall', path: '/exhibitions/america-250',
+      accentColor: COLORS.america250, parent: 'america-250',
+      x: 40, y: 80, width: 420, height: 200,
+      labelX: 250, labelY: 180,
+    },
+  ],
+};
+
+export const AMERICA_250: MapLevelConfig = {
+  level: 'exhibition',
+  rooms: [],
+  connections: [],
+  title: 'America 250',
+  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
+  ],
+  ...withLessons(AMERICA_250_FLOOR_PLAN, '0 0 500 330', 'america-250'),
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Level resolver
 // ═══════════════════════════════════════════════════════════════════
 
@@ -730,6 +773,7 @@ export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/great-war')) return GREAT_WAR;
   if (pathname.startsWith('/exhibitions/egypt')) return EGYPT;
   if (pathname.startsWith('/exhibitions/moon')) return MOON;
+  if (pathname.startsWith('/exhibitions/america-250')) return AMERICA_250;
   if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
   if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;

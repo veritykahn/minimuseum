@@ -80,7 +80,7 @@ export const GROUND_FLOOR: Floor = {
       darkAccent: '#1a0a0c',
       textColor: '#fff',
       description: 'A rare, unvarnished look at the birth of a nation, blending historical print culture with the human gamble of 1776.',
-      active: false,
+      active: true,
     },
     {
       slug: 'victorian',

@@ -23,7 +23,12 @@ import './poster-fx.css';
  * as it climbs, and the night lifts; on every other panel a soft terminator
  * sweeps across, the panel waxing into the light like a phase of the Moon.
  * Short lines come out a word at a time, like stars, and the starfield
- * behind drifts a little in the direction of travel.
+ * behind drifts a little in the direction of travel. America 250 is a
+ * broadsheet being printed: as each poster opens and at each chapter the
+ * platen of a press comes down on the sheet and lifts, leaving the page
+ * printed; copy inks into the paper, a little soft at first and then crisp,
+ * pictures print up like engravings, and a quill draws the rule under each
+ * section head.
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -32,7 +37,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo' | 'ap';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -88,15 +93,46 @@ function withAmp(text: string) {
   return text.split('&').flatMap((part, i) => (i === 0 ? [part] : [<span key={i} className="pfx-amp">&amp;</span>, part]));
 }
 
-export function FxText({ text, words = false, delay = 0, span = 0.9 }: { text: string; words?: boolean; delay?: number; span?: number }) {
-  if (!words) return <span className="pfx-line">{withAmp(text)}</span>;
+/**
+ * A word with "*…*" emphasis markers, as runs to set in italics. The markers
+ * may open in one word and close in a later one ("*The American Crisis*"),
+ * so the state carries from word to word.
+ */
+function emphasize(words: string[]): React.ReactNode[] {
+  let em = false;
+  return words.map((word, wi) => {
+    const pieces = word.split('*');
+    const out: React.ReactNode[] = [];
+    pieces.forEach((piece, pi) => {
+      if (pi > 0) em = !em;
+      if (piece) out.push(em ? <em key={`${wi}-${pi}`}>{withAmp(piece)}</em> : <span key={`${wi}-${pi}`}>{withAmp(piece)}</span>);
+    });
+    return out;
+  });
+}
+
+export function FxText({ text, words = false, delay = 0, span = 0.9, emphasis = false }: { text: string; words?: boolean; delay?: number; span?: number; emphasis?: boolean }) {
   const parts = text.trim().split(/\s+/);
+  const runs = emphasis ? emphasize(parts) : parts.map(withAmp);
+  if (!words) {
+    if (!emphasis) return <span className="pfx-line">{withAmp(text)}</span>;
+    return (
+      <span className="pfx-line">
+        {runs.map((r, i) => (
+          <span key={i}>
+            {r}
+            {i < runs.length - 1 ? ' ' : null}
+          </span>
+        ))}
+      </span>
+    );
+  }
   const per = Math.min(0.055, span / Math.max(parts.length, 1));
   return (
     <span className="pfx-line pfx-words">
       {parts.map((w, i) => (
         <span key={i}>
-          <span className="pfx-w" style={{ '--d': `${(delay + i * per).toFixed(3)}s` } as CssVars}>{withAmp(w)}</span>
+          <span className="pfx-w" style={{ '--d': `${(delay + i * per).toFixed(3)}s` } as CssVars}>{runs[i]}</span>
           {i < parts.length - 1 ? ' ' : null}
         </span>
       ))}
@@ -152,6 +188,14 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
       <div className="pfx-veil pfx-mo-phase" aria-hidden="true" />
     ) : (
       <div className={`pfx-veil pfx-mo-rise is-${kind}`} aria-hidden="true">
+        <i />
+      </div>
+    );
+  }
+  if (theme === 'ap') {
+    // The press: a blank sheet, the platen coming down on it, and lifting.
+    return (
+      <div className={`pfx-veil pfx-ap-press is-${kind}`} aria-hidden="true">
         <i />
       </div>
     );
