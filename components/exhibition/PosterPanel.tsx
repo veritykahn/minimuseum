@@ -31,10 +31,20 @@ export type PanelProps<T extends PosterItem = PosterItem> = {
 
 type Renderers = { [T in PosterItemType]: (props: PanelProps<Extract<PosterItem, { type: T }>>) => ReactNode };
 
-/** Copy that takes part in the reveal when the exhibition reveals all text. */
+/** Short copy with "*…*" set in italics: a credit, a caption, a citation. */
+function Emph({ text }: { text: string }) {
+  return (
+    <>
+      {emphasisRuns(text).map((r, i) => (r.em ? <em key={i}>{r.text}</em> : <span key={i}>{r.text}</span>))}
+    </>
+  );
+}
+
+/** Copy that takes part in the reveal when the exhibition reveals all text. "*…*" is set in italics. */
 function RevealText({ text, kind, on }: { text: string; kind: FxKind; on: boolean }) {
-  if (!on) return <>{text}</>;
-  return <FxText text={text} words={kind === 'statement' || kind === 'quote'} />;
+  const emphasis = text.includes('*');
+  if (!on) return emphasis ? <Emph text={text} /> : <>{text}</>;
+  return <FxText text={text} words={kind === 'statement' || kind === 'quote'} emphasis={emphasis} />;
 }
 
 const PANEL_RENDERERS: Renderers = {
@@ -52,9 +62,9 @@ const PANEL_RENDERERS: Renderers = {
             {figure.credit && (
               <figcaption className="pe-figure-credit">
                 {figure.credit.href ? (
-                  <a href={figure.credit.href} target="_blank" rel="noopener noreferrer">{figure.credit.text}</a>
+                  <a href={figure.credit.href} target="_blank" rel="noopener noreferrer"><Emph text={figure.credit.text} /></a>
                 ) : (
-                  figure.credit.text
+                  <Emph text={figure.credit.text} />
                 )}
               </figcaption>
             )}
@@ -107,6 +117,7 @@ const PANEL_RENDERERS: Renderers = {
         {item.kicker && <span className="pe-title-kicker pfx-line">{item.kicker}</span>}
         <FxText text={item.text} />
       </h2>
+      {item.subtitle && <p className="pe-title-subtitle pfx-fg">{item.subtitle}</p>}
       {item.badge && (
         <p className="pe-badge pfx-fg">
           <span className="pe-badge-text">
@@ -123,7 +134,11 @@ const PANEL_RENDERERS: Renderers = {
       <img src={item.src} alt={item.alt} />
       {item.text && (
         <span className="pe-image-caption" style={{ color: colors.text }}>
-          {item.text}
+          {item.href ? (
+            <a href={item.href} target="_blank" rel="noopener noreferrer"><Emph text={item.text} /></a>
+          ) : (
+            <Emph text={item.text} />
+          )}
         </span>
       )}
     </div>
@@ -132,7 +147,7 @@ const PANEL_RENDERERS: Renderers = {
   quote: ({ config, poster, item, colors }) => {
     const all = config.fx.text === 'all';
     return (
-      <div className={`pe-text-content-wrapper pe-pos-center ${panelClasses(poster, item)}`}>
+      <div className={`pe-text-content-wrapper pe-pos-center ${item.cite ? 'pe-has-cite' : ''} ${panelClasses(poster, item)}`}>
         <blockquote
           className={`pe-quote-text ${all ? '' : effectClass(item.effect)}`}
           style={{ color: colors.title, borderColor: poster.colors.quoteRule ?? colors.title }}
@@ -140,6 +155,11 @@ const PANEL_RENDERERS: Renderers = {
         >
           <RevealText text={item.text} kind="quote" on={all} />
         </blockquote>
+        {item.cite && (
+          <p className="pe-quote-cite pfx-fg" style={{ color: colors.text }}>
+            <Emph text={item.cite} />
+          </p>
+        )}
       </div>
     );
   },

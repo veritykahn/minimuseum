@@ -92,7 +92,7 @@ export type PanelFigure = {
   alt: string;
   /** Which side of the copy it sits on (on a phone, above it). Defaults to 'left'. */
   side?: 'left' | 'right';
-  /** The picture's credit as its owner specifies it, linked to the source record. */
+  /** The picture's credit as its owner specifies it, linked to the source record. *Title* is set in italics. */
   credit?: { text: string; href?: string };
 };
 
@@ -101,6 +101,7 @@ export type PanelSource = { text: string; href: string };
 
 export type ParagraphItem = PanelBase & {
   type: 'paragraph';
+  /** The copy. *word* is set in italics, as the posters set a title or a stressed word. */
   text: string;
   position?: PanelPosition;
   effect?: PanelEffect;
@@ -136,20 +137,27 @@ export type TitleTextItem = PanelBase & {
   text: string;
   kicker?: string;
   badge?: string;
+  /** A lighter line set under the title, as a poster sets its subtitle. */
+  subtitle?: string;
 };
 
 export type FullImageItem = PanelBase & {
   type: 'full-image';
   src: string;
   alt: string;
-  /** A caption under the picture. */
+  /** A caption under the picture, such as its credit. *Title* is set in italics. */
   text?: string;
+  /** Where the caption links: the picture's source record. */
+  href?: string;
   effect?: PanelEffect;
 };
 
 export type QuoteItem = PanelBase & {
   type: 'quote';
+  /** The quotation. *word* is set in italics. */
   text: string;
+  /** Who said or wrote it, set under the quote ("— Benjamin Franklin"). *Title* is set in italics. */
+  cite?: string;
   effect?: PanelEffect;
 };
 

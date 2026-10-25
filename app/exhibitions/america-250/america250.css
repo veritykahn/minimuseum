@@ -1,0 +1,270 @@
+/* ==========================================================================
+   America 250's own look, on top of components/exhibition. The posters set
+   it, like a broadsheet: cream paper in a deep border (slate blue-grey for
+   "Before it was Sacred", rust for "We Shall All Hang Together") with a thin
+   ink line inside it; the titles in a huge flowing script (Allison); a thin
+   light sans for subtitles (IBM Plex Sans); and Caslon, the face of the
+   1776 broadsides, for the small bold section heads, the copy and the large
+   centered pull quotes (Libre Caslon Text).
+   ========================================================================== */
+
+[data-exhibition='america-250'] {
+  --ap-paper: #f8f6f0;
+  --ap-ink: #2a2724;
+  --ap-muted: #5e5850;
+  --ap-slate: #56656f;
+  --ap-rust: #a84f33;
+  --ap-script: 'Allison', 'Snell Roundhand', cursive;
+  /* The border, and the frame's color: slate, or rust on poster 2. */
+  --ap-fw: clamp(10px, 2.2vw, 30px);
+  --ap-frame: var(--ap-slate);
+  --pe-nav-m: var(--ap-ink);
+  --pe-nav-ink: var(--ap-muted);
+  --pe-hint: var(--ap-muted);
+  --pe-callout-bg: transparent;
+  --pe-callout-ink: var(--ap-ink);
+  --pe-poster-h: 52vh;
+  color: var(--ap-ink);
+}
+[data-exhibition='america-250']:has(.ap-p2) { --ap-frame: var(--ap-rust); }
+
+/* ───────── The sheet: a deep border with a thin ink line inside it, and the
+   paper a touch warmer at its edges ───────── */
+[data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content) { position: relative; }
+[data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content)::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 75% 70% at 50% 45%, transparent 55%, rgba(150, 120, 70, 0.1) 100%);
+}
+[data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  border: var(--ap-fw) solid var(--ap-frame);
+  box-shadow: inset 0 0 0 1.5px rgba(26, 24, 22, 0.85);
+  transition: border-color 0.5s ease;
+}
+/* The landing page sets both posters' colors: slate frame, rust subtitle. */
+[data-exhibition='america-250'] .pe-exhibition-main::after { border-color: var(--ap-slate); }
+[data-exhibition='america-250'] .pe-exhibition-main > * { position: relative; z-index: 1; }
+/* The arrows and the corner link stand inside the border. */
+[data-exhibition='america-250'] .pe-walkthrough-nav { bottom: calc(var(--ap-fw) + 14px); }
+[data-exhibition='america-250'] .pe-nav-left { left: calc(var(--ap-fw) + 18px); top: calc(var(--ap-fw) + 14px); }
+
+/* ───────── Landing page ───────── */
+[data-exhibition='america-250'] .pe-exhibition-main { padding-top: 100px; padding-bottom: 72px; gap: 28px; }
+[data-exhibition='america-250'] .pe-exhibition-title h1 {
+  font-family: var(--ap-script);
+  font-weight: 400;
+  font-size: clamp(5.4rem, 17vw, 11rem);
+  line-height: 0.9;
+  margin-bottom: 0;
+  color: var(--ap-slate);
+}
+[data-exhibition='america-250'] .pe-exhibition-title p {
+  font-family: var(--pe-ui);
+  font-weight: 200;
+  font-size: clamp(1.2rem, 3vw, 1.9rem);
+  letter-spacing: 0.01em;
+  color: var(--ap-rust);
+}
+[data-exhibition='america-250'] .pe-exhibition-grid { gap: clamp(28px, 4vw, 56px); }
+[data-exhibition='america-250'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(60, 45, 25, 0.12), 0 22px 50px rgba(60, 45, 25, 0.22); }
+[data-exhibition='america-250'] .pe-poster-hint { color: var(--ap-muted); }
+
+/* ───────── Title cards: the script, very large, and the thin sans under it ───────── */
+[data-exhibition='america-250'] .ap-title.pe-title-card { gap: clamp(8px, 2vh, 20px); padding-left: 6vw; padding-right: 6vw; }
+[data-exhibition='america-250'] .ap-title .pe-title-text {
+  font-family: var(--ap-script);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: clamp(4.6rem, 13.5vw, 12rem);
+  line-height: 1;
+  max-width: 9em;
+  text-wrap: balance;
+}
+[data-exhibition='america-250'] .ap-title .pe-title-subtitle {
+  font-weight: 200;
+  font-size: clamp(1.15rem, 2.7vw, 2.1rem);
+  line-height: 1.25;
+  max-width: 30em;
+  color: var(--ap-muted);
+}
+
+/* ───────── Section heads: small, bold Caslon, with a quill rule under them ───────── */
+[data-exhibition='america-250'] .ap-head .pe-section-title-text {
+  font-family: var(--pe-body);
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: 0.005em;
+  font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1.15;
+  max-width: 16em;
+  text-wrap: balance;
+}
+[data-exhibition='america-250'] .ap-head .pe-section-title-text::after {
+  content: '';
+  display: block;
+  width: min(4.2em, 70%);
+  height: 3px;
+  margin: 0.5em auto 0;
+  border-radius: 50%;
+  /* A pen stroke: thin at the ends, full in the middle. */
+  background: linear-gradient(90deg, transparent, var(--ap-frame) 12%, var(--ap-frame) 80%, transparent);
+}
+
+/* ───────── Copy: Caslon, justified like the posters' columns ───────── */
+[data-exhibition='america-250'] .ap-copy .pe-paragraph-text {
+  font-weight: 400;
+  font-size: clamp(1.1rem, 2.1vw, 1.38rem);
+  line-height: 1.72;
+  max-width: 34em;
+  text-align: justify;
+  hyphens: auto;
+  text-wrap: pretty;
+}
+[data-exhibition='america-250'] .ap-copy .pe-paragraph-text em { font-style: italic; }
+/* A detail of the painting, mounted on the page. */
+[data-exhibition='america-250'] .ap-copy .pe-figure img {
+  width: min(32vw, 420px);
+  max-height: 66vh;
+  object-fit: cover;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid rgba(42, 39, 36, 0.35);
+  box-shadow: 0 18px 40px rgba(60, 45, 25, 0.2);
+}
+[data-exhibition='america-250'] .pe-figure-credit {
+  background: none;
+  padding: 0;
+  max-width: min(32vw, 420px);
+  font-weight: 300;
+  color: var(--ap-muted);
+  opacity: 1;
+}
+
+/* ───────── A painting, whole or in detail, with its credit under it ───────── */
+[data-exhibition='america-250'] .ap-picture.pe-full-image {
+  flex-direction: column;
+  gap: 16px;
+  padding: calc(var(--ap-fw) + 64px) 6vw calc(var(--ap-fw) + 92px);
+}
+[data-exhibition='america-250'] .ap-picture.pe-full-image img {
+  max-width: 100%;
+  max-height: calc(100% - 3.2em);
+  min-height: 0;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid rgba(42, 39, 36, 0.35);
+  box-shadow: 0 2px 4px rgba(60, 45, 25, 0.1), 0 24px 60px rgba(60, 45, 25, 0.24);
+}
+[data-exhibition='america-250'] .ap-picture .pe-image-caption {
+  position: static;
+  transform: none;
+  white-space: normal;
+  max-width: 60em;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  color: var(--ap-muted) !important;
+  opacity: 1;
+}
+
+/* ───────── Pull quotes: large, centered Caslon, in the frame's color ───────── */
+[data-exhibition='america-250'] .ap-quote .pe-quote-text {
+  font-family: var(--pe-body);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 4.2vw, 3rem);
+  line-height: 1.32;
+  max-width: 20em;
+  padding: 0;
+  border: 0;
+  text-align: center;
+  text-wrap: balance;
+}
+[data-exhibition='america-250'] .ap-quote .pe-quote-cite {
+  font-weight: 300;
+  font-size: clamp(1rem, 1.9vw, 1.25rem);
+  text-align: center;
+  color: var(--ap-muted) !important;
+  opacity: 1;
+}
+[data-exhibition='america-250'] .ap-epigraph .pe-quote-text { font-size: clamp(1.6rem, 3.8vw, 2.7rem); }
+
+/* ───────── The links out: a broadsheet box, ruled twice ───────── */
+[data-exhibition='america-250'] .ap-link .pe-callout {
+  border: 1px solid var(--ap-ink);
+  outline: 1px solid var(--ap-ink);
+  outline-offset: 5px;
+  max-width: min(880px, 100%);
+  padding: 26px 40px;
+}
+[data-exhibition='america-250'] .ap-link .pe-callout-text { text-wrap: balance; }
+[data-exhibition='america-250'] .ap-link .pe-callout-text {
+  font-family: var(--pe-body);
+  text-transform: none;
+  font-size: clamp(1.25rem, 2.8vw, 1.9rem);
+}
+[data-exhibition='america-250'] .ap-link a.pe-callout:hover,
+[data-exhibition='america-250'] .ap-link a.pe-callout:focus-visible { outline: 2px solid var(--ap-frame); }
+[data-exhibition='america-250'] .ap-link a.pe-callout:hover .pe-callout-text,
+[data-exhibition='america-250'] .ap-link a.pe-callout:focus-visible .pe-callout-text { color: var(--ap-frame); }
+[data-exhibition='america-250'] .pe-content-end:hover { color: var(--ap-paper) !important; background: var(--ap-frame); border-color: var(--ap-frame) !important; }
+
+/* ───────── The reveal's own strokes (the press itself is in poster-fx.css) ───────── */
+/* The titles are written in with the pen, left to right… */
+[data-exhibition='america-250'] .pfx-ap .ap-title .pe-title-text > .pfx-line {
+  animation: apWrite 2.2s 0.9s cubic-bezier(0.55, 0, 0.35, 1) backwards;
+}
+@keyframes apWrite {
+  from { clip-path: inset(-30% 100% -30% -10%); }
+  to { clip-path: inset(-30% -10% -30% -10%); }
+}
+/* …and a quill draws the rule under each section head. */
+[data-exhibition='america-250'] .pfx-ap .ap-head .pe-section-title-text::after {
+  animation: apRule 1.3s 1.5s cubic-bezier(0.6, 0, 0.3, 1) backwards;
+}
+@keyframes apRule {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+
+/* ───────── The classroom screen ───────── */
+[data-exhibition='america-250'] .pjp-stage { --ap-fw: calc(var(--pjp-u) * 1.2); }
+[data-exhibition='america-250'] .pjp-stage .ap-title .pe-title-text { font-size: calc(var(--pjp-u) * 10); }
+[data-exhibition='america-250'] .pjp-stage .ap-title .pe-title-subtitle { font-size: calc(var(--pjp-u) * 2.2); }
+[data-exhibition='america-250'] .pjp-stage .ap-head .pe-section-title-text { font-size: calc(var(--pjp-u) * 4.4); max-width: 18em; }
+[data-exhibition='america-250'] .pjp-stage .ap-quote .pe-quote-text { padding: 0; }
+[data-exhibition='america-250'] .pjp-stage .ap-quote .pe-quote-cite { font-size: calc(var(--pjp-u) * 1.5); }
+[data-exhibition='america-250'] .pjp-stage .ap-copy .pe-paragraph-text { text-align: left; hyphens: manual; }
+[data-exhibition='america-250'] .pjp-stage .ap-copy .pe-figure img { width: auto; max-width: calc(var(--pjp-u) * 32); max-height: calc(var(--pjp-u) * 36); }
+[data-exhibition='america-250'] .pjp-stage .pe-figure-credit { font-size: calc(var(--pjp-u) * 0.85); max-width: calc(var(--pjp-u) * 32); }
+[data-exhibition='america-250'] .pjp-stage .ap-picture.pe-full-image { padding: calc(var(--pjp-u) * 3) calc(var(--pjp-u) * 4) calc(var(--pjp-u) * 6); gap: calc(var(--pjp-u) * 0.8); }
+[data-exhibition='america-250'] .pjp-stage .ap-picture .pe-image-caption { font-size: calc(var(--pjp-u) * 0.95); width: auto; }
+[data-exhibition='america-250'] .pjp-stage .ap-picture.pe-full-image img { max-height: calc(100% - var(--pjp-u) * 3); }
+[data-exhibition='america-250'] .pjp-stage .ap-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
+
+@media (max-width: 900px) {
+  [data-exhibition='america-250'] { --pe-poster-h: 46vh; }
+  [data-exhibition='america-250'] .ap-copy .pe-figure img,
+  [data-exhibition='america-250'] .pe-figure-credit { width: min(70vw, 340px); max-width: min(70vw, 340px); }
+  [data-exhibition='america-250'] .ap-copy .pe-figure img { max-height: 40vh; }
+}
+@media (max-width: 700px) {
+  /* Justified copy makes rivers at a phone's measure. */
+  [data-exhibition='america-250'] .ap-copy .pe-paragraph-text { text-align: left; hyphens: manual; }
+  [data-exhibition='america-250'] .ap-link .pe-callout { padding: 22px 20px; }
+  /* The script is light: on a phone it takes two lines and the full measure. */
+  [data-exhibition='america-250'] .ap-title .pe-title-text { font-size: 21vw; }
+  [data-exhibition='america-250'] .ap-picture.pe-full-image { padding-left: 24px; padding-right: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-exhibition='america-250'] .pfx-ap .ap-head .pe-section-title-text::after { animation: none; }
+  [data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content)::after { transition: none; }
+}
