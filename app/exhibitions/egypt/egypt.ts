@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
+import { floorReturnFor } from '@/lib/floors';
 
 /*
  * Ancient Egypt: every word on screen, and the look.
@@ -83,11 +84,7 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
     accent: ORANGE,
     teach: { color: ORANGE, border: 'rgba(240,74,26,0.55)' },
   },
-  back: {
-    href: '/exhibitions/ground-floor',
-    label: 'Ground Floor',
-    remember: { key: 'groundFloorIndex', value: '1' },
-  },
+  back: floorReturnFor('egypt'),
   fx: { theme: 'eg', veil: 'chapters', text: 'all' },
   projector: { theme: EGYPT_PROJECTOR_THEME, links: [] },
   cases: [

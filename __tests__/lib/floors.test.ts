@@ -3,6 +3,7 @@ import { getLevelConfig, MUSEUM_OVERVIEW } from '@/components/museum-map/data/le
 import { getRoomByPath, isRoomCurrent } from '@/components/museum-map/data/rooms';
 import { FEAR_LAB } from '@/app/exhibitions/fear-lab/fearLab';
 import { GREAT_WAR } from '@/app/exhibitions/great-war/greatWar';
+import { EGYPT } from '@/app/exhibitions/egypt/egypt';
 
 const slugs = (floor: typeof GROUND_FLOOR) => floor.exhibitions.map((e) => e.slug);
 
@@ -20,7 +21,7 @@ describe('the floors, by theme', () => {
 
   it('opens only the built exhibitions', () => {
     const open = FLOORS.flatMap((f) => f.exhibitions.filter((e) => e.active).map((e) => e.slug));
-    expect(open.sort()).toEqual(['fear-lab', 'great-war', 'harlem-renaissance', 'in-their-hands', 'seeing-is-deceiving']);
+    expect(open.sort()).toEqual(['egypt', 'fear-lab', 'great-war', 'harlem-renaissance', 'in-their-hands', 'seeing-is-deceiving']);
   });
 
   it('sends each exhibition back to its own floor, at its own card', () => {
@@ -29,6 +30,7 @@ describe('the floors, by theme', () => {
     });
     expect(floorReturnFor('seeing-is-deceiving').remember).toEqual({ key: 'firstFloorIndex', value: '6' });
     expect(FEAR_LAB.back).toEqual(floorReturnFor('fear-lab'));
+    expect(EGYPT.back).toEqual({ href: '/exhibitions/ground-floor', label: 'Ground Floor', remember: { key: 'groundFloorIndex', value: '1' } });
     expect(GREAT_WAR.back).toEqual({
       href: '/exhibitions/first-floor', label: 'First Floor', remember: { key: 'firstFloorIndex', value: '0' },
     });
