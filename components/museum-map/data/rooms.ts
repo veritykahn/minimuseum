@@ -12,6 +12,7 @@ const EXHIBITION_ACCENTS: Record<string, string> = {
   moon: '#A88BEB',
   'america-250': '#56656F',
   victorian: '#D9B7B8',
+  'womens-history': '#F2661F',
 };
 
 /** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
@@ -182,6 +183,23 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#D9B7B8',
     parent: 'victorian',
+  },
+  {
+    id: 'womens-history',
+    label: "Women's History Month",
+    path: '/exhibitions/womens-history',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#F2661F',
+    parent: 'first-floor',
+    children: ['wh-case', ...lessonsChild('womens-history')],
+  },
+  {
+    id: 'wh-case',
+    label: 'Display Case',
+    path: '/exhibitions/womens-history/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#F2661F',
+    parent: 'womens-history',
   },
   {
     id: 'egypt',

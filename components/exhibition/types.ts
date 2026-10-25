@@ -103,6 +103,12 @@ export type ParagraphItem = PanelBase & {
   type: 'paragraph';
   /** The copy. *word* is set in italics, as the posters set a title or a stressed word. */
   text: string;
+  /**
+   * Opening words set in bold before the copy, as a poster sets the start of
+   * its first sentence ("Women's History Month, celebrated every March,").
+   * Read as part of the paragraph: lead + ' ' + text.
+   */
+  lead?: string;
   position?: PanelPosition;
   effect?: PanelEffect;
   figure?: PanelFigure;
@@ -139,6 +145,19 @@ export type TitleTextItem = PanelBase & {
   badge?: string;
   /** A lighter line set under the title, as a poster sets its subtitle. */
   subtitle?: string;
+  /** A further short line under the subtitle, as a poster sets a pair of dates. */
+  note?: string;
+  /**
+   * The title as the poster sets it, line by line ("WO", "MEN", "'S"), for
+   * the exhibition's stylesheet to stack. Drawn for the eye; `kicker` and
+   * `text` are what is read.
+   */
+  lines?: string[];
+  /**
+   * Lettering cut from the poster, drawn in place of the typeset title; the
+   * title is still read as `text`.
+   */
+  lettering?: { src: string; width: number; height: number };
 };
 
 export type FullImageItem = PanelBase & {
