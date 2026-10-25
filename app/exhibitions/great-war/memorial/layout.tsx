@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = 'Eleven American servicemen of the Great War, a field of poppies placed by visitors, and two minutes’ silence at 11:00.';
+const description = 'A memorial card for one American who fell in the Great War, eleven servicemen’s stories, a field of poppies placed by visitors, and two minutes’ silence at 11:00.';
 
 export const metadata: Metadata = {
   title: 'The Memorial | The Great War | The Mini Museum',

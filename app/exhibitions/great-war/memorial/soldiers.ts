@@ -316,6 +316,9 @@ export const SOLDIERS: Soldier[] = [
 /** The memorial's words that are not about one soldier. */
 export const MEMORIAL_TEXT = {
   title: 'The Memorial',
+  rememberHeading: 'Remember a soldier',
+  rememberIntro:
+    'At the installation, visitors took a printed card for one American who died in the war. Draw one here, from the records of the American Battle Monuments Commission, and keep it.',
   intro: 'Eleven American servicemen of the Great War, on cards like the take-away cards at the installation. Turn a card to read his story.',
   cardsHeading: 'Soldier cards',
   poppyHeading: 'Place a poppy',
