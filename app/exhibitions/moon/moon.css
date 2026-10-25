@@ -1,0 +1,277 @@
+/* ==========================================================================
+   Our Incredible Moon's own look, on top of components/exhibition. The
+   posters set it: a violet-to-indigo night with a soft starfield, a lavender
+   moon, white type, and poster 2's pink and aqua.
+     Turret Road     "Our Incredible": thin, angular, segmented
+     League Spartan  "Moon": a heavy geometric sans
+     Silkscreen      "Another Earth": blocky pixel capitals, pink and white
+     Jost            the copy: a light geometric sans, set in widely spaced
+                     capitals on poster 1 and right-aligned on poster 2
+   ========================================================================== */
+
+[data-exhibition='moon'] {
+  --mo-thin: 'Turret Road', 'Eurostile', system-ui, sans-serif;
+  --mo-heavy: 'League Spartan', 'Futura', system-ui, sans-serif;
+  --mo-pixel: 'Silkscreen', 'Courier New', monospace;
+  --mo-lavender: #b9a6e6;
+  --mo-pink: #f28be8;
+  --mo-aqua: #7fe8e8;
+  --mo-sky: linear-gradient(180deg, #221b3b 0%, #2a2245 38%, #3f2f73 78%, #4c3788 100%);
+  /* A soft starfield: tiles of small points of light at different sizes. */
+  --mo-stars-near:
+    radial-gradient(1.5px 1.5px at 22px 38px, rgba(255, 255, 255, 0.85), transparent),
+    radial-gradient(1px 1px at 140px 92px, rgba(255, 255, 255, 0.7), transparent),
+    radial-gradient(1.5px 1.5px at 260px 180px, rgba(220, 210, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 78px 240px, rgba(255, 255, 255, 0.6), transparent),
+    radial-gradient(2px 2px at 300px 30px, rgba(242, 139, 232, 0.55), transparent);
+  --mo-stars-far:
+    radial-gradient(1px 1px at 12px 60px, rgba(255, 255, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 96px 14px, rgba(255, 255, 255, 0.4), transparent),
+    radial-gradient(1px 1px at 170px 130px, rgba(200, 230, 255, 0.45), transparent),
+    radial-gradient(1px 1px at 50px 170px, rgba(255, 255, 255, 0.35), transparent),
+    radial-gradient(1px 1px at 190px 40px, rgba(127, 232, 232, 0.4), transparent);
+  --pe-nav-m: #c9c0e3;
+  --pe-nav-ink: #c9c0e3;
+  --pe-hint: #c9c0e3;
+  --pe-callout-bg: transparent;
+  --pe-callout-ink: #ffffff;
+  --pe-case-ink: #f3f0fa;
+  --pe-case-muted: #c9c0e3;
+  --pe-poster-h: 54vh;
+  color: #f3f0fa;
+}
+
+/* The night sky behind the landing page and the case page. (The root's own
+   background color is set inline; the sky and its stars are laid over it.) */
+.pe-root[data-exhibition='moon'] {
+  background-image: var(--mo-stars-near), var(--mo-stars-far), var(--mo-sky) !important;
+  /* Five tiles of near stars, five of far ones, then the sky. */
+  background-size: 340px 280px, 340px 280px, 340px 280px, 340px 280px, 340px 280px, 220px 200px, 220px 200px, 220px 200px, 220px 200px, 220px 200px, 100% 100% !important;
+  background-attachment: fixed;
+}
+
+/* ───────── Landing page ───────── */
+[data-exhibition='moon'] .pe-exhibition-title h1 {
+  font-family: var(--mo-thin);
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: clamp(2.2rem, 7vw, 4.6rem);
+  margin-bottom: 6px;
+}
+[data-exhibition='moon'] .pe-exhibition-title p {
+  font-family: var(--pe-body);
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.42em;
+  font-size: clamp(0.95rem, 2.2vw, 1.2rem);
+  color: var(--mo-lavender);
+}
+[data-exhibition='moon'] .pe-exhibition-grid { gap: 40px; }
+[data-exhibition='moon'] .pe-poster-frame img {
+  border-radius: 6px;
+  box-shadow: 0 24px 70px rgba(10, 6, 24, 0.7), 0 0 60px rgba(185, 166, 230, 0.16);
+}
+/* The case as a round window on the night: a lavender ring, like a moon. */
+[data-exhibition='moon'] .pe-display-case {
+  background: rgba(24, 18, 44, 0.75);
+  border: 1px solid rgba(185, 166, 230, 0.45);
+  border-radius: 24px;
+  width: auto;
+  max-width: 340px;
+  padding: 22px 18px 20px;
+  box-shadow: 0 0 50px rgba(185, 166, 230, 0.12);
+}
+[data-exhibition='moon'] .pe-display-case:hover,
+[data-exhibition='moon'] .pe-display-case:focus-visible { border-color: var(--mo-aqua); }
+[data-exhibition='moon'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; border-radius: 14px; }
+[data-exhibition='moon'] .pe-case-label { color: #c9c0e3; }
+[data-exhibition='moon'] .pe-case-title { font-family: var(--mo-heavy); font-weight: 700; color: #fff; font-size: 24px; letter-spacing: 0.04em; text-transform: uppercase; }
+[data-exhibition='moon'] .pe-case-subtitle { font-style: normal; font-weight: 300; color: var(--mo-lavender); }
+
+/* ───────── The walkthrough: a night sky, its stars drifting a little ───────── */
+[data-exhibition='moon'] .pe-poster-walkthrough {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--pfx-bg) 85%, #120d24) 0%, var(--pfx-bg) 45%, #4c3788 100%);
+}
+[data-exhibition='moon'] .pe-poster-walkthrough::before,
+[data-exhibition='moon'] .pe-poster-walkthrough::after {
+  content: '';
+  position: absolute;
+  inset: -4vw;
+  z-index: 0;
+  pointer-events: none;
+}
+/* Two layers that settle at different rates: the parallax. */
+[data-exhibition='moon'] .pe-poster-walkthrough::before {
+  background-image: var(--mo-stars-near);
+  background-size: 340px 280px;
+  transition: translate 3.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-exhibition='moon'] .pe-poster-walkthrough::after {
+  background-image: var(--mo-stars-far);
+  background-size: 220px 200px;
+  transition: translate 4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+[data-exhibition='moon'] .pe-poster-walkthrough:not([data-entered])::before { translate: calc(var(--pfx-dir, 1) * 1.8vw) 0; }
+[data-exhibition='moon'] .pe-poster-walkthrough:not([data-entered])::after { translate: calc(var(--pfx-dir, 1) * 0.7vw) 0; }
+
+/* ───────── Titles ───────── */
+[data-exhibition='moon'] .pe-title-text { max-width: none; }
+
+/* Poster 1: "Our / Incredible" thin and spaced, one word a line; "Moon" huge and heavy. */
+[data-exhibition='moon'] .mo-title .pe-title-kicker {
+  font-family: var(--mo-thin);
+  font-weight: 300;
+  letter-spacing: 0.16em;
+  font-size: 0.3em;
+  line-height: 1.25;
+  width: min-content;
+  margin: 0 auto 0.1em;
+}
+[data-exhibition='moon'] .mo-title .pe-title-text > .pfx-line:not(.pe-title-kicker) {
+  font-family: var(--mo-heavy);
+  font-weight: 800;
+  font-size: clamp(6rem, 24vw, 19rem);
+  line-height: 0.9;
+  letter-spacing: 0.01em;
+  text-shadow: 0 6px 40px rgba(18, 13, 36, 0.45);
+}
+[data-exhibition='moon'] .mo-title .pe-title-text { font-size: clamp(4rem, 13vw, 11rem); }
+
+/* Poster 2: "Another Earth" in blocky pixel capitals, pink, then white. */
+[data-exhibition='moon'] .mo-earth .pe-title-text {
+  font-family: var(--mo-pixel);
+  font-size: clamp(3.6rem, 13vw, 10.5rem);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-align: left;
+}
+[data-exhibition='moon'] .mo-earth .pe-title-kicker { font-size: 1em; line-height: 1; margin-bottom: 0.08em; }
+[data-exhibition='moon'] .mo-earth .pe-title-text > .pfx-line:not(.pe-title-kicker) { color: #fff; }
+
+/* ───────── Pictures cut from the posters ───────── */
+[data-exhibition='moon'] .pe-decor { z-index: 1; }
+/* The rising moon, under "Moon", its edges melting into the sky. */
+[data-exhibition='moon'] .pe-decor[src$='moonrise.jpg'] {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent), linear-gradient(180deg, transparent, #000 34%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent), linear-gradient(180deg, transparent, #000 34%);
+  mask-composite: intersect;
+  opacity: 0.9;
+}
+/* The ringed planet, high on the left, as on poster 2. */
+[data-exhibition='moon'] .pe-decor[src$='ringed-planet.jpg'] {
+  top: 6vh;
+  left: 3vw;
+  /* Just the planet's disc: the poster's sky around it is a lighter violet. */
+  -webkit-mask-image: radial-gradient(ellipse 37% 47% at 38% 50%, #000 90%, transparent 100%);
+  mask-image: radial-gradient(ellipse 37% 47% at 38% 50%, #000 90%, transparent 100%);
+  animation: moFloat 3.4s 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+@keyframes moFloat {
+  from { opacity: 0; translate: -2vw 2vh; }
+}
+/* The alien landscape with its three moons, along the foot of the last panel. */
+[data-exhibition='moon'] .pe-decor[src$='three-moons.jpg'] {
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 10%);
+  mask-image: linear-gradient(180deg, transparent, #000 10%);
+}
+[data-exhibition='moon'] .pe-decor-rise { animation-duration: 3.2s; animation-delay: 0.4s; }
+
+/* ───────── Copy ───────── */
+/* Poster 1: light capitals, widely spaced and justified, in the poster's
+   translucent boxes. The words are stored in sentence case. */
+[data-exhibition='moon'] .mo-caps .pe-paragraph-text {
+  text-transform: uppercase;
+  font-weight: 300;
+  letter-spacing: 0.2em;
+  font-size: clamp(1rem, 1.9vw, 1.3rem);
+  line-height: 1.8;
+  text-align: justify;
+  max-width: 860px;
+  padding: clamp(24px, 3vw, 40px) clamp(24px, 3.4vw, 48px);
+  border-radius: 10px;
+  background: rgba(34, 27, 59, 0.6);
+  box-shadow: 0 0 0 1px rgba(185, 166, 230, 0.16);
+}
+/* Poster 2: mixed case, right-aligned, on the right of the panel. */
+[data-exhibition='moon'] .mo-right {
+  justify-content: flex-end;
+  text-align: right;
+  padding-right: 10vw;
+  padding-left: 22vw;
+}
+[data-exhibition='moon'] .mo-right .pe-paragraph-text {
+  font-weight: 300;
+  font-size: clamp(1.15rem, 2.4vw, 1.6rem);
+  line-height: 1.6;
+  max-width: 680px;
+}
+/* The last panel leaves room for the landscape beneath it. */
+[data-exhibition='moon'] .mo-landscape { align-items: flex-start; padding-top: 22vh; }
+
+/* ───────── The links out: the posters' rounded callout ───────── */
+[data-exhibition='moon'] .pe-callout {
+  border: 1.5px solid var(--mo-lavender);
+  border-radius: 999px;
+  padding: 22px 44px;
+  box-shadow: 0 0 40px rgba(185, 166, 230, 0.2);
+}
+[data-exhibition='moon'] .pe-callout-text {
+  font-family: var(--pe-body);
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  font-size: clamp(1rem, 2.2vw, 1.4rem);
+  text-align: center;
+}
+[data-exhibition='moon'] a.pe-callout:hover,
+[data-exhibition='moon'] a.pe-callout:focus-visible { border-color: var(--mo-aqua); outline-color: var(--mo-aqua); }
+[data-exhibition='moon'] .pe-content-end { color: #fff; }
+[data-exhibition='moon'] .pe-content-end:hover { background: var(--mo-lavender); }
+
+/* ───────── The classroom screen ───────── */
+[data-exhibition='moon'] .pjp-stage .mo-title .pe-title-text { font-size: calc(var(--pjp-u) * 8); }
+[data-exhibition='moon'] .pjp-stage .mo-title .pe-title-text > .pfx-line:not(.pe-title-kicker) { font-size: calc(var(--pjp-u) * 17); }
+[data-exhibition='moon'] .pjp-stage .mo-earth .pe-title-text { font-size: calc(var(--pjp-u) * 9); }
+[data-exhibition='moon'] .pjp-stage .mo-right { padding-right: calc(var(--pjp-u) * 7); padding-left: calc(var(--pjp-u) * 16); }
+[data-exhibition='moon'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2); }
+
+/* ───────── The display case page ───────── */
+[data-exhibition='moon'] .pe-case-page-title {
+  font-family: var(--mo-thin);
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #fff;
+  font-size: clamp(2.2rem, 7vw, 4.2rem);
+}
+[data-exhibition='moon'] .pe-case-page-subtitle { font-style: normal; font-weight: 300; text-transform: uppercase; letter-spacing: 0.38em; color: var(--mo-lavender); font-size: clamp(0.95rem, 2.2vw, 1.15rem); }
+[data-exhibition='moon'] .pe-case-page-main h2 { font-family: var(--mo-heavy); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+[data-exhibition='moon'] .pe-case-page figure img { border-radius: 8px; }
+[data-exhibition='moon'] .pe-case-page-artifacts li { font-weight: 300; }
+/* Five photographs: the wide one spans two columns, so the rows come out even. */
+[data-exhibition='moon'] .pe-case-page-photo-row { grid-template-columns: repeat(3, 1fr); }
+[data-exhibition='moon'] .pe-case-page-photo-row figure:has(img[width='1150']) { grid-column: span 2; }
+[data-exhibition='moon'] .pe-case-page-photo-row img { height: 100%; object-fit: cover; }
+
+@media (max-width: 900px) {
+  [data-exhibition='moon'] { --pe-poster-h: 44vh; }
+}
+@media (max-width: 768px) {
+  /* On a phone the copy sits plainly; justified capitals open gaps on a narrow line. */
+  [data-exhibition='moon'] .mo-caps .pe-paragraph-text { text-align: left; letter-spacing: 0.12em; padding: 22px 20px; }
+  [data-exhibition='moon'] .mo-right { padding-left: 24px; padding-right: 24px; }
+  [data-exhibition='moon'] .pe-decor[src$='ringed-planet.jpg'] { opacity: 0.6; }
+  [data-exhibition='moon'] .pe-callout { border-radius: 28px; padding: 22px 24px; }
+  [data-exhibition='moon'] .mo-landscape { padding-top: 16vh; }
+  [data-exhibition='moon'] .pe-case-page-photo-row { grid-template-columns: 1fr; }
+  [data-exhibition='moon'] .pe-case-page-photo-row figure:has(img[width='1150']) { grid-column: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-exhibition='moon'] .pe-poster-walkthrough::before,
+  [data-exhibition='moon'] .pe-poster-walkthrough::after {
+    transition: none;
+    translate: none !important;
+  }
+}

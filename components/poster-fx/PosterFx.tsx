@@ -18,7 +18,12 @@ import './poster-fx.css';
  * picture. Ancient Egypt opens through an arch: a doorway of light rises
  * out of the dark, traced by the posters' thin white arches, and widens until
  * the panel stands in it; copy settles like sand, and the gods' names are
- * written in, stroke by stroke.
+ * written in, stroke by stroke. Our Incredible Moon is night: as each poster
+ * opens a lavender moon rises out of the dark, waxing from a crescent to full
+ * as it climbs, and the night lifts; on every other panel a soft terminator
+ * sweeps across, the panel waxing into the light like a phase of the Moon.
+ * Short lines come out a word at a time, like stars, and the starfield
+ * behind drifts a little in the direction of travel.
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -27,7 +32,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -137,6 +142,16 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
   if (theme === 'gw') {
     return (
       <div className={`pfx-veil pfx-gw-hush is-${kind}`} aria-hidden="true">
+        <i />
+      </div>
+    );
+  }
+  if (theme === 'mo') {
+    // Titles and pictures: a moonrise. Copy: a phase, waxing across the panel.
+    return kind === 'text' ? (
+      <div className="pfx-veil pfx-mo-phase" aria-hidden="true" />
+    ) : (
+      <div className={`pfx-veil pfx-mo-rise is-${kind}`} aria-hidden="true">
         <i />
       </div>
     );
