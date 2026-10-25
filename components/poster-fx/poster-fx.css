@@ -970,6 +970,91 @@
 }
 
 /* ==========================================================================
+   VICTORIAN BRITAIN — the page torn open
+   A collage of torn paper, calmly. As each poster opens, the panel is
+   covered by two sheets meeting at a torn seam, cream paper above and green
+   linen below; after a breath they are drawn apart, up and down, a little
+   askew, and the page lies open beneath. Copy settles onto the page; short
+   lines and the quote settle a word at a time; pictures and the green linen
+   panels are laid down like scraps of paper, a touch rotated, and come to
+   rest square. The torn edges themselves are set by the exhibition's own
+   stylesheet (--pfx-vb-edge-cream, --pfx-vb-edge-linen).
+   ========================================================================== */
+.pfx-vb { --pfx-gold: #4e6152; }
+/* Little lateral travel: paper is laid down, not slid. */
+.pfx-vb .pfx-line,
+.pfx-vb .pfx-fg { --pfx-off: 1vw; transition: translate 1.5s var(--pfx-ease), opacity 0.5s ease; }
+.pfx-vb .pfx-bg { --pfx-off: 0.5vw; transition: translate 2s var(--pfx-ease); }
+.pfx-vb .pfx-words { --pfx-off: 0.4vw; }
+
+.pfx-vb-sheet {
+  position: absolute;
+  left: -3%;
+  right: -3%;
+  will-change: transform;
+}
+.pfx-vb-sheet::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: clamp(18px, 3vh, 30px);
+  background: center / 100% 100% no-repeat;
+}
+/* Cream paper above, its torn edge hanging over the seam… */
+.pfx-vb-cream {
+  top: 0;
+  height: 52%;
+  background:
+    radial-gradient(ellipse 60% 40% at 30% 40%, rgba(255, 255, 255, 0.5), transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 70%, rgba(190, 170, 140, 0.16), transparent 70%),
+    var(--pfx-vb-cream, #f4eee3);
+  transform: translateY(-112%) rotate(-2deg);
+  animation: pfxVbTearUp 2.3s cubic-bezier(0.55, 0, 0.25, 1) backwards;
+}
+.pfx-vb-cream::after { top: calc(100% - 1px); background-image: var(--pfx-vb-edge-cream, none); }
+/* …and green linen below, with a strip of paper showing at its torn edge. */
+.pfx-vb-linen {
+  bottom: 0;
+  height: 48%;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0 1px, transparent 1px 4px),
+    var(--pfx-vb-linen, #4e6152);
+  transform: translateY(112%) rotate(1.5deg);
+  animation: pfxVbTearDown 2.3s cubic-bezier(0.55, 0, 0.25, 1) backwards;
+}
+.pfx-vb-linen::after { bottom: calc(100% - 1px); background-image: var(--pfx-vb-edge-linen, none); }
+@keyframes pfxVbTearUp {
+  0%, 30% { transform: translateY(0) rotate(0); }
+  100% { transform: translateY(-112%) rotate(-2deg); }
+}
+@keyframes pfxVbTearDown {
+  0%, 30% { transform: translateY(0) rotate(0); }
+  100% { transform: translateY(112%) rotate(1.5deg); }
+}
+
+/* Copy settles onto the page. */
+@keyframes pfxVbSettle {
+  from { opacity: 0; transform: translateY(0.4em); }
+}
+.pfx-vb .pfx-line { animation: pfxVbSettle 1.2s 0.35s ease-out backwards; }
+/* Titles: once the page is open. */
+.pfx-vb [data-fx='title'] .pfx-line { animation: pfxVbSettle 1.4s 1.25s ease-out backwards; }
+/* Short lines and the quote: a word at a time. */
+.pfx-vb :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }
+.pfx-vb .pfx-w {
+  animation: pfxVbSettle 1s ease-out backwards;
+  animation-delay: calc(0.4s + var(--d) * 2.2);
+}
+/* Pictures are laid down like scraps of paper, and come to rest square. */
+@keyframes pfxVbLay {
+  from { opacity: 0; transform: translateY(16px) rotate(-1.4deg) scale(0.985); }
+}
+.pfx-vb .pfx-media { animation: pfxVbLay 1.5s 0.15s var(--pfx-ease) backwards; }
+.pfx-vb .pfx-fg:not(.pfx-line) { animation: pfxVbSettle 1.2s 0.8s ease-out backwards; }
+
+/* ==========================================================================
    PROGRESS
    ========================================================================== */
 .pfx-progress {
@@ -1179,6 +1264,21 @@
 }
 @keyframes pfxApDrop {
   from { transform: scale(0.35); }
+}
+
+/* Victorian Britain: chapters are small scraps of paper; the head is a
+   linen-covered button, ringed in cream, that settles as it lands. */
+.pfx-progress-vb .pfx-progress-mark { width: 6px; height: 4px; margin: -2px 0 0 -3px; transform: rotate(-8deg); }
+.pfx-progress-vb .pfx-progress-head {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: #4e6152;
+  box-shadow: 0 0 0 2px currentColor;
+  animation: pfxVbButton 0.9s var(--pfx-ease, ease) backwards;
+}
+@keyframes pfxVbButton {
+  from { transform: rotate(calc(var(--pfx-dir, 1) * -90deg)) scale(0.6); }
 }
 
 @media (max-width: 480px) {

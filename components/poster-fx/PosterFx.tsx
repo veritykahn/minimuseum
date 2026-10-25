@@ -28,7 +28,11 @@ import './poster-fx.css';
  * platen of a press comes down on the sheet and lifts, leaving the page
  * printed; copy inks into the paper, a little soft at first and then crisp,
  * pictures print up like engravings, and a quill draws the rule under each
- * section head.
+ * section head. Victorian Britain is a collage of torn paper: as each poster
+ * opens, a sheet of cream paper and a sheet of green linen meet across the
+ * panel at a torn seam and are drawn apart, the page torn open; each green
+ * linen panel is then laid down on the page like a scrap of paper, and the
+ * copy settles onto it.
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -37,7 +41,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo' | 'ap';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo' | 'ap' | 'vb';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -197,6 +201,15 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
     return (
       <div className={`pfx-veil pfx-ap-press is-${kind}`} aria-hidden="true">
         <i />
+      </div>
+    );
+  }
+  if (theme === 'vb') {
+    // The page torn open: a cream sheet and a green linen sheet drawn apart at a torn seam.
+    return (
+      <div className={`pfx-veil pfx-vb-tear is-${kind}`} aria-hidden="true">
+        <i className="pfx-vb-sheet pfx-vb-cream" />
+        <i className="pfx-vb-sheet pfx-vb-linen" />
       </div>
     );
   }
