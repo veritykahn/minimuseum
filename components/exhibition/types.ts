@@ -281,6 +281,13 @@ export type ExhibitionConfig<K extends string = string> = {
    * posters. Leave out when there are none.
    */
   interactives?: DisplayCase[];
+  /**
+   * Picture credits set small at the foot of the landing page, for pictures
+   * the exhibition draws on for its look (a photograph washed in behind the
+   * posters), each as its owner specifies, linked to its record. *Title* is
+   * set in italics. Leave out when there are none.
+   */
+  credits?: { text: string; href?: string }[];
   /** The panel reveal (components/poster-fx). */
   fx: {
     theme: FxTheme;

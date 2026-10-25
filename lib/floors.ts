@@ -90,7 +90,7 @@ export const GROUND_FLOOR: Floor = {
       darkAccent: '#1a1c18',
       textColor: '#fff',
       description: 'A journey into the 19th century, blending industrial innovation, decorative arts, and social reform.',
-      active: false,
+      active: true,
     },
   ],
 };

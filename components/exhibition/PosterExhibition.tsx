@@ -11,7 +11,7 @@ import LessonsLink from '@/components/lesson/LessonsLink';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import PosterPanel from './PosterPanel';
-import { colorsFor, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
+import { colorsFor, emphasisRuns, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
 
@@ -28,7 +28,7 @@ import './poster-exhibition.css';
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function PosterExhibition<K extends string>({ config }: { config: ExhibitionConfig<K> }) {
-  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives = [], fx: fxConfig, projector: projectorConfig } = config;
+  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives = [], credits = [], fx: fxConfig, projector: projectorConfig } = config;
 
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
@@ -155,6 +155,23 @@ export default function PosterExhibition<K extends string>({ config }: { config:
           </div>
 
           {interactives.length > 0 && <div className="pe-exhibition-grid pe-interactives">{interactives.map(caseLink)}</div>}
+
+          {credits.length > 0 && (
+            <ul className="pe-credits" aria-label="Picture credits">
+              {credits.map((c) => {
+                const text = emphasisRuns(c.text).map((r, i) => (r.em ? <em key={i}>{r.text}</em> : <span key={i}>{r.text}</span>));
+                return (
+                  <li key={c.text}>
+                    {c.href ? (
+                      <a href={c.href} target="_blank" rel="noopener noreferrer">{text}</a>
+                    ) : (
+                      text
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       )}
 

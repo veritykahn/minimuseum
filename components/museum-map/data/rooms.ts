@@ -11,6 +11,7 @@ const EXHIBITION_ACCENTS: Record<string, string> = {
   egypt: '#F04A1A',
   moon: '#A88BEB',
   'america-250': '#56656F',
+  victorian: '#D9B7B8',
 };
 
 /** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
@@ -161,6 +162,26 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 100,
     accentColor: '#56656F',
     parent: 'ground-floor',
+  },
+  {
+    id: 'victorian',
+    label: 'Victorian Britain',
+    path: '/exhibitions/victorian',
+    x: 257,
+    y: 230,
+    width: 140,
+    height: 100,
+    accentColor: '#D9B7B8',
+    parent: 'ground-floor',
+    children: ['vb-case'],
+  },
+  {
+    id: 'vb-case',
+    label: 'Display Case',
+    path: '/exhibitions/victorian/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#D9B7B8',
+    parent: 'victorian',
   },
   {
     id: 'egypt',

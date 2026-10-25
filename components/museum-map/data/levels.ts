@@ -24,6 +24,7 @@ const COLORS = {
   egypt: '#F04A1A',
   moon: '#A88BEB',
   america250: '#56656F',
+  victorian: '#D9B7B8',
 };
 
 // Helper: create a wall segment with a doorway gap in the middle
@@ -181,7 +182,12 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     x: 102, y: 230, width: 140, height: 100, accentColor: COLORS.america250,
     parent: 'ground-floor',
   },
-  comingSoonRoom('victorian', 'Victorian\nBritain', 'ground-floor', { x: 257, y: 230, width: 140, height: 100 }),
+  {
+    id: 'victorian', label: 'Victorian\nBritain', path: '/exhibitions/victorian',
+    x: 257, y: 230, width: 140, height: 100, accentColor: COLORS.victorian,
+    parent: 'ground-floor',
+    children: ['vb-case'],
+  },
 ];
 
 const GROUND_FLOOR_CONNECTIONS: RoomConnection[] = [
@@ -762,6 +768,52 @@ export const AMERICA_250: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — Victorian Britain (Floor Plan)
+//
+// Layout: the Exhibition Hall, and the display case beyond it
+// ┌────────────────────────────────┐
+// │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
+// └────────────────────────────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const VICTORIAN_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  accentColor: COLORS.victorian,
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+  ],
+  rooms: [
+    {
+      id: 'vb-entrance', label: 'Exhibition Hall', path: '/exhibitions/victorian',
+      accentColor: COLORS.victorian, parent: 'victorian',
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'vb-case', label: 'Display Case', path: '/exhibitions/victorian/artifacts/case',
+      accentColor: COLORS.victorian, parent: 'victorian',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
+    },
+  ],
+};
+
+export const VICTORIAN: MapLevelConfig = {
+  level: 'exhibition',
+  rooms: [],
+  connections: [],
+  title: 'Victorian Britain',
+  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
+  ],
+  ...withLessons(VICTORIAN_FLOOR_PLAN, '0 0 500 330', 'victorian'),
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Level resolver
 // ═══════════════════════════════════════════════════════════════════
 
@@ -774,6 +826,7 @@ export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/egypt')) return EGYPT;
   if (pathname.startsWith('/exhibitions/moon')) return MOON;
   if (pathname.startsWith('/exhibitions/america-250')) return AMERICA_250;
+  if (pathname.startsWith('/exhibitions/victorian')) return VICTORIAN;
   if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
   if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;

@@ -611,6 +611,21 @@ a.pe-case-page-return:focus-visible { border-color: var(--pe-accent); color: var
   .pe-case-page-return { transition: none; }
 }
 
+/* ───────── Picture credits at the foot of the landing page (ExhibitionConfig.credits) ───────── */
+.pe-credits {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  max-width: 760px;
+  text-align: center;
+  font-family: var(--pe-ui, var(--pe-body));
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+  color: var(--pe-credits-ink, currentColor);
+}
+.pe-credits a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+
 /* ───────── A quote's citation, a title's subtitle (QuoteItem.cite, TitleTextItem.subtitle) ───────── */
 .pe-has-cite { flex-direction: column; gap: 20px; }
 .pe-quote-cite,
