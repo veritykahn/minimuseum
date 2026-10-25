@@ -60,7 +60,7 @@ export const GROUND_FLOOR: Floor = {
       darkAccent: '#1a0d02',
       textColor: '#fff',
       description: 'A journey along the Nile, blending ancient mythology, sacred art, and the decipherment of lost scripts.',
-      active: false,
+      active: true,
     },
     {
       slug: 'in-their-hands',

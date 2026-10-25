@@ -21,6 +21,7 @@ const COLORS = {
   inTheirHands: '#C9A84C',
   fearLab: '#F2B33D',
   greatWar: '#E8372C',
+  egypt: '#F04A1A',
 };
 
 // Helper: create a wall segment with a doorway gap in the middle
@@ -155,7 +156,12 @@ export const MUSEUM_OVERVIEW: MapLevelConfig = {
 const GROUND_FLOOR_ROOMS: MapRoom[] = [
   // Top row
   comingSoonRoom('moon', 'Our Incredible\nMoon', 'ground-floor', { x: 25, y: 80, width: 140, height: 110 }),
-  comingSoonRoom('egypt', 'Ancient Egypt', 'ground-floor', { x: 180, y: 80, width: 140, height: 110 }),
+  {
+    id: 'egypt', label: 'Ancient Egypt', path: '/exhibitions/egypt',
+    x: 180, y: 80, width: 140, height: 110, accentColor: COLORS.egypt,
+    parent: 'ground-floor',
+    children: ['eg-case'],
+  },
   {
     id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
     x: 335, y: 80, width: 140, height: 110, accentColor: COLORS.inTheirHands,
@@ -615,6 +621,52 @@ export const GREAT_WAR: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — Ancient Egypt (Floor Plan)
+//
+// Layout: the Exhibition Hall, and the display case beyond it
+// ┌────────────────────────────────┐
+// │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
+// └────────────────────────────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const EGYPT_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  accentColor: COLORS.egypt,
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+  ],
+  rooms: [
+    {
+      id: 'eg-entrance', label: 'Exhibition Hall', path: '/exhibitions/egypt',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'eg-case', label: 'Display Case', path: '/exhibitions/egypt/artifacts/case',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
+    },
+  ],
+};
+
+export const EGYPT: MapLevelConfig = {
+  level: 'exhibition',
+  rooms: [],
+  connections: [],
+  title: 'Ancient Egypt',
+  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
+  ],
+  ...withLessons(EGYPT_FLOOR_PLAN, '0 0 500 330', 'egypt'),
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Level resolver
 // ═══════════════════════════════════════════════════════════════════
 
@@ -624,6 +676,7 @@ export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/in-their-hands')) return IN_THEIR_HANDS;
   if (pathname.startsWith('/exhibitions/fear-lab')) return FEAR_LAB;
   if (pathname.startsWith('/exhibitions/great-war')) return GREAT_WAR;
+  if (pathname.startsWith('/exhibitions/egypt')) return EGYPT;
   if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
   if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;

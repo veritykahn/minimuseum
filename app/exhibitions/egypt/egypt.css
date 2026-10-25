@@ -1,0 +1,211 @@
+/* ==========================================================================
+   Ancient Egypt's own look, on top of components/exhibition. The posters set
+   it: a near-black ground, white high-contrast titles (Playfair Display, the
+   closest Google didone), "Ancient Egypt" and the gods' names in an
+   orange-red handwritten script (Ms Madi), light serif copy (Playfair at
+   its light weights), three orange dots, and thin white double arches.
+   ========================================================================== */
+
+[data-exhibition='egypt'] {
+  --eg-script: 'Ms Madi', 'Brush Script MT', cursive;
+  --eg-orange: #f04a1a;
+  --eg-line: rgba(255, 255, 255, 0.5);
+  --eg-line-faint: rgba(255, 255, 255, 0.28);
+  --pe-nav-m: #a39d94;
+  --pe-nav-ink: #cfc9c0;
+  --pe-hint: #cfc9c0;
+  --pe-callout-bg: transparent;
+  --pe-callout-ink: #efebe5;
+  --pe-case-ink: #efebe5;
+  --pe-case-muted: #b8b2a9;
+  --pe-poster-h: 52vh;
+  color: #efebe5;
+}
+
+/* The posters' three orange dots, drawn as one dot and two shadows. */
+[data-exhibition='egypt'] :is(.pe-exhibition-title, .eg-title .pe-title-text, .pe-case-page-header)::before {
+  content: '';
+  display: block;
+  width: 0.26em;
+  height: 0.26em;
+  border-radius: 50%;
+  background: var(--eg-orange);
+  box-shadow: 0.42em 0 0 var(--eg-orange), 0.84em 0 0 var(--eg-orange);
+  font-size: clamp(36px, 5vw, 56px);
+}
+
+/* ───────── Landing page ───────── */
+[data-exhibition='egypt'] .pe-exhibition-title::before { margin: 0 auto 8px; translate: -0.42em 0; font-size: 40px; }
+[data-exhibition='egypt'] .pe-exhibition-title h1 {
+  font-family: var(--eg-script);
+  color: var(--eg-orange);
+  font-size: clamp(4.4rem, 13vw, 8.5rem);
+  line-height: 1.05;
+  margin-bottom: 0;
+  rotate: -3deg;
+}
+[data-exhibition='egypt'] .pe-exhibition-title p {
+  font-family: var(--pe-display);
+  color: #efebe5;
+  font-size: clamp(1.2rem, 3vw, 1.7rem);
+  letter-spacing: 0.02em;
+}
+[data-exhibition='egypt'] .pe-exhibition-grid { gap: 40px; }
+[data-exhibition='egypt'] .pe-poster-frame img { box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75); }
+[data-exhibition='egypt'] .pe-display-case {
+  position: relative;
+  background: #141414;
+  border: 0;
+  width: auto;
+  max-width: 340px;
+  padding: 40px 18px 20px;
+  border-radius: 170px 170px 0 0;
+  outline: 1px solid var(--eg-line);
+  outline-offset: 0;
+}
+/* The case stands in an arch, its second line just outside the first. */
+[data-exhibition='egypt'] .pe-display-case::after {
+  content: '';
+  position: absolute;
+  inset: -12px -12px 0;
+  border: 1px solid var(--eg-line-faint);
+  border-bottom: 0;
+  border-radius: 182px 182px 0 0;
+  pointer-events: none;
+}
+[data-exhibition='egypt'] .pe-display-case:hover,
+[data-exhibition='egypt'] .pe-display-case:focus-visible { outline-color: var(--eg-orange); }
+[data-exhibition='egypt'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; }
+[data-exhibition='egypt'] .pe-case-label { color: #b8b2a9; }
+[data-exhibition='egypt'] .pe-case-title { color: #fff; font-size: 26px; }
+
+/* ───────── Titles ───────── */
+[data-exhibition='egypt'] .pe-title-text {
+  text-transform: none;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  font-size: clamp(2.8rem, 8vw, 6.4rem);
+  /* Narrow enough to break the lines where the posters do ("Gods and / Goddesses of"). */
+  max-width: 7.2em;
+  text-align: left;
+}
+[data-exhibition='egypt'] .eg-title .pe-title-text::before { margin-bottom: 0.4em; font-size: 0.5em; }
+[data-exhibition='egypt'] .pe-title-kicker { font-size: 1em; margin-bottom: 0; }
+/* "Ancient Egypt": the script, in the posters' orange-red, set at a slight climb. */
+[data-exhibition='egypt'] .pe-title-text > .pfx-line:not(.pe-title-kicker) {
+  font-family: var(--eg-script);
+  color: var(--eg-orange);
+  font-size: 1.3em;
+  line-height: 1.05;
+  margin: 0.02em 0 0 -0.08em;
+  rotate: -3deg;
+  transform-origin: 0 50%;
+  white-space: nowrap;
+}
+/* The gods' names, as the poster sets them: large, in the script. */
+[data-exhibition='egypt'] .pe-section-title-text {
+  font-family: var(--eg-script);
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: clamp(5rem, 16vw, 11rem);
+  line-height: 1.1;
+  rotate: -3deg;
+}
+
+/* ───────── Copy: a light serif, as on the posters ───────── */
+[data-exhibition='egypt'] .pe-paragraph-text {
+  font-weight: 300;
+  font-size: clamp(1.2rem, 2.6vw, 1.6rem);
+  line-height: 1.6;
+  max-width: 660px;
+  font-variation-settings: 'opsz' 24;
+}
+
+/* ───────── Thin white double arches, as the posters frame their pictures ───────── */
+[data-exhibition='egypt'] :is(.eg-arch-right, .eg-arch-left, .eg-name)::before,
+[data-exhibition='egypt'] :is(.eg-arch-right, .eg-arch-left, .eg-name)::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border: 1px solid var(--eg-line);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+}
+[data-exhibition='egypt'] :is(.eg-arch-right, .eg-arch-left, .eg-name)::after { border-color: var(--eg-line-faint); }
+/* Top right, running off the edge, as on poster 1. */
+[data-exhibition='egypt'] .eg-arch-right::before { right: -7vw; top: 7vh; width: min(34vw, 460px); height: 140vh; }
+[data-exhibition='egypt'] .eg-arch-right::after { right: calc(-7vw - 16px); top: calc(7vh - 16px); width: calc(min(34vw, 460px) + 32px); height: 140vh; }
+/* Bottom left. */
+[data-exhibition='egypt'] .eg-arch-left::before { left: -9vw; top: 50vh; width: min(36vw, 480px); height: 120vh; }
+[data-exhibition='egypt'] .eg-arch-left::after { left: calc(-9vw - 16px); top: calc(50vh - 16px); width: calc(min(36vw, 480px) + 32px); height: 120vh; }
+/* A god's name stands in a doorway, where the reveal leaves it. */
+[data-exhibition='egypt'] .eg-name::before { left: 50%; bottom: 0; translate: -50% 0; width: min(64vw, 600px); height: 80vh; }
+[data-exhibition='egypt'] .eg-name::after { left: 50%; bottom: 0; translate: -50% 0; width: calc(min(64vw, 600px) + 32px); height: calc(80vh + 16px); }
+
+/* A god's picture stands in an arch too. Both lines are drawn on ::before
+   (the second is its outline, clipped at the foot), since the reveal's band
+   of lamplight uses the picture's ::after. */
+[data-exhibition='egypt'] .eg-god .pe-figure::before {
+  content: '';
+  position: absolute;
+  inset: -42% -9% -5%;
+  border: 1px solid var(--eg-line);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+  outline: 1px solid var(--eg-line-faint);
+  outline-offset: 14px;
+  clip-path: inset(-20px -20px 0 -20px);
+  pointer-events: none;
+}
+[data-exhibition='egypt'] .eg-god .pe-figure img { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55); }
+[data-exhibition='egypt'] .eg-god .pe-paragraph-text { max-width: 560px; }
+
+/* ───────── The gods' names are written in, left to right ───────── */
+[data-exhibition='egypt'] .pfx-eg :is(.pe-section-title-text, .pe-title-text) > .pfx-line:not(.pe-title-kicker) {
+  animation: egWrite 1.9s 0.75s cubic-bezier(0.55, 0, 0.35, 1) backwards;
+}
+@keyframes egWrite {
+  from { clip-path: inset(-50% 100% -50% -20%); }
+  to { clip-path: inset(-50% -20% -50% -20%); }
+}
+
+/* ───────── The links out: a thin white box, the posters' line ───────── */
+[data-exhibition='egypt'] .pe-callout {
+  border: 1px solid var(--eg-line);
+  padding: 28px 40px;
+}
+[data-exhibition='egypt'] .pe-callout-text {
+  font-family: var(--pe-display);
+  text-transform: none;
+  font-size: clamp(1.3rem, 3vw, 2rem);
+}
+[data-exhibition='egypt'] a.pe-callout:hover .pe-callout-text,
+[data-exhibition='egypt'] a.pe-callout:focus-visible .pe-callout-text { color: var(--eg-orange); }
+
+/* ───────── The classroom screen ───────── */
+[data-exhibition='egypt'] .pjp-stage .pe-section-title-text { font-size: calc(var(--pjp-u) * 10); letter-spacing: 0; max-width: none; }
+[data-exhibition='egypt'] .pjp-stage .pe-title-text { font-size: calc(var(--pjp-u) * 6.4); }
+[data-exhibition='egypt'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
+
+/* ───────── The display case page ───────── */
+[data-exhibition='egypt'] .pe-case-page-header::before { margin: 0 auto 20px; translate: -0.42em 0; font-size: 32px; }
+[data-exhibition='egypt'] .pe-case-page-title { font-family: var(--eg-script); color: var(--eg-orange); font-size: clamp(3.8rem, 11vw, 6.5rem); rotate: -3deg; }
+[data-exhibition='egypt'] .pe-case-page-subtitle { font-family: var(--pe-display); color: #efebe5; }
+[data-exhibition='egypt'] .pe-case-page-lead img { border-radius: 4px; }
+[data-exhibition='egypt'] .pe-case-page-artifacts li { font-weight: 300; }
+
+@media (max-width: 900px) {
+  [data-exhibition='egypt'] { --pe-poster-h: 42vh; }
+}
+@media (max-width: 700px) {
+  /* On a phone the arches step back so they never cross the copy. */
+  [data-exhibition='egypt'] :is(.eg-arch-right, .eg-arch-left)::before,
+  [data-exhibition='egypt'] :is(.eg-arch-right, .eg-arch-left)::after { opacity: 0.45; }
+  [data-exhibition='egypt'] .eg-arch-right::before { right: -22vw; width: 44vw; }
+  [data-exhibition='egypt'] .eg-arch-right::after { right: calc(-22vw - 12px); width: calc(44vw + 24px); }
+  [data-exhibition='egypt'] .eg-arch-left::before { left: -24vw; top: 70vh; width: 46vw; }
+  [data-exhibition='egypt'] .eg-arch-left::after { left: calc(-24vw - 12px); top: calc(70vh - 12px); width: calc(46vw + 24px); }
+  [data-exhibition='egypt'] .eg-god .pe-figure::before { display: none; }
+  [data-exhibition='egypt'] .pe-callout { padding: 22px 20px; }
+}

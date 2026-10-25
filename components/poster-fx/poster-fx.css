@@ -680,6 +680,107 @@
 }
 
 /* ==========================================================================
+   ANCIENT EGYPT — through an arch
+   Calm and unhurried. At the poster's opening and at each chapter the panel
+   is dark but for a doorway: a narrow arch of light rises from the floor,
+   traced by the posters' two thin white lines, and widens until the panel
+   stands inside it. Copy settles into place like fine sand; pictures warm
+   up out of the shadow as a band of lamplight passes across the stone.
+   (The gods' names are written in by the exhibition's own stylesheet.)
+   ========================================================================== */
+.pfx-eg { --pfx-gold: #f04a1a; }
+/* Almost no lateral travel: things settle rather than slide. */
+.pfx-eg .pfx-line,
+.pfx-eg .pfx-fg { --pfx-off: 0.8vw; transition: translate 1.8s var(--pfx-ease), opacity 0.5s ease; }
+.pfx-eg .pfx-bg { --pfx-off: 0.4vw; transition: translate 2.2s var(--pfx-ease); }
+.pfx-eg .pfx-words { --pfx-off: 0.4vw; }
+
+/* The doorway: a transparent arch whose spread shadow is the dark around it. */
+.pfx-eg-arch i {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 0 0 / 30% 30% 0 0;
+  /* The dark around the doorway is deeper than the ground, so the panel
+     seen through it reads as lit; a warm glow rises from its threshold. */
+  background: radial-gradient(ellipse 70% 55% at 50% 100%, rgba(255, 196, 140, 0.12), transparent 70%);
+  box-shadow: 0 0 0 250vmax rgba(6, 5, 4, 0.96);
+  animation: pfxEgArch 2.3s var(--pfx-ease-io) backwards;
+}
+/* Its two thin white lines, as the posters frame their pictures. */
+.pfx-eg-arch i::before,
+.pfx-eg-arch i::after {
+  content: '';
+  position: absolute;
+  inset: -1.1vmin -1.1vmin 0;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-bottom: 0;
+  border-radius: inherit;
+}
+.pfx-eg-arch i::after { inset: -2.6vmin -2.6vmin 0; border-color: rgba(255, 255, 255, 0.45); }
+@keyframes pfxEgArch {
+  0% { width: 0.6vmin; height: 0; opacity: 1; }
+  38% { width: 24vmin; height: 52vmin; opacity: 1; }
+  100% { width: 260vmax; height: 300vmax; opacity: 0; }
+}
+/* Pictures: the doorway opens a little more slowly. */
+.pfx-eg-arch.is-media i,
+.pfx-eg-arch.is-art i { animation-duration: 2.8s; }
+
+/* Copy settles like sand: down a hair, out of a soft blur. */
+.pfx-eg .pfx-line {
+  animation: pfxEgSettle 1.6s 0.35s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+@keyframes pfxEgSettle {
+  from { opacity: 0; transform: translateY(-0.3em); filter: blur(2.5px); }
+}
+/* Display titles: the same, a little later, tracking closing in. */
+.pfx-eg [data-fx='title'] .pfx-line {
+  animation: pfxEgTitle 1.9s 0.7s ease-out backwards;
+}
+@keyframes pfxEgTitle {
+  from { opacity: 0; filter: blur(3px); letter-spacing: 0.06em; }
+}
+/* Short statements: a word at a time, like grains coming to rest. */
+.pfx-eg :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }
+.pfx-eg .pfx-w {
+  animation: pfxEgSettle 1.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(0.4s + var(--d) * 2.2);
+}
+/* Pictures warm up out of the shadow… */
+.pfx-eg .pfx-media {
+  animation: pfxEgWarm 2.4s ease-out backwards;
+}
+@keyframes pfxEgWarm {
+  0% { opacity: 0; filter: brightness(0.25) sepia(0.8); }
+  35% { opacity: 1; }
+  100% { opacity: 1; filter: brightness(1) sepia(0); }
+}
+/* …as a band of lamplight passes across them once. */
+.pfx-eg .pfx-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 214, 160, 0.32) 50%, transparent 62%) no-repeat;
+  background-size: 260% 100%;
+  animation: pfxEgSweep 2.6s 0.5s ease-in-out backwards;
+}
+@keyframes pfxEgSweep {
+  0% { opacity: 1; background-position: 110% 0; }
+  85% { opacity: 1; }
+  100% { opacity: 0; background-position: -10% 0; }
+}
+.pfx-eg .pfx-fg:not(.pfx-line) {
+  animation: pfxEgSettle 1.6s 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* ==========================================================================
    PROGRESS
    ========================================================================== */
 .pfx-progress {
@@ -840,6 +941,18 @@
   box-shadow: 0 0 0 2px #1c1c1c;
 }
 
+/* Ancient Egypt: the posters' orange dots. Chapters are small dots; the
+   head is a dot with two fainter ones trailing, the posters' three. */
+.pfx-progress.pfx-progress-eg { gap: 30px; }
+.pfx-progress-eg .pfx-progress-mark { border-radius: 50%; background: #f04a1a; }
+.pfx-progress-eg .pfx-progress-head {
+  width: 9px;
+  height: 9px;
+  margin: -4.5px 0 0 -4.5px;
+  background: #f04a1a;
+  box-shadow: -11px 0 0 -1.5px rgba(240, 74, 26, 0.6), -20px 0 0 -2.5px rgba(240, 74, 26, 0.35);
+}
+
 @media (max-width: 480px) {
   .pfx-progress { gap: 10px; }
   .pfx-progress-cur { font-size: 13px; }
@@ -860,6 +973,7 @@
   .pfx-stage :is(.pfx-line, .pfx-w, .pfx-media, .pfx-lift, .pfx-art-img, .pfx-fg-copy, .pfx-fg),
   .pfx-stage .pfx-line::before,
   .pfx-stage .pfx-line::after,
+  .pfx-stage .pfx-media::after,
   .pfx-coin img,
   .pfx-coin::after,
   .pfx-progress * {
