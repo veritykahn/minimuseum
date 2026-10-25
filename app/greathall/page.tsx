@@ -4,16 +4,19 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { focusElement } from '@/lib/a11y/focus';
+import { type Floor, GROUND_FLOOR, FIRST_FLOOR } from '@/lib/floors';
+
+const COUNT_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'];
+
+/** "Four Exhibitions": how many of a floor's exhibitions are open. */
+function openCount(floor: Floor): string {
+  const n = floor.exhibitions.filter((e) => e.active).length;
+  return `${COUNT_WORDS[n] ?? n} Exhibition${n === 1 ? '' : 's'}`;
+}
 
 export default function GreatHall() {
   const [showExplore, setShowExplore] = useState(true);
-  const [showInstallationMessage, setShowInstallationMessage] = useState(false);
   const floorsRef = useRef<HTMLDivElement>(null);
-
-  const handleGroundFloorClick = () => {
-    setShowInstallationMessage(true);
-    setTimeout(() => setShowInstallationMessage(false), 3000);
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -503,95 +506,6 @@ export default function GreatHall() {
           background: #7D8471;
         }
 
-        /* Installation in progress overlay */
-        .floor-row.installation-in-progress {
-          cursor: default;
-        }
-
-        .floor-row.installation-in-progress .floor-card {
-          position: relative;
-        }
-
-        .floor-row.installation-in-progress:hover .floor-card, .floor-row.installation-in-progress:focus-visible .floor-card {
-          border-color: #3a3a3a;
-          background: rgba(40, 40, 40, 0.3);
-        }
-
-        /* Dimmed, but the small text stays at 4.5:1 or better */
-        .floor-row.installation-in-progress .floor-name {
-          opacity: 0.5;
-        }
-        .floor-row.installation-in-progress .floor-subtitle {
-          color: #858585;
-        }
-        .floor-row.installation-in-progress .floor-year {
-          color: #808080;
-        }
-
-        .floor-row.installation-in-progress:hover .floor-name {
-          color: #888;
-        }
-
-        .floor-row.installation-in-progress:hover .floor-letter {
-          color: #666;
-        }
-
-        .floor-row.installation-in-progress .stairs-icon {
-          opacity: 0.15;
-        }
-
-        .floor-row.installation-in-progress:hover .stairs-icon {
-          opacity: 0.3;
-        }
-
-
-        /* Installation message toast */
-        .installation-message {
-          position: fixed;
-          bottom: 40px;
-          left: 50%;
-          transform: translateX(-50%) translateY(20px);
-          background: rgba(30, 30, 30, 0.95);
-          border: 1px solid #3a3a3a;
-          border-radius: 8px;
-          padding: 20px 32px;
-          text-align: center;
-          z-index: 1000;
-          opacity: 0;
-          pointer-events: none;
-          transition: all 0.4s ease;
-          max-width: 90vw;
-        }
-
-        .installation-message.visible {
-          opacity: 1;
-          transform: translateX(-50%) translateY(0);
-          pointer-events: auto;
-        }
-
-        .installation-message-title {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 18px;
-          font-style: italic;
-          color: #fafafa;
-          margin-bottom: 8px;
-        }
-
-        .installation-message-text {
-          font-family: 'Outfit', sans-serif;
-          font-size: 12px;
-          color: #888;
-          line-height: 1.6;
-        }
-
-        @media (max-width: 768px) {
-
-          .installation-message {
-            padding: 16px 24px;
-            bottom: 24px;
-          }
-        }
-
         @media (max-width: 768px) {
           .floors-section {
             padding: 80px 16px;
@@ -654,11 +568,10 @@ export default function GreatHall() {
             <div className="floor-card">
               <div className="floor-text">
                 <h2 className="floor-name">Horizons</h2>
-                <p className="floor-subtitle">The Second Collection</p>
-                <p className="floor-year">2025–2026</p>
+                <p className="floor-subtitle">The 20th century and the mind</p>
                 <div className="floor-status floor-status-open">
                   <span className="status-dot" aria-hidden="true"></span>
-                  <span>Now Open · Three Exhibitions</span>
+                  <span>Now Open · {openCount(FIRST_FLOOR)}</span>
                 </div>
               </div>
               <div className="floor-indicator">
@@ -668,39 +581,26 @@ export default function GreatHall() {
             </div>
           </Link>
 
-          {/* Ground Floor - Origins (Installation in Progress) */}
-          <button
-            type="button"
-            className="btn-reset floor-row ground-floor installation-in-progress"
-            onClick={handleGroundFloorClick}
-          >
+          {/* Ground Floor - Origins */}
+          <Link href="/exhibitions/ground-floor" className="floor-row ground-floor">
             <div className="floor-card">
               <div className="floor-text">
                 <h2 className="floor-name">Origins</h2>
-                <p className="floor-subtitle">The Founding Collection</p>
-                <p className="floor-year">2024–2025</p>
-                <div className="floor-status">
+                <p className="floor-subtitle">The deep past to 1900</p>
+                <div className="floor-status floor-status-open">
                   <span className="status-dot" aria-hidden="true"></span>
-                  <span>Installation in Progress</span>
+                  <span>Now Open · {openCount(GROUND_FLOOR)}</span>
                 </div>
               </div>
-              <div className="floor-indicator" aria-hidden="true">
+              <div className="floor-indicator">
                 <Image src="/stairs.png" alt="" width={80} height={80} className="stairs-icon" aria-hidden="true" />
                 <span className="floor-letter">G</span>
               </div>
             </div>
-          </button>
+          </Link>
         </div>
       </section>
 
-      {/* Installation Message Toast */}
-      <p className="visually-hidden" role="status">
-        {showInstallationMessage ? 'Exhibits currently being installed. Check back soon!' : ''}
-      </p>
-      <div className={`installation-message ${showInstallationMessage ? 'visible' : ''}`} aria-hidden="true">
-        <p className="installation-message-title">Exhibits Currently Being Installed</p>
-        <p className="installation-message-text">We&apos;re preparing something special. Check back soon!</p>
-      </div>
     </div>
   );
 }

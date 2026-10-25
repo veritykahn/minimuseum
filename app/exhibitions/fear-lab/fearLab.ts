@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import { floorReturnFor } from '@/lib/floors';
 import type { ExhibitionConfig, PanelDecor } from '@/components/exhibition/types';
 
 /*
@@ -36,7 +37,7 @@ export const FEAR_LAB_PROJECTOR_THEME = {
 
 export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
   slug: 'fear-lab',
-  name: 'Fear Lab',
+  name: 'The Fear Lab',
   subtitle: 'Page Turners & Spine Tinglers',
   fonts: {
     href: 'https://fonts.googleapis.com/css2?family=Righteous&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,700;1,800&display=swap',
@@ -49,11 +50,7 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
     accent: MARIGOLD,
     teach: { color: MARIGOLD, border: 'rgba(242,179,61,0.55)' },
   },
-  back: {
-    href: '/exhibitions/first-floor',
-    label: 'First Floor',
-    remember: { key: 'firstFloorIndex', value: '3' },
-  },
+  back: floorReturnFor('fear-lab'),
   fx: { theme: 'fl', veil: 'every-panel', text: 'all' },
   projector: { theme: FEAR_LAB_PROJECTOR_THEME, links: [] },
   // No display cases yet: the artifacts have not been photographed.

@@ -1,5 +1,6 @@
 import { MapRoom } from '../types';
 import { LESSON_ROOM_IDS, hasLessons, lessonsPath } from '@/lib/lessons/catalog';
+import { FLOORS, GROUND_FLOOR, FIRST_FLOOR } from '@/lib/floors';
 
 const EXHIBITION_ACCENTS: Record<string, string> = {
   'seeing-is-deceiving': '#a8d5e5',
@@ -21,6 +22,21 @@ const LESSON_ROOMS: MapRoom[] = Object.keys(EXHIBITION_ACCENTS)
     parent: exhibition,
   }));
 const lessonsChild = (exhibition: string) => (hasLessons(exhibition) ? [LESSON_ROOM_IDS[exhibition]] : []);
+
+/** Exhibitions still being installed: on their floor, not yet open. */
+const COMING_SOON_ROOMS: MapRoom[] = FLOORS.flatMap((floor) =>
+  floor.exhibitions
+    .filter((e) => !e.active)
+    .map((e) => ({
+      id: e.slug,
+      label: e.title,
+      path: `/exhibitions/${e.slug}`,
+      x: 0, y: 0, width: 0, height: 0,
+      accentColor: '#7D8471',
+      comingSoon: true,
+      parent: floor.path === GROUND_FLOOR.path ? 'ground-floor' : 'first-floor',
+    })),
+);
 
 /**
  * Museum room definitions
@@ -72,7 +88,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 40,
     accentColor: '#9aa091', // Lighter shade of Great Hall sage
     parent: 'greathall',
-    children: ['seeing-is-deceiving', 'harlem-renaissance', 'in-their-hands', 'fear-lab', 'great-war'],
+    children: FIRST_FLOOR.exhibitions.map((e) => e.slug),
   },
   // Ground Floor
   {
@@ -84,11 +100,10 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     width: 240,
     height: 40,
     accentColor: '#7D8471',
-    comingSoon: true,
     parent: 'greathall',
-    children: ['egypt', 'victorian', 'holocaust', 'black-barbie', 'womens-history'],
+    children: GROUND_FLOOR.exhibitions.map((e) => e.slug),
   },
-  // First Floor Exhibitions
+  // Exhibitions
   {
     id: 'seeing-is-deceiving',
     label: 'Seeing is Deceiving',
@@ -122,12 +137,12 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     width: 140,
     height: 120,
     accentColor: '#C9A84C',
-    parent: 'first-floor',
+    parent: 'ground-floor',
     children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', ...lessonsChild('in-their-hands')],
   },
   {
     id: 'fear-lab',
-    label: 'Fear Lab',
+    label: 'The Fear Lab',
     path: '/exhibitions/fear-lab',
     x: 270,
     y: 190,
@@ -289,6 +304,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#E8372C',
     parent: 'great-war',
   },
+  ...COMING_SOON_ROOMS,
   ...LESSON_ROOMS,
 ];
 

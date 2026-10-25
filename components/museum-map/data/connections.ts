@@ -1,5 +1,6 @@
 import { RoomConnection } from '../types';
 import { LESSON_ROOM_IDS, hasLessons } from '@/lib/lessons/catalog';
+import { GROUND_FLOOR, FIRST_FLOOR } from '@/lib/floors';
 
 /**
  * Connection lines between rooms on the museum map
@@ -11,12 +12,9 @@ export const CONNECTIONS: RoomConnection[] = [
   ['greathall', 'first-floor'],
   ['greathall', 'ground-floor'],
 
-  // First Floor connections
-  ['first-floor', 'seeing-is-deceiving'],
-  ['first-floor', 'harlem-renaissance'],
-  ['first-floor', 'in-their-hands'],
-  ['first-floor', 'fear-lab'],
-  ['first-floor', 'great-war'],
+  // Each floor to its exhibitions
+  ...GROUND_FLOOR.exhibitions.map((e): RoomConnection => ['ground-floor', e.slug]),
+  ...FIRST_FLOOR.exhibitions.map((e): RoomConnection => ['first-floor', e.slug]),
 
   // Seeing is Deceiving sub-pages
   ['seeing-is-deceiving', 'illusions'],
@@ -47,11 +45,4 @@ export const CONNECTIONS: RoomConnection[] = [
   ...Object.keys(LESSON_ROOM_IDS)
     .filter(hasLessons)
     .map((exhibition): RoomConnection => [exhibition, LESSON_ROOM_IDS[exhibition]]),
-
-  // Ground Floor connections (for future)
-  ['ground-floor', 'egypt'],
-  ['ground-floor', 'victorian'],
-  ['ground-floor', 'holocaust'],
-  ['ground-floor', 'black-barbie'],
-  ['ground-floor', 'womens-history'],
 ];

@@ -24,6 +24,12 @@ class FakeNode {
   gain = new FakeParam();
   frequency = new FakeParam();
   Q = new FakeParam();
+  threshold = new FakeParam();
+  knee = new FakeParam();
+  ratio = new FakeParam();
+  attack = new FakeParam();
+  release = new FakeParam();
+  loop = false;
   type = '';
   buffer: unknown = null;
   onended: (() => void) | null = null;
@@ -47,6 +53,7 @@ class FakeContext {
   constructor() { contexts.push(this); }
   createGain() { return new FakeNode(); }
   createBiquadFilter() { return new FakeNode(); }
+  createDynamicsCompressor() { return new FakeNode(); }
   createOscillator() { return new FakeNode(); }
   createBufferSource() { return new FakeNode(); }
   createBuffer(_c: number, length: number) { const d = new Float32Array(length); return { getChannelData: () => d }; }
@@ -124,9 +131,9 @@ describe('the sound', () => {
     expect(live.size).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Pause' })).toHaveFocus();
 
-    const mute = screen.getByRole('button', { name: 'Sound on' });
+    const mute = screen.getByRole('button', { name: 'Mute' });
     fireEvent.click(mute);
-    expect(screen.getByRole('button', { name: 'Sound off' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Unmute' })).toHaveAttribute('aria-pressed', 'true');
 
     unmount();
     expect(live.size).toBe(0);
