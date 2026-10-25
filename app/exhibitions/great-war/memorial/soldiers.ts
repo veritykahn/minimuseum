@@ -107,7 +107,7 @@ export const SOLDIERS: Soldier[] = [
       'In 1910 Eben Stout was working as a laborer at a chemical plant. When he enlisted he was living with his brother at 1140 South 10th Street, Camden.',
       'He enlisted on November 28, 1917 at Camp Merritt and joined Company M of the 15th New York, which became the 369th Infantry. He was killed on the first day of the Champagne offensive, in which the 369th took the village of Ripont.',
     ],
-    notes: ['One account gives his date of death as September 28; the Camden County records give September 26.'],
+    notes: ['The Camden County records give his date of death as September 26. ABMC records him as Ebin M. Stout, died September 28, 1918.'],
     sources: [
       { label: 'Camden County history (DVRBS), “Eben M. Stout”', url: 'https://dvrbs.camdenhistory.com/ccwd-ww1/ww1-ebenmstout.htm' },
       { label: 'Camden County history (DVRBS), “Eben M. Stout” (people)', url: 'https://dvrbs.camdenhistory.com/people/eben-m-stout/' },
@@ -316,6 +316,9 @@ export const SOLDIERS: Soldier[] = [
 /** The memorial's words that are not about one soldier. */
 export const MEMORIAL_TEXT = {
   title: 'The Memorial',
+  rememberHeading: 'Remember a soldier',
+  rememberIntro:
+    'At the installation, visitors took a printed card for one American who died in the war. Draw one here, from the records of the American Battle Monuments Commission, and keep it.',
   intro: 'Eleven American servicemen of the Great War, on cards like the take-away cards at the installation. Turn a card to read his story.',
   cardsHeading: 'Soldier cards',
   poppyHeading: 'Place a poppy',
