@@ -110,6 +110,11 @@
 [data-exhibition='victorian'] .pe-case-label { color: #e8e2d6; }
 [data-exhibition='victorian'] .pe-case-title { color: #fff; font-size: 28px; text-transform: uppercase; letter-spacing: 0.06em; }
 [data-exhibition='victorian'] .pe-case-subtitle { font-family: var(--vb-serif); color: #f4eee3; }
+/* The case awaiting its photographs: deep green line on the rose page, cream on the
+   green linen of the card, lit warm, with its label in the book serif. */
+[data-exhibition='victorian'] { --pe-case-frame: var(--vb-green); --pe-case-glow: #fff3d6; --pe-case-placeholder-ink: var(--vb-green); }
+[data-exhibition='victorian'] .pe-display-case { --pe-case-frame: var(--vb-cream); --pe-case-glow: var(--vb-peach); --pe-case-placeholder-ink: #f4eee3; }
+[data-exhibition='victorian'] .pe-case-placeholder-label { font-family: var(--vb-serif); }
 [data-exhibition='victorian'] .pe-credits { max-width: 560px; font-weight: 400; }
 
 /* ───────── Title cards: thin, wide capitals in deep green ───────── */

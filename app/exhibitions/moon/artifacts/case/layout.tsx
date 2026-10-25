@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = 'The Our Incredible Moon display case: photographs of the installation and the artifacts in it.';
+const description = 'The Our Incredible Moon display case and the artifacts in it.';
 
 export const metadata: Metadata = {
   title: 'Display Case | Our Incredible Moon | The Mini Museum',

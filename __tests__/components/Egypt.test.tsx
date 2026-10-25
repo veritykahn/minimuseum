@@ -113,8 +113,7 @@ describe('Ancient Egypt', () => {
   it('every picture has alt text', () => {
     for (const p of EGYPT.posters) expect(p.hero.alt).toBeTruthy();
     for (const it of allItems) if (it.type === 'paragraph' && it.figure) expect(it.figure.alt).toBeTruthy();
-    for (const c of EGYPT.cases ?? []) expect(c.image?.alt).toBeTruthy();
-    for (const photo of EGYPT_CASE.photos) expect(photo.alt).toBeTruthy();
+    for (const c of EGYPT.cases ?? []) expect(c.image).toBeUndefined();
   });
 
   describe('the walkthrough', () => {
@@ -151,7 +150,7 @@ describe('Ancient Egypt', () => {
 });
 
 describe('The Ancient Egypt display case page', () => {
-  it('lists the artifacts exactly as the record does, with the photographs', () => {
+  it('lists the artifacts exactly as the record does, beside an empty case awaiting its photographs', () => {
     render(<EgyptCase />);
     expect(screen.getByRole('heading', { level: 1, name: 'Ancient Egypt' })).toBeInTheDocument();
     const list = screen.getByRole('list');
@@ -161,7 +160,11 @@ describe('The Ancient Egypt display case page', () => {
       'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
       'Display panels covering Egyptian pantheon mythology, with QR links to digital collections',
     ]);
-    expect(screen.getAllByRole('img')).toHaveLength(EGYPT_CASE.photos.length);
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(EGYPT_CASE.photos).toHaveLength(0);
+    expect(screen.queryAllByRole('img')).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify([EGYPT, EGYPT_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens|moon-dust/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/egypt');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/egypt');
   });

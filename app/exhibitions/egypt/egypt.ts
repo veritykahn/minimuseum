@@ -101,13 +101,8 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
   cases: [
     {
       href: '/exhibitions/egypt/artifacts/case',
-      image: {
-        src: '/exhibitions/egypt/case-thumb.jpg',
-        alt: 'The installation: the two Ancient Egypt posters on the wall either side of a green curtain beneath The Mini Museum sign, above a small clear display case on a glass table',
-      },
       label: 'Display Case',
       title: 'Artifacts',
-      subtitle: 'Photographs of the installation',
     },
   ],
   posters: [
@@ -204,21 +199,8 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
 export const EGYPT_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  subtitle: 'Photographs of the installation',
-  photos: [
-    {
-      src: '/exhibitions/egypt/installation.jpg',
-      alt: 'The installation: the posters The Mysteries of Ancient Egypt and Gods and Goddesses of Ancient Egypt on the wall either side of a green curtain beneath The Mini Museum sign, a small clear display case with a black lid and a printed card on a glass table below, between two green armchairs',
-      width: 1110,
-      height: 900,
-    },
-    {
-      src: '/exhibitions/egypt/installation-side.jpg',
-      alt: 'The installation from the side: the two posters, the green curtains and The Mini Museum sign above the glass table and its display case, with a green armchair either side',
-      width: 1130,
-      height: 900,
-    },
-  ],
+  // Photographs to come: the case will be photographed anew.
+  photos: [],
   artifacts: [
     'Hand-crafted replica Bastet statue, goddess of protection and cats',
     'Replica Anubis statue, god of mummification, and a scarab beetle amulet',

@@ -38,6 +38,8 @@
 [data-exhibition='great-war'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; }
 [data-exhibition='great-war'] .pe-case-label { color: #a59d90; }
 [data-exhibition='great-war'] .pe-case-title { color: #ede6da; font-size: 24px; }
+/* The case awaiting its photographs: drawn in the posters' off-white, lit like a candle. */
+[data-exhibition='great-war'] { --pe-case-frame: #ede6da; --pe-case-glow: #f2b866; --pe-case-placeholder-ink: #a59d90; }
 
 /* ───────── Titles ───────── */
 [data-exhibition='great-war'] .pe-title-text {

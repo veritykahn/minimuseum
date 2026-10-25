@@ -3,14 +3,17 @@
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
+import CasePlaceholder from '@/components/exhibition/CasePlaceholder';
 import { emphasisRuns } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { GREAT_WAR, GREAT_WAR_CASE } from '../../greatWar';
 import '../../great-war.css';
 
 /*
- * The Great War's display case: photographs of the installation, and the
- * artifacts exactly as the Mini Museum record lists them. No 3D viewers.
+ * The Great War's display case: photographs of the case (until it is
+ * photographed, an empty case drawn in outline, "Display case — photographs
+ * to come"), and the artifacts exactly as the Mini Museum record lists them.
+ * No 3D viewers.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -44,10 +47,16 @@ export default function GreatWarCase() {
           <p className="gw-case-subtitle">{subtitle}</p>
         </header>
 
-        <figure className="gw-case-lead">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={first.src} alt={first.alt} width={first.width} height={first.height} />
-        </figure>
+        {first ? (
+          <figure className="gw-case-lead">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={first.src} alt={first.alt} width={first.width} height={first.height} />
+          </figure>
+        ) : (
+          <div className="gw-case-lead gw-case-awaiting">
+            <CasePlaceholder size="page" />
+          </div>
+        )}
 
         <section className="gw-case-artifacts" aria-labelledby="gw-case-artifacts">
           <h2 id="gw-case-artifacts">{GREAT_WAR_CASE.title}</h2>
@@ -60,17 +69,19 @@ export default function GreatWarCase() {
           </ul>
         </section>
 
-        <section className="gw-case-photos" aria-labelledby="gw-case-photos">
-          <h2 id="gw-case-photos">{GREAT_WAR_CASE.subtitle}</h2>
-          <div className="gw-case-photo-row">
-            {rest.map((p) => (
-              <figure key={p.src}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading="lazy" />
-              </figure>
-            ))}
-          </div>
-        </section>
+        {rest.length > 0 && (
+          <section className="gw-case-photos" aria-labelledby="gw-case-photos">
+            <h2 id="gw-case-photos">{GREAT_WAR_CASE.subtitle}</h2>
+            <div className="gw-case-photo-row">
+              {rest.map((p) => (
+                <figure key={p.src}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading="lazy" />
+                </figure>
+              ))}
+            </div>
+          </section>
+        )}
 
         <Link href={`/exhibitions/${GREAT_WAR.slug}`} className="gw-case-return">
           Return to Exhibition

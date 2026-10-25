@@ -83,13 +83,8 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
   cases: [
     {
       href: '/exhibitions/moon/artifacts/case',
-      image: {
-        src: '/exhibitions/moon/case-thumb.jpg',
-        alt: 'The display: three white stereo microscopes on a glass table in front of a green curtain, with dishes of sand and specimen cards between them',
-      },
       label: 'Display Case',
       title: 'Artifacts',
-      subtitle: 'Photographs of the installation',
     },
   ],
   posters: [
@@ -199,45 +194,8 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
 export const MOON_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  subtitle: 'Photographs of the installation',
-  photos: [
-    {
-      src: '/exhibitions/moon/installation.jpg',
-      alt: 'The installation: the posters Another Earth and Our Incredible Moon on the wall either side of a green curtain beneath The Mini Museum sign, a glass table of microscopes below, between two green armchairs and a potted plant',
-      width: 696,
-      height: 960,
-    },
-    {
-      src: '/exhibitions/moon/installation-front.jpg',
-      alt: 'The installation from the front: the two posters either side of the green curtain beneath The Mini Museum sign, and three microscopes with specimen cards and dishes of sand on the glass table below',
-      width: 720,
-      height: 960,
-    },
-    {
-      src: '/exhibitions/moon/microscopes.jpg',
-      alt: 'The glass table close up: three white stereo microscopes, specimen cards in clear stands, and small dishes of sand in different colors',
-      width: 1150,
-      height: 900,
-    },
-    {
-      src: '/exhibitions/moon/moon-dust.jpg',
-      alt: 'A specimen card headed moon dust, lunar meteorite Adrar 013, in a clear stand beside a microscope whose lit stage holds a dish of dark grains',
-      width: 720,
-      height: 960,
-    },
-    {
-      src: '/exhibitions/moon/microscope-sands.jpg',
-      alt: 'A microscope beside numbered specimen cards and five dishes of sand: black, silver, white, orange and speckled',
-      width: 720,
-      height: 960,
-    },
-    {
-      src: '/exhibitions/moon/sand-specimens.jpg',
-      alt: 'Another microscope with its cards and six dishes of sand from different places, in shades of gold, gray and orange',
-      width: 720,
-      height: 960,
-    },
-  ],
+  // Photographs to come: the case will be photographed anew.
+  photos: [],
   artifacts: [
     'Genuine lunar meteorite, Adrar 013 sample',
     'Laboratory microscopes with comparative global sand and geology specimens',

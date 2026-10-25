@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = 'The Victorian Britain display case: photographs of the installation and the artifacts in it.';
+const description = 'The Victorian Britain display case and the artifacts in it.';
 
 export const metadata: Metadata = {
   title: 'Display Case | Victorian Britain | The Mini Museum',

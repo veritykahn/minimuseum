@@ -39,7 +39,6 @@ describe('The Great War', () => {
   it('every picture has alt text', () => {
     for (const p of GREAT_WAR.posters) expect(p.hero.alt).toBeTruthy();
     for (const it of allItems) if (it.type === 'full-image') expect(it.alt).toBeTruthy();
-    for (const photo of GREAT_WAR_CASE.photos) expect(photo.alt).toBeTruthy();
   });
 
   describe('the walkthrough', () => {
@@ -66,7 +65,7 @@ describe('The Great War', () => {
 });
 
 describe('The Great War display case page', () => {
-  it('lists the artifacts exactly as the record does, with the photographs', () => {
+  it('lists the artifacts exactly as the record does, beside an empty case awaiting its photographs', () => {
     render(<GreatWarCase />);
     expect(screen.getByRole('heading', { level: 1, name: 'The Great War' })).toBeInTheDocument();
     const list = screen.getByRole('list');
@@ -78,7 +77,11 @@ describe('The Great War display case page', () => {
       'Backlit silhouette display, take-away soldier profile cards, and an iPad Armistice audio station',
     ]);
     expect(within(list).getByText('Service for the Mobilized Soldier').tagName).toBe('EM');
-    expect(screen.getAllByRole('img')).toHaveLength(GREAT_WAR_CASE.photos.length);
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(GREAT_WAR_CASE.photos).toHaveLength(0);
+    expect(screen.queryAllByRole('img')).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify([GREAT_WAR, GREAT_WAR_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens|moon-dust/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');
   });

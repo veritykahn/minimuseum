@@ -103,13 +103,8 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
   cases: [
     {
       href: '/exhibitions/victorian/artifacts/case',
-      image: {
-        src: '/exhibitions/victorian/case-thumb.jpg',
-        alt: 'The display case: a small leather-bound book open on its stand behind a needle case printed with a portrait of Queen Victoria, in a clear case, with a printed card beside it',
-      },
       label: 'Display Case',
       title: 'Artifacts',
-      subtitle: 'Photographs of the installation',
     },
   ],
   // The V&A's photograph of its Centre Refreshment Room is washed in behind the posters.
@@ -207,32 +202,13 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
 /*
  * The display case page (artifacts/case). The artifacts are listed exactly as
  * the Mini Museum record lists them; *The Scott Birthday Book* is a title, in
- * italics. The photographs are cropped to the installation.
+ * italics.
  */
 export const VICTORIAN_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  subtitle: 'Photographs of the installation',
-  photos: [
-    {
-      src: '/exhibitions/victorian/installation.jpg',
-      alt: 'The installation: the posters Revolutionary Victorian Britain and the Dickens Christmas poster on the wall either side of a green curtain beneath The Mini Museum sign, a small clear display case on a glass table below, green velvet armchairs, and a lit Christmas tree in the corner',
-      width: 1032,
-      height: 900,
-    },
-    {
-      src: '/exhibitions/victorian/case.jpg',
-      alt: 'Inside the display case: the Scott Birthday Book open on its stand, a needle case printed with a portrait of Queen Victoria in front of it, and beside the case a printed card describing both',
-      width: 1200,
-      height: 900,
-    },
-    {
-      src: '/exhibitions/victorian/installation-christmas.jpg',
-      alt: 'The installation at Christmas: the Dickens poster beside a green curtain under The Mini Museum sign, the display case on its glass table between green velvet seats, and a Christmas tree hung with white lights',
-      width: 960,
-      height: 900,
-    },
-  ],
+  // Photographs to come: the case will be photographed anew.
+  photos: [],
   artifacts: [
     'Victorian needle case featuring a Queen Victoria lithograph',
     'Antique copy of *The Scott Birthday Book*',

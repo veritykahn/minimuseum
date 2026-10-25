@@ -3,14 +3,16 @@
 import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
+import CasePlaceholder from './CasePlaceholder';
 import { emphasisRuns } from './helpers';
 import type { CasePageData, ExhibitionConfig } from './types';
 import './poster-exhibition.css';
 
 /*
- * A display case page for a poster exhibition: photographs of the
- * installation, and the artifacts exactly as the Mini Museum record lists
- * them (*words* set in italics). The exhibition's faces and colors come from
+ * A display case page for a poster exhibition: photographs of the case (or,
+ * until it is photographed, an empty case drawn in outline, "Display case —
+ * photographs to come"), and the artifacts exactly as the Mini Museum record
+ * lists them (*words* set in italics). The exhibition's faces and colors come from
  * its config, as on its landing page; its own stylesheet can restyle the
  * pe-case-page-* classes under [data-exhibition='<slug>'].
  */
@@ -47,11 +49,15 @@ export default function CasePage({ config, data }: { config: ExhibitionConfig; d
           <p className="pe-case-page-subtitle">{subtitle}</p>
         </header>
 
-        {first && (
+        {first ? (
           <figure className="pe-case-page-lead">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={first.src} alt={first.alt} width={first.width} height={first.height} />
           </figure>
+        ) : (
+          <div className="pe-case-page-lead pe-case-page-awaiting">
+            <CasePlaceholder size="page" />
+          </div>
         )}
 
         <section className="pe-case-page-artifacts" aria-labelledby={`${slug}-case-artifacts`}>

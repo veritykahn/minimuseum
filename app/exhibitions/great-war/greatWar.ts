@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { floorReturnFor } from '@/lib/floors';
-import type { ExhibitionConfig, PanelDecor, PanelMarks } from '@/components/exhibition/types';
+import type { CasePageData, ExhibitionConfig, PanelDecor, PanelMarks } from '@/components/exhibition/types';
 
 /*
  * The Great War: every word on screen, and the look.
@@ -76,13 +76,8 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
   cases: [
     {
       href: '/exhibitions/great-war/artifacts/case',
-      image: {
-        src: '/exhibitions/great-war/case-thumb.jpg',
-        alt: 'The display case: a steel helmet, a canvas pouch and a field manual under clear acrylic, beside a backlit silhouette of a soldier and a cross, among red poppies',
-      },
       label: 'Display Case',
       title: 'Artifacts',
-      subtitle: 'Photographs of the installation',
     },
   ],
   interactives: [
@@ -218,30 +213,11 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
  * The display case page (artifacts/case). The artifacts are listed exactly as
  * the Mini Museum record lists them; *words* are set in italics.
  */
-export const GREAT_WAR_CASE = {
+export const GREAT_WAR_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  subtitle: 'Photographs of the installation',
-  photos: [
-    {
-      src: '/exhibitions/great-war/case.jpg',
-      alt: 'The display case: a steel helmet with a round decal, a canvas pouch, a field manual titled Service for the Mobilized Soldier and a shaving kit under clear acrylic, beside a backlit silhouette of a soldier and a cross and a tray of cards, on a table strewn with red poppies, with a tablet on the shelf below',
-      width: 1200,
-      height: 900,
-    },
-    {
-      src: '/exhibitions/great-war/installation.jpg',
-      alt: 'The installation: the two posters on the wall either side of a green curtain beneath The Mini Museum sign, with the display case and backlit silhouette on a table below, and a green armchair',
-      width: 900,
-      height: 1200,
-    },
-    {
-      src: '/exhibitions/great-war/installation-corner.jpg',
-      alt: 'The installation from the side: the posters, the green curtain and The Mini Museum sign above the display case and its table of red poppies',
-      width: 840,
-      height: 1200,
-    },
-  ],
+  // Photographs to come: the case will be photographed anew.
+  photos: [],
   artifacts: [
     'M1917 Brodie doughboy helmet with American Legion decal',
     'US Army issue shaving kit and the *Service for the Mobilized Soldier* field manual',

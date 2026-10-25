@@ -117,13 +117,8 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
   cases: [
     {
       href: '/exhibitions/womens-history/artifacts/case',
-      image: {
-        src: '/exhibitions/womens-history/case-thumb.jpg',
-        alt: 'The display case: two pages of a handwritten, bomb-damaged letter, stained and torn at the edges, open on a clear stand',
-      },
       label: 'Display Case',
       title: 'Artifacts',
-      subtitle: 'Photographs of the installation',
     },
   ],
   credits: [{ text: AF_KLINT_CREDIT, href: AF_KLINT_SOURCE }],
@@ -293,33 +288,13 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
 
 /*
  * The display case page (artifacts/case). The artifacts are listed exactly as
- * the Mini Museum record lists them. The photographs are cropped to the
- * installation.
+ * the Mini Museum record lists them.
  */
 export const WOMENS_HISTORY_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  subtitle: 'Photographs of the installation',
-  photos: [
-    {
-      src: '/exhibitions/womens-history/installation.jpg',
-      alt: "The installation: the two Women's History Month posters on the wall between green curtains, and below them a clear display case on a glass table, the letters open on a stand inside it with printed cards beside it, between green velvet seats",
-      width: 812,
-      height: 828,
-    },
-    {
-      src: '/exhibitions/womens-history/case.jpg',
-      alt: 'Inside the display case: two pages of a handwritten letter, stained and torn at the edges, open on a clear stand, with a printed card beside the case describing the letters',
-      width: 1200,
-      height: 801,
-    },
-    {
-      src: '/exhibitions/womens-history/case-table.jpg',
-      alt: 'The display case head on: the letters open on their clear stand inside the case, on a glass table between two printed cards',
-      width: 1200,
-      height: 900,
-    },
-  ],
+  // Photographs to come: the case will be photographed anew.
+  photos: [],
   artifacts: [
     "Original Blitz bomb-damaged family letters from Violet Dina Want's estate",
     'Archival glass display case presentation with clear document mounts',

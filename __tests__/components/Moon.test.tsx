@@ -132,8 +132,7 @@ describe('Our Incredible Moon', () => {
     for (const p of MOON.posters) expect(p.hero.alt).toBeTruthy();
     const decor = allItems.flatMap((it) => (it.decor ? [it.decor.src] : []));
     expect(decor.sort()).toEqual(['/exhibitions/moon/moonrise.jpg', '/exhibitions/moon/ringed-planet.jpg', '/exhibitions/moon/three-moons.jpg']);
-    for (const c of MOON.cases ?? []) expect(c.image?.alt).toBeTruthy();
-    for (const photo of MOON_CASE.photos) expect(photo.alt).toBeTruthy();
+    for (const c of MOON.cases ?? []) expect(c.image).toBeUndefined();
   });
 
   describe('the walkthrough', () => {
@@ -175,7 +174,7 @@ describe('Our Incredible Moon', () => {
 });
 
 describe('The Our Incredible Moon display case page', () => {
-  it('lists the artifacts exactly as the record does, with the photographs', () => {
+  it('lists the artifacts exactly as the record does, beside an empty case awaiting its photographs', () => {
     render(<MoonCase />);
     expect(screen.getByRole('heading', { level: 1, name: 'Our Incredible Moon' })).toBeInTheDocument();
     const list = screen.getByRole('list');
@@ -185,7 +184,11 @@ describe('The Our Incredible Moon display case page', () => {
       'Laboratory microscopes with comparative global sand and geology specimens',
       'Display posters detailing lunar formation, regolith chemistry, exoplanet orbital mechanics, and astrobiology',
     ]);
-    expect(screen.getAllByRole('img')).toHaveLength(MOON_CASE.photos.length);
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(MOON_CASE.photos).toHaveLength(0);
+    expect(screen.queryAllByRole('img')).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify([MOON, MOON_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens|moon-dust/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/moon');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/moon');
   });

@@ -58,7 +58,7 @@ describe("Women's History Month", () => {
     }
     expect(WOMENS_HISTORY.cases).toHaveLength(1);
     expect(WOMENS_HISTORY.cases?.[0].href).toBe('/exhibitions/womens-history/artifacts/case');
-    expect(WOMENS_HISTORY.cases?.[0].image?.alt).toBeTruthy();
+    expect(WOMENS_HISTORY.cases?.[0].image).toBeUndefined(); // photographs to come
     expect(WOMENS_HISTORY.fx.theme).toBe('wh');
   });
 
@@ -229,7 +229,7 @@ describe("Women's History Month", () => {
 });
 
 describe("The Women's History Month display case page", () => {
-  it('lists the artifacts exactly as the record does, with the photographs', () => {
+  it('lists the artifacts exactly as the record does, beside an empty case awaiting its photographs', () => {
     render(<WomensHistoryCase />);
     expect(screen.getByRole('heading', { level: 1, name: "Women's History Month" })).toBeInTheDocument();
     const list = screen.getByRole('list');
@@ -238,8 +238,11 @@ describe("The Women's History Month display case page", () => {
       'Archival glass display case presentation with clear document mounts',
       "Digital extension: an 11-slide interactive biographical presentation on Violet's life",
     ]);
-    expect(screen.getAllByRole('img')).toHaveLength(WOMENS_HISTORY_CASE.photos.length);
-    for (const p of WOMENS_HISTORY_CASE.photos) expect(p.alt).toBeTruthy();
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(WOMENS_HISTORY_CASE.photos).toHaveLength(0);
+    expect(screen.queryAllByRole('img')).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify([WOMENS_HISTORY, WOMENS_HISTORY_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens|moon-dust/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/womens-history');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/womens-history');
   });

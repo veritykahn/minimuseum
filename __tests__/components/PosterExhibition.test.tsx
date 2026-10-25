@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { colorsFor, emphasisRuns, posterLengths, projectorPosters, veilFor } from '@/components/exhibition/helpers';
 import type { ExhibitionConfig, PosterItem } from '@/components/exhibition/types';
@@ -90,6 +90,14 @@ describe('PosterExhibition', () => {
     // the first poster, then the cases, then the rest
     const order = Array.from(document.querySelectorAll('.pe-exhibition-grid > *')).map((el) => el.getAttribute('data-poster') ?? 'case');
     expect(order).toEqual(['poster1', 'case', 'poster2']);
+  });
+
+  it('draws an empty case, photographs to come, for a display case with no photograph', () => {
+    render(<PosterExhibition config={makeConfig({ cases: [{ href: '/case-1', label: 'Display Case', title: 'Artifacts' }] })} />);
+    const caseLink = screen.getByRole('link', { name: /Display case — photographs to come/ });
+    expect(caseLink).toHaveAttribute('href', '/case-1');
+    expect(within(caseLink).queryAllByRole('img')).toHaveLength(0);
+    expect(caseLink.querySelector('.pe-case-placeholder svg')).toHaveAttribute('aria-hidden', 'true');
   });
 
   it('remembers the floor position on the way back', () => {

@@ -234,6 +234,57 @@ body:has(.pe-root) { margin: 0; overflow-x: hidden; }
   color: var(--pe-accent);
 }
 
+/* ───────── A case awaiting its photographs (CasePlaceholder) ─────────
+   An empty case in outline, lit from within. An exhibition sets the case's
+   color (--pe-case-frame) and its light (--pe-case-glow) in its own
+   stylesheet; both default to its accent. */
+.pe-case-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  color: var(--pe-case-frame, var(--pe-accent));
+}
+.pe-case-placeholder-card { margin-bottom: 14px; }
+.pe-case-placeholder-art { position: relative; display: block; }
+.pe-case-placeholder-art::before {
+  content: '';
+  position: absolute;
+  inset: 4% 8% 14%;
+  background: radial-gradient(ellipse 50% 55% at 50% 42%, color-mix(in srgb, var(--pe-case-glow, var(--pe-accent)) 34%, transparent), transparent 72%);
+  filter: blur(6px);
+  animation: pe-case-glow 7s ease-in-out infinite;
+  pointer-events: none;
+}
+.pe-case-placeholder svg { position: relative; display: block; width: 100%; height: auto; overflow: visible; }
+.pe-case-placeholder-card .pe-case-placeholder-art { width: min(260px, 70vw); }
+.pe-case-placeholder-page .pe-case-placeholder-art { width: min(460px, 86vw); }
+.pe-case-placeholder svg * { vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+.pe-cp-glass { fill: color-mix(in srgb, currentColor 4%, transparent); stroke: currentColor; stroke-width: 1.25; }
+.pe-cp-hidden { fill: none; stroke: currentColor; stroke-width: 1; stroke-dasharray: 3 4; opacity: 0.4; }
+.pe-cp-riser { fill: none; stroke: currentColor; stroke-width: 1; opacity: 0.55; }
+.pe-cp-plinth { fill: color-mix(in srgb, currentColor 9%, transparent); stroke: currentColor; stroke-width: 1.25; opacity: 0.85; }
+.pe-cp-light { fill: var(--pe-case-glow, var(--pe-accent)); opacity: 0.1; }
+.pe-cp-lamp { stroke: var(--pe-case-glow, var(--pe-accent)); stroke-width: 2.5; filter: drop-shadow(0 0 4px var(--pe-case-glow, var(--pe-accent))); }
+.pe-cp-glint { stroke: currentColor; stroke-width: 1; opacity: 0.35; }
+.pe-cp-glint-faint { opacity: 0.18; }
+.pe-case-placeholder-label {
+  font-family: var(--pe-body);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+  color: var(--pe-case-placeholder-ink, currentColor);
+}
+.pe-case-placeholder-page .pe-case-placeholder-label { font-size: clamp(1rem, 2.2vw, 1.2rem); }
+@keyframes pe-case-glow {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pe-case-placeholder-art::before { animation: none; }
+}
+
 /* ───────── Walkthrough ───────── */
 .pe-poster-walkthrough {
   min-height: 100vh;

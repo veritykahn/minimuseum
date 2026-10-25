@@ -88,6 +88,9 @@
 [data-exhibition='moon'] .pe-case-label { color: #c9c0e3; }
 [data-exhibition='moon'] .pe-case-title { font-family: var(--mo-heavy); font-weight: 700; color: #fff; font-size: 24px; letter-spacing: 0.04em; text-transform: uppercase; }
 [data-exhibition='moon'] .pe-case-subtitle { font-style: normal; font-weight: 300; color: var(--mo-lavender); }
+/* The case awaiting its photographs: a lavender outline, lit in aqua moonlight. */
+[data-exhibition='moon'] { --pe-case-frame: var(--mo-lavender); --pe-case-glow: var(--mo-aqua); --pe-case-placeholder-ink: #c9c0e3; }
+[data-exhibition='moon'] .pe-case-placeholder-label { font-style: normal; font-weight: 300; letter-spacing: 0.04em; }
 
 /* ───────── The walkthrough: a night sky, its stars drifting a little ───────── */
 [data-exhibition='moon'] .pe-poster-walkthrough {
@@ -251,7 +254,6 @@
 [data-exhibition='moon'] .pe-case-page-artifacts li { font-weight: 300; }
 /* Five photographs: the wide one spans two columns, so the rows come out even. */
 [data-exhibition='moon'] .pe-case-page-photo-row { grid-template-columns: repeat(3, 1fr); }
-[data-exhibition='moon'] .pe-case-page-photo-row figure:has(img[width='1150']) { grid-column: span 2; }
 [data-exhibition='moon'] .pe-case-page-photo-row img { height: 100%; object-fit: cover; }
 
 @media (max-width: 900px) {
@@ -265,7 +267,6 @@
   [data-exhibition='moon'] .pe-callout { border-radius: 28px; padding: 22px 24px; }
   [data-exhibition='moon'] .mo-landscape { padding-top: 16vh; }
   [data-exhibition='moon'] .pe-case-page-photo-row { grid-template-columns: 1fr; }
-  [data-exhibition='moon'] .pe-case-page-photo-row figure:has(img[width='1150']) { grid-column: auto; }
 }
 
 @media (prefers-reduced-motion: reduce) {
