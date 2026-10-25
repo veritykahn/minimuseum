@@ -130,7 +130,7 @@ export const FIRST_FLOOR: Floor = {
       darkAccent: '#0a1220',
       textColor: '#fff',
       description: 'An intimate look at working-class life, blending personal Blitz-damaged correspondence with digital storytelling.',
-      active: false,
+      active: true,
     },
     {
       slug: 'holocaust',

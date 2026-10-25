@@ -1,0 +1,532 @@
+/* ==========================================================================
+   Women's History Month's own look, on top of components/exhibition. The
+   posters set it.
+   Poster 1: a warm blush ground with orange and royal-blue paint splashed
+   into its corners (the poster's own splashes, keyed out of it); the title
+   in a heavy, high-contrast navy serif (Playfair Display 900), WO / MEN / 'S
+   stacked and underlined beside HISTORY; a spaced capital subtitle; the
+   vertical March line up the side; copy in the same serif, with a bold lede.
+   Poster 2: dusty rose; the same navy title; Violet's name in the poster's
+   own decorative lettering; "née Knight" in a typewriter italic; the
+   biography typewritten (Courier Prime); the family photographs mounted as
+   frames of 35mm negative film, with their rebate markings.
+   Captions and credits in a clean sans (Poppins), as the poster sets its
+   caption.
+
+   The reveal (poster-fx.css, theme wh) splashes paint across the first
+   poster as it opens. Here: the second poster's sheet is wound up through a
+   typewriter instead; titles are set line by line and underlined with a
+   brush stroke; the painting is brushed on; splashes land in the corners;
+   photographs develop from negative to print; and the biography is set by
+   a typewriter's carriage, left to right.
+   ========================================================================== */
+
+[data-exhibition='womens-history'] {
+  --wh-blush: #e8d6cc;
+  --wh-rose: #d9a8a6;
+  --wh-navy: #22335e;
+  --wh-ink: #2a2226;
+  --wh-orange: #f2661f;
+  --wh-royal: #1f4ea3;
+  --wh-paper: #f6efe4;
+  --wh-film: #151113;
+  --wh-rebate: #e0913a;
+  --wh-mono: 'Courier Prime', 'Courier New', Courier, monospace;
+  /* The size of a stacked title line. */
+  --wh-t: clamp(3.2rem, min(9vw, 15vh), 8rem);
+  /* The reveal's paint (poster-fx.css). */
+  --pfx-wh-splash-a: url('/exhibitions/womens-history/splash-tl.png');
+  --pfx-wh-splash-b: url('/exhibitions/womens-history/splash-tr.png');
+  --pe-nav-m: var(--wh-navy);
+  --pe-nav-ink: var(--wh-navy);
+  --pe-hint: var(--wh-navy);
+  --pe-callout-bg: #fff;
+  --pe-callout-ink: var(--wh-navy);
+  --pe-case-ink: var(--wh-navy);
+  --pe-case-muted: var(--wh-navy);
+  --pe-credits-ink: var(--wh-navy);
+  --pe-marks: var(--wh-navy);
+  --pe-poster-h: 54vh;
+  color: var(--wh-navy);
+}
+
+/* ───────── Landing page: paint splashed into the top corners ───────── */
+[data-exhibition='womens-history'] .pe-exhibition-main { position: relative; padding-top: 110px; padding-bottom: 64px; gap: 30px; overflow: hidden; }
+[data-exhibition='womens-history'] .pe-exhibition-main > * { position: relative; z-index: 1; }
+[data-exhibition='womens-history'] .pe-exhibition-main::before,
+[data-exhibition='womens-history'] .pe-exhibition-main::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  z-index: 0;
+  width: min(26vw, 360px);
+  aspect-ratio: 25 / 16;
+  pointer-events: none;
+  background: url('/exhibitions/womens-history/splash-tl.png') top left / contain no-repeat;
+}
+[data-exhibition='womens-history'] .pe-exhibition-main::before { left: 0; }
+[data-exhibition='womens-history'] .pe-exhibition-main::after { right: 0; aspect-ratio: 21 / 16; background-image: url('/exhibitions/womens-history/splash-tr.png'); background-position: top right; }
+[data-exhibition='womens-history'] .pe-exhibition-title h1 {
+  font-weight: 900;
+  font-size: clamp(2.6rem, 8vw, 6.2rem);
+  line-height: 0.98;
+  letter-spacing: -0.005em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  margin-bottom: 18px;
+}
+[data-exhibition='womens-history'] .pe-exhibition-title h1::after {
+  content: '';
+  display: block;
+  width: min(5.2em, 70%);
+  height: 0.075em;
+  margin: 0.14em auto 0;
+  background: currentColor;
+}
+[data-exhibition='womens-history'] .pe-exhibition-title p {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.42em;
+  margin-right: -0.42em;
+  font-size: clamp(0.95rem, 2.2vw, 1.3rem);
+}
+[data-exhibition='womens-history'] .pe-exhibition-grid { gap: clamp(28px, 4vw, 52px); }
+[data-exhibition='womens-history'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(60, 40, 50, 0.14), 0 22px 50px rgba(60, 40, 50, 0.3); }
+[data-exhibition='womens-history'] .pe-display-case {
+  width: auto;
+  max-width: 340px;
+  padding: 20px 20px 22px;
+  border: 0;
+  background: var(--wh-rose);
+  box-shadow: 0 2px 4px rgba(60, 40, 50, 0.12), 0 22px 46px rgba(60, 40, 50, 0.26);
+}
+[data-exhibition='womens-history'] .pe-display-case:hover,
+[data-exhibition='womens-history'] .pe-display-case:focus-visible { outline: 2px solid var(--wh-navy); outline-offset: 6px; }
+[data-exhibition='womens-history'] .pe-case-image {
+  height: auto;
+  width: 100%;
+  max-height: 30vh;
+  object-fit: cover;
+  border: 10px solid var(--wh-film);
+  border-right-width: 26px;
+}
+[data-exhibition='womens-history'] .pe-case-label { color: var(--wh-ink); font-family: var(--wh-mono); letter-spacing: 0.3em; font-size: 11px; }
+[data-exhibition='womens-history'] .pe-case-title { color: var(--wh-navy); font-weight: 900; font-size: 30px; text-transform: uppercase; }
+[data-exhibition='womens-history'] .pe-case-subtitle { color: var(--wh-ink); font-family: var(--wh-mono); }
+[data-exhibition='womens-history'] .pe-credits { max-width: 600px; }
+
+/* The walkthrough's arrows and rail. */
+[data-exhibition='womens-history'] .pe-walkthrough-nav .pfx-progress-head { box-shadow: 0 0 0 2px currentColor; }
+[data-exhibition='womens-history'] .pe-nav-arrow-btn:not(:disabled):hover { background: rgba(255, 255, 255, 0.4); }
+
+/* ───────── Stacked titles: heavy navy capitals, underlined ───────── */
+[data-exhibition='womens-history'] .wh-title.pe-title-card {
+  display: grid;
+  grid-template-columns: max-content;
+  justify-content: center;
+  align-content: center;
+  gap: 0;
+}
+[data-exhibition='womens-history'] .wh-title .pe-title-text,
+[data-exhibition='womens-history'] .wh-title .pe-title-subtitle { grid-area: 1 / 1; }
+[data-exhibition='womens-history'] .wh-title .pe-title-text {
+  font-weight: 900;
+  font-size: var(--wh-t);
+  letter-spacing: -0.01em;
+  max-width: none;
+}
+[data-exhibition='womens-history'] .wh-title .pe-title-lines {
+  display: grid;
+  grid-template-columns: auto auto;
+  column-gap: 0.22em;
+  text-align: left;
+}
+[data-exhibition='womens-history'] .wh-title .pe-title-line { position: relative; justify-self: start; line-height: 0.92; padding-bottom: 0.1em; }
+/* The underline: a heavy rule, drawn on with a brush once the word is set. */
+[data-exhibition='womens-history'] .wh-p1 .pe-title-line:not(.pe-title-line-4)::after,
+[data-exhibition='womens-history'] .wh-p2 .pe-title-line:not(.pe-title-line-1)::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.02em;
+  height: 0.065em;
+  background: currentColor;
+  transform-origin: 0 50%;
+}
+/* Poster 1: WO / MEN / 'S down the left, HISTORY just after WO (MEN runs on
+   under its H, as on the poster), the subtitle under it. */
+[data-exhibition='womens-history'] .wh-p1 .pe-title-lines { grid-template-columns: max-content; }
+[data-exhibition='womens-history'] .wh-p1 .pe-title-line-1 { grid-area: 1 / 1; }
+[data-exhibition='womens-history'] .wh-p1 .pe-title-line-2 { grid-area: 2 / 1; }
+[data-exhibition='womens-history'] .wh-p1 .pe-title-line-3 { grid-area: 3 / 1; }
+[data-exhibition='womens-history'] .wh-p1 .pe-title-line-4 { grid-area: 1 / 1; margin-left: 2.04em; }
+/* Poster 2: WORK, then WO / MAN / 'S beside it, the subtitle under WORK. */
+[data-exhibition='womens-history'] .wh-p2 .pe-title-line-1 { grid-area: 1 / 1; }
+[data-exhibition='womens-history'] .wh-p2 .pe-title-line-2 { grid-area: 1 / 2; }
+[data-exhibition='womens-history'] .wh-p2 .pe-title-line-3 { grid-area: 2 / 2; }
+[data-exhibition='womens-history'] .wh-p2 .pe-title-line-4 { grid-area: 3 / 2; }
+/* The subtitle: small spaced capitals, tucked under HISTORY (poster 1) or WORK (poster 2). */
+[data-exhibition='womens-history'] .wh-title .pe-title-subtitle {
+  align-self: start;
+  margin-top: calc(var(--wh-t) * 1.12);
+  max-width: calc(var(--wh-t) * 4.1);
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: calc(var(--wh-t) * 0.13);
+  line-height: 1.55;
+  letter-spacing: 0.42em;
+  text-transform: uppercase;
+  color: var(--wh-navy);
+}
+[data-exhibition='womens-history'] .wh-p1.wh-title .pe-title-subtitle { justify-self: end; text-align: right; margin-right: -0.42em; }
+[data-exhibition='womens-history'] .wh-p2.wh-title .pe-title-subtitle { justify-self: start; text-align: left; max-width: calc(var(--wh-t) * 2.7); font-family: var(--wh-mono); letter-spacing: 0.32em; }
+
+/* The March line, set up the side of the page as on the poster. */
+[data-exhibition='womens-history'] .wh-title ~ .pe-marks {
+  left: clamp(16px, 3.5vw, 56px);
+  right: auto;
+  top: 50%;
+  bottom: auto;
+  writing-mode: vertical-rl;
+  transform: translateY(-50%) rotate(180deg);
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.3em;
+  font-family: var(--pe-display);
+  font-size: clamp(0.95rem, min(1.6vw, 2.8vh), 1.45rem);
+  line-height: 1.1;
+  letter-spacing: 0;
+  white-space: nowrap;
+}
+[data-exhibition='womens-history'] .wh-title ~ .pe-marks .pe-marks-left { font-weight: 700; }
+[data-exhibition='womens-history'] .wh-title ~ .pe-marks .pe-marks-right { font-weight: 400; margin-left: 0; }
+
+/* ───────── Paint in the corners: the poster's splashes ───────── */
+[data-exhibition='womens-history'] .pe-decor { z-index: 1; }
+/* A top-corner splash turned down into a bottom corner: flipped, so the poster's edge stays at the page's edge. */
+[data-exhibition='womens-history'] .pe-decor-bottom-right { transform: scaleY(-1); }
+
+/* ───────── The painting, with its credit under it ───────── */
+[data-exhibition='womens-history'] .wh-painting.pe-full-image {
+  flex-direction: column;
+  gap: 14px;
+  padding: 72px 6vw 104px;
+}
+[data-exhibition='womens-history'] .wh-painting.pe-full-image img {
+  max-width: 100%;
+  max-height: calc(100% - 3.6em);
+  min-height: 0;
+  box-shadow: 0 2px 4px rgba(60, 40, 50, 0.14), 0 24px 60px rgba(60, 40, 50, 0.3);
+}
+[data-exhibition='womens-history'] :is(.wh-painting, .wh-contact) .pe-image-caption {
+  position: static;
+  transform: none;
+  white-space: normal;
+  max-width: 46em;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--wh-navy) !important;
+  opacity: 1;
+}
+
+/* ───────── Poster 1's copy: the serif, a bold lede ───────── */
+[data-exhibition='womens-history'] .wh-p1 .pe-paragraph-text {
+  font-weight: 400;
+  font-size: clamp(1.25rem, 2.5vw, 1.85rem);
+  line-height: 1.55;
+  max-width: 30em;
+  text-align: left;
+  text-wrap: pretty;
+}
+[data-exhibition='womens-history'] .wh-lede .pe-paragraph-text { font-size: clamp(1.6rem, 3.6vw, 2.9rem); line-height: 1.3; max-width: 19em; }
+[data-exhibition='womens-history'] .wh-p1 .pe-lead { display: block; font-weight: 700; margin-bottom: 0.1em; }
+
+/* ───────── The link outs: a white card, as the posters set their QR codes ───────── */
+[data-exhibition='womens-history'] .wh-link .pe-callout {
+  max-width: min(720px, 100%);
+  padding: 30px 44px;
+  box-shadow: 0 2px 4px rgba(60, 40, 50, 0.1), 0 18px 40px rgba(60, 40, 50, 0.2);
+}
+[data-exhibition='womens-history'] .wh-link .pe-callout-text {
+  font-family: var(--pe-display);
+  font-weight: 700;
+  text-transform: none;
+  font-size: clamp(1.3rem, 2.8vw, 2rem);
+  text-wrap: balance;
+}
+[data-exhibition='womens-history'] .wh-p2.wh-link .pe-callout-text { font-family: var(--wh-mono); font-weight: 700; }
+[data-exhibition='womens-history'] .wh-link a.pe-callout:hover,
+[data-exhibition='womens-history'] .wh-link a.pe-callout:focus-visible { outline: 2px solid var(--wh-navy); outline-offset: 6px; }
+[data-exhibition='womens-history'] .pe-content-end:hover { color: #fff !important; background: var(--wh-navy); border-color: var(--wh-navy) !important; }
+
+/* ───────── Poster 2: Violet's name ───────── */
+[data-exhibition='womens-history'] .wh-name.pe-title-card { gap: 10px; align-items: center; }
+[data-exhibition='womens-history'] .wh-name .pe-title-text { text-transform: none; max-width: none; }
+[data-exhibition='womens-history'] .wh-name .pe-title-lettering { width: min(82vw, 980px); }
+[data-exhibition='womens-history'] .wh-name .pe-title-subtitle {
+  font-family: var(--wh-mono);
+  font-style: italic;
+  font-size: clamp(1.8rem, 4.4vw, 3.4rem);
+  color: var(--wh-ink);
+}
+[data-exhibition='womens-history'] .wh-name .pe-title-note {
+  font-family: var(--wh-mono);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 2.2vw, 1.6rem);
+  color: var(--wh-ink);
+}
+
+/* ───────── Poster 2: the biography, typewritten ───────── */
+[data-exhibition='womens-history'] .wh-p2 .pe-paragraph-text {
+  font-family: var(--wh-mono);
+  font-weight: 400;
+  font-size: clamp(1.05rem, 1.75vw, 1.38rem);
+  line-height: 1.6;
+  max-width: 58ch;
+  text-align: left;
+  color: var(--wh-ink);
+}
+[data-exhibition='womens-history'] .wh-p2 .pe-lead {
+  display: block;
+  font-weight: 400;
+  letter-spacing: 0.38em;
+  margin-bottom: 0.3em;
+}
+[data-exhibition='womens-history'] .wh-legacy .pe-paragraph-text { font-size: clamp(1.12rem, 1.95vw, 1.5rem); }
+
+/* A photograph, mounted as a frame of 35mm negative: black film, and the
+   rebate's orange markings up one edge. */
+[data-exhibition='womens-history'] .wh-p2 .pe-figure {
+  position: relative;
+  background: var(--wh-film);
+  padding: 12px 34px 12px 12px;
+  box-shadow: 0 2px 4px rgba(40, 20, 30, 0.2), 0 22px 48px rgba(40, 20, 30, 0.3);
+}
+[data-exhibition='womens-history'] .wh-p2 .pe-figure::after {
+  content: '\25B8  41    TRA 400    \25B8  41A';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  writing-mode: vertical-rl;
+  white-space: pre;
+  font-family: var(--wh-mono);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--wh-rebate);
+}
+[data-exhibition='womens-history'] .wh-p2 .pe-figure img { width: min(26vw, 340px); }
+[data-exhibition='womens-history'] .wh-p2.pe-has-figure { gap: clamp(32px, 5vw, 80px); }
+
+/* The four women: one frame on its own, on a contact strip of black film. */
+[data-exhibition='womens-history'] .wh-contact.pe-full-image {
+  flex-direction: column;
+  gap: 14px;
+  padding: 64px 6vw 104px;
+}
+[data-exhibition='womens-history'] .wh-contact.pe-full-image img {
+  max-width: 100%;
+  max-height: calc(100% - 2em);
+  min-height: 0;
+  padding: 14px 40px 14px 14px;
+  /* the film, with its rebate markings in the right-hand margin */
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='400'%3E%3Ctext x='20' y='200' fill='%23e0913a' font-family='Courier New,monospace' font-weight='700' font-size='11' letter-spacing='1.3' text-anchor='middle' dominant-baseline='middle' transform='rotate(90 20 200)'%3E%E2%96%B8 42%C2%A0%C2%A0%C2%A0%C2%A0TRA 400%C2%A0%C2%A0%C2%A0%C2%A0%E2%96%B8 42A%3C/text%3E%3C/svg%3E") right center / 40px 400px no-repeat,
+    var(--wh-film);
+  box-shadow: 0 2px 4px rgba(40, 20, 30, 0.2), 0 24px 56px rgba(40, 20, 30, 0.32);
+}
+
+/* ==========================================================================
+   The reveal, panel by panel (the theme itself is in poster-fx.css)
+   ========================================================================== */
+
+/* Poster 2 opens on a sheet of paper wound up through a typewriter's platen,
+   a line at a time, instead of the paint. */
+[data-exhibition='womens-history'] .pe-walkthrough-content:has(.wh-p2) .pfx-wh-blot { display: none; }
+[data-exhibition='womens-history'] .pe-walkthrough-content:has(.wh-p2) .pfx-wh-sheet {
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 calc(1.6em - 1px), rgba(42, 34, 38, 0.07) calc(1.6em - 1px) 1.6em),
+    var(--wh-paper);
+  opacity: 1;
+  animation: whFeed 1.9s 0.35s steps(12, end) backwards;
+  transform: translateY(-101%);
+}
+@keyframes whFeed {
+  from { transform: translateY(0); }
+  to { transform: translateY(-101%); }
+}
+
+/* Titles are set line by line, then underlined with a stroke of the brush. */
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line { animation: whSet 0.9s ease-out backwards; }
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line-1 { animation-delay: 0.95s; }
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line-2 { animation-delay: 1.15s; }
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line-3 { animation-delay: 1.35s; }
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line-4 { animation-delay: 1.55s; }
+@keyframes whSet {
+  from { opacity: 0; transform: translateY(0.12em); }
+}
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line::after { animation: whBrush 0.8s cubic-bezier(0.6, 0, 0.3, 1) backwards; }
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line-1::after { animation-delay: 1.8s; }
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line-2::after { animation-delay: 2s; }
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line-3::after { animation-delay: 2.2s; }
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-line-4::after { animation-delay: 2.4s; }
+@keyframes whBrush {
+  from { transform: scaleX(0); }
+}
+/* Poster 2's title is struck like type: each line arrives at once, no fade. */
+[data-exhibition='womens-history'] .pfx-wh .wh-p2.wh-title .pe-title-line { animation-name: whStrike; animation-duration: 0.35s; animation-timing-function: steps(1, end); }
+@keyframes whStrike {
+  from { opacity: 0; }
+}
+[data-exhibition='womens-history'] .pfx-wh .wh-title .pe-title-subtitle { animation: pfxWhWash 1.2s 2.4s ease-out backwards; }
+/* The March line rises up the side. */
+[data-exhibition='womens-history'] .pfx-wh .wh-title ~ .pe-marks { animation: whRiseSide 1.6s 2s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
+@keyframes whRiseSide {
+  from { opacity: 0; clip-path: inset(0 0 100% 0); }
+}
+
+/* Splashes land in the corners: thrown, then still. */
+[data-exhibition='womens-history'] .pfx-wh .pe-decor { animation: whSplat 1.3s 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2) backwards; }
+[data-exhibition='womens-history'] .pfx-wh .pe-decor-top-left { transform-origin: 0 0; }
+[data-exhibition='womens-history'] .pfx-wh .pe-decor-top-right { transform-origin: 100% 0; }
+@keyframes whSplat {
+  0% { opacity: 0; scale: 0.3; }
+  25% { opacity: 1; }
+}
+
+/* The painting is brushed on, left to right, in a slanting stroke. */
+[data-exhibition='womens-history'] .pfx-wh .wh-painting.pfx-media { animation: none; }
+[data-exhibition='womens-history'] .pfx-wh .wh-painting img { animation: whBrushOn 2s 0.2s cubic-bezier(0.55, 0, 0.25, 1) backwards; }
+@keyframes whBrushOn {
+  from { clip-path: polygon(0 0, 0 0, -20% 100%, 0 100%); }
+  to { clip-path: polygon(0 0, 120% 0, 100% 100%, 0 100%); }
+}
+[data-exhibition='womens-history'] .pfx-wh .wh-painting .pe-image-caption { animation: pfxWhWash 1s 1.7s ease-out backwards; }
+
+/* The lede: the bold words first, then the rest. */
+[data-exhibition='womens-history'] .pfx-wh .pe-lead.pfx-line { animation: pfxWhWash 1.1s 0.35s ease-out backwards; }
+[data-exhibition='womens-history'] .pfx-wh .wh-lede .pfx-w { animation-delay: calc(1.2s + var(--d) * 2.2); }
+
+/* Photographs develop: a negative, then grey, then the print comes up. */
+[data-exhibition='womens-history'] .pfx-wh :is(.wh-bio, .wh-contact).pfx-media,
+[data-exhibition='womens-history'] .pfx-wh .wh-bio .pfx-media { animation: whMount 1s 0.1s ease-out backwards; }
+[data-exhibition='womens-history'] .pfx-wh :is(.wh-bio .pe-figure, .wh-contact) img { animation: whDevelop 3.4s 0.4s ease-out backwards; }
+@keyframes whMount {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@keyframes whDevelop {
+  0% { filter: invert(1) sepia(0.5) contrast(0.9); }
+  40% { filter: invert(0.5) sepia(0.3) contrast(0.6); }
+  100% { filter: invert(0) sepia(0) contrast(1); }
+}
+/* The contact frame advances into the gate, a frame at a time. */
+[data-exhibition='womens-history'] .pfx-wh .wh-contact.pfx-media { animation: whAdvance 0.9s 0.1s steps(3, end) backwards; }
+@keyframes whAdvance {
+  from { opacity: 0.001; transform: translateY(18%); }
+  1% { opacity: 1; }
+}
+
+/* The biography is typed: the carriage carries each panel's copy across,
+   left to right, in the small even steps of a typewriter. */
+[data-exhibition='womens-history'] .pfx-wh .wh-bio [data-fx='body'] .pfx-line:not(.pe-lead) { animation: whCarriage 2.2s 0.45s steps(34, end) backwards; }
+[data-exhibition='womens-history'] .pfx-wh .wh-bio [data-fx] .pe-lead.pfx-line { animation: whCarriage 0.9s 0.3s steps(14, end) backwards; }
+[data-exhibition='womens-history'] .pfx-wh .wh-bio [data-fx] .pe-lead + .pfx-line,
+[data-exhibition='womens-history'] .pfx-wh .wh-bio [data-fx] .pe-lead ~ .pfx-line { animation-delay: 1.15s; }
+@keyframes whCarriage {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+/* Short typed lines: a word at a time, each struck at once. */
+[data-exhibition='womens-history'] .pfx-wh .wh-p2 .pfx-w { animation: whStrike 0.2s steps(1, end) backwards; animation-delay: calc(0.4s + var(--d) * 2.6); }
+
+/* Violet's name is inked in with the pen, left to right; née Knight and the dates are typed. */
+[data-exhibition='womens-history'] .pfx-wh .wh-name .pe-title-lettering { animation: whInk 1.8s 0.5s cubic-bezier(0.5, 0, 0.3, 1) backwards; }
+@keyframes whInk {
+  from { clip-path: inset(0 100% 0 0); opacity: 0.6; }
+  to { clip-path: inset(0 0 0 0); opacity: 1; }
+}
+[data-exhibition='womens-history'] .pfx-wh .wh-name .pe-title-subtitle { animation: whCarriage 0.8s 2.1s steps(10, end) backwards; }
+[data-exhibition='womens-history'] .pfx-wh .wh-name .pe-title-note { animation: whCarriage 1.3s 2.8s steps(40, end) backwards; }
+
+/* ───────── The display case page ───────── */
+[data-exhibition='womens-history'].pe-case-page { --pe-case-ink: var(--wh-navy); }
+[data-exhibition='womens-history'] .pe-case-page-title { font-weight: 900; text-transform: uppercase; }
+[data-exhibition='womens-history'] .pe-case-page-subtitle { font-family: var(--pe-display); text-transform: uppercase; letter-spacing: 0.36em; }
+[data-exhibition='womens-history'] .pe-case-page-label { font-family: var(--wh-mono); letter-spacing: 0.3em; }
+[data-exhibition='womens-history'].pe-case-page figure img { border: 12px solid var(--wh-film); border-right-width: 34px; box-shadow: 0 2px 4px rgba(40, 20, 30, 0.16), 0 22px 54px rgba(40, 20, 30, 0.26); }
+[data-exhibition='womens-history'] .pe-case-page-artifacts {
+  padding: 30px clamp(22px, 5vw, 56px);
+  background: var(--wh-rose);
+  color: var(--wh-ink);
+  box-shadow: 0 2px 4px rgba(40, 20, 30, 0.1), 0 18px 40px rgba(40, 20, 30, 0.18);
+}
+[data-exhibition='womens-history'] .pe-case-page-artifacts h2 { color: var(--wh-navy); font-weight: 900; text-transform: uppercase; }
+[data-exhibition='womens-history'] .pe-case-page-artifacts h2::after { background: var(--wh-orange); }
+[data-exhibition='womens-history'] .pe-case-page-artifacts li { font-family: var(--wh-mono); }
+[data-exhibition='womens-history'] .pe-case-page-photos h2 { font-weight: 900; text-transform: uppercase; }
+[data-exhibition='womens-history'] a.pe-case-page-return:hover,
+[data-exhibition='womens-history'] a.pe-case-page-return:focus-visible { color: #fff; background: var(--wh-navy); border-color: var(--wh-navy); }
+
+/* ───────── The classroom screen ───────── */
+[data-exhibition='womens-history'] .pjp-stage { --wh-t: calc(var(--pjp-u) * 8.6); }
+[data-exhibition='womens-history'] .pjp-stage .wh-title ~ .pe-marks { font-size: calc(var(--pjp-u) * 1.5); left: calc(var(--pjp-u) * 2); right: auto; top: 58%; bottom: auto; }
+[data-exhibition='womens-history'] .pjp-stage .pe-decor { --pe-decor-w: calc(var(--pjp-u) * 22) !important; width: calc(var(--pjp-u) * 22); }
+[data-exhibition='womens-history'] .pjp-stage .wh-painting.pe-full-image { padding: calc(var(--pjp-u) * 3) calc(var(--pjp-u) * 4) calc(var(--pjp-u) * 6); gap: calc(var(--pjp-u) * 0.8); }
+[data-exhibition='womens-history'] .pjp-stage .wh-painting.pe-full-image img { max-height: calc(100% - var(--pjp-u) * 3); }
+[data-exhibition='womens-history'] .pjp-stage :is(.wh-painting, .wh-contact) .pe-image-caption { font-size: calc(var(--pjp-u) * 0.95); width: auto; }
+[data-exhibition='womens-history'] .pjp-stage .wh-p1 .pe-paragraph-text { font-size: calc(var(--pjp-u) * 2.5); }
+[data-exhibition='womens-history'] .pjp-stage .wh-lede .pe-paragraph-text { font-size: calc(var(--pjp-u) * 3.6); }
+[data-exhibition='womens-history'] .pjp-stage .wh-p2 .pe-paragraph-text { font-size: calc(var(--pjp-u) * 1.9); }
+[data-exhibition='womens-history'] .pjp-stage .wh-p2 .pe-figure img { width: auto; max-width: calc(var(--pjp-u) * 26); max-height: calc(var(--pjp-u) * 34); }
+[data-exhibition='womens-history'] .pjp-stage .wh-name .pe-title-lettering { width: calc(var(--pjp-u) * 70); }
+[data-exhibition='womens-history'] .pjp-stage .wh-name .pe-title-subtitle { font-size: calc(var(--pjp-u) * 3.6); }
+[data-exhibition='womens-history'] .pjp-stage .wh-name .pe-title-note { font-size: calc(var(--pjp-u) * 1.8); }
+[data-exhibition='womens-history'] .pjp-stage .wh-contact.pe-full-image { padding: calc(var(--pjp-u) * 3) calc(var(--pjp-u) * 4) calc(var(--pjp-u) * 6); }
+[data-exhibition='womens-history'] .pjp-stage .wh-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
+
+@media (max-width: 900px) {
+  [data-exhibition='womens-history'] { --pe-poster-h: 46vh; }
+  [data-exhibition='womens-history'] .wh-p2 .pe-figure img { width: min(62vw, 300px); }
+  [data-exhibition='womens-history'] .wh-p2 .pe-figure { padding-right: 30px; }
+}
+@media (max-width: 700px) {
+  [data-exhibition='womens-history'] { --wh-t: clamp(2.2rem, 12.5vw, 5rem); }
+  [data-exhibition='womens-history'] .wh-title .pe-title-subtitle { font-size: max(0.7rem, calc(var(--wh-t) * 0.13)); letter-spacing: 0.3em; }
+  /* On a phone the March line runs along the foot of the title, not up the side. */
+  [data-exhibition='womens-history'] .wh-title ~ .pe-marks {
+    writing-mode: horizontal-tb;
+    transform: none;
+    top: auto;
+    bottom: 132px;
+    left: 24px;
+    right: 24px;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: 0.95rem;
+    white-space: normal;
+  }
+  [data-exhibition='womens-history'] .pe-decor { --pe-decor-w: 34vw !important; width: 34vw; }
+  [data-exhibition='womens-history'] .pe-exhibition-main::before,
+  [data-exhibition='womens-history'] .pe-exhibition-main::after { width: 22vw; }
+  [data-exhibition='womens-history'] .wh-link .pe-callout { padding-left: 24px; padding-right: 24px; }
+  [data-exhibition='womens-history'] :is(.wh-painting, .wh-contact).pe-full-image { padding-left: 20px; padding-right: 20px; }
+  [data-exhibition='womens-history'] .wh-p2 .pe-lead { letter-spacing: 0.2em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-exhibition='womens-history'] .pfx-wh :is(.pe-title-line, .pe-title-subtitle, .pe-title-note, .pe-title-lettering, .pe-marks, .pe-decor, img),
+  [data-exhibition='womens-history'] .pfx-wh .pe-title-line::after,
+  [data-exhibition='womens-history'] .pfx-wh :is(.wh-painting, .wh-contact, .wh-bio) img,
+  [data-exhibition='womens-history'] .pfx-wh .wh-title ~ .pe-marks {
+    animation: none !important;
+  }
+}

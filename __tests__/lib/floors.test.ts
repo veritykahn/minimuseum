@@ -7,6 +7,7 @@ import { EGYPT } from '@/app/exhibitions/egypt/egypt';
 import { MOON } from '@/app/exhibitions/moon/moon';
 import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
 import { VICTORIAN } from '@/app/exhibitions/victorian/victorian';
+import { WOMENS_HISTORY } from '@/app/exhibitions/womens-history/womensHistory';
 
 const slugs = (floor: typeof GROUND_FLOOR) => floor.exhibitions.map((e) => e.slug);
 
@@ -24,7 +25,7 @@ describe('the floors, by theme', () => {
 
   it('opens only the built exhibitions', () => {
     const open = FLOORS.flatMap((f) => f.exhibitions.filter((e) => e.active).map((e) => e.slug));
-    expect(open.sort()).toEqual(['america-250', 'egypt', 'fear-lab', 'great-war', 'harlem-renaissance', 'in-their-hands', 'moon', 'seeing-is-deceiving', 'victorian']);
+    expect(open.sort()).toEqual(['america-250', 'egypt', 'fear-lab', 'great-war', 'harlem-renaissance', 'in-their-hands', 'moon', 'seeing-is-deceiving', 'victorian', 'womens-history']);
   });
 
   it('sends each exhibition back to its own floor, at its own card', () => {
@@ -37,6 +38,7 @@ describe('the floors, by theme', () => {
     expect(MOON.back).toEqual({ href: '/exhibitions/ground-floor', label: 'Ground Floor', remember: { key: 'groundFloorIndex', value: '0' } });
     expect(AMERICA_250.back).toEqual({ href: '/exhibitions/ground-floor', label: 'Ground Floor', remember: { key: 'groundFloorIndex', value: '3' } });
     expect(VICTORIAN.back).toEqual({ href: '/exhibitions/ground-floor', label: 'Ground Floor', remember: { key: 'groundFloorIndex', value: '4' } });
+    expect(WOMENS_HISTORY.back).toEqual({ href: '/exhibitions/first-floor', label: 'First Floor', remember: { key: 'firstFloorIndex', value: '2' } });
     expect(GREAT_WAR.back).toEqual({
       href: '/exhibitions/first-floor', label: 'First Floor', remember: { key: 'firstFloorIndex', value: '0' },
     });

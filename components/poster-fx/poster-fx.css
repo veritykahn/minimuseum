@@ -1055,6 +1055,77 @@
 .pfx-vb .pfx-fg:not(.pfx-line) { animation: pfxVbSettle 1.2s 0.8s ease-out backwards; }
 
 /* ==========================================================================
+   WOMEN'S HISTORY MONTH — paint and paper
+   Calmly. As a poster opens, a sheet of the poster's own ground covers the
+   panel; orange and royal-blue paint splashes across it from the corners,
+   and as the paint lands the sheet dissolves and the page shows through.
+   (The splashes themselves are the posters' own, set by the exhibition's
+   stylesheet as --pfx-wh-splash-a and --pfx-wh-splash-b; the second poster
+   swaps the paint for a sheet wound up through a typewriter.) Copy washes
+   in like wet ink drying; short lines come a word at a time; pictures fade
+   up. The exhibition's stylesheet gives each kind of panel its own entrance
+   on top of this: titles stacked and underlined with a brush, the painting
+   brushed on, photographs developing, the biography set by a typewriter.
+   ========================================================================== */
+.pfx-wh { --pfx-gold: #22335e; }
+/* A little lateral travel: paper is not slid about. */
+.pfx-wh .pfx-line,
+.pfx-wh .pfx-fg { --pfx-off: 0.8vw; transition: translate 1.4s var(--pfx-ease), opacity 0.5s ease; }
+.pfx-wh .pfx-bg { --pfx-off: 0.4vw; transition: translate 2s var(--pfx-ease); }
+.pfx-wh .pfx-words { --pfx-off: 0.3vw; }
+
+/* The sheet: the poster's ground, dissolving once the paint has landed. */
+.pfx-wh-sheet {
+  position: absolute;
+  inset: 0;
+  background: var(--pfx-bg, #e8d6cc);
+  opacity: 0;
+  animation: pfxWhSheet 2.4s ease-in-out backwards;
+}
+@keyframes pfxWhSheet {
+  0%, 40% { opacity: 1; }
+  100% { opacity: 0; }
+}
+/* The paint: four splashes thrown in from the corners, which land and then
+   fade with the sheet, leaving the panel's own splashes in place. */
+.pfx-wh-blot {
+  position: absolute;
+  width: min(46vw, 620px);
+  aspect-ratio: 25 / 16;
+  background: var(--pfx-wh-splash-a, radial-gradient(circle at 40% 40%, #f2661f 0 30%, transparent 31%)) center / contain no-repeat;
+  opacity: 0;
+  animation: pfxWhSplash 2.4s cubic-bezier(0.2, 0.9, 0.3, 1.15) backwards;
+}
+.pfx-wh-blot-1 { top: -2%; left: -2%; transform-origin: 0 0; }
+.pfx-wh-blot-2 { top: -2%; right: -2%; transform-origin: 100% 0; background-image: var(--pfx-wh-splash-b, var(--pfx-wh-splash-a)); animation-delay: 0.12s; }
+.pfx-wh-blot-3 { bottom: -2%; right: -2%; transform-origin: 100% 100%; rotate: 180deg; animation-delay: 0.22s; }
+.pfx-wh-blot-4 { bottom: -2%; left: -2%; transform-origin: 0 100%; rotate: 180deg; background-image: var(--pfx-wh-splash-b, var(--pfx-wh-splash-a)); animation-delay: 0.32s; }
+@keyframes pfxWhSplash {
+  0% { opacity: 0; transform: scale(0.25); }
+  14% { opacity: 1; }
+  38% { opacity: 1; transform: scale(1); }
+  62% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.02); }
+}
+
+/* Copy washes in, like wet ink drying. */
+@keyframes pfxWhWash {
+  0% { opacity: 0; filter: blur(2px); }
+  50% { opacity: 0.85; filter: blur(0.4px); }
+}
+.pfx-wh .pfx-line { animation: pfxWhWash 1.3s 0.3s ease-out backwards; }
+/* Titles: once the page is open. */
+.pfx-wh [data-fx='title'] .pfx-line { animation: pfxWhWash 1.3s 1.2s ease-out backwards; }
+/* Short lines: a word at a time. */
+.pfx-wh :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }
+.pfx-wh .pfx-w {
+  animation: pfxWhWash 0.9s ease-out backwards;
+  animation-delay: calc(0.5s + var(--d) * 2.2);
+}
+.pfx-wh .pfx-media { animation: pfxWhWash 1.6s 0.15s ease-out backwards; }
+.pfx-wh .pfx-fg:not(.pfx-line) { animation: pfxWhWash 1.2s 0.8s ease-out backwards; }
+
+/* ==========================================================================
    PROGRESS
    ========================================================================== */
 .pfx-progress {
@@ -1279,6 +1350,22 @@
 }
 @keyframes pfxVbButton {
   from { transform: rotate(calc(var(--pfx-dir, 1) * -90deg)) scale(0.6); }
+}
+
+/* Women's History Month: chapters are flecks of paint; the head is a drop of
+   orange paint, ringed in the page's ground, that spreads as it lands. */
+.pfx-progress-wh .pfx-progress-mark { border-radius: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; }
+.pfx-progress-wh .pfx-progress-head {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: #f2661f;
+  border-radius: 46% 54% 50% 50% / 52% 44% 56% 48%;
+  box-shadow: 0 0 0 2px currentColor;
+  animation: pfxWhDrop 0.9s var(--pfx-ease, ease) backwards;
+}
+@keyframes pfxWhDrop {
+  from { transform: scale(0.4); }
 }
 
 @media (max-width: 480px) {

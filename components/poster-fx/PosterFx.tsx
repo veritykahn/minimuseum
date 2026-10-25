@@ -32,7 +32,12 @@ import './poster-fx.css';
  * opens, a sheet of cream paper and a sheet of green linen meet across the
  * panel at a torn seam and are drawn apart, the page torn open; each green
  * linen panel is then laid down on the page like a scrap of paper, and the
- * copy settles onto it.
+ * copy settles onto it. Women's History Month is paint and paper: as the
+ * first poster opens, orange and royal-blue paint splashes across the blush
+ * ground and the page shows through it; as the second opens, a sheet of
+ * paper is wound up through a typewriter's platen a line at a time. The
+ * exhibition's own stylesheet carries the rest (the photographs developing,
+ * the biography set by a typewriter carriage).
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -41,7 +46,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo' | 'ap' | 'vb';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo' | 'ap' | 'vb' | 'wh';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -210,6 +215,18 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
       <div className={`pfx-veil pfx-vb-tear is-${kind}`} aria-hidden="true">
         <i className="pfx-vb-sheet pfx-vb-cream" />
         <i className="pfx-vb-sheet pfx-vb-linen" />
+      </div>
+    );
+  }
+  if (theme === 'wh') {
+    // Paint splashing across the page (poster 1) or a sheet wound through a typewriter (poster 2; the exhibition's stylesheet picks).
+    return (
+      <div className={`pfx-veil pfx-wh-open is-${kind}`} aria-hidden="true">
+        <i className="pfx-wh-sheet" />
+        <i className="pfx-wh-blot pfx-wh-blot-1" />
+        <i className="pfx-wh-blot pfx-wh-blot-2" />
+        <i className="pfx-wh-blot pfx-wh-blot-3" />
+        <i className="pfx-wh-blot pfx-wh-blot-4" />
       </div>
     );
   }

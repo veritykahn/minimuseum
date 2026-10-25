@@ -633,3 +633,10 @@ a.pe-case-page-return:focus-visible { border-color: var(--pe-accent); color: var
 .pe-quote-cite { font-size: clamp(0.95rem, 1.8vw, 1.15rem); opacity: 0.85; }
 .pe-title-subtitle { font-size: clamp(1.1rem, 2.6vw, 1.8rem); }
 .pe-image-caption a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+
+/* ───────── A paragraph's bold lead-in; a title set line by line, or in lettering; a title's note (ParagraphItem.lead, TitleTextItem.lines / lettering / note) ───────── */
+.pe-lead { font-weight: 700; }
+.pe-title-lines { display: block; }
+.pe-title-line { display: block; }
+.pe-title-lettering { display: block; max-width: 100%; height: auto; }
+.pe-title-note { position: relative; z-index: 10; font-family: var(--pe-ui, var(--pe-body)); font-size: clamp(1rem, 2vw, 1.3rem); }

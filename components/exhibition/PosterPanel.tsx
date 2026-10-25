@@ -51,6 +51,11 @@ const PANEL_RENDERERS: Renderers = {
   paragraph: ({ config, poster, item, colors, kind }) => {
     const all = config.fx.text === 'all';
     const figure = item.figure;
+    const lead = item.lead && (
+      <>
+        <strong className="pe-lead pfx-line">{item.lead}</strong>{' '}
+      </>
+    );
     return (
       <div
         className={`pe-text-content-wrapper ${positionClass(item.position)} ${figure ? `pe-has-figure pe-figure-${figure.side ?? 'left'}` : ''} ${panelClasses(poster, item)}`}
@@ -77,6 +82,7 @@ const PANEL_RENDERERS: Renderers = {
               style={{ color: colors.text }}
               data-fx={all ? kind : undefined}
             >
+              {lead}
               <RevealText text={item.text} kind={kind} on={all} />
             </p>
             <p className="pe-source" style={{ color: colors.text }}>
@@ -89,6 +95,7 @@ const PANEL_RENDERERS: Renderers = {
             style={{ color: colors.text }}
             data-fx={all ? kind : undefined}
           >
+            {lead}
             <RevealText text={item.text} kind={kind} on={all} />
           </p>
         )}
@@ -114,10 +121,30 @@ const PANEL_RENDERERS: Renderers = {
   'title-text': ({ poster, item, colors }) => (
     <div className={`pe-text-content-wrapper pe-pos-center pe-title-card ${panelClasses(poster, item)}`}>
       <h2 className="pe-title-text" style={{ color: colors.title }} data-fx="title">
-        {item.kicker && <span className="pe-title-kicker pfx-line">{item.kicker}</span>}
-        <FxText text={item.text} />
+        {item.lines || item.lettering ? (
+          <>
+            <span className="visually-hidden">{[item.kicker, item.text].filter(Boolean).join(' ')}</span>
+            {item.lines && (
+              <span className="pe-title-lines" aria-hidden="true">
+                {item.lines.map((line, i) => (
+                  <span key={i} className={`pe-title-line pe-title-line-${i + 1} pfx-line`}>{line}</span>
+                ))}
+              </span>
+            )}
+            {item.lettering && (
+              // eslint-disable-next-line @next/next/no-img-element -- lettering cut from the poster; the title above is what is read
+              <img className="pe-title-lettering pfx-line" src={item.lettering.src} width={item.lettering.width} height={item.lettering.height} alt="" aria-hidden="true" />
+            )}
+          </>
+        ) : (
+          <>
+            {item.kicker && <span className="pe-title-kicker pfx-line">{item.kicker}</span>}
+            <FxText text={item.text} />
+          </>
+        )}
       </h2>
       {item.subtitle && <p className="pe-title-subtitle pfx-fg">{item.subtitle}</p>}
+      {item.note && <p className="pe-title-note pfx-fg">{item.note}</p>}
       {item.badge && (
         <p className="pe-badge pfx-fg">
           <span className="pe-badge-text">
