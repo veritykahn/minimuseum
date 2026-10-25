@@ -8,6 +8,7 @@ const EXHIBITION_ACCENTS: Record<string, string> = {
   'in-their-hands': '#C9A84C',
   'fear-lab': '#F2B33D',
   'great-war': '#E8372C',
+  egypt: '#F04A1A',
 };
 
 /** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
@@ -127,6 +128,26 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#b485d2',
     parent: 'first-floor',
     children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources', ...lessonsChild('harlem-renaissance')],
+  },
+  {
+    id: 'egypt',
+    label: 'Ancient Egypt',
+    path: '/exhibitions/egypt',
+    x: 180,
+    y: 80,
+    width: 140,
+    height: 110,
+    accentColor: '#F04A1A',
+    parent: 'ground-floor',
+    children: ['eg-case'],
+  },
+  {
+    id: 'eg-case',
+    label: 'Display Case',
+    path: '/exhibitions/egypt/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#F04A1A',
+    parent: 'egypt',
   },
   {
     id: 'in-their-hands',
