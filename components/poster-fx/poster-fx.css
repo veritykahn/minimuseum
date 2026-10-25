@@ -781,6 +781,121 @@
 }
 
 /* ==========================================================================
+   OUR INCREDIBLE MOON — moonrise, and the phases
+   Calm and slow, at night. As each poster opens the panel is dark, and a
+   lavender moon rises from below the horizon, waxing from a thin crescent
+   to full as it climbs, while the night lifts. On every other panel a soft
+   terminator sweeps across, the panel waxing into the light as the Moon
+   does (from the left going forward, from the right going back). Copy rises
+   gently; short lines come out a word at a time, like stars. The starfield
+   behind drifts a little in the direction of travel (the exhibition's own
+   stylesheet draws it).
+   ========================================================================== */
+.pfx-mo { --pfx-moon: #b9a6e6; --pfx-night: rgba(18, 13, 36, 0.94); }
+/* Little lateral travel: things drift rather than slide. */
+.pfx-mo .pfx-line,
+.pfx-mo .pfx-fg { --pfx-off: 1vw; transition: translate 1.8s var(--pfx-ease), opacity 0.5s ease; }
+.pfx-mo .pfx-bg { --pfx-off: 0.5vw; transition: translate 2.6s var(--pfx-ease); }
+.pfx-mo .pfx-words { --pfx-off: 0.5vw; }
+
+/* The moonrise: the night lifts as the Moon climbs out of it. */
+.pfx-mo-rise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--pfx-night);
+  opacity: 0;
+  animation: pfxMoNight 3s ease-in-out backwards;
+}
+@keyframes pfxMoNight {
+  0%, 30% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.pfx-mo-rise i {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 30vmin;
+  height: 30vmin;
+  margin-left: -15vmin;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle at 42% 38%, #ebe4fa 0, #b9a6e6 55%, #8d77c6 100%);
+  /* A soft halo, and the Earth's shadow on its face as an inset shadow. */
+  box-shadow: 0 0 7vmin 1vmin rgba(185, 166, 230, 0.4), inset 0 0 0 0 rgba(30, 22, 54, 0.97);
+  animation: pfxMoRise 3s cubic-bezier(0.33, 0, 0.2, 1) backwards;
+}
+@keyframes pfxMoRise {
+  0% {
+    opacity: 1;
+    transform: translateY(32vmin);
+    box-shadow: 0 0 7vmin 1vmin rgba(185, 166, 230, 0.4), inset 26vmin 0 0 0 rgba(30, 22, 54, 0.97);
+  }
+  65% {
+    opacity: 1;
+    box-shadow: 0 0 7vmin 1vmin rgba(185, 166, 230, 0.4), inset 0 0 0 0 rgba(30, 22, 54, 0.97);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-46vh);
+    box-shadow: 0 0 7vmin 1vmin rgba(185, 166, 230, 0.4), inset 0 0 0 0 rgba(30, 22, 54, 0.97);
+  }
+}
+
+/* A phase: the dark withdraws across the panel behind a soft, curved
+   terminator, like the Moon waxing. */
+@property --pfx-phase {
+  syntax: '<percentage>';
+  inherits: false;
+  initial-value: 320%;
+}
+.pfx-mo-phase {
+  --pfx-phase-x: 0%;
+  background: var(--pfx-night);
+  opacity: 0;
+  -webkit-mask-image: radial-gradient(ellipse var(--pfx-phase) 150% at var(--pfx-phase-x) 50%, transparent 88%, #000 100%);
+  mask-image: radial-gradient(ellipse var(--pfx-phase) 150% at var(--pfx-phase-x) 50%, transparent 88%, #000 100%);
+  animation: pfxMoPhase 1.8s cubic-bezier(0.45, 0, 0.25, 1) backwards;
+}
+.pfx-stage[data-dir='back'] .pfx-mo-phase { --pfx-phase-x: 100%; }
+@keyframes pfxMoPhase {
+  0% { --pfx-phase: 1%; opacity: 1; }
+  75% { opacity: 1; }
+  100% { --pfx-phase: 320%; opacity: 0; }
+}
+
+/* Copy rises gently into place. */
+.pfx-mo .pfx-line {
+  animation: pfxMoSurface 1.6s 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+@keyframes pfxMoSurface {
+  from { opacity: 0; transform: translateY(0.35em); filter: blur(2px); }
+}
+/* Titles: after the Moon has risen, out of a soft blur. */
+.pfx-mo [data-fx='title'] .pfx-line {
+  animation: pfxMoTitle 2.2s 1s ease-out backwards;
+}
+@keyframes pfxMoTitle {
+  from { opacity: 0; filter: blur(5px); transform: translateY(0.12em); }
+}
+/* Short statements: a word at a time, like stars coming out. */
+.pfx-mo :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }
+.pfx-mo .pfx-w {
+  animation: pfxMoStar 1.4s ease-out backwards;
+  animation-delay: calc(0.6s + var(--d) * 2.6);
+}
+@keyframes pfxMoStar {
+  from { opacity: 0; filter: blur(3px); scale: 0.86; text-shadow: 0 0 0.6em rgba(185, 166, 230, 0.95); }
+}
+/* Pictures rise slowly, as the Moon does. */
+.pfx-mo .pfx-media {
+  animation: pfxMoSurface 2.4s 0.3s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+.pfx-mo .pfx-fg:not(.pfx-line) {
+  animation: pfxMoSurface 1.6s 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+}
+
+/* ==========================================================================
    PROGRESS
    ========================================================================== */
 .pfx-progress {
@@ -951,6 +1066,27 @@
   margin: -4.5px 0 0 -4.5px;
   background: #f04a1a;
   box-shadow: -11px 0 0 -1.5px rgba(240, 74, 26, 0.6), -20px 0 0 -2.5px rgba(240, 74, 26, 0.35);
+}
+
+/* Our Incredible Moon: chapters are small stars; the head is a little moon
+   that waxes to full as it lands. */
+.pfx-progress-mo .pfx-progress-mark {
+  border-radius: 50%;
+  width: 3px;
+  height: 3px;
+  margin: -1.5px 0 0 -1.5px;
+  box-shadow: 0 0 4px 1px currentColor;
+}
+.pfx-progress-mo .pfx-progress-head {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  background: #b9a6e6;
+  box-shadow: 0 0 8px rgba(185, 166, 230, 0.6), inset 0 0 0 0 #2a2245;
+  animation: pfxMoHead 1.1s var(--pfx-ease, ease) backwards;
+}
+@keyframes pfxMoHead {
+  from { box-shadow: 0 0 0 rgba(185, 166, 230, 0), inset 8px 0 0 0 #2a2245; }
 }
 
 @media (max-width: 480px) {
