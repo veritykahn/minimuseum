@@ -9,6 +9,7 @@ const EXHIBITION_ACCENTS: Record<string, string> = {
   'fear-lab': '#F2B33D',
   'great-war': '#E8372C',
   egypt: '#F04A1A',
+  moon: '#A88BEB',
 };
 
 /** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
@@ -128,6 +129,26 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#b485d2',
     parent: 'first-floor',
     children: ['hr-artifacts', 'hr-jazz-lab', 'hr-harlem-in-words', 'hr-migration-map', 'hr-resources', ...lessonsChild('harlem-renaissance')],
+  },
+  {
+    id: 'moon',
+    label: 'Our Incredible Moon',
+    path: '/exhibitions/moon',
+    x: 25,
+    y: 80,
+    width: 140,
+    height: 110,
+    accentColor: '#A88BEB',
+    parent: 'ground-floor',
+    children: ['mo-case'],
+  },
+  {
+    id: 'mo-case',
+    label: 'Display Case',
+    path: '/exhibitions/moon/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#A88BEB',
+    parent: 'moon',
   },
   {
     id: 'egypt',

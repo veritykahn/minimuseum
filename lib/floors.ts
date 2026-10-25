@@ -50,7 +50,7 @@ export const GROUND_FLOOR: Floor = {
       darkAccent: '#1a0a2e',
       textColor: '#fff',
       description: 'A journey into planetary science and exoplanet exploration, blending the physics of our nearest neighbor with the search for distant worlds.',
-      active: false,
+      active: true,
     },
     {
       slug: 'egypt',

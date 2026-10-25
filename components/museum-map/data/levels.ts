@@ -22,6 +22,7 @@ const COLORS = {
   fearLab: '#F2B33D',
   greatWar: '#E8372C',
   egypt: '#F04A1A',
+  moon: '#A88BEB',
 };
 
 // Helper: create a wall segment with a doorway gap in the middle
@@ -155,7 +156,12 @@ export const MUSEUM_OVERVIEW: MapLevelConfig = {
 
 const GROUND_FLOOR_ROOMS: MapRoom[] = [
   // Top row
-  comingSoonRoom('moon', 'Our Incredible\nMoon', 'ground-floor', { x: 25, y: 80, width: 140, height: 110 }),
+  {
+    id: 'moon', label: 'Our Incredible\nMoon', path: '/exhibitions/moon',
+    x: 25, y: 80, width: 140, height: 110, accentColor: COLORS.moon,
+    parent: 'ground-floor',
+    children: ['mo-case'],
+  },
   {
     id: 'egypt', label: 'Ancient Egypt', path: '/exhibitions/egypt',
     x: 180, y: 80, width: 140, height: 110, accentColor: COLORS.egypt,
@@ -667,6 +673,52 @@ export const EGYPT: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — Our Incredible Moon (Floor Plan)
+//
+// Layout: the Exhibition Hall, and the display case beyond it
+// ┌────────────────────────────────┐
+// │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
+// └────────────────────────────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const MOON_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  accentColor: COLORS.moon,
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+  ],
+  rooms: [
+    {
+      id: 'mo-entrance', label: 'Exhibition Hall', path: '/exhibitions/moon',
+      accentColor: COLORS.moon, parent: 'moon',
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'mo-case', label: 'Display Case', path: '/exhibitions/moon/artifacts/case',
+      accentColor: COLORS.moon, parent: 'moon',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
+    },
+  ],
+};
+
+export const MOON: MapLevelConfig = {
+  level: 'exhibition',
+  rooms: [],
+  connections: [],
+  title: 'Our Incredible Moon',
+  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
+  ],
+  ...withLessons(MOON_FLOOR_PLAN, '0 0 500 330', 'moon'),
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Level resolver
 // ═══════════════════════════════════════════════════════════════════
 
@@ -677,6 +729,7 @@ export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/fear-lab')) return FEAR_LAB;
   if (pathname.startsWith('/exhibitions/great-war')) return GREAT_WAR;
   if (pathname.startsWith('/exhibitions/egypt')) return EGYPT;
+  if (pathname.startsWith('/exhibitions/moon')) return MOON;
   if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
   if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;

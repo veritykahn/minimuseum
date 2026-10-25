@@ -39,6 +39,7 @@ export const CONNECTIONS: RoomConnection[] = [
   // The Great War sub-pages
   ['great-war', 'gw-case'],
   ['egypt', 'eg-case'],
+  ['moon', 'mo-case'],
   ['great-war', 'gw-silence'],
   ['great-war', 'gw-memorial'],
 
