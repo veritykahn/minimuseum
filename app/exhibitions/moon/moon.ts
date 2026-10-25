@@ -125,7 +125,7 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'caps', text: "For example, the astronauts brought back Moon rocks that are very different from any rocks found on Earth. These rocks have unique features that couldn't be faked or created on our planet." },
         { type: 'paragraph', section: 'caps', text: 'Additionally, the missions were tracked by scientists around the world. All this evidence confirms that humans truly did land on the Moon in 1969.' },
 
-        { type: 'paragraph', section: 'caps', text: 'Our Moon is fascinating to study. Its surface alone, which is covered in a layer of fine dust called lunar regolith provides huge contrasts to our own Earth.' },
+        { type: 'paragraph', section: 'caps', text: 'Our Moon is fascinating to study. Its surface alone, which is covered in a layer of fine dust called lunar regolith, provides huge contrasts to our own Earth.' },
         { type: 'paragraph', section: 'caps', text: "Unlike Earth's soil, which is shaped by wind, water, and living things, lunar dust is formed over billions of years through meteorite impacts. This makes the dust particles sharp and jagged, and they can stick to everything because of static electricity." },
         { type: 'paragraph', section: 'caps', text: "Astronauts who walked on the Moon said the dust smelled like gunpowder and was hard to clean off their suits. These differences between Moon dust and Earth's soil help scientists learn more about the Moon's history and why it's such a unique place in our solar system." },
 
