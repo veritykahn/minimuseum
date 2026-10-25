@@ -47,6 +47,12 @@ export default function CasePage({ config, data }: { config: ExhibitionConfig; d
           <p className="pe-case-page-subtitle">{subtitle}</p>
         </header>
 
+        {!first && data.placeholder && (
+          <div className="pe-case-page-placeholder">
+            <p>{data.placeholder}</p>
+          </div>
+        )}
+
         {first && (
           <figure className="pe-case-page-lead">
             {/* eslint-disable-next-line @next/next/no-img-element */}

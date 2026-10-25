@@ -340,5 +340,10 @@ export type CasePageData = {
   subtitle: string;
   /** The first is set large above the artifacts; the rest in a row below them. */
   photos: CasePhoto[];
+  /**
+   * Set in place of the photographs while a case has none yet ("Display case
+   * — photographs to come"), in an outlined frame the shape of a case.
+   */
+  placeholder?: string;
   artifacts: string[];
 };

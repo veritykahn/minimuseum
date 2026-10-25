@@ -140,7 +140,7 @@ export const FIRST_FLOOR: Floor = {
       darkAccent: '#1c1917',
       textColor: '#fff',
       description: 'A solemn historical encounter, blending authentic wartime artifacts with personal stories of faith and survival.',
-      active: false,
+      active: true,
     },
     {
       slug: 'black-history',

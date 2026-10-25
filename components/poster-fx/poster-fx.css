@@ -1126,6 +1126,74 @@
 .pfx-wh .pfx-fg:not(.pfx-line) { animation: pfxWhWash 1.2s 0.8s ease-out backwards; }
 
 /* ==========================================================================
+   HOLOCAUST MEMORIAL DAY — the light coming up
+   Slow, still and grave. Nothing slides, bounces or flashes. As a poster
+   opens, the panel waits in the dark and the light comes up slowly over
+   three seconds. At a chapter (the closing words), a single candle's glow
+   rises softly in the dark and settles as the light comes up. Copy surfaces
+   slowly out of the dark; short lines come a word at a time, unhurried. The
+   exhibition's stylesheet gives the photographs their own entrances: some
+   come up as if under a lamp, some advance a frame of film into the gate.
+   ========================================================================== */
+.pfx-ho { --pfx-gold: #d8d1ca; }
+/* No lateral travel: the panel is still. */
+.pfx-ho .pfx-line,
+.pfx-ho .pfx-fg { --pfx-off: 0vw; transition: opacity 0.8s ease; }
+.pfx-ho .pfx-bg { --pfx-off: 0vw; }
+.pfx-ho .pfx-words { --pfx-off: 0vw; }
+
+.pfx-ho-light::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #0b0a0a;
+  opacity: 0;
+  animation: pfxHoLight 3.2s ease-in-out backwards;
+}
+@keyframes pfxHoLight {
+  0%, 15% { opacity: 1; }
+  100% { opacity: 0; }
+}
+.pfx-ho-light.is-title::before { animation-duration: 4.2s; }
+/* A candle's glow: a small warm light that swells gently and fades as the room lightens. */
+.pfx-ho-light.is-title i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(60vw, 640px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  background: radial-gradient(circle, rgba(255, 214, 150, 0.5) 0, rgba(240, 170, 90, 0.18) 22%, rgba(240, 170, 90, 0) 60%);
+  opacity: 0;
+  animation: pfxHoGlow 4.2s ease-in-out backwards;
+}
+@keyframes pfxHoGlow {
+  0% { opacity: 0; scale: 0.4; }
+  35% { opacity: 1; scale: 1; }
+  70% { opacity: 0.8; scale: 1.05; }
+  100% { opacity: 0; scale: 1.1; }
+}
+
+/* Copy surfaces slowly out of the dark. */
+.pfx-ho .pfx-line { animation: pfxHoSurface 2s 0.5s ease-out backwards; }
+@keyframes pfxHoSurface {
+  from { opacity: 0; filter: blur(2px); }
+}
+.pfx-ho [data-fx='title'] .pfx-line { animation: pfxHoSurface 2.4s 0.9s ease-out backwards; }
+/* Short lines and the quotation: a word at a time, unhurried. */
+.pfx-ho :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }
+.pfx-ho .pfx-w {
+  animation: pfxHoSurface 1.4s ease-out backwards;
+  animation-delay: calc(0.6s + var(--d) * 2.4);
+}
+/* Pictures come up gently from the dark. */
+.pfx-ho .pfx-media { animation: pfxHoMedia 2.6s 0.2s ease-out backwards; }
+@keyframes pfxHoMedia {
+  from { opacity: 0; filter: brightness(0.2); }
+}
+.pfx-ho .pfx-fg:not(.pfx-line) { animation: pfxHoSurface 1.8s 1s ease-out backwards; }
+
+/* ==========================================================================
    PROGRESS
    ========================================================================== */
 .pfx-progress {
@@ -1366,6 +1434,22 @@
 }
 @keyframes pfxWhDrop {
   from { transform: scale(0.4); }
+}
+
+/* Holocaust Memorial Day: hairline ticks for chapters; the head is a small
+   candle flame, still, with a soft warm light. */
+.pfx-progress-ho .pfx-progress-mark { width: 1px; height: 8px; margin: -4px 0 0 0; }
+.pfx-progress-ho .pfx-progress-head {
+  width: 7px;
+  height: 11px;
+  margin: -7px 0 0 -3.5px;
+  background: #f3c97a;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  box-shadow: 0 0 8px 2px rgba(243, 201, 122, 0.45);
+  animation: pfxHoFlame 1.6s ease-out backwards;
+}
+@keyframes pfxHoFlame {
+  from { opacity: 0; }
 }
 
 @media (max-width: 480px) {

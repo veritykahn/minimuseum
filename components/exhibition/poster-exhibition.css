@@ -640,3 +640,20 @@ a.pe-case-page-return:focus-visible { border-color: var(--pe-accent); color: var
 .pe-title-line { display: block; }
 .pe-title-lettering { display: block; max-width: 100%; height: auto; }
 .pe-title-note { position: relative; z-index: 10; font-family: var(--pe-ui, var(--pe-body)); font-size: clamp(1rem, 2vw, 1.3rem); }
+
+/* ───────── A display case with no photographs yet: an outlined case frame (CasePageData.placeholder) ───────── */
+.pe-case-page-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 560px);
+  aspect-ratio: 4 / 3;
+  margin: 0 auto;
+  padding: 24px;
+  border: 2px solid currentColor;
+  outline: 1px solid currentColor;
+  outline-offset: -14px;
+  color: var(--pe-case-ink, var(--pe-heading));
+  text-align: center;
+}
+.pe-case-page-placeholder p { margin: 0; font-family: var(--pe-ui, var(--pe-body)); font-size: clamp(1rem, 2.2vw, 1.25rem); letter-spacing: 0.04em; }
