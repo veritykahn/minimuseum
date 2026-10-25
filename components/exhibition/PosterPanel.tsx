@@ -40,8 +40,17 @@ function RevealText({ text, kind, on }: { text: string; kind: FxKind; on: boolea
 const PANEL_RENDERERS: Renderers = {
   paragraph: ({ config, poster, item, colors, kind }) => {
     const all = config.fx.text === 'all';
+    const figure = item.figure;
     return (
-      <div className={`pe-text-content-wrapper ${positionClass(item.position)} ${panelClasses(poster, item)}`}>
+      <div
+        className={`pe-text-content-wrapper ${positionClass(item.position)} ${figure ? `pe-has-figure pe-figure-${figure.side ?? 'left'}` : ''} ${panelClasses(poster, item)}`}
+      >
+        {figure && (
+          <figure className="pe-figure pfx-media">
+            {/* eslint-disable-next-line @next/next/no-img-element -- the reveals animate the element itself */}
+            <img src={figure.src} alt={figure.alt} />
+          </figure>
+        )}
         <p
           className={`pe-paragraph-text ${all ? '' : effectClass(item.effect)}`}
           style={{ color: colors.text }}

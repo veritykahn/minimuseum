@@ -83,11 +83,23 @@ type PanelBase = {
   marks?: PanelMarks;
 };
 
+/**
+ * A picture set beside a panel's copy, as a poster sets an illustration
+ * beside its text. Unlike decor, it is content and takes alt text.
+ */
+export type PanelFigure = {
+  src: string;
+  alt: string;
+  /** Which side of the copy it sits on (on a phone, above it). Defaults to 'left'. */
+  side?: 'left' | 'right';
+};
+
 export type ParagraphItem = PanelBase & {
   type: 'paragraph';
   text: string;
   position?: PanelPosition;
   effect?: PanelEffect;
+  figure?: PanelFigure;
 };
 
 /** A chapter opening. Its text is also the chapter's name in projector mode. */
@@ -274,4 +286,19 @@ export type ExhibitionConfig<K extends string = string> = {
     theme: CSSProperties;
     links: { label: string; href: string }[];
   };
+};
+
+/** A photograph on a display case page, with its size so the page does not jump as it loads. */
+export type CasePhoto = { src: string; alt: string; width: number; height: number };
+
+export type CasePageData = {
+  /** "Display Case" */
+  label: string;
+  /** The artifacts' heading: "Artifacts". */
+  title: string;
+  /** The photographs' heading: "Photographs of the installation". */
+  subtitle: string;
+  /** The first is set large above the artifacts; the rest in a row below them. */
+  photos: CasePhoto[];
+  artifacts: string[];
 };

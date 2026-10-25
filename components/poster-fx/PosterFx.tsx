@@ -15,7 +15,10 @@ import './poster-fx.css';
  * beam picks it out and the lights come up. The Great War is quiet: a hush
  * lifts off each chapter, copy surfaces slowly out of the dark, and the
  * photographs develop like prints in a tray, pale sepia deepening to the
- * picture.
+ * picture. Ancient Egypt opens through an arch: a doorway of light rises
+ * out of the dark, traced by the posters' thin white arches, and widens until
+ * the panel stands in it; copy settles like sand, and the gods' names are
+ * written in, stroke by stroke.
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -24,7 +27,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -134,6 +137,13 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
   if (theme === 'gw') {
     return (
       <div className={`pfx-veil pfx-gw-hush is-${kind}`} aria-hidden="true">
+        <i />
+      </div>
+    );
+  }
+  if (theme === 'eg') {
+    return (
+      <div className={`pfx-veil pfx-eg-arch is-${kind}`} aria-hidden="true">
         <i />
       </div>
     );
