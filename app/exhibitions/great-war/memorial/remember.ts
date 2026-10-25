@@ -91,7 +91,8 @@ export function buildIndex(pool: readonly Fallen[]): SearchIndex {
   const names = new Array<string>(pool.length);
   const states = new Array<string>(pool.length);
   for (let i = 0; i < pool.length; i++) {
-    names[i] = normalize(pool[i].name);
+    // Unknown soldiers are drawn, but there is no name to search for.
+    names[i] = pool[i].unknown ? '' : normalize(pool[i].name);
     states[i] = normalize(pool[i].enteredServiceFrom ?? '');
   }
   return { names, states };
@@ -157,12 +158,15 @@ export function restingLines(r: Resting): { lead: string; place: string; plot?: 
 
 /** "Corporal · South Carolina · September 28, 1918", for the search results. */
 export function summary(f: Fallen): string {
-  return [f.rank, f.enteredServiceFrom, formatDate(f.dateOfDeath)].filter(Boolean).join(' · ');
+  return [f.rank, f.enteredServiceFrom, f.dateOfDeath && formatDate(f.dateOfDeath)].filter(Boolean).join(' · ');
 }
 
 /** What the live region says when a card is drawn or chosen. */
 export function announcement(f: Fallen): string {
+  if (f.unknown) return `Remembering an unknown soldier, known but to God, who rests in ${f.resting.cemetery}.`;
   const who = [f.rank, f.name].filter(Boolean).join(' ');
   const from = f.enteredServiceFrom ? `, of ${f.enteredServiceFrom}` : '';
-  return `Remembering ${who}${from}. ${f.status}, ${formatDate(f.dateOfDeath)}.`;
+  const date = f.dateOfDeath && formatDate(f.dateOfDeath);
+  const when = f.status ? [f.status, date].filter(Boolean).join(', ') : date ? `Died ${date}` : '';
+  return `Remembering ${who}${from}.${when ? ` ${when}.` : ''}`;
 }

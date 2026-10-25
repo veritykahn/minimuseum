@@ -49,28 +49,34 @@ function makePool(n: number): Fallen[] {
 }
 
 describe('the pool of the fallen', () => {
-  it('holds only the researched soldiers with an ABMC record, with unique ids', () => {
-    expect(FALLEN.map((f) => f.id)).toEqual(['freddie-stowers', 'eben-m-stout', 'john-b-healey', 'matej-kocak', 'wayne-miner']);
+  it('holds ABMC records, each with a unique id, an ISO date where there is one, and no unknown soldier named', () => {
+    expect(FALLEN.length).toBeGreaterThanOrEqual(2000);
     expect(new Set(FALLEN.map((f) => f.id)).size).toBe(FALLEN.length);
     for (const f of FALLEN) {
       expect(f.source).toBe('ABMC');
-      expect(f.dateOfDeath).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      if (f.dateOfDeath) expect(f.dateOfDeath).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+      if (f.unknown) {
+        expect(f.name).toBe('An Unknown Soldier');
+        expect(f.rank).toBeUndefined();
+        expect(f.dateOfDeath).toBeUndefined();
+      }
+      if (f.resting.kind === 'missing') expect(f.status).toBe('Missing in Action');
     }
+    expect(FALLEN.some((f) => f.unknown)).toBe(true);
+    expect(FALLEN.some((f) => f.resting.kind === 'missing')).toBe(true);
   });
 
-  it('agrees with the researched cards on name, plot and cemetery', () => {
-    const byName = Object.fromEntries(SOLDIERS.map((s) => [s.name, s]));
-    for (const f of FALLEN) {
-      const s = byName[f.name];
-      expect(s).toBeDefined();
-      if (f.resting.kind === 'grave') {
-        expect(s.burial?.place).toContain(f.resting.cemetery.replace(' American Cemetery', ''));
-        expect(s.burial?.plot).toBe(`Plot ${f.resting.plot}, Row ${f.resting.row}, Grave ${f.resting.grave}`);
-      } else {
-        expect(s.memorial).toContain('Tablets of the Missing');
-        expect(s.memorial).toContain(f.resting.cemetery);
-      }
-    }
+  it('carries the researched soldiers as ABMC records them, plots that match their story cards', () => {
+    const byName = (n: string) => FALLEN.find((f) => f.name === n)!;
+    expect(byName('Freddie Stowers').resting).toEqual({ kind: 'grave', cemetery: 'Meuse-Argonne American Cemetery', plot: 'F', row: '36', grave: '40' });
+    expect(byName('Ebin M. Stout').resting).toEqual({ kind: 'grave', cemetery: 'Meuse-Argonne American Cemetery', plot: 'C', row: '41', grave: '14' });
+    expect(byName('Matej Kocak').resting).toEqual({ kind: 'grave', cemetery: 'Meuse-Argonne American Cemetery', plot: 'D', row: '41', grave: '32' });
+    expect(byName('Wayne Miner').resting).toEqual({ kind: 'grave', cemetery: 'St. Mihiel American Cemetery', plot: 'B', row: '14', grave: '17' });
+    expect(byName('John B. Healey').resting).toEqual({ kind: 'missing', cemetery: 'Aisne-Marne American Cemetery' });
+    const story = Object.fromEntries(SOLDIERS.map((s) => [s.id, s]));
+    expect(story.stowers.burial?.plot).toBe('Plot F, Row 36, Grave 40');
+    expect(story.kocak.burial?.plot).toBe('Plot D, Row 41, Grave 32');
+    expect(story.miner.burial?.plot).toBe('Plot B, Row 14, Grave 17');
   });
 });
 
@@ -121,17 +127,19 @@ describe('searching', () => {
 
   it('finds by name, any part, ignoring case and punctuation', () => {
     expect(names('stowers')).toEqual(['Freddie Stowers']);
-    expect(names('Eben M')).toEqual(['Eben M. Stout']);
+    expect(names('Ebin M')).toEqual(['Ebin M. Stout']);
     expect(names('KOCAK')).toEqual(['Matej Kocak']);
     expect(names('zzz')).toEqual([]);
     expect(names('   ')).toEqual([]);
   });
 
   it('finds by state, written out or as a postal code', () => {
-    expect(names('Missouri')).toEqual(['Wayne Miner']);
-    expect(names('new jersey')).toEqual(['Eben M. Stout']);
-    expect(names('NJ')).toEqual(['Eben M. Stout']);
-    expect(names('sc')).toEqual(['Freddie Stowers']);
+    const states = (q: string) => search(index, q).map((i) => FALLEN[i].enteredServiceFrom);
+    expect(states('Iowa').length).toBeGreaterThan(0);
+    expect(states('Iowa').every((s) => s === 'Iowa')).toBe(true);
+    expect(states('new jersey').every((s) => s === 'New Jersey')).toBe(true);
+    expect(states('NJ').every((s) => s === 'New Jersey')).toBe(true);
+    expect(names('stowers south carolina')).toEqual(['Freddie Stowers']);
   });
 
   it('puts names that begin with the query first and stops at the limit', () => {
@@ -168,16 +176,15 @@ describe('the words on the card', () => {
   });
 
   it('shows the record as real text, with the ABMC line and the museum', () => {
-    const miner = FALLEN.find((f) => f.id === 'wayne-miner')!;
+    const miner = FALLEN.find((f) => f.name === 'Wayne Miner')!;
     render(<MemorialCard fallen={miner} />);
     const card = screen.getByRole('article', { name: 'Wayne Miner' });
     expect(within(card).getByRole('heading', { name: 'Wayne Miner' })).toBeInTheDocument();
     expect(card).toHaveTextContent('In Memory');
     expect(card).toHaveTextContent('Private');
-    expect(card).toHaveTextContent('Company A, 366th Infantry Regiment, 92nd Division');
-    expect(card).toHaveTextContent('From Missouri');
-    expect(card).toHaveTextContent('Killed in Action');
-    expect(card).toHaveTextContent('November 11, 1918');
+    expect(card).toHaveTextContent('366th Infantry Regiment, 92nd Division');
+    expect(card).toHaveTextContent('From Iowa');
+    expect(card).toHaveTextContent('Died November 11, 1918');
     expect(card).toHaveTextContent('St. Mihiel American Cemetery');
     expect(card).toHaveTextContent('Plot B · Row 14 · Grave 17');
     expect(card).toHaveTextContent('From the records of the American Battle Monuments Commission');
@@ -189,7 +196,19 @@ describe('the words on the card', () => {
   });
 
   it('announces the soldier in words', () => {
-    expect(announcement(FALLEN[0])).toBe('Remembering Corporal Freddie Stowers, of South Carolina. Killed in Action, September 28, 1918.');
+    const stowers = FALLEN.find((f) => f.name === 'Freddie Stowers')!;
+    expect(announcement(stowers)).toBe('Remembering Corporal Freddie Stowers, of South Carolina. Died September 28, 1918.');
+    const healey = FALLEN.find((f) => f.name === 'John B. Healey')!;
+    expect(announcement(healey)).toBe('Remembering Private John B. Healey, of Connecticut. Missing in Action, July 21, 1918.');
+  });
+
+  it('gives an unknown soldier the words of his headstone, and where he rests', () => {
+    const unknown = FALLEN.find((f) => f.unknown)!;
+    render(<MemorialCard fallen={unknown} />);
+    const card = screen.getByRole('article', { name: 'An Unknown Soldier' });
+    expect(card).toHaveTextContent('Here rests in honored glory an American soldier known but to God');
+    expect(card).toHaveTextContent(unknown.resting.cemetery);
+    expect(announcement(unknown)).toBe(`Remembering an unknown soldier, known but to God, who rests in ${unknown.resting.cemetery}.`);
   });
 });
 
@@ -258,14 +277,16 @@ describe('the Remember a soldier section', () => {
     const button = await ready();
     expect(screen.getByRole('article', { name: 'A blank memorial card' })).toBeInTheDocument();
     const seen: string[] = [];
-    for (let i = 0; i < FALLEN.length; i++) {
+    // The picker's own tests cover a whole pool; here, the first draws are all different.
+    const draws = 40;
+    for (let i = 0; i < draws; i++) {
       fireEvent.click(button);
       const name = screen.getByRole('heading', { level: 3 }).textContent!;
       seen.push(name);
       expect(screen.getByRole('status')).toHaveTextContent(`Remembering`);
-      expect(screen.getByRole('status')).toHaveTextContent(name);
+      expect(screen.getByRole('status')).toHaveTextContent(name === 'An Unknown Soldier' ? 'unknown soldier' : name);
     }
-    expect(new Set(seen).size).toBe(FALLEN.length);
+    expect(seen.filter((n) => n !== 'An Unknown Soldier').length).toBe(new Set(seen.filter((n) => n !== 'An Unknown Soldier')).size);
     // The candle plays on screen when motion is welcome.
     expect(screen.getByTestId('live-flame')).toBeInTheDocument();
   });
@@ -289,7 +310,7 @@ describe('the Remember a soldier section', () => {
   it('finds a soldier from the search box with the keyboard', async () => {
     await ready();
     const box = screen.getByRole('combobox', { name: /find a soldier by name or state/i });
-    fireEvent.change(box, { target: { value: 'missouri' } });
+    fireEvent.change(box, { target: { value: 'wayne miner' } });
     const list = await screen.findByRole('listbox');
     expect(within(list).getAllByRole('option')).toHaveLength(1);
     expect(box).toHaveAttribute('aria-expanded', 'true');
@@ -297,7 +318,7 @@ describe('the Remember a soldier section', () => {
     expect(box).toHaveAttribute('aria-activedescendant', within(list).getByRole('option').id);
     fireEvent.keyDown(box, { key: 'Enter' });
     expect(screen.getByRole('heading', { level: 3 })).toHaveTextContent('Wayne Miner');
-    expect(screen.getByRole('status')).toHaveTextContent('Remembering Private Wayne Miner, of Missouri.');
+    expect(screen.getByRole('status')).toHaveTextContent('Remembering Private Wayne Miner, of Iowa. Died November 11, 1918.');
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 

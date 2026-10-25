@@ -62,7 +62,13 @@ const MemorialCard = forwardRef<HTMLElement, Props>(function MemorialCard({ fall
 
         <div className="gwm-mc-text">
           <p className="gwm-mc-inmemory">In Memory</p>
-          {f ? (
+          {f && f.unknown ? (
+            <>
+              <h3 className="gwm-mc-name" id={nameId}>{f.name}</h3>
+              <p className="gwm-mc-epitaph">Here rests in honored glory an American soldier known but to God</p>
+              <Resting fallen={f} />
+            </>
+          ) : f ? (
             <>
               <h3 className={`gwm-mc-name${nameSize}`} id={nameId}>{f.name}</h3>
               {(f.rank || f.unit) && (
@@ -72,12 +78,18 @@ const MemorialCard = forwardRef<HTMLElement, Props>(function MemorialCard({ fall
                 </p>
               )}
               {f.enteredServiceFrom && <p className="gwm-mc-from">From {f.enteredServiceFrom}</p>}
-              <p className="gwm-mc-death">
-                {f.status}
-                <span className="gwm-mc-dot" aria-hidden="true"> · </span>
-                <span className="visually-hidden">, </span>
-                {formatDate(f.dateOfDeath)}
-              </p>
+              {(f.status || f.dateOfDeath) && (
+                <p className="gwm-mc-death">
+                  {f.status}
+                  {f.status && f.dateOfDeath && (
+                    <>
+                      <span className="gwm-mc-dot" aria-hidden="true"> · </span>
+                      <span className="visually-hidden">, </span>
+                    </>
+                  )}
+                  {f.dateOfDeath && (f.status ? formatDate(f.dateOfDeath) : `Died ${formatDate(f.dateOfDeath)}`)}
+                </p>
+              )}
               {f.awards && f.awards.length > 0 && <p className="gwm-mc-awards">{f.awards.join(' · ')}</p>}
               <Resting fallen={f} />
             </>
