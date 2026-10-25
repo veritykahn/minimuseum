@@ -92,7 +92,12 @@ export type PanelFigure = {
   alt: string;
   /** Which side of the copy it sits on (on a phone, above it). Defaults to 'left'. */
   side?: 'left' | 'right';
+  /** The picture's credit as its owner specifies it, linked to the source record. */
+  credit?: { text: string; href?: string };
 };
+
+/** Where a panel's wording comes from, when it follows another source closely. */
+export type PanelSource = { text: string; href: string };
 
 export type ParagraphItem = PanelBase & {
   type: 'paragraph';
@@ -100,6 +105,7 @@ export type ParagraphItem = PanelBase & {
   position?: PanelPosition;
   effect?: PanelEffect;
   figure?: PanelFigure;
+  source?: PanelSource;
 };
 
 /** A chapter opening. Its text is also the chapter's name in projector mode. */

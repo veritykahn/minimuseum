@@ -49,15 +49,39 @@ const PANEL_RENDERERS: Renderers = {
           <figure className="pe-figure pfx-media">
             {/* eslint-disable-next-line @next/next/no-img-element -- the reveals animate the element itself */}
             <img src={figure.src} alt={figure.alt} />
+            {figure.credit && (
+              <figcaption className="pe-figure-credit">
+                {figure.credit.href ? (
+                  <a href={figure.credit.href} target="_blank" rel="noopener noreferrer">{figure.credit.text}</a>
+                ) : (
+                  figure.credit.text
+                )}
+              </figcaption>
+            )}
           </figure>
         )}
-        <p
-          className={`pe-paragraph-text ${all ? '' : effectClass(item.effect)}`}
-          style={{ color: colors.text }}
-          data-fx={all ? kind : undefined}
-        >
-          <RevealText text={item.text} kind={kind} on={all} />
-        </p>
+        {item.source ? (
+          <div className="pe-copy">
+            <p
+              className={`pe-paragraph-text ${all ? '' : effectClass(item.effect)}`}
+              style={{ color: colors.text }}
+              data-fx={all ? kind : undefined}
+            >
+              <RevealText text={item.text} kind={kind} on={all} />
+            </p>
+            <p className="pe-source" style={{ color: colors.text }}>
+              <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
+            </p>
+          </div>
+        ) : (
+          <p
+            className={`pe-paragraph-text ${all ? '' : effectClass(item.effect)}`}
+            style={{ color: colors.text }}
+            data-fx={all ? kind : undefined}
+          >
+            <RevealText text={item.text} kind={kind} on={all} />
+          </p>
+        )}
       </div>
     );
   },

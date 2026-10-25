@@ -31,7 +31,7 @@ const PRINTED = {
   Anubis:
     'Anubis was the god of mummification, the afterlife and the dead. He is portrayed as a man with the head of a jackal or as a full jackal. Despite his powerful and important role, Anubis was also seen as a gentle and caring god who took great care in ensuring that the dead were treated with respect.',
   Bastet:
-    'Bastet was the goddess of cats, fertility (new life) and childbirth, and often associated with joy and dance. She is depicted with the head of a cat and the body of a human. Often worshipped by Egyptians who considered cats to be sacred animals. Her image was used as a symbol of good luck and protection.',
+    'Bastet was the goddess of cats, fertility (new life) and childbirth, and often associated with joy and dance. She is depicted with the head of a cat and the body of a human. She was often worshipped by Egyptians, who considered cats to be sacred animals. Her image was used as a symbol of good luck and protection.',
   Horus:
     'Horus was the god of the sky, war and hunting. He was associated with the pharaohs and was often depicted as their protector and defender. Portrayed as a man with the head of a falcon, or just as a falcon, Horus was worshipped throughout Egypt as a just and fair god who protected the people of Egypt and maintained order and balance.',
   Isis:

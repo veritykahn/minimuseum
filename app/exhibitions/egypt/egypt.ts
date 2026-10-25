@@ -42,6 +42,17 @@ const BODY = "'Playfair', 'Playfair Display', Georgia, serif";
 export const BM_EGYPT_URL = 'https://www.britishmuseum.org/collection/egypt';
 export const BM_GODS_URL = 'https://www.britishmuseum.org/learn/schools/ages-7-11/ancient-egypt/ancient-egyptian-gods-and-goddesses';
 
+/** The Younger Memnon (Ramesses II), British Museum EA 19, in the museum's own photograph. */
+const RAMESSES: PanelFigure = {
+  src: '/exhibitions/egypt/bm-ea19-younger-memnon.jpg',
+  alt: 'The Younger Memnon: a colossal granite bust of the pharaoh Ramesses II wearing the striped nemes headdress, lit against black',
+  side: 'right',
+  credit: {
+    text: '© The Trustees of the British Museum. Shared under a CC BY-NC-SA 4.0 licence.',
+    href: 'https://www.britishmuseum.org/collection/object/Y_EA19',
+  },
+};
+
 const ANUBIS: PanelFigure = {
   src: '/exhibitions/egypt/anubis.jpg',
   alt: 'Anubis in the Egyptian style: a man with the black head of a jackal, holding a staff and an ankh, in a border of colored petals',
@@ -118,7 +129,7 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
       items: [
         { type: 'title-text', section: 'title', kicker: 'The Mysteries of', text: 'Ancient Egypt' },
-        { type: 'paragraph', section: 'right', position: 'center', text: 'The civilization of ancient Egypt lasted for over three thousand years and was located in northeastern Africa along the river Nile.' },
+        { type: 'paragraph', section: 'right', position: 'center', figure: RAMESSES, text: 'The civilization of ancient Egypt lasted for over three thousand years and was located in northeastern Africa along the river Nile.' },
         { type: 'paragraph', section: 'left', position: 'center', text: 'The ancient Egyptians left behind a legacy of impressive monuments, such as pyramids and temples – and invented hieroglyphic writing.' },
         { type: 'paragraph', section: 'right', position: 'center', text: 'It is thanks to the Rosetta Stone – a broken slab of a decree that was written in three scripts and allowed us to decipher hieroglyphs – that we have so much information about this fascinating, ancient civilization.' },
 
@@ -154,7 +165,7 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'right', position: 'center', text: 'Each of these gods and goddesses had their own role to play in maintaining peace and harmony across the land.' },
         { type: 'paragraph', section: 'left', position: 'center', text: 'Some gods took part in creation and others brought a flood every year, which was important for growing crops. Some offered protection while others took care of people after they died.' },
         { type: 'paragraph', section: 'left', position: 'center', text: 'There were local gods who represented towns and minor gods who represented plants or animals. And a few gods were very dangerous!' },
-        { type: 'paragraph', section: 'right', position: 'center', text: 'The ancient Egyptians believed that it was important to recognize and worship these gods and goddesses so that life would continue smoothly.' },
+        { type: 'paragraph', section: 'right', position: 'center', text: 'The ancient Egyptians believed that it was important to recognize and worship these gods and goddesses so that life would continue smoothly.', source: { text: 'Adapted from the British Museum’s “Ancient Egyptian gods and goddesses”', href: BM_GODS_URL } },
 
         { type: 'section-title', section: 'name', text: 'Anubis' },
         { type: 'paragraph', section: 'god', figure: ANUBIS, text: 'Anubis was the god of mummification, the afterlife and the dead. He is portrayed as a man with the head of a jackal or as a full jackal.' },
@@ -162,7 +173,7 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
 
         { type: 'section-title', section: 'name', text: 'Bastet' },
         { type: 'paragraph', section: 'god', figure: BASTET, text: 'Bastet was the goddess of cats, fertility (new life) and childbirth, and often associated with joy and dance. She is depicted with the head of a cat and the body of a human.' },
-        { type: 'paragraph', section: 'left', position: 'center', text: 'Often worshipped by Egyptians who considered cats to be sacred animals. Her image was used as a symbol of good luck and protection.' },
+        { type: 'paragraph', section: 'left', position: 'center', text: 'She was often worshipped by Egyptians, who considered cats to be sacred animals. Her image was used as a symbol of good luck and protection.' },
 
         { type: 'section-title', section: 'name', text: 'Horus' },
         { type: 'paragraph', section: 'god', figure: HORUS, text: 'Horus was the god of the sky, war and hunting. He was associated with the pharaohs and was often depicted as their protector and defender.' },
