@@ -1,3 +1,4 @@
+import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { posterChapters } from '@/components/projector/posterTalk';
@@ -150,21 +151,22 @@ describe('Ancient Egypt', () => {
 });
 
 describe('The Ancient Egypt display case page', () => {
-  it('lists the artifacts exactly as the record does, beside an empty case awaiting its photographs', () => {
+  it('keeps the record, with a card for each artifact, beside an empty case awaiting its photographs', () => {
     render(<EgyptCase />);
     expect(screen.getByRole('heading', { level: 1, name: 'Ancient Egypt' })).toBeInTheDocument();
-    const list = screen.getByRole('list');
-    const items = within(list).getAllByRole('listitem').map((li) => li.textContent);
-    expect(items).toEqual([
+    // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    expect(recordLines(EGYPT_CASE).map(plainText)).toEqual([
       'Hand-crafted replica Bastet statue, goddess of protection and cats',
       'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
       'Display panels covering Egyptian pantheon mythology, with QR links to digital collections',
     ]);
+    const cards = screen.getAllByRole('link', { name: /View artifact/ });
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual(EGYPT_CASE.artifacts.map((a) => artifactPath({ slug: EGYPT.slug }, a)));
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(EGYPT_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
     expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
-    expect(JSON.stringify([EGYPT, EGYPT_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens|moon-dust/);
+    expect(JSON.stringify([EGYPT, EGYPT_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/egypt');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/egypt');
   });

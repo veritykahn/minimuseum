@@ -291,10 +291,17 @@
   background: var(--vb-linen);
   color: #fff;
   filter: drop-shadow(0 16px 26px rgba(80, 50, 40, 0.22));
+  /* The artifact cards on the green linen: cream line, peach accent. */
+  --pe-case-frame: var(--vb-cream);
+  --pe-card-bg: rgba(244, 238, 227, 0.08);
+  --pe-card-line: rgba(244, 238, 227, 0.35);
 }
+[data-exhibition='victorian'] .pe-case-page-artifacts .pe-artifact-card-go { color: var(--vb-peach); }
+[data-exhibition='victorian'] .pe-case-page-artifacts .pe-artifact-card:hover,
+[data-exhibition='victorian'] .pe-case-page-artifacts .pe-artifact-card:focus-visible { border-color: var(--vb-peach); }
 [data-exhibition='victorian'] .pe-case-page-artifacts h2 { color: #fff; text-transform: uppercase; letter-spacing: 0.06em; }
 [data-exhibition='victorian'] .pe-case-page-artifacts h2::after { background: var(--vb-peach); }
-[data-exhibition='victorian'] .pe-case-page-artifacts li { font-weight: 300; }
+[data-exhibition='victorian'] :is(.pe-case-page-display li, .pe-artifact-poster p) { font-weight: 300; }
 [data-exhibition='victorian'] .pe-case-page-photos h2 { text-transform: uppercase; letter-spacing: 0.04em; }
 [data-exhibition='victorian'] a.pe-case-page-return:hover,
 [data-exhibition='victorian'] a.pe-case-page-return:focus-visible { color: var(--vb-cream); background: var(--vb-green); border-color: var(--vb-green); }

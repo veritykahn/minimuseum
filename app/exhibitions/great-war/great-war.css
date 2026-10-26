@@ -146,7 +146,8 @@
 }
 
 /* ==========================================================================
-   The display case page
+   The rooms' frame (RoomShell): header, headings and return link. The
+   display case page itself is the engine's (components/exhibition/CasePage).
    ========================================================================== */
 .gw-case { min-height: 100vh; }
 .gw-case-main {
@@ -182,16 +183,6 @@
   font-size: clamp(1.1rem, 2.6vw, 1.4rem);
   color: #ec4a3f;
 }
-.gw-case figure img {
-  display: block;
-  width: 100%;
-  height: auto;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
-}
-.gw-case-lead { width: 100%; max-width: 900px; }
-.gw-case-artifacts,
-.gw-case-photos { width: 100%; max-width: 760px; }
-.gw-case-photos { max-width: 900px; }
 .gw-case .gw-case-main h2 {
   font-family: var(--pe-display);
   font-weight: 400;
@@ -200,29 +191,6 @@
   text-align: center;
   margin-bottom: 28px;
 }
-.gw-case-artifacts h2::after {
-  content: '';
-  display: block;
-  width: 64px;
-  height: 1px;
-  margin: 20px auto 0;
-  background: #e8372c;
-}
-.gw-case-artifacts ul { list-style: none; }
-.gw-case-artifacts li {
-  font-family: var(--pe-body);
-  font-style: italic;
-  font-weight: 500;
-  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
-  line-height: 1.5;
-  color: #ede6da;
-  padding: 18px 0;
-  border-bottom: 1px solid rgba(237, 230, 218, 0.14);
-  text-align: center;
-}
-.gw-case-artifacts li em { font-style: normal; }
-.gw-case-artifacts li:last-child { border-bottom: 0; }
-.gw-case-photo-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
 .gw-case-return {
   font-family: var(--pe-ui);
   font-size: 12px;
@@ -240,7 +208,6 @@ a.gw-case-return:focus-visible { border-color: #ec4a3f; color: #ec4a3f; }
 
 @media (max-width: 768px) {
   .gw-case-main { padding: 100px 24px 60px; gap: 44px; }
-  .gw-case-photo-row { grid-template-columns: 1fr; }
 }
 
 /* ==========================================================================

@@ -287,8 +287,11 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
 };
 
 /*
- * The display case page (artifacts/case). The artifacts are listed exactly as
- * the Mini Museum record lists them.
+ * The display case (artifacts/case) and a page for each object in it
+ * (artifacts/case/<id>). Every word is the owner's: each name and record line
+ * from the Mini Museum record (*words* set in italics), the writing from this
+ * exhibition's posters. The record's lines about the display itself are listed
+ * on the case page. Photographs and 3D models are to come.
  */
 export const WOMENS_HISTORY_CASE: CasePageData = {
   label: 'Display Case',
@@ -296,7 +299,16 @@ export const WOMENS_HISTORY_CASE: CasePageData = {
   // Photographs to come: the case will be photographed anew.
   photos: [],
   artifacts: [
-    "Original Blitz bomb-damaged family letters from Violet Dina Want's estate",
+    {
+      id: 'blitz-letters',
+      name: 'Blitz bomb-damaged family letters',
+      record: "Original Blitz bomb-damaged family letters from Violet Dina Want's estate",
+      writing: [
+        { poster: 'poster2', text: "Before World War II, Violet's extended family lived in close-knit neighboring streets, but the heavy bombing during the Blitz destroyed their homes, scattering them across the South of England." },
+      ],
+    },
+  ],
+  display: [
     'Archival glass display case presentation with clear document mounts',
     "Digital extension: an 11-slide interactive biographical presentation on Violet's life",
   ],

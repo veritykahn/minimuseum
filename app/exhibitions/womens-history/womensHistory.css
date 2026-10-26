@@ -473,7 +473,7 @@
 }
 [data-exhibition='womens-history'] .pe-case-page-artifacts h2 { color: var(--wh-navy); font-weight: 900; text-transform: uppercase; }
 [data-exhibition='womens-history'] .pe-case-page-artifacts h2::after { background: var(--wh-orange); }
-[data-exhibition='womens-history'] .pe-case-page-artifacts li { font-family: var(--wh-mono); }
+[data-exhibition='womens-history'] :is(.pe-case-page-display li, .pe-artifact-card-record, .pe-artifact-record, .pe-artifact-poster p) { font-family: var(--wh-mono); }
 [data-exhibition='womens-history'] .pe-case-page-photos h2 { font-weight: 900; text-transform: uppercase; }
 [data-exhibition='womens-history'] a.pe-case-page-return:hover,
 [data-exhibition='womens-history'] a.pe-case-page-return:focus-visible { color: #fff; background: var(--wh-navy); border-color: var(--wh-navy); }

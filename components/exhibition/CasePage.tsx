@@ -1,40 +1,36 @@
 'use client';
 
-import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import CasePlaceholder from './CasePlaceholder';
-import { emphasisRuns } from './helpers';
+import { artifactPath } from './artifacts';
+import { ArtifactGlyph, Emphasized, caseRootStyle } from './caseShared';
 import type { CasePageData, ExhibitionConfig } from './types';
 import './poster-exhibition.css';
 
 /*
- * A display case page for a poster exhibition: photographs of the case (or,
- * until it is photographed, an empty case drawn in outline, "Display case —
- * photographs to come"), and the artifacts exactly as the Mini Museum record
- * lists them (*words* set in italics). The exhibition's faces and colors come from
- * its config, as on its landing page; its own stylesheet can restyle the
- * pe-case-page-* classes under [data-exhibition='<slug>'].
+ * A display case page for a poster exhibition, laid out as the original
+ * exhibitions' case listings are: the case's name and writing, then a card for
+ * each artifact in it, each opening the artifact's own page (ArtifactPage).
+ * Above them, a photograph of the case, or until it is photographed an empty
+ * case drawn in outline, "Display case — photographs to come". Below them, the
+ * record's lines about the display itself. Every word is the record's or the
+ * posters' (*words* set in italics).
+ *
+ * The exhibition's faces and colors come from its config, as on its landing
+ * page; its own stylesheet can restyle the pe-case-page-* and pe-artifact-*
+ * classes under [data-exhibition='<slug>'].
  */
 
-type CssVars = CSSProperties & Record<`--${string}`, string>;
-
 export default function CasePage({ config, data }: { config: ExhibitionConfig; data: CasePageData }) {
-  const { fonts, palette, name, subtitle, slug } = config;
-  const style: CssVars = {
-    background: palette.page,
-    '--pe-display': fonts.display,
-    '--pe-body': fonts.body,
-    '--pe-ui': fonts.ui ?? fonts.body,
-    '--pe-accent': palette.accent,
-    '--pe-heading': palette.heading,
-  };
+  const { name, subtitle, slug } = config;
   const [first, ...rest] = data.photos;
   const home = `/exhibitions/${slug}`;
+  const display = data.display ?? [];
 
   return (
-    <div className="pe-root pe-case-page" data-exhibition={slug} style={style}>
-      <style>{`@import url('${fonts.href}');`}</style>
+    <div className="pe-root pe-case-page" data-exhibition={slug} style={caseRootStyle(config)}>
+      <style>{`@import url('${config.fonts.href}');`}</style>
 
       <ExhibitionNav className="pe-nav pe-nav-left" href={home}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
@@ -62,14 +58,40 @@ export default function CasePage({ config, data }: { config: ExhibitionConfig; d
 
         <section className="pe-case-page-artifacts" aria-labelledby={`${slug}-case-artifacts`}>
           <h2 id={`${slug}-case-artifacts`}>{data.title}</h2>
-          <ul>
+          <ul className="pe-artifact-grid">
             {data.artifacts.map((a) => (
-              <li key={a}>
-                {emphasisRuns(a).map((r, i) => (r.em ? <em key={i}>{r.text}</em> : <span key={i}>{r.text}</span>))}
+              <li key={a.id}>
+                <Link href={artifactPath(config, a)} className="pe-artifact-card">
+                  <span className="pe-artifact-card-art">
+                    <ArtifactGlyph />
+                  </span>
+                  <span className="pe-artifact-card-name">
+                    <Emphasized text={a.name} />
+                  </span>
+                  <span className="pe-artifact-card-record">
+                    <Emphasized text={a.record} />
+                  </span>
+                  <span className="pe-artifact-card-go">
+                    View artifact <span aria-hidden="true">&#8594;</span>
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>
         </section>
+
+        {display.length > 0 && (
+          <section className="pe-case-page-display" aria-labelledby={`${slug}-case-display`}>
+            <h2 id={`${slug}-case-display`}>In the display</h2>
+            <ul>
+              {display.map((line) => (
+                <li key={line}>
+                  <Emphasized text={line} />
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {rest.length > 0 && (
           <section className="pe-case-page-photos" aria-labelledby={`${slug}-case-photos`}>

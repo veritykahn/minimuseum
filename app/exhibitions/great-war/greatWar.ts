@@ -210,8 +210,11 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
 };
 
 /*
- * The display case page (artifacts/case). The artifacts are listed exactly as
- * the Mini Museum record lists them; *words* are set in italics.
+ * The display case (artifacts/case) and a page for each object in it
+ * (artifacts/case/<id>). Every word is the owner's: each name and record line
+ * from the Mini Museum record (*words* set in italics), the writing from this
+ * exhibition's posters. The record's lines about the display itself are listed
+ * on the case page. Photographs and 3D models are to come.
  */
 export const GREAT_WAR_CASE: CasePageData = {
   label: 'Display Case',
@@ -219,9 +222,37 @@ export const GREAT_WAR_CASE: CasePageData = {
   // Photographs to come: the case will be photographed anew.
   photos: [],
   artifacts: [
-    'M1917 Brodie doughboy helmet with American Legion decal',
-    'US Army issue shaving kit and the *Service for the Mobilized Soldier* field manual',
-    'Ammunition pouch and commemorative service pins',
-    'Backlit silhouette display, take-away soldier profile cards, and an iPad Armistice audio station',
+    {
+      id: 'brodie-helmet',
+      name: 'M1917 Brodie doughboy helmet',
+      record: 'M1917 Brodie doughboy helmet with American Legion decal',
+      writing: [
+        { poster: 'poster2', text: "Because those young men—the doughboys in their steel helmets, the soldiers who carried shaving kits and rosaries into battle—went to war so that we might live in peace." },
+      ],
+    },
+    {
+      id: 'shaving-kit',
+      name: 'US Army issue shaving kit',
+      record: 'US Army issue shaving kit and the *Service for the Mobilized Soldier* field manual',
+      writing: [
+        { poster: 'poster2', text: "Because those young men—the doughboys in their steel helmets, the soldiers who carried shaving kits and rosaries into battle—went to war so that we might live in peace." },
+      ],
+    },
+    {
+      id: 'field-manual',
+      name: '*Service for the Mobilized Soldier* field manual',
+      record: 'US Army issue shaving kit and the *Service for the Mobilized Soldier* field manual',
+    },
+    {
+      id: 'ammunition-pouch',
+      name: 'Ammunition pouch',
+      record: 'Ammunition pouch and commemorative service pins',
+    },
+    {
+      id: 'service-pins',
+      name: 'Commemorative service pins',
+      record: 'Ammunition pouch and commemorative service pins',
+    },
   ],
+  display: ['Backlit silhouette display, take-away soldier profile cards, and an iPad Armistice audio station'],
 };

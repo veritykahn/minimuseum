@@ -193,8 +193,11 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
 };
 
 /*
- * The display case page (artifacts/case). The artifacts are listed exactly as
- * the Mini Museum record lists them.
+ * The display case (artifacts/case) and a page for each object in it
+ * (artifacts/case/<id>). Every word is the owner's: each name and record line
+ * from the Mini Museum record (*words* set in italics), the writing from this
+ * exhibition's posters. The record's lines about the display itself are listed
+ * on the case page. Photographs and 3D models are to come.
  */
 export const EGYPT_CASE: CasePageData = {
   label: 'Display Case',
@@ -202,8 +205,29 @@ export const EGYPT_CASE: CasePageData = {
   // Photographs to come: the case will be photographed anew.
   photos: [],
   artifacts: [
-    'Hand-crafted replica Bastet statue, goddess of protection and cats',
-    'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
-    'Display panels covering Egyptian pantheon mythology, with QR links to digital collections',
+    {
+      id: 'bastet',
+      name: 'Replica Bastet statue',
+      record: 'Hand-crafted replica Bastet statue, goddess of protection and cats',
+      writing: [
+        { poster: 'poster2', text: 'Bastet was the goddess of cats, fertility (new life) and childbirth, and often associated with joy and dance. She is depicted with the head of a cat and the body of a human.' },
+        { poster: 'poster2', text: 'She was often worshipped by Egyptians, who considered cats to be sacred animals. Her image was used as a symbol of good luck and protection.' },
+      ],
+    },
+    {
+      id: 'anubis',
+      name: 'Replica Anubis statue',
+      record: 'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
+      writing: [
+        { poster: 'poster2', text: 'Anubis was the god of mummification, the afterlife and the dead. He is portrayed as a man with the head of a jackal or as a full jackal.' },
+        { poster: 'poster2', text: 'Despite his powerful and important role, Anubis was also seen as a gentle and caring god who took great care in ensuring that the dead were treated with respect.' },
+      ],
+    },
+    {
+      id: 'scarab',
+      name: 'Scarab beetle amulet',
+      record: 'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
+    },
   ],
+  display: ['Display panels covering Egyptian pantheon mythology, with QR links to digital collections'],
 };

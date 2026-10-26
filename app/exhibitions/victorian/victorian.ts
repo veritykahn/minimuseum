@@ -200,9 +200,11 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
 };
 
 /*
- * The display case page (artifacts/case). The artifacts are listed exactly as
- * the Mini Museum record lists them; *The Scott Birthday Book* is a title, in
- * italics.
+ * The display case (artifacts/case) and a page for each object in it
+ * (artifacts/case/<id>). Every word is the owner's: each name and record line
+ * from the Mini Museum record (*words* set in italics), the writing from this
+ * exhibition's posters. The record's lines about the display itself are listed
+ * on the case page. Photographs and 3D models are to come.
  */
 export const VICTORIAN_CASE: CasePageData = {
   label: 'Display Case',
@@ -210,8 +212,19 @@ export const VICTORIAN_CASE: CasePageData = {
   // Photographs to come: the case will be photographed anew.
   photos: [],
   artifacts: [
-    'Victorian needle case featuring a Queen Victoria lithograph',
-    'Antique copy of *The Scott Birthday Book*',
-    'Graphic panels exploring Victorian innovation, the V&A Museum, and Dickensian traditions',
+    {
+      id: 'needle-case',
+      name: 'Victorian needle case',
+      record: 'Victorian needle case featuring a Queen Victoria lithograph',
+      writing: [
+        { poster: 'poster1', text: 'The Victorian era in Britain lasted from 1837 to 1901, during the reign of Queen Victoria.' },
+      ],
+    },
+    {
+      id: 'scott-birthday-book',
+      name: '*The Scott Birthday Book*',
+      record: 'Antique copy of *The Scott Birthday Book*',
+    },
   ],
+  display: ['Graphic panels exploring Victorian innovation, the V&A Museum, and Dickensian traditions'],
 };

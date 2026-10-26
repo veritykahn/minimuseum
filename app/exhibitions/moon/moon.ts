@@ -188,8 +188,11 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
 };
 
 /*
- * The display case page (artifacts/case). The artifacts are listed exactly as
- * the Mini Museum record lists them.
+ * The display case (artifacts/case) and a page for each object in it
+ * (artifacts/case/<id>). Every word is the owner's: each name and record line
+ * from the Mini Museum record (*words* set in italics), the writing from this
+ * exhibition's posters. The record's lines about the display itself are listed
+ * on the case page. Photographs and 3D models are to come.
  */
 export const MOON_CASE: CasePageData = {
   label: 'Display Case',
@@ -197,8 +200,24 @@ export const MOON_CASE: CasePageData = {
   // Photographs to come: the case will be photographed anew.
   photos: [],
   artifacts: [
-    'Genuine lunar meteorite, Adrar 013 sample',
-    'Laboratory microscopes with comparative global sand and geology specimens',
-    'Display posters detailing lunar formation, regolith chemistry, exoplanet orbital mechanics, and astrobiology',
+    {
+      id: 'lunar-meteorite',
+      name: 'Lunar meteorite, Adrar 013',
+      record: 'Genuine lunar meteorite, Adrar 013 sample',
+      writing: [
+        { poster: 'poster1', text: "Additionally, the Moon's cratered face is a record of the space rocks that have struck our corner of the solar system for billions of years." },
+        { poster: 'poster1', text: 'Our Moon is fascinating to study. Its surface alone, which is covered in a layer of fine dust called lunar regolith, provides huge contrasts to our own Earth.' },
+        { poster: 'poster1', text: "Unlike Earth's soil, which is shaped by wind, water, and living things, lunar dust is formed over billions of years through meteorite impacts. This makes the dust particles sharp and jagged, and they can stick to everything because of static electricity." },
+      ],
+    },
+    {
+      id: 'sand-specimens',
+      name: 'Global sand and geology specimens',
+      record: 'Laboratory microscopes with comparative global sand and geology specimens',
+      writing: [
+        { poster: 'poster1', text: "These differences between Moon dust and Earth's soil help scientists learn more about the Moon's history and why it's such a unique place in our solar system." },
+      ],
+    },
   ],
+  display: ['Display posters detailing lunar formation, regolith chemistry, exoplanet orbital mechanics, and astrobiology'],
 };
