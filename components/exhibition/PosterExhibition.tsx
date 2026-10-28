@@ -12,7 +12,8 @@ import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useP
 import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import PosterPanel from './PosterPanel';
 import CasePlaceholder from './CasePlaceholder';
-import { colorsFor, emphasisRuns, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
+import AtmosphereLayer from './AtmosphereLayer';
+import { atmosphereName, colorsFor, emphasisRuns, entranceOf, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
 
@@ -29,7 +30,7 @@ import './poster-exhibition.css';
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function PosterExhibition<K extends string>({ config }: { config: ExhibitionConfig<K> }) {
-  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives = [], credits = [], fx: fxConfig, projector: projectorConfig } = config;
+  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives = [], credits = [], atmospheres, fx: fxConfig, projector: projectorConfig } = config;
 
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
@@ -59,7 +60,10 @@ export default function PosterExhibition<K extends string>({ config }: { config:
 
   const poster: PosterConfig<K> | undefined = activeView === 'main' ? undefined : posters.find((p) => p.id === activeView);
   const item = poster?.items[posterStep];
-  const colors = poster ? colorsFor(poster, item) : { bg: palette.page, text: palette.heading, title: palette.heading };
+  const colors = poster ? colorsFor(poster, item, atmospheres) : { bg: palette.page, text: palette.heading, title: palette.heading };
+  const atmosphere = poster ? atmosphereName(poster, item) : undefined;
+  const atmo = atmosphere ? atmospheres?.[atmosphere] : undefined;
+  const entrance = entranceOf(item);
   const kind = fxKind(item);
   const fx = usePosterFxStage(fxConfig.theme, direction, item?.type ?? '', colors.bg, colors.text);
   const veil = veilFor(fxConfig.veil, item, posterStep);
@@ -199,61 +203,69 @@ export default function PosterExhibition<K extends string>({ config }: { config:
         prevStep={prevStep}
         returnToMain={returnToMain}
       >
-        {poster && item && (
-          <div
-            {...stageProps}
-            {...fx}
-            className={`pe-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
-            data-item={item.type}
-            key={animationKey}
-          >
-            <div className="pe-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
-              {veil && <FxVeil theme={fxConfig.theme} kind={veil} />}
-              <PosterPanel
-                config={config as ExhibitionConfig}
-                poster={poster}
-                item={item}
-                colors={colors}
-                kind={kind}
-                projector={projector}
-                returnToMain={returnToMain}
-              />
-            </div>
-
-            {item.type !== 'end' && (
-              <div className="pe-walkthrough-nav">
-                <button
-                  type="button"
-                  className="pe-nav-arrow-btn"
-                  onClick={prevStep}
-                  disabled={posterStep === 0}
-                  aria-label="Previous panel"
-                  style={{ color: colors.text, borderColor: colors.text }}
-                >
-                  &#8592;
-                </button>
-                <PosterProgress
-                  theme={fxConfig.theme}
-                  step={posterStep}
-                  fromStep={fromStep}
-                  count={poster.items.length}
-                  marks={marks[poster.id]}
-                  color={colors.text}
+        <>
+          {poster && item && atmosphere && atmo && (
+            // Outside the stage, so it carries on while the panels that share it change.
+            <AtmosphereLayer key={`${poster.id}:${atmosphere}`} name={atmosphere} atmosphere={atmo} />
+          )}
+          {poster && item && (
+            <div
+              {...stageProps}
+              {...fx}
+              className={`pe-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
+              data-item={item.type}
+              data-entrance={entrance}
+              data-atmosphere={atmosphere}
+              key={animationKey}
+            >
+              <div className="pe-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
+                {veil && <FxVeil theme={fxConfig.theme} kind={veil} />}
+                <PosterPanel
+                  config={config as ExhibitionConfig}
+                  poster={poster}
+                  item={item}
+                  colors={colors}
+                  kind={kind}
+                  projector={projector}
+                  returnToMain={returnToMain}
                 />
-                <button
-                  type="button"
-                  className="pe-nav-arrow-btn"
-                  onClick={nextStep}
-                  disabled={posterStep === poster.items.length - 1}
-                  aria-label="Next panel"
-                  style={{ color: colors.text, borderColor: colors.text }}
-                >
-                  &#8594;
-                </button>
               </div>
-            )}
-          </div>
-        )}
+
+              {item.type !== 'end' && (
+                <div className="pe-walkthrough-nav">
+                  <button
+                    type="button"
+                    className="pe-nav-arrow-btn"
+                    onClick={prevStep}
+                    disabled={posterStep === 0}
+                    aria-label="Previous panel"
+                    style={{ color: colors.text, borderColor: colors.text }}
+                  >
+                    &#8592;
+                  </button>
+                  <PosterProgress
+                    theme={fxConfig.theme}
+                    step={posterStep}
+                    fromStep={fromStep}
+                    count={poster.items.length}
+                    marks={marks[poster.id]}
+                    color={colors.text}
+                  />
+                  <button
+                    type="button"
+                    className="pe-nav-arrow-btn"
+                    onClick={nextStep}
+                    disabled={posterStep === poster.items.length - 1}
+                    aria-label="Next panel"
+                    style={{ color: colors.text, borderColor: colors.text }}
+                  >
+                    &#8594;
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </>
       </PosterProjector>
     </div>
   );

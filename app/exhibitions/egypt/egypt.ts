@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
+import type { Atmosphere, CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
 import { floorReturnFor } from '@/lib/floors';
 
 /*
@@ -70,6 +70,39 @@ const ISIS: PanelFigure = {
   alt: 'Isis in the Egyptian style: a woman in a long red dress with a crown on her head, holding a staff and an ankh, in a border of colored petals',
 };
 
+/*
+ * The posters' titles as pictures: their own lettering, the white serif and
+ * the orange-red script together, cut from the posters at the posters'
+ * resolution (public/exhibitions/egypt/titles/). A sharper export of the same
+ * lettering can replace a file at the same path; update its size here.
+ */
+const TITLE_SIZES = {
+  mysteries: { width: 637, height: 602 },
+  godsAndGoddesses: { width: 625, height: 344 },
+};
+
+/** The hieroglyphs poster 2 sets beside each god's name (design elements, used as part of the exhibition's design). */
+const GLYPHS = ['anubis', 'bastet', 'horus', 'isis'];
+
+/*
+ * The walkthrough's atmospheres (egypt.css draws them), each the setting of
+ * a part of the story:
+ *   sand         the desert: sand blowing low across the ground
+ *   nile         the river: water shimmering, a glint on its surface
+ *   hieroglyphs  writing: the poster's hieroglyphs carved into the wall, stroke by stroke
+ *   papyrus      the Rosetta Stone and its reading: a sheet of papyrus unrolled
+ *   torchlight   the tomb: torchlight flickering on stone, embers rising
+ *   gold         treasure and the gods: gold leaf catching the light
+ */
+const ATMOSPHERES: Record<string, Atmosphere> = {
+  sand: { bg: '#1e1913', parts: 2, particles: 56 },
+  nile: { bg: '#0f181a', parts: 3, particles: 14 },
+  hieroglyphs: { bg: '#181512', parts: 2, images: GLYPHS.flatMap((g) => [1, 2].map((n) => ({ src: `/exhibitions/egypt/glyphs/${g}.png`, className: `eg-glyph eg-glyph-${g} eg-glyph-col-${n}` }))) },
+  papyrus: { bg: GROUND, text: '#2b2014', title: '#9c2f0c', parts: 3 },
+  torchlight: { bg: '#130e0a', parts: 2, particles: 10 },
+  gold: { bg: '#17120a', parts: 2, particles: 22 },
+};
+
 export const EGYPT_PROJECTOR_THEME = {
   '--pj-bg': DEEP,
   '--pj-ink': INK,
@@ -96,6 +129,8 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
     teach: { color: ORANGE, border: 'rgba(240,74,26,0.55)' },
   },
   back: floorReturnFor('egypt'),
+  atmospheres: ATMOSPHERES,
+  // The doorway opens as a poster opens and at each god's name; every other panel arrives its own way.
   fx: { theme: 'eg', veil: 'chapters', text: 'all' },
   projector: { theme: EGYPT_PROJECTOR_THEME, links: [] },
   cases: [
@@ -123,12 +158,21 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
         left: { bg: DEEP, className: 'eg-arch-left' },
       },
       items: [
-        { type: 'title-text', section: 'title', kicker: 'The Mysteries of', text: 'Ancient Egypt' },
-        { type: 'paragraph', section: 'right', position: 'center', figure: RAMESSES, text: 'The civilization of ancient Egypt lasted for over three thousand years and was located in northeastern Africa along the river Nile.' },
-        { type: 'paragraph', section: 'left', position: 'center', text: 'The ancient Egyptians left behind a legacy of impressive monuments, such as pyramids and temples – and invented hieroglyphic writing.' },
-        { type: 'paragraph', section: 'right', position: 'center', text: 'It is thanks to the Rosetta Stone – a broken slab of a decree that was written in three scripts and allowed us to decipher hieroglyphs – that we have so much information about this fascinating, ancient civilization.' },
+        {
+          type: 'title-image',
+          section: 'title',
+          atmosphere: 'sand',
+          effect: 'rise-expand',
+          src: '/exhibitions/egypt/titles/mysteries.png',
+          ...TITLE_SIZES.mysteries,
+          framing: 'centered',
+          alt: 'The Mysteries of Ancient Egypt',
+        },
+        { type: 'paragraph', atmosphere: 'nile', effect: 'kenburns-in', section: 'right', position: 'center', figure: RAMESSES, text: 'The civilization of ancient Egypt lasted for over three thousand years and was located in northeastern Africa along the river Nile.' },
+        { type: 'paragraph', atmosphere: 'hieroglyphs', effect: 'ink-spread', section: 'left', position: 'center', text: 'The ancient Egyptians left behind a legacy of impressive monuments, such as pyramids and temples – and invented hieroglyphic writing.' },
+        { type: 'paragraph', atmosphere: 'papyrus', effect: 'blur-to-sharp', section: 'right', position: 'center', text: 'It is thanks to the Rosetta Stone – a broken slab of a decree that was written in three scripts and allowed us to decipher hieroglyphs – that we have so much information about this fascinating, ancient civilization.' },
 
-        { type: 'callout', text: "Take a tour of the British Museum's Egyptian collection", url: BM_EGYPT_URL },
+        { type: 'callout', atmosphere: 'gold', effect: 'film-credits', text: "Take a tour of the British Museum's Egyptian collection", url: BM_EGYPT_URL },
         { type: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
@@ -155,30 +199,39 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
         god: { className: 'eg-god' },
       },
       items: [
-        { type: 'title-text', section: 'title', kicker: 'Gods and Goddesses of', text: 'Ancient Egypt' },
-        { type: 'paragraph', section: 'right', position: 'center', text: 'Ancient Egyptian culture was highly ritualized and concentrated much of its attention on birth and death rituals where a rich pantheon of gods controlled much of their world.' },
-        { type: 'paragraph', section: 'right', position: 'center', text: 'Each of these gods and goddesses had their own role to play in maintaining peace and harmony across the land.' },
-        { type: 'paragraph', section: 'left', position: 'center', text: 'Some gods took part in creation and others brought a flood every year, which was important for growing crops. Some offered protection while others took care of people after they died.' },
-        { type: 'paragraph', section: 'left', position: 'center', text: 'There were local gods who represented towns and minor gods who represented plants or animals. And a few gods were very dangerous!' },
-        { type: 'paragraph', section: 'right', position: 'center', text: 'The ancient Egyptians believed that it was important to recognize and worship these gods and goddesses so that life would continue smoothly.', source: { text: 'Adapted from the British Museum’s “Ancient Egyptian gods and goddesses”', href: BM_GODS_URL } },
+        {
+          type: 'title-image',
+          section: 'title',
+          atmosphere: 'gold',
+          effect: 'kenburns-in',
+          src: '/exhibitions/egypt/titles/gods-and-goddesses.png',
+          ...TITLE_SIZES.godsAndGoddesses,
+          framing: 'centered',
+          alt: 'Gods and Goddesses of Ancient Egypt',
+        },
+        { type: 'paragraph', atmosphere: 'torchlight', effect: 'blur-to-sharp', section: 'right', position: 'center', text: 'Ancient Egyptian culture was highly ritualized and concentrated much of its attention on birth and death rituals where a rich pantheon of gods controlled much of their world.' },
+        { type: 'paragraph', atmosphere: 'torchlight', effect: 'fade-in', section: 'right', position: 'center', text: 'Each of these gods and goddesses had their own role to play in maintaining peace and harmony across the land.' },
+        { type: 'paragraph', atmosphere: 'nile', effect: 'line-by-line', section: 'left', position: 'center', text: 'Some gods took part in creation and others brought a flood every year, which was important for growing crops. Some offered protection while others took care of people after they died.' },
+        { type: 'paragraph', atmosphere: 'sand', effect: 'split-reveal', section: 'left', position: 'center', text: 'There were local gods who represented towns and minor gods who represented plants or animals. And a few gods were very dangerous!' },
+        { type: 'paragraph', atmosphere: 'papyrus', effect: 'typewriter', section: 'right', position: 'center', text: 'The ancient Egyptians believed that it was important to recognize and worship these gods and goddesses so that life would continue smoothly.', source: { text: 'Adapted from the British Museum’s “Ancient Egyptian gods and goddesses”', href: BM_GODS_URL } },
 
-        { type: 'section-title', section: 'name', text: 'Anubis' },
-        { type: 'paragraph', section: 'god', figure: ANUBIS, text: 'Anubis was the god of mummification, the afterlife and the dead. He is portrayed as a man with the head of a jackal or as a full jackal.' },
-        { type: 'paragraph', section: 'right', position: 'center', text: 'Despite his powerful and important role, Anubis was also seen as a gentle and caring god who took great care in ensuring that the dead were treated with respect.' },
+        { type: 'section-title', atmosphere: 'hieroglyphs', section: 'name', text: 'Anubis' },
+        { type: 'paragraph', atmosphere: 'torchlight', effect: 'shrink-back', section: 'god', figure: ANUBIS, text: 'Anubis was the god of mummification, the afterlife and the dead. He is portrayed as a man with the head of a jackal or as a full jackal.' },
+        { type: 'paragraph', atmosphere: 'torchlight', effect: 'ink-spread', section: 'right', position: 'center', text: 'Despite his powerful and important role, Anubis was also seen as a gentle and caring god who took great care in ensuring that the dead were treated with respect.' },
 
-        { type: 'section-title', section: 'name', text: 'Bastet' },
-        { type: 'paragraph', section: 'god', figure: BASTET, text: 'Bastet was the goddess of cats, fertility (new life) and childbirth, and often associated with joy and dance. She is depicted with the head of a cat and the body of a human.' },
-        { type: 'paragraph', section: 'left', position: 'center', text: 'She was often worshipped by Egyptians, who considered cats to be sacred animals. Her image was used as a symbol of good luck and protection.' },
+        { type: 'section-title', atmosphere: 'hieroglyphs', section: 'name', text: 'Bastet' },
+        { type: 'paragraph', atmosphere: 'gold', effect: 'split-reveal', section: 'god', figure: BASTET, text: 'Bastet was the goddess of cats, fertility (new life) and childbirth, and often associated with joy and dance. She is depicted with the head of a cat and the body of a human.' },
+        { type: 'paragraph', atmosphere: 'gold', effect: 'line-by-line', section: 'left', position: 'center', text: 'She was often worshipped by Egyptians, who considered cats to be sacred animals. Her image was used as a symbol of good luck and protection.' },
 
-        { type: 'section-title', section: 'name', text: 'Horus' },
-        { type: 'paragraph', section: 'god', figure: HORUS, text: 'Horus was the god of the sky, war and hunting. He was associated with the pharaohs and was often depicted as their protector and defender.' },
-        { type: 'paragraph', section: 'right', position: 'center', text: 'Portrayed as a man with the head of a falcon, or just as a falcon, Horus was worshipped throughout Egypt as a just and fair god who protected the people of Egypt and maintained order and balance.' },
+        { type: 'section-title', atmosphere: 'hieroglyphs', section: 'name', text: 'Horus' },
+        { type: 'paragraph', atmosphere: 'sand', effect: 'film-credits', section: 'god', figure: HORUS, text: 'Horus was the god of the sky, war and hunting. He was associated with the pharaohs and was often depicted as their protector and defender.' },
+        { type: 'paragraph', atmosphere: 'sand', effect: 'typewriter', section: 'right', position: 'center', text: 'Portrayed as a man with the head of a falcon, or just as a falcon, Horus was worshipped throughout Egypt as a just and fair god who protected the people of Egypt and maintained order and balance.' },
 
-        { type: 'section-title', section: 'name', text: 'Isis' },
-        { type: 'paragraph', section: 'god', figure: ISIS, text: "Isis was the goddess of protection, motherhood and magic. She is depicted as a woman with the hieroglyph for 'throne' worn as a crown and is the mother of Horus." },
-        { type: 'paragraph', section: 'left', position: 'center', text: 'Stories of Isis attributed the cause of the annual Nile floods to her tears as she cried for her dead husband Osiris. Ancient Egyptians believed that she could perform magic and heal the sick.' },
+        { type: 'section-title', atmosphere: 'hieroglyphs', section: 'name', text: 'Isis' },
+        { type: 'paragraph', atmosphere: 'nile', effect: 'waves-drift', section: 'god', figure: ISIS, text: "Isis was the goddess of protection, motherhood and magic. She is depicted as a woman with the hieroglyph for 'throne' worn as a crown and is the mother of Horus." },
+        { type: 'paragraph', atmosphere: 'nile', effect: 'blur-to-sharp', section: 'left', position: 'center', text: 'Stories of Isis attributed the cause of the annual Nile floods to her tears as she cried for her dead husband Osiris. Ancient Egyptians believed that she could perform magic and heal the sick.' },
 
-        { type: 'callout', text: 'Learn more about Egyptian Gods and Goddesses', url: BM_GODS_URL },
+        { type: 'callout', atmosphere: 'gold', effect: 'breathe', text: 'Learn more about Egyptian Gods and Goddesses', url: BM_GODS_URL },
         { type: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
