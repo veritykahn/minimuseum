@@ -1,88 +1,13 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
-import { SOLDIERS } from '@/app/exhibitions/great-war/memorial/soldiers';
-import SoldierCard from '@/app/exhibitions/great-war/memorial/SoldierCard';
-import TwoMinuteSilence, { inArmisticeSilence } from '@/app/exhibitions/great-war/memorial/TwoMinuteSilence';
+import { act, fireEvent, render, screen } from '@testing-library/react';
+import TwoMinuteSilence, { countdownParts, inArmisticeSilence, nextArmistice } from '@/app/exhibitions/great-war/memorial/TwoMinuteSilence';
 import { fieldLayout } from '@/app/exhibitions/great-war/memorial/PoppyField';
 import { GREAT_WAR } from '@/app/exhibitions/great-war/greatWar';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
 /*
- * The Great War memorial: the eleven soldier cards (data and turning), the
- * poppy field's layout, and the two minutes' silence (countdown and Esc).
+ * The Great War memorial: the poppy field's layout, and the two minutes' silence (countdown and Esc).
  */
-
-describe('the soldier cards', () => {
-  it('has all eleven soldiers the owner approved, in order', () => {
-    expect(SOLDIERS.map((s) => s.id)).toEqual([
-      'gunther', 'stowers', 'stout', 'juan', 'hay', 'healey', 'olson', 'kocak', 'stockham', 'miner', 'henry',
-    ]);
-  });
-
-  it.each(SOLDIERS.map((s) => [s.name, s] as const))('%s: every card has its facts, a story and at least one source', (_n, s) => {
-    expect(s.name).toBeTruthy();
-    expect(s.unit).toBeTruthy();
-    expect(s.hometown).toBeTruthy();
-    expect(s.died).toBeTruthy();
-    expect(s.story.length).toBeGreaterThan(0);
-    expect(s.sources.length).toBeGreaterThanOrEqual(1);
-    for (const src of s.sources) {
-      expect(src.label).toBeTruthy();
-      expect(src.url).toMatch(/^https?:\/\//);
-    }
-    expect(s.burial || s.memorial).toBeTruthy();
-  });
-
-  it('shows the conflicts the research notes record, honestly', () => {
-    const by = Object.fromEntries(SOLDIERS.map((s) => [s.id, s]));
-    expect(by.healey.age).toBe('15 (his service record says 18)');
-    expect(by.juan.alsoKnownAs).toMatch(/Rivers/);
-    expect(by.stockham.born).toMatch(/Detroit/);
-    expect(by.stockham.born).toMatch(/New York City/);
-    expect(by.kocak.born).toMatch(/^1882/);
-    expect(by.kocak.notes?.join(' ')).toMatch(/December 3, 1882.*December 31, 1882/);
-  });
-
-  it('gives Olson no rank and no burial place', () => {
-    const olson = SOLDIERS.find((s) => s.id === 'olson')!;
-    expect(olson.rank).toBeUndefined();
-    expect(olson.burial).toBeUndefined();
-    expect(olson.memorial).toMatch(/Bismarck/);
-  });
-
-  it('shows the grave plots the notes give, and the two Verity added from ABMC', () => {
-    const plots = Object.fromEntries(SOLDIERS.filter((s) => s.burial?.plot).map((s) => [s.id, s.burial!.plot]));
-    expect(plots).toEqual({
-      stowers: 'Plot F, Row 36, Grave 40',
-      stout: 'Plot C, Row 41, Grave 14',
-      stockham: 'Section C, Block 9, Lot 13, Grave 4',
-      henry: 'Section 12, Grave 3434',
-      kocak: 'Plot D, Row 41, Grave 32',
-      miner: 'Plot B, Row 14, Grave 17',
-    });
-    expect(SOLDIERS.find((s) => s.id === 'healey')!.memorial).toMatch(/Tablets of the Missing at the Aisne-Marne/);
-  });
-
-  it('turns with a button, and the hidden side is inert', () => {
-    const gunther = SOLDIERS[0];
-    const { container } = render(<SoldierCard soldier={gunther} />);
-    const front = container.querySelector('.gwm-card-front') as HTMLElement;
-    const back = container.querySelector('.gwm-card-back') as HTMLElement;
-    expect(back).toHaveAttribute('inert');
-    expect(front).not.toHaveAttribute('inert');
-    expect(screen.getByRole('heading', { level: 3, name: gunther.name })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: /Turn the card/ }));
-    expect(front).toHaveAttribute('inert');
-    expect(back).not.toHaveAttribute('inert');
-    const links = within(back).getAllByRole('link');
-    expect(links.map((a) => a.getAttribute('href'))).toEqual(gunther.sources.map((s) => s.url));
-    expect(back).toHaveTextContent('Most Holy Redeemer Cemetery');
-
-    fireEvent.click(screen.getByRole('button', { name: /Turn back to the front/ }));
-    expect(back).toHaveAttribute('inert');
-  });
-});
 
 describe('the poppy field', () => {
   it('draws nothing for no poppies, and every poppy while there is room', () => {
@@ -110,6 +35,15 @@ describe('the poppy field', () => {
 describe('the silence at 11:00', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
+
+  it('counts down to the next 11:00 on November 11', () => {
+    expect(nextArmistice(new Date(2026, 9, 28, 9, 0, 0))).toEqual(new Date(2026, 10, 11, 11, 0, 0));
+    expect(nextArmistice(new Date(2026, 10, 11, 10, 59, 59))).toEqual(new Date(2026, 10, 11, 11, 0, 0));
+    expect(nextArmistice(new Date(2026, 10, 11, 11, 0, 0))).toEqual(new Date(2027, 10, 11, 11, 0, 0));
+    expect(nextArmistice(new Date(2026, 11, 25))).toEqual(new Date(2027, 10, 11, 11, 0, 0));
+    expect(countdownParts(((13 * 24 + 22) * 3600 + 6 * 60 + 52) * 1000 + 400)).toEqual({ days: 13, hours: 22, minutes: 6, seconds: 52 });
+    expect(countdownParts(-5)).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  });
 
   it('knows the two minutes from 11:00 on 11 November', () => {
     expect(inArmisticeSilence(new Date(2026, 10, 11, 11, 0, 0))).toBe(true);

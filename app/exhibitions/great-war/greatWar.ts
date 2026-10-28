@@ -115,7 +115,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
     theme: GREAT_WAR_PROJECTOR_THEME,
     links: [
       { label: 'When the Guns Fell Silent (film)', href: '/exhibitions/great-war/silence' },
-      { label: 'The Memorial: soldier cards, poppies and the silence', href: '/exhibitions/great-war/memorial' },
+      { label: 'The Memorial: poppies, a soldier to remember, and the silence', href: '/exhibitions/great-war/memorial' },
     ],
   },
   cases: [
@@ -141,7 +141,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
       label: 'Interactive',
       title: 'The Memorial',
-      subtitle: 'Soldier cards, a field of poppies, and the silence',
+      subtitle: 'A field of poppies, a soldier to remember, and the silence',
     },
   ],
   posters: [
