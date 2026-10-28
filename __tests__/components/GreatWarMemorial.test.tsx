@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import TwoMinuteSilence, { inArmisticeSilence } from '@/app/exhibitions/great-war/memorial/TwoMinuteSilence';
+import TwoMinuteSilence, { countdownParts, inArmisticeSilence, nextArmistice } from '@/app/exhibitions/great-war/memorial/TwoMinuteSilence';
 import { fieldLayout } from '@/app/exhibitions/great-war/memorial/PoppyField';
 import { GREAT_WAR } from '@/app/exhibitions/great-war/greatWar';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
@@ -35,6 +35,15 @@ describe('the poppy field', () => {
 describe('the silence at 11:00', () => {
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => jest.useRealTimers());
+
+  it('counts down to the next 11:00 on November 11', () => {
+    expect(nextArmistice(new Date(2026, 9, 28, 9, 0, 0))).toEqual(new Date(2026, 10, 11, 11, 0, 0));
+    expect(nextArmistice(new Date(2026, 10, 11, 10, 59, 59))).toEqual(new Date(2026, 10, 11, 11, 0, 0));
+    expect(nextArmistice(new Date(2026, 10, 11, 11, 0, 0))).toEqual(new Date(2027, 10, 11, 11, 0, 0));
+    expect(nextArmistice(new Date(2026, 11, 25))).toEqual(new Date(2027, 10, 11, 11, 0, 0));
+    expect(countdownParts(((13 * 24 + 22) * 3600 + 6 * 60 + 52) * 1000 + 400)).toEqual({ days: 13, hours: 22, minutes: 6, seconds: 52 });
+    expect(countdownParts(-5)).toEqual({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  });
 
   it('knows the two minutes from 11:00 on 11 November', () => {
     expect(inArmisticeSilence(new Date(2026, 10, 11, 11, 0, 0))).toBe(true);

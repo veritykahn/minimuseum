@@ -5,7 +5,8 @@ import { createPortal } from 'react-dom';
 import { MEMORIAL_TEXT } from './memorialText';
 
 /*
- * The silence at 11:00. A clock in the visitor's own time. From 11:00 to
+ * The silence at 11:00. A countdown, in the visitor's own time, to the next
+ * 11:00 on November 11. From 11:00 to
  * 11:02 on November 11 the page dims and holds two minutes' silence by
  * itself; at any other time the visitor can keep two minutes' silence now.
  * The countdown is quiet: no sound at all. Focus is never trapped: the
@@ -24,6 +25,24 @@ function armisticeEnd(d: Date): number {
   const end = new Date(d);
   end.setHours(11, 2, 0, 0);
   return end.getTime();
+}
+
+/** The next 11:00 on November 11, local time, from `d` (today's, until it has passed). */
+export function nextArmistice(d: Date): Date {
+  const at = new Date(d.getFullYear(), 10, 11, 11, 0, 0, 0);
+  if (d.getTime() >= at.getTime()) at.setFullYear(at.getFullYear() + 1);
+  return at;
+}
+
+/** Days, hours, minutes and seconds from `ms`, for the countdown. */
+export function countdownParts(ms: number) {
+  const total = Math.max(0, Math.floor(ms / 1000));
+  return {
+    days: Math.floor(total / 86400),
+    hours: Math.floor((total % 86400) / 3600),
+    minutes: Math.floor((total % 3600) / 60),
+    seconds: total % 60,
+  };
 }
 
 function mmss(ms: number) {
@@ -112,8 +131,17 @@ export default function TwoMinuteSilence() {
   }, []);
 
   const remaining = silence && now ? silence.endsAt - now.getTime() : SILENCE_MS;
-  const time = now ? now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit', second: '2-digit' }) : '';
-  const date = now ? now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' }) : '';
+  const target = now ? nextArmistice(now) : null;
+  const left = countdownParts(target && now ? target.getTime() - now.getTime() : 0);
+  const units = [
+    { n: left.days, label: left.days === 1 ? 'day' : 'days' },
+    { n: left.hours, label: left.hours === 1 ? 'hour' : 'hours' },
+    { n: left.minutes, label: left.minutes === 1 ? 'minute' : 'minutes' },
+    { n: left.seconds, label: left.seconds === 1 ? 'second' : 'seconds' },
+  ];
+  const spoken = target ? `${left.days} days, ${left.hours} hours and ${left.minutes} minutes until 11:00 on November 11, ${target.getFullYear()}` : undefined;
+  /** How much of the two minutes is left, 1 to 0, for the ring. */
+  const share = Math.max(0, Math.min(1, remaining / SILENCE_MS));
 
   const overlay = (silence || leaving) && typeof document !== 'undefined'
     ? createPortal(
@@ -126,7 +154,13 @@ export default function TwoMinuteSilence() {
           {silence && (
             <div className="gwm-silence-inner">
               <p className="gwm-silence-title">Two minutes’ silence</p>
-              <p className="gwm-silence-time" aria-hidden="true">{mmss(remaining)}</p>
+              <div className="gwm-silence-dial" aria-hidden="true">
+                <svg viewBox="0 0 120 120" focusable="false">
+                  <circle className="gwm-silence-track" cx="60" cy="60" r="54" />
+                  <circle className="gwm-silence-left" cx="60" cy="60" r="54" pathLength={1} strokeDasharray="1" strokeDashoffset={1 - share} />
+                </svg>
+                <p className="gwm-silence-time">{mmss(remaining)}</p>
+              </div>
               <button ref={endRef} type="button" className="gw-button" onClick={() => end(true)}>
                 End the silence
               </button>
@@ -141,11 +175,17 @@ export default function TwoMinuteSilence() {
   return (
     <div className="gwm-silence">
       <p className="gwm-silence-line">{MEMORIAL_TEXT.silenceLine}</p>
-      <div className="gwm-clock" aria-label={now ? `Your local time: ${time}, ${date}` : undefined} role="group">
-        <span className="gwm-clock-time" aria-hidden="true" suppressHydrationWarning>{time || ' '}</span>
-        <span className="gwm-clock-date" aria-hidden="true" suppressHydrationWarning>{date || ' '}</span>
-        <span className="gwm-clock-note">Your local time</span>
+      <div className="gwm-countdown" role="timer" aria-label={spoken}>
+        {units.map((u) => (
+          <span key={u.label.replace(/s$/, '')} className="gwm-countdown-unit" aria-hidden="true">
+            <span className="gwm-countdown-n" suppressHydrationWarning>{now ? String(u.n).padStart(u.label.startsWith('day') ? 1 : 2, '0') : '–'}</span>
+            <span className="gwm-countdown-label">{u.label}</span>
+          </span>
+        ))}
       </div>
+      <p className="gwm-countdown-note" suppressHydrationWarning>
+        {target ? `until 11:00 on November 11, ${target.getFullYear()}, in your own time` : ' '}
+      </p>
       <button ref={startRef} type="button" className="gw-button gw-button-primary" onClick={() => begin(false)} disabled={!!silence}>
         Keep two minutes’ silence now
       </button>

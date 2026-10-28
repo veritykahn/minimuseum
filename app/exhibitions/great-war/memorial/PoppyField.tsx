@@ -33,6 +33,8 @@ function hash01(i: number, salt: number) {
 
 /** How far down the scene the horizon sits, as a fraction of its height. */
 export const HORIZON = 0.6;
+/** On a phone the scene stands taller, and the horizon sits higher (as in memorial.css). */
+export const PHONE_HORIZON = 0.47;
 
 /**
  * Where the first `count` poppies sit in a field `w` × `h` (CSS px), back
@@ -128,8 +130,8 @@ function drawBlade(g: CanvasRenderingContext2D, b: Blade, t: number) {
   g.stroke();
 }
 
-function drawPoppy(g: CanvasRenderingContext2D, sprite: HTMLCanvasElement | null, p: Placed, h: number, t: number, grow = 1) {
-  const depth = Math.min(1, Math.max(0, (p.y + p.size - h * HORIZON) / (h * (1 - HORIZON))));
+function drawPoppy(g: CanvasRenderingContext2D, sprite: HTMLCanvasElement | null, p: Placed, h: number, horizon: number, t: number, grow = 1) {
+  const depth = Math.min(1, Math.max(0, (p.y + p.size - h * horizon) / (h * (1 - horizon))));
   const s = p.size * grow;
   const stem = p.size * (0.9 + depth * 0.6);
   const baseX = p.x + p.size / 2;
@@ -161,35 +163,25 @@ function drawPoppy(g: CanvasRenderingContext2D, sprite: HTMLCanvasElement | null
   g.globalAlpha = 1;
 }
 
-type Props = {
-  /** The heading's id, for the section's aria-labelledby. */
-  headingId: string;
-  heading: string;
-  intro: string;
-};
-
 /**
  * The memorial's scene: the soldier on the rise, lit from behind by a low
  * sun, and the field of poppies running from his feet to the visitor. The
  * poppies are the ones visitors have placed; the grass and the light are
- * only the setting.
+ * only the setting. It fills the memorial behind the tabs.
  */
-export default function PoppyField({ headingId, heading, intro }: Props) {
-  const { count, status, placedToday, busy, place } = usePoppies();
+export default function PoppyField({ count, growFrom }: { count: number | null; growFrom: number | null }) {
   const reduced = usePrefersReducedMotion();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
   const spriteRef = useRef<HTMLCanvasElement | null>(null);
   const [spriteReady, setSpriteReady] = useState(false);
-  const [message, setMessage] = useState('');
-  /** When this visitor's own poppy began to grow (performance.now()), or null. */
-  const growFrom = useRef<number | null>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
   const [visible, setVisible] = useState(true);
 
   const shown = count ?? FALLBACK_POPPIES;
-  const poppies = useMemo(() => fieldLayout(shown, size.w, size.h), [shown, size]);
-  const grass = useMemo(() => grassLayout(size.w, size.h), [size]);
+  const horizon = size.w <= 760 ? PHONE_HORIZON : HORIZON;
+  const poppies = useMemo(() => fieldLayout(shown, size.w, size.h, horizon), [shown, size, horizon]);
+  const grass = useMemo(() => grassLayout(size.w, size.h, horizon), [size, horizon]);
 
   useEffect(() => {
     let alive = true;
@@ -239,19 +231,19 @@ export default function PoppyField({ headingId, heading, intro }: Props) {
       g.clearRect(0, 0, size.w, size.h);
       g.lineCap = 'round';
       // The visitor's own poppy is the newest: the last by number.
-      const newest = growFrom.current === null ? -1 : shown - 1;
-      const grow = growFrom.current === null ? 1 : Math.min(1, (now - growFrom.current) / 2200);
+      const newest = growFrom === null ? -1 : shown - 1;
+      const grow = growFrom === null ? 1 : Math.min(1, (now - growFrom) / 2200);
       const eased = 1 - Math.pow(1 - grow, 3);
       // Grass and poppies drawn together, back to front.
       let b = 0;
       for (const p of poppies) {
         const foot = p.y + p.size;
         while (b < grass.length && grass[b].y < foot) drawBlade(g, grass[b++], t);
-        drawPoppy(g, spriteRef.current, p, size.h, t, p.i === newest ? eased : 1);
+        drawPoppy(g, spriteRef.current, p, size.h, horizon, t, p.i === newest ? eased : 1);
       }
       while (b < grass.length) drawBlade(g, grass[b++], t);
     },
-    [poppies, grass, size, shown],
+    [poppies, grass, size, shown, growFrom, horizon],
   );
 
   // Draw the field; let it sway in the wind unless motion is reduced.
@@ -272,28 +264,8 @@ export default function PoppyField({ headingId, heading, intro }: Props) {
     return () => cancelAnimationFrame(raf);
   }, [draw, reduced, visible, spriteReady]);
 
-  const onPlace = async () => {
-    const result: PlaceResult = await place();
-    if (result === 'placed') {
-      growFrom.current = performance.now();
-      setMessage('Thank you. Your poppy is in the field.');
-    } else if (result === 'already' || result === 'limited') {
-      setMessage('A poppy has already been placed from here today. You can place another tomorrow.');
-    } else {
-      setMessage('The field can’t be reached just now. Please try again in a little while.');
-    }
-  };
-
-  const countText =
-    count === null
-      ? status === 'loading'
-        ? 'Counting the poppies…'
-        : 'The shared field can’t be reached just now.'
-      : `${count.toLocaleString('en-US')} ${count === 1 ? 'poppy' : 'poppies'} placed${status === 'offline' ? ' (when last counted)' : ''}`;
-
   return (
-    <div className="gwm-scene">
-      <div className="gwm-scene-art" ref={wrapRef} aria-hidden="true">
+    <div className="gwm-scene-art" ref={wrapRef} aria-hidden="true">
         <span className="gwm-sky" />
         <span className="gwm-sun" />
         <span className="gwm-rays" />
@@ -312,21 +284,51 @@ export default function PoppyField({ headingId, heading, intro }: Props) {
           ))}
         </span>
       </div>
+  );
+}
 
-      <div className="gwm-scene-copy">
-        <h2 id={headingId} className="gwm-h2">{heading}</h2>
-        <p className="gwm-intro">{intro}</p>
-        <p className="gwm-field-count" data-status={status}>
-          {countText}
-        </p>
-        <button type="button" className="gw-button gw-button-primary gwm-place" onClick={onPlace} disabled={busy || placedToday}>
-          <span className="gwm-place-icon" aria-hidden="true" />
-          {placedToday ? 'Poppy placed today' : busy ? 'Placing…' : 'Place a poppy'}
-        </button>
-        <p className="gwm-field-message" role="status" aria-live="polite">
-          {message || (placedToday ? 'You have placed a poppy today. You can place another tomorrow.' : '')}
-        </p>
-      </div>
+type ControlsProps = ReturnType<typeof usePoppies> & {
+  intro: string;
+  /** Called when this visitor's poppy has been placed, to grow it in. */
+  onPlaced: () => void;
+};
+
+/** "Place a poppy": the count and the button, over the scene. */
+export function PoppyControls({ count, status, placedToday, busy, place, intro, onPlaced }: ControlsProps) {
+  const [message, setMessage] = useState('');
+
+  const onPlace = async () => {
+    const result: PlaceResult = await place();
+    if (result === 'placed') {
+      onPlaced();
+      setMessage('Thank you. Your poppy is in the field.');
+    } else if (result === 'already' || result === 'limited') {
+      setMessage('A poppy has already been placed from here today. You can place another tomorrow.');
+    } else {
+      setMessage('The field can’t be reached just now. Please try again in a little while.');
+    }
+  };
+
+  const countText =
+    count === null
+      ? status === 'loading'
+        ? 'Counting the poppies…'
+        : 'The shared field can’t be reached just now.'
+      : `${count.toLocaleString('en-US')} ${count === 1 ? 'poppy' : 'poppies'} placed${status === 'offline' ? ' (when last counted)' : ''}`;
+
+  return (
+    <div className="gwm-poppy-controls">
+      <p className="gwm-intro">{intro}</p>
+      <p className="gwm-field-count" data-status={status}>
+        {countText}
+      </p>
+      <button type="button" className="gw-button gw-button-primary gwm-place" onClick={onPlace} disabled={busy || placedToday}>
+        <span className="gwm-place-icon" aria-hidden="true" />
+        {placedToday ? 'Poppy placed today' : busy ? 'Placing…' : 'Place a poppy'}
+      </button>
+      <p className="gwm-field-message" role="status" aria-live="polite">
+        {message || (placedToday ? 'You have placed a poppy today. You can place another tomorrow.' : '')}
+      </p>
     </div>
   );
 }

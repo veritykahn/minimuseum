@@ -1,77 +1,32 @@
 /* ==========================================================================
-   The memorial: the silhouette lit from behind, a field of poppies, a card to keep, the silence at 11:00.
+   The memorial, on one screen: the soldier lit from behind above the field
+   of poppies, with three tabs over it (a poppy, a card to keep, the silence).
    ========================================================================== */
-.gwm-contents {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 8px 28px;
-  font-family: var(--pe-ui);
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-.gw-room .gwm-contents a { color: #c9c1b4; text-decoration: none; padding: 6px 2px; border-bottom: 1px solid transparent; }
-.gw-room .gwm-contents a:hover,
-.gw-room .gwm-contents a:focus-visible { color: #ec4a3f; border-bottom-color: #ec4a3f; }
-
-.gwm-section {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  scroll-margin-top: 24px;
-  padding-top: 24px;
-}
-.gwm-h2 {
-  font-family: var(--pe-display);
-  font-weight: 400;
-  font-size: clamp(1.9rem, 4.6vw, 3rem);
-  color: #ede6da;
-  text-align: center;
-}
-.gwm-h2::after {
-  content: '';
-  display: block;
-  width: 64px;
-  height: 1px;
-  margin: 18px auto 0;
-  background: #e8372c;
-}
+/* ───────── The field: the soldier on the rise, lit from behind ─────────
+   One scene across the whole width of the page, with no frame: a low sun
+   behind the soldier, the far hills, and the field of placed poppies running
+   from his feet to the visitor. Its edges fade into the page. */
 .gwm-intro {
   font-family: var(--pe-body);
   font-style: italic;
   font-weight: 500;
-  font-size: clamp(1.1rem, 2.4vw, 1.4rem);
+  font-size: clamp(1.1rem, 1.7vw, 1.35rem);
   line-height: 1.5;
   text-align: center;
   max-width: 34em;
   color: #ede6da;
 }
-
-/* ───────── The field: the soldier on the rise, lit from behind ─────────
-   One scene across the whole width of the page, with no frame: a low sun
-   behind the soldier, the far hills, and the field of placed poppies running
-   from his feet to the visitor. Its edges fade into the page. */
-.gw-memorial { overflow-x: clip; }
-.gwm-section-scene { padding-top: 0; }
-.gwm-scene {
+.gwm-stage {
   --sun-x: 25%;
   --sun-y: 50%;
   position: relative;
-  width: 100vw;
-  height: clamp(580px, 86vh, 920px);
-}
-.gwm-scene-art {
-  position: absolute;
-  inset: 0;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 600px;
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 16%, #000 94%, transparent 100%);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(to right, transparent 0, #000 9%, #000 91%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 16%, #000 94%, transparent 100%);
-  mask-composite: intersect;
+  color: #ede6da;
 }
+.gwm-scene-art { position: absolute; inset: 0; overflow: hidden; }
 .gwm-scene-art > * { position: absolute; pointer-events: none; }
 .gwm-sky {
   inset: 0;
@@ -150,23 +105,6 @@
   to { transform: rotate(3deg); }
 }
 
-.gwm-scene-copy {
-  position: absolute;
-  right: max(7%, calc(50vw - 600px));
-  top: 15%;
-  width: min(440px, 36%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  text-align: center;
-}
-@media (max-width: 760px) {
-  .gwm-scene { --sun-x: 36%; --sun-y: 52%; height: auto; }
-  .gwm-scene-art { position: relative; height: max(440px, 125vw); }
-  .gwm-soldier { left: 5%; height: 42%; }
-  .gwm-scene-copy { position: static; width: auto; padding: 8px 16px 0; }
-}
 
 .gwm-field-count {
   font-family: var(--pe-ui);
@@ -195,6 +133,119 @@
   min-height: 1.5em;
 }
 
+/* ───────── Over the scene: the title, the tabs and the panels ───────── */
+.gw-room-stage { display: block; }
+.gwm-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 26px 96px 0;
+}
+.gwm-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+  line-height: 1;
+  color: #ede6da;
+}
+.gwm-title-date { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.3em; color: #e8372c; padding-left: 0.3em; }
+.gwm-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(237, 230, 218, 0.16);
+  border-radius: 999px;
+  background: rgba(14, 12, 10, 0.45);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.gw-room .gwm-tab {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #c9c1b4;
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.gw-room .gwm-tab:hover { color: #ede6da; }
+.gwm-tab-short { display: none; }
+.gw-room .gwm-tab[aria-selected='true'] { background: #e8372c; color: #fff8f0; }
+.gw-room .gwm-tab:focus-visible { outline: 2px solid #ec4a3f; outline-offset: 3px; }
+
+.gwm-panel {
+  position: absolute;
+  z-index: 1;
+  right: max(5%, calc(50vw - 660px));
+  top: 22vh;
+  width: min(460px, 38vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+  animation: gwm-panel-in 0.6s ease both;
+}
+.gwm-panel[hidden] { display: none; }
+@keyframes gwm-panel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.gwm-poppy-controls { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+/* Remember a soldier: the card and its controls across the right of the scene. */
+.gwm-panel-remember {
+  top: 150px;
+  bottom: 3vh;
+  left: 40%;
+  width: auto;
+  gap: 14px;
+  overflow-y: auto;
+}
+.gwm-panel-remember .gwm-intro { font-size: 1rem; max-width: 40em; }
+.gwm-panel-remember .gwm-remember { max-width: none; gap: 18px 36px; text-align: left; }
+.gwm-panel-remember .gwm-remember-card .gwm-mc { width: min(360px, calc((100dvh - 260px) * 3.65 / 4.9)); }
+/* The field dims behind the card, so the card is easy to read. */
+.gwm-stage[data-tab='remember'] .gwm-field-canvas,
+.gwm-stage[data-tab='remember'] .gwm-petals { opacity: 0.45; transition: opacity 0.6s ease; }
+
+@media (max-width: 760px) {
+  .gwm-stage { --sun-x: 36%; --sun-y: 34%; min-height: 0; }
+  .gwm-bar { padding: 64px 12px 0; gap: 10px; }
+  .gw-room .gwm-tab { font-size: 11px; letter-spacing: 0.14em; padding: 10px 16px; }
+  /* Short names on a phone; the full name stays for screen readers. */
+  .gwm-tab-short { display: inline; }
+  .gwm-tab-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .gwm-hills { bottom: 52.6%; }
+  .gwm-ground { top: 46.6%; }
+  .gwm-soldier { left: 6%; bottom: 50.6%; height: 30%; }
+  .gwm-panel,
+  .gwm-panel-remember {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    max-height: 56dvh;
+    overflow-y: auto;
+    padding: 28px 16px 96px;
+    background: linear-gradient(to bottom, rgba(12, 10, 9, 0), rgba(12, 10, 9, 0.88) 60px);
+  }
+  .gwm-panel-remember { top: 150px; max-height: none; background: rgba(12, 10, 9, 0.9); }
+}
+
 /* ───────── The silence ───────── */
 .gwm-silence { display: flex; flex-direction: column; align-items: center; gap: 26px; }
 .gwm-silence-line {
@@ -205,17 +256,19 @@
   text-align: center;
   max-width: 30em;
 }
-.gwm-clock { display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.gwm-clock-time {
-  font-family: var(--pe-ui);
-  font-weight: 600;
-  font-size: clamp(2.4rem, 8vw, 4.4rem);
-  letter-spacing: 0.04em;
-  color: #e8372c;
+.gwm-countdown { display: flex; gap: clamp(10px, 2vw, 22px); justify-content: center; }
+.gwm-countdown-unit { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 2.2em; }
+.gwm-countdown-n {
+  font-family: var(--pe-display);
+  font-size: clamp(2.6rem, 5vw, 4.4rem);
+  line-height: 1;
+  color: #ede6da;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 0 24px rgba(255, 190, 110, 0.35);
 }
-.gwm-clock-date { font-family: var(--pe-ui); font-size: 15px; color: #ede6da; letter-spacing: 0.06em; }
-.gwm-clock-note { font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #a59d90; }
+.gwm-countdown-unit:first-child .gwm-countdown-n { color: #e8372c; }
+.gwm-countdown-label { font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: #a59d90; }
+.gwm-countdown-note { font-family: var(--pe-body); font-style: italic; font-size: 1.05rem; color: #c9c1b4; }
 
 .gwm-silence-veil {
   position: fixed;
@@ -224,7 +277,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0a0a0a;
+  background: radial-gradient(ellipse at 50% 45%, rgba(18, 14, 11, 0.78), rgba(6, 5, 4, 0.95) 70%);
+  -webkit-backdrop-filter: blur(3px) grayscale(0.6);
+  backdrop-filter: blur(3px) grayscale(0.6);
   color: #ede6da;
   animation: gwm-dim 2.4s ease both;
 }
@@ -233,12 +288,16 @@
 @keyframes gwm-undim { from { opacity: 1; } to { opacity: 0; } }
 .gwm-silence-inner { display: flex; flex-direction: column; align-items: center; gap: 22px; padding: 24px; text-align: center; }
 .gwm-silence-title { font-family: 'Italiana', 'Cormorant Garamond', Georgia, serif; font-size: clamp(2rem, 6vw, 3.4rem); }
+.gwm-silence-dial { position: relative; width: min(300px, 64vw); aspect-ratio: 1; display: grid; place-items: center; }
+.gwm-silence-dial svg { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.gwm-silence-track { fill: none; stroke: rgba(237, 230, 218, 0.12); stroke-width: 1.5; }
+.gwm-silence-left { fill: none; stroke: #e8372c; stroke-width: 2; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
 .gwm-silence-time {
-  font-family: 'Outfit', system-ui, sans-serif;
-  font-size: clamp(1.4rem, 4vw, 2rem);
-  color: #b5ada0;
+  font-family: 'Italiana', 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(4rem, 12vw, 6.5rem);
+  line-height: 1;
+  color: #ede6da;
   font-variant-numeric: tabular-nums;
-  letter-spacing: 0.08em;
 }
 .gwm-silence-veil .gw-button { font-family: 'Outfit', system-ui, sans-serif; }
 .gwm-silence-veil .gw-button:focus-visible { outline: 2px solid #ec4a3f; outline-offset: 3px; }
@@ -247,6 +306,8 @@
 @media (prefers-reduced-motion: reduce) {
   .gwm-sun, .gwm-rays { animation: none; }
   .gwm-petals { display: none; }
+  .gwm-panel { animation: none; }
+  .gwm-silence-left { transition: none; }
   .gwm-silence-veil,
   .gwm-silence-veil.is-leaving { animation: none; }
   .gwm-silence-veil.is-leaving { display: none; }
