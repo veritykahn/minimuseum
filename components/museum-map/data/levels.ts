@@ -27,6 +27,8 @@ const COLORS = {
   victorian: '#D9B7B8',
   womensHistory: '#F2661F',
   holocaust: '#78716C',
+  blackHistory: '#EC4899',
+  writingRevolution: '#5B8DB8',
 };
 
 // Helper: create a wall segment with a doorway gap in the middle
@@ -88,13 +90,6 @@ const lessonsChild = (exhibition: string) => (hasLessons(exhibition) ? [LESSON_R
 // The ids are the exhibitions' slugs: /exhibitions/<id>.
 const GROUND_FLOOR_IDS = GROUND_FLOOR_PAGE.exhibitions.map((e) => e.slug);
 const FIRST_FLOOR_IDS = FIRST_FLOOR_PAGE.exhibitions.map((e) => e.slug);
-
-/** An exhibition still being installed: shown on its floor, not yet open. */
-function comingSoonRoom(
-  id: string, label: string, parent: string, box: { x: number; y: number; width: number; height: number },
-): MapRoom {
-  return { id, label, path: `/exhibitions/${id}`, ...box, accentColor: COLORS.sage, comingSoon: true, parent };
-}
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 1 — Museum Overview
@@ -260,8 +255,18 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     children: ['ho-case', ...lessonsChild('holocaust')],
   },
   // Bottom row
-  comingSoonRoom('black-history', 'Black History\nMonth', 'first-floor', { x: COL[0], ...BOTTOM }),
-  comingSoonRoom('writing-revolution', 'The Writing\nRevolution', 'first-floor', { x: COL[1], ...BOTTOM }),
+  {
+    id: 'black-history', label: 'Black History\nMonth', path: '/exhibitions/black-history',
+    x: COL[0], ...BOTTOM, accentColor: COLORS.blackHistory,
+    parent: 'first-floor',
+    children: ['bh-case', ...lessonsChild('black-history')],
+  },
+  {
+    id: 'writing-revolution', label: 'The Writing\nRevolution', path: '/exhibitions/writing-revolution',
+    x: COL[1], ...BOTTOM, accentColor: COLORS.writingRevolution,
+    parent: 'first-floor',
+    children: ['wr-case', ...lessonsChild('writing-revolution')],
+  },
   {
     id: 'seeing-is-deceiving', label: 'Seeing is\nDeceiving', path: '/exhibitions/seeing-is-deceiving',
     x: COL[2], ...BOTTOM, accentColor: COLORS.seeingIsDeceiving,
@@ -918,6 +923,98 @@ export const HOLOCAUST: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — Black History Month (Floor Plan)
+//
+// Layout: the Exhibition Hall, and the display case beyond it
+// ┌────────────────────────────────┐
+// │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
+// └────────────────────────────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const BLACK_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  accentColor: COLORS.blackHistory,
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+  ],
+  rooms: [
+    {
+      id: 'bh-entrance', label: 'Exhibition Hall', path: '/exhibitions/black-history',
+      accentColor: COLORS.blackHistory, parent: 'black-history',
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'bh-case', label: 'Display Case', path: '/exhibitions/black-history/artifacts/case',
+      accentColor: COLORS.blackHistory, parent: 'black-history',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
+    },
+  ],
+};
+
+export const BLACK_HISTORY: MapLevelConfig = {
+  level: 'exhibition',
+  rooms: [],
+  connections: [],
+  title: 'Black History Month',
+  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
+  ],
+  ...withLessons(BLACK_HISTORY_FLOOR_PLAN, '0 0 500 330', 'black-history'),
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — The Writing Revolution (Floor Plan)
+//
+// Layout: the Exhibition Hall, and the display case beyond it
+// ┌────────────────────────────────┐
+// │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
+// └────────────────────────────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const WRITING_REVOLUTION_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  accentColor: COLORS.writingRevolution,
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+  ],
+  rooms: [
+    {
+      id: 'wr-entrance', label: 'Exhibition Hall', path: '/exhibitions/writing-revolution',
+      accentColor: COLORS.writingRevolution, parent: 'writing-revolution',
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'wr-case', label: 'Display Case', path: '/exhibitions/writing-revolution/artifacts/case',
+      accentColor: COLORS.writingRevolution, parent: 'writing-revolution',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
+    },
+  ],
+};
+
+export const WRITING_REVOLUTION: MapLevelConfig = {
+  level: 'exhibition',
+  rooms: [],
+  connections: [],
+  title: 'The Writing Revolution',
+  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
+  ],
+  ...withLessons(WRITING_REVOLUTION_FLOOR_PLAN, '0 0 500 330', 'writing-revolution'),
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Level resolver
 // ═══════════════════════════════════════════════════════════════════
 
@@ -933,6 +1030,8 @@ export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/victorian')) return VICTORIAN;
   if (pathname.startsWith('/exhibitions/womens-history')) return WOMENS_HISTORY;
   if (pathname.startsWith('/exhibitions/holocaust')) return HOLOCAUST;
+  if (pathname.startsWith('/exhibitions/black-history')) return BLACK_HISTORY;
+  if (pathname.startsWith('/exhibitions/writing-revolution')) return WRITING_REVOLUTION;
   if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
   if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;

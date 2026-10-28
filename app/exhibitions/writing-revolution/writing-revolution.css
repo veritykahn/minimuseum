@@ -1,0 +1,501 @@
+/* ==========================================================================
+   The Writing Revolution's own look, on top of components/exhibition. The
+   posters set it: bold color blocks (charcoal over coral-red, bright cyan
+   over charcoal) inside a thin white frame line that breaks off at a corner;
+   titles in tall condensed white capitals (Antonio; the posters' own
+   lettering, with its dotted capitals, is cut from them); copy in a
+   typewriter monospace (Courier Prime); a black Urania typewriter bleeding
+   off the edge; and a gold admission ticket.
+   ========================================================================== */
+
+[data-exhibition='writing-revolution'] {
+  --wr-charcoal: #2b2b2b;
+  --wr-coral: #f2634d;
+  --wr-cyan: #16b4d6;
+  --wr-ink: #161616;
+  --wr-paper: #f2f0ea;
+  --wr-gold: #a08a5c;
+  --wr-line: 3px;
+  --pe-nav-m: #bdbab2;
+  --pe-nav-ink: #f2f0ea;
+  --pe-hint: #f2f0ea;
+  --pe-callout-bg: var(--wr-gold);
+  --pe-callout-ink: #161616;
+  --pe-case-ink: #f2f0ea;
+  --pe-case-muted: #bdbab2;
+  --pe-poster-h: 54vh;
+  color: #f2f0ea;
+}
+
+/* ───────── Landing page: the color blocks, inside the white frame ───────── */
+[data-exhibition='writing-revolution'] .pe-exhibition-main {
+  position: relative;
+  background: linear-gradient(to bottom, var(--wr-charcoal) 0 58%, var(--wr-coral) 58%);
+}
+[data-exhibition='writing-revolution'] .pe-exhibition-main::before {
+  content: '';
+  position: absolute;
+  inset: 28px 28px 28px 28px;
+  border: var(--wr-line) solid #fff;
+  border-right-color: transparent;
+  pointer-events: none;
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 70%, transparent 70%), linear-gradient(to right, #000 0 72%, transparent 72%);
+  mask-image: linear-gradient(to bottom, #000 0 70%, transparent 70%), linear-gradient(to right, #000 0 72%, transparent 72%);
+}
+[data-exhibition='writing-revolution'] .pe-exhibition-main > * { position: relative; z-index: 1; }
+[data-exhibition='writing-revolution'] .pe-exhibition-title h1 {
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  font-size: clamp(2.6rem, 8vw, 6.2rem);
+  color: #fff;
+}
+[data-exhibition='writing-revolution'] .pe-exhibition-title p {
+  font-family: var(--pe-body);
+  font-weight: 700;
+  font-size: clamp(1rem, 2.4vw, 1.3rem);
+  color: var(--wr-coral);
+}
+[data-exhibition='writing-revolution'] .pe-exhibition-grid { gap: 40px; }
+[data-exhibition='writing-revolution'] .pe-poster-frame img { box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55); }
+[data-exhibition='writing-revolution'] .pe-display-case {
+  background: var(--wr-charcoal);
+  border: var(--wr-line) solid #fff;
+  border-radius: 0;
+  width: auto;
+  max-width: 340px;
+  padding: 24px 20px 20px;
+  box-shadow: 10px 10px 0 var(--wr-ink);
+}
+[data-exhibition='writing-revolution'] .pe-display-case:hover,
+[data-exhibition='writing-revolution'] .pe-display-case:focus-visible { border-color: var(--wr-cyan); }
+[data-exhibition='writing-revolution'] .pe-case-label { color: #bdbab2; font-family: var(--pe-body); }
+[data-exhibition='writing-revolution'] .pe-case-title { color: #fff; font-size: 30px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 300; }
+/* The case awaiting its photographs: drawn in the frame's white, lit in the cyan. */
+[data-exhibition='writing-revolution'] { --pe-case-frame: #ffffff; --pe-case-glow: var(--wr-cyan); --pe-case-placeholder-ink: #d7d4cc; }
+
+/* ───────── Titles: tall condensed capitals ───────── */
+[data-exhibition='writing-revolution'] .pe-section-title-text {
+  font-weight: 300;
+  letter-spacing: 0.07em;
+  line-height: 1.04;
+  font-size: clamp(2.2rem, 6.4vw, 5.4rem);
+  max-width: 13em;
+}
+[data-exhibition='writing-revolution'] .wr-long .pe-section-title-text { font-size: clamp(1.7rem, 4vw, 3.3rem); max-width: 19em; line-height: 1.1; }
+[data-exhibition='writing-revolution'] .wr-title { --pe-title-scale: 1.6; }
+
+/* ───────── Copy: typewritten ───────── */
+[data-exhibition='writing-revolution'] .pe-paragraph-text {
+  font-weight: 400;
+  font-size: clamp(1.15rem, 2.3vw, 1.65rem);
+  line-height: 1.58;
+  max-width: 760px;
+  letter-spacing: -0.01em;
+}
+[data-exhibition='writing-revolution'] .pe-paragraph-text[data-fx='statement'] { font-size: clamp(1.25rem, 2.7vw, 1.9rem); line-height: 1.45; }
+/* The lines that close a thought, in the tall capitals. */
+[data-exhibition='writing-revolution'] .wr-closing .pe-paragraph-text {
+  font-family: var(--pe-display);
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: clamp(2rem, 5vw, 4.2rem);
+  line-height: 1.08;
+  max-width: 14em;
+}
+[data-exhibition='writing-revolution'] .wr-statement .pe-paragraph-text { font-weight: 700; font-size: clamp(1.4rem, 3vw, 2.3rem); line-height: 1.35; max-width: 15em; }
+[data-exhibition='writing-revolution'] .pe-figure img { width: min(46vw, 640px); filter: drop-shadow(0 26px 30px rgba(0, 0, 0, 0.35)); }
+/* Beside the Urania, the copy keeps to the left of it. */
+[data-exhibition='writing-revolution'] .wr-beside-urania { padding-right: 46vw; }
+[data-exhibition='writing-revolution'] .wr-beside-urania .pe-paragraph-text { max-width: 560px; }
+
+/* ───────── The thin white frame line, breaking off at a corner, as on the posters ───────── */
+[data-exhibition='writing-revolution'] .wr-frame::before,
+[data-exhibition='writing-revolution'] .wr-frame::after {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  border: 0 solid #fff;
+}
+[data-exhibition='writing-revolution'] .wr-frame::before {
+  /* top and left, then along the foot to two thirds */
+  left: 5vw;
+  top: 6vh;
+  width: 62vw;
+  height: 88vh;
+  border-width: var(--wr-line) 0 var(--wr-line) var(--wr-line);
+  animation: wrDraw 1.4s cubic-bezier(0.65, 0, 0.35, 1) backwards;
+}
+[data-exhibition='writing-revolution'] .wr-frame::after {
+  /* the right side, coming down from the top and stopping short */
+  left: 5vw;
+  right: 5vw;
+  top: 6vh;
+  height: 52vh;
+  border-width: var(--wr-line) var(--wr-line) 0 0;
+  animation: wrDraw 1.4s 0.25s cubic-bezier(0.65, 0, 0.35, 1) backwards;
+}
+@keyframes wrDraw { from { clip-path: inset(0 100% 100% 0); } to { clip-path: inset(0 0 0 0); } }
+
+/* ───────── The link out: the admission ticket, notched and perforated ───────── */
+[data-exhibition='writing-revolution'] .pe-callout {
+  border-radius: 6px;
+  padding: 30px 56px 30px 72px;
+  justify-content: center;
+  text-align: left;
+  -webkit-mask: radial-gradient(circle 14px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 14px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  mask: radial-gradient(circle 14px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 14px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  background-image: linear-gradient(to bottom, rgba(22, 22, 22, 0.55) 50%, transparent 50%);
+  background-size: 2px 10px;
+  background-position: 40px 0;
+  background-repeat: repeat-y;
+  box-shadow: none;
+}
+[data-exhibition='writing-revolution'] .pe-callout-text {
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  font-size: clamp(1.4rem, 3.2vw, 2.4rem);
+  white-space: nowrap;
+}
+[data-exhibition='writing-revolution'] a.pe-callout:hover,
+[data-exhibition='writing-revolution'] a.pe-callout:focus-visible { outline: none; background-color: #b49c6a; }
+[data-exhibition='writing-revolution'] a.pe-callout:focus-visible .pe-callout-text { text-decoration: underline; text-underline-offset: 0.2em; }
+
+/* ───────── The ending ───────── */
+[data-exhibition='writing-revolution'] .pe-content-end { font-family: var(--pe-body); font-weight: 700; border-width: 2px; border-radius: 0; }
+
+/* ───────── On the classroom screen ───────── */
+[data-exhibition='writing-revolution'] .pjp-stage .pe-section-title-text { font-size: calc(var(--pjp-u) * 5); }
+[data-exhibition='writing-revolution'] .pjp-stage .wr-long .pe-section-title-text { font-size: calc(var(--pjp-u) * 3.2); }
+[data-exhibition='writing-revolution'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2.4); }
+
+/* ───────── The display case page ───────── */
+[data-exhibition='writing-revolution'] .pe-case-page-title { font-weight: 300; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; }
+[data-exhibition='writing-revolution'] .pe-case-page-subtitle { color: var(--wr-coral); font-weight: 700; }
+
+@media (max-width: 900px) {
+  [data-exhibition='writing-revolution'] { --pe-poster-h: 44vh; }
+}
+@media (max-width: 700px) {
+  [data-exhibition='writing-revolution'] .wr-beside-urania { padding-right: 24px; padding-left: 24px; }
+  [data-exhibition='writing-revolution'] .pe-text-content-wrapper.pe-has-figure { flex-direction: column; padding-top: 90px; }
+  [data-exhibition='writing-revolution'] .pe-figure img { width: min(86vw, 440px); }
+  [data-exhibition='writing-revolution'] .wr-frame::before { left: 3vw; top: 3vh; width: 80vw; height: 92vh; }
+  [data-exhibition='writing-revolution'] .wr-frame::after { left: 3vw; right: 3vw; top: 3vh; }
+  [data-exhibition='writing-revolution'] .pe-callout { padding: 24px 30px 24px 52px; background-position: 28px 0; }
+  [data-exhibition='writing-revolution'] .pe-callout-text { white-space: normal; }
+}
+
+/* ==========================================================================
+   The reveal (fx theme 'wr'): as a poster opens, its two blocks of color
+   slide in from either side, meet, and part; the thin white frame line is
+   drawn and left behind.
+   ========================================================================== */
+.pfx-wr .pfx-line,
+.pfx-wr .pfx-fg { --pfx-off: 3vw; transition: translate 0.9s var(--pfx-ease), opacity 0.3s ease; }
+.pfx-wr-block {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: block;
+}
+.pfx-wr-block-top { top: 0; height: 55%; background: #2b2b2b; animation: pfxWrPartL 1.2s 0.1s cubic-bezier(0.76, 0, 0.24, 1) both; }
+.pfx-wr-block-bottom { bottom: 0; height: 45%; background: #f2634d; animation: pfxWrPartR 1.2s 0.1s cubic-bezier(0.76, 0, 0.24, 1) both; }
+[data-exhibition='writing-revolution'] .pfx-stage:has(.wr-cyan) .pfx-wr-block-top { background: #16b4d6; }
+[data-exhibition='writing-revolution'] .pfx-stage:has(.wr-cyan) .pfx-wr-block-bottom { background: #2b2b2b; }
+.pfx-wr-frame {
+  position: absolute;
+  inset: 6vh 5vw;
+  display: block;
+  border: 3px solid #fff;
+  animation: pfxWrFrame 1.5s cubic-bezier(0.65, 0, 0.35, 1) both;
+}
+@keyframes pfxWrPartL { from { translate: 0 0; } to { translate: -101% 0; } }
+@keyframes pfxWrPartR { from { translate: 0 0; } to { translate: 101% 0; } }
+@keyframes pfxWrFrame {
+  0% { clip-path: inset(0 100% 100% 0); opacity: 1; }
+  55% { clip-path: inset(0 0 0 0); opacity: 1; }
+  100% { clip-path: inset(0 0 0 0); opacity: 0; }
+}
+.pfx-progress-wr .pfx-progress-mark { width: 2px; height: 10px; margin: -5px 0 0 -1px; border-radius: 0; }
+.pfx-progress-wr .pfx-progress-head { border-radius: 0; }
+
+/* ==========================================================================
+   The walkthrough's atmospheres (writingRevolution.ts, ATMOSPHERES), drawn in
+   the layer behind each panel (AtmosphereLayer). Under reduced motion the
+   engine stills them where they stand.
+   ========================================================================== */
+
+/* ───────── colorblock-split: the two blocks meeting, the frame line drawn round them ───────── */
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split {
+  /* where the blocks meet: below the copy on a chapter, under the title's second color on the title */
+  --wr-split: 66%;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split .pe-atmo-part-1 {
+  /* poster 1: the coral below */
+  left: 0;
+  right: 0;
+  top: var(--wr-split);
+  bottom: 0;
+  background: #f2634d;
+  animation: wrSlideL 1s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split .pe-atmo-part-2 {
+  /* poster 2: the cyan above (drawn only on poster 2) */
+  display: none;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--wr-split);
+  background: #16b4d6;
+  animation: wrSlideR 1s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split .pe-atmo-part-3 {
+  /* the frame line: top, left and foot, its right side stopping at the blocks' seam */
+  left: 5vw;
+  right: 5vw;
+  top: 6vh;
+  bottom: 6vh;
+  border: 3px solid #fff;
+  border-right-color: transparent;
+  animation: wrDraw 1.6s 0.2s cubic-bezier(0.65, 0, 0.35, 1) backwards;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split .pe-atmo-part-3::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: -3px;
+  height: calc(var(--wr-split) - 6vh);
+  border-right: 3px solid #fff;
+}
+/* The layer sits just before the stage, so it reads the panel it stands behind from there.
+   Poster 1's title: the coral under "Revolution", as the poster sets it. */
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split:has(~ .pe-poster-walkthrough .wr-title:not(.wr-cyan)) { --wr-split: calc(50% + 0.19 * min(70vh, 57vw, 631px)); }
+/* Poster 2: cyan above, charcoal below; on its title the seam runs under "QWERTY'S". */
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split:has(~ .pe-poster-walkthrough .wr-cyan) { --wr-split: 36%; }
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split:has(~ .pe-poster-walkthrough .wr-title.wr-cyan) { --wr-split: calc(50% - 0.16 * min(70vh, 58.6vw, 474px)); }
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split:has(~ .pe-poster-walkthrough .wr-cyan) .pe-atmo-part-1 { display: none; }
+[data-exhibition='writing-revolution'] .pe-atmo-colorblock-split:has(~ .pe-poster-walkthrough .wr-cyan) .pe-atmo-part-2 { display: block; }
+/* On a panel of its own, the frame line is the atmosphere's; the panel's own steps aside. */
+[data-exhibition='writing-revolution'] [data-atmosphere='colorblock-split'] .wr-frame::before,
+[data-exhibition='writing-revolution'] [data-atmosphere='colorblock-split'] .wr-frame::after { display: none; }
+@keyframes wrSlideL { from { translate: -100% 0; } }
+@keyframes wrSlideR { from { translate: 100% 0; } }
+
+/* ───────── carriage-return: a sheet in the typewriter ───────── */
+[data-exhibition='writing-revolution'] .pe-atmo-carriage-return .pe-atmo-part-1 {
+  /* typed lines on the sheet, rolling up a line at a time */
+  left: 7vw;
+  right: 7vw;
+  top: 12vh;
+  bottom: -40px;
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 22px, rgba(22, 22, 22, 0.07) 22px 28px, transparent 28px 40px);
+  -webkit-mask-image: linear-gradient(to right, #000 0 18%, transparent 24% 76%, #000 82%), linear-gradient(to bottom, transparent, #000 20%);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, #000 0 18%, transparent 24% 76%, #000 82%), linear-gradient(to bottom, transparent, #000 20%);
+  mask-composite: intersect;
+  animation: wrLineFeed 30s steps(30) infinite;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-carriage-return .pe-atmo-part-2 {
+  /* the platen: a black roller across the top, its chrome catching the light */
+  left: -2vw;
+  right: -2vw;
+  top: 0;
+  height: 8vh;
+  background: linear-gradient(to bottom, #050505 0%, #3b3b3b 30%, #8c8c8c 42%, #2a2a2a 55%, #0b0b0b 100%);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+  animation: wrPlaten 0.9s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-carriage-return .pe-atmo-part-3 {
+  /* the carriage's pointer, typing across, then thrown back to the margin */
+  top: 8vh;
+  left: 7vw;
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 14px solid #f2634d;
+  animation: wrCarriage 9s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+@keyframes wrLineFeed { to { translate: 0 -1200px; } }
+@keyframes wrPlaten { from { translate: 0 -100%; } }
+@keyframes wrCarriage {
+  0% { translate: 0 0; animation-timing-function: steps(42); }
+  88% { translate: 84vw 0; animation-timing-function: cubic-bezier(0.7, 0, 0.3, 1); }
+  100% { translate: 0 0; }
+}
+
+/* ───────── urania-bleed: the Urania sliding in and running off the edge ───────── */
+[data-exhibition='writing-revolution'] .pe-atmo-urania-bleed .wr-urania {
+  right: -12vw;
+  bottom: 5vh;
+  width: min(54vw, 760px);
+  height: auto;
+  filter: drop-shadow(0 30px 34px rgba(0, 0, 0, 0.32));
+  animation: wrUraniaIn 1.4s cubic-bezier(0.16, 1, 0.3, 1) backwards, wrUraniaType 7s 1.6s ease-in-out infinite;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-urania-bleed .pe-atmo-part-1 {
+  /* the frame line round the copy's corner, as poster 1 frames its text */
+  left: 5vw;
+  top: 6vh;
+  width: 48vw;
+  bottom: 6vh;
+  border: 3px solid #fff;
+  border-right: 0;
+  border-bottom-color: transparent;
+  animation: wrDraw 1.4s 0.3s cubic-bezier(0.65, 0, 0.35, 1) backwards;
+}
+@keyframes wrUraniaIn { from { translate: 60vw 0; } }
+/* The carriage jogs as a key is struck, and again. */
+@keyframes wrUraniaType {
+  0%, 30%, 100% { translate: 0 0; }
+  33% { translate: -6px 1px; }
+  36% { translate: -6px 0; }
+  62% { translate: -6px 0; }
+  65% { translate: -12px 1px; }
+  68%, 92% { translate: -12px 0; }
+}
+
+/* ───────── qwerty-rows: the keyboard's round keys, the top row struck in turn ───────── */
+[data-exhibition='writing-revolution'] .pe-atmo-qwerty-rows {
+  --wr-key: clamp(34px, 5.2vmin, 58px);
+  /* clear of the walkthrough's arrows */
+  --wr-keys-foot: calc(2vh + 64px);
+}
+[data-exhibition='writing-revolution'] .pe-atmo-qwerty-rows :is(.pe-atmo-part-1, .pe-atmo-part-2, .pe-atmo-part-3) {
+  /* three rows of round keys, each set a little to the right of the one above, as the Urania's are */
+  left: -2vw;
+  right: -2vw;
+  height: var(--wr-key);
+  background: radial-gradient(circle at 50% 46%, #ebe8e1 0 30%, #a9a59d 31% 37%, #121212 38% 46%, transparent 47%) 0 0 / calc(var(--wr-key) * 1.24) var(--wr-key) repeat-x;
+  opacity: 0.32;
+  animation: wrRow 1s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-qwerty-rows .pe-atmo-part-1 { bottom: calc(var(--wr-key) * 2.3 + var(--wr-keys-foot)); background-position-x: 0; }
+[data-exhibition='writing-revolution'] .pe-atmo-qwerty-rows .pe-atmo-part-2 { bottom: calc(var(--wr-key) * 1.15 + var(--wr-keys-foot)); background-position-x: calc(var(--wr-key) * 0.4); animation-delay: 0.08s; }
+[data-exhibition='writing-revolution'] .pe-atmo-qwerty-rows .pe-atmo-part-3 { bottom: var(--wr-keys-foot); background-position-x: calc(var(--wr-key) * 0.8); animation-delay: 0.16s; }
+[data-exhibition='writing-revolution'] .pe-atmo-qwerty-rows .pe-atmo-part-4 {
+  /* the struck key, travelling along the top row: Q, W, E, R, T, Y */
+  left: calc(-2vw + var(--wr-key) * 1.24 * 2);
+  bottom: calc(var(--wr-key) * 2.3 + var(--wr-keys-foot));
+  width: calc(var(--wr-key) * 0.92);
+  height: calc(var(--wr-key) * 0.92);
+  margin-left: calc(var(--wr-key) * 0.16);
+  margin-bottom: calc(var(--wr-key) * 0.02);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 46%, #ffffff 0 62%, #f2634d 63% 76%, #121212 77%);
+  display: grid;
+  place-items: center;
+  font: 700 calc(var(--wr-key) * 0.42) / 1 'Courier Prime', monospace;
+  color: #161616;
+  animation: wrStrike 6s steps(1) infinite, wrPress 1s ease-out infinite;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-qwerty-rows .pe-atmo-part-4::before { content: 'Q'; animation: wrLetters 6s steps(1) infinite; }
+@keyframes wrRow { from { translate: 0 120%; opacity: 0; } }
+@keyframes wrStrike {
+  0% { translate: 0 0; }
+  16.66% { translate: calc(var(--wr-key) * 1.24) 0; }
+  33.33% { translate: calc(var(--wr-key) * 2.48) 0; }
+  50% { translate: calc(var(--wr-key) * 3.72) 0; }
+  66.66% { translate: calc(var(--wr-key) * 4.96) 0; }
+  83.33% { translate: calc(var(--wr-key) * 6.2) 0; }
+}
+@keyframes wrLetters {
+  0% { content: 'Q'; }
+  16.66% { content: 'W'; }
+  33.33% { content: 'E'; }
+  50% { content: 'R'; }
+  66.66% { content: 'T'; }
+  83.33% { content: 'Y'; }
+}
+@keyframes wrPress { 0% { scale: 0.86; } 30%, 100% { scale: 1; } }
+
+/* ───────── bondi-screen: the digital age, on a Bondi blue screen ───────── */
+[data-exhibition='writing-revolution'] .pe-atmo-bondi-screen .pe-atmo-part-1 {
+  /* the screen's glow, in its rounded bezel */
+  inset: 5vh 4vw;
+  border-radius: 3.5vmin;
+  background: radial-gradient(ellipse 75% 70% at 50% 46%, rgba(0, 149, 182, 0.42), rgba(0, 104, 132, 0.16) 60%, rgba(0, 20, 28, 0.6) 100%);
+  box-shadow: 0 0 0 1.4vmin rgba(0, 149, 182, 0.18), inset 0 0 8vmin rgba(0, 0, 0, 0.6);
+  animation: wrPowerOn 1.1s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-bondi-screen .pe-atmo-part-2 {
+  /* scan lines, and a brighter band rolling slowly down them */
+  inset: 5vh 4vw;
+  border-radius: 3.5vmin;
+  background:
+    linear-gradient(to bottom, transparent 0%, rgba(160, 236, 255, 0.07) 48%, transparent 52%) 0 0 / 100% 300% no-repeat,
+    repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 4px);
+  animation: wrRoll 8s linear infinite;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-bondi-screen .pe-atmo-part-3 {
+  /* the cursor, waiting at the foot of the screen */
+  left: 8vw;
+  bottom: 11vh;
+  width: clamp(12px, 1.2vw, 18px);
+  height: clamp(22px, 2.2vw, 32px);
+  background: #7fe3f5;
+  box-shadow: 0 0 12px rgba(127, 227, 245, 0.6);
+  animation: wrBlink 1.2s steps(1) infinite;
+}
+@keyframes wrPowerOn { from { scale: 1 0.02; opacity: 0.2; } 50% { scale: 1 1; } }
+@keyframes wrRoll { from { background-position: 0 100%, 0 0; } to { background-position: 0 -200%, 0 0; } }
+@keyframes wrBlink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0.15; } }
+
+/* ───────── admission-ticket: a roll of gold tickets, one torn off ───────── */
+[data-exhibition='writing-revolution'] .pe-atmo-admission-ticket .pe-atmo-part-1 {
+  /* the roll, feeding down at the right, ADMISSION printed on each */
+  right: 6vw;
+  top: -12vh;
+  width: clamp(120px, 15vw, 210px);
+  height: 140vh;
+  background:
+    radial-gradient(circle 10px at 0 50%, #16b4d6 98%, transparent) 0 0 / 100% clamp(70px, 8.5vw, 116px) repeat-y,
+    radial-gradient(circle 10px at 100% 50%, #16b4d6 98%, transparent) 0 0 / 100% clamp(70px, 8.5vw, 116px) repeat-y,
+    repeating-linear-gradient(to bottom, transparent 0 calc(clamp(70px, 8.5vw, 116px) - 3px), rgba(22, 22, 22, 0.45) calc(clamp(70px, 8.5vw, 116px) - 3px) clamp(70px, 8.5vw, 116px)),
+    #a08a5c;
+  rotate: 8deg;
+  box-shadow: 8px 10px 0 rgba(22, 22, 22, 0.25);
+  animation: wrFeed 14s linear infinite;
+}
+[data-exhibition='writing-revolution'] .pe-atmo-admission-ticket .pe-atmo-part-1::before {
+  content: 'ADMISSION\A\A\A ADMISSION\A\A\A ADMISSION\A\A\A ADMISSION\A\A\A ADMISSION\A\A\A ADMISSION\A\A\A ADMISSION\A\A\A ADMISSION\A\A\A ADMISSION\A\A\A ADMISSION';
+  white-space: pre;
+  position: absolute;
+  inset: 0;
+  display: block;
+  text-align: center;
+  padding-top: calc(clamp(70px, 8.5vw, 116px) * 0.36);
+  font: 300 clamp(15px, 1.8vw, 26px) / calc(clamp(70px, 8.5vw, 116px) / 3) 'Antonio', sans-serif;
+  letter-spacing: 0.14em;
+  color: rgba(255, 255, 255, 0.92);
+}
+[data-exhibition='writing-revolution'] .pe-atmo-admission-ticket .pe-atmo-part-2 {
+  /* the frame line round the stage, as on the posters */
+  inset: 6vh 5vw;
+  border: 3px solid #fff;
+  border-right-color: transparent;
+  animation: wrDraw 1.4s 0.2s cubic-bezier(0.65, 0, 0.35, 1) backwards;
+}
+@keyframes wrFeed { from { translate: 0 0; } to { translate: 0 calc(clamp(70px, 8.5vw, 116px) * 3); } }
+
+@media (max-width: 700px) {
+  /* On a phone the Urania sits low and steps back behind the copy. */
+  [data-exhibition='writing-revolution'] .pe-atmo-urania-bleed .wr-urania { width: 92vw; right: -22vw; bottom: 4vh; opacity: 0.35; }
+  [data-exhibition='writing-revolution'] .pe-atmo-urania-bleed .pe-atmo-part-1 { display: none; }
+  [data-exhibition='writing-revolution'] .pe-atmo-admission-ticket .pe-atmo-part-1 { right: -8vw; opacity: 0.55; }
+  [data-exhibition='writing-revolution'] .pe-atmo-colorblock-split .pe-atmo-part-3 { left: 3vw; right: 3vw; top: 3vh; bottom: 3vh; }
+  [data-exhibition='writing-revolution'] .pe-atmo-carriage-return .pe-atmo-part-1 { opacity: 0.5; }
+  [data-exhibition='writing-revolution'] .pe-atmo-qwerty-rows { --wr-key: 34px; }
+}
+
+/* Under reduced motion the frame lines are simply drawn and the struck key rests on Q. */
+@media (prefers-reduced-motion: reduce) {
+  [data-exhibition='writing-revolution'] .pe-atmo *::before,
+  [data-exhibition='writing-revolution'] .wr-frame::before,
+  [data-exhibition='writing-revolution'] .wr-frame::after { animation: none !important; }
+}
