@@ -234,14 +234,10 @@ export default function PoppyField({ count, growFrom }: { count: number | null; 
       const newest = growFrom === null ? -1 : shown - 1;
       const grow = growFrom === null ? 1 : Math.min(1, (now - growFrom) / 2200);
       const eased = 1 - Math.pow(1 - grow, 3);
-      // Grass and poppies drawn together, back to front.
-      let b = 0;
-      for (const p of poppies) {
-        const foot = p.y + p.size;
-        while (b < grass.length && grass[b].y < foot) drawBlade(g, grass[b++], t);
-        drawPoppy(g, spriteRef.current, p, size.h, horizon, t, p.i === newest ? eased : 1);
-      }
-      while (b < grass.length) drawBlade(g, grass[b++], t);
+      // The grass first, then the poppies over it, back to front, so no blade
+      // of grass crosses a flower.
+      for (const blade of grass) drawBlade(g, blade, t);
+      for (const p of poppies) drawPoppy(g, spriteRef.current, p, size.h, horizon, t, p.i === newest ? eased : 1);
     },
     [poppies, grass, size, shown, growFrom, horizon],
   );
