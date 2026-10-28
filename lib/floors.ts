@@ -150,7 +150,7 @@ export const FIRST_FLOOR: Floor = {
       darkAccent: '#2d0a1f',
       textColor: '#fff',
       description: 'A colorful exploration of toy design, cultural identity, and the long struggle for authentic representation in popular culture.',
-      active: false,
+      active: true,
     },
     {
       slug: 'writing-revolution',
@@ -160,7 +160,7 @@ export const FIRST_FLOOR: Floor = {
       darkAccent: '#0c1620',
       textColor: '#fff',
       description: 'A hands-on comparison of communication tools, blending mechanical history with the rise of modern desktop computing.',
-      active: false,
+      active: true,
     },
     {
       slug: 'seeing-is-deceiving',

@@ -14,6 +14,8 @@ const EXHIBITION_ACCENTS: Record<string, string> = {
   victorian: '#D9B7B8',
   'womens-history': '#F2661F',
   holocaust: '#78716C',
+  'black-history': '#EC4899',
+  'writing-revolution': '#5B8DB8',
 };
 
 /** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
@@ -218,6 +220,40 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#78716C',
     parent: 'holocaust',
+  },
+  {
+    id: 'black-history',
+    label: 'Black History Month',
+    path: '/exhibitions/black-history',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#EC4899',
+    parent: 'first-floor',
+    children: ['bh-case', ...lessonsChild('black-history')],
+  },
+  {
+    id: 'bh-case',
+    label: 'Display Case',
+    path: '/exhibitions/black-history/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#EC4899',
+    parent: 'black-history',
+  },
+  {
+    id: 'writing-revolution',
+    label: 'The Writing Revolution',
+    path: '/exhibitions/writing-revolution',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#5B8DB8',
+    parent: 'first-floor',
+    children: ['wr-case', ...lessonsChild('writing-revolution')],
+  },
+  {
+    id: 'wr-case',
+    label: 'Display Case',
+    path: '/exhibitions/writing-revolution/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#5B8DB8',
+    parent: 'writing-revolution',
   },
   {
     id: 'egypt',

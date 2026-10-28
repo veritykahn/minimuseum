@@ -42,7 +42,12 @@ import './poster-fx.css';
  * dark, and at its closing words a single candle's glow rises and settles.
  * Nothing slides or bounces; copy surfaces, and the photographs come up as
  * if under a lamp or advance a frame of film into the gate (the exhibition's
- * own stylesheet varies them panel by panel).
+ * own stylesheet varies them panel by panel). Black History Month bursts
+ * open: as a poster opens, the posters' sunburst rays fan out from the corner
+ * across the panel and fold away. The Writing Revolution is color-blocked:
+ * as a poster opens, its two blocks of color slide in and part, and the thin
+ * white frame line is left behind. Both are drawn in the exhibition's own
+ * stylesheet (black-history.css, writing-revolution.css).
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -51,7 +56,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo' | 'ap' | 'vb' | 'wh' | 'ho';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo' | 'ap' | 'vb' | 'wh' | 'ho' | 'bh' | 'wr';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -247,6 +252,24 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
     return (
       <div className={`pfx-veil pfx-eg-arch is-${kind}`} aria-hidden="true">
         <i />
+      </div>
+    );
+  }
+  if (theme === 'bh') {
+    // The sunburst: rays fanning out from the corner and folding away.
+    return (
+      <div className={`pfx-veil pfx-bh-burst is-${kind}`} aria-hidden="true">
+        <i />
+      </div>
+    );
+  }
+  if (theme === 'wr') {
+    // The color blocks parting, the white frame line left behind.
+    return (
+      <div className={`pfx-veil pfx-wr-blocks is-${kind}`} aria-hidden="true">
+        <i className="pfx-wr-block pfx-wr-block-top" />
+        <i className="pfx-wr-block pfx-wr-block-bottom" />
+        <i className="pfx-wr-frame" />
       </div>
     );
   }
