@@ -79,7 +79,7 @@ describe('America 250', () => {
     expect(AMERICA_250.posters.map((p) => p.id)).toEqual(['poster1', 'poster2']);
     expect(AMERICA_250.posters.map((p) => p.title)).toEqual(['Before it was Sacred', 'We Shall All Hang Together']);
     for (const p of AMERICA_250.posters) {
-      expect(p.items[0].type).toBe('title-text');
+      expect(p.items[0].type).toBe('title-image');
       expect(p.items[p.items.length - 1].type).toBe('end');
     }
     expect(AMERICA_250.cases).toBeUndefined();
@@ -87,8 +87,9 @@ describe('America 250', () => {
     expect(AMERICA_250.fx.theme).toBe('ap');
   });
 
-  it('sets the posters’ subtitles under their titles', () => {
-    const subtitles = AMERICA_250.posters.map((p) => (p.items[0].type === 'title-text' ? p.items[0].subtitle : undefined));
+  it('opens on the posters’ script titles, and sets their subtitles under the paintings', () => {
+    expect(AMERICA_250.posters.map((p) => (p.items[0].type === 'title-image' ? p.items[0].alt : undefined))).toEqual(AMERICA_250.posters.map((p) => p.title));
+    const subtitles = AMERICA_250.posters.map((p) => p.items.flatMap((it) => (it.type === 'image-text-stacked' ? [it.text] : []))[0]);
     expect(subtitles).toEqual([
       'The Declaration of Independence: What It Was, What It Became, and Why the Difference Matters',
       'The Wager Fifty-Six Men Made With Their Signatures',
@@ -180,6 +181,7 @@ describe('America 250', () => {
 
     const pictures = allItems.flatMap((it) => {
       if (it.type === 'full-image') return [{ src: it.src, alt: it.alt, credit: it.text, href: it.href }];
+      if (it.type === 'image-text-stacked') return [{ src: it.src, alt: it.alt, credit: it.credit?.text, href: it.credit?.href }];
       if (it.type === 'paragraph' && it.figure) return [{ src: it.figure.src, alt: it.figure.alt, credit: it.figure.credit?.text, href: it.figure.credit?.href }];
       return [];
     });
@@ -191,8 +193,8 @@ describe('America 250', () => {
       expect(pic.href).toBe(trumbull ? TRUMBULL_SOURCE : LEUTZE_SOURCE);
     }
     // Poster 1 is built on Trumbull, poster 2 on Leutze.
-    for (const it of poster('poster1').items) if (it.type === 'full-image') expect(it.src).toMatch(/\/trumbull/);
-    for (const it of poster('poster2').items) if (it.type === 'full-image') expect(it.src).toMatch(/\/leutze/);
+    for (const it of poster('poster1').items) if (it.type === 'full-image' || it.type === 'image-text-stacked') expect(it.src).toMatch(/\/trumbull/);
+    for (const it of poster('poster2').items) if (it.type === 'full-image' || it.type === 'image-text-stacked') expect(it.src).toMatch(/\/leutze/);
     for (const p of AMERICA_250.posters) expect(p.hero.alt).toBeTruthy();
   });
 
@@ -221,7 +223,6 @@ describe('America 250', () => {
       tick();
       const content = () => document.querySelector('.pe-walkthrough-content') as HTMLElement;
       expect(within(content()).getByRole('heading', { level: 2 })).toHaveTextContent('We Shall All Hang Together');
-      expect(content()).toHaveTextContent('The Wager Fifty-Six Men Made With Their Signatures');
       expect(content().querySelector('.pfx-ap-press')).toBeInTheDocument();
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
@@ -231,7 +232,8 @@ describe('America 250', () => {
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      const credit = content().querySelector('.pe-image-caption a') as HTMLElement;
+      expect(content()).toHaveTextContent('The Wager Fifty-Six Men Made With Their Signatures');
+      const credit = content().querySelector('.pe-stack-credit a') as HTMLElement;
       expect(credit).toHaveTextContent('Emanuel Leutze, Washington Crossing the Delaware, 1851. The Metropolitan Museum of Art. Public domain.');
       expect(credit).toHaveAttribute('href', LEUTZE_SOURCE);
       expect(credit.querySelector('em')).toHaveTextContent('Washington Crossing the Delaware');

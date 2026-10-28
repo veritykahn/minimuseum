@@ -117,26 +117,9 @@
 [data-exhibition='victorian'] .pe-case-placeholder-label { font-family: var(--vb-serif); }
 [data-exhibition='victorian'] .pe-credits { max-width: 560px; font-weight: 400; }
 
-/* ───────── Title cards: thin, wide capitals in deep green ───────── */
-[data-exhibition='victorian'] .vb-title.pe-title-card { padding-left: 12vw; padding-right: 8vw; }
-[data-exhibition='victorian'] .vb-title .pe-title-text {
-  font-weight: 400;
-  font-size: clamp(3rem, 10.5vw, 9rem);
-  line-height: 0.96;
-  letter-spacing: 0.02em;
-  max-width: 9.5em;
-  text-wrap: balance;
-}
-[data-exhibition='victorian'] .vb-title .pe-title-kicker { font-size: 0.6em; letter-spacing: 0.03em; }
-/* "CHRISTMAS" very large, the long line above it small, as on the poster. */
-[data-exhibition='victorian'] .vb-title-carol .pe-title-text { font-size: clamp(3.4rem, 15vw, 12.5rem); max-width: none; }
-[data-exhibition='victorian'] .vb-title-carol .pe-title-kicker {
-  font-size: 0.3em;
-  line-height: 1.15;
-  max-width: 24em;
-  margin: 0 auto 0.25em;
-  text-wrap: balance;
-}
+/* ───────── Titles: the posters' own thin, wide capitals, cut from them ───────── */
+[data-exhibition='victorian'] .vb-title.pe-title-image { --pe-title-scale: 1.7; padding-left: 10vw; padding-right: 8vw; }
+[data-exhibition='victorian'] .vb-title .pe-title-image-heading img { max-height: 64vh; }
 
 /* ───────── The lede: the serif, beside the court dress ───────── */
 [data-exhibition='victorian'] .vb-lede .pe-paragraph-text {
@@ -177,8 +160,9 @@
   filter: drop-shadow(0 16px 26px rgba(80, 50, 40, 0.22));
 }
 [data-exhibition='victorian'] .vb-linen .pe-paragraph-text em { font-style: italic; }
-/* Laid down on the page like a scrap of paper, coming to rest square. */
-[data-exhibition='victorian'] .pfx-vb .vb-linen .pe-paragraph-text {
+/* Laid down on the page like a scrap of paper, coming to rest square (when
+   the panel takes the reveal; a panel with its own entrance arrives its way). */
+[data-exhibition='victorian'] .pfx-vb[data-entrance='theme'] .vb-linen .pe-paragraph-text {
   animation: vbLay 1.4s 0.05s cubic-bezier(0.16, 1, 0.3, 1) backwards;
 }
 @keyframes vbLay {
@@ -308,8 +292,6 @@
 
 /* ───────── The classroom screen ───────── */
 [data-exhibition='victorian'] .pjp-stage { --vb-edge: calc(var(--pjp-u) * 1.6); }
-[data-exhibition='victorian'] .pjp-stage .vb-title .pe-title-text { font-size: calc(var(--pjp-u) * 8.5); }
-[data-exhibition='victorian'] .pjp-stage .vb-title-carol .pe-title-text { font-size: calc(var(--pjp-u) * 11); }
 [data-exhibition='victorian'] .pjp-stage .vb-lede .pe-paragraph-text { font-size: calc(var(--pjp-u) * 2.6); }
 [data-exhibition='victorian'] .pjp-stage .vb-lede .pe-figure img { width: auto; max-width: calc(var(--pjp-u) * 30); max-height: calc(var(--pjp-u) * 38); }
 [data-exhibition='victorian'] .pjp-stage .pe-figure-credit { font-size: calc(var(--pjp-u) * 0.85); max-width: calc(var(--pjp-u) * 30); }
@@ -329,7 +311,7 @@
   [data-exhibition='victorian'] .vb-lede .pe-paragraph-text { text-align: center; }
 }
 @media (max-width: 700px) {
-  [data-exhibition='victorian'] .vb-title.pe-title-card { padding-left: 24px; padding-right: 24px; }
+  [data-exhibition='victorian'] .vb-title.pe-title-image { padding-left: 20px; padding-right: 20px; }
   /* On a phone the title takes the full measure; the scrap stays on the landing page. */
   [data-exhibition='victorian'] :is(.vb-scrap-left, .vb-scrap-right)::after { display: none; }
   [data-exhibition='victorian'] .vb-link .pe-callout { padding-left: 24px; padding-right: 24px; }
@@ -338,6 +320,307 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-exhibition='victorian'] .pfx-vb .vb-linen .pe-paragraph-text,
+  [data-exhibition='victorian'] .pfx-vb[data-entrance='theme'] .vb-linen .pe-paragraph-text,
   [data-exhibition='victorian'] .vb-village.pe-full-image::after { animation: none; }
+}
+
+/* ==========================================================================
+   The walkthrough's atmospheres (victorian.ts, ATMOSPHERES), drawn in the
+   layer behind each panel (AtmosphereLayer), under the washed photograph.
+   Under reduced motion the engine stills them where they stand.
+   ========================================================================== */
+
+/* On the three dark grounds the arrows and the rail go cream. */
+[data-exhibition='victorian'] :is([data-atmosphere='locomotive-steam'], [data-atmosphere='gaslamp'], [data-atmosphere='yule-hearth']) .pe-walkthrough-nav :is(.pe-nav-arrow-btn, .pfx-progress) {
+  color: var(--vb-cream) !important;
+  border-color: var(--vb-cream) !important;
+}
+[data-exhibition='victorian']:has(:is([data-atmosphere='locomotive-steam'], [data-atmosphere='gaslamp'], [data-atmosphere='yule-hearth'])) {
+  --pe-nav-m: var(--vb-cream);
+  --pe-nav-ink: var(--vb-cream);
+}
+/* Out of doors, and by the fire, the museum's interior washed behind the posters all but fades. */
+[data-exhibition='victorian'] .pe-poster-walkthrough:is([data-atmosphere='locomotive-steam'], [data-atmosphere='gaslamp'], [data-atmosphere='christmas-snow'], [data-atmosphere='yule-hearth']) .pe-walkthrough-content::before { opacity: 0.05; }
+
+/* ───────── glazed-roof: light through an iron-and-glass roof, dust in its beams ───────── */
+[data-exhibition='victorian'] .pe-atmo-glazed-roof .pe-atmo-part-1 {
+  /* the roof: iron ribs and glazing bars, vaulting away overhead */
+  top: 0;
+  left: -12vw;
+  right: -12vw;
+  height: 54vh;
+  background:
+    repeating-linear-gradient(90deg, rgba(47, 74, 50, 0.22) 0 3px, transparent 3px 8vw),
+    repeating-linear-gradient(0deg, rgba(47, 74, 50, 0.13) 0 2px, transparent 2px 6vh),
+    linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.12));
+  transform: perspective(70vh) rotateX(42deg);
+  transform-origin: 50% 0;
+  -webkit-mask-image: linear-gradient(#000 30%, transparent);
+  mask-image: linear-gradient(#000 30%, transparent);
+  animation: vbRoof 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+[data-exhibition='victorian'] .pe-atmo-glazed-roof :is(.pe-atmo-part-2, .pe-atmo-part-3) {
+  /* sunlight falling through it in slanting beams */
+  top: -10vh;
+  height: 130vh;
+  background: linear-gradient(rgba(255, 251, 240, 0.5), rgba(255, 251, 240, 0.1) 70%, transparent);
+  transform: rotate(16deg);
+  transform-origin: 50% 0;
+  filter: blur(8px);
+  animation: vbBeam 9s ease-in-out infinite alternate;
+}
+[data-exhibition='victorian'] .pe-atmo-glazed-roof .pe-atmo-part-2 { left: 20vw; width: 15vw; }
+[data-exhibition='victorian'] .pe-atmo-glazed-roof .pe-atmo-part-3 { left: 62vw; width: 9vw; animation-delay: -4.5s; }
+[data-exhibition='victorian'] .pe-atmo-glazed-roof .pe-atmo-p {
+  /* dust turning in the light */
+  width: calc(2px + var(--r) * 3px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(255, 249, 232, 0.95);
+  box-shadow: 0 0 6px rgba(255, 240, 200, 0.85);
+  opacity: 0.75;
+  animation: vbMote calc(9s + var(--r) * 8s) ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -1.1s);
+}
+@keyframes vbRoof { from { opacity: 0; transform: perspective(70vh) rotateX(62deg); } }
+@keyframes vbBeam { from { opacity: 0.55; translate: -2vw 0; } to { opacity: 1; translate: 2vw 0; } }
+@keyframes vbMote { to { transform: translate(calc((var(--r) - 0.5) * 8vw), -9vh); } }
+
+/* ───────── wallpaper-damask: a damask paper, hung strip by strip ───────── */
+[data-exhibition='victorian'] .pe-atmo-wallpaper-damask :is(.pe-atmo-part-1, .pe-atmo-part-2, .pe-atmo-part-3) {
+  top: 0;
+  bottom: 0;
+  width: calc(100vw / 3 + 1px);
+  border-left: 1px solid rgba(47, 74, 50, 0.08);
+  /* the motif, in the deep green: a lily rising from curling acanthus leaves,
+     a bud above it, and between the motifs a small four-petalled flower */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='180' viewBox='0 0 120 180'%3E%3Cg fill='%232f4a32'%3E%3Cpath d='M60 128C58 108 46 96 34 92C42 102 50 112 54 128ZM60 128C62 108 74 96 86 92C78 102 70 112 66 128Z'/%3E%3Cpath d='M57 130C40 128 22 118 18 100C14 86 24 76 34 82C26 84 24 94 32 102C40 110 50 116 57 120ZM63 130C80 128 98 118 102 100C106 86 96 76 86 82C94 84 96 94 88 102C80 110 70 116 63 120Z'/%3E%3Cpath d='M60 34C66 50 74 60 74 78C74 92 66 100 60 112C54 100 46 92 46 78C46 60 54 50 60 34Z'/%3E%3Cpath d='M48 70C38 62 36 50 42 42C44 54 50 60 52 66ZM72 70C82 62 84 50 78 42C76 54 70 60 68 66Z'/%3E%3Cpath d='M60 14C64 20 66 26 60 32C54 26 56 20 60 14Z'/%3E%3Crect x='58.6' y='112' width='2.8' height='34'/%3E%3Cpath d='M60 140C52 146 44 148 38 146C46 142 52 140 60 136ZM60 140C68 146 76 148 82 146C74 142 68 140 60 136Z'/%3E%3Cpath d='M0 172C4 166 4 162 0 156C-4 162 -4 166 0 172ZM0 172C6 176 10 176 16 172C10 168 6 168 0 172ZM0 172C-6 176 -10 176 -16 172C-10 168 -6 168 0 172ZM0 172C4 178 4 182 0 188C-4 182 -4 178 0 172Z'/%3E%3Cpath d='M120 172C124 166 124 162 120 156C116 162 116 166 120 172ZM120 172C126 176 130 176 136 172C130 168 126 168 120 172ZM120 172C114 176 110 176 104 172C110 168 114 168 120 172ZM120 172C124 178 124 182 120 188C116 182 116 178 120 172Z'/%3E%3C/g%3E%3C/svg%3E") repeat;
+  background-size: 110px 165px;
+  opacity: 0.13;
+  animation: vbHang 1.4s cubic-bezier(0.3, 0.7, 0.2, 1) backwards;
+}
+[data-exhibition='victorian'] .pe-atmo-wallpaper-damask .pe-atmo-part-1 { left: 0; background-position: 0 0; }
+[data-exhibition='victorian'] .pe-atmo-wallpaper-damask .pe-atmo-part-2 { left: calc(100vw / 3); background-position: calc(-100vw / 3) 0; animation-delay: 0.3s; }
+[data-exhibition='victorian'] .pe-atmo-wallpaper-damask .pe-atmo-part-3 { left: calc(200vw / 3); background-position: calc(-200vw / 3) 0; animation-delay: 0.6s; }
+[data-exhibition='victorian'] .pe-atmo-wallpaper-damask .pe-atmo-part-4 {
+  /* the warm light of the room, coming and going */
+  inset: 0;
+  background: radial-gradient(ellipse 60% 50% at 50% 0, rgba(255, 238, 205, 0.45), transparent 70%);
+  animation: vbWarm 7s ease-in-out infinite alternate;
+}
+@keyframes vbHang { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes vbWarm { from { opacity: 0.6; } to { opacity: 1; } }
+
+/* ───────── locomotive-steam: steam rolling past, the rails and the telegraph wires ───────── */
+[data-exhibition='victorian'] .pe-atmo-locomotive-steam .pe-atmo-part-1 {
+  /* a sooty sky, and the firebox glowing low */
+  inset: 0;
+  background:
+    radial-gradient(ellipse 50% 40% at 12% 100%, rgba(255, 176, 104, 0.16), transparent 70%),
+    linear-gradient(#3e4640, transparent 62%);
+}
+[data-exhibition='victorian'] .pe-atmo-locomotive-steam .pe-atmo-part-2 {
+  /* the track running by: the rail, and the sleepers under it */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 9vh;
+  background:
+    linear-gradient(rgba(24, 27, 25, 0.9), rgba(24, 27, 25, 0.9)) 0 30% / 100% 3px no-repeat,
+    repeating-linear-gradient(90deg, rgba(38, 31, 26, 0.85) 0 26px, transparent 26px 64px) 0 52% / 100% 9px repeat-x,
+    linear-gradient(transparent 62%, rgba(36, 40, 37, 0.65) 62%);
+  animation: vbTrack 0.8s linear infinite;
+}
+[data-exhibition='victorian'] .pe-atmo-locomotive-steam .pe-atmo-part-3 {
+  /* telegraph poles going by, and the wires sagging between them */
+  top: 16vh;
+  bottom: 9vh;
+  left: 0;
+  width: 200vw;
+  background:
+    radial-gradient(ellipse 50% 100% at 50% 0, transparent calc(100% - 2px), rgba(240, 236, 224, 0.4) calc(100% - 1px), transparent 100%) 0 0 / 40vw 9vh repeat-x,
+    radial-gradient(ellipse 50% 100% at 50% 0, transparent calc(100% - 2px), rgba(240, 236, 224, 0.3) calc(100% - 1px), transparent 100%) 0 3vh / 40vw 9vh repeat-x,
+    repeating-linear-gradient(90deg, rgba(28, 31, 29, 0.75) 0 4px, transparent 4px 40vw);
+  animation: vbWires 3.6s linear infinite;
+}
+[data-exhibition='victorian'] .pe-atmo-locomotive-steam .pe-atmo-p {
+  /* steam, billowing up and streaming away */
+  left: calc(var(--x) * 0.3%);
+  top: 66%;
+  width: calc(12vmin + var(--r) * 18vmin);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(238, 238, 230, 0.4), rgba(238, 238, 230, 0.14) 50%, transparent 70%);
+  filter: blur(4px);
+  opacity: 0.6;
+  animation: vbSteam calc(7s + var(--r) * 5s) ease-out infinite;
+  animation-delay: calc(var(--i) * -0.9s);
+}
+@keyframes vbTrack { to { background-position: 0 30%, -64px 52%, 0 0; } }
+@keyframes vbWires { to { transform: translateX(-40vw); } }
+@keyframes vbSteam {
+  0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+  15% { opacity: 1; }
+  100% { transform: translate(85vw, -55vh) scale(1.7); opacity: 0; }
+}
+
+/* ───────── gaslamp: fog drifting round the gas lamps ───────── */
+[data-exhibition='victorian'] .pe-atmo-gaslamp :is(.pe-atmo-part-1, .pe-atmo-part-2) {
+  /* a lamp: its flame, its halo in the fog, and the post under it */
+  width: 70vmin;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 232, 170, 1) 0 1.3%, rgba(255, 204, 120, 0.7) 2.6%, rgba(255, 186, 100, 0.3) 9%, rgba(255, 176, 90, 0.12) 28%, transparent 64%);
+  animation: vbFlicker 4.2s ease-in-out infinite;
+}
+[data-exhibition='victorian'] .pe-atmo-gaslamp :is(.pe-atmo-part-1, .pe-atmo-part-2)::after {
+  content: '';
+  position: absolute;
+  left: calc(50% - 2px);
+  top: 53%;
+  width: 4px;
+  height: 120vh;
+  background: linear-gradient(rgba(8, 8, 12, 0.95), rgba(8, 8, 12, 0.8));
+}
+[data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-1 { left: 13vw; top: 24vh; }
+[data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-2 { left: 87vw; top: 34vh; width: 56vmin; animation-delay: -1.7s; animation-duration: 5.1s; }
+[data-exhibition='victorian'] .pe-atmo-gaslamp :is(.pe-atmo-part-3, .pe-atmo-part-4) {
+  /* banks of fog, rolling slowly */
+  left: -50vw;
+  width: 200vw;
+  height: 55vh;
+  background:
+    radial-gradient(ellipse 30% 40% at 25% 50%, rgba(176, 174, 196, 0.18), transparent 70%),
+    radial-gradient(ellipse 24% 34% at 70% 58%, rgba(176, 174, 196, 0.15), transparent 70%);
+  filter: blur(12px);
+  animation: vbFog 38s ease-in-out infinite alternate;
+}
+[data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-3 { bottom: -8vh; }
+[data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-4 { top: 14vh; animation-duration: 52s; animation-direction: alternate-reverse; }
+@keyframes vbFlicker {
+  0%, 100% { opacity: 0.9; scale: 1; }
+  30% { opacity: 1; scale: 1.03; }
+  55% { opacity: 0.8; scale: 0.98; }
+  80% { opacity: 0.95; }
+}
+@keyframes vbFog { from { transform: translateX(-12vw); } to { transform: translateX(12vw); } }
+
+/* ───────── christmas-snow: snow falling, drifts and frost ───────── */
+[data-exhibition='victorian'] .pe-atmo-christmas-snow .pe-atmo-part-1 {
+  /* a winter sky */
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56vh;
+  background: linear-gradient(#c9d3d7, rgba(201, 211, 215, 0));
+}
+[data-exhibition='victorian'] .pe-atmo-christmas-snow .pe-atmo-part-2 {
+  /* drifts banked along the foot */
+  left: -6vw;
+  right: -6vw;
+  bottom: -2vh;
+  height: 17vh;
+  background:
+    radial-gradient(ellipse 30% 70% at 14% 100%, #fff 60%, transparent 61%),
+    radial-gradient(ellipse 36% 58% at 55% 100%, #fbfcfc 60%, transparent 61%),
+    radial-gradient(ellipse 28% 80% at 93% 100%, #fff 60%, transparent 61%);
+  filter: drop-shadow(0 -2px 6px rgba(90, 110, 120, 0.2));
+}
+[data-exhibition='victorian'] .pe-atmo-christmas-snow .pe-atmo-part-3 {
+  /* frost feathering in from the upper corners */
+  inset: 0;
+  background:
+    repeating-conic-gradient(from 0deg at 0 0, rgba(255, 255, 255, 0.55) 0 0.8deg, transparent 0.8deg 7deg),
+    repeating-conic-gradient(from 180deg at 100% 0, rgba(255, 255, 255, 0.5) 0 0.8deg, transparent 0.8deg 8deg),
+    radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.7), transparent 24vmin),
+    radial-gradient(circle at 100% 0, rgba(255, 255, 255, 0.6), transparent 20vmin);
+  -webkit-mask-image: radial-gradient(circle at 0 0, #000, transparent 30vmin), radial-gradient(circle at 100% 0, #000, transparent 26vmin);
+  mask-image: radial-gradient(circle at 0 0, #000, transparent 30vmin), radial-gradient(circle at 100% 0, #000, transparent 26vmin);
+  animation: vbFrost 3s ease-out backwards;
+}
+[data-exhibition='victorian'] .pe-atmo-christmas-snow .pe-atmo-p:nth-child(3n) {
+  /* the nearer flakes, larger and softer */
+  width: calc(8px + var(--r) * 6px);
+  filter: blur(1.5px);
+  animation-duration: calc(6s + var(--r) * 4s);
+}
+[data-exhibition='victorian'] .pe-atmo-christmas-snow .pe-atmo-p {
+  width: calc(3px + var(--r) * 6px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 0.5px rgba(120, 140, 150, 0.3), 0 1px 3px rgba(90, 110, 125, 0.4);
+  animation: vbFall calc(9s + var(--r) * 9s) linear infinite;
+  animation-delay: calc(var(--x) * -0.2s);
+}
+@keyframes vbFrost { from { opacity: 0; } }
+@keyframes vbFall {
+  0% { transform: translate(0, -60vh); }
+  25% { transform: translate(2vw, -30vh); }
+  50% { transform: translate(-1vw, 0); }
+  75% { transform: translate(2vw, 30vh); }
+  100% { transform: translate(0, 60vh); }
+}
+
+/* ───────── yule-hearth: firelight, sparks, and an evergreen garland ───────── */
+[data-exhibition='victorian'] .pe-atmo-yule-hearth .pe-atmo-part-1 {
+  /* the fire, low in the room, flickering */
+  left: -10vw;
+  right: -10vw;
+  bottom: 0;
+  height: 75vh;
+  background: radial-gradient(ellipse 70% 60% at 50% 106%, rgba(255, 140, 60, 0.45), rgba(200, 70, 30, 0.18) 45%, transparent 75%);
+  transform-origin: 50% 100%;
+  animation: vbFire 2.6s ease-in-out infinite;
+}
+[data-exhibition='victorian'] .pe-atmo-yule-hearth .pe-atmo-part-2 {
+  /* the garland: evergreen and holly berries, hung in swags along the top */
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 15vh;
+  /* berries in clusters over needles of fir, light and dark, pointing every way */
+  background:
+    radial-gradient(circle at 30% 40%, #e0574a 0 2px, #b3271f 3.2px, rgba(179, 39, 31, 0) 3.8px) 0 0 / 61px 37px,
+    radial-gradient(circle at 70% 60%, #d84a3e 0 1.6px, #a82219 2.8px, rgba(168, 34, 25, 0) 3.4px) 9px 5px / 61px 37px,
+    repeating-conic-gradient(from 10deg at 50% 50%, #4f8a55 0 4deg, rgba(79, 138, 85, 0) 4deg 23deg) 0 0 / 14px 14px,
+    repeating-conic-gradient(from 0deg at 50% 50%, #2c5a33 0 5deg, rgba(44, 90, 51, 0) 5deg 19deg) 7px 5px / 11px 11px,
+    linear-gradient(#1f4226, #163219);
+  -webkit-mask: radial-gradient(ellipse 52% 100% at 50% 0, transparent 60%, #000 63% 76%, transparent 79%) 0 0 / 34vw 15vh repeat-x;
+  mask: radial-gradient(ellipse 52% 100% at 50% 0, transparent 60%, #000 63% 76%, transparent 79%) 0 0 / 34vw 15vh repeat-x;
+  filter: drop-shadow(0 6px 6px rgba(0, 0, 0, 0.4));
+  transform-origin: 50% 0;
+  animation: vbSwag 6s ease-in-out infinite alternate;
+}
+[data-exhibition='victorian'] .pe-atmo-yule-hearth .pe-atmo-p {
+  /* sparks, flying up from the fire */
+  left: calc(25% + var(--x) * 0.5%);
+  top: calc(55% + var(--y) * 0.45%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #ffd38a;
+  box-shadow: 0 0 6px 1px rgba(255, 150, 60, 0.9);
+  animation: vbSpark calc(3s + var(--r) * 3s) ease-out infinite;
+  animation-delay: calc(var(--y) * -0.06s);
+}
+@keyframes vbFire {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  25% { opacity: 1; transform: scale(1.04, 1.07); }
+  50% { opacity: 0.78; transform: scale(0.98, 0.96); }
+  75% { opacity: 0.95; transform: scale(1.02, 1.04); }
+}
+@keyframes vbSwag { from { transform: translateY(-2px) rotate(-0.3deg); } to { transform: translateY(2px) rotate(0.3deg); } }
+@keyframes vbSpark {
+  0% { transform: translate(0, 40vh); opacity: 0; }
+  10% { opacity: 1; }
+  55% { transform: translate(calc((var(--r) - 0.5) * 6vw), 0); }
+  100% { transform: translate(calc((var(--r) - 0.5) * -4vw), -30vh); opacity: 0; }
+}
+
+@media (max-width: 700px) {
+  [data-exhibition='victorian'] .pe-atmo-yule-hearth .pe-atmo-part-2 { height: 10vh; -webkit-mask-size: 50vw 10vh; mask-size: 50vw 10vh; }
+  [data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-1 { left: 10vw; top: 16vh; }
+  [data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-2 { left: 92vw; top: 22vh; }
 }

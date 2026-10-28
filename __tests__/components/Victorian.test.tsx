@@ -65,7 +65,7 @@ describe('Victorian Britain', () => {
       'Charles Dickens, Victorian Britain and the Invention of How We Celebrate Christmas',
     ]);
     for (const p of VICTORIAN.posters) {
-      expect(p.items[0].type).toBe('title-text');
+      expect(p.items[0].type).toBe('title-image');
       expect(p.items[p.items.length - 1].type).toBe('end');
       expect(p.hero.alt).toBeTruthy();
     }
@@ -76,7 +76,7 @@ describe('Victorian Britain', () => {
   });
 
   it('sets the titles as the posters do', () => {
-    const titles = VICTORIAN.posters.map((p) => (p.items[0].type === 'title-text' ? `${p.items[0].kicker} ${p.items[0].text}` : ''));
+    const titles = VICTORIAN.posters.map((p) => (p.items[0].type === 'title-image' ? p.items[0].alt : ''));
     expect(titles).toEqual(VICTORIAN.posters.map((p) => p.title));
   });
 
