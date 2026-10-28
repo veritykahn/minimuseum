@@ -23,19 +23,74 @@ export type PanelPosition =
   | 'full-width';
 
 /**
- * A panel's own entrance, on top of the exhibition's reveal. Text effects are
- * used when the reveal leaves body copy alone (fx.text 'titles'); image
- * effects always run.
+ * A panel's own entrance: how it arrives. The vocabulary is the one the three
+ * hand-built walkthroughs (Harlem, In Their Hands, Seeing is Deceiving) use,
+ * so a data-driven exhibition can vary its panels as they do.
+ *
+ * A panel with an entrance takes it in place of the exhibition's reveal (the
+ * theme's word-by-word rise, the developing photograph): the theme steps back
+ * and the panel arrives its own way. A panel without one ('theme', or left
+ * out) keeps the theme's reveal. 'none' simply appears.
+ *
+ * Text and pictures both take every entrance; each is drawn on the copy (the
+ * paragraph, title or quote) or on the picture itself. A few are motions that
+ * carry on after the panel has arrived (pan-lr, kenburns-in, shrink-back,
+ * drift, breathe, waves-drift). Under prefers-reduced-motion every one of
+ * them settles at once into its calm, final state.
  */
-export type PanelEffect =
-  | 'none'
-  | 'fade-in'
-  | 'blur-to-sharp'
-  | 'split-reveal'
-  | 'kenburns-in'
-  | 'drift'
-  | 'breathe'
-  | 'shrink-back';
+export const PANEL_EFFECTS = [
+  'none',
+  'theme',
+  // Arrivals
+  'fade-in',
+  'blur-to-sharp',
+  'split-reveal',
+  'ink-spread',
+  'film-credits',
+  'rise-expand',
+  'mega-zoom-out',
+  'glitch',
+  'blind-spot-reveal',
+  // Copy set a piece at a time
+  'line-by-line',
+  'typewriter',
+  // Slow motions that run on after the panel arrives
+  'pan-lr',
+  'kenburns-in',
+  'shrink-back',
+  'drift',
+  'breathe',
+  'waves-drift',
+  // Rises into view, then fades as if forgotten (pictures only; copy simply rises)
+  'erase',
+] as const;
+export type PanelEffect = (typeof PANEL_EFFECTS)[number];
+
+/**
+ * A section's atmosphere, as the hand-built posters' "specials" (Harlem's
+ * train-journey, In Their Hands' parchment): it sets the stage's colors and
+ * draws an animated, themed layer behind the panel. Each exhibition defines
+ * its own set in ExhibitionConfig.atmospheres and draws them in its own
+ * stylesheet, keyed on `.pe-atmo-<name>` (the layer) and
+ * `[data-atmosphere='<name>']` (the stage, for the copy).
+ *
+ * The layer is decorative and hidden from assistive technology. It persists
+ * while consecutive panels share the atmosphere, so rain keeps falling as
+ * you walk on rather than starting over. Under prefers-reduced-motion it is
+ * drawn still.
+ */
+export type Atmosphere = PanelColors & {
+  /**
+   * Particles drawn in the layer: rain, petals, sand, motes. Each is an <i>
+   * with --i (its index), --x and --y (0–100, scattered), --r (0–1, a
+   * per-particle random) for the stylesheet to place and animate.
+   */
+  particles?: number;
+  /** Pictures drawn into the layer (decorative), each with a class for the stylesheet. */
+  images?: { src: string; className: string }[];
+  /** Extra plain layers (<b class="pe-atmo-part pe-atmo-part-N">) for beams, bands and washes. */
+  parts?: number;
+};
 
 /** Colors for a panel. Any left out come from its section, then its poster. */
 export type PanelColors = {
@@ -76,6 +131,10 @@ export type PanelMarks = {
 type PanelBase = {
   /** Names a section in the poster's `sections`, which sets its colors and look. */
   section?: string;
+  /** Names an atmosphere in the exhibition's `atmospheres`; overrides the section's. */
+  atmosphere?: string;
+  /** How the panel arrives. Left out, it takes the exhibition's reveal. */
+  effect?: PanelEffect;
   colors?: PanelColors;
   /** Extra classes for this panel's wrapper, for an exhibition's own CSS. */
   className?: string;
@@ -110,7 +169,6 @@ export type ParagraphItem = PanelBase & {
    */
   lead?: string;
   position?: PanelPosition;
-  effect?: PanelEffect;
   figure?: PanelFigure;
   source?: PanelSource;
 };
@@ -120,17 +178,62 @@ export type SectionTitleItem = PanelBase & {
   type: 'section-title';
   text: string;
   position?: PanelPosition;
-  effect?: PanelEffect;
 };
 
-/** A title card that is a picture. */
+/**
+ * A title card that is a picture: the poster's own lettering, cut from it.
+ * Set as the panel's heading; `alt` is the title as it is read.
+ *
+ * Framing, as the hand-built walkthroughs frame their titles:
+ * 'height' fills the stage's height (tall lettering, often panned across);
+ * 'width' fills its width; 'width-top' fills its width from the top;
+ * 'centered' sits inside the stage at no more than its natural size
+ * (transparent lettering cut from a poster).
+ */
 export type TitleImageItem = PanelBase & {
   type: 'title-image';
   src: string;
   alt: string;
-  /** 'width' fills the stage's width; 'centered' sits inside it (transparent PNGs). */
+  /** The picture's pixel size, so the panel does not jump as it loads (and is never drawn larger than it is). */
+  width?: number;
+  height?: number;
+  framing?: 'height' | 'width' | 'width-top' | 'centered';
+  /** @deprecated Use framing. */
   fit?: 'width' | 'centered';
-  effect?: PanelEffect;
+};
+
+/**
+ * A picture with its label beside it, as a gallery hangs a work: the picture
+ * on one side; its title, maker and date, and a description on the other.
+ * The description is copy and takes part in the panel's entrance.
+ */
+export type ArtworkDisplayItem = PanelBase & {
+  type: 'artwork-display';
+  src: string;
+  alt: string;
+  /** The work's title. *Title* is set in italics. */
+  title?: string;
+  /** Maker and date, set small above the description ("Imperial War Museum, 1916"). */
+  meta?: string;
+  /** The description. *word* is set in italics. */
+  text: string;
+  /** Which side the picture hangs on. Defaults to 'left'. */
+  side?: 'left' | 'right';
+  credit?: { text: string; href?: string };
+};
+
+/**
+ * A picture and copy stacked: copy above the picture ('text-image-stacked')
+ * or the picture above the copy ('image-text-stacked'), as In Their Hands
+ * stacks a manuscript over its story.
+ */
+export type StackedItem = PanelBase & {
+  type: 'text-image-stacked' | 'image-text-stacked';
+  src: string;
+  alt: string;
+  /** The copy. *word* is set in italics. */
+  text: string;
+  credit?: { text: string; href?: string };
 };
 
 /**
@@ -168,7 +271,6 @@ export type FullImageItem = PanelBase & {
   text?: string;
   /** Where the caption links: the picture's source record. */
   href?: string;
-  effect?: PanelEffect;
 };
 
 export type QuoteItem = PanelBase & {
@@ -177,7 +279,6 @@ export type QuoteItem = PanelBase & {
   text: string;
   /** Who said or wrote it, set under the quote ("— Benjamin Franklin"). *Title* is set in italics. */
   cite?: string;
-  effect?: PanelEffect;
 };
 
 /** A link out of the poster, set as a button. */
@@ -210,6 +311,8 @@ export type PosterItem =
   | SectionTitleItem
   | TitleImageItem
   | TitleTextItem
+  | ArtworkDisplayItem
+  | StackedItem
   | FullImageItem
   | QuoteItem
   | LinkItem
@@ -218,8 +321,8 @@ export type PosterItem =
 
 export type PosterItemType = PosterItem['type'];
 
-/** A section's look: its colors and any classes for the exhibition's own CSS. */
-export type PosterSection = PanelColors & { className?: string };
+/** A section's look: its colors, its atmosphere, and any classes for the exhibition's own CSS. */
+export type PosterSection = PanelColors & { className?: string; atmosphere?: string };
 
 export type PosterConfig<K extends string = string> = {
   /** 'poster1': lessons, deep links (?poster=1) and focus all use it. */
@@ -308,6 +411,11 @@ export type ExhibitionConfig<K extends string = string> = {
    * set in italics. Leave out when there are none.
    */
   credits?: { text: string; href?: string }[];
+  /**
+   * The exhibition's own atmospheres, by name, for sections and panels to
+   * name (`atmosphere`). Drawn by the exhibition's stylesheet; see Atmosphere.
+   */
+  atmospheres?: Record<string, Atmosphere>;
   /** The panel reveal (components/poster-fx). */
   fx: {
     theme: FxTheme;

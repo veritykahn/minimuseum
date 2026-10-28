@@ -259,3 +259,204 @@ a.gw-button:is(:link, :visited) { color: #ede6da; }
 @media (prefers-reduced-motion: reduce) {
   .gw-button { transition: none; }
 }
+
+/* ==========================================================================
+   The walkthrough's atmospheres (greatWar.ts, ATMOSPHERES). Each is drawn in
+   the layer behind the panel (AtmosphereLayer): its parts (.pe-atmo-part-N)
+   and particles (.pe-atmo-p, placed by --x, --y, --r). Quiet throughout:
+   nothing flashes, nothing crosses the copy brightly. Under reduced motion
+   the engine stills them where they stand.
+   ========================================================================== */
+
+/* The title over the poster's faded faces. */
+[data-exhibition='great-war'] .pe-title-image.gw-faces::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: url('/exhibitions/great-war/faces.jpg') center 40% / cover no-repeat;
+  opacity: 0.34;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 8%, #000 30%, #000 64%, transparent 92%);
+  mask-image: linear-gradient(to bottom, transparent 8%, #000 30%, #000 64%, transparent 92%);
+}
+
+/* ───────── film-reel: an archival reel, sepia and scratched ───────── */
+[data-exhibition='great-war'] .pe-atmo-film-reel .pe-atmo-part-1 {
+  /* the projector's warm light, breathing very slightly */
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 48%, rgba(214, 168, 96, 0.13), transparent 70%);
+  animation: gwReelFlicker 0.24s steps(2, end) infinite;
+}
+[data-exhibition='great-war'] .pe-atmo-film-reel .pe-atmo-part-2 {
+  /* the vignette at the gate */
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 48%, rgba(0, 0, 0, 0.55) 100%);
+}
+[data-exhibition='great-war'] .pe-atmo-film-reel :is(.pe-atmo-part-3, .pe-atmo-part-4) {
+  /* two scratches running down the film */
+  top: -10%;
+  width: 1px;
+  height: 120%;
+  background: linear-gradient(to bottom, transparent, rgba(237, 230, 218, 0.22) 30%, rgba(237, 230, 218, 0.3) 50%, rgba(237, 230, 218, 0.22) 70%, transparent);
+  animation: gwScratch 7s linear infinite;
+}
+[data-exhibition='great-war'] .pe-atmo-film-reel .pe-atmo-part-3 { left: 17%; }
+[data-exhibition='great-war'] .pe-atmo-film-reel .pe-atmo-part-4 { left: 81%; animation-duration: 11s; animation-delay: -4s; opacity: 0.6; }
+[data-exhibition='great-war'] .pe-atmo-film-reel .pe-atmo-p {
+  /* dust on the print */
+  width: calc(2px + var(--r) * 3px);
+  height: calc(2px + var(--r) * 3px);
+  border-radius: 50%;
+  background: rgba(237, 230, 218, 0.55);
+  opacity: 0;
+  animation: gwDust 2.6s steps(1, end) infinite;
+  animation-delay: calc(var(--r) * -2.6s);
+}
+@keyframes gwReelFlicker { 0% { opacity: 0.85; } 50% { opacity: 1; } }
+@keyframes gwScratch {
+  0%, 100% { translate: 0 0; opacity: 0; }
+  10%, 60% { opacity: 1; }
+  35% { translate: 12px 0; }
+  70% { translate: -6px 0; opacity: 0; }
+}
+@keyframes gwDust { 0%, 100% { opacity: 0; } 12% { opacity: 0.9; } 20% { opacity: 0; } }
+/* The copy on the reel flickers as faintly as a projected title card. */
+[data-exhibition='great-war'] [data-atmosphere='film-reel'] .pe-walkthrough-content { animation: gwCopyFlicker 0.18s steps(2, end) infinite; }
+@keyframes gwCopyFlicker { 0% { opacity: 0.96; } 50% { opacity: 1; } }
+
+/* ───────── trench-rain: rain across a periscope's view of the line ───────── */
+[data-exhibition='great-war'] .pe-atmo-trench-rain .pe-atmo-part-1 {
+  /* the periscope's mirror: the view in a frame, the rest of the world dark */
+  inset: 7vh 4vw;
+  border-radius: 28px;
+  box-shadow: 0 0 0 100vmax rgba(4, 5, 5, 0.42), inset 0 0 90px rgba(0, 0, 0, 0.7);
+  border: 1px solid rgba(237, 230, 218, 0.08);
+}
+[data-exhibition='great-war'] .pe-atmo-trench-rain .pe-atmo-part-2 {
+  /* the parapet, a low line of mud and sandbags */
+  left: -5%;
+  right: -5%;
+  bottom: 0;
+  height: 26vh;
+  background:
+    radial-gradient(ellipse 18% 40% at 12% 100%, rgba(60, 52, 40, 0.55), transparent 70%),
+    radial-gradient(ellipse 22% 46% at 46% 100%, rgba(52, 46, 36, 0.5), transparent 70%),
+    radial-gradient(ellipse 20% 38% at 82% 100%, rgba(60, 52, 40, 0.55), transparent 70%),
+    linear-gradient(to top, rgba(30, 27, 22, 0.85), transparent);
+}
+[data-exhibition='great-war'] .pe-atmo-trench-rain .pe-atmo-p {
+  top: -20vh;
+  width: 1px;
+  height: calc(50px + var(--r) * 70px);
+  background: linear-gradient(to bottom, transparent, rgba(190, 205, 215, 0.42));
+  rotate: 14deg;
+  animation: gwRain calc(0.65s + var(--r) * 0.55s) linear infinite;
+  animation-delay: calc(var(--y) * -0.02s);
+}
+@keyframes gwRain { to { transform: translate(-30vh, 140vh); } }
+
+/* ───────── searchlight: beams sweeping the night sky ───────── */
+[data-exhibition='great-war'] .pe-atmo-searchlight :is(.pe-atmo-part-1, .pe-atmo-part-2) {
+  bottom: -6vh;
+  width: 34vw;
+  height: 150vh;
+  background: linear-gradient(to top, rgba(232, 226, 200, 0.16), rgba(232, 226, 200, 0.05) 55%, transparent 85%);
+  clip-path: polygon(46% 100%, 54% 100%, 100% 0, 0 0);
+  transform-origin: 50% 100%;
+  animation: gwSweep 13s ease-in-out infinite alternate;
+}
+[data-exhibition='great-war'] .pe-atmo-searchlight .pe-atmo-part-1 { left: 4vw; rotate: -28deg; }
+[data-exhibition='great-war'] .pe-atmo-searchlight .pe-atmo-part-2 { right: 2vw; rotate: 22deg; animation-duration: 17s; animation-direction: alternate-reverse; }
+[data-exhibition='great-war'] .pe-atmo-searchlight .pe-atmo-part-3 {
+  /* the glow of the line on the horizon */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22vh;
+  background: linear-gradient(to top, rgba(120, 70, 40, 0.22), transparent);
+}
+@keyframes gwSweep { from { transform: rotate(-16deg); } to { transform: rotate(18deg); } }
+
+/* ───────── smoke: drifting over the field after the guns ───────── */
+[data-exhibition='great-war'] .pe-atmo-smoke .pe-atmo-part {
+  width: 150vw;
+  height: 70vh;
+  left: -25vw;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse 30% 45% at 25% 50%, rgba(200, 194, 184, 0.09), transparent 70%),
+    radial-gradient(ellipse 26% 40% at 62% 46%, rgba(200, 194, 184, 0.07), transparent 70%),
+    radial-gradient(ellipse 22% 36% at 88% 56%, rgba(200, 194, 184, 0.08), transparent 70%);
+  animation: gwSmoke 46s ease-in-out infinite alternate;
+}
+[data-exhibition='great-war'] .pe-atmo-smoke .pe-atmo-part-1 { top: 48vh; }
+[data-exhibition='great-war'] .pe-atmo-smoke .pe-atmo-part-2 { top: 62vh; animation-duration: 60s; animation-direction: alternate-reverse; }
+[data-exhibition='great-war'] .pe-atmo-smoke .pe-atmo-part-3 { top: 4vh; opacity: 0.6; animation-duration: 72s; }
+[data-exhibition='great-war'] .pe-atmo-smoke .pe-atmo-part-4 {
+  inset: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  border-radius: 0;
+  background: radial-gradient(ellipse at 50% 120%, rgba(150, 90, 60, 0.12), transparent 60%);
+  animation: none;
+}
+@keyframes gwSmoke { from { transform: translateX(-12vw) scale(1); } to { transform: translateX(12vw) scale(1.12); } }
+
+/* ───────── poppies: petals falling ───────── */
+[data-exhibition='great-war'] .pe-atmo-poppies .pe-atmo-p {
+  top: -8vh;
+  width: calc(12px + var(--r) * 12px);
+  height: calc(9px + var(--r) * 8px);
+  border-radius: 60% 40% 60% 40% / 60% 50% 50% 40%;
+  background: radial-gradient(circle at 35% 35%, #f0584b, #c8141c 72%);
+  opacity: 0.75;
+  animation: gwPetal calc(11s + var(--r) * 8s) linear infinite;
+  animation-delay: calc(var(--y) * -0.19s);
+}
+@keyframes gwPetal {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(3vw, 30vh) rotate(110deg); }
+  50% { transform: translate(-2vw, 60vh) rotate(200deg); }
+  75% { transform: translate(4vw, 90vh) rotate(300deg); }
+  100% { transform: translate(1vw, 120vh) rotate(380deg); }
+}
+
+/* ───────── telegram: a telegram form, the news typed onto it ───────── */
+[data-exhibition='great-war'] .pe-atmo-telegram .pe-atmo-part-1 {
+  /* ruled lines, fed up through the machine and then still */
+  inset: -10vh 0 0;
+  background: repeating-linear-gradient(to bottom, transparent 0 46px, rgba(70, 86, 110, 0.13) 46px 47px);
+  animation: gwFeed 2.4s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+[data-exhibition='great-war'] .pe-atmo-telegram .pe-atmo-part-2 {
+  /* the form's printed border, and the paper's age at its edges */
+  inset: 5vh 4vw;
+  border: 2px solid rgba(160, 40, 30, 0.35);
+  outline: 1px solid rgba(160, 40, 30, 0.2);
+  outline-offset: 6px;
+  box-shadow: inset 0 0 120px rgba(150, 120, 70, 0.25);
+}
+@keyframes gwFeed { from { transform: translateY(18vh); } }
+[data-exhibition='great-war'] [data-atmosphere='telegram'] :is(.pe-paragraph-text, .pe-section-title-text) {
+  font-family: 'Courier Prime', 'Courier New', monospace;
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+[data-exhibition='great-war'] [data-atmosphere='telegram'] .pe-paragraph-text { font-size: clamp(1.05rem, 2.1vw, 1.4rem); line-height: 1.65; }
+[data-exhibition='great-war'] [data-atmosphere='telegram'] .pe-section-title-text { text-transform: uppercase; font-size: clamp(1.4rem, 3.2vw, 2.4rem); }
+[data-exhibition='great-war'] [data-atmosphere='telegram'] .pe-walkthrough-content::before { display: none; }
+[data-exhibition='great-war'] [data-atmosphere='telegram'] .gw-dusk::before { display: none; }
+/* The red date on the paper is taken a shade deeper (4.5:1). */
+[data-exhibition='great-war'] [data-atmosphere='telegram'] { --pe-marks: #b3261e; }
+
+/* ───────── Panels with a picture ───────── */
+[data-exhibition='great-war'] .pe-artwork-info .pe-paragraph-text { font-style: italic; }
+[data-exhibition='great-war'] .pe-stack .pe-paragraph-text { font-size: clamp(1.2rem, 2.4vw, 1.6rem); }
+@media (prefers-reduced-motion: reduce) {
+  [data-exhibition='great-war'] [data-atmosphere] .pe-walkthrough-content { animation: none; }
+}
+/* On the telegram's paper, the corner navigation is set in ink. */
+[data-exhibition='great-war']:has([data-atmosphere='telegram']) { --pe-nav-m: #6b6255; --pe-nav-ink: #4a4237; }

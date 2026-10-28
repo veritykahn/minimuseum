@@ -211,3 +211,224 @@
   [data-exhibition='egypt'] .eg-god .pe-figure::before { display: none; }
   [data-exhibition='egypt'] .pe-callout { padding: 22px 20px; }
 }
+
+/* ==========================================================================
+   The walkthrough's atmospheres (egypt.ts, ATMOSPHERES), drawn in the layer
+   behind each panel (AtmosphereLayer). Calm and warm; nothing flashes.
+   Under reduced motion the engine stills them where they stand.
+   ========================================================================== */
+
+/* ───────── sand: blowing low across the ground ───────── */
+[data-exhibition='egypt'] .pe-atmo-sand .pe-atmo-part-1 {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 38vh;
+  background:
+    radial-gradient(ellipse 60% 70% at 20% 110%, rgba(196, 146, 86, 0.2), transparent 70%),
+    radial-gradient(ellipse 50% 60% at 78% 115%, rgba(176, 128, 72, 0.18), transparent 70%);
+}
+[data-exhibition='egypt'] .pe-atmo-sand .pe-atmo-part-2 {
+  /* a veil of fine sand lifting off the dunes */
+  left: -50vw;
+  width: 200vw;
+  bottom: 6vh;
+  height: 30vh;
+  background: linear-gradient(90deg, transparent, rgba(214, 170, 110, 0.07) 30%, transparent 50%, rgba(214, 170, 110, 0.06) 75%, transparent);
+  animation: egVeil 18s linear infinite;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 40%, #000 60%, transparent);
+  mask-image: linear-gradient(to bottom, transparent, #000 40%, #000 60%, transparent);
+}
+[data-exhibition='egypt'] .pe-atmo-sand .pe-atmo-p {
+  left: -4vw;
+  top: calc(42% + var(--y) * 0.56%);
+  width: calc(1px + var(--r) * 2.5px);
+  height: calc(1px + var(--r) * 2px);
+  border-radius: 50%;
+  background: rgba(226, 186, 128, 0.6);
+  animation: egGrain calc(4.5s + var(--r) * 5s) linear infinite;
+  animation-delay: calc(var(--x) * -0.09s);
+}
+@keyframes egVeil { from { transform: translateX(-25vw); } to { transform: translateX(25vw); } }
+@keyframes egGrain {
+  0% { transform: translate(0, 0); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(55vw, -3vh); }
+  90% { opacity: 0.8; }
+  100% { transform: translate(110vw, 1vh); opacity: 0; }
+}
+
+/* ───────── nile: the river shimmering ───────── */
+[data-exhibition='egypt'] .pe-atmo-nile .pe-atmo-part-1 {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36vh;
+  background: linear-gradient(to top, rgba(26, 84, 92, 0.42), rgba(26, 84, 92, 0.14) 70%, transparent);
+}
+[data-exhibition='egypt'] .pe-atmo-nile .pe-atmo-part-2 {
+  /* the ripples, sliding slowly on the current */
+  left: -10vw;
+  right: -10vw;
+  bottom: 0;
+  height: 34vh;
+  background: repeating-linear-gradient(to bottom, rgba(170, 222, 226, 0.08) 0 2px, transparent 2px 15px);
+  -webkit-mask-image: linear-gradient(to top, #000, transparent);
+  mask-image: linear-gradient(to top, #000, transparent);
+  animation: egRipple 9s ease-in-out infinite alternate;
+}
+[data-exhibition='egypt'] .pe-atmo-nile .pe-atmo-part-3 {
+  /* the sun's reflection, a column of light on the water */
+  left: 50%;
+  bottom: 0;
+  width: 18vw;
+  height: 34vh;
+  translate: -50% 0;
+  background: radial-gradient(ellipse 50% 100% at 50% 100%, rgba(255, 214, 150, 0.16), transparent 70%);
+  animation: egSun 5s ease-in-out infinite alternate;
+}
+[data-exhibition='egypt'] .pe-atmo-nile .pe-atmo-p {
+  top: calc(70% + var(--y) * 0.28%);
+  width: calc(10px + var(--r) * 22px);
+  height: 1px;
+  background: rgba(255, 228, 180, 0.7);
+  opacity: 0;
+  animation: egGlint calc(3s + var(--r) * 3s) ease-in-out infinite;
+  animation-delay: calc(var(--x) * -0.06s);
+}
+@keyframes egRipple { from { transform: translate(-3vw, 0) scaleY(1); } to { transform: translate(3vw, 4px) scaleY(1.06); } }
+@keyframes egSun { from { opacity: 0.7; transform: scaleX(0.9); } to { opacity: 1; transform: scaleX(1.1); } }
+@keyframes egGlint { 0%, 100% { opacity: 0; transform: translateX(0); } 50% { opacity: 0.8; transform: translateX(14px); } }
+
+/* ───────── hieroglyphs: the poster's own, carved into the wall ───────── */
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs :is(.pe-atmo-part-1, .pe-atmo-part-2) {
+  /* the incised rules either side of the columns */
+  top: 8vh;
+  bottom: 8vh;
+  width: 1px;
+  background: rgba(239, 235, 229, 0.18);
+  transform-origin: 50% 0;
+  animation: egRule 1.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .pe-atmo-part-1 { left: calc(4vw + 130px); }
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .pe-atmo-part-2 { right: calc(4vw + 130px); }
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph {
+  height: auto;
+  opacity: 0.5;
+  filter: drop-shadow(1px 1px 0 rgba(0, 0, 0, 0.8));
+  animation: egCarve 1.4s cubic-bezier(0.55, 0, 0.35, 1) backwards;
+}
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph-col-1 { left: 4vw; }
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph-col-2 { right: 4vw; }
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph-anubis { top: 14vh; --d: 0; }
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph-bastet { top: 34vh; --d: 1; }
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph-horus { top: 54vh; --d: 2; }
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph-isis { top: 72vh; --d: 3; }
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph { animation-delay: calc(0.4s + var(--d) * 0.45s); }
+[data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph-col-2 { animation-delay: calc(0.6s + var(--d) * 0.45s); }
+@keyframes egCarve { from { clip-path: inset(0 100% 0 0); opacity: 0.9; } to { clip-path: inset(0 0 0 0); } }
+@keyframes egRule { from { transform: scaleY(0); } }
+
+/* ───────── papyrus: a sheet unrolled ───────── */
+[data-exhibition='egypt'] .pe-atmo-papyrus .pe-atmo-part-1 {
+  inset: 11vh 4vw 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(120, 86, 36, 0.07) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(0deg, rgba(120, 86, 36, 0.06) 0 3px, transparent 3px 12px),
+    radial-gradient(ellipse at center, #dccaa0 40%, #c9b080 100%);
+  box-shadow: 0 20px 70px rgba(0, 0, 0, 0.6);
+  animation: egUnroll 1.2s cubic-bezier(0.45, 0, 0.2, 1) backwards;
+}
+[data-exhibition='egypt'] .pe-atmo-papyrus .pe-atmo-part-2 {
+  /* the roll, travelling across as the sheet opens, then gone */
+  top: 11vh;
+  bottom: 0;
+  left: 4vw;
+  width: 30px;
+  background: linear-gradient(90deg, #8f7446, #e2d1a6 45%, #a98c58);
+  opacity: 0;
+  animation: egRoll 1.2s cubic-bezier(0.45, 0, 0.2, 1) backwards;
+}
+[data-exhibition='egypt'] .pe-atmo-papyrus .pe-atmo-part-3 {
+  /* the sheet's fibrous edge at the top */
+  top: 11vh;
+  left: 4vw;
+  right: 4vw;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, rgba(110, 80, 34, 0.35) 0 3px, transparent 3px 9px);
+  animation: egUnroll 1.2s cubic-bezier(0.45, 0, 0.2, 1) backwards;
+}
+@keyframes egUnroll { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes egRoll { from { opacity: 1; transform: translateX(0); } 90% { opacity: 1; } to { opacity: 0; transform: translateX(calc(92vw - 30px)); } }
+/* On the sheet the posters' white arches step aside. */
+[data-exhibition='egypt'] [data-atmosphere='papyrus'] :is(.eg-arch-right, .eg-arch-left)::before,
+[data-exhibition='egypt'] [data-atmosphere='papyrus'] :is(.eg-arch-right, .eg-arch-left)::after { display: none; }
+[data-exhibition='egypt'] [data-atmosphere='papyrus'] .pe-paragraph-text { font-weight: 400; }
+
+/* ───────── torchlight: in the tomb ───────── */
+[data-exhibition='egypt'] .pe-atmo-torchlight :is(.pe-atmo-part-1, .pe-atmo-part-2) {
+  width: 90vmax;
+  height: 90vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 158, 70, 0.2), rgba(255, 120, 40, 0.06) 40%, transparent 68%);
+  animation: egTorch 3.4s ease-in-out infinite;
+}
+[data-exhibition='egypt'] .pe-atmo-torchlight .pe-atmo-part-1 { left: -42vmax; top: -20vmax; }
+[data-exhibition='egypt'] .pe-atmo-torchlight .pe-atmo-part-2 { right: -50vmax; bottom: -46vmax; opacity: 0.7; animation-duration: 4.6s; animation-delay: -1.3s; }
+[data-exhibition='egypt'] .pe-atmo-torchlight .pe-atmo-p {
+  top: 100%;
+  left: calc(var(--x) * 0.3%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #ffb26b;
+  box-shadow: 0 0 6px rgba(255, 150, 60, 0.9);
+  opacity: 0;
+  animation: egEmber calc(6s + var(--r) * 5s) ease-out infinite;
+  animation-delay: calc(var(--y) * -0.1s);
+}
+@keyframes egTorch {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  20% { opacity: 1; transform: scale(1.03); }
+  45% { opacity: 0.8; transform: scale(0.98); }
+  70% { opacity: 0.95; transform: scale(1.02); }
+}
+@keyframes egEmber {
+  0% { transform: translate(0, 0); opacity: 0; }
+  15% { opacity: 0.9; }
+  100% { transform: translate(6vw, -70vh); opacity: 0; }
+}
+
+/* ───────── gold: gold leaf catching the light ───────── */
+[data-exhibition='egypt'] .pe-atmo-gold .pe-atmo-part-1 {
+  inset: -20vh -100vw;
+  background: linear-gradient(115deg, transparent 44%, rgba(255, 214, 130, 0.09) 49%, rgba(255, 232, 170, 0.14) 50%, rgba(255, 214, 130, 0.09) 51%, transparent 56%);
+  animation: egGlintSweep 8s ease-in-out infinite;
+}
+[data-exhibition='egypt'] .pe-atmo-gold .pe-atmo-part-2 {
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 50%, transparent 45%, rgba(176, 128, 40, 0.16) 100%);
+}
+[data-exhibition='egypt'] .pe-atmo-gold .pe-atmo-p {
+  width: calc(2px + var(--r) * 3px);
+  height: calc(2px + var(--r) * 3px);
+  rotate: 45deg;
+  background: #f3cf7a;
+  box-shadow: 0 0 6px rgba(243, 207, 122, 0.8);
+  opacity: 0;
+  animation: egFleck calc(3s + var(--r) * 4s) ease-in-out infinite;
+  animation-delay: calc(var(--x) * -0.07s);
+}
+@keyframes egGlintSweep { 0% { transform: translateX(-60vw); } 60%, 100% { transform: translateX(60vw); } }
+@keyframes egFleck { 0%, 100% { opacity: 0; transform: scale(0.6); } 50% { opacity: 0.7; transform: scale(1.2); } }
+
+/* ───────── Title lettering ───────── */
+[data-exhibition='egypt'] .pe-title-image img { max-height: 72vh; }
+
+@media (max-width: 700px) {
+  [data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph { opacity: 0.3; }
+  [data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph-col-1 { left: 2vw; }
+  [data-exhibition='egypt'] .pe-atmo-hieroglyphs .eg-glyph-col-2 { right: 2vw; }
+  [data-exhibition='egypt'] .pe-atmo-hieroglyphs :is(.pe-atmo-part-1, .pe-atmo-part-2) { display: none; }
+  [data-exhibition='egypt'] .pe-atmo-papyrus :is(.pe-atmo-part-1, .pe-atmo-part-2, .pe-atmo-part-3) { left: 2vw; right: 2vw; }
+}
