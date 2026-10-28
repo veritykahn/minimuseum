@@ -267,7 +267,7 @@ export const HOLOCAUST_CASE: CasePageData = {
     },
     {
       id: 'mezuzah',
-      name: 'Brass mezuzah',
+      name: 'Replica brass mezuzah',
       record: 'Replica of a brass mezuzah recovered in Warsaw by a survivor',
     },
     {
