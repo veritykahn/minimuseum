@@ -1,3 +1,4 @@
+import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
 import fs from 'fs';
 import path from 'path';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
@@ -197,7 +198,7 @@ describe('Holocaust Memorial Day', () => {
       expect(screen.getByRole('heading', { level: 1, name: 'Holocaust Memorial Day' })).toBeInTheDocument();
       const caseLink = screen.getByRole('link', { name: /display case/i });
       expect(caseLink).toHaveAttribute('href', '/exhibitions/holocaust/artifacts/case');
-      expect(caseLink).toHaveTextContent('Photographs to come');
+      expect(caseLink).toHaveTextContent('Display case — photographs to come');
       expect(screen.getByRole('link', { name: 'First Floor' })).toHaveAttribute('href', '/exhibitions/first-floor');
       const credits = within(screen.getByRole('list', { name: 'Picture credits' })).getAllByRole('link');
       expect(credits.map((a) => a.getAttribute('href'))).toEqual(COMMONS_PICTURES.map((c) => c.href));
@@ -248,18 +249,31 @@ describe('Holocaust Memorial Day', () => {
 });
 
 describe('The Holocaust Memorial Day display case page', () => {
-  it('lists the four artifacts exactly as the record does, with photographs to come', () => {
+  it('keeps the record, with a card for each artifact, beside an empty case awaiting its photographs', () => {
     render(<HolocaustCase />);
     expect(screen.getByRole('heading', { level: 1, name: 'Holocaust Memorial Day' })).toBeInTheDocument();
-    const list = screen.getByRole('list');
-    expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+    // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    expect(recordLines(HOLOCAUST_CASE).map(plainText)).toEqual([
       'Original 1 Krone Theresienstadt ghetto scrip',
       'Replica of a brass mezuzah recovered in Warsaw by a survivor',
       'Traditional brass and pottery Shabbat candle holders',
       'Educational panels on Holocaust history, resistance, and international memorialization',
     ]);
+    const cards = screen.getAllByRole('link', { name: /View artifact/ });
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual([
+      '/exhibitions/holocaust/artifacts/case/ghetto-scrip',
+      '/exhibitions/holocaust/artifacts/case/mezuzah',
+      '/exhibitions/holocaust/artifacts/case/shabbat-candle-holders',
+    ]);
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual(HOLOCAUST_CASE.artifacts.map((a) => artifactPath({ slug: HOLOCAUST.slug }, a)));
+    expect(screen.getByRole('heading', { level: 2, name: 'In the display' })).toBeInTheDocument();
+    // No poster sentence is about these objects: each page has only its name and record line.
+    for (const a of HOLOCAUST_CASE.artifacts) expect(a.writing).toBeUndefined();
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(HOLOCAUST_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
     expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify([HOLOCAUST, HOLOCAUST_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/holocaust');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/holocaust');
   });

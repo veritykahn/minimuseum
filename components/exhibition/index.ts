@@ -3,3 +3,6 @@ export { default as PosterPanel } from './PosterPanel';
 export * from './helpers';
 export type * from './types';
 export { default as CasePage } from './CasePage';
+export { default as CasePlaceholder, CASE_PLACEHOLDER_LABEL } from './CasePlaceholder';
+export { default as ArtifactPage } from './ArtifactPage';
+export * from './artifacts';

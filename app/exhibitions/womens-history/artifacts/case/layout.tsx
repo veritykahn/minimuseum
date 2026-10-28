@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = "The Women's History Month display case: photographs of the installation and the artifacts in it.";
+const description = "The Women's History Month display case and the artifacts in it.";
 
 export const metadata: Metadata = {
   title: "Display Case | Women's History Month | The Mini Museum",

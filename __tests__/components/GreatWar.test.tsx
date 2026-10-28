@@ -1,3 +1,4 @@
+import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { posterChapters } from '@/components/projector/posterTalk';
@@ -39,7 +40,6 @@ describe('The Great War', () => {
   it('every picture has alt text', () => {
     for (const p of GREAT_WAR.posters) expect(p.hero.alt).toBeTruthy();
     for (const it of allItems) if (it.type === 'full-image') expect(it.alt).toBeTruthy();
-    for (const photo of GREAT_WAR_CASE.photos) expect(photo.alt).toBeTruthy();
   });
 
   describe('the walkthrough', () => {
@@ -66,19 +66,23 @@ describe('The Great War', () => {
 });
 
 describe('The Great War display case page', () => {
-  it('lists the artifacts exactly as the record does, with the photographs', () => {
+  it('keeps the record, with a card for each artifact, beside an empty case awaiting its photographs', () => {
     render(<GreatWarCase />);
     expect(screen.getByRole('heading', { level: 1, name: 'The Great War' })).toBeInTheDocument();
-    const list = screen.getByRole('list');
-    const items = within(list).getAllByRole('listitem').map((li) => li.textContent);
-    expect(items).toEqual([
+    // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    expect(recordLines(GREAT_WAR_CASE).map(plainText)).toEqual([
       'M1917 Brodie doughboy helmet with American Legion decal',
       'US Army issue shaving kit and the Service for the Mobilized Soldier field manual',
       'Ammunition pouch and commemorative service pins',
       'Backlit silhouette display, take-away soldier profile cards, and an iPad Armistice audio station',
     ]);
-    expect(within(list).getByText('Service for the Mobilized Soldier').tagName).toBe('EM');
-    expect(screen.getAllByRole('img')).toHaveLength(GREAT_WAR_CASE.photos.length);
+    const cards = screen.getAllByRole('link', { name: /View artifact/ });
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual(GREAT_WAR_CASE.artifacts.map((a) => artifactPath({ slug: GREAT_WAR.slug }, a)));
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(GREAT_WAR_CASE.photos).toHaveLength(0);
+    expect(screen.queryAllByRole('img')).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify([GREAT_WAR, GREAT_WAR_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');
   });

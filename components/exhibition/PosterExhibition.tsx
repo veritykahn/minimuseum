@@ -11,6 +11,7 @@ import LessonsLink from '@/components/lesson/LessonsLink';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import PosterPanel from './PosterPanel';
+import CasePlaceholder from './CasePlaceholder';
 import { colorsFor, emphasisRuns, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
@@ -97,12 +98,12 @@ export default function PosterExhibition<K extends string>({ config }: { config:
       {c.image ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img className="pe-case-image" src={c.image.src} alt={c.image.alt} />
+      ) : c.emblem ? (
+        <span className="pe-case-emblem" aria-hidden="true">
+          {c.emblem}
+        </span>
       ) : (
-        c.emblem && (
-          <span className="pe-case-emblem" aria-hidden="true">
-            {c.emblem}
-          </span>
-        )
+        <CasePlaceholder size="card" />
       )}
       <p className="pe-case-label">{c.label}</p>
       <p className="pe-case-title">{c.title}</p>

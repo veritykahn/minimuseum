@@ -77,7 +77,7 @@
 }
 [data-exhibition='holocaust'] .pe-exhibition-grid { gap: clamp(28px, 4vw, 52px); }
 [data-exhibition='holocaust'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(20, 16, 14, 0.18), 0 22px 50px rgba(20, 16, 14, 0.32); }
-/* The display case: no photographs yet, so an outlined case frame on black. */
+/* The display case card: black, like poster 2. */
 [data-exhibition='holocaust'] .pe-display-case {
   width: auto;
   max-width: 320px;
@@ -88,25 +88,13 @@
 }
 [data-exhibition='holocaust'] .pe-display-case:hover,
 [data-exhibition='holocaust'] .pe-display-case:focus-visible { outline: 2px solid var(--ho-ink); outline-offset: 6px; }
-[data-exhibition='holocaust'] .pe-case-emblem {
-  width: 220px;
-  min-height: 0;
-  aspect-ratio: 4 / 3;
-  padding: 18px;
-  margin-bottom: 16px;
-  border: 2px solid var(--ho-stone-light);
-  outline: 1px solid rgba(214, 207, 199, 0.55);
-  outline-offset: -10px;
-  font-family: var(--pe-body);
-  font-size: 14px;
-  line-height: 1.45;
-  letter-spacing: 0.04em;
-  text-align: center;
-  color: var(--ho-stone-light);
-}
 [data-exhibition='holocaust'] .pe-case-label { color: var(--ho-stone-light); letter-spacing: 0.3em; font-size: 11px; }
 [data-exhibition='holocaust'] .pe-case-title { color: var(--ho-pale); font-size: 30px; text-transform: uppercase; }
-[data-exhibition='holocaust'] .pe-case-subtitle { color: var(--ho-stone-light); }
+/* The case awaiting its photographs: near-black line on the stone page, stone
+   grey on the black card, lit only faintly, as by a candle. */
+[data-exhibition='holocaust'] { --pe-case-frame: var(--ho-ink); --pe-case-glow: #e9dcc4; --pe-case-placeholder-ink: var(--ho-ink); }
+[data-exhibition='holocaust'] .pe-display-case { --pe-case-frame: var(--ho-stone-light); --pe-case-glow: #e9dcc4; --pe-case-placeholder-ink: var(--ho-stone-light); }
+[data-exhibition='holocaust'] .pe-case-placeholder-label { font-style: normal; letter-spacing: 0.04em; }
 [data-exhibition='holocaust'] .pe-credits { max-width: 640px; }
 
 /* The walkthrough's corner link on poster 2's black: the stone grey. */
@@ -307,7 +295,6 @@
 [data-exhibition='holocaust'] .pe-case-page-title { font-weight: 400; text-transform: uppercase; }
 [data-exhibition='holocaust'] .pe-case-page-subtitle { font-family: var(--pe-display); font-style: normal; text-transform: uppercase; letter-spacing: 0.32em; }
 [data-exhibition='holocaust'] .pe-case-page-label { letter-spacing: 0.3em; }
-[data-exhibition='holocaust'] .pe-case-page-placeholder { background: var(--ho-black); color: var(--ho-stone-light); border-color: var(--ho-stone-light); outline-color: rgba(214, 207, 199, 0.55); }
 [data-exhibition='holocaust'] .pe-case-page-artifacts {
   padding: 30px clamp(22px, 5vw, 56px);
   background: var(--ho-black);
@@ -315,6 +302,27 @@
 }
 [data-exhibition='holocaust'] .pe-case-page-artifacts h2 { color: var(--ho-stone-light); font-weight: 400; text-transform: uppercase; }
 [data-exhibition='holocaust'] .pe-case-page-artifacts h2::after { background: var(--ho-stone-light); }
+[data-exhibition='holocaust'] .pe-case-page-display h2 { font-weight: 400; text-transform: uppercase; }
+[data-exhibition='holocaust'] .pe-case-page-display h2::after { background: var(--ho-ink); }
+/* The artifact cards on the black: stone-grey line, nothing bright. */
+[data-exhibition='holocaust'] .pe-case-page-artifacts {
+  --pe-case-frame: var(--ho-stone-light);
+  --pe-card-bg: rgba(236, 231, 225, 0.04);
+  --pe-card-line: rgba(214, 207, 199, 0.3);
+  --pe-card-radius: 2px;
+}
+[data-exhibition='holocaust'] .pe-artifact-card-name { text-transform: uppercase; letter-spacing: 0.04em; color: var(--ho-pale); }
+[data-exhibition='holocaust'] .pe-case-page-artifacts .pe-artifact-card-go { color: var(--ho-stone-light); letter-spacing: 0.3em; }
+[data-exhibition='holocaust'] .pe-case-page-artifacts .pe-artifact-card:hover,
+[data-exhibition='holocaust'] .pe-case-page-artifacts .pe-artifact-card:focus-visible { transform: none; border-color: var(--ho-pale); }
+/* An artifact's page: on the stone, square-cornered, its name in the posters' capitals. */
+[data-exhibition='holocaust'].pe-artifact-page { --pe-card-radius: 2px; --pe-case-muted: var(--ho-ink); }
+[data-exhibition='holocaust'] .pe-artifact-name { text-transform: uppercase; letter-spacing: 0.02em; }
+[data-exhibition='holocaust'] .pe-artifact-source,
+[data-exhibition='holocaust'] .pe-artifact-trail { letter-spacing: 0.3em; }
+[data-exhibition='holocaust'] .pe-artifact-stage-art .pe-artifact-glyph { animation: none; }
+[data-exhibition='holocaust'] .pe-artifact-page a.pe-case-page-return:hover,
+[data-exhibition='holocaust'] .pe-artifact-page a.pe-case-page-return:focus-visible { color: var(--ho-stone); background: var(--ho-ink); border-color: var(--ho-ink); }
 [data-exhibition='holocaust'] a.pe-case-page-return:hover,
 [data-exhibition='holocaust'] a.pe-case-page-return:focus-visible { color: var(--ho-stone); background: var(--ho-ink); border-color: var(--ho-ink); }
 

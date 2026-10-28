@@ -1,3 +1,4 @@
+import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import WomensHistoryCase from '@/app/exhibitions/womens-history/artifacts/case/page';
@@ -58,7 +59,7 @@ describe("Women's History Month", () => {
     }
     expect(WOMENS_HISTORY.cases).toHaveLength(1);
     expect(WOMENS_HISTORY.cases?.[0].href).toBe('/exhibitions/womens-history/artifacts/case');
-    expect(WOMENS_HISTORY.cases?.[0].image?.alt).toBeTruthy();
+    expect(WOMENS_HISTORY.cases?.[0].image).toBeUndefined(); // photographs to come
     expect(WOMENS_HISTORY.fx.theme).toBe('wh');
   });
 
@@ -229,17 +230,22 @@ describe("Women's History Month", () => {
 });
 
 describe("The Women's History Month display case page", () => {
-  it('lists the artifacts exactly as the record does, with the photographs', () => {
+  it('keeps the record, with a card for each artifact, beside an empty case awaiting its photographs', () => {
     render(<WomensHistoryCase />);
     expect(screen.getByRole('heading', { level: 1, name: "Women's History Month" })).toBeInTheDocument();
-    const list = screen.getByRole('list');
-    expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual([
+    // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    expect(recordLines(WOMENS_HISTORY_CASE).map(plainText)).toEqual([
       "Original Blitz bomb-damaged family letters from Violet Dina Want's estate",
       'Archival glass display case presentation with clear document mounts',
       "Digital extension: an 11-slide interactive biographical presentation on Violet's life",
     ]);
-    expect(screen.getAllByRole('img')).toHaveLength(WOMENS_HISTORY_CASE.photos.length);
-    for (const p of WOMENS_HISTORY_CASE.photos) expect(p.alt).toBeTruthy();
+    const cards = screen.getAllByRole('link', { name: /View artifact/ });
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual(WOMENS_HISTORY_CASE.artifacts.map((a) => artifactPath({ slug: WOMENS_HISTORY.slug }, a)));
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(WOMENS_HISTORY_CASE.photos).toHaveLength(0);
+    expect(screen.queryAllByRole('img')).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify([WOMENS_HISTORY, WOMENS_HISTORY_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/womens-history');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/womens-history');
   });

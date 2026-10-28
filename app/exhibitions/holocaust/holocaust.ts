@@ -147,10 +147,8 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   cases: [
     {
       href: '/exhibitions/holocaust/artifacts/case',
-      emblem: 'Display case — photographs to come',
       label: 'Display Case',
       title: 'Artifacts',
-      subtitle: 'Photographs to come',
     },
   ],
   credits: COMMONS_PICTURES.map((p) => ({ text: creditFor(p), href: p.href })),
@@ -249,20 +247,34 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
 };
 
 /*
- * The display case page (artifacts/case). The artifacts are listed exactly as
- * the Mini Museum record lists them. There are no photographs yet: the owner
- * will photograph the case afresh, so the page holds a placeholder.
+ * The display case (artifacts/case) and a page for each object in it
+ * (artifacts/case/<id>). Every word is the owner's: each name and record line
+ * from the Mini Museum record. No sentence on either poster is about these
+ * objects, so each page shows only its name and record line. The record's
+ * line about the display itself is listed on the case page. Photographs and
+ * 3D models are to come.
  */
 export const HOLOCAUST_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  subtitle: 'Photographs of the installation',
+  // Photographs to come: the case will be photographed anew.
   photos: [],
-  placeholder: 'Display case — photographs to come',
   artifacts: [
-    'Original 1 Krone Theresienstadt ghetto scrip',
-    'Replica of a brass mezuzah recovered in Warsaw by a survivor',
-    'Traditional brass and pottery Shabbat candle holders',
-    'Educational panels on Holocaust history, resistance, and international memorialization',
+    {
+      id: 'ghetto-scrip',
+      name: '1 Krone Theresienstadt ghetto scrip',
+      record: 'Original 1 Krone Theresienstadt ghetto scrip',
+    },
+    {
+      id: 'mezuzah',
+      name: 'Brass mezuzah',
+      record: 'Replica of a brass mezuzah recovered in Warsaw by a survivor',
+    },
+    {
+      id: 'shabbat-candle-holders',
+      name: 'Shabbat candle holders',
+      record: 'Traditional brass and pottery Shabbat candle holders',
+    },
   ],
+  display: ['Educational panels on Holocaust history, resistance, and international memorialization'],
 };

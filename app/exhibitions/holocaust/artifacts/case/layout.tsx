@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = 'The Holocaust Memorial Day display case: the artifacts in it. Photographs to come.';
+const description = 'The Holocaust Memorial Day display case and the artifacts in it.';
 
 export const metadata: Metadata = {
   title: 'Display Case | Holocaust Memorial Day | The Mini Museum',

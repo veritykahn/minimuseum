@@ -78,6 +78,8 @@
 [data-exhibition='egypt'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; }
 [data-exhibition='egypt'] .pe-case-label { color: #b8b2a9; }
 [data-exhibition='egypt'] .pe-case-title { color: #fff; font-size: 26px; }
+/* The case awaiting its photographs: drawn in white line, lit in the posters' orange. */
+[data-exhibition='egypt'] { --pe-case-frame: #efebe5; --pe-case-glow: var(--eg-orange); --pe-case-placeholder-ink: #b8b2a9; }
 
 /* ───────── Titles ───────── */
 [data-exhibition='egypt'] .pe-title-text {
@@ -193,7 +195,7 @@
 [data-exhibition='egypt'] .pe-case-page-title { font-family: var(--eg-script); color: var(--eg-orange); font-size: clamp(3.8rem, 11vw, 6.5rem); rotate: -3deg; }
 [data-exhibition='egypt'] .pe-case-page-subtitle { font-family: var(--pe-display); color: #efebe5; }
 [data-exhibition='egypt'] .pe-case-page-lead img { border-radius: 4px; }
-[data-exhibition='egypt'] .pe-case-page-artifacts li { font-weight: 300; }
+[data-exhibition='egypt'] :is(.pe-case-page-display li, .pe-artifact-poster p) { font-weight: 300; }
 
 @media (max-width: 900px) {
   [data-exhibition='egypt'] { --pe-poster-h: 42vh; }

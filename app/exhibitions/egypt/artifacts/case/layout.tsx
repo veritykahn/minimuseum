@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = 'The Ancient Egypt display case: photographs of the installation and the artifacts in it.';
+const description = 'The Ancient Egypt display case and the artifacts in it.';
 
 export const metadata: Metadata = {
   title: 'Display Case | Ancient Egypt | The Mini Museum',
