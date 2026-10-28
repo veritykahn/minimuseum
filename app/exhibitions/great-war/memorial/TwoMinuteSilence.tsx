@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { MEMORIAL_TEXT } from './soldiers';
+import { MEMORIAL_TEXT } from './memorialText';
 
 /*
  * The silence at 11:00. A clock in the visitor's own time. From 11:00 to

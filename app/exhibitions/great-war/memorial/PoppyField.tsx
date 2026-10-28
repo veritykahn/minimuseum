@@ -16,7 +16,7 @@ import { usePoppies, type PlaceResult } from './usePoppies';
  */
 
 const SPRITE = { src: '/exhibitions/great-war/poppies.png', x: 332, y: 316, w: 196, h: 206 };
-/** If the count can't be reached, the field shows one poppy for each soldier above. */
+/** If the count can't be reached, the field shows eleven poppies, for the eleventh hour. */
 export const FALLBACK_POPPIES = 11;
 
 export type Placed = { i: number; x: number; y: number; size: number };
