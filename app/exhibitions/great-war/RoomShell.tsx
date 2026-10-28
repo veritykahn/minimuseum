@@ -20,12 +20,15 @@ export default function RoomShell({
   label,
   title,
   subtitle,
+  bare = false,
   children,
 }: {
   className: string;
   label: string;
   title: string;
   subtitle?: string;
+  /** A full-screen room that sets its own heading and has no return link at its foot. */
+  bare?: boolean;
   children: ReactNode;
 }) {
   const { fonts, palette, slug } = GREAT_WAR;
@@ -48,19 +51,23 @@ export default function RoomShell({
         <span className="pe-nav-label">Exhibition</span>
       </ExhibitionNav>
 
-      <main className="gw-room-main">
-        <header className="gw-case-header">
-          <p className="gw-case-label">{label}</p>
-          <h1 className="gw-case-title">{title}</h1>
-          {subtitle && <p className="gw-case-subtitle">{subtitle}</p>}
-        </header>
+      {bare ? (
+        <main className="gw-room-stage">{children}</main>
+      ) : (
+        <main className="gw-room-main">
+          <header className="gw-case-header">
+            <p className="gw-case-label">{label}</p>
+            <h1 className="gw-case-title">{title}</h1>
+            {subtitle && <p className="gw-case-subtitle">{subtitle}</p>}
+          </header>
 
-        {children}
+          {children}
 
-        <Link href={`/exhibitions/${slug}`} className="gw-case-return">
-          Return to Exhibition
-        </Link>
-      </main>
+          <Link href={`/exhibitions/${slug}`} className="gw-case-return">
+            Return to Exhibition
+          </Link>
+        </main>
+      )}
     </div>
   );
 }

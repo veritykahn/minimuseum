@@ -1,6 +1,5 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { FALLEN, type Fallen } from '@/app/exhibitions/great-war/memorial/fallen';
-import { SOLDIERS } from '@/app/exhibitions/great-war/memorial/soldiers';
 import {
   announcement,
   buildIndex,
@@ -73,10 +72,6 @@ describe('the pool of the fallen', () => {
     expect(byName('Matej Kocak').resting).toEqual({ kind: 'grave', cemetery: 'Meuse-Argonne American Cemetery', plot: 'D', row: '41', grave: '32' });
     expect(byName('Wayne Miner').resting).toEqual({ kind: 'grave', cemetery: 'St. Mihiel American Cemetery', plot: 'B', row: '14', grave: '17' });
     expect(byName('John B. Healey').resting).toEqual({ kind: 'missing', cemetery: 'Aisne-Marne American Cemetery' });
-    const story = Object.fromEntries(SOLDIERS.map((s) => [s.id, s]));
-    expect(story.stowers.burial?.plot).toBe('Plot F, Row 36, Grave 40');
-    expect(story.kocak.burial?.plot).toBe('Plot D, Row 41, Grave 32');
-    expect(story.miner.burial?.plot).toBe('Plot B, Row 14, Grave 17');
   });
 });
 

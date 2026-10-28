@@ -1,63 +1,120 @@
 'use client';
 
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import RoomShell from '../RoomShell';
-import SoldierCard from './SoldierCard';
-import PoppyField from './PoppyField';
+import PoppyField, { PoppyControls } from './PoppyField';
 import TwoMinuteSilence from './TwoMinuteSilence';
 import RememberSoldier from './RememberSoldier';
-import { MEMORIAL_TEXT, SOLDIERS } from './soldiers';
+import { usePoppies } from './usePoppies';
+import { MEMORIAL_TEXT } from './memorialText';
 import './memorial.css';
 import './remember.css';
 
 /*
- * The memorial: remember a soldier (a memorial card for one of the fallen,
- * to keep or print), the soldier cards, the field of poppies, and the silence
- * at 11:00, in that order on one page.
+ * The memorial, on one screen: the soldier on the rise, lit from behind, above
+ * the field of poppies visitors have placed, with three tabs over it: place
+ * a poppy, remember a soldier (a memorial card for one of the fallen, to keep
+ * or print), and the silence at 11:00. Each tab has its own address
+ * (#poppies, #remember, #silence).
  */
+
+const TABS = [
+  { id: 'poppies', label: MEMORIAL_TEXT.poppyHeading, short: 'Poppy' },
+  { id: 'remember', label: MEMORIAL_TEXT.rememberHeading, short: 'Remember' },
+  { id: 'silence', label: MEMORIAL_TEXT.silenceHeading, short: 'Silence' },
+] as const;
+type TabId = (typeof TABS)[number]['id'];
+
+function tabFromHash(hash: string): TabId | null {
+  const h = hash.replace(/^#(gwm-)?/, '');
+  return TABS.find((t) => t.id === h)?.id ?? null;
+}
 
 export default function GreatWarMemorial() {
   const t = MEMORIAL_TEXT;
+  const poppies = usePoppies();
+  const [growFrom, setGrowFrom] = useState<number | null>(null);
+  const [tab, setTab] = useState<TabId>('poppies');
+  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ poppies: null, remember: null, silence: null });
+
+  useEffect(() => {
+    const fromHash = () => {
+      const h = tabFromHash(window.location.hash);
+      if (h) setTab(h);
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, []);
+
+  const choose = useCallback((id: TabId, focus = false) => {
+    setTab(id);
+    window.history.replaceState(null, '', `#${id}`);
+    if (focus) tabRefs.current[id]?.focus();
+  }, []);
+
+  // Arrow keys, Home and End move between the tabs.
+  const onTabKey = (e: KeyboardEvent<HTMLButtonElement>) => {
+    const i = TABS.findIndex((x) => x.id === tab);
+    const to =
+      e.key === 'ArrowRight' ? (i + 1) % TABS.length
+      : e.key === 'ArrowLeft' ? (i - 1 + TABS.length) % TABS.length
+      : e.key === 'Home' ? 0
+      : e.key === 'End' ? TABS.length - 1
+      : -1;
+    if (to < 0) return;
+    e.preventDefault();
+    choose(TABS[to].id, true);
+  };
+
   return (
-    <RoomShell className="gw-memorial" label="Interactive" title={t.title} subtitle="11.11.1918 · 11:00">
-      <nav className="gwm-contents" aria-label="On this page">
-        <a href="#gwm-remember">{t.rememberHeading}</a>
-        <a href="#gwm-cards">{t.cardsHeading}</a>
-        <a href="#gwm-poppies">{t.poppyHeading}</a>
-        <a href="#gwm-silence">{t.silenceHeading}</a>
-      </nav>
+    <RoomShell className="gw-memorial" label="Interactive" title={t.title} bare>
+      <div className="gwm-stage" data-tab={tab}>
+        <PoppyField count={poppies.count} growFrom={growFrom} />
 
-      <section className="gwm-section" id="gwm-remember" aria-labelledby="gwm-remember-h">
-        <h2 id="gwm-remember-h" className="gwm-h2">{t.rememberHeading}</h2>
-        <p className="gwm-intro">{t.rememberIntro}</p>
-        <RememberSoldier />
-      </section>
-
-      <section className="gwm-section" id="gwm-cards" aria-labelledby="gwm-cards-h">
-        <div className="gwm-backlit" aria-hidden="true">
-          <div className="gwm-backlit-frame">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/exhibitions/great-war/silhouette.jpg" alt="" />
+        <header className="gwm-bar">
+          <h1 className="gwm-title">
+            {t.title}
+            <span className="gwm-title-date">11.11.1918 · 11:00</span>
+          </h1>
+          <div className="gwm-tabs" role="tablist" aria-label="The memorial">
+            {TABS.map((x) => (
+              <button
+                key={x.id}
+                ref={(el) => {
+                  tabRefs.current[x.id] = el;
+                }}
+                type="button"
+                role="tab"
+                id={`gwm-tab-${x.id}`}
+                aria-controls={`gwm-panel-${x.id}`}
+                aria-selected={tab === x.id}
+                tabIndex={tab === x.id ? 0 : -1}
+                className="gwm-tab"
+                onClick={() => choose(x.id)}
+                onKeyDown={onTabKey}
+              >
+                <span className="gwm-tab-long">{x.label}</span>
+                <span className="gwm-tab-short" aria-hidden="true">{x.short}</span>
+              </button>
+            ))}
           </div>
-        </div>
-        <h2 id="gwm-cards-h" className="gwm-h2">{t.cardsHeading}</h2>
-        <p className="gwm-intro">{t.intro}</p>
-        <div className="gwm-cards">
-          {SOLDIERS.map((s) => (
-            <SoldierCard key={s.id} soldier={s} />
-          ))}
-        </div>
-      </section>
+        </header>
 
-      <section className="gwm-section" id="gwm-poppies" aria-labelledby="gwm-poppies-h">
-        <h2 id="gwm-poppies-h" className="gwm-h2">{t.poppyHeading}</h2>
-        <p className="gwm-intro">{t.poppyIntro}</p>
-        <PoppyField />
-      </section>
+        <section className="gwm-panel gwm-panel-poppies" id="gwm-panel-poppies" role="tabpanel" aria-labelledby="gwm-tab-poppies" hidden={tab !== 'poppies'}>
+          <PoppyControls {...poppies} intro={t.poppyIntro} onPlaced={() => setGrowFrom(performance.now())} />
+        </section>
 
-      <section className="gwm-section" id="gwm-silence" aria-labelledby="gwm-silence-h">
-        <h2 id="gwm-silence-h" className="gwm-h2">{t.silenceHeading}</h2>
-        <TwoMinuteSilence />
-      </section>
+        <section className="gwm-panel gwm-panel-remember" id="gwm-panel-remember" role="tabpanel" aria-labelledby="gwm-tab-remember" hidden={tab !== 'remember'}>
+          <p className="gwm-intro">{t.rememberIntro}</p>
+          <RememberSoldier />
+        </section>
+
+        {/* Always mounted: at 11:00 on November 11 the silence begins by itself, whichever tab is open. */}
+        <section className="gwm-panel gwm-panel-silence" id="gwm-panel-silence" role="tabpanel" aria-labelledby="gwm-tab-silence" hidden={tab !== 'silence'}>
+          <TwoMinuteSilence />
+        </section>
+      </div>
     </RoomShell>
   );
 }
