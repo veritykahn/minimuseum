@@ -61,7 +61,7 @@ describe('Our Incredible Moon', () => {
     expect(MOON.posters.map((p) => p.id)).toEqual(['poster1', 'poster2']);
     expect(MOON.posters.map((p) => p.title)).toEqual(['Our Incredible Moon', 'Another Earth']);
     for (const p of MOON.posters) {
-      expect(p.items[0].type).toBe('title-text');
+      expect(p.items[0].type).toBe('title-image');
       expect(p.items[p.items.length - 1].type).toBe('end');
     }
     expect(MOON.cases).toHaveLength(1);
@@ -132,7 +132,10 @@ describe('Our Incredible Moon', () => {
   it('uses only pictures cut from the posters, and every picture has alt text', () => {
     for (const p of MOON.posters) expect(p.hero.alt).toBeTruthy();
     const decor = allItems.flatMap((it) => (it.decor ? [it.decor.src] : []));
-    expect(decor.sort()).toEqual(['/exhibitions/moon/moonrise.jpg', '/exhibitions/moon/ringed-planet.jpg', '/exhibitions/moon/three-moons.jpg']);
+    expect(decor.sort()).toEqual(['/exhibitions/moon/ringed-planet.jpg', '/exhibitions/moon/three-moons.jpg']);
+    // The titles are the posters' own lettering (poster 1's with its rising moon).
+    const titles = allItems.flatMap((it) => (it.type === 'title-image' ? [it.src] : []));
+    expect(titles).toEqual(['/exhibitions/moon/titles/our-incredible-moon.png', '/exhibitions/moon/titles/another-earth.png']);
     for (const c of MOON.cases ?? []) expect(c.image).toBeUndefined();
   });
 
@@ -161,8 +164,10 @@ describe('Our Incredible Moon', () => {
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
       expect(content().textContent?.replace(/\s+/g, ' ')).toContain('For centuries, humans have wondered');
-      // and a phase crosses each panel of copy
-      expect(content().querySelector('.pfx-mo-phase')).toBeInTheDocument();
+      // and after the moonrise each panel arrives its own way, in the poster's own atmosphere
+      const stage = document.querySelector('.pe-poster-walkthrough') as HTMLElement;
+      expect(stage.dataset.entrance).toBe('fade-in');
+      expect(stage.dataset.atmosphere).toBe('exoplanet-transit');
 
       const callout = MOON.posters[1].items.findIndex((it) => it.type === 'callout');
       for (let i = 1; i < callout; i++) {
