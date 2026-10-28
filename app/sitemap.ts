@@ -1,6 +1,8 @@
 import { SITE_URL } from '@/lib/site';
 import { MetadataRoute } from 'next';
 import { lessonsFor } from '@/lib/lessons';
+import { EXHIBITION_CASES } from '@/lib/exhibitionCases';
+import { artifactPath } from '@/components/exhibition/artifacts';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_URL;
@@ -367,5 +369,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    // Every artifact in the engine-built display cases, each on its own page.
+    ...EXHIBITION_CASES.flatMap(({ config, data }) =>
+      data.artifacts.map((a) => ({
+        url: `${baseUrl}${artifactPath(config, a)}`,
+        lastModified,
+        changeFrequency: 'monthly' as const,
+        priority: 0.5,
+      })),
+    ),
   ];
 }

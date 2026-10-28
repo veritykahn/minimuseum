@@ -241,8 +241,9 @@ export type PosterConfig<K extends string = string> = {
 
 /**
  * A display case on the landing page: a link to its own page. It shows a
- * photograph, or, for a room with no photograph (an interactive), a short
- * typographic emblem in its place ("11:00").
+ * photograph; or, for an interactive, a short typographic emblem in its place
+ * ("11:00"); or, with neither, an empty case drawn in outline, labelled
+ * "Display case — photographs to come" (CasePlaceholder).
  */
 export type DisplayCase = {
   href: string;
@@ -336,9 +337,36 @@ export type CasePageData = {
   label: string;
   /** The artifacts' heading: "Artifacts". */
   title: string;
-  /** The photographs' heading: "Photographs of the installation". */
-  subtitle: string;
-  /** The first is set large above the artifacts; the rest in a row below them. */
+  /** The photographs' heading, when there are photographs below the artifacts. */
+  subtitle?: string;
+  /**
+   * The first is set large above the artifacts; the rest in a row below them.
+   * Empty until the case is photographed: an empty case drawn in outline,
+   * "Display case — photographs to come", stands in its place.
+   */
   photos: CasePhoto[];
-  artifacts: string[];
+  /** Each object in the case, with its own page at <case path>/<id>. */
+  artifacts: CaseArtifact[];
+  /**
+   * The record's lines about the display itself rather than an object in it
+   * (panels, posters, the case, a digital extension), exactly as the record
+   * has them. Listed on the case page; they have no page of their own.
+   */
+  display?: string[];
+};
+
+/**
+ * One object in a display case. Every word is the owner's own: the name and
+ * the record line come from the Mini Museum record; the writing is sentences
+ * from the exhibition's own posters about this object. Nothing is added.
+ */
+export type CaseArtifact = {
+  /** The route segment: /exhibitions/<slug>/artifacts/case/<id>. */
+  id: string;
+  /** Its name, cut from the record line (*words* set in italics). */
+  name: string;
+  /** The record's line for it, exactly as written (*words* set in italics). */
+  record: string;
+  /** Sentences from the exhibition's posters about it, each with its poster's id. */
+  writing?: { poster: string; text: string }[];
 };

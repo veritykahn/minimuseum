@@ -117,13 +117,8 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
   cases: [
     {
       href: '/exhibitions/womens-history/artifacts/case',
-      image: {
-        src: '/exhibitions/womens-history/case-thumb.jpg',
-        alt: 'The display case: two pages of a handwritten, bomb-damaged letter, stained and torn at the edges, open on a clear stand',
-      },
       label: 'Display Case',
       title: 'Artifacts',
-      subtitle: 'Photographs of the installation',
     },
   ],
   credits: [{ text: AF_KLINT_CREDIT, href: AF_KLINT_SOURCE }],
@@ -292,36 +287,28 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
 };
 
 /*
- * The display case page (artifacts/case). The artifacts are listed exactly as
- * the Mini Museum record lists them. The photographs are cropped to the
- * installation.
+ * The display case (artifacts/case) and a page for each object in it
+ * (artifacts/case/<id>). Every word is the owner's: each name and record line
+ * from the Mini Museum record (*words* set in italics), the writing from this
+ * exhibition's posters. The record's lines about the display itself are listed
+ * on the case page. Photographs and 3D models are to come.
  */
 export const WOMENS_HISTORY_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  subtitle: 'Photographs of the installation',
-  photos: [
+  // Photographs to come: the case will be photographed anew.
+  photos: [],
+  artifacts: [
     {
-      src: '/exhibitions/womens-history/installation.jpg',
-      alt: "The installation: the two Women's History Month posters on the wall between green curtains, and below them a clear display case on a glass table, the letters open on a stand inside it with printed cards beside it, between green velvet seats",
-      width: 812,
-      height: 828,
-    },
-    {
-      src: '/exhibitions/womens-history/case.jpg',
-      alt: 'Inside the display case: two pages of a handwritten letter, stained and torn at the edges, open on a clear stand, with a printed card beside the case describing the letters',
-      width: 1200,
-      height: 801,
-    },
-    {
-      src: '/exhibitions/womens-history/case-table.jpg',
-      alt: 'The display case head on: the letters open on their clear stand inside the case, on a glass table between two printed cards',
-      width: 1200,
-      height: 900,
+      id: 'blitz-letters',
+      name: 'Blitz bomb-damaged family letters',
+      record: "Original Blitz bomb-damaged family letters from Violet Dina Want's estate",
+      writing: [
+        { poster: 'poster2', text: "Before World War II, Violet's extended family lived in close-knit neighboring streets, but the heavy bombing during the Blitz destroyed their homes, scattering them across the South of England." },
+      ],
     },
   ],
-  artifacts: [
-    "Original Blitz bomb-damaged family letters from Violet Dina Want's estate",
+  display: [
     'Archival glass display case presentation with clear document mounts',
     "Digital extension: an 11-slide interactive biographical presentation on Violet's life",
   ],

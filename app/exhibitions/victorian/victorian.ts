@@ -103,13 +103,8 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
   cases: [
     {
       href: '/exhibitions/victorian/artifacts/case',
-      image: {
-        src: '/exhibitions/victorian/case-thumb.jpg',
-        alt: 'The display case: a small leather-bound book open on its stand behind a needle case printed with a portrait of Queen Victoria, in a clear case, with a printed card beside it',
-      },
       label: 'Display Case',
       title: 'Artifacts',
-      subtitle: 'Photographs of the installation',
     },
   ],
   // The V&A's photograph of its Centre Refreshment Room is washed in behind the posters.
@@ -205,37 +200,31 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
 };
 
 /*
- * The display case page (artifacts/case). The artifacts are listed exactly as
- * the Mini Museum record lists them; *The Scott Birthday Book* is a title, in
- * italics. The photographs are cropped to the installation.
+ * The display case (artifacts/case) and a page for each object in it
+ * (artifacts/case/<id>). Every word is the owner's: each name and record line
+ * from the Mini Museum record (*words* set in italics), the writing from this
+ * exhibition's posters. The record's lines about the display itself are listed
+ * on the case page. Photographs and 3D models are to come.
  */
 export const VICTORIAN_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  subtitle: 'Photographs of the installation',
-  photos: [
-    {
-      src: '/exhibitions/victorian/installation.jpg',
-      alt: 'The installation: the posters Revolutionary Victorian Britain and the Dickens Christmas poster on the wall either side of a green curtain beneath The Mini Museum sign, a small clear display case on a glass table below, green velvet armchairs, and a lit Christmas tree in the corner',
-      width: 1032,
-      height: 900,
-    },
-    {
-      src: '/exhibitions/victorian/case.jpg',
-      alt: 'Inside the display case: the Scott Birthday Book open on its stand, a needle case printed with a portrait of Queen Victoria in front of it, and beside the case a printed card describing both',
-      width: 1200,
-      height: 900,
-    },
-    {
-      src: '/exhibitions/victorian/installation-christmas.jpg',
-      alt: 'The installation at Christmas: the Dickens poster beside a green curtain under The Mini Museum sign, the display case on its glass table between green velvet seats, and a Christmas tree hung with white lights',
-      width: 960,
-      height: 900,
-    },
-  ],
+  // Photographs to come: the case will be photographed anew.
+  photos: [],
   artifacts: [
-    'Victorian needle case featuring a Queen Victoria lithograph',
-    'Antique copy of *The Scott Birthday Book*',
-    'Graphic panels exploring Victorian innovation, the V&A Museum, and Dickensian traditions',
+    {
+      id: 'needle-case',
+      name: 'Victorian needle case',
+      record: 'Victorian needle case featuring a Queen Victoria lithograph',
+      writing: [
+        { poster: 'poster1', text: 'The Victorian era in Britain lasted from 1837 to 1901, during the reign of Queen Victoria.' },
+      ],
+    },
+    {
+      id: 'scott-birthday-book',
+      name: '*The Scott Birthday Book*',
+      record: 'Antique copy of *The Scott Birthday Book*',
+    },
   ],
+  display: ['Graphic panels exploring Victorian innovation, the V&A Museum, and Dickensian traditions'],
 };

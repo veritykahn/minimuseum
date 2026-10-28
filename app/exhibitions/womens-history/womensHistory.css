@@ -114,6 +114,9 @@
 [data-exhibition='womens-history'] .pe-case-label { color: var(--wh-ink); font-family: var(--wh-mono); letter-spacing: 0.3em; font-size: 11px; }
 [data-exhibition='womens-history'] .pe-case-title { color: var(--wh-navy); font-weight: 900; font-size: 30px; text-transform: uppercase; }
 [data-exhibition='womens-history'] .pe-case-subtitle { color: var(--wh-ink); font-family: var(--wh-mono); }
+/* The case awaiting its photographs: navy line, lit in the posters' orange, its label typewritten. */
+[data-exhibition='womens-history'] { --pe-case-frame: var(--wh-navy); --pe-case-glow: var(--wh-orange); --pe-case-placeholder-ink: var(--wh-ink); }
+[data-exhibition='womens-history'] .pe-case-placeholder-label { font-family: var(--wh-mono); font-style: normal; }
 [data-exhibition='womens-history'] .pe-credits { max-width: 600px; }
 
 /* The walkthrough's arrows and rail. */
@@ -470,7 +473,7 @@
 }
 [data-exhibition='womens-history'] .pe-case-page-artifacts h2 { color: var(--wh-navy); font-weight: 900; text-transform: uppercase; }
 [data-exhibition='womens-history'] .pe-case-page-artifacts h2::after { background: var(--wh-orange); }
-[data-exhibition='womens-history'] .pe-case-page-artifacts li { font-family: var(--wh-mono); }
+[data-exhibition='womens-history'] :is(.pe-case-page-display li, .pe-artifact-card-record, .pe-artifact-record, .pe-artifact-poster p) { font-family: var(--wh-mono); }
 [data-exhibition='womens-history'] .pe-case-page-photos h2 { font-weight: 900; text-transform: uppercase; }
 [data-exhibition='womens-history'] a.pe-case-page-return:hover,
 [data-exhibition='womens-history'] a.pe-case-page-return:focus-visible { color: #fff; background: var(--wh-navy); border-color: var(--wh-navy); }

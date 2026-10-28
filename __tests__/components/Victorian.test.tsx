@@ -1,3 +1,4 @@
+import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import VictorianCase from '@/app/exhibitions/victorian/artifacts/case/page';
@@ -70,7 +71,7 @@ describe('Victorian Britain', () => {
     }
     expect(VICTORIAN.cases).toHaveLength(1);
     expect(VICTORIAN.cases?.[0].href).toBe('/exhibitions/victorian/artifacts/case');
-    expect(VICTORIAN.cases?.[0].image?.alt).toBeTruthy();
+    expect(VICTORIAN.cases?.[0].image).toBeUndefined(); // photographs to come
     expect(VICTORIAN.fx.theme).toBe('vb');
   });
 
@@ -228,19 +229,22 @@ describe('Victorian Britain', () => {
 });
 
 describe('The Victorian Britain display case page', () => {
-  it('lists the artifacts exactly as the record does, with the photographs', () => {
+  it('keeps the record, with a card for each artifact, beside an empty case awaiting its photographs', () => {
     render(<VictorianCase />);
     expect(screen.getByRole('heading', { level: 1, name: 'Victorian Britain' })).toBeInTheDocument();
-    const list = screen.getByRole('list');
-    const items = within(list).getAllByRole('listitem').map((li) => li.textContent);
-    expect(items).toEqual([
+    // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    expect(recordLines(VICTORIAN_CASE).map(plainText)).toEqual([
       'Victorian needle case featuring a Queen Victoria lithograph',
       'Antique copy of The Scott Birthday Book',
       'Graphic panels exploring Victorian innovation, the V&A Museum, and Dickensian traditions',
     ]);
-    expect(within(list).getAllByRole('listitem')[1].querySelector('em')).toHaveTextContent('The Scott Birthday Book');
-    expect(screen.getAllByRole('img')).toHaveLength(VICTORIAN_CASE.photos.length);
-    for (const p of VICTORIAN_CASE.photos) expect(p.alt).toBeTruthy();
+    const cards = screen.getAllByRole('link', { name: /View artifact/ });
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual(VICTORIAN_CASE.artifacts.map((a) => artifactPath({ slug: VICTORIAN.slug }, a)));
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(VICTORIAN_CASE.photos).toHaveLength(0);
+    expect(screen.queryAllByRole('img')).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify([VICTORIAN, VICTORIAN_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/victorian');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/victorian');
   });
