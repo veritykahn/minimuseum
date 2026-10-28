@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { CasePageData, ExhibitionConfig, PanelDecor, PanelFigure } from '@/components/exhibition/types';
+import type { Atmosphere, CasePageData, ExhibitionConfig, PanelDecor, PanelFigure } from '@/components/exhibition/types';
 import { floorReturnFor } from '@/lib/floors';
 
 /*
@@ -27,12 +27,16 @@ import { floorReturnFor } from '@/lib/floors';
  * (childhood, work, marriage, family, music, the war, after the war, later
  * life, legacy); nothing is reworded.
  *
+ * Each poster opens on its own title lettering, cut from the poster; its
+ * subtitle follows on a card of its own, set in type, in the poster's lines.
+ *
  * Pictures:
  *   - Hilma af Klint's The Ten Largest, No. 1, Childhood (1907) is the public
  *     domain scan on Wikimedia Commons, at the full resolution Commons serves,
  *     its white scan margin trimmed.
- *   - The four family photographs, the paint splashes and the "Violet Dina
- *     Want" lettering are cropped from the posters themselves.
+ *   - The four family photographs, the paint splashes, the title lettering
+ *     and the "Violet Dina Want" lettering are cropped from the posters
+ *     themselves.
  *
  * The "Talk about it" questions are for the projector's teacher strip: open
  * discussion questions, one per chapter, keyed by the section title exactly
@@ -85,6 +89,47 @@ const PHOTO_FAMILY: PanelFigure = {
   side: 'right',
 };
 
+/*
+ * The posters' titles as pictures: their own navy lettering, the stacked and
+ * underlined WO / MEN / 'S and WO / MAN / 'S, cut from the posters at the
+ * posters' resolution with the ground keyed out
+ * (public/exhibitions/womens-history/titles/). A sharper export of the same
+ * lettering can replace a file at the same path; update its size here.
+ */
+const TITLE_SIZES = {
+  womensHistory: { width: 657, height: 282 },
+  workingWomans: { width: 572, height: 282 },
+};
+
+/*
+ * The walkthrough's atmospheres (womensHistory.css draws them), each the
+ * setting of a part of the story:
+ *   paint-splash    poster 1's own paint: its splashes thrown into the lower corners, drops flicked in from the edges
+ *   blitz-letters   the family letters in the case: a ruled page, written on, its edges scorched
+ *   running-stitch  the machinist and the seamstress: a tape measure, and a seam sewn across
+ *   rose-garden     the gardens, her father's and her own: rose petals falling
+ *   parlour-piano   music at home: lamplight, the piano's keys, notes in the air
+ *   blackout        the Blitz: a taped window in the blackout, a far glow, dust settling
+ */
+const ATMOSPHERES: Record<string, Atmosphere> = {
+  'paint-splash': {
+    bg: BLUSH,
+    text: NAVY,
+    title: NAVY,
+    parts: 1,
+    particles: 26,
+    images: [
+      { src: SPLASH_TR, className: 'wh-splash wh-splash-bl' },
+      { src: SPLASH_TL, className: 'wh-splash wh-splash-br' },
+    ],
+  },
+  'blitz-letters': { bg: '#efe5d3', text: INK, title: NAVY, parts: 3 },
+  'running-stitch': { bg: '#e4c2ba', text: INK, title: NAVY, parts: 4, particles: 9 },
+  'rose-garden': { bg: '#e9ddd0', text: INK, title: NAVY, parts: 2, particles: 18 },
+  'parlour-piano': { bg: '#2a1e22', text: '#f2e6da', title: '#f2c7b8', parts: 4, particles: 10 },
+  blackout: { bg: '#15171e', text: '#ebe3da', title: '#f0d2b4', parts: 4, particles: 30 },
+};
+
 export const WOMENS_HISTORY_PROJECTOR_THEME = {
   '--pj-bg': BLUSH,
   '--pj-ink': NAVY,
@@ -112,6 +157,8 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
     teach: { color: NAVY, border: 'rgba(34,51,94,0.55)' },
   },
   back: floorReturnFor('womens-history'),
+  atmospheres: ATMOSPHERES,
+  // The paint (poster 1) or the typewriter's sheet (poster 2) crosses as a poster opens; every panel then arrives its own way.
   fx: { theme: 'wh', veil: 'chapters', text: 'all' },
   projector: { theme: WOMENS_HISTORY_PROJECTOR_THEME, links: [] },
   cases: [
@@ -136,6 +183,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
       colors: { bg: BLUSH, text: NAVY, title: NAVY },
       sections: {
         title: { className: 'wh-p1 wh-title' },
+        motto: { className: 'wh-p1 wh-motto' },
         painting: { className: 'wh-p1 wh-painting' },
         lede: { className: 'wh-p1 wh-lede' },
         body: { className: 'wh-p1 wh-body' },
@@ -144,17 +192,30 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
       items: [
         {
-          type: 'title-text',
+          type: 'title-image',
           section: 'title',
-          text: "Women's History",
-          lines: ['WO', 'MEN', '’S', 'HISTORY'],
-          subtitle: 'MOVING FORWARD TOGETHER! WOMEN EDUCATING & INSPIRING GENERATIONS',
+          atmosphere: 'paint-splash',
+          effect: 'split-reveal',
+          src: '/exhibitions/womens-history/titles/womens-history.png',
+          ...TITLE_SIZES.womensHistory,
+          framing: 'centered',
+          alt: "Women's History",
           marks: { left: "Women's History Month | March 1st to 31st", right: "International Women's Day | March 8th" },
           decor: splash(SPLASH_TL, 'top-left'),
         },
         {
+          type: 'title-text',
+          section: 'motto',
+          atmosphere: 'paint-splash',
+          effect: 'blur-to-sharp',
+          text: 'MOVING FORWARD TOGETHER! WOMEN EDUCATING & INSPIRING GENERATIONS',
+          lines: ['MOVING FORWARD TOGETHER!', 'WOMEN EDUCATING &', 'INSPIRING GENERATIONS'],
+        },
+        {
           type: 'full-image',
           section: 'painting',
+          atmosphere: 'paint-splash',
+          effect: 'kenburns-in',
           src: '/exhibitions/womens-history/af-klint-childhood.jpg',
           alt: 'A painting by Hilma af Klint: on a deep blue ground, a ring of pale, petal-like flowers with orange and yellow centers and white ovals holding pink rose discs, above looping orange lines like handwriting around a pale violet circle ringed with yellow, and a row of yellow, blue and white circles along the foot',
           text: AF_KLINT_CREDIT,
@@ -163,21 +224,23 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         {
           type: 'paragraph',
           section: 'lede',
+          atmosphere: 'paint-splash',
+          effect: 'rise-expand',
           lead: "Women's History Month, celebrated every March,",
           text: 'honors the achievements and contributions of women throughout history.',
           decor: splash(SPLASH_TR, 'top-right'),
         },
-        { type: 'paragraph', section: 'body', text: "It began in 1978 as a local week-long celebration in Santa Rosa, California, inspiring similar observances across the U.S. In 1980, President Jimmy Carter declared the first official National Women's History Week, and by 1987, Congress expanded it to the entire month of March." },
+        { type: 'paragraph', section: 'body', atmosphere: 'paint-splash', effect: 'line-by-line', text: "It began in 1978 as a local week-long celebration in Santa Rosa, California, inspiring similar observances across the U.S. In 1980, President Jimmy Carter declared the first official National Women's History Week, and by 1987, Congress expanded it to the entire month of March." },
         {
           type: 'paragraph',
           section: 'body',
-          className: 'wh-splash-low',
+          atmosphere: 'blitz-letters',
+          effect: 'ink-spread',
           text: 'Historically, women\'s roles have often been overshadowed by those of men, who were traditionally credited with "shaping history." However, women\'s lived experiences provide a deeper, more nuanced understanding of the past—not just through the contributions of overlooked inventors, activists, artists, and writers, but also through the everyday lives of ordinary women.',
-          decor: splash(SPLASH_TR, 'bottom-right', 'min(28vw, 360px)'),
         },
-        { type: 'paragraph', section: 'body', text: 'Their roles in households and communities offer invaluable insight into the way societies function, making it essential to recognize and celebrate their impact in shaping human history.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'running-stitch', effect: 'pan-lr', text: 'Their roles in households and communities offer invaluable insight into the way societies function, making it essential to recognize and celebrate their impact in shaping human history.' },
 
-        { type: 'callout', section: 'link', text: "Explore the Women's Work Collection at the Imperial War Museum", url: IWM_WOMENS_WORK_URL },
+        { type: 'callout', section: 'link', atmosphere: 'paint-splash', effect: 'film-credits', text: "Explore the Women's Work Collection at the Imperial War Museum", url: IWM_WOMENS_WORK_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
@@ -198,6 +261,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
       colors: { bg: ROSE, text: INK, title: NAVY },
       sections: {
         title: { className: 'wh-p2 wh-title wh-title-work' },
+        motto: { className: 'wh-p2 wh-motto' },
         name: { className: 'wh-p2 wh-name' },
         bio: { className: 'wh-p2 wh-bio' },
         contact: { className: 'wh-p2 wh-contact' },
@@ -206,15 +270,28 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
       items: [
         {
-          type: 'title-text',
+          type: 'title-image',
           section: 'title',
-          text: "Working Woman's",
-          lines: ['WORK', 'WO', 'MAN', '’S'],
-          subtitle: 'BIOGRAPHY OF A WORKING CLASS WOMAN',
+          atmosphere: 'running-stitch',
+          effect: 'blur-to-sharp',
+          src: '/exhibitions/womens-history/titles/working-womans.png',
+          ...TITLE_SIZES.workingWomans,
+          framing: 'centered',
+          alt: "Working Woman's",
         },
         {
           type: 'title-text',
+          section: 'motto',
+          atmosphere: 'blitz-letters',
+          effect: 'fade-in',
+          text: 'BIOGRAPHY OF A WORKING CLASS WOMAN',
+          lines: ['BIOGRAPHY OF A', 'WORKING CLASS', 'WOMAN'],
+        },
+        // Her name is inked in with the pen, as the reveal does it (the theme's own entrance).
+        {
+          type: 'title-text',
           section: 'name',
+          atmosphere: 'blitz-letters',
           text: 'Violet Dina Want',
           lettering: { src: '/exhibitions/womens-history/violet-dina-want.png', width: 1530, height: 225 },
           subtitle: 'née Knight',
@@ -225,58 +302,66 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         {
           type: 'paragraph',
           section: 'bio',
+          atmosphere: 'blitz-letters',
+          effect: 'kenburns-in',
           figure: PHOTO_VIOLET,
           lead: 'VIOLET DINA WANT NÉE KNIGHT',
           text: 'was born at the turn of the 20th century in Fulham, Hammersmith, London, into a large working-class family with three sisters and two brothers. As the second eldest daughter, she was expected to help both at home and financially from a young age. She took on a great deal of responsibility, caring for her younger sisters after school and as she aged, after work.',
         },
-        { type: 'paragraph', section: 'bio', text: 'Her father worked as a commissionaire (now known as a doorman) at a hotel, occasionally bringing home leftover food from the restaurant to help feed the family. Despite their modest circumstances, Violet excelled in school, earning certificates for attendance and religious studies every year. Her teachers saw great potential in her and encouraged her to pursue a teaching career—a well-respected and middle-class profession at the time.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'typewriter', text: 'Her father worked as a commissionaire (now known as a doorman) at a hotel, occasionally bringing home leftover food from the restaurant to help feed the family. Despite their modest circumstances, Violet excelled in school, earning certificates for attendance and religious studies every year. Her teachers saw great potential in her and encouraged her to pursue a teaching career—a well-respected and middle-class profession at the time.' },
 
         // Work
-        { type: 'paragraph', section: 'bio', text: "However, when one of her sisters was believed to be going blind and needed to attend a specialized school, Violet had to leave school at 14 to work and help support the family. She became a piecework machinist in a factory, where machinists get paid for each 'piece of work' they complete." },
-        { type: 'paragraph', section: 'bio', text: 'During this time, she also learned gardening from her father, an essential source of food for many families. It was common if you had a garden, even in large cities like London, to grow vegetables and keep rabbits for "the pot". One of these rabbits became Violet\'s pet, often perching on her shoulder as she worked in the garden—until the day she came home to find it had been cooked for dinner.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'line-by-line', text: "However, when one of her sisters was believed to be going blind and needed to attend a specialized school, Violet had to leave school at 14 to work and help support the family. She became a piecework machinist in a factory, where machinists get paid for each 'piece of work' they complete." },
+        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'rise-expand', text: 'During this time, she also learned gardening from her father, an essential source of food for many families. It was common if you had a garden, even in large cities like London, to grow vegetables and keep rabbits for "the pot". One of these rabbits became Violet\'s pet, often perching on her shoulder as she worked in the garden—until the day she came home to find it had been cooked for dinner.' },
 
         // Marriage
         {
           type: 'paragraph',
           section: 'bio',
+          atmosphere: 'blitz-letters',
+          effect: 'pan-lr',
           figure: PHOTO_PROMENADE,
           text: 'Violet was religious throughout her life and joined the Salvation Army, or "Sally Army," as an adult. In 1928, at the age of 21, she married Harold Henry Robert Want, saying she had chosen him because he made her laugh.',
         },
-        { type: 'paragraph', section: 'bio', text: 'Harold Want had previously been married but his wife died young and left him with an infant son. While Violet would have been happy to care for and raise this son, he was instead sent to live with an older, childless aunt—a common practice at the time.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'fade-in', text: 'Harold Want had previously been married but his wife died young and left him with an infant son. While Violet would have been happy to care for and raise this son, he was instead sent to live with an older, childless aunt—a common practice at the time.' },
 
         // Family
         {
           type: 'paragraph',
           section: 'bio',
+          atmosphere: 'running-stitch',
+          effect: 'shrink-back',
           figure: PHOTO_FAMILY,
           text: 'Violet and Harold began their own family in 1929 with the birth of their eldest daughter, Edna, followed by Doris, in 1930. After a long gap, they had two sons in 1938 and 1942. Money was often tight—Harold worked as a barman and struggled with alcoholism—but Violet ensured her children were always warm and well-dressed.',
         },
-        { type: 'paragraph', section: 'bio', text: 'A skilled seamstress from her years as a machinist, she could take apart adult coats, resize them, and reassemble them perfectly for her children. Her resourcefulness meant they were often better off than others in their community. For example, it was common for poor families to place their youngest child in a makeshift cot by pushing two wooden armchairs together and rolling the baby in a blanket fastened with safety pins.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'typewriter', text: 'A skilled seamstress from her years as a machinist, she could take apart adult coats, resize them, and reassemble them perfectly for her children. Her resourcefulness meant they were often better off than others in their community. For example, it was common for poor families to place their youngest child in a makeshift cot by pushing two wooden armchairs together and rolling the baby in a blanket fastened with safety pins.' },
 
         // Music
-        { type: 'paragraph', section: 'bio', text: 'Music played a significant role in their home. Violet always owned a piano, which she could play by ear, and it became the centerpiece of lively "knees-up" parties with family and friends.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'waves-drift', text: 'Music played a significant role in their home. Violet always owned a piano, which she could play by ear, and it became the centerpiece of lively "knees-up" parties with family and friends.' },
 
         // The war
-        { type: 'paragraph', section: 'bio', text: "Before World War II, Violet's extended family lived in close-knit neighboring streets, but the heavy bombing during the Blitz destroyed their homes, scattering them across the South of England. When a V-1 'doodlebug' bomb, a bomb designed by the Nazis to terrorize the British civilian population and lower morale, exploded nearby, it shattered all the windows in Violet's home and collapsed her mother's house, killing her instantly along with a family dog." },
-        { type: 'paragraph', section: 'bio', text: 'Her mother was identified only by the rings on her finger. The blast also maimed a family puppy, which had to be put down, and left Violet with spinal rheumatism, making breathing painful—though she eventually recovered.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'line-by-line', text: "Before World War II, Violet's extended family lived in close-knit neighboring streets, but the heavy bombing during the Blitz destroyed their homes, scattering them across the South of England. When a V-1 'doodlebug' bomb, a bomb designed by the Nazis to terrorize the British civilian population and lower morale, exploded nearby, it shattered all the windows in Violet's home and collapsed her mother's house, killing her instantly along with a family dog." },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'fade-in', text: 'Her mother was identified only by the rings on her finger. The blast also maimed a family puppy, which had to be put down, and left Violet with spinal rheumatism, making breathing painful—though she eventually recovered.' },
 
         // After the war
-        { type: 'paragraph', section: 'bio', text: 'After the war, she was offered a home on a new council estate in Essex. It was a corner house with a large garden, where she cultivated beautiful flowers like begonias, chrysanthemums, and ice plants, along with vegetables such as string beans and peas. However, her favorite flowers were roses, which she planted at the bottom of the garden.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'blur-to-sharp', text: 'After the war, she was offered a home on a new council estate in Essex. It was a corner house with a large garden, where she cultivated beautiful flowers like begonias, chrysanthemums, and ice plants, along with vegetables such as string beans and peas. However, her favorite flowers were roses, which she planted at the bottom of the garden.' },
 
         // Later life
-        { type: 'paragraph', section: 'bio', text: 'By the time her grandchildren knew her, Violet worked at the local greengrocer, passing on her knowledge about selecting the best produce—such as choosing cauliflowers with their inner leaves still curled over to keep the curds white. She also had a particular fondness for young turnips, eating them like apples.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'typewriter', text: 'By the time her grandchildren knew her, Violet worked at the local greengrocer, passing on her knowledge about selecting the best produce—such as choosing cauliflowers with their inner leaves still curled over to keep the curds white. She also had a particular fondness for young turnips, eating them like apples.' },
         {
           type: 'full-image',
           section: 'contact',
+          atmosphere: 'parlour-piano',
+          effect: 'kenburns-in',
           src: '/exhibitions/womens-history/photo-four-women.jpg',
           alt: 'A black-and-white photograph of four women standing close together in front of a net-curtained window, two of them in white dresses',
         },
-        { type: 'paragraph', section: 'bio', text: 'Widowed in 1956, Violet remained strong and resilient. She continued to garden, even when rheumatoid arthritis made it difficult, and enjoyed sitting outside with her beloved dog, Shona. Music remained a constant in her life; she always kept a piano in her home and, in her seventies, developed a love for Strauss waltzes, which she listened to on the radio. She also had a surprising penchant for wrestling, tuning in every Saturday, and knew Tiny Carr personally, a famous referee of the time.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'drift', text: 'Widowed in 1956, Violet remained strong and resilient. She continued to garden, even when rheumatoid arthritis made it difficult, and enjoyed sitting outside with her beloved dog, Shona. Music remained a constant in her life; she always kept a piano in her home and, in her seventies, developed a love for Strauss waltzes, which she listened to on the radio. She also had a surprising penchant for wrestling, tuning in every Saturday, and knew Tiny Carr personally, a famous referee of the time.' },
 
         // Legacy
-        { type: 'paragraph', section: 'bio', className: 'wh-legacy', text: "Violet Want's life is a testament to resilience, humor, and hard work. As a family matriarch, her story offers a rich snapshot of working-class life in England, spanning the Edwardian era, two world wars, and the societal shifts of the 1970s and 80s. The personal histories of women like her help us understand the past—not just in grand historical events, but through the everyday sacrifices and triumphs of ordinary people who shaped the world we live in today." },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'ink-spread', className: 'wh-legacy', text: "Violet Want's life is a testament to resilience, humor, and hard work. As a family matriarch, her story offers a rich snapshot of working-class life in England, spanning the Edwardian era, two world wars, and the societal shifts of the 1970s and 80s. The personal histories of women like her help us understand the past—not just in grand historical events, but through the everyday sacrifices and triumphs of ordinary people who shaped the world we live in today." },
 
-        { type: 'callout', section: 'link', text: 'Explore objects and stories at the London Museum', url: LONDON_MUSEUM_URL },
+        { type: 'callout', section: 'link', atmosphere: 'blitz-letters', effect: 'film-credits', text: 'Explore objects and stories at the London Museum', url: LONDON_MUSEUM_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {

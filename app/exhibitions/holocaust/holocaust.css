@@ -13,10 +13,12 @@
 
    The reveal (poster-fx.css, theme ho) brings the light up slowly as a
    poster opens, and lets a candle's glow rise at its closing words. Here:
-   the barbed wire is drawn across, slowly; the title lines surface one by
-   one; and the photographs vary gently from panel to panel: some come up as
-   if under a lamp (ho-lamp), some advance a frame of film into the gate
-   (ho-advance), and the candles come up out of the dark (ho-glow).
+   the barbed wire is drawn across, slowly, and the title lines surface one
+   by one. Most panels arrive their own way (their entrances, holocaust.ts),
+   each quietly, and stand in one of the exhibition's atmospheres, drawn at
+   the foot of this file. The few that keep the theme's reveal come up
+   gently: a frame of film advances into the gate (ho-advance), the candles
+   come up out of the dark (ho-glow), the monument comes up under a lamp.
    ========================================================================== */
 
 [data-exhibition='holocaust'] {
@@ -260,12 +262,11 @@
 [data-exhibition='holocaust'] .pfx-ho .ho-title .pe-title-line-4 { animation-delay: 2.7s; }
 
 /* The figure itself is still; what is in it comes up. */
-[data-exhibition='holocaust'] .pfx-ho :is(.ho-lamp, .ho-advance, .ho-glow) .pe-figure.pfx-media { animation: hoFrame 1.6s ease-out backwards; }
+[data-exhibition='holocaust'] .pfx-ho :is(.ho-advance, .ho-glow) .pe-figure.pfx-media { animation: hoFrame 1.6s ease-out backwards; }
 @keyframes hoFrame {
   from { opacity: 0; }
 }
 /* Under a lamp: the picture comes up slowly from the dark, a little warm at first. */
-[data-exhibition='holocaust'] .pfx-ho .ho-lamp .pe-figure img { animation: hoLamp 4s 0.6s ease-out backwards; }
 @keyframes hoLamp {
   0% { filter: brightness(0) sepia(0.4); }
   55% { filter: brightness(0.75) sepia(0.25); }
@@ -287,8 +288,8 @@
 [data-exhibition='holocaust'] .pfx-ho .pe-figure-credit { animation: pfxHoSurface 1.6s 2.6s ease-out backwards; }
 /* The monument comes up under a lamp, slowly, and its credit after it. */
 [data-exhibition='holocaust'] .pfx-ho .ho-monument.pfx-media { animation: none; }
-[data-exhibition='holocaust'] .pfx-ho .ho-monument img { animation: hoLamp 4.4s 0.3s ease-out backwards; }
-[data-exhibition='holocaust'] .pfx-ho .ho-monument .pe-image-caption { animation: pfxHoSurface 1.6s 2.8s ease-out backwards; }
+[data-exhibition='holocaust'] .pfx-ho[data-entrance='theme'] .ho-monument img { animation: hoLamp 4.4s 0.3s ease-out backwards; }
+[data-exhibition='holocaust'] .pfx-ho[data-entrance='theme'] .ho-monument .pe-image-caption { animation: pfxHoSurface 1.6s 2.8s ease-out backwards; }
 
 /* ───────── The display case page ───────── */
 [data-exhibition='holocaust'].pe-case-page { --pe-case-ink: var(--ho-ink); }
@@ -358,4 +359,228 @@
   [data-exhibition='holocaust'] .pfx-ho :is(.pe-title-line, .pe-figure, .pe-figure img, .pe-figure-credit, .pe-image-caption, img) {
     animation: none !important;
   }
+}
+
+/* ==========================================================================
+   The walkthrough's atmospheres (holocaust.ts, ATMOSPHERES), drawn in the
+   layer behind each panel (AtmosphereLayer): its parts (.pe-atmo-part-N),
+   particles (.pe-atmo-p, placed by --x, --y, --r) and pictures. Still
+   stone, slow light, a single candle: everything moves over many seconds or
+   not at all, and nothing flickers or flashes. Under reduced motion the
+   engine stills them where they stand.
+   ========================================================================== */
+
+/* The corner link, arrows and rail: near-black on the stone, the stone grey on the dark. */
+[data-exhibition='holocaust']:has(.pe-poster-walkthrough:is([data-atmosphere='first-light'], [data-atmosphere='candle-vigil'], [data-atmosphere='film-strip'], [data-atmosphere='barbed-wire'])) {
+  --pe-nav-m: var(--ho-stone-light);
+  --pe-nav-ink: var(--ho-stone-light);
+  --pe-hint: var(--ho-stone-light);
+}
+[data-exhibition='holocaust']:has(.pe-poster-walkthrough:is([data-atmosphere='still-stone'], [data-atmosphere='remembrance-stones'])) {
+  --pe-nav-m: var(--ho-ink);
+  --pe-nav-ink: var(--ho-ink);
+  --pe-hint: var(--ho-ink);
+}
+/* On the stone, the monument's credit is set in the near-black. */
+[data-exhibition='holocaust'] [data-atmosphere='still-stone'] .ho-monument .pe-image-caption { color: var(--ho-ink) !important; }
+
+/* Poster 2's lettering, under the wire. */
+[data-exhibition='holocaust'] .ho-title.pe-title-image img { max-height: 52vh; }
+
+/* The grain of granite, shared by the stone grounds. */
+[data-exhibition='holocaust'] :is(.pe-atmo-still-stone .pe-atmo-part-1, .pe-atmo-remembrance-stones .pe-atmo-part-2) {
+  inset: 0;
+  opacity: 0.55;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.16 0 0 0 0 0.14 0 0 0 0 0.12 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E") 0 0 / 260px 260px;
+}
+
+/* ───────── still-stone: a slab of grey stone, a slow light passing over it ───────── */
+[data-exhibition='holocaust'] .pe-atmo-still-stone .pe-atmo-part-2 {
+  /* the light, crossing the face of the stone over most of a minute */
+  inset: -10vh -60vw;
+  background: linear-gradient(105deg, transparent 38%, rgba(255, 252, 246, 0.2) 48%, rgba(255, 252, 246, 0.26) 50%, rgba(255, 252, 246, 0.2) 52%, transparent 62%);
+  animation: hoRake 48s ease-in-out infinite alternate;
+}
+[data-exhibition='holocaust'] .pe-atmo-still-stone .pe-atmo-part-3 {
+  /* the slab's cut edge: a chiselled margin, shadowed on one side and caught by the light on the other */
+  inset: 5vh 4vw;
+  box-shadow:
+    inset 2px 2px 0 rgba(255, 255, 255, 0.35),
+    inset -2px -2px 0 rgba(60, 50, 44, 0.16),
+    inset 0 0 60px rgba(60, 50, 44, 0.1);
+}
+@keyframes hoRake { from { transform: translateX(-34vw); } to { transform: translateX(34vw); } }
+
+/* ───────── remembrance-stones: small stones, set along a ledge one by one ───────── */
+[data-exhibition='holocaust'] .pe-atmo-remembrance-stones .pe-atmo-part-1 {
+  /* the ledge of the memorial stone, darker granite, along the foot */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 17vh;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.4) 0 1px, #b3aaa1 1px, #a39a91 30%, #b8afa6);
+  box-shadow: 0 -10px 30px rgba(60, 50, 44, 0.12);
+}
+[data-exhibition='holocaust'] .pe-atmo-remembrance-stones .pe-atmo-p {
+  /* each stone laid on the ledge in turn, as a visitor leaves one on a grave */
+  top: auto;
+  bottom: calc(17vh - 3px);
+  left: calc(3% + var(--x) * 0.94%);
+  width: calc(22px + var(--r) * 30px);
+  height: calc(14px + var(--r) * 16px);
+  border-radius: 52% 48% 44% 56% / 62% 58% 42% 38%;
+  background: radial-gradient(ellipse at 34% 30%, #d6d0c8, #7f776f 58%, #4f4943);
+  box-shadow: 0 4px 5px rgba(40, 32, 28, 0.4);
+  animation: hoLaid 1.8s ease-out backwards;
+  animation-delay: calc(0.8s + var(--i) * 0.7s);
+}
+[data-exhibition='holocaust'] .pe-atmo-remembrance-stones .pe-atmo-p:nth-of-type(3n) { background: radial-gradient(ellipse at 34% 30%, #cdbfac, #7a6a57 58%, #4c4134); }
+[data-exhibition='holocaust'] .pe-atmo-remembrance-stones .pe-atmo-p:nth-of-type(4n) { background: radial-gradient(ellipse at 34% 30%, #c4c6c6, #5f6263 58%, #383a3c); }
+@keyframes hoLaid { from { opacity: 0; transform: translateY(-10px); } }
+
+/* ───────── first-light: a cold dawn coming up ───────── */
+[data-exhibition='holocaust'] .pe-atmo-first-light .pe-atmo-part-1 {
+  /* the sky, paling from the horizon up, over many seconds */
+  inset: 0;
+  background: linear-gradient(to top, rgba(222, 206, 178, 0.4) 0%, rgba(150, 156, 168, 0.2) 30%, rgba(40, 44, 54, 0) 64%);
+  animation: hoDawn 16s ease-out backwards;
+}
+[data-exhibition='holocaust'] .pe-atmo-first-light .pe-atmo-part-2 {
+  /* the horizon, a thin line of the first light */
+  left: 0;
+  right: 0;
+  bottom: 18vh;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(236, 222, 196, 0.5) 30%, rgba(236, 222, 196, 0.6) 50%, rgba(236, 222, 196, 0.5) 70%, transparent);
+  box-shadow: 0 0 24px 6px rgba(236, 214, 176, 0.14);
+  animation: hoDawnLine 10s ease-out backwards;
+}
+[data-exhibition='holocaust'] .pe-atmo-first-light .pe-atmo-part-3 {
+  /* long low clouds, barely moving */
+  left: -20vw;
+  right: -20vw;
+  bottom: 24vh;
+  height: 16vh;
+  background:
+    radial-gradient(ellipse 22% 18% at 22% 60%, rgba(200, 196, 190, 0.08), transparent 70%),
+    radial-gradient(ellipse 28% 14% at 62% 40%, rgba(200, 196, 190, 0.07), transparent 70%),
+    radial-gradient(ellipse 18% 12% at 86% 70%, rgba(200, 196, 190, 0.06), transparent 70%);
+  animation: hoCloud 90s linear infinite alternate;
+}
+@keyframes hoDawn { from { opacity: 0; transform: translateY(14vh); } }
+@keyframes hoDawnLine { from { opacity: 0; } }
+@keyframes hoCloud { from { transform: translateX(-6vw); } to { transform: translateX(6vw); } }
+
+/* ───────── candle-vigil: one candle's light in the dark ───────── */
+[data-exhibition='holocaust'] .pe-atmo-candle-vigil .pe-atmo-part-1 {
+  /* the light it throws, rising and falling as slowly as breath */
+  left: 50%;
+  bottom: -18vh;
+  width: 110vmax;
+  height: 110vmax;
+  translate: -50% 50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 196, 120, 0.2), rgba(255, 170, 90, 0.07) 30%, transparent 58%);
+  animation: hoBreath 7s ease-in-out infinite alternate;
+}
+[data-exhibition='holocaust'] .pe-atmo-candle-vigil .pe-atmo-part-2 {
+  /* the candle: a plain white column, standing just above the arrows */
+  left: calc(50% - 11px);
+  bottom: 12vh;
+  width: 22px;
+  height: 8vh;
+  border-radius: 3px 3px 0 0;
+  background: linear-gradient(90deg, #b9b0a4, #f2ebe0 40%, #d7cec2);
+  opacity: 0.85;
+}
+[data-exhibition='holocaust'] .pe-atmo-candle-vigil .pe-atmo-part-3 {
+  /* its flame, quite still */
+  left: calc(50% - 5px);
+  bottom: calc(20vh + 3px);
+  width: 10px;
+  height: 22px;
+  border-radius: 50% 50% 50% 50% / 64% 64% 36% 36%;
+  background: radial-gradient(ellipse 50% 60% at 50% 70%, #fffaf0, #ffd890 45%, rgba(255, 150, 60, 0.6) 75%, transparent 100%);
+  box-shadow: 0 0 18px 6px rgba(255, 190, 110, 0.26);
+  transform-origin: 50% 100%;
+  animation: hoFlame 5s ease-in-out infinite alternate;
+}
+[data-exhibition='holocaust'] .pe-atmo-candle-vigil .pe-atmo-p {
+  /* a little warmth rising from it, slowly */
+  top: auto;
+  bottom: 23vh;
+  left: calc(44% + var(--x) * 0.12%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255, 214, 160, 0.6);
+  opacity: 0;
+  animation: hoRise calc(12s + var(--r) * 8s) ease-out infinite;
+  animation-delay: calc(var(--y) * -0.2s);
+}
+@keyframes hoBreath { from { opacity: 0.75; } to { opacity: 1; } }
+@keyframes hoFlame { from { transform: scaleY(0.96) rotate(-1deg); } to { transform: scaleY(1.04) rotate(1deg); } }
+@keyframes hoRise {
+  0% { transform: translate(0, 0); opacity: 0; }
+  20% { opacity: 0.5; }
+  100% { transform: translate(2vw, -50vh); opacity: 0; }
+}
+
+/* ───────── film-strip: the edges of a strip of 35mm film ───────── */
+[data-exhibition='holocaust'] .pe-atmo-film-strip :is(.pe-atmo-part-1, .pe-atmo-part-2) {
+  /* sprocket holes, and the rebate's frame marks, running slowly along */
+  left: -60px;
+  right: -340px;
+  height: 46px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='14'%3E%3Ctext x='6' y='11' fill='%23b8a68a' fill-opacity='0.55' font-family='Inter,Helvetica,Arial,sans-serif' font-weight='500' font-size='10' letter-spacing='0.8'%3E11A %E2%96%B8%3C/text%3E%3Ctext x='180' y='11' fill='%23b8a68a' fill-opacity='0.55' font-family='Inter,Helvetica,Arial,sans-serif' font-weight='500' font-size='10' letter-spacing='0.8'%3E12%3C/text%3E%3C/svg%3E") 0 0 / 300px 14px repeat-x,
+    repeating-linear-gradient(90deg, transparent 0 9px, var(--ho-hole) 9px 21px, transparent 21px 30px) 0 18px / 100% 14px no-repeat,
+    var(--ho-film);
+  animation: hoFilm 120s linear infinite;
+}
+[data-exhibition='holocaust'] .pe-atmo-film-strip .pe-atmo-part-1 { top: 10vh; }
+[data-exhibition='holocaust'] .pe-atmo-film-strip .pe-atmo-part-2 { bottom: 13vh; }
+[data-exhibition='holocaust'] .pe-atmo-film-strip .pe-atmo-part-3 {
+  /* the frame between them, faintly lit, as on a light box */
+  inset: calc(10vh + 46px) 0 calc(13vh + 46px);
+  background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(214, 207, 199, 0.07), transparent 75%);
+  border-top: 1px solid rgba(214, 207, 199, 0.08);
+  border-bottom: 1px solid rgba(214, 207, 199, 0.08);
+}
+@keyframes hoFilm { from { transform: translateX(0); } to { transform: translateX(-300px); } }
+
+/* ───────── barbed-wire: the posters' wire, under a grey sky ───────── */
+[data-exhibition='holocaust'] .pe-atmo-barbed-wire .pe-atmo-part-1 {
+  /* an overcast sky, lighter at the top */
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(150, 150, 152, 0.16), rgba(80, 80, 84, 0.06) 45%, transparent 75%);
+}
+[data-exhibition='holocaust'] .pe-atmo-barbed-wire .pe-atmo-part-2 {
+  /* cloud, moving so slowly it is hardly seen to move */
+  inset: -10vh -30vw 50vh;
+  background:
+    radial-gradient(ellipse 26% 40% at 20% 40%, rgba(190, 190, 194, 0.07), transparent 70%),
+    radial-gradient(ellipse 30% 36% at 64% 30%, rgba(190, 190, 194, 0.06), transparent 70%);
+  animation: hoCloud 80s linear infinite alternate;
+}
+[data-exhibition='holocaust'] .pe-atmo-barbed-wire .ho-wire {
+  /* the wire, drawn across the top, slowly, left to right */
+  top: 9vh;
+  left: 4vw;
+  width: 92vw;
+  height: auto;
+  opacity: 0.4;
+  animation: hoDraw 5s 0.4s cubic-bezier(0.45, 0, 0.25, 1) backwards;
+}
+
+@media (max-width: 700px) {
+  [data-exhibition='holocaust'] .pe-atmo-film-strip :is(.pe-atmo-part-1, .pe-atmo-part-2) { height: 34px; }
+  [data-exhibition='holocaust'] .pe-atmo-film-strip .pe-atmo-part-1 { top: 8vh; }
+  [data-exhibition='holocaust'] .pe-atmo-film-strip .pe-atmo-part-2 { bottom: 11vh; }
+  [data-exhibition='holocaust'] .pe-atmo-film-strip .pe-atmo-part-3 { inset: calc(8vh + 34px) 0 calc(11vh + 34px); }
+  [data-exhibition='holocaust'] .pe-atmo-barbed-wire .ho-wire { top: 8vh; }
+  [data-exhibition='holocaust'] .pe-atmo-remembrance-stones .pe-atmo-part-1 { height: 13vh; }
+  [data-exhibition='holocaust'] .pe-atmo-remembrance-stones .pe-atmo-p { bottom: calc(13vh - 3px); width: calc(14px + var(--r) * 18px); height: calc(9px + var(--r) * 10px); }
+  [data-exhibition='holocaust'] .pe-atmo-candle-vigil .pe-atmo-part-2 { bottom: 11vh; height: 6vh; }
+  [data-exhibition='holocaust'] .pe-atmo-candle-vigil .pe-atmo-part-3 { bottom: calc(17vh + 3px); }
 }

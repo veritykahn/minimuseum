@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
+import type { Atmosphere, CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
 import { floorReturnFor } from '@/lib/floors';
 
 /*
@@ -29,6 +29,11 @@ import { floorReturnFor } from '@/lib/floors';
  * Each sentence lives in one place below, so a fix to the posters is a
  * one-line edit here. Paragraphs are split only between sentences; nothing is
  * reworded.
+ *
+ * Poster 2 opens on its own title lettering, cut from the poster. Poster 1
+ * does not: its lettering reads "NATIONAL HOLOCAUST MEMORIAL DAY", and the
+ * approved name is "International Holocaust Remembrance Day" (decision 1),
+ * so its title is set in type, in the poster's heavy condensed capitals.
  *
  * The "Talk about it" questions are for the projector's teacher strip: open
  * questions about remembrance, courage and speaking up, one per chapter,
@@ -115,6 +120,36 @@ const BLOCK_24A: PanelFigure = {
   side: 'left',
 };
 
+/*
+ * Poster 2's title as a picture: its own stone-grey lettering, cut from the
+ * poster at the poster's resolution with the black keyed out
+ * (public/exhibitions/holocaust/titles/). A sharper export of the same
+ * lettering can replace the file at the same path; update its size here.
+ */
+const TITLE_SIZES = {
+  whatWasTheHolocaust: { width: 527, height: 193 },
+};
+
+/*
+ * The walkthrough's atmospheres (holocaust.css draws them), each the setting
+ * of a part of the story. All of them slow and still: light that comes and
+ * goes over minutes, never a flicker.
+ *   still-stone         memorials: a slab of grey stone, a slow light passing over it
+ *   remembrance-stones  remembering: small stones set along a ledge, one by one
+ *   first-light         the liberation, and the rescuers: a cold dawn coming up
+ *   candle-vigil        remembrance, and the words of Martin Niemöller: one candle's light
+ *   film-strip          the photographs: the edges of a strip of 35mm film
+ *   barbed-wire         persecution, the ghettos and the camps: the posters' wire under a grey sky
+ */
+const ATMOSPHERES: Record<string, Atmosphere> = {
+  'still-stone': { bg: '#d3ccc4', text: INK, title: INK, parts: 3 },
+  'remembrance-stones': { bg: '#cfc8c0', text: INK, title: INK, parts: 2, particles: 14 },
+  'first-light': { bg: '#16171a', text: PALE, title: STONE_LIGHT, parts: 3 },
+  'candle-vigil': { bg: '#0d0b0a', text: PALE, title: STONE_LIGHT, parts: 3, particles: 6 },
+  'film-strip': { bg: '#0b0a0a', text: PALE, title: STONE_LIGHT, parts: 3 },
+  'barbed-wire': { bg: '#18191b', text: PALE, title: STONE_LIGHT, parts: 2, images: [{ src: '/exhibitions/holocaust/barbed-wire-cream.svg', className: 'ho-wire' }] },
+};
+
 export const HOLOCAUST_PROJECTOR_THEME = {
   '--pj-bg': STONE,
   '--pj-ink': INK,
@@ -142,6 +177,8 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
     teach: { color: INK, border: 'rgba(31,28,26,0.55)' },
   },
   back: floorReturnFor('holocaust'),
+  atmospheres: ATMOSPHERES,
+  // The light comes up slowly as a poster opens; every other panel arrives its own way, quietly.
   fx: { theme: 'ho', veil: 'chapters', text: 'all' },
   projector: { theme: HOLOCAUST_PROJECTOR_THEME, links: [] },
   cases: [
@@ -174,15 +211,18 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
         {
           type: 'title-text',
           section: 'title',
+          atmosphere: 'still-stone',
+          effect: 'fade-in',
           text: 'International Holocaust Remembrance Day',
           lines: ['INTERNATIONAL', 'HOLOCAUST', 'REMEMBRANCE', 'DAY'],
         },
-        { type: 'paragraph', section: 'body', className: 'ho-lamp', figure: STONES, text: 'International Holocaust Remembrance Day is observed annually on January 27 to commemorate the six million Jewish people who were murdered by the Nazi regime, as well as the millions of other victims who were persecuted.' },
-        { type: 'paragraph', section: 'body', className: 'ho-advance', figure: commonsFigure(COMMONS_BERLIN, 'left'), text: 'By 1945, over 67% of the European Jewish population had been eradicated in an act of genocide.' },
-        { type: 'paragraph', section: 'body', className: 'ho-lamp', figure: BARRACKS, text: 'The date marks the liberation of Auschwitz-Birkenau, the largest Nazi concentration and extermination camp, in 1945.' },
-        { type: 'paragraph', section: 'body', text: 'This day also honors those affected by subsequent genocides in Cambodia, Rwanda, Bosnia and Darfur.' },
-        { type: 'paragraph', section: 'body', className: 'ho-glow', figure: commonsFigure(COMMONS_CANDLES, 'left'), text: 'It serves as a powerful reminder of the consequences of hatred, discrimination, and indifference, encouraging reflection, remembrance and a commitment to building a safer, more inclusive world.' },
-        { type: 'section-title', section: 'close', text: 'Never Forget.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'remembrance-stones', effect: 'blur-to-sharp', figure: STONES, text: 'International Holocaust Remembrance Day is observed annually on January 27 to commemorate the six million Jewish people who were murdered by the Nazi regime, as well as the millions of other victims who were persecuted.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'still-stone', effect: 'rise-expand', figure: commonsFigure(COMMONS_BERLIN, 'left'), text: 'By 1945, over 67% of the European Jewish population had been eradicated in an act of genocide.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'first-light', effect: 'kenburns-in', figure: BARRACKS, text: 'The date marks the liberation of Auschwitz-Birkenau, the largest Nazi concentration and extermination camp, in 1945.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'remembrance-stones', effect: 'ink-spread', text: 'This day also honors those affected by subsequent genocides in Cambodia, Rwanda, Bosnia and Darfur.' },
+        // The candles come up out of the dark, as the reveal brings them up (the theme's own entrance).
+        { type: 'paragraph', section: 'body', atmosphere: 'candle-vigil', className: 'ho-glow', figure: commonsFigure(COMMONS_CANDLES, 'left'), text: 'It serves as a powerful reminder of the consequences of hatred, discrimination, and indifference, encouraging reflection, remembrance and a commitment to building a safer, more inclusive world.' },
+        { type: 'section-title', section: 'close', atmosphere: 'candle-vigil', effect: 'split-reveal', text: 'Never Forget.' },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
@@ -212,19 +252,26 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
       items: [
         {
-          type: 'title-text',
+          type: 'title-image',
           section: 'title',
-          text: 'What Was the Holocaust?',
-          lines: ['WHAT WAS THE', 'HOLOCAUST?'],
+          atmosphere: 'barbed-wire',
+          effect: 'fade-in',
+          src: '/exhibitions/holocaust/titles/what-was-the-holocaust.png',
+          ...TITLE_SIZES.whatWasTheHolocaust,
+          framing: 'centered',
+          alt: 'What Was the Holocaust?',
         },
-        { type: 'paragraph', section: 'body', className: 'ho-advance', figure: FENCE, text: 'The Holocaust, also known as the *Shoah* (a Hebrew word meaning “catastrophe”), was the systematic persecution and murder of six million Jewish men, women, and children by Nazi Germany and its collaborators between 1933 and 1945.' },
-        { type: 'paragraph', section: 'body', text: 'While the Nazis specifically despised and persecuted Jews, other groups such as Roma, political prisoners, and people with disabilities were targeted.' },
-        { type: 'paragraph', section: 'body', text: 'Before being deported to concentration and extermination camps, many Jewish people were confined to ghettos, overcrowded and walled-off sections of cities where living conditions were inhumane. Disease, starvation, and violence were rampant in ghettos such as those in Warsaw, Lodz, and Vilna.' },
-        { type: 'paragraph', section: 'body', className: 'ho-advance', figure: BLOCK_24A, text: 'Prisoners registered at Auschwitz had identification numbers tattooed on their arms, stripping them of their identities and humanity.' },
-        { type: 'paragraph', section: 'body', text: 'Despite the horrors, acts of bravery emerged as individuals and groups risked their lives to save Jews. These rescuers are honored as the *Righteous Among the Nations*, a title awarded by Yad Vashem, Israel’s Holocaust memorial, to recognize their courage and humanity in the face of unspeakable evil.' },
+        // A frame of film advances into the gate, as the reveal brings it (the theme's own entrance).
+        { type: 'paragraph', section: 'body', atmosphere: 'film-strip', className: 'ho-advance', figure: FENCE, text: 'The Holocaust, also known as the *Shoah* (a Hebrew word meaning “catastrophe”), was the systematic persecution and murder of six million Jewish men, women, and children by Nazi Germany and its collaborators between 1933 and 1945.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'barbed-wire', effect: 'blur-to-sharp', text: 'While the Nazis specifically despised and persecuted Jews, other groups such as Roma, political prisoners, and people with disabilities were targeted.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'barbed-wire', effect: 'ink-spread', text: 'Before being deported to concentration and extermination camps, many Jewish people were confined to ghettos, overcrowded and walled-off sections of cities where living conditions were inhumane. Disease, starvation, and violence were rampant in ghettos such as those in Warsaw, Lodz, and Vilna.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'film-strip', effect: 'kenburns-in', figure: BLOCK_24A, text: 'Prisoners registered at Auschwitz had identification numbers tattooed on their arms, stripping them of their identities and humanity.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'first-light', effect: 'rise-expand', text: 'Despite the horrors, acts of bravery emerged as individuals and groups risked their lives to save Jews. These rescuers are honored as the *Righteous Among the Nations*, a title awarded by Yad Vashem, Israel’s Holocaust memorial, to recognize their courage and humanity in the face of unspeakable evil.' },
         {
+          // The monument comes up under a lamp, as the reveal brings it (the theme's own entrance).
           type: 'full-image',
           section: 'monument',
+          atmosphere: 'still-stone',
           src: COMMONS_BIRKENAU.src,
           alt: COMMONS_BIRKENAU.alt,
           text: creditFor(COMMONS_BIRKENAU),
@@ -233,10 +280,12 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
         {
           type: 'quote',
           section: 'quote',
+          atmosphere: 'candle-vigil',
+          effect: 'line-by-line',
           text: '“First they came for the socialists, and I did not speak out—because I was not a socialist. Then they came for the trade unionists, and I did not speak out—because I was not a trade unionist. Then they came for the Jews, and I did not speak out—because I was not a Jew. Then they came for me—and there was no one left to speak for me.”',
           cite: '— Martin Niemöller',
         },
-        { type: 'callout', section: 'link', text: 'Learn more about the Holocaust at the United States Holocaust Memorial Museum', url: USHMM_URL },
+        { type: 'callout', section: 'link', atmosphere: 'candle-vigil', effect: 'film-credits', text: 'Learn more about the Holocaust at the United States Holocaust Memorial Museum', url: USHMM_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {

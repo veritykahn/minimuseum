@@ -53,7 +53,7 @@ describe("Women's History Month", () => {
     expect(WOMENS_HISTORY.posters.map((p) => p.id)).toEqual(['poster1', 'poster2']);
     expect(WOMENS_HISTORY.posters.map((p) => p.title)).toEqual(["Women's History", "Working Woman's"]);
     for (const p of WOMENS_HISTORY.posters) {
-      expect(p.items[0].type).toBe('title-text');
+      expect(p.items[0].type).toBe('title-image');
       expect(p.items[p.items.length - 1].type).toBe('end');
       expect(p.hero.alt).toBeTruthy();
     }
@@ -63,15 +63,18 @@ describe("Women's History Month", () => {
     expect(WOMENS_HISTORY.fx.theme).toBe('wh');
   });
 
-  it('sets the titles as the posters stack them, read as the full title', () => {
+  it('sets the titles in the posters’ own lettering, read as the full title, each with its subtitle after it', () => {
     const [t1, t2] = WOMENS_HISTORY.posters.map((p) => p.items[0]);
-    expect(t1).toMatchObject({ text: "Women's History", lines: ['WO', 'MEN', '’S', 'HISTORY'], subtitle: 'MOVING FORWARD TOGETHER! WOMEN EDUCATING & INSPIRING GENERATIONS' });
-    expect(t2).toMatchObject({ text: "Working Woman's", lines: ['WORK', 'WO', 'MAN', '’S'], subtitle: 'BIOGRAPHY OF A WORKING CLASS WOMAN' });
+    expect(t1).toMatchObject({ type: 'title-image', alt: "Women's History", src: '/exhibitions/womens-history/titles/womens-history.png' });
+    expect(t2).toMatchObject({ type: 'title-image', alt: "Working Woman's", src: '/exhibitions/womens-history/titles/working-womans.png' });
     expect(t1.marks).toEqual({ left: "Women's History Month | March 1st to 31st", right: "International Women's Day | March 8th" });
+    const [s1, s2] = WOMENS_HISTORY.posters.map((p) => p.items[1]);
+    expect(s1).toMatchObject({ type: 'title-text', text: 'MOVING FORWARD TOGETHER! WOMEN EDUCATING & INSPIRING GENERATIONS' });
+    expect(s2).toMatchObject({ type: 'title-text', text: 'BIOGRAPHY OF A WORKING CLASS WOMAN' });
   });
 
   it("sets Violet's name, née Knight, and her dates in US style", () => {
-    const name = poster('poster2').items[1];
+    const name = poster('poster2').items[2];
     expect(name).toMatchObject({ type: 'title-text', text: 'Violet Dina Want', subtitle: 'née Knight', note: 'Born January 27, 1907 | Died March 2, 1988' });
     expect(allText).not.toMatch(/27th Jan|2nd Mar|\bb\. |\bd\. /);
   });
@@ -180,7 +183,12 @@ describe("Women's History Month", () => {
       const content = () => document.querySelector('.pe-walkthrough-content') as HTMLElement;
       expect(within(content()).getByRole('heading', { level: 2, name: "Women's History" })).toBeInTheDocument();
       expect(content().querySelector('.pfx-wh-open')).toBeInTheDocument();
-      expect(content().querySelectorAll('.pe-title-line')).toHaveLength(4);
+      expect(content().querySelector('.pe-title-image img')).toHaveAttribute('src', '/exhibitions/womens-history/titles/womens-history.png');
+
+      fireEvent.keyDown(document, { key: 'ArrowRight' });
+      tick();
+      expect(within(content()).getByRole('heading', { level: 2, name: 'MOVING FORWARD TOGETHER! WOMEN EDUCATING & INSPIRING GENERATIONS' })).toBeInTheDocument();
+      expect(content().querySelectorAll('.pe-title-line')).toHaveLength(3);
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
@@ -193,7 +201,7 @@ describe("Women's History Month", () => {
       expect(content().querySelector('.pe-lead')).toHaveTextContent("Women's History Month, celebrated every March,");
 
       const callout = poster('poster1').items.findIndex((it) => it.type === 'callout');
-      for (let i = 2; i < callout; i++) {
+      for (let i = 3; i < callout; i++) {
         fireEvent.keyDown(document, { key: 'ArrowRight' });
         tick();
       }
@@ -209,6 +217,10 @@ describe("Women's History Month", () => {
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
+      expect(within(content()).getByRole('heading', { level: 2, name: 'BIOGRAPHY OF A WORKING CLASS WOMAN' })).toBeInTheDocument();
+
+      fireEvent.keyDown(document, { key: 'ArrowRight' });
+      tick();
       expect(within(content()).getByRole('heading', { level: 2, name: 'Violet Dina Want' })).toBeInTheDocument();
       expect(content().querySelector('.pe-title-lettering')).toHaveAttribute('src', '/exhibitions/womens-history/violet-dina-want.png');
       expect(content().querySelector('.pe-title-subtitle')).toHaveTextContent('née Knight');
@@ -220,7 +232,7 @@ describe("Women's History Month", () => {
       expect(content().querySelector('.pe-figure img')).toHaveAttribute('src', '/exhibitions/womens-history/photo-violet.jpg');
 
       const callout = poster('poster2').items.findIndex((it) => it.type === 'callout');
-      for (let i = 2; i < callout; i++) {
+      for (let i = 3; i < callout; i++) {
         fireEvent.keyDown(document, { key: 'ArrowRight' });
         tick();
       }
