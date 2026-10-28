@@ -77,23 +77,36 @@
 [data-exhibition='america-250'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(60, 45, 25, 0.12), 0 22px 50px rgba(60, 45, 25, 0.22); }
 [data-exhibition='america-250'] .pe-poster-hint { color: var(--ap-muted); }
 
-/* ───────── Title cards: the script, very large, and the thin sans under it ───────── */
-[data-exhibition='america-250'] .ap-title.pe-title-card { gap: clamp(8px, 2vh, 20px); padding-left: 6vw; padding-right: 6vw; }
-[data-exhibition='america-250'] .ap-title .pe-title-text {
-  font-family: var(--ap-script);
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: clamp(4.6rem, 13.5vw, 12rem);
-  line-height: 1;
-  max-width: 9em;
+/* ───────── Titles: the posters' own script, cut from them, very large ───────── */
+[data-exhibition='america-250'] .ap-title.pe-title-image { --pe-title-scale: 1.4; padding-left: 5vw; padding-right: 5vw; }
+[data-exhibition='america-250'] .ap-title .pe-title-image-heading img { max-height: 62vh; }
+
+/* ───────── The subtitle, under the painting: the posters' thin light sans ───────── */
+[data-exhibition='america-250'] .ap-subtitle.pe-stack { padding-top: calc(var(--ap-fw) + 56px); padding-bottom: calc(var(--ap-fw) + 92px); gap: clamp(14px, 3vh, 28px); }
+[data-exhibition='america-250'] .ap-subtitle .pe-stack-picture img {
+  max-height: 50vh;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid rgba(42, 39, 36, 0.35);
+  box-shadow: 0 2px 4px rgba(60, 45, 25, 0.1), 0 24px 60px rgba(60, 45, 25, 0.24);
+}
+[data-exhibition='america-250'] .ap-subtitle .pe-paragraph-text {
+  font-family: var(--pe-ui);
+  font-weight: 200;
+  font-size: clamp(1.3rem, 3vw, 2.4rem);
+  line-height: 1.22;
+  max-width: 28em;
+  text-align: center;
   text-wrap: balance;
 }
-[data-exhibition='america-250'] .ap-title .pe-title-subtitle {
-  font-weight: 200;
-  font-size: clamp(1.15rem, 2.7vw, 2.1rem);
-  line-height: 1.25;
-  max-width: 30em;
-  color: var(--ap-muted);
+[data-exhibition='america-250'] .ap-subtitle .pe-stack-credit {
+  width: auto;
+  max-width: 60em;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  text-align: center;
 }
 
 /* ───────── Section heads: small, bold Caslon, with a quill rule under them ───────── */
@@ -217,15 +230,7 @@
 [data-exhibition='america-250'] .pe-content-end:hover { color: var(--ap-paper) !important; background: var(--ap-frame); border-color: var(--ap-frame) !important; }
 
 /* ───────── The reveal's own strokes (the press itself is in poster-fx.css) ───────── */
-/* The titles are written in with the pen, left to right… */
-[data-exhibition='america-250'] .pfx-ap .ap-title .pe-title-text > .pfx-line {
-  animation: apWrite 2.2s 0.9s cubic-bezier(0.55, 0, 0.35, 1) backwards;
-}
-@keyframes apWrite {
-  from { clip-path: inset(-30% 100% -30% -10%); }
-  to { clip-path: inset(-30% -10% -30% -10%); }
-}
-/* …and a quill draws the rule under each section head. */
+/* A quill draws the rule under each section head. */
 [data-exhibition='america-250'] .pfx-ap .ap-head .pe-section-title-text::after {
   animation: apRule 1.3s 1.5s cubic-bezier(0.6, 0, 0.3, 1) backwards;
 }
@@ -236,8 +241,6 @@
 
 /* ───────── The classroom screen ───────── */
 [data-exhibition='america-250'] .pjp-stage { --ap-fw: calc(var(--pjp-u) * 1.2); }
-[data-exhibition='america-250'] .pjp-stage .ap-title .pe-title-text { font-size: calc(var(--pjp-u) * 10); }
-[data-exhibition='america-250'] .pjp-stage .ap-title .pe-title-subtitle { font-size: calc(var(--pjp-u) * 2.2); }
 [data-exhibition='america-250'] .pjp-stage .ap-head .pe-section-title-text { font-size: calc(var(--pjp-u) * 4.4); max-width: 18em; }
 [data-exhibition='america-250'] .pjp-stage .ap-quote .pe-quote-text { padding: 0; }
 [data-exhibition='america-250'] .pjp-stage .ap-quote .pe-quote-cite { font-size: calc(var(--pjp-u) * 1.5); }
@@ -248,6 +251,8 @@
 [data-exhibition='america-250'] .pjp-stage .ap-picture .pe-image-caption { font-size: calc(var(--pjp-u) * 0.95); width: auto; }
 [data-exhibition='america-250'] .pjp-stage .ap-picture.pe-full-image img { max-height: calc(100% - var(--pjp-u) * 3); }
 [data-exhibition='america-250'] .pjp-stage .ap-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
+[data-exhibition='america-250'] .pjp-stage .ap-subtitle .pe-paragraph-text { font-size: calc(var(--pjp-u) * 2.4); }
+[data-exhibition='america-250'] .pjp-stage .ap-subtitle .pe-stack-credit { font-size: calc(var(--pjp-u) * 0.95); }
 
 @media (max-width: 900px) {
   [data-exhibition='america-250'] { --pe-poster-h: 46vh; }
@@ -259,12 +264,280 @@
   /* Justified copy makes rivers at a phone's measure. */
   [data-exhibition='america-250'] .ap-copy .pe-paragraph-text { text-align: left; hyphens: manual; }
   [data-exhibition='america-250'] .ap-link .pe-callout { padding: 22px 20px; }
-  /* The script is light: on a phone it takes two lines and the full measure. */
-  [data-exhibition='america-250'] .ap-title .pe-title-text { font-size: 21vw; }
   [data-exhibition='america-250'] .ap-picture.pe-full-image { padding-left: 24px; padding-right: 24px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   [data-exhibition='america-250'] .pfx-ap .ap-head .pe-section-title-text::after { animation: none; }
   [data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content)::after { transition: none; }
+}
+
+/* ==========================================================================
+   The walkthrough's atmospheres (america250.ts, ATMOSPHERES), drawn in the
+   layer behind each panel (AtmosphereLayer), inside the poster's border.
+   Under reduced motion the engine stills them where they stand, and each
+   still frame is a picture of its own.
+   ========================================================================== */
+
+/* The two night skies take light copy, and the credits and links go light with it. */
+[data-exhibition='america-250'] :is([data-atmosphere='july-illuminations'], [data-atmosphere='thirteen-stars']) {
+  --ap-ink: #f1e9d8;
+  --ap-muted: #cbc2b0;
+  --pe-callout-ink: #f1e9d8;
+}
+[data-exhibition='america-250']:has(:is([data-atmosphere='july-illuminations'], [data-atmosphere='thirteen-stars'])) {
+  --pe-nav-m: #f1e9d8;
+  --pe-nav-ink: #cbc2b0;
+}
+
+/* ───────── signing-quill: laid paper, a line written across it in ink ───────── */
+[data-exhibition='america-250'] .pe-atmo-signing-quill .pe-atmo-part-1 {
+  /* the paper's chain lines and laid lines, held up to the light */
+  inset: 0;
+  background:
+    repeating-linear-gradient(90deg, rgba(120, 100, 70, 0.07) 0 1px, transparent 1px 30px),
+    repeating-linear-gradient(0deg, rgba(120, 100, 70, 0.035) 0 1px, transparent 1px 4px);
+}
+[data-exhibition='america-250'] .pe-atmo-signing-quill :is(.pe-atmo-part-2, .pe-atmo-part-3) {
+  opacity: 0.2;
+  animation: apPen 3.6s 0.5s cubic-bezier(0.45, 0, 0.3, 1) backwards;
+}
+[data-exhibition='america-250'] .pe-atmo-signing-quill .pe-atmo-part-2 {
+  /* a line of handwriting, written left to right along the foot of the sheet */
+  left: calc(var(--ap-fw) + 5vw);
+  right: calc(var(--ap-fw) + 5vw);
+  bottom: calc(var(--ap-fw) + 6vh);
+  height: 12vh;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 120' preserveAspectRatio='none'%3E%3Cpath d='M30 80 C60 20 90 20 80 70 C75 100 110 95 130 60 C150 25 170 30 160 70 C155 95 190 90 210 62 C225 40 240 45 235 70 C232 88 260 86 280 60 C300 35 330 30 320 75 C312 110 350 100 380 70 C410 40 440 45 430 80 C425 100 470 95 500 70 C530 45 560 50 545 85 C535 105 600 95 640 75 C700 50 760 45 820 60 C870 72 920 70 990 40' fill='none' stroke='%232a2724' stroke-width='2.4' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+[data-exhibition='america-250'] .pe-atmo-signing-quill .pe-atmo-part-3 {
+  /* and the swash under it */
+  left: calc(var(--ap-fw) + 9vw);
+  right: calc(var(--ap-fw) + 12vw);
+  bottom: calc(var(--ap-fw) + 3vh);
+  height: 5vh;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 50' preserveAspectRatio='none'%3E%3Cpath d='M10 38 C300 18 640 22 990 30 C900 34 860 40 800 46' fill='none' stroke='%232a2724' stroke-width='2' stroke-linecap='round' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  animation-duration: 1.6s;
+  animation-delay: 3.9s;
+}
+[data-exhibition='america-250'] .pe-atmo-signing-quill .pe-atmo-p {
+  /* ink blots, let fall from the pen */
+  width: calc(5px + var(--r) * 15px);
+  aspect-ratio: 1;
+  border-radius: 46% 54% 52% 48%;
+  background: radial-gradient(circle at 42% 40%, rgba(42, 39, 36, 0.55), rgba(42, 39, 36, 0.3) 58%, transparent 72%);
+  opacity: 0.32;
+  animation: apBlot 1.4s ease-out backwards;
+  animation-delay: calc(0.8s + var(--i) * 0.6s);
+}
+@keyframes apPen { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes apBlot { from { transform: scale(0.1); opacity: 0; filter: blur(2px); } }
+
+/* ───────── july-illuminations: fireworks over a town lit window by window ───────── */
+[data-exhibition='america-250'] .pe-atmo-july-illuminations .pe-atmo-part-1 {
+  /* the town: rooftops, a steeple, and a candle in every window */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 24vh;
+  /* lit panes in two uneven grids, so the windows fall irregularly */
+  background:
+    conic-gradient(from 270deg at 6px 9px, rgba(255, 204, 120, 0.9) 25%, transparent 0) 22px 18px / 58px 46px,
+    conic-gradient(from 270deg at 5px 8px, rgba(255, 220, 150, 0.7) 25%, transparent 0) 47px 37px / 83px 61px,
+    #090c15;
+  clip-path: polygon(0 100%, 0 52%, 6% 52%, 6% 40%, 11% 30%, 16% 40%, 16% 56%, 22% 56%, 22% 44%, 30% 44%, 30% 60%, 36% 60%, 36% 38%, 41% 38%, 41% 26%, 43% 26%, 44.5% 6%, 45% 0, 45.5% 6%, 47% 26%, 49% 26%, 49% 38%, 54% 38%, 54% 50%, 62% 50%, 62% 36%, 66% 28%, 70% 36%, 70% 58%, 77% 58%, 77% 46%, 85% 46%, 85% 54%, 91% 54%, 91% 42%, 100% 42%, 100% 100%);
+  animation: apCandles 3.2s ease-in-out infinite;
+}
+[data-exhibition='america-250'] .pe-atmo-july-illuminations .pe-atmo-part-2 {
+  /* the glow the town throws up into the smoke */
+  left: -10vw;
+  right: -10vw;
+  bottom: 10vh;
+  height: 40vh;
+  background: radial-gradient(ellipse 60% 70% at 50% 100%, rgba(232, 160, 90, 0.18), transparent 70%);
+}
+[data-exhibition='america-250'] .pe-atmo-july-illuminations .pe-atmo-p {
+  /* a firework: a ring of sparks, opening and falling away */
+  --c: rgba(242, 207, 122, 0.9);
+  /* high in the sky and out at the sides, clear of the copy */
+  left: calc(8% + var(--x) * 0.84%);
+  top: calc(7% + var(--y) * 0.2%);
+  width: calc(16vmin + var(--r) * 16vmin);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: repeating-conic-gradient(var(--c) 0 2.2deg, transparent 2.2deg 15deg);
+  -webkit-mask-image: radial-gradient(circle, transparent 16%, #000 28%, #000 44%, transparent 50%);
+  mask-image: radial-gradient(circle, transparent 16%, #000 28%, #000 44%, transparent 50%);
+  opacity: 0.5;
+  animation: apBurst calc(3.4s + var(--r) * 2.6s) cubic-bezier(0.15, 0.7, 0.3, 1) infinite;
+  animation-delay: calc(var(--i) * -0.9s);
+}
+[data-exhibition='america-250'] .pe-atmo-july-illuminations .pe-atmo-p:nth-child(3n) { --c: rgba(226, 104, 78, 0.9); }
+[data-exhibition='america-250'] .pe-atmo-july-illuminations .pe-atmo-p:nth-child(3n + 1) { --c: rgba(246, 240, 228, 0.9); }
+@keyframes apBurst {
+  0% { transform: scale(0.06) translateY(0); opacity: 0; }
+  8% { opacity: 1; }
+  55% { opacity: 0.85; }
+  100% { transform: scale(1.05) translateY(6%); opacity: 0; }
+}
+@keyframes apCandles { 0%, 100% { filter: brightness(1); } 40% { filter: brightness(1.18); } 70% { filter: brightness(0.92); } }
+
+/* ───────── stone-engraving: the plate's mark, cross-hatching cut in at its edges ───────── */
+[data-exhibition='america-250'] .pe-atmo-stone-engraving :is(.pe-atmo-part-1, .pe-atmo-part-2) {
+  inset: calc(var(--ap-fw) + 4vh) calc(var(--ap-fw) + 3vw);
+}
+[data-exhibition='america-250'] .pe-atmo-stone-engraving .pe-atmo-part-1 {
+  /* the platemark, pressed into the paper */
+  border: 1px solid rgba(110, 90, 60, 0.28);
+  background: rgba(222, 210, 186, 0.32);
+  box-shadow:
+    inset 3px 3px 0 rgba(255, 255, 255, 0.55),
+    inset -2px -2px 4px rgba(110, 90, 60, 0.2),
+    2px 2px 0 rgba(255, 255, 255, 0.6),
+    -1px -1px 3px rgba(110, 90, 60, 0.2);
+  animation: apPlate 1.4s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+[data-exhibition='america-250'] .pe-atmo-stone-engraving .pe-atmo-part-2 {
+  /* the engraver's hatching, cut in from left to right: thick at the edges, clear in the middle */
+  background:
+    repeating-linear-gradient(45deg, rgba(42, 39, 36, 0.2) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(-45deg, rgba(42, 39, 36, 0.14) 0 1px, transparent 1px 8px);
+  -webkit-mask-image: radial-gradient(ellipse 60% 56% at 50% 50%, transparent 58%, #000 100%);
+  mask-image: radial-gradient(ellipse 60% 56% at 50% 50%, transparent 58%, #000 100%);
+  animation: apPen 2.8s 0.7s cubic-bezier(0.5, 0, 0.4, 1) backwards;
+}
+[data-exhibition='america-250'] .pe-atmo-stone-engraving .pe-atmo-part-3 {
+  /* light raking across the print */
+  inset: 0 -40vw;
+  background: linear-gradient(100deg, transparent 42%, rgba(255, 251, 238, 0.5) 50%, transparent 58%);
+  animation: apRake 12s ease-in-out infinite;
+}
+@keyframes apPlate { from { opacity: 0; transform: scale(1.03); } }
+@keyframes apRake { 0% { transform: translateX(-60vw); } 70%, 100% { transform: translateX(60vw); } }
+
+/* ───────── foxed-parchment: the parchment ageing, foxing spreading ───────── */
+[data-exhibition='america-250'] .pe-atmo-foxed-parchment .pe-atmo-part-1 {
+  /* the skin's mottle and grain */
+  inset: 0;
+  background:
+    radial-gradient(ellipse 40% 30% at 18% 24%, rgba(170, 120, 60, 0.12), transparent 70%),
+    radial-gradient(ellipse 34% 40% at 82% 70%, rgba(160, 110, 50, 0.14), transparent 70%),
+    radial-gradient(ellipse 50% 26% at 60% 12%, rgba(255, 250, 230, 0.3), transparent 70%),
+    repeating-linear-gradient(8deg, rgba(120, 90, 50, 0.04) 0 1px, transparent 1px 5px);
+  animation: apAge 7s ease-out backwards;
+}
+[data-exhibition='america-250'] .pe-atmo-foxed-parchment .pe-atmo-part-2 {
+  /* its worn, darkened edges */
+  inset: var(--ap-fw);
+  box-shadow: inset 0 0 14vmin rgba(120, 74, 28, 0.34), inset 0 0 3vmin rgba(90, 52, 18, 0.3);
+}
+[data-exhibition='america-250'] .pe-atmo-foxed-parchment .pe-atmo-part-3 {
+  /* the folds it was kept in */
+  inset: 0;
+  background:
+    linear-gradient(90deg, transparent calc(50% - 1px), rgba(120, 90, 50, 0.2) calc(50% - 1px), rgba(255, 250, 235, 0.45) 50%, transparent calc(50% + 2px)),
+    linear-gradient(0deg, transparent calc(50% - 1px), rgba(120, 90, 50, 0.16) calc(50% - 1px), rgba(255, 250, 235, 0.4) 50%, transparent calc(50% + 2px));
+}
+[data-exhibition='america-250'] .pe-atmo-foxed-parchment .pe-atmo-p {
+  /* foxing: brown spots, spreading */
+  width: calc(5px + var(--r) * 30px);
+  aspect-ratio: 1;
+  border-radius: 48% 52% 55% 45%;
+  background: radial-gradient(circle, rgba(132, 80, 34, 0.55), rgba(150, 100, 50, 0.22) 50%, transparent 72%);
+  animation: apFox calc(4s + var(--r) * 5s) ease-out backwards;
+  animation-delay: calc(var(--i) * 0.4s);
+}
+@keyframes apAge { from { opacity: 0; } }
+@keyframes apFox { from { transform: scale(0); opacity: 0; } }
+
+/* ───────── delaware-ice: sleet on the wind, ice floes drifting downriver ───────── */
+[data-exhibition='america-250'] .pe-atmo-delaware-ice .pe-atmo-part-1 {
+  /* a low winter sky */
+  top: 0;
+  left: -50vw;
+  width: 200vw;
+  height: 62vh;
+  background:
+    radial-gradient(ellipse 18% 40% at 20% 30%, rgba(255, 255, 255, 0.35), transparent 70%),
+    radial-gradient(ellipse 22% 36% at 62% 22%, rgba(255, 255, 255, 0.3), transparent 70%),
+    linear-gradient(#a5b0b6, rgba(165, 176, 182, 0));
+  animation: apClouds 70s linear infinite alternate;
+}
+[data-exhibition='america-250'] .pe-atmo-delaware-ice .pe-atmo-part-2 {
+  /* the river */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 20vh;
+  background:
+    repeating-linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 9px),
+    linear-gradient(#9aaaa9, #7d8f8e);
+  opacity: 0.6;
+}
+[data-exhibition='america-250'] .pe-atmo-delaware-ice :is(.pe-atmo-part-3, .pe-atmo-part-4) {
+  /* ice floes in two rows, the near one larger and faster; the shapes repeat halfway along, so the drift loops */
+  left: 0;
+  width: 200vw;
+  background: linear-gradient(#fbfcfc, #dfe6e7);
+  filter: drop-shadow(0 2px 2px rgba(60, 75, 80, 0.25));
+  clip-path: polygon(0 100%, 1% 40%, 4% 20%, 8% 30%, 9% 100%, 13% 100%, 14% 55%, 18% 35%, 21% 60%, 22% 100%, 27% 100%, 28% 30%, 31% 15%, 36% 25%, 38% 100%, 42% 100%, 43% 50%, 46% 40%, 49% 70%, 50% 100%, 51% 40%, 54% 20%, 58% 30%, 59% 100%, 63% 100%, 64% 55%, 68% 35%, 71% 60%, 72% 100%, 77% 100%, 78% 30%, 81% 15%, 86% 25%, 88% 100%, 92% 100%, 93% 50%, 96% 40%, 99% 70%, 100% 100%);
+  animation: apFloes 80s linear infinite;
+}
+[data-exhibition='america-250'] .pe-atmo-delaware-ice .pe-atmo-part-3 { bottom: 12vh; height: 5vh; opacity: 0.75; }
+[data-exhibition='america-250'] .pe-atmo-delaware-ice .pe-atmo-part-4 { bottom: 0; height: 8vh; animation-duration: 46s; }
+[data-exhibition='america-250'] .pe-atmo-delaware-ice .pe-atmo-p {
+  /* sleet, driven on the wind */
+  width: 2px;
+  height: calc(6px + var(--r) * 9px);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 1px rgba(60, 75, 85, 0.55);
+  rotate: -17deg;
+  animation: apSleet calc(1.6s + var(--r) * 1.6s) linear infinite;
+  animation-delay: calc(var(--y) * -0.04s);
+}
+@keyframes apClouds { from { transform: translateX(-10vw); } to { transform: translateX(10vw); } }
+@keyframes apFloes { from { transform: translateX(0); } to { transform: translateX(-100vw); } }
+@keyframes apSleet { from { transform: translate(-18vh, -60vh); } to { transform: translate(18vh, 60vh); } }
+
+/* ───────── thirteen-stars: thirteen stars, lit one by one in a ring ───────── */
+[data-exhibition='america-250'] .pe-atmo-thirteen-stars .pe-atmo-part-1 {
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 45%, rgba(74, 94, 146, 0.4), transparent 66%);
+}
+[data-exhibition='america-250'] .pe-atmo-thirteen-stars .pe-atmo-part-2 {
+  /* thirteen stripes, stirring at the foot */
+  left: -5vw;
+  right: -5vw;
+  bottom: 0;
+  height: 16vh;
+  background: repeating-linear-gradient(to bottom, rgba(178, 58, 48, 0.36) 0 calc(16vh / 13), rgba(241, 236, 224, 0.1) calc(16vh / 13) calc(32vh / 13));
+  -webkit-mask-image: linear-gradient(to top, #000, transparent);
+  mask-image: linear-gradient(to top, #000, transparent);
+  transform-origin: 0 100%;
+  animation: apStripes 7s ease-in-out infinite alternate;
+}
+[data-exhibition='america-250'] .pe-atmo-thirteen-stars .pe-atmo-p {
+  left: 50%;
+  top: 48%;
+  width: 4.6vmin;
+  aspect-ratio: 1;
+  margin: -2.3vmin 0 0 -2.3vmin;
+  clip-path: polygon(50% 0, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+  background: #f4efe3;
+  transform: rotate(calc(var(--i) * 27.6923deg)) translateY(-38vmin);
+  opacity: 0.24;
+  animation: apStarOn 0.9s ease-out backwards, apTwinkle 5s ease-in-out infinite;
+  animation-delay: calc(0.4s + var(--i) * 0.22s), calc(3.4s + var(--i) * 0.38s);
+}
+@keyframes apStarOn { from { opacity: 0; scale: 0.2; } }
+@keyframes apTwinkle { 0%, 100% { opacity: 0.24; } 50% { opacity: 0.46; } }
+@keyframes apStripes { from { transform: skewY(-0.8deg); } to { transform: skewY(0.8deg) translateY(3px); } }
+
+@media (max-width: 700px) {
+  [data-exhibition='america-250'] .pe-atmo-thirteen-stars .pe-atmo-p { width: 6vmin; margin: -3vmin 0 0 -3vmin; transform: rotate(calc(var(--i) * 27.6923deg)) translateY(-42vmin); }
+  [data-exhibition='america-250'] .pe-atmo-july-illuminations .pe-atmo-part-1 { height: 16vh; }
+  /* A detail above a long paragraph: kept short, so the copy clears the arrows. */
+  [data-exhibition='america-250'] .ap-copy .pe-figure img { max-height: 28vh; }
 }
