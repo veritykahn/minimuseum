@@ -13,6 +13,7 @@ const EXHIBITION_ACCENTS: Record<string, string> = {
   'america-250': '#56656F',
   victorian: '#D9B7B8',
   'womens-history': '#F2661F',
+  holocaust: '#78716C',
 };
 
 /** Each exhibition's Lessons room, once it has lessons (see levels.ts). */
@@ -200,6 +201,23 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#F2661F',
     parent: 'womens-history',
+  },
+  {
+    id: 'holocaust',
+    label: 'Holocaust Memorial Day',
+    path: '/exhibitions/holocaust',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#78716C',
+    parent: 'first-floor',
+    children: ['ho-case', ...lessonsChild('holocaust')],
+  },
+  {
+    id: 'ho-case',
+    label: 'Display Case',
+    path: '/exhibitions/holocaust/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#78716C',
+    parent: 'holocaust',
   },
   {
     id: 'egypt',

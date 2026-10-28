@@ -1,0 +1,361 @@
+/* ==========================================================================
+   Holocaust Memorial Day's own look, on top of components/exhibition. The
+   posters set it, and the subject sets the tone: solemn, dignified and
+   restrained. Nothing playful, nothing that flashes.
+   Poster 1: a warm grey stone ground; the title in a heavy condensed
+   grotesque, all capitals, in near-black (Anton); a line of barbed wire with
+   a Star of David across the top; the photographs mounted on a black film
+   strip, softly vignetted; copy in a plain grotesque (Inter).
+   Poster 2: black; the title in the stone grey; the barbed wire and star in
+   cream; the photographs in 35mm film frames with their sprocket holes and
+   rebate marks (11A ▸ 12); the Niemöller quotation in a tall condensed
+   capital face (League Gothic).
+
+   The reveal (poster-fx.css, theme ho) brings the light up slowly as a
+   poster opens, and lets a candle's glow rise at its closing words. Here:
+   the barbed wire is drawn across, slowly; the title lines surface one by
+   one; and the photographs vary gently from panel to panel: some come up as
+   if under a lamp (ho-lamp), some advance a frame of film into the gate
+   (ho-advance), and the candles come up out of the dark (ho-glow).
+   ========================================================================== */
+
+[data-exhibition='holocaust'] {
+  --ho-stone: #d8d1ca;
+  --ho-ink: #1f1c1a;
+  --ho-black: #0b0a0a;
+  --ho-stone-light: #d6cfc7;
+  --ho-pale: #ece7e1;
+  --ho-film: #050505;
+  --ho-hole: #2e2a28;
+  --ho-rebate: #b8a68a;
+  --ho-tall: 'League Gothic', 'Arial Narrow', sans-serif;
+  /* The size of a title line. */
+  --ho-t: clamp(3rem, min(9vw, 14vh), 8.2rem);
+  --pe-nav-m: var(--ho-ink);
+  --pe-nav-ink: var(--ho-ink);
+  --pe-hint: var(--ho-ink);
+  --pe-callout-bg: var(--ho-stone-light);
+  --pe-callout-ink: var(--ho-black);
+  --pe-case-ink: var(--ho-ink);
+  --pe-case-muted: var(--ho-ink);
+  --pe-credits-ink: var(--ho-ink);
+  --pe-marks: var(--ho-ink);
+  --pe-poster-h: 56vh;
+  color: var(--ho-ink);
+}
+
+/* ───────── Landing page: the barbed wire across the top ───────── */
+[data-exhibition='holocaust'] .pe-exhibition-main { position: relative; padding-top: 150px; padding-bottom: 64px; gap: 30px; }
+[data-exhibition='holocaust'] .pe-exhibition-main::before {
+  content: '';
+  position: absolute;
+  top: 30px;
+  left: 50%;
+  width: min(1000px, 68vw);
+  aspect-ratio: 10 / 1;
+  translate: -50% 0;
+  background: url('/exhibitions/holocaust/barbed-wire-ink.svg') center / contain no-repeat;
+  pointer-events: none;
+}
+[data-exhibition='holocaust'] .pe-exhibition-title h1 {
+  font-weight: 400;
+  font-size: clamp(2.6rem, 8vw, 6.4rem);
+  line-height: 1;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  margin-bottom: 14px;
+}
+[data-exhibition='holocaust'] .pe-exhibition-title p {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-style: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.32em;
+  margin-right: -0.32em;
+  font-size: clamp(1rem, 2.4vw, 1.5rem);
+}
+[data-exhibition='holocaust'] .pe-exhibition-grid { gap: clamp(28px, 4vw, 52px); }
+[data-exhibition='holocaust'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(20, 16, 14, 0.18), 0 22px 50px rgba(20, 16, 14, 0.32); }
+/* The display case card: black, like poster 2. */
+[data-exhibition='holocaust'] .pe-display-case {
+  width: auto;
+  max-width: 320px;
+  padding: 22px 22px 24px;
+  border: 0;
+  background: var(--ho-black);
+  box-shadow: 0 2px 4px rgba(20, 16, 14, 0.18), 0 22px 46px rgba(20, 16, 14, 0.3);
+}
+[data-exhibition='holocaust'] .pe-display-case:hover,
+[data-exhibition='holocaust'] .pe-display-case:focus-visible { outline: 2px solid var(--ho-ink); outline-offset: 6px; }
+[data-exhibition='holocaust'] .pe-case-label { color: var(--ho-stone-light); letter-spacing: 0.3em; font-size: 11px; }
+[data-exhibition='holocaust'] .pe-case-title { color: var(--ho-pale); font-size: 30px; text-transform: uppercase; }
+/* The case awaiting its photographs: near-black line on the stone page, stone
+   grey on the black card, lit only faintly, as by a candle. */
+[data-exhibition='holocaust'] { --pe-case-frame: var(--ho-ink); --pe-case-glow: #e9dcc4; --pe-case-placeholder-ink: var(--ho-ink); }
+[data-exhibition='holocaust'] .pe-display-case { --pe-case-frame: var(--ho-stone-light); --pe-case-glow: #e9dcc4; --pe-case-placeholder-ink: var(--ho-stone-light); }
+[data-exhibition='holocaust'] .pe-case-placeholder-label { font-style: normal; letter-spacing: 0.04em; }
+[data-exhibition='holocaust'] .pe-credits { max-width: 640px; }
+
+/* The walkthrough's corner link on poster 2's black: the stone grey. */
+[data-exhibition='holocaust']:has(.pe-walkthrough-content .ho-p2) { --pe-nav-m: var(--ho-stone-light); --pe-nav-ink: var(--ho-stone-light); }
+/* The walkthrough's arrows and rail on poster 2's black. */
+[data-exhibition='holocaust'] .pe-nav-arrow-btn:not(:disabled):hover { background: rgba(255, 255, 255, 0.12); }
+
+/* ───────── Titles: heavy condensed capitals under the barbed wire ───────── */
+[data-exhibition='holocaust'] .ho-title.pe-title-card { gap: 0; align-items: center; }
+[data-exhibition='holocaust'] .ho-title.pe-title-card::before {
+  content: '';
+  display: block;
+  width: min(84vw, 1100px);
+  aspect-ratio: 10 / 1;
+  margin-bottom: clamp(18px, 4vh, 44px);
+  background: url('/exhibitions/holocaust/barbed-wire-ink.svg') center / contain no-repeat;
+}
+[data-exhibition='holocaust'] .ho-p2.ho-title.pe-title-card::before { background-image: url('/exhibitions/holocaust/barbed-wire-cream.svg'); }
+[data-exhibition='holocaust'] .ho-title .pe-title-text {
+  font-weight: 400;
+  font-size: var(--ho-t);
+  line-height: 1.02;
+  letter-spacing: 0.005em;
+  max-width: none;
+  text-align: left;
+}
+[data-exhibition='holocaust'] .ho-title .pe-title-line { line-height: 1.02; }
+
+/* ───────── Copy: a plain grotesque ───────── */
+[data-exhibition='holocaust'] .ho-body .pe-paragraph-text {
+  font-weight: 400;
+  font-size: clamp(1.2rem, 2.3vw, 1.75rem);
+  line-height: 1.55;
+  max-width: 30em;
+  text-align: left;
+  text-wrap: pretty;
+}
+/* The posters set *Shoah* and *Righteous Among the Nations* in bold italics. */
+[data-exhibition='holocaust'] .ho-p2 .pe-paragraph-text em { font-weight: 700; }
+
+/* ───────── Poster 1: photographs on a black film strip, softly vignetted ───────── */
+[data-exhibition='holocaust'] .ho-p1 .pe-figure {
+  overflow: hidden;
+  padding: 26px 22px;
+  background: var(--ho-film);
+  box-shadow: 0 2px 4px rgba(20, 16, 14, 0.18), 0 22px 50px rgba(20, 16, 14, 0.3);
+}
+[data-exhibition='holocaust'] .ho-p1 .pe-figure img {
+  width: min(32vw, 440px);
+  border-radius: 18px / 26px;
+  -webkit-mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, rgba(0, 0, 0, 0.35) 92%, transparent 100%);
+  mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, rgba(0, 0, 0, 0.35) 92%, transparent 100%);
+}
+
+/* ───────── Poster 2: photographs in 35mm film frames ───────── */
+[data-exhibition='holocaust'] .ho-p2 .pe-figure {
+  overflow: hidden;
+  padding: 44px 16px 40px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 9px, var(--ho-hole) 9px 21px, transparent 21px 30px) left 0 top 22px / 100% 13px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 9px, var(--ho-hole) 9px 21px, transparent 21px 30px) left 0 bottom 14px / 100% 13px no-repeat,
+    var(--ho-film);
+}
+/* The rebate marks: "11A ▸" and "12", printed along the top edge. */
+[data-exhibition='holocaust'] .ho-p2 .pe-figure::before,
+[data-exhibition='holocaust'] .ho-p2 .pe-figure::after {
+  position: absolute;
+  top: 4px;
+  font-family: var(--pe-body);
+  font-weight: 500;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: var(--ho-rebate);
+}
+[data-exhibition='holocaust'] .ho-p2 .pe-figure::before { content: '11A \25B8'; left: 22px; }
+[data-exhibition='holocaust'] .ho-p2 .pe-figure::after { content: '12'; left: 62%; }
+[data-exhibition='holocaust'] .ho-p2 .pe-figure img { width: min(32vw, 440px); }
+
+/* Credits sit on the film, in its pale ink. */
+[data-exhibition='holocaust'] .pe-figure-credit { background: none; padding: 8px 0 0; color: var(--ho-stone-light) !important; opacity: 0.9; max-width: min(32vw, 440px); }
+[data-exhibition='holocaust'] .ho-p2 .pe-figure:has(.pe-figure-credit) { padding-bottom: 46px; }
+
+/* ───────── The monument at Birkenau, in a film frame, with its credit ───────── */
+[data-exhibition='holocaust'] .ho-monument.pe-full-image {
+  flex-direction: column;
+  gap: 14px;
+  padding: 72px 6vw 104px;
+}
+[data-exhibition='holocaust'] .ho-monument.pe-full-image img {
+  max-width: 100%;
+  max-height: calc(100% - 3em);
+  min-height: 0;
+  padding: 44px 16px 40px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='18'%3E%3Ctext x='8' y='13' fill='%23b8a68a' font-family='Inter,Helvetica,Arial,sans-serif' font-weight='500' font-size='11' letter-spacing='0.9'%3E11A %E2%96%B8%3C/text%3E%3Ctext x='370' y='13' fill='%23b8a68a' font-family='Inter,Helvetica,Arial,sans-serif' font-weight='500' font-size='11' letter-spacing='0.9'%3E12%3C/text%3E%3C/svg%3E") left 14px top 2px / 600px 18px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 9px, var(--ho-hole) 9px 21px, transparent 21px 30px) left 0 top 22px / 100% 13px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 9px, var(--ho-hole) 9px 21px, transparent 21px 30px) left 0 bottom 14px / 100% 13px no-repeat,
+    var(--ho-film);
+}
+[data-exhibition='holocaust'] .ho-monument .pe-image-caption {
+  position: static;
+  transform: none;
+  white-space: normal;
+  max-width: 46em;
+  font-size: 12.5px;
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+  color: var(--ho-stone-light) !important;
+  opacity: 0.9;
+}
+
+/* ───────── Never Forget. ───────── */
+[data-exhibition='holocaust'] .ho-close .pe-section-title-text {
+  font-size: clamp(3.4rem, 10vw, 8.6rem);
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-transform: none;
+}
+
+/* ───────── The Niemöller quotation: tall condensed capitals ───────── */
+[data-exhibition='holocaust'] .ho-quote .pe-quote-text {
+  max-width: 24em;
+  padding: 0;
+  border: 0;
+  font-family: var(--ho-tall);
+  font-weight: 400;
+  font-size: clamp(1.9rem, min(4vw, 6.4vh), 3.4rem);
+  line-height: 1.22;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-align: center;
+  text-wrap: balance;
+}
+[data-exhibition='holocaust'] .ho-quote .pe-quote-cite { font-style: italic; font-size: clamp(1rem, 1.9vw, 1.3rem); margin-top: 18px; }
+
+/* ───────── The link out: the poster's stone box, in its condensed capitals ───────── */
+[data-exhibition='holocaust'] .ho-link .pe-callout {
+  max-width: min(720px, 100%);
+  padding: 30px 44px;
+}
+[data-exhibition='holocaust'] .ho-link .pe-callout-text { font-size: clamp(1.3rem, 2.8vw, 2rem); text-align: center; text-wrap: balance; }
+[data-exhibition='holocaust'] .ho-link a.pe-callout:hover,
+[data-exhibition='holocaust'] .ho-link a.pe-callout:focus-visible { outline: 2px solid var(--ho-stone-light); outline-offset: 6px; }
+[data-exhibition='holocaust'] .pe-content-end:hover { color: var(--ho-stone) !important; background: var(--ho-ink); border-color: var(--ho-ink) !important; }
+[data-exhibition='holocaust'] .ho-p2 .pe-content-end:hover { color: var(--ho-black) !important; background: var(--ho-stone-light); border-color: var(--ho-stone-light) !important; }
+
+/* ==========================================================================
+   The reveal, panel by panel (the theme itself is in poster-fx.css). All of
+   it slow and still.
+   ========================================================================== */
+
+/* The barbed wire is drawn across, slowly, left to right. */
+[data-exhibition='holocaust'] .pfx-ho .ho-title.pe-title-card::before { animation: hoDraw 3.6s 0.5s cubic-bezier(0.45, 0, 0.25, 1) backwards; }
+@keyframes hoDraw {
+  from { clip-path: inset(0 100% 0 0); }
+  to { clip-path: inset(0 0 0 0); }
+}
+/* The title lines surface one by one. */
+[data-exhibition='holocaust'] .pfx-ho .ho-title .pe-title-line { animation: pfxHoSurface 2.2s ease-out backwards; }
+[data-exhibition='holocaust'] .pfx-ho .ho-title .pe-title-line-1 { animation-delay: 1.2s; }
+[data-exhibition='holocaust'] .pfx-ho .ho-title .pe-title-line-2 { animation-delay: 1.7s; }
+[data-exhibition='holocaust'] .pfx-ho .ho-title .pe-title-line-3 { animation-delay: 2.2s; }
+[data-exhibition='holocaust'] .pfx-ho .ho-title .pe-title-line-4 { animation-delay: 2.7s; }
+
+/* The figure itself is still; what is in it comes up. */
+[data-exhibition='holocaust'] .pfx-ho :is(.ho-lamp, .ho-advance, .ho-glow) .pe-figure.pfx-media { animation: hoFrame 1.6s ease-out backwards; }
+@keyframes hoFrame {
+  from { opacity: 0; }
+}
+/* Under a lamp: the picture comes up slowly from the dark, a little warm at first. */
+[data-exhibition='holocaust'] .pfx-ho .ho-lamp .pe-figure img { animation: hoLamp 4s 0.6s ease-out backwards; }
+@keyframes hoLamp {
+  0% { filter: brightness(0) sepia(0.4); }
+  55% { filter: brightness(0.75) sepia(0.25); }
+  100% { filter: brightness(1) sepia(0); }
+}
+/* A frame of film advances into the gate, slowly. */
+[data-exhibition='holocaust'] .pfx-ho .ho-advance .pe-figure img { animation: hoAdvance 2.8s 0.5s cubic-bezier(0.45, 0, 0.2, 1) backwards; }
+@keyframes hoAdvance {
+  from { translate: 0 -105%; }
+}
+/* The candles: their own light comes up out of the dark. */
+[data-exhibition='holocaust'] .pfx-ho .ho-glow .pe-figure img { animation: hoGlow 4.6s 0.4s ease-in-out backwards; }
+@keyframes hoGlow {
+  0% { filter: brightness(0.08) contrast(1.6); }
+  45% { filter: brightness(0.5) contrast(1.25); }
+  100% { filter: brightness(1) contrast(1); }
+}
+/* Credits come last. */
+[data-exhibition='holocaust'] .pfx-ho .pe-figure-credit { animation: pfxHoSurface 1.6s 2.6s ease-out backwards; }
+/* The monument comes up under a lamp, slowly, and its credit after it. */
+[data-exhibition='holocaust'] .pfx-ho .ho-monument.pfx-media { animation: none; }
+[data-exhibition='holocaust'] .pfx-ho .ho-monument img { animation: hoLamp 4.4s 0.3s ease-out backwards; }
+[data-exhibition='holocaust'] .pfx-ho .ho-monument .pe-image-caption { animation: pfxHoSurface 1.6s 2.8s ease-out backwards; }
+
+/* ───────── The display case page ───────── */
+[data-exhibition='holocaust'].pe-case-page { --pe-case-ink: var(--ho-ink); }
+[data-exhibition='holocaust'] .pe-case-page-title { font-weight: 400; text-transform: uppercase; }
+[data-exhibition='holocaust'] .pe-case-page-subtitle { font-family: var(--pe-display); font-style: normal; text-transform: uppercase; letter-spacing: 0.32em; }
+[data-exhibition='holocaust'] .pe-case-page-label { letter-spacing: 0.3em; }
+[data-exhibition='holocaust'] .pe-case-page-artifacts {
+  padding: 30px clamp(22px, 5vw, 56px);
+  background: var(--ho-black);
+  color: var(--ho-pale);
+}
+[data-exhibition='holocaust'] .pe-case-page-artifacts h2 { color: var(--ho-stone-light); font-weight: 400; text-transform: uppercase; }
+[data-exhibition='holocaust'] .pe-case-page-artifacts h2::after { background: var(--ho-stone-light); }
+[data-exhibition='holocaust'] .pe-case-page-display h2 { font-weight: 400; text-transform: uppercase; }
+[data-exhibition='holocaust'] .pe-case-page-display h2::after { background: var(--ho-ink); }
+/* The artifact cards on the black: stone-grey line, nothing bright. */
+[data-exhibition='holocaust'] .pe-case-page-artifacts {
+  --pe-case-frame: var(--ho-stone-light);
+  --pe-card-bg: rgba(236, 231, 225, 0.04);
+  --pe-card-line: rgba(214, 207, 199, 0.3);
+  --pe-card-radius: 2px;
+}
+[data-exhibition='holocaust'] .pe-artifact-card-name { text-transform: uppercase; letter-spacing: 0.04em; color: var(--ho-pale); }
+[data-exhibition='holocaust'] .pe-case-page-artifacts .pe-artifact-card-go { color: var(--ho-stone-light); letter-spacing: 0.3em; }
+[data-exhibition='holocaust'] .pe-case-page-artifacts .pe-artifact-card:hover,
+[data-exhibition='holocaust'] .pe-case-page-artifacts .pe-artifact-card:focus-visible { transform: none; border-color: var(--ho-pale); }
+/* An artifact's page: on the stone, square-cornered, its name in the posters' capitals. */
+[data-exhibition='holocaust'].pe-artifact-page { --pe-card-radius: 2px; --pe-case-muted: var(--ho-ink); }
+[data-exhibition='holocaust'] .pe-artifact-name { text-transform: uppercase; letter-spacing: 0.02em; }
+[data-exhibition='holocaust'] .pe-artifact-source,
+[data-exhibition='holocaust'] .pe-artifact-trail { letter-spacing: 0.3em; }
+[data-exhibition='holocaust'] .pe-artifact-stage-art .pe-artifact-glyph { animation: none; }
+[data-exhibition='holocaust'] .pe-artifact-page a.pe-case-page-return:hover,
+[data-exhibition='holocaust'] .pe-artifact-page a.pe-case-page-return:focus-visible { color: var(--ho-stone); background: var(--ho-ink); border-color: var(--ho-ink); }
+[data-exhibition='holocaust'] a.pe-case-page-return:hover,
+[data-exhibition='holocaust'] a.pe-case-page-return:focus-visible { color: var(--ho-stone); background: var(--ho-ink); border-color: var(--ho-ink); }
+
+/* ───────── The classroom screen ───────── */
+[data-exhibition='holocaust'] .pjp-stage { --ho-t: calc(var(--pjp-u) * 8.4); }
+[data-exhibition='holocaust'] .pjp-stage .ho-title.pe-title-card::before { width: calc(var(--pjp-u) * 80); margin-bottom: calc(var(--pjp-u) * 3); }
+[data-exhibition='holocaust'] .pjp-stage .ho-body .pe-paragraph-text { font-size: calc(var(--pjp-u) * 2.3); }
+[data-exhibition='holocaust'] .pjp-stage :is(.ho-p1, .ho-p2) .pe-figure img { width: auto; max-width: calc(var(--pjp-u) * 32); max-height: calc(var(--pjp-u) * 30); }
+[data-exhibition='holocaust'] .pjp-stage .pe-figure-credit { font-size: calc(var(--pjp-u) * 0.95); max-width: calc(var(--pjp-u) * 32); }
+[data-exhibition='holocaust'] .pjp-stage .ho-monument.pe-full-image { padding: calc(var(--pjp-u) * 3) calc(var(--pjp-u) * 4) calc(var(--pjp-u) * 6); gap: calc(var(--pjp-u) * 0.8); }
+[data-exhibition='holocaust'] .pjp-stage .ho-monument.pe-full-image img { max-height: calc(100% - var(--pjp-u) * 3); }
+[data-exhibition='holocaust'] .pjp-stage .ho-monument .pe-image-caption { font-size: calc(var(--pjp-u) * 0.95); width: auto; }
+[data-exhibition='holocaust'] .pjp-stage .ho-close .pe-section-title-text { font-size: calc(var(--pjp-u) * 8); }
+[data-exhibition='holocaust'] .pjp-stage .ho-quote .pe-quote-text { font-size: calc(var(--pjp-u) * 2.7); }
+[data-exhibition='holocaust'] .pjp-stage .ho-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
+
+@media (max-width: 900px) {
+  [data-exhibition='holocaust'] { --pe-poster-h: 46vh; }
+  [data-exhibition='holocaust'] :is(.ho-p1, .ho-p2) .pe-figure img { width: min(72vw, 340px); }
+  [data-exhibition='holocaust'] .pe-figure-credit { max-width: min(72vw, 340px); }
+}
+@media (max-width: 700px) {
+  [data-exhibition='holocaust'] { --ho-t: clamp(2.2rem, 11.5vw, 4.6rem); }
+  [data-exhibition='holocaust'] .pe-exhibition-main { padding-top: 104px; }
+  [data-exhibition='holocaust'] .pe-exhibition-main::before { top: 56px; width: calc(100% - 32px); }
+  [data-exhibition='holocaust'] .ho-link .pe-callout { padding-left: 24px; padding-right: 24px; }
+  [data-exhibition='holocaust'] .ho-monument.pe-full-image { padding-left: 16px; padding-right: 16px; }
+  [data-exhibition='holocaust'] .ho-quote .pe-quote-text { font-size: clamp(1.5rem, 6.4vw, 2.2rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-exhibition='holocaust'] .pfx-ho .ho-title.pe-title-card::before,
+  [data-exhibition='holocaust'] .pfx-ho :is(.pe-title-line, .pe-figure, .pe-figure img, .pe-figure-credit, .pe-image-caption, img) {
+    animation: none !important;
+  }
+}

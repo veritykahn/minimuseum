@@ -37,7 +37,12 @@ import './poster-fx.css';
  * ground and the page shows through it; as the second opens, a sheet of
  * paper is wound up through a typewriter's platen a line at a time. The
  * exhibition's own stylesheet carries the rest (the photographs developing,
- * the biography set by a typewriter carriage).
+ * the biography set by a typewriter carriage). Holocaust Memorial Day is
+ * quiet and grave: as a poster opens the light comes up slowly out of the
+ * dark, and at its closing words a single candle's glow rises and settles.
+ * Nothing slides or bounces; copy surfaces, and the photographs come up as
+ * if under a lamp or advance a frame of film into the gate (the exhibition's
+ * own stylesheet varies them panel by panel).
  *
  * All of it is CSS: transforms, opacity, clip-path and one-shot filters,
  * started by the walkthrough remounting on each step. Nothing runs per frame
@@ -46,7 +51,7 @@ import './poster-fx.css';
  * never drawn.
  */
 
-export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo' | 'ap' | 'vb' | 'wh';
+export type FxTheme = 'sid' | 'hr' | 'ith' | 'fl' | 'gw' | 'eg' | 'mo' | 'ap' | 'vb' | 'wh' | 'ho';
 export type FxKind = 'title' | 'statement' | 'body' | 'quote' | 'glitch';
 
 type CssVars = React.CSSProperties & Record<`--${string}`, string | number>;
@@ -227,6 +232,14 @@ export function FxVeil({ theme, kind }: { theme: FxTheme; kind: 'media' | 'title
         <i className="pfx-wh-blot pfx-wh-blot-2" />
         <i className="pfx-wh-blot pfx-wh-blot-3" />
         <i className="pfx-wh-blot pfx-wh-blot-4" />
+      </div>
+    );
+  }
+  if (theme === 'ho') {
+    // The light coming up slowly; at a chapter, a candle's glow.
+    return (
+      <div className={`pfx-veil pfx-ho-light is-${kind}`} aria-hidden="true">
+        <i />
       </div>
     );
   }

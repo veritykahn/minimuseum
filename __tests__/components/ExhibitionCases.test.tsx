@@ -8,14 +8,18 @@ import sitemap from '@/app/sitemap';
 
 /*
  * The engine-built display cases (Great War, Ancient Egypt, Our Incredible
- * Moon, Victorian Britain, Women's History Month): a card for each artifact on
- * the case page, a page for each artifact, every word the owner's own, and
- * every page reachable from the map and the sitemap.
+ * Moon, Victorian Britain, Women's History Month, Holocaust Memorial Day): a
+ * card for each artifact on the case page, a page for each artifact, every
+ * word the owner's own, and every page reachable from the map and the sitemap.
  */
 
 const cases = EXHIBITION_CASES.map((c) => [c.config.slug, c] as const);
 const posterText = (config: (typeof EXHIBITION_CASES)[number]['config'], id: string) =>
   (config.posters.find((p) => p.id === id)?.items ?? []).map((it) => ('text' in it ? it.text : '')).join('\n');
+
+it('includes every engine-built case, Holocaust Memorial Day among them', () => {
+  expect(cases.map(([slug]) => slug)).toEqual(['great-war', 'egypt', 'moon', 'victorian', 'womens-history', 'holocaust']);
+});
 
 describe.each(cases)('%s display case', (slug, { config, data }) => {
   it('has artifacts with unique ids, and no line of the record has been dropped or doubled', () => {

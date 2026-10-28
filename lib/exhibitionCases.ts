@@ -4,6 +4,7 @@ import { EGYPT, EGYPT_CASE } from '@/app/exhibitions/egypt/egypt';
 import { MOON, MOON_CASE } from '@/app/exhibitions/moon/moon';
 import { VICTORIAN, VICTORIAN_CASE } from '@/app/exhibitions/victorian/victorian';
 import { WOMENS_HISTORY, WOMENS_HISTORY_CASE } from '@/app/exhibitions/womens-history/womensHistory';
+import { HOLOCAUST, HOLOCAUST_CASE } from '@/app/exhibitions/holocaust/holocaust';
 
 /**
  * The poster exhibitions whose display case is built by the engine
@@ -18,4 +19,5 @@ export const EXHIBITION_CASES: { config: ExhibitionConfig; data: CasePageData }[
   { config: MOON, data: MOON_CASE },
   { config: VICTORIAN, data: VICTORIAN_CASE },
   { config: WOMENS_HISTORY, data: WOMENS_HISTORY_CASE },
+  { config: HOLOCAUST, data: HOLOCAUST_CASE },
 ];

@@ -26,6 +26,7 @@ const COLORS = {
   america250: '#56656F',
   victorian: '#D9B7B8',
   womensHistory: '#F2661F',
+  holocaust: '#78716C',
 };
 
 // Helper: create a wall segment with a doorway gap in the middle
@@ -252,7 +253,12 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     parent: 'first-floor',
     children: ['wh-case', ...lessonsChild('womens-history')],
   },
-  comingSoonRoom('holocaust', 'Holocaust\nMemorial Day', 'first-floor', { x: COL[3], ...TOP }),
+  {
+    id: 'holocaust', label: 'Holocaust\nMemorial Day', path: '/exhibitions/holocaust',
+    x: COL[3], ...TOP, accentColor: COLORS.holocaust,
+    parent: 'first-floor',
+    children: ['ho-case', ...lessonsChild('holocaust')],
+  },
   // Bottom row
   comingSoonRoom('black-history', 'Black History\nMonth', 'first-floor', { x: COL[0], ...BOTTOM }),
   comingSoonRoom('writing-revolution', 'The Writing\nRevolution', 'first-floor', { x: COL[1], ...BOTTOM }),
@@ -866,6 +872,52 @@ export const WOMENS_HISTORY: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 3 — Holocaust Memorial Day (Floor Plan)
+//
+// Layout: the Exhibition Hall, and the display case beyond it
+// ┌────────────────────────────────┐
+// │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
+// └────────────────────────────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
+  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  accentColor: COLORS.holocaust,
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+  ],
+  rooms: [
+    {
+      id: 'ho-entrance', label: 'Exhibition Hall', path: '/exhibitions/holocaust',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'ho-case', label: 'Display Case', path: '/exhibitions/holocaust/artifacts/case',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
+    },
+  ],
+};
+
+export const HOLOCAUST: MapLevelConfig = {
+  level: 'exhibition',
+  rooms: [],
+  connections: [],
+  title: 'Holocaust Memorial Day',
+  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
+  ],
+  ...withLessons(HOLOCAUST_FLOOR_PLAN, '0 0 500 330', 'holocaust'),
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // Level resolver
 // ═══════════════════════════════════════════════════════════════════
 
@@ -880,6 +932,7 @@ export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/america-250')) return AMERICA_250;
   if (pathname.startsWith('/exhibitions/victorian')) return VICTORIAN;
   if (pathname.startsWith('/exhibitions/womens-history')) return WOMENS_HISTORY;
+  if (pathname.startsWith('/exhibitions/holocaust')) return HOLOCAUST;
   if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
   if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;
