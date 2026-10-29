@@ -99,7 +99,7 @@ const commonsFigure = (p: CommonsPicture, side: PanelFigure['side']): PanelFigur
 });
 
 /* From the posters: the neutral photographs only (approved decision 3). */
-const STONES: PanelFigure = {
+export const STONES: PanelFigure = {
   src: '/exhibitions/holocaust/poster-stones.jpg',
   alt: 'Small stones laid along the top of a granite memorial stone carved with a Star of David',
   side: 'right',
@@ -118,6 +118,12 @@ const BLOCK_24A: PanelFigure = {
   src: '/exhibitions/holocaust/poster-block-24a.jpg',
   alt: 'A black-and-white photograph of a brick wall at Auschwitz with a sign reading Block 24a and a lamp beside a doorway',
   side: 'left',
+};
+
+/** Poster 2's quotation: the walkthrough and the memorial stone's room (stones/) both set it from here. */
+export const NIEMOLLER = {
+  text: '“First they came for the socialists, and I did not speak out—because I was not a socialist. Then they came for the trade unionists, and I did not speak out—because I was not a trade unionist. Then they came for the Jews, and I did not speak out—because I was not a Jew. Then they came for me—and there was no one left to speak for me.”',
+  cite: '— Martin Niemöller',
 };
 
 /*
@@ -180,12 +186,24 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The light comes up slowly as a poster opens; every other panel arrives its own way, quietly.
   fx: { theme: 'ho', veil: 'chapters', text: 'all' },
-  projector: { theme: HOLOCAUST_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: HOLOCAUST_PROJECTOR_THEME,
+    links: [{ label: 'Lay a Stone: the memorial stone, and a minute’s stillness', href: '/exhibitions/holocaust/stones' }],
+  },
   cases: [
     {
       href: '/exhibitions/holocaust/artifacts/case',
       label: 'Display Case',
       title: 'Artifacts',
+    },
+  ],
+  interactives: [
+    {
+      href: '/exhibitions/holocaust/stones',
+      image: { src: STONES.src, alt: STONES.alt },
+      label: 'Interactive',
+      title: 'Lay a Stone',
+      subtitle: 'Stones laid by visitors, and a minute’s stillness',
     },
   ],
   credits: COMMONS_PICTURES.map((p) => ({ text: creditFor(p), href: p.href })),
@@ -282,8 +300,8 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
           section: 'quote',
           atmosphere: 'candle-vigil',
           effect: 'line-by-line',
-          text: '“First they came for the socialists, and I did not speak out—because I was not a socialist. Then they came for the trade unionists, and I did not speak out—because I was not a trade unionist. Then they came for the Jews, and I did not speak out—because I was not a Jew. Then they came for me—and there was no one left to speak for me.”',
-          cite: '— Martin Niemöller',
+          text: NIEMOLLER.text,
+          cite: NIEMOLLER.cite,
         },
         { type: 'callout', section: 'link', atmosphere: 'candle-vigil', effect: 'film-credits', text: 'Learn more about the Holocaust at the United States Holocaust Memorial Museum', url: USHMM_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },

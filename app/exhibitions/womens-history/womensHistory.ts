@@ -73,21 +73,53 @@ const SPLASH_TR = '/exhibitions/womens-history/splash-tr.png';
 const splash = (src: string, placement: PanelDecor['placement'], width = 'min(34vw, 440px)'): PanelDecor => ({ src, placement, motion: 'none', width });
 
 /* The family photographs, from poster 2, the owner's own. */
-const PHOTO_VIOLET: PanelFigure = {
+export const PHOTO_VIOLET: PanelFigure = {
   src: '/exhibitions/womens-history/photo-violet.jpg',
   alt: 'A sepia studio portrait of Violet as a young woman, standing beside a small pedestal table in a long belted coat with a strap across her chest, a brimmed hat and white gloves',
   side: 'right',
 };
-const PHOTO_PROMENADE: PanelFigure = {
+export const PHOTO_PROMENADE: PanelFigure = {
   src: '/exhibitions/womens-history/photo-promenade.jpg',
   alt: 'A sepia snapshot of three people walking arm in arm along a promenade: a woman holding a patterned parasol, a man in a straw hat and jacket, and a young woman in a pale blouse and dark trousers',
   side: 'left',
 };
-const PHOTO_FAMILY: PanelFigure = {
+export const PHOTO_FAMILY: PanelFigure = {
   src: '/exhibitions/womens-history/photo-family.jpg',
   alt: 'A faded photograph of a family group outside a house: five women, three standing and two seated, with a baby in a white dress sitting between them',
   side: 'right',
 };
+export const PHOTO_FOUR_WOMEN = {
+  src: '/exhibitions/womens-history/photo-four-women.jpg',
+  alt: 'A black-and-white photograph of four women standing close together in front of a net-curtained window, two of them in white dresses',
+};
+
+/*
+ * Poster 2's biography, paragraph by paragraph, as printed: the walkthrough
+ * below and Violet's room (violet/) both set it from here.
+ */
+export const VIOLET_NAME = 'Violet Dina Want';
+export const VIOLET_NEE = 'née Knight';
+export const VIOLET_DATES = 'Born January 27, 1907 | Died March 2, 1988';
+export const VIOLET_LETTERING = { src: '/exhibitions/womens-history/violet-dina-want.png', width: 1530, height: 225 };
+export const BIOGRAPHY_MOTTO = 'BIOGRAPHY OF A WORKING CLASS WOMAN';
+export const BIO_LEAD = 'VIOLET DINA WANT NÉE KNIGHT';
+export const BIO = {
+  childhood: 'was born at the turn of the 20th century in Fulham, Hammersmith, London, into a large working-class family with three sisters and two brothers. As the second eldest daughter, she was expected to help both at home and financially from a young age. She took on a great deal of responsibility, caring for her younger sisters after school and as she aged, after work.',
+  father: 'Her father worked as a commissionaire (now known as a doorman) at a hotel, occasionally bringing home leftover food from the restaurant to help feed the family. Despite their modest circumstances, Violet excelled in school, earning certificates for attendance and religious studies every year. Her teachers saw great potential in her and encouraged her to pursue a teaching career—a well-respected and middle-class profession at the time.',
+  factory: "However, when one of her sisters was believed to be going blind and needed to attend a specialized school, Violet had to leave school at 14 to work and help support the family. She became a piecework machinist in a factory, where machinists get paid for each 'piece of work' they complete.",
+  garden: 'During this time, she also learned gardening from her father, an essential source of food for many families. It was common if you had a garden, even in large cities like London, to grow vegetables and keep rabbits for "the pot". One of these rabbits became Violet\'s pet, often perching on her shoulder as she worked in the garden—until the day she came home to find it had been cooked for dinner.',
+  faith: 'Violet was religious throughout her life and joined the Salvation Army, or "Sally Army," as an adult. In 1928, at the age of 21, she married Harold Henry Robert Want, saying she had chosen him because he made her laugh.',
+  harold: 'Harold Want had previously been married but his wife died young and left him with an infant son. While Violet would have been happy to care for and raise this son, he was instead sent to live with an older, childless aunt—a common practice at the time.',
+  family: 'Violet and Harold began their own family in 1929 with the birth of their eldest daughter, Edna, followed by Doris, in 1930. After a long gap, they had two sons in 1938 and 1942. Money was often tight—Harold worked as a barman and struggled with alcoholism—but Violet ensured her children were always warm and well-dressed.',
+  seamstress: 'A skilled seamstress from her years as a machinist, she could take apart adult coats, resize them, and reassemble them perfectly for her children. Her resourcefulness meant they were often better off than others in their community. For example, it was common for poor families to place their youngest child in a makeshift cot by pushing two wooden armchairs together and rolling the baby in a blanket fastened with safety pins.',
+  music: 'Music played a significant role in their home. Violet always owned a piano, which she could play by ear, and it became the centerpiece of lively "knees-up" parties with family and friends.',
+  blitz: "Before World War II, Violet's extended family lived in close-knit neighboring streets, but the heavy bombing during the Blitz destroyed their homes, scattering them across the South of England. When a V-1 'doodlebug' bomb, a bomb designed by the Nazis to terrorize the British civilian population and lower morale, exploded nearby, it shattered all the windows in Violet's home and collapsed her mother's house, killing her instantly along with a family dog.",
+  blast: 'Her mother was identified only by the rings on her finger. The blast also maimed a family puppy, which had to be put down, and left Violet with spinal rheumatism, making breathing painful—though she eventually recovered.',
+  essex: 'After the war, she was offered a home on a new council estate in Essex. It was a corner house with a large garden, where she cultivated beautiful flowers like begonias, chrysanthemums, and ice plants, along with vegetables such as string beans and peas. However, her favorite flowers were roses, which she planted at the bottom of the garden.',
+  greengrocer: 'By the time her grandchildren knew her, Violet worked at the local greengrocer, passing on her knowledge about selecting the best produce—such as choosing cauliflowers with their inner leaves still curled over to keep the curds white. She also had a particular fondness for young turnips, eating them like apples.',
+  later: 'Widowed in 1956, Violet remained strong and resilient. She continued to garden, even when rheumatoid arthritis made it difficult, and enjoyed sitting outside with her beloved dog, Shona. Music remained a constant in her life; she always kept a piano in her home and, in her seventies, developed a love for Strauss waltzes, which she listened to on the radio. She also had a surprising penchant for wrestling, tuning in every Saturday, and knew Tiny Carr personally, a famous referee of the time.',
+  legacy: "Violet Want's life is a testament to resilience, humor, and hard work. As a family matriarch, her story offers a rich snapshot of working-class life in England, spanning the Edwardian era, two world wars, and the societal shifts of the 1970s and 80s. The personal histories of women like her help us understand the past—not just in grand historical events, but through the everyday sacrifices and triumphs of ordinary people who shaped the world we live in today.",
+} as const;
 
 /*
  * The posters' titles as pictures: their own navy lettering, the stacked and
@@ -160,12 +192,24 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The paint (poster 1) or the typewriter's sheet (poster 2) crosses as a poster opens; every panel then arrives its own way.
   fx: { theme: 'wh', veil: 'chapters', text: 'all' },
-  projector: { theme: WOMENS_HISTORY_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: WOMENS_HISTORY_PROJECTOR_THEME,
+    links: [{ label: 'Violet’s Life: her places and moments', href: '/exhibitions/womens-history/violet' }],
+  },
   cases: [
     {
       href: '/exhibitions/womens-history/artifacts/case',
       label: 'Display Case',
       title: 'Artifacts',
+    },
+  ],
+  interactives: [
+    {
+      href: '/exhibitions/womens-history/violet',
+      image: { src: PHOTO_VIOLET.src, alt: PHOTO_VIOLET.alt },
+      label: 'Interactive',
+      title: 'Violet’s Life',
+      subtitle: 'Her places and moments, one keepsake at a time',
     },
   ],
   credits: [{ text: AF_KLINT_CREDIT, href: AF_KLINT_SOURCE }],
@@ -284,7 +328,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           section: 'motto',
           atmosphere: 'blitz-letters',
           effect: 'fade-in',
-          text: 'BIOGRAPHY OF A WORKING CLASS WOMAN',
+          text: BIOGRAPHY_MOTTO,
           lines: ['BIOGRAPHY OF A', 'WORKING CLASS', 'WOMAN'],
         },
         // Her name is inked in with the pen, as the reveal does it (the theme's own entrance).
@@ -292,10 +336,10 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           type: 'title-text',
           section: 'name',
           atmosphere: 'blitz-letters',
-          text: 'Violet Dina Want',
-          lettering: { src: '/exhibitions/womens-history/violet-dina-want.png', width: 1530, height: 225 },
-          subtitle: 'née Knight',
-          note: 'Born January 27, 1907 | Died March 2, 1988',
+          text: VIOLET_NAME,
+          lettering: VIOLET_LETTERING,
+          subtitle: VIOLET_NEE,
+          note: VIOLET_DATES,
         },
 
         // Childhood
@@ -305,14 +349,14 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           atmosphere: 'blitz-letters',
           effect: 'kenburns-in',
           figure: PHOTO_VIOLET,
-          lead: 'VIOLET DINA WANT NÉE KNIGHT',
-          text: 'was born at the turn of the 20th century in Fulham, Hammersmith, London, into a large working-class family with three sisters and two brothers. As the second eldest daughter, she was expected to help both at home and financially from a young age. She took on a great deal of responsibility, caring for her younger sisters after school and as she aged, after work.',
+          lead: BIO_LEAD,
+          text: BIO.childhood,
         },
-        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'typewriter', text: 'Her father worked as a commissionaire (now known as a doorman) at a hotel, occasionally bringing home leftover food from the restaurant to help feed the family. Despite their modest circumstances, Violet excelled in school, earning certificates for attendance and religious studies every year. Her teachers saw great potential in her and encouraged her to pursue a teaching career—a well-respected and middle-class profession at the time.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'typewriter', text: BIO.father },
 
         // Work
-        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'line-by-line', text: "However, when one of her sisters was believed to be going blind and needed to attend a specialized school, Violet had to leave school at 14 to work and help support the family. She became a piecework machinist in a factory, where machinists get paid for each 'piece of work' they complete." },
-        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'rise-expand', text: 'During this time, she also learned gardening from her father, an essential source of food for many families. It was common if you had a garden, even in large cities like London, to grow vegetables and keep rabbits for "the pot". One of these rabbits became Violet\'s pet, often perching on her shoulder as she worked in the garden—until the day she came home to find it had been cooked for dinner.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'line-by-line', text: BIO.factory },
+        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'rise-expand', text: BIO.garden },
 
         // Marriage
         {
@@ -321,9 +365,9 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           atmosphere: 'blitz-letters',
           effect: 'pan-lr',
           figure: PHOTO_PROMENADE,
-          text: 'Violet was religious throughout her life and joined the Salvation Army, or "Sally Army," as an adult. In 1928, at the age of 21, she married Harold Henry Robert Want, saying she had chosen him because he made her laugh.',
+          text: BIO.faith,
         },
-        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'fade-in', text: 'Harold Want had previously been married but his wife died young and left him with an infant son. While Violet would have been happy to care for and raise this son, he was instead sent to live with an older, childless aunt—a common practice at the time.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'fade-in', text: BIO.harold },
 
         // Family
         {
@@ -332,34 +376,34 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           atmosphere: 'running-stitch',
           effect: 'shrink-back',
           figure: PHOTO_FAMILY,
-          text: 'Violet and Harold began their own family in 1929 with the birth of their eldest daughter, Edna, followed by Doris, in 1930. After a long gap, they had two sons in 1938 and 1942. Money was often tight—Harold worked as a barman and struggled with alcoholism—but Violet ensured her children were always warm and well-dressed.',
+          text: BIO.family,
         },
-        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'typewriter', text: 'A skilled seamstress from her years as a machinist, she could take apart adult coats, resize them, and reassemble them perfectly for her children. Her resourcefulness meant they were often better off than others in their community. For example, it was common for poor families to place their youngest child in a makeshift cot by pushing two wooden armchairs together and rolling the baby in a blanket fastened with safety pins.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'typewriter', text: BIO.seamstress },
 
         // Music
-        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'waves-drift', text: 'Music played a significant role in their home. Violet always owned a piano, which she could play by ear, and it became the centerpiece of lively "knees-up" parties with family and friends.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'waves-drift', text: BIO.music },
 
         // The war
-        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'line-by-line', text: "Before World War II, Violet's extended family lived in close-knit neighboring streets, but the heavy bombing during the Blitz destroyed their homes, scattering them across the South of England. When a V-1 'doodlebug' bomb, a bomb designed by the Nazis to terrorize the British civilian population and lower morale, exploded nearby, it shattered all the windows in Violet's home and collapsed her mother's house, killing her instantly along with a family dog." },
-        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'fade-in', text: 'Her mother was identified only by the rings on her finger. The blast also maimed a family puppy, which had to be put down, and left Violet with spinal rheumatism, making breathing painful—though she eventually recovered.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'line-by-line', text: BIO.blitz },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'fade-in', text: BIO.blast },
 
         // After the war
-        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'blur-to-sharp', text: 'After the war, she was offered a home on a new council estate in Essex. It was a corner house with a large garden, where she cultivated beautiful flowers like begonias, chrysanthemums, and ice plants, along with vegetables such as string beans and peas. However, her favorite flowers were roses, which she planted at the bottom of the garden.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'blur-to-sharp', text: BIO.essex },
 
         // Later life
-        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'typewriter', text: 'By the time her grandchildren knew her, Violet worked at the local greengrocer, passing on her knowledge about selecting the best produce—such as choosing cauliflowers with their inner leaves still curled over to keep the curds white. She also had a particular fondness for young turnips, eating them like apples.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'typewriter', text: BIO.greengrocer },
         {
           type: 'full-image',
           section: 'contact',
           atmosphere: 'parlour-piano',
           effect: 'kenburns-in',
-          src: '/exhibitions/womens-history/photo-four-women.jpg',
-          alt: 'A black-and-white photograph of four women standing close together in front of a net-curtained window, two of them in white dresses',
+          src: PHOTO_FOUR_WOMEN.src,
+          alt: PHOTO_FOUR_WOMEN.alt,
         },
-        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'drift', text: 'Widowed in 1956, Violet remained strong and resilient. She continued to garden, even when rheumatoid arthritis made it difficult, and enjoyed sitting outside with her beloved dog, Shona. Music remained a constant in her life; she always kept a piano in her home and, in her seventies, developed a love for Strauss waltzes, which she listened to on the radio. She also had a surprising penchant for wrestling, tuning in every Saturday, and knew Tiny Carr personally, a famous referee of the time.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'drift', text: BIO.later },
 
         // Legacy
-        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'ink-spread', className: 'wh-legacy', text: "Violet Want's life is a testament to resilience, humor, and hard work. As a family matriarch, her story offers a rich snapshot of working-class life in England, spanning the Edwardian era, two world wars, and the societal shifts of the 1970s and 80s. The personal histories of women like her help us understand the past—not just in grand historical events, but through the everyday sacrifices and triumphs of ordinary people who shaped the world we live in today." },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'ink-spread', className: 'wh-legacy', text: BIO.legacy },
 
         { type: 'callout', section: 'link', atmosphere: 'blitz-letters', effect: 'film-credits', text: 'Explore objects and stories at the London Museum', url: LONDON_MUSEUM_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },

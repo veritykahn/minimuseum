@@ -49,6 +49,8 @@ export const CONNECTIONS: RoomConnection[] = [
   ['great-war', 'gw-memorial'],
   ['black-history', 'bh-timeline'],
   ['writing-revolution', 'wr-typing'],
+  ['womens-history', 'wh-violet'],
+  ['holocaust', 'ho-stones'],
 
   // Each exhibition's Lessons room, once it has lessons
   ...Object.keys(LESSON_ROOM_IDS)

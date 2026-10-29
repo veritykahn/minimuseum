@@ -1,0 +1,293 @@
+/* ==========================================================================
+   Violet's Life, on one screen: poster 2's dusty rose as a woven cloth, a
+   thread sewn across it in a running stitch with a keepsake at each stop,
+   and below, the typed sheet (poster 2's Courier) with the photograph the
+   poster sets beside those words, mounted as a frame of negative film.
+   ========================================================================== */
+.wh-room {
+  --whv-rose: #d9a8a6;
+  --whv-rose-soft: #eccdc6;
+  --whv-navy: #22335e;
+  --whv-ink: #2a2226;
+  --whv-orange: #f2661f;
+  --whv-paper: #f6efe4;
+  --whv-green: #8fa37a;
+  --whv-film: #151113;
+  --whv-mono: 'Courier Prime', 'Courier New', Courier, monospace;
+  --pe-nav-m: var(--whv-navy);
+  --pe-nav-ink: var(--whv-navy);
+  min-height: 100vh;
+  color: var(--whv-navy);
+}
+.wh-room :focus-visible { outline: 2px solid var(--whv-navy); outline-offset: 3px; }
+
+.whv-stage {
+  position: relative;
+  display: block;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 620px;
+  overflow: hidden;
+}
+/* The cloth: a fine weave, a little lighter where the lamp falls. */
+.whv-cloth {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 22%, rgba(255, 240, 232, 0.4), transparent 75%),
+    repeating-linear-gradient(0deg, rgba(120, 60, 60, 0.05) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.07) 0 1px, transparent 1px 4px),
+    radial-gradient(ellipse at 50% 50%, transparent 55%, rgba(120, 58, 62, 0.22) 100%),
+    var(--whv-rose);
+}
+
+.whv-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  padding: 26px 96px 0;
+  pointer-events: none;
+}
+.whv-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--pe-display);
+  font-weight: 900;
+  font-size: clamp(1.7rem, 2.8vw, 2.5rem);
+  line-height: 1;
+  color: var(--whv-navy);
+}
+.whv-title-dates { font-family: var(--pe-ui); font-weight: 500; font-size: 11px; letter-spacing: 0.3em; padding-left: 0.3em; color: var(--whv-navy); }
+
+/* ───────── The thread and its keepsakes ───────── */
+.whv-band {
+  position: absolute;
+  z-index: 1;
+  top: 104px;
+  left: max(3%, calc(50vw - 680px));
+  right: max(3%, calc(50vw - 680px));
+  height: clamp(170px, 24vh, 210px);
+}
+.whv-thread { position: absolute; inset: 0; overflow: visible; }
+.whv-thread path { fill: none; stroke-linecap: round; }
+.whv-thread-ahead { stroke: var(--whv-navy); stroke-width: 2; stroke-dasharray: 9 7; opacity: 0.4; }
+.whv-thread-sewn { stroke: var(--whv-orange); stroke-width: 3; stroke-dasharray: 11 6; }
+
+.whv-stops { position: absolute; inset: 0; }
+.wh-room .whv-stop {
+  position: absolute;
+  width: 0;
+  height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--whv-navy);
+  font: inherit;
+  animation: whv-stop-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i, 0) * 60ms) backwards;
+}
+@keyframes whv-stop-in { from { opacity: 0; transform: translateY(8px); } }
+.wh-room .whv-stop:focus-visible { outline: none; }
+.whv-stop-button {
+  position: absolute;
+  left: -32px;
+  top: -32px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: var(--whv-paper);
+  /* A ring of stitches round each keepsake, as if sewn on. */
+  box-shadow: 0 0 0 2px var(--whv-paper), 0 0 0 3.5px rgba(34, 51, 94, 0.35), 0 4px 10px rgba(80, 30, 34, 0.18);
+  outline: 1.5px dashed rgba(34, 51, 94, 0.45);
+  outline-offset: -6px;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+.whv-stop-art { width: 46px; height: 46px; }
+.whv-stop.is-visited .whv-stop-button { outline-color: var(--whv-orange); }
+.whv-stop:hover .whv-stop-button { transform: translateY(-3px); }
+.whv-stop[aria-selected='true'] .whv-stop-button {
+  transform: scale(1.18);
+  box-shadow: 0 0 0 2px var(--whv-paper), 0 0 0 5px var(--whv-orange), 0 8px 18px rgba(80, 30, 34, 0.28);
+}
+.whv-stop:focus-visible .whv-stop-button { box-shadow: 0 0 0 2px var(--whv-paper), 0 0 0 5px var(--whv-navy), 0 0 0 7px var(--whv-paper); }
+.whv-stop-label {
+  position: absolute;
+  top: 42px;
+  left: -55px;
+  width: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--whv-navy);
+}
+.whv-stop[aria-selected='true'] .whv-stop-label { top: 48px; }
+.whv-stop-when { font-family: var(--whv-mono); font-size: 11px; font-weight: 700; color: #a3401a; }
+
+/* ───────── The sheet ───────── */
+.whv-sheet {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1060px, 92vw);
+  top: calc(104px + clamp(170px, 24vh, 210px) + 30px);
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  background: var(--whv-paper);
+  color: var(--whv-ink);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04), 0 18px 40px -16px rgba(80, 30, 34, 0.45);
+}
+/* Two pins, holding the sheet to the cloth. */
+.whv-sheet::before,
+.whv-sheet::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ffd2b6, var(--whv-orange) 60%, #a3401a);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.25);
+}
+.whv-sheet::before { left: 22px; }
+.whv-sheet::after { right: 22px; }
+.whv-sheet-inner {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  gap: clamp(24px, 3vw, 44px);
+  padding: clamp(22px, 3.2vh, 36px) clamp(24px, 3.4vw, 48px) 8px;
+  /* A short stop sits in the middle of the sheet, not at its head. */
+  align-items: center;
+  animation: whv-sheet-in 0.5s ease both;
+}
+@keyframes whv-sheet-in { from { opacity: 0; transform: translateY(6px); } }
+
+.whv-picture {
+  flex: 0 0 auto;
+  width: clamp(170px, 20vw, 250px);
+  display: grid;
+  place-items: center;
+}
+.whv-picture-art { width: 78%; height: auto; color: var(--whv-navy); padding: 12%; background: var(--whv-rose-soft); border-radius: 50%; box-sizing: content-box; }
+/* A frame of negative film, its sprocket holes and edge marks. */
+.whv-picture-photo {
+  padding: 18px 12px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 7px, #e8e0d4 7px 13px, transparent 13px 20px) top 5px left 0 / 100% 7px no-repeat,
+    repeating-linear-gradient(90deg, transparent 0 7px, #e8e0d4 7px 13px, transparent 13px 20px) bottom 5px left 0 / 100% 7px no-repeat,
+    var(--whv-film);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  transform: rotate(-1.2deg);
+}
+.whv-picture-photo img { display: block; width: 100%; height: auto; max-height: calc(100dvh - 104px - 210px - 140px); object-fit: cover; filter: sepia(0.15); }
+
+.whv-words { flex: 1; min-width: 0; max-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 14px; min-height: 0; }
+.whv-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-family: var(--pe-display);
+  font-weight: 900;
+  font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+  line-height: 1.1;
+  color: var(--whv-navy);
+}
+.whv-heading-when { font-family: var(--whv-mono); font-weight: 700; font-size: 1rem; color: #a3401a; }
+.whv-copy {
+  flex: 0 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9em;
+  padding-right: 6px;
+  font-family: var(--whv-mono);
+  font-size: clamp(0.95rem, 1.15vw, 1.06rem);
+  line-height: 1.6;
+}
+.whv-lead { letter-spacing: 0.22em; }
+
+/* The first stop: her name, in the poster's own lettering. */
+.whv-name { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
+.whv-name-lettering { width: min(560px, 80%); height: auto; }
+.whv-name-nee { font-family: var(--whv-mono); font-style: italic; font-size: clamp(1.3rem, 2vw, 1.7rem); color: var(--whv-ink); }
+.whv-name-dates { font-family: var(--whv-mono); font-weight: 700; font-size: 1rem; color: var(--whv-ink); }
+.whv-name-motto { font-family: var(--pe-display); font-size: 0.95rem; letter-spacing: 0.35em; padding-left: 0.35em; color: var(--whv-navy); margin-top: 10px; }
+.whv-hint { font-family: var(--pe-ui); font-size: 13px; color: #6b4a52; margin-top: 14px; }
+
+.whv-steps {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px clamp(16px, 3vw, 40px) 14px;
+  border-top: 1px dashed rgba(34, 51, 94, 0.25);
+}
+.whv-step {
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid rgba(34, 51, 94, 0.45);
+  background: transparent;
+  color: var(--whv-navy);
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.whv-step:hover:not(:disabled) { background: var(--whv-navy); color: var(--whv-paper); }
+.whv-step-next:not(:disabled) { background: var(--whv-navy); color: var(--whv-paper); }
+.whv-step-next:hover:not(:disabled) { background: #31467c; }
+.whv-step:disabled { opacity: 0.35; cursor: default; }
+.whv-step-count { font-family: var(--whv-mono); font-size: 13px; color: var(--whv-ink); }
+
+@media (max-width: 760px) {
+  .whv-stage { min-height: 0; }
+  .whv-bar { padding: 30px 60px 0; }
+  .whv-band { top: 82px; left: 3%; right: 3%; height: 148px; }
+  .whv-stop-button { left: -18px; top: -18px; width: 36px; height: 36px; outline-offset: -4px; }
+  .whv-stop-art { width: 27px; height: 27px; }
+  .whv-stop[aria-selected='true'] .whv-stop-button { transform: scale(1.14); }
+  /* On a phone only the open keepsake is named under it; the others keep their names for screen readers. */
+  .whv-stop-label { top: 22px; font-size: 11px; }
+  .whv-stop[aria-selected='true'] .whv-stop-label { top: 25px; }
+  .whv-stop:not([aria-selected='true']) .whv-stop-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .whv-stop-when { display: none; }
+  /* The sheet stops short of the foot, clear of the museum map's button. */
+  .whv-sheet { top: 244px; bottom: 78px; width: calc(100vw - 20px); }
+  .whv-sheet-inner { flex-direction: column; align-items: stretch; gap: 12px; padding: 20px 16px 6px; overflow-y: auto; }
+  .whv-words { min-height: auto; max-height: none; justify-content: flex-start; }
+  .whv-copy { overflow: visible; font-size: 0.95rem; }
+  .whv-picture { width: 100%; align-self: center; }
+  .whv-picture-art { width: 64px; padding: 14px; }
+  .whv-picture-photo { width: 150px; }
+  .whv-picture-photo img { max-height: none; }
+  .whv-name-lettering { width: 92%; }
+  .whv-name-dates { font-size: 0.8rem; }
+  .whv-name-motto { letter-spacing: 0.2em; font-size: 0.8rem; }
+  .whv-steps { padding: 8px 12px 10px; }
+  .whv-step { padding: 10px 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wh-room .whv-stop, .whv-sheet-inner { animation: none; }
+  .whv-stop-button, .whv-step { transition: none; }
+}
