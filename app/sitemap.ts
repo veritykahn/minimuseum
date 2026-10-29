@@ -214,6 +214,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/exhibitions/black-history/timeline`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/exhibitions/writing-revolution`,
       lastModified,
       changeFrequency: 'weekly',
@@ -221,6 +227,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/exhibitions/writing-revolution/artifacts/case`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/writing-revolution/typing-station`,
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.7,

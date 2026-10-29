@@ -120,12 +120,24 @@ export const BLACK_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The rays burst open as a poster opens; after that each panel arrives its own way.
   fx: { theme: 'bh', veil: 'first', text: 'all' },
-  projector: { theme: BLACK_HISTORY_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: BLACK_HISTORY_PROJECTOR_THEME,
+    links: [{ label: 'The Black Barbie Timeline', href: '/exhibitions/black-history/timeline' }],
+  },
   cases: [
     {
       href: '/exhibitions/black-history/artifacts/case',
       label: 'Display Case',
       title: 'Artifacts',
+    },
+  ],
+  interactives: [
+    {
+      href: '/exhibitions/black-history/timeline',
+      emblem: '1967 → Today',
+      label: 'Interactive',
+      title: 'The Black Barbie Timeline',
+      subtitle: 'From Francie to “So In Style”',
     },
   ],
   posters: [

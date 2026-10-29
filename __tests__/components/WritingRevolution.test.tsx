@@ -207,13 +207,14 @@ describe('The Writing Revolution display case page', () => {
 });
 
 describe('The Writing Revolution on the museum map', () => {
-  it('is a room on the First Floor, with an Exhibition Hall and a Display Case', () => {
+  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and its interactive room', () => {
     const level = getLevelConfig('/exhibitions/writing-revolution/artifacts/case');
     expect(level.title).toBe('The Writing Revolution');
     expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/writing-revolution'],
       ['Display Case', '/exhibitions/writing-revolution/artifacts/case'],
+      ['The Typing Station', '/exhibitions/writing-revolution/typing-station'],
     ]);
     expect(getRoomByPath('/exhibitions/writing-revolution')?.parent).toBe('first-floor');
     expect(getRoomByPath('/exhibitions/writing-revolution/artifacts/case')?.parent).toBe('writing-revolution');

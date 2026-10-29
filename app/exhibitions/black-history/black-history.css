@@ -92,6 +92,10 @@
 [data-exhibition='black-history'] .pe-display-case:focus-visible { outline-color: var(--bh-orange); }
 [data-exhibition='black-history'] .pe-case-label { color: #d8e58a; }
 [data-exhibition='black-history'] .pe-case-title { color: #fff; font-size: 24px; font-weight: 800; font-variation-settings: 'wdth' 125; text-transform: uppercase; }
+/* The timeline's card: its years in lime on the blob, its subtitle in poster 2's bubble face. */
+[data-exhibition='black-history'] .pe-display-case-emblem { text-align: center; }
+[data-exhibition='black-history'] .pe-case-emblem { min-height: 120px; font-family: var(--pe-display); font-weight: 900; font-variation-settings: 'wdth' 125; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spacing: -0.01em; white-space: nowrap; color: var(--bh-lime); text-shadow: 0.06em 0.06em 0 var(--bh-red); }
+[data-exhibition='black-history'] .pe-case-subtitle { font-family: var(--bh-bubble); font-style: normal; font-size: 16px; color: var(--bh-pink); }
 /* The case awaiting its photographs: drawn in white on the blob, lit in the vignettes' orange. */
 [data-exhibition='black-history'] { --pe-case-frame: #ffffff; --pe-case-glow: var(--bh-orange); --pe-case-placeholder-ink: #e6eeb4; }
 /* On the case and artifact pages the case stands on the lime itself: drawn in black. */

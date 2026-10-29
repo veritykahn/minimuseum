@@ -121,12 +121,24 @@ export const WRITING_REVOLUTION: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The color blocks slide together as a poster opens; after that each panel arrives its own way.
   fx: { theme: 'wr', veil: 'first', text: 'all' },
-  projector: { theme: WRITING_REVOLUTION_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: WRITING_REVOLUTION_PROJECTOR_THEME,
+    links: [{ label: 'The Typing Station: a typewriter, an iMac and the top row', href: '/exhibitions/writing-revolution/typing-station' }],
+  },
   cases: [
     {
       href: '/exhibitions/writing-revolution/artifacts/case',
       label: 'Display Case',
       title: 'Artifacts',
+    },
+  ],
+  interactives: [
+    {
+      href: '/exhibitions/writing-revolution/typing-station',
+      emblem: 'QWERTY',
+      label: 'Interactive',
+      title: 'The Typing Station',
+      subtitle: 'The same line on a typewriter and an iMac',
     },
   ],
   posters: [

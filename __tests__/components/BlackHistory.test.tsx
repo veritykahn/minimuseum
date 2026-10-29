@@ -213,13 +213,14 @@ describe('The Black History Month display case page', () => {
 });
 
 describe('Black History Month on the museum map', () => {
-  it('is a room on the First Floor, with an Exhibition Hall and a Display Case', () => {
+  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and its interactive room', () => {
     const level = getLevelConfig('/exhibitions/black-history/artifacts/case');
     expect(level.title).toBe('Black History Month');
     expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/black-history'],
       ['Display Case', '/exhibitions/black-history/artifacts/case'],
+      ['The Black Barbie Timeline', '/exhibitions/black-history/timeline'],
     ]);
     expect(getRoomByPath('/exhibitions/black-history')?.parent).toBe('first-floor');
     expect(getRoomByPath('/exhibitions/black-history/artifacts/case')?.parent).toBe('black-history');

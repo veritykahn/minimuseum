@@ -1,0 +1,294 @@
+/* ==========================================================================
+   The Black Barbie timeline, on one screen: the year on the blob ringed by
+   poster 1's vignettes, the poster's words beside it, and the stops strung
+   along the lime line at the foot. Each stop sets its own ground from the
+   posters' palette (data-theme on the room).
+   ========================================================================== */
+.bht-room {
+  --g: var(--bh-lime);
+  --ink: #141414;
+  --disc: #111;
+  --year: #fff;
+  --year-shadow: var(--bh-pink);
+  --name: var(--bh-pink);
+  --mark-bg: var(--bh-pink);
+  --mark-ink: #141414;
+  --ray-a: var(--bh-green);
+  --ray-b: #141414;
+  --line: #141414;
+  --pe-nav-m: #141414;
+  --pe-nav-ink: #141414;
+  min-height: 100vh;
+  background-color: var(--g);
+  transition: background-color 0.7s ease;
+  color: var(--ink);
+}
+.bht-room[data-theme='lime-dark'] { --disc: var(--bh-red); --name: var(--bh-lime); --year-shadow: #141414; --mark-bg: #fff; --ray-a: #141414; --ray-b: var(--bh-red); }
+.bht-room[data-theme='blob'] {
+  --g: #111;
+  --ink: #f4f6e4;
+  --disc: var(--bh-lime);
+  --year: #111;
+  --year-shadow: var(--bh-orange);
+  --name: #2a1a14;
+  --mark-bg: var(--bh-lime);
+  --ray-a: var(--bh-lime);
+  --ray-b: var(--bh-orange);
+  --line: var(--bh-lime);
+  --pe-nav-m: var(--bh-lime);
+  --pe-nav-ink: #f4f6e4;
+}
+.bht-room[data-theme='pink'] { --g: var(--bh-pink); --ink: #2a1a14; --disc: #2a1a14; --year-shadow: var(--bh-red); --name: var(--bh-lime); --mark-bg: var(--bh-lime); --ray-a: var(--bh-orange); --ray-b: var(--bh-red); --line: #2a1a14; --pe-nav-m: #2a1a14; --pe-nav-ink: #2a1a14; }
+.bht-room[data-theme='pink-red'] { --g: var(--bh-pink); --ink: #2a1a14; --disc: var(--bh-red); --year-shadow: #2a1a14; --name: var(--bh-lime); --mark-bg: #fff; --ray-a: var(--bh-red); --ray-b: var(--bh-orange); --line: #2a1a14; --pe-nav-m: #2a1a14; --pe-nav-ink: #2a1a14; }
+.bht-room[data-theme='split'] { --mark-bg: var(--bh-orange); --year-shadow: var(--bh-green); --ray-a: var(--bh-green); --ray-b: var(--bh-red); }
+.bht-room[data-theme='split'] .bht-ground { background: linear-gradient(120deg, var(--bh-lime) 0 50%, var(--bh-pink) 50% 100%); }
+
+.bht-stage {
+  --disc-d: min(44vh, 32vw, 400px);
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 560px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: 'bar bar' 'disc words' 'track track';
+  column-gap: 2vw;
+}
+
+/* ───────── The ground and its sunburst rays ───────── */
+.bht-ground { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.bht-rays {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  -webkit-mask-image: radial-gradient(circle, #000 0 36%, transparent 50%);
+  mask-image: radial-gradient(circle, #000 0 36%, transparent 50%);
+  transform: rotate(var(--turn, 0deg));
+  transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.bht-rays-a { left: -35vmax; top: -35vmax; background: repeating-conic-gradient(from 0deg, var(--ray-a) 0 4deg, transparent 4deg 18deg); }
+.bht-rays-b { right: -35vmax; bottom: -35vmax; background: repeating-conic-gradient(from 5deg, var(--ray-b) 0 7deg, transparent 7deg 24deg); }
+
+/* ───────── The title ───────── */
+.bht-bar { grid-area: bar; position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 26px 110px 0; text-align: center; }
+.bht-title { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.6rem, 3vw, 2.6rem); line-height: 1.1; color: var(--ink); }
+.bht-source { font-family: var(--pe-body); font-weight: 500; font-size: 16px; letter-spacing: 0.02em; color: var(--ink); }
+.bht-source cite { font-family: var(--bh-bubble); font-style: normal; }
+
+/* ───────── The year on the blob, ringed by the vignettes ───────── */
+.bht-disc-wrap { grid-area: disc; position: relative; z-index: 1; place-self: center; width: calc(var(--disc-d) * 1.45); height: calc(var(--disc-d) * 1.45); display: grid; place-items: center; }
+.bht-disc {
+  position: relative;
+  z-index: 2;
+  width: var(--disc-d);
+  height: var(--disc-d);
+  border-radius: 50%;
+  background: var(--disc);
+  box-shadow: 0 0 0 calc(var(--disc-d) * 0.025) var(--g), 0 0 0 calc(var(--disc-d) * 0.045) var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--disc-d) * 0.03);
+  transition: background-color 0.6s ease, box-shadow 0.6s ease;
+}
+.bht-year {
+  font-family: var(--pe-display);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-variation-settings: 'wdth' 125;
+  font-size: calc(var(--disc-d) * 0.25);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--year);
+  text-shadow: 0.05em 0.05em 0 var(--year-shadow);
+  font-variant-numeric: tabular-nums;
+}
+.bht-year-word { font-family: var(--bh-bubble); font-weight: 400; font-variation-settings: normal; font-size: calc(var(--disc-d) * 0.22); letter-spacing: 0; }
+.bht-name {
+  font-family: var(--bh-bubble);
+  font-size: calc(var(--disc-d) * 0.085);
+  line-height: 1.15;
+  color: var(--name);
+  max-width: 80%;
+  text-align: center;
+  animation: bht-pop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.bht-vignettes { position: absolute; inset: 0; z-index: 1; }
+.bht-vig {
+  --size: calc(var(--disc-d) * 0.34);
+  position: absolute;
+  left: calc(50% - var(--size) / 2);
+  top: calc(50% - var(--size) / 2);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--g);
+  transform: rotate(var(--a)) translate(calc(var(--disc-d) * 0.56)) rotate(calc(var(--a) * -1));
+  animation: bht-vig-in 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  animation-delay: var(--delay);
+}
+.bht-vig-1 { --a: -150deg; --delay: 0s; }
+.bht-vig-2 { --a: -90deg; --delay: 0.05s; }
+.bht-vig-3 { --a: -30deg; --delay: 0.1s; }
+.bht-vig-4 { --a: 30deg; --delay: 0.15s; }
+.bht-vig-5 { --a: 90deg; --delay: 0.2s; }
+.bht-vig-6 { --a: 150deg; --delay: 0.25s; }
+@keyframes bht-vig-in {
+  from { transform: rotate(calc(var(--a) - 50deg)) translate(calc(var(--disc-d) * 0.2)) rotate(calc(var(--a) * -1 + 50deg)) scale(0.2); opacity: 0; }
+}
+@keyframes bht-pop { from { transform: scale(0.5); opacity: 0; } }
+
+/* A burst of the posters' circles as a stop opens. */
+.bht-burst { position: absolute; inset: 0; z-index: 0; }
+.bht-burst i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--disc-d) * 0.07);
+  height: calc(var(--disc-d) * 0.07);
+  margin: calc(var(--disc-d) * -0.035);
+  border-radius: 50%;
+  background: var(--bh-red);
+  opacity: 0;
+  animation: bht-burst 1.1s cubic-bezier(0.1, 0.8, 0.3, 1) var(--d) both;
+}
+.bht-burst i:nth-child(4n + 2) { background: var(--bh-orange); }
+.bht-burst i:nth-child(4n + 3) { background: var(--bh-green); }
+.bht-burst i:nth-child(4n) { background: #fff; }
+@keyframes bht-burst {
+  0% { transform: rotate(var(--a)) translate(0) scale(0.4); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: rotate(var(--a)) translate(calc(var(--disc-d) * 0.78)) scale(1); opacity: 0; }
+}
+
+/* ───────── The poster's words ───────── */
+.bht-words {
+  grid-area: words;
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  max-width: 34em;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 8px 6vw 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: bht-words-in 0.6s ease both;
+}
+.bht-words:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+@keyframes bht-words-in { from { opacity: 0; transform: translateY(14px); } }
+.bht-sentence { font-family: var(--pe-body); font-weight: 500; font-size: clamp(1.25rem, 1.95vw, 1.85rem); line-height: 1.38; color: var(--ink); }
+.bht-sentence mark {
+  color: var(--mark-ink);
+  font-weight: 600;
+  padding: 0 0.12em;
+  border-radius: 0.2em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: linear-gradient(var(--mark-bg), var(--mark-bg)) no-repeat left / 100% 100%;
+  animation: bht-mark 0.8s ease 0.35s both;
+}
+@keyframes bht-mark { from { background-size: 0 100%; } }
+.bht-room[data-theme='blob'] .bht-sentence mark { color: #111; }
+/* Poster 2's credit for the designer, as a swing tag. */
+.bht-tag {
+  align-self: flex-start;
+  position: relative;
+  font-family: var(--pe-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 112;
+  text-transform: uppercase;
+  font-size: clamp(0.9rem, 1.3vw, 1.15rem);
+  letter-spacing: 0.04em;
+  color: #111;
+  background: var(--bh-pink);
+  padding: 10px 18px 10px 34px;
+  border-radius: 4px 18px 18px 4px;
+  transform: rotate(-3deg);
+  box-shadow: 5px 5px 0 var(--bh-orange);
+  white-space: nowrap;
+  animation: bht-swing 1.2s cubic-bezier(0.3, 1.6, 0.5, 1) 0.2s both;
+  transform-origin: 10px 50%;
+}
+.bht-tag::before { content: ''; position: absolute; left: 12px; top: calc(50% - 5px); width: 10px; height: 10px; border-radius: 50%; background: #111; }
+@keyframes bht-swing { 0% { transform: rotate(-24deg); opacity: 0; } 60% { transform: rotate(4deg); opacity: 1; } }
+
+/* ───────── The stops along the lime line ───────── */
+.bht-track { grid-area: track; position: relative; z-index: 2; display: flex; align-items: center; gap: 18px; padding: 10px max(4vw, 24px) 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
+.bht-stops-wrap { position: relative; flex: 1; }
+.bht-line { position: absolute; left: 4%; right: 4%; top: 50%; width: 92%; height: 40px; transform: translateY(-50%); }
+.bht-line path { fill: none; stroke: var(--line); stroke-width: 4; vector-effect: non-scaling-stroke; }
+.bht-stops { position: relative; display: flex; justify-content: space-between; list-style: none; margin: 0; padding: 0; }
+.bht-room .bht-stop {
+  appearance: none;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  border: 4px solid var(--line);
+  background: var(--g);
+  color: var(--ink);
+  font-family: var(--pe-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 110;
+  font-size: 15px;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1), background-color 0.4s ease, color 0.4s ease;
+}
+.bht-room[data-theme='split'] .bht-stop { background: #fff; }
+.bht-room .bht-stop:hover { transform: scale(1.08); }
+.bht-room .bht-stop[aria-current='step'] { background: var(--disc); color: var(--year); transform: scale(1.22); box-shadow: 0 0 0 5px var(--g), 0 0 0 8px var(--line); }
+.bht-room .bht-stop:focus-visible,
+.bht-room .bht-step:focus-visible { outline: 3px solid var(--ink); outline-offset: 10px; }
+.bht-room .bht-step {
+  appearance: none;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--line);
+  color: var(--g);
+  font-size: 22px;
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+.bht-room[data-theme='split'] .bht-step { color: #fff; }
+.bht-room .bht-step:hover:not(:disabled) { transform: scale(1.08); }
+.bht-room .bht-step:disabled { opacity: 0.25; cursor: default; }
+
+/* ───────── On a phone: the year, the words, the stops, top to bottom ───────── */
+@media (max-width: 760px) {
+  .bht-stage {
+    --disc-d: min(44vw, 22dvh);
+    min-height: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas: 'bar' 'disc' 'words' 'track';
+  }
+  .bht-bar { padding: 22px 56px 0; gap: 4px; }
+  .bht-title { font-size: 1.3rem; }
+  .bht-source { font-size: 12px; }
+  .bht-disc-wrap { margin: 4px 0 2px; }
+  .bht-words { align-self: start; padding: 4px 22px 8px; gap: 12px; }
+  .bht-sentence { font-size: 1.08rem; line-height: 1.34; }
+  .bht-tag { font-size: 0.8rem; padding: 7px 14px 7px 28px; }
+  .bht-tag::before { left: 10px; width: 8px; height: 8px; top: calc(50% - 4px); }
+  /* Clear of the museum map button in the corner; a swipe or a tap on a stop moves along. */
+  .bht-track { gap: 6px; padding: 8px 14px 84px; }
+  .bht-room .bht-step { display: none; }
+  .bht-rays { width: 120vw; height: 120vw; }
+  .bht-rays-a { left: -60vw; top: -60vw; }
+  .bht-rays-b { right: -60vw; bottom: -60vw; opacity: 0.7; }
+  .bht-room .bht-stop { width: 46px; height: 46px; border-width: 3px; font-size: 11px; }
+  .bht-room .bht-stop[aria-current='step'] { transform: scale(1.14); box-shadow: 0 0 0 3px var(--g), 0 0 0 5px var(--line); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bht-room, .bht-rays, .bht-disc, .bht-room .bht-stop { transition: none; }
+  .bht-name, .bht-vig, .bht-words, .bht-sentence mark, .bht-tag { animation: none; }
+  .bht-burst { display: none; }
+}

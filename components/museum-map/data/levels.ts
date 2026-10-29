@@ -259,13 +259,13 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'black-history', label: 'Black History\nMonth', path: '/exhibitions/black-history',
     x: COL[0], ...BOTTOM, accentColor: COLORS.blackHistory,
     parent: 'first-floor',
-    children: ['bh-case', ...lessonsChild('black-history')],
+    children: ['bh-case', 'bh-timeline', ...lessonsChild('black-history')],
   },
   {
     id: 'writing-revolution', label: 'The Writing\nRevolution', path: '/exhibitions/writing-revolution',
     x: COL[1], ...BOTTOM, accentColor: COLORS.writingRevolution,
     parent: 'first-floor',
-    children: ['wr-case', ...lessonsChild('writing-revolution')],
+    children: ['wr-case', 'wr-typing', ...lessonsChild('writing-revolution')],
   },
   {
     id: 'seeing-is-deceiving', label: 'Seeing is\nDeceiving', path: '/exhibitions/seeing-is-deceiving',
@@ -925,19 +925,23 @@ export const HOLOCAUST: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Black History Month (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the
+// interactive room beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
+// ├───────────────╴ ╶──────────────┤
+// │   The Black Barbie Timeline    │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const BLACK_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.blackHistory,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
   ],
   rooms: [
     {
@@ -952,6 +956,12 @@ const BLACK_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'bh-timeline', label: 'The Black Barbie Timeline', path: '/exhibitions/black-history/timeline',
+      accentColor: COLORS.blackHistory, parent: 'black-history',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
+    },
   ],
 };
 
@@ -965,25 +975,29 @@ export const BLACK_HISTORY: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
   ],
-  ...withLessons(BLACK_HISTORY_FLOOR_PLAN, '0 0 500 330', 'black-history'),
+  ...withLessons(BLACK_HISTORY_FLOOR_PLAN, '0 0 500 430', 'black-history'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — The Writing Revolution (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the
+// interactive room beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
+// ├───────────────╴ ╶──────────────┤
+// │       The Typing Station       │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const WRITING_REVOLUTION_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.writingRevolution,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
   ],
   rooms: [
     {
@@ -998,6 +1012,12 @@ const WRITING_REVOLUTION_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'wr-typing', label: 'The Typing Station', path: '/exhibitions/writing-revolution/typing-station',
+      accentColor: COLORS.writingRevolution, parent: 'writing-revolution',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
+    },
   ],
 };
 
@@ -1011,7 +1031,7 @@ export const WRITING_REVOLUTION: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
   ],
-  ...withLessons(WRITING_REVOLUTION_FLOOR_PLAN, '0 0 500 330', 'writing-revolution'),
+  ...withLessons(WRITING_REVOLUTION_FLOOR_PLAN, '0 0 500 430', 'writing-revolution'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
