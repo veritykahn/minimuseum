@@ -74,7 +74,9 @@ export default function America250Signing() {
   const [ink, setInk] = useState(1);
   const [dipping, setDipping] = useState(false);
   const [status, setStatus] = useState('');
-  const [printing, setPrinting] = useState<Doc | null>(null);
+  // What is being printed; `n` counts the presses, so a second press prints again even if the browser never said it was done.
+  const [printing, setPrinting] = useState<{ doc: Doc; n: number } | null>(null);
+  const print = (d: Doc) => setPrinting((p) => ({ doc: d, n: (p?.n ?? 0) + 1 }));
 
   // The copies.
   const [stage, setStage] = useState(0);
@@ -96,9 +98,9 @@ export default function America250Signing() {
     return () => window.removeEventListener('hashchange', read);
   }, []);
 
-  const choose = useCallback((id: TabId, focus = false) => {
+  const choose = useCallback((id: TabId, focus = false, on: Doc = doc) => {
     setTab(id);
-    window.history.replaceState(null, '', `#${id === 'sign' && doc !== 'declaration' ? doc : id}`);
+    window.history.replaceState(null, '', `#${id === 'sign' && on !== 'declaration' ? on : id}`);
     if (focus) tabRefs.current[id]?.focus();
   }, [doc]);
 
@@ -251,6 +253,8 @@ export default function America250Signing() {
               <Flag stars={stars} grew={grew} onStars={setFlagStars} />
             ) : tab === 'sign' ? (
               <Parchment
+                // Each parchment opens at its head, not where the last one was left.
+                key={doc}
                 ref={scroll}
                 doc={doc}
                 signers={names}
@@ -277,13 +281,20 @@ export default function America250Signing() {
                         {!pad.strokes.length && <span className="aps-pad-hint" aria-hidden="true">Sign here</span>}
                       </div>
                     ) : (
-                      <div className="aps-pad-box aps-pad-box-typed" />
+                      <div className="aps-pad-box aps-pad-box-typed">
+                        {!pad.typed.trim() && <span className="aps-pad-hint" aria-hidden="true">Your name here</span>}
+                      </div>
                     )
                   ) : undefined
                 }
               />
             ) : (
-              <Sheet stage={copy.id} strokes={decl.strokes} typed={decl.typed} address={decl.address} printedName={printedName} />
+              <Sheet stage={copy.id} strokes={decl.strokes} typed={decl.typed} address={decl.address} printedName={printedName.trim() || decl.typed} />
+            )}
+            {live && mode === 'draw' && ink <= 0 && (
+              <span className="aps-dry" aria-hidden="true">
+                The quill is dry. Dip it in the ink <span>→</span>
+              </span>
             )}
             {live && mode === 'draw' && (
               <button type="button" className="aps-inkwell" data-low={ink < 0.25 || undefined} data-dipping={dipping || undefined} onClick={dip} aria-label="Dip the quill in the ink">
@@ -338,7 +349,7 @@ export default function America250Signing() {
                   <blockquote>{t.carroll.text}</blockquote>
                 </figure>
               )}
-              <div className="aps-actions">
+              <div className="aps-actions aps-actions-main">
                 <button type="button" className="aps-button aps-button-primary" onClick={seal} disabled={!hasSignature}>
                   {doc === 'class' ? t.addName : 'Put your name to it'}
                 </button>
@@ -352,7 +363,7 @@ export default function America250Signing() {
               {doc === 'class' && (
                 <div className="aps-actions aps-actions-class">
                   <p className="aps-count">{names.length === 1 ? '1 name signed' : `${names.length} names signed`}</p>
-                  <button type="button" className="aps-button" onClick={() => setPrinting('class')} disabled={!names.length}>
+                  <button type="button" className="aps-button" onClick={() => print('class')} disabled={!names.length}>
                     Print it
                   </button>
                   <button type="button" className="aps-button aps-button-quiet" onClick={clearClass} disabled={!names.length}>
@@ -380,7 +391,7 @@ export default function America250Signing() {
                 <button type="button" className="aps-button aps-button-primary" onClick={() => choose('copies')}>
                   Follow it from copy to copy
                 </button>
-                <button type="button" className="aps-button" onClick={() => setPrinting('declaration')}>
+                <button type="button" className="aps-button" onClick={() => print('declaration')}>
                   Print it
                 </button>
                 <button type="button" className="aps-button" onClick={startAgain}>
@@ -392,7 +403,7 @@ export default function America250Signing() {
             <div className="aps-signed">
               <p className="aps-signed-line">{t.mineSigned}</p>
               <div className="aps-actions">
-                <button type="button" className="aps-button aps-button-primary" onClick={() => setPrinting('mine')}>
+                <button type="button" className="aps-button aps-button-primary" onClick={() => print('mine')}>
                   Print it
                 </button>
                 <button type="button" className="aps-button" onClick={startAgain}>
@@ -425,14 +436,14 @@ export default function America250Signing() {
             <>
               <label className="aps-field">
                 <span>{t.printedNameLabel}</span>
-                <input type="text" value={printedName} onChange={(e) => setPrintedName(e.target.value)} maxLength={40} placeholder={t.printedNamePlaceholder} autoComplete="off" />
+                <input type="text" value={printedName} onChange={(e) => setPrintedName(e.target.value)} maxLength={40} placeholder={decl.typed.trim() || t.printedNamePlaceholder} autoComplete="off" />
               </label>
               <p className="aps-close">{t.copiesClose}</p>
             </>
           )}
           {!hasSigned(decl) && (copy.id === 'engrossed' || copy.id === 'stone') && (
             <p className="aps-note">
-              <button type="button" className="aps-link" onClick={() => { setDoc('declaration'); choose('sign'); }}>Sign your name</button> and it is copied too.
+              <button type="button" className="aps-link" onClick={() => { setDoc('declaration'); choose('sign', false, 'declaration'); }}>Sign your name</button> and it is copied too.
             </p>
           )}
           <div className="aps-actions aps-actions-step">
@@ -481,9 +492,9 @@ export default function America250Signing() {
         createPortal(
           <div className="aps-print-root" data-exhibition="america-250" style={{ '--pe-ui': "'IBM Plex Sans', sans-serif" } as CSSProperties} aria-hidden="true">
             <Parchment
-              doc={printing}
-              signers={signed[printing]}
-              written={printing === 'declaration' ? '' : written[printing]}
+              doc={printing.doc}
+              signers={signed[printing.doc]}
+              written={printing.doc === 'declaration' ? '' : written[printing.doc]}
               classLine={classLine}
               print
             />

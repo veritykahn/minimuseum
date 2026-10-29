@@ -19,12 +19,13 @@
 .vbi-train { transition: transform 1.6s cubic-bezier(0.45, 0, 0.3, 1); }
 .vbi-steam { animation: vbi-puff 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
 @keyframes vbi-puff { 50% { transform: translate(-6px, -3px) scale(1.08); opacity: 0.8; } }
-.vbi-clock-n { font-family: var(--vb-serif); font-size: 20px; fill: #2a2522; }
+.vbi-clock-n { font-family: var(--vb-serif); font-size: 17px; fill: #2a2522; }
 .vbi-clock-label { font-family: var(--pe-display); font-size: 24px; letter-spacing: 3px; fill: #2f4a32; text-transform: uppercase; }
 .vbi-clock-sub { font-family: 'Jost', sans-serif; font-size: 17px; fill: #2f4a32; }
 .vbi-hand { transition: transform 1.4s cubic-bezier(0.4, 0, 0.2, 1); }
 .vbi-wire-live { stroke-dasharray: 10 8; animation: vbi-signal 0.9s linear infinite; }
 @keyframes vbi-signal { to { stroke-dashoffset: -36; } }
+.vb-room .vbi-unsync { align-self: flex-start; }
 
 /* ───────── The telegraph ───────── */
 .vbi-board { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
@@ -103,7 +104,7 @@
 .vbi-photo[data-reduced] .vbi-neg, .vbi-photo[data-reduced] .vbi-pos { transition: none !important; }
 .vbi-prints { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; gap: 1.4cqw; min-height: 13cqh; }
 .vbi-print { width: min(11cqw, 16cqh * 1.1); aspect-ratio: 290 / 260; padding: 4px; background: #f8f0dc; box-shadow: 0 6px 10px rgba(47, 30, 20, 0.3); filter: sepia(0.85) saturate(0.9); animation: vbi-print-in 0.5s ease both; }
-.vbi-print-more { font-family: var(--pe-display); font-size: 1.4rem; color: #2f4a32; }
+.vbi-print-more { font-family: var(--pe-display); font-size: 1.4rem; color: #f4eee3; }
 @keyframes vbi-print-in { from { opacity: 0; transform: translateY(-10px); } }
 .vbi-steps { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 0.92rem; line-height: 1.4; }
 .vbi-steps li[data-done] { text-decoration: line-through; text-decoration-color: rgba(255, 255, 255, 0.6); opacity: 0.85; }
@@ -111,6 +112,9 @@
 @media (max-width: 760px) {
   .vbr-stage.vbi-stage { --scene-h: 32dvh; }
   .vbr-stage.vbi-stage[data-tab='telegraph'] { --scene-h: 36dvh; }
+  /* The line drawn small: the towns' names larger, their minutes left to the card's readout. */
+  .vbi-rail-name { font-size: 25px; }
+  .vbi-rail-behind { display: none; }
   .vbi-readout { font-size: 0.9rem; }
   .vbi-readout strong { font-size: 1.2rem; }
   .vbi-photo { gap: 6px 8px; }

@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useMemo, useState, type ReactNode, type UIEvent } from 'react';
+import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { nibPath, SIG_ASPECT, type Stroke } from './signing';
 import {
   DECLARATION_BODY,
@@ -56,10 +56,29 @@ const Parchment = forwardRef<HTMLDivElement, Props>(function Parchment(
   const own = doc === 'declaration' ? null : OWN_DECLARATIONS[doc];
   const title = own ? (own.title ?? own.name) : DECLARATION_TITLE;
 
-  const onScroll = (e: UIEvent<HTMLDivElement>) => {
-    const el = e.currentTarget;
-    setAtFoot(el.scrollTop + el.clientHeight >= el.scrollHeight - 160);
-  };
+  // Is the line to sign on in sight? Asked as it scrolls, and whenever the parchment or what is on it changes size,
+  // so a short parchment, its foot already showing, never points down to it.
+  const inner = useRef<HTMLDivElement | null>(null);
+  const setScroll = useCallback(
+    (el: HTMLDivElement | null) => {
+      inner.current = el;
+      if (typeof ref === 'function') ref(el);
+      else if (ref) ref.current = el;
+    },
+    [ref],
+  );
+  const onScroll = useCallback(() => {
+    const el = inner.current;
+    if (el) setAtFoot(el.scrollTop + el.clientHeight >= el.scrollHeight - 160);
+  }, []);
+  useEffect(onScroll);
+  useEffect(() => {
+    const el = inner.current;
+    if (!el || print || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(onScroll);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [onScroll, print]);
 
   const label =
     doc === 'declaration'
@@ -69,7 +88,7 @@ const Parchment = forwardRef<HTMLDivElement, Props>(function Parchment(
   return (
     <div className="aps-parch" data-doc={doc} data-print={print || undefined}>
       <div
-        ref={ref}
+        ref={setScroll}
         className="aps-parch-scroll"
         role={print ? undefined : 'region'}
         aria-label={print ? undefined : label}

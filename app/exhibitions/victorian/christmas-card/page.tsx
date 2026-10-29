@@ -234,7 +234,8 @@ export default function VictorianChristmasCard() {
               <div className="vcc-print-cell vcc-print-turned">
                 <CardInside to={to} message={message} from={from} paper={paper} border={border} />
               </div>
-              <div className="vcc-print-cell vcc-print-turned vcc-print-blank" />
+              {/* The inside's left page: blank, but on the card's own paper (a white page in a Midnight card looks like a misprint). */}
+              <div className="vcc-print-cell vcc-print-turned vcc-print-blank" style={{ background: PAPERS.find((p) => p.id === paper)!.bg }} />
               <div className="vcc-print-cell">
                 <CardBack paper={paper} />
               </div>

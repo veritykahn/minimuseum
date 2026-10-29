@@ -50,6 +50,17 @@ export function CardFront({ picture, border, paper, greeting, label }: { picture
   );
 }
 
+/**
+ * The message's size inside the card, in the card's units: the longer it
+ * runs (a new line counts as a short line's worth), the smaller it is set, so
+ * the longest still fits between "To" and "from".
+ */
+export function messageSize(message: string) {
+  const t = message.trim();
+  const n = t.length + (t.match(/\n/g)?.length ?? 0) * 28;
+  return n <= 110 ? 19 : n <= 170 ? 16.5 : n <= 240 ? 14.5 : n <= 330 ? 12.5 : 11;
+}
+
 export function CardInside({ to, message, from, paper, border }: { to: string; message: string; from: string; paper: PaperId; border: BorderId }) {
   const p = paperOf(paper);
   const uid = useId().replace(/:/g, '');
@@ -69,7 +80,7 @@ export function CardInside({ to, message, from, paper, border }: { to: string; m
       <foreignObject x="58" y="128" width="284" height="320">
         <div className="vcc-inside" style={{ color: p.ink }}>
           {to.trim() && <p className="vcc-inside-to">To {to.trim()},</p>}
-          <p className="vcc-inside-message">{message.trim() || ' '}</p>
+          <p className="vcc-inside-message" style={{ fontSize: messageSize(message) }}>{message.trim() || ' '}</p>
           {from.trim() && <p className="vcc-inside-from">from {from.trim()}</p>}
         </div>
       </foreignObject>

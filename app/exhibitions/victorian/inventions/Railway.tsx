@@ -40,6 +40,12 @@ export default function Railway({ reduced, footer }: { reduced: boolean; footer?
     setStatus('The time is sent down the line by telegraph, and every town clock is set to railway time.');
   };
 
+  // Back to the towns' own time, to compare the clocks again.
+  const unsync = () => {
+    setSynced(false);
+    setStatus(`The town clocks keep their own time again. ${STATIONS[at].name}: ${clockTime(NOON - STATIONS[at].behind)}.`);
+  };
+
   return (
     <div className="vbi-bench">
       <div className="vbr-scene vbi-scene">
@@ -111,7 +117,12 @@ export default function Railway({ reduced, footer }: { reduced: boolean; footer?
             Send the time down the line
           </button>
         ) : (
-          <FactNote fact={NOTES.timeSignals} className="vbr-fact" />
+          <>
+            <FactNote fact={NOTES.timeSignals} className="vbr-fact" />
+            <button type="button" className="vbr-button vbr-button-quiet vbi-unsync" onClick={unsync}>
+              Put the town clocks back to their own time
+            </button>
+          </>
         )}
         <p className="vbr-poster">{POSTER.growth}</p>
         {footer}
@@ -135,7 +146,7 @@ function Clock({ x, y, minutes, label, sub, town = false, reduced = false }: { x
         return <line key={i} x1={r2(Math.sin(a) * (r - 6))} y1={r2(-Math.cos(a) * (r - 6))} x2={r2(Math.sin(a) * (r - (long ? 18 : 11)))} y2={r2(-Math.cos(a) * (r - (long ? 18 : 11)))} stroke="#2a2522" strokeWidth={long ? 3 : 1.2} />;
       })}
       {['XII', 'III', 'VI', 'IX'].map((n, i) => (
-        <text key={n} x={r2(Math.sin((i * Math.PI) / 2) * (r - 34))} y={r2(-Math.cos((i * Math.PI) / 2) * (r - 34) + 7)} textAnchor="middle" className="vbi-clock-n">
+        <text key={n} x={r2(Math.sin((i * Math.PI) / 2) * (r - 40))} y={r2(-Math.cos((i * Math.PI) / 2) * (r - 40) + 6)} textAnchor="middle" className="vbi-clock-n">
           {n}
         </text>
       ))}
