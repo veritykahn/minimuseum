@@ -140,6 +140,8 @@ type PanelBase = {
   className?: string;
   decor?: PanelDecor;
   marks?: PanelMarks;
+  /** The audio guide's recording for this panel (AudioGuide): a path under public/. */
+  audio?: string;
 };
 
 /**

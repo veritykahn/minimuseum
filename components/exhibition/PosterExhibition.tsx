@@ -13,6 +13,7 @@ import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '
 import PosterPanel from './PosterPanel';
 import CasePlaceholder from './CasePlaceholder';
 import AtmosphereLayer from './AtmosphereLayer';
+import AudioGuide from './AudioGuide';
 import { atmosphereName, colorsFor, emphasisRuns, entranceOf, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
@@ -67,6 +68,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
   const kind = fxKind(item);
   const fx = usePosterFxStage(fxConfig.theme, direction, item?.type ?? '', colors.bg, colors.text);
   const veil = veilFor(fxConfig.veil, item, posterStep);
+  const hasGuide = !!poster?.items.some((i) => i.audio);
 
   const rememberFloorPosition = back.remember
     ? () => {
@@ -273,6 +275,8 @@ export default function PosterExhibition<K extends string>({ config }: { config:
               )}
             </div>
           )}
+          {/* Outside the stage too, so one recording player lasts the whole walk. */}
+          {hasGuide && <AudioGuide src={item?.audio} color={colors.text} bg={colors.bg} />}
         </>
       </PosterProjector>
     </div>

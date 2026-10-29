@@ -724,6 +724,50 @@ a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink,
   background: color-mix(in srgb, var(--pe-accent) 20%, transparent);
 }
 
+/* ───────── Audio guide ───────── */
+.pe-audio-guide {
+  /* top right, opposite the way back, clear of the arrows and the map */
+  position: fixed;
+  top: 26px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 101;
+}
+.pe-audio-btn {
+  height: 44px;
+  border-radius: 22px;
+  border: 1px solid;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  font: 500 14px/1 var(--pe-ui);
+  letter-spacing: 0.02em;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+.pe-audio-btn:not(:disabled):hover { transform: scale(1.05); }
+.pe-audio-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+/* The play button carries a ring that fills as the recording plays. */
+.pe-audio-play {
+  width: 44px;
+  padding: 0;
+  justify-content: center;
+  border-color: transparent !important;
+  position: relative;
+}
+.pe-audio-play::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  background: conic-gradient(currentColor var(--ag-progress), color-mix(in srgb, currentColor 35%, transparent) 0);
+  -webkit-mask: radial-gradient(closest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  mask: radial-gradient(closest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+}
+
 /* ───────── Responsive ───────── */
 @media (max-width: 900px) {
   .pe-exhibition-grid { flex-direction: column; gap: 32px; }
@@ -741,6 +785,9 @@ a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink,
   .pe-nav-text { font-size: 24px; }
   .pe-exhibition-main { padding: 100px 24px 60px; }
   .pe-walkthrough-nav { bottom: 20px; gap: 16px; }
+  .pe-audio-guide { top: 14px; right: 16px; }
+  .pe-audio-btn { height: 40px; font-size: 13px; }
+  .pe-audio-play { width: 40px; }
   .pe-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
   .pe-text-content-wrapper { padding: 100px 24px; }
   .pe-decor { --pe-decor-w: 44vw; }
