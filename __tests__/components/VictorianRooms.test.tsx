@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import VictorianChristmasCard from '@/app/exhibitions/victorian/christmas-card/page';
+import { messageSize } from '@/app/exhibitions/victorian/christmas-card/CardArt';
 import VictorianInventions from '@/app/exhibitions/victorian/inventions/page';
 import VictorianChristmasParlour from '@/app/exhibitions/victorian/christmas-parlour/page';
 import { CARD_NOTES, CARD_TEXT, GREETINGS } from '@/app/exhibitions/victorian/christmas-card/cardText';
@@ -259,6 +260,70 @@ describe('wiring', () => {
       expect(getRoomByPath(r)?.parent).toBe('victorian');
       expect(getLevelConfig(r).title).toBe('Victorian Britain');
       expect(urls).toContainEqual(expect.stringMatching(new RegExp(`${r}$`)));
+    }
+  });
+});
+
+describe('fine tuning (regressions from trying the rooms)', () => {
+  beforeEach(() => window.history.replaceState(null, '', '/'));
+
+  it('sets a long message smaller inside the card, so "To" and "from" stay on it', () => {
+    expect(messageSize('With love.')).toBe(19);
+    expect(messageSize('x'.repeat(320))).toBeLessThan(messageSize('x'.repeat(200)));
+    expect(messageSize('a\nb\nc\nd\ne\nf')).toBeLessThan(messageSize('abcdef'));
+    window.history.replaceState(null, '', '/exhibitions/victorian/christmas-card#inside');
+    render(<VictorianChristmasCard />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your message' }), { target: { value: 'long message '.repeat(24) } });
+    const inside = screen.getByRole('img', { name: /The inside of the card/ });
+    expect(parseFloat((inside.querySelector('.vcc-inside-message') as HTMLElement).style.fontSize)).toBeLessThan(15);
+  });
+
+  it('prints the inside’s blank page on the card’s own paper, not white', () => {
+    window.print = jest.fn();
+    render(<VictorianChristmasCard />);
+    fireEvent.click(screen.getByRole('button', { name: /Midnight/ }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Print it' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Print the card' }));
+    const blank = document.querySelector('.vcc-print-blank') as HTMLElement;
+    expect(blank.style.background).not.toBe('');
+    expect(blank.style.background).not.toMatch(/^(white|#fff|rgb\(255, 255, 255\))/);
+  });
+
+  it('says on the card which letters of a word the dial has not got', () => {
+    window.history.replaceState(null, '', '/exhibitions/victorian/inventions#telegraph');
+    render(<VictorianInventions />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your word' }), { target: { value: 'Coal' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Send it' }));
+    expect(screen.getByText('C is not on the dial, so it is left out.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+    expect(screen.queryByText(/not on the dial, so/)).toBeNull();
+  });
+
+  it('puts the town clocks back to their own time, to compare them again', () => {
+    render(<VictorianInventions />);
+    fireEvent.click(screen.getByRole('button', { name: 'Bristol' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Send the time down the line' }));
+    expect(screen.getByText(/Bristol keeps railway time now/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Put the town clocks back to their own time' }));
+    expect(screen.getByText('When it is noon in London, it is 11:49 in Bristol.')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send the time down the line' })).toBeInTheDocument();
+  });
+
+  it('scrolls the parlour’s card down to the poster’s last word when the sixth part opens', () => {
+    const tall = jest.spyOn(Element.prototype, 'scrollHeight', 'get').mockReturnValue(900);
+    const scrollTo = jest.fn();
+    const was = Element.prototype.scrollTo;
+    Element.prototype.scrollTo = scrollTo;
+    try {
+      render(<VictorianChristmasParlour />);
+      const list = screen.getByRole('list', { name: 'Open each part' });
+      for (const p of PARTS.slice(0, 5)) fireEvent.click(within(list).getByRole('button', { name: new RegExp(p.name) }));
+      expect(scrollTo).not.toHaveBeenCalled();
+      fireEvent.click(within(list).getByRole('button', { name: new RegExp(PARTS[5].name) }));
+      expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 900 }));
+    } finally {
+      tall.mockRestore();
+      Element.prototype.scrollTo = was;
     }
   });
 });

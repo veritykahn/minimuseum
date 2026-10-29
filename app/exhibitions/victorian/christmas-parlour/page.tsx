@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import FactNote from '@/components/exhibition/FactNote';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
@@ -27,6 +27,13 @@ export default function VictorianChristmasParlour() {
 
   const part = PARTS.find((p) => p.id === current);
   const all = open.size === PARTS.length;
+
+  // With the sixth part open, the card scrolls down to the poster's last word, wherever the card was left.
+  const card = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = card.current;
+    if (all && el && el.scrollHeight > el.clientHeight) el.scrollTo?.({ top: el.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
+  }, [all, reduced]);
 
   const openPart = (id: PartId) => {
     const p = PARTS.find((x) => x.id === id)!;
@@ -58,7 +65,7 @@ export default function VictorianChristmasParlour() {
           <ParlourScene open={open} current={current} onPart={openPart} reduced={reduced} />
         </div>
 
-        <section className="vbr-card vcp-card" aria-label="The parts of a Victorian Christmas">
+        <section ref={card} className="vbr-card vcp-card" aria-label="The parts of a Victorian Christmas">
           {!part ? (
             <>
               <figure className="vbr-quote">

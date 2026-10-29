@@ -123,7 +123,7 @@
   top: 158px;
   bottom: calc(var(--ap-fw) + 24px);
   left: calc(var(--ap-fw) + 8vw);
-  right: calc(min(430px, 34vw) + max(5vw, 50vw - 680px) + 2vw);
+  right: calc(min(430px, 34vw) + max(5vw, 50vw - 680px, 92px) + 2vw);
   container-type: size;
   display: flex;
   align-items: center;
@@ -285,6 +285,26 @@
   white-space: nowrap;
 }
 
+/* When the quill has run dry, said where it can be seen, pointing to the inkwell. */
+.aps-dry {
+  position: absolute;
+  z-index: 2;
+  right: 4%;
+  bottom: 3%;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--ap-rust);
+  color: #fff8ec;
+  font-family: var(--pe-ui);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+  animation: aps-panel-in 0.4s ease both;
+}
+
 /* Which declaration: the Declaration, the class's, or the student's own. */
 .aps-docs { display: flex; gap: 4px; padding: 3px; border: 1px solid rgba(42, 39, 36, 0.2); border-radius: 4px; }
 .ap-room .aps-doc {
@@ -321,7 +341,10 @@
   .aps-parch-line, .aps-parch[data-doc='declaration'] .aps-parch-sigs, .aps-parch[data-doc='mine'] .aps-parch-sigs { width: 92%; }
   .aps-parch-sigs { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
   .aps-parch-more { font-size: 10px; bottom: 8px; }
-  .ap-room .aps-stage[data-tab='sign'] .aps-inkwell { right: 2px; bottom: 6px; width: 30px; }
+  .ap-room .aps-stage[data-tab='sign'] .aps-inkwell { right: 2px; bottom: 6px; width: 40px; }
+  /* Run dry, the inkwell says so beside itself, and the note sits clear of it. */
+  .aps-inkwell[data-low] .aps-inkwell-label { display: block; position: absolute; right: calc(100% + 4px); bottom: 10px; }
+  .aps-dry { right: auto; left: 8px; bottom: 8px; font-size: 10px; letter-spacing: 0.1em; padding: 5px 10px; }
   .aps-doc-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .aps-doc-short { display: inline; }
   .ap-room .aps-doc { min-height: 34px; font-size: 11px; }
@@ -341,7 +364,10 @@
   .aps-print-root .aps-parch-title { font-size: 34pt; }
   .aps-print-root .aps-parch-p { font-size: 10.5pt; line-height: 1.45; }
   .aps-print-root .aps-parch-name { font-size: 18pt; }
-  .aps-print-root .aps-parch-sig, .aps-print-root .aps-parch-col { break-inside: avoid; }
+  .aps-print-root .aps-parch-sig, .aps-print-root .aps-parch-col, .aps-print-root .aps-parch-signers { break-inside: avoid; }
+  /* One signer's name at the foot, at the size of a hand, not across the page. */
+  .aps-print-root .aps-parch:is([data-doc='declaration'], [data-doc='mine']) .aps-parch-sigs { width: 3.6in; margin: 0 0 0 auto; }
+  .aps-print-root .aps-parch-of { font-size: 16pt; }
   .aps-print-root .aps-parch-soon { font-size: 11pt; }
 }
 
@@ -413,7 +439,8 @@
 .aps-panel {
   position: absolute;
   z-index: 2;
-  right: max(5vw, calc(50vw - 680px));
+  /* Never under the map's button in the corner. */
+  right: max(5vw, calc(50vw - 680px), 92px);
   top: 158px;
   width: min(430px, 34vw);
   max-height: calc(100dvh - 158px - var(--ap-fw) - 24px);
@@ -527,6 +554,8 @@
 .aps-fact-flag { margin-top: auto; }
 
 /* ───────── The flag, from 13 stars to 50 ───────── */
+/* The flag laid clear of the candle. */
+@media (min-width: 761px) { .aps-stage[data-tab='flag'] .aps-sheet-wrap { left: calc(var(--ap-fw) + 3vw + 15vh); } }
 .aps-stage[data-tab='flag'] .aps-sheet { height: auto; width: min(100cqw, 100cqh * 1.9); aspect-ratio: 1.9; transform: rotate(-0.8deg); }
 .aps-flag { display: block; width: 100%; height: 100%; cursor: pointer; touch-action: manipulation; }
 .ap-room .aps-flag:focus-visible { outline: 3px solid #e8c77d; outline-offset: 8px; }
@@ -584,6 +613,7 @@
   .ap-room .aps-step { width: auto; padding: 2px; }
   .aps-step-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .aps-step-n { width: 36px; height: 36px; font-size: 14px; }
+  .ap-room .aps-step[aria-current='step'] { background: transparent; }
   .aps-step-heading { font-size: 2rem; }
   .aps-fact { font-size: 12px; line-height: 1.4; gap: 2px; }
   .aps-fact-source { font-size: 11px; }
@@ -593,7 +623,50 @@
   .aps-milestone:not([aria-current='step']) { display: none; }
 }
 
+/* The card's buttons stay in sight while what is above them scrolls. */
+.aps-panel .aps-actions-main, .aps-panel .aps-actions-step {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin: 0 -26px;
+  padding: 10px 26px 12px;
+  background: linear-gradient(to bottom, rgba(248, 246, 240, 0), #f8f6f0 12px);
+}
+.aps-panel .aps-actions-step { margin-top: auto; }
+
+/* A laptop's short screen: the title, the tabs and the card drawn closer, so the card's words and buttons fit. */
+@media (min-width: 761px) and (max-height: 820px) {
+  .aps-bar { padding-top: calc(var(--ap-fw) + 6px); gap: 4px; }
+  .aps-title { font-size: clamp(2.4rem, 4vw, 3.2rem); }
+  .ap-room .aps-tab { padding: 8px 18px; }
+  .aps-sheet-wrap, .aps-panel { top: calc(var(--ap-fw) + 104px); }
+  .aps-panel { max-height: calc(100dvh - var(--ap-fw) * 2 - 128px); padding: 18px 22px; gap: 10px; }
+  .aps-panel .aps-actions-main, .aps-panel .aps-actions-step { margin: 0 -22px; padding: 8px 22px 10px; }
+  .aps-panel .aps-actions-step { margin-top: auto; }
+  .aps-intro, .aps-quote blockquote { font-size: 0.94rem; line-height: 1.45; }
+  .aps-quote-small blockquote { font-size: 0.84rem; }
+  .ap-room .aps-button { min-height: 40px; padding: 9px 14px; }
+  .ap-room .aps-doc { min-height: 34px; }
+  .aps-step-heading { font-size: 1.9rem; }
+  .aps-signed-line { font-size: 1rem; }
+  .aps-signed-line:first-child { font-size: 1.12rem; }
+  /* The copies as a row of numbers; the heading below names the one chosen. */
+  .aps-steps { flex-direction: row; gap: 6px; }
+  .ap-room .aps-step { width: auto; padding: 2px; }
+  .ap-room .aps-step[aria-current='step'] { background: transparent; }
+  .aps-step-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .aps-step-n { width: 32px; height: 32px; font-size: 13px; }
+  .aps-milestones { gap: 6px; }
+  .aps-milestone { font-size: 0.86rem; line-height: 1.4; }
+}
+
+/* A phone's card scrolls whole, its foot clear of the map's button. */
+@media (max-width: 760px) {
+  .aps-panel .aps-actions-main, .aps-panel .aps-actions-step { position: static; margin-left: 0; margin-right: 0; margin-bottom: 0; padding: 0; background: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .aps-dry { animation: none; }
   .aps-glow, .aps-flame, .aps-panel, .aps-inkwell[data-low] .aps-inkwell-label, .aps-inkwell[data-dipping] .aps-quill { animation: none; }
   .ap-sheet-ink path { animation: none; stroke-dashoffset: 0; }
   .ap-sheet-ink text, .ap-typeset rect, .ap-sheet-sig { animation: none; }

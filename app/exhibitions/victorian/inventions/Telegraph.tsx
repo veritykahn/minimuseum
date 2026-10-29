@@ -28,6 +28,8 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
   const [word, setWord] = useState(0);
   const [read, setRead] = useState('');
   const [status, setStatus] = useState('');
+  // The letters a word sent had that the dial does not, said where it can be seen.
+  const [missing, setMissing] = useState<string[]>([]);
   // While a word is sent, the needles point to its letter on the way; otherwise to the last one pressed.
   const shown = queue[0] ?? pressed;
 
@@ -71,11 +73,13 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
     const { letters, skipped } = spell(message);
     if (!letters.length) return;
     setQueue(letters);
+    setMissing(skipped);
     setStatus(`Sending ${letters.join('')}.${skipped.length ? ` ${skipped.join(', ')} ${skipped.length > 1 ? 'are' : 'is'} not on the dial, and left out.` : ''}`);
   };
 
   const switchMode = (m: 'send' | 'read') => {
     setMode(m);
+    setMissing([]);
     setQueue([]);
     setPressed(null);
     setRead('');
@@ -149,7 +153,7 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
               <button type="button" className="vbr-button vbr-button-primary" onClick={send} disabled={!spell(message).letters.length || queue.length > 0}>
                 Send it
               </button>
-              <button type="button" className="vbr-button vbr-button-quiet" onClick={() => { setMessage(''); setQueue([]); setPressed(null); }} disabled={!message}>
+              <button type="button" className="vbr-button vbr-button-quiet" onClick={() => { setMessage(''); setQueue([]); setPressed(null); setMissing([]); }} disabled={!message}>
                 Clear
               </button>
             </div>
@@ -162,6 +166,11 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
                 'The needles stand upright.'
               )}
             </p>
+            {missing.length > 0 && (
+              <p className="vbr-note vbi-left">
+                {missing.join(', ')} {missing.length > 1 ? 'are' : 'is'} not on the dial, so {missing.length > 1 ? 'they are' : 'it is'} left out.
+              </p>
+            )}
           </>
         ) : (
           <>

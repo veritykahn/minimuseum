@@ -336,3 +336,76 @@ describe('wiring', () => {
     expect(sitemap().map((e) => e.url)).toContainEqual(expect.stringMatching(/\/exhibitions\/america-250\/sign$/));
   });
 });
+
+describe('fine tuning (regressions from trying the room)', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign');
+    window.print = jest.fn();
+  });
+
+  it('opens each parchment at its head, not scrolled to where the last one was left', () => {
+    render(<America250Signing />);
+    const declaration = screen.getByRole('region', { name: /Declaration of Independence/ });
+    declaration.scrollTop = 900;
+    fireEvent.click(screen.getByRole('button', { name: 'Our Class Declaration' }));
+    const own = screen.getByRole('region', { name: /Our Class Declaration/ });
+    expect(own).not.toBe(declaration);
+    expect(own.scrollTop).toBe(0);
+  });
+
+  it('takes “Sign your name” in the copies to the Declaration, at its own address', () => {
+    render(<America250Signing />);
+    fireEvent.click(screen.getByRole('button', { name: 'Our Class Declaration' }));
+    expect(window.location.hash).toBe('#class');
+    fireEvent.click(screen.getByRole('tab', { name: /A copy of a copy/ }));
+    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
+    fireEvent.click(within(panel).getByRole('button', { name: /Engrossed Copy/ }));
+    fireEvent.click(within(panel).getByRole('button', { name: 'Sign your name' }));
+    expect(window.location.hash).toBe('#sign');
+    expect(screen.getByRole('button', { name: 'The Declaration' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('prints again when Print it is pressed again before the browser says the printing is done', async () => {
+    render(<America250Signing />);
+    fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
+    await waitFor(() => expect(window.print).toHaveBeenCalledTimes(1));
+    fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
+    await waitFor(() => expect(window.print).toHaveBeenCalledTimes(2));
+  });
+
+  it('sets a typed signature in type on the transcription, until another name is typed', () => {
+    render(<America250Signing />);
+    fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
+    fireEvent.click(screen.getByRole('tab', { name: /A copy of a copy/ }));
+    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
+    fireEvent.click(within(panel).getByRole('button', { name: /The transcription/ }));
+    expect(screen.getByRole('img', { name: 'A printed page' })).toHaveTextContent('A. Visitor');
+    expect(within(panel).getByRole('textbox', { name: SIGN_TEXT.printedNameLabel })).toHaveAttribute('placeholder', 'A. Visitor');
+  });
+
+  it('says where it can be seen when the quill runs dry, and a dip fills it', () => {
+    const box = { left: 0, top: 0, right: 100, bottom: 30, width: 100, height: 30, x: 0, y: 0, toJSON: () => ({}) };
+    const rect = jest.spyOn(HTMLCanvasElement.prototype, 'getBoundingClientRect').mockReturnValue(box as DOMRect);
+    try {
+      render(<America250Signing />);
+      expect(screen.queryByText(/The quill is dry/)).toBeNull();
+      const pad = screen.getByRole('img', { name: /The line to sign on/ });
+      // jsdom has no PointerEvent: a mouse event of the pointer's type carries the position.
+      const at = (type: string, clientX: number) => fireEvent(pad, new MouseEvent(type, { bubbles: true, clientX, clientY: 10 }));
+      at('pointerdown', 0);
+      // Back and forth across the line, more than a dip of ink can write
+      for (let i = 1; i <= 8; i++) at('pointermove', i % 2 ? 100 : 0);
+      at('pointerup', 0);
+      expect(screen.getByText(/The quill is dry/)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Dip the quill in the ink' }));
+      expect(screen.queryByText(/The quill is dry/)).toBeNull();
+    } finally {
+      rect.mockRestore();
+    }
+  });
+});
