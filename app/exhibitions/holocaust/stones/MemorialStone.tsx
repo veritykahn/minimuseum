@@ -55,9 +55,10 @@ function stoneScale(count: number) {
  * Where the first `count` stones lie on a ledge `w` wide, in a heap no
  * higher than `maxH` (CSS px). x is the stone's left edge; y is the height
  * of its foot above the ledge. Each stone falls at its own place along the
- * ledge and settles into the lowest hollow near it, so the stones lie in
- * layers rather than towers; the heap rises highest in the middle of the
- * ledge, lower toward its ends. Once it is full, no more are drawn, so a
+ * ledge and settles into the lowest hollow near it, then rolls off any crown
+ * it lands on, down whichever side is lower, so the stones lie in layers
+ * with sloping sides rather than towers; the heap rises highest in the
+ * middle of the ledge, lower toward its ends. Once it is full, no more are drawn, so a
  * million costs no more than a full ledge.
  */
 export function heapLayout(count: number, w: number, maxH: number): LaidStone[] {
@@ -87,9 +88,20 @@ export function heapLayout(count: number, w: number, maxH: number): LaidStone[] 
         x = cx;
       }
     }
-    const y = Math.max(0, under - sh * 0.25);
+    // Then it rolls, off a crown and down the lower side, as a stone does on a heap.
+    for (let roll = 0; roll < 8; roll++) {
+      const l = Math.max(0, x - sw * 0.5);
+      const r = Math.min(w - sw, x + sw * 0.5);
+      const ul = restOn(l, sw);
+      const ur = restOn(r, sw);
+      const [bx, bu] = ul <= ur ? [l, ul] : [r, ur];
+      if (bu >= under - sh * 0.3) break;
+      x = bx;
+      under = bu;
+    }
+    const y = Math.max(0, under - sh * 0.35);
     // The heap's height here: a low mound, highest mid-ledge.
-    const room = maxH * (0.4 + 0.6 * Math.sqrt(Math.sin((Math.PI * (x + sw / 2)) / w)));
+    const room = maxH * (0.16 + 0.84 * Math.sqrt(Math.sin((Math.PI * (x + sw / 2)) / w)));
     if (y + sh > room) {
       if (++misses > 400) break;
       continue;
@@ -109,17 +121,30 @@ function lighten(hex: string, by: number) {
   const mix = (c: number) => Math.round(c + (255 - c) * by);
   return `rgb(${mix(n >> 16)},${mix((n >> 8) & 255)},${mix(n & 255)})`;
 }
+/** A tone darkened, still as #rrggbb (so it can be lightened and darkened again). */
+function darkenHex(hex: string, by: number) {
+  if (by <= 0) return hex;
+  const n = parseInt(hex.slice(1), 16);
+  const mix = (c: number) => Math.round(c * (1 - by));
+  return `#${((mix(n >> 16) << 16) | (mix((n >> 8) & 255) << 8) | mix(n & 255)).toString(16).padStart(6, '0')}`;
+}
 function darken(hex: string, by: number) {
   const n = parseInt(hex.slice(1), 16);
   const mix = (c: number) => Math.round(c * (1 - by));
   return `rgb(${mix(n >> 16)},${mix((n >> 8) & 255)},${mix(n & 255)})`;
 }
 
-/** One stone: an uneven, rounded outline, lit from above and to the left. */
-function drawStone(g: CanvasRenderingContext2D, s: LaidStone, ledgeY: number, lift = 0, alpha = 1) {
+/**
+ * One stone: an uneven, rounded outline, lit from above and to the left.
+ * `dim` (0–1) darkens it, for the stones deep in the heap, in the shade of
+ * those above them.
+ */
+function drawStone(g: CanvasRenderingContext2D, s: LaidStone, ledgeY: number, lift = 0, alpha = 1, dim = 0) {
   const cx = s.x + s.w / 2;
   const cy = ledgeY - s.y - s.h / 2 - lift;
-  const tone = TONES[Math.floor(hash01(s.i, 4) * TONES.length)];
+  const tone = darkenHex(TONES[Math.floor(hash01(s.i, 4) * TONES.length)], dim);
+  // The smallest stones cast the faintest shadows, or a full ledge reads as a tray of coins.
+  const shadow = Math.min(1, 0.35 + s.w / 30);
   const k = 9;
   const pts: [number, number][] = [];
   for (let j = 0; j < k; j++) {
@@ -131,11 +156,11 @@ function drawStone(g: CanvasRenderingContext2D, s: LaidStone, ledgeY: number, li
   }
   g.globalAlpha = alpha;
   // Its shadow: a soft one where the light falls past it, and a dark line where it touches.
-  g.fillStyle = 'rgba(0,0,0,0.28)';
+  g.fillStyle = `rgba(0,0,0,${0.28 * shadow})`;
   g.beginPath();
   g.ellipse(cx + s.w * 0.1, cy + s.h * 0.4 + lift, s.w * 0.58, s.h * 0.26, 0, 0, Math.PI * 2);
   g.fill();
-  g.fillStyle = 'rgba(0,0,0,0.45)';
+  g.fillStyle = `rgba(0,0,0,${0.45 * shadow})`;
   g.beginPath();
   g.ellipse(cx + s.w * 0.03, cy + s.h * 0.46 + lift, s.w * 0.4, s.h * 0.1, 0, 0, Math.PI * 2);
   g.fill();
@@ -249,9 +274,13 @@ export default function MemorialStone({ count, settleFrom }: { count: number | n
       const newest = settleFrom === null ? -1 : shown - 1;
       const t = settleFrom === null ? 1 : Math.min(1, Math.max(0, (now - settleFrom) / 1800));
       const eased = 1 - Math.pow(1 - t, 3);
+      // The heap's crown is in the light; the stones beneath it are in shade.
+      let top = 0;
+      for (const s of stones) top = Math.max(top, s.y + s.h);
+      const dimOf = (s: LaidStone) => (top > 0 ? 0.42 * Math.max(0, (top - s.y - s.h) / top) : 0);
       for (const s of stones) {
         if (s.i === newest) drawStone(g, s, size.h, (1 - eased) * s.h * 1.2, eased);
-        else drawStone(g, s, size.h);
+        else drawStone(g, s, size.h, 0, 1, dimOf(s));
       }
       return t >= 1;
     },
@@ -341,7 +370,9 @@ export function StoneControls({ count, status, laidToday, busy, lay, onLaid }: C
       ? status === 'loading'
         ? 'Counting the stones…'
         : 'The shared memorial can’t be reached just now.'
-      : `${count.toLocaleString('en-US')} ${count === 1 ? 'stone' : 'stones'} laid${status === 'offline' ? ' (when last counted)' : ''}`;
+      : count === 0
+        ? 'No stones laid yet'
+        : `${count.toLocaleString('en-US')} ${count === 1 ? 'stone' : 'stones'} laid${status === 'offline' ? ' (when last counted)' : ''}`;
 
   return (
     <div className="hos-controls">

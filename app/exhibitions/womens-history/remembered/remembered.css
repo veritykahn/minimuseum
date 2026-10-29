@@ -134,12 +134,13 @@
   align-self: center;
 }
 .whr-cell { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
-.whr-statue { width: min(100%, 52px); height: auto; fill: var(--whr-navy); opacity: 0.5; transition: fill 0.5s ease, opacity 0.5s ease, transform 0.5s ease; }
+/* Five rows of statues and their names fit the panel's height: the statues grow smaller on a short screen. */
+.whr-statue { width: min(100%, 52px, ((100dvh - 178px) / 5 - 48px) * 0.625); height: auto; fill: var(--whr-navy); opacity: 0.5; transition: fill 0.5s ease, opacity 0.5s ease, transform 0.5s ease; }
 .whr-statue .whr-plinth { fill: #b9a7a6; }
 .whr-statue .whr-plinth-top { fill: #cdbcb8; }
 /* The guess lights as many statues as the visitor says. */
 .whr-cell.is-lit .whr-statue { fill: var(--whr-orange); opacity: 1; }
-.whr-name { min-height: 2.6em; font-family: var(--pe-ui); font-size: 10px; line-height: 1.3; text-align: center; color: var(--whr-muted); overflow-wrap: anywhere; }
+.whr-name { min-height: 2.6em; font-family: var(--pe-ui); font-size: 11px; line-height: 1.3; text-align: center; color: var(--whr-muted); overflow-wrap: anywhere; }
 /* Uncovered: every statue named, one after another; the three women stand out. */
 .whr-plinths.is-revealed .whr-statue { opacity: 0.3; transition-delay: calc(var(--i, 0) * 30ms); }
 .whr-plinths.is-revealed .whr-cell.is-woman .whr-statue { opacity: 1; fill: var(--whr-orange); transform: translateY(-4px); }
@@ -167,6 +168,7 @@
 .whr-dish { fill: var(--whr-paper); stroke: var(--whr-navy); stroke-width: 2; }
 .whr-pan-statue { fill: var(--whr-navy); opacity: 0.75; }
 .whr-weight { fill: var(--whr-orange); stroke: var(--whr-navy); stroke-width: 1.5; animation: whr-drop 0.7s ease both; }
+.whr-dish-out { transition: fill 0.3s ease; }
 @keyframes whr-drop { from { opacity: 0; transform: translateY(-14px); } }
 .whr-scale-label { font-family: var(--pe-ui); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; fill: var(--whr-muted); }
 .whr-weights { display: flex; flex-direction: column; align-items: center; gap: 10px; }
@@ -187,7 +189,12 @@
   transition: transform 0.2s ease, opacity 0.4s ease;
 }
 .whr-room .whr-weight-button:hover:not(:disabled) { transform: translateY(-2px); }
-.whr-room .whr-weight-button:disabled { opacity: 0.35; cursor: default; box-shadow: none; text-decoration: line-through; text-decoration-color: var(--whr-orange); }
+/* Laid on the scale: an orange block, like the ones on the pan, with the phrase still there to read. */
+.whr-room .whr-weight-button:disabled { cursor: default; box-shadow: none; background: rgba(242, 102, 31, 0.16); border-color: rgba(242, 102, 31, 0.6); color: var(--whr-orange-ink); }
+/* Picked up and carried to the scale (pointer only; a tap or Enter lays it on as well). */
+.whr-room .whr-weight-button { touch-action: none; }
+.whr-room .whr-weight-button.is-dragging { position: relative; z-index: 5; cursor: grabbing; transition: none; box-shadow: 0 10px 22px rgba(34, 51, 94, 0.3); }
+.whr-scale.is-over .whr-dish-out { fill: #fde3d2; }
 .whr-level { display: flex; flex-direction: column; align-items: center; gap: 12px; animation: whr-in 0.8s ease both; }
 .whr-quote-end { font-style: normal; display: flex; flex-direction: column; gap: 6px; font-size: clamp(0.95rem, 1.2vw, 1.08rem); }
 .whr-level .whr-button { align-self: center; }

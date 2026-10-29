@@ -196,7 +196,7 @@
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
   transform: rotate(-1.2deg);
 }
-.whv-picture-photo img { display: block; width: 100%; height: auto; max-height: calc(100dvh - 104px - 210px - 140px); object-fit: cover; filter: sepia(0.15); }
+.whv-picture-photo img { display: block; width: 100%; height: auto; max-height: calc(100dvh - 104px - clamp(170px, 24vh, 210px) - 190px); object-fit: cover; filter: sepia(0.15); }
 
 .whv-words { flex: 1; min-width: 0; max-height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 14px; min-height: 0; }
 .whv-heading {
@@ -228,7 +228,30 @@
    the sans, with its source linked (owner-approved, fact-checked). */
 /* The picture, and under it any museum note. */
 .whv-side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px; width: clamp(170px, 20vw, 250px); }
-@media (min-width: 761px) { .whv-side .whv-picture { width: 100%; } }
+@media (min-width: 761px) {
+  .whv-side .whv-picture { width: 100%; }
+  /* On a short screen the picture gives way to the museum note under it. */
+  .whv-side:has(.whv-note) .whv-picture { width: clamp(120px, calc(100dvh - 540px), 100%); }
+}
+/* A laptop's short screen: the typed words a little closer, so the longer stops still fit the sheet. */
+@media (min-width: 761px) and (max-height: 760px) {
+  .whv-sheet { top: calc(104px + clamp(170px, 24vh, 210px) + 16px); }
+  .whv-sheet-inner { padding-top: 18px; }
+  .whv-steps { padding-top: 6px; padding-bottom: 8px; }
+  .whv-words { gap: 10px; }
+  .whv-copy { font-size: 0.92rem; line-height: 1.46; gap: 0.7em; }
+  /* Your own: the form drawn in tighter, so a moment and its keepsakes fit above the buttons. */
+  .whv-own .whv-picture-photo img { max-height: calc(100dvh - 104px - clamp(170px, 24vh, 210px) - 250px); }
+  .whv-own .whv-picture-art { width: 62%; }
+  .whv-form { gap: 8px; }
+  .whv-own .whv-heading { font-size: 1.6rem; }
+  .whv-prompt { font-size: 1.05rem; }
+  .whv-fields { gap: 6px 16px; }
+  .whv-field input, .whv-field textarea { padding: 5px 10px; }
+  .whv-field textarea { height: 2.6em; }
+  .whv-keepsake { width: 36px; height: 36px; }
+  .whv-keepsake-art { width: 28px; height: 28px; }
+}
 .whv-note { flex: none; align-self: stretch; display: flex; flex-direction: column; gap: 4px; padding: 8px 12px; border-left: 3px solid var(--whv-orange); background: rgba(34, 51, 94, 0.05); font-family: var(--pe-ui); }
 .whv-note-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #a3401a; }
 .whv-fact { display: flex; flex-direction: column; gap: 2px; font-size: 13px; line-height: 1.45; color: var(--whv-ink); }
@@ -340,7 +363,10 @@
 .whv-add-label { position: absolute; top: 34px; left: -50px; width: 100px; text-align: center; font-family: var(--pe-ui); font-size: 12px; font-weight: 500; }
 
 .whv-own-inner { align-items: stretch; }
-.whv-own .whv-side { justify-content: center; }
+/* Centred while it fits; never pushed up out of reach when it does not. */
+.whv-own .whv-side { justify-content: safe center; }
+/* A little room inside, so focus rings and the chosen keepsake's ring are not clipped. */
+.whv-form { overflow-y: auto; padding: 4px; margin: -4px; }
 .whv-photo-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; }
 .wh-room .whv-link {
   appearance: none;
@@ -358,7 +384,7 @@
   text-underline-offset: 4px;
   cursor: pointer;
 }
-.whv-form { justify-content: center; gap: 12px; }
+.whv-form { justify-content: safe center; gap: 12px; }
 .whv-form-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .whv-prompt { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; font-family: var(--pe-display); font-style: italic; font-size: clamp(1.05rem, 1.5vw, 1.3rem); color: var(--whv-navy); }
 .whv-own-intro { font-family: var(--whv-mono); font-size: clamp(0.95rem, 1.15vw, 1.05rem); line-height: 1.6; max-width: 36em; }
@@ -428,7 +454,7 @@
 .whv-own-sheet-when { font-weight: 700; font-size: 16px; color: #a3401a; }
 .whv-own-sheet-place { font-family: 'Poppins', Arial, sans-serif; font-weight: 500; font-size: 14px; }
 .whv-own-sheet-memory { font-size: 13px; line-height: 1.5; color: #2a2226; }
-.whv-own-sheet-foot { margin-top: 28px; font-family: 'Poppins', Arial, sans-serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b4a52; text-align: right; }
+.whv-own-sheet .whv-own-sheet-foot { margin-top: 28px; font-family: 'Poppins', Arial, sans-serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b4a52; text-align: right; }
 
 @media (max-width: 760px) {
   .whv-stage { min-height: 0; }
@@ -474,6 +500,8 @@
   .whv-steps { flex-wrap: wrap; gap: 8px; }
   .whv-steps-move, .whv-steps-keep { gap: 6px; }
   .whv-steps .whv-step { padding: 8px 10px; font-size: 11px; letter-spacing: 0.08em; min-height: 40px; }
+  /* "Save as image" is "Save" here, so the four buttons keep to one row. */
+  .whv-step-more { display: none; }
   /* Your own: the picture small, beside its photo buttons, so the words have the room. */
   .whv-own .whv-side { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 14px; width: auto; }
   .whv-own .whv-picture { width: auto; align-self: auto; }

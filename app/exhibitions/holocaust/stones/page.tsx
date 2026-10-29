@@ -56,6 +56,11 @@ export default function LayAStone() {
     return () => window.removeEventListener('hashchange', fromHash);
   }, []);
 
+  // Niemöller's words are set in League Gothic, which the browser fetches only when they are first shown; fetch it now, so they never appear first in another face.
+  useEffect(() => {
+    document.fonts?.load('1em "League Gothic"').catch(() => undefined);
+  }, []);
+
   // Leaving the walk stops it.
   useEffect(() => {
     if (tab !== 'walk') stopWalking();
