@@ -210,13 +210,14 @@ export default function PosterExhibition<K extends string>({ config }: { config:
           )}
           {poster && item && (
             <div
+              // The key comes before the spreads, so React builds the element with jsx() and not createElement().
+              key={animationKey}
               {...stageProps}
               {...fx}
               className={`pe-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
               data-item={item.type}
               data-entrance={entrance}
               data-atmosphere={atmosphere}
-              key={animationKey}
             >
               <div className="pe-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
                 {veil && <FxVeil theme={fxConfig.theme} kind={veil} />}

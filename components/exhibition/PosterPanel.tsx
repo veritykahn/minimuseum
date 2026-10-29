@@ -4,7 +4,8 @@ import type { CSSProperties, ReactNode } from 'react';
 import { FxText, type FxKind } from '@/components/poster-fx/PosterFx';
 import { PosterProjectorEnd } from '@/components/projector/PosterProjector';
 import PosterLessons from '@/components/lesson/PosterLessons';
-import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass, sentences } from './helpers';
+import { BlindSpot, Emph, Lines, Typed, TypedForReaders } from './EntranceCopy';
+import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass } from './helpers';
 import type { ExhibitionConfig, PanelDecor, PanelEffect, PanelMarks, PosterConfig, PosterItem, PosterItemType } from './types';
 
 /*
@@ -41,62 +42,6 @@ type CssVars = CSSProperties & Record<`--${string}`, string | number>;
 /** Entrances drawn on the copy even where a panel also has a picture. */
 const COPY_EFFECTS: PanelEffect[] = ['typewriter', 'line-by-line', 'ink-spread'];
 
-/** Short copy with "*…*" set in italics: a credit, a caption, a citation. */
-function Emph({ text }: { text: string }) {
-  return (
-    <>
-      {emphasisRuns(text).map((r, i) => (r.em ? <em key={i}>{r.text}</em> : <span key={i}>{r.text}</span>))}
-    </>
-  );
-}
-
-/** Copy typed out a character at a time. The line is read whole (the typing is hidden from assistive technology). */
-function Typed({ text }: { text: string }) {
-  const runs = emphasisRuns(text);
-  const total = runs.reduce((n, r) => n + r.text.length, 0);
-  // About three seconds however long the copy, and never faster than a brisk typist.
-  const step = Math.min(0.045, 3.2 / Math.max(total, 1));
-  let c = 0;
-  return (
-    <span className="pe-typed" aria-hidden="true" style={{ '--tw-step': `${step.toFixed(4)}s`, '--tw-total': `${(step * total).toFixed(2)}s` } as CssVars}>
-      {runs.map((r, ri) => {
-        // Words stay whole at the end of a line: each is a nowrap run of letters.
-        const words = r.text.split(/(\s+)/);
-        const body = words.map((w, wi) => {
-          if (/^\s+$/.test(w)) {
-            c += w.length;
-            return ' ';
-          }
-          return (
-            <span key={wi} className="pe-typed-word">
-              {Array.from(w).map((ch, ci) => (
-                <span key={ci} className="pe-typed-ch" style={{ '--c': c++ } as CssVars}>
-                  {ch}
-                </span>
-              ))}
-            </span>
-          );
-        });
-        return r.em ? <em key={ri}>{body}</em> : <span key={ri}>{body}</span>;
-      })}
-      <span className="pe-typed-caret" />
-    </span>
-  );
-}
-
-/** Copy set a sentence at a time. */
-function Lines({ text }: { text: string }) {
-  return (
-    <>
-      {sentences(text).map((s, i) => (
-        <span key={i} className="pe-line" style={{ '--n': i } as CssVars}>
-          <Emph text={s} />
-        </span>
-      ))}
-    </>
-  );
-}
-
 /**
  * Panel copy. With its own entrance it is set plainly (or typed, or a line at
  * a time); otherwise it takes part in the exhibition's reveal when the
@@ -108,16 +53,6 @@ function Copy({ text, kind, effect, reveal }: { text: string; kind: FxKind; effe
   const emphasis = text.includes('*');
   if (effect !== 'theme' || !reveal) return emphasis ? <Emph text={text} /> : <>{text}</>;
   return <FxText text={text} words={kind === 'statement' || kind === 'quote'} emphasis={emphasis} />;
-}
-
-/** The line typed out, kept whole for assistive technology beside the hidden typing. */
-function TypedForReaders({ effect, text }: { effect: PanelEffect; text: string }) {
-  if (effect !== 'typewriter') return null;
-  return (
-    <span className="visually-hidden">
-      <Emph text={text} />
-    </span>
-  );
 }
 
 /** A picture's credit as its owner specifies it, linked to its record. */
@@ -132,11 +67,6 @@ function Credit({ credit, className }: { credit?: { text: string; href?: string 
       )}
     </span>
   );
-}
-
-/** The disc of the ground that hides the middle of the panel and fades, as the blind spot fills in. */
-function BlindSpot({ effect }: { effect: PanelEffect }) {
-  return effect === 'blind-spot-reveal' ? <span className="pe-blind-spot" aria-hidden="true" /> : null;
 }
 
 /**

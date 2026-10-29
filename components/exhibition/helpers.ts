@@ -41,6 +41,15 @@ export function colorsFor(poster: PosterConfig, item: PosterItem | undefined, at
  * reveal). The ending, with its lessons, always takes the theme's.
  */
 export function entranceOf(item: PosterItem | undefined): PanelEffect {
+  return panelEntrance(item);
+}
+
+/**
+ * The same, for any walkthrough's panels: the engine's, or a hand-built
+ * page's own items (Harlem, In Their Hands, Seeing is Deceiving), which name
+ * their entrances from the same vocabulary.
+ */
+export function panelEntrance(item: { type: string; effect?: PanelEffect } | undefined): PanelEffect {
   if (!item || item.type === 'end') return 'theme';
   return item.effect ?? 'theme';
 }

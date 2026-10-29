@@ -86,7 +86,7 @@ body:has(.pe-root) { margin: 0; overflow-x: hidden; }
   100% { transform: translateY(0) scale(var(--pe-expand, 1.12)); opacity: 1; }
 }
 .pe-effect-rise-expand { animation: peRiseExpand 8s ease-out both; }
-:is(p, h2, blockquote, a).pe-effect-rise-expand { --pe-expand: 1.03; }
+:is(p, h2, blockquote, a, .pe-entrance).pe-effect-rise-expand { --pe-expand: 1.03; }
 
 @keyframes peMegaZoomOut { from { transform: scale(1.6); opacity: 0; } 40% { opacity: 1; } }
 .pe-effect-mega-zoom-out { animation: peMegaZoomOut 2.4s var(--pe-ease) backwards; }
@@ -148,7 +148,7 @@ body:has(.pe-root) { margin: 0; overflow-x: hidden; }
 /* Slow motions that run on after the panel arrives. */
 @keyframes pePanLR { from { transform: translateX(calc(-1 * var(--pe-pan, 6vw))); } to { transform: translateX(var(--pe-pan, 6vw)); } }
 .pe-effect-pan-lr { animation: peFadeIn 1.2s ease backwards, pePanLR 14s ease-in-out both; }
-:is(p, h2, blockquote, a).pe-effect-pan-lr { --pe-pan: 1.5vw; }
+:is(p, h2, blockquote, a, .pe-entrance).pe-effect-pan-lr { --pe-pan: 1.5vw; }
 
 @keyframes peKenburnsIn { from { transform: scale(1); } to { transform: scale(1.08); } }
 .pe-effect-kenburns-in { animation: peFadeIn 1.2s ease backwards, peKenburnsIn 9s ease both; }
@@ -176,6 +176,9 @@ body:has(.pe-root) { margin: 0; overflow-x: hidden; }
 }
 img.pe-effect-erase { animation: peErase 10s ease forwards; }
 :not(img).pe-effect-erase { animation: peFilmCredits 1.3s var(--pe-ease) backwards; }
+
+/* Copy arriving inside a hand-built walkthrough's own paragraph or title (EntranceCopy). */
+.pe-entrance { display: block; }
 
 /* The other half of a panel with a picture and copy follows the half that makes the entrance. */
 .pe-follow { animation: peFadeIn 1.2s 0.7s ease backwards; }

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import { floorReturnFor } from '@/lib/floors';
@@ -14,418 +13,12 @@ import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useP
 import { HARLEM_TALK } from '@/components/projector/posterTalk';
 import { HARLEM_POSTER_THEME, HARLEM_POSTER_LINKS } from '@/components/projector/themes';
 import { FxText, FxVeil, PosterProgress, chapterMarks, fxKindFor, usePosterFxStage } from '@/components/poster-fx/PosterFx';
-
-type ContentItem = {
-  type: string;
-  text?: string;
-  src?: string;
-  alt?: string;
-  url?: string;
-  position?: string;
-  effect?: string;
-  special?: string;
-  items?: string[];
-  artworkTitle?: string;
-  artworkArtist?: string;
-  artworkDate?: string;
-  artworkDescription?: string;
-};
-
-// ============================================
-// POSTER 1: The Great Migration & The Harlem Renaissance
-// ============================================
-const poster1Content: ContentItem[] = [
-  {
-    type: 'title-image',
-    src: '/exhibitions/harlem/poster1-title1.jpg',
-    alt: 'The Great Migration and',
-    effect: 'pan-lr',
-    special: 'height'
-  },
-  {
-    type: 'title-image',
-    src: '/exhibitions/harlem/poster1-title2.jpg',
-    alt: 'The Harlem Renaissance',
-    effect: 'kenburns-in',
-    special: 'width'
-  },
-  {
-    type: 'section-title',
-    text: 'The Trains North',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'train-journey'
-  },
-  {
-    type: 'paragraph',
-    text: 'Between 1916 and 1930, more than one million Black Americans fled the South. They boarded trains in Mississippi, Alabama, Georgia, and Louisiana — escaping Jim Crow laws, sharecropping debt, and the constant threat of racial violence. They followed rumors of factory jobs and real wages to Chicago, Detroit, Cleveland, and Philadelphia. And they poured into a three-square-mile neighborhood at the northern tip of Manhattan called Harlem.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'train-journey'
-  },
-  {
-    type: 'paragraph',
-    text: 'By 1930, Harlem held 175,000 Black residents — the largest concentration of Black Americans in the United States. They came from Southern farms and Caribbean islands, from African nations and Northern cities. Doctors lived alongside factory workers. Immigrants from Jamaica debated with migrants from Georgia. A self-contained Black world emerged: Black-owned businesses on 125th Street, Black newspapers like the Amsterdam News, Black churches that seated thousands.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'train-journey'
-  },
-  {
-    type: 'paragraph',
-    text: 'What happened next would reshape American culture forever.',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'section-title',
-    text: 'The Literary Renaissance',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'ink-spread'
-  },
-  {
-    type: 'paragraph',
-    text: 'The writers came first — or at least, they got the credit. Langston Hughes arrived from Missouri and became the movement\'s poet laureate, capturing Harlem\'s rhythms in collections like The Weary Blues (1926). Zora Neale Hurston came from Florida, trained as an anthropologist, and transformed Black Southern folk culture into novels like Their Eyes Were Watching God (1937). Claude McKay, born in Jamaica, wrote the defiant poem "If We Must Die" and the novel Home to Harlem (1928).',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'ink-spread'
-  },
-  {
-    type: 'paragraph',
-    text: 'Countee Cullen crafted formal verse that proved Black poets could master European forms while exploring Black themes. Nella Larsen examined the painful complexities of racial identity in Quicksand (1928) and Passing (1929). Jean Toomer\'s experimental Cane (1923) blended poetry and prose into something entirely new.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'ink-spread'
-  },
-  {
-    type: 'paragraph',
-    text: 'Behind them stood editors and organizers. W.E.B. Du Bois published The Crisis, the NAACP\'s magazine, showcasing new voices. Charles S. Johnson edited Opportunity for the Urban League and organized dinners that introduced Black writers to white publishers. Jessie Fauset, literary editor of The Crisis, discovered and nurtured Langston Hughes and many others. Alain Locke compiled the anthology The New Negro (1925), which became the movement\'s manifesto.',
-    position: 'top-right',
-    effect: 'fade-in',
-    special: 'ink-spread'
-  },
-  {
-    type: 'artwork-display',
-    src: '/exhibitions/harlem/aspiration.jpg',
-    alt: 'Painting in purples of three silhouetted figures looking and pointing toward a city of towers on a hill, above rows of raised, shackled hands',
-    artworkTitle: 'Aspiration',
-    artworkArtist: 'Aaron Douglas',
-    artworkDate: '1936',
-    artworkDescription: 'One of his most iconic murals, originally painted for the Texas Centennial Exposition. It depicts figures rising above broken chains, pointing toward a city on the horizon — symbolizing African American aspiration and progress.',
-    special: 'art-deco-rays'
-  },
-  {
-    type: 'section-title',
-    text: 'Art, Theater, and Beyond',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'art-deco-rays'
-  },
-  {
-    type: 'paragraph',
-    text: 'Aaron Douglas painted bold geometric murals that fused African aesthetics with Art Deco modernism — his work appeared in books, magazines, and on the walls of Harlem\'s public buildings. Augusta Savage sculpted busts of Black leaders and mentored younger artists in her Harlem studio. James Van Der Zee photographed weddings, funerals, and everyday moments with dignity and artistry, creating a visual archive of Black life.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'art-deco-rays'
-  },
-  {
-    type: 'paragraph',
-    text: 'On stage, the Blackbirds revues brought Black performers to Broadway — Bill "Bojangles" Robinson, Adelaide Hall, Ethel Waters, the Nicholas Brothers. Shuffle Along (1921), with music by Eubie Blake and Noble Sissle, was the first major Broadway musical written and performed entirely by Black Americans. Paul Robeson brought Shakespeare to Harlem and spirituals to concert halls worldwide. Josephine Baker conquered Paris with her dancing and never really came back.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'art-deco-rays'
-  },
-  {
-    type: 'section-title',
-    text: 'The Sound of Harlem',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'jazz-swing'
-  },
-  {
-    type: 'paragraph',
-    text: 'The music was everywhere — in speakeasies and ballrooms, at rent parties and fancy clubs. Duke Ellington held court at the Cotton Club on Lenox Avenue, broadcasting his sophisticated compositions to radio audiences nationwide. His band included giants: Bubber Miley on trumpet, Johnny Hodges on saxophone, "Tricky Sam" Nanton on trombone. Louis Armstrong revolutionized jazz with recordings like "West End Blues" (1928), transforming the music from collective improvisation into a vehicle for individual genius.',
-    position: 'top-right',
-    effect: 'fade-in',
-    special: 'jazz-swing'
-  },
-  {
-    type: 'paragraph',
-    text: 'Bessie Smith — the Empress of the Blues — recorded over 150 songs for Columbia Records, her voice so powerful it barely fit on wax. Fletcher Henderson\'s orchestra pioneered big band swing. Cab Calloway brought theatrical flair and scat singing to the masses. Ethel Waters crossed from blues into Broadway and Hollywood.',
-    position: 'bottom-left',
-    effect: 'fade-in',
-    special: 'jazz-swing'
-  },
-  {
-    type: 'paragraph',
-    text: 'The Savoy Ballroom on Lenox Avenue — integrated, unlike the Cotton Club — held 4,000 dancers on its block-long floor. The Lindy Hop was born there. Small\'s Paradise on 135th Street featured waiters who danced the Charleston while carrying trays. Rent parties — informal gatherings where tenants charged admission to raise money for rent — featured stride pianists like Fats Waller and James P. Johnson playing until dawn.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'jazz-swing'
-  },
-  {
-    type: 'section-title',
-    text: 'The End and the Beginning',
-    position: 'full-width',
-    effect: 'split-reveal'
-  },
-  {
-    type: 'paragraph',
-    text: 'The stock market crashed in 1929. The Great Depression devastated Harlem — by 1935, unemployment reached 50 percent. White patrons stopped coming uptown. Publishers lost interest in Black writers. The Harlem Renaissance as a concentrated movement was over by the mid-1930s.',
-    position: 'top-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'But its impact endured. The writers, artists, and musicians of the Harlem Renaissance proved that Black Americans could produce work equal to anything in the world. They created institutions — magazines, publishing connections, artistic networks — that supported Black creativity for generations. The confidence they instilled, the pride they demonstrated, the excellence they demanded laid the foundation for the Civil Rights Movement that would transform America.',
-    position: 'bottom-right',
-    effect: 'fade-in'
-  },
-  {
-    type: 'quote',
-    text: 'The trains that carried those migrants north carried more than people. They carried the seeds of a revolution.',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'link',
-    text: 'Explore More: A New African American Identity — National Museum of African American History and Culture',
-    url: 'https://nmaahc.si.edu/explore/stories/new-african-american-identity-harlem-renaissance'
-  },
-  { type: 'end', text: 'Return to Exhibition' }
-];
-
-// ============================================
-// POSTER 2: Walter White — The Civil Rights Hero You've Never Heard Of
-// ============================================
-const poster2Content: ContentItem[] = [
-  {
-    type: 'title-image',
-    src: '/exhibitions/harlem/poster2-title1.jpg',
-    alt: 'Walter White',
-    effect: 'erase',
-    special: 'width-top'
-  },
-  {
-    type: 'title-image',
-    src: '/exhibitions/harlem/poster2-title2.jpg',
-    alt: 'The Civil Rights Hero You\'ve Never Heard Of',
-    effect: 'rise-expand',
-    special: 'width'
-  },
-  {
-    type: 'paragraph',
-    text: 'He had blond hair, blue eyes, and skin so fair that strangers assumed he was white. He was also one of the most important Black leaders of the twentieth century.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'dual-identity'
-  },
-  {
-    type: 'section-title',
-    text: 'The Man No One Suspected',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'dual-identity'
-  },
-  {
-    type: 'paragraph',
-    text: 'Walter Francis White was born in Atlanta in 1893 into a middle-class Black family — his father was a mail carrier, his mother a former teacher. Both parents were light-skinned, descended from mixed-race unions that stretched back to slavery. In the rigid racial classifications of the American South, the White family was legally, socially, and culturally Black. But to anyone who didn\'t know the family, Walter looked like just another white boy.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'dual-identity'
-  },
-  {
-    type: 'paragraph',
-    text: 'He could have disappeared into whiteness as many light-skinned Black Americans did, "passing" into white society to escape Jim Crow, access better jobs and live without the constant weight of racism. "Passing" as white meant safety. But it also meant abandoning one\'s family, community, identity.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'dual-identity'
-  },
-  {
-    type: 'paragraph',
-    text: 'Walter White chose differently.',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'section-title',
-    text: 'The Night Everything Changed',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'harlem-night'
-  },
-  {
-    type: 'paragraph',
-    text: 'In September 1906, when Walter was twelve, a white mob rampaged through Atlanta. Fueled by inflammatory newspaper headlines about alleged Black crimes, thousands of white men attacked Black neighborhoods, beating and killing Black residents and destroying Black businesses. At least twenty-five Black people died, although it was likely many more.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'harlem-night'
-  },
-  {
-    type: 'paragraph',
-    text: 'The mob approached the White family home. Walter\'s father armed himself and prepared to defend the house. The family waited in darkness, listening to the violence outside. The mob passed by — possibly because the house looked like it belonged to a white family. But White never forgot that night.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'harlem-night'
-  },
-  {
-    type: 'paragraph',
-    text: '"I knew then who I was," he wrote decades later. "I was a Negro, a human being with an invisible pigmentation which marked me a person to be hunted."',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'harlem-night'
-  },
-  {
-    type: 'artwork-display',
-    src: '/exhibitions/harlem/poster2-photograph.jpg',
-    alt: 'Sepia portrait photograph of Walter White, seated in a dark suit and tie, looking to one side',
-    artworkTitle: 'Walter Francis White',
-    artworkArtist: 'Clara Sipprell',
-    artworkDate: 'c. 1940',
-    artworkDescription: 'Gelatin silver print. Civil rights leader and executive secretary of the NAACP from 1931 to 1955. National Portrait Gallery, Washington D.C.',
-  },
-  {
-    type: 'section-title',
-    text: 'The NAACP\'s Secret Weapon',
-    position: 'full-width',
-    effect: 'split-reveal'
-  },
-  {
-    type: 'paragraph',
-    text: 'In 1918, the NAACP hired White as an investigator. His job: travel to Southern towns where Black Americans had been killed by mobs, gather evidence, and report back to the nation. His appearance made him the perfect spy.',
-    position: 'top-right',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'White would arrive in a town days after racial violence, posing as a white journalist or businessman. He interviewed sheriffs, politicians, and ordinary white citizens — people who spoke freely, even boasted, about what had been done to Black residents. They never suspected that the fair-skinned stranger was gathering evidence against them.',
-    position: 'bottom-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'Over twelve years, White personally investigated forty-one lynchings and eight race riots. He traveled to Arkansas after the Elaine massacre of 1919, where white mobs murdered hundreds of Black sharecroppers. He investigated violence in Florida, Texas, Georgia, and throughout the South. The evidence he gathered helped expose the reality of racial terror to national and international audiences.',
-    position: 'top-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'But it was extraordinarily dangerous work. More than once, White\'s identity was discovered and he had to flee. In Arkansas, he escaped just ahead of a mob that had learned who he really was, boarding a departing train with only minutes to spare.',
-    position: 'center',
-    effect: 'fade-in'
-  },
-  {
-    type: 'section-title',
-    text: 'Witness Turned Author',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'ink-spread'
-  },
-  {
-    type: 'paragraph',
-    text: 'White channeled what he witnessed into literature. His first novel, The Fire in the Flint (1924), tells the story of Kenneth Harper, a Black doctor educated in the North who returns to his Georgia hometown determined to help his community. The novel ends with Harper\'s death at the hands of a white mob. White wrote the entire manuscript in twelve days. Every detail came from his investigations. The book received immediate critical acclaim while some Southern newspapers denounced it as slander. White considered that a success.',
-    position: 'top-right',
-    effect: 'fade-in',
-    special: 'ink-spread'
-  },
-  {
-    type: 'paragraph',
-    text: 'His second novel, Flight (1926), explored the agonizing choice of passing while his nonfiction book Rope and Faggot: A Biography of Judge Lynch (1929) analyzed the causes and psychology of mob violence. Beyond his own writing, White championed other Harlem Renaissance authors. He introduced Langston Hughes to publishers and promoted Claude McKay, Countee Cullen, and many others. His Harlem apartment became a gathering place for writers, artists, and intellectuals.',
-    position: 'bottom-left',
-    effect: 'fade-in',
-    special: 'ink-spread'
-  },
-  {
-    type: 'artwork-display',
-    src: '/exhibitions/harlem/creation.jpg',
-    alt: 'Painting of a lone silhouetted figure on a hill beneath concentric rainbow arcs, with a great hand reaching down from the sky',
-    artworkTitle: 'The Creation',
-    artworkArtist: 'Aaron Douglas',
-    artworkDate: '1935',
-    artworkDescription: 'Douglas first pictured this sermon in 1927, in his illustrations for James Weldon Johnson\'s book God\'s Trombones: Seven Negro Sermons in Verse, and returned to it in this painting. Douglas\'s signature style — silhouetted figures bathed in concentric circles of light — became the defining visual language of the Harlem Renaissance.',
-  },
-  {
-    type: 'section-title',
-    text: 'Twenty-Four Years at the Helm',
-    position: 'full-width',
-    effect: 'split-reveal'
-  },
-  {
-    type: 'paragraph',
-    text: 'In 1931, White became executive secretary of the NAACP — the organization\'s top position. He held it for twenty-four years, through the Great Depression, World War II, and the early Civil Rights era. Under his leadership, the NAACP pursued legal challenges to segregation. White lobbied presidents — Roosevelt, Truman, Eisenhower — for civil rights legislation, pushed for federal anti-lynching laws, though Southern senators blocked them repeatedly, and advocated for desegregation of the military, which Truman finally ordered in 1948. White also advised Eleanor Roosevelt on racial issues and testified before Congress on these same issues. While doing all this, he wrote a nationally syndicated newspaper column.',
-    position: 'top-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'White was, for a quarter century, one of the most prominent Black leaders in America — a man who looked white but never wavered in his identity.',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'section-title',
-    text: 'Forgotten Hero',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'paragraph',
-    text: 'Walter F. White died in 1955, just months after the Supreme Court\'s Brown v. Board of Education decision began dismantling legal segregation. And then America forgot him.',
-    position: 'top-right',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'White\'s death came at the worst possible moment for his legacy. History remembers the marches, the speeches, the confrontations of the 1960s. It is not so good at remembering the people who laid the ground those moments stood on. White\'s decades of legal strategy, political lobbying, and undercover investigation didn\'t look like the activism that came next, and a younger generation of leaders viewed his incremental, institution-building approach as too cautious, too slow.',
-    position: 'bottom-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'His appearance made it worse. A Black leader who looked white unsettled people on all sides — too Black for white America, too white-looking for a movement increasingly defined by visible solidarity. A late-life personal scandal — his 1949 divorce and remarriage to a white South African woman — alienated colleagues and community members alike and by the time the civil rights story was being written, White had slipped out of it.',
-    position: 'top-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'Despite this, Walter White is arguably one of the most influential leaders in American history, transforming the NAACP into a powerhouse for civil rights.',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'link',
-    text: 'Explore More: Walter White — Smithsonian Black History Month',
-    url: 'https://www.si.edu/events/black-history-month?trumbaEmbed=view%3Devent%26eventid%3D180126734'
-  },
-  { type: 'end', text: 'Return to Exhibition' }
-];
-
-// ============================================
-// HELPER COMPONENTS
-// ============================================
-
-const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void; color: string }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, 30);
-      return () => clearTimeout(timeout);
-    }
-    return undefined;
-  }, [currentIndex, text]);
-
-  return (
-    <span style={{ color }}>
-      {displayedText}
-      <span className="hr-typewriter-cursor">|</span>
-    </span>
-  );
-};
+import AtmosphereLayer from '@/components/exhibition/AtmosphereLayer';
+import { EntranceCopy } from '@/components/exhibition/EntranceCopy';
+import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
+import '@/components/exhibition/poster-exhibition.css';
+import { HARLEM_ATMOSPHERES, poster1Content, poster2Content } from './posters';
+import './harlem.css';
 
 const poster1Marks = chapterMarks(poster1Content);
 const poster2Marks = chapterMarks(poster2Content);
@@ -496,18 +89,22 @@ export default function HarlemRenaissance() {
       return isPoster1 ? poster1Purple : poster2Slate;
     }
 
+    // A panel with no section look of its own stands in its atmosphere's ground.
+    const atmoBg = !currentItem.special && currentItem.atmosphere ? HARLEM_ATMOSPHERES[currentItem.atmosphere]?.bg : undefined;
+    if (atmoBg) return atmoBg;
+
     if (isPoster1) {
       switch (currentItem.special) {
         case 'train-journey': return '#381a2f';   // dark wine
         case 'ink-spread':    return '#1a0f2a';   // deep purple-black
-        case 'art-deco-rays': return '#885a99';   // medium purple
+        case 'art-deco-rays': return '#714985';   // the poster's purple (cream copy reads 5.1:1 on it)
         case 'jazz-swing':    return '#381a2f';   // dark wine
         default:              return '#1a0f2a';   // deep purple-black
       }
     } else {
       switch (currentItem.special) {
         case 'dual-identity': return '#17142f';   // deep indigo
-        case 'harlem-night':  return '#4e568f';   // night blue
+        case 'harlem-night':  return '#262a4d';   // night: dark enough for the lavender titles (4.6:1)
         case 'ink-spread':    return '#17142f';   // deep indigo
         default:              return '#4e568f';   // night blue
       }
@@ -525,14 +122,26 @@ export default function HarlemRenaissance() {
     : currentItem.type === 'section-title' ? 'title'
     : kind === 'body' && currentItem.type === 'paragraph' ? 'text'
     : 'media';
+  /**
+   * How this panel arrives. A panel with an entrance of its own (typed out,
+   * set line by line, swung in) takes it in place of the exhibition's reveal;
+   * the rest keep the reveal: the Deco doors at a chapter, Douglas's irises
+   * round a painting. The title cards keep their own motions and the iris.
+   */
+  const entrance = panelEntrance(currentItem);
+  const own = entrance !== 'theme' && currentItem?.type !== 'title-image';
+  const atmosphere = currentItem?.atmosphere;
+  const atmo = atmosphere ? HARLEM_ATMOSPHERES[atmosphere] : undefined;
 
   // Per-section color palette
   const getSectionColors = (special?: string) => {
+    const own = !special && currentItem?.atmosphere ? HARLEM_ATMOSPHERES[currentItem.atmosphere] : undefined;
+    if (own?.title && own.text) return { title: own.title, text: own.text };
     if (isPoster1) {
       switch (special) {
         case 'train-journey': return { title: '#efd9b4', text: '#efd9b4' }; // cream/gold
         case 'ink-spread': return { title: '#d992ba', text: '#efd9b4' }; // pink titles
-        case 'art-deco-rays': return { title: '#efd9b4', text: '#b195a4' }; // dusty mauve text
+        case 'art-deco-rays': return { title: '#efd9b4', text: '#efd9b4' }; // cream: the mauve read 1.6:1 on the purple
         case 'jazz-swing': return { title: '#d992ba', text: '#efd9b4' }; // pink titles, cream text
         default: return { title: '#efd9b4', text: '#efd9b4' };
       }
@@ -573,7 +182,7 @@ export default function HarlemRenaissance() {
   };
 
   return (
-    <div style={{ background: isMain ? poster1Purple : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
+    <div className="pe-root hr-root" style={{ background: isMain ? poster1Purple : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -611,17 +220,6 @@ export default function HarlemRenaissance() {
           transition: all 0.4s ease;
         }
 
-        /* ============================================
-           TYPEWRITER
-           ============================================ */
-        @keyframes hrBlink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
-        .hr-typewriter-cursor {
-          animation: hrBlink 0.8s infinite;
-          margin-left: 2px;
-        }
 
         /* ============================================
            BASE ANIMATIONS
@@ -630,33 +228,9 @@ export default function HarlemRenaissance() {
           from { opacity: 0; }
           to { opacity: 1; }
         }
-        .hr-effect-fade-in {
-          animation: hrFadeIn 0.8s ease forwards;
-        }
 
-        @keyframes hrBlurToSharp {
-          from { filter: blur(12px); opacity: 0; }
-          to { filter: blur(0); opacity: 1; }
-        }
-        .hr-effect-blur-sharp {
-          animation: hrBlurToSharp 1.2s ease forwards;
-        }
 
-        @keyframes hrSplitReveal {
-          from { clip-path: inset(0 50% 0 50%); opacity: 0; }
-          to { clip-path: inset(0 0 0 0); opacity: 1; }
-        }
-        .hr-effect-split-reveal {
-          animation: hrSplitReveal 0.8s ease forwards;
-        }
 
-        @keyframes hrInkSpread {
-          from { filter: blur(3px); opacity: 0; letter-spacing: 0.08em; }
-          to { filter: blur(0); opacity: 1; letter-spacing: normal; }
-        }
-        .hr-effect-ink-spread {
-          animation: hrInkSpread 1.4s ease forwards;
-        }
 
         @keyframes hrKenburnIn {
           from { transform: scale(1); }
@@ -666,14 +240,6 @@ export default function HarlemRenaissance() {
           animation: hrKenburnIn 8s ease forwards;
         }
 
-        @keyframes hrDrift {
-          0% { transform: translateX(0); }
-          50% { transform: translateX(10px); }
-          100% { transform: translateX(0); }
-        }
-        .hr-effect-drift {
-          animation: hrDrift 6s ease-in-out infinite;
-        }
 
         /* Pan left to right — full-height image drifts across the viewport */
         @keyframes hrPanLR {
@@ -712,51 +278,11 @@ export default function HarlemRenaissance() {
 
         /* ============================================
            EFFECT 1: TRAIN JOURNEY — Migration sections
-           Horizontal scrolling lines + gentle rocking
+           Gentle rocking (the ground: trains-north, harlem.css)
            ============================================ */
         .hr-train-journey {
           position: relative;
           overflow: hidden;
-        }
-        .hr-train-journey::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: repeating-linear-gradient(
-            0deg,
-            transparent 0px,
-            transparent 60px,
-            rgba(113, 73, 133, 0.06) 60px,
-            rgba(113, 73, 133, 0.06) 62px
-          );
-          animation: hrTrainScroll 2s linear infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .hr-train-journey::after {
-          content: '';
-          position: absolute;
-          bottom: 0;
-          left: -100%;
-          width: 300%;
-          height: 3px;
-          background: repeating-linear-gradient(
-            90deg,
-            rgba(239, 217, 180, 0.15) 0px,
-            rgba(239, 217, 180, 0.15) 40px,
-            transparent 40px,
-            transparent 60px
-          );
-          animation: hrTrackScroll 1.5s linear infinite;
-          z-index: 0;
-        }
-        @keyframes hrTrainScroll {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(62px); }
-        }
-        @keyframes hrTrackScroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(60px); }
         }
         .hr-train-journey .hr-section-title-text,
         .hr-train-journey .hr-paragraph-text {
@@ -770,136 +296,20 @@ export default function HarlemRenaissance() {
 
         /* ============================================
            EFFECT 2: ART DECO RAYS — Aaron Douglas inspired
-           Geometric radiating sunburst pattern
+           (the ground: douglas-rays, harlem.css)
            ============================================ */
         .hr-art-deco-rays {
           position: relative;
           overflow: hidden;
         }
-        .hr-art-deco-rays::before {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 200%;
-          height: 200%;
-          transform: translate(-50%, -50%);
-          background: conic-gradient(
-            from 0deg at 50% 50%,
-            transparent 0deg,
-            rgba(113, 73, 133, 0.08) 10deg,
-            transparent 20deg,
-            rgba(217, 146, 186, 0.06) 30deg,
-            transparent 40deg,
-            rgba(113, 73, 133, 0.08) 50deg,
-            transparent 60deg,
-            rgba(217, 146, 186, 0.06) 70deg,
-            transparent 80deg,
-            rgba(113, 73, 133, 0.08) 90deg,
-            transparent 100deg,
-            rgba(217, 146, 186, 0.06) 110deg,
-            transparent 120deg
-          );
-          animation: hrRaysRotate 40s linear infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .hr-art-deco-rays::after {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 300px;
-          height: 300px;
-          transform: translate(-50%, -50%);
-          border-radius: 50%;
-          background: radial-gradient(
-            circle,
-            rgba(239, 217, 180, 0.08) 0%,
-            rgba(239, 217, 180, 0.04) 30%,
-            transparent 70%
-          );
-          pointer-events: none;
-          z-index: 0;
-          animation: hrRaysPulse 4s ease-in-out infinite;
-        }
-        @keyframes hrRaysRotate {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
-        }
-        @keyframes hrRaysPulse {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; }
-          50% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
-        }
-
-        /* Concentric circle decorations */
-        .hr-deco-circle {
-          position: fixed;
-          border-radius: 50%;
-          border: 1px solid rgba(113, 73, 133, 0.12);
-          pointer-events: none;
-          z-index: 1;
-        }
-        .hr-deco-circle-1 {
-          width: 200px; height: 200px;
-          top: 20%; left: 8%;
-          animation: hrCircleFloat 6s ease-in-out infinite;
-        }
-        .hr-deco-circle-2 {
-          width: 120px; height: 120px;
-          bottom: 25%; right: 12%;
-          animation: hrCircleFloat 5s ease-in-out infinite reverse;
-        }
-        .hr-deco-circle-3 {
-          width: 80px; height: 80px;
-          top: 60%; left: 15%;
-          border-color: rgba(217, 146, 186, 0.1);
-          animation: hrCircleFloat 7s ease-in-out infinite;
-          animation-delay: -2s;
-        }
-        @keyframes hrCircleFloat {
-          0%, 100% { transform: scale(1); opacity: 0.6; }
-          50% { transform: scale(1.15); opacity: 1; }
-        }
 
         /* ============================================
            EFFECT 3: JAZZ SWING — Music sections
-           Warm amber glow with swaying rhythm
+           Swaying rhythm (the ground: savoy-ballroom, harlem.css)
            ============================================ */
         .hr-jazz-swing {
           position: relative;
           overflow: hidden;
-        }
-        .hr-jazz-swing::before {
-          content: '';
-          position: absolute;
-          inset: -20%;
-          background: radial-gradient(
-            ellipse at 40% 50%,
-            rgba(239, 217, 180, 0.1) 0%,
-            transparent 60%
-          );
-          animation: hrJazzGlow 4s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .hr-jazz-swing::after {
-          content: '';
-          position: absolute;
-          inset: -20%;
-          background: radial-gradient(
-            ellipse at 70% 60%,
-            rgba(180, 133, 210, 0.08) 0%,
-            transparent 50%
-          );
-          animation: hrJazzGlow 5s ease-in-out infinite reverse;
-          pointer-events: none;
-          z-index: 0;
-        }
-        @keyframes hrJazzGlow {
-          0%, 100% { transform: translate(0, 0); opacity: 0.7; }
-          33% { transform: translate(15px, -10px); opacity: 1; }
-          66% { transform: translate(-10px, 5px); opacity: 0.8; }
         }
         .hr-jazz-swing .hr-section-title-text {
           animation: hrSwingText 3s ease-in-out infinite;
@@ -914,52 +324,14 @@ export default function HarlemRenaissance() {
           75% { transform: rotate(-0.3deg); }
         }
 
-        /* Jazz note particles */
-        .hr-jazz-note {
-          position: fixed;
-          font-size: 24px;
-          opacity: 0;
-          pointer-events: none;
-          z-index: 1;
-          animation: hrNoteFloat 6s ease-in-out infinite;
-        }
-        .hr-jazz-note-1 { top: 15%; left: 8%; animation-delay: 0s; }
-        .hr-jazz-note-2 { top: 70%; right: 10%; animation-delay: -2s; font-size: 18px; }
-        .hr-jazz-note-3 { top: 40%; right: 5%; animation-delay: -4s; font-size: 20px; }
-        @keyframes hrNoteFloat {
-          0%, 100% { opacity: 0; transform: translateY(0) rotate(0deg); }
-          20% { opacity: 0.3; }
-          50% { opacity: 0.2; transform: translateY(-30px) rotate(15deg); }
-          80% { opacity: 0.3; }
-        }
 
         /* ============================================
            EFFECT 4: DUAL IDENTITY — Walter White's passing theme
-           Split light/dark background
+           Doubled shadow (the ground: color-line, harlem.css)
            ============================================ */
         .hr-dual-identity {
           position: relative;
           overflow: hidden;
-        }
-        .hr-dual-identity::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            90deg,
-            rgba(255, 255, 255, 0.18) 0%,
-            rgba(240, 235, 225, 0.14) 46%,
-            transparent 50%,
-            rgba(15, 10, 30, 0.4) 54%,
-            rgba(10, 5, 20, 0.45) 100%
-          );
-          animation: hrIdentityShift 8s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        @keyframes hrIdentityShift {
-          0%, 100% { opacity: 0.9; }
-          50% { opacity: 0.5; }
         }
         /* Text shadow that alternates between light and dark identity */
         .hr-dual-identity .hr-paragraph-text,
@@ -973,60 +345,19 @@ export default function HarlemRenaissance() {
 
         /* ============================================
            EFFECT 5: HARLEM NIGHT — Deep purple atmosphere
-           Warm street-light glow against darkness
+           (the ground: atlanta-night, harlem.css)
            ============================================ */
         .hr-harlem-night {
           position: relative;
           overflow: hidden;
         }
-        .hr-harlem-night::before {
-          content: '';
-          position: absolute;
-          top: -20%;
-          left: -20%;
-          width: 140%;
-          height: 140%;
-          background:
-            radial-gradient(ellipse at 20% 30%, rgba(113, 73, 133, 0.12) 0%, transparent 50%),
-            radial-gradient(ellipse at 80% 70%, rgba(239, 217, 180, 0.08) 0%, transparent 40%),
-            radial-gradient(ellipse at 50% 50%, rgba(56, 26, 47, 0.15) 0%, transparent 70%);
-          animation: hrNightPulse 6s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .hr-harlem-night::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            ellipse at center,
-            transparent 40%,
-            rgba(10, 5, 15, 0.4) 100%
-          );
-          pointer-events: none;
-          z-index: 0;
-        }
-        @keyframes hrNightPulse {
-          0%, 100% { opacity: 0.8; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.02); }
-        }
 
         /* ============================================
            EFFECT 6: INK SPREAD — Literary sections
-           Calligraphic appearance with warm paper texture
+           Warm glow on the copy (the ground: ink-bloom, harlem.css)
            ============================================ */
         .hr-ink-spread-bg {
           position: relative;
-        }
-        .hr-ink-spread-bg::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(ellipse at 30% 40%, rgba(239, 217, 180, 0.04) 0%, transparent 50%),
-            radial-gradient(ellipse at 70% 60%, rgba(239, 217, 180, 0.03) 0%, transparent 50%);
-          pointer-events: none;
-          z-index: 0;
         }
         .hr-ink-spread-bg .hr-paragraph-text {
           text-shadow: 0 0 20px rgba(239, 217, 180, 0.1);
@@ -1155,10 +486,13 @@ export default function HarlemRenaissance() {
           transition: opacity 0.3s ease;
         }
 
-        /* The case card: the walkthrough's deep purple-black, set on the purple ground. */
+        /* The case card stands on the photograph's own ground: the white of the
+           lit case, sampled from its edges (#faf6f4), so the photograph has no
+           frame round it. Its type is the poster's purple and wine (6.5:1 and up). */
         .hr-display-case {
-          background: #1a0f2a;
-          border: 1px solid rgba(239,217,180,0.2);
+          background: #faf6f4;
+          border: none;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.35);
           padding: 32px 24px;
           display: flex;
           flex-direction: column;
@@ -1170,7 +504,7 @@ export default function HarlemRenaissance() {
           overflow: hidden;
         }
         .hr-display-case:hover, .hr-display-case:focus-visible {
-          border-color: rgba(239,217,180,0.6);
+          transform: translateY(-8px);
         }
         .hr-display-case:hover .hr-case-image {
           transform: scale(1.02);
@@ -1189,20 +523,20 @@ export default function HarlemRenaissance() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #b195a4;
+          color: #714985;
           margin-bottom: 8px;
         }
         .hr-case-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 20px;
-          color: #efd9b4;
+          color: #381a2f;
           margin-bottom: 8px;
         }
         .hr-case-subtitle {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-style: italic;
-          color: #d992ba;
+          color: #7a3d63;
         }
 
         /* ============================================
@@ -1216,10 +550,12 @@ export default function HarlemRenaissance() {
         }
         .hr-poster-walkthrough.fade-out { opacity: 0; }
 
+        /* Above the atmosphere (z-index 1), which stands behind every panel. */
         .hr-walkthrough-content {
           min-height: 100vh;
           width: 100%;
           position: relative;
+          z-index: 2;
         }
 
         /* Full bleed images */
@@ -1456,6 +792,12 @@ export default function HarlemRenaissance() {
           text-align: center;
         }
 
+        /* Reduced motion: the title cards stand still at rest, not where their
+           motions end (the erase ends with the lettering scrubbed out). */
+        @media (prefers-reduced-motion: reduce) {
+          .hr-full-bleed-image img { animation: none !important; transform: none !important; }
+        }
+
         /* ============================================
            RESPONSIVE
            ============================================ */
@@ -1583,15 +925,22 @@ export default function HarlemRenaissance() {
         prevStep={prevStep}
         returnToMain={returnToMain}
       >
+        <>
+        {(activeView === 'poster1' || activeView === 'poster2') && atmosphere && atmo && (
+          <AtmosphereLayer key={`${activeView}:${atmosphere}`} name={atmosphere} atmosphere={atmo} />
+        )}
         {(activeView === 'poster1' || activeView === 'poster2') && (
           <div
+            // The key comes before the spreads, so React builds the element with jsx() and not createElement().
+            key={animationKey}
             {...stageProps}
             {...fx}
             className={`hr-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
-            key={animationKey}
+            data-entrance={entrance}
+            data-atmosphere={atmosphere}
           >
             <div className="hr-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
-              <FxVeil theme="hr" kind={veilKind} />
+              {!own && <FxVeil theme="hr" kind={veilKind} />}
 
               {/* Title Image — Full Bleed */}
               {currentItem.type === 'title-image' && (
@@ -1615,28 +964,12 @@ export default function HarlemRenaissance() {
               {/* Section Title */}
               {currentItem.type === 'section-title' && (
                 <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
-                  {/* Art Deco decorative circles */}
-                  {currentItem.special === 'art-deco-rays' && (
-                    <>
-                      <div className="hr-deco-circle hr-deco-circle-1"></div>
-                      <div className="hr-deco-circle hr-deco-circle-2"></div>
-                      <div className="hr-deco-circle hr-deco-circle-3"></div>
-                    </>
-                  )}
-                  {/* Jazz notes */}
-                  {currentItem.special === 'jazz-swing' && (
-                    <>
-                      <span className="hr-jazz-note hr-jazz-note-1">&#9835;</span>
-                      <span className="hr-jazz-note hr-jazz-note-2">&#9834;</span>
-                      <span className="hr-jazz-note hr-jazz-note-3">&#9833;</span>
-                    </>
-                  )}
                   <h2
                     className="hr-section-title-text"
                     style={{ color: getSectionColors(currentItem.special).title }}
-                    data-fx={kind}
+                    data-fx={own ? undefined : kind}
                   >
-                    <FxText text={currentItem.text ?? ''} />
+                    {own ? <EntranceCopy text={currentItem.text ?? ''} effect={entrance} /> : <FxText text={currentItem.text ?? ''} />}
                   </h2>
                 </div>
               )}
@@ -1644,28 +977,12 @@ export default function HarlemRenaissance() {
               {/* Paragraph */}
               {currentItem.type === 'paragraph' && currentItem.text && (
                 <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
-                  {/* Art Deco decorative circles */}
-                  {currentItem.special === 'art-deco-rays' && (
-                    <>
-                      <div className="hr-deco-circle hr-deco-circle-1"></div>
-                      <div className="hr-deco-circle hr-deco-circle-2"></div>
-                      <div className="hr-deco-circle hr-deco-circle-3"></div>
-                    </>
-                  )}
-                  {/* Jazz notes */}
-                  {currentItem.special === 'jazz-swing' && (
-                    <>
-                      <span className="hr-jazz-note hr-jazz-note-1">&#9835;</span>
-                      <span className="hr-jazz-note hr-jazz-note-2">&#9834;</span>
-                      <span className="hr-jazz-note hr-jazz-note-3">&#9833;</span>
-                    </>
-                  )}
                   <p
                     className="hr-paragraph-text"
                     style={{ color: getSectionColors(currentItem.special).text }}
-                    data-fx={kind}
+                    data-fx={own ? undefined : kind}
                   >
-                    <FxText text={currentItem.text} words={kind === 'statement'} />
+                    {own ? <EntranceCopy text={currentItem.text} effect={entrance} /> : <FxText text={currentItem.text} words={kind === 'statement'} />}
                   </p>
                 </div>
               )}
@@ -1673,14 +990,6 @@ export default function HarlemRenaissance() {
               {/* Artwork Display — Full image with info alongside */}
               {currentItem.type === 'artwork-display' && (
                 <div className={`hr-artwork-display ${getSpecialClass(currentItem.special)}`}>
-                  {/* Art Deco decorative circles for Aspiration */}
-                  {currentItem.special === 'art-deco-rays' && (
-                    <>
-                      <div className="hr-deco-circle hr-deco-circle-1"></div>
-                      <div className="hr-deco-circle hr-deco-circle-2"></div>
-                      <div className="hr-deco-circle hr-deco-circle-3"></div>
-                    </>
-                  )}
                   <div className="hr-artwork-image-side">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={currentItem.src} alt={currentItem.alt} className="pfx-art-img" />
@@ -1703,9 +1012,9 @@ export default function HarlemRenaissance() {
                   <blockquote
                     className="hr-quote-text"
                     style={{ color: isPoster1 ? '#d992ba' : '#b485d2', borderColor: isPoster1 ? '#885a99' : '#4e568f' }}
-                    data-fx="quote"
+                    data-fx={own ? undefined : 'quote'}
                   >
-                    <FxText text={currentItem.text} words />
+                    {own ? <EntranceCopy text={currentItem.text} effect={entrance} /> : <FxText text={currentItem.text} words />}
                   </blockquote>
                 </div>
               )}
@@ -1717,7 +1026,7 @@ export default function HarlemRenaissance() {
                     href={currentItem.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hr-content-link pfx-fg"
+                    className={`hr-content-link ${own ? effectClass(entrance) : 'pfx-fg'}`}
                     style={{ color: textColor, borderColor: textColor }}
                   >
                     {currentItem.text}
@@ -1774,6 +1083,7 @@ export default function HarlemRenaissance() {
             )}
           </div>
         )}
+        </>
       </PosterProjector>
     </div>
   );

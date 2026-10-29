@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import { floorReturnFor } from '@/lib/floors';
@@ -14,408 +13,12 @@ import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useP
 import { ITH_TALK } from '@/components/projector/posterTalk';
 import { ITH_POSTER_THEME, ITH_POSTER_LINKS } from '@/components/projector/themes';
 import { FxText, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
-
-type ContentItem = {
-  type: string;
-  text?: string;
-  src?: string;
-  alt?: string;
-  url?: string;
-  position?: string;
-  effect?: string;
-  special?: string;
-  items?: string[];
-  artworkTitle?: string;
-  artworkArtist?: string;
-  artworkDate?: string;
-  artworkDescription?: string;
-};
-
-// ============================================
-// POSTER 1: Faith and Reason
-// ============================================
-const poster1Content: ContentItem[] = [
-  {
-    type: 'title-image',
-    src: '/exhibitions/in-their-hands/poster1-title-card.png',
-    alt: 'Faith and Reason',
-    effect: 'breathe',
-    special: 'poster1-title'
-  },
-  {
-    type: 'artwork-display',
-    src: '/exhibitions/in-their-hands/poster1-lemaitre.jpg',
-    alt: 'Black-and-white portrait photograph of Georges Lemaître in round glasses and a clerical collar',
-    artworkTitle: 'Georges Lemaître',
-    artworkArtist: 'Belgian Catholic priest',
-    artworkDate: '1894–1966',
-    text: 'In 1927, a Belgian Catholic priest named Georges Lemaître proposed that the universe had begun from a single point of unimaginable density: that space and time themselves had an origin, and that everything had been expanding ever since.',
-    special: 'parchment'
-  },
-  {
-    type: 'paragraph',
-    text: 'Einstein told him his physics was correct but his intuition was "abominable." Two years later, Edwin Hubble\'s observations confirmed it. The priest had been right. We call his idea the Big Bang.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'parchment'
-  },
-  {
-    type: 'paragraph',
-    text: 'Lemaître was not an anomaly.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'parchment'
-  },
-  {
-    type: 'artwork-display',
-    src: '/exhibitions/in-their-hands/poster1-mendel.jpg',
-    alt: 'Black-and-white portrait photograph of Gregor Mendel in spectacles and a clerical collar',
-    artworkTitle: 'Gregor Mendel',
-    artworkArtist: 'Augustinian friar',
-    artworkDate: '1822–1884',
-    text: 'Gregor Mendel, the Augustinian friar, founded genetics in a monastery garden. The Dominican scholars of the École Biblique in Jerusalem were among the first to work on the Dead Sea Scrolls.',
-    special: 'parchment',
-    position: 'right'
-  },
-  {
-    type: 'image-text-stacked',
-    src: '/exhibitions/in-their-hands/poster1-vatican-observatory.jpg',
-    alt: 'A domed observatory building lit gold beneath a star-filled night sky',
-    text: 'The Vatican Observatory, still operating today, is one of the oldest astronomical research institutions in the world.',
-    special: 'observatory'
-  },
-  {
-    type: 'paragraph',
-    text: 'The relationship between scholarship and the Catholic faith is not mere coincidence but the expression of a conviction stated plainly in the Catechism: faith and reason are not enemies. They are partners in the same search for truth.',
-    position: 'bottom-left',
-    effect: 'fade-in',
-    special: 'parchment'
-  },
-  {
-    type: 'full-image',
-    src: '/exhibitions/in-their-hands/poster1-image.jpg',
-    alt: 'James Tissot watercolor of the old city walls and citadel of Jerusalem, with a slender minaret against a hazy sky',
-    effect: 'none',
-    special: 'frost'
-  },
-  {
-    type: 'section-title',
-    text: 'The Dead Sea Scrolls',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'scrolls'
-  },
-  {
-    type: 'paragraph',
-    text: 'In 1947, a young Bedouin shepherd threw a stone into a cave above the Dead Sea and heard something break.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'scrolls'
-  },
-  {
-    type: 'text-image-stacked',
-    text: 'Inside were ancient clay jars containing scrolls — the oldest surviving manuscripts of the Hebrew Bible, hidden by the Essenes before the Roman destruction of Jerusalem in 70 AD.',
-    src: '/exhibitions/in-their-hands/poster1-dead-sea-scrolls.jpg',
-    alt: 'The Great Isaiah Scroll, unrolled in three long strips of columned Hebrew text on worn parchment',
-    special: 'scrolls'
-  },
-  {
-    type: 'paragraph',
-    text: 'Before 1947, the oldest complete manuscripts of the Hebrew Bible dated from the medieval period. The Scrolls pushed that record back a thousand years, to before the birth of Jesus.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'scrolls'
-  },
-  {
-    type: 'paragraph',
-    text: 'And the text, across all that time, had barely changed. The Great Isaiah Scroll, over seven metres long and two millennia old, matches the text we use today with extraordinary fidelity.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'scrolls'
-  },
-  {
-    type: 'paragraph',
-    text: 'A thousand years of copying, and the words had not wandered.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'scrolls'
-  },
-  {
-    type: 'paragraph',
-    text: 'For Catholic scholars who had always trusted the transmission of Scripture, this was a confirmation. One more example of the Catholic partnership between faith and reason.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'scrolls'
-  },
-  {
-    type: 'section-title',
-    text: 'The Question That Matters',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'authentication'
-  },
-  {
-    type: 'paragraph',
-    text: 'The discipline that authenticated those scrolls — testing metal, reading die-marks, dating parchment, authenticating inscriptions — trains a habit of mind that matters far beyond the museum.',
-    position: 'top-right',
-    effect: 'fade-in',
-    special: 'authentication'
-  },
-  {
-    type: 'paragraph',
-    text: 'It asks one question above all others: is this authentic? Not: does it feel true? Not: do I want it to be true? But: what does the physical evidence actually show?',
-    position: 'bottom-left',
-    effect: 'fade-in',
-    special: 'authentication'
-  },
-  {
-    type: 'paragraph',
-    text: 'In an age of deepfakes, fabricated images, and information engineered to feel true without being true, that question is not merely academic. It is urgent.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'authentication'
-  },
-  {
-    type: 'paragraph',
-    text: 'The Catholic tradition has been asking it for centuries — not from scepticism, but from the confidence that truth is real, that it can be found, and that it will not contradict faith when honestly sought.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'authentication'
-  },
-  {
-    type: 'quote',
-    text: '"Faith and reason are like two wings on which the human spirit rises to the contemplation of truth." — John Paul II, Fides et Ratio',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  { type: 'end', text: 'Return to Exhibition' }
-];
-
-// ============================================
-// POSTER 2: The Weight of Thirty Pieces
-// ============================================
-const poster2Content: ContentItem[] = [
-  {
-    type: 'title-image',
-    src: '/exhibitions/in-their-hands/poster2-title-card.jpg',
-    alt: 'The Weight of Thirty Pieces',
-    effect: 'shrink-back'
-  },
-  {
-    type: 'paragraph',
-    text: 'In the spring of approximately 30 AD, a series of events unfolded in Jerusalem that would reshape the history of the world.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'passion'
-  },
-  {
-    type: 'paragraph',
-    text: 'The account exists in four texts written within living memory of the events. Then archaeologists began to dig.',
-    position: 'center',
-    effect: 'fade-in',
-    special: 'passion'
-  },
-  {
-    type: 'paragraph',
-    text: 'What they found, across two centuries of excavation, was the world those texts describe. The political figures, the administrative structures, the legal practices, the currency.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'passion'
-  },
-  {
-    type: 'paragraph',
-    text: 'A coin cannot be forged the way a text can: its metal can be tested, its die-marks traced to specific mints, its age confirmed by the earth it came from.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'passion'
-  },
-  {
-    type: 'artwork-display',
-    src: '/exhibitions/in-their-hands/poster2-pilate-stone.jpg',
-    alt: 'The Pilate Stone: a weathered limestone block carved with Latin lettering naming Pontius Pilate',
-    text: 'For decades, some scholars questioned whether Pontius Pilate was a historical figure. Then in 1961, a construction crew at Caesarea Maritima uncovered a limestone block inscribed PONTIVS PILATVS PRAEFECTVS IVDAEAE.',
-    special: 'passion',
-    position: 'right'
-  },
-  {
-    type: 'paragraph',
-    text: 'The Pilate Stone settled the question, but Pilate\'s coins had been evidence all along — small bronze prutot stamped with pagan religious symbols as deliberate acts of provocation against Jewish religious law.',
-    position: 'center',
-    effect: 'fade-in',
-    special: 'passion'
-  },
-  {
-    type: 'full-image',
-    src: '/exhibitions/in-their-hands/poster2-image1.jpg',
-    alt: 'Painting of Christ carrying the cross through a crowd of soldiers, horsemen and mourning women, fading into darkness',
-    special: 'passion'
-  },
-  {
-    type: 'section-title',
-    text: 'The Thirty Pieces',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'paragraph',
-    text: 'No detail in the Passion narrative has generated more numismatic attention than the thirty pieces of silver paid to Judas Iscariot.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'artwork-display',
-    src: '/exhibitions/in-their-hands/poster2-tyrian-shekel.png',
-    alt: 'Both faces of a worn silver Tyrian shekel: the laureate head of Melqart, and an eagle',
-    artworkTitle: 'Tyrian Shekel',
-    artworkArtist: 'Mint of Tyre',
-    artworkDate: '126 BC – 56 AD',
-    text: 'The currency is not named in Matthew\'s Gospel, but scholars identify it with near-unanimous agreement as Tyrian shekels — minted at the Phoenician city of Tyre from exceptionally pure silver, bearing the image of Melqart, chief deity of Tyre. A pagan coin, by every measure of Jewish religious law.',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'paragraph',
-    text: 'And yet the Tyrian shekel was the only currency accepted for payment of the annual Temple tax in Jerusalem, because no other silver coin of sufficient purity circulated in the region.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'paragraph',
-    text: 'The Temple authorities had made a pragmatic compromise: the purity of the metal overrode the offensiveness of the image.',
-    position: 'center',
-    effect: 'fade-in',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'paragraph',
-    text: 'The ironies are stacked. The only coin permitted before God in the Temple bore a pagan idol. The price of betrayal was sacred Temple currency.',
-    position: 'top-right',
-    effect: 'fade-in',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'artwork-display',
-    src: '/exhibitions/in-their-hands/poster2-potters-field.jpg',
-    alt: 'Watercolor of Judas in a swirling brown robe flinging coins across a pillared Temple court as elders look on',
-    artworkTitle: 'Judas Returns the Money (Judas rend l\'argent)',
-    artworkArtist: 'James Tissot',
-    text: 'When Judas returned the thirty pieces in remorse, the priests refused to receive them back — blood money could not re-enter the treasury — and used them instead to purchase a potter\'s field for the burial of strangers.',
-    special: 'thirty-pieces',
-    position: 'right'
-  },
-  {
-    type: 'paragraph',
-    text: 'Sacred money, contaminated by betrayal, went to buy ground for the dead. Matthew saw the irony and in it the fulfilment of ancient prophecy.',
-    position: 'center',
-    effect: 'fade-in',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'full-image',
-    src: '/exhibitions/in-their-hands/poster2-image2.jpg',
-    alt: 'Painting of a crowded square beneath tall palm trees, a tiled building at left and a fort on the horizon, fading into darkness',
-    effect: 'kenburns-in',
-    special: 'thirty-pieces'
-  },
-  {
-    type: 'section-title',
-    text: 'What Archaeology Found by Accident',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'accident'
-  },
-  {
-    type: 'paragraph',
-    text: 'In 1990, a construction crew in Jerusalem accidentally broke through the roof of a burial cave.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'accident'
-  },
-  {
-    type: 'text-image-stacked',
-    text: 'Inside were twelve ossuaries — bone boxes used to collect the remains of the dead. One was ornately carved, inscribed: Yehosef bar Qayafa. Joseph, son of Caiaphas.',
-    src: '/exhibitions/in-their-hands/poster2-caiaphas-ossuary.png',
-    alt: 'The Caiaphas Ossuary: a limestone bone box carved with rosettes, its end scratched with an Aramaic inscription',
-    special: 'accident'
-  },
-  {
-    type: 'paragraph',
-    text: 'The bones of a sixty-year-old man were inside. Most scholars believe these are the remains of the High Priest who presided at the trial of Jesus. It had taken a crew breaking through a roof by accident to find him.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'accident'
-  },
-  {
-    type: 'paragraph',
-    text: 'This is the nature of the archaeological record: partial, contingent, arriving by thrown stones and construction accidents.',
-    position: 'top-right',
-    effect: 'fade-in',
-    special: 'accident'
-  },
-  {
-    type: 'paragraph',
-    text: 'No single discovery proves the events of the Passion. The convergence of many coins, inscriptions, ossuaries, excavated streets and pools and gates builds a portrait of a world in which those events could have occurred exactly as described.',
-    position: 'bottom-left',
-    effect: 'fade-in',
-    special: 'accident'
-  },
-  {
-    type: 'paragraph',
-    text: 'The political figures were real. The legal procedures were real. The currency was real.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'accident'
-  },
-  {
-    type: 'quote',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    text: 'These coins do not prove the Resurrection. Faith is not proved by archaeology. But they prove something important: the world the Gospels describe was a real world.'
-  },
-  {
-    type: 'timeline',
-    text: 'Coins Across the Gospel',
-    position: 'center',
-    effect: 'line-by-line',
-    items: [
-      'Before the Story — 63 BC — Tyrian shekel minting begins at Tyre. The coin that will become the thirty pieces of silver enters the world.',
-      'The King\'s Decree — 4 BC — Death of Herod the Great. The king who ordered the Massacre of the Innocents dies the same year as his own command.',
-      'The Provocateur Arrives — 26 AD — Pontius Pilate appointed Prefect of Judaea. His first coins are minted bearing pagan symbols.',
-      'The Passion — c. 30 AD — Thirty Tyrian shekels change hands. Pilate washes his hands. A potter\'s field is purchased.',
-      'The Last Ruler — 59 AD — Paul appeals to Caesar before Porcius Festus. The last named ruler of the New Testament mints this coin.'
-    ]
-  },
-  { type: 'end', text: 'Return to Exhibition' }
-];
-
-// ============================================
-// HELPER COMPONENTS
-// ============================================
-
-const TypewriterText = ({ text, color }: { text: string; onComplete?: () => void; color: string }) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  useEffect(() => {
-    if (currentIndex < text.length) {
-      const timeout = setTimeout(() => {
-        setDisplayedText(prev => prev + text[currentIndex]);
-        setCurrentIndex(prev => prev + 1);
-      }, 30);
-      return () => clearTimeout(timeout);
-    }
-    return undefined;
-  }, [currentIndex, text]);
-
-  return (
-    <span style={{ color }}>
-      {displayedText}
-      <span className="ith-typewriter-cursor">|</span>
-    </span>
-  );
-};
+import AtmosphereLayer from '@/components/exhibition/AtmosphereLayer';
+import { EntranceCopy } from '@/components/exhibition/EntranceCopy';
+import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
+import '@/components/exhibition/poster-exhibition.css';
+import { ITH_ATMOSPHERES, poster1Content, poster2Content, type IthItem } from './posters';
+import './in-their-hands.css';
 
 const poster1Marks = chapterMarks(poster1Content);
 const poster2Marks = chapterMarks(poster2Content);
@@ -473,8 +76,6 @@ export default function InTheirHands() {
   const gold = '#C9A84C';
   /* The landing page stands in poster 1's sepia, its type in the gold (4.8:1) and cream (9.2:1). */
   const poster1Sepia = '#443C31';
-  /* Poster 2's near-black brown, for the case cards. */
-  const poster2Umber = '#130B08';
   const isMain = activeView === 'main';
   const navM = isMain ? poster1Cream : '#525252';
   const navInk = isMain ? gold : '#7D8471';
@@ -510,8 +111,23 @@ export default function InTheirHands() {
    * title. Every other panel keeps its own authored entrance.
    */
   const gilt = posterStep === 0 || currentItem?.type === 'section-title';
+  /**
+   * How this panel arrives. A panel with an entrance of its own takes it in
+   * place of the exhibition's (the parchment unfolding, a portrait lifting):
+   * on the copy when it is typed, set line by line or spread like ink, on the
+   * picture otherwise, the other half following. The title cards keep their
+   * own motions.
+   */
+  const entrance = panelEntrance(currentItem);
+  const own = entrance !== 'theme' && currentItem?.type !== 'title-image';
+  const onCopy = entrance === 'typewriter' || entrance === 'line-by-line' || entrance === 'ink-spread';
+  const pictureClass = own ? (onCopy ? 'pe-follow' : effectClass(entrance)) : 'pfx-lift';
+  const copyEffect = own && onCopy ? entrance : 'none';
+  const copyClass = own && !onCopy ? 'pe-follow' : own ? '' : 'ith-effect-fade-in';
+  const atmosphere = currentItem?.atmosphere;
+  const atmo = atmosphere ? ITH_ATMOSPHERES[atmosphere] : undefined;
   /** Coins are transparent cut-outs: they get a shadow that follows the metal and a glint. */
-  const isCoin = (item: ContentItem) => item.special === 'thirty-pieces' && !!item.src?.endsWith('.png');
+  const isCoin = (item: IthItem) => item.special === 'thirty-pieces' && !!item.src?.endsWith('.png');
 
   // Per-section color palette
   const getSectionColors = (special?: string) => {
@@ -546,18 +162,6 @@ export default function InTheirHands() {
     }
   };
 
-  // Effect classes
-  const getEffectClass = (effect?: string) => {
-    switch(effect) {
-      case 'blur-to-sharp': return 'ith-effect-blur-sharp';
-      case 'split-reveal': return 'ith-effect-split-reveal';
-      case 'fade-in': return 'ith-effect-fade-in';
-      case 'ink-spread': return 'ith-effect-ink-spread';
-      case 'line-by-line': return 'ith-effect-fade-in';
-      default: return '';
-    }
-  };
-
   // Special classes
   const getSpecialClass = (special?: string) => {
     if (!special) return '';
@@ -573,7 +177,7 @@ export default function InTheirHands() {
   };
 
   return (
-    <div style={{ background: isMain ? poster1Sepia : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
+    <div className="pe-root ith-root" style={{ background: isMain ? poster1Sepia : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -611,17 +215,6 @@ export default function InTheirHands() {
           transition: all 0.4s ease;
         }
 
-        /* ============================================
-           TYPEWRITER
-           ============================================ */
-        @keyframes ithBlink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
-        .ith-typewriter-cursor {
-          animation: ithBlink 0.8s infinite;
-          margin-left: 2px;
-        }
 
         /* ============================================
            BASE ANIMATIONS
@@ -634,46 +227,10 @@ export default function InTheirHands() {
           animation: ithFadeIn 0.8s ease forwards;
         }
 
-        @keyframes ithBlurToSharp {
-          from { filter: blur(12px); opacity: 0; }
-          to { filter: blur(0); opacity: 1; }
-        }
-        .ith-effect-blur-sharp {
-          animation: ithBlurToSharp 1.2s ease forwards;
-        }
 
-        @keyframes ithSplitReveal {
-          from { clip-path: inset(0 50% 0 50%); opacity: 0; }
-          to { clip-path: inset(0 0 0 0); opacity: 1; }
-        }
-        .ith-effect-split-reveal {
-          animation: ithSplitReveal 0.8s ease forwards;
-        }
 
-        @keyframes ithInkSpread {
-          from { filter: blur(3px); opacity: 0; letter-spacing: 0.08em; }
-          to { filter: blur(0); opacity: 1; letter-spacing: normal; }
-        }
-        .ith-effect-ink-spread {
-          animation: ithInkSpread 1.4s ease forwards;
-        }
 
-        @keyframes ithKenburnIn {
-          from { transform: scale(1); }
-          to { transform: scale(1.08); }
-        }
-        .ith-effect-kenburns-in {
-          animation: ithKenburnIn 8s ease forwards;
-        }
 
-        @keyframes ithDrift {
-          0% { transform: translateX(0); }
-          50% { transform: translateX(10px); }
-          100% { transform: translateX(0); }
-        }
-        .ith-effect-drift {
-          animation: ithDrift 6s ease-in-out infinite;
-        }
 
         @keyframes ithShrinkBack {
           from { transform: scale(1.15); }
@@ -685,243 +242,53 @@ export default function InTheirHands() {
 
         /* ============================================
            SPECIAL EFFECT 1: PARCHMENT — Poster 1 base
-           Warm texture, slow radial pulse, aged paper grain
+           Gilt glow on the copy (the ground: scriptorium, in-their-hands.css)
            ============================================ */
         .ith-parchment {
           position: relative;
           overflow: hidden;
-        }
-        .ith-parchment::before {
-          content: '';
-          position: absolute;
-          inset: -10%;
-          background:
-            radial-gradient(ellipse at 40% 45%, rgba(201,168,76,0.12) 0%, transparent 60%),
-            radial-gradient(ellipse at 70% 65%, rgba(201,168,76,0.08) 0%, transparent 50%);
-          animation: ithParchmentPulse 6s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .ith-parchment::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            ellipse at 60% 55%,
-            rgba(201,168,76,0.04) 0%,
-            transparent 50%
-          );
-          pointer-events: none;
-          z-index: 0;
-        }
-        @keyframes ithParchmentPulse {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.06); }
         }
         .ith-parchment .ith-paragraph-text,
         .ith-parchment .ith-section-title-text {
           text-shadow: 0 0 40px rgba(201,168,76,0.2);
         }
 
-        /* Parchment decorative corner flourishes */
-        .ith-deco-flourish {
-          position: fixed;
-          pointer-events: none;
-          z-index: 1;
-          border: 1px solid rgba(201,168,76,0.1);
-          opacity: 0;
-          animation: ithFlourishFade 5s ease-in-out infinite;
-        }
-        .ith-deco-flourish-1 {
-          width: 120px; height: 120px;
-          top: 12%; right: 8%;
-          border-radius: 0 50% 0 50%;
-        }
-        .ith-deco-flourish-2 {
-          width: 80px; height: 80px;
-          bottom: 18%; left: 10%;
-          border-radius: 50% 0 50% 0;
-          animation-delay: -2s;
-        }
-        @keyframes ithFlourishFade {
-          0%, 100% { opacity: 0; }
-          30%, 70% { opacity: 0.5; }
-        }
 
         /* ============================================
            SPECIAL EFFECT 2: SCROLLS — Dead Sea Scrolls
-           Forest-dark, manuscript column lines, ink-spread text
+           Sage glow on the copy (the ground: qumran-cave, in-their-hands.css)
            ============================================ */
         .ith-scrolls {
           position: relative;
           overflow: hidden;
-        }
-        .ith-scrolls::before {
-          content: '';
-          position: absolute;
-          inset: -10%;
-          background:
-            radial-gradient(ellipse at 40% 50%, rgba(168,196,160,0.08) 0%, transparent 55%),
-            radial-gradient(ellipse at 65% 60%, rgba(168,196,160,0.05) 0%, transparent 40%);
-          animation: ithScrollPulse 7s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        @keyframes ithScrollPulse {
-          0%, 100% { opacity: 0.6; }
-          50% { opacity: 1; }
-        }
-        .ith-scrolls::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            ellipse at 50% 50%,
-            rgba(168,196,160,0.03) 0%,
-            transparent 60%
-          );
-          pointer-events: none;
-          z-index: 0;
         }
         .ith-scrolls .ith-paragraph-text,
         .ith-scrolls .ith-section-title-text {
           text-shadow: 0 0 25px rgba(168,196,160,0.15);
         }
 
-        /* Scroll decorative ruled lines */
-        .ith-deco-scroll-line {
-          position: fixed;
-          height: 1px;
-          pointer-events: none;
-          z-index: 1;
-          background: linear-gradient(90deg, transparent, rgba(168,196,160,0.12), transparent);
-        }
-        .ith-deco-scroll-line-1 {
-          width: 40%;
-          top: 25%;
-          left: 5%;
-          animation: ithScrollLineFade 4s ease-in-out infinite;
-        }
-        .ith-deco-scroll-line-2 {
-          width: 35%;
-          top: 75%;
-          right: 5%;
-          animation: ithScrollLineFade 5s ease-in-out infinite;
-          animation-delay: -1.5s;
-        }
-        @keyframes ithScrollLineFade {
-          0%, 100% { opacity: 0; }
-          40%, 60% { opacity: 1; }
-        }
 
         /* ============================================
            SPECIAL EFFECT 3: OBSERVATORY — Night sky / cosmos
-           Deep sky, star-like points, slow celestial rotation
+           Starlight on the copy (the ground: vatican-stars, in-their-hands.css)
            ============================================ */
         .ith-observatory {
           position: relative;
           overflow: hidden;
-        }
-        .ith-observatory::before {
-          content: '';
-          position: absolute;
-          inset: -20%;
-          background:
-            radial-gradient(1px 1px at 20% 30%, rgba(200,210,240,0.4) 0%, transparent 100%),
-            radial-gradient(1px 1px at 80% 20%, rgba(200,210,240,0.3) 0%, transparent 100%),
-            radial-gradient(1px 1px at 40% 70%, rgba(200,210,240,0.35) 0%, transparent 100%),
-            radial-gradient(1px 1px at 65% 45%, rgba(200,210,240,0.25) 0%, transparent 100%),
-            radial-gradient(1px 1px at 10% 80%, rgba(200,210,240,0.3) 0%, transparent 100%),
-            radial-gradient(1px 1px at 90% 65%, rgba(200,210,240,0.2) 0%, transparent 100%),
-            radial-gradient(1px 1px at 55% 15%, rgba(200,210,240,0.35) 0%, transparent 100%),
-            radial-gradient(1px 1px at 30% 55%, rgba(200,210,240,0.25) 0%, transparent 100%),
-            radial-gradient(1px 1px at 75% 85%, rgba(200,210,240,0.3) 0%, transparent 100%),
-            radial-gradient(1px 1px at 15% 50%, rgba(200,210,240,0.2) 0%, transparent 100%),
-            radial-gradient(1px 1px at 50% 90%, rgba(200,210,240,0.3) 0%, transparent 100%),
-            radial-gradient(1px 1px at 85% 40%, rgba(200,210,240,0.25) 0%, transparent 100%);
-          pointer-events: none;
-          z-index: 0;
-        }
-        .ith-observatory::after {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          width: 200%;
-          height: 200%;
-          transform: translate(-50%, -50%);
-          background: conic-gradient(
-            from 0deg at 50% 50%,
-            transparent 0deg,
-            rgba(160,184,208,0.03) 30deg,
-            transparent 60deg,
-            rgba(160,184,208,0.02) 90deg,
-            transparent 120deg,
-            rgba(160,184,208,0.03) 150deg,
-            transparent 180deg,
-            rgba(160,184,208,0.02) 210deg,
-            transparent 240deg,
-            rgba(160,184,208,0.03) 270deg,
-            transparent 300deg,
-            rgba(160,184,208,0.02) 330deg,
-            transparent 360deg
-          );
-          animation: ithCelestialRotate 60s linear infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        @keyframes ithCelestialRotate {
-          from { transform: translate(-50%, -50%) rotate(0deg); }
-          to { transform: translate(-50%, -50%) rotate(360deg); }
         }
         .ith-observatory .ith-paragraph-text,
         .ith-observatory .ith-section-title-text {
           text-shadow: 0 0 30px rgba(160,184,208,0.25);
         }
 
-        /* Observatory decorative star clusters */
-        .ith-deco-star {
-          position: fixed;
-          width: 3px;
-          height: 3px;
-          border-radius: 50%;
-          background: rgba(200,210,240,0.5);
-          pointer-events: none;
-          z-index: 1;
-          animation: ithStarTwinkle 3s ease-in-out infinite;
-        }
-        .ith-deco-star-1 { top: 10%; left: 15%; animation-delay: 0s; }
-        .ith-deco-star-2 { top: 25%; right: 12%; animation-delay: -1s; width: 2px; height: 2px; }
-        .ith-deco-star-3 { top: 65%; left: 8%; animation-delay: -2s; }
-        .ith-deco-star-4 { top: 80%; right: 20%; animation-delay: -0.5s; width: 2px; height: 2px; }
-        .ith-deco-star-5 { top: 45%; right: 6%; animation-delay: -1.5s; }
-        @keyframes ithStarTwinkle {
-          0%, 100% { opacity: 0.2; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.5); }
-        }
 
         /* ============================================
            SPECIAL EFFECT 4: PASSION — Pilate / Passion sections
-           Near-black, faint crimson radial pulse, weighted stillness
+           Crimson glow on the copy (the ground: jerusalem-dusk, in-their-hands.css)
            ============================================ */
         .ith-passion {
           position: relative;
           overflow: hidden;
-        }
-        .ith-passion::before {
-          content: '';
-          position: absolute;
-          inset: -10%;
-          background:
-            radial-gradient(ellipse at 50% 50%, rgba(120,20,20,0.12) 0%, transparent 55%),
-            radial-gradient(ellipse at 30% 70%, rgba(80,10,10,0.06) 0%, transparent 40%);
-          animation: ithPassionPulse 8s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        @keyframes ithPassionPulse {
-          0%, 100% { opacity: 0.4; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.08); }
         }
         .ith-passion .ith-paragraph-text,
         .ith-passion .ith-section-title-text {
@@ -930,82 +297,28 @@ export default function InTheirHands() {
 
         /* ============================================
            SPECIAL EFFECT 5: THIRTY PIECES — Silver shimmer
-           Faint metallic sheen, slow diagonal light sweep
+           Silver glow on the copy (the ground: tyrian-silver, in-their-hands.css)
            ============================================ */
         .ith-thirty-pieces {
           position: relative;
           overflow: hidden;
         }
-        .ith-thirty-pieces::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background:
-            radial-gradient(ellipse at 50% 50%, rgba(192,192,200,0.08) 0%, transparent 60%),
-            radial-gradient(ellipse at 25% 35%, rgba(200,200,210,0.05) 0%, transparent 40%),
-            radial-gradient(ellipse at 75% 65%, rgba(200,200,210,0.05) 0%, transparent 40%);
-          pointer-events: none;
-          z-index: 0;
-        }
-        .ith-thirty-pieces::after {
-          content: '';
-          position: absolute;
-          top: -100%;
-          left: -100%;
-          width: 50%;
-          height: 300%;
-          background: linear-gradient(
-            120deg,
-            transparent 0%,
-            rgba(200,200,210,0.06) 45%,
-            rgba(220,220,225,0.1) 50%,
-            rgba(200,200,210,0.06) 55%,
-            transparent 100%
-          );
-          animation: ithSilverSweep 12s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
         .ith-thirty-pieces .ith-paragraph-text,
         .ith-thirty-pieces .ith-section-title-text {
           text-shadow: 0 0 30px rgba(200,200,210,0.15);
         }
-        @keyframes ithSilverSweep {
-          0% { transform: translate(-30%, -10%) rotate(30deg); }
-          100% { transform: translate(250%, -10%) rotate(30deg); }
-        }
 
         /* ============================================
            SPECIAL EFFECT 6: ACCIDENT — Cave / torch flicker
-           Warm near-black, occasional faint flicker
+           Torchlit copy (the ground: caiaphas-tomb, in-their-hands.css)
            ============================================ */
         .ith-accident {
           position: relative;
           overflow: hidden;
         }
-        .ith-accident::before {
-          content: '';
-          position: absolute;
-          inset: -10%;
-          background:
-            radial-gradient(ellipse at 45% 55%, rgba(180,140,60,0.1) 0%, transparent 45%),
-            radial-gradient(ellipse at 60% 40%, rgba(160,120,40,0.06) 0%, transparent 35%);
-          animation: ithTorchFlicker 3s ease-in-out infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
         .ith-accident .ith-paragraph-text,
         .ith-accident .ith-section-title-text {
           text-shadow: 0 0 25px rgba(180,140,60,0.15);
-        }
-        @keyframes ithTorchFlicker {
-          0%, 100% { opacity: 0.4; }
-          15% { opacity: 0.9; }
-          30% { opacity: 0.3; }
-          45% { opacity: 0.7; }
-          60% { opacity: 0.5; }
-          75% { opacity: 0.8; }
-          90% { opacity: 0.35; }
         }
 
         /* ============================================
@@ -1022,6 +335,8 @@ export default function InTheirHands() {
           z-index: 0;
           animation: ithBgKenburns 60s ease-in-out infinite alternate;
         }
+        /* Copy taking its own entrance shows at once; the entrance is on the copy. */
+        .ith-artwork-text-side.ith-text-side-own { animation: none; opacity: 1; }
         @keyframes ithBgKenburns {
           from { transform: scale(1); }
           to { transform: scale(1.08); }
@@ -1030,7 +345,7 @@ export default function InTheirHands() {
           position: fixed;
           inset: 0;
           background: rgba(20, 14, 6, 0.65);
-          z-index: 1;
+          z-index: 0;
         }
 
         /* ============================================
@@ -1155,9 +470,14 @@ export default function InTheirHands() {
           transition: opacity 0.3s ease;
         }
 
+        /* Each case card stands on its own photograph's ground: the light of the
+           lit case, sampled from the photograph's edges (--case-ground), so the
+           photograph has no frame round it. Its type is the poster's sepia and a
+           darkened gold (5.2:1 and up on all three). */
         .ith-display-case {
-          background: ${poster2Umber};
-          border: 1px solid rgba(201,168,76,0.2);
+          background: var(--case-ground, #e4e2e2);
+          border: none;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.45);
           padding: 12px 8px;
           display: flex;
           flex-direction: column;
@@ -1169,7 +489,7 @@ export default function InTheirHands() {
           width: 100%;
         }
         .ith-display-case:hover, .ith-display-case:focus-visible {
-          border-color: rgba(201,168,76,0.6);
+          transform: translateY(-8px);
         }
         .ith-display-case:hover .ith-case-image {
           transform: scale(1.02);
@@ -1186,20 +506,20 @@ export default function InTheirHands() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #a8a79c;
+          color: #5e5440;
           margin-bottom: 8px;
         }
         .ith-case-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 20px;
-          color: ${poster1Cream};
+          color: ${poster1Sepia};
           margin-bottom: 8px;
         }
         .ith-case-subtitle {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-style: italic;
-          color: ${gold};
+          color: #6b5418;
         }
 
         /* ============================================
@@ -1567,6 +887,8 @@ export default function InTheirHands() {
           .ith-artwork-image-side {
             max-width: 100%;
           }
+          /* the observatory, the scroll and the ossuary read at a phone's width */
+          .ith-stacked-image { max-width: 90%; }
           .ith-artwork-image-side img {
             max-height: 50vh;
           }
@@ -1632,7 +954,7 @@ export default function InTheirHands() {
               <span className="ith-poster-hint">Click to explore</span>
             </button>
 
-            <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case">
+            <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case" style={{ '--case-ground': '#e7eeef' } as React.CSSProperties}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Lit display case with three coins in round holders before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 6</p>
@@ -1640,7 +962,7 @@ export default function InTheirHands() {
               <p className="ith-case-subtitle">Coins from the World of Jesus</p>
             </Link>
 
-            <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case">
+            <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case" style={{ '--case-ground': '#e4e2e2' } as React.CSSProperties}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Lit display case with six coins in round holders before two printed information cards" />
               <p className="ith-case-label">Gallery II, Case 7</p>
@@ -1648,7 +970,7 @@ export default function InTheirHands() {
               <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
             </Link>
 
-            <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case">
+            <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case" style={{ '--case-ground': '#d6dddf' } as React.CSSProperties}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 8</p>
@@ -1693,12 +1015,19 @@ export default function InTheirHands() {
         prevStep={prevStep}
         returnToMain={returnToMain}
       >
+        <>
+        {(activeView === 'poster1' || activeView === 'poster2') && atmosphere && atmo && (
+          <AtmosphereLayer key={`${activeView}:${atmosphere}`} name={atmosphere} atmosphere={atmo} />
+        )}
         {(activeView === 'poster1' || activeView === 'poster2') && (
           <div
+            // The key comes before the spreads, so React builds the element with jsx() and not createElement().
+            key={animationKey}
             {...stageProps}
             {...fx}
             className={`ith-poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
-            key={animationKey}
+            data-entrance={entrance}
+            data-atmosphere={atmosphere}
           >
 
             {/* Poster 1 persistent background — Tissot Jerusalem watercolour */}
@@ -1731,15 +1060,15 @@ export default function InTheirHands() {
                 <div className="ith-full-bleed-image ith-frost-image pfx-media">
                   <div className="ith-frost-backdrop" />
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentItem.src} alt={currentItem.alt} />
+                  <img src={currentItem.src} alt={currentItem.alt} className={own ? effectClass(entrance) : ''} />
                 </div>
               )}
 
               {/* Full Image (photograph etc) */}
               {currentItem.type === 'full-image' && currentItem.special !== 'frost' && (
-                <div className={`ith-full-bleed-image ith-full-image pfx-media ${currentItem.effect === 'kenburns-in' ? 'ith-effect-kenburns-in' : currentItem.effect === 'drift' ? 'ith-effect-drift' : ''}`}>
+                <div className={`ith-full-bleed-image ith-full-image ${own ? '' : 'pfx-media'}`}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={currentItem.src} alt={currentItem.alt} />
+                  <img src={currentItem.src} alt={currentItem.alt} className={own ? effectClass(entrance) : ''} />
                   {currentItem.text && (
                     <span className="ith-image-caption" style={{ color: textColor }}>{currentItem.text}</span>
                   )}
@@ -1749,30 +1078,6 @@ export default function InTheirHands() {
               {/* Section Title */}
               {currentItem.type === 'section-title' && (
                 <div className={`ith-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
-                  {/* Parchment decorative flourishes */}
-                  {(currentItem.special === 'parchment' || currentItem.special === 'authentication') && (
-                    <>
-                      <div className="ith-deco-flourish ith-deco-flourish-1" />
-                      <div className="ith-deco-flourish ith-deco-flourish-2" />
-                    </>
-                  )}
-                  {/* Scrolls decorative ruled lines */}
-                  {currentItem.special === 'scrolls' && (
-                    <>
-                      <div className="ith-deco-scroll-line ith-deco-scroll-line-1" />
-                      <div className="ith-deco-scroll-line ith-deco-scroll-line-2" />
-                    </>
-                  )}
-                  {/* Observatory decorative stars */}
-                  {currentItem.special === 'observatory' && (
-                    <>
-                      <div className="ith-deco-star ith-deco-star-1" />
-                      <div className="ith-deco-star ith-deco-star-2" />
-                      <div className="ith-deco-star ith-deco-star-3" />
-                      <div className="ith-deco-star ith-deco-star-4" />
-                      <div className="ith-deco-star ith-deco-star-5" />
-                    </>
-                  )}
                   <h2
                     className="ith-section-title-text"
                     style={{ color: getSectionColors(currentItem.special).title }}
@@ -1786,35 +1091,8 @@ export default function InTheirHands() {
               {/* Paragraph */}
               {currentItem.type === 'paragraph' && currentItem.text && (
                 <div className={`ith-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
-                  {/* Parchment decorative flourishes */}
-                  {(currentItem.special === 'parchment' || currentItem.special === 'authentication') && (
-                    <>
-                      <div className="ith-deco-flourish ith-deco-flourish-1" />
-                      <div className="ith-deco-flourish ith-deco-flourish-2" />
-                    </>
-                  )}
-                  {/* Scrolls decorative ruled lines */}
-                  {currentItem.special === 'scrolls' && (
-                    <>
-                      <div className="ith-deco-scroll-line ith-deco-scroll-line-1" />
-                      <div className="ith-deco-scroll-line ith-deco-scroll-line-2" />
-                    </>
-                  )}
-                  {/* Observatory decorative stars */}
-                  {currentItem.special === 'observatory' && (
-                    <>
-                      <div className="ith-deco-star ith-deco-star-1" />
-                      <div className="ith-deco-star ith-deco-star-2" />
-                      <div className="ith-deco-star ith-deco-star-3" />
-                      <div className="ith-deco-star ith-deco-star-4" />
-                      <div className="ith-deco-star ith-deco-star-5" />
-                    </>
-                  )}
-                  <p
-                    className={`ith-paragraph-text ${getEffectClass(currentItem.effect)}`}
-                    style={{ color: getSectionColors(currentItem.special).text }}
-                  >
-                    {currentItem.text}
+                  <p className="ith-paragraph-text" style={{ color: getSectionColors(currentItem.special).text }}>
+                    <EntranceCopy text={currentItem.text} effect={entrance} />
                   </p>
                 </div>
               )}
@@ -1824,13 +1102,13 @@ export default function InTheirHands() {
                 <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
                   <div className="ith-stacked-image">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+                    <img src={currentItem.src} alt={currentItem.alt} className={pictureClass} />
                   </div>
                   <p
-                    className="ith-paragraph-text ith-effect-fade-in"
+                    className={`ith-paragraph-text ${copyClass}`}
                     style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
                   >
-                    {currentItem.text}
+                    <EntranceCopy text={currentItem.text ?? ''} effect={copyEffect} />
                   </p>
                 </div>
               )}
@@ -1839,14 +1117,14 @@ export default function InTheirHands() {
               {currentItem.type === 'text-image-stacked' && (
                 <div className={`ith-image-text-stacked ${getSpecialClass(currentItem.special)}`}>
                   <p
-                    className="ith-paragraph-text ith-effect-fade-in"
+                    className={`ith-paragraph-text ${copyClass}`}
                     style={{ color: getSectionColors(currentItem.special).text, textAlign: 'center' }}
                   >
-                    {currentItem.text}
+                    <EntranceCopy text={currentItem.text ?? ''} effect={copyEffect} />
                   </p>
                   <div className="ith-stacked-image">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+                    <img src={currentItem.src} alt={currentItem.alt} className={pictureClass} />
                   </div>
                 </div>
               )}
@@ -1862,16 +1140,16 @@ export default function InTheirHands() {
                       </span>
                     ) : (
                       /* eslint-disable-next-line @next/next/no-img-element */
-                      <img src={currentItem.src} alt={currentItem.alt} className="pfx-lift" />
+                      <img src={currentItem.src} alt={currentItem.alt} className={pictureClass} />
                     )}
                     <div className="ith-artwork-caption" style={{ color: textColor }}>
                       <span className="ith-artwork-caption-title">{currentItem.artworkTitle}</span>
                       <span className="ith-artwork-caption-meta">{currentItem.artworkArtist}, {currentItem.artworkDate}</span>
                     </div>
                   </div>
-                  <div className="ith-artwork-text-side" style={{ color: getSectionColors(currentItem.special).text }}>
-                    <p className="ith-paragraph-text ith-effect-fade-in">
-                      {currentItem.text}
+                  <div className={`ith-artwork-text-side ${own ? 'ith-text-side-own' : ''}`} style={{ color: getSectionColors(currentItem.special).text }}>
+                    <p className={`ith-paragraph-text ${copyClass}`}>
+                      <EntranceCopy text={currentItem.text ?? ''} effect={copyEffect} />
                     </p>
                   </div>
                 </div>
@@ -1879,7 +1157,7 @@ export default function InTheirHands() {
 
               {/* Timeline */}
               {currentItem.type === 'timeline' && currentItem.items && (
-                <div className={`ith-text-content-wrapper ith-pos-center ${getSpecialClass(currentItem.special)}`}>
+                <div className={`ith-text-content-wrapper ith-pos-center ${getSpecialClass(currentItem.special)}`} style={{ flexDirection: 'column' }}>
                   {currentItem.text && (
                     <h2 className="ith-timeline-title" style={{ animation: 'ithFadeIn 0.8s ease forwards', opacity: 0 }}>{currentItem.text}</h2>
                   )}
@@ -1901,10 +1179,10 @@ export default function InTheirHands() {
               {currentItem.type === 'quote' && currentItem.text && (
                 <div className="ith-text-content-wrapper ith-pos-center">
                   <blockquote
-                    className={`ith-quote-text ${getEffectClass(currentItem.effect)}`}
+                    className="ith-quote-text"
                     style={{ color: isPoster1 ? poster1Gold : poster2Antique, borderColor: isPoster1 ? 'rgba(201,168,76,0.4)' : 'rgba(200,196,160,0.3)' }}
                   >
-                    {currentItem.text}
+                    <EntranceCopy text={currentItem.text} effect={entrance} />
                   </blockquote>
                 </div>
               )}
@@ -1958,6 +1236,7 @@ export default function InTheirHands() {
             )}
           </div>
         )}
+        </>
       </PosterProjector>
     </div>
   );

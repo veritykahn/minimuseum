@@ -1,10 +1,11 @@
-import fs from 'fs';
-import path from 'path';
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import { posterKeyCommand } from '@/components/projector/posterKeys';
 import { HARLEM_TALK, ITH_TALK, OPENING, SEEING_TALK, chapterAt, posterChapters } from '@/components/projector/posterTalk';
 import { posterRequested, projectorRequested, usePosterDeepLink, writeProjectorParams } from '@/components/projector/useProjectorMode';
+import * as HARLEM from '@/app/exhibitions/harlem-renaissance/posters';
+import * as ITH from '@/app/exhibitions/in-their-hands/posters';
+import * as SEEING from '@/app/exhibitions/seeing-is-deceiving/posters';
 
 const ctx = { open: true, blank: false, onControl: false, inField: false };
 
@@ -81,19 +82,17 @@ describe('projector deep links', () => {
 
 describe('Talk about it', () => {
   // Every chapter of every poster has a question, keyed by its exact title.
-  const pages: [string, { poster1: Record<string, string>; poster2: Record<string, string> }][] = [
-    ['seeing-is-deceiving', SEEING_TALK],
-    ['harlem-renaissance', HARLEM_TALK],
-    ['in-their-hands', ITH_TALK],
+  // The hand-built walkthroughs keep their panels in posters.ts beside the page.
+  type Panels = { type: string; text?: string }[];
+  const pages: [string, { poster1: Record<string, string>; poster2: Record<string, string> }, Panels, Panels][] = [
+    ['seeing-is-deceiving', SEEING_TALK, SEEING.poster1Content, SEEING.poster2Content],
+    ['harlem-renaissance', HARLEM_TALK, HARLEM.poster1Content, HARLEM.poster2Content],
+    ['in-their-hands', ITH_TALK, ITH.poster1Content, ITH.poster2Content],
   ];
-  it.each(pages)('%s: one question per chapter, and none left over', (slug, talk) => {
-    const src = fs.readFileSync(path.join(process.cwd(), 'app/exhibitions', slug, 'page.tsx'), 'utf8');
-    const p2 = src.indexOf('const poster2Content');
-    const end = src.indexOf('];', p2);
-    const titles = (s: string) =>
-      [...s.matchAll(/type: 'section-title',\s*\n\s*text: '((?:[^'\\]|\\.)*)'/g)].map((m) => m[1].replace(/\\'/g, "'"));
-    const t1 = titles(src.slice(0, p2));
-    const t2 = titles(src.slice(p2, end));
+  it.each(pages)('%s: one question per chapter, and none left over', (_slug, talk, poster1, poster2) => {
+    const titles = (items: Panels) => items.filter((it) => it.type === 'section-title').map((it) => it.text ?? '');
+    const t1 = titles(poster1);
+    const t2 = titles(poster2);
     expect(t1.length).toBeGreaterThan(1);
     for (const [titlesOf, map] of [[t1, talk.poster1], [t2, talk.poster2]] as const) {
       for (const t of titlesOf) expect(map[t]).toBeTruthy();
