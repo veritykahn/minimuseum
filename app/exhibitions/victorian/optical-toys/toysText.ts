@@ -1,9 +1,14 @@
+import type { ApprovedFact } from '@/components/exhibition/FactNote';
+
 /*
  * The optical toys room's words. The toys' pictures are drawn from the
  * posters' own subjects, and each is captioned with a line from the posters
  * (victorian.ts), word for word; the room's test checks each one against
- * them. The rest is instruction: the room makes no claim about the toys'
- * history.
+ * them. The rest is instruction.
+ *
+ * The toys' history is the exception: three notes (TOY_NOTES), owner-approved
+ * and fact-checked, each set with its source (the Science Museum Group, the
+ * V&A, and US Patent 64,117), apart from the posters' captions.
  */
 
 export const TOYS_TEXT = {
@@ -13,6 +18,25 @@ export const TOYS_TEXT = {
   thaumaIntro: 'A picture on each side of a disc. Twirl it on its strings, and the two sides become one picture.',
   zoeIntro: 'A strip of pictures inside a drum. Spin it, look through the slits, and the pictures move.',
 };
+
+const VA_ZOETROPE = { label: 'V&A', href: 'https://collections.vam.ac.uk/item/O96347/optical-toy-zoetrope-zoetrope/' };
+
+/* Owner-approved, fact-checked notes on the toys' history, with their sources. */
+export const TOY_NOTES = {
+  thaumatrope: {
+    text: 'The thaumatrope was invented by John Ayrton Paris in 1825.',
+    sources: [{ label: 'Science Museum Group', href: 'https://collection.sciencemuseumgroup.org.uk/objects/co8085499' }],
+  },
+  zoetrope: {
+    text: 'William Horner described the first one in 1834, calling it the daedaleum. In 1867 William E. Lincoln patented it in the United States, and Milton Bradley sold it as the zoetrope.',
+    sources: [VA_ZOETROPE, { label: 'US Patent 64,117', href: 'https://patents.google.com/patent/US64117A/en' }],
+  },
+  /** Set once in the room, for both toys. */
+  both: {
+    text: 'Optical toys like these were popular family entertainment in Victorian homes.',
+    sources: [VA_ZOETROPE],
+  },
+} satisfies Record<string, ApprovedFact>;
 
 export type DiscId = 'tree' | 'railway' | 'hearth';
 

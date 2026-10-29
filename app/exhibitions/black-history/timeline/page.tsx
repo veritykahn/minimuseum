@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type TouchEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
+import FactNote from '@/components/exhibition/FactNote';
 import { srOnly, useReducedMotion } from '@/lib/a11y';
 import { BLACK_HISTORY } from '../blackHistory';
 import { TIMELINE_STOPS, TIMELINE_TEXT, markRuns, stopFromHash } from './timelineStops';
@@ -15,6 +16,10 @@ import './timeline.css';
  * and the stops strung along the lime line at the foot. Arrow keys, a swipe
  * or the stops move through it; the year counts up as it goes. Each stop has
  * its own address (#1967 … #today).
+ *
+ * The added stops (Dolls of the World, Shani, Inspiring Women) are
+ * owner-approved and fact-checked, from outside the poster: set as a plain
+ * note with its source (timelineStops.ts), never as the poster's words.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -104,7 +109,11 @@ export default function BlackBarbieTimeline() {
     '--pe-accent': palette.accent,
     '--pe-heading': palette.heading,
   };
-  const label = stop.year === null ? stop.name : `${stop.year}: ${stop.name}`;
+  const yearText = (s: (typeof TIMELINE_STOPS)[number]) => s.yearLabel ?? String(s.year);
+  const label = stop.year === null ? stop.name : `${yearText(stop)}: ${stop.name}`;
+  // While it counts the year is a plain number; settled, it is set as the stop gives it (c. 1990).
+  const yearShown = year === stop.year && stop.yearLabel ? stop.yearLabel : year;
+  const longYear = !!stop.yearLabel;
 
   return (
     <div className="pe-root bht-room" data-exhibition={slug} data-theme={stop.theme} style={style}>
@@ -125,7 +134,13 @@ export default function BlackBarbieTimeline() {
         <header className="bht-bar">
           <h1 className="bht-title">{TIMELINE_TEXT.title}</h1>
           <p className="bht-source">
-            {TIMELINE_TEXT.source} <cite>{TIMELINE_TEXT.poster}</cite>
+            {stop.note ? (
+              TIMELINE_TEXT.noteSource
+            ) : (
+              <>
+                {TIMELINE_TEXT.source} <cite>{TIMELINE_TEXT.poster}</cite>
+              </>
+            )}
           </p>
         </header>
 
@@ -144,7 +159,7 @@ export default function BlackBarbieTimeline() {
             </div>
           )}
           <div className="bht-disc">
-            <span className={`bht-year ${stop.year === null ? 'bht-year-word' : ''}`}>{year ?? TIMELINE_TEXT.today}</span>
+            <span className={`bht-year ${stop.year === null ? 'bht-year-word' : ''} ${longYear ? 'bht-year-long' : ''}`}>{yearShown ?? TIMELINE_TEXT.today}</span>
             {stop.year !== null && <span className="bht-name" key={`n-${index}`}>{stop.name}</span>}
           </div>
         </div>
@@ -157,6 +172,7 @@ export default function BlackBarbieTimeline() {
               {markRuns(s, stop.mark).map((r, i) => (r.marked ? <mark key={i}>{r.text}</mark> : <span key={i}>{r.text}</span>))}
             </p>
           ))}
+          {stop.note && <FactNote fact={stop.note} className="bht-note" />}
         </section>
 
         <nav className="bht-track" aria-label="The timeline">
@@ -177,11 +193,20 @@ export default function BlackBarbieTimeline() {
                   type="button"
                   className="bht-stop"
                   aria-current={i === index ? 'step' : undefined}
-                  aria-label={s.year === null ? s.name : `${s.year}, ${s.name}`}
+                  aria-label={s.year === null ? s.name : `${yearText(s)}, ${s.name}`}
                   onClick={() => go(i)}
                   onKeyDown={onKey}
                 >
-                  <span className="bht-stop-year" aria-hidden="true">{s.year ?? TIMELINE_TEXT.today}</span>
+                  <span className={`bht-stop-year${s.yearLabel ? ' bht-stop-year-long' : ''}`} aria-hidden="true">
+                    {s.yearLabel ? (
+                      <>
+                        <span className="bht-stop-full">{s.yearLabel}</span>
+                        <span className="bht-stop-short">{s.stopLabel ?? s.yearLabel}</span>
+                      </>
+                    ) : (
+                      (s.year ?? TIMELINE_TEXT.today)
+                    )}
+                  </span>
                 </button>
               </li>
             ))}

@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import LayAStone from '@/app/exhibitions/holocaust/stones/page';
 import Stillness from '@/app/exhibitions/holocaust/stones/Stillness';
 import { heapLayout } from '@/app/exhibitions/holocaust/stones/MemorialStone';
-import { HOLOCAUST, NIEMOLLER } from '@/app/exhibitions/holocaust/holocaust';
+import { HOLOCAUST, NIEMOLLER, STONE_CUSTOM } from '@/app/exhibitions/holocaust/holocaust';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
@@ -74,6 +74,17 @@ describe('laying a stone', () => {
     expect(await screen.findByText('27 stones laid')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Thank you. Your stone is on the memorial.');
     expect(screen.getByRole('button', { name: 'Stone laid today' })).toBeDisabled();
+  });
+
+  it('sets one quiet note on the custom beside the invitation, with its source', async () => {
+    // Not poster copy: owner-approved and fact-checked, set with its source.
+    mockFetch(() => ({ status: 503, body: {} }));
+    render(<LayAStone />);
+    const panel = screen.getByRole('tabpanel', { name: 'Lay a stone' });
+    expect(panel).toHaveTextContent('Lay a stone, to remember.');
+    expect(panel).toHaveTextContent(STONE_CUSTOM.text);
+    expect(screen.getByRole('link', { name: 'My Jewish Learning' })).toHaveAttribute('href', 'https://www.myjewishlearning.com/article/ask-the-expert-stones-on-graves/');
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
   });
 
   it('still shows the stone when the shared count can’t be reached', async () => {

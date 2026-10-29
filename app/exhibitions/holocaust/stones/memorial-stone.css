@@ -190,6 +190,10 @@
   line-height: 1.5;
   color: var(--hos-pale);
 }
+.hos-custom { display: flex; flex-direction: column; gap: 6px; max-width: 30em; margin-top: -8px; font-family: var(--pe-body); font-size: 0.9rem; line-height: 1.6; color: var(--hos-muted); }
+.hos-custom-source { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.06em; color: var(--hos-muted); opacity: 0.85; }
+.hos-custom-source a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.hos-custom-source a:focus-visible { outline: 1px solid var(--hos-pale); outline-offset: 3px; }
 .hos-count {
   font-family: var(--pe-display);
   font-size: clamp(1.5rem, 2.6vw, 2.1rem);
@@ -288,6 +292,8 @@
   .hos-panel-stillness { max-height: 50dvh; }
   .hos-controls, .hos-stillness { gap: 14px; }
   .hos-quote p { font-size: 1.05rem; }
+  .hos-custom { margin-top: -6px; font-size: 0.78rem; line-height: 1.5; gap: 3px; }
+  .hos-custom-source { font-size: 10px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

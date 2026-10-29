@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
+import FactNote from '@/components/exhibition/FactNote';
 import { BIOGRAPHY_MOTTO, VIOLET_DATES, VIOLET_LETTERING, VIOLET_NAME, VIOLET_NEE, WOMENS_HISTORY } from '../womensHistory';
 import Keepsake from './Keepsake';
 import { LIFE, threadLayout, threadPath } from './violetLife';
@@ -15,7 +16,9 @@ import './violet.css';
  * biography on the sheet below, typewritten as the poster sets it, beside
  * the family photograph the poster sets with it. The thread is sewn in
  * orange as far as the visitor has come. Each stop has its own address
- * (#fulham, #blitz…).
+ * (#fulham, #blitz…). The Blitz also carries a museum note, owner-approved
+ * and fact-checked, set apart from the typed biography with its source
+ * (violetLife.ts).
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -165,14 +168,22 @@ export default function VioletsLife() {
               </div>
             ) : (
               <>
-                <figure className={`whv-picture${stop.photo ? ' whv-picture-photo' : ''}`}>
-                  {stop.photo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={stop.photo.src} alt={stop.photo.alt} />
-                  ) : (
-                    <Keepsake id={stop.keepsake} className="whv-picture-art" />
+                <div className="whv-side">
+                  <figure className={`whv-picture${stop.photo ? ' whv-picture-photo' : ''}`}>
+                    {stop.photo ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={stop.photo.src} alt={stop.photo.alt} />
+                    ) : (
+                      <Keepsake id={stop.keepsake} className="whv-picture-art" />
+                    )}
+                  </figure>
+                  {stop.note && (
+                    <aside className="whv-note" aria-label="Museum note">
+                      <span className="whv-note-label" aria-hidden="true">Museum note</span>
+                      <FactNote fact={stop.note} className="whv-fact" />
+                    </aside>
                   )}
-                </figure>
+                </div>
                 <div className="whv-words">
                   <h2 className="whv-heading">
                     {stop.label}

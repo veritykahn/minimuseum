@@ -106,6 +106,7 @@
   text-shadow: 0.05em 0.05em 0 var(--year-shadow);
   font-variant-numeric: tabular-nums;
 }
+.bht-year-long { font-size: calc(var(--disc-d) * 0.18); white-space: nowrap; }
 .bht-year-word { font-family: var(--bh-bubble); font-weight: 400; font-variation-settings: normal; font-size: calc(var(--disc-d) * 0.22); letter-spacing: 0; }
 .bht-name {
   font-family: var(--bh-bubble);
@@ -217,6 +218,13 @@
 .bht-tag::before { content: ''; position: absolute; left: 12px; top: calc(50% - 5px); width: 10px; height: 10px; border-radius: 50%; background: #111; }
 @keyframes bht-swing { 0% { transform: rotate(-24deg); opacity: 0; } 60% { transform: rotate(4deg); opacity: 1; } }
 
+/* An added stop's note: not the poster's words, so a plain caption, not a
+   quote, with its source set small beneath it. */
+.bht-note { display: flex; flex-direction: column; gap: 10px; font-family: var(--pe-body); font-weight: 500; font-size: clamp(1.15rem, 1.7vw, 1.6rem); line-height: 1.4; color: var(--ink); }
+.bht-note-source { font-family: var(--pe-body); font-weight: 500; font-size: 13px; line-height: 1.45; letter-spacing: 0.02em; color: var(--ink); opacity: 0.85; }
+.bht-note-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.bht-note-source a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
 /* ───────── The stops along the lime line ───────── */
 .bht-track { grid-area: track; position: relative; z-index: 2; display: flex; align-items: center; gap: 18px; padding: 10px max(4vw, 24px) 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
 .bht-stops-wrap { position: relative; flex: 1; }
@@ -239,6 +247,8 @@
   transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1), background-color 0.4s ease, color 0.4s ease;
 }
 .bht-room[data-theme='split'] .bht-stop { background: #fff; }
+.bht-stop-year-long { font-size: 11px; white-space: nowrap; }
+.bht-stop-short { display: none; }
 .bht-room .bht-stop:hover { transform: scale(1.08); }
 .bht-room .bht-stop[aria-current='step'] { background: var(--disc); color: var(--year); transform: scale(1.22); box-shadow: 0 0 0 5px var(--g), 0 0 0 8px var(--line); }
 .bht-room .bht-stop:focus-visible,
@@ -283,7 +293,13 @@
   .bht-rays { width: 120vw; height: 120vw; }
   .bht-rays-a { left: -60vw; top: -60vw; }
   .bht-rays-b { right: -60vw; bottom: -60vw; opacity: 0.7; }
-  .bht-room .bht-stop { width: 46px; height: 46px; border-width: 3px; font-size: 11px; }
+  .bht-track { padding-left: 10px; padding-right: 10px; }
+  .bht-room .bht-stop { width: 37px; height: 37px; border-width: 2.5px; padding: 0; font-size: 9px; letter-spacing: -0.02em; font-variation-settings: 'wdth' 100; }
+  .bht-stop-year-long { font-size: 9px; }
+  .bht-stop-full { display: none; }
+  .bht-stop-short { display: inline; }
+  .bht-note { gap: 8px; font-size: 1.04rem; line-height: 1.38; }
+  .bht-note-source { font-size: 11px; }
   .bht-room .bht-stop[aria-current='step'] { transform: scale(1.14); box-shadow: 0 0 0 3px var(--g), 0 0 0 5px var(--line); }
 }
 

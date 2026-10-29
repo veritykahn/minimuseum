@@ -224,6 +224,18 @@
 }
 .whv-lead { letter-spacing: 0.22em; }
 
+/* A museum note, not the poster's typed biography: set apart on a slip in
+   the sans, with its source linked (owner-approved, fact-checked). */
+/* The picture, and under it any museum note. */
+.whv-side { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 16px; width: clamp(170px, 20vw, 250px); }
+@media (min-width: 761px) { .whv-side .whv-picture { width: 100%; } }
+.whv-note { flex: none; align-self: stretch; display: flex; flex-direction: column; gap: 4px; padding: 8px 12px; border-left: 3px solid var(--whv-orange); background: rgba(34, 51, 94, 0.05); font-family: var(--pe-ui); }
+.whv-note-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #a3401a; }
+.whv-fact { display: flex; flex-direction: column; gap: 2px; font-size: 13px; line-height: 1.45; color: var(--whv-ink); }
+.whv-fact-source { font-size: 11px; color: #6b4a52; }
+.whv-fact-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.whv-fact-source a:focus-visible { outline: 2px solid var(--whv-navy); outline-offset: 2px; }
+
 /* The first stop: her name, in the poster's own lettering. */
 .whv-name { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; }
 .whv-name-lettering { width: min(560px, 80%); height: auto; }
@@ -276,6 +288,9 @@
   .whv-sheet-inner { flex-direction: column; align-items: stretch; gap: 12px; padding: 20px 16px 6px; overflow-y: auto; }
   .whv-words { min-height: auto; max-height: none; justify-content: flex-start; }
   .whv-copy { overflow: visible; font-size: 0.95rem; }
+  .whv-side { display: contents; }
+  .whv-note { order: 2; padding: 6px 10px; }
+  .whv-fact { font-size: 12px; }
   .whv-picture { width: 100%; align-self: center; }
   .whv-picture-art { width: 64px; padding: 14px; }
   .whv-picture-photo { width: 150px; }

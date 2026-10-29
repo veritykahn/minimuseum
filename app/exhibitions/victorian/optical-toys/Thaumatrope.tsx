@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import { DiscArt } from './DiscArt';
-import { DISCS, type DiscId } from './toysText';
+import FactNote from '@/components/exhibition/FactNote';
+import { DISCS, TOY_NOTES, type DiscId } from './toysText';
 import { approach, faceAt, thaumaBlend, TAU, THAUMA_TOP } from './spin';
 
 /*
@@ -18,7 +19,7 @@ const SPIN_DOWN = 1.1; // as they unwind
 const SIDES = ['front', 'back', 'together'] as const;
 type Side = (typeof SIDES)[number];
 
-export default function Thaumatrope({ reduced, disc, onDisc, intro }: { reduced: boolean; disc: DiscId; onDisc: (d: DiscId) => void; intro: string }) {
+export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { reduced: boolean; disc: DiscId; onDisc: (d: DiscId) => void; intro: string; footer?: ReactNode }) {
   const d = DISCS.find((x) => x.id === disc)!;
   const [twirling, setTwirling] = useState(false);
   // Side by side under reduced motion, until the visitor chooses.
@@ -275,6 +276,8 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro }: { reduced:
           </button>
         </div>
         <p className="vto-caption">{d.caption}</p>
+        <FactNote fact={TOY_NOTES.thaumatrope} className="vto-fact" />
+        {footer}
       </div>
       <p className="vto-status" role="status" aria-live="polite">{status}</p>
     </div>

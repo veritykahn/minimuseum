@@ -1,6 +1,6 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import VictorianOpticalToys from '@/app/exhibitions/victorian/optical-toys/page';
-import { DISCS, STRIPS } from '@/app/exhibitions/victorian/optical-toys/toysText';
+import { DISCS, STRIPS, TOY_NOTES } from '@/app/exhibitions/victorian/optical-toys/toysText';
 import {
   alternationsPerSecond,
   approach,
@@ -22,7 +22,9 @@ import { getRoomByPath } from '@/components/museum-map/data/rooms';
 import sitemap from '@/app/sitemap';
 
 /*
- * Victorian Britain's optical toys: the captions are the posters' own, the
+ * Victorian Britain's optical toys: the captions are the posters' own (the
+ * toys' history notes are carved out: owner-approved, fact-checked, and set
+ * apart from the captions with their sources), the
  * toys never flash faster than three times a second, and under reduced
  * motion they stand still, their pictures side by side, stepped by hand.
  */
@@ -150,6 +152,33 @@ describe('the zoetrope', () => {
     expect(screen.getByRole('status')).toHaveTextContent(`Picture 5 of ${ZOE_FRAMES}.`);
     fireEvent.click(screen.getByRole('button', { name: 'Next picture' }));
     expect(screen.getByRole('status')).toHaveTextContent(`Picture 6 of ${ZOE_FRAMES}.`);
+  });
+});
+
+describe('the toys’ history', () => {
+  const VA = 'https://collections.vam.ac.uk/item/O96347/optical-toy-zoetrope-zoetrope/';
+
+  it('notes each toy’s history, and once for both, each with its source linked', () => {
+    window.history.replaceState(null, '', '/exhibitions/victorian/optical-toys');
+    render(<VictorianOpticalToys />);
+    // The carve-out: these notes are not the posters' words.
+    for (const n of Object.values(TOY_NOTES)) expect(posterText).not.toContain(n.text);
+
+    expect(screen.getAllByText(TOY_NOTES.both.text)).toHaveLength(1);
+    const thauma = screen.getByRole('tabpanel', { name: 'Thaumatrope' });
+    expect(within(thauma).getByText(TOY_NOTES.thaumatrope.text)).toBeInTheDocument();
+    expect(within(thauma).getByRole('link', { name: 'Science Museum Group' })).toHaveAttribute('href', 'https://collection.sciencemuseumgroup.org.uk/objects/co8085499');
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Zoetrope' }));
+    const zoe = screen.getByRole('tabpanel', { name: 'Zoetrope' });
+    expect(within(zoe).getByText(TOY_NOTES.zoetrope.text)).toBeInTheDocument();
+    // The zoetrope's note and the note for both cite the V&A.
+    const va = within(zoe).getAllByRole('link', { name: 'V&A' });
+    expect(va).toHaveLength(2);
+    for (const l of va) expect(l).toHaveAttribute('href', VA);
+    expect(within(zoe).getByRole('link', { name: 'US Patent 64,117' })).toHaveAttribute('href', 'https://patents.google.com/patent/US64117A/en');
+    expect(screen.getAllByText(TOY_NOTES.both.text)).toHaveLength(1);
+    expect(TOY_NOTES.both.sources).toEqual([{ label: 'V&A', href: VA }]);
   });
 });
 

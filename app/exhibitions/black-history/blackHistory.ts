@@ -131,6 +131,9 @@ export const BLACK_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
+  // The timeline sets poster 2's words, and three added stops (Dolls of the
+  // World, Shani, Inspiring Women): owner-approved, fact-checked notes, each
+  // with its source (timeline/timelineStops.ts).
   interactives: [
     {
       href: '/exhibitions/black-history/timeline',

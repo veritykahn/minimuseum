@@ -3,7 +3,7 @@ import MoonMicroscope from '@/app/exhibitions/moon/microscope/page';
 import { blurFor, FOCUS_AT } from '@/app/exhibitions/moon/microscope/focus';
 import { makeSlide } from '@/app/exhibitions/moon/microscope/grains';
 import { freshState, releaseCloth, wipeStep } from '@/app/exhibitions/moon/microscope/wipe';
-import { MOON, REGOLITH } from '@/app/exhibitions/moon/moon';
+import { MICROSCOPE_NOTES, MOON, MOON_CASE, REGOLITH } from '@/app/exhibitions/moon/moon';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
@@ -93,6 +93,28 @@ describe('the room', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'Side by Side' }));
     expect(screen.getByRole('slider', { name: 'Move the dividing line' })).toBeInTheDocument();
     expect(screen.getByText(`${REGOLITH.surface} ${REGOLITH.differences}`)).toBeInTheDocument();
+  });
+});
+
+describe('the approved notes', () => {
+  it('sets what Moon dust is made of on its slide, and the meteorite beside the case link, each with its source', () => {
+    // Not the poster's words: owner-approved, fact-checked, set apart with a source.
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
+    render(<MoonMicroscope />);
+    expect(screen.getByText(MICROSCOPE_NOTES.dust.text)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'NASA' })).toHaveAttribute('href', 'https://science.nasa.gov/moon/composition/');
+    expect(screen.getByText(MICROSCOPE_NOTES.adrar.text)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Washington University in St. Louis' })).toHaveAttribute('href', 'https://sites.wustl.edu/meteoritesite/?p=16700');
+    expect(screen.getByRole('link', { name: /lunar meteorite in the display case/ })).toBeInTheDocument();
+    // Moon dust's note is for its own slide only.
+    fireEvent.click(screen.getByRole('tab', { name: "Earth's Soil" }));
+    expect(screen.queryByText(MICROSCOPE_NOTES.dust.text)).toBeNull();
+    expect(screen.getByText(MICROSCOPE_NOTES.adrar.text)).toBeInTheDocument();
+  });
+
+  it('keeps the display case to the posters’ sentences', () => {
+    const writing = MOON_CASE.artifacts.flatMap((a) => a.writing ?? []).map((w) => w.text);
+    for (const n of Object.values(MICROSCOPE_NOTES)) expect(writing).not.toContain(n.text);
   });
 });
 

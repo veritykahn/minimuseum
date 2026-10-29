@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import type { Atmosphere, CasePageData, ExhibitionConfig } from '@/components/exhibition/types';
 import { floorReturnFor } from '@/lib/floors';
 
@@ -90,6 +91,23 @@ export const REGOLITH = {
   gunpowder: 'Astronauts who walked on the Moon said the dust smelled like gunpowder and was hard to clean off their suits.',
   differences: "These differences between Moon dust and Earth's soil help scientists learn more about the Moon's history and why it's such a unique place in our solar system.",
 };
+
+/*
+ * The microscope's two notes from outside the posters: owner-approved and
+ * fact-checked, each set with its source (NASA; Washington University in
+ * St. Louis), apart from the poster's words. Not used on the display case,
+ * whose writing is the posters' sentences only.
+ */
+export const MICROSCOPE_NOTES = {
+  dust: {
+    text: 'Moon dust is made of rock chips, mineral fragments and glass, with agglutinates: bits of minerals glued together with glass.',
+    sources: [{ label: 'NASA', href: 'https://science.nasa.gov/moon/composition/' }],
+  },
+  adrar: {
+    text: 'Adrar 013 is a lunar meteorite weighing 3,150 grams in all, purchased in Adrar, Algeria, in 2023.',
+    sources: [{ label: 'Washington University in St. Louis', href: 'https://sites.wustl.edu/meteoritesite/?p=16700' }],
+  },
+} satisfies Record<string, ApprovedFact>;
 
 export const NHM_MOON_URL ='https://www.nhm.ac.uk/discover/factfile-the-moon.html';
 export const NHM_SPACE_URL = 'https://www.nhm.ac.uk/discover/space.html';
