@@ -1,5 +1,8 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import TypingStation from '@/app/exhibitions/writing-revolution/typing-station/page';
+import { inkWords } from '@/app/exhibitions/writing-revolution/typing-station/ClassBoard';
 import { BELL_BEFORE, LINE_WIDTH, newPage, pageText, strikeOvers, typeKey, type Page } from '@/app/exhibitions/writing-revolution/typing-station/typewriterPage';
 import { STATION_TEXT, rowCheck } from '@/app/exhibitions/writing-revolution/typing-station/stationText';
 import { WRITING_REVOLUTION } from '@/app/exhibitions/writing-revolution/writingRevolution';
@@ -263,5 +266,145 @@ describe('the class board', () => {
     const del = calls.find((c) => c.method === 'DELETE')!;
     expect(del.headers['x-teacher-key']).toBe('teacher-key-123456789');
     expect(within(board).getAllByRole('listitem')).toHaveLength(1);
+  });
+});
+
+/*
+ * Found in the room's QA pass: what a child couldn't see (the bell, the
+ * margin, an iMac button that seemed to do nothing), a typed card breaking
+ * its words across lines, and a wrong teacher key that couldn't be
+ * corrected.
+ */
+describe('fixes from the QA pass', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/');
+    window.localStorage.clear();
+  });
+
+  const flag = () => document.querySelector('.wrt-flag');
+
+  it('shows the bell and the margin on the sheet, and counts no space past the margin', () => {
+    jest.useFakeTimers();
+    try {
+      render(<TypingStation />);
+      const field = screen.getByRole('textbox', { name: /type here/ });
+      for (let i = 0; i < LINE_WIDTH - BELL_BEFORE; i++) fireEvent.keyDown(field, { key: 'a' });
+      expect(flag()).toHaveTextContent(`Ding: ${BELL_BEFORE} spaces left on the line.`);
+      act(() => {
+        jest.advanceTimersByTime(3000);
+      });
+      expect(flag()).toBeNull();
+      for (let i = 0; i < BELL_BEFORE + 3; i++) fireEvent.keyDown(field, { key: 'b' });
+      expect(flag()).toHaveTextContent('End of the line. Return the carriage.');
+      // The margin's note stays until the carriage goes back.
+      act(() => {
+        jest.advanceTimersByTime(5000);
+      });
+      expect(flag()).toHaveTextContent('End of the line.');
+      expect(document.querySelector('.wrt-count')).toHaveTextContent(`Line 1, space ${LINE_WIDTH}`);
+      fireEvent.click(screen.getByRole('button', { name: 'Carriage return' }));
+      expect(flag()).toBeNull();
+      expect(document.querySelector('.wrt-count')).toHaveTextContent('Line 2, space 1');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('says on the iMac’s status bar what a toolbar button did, or why it did nothing', () => {
+    render(<TypingStation />);
+    fireEvent.click(screen.getByRole('tab', { name: 'iMac' }));
+    const bar = document.querySelector('.wri-status')!;
+    expect(bar).toHaveTextContent('0 words · Times 14');
+    fireEvent.click(screen.getByRole('button', { name: 'Paste' }));
+    expect(bar).toHaveTextContent('Nothing to paste yet: cut or copy first.');
+    expect(bar).toHaveClass('is-saying');
+  });
+
+  it('keeps each typed word whole on its card', () => {
+    expect(inkWords('ab cd\ne')).toEqual([
+      [
+        { ch: 'a', k: 0 },
+        { ch: 'b', k: 1 },
+      ],
+      ' ',
+      [
+        { ch: 'c', k: 3 },
+        { ch: 'd', k: 4 },
+      ],
+      '\n',
+      [{ ch: 'e', k: 6 }],
+    ]);
+    render(<TypingStation />);
+    const field = screen.getByRole('textbox', { name: /type here/ });
+    for (const k of 'The keyboard beneath your fingers') fireEvent.keyDown(field, { key: k });
+    fireEvent.click(screen.getByRole('button', { name: 'Post to the board' }));
+    const words = [...document.querySelectorAll('.wrb-card .wrb-word')].map((w) => w.textContent);
+    expect(words).toEqual(['The', 'keyboard', 'beneath', 'your', 'fingers']);
+  });
+
+  it('forgets a teacher key the board turns down, and offers to try another', async () => {
+    const calls: { url: string; method: string; key?: string }[] = [];
+    global.fetch = jest.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+      const key = (init?.headers as Record<string, string> | undefined)?.['x-teacher-key'];
+      calls.push({ url: String(url), method: init?.method ?? 'GET', key });
+      const json = (body: unknown, status = 200) => ({ ok: status < 400, status, json: async () => body }) as Response;
+      if (String(url) === '/api/class-board') return json({ available: true });
+      if (String(url) === '/api/class-board/K7M3QX9P' && !init?.method) return json({ messages: [{ id: 'm1', text: 'Hello', machine: 'typewriter', at: 0 }] });
+      if (init?.method === 'DELETE') return key === 'right-key' ? json({ deleted: true }) : json({ error: 'forbidden' }, 403);
+      return json({ error: 'not-found' }, 404);
+    }) as jest.Mock;
+    window.history.replaceState(null, '', '/?board=K7M3QX9P#board');
+    render(<TypingStation />);
+    const board = screen.getByRole('tabpanel', { name: 'Class Board' });
+    await waitFor(() => expect(within(board).getAllByRole('listitem')).toHaveLength(1));
+
+    const tryKey = async (key: string) => {
+      fireEvent.click(within(board).getByRole('button', { name: 'Teacher key' }));
+      fireEvent.change(within(board).getByLabelText('Teacher key'), { target: { value: key } });
+      fireEvent.click(within(board).getByRole('button', { name: 'Use key' }));
+      await act(async () => {
+        fireEvent.click(within(board).getByRole('button', { name: 'Delete the message “Hello”' }));
+      });
+    };
+    await tryKey('wrong-key');
+    expect(within(board).getByText(/That teacher key isn’t this board’s\./)).toBeInTheDocument();
+    expect(window.localStorage.getItem('mm-class-board-teacher:K7M3QX9P')).toBeNull();
+    expect(within(board).queryByRole('button', { name: /Delete the message/ })).toBeNull();
+
+    // "Teacher key" is offered again, and the right one deletes the message.
+    await tryKey('right-key');
+    expect(within(board).queryAllByRole('listitem')).toHaveLength(0);
+    expect(calls.filter((c) => c.method === 'DELETE').map((c) => c.key)).toEqual(['wrong-key', 'right-key']);
+  });
+
+  it('names the open saved board in the address, and takes it out when the board is left or deleted', async () => {
+    global.fetch = jest.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+      const json = (body: unknown, status = 200) => ({ ok: status < 400, status, json: async () => body }) as Response;
+      if (String(url) === '/api/class-board' && !init?.method) return json({ available: true });
+      if (String(url) === '/api/class-board') return json({ code: 'K7M3QX9P', teacherKey: 'k', messages: [], skipped: 0 }, 201);
+      if (init?.method === 'DELETE') return json({ deleted: true });
+      return json({ messages: [] });
+    }) as jest.Mock;
+    render(<TypingStation />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Class Board' }));
+    const save = screen.getByRole('button', { name: 'Save with a class code' });
+    await waitFor(() => expect(save).toBeEnabled());
+    await act(async () => {
+      fireEvent.click(save);
+    });
+    // A refresh comes back to the saved board, not to an empty one.
+    expect(window.location.search).toBe('?board=K7M3QX9P');
+    expect(window.location.hash).toBe('#board');
+    fireEvent.click(screen.getByRole('button', { name: 'New board' }));
+    expect(window.location.search).toBe('');
+    expect(window.location.hash).toBe('#board');
+  });
+
+  it('draws the return lever on the carriage, and labels the kept words on any ground', () => {
+    const css = readFileSync(join(process.cwd(), 'app/exhibitions/writing-revolution/typing-station/typing.css'), 'utf8');
+    // The lever rides with the carriage: placed by the same --col the carriage moves by.
+    expect(css).toMatch(/\.wrt \.wrt-lever \{[^}]*transform: translateX\(calc\(-7ch - var\(--col\) \* 1ch - 100%\)\)/);
+    // "Your words" carries its own dark ground, so it reads on the charcoal and the cyan alike.
+    expect(css).toMatch(/\.wrq-kept \.wrq-label \{[^}]*background: var\(--wr-ink\); color: #fff;/);
   });
 });

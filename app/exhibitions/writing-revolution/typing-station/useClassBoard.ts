@@ -39,6 +39,18 @@ function writeKey(code: string, key: string | null) {
   }
 }
 
+/*
+ * The open saved board is named in the address (?board=<code>), so a refresh
+ * comes back to it; leaving or deleting the board takes it out again, so a
+ * refresh doesn't look for a board that's gone.
+ */
+function boardInAddress(code: string | null) {
+  const url = new URL(window.location.href);
+  if (code) url.searchParams.set('board', code);
+  else url.searchParams.delete('board');
+  window.history.replaceState(window.history.state, '', `${url.pathname}${url.search}${url.hash}`);
+}
+
 /** Every message the station can say about a failed request. */
 const ERRORS: Record<string, string> = {
   ...REFUSALS,
@@ -118,6 +130,7 @@ export function useClassBoard() {
       setBusy(false);
       if (!ok) return false;
       setMode({ kind: 'saved', code, teacherKey: readKey(code) });
+      boardInAddress(code);
       setStatus(`Board ${formatCode(code)} is open.`);
       return true;
     },
@@ -172,9 +185,22 @@ export function useClassBoard() {
     writeKey(code, key);
     setMessages(r.body.messages as BoardMessage[]);
     setMode({ kind: 'saved', code, teacherKey: key });
+    boardInAddress(code);
     setNewKey(key);
     setStatus(`Saved. The class code is ${formatCode(code)}.`);
   }, [messages]);
+
+  /*
+   * A key the board turns down is forgotten, here and in this browser, so
+   * the delete buttons go and "Teacher key" is offered again to try another.
+   */
+  const refuse = useCallback((m: Extract<BoardMode, { kind: 'saved' }>, error: string) => {
+    if (error === 'forbidden') {
+      writeKey(m.code, null);
+      setMode({ ...m, teacherKey: null });
+    }
+    setStatus(errorText(error));
+  }, []);
 
   /** Delete a message: on screen in one sitting, on the server with the teacher key. */
   const remove = useCallback(async (id: string) => {
@@ -182,11 +208,11 @@ export function useClassBoard() {
     if (m.kind === 'saved') {
       if (!m.teacherKey) return;
       const r = await call(`/${m.code}/messages/${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'x-teacher-key': m.teacherKey } });
-      if (!r.ok && r.status !== 404) return setStatus(errorText(String(r.body.error)));
+      if (!r.ok && r.status !== 404) return refuse(m, String(r.body.error));
     }
     setMessages((ms) => ms.filter((x) => x.id !== id));
     setStatus('Message deleted.');
-  }, []);
+  }, [refuse]);
 
   /** Delete the whole saved board (teacher key), or clear the one sitting. */
   const removeBoard = useCallback(async () => {
@@ -194,19 +220,21 @@ export function useClassBoard() {
     if (m.kind === 'saved') {
       if (!m.teacherKey) return;
       const r = await call(`/${m.code}`, { method: 'DELETE', headers: { 'x-teacher-key': m.teacherKey } });
-      if (!r.ok && r.status !== 404) return setStatus(errorText(String(r.body.error)));
+      if (!r.ok && r.status !== 404) return refuse(m, String(r.body.error));
       writeKey(m.code, null);
       setStatus(`Board ${formatCode(m.code)} is deleted.`);
     } else setStatus('The board is cleared.');
     setMessages([]);
     setMode({ kind: 'local' });
+    boardInAddress(null);
     setNewKey(null);
-  }, []);
+  }, [refuse]);
 
   /** Leave a saved board (it stays saved) for a fresh one-sitting board. */
   const leave = useCallback(() => {
     setMessages([]);
     setMode({ kind: 'local' });
+    boardInAddress(null);
     setNewKey(null);
     setStatus('Back to a one-sitting board. The saved board is still there under its code.');
   }, []);

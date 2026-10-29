@@ -168,7 +168,8 @@ export const GROUPS = [
     label: 'Hair',
     fields: [
       { key: 'hair', label: 'Hair style', options: HAIR_STYLES },
-      { key: 'hairColor', label: 'Hair color', options: HAIR_COLORS },
+      // A wrap or hijab covers the hair, so it takes the fabric's color in place of the hair's.
+      { key: 'hairColor', label: 'Hair color', options: HAIR_COLORS, onlyIf: (d: Doll) => !COVERED.has(d.hair) },
       { key: 'fabric', label: 'Wrap or scarf color', options: CLOTH_COLORS, onlyIf: (d: Doll) => COVERED.has(d.hair) },
     ],
   },
@@ -252,18 +253,33 @@ export function mix(hex: string, toward: string, t: number): string {
 /** Vitiligo's lighter patches: the skin toward a warm pale tone, as the skin itself has it. */
 export const vitiligoPatch = (skin: string) => mix(skin, '#f8e4d6', 0.78);
 
+/* Each hair style in a phrase that reads, with its color ("long, straight blond hair"). */
+const HAIR_PHRASE: Record<string, (color: string) => string> = {
+  afro: (c) => `a ${c} afro`,
+  puffs: (c) => `${c} hair in afro puffs`,
+  braids: (c) => `${c} box braids`,
+  locs: (c) => `${c} locs`,
+  twists: (c) => `${c} twists`,
+  knots: (c) => `${c} hair in Bantu knots`,
+  curls: (c) => `${c} curls`,
+  straight: (c) => `long, straight ${c} hair`,
+  short: (c) => `short ${c} hair`,
+  shaved: (c) => `close-shaved ${c} hair`,
+};
+const MOUTH_PHRASE: Record<string, string> = { calm: 'a calm mouth' };
+
 /** The doll in words, for screen readers and the image's description. */
 export function describe(d: Doll): string {
   const parts = [
     `${labelOf(SKIN, d.skin).toLowerCase()}`,
-    COVERED.has(d.hair) ? `a ${labelOf(CLOTH_COLORS, d.fabric).toLowerCase()} ${labelOf(HAIR_STYLES, d.hair).toLowerCase()}` : `${labelOf(HAIR_COLORS, d.hairColor).toLowerCase()} hair in ${labelOf(HAIR_STYLES, d.hair).toLowerCase()}`,
+    COVERED.has(d.hair) ? `a ${labelOf(CLOTH_COLORS, d.fabric).toLowerCase()} ${labelOf(HAIR_STYLES, d.hair).toLowerCase()}` : HAIR_PHRASE[d.hair](labelOf(HAIR_COLORS, d.hairColor).toLowerCase()),
     `${labelOf(EYES, d.eyes).toLowerCase()} ${labelOf(EYE_COLORS, d.eyeColor).toLowerCase()} eyes`,
-    `a ${labelOf(MOUTHS, d.mouth).toLowerCase()}`,
+    MOUTH_PHRASE[d.mouth] ?? `a ${labelOf(MOUTHS, d.mouth).toLowerCase()}`,
     d.marks !== 'none' ? labelOf(MARKS, d.marks).toLowerCase() : '',
     d.glasses !== 'none' ? labelOf(GLASSES, d.glasses).toLowerCase() : '',
     d.hearing === 'aids' ? 'hearing aids' : d.hearing === 'implant' ? 'a cochlear implant' : '',
     d.mobility === 'wheelchair' ? 'sitting in a wheelchair' : d.mobility === 'prosthetic' ? 'a prosthetic leg' : d.mobility === 'cane' ? 'a white cane' : '',
-    `a ${labelOf(CLOTH_COLORS, d.clothes).toLowerCase()} ${labelOf(OUTFITS, d.outfit).toLowerCase()}`,
+    `${d.outfit === 'overalls' ? '' : 'a '}${labelOf(CLOTH_COLORS, d.clothes).toLowerCase()} ${labelOf(OUTFITS, d.outfit).toLowerCase()}`,
   ].filter(Boolean);
   return `${d.name.trim() ? `${d.name.trim()}: a` : 'A'} doll with ${parts.join(', ')}.`;
 }

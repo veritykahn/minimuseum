@@ -18,6 +18,8 @@ const HEAD = { cy: 132, rx: 58, ry: 62 };
 const EYE_Y = 138;
 const EYE_X = [138, 182];
 const PINK = '#ee8dbf';
+/* The head's outline, as a clip for what must stay on it (a shaved head, vitiligo's patches). */
+const HEAD_CLIP = 'bhr-doll-head';
 const ORANGE = '#f7a21b';
 const INK = '#2a1a14';
 const DENIM = '#3d5a8a';
@@ -175,7 +177,8 @@ function Hair({ d, color, fabric, layer }: { d: DollChoices; color: string; fabr
     case 'short':
       return <path d="M101 124 Q98 62 160 58 Q222 62 219 124 Q210 92 160 86 Q110 92 101 124 Z" fill={color} />;
     case 'shaved':
-      return <path d={CAP} fill={color} opacity="0.35" />;
+      // Close-cropped: a shadow of hair on the scalp itself, inside the head's outline.
+      return <path d={CAP} fill={color} opacity="0.35" clipPath={`url(#${HEAD_CLIP})`} />;
     case 'wrap':
       // A tall wrap: the fabric gathered up from the hairline, folds sweeping to a knot, its end tucked.
       return (
@@ -237,10 +240,11 @@ function Face({ d, skin, hair }: { d: DollChoices; skin: string; hair: string })
   const patch = vitiligoPatch(skin);
   return (
     <g>
+      {/* The patches stay on the face: the head's outline clips them. */}
       {marks.includes('vitiligo') && (
-        <g fill={patch}>
+        <g fill={patch} clipPath={`url(#${HEAD_CLIP})`}>
           <path d="M110 118 Q120 110 128 118 Q132 130 122 134 Q110 134 108 126 Z" />
-          <path d="M196 172 Q206 168 210 178 Q208 190 198 190 Q190 184 196 172 Z" />
+          <path d="M176 167 Q186 161 192 169 Q193 179 185 181 Q176 179 176 167 Z" />
           <path d="M196 120 Q206 116 210 126 Q208 136 200 134 Z" />
         </g>
       )}
@@ -269,7 +273,7 @@ function Face({ d, skin, hair }: { d: DollChoices; skin: string; hair: string })
       )}
       {d.nose === 'rounded' && <path d="M154 154 Q160 161 166 154" stroke={feature} strokeWidth="2.6" fill="none" strokeLinecap="round" />}
       {d.nose === 'broad' && <path d="M150 152 Q153 159 160 159 Q167 159 170 152" stroke={feature} strokeWidth="2.6" fill="none" strokeLinecap="round" />}
-      {d.nose === 'narrow' && <path d="M160 142 L157 155 Q160 158 164 155" stroke={feature} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />}
+      {d.nose === 'narrow' && <path d="M160 145 Q157.5 151 156.5 154 Q160 158 163.5 154" stroke={feature} strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />}
       {d.mouth === 'smile' && <path d="M147 172 Q160 182 173 172" stroke={lip} strokeWidth="3.4" fill="none" strokeLinecap="round" />}
       {d.mouth === 'full' && (
         <g>
@@ -481,6 +485,9 @@ const DollPicture = forwardRef<SVGSVGElement, Props>(function DollPicture({ doll
       <defs>
         <clipPath id="bhr-doll-card">
           <rect width="320" height="540" rx="28" />
+        </clipPath>
+        <clipPath id={HEAD_CLIP}>
+          <ellipse cx={CX} cy={HEAD.cy} rx={HEAD.rx} ry={HEAD.ry} />
         </clipPath>
       </defs>
       <rect width="320" height="540" rx="28" fill={PINK} />

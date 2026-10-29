@@ -70,6 +70,8 @@ export default function BookSurvey() {
   const [said, setSaid] = useState('');
   const [confirm, setConfirm] = useState(false);
   const qRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const againRef = useRef<HTMLButtonElement>(null);
+  const noRef = useRef<HTMLButtonElement>(null);
   const ids = useId();
 
   useEffect(() => {
@@ -108,10 +110,19 @@ export default function BookSurvey() {
     qRefs.current[qs[to].id]?.focus();
   };
 
+  // The question takes the place of "Start again": the focus goes to its No, and back again after.
+  const askConfirm = () => {
+    setConfirm(true);
+    requestAnimationFrame(() => noRef.current?.focus());
+  };
+  const endConfirm = () => {
+    setConfirm(false);
+    requestAnimationFrame(() => againRef.current?.focus());
+  };
   const clear = () => {
     change((c) => ({ ...c, [kind]: {} }));
-    setConfirm(false);
-    setSaid(`The ${kindLabel.toLowerCase()} counts are cleared.`);
+    endConfirm();
+    setSaid(`Every count for ${kindLabel.toLowerCase()} is cleared.`);
   };
   const compare = kind === 'books' && (q.id === 'background' || q.id === 'authors');
   const total = q.options.reduce((n, o) => n + (these[o.id] ?? 0), 0);
@@ -155,35 +166,37 @@ export default function BookSurvey() {
 
       <div className="bhr-survey-body" id={`${ids}-qp`} role="tabpanel" aria-labelledby={`${ids}-q-${q.id}`}>
         {/* The tally is the chart: each row's count, and its bar growing beside it. */}
-        <table className="bhr-tally">
-          <caption className="bhr-chart-title">
-            {`${kindLabel}: ${q.heading.toLowerCase()}`} <span className="bhr-chart-total">({total} counted)</span>
-          </caption>
-          <tbody>
-            {q.options.map((o) => (
-              <tr key={o.id}>
-                <th scope="row">{o.label}</th>
-                <td className="bhr-tally-bar" aria-hidden="true">
-                  <span className="bhr-bar-track">
-                    <span className="bhr-bar-fill" style={{ width: `${((these[o.id] ?? 0) / max) * 100}%` }} />
-                  </span>
-                  {total > 0 && !!these[o.id] && <span className="bhr-bar-pct">{Math.round(((these[o.id] ?? 0) / total) * 100)}%</span>}
-                </td>
-                <td>
-                  <button type="button" className="bhr-count-btn" onClick={() => bump(o.id, -1)} disabled={!these[o.id]} aria-label={`One fewer: ${o.label}`}>
-                    −
-                  </button>
-                </td>
-                <td className="bhr-count">{these[o.id] ?? 0}</td>
-                <td>
-                  <button type="button" className="bhr-count-btn bhr-count-add" onClick={() => bump(o.id, 1)} aria-label={`One more: ${o.label}`}>
-                    +
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="bhr-tally-wrap">
+          <table className="bhr-tally">
+            <caption className="bhr-chart-title">
+              {`${kindLabel}: ${q.heading.toLowerCase()}`} <span className="bhr-chart-total">({total} counted)</span>
+            </caption>
+            <tbody>
+              {q.options.map((o) => (
+                <tr key={o.id}>
+                  <th scope="row">{o.label}</th>
+                  <td className="bhr-tally-bar" aria-hidden="true">
+                    <span className="bhr-bar-track">
+                      <span className="bhr-bar-fill" style={{ width: `${((these[o.id] ?? 0) / max) * 100}%` }} />
+                    </span>
+                    {total > 0 && !!these[o.id] && <span className="bhr-bar-pct">{Math.round(((these[o.id] ?? 0) / total) * 100)}%</span>}
+                  </td>
+                  <td className="bhr-tally-btn">
+                    <button type="button" className="bhr-count-btn" onClick={() => bump(o.id, -1)} disabled={!these[o.id]} aria-label={`One fewer: ${o.label}`}>
+                      −
+                    </button>
+                  </td>
+                  <td className="bhr-count">{these[o.id] ?? 0}</td>
+                  <td className="bhr-tally-btn">
+                    <button type="button" className="bhr-count-btn bhr-count-add" onClick={() => bump(o.id, 1)} aria-label={`One more: ${o.label}`}>
+                      +
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div className="bhr-survey-side">
           {compare && (
@@ -209,16 +222,16 @@ export default function BookSurvey() {
         </button>
         {confirm ? (
           <span className="bhr-confirm">
-            <span>Clear every {kindLabel.toLowerCase()} count?</span>
+            <span>Clear every count for {kindLabel.toLowerCase()}?</span>
             <button type="button" className="bhr-button" onClick={clear}>
               Yes
             </button>
-            <button type="button" className="bhr-button bhr-button-ghost" onClick={() => setConfirm(false)}>
+            <button ref={noRef} type="button" className="bhr-button bhr-button-ghost" onClick={endConfirm}>
               No
             </button>
           </span>
         ) : (
-          <button type="button" className="bhr-button bhr-button-ghost" onClick={() => setConfirm(true)}>
+          <button ref={againRef} type="button" className="bhr-button bhr-button-ghost" onClick={askConfirm}>
             Start again
           </button>
         )}
