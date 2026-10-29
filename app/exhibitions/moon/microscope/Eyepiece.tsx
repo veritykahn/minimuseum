@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
 import type { Slide, SlideId } from './slides';
-import { brushAside, newBrush, smear, type Brush, type Limit, type Pixels } from './wipe';
+import { brushAside, newBrush, newMask, smear, type Brush, type Limit, type Pixels } from './wipe';
 
 /*
  * The view down the microscope: one canvas, the slide's photograph
@@ -45,8 +45,8 @@ function photo(src: string, onLoad: () => void): HTMLImageElement | null {
   return null;
 }
 
-/** A wiped slide: a copy of its photograph's pixels, and a canvas to show them. */
-type Worked = { px: Pixels; canvas: HTMLCanvasElement; dirty: [number, number, number, number] | null };
+/** A wiped slide: a copy of its photograph's pixels, how clear its glass is (Earth's), and a canvas to show them. */
+type Worked = { px: Pixels; mask: Uint8Array; canvas: HTMLCanvasElement; dirty: [number, number, number, number] | null };
 
 export default function Eyepiece({
   left,
@@ -114,7 +114,7 @@ export default function Eyepiece({
     if (!ctx) return null;
     ctx.drawImage(img, 0, 0);
     const px = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const w: Worked = { px, canvas, dirty: null };
+    const w: Worked = { px, mask: newMask(px), canvas, dirty: null };
     worked.current.set(slide.id, w);
     setWiped((ids) => [...ids, slide.id]);
     return w;
@@ -273,7 +273,7 @@ export default function Eyepiece({
         if (!c.brush || c.brush.r !== Math.max(2, Math.round(rr))) c.brush = newBrush(rr);
         smear(w.px, c.brush, bx, by, lim);
       } else {
-        report.current.earth += brushAside(w.px, ax, ay, bx, by, rr, lim);
+        report.current.earth += brushAside(w.px, w.mask, ax, ay, bx, by, rr, lim);
       }
       const pad = rr * 2 + 4;
       const box = [Math.min(ax, bx) - pad, Math.min(ay, by) - pad, Math.max(ax, bx) + pad, Math.max(ay, by) + pad].map((v) => Math.round(v));

@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react';
 import MoonMicroscope from '@/app/exhibitions/moon/microscope/page';
 import { blurFor, FOCUS_AT } from '@/app/exhibitions/moon/microscope/focus';
 import { EARTH_SLIDES, MOON_SLIDES } from '@/app/exhibitions/moon/microscope/slides';
-import { brushAside, changed, GLASS, newBrush, smear, type Pixels } from '@/app/exhibitions/moon/microscope/wipe';
+import { brushAside, changed, lamp, newBrush, newMask, smear, type Pixels } from '@/app/exhibitions/moon/microscope/wipe';
 import { MICROSCOPE_NOTES, MOON, MOON_CASE, REGOLITH } from '@/app/exhibitions/moon/moon';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -78,21 +78,42 @@ describe('the cloth', () => {
     expect(changed(before.subarray(0, 40 * 120 * 4), px.data.subarray(0, 40 * 120 * 4))).toBe(0);
   });
 
-  it('pushes Earth grains aside, leaving a clear lane of glass, and keeps none', () => {
+  it('pushes Earth grains aside, leaving a lamp-lit lane of glass with soft edges', () => {
     const px = slide();
+    const mask = newMask(px);
     const before = px.data.slice();
     let moved = 0;
-    for (let x = 10; x < 110; x += 2) moved += brushAside(px, x, 60, x + 2, 60, 10);
+    for (let x = 10; x < 110; x += 2) moved += brushAside(px, mask, x, 60, x + 2, 60, 14);
     expect(moved).toBeGreaterThan(0);
     expect(changed(before, px.data)).toBeGreaterThan(500);
-    // The middle of the lane is near the bare glass, where there were grains.
-    for (const x of [44, 46, 64]) expect(Math.abs(px.data[(60 * px.width + x) * 4] - GLASS[0])).toBeLessThan(40);
+    // The middle of the lane is the lamp's light, where there were grains.
+    const at = (x: number, y: number) => px.data[(y * px.width + x) * 4];
+    for (const x of [44, 46, 64]) expect(Math.abs(at(x, 60) - lamp(x, 60, px.width, px.height)[0])).toBeLessThan(30);
+    // Its edge feathers: from the middle out, the glass clears less and less, a step at a time.
+    const clear = [0, 2, 4, 6, 8, 10, 12].map((d) => mask[(60 + d) * px.width + 64]);
+    for (let i = 1; i < clear.length; i++) expect(clear[i]).toBeLessThanOrEqual(clear[i - 1]);
+    expect(clear[0]).toBeGreaterThan(200);
+    expect(clear.some((c) => c > 20 && c < 200)).toBe(true);
+    // Going over it again does not harden the edge.
+    const once = mask.slice();
+    for (let x = 10; x < 110; x += 2) brushAside(px, mask, x, 60, x + 2, 60, 14);
+    expect(mask[66 * px.width + 64]).toBeLessThanOrEqual(once[66 * px.width + 64] + 30);
+  });
+
+  it('feathers the Moon smear too: the cloth presses softly at its rim', () => {
+    const px = slide();
+    const before = px.data.slice();
+    smear(px, newBrush(20), 60, 60);
+    smear(px, newBrush(20), 60, 60);
+    // Changes fade toward the rim rather than stopping at a hard edge.
+    const delta = (x: number) => Math.abs(px.data[(60 * px.width + x) * 4] - before[(60 * px.width + x) * 4]);
+    expect(delta(79)).toBeLessThanOrEqual(delta(70) + 1);
   });
 
   it('keeps to its own side of the line, side by side', () => {
     const px = slide();
     const before = px.data.slice();
-    brushAside(px, 50, 60, 70, 60, 14, { x0: 60, x1: Infinity });
+    brushAside(px, newMask(px), 50, 60, 70, 60, 14, { x0: 60, x1: Infinity });
     smear(px, newBrush(14), 60, 60, { x0: 60, x1: Infinity });
     for (let y = 0; y < px.height; y++) {
       for (let x = 0; x < 60; x++) {
