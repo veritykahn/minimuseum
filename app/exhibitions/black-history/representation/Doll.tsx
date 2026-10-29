@@ -1,5 +1,5 @@
 import { forwardRef, type ReactNode } from 'react';
-import { CLOTH_COLORS, COVERED, EYE_COLORS, HAIR_COLORS, SKIN, colorOf, describe, mix, shade, vitiligoPatch, type Doll as DollChoices } from './dollOptions';
+import { CLOTH_COLORS, COVERED, EYE_COLORS, HAIR_COLORS, SKIN, colorOf, describe, freckleColor, lightness, mix, shade, vitiligoEdge, vitiligoPatch, type Doll as DollChoices } from './dollOptions';
 
 /*
  * The doll, drawn: the Mini Museum's own round-headed, child-proportioned
@@ -23,12 +23,6 @@ const HEAD_CLIP = 'bhr-doll-head';
 const ORANGE = '#f7a21b';
 const INK = '#2a1a14';
 const DENIM = '#3d5a8a';
-
-/** How light a color is, 0 to 1. */
-function lightness(hex: string): number {
-  const n = parseInt(hex.slice(1), 16);
-  return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
-}
 
 /*
  * The face's own colors, from the skin: darker for the lighter tones and,
@@ -238,11 +232,12 @@ function Face({ d, skin, hair }: { d: DollChoices; skin: string; hair: string })
   const brow = COVERED.has(d.hair) || d.hair === 'shaved' ? shade(skin, -0.55) : shade(hair, -0.15);
   const marks = d.marks === 'both' ? ['freckles', 'vitiligo'] : [d.marks];
   const patch = vitiligoPatch(skin);
+  const edge = vitiligoEdge(skin);
   return (
     <g>
       {/* The patches stay on the face: the head's outline clips them. */}
       {marks.includes('vitiligo') && (
-        <g fill={patch} clipPath={`url(#${HEAD_CLIP})`}>
+        <g fill={patch} stroke={edge} strokeWidth="1.3" clipPath={`url(#${HEAD_CLIP})`}>
           <path d="M110 118 Q120 110 128 118 Q132 130 122 134 Q110 134 108 126 Z" />
           <path d="M176 167 Q186 161 192 169 Q193 179 185 181 Q176 179 176 167 Z" />
           <path d="M196 120 Q206 116 210 126 Q208 136 200 134 Z" />
@@ -256,7 +251,7 @@ function Face({ d, skin, hair }: { d: DollChoices; skin: string; hair: string })
       <circle cx="128" cy="164" r="10" fill={blush.fill} opacity={blush.opacity} />
       <circle cx="192" cy="164" r="10" fill={blush.fill} opacity={blush.opacity} />
       {marks.includes('freckles') && (
-        <g fill={shade(skin, -0.28)}>
+        <g fill={freckleColor(skin)}>
           {[
             [134, 154],
             [140, 160],
@@ -267,7 +262,7 @@ function Face({ d, skin, hair }: { d: DollChoices; skin: string; hair: string })
             [186, 154],
             [192, 160],
           ].map(([x, y], i) => (
-            <circle key={i} cx={x} cy={y} r="1.6" />
+            <circle key={i} cx={x} cy={y} r="1.8" />
           ))}
         </g>
       )}
@@ -512,7 +507,7 @@ const DollPicture = forwardRef<SVGSVGElement, Props>(function DollPicture({ doll
       </g>
       <circle cx="96" cy="322" r="12.5" fill={skin} />
       <circle cx="224" cy="322" r="12.5" fill={skin} />
-      {vitiligo && <path d="M216 316 Q226 310 232 320 Q230 332 220 330 Z" fill={patch} />}
+      {vitiligo && <path d="M216 316 Q226 310 232 320 Q230 332 220 330 Z" fill={patch} stroke={vitiligoEdge(skin)} strokeWidth="1.3" />}
       {d.mobility === 'prosthetic' && (
         <g>
           <rect x="172" y={seated ? 376 : 382} width="16" height="12" rx="4" fill="#5a5a5a" />

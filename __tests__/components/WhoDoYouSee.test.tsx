@@ -4,7 +4,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import WhoDoYouSee from '@/app/exhibitions/black-history/representation/page';
 import DollPicture from '@/app/exhibitions/black-history/representation/Doll';
 import { CCBC_2025, CCBC_FACT, DOLL_TEST_FACTS, DOLL_TEST_STEPS, DOLL_TEST_TEXT, SURVEY_QUESTIONS } from '@/app/exhibitions/black-history/representation/representationText';
-import { CLOTH_COLORS, FIRST_DOLL, HAIR_STYLES, SKIN, describe as describeDoll, shade, surprise } from '@/app/exhibitions/black-history/representation/dollOptions';
+import { CLOTH_COLORS, FIRST_DOLL, HAIR_STYLES, SKIN, describe as describeDoll, freckleColor, lightness, shade, surprise, vitiligoEdge, vitiligoPatch } from '@/app/exhibitions/black-history/representation/dollOptions';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
 import { OWNER_BARBIE_PHOTOS } from '@/app/exhibitions/black-history/timeline/timelineStops';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
@@ -178,6 +178,28 @@ describe('fixes from the QA pass', () => {
     expect(clipped).toHaveLength(2);
     expect([...clipped].map((el) => el.tagName)).toEqual(['g', 'path']);
     expect(clipped[0].querySelectorAll('path')).toHaveLength(3);
+  });
+
+  it('shows freckles on the deepest tone and vitiligo on the lightest', () => {
+    const deepest = SKIN[0].color;
+    const lightest = SKIN[11].color;
+    // Freckles a clear step from the skin, lighter on the deepest tones, darker on the rest.
+    expect(Math.abs(lightness(freckleColor(deepest)) - lightness(deepest))).toBeGreaterThan(0.12);
+    expect(lightness(freckleColor(deepest))).toBeGreaterThan(lightness(deepest));
+    expect(lightness(freckleColor(lightest))).toBeLessThan(lightness(lightest) - 0.12);
+    // On the lightest tone the patch is near white with a rim; on the deepest the rim isn't needed.
+    expect(lightness(vitiligoPatch(lightest)) - lightness(lightest)).toBeGreaterThan(0.08);
+    expect(vitiligoEdge(lightest)).not.toBe('none');
+    expect(vitiligoEdge(deepest)).toBe('none');
+    const { container } = render(<DollPicture doll={{ ...FIRST_DOLL, skin: SKIN[0].id, marks: 'both' }} />);
+    expect(container.querySelector(`g[fill="${freckleColor(deepest)}"]`)?.querySelectorAll('circle')).toHaveLength(8);
+  });
+
+  it('sets each choice on one line on a phone, so a group shows whole', () => {
+    const css = readFileSync(join(process.cwd(), 'app/exhibitions/black-history/representation/representation.css'), 'utf8');
+    const phone = css.slice(css.indexOf('/* ───────── On a phone ───────── */'));
+    expect(phone).toMatch(/\.bhr-field \{ display: grid; grid-template-columns: 58px minmax\(0, 1fr\)/);
+    expect(phone).toMatch(/\.bhr-field legend \{ float: left;/);
   });
 
   it('describes the doll in words that read', () => {

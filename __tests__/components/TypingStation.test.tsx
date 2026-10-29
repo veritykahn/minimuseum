@@ -400,6 +400,51 @@ describe('fixes from the QA pass', () => {
     expect(window.location.hash).toBe('#board');
   });
 
+  it('undoes a font, a size and each style on the iMac, a step at a time, as well as the words', () => {
+    render(<TypingStation />);
+    fireEvent.click(screen.getByRole('tab', { name: 'iMac' }));
+    const page = screen.getByRole('textbox', { name: 'Apple iMac G3: the page' }) as HTMLTextAreaElement;
+    fireEvent.change(page, { target: { value: 'Hi' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Font' }), { target: { value: 'Courier' } });
+    fireEvent.change(screen.getByRole('combobox', { name: 'Size' }), { target: { value: '24' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Bold' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Underline' }));
+    const undo = screen.getByRole('button', { name: 'Undo' });
+    fireEvent.click(undo);
+    expect(page.style.textDecoration).toBe('none');
+    expect(page.style.fontWeight).toBe('700');
+    fireEvent.click(undo);
+    expect(page.style.fontWeight).toBe('400');
+    expect(screen.getByRole('button', { name: 'Bold' })).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(undo);
+    expect(page.style.fontSize).toBe('14px');
+    fireEvent.click(undo);
+    expect(page.style.fontFamily).toContain('Times');
+    expect(page.value).toBe('Hi');
+    fireEvent.click(undo);
+    expect(page.value).toBe('');
+  });
+
+  it('has a Return key to tap, for a phone where the lever runs off the screen', () => {
+    render(<TypingStation />);
+    const field = screen.getByRole('textbox', { name: /type here/ });
+    fireEvent.keyDown(field, { key: 'a' });
+    fireEvent.click(screen.getByRole('button', { name: 'Return' }));
+    expect(document.querySelector('.wrt-count')).toHaveTextContent('Line 2, space 1');
+    const css = readFileSync(join(process.cwd(), 'app/exhibitions/writing-revolution/typing-station/typing.css'), 'utf8');
+    expect(css).toMatch(/\.wrt \.wrt-key-return \{ display: none; \}/);
+    expect(css).toMatch(/@media \(max-width: 760px\)[\s\S]*\.wrt \.wrt-key-return \{ display: block;/);
+  });
+
+  it('keeps the machines clear of the frame line, and pins the board’s cards to cork', () => {
+    const css = readFileSync(join(process.cwd(), 'app/exhibitions/writing-revolution/typing-station/typing.css'), 'utf8');
+    expect(css).toMatch(/--W: min\(780px, 94vw, calc\(\(100dvh - 330px\) \* 1\.36\)\)/);
+    expect(css).toMatch(/\.wrs-panel-typewriter, \.wrs-panel-imac \{ padding-bottom: 30px; \}/);
+    expect(css).toMatch(/\.wrb-sheet \{\s*background-color: #c79762;/);
+    // Printed, the board is plain white again.
+    expect(css).toMatch(/\.wrb-sheet \{ overflow: visible; border: 0; background: none; box-shadow: none;/);
+  });
+
   it('draws the return lever on the carriage, and labels the kept words on any ground', () => {
     const css = readFileSync(join(process.cwd(), 'app/exhibitions/writing-revolution/typing-station/typing.css'), 'utf8');
     // The lever rides with the carriage: placed by the same --col the carriage moves by.

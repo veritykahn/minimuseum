@@ -24,13 +24,14 @@ const SIZES = [10, 12, 14, 18, 24];
 /** Posts the page to the class board, in its font: null once it is up, or why it can't go. */
 export type PostPage = (text: string, font: string) => string | null;
 
+/** How the page is set: its font, size and styles. */
+type Look = { font: string; size: number; bold: boolean; italic: boolean; underline: boolean };
+const FIRST_LOOK: Look = { font: FONTS[0].name, size: 14, bold: false, italic: false, underline: false };
+
 export default function IMac({ play, onPost }: { play: (s: SoundName) => void; onPost?: PostPage }) {
   const [text, setText] = useState('');
-  const [font, setFont] = useState(FONTS[0].name);
-  const [size, setSize] = useState(14);
-  const [bold, setBold] = useState(false);
-  const [italic, setItalic] = useState(false);
-  const [underline, setUnderline] = useState(false);
+  const [look, setLook] = useState<Look>(FIRST_LOOK);
+  const { font, size, bold, italic, underline } = look;
   const [clip, setClip] = useState('');
   const [message, setMessage] = useState('');
   /* The last thing said, shown for a moment in the window's status bar, where a word processor says it. */
@@ -43,7 +44,8 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
     clearTimeout(shownTimer.current);
     shownTimer.current = setTimeout(() => setShown(''), 2600);
   };
-  const history = useRef<string[]>([]);
+  /* Every step Undo can take back: the words and how they were set, together. */
+  const history = useRef<{ text: string; look: Look }[]>([]);
   const area = useRef<HTMLTextAreaElement>(null);
 
   const lastTyped = useRef(0);
@@ -51,7 +53,7 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
   const commit = (next: string, caret?: number, typing = false) => {
     // Typing keeps one undo step per pause, as a word processor does; every cut or paste is its own.
     const now = Date.now();
-    if (!typing || now - lastTyped.current > 900) history.current = [...history.current.slice(-99), text];
+    if (!typing || now - lastTyped.current > 900) remember();
     lastTyped.current = typing ? now : 0;
     setText(next);
     if (caret !== undefined) {
@@ -60,6 +62,16 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
         area.current?.setSelectionRange(caret, caret);
       });
     }
+  };
+
+  const remember = () => {
+    history.current = [...history.current.slice(-99), { text, look }];
+  };
+  // A font, a size or a style is a step of its own, as in a word processor's Undo.
+  const restyle = (change: Partial<Look>) => {
+    remember();
+    lastTyped.current = 0;
+    setLook((l) => ({ ...l, ...change }));
   };
 
   const onChange = (e: ChangeEvent<HTMLTextAreaElement>) => commit(e.target.value, undefined, true);
@@ -92,7 +104,9 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
   const undo = () => {
     const prev = history.current.pop();
     if (prev === undefined) return say('Nothing to undo.');
-    setText(prev);
+    setText(prev.text);
+    setLook(prev.look);
+    lastTyped.current = 0;
     say('Undone.');
   };
 
@@ -139,7 +153,7 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
               <div className="wri-toolbar" role="toolbar" aria-label="Word processor">
                 <label className="wri-select">
                   <span className="wri-sr">Font</span>
-                  <select value={font} onChange={(e) => setFont(e.target.value)}>
+                  <select value={font} onChange={(e) => restyle({ font: e.target.value })}>
                     {FONTS.map((f) => (
                       <option key={f.name} value={f.name}>{f.name}</option>
                     ))}
@@ -147,16 +161,16 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
                 </label>
                 <label className="wri-select wri-select-size">
                   <span className="wri-sr">Size</span>
-                  <select value={size} onChange={(e) => setSize(Number(e.target.value))}>
+                  <select value={size} onChange={(e) => restyle({ size: Number(e.target.value) })}>
                     {SIZES.map((s) => (
                       <option key={s} value={s}>{s} pt</option>
                     ))}
                   </select>
                 </label>
                 <span className="wri-sep" aria-hidden="true" />
-                <button type="button" className="wri-tool wri-b" aria-pressed={bold} aria-label="Bold" onMouseDown={keep} onClick={() => setBold((b) => !b)}>B</button>
-                <button type="button" className="wri-tool wri-i" aria-pressed={italic} aria-label="Italic" onMouseDown={keep} onClick={() => setItalic((b) => !b)}>I</button>
-                <button type="button" className="wri-tool wri-u" aria-pressed={underline} aria-label="Underline" onMouseDown={keep} onClick={() => setUnderline((b) => !b)}>U</button>
+                <button type="button" className="wri-tool wri-b" aria-pressed={bold} aria-label="Bold" onMouseDown={keep} onClick={() => restyle({ bold: !bold })}>B</button>
+                <button type="button" className="wri-tool wri-i" aria-pressed={italic} aria-label="Italic" onMouseDown={keep} onClick={() => restyle({ italic: !italic })}>I</button>
+                <button type="button" className="wri-tool wri-u" aria-pressed={underline} aria-label="Underline" onMouseDown={keep} onClick={() => restyle({ underline: !underline })}>U</button>
                 <span className="wri-sep" aria-hidden="true" />
                 <button type="button" className="wri-tool wri-word" onMouseDown={keep} onClick={() => copy(true)}>Cut</button>
                 <button type="button" className="wri-tool wri-word" onMouseDown={keep} onClick={() => copy(false)}>Copy</button>

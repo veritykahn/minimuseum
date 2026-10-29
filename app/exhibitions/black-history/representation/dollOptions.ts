@@ -250,8 +250,27 @@ export function mix(hex: string, toward: string, t: number): string {
   return `#${((1 << 24) | (ch(16) << 16) | (ch(8) << 8) | ch(0)).toString(16).slice(1)}`;
 }
 
-/** Vitiligo's lighter patches: the skin toward a warm pale tone, as the skin itself has it. */
-export const vitiligoPatch = (skin: string) => mix(skin, '#f8e4d6', 0.78);
+/** How light a color is, 0 to 1. */
+export function lightness(hex: string): number {
+  const n = parseInt(hex.slice(1), 16);
+  return (0.2126 * ((n >> 16) & 255) + 0.7152 * ((n >> 8) & 255) + 0.0722 * (n & 255)) / 255;
+}
+
+/*
+ * Vitiligo's lighter patches: the skin toward a warm pale tone, as the skin
+ * itself has it. On the lightest tones that pale tone is the skin's own, so
+ * the patch is near white with a faint rim a shade darker than the skin, as
+ * the edge of a patch often shows.
+ */
+const PALE = 0.7;
+export const vitiligoPatch = (skin: string) => (lightness(skin) > PALE ? '#fffdfa' : mix(skin, '#f8e4d6', 0.78));
+export const vitiligoEdge = (skin: string) => (lightness(skin) > PALE ? shade(skin, -0.1) : 'none');
+
+/*
+ * Freckles: a shade darker than the skin; on the deepest tones, where a
+ * darker shade all but vanishes, a warm shade lighter than the skin instead.
+ */
+export const freckleColor = (skin: string) => (lightness(skin) < 0.36 ? mix(skin, '#b98466', 0.45) : shade(skin, -0.28));
 
 /* Each hair style in a phrase that reads, with its color ("long, straight blond hair"). */
 const HAIR_PHRASE: Record<string, (color: string) => string> = {
