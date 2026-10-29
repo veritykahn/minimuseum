@@ -241,13 +241,13 @@ export const STUDIO_TOOLS: StudioTool[] = [
     title: 'Our Class Declaration',
     exhibition: 'america-250',
     href: '/exhibitions/america-250/sign#class',
-    description: 'Write your class’s declaration on a parchment, sign it one after another, and print it.',
+    description: 'Fill in your teacher and grade, sign your class’s declaration one after another, and print it.',
   },
   {
     title: 'My Declaration',
     exhibition: 'america-250',
     href: '/exhibitions/america-250/sign#mine',
-    description: 'Write a declaration of your own, sign it at its foot, and print it.',
+    description: 'Put your own name to a declaration for the year ahead, sign it at its foot, and print it.',
   },
   {
     title: 'Christmas Card Maker',
