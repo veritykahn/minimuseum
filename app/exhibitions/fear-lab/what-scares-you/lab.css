@@ -1,0 +1,404 @@
+/* ==========================================================================
+   What Scares You?, on one screen: the posters' navy gone to night, a pool of
+   light on each experiment, cream and marigold, and the heart monitor
+   running along the foot. Righteous for headings, Montserrat for the rest.
+   ========================================================================== */
+
+.fl-room { min-height: 100vh; color: #fbf6ec; }
+.fl-room :focus-visible { outline: 2px solid #f2b33d; outline-offset: 3px; }
+
+.fl-lab-stage {
+  --cream: #fbf6ec;
+  --marigold: #f2b33d;
+  --navy: #1f3a5f;
+  --muted: #b4c0d2;
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 600px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: radial-gradient(ellipse 80% 70% at 50% 40%, #1a3152 0%, #0e1a2c 60%, #070d17 100%);
+}
+/* The dark closes in a little as the fright builds. */
+.fl-lab-dark {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 70% 65% at 45% 50%, transparent 40%, rgba(2, 4, 9, 0.85) 100%);
+  opacity: calc(0.35 + var(--fright) * 0.65);
+  transition: opacity 0.6s ease;
+}
+
+/* ───────── The title, the tabs, the switches ───────── */
+.fl-lab-bar {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 24px 96px 0;
+}
+.fl-lab-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1;
+  color: var(--cream);
+}
+.fl-lab-title-sub { font-family: var(--pe-body); font-weight: 700; font-size: 11px; letter-spacing: 0.3em; color: var(--marigold); padding-left: 0.3em; }
+.fl-lab-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(251, 246, 236, 0.16);
+  border-radius: 999px;
+  background: rgba(7, 13, 23, 0.55);
+}
+.fl-room .fl-lab-tab {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--pe-body);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 10px 18px;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.fl-room .fl-lab-tab:hover { color: var(--cream); }
+.fl-room .fl-lab-tab[aria-selected='true'] { background: var(--marigold); color: #13243b; }
+.fl-lab-tab-short { display: none; }
+
+.fl-lab-switches { position: absolute; top: 24px; right: 24px; display: flex; gap: 8px; }
+.fl-room .fl-lab-switch {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--pe-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--cream);
+  background: rgba(7, 13, 23, 0.55);
+  border: 1px solid rgba(251, 246, 236, 0.25);
+  border-radius: 999px;
+  padding: 7px 12px 7px 10px;
+  cursor: pointer;
+}
+.fl-room .fl-lab-switch:hover { border-color: var(--marigold); }
+.fl-lab-switch svg { width: 18px; height: 18px; fill: var(--cream); }
+.fl-lab-switch-line { fill: none; stroke: var(--cream); stroke-width: 2; stroke-linecap: round; }
+.fl-lab-switch-state { font-weight: 800; text-transform: uppercase; font-size: 10px; letter-spacing: 0.1em; color: var(--muted); }
+.fl-room .fl-lab-switch[aria-pressed='true'] .fl-lab-switch-state { color: var(--marigold); }
+
+/* ───────── The experiment: its scene, and its words and controls ───────── */
+.fl-lab-panel { position: relative; z-index: 1; flex: 1; min-height: 0; }
+.fl-box,
+.fl-ku,
+.fl-bushes {
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(300px, 420px);
+  align-items: center;
+  gap: clamp(24px, 4vw, 64px);
+  padding: 8px max(48px, calc(50vw - 640px)) 8px;
+}
+.fl-box-scene,
+.fl-ku-scene,
+.fl-bushes-scene { position: relative; height: 100%; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.fl-box-scene svg { width: 100%; height: 100%; max-height: 62vh; }
+
+.fl-lab-panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 4px 4px 12px;
+  animation: fl-lab-in 0.5s ease both;
+}
+@keyframes fl-lab-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.fl-lab-kicker { margin: 0; font-family: var(--pe-body); font-weight: 700; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--marigold); }
+.fl-lab-heading {
+  margin: 0;
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--marigold);
+}
+/* The poster's words, set as the poster sets them: cream Montserrat, bold. */
+.fl-lab-poster { margin: 0; font-family: var(--pe-body); font-weight: 600; font-size: 1.02rem; line-height: 1.55; color: var(--cream); }
+.fl-lab-reveal { padding: 14px 16px; border: 2px solid var(--cream); animation: fl-lab-in 0.6s ease both; }
+.fl-lab-note { margin: 0; font-family: var(--pe-body); font-size: 0.92rem; line-height: 1.5; color: var(--muted); }
+.fl-lab-status { margin: 0; min-height: 1.4em; font-family: var(--pe-body); font-style: italic; font-weight: 700; font-size: 1rem; color: var(--marigold); }
+.fl-lab-warning { padding: 12px 14px; border-left: 4px solid var(--marigold); background: rgba(242, 179, 61, 0.1); }
+.fl-lab-warning p { margin: 0; font-family: var(--pe-body); font-size: 0.95rem; line-height: 1.5; color: var(--cream); }
+.fl-lab-warning p + p { margin-top: 6px; color: var(--muted); }
+
+.fl-room .fl-lab-button {
+  appearance: none;
+  align-self: flex-start;
+  font-family: var(--pe-display);
+  font-size: 1rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #13243b;
+  background: var(--cream);
+  border: 2px solid var(--cream);
+  border-radius: 0;
+  padding: 12px 22px;
+  cursor: pointer;
+}
+.fl-room .fl-lab-button:hover { background: var(--marigold); border-color: var(--marigold); }
+.fl-room .fl-lab-button-quiet { background: transparent; color: var(--cream); }
+.fl-room .fl-lab-button-quiet:hover { background: transparent; color: var(--marigold); }
+.fl-room .fl-lab-button[aria-disabled='true'] { opacity: 0.45; cursor: default; }
+
+/* Hold to reach in: a ring fills as the hand goes down. */
+.fl-room .fl-lab-hold {
+  appearance: none;
+  position: relative;
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 26px 10px 10px;
+  border: 2px solid var(--cream);
+  border-radius: 999px;
+  background: rgba(7, 13, 23, 0.5);
+  color: var(--cream);
+  font-family: var(--pe-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.fl-room .fl-lab-hold:hover { border-color: var(--marigold); }
+.fl-lab-hold-ring {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #0e1a2c 58%, transparent 60%),
+    conic-gradient(var(--marigold) calc(var(--reach) * 360deg), rgba(251, 246, 236, 0.18) 0);
+}
+
+/* ───────── The mystery box ───────── */
+.fl-box-hand { will-change: transform; }
+.fl-box-q { font-family: var(--pe-display); font-size: 150px; fill: var(--marigold); opacity: 0.9; }
+.fl-box[data-motion='on'][data-phase='reaching'] .fl-box-q { animation: fl-throb var(--beat) ease-in-out infinite; transform-origin: 300px 440px; transform-box: view-box; }
+@keyframes fl-throb { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.06); } 24% { transform: scale(1); } }
+.fl-box-front { transform-origin: 300px 542px; transform-box: view-box; transition: transform 0.9s cubic-bezier(0.5, 0, 0.3, 1.2); }
+/* The front falls open toward the visitor, lying flat on the floor. */
+.fl-box[data-phase='open'] .fl-box-front { transform: scaleY(-0.2); }
+.fl-box[data-motion='off'] .fl-box-front { transition: none; }
+.fl-box-inside { opacity: 0; transition: opacity 0.6s ease 0.3s; }
+.fl-box[data-phase='open'] .fl-box-inside { opacity: 1; }
+.fl-box[data-phase='open'] .fl-box-hand { opacity: 0; }
+.fl-box-thoughts text { font-family: var(--pe-display); font-size: 26px; fill: var(--cream); }
+.fl-box-thoughts > g { opacity: 0; transition: opacity 0.5s ease, transform 0.5s ease; transform: translateY(8px); }
+.fl-box-thoughts > g.is-on { opacity: 1; transform: none; }
+.fl-box[data-motion='off'] .fl-box-thoughts > g { transform: none; transition: none; }
+
+/* Take your own pulse */
+.fl-pulse { border-top: 1px solid rgba(251, 246, 236, 0.15); padding-top: 10px; }
+.fl-pulse summary { font-family: var(--pe-body); font-weight: 700; font-size: 0.9rem; color: var(--cream); cursor: pointer; }
+.fl-pulse[open] summary { margin-bottom: 8px; }
+.fl-pulse-row { display: flex; align-items: center; gap: 20px; margin: 10px 0 6px; }
+.fl-room .fl-pulse-heart {
+  appearance: none;
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border: 2px solid rgba(251, 246, 236, 0.4);
+  border-radius: 50%;
+  background: rgba(7, 13, 23, 0.5);
+  cursor: pointer;
+}
+.fl-pulse-heart svg { width: 30px; fill: #e0533d; }
+.fl-lab-stage[data-motion='on'] .fl-pulse-heart svg { animation: fl-tap 0.25s ease; }
+@keyframes fl-tap { 0% { transform: scale(1.25); } 100% { transform: scale(1); } }
+.fl-pulse-readings { display: flex; gap: 22px; margin: 0; }
+.fl-pulse-readings div { display: flex; flex-direction: column; gap: 2px; }
+.fl-pulse-readings dt { font-family: var(--pe-body); font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+.fl-pulse-readings dd { margin: 0; font-family: var(--pe-display); font-size: 1.8rem; color: var(--cream); font-variant-numeric: tabular-nums; }
+
+/* ───────── Known or unknown ───────── */
+.fl-ku-options { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: clamp(20px, 3vw, 48px); width: 100%; max-width: 720px; }
+.fl-ku-or {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  translate: -50% -50%;
+  font-family: var(--pe-display);
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  color: var(--marigold);
+  background: #0e1a2c;
+  padding: 8px 10px;
+  border-radius: 50%;
+}
+.fl-room .fl-ku-option,
+.fl-ku-done-item {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 16px 22px;
+  border: 2px solid rgba(251, 246, 236, 0.35);
+  background: rgba(7, 13, 23, 0.45);
+  color: var(--cream);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.3s ease, opacity 0.4s ease, transform 0.3s ease, background 0.3s ease;
+}
+.fl-room .fl-ku-option:hover { border-color: var(--marigold); transform: translateY(-3px); }
+.fl-room .fl-ku-option[aria-pressed='true'] { border-color: var(--marigold); background: rgba(242, 179, 61, 0.12); box-shadow: 0 0 40px rgba(242, 179, 61, 0.2); }
+.fl-room .fl-ku-option[data-faded] { opacity: 0.4; }
+.fl-ku-tag { font-family: var(--pe-display); font-size: 1.3rem; text-transform: uppercase; color: var(--marigold); }
+.fl-ku-pic { width: min(100%, 260px); }
+.fl-ku-q { font-family: var(--pe-display); font-size: 56px; fill: var(--marigold); }
+.fl-ku-text { font-family: var(--pe-body); font-weight: 600; font-size: 1rem; line-height: 1.4; }
+.fl-ku-done { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; width: 100%; max-width: 820px; }
+.fl-ku-done-item { cursor: default; border-color: rgba(242, 179, 61, 0.6); }
+.fl-ku-done-item .fl-ku-text { font-size: 0.9rem; }
+
+/* ───────── The rustling bushes ───────── */
+.fl-bushes-scene { flex-direction: column; gap: 14px; }
+.fl-bushes-scene svg {
+  width: 100%;
+  max-height: 52vh;
+  overflow: visible;
+  /* The scene's edges fade into the dark. */
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+}
+.fl-cloud { fill: #2a3e5c; opacity: 0.9; }
+.fl-bush-leaves { fill: #0b1f20; }
+.fl-bush-lit path { fill: none; stroke: rgba(251, 246, 236, 0.35); stroke-width: 2.5; stroke-linecap: round; }
+.fl-bush { transform-box: fill-box; }
+.fl-bush-leaves { transform-origin: 0 0; transform-box: view-box; }
+.fl-bushes[data-motion='on'] .fl-bush[data-rustling] .fl-bush-leaves { animation: fl-rustle 0.32s ease-in-out infinite; }
+@keyframes fl-rustle {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  25% { transform: rotate(-2.5deg) translateX(-3px); }
+  75% { transform: rotate(2.5deg) translateX(3px); }
+}
+.fl-bush-marks path { fill: none; stroke: var(--marigold); stroke-width: 3; stroke-linecap: round; opacity: 0; }
+.fl-bush[data-rustling] .fl-bush-marks path { opacity: 0.9; }
+.fl-bush[data-rustling] .fl-bush-lit path { stroke: var(--marigold); }
+.fl-bush-eyes path { fill: var(--marigold); filter: drop-shadow(0 0 6px rgba(242, 179, 61, 0.8)); }
+.fl-bush-pupil { fill: #0a0a0a; }
+.fl-bush-eyes { opacity: 0; transform: scale(0.6); transform-origin: 0 -40px; transform-box: view-box; transition: opacity 0.18s ease, transform 0.18s ease; }
+.fl-bush-eyes[data-on] { opacity: 1; transform: none; }
+.fl-bushes[data-motion='off'] .fl-bush-eyes { transform: none; transition: none; }
+.fl-bushes-scene[data-startled='0'] { animation: fl-jolt-a 0.4s ease; }
+.fl-bushes-scene[data-startled='1'] { animation: fl-jolt-b 0.4s ease; }
+@keyframes fl-jolt-a { 0%, 100% { transform: none; } 20% { transform: translate(-6px, 3px); } 45% { transform: translate(5px, -2px); } 70% { transform: translate(-3px, 1px); } }
+@keyframes fl-jolt-b { 0%, 100% { transform: none; } 20% { transform: translate(6px, 3px); } 45% { transform: translate(-5px, -2px); } 70% { transform: translate(3px, 1px); } }
+.fl-bushes-clock { width: min(100%, 520px); height: 6px; background: rgba(251, 246, 236, 0.12); border-radius: 3px; overflow: hidden; }
+.fl-bushes-clock span { display: block; height: 100%; width: 100%; background: var(--marigold); transform-origin: left; transform: scaleX(0); }
+.fl-bushes-clock span[data-run] { animation: fl-clock linear forwards; }
+@keyframes fl-clock { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.fl-bushes-calls { display: flex; flex-wrap: wrap; gap: 12px; }
+.fl-room .fl-call-tiger { background: var(--marigold); border-color: var(--marigold); }
+.fl-room .fl-call-tiger:hover { background: var(--cream); border-color: var(--cream); }
+.fl-bushes-tally { display: flex; gap: clamp(20px, 4vw, 48px); margin: 0; }
+.fl-bushes-tally div { display: flex; flex-direction: column-reverse; align-items: center; gap: 4px; }
+.fl-bushes-tally dt { font-family: var(--pe-body); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+.fl-bushes-tally dd { margin: 0; font-family: var(--pe-display); font-size: clamp(2.4rem, 5vw, 3.6rem); line-height: 1; color: var(--cream); }
+
+/* ───────── The heart monitor ───────── */
+.fl-lab-monitor {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 max(48px, calc(50vw - 640px)) 8px;
+}
+.fl-lab-heart { flex: none; width: 30px; fill: #e0533d; filter: drop-shadow(0 0 8px rgba(224, 83, 61, 0.6)); }
+.fl-lab-stage[data-motion='on'] .fl-lab-heart { animation: fl-throb var(--beat) ease-in-out infinite; }
+.fl-lab-trace { flex: 1; height: 100%; min-width: 0; }
+
+/* ───────── A laptop with little height ───────── */
+@media (max-height: 760px) and (min-width: 761px) {
+  .fl-lab-bar { padding-top: 16px; gap: 8px; }
+  .fl-lab-monitor { height: 60px; }
+  .fl-lab-poster { font-size: 0.95rem; }
+}
+
+/* ───────── A phone: the scene above, the words and controls below ───────── */
+@media (max-width: 760px) {
+  .fl-lab-stage { min-height: 0; }
+  .fl-lab-bar { padding: 60px 12px 0; gap: 8px; }
+  .fl-lab-title { font-size: 1.45rem; }
+  .fl-lab-title-sub { display: none; }
+  .fl-room .fl-lab-tab { font-size: 11px; padding: 9px 16px; }
+  .fl-lab-tab-short { display: inline; }
+  .fl-lab-tab-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .fl-lab-switches { position: static; }
+  .fl-room .fl-lab-switch { font-size: 11px; padding: 5px 10px 5px 8px; }
+  .fl-box,
+  .fl-ku,
+  .fl-bushes {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    align-items: stretch;
+    gap: 6px;
+    padding: 6px 16px 0;
+  }
+  .fl-box-scene { height: 32dvh; }
+  .fl-box-scene svg { max-height: none; }
+  .fl-ku-scene { height: auto; }
+  .fl-ku-options { gap: 12px; }
+  .fl-room .fl-ku-option { padding: 10px 8px 12px; gap: 6px; }
+  .fl-ku-tag { font-size: 1rem; }
+  .fl-ku-pic { width: 100%; max-height: 13dvh; }
+  .fl-ku-text { font-size: 0.85rem; }
+  .fl-ku-or { top: 40%; font-size: 0.9rem; }
+  .fl-ku-done { gap: 8px; }
+  .fl-ku-done-item { padding: 8px 6px; }
+  .fl-ku-done-item .fl-ku-text { font-size: 0.75rem; }
+  .fl-bushes-scene { height: auto; gap: 8px; padding-top: 3dvh; }
+  .fl-bushes-scene svg { width: 112%; max-width: none; margin: 0 -6%; }
+  .fl-bushes-calls { flex-wrap: nowrap; }
+  .fl-bushes-calls .fl-lab-button { flex: 1; padding: 18px 10px; font-size: 1rem; text-align: center; }
+  .fl-bushes-tally dd { font-size: 2rem; }
+  .fl-lab-panel-body { gap: 10px; padding-bottom: 16px; }
+  .fl-lab-heading { font-size: 1.35rem; }
+  .fl-lab-poster { font-size: 0.92rem; }
+  .fl-room .fl-lab-button { font-size: 0.92rem; padding: 10px 16px; }
+  .fl-room .fl-lab-hold { font-size: 1rem; }
+  .fl-lab-monitor { height: 52px; padding: 0 16px 6px; }
+  .fl-lab-heart { width: 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fl-lab-panel-body, .fl-lab-reveal { animation: none; }
+  .fl-lab-dark, .fl-room .fl-ku-option { transition: none; }
+}

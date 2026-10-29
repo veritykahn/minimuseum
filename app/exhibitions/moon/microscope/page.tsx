@@ -1,0 +1,244 @@
+'use client';
+
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import Link from 'next/link';
+import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
+import RoomShell from '../RoomShell';
+import { REGOLITH } from '../moon';
+import Eyepiece, { type EyepieceHandle, type WipeReport } from './Eyepiece';
+import Knob from './Knob';
+import { EARTH_SAMPLES, type EarthSample } from './grains';
+import { blurFor } from './focus';
+import './microscope.css';
+
+/*
+ * Under the Microscope, on one screen: the view down a microscope, with
+ * three tabs (Moon dust, Earth's soil, the two side by side). Turn the knob
+ * to bring the slide into focus, change the power, and wipe the slide with a
+ * cloth to feel the difference the poster describes. Every claim on screen is
+ * poster 1's, from moon.ts; the grains are drawn (grains.ts).
+ */
+
+const TABS = [
+  { id: 'moon', label: 'Moon Dust', short: 'Moon' },
+  { id: 'earth', label: "Earth's Soil", short: 'Earth' },
+  { id: 'compare', label: 'Side by Side', short: 'Compare' },
+] as const;
+type TabId = (typeof TABS)[number]['id'];
+
+const POWER_NAMES = ['Low', 'Medium', 'High'];
+
+const EARTH_WORDS: Record<EarthSample, string> = { wind: 'wind', water: 'water', life: 'living things' };
+
+/** Poster 1's sentence on Earth's soil, with the word for the slide on the stage marked. */
+function Unlike({ sample }: { sample: EarthSample }) {
+  const word = EARTH_WORDS[sample];
+  const at = REGOLITH.unlike.indexOf(word);
+  return (
+    <>
+      {REGOLITH.unlike.slice(0, at)}
+      <mark>{word}</mark>
+      {REGOLITH.unlike.slice(at + word.length)}
+    </>
+  );
+}
+
+export default function MoonMicroscope() {
+  const reduced = usePrefersReducedMotion();
+  const [tab, setTab] = useState<TabId>('moon');
+  const [earth, setEarth] = useState<EarthSample>('wind');
+  const [power, setPower] = useState(0);
+  const [focus, setFocus] = useState(24);
+  const [status, setStatus] = useState('');
+  const [clothDust, setClothDust] = useState(0);
+  const [wipedMoon, setWipedMoon] = useState(false);
+  const eyepiece = useRef<EyepieceHandle>(null);
+  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ moon: null, earth: null, compare: null });
+
+  useEffect(() => {
+    const fromHash = () => {
+      const h = window.location.hash.slice(1);
+      const t = TABS.find((x) => x.id === h);
+      if (t) setTab(t.id);
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, []);
+
+  const choose = useCallback((id: TabId, focusTab = false) => {
+    setTab(id);
+    setStatus('');
+    window.history.replaceState(null, '', `#${id}`);
+    if (focusTab) tabRefs.current[id]?.focus();
+  }, []);
+
+  const onTabKey = (e: KeyboardEvent<HTMLButtonElement>) => {
+    const i = TABS.findIndex((x) => x.id === tab);
+    const to =
+      e.key === 'ArrowRight' ? (i + 1) % TABS.length
+      : e.key === 'ArrowLeft' ? (i - 1 + TABS.length) % TABS.length
+      : e.key === 'Home' ? 0
+      : e.key === 'End' ? TABS.length - 1
+      : -1;
+    if (to < 0) return;
+    e.preventDefault();
+    choose(TABS[to].id, true);
+  };
+
+  const blur = blurFor(focus, power);
+  const sharp = blur === 0;
+  // Say so when the knob brings the view into focus.
+  const turnFocus = (v: number) => {
+    if (blurFor(v, power) === 0 && !sharp) setStatus('In focus.');
+    setFocus(v);
+  };
+
+  const onWiped = useCallback((r: WipeReport) => {
+    if (r.moon > 0) {
+      setClothDust((d) => Math.min(1, d + r.moon * 0.006));
+      setWipedMoon(true);
+    }
+    setStatus(
+      r.moon > 0 && r.earth > 0 ? 'The Moon dust clings to the cloth. The Earth grains brush aside.'
+      : r.moon > 0 ? 'The Moon dust clings to the cloth.'
+      : r.earth > 0 ? 'The grains brush aside.'
+      : 'The cloth missed the grains. Try again.',
+    );
+  }, []);
+
+  const fresh = () => {
+    eyepiece.current?.reset();
+    setClothDust(0);
+    setWipedMoon(false);
+    setStatus('Fresh slides and a clean cloth.');
+  };
+
+  const earthName = EARTH_SAMPLES.find((s) => s.id === earth)!.label;
+  const left = tab === 'earth' ? earth : 'moon';
+  const right = tab === 'compare' ? earth : null;
+  const viewLabel =
+    tab === 'moon' ? 'A drawing of Moon dust under the microscope: sharp, jagged gray grains and fine dust'
+    : tab === 'earth' ? `A drawing of Earth's soil shaped by ${EARTH_WORDS[earth]}, under the microscope`
+    : `Side by side under the microscope: drawings of Moon dust on the left and Earth's soil shaped by ${EARTH_WORDS[earth]} on the right`;
+  const activeTab = TABS.find((x) => x.id === tab)!;
+
+  return (
+    <RoomShell className="mo-microscope">
+      <div className="mo-ms-stage" data-tab={tab}>
+        <div className="mo-ms-sky" aria-hidden="true">
+          <span className="mo-ms-glow" />
+        </div>
+
+        <header className="mo-ms-bar">
+          <h1 className="mo-ms-title">
+            Under the Microscope
+            <span className="mo-ms-title-sub">Moon dust · Earth&rsquo;s soil</span>
+          </h1>
+          <div className="mo-ms-tabs" role="tablist" aria-label="Slides">
+            {TABS.map((x) => (
+              <button
+                key={x.id}
+                ref={(el) => {
+                  tabRefs.current[x.id] = el;
+                }}
+                type="button"
+                role="tab"
+                id={`mo-ms-tab-${x.id}`}
+                aria-controls="mo-ms-panel"
+                aria-selected={tab === x.id}
+                tabIndex={tab === x.id ? 0 : -1}
+                className="mo-ms-tab"
+                onClick={() => choose(x.id)}
+                onKeyDown={onTabKey}
+              >
+                <span className="mo-ms-tab-long">{x.label}</span>
+                <span className="mo-ms-tab-short" aria-hidden="true">{x.short}</span>
+              </button>
+            ))}
+          </div>
+        </header>
+
+        <div className="mo-ms-body">
+          <div className="mo-ms-scope">
+            <Eyepiece
+              ref={eyepiece}
+              left={left}
+              right={right}
+              power={power}
+              blur={blur}
+              reduced={reduced}
+              label={viewLabel}
+              rightLabel={`Earth · ${earthName}`}
+              onWiped={onWiped}
+            />
+            <p className="mo-ms-hint" aria-hidden="true">
+              {sharp ? 'Drag across the slide to wipe it' : 'Turn the focus knob'}
+            </p>
+          </div>
+
+          <section className="mo-ms-panel" id="mo-ms-panel" role="tabpanel" aria-labelledby={`mo-ms-tab-${tab}`}>
+            <p className="mo-ms-kicker">{tab === 'compare' ? 'Two slides' : 'On the stage'}</p>
+            <h2 className="mo-ms-heading">{tab === 'earth' ? `Earth's soil: ${earthName}` : tab === 'compare' ? `Moon and Earth` : activeTab.label}</h2>
+
+            {tab !== 'moon' && (
+              <div className="mo-ms-samples" role="group" aria-label="Earth slide: shaped by">
+                <span className="mo-ms-samples-label" aria-hidden="true">Shaped by</span>
+                {EARTH_SAMPLES.map((s) => (
+                  <button key={s.id} type="button" className="mo-ms-chip" aria-pressed={earth === s.id} onClick={() => setEarth(s.id)}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div className="mo-ms-poster">
+              {tab === 'moon' && <p>{REGOLITH.unlike} {REGOLITH.jagged}</p>}
+              {tab === 'earth' && <p><Unlike sample={earth} /></p>}
+              {tab === 'compare' && <p>{REGOLITH.surface} {REGOLITH.differences}</p>}
+              {wipedMoon && tab !== 'earth' && <p className="mo-ms-poster-more">{REGOLITH.gunpowder}</p>}
+            </div>
+
+            <div className="mo-ms-controls">
+              <div className="mo-ms-control mo-ms-focus">
+                <Knob value={focus} onChange={turnFocus} label="Focus" valueText={sharp ? 'In focus' : 'Blurry'} />
+                <span className="mo-ms-control-label" aria-hidden="true">Focus</span>
+              </div>
+
+              <div className="mo-ms-control">
+                <div className="mo-ms-power" role="group" aria-label="Power">
+                  {POWER_NAMES.map((name, i) => (
+                    <button key={name} type="button" className="mo-ms-lens" aria-pressed={power === i} onClick={() => setPower(i)}>
+                      <span className="mo-ms-lens-barrel" aria-hidden="true" style={{ height: 14 + i * 7 }} />
+                      {name}
+                    </button>
+                  ))}
+                </div>
+                <span className="mo-ms-control-label" aria-hidden="true">Power</span>
+              </div>
+
+              <div className="mo-ms-control mo-ms-cloth">
+                <div className="mo-ms-cloth-row">
+                  <span
+                    className="mo-ms-swatch"
+                    aria-hidden="true"
+                    style={{ ['--dust' as string]: String(clothDust) }}
+                  />
+                  <button type="button" className="mo-ms-button" onClick={() => eyepiece.current?.sweep()}>
+                    Wipe the slide
+                  </button>
+                </div>
+                <button type="button" className="mo-ms-button mo-ms-button-quiet" onClick={fresh}>
+                  Fresh slide
+                </button>
+              </div>
+            </div>
+
+            <p className="mo-ms-status" role="status">{status}</p>
+            <Link href="/exhibitions/moon/artifacts/case" className="mo-ms-case">See the lunar meteorite in the display case</Link>
+          </section>
+        </div>
+      </div>
+    </RoomShell>
+  );
+}

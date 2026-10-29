@@ -29,6 +29,23 @@ const SPIDER: PanelDecor = { src: '/exhibitions/fear-lab/spider.png', placement:
 const HAND: PanelDecor = { src: '/exhibitions/fear-lab/hand.png', placement: 'bottom-left', motion: 'rise', width: 'min(30vw, 400px)' };
 
 /*
+ * Poster 1's paragraphs that the lab (what-scares-you/) sets as well as the
+ * walkthrough: each lives here once, and both read it from here.
+ */
+export const FEAR_LAB_COPY = {
+  box: `Put your hand in a box you can't see into. Your heart races before you even touch anything. Why?`,
+  unknown: `Because your brain's #1 fear isn't spiders or snakes—it's the UNKNOWN. And your imagination is programmed to fill that unknown with the worst possible thing.`,
+  ambiguity: `Scientists call it "ambiguity aversion"—we'd rather face a known danger than an unknown possibility. In experiments, a 50% chance of a small electric shock stressed people out more than knowing for certain they'd get one.`,
+  amygdala: `Uncertainty itself sets off the amygdala (your brain's alarm system). When you can't see what's in that box, your brain screams "THREAT!" louder than if you saw an actual spider.`,
+  dread: `Brain scans show that dread is real: in one study, some people chose a stronger shock right away rather than wait for a weaker one.`,
+  mysteryBox: `That's why reaching into a mystery box feels scarier than touching what's actually inside—your imagination creates horrors worse than reality.`,
+  pinecone: `Your brain invents poisonous spiders, slimy worms or nibbling rodents when it's really just a pinecone.`,
+  byDesign: `This isn't a flaw—it's by design. Our brains know it is better to see 100 fake threats than miss one real predator.`,
+  tigers: `When faced with uncertainty, your brain doesn't imagine neutral scenarios—it imagines disasters. This "negativity bias" kept ancestors alive. Those who assumed rustling bushes contained tigers lived longer than optimists.`,
+};
+const C = FEAR_LAB_COPY;
+
+/*
  * The posters' titles as pictures: their own lettering, cut from the posters
  * at the posters' resolution with the navy ground keyed out
  * (public/exhibitions/fear-lab/titles/). A sharper export of the same
@@ -88,8 +105,24 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The torch switches on as a poster opens and at each chapter; every other panel arrives its own way.
   fx: { theme: 'fl', veil: 'chapters', text: 'all' },
-  projector: { theme: FEAR_LAB_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: FEAR_LAB_PROJECTOR_THEME,
+    links: [{ label: 'What Scares You? The mystery box, known or unknown, and the rustling bushes', href: '/exhibitions/fear-lab/what-scares-you' }],
+  },
   // No display cases yet: the artifacts have not been photographed.
+  interactives: [
+    {
+      href: '/exhibitions/fear-lab/what-scares-you',
+      // A drawing of the mystery box, not a photograph.
+      image: {
+        src: '/exhibitions/fear-lab/mystery-box.svg',
+        alt: 'A drawing of a dark box with a question mark on it and a round hole in its top, a cream clawed hand reaching down into it',
+      },
+      label: 'Interactive',
+      title: 'What Scares You?',
+      subtitle: 'The mystery box, known or unknown, and the rustling bushes',
+    },
+  ],
   posters: [
     // ============================================
     // POSTER 1: The Science of Being Scared: Fear Lab
@@ -112,25 +145,25 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
           framing: 'centered',
           alt: 'The Science of Being Scared: Fear Lab',
         },
-        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'line-by-line', position: 'bottom-right', decor: HAND, text: `Put your hand in a box you can't see into. Your heart races before you even touch anything. Why?` },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'blind-spot-reveal', position: 'center', text: `Because your brain's #1 fear isn't spiders or snakes—it's the UNKNOWN. And your imagination is programmed to fill that unknown with the worst possible thing.` },
+        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'line-by-line', position: 'bottom-right', decor: HAND, text: C.box },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'blind-spot-reveal', position: 'center', text: C.unknown },
 
         { type: 'section-title', atmosphere: 'amygdala-alarm', effect: 'glitch', text: `Fear of the Unknown: Your Brain's Biggest Trick` },
-        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'typewriter', position: 'top-left', text: `Scientists call it "ambiguity aversion"—we'd rather face a known danger than an unknown possibility. In experiments, a 50% chance of a small electric shock stressed people out more than knowing for certain they'd get one.` },
-        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'split-reveal', position: 'bottom-right', text: `Uncertainty itself sets off the amygdala (your brain's alarm system). When you can't see what's in that box, your brain screams "THREAT!" louder than if you saw an actual spider.` },
+        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'typewriter', position: 'top-left', text: C.ambiguity },
+        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'split-reveal', position: 'bottom-right', text: C.amygdala },
 
         { type: 'section-title', atmosphere: 'racing-heart', effect: 'breathe', text: 'Anticipation Makes Everything Scarier' },
-        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'fade-in', position: 'top-right', text: `Brain scans show that dread is real: in one study, some people chose a stronger shock right away rather than wait for a weaker one.` },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'ink-spread', position: 'bottom-left', text: `That's why reaching into a mystery box feels scarier than touching what's actually inside—your imagination creates horrors worse than reality.` },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'film-credits', position: 'center', decor: SPIDER, text: `Your brain invents poisonous spiders, slimy worms or nibbling rodents when it's really just a pinecone.` },
+        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'fade-in', position: 'top-right', text: C.dread },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'ink-spread', position: 'bottom-left', text: C.mysteryBox },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'film-credits', position: 'center', decor: SPIDER, text: C.pinecone },
 
         { type: 'section-title', atmosphere: 'shadow-people', effect: 'blur-to-sharp', text: 'Pareidolia: Seeing Monsters Everywhere' },
         { type: 'paragraph', atmosphere: 'shadow-people', effect: 'line-by-line', position: 'top-left', text: `Your brain is a pattern-seeking machine that sees faces and threats where none exist. In experiments, people saw imaginary faces as male about four times as often as female.` },
         { type: 'paragraph', atmosphere: 'shadow-people', effect: 'drift', position: 'center', text: `Shadow people? Just your brain turning random darkness into human shapes.` },
-        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'fade-in', position: 'bottom-right', text: `This isn't a flaw—it's by design. Our brains know it is better to see 100 fake threats than miss one real predator.` },
+        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'fade-in', position: 'bottom-right', text: C.byDesign },
 
         { type: 'section-title', atmosphere: 'amygdala-alarm', effect: 'split-reveal', text: 'Your Brain Catastrophizes on Purpose' },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'typewriter', position: 'top-right', text: `When faced with uncertainty, your brain doesn't imagine neutral scenarios—it imagines disasters. This "negativity bias" kept ancestors alive. Those who assumed rustling bushes contained tigers lived longer than optimists.` },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'typewriter', position: 'top-right', text: C.tigers },
         { type: 'paragraph', atmosphere: 'racing-heart', effect: 'rise-expand', position: 'bottom-right', decor: HAND, text: `Today, that same wiring makes you imagine the worst possible thing in a dark box. Your brain literally can't help lying to you about danger—it's trying to save your life.` },
 
         {
