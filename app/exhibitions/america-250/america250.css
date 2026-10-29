@@ -30,7 +30,8 @@
 
 /* ───────── The sheet: a deep border with a thin ink line inside it, and the
    paper a touch warmer at its edges ───────── */
-[data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content) { position: relative; }
+[data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content),
+[data-exhibition='america-250']:is(.pe-case-page, .pe-artifact-page) { position: relative; }
 [data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content)::before {
   content: '';
   position: absolute;
@@ -39,7 +40,8 @@
   pointer-events: none;
   background: radial-gradient(ellipse 75% 70% at 50% 45%, transparent 55%, rgba(150, 120, 70, 0.1) 100%);
 }
-[data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content)::after {
+[data-exhibition='america-250'] :is(.pe-exhibition-main, .pe-walkthrough-content)::after,
+[data-exhibition='america-250']:is(.pe-case-page, .pe-artifact-page)::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -76,14 +78,41 @@
 [data-exhibition='america-250'] .pe-exhibition-grid { gap: clamp(28px, 4vw, 56px); }
 [data-exhibition='america-250'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(60, 45, 25, 0.12), 0 22px 50px rgba(60, 45, 25, 0.22); }
 [data-exhibition='america-250'] .pe-poster-hint { color: var(--ap-muted); }
-/* The signing room's card: on the paper, set like the posters' section heads. */
+/* The display case's card: on the paper, set like the posters' section heads. */
 [data-exhibition='america-250'] .pe-display-case { background: transparent; border-color: transparent; max-width: 460px; padding: 12px; }
 [data-exhibition='america-250'] .pe-display-case:hover,
 [data-exhibition='america-250'] .pe-display-case:focus-visible { border-color: rgba(168, 79, 51, 0.35); }
-[data-exhibition='america-250'] .pe-case-image { box-shadow: 0 2px 4px rgba(60, 45, 25, 0.12), 0 18px 40px rgba(60, 45, 25, 0.2); }
 [data-exhibition='america-250'] .pe-case-label { color: var(--ap-muted); }
 [data-exhibition='america-250'] .pe-case-title { font-family: var(--ap-script); font-size: 2.8rem; line-height: 1; color: var(--ap-ink); }
 [data-exhibition='america-250'] .pe-case-subtitle { font-family: var(--pe-ui); font-style: normal; font-weight: 300; color: var(--ap-rust); }
+/* The case awaiting its photographs: drawn in ink line, lit in the rust. */
+[data-exhibition='america-250'] { --pe-case-frame: var(--ap-ink); --pe-case-glow: var(--ap-rust); --pe-case-placeholder-ink: var(--ap-muted); }
+
+/* ───────── The display case page and its artifacts' pages: the sheet in
+   slate, the name in the posters' script, the heads and copy in ink ───────── */
+[data-exhibition='america-250']:is(.pe-case-page, .pe-artifact-page) { --pe-case-ink: var(--ap-ink); --pe-case-muted: var(--ap-muted); }
+[data-exhibition='america-250'] :is(.pe-case-page-main, .pe-artifact-main) { position: relative; z-index: 1; padding-top: calc(var(--ap-fw) + 100px); padding-bottom: calc(var(--ap-fw) + 72px); }
+@media (max-width: 700px) {
+  /* The column stands inside the border. */
+  [data-exhibition='america-250'] :is(.pe-case-page-main, .pe-artifact-main) { padding-left: calc(var(--ap-fw) + 16px); padding-right: calc(var(--ap-fw) + 16px); }
+}
+[data-exhibition='america-250'] .pe-case-page-title {
+  font-family: var(--ap-script);
+  font-size: clamp(4.4rem, 13vw, 8rem);
+  line-height: 0.9;
+  color: var(--ap-slate);
+}
+[data-exhibition='america-250'] .pe-case-page-subtitle {
+  font-family: var(--pe-ui);
+  font-style: normal;
+  font-weight: 200;
+  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
+  color: var(--ap-rust);
+}
+[data-exhibition='america-250'] .pe-case-page-label { color: var(--ap-muted); }
+[data-exhibition='america-250'] :is(.pe-case-page-artifacts, .pe-case-page-rooms, .pe-case-page-display) h2 { font-weight: 700; color: var(--ap-ink); }
+[data-exhibition='america-250'] :is(.pe-artifact-card, .pe-room-card) { --pe-card-bg: #fffdf8; --pe-card-line: rgba(42, 39, 36, 0.22); --pe-card-radius: 2px; box-shadow: 0 2px 4px rgba(60, 45, 25, 0.06), 0 14px 32px rgba(60, 45, 25, 0.1); }
+[data-exhibition='america-250'] .pe-room-card-art img { box-shadow: 0 2px 4px rgba(60, 45, 25, 0.12), 0 12px 28px rgba(60, 45, 25, 0.18); }
 
 /* ───────── Titles: the posters' own script, cut from them, very large ───────── */
 [data-exhibition='america-250'] .ap-title.pe-title-image { --pe-title-scale: 1.4; padding-left: 5vw; padding-right: 5vw; }

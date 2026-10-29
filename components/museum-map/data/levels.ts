@@ -231,7 +231,7 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'america-250', label: 'America 250', path: '/exhibitions/america-250',
     x: 102, y: 230, width: 140, height: 100, accentColor: COLORS.america250,
     parent: 'ground-floor',
-    children: ['ap-sign'],
+    children: ['ap-case', 'ap-sign'],
   },
   {
     id: 'victorian', label: 'Victorian\nBritain', path: '/exhibitions/victorian',
@@ -365,7 +365,7 @@ const SECOND_FLOOR_ROOMS: MapRoom[] = [
     id: 'fear-lab', label: 'The Fear Lab', path: '/exhibitions/fear-lab',
     x: COL[1], ...BOTTOM, accentColor: COLORS.fearLab,
     parent: 'second-floor',
-    children: [...lessonsChild('fear-lab')],
+    children: ['fl-case', 'fl-what-scares-you', ...lessonsChild('fear-lab')],
   },
 ];
 
@@ -688,19 +688,23 @@ export const IN_THEIR_HANDS: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Fear Lab (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the interactive room beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the
+// interactive room beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
 // ├───────────────╴ ╶──────────────┤
 // │        What Scares You?        │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const FEAR_LAB_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.fearLab,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
   ],
   rooms: [
     {
@@ -710,10 +714,16 @@ const FEAR_LAB_FLOOR_PLAN: ExhibitionFloorPlan = {
       labelX: 250, labelY: 130,
     },
     {
-      id: 'fl-what-scares-you', label: 'What Scares You?', path: '/exhibitions/fear-lab/what-scares-you',
+      id: 'fl-case', label: 'Display Case', path: '/exhibitions/fear-lab/artifacts/case',
       accentColor: COLORS.fearLab, parent: 'fear-lab',
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
+    },
+    {
+      id: 'fl-what-scares-you', label: 'What Scares You?', path: '/exhibitions/fear-lab/what-scares-you',
+      accentColor: COLORS.fearLab, parent: 'fear-lab',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
     },
   ],
 };
@@ -724,7 +734,7 @@ export const FEAR_LAB: MapLevelConfig = {
   connections: [],
   title: 'The Fear Lab',
   ...onFloorOf('fear-lab'),
-  ...withLessons(FEAR_LAB_FLOOR_PLAN, '0 0 500 330', 'fear-lab'),
+  ...withLessons(FEAR_LAB_FLOOR_PLAN, '0 0 500 430', 'fear-lab'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -884,20 +894,23 @@ export const MOON: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — America 250 (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the signing room beyond it (there is no
-// display case)
+// Layout: the Exhibition Hall, the display case beyond it, and the signing
+// room beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
 // ├───────────────╴ ╶──────────────┤
 // │      Put Your Name to It       │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const AMERICA_250_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.america250,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
   ],
   rooms: [
     {
@@ -907,10 +920,16 @@ const AMERICA_250_FLOOR_PLAN: ExhibitionFloorPlan = {
       labelX: 250, labelY: 130,
     },
     {
-      id: 'ap-sign', label: 'Put Your Name to It', path: '/exhibitions/america-250/sign',
+      id: 'ap-case', label: 'Display Case', path: '/exhibitions/america-250/artifacts/case',
       accentColor: COLORS.america250, parent: 'america-250',
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
+    },
+    {
+      id: 'ap-sign', label: 'Put Your Name to It', path: '/exhibitions/america-250/sign',
+      accentColor: COLORS.america250, parent: 'america-250',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
     },
   ],
 };
@@ -921,7 +940,7 @@ export const AMERICA_250: MapLevelConfig = {
   connections: [],
   title: 'America 250',
   ...onFloorOf('america-250'),
-  ...withLessons(AMERICA_250_FLOOR_PLAN, '0 0 500 330', 'america-250'),
+  ...withLessons(AMERICA_250_FLOOR_PLAN, '0 0 500 430', 'america-250'),
 };
 
 // ═══════════════════════════════════════════════════════════════════

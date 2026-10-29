@@ -46,6 +46,8 @@ export const CONNECTIONS: RoomConnection[] = [
   ['holocaust', 'ho-case'],
   ['black-history', 'bh-case'],
   ['writing-revolution', 'wr-case'],
+  ['america-250', 'ap-case'],
+  ['fear-lab', 'fl-case'],
   ['gw-case', 'gw-silence'],
   ['gw-case', 'gw-memorial'],
   ['bh-case', 'bh-timeline'],
@@ -58,10 +60,8 @@ export const CONNECTIONS: RoomConnection[] = [
   ['vb-case', 'vb-inventions'],
   ['vb-case', 'vb-christmas-parlour'],
   ['mo-case', 'mo-microscope'],
-
-  // No display case yet: the room opens from the hall
-  ['america-250', 'ap-sign'],
-  ['fear-lab', 'fl-what-scares-you'],
+  ['ap-case', 'ap-sign'],
+  ['fl-case', 'fl-what-scares-you'],
 
   // Each exhibition's Lessons room, once it has lessons
   ...Object.keys(LESSON_ROOM_IDS)

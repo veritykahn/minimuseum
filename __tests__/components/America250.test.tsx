@@ -1,8 +1,11 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { posterChapters } from '@/components/projector/posterTalk';
+import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
+import America250Case from '@/app/exhibitions/america-250/artifacts/case/page';
 import {
   AMERICA_250,
+  AMERICA_250_CASE,
   LEUTZE_CREDIT,
   LEUTZE_SOURCE,
   NARA_DECLARATION_URL,
@@ -15,7 +18,7 @@ import { floorReturnFor } from '@/lib/floors';
 /*
  * America 250: its config, the poster copy against the transcription (with
  * only the owner's seven approved fixes), the paintings' credits, and the
- * walkthrough with its press reveal.
+ * walkthrough with its press reveal, and the display case page.
  */
 
 const poster = (id: string) => AMERICA_250.posters.find((p) => p.id === id)!;
@@ -72,7 +75,7 @@ function approved2() {
 }
 
 describe('America 250', () => {
-  it('has two posters, each opening on its title and ending with Return to Exhibition, no display case, and the signing room', () => {
+  it('has two posters, each opening on its title and ending with Return to Exhibition, one display case, and the signing room', () => {
     expect(AMERICA_250.slug).toBe('america-250');
     expect(AMERICA_250.name).toBe('America 250');
     expect(AMERICA_250.subtitle).toBe('The Declaration of Independence at 250');
@@ -82,7 +85,7 @@ describe('America 250', () => {
       expect(p.items[0].type).toBe('title-image');
       expect(p.items[p.items.length - 1].type).toBe('end');
     }
-    expect(AMERICA_250.cases).toBeUndefined();
+    expect(AMERICA_250.cases?.map((c) => [c.href, c.label, c.title])).toEqual([['/exhibitions/america-250/artifacts/case', 'Display Case', 'Artifacts']]);
     expect(AMERICA_250.interactives?.map((c) => c.href)).toEqual(['/exhibitions/america-250/sign']);
     expect(AMERICA_250.fx.theme).toBe('ap');
   });
@@ -210,10 +213,11 @@ describe('America 250', () => {
     });
     afterEach(() => jest.useRealTimers());
 
-    it('has no display case on the landing page', () => {
+    it('sets the display case on the landing page, and the signing room inside it', () => {
       render(<PosterExhibition config={AMERICA_250} />);
       expect(screen.getByRole('heading', { level: 1, name: 'America 250' })).toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: /display case/i })).not.toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /display case/i })).toHaveAttribute('href', '/exhibitions/america-250/artifacts/case');
+      expect(document.querySelector('a[href="/exhibitions/america-250/sign"]')).toBeNull();
       expect(screen.getByRole('link', { name: 'Ground Floor' })).toHaveAttribute('href', '/exhibitions/ground-floor');
     });
 
@@ -268,5 +272,30 @@ describe('America 250', () => {
       expect(content().querySelector('.pe-quote-cite')).toHaveTextContent('— Verity Kahn, The Myth of the Declaration of Independence');
       expect(content().querySelector('.pe-quote-cite em')).toHaveTextContent('The Myth of the Declaration of Independence');
     });
+  });
+});
+
+describe('The America 250 display case page', () => {
+  it('keeps the record, with a card for each artifact, beside an empty case awaiting its photographs', () => {
+    render(<America250Case />);
+    expect(screen.getByRole('heading', { level: 1, name: 'America 250' })).toBeInTheDocument();
+    // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    expect(recordLines(AMERICA_250_CASE).map(plainText)).toEqual([
+      'Hand-forged Valley Forge iron bolt',
+      "18th-century gun wad Bible leaf from Christoph Saur II's Germantown Bible",
+      "Original editions of The London Evening Post (carrying Howe's Declaration) and The London Chronicle",
+      'Flat jersey shadow boxes with velvet risers, black mat LED lip lighting, and tethered magnifiers',
+    ]);
+    const cards = screen.getAllByRole('link', { name: /View artifact/ });
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual(AMERICA_250_CASE.artifacts.map((a) => artifactPath({ slug: AMERICA_250.slug }, a)));
+    // The two newspapers share the record's line, and each is a card.
+    expect(cards.slice(2).map((c) => c.querySelector('.pe-artifact-card-name em')?.textContent)).toEqual(['The London Evening Post', 'The London Chronicle']);
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(AMERICA_250_CASE.photos).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify(AMERICA_250_CASE)).not.toMatch(/installation|\.jpg/);
+    // The signing room opens from the case.
+    expect(screen.getByRole('link', { name: /Put Your Name to It/ })).toHaveAttribute('href', '/exhibitions/america-250/sign');
+    expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/america-250');
   });
 });

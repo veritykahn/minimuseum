@@ -27,7 +27,7 @@
 [data-exhibition='fear-lab'] .pe-section-title-text { color: #f2b33d; }
 [data-exhibition='fear-lab'] .pe-paragraph-text { max-width: 680px; }
 
-/* The interactive room's case: a navy panel ruled in cream, as the posters box their copy. */
+/* The display case's card: a navy panel ruled in cream, as the posters box their copy. */
 [data-exhibition='fear-lab'] .pe-display-case {
   width: auto;
   max-width: 360px;
@@ -41,6 +41,16 @@
 [data-exhibition='fear-lab'] .pe-case-label { color: #b4c0d2; }
 [data-exhibition='fear-lab'] .pe-case-title { font-family: var(--pe-display); text-transform: uppercase; letter-spacing: 0.04em; color: #fbf6ec; font-size: 24px; }
 [data-exhibition='fear-lab'] .pe-case-subtitle { font-style: normal; font-weight: 600; color: #f2b33d; }
+
+/* ───────── The display case page and its artifacts' pages: the name in
+   capitals, the subtitle upright, as on the landing page; the cards ruled in
+   cream, as the posters box their copy ───────── */
+[data-exhibition='fear-lab'] { --pe-case-ink: #fbf6ec; --pe-case-muted: #b4c0d2; }
+[data-exhibition='fear-lab'] .pe-case-page-title { text-transform: uppercase; letter-spacing: 0.04em; }
+[data-exhibition='fear-lab'] .pe-case-page-subtitle { font-style: normal; font-weight: 600; letter-spacing: 0.02em; }
+[data-exhibition='fear-lab'] :is(.pe-artifact-card, .pe-room-card) { --pe-card-bg: #13243b; --pe-card-line: rgba(251, 246, 236, 0.4); --pe-card-radius: 0; border-width: 2px; }
+[data-exhibition='fear-lab'] :is(.pe-artifact-card, .pe-room-card):is(:hover, :focus-visible) { border-color: #f2b33d; }
+[data-exhibition='fear-lab'] .pe-artifact-name { text-transform: uppercase; letter-spacing: 0.03em; }
 
 /* Righteous has no italic: the projector's end screen sets its title upright. */
 [data-exhibition='fear-lab'] [data-projector] h2 { font-style: normal; }

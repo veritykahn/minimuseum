@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { Atmosphere, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
+import type { Atmosphere, CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
 import { floorReturnFor } from '@/lib/floors';
 
 /*
@@ -36,8 +36,8 @@ import { floorReturnFor } from '@/lib/floors';
  * public-domain originals on Wikimedia Commons, each credited where it
  * appears: John Trumbull's Declaration of Independence (U.S. Capitol) and
  * Emanuel Leutze's Washington Crossing the Delaware (The Metropolitan Museum
- * of Art). There is no display case: the exhibition has no installation
- * photographs yet.
+ * of Art). The display case (AMERICA_250_CASE) lists the artifacts exactly
+ * as the Mini Museum record does; it has not been photographed yet.
  *
  * The "Talk about it" questions are for the projector's teacher strip: open
  * discussion questions, one per chapter, keyed by the section title exactly
@@ -179,6 +179,13 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
     theme: AMERICA_PROJECTOR_THEME,
     links: [{ label: 'Put Your Name to It: sign with a quill, and follow a copy of a copy', href: '/exhibitions/america-250/sign' }],
   },
+  cases: [
+    {
+      href: '/exhibitions/america-250/artifacts/case',
+      label: 'Display Case',
+      title: 'Artifacts',
+    },
+  ],
   // The signing room, drawn (no photographs): a parchment signed on the green cloth, by an inkwell.
   interactives: [
     {
@@ -390,4 +397,40 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
     },
   ],
+};
+
+/*
+ * The display case: the artifacts exactly as the Mini Museum record lists
+ * them. The two newspapers share a line of the record, and each has a page of
+ * its own. The posters do not discuss these objects, so none carries poster
+ * writing.
+ */
+export const AMERICA_250_CASE: CasePageData = {
+  label: 'Display Case',
+  title: 'Artifacts',
+  // Photographs to come: the case has not been photographed yet.
+  photos: [],
+  artifacts: [
+    {
+      id: 'valley-forge-iron-bolt',
+      name: 'Valley Forge iron bolt',
+      record: 'Hand-forged Valley Forge iron bolt',
+    },
+    {
+      id: 'gun-wad-bible-leaf',
+      name: 'Gun wad Bible leaf',
+      record: "18th-century gun wad Bible leaf from Christoph Saur II's Germantown Bible",
+    },
+    {
+      id: 'london-evening-post',
+      name: '*The London Evening Post*',
+      record: "Original editions of *The London Evening Post* (carrying Howe's Declaration) and *The London Chronicle*",
+    },
+    {
+      id: 'london-chronicle',
+      name: '*The London Chronicle*',
+      record: "Original editions of *The London Evening Post* (carrying Howe's Declaration) and *The London Chronicle*",
+    },
+  ],
+  display: ['Flat jersey shadow boxes with velvet risers, black mat LED lip lighting, and tethered magnifiers'],
 };
