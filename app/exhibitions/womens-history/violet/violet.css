@@ -240,17 +240,6 @@
   .whv-steps { padding-top: 6px; padding-bottom: 8px; }
   .whv-words { gap: 10px; }
   .whv-copy { font-size: 0.92rem; line-height: 1.46; gap: 0.7em; }
-  /* Your own: the form drawn in tighter, so a moment and its keepsakes fit above the buttons. */
-  .whv-own .whv-picture-photo img { max-height: calc(100dvh - 104px - clamp(170px, 24vh, 210px) - 250px); }
-  .whv-own .whv-picture-art { width: 62%; }
-  .whv-form { gap: 8px; }
-  .whv-own .whv-heading { font-size: 1.6rem; }
-  .whv-prompt { font-size: 1.05rem; }
-  .whv-fields { gap: 6px 16px; }
-  .whv-field input, .whv-field textarea { padding: 5px 10px; }
-  .whv-field textarea { height: 2.6em; }
-  .whv-keepsake { width: 36px; height: 36px; }
-  .whv-keepsake-art { width: 28px; height: 28px; }
 }
 .whv-note { flex: none; align-self: stretch; display: flex; flex-direction: column; gap: 4px; padding: 8px 12px; border-left: 3px solid var(--whv-orange); background: rgba(34, 51, 94, 0.05); font-family: var(--pe-ui); }
 .whv-note-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: #a3401a; }
@@ -414,13 +403,17 @@
 .whv-field textarea:focus-visible { outline: 2px solid var(--whv-navy); outline-offset: 1px; }
 .whv-field input::placeholder,
 .whv-field textarea::placeholder { color: #9b8186; }
-.whv-keepsakes { display: flex; flex-wrap: wrap; gap: 6px; border: 0; padding: 0; margin: 0; }
+/* Each keepsake with its name under it, small, so a child can tell the rabbit from the rose without hovering. */
+.whv-keepsakes { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 6px 4px; border: 0; padding: 0; margin: 0; }
 .whv-keepsakes legend { width: 100%; margin-bottom: 4px; font-family: var(--pe-ui); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #6b4a52; }
-.whv-keepsake { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--whv-rose-soft); cursor: pointer; color: var(--whv-navy); }
+.whv-keepsake { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; color: var(--whv-navy); }
+.whv-keepsake-disc { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--whv-rose-soft); }
+.whv-keepsake-name { font-family: var(--pe-ui); font-size: 9.5px; font-weight: 500; line-height: 1.15; text-align: center; color: #6b4a52; }
 .whv-keepsake input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
 .whv-keepsake-art { width: 32px; height: 32px; pointer-events: none; }
-.whv-keepsake:has(input:checked) { background: var(--whv-paper); box-shadow: 0 0 0 3px var(--whv-orange); }
-.whv-keepsake:has(input:focus-visible) { box-shadow: 0 0 0 3px var(--whv-orange), 0 0 0 5px var(--whv-navy); }
+.whv-keepsake:has(input:checked) .whv-keepsake-disc { background: var(--whv-paper); box-shadow: 0 0 0 3px var(--whv-orange); }
+.whv-keepsake:has(input:checked) .whv-keepsake-name { color: var(--whv-navy); font-weight: 600; }
+.whv-keepsake:has(input:focus-visible) .whv-keepsake-disc { box-shadow: 0 0 0 3px var(--whv-orange), 0 0 0 5px var(--whv-navy); }
 .whv-steps-move,
 .whv-steps-keep { display: flex; gap: 8px; }
 
@@ -495,7 +488,7 @@
   .whv-add-label { top: 22px; font-size: 11px; }
   .whv-fields { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .whv-field-when { order: 0; }
-  .whv-keepsake { width: 40px; height: 40px; }
+  .whv-keepsake-disc { width: 40px; height: 40px; }
   .whv-keepsake-art { width: 28px; height: 28px; }
   .whv-steps { flex-wrap: wrap; gap: 8px; }
   .whv-steps-move, .whv-steps-keep { gap: 6px; }
@@ -510,9 +503,28 @@
   .whv-own .whv-photo-actions { justify-content: flex-start; }
   .whv-own .whv-heading { font-size: 1.4rem; }
   .whv-prompt { font-size: 1rem; }
+  /* The sheet scrolls on a phone; the form within it does not scroll again. */
+  .whv-form { overflow: visible; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .wh-room .whv-stop, .whv-sheet-inner { animation: none; }
   .whv-stop-button, .whv-step { transition: none; }
+}
+
+/* Your own, on a laptop's short screen: the form drawn in tighter, so a moment and its keepsakes fit above the buttons (set here, after the form's own rules). */
+@media (min-width: 761px) and (max-height: 760px) {
+  .whv-own .whv-picture-photo img { max-height: calc(100dvh - 104px - clamp(170px, 24vh, 210px) - 250px); }
+  .whv-own .whv-picture-art { width: 62%; }
+  .whv-prompt { font-size: 1.05rem; }
+  .whv-fields { gap: 6px 16px; }
+  .whv-field input, .whv-field textarea { padding: 5px 10px; }
+  .whv-field textarea { height: 2.6em; }
+  .whv-keepsake-disc { width: 34px; height: 34px; }
+  .whv-keepsake-art { width: 26px; height: 26px; }
+  .whv-keepsake { gap: 2px; }
+  .whv-keepsakes { grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 4px 2px; }
+  .whv-keepsakes legend { margin-bottom: 2px; }
+  .whv-form { gap: 6px; }
+  .whv-own .whv-heading { font-size: 1.4rem; }
 }

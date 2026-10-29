@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RecordStrip, { STRIP } from './RecordStrip';
 import { useArmisticeSound } from './armisticeSound';
@@ -28,6 +28,11 @@ import {
  *
  * Reduced motion: no grain, no sweep, no scrolling. The record is shown
  * whole, and at the hour its silent half is marked.
+ *
+ * All on one screen: the film's frame takes the height the page leaves it.
+ * When the film ends, what follows (the closing line, IWM's photograph of
+ * the record and its link) is set in the frame under the record, and the
+ * transcript opens over the foot of the page rather than below it.
  */
 
 type Phase = 'ready' | 'playing' | 'paused' | 'done';
@@ -56,7 +61,8 @@ function announce(s: Scene, pastHour: boolean): string {
   }
 }
 
-export default function SilenceFilm() {
+/** `returnLink` is set at the foot, beside the transcript. */
+export default function SilenceFilm({ returnLink }: { returnLink?: ReactNode } = {}) {
   const reduced = usePrefersReducedMotion();
   const sound = useArmisticeSound();
   const [phase, setPhase] = useState<Phase>('ready');
@@ -193,10 +199,23 @@ export default function SilenceFilm() {
     if (showStripNow) placeStrip(elapsedRef.current + (rafRef.current ? performance.now() - startedAtRef.current : 0));
   }, [showStripNow, placeStrip]);
 
-  // When the film ends, focus goes to "Watch again" so keyboard users are not left on a vanished button.
+  // When the film ends, focus goes to "Watch again" so keyboard users are not left on a vanished button;
+  // and the record, now set smaller above what follows, is put in place again.
   useEffect(() => {
-    if (phase === 'done') againRef.current?.focus({ preventScroll: true });
-  }, [phase]);
+    if (phase !== 'done') return;
+    againRef.current?.focus({ preventScroll: true });
+    placeStrip(FILM_END);
+    const raf = requestAnimationFrame(() => placeStrip(FILM_END));
+    return () => cancelAnimationFrame(raf);
+  }, [phase, placeStrip]);
+
+  // Esc closes the transcript, and focus goes back to its summary.
+  const onTranscriptKey = (e: KeyboardEvent<HTMLDetailsElement>) => {
+    if (e.key !== 'Escape' || !e.currentTarget.open) return;
+    e.preventDefault();
+    e.currentTarget.open = false;
+    e.currentTarget.querySelector('summary')?.focus();
+  };
 
   // Keep the strip in place if the window is resized mid-film, or on reduced motion.
   useEffect(() => {
@@ -212,69 +231,93 @@ export default function SilenceFilm() {
     <section className={`gws ${reduced ? 'gws-reduced' : ''}`} aria-labelledby="gws-heading" data-phase={phase} data-scene={sceneKey(scene)}>
       <h2 id="gws-heading" className="visually-hidden">The film</h2>
 
-      <div className="gws-screen" data-past-hour={pastHour ? '' : undefined}>
-        {phase === 'ready' && (
-          <div className="gws-ready">
-            <p className="gws-ready-text">
-              A short film in memory of the Armistice: a countdown, six title cards, and the 1918 sound-ranging record of the last minute of the war.
-            </p>
-            <button type="button" className="gw-button gw-button-primary" onClick={begin}>
-              Begin
-            </button>
-            <p className="gws-sound-note">{SOUND_NOTE}</p>
-          </div>
-        )}
+      <div className="gws-frame">
+        <div className="gws-screen" data-past-hour={pastHour ? '' : undefined}>
+          {phase === 'ready' && (
+            <div className="gws-ready">
+              <p className="gws-ready-text">
+                A short film in memory of the Armistice: a countdown, six title cards, and the 1918 sound-ranging record of the last minute of the war.
+              </p>
+              <button type="button" className="gw-button gw-button-primary" onClick={begin}>
+                Begin
+              </button>
+              <p className="gws-sound-note">{SOUND_NOTE}</p>
+            </div>
+          )}
 
-        {running && scene.kind === 'countdown' && (
-          <div className="gws-countdown" aria-hidden="true">
-            <svg viewBox="0 0 400 300" className="gws-leader">
-              <rect width="400" height="300" className="gws-leader-ground" />
-              <line x1="0" y1="150" x2="400" y2="150" className="gws-leader-cross" />
-              <line x1="200" y1="0" x2="200" y2="300" className="gws-leader-cross" />
-              <circle cx="200" cy="150" r="112" className="gws-leader-ring" />
-              <circle cx="200" cy="150" r="96" className="gws-leader-ring" />
-              <path key={scene.n} className="gws-leader-sweep" d="M200,150 L200,38 A112,112 0 1,1 199.9,38 Z" />
-              <text x="200" y="150" className="gws-leader-digit" textAnchor="middle" dominantBaseline="central">
-                {scene.n}
-              </text>
-            </svg>
-          </div>
-        )}
+          {running && scene.kind === 'countdown' && (
+            <div className="gws-countdown" aria-hidden="true">
+              <svg viewBox="0 0 400 300" className="gws-leader">
+                <rect width="400" height="300" className="gws-leader-ground" />
+                <line x1="0" y1="150" x2="400" y2="150" className="gws-leader-cross" />
+                <line x1="200" y1="0" x2="200" y2="300" className="gws-leader-cross" />
+                <circle cx="200" cy="150" r="112" className="gws-leader-ring" />
+                <circle cx="200" cy="150" r="96" className="gws-leader-ring" />
+                <path key={scene.n} className="gws-leader-sweep" d="M200,150 L200,38 A112,112 0 1,1 199.9,38 Z" />
+                <text x="200" y="150" className="gws-leader-digit" textAnchor="middle" dominantBaseline="central">
+                  {scene.n}
+                </text>
+              </svg>
+            </div>
+          )}
 
-        {running && scene.kind === 'card' && (
-          <div className="gws-card" key={scene.index}>
-            <p className="gws-card-text">{TITLE_CARDS[scene.index]}</p>
-          </div>
-        )}
+          {running && scene.kind === 'card' && (
+            <div className="gws-card" key={scene.index}>
+              <p className="gws-card-text">{TITLE_CARDS[scene.index]}</p>
+            </div>
+          )}
 
-        {running && scene.kind === 'photo' && (
-          <figure className="gws-photo">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IWM.trench.src} alt={IWM.trench.alt} width={IWM.trench.width} height={IWM.trench.height} />
-            <figcaption>
-              {IWM.trench.description}{' '}
-              <a href={IWM.trench.url} target="_blank" rel="noopener noreferrer">
-                {IWM.trench.credit}
-              </a>
-            </figcaption>
-          </figure>
-        )}
+          {running && scene.kind === 'photo' && (
+            <figure className="gws-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={IWM.trench.src} alt={IWM.trench.alt} width={IWM.trench.width} height={IWM.trench.height} />
+              <figcaption>
+                {IWM.trench.description}{' '}
+                <a href={IWM.trench.url} target="_blank" rel="noopener noreferrer">
+                  {IWM.trench.credit}
+                </a>
+              </figcaption>
+            </figure>
+          )}
 
-        {showStrip && (
-          <div className="gws-record">
-            <div className="gws-strip-window" ref={windowRef}>
-              <div className="gws-strip-track" ref={trackRef}>
-                <RecordStrip id="gws-strip" />
+          {showStrip && (
+            <div className="gws-record">
+              <div className="gws-strip-window" ref={windowRef}>
+                <div className="gws-strip-track" ref={trackRef}>
+                  <RecordStrip id="gws-strip" />
+                </div>
+                {!reduced && <span className="gws-playhead" aria-hidden="true" />}
               </div>
-              {!reduced && <span className="gws-playhead" aria-hidden="true" />}
+              <div className="gws-hour" aria-hidden="true">
+                <span className="gws-hour-date">11.11.1918</span>
+                <span className="gws-hour-time">{pastHour ? '11:00' : '10:59'}</span>
+              </div>
+              <p className="gws-strip-credit">{RECORD.redrawnCredit}</p>
             </div>
-            <div className="gws-hour" aria-hidden="true">
-              <span className="gws-hour-date">11.11.1918</span>
-              <span className="gws-hour-time">{pastHour ? '11:00' : '10:59'}</span>
+          )}
+
+          {phase === 'done' && (
+            <div className="gws-after">
+              <p className="gws-closing">
+                At 11:00 on November 11, 1918, the guns fell silent.
+              </p>
+              <figure className="gws-iwm">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={IWM.record.src} alt={IWM.record.alt} width={IWM.record.width} height={IWM.record.height} loading="lazy" />
+                <figcaption>
+                  <span>The record itself. {IWM.record.description}</span>{' '}
+                  <a href={IWM.record.url} target="_blank" rel="noopener noreferrer">
+                    {IWM.record.credit}
+                  </a>
+                </figcaption>
+              </figure>
+              <a className="gw-button gw-button-link" href={IWM.reconstruction.url} target="_blank" rel="noopener noreferrer">
+                {IWM.reconstruction.label}
+                <span className="visually-hidden"> (Imperial War Museums, opens in a new tab)</span>
+              </a>
             </div>
-            <p className="gws-strip-credit">{RECORD.redrawnCredit}</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* The film's own controls */}
@@ -300,59 +343,45 @@ export default function SilenceFilm() {
           </button>
         )}
       </div>
-      {phase !== 'ready' && (
+      {phase !== 'ready' ? (
         <p className="gws-sound-note">
           {sound.available ? SOUND_NOTE : 'Sound is not available in this browser; the film runs in silence.'}
         </p>
+      ) : (
+        // Its room, kept before Begin (the note is in the screen then), so the screen does not shrink as the film starts.
+        <p className="gws-sound-note gws-sound-note-space" aria-hidden="true" />
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
         {running || phase === 'done' ? announce(scene, pastHour) : ''}
       </p>
 
-      {phase === 'done' && (
-        <div className="gws-after">
-          <p className="gws-closing">
-            At 11:00 on November 11, 1918, the guns fell silent.
-          </p>
-          <figure className="gws-iwm">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={IWM.record.src} alt={IWM.record.alt} width={IWM.record.width} height={IWM.record.height} loading="lazy" />
-            <figcaption>
-              <span>The record itself. {IWM.record.description}</span>{' '}
-              <a href={IWM.record.url} target="_blank" rel="noopener noreferrer">
-                {IWM.record.credit}
+      <div className="gws-foot">
+        <details className="gws-transcript" onKeyDown={onTranscriptKey}>
+          <summary>Read the film as text</summary>
+          <div className="gws-transcript-body">
+            <ol>
+              {TITLE_CARDS.map((c) => (
+                <li key={c}>{c}</li>
+              ))}
+            </ol>
+            <p>
+              Then the 1918 sound-ranging record, {RECORD.heading} {RECORD.subheading} {RECORD.date.join(' ')} On the left, {RECORD.before.join(' ').toLowerCase()} On the right, {RECORD.after.join(' ').toLowerCase()}
+            </p>
+            <p>
+              The photograph in the film: {IWM.trench.description} {IWM.trench.credit}.
+            </p>
+            <p>
+              The photographs are used under the{' '}
+              <a href={IWM.licence.url} target="_blank" rel="noopener noreferrer">
+                {IWM.licence.label}
               </a>
-            </figcaption>
-          </figure>
-          <a className="gw-button gw-button-link" href={IWM.reconstruction.url} target="_blank" rel="noopener noreferrer">
-            {IWM.reconstruction.label}
-            <span className="visually-hidden"> (Imperial War Museums, opens in a new tab)</span>
-          </a>
-        </div>
-      )}
-
-      <details className="gws-transcript">
-        <summary>Read the film as text</summary>
-        <ol>
-          {TITLE_CARDS.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ol>
-        <p>
-          Then the 1918 sound-ranging record, {RECORD.heading} {RECORD.subheading} {RECORD.date.join(' ')} On the left, {RECORD.before.join(' ').toLowerCase()} On the right, {RECORD.after.join(' ').toLowerCase()}
-        </p>
-        <p>
-          The photograph in the film: {IWM.trench.description} {IWM.trench.credit}.
-        </p>
-        <p>
-          The photographs are used under the{' '}
-          <a href={IWM.licence.url} target="_blank" rel="noopener noreferrer">
-            {IWM.licence.label}
-          </a>
-          .
-        </p>
-      </details>
+              .
+            </p>
+          </div>
+        </details>
+        {returnLink}
+      </div>
     </section>
   );
 }

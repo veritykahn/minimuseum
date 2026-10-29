@@ -291,10 +291,12 @@ export default function OwnTimeline({
                 <fieldset className="whv-keepsakes">
                   <legend>A keepsake for it</legend>
                   {KEEPSAKE_IDS.filter((k) => k !== 'spool').map((k) => (
-                    <label key={k} className="whv-keepsake" title={KEEPSAKE_NAMES[k]}>
+                    <label key={k} className="whv-keepsake">
                       <input type="radio" name={`keepsake-${stop.id}`} value={k} checked={stop.keepsake === k} onChange={() => setT((c) => updateStop(c, index - 1, { keepsake: k }))} />
-                      <Keepsake id={k} className="whv-keepsake-art" />
-                      <span className="visually-hidden">{KEEPSAKE_NAMES[k]}</span>
+                      <span className="whv-keepsake-disc">
+                        <Keepsake id={k} className="whv-keepsake-art" />
+                      </span>
+                      <span className="whv-keepsake-name">{KEEPSAKE_NAMES[k]}</span>
                     </label>
                   ))}
                 </fieldset>

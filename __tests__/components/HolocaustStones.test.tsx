@@ -63,6 +63,15 @@ describe('the heap of stones', () => {
     expect(after.slice(0, before.length)).toEqual(before);
   });
 
+  it('lays stones of every kind: flat ones, round ones and tall ones, of many sizes', () => {
+    const stones = heapLayout(400, 800, 120);
+    const ratio = stones.map((s) => s.h / s.w);
+    expect(ratio.some((r) => r < 0.45)).toBe(true);
+    expect(ratio.some((r) => r > 0.85)).toBe(true);
+    const widths = stones.map((s) => s.w);
+    expect(Math.max(...widths) / Math.min(...widths)).toBeGreaterThan(2.2);
+  });
+
   // Regression: a full ledge ended in two sheer walls of stones, half the heap's height.
   it('lies as a mound, sloping down to the ends of the ledge', () => {
     const stones = heapLayout(5000, 800, 120);

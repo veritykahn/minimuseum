@@ -74,8 +74,7 @@ export function heapLayout(count: number, w: number, maxH: number): LaidStone[] 
   const out: LaidStone[] = [];
   let misses = 0;
   for (let i = 0; i < count && i < 30000; i++) {
-    const sw = base * (0.75 + hash01(i, 1) * 0.5);
-    const sh = sw * (0.55 + hash01(i, 2) * 0.2);
+    const [sw, sh] = stoneSize(i, base);
     // Where it falls, then the lowest hollow within reach of it.
     const fall = hash01(i, 3) * (w - sw);
     let x = fall;
@@ -100,8 +99,10 @@ export function heapLayout(count: number, w: number, maxH: number): LaidStone[] 
       under = bu;
     }
     const y = Math.max(0, under - sh * 0.35);
-    // The heap's height here: a low mound, highest mid-ledge.
-    const room = maxH * (0.16 + 0.84 * Math.sqrt(Math.sin((Math.PI * (x + sw / 2)) / w)));
+    // The heap's height here: a low mound, highest mid-ledge, its crest uneven as a heap laid by hand is.
+    const u = (x + sw / 2) / w;
+    const lumps = 0.9 + 0.06 * Math.sin(u * 17.3 + 1.1) + 0.04 * Math.sin(u * 41.9 + 2.3);
+    const room = maxH * lumps * (0.05 + 0.95 * Math.pow(Math.sin(Math.PI * u), 0.7));
     if (y + sh > room) {
       if (++misses > 400) break;
       continue;
@@ -113,8 +114,37 @@ export function heapLayout(count: number, w: number, maxH: number): LaidStone[] 
   return out;
 }
 
-/* The stones' colours: the greys, creams and browns of stones gathered by hand. */
-const TONES = ['#8d8781', '#a29a90', '#c9c2b6', '#e3ddd2', '#6e6964', '#b3a48f', '#7f776c', '#d6cfc2', '#5d5955', '#9c8f7e'];
+/**
+ * A stone's size (CSS px, width then height), from its number: stones
+ * gathered by hand are not alike. Some are flat, skimming stones; most are
+ * rounded pebbles; a few stand taller than they are wide; now and then one
+ * is larger than the rest. Small ones are commoner than large.
+ */
+function stoneSize(i: number, base: number): [number, number] {
+  const kind = hash01(i, 6);
+  const a = hash01(i, 1);
+  const b = hash01(i, 2);
+  let sw: number;
+  let sh: number;
+  if (kind < 0.32) {
+    sw = base * (0.8 + a * 0.6);
+    sh = sw * (0.36 + b * 0.14);
+  } else if (kind < 0.84) {
+    sw = base * (0.6 + a * a * 0.6);
+    sh = sw * (0.6 + b * 0.2);
+  } else {
+    sw = base * (0.5 + a * 0.3);
+    sh = sw * (0.82 + b * 0.24);
+  }
+  if (hash01(i, 7) > 0.94) {
+    sw *= 1.3;
+    sh *= 1.3;
+  }
+  return [sw, sh];
+}
+
+/* The stones' colours: the greys, creams and browns of stones gathered by hand, a blue-grey slate, a near-black basalt, a white quartz. */
+const TONES = ['#8d8781', '#a29a90', '#c9c2b6', '#e3ddd2', '#6e6964', '#b3a48f', '#7f776c', '#d6cfc2', '#5d5955', '#9c8f7e', '#6f7378', '#3f3c3a', '#efebe4', '#a08a74', '#868a84'];
 
 function lighten(hex: string, by: number) {
   const n = parseInt(hex.slice(1), 16);
@@ -126,6 +156,12 @@ function darkenHex(hex: string, by: number) {
   if (by <= 0) return hex;
   const n = parseInt(hex.slice(1), 16);
   const mix = (c: number) => Math.round(c * (1 - by));
+  return `#${((mix(n >> 16) << 16) | (mix((n >> 8) & 255) << 8) | mix(n & 255)).toString(16).padStart(6, '0')}`;
+}
+/** A tone lightened, still as #rrggbb. */
+function lightenHex(hex: string, by: number) {
+  const n = parseInt(hex.slice(1), 16);
+  const mix = (c: number) => Math.round(c + (255 - c) * by);
   return `#${((mix(n >> 16) << 16) | (mix((n >> 8) & 255) << 8) | mix(n & 255)).toString(16).padStart(6, '0')}`;
 }
 function darken(hex: string, by: number) {
@@ -142,14 +178,20 @@ function darken(hex: string, by: number) {
 function drawStone(g: CanvasRenderingContext2D, s: LaidStone, ledgeY: number, lift = 0, alpha = 1, dim = 0) {
   const cx = s.x + s.w / 2;
   const cy = ledgeY - s.y - s.h / 2 - lift;
-  const tone = darkenHex(TONES[Math.floor(hash01(s.i, 4) * TONES.length)], dim);
+  // Its tone, a little lighter or darker than the next stone of the same kind.
+  const jitter = (hash01(s.i, 8) - 0.5) * 0.18;
+  const picked = TONES[Math.floor(hash01(s.i, 4) * TONES.length)];
+  const tone = darkenHex(jitter > 0 ? lightenHex(picked, jitter) : picked, dim + Math.max(0, -jitter));
   // The smallest stones cast the faintest shadows, or a full ledge reads as a tray of coins.
   const shadow = Math.min(1, 0.35 + s.w / 30);
-  const k = 9;
+  // An irregular outline: seven to eleven corners, rounded off, and on some stones one side worn flat.
+  const k = 7 + Math.floor(hash01(s.i, 9) * 5);
+  const facet = hash01(s.i, 30) < 0.45 ? hash01(s.i, 31) * Math.PI * 2 : null;
   const pts: [number, number][] = [];
   for (let j = 0; j < k; j++) {
     const a = (j / k) * Math.PI * 2 + hash01(s.i, 5) * 0.6;
-    const r = 0.86 + hash01(s.i, 10 + j) * 0.2;
+    let r = 0.82 + hash01(s.i, 10 + j) * 0.26;
+    if (facet !== null && Math.cos(a - facet) > 0.7) r = Math.min(r, 0.84);
     // A flatter underside, so each stone sits rather than balances.
     const sy = Math.sin(a) > 0 ? Math.min(1, Math.sin(a) * 1.25) : Math.sin(a);
     pts.push([cx + Math.cos(a) * (s.w / 2) * r, cy + sy * (s.h / 2) * r]);
@@ -183,6 +225,20 @@ function drawStone(g: CanvasRenderingContext2D, s: LaidStone, ledgeY: number, li
     g.fillRect(s.x - 2, cy - s.h, s.w + 4, s.h * 2);
     g.restore();
     g.globalAlpha = alpha;
+  }
+  // Now and then a pale vein of quartz across a larger stone.
+  if (s.w > 20 && hash01(s.i, 40) < 0.16) {
+    g.save();
+    stonePath(g, pts);
+    g.clip();
+    g.strokeStyle = `rgba(245,240,230,${0.45 * alpha})`;
+    g.lineWidth = Math.max(0.8, s.w / 40);
+    const tilt = (hash01(s.i, 41) - 0.5) * s.h;
+    g.beginPath();
+    g.moveTo(s.x - 2, cy - tilt);
+    g.quadraticCurveTo(cx, cy + (hash01(s.i, 42) - 0.5) * s.h * 0.6, s.x + s.w + 2, cy + tilt);
+    g.stroke();
+    g.restore();
   }
   // A soft sheen where the light falls on its crown, and a dark rim round it.
   const sheen = g.createRadialGradient(cx - s.w * 0.16, cy - s.h * 0.3, 0, cx - s.w * 0.16, cy - s.h * 0.3, s.w * 0.3);
@@ -228,6 +284,41 @@ function grainPattern(g: CanvasRenderingContext2D): CanvasPattern | null {
     grainTile = tile;
   }
   return g.createPattern(grainTile, 'repeat');
+}
+
+/**
+ * The heap's own shadow, soft, round its foot: its outline filled far off
+ * the canvas so that only its blurred shadow falls in place (a canvas
+ * shadow, so it is soft in every browser).
+ */
+function heapShadow(g: CanvasRenderingContext2D, stones: LaidStone[], ledgeY: number, dpr: number) {
+  if (stones.length === 0) return;
+  const bin = 6;
+  let x0 = Infinity;
+  let x1 = -Infinity;
+  for (const s of stones) {
+    x0 = Math.min(x0, s.x);
+    x1 = Math.max(x1, s.x + s.w);
+  }
+  const n = Math.ceil((x1 - x0) / bin) + 1;
+  const tops = new Float32Array(n);
+  for (const s of stones) {
+    for (let b = Math.floor((s.x + s.w * 0.15 - x0) / bin); b <= Math.floor((s.x + s.w * 0.85 - x0) / bin); b++) tops[b] = Math.max(tops[b], s.y + s.h * 0.8);
+  }
+  const away = 10000;
+  g.save();
+  g.shadowColor = 'rgba(0,0,0,0.6)';
+  g.shadowBlur = 16 * dpr;
+  g.shadowOffsetX = away * dpr;
+  g.shadowOffsetY = 5 * dpr;
+  g.fillStyle = '#000';
+  g.beginPath();
+  g.moveTo(x0 - away, ledgeY + 6);
+  for (let b = 0; b < n; b++) g.lineTo(x0 + b * bin - away, ledgeY - tops[b] * 0.9);
+  g.lineTo(x1 - away, ledgeY + 6);
+  g.closePath();
+  g.fill();
+  g.restore();
 }
 
 /**
@@ -278,6 +369,7 @@ export default function MemorialStone({ count, settleFrom }: { count: number | n
       let top = 0;
       for (const s of stones) top = Math.max(top, s.y + s.h);
       const dimOf = (s: LaidStone) => (top > 0 ? 0.42 * Math.max(0, (top - s.y - s.h) / top) : 0);
+      heapShadow(g, stones, size.h, dpr);
       for (const s of stones) {
         if (s.i === newest) drawStone(g, s, size.h, (1 - eased) * s.h * 1.2, eased);
         else drawStone(g, s, size.h, 0, 1, dimOf(s));

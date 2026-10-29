@@ -227,6 +227,12 @@
   .whr-scale-label { font-size: 17px; }
   .whr-statue { max-width: 24px; }
   .whr-side.is-revealed .whr-ask { display: none; }
+  /* Uncovered on a phone: the answer first, then the fifty in rows of five, each named, all in the panel, which scrolls. */
+  .whr-statues:has(.whr-plinths.is-revealed) { overflow-y: auto; overscroll-behavior: contain; padding-bottom: 12px; }
+  .whr-side.is-revealed { order: -1; }
+  .whr-plinths.is-revealed { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px 6px; }
+  .whr-plinths.is-revealed .whr-statue { max-width: 22px; }
+  .whr-plinths.is-revealed .whr-name { display: block; min-height: 2.4em; font-size: 10.5px; line-height: 1.2; overflow-wrap: normal; hyphens: auto; }
   .whr-quote { font-size: 0.95rem; }
   .whr-room .whr-weight-button { font-size: 13px; padding: 6px 10px; min-height: 40px; }
   .whr-quote-end { font-size: 0.86rem; }
