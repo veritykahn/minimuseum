@@ -305,6 +305,9 @@
   animation: aps-panel-in 0.4s ease both;
 }
 
+/* The name and the address: in the card's column, unless a short screen sets them side by side. */
+.aps-fields { display: contents; }
+
 /* Which declaration: the Declaration, the class's, or the student's own. */
 .aps-docs { display: flex; gap: 4px; padding: 3px; border: 1px solid rgba(42, 39, 36, 0.2); border-radius: 4px; }
 .ap-room .aps-doc {
@@ -447,7 +450,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   padding: 24px 26px;
   background: #f8f6f0;
   color: #2a2724;
@@ -640,7 +643,7 @@
   .aps-title { font-size: clamp(2.4rem, 4vw, 3.2rem); }
   .ap-room .aps-tab { padding: 8px 18px; }
   .aps-sheet-wrap, .aps-panel { top: calc(var(--ap-fw) + 104px); }
-  .aps-panel { max-height: calc(100dvh - var(--ap-fw) * 2 - 128px); padding: 18px 22px; gap: 10px; }
+  .aps-panel { max-height: calc(100dvh - var(--ap-fw) * 2 - 128px); padding: 18px 22px; gap: 8px; }
   .aps-panel .aps-actions-main, .aps-panel .aps-actions-step { margin: 0 -22px; padding: 8px 22px 10px; }
   .aps-panel .aps-actions-step { margin-top: auto; }
   .aps-intro, .aps-quote blockquote { font-size: 0.94rem; line-height: 1.45; }
@@ -658,6 +661,9 @@
   .aps-step-n { width: 32px; height: 32px; font-size: 13px; }
   .aps-milestones { gap: 6px; }
   .aps-milestone { font-size: 0.86rem; line-height: 1.4; }
+  .aps-actions-class { padding-top: 6px; }
+  .aps-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; align-items: end; }
+  .aps-field > span:first-child { letter-spacing: 0.14em; }
 }
 
 /* A phone's card scrolls whole, its foot clear of the map's button. */

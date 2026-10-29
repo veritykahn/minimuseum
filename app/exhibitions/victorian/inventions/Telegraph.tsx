@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import FactNote from '@/components/exhibition/FactNote';
-import { NOTES, POSTER, READ_WORDS, WORKSHOP_TEXT } from './inventionsText';
+import { NOTES, POSTER, READ_WORDS, SEND_WORDS, WORKSHOP_TEXT } from './inventionsText';
 import { DIAL, NEEDLES, needleAngles, spell } from './workshop';
 
 /*
@@ -69,8 +69,8 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
     }
   };
 
-  const send = () => {
-    const { letters, skipped } = spell(message);
+  const send = (text = message) => {
+    const { letters, skipped } = spell(text);
     if (!letters.length) return;
     setQueue(letters);
     setMissing(skipped);
@@ -150,12 +150,32 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
               <input type="text" value={message} onChange={(e) => setMessage(e.target.value.slice(0, 24))} maxLength={24} autoComplete="off" spellCheck={false} />
             </label>
             <div className="vbr-actions">
-              <button type="button" className="vbr-button vbr-button-primary" onClick={send} disabled={!spell(message).letters.length || queue.length > 0}>
+              <button type="button" className="vbr-button vbr-button-primary" onClick={() => send()} disabled={!spell(message).letters.length || queue.length > 0}>
                 Send it
               </button>
               <button type="button" className="vbr-button vbr-button-quiet" onClick={() => { setMessage(''); setQueue([]); setPressed(null); setMissing([]); }} disabled={!message}>
                 Clear
               </button>
+            </div>
+            <div className="vbi-try" role="group" aria-label="Words the dial can spell">
+              <span className="vbr-label">Or tap a word</span>
+              <div className="vbr-options">
+                {SEND_WORDS.map((w) => (
+                  <button
+                    key={w}
+                    type="button"
+                    className="vbr-option"
+                    onClick={() => {
+                      setMessage(w);
+                      setPressed(null);
+                      send(w);
+                    }}
+                    disabled={queue.length > 0}
+                  >
+                    {w}
+                  </button>
+                ))}
+              </div>
             </div>
             <p className="vbi-readout" aria-live="polite">
               {shown ? (

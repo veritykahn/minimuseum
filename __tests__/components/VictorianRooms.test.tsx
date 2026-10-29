@@ -4,7 +4,7 @@ import { messageSize } from '@/app/exhibitions/victorian/christmas-card/CardArt'
 import VictorianInventions from '@/app/exhibitions/victorian/inventions/page';
 import VictorianChristmasParlour from '@/app/exhibitions/victorian/christmas-parlour/page';
 import { CARD_NOTES, CARD_TEXT, GREETINGS } from '@/app/exhibitions/victorian/christmas-card/cardText';
-import { NOTES, POSTER, READ_WORDS, STATIONS } from '@/app/exhibitions/victorian/inventions/inventionsText';
+import { NOTES, POSTER, READ_WORDS, SEND_WORDS, STATIONS } from '@/app/exhibitions/victorian/inventions/inventionsText';
 import { DIAL, DIAL_LETTERS, clockTime, hands, needleAngles, onDial, spell } from '@/app/exhibitions/victorian/inventions/workshop';
 import { PARLOUR_NOTES, PARLOUR_TEXT, PARTS } from '@/app/exhibitions/victorian/christmas-parlour/parlourText';
 import { VICTORIAN } from '@/app/exhibitions/victorian/victorian';
@@ -325,5 +325,53 @@ describe('fine tuning (regressions from trying the rooms)', () => {
       tall.mockRestore();
       Element.prototype.scrollTo = was;
     }
+  });
+});
+
+describe('the workshop, tuned for children and phones', () => {
+  beforeEach(() => window.history.replaceState(null, '', '/'));
+
+  it('offers words to tap and send, every letter of them on the dial', () => {
+    for (const w of SEND_WORDS) expect(spell(w).skipped).toEqual([]);
+    jest.useFakeTimers();
+    window.history.replaceState(null, '', '/exhibitions/victorian/inventions#telegraph');
+    render(<VictorianInventions />);
+    const words = screen.getByRole('group', { name: 'Words the dial can spell' });
+    fireEvent.click(within(words).getByRole('button', { name: SEND_WORDS[0] }));
+    expect(screen.getByRole('status')).toHaveTextContent(`Sending ${SEND_WORDS[0]}.`);
+    expect(screen.getByRole('textbox', { name: 'Your word' })).toHaveValue(SEND_WORDS[0]);
+    // While it is spelled out, no other word can be sent over it
+    expect(within(words).getByRole('button', { name: SEND_WORDS[1] })).toBeDisabled();
+    expect(screen.queryByText(/not on the dial, so/)).toBeNull();
+  });
+
+  it('sets the two railway-time notes, from one page, under one source once the time is sent', () => {
+    expect(NOTES.timeSignals.sources).toEqual(NOTES.railwayTime.sources);
+    render(<VictorianInventions />);
+    fireEvent.click(screen.getByRole('button', { name: 'Send the time down the line' }));
+    expect(screen.getByText(NOTES.railwayTime.text)).toBeInTheDocument();
+    expect(screen.getByText(NOTES.timeSignals.text)).toBeInTheDocument();
+    expect(screen.getAllByRole('link', { name: NOTES.timeSignals.sources[0].label })).toHaveLength(1);
+  });
+
+  it('runs the line down the screen on a phone, the train moving station to station', () => {
+    (window.matchMedia as jest.Mock).mockImplementation((query: string) => ({
+      matches: query.includes('max-width: 760px'),
+      media: query,
+      onchange: null,
+      addListener: jest.fn(),
+      removeListener: jest.fn(),
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+      dispatchEvent: jest.fn(),
+    }));
+    render(<VictorianInventions />);
+    const line = screen.getByRole('img', { name: /The line west from London/ });
+    expect(line).toHaveClass('vbi-rail-down');
+    const train = line.querySelector('.vbi-train') as SVGGElement;
+    const before = train.style.transform;
+    fireEvent.click(screen.getByRole('button', { name: /Steam on to the next station/ }));
+    expect(train.style.transform).not.toBe(before);
+    expect(screen.getByRole('img', { name: /The train is at Reading/ })).toBe(line);
   });
 });

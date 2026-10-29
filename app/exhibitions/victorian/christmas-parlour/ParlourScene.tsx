@@ -138,11 +138,17 @@ export default function ParlourScene({ open, current, onPart, reduced }: { open:
           <rect x="806" y="312" width="238" height="328" fill="#d9c2bc" />
           <path d="M845 640 V470 Q845 400 925 400 Q1005 400 1005 470 V640Z" fill="#1e1614" />
           <g className="vcp-fire">
+            <ellipse cx="925" cy="624" rx="60" ry="6" fill="#e9883a" opacity="0.85" />
             <path d="M872 628 C860 590 888 572 892 540 C904 568 916 570 920 524 C932 562 948 566 956 536 C964 574 990 590 978 628Z" fill="#e9883a" />
             <path d="M890 628 C886 604 904 594 906 574 C914 590 922 590 926 560 C934 588 946 594 950 628Z" fill="#c9a24a" />
             <path d="M908 628 C908 614 916 606 920 596 C926 606 932 614 930 628Z" fill="#fff1c4" />
           </g>
-          <path d="M860 630 H990 M860 642 H990 M876 630 V650 M904 630 V650 M932 630 V650 M960 630 V650" stroke="#5e5650" strokeWidth="4" />
+          {/* the grate's logs, laid ready before the fire is lit, the flames rising from behind them */}
+          <rect x="858" y="600" width="134" height="20" rx="10" fill="#6b4a32" transform="rotate(-6 925 610)" />
+          <rect x="858" y="600" width="134" height="20" rx="10" fill="#583826" transform="rotate(7 925 610)" />
+          {/* the iron basket in front of the logs, on its legs on the hearth */}
+          <path d="M852 612 H998 M860 632 H990 M852 612 L860 632 M998 612 L990 632 M876 612 V632 M900 612 V632 M925 612 V632 M950 612 V632 M974 612 V632" stroke="#2a2522" strokeWidth="4.5" strokeLinecap="round" />
+          <path d="M866 632 L860 642 M984 632 L990 642" stroke="#2a2522" strokeWidth="5" strokeLinecap="round" />
           <rect x="790" y="640" width="270" height="14" fill="#3f2218" />
           <path d="M770 290 Q800 312 830 290 Q860 312 890 290 Q920 312 950 290 Q980 312 1010 290 Q1040 312 1080 290" stroke="#2f4a32" strokeWidth="11" fill="none" strokeLinecap="round" />
         </g>
