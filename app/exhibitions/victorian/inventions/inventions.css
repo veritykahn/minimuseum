@@ -1,0 +1,125 @@
+/* ==========================================================================
+   The inventions workshop: three benches on the polished table. The
+   railway's line and its two station clocks; the telegraph's diamond dial
+   with its five needles; the camera between a latticed window and its
+   paper. Each bench's scene sits on the stage, its card beside it.
+   ========================================================================== */
+
+.vbi-panel { display: contents; }
+.vbi-panel[hidden] { display: none; }
+.vbi-bench { display: contents; }
+.vbi-readout { font-family: var(--vb-serif); font-size: 1.02rem; line-height: 1.45; }
+.vbi-readout strong { font-family: var(--pe-display); font-size: 1.5rem; font-weight: 400; letter-spacing: 0.08em; }
+
+/* ───────── The railway ───────── */
+.vbi-rail { width: 100%; height: 100%; max-height: 100cqh; }
+.vbi-rail-name { font-family: 'Jost', sans-serif; font-size: 19px; fill: #2f4a32; }
+.vbi-rail-name[data-here] { font-weight: 500; fill: #a4565c; }
+.vbi-rail-behind { font-family: 'Jost', sans-serif; font-size: 14px; fill: #5c6b5e; }
+.vbi-train { transition: transform 1.6s cubic-bezier(0.45, 0, 0.3, 1); }
+.vbi-steam { animation: vbi-puff 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+@keyframes vbi-puff { 50% { transform: translate(-6px, -3px) scale(1.08); opacity: 0.8; } }
+.vbi-clock-n { font-family: var(--vb-serif); font-size: 20px; fill: #2a2522; }
+.vbi-clock-label { font-family: var(--pe-display); font-size: 24px; letter-spacing: 3px; fill: #2f4a32; text-transform: uppercase; }
+.vbi-clock-sub { font-family: 'Jost', sans-serif; font-size: 17px; fill: #2f4a32; }
+.vbi-hand { transition: transform 1.4s cubic-bezier(0.4, 0, 0.2, 1); }
+.vbi-wire-live { stroke-dasharray: 10 8; animation: vbi-signal 0.9s linear infinite; }
+@keyframes vbi-signal { to { stroke-dashoffset: -36; } }
+
+/* ───────── The telegraph ───────── */
+.vbi-board { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.vbi-dial {
+  position: relative;
+  width: min(100cqw, (100cqh - 40px) * 6 / 5.4, 720px);
+  aspect-ratio: 6 / 5.4;
+  filter: drop-shadow(0 16px 18px rgba(47, 30, 20, 0.3));
+}
+.vbi-diamond { position: absolute; inset: 0; width: 100%; height: 100%; }
+.vb-room .vbi-letter {
+  appearance: none;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 9%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1.5px solid rgba(107, 74, 50, 0.4);
+  border-radius: 50%;
+  background: #f8f0dc;
+  color: #2f4a32;
+  font-family: var(--pe-display);
+  font-size: clamp(14px, 2.2cqw, 26px);
+  font-weight: 400;
+  cursor: pointer;
+  z-index: 2;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.vb-room .vbi-letter:hover { background: #fff; border-color: #6b4a32; }
+.vb-room .vbi-letter[data-pointed] { background: #a4565c; color: #fff; border-color: #a4565c; }
+.vb-room .vbi-letter:focus-visible { outline: 3px solid #2f4a32; outline-offset: 2px; }
+.vbi-needle {
+  position: absolute;
+  width: 2.6%;
+  height: 27%;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, #2a2522 0 46%, #c9a24a 46% 54%, #8a7a62 54%);
+  clip-path: polygon(50% 0, 100% 48%, 100% 52%, 50% 100%, 0 52%, 0 48%);
+  transition: transform 0.55s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.vbi-needle-n { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.vbi-dial[data-reduced] .vbi-needle { transition: none; }
+.vbi-board-name { font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #f4eee3; opacity: 0.85; }
+.vbi-word { display: flex; gap: 6px; flex-wrap: wrap; }
+.vbi-word-letter { display: grid; place-items: center; min-width: 1.6em; height: 1.9em; border-bottom: 1.5px solid rgba(255, 255, 255, 0.6); font-family: var(--pe-display); font-size: 1.35rem; }
+.vbi-word-letter[data-read] { border-bottom-color: #fff; }
+
+/* ───────── Photography ───────── */
+.vbi-photo {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: 1fr auto;
+  align-items: center;
+  gap: 2cqw 2.4cqw;
+  width: 100%;
+  height: 100%;
+  max-width: 980px;
+}
+.vbi-photo figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.vbi-photo figcaption { font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #2f4a32; }
+.vbi-photo-frame { position: relative; width: 100%; aspect-ratio: 290 / 260; box-shadow: 0 12px 20px rgba(47, 30, 20, 0.3); }
+.vbi-window-svg { display: block; width: 100%; height: 100%; }
+.vbi-camera { width: min(14cqw, 140px); }
+.vbi-camera-svg { width: 100%; overflow: visible; }
+/* The paper: blank and cream; the negative darkens in as it is exposed, the print comes up over it. */
+.vbi-paper { background: #efe4cc; }
+.vbi-neg, .vbi-pos { position: absolute; inset: 0; opacity: 0; }
+.vbi-neg { filter: invert(1) sepia(0.7) hue-rotate(-20deg) saturate(0.8) brightness(0.92); }
+.vbi-pos { filter: sepia(0.85) saturate(0.9) brightness(1.04) contrast(0.95); }
+.vbi-photo[data-stage='exposing'] .vbi-neg { opacity: 1; transition: opacity 4s linear; }
+.vbi-photo[data-stage='negative'] .vbi-neg, .vbi-photo[data-stage='printing'] .vbi-neg { opacity: 1; }
+.vbi-photo[data-stage='printing'] .vbi-pos { opacity: 1; transition: opacity 2.5s ease-in; }
+.vbi-photo[data-reduced] .vbi-neg, .vbi-photo[data-reduced] .vbi-pos { transition: none !important; }
+.vbi-prints { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; gap: 1.4cqw; min-height: 13cqh; }
+.vbi-print { width: min(11cqw, 16cqh * 1.1); aspect-ratio: 290 / 260; padding: 4px; background: #f8f0dc; box-shadow: 0 6px 10px rgba(47, 30, 20, 0.3); filter: sepia(0.85) saturate(0.9); animation: vbi-print-in 0.5s ease both; }
+.vbi-print-more { font-family: var(--pe-display); font-size: 1.4rem; color: #2f4a32; }
+@keyframes vbi-print-in { from { opacity: 0; transform: translateY(-10px); } }
+.vbi-steps { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 0.92rem; line-height: 1.4; }
+.vbi-steps li[data-done] { text-decoration: line-through; text-decoration-color: rgba(255, 255, 255, 0.6); opacity: 0.85; }
+
+@media (max-width: 760px) {
+  .vbr-stage.vbi-stage { --scene-h: 32dvh; }
+  .vbr-stage.vbi-stage[data-tab='telegraph'] { --scene-h: 36dvh; }
+  .vbi-readout { font-size: 0.9rem; }
+  .vbi-readout strong { font-size: 1.2rem; }
+  .vbi-photo { gap: 6px 8px; }
+  .vbi-photo figcaption { font-size: 10px; letter-spacing: 0.12em; }
+  .vbi-prints { min-height: 9cqh; }
+  .vbi-steps { font-size: 0.8rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vbi-train, .vbi-hand, .vbi-needle, .vb-room .vbi-letter { transition: none; }
+  .vbi-steam, .vbi-wire-live, .vbi-print { animation: none; }
+}

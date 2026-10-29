@@ -184,7 +184,7 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'victorian', label: 'Victorian\nBritain', path: '/exhibitions/victorian',
     x: 257, y: 230, width: 140, height: 100, accentColor: COLORS.victorian,
     parent: 'ground-floor',
-    children: ['vb-case', 'vb-optical-toys'],
+    children: ['vb-case', 'vb-christmas-card', 'vb-inventions', 'vb-christmas-parlour'],
   },
 ];
 
@@ -272,7 +272,7 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'seeing-is-deceiving', label: 'Seeing is\nDeceiving', path: '/exhibitions/seeing-is-deceiving',
     x: COL[2], ...BOTTOM, accentColor: COLORS.seeingIsDeceiving,
     parent: 'first-floor',
-    children: ['illusions', 'artifacts', 'resources', ...lessonsChild('seeing-is-deceiving')],
+    children: ['illusions', 'artifacts', 'resources', 'sid-optical-toys', ...lessonsChild('seeing-is-deceiving')],
   },
   {
     id: 'fear-lab', label: 'The Fear Lab', path: '/exhibitions/fear-lab',
@@ -308,16 +308,18 @@ export const FIRST_FLOOR: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Seeing is Deceiving (Floor Plan)
 //
-// Layout: three rooms in a row sharing walls
+// Layout: three rooms in a row sharing walls, and the optical toys beyond
 // ┌────────────┬────────────┬────────────┐
 // │            │            │            │
 // │  Illusions │  Artifacts │  Resources │
 // │            │            │            │
-// └────────────┴────────────┴────────────┘
+// ├────────────┴─────╴ ╶────┴────────────┤
+// │             Optical Toys             │
+// └──────────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const SID_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 170, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 250, rx: 3 },
   accentColor: COLORS.seeingIsDeceiving,
   walls: [
     // Horizontal wall between Exhibition Hall and rooms (with doorway)
@@ -326,6 +328,8 @@ const SID_FLOOR_PLAN: ExhibitionFloorPlan = {
     ...wallWithDoorway(180, 130, 180, 250),
     // Vertical wall between Artifacts and Resources (with doorway)
     ...wallWithDoorway(320, 130, 320, 250),
+    // Horizontal wall between the rooms and the Optical Toys (with doorway)
+    ...wallWithDoorway(40, 250, 460, 250, 20),
   ],
   rooms: [
     {
@@ -352,6 +356,12 @@ const SID_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 320, y: 130, width: 140, height: 120,
       labelX: 390, labelY: 190,
     },
+    {
+      id: 'sid-optical-toys', label: 'Optical Toys', path: '/exhibitions/seeing-is-deceiving/optical-toys',
+      accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
+      x: 40, y: 250, width: 420, height: 80,
+      labelX: 250, labelY: 290,
+    },
   ],
 };
 
@@ -365,7 +375,7 @@ export const SEEING_IS_DECEIVING: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
   ],
-  ...withLessons(SID_FLOOR_PLAN, '0 0 500 300', 'seeing-is-deceiving'),
+  ...withLessons(SID_FLOOR_PLAN, '0 0 500 380', 'seeing-is-deceiving'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -817,14 +827,15 @@ export const AMERICA_250: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Victorian Britain (Floor Plan)
 //
-// Layout: the Exhibition Hall, the display case, and the optical toys beyond
+// Layout: the Exhibition Hall, the display case, and three interactive
+// rooms beyond: the card maker, the inventions workshop and the parlour
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// ├───────────────╴ ╶──────────────┤
-// │          Optical Toys          │
-// └────────────────────────────────┘
+// ├──────╴ ╶──┬───╴ ╶───┬──╴ ╶─────┤
+// │Card Maker │Inventions│ Parlour │
+// └───────────┴──────────┴─────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const VICTORIAN_FLOOR_PLAN: ExhibitionFloorPlan = {
@@ -832,7 +843,12 @@ const VICTORIAN_FLOOR_PLAN: ExhibitionFloorPlan = {
   accentColor: COLORS.victorian,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
-    ...wallWithDoorway(40, 280, 460, 280),
+    // Under the case, a doorway into each room
+    ...wallWithDoorway(40, 280, 180, 280),
+    ...wallWithDoorway(180, 280, 320, 280),
+    ...wallWithDoorway(320, 280, 460, 280),
+    ...wallWithDoorway(180, 280, 180, 380),
+    ...wallWithDoorway(320, 280, 320, 380),
   ],
   rooms: [
     {
@@ -848,10 +864,22 @@ const VICTORIAN_FLOOR_PLAN: ExhibitionFloorPlan = {
       labelX: 250, labelY: 230,
     },
     {
-      id: 'vb-optical-toys', label: 'Optical Toys', path: '/exhibitions/victorian/optical-toys',
+      id: 'vb-christmas-card', label: 'Card Maker', path: '/exhibitions/victorian/christmas-card',
       accentColor: COLORS.victorian, parent: 'victorian',
-      x: 40, y: 280, width: 420, height: 100,
+      x: 40, y: 280, width: 140, height: 100,
+      labelX: 110, labelY: 330,
+    },
+    {
+      id: 'vb-inventions', label: 'Inventions', path: '/exhibitions/victorian/inventions',
+      accentColor: COLORS.victorian, parent: 'victorian',
+      x: 180, y: 280, width: 140, height: 100,
       labelX: 250, labelY: 330,
+    },
+    {
+      id: 'vb-christmas-parlour', label: 'Parlour', path: '/exhibitions/victorian/christmas-parlour',
+      accentColor: COLORS.victorian, parent: 'victorian',
+      x: 320, y: 280, width: 140, height: 100,
+      labelX: 390, labelY: 330,
     },
   ],
 };

@@ -18,6 +18,7 @@ export const CONNECTIONS: RoomConnection[] = [
 
   // Seeing is Deceiving sub-pages
   ['seeing-is-deceiving', 'illusions'],
+  ['seeing-is-deceiving', 'sid-optical-toys'],
   ['seeing-is-deceiving', 'artifacts'],
   ['seeing-is-deceiving', 'resources'],
 
@@ -54,7 +55,9 @@ export const CONNECTIONS: RoomConnection[] = [
   ['womens-history', 'wh-remembered'],
   ['holocaust', 'ho-stones'],
   ['america-250', 'ap-sign'],
-  ['victorian', 'vb-optical-toys'],
+  ['victorian', 'vb-christmas-card'],
+  ['victorian', 'vb-inventions'],
+  ['victorian', 'vb-christmas-parlour'],
   ['moon', 'mo-microscope'],
   ['fear-lab', 'fl-what-scares-you'],
 

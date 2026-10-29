@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="420" viewBox="0 0 600 420">
+  <defs>
+    <radialGradient id="light" cx="45%" cy="30%" r="70%">
+      <stop offset="0" stop-color="#fff0d6" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#fff0d6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7a4a34"/>
+      <stop offset="1" stop-color="#3f2218"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="420" fill="#d9b7b8"/>
+  <rect width="600" height="420" fill="url(#light)"/>
+  <rect y="300" width="600" height="120" fill="url(#wood)"/>
+  <!-- the station clock -->
+  <g transform="translate(110 150)">
+    <circle r="66" fill="#2f4a32"/>
+    <circle r="56" fill="#fbf7ef" stroke="#2a2522" stroke-width="2"/>
+    <g stroke="#2a2522" stroke-width="3"><line y1="-50" y2="-40"/><line x1="50" x2="40"/><line y1="50" y2="40"/><line x1="-50" x2="-40"/></g>
+    <line y1="6" y2="-30" stroke="#2a2522" stroke-width="5" stroke-linecap="round"/>
+    <line y1="8" y2="-46" stroke="#2a2522" stroke-width="3" stroke-linecap="round" transform="rotate(-24)"/>
+    <circle r="4" fill="#a4565c"/>
+    <path d="M0 66 V150" stroke="#6b4a32" stroke-width="6"/>
+  </g>
+  <!-- the five-needle dial -->
+  <g transform="translate(300 190)">
+    <path d="M0 -120 L130 0 L0 120 L-130 0Z" fill="#efe3c8" stroke="#6b4a32" stroke-width="5"/>
+    <g font-family="Georgia, serif" font-size="15" fill="#2f4a32" text-anchor="middle">
+      <text y="-82">A</text><text x="-22" y="-58">B</text><text x="22" y="-58">D</text>
+      <text x="-44" y="-34">E</text><text y="-34">F</text><text x="44" y="-34">G</text>
+      <text x="-22" y="70">V</text><text x="22" y="70">W</text><text y="94">Y</text>
+    </g>
+    <g fill="#2a2522">
+      <path d="M-88 -28 L-84 0 L-88 28 L-92 0Z"/>
+      <path d="M-44 -28 L-40 0 L-44 28 L-48 0Z" transform="rotate(45 -44 0)"/>
+      <path d="M0 -28 L4 0 L0 28 L-4 0Z"/>
+      <path d="M44 -28 L48 0 L44 28 L40 0Z" transform="rotate(-45 44 0)"/>
+      <path d="M88 -28 L92 0 L88 28 L84 0Z"/>
+    </g>
+  </g>
+  <!-- the camera -->
+  <g transform="translate(470 230)">
+    <rect x="-46" y="-36" width="92" height="70" rx="4" fill="#7a4a34" stroke="#3f2218" stroke-width="2"/>
+    <rect x="-70" y="-14" width="26" height="28" rx="3" fill="#c9a24a"/>
+    <circle cx="-70" cy="0" r="11" fill="#1a1a1a" stroke="#6e4f1e" stroke-width="2"/>
+    <path d="M-20 34 L-30 70 M20 34 L30 70 M0 34 V70" stroke="#3f2218" stroke-width="4"/>
+  </g>
+</svg>

@@ -5,9 +5,11 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { VICTORIAN } from './victorian';
 import './victorian.css';
+import './rooms.css';
 
 /*
- * The frame of a Victorian Britain room (the optical toys): the exhibition's
+ * The frame of a Victorian Britain room (the Christmas card maker, the
+ * inventions workshop, Dickens' Christmas parlour): the exhibition's
  * faces, "M ← Exhibition" in the corner, and a full-screen stage that sets
  * its own heading, as the Great War's memorial does.
  */

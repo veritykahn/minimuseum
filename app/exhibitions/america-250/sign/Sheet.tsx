@@ -1,15 +1,18 @@
 'use client';
 
 import { useMemo } from 'react';
-import { nibPath, scribbleBlock, scribbleLine, tracePath, typeLine, type Stroke } from './signing';
+import { nibPath, scribbleBlock, scribbleLine, tracePath, type Stroke } from './signing';
+import { DECLARATION_BODY, DECLARATION_HEAD, DECLARATION_TITLE, SELF_EVIDENT } from './declaration';
 import type { CopyStageId } from './signText';
 
 /*
- * The sheet on the desk, drawn in SVG: the parchment the visitor signs, and
- * each copy of it in turn (draft, fair copy, engrossed parchment, Stone's
- * engraving, the printed transcription). Its lines of handwriting are drawn,
- * not written, except the one line the posters give: "We hold these truths
- * to be self-evident", once "sacred and undeniable".
+ * The sheet on the desk, drawn in SVG: each copy of the Declaration in turn
+ * (draft, fair copy, engrossed parchment, Stone's engraving, the printed
+ * transcription), with the visitor's signature copied onto it. The draft's
+ * and the fair copy's lines of handwriting are drawn, not written, except
+ * the one line the posters give: "We hold these truths to be self-evident",
+ * once "sacred and undeniable". From the Engrossed Copy on, the sheet
+ * carries the Declaration's own words (FairText, below).
  */
 
 /** The sheet's drawing space, and the signature box in it. */
@@ -103,8 +106,8 @@ export default function Sheet({ stage, strokes, typed, address, printedName, liv
 
       {/* The writing, drawn in afresh at each copy */}
       <g key={stage} className="ap-sheet-ink" fill="none" stroke={ink} strokeLinecap="round" strokeLinejoin="round">
-        {stage === 'transcription' ? (
-          <TypeSet gap={body.gap} legibleY={legibleY} />
+        {stage === 'engrossed' || stage === 'stone' || stage === 'transcription' ? (
+          <FairText stage={stage} ink={ink} />
         ) : (
           <>
             <Heading stage={stage} />
@@ -113,7 +116,7 @@ export default function Sheet({ stage, strokes, typed, address, printedName, liv
               i === LEGIBLE ? null : (stage === 'rough' && i === LEGIBLE - 1) ? (
                 <path key={i} d={scribbleLine(11 + i * 101, 130, BODY_TOP + i * body.gap, 300, body.xh, 0.42)} pathLength={1} strokeWidth={2.3} style={{ animationDelay: `${0.25 + i * 0.05}s` }} />
               ) : (
-                <path key={i} d={d} pathLength={1} strokeWidth={stage === 'stone' ? 1.3 : stage === 'rough' ? 2.3 : 2} style={{ animationDelay: `${0.25 + i * 0.05}s` }} />
+                <path key={i} d={d} pathLength={1} strokeWidth={stage === 'rough' ? 2.3 : 2} style={{ animationDelay: `${0.25 + i * 0.05}s` }} />
               ),
             )}
             {stage === 'rough' && <DraftEdits lines={body.lines.length} gap={body.gap} />}
@@ -242,28 +245,49 @@ function Legible({ stage, y, ink }: { stage: SheetStage; y: number; ink: string 
   );
 }
 
-/** The transcription: set in type, every word in its place. */
-function TypeSet({ gap, legibleY }: { gap: number; legibleY: number }) {
-  const rows: { x: number; y: number; w: number; h: number }[] = [];
-  const top = BODY_TOP;
-  const n = 24;
-  const g = (840 - top) / n;
-  for (let i = 0; i < n; i++) {
-    const y = top + i * g;
-    if (Math.abs(y - legibleY) < g * 1.2) continue;
-    const width = i === n - 1 ? 380 : 740;
-    rows.push(...typeLine(100 + i, 130, y, width, 7));
-  }
+/*
+ * The Engrossed Copy, Stone's engraving and the transcription carry the
+ * Declaration's own words (the National Archives' transcription), as the
+ * parchment does: the heading, the title across the sheet, and the whole
+ * text run on in a small, close hand above the signatures, as on the
+ * parchment, with "We hold these truths to be self-evident" in a darker ink
+ * so the eye can find it. The draft and the fair copy keep their drawn,
+ * unreadable hand: their words were not yet these.
+ */
+const BODY_TEXT = DECLARATION_BODY.join(' ');
+const [BEFORE, AFTER] = (() => {
+  const i = BODY_TEXT.indexOf(SELF_EVIDENT);
+  return [BODY_TEXT.slice(0, i), BODY_TEXT.slice(i + SELF_EVIDENT.length)];
+})();
+
+function FairText({ stage, ink }: { stage: 'engrossed' | 'stone' | 'transcription'; ink: string }) {
+  const typeset = stage === 'transcription';
   return (
-    <g className="ap-typeset" stroke="none">
-      <rect x="300" y="150" width="400" height="20" rx="3" fill="#2a2724" fillOpacity="0.7" />
-      <rect x="380" y="196" width="240" height="10" rx="3" fill="#2a2724" fillOpacity="0.35" />
-      {rows.map((r, i) => (
-        <rect key={i} x={r.x} y={r.y} width={r.w} height={r.h} rx="2" fill="#2a2724" fillOpacity="0.2" />
-      ))}
-      <text x="130" y={legibleY + gap * 0.1} className="ap-sheet-type" fontSize="34" fill="#2a2724">
-        We hold these truths to be self-evident
+    <g className="ap-fair" stroke="none">
+      <text x="500" y="128" textAnchor="middle" className={typeset ? 'ap-sheet-type' : 'ap-sheet-fell'} fontSize={typeset ? 26 : 24} fill={ink} fillOpacity={0.85}>
+        {DECLARATION_HEAD}.
       </text>
+      <text
+        x="500"
+        y={typeset ? 200 : 214}
+        textAnchor="middle"
+        className={typeset ? 'ap-sheet-type' : 'ap-sheet-script'}
+        fontSize={typeset ? 30 : 74}
+        textLength={typeset ? 760 : 820}
+        lengthAdjust="spacingAndGlyphs"
+        fill={stage === 'stone' ? 'none' : ink}
+        stroke={stage === 'stone' ? ink : 'none'}
+        strokeWidth={stage === 'stone' ? 1.2 : 0}
+      >
+        {DECLARATION_TITLE}
+      </text>
+      <foreignObject x="96" y={typeset ? 236 : 248} width="808" height={typeset ? 660 : 640}>
+        <div className={`ap-fair-body ap-fair-${stage}`} style={{ color: ink }}>
+          {BEFORE}
+          <span className="ap-fair-self">{SELF_EVIDENT}</span>
+          {AFTER}
+        </div>
+      </foreignObject>
     </g>
   );
 }

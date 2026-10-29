@@ -1,6 +1,7 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import America250Signing from '@/app/exhibitions/america-250/sign/page';
 import { COPY_NOTES, COPY_STAGES, FLAG_MILESTONES, FLAG_TEXT, SIGN_TEXT } from '@/app/exhibitions/america-250/sign/signText';
+import { DECLARATION_BODY, DECLARATION_HEAD, DECLARATION_SIGNERS, DECLARATION_SOURCE, DECLARATION_TITLE, OWN_DECLARATIONS, WORDING_COMING_SOON } from '@/app/exhibitions/america-250/sign/declaration';
 import { FLAG, starLayout, stripesFor, unionHeight } from '@/app/exhibitions/america-250/sign/flagLayout';
 import { inkAfter, inkAlpha, INK_PER_DIP, nibQuad, scribbleLine, thin, tracePath } from '@/app/exhibitions/america-250/sign/signing';
 import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
@@ -14,6 +15,9 @@ import sitemap from '@/app/sitemap';
  * flag. Carved out of "the posters' own": where the Rough Draft and the
  * Engrossed Copy are held (COPY_NOTES) and the flag's milestones
  * (FLAG_MILESTONES), owner-approved and fact-checked, each set with its source.
+ * The parchment carries the Declaration's own words, the National Archives'
+ * transcription; the class's and the student's declarations wait for the
+ * owner's wording, and print with their names.
  */
 
 /** The posters' words, as read: "*…*" marks italics; quotes and cites both. */
@@ -120,9 +124,110 @@ describe('the room', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Signed.');
     for (const line of SIGN_TEXT.signed) expect(screen.getByText(line)).toBeInTheDocument();
     expect(screen.getByText(SIGN_TEXT.epigraph.text)).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /with your signature/ })).toHaveTextContent('A. Visitor');
-    expect(screen.getByRole('img', { name: /with your signature/ })).toHaveTextContent('of Baltimore');
+    // Signed at the foot of the parchment, under the signers of 1776
+    const parchment = screen.getByRole('region', { name: /Declaration of Independence/ });
+    expect(within(parchment).getByRole('img', { name: 'Signed: A. Visitor' })).toBeInTheDocument();
+    expect(parchment).toHaveTextContent('of Baltimore');
   });
+
+  it('sets the Declaration’s own words on the parchment, to read inside it, with the signers and the source', () => {
+    render(<America250Signing />);
+    const parchment = screen.getByRole('region', { name: /Declaration of Independence/ });
+    expect(parchment).toHaveAttribute('tabindex', '0');
+    expect(within(parchment).getByText(DECLARATION_HEAD)).toBeInTheDocument();
+    expect(within(parchment).getByRole('heading', { name: DECLARATION_TITLE })).toBeInTheDocument();
+    for (const p of DECLARATION_BODY) expect(within(parchment).getByText(p)).toBeInTheDocument();
+    expect(within(parchment).getByText('Charles Carroll of Carrollton')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: DECLARATION_SOURCE.label })).toHaveAttribute('href', 'https://www.archives.gov/founding-docs/declaration-transcript');
+    fireEvent.click(screen.getByRole('button', { name: /Go to the line to sign/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('the line to sign on');
+  });
+});
+
+describe('the Declaration’s text', () => {
+  it('is the National Archives’ transcription: its opening, its pledge and its 56 signers', () => {
+    expect(DECLARATION_HEAD).toBe('In Congress, July 4, 1776');
+    expect(DECLARATION_TITLE).toBe('The unanimous Declaration of the thirteen united States of America,');
+    expect(DECLARATION_BODY[0]).toMatch(/^When in the Course of human events, it becomes necessary for one people to dissolve the political bands/);
+    expect(DECLARATION_BODY[1]).toMatch(/^We hold these truths to be self-evident, that all men are created equal/);
+    expect(DECLARATION_BODY[DECLARATION_BODY.length - 1]).toMatch(/we mutually pledge to each other our Lives, our Fortunes and our sacred Honor\.$/);
+    // The Archives' spelling, kept
+    expect(DECLARATION_BODY.join(' ')).toContain('Brittish brethren');
+    expect(DECLARATION_BODY.filter((p) => p.startsWith('He has')).length).toBeGreaterThan(15);
+    expect(DECLARATION_SIGNERS.flatMap((c) => c.names)).toHaveLength(56);
+    expect(DECLARATION_SIGNERS[0]).toEqual({ state: 'Georgia', names: ['Button Gwinnett', 'Lyman Hall', 'George Walton'] });
+  });
+
+  it('carries on to the Engrossed Copy, Stone’s engraving and the transcription; the drafts keep their drawn hand', () => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#copies');
+    render(<America250Signing />);
+    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
+    expect(screen.getByRole('img', { name: /A draft in handwriting/ })).not.toHaveTextContent('When in the Course');
+    fireEvent.click(within(panel).getByRole('button', { name: /Engrossed Copy/ }));
+    expect(screen.getByRole('img', { name: /A parchment in a formal hand/ })).toHaveTextContent('When in the Course of human events');
+    fireEvent.click(within(panel).getByRole('button', { name: /transcription/ }));
+    expect(screen.getByRole('img', { name: 'A printed page' })).toHaveTextContent('our sacred Honor');
+  });
+});
+
+describe('the class’s and the student’s own declarations', () => {
+  const print = jest.fn();
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign');
+    print.mockClear();
+    window.print = print;
+  });
+
+  it('awaits the owner’s wording: a quiet placeholder, and no words written for her', () => {
+    expect(OWN_DECLARATIONS.class.wording).toBeNull();
+    expect(OWN_DECLARATIONS.mine.wording).toBeNull();
+    render(<America250Signing />);
+    fireEvent.click(screen.getByRole('button', { name: 'Our Class Declaration' }));
+    expect(window.location.hash).toBe('#class');
+    const parchment = screen.getByRole('region', { name: /Our Class Declaration/ });
+    expect(within(parchment).getByRole('heading', { name: 'Our Class Declaration' })).toBeInTheDocument();
+    expect(within(parchment).getByText(WORDING_COMING_SOON)).toBeInTheDocument();
+  });
+
+  it('takes a class’s names one after another, and prints the parchment with them', async () => {
+    render(<America250Signing />);
+    fireEvent.click(screen.getByRole('button', { name: 'Our Class Declaration' }));
+    const parchment = screen.getByRole('region', { name: /Our Class Declaration/ });
+    fireEvent.change(within(parchment).getByRole('textbox', { name: /Write your class’s own declaration/ }), { target: { value: 'We, Room 12, declare.' } });
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your class' }), { target: { value: 'Room 12' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
+    for (const name of ['Ada', 'Ben']) {
+      fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: name } });
+      fireEvent.click(screen.getByRole('button', { name: 'Add my name' }));
+    }
+    expect(within(parchment).getByRole('img', { name: 'Signed: Ada' })).toBeInTheDocument();
+    expect(within(parchment).getByRole('img', { name: 'Signed: Ben' })).toBeInTheDocument();
+    expect(screen.getByText('2 names signed')).toBeInTheDocument();
+    expect(screen.getByRole('textbox', { name: 'Your name' })).toHaveValue('');
+    fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
+    const root = document.querySelector('.aps-print-root')!;
+    expect(root).toHaveTextContent('We, Room 12, declare.');
+    expect(root).toHaveTextContent('Room 12');
+    expect(root.querySelectorAll('.aps-parch-sig')).toHaveLength(2);
+    await waitFor(() => expect(print).toHaveBeenCalled());
+  });
+
+  it('opens a student’s own from its address, signs once, and prints it', async () => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#mine');
+    render(<America250Signing />);
+    expect(screen.getByRole('button', { name: 'My Declaration' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'Cleo' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
+    expect(screen.getByText(SIGN_TEXT.mineSigned)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
+    await waitFor(() => expect(print).toHaveBeenCalled());
+    expect(document.querySelector('.aps-print-root')).toHaveTextContent(WORDING_COMING_SOON);
+  });
+});
+
+describe('the quill and the copies', () => {
+  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/america-250/sign'));
 
   it('dips the quill', () => {
     render(<America250Signing />);
