@@ -20,6 +20,7 @@ import { chapterAt, posterChapters, type Chapter, type PosterTalk } from './post
 import { posterKeyCommand } from './posterKeys';
 import { catalogFor, lessonPath, lessonsForPoster, lessonsPath, type LessonCard } from '@/lib/lessons/catalog';
 import { holdProjectorScreen, takeJustExited, writeProjectorParams } from './useProjectorMode';
+import type { AudioGuideState } from '@/components/exhibition/AudioGuide';
 import styles from './posterProjector.module.css';
 import './poster-projector.css';
 
@@ -64,6 +65,8 @@ type Props<K extends string> = {
   nextStep: () => void;
   prevStep: () => void;
   returnToMain: () => void;
+  /** The poster's audio guide, when it has recordings: its controls join the tool bar. */
+  audioGuide?: AudioGuideState;
   /** The page's walkthrough, as it renders outside projector mode. */
   children: ReactNode;
 };
@@ -192,6 +195,7 @@ function ProjectorScreen<K extends string>({
   nextStep,
   prevStep,
   returnToMain,
+  audioGuide,
   children,
 }: Props<K>) {
   const [strip, setStrip] = useState(true);
@@ -286,7 +290,14 @@ function ProjectorScreen<K extends string>({
     onExit();
   }, [onExit]);
 
+  const latestGuide = useRef(audioGuide);
+  useLayoutEffect(() => {
+    latestGuide.current = audioGuide;
+  });
+
   const setBlankAndSay = useCallback((next: boolean) => {
+    // A blanked screen is a pause for the class: the guide stops talking too.
+    if (next) latestGuide.current?.pause();
     setBlank(next);
     setNotice(next ? 'Screen blanked. Press B to show it again.' : 'Screen shown.');
   }, []);
@@ -296,6 +307,20 @@ function ProjectorScreen<K extends string>({
       setNotice(v ? 'Teacher strip hidden.' : 'Teacher strip shown.');
       return !v;
     });
+  }, []);
+
+  const toggleGuide = useCallback(() => {
+    const g = latestGuide.current;
+    if (!g) return;
+    if (g.on) g.turnOff();
+    else g.turnOn();
+    setNotice(g.on ? 'Audio guide off.' : 'Audio guide on.');
+  }, []);
+
+  const playPause = useCallback(() => {
+    const g = latestGuide.current;
+    if (!g?.on || !g.available) return;
+    g.toggle();
   }, []);
 
   const continueOn = useCallback(() => {
@@ -358,13 +383,19 @@ function ProjectorScreen<K extends string>({
         case 'fullscreen':
           toggleFullscreen();
           break;
+        case 'audio':
+          toggleGuide();
+          break;
+        case 'play':
+          playPause();
+          break;
         case 'swallow':
           break;
       }
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [goToStep, nextStep, openPoster, posters, prevStep, setBlankAndSay, toggleFullscreen, toggleStrip]);
+  }, [goToStep, nextStep, openPoster, playPause, posters, prevStep, setBlankAndSay, toggleFullscreen, toggleGuide, toggleStrip]);
 
   const endContext: EndContext | null = poster
     ? {
@@ -401,6 +432,36 @@ function ProjectorScreen<K extends string>({
       >
         Teacher strip <kbd>T</kbd>
       </button>
+      {audioGuide && open && (
+        <>
+          <button
+            type="button"
+            className={styles.tool}
+            aria-pressed={audioGuide.on}
+            aria-keyshortcuts="A"
+            onClick={(e) => {
+              release(e);
+              toggleGuide();
+            }}
+          >
+            Audio guide <kbd>A</kbd>
+          </button>
+          {audioGuide.on && (
+            <button
+              type="button"
+              className={styles.tool}
+              aria-keyshortcuts="P"
+              disabled={!audioGuide.available}
+              onClick={(e) => {
+                release(e);
+                playPause();
+              }}
+            >
+              {audioGuide.playing ? 'Pause' : 'Play'} <kbd>P</kbd>
+            </button>
+          )}
+        </>
+      )}
       <button
         type="button"
         className={styles.tool}
@@ -454,6 +515,11 @@ function ProjectorScreen<K extends string>({
       <span>
         <kbd>F</kbd> full screen
       </span>
+      {open && audioGuide && (
+        <span>
+          <kbd>A</kbd> audio guide
+        </span>
+      )}
     </p>
   );
 

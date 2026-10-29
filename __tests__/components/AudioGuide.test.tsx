@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import AudioGuide from '@/components/exhibition/AudioGuide';
+import AudioGuide, { useAudioGuide } from '@/components/exhibition/AudioGuide';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
 
 /*
@@ -9,6 +9,10 @@ import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
  * recording plays on arrival and stops on leaving; and every recording a
  * poster names is in public/.
  */
+
+function Guide({ src }: { src?: string }) {
+  return <AudioGuide guide={useAudioGuide(src)} color="#fff" bg="#000" />;
+}
 
 let play: jest.SpyInstance;
 let pause: jest.SpyInstance;
@@ -28,34 +32,34 @@ afterEach(() => jest.restoreAllMocks());
 
 describe('AudioGuide', () => {
   it('stays silent until it is turned on', () => {
-    render(<AudioGuide src="/a.mp3" color="#fff" bg="#000" />);
+    render(<Guide src="/a.mp3" />);
     expect(play).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: /audio guide/i })).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('plays each panel as it arrives once on, and remembers the choice', () => {
-    const { rerender } = render(<AudioGuide src="/a.mp3" color="#fff" bg="#000" />);
+    const { rerender } = render(<Guide src="/a.mp3" />);
     fireEvent.click(screen.getByRole('button', { name: /audio guide/i }));
     expect(play).toHaveBeenCalledTimes(1);
     expect(sessionStorage.getItem('mm-audio-guide')).toBe('on');
 
-    rerender(<AudioGuide src="/b.mp3" color="#fff" bg="#000" />);
+    rerender(<Guide src="/b.mp3" />);
     expect(pause).toHaveBeenCalled();
     expect(play).toHaveBeenCalledTimes(2);
   });
 
   it('pauses, and goes quiet on a panel with no recording', () => {
-    const { rerender } = render(<AudioGuide src="/a.mp3" color="#fff" bg="#000" />);
+    const { rerender } = render(<Guide src="/a.mp3" />);
     fireEvent.click(screen.getByRole('button', { name: /audio guide/i }));
     fireEvent.click(screen.getByRole('button', { name: /pause/i }));
     expect(pause).toHaveBeenCalled();
 
-    rerender(<AudioGuide src={undefined} color="#fff" bg="#000" />);
+    rerender(<Guide src={undefined} />);
     expect(screen.getByRole('button', { name: /no recording/i })).toBeDisabled();
   });
 
   it('turns off and stays off', () => {
-    render(<AudioGuide src="/a.mp3" color="#fff" bg="#000" />);
+    render(<Guide src="/a.mp3" />);
     fireEvent.click(screen.getByRole('button', { name: /audio guide/i }));
     act(() => {
       fireEvent.click(screen.getByRole('button', { name: /guide off/i }));

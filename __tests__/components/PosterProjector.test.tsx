@@ -42,6 +42,12 @@ describe('posterKeyCommand', () => {
     expect(posterKeyCommand('Escape', ctx)).toEqual({ type: 'swallow' });
     expect(posterKeyCommand('Home', { ...ctx, open: false })).toBeNull();
   });
+
+  it('turns the audio guide on and off with A, and pauses it with P, on an open poster', () => {
+    expect(posterKeyCommand('a', ctx)).toEqual({ type: 'audio' });
+    expect(posterKeyCommand('P', ctx)).toEqual({ type: 'play' });
+    expect(posterKeyCommand('A', { ...ctx, open: false })).toBeNull();
+  });
 });
 
 describe('projector deep links', () => {
@@ -208,6 +214,34 @@ describe('PosterProjector', () => {
     expect(blanked()).toBe(true);
     press('B');
     expect(blanked()).toBe(false);
+  });
+
+  it('puts the audio guide in the tool bar: A turns it on, P pauses, and blanking quiets it', () => {
+    const guide = { on: false, playing: false, progress: 0, available: true, turnOn: jest.fn(), turnOff: jest.fn(), toggle: jest.fn(), pause: jest.fn() };
+    const { rerender, props } = setup({ audioGuide: guide });
+    expect(screen.getByRole('button', { name: /Audio guide/ })).toHaveAttribute('aria-pressed', 'false');
+    press('a');
+    expect(guide.turnOn).toHaveBeenCalled();
+
+    const on = { ...guide, on: true, playing: true };
+    rerender(
+      <PosterProjector {...props} audioGuide={on}>
+        <div data-poster-stage="" />
+      </PosterProjector>,
+    );
+    expect(screen.getByRole('button', { name: /Pause/ })).toBeInTheDocument();
+    press('p');
+    expect(guide.toggle).toHaveBeenCalled();
+    press('b');
+    expect(guide.pause).toHaveBeenCalled();
+    press('b');
+    press('A');
+    expect(guide.turnOff).toHaveBeenCalled();
+  });
+
+  it('leaves the audio guide out for a poster with no recordings', () => {
+    setup();
+    expect(screen.queryByRole('button', { name: /Audio guide/ })).toBeNull();
   });
 
   it('keeps Escape from closing the poster underneath', () => {

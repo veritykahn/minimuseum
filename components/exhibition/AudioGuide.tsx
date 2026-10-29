@@ -9,15 +9,31 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
  * or turn the guide off; the choice lasts the visit (sessionStorage). It
  * never moves the walkthrough on by itself, so everyone reads at their own pace.
  *
- * One <audio> element lives here, outside the panels (which are rebuilt on
- * every step), so a panel change only swaps its source.
+ * useAudioGuide holds one <audio> element for the whole walk, outside the
+ * panels (which are rebuilt on every step), so a panel change only swaps its
+ * source. The page draws its controls (AudioGuide, top right); projector mode
+ * draws its own in the tool bar (PosterProjector), from the same guide.
  */
 
 const KEY = 'mm-audio-guide';
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
-export default function AudioGuide({ src, color, bg }: { src?: string; color: string; bg: string }) {
+export type AudioGuideState = {
+  on: boolean;
+  playing: boolean;
+  /** How far through this panel's recording, 0 to 1. */
+  progress: number;
+  /** This panel has a recording. */
+  available: boolean;
+  turnOn: () => void;
+  turnOff: () => void;
+  /** Pause, or play this panel's recording (again, from the start, once it has ended). */
+  toggle: () => void;
+  pause: () => void;
+};
+
+export function useAudioGuide(src?: string): AudioGuideState {
   const audio = useRef<HTMLAudioElement | null>(null);
   // Read on first render: the guide is drawn only once a poster is open, on the client.
   const [on, setOn] = useState(() => {
@@ -82,13 +98,19 @@ export default function AudioGuide({ src, color, bg }: { src?: string; color: st
   };
   const toggle = () => {
     const a = audio.current;
-    if (!a) return;
+    if (!a || !src) return;
     if (a.paused) {
       if (a.ended || progress >= 1) a.currentTime = 0;
       a.play().catch(() => setPlaying(false));
     } else a.pause();
   };
+  const pause = () => audio.current?.pause();
 
+  return { on, playing, progress, available: !!src, turnOn, turnOff, toggle, pause };
+}
+
+export default function AudioGuide({ guide, color, bg }: { guide: AudioGuideState; color: string; bg: string }) {
+  const { on, playing, progress, available, turnOn, turnOff, toggle } = guide;
   const style: CssVars = { color, borderColor: color, backgroundColor: bg, '--ag-progress': `${Math.round(progress * 360)}deg` };
 
   if (!on) {
@@ -109,8 +131,8 @@ export default function AudioGuide({ src, color, bg }: { src?: string; color: st
         className="pe-audio-btn pe-audio-play"
         style={style}
         onClick={toggle}
-        disabled={!src}
-        aria-label={!src ? 'No recording for this panel' : playing ? 'Pause the audio guide' : 'Play this panel again'}
+        disabled={!available}
+        aria-label={!available ? 'No recording for this panel' : playing ? 'Pause the audio guide' : 'Play this panel again'}
       >
         {playing ? <Pause /> : <Play />}
       </button>

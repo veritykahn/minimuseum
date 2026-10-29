@@ -13,7 +13,7 @@ import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '
 import PosterPanel from './PosterPanel';
 import CasePlaceholder from './CasePlaceholder';
 import AtmosphereLayer from './AtmosphereLayer';
-import AudioGuide from './AudioGuide';
+import AudioGuide, { useAudioGuide } from './AudioGuide';
 import { atmosphereName, colorsFor, emphasisRuns, entranceOf, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
@@ -69,6 +69,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
   const fx = usePosterFxStage(fxConfig.theme, direction, item?.type ?? '', colors.bg, colors.text);
   const veil = veilFor(fxConfig.veil, item, posterStep);
   const hasGuide = !!poster?.items.some((i) => i.audio);
+  const guide = useAudioGuide(item?.audio);
 
   const rememberFloorPosition = back.remember
     ? () => {
@@ -211,6 +212,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
         nextStep={nextStep}
         prevStep={prevStep}
         returnToMain={returnToMain}
+        audioGuide={hasGuide ? guide : undefined}
       >
         <>
           {poster && item && atmosphere && atmo && (
@@ -275,8 +277,8 @@ export default function PosterExhibition<K extends string>({ config }: { config:
               )}
             </div>
           )}
-          {/* Outside the stage too, so one recording player lasts the whole walk. */}
-          {hasGuide && <AudioGuide src={item?.audio} color={colors.text} bg={colors.bg} />}
+          {/* Outside the stage too; in projector mode the guide is in the tool bar instead. */}
+          {hasGuide && !projector && <AudioGuide guide={guide} color={colors.text} bg={colors.bg} />}
         </>
       </PosterProjector>
     </div>
