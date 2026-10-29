@@ -145,6 +145,205 @@
 }
 .ap-sheet-script { font-family: var(--ap-script); }
 .ap-sheet-type { font-family: 'Libre Caslon Text', Georgia, serif; }
+.ap-sheet-fell { font-family: 'IM Fell English', 'Libre Caslon Text', Georgia, serif; }
+
+/* The copies' own words: the whole text, run on in a small, close hand. */
+.ap-fair-body {
+  font-family: 'IM Fell English', 'Libre Caslon Text', Georgia, serif;
+  font-size: 11.2px;
+  line-height: 1.32;
+  text-align: justify;
+  hyphens: auto;
+  opacity: 0.82;
+}
+.ap-fair-stone { opacity: 0.9; letter-spacing: 0.01em; }
+.ap-fair-transcription { font-family: 'Libre Caslon Text', Georgia, serif; font-size: 9.8px; line-height: 1.42; opacity: 0.78; }
+.ap-fair-self { font-weight: 700; opacity: 1; font-size: 1.15em; }
+.ap-fair foreignObject { animation: aps-fade 1.2s ease 0.4s both; }
+
+/* ───────── The parchment to read and sign: the text in type, scrolling inside it ───────── */
+.aps-stage[data-tab='sign'] .aps-sheet { transform: rotate(-0.5deg); }
+.aps-parch {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  color: #2b1d14;
+  background:
+    radial-gradient(ellipse 75% 70% at 50% 46%, transparent 62%, rgba(122, 74, 30, 0.38) 100%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='3' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.32 0 0 0 0 0.16 0 0 0 0.5 -0.1'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23m)'/%3E%3C/svg%3E"),
+    #ead9b4;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 26px 50px rgba(0, 0, 0, 0.55), 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+.aps-parch[data-doc='class'], .aps-parch[data-doc='mine'] { background-color: #efe2c3; }
+.aps-parch-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 7% 9% 6%;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(43, 29, 20, 0.35) transparent;
+}
+.ap-room .aps-parch-scroll:focus-visible { outline: 3px solid #e8c77d; outline-offset: 4px; }
+.aps-parch-head {
+  font-family: 'IM Fell English', 'Libre Caslon Text', Georgia, serif;
+  font-size: 1rem;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+.aps-parch-title {
+  font-family: var(--ap-script);
+  font-weight: 400;
+  font-size: clamp(2.3rem, 3.6vw, 3.3rem);
+  line-height: 0.95;
+  text-align: center;
+  margin: 6px 0 18px;
+}
+.aps-parch-p {
+  font-family: 'IM Fell English', 'Libre Caslon Text', Georgia, serif;
+  font-size: clamp(1rem, 1.18vw, 1.12rem);
+  line-height: 1.6;
+  text-align: left;
+  hyphens: auto;
+  margin-bottom: 0.8em;
+}
+.aps-parch-grievance { padding-left: 1.4em; margin-bottom: 0.45em; }
+.aps-parch-signers {
+  list-style: none;
+  margin: 26px 0 12px;
+  padding: 18px 0 0;
+  border-top: 1px solid rgba(43, 29, 20, 0.25);
+  columns: 3 9em;
+  column-gap: 18px;
+}
+.aps-parch-col { break-inside: avoid; display: flex; flex-direction: column; margin-bottom: 12px; }
+.aps-parch-state { font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(43, 29, 20, 0.6); }
+.aps-parch-name { font-family: var(--ap-script); font-size: 1.85rem; line-height: 1; }
+.aps-parch-soon {
+  font-family: 'IM Fell English', 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 1.05rem;
+  text-align: center;
+  color: rgba(43, 29, 20, 0.55);
+  padding: 18px 0;
+  margin: 0 12% 14px;
+  border-top: 1px dashed rgba(43, 29, 20, 0.25);
+  border-bottom: 1px dashed rgba(43, 29, 20, 0.25);
+}
+.aps-parch-write { display: flex; flex-direction: column; gap: 6px; }
+.aps-parch-write-label { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(43, 29, 20, 0.65); }
+.aps-parch-write textarea {
+  resize: none;
+  width: 100%;
+  min-height: 9.6em;
+  border: 0;
+  padding: 0 2px;
+  background: repeating-linear-gradient(to bottom, transparent 0 calc(1.6em - 1px), rgba(43, 29, 20, 0.22) calc(1.6em - 1px) 1.6em);
+  font-family: 'IM Fell English', 'Libre Caslon Text', Georgia, serif;
+  font-size: 1.08rem;
+  line-height: 1.6;
+  color: #2b1d14;
+}
+.aps-parch-write textarea:focus { outline: none; background-color: rgba(255, 250, 235, 0.35); }
+.ap-room .aps-parch-write textarea:focus-visible { outline: 2px solid var(--ap-rust); outline-offset: 4px; }
+.aps-parch-written { white-space: pre-wrap; }
+.aps-parch-class { font-family: var(--pe-ui); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; text-align: right; margin-top: 10px; color: rgba(43, 29, 20, 0.7); }
+
+.aps-parch-foot { margin-top: 18px; }
+.aps-parch-sigs { list-style: none; margin: 0 0 6px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 0 14px; }
+.aps-parch[data-doc='declaration'] .aps-parch-sigs, .aps-parch[data-doc='mine'] .aps-parch-sigs { grid-template-columns: 1fr; width: 78%; margin: 0 auto; }
+.aps-parch-sig { margin: 0; display: flex; flex-direction: column; align-items: flex-end; border-bottom: 1px solid rgba(43, 29, 20, 0.22); }
+.aps-parch-sig svg { display: block; width: 100%; height: auto; }
+.aps-parch-of { font-family: var(--ap-script); font-size: 1.9rem; line-height: 1; }
+.aps-parch-line { position: relative; width: 78%; margin: 0 auto; display: flex; flex-direction: column; align-items: flex-end; }
+.aps-parch-line .aps-pad-box {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 10 / 3;
+  border-bottom: 1.5px solid rgba(43, 29, 20, 0.45);
+}
+.aps-parch-typing { position: absolute; left: 0; top: 0; width: 100%; height: auto; pointer-events: none; }
+.aps-parch-credit { margin-top: 18px; font-family: var(--pe-ui); font-size: 9pt; color: #5e5850; }
+/* While there is more to read above the line, a quiet pointer to it. */
+.aps-parch-more {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  padding: 5px 14px;
+  border-radius: 999px;
+  background: rgba(43, 29, 20, 0.78);
+  color: #f6efe0;
+  font-family: var(--pe-ui);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Which declaration: the Declaration, the class's, or the student's own. */
+.aps-docs { display: flex; gap: 4px; padding: 3px; border: 1px solid rgba(42, 39, 36, 0.2); border-radius: 4px; }
+.ap-room .aps-doc {
+  appearance: none;
+  flex: 1;
+  min-height: 40px;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: #5e5850;
+  font-family: var(--pe-ui);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  cursor: pointer;
+}
+.ap-room .aps-doc:hover { color: #2a2724; }
+.ap-room .aps-doc[aria-pressed='true'] { background: var(--frame); color: #fff8ec; }
+.aps-doc-short { display: none; }
+.ap-room .aps-to-foot { align-self: flex-start; min-height: 32px; padding-top: 0; padding-bottom: 0; }
+.aps-actions-class { align-items: center; padding-top: 10px; border-top: 1px solid rgba(42, 39, 36, 0.15); }
+.aps-count { font-family: var(--pe-ui); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #5e5850; margin-right: auto; }
+
+/* A phone: the parchment fills the space above the card, to read at a comfortable size. */
+@media (max-width: 760px) {
+  .ap-room .aps-stage[data-tab='sign'] { --sheet-h: 44dvh; }
+  .ap-room .aps-stage[data-tab='sign'] .aps-sheet { width: 100%; height: 100%; aspect-ratio: auto; transform: none; }
+  .aps-parch-scroll { padding: 18px 18px 22px; }
+  .aps-parch-title { font-size: 2rem; margin-bottom: 12px; }
+  .aps-parch-p { font-size: 0.98rem; line-height: 1.5; }
+  .aps-parch-name { font-size: 1.5rem; }
+  .aps-parch-line, .aps-parch[data-doc='declaration'] .aps-parch-sigs, .aps-parch[data-doc='mine'] .aps-parch-sigs { width: 92%; }
+  .aps-parch-sigs { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .aps-parch-more { font-size: 10px; bottom: 8px; }
+  .ap-room .aps-stage[data-tab='sign'] .aps-inkwell { right: 2px; bottom: 6px; width: 30px; }
+  .aps-doc-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .aps-doc-short { display: inline; }
+  .ap-room .aps-doc { min-height: 34px; font-size: 11px; }
+  .aps-panel-sign .aps-quote-small, .aps-panel-sign .aps-intro { display: none; }
+  .ap-room .aps-to-foot { min-height: 28px; }
+}
+
+/* ───────── The printed parchment: just the sheet and its names ───────── */
+.aps-print-root { display: none; }
+@media print {
+  @page { size: letter; margin: 0.6in; }
+  html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  body > :not(.aps-print-root) { display: none !important; }
+  .aps-print-root { display: block !important; color: #2b1d14; }
+  .aps-print-root .aps-parch { height: auto; box-shadow: none; background: #fbf5e6; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .aps-print-root .aps-parch-scroll { position: static; overflow: visible; padding: 0.4in 0.5in; }
+  .aps-print-root .aps-parch-title { font-size: 34pt; }
+  .aps-print-root .aps-parch-p { font-size: 10.5pt; line-height: 1.45; }
+  .aps-print-root .aps-parch-name { font-size: 18pt; }
+  .aps-print-root .aps-parch-sig, .aps-print-root .aps-parch-col { break-inside: avoid; }
+  .aps-print-root .aps-parch-soon { font-size: 11pt; }
+}
 
 /* Each copy is written in afresh: its lines drawn in, its words fading up. */
 .ap-sheet-ink path { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: aps-write 1.5s ease-out forwards; }

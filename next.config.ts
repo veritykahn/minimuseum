@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
       })),
       // The old all-exhibitions page; both floors now start in the Great Hall.
       { source: '/exhibitions', destination: '/greathall', permanent: true },
+      // The optical toys moved from Victorian Britain to Seeing is Deceiving.
+      { source: '/exhibitions/victorian/optical-toys', destination: '/exhibitions/seeing-is-deceiving/optical-toys', permanent: true },
     ];
   },
 

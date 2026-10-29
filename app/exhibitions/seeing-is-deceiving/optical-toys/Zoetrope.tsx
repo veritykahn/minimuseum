@@ -3,18 +3,28 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { drawFrame } from './strips';
 import FactNote from '@/components/exhibition/FactNote';
-import { STRIPS, TOY_NOTES, type StripId } from './toysText';
-import { approach, frameAt, slitStrength, TAU, ZOE_FRAMES, ZOE_STROBE, ZOE_TOP } from './spin';
+import { POSTER, STRIPS, TOY_NOTES, type StripId } from './toysText';
+import { approach, frameAt, slitStrength, TAU, ZOE_FRAMES, ZOE_LADDER, ZOE_STROBE, ZOE_TOP, zoeSeen } from './spin';
+import { useLadder } from './useLadder';
+import SpeedLadder from './SpeedLadder';
 
 /*
  * The zoetrope: a drum on a stand, slits round its wall and a strip of
- * twelve pictures inside. Drawn on a canvas, as seen from a little above.
- * Spin it (the button, or a flick sideways across the drum) and the slits
- * blur to a band while the pictures, glimpsed one at a time, move in place.
- * The lens beside it shows the picture seen through the front slit. Step
- * through the pictures one by one, or see them all side by side: under
- * reduced motion the drum stays still and that is how it is seen.
+ * twelve drawings inside. Drawn on a canvas, as seen from a little above.
+ * Spin it and it starts slowly, so each drawing is seen going round past
+ * the slits; then it climbs, rung by rung, until the slits blur to a band
+ * and the drawings, glimpsed one at a time, move in place: the horses
+ * gallop, the people dance. Faster and slower step by hand, and a flick
+ * sideways across the drum spins it too. The lens beside it shows the
+ * drawing seen through the front slit. Step through the drawings one by
+ * one, or see them all side by side: under reduced motion the drum stays
+ * still and that is how it is seen.
  */
+
+const SEEN_LABEL = {
+  drawings: 'Slow enough to see each drawing go round',
+  moving: 'Each drawing glimpsed in place, one after another',
+};
 
 const N = ZOE_FRAMES;
 const SLOT = TAU / N;
@@ -29,8 +39,6 @@ const SPIN_DOWN = 0.45;
 
 export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { reduced: boolean; strip: StripId; onStrip: (s: StripId) => void; intro: string; footer?: ReactNode }) {
   const s = STRIPS.find((x) => x.id === strip)!;
-  const [spinning, setSpinning] = useState(false);
-  const [top, setTop] = useState(70);
   const [frame, setFrame] = useState(0);
   // Side by side under reduced motion, until the visitor chooses.
   const [framesChoice, setFramesChoice] = useState<boolean | null>(null);
@@ -136,23 +144,20 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
     return () => ro.disconnect();
   }, [paint, showFrames]);
 
-  const setSpin = (on: boolean) => {
-    setSpinning(on);
-    target.current = on ? (top / 100) * ZOE_TOP : 0;
-    setStatus(on ? 'Spinning.' : 'Slowing down.');
-    run();
-  };
-
-  const onTop = (v: number) => {
-    setTop(v);
-    if (spinning) {
-      target.current = (v / 100) * ZOE_TOP;
+  const onRung = useCallback(
+    (rps: number, rung: number) => {
+      target.current = rps;
+      setStatus(rung < 0 ? 'Slowing down.' : `Speed ${rung + 1} of ${ZOE_LADDER.length}: ${SEEN_LABEL[zoeSeen(rps)].toLowerCase()}.`);
       run();
-    }
-  };
+    },
+    [run],
+  );
+  const ladder = useLadder(ZOE_LADDER, onRung);
+  const spinning = ladder.rung >= 0;
+  const seen = spinning ? zoeSeen(ZOE_LADDER[ladder.rung].rps) : 'drawings';
 
   const step = (by: number) => {
-    setSpinning(false);
+    if (spinning) ladder.stop();
     target.current = 0;
     speed.current = 0;
     angle.current = (Math.round(angle.current / SLOT) + by) * SLOT;
@@ -238,7 +243,7 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
         </div>
         <div className="vto-actions">
           {!reduced && (
-            <button type="button" className="vto-button vto-button-primary" aria-pressed={spinning} onClick={() => setSpin(!spinning)}>
+            <button type="button" className="vto-button vto-button-primary" aria-pressed={spinning} onClick={spinning ? ladder.stop : ladder.start}>
               {spinning ? 'Stop' : 'Spin'}
             </button>
           )}
@@ -254,12 +259,20 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
           </button>
         </div>
         {!reduced && !showFrames && (
-          <label className="vz-speed">
-            <span>Speed</span>
-            <input type="range" min={10} max={100} step={5} value={top} onChange={(e) => onTop(Number(e.target.value))} />
-          </label>
+          <SpeedLadder
+            ladder={ZOE_LADDER}
+            rung={ladder.rung}
+            climbing={ladder.climbing}
+            seen={SEEN_LABEL[seen]}
+            onFaster={spinning ? ladder.faster : ladder.start}
+            onSlower={ladder.slower}
+            onClimb={ladder.climb}
+          />
         )}
-        <p className="vto-caption">{s.caption}</p>
+        {/* The poster's lines for what is on screen: the toy, then what the brain makes of it. */}
+        <p className="vto-caption" aria-live="polite">
+          {seen === 'drawings' || showFrames ? POSTER.zoetrope : ladder.top ? `${POSTER.movies} ${POSTER.screens}` : POSTER.nothingMoves}
+        </p>
         <FactNote fact={TOY_NOTES.zoetrope} className="vto-fact" />
         {footer}
       </div>
@@ -287,8 +300,8 @@ function prepare(c: HTMLCanvasElement | null) {
 }
 
 const mix = (a: number[], b: number[], t: number) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',')})`;
-const WALL_DARK = [22, 36, 25];
-const WALL_LIGHT = [84, 122, 90];
+const WALL_DARK = [14, 17, 22];
+const WALL_LIGHT = [58, 74, 88];
 const SLIT_W = SLOT * 0.16;
 
 /** The drum, from a little above: the strip on the far inside wall, the slits in the near one. */
@@ -343,12 +356,12 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
     const x1 = Math.ceil(cx + R * Math.cos(t1));
     const sw = Math.max(1, x1 - x0);
     const yt = cy + ry * Math.sin(tm);
-    g.fillStyle = '#15211a';
+    g.fillStyle = '#0f1216';
     g.fillRect(x0, yt, sw, Hw);
     // the slits, letting in the room's light
     const a = (((tm - phi) % SLOT) + SLOT) % SLOT;
     const inSlit = Math.abs(a - SLOT / 2) < SLIT_W / 2;
-    g.fillStyle = `rgba(233, 205, 184, ${inSlit ? 0.75 * slit : 0}`;
+    g.fillStyle = `rgba(233, 205, 184, ${inSlit ? 0.75 * slit : 0})`;
     if (inSlit && slit > 0) g.fillRect(x0, yt + Hw * 0.04, sw, Hw * 0.3);
     if (slit < 1) {
       g.fillStyle = `rgba(233, 205, 184, ${0.12 * (1 - slit)})`;
@@ -366,11 +379,11 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
   }
   // the far wall darker toward the sides, where it turns away
   const shade = g.createLinearGradient(cx - R, 0, cx + R, 0);
-  shade.addColorStop(0, 'rgba(10, 16, 12, 0.7)');
-  shade.addColorStop(0.28, 'rgba(10, 16, 12, 0.12)');
-  shade.addColorStop(0.5, 'rgba(10, 16, 12, 0)');
-  shade.addColorStop(0.72, 'rgba(10, 16, 12, 0.12)');
-  shade.addColorStop(1, 'rgba(10, 16, 12, 0.7)');
+  shade.addColorStop(0, 'rgba(6, 8, 12, 0.7)');
+  shade.addColorStop(0.28, 'rgba(6, 8, 12, 0.12)');
+  shade.addColorStop(0.5, 'rgba(6, 8, 12, 0)');
+  shade.addColorStop(0.72, 'rgba(6, 8, 12, 0.12)');
+  shade.addColorStop(1, 'rgba(6, 8, 12, 0.7)');
   g.fillStyle = shade;
   g.beginPath();
   g.ellipse(cx, cy, R, ry, 0, Math.PI, TAU);
@@ -379,7 +392,7 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
   g.closePath();
   g.fill();
   // the strip's frame lines: a thin dark edge above and below
-  g.strokeStyle = 'rgba(20, 28, 22, 0.8)';
+  g.strokeStyle = 'rgba(10, 12, 16, 0.8)';
   g.lineWidth = 1;
   for (const f of [0.4, 0.98]) {
     g.beginPath();
@@ -401,11 +414,11 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
     g.fillRect(x0, yt, sw, Hw);
     const a = (((tm - phi) % SLOT) + SLOT) % SLOT;
     if (slit > 0 && Math.abs(a - SLOT / 2) < SLIT_W / 2) {
-      g.fillStyle = `rgba(8, 14, 10, ${0.92 * slit})`;
+      g.fillStyle = `rgba(4, 6, 9, ${0.92 * slit})`;
       g.fillRect(x0, yt + Hw * 0.04, sw, Hw * 0.3);
     }
     if (slit < 1) {
-      g.fillStyle = `rgba(8, 14, 10, ${0.3 * (1 - slit)})`;
+      g.fillStyle = `rgba(4, 6, 9, ${0.3 * (1 - slit)})`;
       g.fillRect(x0, yt + Hw * 0.04, sw, Hw * 0.3);
     }
     // a painted gold dot between each pair of slits, below them
@@ -430,7 +443,7 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
   g.beginPath();
   g.ellipse(cx, cy, R, ry, 0, 0, TAU);
   g.stroke();
-  g.strokeStyle = '#1a2a1d';
+  g.strokeStyle = '#11151a';
   g.lineWidth = Math.max(1.5, R * 0.012);
   g.beginPath();
   g.ellipse(cx, cy + Hw, R, ry, 0, 0, Math.PI);
@@ -456,7 +469,7 @@ export function drawLens(c: HTMLCanvasElement | null, picture: CanvasImageSource
   const slit = slitStrength(rps);
   if (slit > 0 && rps > 0) {
     const off = ((((phi % SLOT) + SLOT) % SLOT) / SLOT) * W;
-    g.fillStyle = `rgba(20, 30, 22, ${0.55 * slit})`;
+    g.fillStyle = `rgba(10, 12, 16, ${0.55 * slit})`;
     g.fillRect(off - W * 1.2, 0, W * 0.9, H);
     g.fillRect(off + W * 0.3, 0, W * 0.9, H);
   }

@@ -1,0 +1,360 @@
+/* ==========================================================================
+   The optical toys, on one screen, in Seeing is Deceiving's look: near-black
+   ground, the toy lit at the centre as if thrown on a screen, a film strip's
+   sprocket edges along the top and the foot (the poster's "vintage film"
+   chapter), a fine grain, and beside the toy a card of the dark with a thin
+   rule of the exhibition's waves blue. Titles in Cormorant Garamond, the
+   rest in Outfit, as on the posters and the Perception Lab.
+   ========================================================================== */
+
+.sid-toys {
+  --sid-ink: #f4f1ea;
+  --sid-muted: #a9a7a8;
+  --sid-blue: #a8d5e5;
+  --sid-sepia: #c9a66b;
+  --sid-card: rgba(18, 18, 20, 0.92);
+  --sid-serif: 'Cormorant Garamond', Georgia, serif;
+  --sid-sans: 'Outfit', 'Helvetica Neue', sans-serif;
+  min-height: 100vh;
+  background: #0a0a0a;
+  color: var(--sid-ink);
+  font-family: var(--sid-sans);
+}
+.sid-toys :focus-visible { outline: 2px solid var(--sid-blue); outline-offset: 3px; }
+/* No margin round the page, as on the exhibition's other rooms. */
+body:has(.sid-toys) { margin: 0; }
+.sid-toys :is(h1, h2, p, figure, ol, ul) { margin: 0; }
+
+/* "M ← Exhibition", as on the Perception Lab. */
+.sid-toys .sid-nav {
+  position: fixed;
+  top: 28px;
+  left: 32px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-family: var(--sid-serif);
+  color: var(--sid-muted);
+}
+.sid-nav-m { font-size: 28px; font-weight: 300; color: var(--sid-ink); }
+.sid-nav-arrow { font-size: 16px; transition: transform 0.3s ease; }
+.sid-nav-label { font-size: 13px; font-style: italic; opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap; transition: all 0.4s ease; }
+.sid-nav:hover .sid-nav-label, .sid-nav:focus-visible .sid-nav-label { opacity: 1; max-width: 150px; }
+.sid-nav:hover .sid-nav-arrow, .sid-nav:focus-visible .sid-nav-arrow { transform: translateX(-4px); }
+
+.vto-stage {
+  position: relative;
+  display: block;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 600px;
+  overflow: hidden;
+}
+
+/* ───────── The darkened room ───────── */
+.vto-room { position: absolute; inset: 0; pointer-events: none; }
+.vto-beam {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 42% 52% at 36% 54%, rgba(255, 236, 200, 0.14), rgba(201, 166, 107, 0.05) 55%, transparent 75%),
+    radial-gradient(ellipse 120% 90% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.7) 100%);
+}
+/* The film strip's edges: sprocket holes on a dark band. */
+.vto-film {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 22px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 10px, rgba(244, 241, 234, 0.13) 10px 22px, transparent 22px 34px) center / 34px 10px repeat-x,
+    #050505;
+  border-color: rgba(244, 241, 234, 0.08);
+  border-style: solid;
+  border-width: 0;
+}
+.vto-film-top { top: 0; border-bottom-width: 1px; }
+.vto-film-bottom { bottom: 0; border-top-width: 1px; }
+.vto-grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.07;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ───────── The title and the tabs ───────── */
+.vto-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 30px 96px 0;
+}
+.vto-kicker { font-size: 11px; font-weight: 300; letter-spacing: 0.28em; text-transform: uppercase; color: var(--sid-sepia); }
+.vto-title {
+  font-family: var(--sid-serif);
+  font-weight: 300;
+  font-size: clamp(2rem, 3vw, 2.7rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  color: var(--sid-ink);
+}
+.vto-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-top: 4px;
+  border: 1px solid rgba(168, 213, 229, 0.25);
+  border-radius: 999px;
+}
+.sid-toys .vto-tab {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--sid-muted);
+  font-family: var(--sid-sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 10px 22px;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.sid-toys .vto-tab:hover { color: var(--sid-ink); }
+.sid-toys .vto-tab[aria-selected='true'] { background: var(--sid-blue); color: #0a0a0a; }
+
+/* The panels lay out their toy on the stage and their card beside it. */
+.vto-panel { display: contents; }
+.vto-panel[hidden] { display: none; }
+.vt-thauma, .vz-zoe { display: contents; }
+
+.vto-toy-area {
+  position: absolute;
+  z-index: 1;
+  top: 170px;
+  bottom: 48px;
+  left: 3vw;
+  right: calc(min(420px, 34vw) + max(5vw, 50vw - 680px) + 1vw);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ───────── The card ───────── */
+.vto-controls {
+  position: absolute;
+  z-index: 2;
+  right: max(5vw, calc(50vw - 680px));
+  top: 170px;
+  width: min(420px, 34vw);
+  max-height: calc(100dvh - 170px - 40px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px 26px 24px;
+  background: var(--sid-card);
+  border: 1px solid rgba(168, 213, 229, 0.18);
+  border-top: 2px solid var(--sid-blue);
+  font-weight: 300;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  animation: vto-in 0.6s ease both;
+}
+@keyframes vto-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.vto-intro { font-size: 0.98rem; line-height: 1.55; color: #dcd8d0; }
+/* The poster's own line, set as the poster sets its copy: Cormorant, italic. */
+.vto-caption {
+  font-family: var(--sid-serif);
+  font-style: italic;
+  font-size: 1.22rem;
+  line-height: 1.45;
+  color: var(--sid-ink);
+  padding-top: 12px;
+  border-top: 1px solid rgba(244, 241, 234, 0.14);
+}
+/* A note on the toy's history (owner-approved, fact-checked, not the poster's
+   words): set small under the caption, its source linked. */
+.vto-fact { display: flex; flex-direction: column; gap: 3px; font-size: 0.8rem; line-height: 1.5; color: var(--sid-muted); }
+.vto-fact-source { font-size: 11px; letter-spacing: 0.03em; opacity: 0.9; }
+.vto-fact-source a { color: var(--sid-blue); text-decoration: underline; text-underline-offset: 3px; }
+.vto-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.vto-picker { display: flex; gap: 8px; }
+.sid-toys .vto-pick {
+  appearance: none;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 8px;
+  border: 1px solid rgba(244, 241, 234, 0.25);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--sid-ink);
+  font-family: var(--sid-sans);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.sid-toys .vto-pick:hover { border-color: var(--sid-blue); }
+.sid-toys .vto-pick[aria-pressed='true'] { background: var(--sid-blue); color: #0a0a0a; border-color: var(--sid-blue); }
+.vto-picker-col { flex-direction: column; flex: 1; gap: 6px; }
+
+.vto-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.sid-toys .vto-button {
+  appearance: none;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 18px;
+  border: 1px solid rgba(244, 241, 234, 0.55);
+  border-radius: 0;
+  background: transparent;
+  color: var(--sid-ink);
+  font-family: var(--sid-sans);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.sid-toys .vto-button:hover:not(:disabled) { border-color: var(--sid-blue); color: var(--sid-blue); }
+.sid-toys .vto-button-primary { background: var(--sid-blue); color: #0a0a0a; border-color: var(--sid-blue); font-weight: 500; }
+.sid-toys .vto-button-primary:hover:not(:disabled) { background: var(--sid-ink); border-color: var(--sid-ink); color: #0a0a0a; }
+.sid-toys .vto-button-quiet { border-color: transparent; text-decoration: underline; text-underline-offset: 4px; padding-left: 6px; padding-right: 6px; }
+.sid-toys .vto-button:disabled { opacity: 0.35; cursor: default; }
+.sid-toys .vto-button-small { min-width: 40px; min-height: 40px; padding: 0; font-size: 18px; letter-spacing: 0; }
+
+/* ───────── The speed: a ladder of rungs ───────── */
+.vto-ladder { display: flex; flex-direction: column; gap: 6px; }
+.vto-ladder-row { display: flex; align-items: center; gap: 10px; }
+.vto-rungs { flex: 1; height: 34px; list-style: none; margin: 0; padding: 0; display: flex; align-items: flex-end; gap: 5px; }
+.vto-rung { flex: 1; background: rgba(244, 241, 234, 0.12); transition: background 0.4s ease; }
+.vto-rung[data-on] { background: rgba(168, 213, 229, 0.5); }
+.vto-rung[data-current] { background: var(--sid-blue); box-shadow: 0 0 10px rgba(168, 213, 229, 0.45); }
+.vto-ladder-label { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 12px; }
+.vto-ladder-n { letter-spacing: 0.18em; text-transform: uppercase; color: var(--sid-blue); }
+.vto-ladder-seen { color: #dcd8d0; }
+.sid-toys .vto-ladder-climb { align-self: flex-start; min-height: 30px; padding-top: 0; padding-bottom: 0; }
+
+/* ───────── The thaumatrope ───────── */
+.vt-toy { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.vt-strings { position: absolute; left: -3vw; right: -3vw; top: 50%; width: calc(100% + 6vw); height: 14px; transform: translateY(-50%); overflow: visible; }
+.vt-strings path { fill: none; stroke-width: 3; }
+/* Two strands, twisted: their dashes run along the string as the disc turns. */
+.vt-strand-a { stroke: #e9dfca; stroke-dasharray: 9 6; stroke-dashoffset: calc(var(--twist) * 1px); }
+.vt-strand-b { stroke: #8a7556; stroke-dasharray: 6 9; stroke-dashoffset: calc(var(--twist) * -1px); }
+.vt-string-right .vt-strand-a { stroke-dashoffset: calc(var(--twist) * -1px); }
+.vt-string-right .vt-strand-b { stroke-dashoffset: calc(var(--twist) * 1px); }
+.vt-disc-holder {
+  position: relative;
+  width: min(52vh, 100%, 500px);
+  aspect-ratio: 1;
+  perspective: 1100px;
+  touch-action: none;
+  cursor: grab;
+}
+.vt-disc-holder:active { cursor: grabbing; }
+.vt-disc { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+.vt-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+.vt-face-back { transform: rotateX(180deg); }
+.vt-face-art { display: block; width: 100%; height: 100%; }
+.vt-face .vt-face-art, .vt-blend .vt-face-art { filter: drop-shadow(0 0 30px rgba(255, 236, 200, 0.12)) drop-shadow(0 18px 22px rgba(0, 0, 0, 0.6)); }
+.vt-blend { position: absolute; inset: 0; pointer-events: none; }
+/* Merged, the disc's rim blurs with the speed. */
+.vt-toy[data-merged] .vt-blend::after {
+  content: '';
+  position: absolute;
+  inset: -1%;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(184, 150, 63, 0.35), 0 0 14px 6px rgba(243, 234, 214, 0.25);
+  filter: blur(2px);
+}
+
+/* Both sides, side by side */
+.vt-sides { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2vw, 28px); width: 100%; }
+.vt-side { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.sid-toys .vt-side-button { appearance: none; padding: 0; border: 0; background: none; border-radius: 50%; width: min(24vh, 13vw, 220px); aspect-ratio: 1; cursor: pointer; transition: transform 0.3s ease; }
+.vt-side[aria-current='step'] .vt-side-button { transform: scale(1.08); outline: 2px solid var(--sid-blue); outline-offset: 5px; }
+.vt-side-name { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sid-muted); }
+.vt-side-op { position: absolute; right: calc(-1 * clamp(10px, 2vw, 28px) / 2); top: 40%; font-family: var(--sid-serif); font-size: clamp(1.6rem, 2.6vw, 2.6rem); line-height: 1; transform: translate(50%, -50%); color: var(--sid-muted); }
+
+/* ───────── The zoetrope ───────── */
+.vz-drum { width: 100%; height: 100%; touch-action: pan-y; cursor: grab; display: block; }
+.vz-drum:active { cursor: grabbing; }
+.vz-lens-row { display: flex; gap: 14px; align-items: stretch; }
+.vz-lens { margin: 0; flex: none; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.vz-lens-canvas {
+  display: block;
+  width: clamp(124px, 11vw, 168px);
+  aspect-ratio: 4 / 3;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px #b8963f, 0 0 0 5px rgba(0, 0, 0, 0.6), 0 10px 18px rgba(0, 0, 0, 0.5);
+}
+.vz-lens figcaption { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sid-muted); }
+.vz-count { min-width: 3.4em; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
+
+.vz-frames {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: clamp(6px, 1vw, 12px);
+  width: min(100%, 72vh);
+}
+.sid-toys .vz-frame { appearance: none; position: relative; display: block; width: 100%; padding: 0; border: 0; background: #f3ead6; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5); }
+.vz-frame img, .vz-frame-blank { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; }
+.vz-frame-n { position: absolute; left: 4px; top: 2px; font-size: 11px; color: #3b2a1c; background: rgba(243, 234, 214, 0.85); padding: 0 5px; border-radius: 2px; }
+.vz-frames li[aria-current='step'] .vz-frame { outline: 3px solid var(--sid-blue); outline-offset: 2px; }
+
+/* ───────── A phone: the toy above, the card below ───────── */
+@media (max-width: 760px) {
+  .vto-stage { min-height: 0; --toy-h: 27dvh; }
+  .vto-stage[data-tab='zoetrope'] { --toy-h: 24dvh; }
+  .sid-toys .sid-nav { top: 30px; left: 18px; }
+  .vto-bar { padding: 34px 12px 0; gap: 4px; }
+  .vto-kicker { display: none; }
+  .vto-title { font-size: 1.9rem; }
+  .sid-toys .vto-tab { font-size: 11px; padding: 8px 16px; }
+  .vto-toy-area { top: 124px; bottom: auto; height: var(--toy-h); left: 12px; right: 12px; }
+  .vt-disc-holder { width: min(var(--toy-h), 74vw); }
+  .sid-toys .vt-side-button { width: 25vw; }
+  .vz-frames { grid-template-columns: repeat(4, 1fr); width: 100%; }
+  .vto-controls {
+    left: 8px;
+    right: 8px;
+    top: calc(124px + var(--toy-h) + 6px);
+    bottom: 26px;
+    width: auto;
+    max-height: none;
+    gap: 9px;
+    padding: 12px 14px 14px;
+  }
+  /* The toy shows what to do; the card keeps its room for the poster's lines and notes. */
+  .vto-intro { display: none; }
+  .vto-caption { font-size: 1.02rem; padding-top: 8px; }
+  .vto-fact { font-size: 0.7rem; line-height: 1.38; gap: 0; }
+  .vto-fact-source { font-size: 10px; }
+  .sid-toys .vto-button { min-height: 40px; padding: 8px 12px; font-size: 11px; }
+  .sid-toys .vto-button-small { min-width: 40px; }
+  .vto-rungs { height: 26px; }
+  .vz-lens-canvas { width: 96px; }
+  .vz-lens-row { gap: 10px; }
+  .vto-picker-col { gap: 4px; }
+  .sid-toys .vto-pick { padding: 5px 8px; font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vto-controls { animation: none; }
+  .sid-toys .vto-tab, .sid-toys .vto-button, .sid-toys .vt-side-button, .vto-rung, .sid-nav-label, .sid-nav-arrow { transition: none; }
+}

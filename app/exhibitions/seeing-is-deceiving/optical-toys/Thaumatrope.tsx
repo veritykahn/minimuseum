@@ -3,30 +3,38 @@
 import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import { DiscArt } from './DiscArt';
 import FactNote from '@/components/exhibition/FactNote';
-import { DISCS, TOY_NOTES, type DiscId } from './toysText';
-import { approach, faceAt, thaumaBlend, TAU, THAUMA_TOP } from './spin';
+import { DISC, POSTER, TOY_NOTES } from './toysText';
+import { approach, faceAt, thaumaBlend, thaumaSeen, TAU, THAUMA_LADDER, THAUMA_TOP } from './spin';
+import { useLadder } from './useLadder';
+import SpeedLadder from './SpeedLadder';
 
 /*
- * The thaumatrope: a card disc on two strings, a half picture on each side.
- * Twirl it (the button, or a flick up or down across the disc) and it turns
- * over and over; slowly, the sides are seen in turn, and past a turn and a
- * half a second they are shown merged, steady, as the eye sees them. Or look
- * at its sides one by one: under reduced motion that is all it shows.
+ * The thaumatrope: a card disc on two strings, the bird on one side and the
+ * cage on the other. Twirl it and it starts slowly, so each side is seen in
+ * turn, then climbs, rung by rung, until the sides blend and the bird is in
+ * the cage; faster and slower step by hand, and a flick up or down across
+ * the disc spins it too. Or look at its sides one by one: under reduced
+ * motion that is all it shows.
  */
 
-const SPIN_UP = 3; // turns a second, every second, as the strings are twirled
-const SPIN_DOWN = 1.1; // as they unwind
+const RATE = 1.4; // turns a second, every second, between rungs
+const SPIN_DOWN = 1.1; // as the strings unwind
 const SIDES = ['front', 'back', 'together'] as const;
 type Side = (typeof SIDES)[number];
 
-export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { reduced: boolean; disc: DiscId; onDisc: (d: DiscId) => void; intro: string; footer?: ReactNode }) {
-  const d = DISCS.find((x) => x.id === disc)!;
-  const [twirling, setTwirling] = useState(false);
+const SEEN_LABEL = {
+  sides: 'Slow enough to see each side go by',
+  blending: 'The two sides begin to blend',
+  merged: 'One picture: the bird in its cage',
+};
+
+export default function Thaumatrope({ reduced, intro, footer }: { reduced: boolean; intro: string; footer?: ReactNode }) {
   // Side by side under reduced motion, until the visitor chooses.
   const [sidesChoice, setSidesChoice] = useState<boolean | null>(null);
   const sidesView = sidesChoice ?? reduced;
   const [side, setSide] = useState<Side>('front');
   const [merged, setMerged] = useState(false);
+  const [seen, setSeen] = useState<keyof typeof SEEN_LABEL>('sides');
   const [face, setFace] = useState<'front' | 'back'>('front');
   const [status, setStatus] = useState('');
 
@@ -35,15 +43,15 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
   const blendEl = useRef<HTMLDivElement>(null);
   const angle = useRef(0);
   const speed = useRef(0);
-  const twirl = useRef(false);
+  const target = useRef(0);
   const drag = useRef<{ y: number; t: number; v: number } | null>(null);
   const raf = useRef(0);
   // The frame loop calls itself through a ref, so it always runs the latest tick.
   const loop = useRef<FrameRequestCallback | null>(null);
   const last = useRef(0);
   const mergedRef = useRef(false);
+  const seenRef = useRef<keyof typeof SEEN_LABEL>('sides');
   const faceRef = useRef<'front' | 'back'>('front');
-
 
   // Draw the disc at its angle and speed.
   const paint = useCallback(() => {
@@ -59,11 +67,16 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
       faceRef.current = f;
       setFace(f);
     }
+    const s = thaumaSeen(speed.current);
+    if (s !== seenRef.current) {
+      seenRef.current = s;
+      setSeen(s);
+    }
     const isMerged = blend >= 1;
     if (isMerged !== mergedRef.current) {
       mergedRef.current = isMerged;
       setMerged(isMerged);
-      if (isMerged) setStatus('The two sides make one picture.');
+      if (isMerged) setStatus(`${SEEN_LABEL.merged}.`);
     }
   }, []);
 
@@ -72,12 +85,11 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
       const dt = Math.min(0.05, (now - last.current) / 1000 || 0);
       last.current = now;
       if (!drag.current) {
-        const target = twirl.current ? THAUMA_TOP : 0;
-        speed.current = approach(speed.current, target, dt, twirl.current ? SPIN_UP : SPIN_DOWN);
+        speed.current = approach(speed.current, target.current, dt, target.current > 0 ? RATE : SPIN_DOWN);
         angle.current += speed.current * TAU * dt;
       }
       // Coming to rest, it settles flat, on whichever side it was nearest.
-      if (!twirl.current && !drag.current && speed.current === 0) {
+      if (target.current === 0 && !drag.current && speed.current === 0) {
         const rest = Math.round(angle.current / Math.PI) * Math.PI;
         angle.current += (rest - angle.current) * Math.min(1, dt * 8);
         if (Math.abs(rest - angle.current) < 0.002) {
@@ -104,32 +116,24 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
   }, [reduced]);
 
   useEffect(() => () => cancelAnimationFrame(raf.current), []);
-
-  // A new disc starts still, front up.
-  const pick = (id: DiscId) => {
-    cancelAnimationFrame(raf.current);
-    raf.current = 0;
-    twirl.current = false;
-    setTwirling(false);
-    angle.current = 0;
-    speed.current = 0;
-    onDisc(id);
-  };
   useEffect(() => {
     paint();
-  }, [disc, paint]);
+  }, [paint]);
 
-  const toggleTwirl = () => {
-    const on = !twirl.current;
-    twirl.current = on;
-    setTwirling(on);
-    setStatus(on ? 'Twirling.' : 'Letting it slow down.');
-    run();
-  };
+  const onRung = useCallback(
+    (rps: number, rung: number) => {
+      target.current = rps;
+      setStatus(rung < 0 ? 'Letting it slow down.' : `Speed ${rung + 1} of ${THAUMA_LADDER.length}: ${SEEN_LABEL[thaumaSeen(rps)].toLowerCase()}.`);
+      run();
+    },
+    [run],
+  );
+  const ladder = useLadder(THAUMA_LADDER, onRung);
+  const twirling = ladder.rung >= 0;
 
   const flip = () => {
-    twirl.current = false;
-    setTwirling(false);
+    ladder.stop();
+    target.current = 0;
     speed.current = 0;
     angle.current = Math.round(angle.current / Math.PI) * Math.PI + Math.PI;
     if (discEl.current && !reduced) discEl.current.style.transition = 'transform 0.6s cubic-bezier(0.3, 0.7, 0.3, 1)';
@@ -137,7 +141,7 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
     window.setTimeout(() => {
       if (discEl.current) discEl.current.style.transition = '';
     }, 650);
-    setStatus(faceAt(angle.current) === 'front' ? `Front: ${d.front}.` : `Back: ${d.back}.`);
+    setStatus(faceAt(angle.current) === 'front' ? `Front: ${DISC.front}.` : `Back: ${DISC.back}.`);
   };
 
   // A flick up or down across the disc spins it.
@@ -171,8 +175,11 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
   const stepSide = (by: number) => {
     const i = (SIDES.indexOf(side) + by + SIDES.length) % SIDES.length;
     setSide(SIDES[i]);
-    setStatus(sideLabel(SIDES[i], d));
+    setStatus(sideLabel(SIDES[i]));
   };
+
+  // The poster's line for what is on screen: the toy itself, then what the brain makes of it.
+  const line = sidesView ? (side === 'together' ? POSTER.discovered : POSTER.thaumatrope) : seen === 'merged' ? POSTER.discovered : POSTER.thaumatrope;
 
   return (
     <div className="vt-thauma">
@@ -190,7 +197,7 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
             <div
               className="vt-disc-holder"
               role="img"
-              aria-label={`The ${d.name.toLowerCase()} disc. ${merged ? `Twirling: ${d.together}.` : `${face === 'front' ? 'Front' : 'Back'} side showing.`}`}
+              aria-label={`The thaumatrope’s disc. ${merged ? `Twirling: ${DISC.together}.` : `${face === 'front' ? `Front: ${DISC.front}` : `Back: ${DISC.back}`}.`}`}
               onPointerDown={down}
               onPointerMove={move}
               onPointerUp={up}
@@ -199,31 +206,31 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
               <div className="vt-disc" ref={discEl}>
                 <div className="vt-face vt-face-front">
                   <DiscFace>
-                    <DiscArt id={disc} side="front" />
+                    <DiscArt side="front" />
                   </DiscFace>
                 </div>
                 <div className="vt-face vt-face-back">
                   <DiscFace>
-                    <DiscArt id={disc} side="back" />
+                    <DiscArt side="back" />
                   </DiscFace>
                 </div>
               </div>
               <div className="vt-blend" ref={blendEl} style={{ opacity: 0 }}>
                 <DiscFace>
-                  <DiscArt id={disc} side="front" />
-                  <DiscArt id={disc} side="back" />
+                  <DiscArt side="front" />
+                  <DiscArt side="back" />
                 </DiscFace>
               </div>
             </div>
           </div>
         ) : (
-          <ol className="vt-sides" aria-label={`The ${d.name.toLowerCase()} disc, side by side`}>
+          <ol className="vt-sides" aria-label="The disc, side by side">
             {SIDES.map((s, i) => (
               <li key={s} className="vt-side" aria-current={side === s ? 'step' : undefined}>
-                <button type="button" className="vt-side-button" onClick={() => { setSide(s); setStatus(sideLabel(s, d)); }} aria-label={sideLabel(s, d)}>
+                <button type="button" className="vt-side-button" onClick={() => { setSide(s); setStatus(sideLabel(s)); }} aria-label={sideLabel(s)}>
                   <DiscFace>
-                    {s !== 'back' && <DiscArt id={disc} side="front" />}
-                    {s !== 'front' && <DiscArt id={disc} side="back" />}
+                    {s !== 'back' && <DiscArt side="front" />}
+                    {s !== 'front' && <DiscArt side="back" />}
                   </DiscFace>
                 </button>
                 <span className="vt-side-name" aria-hidden="true">{s === 'front' ? 'Front' : s === 'back' ? 'Back' : 'Together'}</span>
@@ -236,24 +243,11 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
 
       <div className="vto-controls">
         <p className="vto-intro">{intro}</p>
-        <div className="vto-picker" role="group" aria-label="Choose a disc">
-          {DISCS.map((x) => (
-            <button key={x.id} type="button" className="vto-pick" aria-pressed={disc === x.id} onClick={() => pick(x.id)}>
-              <span className="vto-pick-art" aria-hidden="true">
-                <DiscFace small>
-                  <DiscArt id={x.id} side="front" />
-                  <DiscArt id={x.id} side="back" />
-                </DiscFace>
-              </span>
-              <span className="vto-pick-name">{x.name}</span>
-            </button>
-          ))}
-        </div>
         <div className="vto-actions">
           {!sidesView ? (
             <>
               {!reduced && (
-                <button type="button" className="vto-button vto-button-primary" aria-pressed={twirling} onClick={toggleTwirl}>
+                <button type="button" className="vto-button vto-button-primary" aria-pressed={twirling} onClick={twirling ? ladder.stop : ladder.start}>
                   {twirling ? 'Let it slow' : 'Twirl'}
                 </button>
               )}
@@ -275,7 +269,18 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
             {sidesView ? 'Back to the toy' : 'See both sides'}
           </button>
         </div>
-        <p className="vto-caption">{d.caption}</p>
+        {!reduced && !sidesView && (
+          <SpeedLadder
+            ladder={THAUMA_LADDER}
+            rung={ladder.rung}
+            climbing={ladder.climbing}
+            seen={twirling ? SEEN_LABEL[thaumaSeen(THAUMA_LADDER[ladder.rung].rps)] : 'Still'}
+            onFaster={twirling ? ladder.faster : ladder.start}
+            onSlower={ladder.slower}
+            onClimb={ladder.climb}
+          />
+        )}
+        <p className="vto-caption" aria-live="polite">{line}</p>
         <FactNote fact={TOY_NOTES.thaumatrope} className="vto-fact" />
         {footer}
       </div>
@@ -284,25 +289,25 @@ export default function Thaumatrope({ reduced, disc, onDisc, intro, footer }: { 
   );
 }
 
-function sideLabel(s: Side, d: (typeof DISCS)[number]) {
-  return s === 'front' ? `Front: ${d.front}.` : s === 'back' ? `Back: ${d.back}.` : `Together: ${d.together}.`;
+function sideLabel(s: Side) {
+  return s === 'front' ? `Front: ${DISC.front}.` : s === 'back' ? `Back: ${DISC.back}.` : `Together: ${DISC.together}.`;
 }
 
-/** A card disc: cream card in a gold rim, with the holes for its strings. */
+/** A card disc: cream card in a thin gold rim, with the holes for its strings. */
 export function DiscFace({ children, small = false }: { children: ReactNode; small?: boolean }) {
   const clip = `vt-clip-${useId().replace(/:/g, '')}`;
   return (
     <svg className="vt-face-art" viewBox="-100 -100 200 200">
-      <circle r="98" fill="#f4eee3" stroke="#c9a24a" strokeWidth={small ? 5 : 3} />
-      <circle r="92" fill="none" stroke="#d9b7b8" strokeWidth="1.5" />
+      <circle r="98" fill="#f3ead6" stroke="#b8963f" strokeWidth={small ? 5 : 3} />
+      <circle r="92" fill="none" stroke="#a8d5e5" strokeOpacity="0.7" strokeWidth="1.2" />
       <clipPath id={clip}>
         <circle r="90" />
       </clipPath>
       <g clipPath={`url(#${clip})`}>{children}</g>
       {!small && (
         <>
-          <circle cx="-94" cy="0" r="2.6" fill="#8a7a62" />
-          <circle cx="94" cy="0" r="2.6" fill="#8a7a62" />
+          <circle cx="-94" cy="0" r="2.6" fill="#6b5a44" />
+          <circle cx="94" cy="0" r="2.6" fill="#6b5a44" />
         </>
       )}
     </svg>

@@ -73,3 +73,44 @@ export function slitStrength(rps: number, n = ZOE_FRAMES) {
 export function picturesPerSecond(rps: number, n = ZOE_FRAMES) {
   return Math.abs(rps) * n;
 }
+
+// ───────── Starting slowly, and building up ─────────
+/*
+ * Each toy starts slowly, so each side or each drawing can be seen, then
+ * climbs a ladder of speeds, holding each rung long enough to watch, until
+ * the illusion appears. Every rung keeps to the rule above.
+ */
+
+export type Rung = { rps: number; /** Seconds held before the next rung. */ hold: number };
+
+/** The thaumatrope's rungs: the sides seen in turn, then blending, then merged. */
+export const THAUMA_LADDER: Rung[] = [
+  { rps: 0.25, hold: 5 },
+  { rps: 0.5, hold: 4 },
+  { rps: 0.9, hold: 3.5 },
+  { rps: 1.25, hold: 3.5 },
+  { rps: 1.8, hold: 3 },
+  { rps: THAUMA_TOP, hold: Infinity },
+];
+
+/** The zoetrope's rungs: the drawings going round, then glimpsed through the slits, then moving. */
+export const ZOE_LADDER: Rung[] = [
+  { rps: 0.05, hold: 6 },
+  { rps: 0.1, hold: 5 },
+  { rps: 0.2, hold: 4 },
+  { rps: 0.4, hold: 3.5 },
+  { rps: 0.7, hold: 3.5 },
+  { rps: 1, hold: 3 },
+  { rps: ZOE_TOP, hold: Infinity },
+];
+
+/** What the eye is shown at a speed of the thaumatrope: the sides in turn, blending, or one picture. */
+export function thaumaSeen(rps: number): 'sides' | 'blending' | 'merged' {
+  const b = thaumaBlend(rps);
+  return b === 0 ? 'sides' : b < 1 ? 'blending' : 'merged';
+}
+
+/** What the eye is shown at a speed of the zoetrope: the drawings going round, or moving in place. */
+export function zoeSeen(rps: number): 'drawings' | 'moving' {
+  return Math.abs(rps) >= ZOE_STROBE ? 'moving' : 'drawings';
+}

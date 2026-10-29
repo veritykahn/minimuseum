@@ -21,8 +21,21 @@ export const SIGN_TEXT = {
   flagHeading: 'The flag',
   flagShort: 'Flag',
 
-  signIntro: 'Dip the quill, then sign on the line with your finger or mouse.',
+  signIntro: 'Read the Declaration on the parchment, scrolling inside it. Then dip the quill, and sign on the line at its foot with your finger or mouse.',
+  typeIntro: 'Read the Declaration on the parchment, scrolling inside it. Then type your name, and it is set on the line at its foot in a flowing hand.',
+  toFoot: 'Go to the line to sign',
   privacy: 'Nothing you sign is saved or sent.',
+  privacyWritten: 'Nothing you write or sign is saved or sent. Print it to keep it.',
+
+  // The class's and the student's own declarations: instructions only (their wording is the owner's: declaration.ts).
+  declarationName: 'The Declaration',
+  declarationShort: '1776',
+  classIntro: 'Write your class’s declaration on the parchment. Then each of you signs at its foot, one after another, and you print it.',
+  mineIntro: 'Write your own declaration on the parchment. Then sign at its foot, and print it.',
+  classLabel: 'Your class',
+  classPlaceholder: 'the class’s name',
+  addName: 'Add my name',
+  mineSigned: 'Signed. Your declaration is yours to print.',
   addressLabel: 'Add your address',
   addressPlaceholder: 'where you are from',
   carroll: {

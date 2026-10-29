@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="420" viewBox="0 0 600 420">
+  <defs>
+    <radialGradient id="beam" cx="40%" cy="50%" r="60%">
+      <stop offset="0" stop-color="#ffecc8" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#ffecc8" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="drum" x1="0" x2="1">
+      <stop offset="0" stop-color="#0e1116"/>
+      <stop offset="0.35" stop-color="#3a4a58"/>
+      <stop offset="1" stop-color="#0b0d10"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="420" fill="#0a0a0a"/>
+  <rect width="600" height="420" fill="url(#beam)"/>
+  <!-- the film strip's edges -->
+  <g fill="#f4f1ea" opacity="0.13">
+    <rect y="0" width="600" height="18" fill="#050505" opacity="1"/>
+    <rect y="402" width="600" height="18" fill="#050505" opacity="1"/>
+  </g>
+  <g fill="#f4f1ea" opacity="0.14">
+    <rect x="10" y="5" width="12" height="8"/><rect x="44" y="5" width="12" height="8"/><rect x="78" y="5" width="12" height="8"/><rect x="112" y="5" width="12" height="8"/><rect x="146" y="5" width="12" height="8"/><rect x="180" y="5" width="12" height="8"/><rect x="214" y="5" width="12" height="8"/><rect x="248" y="5" width="12" height="8"/><rect x="282" y="5" width="12" height="8"/><rect x="316" y="5" width="12" height="8"/><rect x="350" y="5" width="12" height="8"/><rect x="384" y="5" width="12" height="8"/><rect x="418" y="5" width="12" height="8"/><rect x="452" y="5" width="12" height="8"/><rect x="486" y="5" width="12" height="8"/><rect x="520" y="5" width="12" height="8"/><rect x="554" y="5" width="12" height="8"/><rect x="588" y="5" width="12" height="8"/>
+    <rect x="10" y="407" width="12" height="8"/><rect x="44" y="407" width="12" height="8"/><rect x="78" y="407" width="12" height="8"/><rect x="112" y="407" width="12" height="8"/><rect x="146" y="407" width="12" height="8"/><rect x="180" y="407" width="12" height="8"/><rect x="214" y="407" width="12" height="8"/><rect x="248" y="407" width="12" height="8"/><rect x="282" y="407" width="12" height="8"/><rect x="316" y="407" width="12" height="8"/><rect x="350" y="407" width="12" height="8"/><rect x="384" y="407" width="12" height="8"/><rect x="418" y="407" width="12" height="8"/><rect x="452" y="407" width="12" height="8"/><rect x="486" y="407" width="12" height="8"/><rect x="520" y="407" width="12" height="8"/><rect x="554" y="407" width="12" height="8"/><rect x="588" y="407" width="12" height="8"/>
+  </g>
+  <!-- the thaumatrope: the bird in its cage -->
+  <path d="M30 200 H110 M290 200 H340" stroke="#e9dfca" stroke-width="3" stroke-dasharray="9 6"/>
+  <g transform="translate(200 200)">
+    <circle r="92" fill="#f3ead6" stroke="#b8963f" stroke-width="4"/>
+    <circle r="86" fill="none" stroke="#a8d5e5" stroke-opacity="0.7"/>
+    <path d="M-30 34 H30" stroke="#5a4630" stroke-width="3"/>
+    <path d="M-20 16 L-42 34 L-37 38 L-15 22Z" fill="#5a4630"/>
+    <path d="M-22 12 C-20 -6 2 -13 14 -6 C25 2 22 19 10 25 C-1 30 -17 26 -22 12Z" fill="#c99a3c" stroke="#3b2a1c" stroke-width="1.4"/>
+    <circle cx="15" cy="-10" r="10" fill="#c99a3c" stroke="#3b2a1c" stroke-width="1.4"/>
+    <path d="M19 -19 C25 -16 26 -8 22 -3 C19 -6 17 -12 19 -19Z" fill="#a8432e"/>
+    <path d="M24 -12 L32 -9 L24 -6Z" fill="#e7d3a6"/>
+    <g stroke="#3b2a1c" stroke-width="1.6" fill="none">
+      <path d="M-48 -32 C-48 -80 48 -80 48 -32"/>
+      <path d="M-48 -32 V52 M-36 -55 V52 M-24 -66 V52 M-12 -71 V52 M0 -72 V52 M12 -71 V52 M24 -66 V52 M36 -55 V52 M48 -32 V52"/>
+    </g>
+    <path d="M-54 52 H54 L50 62 H-50Z" fill="#8a6a32"/>
+  </g>
+  <!-- the zoetrope -->
+  <g transform="translate(450 220)">
+    <ellipse cx="0" cy="-60" rx="100" ry="28" fill="#0f1216" stroke="#d9b265" stroke-width="3"/>
+    <path d="M-100 -60 V20 A100 28 0 0 0 100 20 V-60 A100 28 0 0 1 -100 -60Z" fill="url(#drum)"/>
+    <g fill="#050608"><rect x="-82" y="-40" width="6" height="26"/><rect x="-52" y="-34" width="6" height="26"/><rect x="-20" y="-31" width="6" height="26"/><rect x="14" y="-31" width="6" height="26"/><rect x="46" y="-34" width="6" height="26"/><rect x="76" y="-40" width="6" height="26"/></g>
+    <path d="M-100 -10 A100 28 0 0 0 100 -10" stroke="#d6b260" stroke-width="2" fill="none"/>
+    <rect x="-4" y="46" width="8" height="70" fill="#b8963f"/>
+    <ellipse cx="0" cy="118" rx="44" ry="10" fill="#8a6a32"/>
+  </g>
+</svg>

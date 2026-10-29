@@ -1,0 +1,139 @@
+/* ==========================================================================
+   Dickens' Christmas parlour: the drawn room at the centre, dim until its
+   parts are opened, each coming to life in its own way; the buttons over
+   it marked by a soft ring until opened. Under reduced motion each part
+   changes at once, and nothing flickers.
+   ========================================================================== */
+
+.vbr-stage.vcp-stage { --vbr-top: 108px; }
+.vcp-scene-wrap { align-items: center; }
+.vcp-scene {
+  position: relative;
+  width: min(100cqw, 100cqh * 1200 / 760);
+  aspect-ratio: 1200 / 760;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 0 0 8px #6b4a32, 0 0 0 10px #c9a24a, 0 22px 40px rgba(47, 30, 20, 0.4);
+}
+.vcp-svg { display: block; width: 100%; height: 100%; }
+.vcp-dim { opacity: calc(0.55 - 0.5 * var(--warmth)); transition: opacity 1.2s ease; pointer-events: none; }
+
+/* Each part, shut and opened */
+.vcp-flame, .vcp-star { opacity: 0; transition: opacity 0.8s ease; }
+.vcp-tree[data-open] .vcp-flame { opacity: 1; animation: vcp-flicker 2.6s ease-in-out infinite; }
+.vcp-tree[data-open] .vcp-star { opacity: 1; filter: drop-shadow(0 0 8px #ffd77a); }
+.vcp-tree .vcp-star { opacity: 0.45; }
+@keyframes vcp-flicker { 50% { opacity: 0.82; } }
+.vcp-curtain { transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); transform-box: fill-box; }
+.vcp-curtain-l { transform-origin: 0 0; }
+.vcp-curtain-r { transform-origin: 100% 0; }
+.vcp-window[data-open] .vcp-curtain { transform: scaleX(0.28); }
+.vcp-night { opacity: 0.35; transition: opacity 1.2s ease; }
+.vcp-window[data-open] .vcp-night { opacity: 0; }
+.vcp-snow { opacity: 0; }
+.vcp-window[data-open] .vcp-snow { opacity: 1; animation: vcp-snow 7s linear infinite; }
+@keyframes vcp-snow { from { transform: translateY(-40px); } to { transform: translateY(40px); } }
+.vcp-fire { transform-box: fill-box; transform-origin: 50% 100%; transform: scale(0.35); opacity: 0.55; transition: transform 1s ease, opacity 1s ease; }
+.vcp-hearth[data-open] .vcp-fire { transform: scale(1); opacity: 1; animation: vcp-blaze 1.8s ease-in-out infinite; }
+@keyframes vcp-blaze { 50% { transform: scale(1.04, 0.97); } }
+.vcp-glow { opacity: 0; transition: opacity 1.2s ease; }
+.vcp-hearth[data-open] .vcp-glow { opacity: 1; }
+.vcp-cards .vcp-card { opacity: 0; transition: opacity 0.6s ease; }
+.vcp-cards[data-open] .vcp-card { opacity: 1; }
+.vcp-pendulum { transform-origin: 925px 262px; }
+.vcp-clock[data-open] .vcp-pendulum { animation: vcp-swing 2s ease-in-out infinite; }
+.vcp-clock-min { transform-origin: 925px 236px; transition: transform 1.6s ease; }
+.vcp-clock[data-open] .vcp-clock-min { transform: rotate(60deg); }
+@keyframes vcp-swing { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
+.vcp-book-open, .vcp-book-candle path { opacity: 0; transition: opacity 0.8s ease; }
+.vcp-book[data-open] .vcp-book-open, .vcp-book[data-open] .vcp-book-candle path { opacity: 1; }
+.vcp-book[data-open] .vcp-book-shut { opacity: 0; transition: opacity 0.4s ease; }
+
+/* The buttons over the drawing: a soft ring until opened, the name on hover and focus. */
+.vb-room .vcp-spot {
+  appearance: none;
+  position: absolute;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  cursor: pointer;
+}
+.vcp-spot::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 248, 230, 0.9);
+  box-shadow: 0 0 0 4px rgba(201, 162, 74, 0.35), 0 0 16px rgba(255, 220, 160, 0.6);
+  animation: vcp-beckon 2.8s ease-in-out infinite;
+}
+.vcp-spot[data-open]::after { display: none; }
+@keyframes vcp-beckon { 50% { transform: scale(1.25); opacity: 0.6; } }
+.vb-room .vcp-spot:hover, .vb-room .vcp-spot:focus-visible { background: rgba(255, 244, 220, 0.12); outline: 2px solid rgba(255, 248, 230, 0.9); outline-offset: 0; }
+.vcp-spot[aria-current] { box-shadow: inset 0 0 0 2px rgba(201, 162, 74, 0.9); }
+.vcp-spot-label {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(47, 74, 50, 0.92);
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+}
+.vcp-spot:hover .vcp-spot-label, .vcp-spot:focus-visible .vcp-spot-label { opacity: 1; }
+
+/* The card's list of parts */
+.vcp-parts { list-style: none; margin: 0; padding: 12px 0 0; border-top: 1px solid rgba(255, 255, 255, 0.3); display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vb-room .vcp-part-button {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+.vb-room .vcp-part-button:hover { border-color: #fff; }
+.vb-room .vcp-part-button[aria-pressed='true'] { background: rgba(244, 238, 227, 0.14); }
+.vb-room .vcp-part-button[aria-current] { background: var(--vb-cream); color: var(--vb-green); border-color: var(--vb-cream); }
+.vcp-part-mark { color: #f2d68a; }
+.vcp-part-button[aria-current] .vcp-part-mark { color: #a4565c; }
+.vcp-part { display: flex; flex-direction: column; gap: 10px; animation: vbr-in 0.5s ease both; }
+.vcp-closing { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.3); font-family: var(--vb-serif); font-size: 1.05rem; line-height: 1.45; }
+.vcp-closing p:first-child { font-size: 1.15rem; }
+
+@media (max-width: 760px) {
+  .vbr-stage.vcp-stage { --vbr-top: 100px; --scene-h: 36dvh; }
+  .vcp-spot::after { width: 18px; height: 18px; margin: -9px 0 0 -9px; }
+  .vcp-scene { box-shadow: 0 0 0 4px #6b4a32, 0 0 0 5px #c9a24a, 0 10px 20px rgba(47, 30, 20, 0.4); }
+  .vcp-parts { gap: 4px; padding-top: 8px; }
+  .vb-room .vcp-part-button { min-height: 34px; font-size: 12px; padding: 4px 8px; }
+  .vcp-closing { font-size: 0.9rem; }
+  .vcp-closing p:first-child { font-size: 0.95rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vcp-dim, .vcp-flame, .vcp-star, .vcp-curtain, .vcp-night, .vcp-fire, .vcp-glow, .vcp-card, .vcp-clock-min, .vcp-book-open, .vcp-book-candle path, .vcp-book-shut, .vcp-spot-label { transition: none !important; }
+  .vcp-tree[data-open] .vcp-flame, .vcp-window[data-open] .vcp-snow, .vcp-hearth[data-open] .vcp-fire, .vcp-clock[data-open] .vcp-pendulum, .vcp-spot::after, .vcp-part { animation: none !important; }
+}

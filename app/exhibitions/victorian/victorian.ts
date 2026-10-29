@@ -135,7 +135,11 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
   fx: { theme: 'vb', veil: 'chapters', text: 'all' },
   projector: {
     theme: VICTORIAN_PROJECTOR_THEME,
-    links: [{ label: 'Optical Toys: twirl a thaumatrope and spin a zoetrope', href: '/exhibitions/victorian/optical-toys' }],
+    links: [
+      { label: 'Christmas Card Maker: design and print a Victorian Christmas card', href: '/exhibitions/victorian/christmas-card' },
+      { label: 'Inventions Workshop: the railway, the telegraph and photography, hands on', href: '/exhibitions/victorian/inventions' },
+      { label: 'Dickens’ Christmas Parlour: open the parts of a Victorian Christmas', href: '/exhibitions/victorian/christmas-parlour' },
+    ],
   },
   cases: [
     {
@@ -144,17 +148,38 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
-  // The optical toys room, drawn (no photographs): a twirled disc and a drum on its stand.
+  // The three interactive rooms, each drawn (no photographs). The optical
+  // toys that stood here have moved to Seeing is Deceiving.
   interactives: [
     {
-      href: '/exhibitions/victorian/optical-toys',
+      href: '/exhibitions/victorian/christmas-card',
       image: {
-        src: '/exhibitions/victorian/room-optical-toys.svg',
-        alt: 'A drawing of a thaumatrope disc on its strings, showing a decorated Christmas tree, beside a zoetrope drum on a brass stand',
+        src: '/exhibitions/victorian/room-christmas-card.svg',
+        alt: 'A drawing of a Victorian Christmas card standing open on a table: a candlelit Christmas tree in a gilt arch on the front, holly inside',
       },
       label: 'Interactive',
-      title: 'Optical Toys',
-      subtitle: 'Twirl a thaumatrope and spin a zoetrope',
+      title: 'Christmas Card Maker',
+      subtitle: 'Design and print a Victorian Christmas card',
+    },
+    {
+      href: '/exhibitions/victorian/inventions',
+      image: {
+        src: '/exhibitions/victorian/room-inventions.svg',
+        alt: 'A drawing of a workbench: a station clock, a diamond-shaped telegraph dial with five needles, and a wooden box camera',
+      },
+      label: 'Interactive',
+      title: 'Inventions Workshop',
+      subtitle: 'The railway, the telegraph and photography, hands on',
+    },
+    {
+      href: '/exhibitions/victorian/christmas-parlour',
+      image: {
+        src: '/exhibitions/victorian/room-christmas-parlour.svg',
+        alt: 'A drawing of a Victorian parlour at Christmas: a candlelit tree, a fire in the grate, and a book open on a round table',
+      },
+      label: 'Interactive',
+      title: 'Dickens’ Christmas Parlour',
+      subtitle: 'Open the parts of a Victorian Christmas',
     },
   ],
   // The V&A's photograph of its Centre Refreshment Room is washed in behind the posters.

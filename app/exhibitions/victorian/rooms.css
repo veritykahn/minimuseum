@@ -1,0 +1,244 @@
+/* ==========================================================================
+   The Victorian rooms' common frame (the card maker, the inventions
+   workshop, the Christmas parlour), on one screen each: a room papered in
+   the exhibition's damask (its own lily motif, in the deep green on dusty
+   rose), lamplight from above, the scene at the centre, and beside it a card
+   of the posters' green linen with its torn edges, white type in Jost and
+   headings in Poiret One. On a phone the scene sits above and the card
+   below. Each room's own stylesheet draws its scene.
+   ========================================================================== */
+
+.vb-room { min-height: 100vh; color: var(--vb-green); }
+.vb-room .pe-nav { z-index: 60; }
+.vb-room-stage { display: block; }
+.vb-room :focus-visible { outline: 2px solid var(--vb-green); outline-offset: 3px; }
+
+.vbr-stage {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 600px;
+  overflow: hidden;
+  background: var(--vb-rose);
+}
+
+/* ───────── The room ───────── */
+.vbr-room { position: absolute; inset: 0; pointer-events: none; }
+.vbr-paper {
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='180' viewBox='0 0 120 180'%3E%3Cg fill='%232f4a32'%3E%3Cpath d='M60 128C58 108 46 96 34 92C42 102 50 112 54 128ZM60 128C62 108 74 96 86 92C78 102 70 112 66 128Z'/%3E%3Cpath d='M57 130C40 128 22 118 18 100C14 86 24 76 34 82C26 84 24 94 32 102C40 110 50 116 57 120ZM63 130C80 128 98 118 102 100C106 86 96 76 86 82C94 84 96 94 88 102C80 110 70 116 63 120Z'/%3E%3Cpath d='M60 34C66 50 74 60 74 78C74 92 66 100 60 112C54 100 46 92 46 78C46 60 54 50 60 34Z'/%3E%3Cpath d='M48 70C38 62 36 50 42 42C44 54 50 60 52 66ZM72 70C82 62 84 50 78 42C76 54 70 60 68 66Z'/%3E%3Cpath d='M60 14C64 20 66 26 60 32C54 26 56 20 60 14Z'/%3E%3Crect x='58.6' y='112' width='2.8' height='34'/%3E%3C/g%3E%3C/svg%3E") repeat;
+  background-size: 110px 165px;
+  opacity: 0.13;
+}
+.vbr-light {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 45% at 38% 30%, rgba(255, 240, 214, 0.55), transparent 70%),
+    radial-gradient(ellipse 120% 80% at 50% 120%, rgba(60, 30, 30, 0.25), transparent 60%);
+}
+.vbr-table {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 22%;
+  background:
+    linear-gradient(to bottom, rgba(255, 220, 180, 0.35), transparent 6px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 46px),
+    linear-gradient(to bottom, #7a4a34, #5a3324 40%, #3f2218);
+  box-shadow: 0 -2px 0 rgba(47, 30, 20, 0.5), 0 -18px 40px rgba(60, 30, 20, 0.18);
+}
+
+/* ───────── The title and the tabs ───────── */
+.vbr-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 24px 96px 0;
+  pointer-events: none;
+}
+.vbr-bar > * { pointer-events: auto; }
+.vbr-title {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.05;
+  text-align: center;
+  color: var(--vb-green);
+  padding-left: 0.14em;
+}
+.vbr-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(47, 74, 50, 0.25);
+  border-radius: 999px;
+  background: rgba(244, 238, 227, 0.6);
+}
+.vb-room .vbr-tab {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--vb-green);
+  font-family: 'Jost', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.vb-room .vbr-tab[aria-selected='true'] { background: var(--vb-green); color: #fff; }
+
+/* ───────── The scene, and the card beside it ───────── */
+.vbr-scene {
+  position: absolute;
+  z-index: 1;
+  top: var(--vbr-top, 150px);
+  bottom: 4vh;
+  left: 3vw;
+  right: calc(min(420px, 34vw) + max(5vw, 50vw - 680px) + 1.5vw);
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vbr-card {
+  position: absolute;
+  z-index: 2;
+  right: max(5vw, calc(50vw - 680px));
+  top: var(--vbr-top, 150px);
+  width: min(420px, 34vw);
+  max-height: calc(100dvh - var(--vbr-top, 150px) - 3vh);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  padding: calc(var(--vb-edge) + 12px) 26px calc(var(--vb-edge) + 14px);
+  background: var(--vb-linen);
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+  font-weight: 300;
+  filter: drop-shadow(0 14px 22px rgba(47, 30, 30, 0.28));
+  animation: vbr-in 0.6s ease both;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+.vbr-card[hidden] { display: none; }
+@keyframes vbr-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.vbr-card h2 { font-family: var(--pe-display); font-weight: 400; font-size: 1.35rem; letter-spacing: 0.12em; text-transform: uppercase; line-height: 1.2; }
+.vbr-intro { font-family: var(--vb-serif); font-size: 1rem; line-height: 1.5; }
+/* A line from the posters, word for word: set in the posters' serif, a rule above. */
+.vbr-poster { font-size: 0.95rem; line-height: 1.55; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.3); }
+.vbr-card > .vbr-poster:first-child, .vcp-part h2 + .vbr-poster { padding-top: 0; border-top: 0; }
+.vb-room .vbr-card :is(h2, p, figure, ol, ul) { margin: 0; }
+.vbr-poster em { font-style: italic; }
+.vbr-quote { margin: 0; font-family: var(--vb-serif); font-style: italic; font-size: 1.08rem; line-height: 1.5; }
+.vbr-quote figcaption { margin-top: 6px; font-family: 'Jost', sans-serif; font-style: normal; font-size: 12px; opacity: 0.85; }
+/* A note from outside the posters (owner-approved, fact-checked): small, its source linked. */
+.vbr-fact { display: flex; flex-direction: column; gap: 3px; font-size: 0.82rem; line-height: 1.5; color: rgba(255, 255, 255, 0.92); }
+.vbr-fact-source { font-size: 11px; letter-spacing: 0.04em; opacity: 0.85; }
+.vbr-fact-source a, .vbr-card a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.vb-room .vbr-card :focus-visible { outline-color: #fff; }
+.vbr-note { font-size: 12px; line-height: 1.45; opacity: 0.85; }
+.vbr-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+.vbr-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.vb-room .vbr-button {
+  appearance: none;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+  font-size: 12.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.vb-room .vbr-button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.12); }
+.vb-room .vbr-button-primary { background: var(--vb-cream); color: var(--vb-green); border-color: var(--vb-cream); font-weight: 500; }
+.vb-room .vbr-button-primary:hover:not(:disabled) { background: #fff; }
+.vb-room .vbr-button-quiet { border-color: transparent; text-decoration: underline; text-underline-offset: 4px; padding-left: 6px; padding-right: 6px; }
+.vb-room .vbr-button:disabled { opacity: 0.4; cursor: default; }
+
+/* Choices: a row of small swatches or words, one pressed. */
+.vbr-choice { display: flex; flex-direction: column; gap: 6px; border: 0; margin: 0; padding: 0; min-width: 0; }
+.vbr-choice legend, .vbr-label { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.9; padding: 0; margin-bottom: 6px; }
+.vbr-options { display: flex; flex-wrap: wrap; gap: 6px; }
+.vb-room .vbr-option {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+  font-size: 13px;
+  cursor: pointer;
+}
+.vb-room .vbr-option:hover { border-color: #fff; }
+.vb-room .vbr-option[aria-pressed='true'] { background: var(--vb-cream); color: var(--vb-green); border-color: var(--vb-cream); }
+.vbr-field { display: flex; flex-direction: column; gap: 5px; }
+.vbr-field input, .vbr-field textarea, .vbr-field select {
+  font-family: var(--vb-serif);
+  font-size: 0.98rem;
+  color: var(--vb-green);
+  background: var(--vb-cream);
+  border: 0;
+  border-radius: 3px;
+  padding: 8px 10px;
+  resize: none;
+}
+
+/* ───────── A phone: the scene above, the card below ───────── */
+@media (max-width: 760px) {
+  .vbr-stage { min-height: 0; --scene-h: 34dvh; --vbr-top: 118px; }
+  .vbr-bar { padding: 60px 12px 0; gap: 6px; }
+  .vbr-title { font-size: 1.25rem; letter-spacing: 0.1em; }
+  .vb-room .vbr-tab { font-size: 10.5px; padding: 8px 12px; letter-spacing: 0.1em; }
+  .vbr-table { height: auto; top: calc(var(--vbr-top) + var(--scene-h) * 0.72); bottom: 0; }
+  .vbr-scene { top: var(--vbr-top); bottom: auto; height: var(--scene-h); left: 10px; right: 10px; }
+  .vbr-card {
+    left: 8px;
+    right: 8px;
+    top: calc(var(--vbr-top) + var(--scene-h) + 6px);
+    bottom: 0;
+    width: auto;
+    max-height: none;
+    gap: 9px;
+    padding: calc(var(--vb-edge) + 4px) 16px calc(var(--vb-edge) + 10px);
+  }
+  .vbr-intro { display: none; }
+  .vbr-card h2 { font-size: 1.05rem; }
+  .vbr-poster { font-size: 0.85rem; padding-top: 8px; }
+  .vbr-quote { font-size: 0.95rem; }
+  .vbr-fact { font-size: 0.74rem; line-height: 1.4; gap: 0; }
+  .vbr-fact-source { font-size: 10px; }
+  .vb-room .vbr-button { min-height: 40px; padding: 8px 14px; font-size: 11.5px; }
+  .vb-room .vbr-option { min-height: 34px; padding: 4px 9px; font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vbr-card { animation: none; }
+  .vb-room .vbr-tab, .vb-room .vbr-button { transition: none; }
+}

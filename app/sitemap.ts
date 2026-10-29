@@ -58,6 +58,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/exhibitions/seeing-is-deceiving/optical-toys`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/exhibitions/seeing-is-deceiving/artifacts`,
       lastModified,
       changeFrequency: 'monthly',
@@ -183,12 +189,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
-    {
-      url: `${baseUrl}/exhibitions/victorian/optical-toys`,
+    ...['christmas-card', 'inventions', 'christmas-parlour'].map((room) => ({
+      url: `${baseUrl}/exhibitions/victorian/${room}`,
       lastModified,
-      changeFrequency: 'monthly',
+      changeFrequency: 'monthly' as const,
       priority: 0.7,
-    },
+    })),
     {
       url: `${baseUrl}/exhibitions/womens-history`,
       lastModified,
