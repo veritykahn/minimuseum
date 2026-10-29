@@ -250,7 +250,8 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
           <button type="button" className="vto-button" onClick={() => step(-1)} aria-label="Previous picture">
             <span aria-hidden="true">←</span>
           </button>
-          <span className="vz-count" aria-hidden="true">{spinning ? '·' : `${frame + 1} / ${N}`}</span>
+          {/* Spinning, the count would race: it shows the strip's length until the drum stops. */}
+          <span className="vz-count" aria-hidden="true" data-spinning={spinning || undefined}>{spinning ? `– / ${N}` : `${frame + 1} / ${N}`}</span>
           <button type="button" className="vto-button" onClick={() => step(1)} aria-label="Next picture">
             <span aria-hidden="true">→</span>
           </button>

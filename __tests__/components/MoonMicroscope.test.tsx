@@ -1,16 +1,15 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import MoonMicroscope from '@/app/exhibitions/moon/microscope/page';
 import { blurFor, FOCUS_AT } from '@/app/exhibitions/moon/microscope/focus';
-import { makeSlide } from '@/app/exhibitions/moon/microscope/grains';
 import { EARTH_SLIDES, MOON_SLIDES } from '@/app/exhibitions/moon/microscope/slides';
-import { freshState, releaseCloth, wipeStep } from '@/app/exhibitions/moon/microscope/wipe';
+import { brushAside, changed, GLASS, newBrush, smear, type Pixels } from '@/app/exhibitions/moon/microscope/wipe';
 import { MICROSCOPE_NOTES, MOON, MOON_CASE, REGOLITH } from '@/app/exhibitions/moon/moon';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
 /*
  * Under the Microscope: the photographs and their captions and credits, the
- * dust the cloth wipes, the focus, the room's tabs, and its wiring.
+ * cloth that wipes them, the focus, the room's tabs, and its wiring.
  */
 
 // jsdom has no canvas: the eyepiece draws nothing.
@@ -51,46 +50,160 @@ describe('the photographs', () => {
   });
 });
 
-describe('the dust on the slides', () => {
-  it('lays the same grains every time', () => {
-    expect(makeSlide('moon')).toEqual(makeSlide('moon'));
-    expect(makeSlide('wind').length).toBeGreaterThan(50);
+describe('the cloth', () => {
+  /** A little photo: pale glass with dark grains in a regular pattern. */
+  const slide = (): Pixels => {
+    const width = 120;
+    const height = 120;
+    const data = new Uint8ClampedArray(width * height * 4);
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const grain = x % 20 < 8 && y % 20 < 8;
+        data.set(grain ? [40, 36, 44, 255] : [230, 228, 236, 255], (y * width + x) * 4);
+      }
+    }
+    return { data, width, height };
+  };
+
+  it('smears Moon dust along its path, and grays as the dust clings to it', () => {
+    const px = slide();
+    const before = px.data.slice();
+    const b = newBrush(10);
+    for (let x = 10; x <= 110; x += 2) smear(px, b, x, 60);
+    expect(changed(before, px.data)).toBeGreaterThan(500);
+    expect(b.dust).toBeGreaterThan(0);
+    // The glass between the grains is darker for the dust dragged across it.
+    expect(px.data[(61 * px.width + 15) * 4]).toBeLessThan(220);
+    // Nothing beyond the cloth's reach is touched.
+    expect(changed(before.subarray(0, 40 * 120 * 4), px.data.subarray(0, 40 * 120 * 4))).toBe(0);
   });
 
-  it('draws the Moon’s dust with sharper outlines than the loose Earth grains', () => {
-    // How far an outline strays from round: the spread of its radii.
-    const spread = (s: number[]) => Math.max(...s) - Math.min(...s);
-    const avg = (id: 'moon' | 'wind') => {
-      const gs = makeSlide(id).filter((g) => g.kind === 'grain');
-      return gs.reduce((a, g) => a + spread(g.shape), 0) / gs.length;
-    };
-    expect(avg('moon')).toBeGreaterThan(avg('wind') * 2);
+  it('pushes Earth grains aside, leaving a clear lane of glass, and keeps none', () => {
+    const px = slide();
+    const before = px.data.slice();
+    let moved = 0;
+    for (let x = 10; x < 110; x += 2) moved += brushAside(px, x, 60, x + 2, 60, 10);
+    expect(moved).toBeGreaterThan(0);
+    expect(changed(before, px.data)).toBeGreaterThan(500);
+    // The middle of the lane is near the bare glass, where there were grains.
+    for (const x of [44, 46, 64]) expect(Math.abs(px.data[(60 * px.width + x) * 4] - GLASS[0])).toBeLessThan(40);
+  });
+
+  it('keeps to its own side of the line, side by side', () => {
+    const px = slide();
+    const before = px.data.slice();
+    brushAside(px, 50, 60, 70, 60, 14, { x0: 60, x1: Infinity });
+    smear(px, newBrush(14), 60, 60, { x0: 60, x1: Infinity });
+    for (let y = 0; y < px.height; y++) {
+      for (let x = 0; x < 60; x++) {
+        const k = (y * px.width + x) * 4;
+        expect(px.data[k]).toBe(before[k]);
+      }
+    }
   });
 });
 
-describe('the cloth', () => {
-  const cloth = { x: 0, y: 0, vx: 0.01, vy: 0, r: 0.3 };
+describe('wiping the photograph on the stage', () => {
+  // A stand-in for the canvas: it records what is drawn, and hands out a photo's pixels.
+  type Call = { op: string; src?: unknown };
+  let calls: Call[];
+  let handedOut: Uint8ClampedArray[];
+  const photoPixels = (n: number) => {
+    const data = new Uint8ClampedArray(n);
+    for (let i = 0; i < n; i += 4) data.set((i / 4) % 7 < 3 ? [40, 40, 40, 255] : [230, 230, 236, 255], i);
+    return data;
+  };
+  const undo: (() => void)[] = [];
 
-  it('picks up Moon dust, which travels with it', () => {
-    const grains = makeSlide('moon');
-    const s = freshState(grains);
-    const touched = wipeStep(grains, s, cloth, true, undefined, () => 1);
-    expect(touched).toBeGreaterThan(0);
-    const stuck = [...s.stuck].findIndex((v) => v === 1);
-    wipeStep(grains, s, { ...cloth, x: 0.5 }, true, undefined, () => 1);
-    expect(s.x[stuck]).toBeGreaterThan(0.1);
-    releaseCloth(s);
-    expect(s.stuck.every((v) => v === 0)).toBe(true);
+  beforeEach(() => {
+    calls = [];
+    handedOut = [];
+    const ctx = new Proxy(
+      {},
+      {
+        get(_t, prop: string) {
+          if (prop === 'getImageData') {
+            return (_x: number, _y: number, w: number, h: number) => {
+              const data = photoPixels(w * h * 4);
+              handedOut.push(data);
+              return { data, width: w, height: h };
+            };
+          }
+          if (prop === 'createImageData') return (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h });
+          if (prop === 'createRadialGradient' || prop === 'createLinearGradient') return () => ({ addColorStop: () => {} });
+          return (...args: unknown[]) => calls.push({ op: prop, src: args[0] });
+        },
+        set: () => true,
+      },
+    );
+    jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as never);
+    // The photographs "load" at once, 200 px square.
+    const proto = HTMLImageElement.prototype;
+    const keys = ['complete', 'naturalWidth', 'naturalHeight'] as const;
+    const was = keys.map((k) => Object.getOwnPropertyDescriptor(proto, k));
+    Object.defineProperty(proto, 'complete', { configurable: true, get: () => true });
+    Object.defineProperty(proto, 'naturalWidth', { configurable: true, get: () => 200 });
+    Object.defineProperty(proto, 'naturalHeight', { configurable: true, get: () => 200 });
+    undo.push(() => keys.forEach((k, i) => (was[i] ? Object.defineProperty(proto, k, was[i]!) : delete (proto as unknown as Record<string, unknown>)[k])));
+    // The eyepiece has a size; and reduced motion, so the button's sweep is done at once.
+    jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(400);
+    const mm = window.matchMedia;
+    window.matchMedia = jest.fn().mockImplementation((q: string) => ({ matches: q.includes('reduce'), media: q, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {} }));
+    undo.push(() => (window.matchMedia = mm));
+  });
+  afterEach(() => {
+    undo.splice(0).forEach((f) => f());
+    jest.restoreAllMocks();
+    // Back to the canvas-less eyepiece the rest of this file uses.
+    jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
   });
 
-  it('pushes Earth grains out of its way and keeps none', () => {
-    const grains = makeSlide('water');
-    const s = freshState(grains);
-    wipeStep(grains, s, cloth, false);
-    expect(s.stuck.every((v) => v === 0)).toBe(true);
-    grains.forEach((g, i) => {
-      expect(Math.hypot(s.x[i], s.y[i])).toBeGreaterThanOrEqual(Math.min(Math.hypot(g.x, g.y), cloth.r) - 1e-6);
-    });
+  const frames = () => act(() => new Promise((r) => setTimeout(r, 60)));
+  /** What the eyepiece last laid on the stage: the photograph itself, or its wiped copy. */
+  const lastSlide = () => [...calls].reverse().find((c) => c.op === 'drawImage' && (c.src instanceof HTMLImageElement || c.src instanceof HTMLCanvasElement))?.src;
+
+  it('shows the photograph alone, with no drawn grains over it', async () => {
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
+    render(<MoonMicroscope />);
+    await frames();
+    expect(lastSlide()).toBeInstanceOf(HTMLImageElement);
+    expect((lastSlide() as HTMLImageElement).getAttribute('src')).toBe(MOON_SLIDES[0].src);
+    // The lamp, the clip and the photograph: no grain outlines filled or stroked.
+    const ops = new Set(calls.map((c) => c.op));
+    for (const op of ['fill', 'stroke', 'arc', 'lineTo']) expect(ops.has(op)).toBe(false);
+  });
+
+  it('wipes the photograph itself, and a fresh slide puts it back', async () => {
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
+    const { container } = render(<MoonMicroscope />);
+    await frames();
+    const eyepiece = container.querySelector('.mo-ms-eyepiece')!;
+    expect(eyepiece).toHaveAttribute('data-wiped', '');
+    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
+    await frames();
+    // The cloth changed a copy of the photo's own pixels, and the copy is what is shown.
+    expect(handedOut).toHaveLength(1);
+    expect(changed(photoPixels(handedOut[0].length), handedOut[0])).toBeGreaterThan(100);
+    expect(eyepiece).toHaveAttribute('data-wiped', 'moon-grains');
+    expect(calls.some((c) => c.op === 'putImageData')).toBe(true);
+    expect(lastSlide()).toBeInstanceOf(HTMLCanvasElement);
+    expect(screen.getByRole('status')).toHaveTextContent('The Moon dust clings to the cloth.');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Fresh slide' }));
+    await frames();
+    expect(eyepiece).toHaveAttribute('data-wiped', '');
+    expect(lastSlide()).toBeInstanceOf(HTMLImageElement);
+    expect(screen.getByRole('status')).toHaveTextContent('Fresh slides and a clean cloth.');
+  });
+
+  it('brushes Earth sand aside on its own slide', async () => {
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope#earth');
+    const { container } = render(<MoonMicroscope />);
+    await frames();
+    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
+    await frames();
+    expect(container.querySelector('.mo-ms-eyepiece')).toHaveAttribute('data-wiped', 'earth-wind');
+    expect(screen.getByRole('status')).toHaveTextContent('The grains brush aside.');
   });
 });
 

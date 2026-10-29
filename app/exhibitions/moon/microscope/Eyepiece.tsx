@@ -1,22 +1,22 @@
 'use client';
 
-import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
-import { makeSlide, type Grain, type SampleId } from './grains';
-import type { Slide } from './slides';
-import { freshState, releaseCloth, wipeStep, type Cloth, type SlideState } from './wipe';
+import { useCallback, useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
+import type { Slide, SlideId } from './slides';
+import { brushAside, newBrush, smear, type Brush, type Limit, type Pixels } from './wipe';
 
 /*
  * The view down the microscope: one canvas, the slide's photograph
- * (slides.ts) magnified by the power, with a little loose dust drawn on top
- * (grains.ts). Side by side, the Moon's slide lies left of a line you can
- * drag and an Earth slide right of it. Drag across the slide to wipe the
- * dust with a cloth (wipe.ts). The focus is a blur on the canvas, set by the
- * knob outside.
+ * (slides.ts) magnified by the power. Side by side, the Moon's slide lies
+ * left of a line you can drag and an Earth slide right of it. Drag across
+ * the slide to wipe it with a cloth: the wipe works on a copy of the
+ * photograph's own pixels (wipe.ts), kept until a fresh slide. The focus is
+ * a blur on the canvas, set by the knob outside.
  */
 
-/** How much each power magnifies, low to high. */
-export const POWERS = [1, 2.2, 4.5] as const;
+/** How much each power magnifies, low to high: no more than the photographs hold sharp. */
+export const POWERS = [1, 1.8, 3] as const;
 
+/** How much dust clung to the cloth on a wipe (0 to 1), and how much Earth sand it pushed aside. */
 export type WipeReport = { moon: number; earth: number };
 
 export type EyepieceHandle = {
@@ -26,10 +26,8 @@ export type EyepieceHandle = {
   reset: () => void;
 };
 
-const SAMPLES: SampleId[] = ['moon', 'wind', 'water', 'life'];
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
-/** Which dust lies on a slide: the Moon's, or the Earth sample's. */
-const dustOf = (slide: Slide): SampleId => (slide.id.startsWith('moon-') ? 'moon' : (slide.id.slice(6) as SampleId));
+const isMoon = (slide: Slide) => slide.id.startsWith('moon-');
 
 /* The photographs, loaded once and kept. */
 const photos = new Map<string, HTMLImageElement>();
@@ -47,82 +45,8 @@ function photo(src: string, onLoad: () => void): HTMLImageElement | null {
   return null;
 }
 
-/* Each grain's outline, built once at unit size. */
-const outlines = new WeakMap<Grain, Path2D>();
-function outline(g: Grain): Path2D {
-  let p = outlines.get(g);
-  if (p) return p;
-  p = new Path2D();
-  const n = g.shape.length;
-  g.shape.forEach((m, i) => {
-    const a = (i / n) * Math.PI * 2;
-    if (i === 0) p!.moveTo(Math.cos(a) * m, Math.sin(a) * m);
-    else p!.lineTo(Math.cos(a) * m, Math.sin(a) * m);
-  });
-  p.closePath();
-  outlines.set(g, p);
-  return p;
-}
-
-const hsl = (h: number, s: number, l: number, a = 1) => `hsla(${h}, ${s}%, ${Math.max(0, Math.min(100, l))}%, ${a})`;
-
-function drawGrain(ctx: CanvasRenderingContext2D, g: Grain, sample: SampleId, sr: number) {
-  if (g.kind === 'speck') {
-    ctx.fillStyle = hsl(g.h, g.s, g.l, 0.8);
-    const w = Math.max(0.8, sr * 1.6);
-    ctx.fillRect(-w / 2, -w / 2, w, w);
-    return;
-  }
-  ctx.scale(sr, sr);
-  const px = 1 / sr;
-
-  const path = outline(g);
-  // The shadow the grain casts on the glass.
-  ctx.translate(0.1, 0.14);
-  ctx.fillStyle = 'rgba(6, 4, 16, 0.5)';
-  ctx.fill(path);
-  ctx.translate(-0.1, -0.14);
-
-  const lit = ctx.createLinearGradient(-1, -1, 1, 1);
-  const shine = 12;
-  lit.addColorStop(0, hsl(g.h, g.s, g.l + shine));
-  lit.addColorStop(0.55, hsl(g.h, g.s, g.l));
-  lit.addColorStop(1, hsl(g.h, g.s, g.l - 18));
-  ctx.fillStyle = lit;
-  ctx.fill(path);
-
-  if (sample === 'moon') {
-    // Broken faces, and a hard dark edge.
-    if (sr > 5) {
-      const n = g.shape.length;
-      ctx.strokeStyle = hsl(g.h, g.s, g.l + 22, 0.35);
-      ctx.lineWidth = 0.9 * px;
-      ctx.beginPath();
-      for (let k = 0; k < Math.min(3, n - 2); k++) {
-        const a1 = (k * 2 * Math.PI * 2) / n;
-        const a2 = ((k * 2 + 3) * Math.PI * 2) / n;
-        ctx.moveTo(Math.cos(a1) * g.shape[(k * 2) % n] * 0.95, Math.sin(a1) * g.shape[(k * 2) % n] * 0.95);
-        ctx.lineTo(Math.cos(a2) * g.shape[(k * 2 + 3) % n] * 0.4, Math.sin(a2) * g.shape[(k * 2 + 3) % n] * 0.4);
-      }
-      ctx.stroke();
-    }
-    if (sr > 14) {
-      ctx.fillStyle = hsl(g.h, g.s, g.l - 22, 0.5);
-      for (const m of g.marks) {
-        ctx.beginPath();
-        ctx.arc(m.x, m.y, m.r * 0.6, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-    ctx.strokeStyle = 'rgba(20, 16, 12, 0.4)';
-    ctx.lineWidth = 0.8 * px;
-    ctx.stroke(path);
-  } else {
-    ctx.strokeStyle = hsl(g.h, g.s, g.l - 20, 0.35);
-    ctx.lineWidth = 0.8 * px;
-    ctx.stroke(path);
-  }
-}
+/** A wiped slide: a copy of its photograph's pixels, and a canvas to show them. */
+type Worked = { px: Pixels; canvas: HTMLCanvasElement; dirty: [number, number, number, number] | null };
 
 export default function Eyepiece({
   left,
@@ -150,15 +74,14 @@ export default function Eyepiece({
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const slides = useMemo(() => Object.fromEntries(SAMPLES.map((id) => [id, makeSlide(id)])) as Record<SampleId, Grain[]>, []);
-  const states = useRef<Record<SampleId, SlideState> | null>(null);
-  if (!states.current) states.current = Object.fromEntries(SAMPLES.map((id) => [id, freshState(slides[id])])) as Record<SampleId, SlideState>;
+  const worked = useRef(new Map<SlideId, Worked>());
+  const [wiped, setWiped] = useState<SlideId[]>([]);
 
   const [size, setSize] = useState(0);
   const [split, setSplit] = useState(0.5);
-  const cloth = useRef<(Cloth & { on: boolean }) | null>(null);
-  const dirt = useRef(0);
-  const report = useRef<WipeReport>({ moon: 0, earth: 0 });
+  /** The cloth on the slide, in screen px from the eyepiece's middle, and what it carries. */
+  const cloth = useRef<{ x: number; y: number; brush: Brush | null } | null>(null);
+  const report = useRef({ earth: 0 });
   const enter = useRef<{ left: number; right: number }>({ left: 0, right: 0 });
   const frame = useRef(0);
   const live = useRef({ left, right, power, split, reduced, size });
@@ -177,6 +100,26 @@ export default function Eyepiece({
   }, []);
 
   const scheduleRef = useRef<() => void>(() => {});
+
+  /** The wiped copy of a slide, made on its first wipe; null until its photograph has loaded. */
+  const work = (slide: Slide): Worked | null => {
+    const have = worked.current.get(slide.id);
+    if (have) return have;
+    const img = photo(slide.src, () => scheduleRef.current());
+    if (!img) return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    if (!ctx) return null;
+    ctx.drawImage(img, 0, 0);
+    const px = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const w: Worked = { px, canvas, dirty: null };
+    worked.current.set(slide.id, w);
+    setWiped((ids) => [...ids, slide.id]);
+    return w;
+  };
+
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     const { left: l, right: r, power: p, split: sp, size: W } = live.current;
@@ -200,6 +143,8 @@ export default function Eyepiece({
     };
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     ctx.clearRect(0, 0, W, W);
     // The lamp under the slide.
     const lamp = ctx.createRadialGradient(R * 0.85, R * 0.8, 0, R, R, R * 1.05);
@@ -209,37 +154,21 @@ export default function Eyepiece({
     ctx.fillStyle = lamp;
     ctx.fillRect(0, 0, W, W);
 
-    const c = cloth.current;
-    const stuckOnTop: { id: SampleId; i: number; off: number }[] = [];
-
     const drawSlide = (slide: Slide, x0: number, x1: number, off: number) => {
-      const id = dustOf(slide);
-      const grains = slides[id];
-      const st = states.current![id];
       ctx.save();
       ctx.beginPath();
       ctx.rect(x0, 0, x1 - x0, W);
       ctx.clip();
-      ctx.translate(R + off, R);
       // The photograph fills the disc at the lowest power; higher powers look closer at its middle.
-      const img = photo(slide.src, () => scheduleRef.current());
-      if (img) ctx.drawImage(img, -scale, -scale, scale * 2, scale * 2);
-      for (let i = 0; i < grains.length; i++) {
-        const g = grains[i];
-        if (st.stuck[i]) {
-          stuckOnTop.push({ id, i, off });
-          continue;
-        }
-        const sr = g.r * scale;
-        const sx = st.x[i] * scale;
-        const sy = st.y[i] * scale;
-        if (sx + off + R < x0 - sr * 1.3 || sx + off + R > x1 + sr * 1.3 || Math.abs(sy) > R + sr * 1.3) continue;
-        ctx.save();
-        ctx.translate(sx, sy);
-        ctx.rotate(g.rot);
-        drawGrain(ctx, g, id, sr);
-        ctx.restore();
+      // Once wiped, the wiped copy stands in for it.
+      const w = worked.current.get(slide.id);
+      if (w?.dirty) {
+        const [dx, dy, dw, dh] = w.dirty;
+        w.canvas.getContext('2d')?.putImageData(w.px as ImageData, 0, 0, dx, dy, dw, dh);
+        w.dirty = null;
       }
+      const src = w?.canvas ?? photo(slide.src, () => scheduleRef.current());
+      if (src) ctx.drawImage(src, R + off - scale, R - scale, scale * 2, scale * 2);
       ctx.restore();
     };
 
@@ -251,49 +180,44 @@ export default function Eyepiece({
       drawSlide(l, 0, W, slideIn(enter.current.left));
     }
 
-    // The cloth, a round of white suit cloth that grays as dust clings to it.
-    if (c?.on) {
-      const cx = R + c.x * scale;
-      const cy = R + c.y * scale;
-      const cr = c.r * scale;
-      const d = dirt.current;
-      const tone = Math.round(243 - d * 110);
-      const g = ctx.createRadialGradient(cx - cr * 0.3, cy - cr * 0.3, 0, cx, cy, cr);
-      g.addColorStop(0, `rgba(${tone + 8}, ${tone + 4}, ${Math.min(255, tone + 14)}, 0.62)`);
-      g.addColorStop(1, `rgba(${tone - 30}, ${tone - 34}, ${tone - 18}, 0.62)`);
+    // The cloth: a round of white suit cloth, showing the dust it carries.
+    const c = cloth.current;
+    if (c) {
+      const cx = R + c.x;
+      const cy = R + c.y;
+      const cr = clothRadius();
+      const b = c.brush;
       ctx.save();
       ctx.beginPath();
       ctx.arc(cx, cy, cr, 0, Math.PI * 2);
-      ctx.fillStyle = g;
-      ctx.fill();
       ctx.clip();
+      ctx.fillStyle = 'rgba(243, 240, 250, 0.86)';
+      ctx.fill();
+      if (b?.loaded) {
+        // What the cloth has picked up, darkening it: grayer the more it has carried.
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.globalAlpha = Math.min(0.85, 0.2 + b.dust * 0.8);
+        ctx.drawImage(brushImage(b), cx - cr, cy - cr, cr * 2, cr * 2);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+      }
       // The weave.
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.16)';
+      ctx.strokeStyle = 'rgba(120, 112, 140, 0.18)';
       ctx.lineWidth = 1;
+      ctx.beginPath();
       for (let k = -cr; k < cr; k += 4) {
-        ctx.beginPath();
         ctx.moveTo(cx + k, cy - cr);
         ctx.lineTo(cx + k, cy + cr);
         ctx.moveTo(cx - cr, cy + k);
         ctx.lineTo(cx + cr, cy + k);
-        ctx.stroke();
       }
+      ctx.stroke();
       ctx.restore();
       ctx.beginPath();
       ctx.arc(cx, cy, cr, 0, Math.PI * 2);
-      ctx.strokeStyle = 'rgba(243, 240, 250, 0.7)';
-      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = 'rgba(243, 240, 250, 0.85)';
+      ctx.lineWidth = 2;
       ctx.stroke();
-    }
-    // Dust stuck to the cloth, on top of it.
-    for (const { id, i, off } of stuckOnTop) {
-      const g = slides[id][i];
-      const st = states.current![id];
-      ctx.save();
-      ctx.translate(R + off + st.x[i] * scale, R + st.y[i] * scale);
-      ctx.rotate(g.rot);
-      drawGrain(ctx, g, id, g.r * scale);
-      ctx.restore();
     }
 
     if (r) {
@@ -303,7 +227,7 @@ export default function Eyepiece({
       ctx.fillRect(sx - 1, 0, 2, W);
     }
     return animating;
-  }, [slides]);
+  }, []);
 
   const schedule = useCallback(() => {
     cancelAnimationFrame(frame.current);
@@ -325,66 +249,91 @@ export default function Eyepiece({
   useEffect(() => () => cancelAnimationFrame(frame.current), []);
 
   // ───── Wiping ─────
-  const toSlide = (clientX: number, clientY: number) => {
-    const rect = canvasRef.current!.getBoundingClientRect();
-    const R = rect.width / 2;
-    const scale = POWERS[live.current.power] * R;
-    return { x: (clientX - rect.left - R) / scale, y: (clientY - rect.top - R) / scale };
+  /** The cloth's radius on screen. */
+  const clothRadius = () => Math.min(48, (live.current.size || 300) * 0.1);
+
+  /** One step of the cloth, in screen px from the middle, on whichever slide lies under it. */
+  const wipeAt = (x0: number, y0: number, x1: number, y1: number) => {
+    const c = cloth.current;
+    const { left: l, right: r, split: sp, size: W, power: p } = live.current;
+    if (!c || !W) return;
+    const R = W / 2;
+    const scale = POWERS[p] * R;
+    // From the screen to the photograph's pixels: it spans 2 × scale on screen.
+    const lay = (slide: Slide, limit: Limit) => {
+      const w = work(slide);
+      if (!w) return;
+      const k = w.px.width / (scale * 2);
+      const to = (x: number, y: number) => [(x + scale) * k, (y + scale) * k] as const;
+      const [ax, ay] = to(x0, y0);
+      const [bx, by] = to(x1, y1);
+      const rr = clothRadius() * k;
+      const lim = { x0: (limit.x0 + scale) * k, x1: (limit.x1 + scale) * k };
+      if (isMoon(slide)) {
+        if (!c.brush || c.brush.r !== Math.max(2, Math.round(rr))) c.brush = newBrush(rr);
+        smear(w.px, c.brush, bx, by, lim);
+      } else {
+        report.current.earth += brushAside(w.px, ax, ay, bx, by, rr, lim);
+      }
+      const pad = rr * 2 + 4;
+      const box = [Math.min(ax, bx) - pad, Math.min(ay, by) - pad, Math.max(ax, bx) + pad, Math.max(ay, by) + pad].map((v) => Math.round(v));
+      const d = w.dirty;
+      const nb = d ? [Math.min(d[0], box[0]), Math.min(d[1], box[1]), Math.max(d[0] + d[2], box[2]), Math.max(d[1] + d[3], box[3])] : box;
+      const x = Math.max(0, nb[0]);
+      const y = Math.max(0, nb[1]);
+      w.dirty = [x, y, Math.min(w.px.width, nb[2]) - x, Math.min(w.px.height, nb[3]) - y];
+    };
+    const splitX = sp * W - R;
+    if (r) {
+      // Each slide only on its own side of the line.
+      if (Math.min(x0, x1) - clothRadius() < splitX) lay(l, { x0: -Infinity, x1: splitX });
+      if (Math.max(x0, x1) + clothRadius() >= splitX) lay(r, { x0: splitX, x1: Infinity });
+    } else lay(l, { x0: -Infinity, x1: Infinity });
   };
 
-  const clothRadius = () => {
-    const W = live.current.size || 300;
-    return Math.min(52, W * 0.11) / (POWERS[live.current.power] * (W / 2));
-  };
-
-  const moveCloth = useCallback((x: number, y: number) => {
+  const moveCloth = (x: number, y: number) => {
     const c = cloth.current;
     if (!c) return;
-    c.vx = x - c.x;
-    c.vy = y - c.y;
-    // Long moves go in short steps, so nothing is skipped over.
-    const steps = Math.max(1, Math.ceil(Math.hypot(c.vx, c.vy) / (c.r * 0.4)));
-    const { left: lSlide, right: rSlide, split: sp, size: W, power: p } = live.current;
-    const l = dustOf(lSlide);
-    const r = rSlide && dustOf(rSlide);
-    const splitX = r ? ((sp * W - W / 2) / (POWERS[p] * (W / 2))) : Infinity;
+    // Long moves go in short steps, so nothing is skipped over and the smear runs smooth.
+    const steps = Math.max(1, Math.ceil(Math.hypot(x - c.x, y - c.y) / (clothRadius() * 0.12)));
     const x0 = c.x;
     const y0 = c.y;
     for (let k = 1; k <= steps; k++) {
-      c.x = x0 + (c.vx * k) / steps;
-      c.y = y0 + (c.vy * k) / steps;
-      const step = { ...c, vx: c.vx / steps, vy: c.vy / steps };
-      const n1 = wipeStep(slides[l], states.current![l], step, l === 'moon', (gx) => gx < splitX);
-      if (l === 'moon') {
-        report.current.moon += n1;
-        dirt.current = Math.min(1, dirt.current + n1 * 0.006);
-      } else report.current.earth += n1;
-      if (r) report.current.earth += wipeStep(slides[r], states.current![r], step, false, (gx) => gx >= splitX);
+      const px = c.x;
+      const py = c.y;
+      c.x = x0 + ((x - x0) * k) / steps;
+      c.y = y0 + ((y - y0) * k) / steps;
+      wipeAt(px, py, c.x, c.y);
     }
-  }, [slides]);
+  };
 
   const startCloth = (x: number, y: number) => {
-    report.current = { moon: 0, earth: 0 };
-    cloth.current = { x, y, vx: 0, vy: 0, r: clothRadius(), on: true };
+    report.current = { earth: 0 };
+    cloth.current = { x, y, brush: null };
+    wipeAt(x, y, x, y);
   };
   const endCloth = useCallback(() => {
     if (!cloth.current) return;
+    const b = cloth.current.brush;
     cloth.current = null;
-    for (const id of SAMPLES) releaseCloth(states.current![id]);
     schedule();
-    onWiped(report.current);
+    onWiped({ moon: b?.dust ?? 0, earth: report.current.earth });
   }, [onWiped, schedule]);
 
+  const fromMiddle = (clientX: number, clientY: number) => {
+    const rect = canvasRef.current!.getBoundingClientRect();
+    return { x: clientX - rect.left - rect.width / 2, y: clientY - rect.top - rect.height / 2 };
+  };
   const onPointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    const p = toSlide(e.clientX, e.clientY);
+    cancelAnimationFrame(sweeping.current);
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    const p = fromMiddle(e.clientX, e.clientY);
     startCloth(p.x, p.y);
-    moveCloth(p.x, p.y);
     schedule();
   };
   const onPointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
     if (!cloth.current) return;
-    const p = toSlide(e.clientX, e.clientY);
+    const p = fromMiddle(e.clientX, e.clientY);
     moveCloth(p.x, p.y);
     schedule();
   };
@@ -394,11 +343,11 @@ export default function Eyepiece({
   useImperativeHandle(ref, () => ({
     sweep() {
       cancelAnimationFrame(sweeping.current);
-      const span = 0.85 / POWERS[live.current.power];
+      const span = (live.current.size || 300) * 0.36;
       const at = (t: number) => {
         const there = t < 0.5;
         const u = there ? t * 2 : (t - 0.5) * 2;
-        return { x: (there ? -1 + 2 * u : 1 - 2 * u) * span, y: (there ? -0.18 : 0.22) * span + Math.sin(u * Math.PI * 3) * 0.06 * span };
+        return { x: (there ? -1 + 2 * u : 1 - 2 * u) * span, y: (there ? -0.2 : 0.24) * span + Math.sin(u * Math.PI * 3) * 0.08 * span };
       };
       const p0 = at(0);
       startCloth(p0.x, p0.y);
@@ -412,7 +361,7 @@ export default function Eyepiece({
       }
       const t0 = performance.now();
       const tick = () => {
-        const t = Math.min(1, (performance.now() - t0) / 1600);
+        const t = Math.min(1, (performance.now() - t0) / 1800);
         const p = at(t);
         moveCloth(p.x, p.y);
         draw();
@@ -424,8 +373,9 @@ export default function Eyepiece({
     reset() {
       cancelAnimationFrame(sweeping.current);
       cloth.current = null;
-      dirt.current = 0;
-      states.current = Object.fromEntries(SAMPLES.map((id) => [id, freshState(slides[id])])) as Record<SampleId, SlideState>;
+      // Back to the photographs as they were.
+      worked.current.clear();
+      setWiped([]);
       schedule();
     },
   }));
@@ -446,7 +396,7 @@ export default function Eyepiece({
   };
 
   return (
-    <div ref={wrapRef} className="mo-ms-eyepiece" style={{ ['--split' as string]: String(split) }}>
+    <div ref={wrapRef} className="mo-ms-eyepiece" style={{ ['--split' as string]: String(split) }} data-wiped={wiped.join(' ')}>
       <canvas
         ref={canvasRef}
         className="mo-ms-canvas"
@@ -482,7 +432,7 @@ export default function Eyepiece({
             aria-valuetext={`${Math.round(split * 100)}% Moon`}
             onKeyDown={onSplitKey}
             onPointerDown={(e) => {
-              e.currentTarget.setPointerCapture(e.pointerId);
+              e.currentTarget.setPointerCapture?.(e.pointerId);
               dragSplit.current = true;
             }}
             onPointerMove={onSplitMove}
@@ -499,4 +449,26 @@ export default function Eyepiece({
       )}
     </div>
   );
+}
+
+/** What the cloth carries, as a picture to lay on it. */
+const brushCanvas = new WeakMap<Brush, HTMLCanvasElement>();
+function brushImage(b: Brush): HTMLCanvasElement {
+  let cv = brushCanvas.get(b);
+  if (!cv) {
+    cv = document.createElement('canvas');
+    cv.width = cv.height = b.size;
+    brushCanvas.set(b, cv);
+  }
+  const ctx = cv.getContext('2d');
+  if (!ctx) return cv;
+  const img = ctx.createImageData(b.size, b.size);
+  for (let i = 0, q = 0; i < img.data.length; i += 4, q += 3) {
+    img.data[i] = b.rgb[q];
+    img.data[i + 1] = b.rgb[q + 1];
+    img.data[i + 2] = b.rgb[q + 2];
+    img.data[i + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  return cv;
 }
