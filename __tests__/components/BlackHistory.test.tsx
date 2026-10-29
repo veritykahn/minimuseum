@@ -57,9 +57,9 @@ describe('Black History Month', () => {
     expect(BLACK_HISTORY.fx.theme).toBe('bh');
   });
 
-  it('goes back to the first floor, as its fifth Horizons room', () => {
+  it('goes back to the second floor, as its first Reflections room', () => {
     expect(BLACK_HISTORY.back).toEqual(floorReturnFor('black-history'));
-    expect(BLACK_HISTORY.back).toEqual({ href: '/exhibitions/first-floor', label: 'First Floor', remember: { key: 'firstFloorIndex', value: '4' } });
+    expect(BLACK_HISTORY.back).toEqual({ href: '/exhibitions/second-floor', label: 'Second Floor', remember: { key: 'secondFloorIndex', value: '0' } });
   });
 
   it('sets poster 1 exactly as printed', () => {
@@ -151,7 +151,7 @@ describe('Black History Month', () => {
       const caseLink = screen.getByRole('link', { name: /display case/i });
       expect(caseLink).toHaveAttribute('href', '/exhibitions/black-history/artifacts/case');
       expect(caseLink).toHaveTextContent('Display case — photographs to come');
-      expect(screen.getByRole('link', { name: 'First Floor' })).toHaveAttribute('href', '/exhibitions/first-floor');
+      expect(screen.getByRole('link', { name: 'Second Floor' })).toHaveAttribute('href', '/exhibitions/second-floor');
     });
 
     it('opens Black History Month on its lettering, and ends with the link to Cultural Expressions in italics', () => {
@@ -213,19 +213,19 @@ describe('The Black History Month display case page', () => {
 });
 
 describe('Black History Month on the museum map', () => {
-  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and its two interactive rooms', () => {
+  it('is a room on the Second Floor, with an Exhibition Hall, a Display Case and its two interactive rooms', () => {
     const level = getLevelConfig('/exhibitions/black-history/artifacts/case');
     expect(level.title).toBe('Black History Month');
-    expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
+    expect(level.backTarget?.path).toBe('/exhibitions/second-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/black-history'],
       ['Display Case', '/exhibitions/black-history/artifacts/case'],
       ['The Black Barbie Timeline', '/exhibitions/black-history/timeline'],
       ['Who Do You See?', '/exhibitions/black-history/representation'],
     ]);
-    expect(getRoomByPath('/exhibitions/black-history')?.parent).toBe('first-floor');
+    expect(getRoomByPath('/exhibitions/black-history')?.parent).toBe('second-floor');
     expect(getRoomByPath('/exhibitions/black-history/artifacts/case')?.parent).toBe('black-history');
-    const room = getLevelConfig('/exhibitions/first-floor').rooms.find((r) => r.id === 'black-history')!;
+    const room = getLevelConfig('/exhibitions/second-floor').rooms.find((r) => r.id === 'black-history')!;
     expect(room.comingSoon).toBeFalsy();
     expect(room.path).toBe('/exhibitions/black-history');
   });

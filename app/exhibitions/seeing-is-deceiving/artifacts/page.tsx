@@ -50,11 +50,68 @@ const artifacts: Artifact[] = [
     status: 'available',
     type: 'interactive',
     route: '/exhibitions/seeing-is-deceiving/illusions'
+  },
+  {
+    id: 'optical-toys',
+    title: 'Optical Toys',
+    subtitle: 'The Thaumatrope & the Zoetrope',
+    image: '/exhibitions/seeing/room-optical-toys.svg',
+    status: 'available',
+    type: 'interactive',
+    route: '/exhibitions/seeing-is-deceiving/optical-toys'
   }
 ];
 
 export default function ArtifactsCollection() {
   const router = useRouter();
+
+  // A card for an object or a room, each opening its own page.
+  const card = (artifact: Artifact) => {
+    const content = (
+      <>
+        {/* Hover arrow for available items */}
+        {artifact.status === 'available' && (
+          <div className="hover-arrow" aria-hidden="true">↗</div>
+        )}
+
+        {/* Image container */}
+        <div className="artifact-image-container" aria-hidden="true">
+          <Image
+            src={artifact.image}
+            alt={artifact.title}
+            className="artifact-image"
+            width={300}
+            height={200}
+            style={{ width: '100%', height: 'auto' }}
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        </div>
+
+        {/* Info */}
+        <div className="artifact-info">
+          <h2 className="artifact-title">{artifact.title}</h2>
+          <p className="artifact-subtitle">{artifact.subtitle}</p>
+
+          {/* Status */}
+          <div className={`artifact-status ${artifact.status === 'available' ? 'status-available' : 'status-coming-soon'}`}>
+            <span className={`status-dot ${artifact.status === 'available' ? 'active' : 'inactive'}`}></span>
+            {artifact.status === 'available' ? 'Explore' : 'Coming Soon'}
+          </div>
+        </div>
+      </>
+    );
+    return artifact.status === 'available' ? (
+      <Link key={artifact.id} href={artifact.route} className={`artifact-card ${artifact.status}`}>
+        {content}
+      </Link>
+    ) : (
+      <div key={artifact.id} className={`artifact-card ${artifact.status}`}>
+        {content}
+      </div>
+    );
+  };
 
   return (
     <div className="artifacts-page">
@@ -140,6 +197,30 @@ export default function ArtifactsCollection() {
           gap: 24px;
           max-width: 1200px;
           margin: 0 auto;
+        }
+
+        /* The objects three to a row; the rooms that open from the case two */
+        .artifacts-grid-objects { grid-template-columns: repeat(3, 1fr); max-width: 900px; }
+        .artifacts-grid-rooms { grid-template-columns: repeat(2, 1fr); max-width: 600px; }
+
+        /* "Interactives": the rooms that open from the case */
+        .section-title {
+          text-align: center;
+          margin: 72px 0 36px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: #a8d5e5;
+        }
+        .section-title::after {
+          content: '';
+          display: block;
+          width: 48px;
+          height: 1px;
+          margin: 16px auto 0;
+          background: rgba(168, 213, 229, 0.5);
         }
 
         @media (max-width: 1024px) {
@@ -373,53 +454,14 @@ export default function ArtifactsCollection() {
       </div>
 
       {/* Artifacts grid */}
-      <div className="artifacts-grid">
-        {artifacts.map((artifact) => {
-          const content = (
-            <>
-              {/* Hover arrow for available items */}
-              {artifact.status === 'available' && (
-                <div className="hover-arrow" aria-hidden="true">↗</div>
-              )}
+      <div className="artifacts-grid artifacts-grid-objects">
+        {artifacts.filter((a) => a.type === '3d').map(card)}
+      </div>
 
-              {/* Image container */}
-              <div className="artifact-image-container" aria-hidden="true">
-                <Image
-                  src={artifact.image}
-                  alt={artifact.title}
-                  className="artifact-image"
-                  width={300}
-                  height={200}
-                  style={{ width: '100%', height: 'auto' }}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).style.display = 'none';
-                  }}
-                />
-              </div>
-
-              {/* Info */}
-              <div className="artifact-info">
-                <h2 className="artifact-title">{artifact.title}</h2>
-                <p className="artifact-subtitle">{artifact.subtitle}</p>
-
-                {/* Status */}
-                <div className={`artifact-status ${artifact.status === 'available' ? 'status-available' : 'status-coming-soon'}`}>
-                  <span className={`status-dot ${artifact.status === 'available' ? 'active' : 'inactive'}`}></span>
-                  {artifact.status === 'available' ? 'Explore' : 'Coming Soon'}
-                </div>
-              </div>
-            </>
-          );
-          return artifact.status === 'available' ? (
-            <Link key={artifact.id} href={artifact.route} className={`artifact-card ${artifact.status}`}>
-              {content}
-            </Link>
-          ) : (
-            <div key={artifact.id} className={`artifact-card ${artifact.status}`}>
-              {content}
-            </div>
-          );
-        })}
+      {/* The rooms that open from the case */}
+      <h2 className="section-title">Interactives</h2>
+      <div className="artifacts-grid artifacts-grid-rooms">
+        {artifacts.filter((a) => a.type === 'interactive').map(card)}
       </div>
 
       {/* Return button */}

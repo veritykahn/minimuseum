@@ -41,6 +41,7 @@ export const ITH_POSTER_THEME = {
 
 export const SEEING_POSTER_LINKS = [
   { label: 'Seeing is Deceiving teacher resources', href: '/exhibitions/seeing-is-deceiving/resources' },
+  { label: 'Optical Toys: the thaumatrope and the zoetrope', href: '/exhibitions/seeing-is-deceiving/optical-toys' },
 ];
 
 export const HARLEM_POSTER_LINKS = [

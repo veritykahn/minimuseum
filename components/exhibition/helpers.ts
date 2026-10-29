@@ -141,3 +141,21 @@ export function emphasisRuns(text: string): { text: string; em: boolean }[] {
     part.length > 2 && part.startsWith('*') && part.endsWith('*') ? { text: part.slice(1, -1), em: true } : { text: part, em: false },
   );
 }
+
+/**
+ * Where an exhibition's interactive rooms are shown: in its first display
+ * case, the one its case page lists them under. An exhibition with no case
+ * yet keeps them on its landing page.
+ */
+export function roomsCase(config: Pick<ExhibitionConfig, 'cases'>) {
+  return config.cases?.[0];
+}
+
+/**
+ * A room's top-left "M ←" link: back to the display case it opens from, or
+ * to the exhibition when there is no case.
+ */
+export function roomReturn(config: Pick<ExhibitionConfig, 'slug' | 'cases'>): { href: string; label: string } {
+  const c = roomsCase(config);
+  return c ? { href: c.href, label: c.label } : { href: `/exhibitions/${config.slug}`, label: 'Exhibition' };
+}

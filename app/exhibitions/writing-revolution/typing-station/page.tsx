@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
+import { roomReturn } from '@/components/exhibition/helpers';
 import { WRITING_REVOLUTION } from '../writingRevolution';
 import Typewriter from './Typewriter';
 import IMac from './IMac';
@@ -38,6 +39,7 @@ type TabId = (typeof TABS)[number]['id'];
 
 export default function TypingStation() {
   const { fonts, palette, slug } = WRITING_REVOLUTION;
+  const back = roomReturn(WRITING_REVOLUTION);
   const sound = useTypingSound();
   const [tab, setTab] = useState<TabId>('typewriter');
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ typewriter: null, imac: null, 'top-row': null, board: null });
@@ -108,10 +110,10 @@ export default function TypingStation() {
     <div className="pe-root wrs-room" data-exhibition={slug} data-tab={tab} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
 
-      <ExhibitionNav className="pe-nav pe-nav-left" href={`/exhibitions/${slug}`}>
+      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
         <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
-        <span className="pe-nav-label">Exhibition</span>
+        <span className="pe-nav-label">{back.label}</span>
       </ExhibitionNav>
 
       <button type="button" className="wrs-sound" aria-pressed={on} onClick={sound.toggle}>

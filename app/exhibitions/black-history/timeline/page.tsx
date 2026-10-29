@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type TouchEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
+import { roomReturn } from '@/components/exhibition/helpers';
 import FactNote from '@/components/exhibition/FactNote';
 import { srOnly, useReducedMotion } from '@/lib/a11y';
 import { BLACK_HISTORY } from '../blackHistory';
@@ -55,6 +56,7 @@ function useCountingYear(target: number | null, still: boolean) {
 
 export default function BlackBarbieTimeline() {
   const { fonts, palette, slug } = BLACK_HISTORY;
+  const back = roomReturn(BLACK_HISTORY);
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
   const stopRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -119,10 +121,10 @@ export default function BlackBarbieTimeline() {
     <div className="pe-root bht-room" data-exhibition={slug} data-theme={stop.theme} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
 
-      <ExhibitionNav className="pe-nav pe-nav-left" href={`/exhibitions/${slug}`}>
+      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
         <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
-        <span className="pe-nav-label">Exhibition</span>
+        <span className="pe-nav-label">{back.label}</span>
       </ExhibitionNav>
 
       <main className="bht-stage" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>

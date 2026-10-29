@@ -70,6 +70,43 @@ const artifacts: Artifact[] = [
 export default function ArtifactsCollection() {
   const router = useRouter();
 
+  // A card for an object or a room, each opening its own page.
+  const card = (artifact: Artifact) => {
+    const content = (
+      <>
+        {artifact.status === 'available' && (
+          <div className="hr-art-hover-arrow" aria-hidden="true">{'\u2197'}</div>
+        )}
+
+        <div className="hr-art-image-container" aria-hidden="true">
+          {artifact.thumb ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img className="hr-art-thumb" src={artifact.thumb} alt={artifact.title} />
+          ) : artifact.emoji}
+        </div>
+
+        <div className="hr-art-info">
+          <h2 className="hr-art-title">{artifact.title}</h2>
+          <p className="hr-art-subtitle">{artifact.subtitle}</p>
+
+          <div className={`hr-art-status ${artifact.status === 'available' ? 'hr-art-status-available' : 'hr-art-status-coming-soon'}`}>
+            <span className={`hr-art-status-dot ${artifact.status === 'available' ? 'active' : 'inactive'}`}></span>
+            {artifact.status === 'available' ? 'Explore' : 'Coming Soon'}
+          </div>
+        </div>
+      </>
+    );
+    return artifact.status === 'available' ? (
+      <Link key={artifact.id} href={artifact.route} className={`hr-art-card ${artifact.status}`}>
+        {content}
+      </Link>
+    ) : (
+      <div key={artifact.id} className={`hr-art-card ${artifact.status}`}>
+        {content}
+      </div>
+    );
+  };
+
   return (
     <div className="hr-artifacts-page">
       <style jsx global>{`
@@ -152,13 +189,29 @@ export default function ArtifactsCollection() {
           max-width: 960px;
           margin: 0 auto;
         }
-        /* Row 1: 2 items centered (each spans 3 of 6 cols) */
-        .hr-art-card:nth-child(1) { grid-column: 1 / span 3; }
-        .hr-art-card:nth-child(2) { grid-column: 4 / span 3; }
-        /* Row 2: 3 items (each spans 2 of 6 cols) */
-        .hr-art-card:nth-child(3) { grid-column: 1 / span 2; }
-        .hr-art-card:nth-child(4) { grid-column: 3 / span 2; }
-        .hr-art-card:nth-child(5) { grid-column: 5 / span 2; }
+        /* The objects two to a row (each spans 3 of 6 cols); the rooms three (2 of 6) */
+        .hr-art-grid-objects .hr-art-card { grid-column: span 3; }
+        .hr-art-grid-rooms .hr-art-card { grid-column: span 2; }
+
+        /* "Interactives": the rooms that open from the case */
+        .hr-art-section-title {
+          text-align: center;
+          margin: 72px 0 36px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: #b485d2;
+        }
+        .hr-art-section-title::after {
+          content: '';
+          display: block;
+          width: 48px;
+          height: 1px;
+          margin: 16px auto 0;
+          background: rgba(180, 133, 210, 0.5);
+        }
 
         @media (max-width: 900px) {
           .hr-art-grid {
@@ -166,7 +219,7 @@ export default function ArtifactsCollection() {
             gap: 32px;
             max-width: 500px;
           }
-          .hr-art-card:nth-child(n) { grid-column: auto; }
+          .hr-art-grid .hr-art-card { grid-column: auto; }
         }
 
         @media (max-width: 600px) {
@@ -380,42 +433,13 @@ export default function ArtifactsCollection() {
         </p>
       </div>
 
-      <div className="hr-art-grid">
-        {artifacts.map((artifact) => {
-          const content = (
-            <>
-              {artifact.status === 'available' && (
-                <div className="hr-art-hover-arrow" aria-hidden="true">{'\u2197'}</div>
-              )}
+      <div className="hr-art-grid hr-art-grid-objects">
+        {artifacts.filter((a) => a.type === '3d').map(card)}
+      </div>
 
-              <div className="hr-art-image-container" aria-hidden="true">
-                {artifact.thumb ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img className="hr-art-thumb" src={artifact.thumb} alt={artifact.title} />
-                ) : artifact.emoji}
-              </div>
-
-              <div className="hr-art-info">
-                <h2 className="hr-art-title">{artifact.title}</h2>
-                <p className="hr-art-subtitle">{artifact.subtitle}</p>
-
-                <div className={`hr-art-status ${artifact.status === 'available' ? 'hr-art-status-available' : 'hr-art-status-coming-soon'}`}>
-                  <span className={`hr-art-status-dot ${artifact.status === 'available' ? 'active' : 'inactive'}`}></span>
-                  {artifact.status === 'available' ? 'Explore' : 'Coming Soon'}
-                </div>
-              </div>
-            </>
-          );
-          return artifact.status === 'available' ? (
-            <Link key={artifact.id} href={artifact.route} className={`hr-art-card ${artifact.status}`}>
-              {content}
-            </Link>
-          ) : (
-            <div key={artifact.id} className={`hr-art-card ${artifact.status}`}>
-              {content}
-            </div>
-          );
-        })}
+      <h2 className="hr-art-section-title">Interactives</h2>
+      <div className="hr-art-grid hr-art-grid-rooms">
+        {artifacts.filter((a) => a.type === 'interactive').map(card)}
       </div>
 
       <button className="hr-art-return-btn" onClick={() => router.push('/exhibitions/harlem-renaissance')}>

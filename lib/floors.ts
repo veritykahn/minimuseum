@@ -1,8 +1,11 @@
 /**
- * The museum's two exhibition floors, arranged by theme.
+ * The museum's floors: three of exhibitions, arranged by era, and the Studio.
  *
  * Ground Floor (Origins): the deep past up to about 1900, in historical order.
- * First Floor (Horizons): the 20th century and the mind.
+ * First Floor (Horizons): the 20th century.
+ * Second Floor (Reflections): identity, words and the mind.
+ * Third Floor (The Studio): every make-your-own tool in the museum, each a
+ * door to the tool where it lives in its exhibition (STUDIO_TOOLS).
  *
  * The order here is the order of the cards on each floor page, so an
  * exhibition's return link (see `floorReturnFor`) always lands on its own card.
@@ -21,25 +24,50 @@ export type FloorExhibition = {
   active: boolean;
 };
 
-export type Floor = {
+/** What every floor page has, exhibitions or tools. */
+type FloorBase = {
   /** The floor page's path. */
   path: string;
   /** The page's heading (read by screen readers). */
   heading: string;
   /** The small floor name in the top-right corner, and the back link's label. */
   name: string;
+  /** The floor's own name, as the Great Hall lists it: "Origins". */
+  title: string;
+  /** "G", "1", "2", "3": the number by the stairs in the Great Hall. */
+  marker: string;
   /** What the floor holds, under its name. */
   theme: string;
+  /** The floor's own color: its theme line and back link on the floor page, and its row in the Great Hall. */
+  accent: string;
   /** sessionStorage key holding the card to return to. */
   storageKey: string;
-  exhibitions: FloorExhibition[];
 };
+
+export type Floor = FloorBase & { exhibitions: FloorExhibition[] };
+
+/** A make-your-own tool on the Studio floor: a door to it in its exhibition. */
+export type StudioTool = {
+  /** The tool's name, as its room names it. */
+  title: string;
+  /** The exhibition it lives in (its slug); the card takes that exhibition's name and accent. */
+  exhibition: string;
+  /** The tool itself: its room, with the tab's address where it has one. */
+  href: string;
+  /** What you make, plainly. */
+  description: string;
+};
+
+export type StudioFloor = FloorBase & { tools: StudioTool[] };
 
 export const GROUND_FLOOR: Floor = {
   path: '/exhibitions/ground-floor',
   heading: 'Ground Floor: Origins',
   name: 'Ground Floor',
+  title: 'Origins',
+  marker: 'G',
   theme: 'The deep past to 1900',
+  accent: '#7D8471', // the Great Hall's sage
   storageKey: 'groundFloorIndex',
   exhibitions: [
     {
@@ -99,7 +127,10 @@ export const FIRST_FLOOR: Floor = {
   path: '/exhibitions/first-floor',
   heading: 'First Floor: Horizons',
   name: 'First Floor',
-  theme: 'The 20th century and the mind',
+  title: 'Horizons',
+  marker: '1',
+  theme: 'The 20th century',
+  accent: '#9aa091', // the sage, a shade lighter
   storageKey: 'firstFloorIndex',
   exhibitions: [
     {
@@ -142,6 +173,19 @@ export const FIRST_FLOOR: Floor = {
       description: 'A solemn historical encounter, blending authentic wartime artifacts with personal stories of faith and survival.',
       active: true,
     },
+  ],
+};
+
+export const SECOND_FLOOR: Floor = {
+  path: '/exhibitions/second-floor',
+  heading: 'Second Floor: Reflections',
+  name: 'Second Floor',
+  title: 'Reflections',
+  marker: '2',
+  theme: 'Identity, words & the mind',
+  accent: '#93a3b8', // a slate blue, as the floors climb
+  storageKey: 'secondFloorIndex',
+  exhibitions: [
     {
       slug: 'black-history',
       title: 'Black History Month',
@@ -185,7 +229,99 @@ export const FIRST_FLOOR: Floor = {
   ],
 };
 
-export const FLOORS: Floor[] = [GROUND_FLOOR, FIRST_FLOOR];
+/** The floors that hold exhibitions, from the ground up. */
+export const FLOORS: Floor[] = [GROUND_FLOOR, FIRST_FLOOR, SECOND_FLOOR];
+
+/**
+ * The Studio's tools, in the order of the floors they come from. Each stays
+ * in its exhibition's room; the Studio is another door to it.
+ */
+export const STUDIO_TOOLS: StudioTool[] = [
+  {
+    title: 'Our Class Declaration',
+    exhibition: 'america-250',
+    href: '/exhibitions/america-250/sign#class',
+    description: 'Write your class’s declaration on a parchment, sign it one after another, and print it.',
+  },
+  {
+    title: 'My Declaration',
+    exhibition: 'america-250',
+    href: '/exhibitions/america-250/sign#mine',
+    description: 'Write a declaration of your own, sign it at its foot, and print it.',
+  },
+  {
+    title: 'Christmas Card Maker',
+    exhibition: 'victorian',
+    href: '/exhibitions/victorian/christmas-card',
+    description: 'Choose a picture, a border and a paper, write your greeting inside, then print and fold your card.',
+  },
+  {
+    title: 'Remember a Soldier',
+    exhibition: 'great-war',
+    href: '/exhibitions/great-war/memorial#remember',
+    description: 'Draw or find one of the fallen, and keep their memorial card: save it as a picture or print it.',
+  },
+  {
+    title: 'Jazz Studio',
+    exhibition: 'harlem-renaissance',
+    href: '/exhibitions/harlem-renaissance/jazz-lab#studio',
+    description: 'Pick a session, then arrange loops on the timeline to make your own jazz record.',
+  },
+  {
+    title: 'Harlem in Words',
+    exhibition: 'harlem-renaissance',
+    href: '/exhibitions/harlem-renaissance/harlem-in-words',
+    description: 'Compose a poem from the language of the Harlem Renaissance, and hear it read aloud.',
+  },
+  {
+    title: 'Make Your Own Timeline',
+    exhibition: 'womens-history',
+    href: '/exhibitions/womens-history/violet#make',
+    description: 'Set out a timeline, as Violet’s is, for a woman in your own life. Save it or print it.',
+  },
+  {
+    title: 'Design a Doll',
+    exhibition: 'black-history',
+    href: '/exhibitions/black-history/representation#design',
+    description: 'Design a doll that looks like you or someone you love. Save it as a picture or print it.',
+  },
+  {
+    title: 'Who’s in Your Books?',
+    exhibition: 'black-history',
+    href: '/exhibitions/black-history/representation#books',
+    description: 'Count who is in the books around you, as a class.',
+  },
+  {
+    title: 'The Class Board',
+    exhibition: 'writing-revolution',
+    href: '/exhibitions/writing-revolution/typing-station#board',
+    description: 'Type a message on the typewriter or the iMac and post it to your class’s board. Save the board with a class code, or print it.',
+  },
+];
+
+export const STUDIO: StudioFloor = {
+  path: '/exhibitions/third-floor',
+  heading: 'Third Floor: The Studio',
+  name: 'Third Floor',
+  title: 'The Studio',
+  marker: '3',
+  theme: 'Make your own',
+  accent: '#E0A458', // a workshop's warm brass
+  storageKey: 'studioIndex',
+  tools: STUDIO_TOOLS,
+};
+
+/** Every floor, from the ground up: the Great Hall lists them top first. */
+export const ALL_FLOORS: (Floor | StudioFloor)[] = [...FLOORS, STUDIO];
+
+/** The exhibition on a floor, by slug. */
+export function findExhibition(slug: string): FloorExhibition | undefined {
+  for (const floor of FLOORS) {
+    const e = floor.exhibitions.find((x) => x.slug === slug);
+    if (e) return e;
+  }
+  return undefined;
+}
 
 /** An exhibition's page. */
 export const exhibitionPath = (slug: string) => `/exhibitions/${slug}`;

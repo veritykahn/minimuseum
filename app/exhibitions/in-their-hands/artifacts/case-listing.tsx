@@ -249,9 +249,25 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           transform: translateX(0);
         }
 
-        .cl-card-row-break {
+        /* "Interactives": the case's room, on a line of its own under the coins */
+        .cl-section-title {
           flex-basis: 100%;
-          height: 0;
+          text-align: center;
+          margin: 48px 0 12px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: #C9A84C;
+        }
+        .cl-section-title::after {
+          content: '';
+          display: block;
+          width: 48px;
+          height: 1px;
+          margin: 16px auto 0;
+          background: rgba(201, 168, 76, 0.5);
         }
 
         .cl-card.cl-card-interactive {
@@ -350,7 +366,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           </Link>
         ))}
 
-        {interactive && <div className="cl-card-row-break" />}
+        {interactive && <h2 className="cl-section-title">Interactives</h2>}
         {interactive && (() => {
           const content = (
             <>

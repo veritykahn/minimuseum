@@ -55,9 +55,9 @@ describe('The Writing Revolution', () => {
     expect(WRITING_REVOLUTION.fx.theme).toBe('wr');
   });
 
-  it('goes back to the first floor, as its sixth Horizons room', () => {
+  it('goes back to the second floor, as its second Reflections room', () => {
     expect(WRITING_REVOLUTION.back).toEqual(floorReturnFor('writing-revolution'));
-    expect(WRITING_REVOLUTION.back).toEqual({ href: '/exhibitions/first-floor', label: 'First Floor', remember: { key: 'firstFloorIndex', value: '5' } });
+    expect(WRITING_REVOLUTION.back).toEqual({ href: '/exhibitions/second-floor', label: 'Second Floor', remember: { key: 'secondFloorIndex', value: '1' } });
   });
 
   it('sets poster 1 exactly as printed, with only the approved fix (decision 1) and the missing space', () => {
@@ -145,7 +145,7 @@ describe('The Writing Revolution', () => {
       const caseLink = screen.getByRole('link', { name: /display case/i });
       expect(caseLink).toHaveAttribute('href', '/exhibitions/writing-revolution/artifacts/case');
       expect(caseLink).toHaveTextContent('Display case — photographs to come');
-      expect(screen.getByRole('link', { name: 'First Floor' })).toHaveAttribute('href', '/exhibitions/first-floor');
+      expect(screen.getByRole('link', { name: 'Second Floor' })).toHaveAttribute('href', '/exhibitions/second-floor');
     });
 
     it('opens The Writing Revolution on its lettering, types its first lines, and ends with the link to the museum', () => {
@@ -207,18 +207,18 @@ describe('The Writing Revolution display case page', () => {
 });
 
 describe('The Writing Revolution on the museum map', () => {
-  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and its interactive room', () => {
+  it('is a room on the Second Floor, with an Exhibition Hall, a Display Case and its interactive room', () => {
     const level = getLevelConfig('/exhibitions/writing-revolution/artifacts/case');
     expect(level.title).toBe('The Writing Revolution');
-    expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
+    expect(level.backTarget?.path).toBe('/exhibitions/second-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/writing-revolution'],
       ['Display Case', '/exhibitions/writing-revolution/artifacts/case'],
       ['The Typing Station', '/exhibitions/writing-revolution/typing-station'],
     ]);
-    expect(getRoomByPath('/exhibitions/writing-revolution')?.parent).toBe('first-floor');
+    expect(getRoomByPath('/exhibitions/writing-revolution')?.parent).toBe('second-floor');
     expect(getRoomByPath('/exhibitions/writing-revolution/artifacts/case')?.parent).toBe('writing-revolution');
-    const room = getLevelConfig('/exhibitions/first-floor').rooms.find((r) => r.id === 'writing-revolution')!;
+    const room = getLevelConfig('/exhibitions/second-floor').rooms.find((r) => r.id === 'writing-revolution')!;
     expect(room.comingSoon).toBeFalsy();
     expect(room.path).toBe('/exhibitions/writing-revolution');
   });

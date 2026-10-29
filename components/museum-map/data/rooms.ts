@@ -1,6 +1,6 @@
 import { MapRoom } from '../types';
 import { LESSON_ROOM_IDS, hasLessons, lessonsPath } from '@/lib/lessons/catalog';
-import { FLOORS, GROUND_FLOOR, FIRST_FLOOR } from '@/lib/floors';
+import { FLOORS, GROUND_FLOOR, FIRST_FLOOR, SECOND_FLOOR, STUDIO } from '@/lib/floors';
 
 const EXHIBITION_ACCENTS: Record<string, string> = {
   'seeing-is-deceiving': '#a8d5e5',
@@ -31,6 +31,9 @@ const LESSON_ROOMS: MapRoom[] = Object.keys(EXHIBITION_ACCENTS)
   }));
 const lessonsChild = (exhibition: string) => (hasLessons(exhibition) ? [LESSON_ROOM_IDS[exhibition]] : []);
 
+/** A floor's room id: the last part of its path ('second-floor'). */
+const floorId = (path: string) => path.slice(path.lastIndexOf('/') + 1);
+
 /** Exhibitions still being installed: on their floor, not yet open. */
 const COMING_SOON_ROOMS: MapRoom[] = FLOORS.flatMap((floor) =>
   floor.exhibitions
@@ -42,7 +45,7 @@ const COMING_SOON_ROOMS: MapRoom[] = FLOORS.flatMap((floor) =>
       x: 0, y: 0, width: 0, height: 0,
       accentColor: '#7D8471',
       comingSoon: true,
-      parent: floor.path === GROUND_FLOOR.path ? 'ground-floor' : 'first-floor',
+      parent: floorId(floor.path),
     })),
 );
 
@@ -85,32 +88,25 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#7D8471',
     parent: 'greathall',
   },
-  // First Floor
-  {
-    id: 'first-floor',
-    label: '1st Floor: Horizons',
-    path: '/exhibitions/first-floor',
+  // The floors, top first: the Studio's children are its tools (see
+  // levels.ts), each a door to a room in its exhibition.
+  ...[
+    { floor: STUDIO, label: '3rd Floor: The Studio', y: 110, children: STUDIO.tools.map((_, i) => `studio-${i + 1}`) },
+    { floor: SECOND_FLOOR, label: '2nd Floor: Reflections', y: 180, children: SECOND_FLOOR.exhibitions.map((e) => e.slug) },
+    { floor: FIRST_FLOOR, label: '1st Floor: Horizons', y: 250, children: FIRST_FLOOR.exhibitions.map((e) => e.slug) },
+    { floor: GROUND_FLOOR, label: 'Ground Floor: Origins', y: 340, children: GROUND_FLOOR.exhibitions.map((e) => e.slug) },
+  ].map(({ floor, label, y, children }): MapRoom => ({
+    id: floorId(floor.path),
+    label,
+    path: floor.path,
     x: 130,
-    y: 120,
+    y,
     width: 240,
     height: 40,
-    accentColor: '#9aa091', // Lighter shade of Great Hall sage
+    accentColor: floor.accent,
     parent: 'greathall',
-    children: FIRST_FLOOR.exhibitions.map((e) => e.slug),
-  },
-  // Ground Floor
-  {
-    id: 'ground-floor',
-    label: 'Ground Floor: Origins',
-    path: '/exhibitions/ground-floor',
-    x: 130,
-    y: 340,
-    width: 240,
-    height: 40,
-    accentColor: '#7D8471',
-    parent: 'greathall',
-    children: GROUND_FLOOR.exhibitions.map((e) => e.slug),
-  },
+    children,
+  })),
   // Exhibitions
   {
     id: 'seeing-is-deceiving',
@@ -121,7 +117,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     width: 110,
     height: 50,
     accentColor: '#a8d5e5',
-    parent: 'first-floor',
+    parent: 'second-floor',
     children: ['illusions', 'artifacts', 'resources', 'sid-optical-toys', ...lessonsChild('seeing-is-deceiving')],
   },
   {
@@ -292,7 +288,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     path: '/exhibitions/black-history',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#EC4899',
-    parent: 'first-floor',
+    parent: 'second-floor',
     children: ['bh-case', 'bh-timeline', 'bh-representation', ...lessonsChild('black-history')],
   },
   {
@@ -325,7 +321,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     path: '/exhibitions/writing-revolution',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#5B8DB8',
-    parent: 'first-floor',
+    parent: 'second-floor',
     children: ['wr-case', 'wr-typing', ...lessonsChild('writing-revolution')],
   },
   {
@@ -385,7 +381,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     width: 70,
     height: 50,
     accentColor: '#F2B33D',
-    parent: 'first-floor',
+    parent: 'second-floor',
     children: ['fl-what-scares-you', ...lessonsChild('fear-lab')],
   },
   {

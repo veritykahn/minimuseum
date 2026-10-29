@@ -384,7 +384,7 @@ export type ExhibitionConfig<K extends string = string> = {
     /** "Teach with this" and the lessons chip. */
     teach: { color: string; border: string };
   };
-  /** The top-left "M ← First Floor" link off the landing page. */
+  /** The top-left "M ← Ground Floor" link off the landing page. */
   back: {
     href: string;
     label: string;
@@ -400,8 +400,9 @@ export type ExhibitionConfig<K extends string = string> = {
    */
   cases?: DisplayCase[];
   /**
-   * Interactive rooms, set as display cases in a row of their own under the
-   * posters. Leave out when there are none.
+   * Interactive rooms, listed under "Interactives" on the first display
+   * case's page (CasePage); with no case yet, set as display cases in a row
+   * of their own under the posters. Leave out when there are none.
    */
   interactives?: DisplayCase[];
   /**

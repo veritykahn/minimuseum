@@ -1,6 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
 import CasePage from '@/components/exhibition/CasePage';
+import PosterExhibition from '@/components/exhibition/PosterExhibition';
+import { roomReturn } from '@/components/exhibition/helpers';
+import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
+import { FEAR_LAB } from '@/app/exhibitions/fear-lab/fearLab';
 import { artifactParams, artifactPath, casePath, findArtifact, plainText, posterTitle } from '@/components/exhibition/artifacts';
 import { EXHIBITION_CASES } from '@/lib/exhibitionCases';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -49,6 +53,23 @@ describe.each(cases)('%s display case', (slug, { config, data }) => {
     expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
   });
 
+  it('lists its interactive rooms under "Interactives" on the case page, and not on the landing page', () => {
+    const rooms = config.interactives ?? [];
+    const { unmount } = render(<CasePage config={config} data={data} />);
+    if (rooms.length) {
+      expect(screen.getByRole('heading', { level: 2, name: 'Interactives' })).toBeInTheDocument();
+      expect(screen.getAllByRole('link', { name: /Enter the room/ }).map((l) => l.getAttribute('href'))).toEqual(rooms.map((r) => r.href));
+    } else {
+      expect(screen.queryByRole('heading', { name: 'Interactives' })).toBeNull();
+    }
+    unmount();
+    window.history.replaceState(null, '', '/');
+    render(<PosterExhibition config={config} />);
+    for (const r of rooms) expect(document.querySelector(`a[href="${r.href}"]`)).toBeNull();
+    // The rooms go back to the case they open from.
+    expect(roomReturn(config)).toEqual({ href: casePath(config), label: 'Display Case' });
+  });
+
   it.each(data.artifacts.map((a) => [a.id, a] as const))('%s: its own page, with its writing and the spaces to come', (_id, a) => {
     render(<ArtifactPage config={config} data={data} artifact={a} />);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(plainText(a.name));
@@ -79,5 +100,15 @@ describe.each(cases)('%s display case', (slug, { config, data }) => {
       expect(getRoomByPath(artifactPath(config, a))?.id).toBe(caseRoom?.id);
       expect(urls).toContain(`https://www.minimuseumproject.org${artifactPath(config, a)}`);
     }
+  });
+});
+
+describe('an exhibition with no display case yet', () => {
+  it.each([AMERICA_250, FEAR_LAB].map((c) => [c.slug, c] as const))('%s keeps its rooms on the landing page, and its rooms go back there', (slug, config) => {
+    expect(config.cases ?? []).toHaveLength(0);
+    window.history.replaceState(null, '', '/');
+    render(<PosterExhibition config={config} />);
+    for (const r of config.interactives ?? []) expect(document.querySelector(`a[href="${r.href}"]`)).toBeInTheDocument();
+    expect(roomReturn(config)).toEqual({ href: `/exhibitions/${slug}`, label: 'Exhibition' });
   });
 });

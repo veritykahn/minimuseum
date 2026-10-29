@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
+import { roomReturn } from '@/components/exhibition/helpers';
 import FactNote from '@/components/exhibition/FactNote';
 import { WOMENS_HISTORY } from '../womensHistory';
 import { FACT_MERMAIDS, FACT_OTHERS, FACT_TOP_50, POSTER, QUESTIONS, TOP_50, WEIGHTS, WOMEN_IN_TOP_50, beamTilt, guessLine, type WeightId } from './remembered';
@@ -49,6 +50,7 @@ function Statue() {
 
 export default function WhoGetsRemembered() {
   const { fonts, slug } = WOMENS_HISTORY;
+  const back = roomReturn(WOMENS_HISTORY);
   const [tab, setTab] = useState<TabId>('statues');
   const [guess, setGuess] = useState(10);
   const [revealed, setRevealed] = useState(false);
@@ -117,10 +119,10 @@ export default function WhoGetsRemembered() {
     <div className="pe-root whr-room" data-exhibition={slug} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
 
-      <ExhibitionNav className="pe-nav pe-nav-left" href={`/exhibitions/${slug}`}>
+      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
         <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
-        <span className="pe-nav-label">Exhibition</span>
+        <span className="pe-nav-label">{back.label}</span>
       </ExhibitionNav>
 
       <main className="whr-stage" data-tab={tab}>

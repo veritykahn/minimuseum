@@ -316,10 +316,10 @@ export default function IllusionsPage() {
       <Announcer message={announcement} />
 
       {/* Navigation */}
-      <ExhibitionNav className="nav-m nav-m-left" href="/exhibitions/seeing-is-deceiving">
+      <ExhibitionNav className="nav-m nav-m-left" href="/exhibitions/seeing-is-deceiving/artifacts">
         <span className="nav-m-text" aria-hidden="true">M</span>
         <span className="nav-arrow nav-arrow-left" aria-hidden="true">←</span>
-        <span className="nav-label">Exhibition</span>
+        <span className="nav-label">Display Case</span>
       </ExhibitionNav>
 
       <div className="pl-teach">
@@ -360,8 +360,8 @@ export default function IllusionsPage() {
                   <button className="return-btn" onClick={startOver}>
                     Start Over
                   </button>
-                  <Link className="return-btn" href="/exhibitions/seeing-is-deceiving" style={{ textDecoration: "none" }}>
-                    Return to Exhibition
+                  <Link className="return-btn" href="/exhibitions/seeing-is-deceiving/artifacts" style={{ textDecoration: "none" }}>
+                    Return to Display Case
                   </Link>
                 </div>
               </>
@@ -382,7 +382,7 @@ export default function IllusionsPage() {
                 pipsLabel="Illusion by illusion: filled dots are the ones you saw through"
                 actions={[
                   { label: 'Start Over', onClick: startOver, primary: true },
-                  { label: 'Return to Exhibition', href: '/exhibitions/seeing-is-deceiving' },
+                  { label: 'Return to Display Case', href: '/exhibitions/seeing-is-deceiving/artifacts' },
                 ]}
               >
                 {tally.results.some((r) => r.fooled) && (

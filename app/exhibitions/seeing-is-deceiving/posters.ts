@@ -23,6 +23,8 @@ export type SidItem = {
   src?: string;
   alt?: string;
   url?: string;
+  /** A room of the exhibition the panel opens onto, linked under its text. */
+  room?: { href: string; label: string };
   position?: string;
   /** How the panel arrives; left out, it takes the exhibition's reveal. */
   effect?: PanelEffect;
@@ -136,7 +138,8 @@ export const poster1Content: SidItem[] = [
     position: 'bottom-right',
     special: 'vintage-film',
     effect: 'film-credits',
-    atmosphere: 'projected-light'
+    atmosphere: 'projected-light',
+    room: { href: '/exhibitions/seeing-is-deceiving/optical-toys', label: 'Spin the optical toys' }
   },
   {
     type: 'section-title',

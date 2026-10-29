@@ -740,6 +740,9 @@ export default function SeeingIsDeceiving() {
           text-decoration: none;
           transition: all 0.3s ease;
         }
+        /* A panel that opens onto a room: its link under the text, at the text's edge */
+        .room-stack { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: flex-end; }
+        .content-room-link { position: relative; z-index: 10; margin-top: 28px; font-size: 12px; padding: 12px 24px; }
         .content-link:hover {
           background: #a8d5e5;
           color: #0a0a0a;
@@ -1062,12 +1065,27 @@ export default function SeeingIsDeceiving() {
                 <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
                   {/* Film overlay for vintage film sections */}
                   {currentItem.special === 'vintage-film' && <FilmOverlay />}
-                  <p
-                    className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
-                    style={{ color: textColor, position: 'relative', zIndex: 10 }}
-                  >
-                    <EntranceCopy text={currentItem.text} effect={entrance} />
-                  </p>
+                  {currentItem.room && !projector ? (
+                    <div className="room-stack">
+                      <p className="paragraph-text" style={{ color: textColor }}>
+                        <EntranceCopy text={currentItem.text} effect={entrance} />
+                      </p>
+                      <Link
+                        href={currentItem.room.href}
+                        className="content-link content-room-link"
+                        style={{ color: textColor, borderColor: textColor }}
+                      >
+                        {currentItem.room.label} <span aria-hidden="true">→</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <p
+                      className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
+                      style={{ color: textColor, position: 'relative', zIndex: 10 }}
+                    >
+                      <EntranceCopy text={currentItem.text} effect={entrance} />
+                    </p>
+                  )}
                 </div>
               )}
 

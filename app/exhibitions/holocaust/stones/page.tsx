@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
+import { roomReturn } from '@/components/exhibition/helpers';
 import { HOLOCAUST } from '../holocaust';
 import MemorialStone, { StoneControls } from './MemorialStone';
 import Countdown from './Countdown';
@@ -39,6 +40,7 @@ type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function LayAStone() {
   const { fonts, slug } = HOLOCAUST;
+  const back = roomReturn(HOLOCAUST);
   const stones = useStones();
   const [settleFrom, setSettleFrom] = useState<number | null>(null);
   const [tab, setTab] = useState<TabId>('stone');
@@ -92,10 +94,10 @@ export default function LayAStone() {
     <div className="pe-root ho-room" data-exhibition={slug} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
 
-      <ExhibitionNav className="pe-nav pe-nav-left" href={`/exhibitions/${slug}`}>
+      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
         <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
-        <span className="pe-nav-label">Exhibition</span>
+        <span className="pe-nav-label">{back.label}</span>
       </ExhibitionNav>
 
       <main className="hos-stage" data-tab={tab}>

@@ -27,6 +27,9 @@ import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 import sitemap from '@/app/sitemap';
 import nextConfig from '@/next.config';
+import SeeingCase from '@/app/exhibitions/seeing-is-deceiving/artifacts/page';
+import { poster1Content } from '@/app/exhibitions/seeing-is-deceiving/posters';
+import { SEEING_POSTER_LINKS } from '@/components/projector/themes';
 
 /*
  * Seeing is Deceiving's optical toys: every line that explains them is the
@@ -263,5 +266,26 @@ describe('wiring', () => {
     expect(getRoomByPath('/exhibitions/victorian/optical-toys')?.id).not.toBe('vb-optical-toys');
     const redirects = await nextConfig.redirects!();
     expect(redirects).toContainEqual(expect.objectContaining({ source: '/exhibitions/victorian/optical-toys', destination: '/exhibitions/seeing-is-deceiving/optical-toys', permanent: true }));
+  });
+});
+
+describe('the way in', () => {
+  it('opens from the display case, under Interactives beside the Perception Lab, and goes back there', () => {
+    render(<SeeingCase />);
+    const heading = screen.getByRole('heading', { level: 2, name: 'Interactives' });
+    const rooms = heading.nextElementSibling as HTMLElement;
+    expect(within(rooms).getAllByRole('link').map((l) => l.getAttribute('href'))).toEqual([
+      '/exhibitions/seeing-is-deceiving/illusions',
+      '/exhibitions/seeing-is-deceiving/optical-toys',
+    ]);
+    expect(fs.existsSync(path.join(process.cwd(), 'public/exhibitions/seeing/room-optical-toys.svg'))).toBe(true);
+  });
+
+  it('is linked from The First Motion Pictures, and from the projector', () => {
+    const start = poster1Content.findIndex((it) => it.text === 'The First Motion Pictures (1820s–1830s)');
+    const next = poster1Content.findIndex((it, i) => i > start && it.type === 'section-title');
+    const chapter = poster1Content.slice(start, next);
+    expect(chapter.map((it) => it.room?.href).filter(Boolean)).toEqual(['/exhibitions/seeing-is-deceiving/optical-toys']);
+    expect(SEEING_POSTER_LINKS.map((l) => l.href)).toContain('/exhibitions/seeing-is-deceiving/optical-toys');
   });
 });

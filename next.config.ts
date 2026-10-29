@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
         destination: `${SITE_URL}/:path*`,
         permanent: true,
       })),
-      // The old all-exhibitions page; both floors now start in the Great Hall.
+      // The old all-exhibitions page; every floor now starts in the Great Hall.
       { source: '/exhibitions', destination: '/greathall', permanent: true },
       // The optical toys moved from Victorian Britain to Seeing is Deceiving.
       { source: '/exhibitions/victorian/optical-toys', destination: '/exhibitions/seeing-is-deceiving/optical-toys', permanent: true },

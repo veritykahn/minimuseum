@@ -159,7 +159,11 @@ export default function PosterExhibition<K extends string>({ config }: { config:
             {rest.map(posterButton)}
           </div>
 
-          {interactives.length > 0 && <div className="pe-exhibition-grid pe-interactives">{interactives.map(caseLink)}</div>}
+          {/* The interactive rooms are in the display case (CasePage); only an
+              exhibition with no case yet sets them out here. */}
+          {cases.length === 0 && interactives.length > 0 && (
+            <div className="pe-exhibition-grid pe-interactives">{interactives.map(caseLink)}</div>
+          )}
 
           {credits.length > 0 && (
             <ul className="pe-credits" aria-label="Picture credits">

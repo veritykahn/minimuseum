@@ -518,9 +518,9 @@ export default function RealOrReplica() {
 
       {/* Header */}
       <header className="rr-header">
-        <button className="rr-back-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
+        <button className="rr-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-8')}>
           <span aria-hidden="true">{'←'}</span>
-          Exhibition
+          Display Case
         </button>
         <div className="rr-header-right">
           {stage === 'rounds' && (
@@ -631,7 +631,7 @@ export default function RealOrReplica() {
             pipsLabel="Your rounds"
             actions={[
               { label: 'Play again', onClick: restart, primary: true },
-              { label: 'Back to Exhibition', href: '/exhibitions/in-their-hands' },
+              { label: 'Back to Display Case', href: '/exhibitions/in-their-hands/artifacts/case-8' },
             ]}
           >
             <p className="rr-final-closing">{CLOSING}</p>

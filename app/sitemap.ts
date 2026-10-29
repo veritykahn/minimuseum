@@ -3,6 +3,7 @@ import { MetadataRoute } from 'next';
 import { lessonsFor } from '@/lib/lessons';
 import { EXHIBITION_CASES } from '@/lib/exhibitionCases';
 import { artifactPath } from '@/components/exhibition/artifacts';
+import { ALL_FLOORS } from '@/lib/floors';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_URL;
@@ -33,18 +34,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
-    {
-      url: `${baseUrl}/exhibitions/ground-floor`,
+    // Every floor: the three of exhibitions, and the Studio.
+    ...ALL_FLOORS.map((floor) => ({
+      url: `${baseUrl}${floor.path}`,
       lastModified,
-      changeFrequency: 'weekly',
+      changeFrequency: 'weekly' as const,
       priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/exhibitions/first-floor`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
+    })),
     {
       url: `${baseUrl}/exhibitions/seeing-is-deceiving`,
       lastModified,

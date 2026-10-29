@@ -13,13 +13,15 @@ import './poster-exhibition.css';
  * exhibitions' case listings are: the case's name and writing, then a card for
  * each artifact in it, each opening the artifact's own page (ArtifactPage).
  * Above them, a photograph of the case, or until it is photographed an empty
- * case drawn in outline, "Display case — photographs to come". Below them, the
- * record's lines about the display itself. Every word is the record's or the
- * posters' (*words* set in italics).
+ * case drawn in outline, "Display case — photographs to come". Below them,
+ * "Interactives": a card for each of the exhibition's rooms (its config's
+ * `interactives`), which open from the case rather than the landing page.
+ * Then the record's lines about the display itself. Every word is the
+ * record's or the posters' (*words* set in italics).
  *
  * The exhibition's faces and colors come from its config, as on its landing
- * page; its own stylesheet can restyle the pe-case-page-* and pe-artifact-*
- * classes under [data-exhibition='<slug>'].
+ * page; its own stylesheet can restyle the pe-case-page-*, pe-artifact-* and
+ * pe-room-* classes under [data-exhibition='<slug>'].
  */
 
 export default function CasePage({ config, data }: { config: ExhibitionConfig; data: CasePageData }) {
@@ -27,6 +29,8 @@ export default function CasePage({ config, data }: { config: ExhibitionConfig; d
   const [first, ...rest] = data.photos;
   const home = `/exhibitions/${slug}`;
   const display = data.display ?? [];
+  // An exhibition has one case (artifacts/case), and its rooms open from it.
+  const rooms = config.interactives ?? [];
 
   return (
     <div className="pe-root pe-case-page" data-exhibition={slug} style={caseRootStyle(config)}>
@@ -79,6 +83,33 @@ export default function CasePage({ config, data }: { config: ExhibitionConfig; d
             ))}
           </ul>
         </section>
+
+        {rooms.length > 0 && (
+          <section className="pe-case-page-rooms" aria-labelledby={`${slug}-case-rooms`}>
+            <h2 id={`${slug}-case-rooms`}>Interactives</h2>
+            <ul className="pe-room-grid">
+              {rooms.map((r) => (
+                <li key={r.href}>
+                  <Link href={r.href} className="pe-room-card">
+                    <span className={`pe-room-card-art ${r.image ? '' : 'is-emblem'}`} aria-hidden="true">
+                      {r.image ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={r.image.src} alt="" />
+                      ) : (
+                        <span className="pe-room-card-emblem">{r.emblem}</span>
+                      )}
+                    </span>
+                    <span className="pe-room-card-name">{r.title}</span>
+                    {r.subtitle && <span className="pe-room-card-sub">{r.subtitle}</span>}
+                    <span className="pe-room-card-go">
+                      Enter the room <span aria-hidden="true">&#8594;</span>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {display.length > 0 && (
           <section className="pe-case-page-display" aria-labelledby={`${slug}-case-display`}>

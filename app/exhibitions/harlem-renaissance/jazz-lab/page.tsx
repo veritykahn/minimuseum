@@ -31,6 +31,18 @@ export default function JazzLabPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  // A tab's address (#band, #studio, #quiz) opens the lab on that tab, as the
+  // Studio floor's door to the Jazz Studio does.
+  useEffect(() => {
+    const fromHash = () => {
+      const tab = TABS.find((t) => t.id === window.location.hash.replace(/^#/, ''));
+      if (tab) setActiveTab(tab.id);
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, []);
+
   const stopAudio = () => {
     band.stopAll();
     audioEngine.stopAll();
