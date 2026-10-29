@@ -269,7 +269,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#EC4899',
     parent: 'first-floor',
-    children: ['bh-case', 'bh-timeline', ...lessonsChild('black-history')],
+    children: ['bh-case', 'bh-timeline', 'bh-representation', ...lessonsChild('black-history')],
   },
   {
     id: 'bh-case',
@@ -283,6 +283,14 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     id: 'bh-timeline',
     label: 'The Black Barbie Timeline',
     path: '/exhibitions/black-history/timeline',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#EC4899',
+    parent: 'black-history',
+  },
+  {
+    id: 'bh-representation',
+    label: 'Who Do You See?',
+    path: '/exhibitions/black-history/representation',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#EC4899',
     parent: 'black-history',

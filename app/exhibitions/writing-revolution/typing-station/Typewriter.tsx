@@ -21,7 +21,10 @@ const TYPEBARS = 30;
 /* A phone's keyboard types into this hidden field; it is kept holding these two characters so Back space always has something to delete. */
 const SENTINEL = '  ';
 
-export default function Typewriter({ play }: { play: (s: SoundName) => void }) {
+/** Posts the sheet to the class board: null once it is up, or why it can't go. */
+export type PostSheet = (text: string) => string | null;
+
+export default function Typewriter({ play, onPost }: { play: (s: SoundName) => void; onPost?: PostSheet }) {
   const [page, setPage] = useState<Page>(newPage);
   const [shift, setShift] = useState(false);
   const [pressed, setPressed] = useState<string | null>(null);
@@ -81,6 +84,16 @@ export default function Typewriter({ play }: { play: (s: SoundName) => void }) {
     pageRef.current = newPage();
     setPage(pageRef.current);
     setMessage('A new sheet is in.');
+    play('ret');
+  };
+
+  // The sheet comes out of the carriage and goes up on the board; a fresh one goes in.
+  const postSheet = () => {
+    if (!onPost) return;
+    const refused = onPost(pageText(pageRef.current));
+    if (refused) return setMessage(refused);
+    pageRef.current = newPage();
+    setPage(pageRef.current);
     play('ret');
   };
 
@@ -190,6 +203,11 @@ export default function Typewriter({ play }: { play: (s: SoundName) => void }) {
         <button type="button" className="wrs-button" onClick={newSheet}>
           New sheet
         </button>
+        {onPost && (
+          <button type="button" className="wrs-button wrs-button-post" onClick={postSheet} disabled={fresh}>
+            {STATION_TEXT.post}
+          </button>
+        )}
       </div>
 
       <p id="wrt-page-text" style={srOnly}>{pageText(page) || 'The sheet is blank.'}</p>

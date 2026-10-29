@@ -136,8 +136,9 @@ describe('the added stops', () => {
 describe('wiring', () => {
   it('sets the room on the landing page, the map and the projector', () => {
     const href = '/exhibitions/black-history/timeline';
-    expect(BLACK_HISTORY.interactives?.map((c) => c.href)).toEqual([href]);
-    expect(BLACK_HISTORY.projector.links.map((l) => l.href)).toEqual([href]);
+    // The timeline first, then Who Do You See? (WhoDoYouSee.test.tsx).
+    expect(BLACK_HISTORY.interactives?.map((c) => c.href)[0]).toBe(href);
+    expect(BLACK_HISTORY.projector.links.map((l) => l.href)[0]).toBe(href);
     expect(getRoomByPath(href)?.id).toBe('bh-timeline');
     expect(getLevelConfig(href).title).toBe('Black History Month');
   });

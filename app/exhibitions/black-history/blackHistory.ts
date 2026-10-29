@@ -122,7 +122,10 @@ export const BLACK_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
   fx: { theme: 'bh', veil: 'first', text: 'all' },
   projector: {
     theme: BLACK_HISTORY_PROJECTOR_THEME,
-    links: [{ label: 'The Black Barbie Timeline', href: '/exhibitions/black-history/timeline' }],
+    links: [
+      { label: 'The Black Barbie Timeline', href: '/exhibitions/black-history/timeline' },
+      { label: 'Who Do You See?', href: '/exhibitions/black-history/representation' },
+    ],
   },
   cases: [
     {
@@ -141,6 +144,16 @@ export const BLACK_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
       label: 'Interactive',
       title: 'The Black Barbie Timeline',
       subtitle: 'From Francie to “So In Style”',
+    },
+    // Three ways into representation, as tabs: design a doll, the Clarks'
+    // doll tests (checked facts, each with its source) and a class survey
+    // of who is in your books (representation/representationText.ts).
+    {
+      href: '/exhibitions/black-history/representation',
+      emblem: 'You',
+      label: 'Interactive',
+      title: 'Who Do You See?',
+      subtitle: 'Design a doll, the Doll Test, and who’s in your books',
     },
   ],
   posters: [

@@ -21,7 +21,10 @@ export const FONTS = [
 ];
 const SIZES = [10, 12, 14, 18, 24];
 
-export default function IMac({ play }: { play: (s: SoundName) => void }) {
+/** Posts the page to the class board, in its font: null once it is up, or why it can't go. */
+export type PostPage = (text: string, font: string) => string | null;
+
+export default function IMac({ play, onPost }: { play: (s: SoundName) => void; onPost?: PostPage }) {
   const [text, setText] = useState('');
   const [font, setFont] = useState(FONTS[0].name);
   const [size, setSize] = useState(14);
@@ -81,6 +84,15 @@ export default function IMac({ play }: { play: (s: SoundName) => void }) {
     if (prev === undefined) return setMessage('Nothing to undo.');
     setText(prev);
     setMessage('Undone.');
+  };
+
+  // The page goes up on the board in its font, and a new document opens.
+  const postPage = () => {
+    if (!onPost) return;
+    const refused = onPost(text, font);
+    if (refused) return setMessage(refused);
+    history.current = [];
+    setText('');
   };
 
   const stack = FONTS.find((f) => f.name === font)!.stack;
@@ -167,7 +179,14 @@ export default function IMac({ play }: { play: (s: SoundName) => void }) {
         </div>
       </div>
       <div className="wri-foot-stand" aria-hidden="true" />
-      <p className="wri-name">{STATION_TEXT.imacName}</p>
+      <div className="wri-foot">
+        <p className="wri-name">{STATION_TEXT.imacName}</p>
+        {onPost && (
+          <button type="button" className="wrs-button wrs-button-post" onClick={postPage} disabled={!text.trim()}>
+            {STATION_TEXT.post}
+          </button>
+        )}
+      </div>
       <p role="status" className="wri-sr">{message}</p>
     </div>
   );

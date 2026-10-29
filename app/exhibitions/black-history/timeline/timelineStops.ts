@@ -180,6 +180,20 @@ export const TIMELINE_STOPS: TimelineStop[] = [
   },
 ];
 
+/*
+ * TO COME: the owner's own photographs of her Barbies, one for a stop.
+ * She will supply them; until then this list is empty and the timeline
+ * shows no photographs and no placeholders. Each is keyed to a stop by its
+ * id (#1980 is '1980'), with the alt text written from the photograph and
+ * the credit as the owner gives it. They are the owner's own photographs of
+ * her own dolls: never Mattel's product shots or packaging, and never
+ * photographs of the installation. Nothing reads this list yet: when the
+ * photographs arrive, the timeline page (page.tsx) is to set each beside
+ * its stop's words.
+ */
+export type OwnerPhoto = { stop: string; src: string; alt: string; credit: string };
+export const OWNER_BARBIE_PHOTOS: OwnerPhoto[] = [];
+
 export const TIMELINE_TEXT = {
   title: 'The Black Barbie Timeline',
   source: 'In the words of the poster',
