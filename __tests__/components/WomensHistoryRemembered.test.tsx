@@ -89,6 +89,30 @@ describe('the room', () => {
     expect(screen.getByRole('status')).toHaveTextContent('The scale is level.');
   });
 
+  it('lays a phrase on when it is carried to the scale, and not when it is let go elsewhere', () => {
+    // jsdom has no PointerEvent: a mouse event carries the pointer's place well enough.
+    if (!window.PointerEvent) (window as unknown as { PointerEvent: typeof MouseEvent }).PointerEvent = class extends MouseEvent {};
+    window.history.replaceState(null, '', '/#scale');
+    render(<WhoGetsRemembered />);
+    const scale =screen.getByRole('img', { name: /A scale, tipped/ });
+    jest.spyOn(scale, 'getBoundingClientRect').mockReturnValue({ left: 100, top: 100, right: 500, bottom: 400, width: 400, height: 300, x: 100, y: 100, toJSON: () => ({}) });
+    const carry = (label: string, to: { clientX: number; clientY: number }) => {
+      const b = screen.getByRole('button', { name: label });
+      fireEvent.pointerDown(b, { button: 0, clientX: 300, clientY: 600, pointerId: 1 });
+      fireEvent.pointerMove(b, { ...to, pointerId: 1 });
+      fireEvent.pointerUp(b, { ...to, pointerId: 1 });
+      fireEvent.click(b);
+    };
+    carry('activists', { clientX: 900, clientY: 600 });
+    expect(screen.getByRole('button', { name: 'activists' })).not.toBeDisabled();
+    carry('activists', { clientX: 300, clientY: 200 });
+    expect(screen.getByRole('button', { name: 'activists' })).toBeDisabled();
+    expect(screen.getByRole('status')).toHaveTextContent('activists, laid on the scale. 5 more.');
+    // A tap still lays one on.
+    fireEvent.click(screen.getByRole('button', { name: 'artists' }));
+    expect(screen.getByRole('button', { name: 'artists' })).toBeDisabled();
+  });
+
   it('moves between the tabs with the arrow keys, and notes the same is true of other groups', () => {
     render(<WhoGetsRemembered />);
     fireEvent.keyDown(screen.getByRole('tab', { name: 'Who gets a statue?' }), { key: 'End' });

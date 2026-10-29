@@ -8,6 +8,7 @@ import FactNote from '@/components/exhibition/FactNote';
 import { BIOGRAPHY_MOTTO, VIOLET_DATES, VIOLET_LETTERING, VIOLET_NAME, VIOLET_NEE, WOMENS_HISTORY } from '../womensHistory';
 import Keepsake from './Keepsake';
 import OwnTimeline from './OwnTimeline';
+import type { OwnTimeline as Timeline } from './yourTimeline';
 import { useBox } from './useBox';
 import { LIFE, threadLayout, threadPath } from './violetLife';
 import './violet.css';
@@ -45,6 +46,8 @@ export default function VioletsLife() {
   const [announcement, setAnnouncement] = useState('');
   const [bandRef, band] = useBox<HTMLDivElement>();
   const [mode, setMode] = useState<Mode>('violet');
+  // Your own timeline, held here while Violet's life is open (its photographs live nowhere else).
+  const [own, setOwn] = useState<Timeline | null>(null);
   const stopRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const go = useCallback((i: number, { focus = false, announce = false } = {}) => {
@@ -131,7 +134,7 @@ export default function VioletsLife() {
         </header>
 
         {mode === 'make' ? (
-          <OwnTimeline announce={setAnnouncement} />
+          <OwnTimeline announce={setAnnouncement} kept={own} keep={setOwn} />
         ) : (
         <>
         <div className="whv-band" ref={bandRef}>

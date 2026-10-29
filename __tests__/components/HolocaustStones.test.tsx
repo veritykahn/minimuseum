@@ -62,6 +62,14 @@ describe('the heap of stones', () => {
     const after = heapLayout(61, 800, 120);
     expect(after.slice(0, before.length)).toEqual(before);
   });
+
+  // Regression: a full ledge ended in two sheer walls of stones, half the heap's height.
+  it('lies as a mound, sloping down to the ends of the ledge', () => {
+    const stones = heapLayout(5000, 800, 120);
+    const topIn = (from: number, to: number) => Math.max(...stones.filter((s) => s.x + s.w / 2 >= from && s.x + s.w / 2 < to).map((s) => s.y + s.h));
+    expect(topIn(0, 20)).toBeLessThan(topIn(380, 420) * 0.45);
+    expect(topIn(780, 800)).toBeLessThan(topIn(380, 420) * 0.45);
+  });
 });
 
 describe('laying a stone', () => {
@@ -74,6 +82,12 @@ describe('laying a stone', () => {
     expect(await screen.findByText('27 stones laid')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Thank you. Your stone is on the memorial.');
     expect(screen.getByRole('button', { name: 'Stone laid today' })).toBeDisabled();
+  });
+
+  it('says so plainly when no stone has been laid yet', async () => {
+    mockFetch(() => ({ status: 200, body: { count: 0 } }));
+    render(<LayAStone />);
+    expect(await screen.findByText('No stones laid yet')).toBeInTheDocument();
   });
 
   it('sets one quiet note on the custom beside the invitation, with its source', async () => {

@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { StrictMode } from 'react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import VioletsLife from '@/app/exhibitions/womens-history/violet/page';
 import {
   LIMITS,
@@ -15,6 +16,12 @@ import {
   stopLabel,
   updateStop,
 } from '@/app/exhibitions/womens-history/violet/yourTimeline';
+
+// A photograph is made smaller on a canvas, which jsdom has not got: here it is handed straight back.
+jest.mock('@/app/exhibitions/womens-history/violet/yourTimeline', () => ({
+  ...jest.requireActual('@/app/exhibitions/womens-history/violet/yourTimeline'),
+  shrinkPhoto: () => Promise.resolve('data:image/jpeg;base64,AAAA'),
+}));
 
 /*
  * A timeline of your own, in Violet's room: the timeline's rules (adding,
@@ -132,5 +139,39 @@ describe('making one', () => {
     render(<VioletsLife />);
     fireEvent.click(screen.getByRole('button', { name: 'Violet’s life' }));
     expect(screen.getByRole('img', { name: 'Violet Dina Want' })).toBeInTheDocument();
+  });
+
+  // Regression: React's development double run wrote the blank first render over what was kept.
+  it('comes back as it was left, under React’s strict mode too', () => {
+    localStorage.setItem(OWN_KEY, serialize({ ...emptyTimeline(), name: 'Aunt May' }));
+    window.history.replaceState(null, '', '/#make');
+    render(
+      <StrictMode>
+        <VioletsLife />
+      </StrictMode>,
+    );
+    expect(screen.getByLabelText('Her name')).toHaveValue('Aunt May');
+    expect(parse(localStorage.getItem(OWN_KEY))!.name).toBe('Aunt May');
+  });
+
+  // Regression: going to Violet's life and back emptied the timeline and lost its photographs.
+  it('is still there, photograph and all, after a visit to Violet’s life', async () => {
+    window.history.replaceState(null, '', '/#make');
+    const { container } = render(
+      <StrictMode>
+        <VioletsLife />
+      </StrictMode>,
+    );
+    fireEvent.change(screen.getByLabelText('Her name'), { target: { value: 'Grandma Rose' } });
+    const file = new File(['x'], 'rose.jpg', { type: 'image/jpeg' });
+    await act(async () => {
+      fireEvent.change(container.querySelector('input[type=file]')!, { target: { files: [file] } });
+    });
+    expect(screen.getByRole('img', { name: 'Your photograph of Grandma Rose' })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Violet’s life' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Make your own' }));
+    expect(screen.getByLabelText('Her name')).toHaveValue('Grandma Rose');
+    expect(screen.getByRole('img', { name: 'Your photograph of Grandma Rose' })).toBeInTheDocument();
   });
 });

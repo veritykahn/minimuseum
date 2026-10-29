@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
@@ -17,7 +17,7 @@ import './remembered.css';
  * many are women, and the names are uncovered. "Tip the scale": poster 1's
  * own argument as a balance, the men "credited with 'shaping history'" on
  * one pan and, laid on the other one by one, what the poster says the story
- * leaves out. "Talk about it": questions for the class, and a note that the
+ * leaves out (tapped, or carried there). "Talk about it": questions for the class, and a note that the
  * same is true of other groups. Facts from outside the poster are cited
  * (remembered.ts). Nothing moves under reduced motion.
  */
@@ -105,6 +105,48 @@ export default function WhoGetsRemembered() {
     const w = WEIGHTS.find((x) => x.id === id)!;
     setAnnouncement(next.length === WEIGHTS.length ? `${w.label}. The scale is level.` : `${w.label}, laid on the scale. ${WEIGHTS.length - next.length} more.`);
   };
+  // A phrase can also be carried to the scale: picked up, it follows the pointer, and is laid on if let go over the scale.
+  const scaleRef = useRef<HTMLDivElement>(null);
+  const carry = useRef<{ id: WeightId; x: number; y: number; moved: boolean } | null>(null);
+  // A carry let go off the scale is not also a click: only a tap lays a phrase on where it stands.
+  const carryEnded = useRef(false);
+  const [carried, setCarried] = useState<{ id: WeightId; dx: number; dy: number; over: boolean } | null>(null);
+  const overScale = (x: number, y: number) => {
+    const r = scaleRef.current?.getBoundingClientRect();
+    return !!r && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+  };
+  const onWeightDown = (e: PointerEvent<HTMLButtonElement>, id: WeightId) => {
+    if (e.button !== 0) return;
+    carryEnded.current = false;
+    carry.current = { id, x: e.clientX, y: e.clientY, moved: false };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+  const onWeightMove = (e: PointerEvent<HTMLButtonElement>) => {
+    const c = carry.current;
+    if (!c) return;
+    const dx = e.clientX - c.x;
+    const dy = e.clientY - c.y;
+    if (!c.moved && Math.hypot(dx, dy) < 6) return;
+    c.moved = true;
+    setCarried({ id: c.id, dx, dy, over: overScale(e.clientX, e.clientY) });
+  };
+  const onWeightUp = (e: PointerEvent<HTMLButtonElement>) => {
+    const c = carry.current;
+    carry.current = null;
+    setCarried(null);
+    if (!c?.moved) return;
+    // Laid on, the button is disabled and no click follows; let go elsewhere, the click that follows is not a tap.
+    if (overScale(e.clientX, e.clientY)) place(c.id);
+    else carryEnded.current = true;
+  };
+  const onWeightClick = (id: WeightId) => {
+    if (carryEnded.current) {
+      carryEnded.current = false;
+      return;
+    }
+    place(id);
+  };
+
   const tilt = beamTilt(placed.length);
   const level = placed.length === WEIGHTS.length;
 
@@ -196,7 +238,7 @@ export default function WhoGetsRemembered() {
         {/* Tip the scale */}
         <section className="whr-panel whr-scale-panel" id="whr-panel-scale" role="tabpanel" aria-labelledby="whr-tab-scale" hidden={tab !== 'scale'}>
           <blockquote className="whr-quote">{POSTER.overshadowed}</blockquote>
-          <div className="whr-scale" role="img" aria-label={level ? 'A scale, now level' : `A scale, tipped down on the men’s side, with ${placed.length} of ${WEIGHTS.length} laid on the other`}>
+          <div ref={scaleRef} className={`whr-scale${carried?.over ? ' is-over' : ''}`} role="img" aria-label={level ? 'A scale, now level' : `A scale, tipped down on the men’s side, with ${placed.length} of ${WEIGHTS.length} laid on the other`}>
             <svg viewBox="0 0 600 330" aria-hidden="true" focusable="false">
               <path className="whr-scale-post" d="M296 70h8v196h-8z M240 266h120l10 18H230z" />
               <g className="whr-beam" style={{ transform: `rotate(${tilt}deg)` }}>
@@ -204,10 +246,10 @@ export default function WhoGetsRemembered() {
                 <circle cx="300" cy="69" r="11" />
                 {/* Each pan hangs from its end of the beam, and stays upright as the beam tips. */}
                 <g className="whr-pan" style={{ transform: `rotate(${-tilt}deg)`, transformOrigin: '100px 69px' }}>
-                  <path className="whr-cord" d="M100 69 60 186M100 69l40 117" />
+                  <path className="whr-cord" d="M100 69 48 186M100 69l52 117" />
                   <path className="whr-dish" d="M44 186h112c-6 22-28 32-56 32s-50-10-56-32z" />
                   {[0, 1, 2, 3, 4].map((k) => (
-                    <g key={k} className="whr-pan-statue" transform={`translate(${56 + k * 18} ${150 - (k % 2) * 6}) scale(0.55)`}>
+                    <g key={k} className="whr-pan-statue" transform={`translate(${66 + k * 14} ${159 - (k % 2) * 5}) scale(0.45)`}>
                       <circle cx="20" cy="9" r="5.5" />
                       <path d="M12 18c2-2 5-3 8-3s6 1 8 3l2 15-4 1-1-9v21h-4V33h-2v13h-4V25l-1 9-4-1z" />
                       <rect x="9" y="47" width="22" height="14" />
@@ -215,10 +257,10 @@ export default function WhoGetsRemembered() {
                   ))}
                 </g>
                 <g className="whr-pan" style={{ transform: `rotate(${-tilt}deg)`, transformOrigin: '500px 69px' }}>
-                  <path className="whr-cord" d="M500 69l-40 117M500 69l40 117" />
-                  <path className="whr-dish" d="M444 186h112c-6 22-28 32-56 32s-50-10-56-32z" />
+                  <path className="whr-cord" d="M500 69l-52 117M500 69l52 117" />
+                  <path className="whr-dish whr-dish-out" d="M444 186h112c-6 22-28 32-56 32s-50-10-56-32z" />
                   {placed.map((id, k) => (
-                    <rect key={id} className="whr-weight" x={452 + (k % 3) * 32} y={170 - Math.floor(k / 3) * 18} width="30" height="16" rx="2" />
+                    <rect key={id} className="whr-weight" x={462 + (k % 3) * 26} y={170 - Math.floor(k / 3) * 18} width="24" height="16" rx="2" />
                   ))}
                 </g>
               </g>
@@ -234,10 +276,25 @@ export default function WhoGetsRemembered() {
           </div>
           {!level ? (
             <div className="whr-weights">
-              <p className="whr-weights-ask">Poster 1 names what else tells the story. Lay each one on the scale.</p>
+              <p className="whr-weights-ask">Poster 1 names what else tells the story. Tap each one, or carry it, to lay it on the scale.</p>
               <div className="whr-weights-list">
                 {WEIGHTS.map((w) => (
-                  <button key={w.id} type="button" className="whr-weight-button" aria-pressed={placed.includes(w.id)} disabled={placed.includes(w.id)} onClick={() => place(w.id)}>
+                  <button
+                    key={w.id}
+                    type="button"
+                    className={`whr-weight-button${carried?.id === w.id ? ' is-dragging' : ''}`}
+                    style={carried?.id === w.id ? { transform: `translate(${carried.dx}px, ${carried.dy}px)` } : undefined}
+                    aria-pressed={placed.includes(w.id)}
+                    disabled={placed.includes(w.id)}
+                    onClick={() => onWeightClick(w.id)}
+                    onPointerDown={(e) => onWeightDown(e, w.id)}
+                    onPointerMove={onWeightMove}
+                    onPointerUp={onWeightUp}
+                    onPointerCancel={() => {
+                      carry.current = null;
+                      setCarried(null);
+                    }}
+                  >
                     {w.label}
                   </button>
                 ))}

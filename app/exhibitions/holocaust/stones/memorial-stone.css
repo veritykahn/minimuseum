@@ -110,7 +110,8 @@
 .hos-monument {
   position: absolute;
   left: max(4%, calc(34% - 400px));
-  width: min(800px, 60%);
+  /* Never wider than the room left of the panel (on a laptop it would run under the words). */
+  width: min(800px, 56%);
   top: 33%;
   height: 41%;
   display: flex;
@@ -125,7 +126,7 @@
   margin: 0 -2px;
   background:
     linear-gradient(to right, rgba(0, 0, 0, 0.35), transparent 25%, transparent 70%, rgba(0, 0, 0, 0.4)),
-    linear-gradient(to bottom, #8f8a83, #b5afa6 70%, #c9c3b9);
+    linear-gradient(to bottom, #6f6b66, #8e8982 70%, #a29c93);
   clip-path: polygon(1.6% 0, 98.4% 0, 100% 100%, 0 100%);
 }
 .hos-ledge::after {
@@ -141,9 +142,9 @@
   flex: 1;
   border-radius: 3px 3px 2px 2px;
   background:
-    radial-gradient(ellipse 70% 80% at 30% 10%, rgba(255, 248, 236, 0.12), transparent 70%),
-    linear-gradient(to right, rgba(255, 255, 255, 0.04), transparent 30%, transparent 70%, rgba(0, 0, 0, 0.22)),
-    linear-gradient(to bottom, #8a857e 0%, #77726c 34%, #5c5853 100%);
+    radial-gradient(ellipse 60% 70% at 46% 0%, rgba(255, 248, 236, 0.13), transparent 70%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.03), transparent 30%, transparent 70%, rgba(0, 0, 0, 0.26)),
+    linear-gradient(to bottom, #6c6863 0%, #5a5752 38%, #403e3b 100%);
   box-shadow:
     inset 0 1px 0 rgba(255, 250, 240, 0.28),
     inset 0 -26px 34px -16px rgba(0, 0, 0, 0.55),
@@ -162,13 +163,23 @@
 /* The granite's mottling: broad, soft clouds of lighter and darker stone. */
 .hos-stone-mottle {
   inset: 0;
-  opacity: 0.5;
+  opacity: 0.22;
   mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='600' height='300'><filter id='m'><feTurbulence type='fractalNoise' baseFrequency='0.012 0.03' numOctaves='3' seed='7'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.48 0 0 0 0 0.46 0 0 0 2.2 -0.7'/></filter><rect width='100%' height='100%' filter='url(%23m)'/></svg>");
-  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='m'><feTurbulence type='fractalNoise' baseFrequency='0.03' numOctaves='3' seed='7' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.48 0 0 0 0 0.46 0 0 0 2.2 -0.7'/></filter><rect width='100%' height='100%' filter='url(%23m)'/></svg>");
 }
 /* Its grain: a fine speckle of feldspar and mica over the whole face. */
 .hos-stone-grain { inset: 0; opacity: 0.65; mix-blend-mode: overlay; background-image: var(--hos-speckle); }
+/* And the flecks that make it granite: pale feldspar and black mica, sparse and sharp. */
+.hos-stone-grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='2' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.88 0 0 0 0 0.85 14 0 0 0 -9.1'/></filter><rect width='100%' height='100%' filter='url(%23f)'/></svg>"),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='150' height='150'><filter id='d'><feTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='2' seed='11' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.05 0 0 0 0 0.05 0 0 0 0 0.05 -14 0 0 0 4.9'/></filter><rect width='100%' height='100%' filter='url(%23d)'/></svg>");
+  mix-blend-mode: normal;
+  opacity: 0.55;
+}
 /* A slow light passing over the granite, over minutes. */
 .hos-stone-light {
   inset: 0;
@@ -180,9 +191,11 @@
 .hos-star { position: relative; height: 44%; overflow: visible; }
 .hos-star path { fill: none; stroke-width: 7; stroke-linejoin: miter; }
 /* Cut into the stone: a dark groove, shadowed at its upper edge, its lower lip catching the light. */
-.hos-star-cut path { stroke: rgba(26, 23, 20, 0.8); }
-.hos-star-cut-light { transform: translate(0, 2.4px); }
-.hos-star-cut-light path { stroke: rgba(240, 234, 224, 0.26); }
+/* Opacity on the group, not the stroke, so the two triangles do not darken where they cross. */
+.hos-star-cut { opacity: 0.82; }
+.hos-star-cut path { stroke: #100e0c; }
+.hos-star-cut-light { transform: translate(0, 2.4px); opacity: 0.2; }
+.hos-star-cut-light path { stroke: #f0eae0; }
 .hos-stone-words {
   position: relative;
   font-family: var(--pe-display);
@@ -190,8 +203,8 @@
   letter-spacing: 0.34em;
   padding-left: 0.34em;
   text-transform: uppercase;
-  color: rgba(28, 25, 22, 0.78);
-  text-shadow: 0 1.5px 0 rgba(240, 234, 224, 0.24), 0 -1px 0 rgba(0, 0, 0, 0.3);
+  color: rgba(18, 16, 14, 0.82);
+  text-shadow: 0 1.5px 0 rgba(240, 234, 224, 0.2), 0 -1px 0 rgba(0, 0, 0, 0.35);
 }
 /* The base: a broader, darker plinth, in shadow. */
 .hos-base {
@@ -285,7 +298,7 @@
   animation: hos-panel-in 0.9s ease both;
 }
 .hos-panel[hidden] { display: none; }
-.hos-panel-stillness { top: 25vh; }
+.hos-panel-stillness { top: max(25vh, 216px); }
 .hos-panel-walk { top: 32vh; }
 @keyframes hos-panel-in { from { opacity: 0; } to { opacity: 1; } }
 
@@ -296,8 +309,9 @@
   font-size: clamp(1.1rem, 1.6vw, 1.3rem);
   line-height: 1.5;
   color: var(--hos-pale);
+  text-wrap: balance;
 }
-.hos-custom { display: flex; flex-direction: column; gap: 6px; max-width: 30em; margin-top: -8px; font-family: var(--pe-body); font-size: 0.9rem; line-height: 1.6; color: var(--hos-muted); }
+.hos-custom { text-wrap: pretty; display: flex; flex-direction: column; gap: 6px; max-width: 30em; margin-top: -8px; font-family: var(--pe-body); font-size: 0.9rem; line-height: 1.6; color: var(--hos-muted); }
 .hos-custom-source { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.06em; color: var(--hos-muted); opacity: 0.85; }
 .hos-custom-source a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .hos-custom-source a:focus-visible { outline: 1px solid var(--hos-pale); outline-offset: 3px; }
@@ -360,7 +374,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(ellipse at 50% 45%, rgba(14, 13, 12, 0.93), rgba(5, 5, 5, 0.985) 70%);
+  /* Dark enough that the words behind fall away: only the line and the minute are left. */
+  background: radial-gradient(ellipse at 50% 45%, rgba(14, 13, 12, 0.965), rgba(5, 5, 5, 0.99) 70%);
   color: #ece7e1;
   animation: hos-dim 3s ease both;
 }
@@ -384,7 +399,7 @@
 .hos-countdown-label { font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--hos-muted); }
 .hos-countdown-note { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.06em; color: var(--hos-muted); text-align: center; }
 /* On January 27 itself: one quiet line, the poster's. */
-.hos-today { max-width: 40em; font-family: var(--pe-body); font-size: 0.95rem; line-height: 1.5; color: var(--hos-pale); text-align: center; }
+.hos-today { max-width: 40em; font-family: var(--pe-body); font-size: 0.95rem; line-height: 1.5; color: var(--hos-pale); text-align: center; text-wrap: balance; }
 .hos-today-day { color: var(--hos-stone); font-weight: 500; }
 
 /* ───────── The walk's panel ───────── */
@@ -438,6 +453,10 @@
   /* Laying a stone sits just under the stone; the stillness, with its words, runs to the foot. */
   .ho-room .hos-panel:not(.hos-panel-stillness):not(.hos-panel-walk) { top: 63%; bottom: auto; background: none; padding-top: 12px; }
   .hos-panel-walk { max-height: 52dvh; }
+  /* With Niemöller's words below it, the stone stands smaller and higher, so the words never lie over its inscription. */
+  .hos-stage[data-tab='stillness'] .hos-monument { top: 27%; height: 20%; }
+  .hos-stage[data-tab='stillness'] .hos-floor,
+  .hos-stage[data-tab='stillness'] .hos-ground { top: 47%; }
   .hos-walk { gap: 12px; }
   .hos-walk .hos-intro { font-size: 1rem; }
   .hos-walk-line { font-size: 0.86rem; }

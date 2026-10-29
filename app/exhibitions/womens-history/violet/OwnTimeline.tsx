@@ -49,9 +49,21 @@ function write(t: Timeline) {
   }
 }
 
-/** `announce` speaks through the room's one live region. */
-export default function OwnTimeline({ announce }: { announce: (message: string) => void }) {
-  const [t, setT] = useState<Timeline>(emptyTimeline);
+/**
+ * `announce` speaks through the room's one live region. `kept` and `keep`
+ * hold the timeline in the room while Violet's life is open instead, so
+ * coming back finds it as it was, photographs and all.
+ */
+export default function OwnTimeline({
+  announce,
+  kept,
+  keep,
+}: {
+  announce: (message: string) => void;
+  kept: Timeline | null;
+  keep: (t: Timeline) => void;
+}) {
+  const [t, setT] = useState<Timeline>(() => kept ?? emptyTimeline());
   const [index, setIndex] = useState(0);
   const [turn, setTurn] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -59,19 +71,30 @@ export default function OwnTimeline({ announce }: { announce: (message: string) 
   const stopRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const fileRef = useRef<HTMLInputElement>(null);
   const sheetRef = useRef<HTMLDivElement>(null);
-  const loaded = useRef(false);
-  const [mounted, setMounted] = useState(false);
+  // Back from Violet's life, the timeline is already here; on a first visit it waits for what this browser kept.
+  const [ready, setReady] = useState(kept !== null);
 
   // What this browser kept from last time (words only), then keep each change.
+  // Nothing is written until that has been read, so a blank first render never
+  // writes over it (React runs this twice in development).
   useEffect(() => {
-    const kept = read();
-    if (kept) setT(kept);
-    loaded.current = true;
-    setMounted(true);
+    if (ready) return;
+    const stored = read();
+    if (stored) setT(stored);
+    setReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  // The keepsakes come in one by one as the room opens; a moment added after that comes at once.
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    const id = window.setTimeout(() => setSettled(true), 1500);
+    return () => window.clearTimeout(id);
   }, []);
   useEffect(() => {
-    if (loaded.current) write(t);
-  }, [t]);
+    if (!ready) return;
+    write(t);
+    keep(t);
+  }, [t, ready, keep]);
 
   const count = t.stops.length + 1;
   const canAdd = t.stops.length < MAX_STOPS;
@@ -183,7 +206,7 @@ export default function OwnTimeline({ announce }: { announce: (message: string) 
                 aria-selected={i === index}
                 tabIndex={i === index ? 0 : -1}
                 className="whv-stop is-visited"
-                style={p ? ({ left: p.x, top: p.y, '--i': String(i) } as CssVars) : { opacity: 0 }}
+                style={p ? ({ left: p.x, top: p.y, '--i': settled ? '0' : String(i) } as CssVars) : { opacity: 0 }}
                 onClick={() => go(i)}
                 onKeyDown={onStopKey}
               >
@@ -315,14 +338,14 @@ export default function OwnTimeline({ announce }: { announce: (message: string) 
             <button type="button" className="whv-step" onClick={onPrint}>
               Print
             </button>
-            <button type="button" className="whv-step" onClick={onSave} disabled={saving}>
-              {saving ? 'Saving…' : 'Save as image'}
+            <button type="button" className="whv-step" onClick={onSave} disabled={saving} aria-label={saving ? 'Saving…' : 'Save as image'}>
+              {saving ? 'Saving…' : <>Save<span className="whv-step-more"> as image</span></>}
             </button>
           </div>
         </nav>
       </section>
 
-      {mounted &&
+      {ready &&
         createPortal(
           <div className="whv-print-root" aria-hidden="true">
             <style>{printCss()}</style>
