@@ -134,6 +134,17 @@ describe('making one', () => {
     expect(screen.getByLabelText('Her name')).toHaveValue('Aunt May');
   });
 
+  it('names every keepsake in the picker where it can be seen, not in a tooltip', () => {
+    window.history.replaceState(null, '', '/#make');
+    const { container } = render(<VioletsLife />);
+    fireEvent.click(screen.getByRole('button', { name: /Next/ }));
+    const names = [...container.querySelectorAll('.whv-keepsake-name')];
+    expect(names.map((n) => n.textContent)).toContain('Cauliflower');
+    for (const n of names) expect(n).not.toHaveClass('visually-hidden');
+    expect(container.querySelector('.whv-keepsake[title]')).toBeNull();
+    expect(screen.getByRole('radio', { name: 'Needle and thread' })).toBeInTheDocument();
+  });
+
   it('goes back to Violet’s life', () => {
     window.history.replaceState(null, '', '/#make');
     render(<VioletsLife />);

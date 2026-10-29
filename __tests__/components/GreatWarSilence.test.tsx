@@ -1,5 +1,6 @@
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
 import SilenceFilm from '@/app/exhibitions/great-war/silence/SilenceFilm';
+import GreatWarSilence from '@/app/exhibitions/great-war/silence/page';
 import { thudSchedule, useArmisticeSound } from '@/app/exhibitions/great-war/silence/armisticeSound';
 import { FILM_END, HOUR_AT, IWM, SOUND_NOTE, STRIP_START, TITLE_CARDS, sceneAt, startOf } from '@/app/exhibitions/great-war/silence/film';
 
@@ -173,5 +174,29 @@ describe('the sound', () => {
     act(() => { jest.advanceTimersByTime(startOf('card', 1) + 200); });
     expect(document.querySelector('.gws-card-text')).toHaveTextContent('After 20 million dead.');
     expect(document.querySelectorAll('.gws-card-text')).toHaveLength(1);
+  });
+
+  // The room on one screen: what used to follow the film below the fold is now in its frame, or at its foot.
+  it('keeps everything on one screen: the end in the film’s frame, the transcript and the way back at the foot', () => {
+    jest.useFakeTimers();
+    const { container } = render(<GreatWarSilence />);
+    expect(screen.getByRole('heading', { level: 1, name: 'When the Guns Fell Silent' })).toBeInTheDocument();
+    expect(screen.getByText('The last minute of the war, November 11, 1918')).toBeInTheDocument();
+    const foot = container.querySelector('.gws-foot')!;
+    expect(foot).toContainElement(screen.getByText('Read the film as text'));
+    expect(foot).toContainElement(screen.getByRole('link', { name: 'Return to Exhibition' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Begin' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Skip to the end' }));
+    const screenEl = container.querySelector('.gws-screen')!;
+    expect(screenEl).toContainElement(screen.getByText('At 11:00 on November 11, 1918, the guns fell silent.'));
+    expect(screenEl).toContainElement(screen.getByRole('link', { name: '© IWM (Q 47886)' }));
+  });
+
+  it('closes the transcript with Esc', () => {
+    render(<SilenceFilm />);
+    const details = screen.getByText('Read the film as text').closest('details')!;
+    details.open = true;
+    fireEvent.keyDown(details, { key: 'Escape' });
+    expect(details.open).toBe(false);
   });
 });
