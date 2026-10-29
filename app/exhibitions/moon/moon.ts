@@ -78,7 +78,20 @@ const ATMOSPHERES: Record<string, Atmosphere> = {
   'dark-forest-sky': { bg: '#0b0916', parts: 1, particles: 30 },
 };
 
-export const NHM_MOON_URL = 'https://www.nhm.ac.uk/discover/factfile-the-moon.html';
+/*
+ * Poster 1's paragraph on the regolith, sentence by sentence: the walkthrough,
+ * the display case and the microscope (microscope/) all set it from here.
+ */
+export const REGOLITH = {
+  study: 'Our Moon is fascinating to study.',
+  surface: 'Its surface alone, which is covered in a layer of fine dust called lunar regolith, provides huge contrasts to our own Earth.',
+  unlike: "Unlike Earth's soil, which is shaped by wind, water, and living things, lunar dust is formed over billions of years through meteorite impacts.",
+  jagged: 'This makes the dust particles sharp and jagged, and they can stick to everything because of static electricity.',
+  gunpowder: 'Astronauts who walked on the Moon said the dust smelled like gunpowder and was hard to clean off their suits.',
+  differences: "These differences between Moon dust and Earth's soil help scientists learn more about the Moon's history and why it's such a unique place in our solar system.",
+};
+
+export const NHM_MOON_URL ='https://www.nhm.ac.uk/discover/factfile-the-moon.html';
 export const NHM_SPACE_URL = 'https://www.nhm.ac.uk/discover/space.html';
 
 /** The link callout that takes the place of each poster's QR code. */
@@ -113,12 +126,28 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The moonrise opens each poster; after that every panel arrives its own way.
   fx: { theme: 'mo', veil: 'first', text: 'all' },
-  projector: { theme: MOON_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: MOON_PROJECTOR_THEME,
+    links: [{ label: "Under the Microscope: Moon dust beside Earth's soil", href: '/exhibitions/moon/microscope' }],
+  },
   cases: [
     {
       href: '/exhibitions/moon/artifacts/case',
       label: 'Display Case',
       title: 'Artifacts',
+    },
+  ],
+  interactives: [
+    {
+      href: '/exhibitions/moon/microscope',
+      // A drawing of the eyepiece view, not a photograph.
+      image: {
+        src: '/exhibitions/moon/microscope.svg',
+        alt: 'A drawing of a round microscope view split down the middle: jagged gray grains on one side, rounded sandy grains on the other',
+      },
+      label: 'Interactive',
+      title: 'Under the Microscope',
+      subtitle: "Moon dust beside Earth's soil",
     },
   ],
   posters: [
@@ -157,9 +186,9 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'caps', atmosphere: 'lunar-dust', effect: 'blur-to-sharp', text: "For example, the astronauts brought back Moon rocks that are very different from any rocks found on Earth. These rocks have unique features that couldn't be faked or created on our planet." },
         { type: 'paragraph', section: 'caps', atmosphere: 'apollo-tracking', effect: 'line-by-line', text: 'Additionally, the missions were tracked by scientists around the world. All this evidence confirms that humans truly did land on the Moon in 1969.' },
 
-        { type: 'paragraph', section: 'caps', atmosphere: 'lunar-dust', effect: 'fade-in', text: 'Our Moon is fascinating to study. Its surface alone, which is covered in a layer of fine dust called lunar regolith, provides huge contrasts to our own Earth.' },
-        { type: 'paragraph', section: 'caps', atmosphere: 'lunar-dust', effect: 'split-reveal', text: "Unlike Earth's soil, which is shaped by wind, water, and living things, lunar dust is formed over billions of years through meteorite impacts. This makes the dust particles sharp and jagged, and they can stick to everything because of static electricity." },
-        { type: 'paragraph', section: 'caps', atmosphere: 'lunar-dust', effect: 'ink-spread', text: "Astronauts who walked on the Moon said the dust smelled like gunpowder and was hard to clean off their suits. These differences between Moon dust and Earth's soil help scientists learn more about the Moon's history and why it's such a unique place in our solar system." },
+        { type: 'paragraph', section: 'caps', atmosphere: 'lunar-dust', effect: 'fade-in', text: `${REGOLITH.study} ${REGOLITH.surface}` },
+        { type: 'paragraph', section: 'caps', atmosphere: 'lunar-dust', effect: 'split-reveal', text: `${REGOLITH.unlike} ${REGOLITH.jagged}` },
+        { type: 'paragraph', section: 'caps', atmosphere: 'lunar-dust', effect: 'ink-spread', text: `${REGOLITH.gunpowder} ${REGOLITH.differences}` },
 
         { type: 'callout', section: 'link', atmosphere: 'moon-tides', effect: 'breathe', text: NHM_CALLOUT, url: NHM_MOON_URL },
         { type: 'end', text: 'Return to Exhibition' },
@@ -249,8 +278,8 @@ export const MOON_CASE: CasePageData = {
       record: 'Genuine lunar meteorite, Adrar 013 sample',
       writing: [
         { poster: 'poster1', text: "Additionally, the Moon's cratered face is a record of the space rocks that have struck our corner of the solar system for billions of years." },
-        { poster: 'poster1', text: 'Our Moon is fascinating to study. Its surface alone, which is covered in a layer of fine dust called lunar regolith, provides huge contrasts to our own Earth.' },
-        { poster: 'poster1', text: "Unlike Earth's soil, which is shaped by wind, water, and living things, lunar dust is formed over billions of years through meteorite impacts. This makes the dust particles sharp and jagged, and they can stick to everything because of static electricity." },
+        { poster: 'poster1', text: `${REGOLITH.study} ${REGOLITH.surface}` },
+        { poster: 'poster1', text: `${REGOLITH.unlike} ${REGOLITH.jagged}` },
       ],
     },
     {
@@ -258,7 +287,7 @@ export const MOON_CASE: CasePageData = {
       name: 'Global sand and geology specimens',
       record: 'Laboratory microscopes with comparative global sand and geology specimens',
       writing: [
-        { poster: 'poster1', text: "These differences between Moon dust and Earth's soil help scientists learn more about the Moon's history and why it's such a unique place in our solar system." },
+        { poster: 'poster1', text: REGOLITH.differences },
       ],
     },
   ],

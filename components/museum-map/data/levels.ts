@@ -557,22 +557,32 @@ export const IN_THEIR_HANDS: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Fear Lab (Floor Plan)
 //
-// Layout: the Exhibition Hall alone for now (no cases or interactives yet)
+// Layout: the Exhibition Hall, and the interactive room beyond it
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │        What Scares You?        │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const FEAR_LAB_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 120, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
   accentColor: COLORS.fearLab,
-  walls: [],
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+  ],
   rooms: [
     {
       id: 'fl-entrance', label: 'Exhibition Hall', path: '/exhibitions/fear-lab',
       accentColor: COLORS.fearLab, parent: 'fear-lab',
-      x: 40, y: 80, width: 420, height: 120,
-      labelX: 250, labelY: 140,
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'fl-what-scares-you', label: 'What Scares You?', path: '/exhibitions/fear-lab/what-scares-you',
+      accentColor: COLORS.fearLab, parent: 'fear-lab',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
     },
   ],
 };
@@ -587,7 +597,7 @@ export const FEAR_LAB: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
   ],
-  ...withLessons(FEAR_LAB_FLOOR_PLAN, '0 0 500 250', 'fear-lab'),
+  ...withLessons(FEAR_LAB_FLOOR_PLAN, '0 0 500 330', 'fear-lab'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -703,19 +713,23 @@ export const EGYPT: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Our Incredible Moon (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the
+// interactive room beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
+// ├───────────────╴ ╶──────────────┤
+// │      Under the Microscope      │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const MOON_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.moon,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
   ],
   rooms: [
     {
@@ -730,6 +744,12 @@ const MOON_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'mo-microscope', label: 'Under the Microscope', path: '/exhibitions/moon/microscope',
+      accentColor: COLORS.moon, parent: 'moon',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
+    },
   ],
 };
 
@@ -743,7 +763,7 @@ export const MOON: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
   ],
-  ...withLessons(MOON_FLOOR_PLAN, '0 0 500 330', 'moon'),
+  ...withLessons(MOON_FLOOR_PLAN, '0 0 500 430', 'moon'),
 };
 
 // ═══════════════════════════════════════════════════════════════════

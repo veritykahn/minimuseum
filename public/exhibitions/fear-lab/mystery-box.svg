@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <!-- The Fear Lab room's case card: the mystery box, drawn, with a clawed hand over its hole. -->
+  <defs>
+    <radialGradient id="spot" cx="50%" cy="0%" r="95%">
+      <stop offset="0" stop-color="#fbf6ec" stop-opacity="0.25"/>
+      <stop offset="0.55" stop-color="#f2b33d" stop-opacity="0.06"/>
+      <stop offset="1" stop-color="#f2b33d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="front" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#25406a"/>
+      <stop offset="1" stop-color="#152741"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="#0e1a2c"/>
+  <path d="M 150 0 L 250 0 L 380 400 L 20 400 Z" fill="url(#spot)"/>
+  <ellipse cx="200" cy="368" rx="150" ry="16" fill="#000" fill-opacity="0.45"/>
+  <path d="M 128 196 L 272 196 L 300 240 L 100 240 Z" fill="#2c4a78" stroke="#0b1322" stroke-width="2"/>
+  <ellipse cx="200" cy="218" rx="44" ry="14" fill="#03060c"/>
+  <!-- The hand, claws down, reaching into the hole (after the poster's hand) -->
+  <g fill="#fbf6ec">
+    <path d="M 178 40 C 176 80 172 120 176 150 C 166 160 156 176 152 196 C 150 206 156 210 160 200 C 164 190 170 182 176 180 C 172 194 170 208 174 222 C 178 230 184 226 182 216 C 182 204 184 194 190 188 C 190 200 192 214 198 224 C 202 230 208 226 205 216 C 202 206 202 196 204 188 C 208 196 214 206 222 210 C 228 212 230 206 224 200 C 216 192 212 180 212 168 C 214 150 218 120 220 40 Z"/>
+  </g>
+  <rect x="100" y="240" width="200" height="124" fill="url(#front)" stroke="#0b1322" stroke-width="2"/>
+  <line x1="102" y1="270" x2="298" y2="270" stroke="#0f1d33" stroke-width="2"/>
+  <line x1="102" y1="300" x2="298" y2="300" stroke="#0f1d33" stroke-width="2"/>
+  <line x1="102" y1="330" x2="298" y2="330" stroke="#0f1d33" stroke-width="2"/>
+  <path d="M 178 272 C 178 254 222 254 222 274 C 222 290 204 292 204 308 L 204 316 L 194 316 L 194 304 C 194 288 210 286 210 274 C 210 264 190 264 190 274 Z" fill="#f2b33d"/>
+  <circle cx="199" cy="334" r="8" fill="#f2b33d"/>
+</svg>
