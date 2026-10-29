@@ -194,7 +194,10 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
   fx: { theme: 'wh', veil: 'chapters', text: 'all' },
   projector: {
     theme: WOMENS_HISTORY_PROJECTOR_THEME,
-    links: [{ label: 'Violet’s Life: her places and moments', href: '/exhibitions/womens-history/violet' }],
+    links: [
+      { label: 'Violet’s Life: her places and moments, and a timeline of your own', href: '/exhibitions/womens-history/violet' },
+      { label: 'Who Gets Remembered?: statues, a scale, and questions for the class', href: '/exhibitions/womens-history/remembered' },
+    ],
   },
   cases: [
     {
@@ -209,7 +212,18 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
       image: { src: PHOTO_VIOLET.src, alt: PHOTO_VIOLET.alt },
       label: 'Interactive',
       title: 'Violet’s Life',
-      subtitle: 'Her places and moments, one keepsake at a time',
+      subtitle: 'Her places and moments, and a timeline of your own',
+    },
+    // Drawn for the room (no photographs): rows of statues on their plinths, three of them orange.
+    {
+      href: '/exhibitions/womens-history/remembered',
+      image: {
+        src: '/exhibitions/womens-history/room-remembered.svg',
+        alt: 'A drawing of three rows of small navy statues on plinths on a blush ground, three of them orange',
+      },
+      label: 'Interactive',
+      title: 'Who Gets Remembered?',
+      subtitle: 'Who gets a statue, and whose stories are left out',
     },
   ],
   credits: [{ text: AF_KLINT_CREDIT, href: AF_KLINT_SOURCE }],

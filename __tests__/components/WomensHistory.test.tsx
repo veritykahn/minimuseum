@@ -264,7 +264,7 @@ describe("The Women's History Month display case page", () => {
 });
 
 describe("Women's History Month on the museum map", () => {
-  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and Violet’s Life', () => {
+  it('is a room on the First Floor, with an Exhibition Hall, a Display Case, Violet’s Life and Who Gets Remembered?', () => {
     const level = getLevelConfig('/exhibitions/womens-history/artifacts/case');
     expect(level.title).toBe("Women's History Month");
     expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
@@ -272,6 +272,7 @@ describe("Women's History Month on the museum map", () => {
       ['Exhibition Hall', '/exhibitions/womens-history'],
       ['Display Case', '/exhibitions/womens-history/artifacts/case'],
       ['Violet’s Life', '/exhibitions/womens-history/violet'],
+      ['Who Gets\nRemembered?', '/exhibitions/womens-history/remembered'],
     ]);
     expect(getRoomByPath('/exhibitions/womens-history')?.parent).toBe('first-floor');
     expect(getRoomByPath('/exhibitions/womens-history/artifacts/case')?.parent).toBe('womens-history');

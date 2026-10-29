@@ -5,21 +5,28 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { HOLOCAUST } from '../holocaust';
 import MemorialStone, { StoneControls } from './MemorialStone';
+import Countdown from './Countdown';
 import Stillness from './Stillness';
+import { WalkControls, WalkScene, useWalk } from './Walk';
 import { useStones } from './useStones';
 import './memorial-stone.css';
 
 /*
  * Lay a Stone, on one screen: a memorial stone in a dark room, with the
- * stones visitors have laid along its ledge, and two tabs beside it: lay a
- * stone, and a minute's stillness with the words of Martin Niemöller. Each
- * tab has its own address (#stone, #stillness). Quiet throughout: no sound,
- * nothing celebrates.
+ * stones visitors have laid along its ledge, and three tabs beside it: lay
+ * a stone; a minute's stillness with the words of Martin Niemöller; and the
+ * walk, a path of plain stones to walk over, after Menashe Kadishman's
+ * Fallen Leaves (Walk.tsx). Each tab has its own address (#stone,
+ * #stillness, #walk). Under the title, the days to International Holocaust
+ * Remembrance Day (Countdown.tsx). Quiet throughout: nothing celebrates,
+ * and the only sound is the walk's footsteps, off until the visitor turns
+ * them on.
  */
 
 const TABS = [
   { id: 'stone', label: 'Lay a stone' },
   { id: 'stillness', label: 'Stillness' },
+  { id: 'walk', label: 'The walk' },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
@@ -35,7 +42,9 @@ export default function LayAStone() {
   const stones = useStones();
   const [settleFrom, setSettleFrom] = useState<number | null>(null);
   const [tab, setTab] = useState<TabId>('stone');
-  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ stone: null, stillness: null });
+  const walk = useWalk();
+  const { stop: stopWalking } = walk;
+  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ stone: null, stillness: null, walk: null });
 
   useEffect(() => {
     const fromHash = () => {
@@ -46,6 +55,11 @@ export default function LayAStone() {
     window.addEventListener('hashchange', fromHash);
     return () => window.removeEventListener('hashchange', fromHash);
   }, []);
+
+  // Leaving the walk stops it.
+  useEffect(() => {
+    if (tab !== 'walk') stopWalking();
+  }, [tab, stopWalking]);
 
   const choose = useCallback((id: TabId, focus = false) => {
     setTab(id);
@@ -85,13 +99,14 @@ export default function LayAStone() {
       </ExhibitionNav>
 
       <main className="hos-stage" data-tab={tab}>
-        <MemorialStone count={stones.count} settleFrom={settleFrom} />
+        {tab === 'walk' ? <WalkScene steps={walk.steps} stepAt={walk.stepAt} reduced={walk.reduced} /> : <MemorialStone count={stones.count} settleFrom={settleFrom} />}
 
         <header className="hos-bar">
           <h1 className="hos-title">
             Lay a Stone
             <span className="hos-title-date">January 27</span>
           </h1>
+          <Countdown />
           <div className="hos-tabs" role="tablist" aria-label="The memorial stone">
             {TABS.map((x) => (
               <button
@@ -121,6 +136,10 @@ export default function LayAStone() {
 
         <section className="hos-panel hos-panel-stillness" id="hos-panel-stillness" role="tabpanel" aria-labelledby="hos-tab-stillness" hidden={tab !== 'stillness'}>
           <Stillness />
+        </section>
+
+        <section className="hos-panel hos-panel-walk" id="hos-panel-walk" role="tabpanel" aria-labelledby="hos-tab-walk" hidden={tab !== 'walk'}>
+          <WalkControls {...walk} />
         </section>
       </main>
     </div>

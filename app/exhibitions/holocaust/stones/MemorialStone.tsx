@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import FactNote from '@/components/exhibition/FactNote';
 import { STONE_CUSTOM } from '../holocaust';
@@ -15,8 +15,14 @@ import type { LayResult, useStones } from './useStones';
  * drawn smaller, until the ledge is covered; past what it can hold, it
  * simply stays full.
  *
- * Nothing moves but the visitor's own stone, settling once, and a slow light
- * over the granite (memorial-stone.css); with reduced motion, neither.
+ * The room is lit from one light above: its beam falls on the stone, with a
+ * little dust turning slowly in it, and pools on the floor in front. The
+ * stone is grey granite, mottled and grained, on a darker base, with the
+ * ledge's upper face catching the light.
+ *
+ * Nothing moves but the visitor's own stone, settling once, the dust, and a
+ * slow light over the granite (memorial-stone.css); with reduced motion,
+ * none of them.
  */
 
 /** If the count can't be reached, the ledge shows twenty-seven stones, for January 27. */
@@ -124,36 +130,79 @@ function drawStone(g: CanvasRenderingContext2D, s: LaidStone, ledgeY: number, li
     pts.push([cx + Math.cos(a) * (s.w / 2) * r, cy + sy * (s.h / 2) * r]);
   }
   g.globalAlpha = alpha;
-  // Its shadow on what it rests on.
-  g.fillStyle = 'rgba(0,0,0,0.35)';
+  // Its shadow: a soft one where the light falls past it, and a dark line where it touches.
+  g.fillStyle = 'rgba(0,0,0,0.28)';
   g.beginPath();
-  g.ellipse(cx + s.w * 0.06, cy + s.h * 0.42 + lift, s.w * 0.5, s.h * 0.2, 0, 0, Math.PI * 2);
+  g.ellipse(cx + s.w * 0.1, cy + s.h * 0.4 + lift, s.w * 0.58, s.h * 0.26, 0, 0, Math.PI * 2);
   g.fill();
-  const grad = g.createRadialGradient(cx - s.w * 0.22, cy - s.h * 0.3, s.w * 0.05, cx, cy, s.w * 0.62);
-  grad.addColorStop(0, lighten(tone, 0.32));
-  grad.addColorStop(0.55, tone);
-  grad.addColorStop(1, darken(tone, 0.45));
-  g.fillStyle = grad;
+  g.fillStyle = 'rgba(0,0,0,0.45)';
   g.beginPath();
+  g.ellipse(cx + s.w * 0.03, cy + s.h * 0.46 + lift, s.w * 0.4, s.h * 0.1, 0, 0, Math.PI * 2);
+  g.fill();
+  // Its body, lit from above and to the left, darker underneath.
+  const grad = g.createRadialGradient(cx - s.w * 0.2, cy - s.h * 0.34, s.w * 0.04, cx + s.w * 0.04, cy + s.h * 0.05, s.w * 0.66);
+  grad.addColorStop(0, lighten(tone, 0.36));
+  grad.addColorStop(0.5, tone);
+  grad.addColorStop(1, darken(tone, 0.55));
+  g.fillStyle = grad;
+  stonePath(g, pts);
+  g.fill();
+  // The stone's grain, on all but the smallest.
+  const grain = s.w > 12 ? grainPattern(g) : null;
+  if (grain) {
+    g.save();
+    stonePath(g, pts);
+    g.clip();
+    g.globalAlpha = alpha * 0.55;
+    g.fillStyle = grain;
+    g.fillRect(s.x - 2, cy - s.h, s.w + 4, s.h * 2);
+    g.restore();
+    g.globalAlpha = alpha;
+  }
+  // A soft sheen where the light falls on its crown, and a dark rim round it.
+  const sheen = g.createRadialGradient(cx - s.w * 0.16, cy - s.h * 0.3, 0, cx - s.w * 0.16, cy - s.h * 0.3, s.w * 0.3);
+  sheen.addColorStop(0, 'rgba(255,250,240,0.16)');
+  sheen.addColorStop(1, 'rgba(255,250,240,0)');
+  g.fillStyle = sheen;
+  stonePath(g, pts);
+  g.fill();
+  g.strokeStyle = 'rgba(12,10,8,0.35)';
+  g.lineWidth = Math.max(0.5, s.w / 70);
+  g.stroke();
+  g.globalAlpha = 1;
+}
+
+function stonePath(g: CanvasRenderingContext2D, pts: [number, number][]) {
+  const k = pts.length;
   const mid = (a: [number, number], b: [number, number]) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] as const;
   const m0 = mid(pts[k - 1], pts[0]);
+  g.beginPath();
   g.moveTo(m0[0], m0[1]);
   for (let j = 0; j < k; j++) {
     const m = mid(pts[j], pts[(j + 1) % k]);
     g.quadraticCurveTo(pts[j][0], pts[j][1], m[0], m[1]);
   }
   g.closePath();
-  g.fill();
-  // A few flecks in the larger stones.
-  if (s.w > 18) {
-    g.fillStyle = 'rgba(30,26,22,0.28)';
-    for (let j = 0; j < 4; j++) {
-      g.beginPath();
-      g.arc(cx + (hash01(s.i, 30 + j) - 0.5) * s.w * 0.6, cy + (hash01(s.i, 40 + j) - 0.5) * s.h * 0.5, Math.max(0.6, s.w / 60), 0, Math.PI * 2);
-      g.fill();
+}
+
+/** A tile of fine speckle, light and dark, laid over each stone as its grain (made once). */
+let grainTile: HTMLCanvasElement | null = null;
+function grainPattern(g: CanvasRenderingContext2D): CanvasPattern | null {
+  if (!grainTile) {
+    const tile = document.createElement('canvas');
+    tile.width = tile.height = 96;
+    const t = tile.getContext('2d');
+    if (!t) return null;
+    for (let i = 0; i < 900; i++) {
+      const light = hash01(i, 50) > 0.55;
+      t.fillStyle = light ? `rgba(255,248,236,${0.08 + hash01(i, 51) * 0.18})` : `rgba(20,16,12,${0.1 + hash01(i, 52) * 0.25})`;
+      t.beginPath();
+      t.arc(hash01(i, 54) * 96, hash01(i, 55) * 96, 0.3 + hash01(i, 53) * 0.9, 0, Math.PI * 2);
+      t.fill();
     }
+    grainTile = tile;
   }
-  g.globalAlpha = 1;
+  return g.createPattern(grainTile, 'repeat');
 }
 
 /**
@@ -226,14 +275,26 @@ export default function MemorialStone({ count, settleFrom }: { count: number | n
   return (
     <div className="hos-scene" aria-hidden="true">
       <span className="hos-room" />
+      <span className="hos-wall" />
+      <span className="hos-floor" />
       <span className="hos-lamp" />
+      <span className="hos-beam" />
+      {!reduced && (
+        <span className="hos-motes">
+          {Array.from({ length: 14 }, (_, i) => (
+            <i key={i} style={{ '--m': String(i) } as CSSProperties} />
+          ))}
+        </span>
+      )}
       <span className="hos-ground" />
       <div className="hos-monument">
         <div className="hos-heap" ref={heapRef}>
           <canvas ref={canvasRef} className="hos-heap-canvas" />
         </div>
+        <span className="hos-ledge" />
         <div className="hos-stone">
           <span className="hos-stone-top" />
+          <span className="hos-stone-mottle" />
           <span className="hos-stone-grain" />
           <span className="hos-stone-light" />
           <svg className="hos-star" viewBox="-60 -66 120 132" focusable="false">
@@ -248,6 +309,7 @@ export default function MemorialStone({ count, settleFrom }: { count: number | n
           </svg>
           <span className="hos-stone-words">Never Forget.</span>
         </div>
+        <span className="hos-base" />
       </div>
     </div>
   );

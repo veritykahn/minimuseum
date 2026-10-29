@@ -271,6 +271,165 @@
 .whv-step:disabled { opacity: 0.35; cursor: default; }
 .whv-step-count { font-family: var(--whv-mono); font-size: 13px; color: var(--whv-ink); }
 
+
+/* ───────── The two modes: Violet's life, and making your own ───────── */
+.whv-modes {
+  position: absolute;
+  top: 26px;
+  right: 28px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(246, 239, 228, 0.55);
+  box-shadow: inset 0 0 0 1px rgba(34, 51, 94, 0.2);
+  pointer-events: auto;
+}
+.wh-room .whv-mode {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--whv-navy);
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  padding: 10px 16px;
+  min-height: 40px;
+  cursor: pointer;
+}
+.wh-room .whv-mode[aria-pressed='true'] { background: var(--whv-navy); color: var(--whv-paper); }
+
+/* ───────── Your own timeline ───────── */
+/* A photograph on the thread, in place of a keepsake. */
+.whv-stop-button.has-photo { overflow: hidden; }
+.whv-stop-photo { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; filter: sepia(0.12); }
+/* "Add a moment": an empty ring of stitches at the thread's end. */
+.wh-room .whv-add {
+  position: absolute;
+  width: 0;
+  height: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  color: var(--whv-navy);
+  font: inherit;
+}
+.whv-add-plus {
+  position: absolute;
+  left: -26px;
+  top: -26px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--pe-ui);
+  font-size: 26px;
+  line-height: 1;
+  border: 2px dashed rgba(34, 51, 94, 0.55);
+  background: rgba(246, 239, 228, 0.35);
+  transition: background 0.3s ease;
+}
+.whv-add:hover .whv-add-plus,
+.whv-add:focus-visible .whv-add-plus { background: var(--whv-paper); }
+.wh-room .whv-add:focus-visible { outline: none; }
+.whv-add:focus-visible .whv-add-plus { box-shadow: 0 0 0 3px var(--whv-navy); }
+.whv-add-label { position: absolute; top: 34px; left: -50px; width: 100px; text-align: center; font-family: var(--pe-ui); font-size: 12px; font-weight: 500; }
+
+.whv-own-inner { align-items: stretch; }
+.whv-own .whv-side { justify-content: center; }
+.whv-photo-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; }
+.wh-room .whv-link {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 6px 2px;
+  min-height: 32px;
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--whv-navy);
+  text-decoration: underline;
+  text-decoration-color: var(--whv-orange);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+.whv-form { justify-content: center; gap: 12px; }
+.whv-form-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.whv-prompt { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; font-family: var(--pe-display); font-style: italic; font-size: clamp(1.05rem, 1.5vw, 1.3rem); color: var(--whv-navy); }
+.whv-own-intro { font-family: var(--whv-mono); font-size: clamp(0.95rem, 1.15vw, 1.05rem); line-height: 1.6; max-width: 36em; }
+.whv-own-privacy { font-family: var(--pe-ui); font-size: 12px; line-height: 1.5; color: #6b4a52; }
+.whv-fields { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: 10px 16px; }
+.whv-field { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.whv-field-wide { grid-column: 1 / -1; }
+.whv-field > span { font-family: var(--pe-ui); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #6b4a52; }
+.whv-field input,
+.whv-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-family: var(--whv-mono);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--whv-ink);
+  background: #fffaf2;
+  border: 0;
+  border-bottom: 2px solid rgba(34, 51, 94, 0.35);
+  padding: 8px 10px;
+  border-radius: 2px 2px 0 0;
+}
+.whv-field textarea { resize: none; }
+.whv-field input:focus,
+.whv-field textarea:focus { outline: none; border-bottom-color: var(--whv-orange); background: #fff; }
+.whv-field input:focus-visible,
+.whv-field textarea:focus-visible { outline: 2px solid var(--whv-navy); outline-offset: 1px; }
+.whv-field input::placeholder,
+.whv-field textarea::placeholder { color: #9b8186; }
+.whv-keepsakes { display: flex; flex-wrap: wrap; gap: 6px; border: 0; padding: 0; margin: 0; }
+.whv-keepsakes legend { width: 100%; margin-bottom: 4px; font-family: var(--pe-ui); font-size: 11px; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: #6b4a52; }
+.whv-keepsake { position: relative; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: var(--whv-rose-soft); cursor: pointer; color: var(--whv-navy); }
+.whv-keepsake input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+.whv-keepsake-art { width: 32px; height: 32px; pointer-events: none; }
+.whv-keepsake:has(input:checked) { background: var(--whv-paper); box-shadow: 0 0 0 3px var(--whv-orange); }
+.whv-keepsake:has(input:focus-visible) { box-shadow: 0 0 0 3px var(--whv-orange), 0 0 0 5px var(--whv-navy); }
+.whv-steps-move,
+.whv-steps-keep { display: flex; gap: 8px; }
+
+/* The sheet that is printed or saved as a picture: off screen, and only it on paper. */
+.whv-print-root { position: fixed; left: -10000px; top: 0; pointer-events: none; }
+.whv-own-sheet {
+  --whv-orange: #f2661f;
+  --whv-rose-soft: #eccdc6;
+  --whv-paper: #f6efe4;
+  --whv-green: #8fa37a;
+  --whv-mono: 'Courier Prime', 'Courier New', Courier, monospace;
+  width: 980px;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 44px 48px 30px;
+  background: #f6efe4;
+  color: #2a2226;
+  font-family: 'Courier Prime', 'Courier New', monospace;
+}
+.whv-own-sheet-head { display: flex; align-items: center; gap: 24px; padding-bottom: 22px; border-bottom: 2px dashed rgba(242, 102, 31, 0.8); }
+.whv-own-sheet-portrait { width: 110px; height: 110px; object-fit: cover; border-radius: 50%; box-shadow: 0 0 0 4px #f6efe4, 0 0 0 6px #f2661f; }
+.whv-own-sheet-name { font-family: 'Playfair Display', Georgia, serif; font-weight: 900; font-size: 44px; line-height: 1.05; color: #22335e; }
+.whv-own-sheet p { margin: 0; }
+.whv-own-sheet .whv-own-sheet-relation { margin-top: 6px; font-style: italic; font-size: 20px; }
+.whv-own-sheet-stops { list-style: none; margin: 26px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 26px 22px; }
+.whv-own-sheet-stop { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; color: #22335e; }
+.whv-own-sheet-pic { display: grid; place-items: center; width: 84px; height: 84px; border-radius: 50%; background: #eccdc6; box-shadow: 0 0 0 3px #f6efe4, 0 0 0 4.5px rgba(242, 102, 31, 0.9); overflow: hidden; }
+.whv-own-sheet-pic.is-photo { width: 120px; height: 92px; border-radius: 2px; }
+.whv-own-sheet-pic img { width: 100%; height: 100%; object-fit: cover; }
+.whv-own-sheet-art { width: 58px; height: 58px; }
+.whv-own-sheet-when { font-weight: 700; font-size: 16px; color: #a3401a; }
+.whv-own-sheet-place { font-family: 'Poppins', Arial, sans-serif; font-weight: 500; font-size: 14px; }
+.whv-own-sheet-memory { font-size: 13px; line-height: 1.5; color: #2a2226; }
+.whv-own-sheet-foot { margin-top: 28px; font-family: 'Poppins', Arial, sans-serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b4a52; text-align: right; }
+
 @media (max-width: 760px) {
   .whv-stage { min-height: 0; }
   .whv-bar { padding: 30px 60px 0; }
@@ -300,6 +459,29 @@
   .whv-name-motto { letter-spacing: 0.2em; font-size: 0.8rem; }
   .whv-steps { padding: 8px 12px 10px; }
   .whv-step { padding: 10px 14px; }
+  /* The two modes sit under the title, and the thread a little lower. */
+  .whv-modes { position: static; margin-top: 10px; }
+  .whv-bar { flex-direction: column; align-items: center; }
+  .wh-room .whv-mode { padding: 8px 14px; min-height: 36px; font-size: 11px; }
+  .whv-band { top: 128px; height: 140px; }
+  .whv-sheet { top: 284px; }
+  .whv-add-plus { left: -18px; top: -18px; width: 36px; height: 36px; font-size: 20px; }
+  .whv-add-label { top: 22px; font-size: 11px; }
+  .whv-fields { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .whv-field-when { order: 0; }
+  .whv-keepsake { width: 40px; height: 40px; }
+  .whv-keepsake-art { width: 28px; height: 28px; }
+  .whv-steps { flex-wrap: wrap; gap: 8px; }
+  .whv-steps-move, .whv-steps-keep { gap: 6px; }
+  .whv-steps .whv-step { padding: 8px 10px; font-size: 11px; letter-spacing: 0.08em; min-height: 40px; }
+  /* Your own: the picture small, beside its photo buttons, so the words have the room. */
+  .whv-own .whv-side { display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 14px; width: auto; }
+  .whv-own .whv-picture { width: auto; align-self: auto; }
+  .whv-own .whv-picture-art { width: 40px; padding: 10px; }
+  .whv-own .whv-picture-photo { width: 92px; padding: 10px 6px; }
+  .whv-own .whv-photo-actions { justify-content: flex-start; }
+  .whv-own .whv-heading { font-size: 1.4rem; }
+  .whv-prompt { font-size: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
