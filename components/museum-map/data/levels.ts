@@ -260,7 +260,7 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'black-history', label: 'Black History\nMonth', path: '/exhibitions/black-history',
     x: COL[0], ...BOTTOM, accentColor: COLORS.blackHistory,
     parent: 'first-floor',
-    children: ['bh-case', 'bh-timeline', ...lessonsChild('black-history')],
+    children: ['bh-case', 'bh-timeline', 'bh-representation', ...lessonsChild('black-history')],
   },
   {
     id: 'writing-revolution', label: 'The Writing\nRevolution', path: '/exhibitions/writing-revolution',
@@ -990,15 +990,16 @@ export const HOLOCAUST: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Black History Month (Floor Plan)
 //
-// Layout: the Exhibition Hall, the display case beyond it, and the
-// interactive room beyond that
+// Layout: the Exhibition Hall, the display case beyond it, and the two
+// interactive rooms beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// ├───────────────╴ ╶──────────────┤
-// │   The Black Barbie Timeline    │
-// └────────────────────────────────┘
+// ├───────╴ ╶───────┬──────╴ ╶─────┤
+// │ The Black Barbie╎ Who Do You   │
+// │    Timeline     ╎    See?      │
+// └─────────────────┴──────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const BLACK_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
@@ -1006,7 +1007,9 @@ const BLACK_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
   accentColor: COLORS.blackHistory,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
-    ...wallWithDoorway(40, 280, 460, 280),
+    ...wallWithDoorway(40, 280, 250, 280),
+    ...wallWithDoorway(250, 280, 460, 280),
+    ...wallWithDoorway(250, 280, 250, 380),
   ],
   rooms: [
     {
@@ -1024,8 +1027,14 @@ const BLACK_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
     {
       id: 'bh-timeline', label: 'The Black Barbie Timeline', path: '/exhibitions/black-history/timeline',
       accentColor: COLORS.blackHistory, parent: 'black-history',
-      x: 40, y: 280, width: 420, height: 100,
-      labelX: 250, labelY: 330,
+      x: 40, y: 280, width: 210, height: 100,
+      labelX: 145, labelY: 330,
+    },
+    {
+      id: 'bh-representation', label: 'Who Do You See?', path: '/exhibitions/black-history/representation',
+      accentColor: COLORS.blackHistory, parent: 'black-history',
+      x: 250, y: 280, width: 210, height: 100,
+      labelX: 355, labelY: 330,
     },
   ],
 };

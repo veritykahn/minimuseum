@@ -1,3 +1,4 @@
+import { BOARD_TTL_DAYS } from '@/lib/classBoard';
 import { WRITING_REVOLUTION, WRITING_REVOLUTION_CASE } from '../writingRevolution';
 
 /*
@@ -39,6 +40,41 @@ export const STATION_TEXT = {
   typewriterHint: 'Tap the paper or the keys. No erasing: Back space lets you strike over.',
   imacHint: 'Type, select, cut and paste, and change the font.',
   topRowSentence: posterSentence('This layout has literally shaped our language'),
+  boardTab: 'Class Board',
+  post: 'Post to the board',
+  /** The class board's interface. It makes no claims beyond how the board itself works. */
+  board: {
+    title: 'Class Board',
+    writeOn: 'Write on the',
+    print: 'Print the board',
+    save: 'Save with a class code',
+    open: 'Open a board',
+    openGo: 'Open',
+    codeLabel: 'Class code',
+    cancel: 'Cancel',
+    copyLink: 'Copy link',
+    refresh: 'Refresh',
+    leave: 'New board',
+    haveKey: 'Teacher key',
+    keyLabel: 'Teacher key',
+    keyGo: 'Use key',
+    newKeyTitle: 'Saved: copy your teacher key',
+    codeIs: 'The class code is',
+    newKeyBody: 'Anyone with the code can open the board and add to it. This teacher key deletes messages or the whole board: it is shown only now, and kept in this browser.',
+    copyKey: 'Copy key',
+    done: 'Done',
+    empty: 'Nothing on the board yet. Type a message on the typewriter or the iMac, then post it here.',
+    localNote: 'One sitting: nothing is saved or sent anywhere, and refreshing the page clears the board.',
+    unavailableNote: 'One sitting: nothing is saved or sent anywhere, and refreshing the page clears the board. Saving with a class code isn’t available here.',
+    savedNote: (code: string) => `Saved under class code ${code}: anyone with the code can add to it. It is deleted automatically ${BOARD_TTL_DAYS} days after its last new message, and boards are never listed.`,
+    privacy: 'No names needed.',
+    clear: 'Clear the board',
+    deleteBoard: 'Delete the board',
+    confirmClear: 'Clear every message?',
+    confirmDelete: 'Delete this board for everyone?',
+    yes: 'Yes',
+    no: 'No',
+  },
   soundOn: 'Sound on',
   soundOff: 'Sound off',
 };

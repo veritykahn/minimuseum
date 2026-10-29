@@ -410,6 +410,103 @@
 .wrq-kept li span { font-family: var(--pe-body); font-size: 0.75em; color: #6b675f; margin-left: 4px; }
 .wrs-room[data-tab='top-row'] .wrq-kept .wrq-label { color: var(--wr-ink); }
 
+/* ==========================================================================
+   The class board: charcoal over coral, the messages pinned up on the coral
+   as the machines typed them, a typewriter's on a slip of paper, an iMac's
+   on a printout in its font.
+   ========================================================================== */
+.wrs-room[data-tab='board'] { --top: var(--wr-charcoal); --bottom: var(--wr-coral); --split: 30%; }
+.wrs-room .wrs-button-post { background: var(--wr-cyan); border-color: var(--wr-cyan); color: var(--wr-ink); }
+.wri-foot { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 6px 22px; margin-top: 14px; }
+.wri-foot .wri-name { margin-top: 0; }
+.wrs-refusal { position: relative; z-index: 3; margin-top: 10px; padding: 6px 14px; background: #fff; color: var(--wr-ink); font-family: var(--pe-body); font-weight: 700; font-size: 14px; box-shadow: 4px 4px 0 var(--wr-ink); }
+
+.wrb { --gap: 12px; width: min(1180px, calc(100vw - 80px)); height: 100%; min-height: 0; display: flex; flex-direction: column; gap: 10px; padding: 14px 0 24px; }
+.wrb-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 18px; }
+.wrb-group { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.wrb-label { font-family: var(--pe-body); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: #fff; }
+.wrb-code { font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 700; font-size: 20px; letter-spacing: 0.12em; background: var(--wr-gold); color: var(--wr-ink); padding: 6px 12px; }
+.wrb-form { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.wrb-keyform { justify-content: center; }
+.wrb-input { height: 42px; width: 9.5em; padding: 0 10px; border: 2px solid #fff; background: var(--wr-paper); color: var(--wr-ink); font-family: 'Courier Prime', 'Courier New', monospace; font-size: 18px; letter-spacing: 0.1em; text-transform: uppercase; }
+.wrb-input-key { width: 17em; text-transform: none; letter-spacing: 0; font-size: 15px; }
+.wrb-note { text-align: center; font-family: var(--pe-body); font-size: 14px; line-height: 1.4; color: #fff; max-width: 60em; margin: 0 auto; }
+.wrb-newkey { align-self: center; max-width: 42em; padding: 12px 18px; background: var(--wr-paper); color: var(--wr-ink); font-family: var(--pe-body); font-size: 14px; line-height: 1.4; box-shadow: 6px 6px 0 var(--wr-ink); }
+.wrb-newkey-title { font-family: var(--pe-display); font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; font-size: 18px; margin-bottom: 4px; }
+.wrb-newkey-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 8px; }
+.wrb-key { font-family: 'Courier Prime', 'Courier New', monospace; font-size: 16px; padding: 6px 10px; background: #fff; border: 2px dashed var(--wr-ink); user-select: all; word-break: break-all; }
+.wrs-room .wrb-newkey .wrs-button { border-color: var(--wr-ink); }
+.wrs-room .wrb-newkey .wrs-button-ghost { color: var(--wr-ink); }
+
+/* The board itself: it scrolls inside the room, never the room. */
+.wrb-sheet { position: relative; flex: 1; min-height: 0; overflow-y: auto; padding: 14px 10px 18px; border: var(--wr-line) solid #fff; background: rgba(22, 22, 22, 0.14); }
+.wrb-sheet:focus-visible { outline-offset: -6px; }
+.wrb-print-head { display: none; }
+.wrb-empty { display: grid; place-items: center; height: 100%; text-align: center; padding: 0 12%; font-family: 'Courier Prime', 'Courier New', monospace; font-size: clamp(1rem, 1.5vw, 1.25rem); line-height: 1.5; color: #fff; }
+.wrb-cards { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px 16px; align-items: start; }
+.wrb-card { position: relative; padding: 16px 30px 18px 16px; background: #fbfaf4; color: #1a1a1a; box-shadow: 3px 4px 0 rgba(22, 22, 22, 0.55); transform: rotate(var(--tilt, 0deg)); animation: wrb-pin 0.45s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+/* A drawing pin. */
+.wrb-card::before { content: ''; position: absolute; left: calc(50% - 7px); top: -6px; width: 14px; height: 14px; border-radius: 50%; background: var(--wr-charcoal); box-shadow: inset -2px -2px 0 rgba(255, 255, 255, 0.25); }
+.wrb-card-typewriter { background-image: repeating-linear-gradient(to bottom, transparent 0 calc(1.5em - 1px), rgba(22, 180, 214, 0.18) calc(1.5em - 1px) 1.5em); background-position: 0 16px; }
+.wrb-card-text { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.5; font-size: 16px; }
+.wrb-card-typewriter .wrb-card-text { font-family: 'Courier Prime', 'Courier New', monospace; }
+.wrb-ink { display: inline-block; transform: translateY(var(--dy)) rotate(var(--rot)); opacity: var(--ink); }
+.wrb-card-imac { border-top: 18px solid #ddd; padding-top: 12px; }
+.wrb-card-head { position: absolute; left: 0; right: 0; top: -18px; height: 18px; display: flex; align-items: center; padding: 0 8px; font-family: Geneva, Verdana, sans-serif; font-size: 10px; color: #444; background: repeating-linear-gradient(to bottom, #ddd 0 1px, #aaa 1px 2px); }
+.wrb-card-imac::before { top: -24px; }
+.wrs-room .wrb-delete { position: absolute; right: 4px; top: 4px; width: 30px; height: 30px; border: 0; border-radius: 50%; background: transparent; color: #6b675f; font-size: 20px; line-height: 1; cursor: pointer; }
+.wrb-card-imac .wrb-delete { top: -22px; right: 2px; width: 26px; height: 26px; font-size: 16px; }
+.wrs-room .wrb-delete:hover { background: var(--wr-coral); color: #fff; }
+.wrs-room .wrb-delete:focus-visible { outline: 3px solid var(--wr-ink); outline-offset: 1px; }
+@keyframes wrb-pin { from { opacity: 0; transform: translateY(-16px) rotate(calc(var(--tilt, 0deg) * 4)); } }
+.wrb-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 42px; }
+.wrb-count { font-family: 'Courier Prime', 'Courier New', monospace; font-size: 14px; color: var(--wr-ink); background: #fff; padding: 3px 8px; }
+.wrb-status { flex: 1; font-family: var(--pe-body); font-weight: 700; font-size: 14px; color: var(--wr-ink); }
+.wrs-room .wrb-foot .wrs-button-ghost { color: var(--wr-ink); border-color: var(--wr-ink); box-shadow: none; }
+.wrs-room .wrb-foot .wrs-button:not(.wrs-button-ghost) { border-color: var(--wr-ink); }
+
+@media (max-width: 760px) {
+  .wrs-room[data-tab='board'] { --split: 34%; }
+  .wrb { width: calc(100vw - 24px); gap: 8px; padding: 10px 0 84px; }
+  .wrb-tools { gap: 8px; }
+  .wrb-tools .wrs-button { font-size: 12px; padding: 6px 10px; min-height: 36px; box-shadow: 3px 3px 0 var(--wr-ink); }
+  .wrb-label { font-size: 11px; }
+  .wrb-code { font-size: 15px; padding: 4px 8px; }
+  .wrb-input { height: 36px; width: 8em; font-size: 15px; }
+  .wrb-note { font-size: 12px; }
+  .wrb-cards { grid-template-columns: 1fr 1fr; gap: 14px 10px; }
+  .wrb-card { padding: 12px 26px 12px 10px; }
+  .wrb-card-text { font-size: 13px; }
+  .wrb-foot .wrs-button { font-size: 12px; padding: 6px 10px; min-height: 36px; }
+  .wri-foot { margin-top: 10px; gap: 4px 12px; }
+}
+
+/* Print the board: the messages alone, every one, on white (the museum map and the rest of the page hidden). */
+@media print {
+  body:has(.wrs-room[data-tab='board']) * { visibility: hidden; }
+  .wrs-room[data-tab='board'] .wrb-sheet, .wrs-room[data-tab='board'] .wrb-sheet * { visibility: visible; }
+  .wrs-room[data-tab='board'] .wrb-sheet { position: absolute; left: 0; top: 0; width: 100%; }
+  .wrs-room[data-tab='board'] { background: #fff; min-height: 0; }
+  .wrs-room[data-tab='board'] .wrs-stage { height: auto; min-height: 0; overflow: visible; background: #fff; display: block; }
+  .wrs-room[data-tab='board'] .wrs-blocks,
+  .wrs-room[data-tab='board'] .wrs-bar,
+  .wrs-room[data-tab='board'] .wrs-sound,
+  .wrs-room[data-tab='board'] .pe-nav,
+  .wrs-room[data-tab='board'] .wrb-tools,
+  .wrs-room[data-tab='board'] .wrb-form,
+  .wrs-room[data-tab='board'] .wrb-newkey,
+  .wrs-room[data-tab='board'] .wrb-note,
+  .wrs-room[data-tab='board'] .wrb-foot,
+  .wrs-room[data-tab='board'] .wrb-delete { display: none !important; }
+  .wrs-room[data-tab='board'] .wrs-panel-board { display: block; animation: none; }
+  .wrb { width: 100%; height: auto; padding: 0; }
+  .wrb-sheet { overflow: visible; border: 0; background: none; padding: 0; }
+  .wrb-print-head { display: block; font-family: var(--pe-display); text-transform: uppercase; letter-spacing: 0.1em; font-size: 16pt; color: #000; margin-bottom: 14pt; }
+  .wrb-cards { grid-template-columns: repeat(3, 1fr); gap: 14pt; }
+  .wrb-card { break-inside: avoid; box-shadow: none; border: 1px solid #999; transform: none; animation: none; }
+  .wrb-card::before { display: none; }
+}
+
 /* ───────── On a phone ───────── */
 @media (max-width: 760px) {
   .wrs-stage { min-height: 0; }
@@ -448,6 +545,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .wrs-panel, .wrt-paper-line:last-child, .wrt-bar.is-striking, .wrt-window:focus-within::before { animation: none; }
+  .wrs-panel, .wrb-card, .wrt-paper-line:last-child, .wrt-bar.is-striking, .wrt-window:focus-within::before { animation: none; }
   .wrs-block-top, .wrt-carriage, .wrt.is-returning .wrt-carriage, .wrs-stage { transition: none; }
 }

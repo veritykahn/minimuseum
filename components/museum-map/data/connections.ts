@@ -48,6 +48,7 @@ export const CONNECTIONS: RoomConnection[] = [
   ['great-war', 'gw-silence'],
   ['great-war', 'gw-memorial'],
   ['black-history', 'bh-timeline'],
+  ['black-history', 'bh-representation'],
   ['writing-revolution', 'wr-typing'],
   ['womens-history', 'wh-violet'],
   ['womens-history', 'wh-remembered'],

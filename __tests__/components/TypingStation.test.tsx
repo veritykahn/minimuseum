@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import TypingStation from '@/app/exhibitions/writing-revolution/typing-station/page';
 import { BELL_BEFORE, LINE_WIDTH, newPage, pageText, strikeOvers, typeKey, type Page } from '@/app/exhibitions/writing-revolution/typing-station/typewriterPage';
 import { STATION_TEXT, rowCheck } from '@/app/exhibitions/writing-revolution/typing-station/stationText';
@@ -9,7 +9,8 @@ import { getRoomByPath } from '@/components/museum-map/data/rooms';
 /*
  * The typing station: the typewriter's page (no erasing, strike-overs, the
  * bell and the margin), the top row's check, the poster's words, and the
- * room's three tabs and sound switch.
+ * room's four tabs and sound switch, and the class board (posting from
+ * either machine, one sitting by default, saving with a class code).
  */
 
 const type = (page: Page, keys: string[]) => keys.reduce((p, k) => typeKey(p, k).page, page);
@@ -124,6 +125,8 @@ describe('the room', () => {
     render(<TypingStation />);
     const tabs = screen.getByRole('tablist');
     fireEvent.keyDown(within(tabs).getByRole('tab', { name: 'Typewriter' }), { key: 'End' });
+    expect(within(tabs).getByRole('tab', { name: 'Class Board' })).toHaveFocus();
+    fireEvent.keyDown(within(tabs).getByRole('tab', { name: 'Class Board' }), { key: 'ArrowLeft' });
     expect(within(tabs).getByRole('tab', { name: 'Top row' })).toHaveFocus();
 
     const word = screen.getByRole('textbox', { name: 'Your word' });
@@ -149,5 +152,116 @@ describe('wiring', () => {
     expect(WRITING_REVOLUTION.projector.links.map((l) => l.href)).toEqual([href]);
     expect(getRoomByPath(href)?.id).toBe('wr-typing');
     expect(getLevelConfig(href).title).toBe('The Writing Revolution');
+  });
+});
+
+describe('the class board', () => {
+  type Call = { url: string; method: string; body?: string; headers: Record<string, string> };
+  let calls: Call[];
+  let available: boolean;
+
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/');
+    window.localStorage.clear();
+    calls = [];
+    available = false;
+    global.fetch = jest.fn(async (url: RequestInfo | URL, init?: RequestInit) => {
+      const call = { url: String(url), method: init?.method ?? 'GET', body: init?.body as string | undefined, headers: (init?.headers ?? {}) as Record<string, string> };
+      calls.push(call);
+      const json = (body: unknown, status = 200) => ({ ok: status < 400, status, json: async () => body }) as Response;
+      if (call.url === '/api/class-board' && call.method === 'GET') return json({ available });
+      if (call.url === '/api/class-board' && call.method === 'POST') {
+        const sent = JSON.parse(call.body!).messages as { text: string; machine: string }[];
+        return json({ code: 'K7M3QX9P', teacherKey: 'teacher-key-123456789', messages: sent.map((m, i) => ({ ...m, id: `s${i}`, at: 0 })), skipped: 0 }, 201);
+      }
+      if (call.url === '/api/class-board/K7M3QX9P/messages') return json({ message: { ...JSON.parse(call.body!), id: 'n1', at: 0 } }, 201);
+      if (call.url.startsWith('/api/class-board/K7M3QX9P/messages/')) return json({ deleted: true });
+      return json({ error: 'not-found' }, 404);
+    }) as jest.Mock;
+  });
+
+  const typeOn = (keys: string) => {
+    const field = screen.getByRole('textbox', { name: /type here/ });
+    for (const k of keys) fireEvent.keyDown(field, { key: k });
+  };
+
+  it('posts the typewriter’s sheet to the board as a typed card, and a fresh sheet goes in', () => {
+    render(<TypingStation />);
+    typeOn('Hello class');
+    fireEvent.click(screen.getByRole('button', { name: 'Post to the board' }));
+    expect(screen.getByRole('tab', { name: 'Class Board' })).toHaveAttribute('aria-selected', 'true');
+    const board = screen.getByRole('tabpanel', { name: 'Class Board' });
+    expect(within(board).getByText('Typed on the Typewriter.')).toBeInTheDocument();
+    expect(within(board).getByRole('listitem')).toHaveTextContent('Hello class');
+    expect(document.getElementById('wrt-page-text')).toHaveTextContent('The sheet is blank.');
+    expect(within(board).getByText('Posted to the board.')).toHaveAttribute('role', 'status');
+    // One sitting: nothing was sent anywhere but the check that saving is available.
+    expect(calls.filter((c) => c.method !== 'GET')).toEqual([]);
+  });
+
+  it('turns away a link, and says why where it was typed', () => {
+    render(<TypingStation />);
+    fireEvent.click(screen.getByRole('tab', { name: 'iMac' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Apple iMac G3: the page' }), { target: { value: 'see www.example.com' } });
+    fireEvent.click(within(screen.getByRole('tabpanel', { name: 'iMac' })).getByRole('button', { name: 'Post to the board' }));
+    expect(screen.getByRole('tab', { name: 'iMac' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getAllByText('No links on the board, please.').length).toBeGreaterThan(0);
+  });
+
+  it('asks before a refresh clears an unsaved board', () => {
+    render(<TypingStation />);
+    typeOn('Hi');
+    const before = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(before);
+    expect(before.defaultPrevented).toBe(false);
+    fireEvent.click(screen.getByRole('button', { name: 'Post to the board' }));
+    const after = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(after);
+    expect(after.defaultPrevented).toBe(true);
+  });
+
+  it('says saving is unavailable without the store, and the board still works', async () => {
+    render(<TypingStation />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Class Board' }));
+    expect(await screen.findByText(/Saving with a class code isn’t available here\./)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save with a class code' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Print the board' })).toBeDisabled();
+  });
+
+  it('saves with a class code, shows the teacher key once, and posts to the saved board', async () => {
+    available = true;
+    render(<TypingStation />);
+    typeOn('First');
+    fireEvent.click(screen.getByRole('button', { name: 'Post to the board' }));
+    const save = screen.getByRole('button', { name: 'Save with a class code' });
+    await waitFor(() => expect(save).toBeEnabled());
+    await act(async () => {
+      fireEvent.click(save);
+    });
+    expect(screen.getByRole('heading', { name: 'Saved: copy your teacher key' })).toBeInTheDocument();
+    expect(screen.getByText('teacher-key-123456789')).toBeInTheDocument();
+    expect(window.localStorage.getItem('mm-class-board-teacher:K7M3QX9P')).toBe('teacher-key-123456789');
+    expect(screen.getByLabelText('Class code K 7 M 3 Q X 9 P')).toHaveTextContent('K7M3-QX9P');
+    expect(screen.getByText(/deleted automatically 30 days after its last new message/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Done' }));
+    expect(screen.queryByText('teacher-key-123456789')).toBeNull();
+
+    fireEvent.click(screen.getByRole('tab', { name: 'Typewriter' }));
+    typeOn('Second');
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Post to the board' }));
+    });
+    const posted = calls.find((c) => c.url === '/api/class-board/K7M3QX9P/messages')!;
+    expect(JSON.parse(posted.body!)).toMatchObject({ text: 'Second', machine: 'typewriter' });
+    const board = screen.getByRole('tabpanel', { name: 'Class Board' });
+    expect(within(board).getAllByRole('listitem')).toHaveLength(2);
+
+    // The teacher key deletes a message.
+    await act(async () => {
+      fireEvent.click(within(board).getByRole('button', { name: 'Delete the message “Second”' }));
+    });
+    const del = calls.find((c) => c.method === 'DELETE')!;
+    expect(del.headers['x-teacher-key']).toBe('teacher-key-123456789');
+    expect(within(board).getAllByRole('listitem')).toHaveLength(1);
   });
 });
