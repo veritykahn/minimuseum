@@ -3,8 +3,9 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
+import FactNote from '@/components/exhibition/FactNote';
 import RoomShell from '../RoomShell';
-import { REGOLITH } from '../moon';
+import { MICROSCOPE_NOTES, REGOLITH } from '../moon';
 import Eyepiece, { type EyepieceHandle, type WipeReport } from './Eyepiece';
 import Knob from './Knob';
 import { EARTH_SAMPLES, type EarthSample } from './grains';
@@ -16,7 +17,10 @@ import './microscope.css';
  * three tabs (Moon dust, Earth's soil, the two side by side). Turn the knob
  * to bring the slide into focus, change the power, and wipe the slide with a
  * cloth to feel the difference the poster describes. Every claim on screen is
- * poster 1's, from moon.ts; the grains are drawn (grains.ts).
+ * poster 1's, from moon.ts, but two notes: what Moon dust is made of, and the
+ * meteorite in the case. Those are owner-approved and fact-checked, set apart
+ * with their sources (moon.ts, MICROSCOPE_NOTES). The grains are drawn
+ * (grains.ts).
  */
 
 const TABS = [
@@ -198,6 +202,7 @@ export default function MoonMicroscope() {
               {tab === 'compare' && <p>{REGOLITH.surface} {REGOLITH.differences}</p>}
               {wipedMoon && tab !== 'earth' && <p className="mo-ms-poster-more">{REGOLITH.gunpowder}</p>}
             </div>
+            {tab === 'moon' && <FactNote fact={MICROSCOPE_NOTES.dust} className="mo-ms-fact" />}
 
             <div className="mo-ms-controls">
               <div className="mo-ms-control mo-ms-focus">
@@ -235,7 +240,10 @@ export default function MoonMicroscope() {
             </div>
 
             <p className="mo-ms-status" role="status">{status}</p>
-            <Link href="/exhibitions/moon/artifacts/case" className="mo-ms-case">See the lunar meteorite in the display case</Link>
+            <div className="mo-ms-case-wrap">
+              <Link href="/exhibitions/moon/artifacts/case" className="mo-ms-case">See the lunar meteorite in the display case</Link>
+              <FactNote fact={MICROSCOPE_NOTES.adrar} className="mo-ms-fact" />
+            </div>
           </section>
         </div>
       </div>

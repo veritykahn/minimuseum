@@ -141,6 +141,11 @@
   padding-top: 14px;
   border-top: 1px solid rgba(255, 255, 255, 0.3);
 }
+/* A note on the toy's history (owner-approved, fact-checked, not the posters'
+   words): set small under the caption, its source linked. */
+.vto-fact { display: flex; flex-direction: column; gap: 3px; font-size: 0.82rem; line-height: 1.5; color: rgba(255, 255, 255, 0.92); }
+.vto-fact-source { font-size: 11px; letter-spacing: 0.04em; opacity: 0.85; }
+.vto-fact-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .vto-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .vto-picker { display: flex; gap: 8px; }
@@ -266,8 +271,8 @@
 
 /* ───────── A phone: the toy above, the card below ───────── */
 @media (max-width: 760px) {
-  .vto-stage { min-height: 0; --toy-h: 36dvh; }
-  .vto-stage[data-tab='zoetrope'] { --toy-h: 31dvh; }
+  .vto-stage { min-height: 0; --toy-h: 30dvh; }
+  .vto-stage[data-tab='zoetrope'] { --toy-h: 25dvh; }
   .vto-bar { padding: 62px 12px 0; gap: 8px; }
   .vto-title { font-size: 1.7rem; }
   .vb-room .vto-tab { font-size: 11px; padding: 9px 16px; }
@@ -287,8 +292,11 @@
     gap: 10px;
     padding: calc(var(--vb-edge) + 6px) 16px 76px;
   }
-  .vto-intro { font-size: 0.92rem; }
+  /* The toy shows what to do; the card keeps its room for the captions and notes. */
+  .vto-intro { display: none; }
   .vto-caption { font-size: 0.85rem; padding-top: 10px; }
+  .vto-fact { font-size: 0.72rem; line-height: 1.38; gap: 0; }
+  .vto-fact-source { font-size: 10px; }
   .vb-room .vto-button { min-height: 40px; padding: 8px 14px; font-size: 12px; }
   .vto-pick-art { width: 34px; height: 34px; }
   .vz-lens-canvas { width: 104px; }

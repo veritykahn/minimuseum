@@ -5,7 +5,8 @@ import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RoomShell from '../RoomShell';
 import Thaumatrope from './Thaumatrope';
 import Zoetrope from './Zoetrope';
-import { TOYS_TEXT, type DiscId, type StripId } from './toysText';
+import FactNote from '@/components/exhibition/FactNote';
+import { TOY_NOTES, TOYS_TEXT, type DiscId, type StripId } from './toysText';
 import './optical-toys.css';
 
 /*
@@ -13,6 +14,11 @@ import './optical-toys.css';
  * damask, the toy at its centre, and a card of green linen beside it with
  * the controls and a line from the posters. Two tabs: the thaumatrope and the
  * zoetrope, each with its own address (#thaumatrope, #zoetrope).
+ *
+ * Each toy's card adds a note on its history, and one note for both toys,
+ * set once (only the open toy's card is drawn): owner-approved and
+ * fact-checked, from outside the posters, each set with its source
+ * (toysText.ts).
  */
 
 const TABS = [
@@ -64,6 +70,9 @@ export default function VictorianOpticalToys() {
     choose(TABS[to].id, true);
   };
 
+  // The one note for both toys, under whichever toy is open.
+  const both = <FactNote fact={TOY_NOTES.both} className="vto-fact" />;
+
   return (
     <RoomShell className="vb-optical">
       <div className="vto-stage" data-tab={tab}>
@@ -99,11 +108,11 @@ export default function VictorianOpticalToys() {
         </header>
 
         <section className="vto-panel" id="vto-panel-thaumatrope" role="tabpanel" aria-labelledby="vto-tab-thaumatrope" hidden={tab !== 'thaumatrope'}>
-          {tab === 'thaumatrope' && <Thaumatrope reduced={reduced} disc={disc} onDisc={setDisc} intro={t.thaumaIntro} />}
+          {tab === 'thaumatrope' && <Thaumatrope reduced={reduced} disc={disc} onDisc={setDisc} intro={t.thaumaIntro} footer={both} />}
         </section>
 
         <section className="vto-panel" id="vto-panel-zoetrope" role="tabpanel" aria-labelledby="vto-tab-zoetrope" hidden={tab !== 'zoetrope'}>
-          {tab === 'zoetrope' && <Zoetrope reduced={reduced} strip={strip} onStrip={setStrip} intro={t.zoeIntro} />}
+          {tab === 'zoetrope' && <Zoetrope reduced={reduced} strip={strip} onStrip={setStrip} intro={t.zoeIntro} footer={both} />}
         </section>
       </div>
     </RoomShell>

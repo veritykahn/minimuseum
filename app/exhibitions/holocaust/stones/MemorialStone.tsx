@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
+import FactNote from '@/components/exhibition/FactNote';
+import { STONE_CUSTOM } from '../holocaust';
 import type { LayResult, useStones } from './useStones';
 
 /*
@@ -282,6 +284,8 @@ export function StoneControls({ count, status, laidToday, busy, lay, onLaid }: C
   return (
     <div className="hos-controls">
       <p className="hos-intro">Lay a stone, to remember.</p>
+      {/* The custom, owner-approved and fact-checked, with its source (holocaust.ts). */}
+      <FactNote fact={STONE_CUSTOM} className="hos-custom" />
       <p className="hos-count" data-status={status}>
         {countText}
       </p>

@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import type { Atmosphere, CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
 import { floorReturnFor } from '@/lib/floors';
 
@@ -124,6 +125,16 @@ const BLOCK_24A: PanelFigure = {
 export const NIEMOLLER = {
   text: '“First they came for the socialists, and I did not speak out—because I was not a socialist. Then they came for the trade unionists, and I did not speak out—because I was not a trade unionist. Then they came for the Jews, and I did not speak out—because I was not a Jew. Then they came for me—and there was no one left to speak for me.”',
   cite: '— Martin Niemöller',
+};
+
+/*
+ * Lay a Stone's one note on the custom, beside "Lay a stone, to remember.":
+ * not poster copy, but owner-approved and fact-checked, and set with its
+ * source (My Jewish Learning).
+ */
+export const STONE_CUSTOM: ApprovedFact = {
+  text: 'Many Jewish visitors place a small stone on a grave or memorial to show that someone has come and that the person is remembered. A stone lasts where flowers fade.',
+  sources: [{ label: 'My Jewish Learning', href: 'https://www.myjewishlearning.com/article/ask-the-expert-stones-on-graves/' }],
 };
 
 /*

@@ -319,12 +319,37 @@
 .aps-close { font-weight: 700; font-size: 1.05rem; line-height: 1.5; }
 .aps-actions-step { margin-top: auto; }
 
+/* A note from outside the posters (owner-approved, fact-checked): a plain
+   caption in the card's small sans, not a quote, its source linked beneath. */
+.aps-fact { display: flex; flex-direction: column; gap: 4px; font-family: var(--pe-ui); font-weight: 400; font-size: 13.5px; line-height: 1.5; color: #4a453f; }
+.aps-fact-source { font-weight: 300; font-size: 12px; color: #5e5850; }
+.aps-fact-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.ap-room .aps-fact-source a:focus-visible { outline: 2px solid var(--frame); outline-offset: 2px; }
+.aps-fact-flag { margin-top: auto; }
+
+/* ───────── The flag, from 13 stars to 50 ───────── */
+.aps-stage[data-tab='flag'] .aps-sheet { height: auto; width: min(100cqw, 100cqh * 1.9); aspect-ratio: 1.9; transform: rotate(-0.8deg); }
+.aps-flag { display: block; width: 100%; height: 100%; cursor: pointer; touch-action: manipulation; }
+.ap-room .aps-flag:focus-visible { outline: 3px solid #e8c77d; outline-offset: 8px; }
+.aps-flag-art { display: block; width: 100%; height: 100%; box-shadow: 0 26px 50px rgba(0, 0, 0, 0.55), 0 6px 14px rgba(0, 0, 0, 0.35); }
+.aps-flag-star-new { animation: aps-star 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+@keyframes aps-star { from { transform: scale(0.1) rotate(-60deg); opacity: 0; } }
+.aps-flag-count { font-family: var(--pe-ui); font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #5e5850; }
+.aps-flag-n { font-family: var(--ap-script); font-size: 3rem; letter-spacing: 0; text-transform: none; color: var(--frame); line-height: 0.8; margin-right: 4px; vertical-align: -0.12em; font-variant-numeric: tabular-nums; }
+.aps-milestones { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.aps-milestone { display: grid; grid-template-columns: 3.4em 1fr; gap: 10px; align-items: baseline; font-size: 0.92rem; line-height: 1.45; color: #5e5850; animation: aps-panel-in 0.5s ease both; }
+.aps-milestone[aria-current='step'] { color: #2a2724; }
+.aps-milestone-year { font-family: var(--pe-ui); font-weight: 500; font-size: 13px; letter-spacing: 0.08em; color: var(--frame); }
+
 .aps-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 /* ───────── A phone: the sheet above, the card below ───────── */
 @media (max-width: 760px) {
   .aps-stage { min-height: 0; --sheet-h: 38dvh; }
   .aps-stage[data-tab='copies'] { --sheet-h: 44dvh; }
+  .aps-stage[data-tab='flag'] { --sheet-h: 25dvh; }
+  /* A copy with a note gives the sheet a little less room, so the card still fits. */
+  .aps-stage[data-tab='copies'][data-note] { --sheet-h: 35dvh; }
   .aps-bar { padding: calc(var(--ap-fw) + 44px) 12px 0; gap: 2px; }
   .aps-title { font-size: 2.4rem; }
   .ap-room .aps-tab { font-size: 11px; letter-spacing: 0.14em; padding: 9px 18px; }
@@ -361,11 +386,18 @@
   .aps-step-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .aps-step-n { width: 36px; height: 36px; font-size: 14px; }
   .aps-step-heading { font-size: 2rem; }
+  .aps-fact { font-size: 12px; line-height: 1.4; gap: 2px; }
+  .aps-fact-source { font-size: 11px; }
+  .aps-flag-n { font-size: 2.4rem; }
+  .aps-milestone { font-size: 0.84rem; line-height: 1.4; }
+  /* On a phone, only the latest milestone passed. */
+  .aps-milestone:not([aria-current='step']) { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .aps-glow, .aps-flame, .aps-panel, .aps-inkwell[data-low] .aps-inkwell-label, .aps-inkwell[data-dipping] .aps-quill { animation: none; }
   .ap-sheet-ink path { animation: none; stroke-dashoffset: 0; }
   .ap-sheet-ink text, .ap-typeset rect, .ap-sheet-sig { animation: none; }
+  .aps-flag-star-new, .aps-milestone { animation: none; }
   .aps-sheet, .aps-stage::after { transition: none; }
 }

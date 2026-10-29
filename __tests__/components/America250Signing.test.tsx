@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import America250Signing from '@/app/exhibitions/america-250/sign/page';
-import { COPY_STAGES, SIGN_TEXT } from '@/app/exhibitions/america-250/sign/signText';
+import { COPY_NOTES, COPY_STAGES, FLAG_MILESTONES, FLAG_TEXT, SIGN_TEXT } from '@/app/exhibitions/america-250/sign/signText';
+import { FLAG, starLayout, stripesFor, unionHeight } from '@/app/exhibitions/america-250/sign/flagLayout';
 import { inkAfter, inkAlpha, INK_PER_DIP, nibQuad, scribbleLine, thin, tracePath } from '@/app/exhibitions/america-250/sign/signing';
 import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
@@ -9,7 +10,10 @@ import sitemap from '@/app/sitemap';
 
 /*
  * America 250's signing room: every line about 1776 is the posters' own, the
- * quill's ink and nib, signing (typed, for the keyboard), and the copies.
+ * quill's ink and nib, signing (typed, for the keyboard), the copies, and the
+ * flag. Carved out of "the posters' own": where the Rough Draft and the
+ * Engrossed Copy are held (COPY_NOTES) and the flag's milestones
+ * (FLAG_MILESTONES), owner-approved and fact-checked, each set with its source.
  */
 
 /** The posters' words, as read: "*…*" marks italics; quotes and cites both. */
@@ -26,7 +30,9 @@ beforeAll(() => {
 });
 
 describe('the words', () => {
-  it('quotes the posters word for word, and adds no facts of its own', () => {
+  it('quotes the posters word for word, and adds no facts but the approved notes', () => {
+    // The approved notes are not quotes, and are not in the quoted list below.
+    for (const n of Object.values(COPY_NOTES)) expect(posterText).not.toContain(n.text);
     const quoted = [SIGN_TEXT.carroll.text, SIGN_TEXT.epigraph.text, SIGN_TEXT.epigraph.cite, ...SIGN_TEXT.signed, SIGN_TEXT.copiesIntro, SIGN_TEXT.copiesClose, ...COPY_STAGES.map((s) => s.quote)];
     for (const q of quoted) expect(posterText).toContain(q);
   });
@@ -71,7 +77,7 @@ describe('the quill', () => {
 describe('the room', () => {
   beforeEach(() => window.history.replaceState(null, '', '/exhibitions/america-250/sign'));
 
-  it('has two tabs, and the keyboard moves between them', () => {
+  it('has three tabs, and the keyboard moves between them', () => {
     render(<America250Signing />);
     const sign = screen.getByRole('tab', { name: /Sign your name/ });
     const copies = screen.getByRole('tab', { name: /A copy of a copy/ });
@@ -80,6 +86,25 @@ describe('the room', () => {
     expect(copies).toHaveAttribute('aria-selected', 'true');
     expect(copies).toHaveFocus();
     expect(window.location.hash).toBe('#copies');
+    fireEvent.keyDown(copies, { key: 'ArrowRight' });
+    expect(screen.getByRole('tab', { name: /The flag/ })).toHaveAttribute('aria-selected', 'true');
+    expect(window.location.hash).toBe('#flag');
+  });
+
+  it('notes where the Rough Draft and the Engrossed Copy are held, each with its source', () => {
+    render(<America250Signing />);
+    fireEvent.click(screen.getByRole('tab', { name: /A copy of a copy/ }));
+    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
+    expect(within(panel).getByText(COPY_NOTES.rough.text)).toBeInTheDocument();
+    expect(within(panel).getByRole('link', { name: 'Library of Congress' })).toHaveAttribute(
+      'href',
+      'https://www.loc.gov/exhibits/creating-the-united-states/interactives/declaration-of-independence/equal/index.html',
+    );
+    fireEvent.click(within(panel).getByRole('button', { name: /Engrossed Copy/ }));
+    expect(within(panel).getByText(COPY_NOTES.engrossed.text)).toBeInTheDocument();
+    expect(within(panel).getByRole('link', { name: 'National Archives' })).toHaveAttribute('href', 'https://www.archives.gov/milestone-documents/declaration-of-independence');
+    fireEvent.click(within(panel).getByRole('button', { name: /July 4 Fair Copy/ }));
+    expect(within(panel).queryByRole('link')).toBeNull();
   });
 
   it('signs by keyboard: type a name and an address, put your name to it, and the posters answer', () => {
@@ -128,6 +153,70 @@ describe('the room', () => {
     // Any copy can be chosen directly
     fireEvent.click(within(panel).getByRole('button', { name: /Rough Draft/ }));
     expect(within(panel).getByText(COPY_STAGES[0].quote)).toBeInTheDocument();
+  });
+});
+
+describe('the flag', () => {
+  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/america-250/sign#flag'));
+
+  it('draws 13 to 50 stars, 15 stripes only from 1795 to 1818, and the 50 as Executive Order 10834 sets them', () => {
+    expect(stripesFor(13)).toBe(13);
+    expect(stripesFor(15)).toBe(15);
+    expect(stripesFor(19)).toBe(15);
+    expect(stripesFor(20)).toBe(13);
+    for (let n = 13; n <= 50; n++) {
+      const stars = starLayout(n);
+      expect(stars).toHaveLength(n);
+      const uh = unionHeight(stripesFor(n));
+      for (const s of stars) {
+        expect(s.x - s.r).toBeGreaterThanOrEqual(0);
+        expect(s.x + s.r).toBeLessThanOrEqual(FLAG.unionW);
+        expect(s.y - s.r).toBeGreaterThanOrEqual(0);
+        expect(s.y + s.r).toBeLessThanOrEqual(uh);
+      }
+    }
+    expect(new Set(starLayout(50).map((s) => s.y)).size).toBe(9);
+    expect(FLAG_MILESTONES.map((m) => [m.year, m.stars])).toEqual([[1777, 13], [1795, 15], [1818, 20], [1960, 50]]);
+  });
+
+  it('opens at #flag; a tap, the button and the arrow keys add stars, and the milestones appear as they pass', () => {
+    render(<America250Signing />);
+    expect(screen.getByRole('tab', { name: /The flag/ })).toHaveAttribute('aria-selected', 'true');
+    const panel = screen.getByRole('tabpanel', { name: /The flag/ });
+    const flag = screen.getByRole('slider', { name: /stars/ });
+    expect(flag).toHaveAttribute('aria-valuenow', '13');
+    expect(within(panel).getByText(FLAG_MILESTONES[0].text)).toBeInTheDocument();
+    expect(within(panel).queryByText(FLAG_MILESTONES[1].text)).toBeNull();
+
+    fireEvent.click(flag);
+    fireEvent.click(within(panel).getByRole('button', { name: 'Add a star' }));
+    expect(flag).toHaveAttribute('aria-valuenow', '15');
+    expect(flag).toHaveAttribute('aria-valuetext', '15 stars and 15 stripes');
+    expect(within(panel).getByText(FLAG_MILESTONES[1].text)).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(`1795: ${FLAG_MILESTONES[1].text}`);
+
+    for (let i = 0; i < 5; i++) fireEvent.keyDown(flag, { key: 'ArrowRight' });
+    expect(flag).toHaveAttribute('aria-valuenow', '20');
+    expect(within(panel).getByText(FLAG_MILESTONES[2].text)).toBeInTheDocument();
+    fireEvent.keyDown(flag, { key: 'End' });
+    expect(flag).toHaveAttribute('aria-valuenow', '50');
+    expect(within(panel).getByText(FLAG_MILESTONES[3].text)).toBeInTheDocument();
+    expect(within(panel).getByRole('button', { name: 'Add a star' })).toBeDisabled();
+    fireEvent.keyDown(flag, { key: 'ArrowDown' });
+    expect(flag).toHaveAttribute('aria-valuenow', '49');
+    expect(within(panel).queryByText(FLAG_MILESTONES[3].text)).toBeNull();
+    fireEvent.click(within(panel).getByRole('button', { name: 'Back to 13' }));
+    expect(flag).toHaveAttribute('aria-valuenow', '13');
+  });
+
+  it('sets its sources, linked', () => {
+    render(<America250Signing />);
+    const panel = screen.getByRole('tabpanel', { name: /The flag/ });
+    for (const s of FLAG_TEXT.sources) expect(within(panel).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+    expect(FLAG_TEXT.sources.map((s) => s.href)).toEqual([
+      'https://www.archives.gov/federal-register/codification/executive-order/10834.html',
+      'https://postalmuseum.si.edu/exhibition/long-may-it-wave/the-evolution-of-the-american-flag',
+    ]);
   });
 });
 

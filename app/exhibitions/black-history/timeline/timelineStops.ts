@@ -1,3 +1,4 @@
+import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import { BLACK_HISTORY } from '../blackHistory';
 
 /*
@@ -12,6 +13,12 @@ import { BLACK_HISTORY } from '../blackHistory';
  * The installation's timeline (1967–2020) is not reproduced: only what the
  * poster says. No dolls or packaging are drawn; each stop is typographic,
  * set on the posters' grounds with poster 1's illustrated vignettes.
+ *
+ * Three stops are additions, not the poster's: Dolls of the World (about
+ * 1990 and 1996), Shani (1991) and Inspiring Women (2022–2023). Their words
+ * are owner-approved and fact-checked, each with its source (Virtual Black
+ * Doll Museum; Mattel, NBC News and CNN), and they carry no poster sentences:
+ * each is set as a plain museum note with its source, never as a quote.
  */
 
 const POSTER = BLACK_HISTORY.posters.find((p) => p.id === 'poster2')!;
@@ -46,8 +53,38 @@ export type TimelineStop = {
   mark: string[];
   /** A swing tag of the poster's own words, where one is due. */
   tag?: string;
+  /** The year as set, where it is not a plain year ("c. 1990", "2022–23"). */
+  yearLabel?: string;
+  /** The year on the stops line, where the label is too long for it. */
+  stopLabel?: string;
+  /** An addition from outside the poster: an approved note and its source. */
+  note?: ApprovedFact;
   theme: StopTheme;
 };
+
+/*
+ * The additions: owner-approved and fact-checked, each with its source.
+ * Not the poster's words, so they are set as notes, not quotes.
+ */
+const VBDM = 'Virtual Black Doll Museum';
+export const ADDED_NOTES = {
+  dollsOfTheWorld: {
+    text: "Barbie's Dolls of the World series included a Nigerian Barbie (about 1990) and a Ghanaian Barbie (1996). Boxed editions of both are in our display case.",
+    sources: [{ label: `${VBDM}, “Barbie Dolls of the World”`, href: 'https://virtualblackdollmuseum.com/2024/03/15/barbie-dolls-of-the-world/' }],
+  },
+  shani: {
+    text: "Shani, designed by Kitty Black Perkins, was Mattel's first line of Black fashion dolls launched separately from the Barbie line.",
+    sources: [{ label: `${VBDM}, “Shani and Her Friends”`, href: 'https://virtualblackdollmuseum.com/2021/03/18/shani-and-her-friends/' }],
+  },
+  inspiringWomen: {
+    text: "Barbie's Inspiring Women series honored Ida B. Wells (2022), Madam C. J. Walker (2022) and Bessie Coleman (2023). All three dolls are in our display case.",
+    sources: [
+      { label: 'Mattel', href: 'https://creations.mattel.com/collections/barbie-signature/products/barbie-inspiring-women-ida-b-wells-hcb81' },
+      { label: 'NBC News', href: 'https://www.nbcnews.com/news/nbcblk/barbie-honors-first-female-self-made-millionaire-madam-cj-walker-new-d-rcna45322' },
+      { label: 'CNN', href: 'https://edition.cnn.com/style/article/bessie-coleman-barbie-doll-cec' },
+    ],
+  },
+} satisfies Record<string, ApprovedFact>;
 
 const EARLIER = posterSentence('While Mattel had previously created two Black dolls');
 const CHRISTIE_FRANCIE = posterSentence('Christie was presented');
@@ -83,6 +120,28 @@ export const TIMELINE_STOPS: TimelineStop[] = [
     tag: 'Designed by Kitty Black Perkins',
     theme: 'blob',
   },
+  // Added (owner-approved, fact-checked): Virtual Black Doll Museum.
+  {
+    id: '1990',
+    year: 1990,
+    yearLabel: 'c. 1990',
+    stopLabel: '1990',
+    name: 'Dolls of the World',
+    sentences: [],
+    mark: [],
+    note: ADDED_NOTES.dollsOfTheWorld,
+    theme: 'pink-red',
+  },
+  // Added (owner-approved, fact-checked): Virtual Black Doll Museum.
+  {
+    id: '1991',
+    year: 1991,
+    name: 'Shani',
+    sentences: [],
+    mark: [],
+    note: ADDED_NOTES.shani,
+    theme: 'lime-dark',
+  },
   {
     id: '2008',
     year: 2008,
@@ -99,6 +158,18 @@ export const TIMELINE_STOPS: TimelineStop[] = [
     mark: ['the "So In Style" line (2009)'],
     theme: 'pink-red',
   },
+  // Added (owner-approved, fact-checked): Mattel, NBC News and CNN.
+  {
+    id: '2022',
+    year: 2022,
+    yearLabel: '2022–23',
+    stopLabel: '2022',
+    name: 'Inspiring Women',
+    sentences: [],
+    mark: [],
+    note: ADDED_NOTES.inspiringWomen,
+    theme: 'blob',
+  },
   {
     id: 'today',
     year: null,
@@ -112,6 +183,8 @@ export const TIMELINE_STOPS: TimelineStop[] = [
 export const TIMELINE_TEXT = {
   title: 'The Black Barbie Timeline',
   source: 'In the words of the poster',
+  /** At an added stop, which carries a museum note rather than the poster's words. */
+  noteSource: 'A museum note, not the poster’s words',
   poster: POSTER.title,
   today: 'Today',
 };

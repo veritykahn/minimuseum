@@ -1,20 +1,41 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import BlackBarbieTimeline from '@/app/exhibitions/black-history/timeline/page';
-import { POSTER_SENTENCES, TIMELINE_STOPS, markRuns, stopFromHash } from '@/app/exhibitions/black-history/timeline/timelineStops';
+import { ADDED_NOTES, POSTER_SENTENCES, TIMELINE_STOPS, markRuns, stopFromHash } from '@/app/exhibitions/black-history/timeline/timelineStops';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
 /*
  * The Black Barbie timeline: every word from the poster, the stops in order,
- * and moving along them by click and by key.
+ * and moving along them by click and by key. Three stops are carved out of
+ * "the poster's words": Dolls of the World, Shani and Inspiring Women are
+ * owner-approved, fact-checked additions, set as notes with their sources,
+ * and carry no poster sentences.
  */
 
 const posterCopy = BLACK_HISTORY.posters[1].items.map((i) => (i as { text?: string }).text ?? '').join(' ');
 
 describe('the stops', () => {
-  it('are the poster’s years, in order, ending today', () => {
-    expect(TIMELINE_STOPS.map((s) => s.year)).toEqual([1967, 1968, 1980, 2008, 2009, null]);
+  it('are the poster’s years and the approved additions, in order, ending today', () => {
+    expect(TIMELINE_STOPS.map((s) => s.year)).toEqual([1967, 1968, 1980, 1990, 1991, 2008, 2009, 2022, null]);
+    expect(TIMELINE_STOPS.map((s) => s.yearLabel ?? s.year)).toEqual([1967, 1968, 1980, 'c. 1990', 1991, 2008, 2009, '2022–23', null]);
+    expect(new Set(TIMELINE_STOPS.map((s) => s.id)).size).toBe(TIMELINE_STOPS.length);
+  });
+
+  it('sets the three approved additions as notes with their sources, not as poster quotes', () => {
+    // The carve-out: these stops' words are owner-approved additions, not poster 2's.
+    const added = TIMELINE_STOPS.filter((s) => s.note);
+    expect(added.map((s) => s.id)).toEqual(['1990', '1991', '2022']);
+    expect(added.map((s) => s.note)).toEqual([ADDED_NOTES.dollsOfTheWorld, ADDED_NOTES.shani, ADDED_NOTES.inspiringWomen]);
+    for (const s of added) {
+      expect(s.sentences).toEqual([]);
+      expect(s.mark).toEqual([]);
+      expect(s.tag).toBeUndefined();
+      expect(posterCopy).not.toContain(s.note!.text);
+      expect(s.note!.sources.length).toBeGreaterThan(0);
+      for (const src of s.note!.sources) expect(src.href).toMatch(/^https:\/\//);
+    }
+    expect(ADDED_NOTES.inspiringWomen.sources.map((x) => x.label)).toEqual(['Mattel', 'NBC News', 'CNN']);
   });
 
   it('quote only whole sentences from poster 2, and mark only words in them', () => {
@@ -44,7 +65,8 @@ describe('the stops', () => {
 
   it('opens at a stop named in the address', () => {
     expect(stopFromHash('#1980')).toBe(2);
-    expect(stopFromHash('#today')).toBe(5);
+    expect(stopFromHash('#today')).toBe(8);
+    expect(stopFromHash('#1991')).toBe(4);
     expect(stopFromHash('#1999')).toBe(-1);
   });
 });
@@ -63,6 +85,11 @@ describe('the room', () => {
 
     const stop1980 = screen.getByRole('button', { name: '1980, The first Black Barbie' });
     fireEvent.keyDown(stop1980, { key: 'ArrowRight' });
+    const stop1990 = screen.getByRole('button', { name: 'c. 1990, Dolls of the World' });
+    expect(stop1990).toHaveAttribute('aria-current', 'step');
+    expect(window.location.hash).toBe('#1990');
+    fireEvent.keyDown(stop1990, { key: 'ArrowRight' });
+    fireEvent.keyDown(screen.getByRole('button', { name: '1991, Shani' }), { key: 'ArrowRight' });
     const stop2008 = screen.getByRole('button', { name: '2008, AKA Centennial Barbie' });
     expect(stop2008).toHaveAttribute('aria-current', 'step');
     expect(stop2008).toHaveFocus();
@@ -71,6 +98,38 @@ describe('the room', () => {
     fireEvent.keyDown(stop2008, { key: 'End' });
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Today');
     expect(screen.getByRole('button', { name: 'Later' })).toBeDisabled();
+  });
+});
+
+describe('the added stops', () => {
+  it('each show their note and its source link, with no poster quote', () => {
+    render(<BlackBarbieTimeline />);
+    const cases: [string, string, string[]][] = [
+      ['c. 1990, Dolls of the World', ADDED_NOTES.dollsOfTheWorld.text, ['https://virtualblackdollmuseum.com/2024/03/15/barbie-dolls-of-the-world/']],
+      ['1991, Shani', ADDED_NOTES.shani.text, ['https://virtualblackdollmuseum.com/2021/03/18/shani-and-her-friends/']],
+      [
+        '2022–23, Inspiring Women',
+        ADDED_NOTES.inspiringWomen.text,
+        [
+          'https://creations.mattel.com/collections/barbie-signature/products/barbie-inspiring-women-ida-b-wells-hcb81',
+          'https://www.nbcnews.com/news/nbcblk/barbie-honors-first-female-self-made-millionaire-madam-cj-walker-new-d-rcna45322',
+          'https://edition.cnn.com/style/article/bessie-coleman-barbie-doll-cec',
+        ],
+      ],
+    ];
+    for (const [name, text, hrefs] of cases) {
+      fireEvent.click(screen.getByRole('button', { name }));
+      const words = screen.getByRole('region', { name: name.replace(', ', ': ') });
+      expect(words).toHaveTextContent(text);
+      expect(words.querySelector('.bht-sentence')).toBeNull();
+      expect(words.querySelector('mark')).toBeNull();
+      const links = Array.from(words.querySelectorAll('a')).map((a) => a.getAttribute('href'));
+      expect(links).toEqual(hrefs);
+      expect(screen.getByText(/A museum note/)).toBeInTheDocument();
+    }
+    // Back on a poster stop, the source line is the poster's again.
+    fireEvent.click(screen.getByRole('button', { name: '2008, AKA Centennial Barbie' }));
+    expect(screen.getByText(/In the words of the poster/)).toBeInTheDocument();
   });
 });
 

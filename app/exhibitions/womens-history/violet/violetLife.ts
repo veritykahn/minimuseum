@@ -1,3 +1,4 @@
+import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import { BIO, BIO_LEAD, PHOTO_FAMILY, PHOTO_FOUR_WOMEN, PHOTO_PROMENADE, PHOTO_VIOLET } from '../womensHistory';
 import type { KeepsakeId } from './Keepsake';
 
@@ -9,7 +10,16 @@ import type { KeepsakeId } from './Keepsake';
  * The photographs are the four from poster 2, each beside the paragraphs
  * the poster sets it with. The letters themselves are not transcribed
  * anywhere, so none of their words appear.
+ *
+ * One stop adds a museum note: at the Blitz, when the first V-1 fell on
+ * London. It is not the poster's, but owner-approved and fact-checked, set
+ * apart from her story with its source (Imperial War Museums).
  */
+
+export const BLITZ_NOTE: ApprovedFact = {
+  text: 'The first V-1 to hit London fell on June 13, 1944.',
+  sources: [{ label: 'Imperial War Museums', href: 'https://memorials.iwm.org.uk/memorial/96212' }],
+};
 
 export type LifeStop = {
   /** The stop's address (#fulham). */
@@ -23,6 +33,8 @@ export type LifeStop = {
   lead?: string;
   paragraphs: readonly string[];
   photo?: { src: string; alt: string };
+  /** A museum note from outside the poster, with its source. */
+  note?: ApprovedFact;
 };
 
 export const LIFE: readonly LifeStop[] = [
@@ -35,7 +47,7 @@ export const LIFE: readonly LifeStop[] = [
   { id: 'marriage', label: 'Marriage', when: '1928', keepsake: 'rings', paragraphs: [BIO.faith, BIO.harold], photo: PHOTO_PROMENADE },
   { id: 'family', label: 'Family', when: '1929', keepsake: 'coat', paragraphs: [BIO.family, BIO.seamstress], photo: PHOTO_FAMILY },
   { id: 'piano', label: 'The piano', keepsake: 'piano', paragraphs: [BIO.music] },
-  { id: 'blitz', label: 'The Blitz', keepsake: 'window', paragraphs: [BIO.blitz, BIO.blast] },
+  { id: 'blitz', label: 'The Blitz', keepsake: 'window', paragraphs: [BIO.blitz, BIO.blast], note: BLITZ_NOTE },
   { id: 'essex', label: 'Essex', keepsake: 'rose', paragraphs: [BIO.essex] },
   { id: 'greengrocer', label: 'The greengrocer', keepsake: 'cauliflower', paragraphs: [BIO.greengrocer] },
   { id: 'later', label: 'Later years', when: '1956', keepsake: 'radio', paragraphs: [BIO.later], photo: PHOTO_FOUR_WOMEN },

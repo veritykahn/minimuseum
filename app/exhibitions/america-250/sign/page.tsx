@@ -1,10 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import FactNote, { FactSources } from '@/components/exhibition/FactNote';
 import RoomShell from '../RoomShell';
+import Flag from './Flag';
+import { milestonesAt } from './flagLayout';
 import Sheet from './Sheet';
 import SignaturePad from './SignaturePad';
-import { COPY_STAGES, SIGN_TEXT } from './signText';
+import { COPY_STAGES, FLAG_MAX, FLAG_MILESTONES, FLAG_MIN, FLAG_TEXT, SIGN_TEXT } from './signText';
 import type { Stroke } from './signing';
 import './sign.css';
 
@@ -13,13 +16,19 @@ import './sign.css';
  * Congress's tables, by candlelight, with two tabs over it. Sign your name
  * with a quill (and add your address, as Carroll did); then follow the sheet
  * from copy to copy, from the Rough Draft to the printed transcription, and
- * see your signature copied with it. Each tab has its own address (#sign,
- * #copies). Nothing signed is stored or sent.
+ * see your signature copied with it; and add the flag's stars, from 13 to 50.
+ * Each tab has its own address (#sign, #copies, #flag). Nothing signed is
+ * stored or sent.
+ *
+ * The flag's milestones, and where the Rough Draft and the Engrossed Copy
+ * are held, are owner-approved, fact-checked notes from outside the posters,
+ * each set with its source (signText.ts).
  */
 
 const TABS = [
   { id: 'sign', label: SIGN_TEXT.signHeading, short: SIGN_TEXT.signShort },
   { id: 'copies', label: SIGN_TEXT.copiesHeading, short: SIGN_TEXT.copiesShort },
+  { id: 'flag', label: SIGN_TEXT.flagHeading, short: SIGN_TEXT.flagShort },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
@@ -31,7 +40,7 @@ function tabFromHash(hash: string): TabId | null {
 export default function America250Signing() {
   const t = SIGN_TEXT;
   const [tab, setTab] = useState<TabId>('sign');
-  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ sign: null, copies: null });
+  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ sign: null, copies: null, flag: null });
 
   // The signature: drawn with the quill, or typed.
   const [mode, setMode] = useState<'draw' | 'type'>('draw');
@@ -46,6 +55,10 @@ export default function America250Signing() {
   // The copies.
   const [stage, setStage] = useState(0);
   const [printedName, setPrintedName] = useState('');
+
+  // The flag.
+  const [stars, setStars] = useState(FLAG_MIN);
+  const [grew, setGrew] = useState(false);
 
   useEffect(() => {
     const fromHash = () => {
@@ -106,13 +119,23 @@ export default function America250Signing() {
     setStatus(`${to + 1} of ${COPY_STAGES.length}: ${COPY_STAGES[to].name}`);
   };
 
+  const setFlagStars = (n: number) => {
+    const to = Math.max(FLAG_MIN, Math.min(FLAG_MAX, n));
+    if (to === stars) return;
+    setGrew(to > stars);
+    setStars(to);
+    const reached = to > stars ? FLAG_MILESTONES.filter((m) => m.stars > stars && m.stars <= to).pop() : undefined;
+    setStatus(`${to} stars.${reached ? ` ${reached.year}: ${reached.text}` : ''}`);
+  };
+  const passed = milestonesAt(stars);
+
   const current = COPY_STAGES[stage];
   const sheetStage = tab === 'sign' ? 'engrossed' : current.id;
   const live = tab === 'sign' && !sealed;
 
   return (
     <RoomShell className="ap-signing">
-      <div className="aps-stage" data-tab={tab} data-sealed={sealed || undefined}>
+      <div className="aps-stage" data-tab={tab} data-sealed={sealed || undefined} data-note={(tab === 'copies' && !!current.note) || undefined}>
         <Desk />
 
         <header className="aps-bar">
@@ -143,7 +166,11 @@ export default function America250Signing() {
 
         <div className="aps-sheet-wrap">
           <div className="aps-sheet">
-            <Sheet stage={sheetStage} strokes={signature} typed={typedName} address={address} printedName={printedName} live={live} />
+            {tab === 'flag' ? (
+              <Flag stars={stars} grew={grew} onStars={setFlagStars} />
+            ) : (
+              <Sheet stage={sheetStage} strokes={signature} typed={typedName} address={address} printedName={printedName} live={live} />
+            )}
             {live && mode === 'draw' && (
               <div className="aps-pad-box">
                 <SignaturePad
@@ -236,6 +263,7 @@ export default function America250Signing() {
           <figure className="aps-quote" key={current.id}>
             <blockquote>{current.quote}</blockquote>
           </figure>
+          {current.note && <FactNote fact={current.note} className="aps-fact" />}
           {current.id === 'transcription' && (
             <>
               <label className="aps-field">
@@ -258,6 +286,35 @@ export default function America250Signing() {
               The next copy <span aria-hidden="true">→</span>
             </button>
           </div>
+        </section>
+
+        <section className="aps-panel aps-panel-flag" id="aps-panel-flag" role="tabpanel" aria-labelledby="aps-tab-flag" hidden={tab !== 'flag'}>
+          <p className="aps-intro">{FLAG_TEXT.intro}</p>
+          <p className="aps-flag-count" aria-hidden="true">
+            <span className="aps-flag-n">{stars}</span> stars
+          </p>
+          <div className="aps-actions">
+            <button type="button" className="aps-button aps-button-primary" onClick={() => setFlagStars(stars + 1)} disabled={stars === FLAG_MAX}>
+              Add a star
+            </button>
+            <button type="button" className="aps-button" onClick={() => setFlagStars(stars - 1)} disabled={stars === FLAG_MIN}>
+              Take one away
+            </button>
+            <button type="button" className="aps-button aps-button-quiet" onClick={() => setFlagStars(FLAG_MIN)} disabled={stars === FLAG_MIN}>
+              Back to 13
+            </button>
+          </div>
+          <ol className="aps-milestones" aria-label="Milestones">
+            {passed.map((m, i) => (
+              <li key={m.year} className="aps-milestone" aria-current={i === passed.length - 1 ? 'step' : undefined}>
+                <span className="aps-milestone-year">{m.year}</span>
+                <span className="aps-milestone-text">{m.text}</span>
+              </li>
+            ))}
+          </ol>
+          <p className="aps-fact aps-fact-flag">
+            <FactSources sources={FLAG_TEXT.sources} className="aps-fact-source" />
+          </p>
         </section>
 
         <p className="aps-status" role="status" aria-live="polite">{status}</p>

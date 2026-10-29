@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { drawFrame } from './strips';
-import { STRIPS, type StripId } from './toysText';
+import FactNote from '@/components/exhibition/FactNote';
+import { STRIPS, TOY_NOTES, type StripId } from './toysText';
 import { approach, frameAt, slitStrength, TAU, ZOE_FRAMES, ZOE_STROBE, ZOE_TOP } from './spin';
 
 /*
@@ -26,7 +27,7 @@ const pictureAt = (slot: number) => (((BACK - slot) % N) + N) % N;
 const SPIN_UP = 0.9;
 const SPIN_DOWN = 0.45;
 
-export default function Zoetrope({ reduced, strip, onStrip, intro }: { reduced: boolean; strip: StripId; onStrip: (s: StripId) => void; intro: string }) {
+export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { reduced: boolean; strip: StripId; onStrip: (s: StripId) => void; intro: string; footer?: ReactNode }) {
   const s = STRIPS.find((x) => x.id === strip)!;
   const [spinning, setSpinning] = useState(false);
   const [top, setTop] = useState(70);
@@ -259,6 +260,8 @@ export default function Zoetrope({ reduced, strip, onStrip, intro }: { reduced: 
           </label>
         )}
         <p className="vto-caption">{s.caption}</p>
+        <FactNote fact={TOY_NOTES.zoetrope} className="vto-fact" />
+        {footer}
       </div>
       <p className="vto-status" role="status" aria-live="polite">{status}</p>
     </div>

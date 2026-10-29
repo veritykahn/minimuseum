@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import VioletsLife from '@/app/exhibitions/womens-history/violet/page';
-import { LIFE, threadLayout, threadPath } from '@/app/exhibitions/womens-history/violet/violetLife';
+import { BLITZ_NOTE, LIFE, threadLayout, threadPath } from '@/app/exhibitions/womens-history/violet/violetLife';
 import { BIO, WOMENS_HISTORY } from '@/app/exhibitions/womens-history/womensHistory';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -90,6 +90,20 @@ describe('walking the thread', () => {
     render(<VioletsLife />);
     expect(screen.getByRole('tab', { name: 'The Blitz' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tabpanel')).toHaveTextContent(BIO.blast);
+  });
+
+  it('sets the Blitz’s museum note apart from her typed story, with its source', () => {
+    // The carve-out: one note that is not the poster's, owner-approved and fact-checked.
+    expect(LIFE.filter((s) => s.note).map((s) => s.id)).toEqual(['blitz']);
+    expect(Object.values(BIO).join(' ')).not.toContain(BLITZ_NOTE.text);
+    window.history.replaceState(null, '', '/#blitz');
+    render(<VioletsLife />);
+    const note = screen.getByRole('complementary', { name: 'Museum note' });
+    expect(note).toHaveTextContent('The first V-1 to hit London fell on June 13, 1944.');
+    expect(note.closest('.whv-copy')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Imperial War Museums' })).toHaveAttribute('href', 'https://memorials.iwm.org.uk/memorial/96212');
+    fireEvent.click(screen.getByRole('tab', { name: /The factory/ }));
+    expect(screen.queryByRole('complementary', { name: 'Museum note' })).toBeNull();
   });
 });
 
