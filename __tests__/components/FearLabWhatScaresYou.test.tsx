@@ -1,6 +1,7 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import WhatScaresYou from '@/app/exhibitions/fear-lab/what-scares-you/page';
-import { REACH_MS } from '@/app/exhibitions/fear-lab/what-scares-you/MysteryBox';
+import { BUILD_MS } from '@/app/exhibitions/fear-lab/what-scares-you/FearBoxes';
+import { BOX_COUNT, CONTENTS, CREATURES, fillBoxes } from '@/app/exhibitions/fear-lab/what-scares-you/boxes';
 import { DECIDE_MS, REVEAL_MS } from '@/app/exhibitions/fear-lab/what-scares-you/RustlingBushes';
 import { CHOICES } from '@/app/exhibitions/fear-lab/what-scares-you/KnownOrUnknown';
 import { ROUNDS, TIGERS, makeRounds, paceFor, pulseFromTaps, tally, type Call } from '@/app/exhibitions/fear-lab/what-scares-you/lab';
@@ -9,8 +10,9 @@ import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
 /*
- * What Scares You?: the lab's arithmetic, the mystery box, known or
- * unknown, the rustling bushes (with its warning first), and the wiring.
+ * What Scares You?: the lab's arithmetic, the fear boxes (with their
+ * warning first), known or unknown, the rustling bushes (with its warning
+ * first), and the wiring.
  */
 
 // Animation frames run on the fake clock, a frame every 16 ms.
@@ -50,28 +52,56 @@ describe('the lab’s arithmetic', () => {
   });
 });
 
-describe('the mystery box', () => {
-  it('opens on a pinecone after a long enough hold, with the poster’s words', () => {
-    render(<WhatScaresYou />);
-    expect(screen.getByText(FEAR_LAB_COPY.box)).toBeInTheDocument();
-    const hold = screen.getByRole('button', { name: 'Hold to reach in' });
-    fireEvent.keyDown(hold, { key: ' ' });
-    act(() => { jest.advanceTimersByTime(REACH_MS * 0.5); });
-    expect(screen.getByRole('status')).toHaveTextContent('Slimy worms?');
-    act(() => { jest.advanceTimersByTime(REACH_MS * 0.6); });
-    expect(screen.getByRole('heading', { name: 'Just a pinecone' })).toBeInTheDocument();
-    expect(screen.getByText(FEAR_LAB_COPY.pinecone)).toBeInTheDocument();
+describe('the fear boxes', () => {
+  it('fills a row of five from the eight contents, never all creatures', () => {
+    expect(CONTENTS).toHaveLength(8);
+    for (let k = 0; k < 40; k++) {
+      const row = fillBoxes();
+      expect(row).toHaveLength(BOX_COUNT);
+      expect(new Set(row).size).toBe(BOX_COUNT);
+      expect(row.some((c) => c.kind !== 'creature')).toBe(true);
+    }
   });
 
-  it('pulls the hand back out when let go early', () => {
+  it('gives every creature a checked fact with a source, and a credited photograph', () => {
+    expect(CREATURES.map((c) => c.id)).toEqual(['cockroach', 'tarantula', 'bat', 'snake', 'rat', 'centipede']);
+    for (const c of CREATURES) {
+      expect(c.fact.text.length).toBeGreaterThan(20);
+      expect(c.fact.sources.length).toBeGreaterThan(0);
+      c.fact.sources.forEach((src) => expect(src.href).toMatch(/^https:\/\//));
+      expect(c.credit.href).toMatch(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/);
+      expect(c.credit.licence).toMatch(/^(CC0|CC BY 4\.0|CC BY-SA [234]\.0)$/);
+      expect(c.src).toMatch(/^\/exhibitions\/fear-lab\/creatures\/.+\.webp$/);
+    }
+  });
+
+  it('warns first, then opens a box after the build-up, with what was inside', () => {
     render(<WhatScaresYou />);
-    const hold = screen.getByRole('button', { name: 'Hold to reach in' });
-    fireEvent.keyDown(hold, { key: ' ' });
-    act(() => { jest.advanceTimersByTime(1500); });
-    fireEvent.keyUp(hold, { key: ' ' });
-    expect(screen.getByRole('status')).toHaveTextContent('You pulled your hand back out.');
-    act(() => { jest.advanceTimersByTime(3000); });
-    expect(screen.queryByRole('heading', { name: 'Just a pinecone' })).not.toBeInTheDocument();
+    expect(screen.getByRole('note')).toHaveTextContent('Startle warning.');
+    expect(screen.getByText(FEAR_LAB_COPY.box)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
+    const shelf = screen.getByRole('group', { name: 'Fear boxes' });
+    expect(within(shelf).getAllByRole('button')).toHaveLength(BOX_COUNT);
+    fireEvent.click(within(shelf).getByRole('button', { name: 'Box 2' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Box 2 creaks open');
+    // Other boxes wait while one opens.
+    fireEvent.click(within(shelf).getByRole('button', { name: 'Box 3' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Box 2 creaks open');
+    act(() => { jest.advanceTimersByTime(BUILD_MS); });
+    const heading = screen.getByRole('heading', { level: 2 }).textContent!;
+    const creature = CREATURES.find((c) => c.name === heading);
+    if (creature) {
+      expect(screen.getByText(creature.fact.text)).toBeInTheDocument();
+      expect(screen.getByRole('img', { name: creature.alt })).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: creature.credit.licence })).toBeInTheDocument();
+    } else if (heading === 'Nothing') {
+      expect(screen.getByText(FEAR_LAB_COPY.unknown)).toBeInTheDocument();
+    } else {
+      expect(heading).toBe('Just a pinecone');
+      expect(screen.getByText(FEAR_LAB_COPY.pinecone)).toBeInTheDocument();
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Close the box' }));
+    expect(within(shelf).getByRole('button', { name: /^Box 2, open: / })).toHaveAttribute('aria-disabled', 'true');
   });
 });
 
@@ -92,7 +122,7 @@ describe('the rustling bushes', () => {
   it('warns before it starts, then plays eight rounds and tallies them', () => {
     render(<WhatScaresYou />);
     fireEvent.click(screen.getByRole('tab', { name: 'The Rustling Bushes' }));
-    expect(screen.getByRole('note')).toHaveTextContent('Startle warning.');
+    expect(screen.getByRole('note')).toHaveTextContent('Eyes will appear suddenly');
     expect(screen.queryByRole('button', { name: 'Tiger! Run!' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
     expect(screen.getByRole('status')).toHaveTextContent('Round 1 of 8');

@@ -90,7 +90,7 @@
 
 /* ───────── The eyepiece and the panel ───────── */
 .mo-ms-body {
-  --eye: min(64vh, 64dvh, 46vw, 640px);
+  --eye: min(58vh, 58dvh, 46vw, 600px);
   position: relative;
   z-index: 1;
   flex: 1;
@@ -101,7 +101,7 @@
   gap: clamp(32px, 5vw, 80px);
   padding: 12px 48px 28px;
 }
-.mo-ms-scope { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.mo-ms-scope { display: flex; flex-direction: column; align-items: center; gap: 8px; }
 .mo-ms-eyepiece {
   position: relative;
   width: var(--eye);
@@ -190,6 +190,42 @@
   color: #c9c0e3;
   text-align: center;
 }
+
+/* What the photograph shows, from its record, and its credit, small, under the eyepiece. */
+.mo-ms-caption {
+  margin: 0;
+  max-width: calc(var(--eye) + 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--pe-body);
+  font-weight: 300;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: #d9d3ee;
+  text-align: center;
+}
+.mo-ms-caption-source { font-size: 10.5px; letter-spacing: 0.04em; color: #b9b0d6; }
+.mo-room .mo-ms-caption-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.mo-room .mo-ms-caption-source a:hover { color: #fff; }
+.mo-ms-credit {
+  margin: 0;
+  max-width: calc(var(--eye) + 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  font-family: var(--pe-body);
+  font-weight: 300;
+  font-size: 10.5px;
+  line-height: 1.4;
+  letter-spacing: 0.03em;
+  color: #b9b0d6;
+  text-align: center;
+}
+.mo-room .mo-ms-credit a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.mo-room .mo-ms-credit a:hover { color: #fff; }
 
 .mo-ms-panel {
   width: min(430px, 34vw);
@@ -342,9 +378,10 @@
 .mo-ms-case-wrap { display: flex; flex-direction: column; gap: 6px; }
 
 /* ───────── A laptop with little height ───────── */
-@media (max-height: 760px) and (min-width: 761px) {
+@media (max-height: 940px) and (min-width: 761px) {
   .mo-ms-bar { padding-top: 18px; gap: 10px; }
   .mo-ms-panel { gap: 12px; }
+  .mo-ms-poster { padding: 12px 16px; gap: 6px; }
   .mo-ms-poster p { font-size: 12.5px; line-height: 1.5; }
 }
 
@@ -366,6 +403,9 @@
   }
   .mo-ms-scope { gap: 6px; }
   .mo-ms-hint { margin-top: 12px; font-size: 10px; }
+  .mo-ms-credit { font-size: 9.5px; max-width: 100%; }
+  .mo-ms-caption { max-width: 100%; font-size: 11px; line-height: 1.4; }
+  .mo-ms-caption-source { font-size: 9.5px; }
   .mo-ms-side { bottom: 17%; font-size: 9px; letter-spacing: 0.14em; padding: 4px 8px; }
   .mo-ms-panel {
     width: 100%;

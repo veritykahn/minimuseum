@@ -1,21 +1,24 @@
+import type { EarthSample } from './slides';
+
 /*
- * The slides under the microscope, drawn rather than photographed: each grain
- * is generated from a seed, so a slide looks the same every time it is laid
- * on the stage.
+ * The loose dust on top of each slide, drawn over the photograph (slides.ts)
+ * for the cloth to wipe: each grain is generated from a seed, so a slide
+ * looks the same every time it is laid on the stage. On the Moon's slide it
+ * is a scatter of fine dark dust and small shards, which cling to the cloth;
+ * on Earth's, a few loose grains in the photograph's colors, which brush
+ * aside.
  *
  * Only the poster's words make claims: lunar dust is sharp and jagged and
- * clings because of static; Earth's soil is shaped by wind, water and living
- * things. The shapes and colors of the Earth slides are illustration, one
- * slide for each of the poster's three words, and make no claim of their own.
+ * clings because of static. The drawn dust is illustration and makes no
+ * claim of its own.
  *
  * Coordinates are in "slide units": the eyepiece at its lowest power shows the
  * disc of radius 1 around the origin.
  */
 
-export type SampleId = 'moon' | 'wind' | 'water' | 'life';
-export type EarthSample = Exclude<SampleId, 'moon'>;
+export type SampleId = 'moon' | EarthSample;
 
-export type GrainKind = 'grain' | 'speck' | 'shell' | 'fiber';
+export type GrainKind = 'grain' | 'speck';
 
 export type Grain = {
   x: number;
@@ -30,15 +33,9 @@ export type Grain = {
   h: number;
   s: number;
   l: number;
-  /** Small marks drawn on the grain at high power (pits, ridges), in grain units. */
+  /** Small marks drawn on the grain at high power (pits), in grain units. */
   marks: { x: number; y: number; r: number }[];
 };
-
-export const EARTH_SAMPLES: { id: EarthSample; label: string }[] = [
-  { id: 'wind', label: 'Wind' },
-  { id: 'water', label: 'Water' },
-  { id: 'life', label: 'Living things' },
-];
 
 /** A small, fast seeded generator (mulberry32). */
 export function rng(seed: number) {
@@ -78,10 +75,6 @@ function smooth(rand: () => number, stretch: number, wobble: number): number[] {
   });
 }
 
-function pick<T>(rand: () => number, xs: T[]): T {
-  return xs[Math.floor(rand() * xs.length)];
-}
-
 /**
  * Lay grains on the disc without much overlap: try a spot, keep it if it is
  * clear of the grains already laid. Bigger grains go first.
@@ -118,6 +111,13 @@ function marks(rand: () => number, n: number, size: number) {
 
 const SPREAD = 1.25;
 
+/** Hue, saturation and lightness ranges for each Earth slide's loose grains. */
+const EARTH_TINTS: Record<EarthSample, [number, number, number, number, number, number]> = {
+  wind: [28, 44, 40, 60, 55, 75],
+  water: [200, 220, 6, 14, 66, 84],
+  life: [14, 34, 30, 50, 72, 86],
+};
+
 const SEEDS: Record<SampleId, number> = { moon: 1969, wind: 7, water: 11, life: 23 };
 
 /** Every grain on a slide, back to front. */
@@ -127,42 +127,20 @@ export function makeSlide(id: SampleId): Grain[] {
   const add = (g: Omit<Grain, 'rot'>) => out.push({ ...g, rot: rand() * Math.PI * 2 });
 
   if (id === 'moon') {
-    // Gray shards of every size, and a haze of fine dust between them.
-    for (const p of scatter(rand, sizes(rand, 230, 0.018, 0.12), SPREAD, 0.86)) {
-      add({ ...p, kind: 'grain', shape: jagged(rand), h: 250 + rand() * 30, s: 4 + rand() * 8, l: 34 + rand() * 30, marks: marks(rand, 2 + Math.floor(rand() * 4), 0.12) });
+    // Small dark shards, and a haze of fine dust between them.
+    for (const p of scatter(rand, sizes(rand, 140, 0.012, 0.05), SPREAD, 0.86)) {
+      add({ ...p, kind: 'grain', shape: jagged(rand), h: 24 + rand() * 16, s: 4 + rand() * 8, l: 16 + rand() * 20, marks: marks(rand, 2 + Math.floor(rand() * 4), 0.12) });
     }
-    for (let i = 0; i < 700; i++) {
+    for (let i = 0; i < 900; i++) {
       const a = rand() * Math.PI * 2;
       const d = Math.sqrt(rand()) * SPREAD;
-      add({ x: Math.cos(a) * d, y: Math.sin(a) * d, r: 0.003 + rand() * 0.007, kind: 'speck', shape: jagged(rand), h: 255, s: 6, l: 40 + rand() * 30, marks: [] });
-    }
-  } else if (id === 'wind') {
-    for (const p of scatter(rand, sizes(rand, 120, 0.05, 0.12), SPREAD, 1.02)) {
-      add({ ...p, kind: 'grain', shape: smooth(rand, 1 + rand() * 0.25, 0.05), h: 30 + rand() * 14, s: 42 + rand() * 30, l: 52 + rand() * 26, marks: marks(rand, 10, 0.05) });
-    }
-  } else if (id === 'water') {
-    const tints: [number, number, number][] = [
-      [214, 12, 58],
-      [18, 42, 46],
-      [40, 18, 84],
-      [225, 8, 32],
-      [32, 30, 66],
-    ];
-    for (const p of scatter(rand, sizes(rand, 110, 0.05, 0.14), SPREAD, 1.04)) {
-      const [h, s, l] = pick(rand, tints);
-      add({ ...p, kind: 'grain', shape: smooth(rand, 1.1 + rand() * 0.5, 0.03), h: h + rand() * 8, s, l: l + (rand() - 0.5) * 10, marks: [] });
+      add({ x: Math.cos(a) * d, y: Math.sin(a) * d, r: 0.003 + rand() * 0.007, kind: 'speck', shape: jagged(rand), h: 30, s: 6, l: 18 + rand() * 24, marks: [] });
     }
   } else {
-    // Crumbs, curved pieces and threads, as illustration.
-    for (const p of scatter(rand, sizes(rand, 120, 0.04, 0.13), SPREAD, 0.95)) {
-      const roll = rand();
-      if (roll < 0.28) {
-        add({ ...p, kind: 'shell', shape: [], h: 24 + rand() * 16, s: 30 + rand() * 30, l: 76 + rand() * 12, marks: [] });
-      } else if (roll < 0.42) {
-        add({ ...p, r: p.r * 1.6, kind: 'fiber', shape: [rand() - 0.5, rand() - 0.5, rand() - 0.5], h: 28, s: 30 + rand() * 20, l: 30 + rand() * 18, marks: [] });
-      } else {
-        add({ ...p, kind: 'grain', shape: smooth(rand, 1 + rand() * 0.3, 0.12), h: 20 + rand() * 14, s: 28 + rand() * 24, l: 22 + rand() * 22, marks: marks(rand, 5, 0.08) });
-      }
+    // A few loose, rounded grains in the photograph's own colors.
+    const [h0, h1, s0, s1, l0, l1] = EARTH_TINTS[id];
+    for (const p of scatter(rand, sizes(rand, 60, 0.012, 0.032), SPREAD, 1.6)) {
+      add({ ...p, kind: 'grain', shape: smooth(rand, 1 + rand() * 0.3, 0.05), h: h0 + rand() * (h1 - h0), s: s0 + rand() * (s1 - s0), l: l0 + rand() * (l1 - l0), marks: [] });
     }
   }
   return out;

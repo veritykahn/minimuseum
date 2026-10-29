@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import { FEAR_LAB_COPY as C } from '../fearLab';
+import type { LabSound } from './sound';
 
 /*
  * Known or unknown: three "would you rather" choices, each built from an
  * experiment on poster 1, and after each, what the poster says people did.
- * There are no right answers; the choices stay on this screen.
+ * There are no right answers; the choices stay on this screen. With sound
+ * on, choosing the unknown (or the wait) brings a swell of dread, the spider
+ * a skitter, and the known a soft tick.
  */
 
 type Picture = 'bolt' | 'big-bolt' | 'wait' | 'spider' | 'dark';
@@ -61,7 +64,7 @@ function BoxPicture({ picture }: { picture: Picture }) {
   );
 }
 
-export default function KnownOrUnknown({ onFright }: { onFright: (f: number) => void }) {
+export default function KnownOrUnknown({ sound, onFright }: { sound: () => LabSound | null; onFright: (f: number) => void }) {
   const [step, setStep] = useState(0);
   const [picks, setPicks] = useState<('a' | 'b')[]>([]);
   const done = step >= CHOICES.length;
@@ -70,6 +73,10 @@ export default function KnownOrUnknown({ onFright }: { onFright: (f: number) => 
 
   const pick = (k: 'a' | 'b') => {
     if (picked) return;
+    const pic = choice[k].picture;
+    if (pic === 'dark' || pic === 'wait') sound()?.swell();
+    else if (pic === 'spider') sound()?.creature('tarantula');
+    else sound()?.tick();
     setPicks((p) => {
       const next = [...p];
       next[step] = k;

@@ -2,14 +2,16 @@
 
 import { useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
 import { makeSlide, type Grain, type SampleId } from './grains';
+import type { Slide } from './slides';
 import { freshState, releaseCloth, wipeStep, type Cloth, type SlideState } from './wipe';
 
 /*
- * The view down the microscope: one canvas, the slide lit from below, its
- * grains drawn from grains.ts. Side by side, the Moon's slide lies left of a
- * line you can drag and an Earth slide right of it. Drag across the slide to
- * wipe it with a cloth (wipe.ts). The focus is a blur on the canvas, set by
- * the knob outside.
+ * The view down the microscope: one canvas, the slide's photograph
+ * (slides.ts) magnified by the power, with a little loose dust drawn on top
+ * (grains.ts). Side by side, the Moon's slide lies left of a line you can
+ * drag and an Earth slide right of it. Drag across the slide to wipe the
+ * dust with a cloth (wipe.ts). The focus is a blur on the canvas, set by the
+ * knob outside.
  */
 
 /** How much each power magnifies, low to high. */
@@ -26,6 +28,24 @@ export type EyepieceHandle = {
 
 const SAMPLES: SampleId[] = ['moon', 'wind', 'water', 'life'];
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
+/** Which dust lies on a slide: the Moon's, or the Earth sample's. */
+const dustOf = (slide: Slide): SampleId => (slide.id.startsWith('moon-') ? 'moon' : (slide.id.slice(6) as SampleId));
+
+/* The photographs, loaded once and kept. */
+const photos = new Map<string, HTMLImageElement>();
+function photo(src: string, onLoad: () => void): HTMLImageElement | null {
+  let img = photos.get(src);
+  if (!img) {
+    if (typeof Image === 'undefined') return null;
+    img = new Image();
+    img.decoding = 'async';
+    img.src = src;
+    photos.set(src, img);
+  }
+  if (img.complete && img.naturalWidth > 0) return img;
+  img.addEventListener('load', onLoad, { once: true });
+  return null;
+}
 
 /* Each grain's outline, built once at unit size. */
 const outlines = new WeakMap<Grain, Path2D>();
@@ -56,46 +76,6 @@ function drawGrain(ctx: CanvasRenderingContext2D, g: Grain, sample: SampleId, sr
   ctx.scale(sr, sr);
   const px = 1 / sr;
 
-  if (g.kind === 'fiber') {
-    const [a, b, c] = g.shape;
-    ctx.beginPath();
-    ctx.moveTo(-1, a);
-    ctx.quadraticCurveTo(b * 2, c * 2, 1, -a);
-    ctx.lineCap = 'round';
-    ctx.lineWidth = Math.max(0.1, 1.4 * px);
-    ctx.strokeStyle = hsl(g.h, g.s, g.l);
-    ctx.stroke();
-    return;
-  }
-
-  if (g.kind === 'shell') {
-    const span = 1.7 + (g.rot % 1);
-    const band = new Path2D();
-    band.arc(0, 0, 1, 0, span);
-    band.arc(0, 0, 0.6, span, 0, true);
-    band.closePath();
-    ctx.fillStyle = 'rgba(6, 4, 16, 0.45)';
-    ctx.translate(0.1, 0.14);
-    ctx.fill(band);
-    ctx.translate(-0.1, -0.14);
-    const grad = ctx.createLinearGradient(-1, -1, 1, 1);
-    grad.addColorStop(0, hsl(g.h, g.s, g.l + 8));
-    grad.addColorStop(1, hsl(g.h, g.s, g.l - 16));
-    ctx.fillStyle = grad;
-    ctx.fill(band);
-    if (sr > 8) {
-      ctx.strokeStyle = hsl(g.h, g.s, g.l - 28, 0.45);
-      ctx.lineWidth = 0.8 * px;
-      for (let t = 0.15; t < span; t += 0.22) {
-        ctx.beginPath();
-        ctx.moveTo(Math.cos(t) * 0.64, Math.sin(t) * 0.64);
-        ctx.lineTo(Math.cos(t) * 0.97, Math.sin(t) * 0.97);
-        ctx.stroke();
-      }
-    }
-    return;
-  }
-
   const path = outline(g);
   // The shadow the grain casts on the glass.
   ctx.translate(0.1, 0.14);
@@ -104,7 +84,7 @@ function drawGrain(ctx: CanvasRenderingContext2D, g: Grain, sample: SampleId, sr
   ctx.translate(-0.1, -0.14);
 
   const lit = ctx.createLinearGradient(-1, -1, 1, 1);
-  const shine = sample === 'water' ? 16 : 12;
+  const shine = 12;
   lit.addColorStop(0, hsl(g.h, g.s, g.l + shine));
   lit.addColorStop(0.55, hsl(g.h, g.s, g.l));
   lit.addColorStop(1, hsl(g.h, g.s, g.l - 18));
@@ -112,7 +92,7 @@ function drawGrain(ctx: CanvasRenderingContext2D, g: Grain, sample: SampleId, sr
   ctx.fill(path);
 
   if (sample === 'moon') {
-    // Broken faces, and a hard bright edge.
+    // Broken faces, and a hard dark edge.
     if (sr > 5) {
       const n = g.shape.length;
       ctx.strokeStyle = hsl(g.h, g.s, g.l + 22, 0.35);
@@ -134,25 +114,13 @@ function drawGrain(ctx: CanvasRenderingContext2D, g: Grain, sample: SampleId, sr
         ctx.fill();
       }
     }
-    ctx.strokeStyle = 'rgba(236, 230, 255, 0.4)';
+    ctx.strokeStyle = 'rgba(20, 16, 12, 0.4)';
     ctx.lineWidth = 0.8 * px;
     ctx.stroke(path);
-  } else if (sample === 'water') {
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.55)';
-    ctx.beginPath();
-    ctx.ellipse(-0.34, -0.38, 0.26, 0.12, -0.6, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = hsl(g.h, g.s, g.l + 20, 0.35);
+  } else {
+    ctx.strokeStyle = hsl(g.h, g.s, g.l - 20, 0.35);
     ctx.lineWidth = 0.8 * px;
     ctx.stroke(path);
-  } else if (sr > 9) {
-    // Wind: a frosted face. Living things: darker flecks.
-    ctx.fillStyle = sample === 'wind' ? 'rgba(255, 246, 228, 0.32)' : hsl(g.h, g.s, g.l - 14, 0.6);
-    for (const m of g.marks) {
-      ctx.beginPath();
-      ctx.arc(m.x, m.y, m.r * 0.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
   }
 }
 
@@ -167,9 +135,9 @@ export default function Eyepiece({
   onWiped,
   ref,
 }: {
-  left: SampleId;
+  left: Slide;
   /** An Earth slide beside the Moon's, side by side. */
-  right: SampleId | null;
+  right: Slide | null;
   power: number;
   /** The focus: how far out of focus, in CSS px of blur. */
   blur: number;
@@ -208,6 +176,7 @@ export default function Eyepiece({
     return () => ro.disconnect();
   }, []);
 
+  const scheduleRef = useRef<() => void>(() => {});
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     const { left: l, right: r, power: p, split: sp, size: W } = live.current;
@@ -243,7 +212,8 @@ export default function Eyepiece({
     const c = cloth.current;
     const stuckOnTop: { id: SampleId; i: number; off: number }[] = [];
 
-    const drawSlide = (id: SampleId, x0: number, x1: number, off: number) => {
+    const drawSlide = (slide: Slide, x0: number, x1: number, off: number) => {
+      const id = dustOf(slide);
       const grains = slides[id];
       const st = states.current![id];
       ctx.save();
@@ -251,6 +221,9 @@ export default function Eyepiece({
       ctx.rect(x0, 0, x1 - x0, W);
       ctx.clip();
       ctx.translate(R + off, R);
+      // The photograph fills the disc at the lowest power; higher powers look closer at its middle.
+      const img = photo(slide.src, () => scheduleRef.current());
+      if (img) ctx.drawImage(img, -scale, -scale, scale * 2, scale * 2);
       for (let i = 0; i < grains.length; i++) {
         const g = grains[i];
         if (st.stuck[i]) {
@@ -338,6 +311,7 @@ export default function Eyepiece({
       if (draw()) frame.current = requestAnimationFrame(tick);
     });
   }, [draw]);
+  scheduleRef.current = schedule;
 
   // A new slide slides in from the side.
   const prev = useRef({ left, right });
@@ -370,7 +344,9 @@ export default function Eyepiece({
     c.vy = y - c.y;
     // Long moves go in short steps, so nothing is skipped over.
     const steps = Math.max(1, Math.ceil(Math.hypot(c.vx, c.vy) / (c.r * 0.4)));
-    const { left: l, right: r, split: sp, size: W, power: p } = live.current;
+    const { left: lSlide, right: rSlide, split: sp, size: W, power: p } = live.current;
+    const l = dustOf(lSlide);
+    const r = rSlide && dustOf(rSlide);
     const splitX = r ? ((sp * W - W / 2) / (POWERS[p] * (W / 2))) : Infinity;
     const x0 = c.x;
     const y0 = c.y;
