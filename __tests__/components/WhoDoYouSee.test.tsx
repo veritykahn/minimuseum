@@ -1,5 +1,8 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import WhoDoYouSee from '@/app/exhibitions/black-history/representation/page';
+import DollPicture from '@/app/exhibitions/black-history/representation/Doll';
 import { CCBC_2025, CCBC_FACT, DOLL_TEST_FACTS, DOLL_TEST_STEPS, DOLL_TEST_TEXT, SURVEY_QUESTIONS } from '@/app/exhibitions/black-history/representation/representationText';
 import { CLOTH_COLORS, FIRST_DOLL, HAIR_STYLES, SKIN, describe as describeDoll, shade, surprise } from '@/app/exhibitions/black-history/representation/dollOptions';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
@@ -115,7 +118,7 @@ describe('the room', () => {
     const doll = screen.getByRole('img', { name: /doll with skin tone 4 of 12/ });
     fireEvent.click(screen.getByRole('tab', { name: 'Hair' }));
     fireEvent.click(screen.getByRole('radio', { name: 'Locs' }));
-    expect(doll).toHaveAccessibleName(/black hair in locs/);
+    expect(doll).toHaveAccessibleName(/black locs/);
     expect(screen.getByText(/^Hair style: Locs\./)).toHaveAttribute('role', 'status');
     // The wrap color is offered only for a covered style.
     expect(screen.queryByRole('group', { name: 'Wrap or scarf color' })).toBeNull();
@@ -143,5 +146,82 @@ describe('the room', () => {
 
   it('leaves the timeline a place for the owner’s photographs, empty until they come', () => {
     expect(OWNER_BARBIE_PHOTOS).toEqual([]);
+  });
+});
+
+/*
+ * Found in the room's QA pass: a hair color that did nothing under a wrap
+ * or hijab, a vitiligo patch and a shaved head drawn off the face, the doll
+ * described in awkward words, a print with no bars and a small doll, and
+ * the focus dropped by the survey's question and the Doll Test's last step.
+ */
+describe('fixes from the QA pass', () => {
+  it('offers hair color only where the hair shows', () => {
+    render(<WhoDoYouSee />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Hair' }));
+    expect(screen.getByRole('group', { name: 'Hair color' })).toBeInTheDocument();
+    for (const covered of ['Head wrap', 'Hijab']) {
+      fireEvent.click(screen.getByRole('radio', { name: covered }));
+      expect(screen.queryByRole('group', { name: 'Hair color' })).toBeNull();
+      expect(screen.getByRole('group', { name: 'Wrap or scarf color' })).toBeInTheDocument();
+    }
+    fireEvent.click(screen.getByRole('radio', { name: 'Short' }));
+    expect(screen.getByRole('group', { name: 'Hair color' })).toBeInTheDocument();
+  });
+
+  it('keeps vitiligo’s patches and a shaved head inside the head’s outline', () => {
+    const { container } = render(<DollPicture doll={{ ...FIRST_DOLL, hair: 'shaved', marks: 'vitiligo' }} />);
+    const clip = container.querySelector('clipPath#bhr-doll-head ellipse');
+    expect(clip).toHaveAttribute('rx', '58');
+    const clipped = container.querySelectorAll('[clip-path="url(#bhr-doll-head)"]');
+    // The shaved hair, and the face's patches (the hand's patch is not on the head).
+    expect(clipped).toHaveLength(2);
+    expect([...clipped].map((el) => el.tagName)).toEqual(['g', 'path']);
+    expect(clipped[0].querySelectorAll('path')).toHaveLength(3);
+  });
+
+  it('describes the doll in words that read', () => {
+    const d = describeDoll({ ...FIRST_DOLL, hair: 'straight', hairColor: 'blond', mouth: 'calm', outfit: 'overalls', clothes: 'green' });
+    expect(d).toContain('long, straight blond hair');
+    expect(d).toContain('a calm mouth');
+    expect(d).toContain(', green overalls.');
+    expect(describeDoll({ ...FIRST_DOLL, hair: 'afro' })).toContain('a black afro');
+    expect(describeDoll({ ...FIRST_DOLL, hair: 'hijab', fabric: 'pink' })).toContain('a pink hijab');
+  });
+
+  it('prints the survey’s bars, and the doll at its full size', () => {
+    const css = readFileSync(join(process.cwd(), 'app/exhibitions/black-history/representation/representation.css'), 'utf8');
+    const print = css.slice(css.indexOf('@media print'));
+    expect(print).toMatch(/\.bhr-print \.bhr-bar-fill \{[^}]*print-color-adjust: exact/);
+    expect(print).toMatch(/\.bhr-room\[data-tab='design'\] \.bhr-doll \{[^}]*height: 9in;[^}]*max-height: none;/);
+  });
+
+  it('takes the focus into the survey’s question and back out again', async () => {
+    render(<WhoDoYouSee />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Who’s in your books?' }));
+    const panel = screen.getByRole('tabpanel', { name: 'Who’s in your books?' });
+    fireEvent.click(within(panel).getByRole('button', { name: 'One more: Asian' }));
+    fireEvent.click(within(panel).getByRole('button', { name: 'Start again' }));
+    expect(within(panel).getByText('Clear every count for books?')).toBeInTheDocument();
+    await waitFor(() => expect(within(panel).getByRole('button', { name: 'No' })).toHaveFocus());
+    fireEvent.click(within(panel).getByRole('button', { name: 'No' }));
+    await waitFor(() => expect(within(panel).getByRole('button', { name: 'Start again' })).toHaveFocus());
+    fireEvent.click(within(panel).getByRole('button', { name: 'Start again' }));
+    fireEvent.click(within(panel).getByRole('button', { name: 'Yes' }));
+    await waitFor(() => expect(within(panel).getByRole('button', { name: 'Start again' })).toHaveFocus());
+    expect(within(panel).getByText('Every count for books is cleared.')).toHaveAttribute('role', 'status');
+  });
+
+  it('hands the focus to the last step as Next goes dim, and only the step shown is in the tab order', () => {
+    render(<WhoDoYouSee />);
+    fireEvent.click(screen.getByRole('tab', { name: 'The Doll Test' }));
+    const panel = screen.getByRole('tabpanel', { name: 'The Doll Test' });
+    const next = within(panel).getByRole('button', { name: 'Next' });
+    for (let n = 1; n < DOLL_TEST_STEPS.length; n++) fireEvent.click(next);
+    expect(next).toBeDisabled();
+    const lastStep = within(panel).getByRole('button', { name: `${DOLL_TEST_STEPS.length}: What it teaches` });
+    expect(lastStep).toHaveFocus();
+    expect(lastStep).toHaveAttribute('tabindex', '0');
+    expect(within(panel).getByRole('button', { name: '1: Two psychologists' })).toHaveAttribute('tabindex', '-1');
   });
 });

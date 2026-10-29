@@ -28,6 +28,10 @@
 .bhr-rays-a { left: -35vmax; top: -35vmax; background: repeating-conic-gradient(from 0deg, var(--bh-green) 0 4deg, transparent 4deg 18deg); }
 .bhr-rays-b { right: -35vmax; bottom: -35vmax; background: repeating-conic-gradient(from 5deg, #141414 0 7deg, transparent 7deg 24deg); opacity: 0.85; }
 .bhr-room[data-tab='doll-test'] .bhr-rays-b { background: repeating-conic-gradient(from 5deg, var(--bh-red) 0 7deg, transparent 7deg 24deg); }
+/* Where the words run to the right edge, the lower rays are drawn smaller, clear of them. */
+@media (min-width: 761px) {
+  .bhr-room:not([data-tab='design']) .bhr-rays-b { width: 54vmax; height: 54vmax; right: -27vmax; bottom: -27vmax; }
+}
 
 /* ───────── The title and the tabs ───────── */
 .bhr-bar { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 150px 0; text-align: center; }
@@ -76,7 +80,7 @@
 .bhr-room .bhr-button-ghost { background: transparent; color: #141414; }
 .bhr-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .bhr-small { font-family: var(--pe-body); font-size: 14px; }
-.bhr-intro { font-family: var(--pe-body); font-weight: 500; font-size: clamp(1rem, 1.3vw, 1.15rem); line-height: 1.35; text-align: center; max-width: 52em; margin: 0 auto; }
+.bhr-intro { font-family: var(--pe-body); font-weight: 500; font-size: clamp(1rem, 1.3vw, 1.15rem); line-height: 1.35; text-align: center; max-width: 52em; margin: 0 auto; text-wrap: balance; }
 
 /* ==========================================================================
    Design a doll
@@ -164,13 +168,19 @@
 .bhr-kind input:focus-visible + span { outline: 3px solid #141414; outline-offset: 3px; }
 .bhr-room .bhr-qtab { appearance: none; padding: 6px 14px; border: 3px solid #141414; border-radius: 8px; background: transparent; font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; font-size: 12px; letter-spacing: 0.05em; color: #141414; cursor: pointer; }
 .bhr-room .bhr-qtab[aria-selected='true'] { background: var(--bh-pink); box-shadow: 3px 3px 0 #141414; }
-.bhr-survey-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); gap: 3vw; }
-.bhr-tally { align-self: start; width: 100%; border-collapse: separate; border-spacing: 0 5px; font-family: var(--pe-body); }
+.bhr-survey-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); grid-template-rows: minmax(0, 1fr); gap: 3vw; }
+/* The tally scrolls inside its column on a short screen, never under the buttons below it. */
+.bhr-tally-wrap { min-height: 0; overflow-y: auto; }
+/* Fixed columns, so the buttons stay put from one chart to the next. */
+.bhr-tally { table-layout: fixed; width: 100%; border-collapse: separate; border-spacing: 0 5px; font-family: var(--pe-body); }
 .bhr-tally caption { text-align: left; padding: 0 0 4px 4px; }
-.bhr-tally-bar { width: 45%; }
+.bhr-tally th { width: 30%; }
+.bhr-tally-bar { width: auto; }
+.bhr-tally td.bhr-tally-btn { width: 46px; text-align: center; }
+.bhr-tally td.bhr-count { width: 3.2em; }
 .bhr-tally-bar .bhr-bar-track { display: inline-block; vertical-align: middle; width: calc(100% - 3.2em); height: 16px; }
 .bhr-tally-bar .bhr-bar-pct { display: inline-block; width: 3em; text-align: right; font-size: 13px; }
-.bhr-tally th { text-align: left; font-weight: 600; font-size: clamp(0.95rem, 1.25vw, 1.1rem); padding: 4px 12px; background: rgba(255, 255, 255, 0.6); border-radius: 999px 0 0 999px; }
+.bhr-tally th { overflow-wrap: anywhere; text-align: left; font-weight: 600; font-size: clamp(0.95rem, 1.25vw, 1.1rem); padding: 4px 12px; background: rgba(255, 255, 255, 0.6); border-radius: 999px 0 0 999px; }
 .bhr-tally td { background: rgba(255, 255, 255, 0.6); padding: 2px 4px; }
 .bhr-tally td:last-child { border-radius: 0 999px 999px 0; padding-right: 6px; }
 .bhr-count { min-width: 2.4em; text-align: center; font-family: var(--pe-display); font-weight: 800; font-size: 18px; font-variant-numeric: tabular-nums; }
@@ -194,6 +204,14 @@
 .bhr-confirm { display: inline-flex; align-items: center; gap: 8px; font-family: var(--pe-body); font-weight: 600; }
 .bhr-print { display: none; }
 
+/* A shorter screen: the tally's rows closer, so the whole chart shows. */
+@media (min-width: 761px) and (max-height: 820px) {
+  .bhr-tally { border-spacing: 0 3px; }
+  .bhr-tally th { padding: 2px 12px; }
+  .bhr-room .bhr-count-btn { width: 30px; height: 30px; font-size: 18px; }
+  .bhr-count { font-size: 16px; }
+}
+
 /* ───────── On a phone ───────── */
 @media (max-width: 760px) {
   .bhr-stage { min-height: 0; }
@@ -208,7 +226,7 @@
   .bhr-room .bhr-button { font-size: 14px; padding: 5px 12px; min-height: 38px; }
   .bhr-intro { font-size: 0.92rem; }
 
-  .bhr-design { grid-template-columns: 1fr; grid-template-rows: 34% 1fr; gap: 10px; }
+  .bhr-design { grid-template-columns: 1fr; grid-template-rows: 42% minmax(0, 1fr); gap: 10px; }
   .bhr-doll { filter: drop-shadow(4px 4px 0 #141414); }
   .bhr-maker { gap: 8px; }
   .bhr-name input { height: 34px; font-size: 15px; }
@@ -222,7 +240,7 @@
   .bhr-test-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 8px; align-items: start; }
   .bhr-test-art { height: auto; }
   .bhr-test-picture { width: 19vh; filter: drop-shadow(4px 4px 0 var(--bh-pink)); }
-  .bhr-test-ring { --d: 12vh; }
+  .bhr-test-ring { --d: 10vh; }
   .bhr-step-heading { font-size: 1.35rem; }
   .bhr-fact { font-size: 1.02rem; }
   .bhr-fact-source { font-size: 11px; }
@@ -237,13 +255,17 @@
   .bhr-survey-bar { gap: 6px; }
   .bhr-kind span { font-size: 13px; padding: 4px 10px; border-width: 2px; }
   .bhr-room .bhr-qtab { font-size: 10.5px; padding: 4px 8px; border-width: 2px; }
-  .bhr-survey-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 8px; overflow: hidden; }
+  /* The tally and the comparison scroll together, so neither is cut off. */
+  .bhr-survey-body { grid-template-columns: 1fr; grid-template-rows: auto auto; gap: 8px; overflow-y: auto; }
+  .bhr-tally-wrap, .bhr-survey-side { min-height: auto; overflow: visible; }
   .bhr-tally { border-spacing: 0 3px; }
   .bhr-tally th { font-size: 0.85rem; padding: 2px 10px; }
   .bhr-room .bhr-count-btn { width: 28px; height: 28px; font-size: 17px; }
   .bhr-count { font-size: 15px; }
   .bhr-tally caption { font-size: 15px; }
-  .bhr-tally-bar { width: 22%; }
+  .bhr-tally th { width: 42%; }
+  .bhr-tally td.bhr-tally-btn { width: 36px; }
+  .bhr-tally td.bhr-count { width: 2.2em; }
   .bhr-survey-side .bhr-talk-box { display: none; }
 }
 
@@ -256,10 +278,12 @@
 @media print {
   body:has(.bhr-room) * { visibility: hidden; }
   .bhr-room[data-tab='design'] .bhr-doll, .bhr-room[data-tab='design'] .bhr-doll * { visibility: visible; }
-  .bhr-room[data-tab='design'] .bhr-doll { position: fixed; left: 50%; top: 0.4in; transform: translateX(-50%); height: 9in; filter: none; }
+  .bhr-room[data-tab='design'] .bhr-doll { position: fixed; left: 50%; top: 0.4in; transform: translateX(-50%); width: auto; height: 9in; max-width: none; max-height: none; filter: none; }
   .bhr-room[data-tab='books'] .bhr-print, .bhr-room[data-tab='books'] .bhr-print * { visibility: visible; }
   .bhr-room[data-tab='books'] .bhr-print { display: flex; flex-direction: column; gap: 14pt; position: absolute; left: 0; top: 0; width: 100%; }
   .bhr-print-title { font-family: var(--bh-bubble); font-size: 22pt; }
   .bhr-print .bhr-chart { break-inside: avoid; border-width: 1.5pt; }
+  /* The bars are the chart: printed even where the browser leaves out backgrounds. */
+  .bhr-print .bhr-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .bhr-stage { overflow: visible; height: auto; }
 }

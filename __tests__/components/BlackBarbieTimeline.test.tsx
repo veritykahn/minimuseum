@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import BlackBarbieTimeline from '@/app/exhibitions/black-history/timeline/page';
-import { ADDED_NOTES, POSTER_SENTENCES, TIMELINE_STOPS, markRuns, stopFromHash } from '@/app/exhibitions/black-history/timeline/timelineStops';
+import { ADDED_NOTES, POSTER_SENTENCES, TIMELINE_STOPS, markRuns, stepFor, stopFromHash } from '@/app/exhibitions/black-history/timeline/timelineStops';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -98,6 +98,65 @@ describe('the room', () => {
     fireEvent.keyDown(stop2008, { key: 'End' });
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Today');
     expect(screen.getByRole('button', { name: 'Later' })).toBeDisabled();
+  });
+});
+
+/*
+ * Found in the room's QA pass: the arrow keys worked only from a stop, and
+ * counted from the stop shown rather than the one focused; the Earlier and
+ * Later buttons dropped the focus as they went dim at the ends.
+ */
+describe('fixes from the QA pass', () => {
+  beforeEach(() => window.history.replaceState(null, '', '/'));
+
+  it('steps by key from the stop shown, Up and Down only on the stops', () => {
+    expect(stepFor('ArrowRight', 0, false)).toBe(1);
+    expect(stepFor('ArrowLeft', 0, false)).toBe(0);
+    expect(stepFor('End', 2, false)).toBe(TIMELINE_STOPS.length - 1);
+    expect(stepFor('ArrowRight', TIMELINE_STOPS.length - 1, true)).toBe(TIMELINE_STOPS.length - 1);
+    expect(stepFor('ArrowDown', 3, true)).toBe(4);
+    expect(stepFor('ArrowDown', 3, false)).toBeNull();
+    expect(stepFor('a', 3, true)).toBeNull();
+  });
+
+  it('moves along by arrow key from anywhere in the room, not only from a stop', () => {
+    render(<BlackBarbieTimeline />);
+    fireEvent.keyDown(document.body, { key: 'ArrowRight' });
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('1968: Christie');
+    const words = screen.getByRole('region', { name: '1968: Christie' });
+    words.focus();
+    fireEvent.keyDown(words, { key: 'ArrowRight' });
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('1980: The first Black Barbie');
+    // The words are drawn afresh, and keep the focus.
+    expect(screen.getByRole('region', { name: '1980: The first Black Barbie' })).toHaveFocus();
+    // Down scrolls the words; it doesn't move the timeline.
+    fireEvent.keyDown(screen.getByRole('region', { name: '1980: The first Black Barbie' }), { key: 'ArrowDown' });
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('1980: The first Black Barbie');
+    // A link in a note keeps its keys.
+    fireEvent.click(screen.getByRole('button', { name: '1991, Shani' }));
+    fireEvent.keyDown(screen.getByRole('link', { name: /Shani and Her Friends/ }), { key: 'ArrowRight' });
+    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('1991: Shani');
+  });
+
+  it('keeps only the stop shown in the tab order', () => {
+    render(<BlackBarbieTimeline />);
+    fireEvent.click(screen.getByRole('button', { name: '2009, “So In Style”' }));
+    const tabbable = screen.getAllByRole('button').filter((b) => b.classList.contains('bht-stop') && b.getAttribute('tabindex') === '0');
+    expect(tabbable.map((b) => b.getAttribute('aria-label'))).toEqual(['2009, “So In Style”']);
+  });
+
+  it('hands the focus to the end stop as Earlier or Later goes dim', () => {
+    render(<BlackBarbieTimeline />);
+    fireEvent.click(screen.getByRole('button', { name: '2022–23, Inspiring Women' }));
+    const later = screen.getByRole('button', { name: 'Later' });
+    later.focus();
+    fireEvent.click(later);
+    expect(later).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Today' })).toHaveFocus();
+    const earlier = screen.getByRole('button', { name: 'Earlier' });
+    for (let i = 0; i < TIMELINE_STOPS.length - 1; i++) fireEvent.click(earlier);
+    expect(earlier).toBeDisabled();
+    expect(screen.getByRole('button', { name: '1967, Francie' })).toHaveFocus();
   });
 });
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type ChangeEvent, type CSSProperties, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type CSSProperties, type KeyboardEvent } from 'react';
 import { STATION_TEXT } from './stationText';
 import type { SoundName } from './typingSound';
 
@@ -33,6 +33,16 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
   const [underline, setUnderline] = useState(false);
   const [clip, setClip] = useState('');
   const [message, setMessage] = useState('');
+  /* The last thing said, shown for a moment in the window's status bar, where a word processor says it. */
+  const [shown, setShown] = useState('');
+  const shownTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(shownTimer.current), []);
+  const say = (text: string) => {
+    setMessage(text);
+    setShown(text);
+    clearTimeout(shownTimer.current);
+    shownTimer.current = setTimeout(() => setShown(''), 2600);
+  };
   const history = useRef<string[]>([]);
   const area = useRef<HTMLTextAreaElement>(null);
 
@@ -64,33 +74,33 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
 
   const copy = (cut: boolean) => {
     const { from, to } = selection();
-    if (from === to) return setMessage('Select some words first.');
+    if (from === to) return say('Select some words first.');
     const picked = text.slice(from, to);
     setClip(picked);
     void navigator.clipboard?.writeText(picked).catch(() => {});
     if (cut) commit(text.slice(0, from) + text.slice(to), from);
-    setMessage(cut ? 'Cut.' : 'Copied.');
+    say(cut ? 'Cut.' : 'Copied.');
   };
 
   const paste = () => {
-    if (!clip) return setMessage('Nothing to paste yet: cut or copy first.');
+    if (!clip) return say('Nothing to paste yet: cut or copy first.');
     const { from, to } = selection();
     commit(text.slice(0, from) + clip + text.slice(to), from + clip.length);
-    setMessage('Pasted.');
+    say('Pasted.');
   };
 
   const undo = () => {
     const prev = history.current.pop();
-    if (prev === undefined) return setMessage('Nothing to undo.');
+    if (prev === undefined) return say('Nothing to undo.');
     setText(prev);
-    setMessage('Undone.');
+    say('Undone.');
   };
 
   // The page goes up on the board in its font, and a new document opens.
   const postPage = () => {
     if (!onPost) return;
     const refused = onPost(text, font);
-    if (refused) return setMessage(refused);
+    if (refused) return say(refused);
     history.current = [];
     setText('');
   };
@@ -167,8 +177,8 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
                   spellCheck={false}
                 />
               </div>
-              <div className="wri-status" aria-hidden="true">
-                {words} {words === 1 ? 'word' : 'words'} · {font} {size}
+              <div className={`wri-status ${shown ? 'is-saying' : ''}`} aria-hidden="true">
+                {shown || `${words} ${words === 1 ? 'word' : 'words'} · ${font} ${size}`}
               </div>
             </div>
           </div>

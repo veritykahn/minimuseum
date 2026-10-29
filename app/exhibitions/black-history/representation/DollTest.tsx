@@ -114,6 +114,7 @@ export default function DollTest() {
   const step = DOLL_TEST_STEPS[i];
   const last = i === DOLL_TEST_STEPS.length - 1;
 
+  // At either end the arrow goes dim, so it hands the focus to that end's step.
   const go = (to: number, focus = false) => {
     const n = Math.max(0, Math.min(DOLL_TEST_STEPS.length - 1, to));
     setI(n);
@@ -159,7 +160,7 @@ export default function DollTest() {
       </div>
 
       <nav className="bhr-steps" aria-label="The story">
-        <button type="button" className="bhr-step-arrow" onClick={() => go(i - 1)} disabled={i === 0} aria-label="Back">
+        <button type="button" className="bhr-step-arrow" onClick={() => go(i - 1, i - 1 === 0)} disabled={i === 0} aria-label="Back">
           <span aria-hidden="true">&#8592;</span>
         </button>
         <ol>
@@ -173,6 +174,7 @@ export default function DollTest() {
                 className="bhr-step-dot"
                 aria-current={n === i ? 'step' : undefined}
                 aria-label={`${n + 1}: ${s.heading}`}
+                tabIndex={n === i ? 0 : -1}
                 onClick={() => go(n)}
                 onKeyDown={onKey}
               >
@@ -181,7 +183,7 @@ export default function DollTest() {
             </li>
           ))}
         </ol>
-        <button type="button" className="bhr-step-arrow" onClick={() => go(i + 1)} disabled={last} aria-label="Next">
+        <button type="button" className="bhr-step-arrow" onClick={() => go(i + 1, i + 1 === DOLL_TEST_STEPS.length - 1)} disabled={last} aria-label="Next">
           <span aria-hidden="true">&#8594;</span>
         </button>
       </nav>

@@ -221,6 +221,22 @@ export function markRuns(sentence: string, marks: string[]): { text: string; mar
   return out;
 }
 
+/**
+ * The stop a key moves to from the stop shown, or null if the key isn't the
+ * timeline's. Left and Right (and Home and End) work anywhere in the room;
+ * Up and Down only on the stops, so they still scroll the words.
+ */
+export function stepFor(key: string, index: number, onTrack: boolean): number | null {
+  const last = TIMELINE_STOPS.length - 1;
+  const to =
+    key === 'ArrowRight' || (onTrack && key === 'ArrowDown') ? index + 1
+    : key === 'ArrowLeft' || (onTrack && key === 'ArrowUp') ? index - 1
+    : key === 'Home' ? 0
+    : key === 'End' ? last
+    : null;
+  return to === null ? null : Math.max(0, Math.min(last, to));
+}
+
 /** The stop a hash names (#1980, #today), if any. */
 export function stopFromHash(hash: string): number {
   const id = hash.replace(/^#/, '').toLowerCase();

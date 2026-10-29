@@ -29,12 +29,31 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
   const [shift, setShift] = useState(false);
   const [pressed, setPressed] = useState<string | null>(null);
   const [message, setMessage] = useState('');
+  /** What the machine says, on the sheet as well as to a screen reader: the bell, the margin, a refusal. */
+  const [flag, setFlag] = useState('');
   const [returning, setReturning] = useState(false);
   const field = useRef<HTMLTextAreaElement>(null);
   const pageRef = useRef(page);
   const pressTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const flagTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const returnTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  useEffect(() => () => clearTimeout(pressTimer.current), []);
+  useEffect(
+    () => () => {
+      clearTimeout(pressTimer.current);
+      clearTimeout(flagTimer.current);
+      clearTimeout(returnTimer.current);
+    },
+    [],
+  );
+
+  // Said aloud and shown: the margin's note stays until the carriage is returned, the rest fade.
+  const say = useCallback((text: string, stay = false) => {
+    setMessage(text);
+    setFlag(text);
+    clearTimeout(flagTimer.current);
+    if (text && !stay) flagTimer.current = setTimeout(() => setFlag(''), 2600);
+  }, []);
 
   const press = useCallback(
     (key: string) => {
@@ -43,19 +62,20 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
       setPage(next);
       const sound: Record<Effect, SoundName> = { strike: 'clack', locked: 'clack', space: 'space', bell: 'bell', back: 'back', return: 'ret' };
       effects.forEach((e) => play(sound[e]));
-      if (effects.includes('bell')) setMessage(`Ding: ${BELL_BEFORE} spaces left on the line.`);
-      else if (effects.includes('locked')) setMessage('End of the line. Return the carriage.');
-      else if (effects.includes('return')) setMessage('');
+      if (effects.includes('bell')) say(`Ding: ${BELL_BEFORE} spaces left on the line.`);
+      else if (effects.includes('locked')) say('End of the line. Return the carriage.', true);
+      else if (effects.includes('return')) say('');
       if (effects.includes('return')) {
         setReturning(true);
-        setTimeout(() => setReturning(false), 420);
+        clearTimeout(returnTimer.current);
+        returnTimer.current = setTimeout(() => setReturning(false), 420);
       }
       const shown = key === 'Enter' ? 'return' : key === 'Backspace' ? 'back' : key === ' ' ? 'space' : key.toLowerCase();
       setPressed(shown);
       clearTimeout(pressTimer.current);
       pressTimer.current = setTimeout(() => setPressed(null), 110);
     },
-    [play],
+    [play, say],
   );
 
   const tapKey = (k: string) => {
@@ -83,7 +103,7 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
   const newSheet = () => {
     pageRef.current = newPage();
     setPage(pageRef.current);
-    setMessage('A new sheet is in.');
+    say('A new sheet is in.');
     play('ret');
   };
 
@@ -91,7 +111,7 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
   const postSheet = () => {
     if (!onPost) return;
     const refused = onPost(pageText(pageRef.current));
-    if (refused) return setMessage(refused);
+    if (refused) return say(refused);
     pageRef.current = newPage();
     setPage(pageRef.current);
     play('ret');
@@ -130,6 +150,11 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
           </div>
         </div>
         {fresh && <p className="wrt-hint" aria-hidden="true">{STATION_TEXT.typewriterHint}</p>}
+        {flag && (
+          <p className="wrt-flag" key={flag} aria-hidden="true">
+            {flag}
+          </p>
+        )}
         <textarea
           ref={field}
           className="wrt-field"
@@ -198,7 +223,7 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
         <p className="wrt-name">{STATION_TEXT.typewriterName}</p>
         <p className="wrt-count" aria-hidden={fresh}>
           {strikeOvers(page) > 0 && <>Strike-overs: {strikeOvers(page)} · </>}
-          Line {page.line + 1}, space {col + 1}
+          Line {page.line + 1}, space {Math.min(col + 1, LINE_WIDTH)}
         </p>
         <button type="button" className="wrs-button" onClick={newSheet}>
           New sheet

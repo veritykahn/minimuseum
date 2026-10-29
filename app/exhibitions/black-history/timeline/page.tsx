@@ -1,12 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type TouchEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import FactNote from '@/components/exhibition/FactNote';
 import { srOnly, useReducedMotion } from '@/lib/a11y';
 import { BLACK_HISTORY } from '../blackHistory';
-import { TIMELINE_STOPS, TIMELINE_TEXT, markRuns, stopFromHash } from './timelineStops';
+import { TIMELINE_STOPS, TIMELINE_TEXT, markRuns, stepFor, stopFromHash } from './timelineStops';
 import '../black-history.css';
 import './timeline.css';
 
@@ -59,6 +59,8 @@ export default function BlackBarbieTimeline() {
   const [index, setIndex] = useState(0);
   const stopRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const touchX = useRef<number | null>(null);
+  const wordsRef = useRef<HTMLElement>(null);
+  const wordsFocus = useRef(false);
   const stop = TIMELINE_STOPS[index];
   const year = useCountingYear(stop.year, reduced);
 
@@ -79,17 +81,34 @@ export default function BlackBarbieTimeline() {
     if (focus) stopRefs.current[to]?.focus();
   }, []);
 
-  // Arrow keys, Home and End move along the stops.
-  const onKey = (e: KeyboardEvent<HTMLElement>) => {
-    const to =
-      e.key === 'ArrowRight' || e.key === 'ArrowDown' ? index + 1
-      : e.key === 'ArrowLeft' || e.key === 'ArrowUp' ? index - 1
-      : e.key === 'Home' ? 0
-      : e.key === 'End' ? TIMELINE_STOPS.length - 1
-      : null;
-    if (to === null || to < 0 || to >= TIMELINE_STOPS.length) return;
-    e.preventDefault();
-    go(to, true);
+  // Arrow keys, Home and End move along the stops, from wherever the focus is in the room
+  // (a link in a note keeps its own keys). On the stops they carry the focus along too.
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
+      const el = e.target as HTMLElement;
+      if (el !== document.body && (!el.closest('.bht-room') || el.closest('a, input, textarea, select'))) return;
+      const to = stepFor(e.key, index, !!el.closest('.bht-track'));
+      if (to === null) return;
+      e.preventDefault();
+      if (to === index) return;
+      // The words are drawn afresh for each stop: if they had the focus, the new ones take it.
+      wordsFocus.current = !!el.closest('.bht-words');
+      go(to, !!el.closest('.bht-track'));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [index, go]);
+  useEffect(() => {
+    if (!wordsFocus.current) return;
+    wordsFocus.current = false;
+    wordsRef.current?.focus();
+  }, [index]);
+
+  // The Earlier and Later buttons go dim at the ends: the focus moves to the stop, not off the page.
+  const step = (by: number) => {
+    const to = Math.max(0, Math.min(TIMELINE_STOPS.length - 1, index + by));
+    go(to, to === 0 || to === TIMELINE_STOPS.length - 1);
   };
 
   const onTouchStart = (e: TouchEvent) => {
@@ -164,7 +183,7 @@ export default function BlackBarbieTimeline() {
           </div>
         </div>
 
-        <section className="bht-words" key={`w-${index}`} aria-labelledby="bht-stop-heading" tabIndex={0}>
+        <section ref={wordsRef} className="bht-words" key={`w-${index}`} aria-labelledby="bht-stop-heading" tabIndex={0}>
           <h2 id="bht-stop-heading" style={srOnly}>{label}</h2>
           {stop.tag && <p className="bht-tag">{stop.tag}</p>}
           {stop.sentences.map((s) => (
@@ -176,7 +195,7 @@ export default function BlackBarbieTimeline() {
         </section>
 
         <nav className="bht-track" aria-label="The timeline">
-          <button type="button" className="bht-step" onClick={() => go(index - 1)} disabled={index === 0} aria-label="Earlier">
+          <button type="button" className="bht-step" onClick={() => step(-1)} disabled={index === 0} aria-label="Earlier">
             <span aria-hidden="true">&#8592;</span>
           </button>
           <div className="bht-stops-wrap">
@@ -194,8 +213,8 @@ export default function BlackBarbieTimeline() {
                   className="bht-stop"
                   aria-current={i === index ? 'step' : undefined}
                   aria-label={s.year === null ? s.name : `${yearText(s)}, ${s.name}`}
+                  tabIndex={i === index ? 0 : -1}
                   onClick={() => go(i)}
-                  onKeyDown={onKey}
                 >
                   <span className={`bht-stop-year${s.yearLabel ? ' bht-stop-year-long' : ''}`} aria-hidden="true">
                     {s.yearLabel ? (
@@ -212,7 +231,7 @@ export default function BlackBarbieTimeline() {
             ))}
             </ol>
           </div>
-          <button type="button" className="bht-step" onClick={() => go(index + 1)} disabled={index === TIMELINE_STOPS.length - 1} aria-label="Later">
+          <button type="button" className="bht-step" onClick={() => step(1)} disabled={index === TIMELINE_STOPS.length - 1} aria-label="Later">
             <span aria-hidden="true">&#8594;</span>
           </button>
         </nav>

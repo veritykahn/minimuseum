@@ -24,6 +24,21 @@ type CssVars = CSSProperties & Record<`--${string}`, string | number>;
 
 const T = STATION_TEXT.board;
 
+/**
+ * A typed message cut into its words (each letter with its place in the
+ * message, for its ink) and the spaces and line breaks between them.
+ */
+export function inkWords(text: string): (string | { ch: string; k: number }[])[] {
+  const out: (string | { ch: string; k: number }[])[] = [];
+  [...text].forEach((ch, k) => {
+    const last = out[out.length - 1];
+    if (ch === ' ' || ch === '\n') out.push(ch);
+    else if (Array.isArray(last)) last.push({ ch, k });
+    else out.push([{ ch, k }]);
+  });
+  return out;
+}
+
 function Card({ m, i, canDelete, onDelete }: { m: BoardMessage; i: number; canDelete: boolean; onDelete: () => void }) {
   const tilt = ((i * 37) % 7) - 3;
   const first = m.text.split(/\s+/).slice(0, 5).join(' ');
@@ -39,15 +54,23 @@ function Card({ m, i, canDelete, onDelete }: { m: BoardMessage; i: number; canDe
         </>
       ) : (
         <p className="wrb-card-text">
-          {[...m.text].map((ch, k) => {
-            if (ch === '\n' || ch === ' ') return ch;
-            const j = inkJitter(i, k, 0);
-            return (
-              <span key={k} className="wrb-ink" style={{ '--dy': `${j.dy}em`, '--rot': `${j.rot * 0.6}deg`, '--ink': j.ink } as CssVars}>
-                {ch}
+          {inkWords(m.text).map((part, w) =>
+            typeof part === 'string' ? (
+              part
+            ) : (
+              // A word's letters stay together on a line: each is its own box, so the line would otherwise break inside a word.
+              <span key={w} className="wrb-word">
+                {part.map(({ ch, k }) => {
+                  const j = inkJitter(i, k, 0);
+                  return (
+                    <span key={k} className="wrb-ink" style={{ '--dy': `${j.dy}em`, '--rot': `${j.rot * 0.6}deg`, '--ink': j.ink } as CssVars}>
+                      {ch}
+                    </span>
+                  );
+                })}
               </span>
-            );
-          })}
+            ),
+          )}
         </p>
       )}
       <span style={srOnly}>Typed on the {machine}.</span>
