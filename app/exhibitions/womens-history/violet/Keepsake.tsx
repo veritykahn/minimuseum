@@ -20,6 +20,24 @@ export type KeepsakeId =
   | 'radio'
   | 'needle';
 
+/** Each keepsake's name, for choosing one for a stop of your own (OwnTimeline). */
+export const KEEPSAKE_NAMES: Record<KeepsakeId, string> = {
+  spool: 'Reel of thread',
+  house: 'House',
+  certificate: 'Certificate',
+  machine: 'Sewing machine',
+  rabbit: 'Rabbit',
+  rings: 'Rings',
+  coat: 'Coat',
+  piano: 'Piano',
+  window: 'Window',
+  rose: 'Rose',
+  cauliflower: 'Cauliflower',
+  radio: 'Radio',
+  needle: 'Needle and thread',
+};
+export const KEEPSAKE_IDS = Object.keys(KEEPSAKE_NAMES) as KeepsakeId[];
+
 const ink = { fill: 'none', stroke: 'currentColor', strokeWidth: 2.4, strokeLinecap: 'round', strokeLinejoin: 'round' } as const;
 const warm = { fill: 'var(--whv-orange)', stroke: 'currentColor', strokeWidth: 2.4, strokeLinejoin: 'round' } as const;
 const soft = { fill: 'var(--whv-rose-soft)', stroke: 'currentColor', strokeWidth: 2.4, strokeLinejoin: 'round' } as const;

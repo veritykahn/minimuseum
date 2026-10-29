@@ -121,6 +121,10 @@ const BLOCK_24A: PanelFigure = {
   side: 'left',
 };
 
+/** Poster 1's first two sentences: the walkthrough and Lay a Stone's countdown and walk (stones/) set them from here. */
+export const REMEMBRANCE_LINE = 'International Holocaust Remembrance Day is observed annually on January 27 to commemorate the six million Jewish people who were murdered by the Nazi regime, as well as the millions of other victims who were persecuted.';
+export const LIBERATION_LINE = 'The date marks the liberation of Auschwitz-Birkenau, the largest Nazi concentration and extermination camp, in 1945.';
+
 /** Poster 2's quotation: the walkthrough and the memorial stone's room (stones/) both set it from here. */
 export const NIEMOLLER = {
   text: '“First they came for the socialists, and I did not speak out—because I was not a socialist. Then they came for the trade unionists, and I did not speak out—because I was not a trade unionist. Then they came for the Jews, and I did not speak out—because I was not a Jew. Then they came for me—and there was no one left to speak for me.”',
@@ -199,7 +203,7 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   fx: { theme: 'ho', veil: 'chapters', text: 'all' },
   projector: {
     theme: HOLOCAUST_PROJECTOR_THEME,
-    links: [{ label: 'Lay a Stone: the memorial stone, and a minute’s stillness', href: '/exhibitions/holocaust/stones' }],
+    links: [{ label: 'Lay a Stone: the memorial stone, a minute’s stillness, and the walk', href: '/exhibitions/holocaust/stones' }],
   },
   cases: [
     {
@@ -214,7 +218,7 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
       image: { src: STONES.src, alt: STONES.alt },
       label: 'Interactive',
       title: 'Lay a Stone',
-      subtitle: 'Stones laid by visitors, and a minute’s stillness',
+      subtitle: 'Stones laid by visitors, a minute’s stillness, and a walk',
     },
   ],
   credits: COMMONS_PICTURES.map((p) => ({ text: creditFor(p), href: p.href })),
@@ -245,9 +249,9 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
           text: 'International Holocaust Remembrance Day',
           lines: ['INTERNATIONAL', 'HOLOCAUST', 'REMEMBRANCE', 'DAY'],
         },
-        { type: 'paragraph', section: 'body', atmosphere: 'remembrance-stones', effect: 'blur-to-sharp', figure: STONES, text: 'International Holocaust Remembrance Day is observed annually on January 27 to commemorate the six million Jewish people who were murdered by the Nazi regime, as well as the millions of other victims who were persecuted.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'remembrance-stones', effect: 'blur-to-sharp', figure: STONES, text: REMEMBRANCE_LINE },
         { type: 'paragraph', section: 'body', atmosphere: 'still-stone', effect: 'rise-expand', figure: commonsFigure(COMMONS_BERLIN, 'left'), text: 'By 1945, over 67% of the European Jewish population had been eradicated in an act of genocide.' },
-        { type: 'paragraph', section: 'body', atmosphere: 'first-light', effect: 'kenburns-in', figure: BARRACKS, text: 'The date marks the liberation of Auschwitz-Birkenau, the largest Nazi concentration and extermination camp, in 1945.' },
+        { type: 'paragraph', section: 'body', atmosphere: 'first-light', effect: 'kenburns-in', figure: BARRACKS, text: LIBERATION_LINE },
         { type: 'paragraph', section: 'body', atmosphere: 'remembrance-stones', effect: 'ink-spread', text: 'This day also honors those affected by subsequent genocides in Cambodia, Rwanda, Bosnia and Darfur.' },
         // The candles come up out of the dark, as the reveal brings them up (the theme's own entrance).
         { type: 'paragraph', section: 'body', atmosphere: 'candle-vigil', className: 'ho-glow', figure: commonsFigure(COMMONS_CANDLES, 'left'), text: 'It serves as a powerful reminder of the consequences of hatred, discrimination, and indifference, encouraging reflection, remembrance and a commitment to building a safer, more inclusive world.' },

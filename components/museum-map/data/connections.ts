@@ -50,6 +50,7 @@ export const CONNECTIONS: RoomConnection[] = [
   ['black-history', 'bh-timeline'],
   ['writing-revolution', 'wr-typing'],
   ['womens-history', 'wh-violet'],
+  ['womens-history', 'wh-remembered'],
   ['holocaust', 'ho-stones'],
   ['america-250', 'ap-sign'],
   ['victorian', 'vb-optical-toys'],

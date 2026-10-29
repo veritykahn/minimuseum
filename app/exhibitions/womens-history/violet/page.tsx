@@ -6,6 +6,8 @@ import '@/components/exhibition/poster-exhibition.css';
 import FactNote from '@/components/exhibition/FactNote';
 import { BIOGRAPHY_MOTTO, VIOLET_DATES, VIOLET_LETTERING, VIOLET_NAME, VIOLET_NEE, WOMENS_HISTORY } from '../womensHistory';
 import Keepsake from './Keepsake';
+import OwnTimeline from './OwnTimeline';
+import { useBox } from './useBox';
 import { LIFE, threadLayout, threadPath } from './violetLife';
 import './violet.css';
 
@@ -19,9 +21,15 @@ import './violet.css';
  * (#fulham, #blitz…). The Blitz also carries a museum note, owner-approved
  * and fact-checked, set apart from the typed biography with its source
  * (violetLife.ts).
+ *
+ * A second mode, "Make your own" (#make), sets the same thread out for a
+ * woman in the visitor's own life (OwnTimeline.tsx).
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
+
+type Mode = 'violet' | 'make';
+const MAKE_HASH = 'make';
 
 function stopFromHash(hash: string): number {
   const h = hash.replace(/^#/, '');
@@ -33,23 +41,9 @@ export default function VioletsLife() {
   const [index, setIndex] = useState(0);
   const [visited, setVisited] = useState<Set<number>>(() => new Set([0]));
   const [announcement, setAnnouncement] = useState('');
-  const [band, setBand] = useState({ w: 0, h: 0 });
-  const bandRef = useRef<HTMLDivElement>(null);
+  const [bandRef, band] = useBox<HTMLDivElement>();
+  const [mode, setMode] = useState<Mode>('violet');
   const stopRefs = useRef<(HTMLButtonElement | null)[]>([]);
-
-  useEffect(() => {
-    const el = bandRef.current;
-    if (!el) return;
-    const measure = () => setBand({ w: el.clientWidth, h: el.clientHeight });
-    measure();
-    if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', measure);
-      return () => window.removeEventListener('resize', measure);
-    }
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
 
   const go = useCallback((i: number, { focus = false, announce = false } = {}) => {
     if (i < 0 || i >= LIFE.length) return;
@@ -62,13 +56,23 @@ export default function VioletsLife() {
 
   useEffect(() => {
     const fromHash = () => {
+      if (window.location.hash === `#${MAKE_HASH}`) return setMode('make');
       const i = stopFromHash(window.location.hash);
-      if (i >= 0) go(i);
+      if (i >= 0) {
+        setMode('violet');
+        go(i);
+      }
     };
     fromHash();
     window.addEventListener('hashchange', fromHash);
     return () => window.removeEventListener('hashchange', fromHash);
   }, [go]);
+
+  const choose = (m: Mode) => {
+    setMode(m);
+    window.history.replaceState(null, '', m === 'make' ? `#${MAKE_HASH}` : `#${LIFE[index].id}`);
+    setAnnouncement(m === 'make' ? 'Make your own timeline, for a woman in your life.' : 'Violet’s Life.');
+  };
 
   // Arrow keys, Home and End move along the thread.
   const onStopKey = (e: KeyboardEvent<HTMLButtonElement>) => {
@@ -111,11 +115,23 @@ export default function VioletsLife() {
 
         <header className="whv-bar">
           <h1 className="whv-title">
-            Violet’s Life
-            <span className="whv-title-dates">1907 · 1988</span>
+            {mode === 'make' ? 'Your Timeline' : 'Violet’s Life'}
+            <span className="whv-title-dates">{mode === 'make' ? 'A woman in your life' : '1907 · 1988'}</span>
           </h1>
+          <div className="whv-modes" role="group" aria-label="Mode">
+            <button type="button" className="whv-mode" aria-pressed={mode === 'violet'} onClick={() => choose('violet')}>
+              Violet’s life
+            </button>
+            <button type="button" className="whv-mode" aria-pressed={mode === 'make'} onClick={() => choose('make')}>
+              Make your own
+            </button>
+          </div>
         </header>
 
+        {mode === 'make' ? (
+          <OwnTimeline announce={setAnnouncement} />
+        ) : (
+        <>
         <div className="whv-band" ref={bandRef}>
           <svg className="whv-thread" width={band.w} height={band.h} aria-hidden="true" focusable="false">
             <path className="whv-thread-ahead" d={fullPath} />
@@ -213,8 +229,10 @@ export default function VioletsLife() {
               Next <span aria-hidden="true">&#8594;</span>
             </button>
           </nav>
-          <p className="visually-hidden" role="status" aria-live="polite">{announcement}</p>
         </section>
+        </>
+        )}
+        <p className="visually-hidden" role="status" aria-live="polite">{announcement}</p>
       </main>
     </div>
   );

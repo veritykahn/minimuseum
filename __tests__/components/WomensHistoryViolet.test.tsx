@@ -109,8 +109,8 @@ describe('walking the thread', () => {
 
 describe('wiring', () => {
   it('sets the room on the landing page, the map and the projector', () => {
-    expect(WOMENS_HISTORY.interactives?.map((c) => c.href)).toEqual(['/exhibitions/womens-history/violet']);
-    expect(WOMENS_HISTORY.projector.links.map((l) => l.href)).toEqual(['/exhibitions/womens-history/violet']);
+    expect(WOMENS_HISTORY.interactives?.map((c) => c.href)).toContain('/exhibitions/womens-history/violet');
+    expect(WOMENS_HISTORY.projector.links.map((l) => l.href)).toContain('/exhibitions/womens-history/violet');
     expect(getRoomByPath('/exhibitions/womens-history/violet')?.id).toBe('wh-violet');
     expect(getLevelConfig('/exhibitions/womens-history/violet').title).toBe("Women's History Month");
   });

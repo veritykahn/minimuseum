@@ -247,7 +247,7 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'womens-history', label: "Women's\nHistory Month", path: '/exhibitions/womens-history',
     x: COL[2], ...TOP, accentColor: COLORS.womensHistory,
     parent: 'first-floor',
-    children: ['wh-case', 'wh-violet', ...lessonsChild('womens-history')],
+    children: ['wh-case', 'wh-violet', 'wh-remembered', ...lessonsChild('womens-history')],
   },
   {
     id: 'holocaust', label: 'Holocaust\nMemorial Day', path: '/exhibitions/holocaust',
@@ -872,21 +872,25 @@ export const VICTORIAN: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Women's History Month (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case and the room beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the two
+// interactive rooms beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
 // ├───────╴ ╶───────┬──────╴ ╶─────┤
-// │  Display Case   ╎ Violet’s Life │
+// │  Violet’s Life  ╎ Who Gets…    │
 // └─────────────────┴──────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const WOMENS_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.womensHistory,
   walls: [
-    ...wallWithDoorway(40, 180, 250, 180),
-    ...wallWithDoorway(250, 180, 460, 180),
-    ...wallWithDoorway(250, 180, 250, 280),
+    ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 250, 280),
+    ...wallWithDoorway(250, 280, 460, 280),
+    ...wallWithDoorway(250, 280, 250, 380),
   ],
   rooms: [
     {
@@ -898,14 +902,20 @@ const WOMENS_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
     {
       id: 'wh-case', label: 'Display Case', path: '/exhibitions/womens-history/artifacts/case',
       accentColor: COLORS.womensHistory, parent: 'womens-history',
-      x: 40, y: 180, width: 210, height: 100,
-      labelX: 145, labelY: 230,
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
     },
     {
       id: 'wh-violet', label: 'Violet’s Life', path: '/exhibitions/womens-history/violet',
       accentColor: COLORS.womensHistory, parent: 'womens-history',
-      x: 250, y: 180, width: 210, height: 100,
-      labelX: 355, labelY: 230,
+      x: 40, y: 280, width: 210, height: 100,
+      labelX: 145, labelY: 330,
+    },
+    {
+      id: 'wh-remembered', label: 'Who Gets\nRemembered?', path: '/exhibitions/womens-history/remembered',
+      accentColor: COLORS.womensHistory, parent: 'womens-history',
+      x: 250, y: 280, width: 210, height: 100,
+      labelX: 355, labelY: 330,
     },
   ],
 };
@@ -920,7 +930,7 @@ export const WOMENS_HISTORY: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
   ],
-  ...withLessons(WOMENS_HISTORY_FLOOR_PLAN, '0 0 500 330', 'womens-history'),
+  ...withLessons(WOMENS_HISTORY_FLOOR_PLAN, '0 0 500 430', 'womens-history'),
 };
 
 // ═══════════════════════════════════════════════════════════════════

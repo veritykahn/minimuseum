@@ -219,7 +219,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#F2661F',
     parent: 'first-floor',
-    children: ['wh-case', 'wh-violet', ...lessonsChild('womens-history')],
+    children: ['wh-case', 'wh-violet', 'wh-remembered', ...lessonsChild('womens-history')],
   },
   {
     id: 'wh-case',
@@ -233,6 +233,14 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     id: 'wh-violet',
     label: 'Violet’s Life',
     path: '/exhibitions/womens-history/violet',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#F2661F',
+    parent: 'womens-history',
+  },
+  {
+    id: 'wh-remembered',
+    label: 'Who Gets Remembered?',
+    path: '/exhibitions/womens-history/remembered',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#F2661F',
     parent: 'womens-history',
