@@ -72,7 +72,7 @@ function approved2() {
 }
 
 describe('America 250', () => {
-  it('has two posters, each opening on its title and ending with Return to Exhibition, and no display case', () => {
+  it('has two posters, each opening on its title and ending with Return to Exhibition, no display case, and the signing room', () => {
     expect(AMERICA_250.slug).toBe('america-250');
     expect(AMERICA_250.name).toBe('America 250');
     expect(AMERICA_250.subtitle).toBe('The Declaration of Independence at 250');
@@ -83,7 +83,7 @@ describe('America 250', () => {
       expect(p.items[p.items.length - 1].type).toBe('end');
     }
     expect(AMERICA_250.cases).toBeUndefined();
-    expect(AMERICA_250.interactives).toBeUndefined();
+    expect(AMERICA_250.interactives?.map((c) => c.href)).toEqual(['/exhibitions/america-250/sign']);
     expect(AMERICA_250.fx.theme).toBe('ap');
   });
 

@@ -251,13 +251,14 @@ describe('The Victorian Britain display case page', () => {
 });
 
 describe('Victorian Britain on the museum map', () => {
-  it('is a room on the Ground Floor, with an Exhibition Hall and a Display Case', () => {
+  it('is a room on the Ground Floor, with an Exhibition Hall, a Display Case and the Optical Toys', () => {
     const level = getLevelConfig('/exhibitions/victorian/artifacts/case');
     expect(level.title).toBe('Victorian Britain');
     expect(level.backTarget?.path).toBe('/exhibitions/ground-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/victorian'],
       ['Display Case', '/exhibitions/victorian/artifacts/case'],
+      ['Optical Toys', '/exhibitions/victorian/optical-toys'],
     ]);
     expect(getRoomByPath('/exhibitions/victorian')?.parent).toBe('ground-floor');
     expect(getRoomByPath('/exhibitions/victorian/artifacts/case')?.parent).toBe('victorian');

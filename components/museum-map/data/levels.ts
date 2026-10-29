@@ -178,12 +178,13 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'america-250', label: 'America 250', path: '/exhibitions/america-250',
     x: 102, y: 230, width: 140, height: 100, accentColor: COLORS.america250,
     parent: 'ground-floor',
+    children: ['ap-sign'],
   },
   {
     id: 'victorian', label: 'Victorian\nBritain', path: '/exhibitions/victorian',
     x: 257, y: 230, width: 140, height: 100, accentColor: COLORS.victorian,
     parent: 'ground-floor',
-    children: ['vb-case'],
+    children: ['vb-case', 'vb-optical-toys'],
   },
 ];
 
@@ -769,24 +770,33 @@ export const MOON: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — America 250 (Floor Plan)
 //
-// Layout: the Exhibition Hall alone (there is no display case)
+// Layout: the Exhibition Hall, and the signing room beyond it (there is no
+// display case)
 // ┌────────────────────────────────┐
-// │                                │
 // │        Exhibition Hall         │
-// │                                │
+// ├───────────────╴ ╶──────────────┤
+// │      Put Your Name to It       │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const AMERICA_250_FLOOR_PLAN: ExhibitionFloorPlan = {
   outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
   accentColor: COLORS.america250,
-  walls: [],
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+  ],
   rooms: [
     {
       id: 'ap-entrance', label: 'Exhibition Hall', path: '/exhibitions/america-250',
       accentColor: COLORS.america250, parent: 'america-250',
-      x: 40, y: 80, width: 420, height: 200,
-      labelX: 250, labelY: 180,
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'ap-sign', label: 'Put Your Name to It', path: '/exhibitions/america-250/sign',
+      accentColor: COLORS.america250, parent: 'america-250',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
     },
   ],
 };
@@ -807,19 +817,22 @@ export const AMERICA_250: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Victorian Britain (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case, and the optical toys beyond
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
+// ├───────────────╴ ╶──────────────┤
+// │          Optical Toys          │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const VICTORIAN_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.victorian,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
   ],
   rooms: [
     {
@@ -834,6 +847,12 @@ const VICTORIAN_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'vb-optical-toys', label: 'Optical Toys', path: '/exhibitions/victorian/optical-toys',
+      accentColor: COLORS.victorian, parent: 'victorian',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
+    },
   ],
 };
 
@@ -847,7 +866,7 @@ export const VICTORIAN: MapLevelConfig = {
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
     { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
   ],
-  ...withLessons(VICTORIAN_FLOOR_PLAN, '0 0 500 330', 'victorian'),
+  ...withLessons(VICTORIAN_FLOOR_PLAN, '0 0 500 430', 'victorian'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
