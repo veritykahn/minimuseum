@@ -8,7 +8,7 @@ import RoomShell from '../RoomShell';
 import { MICROSCOPE_NOTES, REGOLITH } from '../moon';
 import Eyepiece, { type EyepieceHandle, type WipeReport } from './Eyepiece';
 import Knob from './Knob';
-import { EARTH_SAMPLES, type EarthSample } from './grains';
+import { EARTH_SLIDES, MOON_SLIDES, SLIDES, type EarthSample, type MoonSlide, type Slide } from './slides';
 import { blurFor } from './focus';
 import './microscope.css';
 
@@ -19,8 +19,11 @@ import './microscope.css';
  * cloth to feel the difference the poster describes. Every claim on screen is
  * poster 1's, from moon.ts, but two notes: what Moon dust is made of, and the
  * meteorite in the case. Those are owner-approved and fact-checked, set apart
- * with their sources (moon.ts, MICROSCOPE_NOTES). The grains are drawn
- * (grains.ts).
+ * with their sources (moon.ts, MICROSCOPE_NOTES). The slides are real
+ * photographs down microscopes (slides.ts), three of Moon dust and one of
+ * Earth's sand for each of the poster's three words; each is captioned from
+ * its own record, as a note with its source, and credited beneath the
+ * eyepiece. The loose dust the cloth wipes is drawn (grains.ts).
  */
 
 const TABS = [
@@ -33,6 +36,17 @@ type TabId = (typeof TABS)[number]['id'];
 const POWER_NAMES = ['Low', 'Medium', 'High'];
 
 const EARTH_WORDS: Record<EarthSample, string> = { wind: 'wind', water: 'water', life: 'living things' };
+
+/** A photograph's credit: its title, author and licence, each linked. */
+function Credit({ slide }: { slide: Slide }) {
+  const c = slide.credit;
+  return (
+    <span className="mo-ms-credit-line">
+      Photo: <a href={c.href} target="_blank" rel="noopener noreferrer">{c.title}</a>, {c.author},{' '}
+      {c.licenceHref ? <a href={c.licenceHref} target="_blank" rel="noopener noreferrer">{c.licence}</a> : c.licence}
+    </span>
+  );
+}
 
 /** Poster 1's sentence on Earth's soil, with the word for the slide on the stage marked. */
 function Unlike({ sample }: { sample: EarthSample }) {
@@ -51,6 +65,7 @@ export default function MoonMicroscope() {
   const reduced = usePrefersReducedMotion();
   const [tab, setTab] = useState<TabId>('moon');
   const [earth, setEarth] = useState<EarthSample>('wind');
+  const [moon, setMoon] = useState<MoonSlide>('grains');
   const [power, setPower] = useState(0);
   const [focus, setFocus] = useState(24);
   const [status, setStatus] = useState('');
@@ -118,13 +133,15 @@ export default function MoonMicroscope() {
     setStatus('Fresh slides and a clean cloth.');
   };
 
-  const earthName = EARTH_SAMPLES.find((s) => s.id === earth)!.label;
-  const left = tab === 'earth' ? earth : 'moon';
-  const right = tab === 'compare' ? earth : null;
+  const moonSlide = SLIDES[`moon-${moon}`];
+  const earthSlide = SLIDES[`earth-${earth}`];
+  const earthName = earthSlide.label;
+  const left = tab === 'earth' ? earthSlide : moonSlide;
+  const right = tab === 'compare' ? earthSlide : null;
   const viewLabel =
-    tab === 'moon' ? 'A drawing of Moon dust under the microscope: sharp, jagged gray grains and fine dust'
-    : tab === 'earth' ? `A drawing of Earth's soil shaped by ${EARTH_WORDS[earth]}, under the microscope`
-    : `Side by side under the microscope: drawings of Moon dust on the left and Earth's soil shaped by ${EARTH_WORDS[earth]} on the right`;
+    tab === 'compare' ? `Side by side under the microscope. Left, Moon dust: ${moonSlide.alt}. Right, Earth's sand shaped by ${EARTH_WORDS[earth]}: ${earthSlide.alt}`
+    : left.alt;
+  const onStage = right ? [left, right] : [left];
   const activeTab = TABS.find((x) => x.id === tab)!;
 
   return (
@@ -173,11 +190,15 @@ export default function MoonMicroscope() {
               blur={blur}
               reduced={reduced}
               label={viewLabel}
-              rightLabel={`Earth · ${earthName}`}
+              rightLabel="Earth"
               onWiped={onWiped}
             />
             <p className="mo-ms-hint" aria-hidden="true">
               {sharp ? 'Drag across the slide to wipe it' : 'Turn the focus knob'}
+            </p>
+            {tab !== 'compare' && <FactNote fact={left.caption} className="mo-ms-caption" />}
+            <p className="mo-ms-credit">
+              {onStage.map((s) => <Credit key={s.id} slide={s} />)}
             </p>
           </div>
 
@@ -185,11 +206,21 @@ export default function MoonMicroscope() {
             <p className="mo-ms-kicker">{tab === 'compare' ? 'Two slides' : 'On the stage'}</p>
             <h2 className="mo-ms-heading">{tab === 'earth' ? `Earth's soil: ${earthName}` : tab === 'compare' ? `Moon and Earth` : activeTab.label}</h2>
 
+            {tab !== 'earth' && (
+              <div className="mo-ms-samples" role="group" aria-label="Moon slide">
+                <span className="mo-ms-samples-label" aria-hidden="true">Moon</span>
+                {MOON_SLIDES.map((s) => (
+                  <button key={s.id} type="button" className="mo-ms-chip" aria-pressed={moon === s.key} onClick={() => setMoon(s.key)}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            )}
             {tab !== 'moon' && (
               <div className="mo-ms-samples" role="group" aria-label="Earth slide: shaped by">
                 <span className="mo-ms-samples-label" aria-hidden="true">Shaped by</span>
-                {EARTH_SAMPLES.map((s) => (
-                  <button key={s.id} type="button" className="mo-ms-chip" aria-pressed={earth === s.id} onClick={() => setEarth(s.id)}>
+                {EARTH_SLIDES.map((s) => (
+                  <button key={s.id} type="button" className="mo-ms-chip" aria-pressed={earth === s.key} onClick={() => setEarth(s.key)}>
                     {s.label}
                   </button>
                 ))}

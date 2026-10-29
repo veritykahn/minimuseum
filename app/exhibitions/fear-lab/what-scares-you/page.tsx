@@ -5,7 +5,7 @@ import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RoomShell from '../RoomShell';
 import HeartTrace from './HeartTrace';
 import KnownOrUnknown from './KnownOrUnknown';
-import MysteryBox from './MysteryBox';
+import FearBoxes from './FearBoxes';
 import RustlingBushes from './RustlingBushes';
 import { paceFor } from './lab';
 import { createLabSound, type LabSound } from './sound';
@@ -13,17 +13,20 @@ import './lab.css';
 
 /*
  * What Scares You?, on one screen: a dark lab with a heart monitor running
- * along its foot, and three tabs over it (the mystery box, known or unknown,
+ * along its foot, and three tabs over it (the fear boxes, known or unknown,
  * the rustling bushes). Each tab has its own address (#box, #choose,
  * #bushes). The monitor quickens with whatever is frightening on screen; it
  * is a drawing, not a reading.
  *
  * Sound starts off and motion follows the visitor's setting; both have a
- * switch at the top. No camera or microphone is used.
+ * switch at the top. With sound on, a creepy drone loops under every tab
+ * (sound.ts), tightening as the fright rises, with the heartbeat at the
+ * monitor's pace and the wind over the bushes. No camera or microphone is
+ * used.
  */
 
 const TABS = [
-  { id: 'box', label: 'The Mystery Box', short: 'Box' },
+  { id: 'box', label: 'The Fear Boxes', short: 'Boxes' },
   { id: 'choose', label: 'Known or Unknown?', short: 'Choose' },
   { id: 'bushes', label: 'The Rustling Bushes', short: 'Bushes' },
 ] as const;
@@ -82,8 +85,13 @@ export default function WhatScaresYou() {
   };
   useEffect(() => () => sound.current?.close(), []);
   const getSound = useCallback(() => sound.current, []);
-  // One soft beat as the box opens: relief.
-  const onReveal = useCallback(() => sound.current?.beat(0.2), []);
+  // The music tightens with the fright, and the wind blows over the bushes.
+  useEffect(() => {
+    sound.current?.tension(fright);
+  }, [fright, soundOn]);
+  useEffect(() => {
+    sound.current?.wind(soundOn && tab === 'bushes');
+  }, [soundOn, tab]);
 
   // The heartbeat you hear, at the monitor's pace, when sound is on.
   const pace = paceFor(fright);
@@ -154,8 +162,8 @@ export default function WhatScaresYou() {
         </header>
 
         <section className="fl-lab-panel" id="fl-lab-panel" role="tabpanel" aria-labelledby={`fl-lab-tab-${tab}`}>
-          {tab === 'box' && <MysteryBox motion={motion} onFright={setFright} onReveal={onReveal} />}
-          {tab === 'choose' && <KnownOrUnknown onFright={setFright} />}
+          {tab === 'box' && <FearBoxes motion={motion} sound={getSound} onFright={setFright} />}
+          {tab === 'choose' && <KnownOrUnknown sound={getSound} onFright={setFright} />}
           {tab === 'bushes' && <RustlingBushes motion={motion} sound={getSound} onFright={setFright} />}
         </section>
 

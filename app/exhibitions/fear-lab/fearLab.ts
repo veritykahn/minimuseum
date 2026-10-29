@@ -107,7 +107,7 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
   fx: { theme: 'fl', veil: 'chapters', text: 'all' },
   projector: {
     theme: FEAR_LAB_PROJECTOR_THEME,
-    links: [{ label: 'What Scares You? The mystery box, known or unknown, and the rustling bushes', href: '/exhibitions/fear-lab/what-scares-you' }],
+    links: [{ label: 'What Scares You? The fear boxes, known or unknown, and the rustling bushes', href: '/exhibitions/fear-lab/what-scares-you' }],
   },
   // No display cases yet: the artifacts have not been photographed.
   interactives: [
@@ -120,7 +120,7 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
       label: 'Interactive',
       title: 'What Scares You?',
-      subtitle: 'The mystery box, known or unknown, and the rustling bushes',
+      subtitle: 'The fear boxes, known or unknown, and the rustling bushes',
     },
   ],
   posters: [

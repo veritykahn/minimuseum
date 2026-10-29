@@ -2,14 +2,15 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import MoonMicroscope from '@/app/exhibitions/moon/microscope/page';
 import { blurFor, FOCUS_AT } from '@/app/exhibitions/moon/microscope/focus';
 import { makeSlide } from '@/app/exhibitions/moon/microscope/grains';
+import { EARTH_SLIDES, MOON_SLIDES } from '@/app/exhibitions/moon/microscope/slides';
 import { freshState, releaseCloth, wipeStep } from '@/app/exhibitions/moon/microscope/wipe';
 import { MICROSCOPE_NOTES, MOON, MOON_CASE, REGOLITH } from '@/app/exhibitions/moon/moon';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
 /*
- * Under the Microscope: the slides, the cloth, the focus, the room's tabs,
- * and its wiring.
+ * Under the Microscope: the photographs and their captions and credits, the
+ * dust the cloth wipes, the focus, the room's tabs, and its wiring.
  */
 
 // jsdom has no canvas: the eyepiece draws nothing.
@@ -18,13 +19,45 @@ beforeAll(() => {
 });
 afterAll(() => jest.restoreAllMocks());
 
-describe('the slides', () => {
+describe('the photographs', () => {
+  it('has three of Moon dust and one for each of the poster’s three words, each captioned from its record and credited', () => {
+    expect(MOON_SLIDES.map((s) => s.label)).toEqual(['Grains', 'Orange glass', 'Impact']);
+    expect(EARTH_SLIDES.map((s) => s.label)).toEqual(['Wind', 'Water', 'Living things']);
+    for (const s of [...MOON_SLIDES, ...EARTH_SLIDES]) {
+      expect(s.src).toMatch(/^\/exhibitions\/moon\/microscope\/.+\.jpg$/);
+      expect(s.caption.sources.length).toBeGreaterThan(0);
+      expect(s.credit.href).toMatch(/^https:\/\/(commons\.wikimedia\.org|images\.nasa\.gov)\//);
+    }
+    // NASA's are public domain; the Earth sands are Creative Commons, with the licence linked.
+    MOON_SLIDES.forEach((s) => expect(s.credit).toMatchObject({ author: 'NASA', licence: 'Public domain' }));
+    EARTH_SLIDES.forEach((s) => expect(s.credit.licenceHref).toMatch(/creativecommons\.org/));
+  });
+
+  it('captions and credits the slide on the stage, and both side by side', () => {
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
+    render(<MoonMicroscope />);
+    expect(screen.getByText(MOON_SLIDES[0].caption.text)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: MOON_SLIDES[0].credit.title })).toHaveAttribute('href', MOON_SLIDES[0].credit.href);
+    fireEvent.click(screen.getByRole('button', { name: 'Orange glass' }));
+    expect(screen.getByText(MOON_SLIDES[1].caption.text)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: MOON_SLIDES[1].alt })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: "Earth's Soil" }));
+    fireEvent.click(screen.getByRole('button', { name: 'Living things' }));
+    expect(screen.getByText(EARTH_SLIDES[2].caption.text)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: EARTH_SLIDES[2].credit.title })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('tab', { name: 'Side by Side' }));
+    expect(screen.getByRole('link', { name: MOON_SLIDES[1].credit.title })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: EARTH_SLIDES[2].credit.title })).toBeInTheDocument();
+  });
+});
+
+describe('the dust on the slides', () => {
   it('lays the same grains every time', () => {
     expect(makeSlide('moon')).toEqual(makeSlide('moon'));
     expect(makeSlide('wind').length).toBeGreaterThan(50);
   });
 
-  it('draws Moon dust with sharper outlines than wind-shaped grains', () => {
+  it('draws the Moon’s dust with sharper outlines than the loose Earth grains', () => {
     // How far an outline strays from round: the spread of its radii.
     const spread = (s: number[]) => Math.max(...s) - Math.min(...s);
     const avg = (id: 'moon' | 'wind') => {
@@ -73,6 +106,7 @@ describe('the focus', () => {
 
 describe('the room', () => {
   it('sets the poster’s words for each slide, and keeps the knob and tabs keyboard-operable', () => {
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
     render(<MoonMicroscope />);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Under the Microscope');
     expect(screen.getByText(`${REGOLITH.unlike} ${REGOLITH.jagged}`)).toBeInTheDocument();
