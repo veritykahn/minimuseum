@@ -133,12 +133,28 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The page tears open as a poster opens; every panel arrives its own way.
   fx: { theme: 'vb', veil: 'chapters', text: 'all' },
-  projector: { theme: VICTORIAN_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: VICTORIAN_PROJECTOR_THEME,
+    links: [{ label: 'Optical Toys: twirl a thaumatrope and spin a zoetrope', href: '/exhibitions/victorian/optical-toys' }],
+  },
   cases: [
     {
       href: '/exhibitions/victorian/artifacts/case',
       label: 'Display Case',
       title: 'Artifacts',
+    },
+  ],
+  // The optical toys room, drawn (no photographs): a twirled disc and a drum on its stand.
+  interactives: [
+    {
+      href: '/exhibitions/victorian/optical-toys',
+      image: {
+        src: '/exhibitions/victorian/room-optical-toys.svg',
+        alt: 'A drawing of a thaumatrope disc on its strings, showing a decorated Christmas tree, beside a zoetrope drum on a brass stand',
+      },
+      label: 'Interactive',
+      title: 'Optical Toys',
+      subtitle: 'Twirl a thaumatrope and spin a zoetrope',
     },
   ],
   // The V&A's photograph of its Centre Refreshment Room is washed in behind the posters.

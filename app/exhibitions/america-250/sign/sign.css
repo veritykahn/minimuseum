@@ -1,0 +1,371 @@
+/* ==========================================================================
+   The signing, on one screen: a sheet on the green cloth of the Congress's
+   tables, by candlelight, inside the posters' own border (rust while you
+   sign, as on "We Shall All Hang Together"; slate for the copies, as on
+   "Before it was Sacred"), with two tabs over it.
+   ========================================================================== */
+
+.ap-room { min-height: 100vh; color: #f1e9d8; }
+.ap-room .pe-nav-text { color: #f1e9d8; }
+.ap-room :is(.pe-nav-arrow, .pe-nav-label) { color: #d8ccb4; }
+.ap-room .pe-nav-left { left: calc(var(--ap-fw) + 18px); top: calc(var(--ap-fw) + 14px); z-index: 60; }
+.ap-room-stage { display: block; }
+.ap-room :focus-visible { outline: 2px solid #e8c77d; outline-offset: 3px; }
+
+.aps-stage {
+  --frame: var(--ap-rust);
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 600px;
+  overflow: hidden;
+  background: #120d09;
+}
+.aps-stage[data-tab='copies'] { --frame: var(--ap-slate); }
+/* The posters' border, with the thin ink line inside it. */
+.aps-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  border: var(--ap-fw) solid var(--frame);
+  box-shadow: inset 0 0 0 1.5px rgba(26, 24, 22, 0.85);
+  transition: border-color 0.6s ease;
+}
+
+/* ───────── The desk: green cloth, and a candle's light across it ───────── */
+.aps-desk { position: absolute; inset: 0; pointer-events: none; }
+.aps-cloth {
+  position: absolute;
+  inset: 0;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.06 0 0 0 0 0.12 0 0 0 0 0.08 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(ellipse 90% 80% at 42% 45%, #2d5139 0%, #1f3d2a 45%, #12241a 80%, #0b150f 100%);
+}
+.aps-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 9% 30%, rgba(255, 214, 140, 0.34), rgba(255, 170, 80, 0.12) 22%, transparent 48%),
+    radial-gradient(ellipse 70% 60% at 30% 50%, rgba(255, 190, 110, 0.12), transparent 70%);
+  mix-blend-mode: screen;
+  animation: aps-glow 6s ease-in-out infinite;
+}
+.aps-candle {
+  position: absolute;
+  left: calc(var(--ap-fw) + 2vw);
+  top: 18vh;
+  height: 44vh;
+  filter: drop-shadow(0 18px 18px rgba(0, 0, 0, 0.5));
+}
+.aps-flame { transform-origin: 60px 92px; animation: aps-flame 3.2s ease-in-out infinite; }
+@keyframes aps-glow { 0%, 100% { opacity: 1; } 40% { opacity: 0.9; } 70% { opacity: 0.97; } }
+@keyframes aps-flame {
+  0%, 100% { transform: skewX(0deg) scaleY(1); }
+  30% { transform: skewX(-3deg) scaleY(1.04); }
+  60% { transform: skewX(2deg) scaleY(0.97); }
+}
+
+/* ───────── The title and the tabs ───────── */
+.aps-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: calc(var(--ap-fw) + 10px) 96px 0;
+}
+.aps-title {
+  font-family: var(--ap-script);
+  font-weight: 400;
+  font-size: clamp(3rem, 5vw, 4.4rem);
+  line-height: 1;
+  color: #f1e9d8;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.55);
+}
+.aps-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid rgba(241, 233, 216, 0.2);
+  border-radius: 999px;
+  background: rgba(12, 10, 8, 0.5);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+.ap-room .aps-tab {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #d8ccb4;
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+.ap-room .aps-tab:hover { color: #fff8ec; }
+.ap-room .aps-tab[aria-selected='true'] { background: var(--frame); color: #fff8ec; }
+.aps-tab-short { display: none; }
+
+/* ───────── The sheet ───────── */
+.aps-sheet-wrap {
+  position: absolute;
+  z-index: 1;
+  top: 158px;
+  bottom: calc(var(--ap-fw) + 24px);
+  left: calc(var(--ap-fw) + 8vw);
+  right: calc(min(430px, 34vw) + max(5vw, 50vw - 680px) + 2vw);
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.aps-sheet {
+  position: relative;
+  height: min(100cqh, 100cqw * 1.25);
+  aspect-ratio: 4 / 5;
+  transform: rotate(-1.2deg);
+  transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.aps-stage[data-tab='copies'] .aps-sheet { transform: rotate(0.6deg); }
+.ap-sheet {
+  display: block;
+  width: 100%;
+  height: 100%;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 26px 50px rgba(0, 0, 0, 0.55), 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+.ap-sheet-script { font-family: var(--ap-script); }
+.ap-sheet-type { font-family: 'Libre Caslon Text', Georgia, serif; }
+
+/* Each copy is written in afresh: its lines drawn in, its words fading up. */
+.ap-sheet-ink path { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: aps-write 1.5s ease-out forwards; }
+.ap-sheet-ink text, .ap-typeset rect { animation: aps-fade 1.2s ease 0.5s both; }
+.ap-sheet-sig { animation: aps-sig 1.4s ease 0.9s both; }
+@keyframes aps-write { to { stroke-dashoffset: 0; } }
+@keyframes aps-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes aps-sig { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: none; } }
+
+/* The line to sign on: a quill for a pointer. */
+.aps-pad-box { position: absolute; left: 15%; top: 74.4%; width: 70%; height: 16.8%; }
+.ap-pad {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M2 30 L4 24 L26 2 C30 0 32 2 30 6 L8 28Z' fill='%23f4ecd8' stroke='%232b1d14' stroke-width='1.2'/%3E%3Cpath d='M2 30 L4 24 L8 28Z' fill='%232b1d14'/%3E%3C/svg%3E") 2 30, crosshair;
+}
+.aps-pad-hint {
+  position: absolute;
+  left: 2%;
+  bottom: 24%;
+  font-family: var(--pe-ui);
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: rgba(43, 29, 20, 0.5);
+  pointer-events: none;
+}
+
+/* The inkwell, beside the sheet. */
+.ap-room .aps-inkwell {
+  appearance: none;
+  position: absolute;
+  left: calc(100% + 18px);
+  bottom: 4%;
+  width: clamp(76px, 7.5vw, 110px);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transform: rotate(1.2deg);
+}
+.aps-inkwell-art { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.5)); }
+.aps-quill { transform-origin: 80px 160px; transition: transform 0.3s ease; }
+.aps-inkwell:hover .aps-quill { transform: rotate(-4deg); }
+.aps-inkwell[data-dipping] .aps-quill { animation: aps-dip 0.7s ease; }
+@keyframes aps-dip { 40% { transform: translateY(18px) rotate(2deg); } }
+.aps-inkwell-label {
+  font-family: var(--pe-ui);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #d8ccb4;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(216, 204, 180, 0.35);
+}
+.aps-inkwell[data-low] .aps-inkwell-label { color: #fff3d6; border-color: #e8c77d; background: rgba(168, 79, 51, 0.6); animation: aps-ask 2.4s ease-in-out infinite; }
+@keyframes aps-ask { 50% { box-shadow: 0 0 0 6px rgba(232, 199, 125, 0.18); } }
+
+/* ───────── The panels: a card of the posters' cream paper ───────── */
+.aps-panel {
+  position: absolute;
+  z-index: 2;
+  right: max(5vw, calc(50vw - 680px));
+  top: 158px;
+  width: min(430px, 34vw);
+  max-height: calc(100dvh - 158px - var(--ap-fw) - 24px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px 26px;
+  background: #f8f6f0;
+  color: #2a2724;
+  border-top: 3px solid var(--frame);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.45);
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  animation: aps-panel-in 0.6s ease both;
+}
+.aps-panel[hidden] { display: none; }
+@keyframes aps-panel-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.aps-intro { font-size: 1.02rem; line-height: 1.55; }
+.aps-note { font-family: var(--pe-ui); font-weight: 300; font-size: 13px; color: #5e5850; }
+.aps-quote { margin: 0; padding-left: 14px; border-left: 2px solid var(--frame); }
+.aps-quote blockquote { margin: 0; font-style: italic; font-size: 1.02rem; line-height: 1.55; }
+.aps-quote-small blockquote { font-size: 0.9rem; color: #4a453f; }
+.aps-quote figcaption { margin-top: 8px; font-family: var(--pe-ui); font-weight: 300; font-size: 12px; color: #5e5850; }
+.aps-field { display: flex; flex-direction: column; gap: 6px; }
+.aps-field > span:first-child { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #5e5850; }
+.aps-of { display: flex; align-items: baseline; gap: 10px; font-family: var(--ap-script); font-size: 2rem; line-height: 1; }
+.aps-field input {
+  flex: 1;
+  min-width: 0;
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 1.05rem;
+  color: #2a2724;
+  padding: 8px 2px;
+  border: 0;
+  border-bottom: 1.5px solid #8a8076;
+  background: transparent;
+  border-radius: 0;
+}
+.aps-field input:focus { outline: none; border-bottom-color: var(--frame); }
+.aps-field input:focus-visible { outline: 2px solid var(--frame); outline-offset: 2px; }
+.aps-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.ap-room .aps-button {
+  appearance: none;
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  min-height: 44px;
+  padding: 12px 18px;
+  border: 1px solid #2a2724;
+  border-radius: 2px;
+  background: transparent;
+  color: #2a2724;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, border-color 0.25s ease;
+}
+.ap-room .aps-button:hover:not(:disabled) { border-color: var(--frame); color: var(--frame); }
+.ap-room .aps-button-primary { background: var(--frame); border-color: var(--frame); color: #fff8ec; }
+.ap-room .aps-button-primary:hover:not(:disabled) { background: #2a2724; border-color: #2a2724; color: #fff8ec; }
+.ap-room .aps-button-quiet { border-color: transparent; text-decoration: underline; text-underline-offset: 4px; padding-left: 4px; padding-right: 4px; }
+.ap-room .aps-button:disabled { opacity: 0.4; cursor: default; }
+.ap-room .aps-panel :focus-visible { outline-color: var(--frame); }
+.ap-room .aps-link { appearance: none; border: 0; background: none; padding: 0; font: inherit; color: var(--frame); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+.aps-signed { display: flex; flex-direction: column; gap: 16px; }
+.aps-signed-line { font-size: 1.15rem; line-height: 1.5; }
+.aps-signed-line:first-child { font-size: 1.3rem; font-weight: 700; }
+
+/* The copies, oldest first */
+.aps-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.ap-room .aps-step {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: #5e5850;
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-size: 0.98rem;
+  text-align: left;
+  cursor: pointer;
+}
+.aps-step-n {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  font-family: var(--pe-ui);
+  font-size: 12px;
+}
+.ap-room .aps-step:hover { color: #2a2724; }
+.ap-room .aps-step[aria-current='step'] { color: #2a2724; background: rgba(86, 101, 111, 0.12); }
+.aps-step[aria-current='step'] .aps-step-n { background: var(--frame); border-color: var(--frame); color: #fff8ec; }
+.aps-step-heading { font-family: var(--ap-script); font-weight: 400; font-size: 2.3rem; line-height: 1; color: var(--frame); margin-bottom: -6px; }
+.aps-close { font-weight: 700; font-size: 1.05rem; line-height: 1.5; }
+.aps-actions-step { margin-top: auto; }
+
+.aps-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ───────── A phone: the sheet above, the card below ───────── */
+@media (max-width: 760px) {
+  .aps-stage { min-height: 0; --sheet-h: 38dvh; }
+  .aps-stage[data-tab='copies'] { --sheet-h: 44dvh; }
+  .aps-bar { padding: calc(var(--ap-fw) + 44px) 12px 0; gap: 2px; }
+  .aps-title { font-size: 2.4rem; }
+  .ap-room .aps-tab { font-size: 11px; letter-spacing: 0.14em; padding: 9px 18px; }
+  .aps-tab-short { display: inline; }
+  .aps-tab-long { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .aps-candle { left: auto; right: calc(var(--ap-fw) + 6px); top: 10px; height: 84px; }
+  .aps-glow { background: radial-gradient(circle at 88% 6%, rgba(255, 214, 140, 0.3), transparent 40%); }
+  .aps-sheet-wrap { top: 140px; bottom: auto; height: var(--sheet-h); left: calc(var(--ap-fw) + 4px); right: calc(var(--ap-fw) + 4px); overflow: hidden; }
+  /* While signing, the sheet is brought up close, so the line is wide enough for a finger. */
+  .aps-stage[data-tab='sign'] .aps-sheet { transform: scale(1.6) rotate(-1deg); transform-origin: 50% 88%; }
+  .ap-room .aps-inkwell { left: auto; right: -1%; bottom: 22%; width: 34px; transform: none; }
+  .aps-inkwell-label { display: none; }
+  .aps-panel {
+    left: calc(var(--ap-fw) + 4px);
+    right: calc(var(--ap-fw) + 4px);
+    top: calc(140px + var(--sheet-h) + 8px);
+    bottom: calc(var(--ap-fw) + 4px);
+    width: auto;
+    max-height: none;
+    padding: 14px 16px 72px;
+    gap: 10px;
+  }
+  .aps-intro, .aps-quote blockquote, .aps-signed-line { font-size: 0.92rem; line-height: 1.45; }
+  .aps-signed-line:first-child { font-size: 1.05rem; }
+  .aps-quote-small blockquote { font-size: 0.82rem; }
+  .aps-panel-copies .aps-intro { display: none; }
+  .aps-field-of { flex-direction: row; align-items: baseline; gap: 10px; min-width: 0; }
+  .aps-field-of > span:first-child { flex: none; }
+  .aps-of { flex: 1; min-width: 0; font-size: 1.6rem; }
+  .ap-room .aps-button { padding: 8px 12px; min-height: 40px; font-size: 11px; letter-spacing: 0.1em; }
+  .aps-actions { gap: 8px; }
+  .aps-steps { flex-direction: row; justify-content: space-between; }
+  .ap-room .aps-step { width: auto; padding: 2px; }
+  .aps-step-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .aps-step-n { width: 36px; height: 36px; font-size: 14px; }
+  .aps-step-heading { font-size: 2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aps-glow, .aps-flame, .aps-panel, .aps-inkwell[data-low] .aps-inkwell-label, .aps-inkwell[data-dipping] .aps-quill { animation: none; }
+  .ap-sheet-ink path { animation: none; stroke-dashoffset: 0; }
+  .ap-sheet-ink text, .ap-typeset rect, .ap-sheet-sig { animation: none; }
+  .aps-sheet, .aps-stage::after { transition: none; }
+}

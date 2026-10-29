@@ -166,6 +166,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/exhibitions/america-250/sign`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/exhibitions/victorian`,
       lastModified,
       changeFrequency: 'weekly',
@@ -173,6 +179,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/exhibitions/victorian/artifacts/case`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/victorian/optical-toys`,
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.7,

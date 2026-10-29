@@ -175,7 +175,23 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The press comes down as a poster opens and at each chapter; every panel arrives its own way.
   fx: { theme: 'ap', veil: 'chapters', text: 'all' },
-  projector: { theme: AMERICA_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: AMERICA_PROJECTOR_THEME,
+    links: [{ label: 'Put Your Name to It: sign with a quill, and follow a copy of a copy', href: '/exhibitions/america-250/sign' }],
+  },
+  // The signing room, drawn (no photographs): a parchment signed on the green cloth, by an inkwell.
+  interactives: [
+    {
+      href: '/exhibitions/america-250/sign',
+      image: {
+        src: '/exhibitions/america-250/room-signing.svg',
+        alt: 'A drawing of a parchment on a green cloth, signed with a flourish, beside an inkwell and a quill',
+      },
+      label: 'Interactive',
+      title: 'Put Your Name to It',
+      subtitle: 'Sign with a quill, and follow a copy of a copy',
+    },
+  ],
   posters: [
     // ============================================
     // POSTER 1: Before it was Sacred
