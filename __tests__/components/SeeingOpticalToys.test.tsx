@@ -37,9 +37,10 @@ import nextConfig from '@/next.config';
  * stepped by hand.
  */
 
-/** The exhibition page's source, as the poster's lines are set in it (page.tsx is not imported: it is another room's to restyle). */
-const posterSource = fs
-  .readFileSync(path.join(process.cwd(), 'app/exhibitions/seeing-is-deceiving/page.tsx'), 'utf8')
+/** The poster's lines as the exhibition sets them, in its page and its posters' data. */
+const posterSource = ['page.tsx', 'posters.ts']
+  .map((f) => fs.readFileSync(path.join(process.cwd(), 'app/exhibitions/seeing-is-deceiving', f), 'utf8'))
+  .join('\n')
   .replace(/\\'/g, "'");
 
 function reducedMotion(on: boolean) {
