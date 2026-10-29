@@ -215,6 +215,10 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
             <button type="button" tabIndex={-1} className={`wrt-key wrt-key-wide ${pressed === 'back' ? 'is-down' : ''}`} onPointerDown={(e) => e.preventDefault()} onClick={() => tapKey('Backspace')}>
               Back space
             </button>
+            {/* On a phone the lever runs off the screen with the carriage: a Return key to tap instead. */}
+            <button type="button" tabIndex={-1} className={`wrt-key wrt-key-wide wrt-key-return ${pressed === 'return' ? 'is-down' : ''}`} onPointerDown={(e) => e.preventDefault()} onClick={() => tapKey('Enter')}>
+              Return
+            </button>
           </div>
         </div>
       </div>
