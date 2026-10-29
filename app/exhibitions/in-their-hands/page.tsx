@@ -471,6 +471,14 @@ export default function InTheirHands() {
   const poster2Antique = '#C8C4A0';
   const poster2Cream = '#F0ECD8';
   const gold = '#C9A84C';
+  /* The landing page stands in poster 1's sepia, its type in the gold (4.8:1) and cream (9.2:1). */
+  const poster1Sepia = '#443C31';
+  /* Poster 2's near-black brown, for the case cards. */
+  const poster2Umber = '#130B08';
+  const isMain = activeView === 'main';
+  const navM = isMain ? poster1Cream : '#525252';
+  const navInk = isMain ? gold : '#7D8471';
+  const teachStyle = { '--teach-color': gold, '--teach-border': 'rgba(201,168,76,0.55)' } as React.CSSProperties;
 
   // Per-section background colors
   const getBgColor = () => {
@@ -565,7 +573,7 @@ export default function InTheirHands() {
   };
 
   return (
-    <div style={{ background: activeView === 'main' ? '#0a0a0a' : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
+    <div style={{ background: isMain ? poster1Sepia : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1095,12 +1103,13 @@ export default function InTheirHands() {
           gap: 32px;
         }
 
-        .ith-exhibition-title { text-align: center; margin-bottom: 8px; }
+        /* The lessons chip inherits its ink from here (a:link outranks its own color). */
+        .ith-exhibition-title { text-align: center; margin-bottom: 8px; color: ${gold}; }
         .ith-exhibition-title h1 {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(2.5rem, 8vw, 5rem);
           font-weight: 300;
-          color: #fafafa;
+          color: ${gold};
           margin-bottom: 12px;
         }
         .ith-exhibition-title p {
@@ -1141,14 +1150,14 @@ export default function InTheirHands() {
           font-size: 11px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #7D8471;
+          color: ${poster1Cream};
           opacity: 0;
           transition: opacity 0.3s ease;
         }
 
         .ith-display-case {
-          background: #0a0a0a;
-          border: 1px solid rgba(255,255,255,0.1);
+          background: ${poster2Umber};
+          border: 1px solid rgba(201,168,76,0.2);
           padding: 12px 8px;
           display: flex;
           flex-direction: column;
@@ -1160,7 +1169,7 @@ export default function InTheirHands() {
           width: 100%;
         }
         .ith-display-case:hover, .ith-display-case:focus-visible {
-          border-color: rgba(201,168,76,0.3);
+          border-color: rgba(201,168,76,0.6);
         }
         .ith-display-case:hover .ith-case-image {
           transform: scale(1.02);
@@ -1177,13 +1186,13 @@ export default function InTheirHands() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #8a8a8a;
+          color: #a8a79c;
           margin-bottom: 8px;
         }
         .ith-case-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 20px;
-          color: #fafafa;
+          color: ${poster1Cream};
           margin-bottom: 8px;
         }
         .ith-case-subtitle {
@@ -1587,17 +1596,17 @@ export default function InTheirHands() {
           href={activeView === 'main' ? FLOOR_RETURN.href : undefined}
           onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
         >
-          <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-          <span className="ith-nav-arrow ith-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
-          <span className="ith-nav-label" style={{ color: '#7D8471' }}>
+          <span className="ith-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
+          <span className="ith-nav-arrow ith-nav-arrow-left" aria-hidden="true" style={{ color: navInk }}>&#8592;</span>
+          <span className="ith-nav-label" style={{ color: navInk }}>
             {activeView === 'main' ? FLOOR_RETURN.label : 'Exhibition'}
           </span>
         </ExhibitionNav>
 
         <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
-          <span className="ith-nav-label" style={{ color: '#7D8471' }}>Resources</span>
-          <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>&#8594;</span>
-          <span className="ith-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+          <span className="ith-nav-label" style={{ color: navInk }}>Resources</span>
+          <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>&#8594;</span>
+          <span className="ith-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
         </ExhibitionNav>
         </>
       )}
@@ -1611,8 +1620,8 @@ export default function InTheirHands() {
             <h1>In Their Hands</h1>
             <p>Coins of the New Testament</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
-              <TeachToggle onClick={() => setProjector(true)} style={{ '--teach-color': '#c9a84c', '--teach-border': 'rgba(201,168,76,0.55)' } as React.CSSProperties} />
-              <LessonsLink exhibition="in-their-hands" style={{ '--teach-color': '#c9a84c', '--teach-border': 'rgba(201,168,76,0.55)' } as React.CSSProperties} />
+              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} />
+              <LessonsLink exhibition="in-their-hands" style={teachStyle} />
             </div>
           </div>
 
