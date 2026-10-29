@@ -331,19 +331,22 @@ export default function America250Signing() {
                   <input type="text" value={classLine} onChange={(e) => setClassLine(e.target.value)} maxLength={48} placeholder={t.classPlaceholder} autoComplete="off" />
                 </label>
               )}
-              {mode === 'type' && (
-                <label className="aps-field">
-                  <span>Your name</span>
-                  <input type="text" value={pad.typed} onChange={(e) => setPad({ typed: e.target.value })} maxLength={40} autoComplete="off" spellCheck={false} />
+              {/* The name and where you are from: one under the other, or side by side on a short screen (sign.css). */}
+              <div className="aps-fields">
+                {mode === 'type' && (
+                  <label className="aps-field">
+                    <span>Your name</span>
+                    <input type="text" value={pad.typed} onChange={(e) => setPad({ typed: e.target.value })} maxLength={40} autoComplete="off" spellCheck={false} />
+                  </label>
+                )}
+                <label className="aps-field aps-field-of">
+                  <span>{t.addressLabel}</span>
+                  <span className="aps-of">
+                    <span aria-hidden="true">of</span>
+                    <input type="text" value={pad.address} onChange={(e) => setPad({ address: e.target.value })} maxLength={32} placeholder={t.addressPlaceholder} autoComplete="off" />
+                  </span>
                 </label>
-              )}
-              <label className="aps-field aps-field-of">
-                <span>{t.addressLabel}</span>
-                <span className="aps-of">
-                  <span aria-hidden="true">of</span>
-                  <input type="text" value={pad.address} onChange={(e) => setPad({ address: e.target.value })} maxLength={32} placeholder={t.addressPlaceholder} autoComplete="off" />
-                </span>
-              </label>
+              </div>
               {doc === 'declaration' && (
                 <figure className="aps-quote aps-quote-small">
                   <blockquote>{t.carroll.text}</blockquote>

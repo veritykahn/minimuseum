@@ -430,13 +430,20 @@ const ART: Record<PictureId, () => ReactElement> = {
       <rect x="128" y="58" width="32" height="28" rx="3" fill={GOLD} />
       <circle cx="144" cy="72" r="9" fill={CREAM} />
       <path d="M144 72 V66 M144 72 L148 74" stroke="#2a2522" strokeWidth="1.4" />
-      {/* the grate and its fire */}
+      {/* the grate: an iron basket on legs, its logs, and the fire rising from them */}
       <path d="M84 300 V176 Q84 140 144 140 Q204 140 204 176 V300Z" fill="#1e1614" />
-      <ellipse cx="144" cy="262" rx="58" ry="40" fill="#e9883a" opacity="0.3" />
+      <ellipse cx="144" cy="262" rx="56" ry="22" fill="#e9883a" opacity="0.18" />
       <path d="M104 272 C96 244 116 232 120 208 C128 228 136 230 140 196 C148 224 160 226 166 204 C172 232 190 244 182 272Z" fill="#e9883a" />
       <path d="M118 272 C116 254 128 246 130 232 C136 244 142 244 146 222 C152 242 162 246 166 272Z" fill={GOLD} />
       <path d="M132 272 C132 262 138 256 142 248 C146 256 152 262 150 272Z" fill="#fff1c4" />
-      <path d="M96 274 H192 M96 284 H192 M108 274 V294 M128 274 V294 M148 274 V294 M168 274 V294" stroke="#5e5650" strokeWidth="3" />
+      <rect x="98" y="257" width="92" height="13" rx="6.5" fill="#6b4a32" transform="rotate(-7 144 263)" />
+      <rect x="98" y="257" width="92" height="13" rx="6.5" fill="#583826" transform="rotate(8 144 263)" />
+      <ellipse cx="101" cy="269" rx="4" ry="6" fill="#c9a07a" transform="rotate(8 101 269)" />
+      <ellipse cx="187" cy="268" rx="4" ry="6" fill="#c9a07a" transform="rotate(-7 187 268)" />
+      <ellipse cx="144" cy="273" rx="40" ry="4" fill="#e9883a" opacity="0.85" />
+      <path d="M92 266 H196 L190 282 H98Z" fill="#2a2522" opacity="0.35" />
+      <path d="M92 266 H196 M98 282 H190 M92 266 L98 282 M196 266 L190 282 M112 266 V282 M128 266 V282 M144 266 V282 M160 266 V282 M176 266 V282" stroke="#2a2522" strokeWidth="3" strokeLinecap="round" />
+      <path d="M102 282 L98 294 M186 282 L190 294" stroke="#2a2522" strokeWidth="4" strokeLinecap="round" />
       <rect x="34" y="294" width="220" height="6" fill="#3f2218" />
     </g>
   ),

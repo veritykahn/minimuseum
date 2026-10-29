@@ -67,5 +67,8 @@ export const STATIONS: { name: string; behind: number }[] = [
   { name: 'Bridgewater', behind: 14 },
 ];
 
+/** Words to tap and send, every letter of them on the dial (no C, J, Q, U, X or Z), so none is left out. */
+export const SEND_WORDS = ['HELLO', 'SNOW', 'STEAM', 'TEA', 'BRISTOL'];
+
 /** Words for the needles to spell, every letter of them on the dial. */
 export const READ_WORDS = ['STEAM', 'TRAIN', 'LONDON', 'BRISTOL', 'TELEGRAPH', 'PHOTOGRAPH'];

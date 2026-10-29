@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import FactNote from '@/components/exhibition/FactNote';
+import { useState, useSyncExternalStore } from 'react';
+import FactNote, { FactSources } from '@/components/exhibition/FactNote';
 import { NOTES, POSTER, STATIONS, WORKSHOP_TEXT } from './inventionsText';
 import { clockTime, hands } from './workshop';
 
@@ -16,6 +16,18 @@ import { clockTime, hands } from './workshop';
  */
 
 const NOON = 12 * 60;
+/** On a phone the line runs down the screen, its towns one under another and the clocks beside them. */
+const NARROW = '(max-width: 760px)';
+const subscribe = (onChange: () => void) => {
+  if (typeof window === 'undefined' || !window.matchMedia) return () => {};
+  const mql = window.matchMedia(NARROW);
+  mql.addEventListener?.('change', onChange);
+  return () => mql.removeEventListener?.('change', onChange);
+};
+const narrowNow = () => typeof window !== 'undefined' && !!window.matchMedia && window.matchMedia(NARROW).matches;
+/** The line drawn down the screen: x of the rails, and the first and last stations' y. */
+const DOWN = { x: 120, y0: 40, y1: 400 };
+const stationY = (i: number) => DOWN.y0 + ((DOWN.y1 - DOWN.y0) * i) / (STATIONS.length - 1);
 const LINE = { x0: 70, x1: 930, y: 150 };
 const stationX = (i: number) => LINE.x0 + ((LINE.x1 - LINE.x0) * i) / (STATIONS.length - 1);
 // Rounded, so the server's drawing and the browser's agree to the last digit.
@@ -24,6 +36,7 @@ const r2 = (n: number) => Math.round(n * 100) / 100;
 export default function Railway({ reduced, footer }: { reduced: boolean; footer?: React.ReactNode }) {
   const [at, setAt] = useState(0);
   const [synced, setSynced] = useState(false);
+  const narrow = useSyncExternalStore(subscribe, narrowNow, () => false);
   const [status, setStatus] = useState('');
   const town = STATIONS[at];
   const townTime = synced ? NOON : NOON - town.behind;
@@ -49,42 +62,80 @@ export default function Railway({ reduced, footer }: { reduced: boolean; footer?
   return (
     <div className="vbi-bench">
       <div className="vbr-scene vbi-scene">
-        <svg className="vbi-rail" viewBox="0 0 1000 600" role="img" aria-label={`The line west from London, through ${STATIONS.slice(1).map((s) => s.name).join(', ')}. The train is at ${town.name}. The station clock reads ${clockTime(NOON)}, London time; ${town.name}’s own clock reads ${clockTime(townTime)}.`}>
-          <defs>
-            <linearGradient id="vbi-sky" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#f4eee3" />
-              <stop offset="1" stopColor="#e6d0cb" />
-            </linearGradient>
-          </defs>
-          {/* the country, and the line through it */}
-          <rect x="20" y="20" width="960" height="240" rx="6" fill="url(#vbi-sky)" stroke="#2f4a32" strokeOpacity="0.25" />
-          <path d="M20 190 Q160 150 300 182 T600 176 T980 186 V260 H20Z" fill="#4e6152" opacity="0.22" />
-          <path d={`M${LINE.x0} ${LINE.y} H${LINE.x1}`} stroke="#2a2522" strokeWidth="4" />
-          <path d={`M${LINE.x0} ${LINE.y}  H${LINE.x1}`} stroke="#f4eee3" strokeWidth="1.4" strokeDasharray="6 10" />
-          {/* telegraph wires along the line, once the time is sent */}
-          <path d={`M${LINE.x0} ${LINE.y - 58} H${LINE.x1}`} stroke="#2a2522" strokeWidth="1" strokeOpacity={synced ? 0.9 : 0.35} className={synced ? 'vbi-wire vbi-wire-live' : 'vbi-wire'} />
-          {STATIONS.map((s, i) => (
-            <g key={s.name}>
-              <path d={`M${stationX(i)} ${LINE.y - 64} V${LINE.y - 50}`} stroke="#6b4a32" strokeWidth="2" />
-              <circle cx={stationX(i)} cy={LINE.y} r={i === at ? 11 : 8} fill={i === at ? '#a4565c' : '#f4eee3'} stroke="#2f4a32" strokeWidth="2.4" />
-              <text x={stationX(i)} y={LINE.y + 40} textAnchor="middle" className="vbi-rail-name" data-here={i === at || undefined}>
-                {s.name}
-              </text>
-              {i > 0 && (
-                <text x={stationX(i)} y={LINE.y + 62} textAnchor="middle" className="vbi-rail-behind">
-                  {s.behind === 0 ? '' : `${String(s.behind).replace('.5', '½')} min behind`}
+        {narrow ? (
+          <svg className="vbi-rail vbi-rail-down" viewBox="0 0 600 440" role="img" aria-label={`The line west from London, through ${STATIONS.slice(1).map((s) => s.name).join(', ')}. The train is at ${town.name}. The station clock reads ${clockTime(NOON)}, London time; ${town.name}’s own clock reads ${clockTime(townTime)}.`}>
+            <defs>
+              <linearGradient id="vbi-sky-down" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stopColor="#f4eee3" />
+                <stop offset="1" stopColor="#e6d0cb" />
+              </linearGradient>
+            </defs>
+            {/* the line, London at the top and Bridgewater at the foot, the telegraph's wire beside it */}
+            <rect x="8" y="8" width="312" height="424" rx="6" fill="url(#vbi-sky-down)" stroke="#2f4a32" strokeOpacity="0.25" />
+            <path d={`M${DOWN.x} ${DOWN.y0} V${DOWN.y1}`} stroke="#2a2522" strokeWidth="4" />
+            <path d={`M${DOWN.x} ${DOWN.y0} V${DOWN.y1}`} stroke="#f4eee3" strokeWidth="1.4" strokeDasharray="6 10" />
+            <path d={`M${DOWN.x + 18} ${DOWN.y0} V${DOWN.y1}`} stroke="#2a2522" strokeWidth="1" strokeOpacity={synced ? 0.9 : 0.35} className={synced ? 'vbi-wire vbi-wire-live' : 'vbi-wire'} />
+            {STATIONS.map((s, i) => (
+              <g key={s.name}>
+                <circle cx={DOWN.x} cy={stationY(i)} r={i === at ? 11 : 8} fill={i === at ? '#a4565c' : '#f4eee3'} stroke="#2f4a32" strokeWidth="2.4" />
+                <text x={DOWN.x + 34} y={stationY(i) + (s.behind ? 2 : 9)} className="vbi-rail-name" data-here={i === at || undefined}>
+                  {s.name}
                 </text>
-              )}
+                {s.behind > 0 && (
+                  <text x={DOWN.x + 34} y={stationY(i) + 25} className="vbi-rail-behind">
+                    {`${String(s.behind).replace('.5', '½')} min behind`}
+                  </text>
+                )}
+              </g>
+            ))}
+            <g className="vbi-train" style={{ transform: `translate(12px, ${stationY(at) - 36}px) scale(0.8)`, transition: reduced ? 'none' : undefined }}>
+              <Locomotive base={64} />
             </g>
-          ))}
-          <g className="vbi-train" style={{ transform: `translateX(${stationX(at) - 40}px)`, transition: reduced ? 'none' : undefined }}>
-            <Locomotive />
-          </g>
 
-          {/* the two clocks at the station */}
-          <Clock x={330} y={430} minutes={NOON} label="Railway time" sub="London" />
-          <Clock x={670} y={430} minutes={townTime} label="Town time" sub={town.name} town reduced={reduced} />
-        </svg>
+            {/* the two clocks, one above the other */}
+            <g transform="translate(462 0) scale(0.72)">
+              <Clock x={0} y={118} minutes={NOON} label="Railway time" sub="London" />
+              <Clock x={0} y={424} minutes={townTime} label="Town time" sub={town.name} town reduced={reduced} />
+            </g>
+          </svg>
+        ) : (
+          <svg className="vbi-rail" viewBox="0 0 1000 600" role="img" aria-label={`The line west from London, through ${STATIONS.slice(1).map((s) => s.name).join(', ')}. The train is at ${town.name}. The station clock reads ${clockTime(NOON)}, London time; ${town.name}’s own clock reads ${clockTime(townTime)}.`}>
+            <defs>
+              <linearGradient id="vbi-sky" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#f4eee3" />
+                <stop offset="1" stopColor="#e6d0cb" />
+              </linearGradient>
+            </defs>
+            {/* the country, and the line through it */}
+            <rect x="20" y="20" width="960" height="240" rx="6" fill="url(#vbi-sky)" stroke="#2f4a32" strokeOpacity="0.25" />
+            <path d="M20 190 Q160 150 300 182 T600 176 T980 186 V260 H20Z" fill="#4e6152" opacity="0.22" />
+            <path d={`M${LINE.x0} ${LINE.y} H${LINE.x1}`} stroke="#2a2522" strokeWidth="4" />
+            <path d={`M${LINE.x0} ${LINE.y}  H${LINE.x1}`} stroke="#f4eee3" strokeWidth="1.4" strokeDasharray="6 10" />
+            {/* telegraph wires along the line, once the time is sent */}
+            <path d={`M${LINE.x0} ${LINE.y - 58} H${LINE.x1}`} stroke="#2a2522" strokeWidth="1" strokeOpacity={synced ? 0.9 : 0.35} className={synced ? 'vbi-wire vbi-wire-live' : 'vbi-wire'} />
+            {STATIONS.map((s, i) => (
+              <g key={s.name}>
+                <path d={`M${stationX(i)} ${LINE.y - 64} V${LINE.y - 50}`} stroke="#6b4a32" strokeWidth="2" />
+                <circle cx={stationX(i)} cy={LINE.y} r={i === at ? 11 : 8} fill={i === at ? '#a4565c' : '#f4eee3'} stroke="#2f4a32" strokeWidth="2.4" />
+                <text x={stationX(i)} y={LINE.y + 40} textAnchor="middle" className="vbi-rail-name" data-here={i === at || undefined}>
+                  {s.name}
+                </text>
+                {i > 0 && (
+                  <text x={stationX(i)} y={LINE.y + 62} textAnchor="middle" className="vbi-rail-behind">
+                    {s.behind === 0 ? '' : `${String(s.behind).replace('.5', '½')} min behind`}
+                  </text>
+                )}
+              </g>
+            ))}
+            <g className="vbi-train" style={{ transform: `translateX(${stationX(at) - 40}px)`, transition: reduced ? 'none' : undefined }}>
+              <Locomotive base={LINE.y} />
+            </g>
+
+            {/* the two clocks at the station */}
+            <Clock x={330} y={430} minutes={NOON} label="Railway time" sub="London" />
+            <Clock x={670} y={430} minutes={townTime} label="Town time" sub={town.name} town reduced={reduced} />
+          </svg>
+        )}
       </div>
 
       <div className="vbr-card">
@@ -100,9 +151,6 @@ export default function Railway({ reduced, footer }: { reduced: boolean; footer?
           <button type="button" className="vbr-button vbr-button-primary" onClick={() => go(at + 1)} disabled={at === STATIONS.length - 1}>
             Steam on to the next station <span aria-hidden="true">→</span>
           </button>
-          <button type="button" className="vbr-button vbr-button-quiet" onClick={() => go(0)} disabled={at === 0}>
-            Back to London
-          </button>
         </div>
         <p className="vbi-readout" aria-live="polite">
           {at === 0
@@ -111,14 +159,20 @@ export default function Railway({ reduced, footer }: { reduced: boolean; footer?
               ? `${town.name} keeps railway time now: ${clockTime(NOON)} on both clocks.`
               : `When it is noon in London, it is ${clockTime(townTime)} in ${town.name}.`}
         </p>
-        <FactNote fact={NOTES.railwayTime} className="vbr-fact" />
         {!synced ? (
-          <button type="button" className="vbr-button" onClick={sync}>
-            Send the time down the line
-          </button>
+          <>
+            <FactNote fact={NOTES.railwayTime} className="vbr-fact" />
+            <button type="button" className="vbr-button" onClick={sync}>
+              Send the time down the line
+            </button>
+          </>
         ) : (
           <>
-            <FactNote fact={NOTES.timeSignals} className="vbr-fact" />
+            {/* The two notes run on as one: they are from the same page, and its source is set once beneath them. */}
+            <p className="vbr-fact" data-fact="approved">
+              <span className="vbr-fact-text">{NOTES.railwayTime.text}</span> <span className="vbr-fact-text">{NOTES.timeSignals.text}</span>{' '}
+              <FactSources sources={NOTES.timeSignals.sources} className="vbr-fact-source" />
+            </p>
             <button type="button" className="vbr-button vbr-button-quiet vbi-unsync" onClick={unsync}>
               Put the town clocks back to their own time
             </button>
@@ -161,10 +215,10 @@ function Clock({ x, y, minutes, label, sub, town = false, reduced = false }: { x
   );
 }
 
-/** A small engine, from the side, facing west (to the right). */
-function Locomotive() {
+/** A small engine, from the side, facing west (to the right), its wheels on the rail at `base`. */
+function Locomotive({ base }: { base: number }) {
   return (
-    <g transform={`translate(0 ${LINE.y - 64})`}>
+    <g transform={`translate(0 ${base - 64})`}>
       <g fill="#f4eee3" stroke="#9a9184" strokeWidth="1" className="vbi-steam">
         <circle cx="52" cy="-4" r="7" />
         <circle cx="40" cy="-12" r="9" />

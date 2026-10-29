@@ -121,7 +121,7 @@
   right: max(5vw, calc(50vw - 680px), 92px);
   top: var(--vbr-top, 150px);
   width: min(420px, 34vw);
-  max-height: calc(100dvh - var(--vbr-top, 150px) - 3vh);
+  max-height: calc(100dvh - var(--vbr-top, 150px) - 16px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -246,7 +246,9 @@
   .vbr-bar { padding-top: 16px; gap: 8px; }
   .vbr-title { font-size: clamp(1.6rem, 2.6vw, 2.2rem); }
   .vb-room .vbr-tab { padding: 8px 18px; }
-  .vbr-card { gap: 9px; padding-top: calc(var(--vb-edge) + 8px); padding-bottom: calc(var(--vb-edge) + 10px); }
+  /* A little wider and a little longer, so its words take fewer lines. */
+  .vbr-scene { right: calc(min(450px, 36vw) + max(5vw, 50vw - 680px, 92px) + 1.5vw); }
+  .vbr-card { width: min(450px, 36vw); max-height: calc(100dvh - var(--vbr-top) - 12px); gap: 9px; padding-top: calc(var(--vb-edge) + 8px); padding-bottom: calc(var(--vb-edge) + 10px); }
   .vbr-intro { font-size: 0.94rem; line-height: 1.45; }
   .vbr-choice legend, .vbr-label { margin-bottom: 3px; }
   .vb-room .vbr-option { min-height: 32px; padding: 4px 10px; }
