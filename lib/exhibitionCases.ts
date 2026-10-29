@@ -7,6 +7,8 @@ import { WOMENS_HISTORY, WOMENS_HISTORY_CASE } from '@/app/exhibitions/womens-hi
 import { HOLOCAUST, HOLOCAUST_CASE } from '@/app/exhibitions/holocaust/holocaust';
 import { BLACK_HISTORY, BLACK_HISTORY_CASE } from '@/app/exhibitions/black-history/blackHistory';
 import { WRITING_REVOLUTION, WRITING_REVOLUTION_CASE } from '@/app/exhibitions/writing-revolution/writingRevolution';
+import { AMERICA_250, AMERICA_250_CASE } from '@/app/exhibitions/america-250/america250';
+import { FEAR_LAB, FEAR_LAB_CASE } from '@/app/exhibitions/fear-lab/fearLab';
 
 /**
  * The poster exhibitions whose display case is built by the engine
@@ -24,4 +26,6 @@ export const EXHIBITION_CASES: { config: ExhibitionConfig; data: CasePageData }[
   { config: HOLOCAUST, data: HOLOCAUST_CASE },
   { config: BLACK_HISTORY, data: BLACK_HISTORY_CASE },
   { config: WRITING_REVOLUTION, data: WRITING_REVOLUTION_CASE },
+  { config: AMERICA_250, data: AMERICA_250_CASE },
+  { config: FEAR_LAB, data: FEAR_LAB_CASE },
 ];

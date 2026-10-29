@@ -3,8 +3,8 @@ import ArtifactPage from '@/components/exhibition/ArtifactPage';
 import CasePage from '@/components/exhibition/CasePage';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { roomReturn } from '@/components/exhibition/helpers';
-import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
-import { FEAR_LAB } from '@/app/exhibitions/fear-lab/fearLab';
+import AmericaRoomShell from '@/app/exhibitions/america-250/RoomShell';
+import FearLabRoomShell from '@/app/exhibitions/fear-lab/RoomShell';
 import { artifactParams, artifactPath, casePath, findArtifact, plainText, posterTitle } from '@/components/exhibition/artifacts';
 import { EXHIBITION_CASES } from '@/lib/exhibitionCases';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -13,17 +13,18 @@ import sitemap from '@/app/sitemap';
 /*
  * The engine-built display cases (Great War, Ancient Egypt, Our Incredible
  * Moon, Victorian Britain, Women's History Month, Holocaust Memorial Day,
- * Black History Month, The Writing Revolution): a card for each artifact on
- * the case page, a page for each artifact, every word the owner's own, and
- * every page reachable from the map and the sitemap.
+ * Black History Month, The Writing Revolution, America 250, The Fear Lab): a
+ * card for each artifact on the case page, a page for each artifact, every
+ * word the owner's own, and every page reachable from the map and the
+ * sitemap; and the rooms, which open from the case and go back to it.
  */
 
 const cases = EXHIBITION_CASES.map((c) => [c.config.slug, c] as const);
 const posterText = (config: (typeof EXHIBITION_CASES)[number]['config'], id: string) =>
   (config.posters.find((p) => p.id === id)?.items ?? []).map((it) => ('text' in it ? it.text : '')).join('\n');
 
-it('includes every engine-built case, Black History Month and The Writing Revolution among them', () => {
-  expect(cases.map(([slug]) => slug)).toEqual(['great-war', 'egypt', 'moon', 'victorian', 'womens-history', 'holocaust', 'black-history', 'writing-revolution']);
+it('includes every engine-built case, America 250 and The Fear Lab among them', () => {
+  expect(cases.map(([slug]) => slug)).toEqual(['great-war', 'egypt', 'moon', 'victorian', 'womens-history', 'holocaust', 'black-history', 'writing-revolution', 'america-250', 'fear-lab']);
 });
 
 describe.each(cases)('%s display case', (slug, { config, data }) => {
@@ -103,12 +104,16 @@ describe.each(cases)('%s display case', (slug, { config, data }) => {
   });
 });
 
-describe('an exhibition with no display case yet', () => {
-  it.each([AMERICA_250, FEAR_LAB].map((c) => [c.slug, c] as const))('%s keeps its rooms on the landing page, and its rooms go back there', (slug, config) => {
-    expect(config.cases ?? []).toHaveLength(0);
-    window.history.replaceState(null, '', '/');
-    render(<PosterExhibition config={config} />);
-    for (const r of config.interactives ?? []) expect(document.querySelector(`a[href="${r.href}"]`)).toBeInTheDocument();
-    expect(roomReturn(config)).toEqual({ href: `/exhibitions/${slug}`, label: 'Exhibition' });
+describe("a room's way back", () => {
+  it.each([
+    ['america-250', AmericaRoomShell],
+    ['fear-lab', FearLabRoomShell],
+  ] as const)('%s: the room frame goes back to the display case', (slug, RoomShell) => {
+    render(<RoomShell className="test-room">room</RoomShell>);
+    expect(screen.getByRole('link', { name: /Display Case/ })).toHaveAttribute('href', `/exhibitions/${slug}/artifacts/case`);
+  });
+
+  it('goes back to the exhibition when there is no case', () => {
+    expect(roomReturn({ slug: 'somewhere' })).toEqual({ href: '/exhibitions/somewhere', label: 'Exhibition' });
   });
 });

@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { floorReturnFor } from '@/lib/floors';
-import type { Atmosphere, ExhibitionConfig, PanelDecor } from '@/components/exhibition/types';
+import type { Atmosphere, CasePageData, ExhibitionConfig, PanelDecor } from '@/components/exhibition/types';
 
 /*
  * The Fear Lab: every word on screen, and the look.
@@ -14,6 +14,9 @@ import type { Atmosphere, ExhibitionConfig, PanelDecor } from '@/components/exhi
  * 1's with the spider crouched over it, as printed). Poster 2's starburst
  * line follows as a panel of its own, in its own words. The two vampire
  * illustrations are set beside the copy they illustrate on the poster.
+ *
+ * The display case (FEAR_LAB_CASE) lists the artifacts exactly as the Mini
+ * Museum record does; it has not been photographed yet.
  *
  * The "Talk about it" questions are for the projector's teacher strip: open
  * discussion questions, one per chapter, keyed by the section title exactly
@@ -44,6 +47,12 @@ export const FEAR_LAB_COPY = {
   tigers: `When faced with uncertainty, your brain doesn't imagine neutral scenarios—it imagines disasters. This "negativity bias" kept ancestors alive. Those who assumed rustling bushes contained tigers lived longer than optimists.`,
 };
 const C = FEAR_LAB_COPY;
+
+/* Poster 2's paragraphs on the Point Horror series, which its case sets as well. */
+const POINT_HORROR = {
+  launch: `In 1991, Scholastic realized teenagers wanted their own horror, launching the Point Horror series with authors like R.L. Stine (whose "Blind Date" launched his career), Christopher Pike, Caroline B. Cooney, and Diane Hoh.`,
+  hallways: `With titles like "The Babysitter" and "The Boyfriend," these books moved horror from Gothic castles to high school hallways.`,
+};
 
 /*
  * The posters' titles as pictures: their own lettering, cut from the posters
@@ -109,7 +118,13 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
     theme: FEAR_LAB_PROJECTOR_THEME,
     links: [{ label: 'What Scares You? The fear boxes, known or unknown, and the rustling bushes', href: '/exhibitions/fear-lab/what-scares-you' }],
   },
-  // No display cases yet: the artifacts have not been photographed.
+  cases: [
+    {
+      href: '/exhibitions/fear-lab/artifacts/case',
+      label: 'Display Case',
+      title: 'Artifacts',
+    },
+  ],
   interactives: [
     {
       href: '/exhibitions/fear-lab/what-scares-you',
@@ -230,8 +245,8 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', atmosphere: 'penny-candle', effect: 'pan-lr', position: 'bottom-left', text: `Later writers like H.P. Lovecraft, Shirley Jackson and Stephen King bridged oceans and decades and proved that horror was not to be dismissed as peculiar to the Victorian era.` },
 
         { type: 'section-title', atmosphere: 'racing-heart', effect: 'split-reveal', text: 'Point Horror: Horror Grows Up (By Growing Down)' },
-        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'fade-in', position: 'top-left', text: `In 1991, Scholastic realized teenagers wanted their own horror, launching the Point Horror series with authors like R.L. Stine (whose "Blind Date" launched his career), Christopher Pike, Caroline B. Cooney, and Diane Hoh.` },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'blur-to-sharp', position: 'bottom-right', text: `With titles like "The Babysitter" and "The Boyfriend," these books moved horror from Gothic castles to high school hallways.` },
+        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'fade-in', position: 'top-left', text: POINT_HORROR.launch },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'blur-to-sharp', position: 'bottom-right', text: POINT_HORROR.hallways },
 
         { type: 'section-title', atmosphere: 'red-eye-glitch', effect: 'glitch', text: 'Red Eye: Horror for the Digital Generation' },
         { type: 'paragraph', atmosphere: 'red-eye-glitch', effect: 'typewriter', position: 'top-right', text: `Today's Red Eye series (Stripes Publishing's modern horror line) features books like "Frozen Charlotte" and "Sleepless"—updating classic fears for the Instagram age.` },
@@ -261,4 +276,37 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
     },
   ],
+};
+
+/*
+ * The display case: the artifacts exactly as the Mini Museum record lists
+ * them, each with the posters' own sentences about it (the box you can't see
+ * into, on poster 1; the Point Horror series, on poster 2).
+ */
+export const FEAR_LAB_CASE: CasePageData = {
+  label: 'Display Case',
+  title: 'Artifacts',
+  // Photographs to come: the case has not been photographed yet.
+  photos: [],
+  artifacts: [
+    {
+      id: 'fear-boxes',
+      name: 'Mystery Fear Boxes',
+      record: 'Two tactile, mystery Fear Boxes with rotating weekly contents',
+      writing: [
+        { poster: 'poster1', text: C.box },
+        { poster: 'poster1', text: C.mysteryBox },
+      ],
+    },
+    {
+      id: 'point-horror',
+      name: 'Point Horror paperback editions',
+      record: 'Vintage collection of original Point Horror paperback editions with library cards',
+      writing: [
+        { poster: 'poster2', text: POINT_HORROR.launch },
+        { poster: 'poster2', text: POINT_HORROR.hallways },
+      ],
+    },
+  ],
+  display: ['Educational panels explaining the neuroscience of fear, pareidolia, and Gothic literature'],
 };

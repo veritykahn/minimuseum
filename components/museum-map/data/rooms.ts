@@ -170,7 +170,15 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 100,
     accentColor: '#56656F',
     parent: 'ground-floor',
-    children: ['ap-sign'],
+    children: ['ap-case', 'ap-sign'],
+  },
+  {
+    id: 'ap-case',
+    label: 'Display Case',
+    path: '/exhibitions/america-250/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#56656F',
+    parent: 'america-250',
   },
   {
     id: 'ap-sign',
@@ -382,7 +390,15 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 50,
     accentColor: '#F2B33D',
     parent: 'second-floor',
-    children: ['fl-what-scares-you', ...lessonsChild('fear-lab')],
+    children: ['fl-case', 'fl-what-scares-you', ...lessonsChild('fear-lab')],
+  },
+  {
+    id: 'fl-case',
+    label: 'Display Case',
+    path: '/exhibitions/fear-lab/artifacts/case',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#F2B33D',
+    parent: 'fear-lab',
   },
   {
     id: 'fl-what-scares-you',

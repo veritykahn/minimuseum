@@ -3,7 +3,9 @@ import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { colorsFor, emphasisRuns, posterLengths, projectorPosters, veilFor } from '@/components/exhibition/helpers';
 import type { ExhibitionConfig, PosterItem } from '@/components/exhibition/types';
 import { OPENING, posterChapters } from '@/components/projector/posterTalk';
-import { FEAR_LAB } from '@/app/exhibitions/fear-lab/fearLab';
+import { FEAR_LAB, FEAR_LAB_CASE } from '@/app/exhibitions/fear-lab/fearLab';
+import FearLabCase from '@/app/exhibitions/fear-lab/artifacts/case/page';
+import { plainText, recordLines } from '@/components/exhibition/artifacts';
 
 /*
  * The poster exhibition engine (components/exhibition): landing page,
@@ -238,10 +240,29 @@ describe('exhibition helpers', () => {
 });
 
 describe('The Fear Lab', () => {
-  it('has two posters, each ending with Return to Exhibition, and no display cases yet', () => {
+  it('has two posters, each ending with Return to Exhibition, and one display case', () => {
     expect(FEAR_LAB.posters.map((p) => p.id)).toEqual(['poster1', 'poster2']);
     for (const p of FEAR_LAB.posters) expect(p.items[p.items.length - 1].type).toBe('end');
-    expect(FEAR_LAB.cases ?? []).toHaveLength(0);
+    expect(FEAR_LAB.cases?.map((c) => [c.href, c.label, c.title])).toEqual([['/exhibitions/fear-lab/artifacts/case', 'Display Case', 'Artifacts']]);
+  });
+
+  it('keeps the record in its case, with a card for each artifact, beside an empty case awaiting its photographs', () => {
+    render(<FearLabCase />);
+    expect(screen.getByRole('heading', { level: 1, name: 'The Fear Lab' })).toBeInTheDocument();
+    // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    expect(recordLines(FEAR_LAB_CASE).map(plainText)).toEqual([
+      'Two tactile, mystery Fear Boxes with rotating weekly contents',
+      'Vintage collection of original Point Horror paperback editions with library cards',
+      'Educational panels explaining the neuroscience of fear, pareidolia, and Gothic literature',
+    ]);
+    const cards = screen.getAllByRole('link', { name: /View artifact/ });
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual(['/exhibitions/fear-lab/artifacts/case/fear-boxes', '/exhibitions/fear-lab/artifacts/case/point-horror']);
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(FEAR_LAB_CASE.photos).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify(FEAR_LAB_CASE)).not.toMatch(/installation|\.jpg/);
+    // The lab opens from the case.
+    expect(screen.getByRole('link', { name: /What Scares You\?/ })).toHaveAttribute('href', '/exhibitions/fear-lab/what-scares-you');
   });
 
   it.each(FEAR_LAB.posters.map((p) => [p.id, p] as const))('%s: one question per chapter, and none left over', (_id, p) => {
