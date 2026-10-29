@@ -520,6 +520,12 @@ export default function SeeingIsDeceiving() {
   const darkCharcoal = '#2a2a2a';
   const bgColor = isPoster1 ? '#e0dede' : '#0a0a0a';
   const textColor = isPoster1 ? darkCharcoal : wavesBlue;
+  /* The landing page stands in poster 1's pale grey, its type in the poster's black (14.8:1) and charcoal (10.7:1). */
+  const posterGrey = '#e0dede';
+  const isMain = activeView === 'main';
+  const navM = isMain ? '#0a0a0a' : '#525252';
+  const navInk = isMain ? darkCharcoal : '#7D8471';
+  const teachStyle = { '--teach-color': darkCharcoal, '--teach-border': 'rgba(42,42,42,0.55)' } as React.CSSProperties;
   const fx = usePosterFxStage('sid', direction, currentItem?.type ?? '', bgColor, isPoster1 ? 'rgba(42,42,42,0.55)' : 'rgba(168,213,229,0.6)');
   /**
    * The panels keep their own authored entrances. The chromatic slat reveal is
@@ -553,7 +559,7 @@ export default function SeeingIsDeceiving() {
   };
 
   return (
-    <div style={{ background: activeView === 'main' ? '#0a0a0a' : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
+    <div style={{ background: isMain ? posterGrey : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1129,19 +1135,20 @@ export default function SeeingIsDeceiving() {
           gap: 60px;
         }
 
-        .exhibition-title { text-align: center; margin-bottom: 20px; }
+        /* The lessons chip inherits its ink from here (a:link outranks its own color). */
+        .exhibition-title { text-align: center; margin-bottom: 20px; color: #2a2a2a; }
         .exhibition-title h1 {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(2.5rem, 8vw, 5rem);
           font-weight: 300;
-          color: #fafafa;
+          color: #0a0a0a;
           margin-bottom: 12px;
         }
         .exhibition-title p {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(1rem, 3vw, 1.4rem);
           font-style: italic;
-          color: #a8d5e5;
+          color: #2a2a2a;
         }
 
         .exhibition-grid {
@@ -1184,14 +1191,15 @@ export default function SeeingIsDeceiving() {
           font-size: 11px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #7D8471;
+          color: #2a2a2a;
           opacity: 0;
           transition: opacity 0.3s ease;
         }
 
+        /* The case card: poster 2's black and blue, set on poster 1's grey. */
         .display-case {
           background: #0a0a0a;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid rgba(10,10,10,0.2);
           padding: 32px 24px;
           display: flex;
           flex-direction: column;
@@ -1221,7 +1229,7 @@ export default function SeeingIsDeceiving() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #8a8a8a;
+          color: #a9a7a8;
           margin-bottom: 8px;
         }
         .case-title {
@@ -1506,17 +1514,17 @@ export default function SeeingIsDeceiving() {
           href={activeView === 'main' ? FLOOR_RETURN.href : undefined}
           onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
         >
-          <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-          <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>←</span>
-          <span className="nav-label" style={{ color: '#7D8471' }}>
+          <span className="nav-m-text" aria-hidden="true" style={{ color: navM }}>M</span>
+          <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: navInk }}>←</span>
+          <span className="nav-label" style={{ color: navInk }}>
             {activeView === 'main' ? FLOOR_RETURN.label : 'Exhibition'}
           </span>
         </ExhibitionNav>
 
         <ExhibitionNav className="nav-m nav-m-right" href="/exhibitions/seeing-is-deceiving/resources">
-          <span className="nav-label" style={{ color: '#7D8471' }}>Resources</span>
-          <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>→</span>
-          <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+          <span className="nav-label" style={{ color: navInk }}>Resources</span>
+          <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>→</span>
+          <span className="nav-m-text" aria-hidden="true" style={{ color: navM }}>M</span>
         </ExhibitionNav>
         </>
       )}
@@ -1528,8 +1536,8 @@ export default function SeeingIsDeceiving() {
             <h1>Seeing is Deceiving</h1>
             <p>The Science of How We See</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
-              <TeachToggle onClick={() => setProjector(true)} style={{ '--teach-color': '#a8d5e5', '--teach-border': 'rgba(168,213,229,0.55)' } as React.CSSProperties} />
-              <LessonsLink exhibition="seeing-is-deceiving" style={{ '--teach-color': '#a8d5e5', '--teach-border': 'rgba(168,213,229,0.55)' } as React.CSSProperties} />
+              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} />
+              <LessonsLink exhibition="seeing-is-deceiving" style={teachStyle} />
             </div>
           </div>
 

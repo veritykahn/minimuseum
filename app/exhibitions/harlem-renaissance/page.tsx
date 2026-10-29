@@ -481,6 +481,11 @@ export default function HarlemRenaissance() {
   const poster2Sage = '#ced5bc';
   const poster2Slate = '#696f7f';
   const lavender = '#b485d2';
+  /* The landing page stands in poster 1's purple, its type in the poster's cream (5.1:1). */
+  const isMain = activeView === 'main';
+  const navM = isMain ? poster1Cream : '#525252';
+  const navInk = isMain ? poster1Cream : '#7D8471';
+  const teachStyle = { '--teach-color': poster1Cream, '--teach-border': 'rgba(239,217,180,0.55)' } as React.CSSProperties;
 
   // Per-section background colors — uses all palette colours
   const getBgColor = () => {
@@ -568,7 +573,7 @@ export default function HarlemRenaissance() {
   };
 
   return (
-    <div style={{ background: activeView === 'main' ? '#0a0a0a' : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
+    <div style={{ background: isMain ? poster1Purple : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1097,19 +1102,21 @@ export default function HarlemRenaissance() {
           gap: 60px;
         }
 
-        .hr-exhibition-title { text-align: center; margin-bottom: 20px; }
+        /* The lessons chip inherits its ink from here (a:link outranks its own color). */
+        .hr-exhibition-title { text-align: center; margin-bottom: 20px; color: #efd9b4; }
         .hr-exhibition-title h1 {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(2.5rem, 8vw, 5rem);
           font-weight: 300;
-          color: #fafafa;
+          color: #efd9b4;
           margin-bottom: 12px;
         }
+        /* The poster's gold and pinks do not read on its purple (2–3:1); its cream does. */
         .hr-exhibition-title p {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(1rem, 3vw, 1.4rem);
           font-style: italic;
-          color: #b485d2;
+          color: #efd9b4;
         }
 
         .hr-exhibition-grid {
@@ -1143,14 +1150,15 @@ export default function HarlemRenaissance() {
           font-size: 11px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #7D8471;
+          color: #efd9b4;
           opacity: 0;
           transition: opacity 0.3s ease;
         }
 
+        /* The case card: the walkthrough's deep purple-black, set on the purple ground. */
         .hr-display-case {
-          background: #0a0a0a;
-          border: 1px solid rgba(255,255,255,0.1);
+          background: #1a0f2a;
+          border: 1px solid rgba(239,217,180,0.2);
           padding: 32px 24px;
           display: flex;
           flex-direction: column;
@@ -1162,7 +1170,7 @@ export default function HarlemRenaissance() {
           overflow: hidden;
         }
         .hr-display-case:hover, .hr-display-case:focus-visible {
-          border-color: rgba(180, 133, 210, 0.3);
+          border-color: rgba(239,217,180,0.6);
         }
         .hr-display-case:hover .hr-case-image {
           transform: scale(1.02);
@@ -1181,20 +1189,20 @@ export default function HarlemRenaissance() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #8a8a8a;
+          color: #b195a4;
           margin-bottom: 8px;
         }
         .hr-case-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 20px;
-          color: #fafafa;
+          color: #efd9b4;
           margin-bottom: 8px;
         }
         .hr-case-subtitle {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-style: italic;
-          color: #b485d2;
+          color: #d992ba;
         }
 
         /* ============================================
@@ -1495,17 +1503,17 @@ export default function HarlemRenaissance() {
           href={activeView === 'main' ? FLOOR_RETURN.href : undefined}
           onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
         >
-          <span className="hr-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-          <span className="hr-nav-arrow hr-nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>&#8592;</span>
-          <span className="hr-nav-label" style={{ color: '#7D8471' }}>
+          <span className="hr-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
+          <span className="hr-nav-arrow hr-nav-arrow-left" aria-hidden="true" style={{ color: navInk }}>&#8592;</span>
+          <span className="hr-nav-label" style={{ color: navInk }}>
             {activeView === 'main' ? FLOOR_RETURN.label : 'Exhibition'}
           </span>
         </ExhibitionNav>
 
         <ExhibitionNav className="hr-nav hr-nav-right" href="/exhibitions/harlem-renaissance/resources">
-          <span className="hr-nav-label" style={{ color: '#7D8471' }}>Resources</span>
-          <span className="hr-nav-arrow hr-nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>&#8594;</span>
-          <span className="hr-nav-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+          <span className="hr-nav-label" style={{ color: navInk }}>Resources</span>
+          <span className="hr-nav-arrow hr-nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>&#8594;</span>
+          <span className="hr-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
         </ExhibitionNav>
         </>
       )}
@@ -1519,8 +1527,8 @@ export default function HarlemRenaissance() {
             <h1>The Harlem Renaissance</h1>
             <p>The Great Migration &amp; the Birth of a Cultural Revolution</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
-              <TeachToggle onClick={() => setProjector(true)} style={{ '--teach-color': '#d992ba', '--teach-border': 'rgba(217,146,186,0.55)' } as React.CSSProperties} />
-              <LessonsLink exhibition="harlem-renaissance" style={{ '--teach-color': '#d992ba', '--teach-border': 'rgba(217,146,186,0.55)' } as React.CSSProperties} />
+              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} />
+              <LessonsLink exhibition="harlem-renaissance" style={teachStyle} />
             </div>
           </div>
 
