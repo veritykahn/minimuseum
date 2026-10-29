@@ -153,6 +153,8 @@
 .vbr-fact-source a, .vbr-card a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .vb-room .vbr-card :focus-visible { outline-color: #fff; }
 .vbr-note { font-size: 12px; line-height: 1.45; opacity: 0.85; }
+/* The room's pictures credited at the card's foot, small, as their maker asks. */
+.vbr-credit { margin-top: auto !important; font-size: 10.5px; letter-spacing: 0.04em; line-height: 1.4; opacity: 0.7; }
 .vbr-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .vbr-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }

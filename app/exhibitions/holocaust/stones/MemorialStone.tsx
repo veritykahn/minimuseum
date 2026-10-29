@@ -17,8 +17,9 @@ import type { LayResult, useStones } from './useStones';
  *
  * The room is lit from one light above: its beam falls on the stone, with a
  * little dust turning slowly in it, and pools on the floor in front. The
- * stone is grey granite, mottled and grained, on a darker base, with the
- * ledge's upper face catching the light.
+ * stone is grey granite on a darker base, with the ledge's upper face
+ * catching the light; the granite, the ledge, the wall and the floor are the
+ * owner's textures (Leonardo.Ai, credited under the panel), scenery only.
  *
  * Nothing moves but the visitor's own stone, settling once, the dust, and a
  * slow light over the granite (memorial-stone.css); with reduced motion,
@@ -481,6 +482,7 @@ export function StoneControls({ count, status, laidToday, busy, lay, onLaid }: C
       <p className="hos-message" role="status" aria-live="polite">
         {message || (laidToday ? 'You have laid a stone today. You can lay another tomorrow.' : '')}
       </p>
+      <p className="hos-stone-credit">Illustration made with Leonardo.Ai</p>
     </div>
   );
 }

@@ -202,3 +202,16 @@ describe('wiring', () => {
     expect(getLevelConfig(href).title).toBe('Black History Month');
   });
 });
+
+// With a photograph in place: BlackBarbieTimelinePhotos.test.tsx.
+describe('the owner’s photographs', () => {
+  beforeEach(() => window.history.replaceState(null, '', '/'));
+
+  it('add nothing to the room while there are none', () => {
+    const { container } = render(<BlackBarbieTimeline />);
+    for (const s of TIMELINE_STOPS) {
+      fireEvent.click(screen.getByRole('button', { name: s.year === null ? s.name : `${s.yearLabel ?? s.year}, ${s.name}` }));
+      expect(container.querySelector('figure, .bht-photo')).toBeNull();
+    }
+  });
+});

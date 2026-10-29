@@ -128,7 +128,12 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
   interactives: [
     {
       href: '/exhibitions/great-war/silence',
-      emblem: '11:00',
+      // The owner's illustration (Leonardo.Ai): a watch at 11:00, not a relic.
+      image: {
+        src: '/exhibitions/great-war/landing-guns-fell-silent.webp',
+        alt: 'An illustration of an open pocket watch at eleven o’clock on dark earth, a red poppy beside it and barbed wire behind',
+        credit: 'Illustration made with Leonardo.Ai',
+      },
       label: 'Interactive',
       title: 'When the Guns Fell Silent',
       subtitle: 'The last minute of the war',

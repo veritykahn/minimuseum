@@ -948,6 +948,9 @@ a.pe-room-card:is(:link, :visited) { color: inherit; }
   letter-spacing: 0.04em;
   color: var(--pe-accent);
 }
+/* An illustration's credit, small under the card's picture. */
+.pe-room-card-credit,
+.pe-case-credit { margin-top: -8px; font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.04em; line-height: 1.4; opacity: 0.6; }
 .pe-room-card-name { font-family: var(--pe-display); font-size: 1.3rem; line-height: 1.2; }
 .pe-room-card-sub { font-family: var(--pe-body); font-style: italic; font-size: 0.92rem; line-height: 1.45; opacity: 0.8; }
 .pe-room-card-go {

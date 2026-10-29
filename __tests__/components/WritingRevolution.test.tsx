@@ -104,8 +104,9 @@ describe('The Writing Revolution', () => {
     const files = (d: string): string[] =>
       fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? files(path.join(d, e.name)).map((f) => `${e.name}/${f}`) : [e.name]));
 
-    it('holds only the posters, their lettering and the Urania cut out of poster 2', () => {
+    it('holds only the posters, their lettering, the Urania cut out of poster 2 and the owner’s illustration for the room’s card', () => {
       expect(files(dir).sort()).toEqual([
+        'landing-typing-station.webp',
         'poster1.jpg',
         'poster2.jpg',
         'titles/qwertys-accidental-empire.png',

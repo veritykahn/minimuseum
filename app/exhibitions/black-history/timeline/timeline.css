@@ -170,6 +170,49 @@
   100% { transform: rotate(var(--a)) translate(calc(var(--disc-d) * 0.78)) scale(1); opacity: 0; }
 }
 
+/* ───────── An owner's photograph, pinned beside the disc ───────── */
+/* Lower right of the disc, clear of its year and name, over the ring of
+   vignettes. --photo-w (set on the figure) keeps it to the disc's size and
+   never wider than the file's own pixels: a small photograph stays small. */
+.bht-photo {
+  grid-area: disc;
+  place-self: center;
+  position: relative;
+  z-index: 3;
+  margin: 0;
+  width: var(--photo-w);
+  transform: translate(calc(var(--disc-d) * 0.66), calc(var(--disc-d) * 0.34));
+  animation: bht-photo-in 0.6s ease 0.15s both;
+}
+.bht-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+  padding: calc(var(--disc-d) * 0.02);
+  border-radius: 3px;
+  box-shadow: 4px 4px 0 var(--line);
+  transform: rotate(3deg);
+}
+.bht-photo-credit {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(var(--disc-d) * 0.8);
+  font-family: var(--pe-body);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--ink);
+}
+.bht-photo-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.bht-photo-credit a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@keyframes bht-photo-in { from { opacity: 0; } }
+
 /* ───────── The poster's words ───────── */
 .bht-words {
   grid-area: words;
@@ -306,11 +349,12 @@
   .bht-stop-short { display: inline; }
   .bht-note { gap: 8px; font-size: 1.04rem; line-height: 1.38; }
   .bht-note-source { font-size: 11px; }
+  .bht-photo-credit { top: calc(100% + 5px); font-size: 9px; }
   .bht-room .bht-stop[aria-current='step'] { transform: scale(1.14); box-shadow: 0 0 0 3px var(--g), 0 0 0 5px var(--line); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .bht-room, .bht-rays, .bht-disc, .bht-room .bht-stop { transition: none; }
-  .bht-name, .bht-vig, .bht-words, .bht-sentence mark, .bht-tag { animation: none; }
+  .bht-name, .bht-vig, .bht-words, .bht-sentence mark, .bht-tag, .bht-photo { animation: none; }
   .bht-burst { display: none; }
 }

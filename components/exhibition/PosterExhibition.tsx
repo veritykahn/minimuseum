@@ -100,8 +100,11 @@ export default function PosterExhibition<K extends string>({ config }: { config:
   const caseLink = (c: DisplayCase) => (
     <Link key={c.href} href={c.href} className={`pe-display-case ${c.image ? '' : 'pe-display-case-emblem'}`}>
       {c.image ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img className="pe-case-image" src={c.image.src} alt={c.image.alt} />
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="pe-case-image" src={c.image.src} alt={c.image.alt} />
+          {c.image.credit && <span className="pe-case-credit">{c.image.credit}</span>}
+        </>
       ) : c.emblem ? (
         <span className="pe-case-emblem" aria-hidden="true">
           {c.emblem}

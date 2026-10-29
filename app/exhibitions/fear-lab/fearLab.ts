@@ -128,10 +128,11 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
   interactives: [
     {
       href: '/exhibitions/fear-lab/what-scares-you',
-      // A drawing of the mystery box, not a photograph.
+      // The owner's illustration (Leonardo.Ai) of the room's boxes, not a photograph.
       image: {
-        src: '/exhibitions/fear-lab/mystery-box.svg',
-        alt: 'A drawing of a dark box with a question mark on it and a round hole in its top, a cream clawed hand reaching down into it',
+        src: '/exhibitions/fear-lab/landing-fear-boxes.webp',
+        alt: 'An illustration of a crate, a hatbox, a chest and a tin on a dusty shelf, their lids ajar, a glow inside the chest',
+        credit: 'Illustration made with Leonardo.Ai',
       },
       label: 'Interactive',
       title: 'What Scares You?',

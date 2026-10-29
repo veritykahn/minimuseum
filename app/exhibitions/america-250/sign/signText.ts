@@ -30,10 +30,9 @@ export const SIGN_TEXT = {
   // The class's and the student's own declarations: instructions only (their wording is the owner's: declaration.ts).
   declarationName: 'The Declaration',
   declarationShort: '1776',
-  classIntro: 'Write your class’s declaration on the parchment. Then each of you signs at its foot, one after another, and you print it.',
-  mineIntro: 'Write your own declaration on the parchment. Then sign at its foot, and print it.',
-  classLabel: 'Your class',
-  classPlaceholder: 'the class’s name',
+  classIntro: 'Fill in your teacher’s name and your grade at the head of the parchment, and read your class’s declaration. Then each of you signs at its foot, one after another, and you print it.',
+  mineIntro: 'Add your name and grade at the head of the parchment if you like, and read your declaration. Then sign at its foot, and print it.',
+  versionLabel: 'Version',
   addName: 'Add my name',
   mineSigned: 'Signed. Your declaration is yours to print.',
   addressLabel: 'Add your address',

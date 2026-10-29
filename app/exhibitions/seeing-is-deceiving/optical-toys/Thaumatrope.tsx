@@ -1,7 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
-import { DiscArt } from './DiscArt';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import FactNote from '@/components/exhibition/FactNote';
 import { DISC, POSTER, TOY_NOTES } from './toysText';
 import { approach, faceAt, thaumaBlend, thaumaSeen, TAU, THAUMA_LADDER, THAUMA_TOP } from './spin';
@@ -15,7 +14,16 @@ import SpeedLadder from './SpeedLadder';
  * the cage; faster and slower step by hand, and a flick up or down across
  * the disc spins it too. Or look at its sides one by one: under reduced
  * motion that is all it shows.
+ *
+ * Its two faces are the owner's illustrations (made with Leonardo.Ai,
+ * credited in the room): card discs the same size, so laid one over the
+ * other the bird sits inside the cage.
  */
+
+const FACES = {
+  front: '/exhibitions/seeing-is-deceiving/optical-toys/thaum-bird.webp',
+  back: '/exhibitions/seeing-is-deceiving/optical-toys/thaum-cage.webp',
+};
 
 const RATE = 1.4; // turns a second, every second, between rungs
 const SPIN_DOWN = 1.1; // as the strings unwind
@@ -205,21 +213,14 @@ export default function Thaumatrope({ reduced, intro, footer }: { reduced: boole
             >
               <div className="vt-disc" ref={discEl}>
                 <div className="vt-face vt-face-front">
-                  <DiscFace>
-                    <DiscArt side="front" />
-                  </DiscFace>
+                  <DiscFace sides={['front']} />
                 </div>
                 <div className="vt-face vt-face-back">
-                  <DiscFace>
-                    <DiscArt side="back" />
-                  </DiscFace>
+                  <DiscFace sides={['back']} />
                 </div>
               </div>
               <div className="vt-blend" ref={blendEl} style={{ opacity: 0 }}>
-                <DiscFace>
-                  <DiscArt side="front" />
-                  <DiscArt side="back" />
-                </DiscFace>
+                <DiscFace sides={['front', 'back']} />
               </div>
             </div>
           </div>
@@ -228,10 +229,7 @@ export default function Thaumatrope({ reduced, intro, footer }: { reduced: boole
             {SIDES.map((s, i) => (
               <li key={s} className="vt-side" aria-current={side === s ? 'step' : undefined}>
                 <button type="button" className="vt-side-button" onClick={() => { setSide(s); setStatus(sideLabel(s)); }} aria-label={sideLabel(s)}>
-                  <DiscFace>
-                    {s !== 'back' && <DiscArt side="front" />}
-                    {s !== 'front' && <DiscArt side="back" />}
-                  </DiscFace>
+                  <DiscFace sides={s === 'together' ? ['front', 'back'] : [s]} />
                 </button>
                 <span className="vt-side-name" aria-hidden="true">{s === 'front' ? 'Front' : s === 'back' ? 'Back' : 'Together'}</span>
                 {i < 2 && <span className="vt-side-op" aria-hidden="true">{i === 0 ? '+' : '='}</span>}
@@ -293,23 +291,18 @@ function sideLabel(s: Side) {
   return s === 'front' ? `Front: ${DISC.front}.` : s === 'back' ? `Back: ${DISC.back}.` : `Together: ${DISC.together}.`;
 }
 
-/** A card disc: cream card in a thin gold rim, with the holes for its strings. */
-export function DiscFace({ children, small = false }: { children: ReactNode; small?: boolean }) {
-  const clip = `vt-clip-${useId().replace(/:/g, '')}`;
+/**
+ * A card disc, one face or both: laid together, the cage is printed over the
+ * bird (multiplied, as one picture seen through the other), so the bird sits
+ * inside the cage, behind its bars.
+ */
+export function DiscFace({ sides }: { sides: ('front' | 'back')[] }) {
   return (
-    <svg className="vt-face-art" viewBox="-100 -100 200 200">
-      <circle r="98" fill="#f3ead6" stroke="#b8963f" strokeWidth={small ? 5 : 3} />
-      <circle r="92" fill="none" stroke="#a8d5e5" strokeOpacity="0.7" strokeWidth="1.2" />
-      <clipPath id={clip}>
-        <circle r="90" />
-      </clipPath>
-      <g clipPath={`url(#${clip})`}>{children}</g>
-      {!small && (
-        <>
-          <circle cx="-94" cy="0" r="2.6" fill="#6b5a44" />
-          <circle cx="94" cy="0" r="2.6" fill="#6b5a44" />
-        </>
-      )}
-    </svg>
+    <span className="vt-face-art">
+      {sides.map((s, i) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img key={s} src={FACES[s]} alt="" draggable={false} className={i ? 'vt-face-over' : undefined} />
+      ))}
+    </span>
   );
 }

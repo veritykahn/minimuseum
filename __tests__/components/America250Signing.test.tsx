@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import America250Signing from '@/app/exhibitions/america-250/sign/page';
 import { COPY_NOTES, COPY_STAGES, FLAG_MILESTONES, FLAG_TEXT, SIGN_TEXT } from '@/app/exhibitions/america-250/sign/signText';
-import { DECLARATION_BODY, DECLARATION_HEAD, DECLARATION_SIGNERS, DECLARATION_SOURCE, DECLARATION_TITLE, OWN_DECLARATIONS, WORDING_COMING_SOON } from '@/app/exhibitions/america-250/sign/declaration';
+import { DECLARATION_BODY, DECLARATION_HEAD, DECLARATION_SIGNERS, DECLARATION_SOURCE, DECLARATION_TITLE, OWN_DECLARATIONS, classWords, gradeWords, ownTitle, ownWording, PRINT_SIGNATURE_LINES } from '@/app/exhibitions/america-250/sign/declaration';
 import { FLAG, starLayout, stripesFor, unionHeight } from '@/app/exhibitions/america-250/sign/flagLayout';
 import { inkAfter, inkAlpha, INK_PER_DIP, nibQuad, scribbleLine, thin, tracePath } from '@/app/exhibitions/america-250/sign/signing';
 import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
@@ -16,8 +16,8 @@ import sitemap from '@/app/sitemap';
  * Engrossed Copy are held (COPY_NOTES) and the flag's milestones
  * (FLAG_MILESTONES), owner-approved and fact-checked, each set with its source.
  * The parchment carries the Declaration's own words, the National Archives'
- * transcription; the class's and the student's declarations wait for the
- * owner's wording, and print with their names.
+ * transcription; the class's and the student's declarations are the
+ * owner's wording, their blanks filled in, and print with their names.
  */
 
 /** The posters' words, as read: "*…*" marks italics; quotes and cites both. */
@@ -178,23 +178,95 @@ describe('the class’s and the student’s own declarations', () => {
     window.print = print;
   });
 
-  it('awaits the owner’s wording: a quiet placeholder, and no words written for her', () => {
-    expect(OWN_DECLARATIONS.class.wording).toBeNull();
-    expect(OWN_DECLARATIONS.mine.wording).toBeNull();
+  it('sets the owner’s wording word for word, in both of the class’s versions and the student’s', () => {
+    const [classroom, middle] = OWN_DECLARATIONS.class.versions;
+    expect(classroom.wording).toHaveLength(5);
+    expect(classroom.wording[0]).toMatch(/^Two hundred and fifty years ago, in the city of Philadelphia, fifty-six men /);
+    expect(classroom.wording[0]).toContain("we — the students of [Teacher]'s [Grade] — set our names to our own.");
+    expect(classroom.wording[2]).toContain('That we will leave this [grade] better than we found it');
+    expect(middle.wording[1]).toMatch(/^We hold these truths to be self-evident: that every person in this school was made/);
+    expect(middle.wording[2]).toMatch(/having been worth the investment made in us\.$/);
+    // The same opening, pledge and closing.
+    for (const i of [0, 3, 4]) expect(middle.wording[i]).toBe(classroom.wording[i]);
+    expect(classroom.wording[3]).toBe('And so we mutually pledge to one another our attention, our kindness, and our honour.');
+    expect(classroom.wording[4]).toBe('In witness whereof, we set our names below.');
+    const mine = OWN_DECLARATIONS.mine.versions[0].wording;
+    expect(mine[0]).toMatch(/In this anniversary year, I set my name to my own\.$/);
+    expect(mine[1]).toMatch(/^I hold these truths to be self-evident: that every person in this classroom/);
+    expect(mine[2]).toMatch(/^I therefore declare that I will come to school ready to learn/);
+    expect(mine[3]).toBe('And so I pledge my attention, my kindness, and my honour.');
+    expect(mine[4]).toBe('In witness whereof, I set my name below.');
+    // Only the person changes: no "we", "our" or "us" is left in the student's own.
+    expect(mine.join(' ')).not.toMatch(/\b(we|our|us)\b/i);
+  });
+
+  it('fills her blanks: the teacher and the grade, or "our class" and "classroom" when blank', () => {
+    expect(gradeWords('')).toBe('');
+    for (const g of ['4', '4th', '4th grade', 'Grade 4', '4TH GRADE', ' 4th  Grade ']) expect(gradeWords(g)).toBe('4th grade');
+    expect(gradeWords('1')).toBe('1st grade');
+    expect(gradeWords('2nd')).toBe('2nd grade');
+    expect(gradeWords('3')).toBe('3rd grade');
+    expect(gradeWords('11')).toBe('11th grade');
+    expect(gradeWords('12')).toBe('12th grade');
+    expect(gradeWords('K')).toBe('kindergarten');
+    expect(gradeWords('Year 5')).toBe('Year 5');
+
+    expect(classWords({})).toBe('our class');
+    expect(classWords({ teacher: 'Mrs Ruiz', grade: '4' })).toBe('Mrs Ruiz’s 4th grade');
+    expect(classWords({ teacher: 'Mrs Ruiz' })).toBe('Mrs Ruiz’s class');
+    expect(classWords({ grade: '4th grade' })).toBe('the 4th grade');
+    expect(classWords({ teacher: '  ', grade: ' ' })).toBe('our class');
+
+    expect(ownTitle('class')).toBe('Our Class Declaration of Independence');
+    expect(ownTitle('class', { teacher: 'Mrs Ruiz', grade: '4th grade' })).toBe('Mrs Ruiz’s 4th Grade Declaration of Independence');
+    expect(ownTitle('class', { teacher: 'Mr Jones' })).toBe('Mr Jones’s Class Declaration of Independence');
+    expect(ownTitle('class', { grade: '6' })).toBe('Our 6th Grade Declaration of Independence');
+    expect(ownTitle('mine')).toBe('My Declaration of Independence');
+    expect(ownTitle('mine', { name: 'Cleo' })).toBe('Cleo’s Declaration of Independence');
+
+    const blank = ownWording('class', 'classroom');
+    expect(blank[0]).toContain('we — the students of our class — set our names to our own.');
+    expect(blank[2]).toContain('That we will leave this classroom better than we found it');
+    const filled = ownWording('class', 'classroom', { teacher: 'Mrs Ruiz', grade: '4' });
+    expect(filled[0]).toContain('we — the students of Mrs Ruiz’s 4th grade — set our names to our own.');
+    expect(filled[2]).toContain('That we will leave this 4th grade better than we found it');
+    expect(ownWording('class', 'middle', { teacher: 'Mrs Ruiz', grade: '8' })[2]).toContain('That we will leave this school, when the time comes');
+    expect(ownWording('mine', 'classroom', { grade: '5th' })[2]).toContain('That I will leave this 5th grade better than I found it');
+    expect(ownWording('mine', 'classroom')[2]).toContain('That I will leave this classroom better than I found it');
+    // No blank is ever left showing.
+    expect([...blank, ...filled, ...ownWording('mine', 'classroom')].join(' ')).not.toMatch(/\[/);
+  });
+
+  it('opens the class’s with its blanks, takes them up in the heading and her words, and switches version', () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('button', { name: 'Our Class Declaration' }));
     expect(window.location.hash).toBe('#class');
     const parchment = screen.getByRole('region', { name: /Our Class Declaration/ });
-    expect(within(parchment).getByRole('heading', { name: 'Our Class Declaration' })).toBeInTheDocument();
-    expect(within(parchment).getByText(WORDING_COMING_SOON)).toBeInTheDocument();
+    expect(within(parchment).getByRole('heading', { name: 'Our Class Declaration of Independence' })).toBeInTheDocument();
+    expect(within(parchment).getByText(/the students of our class/)).toBeInTheDocument();
+    // The school line is blank: no school is filled in for them.
+    expect(within(parchment).getByRole('textbox', { name: /School, place and year/ })).toHaveValue('');
+    fireEvent.change(within(parchment).getByRole('textbox', { name: 'Teacher' }), { target: { value: 'Mrs Ruiz' } });
+    fireEvent.change(within(parchment).getByRole('textbox', { name: 'Grade' }), { target: { value: '4' } });
+    expect(within(parchment).getByRole('heading', { name: 'Mrs Ruiz’s 4th Grade Declaration of Independence' })).toBeInTheDocument();
+    expect(within(parchment).getByText(/the students of Mrs Ruiz’s 4th grade/)).toBeInTheDocument();
+    expect(within(parchment).getByText(/leave this 4th grade better/)).toBeInTheDocument();
+    expect(within(parchment).getByText('Teacher:')).toBeInTheDocument();
+
+    const versions = screen.getByRole('group', { name: 'Version' });
+    expect(within(versions).getByRole('button', { name: 'Classroom' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(within(versions).getByRole('button', { name: 'Middle school' }));
+    expect(within(versions).getByRole('button', { name: 'Middle school' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(parchment).getByText(/education is not merely the accumulation of knowledge/)).toBeInTheDocument();
+    expect(within(parchment).queryByText(/learning is one of the greatest gifts/)).not.toBeInTheDocument();
   });
 
-  it('takes a class’s names one after another, and prints the parchment with them', async () => {
+  it('takes a class’s names one after another, and prints them on the teacher’s line and 25 lines to sign', async () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('button', { name: 'Our Class Declaration' }));
     const parchment = screen.getByRole('region', { name: /Our Class Declaration/ });
-    fireEvent.change(within(parchment).getByRole('textbox', { name: /Write your class’s own declaration/ }), { target: { value: 'We, Room 12, declare.' } });
-    fireEvent.change(screen.getByRole('textbox', { name: 'Your class' }), { target: { value: 'Room 12' } });
+    fireEvent.change(within(parchment).getByRole('textbox', { name: 'Teacher' }), { target: { value: 'Mrs Ruiz' } });
+    fireEvent.change(within(parchment).getByRole('textbox', { name: /School, place and year/ }), { target: { value: 'Hillside School, Dayton, 2026' } });
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
     for (const name of ['Ada', 'Ben']) {
       fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: name } });
@@ -206,9 +278,25 @@ describe('the class’s and the student’s own declarations', () => {
     expect(screen.getByRole('textbox', { name: 'Your name' })).toHaveValue('');
     fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
     const root = document.querySelector('.aps-print-root')!;
-    expect(root).toHaveTextContent('We, Room 12, declare.');
-    expect(root).toHaveTextContent('Room 12');
+    expect(root).toHaveTextContent('Mrs Ruiz’s Class Declaration of Independence');
+    expect(root).toHaveTextContent('Hillside School, Dayton, 2026');
+    expect(root).toHaveTextContent('the students of Mrs Ruiz’s class');
+    expect(root).toHaveTextContent('Teacher:');
+    expect(root.querySelector('input, textarea')).toBeNull();
+    expect(root.querySelectorAll('.aps-parch-slots > li')).toHaveLength(PRINT_SIGNATURE_LINES);
     expect(root.querySelectorAll('.aps-parch-sig')).toHaveLength(2);
+    await waitFor(() => expect(print).toHaveBeenCalled());
+  });
+
+  it('prints a class’s parchment before anyone signs, its lines to be signed by hand, with no school line', async () => {
+    render(<America250Signing />);
+    fireEvent.click(screen.getByRole('button', { name: 'Our Class Declaration' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
+    const root = document.querySelector('.aps-print-root')!;
+    expect(root).toHaveTextContent('Our Class Declaration of Independence');
+    expect(root.querySelector('.aps-parch-school')).toBeNull();
+    expect(root.querySelectorAll('.aps-parch-slots > li')).toHaveLength(PRINT_SIGNATURE_LINES);
+    expect(root.querySelectorAll('.aps-parch-sig')).toHaveLength(0);
     await waitFor(() => expect(print).toHaveBeenCalled());
   });
 
@@ -216,13 +304,22 @@ describe('the class’s and the student’s own declarations', () => {
     window.history.replaceState(null, '', '/exhibitions/america-250/sign#mine');
     render(<America250Signing />);
     expect(screen.getByRole('button', { name: 'My Declaration' })).toHaveAttribute('aria-pressed', 'true');
+    const parchment = screen.getByRole('region', { name: /My Declaration/ });
+    expect(within(parchment).getByRole('heading', { name: 'My Declaration of Independence' })).toBeInTheDocument();
+    fireEvent.change(within(parchment).getByRole('textbox', { name: 'Name' }), { target: { value: 'Cleo' } });
+    fireEvent.change(within(parchment).getByRole('textbox', { name: 'Grade' }), { target: { value: '5' } });
+    expect(within(parchment).getByRole('heading', { name: 'Cleo’s Declaration of Independence' })).toBeInTheDocument();
+    expect(within(parchment).queryByText('Teacher:')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'Cleo' } });
     fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
     expect(screen.getByText(SIGN_TEXT.mineSigned)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
     await waitFor(() => expect(print).toHaveBeenCalled());
-    expect(document.querySelector('.aps-print-root')).toHaveTextContent(WORDING_COMING_SOON);
+    const root = document.querySelector('.aps-print-root')!;
+    expect(root).toHaveTextContent('Cleo’s Declaration of Independence');
+    expect(root).toHaveTextContent('That I will leave this 5th grade better than I found it');
+    expect(root.querySelectorAll('.aps-parch-sig')).toHaveLength(1);
   });
 });
 

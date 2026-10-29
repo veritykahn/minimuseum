@@ -19,7 +19,21 @@ import SpeedLadder from './SpeedLadder';
  * drawing seen through the front slit. Step through the drawings one by
  * one, or see them all side by side: under reduced motion the drum stays
  * still and that is how it is seen.
+ *
+ * The drum's look is the owner's painting of a zoetrope (made with
+ * Leonardo.Ai, credited in the room): its painted band of scrolls turns on
+ * the drum's wall, and its turned wooden stand holds the drum up. The
+ * slits, and the strip of drawings inside, are still drawn here.
  */
+
+const LOOK_SRC = '/exhibitions/seeing-is-deceiving/optical-toys/zoetrope.webp';
+/** Where the painting's parts are, in its pixels: the drum's centre and half-width, its band of scrolls, and the stand under it. */
+const LOOK = { cx: 1505, r: 420, band: [452, 640], stand: [1205, 655, 600, 520] } as const;
+/** The stand's left edge in the painting, top to bottom (the right mirrors it), to cut it from the room behind. */
+const STAND_OUTLINE: [number, number][] = [
+  [1398, 655], [1404, 700], [1448, 745], [1438, 792], [1398, 858], [1418, 930], [1440, 968],
+  [1360, 1008], [1290, 1048], [1236, 1098], [1240, 1148], [1300, 1172], [1505, 1176],
+];
 
 const SEEN_LABEL = {
   drawings: 'Slow enough to see each drawing go round',
@@ -58,6 +72,7 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
   const loop = useRef<FrameRequestCallback | null>(null);
   const last = useRef(0);
   const shown = useRef(-1);
+  const look = useRef<HTMLImageElement | null>(null);
 
 
   // Paint the strip's twelve pictures once, off screen.
@@ -91,7 +106,7 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
 
   const paint = useCallback(() => {
     const rps = speed.current;
-    drawDrum(drum.current, angle.current, rps, frames.current);
+    drawDrum(drum.current, angle.current, rps, frames.current, look.current);
     const f = frameAt(angle.current);
     drawLens(lens.current, frames.current[f], angle.current, rps);
     if (f !== shown.current) {
@@ -134,6 +149,19 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
   }, [reduced]);
 
   useEffect(() => () => cancelAnimationFrame(raf.current), []);
+
+  // The painting, loaded once; until it comes (or if it never does), the drum is drawn whole.
+  useEffect(() => {
+    const img = new Image();
+    img.onload = () => {
+      look.current = img;
+      paint();
+    };
+    img.src = LOOK_SRC;
+    return () => {
+      img.onload = null;
+    };
+  }, [paint]);
 
   // Redraw as the stage changes size.
   useEffect(() => {
@@ -301,19 +329,25 @@ function prepare(c: HTMLCanvasElement | null) {
 }
 
 const mix = (a: number[], b: number[], t: number) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',')})`;
-const WALL_DARK = [14, 17, 22];
-const WALL_LIGHT = [58, 74, 88];
+// The painted drum's dark lacquer, lit from the left.
+const WALL_DARK = [16, 12, 10];
+const WALL_LIGHT = [86, 64, 44];
 const SLIT_W = SLOT * 0.16;
 
-/** The drum, from a little above: the strip on the far inside wall, the slits in the near one. */
-export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, frames: CanvasImageSource[]) {
+/**
+ * The drum, from a little above: the strip on the far inside wall, the slits
+ * in the near one. Given the painting, its band and stand dress the drum.
+ */
+export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, frames: CanvasImageSource[], look: HTMLImageElement | null = null) {
   const p = prepare(c);
   if (!p) return;
   const { g, W, H } = p;
-  const R = Math.min(W * 0.4, H * 0.46);
+  // The painting's stand is taller than the drawn one: the drum a little smaller to make room.
+  const standScale = look ? (2 / (LOOK.r * 2)) * LOOK.stand[3] : 0.7;
+  const R = Math.min(W * 0.4, H / (0.64 + 0.62 + standScale + 0.04));
   const ry = R * 0.32;
   const Hw = R * 0.62;
-  const stand = R * 0.7;
+  const stand = R * standScale;
   const cx = W / 2;
   const cy = (H - (2 * ry + Hw + stand)) / 2 + ry;
   // Spinning, the slits show each picture in its place: the strip is drawn where the slits catch it.
@@ -321,11 +355,33 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
   const phiStrip = strobe ? Math.floor(phi / SLOT + 1e-6) * SLOT : phi;
   const slit = slitStrength(rps);
 
-  // The shadow and the stand
+  // The shadow and the stand: the painting's, or drawn
   g.fillStyle = 'rgba(40, 30, 28, 0.22)';
   g.beginPath();
   g.ellipse(cx, cy + Hw + stand, R * 0.75, ry * 0.5, 0, 0, TAU);
   g.fill();
+  if (look) {
+    // The painting's stand, cut out along its turned outline.
+    const [sx, sy, sw, sh] = LOOK.stand;
+    const k = R / LOOK.r;
+    const top = cy + Hw + ry * 0.4;
+    const at = (x: number, y: number): [number, number] => [cx + (x - LOOK.cx) * k, top + (y - sy) * k];
+    const half = STAND_OUTLINE.map(([x, y]) => at(x, y));
+    const outline = [...half, ...half.slice(0, -1).reverse().map(([x, y]) => [2 * cx - x, y] as [number, number])];
+    g.save();
+    g.beginPath();
+    outline.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+    g.closePath();
+    g.clip();
+    g.drawImage(look, sx, sy, sw, sh, cx + (sx - LOOK.cx) * k, top, sw * k, sh * k);
+    g.restore();
+  } else drawStand(g, cx, cy, R, ry, Hw, stand);
+
+  drawWalls(g, cx, cy, R, ry, Hw, phi, phiStrip, slit, frames, look);
+}
+
+/** The drawn stand: a brass column on a turned foot. */
+function drawStand(g: CanvasRenderingContext2D, cx: number, cy: number, R: number, ry: number, Hw: number, stand: number) {
   const brass = g.createLinearGradient(cx - R * 0.1, 0, cx + R * 0.1, 0);
   brass.addColorStop(0, '#6e4f1e');
   brass.addColorStop(0.45, '#d9b265');
@@ -346,7 +402,9 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
   g.beginPath();
   g.ellipse(cx, cy + Hw + ry + R * 0.03, R * 0.09, ry * 0.09, 0, 0, TAU);
   g.fill();
+}
 
+function drawWalls(g: CanvasRenderingContext2D, cx: number, cy: number, R: number, ry: number, Hw: number, phi: number, phiStrip: number, slit: number, frames: CanvasImageSource[], look: HTMLImageElement | null) {
   const SL = 120;
   // The far wall, seen from inside: the dark lining, the slits' light, and the strip
   for (let i = 0; i < SL; i++) {
@@ -413,6 +471,16 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
     const lit = Math.max(0, -0.55 * Math.cos(tm) + 0.83 * Math.sin(tm));
     g.fillStyle = mix(WALL_DARK, WALL_LIGHT, lit);
     g.fillRect(x0, yt, sw, Hw);
+    // the painting's band of scrolls, turning with the drum: each strip of wall takes the painting's at its angle on the drum
+    if (look) {
+      const th = (((tm - phi) % Math.PI) + Math.PI) % Math.PI;
+      const px = LOOK.cx + LOOK.r * Math.cos(th);
+      const pw = Math.max(1, LOOK.r * Math.sin(th) * (Math.PI / SL));
+      const [b0, b1] = LOOK.band;
+      g.globalAlpha = 0.55 + 0.45 * lit;
+      g.drawImage(look, px - pw / 2, b0, pw, b1 - b0, x0, yt + Hw * 0.5, sw, Hw * 0.48);
+      g.globalAlpha = 1;
+    }
     const a = (((tm - phi) % SLOT) + SLOT) % SLOT;
     if (slit > 0 && Math.abs(a - SLOT / 2) < SLIT_W / 2) {
       g.fillStyle = `rgba(4, 6, 9, ${0.92 * slit})`;
@@ -422,8 +490,8 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
       g.fillStyle = `rgba(4, 6, 9, ${0.3 * (1 - slit)})`;
       g.fillRect(x0, yt + Hw * 0.04, sw, Hw * 0.3);
     }
-    // a painted gold dot between each pair of slits, below them
-    if (slit > 0 && Math.abs(a) < SLIT_W * 0.35) {
+    // a painted gold dot between each pair of slits, below them (the painting has its scrolls there)
+    if (!look && slit > 0 && Math.abs(a) < SLIT_W * 0.35) {
       g.fillStyle = `rgba(214, 178, 96, ${0.9 * slit * (0.4 + lit * 0.6)})`;
       g.fillRect(x0, yt + Hw * 0.62, sw, Hw * 0.08);
     }
@@ -432,7 +500,7 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, rps: number, 
   g.lineWidth = Math.max(1.5, R * 0.012);
   for (const [f, col] of [
     [0.38, 'rgba(214, 178, 96, 0.9)'],
-    [0.86, 'rgba(214, 178, 96, 0.9)'],
+    [look ? 0.49 : 0.86, 'rgba(214, 178, 96, 0.9)'],
   ] as const) {
     g.strokeStyle = col;
     g.beginPath();

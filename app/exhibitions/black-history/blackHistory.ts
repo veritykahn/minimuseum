@@ -140,7 +140,12 @@ export const BLACK_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
   interactives: [
     {
       href: '/exhibitions/black-history/timeline',
-      emblem: '1967 → Today',
+      // The owner's illustration (Leonardo.Ai), not a photograph of the dolls.
+      image: {
+        src: '/exhibitions/black-history/landing-barbie-timeline.webp',
+        alt: 'An illustration of seven doll silhouettes in circles along a looping road, on bands of pink, orange, green and black',
+        credit: 'Illustration made with Leonardo.Ai',
+      },
       label: 'Interactive',
       title: 'The Black Barbie Timeline',
       subtitle: 'From Francie to “So In Style”',
@@ -150,7 +155,11 @@ export const BLACK_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
     // of who is in your books (representation/representationText.ts).
     {
       href: '/exhibitions/black-history/representation',
-      emblem: 'You',
+      image: {
+        src: '/exhibitions/black-history/landing-who-do-you-see.webp',
+        alt: 'An illustration of a hand holding up an orange mirror over an open picture book; in the mirror, a ring of children holding hands',
+        credit: 'Illustration made with Leonardo.Ai',
+      },
       label: 'Interactive',
       title: 'Who Do You See?',
       subtitle: 'Design a doll, the Doll Test, and who’s in your books',

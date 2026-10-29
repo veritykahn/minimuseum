@@ -214,12 +214,13 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Violet’s Life',
       subtitle: 'Her places and moments, and a timeline of your own',
     },
-    // Drawn for the room (no photographs): rows of statues on their plinths, three of them orange.
+    // The owner's illustration (Leonardo.Ai), no photographs: rows of statues on their plinths, three of them orange.
     {
       href: '/exhibitions/womens-history/remembered',
       image: {
-        src: '/exhibitions/womens-history/room-remembered.svg',
-        alt: 'A drawing of three rows of small navy statues on plinths on a blush ground, three of them orange',
+        src: '/exhibitions/womens-history/landing-who-gets-remembered.webp',
+        alt: 'An illustration of three rows of navy statues of men on plinths in a park, with three orange statues of women among them',
+        credit: 'Illustration made with Leonardo.Ai',
       },
       label: 'Interactive',
       title: 'Who Gets Remembered?',

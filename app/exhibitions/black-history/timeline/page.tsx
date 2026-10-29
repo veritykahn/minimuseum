@@ -7,7 +7,7 @@ import { roomReturn } from '@/components/exhibition/helpers';
 import FactNote from '@/components/exhibition/FactNote';
 import { srOnly, useReducedMotion } from '@/lib/a11y';
 import { BLACK_HISTORY } from '../blackHistory';
-import { TIMELINE_STOPS, TIMELINE_TEXT, markRuns, stepFor, stopFromHash } from './timelineStops';
+import { OWNER_BARBIE_PHOTOS, TIMELINE_STOPS, TIMELINE_TEXT, markRuns, photoFor, stepFor, stopFromHash } from './timelineStops';
 import '../black-history.css';
 import './timeline.css';
 
@@ -21,6 +21,10 @@ import './timeline.css';
  * The added stops (Dolls of the World, Shani, Inspiring Women) are
  * owner-approved and fact-checked, from outside the poster: set as a plain
  * note with its source (timelineStops.ts), never as the poster's words.
+ *
+ * Where the owner has given a photograph for a stop (OWNER_BARBIE_PHOTOS),
+ * it is pinned beside the year disc with its credit beneath; with none, the
+ * room has no photograph and no space kept for one.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -135,6 +139,7 @@ export default function BlackBarbieTimeline() {
   // While it counts the year is a plain number; settled, it is set as the stop gives it (c. 1990).
   const yearShown = year === stop.year && stop.yearLabel ? stop.yearLabel : year;
   const longYear = !!stop.yearLabel;
+  const photo = photoFor(stop.id, OWNER_BARBIE_PHOTOS);
 
   return (
     <div className="pe-root bht-room" data-exhibition={slug} data-theme={stop.theme} style={style}>
@@ -184,6 +189,20 @@ export default function BlackBarbieTimeline() {
             {stop.year !== null && <span className="bht-name" key={`n-${index}`}>{stop.name}</span>}
           </div>
         </div>
+
+        {photo && (
+          <figure
+            className="bht-photo"
+            key={`p-${index}`}
+            style={{ '--photo-w': `min(calc(var(--disc-d) * ${+((0.6 * photo.width) / photo.height).toFixed(4)}), calc(var(--disc-d) * 0.5), ${photo.width}px)` } as CssVars}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} />
+            <figcaption className="bht-photo-credit">
+              {photo.credit.href ? <a href={photo.credit.href}>{photo.credit.text}</a> : photo.credit.text}
+            </figcaption>
+          </figure>
+        )}
 
         <section ref={wordsRef} className="bht-words" key={`w-${index}`} aria-labelledby="bht-stop-heading" tabIndex={0}>
           <h2 id="bht-stop-heading" style={srOnly}>{label}</h2>

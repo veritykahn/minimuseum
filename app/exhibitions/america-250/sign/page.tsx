@@ -10,7 +10,7 @@ import { milestonesAt } from './flagLayout';
 import Parchment, { hasSigned, type Doc, type Signer } from './Parchment';
 import Sheet from './Sheet';
 import SignaturePad from './SignaturePad';
-import { DECLARATION_SOURCE, OWN_DECLARATIONS } from './declaration';
+import { DECLARATION_SOURCE, OWN_DECLARATIONS, type OwnFill, type VersionId } from './declaration';
 import { COPY_STAGES, FLAG_MAX, FLAG_MILESTONES, FLAG_MIN, FLAG_TEXT, SIGN_TEXT } from './signText';
 import type { Stroke } from './signing';
 import './sign.css';
@@ -20,7 +20,8 @@ import './sign.css';
  * Congress's tables, by candlelight, with three tabs over it. Read the
  * Declaration in its own words (the parchment scrolls inside itself), sign
  * your name at its foot with a quill (and add your address, as Carroll did);
- * or write and sign your class's declaration, or your own, and print it. Then
+ * or fill in, sign and print the owner's declarations, your class's (in a
+ * classroom's version or a middle school's) or your own. Then
  * follow the sheet from copy to copy, from the Rough Draft to the printed
  * transcription, and see your signature copied with it; and add the flag's
  * stars, from 13 to 50. Each tab has its own address (#sign, #copies, #flag),
@@ -30,7 +31,8 @@ import './sign.css';
  * The flag's milestones, and where the Rough Draft and the Engrossed Copy
  * are held, are owner-approved, fact-checked notes from outside the posters,
  * each set with its source (signText.ts). The Declaration's text is the
- * National Archives' transcription (declaration.ts).
+ * National Archives' transcription, and the class's and the student's are
+ * the owner's own wording (declaration.ts).
  */
 
 const TABS = [
@@ -69,8 +71,9 @@ export default function America250Signing() {
   const [mode, setMode] = useState<'draw' | 'type'>('draw');
   const [pads, setPads] = useState<Record<Doc, Signer>>(() => byDoc(blank));
   const [signed, setSigned] = useState<Record<Doc, Signer[]>>(() => byDoc<Signer[]>(() => []));
-  const [written, setWritten] = useState({ class: '', mine: '' });
-  const [classLine, setClassLine] = useState('');
+  // The owner's declarations: their blanks as filled in, and the class's version.
+  const [fills, setFills] = useState<Record<'class' | 'mine', OwnFill>>({ class: {}, mine: {} });
+  const [version, setVersion] = useState<VersionId>('classroom');
   const [ink, setInk] = useState(1);
   const [dipping, setDipping] = useState(false);
   const [status, setStatus] = useState('');
@@ -260,11 +263,11 @@ export default function America250Signing() {
                 signers={names}
                 typing={live && mode === 'type' ? pad.typed : ''}
                 address={live ? pad.address : ''}
-                written={doc === 'declaration' ? '' : written[doc]}
-                onWritten={(v) => {
-                  if (doc !== 'declaration') setWritten((w) => ({ ...w, [doc]: v }));
+                version={doc === 'class' ? version : 'classroom'}
+                fill={doc === 'declaration' ? undefined : fills[doc]}
+                onFill={(change) => {
+                  if (doc !== 'declaration') setFills((f) => ({ ...f, [doc]: { ...f[doc], ...change } }));
                 }}
-                classLine={classLine}
                 pad={
                   live ? (
                     mode === 'draw' ? (
@@ -326,10 +329,23 @@ export default function America250Signing() {
                 </button>
               )}
               {doc === 'class' && (
-                <label className="aps-field">
-                  <span>{t.classLabel}</span>
-                  <input type="text" value={classLine} onChange={(e) => setClassLine(e.target.value)} maxLength={48} placeholder={t.classPlaceholder} autoComplete="off" />
-                </label>
+                <div className="aps-versions" role="group" aria-label={t.versionLabel}>
+                  <span className="aps-versions-label" aria-hidden="true">{t.versionLabel}</span>
+                  {OWN_DECLARATIONS.class.versions.map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      className="aps-version"
+                      aria-pressed={version === v.id}
+                      onClick={() => {
+                        setVersion(v.id);
+                        setStatus(`${v.label} version.`);
+                      }}
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
               )}
               {/* The name and where you are from: one under the other, or side by side on a short screen (sign.css). */}
               <div className="aps-fields">
@@ -366,7 +382,8 @@ export default function America250Signing() {
               {doc === 'class' && (
                 <div className="aps-actions aps-actions-class">
                   <p className="aps-count">{names.length === 1 ? '1 name signed' : `${names.length} names signed`}</p>
-                  <button type="button" className="aps-button" onClick={() => print('class')} disabled={!names.length}>
+                  {/* Printable before anyone signs: its lines can be signed by hand. */}
+                  <button type="button" className="aps-button" onClick={() => print('class')}>
                     Print it
                   </button>
                   <button type="button" className="aps-button aps-button-quiet" onClick={clearClass} disabled={!names.length}>
@@ -497,8 +514,8 @@ export default function America250Signing() {
             <Parchment
               doc={printing.doc}
               signers={signed[printing.doc]}
-              written={printing.doc === 'declaration' ? '' : written[printing.doc]}
-              classLine={classLine}
+              version={printing.doc === 'class' ? version : 'classroom'}
+              fill={printing.doc === 'declaration' ? undefined : fills[printing.doc]}
               print
             />
           </div>,

@@ -73,38 +73,154 @@ export const DECLARATION_SIGNERS: readonly { state: string; names: readonly stri
 export const SELF_EVIDENT = 'We hold these truths to be self-evident';
 
 /*
- * The owner's own declarations, one for a class and one for a student. She
- * has written them; until her wording is set here, the parchment shows a
- * quiet "Wording coming soon" in its place, and no words are written for her.
- *   title    the heading at the top of the parchment (null: the tab's name)
- *   wording  her paragraphs, in order (null: "Wording coming soon")
- * Under her wording, the class or the student writes their own, and signs.
+ * The owner's own declarations, one for a class and one for a student: her
+ * wording, word for word (owner's wording, 29 Oct 2026), with her spelling
+ * ("honour"). The class's has two versions, for a classroom and for a middle
+ * school; the student's is her classroom text in the first person singular,
+ * changed only in its person (we to I, our to my, us to me), except where a
+ * sentence cannot be made singular as it stands (noted below).
+ *
+ * Her blanks are filled from what the class or the student types
+ * (ownWording): "[Teacher]'s [Grade]" becomes the teacher's name and the
+ * grade ("our class" when both are blank), and "[grade]" the grade's word
+ * ("classroom" when it is blank). Nothing is filled in for them: no school,
+ * no teacher, no grade.
  */
+export type VersionId = 'classroom' | 'middle';
+
+export type OwnVersion = {
+  id: VersionId;
+  /** The switch's name. */
+  label: string;
+  /** Her paragraphs, in order, with their blanks. */
+  wording: readonly string[];
+};
+
 export type OwnDeclaration = {
-  /** The switch's name, and the parchment's heading until a title is set. */
+  /** The switch's name. */
   name: string;
   short: string;
-  title: string | null;
-  wording: readonly string[] | null;
+  /** The first is the one the parchment opens with. */
+  versions: readonly OwnVersion[];
 };
+
+const CLASS_OPENING =
+  "Two hundred and fifty years ago, in the city of Philadelphia, fifty-six men set their names to a declaration of what they believed and who they pledged themselves to become. In this anniversary year, we — the students of [Teacher]'s [Grade] — set our names to our own.";
+const CLASS_PLEDGE = 'And so we mutually pledge to one another our attention, our kindness, and our honour.';
+const CLASS_WITNESS = 'In witness whereof, we set our names below.';
 
 export const OWN_DECLARATIONS: Record<'class' | 'mine', OwnDeclaration> = {
   class: {
     name: 'Our Class Declaration',
     short: 'Class',
-    // OWNER'S WORDING: the class declaration's title, when she provides it.
-    title: null,
-    // OWNER'S WORDING: the class declaration's paragraphs, when she provides them.
-    wording: null,
+    versions: [
+      {
+        id: 'classroom',
+        label: 'Classroom',
+        // Owner's wording, 29 Oct 2026.
+        wording: [
+          CLASS_OPENING,
+          'We hold these truths to be self-evident: that every person in this classroom was made with dignity and purpose, and is worthy of kindness and respect. That learning is one of the greatest gifts we will ever receive. That a community is only as strong as the care its members show for one another.',
+          'We therefore declare that we will come to school ready to learn, and give our best to every task set before us. That we will listen to our teachers, who give their days so that we may grow. That we will be kind — to our classmates, to our school, and to everyone we meet. That we will leave this [grade] better than we found it, and carry what we have learned into everything that comes next.',
+          CLASS_PLEDGE,
+          CLASS_WITNESS,
+        ],
+      },
+      {
+        id: 'middle',
+        label: 'Middle school',
+        // Owner's wording, 29 Oct 2026: the same opening, pledge and closing, with her middle school's paragraphs.
+        wording: [
+          CLASS_OPENING,
+          'We hold these truths to be self-evident: that every person in this school was made with dignity and purpose, endowed with the capacity to think, to question, to grow, and to do good in the world. That education is not merely the accumulation of knowledge but the formation of character. That a community is only as strong as the care its members show for one another.',
+          'We therefore declare that we will pursue our education with curiosity and integrity, doing honest work and taking genuine pride in it. That we will extend to every person — classmate, teacher, stranger — the dignity they are owed. That we will use what we are given here not only for our own advancement but in the service of others. That we will leave this school, when the time comes, having been worth the investment made in us.',
+          CLASS_PLEDGE,
+          CLASS_WITNESS,
+        ],
+      },
+    ],
   },
   mine: {
     name: 'My Declaration',
     short: 'Mine',
-    // OWNER'S WORDING: the student declaration's title, when she provides it.
-    title: null,
-    // OWNER'S WORDING: the student declaration's paragraphs, when she provides them.
-    wording: null,
+    versions: [
+      {
+        id: 'classroom',
+        label: 'Classroom',
+        // Owner's wording, 29 Oct 2026: her classroom text, in the first person singular. Two sentences could not
+        // simply change person: the opening's "we — the students of [Teacher]'s [Grade] —" is left out, and the
+        // pledge, which "we mutually pledge to one another", is one person's own.
+        wording: [
+          'Two hundred and fifty years ago, in the city of Philadelphia, fifty-six men set their names to a declaration of what they believed and who they pledged themselves to become. In this anniversary year, I set my name to my own.',
+          'I hold these truths to be self-evident: that every person in this classroom was made with dignity and purpose, and is worthy of kindness and respect. That learning is one of the greatest gifts I will ever receive. That a community is only as strong as the care its members show for one another.',
+          'I therefore declare that I will come to school ready to learn, and give my best to every task set before me. That I will listen to my teachers, who give their days so that I may grow. That I will be kind — to my classmates, to my school, and to everyone I meet. That I will leave this [grade] better than I found it, and carry what I have learned into everything that comes next.',
+          'And so I pledge my attention, my kindness, and my honour.',
+          'In witness whereof, I set my name below.',
+        ],
+      },
+    ],
   },
 };
 
-export const WORDING_COMING_SOON = 'Wording coming soon';
+/** What the class or the student has typed into the parchment's blanks. */
+export type OwnFill = { teacher?: string; grade?: string; school?: string; name?: string };
+
+const ordinal = (n: number) => {
+  const tens = n % 100;
+  const suffix = tens >= 11 && tens <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th';
+  return `${n}${suffix}`;
+};
+
+/**
+ * The grade, as words to set in a sentence: "4", "4th", "Grade 4" and "4th
+ * Grade" all become "4th grade", "K" becomes "kindergarten"; anything else
+ * ("Year 5", "8th grade English") stands as typed. Blank, ''.
+ */
+export function gradeWords(grade = '') {
+  const g = grade.trim().replace(/\s+/g, ' ');
+  if (!g) return '';
+  if (/^(k|kg|kindergarten)$/i.test(g)) return 'kindergarten';
+  const m = g.match(/^(?:grade )?(\d{1,2})(?:st|nd|rd|th)?(?: grade)?$/i);
+  return m ? `${ordinal(Number(m[1]))} grade` : g;
+}
+
+const possessive = (name: string) => (/['’]s$/i.test(name) ? name.replace(/'s$/i, '’s') : `${name}’s`);
+const titleCase = (s: string) => s.replace(/(^|\s)([a-z])/g, (_, sp: string, c: string) => sp + c.toUpperCase());
+const gradeNoun = (g: string) => /(grade|kindergarten)$/i.test(g);
+
+/**
+ * The class, as her "[Teacher]'s [Grade]" reads once filled in: "Mrs Ruiz’s
+ * 4th grade", "Mrs Ruiz’s class" (no grade), "the 4th grade" (no teacher),
+ * and "our class" when both are blank.
+ */
+export function classWords({ teacher = '', grade = '' }: OwnFill = {}) {
+  const t = teacher.trim().replace(/\s+/g, ' ');
+  const g = gradeWords(grade);
+  if (t && g) return `${possessive(t)} ${g}`;
+  if (t) return `${possessive(t)} class`;
+  if (g) return gradeNoun(g) ? `the ${g}` : g;
+  return 'our class';
+}
+
+/** The heading over the parchment: "Our Class Declaration of Independence" until the class fills its blanks in. */
+export function ownTitle(doc: 'class' | 'mine', fill: OwnFill = {}) {
+  if (doc === 'mine') {
+    const n = (fill.name ?? '').trim().replace(/\s+/g, ' ');
+    return `${n ? possessive(n) : 'My'} Declaration of Independence`;
+  }
+  const t = (fill.teacher ?? '').trim().replace(/\s+/g, ' ');
+  const g = titleCase(gradeWords(fill.grade));
+  if (t) return `${possessive(t)} ${g || 'Class'} Declaration of Independence`;
+  return `Our ${g || 'Class'} Declaration of Independence`;
+}
+
+/** Her paragraphs, their blanks filled in from what was typed. */
+export function ownWording(doc: 'class' | 'mine', version: VersionId, fill: OwnFill = {}): string[] {
+  const own = OWN_DECLARATIONS[doc];
+  const v = own.versions.find((x) => x.id === version) ?? own.versions[0];
+  const grade = gradeWords(fill.grade) || 'classroom';
+  return v.wording.map((p) => p.replace("[Teacher]'s [Grade]", classWords(fill)).replace('[grade]', grade));
+}
+
+/** In print, the class's parchment has this many lines to sign on, filled with the names signed. */
+export const PRINT_SIGNATURE_LINES = 25;

@@ -99,6 +99,7 @@ export default function CasePage({ config, data }: { config: ExhibitionConfig; d
                         <span className="pe-room-card-emblem">{r.emblem}</span>
                       )}
                     </span>
+                    {r.image?.credit && <span className="pe-room-card-credit">{r.image.credit}</span>}
                     <span className="pe-room-card-name">{r.title}</span>
                     {r.subtitle && <span className="pe-room-card-sub">{r.subtitle}</span>}
                     <span className="pe-room-card-go">

@@ -181,18 +181,53 @@ export const TIMELINE_STOPS: TimelineStop[] = [
 ];
 
 /*
- * TO COME: the owner's own photographs of her Barbies, one for a stop.
- * She will supply them; until then this list is empty and the timeline
- * shows no photographs and no placeholders. Each is keyed to a stop by its
- * id (#1980 is '1980'), with the alt text written from the photograph and
- * the credit as the owner gives it. They are the owner's own photographs of
- * her own dolls: never Mattel's product shots or packaging, and never
- * photographs of the installation. Nothing reads this list yet: when the
- * photographs arrive, the timeline page (page.tsx) is to set each beside
- * its stop's words.
+ * The owner's photographs, one for a stop. Until she adds them this list is
+ * empty and the timeline shows no photographs and no placeholders. Each is
+ * keyed to a stop by its id (#1980 is '1980'), with the alt text written
+ * from the photograph and the credit as its source asks for it. The page
+ * sets each beside the year disc, at no more than its own width: `width`
+ * and `height` are the file's pixels, and a small file stays small.
+ * Never Mattel's product shots or packaging, and never photographs of the
+ * installation.
+ *
+ * TO ADD the V&A's photograph of the first Black Barbie (1980), museum no.
+ * B.32:1 to 13-2021: its terms allow non-commercial use online at no more
+ * than 768 px wide, credited "© Victoria and Albert Museum, London". Save
+ * it at 768 px wide or less as public/exhibitions/black-history/photos/
+ * first-black-barbie-1980.jpg, read its pixel size, and add:
+ *
+ *   {
+ *     stop: '1980',
+ *     src: '/exhibitions/black-history/photos/first-black-barbie-1980.jpg',
+ *     alt: '(what the photograph shows, written from it)',
+ *     credit: {
+ *       text: '© Victoria and Albert Museum, London',
+ *       href: '(the object's page on collections.vam.ac.uk)',
+ *     },
+ *     width: 768, // the file's own pixels, never more than 768
+ *     height: 1024,
+ *   },
+ *
+ * and list the file in the exhibition's picture inventory test
+ * (__tests__/components/BlackHistory.test.tsx, "holds only the posters…").
  */
-export type OwnerPhoto = { stop: string; src: string; alt: string; credit: string };
+export type OwnerPhoto = {
+  /** The stop's id ('1980'). */
+  stop: string;
+  src: string;
+  alt: string;
+  /** Set small under the photograph; `href` links to the source. */
+  credit: { text: string; href?: string };
+  /** The file's own size in pixels: it is never shown wider than `width`. */
+  width: number;
+  height: number;
+};
 export const OWNER_BARBIE_PHOTOS: OwnerPhoto[] = [];
+
+/** The photograph for a stop, if the owner has given one. */
+export function photoFor(stopId: string, photos: OwnerPhoto[] = OWNER_BARBIE_PHOTOS): OwnerPhoto | undefined {
+  return photos.find((p) => p.stop === stopId);
+}
 
 export const TIMELINE_TEXT = {
   title: 'The Black Barbie Timeline',

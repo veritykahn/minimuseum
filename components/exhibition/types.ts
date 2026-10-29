@@ -350,7 +350,11 @@ export type PosterConfig<K extends string = string> = {
  */
 export type DisplayCase = {
   href: string;
-  image?: { src: string; alt: string };
+  /**
+   * The card's picture. `credit` is set small under it, as its maker asks
+   * ("Illustration made with Leonardo.Ai" for the owner's illustrations).
+   */
+  image?: { src: string; alt: string; credit?: string };
   /** Set large where a photograph would be; decorative (the title names the link). */
   emblem?: string;
   /** "Gallery II, Case 6" */

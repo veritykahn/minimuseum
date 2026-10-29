@@ -135,7 +135,12 @@ export const WRITING_REVOLUTION: ExhibitionConfig<'poster1' | 'poster2'> = {
   interactives: [
     {
       href: '/exhibitions/writing-revolution/typing-station',
-      emblem: 'QWERTY',
+      // The owner's illustration (Leonardo.Ai).
+      image: {
+        src: '/exhibitions/writing-revolution/landing-typing-station.webp',
+        alt: 'An illustration of a typewriter’s round keys, Q W E R T Y, against a coral wall',
+        credit: 'Illustration made with Leonardo.Ai',
+      },
       label: 'Interactive',
       title: 'The Typing Station',
       subtitle: 'The same line on a typewriter and an iMac',

@@ -100,8 +100,10 @@ describe('Black History Month', () => {
     const files = (d: string): string[] =>
       fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? files(path.join(d, e.name)).map((f) => `${e.name}/${f}`) : [e.name]));
 
-    it('holds only the posters, their lettering and poster 1’s illustrated figures', () => {
+    it('holds only the posters, their lettering, poster 1’s illustrated figures and the owner’s illustrations for the rooms’ cards', () => {
       expect(files(dir).sort()).toEqual([
+        'landing-barbie-timeline.webp',
+        'landing-who-do-you-see.webp',
         'poster1.jpg',
         'poster2.jpg',
         'ring.webp',
