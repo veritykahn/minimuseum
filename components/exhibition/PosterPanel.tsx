@@ -385,7 +385,7 @@ const PANEL_RENDERERS: Renderers = {
           <img src={item.image.src} alt={item.image.alt} className={`pe-callout-img ${item.image.pixelated ? 'is-pixelated' : ''}`} />
         )}
         <span className="pe-callout-text">
-          {item.text}
+          <Emph text={item.text} />
           {item.url && (
             <>
               {' '}

@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
+import type { Atmosphere, CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
 import { floorReturnFor } from '@/lib/floors';
 
 /*
@@ -21,7 +21,8 @@ import { floorReturnFor } from '@/lib/floors';
  *
  * Each sentence lives in one place below, so a fix to the posters is a
  * one-line edit here. Where a poster paragraph runs across several panels it
- * is split only between sentences; nothing is reworded.
+ * is split only between sentences; nothing is reworded. Each poster opens on
+ * its own title lettering, cut from the poster.
  *
  * Pictures:
  *   - The embroidered ivory court dress on poster 1 is the V&A's T.329 to B,
@@ -72,6 +73,37 @@ const COURT_DRESS: PanelFigure = {
   credit: { text: VA_COURT_DRESS_CREDIT, href: VA_COURT_DRESS_SOURCE },
 };
 
+/*
+ * The posters' titles as pictures: their own thin Art Nouveau capitals, cut
+ * from the posters at the posters' resolution and lifted off the washed
+ * photographs behind them (public/exhibitions/victorian/titles/). A sharper
+ * export of the same lettering can replace a file at the same path; update
+ * its size here when it does.
+ */
+const TITLE_SIZES = {
+  revolutionary: { width: 500, height: 203 },
+  christmas: { width: 835, height: 289 },
+};
+
+/*
+ * The walkthrough's atmospheres (victorian.css draws them), each the setting
+ * of a part of the story:
+ *   glazed-roof       the museum: light through an iron-and-glass roof, dust in its beams
+ *   wallpaper-damask  fashion and the decorative arts: damask hung strip by strip
+ *   locomotive-steam  industry and invention: steam rolling past, rails and telegraph wires
+ *   gaslamp           the city at night, and Dickens's London: fog round the gas lamps
+ *   christmas-snow    the village at Christmas: snow falling, drifts and frost
+ *   yule-hearth       the Christmas revived: firelight, sparks and an evergreen garland
+ */
+const ATMOSPHERES: Record<string, Atmosphere> = {
+  'glazed-roof': { bg: '#DDC4C2', parts: 3, particles: 26 },
+  'wallpaper-damask': { bg: '#E6D0CB', parts: 4 },
+  'locomotive-steam': { bg: '#59625A', parts: 3, particles: 14 },
+  gaslamp: { bg: '#1F2027', text: CREAM, title: CREAM, parts: 4 },
+  'christmas-snow': { bg: '#E9ECE9', parts: 3, particles: 60 },
+  'yule-hearth': { bg: '#3B211B', parts: 2, particles: 16 },
+};
+
 export const VICTORIAN_PROJECTOR_THEME = {
   '--pj-bg': CREAM,
   '--pj-ink': GREEN,
@@ -98,6 +130,8 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
     teach: { color: GREEN, border: 'rgba(47,74,50,0.55)' },
   },
   back: floorReturnFor('victorian'),
+  atmospheres: ATMOSPHERES,
+  // The page tears open as a poster opens; every panel arrives its own way.
   fx: { theme: 'vb', veil: 'chapters', text: 'all' },
   projector: { theme: VICTORIAN_PROJECTOR_THEME, links: [] },
   cases: [
@@ -130,21 +164,33 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
         end: { text: GREEN },
       },
       items: [
-        { type: 'title-text', section: 'title', kicker: 'Revolutionary', text: 'Victorian Britain' },
-        { type: 'paragraph', section: 'lede', figure: COURT_DRESS, text: 'Victorian Britain was a time of innovation, fashion, culture, and the birth of one of the most iconic museums in the world today!' },
-        { type: 'paragraph', section: 'linen', text: 'The Victorian era in Britain lasted from 1837 to 1901, during the reign of Queen Victoria. This period saw rapid industrial growth, transforming the nation into a global superpower with an expanding empire.' },
-        { type: 'paragraph', section: 'linen', text: 'Iconic innovations like railways, the telegraph, and photography emerged, alongside cultural achievements in literature and art. The Victoria and Albert Museum (V&A) was founded in 1852 as a hallmark of this age, showcasing decorative arts and design to inspire creativity and educate the public.' },
+        {
+          type: 'title-image',
+          section: 'title',
+          atmosphere: 'glazed-roof',
+          effect: 'split-reveal',
+          src: '/exhibitions/victorian/titles/revolutionary-victorian-britain.png',
+          ...TITLE_SIZES.revolutionary,
+          framing: 'centered',
+          alt: 'Revolutionary Victorian Britain',
+        },
+        { type: 'paragraph', section: 'lede', atmosphere: 'wallpaper-damask', effect: 'kenburns-in', figure: COURT_DRESS, text: 'Victorian Britain was a time of innovation, fashion, culture, and the birth of one of the most iconic museums in the world today!' },
+        { type: 'paragraph', section: 'linen', atmosphere: 'locomotive-steam', effect: 'line-by-line', text: 'The Victorian era in Britain lasted from 1837 to 1901, during the reign of Queen Victoria. This period saw rapid industrial growth, transforming the nation into a global superpower with an expanding empire.' },
+        { type: 'paragraph', section: 'linen', atmosphere: 'locomotive-steam', effect: 'typewriter', text: 'Iconic innovations like railways, the telegraph, and photography emerged, alongside cultural achievements in literature and art.' },
+        { type: 'paragraph', section: 'linen', atmosphere: 'glazed-roof', effect: 'blur-to-sharp', text: 'The Victoria and Albert Museum (V&A) was founded in 1852 as a hallmark of this age, showcasing decorative arts and design to inspire creativity and educate the public.' },
         {
           type: 'full-image',
           section: 'picture',
+          atmosphere: 'glazed-roof',
+          effect: 'pan-lr',
           src: '/exhibitions/victorian/va-refreshment-room.jpg',
           alt: 'A sepia photograph of a grand Victorian dining room: tables laid with white cloths beneath tall arched stained-glass windows, patterned columns and a painted, vaulted ceiling',
           text: VA_REFRESHMENT_ROOM_CREDIT,
           href: VA_REFRESHMENT_ROOM_SOURCE,
         },
-        { type: 'paragraph', section: 'linen', text: 'Social reform improved conditions for workers, while class divisions and urban challenges persisted. The legacy of Victorian Britain is still evident in its architecture, inventions, and global influence.' },
+        { type: 'paragraph', section: 'linen', atmosphere: 'gaslamp', effect: 'fade-in', text: 'Social reform improved conditions for workers, while class divisions and urban challenges persisted. The legacy of Victorian Britain is still evident in its architecture, inventions, and global influence.' },
 
-        { type: 'callout', section: 'link', text: 'Learn more about the story of the V&A', url: VA_HISTORY_URL },
+        { type: 'callout', section: 'link', atmosphere: 'wallpaper-damask', effect: 'film-credits', text: 'Learn more about the story of the V&A', url: VA_HISTORY_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
@@ -164,31 +210,45 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
       colors: { bg: ROSE, text: WHITE, title: GREEN },
       sections: {
-        title: { className: 'vb-title vb-title-carol vb-scrap-right' },
+        title: { className: 'vb-title vb-scrap-right' },
         quote: { bg: CREAM, title: GREEN, text: GREEN, className: 'vb-quote' },
         village: { bg: CREAM, className: 'vb-village' },
         linen: { className: 'vb-linen' },
         end: { text: GREEN },
       },
       items: [
-        { type: 'title-text', section: 'title', kicker: 'Charles Dickens, Victorian Britain and the Invention of How We Celebrate', text: 'Christmas' },
+        {
+          type: 'title-image',
+          section: 'title',
+          atmosphere: 'christmas-snow',
+          effect: 'blur-to-sharp',
+          src: '/exhibitions/victorian/titles/charles-dickens-christmas.png',
+          ...TITLE_SIZES.christmas,
+          framing: 'centered',
+          alt: 'Charles Dickens, Victorian Britain and the Invention of How We Celebrate Christmas',
+        },
         {
           type: 'quote',
           section: 'quote',
+          atmosphere: 'gaslamp',
+          effect: 'ink-spread',
           text: '"Christmas was dead, to begin with. There is no doubt whatever about that."',
           cite: "After Charles Dickens, *A Christmas Carol* (1843): 'Marley was dead: to begin with.'",
         },
         {
           type: 'full-image',
           section: 'village',
+          atmosphere: 'christmas-snow',
+          effect: 'kenburns-in',
           src: '/exhibitions/victorian/village.jpg',
           alt: 'A painting of a snowy Victorian village street at dusk: snow-covered houses with lit windows, a church spire, two tall Christmas trees, and people walking in the snow',
         },
-        { type: 'paragraph', section: 'linen', text: 'In the 19th century, Christmas traditions were in decline, impacted by the lingering effects of Puritan opposition to its pagan roots and the Industrial Revolution, which left workers little time for celebration.' },
-        { type: 'paragraph', section: 'linen', text: "The holiday's revival gained momentum under Queen Victoria and Prince Albert, who popularized German customs like the Christmas tree, while the first Christmas cards appeared in the 1840s." },
-        { type: 'paragraph', section: 'linen', text: "However it was Charles Dickens' *A Christmas Carol* (1843) that truly gave us the Christmas we know today. Dickens may not have invented Christmas but he certainly reinvented it." },
-        { type: 'paragraph', section: 'linen', text: "*A Christmas Carol* emphasized kindness, charity, and community through Scrooge's transformation. Dickens' \"Carol Philosophy\" celebrated the holiday as a time to open hearts and embrace humanity, a message still resonating nearly 200 years later." },
-        { type: 'paragraph', section: 'linen', text: "Dickens' influence shaped modern Christmas celebrations more profoundly than almost anyone else." },
+        { type: 'paragraph', section: 'linen', atmosphere: 'locomotive-steam', effect: 'line-by-line', text: 'In the 19th century, Christmas traditions were in decline, impacted by the lingering effects of Puritan opposition to its pagan roots and the Industrial Revolution, which left workers little time for celebration.' },
+        { type: 'paragraph', section: 'linen', atmosphere: 'yule-hearth', effect: 'rise-expand', text: "The holiday's revival gained momentum under Queen Victoria and Prince Albert, who popularized German customs like the Christmas tree, while the first Christmas cards appeared in the 1840s." },
+        { type: 'paragraph', section: 'linen', atmosphere: 'gaslamp', effect: 'film-credits', text: "However it was Charles Dickens' *A Christmas Carol* (1843) that truly gave us the Christmas we know today." },
+        { type: 'paragraph', section: 'linen', atmosphere: 'yule-hearth', effect: 'split-reveal', text: 'Dickens may not have invented Christmas but he certainly reinvented it.' },
+        { type: 'paragraph', section: 'linen', atmosphere: 'yule-hearth', effect: 'breathe', text: "*A Christmas Carol* emphasized kindness, charity, and community through Scrooge's transformation. Dickens' \"Carol Philosophy\" celebrated the holiday as a time to open hearts and embrace humanity, a message still resonating nearly 200 years later." },
+        { type: 'paragraph', section: 'linen', atmosphere: 'christmas-snow', effect: 'fade-in', text: "Dickens' influence shaped modern Christmas celebrations more profoundly than almost anyone else." },
 
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],

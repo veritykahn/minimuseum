@@ -2,17 +2,16 @@
    Our Incredible Moon's own look, on top of components/exhibition. The
    posters set it: a violet-to-indigo night with a soft starfield, a lavender
    moon, white type, and poster 2's pink and aqua.
-     Turret Road     "Our Incredible": thin, angular, segmented
-     League Spartan  "Moon": a heavy geometric sans
-     Silkscreen      "Another Earth": blocky pixel capitals, pink and white
+     Turret Road     the landing page's title: thin, angular, segmented
+     League Spartan  the display case: a heavy geometric sans
      Jost            the copy: a light geometric sans, set in widely spaced
                      capitals on poster 1 and right-aligned on poster 2
+   The posters' own titles are their lettering, cut from them (moon.ts).
    ========================================================================== */
 
 [data-exhibition='moon'] {
   --mo-thin: 'Turret Road', 'Eurostile', system-ui, sans-serif;
   --mo-heavy: 'League Spartan', 'Futura', system-ui, sans-serif;
-  --mo-pixel: 'Silkscreen', 'Courier New', monospace;
   --mo-lavender: #b9a6e6;
   --mo-pink: #f28be8;
   --mo-aqua: #7fe8e8;
@@ -118,50 +117,15 @@
 [data-exhibition='moon'] .pe-poster-walkthrough:not([data-entered])::before { translate: calc(var(--pfx-dir, 1) * 1.8vw) 0; }
 [data-exhibition='moon'] .pe-poster-walkthrough:not([data-entered])::after { translate: calc(var(--pfx-dir, 1) * 0.7vw) 0; }
 
-/* ───────── Titles ───────── */
-[data-exhibition='moon'] .pe-title-text { max-width: none; }
-
-/* Poster 1: "Our / Incredible" thin and spaced, one word a line; "Moon" huge and heavy. */
-[data-exhibition='moon'] .mo-title .pe-title-kicker {
-  font-family: var(--mo-thin);
-  font-weight: 300;
-  letter-spacing: 0.16em;
-  font-size: 0.3em;
-  line-height: 1.25;
-  width: min-content;
-  margin: 0 auto 0.1em;
-}
-[data-exhibition='moon'] .mo-title .pe-title-text > .pfx-line:not(.pe-title-kicker) {
-  font-family: var(--mo-heavy);
-  font-weight: 800;
-  font-size: clamp(6rem, 24vw, 19rem);
-  line-height: 0.9;
-  letter-spacing: 0.01em;
-  text-shadow: 0 6px 40px rgba(18, 13, 36, 0.45);
-}
-[data-exhibition='moon'] .mo-title .pe-title-text { font-size: clamp(4rem, 13vw, 11rem); }
-
-/* Poster 2: "Another Earth" in blocky pixel capitals, pink, then white. */
-[data-exhibition='moon'] .mo-earth .pe-title-text {
-  font-family: var(--mo-pixel);
-  font-size: clamp(3.6rem, 13vw, 10.5rem);
-  line-height: 1;
-  letter-spacing: 0.06em;
-  text-align: left;
-}
-[data-exhibition='moon'] .mo-earth .pe-title-kicker { font-size: 1em; line-height: 1; margin-bottom: 0.08em; }
-[data-exhibition='moon'] .mo-earth .pe-title-text > .pfx-line:not(.pe-title-kicker) { color: #fff; }
+/* ───────── Titles: the posters' own lettering ───────── */
+/* "Our Incredible Moon" rises with its moon from the foot of the panel, as on the poster. */
+[data-exhibition='moon'] .pe-title-image.mo-title { align-items: flex-end; padding-bottom: 0; }
+[data-exhibition='moon'] .mo-title.pe-frame-centered img { max-height: 84vh; }
+/* "Another Earth" stands tall, as the poster stacks it. */
+[data-exhibition='moon'] .mo-earth.pe-frame-centered img { max-height: 74vh; filter: drop-shadow(0 8px 40px rgba(18, 13, 36, 0.55)); }
 
 /* ───────── Pictures cut from the posters ───────── */
 [data-exhibition='moon'] .pe-decor { z-index: 1; }
-/* The rising moon, under "Moon", its edges melting into the sky. */
-[data-exhibition='moon'] .pe-decor[src$='moonrise.jpg'] {
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent), linear-gradient(180deg, transparent, #000 34%);
-  -webkit-mask-composite: source-in;
-  mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent), linear-gradient(180deg, transparent, #000 34%);
-  mask-composite: intersect;
-  opacity: 0.9;
-}
 /* The ringed planet, high on the left, as on poster 2. */
 [data-exhibition='moon'] .pe-decor[src$='ringed-planet.jpg'] {
   top: 6vh;
@@ -233,9 +197,8 @@
 [data-exhibition='moon'] .pe-content-end:hover { background: var(--mo-lavender); }
 
 /* ───────── The classroom screen ───────── */
-[data-exhibition='moon'] .pjp-stage .mo-title .pe-title-text { font-size: calc(var(--pjp-u) * 8); }
-[data-exhibition='moon'] .pjp-stage .mo-title .pe-title-text > .pfx-line:not(.pe-title-kicker) { font-size: calc(var(--pjp-u) * 17); }
-[data-exhibition='moon'] .pjp-stage .mo-earth .pe-title-text { font-size: calc(var(--pjp-u) * 9); }
+[data-exhibition='moon'] .pjp-stage .mo-title.pe-frame-centered img { max-height: 84cqh; }
+[data-exhibition='moon'] .pjp-stage .mo-earth.pe-frame-centered img { max-height: 70cqh; }
 [data-exhibition='moon'] .pjp-stage .mo-right { padding-right: calc(var(--pjp-u) * 7); padding-left: calc(var(--pjp-u) * 16); }
 [data-exhibition='moon'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2); }
 
@@ -267,6 +230,9 @@
   [data-exhibition='moon'] .pe-callout { border-radius: 28px; padding: 22px 24px; }
   [data-exhibition='moon'] .mo-landscape { padding-top: 16vh; }
   [data-exhibition='moon'] .pe-case-page-photo-row { grid-template-columns: 1fr; }
+  /* The title and its moon rise from the middle of a tall screen, clear of the arrows, the moon reaching a little past its edges. */
+  [data-exhibition='moon'] .pe-title-image.mo-title { align-items: center; padding: 0 0 14vh; }
+  [data-exhibition='moon'] .mo-title.pe-frame-centered img { width: 106vw; max-width: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -275,4 +241,386 @@
     transition: none;
     translate: none !important;
   }
+}
+
+/* ==========================================================================
+   The walkthrough's atmospheres (moon.ts, ATMOSPHERES), drawn in the layer
+   behind each panel (AtmosphereLayer): its parts (.pe-atmo-part-N) and
+   particles (.pe-atmo-p, placed by --x, --y, --r). Night colors, the
+   posters' lavender, pink and aqua; nothing flashes, and nothing bright
+   crosses the copy. Under reduced motion the engine stills them where they
+   stand, each in a whole, quiet frame.
+   ========================================================================== */
+
+/* ───────── moon-tides: a swell rising and falling under a path of moonlight ───────── */
+[data-exhibition='moon'] .pe-atmo-moon-tides .pe-atmo-part-1 {
+  /* the sea, darker toward us, a pale line at the horizon */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 30vh;
+  background:
+    linear-gradient(to bottom, rgba(201, 186, 240, 0.4), transparent 2px),
+    linear-gradient(to bottom, #2c2558, #1b1638 55%, #100c22);
+}
+[data-exhibition='moon'] .pe-atmo-moon-tides .pe-atmo-part-2 {
+  /* the swell: long low lines of water, lifted and let down by the Moon */
+  left: -10vw;
+  right: -10vw;
+  bottom: 0;
+  height: 30vh;
+  background: repeating-linear-gradient(to bottom, rgba(201, 186, 240, 0.13) 0 1px, transparent 1px 11px, rgba(201, 186, 240, 0.07) 11px 12px, transparent 12px 23px);
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 30%);
+  mask-image: linear-gradient(to bottom, transparent, #000 30%);
+  transform-origin: 50% 100%;
+  animation: moSwell 7s ease-in-out infinite alternate;
+}
+[data-exhibition='moon'] .pe-atmo-moon-tides .pe-atmo-part-3 {
+  /* the moon's path on the water */
+  left: 50%;
+  bottom: 0;
+  width: 30vw;
+  height: 30vh;
+  translate: -50% 0;
+  background:
+    radial-gradient(ellipse 30% 70% at 50% 0%, rgba(236, 228, 255, 0.4), transparent 80%),
+    repeating-linear-gradient(to bottom, rgba(236, 228, 255, 0.22) 0 2px, transparent 2px 8px);
+  -webkit-mask-image: radial-gradient(ellipse 50% 100% at 50% 0%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 50% 100% at 50% 0%, #000 30%, transparent 75%);
+  animation: moPath 4.5s ease-in-out infinite alternate;
+}
+[data-exhibition='moon'] .pe-atmo-moon-tides .pe-atmo-part-4 {
+  /* the full moon, high over the water */
+  right: 9vw;
+  top: 9vh;
+  width: 13vmin;
+  height: 13vmin;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 34% 40%, rgba(120, 100, 170, 0.35) 0 9%, transparent 10%),
+    radial-gradient(circle at 62% 62%, rgba(120, 100, 170, 0.3) 0 13%, transparent 14%),
+    radial-gradient(circle at 58% 28%, rgba(120, 100, 170, 0.25) 0 6%, transparent 7%),
+    radial-gradient(circle at 40% 40%, #f1ecff, #c9bbef 70%, #a995dc);
+  box-shadow: 0 0 60px 14px rgba(201, 186, 240, 0.28);
+}
+/* Behind "Another Earth" the light curve would run under the lettering: it waits for the copy. */
+[data-exhibition='moon']:has(.mo-earth) .pe-atmo-exoplanet-transit .pe-atmo-part-3 { display: none; }
+/* Over the title the poster's own moon is rising, and over the last panel its three moons: no other. */
+[data-exhibition='moon']:has(:is(.mo-title, .mo-landscape)) .pe-atmo-moon-tides .pe-atmo-part-4 { display: none; }
+[data-exhibition='moon'] .pe-atmo-moon-tides .pe-atmo-p {
+  /* glints on the path */
+  left: calc(50% - 11vw + var(--x) * 0.22vw);
+  top: calc(72vh + var(--y) * 0.26vh);
+  width: calc(8px + var(--r) * 22px);
+  height: 2px;
+  border-radius: 2px;
+  background: rgba(244, 240, 255, 0.85);
+  opacity: 0.35;
+  animation: moGlint calc(2.4s + var(--r) * 3s) ease-in-out infinite;
+  animation-delay: calc(var(--y) * -0.05s);
+}
+@keyframes moSwell { from { transform: translateY(0) scaleY(1); } to { transform: translateY(-1.6vh) scaleY(1.08); } }
+@keyframes moPath { from { opacity: 0.75; transform: scaleX(0.92); } to { opacity: 1; transform: scaleX(1.08); } }
+@keyframes moGlint { 0%, 100% { opacity: 0; translate: 0 0; } 50% { opacity: 0.9; translate: 10px 0; } }
+
+/* ───────── meteor-shower: space rocks streaking in ───────── */
+[data-exhibition='moon'] .pe-atmo-meteor-shower .pe-atmo-part-1 {
+  /* the radiant, high on the right, where the streaks come from */
+  right: -24vmax;
+  top: -30vmax;
+  width: 80vmax;
+  height: 80vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(242, 139, 232, 0.14), rgba(127, 232, 232, 0.05) 35%, transparent 62%);
+}
+[data-exhibition='moon'] .pe-atmo-meteor-shower .pe-atmo-p {
+  left: calc(30% + var(--x) * 0.8%);
+  top: calc(-14% + var(--y) * 0.55%);
+  width: calc(110px + var(--r) * 190px);
+  height: 2px;
+  border-radius: 2px;
+  /* bright at the head, its tail trailing back toward the radiant */
+  background: linear-gradient(90deg, #fff, rgba(232, 212, 255, 0.55) 18%, rgba(242, 139, 232, 0.18) 55%, transparent);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+  transform-origin: 0 50%;
+  rotate: -34deg;
+  opacity: 0.4;
+  animation: moMeteor calc(4s + var(--r) * 5s) cubic-bezier(0.3, 0, 0.7, 1) infinite;
+  animation-delay: calc(var(--x) * -0.09s);
+}
+@keyframes moMeteor {
+  0% { translate: 0 0; opacity: 0; }
+  4% { opacity: 1; }
+  32% { translate: -46vw 31vw; opacity: 0; }
+  100% { translate: -46vw 31vw; opacity: 0; }
+}
+
+/* ───────── apollo-tracking: a tracking scope, and the flight path out to the Moon ───────── */
+[data-exhibition='moon'] .pe-atmo-apollo-tracking :is(.pe-atmo-part-1, .pe-atmo-part-2) {
+  /* the scope, low on the right */
+  right: -24vmin;
+  bottom: -24vmin;
+  width: 84vmin;
+  height: 84vmin;
+  border-radius: 50%;
+}
+[data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-part-1 {
+  background:
+    linear-gradient(rgba(127, 232, 232, 0.16), rgba(127, 232, 232, 0.16)) 50% 0 / 1px 100% no-repeat,
+    linear-gradient(rgba(127, 232, 232, 0.16), rgba(127, 232, 232, 0.16)) 0 50% / 100% 1px no-repeat,
+    repeating-radial-gradient(circle, transparent 0 calc(10.5vmin - 1px), rgba(127, 232, 232, 0.2) calc(10.5vmin - 1px) 10.5vmin),
+    radial-gradient(circle, rgba(127, 232, 232, 0.08), transparent 70%);
+}
+[data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-part-2 {
+  /* the sweep, its bright edge leading */
+  background: conic-gradient(from 0deg, transparent 0 260deg, rgba(127, 232, 232, 0.03) 290deg, rgba(127, 232, 232, 0.2) 359deg, transparent 360deg);
+  animation: moSweep 6s linear infinite;
+}
+[data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-part-3 {
+  /* the flight path: an arc from the Earth, low on the left, out to the Moon */
+  left: 7vw;
+  top: 16vh;
+  width: 76vw;
+  height: 128vh;
+  border: 2px dashed rgba(127, 232, 232, 0.4);
+  border-width: 2px 0 0;
+  border-radius: 50%;
+  animation: moPlot 3.6s 0.4s cubic-bezier(0.45, 0, 0.25, 1) backwards;
+}
+[data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-part-3::before,
+[data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-part-3::after {
+  content: '';
+  position: absolute;
+  top: calc(50% - 4vmin);
+  border-radius: 50%;
+}
+[data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-part-3::before {
+  /* the Earth */
+  left: -4vmin;
+  width: 8vmin;
+  height: 8vmin;
+  background: radial-gradient(circle at 36% 34%, #a8e4ff, #3f86d8 45%, #1b3b78 75%);
+  box-shadow: 0 0 30px rgba(110, 180, 255, 0.4);
+}
+[data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-part-3::after {
+  /* the Moon */
+  right: -2.5vmin;
+  top: calc(50% - 2.5vmin);
+  width: 5vmin;
+  height: 5vmin;
+  background: radial-gradient(circle at 38% 36%, #f1ecff, #b9a6e6 70%);
+  box-shadow: 0 0 24px rgba(201, 186, 240, 0.45);
+}
+[data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-part-4 {
+  /* the plotting board */
+  inset: 0;
+  background:
+    linear-gradient(rgba(127, 232, 232, 0.06) 1px, transparent 1px) 0 0 / 56px 56px,
+    linear-gradient(90deg, rgba(127, 232, 232, 0.06) 1px, transparent 1px) 0 0 / 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse at 50% 50%, #000 20%, transparent 80%);
+  mask-image: radial-gradient(ellipse at 50% 50%, #000 20%, transparent 80%);
+}
+[data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-p {
+  /* stations around the world, each answering in turn */
+  left: calc(4% + var(--x) * 0.92%);
+  top: calc(8% + var(--y) * 0.5%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #7fe8e8;
+  box-shadow: 0 0 0 4px rgba(127, 232, 232, 0.15), 0 0 12px rgba(127, 232, 232, 0.8);
+  opacity: 0.55;
+  animation: moPing 4s ease-out infinite;
+  animation-delay: calc(var(--r) * -4s);
+}
+@keyframes moSweep { to { rotate: 360deg; } }
+/* The path is plotted left to right; the inset leaves room for the Earth and Moon at its ends. */
+@keyframes moPlot { from { clip-path: inset(-10vmin 100% -10vmin -10vmin); } to { clip-path: inset(-10vmin -10vmin -10vmin -10vmin); } }
+@keyframes moPing {
+  0% { transform: scale(0.6); opacity: 0; }
+  10% { transform: scale(1); opacity: 1; }
+  60% { transform: scale(1.5); opacity: 0.25; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* ───────── lunar-dust: the gray ground, fine dust lifting and glinting ───────── */
+[data-exhibition='moon'] .pe-atmo-lunar-dust .pe-atmo-part-1 {
+  /* the Moon's surface, pocked with craters, curving away at the horizon */
+  left: -20vw;
+  right: -20vw;
+  bottom: -58vh;
+  height: 84vh;
+  border-radius: 50% 50% 0 0 / 24vh 24vh 0 0;
+  background:
+    radial-gradient(ellipse 4% 1.6% at 26% 14%, rgba(20, 16, 30, 0.55) 60%, rgba(220, 214, 236, 0.25) 75%, transparent 85%),
+    radial-gradient(ellipse 7% 2.4% at 64% 22%, rgba(20, 16, 30, 0.5) 60%, rgba(220, 214, 236, 0.22) 75%, transparent 85%),
+    radial-gradient(ellipse 2.5% 1% at 47% 9%, rgba(20, 16, 30, 0.5) 55%, rgba(220, 214, 236, 0.2) 75%, transparent 85%),
+    radial-gradient(ellipse 3% 1.2% at 80% 12%, rgba(20, 16, 30, 0.45) 55%, rgba(220, 214, 236, 0.2) 75%, transparent 85%),
+    radial-gradient(ellipse 5% 2% at 14% 30%, rgba(20, 16, 30, 0.45) 60%, rgba(220, 214, 236, 0.18) 75%, transparent 85%),
+    linear-gradient(to bottom, #6c6779, #43404f 18%, #2b2833 40%);
+  box-shadow: 0 -2px 30px rgba(201, 186, 240, 0.2);
+}
+[data-exhibition='moon'] .pe-atmo-lunar-dust .pe-atmo-part-2 {
+  /* the Earth, hanging half lit in the black sky */
+  right: 10vw;
+  top: 11vh;
+  width: 10vmin;
+  height: 10vmin;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse 40% 18% at 40% 38%, rgba(255, 255, 255, 0.55), transparent 70%),
+    radial-gradient(ellipse 30% 14% at 62% 64%, rgba(255, 255, 255, 0.4), transparent 70%),
+    radial-gradient(circle at 36% 40%, #9ed6ff, #3d7fd2 50%, #1a3a74 80%);
+  box-shadow: inset -3.4vmin -1vmin 3vmin rgba(4, 4, 14, 0.92), 0 0 28px rgba(110, 170, 255, 0.3);
+  animation: moEarthrise 4s 0.3s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+[data-exhibition='moon'] .pe-atmo-lunar-dust .pe-atmo-p {
+  left: calc(var(--x) * 1%);
+  top: calc(52% + var(--y) * 0.46%);
+  width: calc(1px + var(--r) * 2.5px);
+  height: calc(1px + var(--r) * 2.5px);
+  border-radius: 50%;
+  background: #e6e0f2;
+  box-shadow: 0 0 4px rgba(230, 224, 242, 0.7);
+  opacity: 0.55;
+  animation: moMote calc(7s + var(--r) * 8s) ease-in-out infinite;
+  animation-delay: calc(var(--x) * -0.13s);
+}
+@keyframes moEarthrise { from { translate: 0 6vh; opacity: 0; } }
+@keyframes moMote {
+  0%, 100% { translate: 0 0; opacity: 0.15; }
+  40% { opacity: 0.8; }
+  50% { translate: 1.5vw -5vh; opacity: 0.3; }
+  58% { opacity: 0.9; }
+}
+
+/* ───────── exoplanet-transit: a far star dimming as its planet crosses it ───────── */
+[data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-1 {
+  /* the star */
+  left: 4vw;
+  top: 48%;
+  width: 32vmin;
+  height: 32vmin;
+  translate: 0 -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffaf0 0%, #ffe7b0 32%, #f6ae74 58%, rgba(242, 139, 160, 0.35) 66%, transparent 72%);
+  box-shadow: 0 0 120px 40px rgba(255, 186, 140, 0.18);
+  animation: moStarDim 16s ease-in-out infinite;
+}
+[data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-2 {
+  /* its planet, a dark dot crossing its face */
+  left: calc(4vw + 16vmin - 2.6vmin);
+  top: 48%;
+  width: 5.2vmin;
+  height: 5.2vmin;
+  translate: 0 -50%;
+  border-radius: 50%;
+  background: #140d2c;
+  box-shadow: inset 0.6vmin 0 0.8vmin rgba(255, 196, 150, 0.35);
+  animation: moTransit 16s linear infinite;
+}
+[data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-3 {
+  /* the light curve, dipping as the planet passes */
+  left: 4vw;
+  bottom: 9vh;
+  width: min(40vw, 520px);
+  height: 9vh;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 24' preserveAspectRatio='none'%3E%3Cpath d='M0 6 H38 C41 6 41 17 44 17 H56 C59 17 59 6 62 6 H100' fill='none' stroke='%237fe8e8' stroke-width='1.4' vector-effect='non-scaling-stroke' opacity='0.75'/%3E%3Cpath d='M0 23.5 H100' stroke='%237fe8e8' stroke-width='1' vector-effect='non-scaling-stroke' opacity='0.25'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  animation: moCurve 16s linear infinite;
+}
+[data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-4 {
+  /* the poster's nebula, pink and aqua */
+  right: -12vw;
+  top: -14vh;
+  width: 72vw;
+  height: 64vh;
+  background:
+    radial-gradient(ellipse 45% 40% at 60% 42%, rgba(242, 139, 232, 0.2), transparent 70%),
+    radial-gradient(ellipse 35% 30% at 32% 66%, rgba(127, 232, 232, 0.12), transparent 70%);
+  filter: blur(18px);
+  animation: moNebula 24s ease-in-out infinite alternate;
+}
+[data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-p {
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.8);
+  opacity: 0.6;
+  animation: moTwinkle calc(2.5s + var(--r) * 4s) ease-in-out infinite;
+  animation-delay: calc(var(--y) * -0.04s);
+}
+/* The star dims while the planet is on its face, as the curve dips. */
+@keyframes moStarDim { 0%, 38%, 62%, 100% { filter: brightness(1); } 44%, 56% { filter: brightness(0.82); } }
+@keyframes moTransit {
+  0% { transform: translateX(-26vmin); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateX(26vmin); opacity: 0; }
+}
+@keyframes moCurve { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes moNebula { from { transform: translate(0, 0) scale(1); } to { transform: translate(-3vw, 2vh) scale(1.06); } }
+@keyframes moTwinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 0.9; } }
+
+/* ───────── dark-forest-sky: distant lights going quiet, one by one ───────── */
+[data-exhibition='moon'] .pe-atmo-dark-forest-sky {
+  /* a last glow at the horizon */
+  background: linear-gradient(to top, rgba(76, 55, 136, 0.42), rgba(76, 55, 136, 0.1) 32%, transparent 55%);
+}
+[data-exhibition='moon'] .pe-atmo-dark-forest-sky .pe-atmo-part-1 {
+  /* the forest: a black line of pines along the foot */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26vh;
+  background: #05040b;
+  -webkit-mask-image:
+    conic-gradient(from 164deg at 50% 0, #000 32deg, transparent 0),
+    conic-gradient(from 160deg at 50% 5vh, #000 40deg, transparent 0),
+    linear-gradient(#000, #000);
+  -webkit-mask-size: 54px 100%, 86px 100%, 100% 52%;
+  -webkit-mask-position: 0 0, 30px 0, 0 100%;
+  -webkit-mask-repeat: repeat-x;
+  mask-image:
+    conic-gradient(from 164deg at 50% 0, #000 32deg, transparent 0),
+    conic-gradient(from 160deg at 50% 5vh, #000 40deg, transparent 0),
+    linear-gradient(#000, #000);
+  mask-size: 54px 100%, 86px 100%, 100% 52%;
+  mask-position: 0 0, 30px 0, 0 100%;
+  mask-repeat: repeat-x;
+}
+[data-exhibition='moon'] .pe-atmo-dark-forest-sky .pe-atmo-p {
+  /* far lights: a few in color, as the poster's stars are */
+  top: calc(var(--y) * 0.66%);
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: #f4f0ff;
+  box-shadow: 0 0 8px rgba(244, 240, 255, 0.85);
+  opacity: 0.7;
+  animation: moGoQuiet calc(10s + var(--r) * 12s) ease-in-out infinite;
+  animation-delay: calc(var(--x) * -0.2s);
+}
+[data-exhibition='moon'] .pe-atmo-dark-forest-sky .pe-atmo-p:nth-child(3n) { background: #7fe8e8; box-shadow: 0 0 8px rgba(127, 232, 232, 0.85); }
+[data-exhibition='moon'] .pe-atmo-dark-forest-sky .pe-atmo-p:nth-child(5n) { background: #f28be8; box-shadow: 0 0 8px rgba(242, 139, 232, 0.85); }
+@keyframes moGoQuiet {
+  0%, 100% { opacity: 0; }
+  12%, 55% { opacity: 0.9; }
+  62% { opacity: 0.15; }
+  68% { opacity: 0.6; }
+  74%, 96% { opacity: 0; }
+}
+
+@media (max-width: 768px) {
+  /* On a phone the copy runs the full width: the scenery steps back behind it. */
+  [data-exhibition='moon'] .pe-atmo-exoplanet-transit :is(.pe-atmo-part-1, .pe-atmo-part-2) { left: -8vmin; top: 22%; }
+  [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-1 { opacity: 0.7; }
+  [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-2 { left: calc(8vmin - 2.6vmin); }
+  [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-3 { display: none; }
+  [data-exhibition='moon'] .pe-atmo-apollo-tracking :is(.pe-atmo-part-1, .pe-atmo-part-2) { opacity: 0.6; }
+  [data-exhibition='moon'] .pe-atmo-apollo-tracking .pe-atmo-part-3 { left: 10vw; width: 80vw; top: 10vh; }
+  [data-exhibition='moon'] .pe-atmo-moon-tides .pe-atmo-part-3 { width: 60vw; }
+  [data-exhibition='moon'] .pe-atmo-moon-tides .pe-atmo-p { left: calc(50% - 22vw + var(--x) * 0.44vw); }
+  [data-exhibition='moon'] .pe-atmo-lunar-dust .pe-atmo-part-1 { bottom: -66vh; }
+  [data-exhibition='moon'] .pe-atmo-lunar-dust .pe-atmo-part-2 { top: 9vh; right: 8vw; }
 }

@@ -53,8 +53,9 @@ describe('Holocaust Memorial Day', () => {
     expect(HOLOCAUST.subtitle).toBe('Never Forget');
     expect(HOLOCAUST.posters.map((p) => p.id)).toEqual(['poster1', 'poster2']);
     expect(HOLOCAUST.posters.map((p) => p.title)).toEqual(['International Holocaust Remembrance Day', 'What Was the Holocaust?']);
+    // Poster 1's title is set in type, under its approved name; poster 2 opens on its own lettering.
+    expect(HOLOCAUST.posters.map((p) => p.items[0].type)).toEqual(['title-text', 'title-image']);
     for (const p of HOLOCAUST.posters) {
-      expect(p.items[0].type).toBe('title-text');
       expect(p.items[p.items.length - 1].type).toBe('end');
       expect(p.hero.alt).toBeTruthy();
     }
@@ -66,7 +67,7 @@ describe('Holocaust Memorial Day', () => {
   it('names the day International Holocaust Remembrance Day (approved decision 1)', () => {
     const [t1, t2] = HOLOCAUST.posters.map((p) => p.items[0]);
     expect(t1).toMatchObject({ text: 'International Holocaust Remembrance Day', lines: ['INTERNATIONAL', 'HOLOCAUST', 'REMEMBRANCE', 'DAY'] });
-    expect(t2).toMatchObject({ text: 'What Was the Holocaust?', lines: ['WHAT WAS THE', 'HOLOCAUST?'] });
+    expect(t2).toMatchObject({ alt: 'What Was the Holocaust?', src: '/exhibitions/holocaust/titles/what-was-the-holocaust.png' });
     expect(paragraphs('poster1')[0]).toMatch(/^International Holocaust Remembrance Day is observed annually on January 27 to/);
     expect(allText).not.toMatch(/National Holocaust Memorial Day/);
   });

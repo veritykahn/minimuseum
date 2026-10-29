@@ -5,6 +5,8 @@ import { MOON, MOON_CASE } from '@/app/exhibitions/moon/moon';
 import { VICTORIAN, VICTORIAN_CASE } from '@/app/exhibitions/victorian/victorian';
 import { WOMENS_HISTORY, WOMENS_HISTORY_CASE } from '@/app/exhibitions/womens-history/womensHistory';
 import { HOLOCAUST, HOLOCAUST_CASE } from '@/app/exhibitions/holocaust/holocaust';
+import { BLACK_HISTORY, BLACK_HISTORY_CASE } from '@/app/exhibitions/black-history/blackHistory';
+import { WRITING_REVOLUTION, WRITING_REVOLUTION_CASE } from '@/app/exhibitions/writing-revolution/writingRevolution';
 
 /**
  * The poster exhibitions whose display case is built by the engine
@@ -20,4 +22,6 @@ export const EXHIBITION_CASES: { config: ExhibitionConfig; data: CasePageData }[
   { config: VICTORIAN, data: VICTORIAN_CASE },
   { config: WOMENS_HISTORY, data: WOMENS_HISTORY_CASE },
   { config: HOLOCAUST, data: HOLOCAUST_CASE },
+  { config: BLACK_HISTORY, data: BLACK_HISTORY_CASE },
+  { config: WRITING_REVOLUTION, data: WRITING_REVOLUTION_CASE },
 ];
