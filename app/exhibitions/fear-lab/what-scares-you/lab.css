@@ -239,7 +239,8 @@
 /* The lid: shut, creaking slowly up while the box builds, then off to the side. */
 .fl-fb-lid { transform-origin: 8px 44px; transform-box: view-box; transition: transform 0.3s ease; }
 .fl-fb-box[data-building] .fl-fb-lid { transform: rotate(-38deg) translateY(-6px); transition: transform var(--build) cubic-bezier(0.6, 0, 0.9, 0.6); }
-.fl-fb-box[data-open] .fl-fb-lid { transform: rotate(-105deg) translate(-4px, -10px); }
+/* Open: propped up on its hinge, still on its own box. */
+.fl-fb-box[data-open] .fl-fb-lid { transform: rotate(-52deg) translateY(-6px); }
 .fl-fb-box[data-open]:not([data-building]) { opacity: 0.55; }
 .fl-fb[data-motion='on'] .fl-fb-box[data-building] .fl-fb-art { animation: fl-fb-tremble 0.18s linear infinite; animation-delay: calc(var(--build) * 0.35); }
 @keyframes fl-fb-tremble { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-1.5px) rotate(-0.6deg); } 75% { transform: translateX(1.5px) rotate(0.6deg); } }
@@ -252,10 +253,10 @@
 .fl-fb[data-motion='on'][data-phase='build'] .fl-fb-veil span { animation: fl-throb var(--beat) ease-in-out infinite; }
 .fl-fb[data-phase='warn'] .fl-fb-shelf { opacity: 0.35; pointer-events: none; }
 
-/* What comes out: it jumps toward you, over everything, then settles. */
+/* What comes out: it jumps toward you, over everything, then settles clear of the tabs. */
 .fl-fb-reveal {
   position: absolute;
-  inset: -4% -6% 26%;
+  inset: 3% -6% 25%;
   z-index: 3;
   display: grid;
   place-items: center;
@@ -384,11 +385,11 @@
   max-height: 52vh;
   overflow: visible;
   /* The scene's edges fade into the dark. */
-  -webkit-mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
-  mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
 }
 .fl-cloud { fill: #2a3e5c; opacity: 0.9; }
-.fl-bush-leaves { fill: #0b1f20; }
+.fl-bush-leaves { fill: #0f2627; }
 .fl-bush-lit path { fill: none; stroke: rgba(251, 246, 236, 0.35); stroke-width: 2.5; stroke-linecap: round; }
 .fl-bush { transform-box: fill-box; }
 .fl-bush-leaves { transform-origin: 0 0; transform-box: view-box; }
@@ -403,14 +404,17 @@
 .fl-bush[data-rustling] .fl-bush-lit path { stroke: var(--marigold); }
 .fl-bush-eyes path { fill: var(--marigold); filter: drop-shadow(0 0 6px rgba(242, 179, 61, 0.8)); }
 .fl-bush-pupil { fill: #0a0a0a; }
-.fl-bush-eyes { opacity: 0; transform: scale(0.6); transform-origin: 0 -40px; transform-box: view-box; transition: opacity 0.18s ease, transform 0.18s ease; }
-.fl-bush-eyes[data-on] { opacity: 1; transform: none; }
-.fl-bushes[data-motion='off'] .fl-bush-eyes { transform: none; transition: none; }
+.fl-bush-eyes { opacity: 0; transform: scale(0.8); transform-origin: 0 -40px; transform-box: view-box; transition: opacity 0.18s ease, transform 0.18s ease; }
+/* Big enough to see from across a classroom. */
+.fl-bush-eyes[data-on] { opacity: 1; transform: scale(1.35); }
+.fl-bushes[data-motion='off'] .fl-bush-eyes { transform: scale(1.35); transition: none; }
 .fl-bushes-scene[data-startled='0'] { animation: fl-jolt-a 0.4s ease; }
 .fl-bushes-scene[data-startled='1'] { animation: fl-jolt-b 0.4s ease; }
 @keyframes fl-jolt-a { 0%, 100% { transform: none; } 20% { transform: translate(-6px, 3px); } 45% { transform: translate(5px, -2px); } 70% { transform: translate(-3px, 1px); } }
 @keyframes fl-jolt-b { 0%, 100% { transform: none; } 20% { transform: translate(6px, 3px); } 45% { transform: translate(-5px, -2px); } 70% { transform: translate(3px, 1px); } }
-.fl-bushes-clock { width: min(100%, 520px); height: 6px; background: rgba(251, 246, 236, 0.12); border-radius: 3px; overflow: hidden; }
+.fl-bushes-clock-row { display: flex; align-items: center; gap: 12px; width: min(100%, 560px); }
+.fl-bushes-secs { flex: none; width: 1.4em; font-family: var(--pe-display); font-size: 1.3rem; line-height: 1; color: var(--marigold); text-align: right; font-variant-numeric: tabular-nums; }
+.fl-bushes-clock { flex: 1; height: 6px; background: rgba(251, 246, 236, 0.12); border-radius: 3px; overflow: hidden; }
 .fl-bushes-clock span { display: block; height: 100%; width: 100%; background: var(--marigold); transform-origin: left; transform: scaleX(0); }
 .fl-bushes-clock span[data-run] { animation: fl-clock linear forwards; }
 @keyframes fl-clock { from { transform: scaleX(1); } to { transform: scaleX(0); } }
@@ -462,7 +466,7 @@
     grid-template-rows: auto minmax(0, 1fr);
     align-items: stretch;
     gap: 6px;
-    padding: 6px 16px 0;
+    padding: 14px 16px 0;
   }
   .fl-box-scene { height: 30dvh; }
   .fl-fb-scene { padding-bottom: 6px; }
@@ -501,4 +505,6 @@
   .fl-fb .fl-fb-creature { animation: fl-fb-fade 0.8s ease both !important; }
   .fl-fb .fl-fb-box[data-building] .fl-fb-art { animation: none !important; }
   .fl-lab-dark, .fl-room .fl-ku-option { transition: none; }
+  /* The clock's bar holds still; the seconds beside it count down. */
+  .fl-bushes-clock span[data-run] { animation: none !important; transform: scaleX(1); }
 }

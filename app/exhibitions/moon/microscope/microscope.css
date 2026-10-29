@@ -182,7 +182,7 @@
 .mo-ms-split-grip svg { width: 20px; height: 20px; fill: none; stroke: #2a2245; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
 
 .mo-ms-hint {
-  margin: 10px 0 0;
+  margin: 20px 0 0;
   font-family: var(--pe-body);
   font-size: 12px;
   letter-spacing: 0.28em;
@@ -190,6 +190,8 @@
   color: #c9c0e3;
   text-align: center;
 }
+/* Out of focus, the hint is the next thing to do: it lights up. */
+.mo-ms-hint.is-blurry { color: var(--mo-aqua); }
 
 /* What the photograph shows, from its record, and its credit, small, under the eyepiece. */
 .mo-ms-caption {
@@ -227,9 +229,10 @@
 .mo-room .mo-ms-credit a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .mo-room .mo-ms-credit a:hover { color: #fff; }
 
+/* A steady height, so the panel's top stays put from tab to tab. */
 .mo-ms-panel {
   width: min(430px, 34vw);
-  max-height: 100%;
+  height: min(100%, 700px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -409,10 +412,14 @@
   .mo-ms-side { bottom: 17%; font-size: 9px; letter-spacing: 0.14em; padding: 4px 8px; }
   .mo-ms-panel {
     width: 100%;
+    height: auto;
     flex: 1;
     min-height: 0;
     gap: 10px;
-    padding: 4px 2px 24px;
+    padding: 4px 2px 36px;
+    /* The panel scrolls under the eyepiece: fade its foot, so the cut-off line reads as "more below". */
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 32px), transparent);
   }
   .mo-ms-kicker { display: none; }
   .mo-ms-heading { margin: 0; font-size: 1.3rem; text-align: center; }

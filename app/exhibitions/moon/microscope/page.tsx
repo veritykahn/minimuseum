@@ -23,7 +23,7 @@ import './microscope.css';
  * photographs down microscopes (slides.ts), three of Moon dust and one of
  * Earth's sand for each of the poster's three words; each is captioned from
  * its own record, as a note with its source, and credited beneath the
- * eyepiece. The loose dust the cloth wipes is drawn (grains.ts).
+ * eyepiece. The cloth wipes the photograph itself (wipe.ts).
  */
 
 const TABS = [
@@ -115,7 +115,7 @@ export default function MoonMicroscope() {
 
   const onWiped = useCallback((r: WipeReport) => {
     if (r.moon > 0) {
-      setClothDust((d) => Math.min(1, d + r.moon * 0.006));
+      setClothDust((d) => Math.min(1, d + r.moon));
       setWipedMoon(true);
     }
     setStatus(
@@ -193,7 +193,7 @@ export default function MoonMicroscope() {
               rightLabel="Earth"
               onWiped={onWiped}
             />
-            <p className="mo-ms-hint" aria-hidden="true">
+            <p className={sharp ? 'mo-ms-hint' : 'mo-ms-hint is-blurry'} aria-hidden="true">
               {sharp ? 'Drag across the slide to wipe it' : 'Turn the focus knob'}
             </p>
             {tab !== 'compare' && <FactNote fact={left.caption} className="mo-ms-caption" />}
@@ -210,7 +210,10 @@ export default function MoonMicroscope() {
               <div className="mo-ms-samples" role="group" aria-label="Moon slide">
                 <span className="mo-ms-samples-label" aria-hidden="true">Moon</span>
                 {MOON_SLIDES.map((s) => (
-                  <button key={s.id} type="button" className="mo-ms-chip" aria-pressed={moon === s.key} onClick={() => setMoon(s.key)}>
+                  <button key={s.id} type="button" className="mo-ms-chip" aria-pressed={moon === s.key} onClick={() => {
+                    setMoon(s.key);
+                    setStatus('');
+                  }}>
                     {s.label}
                   </button>
                 ))}
@@ -220,7 +223,10 @@ export default function MoonMicroscope() {
               <div className="mo-ms-samples" role="group" aria-label="Earth slide: shaped by">
                 <span className="mo-ms-samples-label" aria-hidden="true">Shaped by</span>
                 {EARTH_SLIDES.map((s) => (
-                  <button key={s.id} type="button" className="mo-ms-chip" aria-pressed={earth === s.key} onClick={() => setEarth(s.key)}>
+                  <button key={s.id} type="button" className="mo-ms-chip" aria-pressed={earth === s.key} onClick={() => {
+                    setEarth(s.key);
+                    setStatus('');
+                  }}>
                     {s.label}
                   </button>
                 ))}

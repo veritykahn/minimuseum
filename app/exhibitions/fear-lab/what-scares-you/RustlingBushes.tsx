@@ -72,6 +72,8 @@ export default function RustlingBushes({
   const [calls, setCalls] = useState<Call[]>([]);
   const [status, setStatus] = useState('');
   const [startled, setStartled] = useState(0);
+  /** Whole seconds left to decide, for the clock. */
+  const [left, setLeft] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const callsRef = useRef<Call[]>([]);
 
@@ -120,6 +122,16 @@ export default function RustlingBushes({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase, index, rounds]);
 
+  // The seconds left, counted down beside the clock's bar (which holds still with reduced motion).
+  useEffect(() => {
+    if (phase !== 'rustle') return;
+    const t0 = performance.now();
+    const count = () => setLeft(Math.max(1, Math.ceil((DECIDE_MS - (performance.now() - t0)) / 1000)));
+    count();
+    const iv = setInterval(count, 200);
+    return () => clearInterval(iv);
+  }, [phase, index]);
+
   // After the answer shows, the next round, or the tally.
   useEffect(() => {
     if (phase !== 'reveal') return;
@@ -162,8 +174,11 @@ export default function RustlingBushes({
           ))}
         </svg>
         {playing && (
-          <div className="fl-bushes-clock" aria-hidden="true">
-            <span key={`${index}-${phase}`} data-run={phase === 'rustle' ? 'true' : undefined} style={{ animationDuration: `${DECIDE_MS}ms` }} />
+          <div className="fl-bushes-clock-row" aria-hidden="true">
+            <div className="fl-bushes-clock">
+              <span key={`${index}-${phase}`} data-run={phase === 'rustle' ? 'true' : undefined} style={{ animationDuration: `${DECIDE_MS}ms` }} />
+            </div>
+            <span className="fl-bushes-secs">{phase === 'rustle' ? left : ''}</span>
           </div>
         )}
         {phase === 'done' && (

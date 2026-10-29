@@ -156,13 +156,19 @@ body:has(.sid-toys) { margin: 0; }
   right: max(5vw, calc(50vw - 680px));
   top: 170px;
   width: min(420px, 34vw);
-  max-height: calc(100dvh - 170px - 40px);
+  /* The whole card, border and all, ends above the film strip at the foot. */
+  box-sizing: border-box;
+  max-height: calc(100dvh - 170px - 28px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   padding: 22px 26px 24px;
-  background: var(--sid-card);
+  /* When the card has more below, a faint glow along its foot says so (it goes once scrolled to the end). */
+  background:
+    linear-gradient(rgba(18, 18, 20, 0), rgb(18, 18, 20) 70%) center bottom / 100% 36px no-repeat local,
+    radial-gradient(farthest-side at 50% 100%, rgba(168, 213, 229, 0.22), transparent) center bottom / 100% 16px no-repeat scroll,
+    var(--sid-card);
   border: 1px solid rgba(168, 213, 229, 0.18);
   border-top: 2px solid var(--sid-blue);
   font-weight: 300;
@@ -284,7 +290,7 @@ body:has(.sid-toys) { margin: 0; }
 .vt-sides { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2vw, 28px); width: 100%; }
 .vt-side { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .sid-toys .vt-side-button { appearance: none; padding: 0; border: 0; background: none; border-radius: 50%; width: min(24vh, 13vw, 220px); aspect-ratio: 1; cursor: pointer; transition: transform 0.3s ease; }
-.vt-side[aria-current='step'] .vt-side-button { transform: scale(1.08); outline: 2px solid var(--sid-blue); outline-offset: 5px; }
+.vt-side[aria-current='step'] .vt-side-button { outline: 2px solid var(--sid-blue); outline-offset: 5px; }
 .vt-side-name { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sid-muted); }
 .vt-side-op { position: absolute; right: calc(-1 * clamp(10px, 2vw, 28px) / 2); top: 40%; font-family: var(--sid-serif); font-size: clamp(1.6rem, 2.6vw, 2.6rem); line-height: 1; transform: translate(50%, -50%); color: var(--sid-muted); }
 
@@ -302,6 +308,7 @@ body:has(.sid-toys) { margin: 0; }
 }
 .vz-lens figcaption { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sid-muted); }
 .vz-count { min-width: 3.4em; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
+.vz-count[data-spinning] { color: var(--sid-muted); }
 
 .vz-frames {
   list-style: none;
@@ -316,6 +323,14 @@ body:has(.sid-toys) { margin: 0; }
 .vz-frame img, .vz-frame-blank { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; }
 .vz-frame-n { position: absolute; left: 4px; top: 2px; font-size: 11px; color: #3b2a1c; background: rgba(243, 234, 214, 0.85); padding: 0 5px; border-radius: 2px; }
 .vz-frames li[aria-current='step'] .vz-frame { outline: 3px solid var(--sid-blue); outline-offset: 2px; }
+
+/* ───────── A laptop with little height: a tighter card ───────── */
+@media (max-height: 760px) and (min-width: 761px) {
+  .vto-controls { gap: 10px; padding: 16px 22px 18px; }
+  .vto-intro { font-size: 0.92rem; line-height: 1.5; }
+  .vto-caption { font-size: 1.1rem; line-height: 1.4; }
+  .vz-lens-canvas { width: 112px; }
+}
 
 /* ───────── A phone: the toy above, the card below ───────── */
 @media (max-width: 760px) {
