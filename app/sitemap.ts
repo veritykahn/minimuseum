@@ -190,6 +190,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/exhibitions/womens-history/violet`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/exhibitions/holocaust`,
       lastModified,
       changeFrequency: 'weekly',
@@ -197,6 +203,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/exhibitions/holocaust/artifacts/case`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/holocaust/stones`,
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.7,

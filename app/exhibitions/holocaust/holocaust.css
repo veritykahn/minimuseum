@@ -92,6 +92,9 @@
 [data-exhibition='holocaust'] .pe-display-case:focus-visible { outline: 2px solid var(--ho-ink); outline-offset: 6px; }
 [data-exhibition='holocaust'] .pe-case-label { color: var(--ho-stone-light); letter-spacing: 0.3em; font-size: 11px; }
 [data-exhibition='holocaust'] .pe-case-title { color: var(--ho-pale); font-size: 30px; text-transform: uppercase; }
+/* An interactive's card (Lay a Stone): its picture fills the card's width; its line in the pale stone. */
+[data-exhibition='holocaust'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; object-fit: cover; }
+[data-exhibition='holocaust'] .pe-case-subtitle { color: var(--ho-stone-light); }
 /* The case awaiting its photographs: near-black line on the stone page, stone
    grey on the black card, lit only faintly, as by a candle. */
 [data-exhibition='holocaust'] { --pe-case-frame: var(--ho-ink); --pe-case-glow: #e9dcc4; --pe-case-placeholder-ink: var(--ho-ink); }

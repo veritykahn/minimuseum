@@ -246,13 +246,13 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'womens-history', label: "Women's\nHistory Month", path: '/exhibitions/womens-history',
     x: COL[2], ...TOP, accentColor: COLORS.womensHistory,
     parent: 'first-floor',
-    children: ['wh-case', ...lessonsChild('womens-history')],
+    children: ['wh-case', 'wh-violet', ...lessonsChild('womens-history')],
   },
   {
     id: 'holocaust', label: 'Holocaust\nMemorial Day', path: '/exhibitions/holocaust',
     x: COL[3], ...TOP, accentColor: COLORS.holocaust,
     parent: 'first-floor',
-    children: ['ho-case', ...lessonsChild('holocaust')],
+    children: ['ho-case', 'ho-stones', ...lessonsChild('holocaust')],
   },
   // Bottom row
   {
@@ -833,19 +833,21 @@ export const VICTORIAN: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Women's History Month (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, and the display case and the room beyond it
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
-// ├───────────────╴ ╶──────────────┤
-// │          Display Case          │
-// └────────────────────────────────┘
+// ├───────╴ ╶───────┬──────╴ ╶─────┤
+// │  Display Case   ╎ Violet’s Life │
+// └─────────────────┴──────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const WOMENS_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
   outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
   accentColor: COLORS.womensHistory,
   walls: [
-    ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 180, 250, 180),
+    ...wallWithDoorway(250, 180, 460, 180),
+    ...wallWithDoorway(250, 180, 250, 280),
   ],
   rooms: [
     {
@@ -857,8 +859,14 @@ const WOMENS_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
     {
       id: 'wh-case', label: 'Display Case', path: '/exhibitions/womens-history/artifacts/case',
       accentColor: COLORS.womensHistory, parent: 'womens-history',
-      x: 40, y: 180, width: 420, height: 100,
-      labelX: 250, labelY: 230,
+      x: 40, y: 180, width: 210, height: 100,
+      labelX: 145, labelY: 230,
+    },
+    {
+      id: 'wh-violet', label: 'Violet’s Life', path: '/exhibitions/womens-history/violet',
+      accentColor: COLORS.womensHistory, parent: 'womens-history',
+      x: 250, y: 180, width: 210, height: 100,
+      labelX: 355, labelY: 230,
     },
   ],
 };
@@ -879,19 +887,21 @@ export const WOMENS_HISTORY: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Holocaust Memorial Day (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, and the display case and the room beyond it
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
-// ├───────────────╴ ╶──────────────┤
-// │          Display Case          │
-// └────────────────────────────────┘
+// ├───────╴ ╶───────┬──────╴ ╶─────┤
+// │  Display Case   ╎ Lay a Stone   │
+// └─────────────────┴──────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
   outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
   accentColor: COLORS.holocaust,
   walls: [
-    ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 180, 250, 180),
+    ...wallWithDoorway(250, 180, 460, 180),
+    ...wallWithDoorway(250, 180, 250, 280),
   ],
   rooms: [
     {
@@ -903,8 +913,14 @@ const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
     {
       id: 'ho-case', label: 'Display Case', path: '/exhibitions/holocaust/artifacts/case',
       accentColor: COLORS.holocaust, parent: 'holocaust',
-      x: 40, y: 180, width: 420, height: 100,
-      labelX: 250, labelY: 230,
+      x: 40, y: 180, width: 210, height: 100,
+      labelX: 145, labelY: 230,
+    },
+    {
+      id: 'ho-stones', label: 'Lay a Stone', path: '/exhibitions/holocaust/stones',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 250, y: 180, width: 210, height: 100,
+      labelX: 355, labelY: 230,
     },
   ],
 };
