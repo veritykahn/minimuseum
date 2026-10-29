@@ -588,14 +588,13 @@ export default function SeeingIsDeceiving() {
           transition: opacity 0.3s ease;
         }
 
-        /* The case card stands on the photograph's own ground: the white of the
-           lit case, sampled from its edges (#fefdfc), so the photograph has no
-           frame round it. Its type is the poster's black, grey and a deepened
-           blue (5.6:1 and up). */
+        /* The case stands on the page's own grey, with no card round it: the
+           photograph is cut out, so the lit case sits straight on the poster's
+           ground. Its type is the poster's black and a deepened blue (5.7:1 and up). */
         .display-case {
-          background: #fefdfc;
+          background: transparent;
           border: none;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+          box-shadow: none;
           padding: 32px 24px;
           display: flex;
           flex-direction: column;
@@ -610,6 +609,7 @@ export default function SeeingIsDeceiving() {
         }
         .display-case:hover .case-image {
           transform: scale(1.02);
+          filter: drop-shadow(0 18px 28px rgba(0,0,0,0.35));
         }
 
         .case-image {
@@ -625,7 +625,7 @@ export default function SeeingIsDeceiving() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #5a5a5a;
+          color: #3a3a3a;
           margin-bottom: 8px;
         }
         .case-title {
@@ -638,7 +638,7 @@ export default function SeeingIsDeceiving() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-style: italic;
-          color: #2b6f86;
+          color: #1f5a6e;
         }
 
         /* Walkthrough */

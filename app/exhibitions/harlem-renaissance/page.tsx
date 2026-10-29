@@ -486,13 +486,13 @@ export default function HarlemRenaissance() {
           transition: opacity 0.3s ease;
         }
 
-        /* The case card stands on the photograph's own ground: the white of the
-           lit case, sampled from its edges (#faf6f4), so the photograph has no
-           frame round it. Its type is the poster's purple and wine (6.5:1 and up). */
+        /* The case stands on the page's own purple, with no card round it: the
+           photograph is cut out, so the lit case sits straight on the poster's
+           ground. Its type is the poster's cream (5.1:1 and up). */
         .hr-display-case {
-          background: #faf6f4;
+          background: transparent;
           border: none;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+          box-shadow: none;
           padding: 32px 24px;
           display: flex;
           flex-direction: column;
@@ -508,6 +508,7 @@ export default function HarlemRenaissance() {
         }
         .hr-display-case:hover .hr-case-image {
           transform: scale(1.02);
+          filter: drop-shadow(0 18px 28px rgba(0,0,0,0.35));
         }
 
         .hr-case-image {
@@ -523,20 +524,20 @@ export default function HarlemRenaissance() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #714985;
+          color: #e9d8f0;
           margin-bottom: 8px;
         }
         .hr-case-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 20px;
-          color: #381a2f;
+          color: #efd9b4;
           margin-bottom: 8px;
         }
         .hr-case-subtitle {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-style: italic;
-          color: #7a3d63;
+          color: #f6d6e8;
         }
 
         /* ============================================

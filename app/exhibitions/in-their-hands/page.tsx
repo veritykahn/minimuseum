@@ -470,14 +470,13 @@ export default function InTheirHands() {
           transition: opacity 0.3s ease;
         }
 
-        /* Each case card stands on its own photograph's ground: the light of the
-           lit case, sampled from the photograph's edges (--case-ground), so the
-           photograph has no frame round it. Its type is the poster's sepia and a
-           darkened gold (5.2:1 and up on all three). */
+        /* Each case stands on the page's own sepia, with no card round it: the
+           photographs are cut out, so the lit cases sit straight on the poster's
+           ground. Its type is cream and the poster's gold (4.7:1 and up). */
         .ith-display-case {
-          background: var(--case-ground, #e4e2e2);
+          background: transparent;
           border: none;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+          box-shadow: none;
           padding: 12px 8px;
           display: flex;
           flex-direction: column;
@@ -493,6 +492,7 @@ export default function InTheirHands() {
         }
         .ith-display-case:hover .ith-case-image {
           transform: scale(1.02);
+          filter: drop-shadow(0 18px 28px rgba(0,0,0,0.35));
         }
         .ith-case-image {
           height: 30vh;
@@ -506,20 +506,20 @@ export default function InTheirHands() {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #5e5440;
+          color: #d6cbb3;
           margin-bottom: 8px;
         }
         .ith-case-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 20px;
-          color: ${poster1Sepia};
+          color: #efe6d2;
           margin-bottom: 8px;
         }
         .ith-case-subtitle {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-style: italic;
-          color: #6b5418;
+          color: #C9A84C;
         }
 
         /* ============================================
@@ -954,7 +954,7 @@ export default function InTheirHands() {
               <span className="ith-poster-hint">Click to explore</span>
             </button>
 
-            <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case" style={{ '--case-ground': '#e7eeef' } as React.CSSProperties}>
+            <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Lit display case with three coins in round holders before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 6</p>
@@ -962,7 +962,7 @@ export default function InTheirHands() {
               <p className="ith-case-subtitle">Coins from the World of Jesus</p>
             </Link>
 
-            <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case" style={{ '--case-ground': '#e4e2e2' } as React.CSSProperties}>
+            <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Lit display case with six coins in round holders before two printed information cards" />
               <p className="ith-case-label">Gallery II, Case 7</p>
@@ -970,7 +970,7 @@ export default function InTheirHands() {
               <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
             </Link>
 
-            <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case" style={{ '--case-ground': '#d6dddf' } as React.CSSProperties}>
+            <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 8</p>
