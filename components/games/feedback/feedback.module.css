@@ -1,0 +1,141 @@
+/*
+ * The feedback kit: a green or orange flash at the screen's edge as an answer
+ * lands, a burst of confetti for a good final score, and the sound switch.
+ * The flash and confetti live in a portal on <body>, above everything and
+ * never in the way of a pointer.
+ */
+
+/* ───────── Flash ───────── */
+
+.flash {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  --flash: #3fb35c;
+  box-shadow:
+    inset 0 0 0 10px var(--flash),
+    inset 0 0 140px 40px color-mix(in srgb, var(--flash) 45%, transparent);
+  background: color-mix(in srgb, var(--flash) 10%, transparent);
+  animation: flashFade 0.9s ease-out both;
+}
+.flash[data-tone='wrong'] {
+  --flash: #ee8a2a;
+}
+/* Reduced motion: a steady frame, no fade and no glow, gone after a moment. */
+.flash[data-reduced] {
+  animation: none;
+  background: transparent;
+  box-shadow: inset 0 0 0 8px var(--flash);
+}
+
+@keyframes flashFade {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* ───────── Celebration ───────── */
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483000;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.piece {
+  position: absolute;
+  top: -24px;
+  left: var(--x);
+  width: var(--w, 10px);
+  height: var(--h, 16px);
+  background: var(--c);
+  border-radius: 2px;
+  opacity: 0;
+  animation: confettiFall var(--dur, 2.6s) cubic-bezier(0.25, 0.6, 0.4, 1) var(--delay, 0s) forwards;
+}
+.piece[data-round] {
+  border-radius: 50%;
+}
+
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0deg); }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--drift, 0px), 105vh, 0) rotate(var(--rot, 540deg)); }
+}
+
+/* With reduced motion: a still row of stars beside the score instead. */
+.stars {
+  display: flex;
+  justify-content: center;
+  gap: 0.4em;
+  margin: 0 0 10px;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  line-height: 1;
+  color: var(--game-accent, #c9a94e);
+}
+
+/* ───────── Sound switch ───────── */
+
+.soundSwitch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 100px;
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: clamp(13px, 0.5vw + 9px, 16px);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.soundSwitch:hover {
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+.soundSwitch[aria-pressed='true'] {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+.soundSwitch:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.soundSwitch svg {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 600px) {
+  .soundSwitch {
+    width: 44px;
+    padding: 0;
+    justify-content: center;
+  }
+  .soundLabel {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flash {
+    animation: none;
+    background: transparent;
+    box-shadow: inset 0 0 0 8px var(--flash);
+  }
+  .piece {
+    display: none;
+  }
+}

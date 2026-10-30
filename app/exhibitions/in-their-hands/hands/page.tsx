@@ -11,6 +11,7 @@ import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import { useScoredGame } from '@/components/games/useScoredGame';
 import TeachToggle from '@/components/games/projector/TeachToggle';
 import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
+import { SoundSwitch, isGoodScore } from '@/components/games/feedback/FeedbackKit';
 import { CLOSING, HANDS_CHARACTERS, TIERS, buildRounds } from './data';
 import HandsProjector from './HandsProjector';
 
@@ -23,6 +24,8 @@ const THEME = {
   '--game-surface': '#000',
   '--game-display': "'Cormorant Garamond', serif",
   '--game-body': "'Outfit', sans-serif",
+  // Projector-sized labels: 14px on a phone, up to 18px on a wide screen.
+  '--game-small': 'clamp(14px, 0.6vw + 8px, 18px)',
 } as CSSProperties;
 
 export default function HandsOfHistory() {
@@ -61,6 +64,18 @@ export default function HandsOfHistory() {
   // After a guess the Verdict takes focus itself; on the next round, focus
   // the new question.
   const questionRef = useRef<HTMLHeadingElement>(null);
+  // The verdict takes focus as it appears, and the browser scrolls the panel
+  // to it, sometimes past its first line. Line the panel up so the verdict's
+  // headline sits at the top. (A parent's effect runs after its child's.)
+  const panelRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (roundState !== 'revealed') return;
+    const panel = panelRef.current;
+    const verdict = panel?.querySelector<HTMLElement>('[data-tone]');
+    if (!panel || !verdict) return;
+    // offsetTop, not the bounding box: the verdict is still sliding in.
+    panel.scrollTop = Math.max(0, verdict.offsetTop - 12);
+  }, [roundState, game.index]);
   const firstRound = useRef(true);
   useEffect(() => {
     if (firstRound.current) { firstRound.current = false; return; }
@@ -122,7 +137,7 @@ export default function HandsOfHistory() {
 
         .hh-clue-label {
           font-family: 'Outfit', sans-serif;
-          font-size: 10px;
+          font-size: var(--game-small);
           letter-spacing: 0.2em;
           text-transform: uppercase;
           color: #a3a3a3;
@@ -130,7 +145,7 @@ export default function HandsOfHistory() {
         }
         .hh-clue {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.2rem;
+          font-size: clamp(1.2rem, 0.5vw + 1rem, 1.5rem);
           line-height: 1.6;
           color: #f0e6c8;
           margin-bottom: 20px;
@@ -168,14 +183,15 @@ export default function HandsOfHistory() {
           border: none;
           color: #C9A84C;
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           letter-spacing: 0.1em;
           text-transform: uppercase;
           cursor: pointer;
+          min-height: 44px;
           transition: color 0.3s ease;
         }
         .hh-back-btn:hover { color: #fafafa; }
-        .hh-back-btn span { font-size: 18px; }
+        .hh-back-btn span[aria-hidden] { font-size: 18px; }
 
         .hh-header-right { display: flex; align-items: center; gap: 20px; }
         @media (max-width: 600px) {
@@ -183,7 +199,7 @@ export default function HandsOfHistory() {
         }
         .hh-round-info {
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           letter-spacing: 0.1em;
           color: #C9A84C;
           opacity: 0.8;
@@ -228,16 +244,17 @@ export default function HandsOfHistory() {
         .hh-image-frame .hh-img-visible { opacity: 1; }
         .hh-image-caption {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1rem;
+          font-size: clamp(1.05rem, 0.4vw + 0.9rem, 1.3rem);
           color: #C9A84C;
-          opacity: 0.8;
+          opacity: 0.9;
           text-align: center;
           flex-shrink: 0;
         }
 
         /* ========== RIGHT PANEL ========== */
         .hh-panel {
-          flex: 0 1 420px;
+          position: relative;
+          flex: 0 1 480px;
           display: flex;
           flex-direction: column;
           padding: 16px 0;
@@ -268,7 +285,7 @@ export default function HandsOfHistory() {
           background: rgba(255,255,255,0.03);
           color: #fafafa;
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.15rem;
+          font-size: clamp(1.2rem, 0.5vw + 1rem, 1.5rem);
           text-align: left;
           cursor: pointer;
           transition: all 0.3s ease;
@@ -306,7 +323,7 @@ export default function HandsOfHistory() {
 
         .hh-reveal-verdict {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.5rem;
+          font-size: clamp(1.5rem, 0.8vw + 1.2rem, 2rem);
           font-weight: 500;
           margin-bottom: 16px;
         }
@@ -321,7 +338,7 @@ export default function HandsOfHistory() {
 
         .hh-reveal-date {
           font-family: 'Outfit', sans-serif;
-          font-size: 11px;
+          font-size: var(--game-small);
           letter-spacing: 0.1em;
           color: #a3a3a3;
           margin-bottom: 20px;
@@ -331,8 +348,8 @@ export default function HandsOfHistory() {
 
         .hh-reveal-story {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.1rem;
-          line-height: 1.8;
+          font-size: clamp(1.15rem, 0.5vw + 0.95rem, 1.4rem);
+          line-height: 1.75;
           color: #d0d0d0;
           margin-bottom: 28px;
         }
@@ -347,12 +364,13 @@ export default function HandsOfHistory() {
           background: transparent;
           color: #C9A84C;
           font-family: 'Outfit', sans-serif;
-          font-size: 11px;
+          font-size: var(--game-small);
           letter-spacing: 0.12em;
           text-transform: uppercase;
           cursor: pointer;
           transition: all 0.3s ease;
           align-self: flex-end;
+          min-height: 48px;
         }
         .hh-next-btn:hover {
           background: rgba(201, 168, 76, 0.1);
@@ -368,8 +386,8 @@ export default function HandsOfHistory() {
           padding-top: 24px;
         }
         .hh-dot {
-          width: 8px;
-          height: 8px;
+          width: 12px;
+          height: 12px;
           border-radius: 50%;
           border: none;
           padding: 0;
@@ -401,10 +419,10 @@ export default function HandsOfHistory() {
 
         .hh-final-text {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.1rem;
-          line-height: 1.8;
+          font-size: clamp(1.1rem, 0.4vw + 0.95rem, 1.35rem);
+          line-height: 1.75;
           color: #d0d0d0;
-          max-width: 600px;
+          max-width: 640px;
           margin: 4px auto 32px;
         }
 
@@ -428,13 +446,20 @@ export default function HandsOfHistory() {
             padding: 8px 0;
           }
         }
+        @media (max-width: 600px) {
+          .hh-back-label {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+          }
+          .hh-back-btn { min-width: 44px; }
+        }
       `}</style>
 
       {/* Header */}
       <header className="hh-header">
         <button className="hh-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-7?view=interactives')}>
           <span aria-hidden="true">{'\u2190'}</span>
-          Display Case
+          <span className="hh-back-label">Display Case</span>
         </button>
         <div className="hh-header-right">
           {roundState !== 'finished' && (
@@ -442,6 +467,7 @@ export default function HandsOfHistory() {
               Round {game.index + 1} of {total} &middot; Score: {game.score}
             </span>
           )}
+          <SoundSwitch style={{ color: '#C9A84C', fontFamily: "'Outfit', sans-serif" }} />
           <TeachToggle onClick={() => setProjector(true)} style={{ color: '#C9A84C', fontFamily: "'Outfit', sans-serif" }} />
         </div>
       </header>
@@ -475,7 +501,7 @@ export default function HandsOfHistory() {
               </div>
 
               {/* Right: question panel */}
-              <div className="hh-panel">
+              <div className="hh-panel" ref={panelRef}>
                 {roundState === 'guessing' ? (
                   <>
                     <h1 className="hh-question" id="hh-question" ref={questionRef} tabIndex={-1} style={{ outline: 'none' }}>{character.prompt}</h1>
@@ -550,6 +576,7 @@ export default function HandsOfHistory() {
               correct: r.correct,
             }))}
             pipsLabel="Your rounds"
+            celebrate={isGoodScore(game.score, total)}
             actions={[
               { label: 'Play again', onClick: playAgain, primary: true },
               { label: 'Back to Display Case', href: '/exhibitions/in-their-hands/artifacts/case-7?view=interactives' },

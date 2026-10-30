@@ -205,7 +205,7 @@ export default function JazzLabPage() {
         }
         .jl-tab {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 3px;
           text-transform: uppercase;
           font-weight: 600;
@@ -279,7 +279,7 @@ export default function JazzLabPage() {
           left: 50%;
           transform: translateX(-50%);
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 4px;
           text-transform: uppercase;
           color: var(--jl-gold-dim);
@@ -360,7 +360,7 @@ export default function JazzLabPage() {
         .jl-slot.active.backing { opacity: 0.65; }
         .jl-slot-name {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 2px;
           text-transform: uppercase;
           color: var(--jl-text-dim);
@@ -380,7 +380,7 @@ export default function JazzLabPage() {
         }
         .jl-section-label {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 4px;
           text-transform: uppercase;
           color: var(--jl-gold-dim);
@@ -433,7 +433,7 @@ export default function JazzLabPage() {
         }
         .jl-section-name {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 8px;
+          font-size: clamp(11px, 0.3vw + 9px, 14px);
           letter-spacing: 1px;
           text-transform: uppercase;
           color: var(--jl-text-dim);
@@ -500,7 +500,7 @@ export default function JazzLabPage() {
         }
         .jl-btn {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 3px;
           text-transform: uppercase;
           font-weight: 600;
@@ -710,7 +710,7 @@ export default function JazzLabPage() {
         }
         .jl-score-label {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 9px;
+          font-size: 14px;
           letter-spacing: 3px;
           text-transform: uppercase;
           color: var(--jl-text-dim);
@@ -934,11 +934,11 @@ export default function JazzLabPage() {
           .jl-band-slots { gap: 14px 8px; }
           .jl-slot { max-width: 110px; }
           .jl-slot-icon { width: 64px; height: 64px; font-size: 28px; }
-          .jl-slot-name { font-size: 9px; letter-spacing: 1px; }
+          .jl-slot-name { font-size: 12px; letter-spacing: 1px; }
           .jl-controls { gap: 10px; }
-          .jl-btn { padding: 10px 16px; font-size: 10px; letter-spacing: 2px; }
+          .jl-btn { padding: 10px 16px; font-size: 13px; letter-spacing: 2px; }
           .jl-quiz-answers { grid-template-columns: repeat(2, 1fr); }
-          .jl-tab { padding: 12px 18px; font-size: 10px; letter-spacing: 2px; }
+          .jl-tab { padding: 12px 14px; font-size: 13px; letter-spacing: 1.5px; }
           .jl-section-selector {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -946,7 +946,7 @@ export default function JazzLabPage() {
           }
           .jl-section-btn { min-width: unset; padding: 8px 4px; }
           .jl-section-num { width: 32px; height: 32px; font-size: 14px; }
-          .jl-section-name { font-size: 7px; }
+          .jl-section-name { font-size: 11px; letter-spacing: 0.5px; white-space: normal; text-align: center; line-height: 1.2; }
         }
       `}</style>
 
