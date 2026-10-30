@@ -51,6 +51,17 @@
   text-transform: uppercase;
   color: var(--gold);
 }
+/* "Faith-based option": a small label on a faith-based lesson's card */
+.faith {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 2px 10px;
+  border: 1px solid currentColor;
+  border-radius: 100px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
 .title {
   margin: 14px 0 22px !important;
   font-family: var(--font-cormorant), 'Cormorant Garamond', Georgia, serif;

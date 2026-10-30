@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { FactSource } from '@/components/exhibition/FactNote';
 import type { Atmosphere, CasePageData, ExhibitionConfig, PanelDecor, PanelFigure } from '@/components/exhibition/types';
 import { floorReturnFor } from '@/lib/floors';
 
@@ -41,8 +42,9 @@ import { floorReturnFor } from '@/lib/floors';
  * The "Talk about it" questions are for the projector's teacher strip: open
  * discussion questions, one per chapter, keyed by the section title exactly
  * as it is set (OPENING, '', is the panels before the first section title;
- * neither poster has section titles, so each has one). They make no factual
- * claims.
+ * the printed posters have none, so the only section titles are the museum's
+ * added ones, "Women in wartime" and "Your own women's history"). They make
+ * no factual claims.
  */
 
 // The posters' palette: blush and dusty rose grounds, deep navy type, orange and royal-blue paint.
@@ -68,26 +70,80 @@ export const LONDON_MUSEUM_URL = 'https://www.londonmuseum.org.uk/collections/';
 export const AF_KLINT_CREDIT = 'Hilma af Klint, *The Ten Largest, No. 1, Childhood*, Group IV, 1907. Stiftelsen Hilma af Klints Verk (the Hilma af Klint Foundation). Public domain, via Wikimedia Commons';
 export const AF_KLINT_SOURCE = 'https://commons.wikimedia.org/wiki/File:Hilma_af_Klint_-_The_Ten_Largest_No._1_-_Childhood_-_1907.jpg';
 
-const SPLASH_TL = '/exhibitions/womens-history/splash-tl.png';
+/*
+ * The museum's additions: panels set beside the printed copy, never in it,
+ * each owner-approved, every fact checked against its source and cited
+ * beneath it (`sources`). They stand in their own section ('added'), styled
+ * as the copy around them, so the printed words stay whole and countable.
+ * "[S]" marks a source seen only in a search excerpt (the site blocked
+ * reading it) and "[O]" one outside the owner's list of museums; both kept by
+ * the owner's decision, to be checked in a browser.
+ */
+const NWHM_MONTH: FactSource = { label: 'National Women’s History Museum, “Women’s History Month”', href: 'https://www.womenshistory.org/womens-history/womens-history-month' };
+/* [O] */
+const TATE_AF_KLINT: FactSource = { label: 'Tate, “The first abstract artist? (And it’s not Kandinsky)”', href: 'https://www.tate.org.uk/tate-etc/issue-27-spring-2013/first-abstract-artist-and-its-not-kandinsky' };
+const TNA_HOME_FRONT: FactSource = { label: 'The National Archives (UK), “The home front in the Second World War”', href: 'https://www.nationalarchives.gov.uk/education/teaching-resources/home-front-second-world-war/' };
+/* [S][O] */
+const IWM_WOMENS_WORK_HISTORY: FactSource = { label: 'Imperial War Museums, “A closer look at the Women’s Work Collection”', href: 'https://www.iwm.org.uk/history/a-closer-look-at-the-womens-work-collection' };
+const SMITHSONIAN_ORAL_HISTORY: FactSource = { label: 'Smithsonian Folklife and Oral History Interviewing Guide', href: 'https://folklife.si.edu/the-smithsonian-folklife-and-oral-history-interviewing-guide/smithsonian' };
+export const WOMENS_HISTORY_MONTH_GOV_URL = 'https://womenshistorymonth.gov/';
+/** The Talk About It room: the third tab of Who Gets Remembered? (remembered/). */
+export const TALK_ABOUT_IT_HREF = '/exhibitions/womens-history/remembered#talk';
+export const WARTIME_TITLE = 'Women in wartime';
+export const OWN_HISTORY_TITLE = "Your own women's history";
+
+const SPLASH_TL ='/exhibitions/womens-history/splash-tl.png';
 const SPLASH_TR = '/exhibitions/womens-history/splash-tr.png';
 const splash = (src: string, placement: PanelDecor['placement'], width = 'min(34vw, 440px)'): PanelDecor => ({ src, placement, motion: 'none', width });
 
 /* The family photographs, from poster 2, the owner's own. */
-const PHOTO_VIOLET: PanelFigure = {
+export const PHOTO_VIOLET: PanelFigure = {
   src: '/exhibitions/womens-history/photo-violet.jpg',
   alt: 'A sepia studio portrait of Violet as a young woman, standing beside a small pedestal table in a long belted coat with a strap across her chest, a brimmed hat and white gloves',
   side: 'right',
 };
-const PHOTO_PROMENADE: PanelFigure = {
+export const PHOTO_PROMENADE: PanelFigure = {
   src: '/exhibitions/womens-history/photo-promenade.jpg',
   alt: 'A sepia snapshot of three people walking arm in arm along a promenade: a woman holding a patterned parasol, a man in a straw hat and jacket, and a young woman in a pale blouse and dark trousers',
   side: 'left',
 };
-const PHOTO_FAMILY: PanelFigure = {
+export const PHOTO_FAMILY: PanelFigure = {
   src: '/exhibitions/womens-history/photo-family.jpg',
   alt: 'A faded photograph of a family group outside a house: five women, three standing and two seated, with a baby in a white dress sitting between them',
   side: 'right',
 };
+export const PHOTO_FOUR_WOMEN = {
+  src: '/exhibitions/womens-history/photo-four-women.jpg',
+  alt: 'A black-and-white photograph of four women standing close together in front of a net-curtained window, two of them in white dresses',
+};
+
+/*
+ * Poster 2's biography, paragraph by paragraph, as printed: the walkthrough
+ * below and Violet's room (violet/) both set it from here.
+ */
+export const VIOLET_NAME = 'Violet Dina Want';
+export const VIOLET_NEE = 'née Knight';
+export const VIOLET_DATES = 'Born January 27, 1907 | Died March 2, 1988';
+export const VIOLET_LETTERING = { src: '/exhibitions/womens-history/violet-dina-want.png', width: 1530, height: 225 };
+export const BIOGRAPHY_MOTTO = 'BIOGRAPHY OF A WORKING CLASS WOMAN';
+export const BIO_LEAD = 'VIOLET DINA WANT NÉE KNIGHT';
+export const BIO = {
+  childhood: 'was born at the turn of the 20th century in Fulham, Hammersmith, London, into a large working-class family with three sisters and two brothers. As the second eldest daughter, she was expected to help both at home and financially from a young age. She took on a great deal of responsibility, caring for her younger sisters after school and as she aged, after work.',
+  father: 'Her father worked as a commissionaire (now known as a doorman) at a hotel, occasionally bringing home leftover food from the restaurant to help feed the family. Despite their modest circumstances, Violet excelled in school, earning certificates for attendance and religious studies every year. Her teachers saw great potential in her and encouraged her to pursue a teaching career—a well-respected and middle-class profession at the time.',
+  factory: "However, when one of her sisters was believed to be going blind and needed to attend a specialized school, Violet had to leave school at 14 to work and help support the family. She became a piecework machinist in a factory, where machinists get paid for each 'piece of work' they complete.",
+  garden: 'During this time, she also learned gardening from her father, an essential source of food for many families. It was common if you had a garden, even in large cities like London, to grow vegetables and keep rabbits for "the pot". One of these rabbits became Violet\'s pet, often perching on her shoulder as she worked in the garden—until the day she came home to find it had been cooked for dinner.',
+  faith: 'Violet was religious throughout her life and joined the Salvation Army, or "Sally Army," as an adult. In 1928, at the age of 21, she married Harold Henry Robert Want, saying she had chosen him because he made her laugh.',
+  harold: 'Harold Want had previously been married but his wife died young and left him with an infant son. While Violet would have been happy to care for and raise this son, he was instead sent to live with an older, childless aunt—a common practice at the time.',
+  family: 'Violet and Harold began their own family in 1929 with the birth of their eldest daughter, Edna, followed by Doris, in 1930. After a long gap, they had two sons in 1938 and 1942. Money was often tight—Harold worked as a barman and struggled with alcoholism—but Violet ensured her children were always warm and well-dressed.',
+  seamstress: 'A skilled seamstress from her years as a machinist, she could take apart adult coats, resize them, and reassemble them perfectly for her children. Her resourcefulness meant they were often better off than others in their community. For example, it was common for poor families to place their youngest child in a makeshift cot by pushing two wooden armchairs together and rolling the baby in a blanket fastened with safety pins.',
+  music: 'Music played a significant role in their home. Violet always owned a piano, which she could play by ear, and it became the centerpiece of lively "knees-up" parties with family and friends.',
+  blitz: "Before World War II, Violet's extended family lived in close-knit neighboring streets, but the heavy bombing during the Blitz destroyed their homes, scattering them across the South of England. When a V-1 'doodlebug' bomb, a bomb designed by the Nazis to terrorize the British civilian population and lower morale, exploded nearby, it shattered all the windows in Violet's home and collapsed her mother's house, killing her instantly along with a family dog.",
+  blast: 'Her mother was identified only by the rings on her finger. The blast also maimed a family puppy, which had to be put down, and left Violet with spinal rheumatism, making breathing painful—though she eventually recovered.',
+  essex: 'After the war, she was offered a home on a new council estate in Essex. It was a corner house with a large garden, where she cultivated beautiful flowers like begonias, chrysanthemums, and ice plants, along with vegetables such as string beans and peas. However, her favorite flowers were roses, which she planted at the bottom of the garden.',
+  greengrocer: 'By the time her grandchildren knew her, Violet worked at the local greengrocer, passing on her knowledge about selecting the best produce—such as choosing cauliflowers with their inner leaves still curled over to keep the curds white. She also had a particular fondness for young turnips, eating them like apples.',
+  later: 'Widowed in 1956, Violet remained strong and resilient. She continued to garden, even when rheumatoid arthritis made it difficult, and enjoyed sitting outside with her beloved dog, Shona. Music remained a constant in her life; she always kept a piano in her home and, in her seventies, developed a love for Strauss waltzes, which she listened to on the radio. She also had a surprising penchant for wrestling, tuning in every Saturday, and knew Tiny Carr personally, a famous referee of the time.',
+  legacy: "Violet Want's life is a testament to resilience, humor, and hard work. As a family matriarch, her story offers a rich snapshot of working-class life in England, spanning the Edwardian era, two world wars, and the societal shifts of the 1970s and 80s. The personal histories of women like her help us understand the past—not just in grand historical events, but through the everyday sacrifices and triumphs of ordinary people who shaped the world we live in today.",
+} as const;
 
 /*
  * The posters' titles as pictures: their own navy lettering, the stacked and
@@ -95,6 +151,8 @@ const PHOTO_FAMILY: PanelFigure = {
  * posters' resolution with the ground keyed out
  * (public/exhibitions/womens-history/titles/). A sharper export of the same
  * lettering can replace a file at the same path; update its size here.
+ * The cut stays on disk; the title is set in type (`live`, in the poster's
+ * own face, drawn in the exhibition's stylesheet) so it is sharp on any screen.
  */
 const TITLE_SIZES = {
   womensHistory: { width: 657, height: 282 },
@@ -160,12 +218,35 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The paint (poster 1) or the typewriter's sheet (poster 2) crosses as a poster opens; every panel then arrives its own way.
   fx: { theme: 'wh', veil: 'chapters', text: 'all' },
-  projector: { theme: WOMENS_HISTORY_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: WOMENS_HISTORY_PROJECTOR_THEME,
+    links: [
+      { label: 'Violet’s Life: her places and moments, and a timeline of your own', href: '/exhibitions/womens-history/violet' },
+      { label: 'Who Gets Remembered?: statues, a scale, and questions for the class', href: '/exhibitions/womens-history/remembered' },
+    ],
+  },
   cases: [
     {
       href: '/exhibitions/womens-history/artifacts/case',
       label: 'Display Case',
       title: 'Artifacts',
+    },
+  ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
+  interactives: [
+    {
+      href: '/exhibitions/womens-history/violet',
+      image: { src: '/exhibitions/womens-history/rooms/violet.webp', alt: 'The Violet’s Life room: her places and moments along a line, above the first page of her story' },
+      label: 'Interactive',
+      title: 'Violet’s Life',
+      subtitle: 'Her places and moments, and a timeline of your own',
+    },
+    {
+      href: '/exhibitions/womens-history/remembered',
+      image: { src: '/exhibitions/womens-history/rooms/remembered.webp', alt: 'The Who Gets Remembered? room: rows of statue figures, a few of them orange, beside a question and a guess' },
+      label: 'Interactive',
+      title: 'Who Gets Remembered?',
+      subtitle: 'Who gets a statue, and whose stories are left out',
     },
   ],
   credits: [{ text: AF_KLINT_CREDIT, href: AF_KLINT_SOURCE }],
@@ -187,6 +268,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         painting: { className: 'wh-p1 wh-painting' },
         lede: { className: 'wh-p1 wh-lede' },
         body: { className: 'wh-p1 wh-body' },
+        added: { className: 'wh-p1 wh-body wh-added' },
         link: { className: 'wh-p1 wh-link' },
         end: { className: 'wh-p1' },
       },
@@ -199,6 +281,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/womens-history/titles/womens-history.png',
           ...TITLE_SIZES.womensHistory,
           framing: 'centered',
+          live: { className: 'wh-live wh-live-history', lines: [{ text: 'WO', className: 'wh-u' }, { text: 'MEN', className: 'wh-u' }, { text: "'S", className: 'wh-u' }, { text: 'HISTORY' }] },
           alt: "Women's History",
           marks: { left: "Women's History Month | March 1st to 31st", right: "International Women's Day | March 8th" },
           decor: splash(SPLASH_TL, 'top-left'),
@@ -223,6 +306,14 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         },
         {
           type: 'paragraph',
+          section: 'added',
+          atmosphere: 'paint-splash',
+          effect: 'drift',
+          text: 'The painting is by Hilma af Klint, a Swedish artist born in 1862. Between August and December 1907 she painted a series of huge works, made of ovals, circles and curling lines in bright colors. By the time she died in 1944, she had never shown any of her abstract paintings in an exhibition.',
+          sources: [TATE_AF_KLINT],
+        },
+        {
+          type: 'paragraph',
           section: 'lede',
           atmosphere: 'paint-splash',
           effect: 'rise-expand',
@@ -231,6 +322,10 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           decor: splash(SPLASH_TR, 'top-right'),
         },
         { type: 'paragraph', section: 'body', atmosphere: 'paint-splash', effect: 'line-by-line', text: "It began in 1978 as a local week-long celebration in Santa Rosa, California, inspiring similar observances across the U.S. In 1980, President Jimmy Carter declared the first official National Women's History Week, and by 1987, Congress expanded it to the entire month of March." },
+        { type: 'paragraph', section: 'added', atmosphere: 'paint-splash', effect: 'fade-in', text: "The Santa Rosa organizers chose the week of March 8 so that it would line up with International Women's Day.", sources: [NWHM_MONTH] },
+        { type: 'paragraph', section: 'added', atmosphere: 'blitz-letters', effect: 'typewriter', position: 'bottom-right', text: "Between 1988 and 1994, Congress asked the President to name March as Women's History Month each year. Since 1995, every president has done so with a proclamation of their own.", sources: [NWHM_MONTH] },
+        // Goes out of date each year: the theme is the National Women's History Alliance's, for 2026.
+        { type: 'paragraph', section: 'added', atmosphere: 'rose-garden', effect: 'breathe', position: 'top-right', text: "Each year the National Women's History Alliance chooses a theme for the month. The theme for 2026 is \"Leading the Change: Women Shaping a Sustainable Future.\"", sources: [NWHM_MONTH] },
         {
           type: 'paragraph',
           section: 'body',
@@ -240,11 +335,27 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         },
         { type: 'paragraph', section: 'body', atmosphere: 'running-stitch', effect: 'pan-lr', text: 'Their roles in households and communities offer invaluable insight into the way societies function, making it essential to recognize and celebrate their impact in shaping human history.' },
 
+        // Into the IWM link, and on to poster 2's Blitz.
+        { type: 'section-title', section: 'added', atmosphere: 'blackout', effect: 'split-reveal', text: WARTIME_TITLE },
+        {
+          type: 'paragraph',
+          section: 'added',
+          // In the garden's light, for the Land Army's farms (the blackout's taped window, and the seam, would crowd this much copy on a projector).
+          atmosphere: 'rose-garden',
+          effect: 'line-by-line',
+          position: 'top-left',
+          text: 'In the Second World War, British men aged 18 to 41 were needed in the navy and army, which took them away from their jobs. To fill the shortage, women were recruited for jobs previously done by men. Women worked in the factories, constructing weapons, and many others joined the Land Army to work on farms.',
+          sources: [TNA_HOME_FRONT],
+        },
+        { type: 'paragraph', section: 'added', atmosphere: 'blitz-letters', effect: 'blur-to-sharp', text: "The Imperial War Museum began collecting the story of women's war work in 1917, the same year the museum itself was founded. Volunteers gathered most of the Women's Work Collection between 1917 and 1920.", sources: [IWM_WOMENS_WORK_HISTORY] },
         { type: 'callout', section: 'link', atmosphere: 'paint-splash', effect: 'film-credits', text: "Explore the Women's Work Collection at the Imperial War Museum", url: IWM_WOMENS_WORK_URL },
+        // Where teachers can find more: the Library of Congress's site, with its partners.
+        { type: 'callout', section: 'link', atmosphere: 'paint-splash', effect: 'fade-in', text: "Explore Women's History Month resources from the Library of Congress, the National Archives, the National Park Service, the Smithsonian and other national museums together", url: WOMENS_HISTORY_MONTH_GOV_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
         '': 'Women’s lived experiences, and not only famous names, help us understand the past. Whose everyday story, in your family or your community, do you think deserves to be remembered, and why?',
+        [WARTIME_TITLE]: 'Many women in wartime did jobs that people had said only men could do. What jobs or roles do people still sometimes say are “for boys” or “for girls,” and what do you think about that?',
       },
     },
 
@@ -264,6 +375,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         motto: { className: 'wh-p2 wh-motto' },
         name: { className: 'wh-p2 wh-name' },
         bio: { className: 'wh-p2 wh-bio' },
+        added: { className: 'wh-p2 wh-bio wh-added' },
         contact: { className: 'wh-p2 wh-contact' },
         link: { className: 'wh-p2 wh-link' },
         end: { className: 'wh-p2' },
@@ -277,6 +389,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/womens-history/titles/working-womans.png',
           ...TITLE_SIZES.workingWomans,
           framing: 'centered',
+          live: { className: 'wh-live wh-live-working', lines: [{ text: 'WORK' }, { text: 'WO', className: 'wh-u' }, { text: 'MAN', className: 'wh-u' }, { text: "'S", className: 'wh-u' }] },
           alt: "Working Woman's",
         },
         {
@@ -284,7 +397,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           section: 'motto',
           atmosphere: 'blitz-letters',
           effect: 'fade-in',
-          text: 'BIOGRAPHY OF A WORKING CLASS WOMAN',
+          text: BIOGRAPHY_MOTTO,
           lines: ['BIOGRAPHY OF A', 'WORKING CLASS', 'WOMAN'],
         },
         // Her name is inked in with the pen, as the reveal does it (the theme's own entrance).
@@ -292,10 +405,10 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           type: 'title-text',
           section: 'name',
           atmosphere: 'blitz-letters',
-          text: 'Violet Dina Want',
-          lettering: { src: '/exhibitions/womens-history/violet-dina-want.png', width: 1530, height: 225 },
-          subtitle: 'née Knight',
-          note: 'Born January 27, 1907 | Died March 2, 1988',
+          text: VIOLET_NAME,
+          lettering: VIOLET_LETTERING,
+          subtitle: VIOLET_NEE,
+          note: VIOLET_DATES,
         },
 
         // Childhood
@@ -305,14 +418,14 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           atmosphere: 'blitz-letters',
           effect: 'kenburns-in',
           figure: PHOTO_VIOLET,
-          lead: 'VIOLET DINA WANT NÉE KNIGHT',
-          text: 'was born at the turn of the 20th century in Fulham, Hammersmith, London, into a large working-class family with three sisters and two brothers. As the second eldest daughter, she was expected to help both at home and financially from a young age. She took on a great deal of responsibility, caring for her younger sisters after school and as she aged, after work.',
+          lead: BIO_LEAD,
+          text: BIO.childhood,
         },
-        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'typewriter', text: 'Her father worked as a commissionaire (now known as a doorman) at a hotel, occasionally bringing home leftover food from the restaurant to help feed the family. Despite their modest circumstances, Violet excelled in school, earning certificates for attendance and religious studies every year. Her teachers saw great potential in her and encouraged her to pursue a teaching career—a well-respected and middle-class profession at the time.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'typewriter', text: BIO.father },
 
         // Work
-        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'line-by-line', text: "However, when one of her sisters was believed to be going blind and needed to attend a specialized school, Violet had to leave school at 14 to work and help support the family. She became a piecework machinist in a factory, where machinists get paid for each 'piece of work' they complete." },
-        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'rise-expand', text: 'During this time, she also learned gardening from her father, an essential source of food for many families. It was common if you had a garden, even in large cities like London, to grow vegetables and keep rabbits for "the pot". One of these rabbits became Violet\'s pet, often perching on her shoulder as she worked in the garden—until the day she came home to find it had been cooked for dinner.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'line-by-line', text: BIO.factory },
+        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'rise-expand', text: BIO.garden },
 
         // Marriage
         {
@@ -321,9 +434,9 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           atmosphere: 'blitz-letters',
           effect: 'pan-lr',
           figure: PHOTO_PROMENADE,
-          text: 'Violet was religious throughout her life and joined the Salvation Army, or "Sally Army," as an adult. In 1928, at the age of 21, she married Harold Henry Robert Want, saying she had chosen him because he made her laugh.',
+          text: BIO.faith,
         },
-        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'fade-in', text: 'Harold Want had previously been married but his wife died young and left him with an infant son. While Violet would have been happy to care for and raise this son, he was instead sent to live with an older, childless aunt—a common practice at the time.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'fade-in', text: BIO.harold },
 
         // Family
         {
@@ -332,40 +445,63 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           atmosphere: 'running-stitch',
           effect: 'shrink-back',
           figure: PHOTO_FAMILY,
-          text: 'Violet and Harold began their own family in 1929 with the birth of their eldest daughter, Edna, followed by Doris, in 1930. After a long gap, they had two sons in 1938 and 1942. Money was often tight—Harold worked as a barman and struggled with alcoholism—but Violet ensured her children were always warm and well-dressed.',
+          text: BIO.family,
         },
-        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'typewriter', text: 'A skilled seamstress from her years as a machinist, she could take apart adult coats, resize them, and reassemble them perfectly for her children. Her resourcefulness meant they were often better off than others in their community. For example, it was common for poor families to place their youngest child in a makeshift cot by pushing two wooden armchairs together and rolling the baby in a blanket fastened with safety pins.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'typewriter', text: BIO.seamstress },
 
         // Music
-        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'waves-drift', text: 'Music played a significant role in their home. Violet always owned a piano, which she could play by ear, and it became the centerpiece of lively "knees-up" parties with family and friends.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'waves-drift', text: BIO.music },
 
         // The war
-        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'line-by-line', text: "Before World War II, Violet's extended family lived in close-knit neighboring streets, but the heavy bombing during the Blitz destroyed their homes, scattering them across the South of England. When a V-1 'doodlebug' bomb, a bomb designed by the Nazis to terrorize the British civilian population and lower morale, exploded nearby, it shattered all the windows in Violet's home and collapsed her mother's house, killing her instantly along with a family dog." },
-        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'fade-in', text: 'Her mother was identified only by the rings on her finger. The blast also maimed a family puppy, which had to be put down, and left Violet with spinal rheumatism, making breathing painful—though she eventually recovered.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'line-by-line', text: BIO.blitz },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'fade-in', text: BIO.blast },
 
         // After the war
-        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'blur-to-sharp', text: 'After the war, she was offered a home on a new council estate in Essex. It was a corner house with a large garden, where she cultivated beautiful flowers like begonias, chrysanthemums, and ice plants, along with vegetables such as string beans and peas. However, her favorite flowers were roses, which she planted at the bottom of the garden.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'blur-to-sharp', text: BIO.essex },
 
         // Later life
-        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'typewriter', text: 'By the time her grandchildren knew her, Violet worked at the local greengrocer, passing on her knowledge about selecting the best produce—such as choosing cauliflowers with their inner leaves still curled over to keep the curds white. She also had a particular fondness for young turnips, eating them like apples.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'typewriter', text: BIO.greengrocer },
         {
           type: 'full-image',
           section: 'contact',
           atmosphere: 'parlour-piano',
           effect: 'kenburns-in',
-          src: '/exhibitions/womens-history/photo-four-women.jpg',
-          alt: 'A black-and-white photograph of four women standing close together in front of a net-curtained window, two of them in white dresses',
+          src: PHOTO_FOUR_WOMEN.src,
+          alt: PHOTO_FOUR_WOMEN.alt,
         },
-        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'drift', text: 'Widowed in 1956, Violet remained strong and resilient. She continued to garden, even when rheumatoid arthritis made it difficult, and enjoyed sitting outside with her beloved dog, Shona. Music remained a constant in her life; she always kept a piano in her home and, in her seventies, developed a love for Strauss waltzes, which she listened to on the radio. She also had a surprising penchant for wrestling, tuning in every Saturday, and knew Tiny Carr personally, a famous referee of the time.' },
+        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'drift', text: BIO.later },
 
         // Legacy
-        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'ink-spread', className: 'wh-legacy', text: "Violet Want's life is a testament to resilience, humor, and hard work. As a family matriarch, her story offers a rich snapshot of working-class life in England, spanning the Edwardian era, two world wars, and the societal shifts of the 1970s and 80s. The personal histories of women like her help us understand the past—not just in grand historical events, but through the everyday sacrifices and triumphs of ordinary people who shaped the world we live in today." },
+        { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'ink-spread', className: 'wh-legacy', text: BIO.legacy },
+
+        // Your own women's history: the owner's close, into the Talk About It room.
+        { type: 'section-title', section: 'added', atmosphere: 'rose-garden', effect: 'rise-expand', text: OWN_HISTORY_TITLE },
+        {
+          type: 'paragraph',
+          section: 'added',
+          atmosphere: 'rose-garden',
+          effect: 'drift',
+          position: 'top-left',
+          text: "Violet's story is one family's memory, written down so it would not be lost. Every family and every neighborhood has women whose stories are worth keeping: a grandmother, a great-aunt, a mother, a neighbor who is like family. What work did they do? What did they make, grow, cook, mend or sing? What did they live through, and what did they pass on to you?",
+        },
+        {
+          type: 'paragraph',
+          section: 'added',
+          atmosphere: 'parlour-piano',
+          effect: 'blur-to-sharp',
+          position: 'bottom-right',
+          text: "The Smithsonian's guide to collecting oral history puts it simply: \"everybody has a story to tell.\" Its writers hope it will inspire you \"to turn to members of your own family and community as key sources of history, culture, and tradition.\"",
+          sources: [SMITHSONIAN_ORAL_HISTORY],
+        },
+        { type: 'paragraph', section: 'added', atmosphere: 'blitz-letters', effect: 'line-by-line', text: 'Ask. Listen. Write it down. Then step into *Talk About It* for questions to start with.' },
+        { type: 'link', section: 'added', atmosphere: 'blitz-letters', effect: 'fade-in', text: 'Step into Talk About It', url: TALK_ABOUT_IT_HREF },
 
         { type: 'callout', section: 'link', atmosphere: 'blitz-letters', effect: 'film-credits', text: 'Explore objects and stories at the London Museum', url: LONDON_MUSEUM_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
         '': 'Violet’s story is one ordinary life, told through its everyday details. What can one person’s life tell us about the past that a history book might leave out?',
+        [OWN_HISTORY_TITLE]: 'Think of a woman in your family or community. What is one thing she knows how to do that you would like to learn from her before it is forgotten?',
       },
     },
   ],

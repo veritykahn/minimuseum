@@ -35,17 +35,20 @@ a:link, a:visited, a:hover, a:active {
   height: 6px;
 }
 
+/* The track takes each page's own ground, so no grey band runs down the side
+   of a colored exhibition; the thumb is a translucent gray that reads on
+   light and dark pages alike. */
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
+  background: rgba(128, 128, 128, 0.45);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgba(128, 128, 128, 0.7);
 }
 
 /* Accessibility: Focus styles */

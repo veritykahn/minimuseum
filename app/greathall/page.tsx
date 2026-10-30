@@ -1,22 +1,42 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { focusElement } from '@/lib/a11y/focus';
-import { type Floor, GROUND_FLOOR, FIRST_FLOOR } from '@/lib/floors';
+import { type Floor, type StudioFloor, ALL_FLOORS, GREAT_HALL_FLOORS_ID } from '@/lib/floors';
 
-const COUNT_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight'];
+const COUNT_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
 
-/** "Four Exhibitions": how many of a floor's exhibitions are open. */
-function openCount(floor: Floor): string {
-  const n = floor.exhibitions.filter((e) => e.active).length;
-  return `${COUNT_WORDS[n] ?? n} Exhibition${n === 1 ? '' : 's'}`;
+/** "Four Exhibitions": how many of a floor's exhibitions are open; on the Studio, how many tools. */
+function openCount(floor: Floor | StudioFloor): string {
+  const [n, noun] = 'tools' in floor ? [floor.tools.length, 'Tool'] : [floor.exhibitions.filter((e) => e.active).length, 'Exhibition'];
+  return `${COUNT_WORDS[n] ?? n} ${noun}${n === 1 ? '' : 's'}`;
 }
+
+/** The floors as the stairs climb them: the top floor first. */
+const FLOORS_TOP_FIRST = [...ALL_FLOORS].reverse();
 
 export default function GreatHall() {
   const [showExplore, setShowExplore] = useState(true);
+  // Back from a floor (/greathall#floors): straight to the stairs, as the
+  // visitor left them, with no entrance and nothing fading in again.
+  const [atStairs, setAtStairs] = useState(false);
   const floorsRef = useRef<HTMLDivElement>(null);
+
+  // Before the first paint, so the entrance never shows. The page's smooth
+  // scrolling is set aside for the jump, then put back.
+  useLayoutEffect(() => {
+    if (window.location.hash !== `#${GREAT_HALL_FLOORS_ID}` || !floorsRef.current) return;
+    const html = document.documentElement;
+    html.style.scrollBehavior = 'auto';
+    window.scrollTo(0, floorsRef.current.offsetTop);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the address is only known in the browser
+    setAtStairs(true);
+    setShowExplore(false);
+    const restore = requestAnimationFrame(() => html.style.removeProperty('scroll-behavior'));
+    return () => cancelAnimationFrame(restore);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -33,7 +53,7 @@ export default function GreatHall() {
   };
 
   return (
-    <div className="great-hall-container">
+    <div className={`great-hall-container${atStairs ? ' at-stairs' : ''}`}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
 
@@ -101,6 +121,12 @@ export default function GreatHall() {
         .delay-4 { animation-delay: 0.8s; opacity: 0; }
         .delay-5 { animation-delay: 1s; opacity: 0; }
         .delay-6 { animation-delay: 1.2s; opacity: 0; }
+
+        /* Back from a floor: everything already in place */
+        .at-stairs .fade-in, .at-stairs .fade-in-up {
+          animation: none;
+          opacity: 1;
+        }
 
         .great-hall-container {
           background: #0a0a0a;
@@ -343,6 +369,18 @@ export default function GreatHall() {
           transition: all 0.4s ease;
         }
 
+        /* Studio - warm brass background on hover */
+        .floor-row.third-floor:hover .floor-card, .floor-row.third-floor:focus-visible .floor-card {
+          border-color: #a8794a;
+          background: rgba(224, 164, 88, 0.1);
+        }
+
+        /* Second floor - slate blue background on hover */
+        .floor-row.second-floor:hover .floor-card, .floor-row.second-floor:focus-visible .floor-card {
+          border-color: #6b7a8f;
+          background: rgba(147, 163, 184, 0.12);
+        }
+
         /* First floor - lighter green background on hover */
         .floor-row.first-floor:hover .floor-card, .floor-row.first-floor:focus-visible .floor-card {
           border-color: #7D8471;
@@ -452,6 +490,16 @@ export default function GreatHall() {
           transition: color 0.3s ease;
         }
 
+        /* Studio - brass on hover */
+        .floor-row.third-floor:hover .floor-letter {
+          color: #f0c99a;
+        }
+
+        /* Second floor - slate blue on hover */
+        .floor-row.second-floor:hover .floor-letter {
+          color: #c3cede;
+        }
+
         /* First floor - lighter green on hover */
         .floor-row.first-floor:hover .floor-letter {
           color: #c8d4bc;
@@ -559,45 +607,28 @@ export default function GreatHall() {
       </section>
 
       {/* Floors Section */}
-      <section ref={floorsRef} className="floors-section" aria-label="Select a Floor">
+      <section ref={floorsRef} id={GREAT_HALL_FLOORS_ID} className="floors-section" aria-label="Select a Floor">
         <p className="floors-title fade-in delay-6">Select a Floor</p>
 
         <div className="floors-container">
-          {/* First Floor - Horizons */}
-          <Link href="/exhibitions/first-floor" className="floor-row first-floor">
-            <div className="floor-card">
-              <div className="floor-text">
-                <h2 className="floor-name">Horizons</h2>
-                <p className="floor-subtitle">The 20th century and the mind</p>
-                <div className="floor-status floor-status-open">
-                  <span className="status-dot" aria-hidden="true"></span>
-                  <span>Now Open · {openCount(FIRST_FLOOR)}</span>
+          {FLOORS_TOP_FIRST.map((floor) => (
+            <Link key={floor.path} href={floor.path} className={`floor-row ${floor.path.split('/').pop()}`}>
+              <div className="floor-card">
+                <div className="floor-text">
+                  <h2 className="floor-name">{floor.title}</h2>
+                  <p className="floor-subtitle">{floor.theme}</p>
+                  <div className="floor-status floor-status-open">
+                    <span className="status-dot" aria-hidden="true"></span>
+                    <span>Now Open · {openCount(floor)}</span>
+                  </div>
+                </div>
+                <div className="floor-indicator">
+                  <Image src="/stairs.png" alt="" width={80} height={80} className="stairs-icon" aria-hidden="true" />
+                  <span className="floor-letter">{floor.marker}</span>
                 </div>
               </div>
-              <div className="floor-indicator">
-                <Image src="/stairs.png" alt="" width={80} height={80} className="stairs-icon" aria-hidden="true" />
-                <span className="floor-letter">1</span>
-              </div>
-            </div>
-          </Link>
-
-          {/* Ground Floor - Origins */}
-          <Link href="/exhibitions/ground-floor" className="floor-row ground-floor">
-            <div className="floor-card">
-              <div className="floor-text">
-                <h2 className="floor-name">Origins</h2>
-                <p className="floor-subtitle">The deep past to 1900</p>
-                <div className="floor-status floor-status-open">
-                  <span className="status-dot" aria-hidden="true"></span>
-                  <span>Now Open · {openCount(GROUND_FLOOR)}</span>
-                </div>
-              </div>
-              <div className="floor-indicator">
-                <Image src="/stairs.png" alt="" width={80} height={80} className="stairs-icon" aria-hidden="true" />
-                <span className="floor-letter">G</span>
-              </div>
-            </div>
-          </Link>
+            </Link>
+          ))}
         </div>
       </section>
 

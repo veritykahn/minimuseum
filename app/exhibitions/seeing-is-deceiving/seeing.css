@@ -1,0 +1,262 @@
+/* ==========================================================================
+   Seeing is Deceiving: the walkthrough's atmospheres (posters.ts,
+   SEEING_ATMOSPHERES). Each is drawn by AtmosphereLayer behind the panel and
+   carries on while consecutive panels share it. They grew out of the
+   sections' original grounds (the stereoscope's floating frames and orbs,
+   the colour wash, the drifting discs, the spirit photographs' static),
+   which were drawn panel by panel and are now drawn once, behind them. The
+   old film's scratches and flicker stay on their panels, as built.
+
+   Poster 1 is pale grey with charcoal type, poster 2 black with blue type;
+   the page marks poster 1's walkthrough .sid-light, and each atmosphere is
+   drawn to suit the ground it stands on. Under prefers-reduced-motion the
+   engine stills every layer (poster-exhibition.css).
+   ========================================================================== */
+
+/* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css): the posters' black and white, in Outfit. */
+.sid-root {
+  --pe-ticket-bg: #f2f2ef;
+  --pe-ticket-ink: #111111;
+  --pe-ticket-font: 'Outfit', sans-serif;
+  --pe-ticket-size: clamp(1rem, 2.1vw, 1.5rem);
+}
+.sid-root.sid-light {
+  --pe-ticket-bg: #1a1a1a;
+  --pe-ticket-ink: #f2f2ef;
+}
+
+/* ───────── projected-light: a lantern's or projector's light in the dark ───────── */
+.pe-atmo-projected-light .pe-atmo-part-1 {
+  /* the beam, from the lens in the corner */
+  left: -10vw;
+  top: -10vh;
+  width: 130vw;
+  height: 130vh;
+  background: conic-gradient(from 112deg at 0% 0%, transparent 0deg, rgba(255, 238, 205, 0.09) 8deg, rgba(255, 238, 205, 0.12) 22deg, rgba(255, 238, 205, 0.08) 34deg, transparent 42deg);
+  animation: sidAtmoFlicker 0.18s steps(2, end) infinite;
+}
+.pe-atmo-projected-light .pe-atmo-part-2 {
+  /* the picture on the wall, a pale frame of light */
+  left: 50%;
+  top: 50%;
+  width: min(74vw, 980px);
+  aspect-ratio: 4 / 3;
+  max-height: 78vh;
+  translate: -50% -50%;
+  border-radius: 4px;
+  background: radial-gradient(ellipse at center, rgba(255, 240, 210, 0.07), rgba(255, 240, 210, 0.02) 70%);
+  box-shadow: 0 0 0 1px rgba(255, 240, 210, 0.06);
+  animation: sidAtmoFlicker 0.24s steps(2, end) infinite reverse;
+}
+.pe-atmo-projected-light .pe-atmo-part-3 {
+  /* the dark of the room closing in */
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.45) 100%);
+}
+.pe-atmo-projected-light .pe-atmo-p {
+  /* dust turning in the beam */
+  left: calc(4vw + var(--x) * 0.5vw);
+  top: calc(4vh + var(--y) * 0.5vh);
+  width: calc(1px + var(--r) * 2px);
+  height: calc(1px + var(--r) * 2px);
+  border-radius: 50%;
+  background: rgba(255, 240, 210, 0.7);
+  opacity: 0;
+  animation: sidAtmoMote calc(6s + var(--r) * 6s) ease-in-out infinite;
+  animation-delay: calc(var(--i) * -0.8s);
+}
+.sid-light .pe-atmo-projected-light .pe-atmo-part-1 {
+  background: conic-gradient(from 112deg at 0% 0%, transparent 0deg, rgba(255, 255, 255, 0.4) 8deg, rgba(255, 255, 255, 0.55) 22deg, rgba(255, 255, 255, 0.35) 34deg, transparent 42deg);
+}
+.sid-light .pe-atmo-projected-light .pe-atmo-part-2 { background: rgba(255, 255, 255, 0.18); box-shadow: 0 0 0 1px rgba(42, 42, 42, 0.07); }
+.sid-light .pe-atmo-projected-light .pe-atmo-part-3 { background: radial-gradient(ellipse at center, transparent 55%, rgba(42, 36, 30, 0.13) 100%); }
+.sid-light .pe-atmo-projected-light .pe-atmo-p { background: rgba(60, 50, 40, 0.4); }
+@keyframes sidAtmoFlicker { 0% { opacity: 1; } 50% { opacity: 0.88; } }
+@keyframes sidAtmoMote {
+  0%, 100% { opacity: 0; transform: translate(0, 0); }
+  30%, 70% { opacity: 0.8; }
+  50% { transform: translate(calc(var(--r) * 40px - 20px), 24px); }
+}
+
+/* ───────── stereo-depth: two views drifting together into one ───────── */
+.pe-atmo-stereo-depth :is(.pe-atmo-part-1, .pe-atmo-part-2) {
+  /* the stereoview's pair of pictures, one for each eye, merging */
+  top: 50%;
+  width: min(34vw, 460px);
+  aspect-ratio: 1;
+  margin-top: calc(min(34vw, 460px) / -2);
+  border-radius: 46% 46% 8px 8px;
+  border: 2px solid rgba(214, 64, 64, 0.22);
+  animation: sidAtmoMergeL 6s ease-in-out infinite alternate;
+}
+.pe-atmo-stereo-depth .pe-atmo-part-1 { left: calc(50% - min(34vw, 460px) / 2 - 4vw); }
+.pe-atmo-stereo-depth .pe-atmo-part-2 {
+  left: calc(50% - min(34vw, 460px) / 2 + 4vw);
+  border-color: rgba(40, 150, 176, 0.26);
+  animation-name: sidAtmoMergeR;
+}
+.pe-atmo-stereo-depth :is(.pe-atmo-part-3, .pe-atmo-part-4) {
+  /* the floating frames of the original ground, one behind the other */
+  border: 2px solid rgba(80, 150, 176, 0.2);
+  border-radius: 20px;
+  animation: sidAtmoFloat 4s ease-in-out infinite;
+}
+.pe-atmo-stereo-depth .pe-atmo-part-3 { inset: 20% 10%; }
+.pe-atmo-stereo-depth .pe-atmo-part-4 { inset: 15% 5%; border-width: 1px; border-radius: 30px; animation-direction: reverse; animation-delay: -2s; }
+.pe-atmo-stereo-depth .pe-atmo-part-5 {
+  /* the orbs, at different depths */
+  inset: 0;
+  background:
+    radial-gradient(circle at 15% 22%, rgba(120, 180, 204, 0.28), transparent 5vw),
+    radial-gradient(circle at 85% 72%, rgba(120, 180, 204, 0.22), transparent 3.4vw),
+    radial-gradient(circle at 74% 40%, rgba(120, 180, 204, 0.24), transparent 2.2vw);
+  animation: sidAtmoOrbs 6s ease-in-out infinite;
+}
+@keyframes sidAtmoMergeL { from { transform: translateX(-2vw); } to { transform: translateX(4vw); } }
+@keyframes sidAtmoMergeR { from { transform: translateX(2vw); } to { transform: translateX(-4vw); } }
+@keyframes sidAtmoFloat { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.02); opacity: 1; } }
+@keyframes sidAtmoOrbs {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(10px, -15px) scale(1.04); }
+  50% { transform: translate(5px, 10px) scale(0.98); }
+  75% { transform: translate(-10px, -5px) scale(1.02); }
+}
+
+/* ───────── checker-shadow: a board under a cast shadow ───────── */
+.pe-atmo-checker-shadow .pe-atmo-part-1 {
+  /* the checkerboard, laid away from you */
+  left: -20vw;
+  right: -20vw;
+  bottom: -14vh;
+  height: 62vh;
+  background: repeating-conic-gradient(rgba(42, 42, 42, 0.1) 0 25%, rgba(255, 255, 255, 0.22) 0 50%) 0 0 / 14vh 14vh;
+  transform: perspective(70vh) rotateX(52deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, #000 30%, transparent);
+  mask-image: linear-gradient(to top, #000 30%, transparent);
+}
+.pe-atmo-checker-shadow .pe-atmo-part-2 {
+  /* the shadow of the cylinder falling across it, shifting as the light moves */
+  right: 8vw;
+  bottom: 0;
+  width: 46vw;
+  height: 46vh;
+  background: radial-gradient(ellipse 50% 60% at 60% 80%, rgba(20, 20, 30, 0.2), transparent 70%);
+  transform: skewX(-24deg);
+  animation: sidAtmoShadow 9s ease-in-out infinite alternate;
+}
+.pe-atmo-checker-shadow .pe-atmo-part-3 {
+  /* the colour wash of the original ground, turning */
+  inset: -50%;
+  background: conic-gradient(from 0deg at 50% 50%, rgba(255, 100, 100, 0.09), rgba(255, 255, 100, 0.09) 60deg, rgba(100, 255, 100, 0.09) 120deg, rgba(100, 255, 255, 0.09) 180deg, rgba(100, 100, 255, 0.09) 240deg, rgba(255, 100, 255, 0.09) 300deg, rgba(255, 100, 100, 0.09) 360deg);
+  animation: sidAtmoTurn 20s linear infinite;
+}
+@keyframes sidAtmoShadow { from { transform: skewX(-24deg) translateX(-3vw); opacity: 0.8; } to { transform: skewX(-18deg) translateX(3vw); opacity: 1; } }
+@keyframes sidAtmoTurn { to { transform: rotate(360deg); } }
+
+/* ───────── rotating-snakes: discs that seem to turn ───────── */
+.pe-atmo-rotating-snakes .pe-atmo-part-1,
+.pe-atmo-rotating-snakes .pe-atmo-part-2,
+.pe-atmo-rotating-snakes .pe-atmo-part-3,
+.pe-atmo-rotating-snakes .pe-atmo-part-4 {
+  /* Kitaoka's snakes: black, blue, white and yellow steps round a disc */
+  width: 30vmin;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #e0dede 0 16%, transparent 16.5%),
+    repeating-conic-gradient(rgba(20, 20, 20, 0.16) 0 8deg, rgba(40, 90, 180, 0.16) 8deg 16deg, rgba(255, 255, 255, 0.3) 16deg 24deg, rgba(230, 196, 40, 0.18) 24deg 32deg);
+  -webkit-mask-image: radial-gradient(circle, #000 60%, transparent 71%);
+  mask-image: radial-gradient(circle, #000 60%, transparent 71%);
+  animation: sidAtmoTurn 40s linear infinite;
+}
+.pe-atmo-rotating-snakes .pe-atmo-part-1 { top: 6vh; left: -8vmin; }
+.pe-atmo-rotating-snakes .pe-atmo-part-2 { bottom: 10vh; right: -8vmin; animation-direction: reverse; }
+.pe-atmo-rotating-snakes .pe-atmo-part-3 { top: 4vh; right: 14vw; width: 16vmin; animation-duration: 28s; }
+.pe-atmo-rotating-snakes .pe-atmo-part-4 { bottom: 6vh; left: 16vw; width: 20vmin; animation-duration: 34s; animation-direction: reverse; }
+/* On the classroom screen the copy is set larger: the discs keep to the edges, clear of it. */
+.pjp-stage .pe-atmo-rotating-snakes :is(.pe-atmo-part-1, .pe-atmo-part-2) { width: 20vmin; }
+.pjp-stage .pe-atmo-rotating-snakes .pe-atmo-part-3 { width: 11vmin; }
+.pjp-stage .pe-atmo-rotating-snakes .pe-atmo-part-4 { width: 13vmin; }
+
+/* ───────── spirit-static: grain, and a figure that is not there ───────── */
+.pe-atmo-spirit-static .pe-atmo-part-1 {
+  /* the plate's grain, as the original ground's static */
+  inset: -50%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.14;
+  animation: sidAtmoNoise 0.2s steps(10) infinite;
+}
+.pe-atmo-spirit-static .pe-atmo-part-2 {
+  /* the "spirit": a second exposure, a figure in pale cloth beside the sitter */
+  right: 9vw;
+  bottom: 0;
+  width: clamp(160px, 20vw, 300px);
+  height: 70vh;
+  background:
+    radial-gradient(ellipse 22% 13% at 50% 14%, rgba(230, 236, 240, 0.26), transparent 70%),
+    radial-gradient(ellipse 46% 60% at 50% 64%, rgba(230, 236, 240, 0.2), transparent 70%);
+  filter: blur(10px);
+  opacity: 0;
+  animation: sidAtmoGhost 11s ease-in-out infinite;
+}
+.pe-atmo-spirit-static .pe-atmo-part-3 {
+  /* the albumen print's warm, browned edges */
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(70, 48, 26, 0.35) 100%);
+}
+@keyframes sidAtmoNoise { to { background-position: 100% 100%; } }
+@keyframes sidAtmoGhost {
+  0%, 100% { opacity: 0; transform: translateY(8px); }
+  35%, 65% { opacity: 1; transform: translateY(0); }
+}
+
+/* ───────── deepfake-glitch: scan lines, and a face being tracked ───────── */
+.pe-atmo-deepfake-glitch .pe-atmo-part-1 {
+  inset: 0;
+  background: repeating-linear-gradient(to bottom, rgba(168, 213, 229, 0.05) 0 1px, transparent 1px 4px);
+}
+.pe-atmo-deepfake-glitch .pe-atmo-part-2,
+.pe-atmo-deepfake-glitch .pe-atmo-part-3 {
+  /* slices of the picture slipping out of their channels */
+  left: 0;
+  right: 0;
+  height: 6vh;
+  background: linear-gradient(90deg, transparent 10%, rgba(255, 0, 64, 0.12) 30%, transparent 46%, rgba(0, 255, 255, 0.12) 62%, transparent 85%);
+  opacity: 0;
+  animation: sidAtmoSlice 4s steps(1, end) infinite;
+}
+.pe-atmo-deepfake-glitch .pe-atmo-part-2 { top: 28vh; }
+.pe-atmo-deepfake-glitch .pe-atmo-part-3 { top: 64vh; height: 3vh; animation-delay: -2.3s; }
+.pe-atmo-deepfake-glitch .pe-atmo-part-4 {
+  /* a face-tracking box, locking on and moving on */
+  width: clamp(110px, 14vw, 200px);
+  aspect-ratio: 1;
+  --c: rgba(168, 213, 229, 0.45);
+  background:
+    linear-gradient(var(--c), var(--c)) 0 0 / 22% 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 0 / 2px 22% no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 22% 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 0 / 2px 22% no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 100% / 22% 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) 0 100% / 2px 22% no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 22% 2px no-repeat,
+    linear-gradient(var(--c), var(--c)) 100% 100% / 2px 22% no-repeat;
+  left: 72vw;
+  top: 14vh;
+  animation: sidAtmoTrack 12s cubic-bezier(0.7, 0, 0.2, 1) infinite;
+}
+@keyframes sidAtmoSlice {
+  0%, 100% { opacity: 0; transform: translateX(0); }
+  8% { opacity: 1; transform: translateX(-14px); }
+  10% { opacity: 1; transform: translateX(10px); }
+  12% { opacity: 0; transform: translateX(0); }
+  56% { opacity: 1; transform: translateX(8px); }
+  58% { opacity: 0; }
+}
+@keyframes sidAtmoTrack {
+  0%, 22% { transform: translate(0, 0); }
+  30%, 52% { transform: translate(-58vw, 52vh); }
+  60%, 82% { transform: translate(-30vw, 10vh) scale(0.8); }
+  90%, 100% { transform: translate(0, 0); }
+}

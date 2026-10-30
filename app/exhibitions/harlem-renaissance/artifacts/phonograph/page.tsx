@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { ModelErrorBoundary } from '@/components/exhibition/ModelFallback';
 
 const HrArtifactViewer = dynamic(
   () => import('../hr-artifact-viewer'),
@@ -32,5 +33,9 @@ const HrArtifactViewer = dynamic(
 );
 
 export default function PhonographPage() {
-  return <HrArtifactViewer artifactId="phonograph" />;
+  return (
+    <ModelErrorBoundary id="phonograph">
+      <HrArtifactViewer artifactId="phonograph" />
+    </ModelErrorBoundary>
+  );
 }

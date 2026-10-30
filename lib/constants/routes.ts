@@ -12,6 +12,8 @@ export const ROUTES = {
 
   // Exhibitions
   EXHIBITIONS: '/exhibitions',
+  THIRD_FLOOR: '/exhibitions/third-floor',
+  SECOND_FLOOR: '/exhibitions/second-floor',
   FIRST_FLOOR: '/exhibitions/first-floor',
   GROUND_FLOOR: '/exhibitions/ground-floor',
 

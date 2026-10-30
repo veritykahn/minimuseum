@@ -1,0 +1,34 @@
+'use client';
+
+import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+
+/*
+ * A printed sheet for an Egypt room: while `printing`, the sheet is set in a
+ * portal at the foot of the page (rooms.css shows only it on paper), the
+ * printer is called once the fonts are in, and `onDone` clears it when the
+ * printer is finished.
+ */
+export default function PrintSheet({ printing, onDone, children }: { printing: boolean; onDone: () => void; children: ReactNode }) {
+  useEffect(() => {
+    if (!printing) return;
+    let cancelled = false;
+    window.addEventListener('afterprint', onDone);
+    (async () => {
+      await document.fonts?.ready;
+      if (!cancelled) window.print();
+    })();
+    return () => {
+      cancelled = true;
+      window.removeEventListener('afterprint', onDone);
+    };
+  }, [printing, onDone]);
+
+  if (!printing) return null;
+  return createPortal(
+    <div className="egr-print-root" aria-hidden="true">
+      {children}
+    </div>,
+    document.body,
+  );
+}

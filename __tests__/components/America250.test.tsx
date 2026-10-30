@@ -1,8 +1,11 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { posterChapters } from '@/components/projector/posterTalk';
+import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
+import America250Case from '@/app/exhibitions/america-250/artifacts/case/page';
 import {
   AMERICA_250,
+  AMERICA_250_CASE,
   LEUTZE_CREDIT,
   LEUTZE_SOURCE,
   NARA_DECLARATION_URL,
@@ -10,19 +13,21 @@ import {
   TRUMBULL_CREDIT,
   TRUMBULL_SOURCE,
 } from '@/app/exhibitions/america-250/america250';
+import { isAddedPanel } from '@/components/exhibition/helpers';
 import { floorReturnFor } from '@/lib/floors';
 
 /*
  * America 250: its config, the poster copy against the transcription (with
  * only the owner's seven approved fixes), the paintings' credits, and the
- * walkthrough with its press reveal.
+ * walkthrough with its press reveal, and the display case page.
  */
 
 const poster = (id: string) => AMERICA_250.posters.find((p) => p.id === id)!;
 const allItems = AMERICA_250.posters.flatMap((p) => p.items);
 /** The copy as read: "*…*" marks italics and is not part of the words. */
 const plain = (t: string) => t.replace(/\*/g, '');
-const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' ? [plain(it.text)] : []));
+/** The printed copy: every paragraph but the museum's added notes (those carry their sources). */
+const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' && !isAddedPanel(it) ? [plain(it.text)] : []));
 const quotes = (id: string) => poster(id).items.flatMap((it) => (it.type === 'quote' ? [{ text: it.text, cite: it.cite }] : []));
 const allText = allItems.map((it) => ('text' in it && it.text ? plain(it.text) : '')).join('\n');
 const tick = (ms = 400) => act(() => { jest.advanceTimersByTime(ms); });
@@ -72,7 +77,7 @@ function approved2() {
 }
 
 describe('America 250', () => {
-  it('has two posters, each opening on its title and ending with Return to Exhibition, and no display case', () => {
+  it('has two posters, each opening on its title and ending with Return to Exhibition, one display case, and the signing room', () => {
     expect(AMERICA_250.slug).toBe('america-250');
     expect(AMERICA_250.name).toBe('America 250');
     expect(AMERICA_250.subtitle).toBe('The Declaration of Independence at 250');
@@ -82,8 +87,8 @@ describe('America 250', () => {
       expect(p.items[0].type).toBe('title-image');
       expect(p.items[p.items.length - 1].type).toBe('end');
     }
-    expect(AMERICA_250.cases).toBeUndefined();
-    expect(AMERICA_250.interactives).toBeUndefined();
+    expect(AMERICA_250.cases?.map((c) => [c.href, c.label, c.title])).toEqual([['/exhibitions/america-250/artifacts/case', 'Display Case', 'Artifacts']]);
+    expect(AMERICA_250.interactives?.map((c) => c.href)).toEqual(['/exhibitions/america-250/sign']);
     expect(AMERICA_250.fx.theme).toBe('ap');
   });
 
@@ -113,7 +118,7 @@ describe('America 250', () => {
   it('opens each chapter with the section titles the posters set', () => {
     const titles = (id: string) => poster(id).items.flatMap((it) => (it.type === 'section-title' ? [it.text] : []));
     expect(titles('poster1')).toEqual(['The Wrong Date', 'The Wrong Document', 'The Wrong Author', 'The Wrong Significance']);
-    expect(titles('poster2')).toEqual(['The War That Nearly Was Not Won', 'What Signing Actually Meant', 'The Catholic Who Refused To Be Anonymous', 'The Long Wager']);
+    expect(titles('poster2')).toEqual(['The War That Nearly Was Not Won', 'What Signing Actually Meant', 'The Signer Who Refused To Be Anonymous', 'The Long Wager']);
   });
 
   it('sets the pull quotes and the epigraph as quotes, with the approved credits', () => {
@@ -158,7 +163,7 @@ describe('America 250', () => {
   });
 
   it('splits paragraphs only between sentences', () => {
-    for (const it of allItems) if (it.type === 'paragraph') expect(plain(it.text)).toMatch(/[.!?]"?$/);
+    for (const it of allItems) if (it.type === 'paragraph') expect(plain(it.text)).toMatch(/[.!?]["”]?$/);
   });
 
   it('uses US spellings', () => {
@@ -210,10 +215,11 @@ describe('America 250', () => {
     });
     afterEach(() => jest.useRealTimers());
 
-    it('has no display case on the landing page', () => {
+    it('sets the display case on the landing page, and the signing room inside it', () => {
       render(<PosterExhibition config={AMERICA_250} />);
       expect(screen.getByRole('heading', { level: 1, name: 'America 250' })).toBeInTheDocument();
-      expect(screen.queryByRole('link', { name: /display case/i })).not.toBeInTheDocument();
+      expect(screen.getByRole('link', { name: /display case/i })).toHaveAttribute('href', '/exhibitions/america-250/artifacts/case');
+      expect(document.querySelector('a[href="/exhibitions/america-250/sign"]')).toBeNull();
       expect(screen.getByRole('link', { name: 'Ground Floor' })).toHaveAttribute('href', '/exhibitions/ground-floor');
     });
 
@@ -268,5 +274,111 @@ describe('America 250', () => {
       expect(content().querySelector('.pe-quote-cite')).toHaveTextContent('— Verity Kahn, The Myth of the Declaration of Independence');
       expect(content().querySelector('.pe-quote-cite em')).toHaveTextContent('The Myth of the Declaration of Independence');
     });
+  });
+});
+
+describe('The America 250 display case page', () => {
+  it('keeps the record, with a card for each artifact, beside an empty case awaiting its photographs', () => {
+    render(<America250Case />);
+    expect(screen.getByRole('heading', { level: 1, name: 'America 250' })).toBeInTheDocument();
+    // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    expect(recordLines(AMERICA_250_CASE).map(plainText)).toEqual([
+      'Hand-forged Valley Forge iron bolt',
+      "18th-century gun wad Bible leaf from Christoph Saur II's Germantown Bible",
+      "Original editions of The London Evening Post (carrying Howe's Declaration) and The London Chronicle",
+      'Flat jersey shadow boxes with velvet risers, black mat LED lip lighting, and tethered magnifiers',
+    ]);
+    const cards = screen.getAllByRole('link', { name: /View artifact/ });
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual(AMERICA_250_CASE.artifacts.map((a) => artifactPath({ slug: AMERICA_250.slug }, a)));
+    // The two newspapers share the record's line, and each is a card.
+    expect(cards.slice(2).map((c) => c.querySelector('.pe-artifact-card-name em')?.textContent)).toEqual(['The London Evening Post', 'The London Chronicle']);
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(AMERICA_250_CASE.photos).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify(AMERICA_250_CASE)).not.toMatch(/installation|\.jpg/);
+    // The signing room opens from the case, under its Interactives tab.
+    fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
+    expect(screen.getByRole('link', { name: /Put Your Name to It/ })).toHaveAttribute('href', '/exhibitions/america-250/sign');
+    expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/america-250');
+  });
+});
+
+describe('Many Faiths, One Declaration (owner-approved museum note, B9.3)', () => {
+  const items = poster('poster2').items;
+  const notes = items.flatMap((it, i) => (it.type === 'paragraph' && isAddedPanel(it) ? [{ it, i }] : []));
+
+  it('follows the Carroll chapter, in its own section and never as poster copy, before The Long Wager', () => {
+    const carroll = items.findIndex((it) => it.type === 'section-title' && it.text === 'The Signer Who Refused To Be Anonymous');
+    const wager = items.findIndex((it) => it.type === 'section-title' && it.text === 'The Long Wager');
+    expect(notes.length).toBeGreaterThan(0);
+    for (const { it, i } of notes) {
+      expect(i > carroll && i < wager).toBe(true);
+      expect(it.section).toBe('added');
+    }
+    // Carroll's faith is still named in the copy, as history.
+    expect(allText).toContain('Charles Carroll of Carrollton was the only Catholic among the fifty-six signers.');
+  });
+
+  it('sets every drafted item, each with its linked sources', () => {
+    const facts = notes.flatMap(({ it }) => (it.type === 'paragraph' ? [{ text: it.text, sources: it.sources ?? [] }] : []));
+    expect(facts.map((f) => f.text.split(' ').slice(0, 2).join(' '))).toEqual([
+      'Carroll was', 'John Witherspoon,', 'Most Quakers', 'Haym Salomon,', 'In August', 'The Bible', 'Some founders', 'The Baptists',
+    ]);
+    for (const f of facts) {
+      expect(f.sources.length).toBeGreaterThan(0);
+      for (const s of f.sources) expect(s.href).toMatch(/^https?:\/\//);
+    }
+    // Claims the sources could not confirm are left out.
+    const words = facts.map((f) => f.text).join(' ');
+    expect(words).not.toMatch(/read there aloud|a minority in Connecticut|with a razor/);
+  });
+
+  it('shows the note in the walkthrough with its sources', () => {
+    jest.useFakeTimers();
+    window.history.replaceState(null, '', '/');
+    render(<PosterExhibition config={AMERICA_250} />);
+    fireEvent.click(screen.getByRole('button', { name: /We Shall All Hang Together poster/ }));
+    tick();
+    for (let i = 0; i < notes[0].i; i++) {
+      fireEvent.keyDown(document, { key: 'ArrowRight' });
+      tick();
+    }
+    const content = document.querySelector('.pe-walkthrough-content') as HTMLElement;
+    expect(content).toHaveTextContent('Many Faiths, One Declaration. Carroll was not the only signer');
+    expect(within(content).getByRole('link', { name: 'National Archives, the Constitution, Article VI' })).toHaveAttribute(
+      'href',
+      'https://www.archives.gov/founding-docs/constitution-transcript',
+    );
+    jest.useRealTimers();
+  });
+});
+
+describe('The gun-wad Bible leaf (owner-approved wording rule)', () => {
+  // Museum of the Bible calls the gun-wad story "a legend, now mostly
+  // discredited": any case or room label that tells it must say "the story
+  // goes". The leaf keeps its traditional name.
+  const fs = jest.requireActual<typeof import('fs')>('fs');
+  const path = jest.requireActual<typeof import('path')>('path');
+  const roomWords = ['sign/signText.ts', 'sign/declaration.ts'].map((f) => fs.readFileSync(path.join(process.cwd(), 'app/exhibitions/america-250', f), 'utf8'));
+  const labels = [JSON.stringify(AMERICA_250_CASE), JSON.stringify(AMERICA_250.posters), JSON.stringify(AMERICA_250.interactives), ...roomWords];
+  const tellsTheStory = /(cartridge|gun[- ]?wad[^"'\n]*(?:used|made|torn|fired|soldiers|battle)|used (?:as|for) (?:gun|wadding))/i;
+
+  it('keeps the traditional name', () => {
+    const leaf = AMERICA_250_CASE.artifacts.find((a) => a.id === 'gun-wad-bible-leaf')!;
+    expect(leaf.name).toBe('Gun wad Bible leaf');
+    expect(leaf.record).toContain('gun wad Bible leaf');
+  });
+
+  it('says "the story goes" wherever a label tells the story', () => {
+    const told: string[] = [];
+    for (const text of labels) {
+      for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+        if (tellsTheStory.test(sentence)) told.push(sentence);
+      }
+    }
+    for (const sentence of told) expect(sentence).toMatch(/the story goes/i);
+    // The rule catches a telling without the words, and passes one with them.
+    expect(tellsTheStory.test('Its pages were torn out and used as cartridge paper at Germantown.')).toBe(true);
+    expect('The story goes that its pages were used as cartridge paper.').toMatch(/the story goes/i);
   });
 });

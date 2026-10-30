@@ -17,11 +17,11 @@
     "credit": "James Tissot (1836–1902), Brooklyn Museum"
   },
   "objective": [
-    "Students will read an ancient coin as a piece of evidence. They will use the clues experts use to tell a genuine coin from a fake, put the coins of the New Testament in time order, and explain how a coin made by a real ruler, in a real year, helps show that the Gospel happened in real places among real people."
+    "Students will read an ancient coin as a piece of evidence. They will use the clues experts use to tell a genuine coin from a fake, put the coins of the New Testament in time order, and explain how a coin made by a real ruler, in a real year, helps show that the world the Gospels describe was a real world, with real rulers, in real years."
   ],
   "objectives": {
     "heading": "By the end of this lesson you will be able to:",
-    "why": "A coin made by a real ruler, in a real year, is a witness. It helps show that the Gospel happened in real places, among real people.",
+    "why": "A coin made by a real ruler, in a real year, is a witness. It helps show that the world the Gospels describe was a real world, with real rulers, in real years.",
     "items": [
       {
         "text": "read an ancient coin as evidence: who made it, when, and what it helps show",
@@ -33,10 +33,10 @@
       },
       {
         "text": "put the coins of the New Testament in time order",
-        "question": "put the Gospel’s coins in order?"
+        "question": "put the coins in story order?"
       },
       {
-        "text": "explain why a genuine coin is stronger evidence for the Gospel than a replica",
+        "text": "explain why a genuine coin is stronger evidence than a replica",
         "question": "explain why a genuine coin is stronger evidence than a replica?",
         "deeper": true
       }
@@ -116,7 +116,7 @@
             ]
           ],
           "body": [
-            "Pilate was the Roman prefect of Judaea from 26 to 36 AD. This coin was minted in the year of the Passion. One side shows a simpulum, a Roman ladle used in pagan worship; the other shows three ears of grain tied together. For decades some scholars questioned whether Pilate was real. In 1961 a stone carved with his name and title was found at Caesarea Maritima. This coin existed before that discovery. It was evidence all along."
+            "Pilate was the Roman prefect of Judaea from 26 to 36 AD. This coin was minted in 29 or 30 AD, within a few years of the Passion, which most scholars date to AD 30 or 33. One side shows a simpulum, a Roman ladle used in pagan worship; the other shows three ears of grain tied together. For decades some scholars questioned whether Pilate was real. In 1961 a stone carved with his name and title was found at Caesarea Maritima. This coin existed before that discovery. It was evidence all along."
           ]
         },
         "back": "/exhibitions/in-their-hands/artifacts/coins/pilate-back.png",
@@ -307,7 +307,7 @@
             "name": "Yellow Level",
             "sub": "Grade Level",
             "color": "#86671A",
-            "summary": "Find the fake in two pairs and explain the clues in a table. Tell struck from cast. Order five coins by date, then explain why Pilate’s coin is evidence for the Gospel."
+            "summary": "Find the fake in two pairs and explain the clues in a table. Tell struck from cast. Order five coins by date, then explain what Pilate’s coin is evidence for."
           },
           {
             "key": "red",
@@ -331,8 +331,8 @@
       "title": "A human timeline",
       "minutes": 3,
       "script": [
-        "Give five students the coins on page 3: Augustus, the Widow’s Mite, Pilate, Agrippa and Festus. The class arranges them in Gospel order, from the census at Jesus’ birth to Paul’s appeal to Caesar.",
-        "**Gospel order:** Augustus Caesar, Widow’s Mite, Pontius Pilate, Herod Agrippa I, Porcius Festus."
+        "Give five students the coins on page 3: Augustus, the Widow’s Mite, Pilate, Agrippa and Festus. The class arranges them in story order, from the census at Jesus’ birth to Paul’s appeal to Caesar.",
+        "**Story order:** Augustus Caesar, Widow’s Mite, Pontius Pilate, Herod Agrippa I, Porcius Festus."
       ],
       "screen": {
         "kind": "coins",
@@ -371,7 +371,7 @@
       },
       "purpose": "Put the coins in time order by putting the stories in order.",
       "students": [
-        "Put the five coins in Gospel order, from Jesus’ birth to Paul’s appeal to Caesar."
+        "Put the five coins in story order, from Jesus’ birth to Paul’s appeal to Caesar."
       ]
     },
     {
@@ -396,7 +396,7 @@
       "students": [
         "read a coin as evidence?",
         "use an expert’s clues to spot a fake?",
-        "put the Gospel’s coins in order?",
+        "put the coins in story order?",
         "explain why a genuine coin is stronger evidence than a replica?"
       ]
     }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { AnswerFeedback } from './feedback/FeedbackKit';
 import styles from './games.module.css';
 
 export type VerdictTone = 'right' | 'wrong' | 'neutral';
@@ -17,6 +18,12 @@ type VerdictProps = {
   mark?: string;
   /** Move focus here when it appears (default true). */
   focusOnMount?: boolean;
+  /**
+   * Play the feedback kit's sound (if the visitor turned sound on) and flash
+   * the screen green or orange as the answer lands (default true; a
+   * "neutral" verdict never does).
+   */
+  feedback?: boolean;
   className?: string;
   titleClassName?: string;
   style?: CSSProperties;
@@ -26,7 +33,8 @@ type VerdictProps = {
  * The feedback block shown after an answer: a marked verdict line with a
  * small arrival animation (none under reduced motion), then the explanation.
  * It takes focus when it appears, so the next Tab reaches the explanation's
- * controls and the "Next" button in reading order.
+ * controls and the "Next" button in reading order. Through the feedback kit
+ * it also sounds and flashes once (see components/games/feedback).
  */
 export default function Verdict({
   tone,
@@ -34,6 +42,7 @@ export default function Verdict({
   children,
   mark,
   focusOnMount = true,
+  feedback = true,
   className,
   titleClassName,
   style,
@@ -52,6 +61,7 @@ export default function Verdict({
         <span>{title}</span>
       </p>
       {children}
+      {feedback && tone !== 'neutral' && <AnswerFeedback tone={tone} />}
     </div>
   );
 }

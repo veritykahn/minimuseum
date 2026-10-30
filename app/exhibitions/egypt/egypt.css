@@ -7,6 +7,9 @@
    ========================================================================== */
 
 [data-exhibition='egypt'] {
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: var(--eg-orange);
+  --pe-ticket-ink: #1a1410;
   --eg-script: 'Ms Madi', 'Brush Script MT', cursive;
   --eg-orange: #f04a1a;
   --eg-line: rgba(255, 255, 255, 0.5);
@@ -18,7 +21,7 @@
   --pe-callout-ink: #efebe5;
   --pe-case-ink: #efebe5;
   --pe-case-muted: #b8b2a9;
-  --pe-poster-h: 52vh;
+  --pe-landing-h1: clamp(3rem, min(9vw, 11dvh), 7rem);
   color: #efebe5;
 }
 
@@ -35,31 +38,24 @@
 }
 
 /* ───────── Landing page ───────── */
-[data-exhibition='egypt'] .pe-exhibition-title::before { margin: 0 auto 8px; translate: -0.42em 0; font-size: 40px; }
+[data-exhibition='egypt'] .pe-exhibition-title::before { margin: 0 auto 2px; translate: -0.42em 0; font-size: clamp(24px, 4dvh, 40px); }
 [data-exhibition='egypt'] .pe-exhibition-title h1 {
   font-family: var(--eg-script);
   color: var(--eg-orange);
-  font-size: clamp(4.4rem, 13vw, 8.5rem);
-  line-height: 1.05;
-  margin-bottom: 0;
   rotate: -3deg;
 }
 [data-exhibition='egypt'] .pe-exhibition-title p {
   font-family: var(--pe-display);
   color: #efebe5;
-  font-size: clamp(1.2rem, 3vw, 1.7rem);
   letter-spacing: 0.02em;
 }
-[data-exhibition='egypt'] .pe-exhibition-grid { gap: 40px; }
 [data-exhibition='egypt'] .pe-poster-frame img { box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75); }
 [data-exhibition='egypt'] .pe-display-case {
   position: relative;
   background: #141414;
   border: 0;
-  width: auto;
-  max-width: 340px;
-  padding: 40px 18px 20px;
-  border-radius: 170px 170px 0 0;
+  padding: 44px 22px 20px;
+  border-radius: 999px 999px 0 0;
   outline: 1px solid var(--eg-line);
   outline-offset: 0;
 }
@@ -70,12 +66,13 @@
   inset: -12px -12px 0;
   border: 1px solid var(--eg-line-faint);
   border-bottom: 0;
-  border-radius: 182px 182px 0 0;
+  border-radius: 999px 999px 0 0;
   pointer-events: none;
 }
+/* The arches are the frame. */
+[data-exhibition='egypt'] .pe-case-frame { display: none; }
 [data-exhibition='egypt'] .pe-display-case:hover,
 [data-exhibition='egypt'] .pe-display-case:focus-visible { outline-color: var(--eg-orange); }
-[data-exhibition='egypt'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; }
 [data-exhibition='egypt'] .pe-case-label { color: #b8b2a9; }
 [data-exhibition='egypt'] .pe-case-title { color: #fff; font-size: 26px; }
 /* The case awaiting its photographs: drawn in white line, lit in the posters' orange. */
@@ -172,23 +169,9 @@
   to { clip-path: inset(-50% -20% -50% -20%); }
 }
 
-/* ───────── The links out: a thin white box, the posters' line ───────── */
-[data-exhibition='egypt'] .pe-callout {
-  border: 1px solid var(--eg-line);
-  padding: 28px 40px;
-}
-[data-exhibition='egypt'] .pe-callout-text {
-  font-family: var(--pe-display);
-  text-transform: none;
-  font-size: clamp(1.3rem, 3vw, 2rem);
-}
-[data-exhibition='egypt'] a.pe-callout:hover .pe-callout-text,
-[data-exhibition='egypt'] a.pe-callout:focus-visible .pe-callout-text { color: var(--eg-orange); }
-
 /* ───────── The classroom screen ───────── */
 [data-exhibition='egypt'] .pjp-stage .pe-section-title-text { font-size: calc(var(--pjp-u) * 10); letter-spacing: 0; max-width: none; }
 [data-exhibition='egypt'] .pjp-stage .pe-title-text { font-size: calc(var(--pjp-u) * 6.4); }
-[data-exhibition='egypt'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
 
 /* ───────── The display case page ───────── */
 [data-exhibition='egypt'] .pe-case-page-header::before { margin: 0 auto 20px; translate: -0.42em 0; font-size: 32px; }
@@ -198,7 +181,6 @@
 [data-exhibition='egypt'] :is(.pe-case-page-display li, .pe-artifact-poster p) { font-weight: 300; }
 
 @media (max-width: 900px) {
-  [data-exhibition='egypt'] { --pe-poster-h: 42vh; }
 }
 @media (max-width: 700px) {
   /* On a phone the arches step back so they never cross the copy. */
@@ -209,7 +191,6 @@
   [data-exhibition='egypt'] .eg-arch-left::before { left: -24vw; top: 70vh; width: 46vw; }
   [data-exhibition='egypt'] .eg-arch-left::after { left: calc(-24vw - 12px); top: calc(70vh - 12px); width: calc(46vw + 24px); }
   [data-exhibition='egypt'] .eg-god .pe-figure::before { display: none; }
-  [data-exhibition='egypt'] .pe-callout { padding: 22px 20px; }
 }
 
 /* ==========================================================================
@@ -432,3 +413,7 @@
   [data-exhibition='egypt'] .pe-atmo-hieroglyphs :is(.pe-atmo-part-1, .pe-atmo-part-2) { display: none; }
   [data-exhibition='egypt'] .pe-atmo-papyrus :is(.pe-atmo-part-1, .pe-atmo-part-2, .pe-atmo-part-3) { left: 2vw; right: 2vw; }
 }
+
+/* Chapter titles added to poster 1 (A18) are sentences, so the script is set smaller than a god's name, with room for its sources. */
+[data-exhibition='egypt'] .pe-added .pe-section-title-text { font-size: clamp(3.2rem, 8vw, 6.5rem); }
+[data-exhibition='egypt'] .pe-added .pe-section-title-text ~ .pe-added-source { margin-top: 2.2em; }

@@ -314,7 +314,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  /* Centered when it fits; on a short screen it scrolls from its top. */
+  justify-content: safe center;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   gap: calc(var(--pjp-u) * 1.2);
   text-align: center;
 }
@@ -430,22 +433,77 @@
   justify-content: flex-start;
 }
 
-/* A lesson's grade band, beside its title in a lesson link. */
-.lessonSub {
-  font-size: 0.75em;
-  letter-spacing: 0.06em;
-  color: var(--pj-muted, #a89c84);
+/* ───────── On a phone ─────────
+   The frame is sized for a projector; on a narrow screen the tool bar wraps
+   onto rows of its own, the picker's cards stack, and the keyboard keys
+   (there is no keyboard) step aside, so nothing runs off the side. */
+@media (max-width: 640px) {
+  .frame {
+    padding: 8px 12px 8px;
+    gap: 8px;
+  }
+  .bar {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+  .barTitle {
+    flex-wrap: wrap;
+    white-space: normal;
+    min-width: 0;
+  }
+  .tools {
+    flex-wrap: wrap;
+    width: 100%;
+    margin-left: 0;
+    gap: 6px;
+  }
+  .tool {
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  .foot {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .strip {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+  }
+  .where {
+    max-width: 100%;
+  }
+  .keys {
+    display: none;
+  }
+  .picker {
+    justify-content: flex-start;
+    padding: 4px 0 16px;
+  }
+  .pickerList {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+  }
+  .pickerCard {
+    width: min(100%, 340px);
+    padding: 12px;
+  }
+  .pickerImg {
+    height: auto;
+    width: 100%;
+    max-height: 46vh;
+  }
+  .end {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+    padding: 20px 16px;
+  }
+  .action {
+    white-space: normal;
+    text-align: center;
+  }
 }
-/* Two columns, each lesson's grade under its title, so a poster with many
-   lessons still leaves room for the chapters and classroom links. */
-.endLinks ul.lessonList {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: calc(var(--pjp-u) * 0.5) calc(var(--pjp-u) * 1.6);
-}
-.lessonLink {
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 0.1em;
-}
+

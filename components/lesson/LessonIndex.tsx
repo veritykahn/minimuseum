@@ -35,7 +35,9 @@ export function LessonIndex({ lessons, basePath, exhibitionHref, resourcesHref, 
       </header>
 
       <ul className={styles.list}>
-        {lessons.map((l) => (
+        {lessons.map((l) => {
+          const card = catalogFor(l.exhibition.slug).find((c) => c.slug === l.slug);
+          return (
           <li key={l.slug} className={styles.card}>
             {l.hero && (
               <div className={styles.cardImg}>
@@ -45,6 +47,8 @@ export function LessonIndex({ lessons, basePath, exhibitionHref, resourcesHref, 
             <div className={styles.cardBody}>
               <p className={styles.eyebrow}>{l.sub}</p>
               <h2 className={styles.cardTitle}>{l.title}</h2>
+              {/* A faith-based lesson (a Religion lesson, or one that prays with the class) says so, as one choice among the others. */}
+              {card?.faith && <p className={styles.faith}>Faith-based option</p>}
               {l.objective[0] && (
                 <p className={styles.cardText}>
                   <Inline text={l.objective[0]} />
@@ -69,7 +73,7 @@ export function LessonIndex({ lessons, basePath, exhibitionHref, resourcesHref, 
                 <a href={l.lessonPlan} className={styles.secondary} target="_blank" rel="noopener">
                   Lesson plan (PDF)
                 </a>
-                {(catalogFor(l.exhibition.slug).find((c) => c.slug === l.slug)?.posters ?? []).map((p) => (
+                {(card?.posters ?? []).map((p) => (
                   <Link key={p} href={posterProjectorPath(l.exhibition.slug, p)} className={styles.secondary}>
                     Poster {p.replace(/\D/g, '')} on the projector
                   </Link>
@@ -77,7 +81,8 @@ export function LessonIndex({ lessons, basePath, exhibitionHref, resourcesHref, 
               </div>
             </div>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </div>
   );

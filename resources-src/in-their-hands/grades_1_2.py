@@ -44,6 +44,17 @@ CARDS = {
 
 # Said in the plan and shown on the classroom screen, so written once.
 PRAYER = "Jesus, the widow gave you everything in her hands. Here are my hands. Help me to give with a happy heart — my time, my kindness and my love. Amen."
+# The general closing, for any classroom (owner-approved, B8.4); the prayer
+# stays beside it as the faith-based option.
+SHARE = "The widow gave everything she had. Hold out your open hands. Tell a partner one thing you could share with someone today: a thing, some time, or a kindness."
+# In print the two closings share a paragraph; on screen each is a step.
+CLOSE_SHARE = f"Then say: *“{SHARE}”*"
+CLOSE_PRAY = f"**Faith-based option:** pray together, a line at a time: *“{PRAYER}”*"
+# the plan sets its sections a touch closer, so the general closing beside
+# the prayer keeps it to three pages
+CLOSE_CSS = """
+body { line-height: 1.4; }
+"""
 
 # What children will be able to do, set up front in the plan and on the
 # cover screen, then asked back in the Look back: (objective, the same as
@@ -94,7 +105,7 @@ PERSON_TASKS = {
 PERSON_WHY = {
   "widow": "Hear the widow’s story: the smallest gift, and the biggest to Jesus.",
   "merchant": "Connect an emperor’s coin to the census that brought Mary and Joseph to Bethlehem.",
-  "mother": "Meet an everyday coin with no face, and hear how God kept the Holy Family safe.",
+  "mother": "Meet an everyday coin with no face, and hear how Joseph took his family to safety in Egypt, as Matthew tells it.",
   "priest": "See the Temple’s own coin, and tell a real coin from a careful copy.",
 }
 
@@ -209,7 +220,7 @@ def match(coins, persons, clues=True, letters=False):
 LESSON = {
   "slug": "whose-hands-held-this", "large": True,
   "out": DIR + "ITH_LP_Grades1_2.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
-  "foot": "Teacher Lesson Plan · Grades 1–2", "hero": HERO, "css": CSS + OBJ_CSS,
+  "foot": "Teacher Lesson Plan · Grades 1–2", "hero": HERO, "css": CSS + OBJ_CSS + CLOSE_CSS,
   "screen_hero": {"img": "/exhibitions/in-their-hands/hands.jpg", "pos": "center 40%"},
   "blocks": [
     ("timing", [("Hook", 4, "#7D8471"), ("Story time", 10, "#2F4A5A"), ("Activity", 12, "#86671A"), ("Close", 4, "#A8452F")]),
@@ -219,9 +230,9 @@ LESSON = {
       "body": ["Children will learn that the coins in the exhibition were really used, two thousand years ago, by people in the land where Jesus lived. They will meet four of those people, match each coin to the hands that held it, and hear how two of the coins belong to stories in the Gospels: the widow who gave everything, and the census that brought Mary and Joseph to Bethlehem."]}),
        ("section", {"label": "Standards and themes", "list": [
         "**Scripture** — Mark 12:41–44; Luke 2:1–7; Matthew 2:13–15",
-        "**Catechism** — CCC 2544: the poor widow who gave all she had to live on",
         "**Social Studies** — people long ago: work, home, market and worship",
-        "**Virtue** — generosity: giving what truly costs us something"]})]]),
+        "**Virtue** — generosity: giving what truly costs us something",
+        "**For Catholic schools** — CCC 2544: the poor widow who gave all she had to live on"]})]]),
     ("section", {"label": "Materials needed", "list": [
       "Page 3 of this plan, projected or printed: the four people and their coins",
       "A few coins from a pocket or purse",
@@ -253,18 +264,21 @@ LESSON = {
       "green": "Draw a line from each coin to the person who held it, using picture clues. Circle how many coins the widow gave, and draw a gift you could give to God.",
       "yellow": "Write the right letter under each coin. Finish four short sentences from a word bank, then say which person you would like to meet, and why.",
       "red": "Match the coins, then choose one person and write two or three sentences as if you were them. Invent the journey of a coin from hand to hand."}),
-    ("section", {"label": "Look back and pray · 4 minutes",
+    ("section", {"label": "Look back and share · 4 minutes",
       "screen": [
         {"phase": "Close", "minutes": 2, "script": [0], "title": "Look back", "show": "review", "lead": LOOK_BACK,
          "hint": THUMBS,
          "purpose": "Check what each child can now do against the objectives.",
          "students": [q for _, q, _ in OBJECTIVES["items"]],
          "deeper": [k for k, (_, _, deep) in enumerate(OBJECTIVES["items"]) if deep]},
-        {"phase": "Close", "minutes": 2, "script": [1], "title": "Closing prayer", "show": "prayer", "prayer": PRAYER,
-         "purpose": "Give the lesson back to God with open hands.",
+        {"phase": "Close", "minutes": 1, "script": [CLOSE_SHARE], "title": "Look back and share", "show": "question", "question": SHARE,
+         "purpose": "Close with open hands, like the widow: name something to share today.",
+         "students": ["Hold out your open hands.", "Tell a partner one thing you could share today."]},
+        {"phase": "Close", "minutes": 1, "script": [CLOSE_PRAY], "title": "Closing prayer (faith-based option)", "show": "prayer", "prayer": PRAYER,
+         "purpose": "For faith schools: give the lesson back to God with open hands.",
          "students": ["Hold out your open hands, and pray a line at a time."]}],
       "body": ["Ask the objectives back as questions, from the screen or page 1: *“Can you now…?”* For each one, children show a thumb up, sideways or down. Ask one child to answer each aloud; for the last, ask a Red Level child to speak as their person.",
-               f"Ask the children to hold out their open hands. Pray together, a line at a time: *“{PRAYER}”*"]}),
+               CLOSE_SHARE + " " + CLOSE_PRAY]}),
     ("cols", [[("connection", ["**Visit the exhibition:** the Widow’s Mite, the Shekel of Tyre and Herod’s coin are all in the cases. Play **Hands of History** together: look at the hands and guess whose they are.",
                                "**Virtual visit:** the game, the coins and their stories are all online."])],
               [("section", {"label": "Questions for story time", "list": [

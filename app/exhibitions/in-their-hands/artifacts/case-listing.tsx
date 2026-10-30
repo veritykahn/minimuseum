@@ -2,7 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { CaseViewTabs, caseViewIds, useCaseView, type CaseView } from '@/components/exhibition/CaseViews';
+import FactNote from '@/components/exhibition/FactNote';
 import { CoinData } from './coin-data';
+import type { IthNoteGroup } from '../notes';
 
 type InteractiveFeature = {
   id: string;
@@ -22,10 +25,18 @@ type Props = {
   coins: CoinData[];
   basePath: string;
   interactive?: InteractiveFeature;
+  /** Museum notes from outside the posters (notes.ts), set under the coins with their sources. */
+  notes?: IthNoteGroup;
 };
 
-export default function CaseListing({ caseNumber, galleryLabel, title, subtitle, coins, basePath, interactive }: Props) {
+export default function CaseListing({ caseNumber, galleryLabel, title, subtitle, coins, basePath, interactive, notes }: Props) {
   const router = useRouter();
+  const [view, setView] = useCaseView();
+  // With a room, the coins and the room are two views of the case, under tabs.
+  const panel = (v: CaseView) =>
+    interactive
+      ? { role: 'tabpanel', id: caseViewIds(`ith-case-${caseNumber}`, v).panel, 'aria-labelledby': caseViewIds(`ith-case-${caseNumber}`, v).tab, hidden: view !== v }
+      : {};
 
   return (
     <div className="case-listing-page">
@@ -36,9 +47,9 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
         .case-listing-page {
           min-height: 100vh;
-          background: #0a0a0a;
+          background: #443c31;
           color: #fafafa;
-          padding: 120px 40px 80px;
+          padding: clamp(80px, 11dvh, 110px) 40px 64px;
         }
 
         .cl-nav-header {
@@ -51,7 +62,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           justify-content: space-between;
           align-items: center;
           padding: 24px 32px;
-          background: linear-gradient(to bottom, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0) 100%);
+          background: linear-gradient(to bottom, rgba(68,60,49,0.98) 0%, rgba(68,60,49,0) 100%);
         }
 
         .cl-back-btn {
@@ -73,7 +84,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
         .cl-page-header {
           text-align: center;
-          margin-bottom: 60px;
+          margin-bottom: clamp(20px, 3.4dvh, 32px);
         }
 
         .cl-page-label {
@@ -81,7 +92,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           font-size: 10px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #8a8a8a;
+          color: #d6cbb3;
           margin-bottom: 16px;
         }
 
@@ -174,7 +185,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           font-family: 'Cormorant Garamond', serif;
           font-size: 0.85rem;
           font-style: italic;
-          color: #8a8a8a;
+          color: #d6cbb3;
           margin-bottom: 10px;
         }
 
@@ -249,14 +260,71 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           transform: translateX(0);
         }
 
-        .cl-card-row-break {
+        /* "Interactives": the case's room, on a line of its own under the coins */
+        .cl-section-title {
           flex-basis: 100%;
-          height: 0;
+          text-align: center;
+          margin: 48px 0 12px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 11px;
+          font-weight: 400;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: #C9A84C;
+        }
+        .cl-section-title::after {
+          content: '';
+          display: block;
+          width: 48px;
+          height: 1px;
+          margin: 16px auto 0;
+          background: rgba(201, 168, 76, 0.5);
         }
 
+        /* Artifacts | Interactives (CaseViews), in the poster's gold. */
+        .cl-case-views { display: flex; width: max-content; margin: 0 auto clamp(24px, 4dvh, 40px); --pe-case-ink: #efe6d2; --pe-accent: #C9A84C; --pe-case-tab-on-ink: #2a241c; --pe-ui: 'Outfit', sans-serif; }
+        .cl-grid[hidden] { display: none; }
+        /* The room's card shows the room itself, a screenshot, landscape. */
         .cl-card.cl-card-interactive {
-          width: 180px;
+          width: min(420px, 100%);
         }
+        .cl-card-interactive .cl-card-image-container { width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 10px; }
+
+        /* Museum notes: owner-approved panels from outside the posters, each with its sources. */
+        .cl-notes { max-width: 760px; margin: 0 auto; }
+        .cl-notes[hidden] { display: none; }
+        .cl-note-card {
+          margin: 0 0 20px;
+          padding: 24px 28px;
+          background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+          border: 1px solid rgba(201, 168, 76, 0.22);
+          border-radius: 12px;
+        }
+        .cl-note-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.35rem;
+          font-weight: 400;
+          color: #C9A84C;
+          margin-bottom: 10px;
+        }
+        .cl-note {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.12rem;
+          line-height: 1.55;
+          color: #efe6d2;
+        }
+        .cl-note-text { display: block; }
+        .cl-note-source {
+          display: block;
+          margin-top: 12px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          line-height: 1.6;
+          letter-spacing: 0.02em;
+          color: #d6cbb3;
+        }
+        .cl-note-source a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; overflow-wrap: anywhere; }
+        .cl-note-source a:hover { color: #C9A84C; }
 
         .cl-card.coming-soon {
           opacity: 0.6;
@@ -274,7 +342,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
         .cl-card-badge-coming-soon {
           background: rgba(255,255,255,0.03);
-          color: #808080;
+          color: #cfc4ab;
           border: 1px solid rgba(255,255,255,0.08);
         }
 
@@ -291,7 +359,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           background: transparent;
           border: 1px solid rgba(255,255,255,0.15);
           border-radius: 100px;
-          color: #8a8a8a;
+          color: #d6cbb3;
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
@@ -305,7 +373,8 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
         }
 
         @media (max-width: 600px) {
-          .case-listing-page { padding: 100px 24px 60px; }
+          .case-listing-page { padding: 100px 16px 60px; }
+          .cl-note-card { padding: 20px 18px; }
           .cl-grid { max-width: 320px; }
           .cl-card-image-container { width: 140px; height: 140px; }
         }
@@ -324,7 +393,17 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
         <p className="cl-page-subtitle">{subtitle}</p>
       </div>
 
-      <div className="cl-grid">
+      {interactive && (
+        <CaseViewTabs
+          view={view}
+          onChange={setView}
+          idPrefix={`ith-case-${caseNumber}`}
+          className="cl-case-views"
+          counts={{ artifacts: coins.length, interactives: 1 }}
+        />
+      )}
+
+      <div className="cl-grid" {...panel('artifacts')}>
         {coins.map((coin) => (
           <Link
             key={coin.id}
@@ -349,9 +428,23 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
             </div>
           </Link>
         ))}
+      </div>
 
-        {interactive && <div className="cl-card-row-break" />}
-        {interactive && (() => {
+      {notes && (
+        <section className="cl-notes" aria-labelledby={`ith-case-${caseNumber}-notes`} hidden={Boolean(interactive) && view !== 'artifacts'}>
+          <h2 className="cl-section-title" id={`ith-case-${caseNumber}-notes`}>{notes.heading}</h2>
+          {notes.notes.map((n) => (
+            <article key={n.id} className="cl-note-card">
+              <h3 className="cl-note-title">{n.title}</h3>
+              <FactNote fact={n} className="cl-note" />
+            </article>
+          ))}
+        </section>
+      )}
+
+      {interactive && (
+      <div className="cl-grid cl-grid-rooms" {...panel('interactives')}>
+        {(() => {
           const content = (
             <>
               {interactive.status === 'available' && (
@@ -383,6 +476,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           );
         })()}
       </div>
+      )}
 
       <button className="cl-return-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
         Return to Exhibition

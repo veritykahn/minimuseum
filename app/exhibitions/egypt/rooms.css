@@ -1,0 +1,207 @@
+/* ==========================================================================
+   The Ancient Egypt rooms' common frame: the posters' near-black ground,
+   white Playfair Display headings with the orange-red kicker, light
+   Playfair copy, and thin white rules. Each room is a scene beside a panel
+   (on a phone, the scene above and the panel below, the page scrolling).
+   Type is set large enough to read across a classroom from a projector.
+   Each room's own stylesheet draws its scene.
+   ========================================================================== */
+
+/* Hieroglyphs: Noto Sans Egyptian Hieroglyphs (SIL Open Font License, the
+   licence beside it), cut down to the signs the rooms set (rooms.ts). */
+@font-face {
+  font-family: 'Egypt Hieroglyphs';
+  src: url('/exhibitions/egypt/fonts/NotoSansEgyptianHieroglyphs-subset.woff2') format('woff2');
+  font-display: block;
+}
+
+.eg-room {
+  --egr-ink: #efebe5;
+  --egr-muted: #b8b2a9;
+  --egr-orange: #f04a1a;
+  /* The orange deepened, for white type on it at full contrast. */
+  --egr-orange-deep: #b9370e;
+  --egr-gold: #d9a441;
+  --egr-line: rgba(255, 255, 255, 0.22);
+  --egr-panel: #141414;
+  --egr-text: clamp(1.02rem, 0.75rem + 0.55vw, 1.32rem);
+  min-height: 100vh;
+  min-height: 100dvh;
+  color: var(--egr-ink);
+}
+.eg-room .pe-nav { z-index: 60; }
+.eg-room :focus-visible { outline: 3px solid var(--egr-orange); outline-offset: 3px; }
+.eg-room-stage {
+  display: block;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 88px clamp(16px, 4vw, 64px) 72px;
+}
+
+.egr-glyph { font-family: 'Egypt Hieroglyphs', 'Noto Sans Egyptian Hieroglyphs', serif; font-style: normal; line-height: 1; }
+
+/* ───────── Heading ───────── */
+.egr-head { margin-bottom: clamp(18px, 3vh, 32px); }
+.egr-kicker {
+  margin: 0 0 6px;
+  font-family: var(--pe-body);
+  font-size: clamp(0.8rem, 0.7rem + 0.3vw, 1rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--egr-orange);
+}
+.egr-title {
+  margin: 0;
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 1.2rem + 3vw, 3.8rem);
+  line-height: 1.05;
+  color: #fff;
+}
+.egr-lede { margin: 12px 0 0; max-width: 62ch; font-family: var(--pe-body); font-weight: 300; font-size: var(--egr-text); line-height: 1.5; color: var(--egr-ink); }
+
+/* ───────── The scene beside the panel ───────── */
+.egr-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(320px, 0.9fr);
+  gap: clamp(20px, 3vw, 48px);
+  align-items: start;
+}
+.egr-scene { position: relative; min-width: 0; }
+/* Beside a long panel, the scene stays in view as the page scrolls. */
+@media (min-width: 981px) {
+  .egr-layout > .egr-scene { position: sticky; top: 72px; }
+}
+.egr-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+  padding: clamp(18px, 2.2vw, 30px);
+  border: 1px solid var(--egr-line);
+  background: var(--egr-panel);
+  font-family: var(--pe-body);
+  font-weight: 300;
+  font-size: var(--egr-text);
+  line-height: 1.5;
+}
+.egr-panel h2 { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.4rem, 1rem + 1.2vw, 2.1rem); line-height: 1.15; color: #fff; }
+.egr-panel h3 { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: 1.15em; color: #fff; }
+.egr-panel p { margin: 0; }
+.egr-label { font-size: 0.72em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--egr-muted); }
+/* A line from the posters, word for word: a rule above, the posters' serif. */
+.egr-poster { padding-top: 12px; border-top: 1px solid var(--egr-line); font-style: italic; }
+
+/* A museum note (FactNote): small, its source beneath, linked. */
+.egr-fact { display: flex; flex-direction: column; gap: 4px; margin: 0; font-size: 0.86em; line-height: 1.5; color: var(--egr-ink); }
+.egr-fact-source { font-size: 0.82em; letter-spacing: 0.02em; color: var(--egr-muted); }
+.eg-room a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.egr-credit { font-size: 0.78em; line-height: 1.45; color: var(--egr-muted); }
+
+/* Screen readers hear what changes. */
+.egr-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* ───────── Buttons and choices ───────── */
+.egr-actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.eg-room .egr-button {
+  appearance: none;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 10px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--pe-body);
+  font-size: 0.85em;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.eg-room .egr-button:hover:not(:disabled) { background: rgba(255, 255, 255, 0.1); }
+.eg-room .egr-button-primary { background: var(--egr-orange-deep); border-color: var(--egr-orange-deep); font-weight: 500; }
+.eg-room .egr-button-primary:hover:not(:disabled) { background: #d0400f; }
+.eg-room .egr-button:disabled { opacity: 0.45; cursor: default; }
+
+.egr-choice { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; border: 0; min-width: 0; }
+.egr-choice legend { padding: 0; margin-bottom: 8px; font-size: 0.72em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--egr-muted); }
+.egr-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.eg-room .egr-option {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  background: transparent;
+  color: #fff;
+  font-family: var(--pe-body);
+  font-size: 0.9em;
+  cursor: pointer;
+}
+.eg-room .egr-option:hover { border-color: #fff; }
+.eg-room .egr-option[aria-pressed='true'] { background: var(--egr-ink); color: #141414; border-color: var(--egr-ink); }
+
+.egr-field { display: flex; flex-direction: column; gap: 6px; }
+.egr-field input {
+  min-height: 52px;
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 6px;
+  background: #0d0d0d;
+  color: #fff;
+  font-family: var(--pe-display);
+  font-size: 1.3em;
+  letter-spacing: 0.04em;
+}
+
+/* Tabs: a row of steps or views. */
+.egr-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.eg-room .egr-tab {
+  appearance: none;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--egr-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--egr-ink);
+  font-family: var(--pe-body);
+  font-size: clamp(0.82rem, 0.72rem + 0.3vw, 1rem);
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+.eg-room .egr-tab[aria-selected='true'] { background: var(--egr-ink); color: #141414; border-color: var(--egr-ink); }
+
+/* ───────── Printing: a room hands a sheet to the printer in a portal ───────── */
+.egr-print-root { display: none; }
+@media print {
+  @page { size: letter portrait; margin: 0.5in; }
+  html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  body > :not(.egr-print-root) { display: none !important; }
+  .egr-print-root { display: block !important; color: #111; font-family: 'Playfair', 'Playfair Display', Georgia, serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .egr-print-root h1 { margin: 0 0 6px; font-family: 'Playfair Display', Georgia, serif; font-weight: 400; font-size: 28pt; }
+  .egr-print-root p { margin: 0 0 6px; font-size: 11pt; line-height: 1.45; }
+  .egr-print-sources { margin-top: 14px; font-size: 8.5pt; color: #444; }
+}
+
+/* ───────── A phone and a portrait tablet: the scene above, the panel below ───────── */
+@media (max-width: 980px) {
+  .egr-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .eg-room-stage { padding: 76px 16px 88px; }
+  .eg-room .egr-button { padding: 10px 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eg-room *,
+  .eg-room *::before,
+  .eg-room *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

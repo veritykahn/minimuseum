@@ -79,7 +79,7 @@ def verdict(q="The fake is"):
 PILATE = {"img": C + "pilate-front.png", "label": "Case 7 · Ministry and Passion",
           "title": "The coin of Pontius Pilate",
           "facts": [("Coin", "Bronze prutah, genuine"), ("Date", "29/30 AD"), ("Reference", "Hendin 6370"), ("Scripture", "Matthew 27:24")],
-          "body": ["Pilate was the Roman prefect of Judaea from 26 to 36 AD. This coin was minted in the year of the Passion. One side shows a simpulum, a Roman ladle used in pagan worship; the other shows three ears of grain tied together. For decades some scholars questioned whether Pilate was real. In 1961 a stone carved with his name and title was found at Caesarea Maritima. This coin existed before that discovery. It was evidence all along."]}
+          "body": ["Pilate was the Roman prefect of Judaea from 26 to 36 AD. This coin was minted in 29 or 30 AD, within a few years of the Passion, which most scholars date to AD 30 or 33. One side shows a simpulum, a Roman ladle used in pagan worship; the other shows three ears of grain tied together. For decades some scholars questioned whether Pilate was real. In 1961 a stone carved with his name and title was found at Caesarea Maritima. This coin existed before that discovery. It was evidence all along."]}
 
 # Said in the plan and shown on the classroom screen, so written once.
 CLUE = "If a lepton looks perfect, be suspicious. The imperfection is the proof of authenticity."
@@ -96,14 +96,14 @@ OBJECTIVES = {
     ("use the clues experts use to tell a genuine coin from a fake",
      "use an expert’s clues to spot a fake?", False),
     ("put the coins of the New Testament in time order",
-     "put the Gospel’s coins in order?", False),
-    ("explain why a genuine coin is stronger evidence for the Gospel than a replica",
+     "put the coins in story order?", False),
+    ("explain why a genuine coin is stronger evidence than a replica",
      "explain why a genuine coin is stronger evidence than a replica?", True)],
-  "why": "A coin made by a real ruler, in a real year, is a witness. It helps show that the Gospel happened in real places, among real people."}
+  "why": "A coin made by a real ruler, in a real year, is a witness. It helps show that the world the Gospels describe was a real world, with real rulers, in real years."}
 LOOK_BACK = "Can you now…"
 THUMBS = "Show me: thumb up, sideways or down."
 # the plan's last section, one paragraph in print, two steps on screen
-LINE_UP_P = "Give five students the coins on page 3: Augustus, the Widow’s Mite, Pilate, Agrippa and Festus. The class arranges them in Gospel order, from the census at Jesus’ birth to Paul’s appeal to Caesar."
+LINE_UP_P = "Give five students the coins on page 3: Augustus, the Widow’s Mite, Pilate, Agrippa and Festus. The class arranges them in story order, from the census at Jesus’ birth to Paul’s appeal to Caesar."
 LOOK_BACK_P = "Then ask the objectives back, from the screen or page 1: *“Can you now…?”* Students show a thumb up, sideways or down. Exit question: *“Name one coin and tell me what it is evidence for.”*"
 
 # ── on the classroom screen (Lesson mode; build.py ignores "screen") ─────
@@ -132,7 +132,7 @@ WITNESSES = [screen_coin("tribute", "Tiberius", "The Tribute Penny", "The Tribut
              screen_coin("pilate", "Pontius Pilate", "Genuine", "The coin of Pontius Pilate: a ladle, the simpulum", feature=True),
              screen_coin("antipas", "Herod Antipas", "Tetrarch of Galilee", "A coin of Herod Antipas; a replica",
                          replica=True, feature=False)]
-# the human timeline, shuffled: the class puts them in Gospel order
+# the human timeline, shuffled: the class puts them in story order
 LINE_UP = [screen_coin(k, sub=TL[k][3].split(" · ")[0], alt=f"The coin of {TL[k][1]}" if k != "widow" else "The Widow’s Mite")
            for k in ["festus", "widow", "augustus", "agrippa", "pilate"]]
 GOSPEL_ORDER = ", ".join(TL[k][1] for k in ["augustus", "widow", "pilate", "agrippa", "festus"])
@@ -165,7 +165,7 @@ LESSON = {
   "slug": "coin-detectives", "large": True,
   "out": DIR + "ITH_LP_Grades3_4.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
   "foot": "Teacher Lesson Plan · Grades 3–4", "hero": HERO_LP,
-  "css": CSS + OBJ_CSS + ".grow img { width: 54pt; height: 54pt; } .gallery { padding-top: 9pt; margin-bottom: 10pt; } .specimen { margin-bottom: 6pt; }",
+  "css": CSS + OBJ_CSS + ".grow img { width: 54pt; height: 54pt; } .gallery { padding-top: 9pt; margin-bottom: 10pt; } .specimen { margin-bottom: 6pt; } body { line-height: 1.46; }",
   "blocks": [
     ("timing", [("Hook", 5, "#7D8471"), ("Teach", 10, "#2F4A5A"), ("Detective work", 20, "#86671A"), ("Close", 5, "#A8452F")]),
     ("cols", [[("objectives", OBJECTIVES),
@@ -178,11 +178,12 @@ LESSON = {
         ("Patina", "the color old metal gains over time"),
         ("Evidence", "a clue that helps show what is true")])],
               [("section", {"label": "Learning objective", "title": "What students will understand",
-      "body": ["Students will read an ancient coin as a piece of evidence. They will use the clues experts use to tell a genuine coin from a fake, put the coins of the New Testament in time order, and explain how a coin made by a real ruler, in a real year, helps show that the Gospel happened in real places among real people."]}),
+      "body": ["Students will read an ancient coin as a piece of evidence. They will use the clues experts use to tell a genuine coin from a fake, put the coins of the New Testament in time order, and explain how a coin made by a real ruler, in a real year, helps show that the world the Gospels describe was a real world, with real rulers, in real years."]}),
                ("section", {"label": "Standards and themes", "list": [
       "**Social Studies** — artifacts as primary sources; chronology and BC/AD dates",
       "**Science and ELA** — close observation with a hand lens; stating a claim and backing it with evidence",
-      "**Religion** — Luke 2:1 and Luke 3:1, where the Gospel names the rulers of its day; CCC 423 (Jesus born in Bethlehem in the time of Herod the Great and Caesar Augustus) and CCC 126 (the Church affirms that the Gospels are historical)"]}),
+      "**Religion** — Luke 2:1 and Luke 3:1, where the Gospel names the rulers of its day",
+      "**For Catholic schools** — CCC 423 (Jesus born in Bethlehem in the time of Herod the Great and Caesar Augustus) and CCC 126 (the Church affirms that the Gospels are historical)"]}),
                ("section", {"label": "Materials needed", "list": [
         "*Real or Replica?* projected",
         "Magnifying glasses, if you have them",
@@ -221,14 +222,14 @@ LESSON = {
       "body": ["Students choose a handout. All three levels compare real and fake coins and put coins of the Gospel in order."]}),
     ("levels", {
       "green": "Spot the difference between a real and a fake widow’s mite using a checklist of clues. Read Pilate’s coin as evidence. Number four coins in story order, with pictures and dates.",
-      "yellow": "Find the fake in two pairs and explain the clues in a table. Tell struck from cast. Order five coins by date, then explain why Pilate’s coin is evidence for the Gospel.",
+      "yellow": "Find the fake in two pairs and explain the clues in a table. Tell struck from cast. Order five coins by date, then explain what Pilate’s coin is evidence for.",
       "red": "Weigh strong and weak evidence on the hardest kind of fake. Explain why it matters that three exhibition coins are replicas. Order five coins and explain the one that breaks the pattern."}),
     ("section", {"label": "Line up and look back · 5 minutes", "title": "A human timeline",
       "screen": [
-        {"phase": "Close", "minutes": 3, "script": [LINE_UP_P, f"**Gospel order:** {GOSPEL_ORDER}."], "title": "A human timeline",
+        {"phase": "Close", "minutes": 3, "script": [LINE_UP_P, f"**Story order:** {GOSPEL_ORDER}."], "title": "A human timeline",
          "show": "coins", "coins": LINE_UP,
          "purpose": "Put the coins in time order by putting the stories in order.",
-         "students": ["Put the five coins in Gospel order, from Jesus’ birth to Paul’s appeal to Caesar."]},
+         "students": ["Put the five coins in story order, from Jesus’ birth to Paul’s appeal to Caesar."]},
         {"phase": "Close", "minutes": 2, "script": [LOOK_BACK_P], "title": "Look back", "show": "review", "lead": LOOK_BACK,
          "hint": THUMBS,
          "purpose": "Check what each student can now do against the objectives.",
@@ -296,12 +297,12 @@ GREEN = handout("green", "ITH_Handout_Green_Grades3_4.pdf", [
   ("task", {"label": "Part 3", "title": "A coin that is evidence",
             "blocks": [("coin", {"img": C + "pilate-front.png", "label": "Case 7 · Genuine",
               "title": "The coin of Pontius Pilate",
-              "body": ["Pilate was the Roman governor who put Jesus on trial. He had this coin made in 29/30 AD, the year of the Passion. Some people once wondered if Pilate was real. In 1961 a stone with his name was found — but his coins had been evidence all along."]})],
-            "body": ["Who had this coin made? In what year? What does it help show about the Gospel?"], "lines": 4}),
+              "body": ["Pilate was the Roman governor who put Jesus on trial. He had this coin made in 29/30 AD, within a few years of the Passion. Some people once wondered if Pilate was real. In 1961 a stone with his name was found — but his coins had been evidence all along."]})],
+            "body": ["Who had this coin made? In what year? What does it help show about the world the Gospels describe?"], "lines": 4}),
   ("task", {"label": "Part 4", "title": "Put the coins in order", "blocks": [
             P("These four coins go with four Gospel stories. Write <b>1, 2, 3, 4</b> in the boxes, from the first story to the last."),
             order(["festus", "augustus", "agrippa", "pilate"])]}),
-  ("family", ["Look at a coin from home with a magnifying glass. Is it worn on its highest points? Then tell your family about Pilate’s coin, and why it is evidence that the Gospel really happened."]),
+  ("family", ["Look at a coin from home with a magnifying glass. Is it worn on its highest points? Then tell your family about Pilate’s coin, and why it is evidence that the world the Gospels describe was a real world."]),
 ])
 
 YELLOW = handout("yellow", "ITH_Handout_Yellow_Grades3_4.pdf", [
@@ -318,8 +319,8 @@ YELLOW = handout("yellow", "ITH_Handout_Yellow_Grades3_4.pdf", [
   ("task", {"label": "Part 4", "title": "Put five coins in order", "blocks": [
             P("Write <b>1 to 5</b> in the boxes, from the oldest coin to the newest. <b>Tip:</b> BC years count <i>down</i> toward the birth of Christ, so 5 BC comes before 1 BC. AD years count <i>up</i>."),
             order(["pilate", "festus", "augustus", "agrippa", "shekel"], story=False)]}),
-  ("task", {"label": "Part 5", "title": "Evidence for the Gospel",
-            "body": ["Luke 3:1 names the rulers of the time, including the emperor Tiberius and Pontius Pilate. Explain how a real coin made by Pilate helps show that the Gospel happened in a real place and time."], "lines": 3}),
+  ("task", {"label": "Part 5", "title": "A real world",
+            "body": ["Luke 3:1 names the rulers of the time, including the emperor Tiberius and Pontius Pilate. Explain how a real coin made by Pilate helps show that the world the Gospels describe was real."], "lines": 3}),
   ("family", ["Show your family the two pairs. Can they find the fakes? Tell them one clue an expert uses, and which coin in the exhibition was made by the man who put Jesus on trial."]),
 ])
 
@@ -333,7 +334,7 @@ RED = handout("red", "ITH_Handout_Red_Grades3_4.pdf", [
   ("task", {"label": "Part 2", "title": "Your verdict", "blocks": [verdict("The fake is")],
             "body": ["Give your two strongest pieces of evidence. Then explain what an expert could do to be completely sure."], "lines": 3}),
   ("task", {"label": "Part 3", "title": "Why does it matter?",
-            "body": ["The Tribute Penny, the Shekel of Tyre and the coin of Herod Antipas are replicas, because real ones are so rare. Each is labeled as a replica. How is a replica different from a fake? Why is Pilate’s genuine coin stronger evidence for the Gospel than a replica?"], "lines": 4}),
+            "body": ["The Tribute Penny, the Shekel of Tyre and the coin of Herod Antipas are replicas, because real ones are so rare. Each is labeled as a replica. How is a replica different from a fake? Why is Pilate’s genuine coin stronger evidence than a replica?"], "lines": 4}),
   ("task", {"label": "Part 4", "title": "Order and explain", "blocks": [
             P("Write <b>1 to 5</b> in the boxes, from the coin made first to the coin made last."),
             order(["agrippa", "widow", "festus", "augustus", "pilate"], story=False)],

@@ -11,6 +11,9 @@
    ========================================================================== */
 
 [data-exhibition='victorian'] {
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: var(--vb-sage);
+  --pe-ticket-ink: var(--vb-cream);
   --vb-rose: #d9b7b8;
   --vb-sage: #4e6152;
   --vb-cream: #f4eee3;
@@ -37,7 +40,7 @@
   --pe-case-ink: var(--vb-green);
   --pe-case-muted: var(--vb-green);
   --pe-credits-ink: var(--vb-green);
-  --pe-poster-h: 52vh;
+  --pe-landing-h1: clamp(2.2rem, min(6.4vw, 9dvh), 5.6rem);
   color: var(--vb-green);
 }
 
@@ -79,36 +82,31 @@
 [data-exhibition='victorian'] .pe-walkthrough-nav .pfx-progress-head { box-shadow: 0 0 0 2px var(--vb-cream), 0 0 0 3px var(--vb-green); }
 
 /* ───────── Landing page ───────── */
-[data-exhibition='victorian'] .pe-exhibition-main { padding-top: 100px; padding-bottom: 64px; gap: 28px; }
 [data-exhibition='victorian'] .pe-exhibition-title h1 {
   font-family: var(--pe-display);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  font-size: clamp(2.7rem, 8.5vw, 6.4rem);
-  line-height: 0.98;
-  margin-bottom: 14px;
 }
 [data-exhibition='victorian'] .pe-exhibition-title p {
   font-family: var(--vb-serif);
   font-style: italic;
-  font-size: clamp(1.2rem, 2.8vw, 1.75rem);
 }
-[data-exhibition='victorian'] .pe-exhibition-grid { gap: clamp(28px, 4vw, 52px); }
 [data-exhibition='victorian'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(80, 50, 40, 0.14), 0 22px 50px rgba(80, 50, 40, 0.3); }
-[data-exhibition='victorian'] .pe-display-case {
-  width: auto;
-  max-width: 340px;
-  padding: calc(var(--vb-edge) + 18px) 20px calc(var(--vb-edge) + 20px);
-  border: 0;
-  background: var(--vb-linen);
-  filter: drop-shadow(0 16px 30px rgba(80, 50, 40, 0.25));
-}
-[data-exhibition='victorian'] .pe-display-case:hover,
+/* The display case's card: an arched parlour window in the green linen,
+   edged in a cream lace of dots, with a fine cream rule inside. */
+[data-exhibition='victorian'] .pe-display-case { --pe-frame-fill: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.055) 0 1px, transparent 1px 4px), var(--vb-sage); --pe-frame-line: var(--vb-cream); --pe-frame-hover: #fff; --pe-frame-weight: 1px; --pe-frame-inset: 12px; --pe-frame-foot: 4px; padding-top: 54px; filter: drop-shadow(0 16px 30px rgba(80, 50, 40, 0.25)); }
 [data-exhibition='victorian'] .pe-display-case:focus-visible { outline: 2px solid var(--vb-green); outline-offset: 6px; }
-[data-exhibition='victorian'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; border: 6px solid var(--vb-cream); }
+[data-exhibition='victorian'] .pe-case-frame::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 4px dotted var(--vb-cream);
+  border-radius: inherit;
+  opacity: 0.85;
+}
 [data-exhibition='victorian'] .pe-case-label { color: #e8e2d6; }
-[data-exhibition='victorian'] .pe-case-title { color: #fff; font-size: 28px; text-transform: uppercase; letter-spacing: 0.06em; }
+[data-exhibition='victorian'] .pe-case-title { color: #fff; font-size: clamp(22px, 3.6dvh, 28px); text-transform: uppercase; letter-spacing: 0.06em; }
 [data-exhibition='victorian'] .pe-case-subtitle { font-family: var(--vb-serif); color: #f4eee3; }
 /* The case awaiting its photographs: deep green line on the rose page, cream on the
    green linen of the card, lit warm, with its label in the book serif. */
@@ -120,6 +118,19 @@
 /* ───────── Titles: the posters' own thin, wide capitals, cut from them ───────── */
 [data-exhibition='victorian'] .vb-title.pe-title-image { --pe-title-scale: 1.7; padding-left: 10vw; padding-right: 8vw; }
 [data-exhibition='victorian'] .vb-title .pe-title-image-heading img { max-height: 64vh; }
+/* Set in type (sharp on any screen): the posters' thin, wide deco capitals, in their green. */
+[data-exhibition='victorian'] .vb-live {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  line-height: 0.92;
+  text-align: left;
+  color: #284838;
+}
+[data-exhibition='victorian'] .vb-live-revolutionary { font-size: calc(var(--pe-tu) * 11.2); }
+[data-exhibition='victorian'] .vb-live-revolutionary .vb-live-small { font-size: 0.665em; letter-spacing: 0.005em; }
+[data-exhibition='victorian'] .vb-live-christmas { font-size: calc(var(--pe-tu) * 9.5); }
+[data-exhibition='victorian'] .vb-live-christmas .vb-live-small { font-size: 0.4em; letter-spacing: 0.01em; line-height: 1.1; }
+[data-exhibition='victorian'] .vb-live-christmas .vb-live-big { font-size: 1.62em; letter-spacing: -0.005em; }
 
 /* ───────── The lede: the serif, beside the court dress ───────── */
 [data-exhibition='victorian'] .vb-lede .pe-paragraph-text {
@@ -249,21 +260,7 @@
   to { background-position: 90px 330px, -140px 340px, 60px 320px; }
 }
 
-/* ───────── The link out: a green linen label, as on the poster ───────── */
-[data-exhibition='victorian'] .vb-link .pe-callout {
-  max-width: min(720px, 100%);
-  padding: calc(var(--vb-edge) + 26px) 48px;
-  background: var(--vb-linen);
-  filter: drop-shadow(0 16px 26px rgba(80, 50, 40, 0.22));
-}
-[data-exhibition='victorian'] .vb-link .pe-callout-text {
-  font-family: var(--vb-serif);
-  text-transform: none;
-  font-size: clamp(1.3rem, 2.8vw, 2rem);
-  text-wrap: balance;
-}
-[data-exhibition='victorian'] .vb-link a.pe-callout:hover,
-[data-exhibition='victorian'] .vb-link a.pe-callout:focus-visible { outline: 2px solid var(--vb-green); outline-offset: 6px; }
+/* ───────── The ending ───────── */
 [data-exhibition='victorian'] .pe-content-end:hover { color: var(--vb-cream) !important; background: var(--vb-green); border-color: var(--vb-green) !important; }
 
 /* ───────── The display case page ───────── */
@@ -301,10 +298,8 @@
 [data-exhibition='victorian'] .pjp-stage .vb-picture.pe-full-image img { max-height: calc(100% - var(--pjp-u) * 3); }
 [data-exhibition='victorian'] .pjp-stage .vb-village.pe-full-image { --vb-village-w: calc(var(--pjp-u) * 80); }
 [data-exhibition='victorian'] .pjp-stage .vb-quote .pe-quote-cite { font-size: calc(var(--pjp-u) * 1.5); }
-[data-exhibition='victorian'] .pjp-stage .vb-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
 
 @media (max-width: 900px) {
-  [data-exhibition='victorian'] { --pe-poster-h: 46vh; }
   [data-exhibition='victorian'] .vb-lede .pe-figure img,
   [data-exhibition='victorian'] .pe-figure-credit { width: min(70vw, 320px); max-width: min(70vw, 320px); }
   [data-exhibition='victorian'] .vb-lede .pe-figure img { max-height: 42vh; }
@@ -314,7 +309,6 @@
   [data-exhibition='victorian'] .vb-title.pe-title-image { padding-left: 20px; padding-right: 20px; }
   /* On a phone the title takes the full measure; the scrap stays on the landing page. */
   [data-exhibition='victorian'] :is(.vb-scrap-left, .vb-scrap-right)::after { display: none; }
-  [data-exhibition='victorian'] .vb-link .pe-callout { padding-left: 24px; padding-right: 24px; }
   [data-exhibition='victorian'] .vb-picture.pe-full-image { padding-left: 20px; padding-right: 20px; }
   [data-exhibition='victorian'] .vb-village.pe-full-image { --vb-village-w: 92vw; }
 }
@@ -444,9 +438,9 @@
   animation: vbWires 3.6s linear infinite;
 }
 [data-exhibition='victorian'] .pe-atmo-locomotive-steam .pe-atmo-p {
-  /* steam, billowing up and streaming away */
+  /* steam, billowing and streaming away low along the line, under the copy rather than through it */
   left: calc(var(--x) * 0.3%);
-  top: 66%;
+  top: 74%;
   width: calc(12vmin + var(--r) * 18vmin);
   aspect-ratio: 1;
   border-radius: 50%;
@@ -461,7 +455,7 @@
 @keyframes vbSteam {
   0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
   15% { opacity: 1; }
-  100% { transform: translate(85vw, -55vh) scale(1.7); opacity: 0; }
+  100% { transform: translate(85vw, -14vh) scale(1.7); opacity: 0; }
 }
 
 /* ───────── gaslamp: fog drifting round the gas lamps ───────── */
@@ -624,3 +618,12 @@
   [data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-1 { left: 10vw; top: 16vh; }
   [data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-2 { left: 92vw; top: 22vh; }
 }
+
+/* The visit ticket on the classroom screen: this face is narrow, so it is set a size up. */
+[data-exhibition='victorian'] .pjp-stage .pe-ticket-text { font-size: calc(var(--pjp-u) * 2.9); }
+
+/* ───────── Added panels' sources and "Did you know?" notes (A18): green on the page, the copy stays on its linen ───────── */
+[data-exhibition='victorian'] .vb-linen .pe-source, [data-exhibition='victorian'] .pe-added-source { color: var(--vb-green) !important; opacity: 0.9; }
+[data-exhibition='victorian'] .vb-linen .pe-note { color: var(--vb-green) !important; background: rgba(244, 238, 227, 0.92); }
+[data-exhibition='victorian'] :is([data-atmosphere='gaslamp'], [data-atmosphere='locomotive-steam'], [data-atmosphere='yule-hearth']) .vb-linen .pe-source,
+[data-exhibition='victorian'] :is([data-atmosphere='gaslamp'], [data-atmosphere='locomotive-steam'], [data-atmosphere='yule-hearth']) .pe-added-source { color: #f4eee3 !important; }

@@ -1,0 +1,577 @@
+/* ==========================================================================
+   The Black Barbie timeline, on one screen: the year on the blob ringed by
+   poster 1's vignettes, the poster's words beside it, and the stops strung
+   along the lime line at the foot. Each stop sets its own ground from the
+   posters' palette (data-theme on the room).
+   ========================================================================== */
+.bht-room {
+  --g: var(--bh-lime);
+  --ink: #141414;
+  --disc: #111;
+  --year: #fff;
+  --year-shadow: var(--bh-pink);
+  --name: var(--bh-pink);
+  --mark-bg: var(--bh-pink);
+  --mark-ink: #141414;
+  --ray-a: var(--bh-green);
+  --ray-b: #141414;
+  --line: #141414;
+  --pe-nav-m: #141414;
+  --pe-nav-ink: #141414;
+  min-height: 100vh;
+  background-color: var(--g);
+  transition: background-color 0.7s ease;
+  color: var(--ink);
+}
+.bht-room[data-theme='lime-dark'] { --disc: var(--bh-red); --name: var(--bh-lime); --year-shadow: #141414; --mark-bg: #fff; --ray-a: #141414; --ray-b: var(--bh-red); }
+.bht-room[data-theme='blob'] {
+  --g: #111;
+  --ink: #f4f6e4;
+  --disc: var(--bh-lime);
+  --year: #111;
+  --year-shadow: var(--bh-orange);
+  --name: #2a1a14;
+  --mark-bg: var(--bh-lime);
+  --ray-a: var(--bh-lime);
+  --ray-b: var(--bh-orange);
+  --line: var(--bh-lime);
+  --pe-nav-m: var(--bh-lime);
+  --pe-nav-ink: #f4f6e4;
+}
+.bht-room[data-theme='pink'] { --g: var(--bh-pink); --ink: #2a1a14; --disc: #2a1a14; --year-shadow: var(--bh-red); --name: var(--bh-lime); --mark-bg: var(--bh-lime); --ray-a: var(--bh-orange); --ray-b: var(--bh-red); --line: #2a1a14; --pe-nav-m: #2a1a14; --pe-nav-ink: #2a1a14; }
+.bht-room[data-theme='pink-red'] { --g: var(--bh-pink); --ink: #2a1a14; --disc: var(--bh-red); --year-shadow: #2a1a14; --name: var(--bh-lime); --mark-bg: #fff; --ray-a: var(--bh-red); --ray-b: var(--bh-orange); --line: #2a1a14; --pe-nav-m: #2a1a14; --pe-nav-ink: #2a1a14; }
+.bht-room[data-theme='split'] { --mark-bg: var(--bh-orange); --year-shadow: var(--bh-green); --ray-a: var(--bh-green); --ray-b: var(--bh-red); }
+.bht-room[data-theme='split'] .bht-ground { background: linear-gradient(120deg, var(--bh-lime) 0 50%, var(--bh-pink) 50% 100%); }
+
+.bht-stage {
+  --disc-d: min(44vh, 32vw, 460px);
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 560px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas: 'bar bar' 'disc words' 'track track';
+  column-gap: 2vw;
+}
+
+/* ───────── The ground and its sunburst rays ───────── */
+.bht-ground { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.bht-rays {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  -webkit-mask-image: radial-gradient(circle, #000 0 36%, transparent 50%);
+  mask-image: radial-gradient(circle, #000 0 36%, transparent 50%);
+  transform: rotate(var(--turn, 0deg));
+  transition: transform 1.1s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* The top corner's rays start clear of "M ←", so it reads on every ground. */
+.bht-rays-a {
+  -webkit-mask-image: radial-gradient(circle, transparent 0 108px, #000 160px, #000 36%, transparent 50%);
+  mask-image: radial-gradient(circle, transparent 0 108px, #000 160px, #000 36%, transparent 50%);
+}
+.bht-rays-a { left: -35vmax; top: -35vmax; background: repeating-conic-gradient(from 0deg, var(--ray-a) 0 4deg, transparent 4deg 18deg); }
+.bht-rays-b { right: -35vmax; bottom: -35vmax; background: repeating-conic-gradient(from 5deg, var(--ray-b) 0 7deg, transparent 7deg 24deg); }
+
+/* ───────── The title ───────── */
+.bht-bar { grid-area: bar; position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 26px 110px 0; text-align: center; }
+.bht-title { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.6rem, 3vw, 3rem); line-height: 1.1; color: var(--ink); }
+.bht-source { font-family: var(--pe-body); font-weight: 500; font-size: clamp(16px, 1.3vw, 20px); letter-spacing: 0.02em; color: var(--ink); }
+.bht-source cite { font-family: var(--bh-bubble); font-style: normal; }
+
+/* ───────── The year on the blob, ringed by the vignettes ───────── */
+.bht-disc-wrap { grid-area: disc; position: relative; z-index: 1; place-self: center; width: calc(var(--disc-d) * 1.45); height: calc(var(--disc-d) * 1.45); display: grid; place-items: center; }
+.bht-disc {
+  position: relative;
+  z-index: 2;
+  width: var(--disc-d);
+  height: var(--disc-d);
+  border-radius: 50%;
+  background: var(--disc);
+  box-shadow: 0 0 0 calc(var(--disc-d) * 0.025) var(--g), 0 0 0 calc(var(--disc-d) * 0.045) var(--line);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--disc-d) * 0.03);
+  transition: background-color 0.6s ease, box-shadow 0.6s ease;
+}
+.bht-year {
+  font-family: var(--pe-display);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-variation-settings: 'wdth' 125;
+  font-size: calc(var(--disc-d) * 0.25);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: var(--year);
+  text-shadow: 0.05em 0.05em 0 var(--year-shadow);
+  font-variant-numeric: tabular-nums;
+}
+.bht-year-long { font-size: calc(var(--disc-d) * 0.155); white-space: nowrap; }
+.bht-year-word { font-family: var(--bh-bubble); font-weight: 400; font-variation-settings: normal; font-size: calc(var(--disc-d) * 0.22); letter-spacing: 0; }
+.bht-name {
+  font-family: var(--bh-bubble);
+  font-size: calc(var(--disc-d) * 0.085);
+  line-height: 1.15;
+  color: var(--name);
+  max-width: 80%;
+  text-align: center;
+  animation: bht-pop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.bht-vignettes { position: absolute; inset: 0; z-index: 1; }
+.bht-vig {
+  --size: calc(var(--disc-d) * 0.34);
+  position: absolute;
+  left: calc(50% - var(--size) / 2);
+  top: calc(50% - var(--size) / 2);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px var(--g);
+  transform: rotate(var(--a)) translate(calc(var(--disc-d) * 0.56)) rotate(calc(var(--a) * -1));
+  animation: bht-vig-in 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+  animation-delay: var(--delay);
+}
+.bht-vig-1 { --a: -150deg; --delay: 0s; }
+.bht-vig-2 { --a: -90deg; --delay: 0.05s; }
+.bht-vig-3 { --a: -30deg; --delay: 0.1s; }
+.bht-vig-4 { --a: 30deg; --delay: 0.15s; }
+.bht-vig-5 { --a: 90deg; --delay: 0.2s; }
+.bht-vig-6 { --a: 150deg; --delay: 0.25s; }
+@keyframes bht-vig-in {
+  from { transform: rotate(calc(var(--a) - 50deg)) translate(calc(var(--disc-d) * 0.2)) rotate(calc(var(--a) * -1 + 50deg)) scale(0.2); opacity: 0; }
+}
+@keyframes bht-pop { from { transform: scale(0.5); opacity: 0; } }
+
+/* A burst of the posters' circles as a stop opens. */
+.bht-burst { position: absolute; inset: 0; z-index: 0; }
+.bht-burst i {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--disc-d) * 0.07);
+  height: calc(var(--disc-d) * 0.07);
+  margin: calc(var(--disc-d) * -0.035);
+  border-radius: 50%;
+  background: var(--bh-red);
+  opacity: 0;
+  animation: bht-burst 1.1s cubic-bezier(0.1, 0.8, 0.3, 1) var(--d) both;
+}
+.bht-burst i:nth-child(4n + 2) { background: var(--bh-orange); }
+.bht-burst i:nth-child(4n + 3) { background: var(--bh-green); }
+.bht-burst i:nth-child(4n) { background: #fff; }
+@keyframes bht-burst {
+  0% { transform: rotate(var(--a)) translate(0) scale(0.4); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: rotate(var(--a)) translate(calc(var(--disc-d) * 0.78)) scale(1); opacity: 0; }
+}
+
+/* ───────── An owner's photograph, pinned beside the disc ───────── */
+/* Lower right of the disc, clear of its year and name, over the ring of
+   vignettes. --photo-w (set on the figure) keeps it to the disc's size and
+   never wider than the file's own pixels: a small photograph stays small. */
+.bht-photo {
+  grid-area: disc;
+  place-self: center;
+  position: relative;
+  z-index: 3;
+  margin: 0;
+  width: var(--photo-w);
+  transform: translate(calc(var(--disc-d) * 0.66), calc(var(--disc-d) * 0.34));
+  animation: bht-photo-in 0.6s ease 0.15s both;
+}
+.bht-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: #fff;
+  padding: calc(var(--disc-d) * 0.02);
+  border-radius: 3px;
+  box-shadow: 4px 4px 0 var(--line);
+  transform: rotate(3deg);
+}
+.bht-photo-credit {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(var(--disc-d) * 0.8);
+  font-family: var(--pe-body);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.3;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: var(--ink);
+}
+.bht-photo-credit a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.bht-photo-credit a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+@keyframes bht-photo-in { from { opacity: 0; } }
+
+/* ───────── The poster's words ───────── */
+.bht-words {
+  grid-area: words;
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  max-width: 34em;
+  max-height: 100%;
+  overflow-y: auto;
+  /* Room above for the swing tag's tilt, which the scroll box would otherwise clip. */
+  padding: 22px 6vw 8px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: bht-words-in 0.6s ease both;
+}
+.bht-words:focus-visible { outline: 3px solid var(--ink); outline-offset: 4px; }
+@keyframes bht-words-in { from { opacity: 0; transform: translateY(14px); } }
+.bht-sentence { font-family: var(--pe-body); font-weight: 500; font-size: clamp(1.3rem, 2.15vw, 2.3rem); line-height: 1.38; color: var(--ink); }
+.bht-sentence mark {
+  color: var(--mark-ink);
+  font-weight: 600;
+  padding: 0 0.12em;
+  border-radius: 0.2em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  background: linear-gradient(var(--mark-bg), var(--mark-bg)) no-repeat left / 100% 100%;
+  animation: bht-mark 0.8s ease 0.35s both;
+}
+@keyframes bht-mark { from { background-size: 0 100%; } }
+.bht-room[data-theme='blob'] .bht-sentence mark { color: #111; }
+/* Poster 2's credit for the designer, as a swing tag. */
+.bht-tag {
+  align-self: flex-start;
+  position: relative;
+  font-family: var(--pe-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 112;
+  text-transform: uppercase;
+  font-size: clamp(0.9rem, 1.3vw, 1.15rem);
+  letter-spacing: 0.04em;
+  color: #111;
+  background: var(--bh-pink);
+  padding: 10px 18px 10px 34px;
+  border-radius: 4px 18px 18px 4px;
+  transform: rotate(-3deg);
+  box-shadow: 5px 5px 0 var(--bh-orange);
+  white-space: nowrap;
+  animation: bht-swing 1.2s cubic-bezier(0.3, 1.6, 0.5, 1) 0.2s both;
+  transform-origin: 10px 50%;
+}
+.bht-tag::before { content: ''; position: absolute; left: 12px; top: calc(50% - 5px); width: 10px; height: 10px; border-radius: 50%; background: #111; }
+@keyframes bht-swing { 0% { transform: rotate(-24deg); opacity: 0; } 60% { transform: rotate(4deg); opacity: 1; } }
+
+/* An added stop's note: not the poster's words, so a plain caption, not a
+   quote, with its source set small beneath it. */
+.bht-note { display: flex; flex-direction: column; gap: 10px; font-family: var(--pe-body); font-weight: 500; font-size: clamp(1.2rem, 1.95vw, 2.05rem); line-height: 1.4; color: var(--ink); }
+.bht-note-source { font-family: var(--pe-body); font-weight: 500; font-size: clamp(13px, 1vw, 16px); line-height: 1.45; letter-spacing: 0.02em; color: var(--ink); opacity: 0.85; }
+.bht-note-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.bht-note-source a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ───────── The stops along the lime line ───────── */
+.bht-track { grid-area: track; position: relative; z-index: 2; display: flex; align-items: center; gap: 18px; padding: 10px max(4vw, 24px) 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
+.bht-stops-wrap { position: relative; flex: 1; }
+.bht-line { position: absolute; left: 4%; right: 4%; top: 50%; width: 92%; height: 40px; transform: translateY(-50%); }
+.bht-line path { fill: none; stroke: var(--line); stroke-width: 4; vector-effect: non-scaling-stroke; }
+.bht-stops { position: relative; display: flex; justify-content: space-between; list-style: none; margin: 0; padding: 0; }
+.bht-room .bht-stop {
+  appearance: none;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 4px solid var(--line);
+  background: var(--g);
+  color: var(--ink);
+  font-family: var(--pe-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 110;
+  font-size: 17px;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.3, 1.6, 0.5, 1), background-color 0.4s ease, color 0.4s ease;
+}
+.bht-room[data-theme='split'] .bht-stop { background: #fff; }
+.bht-stop-year-long { font-size: 12px; white-space: nowrap; }
+.bht-stop-short { display: none; }
+.bht-room .bht-stop:hover { transform: scale(1.08); }
+.bht-room .bht-stop[aria-current='step'] { background: var(--disc); color: var(--year); transform: scale(1.22); box-shadow: 0 0 0 5px var(--g), 0 0 0 8px var(--line); }
+.bht-room .bht-stop:focus-visible,
+.bht-room .bht-step:focus-visible { outline: 3px solid var(--ink); outline-offset: 10px; }
+.bht-room .bht-step {
+  appearance: none;
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 0;
+  background: var(--line);
+  color: var(--g);
+  font-size: 22px;
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.2s ease;
+}
+.bht-room[data-theme='split'] .bht-step { color: #fff; }
+.bht-room .bht-step:hover:not(:disabled) { transform: scale(1.08); }
+.bht-room .bht-step:disabled { opacity: 0.25; cursor: default; }
+
+/* ==========================================================================
+   The game: guess the year at each stop, then put the stops in order.
+   Big, for the front of a classroom; every choice a big button.
+   ========================================================================== */
+.bht-controls { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px 10px; margin-top: 4px; }
+.bht-room .bht-chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 16px;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--pe-body);
+  font-weight: 600;
+  font-size: clamp(14px, 1.15vw, 18px);
+  cursor: pointer;
+}
+.bht-room .bht-score { cursor: default; background: var(--line); color: var(--g); }
+.bht-room[data-theme='split'] .bht-score { color: #fff; }
+.bht-score strong { font-family: var(--pe-display); font-weight: 900; font-size: 1.2em; }
+.bht-room .bht-sound[aria-pressed='true'] { background: var(--bh-orange); border-color: #141414; color: #141414; }
+.bht-room .bht-chip-go { background: var(--bh-pink); border-color: #141414; color: #141414; box-shadow: 3px 3px 0 #141414; }
+.bht-room .bht-chip:focus-visible,
+.bht-room .bht-btn:focus-visible,
+.bht-room .bht-guess-btn:focus-visible,
+.bht-room .bht-card:focus-visible { outline: 4px solid var(--ink); outline-offset: 4px; }
+
+/* The hidden year: a big question mark that bobs, waiting for a guess. */
+.bht-year-q { font-family: var(--bh-bubble); font-weight: 400; font-variation-settings: normal; font-size: calc(var(--disc-d) * 0.42); letter-spacing: 0; animation: bht-bob 1.8s ease-in-out infinite; }
+@keyframes bht-bob { 50% { transform: translateY(-6%) rotate(-6deg); } }
+
+.bht-guess { display: flex; flex-direction: column; gap: 18px; }
+.bht-guess-heading { font-family: var(--bh-bubble); font-size: clamp(1.6rem, 2.8vw, 3rem); line-height: 1.1; color: var(--ink); }
+.bht-guess-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.bht-room .bht-guess-btn {
+  appearance: none;
+  position: relative;
+  min-height: 92px;
+  border: 4px solid #141414;
+  border-radius: 22px;
+  background: #fff;
+  color: #141414;
+  font-family: var(--pe-display);
+  font-weight: 900;
+  font-variation-settings: 'wdth' 120;
+  font-size: clamp(2rem, 3.6vw, 3.6rem);
+  font-variant-numeric: tabular-nums;
+  box-shadow: 6px 6px 0 #141414;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+  animation: bht-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.bht-room .bht-guess-btn:nth-child(2) { animation-delay: 0.05s; }
+.bht-room .bht-guess-btn:nth-child(3) { animation-delay: 0.1s; }
+.bht-room .bht-guess-btn:nth-child(4) { animation-delay: 0.15s; }
+.bht-room .bht-guess-btn:hover { background: var(--bh-orange); transform: translate(-2px, -2px); box-shadow: 8px 8px 0 #141414; }
+.bht-room .bht-guess-btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 #141414; }
+.bht-guess-key { position: absolute; left: 12px; top: 8px; font-family: var(--pe-body); font-weight: 700; font-size: 14px; opacity: 0.55; }
+
+.bht-room .bht-btn {
+  appearance: none;
+  align-self: flex-start;
+  min-height: 48px;
+  padding: 8px 22px;
+  border: 3px solid var(--line);
+  border-radius: 999px;
+  background: var(--line);
+  color: var(--g);
+  font-family: var(--pe-body);
+  font-weight: 700;
+  font-size: clamp(16px, 1.3vw, 20px);
+  cursor: pointer;
+}
+.bht-room[data-theme='split'] .bht-btn { color: #fff; }
+.bht-room .bht-btn-ghost { background: transparent; color: var(--ink); }
+.bht-room .bht-btn-big { min-height: 60px; padding: 10px 28px; font-size: clamp(18px, 1.6vw, 26px); background: #141414; border-color: #141414; color: var(--bh-lime); box-shadow: 5px 5px 0 var(--bh-red); }
+.bht-room .bht-cta { margin-top: 8px; animation: bht-pop 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) 0.3s both; }
+
+/* After a guess: right, with a cheer; not quite, kindly, with the year. */
+.bht-feedback {
+  align-self: flex-start;
+  font-family: var(--bh-bubble);
+  font-size: clamp(1.5rem, 2.6vw, 2.8rem);
+  line-height: 1.1;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 4px solid #141414;
+  box-shadow: 5px 5px 0 #141414;
+  animation: bht-pop 0.6s cubic-bezier(0.3, 1.8, 0.5, 1) both;
+}
+.bht-feedback-right { background: var(--bh-green); color: #fff; }
+.bht-feedback-right::before { content: '★ '; color: var(--bh-orange); }
+.bht-feedback-wrong { background: #fff; color: #141414; animation-name: bht-wobble; }
+@keyframes bht-wobble { 0% { transform: scale(0.6); opacity: 0; } 50% { transform: rotate(-3deg); opacity: 1; } 75% { transform: rotate(2deg); } }
+
+/* A right guess: the bigger burst. */
+.bht-burst-big { z-index: 3; }
+.bht-burst-big i { width: calc(var(--disc-d) * 0.09); height: calc(var(--disc-d) * 0.09); margin: calc(var(--disc-d) * -0.045); animation-name: bht-burst-big; animation-duration: 1.4s; }
+.bht-burst-big i:nth-child(3n) { border-radius: 2px; }
+@keyframes bht-burst-big {
+  0% { transform: rotate(var(--a)) translate(0) scale(0.3); opacity: 1; }
+  75% { opacity: 1; }
+  100% { transform: rotate(var(--a)) translate(calc(var(--disc-d) * 1.05)) rotate(220deg) scale(1); opacity: 0; }
+}
+
+/* ───────── The final challenge ───────── */
+.bht-order {
+  grid-column: 1 / -1;
+  grid-row: 2 / 4;
+  position: relative;
+  z-index: 2;
+  min-height: 0;
+  overflow-y: auto;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 18px max(3vw, 20px) 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.bht-order-heading { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(2rem, 4vw, 4rem); line-height: 1.05; text-align: center; }
+.bht-order-heading:focus { outline: none; }
+.bht-order-how { font-family: var(--pe-body); font-weight: 500; font-size: clamp(1.05rem, 1.6vw, 1.6rem); text-align: center; max-width: 40em; }
+.bht-order-ends { display: flex; justify-content: space-between; width: 100%; font-family: var(--pe-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(13px, 1.1vw, 17px); }
+.bht-cards { list-style: none; margin: 0; padding: 0; width: 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+.bht-card-slot { display: flex; }
+.bht-room .bht-card {
+  appearance: none;
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 190px;
+  padding: 46px 12px 14px;
+  border: 4px solid #141414;
+  border-radius: 22px;
+  background: #fff;
+  color: #141414;
+  box-shadow: 6px 6px 0 #141414;
+  cursor: grab;
+  touch-action: manipulation;
+  transition: transform 0.2s cubic-bezier(0.3, 1.6, 0.5, 1), background-color 0.2s ease, box-shadow 0.2s ease;
+  animation: bht-pop 0.5s cubic-bezier(0.3, 1.6, 0.5, 1) both;
+}
+.bht-room .bht-card:hover { transform: translateY(-3px); }
+.bht-room .bht-card[aria-pressed='true'] { background: var(--bh-orange); transform: translateY(-8px) rotate(-2deg); box-shadow: 10px 12px 0 #141414; }
+.bht-room .bht-card[data-mark='right'] { background: var(--bh-lime); }
+.bht-room .bht-card[data-mark='wrong'] { background: #fff; border-style: dashed; animation: bht-wobble 0.6s ease both; }
+.bht-card-n { position: absolute; left: 10px; top: 8px; width: 30px; height: 30px; border-radius: 50%; background: #141414; color: #fff; display: grid; place-items: center; font-family: var(--pe-display); font-weight: 800; font-size: 15px; }
+.bht-card-name { font-family: var(--bh-bubble); font-size: clamp(1.1rem, 1.55vw, 1.7rem); line-height: 1.15; text-align: center; }
+.bht-card-year { font-family: var(--pe-display); font-weight: 900; font-variation-settings: 'wdth' 120; font-size: clamp(1.4rem, 2.2vw, 2.4rem); line-height: 1; }
+.bht-card-tick { font-family: var(--pe-body); }
+.bht-card[data-mark='right'] .bht-card-tick { color: var(--bh-green); }
+.bht-card[data-mark='wrong'] .bht-card-tick { color: var(--bh-red); }
+.bht-order-result { font-family: var(--bh-bubble); font-size: clamp(1.4rem, 2.4vw, 2.6rem); text-align: center; animation: bht-pop 0.6s cubic-bezier(0.3, 1.8, 0.5, 1) both; }
+.bht-order-result-all { font-size: clamp(2rem, 4vw, 4.2rem); color: #141414; text-shadow: 0.05em 0.05em 0 #fff; }
+.bht-order-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.bht-order-actions .bht-btn { align-self: auto; }
+
+/* All in order: the posters' circles rain down. */
+.bht-confetti { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
+.bht-confetti i { position: absolute; top: -40px; left: var(--x); width: 22px; height: 22px; border-radius: 50%; background: var(--bh-red); animation: bht-fall 2.6s cubic-bezier(0.3, 0.2, 0.6, 1) var(--d) both; }
+.bht-confetti i:nth-child(4n + 1) { background: var(--bh-orange); }
+.bht-confetti i:nth-child(4n + 2) { background: var(--bh-green); border-radius: 3px; }
+.bht-confetti i:nth-child(4n + 3) { background: #fff; }
+@keyframes bht-fall { to { transform: translateY(110vh) rotate(calc(var(--r) + 540deg)); } }
+.bht-sound-icon { width: 1.25em; height: 1.25em; }
+
+/* ───────── An iPad held upright: the year above the words, both large ───────── */
+@media (min-width: 761px) and (max-aspect-ratio: 4/5) {
+  .bht-stage {
+    --disc-d: min(46vw, 30vh);
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas: 'bar' 'disc' 'words' 'track';
+  }
+  .bht-disc-wrap { margin-top: 12px; }
+  .bht-words { align-self: start; max-width: none; padding: 18px 7vw 8px; }
+  .bht-sentence { font-size: clamp(1.3rem, 3vw, 2.4rem); }
+  .bht-note { font-size: clamp(1.25rem, 2.8vw, 2.2rem); }
+  .bht-order { grid-row: 2 / 5; }
+}
+
+/* ───────── On a phone: the year, the words, the stops, top to bottom ───────── */
+@media (max-width: 760px) {
+  .bht-stage {
+    --disc-d: min(44vw, 22dvh);
+    min-height: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    grid-template-areas: 'bar' 'disc' 'words' 'track';
+  }
+  .bht-bar { padding: 22px 56px 0; gap: 4px; }
+  .bht-title { font-size: 1.3rem; }
+  .bht-source { font-size: 12px; }
+  .bht-disc-wrap { margin: 12px 0 2px; }
+  .bht-words { align-self: start; padding: 14px 22px 8px; gap: 12px; }
+  .bht-sentence { font-size: 1.08rem; line-height: 1.34; }
+  .bht-tag { font-size: 0.8rem; padding: 7px 14px 7px 28px; }
+  .bht-tag::before { left: 10px; width: 8px; height: 8px; top: calc(50% - 4px); }
+  /* Clear of the museum map button in the corner; a swipe or a tap on a stop moves along. */
+  .bht-track { gap: 6px; padding: 8px 14px 84px; }
+  .bht-room .bht-step { display: none; }
+  .bht-rays { width: 120vw; height: 120vw; }
+  .bht-rays-a { left: -60vw; top: -60vw; }
+  .bht-rays-b { right: -60vw; bottom: -60vw; opacity: 0.7; }
+  .bht-track { padding-left: 10px; padding-right: 10px; }
+  .bht-room .bht-stop { width: 37px; height: 37px; border-width: 2.5px; padding: 0; font-size: 9px; letter-spacing: -0.02em; font-variation-settings: 'wdth' 100; }
+  .bht-stop-year-long { font-size: 9px; }
+  .bht-stop-full { display: none; }
+  .bht-stop-short { display: inline; }
+  .bht-note { gap: 8px; font-size: 1.04rem; line-height: 1.38; }
+  .bht-note-source { font-size: 11px; }
+  .bht-photo-credit { top: calc(100% + 5px); font-size: 9px; }
+  .bht-room .bht-stop[aria-current='step'] { transform: scale(1.14); box-shadow: 0 0 0 3px var(--g), 0 0 0 5px var(--line); }
+
+  .bht-controls { gap: 6px; margin-top: 2px; }
+  .bht-room .bht-chip { min-height: 32px; padding: 3px 10px; border-width: 2px; font-size: 12.5px; }
+  .bht-guess { gap: 10px; }
+  .bht-guess-heading { font-size: 1.35rem; }
+  .bht-guess-choices { gap: 10px; }
+  .bht-room .bht-guess-btn { min-height: 64px; font-size: 1.8rem; border-width: 3px; border-radius: 16px; box-shadow: 4px 4px 0 #141414; }
+  .bht-guess-key { font-size: 11px; left: 8px; top: 5px; }
+  .bht-room .bht-btn { min-height: 42px; padding: 6px 16px; font-size: 15px; }
+  .bht-room .bht-btn-big { min-height: 48px; font-size: 16px; }
+  .bht-feedback { font-size: 1.25rem; padding: 6px 14px; border-width: 3px; box-shadow: 3px 3px 0 #141414; }
+
+  .bht-order { grid-row: 2 / 5; padding: 10px 14px 90px; gap: 10px; }
+  .bht-order-heading { font-size: 1.8rem; }
+  .bht-order-how { font-size: 0.98rem; }
+  .bht-order-ends { display: none; }
+  /* On a phone the cards are a list, earliest at the top. */
+  .bht-cards { grid-template-columns: 1fr; gap: 8px; }
+  .bht-room .bht-card { min-height: 0; flex-direction: row; justify-content: flex-start; gap: 12px; padding: 10px 14px; border-width: 3px; border-radius: 16px; box-shadow: 4px 4px 0 #141414; }
+  .bht-card-n { position: static; flex: none; }
+  .bht-card-name { flex: 1; text-align: left; font-size: 1.05rem; }
+  .bht-card-year { font-size: 1.2rem; }
+  .bht-room .bht-card[aria-pressed='true'] { transform: translateX(6px); box-shadow: 6px 6px 0 #141414; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bht-room, .bht-rays, .bht-disc, .bht-room .bht-stop { transition: none; }
+  .bht-name, .bht-vig, .bht-words, .bht-sentence mark, .bht-tag, .bht-photo { animation: none; }
+  .bht-burst, .bht-confetti { display: none; }
+  .bht-year-q, .bht-room .bht-guess-btn, .bht-feedback, .bht-room .bht-cta, .bht-room .bht-card, .bht-order-result { animation: none; }
+  .bht-room .bht-guess-btn, .bht-room .bht-card { transition: none; }
+}

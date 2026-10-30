@@ -1,6 +1,9 @@
 import { RoomConnection } from '../types';
 import { LESSON_ROOM_IDS, hasLessons } from '@/lib/lessons/catalog';
-import { GROUND_FLOOR, FIRST_FLOOR } from '@/lib/floors';
+import { FLOORS, STUDIO } from '@/lib/floors';
+
+/** A floor's room id: the last part of its path ('second-floor'). */
+const floorId = (path: string) => path.slice(path.lastIndexOf('/') + 1);
 
 /**
  * Connection lines between rooms on the museum map
@@ -9,34 +12,33 @@ export const CONNECTIONS: RoomConnection[] = [
   // From Great Hall
   ['greathall', 'about'],
   ['greathall', 'contact'],
-  ['greathall', 'first-floor'],
-  ['greathall', 'ground-floor'],
+  ...[...FLOORS, STUDIO].map((floor): RoomConnection => ['greathall', floorId(floor.path)]),
 
   // Each floor to its exhibitions
-  ...GROUND_FLOOR.exhibitions.map((e): RoomConnection => ['ground-floor', e.slug]),
-  ...FIRST_FLOOR.exhibitions.map((e): RoomConnection => ['first-floor', e.slug]),
+  ...FLOORS.flatMap((floor) => floor.exhibitions.map((e): RoomConnection => [floorId(floor.path), e.slug])),
 
-  // Seeing is Deceiving sub-pages
-  ['seeing-is-deceiving', 'illusions'],
+  // Each exhibition to its display cases and its other pages; the
+  // interactive rooms open from a case, not from the hall.
   ['seeing-is-deceiving', 'artifacts'],
   ['seeing-is-deceiving', 'resources'],
+  ['artifacts', 'illusions'],
+  ['artifacts', 'sid-optical-toys'],
 
-  // Harlem Renaissance sub-pages
   ['harlem-renaissance', 'hr-artifacts'],
-  ['harlem-renaissance', 'hr-jazz-lab'],
-  ['harlem-renaissance', 'hr-harlem-in-words'],
-  ['harlem-renaissance', 'hr-migration-map'],
   ['harlem-renaissance', 'hr-resources'],
+  ['hr-artifacts', 'hr-jazz-lab'],
+  ['hr-artifacts', 'hr-harlem-in-words'],
+  ['hr-artifacts', 'hr-migration-map'],
 
-  // In Their Hands sub-pages
+  // In Their Hands: each case opens onto its own room
   ['in-their-hands', 'ith-case-6'],
   ['in-their-hands', 'ith-case-7'],
   ['in-their-hands', 'ith-case-8'],
-  ['in-their-hands', 'ith-timeline'],
-  ['in-their-hands', 'ith-hands'],
-  ['in-their-hands', 'ith-real-or-replica'],
+  ['in-their-hands', 'ith-resources'],
+  ['ith-case-6', 'ith-timeline'],
+  ['ith-case-7', 'ith-hands'],
+  ['ith-case-8', 'ith-real-or-replica'],
 
-  // The Great War sub-pages
   ['great-war', 'gw-case'],
   ['egypt', 'eg-case'],
   ['moon', 'mo-case'],
@@ -45,8 +47,28 @@ export const CONNECTIONS: RoomConnection[] = [
   ['holocaust', 'ho-case'],
   ['black-history', 'bh-case'],
   ['writing-revolution', 'wr-case'],
-  ['great-war', 'gw-silence'],
-  ['great-war', 'gw-memorial'],
+  ['america-250', 'ap-case'],
+  ['fear-lab', 'fl-case'],
+  ['gw-case', 'gw-silence'],
+  ['gw-case', 'gw-memorial'],
+  ['bh-case', 'bh-timeline'],
+  ['bh-case', 'bh-representation'],
+  ['wr-case', 'wr-typing'],
+  ['wh-case', 'wh-violet'],
+  ['wh-case', 'wh-remembered'],
+  ['ho-case', 'ho-stones'],
+  ['vb-case', 'vb-christmas-card'],
+  ['vb-case', 'vb-inventions'],
+  ['vb-case', 'vb-christmas-parlour'],
+  ['mo-case', 'mo-microscope'],
+  ['ap-case', 'ap-sign'],
+  ['fl-case', 'fl-what-scares-you'],
+  ['eg-case', 'eg-hieroglyph-name'],
+  ['eg-case', 'eg-rosetta-stone'],
+  ['eg-case', 'eg-tomb'],
+  ['eg-case', 'eg-mummification'],
+  ['eg-case', 'eg-weighing-of-the-heart'],
+  ['eg-case', 'eg-amulet'],
 
   // Each exhibition's Lessons room, once it has lessons
   ...Object.keys(LESSON_ROOM_IDS)

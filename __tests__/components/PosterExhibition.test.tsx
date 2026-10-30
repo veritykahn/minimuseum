@@ -3,7 +3,9 @@ import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { colorsFor, emphasisRuns, posterLengths, projectorPosters, veilFor } from '@/components/exhibition/helpers';
 import type { ExhibitionConfig, PosterItem } from '@/components/exhibition/types';
 import { OPENING, posterChapters } from '@/components/projector/posterTalk';
-import { FEAR_LAB } from '@/app/exhibitions/fear-lab/fearLab';
+import { FEAR_LAB, FEAR_LAB_CASE } from '@/app/exhibitions/fear-lab/fearLab';
+import FearLabCase from '@/app/exhibitions/fear-lab/artifacts/case/page';
+import { plainText, recordLines } from '@/components/exhibition/artifacts';
 
 /*
  * The poster exhibition engine (components/exhibition): landing page,
@@ -136,19 +138,70 @@ describe('PosterExhibition', () => {
     expect(screen.getByRole('button', { name: /First poster image/ })).toHaveFocus();
   });
 
-  it('ends a poster with Return to Exhibition and, where there are lessons, the poster’s lessons', () => {
-    // in-their-hands has lessons on its poster1 in the catalog.
+  it('ends a poster on Return to Exhibition, with no list of lessons', () => {
     render(<PosterExhibition config={makeConfig({ slug: 'in-their-hands' })} />);
-    expect(screen.getByRole('link', { name: /lessons/i })).toHaveAttribute('href', '/exhibitions/in-their-hands/lessons');
     fireEvent.click(screen.getByRole('button', { name: /First poster image/ }));
     tick();
     press('End');
     tick();
     expect(screen.queryByRole('button', { name: 'Next panel' })).toBeNull();
-    expect(screen.getByRole('heading', { name: 'Teach this poster' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Teach this poster|For teachers/ })).toBeNull();
+    expect(screen.queryByRole('link', { name: /lessons/i })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Return to Exhibition' }));
     tick();
     expect(screen.getByRole('heading', { level: 1, name: 'Test Exhibition' })).toBeInTheDocument();
+  });
+
+  it('opens "Teach with this" as a dialog: choose a role, see its lessons by grade, close on Escape', () => {
+    render(<PosterExhibition config={makeConfig({ slug: 'in-their-hands' })} />);
+    const teach = screen.getByRole('button', { name: /Teach with this/ });
+    teach.focus();
+    fireEvent.click(teach);
+    tick(50);
+    const dialog = screen.getByRole('dialog', { name: 'Test Exhibition' });
+    expect(dialog).toHaveAttribute('aria-modal', 'true');
+    expect(within(dialog).getByRole('heading', { name: 'Who is teaching?' })).toBeInTheDocument();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: /Teacher/ }));
+    expect(window.sessionStorage.getItem('mm-teach-role')).toBe('teacher');
+    expect(within(dialog).getByRole('button', { name: 'Teacher' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(dialog).getByRole('heading', { name: 'Lessons by grade' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('heading', { name: 'PreK–K' })).toBeInTheDocument();
+    // a faith-based lesson is one choice among the others, and says so
+    expect(within(dialog).getByRole('link', { name: /Whose Image Is This\?.*Faith-based/ })).toHaveAttribute(
+      'href',
+      '/exhibitions/in-their-hands/lessons/whose-image-is-this',
+    );
+    expect(within(dialog).getByRole('link', { name: /Who Ruled Judaea\?/ }).textContent).not.toMatch(/Faith-based/);
+    expect(within(dialog).getByRole('heading', { name: 'Printables' })).toBeInTheDocument();
+    // the poster's chapter questions, and the classroom links that are not the resources page
+    expect(within(dialog).getByText('Question about A?')).toBeInTheDocument();
+    expect(within(dialog).getByRole('link', { name: /Teacher resources/ })).toHaveAttribute('href', '/resources');
+
+    // a parent leads with talking about it
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Parent / homeschool' }));
+    const groups = Array.from(dialog.querySelectorAll('h4')).map((h) => h.textContent);
+    expect(groups[0]).toBe('Talk about it together');
+    expect(within(dialog).getByRole('link', { name: /Parent Resource Guide/ })).toHaveAttribute('target', '_blank');
+
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('heading', { level: 1, name: 'Test Exhibition' })).toBeInTheDocument();
+  });
+
+  it('remembers the role, and opens projector mode from "Present the posters"', () => {
+    window.sessionStorage.setItem('mm-teach-role', 'librarian');
+    render(<PosterExhibition config={makeConfig()} />);
+    fireEvent.click(screen.getByRole('button', { name: /Teach with this/ }));
+    const dialog = screen.getByRole('dialog');
+    expect(within(dialog).getByRole('heading', { name: 'For librarians' })).toBeInTheDocument();
+    // no lessons for this exhibition: no lessons group, no printables
+    expect(within(dialog).queryByRole('heading', { name: /Lessons/ })).toBeNull();
+    expect(within(dialog).queryByRole('heading', { name: 'Printables' })).toBeNull();
+    fireEvent.click(within(dialog).getByRole('button', { name: /Open projector mode/ }));
+    tick();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('navigation', { name: 'Projector tools' })).toBeInTheDocument();
   });
 
   it('shows no lessons when the exhibition has none', () => {
@@ -238,10 +291,30 @@ describe('exhibition helpers', () => {
 });
 
 describe('The Fear Lab', () => {
-  it('has two posters, each ending with Return to Exhibition, and no display cases yet', () => {
+  it('has two posters, each ending with Return to Exhibition, and one display case', () => {
     expect(FEAR_LAB.posters.map((p) => p.id)).toEqual(['poster1', 'poster2']);
     for (const p of FEAR_LAB.posters) expect(p.items[p.items.length - 1].type).toBe('end');
-    expect(FEAR_LAB.cases ?? []).toHaveLength(0);
+    expect(FEAR_LAB.cases?.map((c) => [c.href, c.label, c.title])).toEqual([['/exhibitions/fear-lab/artifacts/case', 'Display Case', 'Artifacts']]);
+  });
+
+  it('keeps the record in its case, with a card for each artifact, beside an empty case awaiting its photographs', () => {
+    render(<FearLabCase />);
+    expect(screen.getByRole('heading', { level: 1, name: 'The Fear Lab' })).toBeInTheDocument();
+    // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    expect(recordLines(FEAR_LAB_CASE).map(plainText)).toEqual([
+      'Two tactile, mystery Fear Boxes with rotating weekly contents',
+      'Vintage collection of original Point Horror paperback editions with library cards',
+      'Educational panels explaining the neuroscience of fear, pareidolia, and Gothic literature',
+    ]);
+    const cards = screen.getAllByRole('link', { name: /View artifact/ });
+    expect(cards.map((c) => c.getAttribute('href'))).toEqual(['/exhibitions/fear-lab/artifacts/case/fear-boxes', '/exhibitions/fear-lab/artifacts/case/point-horror']);
+    // No installation photographs: an empty case, drawn, stands in for them.
+    expect(FEAR_LAB_CASE.photos).toHaveLength(0);
+    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(JSON.stringify(FEAR_LAB_CASE)).not.toMatch(/installation|\.jpg/);
+    // The lab opens from the case, under its Interactives tab.
+    fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
+    expect(screen.getByRole('link', { name: /What Scares You\?/ })).toHaveAttribute('href', '/exhibitions/fear-lab/what-scares-you');
   });
 
   it.each(FEAR_LAB.posters.map((p) => [p.id, p] as const))('%s: one question per chapter, and none left over', (_id, p) => {

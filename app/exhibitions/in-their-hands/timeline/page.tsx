@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { timelineStops } from './timeline-data';
 import { RIBBON_START, RIBBON_END, formatYear, ribbonPosition, windowPosition, parseStopParam } from './chronology';
 import { coinHref, HANDS_HREF, HANDS_COIN_NAME, COIN_LESSON, lessonHref } from '../story-links';
+import { Celebration, SoundSwitch } from '@/components/games/feedback/FeedbackKit';
+import PlaceTheCoin from './PlaceTheCoin';
 
 
 // Axis labels: the two ends and the turn of the era. There is no year 0,
@@ -34,7 +36,32 @@ export default function GospelTimeline() {
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
 
+  // Place the coin: at each stop the coin comes first, and the student puts
+  // it in its place on the ribbon before the story opens. A teacher can turn
+  // it off; "Just show me the story" opens one stop without placing it.
+  const [placeMode, setPlaceMode] = useState(true);
+  const [placedIds, setPlacedIds] = useState<number[]>([]);
+  const [skippedIds, setSkippedIds] = useState<number[]>([]);
+  const [allPlaced, setAllPlaced] = useState(false);
+  const focusStory = useRef(false);
+
   const stop = timelineStops[currentIndex];
+  const opened = (id: number) => !placeMode || placedIds.includes(id) || skippedIds.includes(id);
+  const placing = !opened(stop.id);
+  const placingRef = useRef(placing);
+  useEffect(() => { placingRef.current = placing; }, [placing]);
+
+  const onPlaced = useCallback(() => {
+    focusStory.current = true;
+    if (placedIds.includes(stop.id)) return;
+    const next = [...placedIds, stop.id];
+    setPlacedIds(next);
+    if (next.length === timelineStops.length) setAllPlaced(true);
+  }, [stop.id, placedIds]);
+  const onSkip = useCallback(() => {
+    focusStory.current = true;
+    setSkippedIds((ids) => (ids.includes(stop.id) ? ids : [...ids, stop.id]));
+  }, [stop.id]);
   const isFirst = currentIndex === 0;
   const isLast = currentIndex === timelineStops.length - 1;
 
@@ -86,7 +113,13 @@ export default function GospelTimeline() {
     const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
     fonts?.ready.then(measureBody).catch(() => {});
     return () => window.removeEventListener('resize', measureBody);
-  }, [currentIndex, measureBody]);
+  }, [currentIndex, placing, measureBody]);
+  // When a coin is placed the story opens: keyboard focus goes to it.
+  useEffect(() => {
+    if (placing || !focusStory.current) return;
+    focusStory.current = false;
+    bodyRef.current?.focus({ preventScroll: true });
+  }, [placing]);
   const scrollBodyDown = useCallback(() => {
     const el = bodyRef.current;
     if (el) el.scrollBy({ top: el.clientHeight * 0.8, behavior: 'smooth' });
@@ -130,6 +163,9 @@ export default function GospelTimeline() {
     touchEndX.current = e.touches[0].clientX;
   };
   const handleTouchEnd = () => {
+    // While a coin is being placed, a finger moving across the screen is
+    // dragging the coin, not turning the page.
+    if (placingRef.current) return;
     const diff = touchStartX.current - touchEndX.current;
     if (Math.abs(diff) > 60) {
       if (diff > 0) goNext();
@@ -792,6 +828,138 @@ export default function GospelTimeline() {
           .tl-stop { width: 24px; height: 24px; font-size: 10px; }
           .tl-axis-tick.era .tl-axis-label { display: none; }
         }
+        /* ========== PLACE THE COIN ========== */
+        .tl-sr {
+          position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+          overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+        }
+        .tl-header-right { display: flex; align-items: center; gap: 12px; }
+        .tl-place-toggle {
+          display: inline-flex; align-items: center; gap: 8px;
+          min-height: 44px; padding: 0 16px; border-radius: 100px;
+          border: 1px solid currentColor; background: transparent;
+          color: #C9A84C; font-family: 'Outfit', sans-serif;
+          font-size: clamp(13px, 0.5vw + 9px, 16px); letter-spacing: 0.1em; text-transform: uppercase;
+          cursor: pointer; white-space: nowrap;
+        }
+        .tl-place-toggle[aria-pressed='true'] { background: rgba(201, 168, 76, 0.16); }
+        .tl-place-toggle:focus-visible { outline: 2px solid #F5EDD8; outline-offset: 3px; }
+        .tl-place-coin {
+          display: flex; flex-direction: column; align-items: center; gap: 12px;
+          background: none; border: none; padding: 8px; color: inherit;
+          cursor: grab; touch-action: none; border-radius: 50%;
+          -webkit-user-select: none; user-select: none; -webkit-touch-callout: none;
+        }
+        .tl-place-coin:focus-visible { outline: 3px solid #F5EDD8; outline-offset: 6px; border-radius: 24px; }
+        .tl-place-coin.picked .tl-coin-img { filter: drop-shadow(0 0 28px rgba(226, 195, 107, 0.85)); }
+        .tl-place-coin.dragging { cursor: grabbing; }
+        .tl-place-coin.dragging .tl-coin-img { opacity: 0.35; }
+        .tl-place-coin.placed { cursor: default; }
+        .tl-place-coin.placed .tl-coin-img { opacity: 0.5; }
+        .tl-place-coin-cue {
+          font-family: 'Outfit', sans-serif;
+          font-size: clamp(14px, 0.5vw + 10px, 18px);
+          letter-spacing: 0.12em; text-transform: uppercase;
+          color: #E2C36B;
+          border: 1px dashed rgba(226, 195, 107, 0.6); border-radius: 100px;
+          padding: 6px 16px;
+        }
+        .tl-place-card { overflow-y: auto; height: auto; max-height: calc(100dvh - 210px); padding-top: 22px; }
+        .tl-place-kicker {
+          font-family: 'Outfit', sans-serif;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
+          letter-spacing: 0.16em; text-transform: uppercase;
+          color: #7A5F1E; margin-bottom: 4px;
+        }
+        .tl-place-passage {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: clamp(1.02rem, 0.4vw + 0.88rem, 1.22rem);
+          font-style: italic; line-height: 1.55; color: #5A4E3E;
+          margin-bottom: 12px;
+        }
+        .tl-place-ask {
+          font-family: 'Outfit', sans-serif;
+          font-size: clamp(15px, 0.4vw + 12px, 18px);
+          line-height: 1.5; color: #3D3428; margin-bottom: 14px;
+        }
+        .tl-place-ribbon {
+          list-style: none; margin: 0 0 12px; padding: 12px 10px;
+          display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px;
+          border-radius: 8px;
+          background: linear-gradient(to bottom, #2a1f0e, #1C1409);
+          box-shadow: inset 0 0 0 1px rgba(201, 168, 76, 0.45);
+          position: relative;
+        }
+        .tl-place-ribbon.armed { box-shadow: inset 0 0 0 2px #E2C36B, 0 0 18px rgba(226, 195, 107, 0.45); }
+        .tl-place-slot {
+          width: 100%; min-height: 56px; padding: 6px;
+          display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+          border-radius: 6px; border: 1.5px dashed rgba(226, 195, 107, 0.55);
+          background: rgba(245, 237, 216, 0.04); color: #F5EDD8;
+          font-family: 'Outfit', sans-serif;
+          font-size: clamp(14px, 0.4vw + 11px, 17px);
+          cursor: pointer; transition: background 0.2s, border-color 0.2s;
+        }
+        .tl-place-slot:hover, .tl-place-slot.over { background: rgba(226, 195, 107, 0.2); border-color: #E2C36B; border-style: solid; }
+        .tl-place-slot:focus-visible { outline: 3px solid #F5EDD8; outline-offset: 2px; }
+        .tl-place-slot.missed {
+          cursor: default; opacity: 0.5; text-decoration: line-through;
+          border-color: rgba(238, 138, 42, 0.8); animation: tl-place-shake 0.4s ease;
+        }
+        .tl-place-slot.missed:hover { background: rgba(245, 237, 216, 0.04); }
+        .tl-place-slot.here { border: 2px solid #7BC67B; background: rgba(123, 198, 123, 0.18); }
+        .tl-place-slot-coins { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; min-height: 0; }
+        .tl-place-slot-coins img { width: 22px; height: 22px; object-fit: contain; }
+        .tl-place-slot-coins img.tl-place-snap { width: 34px; height: 34px; animation: tl-place-snap 0.45s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+        @keyframes tl-place-snap { from { transform: scale(2.2); opacity: 0; } to { transform: none; opacity: 1; } }
+        @keyframes tl-place-shake {
+          0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); }
+        }
+        .tl-place-message {
+          font-family: 'Outfit', sans-serif;
+          font-size: clamp(15px, 0.4vw + 12px, 18px);
+          line-height: 1.45; color: #3D3428; margin: 0; flex: 1 1 14em;
+        }
+        .tl-place-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; min-height: 44px; }
+        .tl-place-message.wrong { color: #8a4a00; }
+        .tl-place-message.right { color: #2f6b40; font-weight: 500; }
+        .tl-place-skip {
+          flex: 0 0 auto; min-height: 44px; padding: 8px 18px; border-radius: 100px;
+          border: 1px solid rgba(107, 79, 18, 0.5); background: transparent; color: #5E4914;
+          font-family: 'Outfit', sans-serif; font-size: clamp(14px, 0.3vw + 11px, 16px);
+          cursor: pointer;
+        }
+        .tl-place-skip:focus-visible { outline: 2px solid #3D3428; outline-offset: 2px; }
+        .tl-place-ghost {
+          position: fixed; z-index: 2147483000; width: 110px; height: auto;
+          transform: translate(-50%, -50%) scale(1.05); pointer-events: none;
+          filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.6));
+        }
+        @media (max-width: 900px) {
+          .tl-place-card { overflow: visible; max-height: none; }
+          /* The coin stays in view while the page scrolls down to the
+             ribbon, so it can be dragged there. */
+          .tl-place-coin-area {
+            position: sticky; top: 56px; z-index: 4; align-self: stretch;
+            background: linear-gradient(to bottom, #1C1409 0%, #1C1409 78%, rgba(28, 20, 9, 0) 100%);
+            padding-bottom: 10px;
+          }
+          .tl-place-coin { gap: 6px; padding: 4px; }
+          .tl-place-coin .tl-coin-img { width: min(30vw, 15vh); animation: none; }
+        }
+        @media (max-width: 600px) {
+          .tl-header { padding: 14px 16px 24px; }
+          .tl-header-right { gap: 8px; }
+          .tl-place-toggle { width: 44px; padding: 0; justify-content: center; }
+          .tl-place-toggle-label {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+          }
+          .tl-place-ribbon { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .tl-place-slot.missed, .tl-place-slot-coins img.tl-place-snap { animation: none; }
+        }
       `}</style>
 
       {/* Background painting */}
@@ -802,20 +970,45 @@ export default function GospelTimeline() {
       </div>
 
       <div style={srOnly} role="status" aria-live="polite">
-        {loaded ? `Stop ${currentIndex + 1} of ${timelineStops.length}: ${stop.ruler}, ${stop.when.label}` : ''}
+        {!loaded
+          ? ''
+          : placing
+            ? `Stop ${currentIndex + 1} of ${timelineStops.length}: ${stop.ruler}. Place the coin on the ribbon.`
+            : `Stop ${currentIndex + 1} of ${timelineStops.length}: ${stop.ruler}, ${stop.when.label}`}
       </div>
 
       {/* Header */}
       <header className="tl-header">
-        <button className="tl-back-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
+        <button className="tl-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-6?view=interactives')}>
           <span>{'\u2190'}</span>
-          Exhibition
+          Display Case
         </button>
-        <span className="tl-counter">{stop.id} / {timelineStops.length}</span>
+        <div className="tl-header-right">
+          <SoundSwitch className="tl-header-btn" style={{ color: '#C9A84C', fontFamily: "'Outfit', sans-serif" }} />
+          <button
+            type="button"
+            className="tl-header-btn tl-place-toggle"
+            aria-pressed={placeMode}
+            onClick={() => setPlaceMode((m) => !m)}
+          >
+            <span aria-hidden="true">{'\u25CE'}</span> <span className="tl-place-toggle-label">Place the coins</span>
+          </button>
+          <span className="tl-counter">{stop.id} / {timelineStops.length}</span>
+        </div>
       </header>
 
       {/* Main content */}
       <div className="tl-main">
+        {placing ? (
+          <PlaceTheCoin
+            key={stop.id}
+            stop={stop}
+            placedStops={timelineStops.filter((s) => placedIds.includes(s.id))}
+            enterClass={transitioning ? (direction === 'right' ? 'entering-right' : 'entering-left') : 'visible'}
+            onPlaced={onPlaced}
+            onSkip={onSkip}
+          />
+        ) : (<>
         {/* Coin */}
         <div className="tl-coin-area">
           <div className={`tl-coin-wrapper ${transitioning ? (direction === 'right' ? 'entering-right' : 'entering-left') : 'visible'}`}>
@@ -861,14 +1054,15 @@ export default function GospelTimeline() {
                 )}
               </ul>
               {isLast && (
-                <Link className="tl-end-btn" href="/exhibitions/in-their-hands">
-                  Back to Exhibition <span aria-hidden="true">{'\u2192'}</span>
+                <Link className="tl-end-btn" href="/exhibitions/in-their-hands/artifacts/case-6?view=interactives">
+                  Back to Display Case <span aria-hidden="true">{'\u2192'}</span>
                 </Link>
               )}
             </div>
           </div>
         </div>
-
+        </>)}
+        {allPlaced && <Celebration />}
       </div>
 
       {/* Painting inset — right side, click for fullscreen */}
@@ -919,7 +1113,7 @@ export default function GospelTimeline() {
               const b = s.when.to ? ribbonPosition(s.when.to) : a;
               return (
                 <span key={s.id}
-                  className={`tl-axis-mark ${i === currentIndex ? 'active' : ''}`}
+                  className={`tl-axis-mark ${i === currentIndex && !placing ? 'active' : ''}`}
                   style={{ left: `${toAxis(a)}%`, width: `max(3px, ${toAxis(b) - toAxis(a)}%)` }} />
               );
             })}
@@ -927,7 +1121,7 @@ export default function GospelTimeline() {
           <svg className="tl-leaders" viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true" focusable="false">
             {timelineStops.map((s, i) => (
               <line key={s.id}
-                className={i === currentIndex ? 'active' : ''}
+                className={i === currentIndex && !placing ? 'active' : ''}
                 x1={toAxis(windowPosition(s.when.from, s.when.to))} y1={0}
                 x2={((i + 0.5) / timelineStops.length) * 100} y2={10}
                 vectorEffect="non-scaling-stroke" />
@@ -940,7 +1134,7 @@ export default function GospelTimeline() {
                   type="button"
                   className={`tl-stop ${i === currentIndex ? 'active' : ''}`}
                   onClick={() => goTo(i)}
-                  aria-label={`Stop ${i + 1}: ${s.ruler}, ${s.when.label}`}
+                  aria-label={opened(s.id) ? `Stop ${i + 1}: ${s.ruler}, ${s.when.label}` : `Stop ${i + 1}: ${s.ruler}`}
                   aria-current={i === currentIndex ? 'step' : undefined}
                 >
                   <span aria-hidden="true">{i + 1}</span>
