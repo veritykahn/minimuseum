@@ -37,7 +37,7 @@ export default function VictorianChristmasCard() {
   const [tab, setTab] = useState<TabId>('front');
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ front: null, inside: null, print: null });
 
-  const [picture, setPicture] = useState<PictureId>('robin');
+  const [picture, setPicture] = useState<PictureId>('tree');
   const [border, setBorder] = useState<BorderId>('gilt');
   const [paper, setPaper] = useState<PaperId>('cream');
   const [greetingChoice, setGreetingChoice] = useState<number>(0);
@@ -184,7 +184,6 @@ export default function VictorianChristmasCard() {
             )}
           </fieldset>
           {GREETINGS[greetingChoice]?.first && <FactNote fact={CARD_NOTES.greeting} className="vbr-fact" />}
-          <p className="vbr-credit">{t.credit}</p>
         </section>
 
         <section className="vbr-card" id="vcc-panel-inside" role="tabpanel" aria-labelledby="vcc-tab-inside" hidden={tab !== 'inside'}>

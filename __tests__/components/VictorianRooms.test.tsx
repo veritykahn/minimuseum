@@ -73,10 +73,10 @@ describe('the Christmas card maker', () => {
     const front = () => screen.getByRole('img', { name: /The card’s front/ });
     expect(front()).toHaveAccessibleName(expect.stringContaining(GREETINGS[0].text));
     expect(screen.getByText(CARD_NOTES.greeting.text)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Snowy church' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Snowy village' }));
     fireEvent.click(screen.getByRole('button', { name: 'Lace' }));
     fireEvent.click(screen.getByRole('button', { name: /Midnight/ }));
-    expect(front()).toHaveAccessibleName(expect.stringMatching(/village church in the snow.*lace border on midnight paper/));
+    expect(front()).toHaveAccessibleName(expect.stringMatching(/village in the snow.*lace border on midnight paper/));
     fireEvent.click(screen.getByRole('button', { name: 'Your own' }));
     expect(screen.queryByText(CARD_NOTES.greeting.text)).toBeNull();
     fireEvent.change(screen.getByRole('textbox', { name: 'Your own greeting' }), { target: { value: 'Joy to All' } });
