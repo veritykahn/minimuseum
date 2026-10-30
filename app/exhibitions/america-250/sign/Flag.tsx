@@ -2,11 +2,11 @@
 
 import type { KeyboardEvent } from 'react';
 import { FLAG, starLayout, starPath, stripesFor, unionHeight } from './flagLayout';
-import { FLAG_MAX, FLAG_MIN } from './signText';
+import { FLAG_MAX, FLAG_MIN, FLAG_STATES } from './signText';
 
 /*
  * The flag on the desk, drawn in SVG: its stripes and its union, with a star
- * for each state. A tap adds a star; as a slider, the arrow keys add and take
+ * for each state (the newest named by the card, page.tsx). A tap adds a star; as a slider, the arrow keys add and take
  * away, Home and End go to 13 and 50. The newest star pops in (not under
  * reduced motion: sign.css).
  */
@@ -20,6 +20,8 @@ export default function Flag({ stars, grew, onStars }: { stars: number; grew: bo
   const uh = unionHeight(stripes);
   const sh = FLAG.h / stripes;
   const layout = starLayout(stars, stripes);
+  // The newest star's state, said with the count: "14 stars and 15 stripes. The newest, Vermont, 1791."
+  const newest = FLAG_STATES.find((s) => s.stars === stars);
 
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
     const to =
@@ -44,7 +46,7 @@ export default function Flag({ stars, grew, onStars }: { stars: number; grew: bo
       aria-valuemin={FLAG_MIN}
       aria-valuemax={FLAG_MAX}
       aria-valuenow={stars}
-      aria-valuetext={`${stars} stars and ${stripes} stripes`}
+      aria-valuetext={`${stars} stars and ${stripes} stripes${newest ? `. The newest, ${newest.state}, ${newest.year}` : ', for the 13 original states'}`}
       onKeyDown={onKey}
       onClick={() => onStars(Math.min(FLAG_MAX, stars + 1))}
     >

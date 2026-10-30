@@ -418,6 +418,12 @@ export const AMERICA_250_CASE: CasePageData = {
       name: 'Valley Forge iron bolt',
       record: 'Hand-forged Valley Forge iron bolt',
     },
+    // "Gun wad" is the leaf's traditional name, kept as the record has it. The
+    // story behind it (that unbound pages of Saur's Bible were used for
+    // cartridge paper at the Battle of Germantown, 1777) is a legend, now
+    // mostly discredited (Museum of the Bible, "The Gun-Wad Bible"): any label
+    // that ever tells it says "the story goes" (owner-approved; the case's
+    // test checks it).
     {
       id: 'gun-wad-bible-leaf',
       name: 'Gun wad Bible leaf',

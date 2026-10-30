@@ -8,10 +8,10 @@ import RoomShell from '../RoomShell';
 import Flag from './Flag';
 import { milestonesAt } from './flagLayout';
 import Parchment, { hasSigned, type Doc, type Signer } from './Parchment';
-import Sheet from './Sheet';
+import Copies from './Copies';
 import SignaturePad from './SignaturePad';
 import { DECLARATION_SOURCE, OWN_DECLARATIONS, type OwnFill, type VersionId } from './declaration';
-import { COPY_STAGES, FLAG_MAX, FLAG_MILESTONES, FLAG_MIN, FLAG_TEXT, SIGN_TEXT } from './signText';
+import { COPIES, FLAG_MAX, FLAG_MILESTONES, FLAG_MIN, FLAG_TEXT, SIGN_TEXT, starLine, type CopyId } from './signText';
 import type { Stroke } from './signing';
 import './sign.css';
 
@@ -22,15 +22,16 @@ import './sign.css';
  * your name at its foot with a quill (and add your address, as Carroll did);
  * or fill in, sign and print the owner's declarations, your class's (in a
  * classroom's version or a middle school's) or your own. Then
- * follow the sheet from copy to copy, from the Rough Draft to the printed
- * transcription, and see your signature copied with it; and add the flag's
- * stars, from 13 to 50. Each tab has its own address (#sign, #copies, #flag),
+ * see how the Declaration was copied and spread, four real copies side by
+ * side (the Dunlap and Goddard broadsides, Stone's engraving and the faded
+ * parchment), each to look at closely under a lens; and add the flag's
+ * stars, from its first 13 to 50, each new star naming its state. Each tab has its own address (#sign, #copies, #flag),
  * and so do the class's and the student's parchments (#class, #mine).
  * Nothing signed or written is stored or sent.
  *
- * The flag's milestones, and where the Rough Draft and the Engrossed Copy
- * are held, are owner-approved, fact-checked notes from outside the posters,
- * each set with its source (signText.ts). The Declaration's text is the
+ * The four copies' notes, the flag's states and milestones are
+ * owner-approved, fact-checked notes from outside the posters, each set with
+ * its source (signText.ts). The Declaration's text is the
  * National Archives' transcription, and the class's and the student's are
  * the owner's own wording (declaration.ts).
  */
@@ -81,9 +82,9 @@ export default function America250Signing() {
   const [printing, setPrinting] = useState<{ doc: Doc; n: number } | null>(null);
   const print = (d: Doc) => setPrinting((p) => ({ doc: d, n: (p?.n ?? 0) + 1 }));
 
-  // The copies.
+  // The copies: the one chosen, and whether it is brought up close.
   const [stage, setStage] = useState(0);
-  const [printedName, setPrintedName] = useState('');
+  const [closer, setCloser] = useState(false);
 
   // The flag.
   const [stars, setStars] = useState(FLAG_MIN);
@@ -135,13 +136,6 @@ export default function America250Signing() {
   const names = signed[doc];
   // A class's parchment takes name after name; the others, one.
   const sealed = doc !== 'class' && names.length > 0;
-
-  // The copies follow the Declaration's signature: as signed, or as it stands on the line.
-  const decl = signed.declaration[0] ?? {
-    strokes: mode === 'draw' ? pads.declaration.strokes : [],
-    typed: mode === 'type' ? pads.declaration.typed : '',
-    address: pads.declaration.address,
-  };
 
   const dip = () => {
     setInk(1);
@@ -198,10 +192,16 @@ export default function America250Signing() {
     };
   }, [printing]);
 
-  const go = (i: number) => {
-    const to = Math.max(0, Math.min(COPY_STAGES.length - 1, i));
+  const go = (i: number, close = closer) => {
+    const to = Math.max(0, Math.min(COPIES.length - 1, i));
     setStage(to);
-    setStatus(`${to + 1} of ${COPY_STAGES.length}: ${COPY_STAGES[to].name}`);
+    setCloser(close);
+    setStatus(`${to + 1} of ${COPIES.length}: ${COPIES[to].name}, ${COPIES[to].date}.${close ? ' Brought up close, to look at with the lens.' : ''}`);
+  };
+  const pick = (id: CopyId, close = closer) => go(COPIES.findIndex((c) => c.id === id), close);
+  const toggleCloser = () => {
+    setCloser((c) => !c);
+    setStatus(closer ? 'All four copies, side by side.' : `${COPIES[stage].name}, brought up close, to look at with the lens.`);
   };
 
   const setFlagStars = (n: number) => {
@@ -210,18 +210,20 @@ export default function America250Signing() {
     setGrew(to > stars);
     setStars(to);
     const reached = to > stars ? FLAG_MILESTONES.filter((m) => m.stars > stars && m.stars <= to).pop() : undefined;
-    setStatus(`${to} stars.${reached ? ` ${reached.year}: ${reached.text}` : ''}`);
+    const added = to > stars ? starLine(to) : null;
+    setStatus(`${to} stars.${added ? ` ${added}` : ''}${reached ? ` ${reached.year}: ${reached.text}` : ''}`);
   };
   const passed = milestonesAt(stars);
 
-  const copy = COPY_STAGES[stage];
+  const copy = COPIES[stage];
+  const newest = starLine(stars);
   const live = tab === 'sign' && !sealed;
   const own = doc === 'declaration' ? null : OWN_DECLARATIONS[doc];
 
   return (
     <RoomShell className="ap-signing">
       <style>{`@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');`}</style>
-      <div className="aps-stage" data-tab={tab} data-doc={tab === 'sign' ? doc : undefined} data-sealed={sealed || undefined} data-note={(tab === 'copies' && !!copy.note) || undefined}>
+      <div className="aps-stage" data-tab={tab} data-doc={tab === 'sign' ? doc : undefined} data-sealed={sealed || undefined} data-closer={(tab === 'copies' && closer) || undefined}>
         <Desk />
 
         <header className="aps-bar">
@@ -292,7 +294,7 @@ export default function America250Signing() {
                 }
               />
             ) : (
-              <Sheet stage={copy.id} strokes={decl.strokes} typed={decl.typed} address={decl.address} printedName={printedName.trim() || decl.typed} />
+              <Copies selected={copy.id} closer={closer} onSelect={pick} />
             )}
             {live && mode === 'draw' && ink <= 0 && (
               <span className="aps-dry" aria-hidden="true">
@@ -409,7 +411,7 @@ export default function America250Signing() {
               </figure>
               <div className="aps-actions">
                 <button type="button" className="aps-button aps-button-primary" onClick={() => choose('copies')}>
-                  Follow it from copy to copy
+                  See how it was copied
                 </button>
                 <button type="button" className="aps-button" onClick={() => print('declaration')}>
                   Print it
@@ -437,8 +439,9 @@ export default function America250Signing() {
 
         <section className="aps-panel aps-panel-copies" id="aps-panel-copies" role="tabpanel" aria-labelledby="aps-tab-copies" hidden={tab !== 'copies'}>
           <p className="aps-intro">{t.copiesIntro}</p>
-          <ol className="aps-steps" aria-label="The copies, oldest first">
-            {COPY_STAGES.map((s, i) => (
+          <p className="aps-note aps-copies-how">{t.copiesHow}</p>
+          <ol className="aps-steps" aria-label="The copies">
+            {COPIES.map((s, i) => (
               <li key={s.id}>
                 <button type="button" className="aps-step" aria-current={i === stage ? 'step' : undefined} onClick={() => go(i)}>
                   <span className="aps-step-n" aria-hidden="true">{i + 1}</span>
@@ -447,30 +450,31 @@ export default function America250Signing() {
               </li>
             ))}
           </ol>
-          <h2 className="aps-step-heading">{copy.name}</h2>
-          <figure className="aps-quote" key={copy.id}>
-            <blockquote>{copy.quote}</blockquote>
-          </figure>
-          {copy.note && <FactNote fact={copy.note} className="aps-fact" />}
-          {copy.id === 'transcription' && (
-            <>
-              <label className="aps-field">
-                <span>{t.printedNameLabel}</span>
-                <input type="text" value={printedName} onChange={(e) => setPrintedName(e.target.value)} maxLength={40} placeholder={decl.typed.trim() || t.printedNamePlaceholder} autoComplete="off" />
-              </label>
-              <p className="aps-close">{t.copiesClose}</p>
-            </>
+          <h2 className="aps-step-heading">
+            {copy.name} <span className="aps-step-date">{copy.date}</span>
+          </h2>
+          <FactNote key={copy.id} fact={copy.note} className="aps-fact" />
+          {copy.quote && (
+            <figure className="aps-quote">
+              <blockquote>{copy.quote}</blockquote>
+            </figure>
           )}
-          {!hasSigned(decl) && (copy.id === 'engrossed' || copy.id === 'stone') && (
-            <p className="aps-note">
-              <button type="button" className="aps-link" onClick={() => { setDoc('declaration'); choose('sign', false, 'declaration'); }}>Sign your name</button> and it is copied too.
-            </p>
-          )}
+          {copy.id === 'original' && <p className="aps-close">{t.copiesClose}</p>}
+          <p className="aps-credit">
+            Picture:{' '}
+            <a href={copy.credit.href} target="_blank" rel="noopener noreferrer">
+              {copy.credit.label}
+            </a>
+          </p>
+          {closer && <p className="aps-note aps-lens-hint">{t.lensHint}</p>}
           <div className="aps-actions aps-actions-step">
+            <button type="button" className="aps-button aps-button-closer" aria-pressed={closer} onClick={toggleCloser}>
+              {closer ? t.sideBySide : t.closer}
+            </button>
             <button type="button" className="aps-button" onClick={() => go(stage - 1)} disabled={stage === 0}>
               <span aria-hidden="true">←</span> Earlier
             </button>
-            <button type="button" className="aps-button aps-button-primary" onClick={() => go(stage + 1)} disabled={stage === COPY_STAGES.length - 1}>
+            <button type="button" className="aps-button aps-button-primary" onClick={() => go(stage + 1)} disabled={stage === COPIES.length - 1}>
               The next copy <span aria-hidden="true">→</span>
             </button>
           </div>
@@ -492,6 +496,21 @@ export default function America250Signing() {
               Back to 13
             </button>
           </div>
+          {newest ? (
+            <div className="aps-star-line" key={stars}>
+              <FactNote fact={{ text: newest, sources: [FLAG_TEXT.sources[0]] }} className="aps-fact" />
+            </div>
+          ) : (
+            <div className="aps-thirteen">
+              <FactNote fact={FLAG_TEXT.thirteen} className="aps-fact" />
+              <p className="aps-originals-label">{FLAG_TEXT.originalsLabel}</p>
+              <ul className="aps-originals" aria-label={FLAG_TEXT.originalsLabel}>
+                {FLAG_TEXT.originals.map((st) => (
+                  <li key={st}>{st}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           <ol className="aps-milestones" aria-label="Milestones">
             {passed.map((m, i) => (
               <li key={m.year} className="aps-milestone" aria-current={i === passed.length - 1 ? 'step' : undefined}>
