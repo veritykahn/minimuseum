@@ -7,8 +7,7 @@ import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
-import LessonsLink from '@/components/lesson/LessonsLink';
-import PosterLessons from '@/components/lesson/PosterLessons';
+import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { HARLEM_TALK } from '@/components/projector/posterTalk';
 import { HARLEM_POSTER_THEME, HARLEM_POSTER_LINKS } from '@/components/projector/themes';
@@ -30,6 +29,9 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
   { id: 'poster1', title: 'The Great Migration and the Harlem Renaissance', thumb: '/exhibitions/harlem/poster1.jpg', items: poster1Content, talk: HARLEM_TALK.poster1 },
   { id: 'poster2', title: 'Walter White: The Civil Rights Hero You’ve Never Heard Of', thumb: '/exhibitions/harlem/poster2.jpg', items: poster2Content, talk: HARLEM_TALK.poster2 },
 ];
+
+/** What "Teach with this" opens: the lessons, printables and discussion questions for each role. */
+const TEACH: TeachContent = { slug: 'harlem-renaissance', name: 'The Harlem Renaissance', posters: PROJECTOR_POSTERS, links: HARLEM_POSTER_LINKS };
 
 // ============================================
 // MAIN COMPONENT
@@ -870,8 +872,7 @@ export default function HarlemRenaissance() {
             <h1>The Harlem Renaissance</h1>
             <p>The Great Migration &amp; the Birth of a Cultural Revolution</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
-              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} />
-              <LessonsLink exhibition="harlem-renaissance" style={teachStyle} />
+              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} teach={TEACH} />
             </div>
           </div>
 
@@ -1046,7 +1047,6 @@ export default function HarlemRenaissance() {
                   >
                     {currentItem.text}
                   </button>
-                  <PosterLessons exhibition="harlem-renaissance" poster={activeView} color={textColor} />
                 </div>
               )}
             </div>

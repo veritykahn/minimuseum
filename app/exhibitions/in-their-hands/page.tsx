@@ -7,8 +7,7 @@ import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
-import LessonsLink from '@/components/lesson/LessonsLink';
-import PosterLessons from '@/components/lesson/PosterLessons';
+import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { ITH_TALK } from '@/components/projector/posterTalk';
 import { ITH_POSTER_THEME, ITH_POSTER_LINKS } from '@/components/projector/themes';
@@ -30,6 +29,9 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
   { id: 'poster1', title: 'Faith and Reason', thumb: '/exhibitions/in-their-hands/poster1-hero.jpg', items: poster1Content, talk: ITH_TALK.poster1 },
   { id: 'poster2', title: 'The Weight of Thirty Pieces', thumb: '/exhibitions/in-their-hands/poster2-hero.jpg', items: poster2Content, talk: ITH_TALK.poster2 },
 ];
+
+/** What "Teach with this" opens: the lessons, printables and discussion questions for each role. */
+const TEACH: TeachContent = { slug: 'in-their-hands', name: 'In Their Hands', posters: PROJECTOR_POSTERS, links: ITH_POSTER_LINKS };
 
 // ============================================
 // MAIN COMPONENT
@@ -942,8 +944,7 @@ export default function InTheirHands() {
             <h1>In Their Hands</h1>
             <p>Coins of the New Testament</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
-              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} />
-              <LessonsLink exhibition="in-their-hands" style={teachStyle} />
+              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} teach={TEACH} />
             </div>
           </div>
 
@@ -1198,7 +1199,6 @@ export default function InTheirHands() {
                   >
                     {currentItem.text}
                   </button>
-                  <PosterLessons exhibition="in-their-hands" poster={activeView} color={textColor} />
                 </div>
               )}
             </div>
