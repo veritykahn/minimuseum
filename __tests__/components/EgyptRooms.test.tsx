@@ -112,16 +112,18 @@ describe('the words and the pictures', () => {
   it('uses no Leonardo.Ai pictures and no photographs of the installation', () => {
     const egypt = JSON.stringify(EGYPT.interactives);
     expect(egypt).not.toMatch(/Leonardo/i);
-    for (const r of EGYPT.interactives!) expect(r.image).toBeUndefined();
+    // Each card's picture is a screenshot of the room on the site, not a photograph.
+    for (const r of EGYPT.interactives!) expect(r.image!.src).toBe(`/exhibitions/egypt/rooms/${r.href.split('/').pop()}.webp`);
   });
 });
 
 describe('the display case’s interactives', () => {
-  it('lists the six rooms, each with a typographic emblem and a page', () => {
+  it('lists the six rooms, each with a screenshot of the room, its alt text, and a page', () => {
     expect(EGYPT.interactives!.map((r) => r.href)).toEqual(ROOMS);
     for (const r of EGYPT.interactives!) {
-      expect(r.emblem && r.emblem.length).toBeTruthy();
-      expect(r.emblem!.length).toBeLessThanOrEqual(10);
+      expect(r.emblem).toBeUndefined();
+      expect(existsSync(join(ROOT, 'public', r.image!.src))).toBe(true);
+      expect(r.image!.alt).toContain(`${r.title.replace(/^The /, '')} room: `);
       expect(existsSync(join(ROOT, 'app', r.href.replace(/^\//, ''), 'page.tsx'))).toBe(true);
       expect(existsSync(join(ROOT, 'app', r.href.replace(/^\//, ''), 'layout.tsx'))).toBe(true);
     }

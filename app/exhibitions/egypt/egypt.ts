@@ -172,47 +172,47 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
-  // The rooms open from the display case (its Interactives). Each card sets a
-  // short typographic emblem until it has a picture of the room itself.
+  // The rooms open from the display case (its Interactives), each card with a
+  // picture of the room itself (public/exhibitions/egypt/rooms/).
   interactives: [
     {
       href: '/exhibitions/egypt/hieroglyph-name',
-      emblem: 'Your name',
+      image: { src: '/exhibitions/egypt/rooms/hieroglyph-name.webp', alt: 'The Your Name in Hieroglyphs room: the name Cleopatra in gold signs inside a cartouche, each sign above its letter' },
       label: 'Interactive',
       title: 'Your Name in Hieroglyphs',
       subtitle: 'Write your name in a cartouche, and print it',
     },
     {
       href: '/exhibitions/egypt/rosetta-stone',
-      emblem: '196 BC',
+      image: { src: '/exhibitions/egypt/rooms/rosetta-stone.webp', alt: 'The Rosetta Stone Decoder room: the dark stone carved with its three scripts, beside the story of the one decree' },
       label: 'Interactive',
       title: 'The Rosetta Stone Decoder',
       subtitle: 'Three scripts, and two royal names to crack',
     },
     {
       href: '/exhibitions/egypt/tomb',
-      emblem: 'Torchlight',
+      image: { src: '/exhibitions/egypt/rooms/tomb.webp', alt: 'The Tomb Explorer room: a torch’s circle of light on a painted tomb wall in the dark' },
       label: 'Interactive',
       title: 'Tomb Explorer',
       subtitle: 'Light the painted walls of a dark tomb',
     },
     {
       href: '/exhibitions/egypt/mummification',
-      emblem: '70 days',
+      image: { src: '/exhibitions/egypt/rooms/mummification.webp', alt: 'The Mummification, Step by Step room: a body on the embalmers’ table, with the four canopic jars beneath it' },
       label: 'Interactive',
       title: 'Mummification, Step by Step',
       subtitle: 'Natron, canopic jars, linen and amulets',
     },
     {
       href: '/exhibitions/egypt/weighing-of-the-heart',
-      emblem: 'Maat',
+      image: { src: '/exhibitions/egypt/rooms/weighing-of-the-heart.webp', alt: 'The Weighing of the Heart room: the heart and the feather on the scales before Anubis, Thoth and Ammit, and the first deed to judge' },
       label: 'Interactive',
       title: 'The Weighing of the Heart',
       subtitle: 'Help Ani before the judges of the afterlife',
     },
     {
       href: '/exhibitions/egypt/amulet',
-      emblem: 'Ankh',
+      image: { src: '/exhibitions/egypt/rooms/amulet.webp', alt: 'The Design an Amulet room: a gold scarab amulet carved with an ankh and a wedjat eye, beside the shapes, materials and symbols to choose' },
       label: 'Interactive',
       title: 'Design an Amulet',
       subtitle: 'Choose its symbols, learn their meanings, and print it',

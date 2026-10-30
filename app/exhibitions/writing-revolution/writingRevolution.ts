@@ -138,7 +138,7 @@ export const WRITING_REVOLUTION: ExhibitionConfig<'poster1' | 'poster2'> = {
   interactives: [
     {
       href: '/exhibitions/writing-revolution/typing-station',
-      image: { src: '/exhibitions/writing-revolution/rooms/typing-station.webp', alt: 'The Typing Station room: a typewriter’s keys under a sheet of paper on the coral wall' },
+      image: { src: '/exhibitions/writing-revolution/rooms/typing-station.webp', alt: 'The Typing Station room: a typewriter on the coral wall, its first line typed on the sheet of paper' },
       label: 'Interactive',
       title: 'The Typing Station',
       subtitle: 'The same line on a typewriter and an iMac',

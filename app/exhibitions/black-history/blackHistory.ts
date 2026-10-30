@@ -143,7 +143,7 @@ export const BLACK_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
     // with its source (timeline/timelineStops.ts).
     {
       href: '/exhibitions/black-history/timeline',
-      image: { src: '/exhibitions/black-history/rooms/timeline.webp', alt: 'The Black Barbie Timeline room: 1967 and Francie in a ringed circle on the lime ground, the years along a road below' },
+      image: { src: '/exhibitions/black-history/rooms/timeline.webp', alt: 'The Black Barbie Timeline room: 1967 and Francie in a ringed circle on the lime ground, a right guess, and the years still to find along a road below' },
       label: 'Interactive',
       title: 'The Black Barbie Timeline',
       subtitle: 'From Francie to “So In Style”',

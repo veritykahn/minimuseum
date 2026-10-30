@@ -211,7 +211,7 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
   interactives: [
     {
       href: '/exhibitions/moon/microscope',
-      image: { src: '/exhibitions/moon/rooms/microscope.webp', alt: 'The Under the Microscope room: moon dust in the round microscope view, beside its notes' },
+      image: { src: '/exhibitions/moon/rooms/microscope.webp', alt: 'The Under the Microscope room: orange glass beads from the Moon in the round microscope view, beside the focus knob, the lenses and their notes' },
       label: 'Interactive',
       title: 'Under the Microscope',
       subtitle: "Moon dust beside Earth's soil",

@@ -131,7 +131,7 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
   interactives: [
     {
       href: '/exhibitions/fear-lab/what-scares-you',
-      image: { src: '/exhibitions/fear-lab/rooms/what-scares-you.webp', alt: 'The What Scares You? room: five numbered fear boxes on a dark shelf under a torch beam' },
+      image: { src: '/exhibitions/fear-lab/rooms/what-scares-you.webp', alt: 'The What Scares You? room: five old boxes on a dark shelf, waiting to be picked, above a beating pulse line' },
       label: 'Interactive',
       title: 'What Scares You?',
       subtitle: 'The fear boxes, known or unknown, and the rustling bushes',
