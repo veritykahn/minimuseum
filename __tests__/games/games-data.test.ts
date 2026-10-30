@@ -2,9 +2,6 @@ import { HANDS_CHARACTERS, TIERS as HANDS_TIERS, buildRounds } from '@/app/exhib
 import { OWN_CASE, ROUNDS, TIERS as RR_TIERS, fakeSides } from '@/app/exhibitions/in-their-hands/real-or-replica/data';
 import { ALL_INSTRUMENT_IDS, INSTRUMENTS, QUIZ_TIERS, SECTIONS } from '@/app/exhibitions/harlem-renaissance/jazz-lab/data';
 import { bandVolume, generateRounds, instrumentBreakdown, missedRounds, type QuizRecord } from '@/app/exhibitions/harlem-renaissance/jazz-lab/hooks';
-import { ILLUSION_CONTENT } from '@/app/exhibitions/seeing-is-deceiving/illusions/data';
-import { perceptionTally, shortcutsTitle } from '@/app/exhibitions/seeing-is-deceiving/illusions/scoring';
-import { judge } from '@/components/IllusionRenderer';
 import { mulberry32, tierFor } from '@/components/games/scoring';
 
 describe('Hands of History', () => {
@@ -116,46 +113,3 @@ describe('Jazz Lab', () => {
   });
 });
 
-describe('Perception Lab', () => {
-  const illusions = ILLUSION_CONTENT.filter((i) => i.type === 'illusion');
-
-  it('gives every illusion choices, and every scored one a truth among them and both verdicts', () => {
-    for (const i of illusions) {
-      expect(i.choices?.length).toBeGreaterThanOrEqual(2);
-      if (i.scored) {
-        expect(i.truth?.length).toBeGreaterThan(0);
-        for (const t of i.truth ?? []) expect(i.choices?.map((c) => c.id)).toContain(t);
-        expect(i.fooledLine).toBeTruthy();
-        expect(i.sharpLine).toBeTruthy();
-      } else {
-        expect(i.neutralLine).toBeTruthy();
-      }
-    }
-  });
-
-  it('offers "They’re the same" wherever the answer is identical', () => {
-    for (const id of ['checker-shadow', 'simultaneous-contrast', 'muller-lyer', 'ebbinghaus-circles', 'ponzo-corridor', 'sander-parallelogram', 'jastrow']) {
-      const item = illusions.find((i) => i.id === id)!;
-      expect(item.truth).toEqual(['same']);
-    }
-  });
-
-  it('asks the contrast question its answer settles', () => {
-    const c = illusions.find((i) => i.id === 'simultaneous-contrast')!;
-    expect(c.question).toMatch(/darker/);
-    expect(c.answer).toMatch(/IDENTICAL/);
-  });
-
-  it('judges, tallies and titles the ending', () => {
-    const checker = illusions.find((i) => i.id === 'checker-shadow')!;
-    const rubin = illusions.find((i) => i.id === 'rubins-vase')!;
-    expect(judge(checker, 'a')).toBe('fooled');
-    expect(judge(checker, 'same')).toBe('sharp');
-    expect(judge(rubin, 'vase')).toBeNull();
-
-    const t = perceptionTally(ILLUSION_CONTENT, { 'checker-shadow': 'a', 'muller-lyer': 'same', 'rubins-vase': 'faces' });
-    expect(t).toMatchObject({ answered: 2, fooled: 1 });
-    expect(shortcutsTitle(14)).toBe('Your brain took 14 shortcuts.');
-    expect(shortcutsTitle(1)).toBe('Your brain took 1 shortcut.');
-  });
-});

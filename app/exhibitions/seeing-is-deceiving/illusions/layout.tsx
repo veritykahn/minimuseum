@@ -2,22 +2,22 @@ import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Interactive Optical Illusions | The Mini Museum',
+  title: 'Perception Lab | Seeing is Deceiving | The Mini Museum',
   description:
-    'Test your perception with 25+ interactive optical illusions. Experience the Checker Shadow, Fraser Spiral, Hermann Grid, and more. Learn the science behind each illusion.',
+    'You are the scientist: measure how much 19 optical illusions fool you, switch each trick off, and print your Lab Notebook and Illusion Fingerprint. Every explanation comes with its source.',
   keywords: [
     'optical illusions',
     'checker shadow illusion',
     'fraser spiral',
-    'hermann grid',
+    'muller-lyer illusion',
     'visual perception',
     'brain tricks',
     'interactive',
   ],
   openGraph: {
-    title: 'Interactive Optical Illusions',
+    title: 'Perception Lab | Seeing is Deceiving',
     description:
-      'Test your perception with 25+ interactive optical illusions and learn the science behind each one.',
+      'Measure how much 19 optical illusions fool you, switch each trick off, and see the science behind each one, with its source.',
     url: `${SITE_URL}/exhibitions/seeing-is-deceiving/illusions`,
   },
 };
