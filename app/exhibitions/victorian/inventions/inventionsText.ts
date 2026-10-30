@@ -25,6 +25,7 @@ export const WORKSHOP_TEXT = {
   photoHeading: 'Photography',
   railwayIntro: 'Steam down the line from London, town by town. At each station, compare the railway’s clock with the town’s own.',
   telegraphIntro: 'Press a letter on the dial and two needles swing to point to it. Type a word and send it, and the needles spell it out.',
+  /** The paintings' credit, as the owner gives it. */
   photoIntro: 'Make a negative of a latticed window, then print from it: as many prints as you like.',
 };
 
