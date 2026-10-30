@@ -186,14 +186,11 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
-  // The signing room, drawn (no photographs): a parchment signed on the green cloth, by an inkwell.
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
   interactives: [
     {
       href: '/exhibitions/america-250/sign',
-      image: {
-        src: '/exhibitions/america-250/room-signing.svg',
-        alt: 'A drawing of a parchment on a green cloth, signed with a flourish, beside an inkwell and a quill',
-      },
+      image: { src: '/exhibitions/america-250/rooms/sign.webp', alt: 'The Put Your Name to It room: the Declaration on parchment beside a candle, and the signing steps' },
       label: 'Interactive',
       title: 'Put Your Name to It',
       subtitle: 'Sign with a quill, and follow a copy of a copy',

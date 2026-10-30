@@ -272,13 +272,14 @@ describe('wiring', () => {
 describe('the way in', () => {
   it('opens from the display case, under Interactives beside the Perception Lab, and goes back there', () => {
     render(<SeeingCase />);
-    const heading = screen.getByRole('heading', { level: 2, name: 'Interactives' });
-    const rooms = heading.nextElementSibling as HTMLElement;
+    fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
+    const rooms = screen.getByRole('tabpanel', { name: /Interactives/ });
     expect(within(rooms).getAllByRole('link').map((l) => l.getAttribute('href'))).toEqual([
       '/exhibitions/seeing-is-deceiving/illusions',
       '/exhibitions/seeing-is-deceiving/optical-toys',
     ]);
-    expect(fs.existsSync(path.join(process.cwd(), 'public/exhibitions/seeing/room-optical-toys.svg'))).toBe(true);
+    // Each card shows the room itself.
+    for (const room of ['perception-lab', 'optical-toys']) expect(fs.existsSync(path.join(process.cwd(), `public/exhibitions/seeing/rooms/${room}.webp`))).toBe(true);
   });
 
   it('is linked from The First Motion Pictures, and from the projector', () => {

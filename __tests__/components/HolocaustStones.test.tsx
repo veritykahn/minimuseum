@@ -170,7 +170,7 @@ describe('the minute’s stillness', () => {
 describe('wiring', () => {
   it('sets the room on the landing page, the map and the projector', () => {
     expect(HOLOCAUST.interactives?.map((c) => c.href)).toEqual(['/exhibitions/holocaust/stones']);
-    expect(HOLOCAUST.interactives?.[0].image?.src).toBe('/exhibitions/holocaust/poster-stones.jpg');
+    expect(HOLOCAUST.interactives?.[0].image?.src).toBe('/exhibitions/holocaust/rooms/stones.webp');
     expect(HOLOCAUST.projector.links.map((l) => l.href)).toEqual(['/exhibitions/holocaust/stones']);
     expect(getRoomByPath('/exhibitions/holocaust/stones')?.id).toBe('ho-stones');
     expect(getLevelConfig('/exhibitions/holocaust/stones').title).toBe('Holocaust Memorial Day');

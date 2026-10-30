@@ -253,7 +253,7 @@ describe('wiring', () => {
       ['/exhibitions/victorian/inventions', 'Interactive', 'Inventions Workshop'],
       ['/exhibitions/victorian/christmas-parlour', 'Interactive', 'Dickens’ Christmas Parlour'],
     ]);
-    for (const c of VICTORIAN.interactives!) expect(c.image?.src).toMatch(/^\/exhibitions\/victorian\/room-.*\.svg$/);
+    for (const c of VICTORIAN.interactives!) expect(c.image?.src).toMatch(/^\/exhibitions\/victorian\/rooms\/[a-z-]+\.webp$/);
     expect(VICTORIAN.projector.links.map((l) => l.href)).toEqual(ROOMS);
     const urls = sitemap().map((e) => e.url);
     for (const r of ROOMS) {

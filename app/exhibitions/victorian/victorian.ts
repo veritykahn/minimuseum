@@ -148,35 +148,26 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
-  // The three interactive rooms, each drawn (no photographs). The optical
-  // toys that stood here have moved to Seeing is Deceiving.
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
+  // The optical toys that stood here have moved to Seeing is Deceiving.
   interactives: [
     {
       href: '/exhibitions/victorian/christmas-card',
-      image: {
-        src: '/exhibitions/victorian/room-christmas-card.svg',
-        alt: 'A drawing of a Victorian Christmas card standing open on a table: a candlelit Christmas tree in a gilt arch on the front, holly inside',
-      },
+      image: { src: '/exhibitions/victorian/rooms/christmas-card.webp', alt: 'The Christmas Card Maker room: a card with a candlelit tree, beside the choices for its front and greeting' },
       label: 'Interactive',
       title: 'Christmas Card Maker',
       subtitle: 'Design and print a Victorian Christmas card',
     },
     {
       href: '/exhibitions/victorian/inventions',
-      image: {
-        src: '/exhibitions/victorian/room-inventions.svg',
-        alt: 'A drawing of a workbench: a station clock, a diamond-shaped telegraph dial with five needles, and a wooden box camera',
-      },
+      image: { src: '/exhibitions/victorian/rooms/inventions.webp', alt: 'The Inventions Workshop room: a railway line between two station clocks, beside the steps to try' },
       label: 'Interactive',
       title: 'Inventions Workshop',
       subtitle: 'The railway, the telegraph and photography, hands on',
     },
     {
       href: '/exhibitions/victorian/christmas-parlour',
-      image: {
-        src: '/exhibitions/victorian/room-christmas-parlour.svg',
-        alt: 'A drawing of a Victorian parlour at Christmas: a candlelit tree, a fire in the grate, and a book open on a round table',
-      },
+      image: { src: '/exhibitions/victorian/rooms/christmas-parlour.webp', alt: 'The Dickens’ Christmas Parlour room: a parlour with a tree and a fireplace, each part ready to open' },
       label: 'Interactive',
       title: 'Dickens’ Christmas Parlour',
       subtitle: 'Open the parts of a Victorian Christmas',
