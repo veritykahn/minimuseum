@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import FactNote from '@/components/exhibition/FactNote';
 import Celebrate from '../Celebrate';
 import { usePrintSheet } from '../usePrintSheet';
+import { CardFoot } from './Steps';
 import { EXPOSURE_S, MET_CREDIT, NOTES, PHOTO_PARTS, PHOTOS, POSITIVE, POSTER, PROCESS_CLUES, blurFor, verdictFor, type PhotoId, type PhotoPart } from './inventionsText';
 
 /*
@@ -35,7 +36,7 @@ const TICK_MS = 100;
 type Stage = 'ready' | 'exposing' | 'negative' | 'printing';
 type Sitting = 'ready' | 'exposing' | 'done';
 
-export default function Photography({ reduced, footer }: { reduced: boolean; footer?: React.ReactNode }) {
+export default function Photography({ reduced }: { reduced: boolean }) {
   const [part, setPart] = useState<PhotoPart>('print');
   const [status, setStatus] = useState('');
   const [burst, setBurst] = useState(0);
@@ -179,13 +180,21 @@ export default function Photography({ reduced, footer }: { reduced: boolean; foo
   const donePrinting = useCallback(() => setPrinting(false), []);
   usePrintSheet(printing, donePrinting);
 
+  // Each part's notes and the credits of its photographs, behind "Did you know?".
+  const facts =
+    part === 'print' ? [NOTES.negative, ...(hasNegative ? [NOTES.calotype] : []), ...(prints > 0 ? [NOTES.sunPrint, NOTES.positives] : [])]
+    : part === 'still' ? [NOTES.exposure, NOTES.clamp, ...(sitting === 'done' ? [NOTES.prunes] : [])]
+    : part === 'three' ? (justMatched && current.photo === 'cameron' ? [NOTES.cameron] : [])
+    : [NOTES.positives];
+  const credits: PhotoId[] = part === 'print' ? ['negative'] : part === 'still' ? ['daguerreotype'] : part === 'three' ? ['daguerreotype', 'openDoor', 'cameron'] : ['negative', 'daguerreotype', 'openDoor', 'cameron'];
+
   const choosePart = (p: PhotoPart) => {
     setPart(p);
     setStatus(PHOTO_PARTS.find((x) => x.id === p)!.label + '.');
   };
 
   return (
-    <div className="vbi-bench">
+    <div className="vbi-bench vbi-photography">
       <div className="vbr-scene vbi-scene">
         {part === 'print' && (
           <div className="vbi-photo" data-stage={stage} data-reduced={reduced || undefined}>
@@ -285,138 +294,136 @@ export default function Photography({ reduced, footer }: { reduced: boolean; foo
           ))}
         </div>
 
-        {part === 'print' && (
-          <>
-            <h2 className="vbi-step-title">From negative to print</h2>
-            <p className="vbi-step-body">In the camera, light makes the paper go dark. So a bright window comes out dark: a <strong>negative</strong>. Laid on fresh paper in the sun, the negative turns it back the right way round: a <strong>print</strong>.</p>
-            <ol className="vbi-photo-steps">
-              <li data-done={hasNegative || undefined}>Uncover the lens: the light makes a negative.</li>
-              <li data-done={prints > 0 || undefined}>Print from the negative in the sun: the window the right way round.</li>
-            </ol>
-            <div className="vbr-actions">
-              <button type="button" className="vbr-button vbr-button-primary" onClick={expose} disabled={stage === 'exposing' || stage === 'printing'}>
-                {hasNegative ? 'A new negative' : 'Uncover the lens'}
-              </button>
-              <button type="button" className="vbr-button vbr-button-primary" onClick={print} disabled={stage !== 'negative'}>
-                {prints ? 'Print another' : 'Print from it'}
-              </button>
-            </div>
-            <p className="vbi-readout vbi-big-readout" aria-live="polite">
-              {prints === 0 ? 'No prints yet.' : prints === 1 ? 'One print from the negative.' : `${prints} prints from the one negative.`}
-            </p>
-            <FactNote fact={NOTES.negative} className="vbr-fact" />
-            {hasNegative && <FactNote fact={NOTES.calotype} className="vbr-fact" />}
-            {prints > 0 && <FactNote fact={NOTES.sunPrint} className="vbr-fact" />}
-            {prints > 0 && <FactNote fact={NOTES.positives} className="vbr-fact" />}
-            <Credit id="negative" extra={POSITIVE.note} />
-          </>
-        )}
-
-        {part === 'still' && (
-          <>
-            <h2 className="vbi-step-title">Hold still!</h2>
-            <p className="vbi-step-body">The first photographs took so long to make that the sitter had to keep perfectly still. Can you? Here it takes {EXPOSURE_S} seconds.</p>
-            <p className="vbi-task">
-              <span className="vbi-task-mark" aria-hidden="true">▸</span> Press and hold the button for the whole exposure. Let go, and you move!
-            </p>
-            <button type="button" className="vbr-option vbi-clamp-toggle" aria-pressed={clamp} onClick={() => setClamp((c) => !c)} disabled={sitting === 'exposing'}>
-              {clamp ? '✓ ' : ''}Use the head clamp
-            </button>
-            <button
-              type="button"
-              className="vbi-key-button vbi-hold-button"
-              data-live={holding || undefined}
-              onPointerDown={(e) => {
-                try {
-                  e.currentTarget.setPointerCapture?.(e.pointerId);
-                } catch {}
-                sitDown();
-              }}
-              onPointerUp={sitUp}
-              onPointerCancel={sitUp}
-              onLostPointerCapture={sitUp}
-              onContextMenu={(e) => e.preventDefault()}
-              {...holdKeys}
-            >
-              {sitting === 'exposing' ? (holding ? `Holding still… ${left}` : `You moved! Hold on… ${left}`) : sitting === 'done' ? 'Sit again' : 'Hold still'}
-            </button>
-            <div className="vbi-feedback" aria-live="polite" data-verdict={verdict ? verdict.tone : undefined}>
-              {verdict ? <p className="vbi-verdict">{verdict.words}</p> : <p className="vbi-verdict vbi-verdict-quiet">{sitting === 'exposing' ? `${left} seconds to go.` : 'Ready when you are.'}</p>}
-            </div>
-            <FactNote fact={NOTES.exposure} className="vbr-fact" />
-            <FactNote fact={NOTES.clamp} className="vbr-fact" />
-            {sitting === 'done' && <FactNote fact={NOTES.prunes} className="vbr-fact" />}
-            <Credit id="daguerreotype" />
-          </>
-        )}
-
-        {part === 'three' && (
-          <>
-            <h2 className="vbi-step-title">Three ways to make a photograph</h2>
-            {!allMatched ? (
-              <>
-                <p className="vbi-step-body">
-                  Clue {clue + 1} of {PROCESS_CLUES.length}:
-                </p>
-                <p className="vbi-clue">“{current.clue}”</p>
-                <p className="vbi-task">
-                  <span className="vbi-task-mark" aria-hidden="true">▸</span> Press the photograph the clue describes.
-                </p>
-              </>
-            ) : (
-              <p className="vbi-step-body">All three matched: a daguerreotype on silver, a print from a paper negative, and a print from a glass negative.</p>
-            )}
-            <div className="vbi-feedback" aria-live="polite" data-verdict={justMatched ? 'right' : wrong ? 'wrong' : undefined}>
-              {justMatched ? <p className="vbi-verdict">Right! It is a {current.process.toLowerCase()}.</p> : wrong ? <p className="vbi-verdict">Not that one: read the clue again.</p> : null}
-            </div>
-            {justMatched && <FactNote fact={NOTES[current.note]} className="vbr-fact" />}
-            {justMatched && current.photo === 'cameron' && <FactNote fact={NOTES.cameron} className="vbr-fact" />}
-            <div className="vbr-actions">
-              {justMatched && !allMatched && (
-                <button type="button" className="vbr-button vbr-button-primary" onClick={nextClue}>
-                  Next clue <span aria-hidden="true">→</span>
+        <div className="vbi-step-area">
+          {part === 'print' && (
+            <>
+              <h2 className="vbi-step-title">From negative to print</h2>
+              <p className="vbi-step-body">
+                Light makes the paper go dark, so a bright window comes out dark: a <strong>negative</strong>. In the sun, the negative makes a <strong>print</strong> the right way round.
+              </p>
+              <ol className="vbi-photo-steps">
+                <li data-done={hasNegative || undefined}>Uncover the lens: a negative.</li>
+                <li data-done={prints > 0 || undefined}>Print from it in the sun.</li>
+              </ol>
+              <div className="vbr-actions">
+                <button type="button" className="vbr-button vbr-button-primary" onClick={expose} disabled={stage === 'exposing' || stage === 'printing'}>
+                  {hasNegative ? 'A new negative' : 'Uncover the lens'}
                 </button>
-              )}
-              {allMatched && (
-                <button type="button" className="vbr-button" onClick={resetQuiz}>
-                  Play again
+                <button type="button" className="vbr-button vbr-button-primary" onClick={print} disabled={stage !== 'negative'}>
+                  {prints ? 'Print another' : 'Print from it'}
                 </button>
-              )}
-            </div>
-            <Credit id="daguerreotype" />
-            <Credit id="openDoor" />
-            <Credit id="cameron" />
-          </>
-        )}
+              </div>
+              <p className="vbi-readout vbi-big-readout" aria-live="polite">
+                {prints === 0 ? 'No prints yet.' : prints === 1 ? 'One print from the negative.' : `${prints} prints from the one negative.`}
+              </p>
+            </>
+          )}
 
-        {part === 'sheet' && (
-          <>
-            <h2 className="vbi-step-title">Print a sheet to take away</h2>
-            <p className="vbi-step-body">A page with Talbot’s negative and your prints, your sitting for a daguerreotype, and the three ways to make a photograph.</p>
-            <label className="vbr-field">
-              <span className="vbr-label">Your name</span>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value.slice(0, 40))} maxLength={40} autoComplete="off" />
-            </label>
-            <div className="vbr-actions">
+          {part === 'still' && (
+            <>
+              <h2 className="vbi-step-title">Hold still!</h2>
+              <p className="vbi-step-body">The first photographs took so long that the sitter had to keep perfectly still. Here it takes {EXPOSURE_S} seconds.</p>
+              <p className="vbi-task">
+                <span className="vbi-task-mark" aria-hidden="true">▸</span> Press and hold the button the whole time. Let go, and you move!
+              </p>
+              <button type="button" className="vbr-option vbi-clamp-toggle" aria-pressed={clamp} onClick={() => setClamp((c) => !c)} disabled={sitting === 'exposing'}>
+                {clamp ? '✓ ' : ''}Use the head clamp
+              </button>
               <button
                 type="button"
-                className="vbr-button vbr-button-primary"
-                onClick={() => {
-                  setPrinting(true);
-                  setStatus('Printing your sheet.');
+                className="vbi-key-button vbi-hold-button"
+                data-live={holding || undefined}
+                onPointerDown={(e) => {
+                  try {
+                    e.currentTarget.setPointerCapture?.(e.pointerId);
+                  } catch {}
+                  sitDown();
                 }}
+                onPointerUp={sitUp}
+                onPointerCancel={sitUp}
+                onLostPointerCapture={sitUp}
+                onContextMenu={(e) => e.preventDefault()}
+                {...holdKeys}
               >
-                Print my sheet
+                {sitting === 'exposing' ? (holding ? `Holding still… ${left}` : `You moved! Hold on… ${left}`) : sitting === 'done' ? 'Sit again' : 'Hold still'}
               </button>
-            </div>
-            <p className="vbr-note">Nothing you write is saved or sent.</p>
-          </>
-        )}
+              <div className="vbi-feedback" aria-live="polite" data-verdict={verdict ? verdict.tone : undefined}>
+                {verdict ? <p className="vbi-verdict">{verdict.words}</p> : <p className="vbi-verdict vbi-verdict-quiet">{sitting === 'exposing' ? `${left} seconds to go.` : 'Ready when you are.'}</p>}
+              </div>
+            </>
+          )}
 
-        <p className="vbr-poster">{POSTER.innovations}</p>
-        {footer}
+          {part === 'three' && (
+            <>
+              <h2 className="vbi-step-title">Three ways to make a photograph</h2>
+              {!allMatched ? (
+                <>
+                  <p className="vbi-clue">
+                    <span className="vbi-clue-n">
+                      Clue {clue + 1} of {PROCESS_CLUES.length}:
+                    </span>{' '}
+                    “{current.clue}”
+                  </p>
+                  <p className="vbi-task">
+                    <span className="vbi-task-mark" aria-hidden="true">▸</span> Press the photograph the clue describes.
+                  </p>
+                </>
+              ) : (
+                <p className="vbi-step-body">All three matched: a daguerreotype on silver, a print from a paper negative, and a print from a glass negative.</p>
+              )}
+              <div className="vbi-feedback" aria-live="polite" data-verdict={justMatched ? 'right' : wrong ? 'wrong' : undefined}>
+                {justMatched ? <p className="vbi-verdict">Right! It is a {current.process.toLowerCase()}.</p> : wrong ? <p className="vbi-verdict">Not that one: read the clue again.</p> : null}
+              </div>
+              {justMatched && <FactNote fact={NOTES[current.note]} className="vbr-fact" />}
+              <div className="vbr-actions">
+                {justMatched && !allMatched && (
+                  <button type="button" className="vbr-button vbr-button-primary" onClick={nextClue}>
+                    Next clue <span aria-hidden="true">→</span>
+                  </button>
+                )}
+                {allMatched && (
+                  <button type="button" className="vbr-button" onClick={resetQuiz}>
+                    Play again
+                  </button>
+                )}
+              </div>
+            </>
+          )}
+
+          {part === 'sheet' && (
+            <>
+              <h2 className="vbi-step-title">Print a sheet to take away</h2>
+              <p className="vbi-step-body">Talbot’s negative and your prints, your daguerreotype sitting, and the three ways to make a photograph.</p>
+              <label className="vbr-field">
+                <span className="vbr-label">Your name</span>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value.slice(0, 40))} maxLength={40} autoComplete="off" />
+              </label>
+              <div className="vbr-actions">
+                <button
+                  type="button"
+                  className="vbr-button vbr-button-primary"
+                  onClick={() => {
+                    setPrinting(true);
+                    setStatus('Printing your sheet.');
+                  }}
+                >
+                  Print my sheet
+                </button>
+              </div>
+              <p className="vbr-note">Nothing you write is saved or sent.</p>
+            </>
+          )}
+        </div>
+
+        <CardFoot facts={facts} poster={POSTER.innovations} reset={part}>
+          {credits.map((c) => (
+            <Credit key={c} id={c} extra={c === 'negative' ? POSITIVE.note : undefined} />
+          ))}
+        </CardFoot>
       </div>
-      <p className="vbr-status" role="status" aria-live="polite">{status}</p>
+      <p className="vbr-status" role="status" aria-live="polite">
+        {status}
+      </p>
 
       {printing &&
         createPortal(

@@ -73,3 +73,126 @@ export function clockTime(minutes: number) {
   const half = m % 1 >= 0.5 ? '½' : '';
   return `${h}:${String(whole).padStart(2, '0')}${half}`;
 }
+
+/* ── The railway's map ── */
+
+/**
+ * The map of the south of England and Wales: a plain projection, its
+ * degrees of longitude shortened as they are at London's latitude, in a
+ * 1000 × 600 drawing that runs from 5.3° west to 0.9° east.
+ */
+export const MAP = { w: 1000, h: 600, lon0: -5.3, lat0: 52.25, k: 259, squash: Math.cos((51.5 * Math.PI) / 180) };
+export function project(lon: number, lat: number) {
+  return { x: Math.round((lon - MAP.lon0) * MAP.squash * MAP.k * 10) / 10, y: Math.round((MAP.lat0 - lat) * MAP.k * 10) / 10 };
+}
+
+/**
+ * Where the Sun stands over the map at a London time (minutes after
+ * midnight): over each town when that town's own clock says noon, and
+ * between them in between. Towns with the same minutes share a spot
+ * halfway between them.
+ */
+export function sunX(londonTime: number, towns: { behind: number; lon: number; lat: number }[]) {
+  const by = new Map<number, number[]>();
+  for (const t of towns) by.set(t.behind, [...(by.get(t.behind) ?? []), project(t.lon, t.lat).x]);
+  const pts = [...by.entries()].map(([b, xs]) => ({ b, x: xs.reduce((s, x) => s + x, 0) / xs.length })).sort((a, z) => a.b - z.b);
+  const m = londonTime - 12 * 60;
+  if (m <= pts[0].b) return pts[0].x;
+  for (let i = 1; i < pts.length; i++) {
+    if (m <= pts[i].b) {
+      const f = (m - pts[i - 1].b) / (pts[i].b - pts[i - 1].b);
+      return Math.round((pts[i - 1].x + f * (pts[i].x - pts[i - 1].x)) * 10) / 10;
+    }
+  }
+  return pts[pts.length - 1].x;
+}
+
+/** The London time at which the Sun stands over `x` on the map: sunX turned round, to the half minute, for dragging the Sun. */
+export function sunTimeAt(x: number, towns: { behind: number; lon: number; lat: number }[], min: number, max: number) {
+  let best = min;
+  for (let t = min; t <= max; t += 0.5) if (Math.abs(sunX(t, towns) - x) < Math.abs(sunX(best, towns) - x)) best = t;
+  return best;
+}
+
+/**
+ * A clock's minute hand dragged to `angle` degrees from twelve: the time
+ * nearest `current` whose minute hand stands there, to the whole minute,
+ * so dragging past twelve carries the hour on (or back).
+ */
+export function dragMinute(current: number, angle: number) {
+  const m = Math.round((((angle % 360) + 360) % 360) / 6) % 60;
+  const at = ((current % 60) + 60) % 60;
+  const delta = ((((m - at + 30) % 60) + 60) % 60) - 30;
+  return Math.round((current + delta) * 2) / 2;
+}
+
+/** Will you catch the train? London's time when the town clock says what it says, and the minutes to spare (below nothing: gone). */
+export function catchTrain(p: { train: number; clock: number }, behind: number) {
+  const london = p.clock + behind;
+  return { london, spare: p.train - london, caught: london <= p.train };
+}
+
+/* ── Telegrams ── */
+
+/** A telegram's words, in capitals: letters only, the rest left out. */
+export function telegramWords(text: string) {
+  return text
+    .toUpperCase()
+    .replace(/[^A-Z\s]/g, '')
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+/** What a telegram of `words` words costs, in halfpence: sixpence for twelve, and (the game rule) a halfpenny for each word more. */
+export function telegramCost(words: number, base = 12, extra = 1) {
+  if (!words) return 0;
+  return 12 + Math.max(0, words - base) * extra;
+}
+
+/** Halfpence as old money: 13 → "6½d", 24 → "1s", 25 → "1s ½d". */
+export function oldMoney(halfpence: number) {
+  const pence = Math.floor(halfpence / 2);
+  const half = halfpence % 2 ? '½' : '';
+  const s = Math.floor(pence / 12);
+  const d = pence % 12;
+  if (!s) return `${d || ''}${half}d`;
+  return d || half ? `${s}s ${d || ''}${half}d` : `${s}s`;
+}
+
+/** A message in Morse, letter by letter: each letter with its code, a space as a word break. */
+export function toMorse(text: string, code: Record<string, string>) {
+  return text
+    .toUpperCase()
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split('')
+    .filter((c) => c === ' ' || code[c])
+    .map((c) => ({ char: c, code: c === ' ' ? '' : code[c] }));
+}
+
+/**
+ * A message's Morse as a timeline, for the lamp and the sounder: a dot
+ * one unit on, a dash three, a unit off inside a letter, three between
+ * letters and seven between words (the international timing). Each piece
+ * carries the index of its letter in toMorse's list.
+ */
+export function morseTimeline(text: string, code: Record<string, string>, unit: number) {
+  const out: { on: boolean; ms: number; letter: number }[] = [];
+  toMorse(text, code).forEach((m, i) => {
+    if (m.char === ' ') {
+      out.push({ on: false, ms: unit * 4, letter: i });
+      return;
+    }
+    m.code.split('').forEach((s, j) => {
+      if (j) out.push({ on: false, ms: unit, letter: i });
+      out.push({ on: true, ms: s === '.' ? unit : unit * 3, letter: i });
+    });
+    out.push({ on: false, ms: unit * 3, letter: i });
+  });
+  return out;
+}
+
+/** Dots and dashes drawn as • and —, for reading. */
+export const marks = (code: string) => code.replace(/\./g, '•').replace(/-/g, '—');
+/** Dots and dashes read aloud. */
+export const spoken = (code: string) => code.replace(/\./g, 'dot ').replace(/-/g, 'dash ').trim();

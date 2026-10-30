@@ -38,6 +38,7 @@ const SMG_JOURNAL = { label: 'Science Museum Group Journal, “A tale of two tel
 const VA_PROCESSES = { label: 'V&A, “An A to Z of photographic processes”', href: 'https://www.vam.ac.uk/articles/photographic-processes' };
 const VA_TALBOT = { label: 'V&A, “William Henry Fox Talbot: an introduction”', href: 'https://www.vam.ac.uk/articles/william-henry-fox-talbot-an-introduction' };
 const VA_CAMERON = { label: 'V&A, “Julia Margaret Cameron’s working methods”', href: 'https://www.vam.ac.uk/articles/julia-margaret-camerons-working-methods' };
+const BT_TELEGRAM = { label: 'BT Archives, “The Greetings Telegram” (information sheet)', href: 'https://www.bt.com/bt-plc/assets/documents/about-bt/our-history/bt-archives/information-sheets-and-timelines/the-greetings-telegram.pdf' };
 const GETTY_SMILE = { label: 'Getty, “Say Prunes!”: why people didn’t smile in early photographs', href: 'https://www.getty.edu/news/why-no-smile-photographs-history-education-question-answer/' };
 
 export const NOTES = {
@@ -61,6 +62,18 @@ export const NOTES = {
   clearingHouse: {
     text: 'Railway companies brought in one standard time across their lines, mostly Greenwich Mean Time. In December 1847 the Railway Clearing House adopted it across Great Britain, and it became known as “Railway Time”.',
     sources: [RMG_GMT],
+  },
+  plymouth: {
+    text: 'Local mean time in Plymouth was about 16½ minutes behind local mean time at Greenwich.',
+    sources: [RMG_LOCAL],
+  },
+  travellersWatch: {
+    text: 'In 1847 the clockmaker Benjamin Lewis Vulliamy made a gold watch with two minute hands: a gilt hand to show Greenwich time, and a steel hand that could be set to the time of the place the traveller visited.',
+    sources: [RMG_LOCAL],
+  },
+  bristolClock: {
+    text: 'The clock on Bristol’s Exchange was first installed in 1822. A second minute hand was later added to show the time in London as well as the local time in Bristol: a red minute hand shows Greenwich Mean Time, and a black one the original Bristol time.',
+    sources: [{ label: 'Bristol City Council, “St Nicholas Markets: history” (archived page)', href: 'https://web.archive.org/web/20230529061424/https://www.bristol.gov.uk/st-nicholas-markets/about/history' }],
   },
   legalTime: {
     text: 'By the mid-1850s almost all public clocks in Britain were set to Greenwich Mean Time, and in 1880 it became Britain’s legal standard time.',
@@ -94,6 +107,19 @@ export const NOTES = {
   morse: {
     text: 'Samuel Morse’s early receiver marked dots and dashes on a ribbon of paper. Later, clerks learned to read messages by ear from a “sounder”. On 24 May 1844 Morse sent “What hath God wrought?” from the U.S. Capitol in Washington to Baltimore.',
     sources: [{ label: 'Library of Congress, Samuel F. B. Morse Papers, “Invention of the Telegraph”', href: 'https://www.loc.gov/static/collections/samuel-morse-papers/articles-and-essays/collection-highlights/invention-of-the-telegraph.html' }],
+  },
+
+  morseBritain: {
+    text: 'After 1870, when Britain’s telegraph companies were nationalised, needle telegraphs in Britain were standardised on Morse code: the needle leaning left for a dot, and right for a dash.',
+    sources: [{ label: 'Science Museum Group, double-sided dummy single-needle telegraph used for training operators, 1870–1930', href: 'https://collection.sciencemuseumgroup.org.uk/objects/co8054889/double-sided-dummy-single-needle-telegraph-used-for-training-operators-1870-1930' }],
+  },
+  telegramPrice: {
+    text: 'The Post Office changed the price of a telegraph message from 20 words for a shilling to 12 words for sixpence. To save money, people wrote shorter, more direct messages, and these were called “telegrams”.',
+    sources: [BT_TELEGRAM],
+  },
+  telegramForm: {
+    text: 'At the telegraph office, people filled out a form with their message. It was sent along the telegraph wires, then carried to the address by a messenger boy.',
+    sources: [BT_TELEGRAM],
   },
 
   /* ── Photography ── */
@@ -139,16 +165,22 @@ export const NOTES = {
   },
 } satisfies Record<string, ApprovedFact>;
 
-/** The towns on the line, east to west, and how many minutes each one's own time was behind London's (the 1841 timetable). */
-export const STATIONS: { name: string; behind: number }[] = [
-  { name: 'London', behind: 0 },
-  { name: 'Reading', behind: 4 },
-  { name: 'Steventon', behind: 5.5 },
-  { name: 'Chippenham', behind: 8 },
-  { name: 'Bath', behind: 11 },
-  { name: 'Bristol', behind: 11 },
-  { name: 'Bridgewater', behind: 14 },
+/** The towns on the line, east to west, and how many minutes each one's own time was behind London's (the 1841 timetable), with where each is on the map (longitude and latitude). */
+export const STATIONS: { name: string; behind: number; lon: number; lat: number }[] = [
+  { name: 'London', behind: 0, lon: -0.13, lat: 51.51 },
+  { name: 'Reading', behind: 4, lon: -0.97, lat: 51.45 },
+  { name: 'Steventon', behind: 5.5, lon: -1.32, lat: 51.62 },
+  { name: 'Chippenham', behind: 8, lon: -2.12, lat: 51.46 },
+  { name: 'Bath', behind: 11, lon: -2.36, lat: 51.38 },
+  { name: 'Bristol', behind: 11, lon: -2.59, lat: 51.45 },
+  { name: 'Bridgewater', behind: 14, lon: -3.0, lat: 51.13 },
 ];
+
+/** Plymouth, further west and not on the 1841 line: its own time about 16½ minutes behind Greenwich's (NOTES.plymouth). */
+export const PLYMOUTH = { name: 'Plymouth', behind: 16.5, lon: -4.14, lat: 50.37 };
+
+/** Every town with a clock on the map: the line's, then Plymouth. */
+export const MAP_TOWNS = [...STATIONS, PLYMOUTH];
 
 /** Words to tap and send, every letter of them on the dial (no C, J, Q, U, X or Z), so none is left out. */
 export const SEND_WORDS = ['HELLO', 'SNOW', 'STEAM', 'TEA', 'BRISTOL'];
@@ -157,66 +189,59 @@ export const SEND_WORDS = ['HELLO', 'SNOW', 'STEAM', 'TEA', 'BRISTOL'];
 export const READ_WORDS = ['STEAM', 'TRAIN', 'LONDON', 'BRISTOL', 'TELEGRAPH', 'PHOTOGRAPH'];
 
 /*
- * The railway bench's steps. Each explains a part of the story in plain
- * words (instruction, no claims), sets a task, and carries its notes.
+ * The railway bench's steps, one idea each, in few words (instruction, no
+ * claims beyond the notes): noon moving west across the map, a traveller's
+ * watch against the town clocks, a train to catch, the stationmaster setting
+ * the clocks, and Bristol's clock with two minute hands.
  */
-export type RailStepId = 'sun' | 'catch' | 'set' | 'send' | 'law';
+export type RailStepId = 'sun' | 'journey' | 'catch' | 'set' | 'bristol';
 export const RAIL_STEPS: { id: RailStepId; title: string; body: string; task: string }[] = [
   {
     id: 'sun',
-    title: 'Every town had its own time',
-    body: 'Before the railways, each town set its clocks by the Sun. So each town had its own noon, and its own time.',
-    task: 'Steam west, station by station. Watch the town’s clock fall behind London’s.',
+    title: 'Noon moves west',
+    body: 'Each town set its clocks by the Sun. Noon reached the towns in the west later.',
+    task: 'Move the Sun west. Watch noon reach each town.',
+  },
+  {
+    id: 'journey',
+    title: 'Your watch says London time',
+    body: 'You set your watch in London and take the train west. The town clocks disagree with it!',
+    task: 'Steam west. Compare your watch with each town’s clock.',
   },
   {
     id: 'catch',
-    title: 'Catch your train!',
-    body: 'The trains ran by London time, but the church clock in each town showed the town’s own time. Can you work out if you will catch your train?',
-    task: 'Look at the two clocks, then choose your answer.',
+    title: 'Will you catch the train?',
+    body: 'The trains ran by London time. The town clocks did not.',
+    task: 'Read the town clock, then choose.',
   },
   {
     id: 'set',
-    title: 'Set the clock to railway time',
-    body: 'The railways chose one time for the whole line: London time. Now set the town clock to match the railway’s.',
-    task: 'Press + and − to move the town clock until both clocks say the same.',
+    title: 'You’re the stationmaster',
+    body: 'The railways chose one time for every station: London time.',
+    task: 'Drag the minute hand until the town clock says the same as London.',
   },
   {
-    id: 'send',
-    title: 'Send the time by telegraph',
-    body: 'Setting every clock by hand is slow. The telegraph could send the right time from Greenwich along its wires, to stations across the country.',
-    task: 'Press the button to send the time down the line.',
-  },
-  {
-    id: 'law',
-    title: 'One time for everyone',
-    body: 'Slowly the towns gave up their own time. Today the whole country keeps one time, so a train timetable means the same thing everywhere.',
-    task: 'Steam to any town: both clocks now agree.',
+    id: 'bristol',
+    title: 'A clock with two minute hands',
+    body: 'Bristol’s Exchange clock shows two times at once: Bristol’s own, and London’s.',
+    task: 'Which minute hand shows London time? Press it.',
   },
 ];
 
 /**
- * The "catch your train" puzzles: the town, the train's time by London time
- * and what the town's own clock says (both in minutes after midnight), the
- * choices, the right one, and why.
+ * "Will you catch the train?": the town, the train's time by London time
+ * and what the town's own clock says (both in minutes after midnight).
+ * Whether you catch it is worked out from the timetable's minutes.
  */
-export const TRAIN_PUZZLES: { town: string; train: number; clock: number; choices: string[]; answer: number; why: string }[] = [
-  {
-    town: 'Bath',
-    train: 12 * 60,
-    clock: 11 * 60 + 52,
-    choices: ['Yes: 8 minutes to spare', 'No: it left 3 minutes ago'],
-    answer: 1,
-    why: 'Bath’s clock is 11 minutes behind London’s. When Bath’s clock says 11:52, it is already 12:03 in London, and the train has gone!',
-  },
-  {
-    town: 'Reading',
-    train: 15 * 60,
-    clock: 14 * 60 + 50,
-    choices: ['10 minutes to spare', '6 minutes to spare', 'No: it has gone'],
-    answer: 1,
-    why: 'Reading’s clock is 4 minutes behind London’s. When Reading’s clock says 2:50, it is 2:54 in London: 6 minutes until the train.',
-  },
+export const TRAIN_PUZZLES: { town: string; train: number; clock: number }[] = [
+  { town: 'Bath', train: 12 * 60, clock: 11 * 60 + 52 },
+  { town: 'Reading', train: 15 * 60, clock: 14 * 60 + 50 },
+  { town: 'Bridgewater', train: 16 * 60, clock: 15 * 60 + 50 },
+  { town: 'Bristol', train: 12 * 60 + 30, clock: 12 * 60 + 15 },
 ];
+
+/** Bristol's Exchange clock as the bench draws it: London time, and Bristol's own 11 minutes behind (the 1841 timetable). */
+export const BRISTOL_CLOCK = { london: 12 * 60 + 10, behind: 11 };
 
 /*
  * The telegraph's steps: how a telegraph works, part by part, before the
@@ -262,6 +287,31 @@ export const MORSE: Record<string, string> = {
   A: '.-', B: '-...', C: '-.-.', D: '-..', E: '.', F: '..-.', G: '--.', H: '....', I: '..', J: '.---', K: '-.-', L: '.-..', M: '--',
   N: '-.', O: '---', P: '.--.', Q: '--.-', R: '.-.', S: '...', T: '-', U: '..-', V: '...-', W: '.--', X: '-..-', Y: '-.--', Z: '--..',
 };
+
+/*
+ * The telegram bench: write a telegram, tap it out in International Morse
+ * code, print the form; or receive one and decode it. Twelve words for
+ * sixpence is the Post Office's price (BT Archives, NOTES.telegramPrice);
+ * the halfpenny for each word over twelve is the room's own game rule, and
+ * said so on the page.
+ */
+export const TELEGRAM = {
+  /** Words for the price of sixpence. */
+  words: 12,
+  /** The longest telegram the bench takes, in words. */
+  maxWords: 20,
+  /** The game rule: each word over twelve costs a halfpenny more. */
+  extraHalfpence: 1,
+  rule: 'Game rule: each word over 12 costs a halfpenny more.',
+  /** Said on the telegram form itself, above its letters. */
+  morseNote: 'In International Morse code',
+};
+
+/** Telegrams to receive and decode: short, and every letter in the chart. */
+export const INCOMING = ['TEA AT FOUR', 'TRAIN IS LATE', 'COME HOME', 'ALL IS WELL', 'MEET ME AT BATH'];
+
+/** Telegrams to start from, for anyone stuck for words. */
+export const TELEGRAM_IDEAS = ['ARRIVING BATH NOON', 'SEND MORE TEA', 'WISH YOU WERE HERE'];
 
 /*
  * The photographs on the photography bench: Victorian photographs from the
