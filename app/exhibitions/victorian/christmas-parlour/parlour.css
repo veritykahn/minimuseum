@@ -5,7 +5,7 @@
    changes at once, and nothing flickers.
    ========================================================================== */
 
-.vbr-stage.vcp-stage { --vbr-top: 108px; }
+.vbr-stage.vcp-stage { --vbr-top: 150px; }
 .vcp-scene-wrap { align-items: center; }
 .vcp-scene {
   position: relative;
@@ -84,7 +84,7 @@
   background: rgba(47, 74, 50, 0.92);
   color: #fff;
   font-family: 'Jost', sans-serif;
-  font-size: 12px;
+  font-size: 16px;
   letter-spacing: 0.08em;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -100,14 +100,14 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  min-height: 38px;
+  min-height: 50px;
   padding: 6px 10px;
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 4px;
   background: transparent;
   color: #fff;
   font-family: 'Jost', sans-serif;
-  font-size: 13px;
+  font-size: 17px;
   text-align: left;
   cursor: pointer;
 }
@@ -117,17 +117,95 @@
 .vcp-part-mark { color: #f2d68a; }
 .vcp-part-button[aria-current] .vcp-part-mark { color: #a4565c; }
 .vcp-part { display: flex; flex-direction: column; gap: 10px; animation: vbr-in 0.5s ease both; }
-.vcp-closing { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.3); font-family: var(--vb-serif); font-size: 1.05rem; line-height: 1.45; }
-.vcp-closing p:first-child { font-size: 1.15rem; }
+.vcp-closing { display: flex; flex-direction: column; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.3); font-family: var(--vb-serif); font-size: 1.3rem; line-height: 1.45; }
+.vcp-closing p:first-child { font-size: 1.45rem; }
 
 @media (max-width: 760px) {
-  .vbr-stage.vcp-stage { --vbr-top: 100px; --scene-h: 36dvh; }
+  .vbr-stage.vcp-stage { --vbr-top: 118px; --scene-h: 36dvh; }
   .vcp-spot::after { width: 18px; height: 18px; margin: -9px 0 0 -9px; }
   .vcp-scene { box-shadow: 0 0 0 4px #6b4a32, 0 0 0 5px #c9a24a, 0 10px 20px rgba(47, 30, 20, 0.4); }
   .vcp-parts { gap: 4px; padding-top: 8px; }
-  .vb-room .vcp-part-button { min-height: 34px; font-size: 12px; padding: 4px 8px; }
-  .vcp-closing { font-size: 0.9rem; }
-  .vcp-closing p:first-child { font-size: 0.95rem; }
+  .vb-room .vcp-part-button { min-height: 42px; font-size: 14.5px; padding: 6px 8px; }
+  .vcp-closing { font-size: 1.05rem; }
+  .vcp-closing p:first-child { font-size: 1.15rem; }
+}
+
+/* ───────── Big words, for a class at the projector ───────── */
+.vcp-panel { display: contents; }
+.vcp-panel[hidden] { display: none; }
+.vb-parlour .vbr-quote { font-size: 1.45rem; }
+.vb-parlour .vbr-quote figcaption { font-size: 15px; }
+.vb-parlour .vbr-card h2 { font-size: 1.7rem; }
+.vb-parlour .vcp-part .vbr-poster { font-family: var(--vb-serif); font-size: 1.3rem; line-height: 1.5; }
+.vb-room .vcp-part-button[aria-current] .vcp-part-mark, .vcp-part-mark { font-size: 1.1em; }
+.vb-parlour .vbr-title { font-size: clamp(1.8rem, 3vw, 2.6rem); }
+
+/* ───────── Write your own Christmas ghost story ───────── */
+.vgs-scene { align-items: stretch; }
+.vgs-preview {
+  width: min(100%, 100cqh * 0.78);
+  height: 100%;
+  overflow-y: auto;
+  border-radius: 4px;
+  background: #fbf6ea;
+  box-shadow: 0 0 0 6px #6b4a32, 0 0 0 8px #c9a24a, 0 18px 30px rgba(47, 30, 20, 0.4);
+  scrollbar-width: thin;
+}
+.vgs-page { box-sizing: border-box; min-height: 100%; padding: 34px 38px 24px; color: #2a2522; font-family: var(--vb-serif); display: flex; flex-direction: column; }
+.vgs-kicker { margin: 0; text-align: center; font-family: 'Jost', sans-serif; font-size: 13px; letter-spacing: 0.3em; text-transform: uppercase; color: #6b2a2e; }
+.vgs-title { margin: 10px 0 4px; text-align: center; font-family: var(--pe-display); font-weight: 400; font-size: 2.4rem; line-height: 1.15; letter-spacing: 0.04em; color: #2f4a32; overflow-wrap: anywhere; }
+.vgs-by { margin: 0; text-align: center; font-style: italic; font-size: 1.2rem; }
+.vgs-rule { margin: 12px 0 16px; text-align: center; color: #a4565c; letter-spacing: 0.6em; }
+.vgs-text { font-size: 1.2rem; line-height: 1.65; overflow-wrap: anywhere; }
+.vgs-text p { margin: 0 0 0.8em; text-indent: 1.4em; }
+.vgs-text p:first-child { text-indent: 0; }
+.vgs-text p:first-child::first-letter { float: left; font-family: var(--pe-display); font-size: 3.6em; line-height: 0.85; padding: 4px 8px 0 0; color: #6b2a2e; }
+.vgs-empty { margin: 0; font-style: italic; font-size: 1.2rem; color: #8a7a6a; text-align: center; }
+.vgs-page-plan { margin: auto 0 0; padding-top: 16px; font-style: italic; font-size: 1rem; color: #5a4a3a; }
+.vgs-foot { margin: 12px 0 0; padding-top: 8px; border-top: 1px solid #c9a24a; text-align: center; font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 0.1em; color: #6b4a32; }
+.vb-parlour .vgs-card h2 { font-family: var(--vb-serif); font-weight: 600; font-size: 1.7rem; letter-spacing: 0.01em; text-transform: none; }
+.vgs-h { margin: 6px 0 0; padding-top: 12px; border-top: 1px solid rgba(255, 255, 255, 0.3); font-family: var(--vb-serif); font-weight: 600; font-size: 1.35rem; }
+.vgs-plan { margin: 0; padding: 10px 14px; border-left: 4px solid #f2c45a; background: rgba(0, 0, 0, 0.14); font-family: var(--vb-serif); font-style: italic; font-size: 1.2rem; line-height: 1.45; }
+.vgs-starters { display: flex; flex-direction: column; gap: 8px; }
+.vb-room .vgs-starter {
+  appearance: none;
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-family: var(--vb-serif);
+  font-style: italic;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+}
+.vb-room .vgs-starter:hover { background: rgba(255, 255, 255, 0.16); border-color: #fff; }
+.vgs-card textarea { resize: vertical; min-height: 9em; line-height: 1.5; }
+.vgs-count { margin-top: -6px !important; text-align: right; }
+.vgs-words { display: flex; flex-direction: column; }
+
+/* The ghost story's printed page */
+@media print {
+  @page { margin: 16mm; }
+  .vgs-print-root .vgs-page { min-height: 0; padding: 0; background: #fff; }
+  .vgs-print-root .vgs-title { font-size: 30pt; }
+  .vgs-print-root .vgs-text { font-size: 13pt; line-height: 1.6; }
+  .vgs-print-root .vgs-text p { break-inside: auto; }
+}
+
+@media (max-width: 760px) {
+  .vbr-stage.vcp-stage[data-tab='ghost-story'] { --scene-h: 30dvh; }
+  .vgs-preview { width: 100%; }
+  .vgs-page { padding: 18px 18px 14px; }
+  .vgs-title { font-size: 1.6rem; }
+  .vgs-text, .vgs-empty { font-size: 1rem; }
+  .vb-parlour .vbr-quote { font-size: 1.1rem; }
+  .vb-parlour .vbr-card h2 { font-size: 1.3rem; }
+  .vb-parlour .vcp-part .vbr-poster { font-size: 1.05rem; }
+  .vgs-h { font-size: 1.15rem; }
+  .vb-room .vgs-starter { font-size: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
