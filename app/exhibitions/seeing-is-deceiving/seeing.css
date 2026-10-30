@@ -174,6 +174,10 @@
 .pe-atmo-rotating-snakes .pe-atmo-part-2 { bottom: 10vh; right: -8vmin; animation-direction: reverse; }
 .pe-atmo-rotating-snakes .pe-atmo-part-3 { top: 4vh; right: 14vw; width: 16vmin; animation-duration: 28s; }
 .pe-atmo-rotating-snakes .pe-atmo-part-4 { bottom: 6vh; left: 16vw; width: 20vmin; animation-duration: 34s; animation-direction: reverse; }
+/* On the classroom screen the copy is set larger: the discs keep to the edges, clear of it. */
+.pjp-stage .pe-atmo-rotating-snakes :is(.pe-atmo-part-1, .pe-atmo-part-2) { width: 20vmin; }
+.pjp-stage .pe-atmo-rotating-snakes .pe-atmo-part-3 { width: 11vmin; }
+.pjp-stage .pe-atmo-rotating-snakes .pe-atmo-part-4 { width: 13vmin; }
 
 /* ───────── spirit-static: grain, and a figure that is not there ───────── */
 .pe-atmo-spirit-static .pe-atmo-part-1 {
