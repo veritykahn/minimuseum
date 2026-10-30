@@ -7,7 +7,7 @@ import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
-import LessonsLink from '@/components/lesson/LessonsLink';
+import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import PosterPanel from './PosterPanel';
@@ -22,7 +22,7 @@ import './poster-exhibition.css';
 
 /*
  * A poster exhibition, drawn from its config: the landing page (title,
- * "Teach with this" and the lessons chip, the posters and any display cases),
+ * "Teach with this" and its sheet of lessons and materials, the posters and any display cases),
  * the step-by-step poster walkthrough with the exhibition's reveal, and
  * teacher projector mode around it. The behavior is the existing exhibition
  * pages': keyboard, swipe and tap navigation (usePosterWalkthrough), the
@@ -38,6 +38,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
   const pjPosters = useMemo(() => projectorPosters(posters), [posters]);
+  const teach = useMemo<TeachContent>(() => ({ slug, name, posters: pjPosters, links: projectorConfig.links }), [slug, name, pjPosters, projectorConfig.links]);
   const marks = useMemo(() => Object.fromEntries(posters.map((p) => [p.id, chapterMarks(p.items)])) as Record<K, number[]>, [posters]);
 
   const [projector, setProjector] = useProjectorMode();
@@ -153,8 +154,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
             <h1>{name}</h1>
             <p>{subtitle}</p>
             <div className="pe-teach-row">
-              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} />
-              <LessonsLink exhibition={slug} style={teachStyle} />
+              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} teach={teach} />
             </div>
           </div>
 

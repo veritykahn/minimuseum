@@ -1,6 +1,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import { ModelErrorBoundary } from '@/components/exhibition/ModelFallback';
 
 const HrArtifactViewer = dynamic(
   () => import('../hr-artifact-viewer'),
@@ -32,5 +33,9 @@ const HrArtifactViewer = dynamic(
 );
 
 export default function FireInTheFlintPage() {
-  return <HrArtifactViewer artifactId="fire-in-the-flint" />;
+  return (
+    <ModelErrorBoundary id="fire-in-the-flint">
+      <HrArtifactViewer artifactId="fire-in-the-flint" />
+    </ModelErrorBoundary>
+  );
 }
