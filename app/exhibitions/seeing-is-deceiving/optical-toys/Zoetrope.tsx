@@ -195,9 +195,6 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
   const spinning = sp.step > 0;
   capRef.current = sp.flickerOk ? TOY_SPEEDS.zoetrope.top : speedAt('zoetrope', sp.gate);
 
-  useEffect(() => {
-    if (spinning) setStatus(ZOE_SEEN_LABEL[seen] + '.');
-  }, [seen, spinning]);
 
   const step = (by: number) => {
     if (spinning) sp.stop();
@@ -336,7 +333,7 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
         <FactNote fact={TOY_NOTES.zoetrope} className="vto-fact" />
         {footer}
       </div>
-      <p className="vto-status" role="status" aria-live="polite">{status}</p>
+      <p className="vto-status" role="status" aria-live="polite">{spinning ? `${ZOE_SEEN_LABEL[seen]}.` : status}</p>
     </div>
   );
 }

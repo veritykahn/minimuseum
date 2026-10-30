@@ -130,9 +130,6 @@ export default function Thaumatrope({ reduced, intro, footer }: { reduced: boole
   const seen = thaumaSeen(rps);
   const twirling = sp.step > 0;
 
-  useEffect(() => {
-    if (twirling) setStatus(THAUMA_SEEN_LABEL[seen] + '.');
-  }, [seen, twirling]);
 
   const flip = () => {
     sp.stop();
@@ -265,7 +262,7 @@ export default function Thaumatrope({ reduced, intro, footer }: { reduced: boole
         <FactNote fact={TOY_NOTES.thaumatrope} className="vto-fact" />
         {footer}
       </div>
-      <p className="vto-status" role="status" aria-live="polite">{status}</p>
+      <p className="vto-status" role="status" aria-live="polite">{twirling ? `${THAUMA_SEEN_LABEL[seen]}.` : status}</p>
     </div>
   );
 }
