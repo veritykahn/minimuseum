@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import AudioGuide, { useAudioGuide } from '@/components/exhibition/AudioGuide';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
+import { GREAT_WAR } from '@/app/exhibitions/great-war/greatWar';
 
 /*
  * The audio guide: off until a visitor turns it on, then each panel's
@@ -70,13 +71,19 @@ describe('AudioGuide', () => {
 });
 
 describe('Recordings named by the posters', () => {
-  const recordings = BLACK_HISTORY.posters.flatMap((p) => p.items.map((i) => i.audio).filter((a): a is string => !!a));
+  const recordings = [BLACK_HISTORY, GREAT_WAR].flatMap((e) => e.posters).flatMap((p) => p.items.map((i) => i.audio).filter((a): a is string => !!a));
 
   it('Black History poster 1 has one for each panel of text', () => {
     const poster1 = BLACK_HISTORY.posters[0];
     const text = poster1.items.filter((i) => i.type === 'paragraph' || i.type === 'section-title');
     expect(text.every((i) => i.audio)).toBe(true);
     expect(new Set(recordings).size).toBe(recordings.length);
+  });
+
+  it('Great War poster 1 has one for its title and every panel it reads aloud', () => {
+    const poster1 = GREAT_WAR.posters[0];
+    const read = poster1.items.filter((i) => i.type !== 'full-image' && i.type !== 'end');
+    expect(read.every((i) => i.audio)).toBe(true);
   });
 
   it.each(recordings)('%s is in public/', (src) => {
