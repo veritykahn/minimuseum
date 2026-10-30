@@ -3,7 +3,9 @@ import { join } from 'node:path';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import WhoDoYouSee from '@/app/exhibitions/black-history/representation/page';
 import DollPicture from '@/app/exhibitions/black-history/representation/Doll';
-import { CCBC_2025, CCBC_FACT, DOLL_TEST_FACTS, DOLL_TEST_STEPS, DOLL_TEST_TEXT, SURVEY_QUESTIONS } from '@/app/exhibitions/black-history/representation/representationText';
+import { CCBC_2025, CCBC_FACT, DOLL_TEST_FACTS, DOLL_TEST_STEPS, DOLL_TEST_TEXT, SURVEY_QUESTIONS, askFor } from '@/app/exhibitions/black-history/representation/representationText';
+import { lessonStep } from '@/app/exhibitions/black-history/representation/DollTest';
+import { BAR_COLORS, clampCount } from '@/app/exhibitions/black-history/representation/BookSurvey';
 import { CLOTH_COLORS, FIRST_DOLL, HAIR_STYLES, SKIN, describe as describeDoll, freckleColor, lightness, shade, surprise, vitiligoEdge, vitiligoPatch } from '@/app/exhibitions/black-history/representation/dollOptions';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
 import { OWNER_BARBIE_PHOTOS } from '@/app/exhibitions/black-history/timeline/timelineStops';
@@ -48,7 +50,7 @@ describe('the doll’s choices', () => {
 
 describe('the Doll Test', () => {
   it('tells every fact as a note with its sources, from the agreed authorities', () => {
-    const allowed = /^https:\/\/(www\.)?(naacpldf\.org|loc\.gov|archives\.gov|law\.cornell\.edu)\//;
+    const allowed = /^https:\/\/(www\.)?(naacpldf\.org|loc\.gov|archives\.gov|law\.cornell\.edu|nps\.gov)\//;
     for (const f of Object.values(DOLL_TEST_FACTS)) {
       expect(f.sources.length).toBeGreaterThan(0);
       for (const s of f.sources) expect(s.href).toMatch(allowed);
@@ -59,7 +61,7 @@ describe('the Doll Test', () => {
 
   it('ends on poster 2’s own sentence, quoted whole', () => {
     expect(posterCopy).toContain(DOLL_TEST_TEXT.poster);
-    expect(DOLL_TEST_STEPS.at(-1)!.facts).toEqual([]);
+    expect(DOLL_TEST_STEPS.at(-1)!.facts).toEqual([DOLL_TEST_FACTS.symbol]);
   });
 
   it('moves along the steps by button and by key, saying where it is', () => {
@@ -67,16 +69,99 @@ describe('the Doll Test', () => {
     fireEvent.click(screen.getByRole('tab', { name: 'The Doll Test' }));
     expect(window.location.hash).toBe('#doll-test');
     const panel = screen.getByRole('tabpanel', { name: 'The Doll Test' });
-    expect(within(panel).getByRole('heading', { level: 2, name: 'Two psychologists' })).toBeInTheDocument();
-    expect(within(panel).getByText(DOLL_TEST_FACTS.clarks.text)).toBeInTheDocument();
-    expect(within(panel).getByRole('link', { name: /NAACP Legal Defense Fund/ })).toHaveAttribute('href', 'https://www.naacpldf.org/brown-vs-board/significance-doll-test/');
+    expect(within(panel).getByRole('heading', { level: 2, name: 'Separate schools' })).toBeInTheDocument();
+    expect(within(panel).getByText(DOLL_TEST_FACTS.segregation.text)).toBeInTheDocument();
+    expect(within(panel).getByRole('link', { name: /National Archives/ })).toHaveAttribute('href', 'https://www.archives.gov/milestone-documents/brown-v-board-of-education');
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Next' }));
-    expect(within(panel).getByRole('heading', { level: 2, name: 'Four dolls' })).toBeInTheDocument();
-    fireEvent.keyDown(within(panel).getByRole('button', { name: '2: Four dolls' }), { key: 'End' });
+    expect(within(panel).getByRole('heading', { level: 2, name: 'Two psychologists' })).toBeInTheDocument();
+    expect(within(panel).getByRole('link', { name: /NAACP Legal Defense Fund/ })).toHaveAttribute('href', 'https://www.naacpldf.org/brown-vs-board/significance-doll-test/');
+    fireEvent.keyDown(within(panel).getByRole('button', { name: '2: Two psychologists' }), { key: 'End' });
     expect(within(panel).getByRole('button', { name: `${DOLL_TEST_STEPS.length}: What it teaches` })).toHaveFocus();
     expect(within(panel).getByText(DOLL_TEST_TEXT.poster)).toBeInTheDocument();
     expect(within(panel).getByText(`${DOLL_TEST_STEPS.length} of ${DOLL_TEST_STEPS.length}: What it teaches`)).toHaveAttribute('role', 'status');
+  });
+});
+
+/*
+ * The owner asked for the Doll Test as a teaching activity: led by the
+ * teacher on the projector, a step at a time from separate schools to the
+ * doll tests to Brown v. Board, a question for the class at every step,
+ * teacher's notes on a toggle, and a clicker's keys.
+ */
+describe('the Doll Test as a lesson', () => {
+  const openLesson = () => {
+    render(<WhoDoYouSee />);
+    fireEvent.click(screen.getByRole('tab', { name: 'The Doll Test' }));
+    return screen.getByRole('tabpanel', { name: 'The Doll Test' });
+  };
+
+  it('tells the story in order: context, the tests, what was asked and found, and the court', () => {
+    expect(DOLL_TEST_STEPS.map((s) => s.id)).toEqual(['schools', 'clarks', 'dolls', 'asked', 'answers', 'drawings', 'conclusion', 'court', 'decision', 'footnote', 'think']);
+    expect(DOLL_TEST_STEPS.find((s) => s.id === 'asked')!.facts).toEqual([DOLL_TEST_FACTS.asked]);
+    expect(DOLL_TEST_STEPS.find((s) => s.id === 'court')!.facts).toEqual([DOLL_TEST_FACTS.clarendon, DOLL_TEST_FACTS.court]);
+    expect(DOLL_TEST_STEPS.find((s) => s.id === 'decision')!.facts).toEqual([DOLL_TEST_FACTS.decision, DOLL_TEST_FACTS.unequal]);
+    // Every fact is used, once.
+    const used = DOLL_TEST_STEPS.flatMap((s) => s.facts);
+    expect(new Set(used).size).toBe(used.length);
+    expect(used).toHaveLength(Object.keys(DOLL_TEST_FACTS).length);
+  });
+
+  it('quotes the Court and the sources in their own words', () => {
+    expect(DOLL_TEST_FACTS.unequal.text).toContain('Separate educational facilities are inherently unequal.');
+    expect(DOLL_TEST_FACTS.segregation.text).toContain('“requiring or permitting segregation according to race.”');
+    expect(DOLL_TEST_FACTS.asked.sources.map((x) => x.href)).toContain('https://www.nps.gov/brvb/learn/historyculture/clarkdoll.htm');
+    expect(DOLL_TEST_FACTS.clarendon.text).toContain('Clarendon County, South Carolina');
+  });
+
+  it('asks the class an open question at every step, and has notes for the teacher', () => {
+    for (const s of DOLL_TEST_STEPS) {
+      expect(s.prompt).toMatch(/\?$/);
+      expect(s.notes.length).toBeGreaterThan(0);
+    }
+    // Sensitive and age-appropriate: the class discusses the test; it never repeats it.
+    expect(DOLL_TEST_STEPS.find((s) => s.id === 'asked')!.notes.join(' ')).toMatch(/don’t repeat the test/);
+    const panel = openLesson();
+    expect(within(panel).getByRole('heading', { level: 3, name: 'Talk about it' })).toBeInTheDocument();
+    expect(within(panel).getByText(DOLL_TEST_STEPS[0].prompt)).toBeInTheDocument();
+  });
+
+  it('shows the teacher’s notes on the button or the N key, and only then', () => {
+    const panel = openLesson();
+    expect(within(panel).queryByRole('complementary', { name: 'For the teacher' })).toBeNull();
+    const toggle = within(panel).getByRole('button', { name: 'Teacher’s notes' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(within(panel).getByRole('complementary', { name: 'For the teacher' })).toHaveTextContent(DOLL_TEST_STEPS[0].notes[0]);
+    fireEvent.keyDown(document.body, { key: 'n' });
+    expect(within(panel).queryByRole('complementary', { name: 'For the teacher' })).toBeNull();
+  });
+
+  it('moves along by a clicker’s keys from anywhere on the tab, and not from another tab', () => {
+    expect(lessonStep('PageDown', 0, 11)).toBe(1);
+    expect(lessonStep('PageUp', 0, 11)).toBe(0);
+    expect(lessonStep('ArrowRight', 10, 11)).toBe(10);
+    expect(lessonStep('End', 2, 11)).toBe(10);
+    expect(lessonStep('x', 2, 11)).toBeNull();
+    const panel = openLesson();
+    fireEvent.keyDown(document.body, { key: 'PageDown' });
+    fireEvent.keyDown(document.body, { key: 'PageDown' });
+    expect(within(panel).getByRole('heading', { level: 2, name: 'Four dolls' })).toBeInTheDocument();
+    fireEvent.keyDown(document.body, { key: 'PageUp' });
+    expect(within(panel).getByRole('heading', { level: 2, name: 'Two psychologists' })).toBeInTheDocument();
+    // On another tab, the keys leave the lesson where it is.
+    fireEvent.click(screen.getByRole('tab', { name: 'Design a doll' }));
+    fireEvent.keyDown(document.body, { key: 'PageDown' });
+    expect(within(panel).getByRole('heading', { level: 2, name: 'Two psychologists', hidden: true })).toBeInTheDocument();
+  });
+
+  it('ends on poster 2’s sentence and the questions for the class', () => {
+    const panel = openLesson();
+    fireEvent.keyDown(document.body, { key: 'End' });
+    expect(within(panel).getByText(DOLL_TEST_TEXT.poster)).toBeInTheDocument();
+    for (const q of DOLL_TEST_TEXT.questions) expect(within(panel).getByText(q)).toBeInTheDocument();
+    expect(within(panel).getByText(DOLL_TEST_FACTS.symbol.text)).toBeInTheDocument();
   });
 });
 
@@ -97,17 +182,83 @@ describe('the book survey', () => {
     fireEvent.click(more);
     fireEvent.click(more);
     fireEvent.click(within(panel).getByRole('button', { name: 'One more: White' }));
-    const tally = within(panel).getByRole('table');
-    expect(within(tally).getByText('(3 counted)')).toBeInTheDocument();
-    expect(within(tally).getByText('67%')).toBeInTheDocument();
+    const chart = panel.querySelector('.bhr-survey-side .bhr-chart-big') as HTMLElement;
+    expect(within(chart).getByText('(3 counted)')).toBeInTheDocument();
+    expect(within(chart).getByText('67%')).toBeInTheDocument();
     expect(JSON.parse(window.localStorage.getItem('mm-bh-survey-v1')!).books.background).toEqual({ black: 2, white: 1 });
     expect(within(panel).getByText(CCBC_FACT.text)).toBeInTheDocument();
 
     // Toys have no authors to count.
     fireEvent.click(within(panel).getByRole('radio', { name: 'Toys' }));
     expect(within(panel).queryByRole('tab', { name: 'Authors' })).toBeNull();
-    expect(within(within(panel).getByRole('table')).getByText('(0 counted)')).toBeInTheDocument();
-    expect(SURVEY_QUESTIONS.map((q) => q.id)).toEqual(['background', 'gender', 'ability', 'authors']);
+    expect(within(panel.querySelector('.bhr-survey-side .bhr-chart-big') as HTMLElement).getByText('(0 counted)')).toBeInTheDocument();    expect(SURVEY_QUESTIONS.map((q) => q.id)).toEqual(['background', 'gender', 'ability', 'authors']);
+  });
+});
+
+/*
+ * The owner asked for the survey whole-class: the teacher reads the
+ * question, counts hands and sets each count with big steppers (or types
+ * it), and the chart grows on screen beside them.
+ */
+describe('the survey, whole-class', () => {
+  const openSurvey = () => {
+    render(<WhoDoYouSee />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Who’s in your books?' }));
+    return screen.getByRole('tabpanel', { name: 'Who’s in your books?' });
+  };
+
+  it('gives the teacher a hands-up question for each chart and each thing counted', () => {
+    const [background, gender, ability, authors] = SURVEY_QUESTIONS;
+    expect(askFor(background, 'books')).toBe('Hands up if the main character in your book is…');
+    expect(askFor(gender, 'toys')).toBe('Hands up if your toy is…');
+    expect(askFor(ability, 'screens')).toBe('Hands up if the main character in your show or game…');
+    expect(askFor(authors, 'books')).toBe('Hands up if the person who wrote or drew your book is…');
+    const panel = openSurvey();
+    expect(within(panel).getByRole('heading', { level: 3, name: 'Hands up if the main character in your book is…' })).toBeInTheDocument();
+    fireEvent.click(within(panel).getByRole('radio', { name: 'Toys' }));
+    expect(within(panel).getByRole('heading', { level: 3, name: 'Hands up if your toy is…' })).toBeInTheDocument();
+  });
+
+  it('takes a typed count, whole and from 0 to 999, and the chart follows', () => {
+    expect(clampCount('12')).toBe(12);
+    expect(clampCount('-3')).toBe(0);
+    expect(clampCount('2.7')).toBe(2);
+    expect(clampCount('')).toBe(0);
+    expect(clampCount('abc')).toBe(0);
+    expect(clampCount(5000)).toBe(999);
+    const panel = openSurvey();
+    fireEvent.change(within(panel).getByRole('spinbutton', { name: 'How many: Asian' }), { target: { value: '7' } });
+    fireEvent.click(within(panel).getByRole('button', { name: 'One more: Latine' }));
+    fireEvent.click(within(panel).getByRole('button', { name: 'One more: Latine' }));
+    expect(within(panel).getByRole('spinbutton', { name: 'How many: Latine' })).toHaveValue(2);
+    fireEvent.click(within(panel).getByRole('button', { name: 'One fewer: Latine' }));
+    expect(within(panel).getByRole('spinbutton', { name: 'How many: Latine' })).toHaveValue(1);
+    expect(screen.getByText('Latine: 1.')).toHaveAttribute('role', 'status');
+    const chart = panel.querySelector('.bhr-survey-side .bhr-chart-big') as HTMLElement;
+    expect(within(chart).getByText('(8 counted)')).toBeInTheDocument();
+    // The biggest count fills its bar; the rest are measured against it.
+    const fills = [...chart.querySelectorAll<HTMLElement>('.bhr-bar-fill')].map((f) => f.style.width);
+    expect(fills[2]).toBe('100%');
+    expect(fills[3]).toBe(`${(1 / 7) * 100}%`);
+    expect(fills[0]).toBe('0%');
+  });
+
+  it('colors each answer’s dot and bar alike, from the posters’ palette', () => {
+    const panel = openSurvey();
+    const dots = [...panel.querySelectorAll<HTMLElement>('.bhr-stepper')].map((li) => li.style.getPropertyValue('--bar'));
+    const bars = [...panel.querySelectorAll<HTMLElement>('.bhr-survey-side .bhr-bar-row')].map((li) => li.style.getPropertyValue('--bar'));
+    expect(dots).toEqual(bars);
+    expect(dots.slice(0, 4)).toEqual(BAR_COLORS.slice(0, 4));
+  });
+
+  it('prints every chart, with lines for the class and the date, in their colors', () => {
+    const panel = openSurvey();
+    const print = panel.querySelector('.bhr-print') as HTMLElement;
+    expect(print.querySelectorAll('.bhr-chart')).toHaveLength(4);
+    expect(print).toHaveTextContent('Our class:');
+    expect(print).toHaveTextContent('Date:');
+    const css = readFileSync(join(process.cwd(), 'app/exhibitions/black-history/representation/representation.css'), 'utf8');
+    expect(css).toMatch(/\.bhr-bar-fill \{[^}]*background: var\(--bar/);
   });
 });
 
@@ -244,6 +395,6 @@ describe('fixes from the QA pass', () => {
     const lastStep = within(panel).getByRole('button', { name: `${DOLL_TEST_STEPS.length}: What it teaches` });
     expect(lastStep).toHaveFocus();
     expect(lastStep).toHaveAttribute('tabindex', '0');
-    expect(within(panel).getByRole('button', { name: '1: Two psychologists' })).toHaveAttribute('tabindex', '-1');
+    expect(within(panel).getByRole('button', { name: '1: Separate schools' })).toHaveAttribute('tabindex', '-1');
   });
 });
