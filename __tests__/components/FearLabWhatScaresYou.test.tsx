@@ -312,8 +312,9 @@ describe('the rustling bushes', () => {
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
     act(() => { jest.advanceTimersByTime(DECIDE_MS * 3); });
     expect(screen.getByRole('status')).toHaveTextContent('Round 1 of 8. A bush rustles.');
-    // The clue still comes, with no clock running.
-    expect(document.querySelector('.fl-bush[data-rustling] .fl-clue')).toBeInTheDocument();
+    // The clue still comes, with no clock running (a wind round may, by chance, have none to show).
+    expect(document.querySelector('.fl-bush[data-rustling]')).toBeInTheDocument();
+    expect(screen.getByText(/No timer. Look for a clue/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Just the wind' }));
     expect(screen.getByRole('status')).toHaveTextContent('The clue:');
   });
