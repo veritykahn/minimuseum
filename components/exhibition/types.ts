@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { FxTheme } from '@/components/poster-fx/PosterFx';
 import type { PosterTalk } from '@/components/projector/posterTalk';
+import type { FactSource } from './FactNote';
 
 /*
  * The shape of a poster exhibition: everything PosterExhibition needs to draw
@@ -173,6 +174,12 @@ export type ParagraphItem = PanelBase & {
   position?: PanelPosition;
   figure?: PanelFigure;
   source?: PanelSource;
+  /**
+   * A museum note's sources (FactNote's): for a panel the museum adds beside
+   * the printed copy, each fact checked and cited. Set small beneath the copy
+   * as "Source:" or "Sources:", each linked.
+   */
+  sources?: readonly FactSource[];
 };
 
 /** A chapter opening. Its text is also the chapter's name in projector mode. */
@@ -300,7 +307,7 @@ export type QuoteItem = PanelBase & {
   cite?: string;
 };
 
-/** A link out of the poster, set as a button. */
+/** A link out of the poster, set as a button: to another site (in a new tab), or to one of the museum's own rooms ('/exhibitions/…', in place). */
 export type LinkItem = PanelBase & {
   type: 'link';
   text: string;

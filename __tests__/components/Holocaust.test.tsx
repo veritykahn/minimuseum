@@ -28,7 +28,10 @@ const poster = (id: string) => HOLOCAUST.posters.find((p) => p.id === id)!;
 const allItems = HOLOCAUST.posters.flatMap((p) => p.items);
 /** The copy as read: "*…*" marks italics and is not part of the words. */
 const plain = (t: string) => t.replace(/\*/g, '');
-const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' ? [plain(it.text)] : []));
+/** The printed copy: every paragraph but the museum's added ones. */
+const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' && it.section !== 'added' ? [plain(it.text)] : []));
+/** The museum's added panels, in order. */
+const added = (id: string) => poster(id).items.filter((it) => it.section === 'added');
 const allText = allItems
   .map((it) => [('text' in it && it.text) ? plain(it.text) : '', ('cite' in it && it.cite) || ''].filter(Boolean).join(' '))
   .join('\n');
@@ -106,7 +109,64 @@ describe('Holocaust Memorial Day', () => {
   });
 
   it('splits paragraphs only between sentences', () => {
-    for (const it of allItems) if (it.type === 'paragraph') expect(plain(it.text)).toMatch(/[.!?]"?$/);
+    for (const it of allItems) if (it.type === 'paragraph') expect(plain(it.text)).toMatch(/[.!?]["”]?$/);
+  });
+
+  describe('the museum’s added panels (the owner’s approved drafts)', () => {
+    const titles = (id: string) => added(id).flatMap((it) => (it.type === 'section-title' ? [it.text] : []));
+    const addedParagraphs = (id: string) => added(id).flatMap((it) => (it.type === 'paragraph' ? [it] : []));
+
+    it('adds seven panels to poster 1 and seventeen to poster 2, in four new chapters', () => {
+      expect(addedParagraphs('poster1')).toHaveLength(7);
+      expect(titles('poster1')).toEqual([]);
+      expect(addedParagraphs('poster2')).toHaveLength(17);
+      expect(titles('poster2')).toEqual(['Step by step', 'Children', 'Rescue', 'After']);
+      expect(poster('poster1').items).toHaveLength(15);
+      expect(poster('poster2').items).toHaveLength(31);
+    });
+
+    it('cites every added panel beneath it, each source a link', () => {
+      for (const id of ['poster1', 'poster2']) {
+        for (const it of addedParagraphs(id)) {
+          expect(it.sources?.length).toBeGreaterThan(0);
+          for (const s of it.sources ?? []) {
+            expect(s.label).toBeTruthy();
+            expect(s.href).toMatch(/^https:\/\//);
+          }
+        }
+      }
+    });
+
+    it('keeps poster 1’s close as its only "Never Forget", with the promise under it', () => {
+      const items = poster('poster1').items;
+      const close = items.findIndex((it) => it.type === 'section-title');
+      expect(items[close]).toMatchObject({ text: 'Never Forget.' });
+      expect(items.filter((it) => 'text' in it && /Never Forget/.test(it.text ?? ''))).toHaveLength(1);
+      expect(items[close + 1]).toMatchObject({ section: 'added', text: expect.stringMatching(/^In 2000, representatives from 46 governments met in Stockholm/) });
+      expect(poster('poster1').talk['Never Forget.']).toMatch(/^What are some of the ways people and communities keep the memory of the past alive/);
+    });
+
+    it('uses USHMM’s count of synagogues on Kristallnacht, and only that one', () => {
+      expect(allText).toContain('Nazis burned more than 1,400 synagogues');
+      expect(allText).not.toMatch(/\b267\b/);
+    });
+
+    it('sets each chapter’s added panels where the drafts place them', () => {
+      const p2 = poster('poster2').items.map((it) => ('text' in it && it.text ? plain(it.text).slice(0, 24) : it.type));
+      const at = (start: string) => p2.findIndex((t) => t.startsWith(start));
+      expect(at('Nazi Germany and its')).toBe(at('The Holocaust, also kno') + 1);
+      expect(at('Step by step')).toBeLessThan(at('It did not begin with'));
+      expect(at('At least 250,000')).toBe(at('While the Nazis') + 1);
+      expect(at('People resisted.')).toBe(at('Before being deported') + 1);
+      expect(at('Look for the 1 Krone')).toBe(at('People resisted.') + 1);
+      expect(at('Children')).toBe(at('As many as 1.5 million') - 1);
+      expect(at('Rescue')).toBe(at('Despite the horrors') - 1);
+      const quote = poster('poster2').items.findIndex((it) => it.type === 'quote');
+      const callout = poster('poster2').items.findIndex((it) => it.type === 'callout');
+      expect(at('Pastor Martin Niemöller')).toBe(quote - 1);
+      expect(at('After')).toBe(quote + 1);
+      expect(at('Elie Wiesel')).toBe(callout - 1);
+    });
   });
 
   it('uses US spellings and the posters’ italics', () => {
@@ -234,6 +294,15 @@ describe('Holocaust Memorial Day', () => {
       tick();
       expect(content().querySelector('.pe-figure img')).toHaveAttribute('src', '/exhibitions/holocaust/poster-stones.jpg');
 
+      // The museum's added panels come next, each with its sources beneath it.
+      fireEvent.keyDown(document, { key: 'ArrowRight' });
+      tick();
+      expect(content().querySelector('.pe-source')).toHaveTextContent(/^Source: USHMM Holocaust Encyclopedia, “International Holocaust Remembrance Day”$/);
+      fireEvent.keyDown(document, { key: 'ArrowRight' });
+      tick();
+      expect(content().querySelector('.pe-source')).toHaveTextContent(/^Sources: .*Jewish Life in Europe.*; .*Introduction to the Holocaust/);
+      expect(content().querySelector('.pe-source a')).toHaveAttribute('target', '_blank');
+
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
       const credit = content().querySelector('.pe-figure-credit a') as HTMLElement;
@@ -258,8 +327,11 @@ describe('Holocaust Memorial Day', () => {
       expect(content().querySelector('blockquote')).toHaveTextContent('First they came for the socialists');
       expect(content().querySelector('.pe-quote-cite')).toHaveTextContent('— Martin Niemöller');
 
-      fireEvent.keyDown(document, { key: 'ArrowRight' });
-      tick();
+      const callout = items.findIndex((it) => it.type === 'callout');
+      for (let i = quote; i < callout; i++) {
+        fireEvent.keyDown(document, { key: 'ArrowRight' });
+        tick();
+      }
       expect(within(content()).getByRole('link', { name: /Learn more about the Holocaust at the United States Holocaust Memorial Museum/ })).toHaveAttribute('href', USHMM_URL);
     });
   });
