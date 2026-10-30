@@ -21,6 +21,9 @@ import { floorReturnFor } from '@/lib/floors';
  *      him the greatest man in the world;
  *   7. the first pull quote is credited to Verity Kahn, *The Myth of the
  *      Declaration of Independence*.
+ * And one approved move on each poster: its pull quote ("Before it was
+ * sacred …", "It took fifty-six signatures …") is its last panel before the
+ * link, closing the poster, in place of its spot mid-way.
  * Typesetting only: the two doubled spaces on poster 2 are single, and the
  * title of Paine's pamphlet is set in italics, as are the two stressed words
  * the poster italicizes (*wanted*, *needed*). "*…*" marks italics.
@@ -259,7 +262,6 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'section-title', section: 'head', atmosphere: 'stone-engraving', effect: 'blur-to-sharp', text: 'The Wrong Document' },
         { type: 'paragraph', section: 'copy', atmosphere: 'stone-engraving', effect: 'mega-zoom-out', figure: DRAFT, text: "What most people picture as the Declaration of Independence was not the actual document present at the Continental Congress. It is, in fact, an engraving made in 1823 by William J. Stone — itself an imperfect copy of the Engrossed parchment, now in the National Archives, which was a reproduction of the July 4 Fair Copy, itself an edited version of Jefferson's Rough Draft." },
         { type: 'paragraph', section: 'copy', atmosphere: 'stone-engraving', effect: 'line-by-line', text: 'Congress did not order the Engrossed Copy until July 19, and most delegates signed it on August 2. Even the transcription offered by the National Archives is a transcription of the Stone engraving, not the original. The document Americans venerate is a copy of a copy, made nearly fifty years after the fact.' },
-        { type: 'quote', section: 'quote', atmosphere: 'stone-engraving', effect: 'ink-spread', text: 'Before it was sacred, the Declaration was a formality. Understanding what it actually was makes what it became considerably more remarkable.' },
 
         { type: 'section-title', section: 'head', atmosphere: 'signing-quill', effect: 'film-credits', text: 'The Wrong Author' },
         {
@@ -281,6 +283,8 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'erase', figure: HANCOCK, text: 'For the first fifteen years after its adoption the Declaration was largely ignored, kept in poor conditions, its parchment already deteriorating. Adams himself called it "hackneyed" — not an idea in it that had not been discussed in Congress for two years prior.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'rise-expand', text: "It was Jefferson's rising political career, and then his death in 1826 on the fiftieth anniversary of its adoption — the same day Adams also died, an event widely interpreted as divine providence — that transformed the document into something approaching scripture." },
         { type: 'paragraph', section: 'copy', atmosphere: 'thirteen-stars', effect: 'line-by-line', text: 'Abraham Lincoln completed the transformation at Gettysburg, elevating the preamble above the Constitution itself and making "all men are created equal" the founding promise of the nation. The charges against the King, which had been the Declaration\'s entire purpose, were forgotten. The philosophy, which had been secondary, became everything.' },
+        // The owner's approved move: this line closes the poster.
+        { type: 'quote', section: 'quote', atmosphere: 'stone-engraving', effect: 'ink-spread', text: 'Before it was sacred, the Declaration was a formality. Understanding what it actually was makes what it became considerably more remarkable.' },
 
         { type: 'callout', section: 'link', atmosphere: 'foxed-parchment', effect: 'breathe', text: 'Read the Declaration at the National Archives', url: NARA_DECLARATION_URL },
         { type: 'end', section: 'end', text: END },
@@ -370,7 +374,6 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'copy', atmosphere: 'delaware-ice', effect: 'mega-zoom-out', figure: CROSSING, text: 'The signers were now identified men. They had put their names to an act of treason and this meant real consequences. Richard Stockton, a New Jersey delegate, was captured by the British, imprisoned, and tortured. His home was burned, his library destroyed. Under those conditions he recanted his signature.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'line-by-line', text: 'It is the most human moment in the whole story of the Declaration: a man in pain, in fear, saying what his captors *wanted* him to say and what he *needed* to say to avoid execution.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'fade-in', text: 'Stockton never recovered his health and died in 1781, broken by what had been done to him and what he had done under duress. He had pledged everything the Declaration asked of him, yet by the time of his death Independence had still not been won.' },
-        { type: 'quote', section: 'quote', atmosphere: 'thirteen-stars', effect: 'breathe', text: 'It took fifty-six signatures, seven years of war, and a generation of men willing to lose everything to fulfill the Declaration.' },
 
         { type: 'section-title', section: 'head', atmosphere: 'signing-quill', effect: 'film-credits', text: 'The Catholic Who Refused To Be Anonymous' },
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'ink-spread', text: 'Charles Carroll of Carrollton was the only Catholic among the fifty-six signers. In 1776, Catholics could still not hold public office in most of the American colonies.' },
@@ -381,8 +384,10 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'copy', atmosphere: 'thirteen-stars', effect: 'rise-expand', text: 'The signatures of 1776 did not end the wager on the colonies\' independence, rather they began it. The independence the Declaration asserted so assuredly still had to be built through the failed confederation, the Constitutional Convention held in secret, and the ratification process that was anything but certain. America was constantly and consistently referred to as an experiment by the same men who were attempting to forge it.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'thirteen-stars', effect: 'kenburns-in', figure: WASHINGTON, text: "Washington fought the war, presided over the Constitutional Convention, served two terms as the republic's first president, and then voluntarily surrendered power and returned to his farm, a choice King George III is reported to have said would make Washington the greatest man in the world." },
         { type: 'paragraph', section: 'copy', atmosphere: 'july-illuminations', effect: 'line-by-line', text: 'The wager fifty-six men made with their signatures in 1776 was not settled on a battlefield. It was settled by what they built, and what they were willing to give up, in the decades that followed.' },
+        // The owner's approved move: this line closes the poster.
+        { type: 'quote', section: 'quote', atmosphere: 'thirteen-stars', effect: 'breathe', text: 'It took fifty-six signatures, seven years of war, and a generation of men willing to lose everything to fulfill the Declaration.' },
 
-        { type: 'callout', section: 'link', atmosphere: 'july-illuminations', effect: 'breathe', text: 'Meet the signers at the National Archives', url: NARA_SIGNERS_URL },
+        { type: 'callout', section: 'link', atmosphere: 'july-illuminations', effect: 'film-credits', text: 'Meet the signers at the National Archives', url: NARA_SIGNERS_URL },
         { type: 'end', section: 'end', text: END },
       ],
       talk: {
