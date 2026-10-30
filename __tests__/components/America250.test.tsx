@@ -300,3 +300,33 @@ describe('The America 250 display case page', () => {
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/america-250');
   });
 });
+
+describe('The gun-wad Bible leaf (owner-approved wording rule)', () => {
+  // Museum of the Bible calls the gun-wad story "a legend, now mostly
+  // discredited": any case or room label that tells it must say "the story
+  // goes". The leaf keeps its traditional name.
+  const fs = jest.requireActual<typeof import('fs')>('fs');
+  const path = jest.requireActual<typeof import('path')>('path');
+  const roomWords = ['sign/signText.ts', 'sign/declaration.ts'].map((f) => fs.readFileSync(path.join(process.cwd(), 'app/exhibitions/america-250', f), 'utf8'));
+  const labels = [JSON.stringify(AMERICA_250_CASE), JSON.stringify(AMERICA_250.posters), JSON.stringify(AMERICA_250.interactives), ...roomWords];
+  const tellsTheStory = /(cartridge|gun[- ]?wad[^"'\n]*(?:used|made|torn|fired|soldiers|battle)|used (?:as|for) (?:gun|wadding))/i;
+
+  it('keeps the traditional name', () => {
+    const leaf = AMERICA_250_CASE.artifacts.find((a) => a.id === 'gun-wad-bible-leaf')!;
+    expect(leaf.name).toBe('Gun wad Bible leaf');
+    expect(leaf.record).toContain('gun wad Bible leaf');
+  });
+
+  it('says "the story goes" wherever a label tells the story', () => {
+    const told: string[] = [];
+    for (const text of labels) {
+      for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+        if (tellsTheStory.test(sentence)) told.push(sentence);
+      }
+    }
+    for (const sentence of told) expect(sentence).toMatch(/the story goes/i);
+    // The rule catches a telling without the words, and passes one with them.
+    expect(tellsTheStory.test('Its pages were torn out and used as cartridge paper at Germantown.')).toBe(true);
+    expect('The story goes that its pages were used as cartridge paper.').toMatch(/the story goes/i);
+  });
+});
