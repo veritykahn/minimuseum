@@ -920,7 +920,7 @@ export default function InTheirHands() {
         <div className="ith-exhibition-main pe-landing">
           <div className="ith-exhibition-title pe-landing-head">
             <h1>In Their Hands</h1>
-            <p>Coins of the New Testament</p>
+            <p>Coins of Roman Judaea</p>
             <div className="pe-teach-row">
               <TeachToggle onClick={() => setProjector(true)} style={teachStyle} teach={TEACH} />
             </div>

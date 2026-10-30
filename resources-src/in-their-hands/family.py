@@ -5,12 +5,12 @@ C = "/exhibitions/in-their-hands/artifacts/coins/"
 
 FAMILY = {
   "out": "parents/ITH_Parent_Guide.pdf", "eyebrow": "Family resource", "title": "In Their Hands",
-  "sub": "Coins of the New Testament · A guide for families of children PreK–8",
+  "sub": "Coins of Roman Judaea · A guide for families of children PreK–8",
   "foot": "Family Resource Guide",
   "hero": {"img": "/exhibitions/in-their-hands/hands.jpg", "pos": "center 40%"},
   "blocks": [
     ("section", {"label": "Welcome", "body": [
-      "Every coin in this exhibition was made, spent and held during the years of the New Testament. Some were in circulation when Jesus was born; one was minted in the very year of his Passion; others passed through the hands of the apostles. This guide will help you talk about the exhibition at home, whether your child visited with their class or you explore it online together."]}),
+      "Every coin in this exhibition was spent and held during the years of the New Testament. Some were in circulation when Jesus was born; one was minted within a few years of his Passion; others passed through the hands of the apostles. This guide will help you talk about the exhibition at home, whether your child visited with their class or you explore it online together."]}),
     ("section", {"label": "What is In Their Hands?", "title": "Eleven coins, three cases", "body": [
       "The exhibition follows the New Testament in three display cases. **Case 6, The World of Jesus,** holds the coins of the rulers at his birth. **Case 7, Ministry and Passion,** holds the coins of his teaching and his trial. **Case 8, The Early Church,** holds the coins of the rulers the apostles stood before. Eight of the coins are genuine; three — the Tribute Penny, the Shekel of Tyre and the coin of Herod Antipas — are museum-quality replicas, because originals are exceptionally rare."]}),
     ("gallery", [
@@ -48,7 +48,7 @@ FAMILY = {
           "What would you have said if someone tried to trap you with a hard question?"]})],
       [("section", {"label": "Grades 3–8", "list": [
           "Which coin surprised you most, and why?",
-          "Pilate’s coin was made in the very year of the Passion. What difference does it make to hold something from that year?",
+          "Pilate’s coin was made within a few years of the Passion. What difference does it make to hold something from those years?",
           "How can you tell a real ancient coin from a fake?",
           "Jesus said, *give back to Caesar what is Caesar’s, and to God what is God’s.* What belongs to God?"]})]]),
     ("section", {"label": "At home", "title": "Five things to try together"}),
@@ -63,7 +63,7 @@ FAMILY = {
       "**PreK–2:** the birth of Jesus and the census (Luke 2:1–7); the widow’s offering (Mark 12:41–44)",
       "**Grades 3–5:** the flight into Egypt (Matthew 2:13–15); the question about the tax (Matthew 22:15–22); thirty pieces of silver (Matthew 26:14–16)",
       "**Grades 6–8:** Jesus before Herod Antipas (Luke 23:6–12); Peter freed from prison (Acts 12:1–11); Paul appeals to Caesar (Acts 25:6–12)"]}),
-    ("section", {"label": "Faith and history", "title": "Evidence you can hold", "body": [
+    ("section", {"label": "History and the Gospels", "title": "Evidence you can hold", "body": [
       "For many years some scholars doubted that Pontius Pilate was a real person. In 1961 a stone carved with his name and title was found at Caesarea Maritima — but Pilate’s coins, like the one in Case 7, had been evidence all along. The death of Herod Agrippa I in Acts 12 is also described by the Jewish historian Josephus, and Claudius’ order expelling Jews from Rome in Acts 18 is confirmed by the Roman historian Suetonius. The coins help children see that the Gospels happened in a real place, among real rulers, in real years."]}),
     ("section", {"label": "About the Mini Museum", "body": [
       "The Mini Museum brings curated exhibitions of real artifacts, specimens and primary sources into schools, with lesson plans and a digital companion at minimuseumproject.org."]}),

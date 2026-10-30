@@ -206,7 +206,7 @@ function Section({ section, role, content, onPresent }: { section: TeachSection;
                       <span className={styles.lessonTitle}>{l.title}</span>
                       <span className={styles.lessonMeta}>
                         {subject ?? 'General'} · {l.minutes} min
-                        {l.faith && <span className={styles.faith}>Faith-based</span>}
+                        {l.faith && <span className={styles.faith}>Faith-based option</span>}
                       </span>
                     </Link>
                   </li>

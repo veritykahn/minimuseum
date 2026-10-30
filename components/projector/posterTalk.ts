@@ -88,7 +88,7 @@ export const ITH_TALK: { poster1: PosterTalk; poster2: PosterTalk } = {
     [OPENING]:
       'A priest proposed the Big Bang and a friar founded genetics. What does the poster mean when it calls faith and reason “partners in the same search for truth”?',
     'The Dead Sea Scrolls':
-      'A thousand years of copying, and the words had not wandered. Why would that matter so much to people who trust the transmission of Scripture?',
+      'A thousand years of copying, and the words had not wandered. Why would that matter to people who read these texts as Scripture, and why would it matter to historians?',
     'The Question That Matters':
       'Not “does it feel true?” but “what does the physical evidence actually show?” Where in your own life would that question help?',
   },

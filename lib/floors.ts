@@ -99,12 +99,12 @@ export const GROUND_FLOOR: Floor = {
     {
       slug: 'in-their-hands',
       title: 'In Their Hands',
-      subtitle: 'The Coins of the New Testament',
+      subtitle: 'Coins of Roman Judaea',
       accent: '#C9A84C',
       darkAccent: '#1C1409',
       hall: { glow: '#C9A84C', bloom: '#8C5A2B' }, // the coins' gold and bronze
       textColor: '#F5EDD8',
-      description: 'Coins minted by the rulers of the New Testament — held by real people, in a real world.',
+      description: 'Coins minted by the rulers of Roman Judaea, from Herod the Great to the governors who tried Paul — held by real people, in a real world.',
       active: true,
     },
     {

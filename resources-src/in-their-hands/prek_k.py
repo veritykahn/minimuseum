@@ -27,6 +27,17 @@ TWO = [{"img": C + "widow-1-front.png", "cap": "Coin 1"}, {"img": C + "widow-2-f
 
 # Said in the plan and shown on the classroom screen, so written once.
 PRAYER = "Dear Jesus, the widow gave you all she had. Help me to give you my heart, and to share with others. Amen."
+# The general closing, for any classroom (owner-approved, B8.4); the prayer
+# stays beside it as the faith-based option.
+SHARE = "The widow gave everything she had. Hold out your cupped hands. Tell a partner one thing you could share with someone today: a thing, some time, or a kindness."
+# In print the two closings share a paragraph; on screen each is a step.
+CLOSE_SHARE = f"Then say: *“{SHARE}”*"
+CLOSE_PRAY = f"**Faith-based option:** pray together, a line at a time: *“{PRAYER}”*"
+# the plan sets its sections a touch closer, so the general closing beside
+# the prayer keeps it to three pages
+CLOSE_CSS = """
+body { line-height: 1.44; }
+"""
 
 # What children will be able to do, set up front in the plan and on the
 # cover screen, then asked back in the Look back. Each is (objective, the
@@ -140,7 +151,7 @@ COLOR = ('<div class="coins2"><div class="coindraw"><div><span>Coin 1</span></di
 LESSON = {
   "slug": "two-tiny-coins", "large": True,
   "out": DIR + "ITH_LP_PreK_K.pdf", "eyebrow": "Teacher lesson plan", "title": TITLE, "sub": SUB,
-  "foot": "Teacher Lesson Plan · PreK–Kindergarten", "hero": HERO, "css": CSS + OBJ_CSS,
+  "foot": "Teacher Lesson Plan · PreK–Kindergarten", "hero": HERO, "css": CSS + OBJ_CSS + CLOSE_CSS,
   "blocks": [
     ("timing", [("Circle time", 4, "#7D8471"), ("The story", 6, "#2F4A5A"), ("Look closely", 3, "#4A7346"),
                 ("Activity", 9, "#86671A"), ("Close", 3, "#A8452F")]),
@@ -154,9 +165,9 @@ LESSON = {
       "body": ["Children will hear the story of the poor widow who put two tiny coins into the Temple treasury, and learn that Jesus called her gift the biggest of all because she gave everything she had. They will count to two, compare *many* and *two*, and think of something they could give to God and to others."]}),
                ("section", {"label": "Themes", "list": [
       "**Scripture** — Mark 12:41–44, the widow’s offering",
-      "**Catechism** — CCC 2544: shortly before his Passion, Jesus held up the poor widow, who gave all she had to live on, as an example for his disciples",
       "**Virtue** — generosity: giving with the whole heart, not only from what is left over",
-      "**Early learning** — counting to two; comparing *many* and *few*; fine motor skills (tracing, coloring, drawing a line); listening and retelling"]})]]),
+      "**Early learning** — counting to two; comparing *many* and *few*; fine motor skills (tracing, coloring, drawing a line); listening and retelling",
+      "**For Catholic schools** — CCC 2544: shortly before his Passion, Jesus held up the poor widow, who gave all she had to live on, as an example for his disciples"]})]]),
     ("section", {"label": "Circle time · 4 minutes", "title": "Many coins, two coins",
       "screen": {"phase": "Circle time", "show": "pair", "items": MANY_OR_TWO,
                  "purpose": "Feel the difference between many coins and two, before the story turns it upside down.",
@@ -192,18 +203,21 @@ LESSON = {
       "green": "Picture-led. Count the coins and circle the number, follow the dotted line from the coins to the widow’s hands, circle the biggest gift, color the two coins, trace *GIVE*.",
       "yellow": "A little writing. Circle the number, draw a line from the coins to the hands, circle the biggest gift, copy *GIVE* under a model, then draw a gift of their own.",
       "red": "Draw and tell. Circle the biggest gift and say why, draw something they could give that matters to them, then tell a grown-up about it or write a few words."}),
-    ("section", {"label": "Look back and pray · 3 minutes",
+    ("section", {"label": "Look back and share · 3 minutes",
       "screen": [
-        {"phase": "Close", "minutes": 2, "script": [0], "title": "Look back", "show": "review", "lead": LOOK_BACK,
+        {"phase": "Close", "minutes": 1, "script": [0], "title": "Look back", "show": "review", "lead": LOOK_BACK,
          "hint": THUMBS,
          "purpose": "Check what each child can now do against the objectives.",
          "students": [q for _, q, _ in OBJECTIVES["items"]]},
-        {"phase": "Close", "minutes": 1, "script": [1], "title": "Closing prayer", "show": "prayer", "prayer": PRAYER,
-         "purpose": "Give the lesson back to God with open hands, like the widow.",
+        {"phase": "Close", "minutes": 1, "script": [CLOSE_SHARE], "title": "Look back and share", "show": "question", "question": SHARE,
+         "purpose": "Close with open hands, like the widow: name something to share today.",
+         "students": ["Hold out your cupped hands, like the widow.", "Tell a partner one thing you could share today."]},
+        {"phase": "Close", "minutes": 1, "script": [CLOSE_PRAY], "title": "Closing prayer (faith-based option)", "show": "prayer", "prayer": PRAYER,
+         "purpose": "For faith schools: give the lesson back to God with open hands, like the widow.",
          "students": ["Hold out your cupped hands, like the widow."]}],
       "body": ["Put the questions on the screen. For each one, the children show a thumb up, sideways or down: *“Can you now "
                + " Can you ".join(q for _, q, _ in OBJECTIVES["items"]) + "”*",
-               f"Ask the children to hold out their cupped hands, like the widow. Pray together, a line at a time: *“{PRAYER}”*"]}),
+               CLOSE_SHARE + " " + CLOSE_PRAY]}),
     ("cols", [[("section", {"label": "For the teacher", "title": "Why two tiny coins were the biggest gift",
       "body": [
         "**The amount is not the point.** The lepton was the smallest coin in use in Judaea. What Jesus measures is the proportion: the rich gave from what they had to spare, the widow gave everything she had to live on.",

@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Educational Resources | The Mini Museum',
   description:
-    'Free downloadable lesson plans and student handouts for teachers and families. Resources for grades PreK-8 on In Their Hands: the coins of the New Testament.',
+    'Free downloadable lesson plans and student handouts for teachers and families. Resources for grades PreK-8 on In Their Hands: the coins of Roman Judaea.',
   keywords: [
     'lesson plans',
     'teacher resources',

@@ -2,7 +2,17 @@ import type { Atmosphere, PanelEffect } from '@/components/exhibition/types';
 
 /*
  * In Their Hands' two posters, panel by panel, for the hand-built walkthrough
- * in page.tsx. The wording is the posters' own.
+ * in page.tsx. The wording is the posters' own, with the owner's approved
+ * edits (proposal B8.2):
+ *   Poster 1: three lines describe the faith rather than speak from inside
+ *     it (P1-3 "the Catholic Church … The Church's Catechism states the
+ *     conviction plainly"; P1-4 "Jewish and Christian readers … historians of
+ *     every belief"; P1-5 "Scholars of faith have been asking it").
+ *   Poster 2: "as, many scholars think, deliberate acts of provocation"
+ *     (P2-2) and "most scholars identify it as Tyrian shekels" (P2-3), as the
+ *     coin labels say; and the timeline's first date corrected, 63 BC to
+ *     126 BC (P2-4: Tyre's first shekels were struck from 126/5 BC, American
+ *     Numismatic Society, "The Coin in the Fish's Mouth").
  *
  * Each panel arrives its own way (`effect`, from the engine's vocabulary in
  * components/exhibition/types.ts): copy is typed out, set line by line,
@@ -115,7 +125,7 @@ export const poster1Content: IthItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'The relationship between scholarship and the Catholic faith is not mere coincidence but the expression of a conviction stated plainly in the Catechism: faith and reason are not enemies. They are partners in the same search for truth.',
+    text: 'The relationship between scholarship and the Catholic Church is not mere coincidence. The Church\'s Catechism states the conviction plainly: faith and reason are not enemies. They are partners in the same search for truth.',
     position: 'bottom-left',
     special: 'parchment',
     effect: 'ink-spread',
@@ -178,7 +188,7 @@ export const poster1Content: IthItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'For Catholic scholars who had always trusted the transmission of Scripture, this was a confirmation. One more example of the Catholic partnership between faith and reason.',
+    text: 'For Jewish and Christian readers who had always trusted the transmission of Scripture, this was a confirmation. For historians of every belief, it was a rare chance to measure how carefully an ancient text had been copied.',
     position: 'bottom-right',
     special: 'scrolls',
     effect: 'fade-in',
@@ -217,7 +227,7 @@ export const poster1Content: IthItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'The Catholic tradition has been asking it for centuries — not from scepticism, but from the confidence that truth is real, that it can be found, and that it will not contradict faith when honestly sought.',
+    text: 'Scholars of faith have been asking it for centuries — not from scepticism, but from the confidence that truth is real, that it can be found, and that it will not contradict faith when honestly sought.',
     position: 'bottom-right',
     special: 'authentication',
     effect: 'rise-expand',
@@ -287,7 +297,7 @@ export const poster2Content: IthItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'The Pilate Stone settled the question, but Pilate\'s coins had been evidence all along — small bronze prutot stamped with pagan religious symbols as deliberate acts of provocation against Jewish religious law.',
+    text: 'The Pilate Stone settled the question, but Pilate\'s coins had been evidence all along — small bronze prutot stamped with pagan religious symbols as, many scholars think, deliberate acts of provocation against Jewish religious law.',
     position: 'center',
     special: 'passion',
     effect: 'fade-in',
@@ -323,7 +333,7 @@ export const poster2Content: IthItem[] = [
     artworkTitle: 'Tyrian Shekel',
     artworkArtist: 'Mint of Tyre',
     artworkDate: '126 BC – 56 AD',
-    text: 'The currency is not named in Matthew\'s Gospel, but scholars identify it with near-unanimous agreement as Tyrian shekels — minted at the Phoenician city of Tyre from exceptionally pure silver, bearing the image of Melqart, chief deity of Tyre. A pagan coin, by every measure of Jewish religious law.',
+    text: 'The currency is not named in Matthew\'s Gospel, but most scholars identify it as Tyrian shekels — minted at the Phoenician city of Tyre from exceptionally pure silver, bearing the image of Melqart, chief deity of Tyre. A pagan coin, by every measure of Jewish religious law.',
     special: 'thirty-pieces',
     atmosphere: 'tyrian-silver'
   },
@@ -446,7 +456,7 @@ export const poster2Content: IthItem[] = [
     text: 'Coins Across the Gospel',
     position: 'center',
     items: [
-      'Before the Story — 63 BC — Tyrian shekel minting begins at Tyre. The coin that will become the thirty pieces of silver enters the world.',
+      'Before the Story — 126 BC — Tyrian shekel minting begins at Tyre. The coin that will become the thirty pieces of silver enters the world.',
       'The King\'s Decree — 4 BC — Death of Herod the Great. The king who ordered the Massacre of the Innocents dies the same year as his own command.',
       'The Provocateur Arrives — 26 AD — Pontius Pilate appointed Prefect of Judaea. His first coins are minted bearing pagan symbols.',
       'The Passion — c. 30 AD — Thirty Tyrian shekels change hands. Pilate washes his hands. A potter\'s field is purchased.',

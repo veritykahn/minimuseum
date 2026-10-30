@@ -3,7 +3,9 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CaseViewTabs, caseViewIds, useCaseView, type CaseView } from '@/components/exhibition/CaseViews';
+import FactNote from '@/components/exhibition/FactNote';
 import { CoinData } from './coin-data';
+import type { IthNoteGroup } from '../notes';
 
 type InteractiveFeature = {
   id: string;
@@ -23,9 +25,11 @@ type Props = {
   coins: CoinData[];
   basePath: string;
   interactive?: InteractiveFeature;
+  /** Museum notes from outside the posters (notes.ts), set under the coins with their sources. */
+  notes?: IthNoteGroup;
 };
 
-export default function CaseListing({ caseNumber, galleryLabel, title, subtitle, coins, basePath, interactive }: Props) {
+export default function CaseListing({ caseNumber, galleryLabel, title, subtitle, coins, basePath, interactive, notes }: Props) {
   const router = useRouter();
   const [view, setView] = useCaseView();
   // With a room, the coins and the room are two views of the case, under tabs.
@@ -286,6 +290,42 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
         }
         .cl-card-interactive .cl-card-image-container { width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 10px; }
 
+        /* Museum notes: owner-approved panels from outside the posters, each with its sources. */
+        .cl-notes { max-width: 760px; margin: 0 auto; }
+        .cl-notes[hidden] { display: none; }
+        .cl-note-card {
+          margin: 0 0 20px;
+          padding: 24px 28px;
+          background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+          border: 1px solid rgba(201, 168, 76, 0.22);
+          border-radius: 12px;
+        }
+        .cl-note-title {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.35rem;
+          font-weight: 400;
+          color: #C9A84C;
+          margin-bottom: 10px;
+        }
+        .cl-note {
+          font-family: 'Cormorant Garamond', serif;
+          font-size: 1.12rem;
+          line-height: 1.55;
+          color: #efe6d2;
+        }
+        .cl-note-text { display: block; }
+        .cl-note-source {
+          display: block;
+          margin-top: 12px;
+          font-family: 'Outfit', sans-serif;
+          font-size: 12px;
+          line-height: 1.6;
+          letter-spacing: 0.02em;
+          color: #d6cbb3;
+        }
+        .cl-note-source a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; overflow-wrap: anywhere; }
+        .cl-note-source a:hover { color: #C9A84C; }
+
         .cl-card.coming-soon {
           opacity: 0.6;
           cursor: default;
@@ -333,7 +373,8 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
         }
 
         @media (max-width: 600px) {
-          .case-listing-page { padding: 100px 24px 60px; }
+          .case-listing-page { padding: 100px 16px 60px; }
+          .cl-note-card { padding: 20px 18px; }
           .cl-grid { max-width: 320px; }
           .cl-card-image-container { width: 140px; height: 140px; }
         }
@@ -388,6 +429,18 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           </Link>
         ))}
       </div>
+
+      {notes && (
+        <section className="cl-notes" aria-labelledby={`ith-case-${caseNumber}-notes`} hidden={Boolean(interactive) && view !== 'artifacts'}>
+          <h2 className="cl-section-title" id={`ith-case-${caseNumber}-notes`}>{notes.heading}</h2>
+          {notes.notes.map((n) => (
+            <article key={n.id} className="cl-note-card">
+              <h3 className="cl-note-title">{n.title}</h3>
+              <FactNote fact={n} className="cl-note" />
+            </article>
+          ))}
+        </section>
+      )}
 
       {interactive && (
       <div className="cl-grid cl-grid-rooms" {...panel('interactives')}>
