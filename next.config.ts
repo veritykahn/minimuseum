@@ -21,6 +21,16 @@ const nextConfig: NextConfig = {
     ];
   },
 
+  // These pages look in public/ when they are built, to see which of the
+  // owner's drop-in files are there. The pages are static, so the files are
+  // never needed at run time; without this, tracing packs all of public/ into
+  // the page's function and it outgrows Vercel's 250 MB limit.
+  outputFileTracingExcludes: {
+    '/exhibitions/fear-lab/what-scares-you': ['public/**'],
+    '/exhibitions/great-war/silence': ['public/**'],
+    '/exhibitions/holocaust/stones': ['public/**'],
+  },
+
   // Tell search engines the preferred address of every page with a
   // rel="canonical" HTTP header, so the right URL wins even if the page is
   // reached through another hostname or with query strings.
