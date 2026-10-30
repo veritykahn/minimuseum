@@ -6,6 +6,7 @@ import FactNote from '@/components/exhibition/FactNote';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import Thaumatrope from './Thaumatrope';
 import Zoetrope from './Zoetrope';
+import MakeThaumatrope from './MakeThaumatrope';
 import { TOY_NOTES, TOYS_TEXT, type StripId } from './toysText';
 import './optical-toys.css';
 
@@ -14,9 +15,10 @@ import './optical-toys.css';
  * lit at the centre as if on a screen in a darkened room, the edges of an old
  * film strip running past above and below, and beside it a card with the
  * controls and the poster's own lines, set as "The First Motion Pictures
- * (1820s–1830s)" sets them. Two tabs: the thaumatrope and the zoetrope, each
- * with its own address (#thaumatrope, #zoetrope). Both start slowly and
- * build up (spin.ts), so the visitor can see how they work.
+ * (1820s–1830s)" sets them. Three tabs, each with its own address: the
+ * thaumatrope and the zoetrope (#thaumatrope, #zoetrope), which work the
+ * way the real toys do, starting very slowly and speeding up little by
+ * little (spin.ts); and a printable thaumatrope to make (#make).
  *
  * Each toy's card adds a note on its history, and one note for both toys,
  * set once (only the open toy's card is drawn): owner-approved and
@@ -27,6 +29,7 @@ import './optical-toys.css';
 const TABS = [
   { id: 'thaumatrope', label: TOYS_TEXT.thaumaHeading },
   { id: 'zoetrope', label: TOYS_TEXT.zoeHeading },
+  { id: 'make', label: TOYS_TEXT.makeHeading },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
@@ -40,7 +43,7 @@ export default function SeeingOpticalToys() {
   const reduced = usePrefersReducedMotion();
   const [tab, setTab] = useState<TabId>('thaumatrope');
   const [strip, setStrip] = useState<StripId>('horses');
-  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ thaumatrope: null, zoetrope: null });
+  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ thaumatrope: null, zoetrope: null, make: null });
 
   useEffect(() => {
     const fromHash = () => {
@@ -72,7 +75,7 @@ export default function SeeingOpticalToys() {
     choose(TABS[to].id, true);
   };
 
-  // The one note for both toys, under whichever toy is open, and the credit for both toys’ illustrations.
+  // The one note for both toys, under whichever toy is open.
   const both = (
     <>
       <FactNote fact={TOY_NOTES.both} className="vto-fact" />
@@ -129,6 +132,10 @@ export default function SeeingOpticalToys() {
 
         <section className="vto-panel" id="vto-panel-zoetrope" role="tabpanel" aria-labelledby="vto-tab-zoetrope" hidden={tab !== 'zoetrope'}>
           {tab === 'zoetrope' && <Zoetrope reduced={reduced} strip={strip} onStrip={setStrip} intro={t.zoeIntro} footer={both} />}
+        </section>
+
+        <section className="vto-panel vto-panel-make" id="vto-panel-make" role="tabpanel" aria-labelledby="vto-tab-make" hidden={tab !== 'make'}>
+          {tab === 'make' && <MakeThaumatrope />}
         </section>
       </main>
     </div>

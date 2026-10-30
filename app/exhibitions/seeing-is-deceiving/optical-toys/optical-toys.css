@@ -241,17 +241,25 @@ body:has(.sid-toys) { margin: 0; }
 .sid-toys .vto-button:disabled { opacity: 0.35; cursor: default; }
 .sid-toys .vto-button-small { min-width: 40px; min-height: 40px; padding: 0; font-size: 18px; letter-spacing: 0; }
 
-/* ───────── The speed: a ladder of rungs ───────── */
-.vto-ladder { display: flex; flex-direction: column; gap: 6px; }
-.vto-ladder-row { display: flex; align-items: center; gap: 10px; }
-.vto-rungs { flex: 1; height: 34px; list-style: none; margin: 0; padding: 0; display: flex; align-items: flex-end; gap: 5px; }
-.vto-rung { flex: 1; background: rgba(244, 241, 234, 0.12); transition: background 0.4s ease; }
-.vto-rung[data-on] { background: rgba(168, 213, 229, 0.5); }
-.vto-rung[data-current] { background: var(--sid-blue); box-shadow: 0 0 10px rgba(168, 213, 229, 0.45); }
-.vto-ladder-label { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 12px; }
-.vto-ladder-n { letter-spacing: 0.18em; text-transform: uppercase; color: var(--sid-blue); }
-.vto-ladder-seen { color: #dcd8d0; }
-.sid-toys .vto-ladder-climb { align-self: flex-start; min-height: 30px; padding-top: 0; padding-bottom: 0; }
+/* ───────── The speed: a smooth slider ───────── */
+.vto-speed { display: flex; flex-direction: column; gap: 8px; }
+.vto-speed-row { display: flex; align-items: center; gap: 10px; }
+.vto-speed-track { position: relative; flex: 1; display: flex; align-items: center; height: 44px; }
+.vto-speed-range { width: 100%; height: 44px; margin: 0; background: transparent; accent-color: var(--sid-blue); cursor: pointer; }
+.vto-speed-range::-webkit-slider-runnable-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, rgba(168, 213, 229, 0.25), rgba(168, 213, 229, 0.7)); }
+.vto-speed-range::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 26px; margin-top: -10px; border-radius: 50%; background: var(--sid-blue); border: 2px solid #0a0a0a; box-shadow: 0 0 0 1px var(--sid-blue); }
+.vto-speed-range { -webkit-appearance: none; appearance: none; }
+.vto-speed-range::-moz-range-track { height: 6px; border-radius: 3px; background: linear-gradient(90deg, rgba(168, 213, 229, 0.25), rgba(168, 213, 229, 0.7)); }
+.vto-speed-range::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%; background: var(--sid-blue); border: 2px solid #0a0a0a; }
+/* Where the flicker begins: a small mark on the track, until the visitor says yes. */
+.vto-speed-gate { position: absolute; left: var(--gate); top: 8px; bottom: 8px; width: 2px; background: var(--sid-sepia); pointer-events: none; }
+.vto-speed-label { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 0.9rem; }
+.vto-speed-n { letter-spacing: 0.14em; text-transform: uppercase; color: var(--sid-blue); font-size: 0.78rem; font-variant-numeric: tabular-nums; }
+.vto-speed-seen { color: #dcd8d0; }
+.vto-flicker { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border: 1px solid var(--sid-sepia); background: rgba(201, 166, 107, 0.08); }
+.vto-flicker-title { font-size: 0.8rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sid-sepia); }
+.vto-flicker-text { font-size: 0.95rem; line-height: 1.5; color: var(--sid-ink); }
+.vto-note { font-size: 0.9rem; line-height: 1.5; color: #dcd8d0; }
 
 /* ───────── The thaumatrope ───────── */
 .vt-toy { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
@@ -274,43 +282,44 @@ body:has(.sid-toys) { margin: 0; }
 .vt-disc { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
 .vt-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 .vt-face-back { transform: rotateX(180deg); }
-.vt-face-art { position: relative; display: block; width: 100%; height: 100%; isolation: isolate; }
+.vt-face-art { position: relative; display: block; width: 100%; height: 100%; }
 .vt-face-art img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; -webkit-user-drag: none; user-select: none; }
-/* Both sides together: the cage over the bird, the paper multiplied away so each drawing shows through. */
-.vt-face-art img.vt-face-over { mix-blend-mode: multiply; }
-.vt-face .vt-face-art, .vt-blend .vt-face-art { filter: drop-shadow(0 0 30px rgba(255, 236, 200, 0.12)) drop-shadow(0 18px 22px rgba(0, 0, 0, 0.6)); }
-.vt-blend { position: absolute; inset: 0; pointer-events: none; }
-/* Merged, the disc's rim blurs with the speed. */
-.vt-toy[data-merged] .vt-blend::after {
+.vt-face .vt-face-art { filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.6)); }
+/* The lamp behind the disc: as light as the card, so the disc turning edge-on
+   does not flash the dark room through. */
+.vt-disc-holder::before {
   content: '';
   position: absolute;
-  inset: -1%;
+  inset: 4%;
   border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(184, 150, 63, 0.35), 0 0 14px 6px rgba(243, 234, 214, 0.25);
-  filter: blur(2px);
+  background: radial-gradient(circle, rgba(226, 214, 190, 0.9) 0 58%, rgba(226, 214, 190, 0.4) 70%, transparent 74%);
+  pointer-events: none;
 }
 
-/* Both sides, side by side */
-.vt-sides { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; justify-content: center; gap: clamp(10px, 2vw, 28px); width: 100%; }
-.vt-side { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.sid-toys .vt-side-button { appearance: none; padding: 0; border: 0; background: none; border-radius: 50%; width: min(24vh, 13vw, 220px); aspect-ratio: 1; cursor: pointer; transition: transform 0.3s ease; }
-.vt-side[aria-current='step'] .vt-side-button { outline: 2px solid var(--sid-blue); outline-offset: 5px; }
-.vt-side-name { font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sid-muted); }
-.vt-side-op { position: absolute; right: calc(-1 * clamp(10px, 2vw, 28px) / 2); top: 40%; font-family: var(--sid-serif); font-size: clamp(1.6rem, 2.6vw, 2.6rem); line-height: 1; transform: translate(50%, -50%); color: var(--sid-muted); }
+/* One side at a time (reduced motion) */
+.vt-one-side { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.sid-toys .vt-side-button { appearance: none; padding: 0; border: 0; background: none; border-radius: 50%; width: min(48vh, 70vw, 440px); aspect-ratio: 1; cursor: pointer; }
+.vt-side-name { font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sid-muted); }
 
 /* ───────── The zoetrope ───────── */
-.vz-drum { width: 100%; height: 100%; touch-action: pan-y; cursor: grab; display: block; }
-.vz-drum:active { cursor: grabbing; }
-.vz-lens-row { display: flex; gap: 14px; align-items: stretch; }
-.vz-lens { margin: 0; flex: none; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.vz-lens-canvas {
+/* The eye to the slits, big; the whole drum beside it. */
+.vz-views { position: relative; width: 100%; height: 100%; display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 1.25fr); gap: 2vw; align-items: center; }
+.vz-views figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; min-height: 0; }
+.vz-views figcaption { font-size: 0.78rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sid-muted); }
+.vz-eye-canvas {
   display: block;
-  width: clamp(124px, 11vw, 168px);
+  width: 100%;
+  max-height: calc(100% - 30px);
   aspect-ratio: 4 / 3;
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px #b8963f, 0 0 0 5px rgba(0, 0, 0, 0.6), 0 10px 18px rgba(0, 0, 0, 0.5);
+  border-radius: 18px;
+  touch-action: pan-y;
+  cursor: grab;
+  box-shadow: 0 0 0 3px #b8963f, 0 0 0 6px rgba(0, 0, 0, 0.6), 0 18px 30px rgba(0, 0, 0, 0.6);
 }
-.vz-lens figcaption { font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--sid-muted); }
+.vz-outside { height: 100%; justify-content: center; }
+.vz-outside .vz-drum { height: auto; aspect-ratio: 1; max-height: calc(100% - 30px); }
+.vz-drum { width: 100%; height: calc(100% - 30px); min-height: 120px; touch-action: pan-y; cursor: grab; display: block; }
+.vz-drum:active, .vz-eye-canvas:active { cursor: grabbing; }
 .vz-count { min-width: 3.4em; text-align: center; font-variant-numeric: tabular-nums; letter-spacing: 0.08em; }
 .vz-count[data-spinning] { color: var(--sid-muted); }
 
@@ -328,12 +337,98 @@ body:has(.sid-toys) { margin: 0; }
 .vz-frame-n { position: absolute; left: 4px; top: 2px; font-size: 11px; color: #3b2a1c; background: rgba(243, 234, 214, 0.85); padding: 0 5px; border-radius: 2px; }
 .vz-frames li[aria-current='step'] .vz-frame { outline: 3px solid var(--sid-blue); outline-offset: 2px; }
 
+/* ───────── Make your own: the printable sheets ───────── */
+.vto-stage[data-tab='make'] { height: auto; min-height: 100dvh; overflow: visible; }
+.vto-panel-make:not([hidden]) { display: block; position: relative; z-index: 2; padding: 180px max(16px, 5vw) 64px; }
+.vmt { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 32px; align-items: start; }
+.vmt-intro { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 14px; padding: 22px 24px; background: var(--sid-card); border: 1px solid rgba(168, 213, 229, 0.18); border-top: 2px solid var(--sid-blue); }
+.vmt-heading { margin: 0; font-family: var(--sid-serif); font-weight: 400; font-size: 1.9rem; line-height: 1.1; }
+.vmt-lead { font-size: 1.05rem; line-height: 1.55; color: #dcd8d0; }
+.vmt-pick { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 6px; }
+.vmt-pick legend { padding: 0; margin-bottom: 6px; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sid-muted); }
+.vmt-check { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 1.05rem; cursor: pointer; }
+.vmt-check input { width: 22px; height: 22px; accent-color: var(--sid-blue); }
+.vmt-paper { font-size: 0.9rem; color: var(--sid-muted); }
+.vmt-print { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+
+/* A sheet: paper, on screen as on the page. */
+.vmt-sheet {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 7.5in;
+  margin: 0 auto;
+  padding: clamp(14px, 3vw, 32px);
+  background: #fff;
+  color: #1a1a1a;
+  font-family: var(--sid-sans);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+}
+.vmt-sheet :is(h3, h4, p, ul, ol, figure) { margin: 0; }
+.vmt-sheet-kicker { font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: #555; }
+.vmt-sheet-title { font-family: var(--sid-serif); font-weight: 500; font-size: clamp(1.4rem, 3vw, 1.9rem); line-height: 1.15; margin-top: 4px !important; }
+.vmt-discs { display: flex; justify-content: space-around; gap: 12px; margin: 14px 0 10px; }
+.vmt-discs figure { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; max-width: 3.4in; }
+.vmt-discs figcaption { font-size: 0.85rem; color: #444; text-align: center; }
+.vmt-disc { display: block; width: 100%; height: auto; overflow: visible; }
+.vmt-cut { fill: #fff; stroke: #1a1a1a; stroke-width: 1.2; }
+.vmt-star { fill: #1a1a1a; }
+.vmt-hole { fill: none; stroke: #1a1a1a; stroke-width: 1; }
+.vmt-art { fill: none; stroke: #1a1a1a; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.vmt-art .ink-fill { fill: #1a1a1a; }
+.vmt-hint { font-size: 9px; fill: #888; font-family: var(--sid-sans); }
+.vmt-how { display: grid; grid-template-columns: 1fr 1.45fr; gap: 18px; font-size: 0.95rem; line-height: 1.4; }
+.vmt-how h4 { font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px !important; }
+.vmt-how ul, .vmt-how ol { padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+
+@media (max-width: 1000px) {
+  .vmt { grid-template-columns: 1fr; gap: 20px; }
+  .vmt-intro { position: static; }
+}
+@media (max-width: 760px) {
+  .vto-panel-make:not([hidden]) { padding: 130px 12px 40px; }
+  .vmt { grid-template-columns: 1fr; gap: 20px; }
+  .vmt-intro { position: static; padding: 16px; }
+  .vmt-how { grid-template-columns: 1fr; }
+}
+
+@media print {
+  body:has(.vmt) { background: #fff !important; }
+  .sid-toys:has(.vmt) { background: #fff; min-height: 0; }
+  .sid-toys:has(.vmt) :is(.sid-nav, .vto-room, .vto-bar, .vmt-intro) { display: none !important; }
+  /* The museum's own floating buttons (the map) stay off the paper. */
+  body:has(.vmt) .map-toggle-btn, body:has(.vmt) nextjs-portal { display: none !important; }
+  .vto-stage[data-tab='make'] { min-height: 0; }
+  .vto-panel-make:not([hidden]) { padding: 0; }
+  .vmt { display: block; max-width: none; }
+  .vmt-print { display: block; }
+  .vmt-sheet {
+    width: 7.5in;
+    max-width: none;
+    height: 10in;
+    padding: 0;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    font-size: 11pt;
+  }
+  .vmt-sheet:last-child { break-after: auto; page-break-after: auto; }
+  .vmt-sheet-kicker { font-size: 8.5pt; }
+  .vmt-sheet-title { font-size: 20pt; }
+  .vmt-discs { margin: 0.2in 0 0.15in; }
+  .vmt-discs figure { flex: none; width: 3.4in; }
+  .vmt-discs figcaption { font-size: 9.5pt; }
+  .vmt-how { font-size: 10.5pt; grid-template-columns: 1fr 1.45fr; }
+  .vmt-how h4 { font-size: 9pt; }
+}
+
 /* ───────── A laptop with little height: a tighter card ───────── */
 @media (max-height: 760px) and (min-width: 761px) {
   .vto-controls { gap: 10px; padding: 16px 22px 18px; }
   .vto-intro { font-size: 0.92rem; line-height: 1.5; }
   .vto-caption { font-size: 1.1rem; line-height: 1.4; }
-  .vz-lens-canvas { width: 112px; }
 }
 
 /* ───────── A phone: the toy above, the card below ───────── */
@@ -366,14 +461,14 @@ body:has(.sid-toys) { margin: 0; }
   .vto-fact-source { font-size: 10px; }
   .sid-toys .vto-button { min-height: 40px; padding: 8px 12px; font-size: 11px; }
   .sid-toys .vto-button-small { min-width: 40px; }
-  .vto-rungs { height: 26px; }
-  .vz-lens-canvas { width: 96px; }
-  .vz-lens-row { gap: 10px; }
+  .vz-views { grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr); gap: 8px; }
+  .vz-eye-canvas { border-radius: 10px; }
+  .vz-views figcaption { font-size: 0.66rem; letter-spacing: 0.1em; }
   .vto-picker-col { gap: 4px; }
   .sid-toys .vto-pick { padding: 5px 8px; font-size: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .vto-controls { animation: none; }
-  .sid-toys .vto-tab, .sid-toys .vto-button, .sid-toys .vt-side-button, .vto-rung, .sid-nav-label, .sid-nav-arrow { transition: none; }
+  .sid-toys .vto-tab, .sid-toys .vto-button, .sid-toys .vt-side-button, .sid-nav-label, .sid-nav-arrow { transition: none; }
 }

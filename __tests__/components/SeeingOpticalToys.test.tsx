@@ -4,24 +4,29 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import SeeingOpticalToys from '@/app/exhibitions/seeing-is-deceiving/optical-toys/page';
 import { DISC, POSTER, STRIPS, TOY_NOTES } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/toysText';
 import {
-  alternationsPerSecond,
+  allowedStep,
   approach,
+  CLIMB_RATE,
   faceAt,
+  FLICKER_FREE,
+  flickerFreeStep,
+  flickerRate,
   frameAt,
   picturesPerSecond,
-  slitStrength,
-  thaumaBlend,
-  thaumaSeen,
-  THAUMA_LADDER,
-  THAUMA_MERGED,
-  THAUMA_SEEN,
-  THAUMA_TOP,
+  SLIT_SHARE,
+  slitsInView,
+  SPEED_STEPS,
+  speedAt,
   TAU,
+  thaumaSeen,
+  TOY_SPEEDS,
   ZOE_FRAMES,
-  ZOE_LADDER,
-  ZOE_TOP,
   zoeSeen,
 } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/spin';
+import { setFlickerOk } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/useSpeed';
+import { THAUMA_SEEN_LABEL } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/Thaumatrope';
+import { ZOE_SEEN_LABEL } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/Zoetrope';
+import { MATERIALS, steps } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/MakeThaumatrope';
 import { footAt, knee } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/strips';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -34,10 +39,11 @@ import { SEEING_POSTER_LINKS } from '@/components/projector/themes';
 /*
  * Seeing is Deceiving's optical toys: every line that explains them is the
  * poster's own (the toys' history notes are carved out: owner-approved,
- * fact-checked, and set with their sources); both toys start slowly and
- * climb, rung by rung, never flashing faster than three times a second; and
- * under reduced motion they stand still, their pictures side by side,
- * stepped by hand.
+ * fact-checked, and set with their sources); both toys work as the real
+ * ones do, never showing the finished picture as a still; both start very
+ * slowly and rise by many small steps, asking before they flicker more than
+ * three times a second; under reduced motion they stand still, stepped by
+ * hand; and a printable thaumatrope prints on Letter paper.
  */
 
 /** The poster's lines as the exhibition sets them, in its page and its posters' data. */
@@ -76,57 +82,85 @@ describe('the words', () => {
   });
 
   it('draws the poster’s own toys: the bird and the cage, the horses and the dancers', () => {
-    expect(DISC.together).toMatch(/bird, inside the cage/);
+    expect(DISC.front).toMatch(/bird/);
+    expect(DISC.back).toMatch(/cage/);
     expect(STRIPS.map((s) => s.id)).toEqual(['horses', 'dancers']);
   });
 });
 
-describe('no flashing, and a slow start', () => {
-  const speeds = Array.from({ length: 401 }, (_, i) => (i / 400) * 5);
+describe('like the real toys: the picture only through movement', () => {
+  const src = (f: string) => fs.readFileSync(path.join(process.cwd(), 'app/exhibitions/seeing-is-deceiving/optical-toys', f), 'utf8');
 
-  it('shows the thaumatrope’s sides alternating only while slow; faster, merged and steady', () => {
-    expect(thaumaBlend(0)).toBe(0);
-    expect(thaumaBlend(THAUMA_SEEN)).toBe(0);
-    expect(thaumaBlend(THAUMA_MERGED)).toBe(1);
-    expect(thaumaBlend(THAUMA_TOP)).toBe(1);
-    for (const s of speeds) expect(alternationsPerSecond(s)).toBeLessThanOrEqual(3);
+  it('never lays the thaumatrope’s two sides together as a still', () => {
+    const t = src('Thaumatrope.tsx');
+    expect(t).not.toMatch(/vt-blend|mix-blend|together:\s*'The bird/);
+    // Each face shows one side's picture only.
+    expect(t).toMatch(/<img src=\{FACES\[side\]\}/);
+    expect(t.match(/<img /g)).toHaveLength(1);
+  });
+
+  it('never draws the zoetrope’s strip snapped in place, or the slits fading away', () => {
+    const z = src('Zoetrope.tsx');
+    expect(z).not.toMatch(/phiStrip|slitStrength|strobe/);
+  });
+
+  it('shows each slit the next picture, and only a slice of it: the view tiles only when the slits run fast', () => {
+    const slot = TAU / ZOE_FRAMES;
+    // Successive slits passing the middle show successive pictures.
+    const mid = (a: number) => slitsInView(a).find((s) => Math.abs(s.x - 0.5) < 0.5 + 1e-9)!.picture;
+    expect(mid(slot * 0.5)).toBe(0);
+    expect(mid(slot * 1.5)).toBe(1);
+    expect(mid(slot * 11.5)).toBe(11);
+    expect(mid(slot * 12.5)).toBe(0);
+    // A slit is narrower than the view: still, the drawing is never seen whole.
+    expect(SLIT_SHARE).toBeLessThan(0.5);
+    // At the top speed, a 60-a-second screen shows a slit in enough places to tile the view.
+    const perFrame = picturesPerSecond(TOY_SPEEDS.zoetrope.top) / 60;
+    expect(SLIT_SHARE).toBeGreaterThanOrEqual(perFrame);
+  });
+
+  it('flips the disc about its strings: front, back, front', () => {
     expect(faceAt(0)).toBe('front');
     expect(faceAt(Math.PI)).toBe('back');
     expect(faceAt(TAU)).toBe('front');
+    expect(frameAt(slot0(3))).toBe(3);
   });
+});
 
-  it('draws the zoetrope’s slits only while fewer than three pass a second, and shows at most 15 pictures a second', () => {
-    for (const s of speeds) if (slitStrength(s) > 0) expect(s * ZOE_FRAMES).toBeLessThan(3);
-    expect(slitStrength(0)).toBe(1);
-    expect(picturesPerSecond(ZOE_TOP)).toBeLessThanOrEqual(15);
-  });
+const slot0 = (k: number) => (TAU / ZOE_FRAMES) * (k + 0.5);
 
-  it('climbs from a speed that shows each side or drawing to one that shows the illusion, each rung within the limits', () => {
-    for (const ladder of [THAUMA_LADDER, ZOE_LADDER]) {
-      for (let i = 1; i < ladder.length; i++) expect(ladder[i].rps).toBeGreaterThan(ladder[i - 1].rps);
-      for (const r of ladder.slice(0, -1)) expect(r.hold).toBeGreaterThanOrEqual(3);
-      expect(ladder[ladder.length - 1].hold).toBe(Infinity);
+describe('a gradual speed, and a word before the flicker', () => {
+  it('rises in many small, even steps from very slow', () => {
+    expect(SPEED_STEPS).toBeGreaterThanOrEqual(100);
+    for (const toy of ['thaumatrope', 'zoetrope'] as const) {
+      expect(speedAt(toy, 0)).toBe(0);
+      expect(speedAt(toy, 1)).toBeCloseTo(TOY_SPEEDS[toy].min);
+      expect(speedAt(toy, SPEED_STEPS)).toBeCloseTo(TOY_SPEEDS[toy].top);
+      // The first step is slow: well under one flicker a second.
+      expect(flickerRate(toy, speedAt(toy, 1))).toBeLessThan(0.5);
+      for (let v = 2; v <= SPEED_STEPS; v++) {
+        const r = speedAt(toy, v) / speedAt(toy, v - 1);
+        expect(r).toBeGreaterThan(1);
+        expect(r).toBeLessThan(1.04);
+      }
     }
-    expect(thaumaSeen(THAUMA_LADDER[0].rps)).toBe('sides');
-    expect(thaumaSeen(THAUMA_LADDER[THAUMA_LADDER.length - 1].rps)).toBe('merged');
-    for (const r of THAUMA_LADDER) expect(alternationsPerSecond(r.rps)).toBeLessThanOrEqual(3);
-    // The first rungs show each drawing through the slits; the last, moving.
-    expect(zoeSeen(ZOE_LADDER[0].rps)).toBe('drawings');
-    expect(slitStrength(ZOE_LADDER[0].rps)).toBeGreaterThan(0);
-    expect(picturesPerSecond(ZOE_LADDER[0].rps)).toBeLessThan(1);
-    expect(zoeSeen(ZOE_LADDER[ZOE_LADDER.length - 1].rps)).toBe('moving');
-    for (const r of ZOE_LADDER) expect(picturesPerSecond(r.rps)).toBeLessThanOrEqual(15);
+    // From the slowest to the fastest takes about a minute when it climbs by itself.
+    expect(SPEED_STEPS / CLIMB_RATE).toBeGreaterThan(45);
   });
 
-  it('turns the drum picture by picture, round and round', () => {
-    const slot = TAU / ZOE_FRAMES;
-    expect(frameAt(0)).toBe(0);
-    expect(frameAt(slot * 3)).toBe(3);
-    expect(frameAt(TAU + slot)).toBe(1);
-    expect(frameAt(-slot)).toBe(ZOE_FRAMES - 1);
+  it('runs up to three flickers a second freely, and no faster until the visitor says yes', () => {
+    for (const toy of ['thaumatrope', 'zoetrope'] as const) {
+      const gate = flickerFreeStep(toy);
+      expect(flickerRate(toy, speedAt(toy, gate))).toBeLessThanOrEqual(FLICKER_FREE);
+      expect(flickerRate(toy, speedAt(toy, gate + 1))).toBeGreaterThan(FLICKER_FREE);
+      expect(allowedStep(toy, SPEED_STEPS, false)).toBe(gate);
+      expect(allowedStep(toy, SPEED_STEPS, true)).toBe(SPEED_STEPS);
+    }
+    // At the top, fast enough for the eye to join the pictures up.
+    expect(thaumaSeen(TOY_SPEEDS.thaumatrope.top)).toBe('together');
+    expect(zoeSeen(TOY_SPEEDS.zoetrope.top)).toBe('moving');
+    expect(picturesPerSecond(TOY_SPEEDS.zoetrope.top)).toBeLessThanOrEqual(15);
     expect(approach(0, 2, 0.5, 1)).toBe(0.5);
-    expect(approach(1.9, 2, 0.5, 1)).toBe(2);
-    expect(approach(1, 0, 0.5, 1)).toBe(0.5);
   });
 
   it('gallops in a loop: each hoof planted and swept back, then lifted and carried forward, the leg bending to reach it', () => {
@@ -141,70 +175,95 @@ describe('no flashing, and a slow start', () => {
 });
 
 describe('the thaumatrope', () => {
-  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/seeing-is-deceiving/optical-toys'));
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/exhibitions/seeing-is-deceiving/optical-toys');
+    setFlickerOk(false);
+  });
 
-  it('starts slowly when twirled, and climbs rung by rung to the bird in its cage', () => {
+  it('starts very slowly when twirled, climbs by itself, and waits at the flicker for a yes', () => {
     jest.useFakeTimers();
     render(<SeeingOpticalToys />);
     expect(screen.getByRole('tab', { name: 'Thaumatrope' })).toHaveAttribute('aria-selected', 'true');
     fireEvent.click(screen.getByRole('button', { name: 'Twirl' }));
     expect(screen.getByRole('button', { name: 'Let it slow' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText(`Speed 1 of ${THAUMA_LADDER.length}`)).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('slow enough to see each side go by');
+    const slider = screen.getByRole('slider', { name: 'Speed' });
+    expect(slider).toHaveValue('1');
+    expect(screen.getByText(THAUMA_SEEN_LABEL.sides)).toBeInTheDocument();
     act(() => {
-      jest.advanceTimersByTime(THAUMA_LADDER[0].hold * 1000);
+      jest.advanceTimersByTime(4000);
     });
-    expect(screen.getByText(`Speed 2 of ${THAUMA_LADDER.length}`)).toBeInTheDocument();
-    // Faster by hand holds the climb; "Keep climbing" carries on.
-    fireEvent.click(screen.getByRole('button', { name: 'Faster' }));
-    expect(screen.getByText(`Speed 3 of ${THAUMA_LADDER.length}`)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Keep climbing' })).toBeInTheDocument();
-    for (let i = 0; i < THAUMA_LADDER.length; i++) fireEvent.click(screen.getByRole('button', { name: 'Faster' }));
-    expect(screen.getByText(`Speed ${THAUMA_LADDER.length} of ${THAUMA_LADDER.length}`)).toBeInTheDocument();
-    expect(screen.getByText('One picture: the bird in its cage')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Faster' })).toBeDisabled();
+    expect(Number((slider as HTMLInputElement).value)).toBeGreaterThan(5);
+    // It climbs to the flicker-free step, and asks.
+    act(() => {
+      jest.advanceTimersByTime(120_000);
+    });
+    expect(slider).toHaveValue(String(flickerFreeStep('thaumatrope')));
+    expect(screen.getByRole('alertdialog', { name: 'Flicker ahead' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Go faster' }));
+    act(() => {
+      jest.advanceTimersByTime(120_000);
+    });
+    expect(slider).toHaveValue(String(SPEED_STEPS));
+    expect(screen.getByText(THAUMA_SEEN_LABEL.together)).toBeInTheDocument();
+    expect(screen.getByText(POSTER.discovered)).toBeInTheDocument();
+    // A step slower by hand.
     fireEvent.click(screen.getByRole('button', { name: 'Slower' }));
-    expect(screen.getByText(`Speed ${THAUMA_LADDER.length - 1} of ${THAUMA_LADDER.length}`)).toBeInTheDocument();
+    expect(slider).toHaveValue(String(SPEED_STEPS - 5));
   });
 
-  it('flips, and shows both sides side by side, stepped by hand', () => {
+  it('holds a hand at the flicker too, and “Stay slow” keeps it there', () => {
+    render(<SeeingOpticalToys />);
+    const slider = screen.getByRole('slider', { name: 'Speed' });
+    fireEvent.change(slider, { target: { value: String(SPEED_STEPS) } });
+    expect(slider).toHaveValue(String(flickerFreeStep('thaumatrope')));
+    fireEvent.click(screen.getByRole('button', { name: 'Stay slow' }));
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    expect(slider).toHaveValue(String(flickerFreeStep('thaumatrope')));
+  });
+
+  it('flips, and shows one side at a time, never both together', () => {
     render(<SeeingOpticalToys />);
     expect(screen.getByText(POSTER.thaumatrope)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Flip the disc' }));
     expect(screen.getByRole('status')).toHaveTextContent(`Back: ${DISC.back}.`);
-    fireEvent.click(screen.getByRole('button', { name: 'See both sides' }));
-    const sides = screen.getByRole('list', { name: /side by side/ });
-    expect(within(sides).getAllByRole('button')).toHaveLength(3);
-    fireEvent.click(screen.getByRole('button', { name: 'Next side' }));
+    fireEvent.click(screen.getByRole('button', { name: 'One side at a time' }));
+    expect(screen.getByRole('figure', { name: /one side at a time/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Turn it over' }));
     expect(screen.getByRole('status')).toHaveTextContent(`Back: ${DISC.back}.`);
-    fireEvent.click(screen.getByRole('button', { name: 'Next side' }));
-    expect(screen.getByRole('status')).toHaveTextContent(`Together: ${DISC.together}.`);
-    expect(screen.getByText(POSTER.discovered)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Turn it over' }));
+    expect(screen.getByRole('status')).toHaveTextContent(`Front: ${DISC.front}.`);
+    expect(screen.queryByText(/Together/)).not.toBeInTheDocument();
   });
 
-  it('under reduced motion, stands still: no twirling, the sides side by side', () => {
+  it('under reduced motion, stands still: no twirling, one side at a time', () => {
     reducedMotion(true);
     render(<SeeingOpticalToys />);
     expect(screen.queryByRole('button', { name: 'Twirl' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('group', { name: 'Speed' })).not.toBeInTheDocument();
-    expect(screen.getByRole('list', { name: /side by side/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Previous side' })).toBeInTheDocument();
+    expect(screen.queryByRole('slider', { name: 'Speed' })).not.toBeInTheDocument();
+    expect(screen.getByRole('figure', { name: /one side at a time/ })).toBeInTheDocument();
   });
 });
 
 describe('the zoetrope', () => {
-  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/seeing-is-deceiving/optical-toys#zoetrope'));
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/exhibitions/seeing-is-deceiving/optical-toys#zoetrope');
+    setFlickerOk(false);
+  });
 
-  it('opens from its address, starts slowly, climbs, and steps picture by picture', () => {
+  it('opens from its address, with the eye to the slits; spins slowly, and steps picture by picture', () => {
     render(<SeeingOpticalToys />);
     expect(screen.getByRole('tab', { name: 'Zoetrope' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('img', { name: /Your eye to the drum’s wall/ })).toBeInTheDocument();
     expect(screen.getByText(POSTER.zoetrope)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Spin' }));
     expect(screen.getByRole('button', { name: 'Stop' })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText(`Speed 1 of ${ZOE_LADDER.length}`)).toBeInTheDocument();
-    for (let i = 0; i < 3; i++) fireEvent.click(screen.getByRole('button', { name: 'Faster' }));
+    expect(screen.getByText(ZOE_SEEN_LABEL.sliver)).toBeInTheDocument();
+    const slider = screen.getByRole('slider', { name: 'Speed' });
+    fireEvent.change(slider, { target: { value: String(SPEED_STEPS) } });
+    expect(slider).toHaveValue(String(flickerFreeStep('zoetrope')));
     expect(screen.getByText(POSTER.nothingMoves)).toBeInTheDocument();
-    for (let i = 0; i < ZOE_LADDER.length; i++) fireEvent.click(screen.getByRole('button', { name: 'Faster' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Go faster' }));
+    fireEvent.change(slider, { target: { value: String(SPEED_STEPS) } });
     expect(screen.getByText(`${POSTER.movies} ${POSTER.screens}`)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Next picture' }));
     expect(screen.getByRole('status')).toHaveTextContent(`Picture 2 of ${ZOE_FRAMES}.`);
@@ -226,6 +285,51 @@ describe('the zoetrope', () => {
     expect(screen.getByRole('status')).toHaveTextContent(`Picture 5 of ${ZOE_FRAMES}.`);
     fireEvent.click(screen.getByRole('button', { name: 'Next picture' }));
     expect(screen.getByRole('status')).toHaveTextContent(`Picture 6 of ${ZOE_FRAMES}.`);
+  });
+});
+
+describe('make your own thaumatrope', () => {
+  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/seeing-is-deceiving/optical-toys#make'));
+
+  it('prints a sheet for each pair and a blank one, each with what you need and what to do, on Letter paper', () => {
+    const print = jest.spyOn(window, 'print').mockImplementation(() => {});
+    const { container } = render(<SeeingOpticalToys />);
+    expect(screen.getByRole('tab', { name: 'Make your own' })).toHaveAttribute('aria-selected', 'true');
+    const sheets = screen.getAllByRole('article');
+    expect(sheets.map((s) => s.getAttribute('aria-label'))).toEqual([
+      'Sheet: Bird and cage',
+      'Sheet: Fish and bowl',
+      'Sheet: Flower and pot',
+      'Sheet: blank discs',
+    ]);
+    for (const s of sheets) {
+      expect(within(s).getByRole('heading', { name: 'You will need' })).toBeInTheDocument();
+      expect(within(s).getByRole('heading', { name: 'What to do' })).toBeInTheDocument();
+      expect(within(s).getAllByRole('listitem').length).toBe(MATERIALS.length + steps(false).length);
+    }
+    expect(within(sheets[0]).getByRole('img', { name: /Back: An empty birdcage, printed upside down/ })).toBeInTheDocument();
+    expect(container.innerHTML).toContain('size: 8.5in 11in');
+    // Untick two, and print the rest.
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Fish and bowl' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Blank discs to draw on' }));
+    expect(screen.getAllByRole('article')).toHaveLength(2);
+    fireEvent.click(screen.getByRole('button', { name: 'Print 2 sheets' }));
+    expect(print).toHaveBeenCalled();
+  });
+
+  it('prints the back picture upside down, so it turns the right way up on the strings', () => {
+    render(<SeeingOpticalToys />);
+    const back = screen.getByRole('img', { name: /Back: An empty fishbowl/ });
+    expect(back.querySelector('.vmt-art')).toHaveAttribute('transform', 'rotate(180)');
+    const front = screen.getByRole('img', { name: /Front: A fish$/ });
+    expect(front.querySelector('.vmt-art')).not.toHaveAttribute('transform');
+    expect(steps(true)[0]).toMatch(/upside down/);
+  });
+
+  it('keeps its print styles to Letter, and shows only the sheets when printing', () => {
+    const css = fs.readFileSync(path.join(process.cwd(), 'app/exhibitions/seeing-is-deceiving/optical-toys/optical-toys.css'), 'utf8');
+    expect(css).toMatch(/@media print[\s\S]*\.vmt-sheet[\s\S]*break-after: page/);
+    expect(css).toMatch(/\.vmt-sheet \{[^}]*width: 7\.5in/);
   });
 });
 
