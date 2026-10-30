@@ -137,7 +137,7 @@ export const TIERS = [
 
 /** The closing paragraph of the original ending, kept for every score. */
 export const CLOSING =
-  'Every coin in this exhibition was once held by someone. The question of whether a coin is genuine is not an academic exercise — it is the question of whether the object in front of you really was there. A genuine Pontius Pilate prutah was minted in Jerusalem in the year of the Crucifixion. Someone held it. That matters. Authentication is how we protect that connection between the present and the past.';
+  'Every coin in this exhibition was once held by someone. The question of whether a coin is genuine is not an academic exercise — it is the question of whether the object in front of you really was there. A genuine Pontius Pilate prutah was minted in Jerusalem within a few years of the Crucifixion, which most scholars date to AD 30 or 33. Someone held it. That matters. Authentication is how we protect that connection between the present and the past.';
 
 /* ───────── Our own case ───────── */
 
