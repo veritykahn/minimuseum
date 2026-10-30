@@ -195,6 +195,14 @@
 [data-exhibition='moon'] .pe-content-end { color: #fff; }
 [data-exhibition='moon'] .pe-content-end:hover { background: var(--mo-lavender); }
 
+/* ───────── The opening ─────────
+   Poster 1 opens on its lavender moon rising (poster-fx.css). Poster 2 opens
+   in its own palette: what rises is one of its pink planets. */
+.pfx-mo[data-poster-id='poster2'] .pfx-mo-rise i {
+  --pfx-mo-halo: rgba(240, 122, 232, 0.38);
+  background: radial-gradient(circle at 42% 38%, #fde3fb 0, #f07ae8 55%, #a2449f 100%);
+}
+
 /* ───────── The classroom screen ───────── */
 [data-exhibition='moon'] .pjp-stage .mo-title.pe-frame-centered img { max-height: 84cqh; }
 [data-exhibition='moon'] .pjp-stage .mo-earth.pe-frame-centered img { max-height: 70cqh; }

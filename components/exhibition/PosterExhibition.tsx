@@ -208,6 +208,8 @@ export default function PosterExhibition<K extends string>({ config }: { config:
               data-item={item.type}
               data-entrance={entrance}
               data-atmosphere={atmosphere}
+              // Which poster is open, so the reveal can take that poster's own palette.
+              data-poster-id={poster.id}
             >
               <div className="pe-walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
                 {veil && <FxVeil theme={fxConfig.theme} kind={veil} />}

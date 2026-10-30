@@ -835,23 +835,23 @@
   opacity: 0;
   background: radial-gradient(circle at 42% 38%, #ebe4fa 0, #b9a6e6 55%, #8d77c6 100%);
   /* A soft halo, and the Earth's shadow on its face as an inset shadow. */
-  box-shadow: 0 0 7vmin 1vmin rgba(185, 166, 230, 0.4), inset 0 0 0 0 rgba(30, 22, 54, 0.97);
+  box-shadow: 0 0 7vmin 1vmin var(--pfx-mo-halo, rgba(185, 166, 230, 0.4)), inset 0 0 0 0 rgba(30, 22, 54, 0.97);
   animation: pfxMoRise 3s cubic-bezier(0.33, 0, 0.2, 1) backwards;
 }
 @keyframes pfxMoRise {
   0% {
     opacity: 1;
     transform: translateY(32vmin);
-    box-shadow: 0 0 7vmin 1vmin rgba(185, 166, 230, 0.4), inset 26vmin 0 0 0 rgba(30, 22, 54, 0.97);
+    box-shadow: 0 0 7vmin 1vmin var(--pfx-mo-halo, rgba(185, 166, 230, 0.4)), inset 26vmin 0 0 0 rgba(30, 22, 54, 0.97);
   }
   65% {
     opacity: 1;
-    box-shadow: 0 0 7vmin 1vmin rgba(185, 166, 230, 0.4), inset 0 0 0 0 rgba(30, 22, 54, 0.97);
+    box-shadow: 0 0 7vmin 1vmin var(--pfx-mo-halo, rgba(185, 166, 230, 0.4)), inset 0 0 0 0 rgba(30, 22, 54, 0.97);
   }
   100% {
     opacity: 0;
     transform: translateY(-46vh);
-    box-shadow: 0 0 7vmin 1vmin rgba(185, 166, 230, 0.4), inset 0 0 0 0 rgba(30, 22, 54, 0.97);
+    box-shadow: 0 0 7vmin 1vmin var(--pfx-mo-halo, rgba(185, 166, 230, 0.4)), inset 0 0 0 0 rgba(30, 22, 54, 0.97);
   }
 }
 
