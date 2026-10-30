@@ -597,8 +597,10 @@
    Over the machines: the line (or the teacher's prompt) with the race's
    start beside it; in a race, the two stopwatches.
    ========================================================================== */
-.wrs-line-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 14px; max-width: 64em; }
-.wrs-room .wrs-race-start { font-size: 13px; padding: 6px 12px; min-height: 36px; box-shadow: 3px 3px 0 var(--wr-ink); background: var(--wr-cyan); border-color: var(--wr-cyan); }
+.wrs-line-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px; max-width: 70em; }
+/* Room for the line on one line beside the race's start, where the screen allows. */
+.wrs-line-row .wrs-line { max-width: 52em; }
+.wrs-room .wrs-race-start { font-size: 12px; letter-spacing: 0.02em; padding: 4px 10px; min-height: 34px; box-shadow: 3px 3px 0 var(--wr-ink); background: var(--wr-cyan); border-color: var(--wr-cyan); }
 .wrs-room[data-tab='imac'] .wrs-race-start { background: var(--wr-ink); border-color: var(--wr-ink); color: #fff; box-shadow: 3px 3px 0 #fff; }
 
 /* The teacher's prompt: a word list's words are chips, ticked as the page uses them. */
@@ -618,6 +620,8 @@
 .wrs-clock-time { font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 700; font-size: clamp(1.4rem, 2.4vw, 2rem); font-variant-numeric: tabular-nums; line-height: 1.1; }
 .wrs-room[data-tab='imac'] .wrs-clock { border-color: var(--wr-ink); }
 .wrs-room[data-tab='imac'] .wrs-clock.is-active { box-shadow: 4px 4px 0 var(--wr-ink); }
+/* On the iMac's cyan, the race's plain button is drawn in ink, as the white would be lost. */
+.wrs-room[data-tab='imac'] .wrs-race .wrs-button-ghost { color: var(--wr-ink); border-color: var(--wr-ink); }
 /* A race's bar takes a line more: the machines give it room. */
 .wrs-room[data-race] .wrt { --W: min(780px, 94vw, calc((100dvh - 400px) * 1.36)); }
 .wrs-room[data-race] .wri { --W: min(600px, 92vw, calc(100dvh - 360px)); }
@@ -647,7 +651,12 @@
 .wrs-room .wrr :focus-visible { outline-color: var(--wr-ink); }
 
 /* ───────── Beat ten, on the top row ───────── */
-.wrs-panel-top-row { overflow-y: auto; justify-content: safe center; padding: 10px 0 30px; }
+.wrs-panel-top-row { overflow-x: hidden; overflow-y: auto; justify-content: safe center; align-items: safe center; padding: 10px 0 30px; }
+/* An iPad upright: the words take the width, and the Urania stands below them, as on a phone. */
+@media (min-width: 761px) and (max-width: 1100px) {
+  .wrq { margin-right: 0; }
+  .wrs-urania { top: auto; bottom: 1%; right: -8vw; width: 46vw; opacity: 0.9; }
+}
 .wrq-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
 .wrq-goal { font-family: var(--pe-body); font-weight: 700; font-size: clamp(0.9rem, 1.2vw, 1.05rem); color: var(--wr-ink); background: var(--wr-coral); padding: 4px 10px; box-shadow: 3px 3px 0 var(--wr-ink); }
 /* The meter: ten keys for "typewriter", lit as a top-row word fills them. */
@@ -657,7 +666,8 @@
 .wrq-ten-cell.is-extra.is-lit { background: #f5c84a; box-shadow: 0 0 12px rgba(245, 200, 74, 0.8); }
 .wrq-ten.is-full .wrq-ten-cell.is-lit { border-color: #fff; }
 .wrq-ten-count { margin-left: 6px; font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 700; font-size: 15px; color: #fff; background: var(--wr-ink); padding: 1px 8px; }
-.wrq-note { position: relative; max-width: 36em; padding: 8px 14px; background: #fff; color: var(--wr-ink); font-family: var(--pe-body); font-weight: 700; font-size: clamp(0.95rem, 1.3vw, 1.1rem); box-shadow: 4px 4px 0 var(--wr-ink); animation: wrt-flag-in-plain 0.25s ease-out both; }
+.wrq-actions .wrq-ten { margin-left: 8px; }
+.wrq-note { position: relative; align-self: flex-start; max-width: 36em; padding: 8px 14px; background: #fff; color: var(--wr-ink); font-family: var(--pe-body); font-weight: 700; font-size: clamp(0.95rem, 1.3vw, 1.1rem); box-shadow: 4px 4px 0 var(--wr-ink); animation: wrt-flag-in-plain 0.25s ease-out both; }
 @keyframes wrt-flag-in-plain { from { opacity: 0; transform: translateY(-8px); } }
 .wrq-note.is-win { background: #f5c84a; font-size: clamp(1.1rem, 1.8vw, 1.45rem); animation: wrq-win 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
 @keyframes wrq-win { 0% { transform: scale(0.7); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
@@ -675,7 +685,7 @@
 
 /* ───────── The prompt, on the class board ───────── */
 .wrp { align-self: center; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 12px; max-width: 60em; }
-.wrp-form, .wrp-shown { padding: 10px 14px; background: rgba(22, 22, 22, 0.72); border: 2px solid #fff; }
+.wrp-form, .wrp-shown { padding: 10px 14px; background: var(--wr-ink); border: 2px solid #fff; box-shadow: 5px 5px 0 rgba(22, 22, 22, 0.35); }
 .wrp-kinds { display: flex; flex-wrap: wrap; gap: 4px; border: 0; padding: 0; margin: 0; }
 .wrp-kind { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 2px solid #fff; color: #fff; font-family: var(--pe-body); font-weight: 700; font-size: 13px; cursor: pointer; }
 .wrp-kind.is-on { background: #fff; color: var(--wr-ink); }
@@ -708,7 +718,8 @@
   .wrr-side { padding: 8px; }
   .wrr-time { font-size: 2.4rem; }
   .wrr-think { font-size: 13px; }
-  .wrs-panel-top-row { padding-top: 16px; }
+  /* Clear of the museum map's button at the foot. */
+  .wrs-panel-top-row { padding: 16px 0 84px; }
   .wrq-goal { font-size: 0.85rem; }
   .wrq-ten-cell { width: 18px; }
   .wrp-kind { font-size: 12px; padding: 5px 9px; }

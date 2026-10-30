@@ -101,7 +101,7 @@ describe('the race', () => {
 
   it('times the line on each machine, stops each clock by itself, and sets the times side by side with the strike-overs', async () => {
     render(<TypingStation />);
-    fireEvent.click(screen.getByRole('button', { name: /Race the two machines/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Race the machines/ }));
     const bar = screen.getByRole('group', { name: 'The race' });
     expect(within(bar).getByText(STATION_TEXT.race.label)).toBeInTheDocument();
     // The clock waits for the first key.
@@ -142,7 +142,7 @@ describe('the race', () => {
   it('starts both machines on a fresh page, stops at “Stop the clock” with the letters still off, and ends', () => {
     render(<TypingStation />);
     typeOn([...'old work']);
-    fireEvent.click(screen.getByRole('button', { name: /Race the two machines/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Race the machines/ }));
     expect(document.getElementById('wrt-page-text')).toHaveTextContent('The sheet is blank.');
     typeOn([...'The keyboard']);
     now += 5_000;
@@ -157,9 +157,9 @@ describe('the race', () => {
     // Escape closes the results, and the line is back with the race's start.
     fireEvent.keyDown(within(results).getByRole('heading'), { key: 'Escape' });
     expect(screen.queryByRole('region', { name: 'Race results' })).toBeNull();
-    expect(screen.getByRole('button', { name: /Race the two machines/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Race the machines/ })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: /Race the two machines/ }));
+    fireEvent.click(screen.getByRole('button', { name: /Race the machines/ }));
     fireEvent.click(screen.getByRole('button', { name: 'End the race' }));
     expect(screen.queryByRole('group', { name: 'The race' })).toBeNull();
   });
@@ -347,5 +347,34 @@ describe('beat ten on the top row', () => {
     const reduced = [...css.matchAll(/@media \(prefers-reduced-motion: reduce\) \{([\s\S]*?)\n\}/g)].map((m) => m[1]).join('\n');
     expect(reduced).toMatch(/\.wrq-burst \{ display: none; \}/);
     expect(reduced).toMatch(/\.wrr-card, \.wrq-note, \.wrq-note\.is-win \{ animation: none; \}/);
+  });
+
+  it('says what it thinks of a kept word where the verdict stands, until the next word begins', () => {
+    render(<TypingStation />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Top row' }));
+    keep('proprietor');
+    const verdict = document.getElementById('wrq-verdict')!;
+    expect(verdict).toHaveClass('wrq-note', 'is-win');
+    expect(verdict).toHaveTextContent('You beat ten!');
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your word' }), { target: { value: 'pr' } });
+    expect(verdict).not.toHaveClass('wrq-note');
+    expect(verdict).toHaveTextContent('Every letter is on the top row: 2 letters.');
+  });
+});
+
+/* Found in the visual check at 1280×800, 820×1180 and 390×844. */
+describe('layout fixes from the visual check', () => {
+  const css = () => readFileSync(join(process.cwd(), 'app/exhibitions/writing-revolution/typing-station/typing.css'), 'utf8');
+
+  it('scrolls the top row inside the room without losing its left edge, and lays it out for an upright iPad', () => {
+    expect(css()).toMatch(/\.wrs-panel-top-row \{ overflow-x: hidden; overflow-y: auto; justify-content: safe center; align-items: safe center;/);
+    expect(css()).toMatch(/@media \(min-width: 761px\) and \(max-width: 1100px\) \{\s*\.wrq \{ margin-right: 0; \}/);
+    // On a phone, the last button clears the museum map's.
+    expect(css()).toMatch(/\.wrs-panel-top-row \{ padding: 16px 0 84px; \}/);
+  });
+
+  it('draws the race’s plain button in ink on the iMac’s cyan, and gives the machines room for the race bar', () => {
+    expect(css()).toMatch(/\.wrs-room\[data-tab='imac'\] \.wrs-race \.wrs-button-ghost \{ color: var\(--wr-ink\); border-color: var\(--wr-ink\); \}/);
+    expect(css()).toMatch(/\.wrs-room\[data-race\] \.wrt \{ --W: min\(780px, 94vw, calc\(\(100dvh - 400px\) \* 1\.36\)\); \}/);
   });
 });

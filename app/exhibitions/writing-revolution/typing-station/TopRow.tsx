@@ -44,6 +44,7 @@ export default function TopRow({ play, onPost }: { play: (s: SoundName) => void;
   const used = new Set(check.letters);
   const rowName = row === 'top' ? 'top row' : 'bottom row';
   const n = check.letters.length;
+  const shownNote = word ? null : note;
 
   const verdict = !check.letters
     ? `Type a word using only the ${rowName}.`
@@ -107,6 +108,7 @@ export default function TopRow({ play, onPost }: { play: (s: SoundName) => void;
               onClick={() => {
                 setRow(r);
                 setWord('');
+                setNote(null);
               }}
             >
               {r === 'top' ? 'Top row' : 'Bottom row'}
@@ -142,9 +144,16 @@ export default function TopRow({ play, onPost }: { play: (s: SoundName) => void;
             <span aria-hidden="true">&#9003;</span>
           </button>
         </div>
-        {meter}
-        <p id="wrq-verdict" className="wrq-verdict" role="status" data-ok={check.ok}>
-          {verdict}
+        {/* Once a word is kept, what the station says about it stands where the verdict was, under the eyes, until the next word begins. */}
+        <p id="wrq-verdict" className={`wrq-verdict ${shownNote ? 'wrq-note' : ''} ${shownNote?.win ? 'is-win' : ''}`} role="status" data-ok={check.ok}>
+          {shownNote?.win && (
+            <span className="wrq-burst" key={shownNote.n} aria-hidden="true">
+              {Array.from({ length: 12 }, (_, i) => (
+                <span key={i} style={{ '--i': i } as CSSProperties} />
+              ))}
+            </span>
+          )}
+          {shownNote ? shownNote.text : verdict}
         </p>
         <div className="wrq-actions">
           <button type="submit" className="wrs-button" disabled={!check.ok}>
@@ -155,24 +164,9 @@ export default function TopRow({ play, onPost }: { play: (s: SoundName) => void;
               Try “{TEN_WORD}”
             </button>
           )}
+          {meter}
         </div>
       </form>
-
-      {note && (
-        <p className={`wrq-note ${note.win ? 'is-win' : ''}`} key={note.n} aria-hidden="true">
-          {note.win && (
-            <span className="wrq-burst">
-              {Array.from({ length: 12 }, (_, i) => (
-                <span key={i} style={{ '--i': i } as CSSProperties} />
-              ))}
-            </span>
-          )}
-          {note.text}
-        </p>
-      )}
-      <p role="status" style={srOnly}>
-        {note?.text ?? ''}
-      </p>
 
       {kept.length > 0 && (
         <div className="wrq-kept">

@@ -95,7 +95,7 @@ export const STATION_TEXT = {
   },
   /** The race. Interface only: it times the visitor, and makes no claims. */
   race: {
-    start: 'Race the two machines',
+    start: 'Race the machines',
     label: 'Race: type this line',
     stop: 'Stop the clock',
     quit: 'End the race',
@@ -112,7 +112,7 @@ export const STATION_TEXT = {
   },
   /** Beat ten. Interface only: whether a word is a word is the class's to check. */
   beatTen: {
-    goal: 'Beat ten: “typewriter” has ten letters. Find another top-row word with ten or more.',
+    goal: 'Beat ten: “typewriter” has ten letters. Can you find another?',
     listTitle: 'Longest words',
     dictionary: 'Only the letters are checked here. Is each one a real word? Look it up in a dictionary.',
     post: 'Post the list to the board',
