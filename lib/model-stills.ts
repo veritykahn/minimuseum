@@ -4,8 +4,23 @@
  * the viewer throws). Kept apart from the viewers so a page can name its
  * still without pulling in three.js.
  *
- * The stills are renders of the same scans, saved as webp.
+ * The stills are renders of the same scans, saved as webp. The Seeing is
+ * Deceiving stills have transparent backgrounds, for its grey page.
  */
+
+/** The colours of the page a still sits on: its exhibition's own. */
+export type StillPage = {
+  background: string;
+  text: string;
+  muted: string;
+  accent: string;
+};
+
+/** Harlem Renaissance: black. */
+const HARLEM_PAGE: StillPage = { background: '#0a0a0a', text: '#e8e0d0', muted: '#8a8070', accent: '#c9a94e' };
+/** Seeing is Deceiving: its grey, as on its artifact viewer. */
+const SEEING_PAGE: StillPage = { background: '#e0dede', text: '#0a0a0a', muted: '#4a4a4a', accent: '#1f5a6e' };
+
 export type ModelStill = {
   model: string;
   still: string;
@@ -14,6 +29,7 @@ export type ModelStill = {
   date: string;
   backHref: string;
   backLabel: string;
+  page: StillPage;
 };
 
 export const MODEL_STILLS = {
@@ -25,6 +41,7 @@ export const MODEL_STILLS = {
     date: 'c. 1924–1930s',
     backHref: '/exhibitions/harlem-renaissance/artifacts',
     backLabel: 'Back to the collection',
+    page: HARLEM_PAGE,
   },
   'fire-in-the-flint': {
     model: '/exhibitions/harlem/artifacts/flint.glb',
@@ -34,6 +51,7 @@ export const MODEL_STILLS = {
     date: '1924',
     backHref: '/exhibitions/harlem-renaissance/artifacts',
     backLabel: 'Back to the collection',
+    page: HARLEM_PAGE,
   },
   stereoscope: {
     model: '/exhibitions/seeing/artifacts/stereoscope.glb',
@@ -43,6 +61,7 @@ export const MODEL_STILLS = {
     date: '1904',
     backHref: '/exhibitions/seeing-is-deceiving/artifacts',
     backLabel: 'Back to the collection',
+    page: SEEING_PAGE,
   },
   'stereoscope-cards': {
     model: '/exhibitions/seeing/artifacts/stereoscope-card.glb',
@@ -52,6 +71,7 @@ export const MODEL_STILLS = {
     date: '1906',
     backHref: '/exhibitions/seeing-is-deceiving/artifacts',
     backLabel: 'Back to the collection',
+    page: SEEING_PAGE,
   },
   'victorian-cards': {
     model: '/exhibitions/seeing/artifacts/victorian-cards.glb',
@@ -61,6 +81,7 @@ export const MODEL_STILLS = {
     date: 'c.1890-1900',
     backHref: '/exhibitions/seeing-is-deceiving/artifacts',
     backLabel: 'Back to the collection',
+    page: SEEING_PAGE,
   },
 } satisfies Record<string, ModelStill>;
 

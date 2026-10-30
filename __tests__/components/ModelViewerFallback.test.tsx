@@ -7,7 +7,7 @@
  * the object's still photograph instead, and that reduced motion and a
  * missing or refused motion/orientation permission do not crash the viewer.
  */
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MODEL_STILLS, type ModelId } from '@/lib/model-stills';
@@ -120,6 +120,15 @@ describe('every 3D object has a still and a model on disk', () => {
     expect(existsSync(join(process.cwd(), 'public', s.model))).toBe(true);
   });
 
+  it('cuts the stills on a light page out of their background (a webp with alpha), so they show no dark square', () => {
+    for (const s of Object.values(MODEL_STILLS).filter((m) => m.page.background !== '#0a0a0a')) {
+      const webp = readFileSync(join(process.cwd(), 'public', s.still));
+      // An extended webp ('VP8X') whose flags byte sets the alpha bit.
+      expect(webp.toString('ascii', 12, 16)).toBe('VP8X');
+      expect(webp[20] & 0x10).toBe(0x10);
+    }
+  });
+
   it('covers every viewer', () => {
     expect(VIEWERS.map((v) => v.id).sort()).toEqual(Object.keys(MODEL_STILLS).sort());
   });
@@ -143,6 +152,22 @@ describe('ModelErrorBoundary', () => {
       '/exhibitions/harlem-renaissance/artifacts'
     );
     expect(screen.queryByText(/something went wrong/i)).not.toBeInTheDocument();
+  });
+
+  it('sets the fallback page in its exhibition’s colours: Seeing grey, Harlem black', () => {
+    const { container, unmount } = render(
+      <ModelErrorBoundary id="stereoscope">
+        <Boom />
+      </ModelErrorBoundary>
+    );
+    expect((container.querySelector('main') as HTMLElement).style.getPropertyValue('--still-bg')).toBe('#e0dede');
+    unmount();
+    const harlem = render(
+      <ModelErrorBoundary id="phonograph">
+        <Boom />
+      </ModelErrorBoundary>
+    );
+    expect((harlem.container.querySelector('main') as HTMLElement).style.getPropertyValue('--still-bg')).toBe('#0a0a0a');
   });
 
   it('renders the viewer untouched when nothing throws', () => {
