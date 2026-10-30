@@ -100,9 +100,9 @@ describe('Black History Month', () => {
     const files = (d: string): string[] =>
       fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? files(path.join(d, e.name)).map((f) => `${e.name}/${f}`) : [e.name]));
 
-    it('holds only the posters, their lettering, poster 1’s illustrated figures and the screenshots of the rooms for their cards', () => {
-      // The audio guide's recordings are the owner's voice, not pictures (AudioGuide.test.tsx).
-      expect(files(dir).filter((f) => !f.startsWith('audio/')).sort()).toEqual([
+    it('holds only the posters, their lettering, poster 1’s illustrated figures, the screenshots of the rooms for their cards, and the owner’s doll artwork', () => {
+      // The audio guide's recordings are the owner's voice, not pictures (AudioGuide.test.tsx); the doll layers are checked in DollDesigner.test.tsx.
+      expect(files(dir).filter((f) => !f.startsWith('audio/') && !f.startsWith('dolls/')).sort()).toEqual([
         'poster1.jpg',
         'poster2.jpg',
         'ring.webp',
