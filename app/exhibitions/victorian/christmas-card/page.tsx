@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 're
 import { createPortal } from 'react-dom';
 import FactNote from '@/components/exhibition/FactNote';
 import RoomShell from '../RoomShell';
+import { usePrintSheet } from '../usePrintSheet';
 import { CardBack, CardFront, CardInside } from './CardArt';
 import { BORDERS, CARD_NOTES, CARD_TEXT, GREETINGS, PAPERS, PICTURES, type BorderId, type PaperId, type PictureId } from './cardText';
 import './card.css';
@@ -81,21 +82,10 @@ export default function VictorianChristmasCard() {
     choose(TABS[to].id, true);
   };
 
-  // Print the card: set once the fonts are in, cleared when the printer is done.
-  useEffect(() => {
-    if (!printing) return;
-    let cancelled = false;
-    const done = () => setPrinting(false);
-    window.addEventListener('afterprint', done);
-    (async () => {
-      await document.fonts?.ready;
-      if (!cancelled) window.print();
-    })();
-    return () => {
-      cancelled = true;
-      window.removeEventListener('afterprint', done);
-    };
-  }, [printing]);
+  // Print the card once the fonts and the card's pictures (its front and border) are in, so a slow
+  // connection or an iPad doesn't print empty frames; cleared when the printer is done.
+  const donePrinting = useCallback(() => setPrinting(false), []);
+  usePrintSheet(printing, donePrinting, '.vcc-print-root');
 
   const frontLabel = `The card’s front: ${pic.alt}, in a ${BORDERS.find((b) => b.id === border)!.name.toLowerCase()} border on ${PAPERS.find((p) => p.id === paper)!.name.toLowerCase()} paper, and the greeting “${greeting.trim()}”`;
   const insideLabel = `The inside of the card${to.trim() ? `, to ${to.trim()}` : ''}${message.trim() ? `: ${message.trim()}` : ''}${from.trim() ? `, from ${from.trim()}` : ''}`;

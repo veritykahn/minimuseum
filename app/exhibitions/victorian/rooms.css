@@ -108,7 +108,7 @@
   top: var(--vbr-top, 150px);
   bottom: 4vh;
   left: 3vw;
-  right: calc(min(420px, 34vw) + max(5vw, 50vw - 680px, 92px) + 1.5vw);
+  right: calc(var(--vbr-card-w, min(420px, 34vw)) + max(5vw, 50vw - 680px, 92px) + 1.5vw);
   container-type: size;
   display: flex;
   align-items: center;
@@ -120,7 +120,7 @@
   /* Never under the map's button in the corner. */
   right: max(5vw, calc(50vw - 680px), 92px);
   top: var(--vbr-top, 150px);
-  width: min(420px, 34vw);
+  width: var(--vbr-card-w, min(420px, 34vw));
   max-height: calc(100dvh - var(--vbr-top, 150px) - 16px);
   overflow-y: auto;
   display: flex;
@@ -249,8 +249,8 @@
   .vbr-title { font-size: clamp(1.6rem, 2.6vw, 2.2rem); }
   .vb-room .vbr-tab { padding: 8px 18px; }
   /* A little wider and a little longer, so its words take fewer lines. */
-  .vbr-scene { right: calc(min(450px, 36vw) + max(5vw, 50vw - 680px, 92px) + 1.5vw); }
-  .vbr-card { width: min(450px, 36vw); max-height: calc(100dvh - var(--vbr-top) - 12px); gap: 9px; padding-top: calc(var(--vb-edge) + 8px); padding-bottom: calc(var(--vb-edge) + 10px); }
+  .vbr-scene { right: calc(var(--vbr-card-w-short, min(450px, 36vw)) + max(5vw, 50vw - 680px, 92px) + 1.5vw); }
+  .vbr-card { width: var(--vbr-card-w-short, min(450px, 36vw)); max-height: calc(100dvh - var(--vbr-top) - 12px); gap: 9px; padding-top: calc(var(--vb-edge) + 8px); padding-bottom: calc(var(--vb-edge) + 10px); }
   .vbr-intro { font-size: 0.94rem; line-height: 1.45; }
   .vbr-choice legend, .vbr-label { margin-bottom: 3px; }
   .vb-room .vbr-option { min-height: 32px; padding: 4px 10px; }
@@ -260,4 +260,87 @@
 @media (prefers-reduced-motion: reduce) {
   .vbr-card { animation: none; }
   .vb-room .vbr-tab, .vb-room .vbr-button { transition: none; }
+}
+
+/* ───────── Big words: the workshop and the parlour, read off a projector by a class ───────── */
+.vb-inventions, .vb-parlour { --vbr-card-w: min(540px, 42vw); --vbr-card-w-short: min(540px, 43vw); }
+.vb-inventions .vbr-card, .vb-parlour .vbr-card { gap: 14px; }
+.vb-inventions .vbr-intro, .vb-parlour .vbr-intro { font-size: 1.25rem; line-height: 1.5; }
+.vb-inventions .vbr-poster, .vb-parlour .vbr-poster { font-size: 1.12rem; }
+.vb-inventions .vbr-fact, .vb-parlour .vbr-fact { font-size: 1rem; line-height: 1.5; }
+.vb-inventions .vbr-fact-source, .vb-parlour .vbr-fact-source { font-size: 0.84rem; }
+.vb-inventions .vbr-note, .vb-parlour .vbr-note { font-size: 0.95rem; }
+.vb-inventions .vbr-label, .vb-parlour .vbr-label, .vb-parlour .vbr-choice legend { font-size: 0.85rem; }
+.vb-room.vb-inventions .vbr-button, .vb-room.vb-parlour .vbr-button { font-size: 15px; min-height: 50px; padding: 12px 22px; }
+.vb-room.vb-inventions .vbr-option, .vb-room.vb-parlour .vbr-option { font-size: 16px; min-height: 44px; padding: 8px 14px; }
+.vb-room.vb-inventions .vbr-tab, .vb-room.vb-parlour .vbr-tab { font-size: 14px; padding: 12px 22px; }
+.vb-inventions .vbr-field input, .vb-inventions .vbr-field textarea, .vb-parlour .vbr-field input, .vb-parlour .vbr-field textarea { font-size: 1.2rem; padding: 10px 12px; }
+
+/* ───────── Right and wrong: green with stars, or red ───────── */
+.vbr-celebrate { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; z-index: 5; }
+.vbr-spark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%);
+  font-size: 26px;
+  line-height: 1;
+  color: #f2c45a;
+  text-shadow: 0 0 8px rgba(255, 220, 140, 0.9);
+  animation: vbr-spark 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+.vbr-spark:nth-child(3n) { color: #e0566a; }
+.vbr-spark:nth-child(4n) { color: #fff; }
+@keyframes vbr-spark {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.4); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(160deg); }
+}
+.vbi-feedback { position: relative; }
+.vbi-verdict { margin: 0; padding: 10px 14px; border-radius: 6px; font-family: var(--vb-serif); font-size: 1.3rem; line-height: 1.35; }
+.vbi-feedback[data-verdict='right'] .vbi-verdict { background: #3f8a4a; color: #fff; animation: vbr-pop 0.4s ease both; }
+.vbi-feedback[data-verdict='near'] .vbi-verdict { background: #b9862c; color: #fff; }
+.vbi-feedback[data-verdict='wrong'] .vbi-verdict { background: #b23a3a; color: #fff; animation: vbr-shake 0.4s ease both; }
+.vbi-verdict-quiet { padding-left: 0; opacity: 0.9; }
+@keyframes vbr-pop { 0% { transform: scale(0.92); } 60% { transform: scale(1.04); } 100% { transform: none; } }
+@keyframes vbr-shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+
+/* ───────── A sheet to print (the photography sheet, the ghost story) ───────── */
+.vbr-print-root { display: none; --pe-display: 'Poiret One', 'Jost', sans-serif; }
+@media print {
+  /* Only while a sheet is on the page, so another room's print is left alone. */
+  body:has(> .vbr-print-root) > :not(.vbr-print-root) { display: none !important; }
+  html body > .vbr-print-root.vbr-print-root { display: block !important; }
+  html:has(body > .vbr-print-root), body:has(> .vbr-print-root) { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  .vbr-print-root { -webkit-print-color-adjust: exact; print-color-adjust: exact; color: #2a2522; }
+}
+
+/* An iPad held upright: too narrow for the card beside the scene, so the scene above and the card below, both wide. */
+@media (min-width: 761px) and (max-width: 1100px) and (orientation: portrait) {
+  .vb-inventions .vbr-stage, .vb-parlour .vbr-stage { --scene-h: 40dvh; --vbr-top: 130px; }
+  .vb-inventions .vbr-scene, .vb-parlour .vbr-scene { top: var(--vbr-top); bottom: auto; height: var(--scene-h); left: 5vw; right: 5vw; }
+  .vb-inventions .vbr-card, .vb-parlour .vbr-card {
+    left: 5vw;
+    right: 5vw;
+    width: auto;
+    top: calc(var(--vbr-top) + var(--scene-h) + 16px);
+    bottom: 0;
+    max-height: none;
+    padding-bottom: calc(var(--vb-edge) + 80px);
+  }
+  .vb-inventions .vbr-table, .vb-parlour .vbr-table { height: auto; top: calc(var(--vbr-top) + var(--scene-h) * 0.8); bottom: 0; }
+}
+
+@media (max-width: 760px) {
+  .vb-inventions .vbr-intro, .vb-parlour .vbr-intro { display: block; font-size: 1.05rem; }
+  .vb-inventions .vbr-fact, .vb-parlour .vbr-fact { font-size: 0.92rem; }
+  .vb-inventions .vbr-poster, .vb-parlour .vbr-poster { font-size: 0.98rem; }
+  .vb-room.vb-inventions .vbr-button, .vb-room.vb-parlour .vbr-button { font-size: 13.5px; min-height: 46px; padding: 10px 16px; }
+  .vb-room.vb-inventions .vbr-option, .vb-room.vb-parlour .vbr-option { font-size: 14.5px; min-height: 40px; padding: 6px 10px; }
+  .vb-room.vb-inventions .vbr-tab, .vb-room.vb-parlour .vbr-tab { font-size: 11.5px; padding: 9px 12px; }
+  .vbi-verdict { font-size: 1.1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vbr-spark, .vbi-feedback .vbi-verdict { animation: none !important; }
 }

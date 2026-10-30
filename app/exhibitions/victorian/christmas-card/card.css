@@ -38,9 +38,10 @@
 .vcc-print-root { display: none; }
 @media print {
   @page { size: letter portrait; margin: 0.25in; }
-  html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
-  body > :not(.vcc-print-root) { display: none !important; }
-  .vcc-print-root { display: block !important; }
+  /* Only while the card is on the page: a sheet from another room, kept loaded by the browser, prints as itself. */
+  html:has(body > .vcc-print-root), body:has(> .vcc-print-root) { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  body:has(> .vcc-print-root) > :not(.vcc-print-root) { display: none !important; }
+  html body > .vcc-print-root.vcc-print-root { display: block !important; }
   .vcc-print-sheet {
     display: grid;
     grid-template-columns: 4in 4in;
