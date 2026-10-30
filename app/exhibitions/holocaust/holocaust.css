@@ -22,6 +22,9 @@
    ========================================================================== */
 
 [data-exhibition='holocaust'] {
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: var(--ho-stone-light);
+  --pe-ticket-ink: var(--ho-black);
   --ho-stone: #d8d1ca;
   --ho-ink: #1f1c1a;
   --ho-black: #0b0a0a;
@@ -224,14 +227,7 @@
 }
 [data-exhibition='holocaust'] .ho-quote .pe-quote-cite { font-style: italic; font-size: clamp(1rem, 1.9vw, 1.3rem); margin-top: 18px; }
 
-/* ───────── The link out: the poster's stone box, in its condensed capitals ───────── */
-[data-exhibition='holocaust'] .ho-link .pe-callout {
-  max-width: min(720px, 100%);
-  padding: 30px 44px;
-}
-[data-exhibition='holocaust'] .ho-link .pe-callout-text { font-size: clamp(1.3rem, 2.8vw, 2rem); text-align: center; text-wrap: balance; }
-[data-exhibition='holocaust'] .ho-link a.pe-callout:hover,
-[data-exhibition='holocaust'] .ho-link a.pe-callout:focus-visible { outline: 2px solid var(--ho-stone-light); outline-offset: 6px; }
+/* ───────── The ending ───────── */
 [data-exhibition='holocaust'] .pe-content-end:hover { color: var(--ho-stone) !important; background: var(--ho-ink); border-color: var(--ho-ink) !important; }
 [data-exhibition='holocaust'] .ho-p2 .pe-content-end:hover { color: var(--ho-black) !important; background: var(--ho-stone-light); border-color: var(--ho-stone-light) !important; }
 
@@ -330,7 +326,6 @@
 [data-exhibition='holocaust'] .pjp-stage .ho-monument .pe-image-caption { font-size: calc(var(--pjp-u) * 0.95); width: auto; }
 [data-exhibition='holocaust'] .pjp-stage .ho-close .pe-section-title-text { font-size: calc(var(--pjp-u) * 8); }
 [data-exhibition='holocaust'] .pjp-stage .ho-quote .pe-quote-text { font-size: calc(var(--pjp-u) * 2.7); }
-[data-exhibition='holocaust'] .pjp-stage .ho-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
 
 @media (max-width: 900px) {
   [data-exhibition='holocaust'] :is(.ho-p1, .ho-p2) .pe-figure img { width: min(72vw, 340px); }
@@ -340,7 +335,6 @@
   [data-exhibition='holocaust'] { --ho-t: clamp(2.2rem, 11.5vw, 4.6rem); }
   [data-exhibition='holocaust'] { --pe-landing-top: 96px; }
   [data-exhibition='holocaust'] .pe-exhibition-main::before { top: 56px; width: calc(100% - 32px); }
-  [data-exhibition='holocaust'] .ho-link .pe-callout { padding-left: 24px; padding-right: 24px; }
   [data-exhibition='holocaust'] .ho-monument.pe-full-image { padding-left: 16px; padding-right: 16px; }
   [data-exhibition='holocaust'] .ho-quote .pe-quote-text { font-size: clamp(1.5rem, 6.4vw, 2.2rem); }
 }

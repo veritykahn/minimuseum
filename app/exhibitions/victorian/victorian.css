@@ -11,6 +11,9 @@
    ========================================================================== */
 
 [data-exhibition='victorian'] {
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: var(--vb-sage);
+  --pe-ticket-ink: var(--vb-cream);
   --vb-rose: #d9b7b8;
   --vb-sage: #4e6152;
   --vb-cream: #f4eee3;
@@ -257,21 +260,7 @@
   to { background-position: 90px 330px, -140px 340px, 60px 320px; }
 }
 
-/* ───────── The link out: a green linen label, as on the poster ───────── */
-[data-exhibition='victorian'] .vb-link .pe-callout {
-  max-width: min(720px, 100%);
-  padding: calc(var(--vb-edge) + 26px) 48px;
-  background: var(--vb-linen);
-  filter: drop-shadow(0 16px 26px rgba(80, 50, 40, 0.22));
-}
-[data-exhibition='victorian'] .vb-link .pe-callout-text {
-  font-family: var(--vb-serif);
-  text-transform: none;
-  font-size: clamp(1.3rem, 2.8vw, 2rem);
-  text-wrap: balance;
-}
-[data-exhibition='victorian'] .vb-link a.pe-callout:hover,
-[data-exhibition='victorian'] .vb-link a.pe-callout:focus-visible { outline: 2px solid var(--vb-green); outline-offset: 6px; }
+/* ───────── The ending ───────── */
 [data-exhibition='victorian'] .pe-content-end:hover { color: var(--vb-cream) !important; background: var(--vb-green); border-color: var(--vb-green) !important; }
 
 /* ───────── The display case page ───────── */
@@ -309,7 +298,6 @@
 [data-exhibition='victorian'] .pjp-stage .vb-picture.pe-full-image img { max-height: calc(100% - var(--pjp-u) * 3); }
 [data-exhibition='victorian'] .pjp-stage .vb-village.pe-full-image { --vb-village-w: calc(var(--pjp-u) * 80); }
 [data-exhibition='victorian'] .pjp-stage .vb-quote .pe-quote-cite { font-size: calc(var(--pjp-u) * 1.5); }
-[data-exhibition='victorian'] .pjp-stage .vb-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
 
 @media (max-width: 900px) {
   [data-exhibition='victorian'] .vb-lede .pe-figure img,
@@ -321,7 +309,6 @@
   [data-exhibition='victorian'] .vb-title.pe-title-image { padding-left: 20px; padding-right: 20px; }
   /* On a phone the title takes the full measure; the scrap stays on the landing page. */
   [data-exhibition='victorian'] :is(.vb-scrap-left, .vb-scrap-right)::after { display: none; }
-  [data-exhibition='victorian'] .vb-link .pe-callout { padding-left: 24px; padding-right: 24px; }
   [data-exhibition='victorian'] .vb-picture.pe-full-image { padding-left: 20px; padding-right: 20px; }
   [data-exhibition='victorian'] .vb-village.pe-full-image { --vb-village-w: 92vw; }
 }
@@ -631,3 +618,6 @@
   [data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-1 { left: 10vw; top: 16vh; }
   [data-exhibition='victorian'] .pe-atmo-gaslamp .pe-atmo-part-2 { left: 92vw; top: 22vh; }
 }
+
+/* The visit ticket on the classroom screen: this face is narrow, so it is set a size up. */
+[data-exhibition='victorian'] .pjp-stage .pe-ticket-text { font-size: calc(var(--pjp-u) * 2.9); }

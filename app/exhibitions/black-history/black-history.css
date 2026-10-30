@@ -9,6 +9,9 @@
    ========================================================================== */
 
 [data-exhibition='black-history'] {
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: var(--bh-lime);
+  --pe-ticket-ink: var(--bh-ink);
   --bh-lime: #c5da3b;
   --bh-pink: #ee8dbf;
   --bh-ink: #141414;
@@ -185,32 +188,12 @@
 /* The ring of vignettes beside the copy turns slowly as you read. */
 [data-exhibition='black-history'] .pe-figure img { width: min(40vw, 560px); }
 
-/* ───────── The link out: the black blob, ringed in lime ───────── */
-[data-exhibition='black-history'] .pe-callout {
-  border-radius: 999px;
-  padding: 30px 48px;
-  border: 4px solid var(--bh-lime);
-  box-shadow: 0 0 0 8px var(--bh-ink), 0 0 0 11px var(--bh-orange);
-  justify-content: center;
-  text-align: center;
-}
-[data-exhibition='black-history'] .pe-callout-text {
-  font-weight: 800;
-  font-variation-settings: 'wdth' 112;
-  font-size: clamp(1.1rem, 2.3vw, 1.6rem);
-  letter-spacing: 0.01em;
-}
-[data-exhibition='black-history'] .pe-callout-text em { font-family: var(--bh-bubble); font-style: normal; font-weight: 400; text-transform: none; color: var(--bh-lime); }
-[data-exhibition='black-history'] a.pe-callout:hover,
-[data-exhibition='black-history'] a.pe-callout:focus-visible { border-color: var(--bh-pink); outline: 2px solid var(--bh-pink); outline-offset: 14px; }
-
 /* ───────── The ending ───────── */
 [data-exhibition='black-history'] .pe-content-end { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 120; text-transform: uppercase; border-width: 3px; border-radius: 999px; }
 
 /* ───────── On the classroom screen ───────── */
 [data-exhibition='black-history'] .pjp-stage .pe-section-title-text { font-size: calc(var(--pjp-u) * 4.4); }
 [data-exhibition='black-history'] .pjp-stage .bh-long .pe-section-title-text { font-size: calc(var(--pjp-u) * 3); }
-[data-exhibition='black-history'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2); }
 
 /* ───────── The display case page ───────── */
 [data-exhibition='black-history'] .pe-case-page-title { font-weight: 900; font-variation-settings: 'wdth' 125; text-transform: uppercase; color: #fff; text-shadow: 0.05em 0.05em 0 var(--bh-ink); }
@@ -222,7 +205,6 @@
 @media (max-width: 700px) {
   [data-exhibition='black-history'] .pe-figure img { width: min(78vw, 420px); }
   [data-exhibition='black-history'] .pe-text-content-wrapper.pe-has-figure { flex-direction: column; padding-top: 90px; }
-  [data-exhibition='black-history'] .pe-callout { padding: 24px 26px; border-radius: 48px; }
 }
 
 /* ==========================================================================

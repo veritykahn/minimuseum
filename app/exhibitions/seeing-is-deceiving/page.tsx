@@ -14,7 +14,7 @@ import { SEEING_TALK } from '@/components/projector/posterTalk';
 import { SEEING_POSTER_THEME, SEEING_POSTER_LINKS } from '@/components/projector/themes';
 import { FxChannelGhosts, FxDefs, FxText, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import AtmosphereLayer from '@/components/exhibition/AtmosphereLayer';
-import { EntranceCopy } from '@/components/exhibition/EntranceCopy';
+import { EntranceCopy, VisitTicket } from '@/components/exhibition/EntranceCopy';
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { SEEING_ATMOSPHERES, poster1Content, poster2Content } from './posters';
@@ -1125,18 +1125,10 @@ export default function SeeingIsDeceiving() {
                 </div>
               )}
 
-              {/* Link */}
-              {currentItem.type === 'link' && (
-                <div className="text-content-wrapper pos-center">
-                  <a
-                    href={currentItem.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`content-link ${effectClass(entrance)}`}
-                    style={{ color: textColor, borderColor: textColor }}
-                  >
-                    {currentItem.text}
-                  </a>
+              {/* Link: the visit ticket, as every poster ends */}
+              {currentItem.type === 'link' && currentItem.url && (
+                <div className="text-content-wrapper pos-center pe-ticket-panel">
+                  <VisitTicket text={currentItem.text ?? ''} url={currentItem.url} className={effectClass(entrance)} />
                 </div>
               )}
 

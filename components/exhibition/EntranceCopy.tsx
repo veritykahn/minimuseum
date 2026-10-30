@@ -97,6 +97,26 @@ export function EntranceCopy({ text, effect, className = '' }: { text: string; e
   );
 }
 
+/**
+ * The visit link at a poster's end, set as an admission ticket (Writing
+ * Revolution poster 1's): notched at both ends, perforated by its stub, the
+ * destination printed across it. Every walkthrough uses it for its link to
+ * a museum, so each poster ends the same way. Its colors and face are the
+ * exhibition's (--pe-ticket-bg, --pe-ticket-ink, --pe-ticket-font;
+ * poster-exhibition.css). In `text`, *words* are set in italics.
+ */
+export function VisitTicket({ text, url, className = '', style }: { text: string; url: string; className?: string; style?: CSSProperties }) {
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer" className={`pe-ticket ${className}`} style={style}>
+      <span className="pe-ticket-text">
+        <Emph text={text} />
+      </span>
+      <span className="pe-ticket-arrow" aria-hidden="true">↗</span>
+      <span className="visually-hidden"> (opens in a new tab)</span>
+    </a>
+  );
+}
+
 /** The disc of the ground that hides the middle of the panel and fades, as the blind spot fills in. */
 export function BlindSpot({ effect }: { effect: PanelEffect }) {
   return effect === 'blind-spot-reveal' ? <span className="pe-blind-spot" aria-hidden="true" /> : null;

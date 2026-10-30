@@ -879,6 +879,65 @@ a.pe-callout:hover, a.pe-callout:focus-visible { outline: 2px solid var(--pe-acc
 /* globals.css gives every a:link color: inherit, which would put the callout's ink back to the panel's. */
 a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink, #1a1a1a); }
 
+/* ───────── The visit ticket (VisitTicket): every poster's link to a museum ─────────
+   Writing Revolution poster 1's admission ticket, for every poster: notched at
+   both ends, a perforated line by its stub, the destination printed across it
+   in the exhibition's display face. Each exhibition gives it its own colors
+   (--pe-ticket-bg, --pe-ticket-ink) and may change its face or weight. */
+.pe-ticket {
+  --pe-ticket-notch: 14px;
+  --pe-ticket-stub: 40px;
+  position: relative;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7em;
+  max-width: min(860px, 100%);
+  padding: 30px 56px 30px calc(var(--pe-ticket-stub) + 32px);
+  border-radius: 6px;
+  background-color: var(--pe-ticket-bg, #a08a5c);
+  /* the perforation by the stub, dashed in the ink */
+  background-image: linear-gradient(to bottom, color-mix(in srgb, var(--pe-ticket-ink, #161616) 55%, transparent) 50%, transparent 50%);
+  background-size: 2px 10px;
+  background-position: var(--pe-ticket-stub) 0;
+  background-repeat: repeat-y;
+  color: var(--pe-ticket-ink, #161616);
+  text-align: left;
+  text-decoration: none;
+  /* the two notches, one at each end */
+  -webkit-mask: radial-gradient(circle var(--pe-ticket-notch) at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle var(--pe-ticket-notch) at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  mask: radial-gradient(circle var(--pe-ticket-notch) at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle var(--pe-ticket-notch) at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
+  transition: background-color 0.25s ease;
+}
+.pe-ticket-text {
+  font-family: var(--pe-ticket-font, var(--pe-display));
+  font-weight: var(--pe-ticket-weight, 400);
+  font-size: var(--pe-ticket-size, clamp(1.2rem, 2.6vw, 2rem));
+  line-height: 1.25;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+.pe-ticket-arrow { flex-shrink: 0; font-family: system-ui, sans-serif; font-size: var(--pe-ticket-size, clamp(1.2rem, 2.6vw, 2rem)); line-height: 1; }
+.pjp-stage .pe-ticket-arrow { font-size: calc(var(--pjp-u) * 2.3); }
+/* globals.css gives every a:link color: inherit, which would put the ticket's ink back to the panel's. */
+a.pe-ticket:is(:link, :visited, :hover, :active) { color: var(--pe-ticket-ink, #161616); }
+/* The notches would clip an outline, so hover and focus deepen the ticket and underline the destination. */
+a.pe-ticket:hover,
+a.pe-ticket:focus-visible { outline: none; background-color: color-mix(in srgb, var(--pe-ticket-bg, #a08a5c) 82%, var(--pe-ticket-ink, #161616)); }
+a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.2em; }
+.pjp-stage .pe-ticket {
+  --pe-ticket-notch: calc(var(--pjp-u) * 1.1);
+  --pe-ticket-stub: calc(var(--pjp-u) * 2.6);
+  max-width: min(60em, 100%);
+  padding: calc(var(--pjp-u) * 1.8) calc(var(--pjp-u) * 3) calc(var(--pjp-u) * 1.8) calc(var(--pjp-u) * 4.6);
+}
+.pjp-stage .pe-ticket-text { font-size: calc(var(--pjp-u) * 2.3); }
+@media (max-width: 700px) {
+  .pe-ticket { --pe-ticket-stub: 28px; --pe-ticket-notch: 11px; padding: 22px 28px 22px 48px; }
+}
+
 /* ───────── Decorative pictures ───────── */
 .pe-decor {
   position: absolute;

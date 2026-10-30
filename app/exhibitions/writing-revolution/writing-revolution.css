@@ -21,6 +21,10 @@
   --pe-hint: #f2f0ea;
   --pe-callout-bg: var(--wr-gold);
   --pe-callout-ink: #161616;
+  /* The visit ticket is this exhibition's own gold admission ticket (poster-exhibition.css draws it for every poster). */
+  --pe-ticket-bg: var(--wr-gold);
+  --pe-ticket-ink: #161616;
+  --pe-ticket-size: clamp(1.4rem, 3.2vw, 2.4rem);
   --pe-case-ink: #f2f0ea;
   --pe-case-muted: #bdbab2;
   --pe-landing-h1: clamp(2.2rem, min(6.4vw, 8.6dvh), 5.4rem);
@@ -148,37 +152,12 @@
 }
 @keyframes wrDraw { from { clip-path: inset(0 100% 100% 0); } to { clip-path: inset(0 0 0 0); } }
 
-/* ───────── The link out: the admission ticket, notched and perforated ───────── */
-[data-exhibition='writing-revolution'] .pe-callout {
-  border-radius: 6px;
-  padding: 30px 56px 30px 72px;
-  justify-content: center;
-  text-align: left;
-  -webkit-mask: radial-gradient(circle 14px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 14px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
-  mask: radial-gradient(circle 14px at 0 50%, transparent 98%, #000) left / 51% 100% no-repeat, radial-gradient(circle 14px at 100% 50%, transparent 98%, #000) right / 51% 100% no-repeat;
-  background-image: linear-gradient(to bottom, rgba(22, 22, 22, 0.55) 50%, transparent 50%);
-  background-size: 2px 10px;
-  background-position: 40px 0;
-  background-repeat: repeat-y;
-  box-shadow: none;
-}
-[data-exhibition='writing-revolution'] .pe-callout-text {
-  font-weight: 400;
-  letter-spacing: 0.08em;
-  font-size: clamp(1.4rem, 3.2vw, 2.4rem);
-  white-space: nowrap;
-}
-[data-exhibition='writing-revolution'] a.pe-callout:hover,
-[data-exhibition='writing-revolution'] a.pe-callout:focus-visible { outline: none; background-color: #b49c6a; }
-[data-exhibition='writing-revolution'] a.pe-callout:focus-visible .pe-callout-text { text-decoration: underline; text-underline-offset: 0.2em; }
-
 /* ───────── The ending ───────── */
 [data-exhibition='writing-revolution'] .pe-content-end { font-family: var(--pe-body); font-weight: 700; border-width: 2px; border-radius: 0; }
 
 /* ───────── On the classroom screen ───────── */
 [data-exhibition='writing-revolution'] .pjp-stage .pe-section-title-text { font-size: calc(var(--pjp-u) * 5); }
 [data-exhibition='writing-revolution'] .pjp-stage .wr-long .pe-section-title-text { font-size: calc(var(--pjp-u) * 3.2); }
-[data-exhibition='writing-revolution'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2.4); }
 
 /* ───────── The display case page ───────── */
 [data-exhibition='writing-revolution'] .pe-case-page-title { font-weight: 300; text-transform: uppercase; letter-spacing: 0.08em; color: #fff; }
@@ -192,8 +171,6 @@
   [data-exhibition='writing-revolution'] .pe-figure img { width: min(86vw, 440px); }
   [data-exhibition='writing-revolution'] .wr-frame::before { left: 3vw; top: 3vh; width: 80vw; height: 92vh; }
   [data-exhibition='writing-revolution'] .wr-frame::after { left: 3vw; right: 3vw; top: 3vh; }
-  [data-exhibition='writing-revolution'] .pe-callout { padding: 24px 30px 24px 52px; background-position: 28px 0; }
-  [data-exhibition='writing-revolution'] .pe-callout-text { white-space: normal; }
 }
 
 /* ==========================================================================
@@ -506,3 +483,6 @@
   [data-exhibition='writing-revolution'] .wr-frame::before,
   [data-exhibition='writing-revolution'] .wr-frame::after { animation: none !important; }
 }
+
+/* The visit ticket on the classroom screen: this face is narrow, so it is set a size up. */
+[data-exhibition='writing-revolution'] .pjp-stage .pe-ticket-text { font-size: calc(var(--pjp-u) * 2.9); }

@@ -13,6 +13,18 @@
    engine stills every layer (poster-exhibition.css).
    ========================================================================== */
 
+/* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css): the posters' black and white, in Outfit. */
+.sid-root {
+  --pe-ticket-bg: #f2f2ef;
+  --pe-ticket-ink: #111111;
+  --pe-ticket-font: 'Outfit', sans-serif;
+  --pe-ticket-size: clamp(1rem, 2.1vw, 1.5rem);
+}
+.sid-root.sid-light {
+  --pe-ticket-bg: #1a1a1a;
+  --pe-ticket-ink: #f2f2ef;
+}
+
 /* ───────── projected-light: a lantern's or projector's light in the dark ───────── */
 .pe-atmo-projected-light .pe-atmo-part-1 {
   /* the beam, from the lens in the corner */

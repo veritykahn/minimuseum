@@ -9,6 +9,9 @@
    ========================================================================== */
 
 [data-exhibition='america-250'] {
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: var(--ap-rust);
+  --pe-ticket-ink: var(--ap-paper);
   --ap-paper: #f8f6f0;
   --ap-ink: #2a2724;
   --ap-muted: #5e5850;
@@ -252,24 +255,7 @@
 }
 [data-exhibition='america-250'] .ap-epigraph .pe-quote-text { font-size: clamp(1.6rem, 3.8vw, 2.7rem); }
 
-/* ───────── The links out: a broadsheet box, ruled twice ───────── */
-[data-exhibition='america-250'] .ap-link .pe-callout {
-  border: 1px solid var(--ap-ink);
-  outline: 1px solid var(--ap-ink);
-  outline-offset: 5px;
-  max-width: min(880px, 100%);
-  padding: 26px 40px;
-}
-[data-exhibition='america-250'] .ap-link .pe-callout-text { text-wrap: balance; }
-[data-exhibition='america-250'] .ap-link .pe-callout-text {
-  font-family: var(--pe-body);
-  text-transform: none;
-  font-size: clamp(1.25rem, 2.8vw, 1.9rem);
-}
-[data-exhibition='america-250'] .ap-link a.pe-callout:hover,
-[data-exhibition='america-250'] .ap-link a.pe-callout:focus-visible { outline: 2px solid var(--ap-frame); }
-[data-exhibition='america-250'] .ap-link a.pe-callout:hover .pe-callout-text,
-[data-exhibition='america-250'] .ap-link a.pe-callout:focus-visible .pe-callout-text { color: var(--ap-frame); }
+/* ───────── The ending ───────── */
 [data-exhibition='america-250'] .pe-content-end:hover { color: var(--ap-paper) !important; background: var(--ap-frame); border-color: var(--ap-frame) !important; }
 
 /* ───────── The reveal's own strokes (the press itself is in poster-fx.css) ───────── */
@@ -293,7 +279,6 @@
 [data-exhibition='america-250'] .pjp-stage .ap-picture.pe-full-image { padding: calc(var(--pjp-u) * 3) calc(var(--pjp-u) * 4) calc(var(--pjp-u) * 6); gap: calc(var(--pjp-u) * 0.8); }
 [data-exhibition='america-250'] .pjp-stage .ap-picture .pe-image-caption { font-size: calc(var(--pjp-u) * 0.95); width: auto; }
 [data-exhibition='america-250'] .pjp-stage .ap-picture.pe-full-image img { max-height: calc(100% - var(--pjp-u) * 3); }
-[data-exhibition='america-250'] .pjp-stage .ap-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
 [data-exhibition='america-250'] .pjp-stage .ap-subtitle .pe-paragraph-text { font-size: calc(var(--pjp-u) * 2.4); }
 [data-exhibition='america-250'] .pjp-stage .ap-subtitle .pe-stack-credit { font-size: calc(var(--pjp-u) * 0.95); }
 
@@ -305,7 +290,6 @@
 @media (max-width: 700px) {
   /* Justified copy makes rivers at a phone's measure. */
   [data-exhibition='america-250'] .ap-copy .pe-paragraph-text { text-align: left; hyphens: manual; }
-  [data-exhibition='america-250'] .ap-link .pe-callout { padding: 22px 20px; }
   [data-exhibition='america-250'] .ap-picture.pe-full-image { padding-left: 24px; padding-right: 24px; }
 }
 

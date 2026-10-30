@@ -8,6 +8,9 @@
   --pe-nav-m: #8494ad;
   --pe-nav-ink: #b4c0d2;
   --pe-hint: #b4c0d2;
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: #fbf6ec;
+  --pe-ticket-ink: #1f3a5f;
   --pe-callout-bg: #fbf6ec;
   --pe-callout-ink: #1f3a5f;
 }
@@ -97,9 +100,6 @@
   line-height: 1.2;
 }
 [data-exhibition='fear-lab'] .pe-artwork-info .pe-paragraph-text { font-size: clamp(1.15rem, 2.2vw, 1.5rem); line-height: 1.5; }
-
-/* Rule under the callout's QR: crisp modules. */
-[data-exhibition='fear-lab'] .pe-callout-img { background: #fff; padding: 8px; }
 
 @media (max-width: 900px) {
 }

@@ -12,6 +12,14 @@
    the engine stills every layer (poster-exhibition.css).
    ========================================================================== */
 
+/* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css): the posters' gold, in Outfit. */
+.hr-root {
+  --pe-ticket-bg: #e2c27a;
+  --pe-ticket-ink: #17142f;
+  --pe-ticket-font: 'Outfit', sans-serif;
+  --pe-ticket-size: clamp(1rem, 2.1vw, 1.5rem);
+}
+
 /* ───────── trains-north: the view from a northbound train ───────── */
 .pe-atmo-trains-north .pe-atmo-part-1 {
   /* the faint ruled lines of the original ground, and a low horizon glow */

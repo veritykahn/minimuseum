@@ -12,6 +12,9 @@
 [data-exhibition='moon'] {
   --mo-thin: 'Turret Road', 'Eurostile', system-ui, sans-serif;
   --mo-heavy: 'League Spartan', 'Futura', system-ui, sans-serif;
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: var(--mo-lavender);
+  --pe-ticket-ink: #1e1636;
   --mo-lavender: #b9a6e6;
   --mo-pink: #f28be8;
   --mo-aqua: #7fe8e8;
@@ -176,22 +179,7 @@
 /* The last panel leaves room for the landscape beneath it. */
 [data-exhibition='moon'] .mo-landscape { align-items: flex-start; padding-top: 22vh; }
 
-/* ───────── The links out: the posters' rounded callout ───────── */
-[data-exhibition='moon'] .pe-callout {
-  border: 1.5px solid var(--mo-lavender);
-  border-radius: 999px;
-  padding: 22px 44px;
-  box-shadow: 0 0 40px rgba(185, 166, 230, 0.2);
-}
-[data-exhibition='moon'] .pe-callout-text {
-  font-family: var(--pe-body);
-  font-weight: 400;
-  letter-spacing: 0.2em;
-  font-size: clamp(1rem, 2.2vw, 1.4rem);
-  text-align: center;
-}
-[data-exhibition='moon'] a.pe-callout:hover,
-[data-exhibition='moon'] a.pe-callout:focus-visible { border-color: var(--mo-aqua); outline-color: var(--mo-aqua); }
+/* ───────── The ending ───────── */
 [data-exhibition='moon'] .pe-content-end { color: #fff; }
 [data-exhibition='moon'] .pe-content-end:hover { background: var(--mo-lavender); }
 
@@ -207,7 +195,6 @@
 [data-exhibition='moon'] .pjp-stage .mo-title.pe-frame-centered img { max-height: 84cqh; }
 [data-exhibition='moon'] .pjp-stage .mo-earth.pe-frame-centered img { max-height: 70cqh; }
 [data-exhibition='moon'] .pjp-stage .mo-right { padding-right: calc(var(--pjp-u) * 7); padding-left: calc(var(--pjp-u) * 16); }
-[data-exhibition='moon'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2); }
 
 /* ───────── The display case page ───────── */
 [data-exhibition='moon'] .pe-case-page-title {
@@ -233,7 +220,6 @@
   [data-exhibition='moon'] .mo-caps .pe-paragraph-text { text-align: left; letter-spacing: 0.12em; padding: 22px 20px; }
   [data-exhibition='moon'] .mo-right { padding-left: 24px; padding-right: 24px; }
   [data-exhibition='moon'] .pe-decor[src$='ringed-planet.jpg'] { opacity: 0.6; }
-  [data-exhibition='moon'] .pe-callout { border-radius: 28px; padding: 22px 24px; }
   [data-exhibition='moon'] .mo-landscape { padding-top: 16vh; }
   [data-exhibition='moon'] .pe-case-page-photo-row { grid-template-columns: 1fr; }
   /* The title and its moon rise from the middle of a tall screen, clear of the arrows, the moon reaching a little past its edges. */

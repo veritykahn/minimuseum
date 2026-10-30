@@ -309,8 +309,9 @@ export type LinkItem = PanelBase & {
 
 /**
  * A boxed call to action, set like a poster's footer panel: a line of text
- * and, if the poster has one, its picture (a QR code). With a url, the box
- * is a link out.
+ * and, if the poster has one, its picture (a QR code). With a url (and no
+ * picture) it is the poster's visit link, set as the admission ticket every
+ * poster ends on (VisitTicket); it names a real museum or collection.
  */
 export type CalloutItem = PanelBase & {
   type: 'callout';

@@ -3,7 +3,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { FxText, type FxKind } from '@/components/poster-fx/PosterFx';
 import { PosterProjectorEnd } from '@/components/projector/PosterProjector';
-import { BlindSpot, Emph, Lines, Typed, TypedForReaders } from './EntranceCopy';
+import { BlindSpot, Emph, Lines, Typed, TypedForReaders, VisitTicket } from './EntranceCopy';
 import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass } from './helpers';
 import type { ExhibitionConfig, PanelDecor, PanelEffect, PanelMarks, PosterConfig, PosterItem, PosterItemType } from './types';
 
@@ -323,6 +323,14 @@ const PANEL_RENDERERS: Renderers = {
 
   callout: ({ poster, item }) => {
     const effect = entranceOf(item);
+    // A link out to a museum is the visit ticket, as every poster ends.
+    if (item.url && !item.image) {
+      return (
+        <div className={`pe-text-content-wrapper pe-pos-center pe-ticket-panel ${panelClasses(poster, item)}`}>
+          <VisitTicket text={item.text} url={item.url} className={effect !== 'theme' ? effectClass(effect) : 'pfx-fg'} />
+        </div>
+      );
+    }
     const cls = `pe-callout ${effect !== 'theme' ? effectClass(effect) : 'pfx-fg'}`;
     const body = (
       <>

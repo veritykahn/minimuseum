@@ -9,6 +9,9 @@
   --pe-nav-m: #9a9286;
   --pe-nav-ink: #c9c1b4;
   --pe-hint: #c9c1b4;
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: #ede6da;
+  --pe-ticket-ink: #1d1d1c;
   --pe-callout-bg: transparent;
   --pe-callout-ink: #ede6da;
   --pe-marks: #e8372c;
@@ -111,22 +114,6 @@
 [data-exhibition='great-war'] .pe-full-image img { box-shadow: 0 24px 80px rgba(0, 0, 0, 0.75); }
 /* The poppies sit quietly behind the copy. */
 [data-exhibition='great-war'] .pe-decor { opacity: 0.9; }
-
-/* ───────── The Imperial War Museum link: a ruled box, not a bright one ───────── */
-[data-exhibition='great-war'] .pe-callout {
-  border: 1px solid rgba(237, 230, 218, 0.55);
-  padding: 32px 40px;
-  justify-content: center;
-  text-align: center;
-}
-[data-exhibition='great-war'] .pe-callout-text {
-  text-transform: none;
-  font-size: clamp(1.4rem, 3vw, 2.2rem);
-  letter-spacing: 0.01em;
-}
-[data-exhibition='great-war'] a.pe-callout:hover,
-[data-exhibition='great-war'] a.pe-callout:focus-visible { border-color: #ec4a3f; outline: none; }
-[data-exhibition='great-war'] a.pe-callout:focus-visible { outline: 2px solid #ec4a3f; outline-offset: 4px; }
 
 /* ───────── On the classroom screen ───────── */
 [data-exhibition='great-war'] .pjp-stage .pe-section-title-text { letter-spacing: 0.01em; font-size: calc(var(--pjp-u) * 3.4); }

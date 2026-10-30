@@ -7,6 +7,9 @@
    ========================================================================== */
 
 [data-exhibition='egypt'] {
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: var(--eg-orange);
+  --pe-ticket-ink: #1a1410;
   --eg-script: 'Ms Madi', 'Brush Script MT', cursive;
   --eg-orange: #f04a1a;
   --eg-line: rgba(255, 255, 255, 0.5);
@@ -166,23 +169,9 @@
   to { clip-path: inset(-50% -20% -50% -20%); }
 }
 
-/* ───────── The links out: a thin white box, the posters' line ───────── */
-[data-exhibition='egypt'] .pe-callout {
-  border: 1px solid var(--eg-line);
-  padding: 28px 40px;
-}
-[data-exhibition='egypt'] .pe-callout-text {
-  font-family: var(--pe-display);
-  text-transform: none;
-  font-size: clamp(1.3rem, 3vw, 2rem);
-}
-[data-exhibition='egypt'] a.pe-callout:hover .pe-callout-text,
-[data-exhibition='egypt'] a.pe-callout:focus-visible .pe-callout-text { color: var(--eg-orange); }
-
 /* ───────── The classroom screen ───────── */
 [data-exhibition='egypt'] .pjp-stage .pe-section-title-text { font-size: calc(var(--pjp-u) * 10); letter-spacing: 0; max-width: none; }
 [data-exhibition='egypt'] .pjp-stage .pe-title-text { font-size: calc(var(--pjp-u) * 6.4); }
-[data-exhibition='egypt'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
 
 /* ───────── The display case page ───────── */
 [data-exhibition='egypt'] .pe-case-page-header::before { margin: 0 auto 20px; translate: -0.42em 0; font-size: 32px; }
@@ -202,7 +191,6 @@
   [data-exhibition='egypt'] .eg-arch-left::before { left: -24vw; top: 70vh; width: 46vw; }
   [data-exhibition='egypt'] .eg-arch-left::after { left: calc(-24vw - 12px); top: calc(70vh - 12px); width: calc(46vw + 24px); }
   [data-exhibition='egypt'] .eg-god .pe-figure::before { display: none; }
-  [data-exhibition='egypt'] .pe-callout { padding: 22px 20px; }
 }
 
 /* ==========================================================================

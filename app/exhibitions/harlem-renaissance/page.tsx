@@ -14,7 +14,7 @@ import { HARLEM_TALK } from '@/components/projector/posterTalk';
 import { HARLEM_POSTER_THEME, HARLEM_POSTER_LINKS } from '@/components/projector/themes';
 import { FxText, FxVeil, PosterProgress, chapterMarks, fxKindFor, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import AtmosphereLayer from '@/components/exhibition/AtmosphereLayer';
-import { EntranceCopy } from '@/components/exhibition/EntranceCopy';
+import { EntranceCopy, VisitTicket } from '@/components/exhibition/EntranceCopy';
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { HARLEM_ATMOSPHERES, poster1Content, poster2Content } from './posters';
@@ -650,24 +650,6 @@ export default function HarlemRenaissance() {
           z-index: 10;
         }
 
-        /* Link */
-        .hr-content-link {
-          display: inline-block;
-          font-family: 'Outfit', sans-serif;
-          font-size: 14px;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          padding: 16px 32px;
-          border: 1px solid;
-          text-decoration: none;
-          transition: all 0.3s ease;
-        }
-        .hr-content-link:hover {
-          background: #d992ba;
-          color: #0a0a0a;
-          border-color: #d992ba;
-        }
-
         /* End button */
         .hr-content-end {
           font-family: 'Outfit', sans-serif;
@@ -1015,18 +997,10 @@ export default function HarlemRenaissance() {
                 </div>
               )}
 
-              {/* Link */}
-              {currentItem.type === 'link' && (
-                <div className="hr-text-content-wrapper hr-pos-center">
-                  <a
-                    href={currentItem.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`hr-content-link ${own ? effectClass(entrance) : 'pfx-fg'}`}
-                    style={{ color: textColor, borderColor: textColor }}
-                  >
-                    {currentItem.text}
-                  </a>
+              {/* Link: the visit ticket, as every poster ends */}
+              {currentItem.type === 'link' && currentItem.url && (
+                <div className="hr-text-content-wrapper hr-pos-center pe-ticket-panel">
+                  <VisitTicket text={currentItem.text ?? ''} url={currentItem.url} className={own ? effectClass(entrance) : 'pfx-fg'} />
                 </div>
               )}
 
