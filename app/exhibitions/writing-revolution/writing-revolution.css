@@ -23,7 +23,7 @@
   --pe-callout-ink: #161616;
   --pe-case-ink: #f2f0ea;
   --pe-case-muted: #bdbab2;
-  --pe-poster-h: 54vh;
+  --pe-landing-h1: clamp(2.2rem, min(6.4vw, 8.6dvh), 5.4rem);
   color: #f2f0ea;
 }
 
@@ -47,31 +47,25 @@
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  line-height: 1;
-  font-size: clamp(2.6rem, 8vw, 6.2rem);
   color: #fff;
 }
 [data-exhibition='writing-revolution'] .pe-exhibition-title p {
   font-family: var(--pe-body);
   font-weight: 700;
-  font-size: clamp(1rem, 2.4vw, 1.3rem);
   color: var(--wr-coral);
 }
-[data-exhibition='writing-revolution'] .pe-exhibition-grid { gap: 40px; }
 [data-exhibition='writing-revolution'] .pe-poster-frame img { box-shadow: 0 22px 60px rgba(0, 0, 0, 0.55); }
-[data-exhibition='writing-revolution'] .pe-display-case {
-  background: var(--wr-charcoal);
-  border: var(--wr-line) solid #fff;
-  border-radius: 0;
-  width: auto;
-  max-width: 340px;
-  padding: 24px 20px 20px;
-  box-shadow: 10px 10px 0 var(--wr-ink);
+/* The display case's card: the posters' color blocks, charcoal over coral,
+   in an arch drawn in their thin white frame line, which breaks off at a
+   shoulder as the posters' does; its shadow a hard ink block. */
+[data-exhibition='writing-revolution'] .pe-display-case { --pe-frame-fill: linear-gradient(to bottom, var(--wr-charcoal) 0 66%, var(--wr-coral) 66%); --pe-frame-line: #fff; --pe-frame-hover: var(--wr-cyan); --pe-frame-weight: var(--wr-line); --pe-frame-inset: 10px; --pe-frame-foot: 0px; padding-top: 52px; }
+[data-exhibition='writing-revolution'] .pe-case-frame { box-shadow: 10px 10px 0 var(--wr-ink); }
+[data-exhibition='writing-revolution'] .pe-case-frame::before {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0 72%, transparent 72%), linear-gradient(to right, #000 0 76%, transparent 76%);
+  mask-image: linear-gradient(to bottom, #000 0 72%, transparent 72%), linear-gradient(to right, #000 0 76%, transparent 76%);
 }
-[data-exhibition='writing-revolution'] .pe-display-case:hover,
-[data-exhibition='writing-revolution'] .pe-display-case:focus-visible { border-color: var(--wr-cyan); }
 [data-exhibition='writing-revolution'] .pe-case-label { color: #bdbab2; font-family: var(--pe-body); }
-[data-exhibition='writing-revolution'] .pe-case-title { color: #fff; font-size: 30px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 300; }
+[data-exhibition='writing-revolution'] .pe-case-title { color: #fff; font-size: clamp(24px, 3.8dvh, 30px); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 300; }
 /* The case awaiting its photographs: drawn in the frame's white, lit in the cyan. */
 [data-exhibition='writing-revolution'] { --pe-case-frame: #ffffff; --pe-case-glow: var(--wr-cyan); --pe-case-placeholder-ink: #d7d4cc; }
 
@@ -177,7 +171,6 @@
 [data-exhibition='writing-revolution'] .pe-case-page-subtitle { color: var(--wr-coral); font-weight: 700; }
 
 @media (max-width: 900px) {
-  [data-exhibition='writing-revolution'] { --pe-poster-h: 44vh; }
 }
 @media (max-width: 700px) {
   [data-exhibition='writing-revolution'] .wr-beside-urania { padding-right: 24px; padding-left: 24px; }

@@ -12,9 +12,11 @@ import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useP
 import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import PosterPanel from './PosterPanel';
 import CasePlaceholder from './CasePlaceholder';
+import LandingCredits from './LandingCredits';
+import LandingRow from './LandingRow';
 import AtmosphereLayer from './AtmosphereLayer';
 import AudioGuide, { useAudioGuide } from './AudioGuide';
-import { atmosphereName, colorsFor, emphasisRuns, entranceOf, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
+import { atmosphereName, colorsFor, entranceOf, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
 
@@ -31,7 +33,7 @@ import './poster-exhibition.css';
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function PosterExhibition<K extends string>({ config }: { config: ExhibitionConfig<K> }) {
-  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives = [], credits = [], atmospheres, fx: fxConfig, projector: projectorConfig } = config;
+  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], credits = [], atmospheres, fx: fxConfig, projector: projectorConfig } = config;
 
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
@@ -93,25 +95,22 @@ export default function PosterExhibition<K extends string>({ config }: { config:
 
   const [first, ...rest] = posters;
   const posterButton = (p: PosterConfig<K>) => (
-    <button key={p.id} type="button" className="btn-reset pe-poster-frame" data-poster={p.id} onClick={() => openPoster(p.id)}>
+    <button key={p.id} type="button" className="btn-reset pe-poster-frame pe-landing-poster" data-poster={p.id} onClick={() => openPoster(p.id)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={p.hero.src} alt={p.hero.alt} />
       <span className="pe-poster-hint">Click to explore</span>
     </button>
   );
 
+  // A display case: the owner's cut-out photograph of it, or an empty case
+  // drawn in outline, in the exhibition's own frame (pe-case-frame, drawn by
+  // its stylesheet; decorative).
   const caseLink = (c: DisplayCase) => (
-    <Link key={c.href} href={c.href} className={`pe-display-case ${c.image ? '' : 'pe-display-case-emblem'}`}>
+    <Link key={c.href} href={c.href} className={`pe-display-case pe-landing-case ${c.image ? 'has-photo' : 'is-awaiting'}`}>
+      <span className="pe-case-frame" aria-hidden="true" />
       {c.image ? (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img className="pe-case-image" src={c.image.src} alt={c.image.alt} />
-          {c.image.credit && <span className="pe-case-credit">{c.image.credit}</span>}
-        </>
-      ) : c.emblem ? (
-        <span className="pe-case-emblem" aria-hidden="true">
-          {c.emblem}
-        </span>
+        // eslint-disable-next-line @next/next/no-img-element
+        <img className="pe-case-image" src={c.image.src} alt={c.image.alt} />
       ) : (
         <CasePlaceholder size="card" />
       )}
@@ -149,8 +148,8 @@ export default function PosterExhibition<K extends string>({ config }: { config:
       )}
 
       {activeView === 'main' && !projector && (
-        <div className="pe-exhibition-main">
-          <div className="pe-exhibition-title">
+        <div className="pe-exhibition-main pe-landing">
+          <div className="pe-exhibition-title pe-landing-head">
             <h1>{name}</h1>
             <p>{subtitle}</p>
             <div className="pe-teach-row">
@@ -159,34 +158,14 @@ export default function PosterExhibition<K extends string>({ config }: { config:
             </div>
           </div>
 
-          <div className="pe-exhibition-grid">
+          {/* The interactive rooms are in the display case (CasePage), not here. */}
+          <LandingRow className="pe-exhibition-grid">
             {first && posterButton(first)}
             {cases.map(caseLink)}
             {rest.map(posterButton)}
-          </div>
+          </LandingRow>
 
-          {/* The interactive rooms are in the display case (CasePage); only an
-              exhibition with no case yet sets them out here. */}
-          {cases.length === 0 && interactives.length > 0 && (
-            <div className="pe-exhibition-grid pe-interactives">{interactives.map(caseLink)}</div>
-          )}
-
-          {credits.length > 0 && (
-            <ul className="pe-credits" aria-label="Picture credits">
-              {credits.map((c) => {
-                const text = emphasisRuns(c.text).map((r, i) => (r.em ? <em key={i}>{r.text}</em> : <span key={i}>{r.text}</span>));
-                return (
-                  <li key={c.text}>
-                    {c.href ? (
-                      <a href={c.href} target="_blank" rel="noopener noreferrer">{text}</a>
-                    ) : (
-                      text
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <LandingCredits credits={credits} />
         </div>
       )}
 
