@@ -1,6 +1,6 @@
 import { existsSync } from 'fs';
 import { join } from 'path';
-import { ALL_FLOORS, FLOORS, GROUND_FLOOR, FIRST_FLOOR, SECOND_FLOOR, STUDIO, findExhibition, floorReturnFor } from '@/lib/floors';
+import { ALL_FLOORS, FLOORS, GROUND_FLOOR, FIRST_FLOOR, SECOND_FLOOR, STUDIO, findExhibition, floorReturnFor, studioToolHref } from '@/lib/floors';
 import { getLevelConfig, MUSEUM_OVERVIEW } from '@/components/museum-map/data/levels';
 import { getRoomByPath, isRoomCurrent } from '@/components/museum-map/data/rooms';
 import { FEAR_LAB } from '@/app/exhibitions/fear-lab/fearLab';
@@ -39,7 +39,8 @@ describe('the floors, by era', () => {
     ]);
     expect(new Set(ALL_FLOORS.map((f) => f.accent)).size).toBe(4);
     expect(new Set(ALL_FLOORS.map((f) => f.storageKey)).size).toBe(4);
-    expect(STUDIO).toMatchObject({ name: 'Third Floor', title: 'The Studio' });
+    // "Studio", not "The Studio", wherever it is named.
+    expect(STUDIO).toMatchObject({ name: 'Third Floor', title: 'Studio', heading: 'Third Floor: Studio' });
   });
 
   it('opens only the built exhibitions', () => {
@@ -98,8 +99,9 @@ describe('the Studio', () => {
 
   it('is on the map as a floor of its tools, each in its exhibition’s color', () => {
     const level = getLevelConfig('/exhibitions/third-floor');
-    expect(level.title).toBe('3rd Floor: The Studio');
-    expect(level.rooms.map((r) => r.path)).toEqual(STUDIO.tools.map((t) => t.href));
+    expect(level.title).toBe('3rd Floor: Studio');
+    // Through the Studio's door, so the tool's "M ←" comes back to the Studio.
+    expect(level.rooms.map((r) => r.path)).toEqual(STUDIO.tools.map((t) => studioToolHref(t.href)));
     expect(level.rooms.map((r) => r.accentColor)).toEqual(STUDIO.tools.map((t) => findExhibition(t.exhibition)!.accent));
     const [, , vw, vh] = level.viewBox.split(' ').map(Number);
     for (const r of level.rooms) {

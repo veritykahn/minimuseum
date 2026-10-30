@@ -134,15 +134,11 @@ export const WRITING_REVOLUTION: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
   interactives: [
     {
       href: '/exhibitions/writing-revolution/typing-station',
-      // The owner's illustration (Leonardo.Ai).
-      image: {
-        src: '/exhibitions/writing-revolution/landing-typing-station.webp',
-        alt: 'An illustration of a typewriter’s round keys, Q W E R T Y, against a coral wall',
-        credit: 'Illustration made with Leonardo.Ai',
-      },
+      image: { src: '/exhibitions/writing-revolution/rooms/typing-station.webp', alt: 'The Typing Station room: a typewriter’s keys under a sheet of paper on the coral wall' },
       label: 'Interactive',
       title: 'The Typing Station',
       subtitle: 'The same line on a typewriter and an iMac',

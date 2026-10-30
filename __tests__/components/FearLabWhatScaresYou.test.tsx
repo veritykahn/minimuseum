@@ -150,8 +150,8 @@ describe('the rustling bushes', () => {
 describe('wiring', () => {
   it('sets the room on the landing page, the map and the projector', () => {
     expect(FEAR_LAB.interactives?.map((c) => c.href)).toEqual(['/exhibitions/fear-lab/what-scares-you']);
-    // The owner's illustration of the boxes, credited on the card.
-    expect(FEAR_LAB.interactives?.[0].image).toMatchObject({ src: '/exhibitions/fear-lab/landing-fear-boxes.webp', credit: 'Illustration made with Leonardo.Ai' });
+    // The card shows the room itself: a screenshot, with no illustration's credit.
+    expect(FEAR_LAB.interactives?.[0].image).toEqual({ src: '/exhibitions/fear-lab/rooms/what-scares-you.webp', alt: expect.stringMatching(/^The What Scares You\? room/) });
     expect(FEAR_LAB.projector.links.map((l) => l.href)).toEqual(['/exhibitions/fear-lab/what-scares-you']);
     expect(getRoomByPath('/exhibitions/fear-lab/what-scares-you')?.id).toBe('fl-what-scares-you');
     expect(getLevelConfig('/exhibitions/fear-lab/what-scares-you').title).toBe('The Fear Lab');

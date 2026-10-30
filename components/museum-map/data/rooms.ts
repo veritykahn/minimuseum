@@ -91,7 +91,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
   // The floors, top first: the Studio's children are its tools (see
   // levels.ts), each a door to a room in its exhibition.
   ...[
-    { floor: STUDIO, label: '3rd Floor: The Studio', y: 110, children: STUDIO.tools.map((_, i) => `studio-${i + 1}`) },
+    { floor: STUDIO, label: '3rd Floor: Studio', y: 110, children: STUDIO.tools.map((_, i) => `studio-${i + 1}`) },
     { floor: SECOND_FLOOR, label: '2nd Floor: Reflections', y: 180, children: SECOND_FLOOR.exhibitions.map((e) => e.slug) },
     { floor: FIRST_FLOOR, label: '1st Floor: Horizons', y: 250, children: FIRST_FLOOR.exhibitions.map((e) => e.slug) },
     { floor: GROUND_FLOOR, label: 'Ground Floor: Origins', y: 340, children: GROUND_FLOOR.exhibitions.map((e) => e.slug) },

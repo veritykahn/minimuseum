@@ -7,8 +7,8 @@ import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
-import LessonsLink from '@/components/lesson/LessonsLink';
-import PosterLessons from '@/components/lesson/PosterLessons';
+import LandingRow from '@/components/exhibition/LandingRow';
+import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { SEEING_TALK } from '@/components/projector/posterTalk';
 import { SEEING_POSTER_THEME, SEEING_POSTER_LINKS } from '@/components/projector/themes';
@@ -51,6 +51,9 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
   { id: 'poster1', title: 'Seeing is Deceiving: The Science of How We See', thumb: '/exhibitions/seeing/poster1.jpg', items: poster1Content, talk: SEEING_TALK.poster1 },
   { id: 'poster2', title: 'A History of Lies: From Magic Lanterns to AI Deepfakes', thumb: '/exhibitions/seeing/poster2.jpg', items: poster2Content, talk: SEEING_TALK.poster2 },
 ];
+
+/** What "Teach with this" opens: the lessons, printables and discussion questions for each role. */
+const TEACH: TeachContent = { slug: 'seeing-is-deceiving', name: 'Seeing is Deceiving', posters: PROJECTOR_POSTERS, links: SEEING_POSTER_LINKS };
 
 const FilmOverlay = () => {
   return (
@@ -517,43 +520,25 @@ export default function SeeingIsDeceiving() {
         }
 
         /* Main Exhibition View */
-        .exhibition-main {
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 120px 40px 80px;
-          gap: 60px;
-        }
+        /* The landing page's layout, one screen with the posters and the case
+           sized to it, is the shared pe-landing (poster-exhibition.css); these
+           rules give it the exhibition's look. */
+        .sid-root { --pe-hint: #2a2a2a; }
 
         /* The lessons chip inherits its ink from here (a:link outranks its own color). */
-        .exhibition-title { text-align: center; margin-bottom: 20px; color: #2a2a2a; }
+        .exhibition-title { color: #2a2a2a; }
         .exhibition-title h1 {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(2.5rem, 8vw, 5rem);
           font-weight: 300;
           color: #0a0a0a;
-          margin-bottom: 12px;
         }
         .exhibition-title p {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1rem, 3vw, 1.4rem);
           font-style: italic;
           color: #2a2a2a;
         }
 
-        .exhibition-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 40px;
-          max-width: 1200px;
-          width: 100%;
-          align-items: center;
-        }
-
         @media (max-width: 900px) {
-          .exhibition-grid { grid-template-columns: 1fr; gap: 32px; }
           .pos-top-left, .pos-top-right { padding: 15vh 24px 15vh 24px; }
           .pos-bottom-left, .pos-bottom-right, .pos-bottom-center {
             padding-left: 24px;
@@ -568,17 +553,8 @@ export default function SeeingIsDeceiving() {
         }
         .poster-frame:hover, .poster-frame:focus-visible { transform: translateY(-8px); }
         .poster-frame:hover .poster-hint, .poster-frame:focus-visible .poster-hint { opacity: 1; }
-        .poster-frame img {
-          width: 100%;
-          height: auto;
-          display: block;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
+        .poster-frame img { box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
         .poster-hint {
-          position: absolute;
-          bottom: -30px;
-          left: 50%;
-          transform: translateX(-50%);
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
@@ -592,17 +568,56 @@ export default function SeeingIsDeceiving() {
            photograph is cut out, so the lit case sits straight on the poster's
            ground. Its type is the poster's black and a deepened blue (5.7:1 and up). */
         .display-case {
-          background: transparent;
-          border: none;
-          box-shadow: none;
-          padding: 32px 24px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+          isolation: isolate;
+          --pe-case-pad-y: 116px;
+          padding: 80px 46px 36px;
           cursor: pointer;
           transition: all 0.4s ease;
-          overflow: hidden;
+        }
+        /* Its frame, an op-art arch after the posters' rippling lines: nested
+           arches in the poster's black, each a little finer and fainter than
+           the one inside it, so the rim seems to shimmer and swell (a moiré,
+           the eye's own doing). On hover the rings spread outward like a
+           ripple; the innermost line is the sharp edge the eye fixes on. */
+        .display-case .pe-case-frame {
+          --sid-ring: 7px;
+          position: absolute;
+          z-index: -1;
+          inset: 22px;
+          border-radius: 999px 999px 2px 2px;
+          border: 1.5px solid #0a0a0a;
+          pointer-events: none;
+          box-shadow:
+            0 0 0 calc(var(--sid-ring) * 1) #e0dede, 0 0 0 calc(var(--sid-ring) * 1 + 1.2px) rgba(10, 10, 10, 0.78),
+            0 0 0 calc(var(--sid-ring) * 2) #e0dede, 0 0 0 calc(var(--sid-ring) * 2 + 1px) rgba(10, 10, 10, 0.56),
+            0 0 0 calc(var(--sid-ring) * 3) #e0dede, 0 0 0 calc(var(--sid-ring) * 3 + 0.8px) rgba(10, 10, 10, 0.36),
+            0 0 0 calc(var(--sid-ring) * 4) #e0dede, 0 0 0 calc(var(--sid-ring) * 4 + 0.6px) rgba(10, 10, 10, 0.2);
+          transition: --sid-ring 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: sid-frame-shimmer 6s ease-in-out infinite;
+        }
+        /* An eye's glint at the crown: the one-line face's pupil from poster 1. */
+        .display-case .pe-case-frame::after {
+          content: '';
+          position: absolute;
+          top: 14px;
+          left: 50%;
+          width: 30px;
+          height: 14px;
+          translate: -50% 0;
+          border: 1.5px solid #0a0a0a;
+          border-radius: 50% / 100% 100% 0 0;
+          border-bottom: 0;
+          background: radial-gradient(circle at 50% 100%, #0a0a0a 0 4px, transparent 4.5px);
+        }
+        .display-case:hover .pe-case-frame, .display-case:focus-visible .pe-case-frame { --sid-ring: 10px; }
+        @property --sid-ring { syntax: '<length>'; inherits: false; initial-value: 7px; }
+        @keyframes sid-frame-shimmer {
+          0%, 100% { --sid-ring: 7px; }
+          50% { --sid-ring: 7.8px; }
+        }
+        .display-case:hover .pe-case-frame, .display-case:focus-visible .pe-case-frame { animation: none; }
+        @media (prefers-reduced-motion: reduce) {
+          .display-case .pe-case-frame { animation: none; transition: none; }
         }
         .display-case:hover, .display-case:focus-visible {
           transform: translateY(-8px);
@@ -612,14 +627,7 @@ export default function SeeingIsDeceiving() {
           filter: drop-shadow(0 18px 28px rgba(0,0,0,0.35));
         }
 
-        .case-image {
-          width: 100%;
-          max-width: 280px;
-          height: auto;
-          object-fit: contain;
-          margin-bottom: 20px;
-          transition: transform 0.4s ease;
-        }
+        .case-image { transition: transform 0.4s ease; }
         .case-label {
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
@@ -898,7 +906,6 @@ export default function SeeingIsDeceiving() {
           .nav-m-left { left: 20px; top: 20px; }
           .nav-m-right { right: 20px; top: 20px; }
           .nav-m-text { font-size: 24px; }
-          .exhibition-main { padding: 100px 24px 60px; }
           .walkthrough-nav { bottom: 20px; gap: 16px; }
           .nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
           .text-content-wrapper { padding: 100px 24px; }
@@ -932,24 +939,24 @@ export default function SeeingIsDeceiving() {
 
       {/* Main Exhibition View */}
       {activeView === 'main' && !projector && (
-        <div className="exhibition-main">
-          <div className="exhibition-title">
+        <div className="exhibition-main pe-landing">
+          <div className="exhibition-title pe-landing-head">
             <h1>Seeing is Deceiving</h1>
             <p>The Science of How We See</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
-              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} />
-              <LessonsLink exhibition="seeing-is-deceiving" style={teachStyle} />
+            <div className="pe-teach-row">
+              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} teach={TEACH} />
             </div>
           </div>
 
-          <div className="exhibition-grid">
-            <button type="button" className="btn-reset poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
+          <LandingRow className="exhibition-grid">
+            <button type="button" className="btn-reset poster-frame pe-landing-poster" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/seeing/poster1.jpg" alt="Seeing is Deceiving poster: the title in black capitals, reflected upside down, beneath a one-line drawing of a face" />
               <span className="poster-hint">Click to explore</span>
             </button>
 
-            <Link href="/exhibitions/seeing-is-deceiving/artifacts" className="display-case">
+            <Link href="/exhibitions/seeing-is-deceiving/artifacts" className="display-case pe-landing-case">
+              <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/exhibitions/seeing/artifacts/display-case.png"
@@ -961,12 +968,12 @@ export default function SeeingIsDeceiving() {
               <p className="case-subtitle">Including Interactive Perception Lab</p>
             </Link>
 
-            <button type="button" className="btn-reset poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
+            <button type="button" className="btn-reset poster-frame pe-landing-poster" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/seeing/poster2.jpg" alt="A History of Lies: From Magic Lanterns to AI Deepfakes poster: the title wrapped around a column of rippling blue and black stripes" />
               <span className="poster-hint">Click to explore</span>
             </button>
-          </div>
+          </LandingRow>
         </div>
       )}
 
@@ -1144,7 +1151,6 @@ export default function SeeingIsDeceiving() {
                   >
                     {currentItem.text}
                   </button>
-                  <PosterLessons exhibition="seeing-is-deceiving" poster={activeView} color={textColor} />
                 </div>
               )}
             </div>

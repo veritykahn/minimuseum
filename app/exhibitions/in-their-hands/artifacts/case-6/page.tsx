@@ -14,7 +14,7 @@ export default function Case6() {
         id: 'timeline',
         title: 'The Gospel Timeline',
         subtitle: 'Follow the coins through the New Testament',
-        thumb: '/exhibitions/in-their-hands/timeline.jpg',
+        thumb: '/exhibitions/in-their-hands/rooms/timeline.webp',
         route: '/exhibitions/in-their-hands/timeline',
         status: 'available',
       }}

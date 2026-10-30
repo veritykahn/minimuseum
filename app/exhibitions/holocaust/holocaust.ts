@@ -214,10 +214,11 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
   interactives: [
     {
       href: '/exhibitions/holocaust/stones',
-      image: { src: STONES.src, alt: STONES.alt },
+      image: { src: '/exhibitions/holocaust/rooms/stones.webp', alt: 'The Lay a Stone room: stones laid along the ledge of a granite memorial in a dark room' },
       label: 'Interactive',
       title: 'Lay a Stone',
       subtitle: 'Stones laid by visitors, a minute’s stillness, and a walk',

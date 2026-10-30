@@ -4,6 +4,52 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
+import { HOME_LOGO_SIZE, HOME_LOGO_WORDS, HOME_M_IMAGES, HOME_M_WINDOWS } from '@/lib/homeLogo';
+
+const pct = (n: number, of: number) => `${(n / of) * 100}%`;
+
+/**
+ * "The Mini Museum": the words, with a picture showing through each big M
+ * (see lib/homeLogo.ts for where the pictures go).
+ */
+function HomeLogo() {
+  const { width, height } = HOME_LOGO_SIZE;
+  return (
+    <span
+      role="img"
+      aria-label="The Mini Museum"
+      className="relative block w-[70vw] md:w-[450px] lg:w-[530px]"
+      style={{ aspectRatio: `${width} / ${height}` }}
+    >
+      {(['mini', 'museum'] as const).map((m) => {
+        const w = HOME_M_WINDOWS[m];
+        const mask = `url(${w.mask})`;
+        return (
+          <span
+            key={m}
+            data-m={m}
+            className="absolute overflow-hidden"
+            style={{
+              left: pct(w.x, width),
+              top: pct(w.y, height),
+              width: pct(w.width, width),
+              height: pct(w.height, height),
+              WebkitMaskImage: mask,
+              maskImage: mask,
+              WebkitMaskSize: '100% 100%',
+              maskSize: '100% 100%',
+              WebkitMaskRepeat: 'no-repeat',
+              maskRepeat: 'no-repeat',
+            }}
+          >
+            <Image src={HOME_M_IMAGES[m]} alt="" fill priority sizes="(min-width: 1024px) 150px, (min-width: 768px) 125px, 20vw" className="object-cover" />
+          </span>
+        );
+      })}
+      <Image src={HOME_LOGO_WORDS} alt="" fill priority sizes="(min-width: 1024px) 530px, (min-width: 768px) 450px, 70vw" />
+    </span>
+  );
+}
 
 export default function Home() {
   const reduceMotion = usePrefersReducedMotion();
@@ -53,14 +99,7 @@ export default function Home() {
         }}
         className="relative z-10"
       >
-        <Image
-          src="/logo.png"
-          alt="The Mini Museum"
-          width={600}
-          height={450}
-          className="w-auto h-auto max-w-[70vw] md:max-w-[450px] lg:max-w-[530px]"
-          priority
-        />
+        <HomeLogo />
       </h1>
 
       {/* Text */}

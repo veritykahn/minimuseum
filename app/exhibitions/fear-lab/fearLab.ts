@@ -127,15 +127,11 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
   interactives: [
     {
       href: '/exhibitions/fear-lab/what-scares-you',
-      // The owner's illustration (Leonardo.Ai) of the room's boxes, not a photograph.
-      image: {
-        src: '/exhibitions/fear-lab/landing-fear-boxes.webp',
-        alt: 'An illustration of a crate, a hatbox, a chest and a tin on a dusty shelf, their lids ajar, a glow inside the chest',
-        credit: 'Illustration made with Leonardo.Ai',
-      },
+      image: { src: '/exhibitions/fear-lab/rooms/what-scares-you.webp', alt: 'The What Scares You? room: five numbered fear boxes on a dark shelf under a torch beam' },
       label: 'Interactive',
       title: 'What Scares You?',
       subtitle: 'The fear boxes, known or unknown, and the rustling bushes',

@@ -100,14 +100,14 @@ describe('Black History Month', () => {
     const files = (d: string): string[] =>
       fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? files(path.join(d, e.name)).map((f) => `${e.name}/${f}`) : [e.name]));
 
-    it('holds only the posters, their lettering, poster 1’s illustrated figures and the owner’s illustrations for the rooms’ cards', () => {
+    it('holds only the posters, their lettering, poster 1’s illustrated figures and the screenshots of the rooms for their cards', () => {
       // The audio guide's recordings are the owner's voice, not pictures (AudioGuide.test.tsx).
       expect(files(dir).filter((f) => !f.startsWith('audio/')).sort()).toEqual([
-        'landing-barbie-timeline.webp',
-        'landing-who-do-you-see.webp',
         'poster1.jpg',
         'poster2.jpg',
         'ring.webp',
+        'rooms/representation.webp',
+        'rooms/timeline.webp',
         'titles/black-history-month.png',
         'titles/importance-of-black-barbie.webp',
         'vignettes/atom.webp',

@@ -15,18 +15,15 @@ import './inventions.css';
  * each its own tab and address (#railway, #telegraph, #photography). Steam
  * a train west and watch the town clocks fall behind London's; press a
  * letter and watch two needles point to it; make a negative of a window and
- * print from it. Behind each bench, the owner's painting of where its
- * invention worked (a station platform, a telegraph office, a glass-roofed
- * studio), and under them all her inventor's workbench as the room's ground
- * (made with Leonardo.Ai, credited at each card's foot). What each bench shows is fact-checked against the Science
+ * print from it. What each bench shows is fact-checked against the Science
  * Museum Group and the V&A, each note set with its source
  * (inventionsText.ts).
  */
 
 const TABS = [
-  { id: 'railway', label: WORKSHOP_TEXT.railwayHeading, backdrop: '/exhibitions/victorian/inventions/railway-platform.webp' },
-  { id: 'telegraph', label: WORKSHOP_TEXT.telegraphHeading, backdrop: '/exhibitions/victorian/inventions/telegraph-office.webp' },
-  { id: 'photography', label: WORKSHOP_TEXT.photoHeading, backdrop: '/exhibitions/victorian/inventions/photography-studio.webp' },
+  { id: 'railway', label: WORKSHOP_TEXT.railwayHeading },
+  { id: 'telegraph', label: WORKSHOP_TEXT.telegraphHeading },
+  { id: 'photography', label: WORKSHOP_TEXT.photoHeading },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
@@ -70,15 +67,12 @@ export default function VictorianInventions() {
     choose(TABS[to].id, true);
   };
 
-  const credit = <p className="vbr-credit">{WORKSHOP_TEXT.credit}</p>;
-
   return (
     <RoomShell className="vb-inventions">
       <div className="vbr-stage vbi-stage" data-tab={tab}>
         <div className="vbr-room" aria-hidden="true">
-          {TABS.map((x) => (
-            <div key={x.id} className="vbi-backdrop" data-shown={tab === x.id || undefined} style={{ backgroundImage: `url(${x.backdrop})` }} />
-          ))}
+          <div className="vbr-paper" />
+          <div className="vbr-light" />
           <div className="vbr-table vbi-bench-top" />
         </div>
 
@@ -109,9 +103,9 @@ export default function VictorianInventions() {
 
         {TABS.map((x) => (
           <section key={x.id} className="vbi-panel" id={`vbi-panel-${x.id}`} role="tabpanel" aria-labelledby={`vbi-tab-${x.id}`} hidden={tab !== x.id}>
-            {tab === x.id && x.id === 'railway' && <Railway reduced={reduced} footer={credit} />}
-            {tab === x.id && x.id === 'telegraph' && <Telegraph reduced={reduced} footer={credit} />}
-            {tab === x.id && x.id === 'photography' && <Photography reduced={reduced} footer={credit} />}
+            {tab === x.id && x.id === 'railway' && <Railway reduced={reduced} />}
+            {tab === x.id && x.id === 'telegraph' && <Telegraph reduced={reduced} />}
+            {tab === x.id && x.id === 'photography' && <Photography reduced={reduced} />}
           </section>
         ))}
       </div>

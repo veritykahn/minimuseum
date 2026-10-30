@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
+import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import FactNote from '@/components/exhibition/FactNote';
 import { BIOGRAPHY_MOTTO, VIOLET_DATES, VIOLET_LETTERING, VIOLET_NAME, VIOLET_NEE, WOMENS_HISTORY } from '../womensHistory';
 import Keepsake from './Keepsake';
@@ -40,7 +41,7 @@ function stopFromHash(hash: string): number {
 
 export default function VioletsLife() {
   const { fonts, slug } = WOMENS_HISTORY;
-  const back = roomReturn(WOMENS_HISTORY);
+  const back = useMuseumReturn(roomReturn(WOMENS_HISTORY));
   const [index, setIndex] = useState(0);
   const [visited, setVisited] = useState<Set<number>>(() => new Set([0]));
   const [announcement, setAnnouncement] = useState('');
@@ -109,7 +110,7 @@ export default function VioletsLife() {
     <div className="pe-root wh-room" data-exhibition={slug} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
 
-      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href}>
+      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
         <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
         <span className="pe-nav-label">{back.label}</span>

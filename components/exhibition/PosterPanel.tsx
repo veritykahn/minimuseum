@@ -3,7 +3,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { FxText, type FxKind } from '@/components/poster-fx/PosterFx';
 import { PosterProjectorEnd } from '@/components/projector/PosterProjector';
-import PosterLessons from '@/components/lesson/PosterLessons';
 import { BlindSpot, Emph, Lines, Typed, TypedForReaders } from './EntranceCopy';
 import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass } from './helpers';
 import type { ExhibitionConfig, PanelDecor, PanelEffect, PanelMarks, PosterConfig, PosterItem, PosterItemType } from './types';
@@ -356,7 +355,7 @@ const PANEL_RENDERERS: Renderers = {
     );
   },
 
-  end: ({ config, poster, item, colors, projector, returnToMain }) =>
+  end: ({ poster, item, colors, projector, returnToMain }) =>
     projector ? (
       <PosterProjectorEnd />
     ) : (
@@ -364,7 +363,6 @@ const PANEL_RENDERERS: Renderers = {
         <button type="button" className="pe-content-end pfx-fg" onClick={returnToMain} style={{ color: colors.text, borderColor: colors.text }}>
           {item.text}
         </button>
-        <PosterLessons exhibition={config.slug} poster={poster.id} color={colors.text} />
       </div>
     ),
 };

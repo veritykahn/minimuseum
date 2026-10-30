@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
 import CasePage from '@/components/exhibition/CasePage';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
@@ -54,21 +54,39 @@ describe.each(cases)('%s display case', (slug, { config, data }) => {
     expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
   });
 
-  it('lists its interactive rooms under "Interactives" on the case page, and not on the landing page', () => {
+  it('lists its interactive rooms under the "Interactives" tab on the case page, and not on the landing page', () => {
     const rooms = config.interactives ?? [];
+    window.history.replaceState(null, '', casePath(config));
     const { unmount } = render(<CasePage config={config} data={data} />);
     if (rooms.length) {
-      expect(screen.getByRole('heading', { level: 2, name: 'Interactives' })).toBeInTheDocument();
+      // The case opens on its Artifacts; the rooms are behind the other tab.
+      expect(screen.getByRole('tab', { name: /Artifacts/ })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.queryAllByRole('link', { name: /Enter the room/ })).toHaveLength(0);
+      fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
+      expect(screen.getByRole('tab', { name: /Interactives/ })).toHaveAttribute('aria-selected', 'true');
       expect(screen.getAllByRole('link', { name: /Enter the room/ }).map((l) => l.getAttribute('href'))).toEqual(rooms.map((r) => r.href));
+      expect(screen.queryAllByRole('link', { name: /View artifact/ })).toHaveLength(0);
+      expect(window.location.search).toBe('?view=interactives');
+      // Each room's card shows a screenshot of the room itself.
+      for (const r of rooms) expect(r.image?.src).toMatch(new RegExp(`^/exhibitions/${slug}/rooms/[a-z-]+\\.webp$`));
     } else {
-      expect(screen.queryByRole('heading', { name: 'Interactives' })).toBeNull();
+      expect(screen.queryByRole('tab')).toBeNull();
     }
     unmount();
     window.history.replaceState(null, '', '/');
     render(<PosterExhibition config={config} />);
     for (const r of rooms) expect(document.querySelector(`a[href="${r.href}"]`)).toBeNull();
-    // The rooms go back to the case they open from.
-    expect(roomReturn(config)).toEqual({ href: casePath(config), label: 'Display Case' });
+    // The rooms go back to the case they open from, at its Interactives.
+    expect(roomReturn(config)).toEqual({ href: `${casePath(config)}?view=interactives`, label: 'Display Case' });
+  });
+
+  it('opens at its Interactives when the address asks (a room\'s way back)', () => {
+    if (!config.interactives?.length) return;
+    window.history.replaceState(null, '', `${casePath(config)}?view=interactives`);
+    render(<CasePage config={config} data={data} />);
+    expect(screen.getByRole('tab', { name: /Interactives/ })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getAllByRole('link', { name: /Enter the room/ })).toHaveLength(config.interactives.length);
+    window.history.replaceState(null, '', '/');
   });
 
   it.each(data.artifacts.map((a) => [a.id, a] as const))('%s: its own page, with its writing and the spaces to come', (_id, a) => {
@@ -110,7 +128,7 @@ describe("a room's way back", () => {
     ['fear-lab', FearLabRoomShell],
   ] as const)('%s: the room frame goes back to the display case', (slug, RoomShell) => {
     render(<RoomShell className="test-room">room</RoomShell>);
-    expect(screen.getByRole('link', { name: /Display Case/ })).toHaveAttribute('href', `/exhibitions/${slug}/artifacts/case`);
+    expect(screen.getByRole('link', { name: /Display Case/ })).toHaveAttribute('href', `/exhibitions/${slug}/artifacts/case?view=interactives`);
   });
 
   it('goes back to the exhibition when there is no case', () => {

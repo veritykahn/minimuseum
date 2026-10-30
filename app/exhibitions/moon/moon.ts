@@ -157,14 +157,11 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
   interactives: [
     {
       href: '/exhibitions/moon/microscope',
-      // A drawing of the eyepiece view, not a photograph.
-      image: {
-        src: '/exhibitions/moon/microscope.svg',
-        alt: 'A drawing of a round microscope view split down the middle: jagged gray grains on one side, rounded sandy grains on the other',
-      },
+      image: { src: '/exhibitions/moon/rooms/microscope.webp', alt: 'The Under the Microscope room: moon dust in the round microscope view, beside its notes' },
       label: 'Interactive',
       title: 'Under the Microscope',
       subtitle: "Moon dust beside Earth's soil",

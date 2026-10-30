@@ -362,19 +362,17 @@ export type PosterConfig<K extends string = string> = {
 };
 
 /**
- * A display case on the landing page: a link to its own page. It shows a
- * photograph; or, for an interactive, a short typographic emblem in its place
- * ("11:00"); or, with neither, an empty case drawn in outline, labelled
- * "Display case — photographs to come" (CasePlaceholder).
+ * A display case on the landing page, or an interactive room on its case
+ * page: a link to its own page. A case shows the owner's cut-out photograph
+ * of it, or, with none, an empty case drawn in outline, labelled "Display
+ * case — photographs to come" (CasePlaceholder). A room shows a screenshot
+ * of itself (public/exhibitions/<slug>/rooms/), or a short typographic
+ * emblem in its place ("11:00").
  */
 export type DisplayCase = {
   href: string;
-  /**
-   * The card's picture. `credit` is set small under it, as its maker asks
-   * ("Illustration made with Leonardo.Ai" for the owner's illustrations).
-   */
-  image?: { src: string; alt: string; credit?: string };
-  /** Set large where a photograph would be; decorative (the title names the link). */
+  image?: { src: string; alt: string };
+  /** Set large where a room's picture would be; decorative (the title names the link). */
   emblem?: string;
   /** "Gallery II, Case 6" */
   label: string;
@@ -424,12 +422,12 @@ export type ExhibitionConfig<K extends string = string> = {
   cases?: DisplayCase[];
   /**
    * Interactive rooms, listed under "Interactives" on the first display
-   * case's page (CasePage); with no case yet, set as display cases in a row
-   * of their own under the posters. Leave out when there are none.
+   * case's page (CasePage). They live in the case, never on the landing
+   * page. Leave out when there are none.
    */
   interactives?: DisplayCase[];
   /**
-   * Picture credits set small at the foot of the landing page, for pictures
+   * Picture credits, folded into a toggle at the foot of the landing page (LandingCredits), for pictures
    * the exhibition draws on for its look (a photograph washed in behind the
    * posters), each as its owner specifies, linked to its record. *Title* is
    * set in italics. Leave out when there are none.

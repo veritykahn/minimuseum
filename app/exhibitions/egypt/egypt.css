@@ -18,7 +18,7 @@
   --pe-callout-ink: #efebe5;
   --pe-case-ink: #efebe5;
   --pe-case-muted: #b8b2a9;
-  --pe-poster-h: 52vh;
+  --pe-landing-h1: clamp(3rem, min(9vw, 11dvh), 7rem);
   color: #efebe5;
 }
 
@@ -35,31 +35,24 @@
 }
 
 /* ───────── Landing page ───────── */
-[data-exhibition='egypt'] .pe-exhibition-title::before { margin: 0 auto 8px; translate: -0.42em 0; font-size: 40px; }
+[data-exhibition='egypt'] .pe-exhibition-title::before { margin: 0 auto 2px; translate: -0.42em 0; font-size: clamp(24px, 4dvh, 40px); }
 [data-exhibition='egypt'] .pe-exhibition-title h1 {
   font-family: var(--eg-script);
   color: var(--eg-orange);
-  font-size: clamp(4.4rem, 13vw, 8.5rem);
-  line-height: 1.05;
-  margin-bottom: 0;
   rotate: -3deg;
 }
 [data-exhibition='egypt'] .pe-exhibition-title p {
   font-family: var(--pe-display);
   color: #efebe5;
-  font-size: clamp(1.2rem, 3vw, 1.7rem);
   letter-spacing: 0.02em;
 }
-[data-exhibition='egypt'] .pe-exhibition-grid { gap: 40px; }
 [data-exhibition='egypt'] .pe-poster-frame img { box-shadow: 0 24px 70px rgba(0, 0, 0, 0.75); }
 [data-exhibition='egypt'] .pe-display-case {
   position: relative;
   background: #141414;
   border: 0;
-  width: auto;
-  max-width: 340px;
-  padding: 40px 18px 20px;
-  border-radius: 170px 170px 0 0;
+  padding: 44px 22px 20px;
+  border-radius: 999px 999px 0 0;
   outline: 1px solid var(--eg-line);
   outline-offset: 0;
 }
@@ -70,12 +63,13 @@
   inset: -12px -12px 0;
   border: 1px solid var(--eg-line-faint);
   border-bottom: 0;
-  border-radius: 182px 182px 0 0;
+  border-radius: 999px 999px 0 0;
   pointer-events: none;
 }
+/* The arches are the frame. */
+[data-exhibition='egypt'] .pe-case-frame { display: none; }
 [data-exhibition='egypt'] .pe-display-case:hover,
 [data-exhibition='egypt'] .pe-display-case:focus-visible { outline-color: var(--eg-orange); }
-[data-exhibition='egypt'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; }
 [data-exhibition='egypt'] .pe-case-label { color: #b8b2a9; }
 [data-exhibition='egypt'] .pe-case-title { color: #fff; font-size: 26px; }
 /* The case awaiting its photographs: drawn in white line, lit in the posters' orange. */
@@ -198,7 +192,6 @@
 [data-exhibition='egypt'] :is(.pe-case-page-display li, .pe-artifact-poster p) { font-weight: 300; }
 
 @media (max-width: 900px) {
-  [data-exhibition='egypt'] { --pe-poster-h: 42vh; }
 }
 @media (max-width: 700px) {
   /* On a phone the arches step back so they never cross the copy. */

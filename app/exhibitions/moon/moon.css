@@ -36,7 +36,6 @@
   --pe-callout-ink: #ffffff;
   --pe-case-ink: #f3f0fa;
   --pe-case-muted: #c9c0e3;
-  --pe-poster-h: 54vh;
   color: #f3f0fa;
 }
 
@@ -55,35 +54,35 @@
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  font-size: clamp(2.2rem, 7vw, 4.6rem);
-  margin-bottom: 6px;
 }
 [data-exhibition='moon'] .pe-exhibition-title p {
   font-family: var(--pe-body);
   font-weight: 300;
   text-transform: uppercase;
   letter-spacing: 0.42em;
-  font-size: clamp(0.95rem, 2.2vw, 1.2rem);
   color: var(--mo-lavender);
 }
-[data-exhibition='moon'] .pe-exhibition-grid { gap: 40px; }
 [data-exhibition='moon'] .pe-poster-frame img {
   border-radius: 6px;
   box-shadow: 0 24px 70px rgba(10, 6, 24, 0.7), 0 0 60px rgba(185, 166, 230, 0.16);
 }
-/* The case as a round window on the night: a lavender ring, like a moon. */
-[data-exhibition='moon'] .pe-display-case {
-  background: rgba(24, 18, 44, 0.75);
-  border: 1px solid rgba(185, 166, 230, 0.45);
-  border-radius: 24px;
-  width: auto;
-  max-width: 340px;
-  padding: 22px 18px 20px;
-  box-shadow: 0 0 50px rgba(185, 166, 230, 0.12);
+/* The case as an arched window on the night: a lavender ring, like the
+   moon's rim, glowing faintly, a crescent rising at its crown. */
+[data-exhibition='moon'] .pe-display-case { --pe-frame-fill: rgba(24, 18, 44, 0.75); --pe-frame-line: rgba(185, 166, 230, 0.55); --pe-frame-hover: var(--mo-aqua); --pe-frame-inset: 7px; --pe-frame-foot: 24px; padding-top: 58px; }
+[data-exhibition='moon'] .pe-case-frame { box-shadow: 0 0 50px rgba(185, 166, 230, 0.14); }
+[data-exhibition='moon'] .pe-case-frame::after {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  width: 22px;
+  height: 22px;
+  translate: -50% 0;
+  border-radius: 50%;
+  box-shadow: inset -6px 2px 0 0 var(--mo-lavender);
+  rotate: -20deg;
+  filter: drop-shadow(0 0 6px rgba(185, 166, 230, 0.6));
 }
-[data-exhibition='moon'] .pe-display-case:hover,
-[data-exhibition='moon'] .pe-display-case:focus-visible { border-color: var(--mo-aqua); }
-[data-exhibition='moon'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; border-radius: 14px; }
 [data-exhibition='moon'] .pe-case-label { color: #c9c0e3; }
 [data-exhibition='moon'] .pe-case-title { font-family: var(--mo-heavy); font-weight: 700; color: #fff; font-size: 24px; letter-spacing: 0.04em; text-transform: uppercase; }
 [data-exhibition='moon'] .pe-case-subtitle { font-style: normal; font-weight: 300; color: var(--mo-lavender); }
@@ -220,7 +219,6 @@
 [data-exhibition='moon'] .pe-case-page-photo-row img { height: 100%; object-fit: cover; }
 
 @media (max-width: 900px) {
-  [data-exhibition='moon'] { --pe-poster-h: 44vh; }
 }
 @media (max-width: 768px) {
   /* On a phone the copy sits plainly; justified capitals open gaps on a narrow line. */

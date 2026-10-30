@@ -5,19 +5,6 @@
    paper. Each bench's scene sits on the stage, its card beside it.
    ========================================================================== */
 
-/* The bench's painting behind it, faded across as the tabs change, dimmed at the top for the title; the workbench under all three. */
-.vbi-backdrop { position: absolute; inset: 0; background: center / cover no-repeat; opacity: 0; transition: opacity 0.8s ease; }
-.vbi-backdrop[data-shown] { opacity: 1; }
-.vbi-backdrop::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(30, 18, 14, 0.55), rgba(30, 18, 14, 0.12) 32%, rgba(30, 18, 14, 0.25)); }
-.vbr-table.vbi-bench-top {
-  height: 24%;
-  background: url('/exhibitions/victorian/inventions/workshop-bench.webp') center 74% / cover no-repeat;
-  box-shadow: 0 -10px 30px rgba(20, 10, 6, 0.55);
-}
-.vb-inventions .vbr-title { color: #f8f0dc; text-shadow: 0 2px 14px rgba(20, 10, 6, 0.7); }
-.vb-room.vb-inventions { --pe-nav-m: var(--vb-cream); --pe-nav-ink: var(--vb-cream); }
-.vb-inventions .vbi-photo figcaption { color: #f8f0dc; text-shadow: 0 1px 6px rgba(20, 10, 6, 0.8); }
-
 .vbi-panel { display: contents; }
 .vbi-panel[hidden] { display: none; }
 .vbi-bench { display: contents; }
@@ -151,5 +138,4 @@
 @media (prefers-reduced-motion: reduce) {
   .vbi-train, .vbi-hand, .vbi-needle, .vb-room .vbi-letter { transition: none; }
   .vbi-steam, .vbi-wire-live, .vbi-print { animation: none; }
-  .vbi-backdrop { transition: none; }
 }

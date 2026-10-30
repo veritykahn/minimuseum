@@ -72,19 +72,14 @@ export default function SeeingOpticalToys() {
     choose(TABS[to].id, true);
   };
 
-  // The one note for both toys, under whichever toy is open, and the credit for both toys’ illustrations.
-  const both = (
-    <>
-      <FactNote fact={TOY_NOTES.both} className="vto-fact" />
-      <p className="vto-credit">{t.credit}</p>
-    </>
-  );
+  // The one note for both toys, under whichever toy is open.
+  const both = <FactNote fact={TOY_NOTES.both} className="vto-fact" />;
 
   return (
     <div className="sid-toys">
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');`}</style>
 
-      <ExhibitionNav className="sid-nav" href="/exhibitions/seeing-is-deceiving/artifacts">
+      <ExhibitionNav className="sid-nav" href="/exhibitions/seeing-is-deceiving/artifacts?view=interactives">
         <span className="sid-nav-m" aria-hidden="true">M</span>
         <span className="sid-nav-arrow" aria-hidden="true">←</span>
         <span className="sid-nav-label">Display Case</span>

@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { focusElement } from '@/lib/a11y/focus';
-import { type Floor, type StudioFloor, ALL_FLOORS } from '@/lib/floors';
+import { type Floor, type StudioFloor, ALL_FLOORS, GREAT_HALL_FLOORS_ID } from '@/lib/floors';
 
 const COUNT_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
 
@@ -19,7 +19,24 @@ const FLOORS_TOP_FIRST = [...ALL_FLOORS].reverse();
 
 export default function GreatHall() {
   const [showExplore, setShowExplore] = useState(true);
+  // Back from a floor (/greathall#floors): straight to the stairs, as the
+  // visitor left them, with no entrance and nothing fading in again.
+  const [atStairs, setAtStairs] = useState(false);
   const floorsRef = useRef<HTMLDivElement>(null);
+
+  // Before the first paint, so the entrance never shows. The page's smooth
+  // scrolling is set aside for the jump, then put back.
+  useLayoutEffect(() => {
+    if (window.location.hash !== `#${GREAT_HALL_FLOORS_ID}` || !floorsRef.current) return;
+    const html = document.documentElement;
+    html.style.scrollBehavior = 'auto';
+    window.scrollTo(0, floorsRef.current.offsetTop);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- the address is only known in the browser
+    setAtStairs(true);
+    setShowExplore(false);
+    const restore = requestAnimationFrame(() => html.style.removeProperty('scroll-behavior'));
+    return () => cancelAnimationFrame(restore);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -36,7 +53,7 @@ export default function GreatHall() {
   };
 
   return (
-    <div className="great-hall-container">
+    <div className={`great-hall-container${atStairs ? ' at-stairs' : ''}`}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
 
@@ -104,6 +121,12 @@ export default function GreatHall() {
         .delay-4 { animation-delay: 0.8s; opacity: 0; }
         .delay-5 { animation-delay: 1s; opacity: 0; }
         .delay-6 { animation-delay: 1.2s; opacity: 0; }
+
+        /* Back from a floor: everything already in place */
+        .at-stairs .fade-in, .at-stairs .fade-in-up {
+          animation: none;
+          opacity: 1;
+        }
 
         .great-hall-container {
           background: #0a0a0a;
@@ -346,7 +369,7 @@ export default function GreatHall() {
           transition: all 0.4s ease;
         }
 
-        /* The Studio - warm brass background on hover */
+        /* Studio - warm brass background on hover */
         .floor-row.third-floor:hover .floor-card, .floor-row.third-floor:focus-visible .floor-card {
           border-color: #a8794a;
           background: rgba(224, 164, 88, 0.1);
@@ -467,7 +490,7 @@ export default function GreatHall() {
           transition: color 0.3s ease;
         }
 
-        /* The Studio - brass on hover */
+        /* Studio - brass on hover */
         .floor-row.third-floor:hover .floor-letter {
           color: #f0c99a;
         }
@@ -584,7 +607,7 @@ export default function GreatHall() {
       </section>
 
       {/* Floors Section */}
-      <section ref={floorsRef} className="floors-section" aria-label="Select a Floor">
+      <section ref={floorsRef} id={GREAT_HALL_FLOORS_ID} className="floors-section" aria-label="Select a Floor">
         <p className="floors-title fade-in delay-6">Select a Floor</p>
 
         <div className="floors-container">

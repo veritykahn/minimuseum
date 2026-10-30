@@ -4,12 +4,14 @@
  * Ground Floor (Origins): the deep past up to about 1900, in historical order.
  * First Floor (Horizons): the 20th century.
  * Second Floor (Reflections): identity, words and the mind.
- * Third Floor (The Studio): every make-your-own tool in the museum, each a
+ * Third Floor (Studio): every make-your-own tool in the museum, each a
  * door to the tool where it lives in its exhibition (STUDIO_TOOLS).
  *
  * The order here is the order of the cards on each floor page, so an
  * exhibition's return link (see `floorReturnFor`) always lands on its own card.
  */
+
+import type { HallLight } from './hallLight';
 
 export type FloorExhibition = {
   /** The exhibition's slug: its page is /exhibitions/<slug>. */
@@ -22,6 +24,8 @@ export type FloorExhibition = {
   description: string;
   /** Built and open; the rest show "Installation in progress". */
   active: boolean;
+  /** Its light in the floor's hallway, from its landing page and display case (lib/hallLight.ts). */
+  hall: HallLight;
 };
 
 /** What every floor page has, exhibitions or tools. */
@@ -76,6 +80,7 @@ export const GROUND_FLOOR: Floor = {
       subtitle: 'And Beyond',
       accent: '#7B2CBF',
       darkAccent: '#1a0a2e',
+      hall: { glow: '#7B2CBF', bloom: '#F28BE8' }, // the poster's violet; its pink
       textColor: '#fff',
       description: 'A journey into planetary science and exoplanet exploration, blending the physics of our nearest neighbor with the search for distant worlds.',
       active: true,
@@ -86,6 +91,7 @@ export const GROUND_FLOOR: Floor = {
       subtitle: 'Guardians of the Afterlife',
       accent: '#E85D04',
       darkAccent: '#1a0d02',
+      hall: { glow: '#F04A1A', bloom: '#E85D04' }, // the landing's orange; its ember
       textColor: '#fff',
       description: 'A journey along the Nile, blending ancient mythology, sacred art, and the decipherment of lost scripts.',
       active: true,
@@ -96,6 +102,7 @@ export const GROUND_FLOOR: Floor = {
       subtitle: 'The Coins of the New Testament',
       accent: '#C9A84C',
       darkAccent: '#1C1409',
+      hall: { glow: '#C9A84C', bloom: '#8C5A2B' }, // the coins' gold and bronze
       textColor: '#F5EDD8',
       description: 'Coins minted by the rulers of the New Testament — held by real people, in a real world.',
       active: true,
@@ -106,6 +113,7 @@ export const GROUND_FLOOR: Floor = {
       subtitle: 'The Declaration of Independence at 250',
       accent: '#B22234',
       darkAccent: '#1a0a0c',
+      hall: { glow: '#B22234', bloom: '#56656F' }, // the flag's red; the landing's slate
       textColor: '#fff',
       description: 'A rare, unvarnished look at the birth of a nation, blending historical print culture with the human gamble of 1776.',
       active: true,
@@ -116,6 +124,7 @@ export const GROUND_FLOOR: Floor = {
       subtitle: 'Material & Domestic Life',
       accent: '#7D8471',
       darkAccent: '#1a1c18',
+      hall: { glow: '#C98A92', bloom: '#4F7A55' }, // the landing's rose and green, deepened to glow
       textColor: '#fff',
       description: 'A journey into the 19th century, blending industrial innovation, decorative arts, and social reform.',
       active: true,
@@ -139,6 +148,7 @@ export const FIRST_FLOOR: Floor = {
       subtitle: 'When the Guns Fell Silent',
       accent: '#E8372C', // the posters' red for the date and time
       darkAccent: '#1C1C1C',
+      hall: { glow: '#E8372C', bloom: '#8B1A12' }, // the posters' red; a poppy's dark heart
       textColor: '#EDE6DA',
       description: 'The Doughboys, the trenches, and the armistice that came at the eleventh hour.',
       active: true,
@@ -149,6 +159,7 @@ export const FIRST_FLOOR: Floor = {
       subtitle: 'The Great Migration & a Cultural Revolution',
       accent: '#b485d2',
       darkAccent: '#1a0f2a',
+      hall: { glow: '#b485d2', bloom: '#d992ba' }, // the landing's violet; its rose
       textColor: '#fff',
       description: 'How over one million Black Americans reshaped culture through literature, art, music, and activism.',
       active: true,
@@ -159,6 +170,7 @@ export const FIRST_FLOOR: Floor = {
       subtitle: 'Letters From the Blitz',
       accent: '#1D3557',
       darkAccent: '#0a1220',
+      hall: { glow: '#D08C8A', bloom: '#22335E' }, // the landing's rose, deepened to glow; its navy
       textColor: '#fff',
       description: 'An intimate look at working-class life, blending personal Blitz-damaged correspondence with digital storytelling.',
       active: true,
@@ -169,6 +181,7 @@ export const FIRST_FLOOR: Floor = {
       subtitle: 'Never Forget',
       accent: '#78716C',
       darkAccent: '#1c1917',
+      hall: { glow: '#78716C', bloom: '#D8D1CA' }, // the landing's stone, dark and light
       textColor: '#fff',
       description: 'A solemn historical encounter, blending authentic wartime artifacts with personal stories of faith and survival.',
       active: true,
@@ -192,6 +205,7 @@ export const SECOND_FLOOR: Floor = {
       subtitle: 'Black Barbie & Representation',
       accent: '#EC4899',
       darkAccent: '#2d0a1f',
+      hall: { glow: '#EC4899', bloom: '#C5DA3B' }, // the posters' pink; their lime
       textColor: '#fff',
       description: 'A colorful exploration of toy design, cultural identity, and the long struggle for authentic representation in popular culture.',
       active: true,
@@ -202,6 +216,7 @@ export const SECOND_FLOOR: Floor = {
       subtitle: 'From Movable Type to the Digital Age',
       accent: '#5B8DB8',
       darkAccent: '#0c1620',
+      hall: { glow: '#5B8DB8', bloom: '#F2634D' }, // the landing's blue; its coral
       textColor: '#fff',
       description: 'A hands-on comparison of communication tools, blending mechanical history with the rise of modern desktop computing.',
       active: true,
@@ -212,6 +227,7 @@ export const SECOND_FLOOR: Floor = {
       subtitle: 'The Science of How We See',
       accent: '#a8d5e5', // light blue from the poster
       darkAccent: '#0a1a1f',
+      hall: { glow: '#7CC4DE', bloom: '#00B7C7' }, // the poster's light blue, deepened to glow; the 3D glasses' cyan
       textColor: '#fff',
       description: 'Optical illusions, visual perception, and why your brain lies to you.',
       active: true,
@@ -222,6 +238,7 @@ export const SECOND_FLOOR: Floor = {
       subtitle: 'Page Turners & Spine Tinglers',
       accent: '#F2B33D', // marigold from the posters (their navy is too dark to read on this floor)
       darkAccent: '#1F3A5F',
+      hall: { glow: '#F2B33D', bloom: '#1F3A5F' }, // the posters' marigold; their navy
       textColor: '#FBF6EC',
       description: "The science of being scared and why we just can't put our horror books down.",
       active: true,
@@ -301,15 +318,34 @@ export const STUDIO_TOOLS: StudioTool[] = [
 
 export const STUDIO: StudioFloor = {
   path: '/exhibitions/third-floor',
-  heading: 'Third Floor: The Studio',
+  heading: 'Third Floor: Studio',
   name: 'Third Floor',
-  title: 'The Studio',
+  title: 'Studio',
   marker: '3',
   theme: 'Make your own',
   accent: '#E0A458', // a workshop's warm brass
   storageKey: 'studioIndex',
   tools: STUDIO_TOOLS,
 };
+
+/** The `from` a Studio door adds to its tool's address, so the tool's "M ←" returns to the Studio. */
+export const FROM_STUDIO = 'studio';
+
+/** A Studio tool's address as the Studio opens it: `?from=studio`, before any #tab. */
+export function studioToolHref(href: string): string {
+  const [path, hash] = href.split('#');
+  const sep = path.includes('?') ? '&' : '?';
+  return `${path}${sep}from=${FROM_STUDIO}${hash !== undefined ? `#${hash}` : ''}`;
+}
+
+/** The id of the Great Hall's "Select a Floor" section. */
+export const GREAT_HALL_FLOORS_ID = 'floors';
+
+/**
+ * Where a floor's "M ← Great Hall" goes: the Great Hall at its stairs, where
+ * the visitor chose the floor, without its entrance again.
+ */
+export const GREAT_HALL_FLOORS = `/greathall#${GREAT_HALL_FLOORS_ID}`;
 
 /** Every floor, from the ground up: the Great Hall lists them top first. */
 export const ALL_FLOORS: (Floor | StudioFloor)[] = [...FLOORS, STUDIO];

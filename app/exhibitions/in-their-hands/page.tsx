@@ -7,8 +7,8 @@ import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
-import LessonsLink from '@/components/lesson/LessonsLink';
-import PosterLessons from '@/components/lesson/PosterLessons';
+import LandingRow from '@/components/exhibition/LandingRow';
+import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { ITH_TALK } from '@/components/projector/posterTalk';
 import { ITH_POSTER_THEME, ITH_POSTER_LINKS } from '@/components/projector/themes';
@@ -30,6 +30,9 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
   { id: 'poster1', title: 'Faith and Reason', thumb: '/exhibitions/in-their-hands/poster1-hero.jpg', items: poster1Content, talk: ITH_TALK.poster1 },
   { id: 'poster2', title: 'The Weight of Thirty Pieces', thumb: '/exhibitions/in-their-hands/poster2-hero.jpg', items: poster2Content, talk: ITH_TALK.poster2 },
 ];
+
+/** What "Teach with this" opens: the lessons, printables and discussion questions for each role. */
+const TEACH: TeachContent = { slug: 'in-their-hands', name: 'In Their Hands', posters: PROJECTOR_POSTERS, links: ITH_POSTER_LINKS };
 
 // ============================================
 // MAIN COMPONENT
@@ -408,59 +411,33 @@ export default function InTheirHands() {
         /* ============================================
            MAIN EXHIBITION VIEW
            ============================================ */
-        .ith-exhibition-main {
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 80px 40px 40px;
-          gap: 32px;
-        }
+        /* The landing page's layout, one screen with the posters and the cases
+           sized to it, is the shared pe-landing (poster-exhibition.css); these
+           rules give it the exhibition's look. */
+        .ith-root { --pe-hint: ${gold}; }
 
         /* The lessons chip inherits its ink from here (a:link outranks its own color). */
-        .ith-exhibition-title { text-align: center; margin-bottom: 8px; color: ${gold}; }
+        .ith-exhibition-title { color: ${gold}; }
         .ith-exhibition-title h1 {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(2.5rem, 8vw, 5rem);
           font-weight: 300;
           color: ${gold};
-          margin-bottom: 12px;
         }
         .ith-exhibition-title p {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1rem, 3vw, 1.4rem);
           font-style: italic;
           color: ${gold};
-        }
-
-        .ith-exhibition-grid {
-          display: flex;
-          gap: 20px;
-          max-width: 95vw;
-          width: 100%;
-          align-items: center;
-          justify-content: center;
         }
 
         .ith-poster-frame {
           cursor: pointer;
           transition: all 0.4s ease;
           position: relative;
-          flex-shrink: 0;
         }
         .ith-poster-frame:hover, .ith-poster-frame:focus-visible { transform: translateY(-8px); }
         .ith-poster-frame:hover .ith-poster-hint, .ith-poster-frame:focus-visible .ith-poster-hint { opacity: 1; }
-        .ith-poster-frame img {
-          height: 30vh;
-          width: auto;
-          display: block;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
+        .ith-poster-frame img { box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
         .ith-poster-hint {
-          display: block;
-          text-align: center;
-          margin-top: 12px;
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
@@ -474,19 +451,32 @@ export default function InTheirHands() {
            photographs are cut out, so the lit cases sit straight on the poster's
            ground. Its type is cream and the poster's gold (4.7:1 and up). */
         .ith-display-case {
-          background: transparent;
-          border: none;
-          box-shadow: none;
-          padding: 12px 8px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+          isolation: isolate;
+          --pe-case-pad-y: 60px;
+          padding: 42px 16px 18px;
           cursor: pointer;
           transition: all 0.4s ease;
-          overflow: visible;
-          width: 100%;
         }
+        /* Its frame: a city gate's arch in the poster's gold, its inner line
+           beaded like a coin's rim. The case still stands on the sepia
+           itself, inside the line. */
+        .ith-display-case .pe-case-frame {
+          position: absolute;
+          z-index: -1;
+          inset: 0;
+          border-radius: 999px 999px 3px 3px;
+          border: 1.5px solid rgba(201, 168, 76, 0.7);
+          pointer-events: none;
+          transition: border-color 0.4s ease;
+        }
+        .ith-display-case .pe-case-frame::before {
+          content: '';
+          position: absolute;
+          inset: 5px;
+          border: 3px dotted rgba(201, 168, 76, 0.55);
+          border-radius: inherit;
+        }
+        .ith-display-case:hover .pe-case-frame, .ith-display-case:focus-visible .pe-case-frame { border-color: ${gold}; }
         .ith-display-case:hover, .ith-display-case:focus-visible {
           transform: translateY(-8px);
         }
@@ -494,13 +484,7 @@ export default function InTheirHands() {
           transform: scale(1.02);
           filter: drop-shadow(0 18px 28px rgba(0,0,0,0.35));
         }
-        .ith-case-image {
-          height: 30vh;
-          width: auto;
-          object-fit: contain;
-          margin-bottom: 12px;
-          transition: transform 0.4s ease;
-        }
+        .ith-case-image { transition: transform 0.4s ease; }
         .ith-case-label {
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
@@ -870,9 +854,6 @@ export default function InTheirHands() {
            RESPONSIVE
            ============================================ */
         @media (max-width: 900px) {
-          .ith-exhibition-grid { flex-direction: column; gap: 32px; }
-          .ith-display-case { max-width: 360px; }
-          .ith-poster-frame img, .ith-case-image { height: auto; max-height: 40vh; max-width: 100%; }
           .ith-entry-cards { grid-template-columns: 1fr; gap: 20px; }
           .ith-pos-top-left, .ith-pos-top-right { padding: 15vh 24px 15vh 24px; }
           .ith-pos-bottom-left, .ith-pos-bottom-right, .ith-pos-bottom-center {
@@ -901,7 +882,6 @@ export default function InTheirHands() {
           .ith-nav-left { left: 20px; top: 20px; }
           .ith-nav-right { right: 20px; top: 20px; }
           .ith-nav-text { font-size: 24px; }
-          .ith-exhibition-main { padding: 100px 24px 60px; }
           .ith-walkthrough-nav { bottom: 20px; gap: 16px; }
           .ith-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
           .ith-text-content-wrapper { padding: 100px 24px; }
@@ -937,24 +917,24 @@ export default function InTheirHands() {
           MAIN EXHIBITION VIEW
           ============================================ */}
       {activeView === 'main' && !projector && (
-        <div className="ith-exhibition-main">
-          <div className="ith-exhibition-title">
+        <div className="ith-exhibition-main pe-landing">
+          <div className="ith-exhibition-title pe-landing-head">
             <h1>In Their Hands</h1>
             <p>Coins of the New Testament</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
-              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} />
-              <LessonsLink exhibition="in-their-hands" style={teachStyle} />
+            <div className="pe-teach-row">
+              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} teach={TEACH} />
             </div>
           </div>
 
-          <div className="ith-exhibition-grid">
-            <button type="button" className="btn-reset ith-poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
+          <LandingRow className="ith-exhibition-grid">
+            <button type="button" className="btn-reset ith-poster-frame pe-landing-poster" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/in-their-hands/poster1-hero.jpg" alt="Faith and Reason poster: the title in script above panels of text, over a watercolor of the walls of Jerusalem" />
               <span className="ith-poster-hint">Click to explore</span>
             </button>
 
-            <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case">
+            <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case pe-landing-case">
+              <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Lit display case with three coins in round holders before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 6</p>
@@ -962,7 +942,8 @@ export default function InTheirHands() {
               <p className="ith-case-subtitle">Coins from the World of Jesus</p>
             </Link>
 
-            <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case">
+            <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case pe-landing-case">
+              <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Lit display case with six coins in round holders before two printed information cards" />
               <p className="ith-case-label">Gallery II, Case 7</p>
@@ -970,7 +951,8 @@ export default function InTheirHands() {
               <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
             </Link>
 
-            <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case">
+            <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case pe-landing-case">
+              <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 8</p>
@@ -978,12 +960,12 @@ export default function InTheirHands() {
               <p className="ith-case-subtitle">Coins from the Early Church</p>
             </Link>
 
-            <button type="button" className="btn-reset ith-poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
+            <button type="button" className="btn-reset ith-poster-frame pe-landing-poster" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/in-their-hands/poster2-hero.jpg" alt="The Weight of Thirty Pieces poster: the title in script above a timeline and columns of text, with paintings of the Passion" />
               <span className="ith-poster-hint">Click to explore</span>
             </button>
-          </div>
+          </LandingRow>
 
         </div>
       )}
@@ -1198,7 +1180,6 @@ export default function InTheirHands() {
                   >
                     {currentItem.text}
                   </button>
-                  <PosterLessons exhibition="in-their-hands" poster={activeView} color={textColor} />
                 </div>
               )}
             </div>

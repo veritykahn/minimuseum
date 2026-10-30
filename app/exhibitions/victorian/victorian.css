@@ -37,7 +37,7 @@
   --pe-case-ink: var(--vb-green);
   --pe-case-muted: var(--vb-green);
   --pe-credits-ink: var(--vb-green);
-  --pe-poster-h: 52vh;
+  --pe-landing-h1: clamp(2.2rem, min(6.4vw, 9dvh), 5.6rem);
   color: var(--vb-green);
 }
 
@@ -79,36 +79,31 @@
 [data-exhibition='victorian'] .pe-walkthrough-nav .pfx-progress-head { box-shadow: 0 0 0 2px var(--vb-cream), 0 0 0 3px var(--vb-green); }
 
 /* ───────── Landing page ───────── */
-[data-exhibition='victorian'] .pe-exhibition-main { padding-top: 100px; padding-bottom: 64px; gap: 28px; }
 [data-exhibition='victorian'] .pe-exhibition-title h1 {
   font-family: var(--pe-display);
   font-weight: 400;
   text-transform: uppercase;
   letter-spacing: 0.03em;
-  font-size: clamp(2.7rem, 8.5vw, 6.4rem);
-  line-height: 0.98;
-  margin-bottom: 14px;
 }
 [data-exhibition='victorian'] .pe-exhibition-title p {
   font-family: var(--vb-serif);
   font-style: italic;
-  font-size: clamp(1.2rem, 2.8vw, 1.75rem);
 }
-[data-exhibition='victorian'] .pe-exhibition-grid { gap: clamp(28px, 4vw, 52px); }
 [data-exhibition='victorian'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(80, 50, 40, 0.14), 0 22px 50px rgba(80, 50, 40, 0.3); }
-[data-exhibition='victorian'] .pe-display-case {
-  width: auto;
-  max-width: 340px;
-  padding: calc(var(--vb-edge) + 18px) 20px calc(var(--vb-edge) + 20px);
-  border: 0;
-  background: var(--vb-linen);
-  filter: drop-shadow(0 16px 30px rgba(80, 50, 40, 0.25));
-}
-[data-exhibition='victorian'] .pe-display-case:hover,
+/* The display case's card: an arched parlour window in the green linen,
+   edged in a cream lace of dots, with a fine cream rule inside. */
+[data-exhibition='victorian'] .pe-display-case { --pe-frame-fill: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.055) 0 1px, transparent 1px 4px), var(--vb-sage); --pe-frame-line: var(--vb-cream); --pe-frame-hover: #fff; --pe-frame-weight: 1px; --pe-frame-inset: 12px; --pe-frame-foot: 4px; padding-top: 54px; filter: drop-shadow(0 16px 30px rgba(80, 50, 40, 0.25)); }
 [data-exhibition='victorian'] .pe-display-case:focus-visible { outline: 2px solid var(--vb-green); outline-offset: 6px; }
-[data-exhibition='victorian'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; border: 6px solid var(--vb-cream); }
+[data-exhibition='victorian'] .pe-case-frame::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border: 4px dotted var(--vb-cream);
+  border-radius: inherit;
+  opacity: 0.85;
+}
 [data-exhibition='victorian'] .pe-case-label { color: #e8e2d6; }
-[data-exhibition='victorian'] .pe-case-title { color: #fff; font-size: 28px; text-transform: uppercase; letter-spacing: 0.06em; }
+[data-exhibition='victorian'] .pe-case-title { color: #fff; font-size: clamp(22px, 3.6dvh, 28px); text-transform: uppercase; letter-spacing: 0.06em; }
 [data-exhibition='victorian'] .pe-case-subtitle { font-family: var(--vb-serif); color: #f4eee3; }
 /* The case awaiting its photographs: deep green line on the rose page, cream on the
    green linen of the card, lit warm, with its label in the book serif. */
@@ -317,7 +312,6 @@
 [data-exhibition='victorian'] .pjp-stage .vb-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
 
 @media (max-width: 900px) {
-  [data-exhibition='victorian'] { --pe-poster-h: 46vh; }
   [data-exhibition='victorian'] .vb-lede .pe-figure img,
   [data-exhibition='victorian'] .pe-figure-credit { width: min(70vw, 320px); max-width: min(70vw, 320px); }
   [data-exhibition='victorian'] .vb-lede .pe-figure img { max-height: 42vh; }
