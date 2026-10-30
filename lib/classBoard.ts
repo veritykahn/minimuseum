@@ -7,6 +7,7 @@
  * it is always rendered as text, never as markup. No links of any kind, and
  * a short list of words a class board has no use for. The filter is simple
  * on purpose: it catches the obvious, and the teacher key deletes the rest.
+ * The teacher's prompt (at the end) keeps the same rules.
  */
 
 /** Characters to a message, as a post on a board. */
@@ -99,14 +100,19 @@ function blocked(word: string): boolean {
 
 export type CheckResult = { ok: true; text: string } | { ok: false; reason: 'empty' | 'too-long' | 'link' | 'language' };
 
-/** A message as it would be posted, or why it can't be. */
-export function checkMessage(raw: string): CheckResult {
+/** Any text for the board, under the same rules, at most `max` characters. */
+function checkText(raw: string, max: number): CheckResult {
   const text = cleanText(raw);
   if (!text) return { ok: false, reason: 'empty' };
-  if ([...text].length > MESSAGE_MAX) return { ok: false, reason: 'too-long' };
+  if ([...text].length > max) return { ok: false, reason: 'too-long' };
   if (LINK_RES.some((re) => re.test(text))) return { ok: false, reason: 'link' };
   if (words(text).some(blocked)) return { ok: false, reason: 'language' };
   return { ok: true, text };
+}
+
+/** A message as it would be posted, or why it can't be. */
+export function checkMessage(raw: string): CheckResult {
+  return checkText(raw, MESSAGE_MAX);
 }
 
 /** What the station says when a message can't go up. */
@@ -115,4 +121,41 @@ export const REFUSALS: Record<Exclude<CheckResult, { ok: true }>['reason'], stri
   'too-long': `Keep it to ${MESSAGE_MAX} characters.`,
   link: 'No links on the board, please.',
   language: 'That message has a word the board doesn’t allow. Try other words.',
+};
+
+/*
+ * The teacher's prompt: what the class is to type, shown on both machines.
+ * A topic, a list of words to use, or a writing prompt, kept under the same
+ * rules as a message and checked the same way, by the station and the API.
+ * On a saved board only the teacher key sets it.
+ */
+export const PROMPT_MAX = 200;
+export const PROMPT_KINDS = ['topic', 'words', 'prompt'] as const;
+export type PromptKind = (typeof PROMPT_KINDS)[number];
+export type BoardPrompt = { kind: PromptKind; text: string };
+export const PROMPT_LABELS: Record<PromptKind, string> = { topic: 'Topic', words: 'Word list', prompt: 'Writing prompt' };
+
+export type PromptCheck = { ok: true; prompt: BoardPrompt } | { ok: false; reason: Exclude<CheckResult, { ok: true }>['reason'] };
+
+/** A prompt as it would be set, or why it can't be. A kind it doesn't know is a writing prompt. */
+export function checkPrompt(raw: unknown): PromptCheck {
+  const p = (raw ?? {}) as { kind?: unknown; text?: unknown };
+  if (typeof p.text !== 'string') return { ok: false, reason: 'empty' };
+  const kind: PromptKind = PROMPT_KINDS.includes(p.kind as PromptKind) ? (p.kind as PromptKind) : 'prompt';
+  const checked = checkText(p.text, PROMPT_MAX);
+  if (!checked.ok) return checked;
+  return { ok: true, prompt: { kind, text: checked.text } };
+}
+
+/** A word list's words, as the teacher typed them: split at commas, semicolons and new lines. */
+export function promptWords(text: string): string[] {
+  return [...new Set(text.split(/[,;\n]+/).map((w) => w.trim()).filter(Boolean))];
+}
+
+/** What the station says when a prompt can't be set. */
+export const PROMPT_REFUSALS: Record<Exclude<PromptCheck, { ok: true }>['reason'], string> = {
+  empty: 'Type a topic, some words or a prompt first.',
+  'too-long': `Keep the prompt to ${PROMPT_MAX} characters.`,
+  link: 'No links in the prompt, please.',
+  language: 'The prompt has a word the board doesn’t allow. Try other words.',
 };

@@ -1,14 +1,14 @@
 import { createHash, randomBytes, randomInt, timingSafeEqual } from 'node:crypto';
 import { Redis } from '@upstash/redis';
 import { Ratelimit } from '@upstash/ratelimit';
-import { BOARD_TTL_SECONDS, CODE_ALPHABET, CODE_LENGTH, IMAC_FONTS, MACHINES, checkMessage, normalizeCode, type BoardMessage, type Machine } from '@/lib/classBoard';
+import { BOARD_TTL_SECONDS, CODE_ALPHABET, CODE_LENGTH, IMAC_FONTS, MACHINES, checkMessage, normalizeCode, type BoardMessage, type BoardPrompt, type Machine } from '@/lib/classBoard';
 
 /*
  * The Writing Revolution's class boards, saved under a class code: what the
  * routes under app/api/class-board share. The same Upstash store as the
  * Great War's poppies (app/api/poppies), under keys of its own.
  *
- *   class-board:<code>:meta      the board: a hash of its teacher key, and when it was made
+ *   class-board:<code>:meta      the board: a hash of its teacher key, when it was made, and the teacher's prompt if one is set
  *   class-board:<code>:messages  its messages, oldest first, each a JSON string
  *
  * Both expire BOARD_TTL_DAYS after the last write to the board, and nothing
@@ -27,7 +27,7 @@ const LIMITS = {
   post: [{ n: 40, w: '1 m' }, { n: 600, w: '1 d' }],
   /** Reading: the class's screens refreshing the board, and no faster (a code is not to be guessed). */
   read: [{ n: 150, w: '1 m' }],
-  /** A teacher's deletions. */
+  /** A teacher's deletions and prompts. */
   remove: [{ n: 60, w: '1 m' }],
 } as const;
 export type LimitName = keyof typeof LIMITS;
@@ -98,7 +98,12 @@ export function hashKey(key: string): string {
   return createHash('sha256').update(`class-board-teacher:${key}`).digest('hex');
 }
 
-type Meta = { teacher: string; created: number };
+export type Meta = { teacher: string; created: number; prompt?: BoardPrompt };
+
+/** The board's meta written back (a new prompt), living another BOARD_TTL_DAYS. */
+export async function writeMeta(s: Store, code: string, meta: Meta) {
+  await s.redis.set(metaKey(code), JSON.stringify(meta), { ex: BOARD_TTL_SECONDS });
+}
 
 export async function readMeta(s: Store, code: string): Promise<Meta | null> {
   const raw = await s.redis.get<string>(metaKey(code));
