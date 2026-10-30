@@ -10,6 +10,10 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
 import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import NameThatInstrumentProjector from './NameThatInstrumentProjector';
+import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
+
+/** "M ← Collection": the way back, unless the Studio opened the lab. */
+const COLLECTION: MuseumReturn = { href: '/exhibitions/harlem-renaissance/artifacts', label: 'Collection' };
 
 const TABS = [
   { id: 'band', label: 'Build a Band' },
@@ -46,6 +50,12 @@ export default function JazzLabPage() {
   const stopAudio = () => {
     band.stopAll();
     audioEngine.stopAll();
+  };
+
+  const back = useMuseumReturn(COLLECTION);
+  const leave = () => {
+    rememberReturn(back);
+    router.push(back.href);
   };
 
   const handleTabChange = (tab: 'band' | 'studio' | 'quiz') => {
@@ -943,10 +953,10 @@ export default function JazzLabPage() {
       {/* ── WELCOME SCREEN ── */}
       {view === 'welcome' && (
         <div className="jl-welcome">
-          <button className="jl-welcome-back" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+          <button className="jl-welcome-back" onClick={leave}>
             <span className="jl-welcome-back-text">M</span>
             <span className="jl-welcome-back-arrow">{'\u2190'}</span>
-            <span className="jl-welcome-back-label">Collection</span>
+            <span className="jl-welcome-back-label">{back.label}</span>
           </button>
           <div className="jl-welcome-deco-top">
             <div className="jl-welcome-deco-diamond" />
@@ -974,10 +984,10 @@ export default function JazzLabPage() {
       </div>
 
       {/* Navigation */}
-      <ExhibitionNav className="jl-nav" href="/exhibitions/harlem-renaissance/artifacts" onClick={stopAudio}>
+      <ExhibitionNav className="jl-nav" href={back.href} onClick={() => { stopAudio(); rememberReturn(back); }}>
         <span className="jl-nav-text" aria-hidden="true">M</span>
         <span className="jl-nav-arrow" aria-hidden="true">{'\u2190'}</span>
-        <span className="jl-nav-label">Collection</span>
+        <span className="jl-nav-label">{back.label}</span>
       </ExhibitionNav>
 
       {/* Header */}

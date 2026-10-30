@@ -2,11 +2,11 @@ import { SITE_URL } from '@/lib/site';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Third Floor: The Studio | The Mini Museum',
+  title: 'Third Floor: Studio | The Mini Museum',
   description:
-    'The Studio, on the third floor of The Mini Museum: every make-your-own tool in the museum, from a class declaration to a Victorian Christmas card, each a door to its exhibition.',
+    'Studio, the third floor of The Mini Museum: every make-your-own tool in the museum, from a class declaration to a Victorian Christmas card, each a door to its exhibition.',
   openGraph: {
-    title: 'Third Floor: The Studio | The Mini Museum',
+    title: 'Third Floor: Studio | The Mini Museum',
     description: 'Every make-your-own tool in the museum, each a door to its exhibition.',
     url: `${SITE_URL}/exhibitions/third-floor`,
   },

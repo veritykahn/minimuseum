@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Keyb
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
+import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { BLACK_HISTORY } from '../blackHistory';
 import BookSurvey from './BookSurvey';
 import DollDesigner from './DollDesigner';
@@ -36,7 +37,7 @@ type TabId = (typeof TABS)[number]['id'];
 
 export default function WhoDoYouSee() {
   const { fonts, palette, slug } = BLACK_HISTORY;
-  const back = roomReturn(BLACK_HISTORY);
+  const back = useMuseumReturn(roomReturn(BLACK_HISTORY));
   const [tab, setTab] = useState<TabId>('design');
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ design: null, 'doll-test': null, books: null });
 
@@ -77,7 +78,7 @@ export default function WhoDoYouSee() {
     <div className="pe-root bhr-room" data-exhibition={slug} data-tab={tab} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
 
-      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href}>
+      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
         <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
         <span className="pe-nav-label">{back.label}</span>

@@ -7,6 +7,7 @@ import {
   SECOND_FLOOR as SECOND_FLOOR_PAGE,
   STUDIO as STUDIO_PAGE,
   findExhibition,
+  studioToolHref,
 } from '@/lib/floors';
 
 /**
@@ -150,7 +151,7 @@ const LEVEL1_ROOMS: MapRoom[] = [
   },
   // The floors, top first, as the stairs climb them
   {
-    id: 'third-floor', label: '3rd Floor: The Studio', path: '/exhibitions/third-floor',
+    id: 'third-floor', label: '3rd Floor: Studio', path: '/exhibitions/third-floor',
     x: 100, y: 125, width: 300, height: 52, accentColor: COLORS.brass,
     parent: 'greathall',
     children: STUDIO_IDS,
@@ -389,7 +390,7 @@ export const SECOND_FLOOR: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// LEVEL 2 — Third Floor: The Studio
+// LEVEL 2 — Third Floor: Studio
 //
 // One workshop, its tools along two benches, each a door to the room in its
 // exhibition where the tool lives (lib/floors.ts STUDIO_TOOLS), in its
@@ -415,7 +416,7 @@ const benchLabel = (title: string) => {
 const STUDIO_ROOMS: MapRoom[] = STUDIO_PAGE.tools.map((tool, i) => ({
   id: STUDIO_IDS[i],
   label: benchLabel(tool.title),
-  path: tool.href,
+  path: studioToolHref(tool.href), // through the Studio's door, so the tool's "M ←" comes back to it
   x: BENCH.left + (i % 5) * (BENCH.width + BENCH.gap),
   y: BENCH.top + Math.floor(i / 5) * (BENCH.height + BENCH.rowGap),
   width: BENCH.width,
@@ -429,7 +430,7 @@ export const STUDIO: MapLevelConfig = {
   viewBox: '0 0 500 380',
   rooms: STUDIO_ROOMS,
   connections: [],
-  title: '3rd Floor: The Studio',
+  title: '3rd Floor: Studio',
   backTarget: { label: 'Museum Overview', path: '/greathall' },
   ancestors: [
     { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
