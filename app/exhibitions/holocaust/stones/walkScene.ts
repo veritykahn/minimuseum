@@ -75,9 +75,14 @@ export function rowStones(row: number): PathStone[] {
 
 export type View = { w: number; h: number; cx: number; horizon: number; focal: number; eye: number };
 
-/** The view on a screen `w` × `h`; on a phone the path rises higher, clear of the words below it. */
-export function makeView(w: number, h: number): View {
+/**
+ * The view on a screen `w` × `h`; on a phone the path rises higher, clear of
+ * the words below it. Full screen, the path runs straight ahead from the
+ * middle, its far end under the picture.
+ */
+export function makeView(w: number, h: number, full = false): View {
   const narrow = w <= 760;
+  if (full) return { w, h, cx: w * 0.5, horizon: h * (narrow ? 0.42 : 0.46), focal: h * (narrow ? 0.7 : 0.95), eye: EYE };
   return { w, h, cx: w * (narrow ? 0.5 : 0.36), horizon: h * (narrow ? 0.27 : 0.36), focal: h * (narrow ? 0.62 : 1.05), eye: EYE };
 }
 

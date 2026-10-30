@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import WhoGetsRemembered from '@/app/exhibitions/womens-history/remembered/page';
 import {
   AUDIT,
@@ -6,13 +6,14 @@ import {
   FACT_OTHERS,
   FACT_TOP_50,
   POSTER,
-  START_TILT,
+  QUESTIONS,
   TOP_50,
-  WEIGHTS,
   WOMEN_IN_TOP_50,
-  beamTilt,
   guessLine,
 } from '@/app/exhibitions/womens-history/remembered/remembered';
+import { CONFEDERATE_NAMES, FACT_CONFEDERATE, LOC_JOAN, NWHM_SACAGAWEA, NWHM_TUBMAN, THREE_WOMEN } from '@/app/exhibitions/womens-history/remembered/threeWomen';
+import { CLAIM, EVIDENCE, MAX_TILT, WEIGHING, argumentLines, evidenceTilt, isRight } from '@/app/exhibitions/womens-history/remembered/weighEvidence';
+import { AFTER, BEFORE, INTERVIEW, INTERVIEW_COUNT, LISTENING, ORAL_SOURCES, REFLECT, VETERANS_HISTORY, WRITE_UP } from '@/app/exhibitions/womens-history/remembered/oralHistoryText';
 import { WOMENS_HISTORY } from '@/app/exhibitions/womens-history/womensHistory';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -20,8 +21,10 @@ import sitemap from '@/app/sitemap';
 
 /*
  * Who Gets Remembered?: the poster's own words, the audit's figures as the
- * report prints them, the guess and the uncovering, the scale, and the
- * room's place on the landing page, the map, the projector and the sitemap.
+ * report prints them, the guess and the uncovering, the three women and the
+ * note on the Confederate names, weighing the evidence and the argument it
+ * makes, the oral history and its printables, and the room's place on the
+ * landing page, the map, the projector and the sitemap.
  */
 
 beforeEach(() => window.history.replaceState(null, '', '/'));
@@ -52,11 +55,51 @@ describe('its words and figures', () => {
     expect(AUDIT.href).toBe('https://www.monumentlab.com/monumentlab-nationalmonumentaudit.pdf');
   });
 
-  it('tips the scale toward the men at first, and levels it with all six', () => {
-    expect(beamTilt(0)).toBe(START_TILT);
-    expect(beamTilt(3)).toBeCloseTo(START_TILT / 2);
-    expect(beamTilt(WEIGHTS.length)).toBe(0);
-    expect(WEIGHTS.every((w) => POSTER.deeper.includes(w.label) || POSTER.households.includes(w.label.replace('their roles', 'Their roles')))).toBe(true);
+  it('sets the three women’s lines from one source each, with no disputed dates', () => {
+    expect(THREE_WOMEN.map((w) => [w.name, w.source])).toEqual([
+      ['Joan of Arc', LOC_JOAN],
+      ['Harriet Tubman', NWHM_TUBMAN],
+      ['Sacagawea', NWHM_SACAGAWEA],
+    ]);
+    for (const w of THREE_WOMEN) expect(w.lines).toHaveLength(5);
+    const all = JSON.stringify(THREE_WOMEN);
+    expect(all).not.toMatch(/canoni[sz]ed|1905|1920|1884|burned/);
+    expect(all).toContain('put to death as a heretic in 1431');
+  });
+
+  it('notes the Confederate names neutrally, with the audit, the Park Service and the SPLC', () => {
+    expect(CONFEDERATE_NAMES.every((n) => TOP_50.some((p) => p.name === n))).toBe(true);
+    expect(FACT_CONFEDERATE.sources.map((s) => s.href)).toEqual([
+      AUDIT.href,
+      'https://www.nps.gov/stories/confronting-slavery-and-revealing-the-lost-cause.htm',
+      'https://www.splcenter.org/presscenter/splc-launches-third-edition-its-whose-heritage-report-tracking-confederate-memorials-and',
+    ]);
+    expect(FACT_CONFEDERATE.text).toContain('between 1900 and 1920');
+    expect(FACT_CONFEDERATE.text).toContain('377 Confederate symbols have been removed, renamed or relocated');
+  });
+
+  it('weighs only real evidence: level at first, down on the evidence side with all three', () => {
+    expect(evidenceTilt({})).toBe(0);
+    expect(evidenceTilt({ lincoln: 'scale', march8: 'scale', orleans: 'scale', others: 'scale' })).toBe(0);
+    expect(evidenceTilt(Object.fromEntries(WEIGHING.map((c) => [c.id, 'scale' as const])))).toBe(-MAX_TILT);
+    expect(WEIGHING.map((c) => c.id)).toEqual(['top50', 'mermaids', 'outnumber']);
+    expect(EVIDENCE).toHaveLength(7);
+    for (const c of EVIDENCE) {
+      expect(c.sources.length).toBeGreaterThan(0);
+      expect(isRight(c, c.weighs ? 'scale' : 'aside')).toBe(true);
+      expect(isRight(c, c.weighs ? 'aside' : 'scale')).toBe(false);
+    }
+    // The claim is the poster's own sentence.
+    expect(POSTER.overshadowed.replace(/'/g, '’')).toContain(CLAIM.slice(0, -1));
+    expect(EVIDENCE.find((c) => c.id === 'lincoln')!.text).toContain(String(TOP_50[0].monuments));
+  });
+
+  it('puts the argument together as claim, evidence and reasoning', () => {
+    expect(argumentLines(WEIGHING[0], ['numbers', 'compares'], '  Only three!  ')).toEqual({
+      claim: CLAIM,
+      evidence: FACT_TOP_50.text,
+      reasoning: 'It uses numbers. It compares women with men. Only three!',
+    });
   });
 
   it('says how the guess went', () => {
@@ -79,50 +122,117 @@ describe('the room', () => {
     expect(screen.queryByText('Abraham Lincoln')).toBeNull();
   });
 
-  it('lays the poster’s words on the scale until it is level', () => {
+  it('meets the three women after the names are uncovered, each with her source', () => {
+    render(<WhoGetsRemembered />);
+    expect(screen.queryByRole('group', { name: 'Meet the three women' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Uncover the names' }));
+    const pick = screen.getByRole('group', { name: 'Meet the three women' });
+    expect(within(pick).getAllByRole('button').map((b) => b.textContent)).toEqual(['Joan of Arc', 'Harriet Tubman', 'Sacagawea']);
+    fireEvent.click(within(pick).getByRole('button', { name: 'Harriet Tubman' }));
+    const card = screen.getByRole('article', { name: 'Harriet Tubman' });
+    expect(card).toHaveTextContent('Number 24 in the Top 50, with 21 recorded monuments.');
+    for (const l of THREE_WOMEN[1].lines) expect(card).toHaveTextContent(l);
+    expect(within(card).getByRole('link', { name: NWHM_TUBMAN.label })).toHaveAttribute('href', NWHM_TUBMAN.href);
+    fireEvent.click(within(card).getByRole('button', { name: 'Meet Sacagawea' }));
+    expect(screen.getByRole('article', { name: 'Sacagawea' })).toHaveTextContent('has been of great service to me as a pilot through this country.');
+    fireEvent.click(screen.getByRole('button', { name: 'Back to the fifty statues' }));
+    expect(screen.getByRole('list', { name: /50 people/ })).toBeInTheDocument();
+  });
+
+  it('shows the Confederate names as the data does, marked, with a sourced note', () => {
+    render(<WhoGetsRemembered />);
+    fireEvent.click(screen.getByRole('button', { name: 'Uncover the names' }));
+    const list = screen.getByRole('list', { name: /50 people/ });
+    for (const n of CONFEDERATE_NAMES) expect(within(list).getByText(n).closest('.whr-name')).toHaveTextContent('(a Confederate leader');
+    fireEvent.click(screen.getByRole('button', { name: /About four of these names/ }));
+    const note = screen.getByRole('article', { name: 'About four of these names' });
+    expect(note).toHaveTextContent(FACT_CONFEDERATE.text);
+    for (const s of FACT_CONFEDERATE.sources) expect(within(note).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+  });
+
+  it('weighs the evidence, card by card, then builds and prints an argument', () => {
     window.history.replaceState(null, '', '/#scale');
+    const print = jest.spyOn(window, 'print').mockImplementation(() => {});
     render(<WhoGetsRemembered />);
     expect(screen.getByRole('tab', { name: 'Tip the scale' })).toHaveAttribute('aria-selected', 'true');
-    for (const w of WEIGHTS) fireEvent.click(screen.getByRole('button', { name: w.label }));
-    expect(screen.getByRole('img', { name: 'A scale, now level' })).toBeInTheDocument();
-    expect(screen.getByText(POSTER.households)).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('The scale is level.');
+    expect(screen.getByRole('img', { name: /level: no evidence/ })).toBeInTheDocument();
+    for (const [i, c] of EVIDENCE.entries()) {
+      expect(screen.getByRole('heading', { name: `Evidence ${i + 1} of ${EVIDENCE.length}` })).toBeInTheDocument();
+      expect(screen.getByText(c.text)).toBeInTheDocument();
+      // One card is laid on wrongly, to see the room say so and let it be set aside.
+      if (c.id === 'lincoln') {
+        fireEvent.click(screen.getByRole('button', { name: 'Lay it on the scale' }));
+        expect(screen.getByText('It weighs nothing here.')).toBeInTheDocument();
+        expect(screen.getByRole('img', { name: /tipped toward the evidence: 1 of 3/ })).toBeInTheDocument();
+        fireEvent.click(screen.getByRole('button', { name: 'Set it aside instead' }));
+      } else fireEvent.click(screen.getByRole('button', { name: c.weighs ? 'Lay it on the scale' : 'Set it aside' }));
+      expect(document.querySelector('.whr-verdict')).toHaveTextContent(c.why);
+      fireEvent.click(screen.getByRole('button', { name: i < EVIDENCE.length - 1 ? 'Next card' : 'Weigh it up' }));
+    }
+    expect(screen.getByRole('img', { name: /3 of 3 pieces/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Which evidence weighs the most?' })).toBeInTheDocument();
+    expect(screen.getByText(/You got 6 of 7 right the first time/)).toBeInTheDocument();
+    const build = screen.getByRole('button', { name: 'Build my argument' });
+    expect(build).toBeDisabled();
+    fireEvent.click(screen.getByRole('radio', { name: FACT_MERMAIDS.text }));
+    expect(build).toBeDisabled();
+    fireEvent.click(screen.getByRole('checkbox', { name: 'It surprised me.' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'In your own words' }), { target: { value: 'Mermaids are not real.' } });
+    fireEvent.click(build);
+    const argument = screen.getByRole('region', { name: 'My argument' });
+    expect(argument).toHaveTextContent(CLAIM);
+    expect(argument).toHaveTextContent(FACT_MERMAIDS.text);
+    expect(argument).toHaveTextContent('It surprised me. Mermaids are not real.');
+    expect(argument).toHaveTextContent(POSTER.households);
+    fireEvent.click(screen.getByRole('button', { name: 'Print my argument' }));
+    expect(print).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Start again' }));
+    expect(screen.getByRole('heading', { name: 'Evidence 1 of 7' })).toBeInTheDocument();
+    print.mockRestore();
   });
 
-  it('lays a phrase on when it is carried to the scale, and not when it is let go elsewhere', () => {
-    // jsdom has no PointerEvent: a mouse event carries the pointer's place well enough.
-    if (!window.PointerEvent) (window as unknown as { PointerEvent: typeof MouseEvent }).PointerEvent = class extends MouseEvent {};
-    window.history.replaceState(null, '', '/#scale');
-    render(<WhoGetsRemembered />);
-    const scale =screen.getByRole('img', { name: /A scale, tipped/ });
-    jest.spyOn(scale, 'getBoundingClientRect').mockReturnValue({ left: 100, top: 100, right: 500, bottom: 400, width: 400, height: 300, x: 100, y: 100, toJSON: () => ({}) });
-    const carry = (label: string, to: { clientX: number; clientY: number }) => {
-      const b = screen.getByRole('button', { name: label });
-      fireEvent.pointerDown(b, { button: 0, clientX: 300, clientY: 600, pointerId: 1 });
-      fireEvent.pointerMove(b, { ...to, pointerId: 1 });
-      fireEvent.pointerUp(b, { ...to, pointerId: 1 });
-      fireEvent.click(b);
-    };
-    carry('activists', { clientX: 900, clientY: 600 });
-    expect(screen.getByRole('button', { name: 'activists' })).not.toBeDisabled();
-    carry('activists', { clientX: 300, clientY: 200 });
-    expect(screen.getByRole('button', { name: 'activists' })).toBeDisabled();
-    expect(screen.getByRole('status')).toHaveTextContent('activists, laid on the scale. 5 more.');
-    // A tap still lays one on.
-    fireEvent.click(screen.getByRole('button', { name: 'artists' }));
-    expect(screen.getByRole('button', { name: 'artists' })).toBeDisabled();
-  });
-
-  it('moves between the tabs with the arrow keys, and notes the same is true of other groups', () => {
+  it('is an oral history in six steps, with an interview sheet and a write-up to print', () => {
+    const print = jest.spyOn(window, 'print').mockImplementation(() => {});
     render(<WhoGetsRemembered />);
     fireEvent.keyDown(screen.getByRole('tab', { name: 'Who gets a statue?' }), { key: 'End' });
-    const talk = screen.getByRole('tab', { name: 'Talk about it' });
-    expect(talk).toHaveFocus();
+    expect(screen.getByRole('tab', { name: 'Talk about it' })).toHaveFocus();
     expect(window.location.hash).toBe('#talk');
-    const note = screen.getByRole('complementary', { name: 'Not only women' });
-    expect(note).toHaveTextContent('other minorities and underrepresented groups');
-    expect(note).toHaveTextContent(FACT_OTHERS.text);
+    const panel = screen.getByRole('tabpanel', { name: 'Talk about it' });
+    expect(within(panel).getByRole('heading', { name: 'Interview a woman in your family' })).toBeInTheDocument();
+    for (const t of BEFORE) expect(panel).toHaveTextContent(t.text);
+    fireEvent.click(within(panel).getByRole('button', { name: /Next: The questions/ }));
+    expect(within(panel).getByRole('heading', { name: '14 questions to ask' })).toHaveFocus();
+    const questions = INTERVIEW.flatMap((g) => g.questions);
+    expect(questions).toHaveLength(INTERVIEW_COUNT);
+    expect(INTERVIEW_COUNT).toBe(14);
+    for (const q of questions) expect(within(panel).getAllByText(q).length).toBeGreaterThan(0);
+    fireEvent.click(within(panel).getByRole('button', { name: 'While you listen' }));
+    for (const t of LISTENING) expect(panel).toHaveTextContent(t.text);
+    expect(within(panel).getAllByRole('link', { name: VETERANS_HISTORY.label }).length).toBeGreaterThan(0);
+    fireEvent.click(within(panel).getByRole('button', { name: 'Afterwards' }));
+    for (const t of AFTER) expect(panel).toHaveTextContent(t.text);
+    // The interview sheet: the tips and all fourteen questions, to take along.
+    fireEvent.click(within(panel).getByRole('button', { name: 'Print the interview sheet' }));
+    expect(print).toHaveBeenCalledTimes(1);
+    const sheet = document.querySelector('.whr-print-sheet')!;
+    for (const q of questions) expect(sheet).toHaveTextContent(q);
+    for (const r of REFLECT) expect(sheet).toHaveTextContent(r);
+    // The write-up.
+    fireEvent.click(within(panel).getByRole('button', { name: 'Write it up' }));
+    fireEvent.change(within(panel).getByRole('textbox', { name: 'I interviewed' }), { target: { value: 'Grandma Rose' } });
+    fireEvent.change(within(panel).getByRole('textbox', { name: WRITE_UP[0].label }), { target: { value: 'She sang in a choir.' } });
+    fireEvent.click(within(panel).getByRole('button', { name: 'Print my write-up' }));
+    expect(print).toHaveBeenCalledTimes(2);
+    const writeup = document.querySelector('.whr-print-writeup')!;
+    expect(writeup).toHaveTextContent('I interviewed Grandma Rose');
+    expect(writeup).toHaveTextContent('She sang in a choir.');
+    // And questions for the class, with the note that the same is true of other groups.
+    fireEvent.click(within(panel).getByRole('button', { name: 'With your class' }));
+    for (const q of QUESTIONS) expect(panel).toHaveTextContent(q);
+    expect(screen.getByRole('complementary', { name: 'Not only women' })).toHaveTextContent(FACT_OTHERS.text);
     expect(screen.getByRole('link', { name: 'Make a timeline of a woman in your life' })).toHaveAttribute('href', '/exhibitions/womens-history/violet#make');
+    expect(ORAL_SOURCES.map((x) => x.href)).toContain('https://www.loc.gov/vets/conducttheinterview.html');
+    print.mockRestore();
   });
 });
 

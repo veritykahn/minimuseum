@@ -504,3 +504,109 @@
   .hos-veil.is-leaving { animation: none; }
   .hos-veil.is-leaving { display: none; }
 }
+
+/* ───────── The stillness: one prompt at a time, with its source ───────── */
+.hos-veil-prompt-area { display: flex; align-items: center; justify-content: center; width: min(760px, 88vw); min-height: clamp(150px, 26vh, 260px); }
+.hos-veil-prompt { display: flex; flex-direction: column; align-items: center; gap: 12px; animation: hos-prompt 12s ease both; }
+.hos-veil-prompt-text { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: clamp(1.15rem, 2.3vw, 1.85rem); line-height: 1.5; color: #ece7e1; text-wrap: balance; }
+.hos-veil-prompt-text strong { font-weight: 600; color: #f4efe8; }
+.hos-veil-prompt.is-words .hos-veil-prompt-text { font-style: italic; }
+.hos-veil-prompt.is-question .hos-veil-prompt-text { color: #d6cfc7; }
+.hos-veil-prompt-cite { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: clamp(0.85rem, 1.2vw, 1rem); color: #a39b92; }
+.hos-veil-prompt-source { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 11px; letter-spacing: 0.04em; color: #8a837b; }
+.hos-veil-prompt-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+@keyframes hos-prompt { 0% { opacity: 0; } 14% { opacity: 1; } 86% { opacity: 1; } 100% { opacity: 0; } }
+
+/* ───────── The walk's panel: the way in ───────── */
+.hos-walk-about { max-width: 26em; font-family: var(--pe-body); font-size: 0.95rem; line-height: 1.6; color: var(--hos-muted); }
+
+/* ───────── The walk, full screen ───────── */
+.hos-walk-full {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: #050505;
+  color: #ece7e1;
+  overflow: hidden;
+  outline: none;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  animation: hos-dim 1.6s ease both;
+}
+.hos-walk-full .hos-walk-scene { position: absolute; inset: 0; }
+.hos-walk-full .hos-walk-glow { background: radial-gradient(ellipse 34% 18% at 50% 44%, rgba(214, 214, 220, 0.1), transparent 75%); }
+.hos-walk-full .hos-walk-vignette { background: radial-gradient(ellipse 70% 80% at 50% 46%, transparent 40%, rgba(0, 0, 0, 0.82) 100%); }
+/* Dark to the edges, all round. */
+.hos-walk-edges { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 18vmin 6vmin #000; }
+/* The picture far ahead, where the path goes: soft-edged, lit faintly, as if seen in the distance. */
+.hos-walk-ahead {
+  position: absolute;
+  left: 50%;
+  top: 7vh;
+  width: min(46vw, 560px, 52vh);
+  aspect-ratio: 10 / 7;
+  transform: translateX(-50%);
+  animation: hos-ahead 2.6s ease both;
+}
+.hos-walk-picture { margin: 0; width: 100%; height: 100%; color: #cfc8bf; }
+.hos-walk-picture img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.35) brightness(0.85); -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 55%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 55%, transparent 100%); }
+.hos-walk-picture svg { width: 100%; height: 100%; opacity: 0.62; overflow: visible; }
+.hos-walk-picture .is-light { fill: rgba(240, 222, 186, 0.16); }
+.hos-walk-picture .is-warm { stroke: #c9775a; }
+.hos-walk-picture .is-glow { fill: rgba(240, 222, 186, 0.08); stroke: none; }
+.hos-walk-picture .is-ground { stroke: rgba(207, 200, 191, 0.25); stroke-width: 1; }
+@keyframes hos-ahead { from { opacity: 0; } to { opacity: 1; } }
+
+/* One line a step, large enough for the back of a classroom, on a dark band over the path. */
+.hos-walk-words {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  justify-content: center;
+  padding: 28px 24px 18px;
+  background: linear-gradient(to bottom, transparent, rgba(5, 5, 5, 0.78) 34%, rgba(5, 5, 5, 0.86));
+  text-align: center;
+}
+.hos-walk-say-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; animation: hos-ahead 1.8s ease both; }
+.hos-walk-say { max-width: 30em; font-family: var(--pe-body, 'Inter', sans-serif); font-size: clamp(1.25rem, 2.7vw, 2.4rem); line-height: 1.4; color: #f1ece5; text-wrap: balance; animation: hos-ahead 1.8s ease both; }
+.hos-walk-say.is-intro { font-size: clamp(1.05rem, 2vw, 1.6rem); color: #cfc8bf; }
+.hos-walk-source { font-size: 12px; letter-spacing: 0.04em; color: #9a938a; }
+.hos-walk-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.hos-walk-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 18px 16px calc(22px + env(safe-area-inset-bottom, 0px));
+  background: rgba(5, 5, 5, 0.86);
+}
+.hos-walk-full .hos-button { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #ece7e1; border-color: rgba(236, 231, 225, 0.45); }
+.hos-walk-full .hos-button-primary { border-color: #d6cfc7; }
+.hos-walk-full .hos-button:focus-visible { outline: 2px solid #d6cfc7; outline-offset: 3px; }
+.hos-walk-full .hos-button[aria-pressed='true'] { border-color: #ece7e1; background: rgba(236, 231, 225, 0.1); }
+.hos-walk-full .hos-walk-leave { border-color: rgba(236, 231, 225, 0.25); color: #a39b92; }
+
+@media (max-width: 760px) {
+  .hos-veil-prompt-area { min-height: 200px; }
+  .hos-walk-ahead { top: 5vh; width: min(78vw, 46vh); }
+  .hos-walk-words { bottom: calc(128px + env(safe-area-inset-bottom, 0px)); padding: 22px 16px 12px; }
+  .hos-walk-say { font-size: 1.15rem; }
+  /* A phone: the step across the foot, the three quieter buttons in one row under it. */
+  .hos-walk-bar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 10px 10px calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .hos-walk-bar .hos-button { padding: 10px 4px; font-size: 10px; letter-spacing: 0.06em; gap: 6px; }
+  .hos-walk-bar .hos-button-primary { grid-column: 1 / -1; font-size: 12px; letter-spacing: 0.14em; }
+}
+@media (min-width: 1600px) {
+  .hos-walk-say { font-size: 2.8rem; }
+  .hos-walk-source { font-size: 15px; }
+  .hos-veil-prompt-source { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hos-veil-prompt, .hos-walk-full, .hos-walk-ahead, .hos-walk-say, .hos-walk-say-wrap { animation: none; }
+}

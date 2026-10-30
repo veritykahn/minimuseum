@@ -1083,7 +1083,7 @@ export const WOMENS_HISTORY: MapLevelConfig = {
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
 // ├───────────────╴ ╶──────────────┤
-// │          Lay a Stone           │
+// │          Never Forget          │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
@@ -1108,7 +1108,7 @@ const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
       labelX: 250, labelY: 230,
     },
     {
-      id: 'ho-stones', label: 'Lay a Stone', path: '/exhibitions/holocaust/stones',
+      id: 'ho-stones', label: 'Never Forget', path: '/exhibitions/holocaust/stones',
       accentColor: COLORS.holocaust, parent: 'holocaust',
       x: 40, y: 280, width: 420, height: 100,
       labelX: 250, labelY: 330,

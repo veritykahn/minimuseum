@@ -1,26 +1,30 @@
 'use client';
 
-import Link from 'next/link';
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { flushSync } from 'react-dom';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
-import FactNote from '@/components/exhibition/FactNote';
+import FactNote, { FactSources } from '@/components/exhibition/FactNote';
 import { WOMENS_HISTORY } from '../womensHistory';
-import { FACT_MERMAIDS, FACT_OTHERS, FACT_TOP_50, POSTER, QUESTIONS, TOP_50, WEIGHTS, WOMEN_IN_TOP_50, beamTilt, guessLine, type WeightId } from './remembered';
+import { AUDIT, FACT_MERMAIDS, FACT_TOP_50, TOP_50, WOMEN_IN_TOP_50, guessLine } from './remembered';
+import { CONFEDERATE_NAMES, FACT_CONFEDERATE, THREE_WOMEN, rankOf, type WomanId } from './threeWomen';
+import WeighTheEvidence from './WeighTheEvidence';
+import OralHistory, { type PrintKind } from './OralHistory';
 import './remembered.css';
 
 /*
  * Who Gets Remembered?, on one screen, in three tabs, each with its own
  * address. "Who gets a statue?": fifty statues on their plinths, the fifty
  * people with the most public monuments in the US; the visitor guesses how
- * many are women, and the names are uncovered. "Tip the scale": poster 1's
- * own argument as a balance, the men "credited with 'shaping history'" on
- * one pan and, laid on the other one by one, what the poster says the story
- * leaves out (tapped, or carried there). "Talk about it": questions for the class, and a note that the
- * same is true of other groups. Facts from outside the poster are cited
- * (remembered.ts). Nothing moves under reduced motion.
+ * many are women, and the names are uncovered; then they can meet the three
+ * women (threeWomen.ts), and read a note on the four Confederate names
+ * among the fifty. "Tip the scale": weigh the evidence for poster 1's claim,
+ * choose the strongest and say why (WeighTheEvidence.tsx). "Talk about it":
+ * an oral history with a woman in your family, with an interview sheet and a
+ * write-up to print (OralHistory.tsx). Facts from outside the poster are
+ * cited. Nothing moves under reduced motion.
  */
 
 const TABS = [
@@ -31,6 +35,9 @@ const TABS = [
 type TabId = (typeof TABS)[number]['id'];
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
+type Detail = WomanId | 'confederate' | null;
+
+const isConfederate = (name: string) => (CONFEDERATE_NAMES as readonly string[]).includes(name);
 
 function tabFromHash(hash: string): TabId | null {
   const h = hash.replace(/^#/, '');
@@ -55,10 +62,12 @@ export default function WhoGetsRemembered() {
   const [tab, setTab] = useState<TabId>('statues');
   const [guess, setGuess] = useState(10);
   const [revealed, setRevealed] = useState(false);
-  const [placed, setPlaced] = useState<WeightId[]>([]);
-  const placedRef = useRef<WeightId[]>([]);
+  const [detail, setDetail] = useState<Detail>(null);
+  const [printing, setPrinting] = useState<PrintKind | null>(null);
   const [announcement, setAnnouncement] = useState('');
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ statues: null, scale: null, talk: null });
+  const detailHead = useRef<HTMLHeadingElement>(null);
+  const opened = useRef(false);
 
   useEffect(() => {
     const fromHash = () => {
@@ -69,6 +78,23 @@ export default function WhoGetsRemembered() {
     window.addEventListener('hashchange', fromHash);
     return () => window.removeEventListener('hashchange', fromHash);
   }, []);
+
+  // Printing: the chosen sheet is marked on the room (in place before the dialog opens), printed, and unmarked.
+  const print = useCallback((kind: PrintKind) => {
+    flushSync(() => setPrinting(kind));
+    try {
+      window.print();
+    } catch {
+      /* no print dialog here (a test, or an embedded view) */
+    }
+    setPrinting(null);
+  }, []);
+
+  useEffect(() => {
+    if (!opened.current) return;
+    opened.current = false;
+    detailHead.current?.focus({ preventScroll: true });
+  }, [detail]);
 
   const choose = useCallback((id: TabId, focus = false) => {
     setTab(id);
@@ -95,61 +121,15 @@ export default function WhoGetsRemembered() {
   };
   const again = () => {
     setRevealed(false);
+    setDetail(null);
     setAnnouncement('The names are covered again. Make a new guess.');
   };
-
-  const place = (id: WeightId) => {
-    if (placedRef.current.includes(id)) return;
-    const next = [...placedRef.current, id];
-    placedRef.current = next;
-    setPlaced(next);
-    const w = WEIGHTS.find((x) => x.id === id)!;
-    setAnnouncement(next.length === WEIGHTS.length ? `${w.label}. The scale is level.` : `${w.label}, laid on the scale. ${WEIGHTS.length - next.length} more.`);
-  };
-  // A phrase can also be carried to the scale: picked up, it follows the pointer, and is laid on if let go over the scale.
-  const scaleRef = useRef<HTMLDivElement>(null);
-  const carry = useRef<{ id: WeightId; x: number; y: number; moved: boolean } | null>(null);
-  // A carry let go off the scale is not also a click: only a tap lays a phrase on where it stands.
-  const carryEnded = useRef(false);
-  const [carried, setCarried] = useState<{ id: WeightId; dx: number; dy: number; over: boolean } | null>(null);
-  const overScale = (x: number, y: number) => {
-    const r = scaleRef.current?.getBoundingClientRect();
-    return !!r && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
-  };
-  const onWeightDown = (e: PointerEvent<HTMLButtonElement>, id: WeightId) => {
-    if (e.button !== 0) return;
-    carryEnded.current = false;
-    carry.current = { id, x: e.clientX, y: e.clientY, moved: false };
-    e.currentTarget.setPointerCapture?.(e.pointerId);
-  };
-  const onWeightMove = (e: PointerEvent<HTMLButtonElement>) => {
-    const c = carry.current;
-    if (!c) return;
-    const dx = e.clientX - c.x;
-    const dy = e.clientY - c.y;
-    if (!c.moved && Math.hypot(dx, dy) < 6) return;
-    c.moved = true;
-    setCarried({ id: c.id, dx, dy, over: overScale(e.clientX, e.clientY) });
-  };
-  const onWeightUp = (e: PointerEvent<HTMLButtonElement>) => {
-    const c = carry.current;
-    carry.current = null;
-    setCarried(null);
-    if (!c?.moved) return;
-    // Laid on, the button is disabled and no click follows; let go elsewhere, the click that follows is not a tap.
-    if (overScale(e.clientX, e.clientY)) place(c.id);
-    else carryEnded.current = true;
-  };
-  const onWeightClick = (id: WeightId) => {
-    if (carryEnded.current) {
-      carryEnded.current = false;
-      return;
-    }
-    place(id);
+  const open = (d: Detail) => {
+    opened.current = true;
+    setDetail(d);
   };
 
-  const tilt = beamTilt(placed.length);
-  const level = placed.length === WEIGHTS.length;
+  const woman = THREE_WOMEN.find((w) => w.id === detail);
 
   const style: CssVars = {
     background: '#e8d6cc',
@@ -159,7 +139,7 @@ export default function WhoGetsRemembered() {
   };
 
   return (
-    <div className="pe-root whr-room" data-exhibition={slug} style={style}>
+    <div className="pe-root whr-room" data-exhibition={slug} data-print={printing ?? (tab === 'scale' ? 'argument' : tab === 'talk' ? 'sheet' : undefined)} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
 
       <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
@@ -197,17 +177,71 @@ export default function WhoGetsRemembered() {
 
         {/* Who gets a statue? */}
         <section className="whr-panel whr-statues" id="whr-panel-statues" role="tabpanel" aria-labelledby="whr-tab-statues" hidden={tab !== 'statues'}>
-          <ol className={`whr-plinths${revealed ? ' is-revealed' : ''}`} aria-label={revealed ? 'The 50 people with the most public monuments in the US' : undefined} aria-hidden={revealed ? undefined : true}>
-            {TOP_50.map((p, i) => {
-              const lit = revealed ? !!p.woman : i < guess;
-              return (
-                <li key={p.rank} className={`whr-cell${lit ? ' is-lit' : ''}${p.woman ? ' is-woman' : ''}`} style={{ '--i': String(i) } as CssVars}>
-                  <Statue />
-                  <span className="whr-name">{revealed ? p.name : ''}</span>
-                </li>
-              );
-            })}
-          </ol>
+          {revealed && detail ? (
+            <article className="whr-meet" aria-labelledby="whr-meet-head">
+              {woman ? (
+                <>
+                  <h2 className="whr-meet-head" id="whr-meet-head" ref={detailHead} tabIndex={-1}>
+                    {woman.name}
+                  </h2>
+                  <p className="whr-meet-rank">
+                    Number {rankOf(woman.name).rank} in the Top 50, with {rankOf(woman.name).monuments} recorded monuments.{' '}
+                    <FactSources sources={[AUDIT]} className="whr-fact-source" />
+                  </p>
+                  <ol className="whr-meet-lines">
+                    {woman.lines.map((l) => (
+                      <li key={l}>{l}</li>
+                    ))}
+                  </ol>
+                  {woman.words && (
+                    <blockquote className="whr-meet-words">
+                      <p>“{woman.words.text}”</p>
+                      <footer>{woman.words.cite}</footer>
+                    </blockquote>
+                  )}
+                  <FactSources sources={[woman.source]} className="whr-fact-source" />
+                </>
+              ) : (
+                <>
+                  <h2 className="whr-meet-head" id="whr-meet-head" ref={detailHead} tabIndex={-1}>
+                    About four of these names
+                  </h2>
+                  <p className="whr-meet-names">{CONFEDERATE_NAMES.join(' · ')}</p>
+                  <FactNote fact={FACT_CONFEDERATE} className="whr-fact whr-fact-long" as="div" />
+                </>
+              )}
+              <div className="whr-meet-buttons">
+                {THREE_WOMEN.filter((w) => w.id !== detail).map((w) => (
+                  <button key={w.id} type="button" className="whr-button" onClick={() => open(w.id)}>
+                    Meet {w.name}
+                  </button>
+                ))}
+                <button type="button" className="whr-button whr-button-primary" onClick={() => open(null)}>
+                  Back to the fifty statues
+                </button>
+              </div>
+            </article>
+          ) : (
+            <ol className={`whr-plinths${revealed ? ' is-revealed' : ''}`} aria-label={revealed ? 'The 50 people with the most public monuments in the US' : undefined} aria-hidden={revealed ? undefined : true}>
+              {TOP_50.map((p, i) => {
+                const lit = revealed ? !!p.woman : i < guess;
+                return (
+                  <li key={p.rank} className={`whr-cell${lit ? ' is-lit' : ''}${p.woman ? ' is-woman' : ''}`} style={{ '--i': String(i) } as CssVars}>
+                    <Statue />
+                    <span className="whr-name">
+                      {revealed ? p.name : ''}
+                      {revealed && isConfederate(p.name) && (
+                        <span className="whr-mark">
+                          <span aria-hidden="true">*</span>
+                          <span className="visually-hidden"> (a Confederate leader: see the note “About four of these names”)</span>
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
 
           <div className={`whr-side${revealed ? ' is-revealed' : ''}`}>
             <p className="whr-ask">The 50 people with the most public monuments in the United States. How many do you think are women?</p>
@@ -226,8 +260,19 @@ export default function WhoGetsRemembered() {
                 <p className="whr-result-line">
                   <span className="whr-result-n">{WOMEN_IN_TOP_50.length}</span> {guessLine(guess)}
                 </p>
+                <div className="whr-meet-pick" role="group" aria-label="Meet the three women">
+                  <p className="whr-meet-pick-title">Meet the three women</p>
+                  {THREE_WOMEN.map((w) => (
+                    <button key={w.id} type="button" className="whr-button whr-meet-button" aria-pressed={detail === w.id} onClick={() => open(w.id)}>
+                      {w.name}
+                    </button>
+                  ))}
+                </div>
                 <FactNote fact={FACT_TOP_50} className="whr-fact" />
                 <FactNote fact={FACT_MERMAIDS} className="whr-fact" />
+                <button type="button" className="whr-link-button" aria-pressed={detail === 'confederate'} onClick={() => open('confederate')}>
+                  <span aria-hidden="true">* </span>About four of these names
+                </button>
                 <button type="button" className="whr-button" onClick={again}>
                   Guess again
                 </button>
@@ -238,101 +283,12 @@ export default function WhoGetsRemembered() {
 
         {/* Tip the scale */}
         <section className="whr-panel whr-scale-panel" id="whr-panel-scale" role="tabpanel" aria-labelledby="whr-tab-scale" hidden={tab !== 'scale'}>
-          <blockquote className="whr-quote">{POSTER.overshadowed}</blockquote>
-          <div ref={scaleRef} className={`whr-scale${carried?.over ? ' is-over' : ''}`} role="img" aria-label={level ? 'A scale, now level' : `A scale, tipped down on the men’s side, with ${placed.length} of ${WEIGHTS.length} laid on the other`}>
-            <svg viewBox="0 0 600 330" aria-hidden="true" focusable="false">
-              <path className="whr-scale-post" d="M296 70h8v196h-8z M240 266h120l10 18H230z" />
-              <g className="whr-beam" style={{ transform: `rotate(${tilt}deg)` }}>
-                <rect x="90" y="64" width="420" height="10" rx="5" />
-                <circle cx="300" cy="69" r="11" />
-                {/* Each pan hangs from its end of the beam, and stays upright as the beam tips. */}
-                <g className="whr-pan" style={{ transform: `rotate(${-tilt}deg)`, transformOrigin: '100px 69px' }}>
-                  <path className="whr-cord" d="M100 69 48 186M100 69l52 117" />
-                  <path className="whr-dish" d="M44 186h112c-6 22-28 32-56 32s-50-10-56-32z" />
-                  {[0, 1, 2, 3, 4].map((k) => (
-                    <g key={k} className="whr-pan-statue" transform={`translate(${66 + k * 14} ${159 - (k % 2) * 5}) scale(0.45)`}>
-                      <circle cx="20" cy="9" r="5.5" />
-                      <path d="M12 18c2-2 5-3 8-3s6 1 8 3l2 15-4 1-1-9v21h-4V33h-2v13h-4V25l-1 9-4-1z" />
-                      <rect x="9" y="47" width="22" height="14" />
-                    </g>
-                  ))}
-                </g>
-                <g className="whr-pan" style={{ transform: `rotate(${-tilt}deg)`, transformOrigin: '500px 69px' }}>
-                  <path className="whr-cord" d="M500 69l-52 117M500 69l52 117" />
-                  <path className="whr-dish whr-dish-out" d="M444 186h112c-6 22-28 32-56 32s-50-10-56-32z" />
-                  {placed.map((id, k) => (
-                    <rect key={id} className="whr-weight" x={462 + (k % 3) * 26} y={170 - Math.floor(k / 3) * 18} width="24" height="16" rx="2" />
-                  ))}
-                </g>
-              </g>
-              <text className="whr-scale-label" x="100" y="304" textAnchor="middle">
-                <tspan x="100">the men credited with</tspan>
-                <tspan x="100" dy="16">“shaping history”</tspan>
-              </text>
-              <text className="whr-scale-label" x="500" y="304" textAnchor="middle">
-                <tspan x="500">what the story</tspan>
-                <tspan x="500" dy="16">leaves out</tspan>
-              </text>
-            </svg>
-          </div>
-          {!level ? (
-            <div className="whr-weights">
-              <p className="whr-weights-ask">Poster 1 names what else tells the story. Tap each one, or carry it, to lay it on the scale.</p>
-              <div className="whr-weights-list">
-                {WEIGHTS.map((w) => (
-                  <button
-                    key={w.id}
-                    type="button"
-                    className={`whr-weight-button${carried?.id === w.id ? ' is-dragging' : ''}`}
-                    style={carried?.id === w.id ? { transform: `translate(${carried.dx}px, ${carried.dy}px)` } : undefined}
-                    aria-pressed={placed.includes(w.id)}
-                    disabled={placed.includes(w.id)}
-                    onClick={() => onWeightClick(w.id)}
-                    onPointerDown={(e) => onWeightDown(e, w.id)}
-                    onPointerMove={onWeightMove}
-                    onPointerUp={onWeightUp}
-                    onPointerCancel={() => {
-                      carry.current = null;
-                      setCarried(null);
-                    }}
-                  >
-                    {w.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="whr-level">
-              <blockquote className="whr-quote whr-quote-end">
-                <p>{POSTER.deeper}</p>
-                <p>{POSTER.households}</p>
-              </blockquote>
-              <button type="button" className="whr-button" onClick={() => {
-                  placedRef.current = [];
-                  setPlaced([]);
-                  setAnnouncement('The scale is tipped again.');
-                }}>
-                Start again
-              </button>
-            </div>
-          )}
+          <WeighTheEvidence onSay={setAnnouncement} onPrint={() => print('argument')} />
         </section>
 
         {/* Talk about it */}
         <section className="whr-panel whr-talk" id="whr-panel-talk" role="tabpanel" aria-labelledby="whr-tab-talk" hidden={tab !== 'talk'}>
-          <ol className="whr-questions">
-            {QUESTIONS.map((q) => (
-              <li key={q}>{q}</li>
-            ))}
-          </ol>
-          <aside className="whr-others" aria-label="Not only women">
-            <p className="whr-others-title">Not only women</p>
-            <p className="whr-others-line">The same is true of other minorities and underrepresented groups: their stories, too, are often left out of the history that gets told.</p>
-            <FactNote fact={FACT_OTHERS} className="whr-fact" />
-            <Link className="whr-button" href="/exhibitions/womens-history/violet#make">
-              Make a timeline of a woman in your life
-            </Link>
-          </aside>
+          <OralHistory onPrint={print} />
         </section>
 
         <p className="visually-hidden" role="status" aria-live="polite">{announcement}</p>

@@ -205,6 +205,22 @@ describe('Holocaust Memorial Day', () => {
       expect(credits.map((a) => a.getAttribute('href'))).toEqual(COMMONS_PICTURES.map((c) => c.href));
     });
 
+    it('sets the teacher note first in "Teach with this", for every role', () => {
+      window.sessionStorage.removeItem('mm-teach-role');
+      render(<PosterExhibition config={HOLOCAUST} />);
+      fireEvent.click(screen.getByRole('button', { name: /Teach with this/ }));
+      tick(50);
+      const dialog = screen.getByRole('dialog', { name: 'Holocaust Memorial Day' });
+      const note = within(dialog).getByRole('note');
+      expect(note).toHaveTextContent('Recommended for grades 6 and up; for younger students, preview first and stay with them.');
+      fireEvent.click(within(dialog).getByRole('button', { name: /Parent/ }));
+      expect(within(dialog).getByRole('note')).toBe(note);
+      // The interactive, renamed, in the sheet's list.
+      expect(within(dialog).getByRole('link', { name: /Never Forget/ })).toHaveAttribute('href', '/exhibitions/holocaust/stones');
+      expect(HOLOCAUST.interactives?.[0]).toMatchObject({ title: 'Never Forget', subtitle: 'Lay a stone, keep a minute’s stillness, walk the path' });
+      window.sessionStorage.removeItem('mm-teach-role');
+    });
+
     it('opens International Holocaust Remembrance Day as the light comes up, with credited pictures', () => {
       render(<PosterExhibition config={HOLOCAUST} />);
       fireEvent.click(screen.getByRole('button', { name: /^National Holocaust Memorial Day poster/ }));
@@ -281,14 +297,14 @@ describe('The Holocaust Memorial Day display case page', () => {
 });
 
 describe('Holocaust Memorial Day on the museum map', () => {
-  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and Lay a Stone', () => {
+  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and Never Forget', () => {
     const level = getLevelConfig('/exhibitions/holocaust/artifacts/case');
     expect(level.title).toBe('Holocaust Memorial Day');
     expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/holocaust'],
       ['Display Case', '/exhibitions/holocaust/artifacts/case'],
-      ['Lay a Stone', '/exhibitions/holocaust/stones'],
+      ['Never Forget', '/exhibitions/holocaust/stones'],
     ]);
     expect(getRoomByPath('/exhibitions/holocaust')?.parent).toBe('first-floor');
     expect(getRoomByPath('/exhibitions/holocaust/artifacts/case')?.parent).toBe('holocaust');

@@ -31,6 +31,8 @@ export type TeachContent = {
   posters: { id: string; title: string; items: { type: string; text?: string }[]; talk: PosterTalk }[];
   /** The exhibition's interactive rooms (its projector links). */
   links: { label: string; href: string }[];
+  /** A note for whoever teaches with it, shown first (an age recommendation, say). */
+  note?: string;
 };
 
 /*
@@ -97,6 +99,11 @@ export default function TeachSheet({ content, onPresent, onClose }: { content: T
         </header>
 
         <div className={styles.body} ref={bodyRef}>
+          {content.note && (
+            <p className={styles.note} role="note">
+              <span className={styles.noteLabel}>A note for teachers</span> {content.note}
+            </p>
+          )}
           {role === null ? (
             <section aria-labelledby="teach-who">
               <h3 className={styles.who} id="teach-who">
