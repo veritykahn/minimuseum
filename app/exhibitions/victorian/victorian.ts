@@ -79,6 +79,8 @@ const COURT_DRESS: PanelFigure = {
  * photographs behind them (public/exhibitions/victorian/titles/). A sharper
  * export of the same lettering can replace a file at the same path; update
  * its size here when it does.
+ * The cut stays on disk; the title is set in type (`live`, in the poster's
+ * own face, drawn in the exhibition's stylesheet) so it is sharp on any screen.
  */
 const TITLE_SIZES = {
   revolutionary: { width: 500, height: 203 },
@@ -213,6 +215,7 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/victorian/titles/revolutionary-victorian-britain.png',
           ...TITLE_SIZES.revolutionary,
           framing: 'centered',
+          live: { className: 'vb-live vb-live-revolutionary', lines: [{ text: 'REVOLUTIONARY', className: 'vb-live-small' }, { text: 'VICTORIAN' }, { text: 'BRITAIN' }] },
           alt: 'Revolutionary Victorian Britain',
         },
         { type: 'paragraph', section: 'lede', atmosphere: 'wallpaper-damask', effect: 'kenburns-in', figure: COURT_DRESS, text: 'Victorian Britain was a time of innovation, fashion, culture, and the birth of one of the most iconic museums in the world today!' },
@@ -266,6 +269,7 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/victorian/titles/charles-dickens-christmas.png',
           ...TITLE_SIZES.christmas,
           framing: 'centered',
+          live: { className: 'vb-live vb-live-christmas', lines: [{ text: 'CHARLES DICKENS,' }, { text: 'VICTORIAN BRITAIN' }, { text: 'AND THE INVENTION OF HOW WE CELEBRATE', className: 'vb-live-small' }, { text: 'CHRISTMAS', className: 'vb-live-big' }] },
           alt: 'Charles Dickens, Victorian Britain and the Invention of How We Celebrate Christmas',
         },
         {

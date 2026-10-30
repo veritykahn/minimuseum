@@ -51,13 +51,15 @@ const BODY = "'Jost', 'Futura', system-ui, sans-serif";
 
 /*
  * The posters' titles as pictures: their own lettering, cut from the posters
- * at the posters' resolution with the night sky keyed out
+ * at the posters' 1728px exports with the night sky keyed out
  * (public/exhibitions/moon/titles/). A sharper export of the same lettering
  * can replace a file at the same path; update its size here when it does.
  */
+/** Cut from the poster's 1728px export: 1728 of its pixels to every 1050 of the served poster's. */
+const TITLE_DENSITY = 1728 / 1050;
 const TITLE_SIZES = {
-  ourIncredibleMoon: { width: 952, height: 627 },
-  anotherEarth: { width: 437, height: 538 },
+  ourIncredibleMoon: { width: 1567, height: 1032, density: TITLE_DENSITY },
+  anotherEarth: { width: 719, height: 885, density: TITLE_DENSITY },
 };
 
 /*
@@ -191,7 +193,7 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
           section: 'title',
           atmosphere: 'moon-tides',
           effect: 'rise-expand',
-          src: '/exhibitions/moon/titles/our-incredible-moon.png',
+          src: '/exhibitions/moon/titles/our-incredible-moon.webp',
           ...TITLE_SIZES.ourIncredibleMoon,
           framing: 'centered',
           alt: 'Our Incredible Moon',
@@ -239,7 +241,7 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
           section: 'title',
           atmosphere: 'exoplanet-transit',
           effect: 'glitch',
-          src: '/exhibitions/moon/titles/another-earth.png',
+          src: '/exhibitions/moon/titles/another-earth.webp',
           ...TITLE_SIZES.anotherEarth,
           framing: 'centered',
           alt: 'Another Earth',

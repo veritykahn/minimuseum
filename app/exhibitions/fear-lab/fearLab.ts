@@ -56,14 +56,16 @@ const POINT_HORROR = {
 
 /*
  * The posters' titles as pictures: their own lettering, cut from the posters
- * at the posters' resolution with the navy ground keyed out
+ * at the posters' 1728px exports with the navy ground keyed out
  * (public/exhibitions/fear-lab/titles/). A sharper export of the same
  * lettering can replace a file at the same path; update its size here when
  * it does.
  */
+/** Cut from the poster's 1728px export: 1728 of its pixels to every 1050 of the served poster's. */
+const TITLE_DENSITY = 1728 / 1050;
 const TITLE_SIZES = {
-  scienceOfBeingScared: { width: 943, height: 332 },
-  pageTurners: { width: 832, height: 170 },
+  scienceOfBeingScared: { width: 1552, height: 546, density: TITLE_DENSITY },
+  pageTurners: { width: 1369, height: 280, density: TITLE_DENSITY },
 };
 
 /*
@@ -156,7 +158,7 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
           type: 'title-image',
           atmosphere: 'shadow-people',
           effect: 'mega-zoom-out',
-          src: '/exhibitions/fear-lab/titles/science-of-being-scared.png',
+          src: '/exhibitions/fear-lab/titles/science-of-being-scared.webp',
           ...TITLE_SIZES.scienceOfBeingScared,
           framing: 'centered',
           alt: 'The Science of Being Scared: Fear Lab',
@@ -220,7 +222,7 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
           type: 'title-image',
           atmosphere: 'penny-candle',
           effect: 'split-reveal',
-          src: '/exhibitions/fear-lab/titles/page-turners.png',
+          src: '/exhibitions/fear-lab/titles/page-turners.webp',
           ...TITLE_SIZES.pageTurners,
           framing: 'centered',
           alt: 'Page Turners & Spine Tinglers',

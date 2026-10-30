@@ -135,7 +135,7 @@ describe('Our Incredible Moon', () => {
     expect(decor.sort()).toEqual(['/exhibitions/moon/ringed-planet.jpg', '/exhibitions/moon/three-moons.jpg']);
     // The titles are the posters' own lettering (poster 1's with its rising moon).
     const titles = allItems.flatMap((it) => (it.type === 'title-image' ? [it.src] : []));
-    expect(titles).toEqual(['/exhibitions/moon/titles/our-incredible-moon.png', '/exhibitions/moon/titles/another-earth.png']);
+    expect(titles).toEqual(['/exhibitions/moon/titles/our-incredible-moon.webp', '/exhibitions/moon/titles/another-earth.webp']);
     for (const c of MOON.cases ?? []) expect(c.image).toBeUndefined();
   });
 

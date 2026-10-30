@@ -127,6 +127,8 @@ export const BIO = {
  * posters' resolution with the ground keyed out
  * (public/exhibitions/womens-history/titles/). A sharper export of the same
  * lettering can replace a file at the same path; update its size here.
+ * The cut stays on disk; the title is set in type (`live`, in the poster's
+ * own face, drawn in the exhibition's stylesheet) so it is sharp on any screen.
  */
 const TITLE_SIZES = {
   womensHistory: { width: 657, height: 282 },
@@ -258,6 +260,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/womens-history/titles/womens-history.png',
           ...TITLE_SIZES.womensHistory,
           framing: 'centered',
+          live: { className: 'wh-live wh-live-history', lines: [{ text: 'WO', className: 'wh-u' }, { text: 'MEN', className: 'wh-u' }, { text: "'S", className: 'wh-u' }, { text: 'HISTORY' }] },
           alt: "Women's History",
           marks: { left: "Women's History Month | March 1st to 31st", right: "International Women's Day | March 8th" },
           decor: splash(SPLASH_TL, 'top-left'),
@@ -336,6 +339,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/womens-history/titles/working-womans.png',
           ...TITLE_SIZES.workingWomans,
           framing: 'centered',
+          live: { className: 'wh-live wh-live-working', lines: [{ text: 'WORK' }, { text: 'WO', className: 'wh-u' }, { text: 'MAN', className: 'wh-u' }, { text: "'S", className: 'wh-u' }] },
           alt: "Working Woman's",
         },
         {

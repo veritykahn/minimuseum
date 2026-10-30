@@ -126,7 +126,21 @@
 [data-exhibition='black-history'] .bh-title:not(.bh-title-bubble) .pe-title-image-heading img { filter: drop-shadow(6px 6px 0 #141414); }
 [data-exhibition='black-history'] .bh-title { --pe-title-scale: 1.7; }
 /* Poster 2's title steps right of the red lockup at the left, as the poster sets it. */
-[data-exhibition='black-history'] .pe-title-image.bh-title-bubble { padding-left: 14vw; padding-right: 4vw; }
+[data-exhibition='black-history'] .pe-title-image.bh-title-bubble { --pe-title-scale: 1.45; padding-left: 15vw; padding-right: 5vw; }
+[data-exhibition='black-history'] .bh-title-bubble.pe-frame-centered img { width: min(78vw, calc(var(--pe-title-w) * var(--pe-title-scale))); }
+[data-exhibition='black-history'] .pjp-stage .bh-title-bubble.pe-frame-centered img { width: min(74cqw, calc(var(--pe-title-w) * var(--pe-title-scale))); }
+/* The titles set in type (sharp on any screen), in the posters' own faces and proportions. */
+[data-exhibition='black-history'] .bh-live-month {
+  font-family: var(--pe-display);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-variation-settings: 'wdth' 125;
+  font-size: calc(var(--pe-tu) * 7);
+  line-height: 1.02;
+  text-align: left;
+  color: #fff;
+  text-shadow: 0.075em 0.075em 0 #141414;
+}
 
 /* ───────── Copy: a condensed grotesque, as poster 1 sets it ───────── */
 [data-exhibition='black-history'] .pe-paragraph-text {

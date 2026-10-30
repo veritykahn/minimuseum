@@ -44,6 +44,8 @@ const DATE_HEAD: PanelMarks = { left: '11.11.1918', right: '11:00', placement: '
  * at the posters' resolution (public/exhibitions/great-war/titles/). A
  * sharper export of the same lettering can replace a file at the same path;
  * update its size here when it does.
+ * The cut stays on disk; the title is set in type (`live`, in the poster's
+ * own face, drawn in the exhibition's stylesheet) so it is sharp on any screen.
  */
 const TITLE_SIZES = {
   doughboys: { width: 687, height: 112 },
@@ -174,6 +176,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/great-war/titles/doughboys.png',
           ...TITLE_SIZES.doughboys,
           framing: 'centered',
+          live: { className: 'gw-live', lines: [{ text: 'The Doughboys: America’s' }, { text: 'Sons in The Great War' }] },
           alt: "The Doughboys: America's Sons in The Great War",
           audio: '/exhibitions/great-war/audio/poster1-01.mp3',
           marks: DATE_FOOT,
@@ -236,6 +239,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/great-war/titles/guns-fell-silent.png',
           ...TITLE_SIZES.gunsFellSilent,
           framing: 'centered',
+          live: { className: 'gw-live', lines: [{ text: 'When the Guns Fell Silent at' }, { text: 'the 11^th^ Hour' }] },
           alt: 'When the Guns Fell Silent at the 11th Hour',
           marks: DATE_HEAD,
         },

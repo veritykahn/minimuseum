@@ -215,6 +215,23 @@ img.pe-effect-erase { animation: peErase 10s ease forwards; }
 .pe-frame-height { padding: 0; }
 .pe-frame-height img { width: auto; height: 100vh; max-width: none; --pe-pan: 25vw; }
 .pjp-stage .pe-frame-centered img { width: min(88cqw, calc(var(--pe-title-w, 900px) * var(--pe-title-scale, 1.5))); max-height: 66cqh; }
+
+/* The lettering set in type (TitleImageItem.live): the poster's own face,
+   sharp on any screen. Sizes are in --pe-tu, a hundredth of the stage's
+   width but never so large that the title outgrows its height, so each
+   exhibition sets its lines as the poster proportions them. */
+.pe-title-live {
+  --pe-tu: min(1vw, 1.75vh);
+  display: block;
+  color: var(--pfx-ink);
+  line-height: 1;
+  text-align: center;
+  font-kerning: normal;
+  text-rendering: optimizeLegibility;
+}
+.pjp-stage .pe-title-live { --pe-tu: min(1cqw, 1.75cqh); }
+.pe-title-live-line { display: block; white-space: nowrap; }
+.pe-title-live sup { font-size: 0.5em; line-height: 0; vertical-align: 0.85em; }
 .pjp-stage .pe-frame-height img { height: 100cqh; }
 
 /* ───────── A picture with its label beside it (ArtworkDisplayItem) ───────── */

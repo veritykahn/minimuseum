@@ -72,13 +72,15 @@ const ISIS: PanelFigure = {
 
 /*
  * The posters' titles as pictures: their own lettering, the white serif and
- * the orange-red script together, cut from the posters at the posters'
- * resolution (public/exhibitions/egypt/titles/). A sharper export of the same
- * lettering can replace a file at the same path; update its size here.
+ * the orange-red script together (no web face matches the script), cut
+ * from the posters' 1728px exports (public/exhibitions/egypt/titles/). A
+ * sharper export of the same lettering can replace a file; update its size here.
  */
+/** Cut from the poster's 1728px export: 1728 of its pixels to every 1050 of the served poster's. */
+const TITLE_DENSITY = 1728 / 1050;
 const TITLE_SIZES = {
-  mysteries: { width: 637, height: 602 },
-  godsAndGoddesses: { width: 625, height: 344 },
+  mysteries: { width: 1048, height: 991, density: TITLE_DENSITY },
+  godsAndGoddesses: { width: 1029, height: 566, density: TITLE_DENSITY },
 };
 
 /** The hieroglyphs poster 2 sets beside each god's name (design elements, used as part of the exhibition's design). */
@@ -163,7 +165,7 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
           section: 'title',
           atmosphere: 'sand',
           effect: 'rise-expand',
-          src: '/exhibitions/egypt/titles/mysteries.png',
+          src: '/exhibitions/egypt/titles/mysteries.webp',
           ...TITLE_SIZES.mysteries,
           framing: 'centered',
           alt: 'The Mysteries of Ancient Egypt',
@@ -204,7 +206,7 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
           section: 'title',
           atmosphere: 'gold',
           effect: 'kenburns-in',
-          src: '/exhibitions/egypt/titles/gods-and-goddesses.png',
+          src: '/exhibitions/egypt/titles/gods-and-goddesses.webp',
           ...TITLE_SIZES.godsAndGoddesses,
           framing: 'centered',
           alt: 'Gods and Goddesses of Ancient Egypt',

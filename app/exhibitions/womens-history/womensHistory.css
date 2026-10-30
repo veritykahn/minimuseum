@@ -212,6 +212,37 @@
 [data-exhibition='womens-history'] .wh-title.pe-title-image img { max-height: 62vh; }
 /* Poster 1's lettering leaves room for the March line up the side. */
 [data-exhibition='womens-history'] .wh-p1.wh-title.pe-title-image { padding-left: clamp(80px, 10vw, 160px); }
+/* Set in type (sharp on any screen), stacked and underlined as the posters set them. */
+[data-exhibition='womens-history'] .wh-live {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  column-gap: 0.22em;
+  font-family: var(--pe-display);
+  font-weight: 900;
+  font-size: min(calc(var(--wh-t) * 1.12), 11.6vw);
+  letter-spacing: -0.01em;
+  text-align: left;
+  color: #263a6b;
+}
+[data-exhibition='womens-history'] .wh-live .pe-title-live-line { position: relative; justify-self: start; line-height: 0.92; padding-bottom: 0.1em; }
+[data-exhibition='womens-history'] .wh-live .wh-u::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.02em;
+  height: 0.065em;
+  background: currentColor;
+}
+[data-exhibition='womens-history'] .wh-live-history { grid-template-columns: max-content; }
+[data-exhibition='womens-history'] .wh-live-history .pe-title-live-line-1 { grid-area: 1 / 1; }
+[data-exhibition='womens-history'] .wh-live-history .pe-title-live-line-2 { grid-area: 2 / 1; }
+[data-exhibition='womens-history'] .wh-live-history .pe-title-live-line-3 { grid-area: 3 / 1; }
+[data-exhibition='womens-history'] .wh-live-history .pe-title-live-line-4 { grid-area: 1 / 1; margin-left: 2.06em; }
+[data-exhibition='womens-history'] .wh-live-working .pe-title-live-line-1 { grid-area: 1 / 1; }
+[data-exhibition='womens-history'] .wh-live-working .pe-title-live-line-2 { grid-area: 1 / 2; }
+[data-exhibition='womens-history'] .wh-live-working .pe-title-live-line-3 { grid-area: 2 / 2; }
+[data-exhibition='womens-history'] .wh-live-working .pe-title-live-line-4 { grid-area: 3 / 2; }
 
 /* ───────── The subtitles: small spaced capitals, on a card of their own ───────── */
 [data-exhibition='womens-history'] .wh-motto .pe-title-text {

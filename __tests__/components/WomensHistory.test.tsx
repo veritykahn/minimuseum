@@ -183,7 +183,8 @@ describe("Women's History Month", () => {
       const content = () => document.querySelector('.pe-walkthrough-content') as HTMLElement;
       expect(within(content()).getByRole('heading', { level: 2, name: "Women's History" })).toBeInTheDocument();
       expect(content().querySelector('.pfx-wh-open')).toBeInTheDocument();
-      expect(content().querySelector('.pe-title-image img')).toHaveAttribute('src', '/exhibitions/womens-history/titles/womens-history.png');
+      // Set in type, stacked and underlined as the poster sets it; the lettering is for the eye only.
+      expect(content().querySelector('.pe-title-live')?.closest('[aria-hidden="true"]')).not.toBeNull();
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();

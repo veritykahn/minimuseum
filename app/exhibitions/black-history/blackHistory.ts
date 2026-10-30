@@ -59,14 +59,16 @@ const RING: PanelFigure = {
 };
 
 /*
- * The posters' titles as pictures: their own lettering, cut from the posters
- * at the posters' resolution and keyed out of the lime and the pink
- * (public/exhibitions/black-history/titles/). A sharper export of the same
- * lettering can replace a file at the same path; update its size here.
+ * The posters' titles. Poster 1's is set in type (Archivo at its widest, as
+ * the poster sets it), so it is sharp on any screen; its cut lettering stays
+ * on disk. Poster 2's bubble lettering has no matching web face, so it is a
+ * picture: cut from the poster's 1728px export (density) and keyed out of
+ * the pink (public/exhibitions/black-history/titles/). A sharper export of
+ * the same lettering can replace the file; update its size here.
  */
 const TITLE_SIZES = {
   blackHistoryMonth: { width: 648, height: 116 },
-  importanceOfBlackBarbie: { width: 746, height: 116 },
+  importanceOfBlackBarbie: { width: 1228, height: 191, density: 1728 / 1050 },
 };
 
 /** Poster 1's illustrated vignettes, each cut from the ring as a disc (public/exhibitions/black-history/vignettes/). */
@@ -189,6 +191,7 @@ export const BLACK_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/black-history/titles/black-history-month.png',
           ...TITLE_SIZES.blackHistoryMonth,
           framing: 'centered',
+          live: { className: 'bh-live bh-live-month', lines: [{ text: 'BLACK HISTORY' }, { text: 'MONTH' }] },
           alt: 'Black History Month',
         },
         { type: 'paragraph', atmosphere: 'vignette-ring', effect: 'blur-to-sharp', position: 'center', audio: '/exhibitions/black-history/audio/poster1-01.mp3', text: 'Carter G. Woodson played a crucial role in bringing Black history to national attention by creating Negro History Week in 1926, which later became Black History Month.' },
@@ -237,7 +240,7 @@ export const BLACK_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           section: 'title',
           atmosphere: 'bubblegum-rays',
           effect: 'kenburns-in',
-          src: '/exhibitions/black-history/titles/importance-of-black-barbie.png',
+          src: '/exhibitions/black-history/titles/importance-of-black-barbie.webp',
           ...TITLE_SIZES.importanceOfBlackBarbie,
           framing: 'centered',
           alt: 'The Importance of Black Barbie',

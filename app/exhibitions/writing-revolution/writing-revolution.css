@@ -85,6 +85,20 @@
 }
 [data-exhibition='writing-revolution'] .wr-long .pe-section-title-text { font-size: clamp(1.7rem, 4vw, 3.3rem); max-width: 19em; line-height: 1.1; }
 [data-exhibition='writing-revolution'] .wr-title { --pe-title-scale: 1.6; }
+/* Set in type (sharp on any screen): the posters' tall white capitals with their dotted İ,
+   as tall as the lettering they replace, so the color seam still runs between the lines. */
+[data-exhibition='writing-revolution'] .wr-live {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  color: #fff;
+}
+[data-exhibition='writing-revolution'] .wr-live-writing { --wr-h: min(70vh, 57vw, 631px); font-size: calc(var(--wr-h) / 3 * 0.93); text-align: left; }
+[data-exhibition='writing-revolution'] .wr-live-qwerty { --wr-h: min(70vh, 58.6vw, 474px); font-size: calc(var(--wr-h) / 3 * 0.93); text-align: right; }
+[data-exhibition='writing-revolution'] .wr-live .pe-title-live-line { height: calc(var(--wr-h) / 3); line-height: calc(var(--wr-h) / 3); }
+[data-exhibition='writing-revolution'] .pjp-stage .wr-live-writing { --wr-h: min(66cqh, 57cqw); }
+[data-exhibition='writing-revolution'] .pjp-stage .wr-live-qwerty { --wr-h: min(66cqh, 50cqw); }
 
 /* ───────── Copy: typewritten ───────── */
 [data-exhibition='writing-revolution'] .pe-paragraph-text {

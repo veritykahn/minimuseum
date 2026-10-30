@@ -162,21 +162,38 @@ const PANEL_RENDERERS: Renderers = {
     const effect = entranceOf(item);
     const own = effect !== 'theme';
     const framing = item.framing ?? item.fit ?? 'width';
-    const size = item.width ? ({ '--pe-title-w': `${item.width}px` } as CssVars) : undefined;
+    const size = item.width ? ({ '--pe-title-w': `${Math.round(item.width / (item.density ?? 1))}px` } as CssVars) : undefined;
     return (
-      <div className={`pe-title-image pe-frame-${framing} ${panelClasses(poster, item)}`} style={size}>
-        <h2 className="pe-title-image-heading">
-          <span className="visually-hidden">{item.alt}</span>
-          {/* eslint-disable-next-line @next/next/no-img-element -- lettering cut from the poster, animated in CSS; the heading above is what is read */}
-          <img
-            src={item.src}
-            alt=""
-            aria-hidden="true"
-            width={item.width}
-            height={item.height}
-            className={own ? effectClass(effect) : 'pfx-media'}
-          />
-        </h2>
+      <div className={`pe-title-image pe-frame-${framing} ${item.live ? 'pe-title-image-live' : ''} ${panelClasses(poster, item)}`} style={size}>
+        {item.live ? (
+          <>
+            {/* The title as it is read; the lettering set in type beside it is for the eye, and sharp at any size. */}
+            <h2 className="visually-hidden">{item.alt}</h2>
+            <div className="pe-title-image-heading" aria-hidden="true">
+              <span className={`pe-title-live ${item.live.className ?? ''} ${own ? effectClass(effect) : 'pfx-fg'}`}>
+                {item.live.lines.map((line, i) => (
+                  <span key={i} className={`pe-title-live-line pe-title-live-line-${i + 1} ${line.className ?? ''}`}>
+                    {/* "^th^" is set as a superscript, as a poster sets "11th". */}
+                    {line.text.split('^').map((part, j) => (j % 2 ? <sup key={j}>{part}</sup> : part))}
+                  </span>
+                ))}
+              </span>
+            </div>
+          </>
+        ) : (
+          <h2 className="pe-title-image-heading">
+            <span className="visually-hidden">{item.alt}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element -- lettering cut from the poster, animated in CSS; the heading's hidden text is what is read */}
+            <img
+              src={item.src}
+              alt=""
+              aria-hidden="true"
+              width={item.width}
+              height={item.height}
+              className={own ? effectClass(effect) : 'pfx-media'}
+            />
+          </h2>
+        )}
       </div>
     );
   },

@@ -146,6 +146,8 @@ export const STONE_CUSTOM: ApprovedFact = {
  * poster at the poster's resolution with the black keyed out
  * (public/exhibitions/holocaust/titles/). A sharper export of the same
  * lettering can replace the file at the same path; update its size here.
+ * The cut stays on disk; the title is set in type (`live`, in the poster's
+ * own face, drawn in the exhibition's stylesheet) so it is sharp on any screen.
  */
 const TITLE_SIZES = {
   whatWasTheHolocaust: { width: 527, height: 193 },
@@ -292,6 +294,7 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/holocaust/titles/what-was-the-holocaust.png',
           ...TITLE_SIZES.whatWasTheHolocaust,
           framing: 'centered',
+          live: { className: 'ho-live', lines: [{ text: 'WHAT WAS THE' }, { text: 'HOLOCAUST?' }] },
           alt: 'What Was the Holocaust?',
         },
         // A frame of film advances into the gate, as the reveal brings it (the theme's own entrance).

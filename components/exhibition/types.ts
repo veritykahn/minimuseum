@@ -202,6 +202,23 @@ export type TitleImageItem = PanelBase & {
   framing?: 'height' | 'width' | 'width-top' | 'centered';
   /** @deprecated Use framing. */
   fit?: 'width' | 'centered';
+  /**
+   * How many of the picture's pixels make one pixel of the poster as served
+   * (1050px wide): 1 for lettering cut from it, about 1.65 for lettering cut
+   * from the poster's 1728px export. The lettering is drawn the same size
+   * either way ('centered' framing); a denser cut is simply sharper.
+   */
+  density?: number;
+  /**
+   * The lettering set in type instead of drawn from the picture, in the
+   * poster's own face, so it is sharp at any size and on any screen. Each
+   * line is set on a line of its own; the exhibition's stylesheet gives the
+   * block (`className`) and each line its face, size and color ("11^th^"
+   * sets "th" as a superscript). Drawn for
+   * the eye (`alt` is what is read); `src` stays the poster's cut, for
+   * reference and for anything that shows the picture.
+   */
+  live?: { className?: string; lines: { text: string; className?: string }[] };
 };
 
 /**

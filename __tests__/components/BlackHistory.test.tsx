@@ -109,7 +109,7 @@ describe('Black History Month', () => {
         'poster2.jpg',
         'ring.webp',
         'titles/black-history-month.png',
-        'titles/importance-of-black-barbie.png',
+        'titles/importance-of-black-barbie.webp',
         'vignettes/atom.webp',
         'vignettes/musician.webp',
         'vignettes/notes.webp',
@@ -163,7 +163,10 @@ describe('Black History Month', () => {
       tick();
       const content = () => document.querySelector('.pe-walkthrough-content') as HTMLElement;
       expect(within(content()).getByRole('heading', { level: 2, name: 'Black History Month' })).toBeInTheDocument();
-      expect(content().querySelector('.pe-title-image img')).toHaveAttribute('src', '/exhibitions/black-history/titles/black-history-month.png');
+      // Set in type, in the poster's own face, so it is sharp on any screen; the lettering is for the eye only.
+      const live = content().querySelector('.pe-title-live') as HTMLElement;
+      expect(live.closest('[aria-hidden="true"]')).not.toBeNull();
+      expect(live).toHaveTextContent('BLACK HISTORYMONTH');
 
       const items = poster('poster1').items;
       const callout = items.findIndex((it) => it.type === 'callout');

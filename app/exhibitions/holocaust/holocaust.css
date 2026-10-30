@@ -389,6 +389,16 @@
 
 /* Poster 2's lettering, under the wire. */
 [data-exhibition='holocaust'] .ho-title.pe-title-image img { max-height: 52vh; }
+/* Set in type (sharp on any screen): the poster's stone-grey condensed capitals, as poster 1's title is set. */
+[data-exhibition='holocaust'] .ho-live {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: var(--ho-t);
+  line-height: 1.02;
+  letter-spacing: 0.005em;
+  text-align: left;
+  color: #e3d9cf;
+}
 
 /* The grain of granite, shared by the stone grounds. */
 [data-exhibition='holocaust'] :is(.pe-atmo-still-stone .pe-atmo-part-1, .pe-atmo-remembrance-stones .pe-atmo-part-2) {

@@ -281,6 +281,16 @@ a.gw-button:is(:link, :visited) { color: #ede6da; }
   mask-image: linear-gradient(to bottom, transparent 8%, #000 30%, #000 64%, transparent 92%);
 }
 
+/* The titles set in type (sharp on any screen): the posters' thin display face, in their pale stone. */
+[data-exhibition='great-war'] .gw-live {
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: calc(var(--pe-tu) * 6.3);
+  line-height: 1.06;
+  text-align: left;
+  color: #e8e3d6;
+}
+
 /* ───────── film-reel: an archival reel, sepia and scratched ───────── */
 [data-exhibition='great-war'] .pe-atmo-film-reel .pe-atmo-part-1 {
   /* the projector's warm light, breathing very slightly */
