@@ -4,6 +4,10 @@ import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { srOnly, useDialogFocus } from '@/lib/a11y';
 import { MENTOR_POEM, MENTOR_NOTICES, PROMPT_CARDS } from './mentor-poem';
+import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
+
+/** "M ← Collection": the way back, unless the Studio opened the room. */
+const COLLECTION: MuseumReturn = { href: '/exhibitions/harlem-renaissance/artifacts', label: 'Collection' };
 
 /**
  * A button that removes itself when pressed would drop keyboard focus to
@@ -141,6 +145,11 @@ type UndoAction = {
    ═══════════════════════════════════════════════════════════ */
 export default function HarlemInWordsPage() {
   const router = useRouter();
+  const back = useMuseumReturn(COLLECTION);
+  const leave = () => {
+    rememberReturn(back);
+    router.push(back.href);
+  };
   const [view, setView] = useState<'welcome' | 'mentor' | 'compose'>('welcome');
   const [promptIdx, setPromptIdx] = useState<number | null>(null);
   const mentorHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -1812,10 +1821,10 @@ export default function HarlemInWordsPage() {
       {/* ── WELCOME SCREEN ── */}
       {view === 'welcome' && (
         <div className="hw-welcome">
-          <button className="hw-welcome-back" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+          <button className="hw-welcome-back" onClick={leave}>
             <span className="hw-welcome-back-text">M</span>
             <span className="hw-welcome-back-arrow">{'\u2190'}</span>
-            <span className="hw-welcome-back-label">Collection</span>
+            <span className="hw-welcome-back-label">{back.label}</span>
           </button>
           <div className="hw-welcome-deco-top">
             <div className="hw-welcome-deco-diamond" />
@@ -1841,10 +1850,10 @@ export default function HarlemInWordsPage() {
       {/* ── MENTOR POEM ── */}
       {view === 'mentor' && (
         <div className="hw-mentor">
-          <button className="hw-welcome-back hw-mentor-back" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+          <button className="hw-welcome-back hw-mentor-back" onClick={leave}>
             <span className="hw-welcome-back-text" aria-hidden="true">M</span>
             <span className="hw-welcome-back-arrow" aria-hidden="true">{'\u2190'}</span>
-            <span className="hw-welcome-back-label">Collection</span>
+            <span className="hw-welcome-back-label">{back.label}</span>
           </button>
           <div className="hw-mentor-inner">
             <p className="hw-mentor-kicker">Before you write</p>
@@ -1920,10 +1929,10 @@ export default function HarlemInWordsPage() {
       {view === 'compose' && !displayMode && (
         <div className="hw-compose-page">
           <h1 style={srOnly}>Harlem in Words: compose your poem</h1>
-          <button className="hw-nav" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+          <button className="hw-nav" onClick={leave}>
             <span className="hw-nav-text">M</span>
             <span className="hw-nav-arrow">{'\u2190'}</span>
-            <span className="hw-nav-label">Collection</span>
+            <span className="hw-nav-label">{back.label}</span>
           </button>
 
           {/* LEFT PANEL: Poem Frame */}

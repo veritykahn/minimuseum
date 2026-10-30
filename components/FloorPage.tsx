@@ -3,7 +3,9 @@
 import { useRef, useEffect, type CSSProperties, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { type Floor, type StudioFloor, exhibitionPath, findExhibition } from '@/lib/floors';
+import { type Floor, type StudioFloor, GREAT_HALL_FLOORS, exhibitionPath, findExhibition, studioToolHref } from '@/lib/floors';
+import { type HallLight, HALL_HINT, hallBackground, hallBody, hallText, ticketText } from '@/lib/hallLight';
+import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import StudioGlyph from './StudioGlyph';
 
 /**
@@ -14,7 +16,17 @@ import StudioGlyph from './StudioGlyph';
  *
  * The Studio (StudioFloorPage) is the same carousel with a workshop's
  * pegboard behind it: a card for each make-your-own tool, in its
- * exhibition's color, with a "Start Making" ticket that opens the tool.
+ * exhibition's color, with a "Start Making" ticket that opens the tool
+ * (and tells it the Studio sent the visitor, so its "M ←" comes back here).
+ *
+ * Behind the cards the corridor is dark, lit by each exhibition's own light
+ * (lib/hallLight.ts): one layer per card, fixed behind the carousel, each
+ * as bright as its card is on screen, so swiping cross-fades one exhibition
+ * into the next. With reduced motion the light changes by a short fade once
+ * a card has settled instead. A layer carries its exhibition's slug
+ * (data-exhibition), so a faint motif of its own could be laid in later.
+ *
+ * "M ← Great Hall" returns to the Great Hall's stairs, not its entrance.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -27,6 +39,10 @@ type FloorCard = {
   title: string;
   subtitle: string;
   accent: string;
+  /** The hallway's light behind the card: its exhibition's. */
+  hall: HallLight;
+  /** The exhibition it belongs to, for its light's layer. */
+  exhibition: string;
   active: boolean;
   href: string;
   /** The ticket's call: "Enter Exhibition", "Start Making". */
@@ -46,6 +62,8 @@ export default function FloorPage({ floor }: { floor: Floor }) {
     title: e.title,
     subtitle: e.subtitle,
     accent: e.accent,
+    hall: e.hall,
+    exhibition: e.slug,
     active: e.active,
     href: exhibitionPath(e.slug),
     ticket: 'Enter Exhibition',
@@ -63,8 +81,10 @@ export function StudioFloorPage({ floor }: { floor: StudioFloor }) {
       title: t.title,
       subtitle: exhibition ? `From ${exhibition.title}` : '',
       accent: exhibition?.accent ?? floor.accent,
+      hall: exhibition?.hall ?? { glow: floor.accent, bloom: floor.accent },
+      exhibition: t.exhibition,
       active: true,
-      href: t.href,
+      href: studioToolHref(t.href),
       ticket: 'Start Making',
       description: t.description,
       glyph: <StudioGlyph href={t.href} />,
@@ -76,6 +96,8 @@ export function StudioFloorPage({ floor }: { floor: StudioFloor }) {
 function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; cards: FloorCard[]; studio?: boolean }) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lightRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const reduceMotion = usePrefersReducedMotion();
   const { storageKey } = floor;
 
   useEffect(() => {
@@ -86,6 +108,35 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
       sessionStorage.removeItem(storageKey);
     }
   }, [storageKey]);
+
+  // Each card's light is as bright as the card is on screen: half each while
+  // the visitor is halfway between two. With reduced motion, only the card
+  // nearest the middle is lit, and the light fades over (see .hall-light).
+  useEffect(() => {
+    const scroller = scrollRef.current;
+    if (!scroller) return;
+    let frame = 0;
+    const light = () => {
+      frame = 0;
+      const at = scroller.scrollLeft / (scroller.clientWidth || 1);
+      lightRefs.current.forEach((layer, i) => {
+        if (!layer) return;
+        const on = reduceMotion ? (i === Math.round(at) ? 1 : 0) : Math.max(0, 1 - Math.abs(at - i));
+        layer.style.opacity = String(on);
+      });
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(light);
+    };
+    light();
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      scroller.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, [reduceMotion]);
 
   const handleCardClick = (card: FloorCard, index: number) => {
     if (card.active) {
@@ -108,7 +159,7 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
         <line x1="64" y1="16" x2="64" y2="64" stroke={isActive ? "#e5e2dc" : "#3a3a3a"} strokeWidth="1" strokeDasharray="4 3"/>
         <text x="32" y="38" textAnchor="middle" fill={isActive ? "#1a1a1a" : "#666"} style={{ fontFamily: 'Outfit', fontSize: '8px', fontWeight: 500, letterSpacing: '0.1em' }}>ADMIT ONE</text>
         <text x="125" y="28" textAnchor="middle" fill={isActive ? "#1a1a1a" : "#666"} style={{ fontFamily: 'Cormorant Garamond', fontSize: '10px' }}>The Mini Museum</text>
-        <text x="125" y="48" textAnchor="middle" fill={isActive ? accentColor : "#555"} style={{ fontFamily: 'Outfit', fontSize: '11px', letterSpacing: '0.08em' }}>
+        <text x="125" y="48" textAnchor="middle" fill={isActive ? ticketText(accentColor) : "#555"} style={{ fontFamily: 'Outfit', fontSize: '11px', letterSpacing: '0.08em' }}>
           {isActive ? label : 'Coming Soon'}
         </text>
       </svg>
@@ -116,13 +167,7 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
   );
 
   const Card = ({ card, index }: { card: FloorCard; index: number }) => (
-    <div
-      className="exhibition-card"
-      style={{
-        background: `radial-gradient(ellipse at center, ${card.accent}20 0%, #0a0a0a 70%)`,
-        position: 'relative'
-      }}
-    >
+    <div className="exhibition-card">
       {/* Installation in Progress Overlay */}
       {!card.active && (
         <div className="installation-overlay">
@@ -149,7 +194,7 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
           fontSize: '11px',
           letterSpacing: '0.4em',
           textTransform: 'uppercase',
-          color: card.active ? card.accent : '#8a8a8a',
+          color: card.active ? hallText(card.accent, card.hall) : '#8a8a8a',
           marginBottom: '16px',
           fontFamily: 'Outfit, sans-serif'
         }}>
@@ -170,12 +215,12 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
           fontSize: 'clamp(1rem, 2.5vw, 1.4rem)',
           fontStyle: 'italic',
           fontWeight: 300,
-          color: card.active ? card.accent : '#8a8a8a',
+          color: card.active ? hallText(card.accent, card.hall) : '#8a8a8a',
           marginBottom: card.description ? '20px' : '48px'
         }}>
           {card.subtitle}
         </p>
-        {card.description && <p className="studio-description">{card.description}</p>}
+        {card.description && <p className="studio-description" style={{ color: hallBody(card.hall) }}>{card.description}</p>}
         <Ticket
           onClick={() => handleCardClick(card, index)}
           accentColor={card.accent}
@@ -269,7 +314,25 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
           color: var(--floor-accent);
         }
 
+        /* The hallway's light, behind the carousel (see the effect above). */
+        .hall-light {
+          position: fixed;
+          inset: 0;
+          z-index: 0;
+          pointer-events: none;
+        }
+        .hall-light-layer {
+          position: absolute;
+          inset: 0;
+          will-change: opacity;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .hall-light-layer { transition: opacity 0.6s ease; }
+        }
+
         .exhibitions-scroll {
+          position: relative;
+          z-index: 1;
           display: flex;
           overflow-x: auto;
           scroll-snap-type: x mandatory;
@@ -366,11 +429,12 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
           display: flex;
           align-items: center;
           gap: 16px;
-          color: #808080;
+          color: ${HALL_HINT};
           font-size: 11px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
           font-family: 'Outfit';
+          white-space: nowrap;
           z-index: 100;
         }
         .scroll-hint-line {
@@ -396,7 +460,7 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
 
       <h1 className="visually-hidden">{floor.heading}</h1>
 
-      <Link href="/greathall" className="back-link">
+      <Link href={GREAT_HALL_FLOORS} className="back-link">
         <span className="back-m" aria-hidden="true">M</span>
         <span className="back-arrow" aria-hidden="true">←</span>
         <span className="back-label">Great Hall</span>
@@ -405,6 +469,20 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
       <div className="floor-indicator">
         <p className="floor-indicator-name">{floor.name}</p>
         <p className="floor-indicator-year">{floor.theme}</p>
+      </div>
+
+      <div className="hall-light" aria-hidden="true">
+        {cards.map((card, index) => (
+          <div
+            key={card.key}
+            ref={(el) => {
+              lightRefs.current[index] = el;
+            }}
+            className="hall-light-layer"
+            data-exhibition={card.exhibition}
+            style={{ background: hallBackground(card.hall), opacity: index === 0 ? 1 : 0 }}
+          />
+        ))}
       </div>
 
       <div ref={scrollRef} className="exhibitions-scroll">

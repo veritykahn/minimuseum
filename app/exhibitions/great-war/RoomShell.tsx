@@ -5,13 +5,15 @@ import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
+import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { GREAT_WAR } from './greatWar';
 import './great-war.css';
 
 /*
  * The frame of a Great War room (the silence, the memorial): the
- * exhibition's faces and ground, "M ← Display Case" in the corner, and the
- * room's label, title and subtitle set as the display case page sets them.
+ * exhibition's faces and ground, "M ← Display Case" in the corner ("M ←
+ * Studio" when the Studio opened it: lib/museumReturn.ts), and the room's
+ * label, title and subtitle set as the display case page sets them.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -33,7 +35,7 @@ export default function RoomShell({
   children: ReactNode;
 }) {
   const { fonts, palette, slug } = GREAT_WAR;
-  const back = roomReturn(GREAT_WAR);
+  const back = useMuseumReturn(roomReturn(GREAT_WAR));
   const style: CssVars = {
     background: palette.page,
     '--pe-display': fonts.display,
@@ -47,7 +49,7 @@ export default function RoomShell({
     <div className={`pe-root gw-case gw-room ${className}`} data-exhibition={slug} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
 
-      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href}>
+      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
         <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
         <span className="pe-nav-label">{back.label}</span>
@@ -65,7 +67,7 @@ export default function RoomShell({
 
           {children}
 
-          <Link href={back.href} className="gw-case-return">
+          <Link href={back.href} className="gw-case-return" onClick={() => rememberReturn(back)}>
             Return to {back.label}
           </Link>
         </main>
