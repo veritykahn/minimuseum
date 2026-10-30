@@ -116,7 +116,7 @@ describe('America 250', () => {
   it('opens each chapter with the section titles the posters set', () => {
     const titles = (id: string) => poster(id).items.flatMap((it) => (it.type === 'section-title' ? [it.text] : []));
     expect(titles('poster1')).toEqual(['The Wrong Date', 'The Wrong Document', 'The Wrong Author', 'The Wrong Significance']);
-    expect(titles('poster2')).toEqual(['The War That Nearly Was Not Won', 'What Signing Actually Meant', 'The Catholic Who Refused To Be Anonymous', 'The Long Wager']);
+    expect(titles('poster2')).toEqual(['The War That Nearly Was Not Won', 'What Signing Actually Meant', 'The Signer Who Refused To Be Anonymous', 'The Long Wager']);
   });
 
   it('sets the pull quotes and the epigraph as quotes, with the approved credits', () => {
@@ -298,6 +298,53 @@ describe('The America 250 display case page', () => {
     fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
     expect(screen.getByRole('link', { name: /Put Your Name to It/ })).toHaveAttribute('href', '/exhibitions/america-250/sign');
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/america-250');
+  });
+});
+
+describe('Many Faiths, One Declaration (owner-approved museum note, B9.3)', () => {
+  const items = poster('poster2').items;
+  const notes = items.flatMap((it, i) => (it.type === 'note' ? [{ it, i }] : []));
+
+  it('follows the Carroll chapter, as notes and never as poster copy, before The Long Wager', () => {
+    const carroll = items.findIndex((it) => it.type === 'section-title' && it.text === 'The Signer Who Refused To Be Anonymous');
+    const wager = items.findIndex((it) => it.type === 'section-title' && it.text === 'The Long Wager');
+    expect(notes.length).toBeGreaterThan(0);
+    for (const { i } of notes) expect(i > carroll && i < wager).toBe(true);
+    // Carroll's faith is still named in the copy, as history.
+    expect(allText).toContain('Charles Carroll of Carrollton was the only Catholic among the fifty-six signers.');
+  });
+
+  it('sets every drafted item, each with its linked sources', () => {
+    const facts = notes.flatMap(({ it }) => (it.type === 'note' ? it.facts : []));
+    expect(facts.map((f) => f.text.split(' ').slice(0, 2).join(' '))).toEqual([
+      'Carroll was', 'John Witherspoon,', 'Most Quakers', 'Haym Salomon,', 'In August', 'The Bible', 'Some founders', 'The Baptists',
+    ]);
+    for (const f of facts) {
+      expect(f.sources.length).toBeGreaterThan(0);
+      for (const s of f.sources) expect(s.href).toMatch(/^https?:\/\//);
+    }
+    // Claims the sources could not confirm are left out.
+    const words = facts.map((f) => f.text).join(' ');
+    expect(words).not.toMatch(/read there aloud|a minority in Connecticut|with a razor/);
+  });
+
+  it('shows the note in the walkthrough with its sources', () => {
+    jest.useFakeTimers();
+    window.history.replaceState(null, '', '/');
+    render(<PosterExhibition config={AMERICA_250} />);
+    fireEvent.click(screen.getByRole('button', { name: /We Shall All Hang Together poster/ }));
+    tick();
+    for (let i = 0; i < notes[0].i; i++) {
+      fireEvent.keyDown(document, { key: 'ArrowRight' });
+      tick();
+    }
+    const content = document.querySelector('.pe-walkthrough-content') as HTMLElement;
+    expect(content).toHaveTextContent('Museum note · Many Faiths, One Declaration');
+    expect(within(content).getByRole('link', { name: 'National Archives, the Constitution, Article VI' })).toHaveAttribute(
+      'href',
+      'https://www.archives.gov/founding-docs/constitution-transcript',
+    );
+    jest.useRealTimers();
   });
 });
 

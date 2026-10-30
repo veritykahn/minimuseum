@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { Atmosphere, CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
+import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import { floorReturnFor } from '@/lib/floors';
 
 /*
@@ -24,6 +25,10 @@ import { floorReturnFor } from '@/lib/floors';
  * And one approved move on each poster: its pull quote ("Before it was
  * sacred …", "It took fifty-six signatures …") is its last panel before the
  * link, closing the poster, in place of its spot mid-way.
+ * And one approved section title (B9.2): "The Signer Who Refused To Be
+ * Anonymous", in place of "The Catholic Who …"; the copy beneath still names
+ * Carroll's faith, as history. After that chapter, a museum note (not poster
+ * wording): Many Faiths, One Declaration (MANY_FAITHS).
  * Typesetting only: the two doubled spaces on poster 2 are single, and the
  * title of Paine's pamphlet is set in italics, as are the two stressed words
  * the poster italicizes (*wanted*, *needed*). "*…*" marks italics.
@@ -71,6 +76,72 @@ export const TRUMBULL_CREDIT = 'John Trumbull, *Declaration of Independence*, 18
 export const TRUMBULL_SOURCE = 'https://commons.wikimedia.org/wiki/File:Declaration_of_Independence_(1819),_by_John_Trumbull.jpg';
 export const LEUTZE_CREDIT = 'Emanuel Leutze, *Washington Crossing the Delaware*, 1851. The Metropolitan Museum of Art. Public domain.';
 export const LEUTZE_SOURCE = 'https://commons.wikimedia.org/wiki/File:Washington_Crossing_the_Delaware_by_Emanuel_Leutze,_MMA-NYC,_1851.jpg';
+
+/*
+ * "Many Faiths, One Declaration" (proposal B9.3, owner-approved): a museum
+ * note set straight after the Carroll chapter, so it is clearly not poster
+ * wording. It keeps Carroll's Catholic fact as history and sets it among the
+ * religious variety of the founding era. Each fact carries its sources
+ * (FactNote); where a source could not be confirmed, the claim that hung on
+ * it was left out ("read aloud every year", "a minority in Connecticut",
+ * "with a razor").
+ */
+export const MANY_FAITHS_KICKER = 'Museum note · Many Faiths, One Declaration';
+export const MANY_FAITHS: Record<string, ApprovedFact> = {
+  intro: {
+    text: 'Carroll was not the only signer whose faith set him apart. The men and women of the founding era included Presbyterians and Anglicans, Quakers and Baptists, Jews and freethinkers, and in 1787 the Constitution declared that no religious test would ever be required to hold federal office.',
+    sources: [{ label: 'National Archives, the Constitution, Article VI', href: 'https://www.archives.gov/founding-docs/constitution-transcript' }],
+  },
+  witherspoon: {
+    text: 'John Witherspoon, a Presbyterian minister born in Scotland and president of the College of New Jersey (now Princeton University), signed for New Jersey. He was the only clergyman to sign.',
+    sources: [
+      { label: 'National Archives, Signers gallery', href: 'https://www.archives.gov/founding-docs/signers-gallery' },
+      { label: 'Library of Congress, Religion and the Founding of the American Republic', href: 'https://www.loc.gov/exhibits/religion/rel03.html' },
+      { label: 'Princeton University, “Princeton in the nation’s service”', href: 'https://www.princeton.edu/news/2026/06/25/princeton-service-new-nation' },
+    ],
+  },
+  quakers: {
+    text: 'Most Quakers held to their faith’s refusal of violence and would not fight. Those who took up arms were disowned by their meetings, and some of them formed their own congregation, the Free Quakers.',
+    sources: [{ label: 'Library of Congress, “Religion and the American Revolution”', href: 'https://www.loc.gov/exhibits/religion/rel03.html' }],
+  },
+  salomon: {
+    text: 'Haym Salomon, a Jewish immigrant from Poland, worked in Philadelphia as a broker for Robert Morris, the Superintendent of Finance, selling the bills of exchange that helped pay for the war. Members of Congress, among them James Madison, depended on him for personal loans.',
+    sources: [
+      { label: 'Founders Online (National Archives), Madison Papers, editorial note, October 18, 1782', href: 'https://founders.archives.gov/documents/Madison/01-05-02-0090' },
+      { label: 'Britannica Money, Haym Salomon', href: 'https://www.britannica.com/money/Haym-Salomon' },
+    ],
+  },
+  newport: {
+    text: 'In August 1790 President Washington visited Newport, Rhode Island, and answered a letter from its Jewish congregation. The government of the United States, he wrote, “gives to bigotry no sanction, to persecution no assistance.” He borrowed the phrase from the congregation’s own letter, written by its warden, Moses Seixas. Their synagogue, dedicated in 1763, is the oldest synagogue building in the United States.',
+    sources: [
+      { label: 'National Park Service, Touro Synagogue', href: 'https://www.nps.gov/places/touro-synagogue.htm' },
+      { label: 'Founders Online (National Archives), From George Washington to the Hebrew Congregation in Newport, August 18, 1790', href: 'https://founders.archives.gov/documents/Washington/05-06-02-0135' },
+      { label: 'George Washington’s Mount Vernon, “Moses Seixas”', href: 'https://mountvernon.org/digital-encyclopedia/article/moses-seixas' },
+    ],
+  },
+  saur: {
+    text: 'The Bible leaf in this exhibition’s display case comes from the German Bible printed at Germantown, Pennsylvania, by Christoph Saur II, a minister of the Brethren (the “Dunkers”), a small peace church. His father’s edition of 1743 was the first Bible printed in North America in a European language.',
+    sources: [
+      { label: 'Bridwell Library, Southern Methodist University, “Saur Bible”', href: 'https://bridwell.omeka.net/exhibits/show/pietists/northamerica/saur' },
+      { label: 'Museum of the Bible, “The Gun-Wad Bible”', href: 'https://collections.museumofthebible.org/artifacts/2337-the-gun-wad-bible' },
+    ],
+  },
+  freethinkers: {
+    text: 'Some founders questioned the churches of their day. Benjamin Franklin wrote in his autobiography that as a young man he “soon became a thorough Deist.” Late in life Thomas Jefferson cut passages from the Gospels and rearranged them into his own book of Jesus’s moral teachings. The Smithsonian calls it “a personal exercise in understanding Jesus’s moral teachings separated from religious doctrine.”',
+    sources: [
+      { label: 'Center for the Study of the American Constitution, University of Wisconsin–Madison, “Deism and the Founders”', href: 'https://csac.history.wisc.edu/2025/07/17/deism-and-the-founders/' },
+      { label: 'Smithsonian National Museum of American History, Jefferson’s Bible', href: 'https://amhistory.si.edu/documentsgallery/exhibitions/jefferson/index.html' },
+      { label: 'Smithsonian, Jefferson’s Bible: making the book', href: 'https://amhistory.si.edu/documentsgallery/exhibitions/jefferson/2.html' },
+    ],
+  },
+  danbury: {
+    text: 'The Baptists of Danbury, Connecticut, wrote to President Jefferson about their religious liberty. On January 1, 1802, he answered that the First Amendment had built “a wall of separation between church and state.” In his draft he had first written “a wall of *eternal* separation.”',
+    sources: [
+      { label: 'Library of Congress, “Religion and the Federal Government”', href: 'https://loc.gov/exhibits/religion/rel06-2.html' },
+      { label: 'Library of Congress Information Bulletin, June 1998, James Hutson, “‘A Wall of Separation’”', href: 'https://www.loc.gov/loc/lcib/9806/danbury.html' },
+    ],
+  },
+};
 
 const trumbull = { text: TRUMBULL_CREDIT, href: TRUMBULL_SOURCE };
 const leutze = { text: LEUTZE_CREDIT, href: LEUTZE_SOURCE };
@@ -375,10 +446,17 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'line-by-line', text: 'It is the most human moment in the whole story of the Declaration: a man in pain, in fear, saying what his captors *wanted* him to say and what he *needed* to say to avoid execution.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'fade-in', text: 'Stockton never recovered his health and died in 1781, broken by what had been done to him and what he had done under duress. He had pledged everything the Declaration asked of him, yet by the time of his death Independence had still not been won.' },
 
-        { type: 'section-title', section: 'head', atmosphere: 'signing-quill', effect: 'film-credits', text: 'The Catholic Who Refused To Be Anonymous' },
+        { type: 'section-title', section: 'head', atmosphere: 'signing-quill', effect: 'film-credits', text: 'The Signer Who Refused To Be Anonymous' },
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'ink-spread', text: 'Charles Carroll of Carrollton was the only Catholic among the fifty-six signers. In 1776, Catholics could still not hold public office in most of the American colonies.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'line-by-line', text: 'The story goes that when it was observed that there were many men named Charles Carroll and he might escape personal consequence, Carroll responded by adding his full address to his signature — "of Carrollton" — so there could be no mistaking which Charles Carroll had signed. (He often signed that way to tell himself apart from his father, Charles Carroll of Annapolis.) He refused the protection of ambiguity to stand in life and death with his fellow signers.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'blur-to-sharp', text: "Carroll eventually outlived every other signatory, dying in 1832 at the age of ninety-five as the last living connection to that room, that day, that decision. When asked what he considered his most important contribution, he did not mention his wealth or his longevity. Carroll's answer was his signature on the Declaration, and the fact that he had made sure it could be read." },
+        // Museum note, not poster wording (owner-approved, B9.3): Many Faiths, One Declaration.
+        { type: 'note', section: 'copy', atmosphere: 'stone-engraving', effect: 'fade-in', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.intro] },
+        { type: 'note', section: 'copy', atmosphere: 'signing-quill', effect: 'drift', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.witherspoon, MANY_FAITHS.quakers] },
+        { type: 'note', section: 'copy', atmosphere: 'signing-quill', effect: 'rise-expand', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.salomon] },
+        { type: 'note', section: 'copy', atmosphere: 'stone-engraving', effect: 'breathe', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.newport] },
+        { type: 'note', section: 'copy', atmosphere: 'foxed-parchment', effect: 'fade-in', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.saur, MANY_FAITHS.freethinkers] },
+        { type: 'note', section: 'copy', atmosphere: 'thirteen-stars', effect: 'ink-spread', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.danbury] },
 
         { type: 'section-title', section: 'head', atmosphere: 'thirteen-stars', effect: 'split-reveal', text: 'The Long Wager' },
         { type: 'paragraph', section: 'copy', atmosphere: 'thirteen-stars', effect: 'rise-expand', text: 'The signatures of 1776 did not end the wager on the colonies\' independence, rather they began it. The independence the Declaration asserted so assuredly still had to be built through the failed confederation, the Constitutional Convention held in secret, and the ratification process that was anything but certain. America was constantly and consistently referred to as an experiment by the same men who were attempting to forge it.' },
@@ -394,7 +472,7 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         '': 'The signers could not know how the war would turn out. What makes it hard to stand up for something when you cannot know how it will end?',
         'The War That Nearly Was Not Won': 'Looking back, the outcome of a war can seem certain. Why do you think stories about the past can make events feel more certain than they felt at the time?',
         'What Signing Actually Meant': 'Richard Stockton said what he needed to say to survive. How should we think about what people say or do when they are in pain or afraid?',
-        'The Catholic Who Refused To Be Anonymous': 'Charles Carroll made sure his signature could not be mistaken. When might it matter to put your own name to what you believe?',
+        'The Signer Who Refused To Be Anonymous': 'Charles Carroll made sure his signature could not be mistaken. When might it matter to put your own name to what you believe?',
         'The Long Wager': 'The poster says the wager was settled by what the signers built and what they were willing to give up. What is something worth building that takes many years to finish?',
       },
     },

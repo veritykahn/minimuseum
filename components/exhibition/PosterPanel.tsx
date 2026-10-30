@@ -4,6 +4,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { FxText, type FxKind } from '@/components/poster-fx/PosterFx';
 import { PosterProjectorEnd } from '@/components/projector/PosterProjector';
 import { BlindSpot, Emph, Lines, Typed, TypedForReaders, VisitTicket } from './EntranceCopy';
+import { FactSources } from './FactNote';
 import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass } from './helpers';
 import type { ExhibitionConfig, PanelDecor, PanelEffect, PanelMarks, PosterConfig, PosterItem, PosterItemType } from './types';
 
@@ -359,6 +360,23 @@ const PANEL_RENDERERS: Renderers = {
         ) : (
           <p className={cls}>{body}</p>
         )}
+      </div>
+    );
+  },
+
+  note: ({ poster, item, colors }) => {
+    const effect = entranceOf(item);
+    return (
+      <div className={`pe-text-content-wrapper pe-pos-center pe-note ${panelClasses(poster, item)}`}>
+        <div className={`pe-note-body ${effect !== 'theme' ? effectClass(effect) : 'pfx-fg'}`} style={{ color: colors.text }}>
+          {item.kicker && <p className="pe-note-kicker">{item.kicker}</p>}
+          {item.facts.map((f) => (
+            <p key={f.text} className="pe-paragraph-text pe-note-text" data-fact="approved">
+              <Emph text={f.text} />{' '}
+              <FactSources sources={f.sources} className="pe-note-source" />
+            </p>
+          ))}
+        </div>
       </div>
     );
   },
