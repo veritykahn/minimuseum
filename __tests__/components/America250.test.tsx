@@ -13,6 +13,7 @@ import {
   TRUMBULL_CREDIT,
   TRUMBULL_SOURCE,
 } from '@/app/exhibitions/america-250/america250';
+import { isAddedPanel } from '@/components/exhibition/helpers';
 import { floorReturnFor } from '@/lib/floors';
 
 /*
@@ -26,7 +27,7 @@ const allItems = AMERICA_250.posters.flatMap((p) => p.items);
 /** The copy as read: "*…*" marks italics and is not part of the words. */
 const plain = (t: string) => t.replace(/\*/g, '');
 /** The printed copy: every paragraph but the museum's added notes (those carry their sources). */
-const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' && !it.sources ? [plain(it.text)] : []));
+const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' && !isAddedPanel(it) ? [plain(it.text)] : []));
 const quotes = (id: string) => poster(id).items.flatMap((it) => (it.type === 'quote' ? [{ text: it.text, cite: it.cite }] : []));
 const allText = allItems.map((it) => ('text' in it && it.text ? plain(it.text) : '')).join('\n');
 const tick = (ms = 400) => act(() => { jest.advanceTimersByTime(ms); });
@@ -304,7 +305,7 @@ describe('The America 250 display case page', () => {
 
 describe('Many Faiths, One Declaration (owner-approved museum note, B9.3)', () => {
   const items = poster('poster2').items;
-  const notes = items.flatMap((it, i) => (it.type === 'paragraph' && it.sources ? [{ it, i }] : []));
+  const notes = items.flatMap((it, i) => (it.type === 'paragraph' && isAddedPanel(it) ? [{ it, i }] : []));
 
   it('follows the Carroll chapter, in its own section and never as poster copy, before The Long Wager', () => {
     const carroll = items.findIndex((it) => it.type === 'section-title' && it.text === 'The Signer Who Refused To Be Anonymous');
