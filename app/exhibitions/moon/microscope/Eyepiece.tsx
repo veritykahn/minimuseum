@@ -1,43 +1,64 @@
 'use client';
 
 import { useCallback, useEffect, useImperativeHandle, useRef, useState, type KeyboardEvent, type PointerEvent, type Ref } from 'react';
-import type { Slide, SlideId } from './slides';
-import { brushAside, cleanness, lamp, lift, newBrush, newMask, settleGrains, type Brush, type Limit, type Pixels } from './wipe';
+import { isMoon, type Slide, type SlideId } from './slides';
+import { OBJECTIVES, type Pan } from './stage';
+import { brushAside, cleanness, lamp, lift, newBrush, newMask, settleGrains, smudgedGlass, type Brush, type Limit, type Pixels } from './wipe';
 
 /*
- * The view down the microscope: one canvas, the slide's photograph
- * (slides.ts) magnified by the power. Side by side, the Moon's slide lies
- * left of a line you can drag and an Earth slide right of it. The focus is a
- * blur on the canvas, set by the knob outside.
+ * The view down the microscope: one canvas, showing the slide on the stage
+ * through the objective lens in use. The stage holds one slide, or two side
+ * by side (a Moon sample and an Earth sample, a line between them to drag).
+ * The focus is a blur on the canvas, set by the knob outside; the lens and
+ * where the stage has moved the slide (stage.ts) set which part of the
+ * slide is in view.
  *
- * A slide is either carrying its sample (the photograph) or clean, bare
- * lamp-lit glass. Drag across it to wipe it with a cloth: the wipe works on a
- * copy of the photograph's own pixels (wipe.ts). The Wipe button draws the
- * cloth back and forth across the whole slide and leaves it clean. A fresh
- * slide is pushed in across the stage, the old one out, and is clean. Place
- * sample tips the sample onto a clean slide: its grains fall and settle, and
- * the photomicrograph comes up. With reduced motion each is a plain swap.
+ * A slide is one of three things: a fresh slide from the box, smudged with
+ * dust and a fingerprint (wipe.ts, smudgedGlass); clean, bare lamp-lit glass;
+ * or carrying a sample (its photograph down a microscope, slides.ts).
+ * Drag across it with the cloth to wipe it: the cloth works on a copy of
+ * the pixels in view (wipe.ts), lifting off smudges and Moon dust, and
+ * brushing Earth's grains aside. The Wipe button draws the cloth back and
+ * forth across the whole slide and leaves it clean. A fresh slide is pushed
+ * in across the stage, the old one out. Placing a sample tips it onto clean
+ * glass: its grains fall and settle, and the photograph comes up. With
+ * reduced motion each is a plain swap.
+ *
+ * With the hand (not the cloth), dragging moves the slide on the stage.
  */
 
-/** How much each power magnifies, low to high: no more than the photographs hold sharp. */
-export const POWERS = [1, 1.8, 3] as const;
+/** What a wipe did: how much dust clung to the cloth (0 to 1), how much Earth sand it pushed aside, whether it wiped smudges, and whether the slides are now clean. */
+export type WipeReport = { moon: number; earth: number; smudge: boolean; clean: boolean; already?: boolean };
 
-/** What a wipe did: how much dust clung to the cloth (0 to 1), how much Earth sand it pushed aside, and whether the slides are now clean. */
-export type WipeReport = { moon: number; earth: number; clean: boolean; already?: boolean };
+/** One slide on the stage, as the room sees it. */
+export type SlotView = { sample: SlideId | null; smudged: boolean };
+export type StageView = { left: SlotView; right: SlotView | null };
+
+/** Placing a sample: done, or why not (the slide is smudged, has a sample already, or something is moving). */
+export type PlaceResult = 'ok' | 'smudged' | 'occupied' | 'busy';
 
 export type EyepieceHandle = {
   /** Draw the cloth back and forth across the whole slide, wiping it clean (the button, for keyboards). */
   sweep: () => void;
-  /** Push a fresh, clean slide onto the stage, and take up a clean cloth. */
+  /** Push a fresh slide from the box onto the stage (it comes smudged), and take up a clean cloth. */
   fresh: () => void;
-  /** Tip the sample onto the clean slide. False when there is no clean slide to put it on. */
-  place: () => boolean;
+  /** Tip a sample onto the clean slide. */
+  place: (slide: Slide) => PlaceResult;
+  /** Lay a second slide, with a sample on it, beside the first. */
+  compare: (slide: Slide) => void;
+  /** Take the second slide away. */
+  endCompare: () => void;
 };
 
 /** How long each change takes, in ms (none with reduced motion). */
 export const TIMES = { sweep: 2600, polish: 450, swap: 1100, place: 2000 } as const;
 
 type Anim = { kind: 'polish' | 'swap' | 'place'; t0: number; ms: number };
+/** A wiped slide: a copy of its pixels, how clear its glass is (Earth's), and a canvas to show them. */
+type Worked = { px: Pixels; mask: Uint8Array; canvas: HTMLCanvasElement; dirty: [number, number, number, number] | null };
+/** What lies on a slide. */
+type Face = { sample: Slide | null; smudged: boolean; work: Worked | null };
+type Slot = Face & { anim: Anim | null; prev: Face | null; enter: number };
 
 const ease = (t: number) => 1 - Math.pow(1 - t, 3);
 const easeInOut = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -48,8 +69,11 @@ const settle = (t: number) => {
   const u = (t - 0.72) / 0.28;
   return 1 - Math.sin(u * Math.PI) * 0.06;
 };
-const isMoon = (slide: Slide) => slide.id.startsWith('moon-');
 const GRAINS = settleGrains();
+const SMUDGE_SIZE = 360;
+const freshSlot = (): Slot => ({ sample: null, smudged: true, work: null, anim: null, prev: null, enter: 0 });
+const isClean = (f: Face) => !f.sample && !f.smudged;
+const viewOf = (s: Slot): SlotView => ({ sample: s.sample?.id ?? null, smudged: s.smudged });
 
 /* The photographs, loaded once and kept. */
 const photos = new Map<string, HTMLImageElement>();
@@ -67,79 +91,81 @@ function photo(src: string, onLoad: () => void): HTMLImageElement | null {
   return null;
 }
 
+/** A canvas holding pixels, or null where there is no canvas to draw on. */
+function canvasOf(px: Pixels): HTMLCanvasElement | null {
+  if (typeof document === 'undefined') return null;
+  const cv = document.createElement('canvas');
+  cv.width = px.width;
+  cv.height = px.height;
+  const ctx = cv.getContext('2d');
+  if (!ctx) return null;
+  const img = ctx.createImageData(px.width, px.height);
+  img.data.set(px.data);
+  ctx.putImageData(img, 0, 0);
+  return cv;
+}
+
 /* Bare glass on the lamp: the same light the cloth wipes down to (wipe.ts lamp), drawn small and scaled. */
 let glassImage: HTMLCanvasElement | null = null;
 function glass(): HTMLCanvasElement | null {
   if (glassImage) return glassImage;
-  if (typeof document === 'undefined') return null;
-  const cv = document.createElement('canvas');
   const n = 128;
-  cv.width = cv.height = n;
-  const ctx = cv.getContext('2d');
-  if (!ctx) return null;
-  const img = ctx.createImageData(n, n);
-  for (let y = 0; y < n; y++) {
-    for (let x = 0; x < n; x++) {
-      const [r, g, b] = lamp(x, y, n, n);
-      img.data.set([r, g, b, 255], (y * n + x) * 4);
-    }
-  }
-  ctx.putImageData(img, 0, 0);
-  glassImage = cv;
-  return cv;
+  const data = new Uint8ClampedArray(n * n * 4);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) data.set([...lamp(x, y, n, n), 255], (y * n + x) * 4);
+  glassImage = canvasOf({ data, width: n, height: n });
+  return glassImage;
 }
-
-/** A wiped slide: a copy of its photograph's pixels, how clear its glass is (Earth's), and a canvas to show them. */
-type Worked = { px: Pixels; mask: Uint8Array; canvas: HTMLCanvasElement; dirty: [number, number, number, number] | null };
+/* A fresh slide's smudges, as they come from the box. */
+let smudgeImage: HTMLCanvasElement | null = null;
+const smudge = () => (smudgeImage ??= canvasOf(smudgedGlass(SMUDGE_SIZE)));
 
 export default function Eyepiece({
-  left,
-  right,
-  power,
+  objective,
+  pan,
   blur,
   reduced,
   label,
-  rightLabel,
+  tool,
   onWiped,
   onChange,
+  onPan,
+  onMove,
   ref,
 }: {
-  left: Slide;
-  /** An Earth slide beside the Moon's, side by side. */
-  right: Slide | null;
-  power: number;
+  /** Which objective lens is in use (stage.ts). */
+  objective: number;
+  /** Where the middle of the view is on the slide, 0 to 1 each way. */
+  pan: Pan;
   /** The focus: how far out of focus, in CSS px of blur. */
   blur: number;
   reduced: boolean;
-  /** What the canvas shows, for a screen reader. */
+  /** What the view shows, for a screen reader. */
   label: string;
-  rightLabel?: string;
+  /** What dragging on the slide does: wipe it with the cloth, or move it on the stage. */
+  tool: 'cloth' | 'move';
   onWiped: (r: WipeReport) => void;
-  /** Which slides are clean glass now, whenever that changes, and whether a change is under way. */
-  onChange?: (clean: SlideId[], busy: boolean) => void;
+  /** What is on the stage, whenever that changes, and whether a change is under way. */
+  onChange?: (view: StageView, busy: boolean) => void;
+  /** The slide dragged on the stage: where the view's middle would go (the room keeps it on the photo). */
+  onPan?: (p: Pan) => void;
+  /** An arrow key on the view: move the slide by this share of the view. */
+  onMove?: (dx: number, dy: number) => void;
   ref?: Ref<EyepieceHandle>;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const worked = useRef(new Map<SlideId, Worked>());
-  const [wiped, setWiped] = useState<SlideId[]>([]);
-  /** The slides that are bare, clean glass. */
-  const clean = useRef(new Set<SlideId>());
-  const [cleanIds, setCleanIds] = useState<SlideId[]>([]);
-  /** What each slide is doing: being polished clean, swapped for a fresh one, or having its sample placed. */
-  const anims = useRef(new Map<SlideId, Anim>());
-  const [busy, setBusy] = useState<string>('');
+  const slots = useRef<{ left: Slot; right: Slot | null }>({ left: freshSlot(), right: null });
+  const [shown, setShown] = useState<{ slots: string; worked: string; anim: string }>({ slots: 'smudged', worked: '', anim: '' });
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const [size, setSize] = useState(0);
   const [split, setSplit] = useState(0.5);
   /** The cloth on the slide, in screen px from the eyepiece's middle, and what it carries. */
-  const cloth = useRef<{ x: number; y: number; brush: Brush | null } | null>(null);
-  const report = useRef({ earth: 0 });
-  const enter = useRef<{ left: number; right: number }>({ left: 0, right: 0 });
+  const cloth = useRef<{ x: number; y: number; brush: Brush | null; smudge: Brush | null } | null>(null);
+  const report = useRef({ earth: 0, smudge: false });
   const frame = useRef(0);
-  const live = useRef({ left, right, power, split, reduced, size });
-  live.current = { left, right, power, split, reduced, size };
+  const live = useRef({ objective, pan, split, reduced, size });
+  live.current = { objective, pan, split, reduced, size };
   const onChangeRef = useRef(onChange);
   onChangeRef.current = onChange;
 
@@ -156,43 +182,55 @@ export default function Eyepiece({
   }, []);
 
   const scheduleRef = useRef<() => void>(() => {});
+  const allSlots = () => {
+    const { left, right } = slots.current;
+    return right ? [left, right] : [left];
+  };
 
-  /** Tell the room what is clean and what is moving. */
+  /** Tell the room what is on the stage and what is moving. */
   const publish = useCallback(() => {
-    const ids = [...clean.current];
-    const kinds = [...new Set([...anims.current.values()].map((a) => a.kind))].join(' ');
-    setCleanIds(ids);
-    setBusy(kinds);
-    onChangeRef.current?.(ids, kinds !== '');
+    const { left, right } = slots.current;
+    const all = right ? [left, right] : [left];
+    const word = (s: Slot) => s.sample?.id ?? (s.smudged ? 'smudged' : 'clean');
+    const kinds = [...new Set(all.map((s) => s.anim?.kind).filter(Boolean))].join(' ');
+    setShown({ slots: all.map(word).join(' '), worked: all.filter((s) => s.work).map(word).join(' '), anim: kinds });
+    onChangeRef.current?.({ left: viewOf(left), right: right ? viewOf(right) : null }, kinds !== '');
   }, []);
 
-  /** The wiped copy of a slide, made on its first wipe; null until its photograph has loaded, or once it is clean. */
-  const work = (slide: Slide): Worked | null => {
-    if (clean.current.has(slide.id) || anims.current.has(slide.id)) return null;
-    const have = worked.current.get(slide.id);
-    if (have) return have;
-    const img = photo(slide.src, () => scheduleRef.current());
-    if (!img) return null;
-    const canvas = document.createElement('canvas');
-    canvas.width = img.naturalWidth;
-    canvas.height = img.naturalHeight;
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    if (!ctx) return null;
-    ctx.drawImage(img, 0, 0);
-    const px = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const w: Worked = { px, mask: newMask(px), canvas, dirty: null };
-    worked.current.set(slide.id, w);
-    setWiped((ids) => [...ids, slide.id]);
-    return w;
-  };
-  const forget = (id: SlideId) => {
-    if (!worked.current.delete(id)) return;
-    setWiped((ids) => ids.filter((x) => x !== id));
+  /** The wiped copy of a slide, made on its first wipe; null for bare glass, or until its photograph has loaded. */
+  const work = (slot: Slot): Worked | null => {
+    if (slot.anim || isClean(slot)) return null;
+    if (slot.work) return slot.work;
+    let px: Pixels;
+    let canvas: HTMLCanvasElement | null;
+    if (slot.sample) {
+      const img = photo(slot.sample.src, () => scheduleRef.current());
+      if (!img) return null;
+      canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return null;
+      ctx.drawImage(img, 0, 0);
+      px = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    } else {
+      canvas = document.createElement('canvas');
+      canvas.width = canvas.height = SMUDGE_SIZE;
+      const ctx = canvas.getContext('2d', { willReadFrequently: true });
+      if (!ctx) return null;
+      const img = ctx.createImageData(SMUDGE_SIZE, SMUDGE_SIZE);
+      img.data.set(smudgedGlass(SMUDGE_SIZE).data);
+      px = img;
+      ctx.putImageData(img, 0, 0);
+    }
+    slot.work = { px, mask: newMask(px), canvas, dirty: null };
+    publish();
+    return slot.work;
   };
 
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
-    const { left: l, right: r, power: p, split: sp, size: W } = live.current;
+    const { objective: o, pan: p, split: sp, size: W } = live.current;
     const ctx = W > 0 ? canvas?.getContext?.('2d') : null;
     if (!canvas || !ctx) return false;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -201,7 +239,8 @@ export default function Eyepiece({
       canvas.height = Math.round(W * dpr);
     }
     const R = W / 2;
-    const scale = POWERS[p] * R;
+    // The slide's photograph spans S on screen: the eyepiece's width, zoomed by the lens.
+    const S = OBJECTIVES[o].zoom * W;
     const now = performance.now();
     let animating = false;
     const slideIn = (t0: number) => {
@@ -224,25 +263,25 @@ export default function Eyepiece({
     ctx.fillStyle = stage;
     ctx.fillRect(0, 0, W, W);
 
-    /** The photograph's square on screen, offset across by dx. */
-    const box = (dx: number) => [R + dx - scale, R - scale, scale * 2, scale * 2] as const;
+    /** The slide's square on screen, moved by the stage, and across by dx. */
+    const box = (dx: number) => [R + dx - S * p.x, R - S * p.y, S, S] as const;
     const drawGlass = (dx: number) => {
       const g = glass();
       if (g) ctx.drawImage(g, ...box(dx));
     };
-    const drawSample = (slide: Slide, dx: number) => {
-      // The photograph fills the disc at the lowest power; higher powers look closer at its middle.
-      // Once wiped, the wiped copy stands in for it.
-      const w = worked.current.get(slide.id);
-      if (w?.dirty) {
-        const [x, y, dw, dh] = w.dirty;
-        w.canvas.getContext('2d')?.putImageData(w.px as ImageData, 0, 0, x, y, dw, dh);
-        w.dirty = null;
-      }
-      const src = w?.canvas ?? photo(slide.src, () => scheduleRef.current());
+    const flush = (w: Worked) => {
+      if (!w.dirty) return;
+      const [x, y, dw, dh] = w.dirty;
+      w.canvas.getContext('2d')?.putImageData(w.px as ImageData, 0, 0, x, y, dw, dh);
+      w.dirty = null;
+    };
+    /** What lies on a slide: once wiped, its wiped copy stands in for it. */
+    const face = (f: Face, dx: number) => {
+      if (isClean(f)) return drawGlass(dx);
+      if (f.work) flush(f.work);
+      const src = f.work?.canvas ?? (f.sample ? photo(f.sample.src, () => scheduleRef.current()) : smudge());
       if (src) ctx.drawImage(src, ...box(dx));
     };
-    const face = (slide: Slide, dx: number) => (clean.current.has(slide.id) ? drawGlass(dx) : drawSample(slide, dx));
     /** A glass slide's edge, at x on screen: a bright line where the light catches it. */
     const edge = (x: number) => {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
@@ -251,36 +290,35 @@ export default function Eyepiece({
       ctx.fillRect(x - 6, 0, 4.5, W);
     };
 
-    const drawSlide = (slide: Slide, x0: number, x1: number, off: number) => {
+    const drawSlot = (slot: Slot, x0: number, x1: number, off: number) => {
       ctx.save();
       ctx.beginPath();
       ctx.rect(x0, 0, x1 - x0, W);
       ctx.clip();
-      const a = anims.current.get(slide.id);
+      const a = slot.anim;
       const t = a ? Math.min(1, (now - a.t0) / a.ms) : 1;
       if (a && t < 1) animating = true;
-      if (!a) face(slide, off);
+      if (!a) face(slot, off);
       else if (a.kind === 'polish') {
         // The last of the dust or grains wiped away: the glass comes clear.
-        drawSample(slide, off);
+        face(slot, off);
         ctx.globalAlpha = ease(t);
         drawGlass(off);
         ctx.globalAlpha = 1;
       } else if (a.kind === 'swap') {
         // The old slide is pushed out to the left; the fresh one follows it in from the right.
-        const gap = W * 0.06;
-        const D = scale * 2 + gap;
+        const D = S + W * 0.06;
         const k = easeInOut(t);
         const out = off - k * D;
         const into = off + (1 - k) * D;
-        face(slide, out);
-        drawGlass(into);
-        edge(R + out + scale);
-        edge(R + into - scale);
-      } else {
+        if (slot.prev) face(slot.prev, out);
+        face(slot, into);
+        edge(box(out)[0] + S);
+        edge(box(into)[0]);
+      } else if (slot.sample) {
         // The sample is tipped onto the clean glass: its grains fall, then settle, and the view comes up.
         drawGlass(off);
-        const img = photo(slide.src, () => scheduleRef.current());
+        const img = photo(slot.sample.src, () => scheduleRef.current());
         if (img) {
           const [bx, by, bw] = box(off);
           const fall = Math.min(1, t / 0.8);
@@ -301,7 +339,7 @@ export default function Eyepiece({
             ctx.drawImage(img, bx - gx, by - gy, bw, bw);
             ctx.restore();
           }
-          // Settled: the whole view, sharp.
+          // Settled: the whole view.
           if (t > 0.8) {
             ctx.globalAlpha = ease((t - 0.8) / 0.2);
             ctx.drawImage(img, bx, by, bw, bw);
@@ -312,21 +350,22 @@ export default function Eyepiece({
       ctx.restore();
     };
 
-    if (r) {
+    const { left, right } = slots.current;
+    if (right) {
       const sx = sp * W;
-      drawSlide(l, 0, sx, slideIn(enter.current.left) * -1);
-      drawSlide(r, sx, W, slideIn(enter.current.right));
+      drawSlot(left, 0, sx, -slideIn(left.enter));
+      drawSlot(right, sx, W, slideIn(right.enter));
     } else {
-      drawSlide(l, 0, W, slideIn(enter.current.left));
+      drawSlot(left, 0, W, slideIn(left.enter));
     }
 
-    // The cloth: a round of white suit cloth, showing the dust it carries.
+    // The cloth: a round of soft white cloth, showing the dust it carries.
     const c = cloth.current;
     if (c) {
       const cx = R + c.x;
       const cy = R + c.y;
       const cr = clothRadius();
-      const b = c.brush;
+      const b = c.brush ?? c.smudge;
       ctx.save();
       ctx.beginPath();
       ctx.arc(cx, cy, cr, 0, Math.PI * 2);
@@ -358,7 +397,7 @@ export default function Eyepiece({
       ctx.stroke();
     }
 
-    if (r) {
+    if (right) {
       // The dividing line.
       const sx = sp * W;
       ctx.fillStyle = 'rgba(243, 240, 250, 0.9)';
@@ -375,15 +414,9 @@ export default function Eyepiece({
   }, [draw]);
   scheduleRef.current = schedule;
 
-  // A new slide slides in from the side.
-  const prev = useRef({ left, right });
   useEffect(() => {
-    const now = performance.now();
-    if (prev.current.left !== left) enter.current.left = now;
-    if (prev.current.right !== right && right) enter.current.right = now;
-    prev.current = { left, right };
     schedule();
-  }, [left, right, power, split, size, schedule]);
+  }, [objective, pan, split, size, schedule]);
   useEffect(
     () => () => {
       cancelAnimationFrame(frame.current);
@@ -396,59 +429,64 @@ export default function Eyepiece({
    * Run a change on some slides: animate it, then settle what it leaves.
    * With reduced motion it is done at once.
    */
-  const run = (ids: SlideId[], kind: Anim['kind'], done: (id: SlideId) => void, after?: () => void) => {
+  const run = (on: Slot[], kind: Anim['kind'], done: (s: Slot) => void, after?: () => void) => {
     const finish = () => {
-      ids.forEach((id) => {
-        anims.current.delete(id);
-        done(id);
+      on.forEach((s) => {
+        s.anim = null;
+        s.prev = null;
+        done(s);
       });
       publish();
       schedule();
       after?.();
     };
-    if (live.current.reduced || !ids.length) {
+    if (live.current.reduced || !on.length) {
       finish();
       return;
     }
     const ms = TIMES[kind];
     const t0 = performance.now();
-    ids.forEach((id) => anims.current.set(id, { kind, t0, ms }));
+    on.forEach((s) => (s.anim = { kind, t0, ms }));
     publish();
     schedule();
     timers.current.push(setTimeout(finish, ms + 20));
   };
-  const makeClean = (id: SlideId) => {
-    clean.current.add(id);
-    forget(id);
+  const makeClean = (s: Slot) => {
+    s.sample = null;
+    s.smudged = false;
+    s.work = null;
   };
+  const busyNow = () => sweeping.current !== 0 || allSlots().some((s) => s.anim);
 
   // ───── Wiping ─────
   /** The cloth's radius on screen. */
   const clothRadius = () => Math.min(48, (live.current.size || 300) * 0.1);
-  const onStage = () => {
-    const { left: l, right: r } = live.current;
-    return r ? [l, r] : [l];
-  };
 
   /** One step of the cloth, in screen px from the middle, on whichever slide lies under it. */
   const wipeAt = (x0: number, y0: number, x1: number, y1: number) => {
     const c = cloth.current;
-    const { left: l, right: r, split: sp, size: W, power: p } = live.current;
+    const { split: sp, size: W, objective: o, pan: p } = live.current;
     if (!c || !W) return;
     const R = W / 2;
-    const scale = POWERS[p] * R;
-    // From the screen to the photograph's pixels: it spans 2 × scale on screen.
-    const lay = (slide: Slide, limit: Limit) => {
-      const w = work(slide);
+    const S = OBJECTIVES[o].zoom * W;
+    // From the screen (px from the middle) to the slide's pixels: it spans S on screen, moved by the stage.
+    const lay = (slot: Slot, limit: Limit) => {
+      const w = work(slot);
       if (!w) return;
-      const k = w.px.width / (scale * 2);
-      const to = (x: number, y: number) => [(x + scale) * k, (y + scale) * k] as const;
+      const k = w.px.width / S;
+      const to = (x: number, y: number) => [(x + S * p.x) * k, (y + S * p.y) * k] as const;
       const [ax, ay] = to(x0, y0);
       const [bx, by] = to(x1, y1);
       const rr = clothRadius() * k;
-      const lim = { x0: (limit.x0 + scale) * k, x1: (limit.x1 + scale) * k };
-      if (isMoon(slide)) {
-        if (!c.brush || c.brush.r !== Math.max(2, Math.round(rr))) c.brush = withDust(newBrush(rr), c.brush);
+      const lim = { x0: (limit.x0 + S * p.x) * k, x1: (limit.x1 + S * p.x) * k };
+      const r = Math.max(2, Math.round(rr));
+      if (!slot.sample) {
+        // A fresh slide's smudges come off on the cloth.
+        if (!c.smudge || c.smudge.r !== r) c.smudge = newBrush(rr);
+        lift(w.px, c.smudge, bx, by, lim);
+        report.current.smudge = true;
+      } else if (isMoon(slot.sample)) {
+        if (!c.brush || c.brush.r !== r) c.brush = withDust(newBrush(rr), c.brush);
         lift(w.px, c.brush, bx, by, lim);
       } else {
         report.current.earth += brushAside(w.px, w.mask, ax, ay, bx, by, rr, lim);
@@ -459,14 +497,15 @@ export default function Eyepiece({
       const nb = d ? [Math.min(d[0], bb[0]), Math.min(d[1], bb[1]), Math.max(d[0] + d[2], bb[2]), Math.max(d[1] + d[3], bb[3])] : bb;
       const x = Math.max(0, nb[0]);
       const y = Math.max(0, nb[1]);
-      w.dirty = [x, y, Math.min(w.px.width, nb[2]) - x, Math.min(w.px.height, nb[3]) - y];
+      w.dirty = [x, y, Math.max(0, Math.min(w.px.width, nb[2]) - x), Math.max(0, Math.min(w.px.height, nb[3]) - y)];
     };
+    const { left, right } = slots.current;
     const splitX = sp * W - R;
-    if (r) {
+    if (right) {
       // Each slide only on its own side of the line.
-      if (Math.min(x0, x1) - clothRadius() < splitX) lay(l, { x0: -Infinity, x1: splitX });
-      if (Math.max(x0, x1) + clothRadius() >= splitX) lay(r, { x0: splitX, x1: Infinity });
-    } else lay(l, { x0: -Infinity, x1: Infinity });
+      if (Math.min(x0, x1) - clothRadius() < splitX) lay(left, { x0: -Infinity, x1: splitX });
+      if (Math.max(x0, x1) + clothRadius() >= splitX) lay(right, { x0: splitX, x1: Infinity });
+    } else lay(left, { x0: -Infinity, x1: Infinity });
   };
 
   /** Move the cloth to (x, y), in steps no longer than `step` of its radius, so nothing is skipped over. */
@@ -485,36 +524,44 @@ export default function Eyepiece({
     }
   };
 
-  /** The cloth keeps its dust from wipe to wipe, until a fresh slide. */
+  /** The cloth keeps its Moon dust from wipe to wipe, until a fresh slide. */
   const clothDust = useRef(0);
   const withDust = (b: Brush, had: Brush | null) => {
     b.dust = had?.dust ?? clothDust.current;
     return b;
   };
   const startCloth = (x: number, y: number) => {
-    report.current = { earth: 0 };
-    cloth.current = { x, y, brush: null };
+    report.current = { earth: 0, smudge: false };
+    cloth.current = { x, y, brush: null, smudge: null };
     wipeAt(x, y, x, y);
   };
-  /** Lift the cloth: say what it did, and if the glass under it is all but clean, finish the job. */
+  /** The part of a slide's pixels in view: the square inside the round field. */
+  const inView = (w: Worked) => {
+    const { objective: o, pan: p } = live.current;
+    const half = (w.px.width * Math.SQRT1_2) / (2 * OBJECTIVES[o].zoom);
+    const cx = p.x * w.px.width;
+    const cy = p.y * w.px.height;
+    return { x0: cx - half, x1: cx + half, y0: cy - half, y1: cy + half };
+  };
+  /** Lift the cloth: say what it did, and if the glass in view is all but clean, finish the job. */
   const endCloth = useCallback(() => {
     if (!cloth.current) return;
     const b = cloth.current.brush;
     cloth.current = null;
     if (b) clothDust.current = b.dust;
-    const slides = onStage();
-    const already = slides.every((s) => clean.current.has(s.id));
-    const nearlyClean = slides.filter((s) => {
-      const w = worked.current.get(s.id);
-      return w && !clean.current.has(s.id) && cleanness(w.px, 8) > 0.97;
-    });
-    run(
-      nearlyClean.map((s) => s.id),
-      'polish',
-      makeClean,
-    );
+    const all = allSlots();
+    const already = all.every(isClean);
+    // A fresh slide's faint smudges count as gone a little sooner than a sample's grains.
+    const nearlyClean = all.filter((s) => s.work && !isClean(s) && cleanness(s.work.px, 4, inView(s.work)) > (s.sample ? 0.97 : 0.93));
+    run(nearlyClean, 'polish', makeClean);
     schedule();
-    onWiped({ moon: b ? clothDust.current : 0, earth: report.current.earth, clean: slides.every((s) => clean.current.has(s.id) || nearlyClean.includes(s)), already });
+    onWiped({
+      moon: b ? clothDust.current : 0,
+      earth: report.current.earth,
+      smudge: report.current.smudge,
+      clean: all.every((s) => isClean(s) || nearlyClean.includes(s)),
+      already,
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onWiped, schedule]);
 
@@ -522,21 +569,47 @@ export default function Eyepiece({
     const rect = canvasRef.current!.getBoundingClientRect();
     return { x: clientX - rect.left - rect.width / 2, y: clientY - rect.top - rect.height / 2 };
   };
+  /** The hand on the slide: where it took hold, and where the slide was then. */
+  const hand = useRef<{ x: number; y: number; pan: Pan } | null>(null);
   const onPointerDown = (e: PointerEvent<HTMLCanvasElement>) => {
-    if (sweeping.current || anims.current.size) return;
     e.currentTarget.setPointerCapture?.(e.pointerId);
+    if (tool === 'move') {
+      hand.current = { x: e.clientX, y: e.clientY, pan: live.current.pan };
+      return;
+    }
+    if (busyNow()) return;
     const p = fromMiddle(e.clientX, e.clientY);
     startCloth(p.x, p.y);
     schedule();
   };
   const onPointerMove = (e: PointerEvent<HTMLCanvasElement>) => {
+    const h = hand.current;
+    if (h) {
+      // The slide follows the hand: the view's middle moves the other way.
+      const S = OBJECTIVES[live.current.objective].zoom * (live.current.size || 1);
+      onPan?.({ x: h.pan.x - (e.clientX - h.x) / S, y: h.pan.y - (e.clientY - h.y) / S });
+      return;
+    }
     if (!cloth.current || sweeping.current) return;
     const p = fromMiddle(e.clientX, e.clientY);
     moveCloth(p.x, p.y);
     schedule();
   };
   const onPointerUp = () => {
+    if (hand.current) {
+      hand.current = null;
+      return;
+    }
     if (!sweeping.current) endCloth();
+  };
+
+  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) return;
+    const d: Record<string, [number, number]> = { ArrowLeft: [-0.25, 0], ArrowRight: [0.25, 0], ArrowUp: [0, -0.25], ArrowDown: [0, 0.25] };
+    const m = d[e.key];
+    if (!m) return;
+    e.preventDefault();
+    onMove?.(m[0], m[1]);
   };
 
   /** The cloth's path for the button: back and forth across the whole field, top to bottom. */
@@ -569,24 +642,21 @@ export default function Eyepiece({
   const sweeping = useRef(0);
   useImperativeHandle(ref, () => ({
     sweep() {
-      if (sweeping.current || anims.current.size) return;
-      const slides = onStage();
-      const dirty = slides.filter((s) => !clean.current.has(s.id));
+      if (busyNow()) return;
+      const dirty = allSlots().filter((s) => !isClean(s));
       if (!dirty.length) {
-        onWiped({ moon: 0, earth: 0, clean: true, already: true });
+        onWiped({ moon: 0, earth: 0, smudge: false, clean: true, already: true });
         return;
       }
-      const moonish = dirty.some(isMoon);
-      const earthish = dirty.some((s) => !isMoon(s));
+      const moonish = dirty.some((s) => s.sample && isMoon(s.sample));
+      const earthish = dirty.some((s) => s.sample && !isMoon(s.sample));
+      const smudgy = dirty.some((s) => !s.sample);
       const finish = (moon: number, earth: number) => {
         cloth.current = null;
         sweeping.current = 0;
         clothDust.current = moon;
-        run(
-          dirty.map((s) => s.id),
-          'polish',
-          makeClean,
-          () => onWiped({ moon: moonish ? moon : 0, earth: earthish ? Math.max(1, earth) : 0, clean: true }),
+        run(dirty, 'polish', makeClean, () =>
+          onWiped({ moon: moonish ? moon : 0, earth: earthish ? Math.max(1, earth) : 0, smudge: smudgy, clean: true }),
         );
       };
       if (live.current.reduced) {
@@ -616,28 +686,41 @@ export default function Eyepiece({
         cancelAnimationFrame(sweeping.current);
         sweeping.current = 0;
       }
-      if (anims.current.size) return;
+      if (allSlots().some((s) => s.anim)) return;
       cloth.current = null;
       clothDust.current = 0;
-      // Every slide in the box is fresh: the ones on the stage are pushed out for clean glass.
-      const ids = onStage().map((s) => s.id);
-      for (const id of [...worked.current.keys()]) if (!ids.includes(id)) forget(id);
-      run(ids, 'swap', makeClean);
+      // One fresh slide from the box: the one on the stage is pushed out for it, and a second slide is put away.
+      slots.current.right = null;
+      const left = slots.current.left;
+      left.prev = { sample: left.sample, smudged: left.smudged, work: left.work };
+      left.sample = null;
+      left.smudged = true;
+      left.work = null;
+      run([left], 'swap', () => {});
     },
-    place() {
-      if (sweeping.current || anims.current.size) return false;
-      const ids = onStage()
-        .map((s) => s.id)
-        .filter((id) => clean.current.has(id));
-      if (!ids.length) return false;
+    place(slide) {
+      if (busyNow()) return 'busy';
+      const left = slots.current.left;
+      if (left.smudged) return 'smudged';
+      if (left.sample) return 'occupied';
       // The sample goes on the glass at once; its grains are what is seen falling.
-      ids.forEach((id) => {
-        clean.current.delete(id);
-        forget(id);
-      });
-      run(ids, 'place', () => {});
+      left.sample = slide;
+      left.work = null;
+      run([left], 'place', () => {});
+      return 'ok';
+    },
+    compare(slide) {
+      if (busyNow()) return;
+      slots.current.right = { sample: slide, smudged: false, work: null, anim: null, prev: null, enter: performance.now() };
+      setSplit(0.5);
       publish();
-      return true;
+      schedule();
+    },
+    endCompare() {
+      if (!slots.current.right || busyNow()) return;
+      slots.current.right = null;
+      publish();
+      schedule();
     },
   }));
   useEffect(() => () => cancelAnimationFrame(sweeping.current), []);
@@ -656,14 +739,23 @@ export default function Eyepiece({
     setSplit(Math.max(0.1, Math.min(0.9, (e.clientX - rect.left) / rect.width)));
   };
 
+  const { left, right } = slots.current;
+  const world = (s: Slot) => (s.sample ? (isMoon(s.sample) ? 'Moon' : 'Earth') : 'Glass');
+
   return (
     <div
       ref={wrapRef}
       className="mo-ms-eyepiece"
       style={{ ['--split' as string]: String(split) }}
-      data-wiped={wiped.join(' ')}
-      data-clean={cleanIds.join(' ')}
-      data-anim={busy}
+      data-slots={shown.slots}
+      data-worked={shown.worked}
+      data-anim={shown.anim}
+      data-tool={tool}
+      data-pan={`${pan.x.toFixed(3)} ${pan.y.toFixed(3)}`}
+      tabIndex={0}
+      role="group"
+      aria-label="The view down the microscope. Arrow keys move the slide on the stage."
+      onKeyDown={onKeyDown}
     >
       <canvas
         ref={canvasRef}
@@ -687,8 +779,8 @@ export default function Eyepiece({
       <span className="mo-ms-vignette" aria-hidden="true" />
       {right && (
         <>
-          <span className="mo-ms-side mo-ms-side-left" aria-hidden="true">Moon</span>
-          <span className="mo-ms-side mo-ms-side-right" aria-hidden="true">{rightLabel}</span>
+          <span className="mo-ms-side mo-ms-side-left" aria-hidden="true">{world(left)}</span>
+          <span className="mo-ms-side mo-ms-side-right" aria-hidden="true">{world(right)}</span>
           <div
             className="mo-ms-split"
             role="slider"
@@ -697,7 +789,7 @@ export default function Eyepiece({
             aria-valuemin={10}
             aria-valuemax={90}
             aria-valuenow={Math.round(split * 100)}
-            aria-valuetext={`${Math.round(split * 100)}% Moon`}
+            aria-valuetext={`${Math.round(split * 100)}% ${world(left)}`}
             onKeyDown={onSplitKey}
             onPointerDown={(e) => {
               e.currentTarget.setPointerCapture?.(e.pointerId);

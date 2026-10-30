@@ -44,8 +44,10 @@ export type Credit = {
 
 export type Slide = {
   id: SlideId;
-  /** The chip's word. */
+  /** The jar's label in the tray: for Earth, the poster's word for what shaped it. */
   label: string;
+  /** The sample's name, from its record: the description's heading. */
+  name: string;
   src: string;
   /** What the photograph shows, for a screen reader. */
   alt: string;
@@ -63,6 +65,7 @@ export const MOON_SLIDES: (Slide & { id: `moon-${MoonSlide}`; key: MoonSlide })[
     id: 'moon-soil',
     key: 'soil',
     label: 'Soil',
+    name: 'Far-side Moon soil',
     src: `${DIR}/moon-soil.jpg`,
     alt: 'A photomicrograph of lunar soil from Chang’e 6: gray and brown broken grains of many sizes, some clear, some dark and clumped',
     caption: {
@@ -84,6 +87,7 @@ export const MOON_SLIDES: (Slide & { id: `moon-${MoonSlide}`; key: MoonSlide })[
     id: 'moon-beads',
     key: 'beads',
     label: 'Glass beads',
+    name: 'Apollo 17 glass beads',
     src: `${DIR}/moon-beads.jpg`,
     alt: 'A NASA photomicrograph of Apollo 17 soil: dark glassy beads and broken fragments on a pale slide',
     caption: {
@@ -96,6 +100,7 @@ export const MOON_SLIDES: (Slide & { id: `moon-${MoonSlide}`; key: MoonSlide })[
     id: 'moon-glass',
     key: 'glass',
     label: 'Orange glass',
+    name: 'Apollo 17 orange glass',
     src: `${DIR}/moon-orange-glass.jpg`,
     alt: 'A NASA photomicrograph of Apollo 17 orange soil: orange glass spheres and fragments mixed with black grains',
     caption: {
@@ -111,6 +116,7 @@ export const EARTH_SLIDES: (Slide & { id: `earth-${EarthSample}`; key: EarthSamp
     id: 'earth-wind',
     key: 'wind',
     label: 'Wind',
+    name: 'Gobi Desert sand',
     src: `${DIR}/earth-wind.jpg`,
     alt: 'A photomicrograph of desert sand: small, rounded grains, clear, cream, orange and dark',
     caption: {
@@ -129,6 +135,7 @@ export const EARTH_SLIDES: (Slide & { id: `earth-${EarthSample}`; key: EarthSamp
     id: 'earth-water',
     key: 'water',
     label: 'Water',
+    name: 'Vistula River sand',
     src: `${DIR}/earth-water.jpg`,
     alt: 'A close photograph of river sand: clear, glassy, smooth-edged grains with a few dark and pink ones',
     caption: {
@@ -147,6 +154,7 @@ export const EARTH_SLIDES: (Slide & { id: `earth-${EarthSample}`; key: EarthSamp
     id: 'earth-life',
     key: 'life',
     label: 'Living things',
+    name: 'Bermuda coral sand',
     src: `${DIR}/earth-life.jpg`,
     alt: 'A photomicrograph of coral sand: cream and white pieces of coral and shell with pink speckled grains',
     caption: {
@@ -164,3 +172,6 @@ export const EARTH_SLIDES: (Slide & { id: `earth-${EarthSample}`; key: EarthSamp
 ];
 
 export const SLIDES = Object.fromEntries([...MOON_SLIDES, ...EARTH_SLIDES].map((s) => [s.id, s])) as unknown as Record<SlideId, Slide>;
+
+/** Is this slide the Moon's (or Earth's)? */
+export const isMoon = (slide: Slide) => slide.id.startsWith('moon-');
