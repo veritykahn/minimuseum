@@ -19,7 +19,7 @@ import {
   WRITE_UP,
   type Tip,
   type WriteUpId,
-} from './oralHistory';
+} from './oralHistoryText';
 
 /*
  * Talk About It: an oral history with a woman in your family

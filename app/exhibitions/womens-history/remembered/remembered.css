@@ -156,7 +156,118 @@
 .whr-result-line { display: flex; align-items: center; gap: 14px; font-family: var(--pe-body); font-size: 1rem; line-height: 1.4; }
 .whr-result-n { font-family: var(--pe-display); font-weight: 900; font-size: 4rem; line-height: 1; color: var(--whr-orange); }
 
-/* TIP_AND_TALK */
+/* ───────── Meet the three women, and the note on four names ───────── */
+.whr-side.is-revealed { align-self: stretch; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; justify-content: center; }
+.whr-meet-pick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.whr-meet-pick-title { flex-basis: 100%; font-family: var(--pe-ui); font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--whr-orange-ink); }
+.whr-room .whr-meet-button { align-self: auto; border-color: var(--whr-orange-ink); color: var(--whr-orange-ink); padding: 10px 14px; letter-spacing: 0.08em; }
+.whr-room .whr-meet-button:hover, .whr-room .whr-meet-button[aria-pressed='true'] { background: var(--whr-orange-ink); color: var(--whr-paper); }
+.whr-link-button { appearance: none; align-self: flex-start; border: 0; background: none; padding: 6px 0; min-height: 44px; font-family: var(--pe-ui); font-size: 13px; color: var(--whr-navy); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.whr-mark { margin-left: 1px; font-weight: 700; color: var(--whr-navy); }
+.whr-meet { align-self: stretch; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 14px; padding: clamp(18px, 2.4vw, 32px); background: var(--whr-paper); box-shadow: 0 16px 34px -18px rgba(80, 30, 34, 0.45); border-top: 6px solid var(--whr-orange); animation: whr-in 0.5s ease both; }
+.whr-meet-head { font-family: var(--pe-display); font-weight: 900; font-size: clamp(1.8rem, 3.2vw, 2.8rem); line-height: 1.05; color: var(--whr-navy); outline: none; }
+.whr-meet-rank { font-family: var(--pe-ui); font-size: 13px; color: var(--whr-muted); display: flex; flex-wrap: wrap; gap: 4px 8px; align-items: baseline; }
+.whr-meet-lines { margin: 0; padding: 0 0 0 1.4em; display: flex; flex-direction: column; gap: 10px; font-family: var(--pe-body); font-size: clamp(1rem, 1.35vw, 1.25rem); line-height: 1.5; color: var(--whr-ink); }
+.whr-meet-lines li::marker { color: var(--whr-orange-ink); font-weight: 700; }
+.whr-meet-words { margin: 0; padding: 10px 16px; border-left: 3px solid var(--whr-orange); font-family: var(--pe-body); font-style: italic; font-size: clamp(1rem, 1.3vw, 1.2rem); line-height: 1.5; }
+.whr-meet-words footer { margin-top: 4px; font-style: normal; font-family: var(--pe-ui); font-size: 12px; color: var(--whr-muted); }
+.whr-meet-names { font-family: var(--pe-ui); font-weight: 500; font-size: 14px; letter-spacing: 0.04em; color: var(--whr-navy); }
+.whr-fact-long { font-size: clamp(0.95rem, 1.2vw, 1.1rem); line-height: 1.6; gap: 8px; }
+.whr-meet-buttons { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 6px; }
+.whr-meet-buttons .whr-button { align-self: auto; }
+
+/* ───────── Tip the scale: weigh the evidence ───────── */
+.whr-scale-panel { overflow-y: auto; overscroll-behavior: contain; }
+.whr-weigh { display: grid; grid-template-columns: minmax(0, 1fr) minmax(320px, 520px); grid-template-areas: 'claim claim' 'scale work'; gap: 14px clamp(20px, 3vw, 48px); align-items: start; }
+.whr-weigh-claim { grid-area: claim; text-align: center; }
+.whr-weigh-eyebrow { font-family: var(--pe-ui); font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--whr-orange-ink); }
+.whr-weigh-claim-text { margin: 4px auto 0; max-width: 34em; font-family: var(--pe-display); font-weight: 700; font-size: clamp(1.15rem, 2vw, 1.75rem); line-height: 1.3; color: var(--whr-navy); }
+.whr-scale { grid-area: scale; position: relative; width: 100%; max-width: 620px; justify-self: center; align-self: center; }
+.whr-scale svg { width: 100%; height: auto; overflow: visible; }
+.whr-scale-post { fill: var(--whr-navy); }
+.whr-beam { transform-box: view-box; transform-origin: 300px 69px; transition: transform 1.6s cubic-bezier(0.3, 0.7, 0.2, 1); fill: var(--whr-navy); }
+.whr-pan { transform-box: view-box; transition: transform 1.6s cubic-bezier(0.3, 0.7, 0.2, 1); }
+.whr-cord { fill: none; stroke: var(--whr-navy); stroke-width: 1.5; }
+.whr-dish { fill: var(--whr-paper); stroke: var(--whr-navy); stroke-width: 2; }
+.whr-claim-mark { fill: var(--whr-paper); stroke: var(--whr-navy); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.whr-weight { fill: var(--whr-orange); stroke: var(--whr-navy); stroke-width: 1.5; animation: whr-drop 0.7s ease both; }
+/* A card that is not evidence: laid on, it weighs nothing (a hollow outline). */
+.whr-weight.is-nothing { fill: transparent; stroke: var(--whr-muted); stroke-dasharray: 3 3; }
+@keyframes whr-drop { from { opacity: 0; transform: translateY(-14px); } }
+.whr-scale-label { font-family: var(--pe-ui); font-size: 15px; font-weight: 500; letter-spacing: 0.04em; fill: var(--whr-muted); }
+.whr-weigh-work { grid-area: work; }
+.whr-card { display: flex; flex-direction: column; gap: 12px; padding: clamp(16px, 2vw, 26px); background: var(--whr-paper); box-shadow: 0 16px 34px -18px rgba(80, 30, 34, 0.45); text-align: left; animation: whr-in 0.5s ease both; }
+.whr-card-head { font-family: var(--pe-ui); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--whr-orange-ink); outline: none; }
+#whr-choose-head, #whr-argue-head { font-family: var(--pe-display); font-size: clamp(1.25rem, 2vw, 1.7rem); font-weight: 900; letter-spacing: 0; text-transform: none; color: var(--whr-navy); }
+.whr-card-text { font-family: var(--pe-body); font-size: clamp(1.1rem, 1.6vw, 1.45rem); line-height: 1.45; color: var(--whr-ink); }
+.whr-card-ask { font-family: var(--pe-ui); font-size: 14px; font-weight: 500; color: var(--whr-navy); }
+.whr-card-note, .whr-card-hint { font-family: var(--pe-body); font-size: 1rem; line-height: 1.5; color: var(--whr-muted); }
+.whr-card-hint { font-size: 0.9rem; }
+.whr-card-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.whr-card-buttons .whr-button { align-self: auto; }
+.whr-button:disabled { opacity: 0.45; cursor: default; }
+.whr-button-primary:disabled:hover { background: var(--whr-navy); }
+.whr-dots { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; }
+.whr-dots li { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--whr-navy); opacity: 0.45; }
+.whr-dots li.is-done { background: var(--whr-navy); }
+.whr-dots li.is-now { opacity: 1; box-shadow: 0 0 0 2px var(--whr-paper), 0 0 0 3.5px var(--whr-orange); }
+.whr-verdict { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-left: 4px solid var(--whr-navy); background: rgba(34, 51, 94, 0.06); font-family: var(--pe-body); font-size: 1.05rem; line-height: 1.5; animation: whr-in 0.4s ease both; }
+.whr-verdict.is-right { border-color: #2f6b3a; }
+.whr-verdict.is-wrong { border-color: var(--whr-orange-ink); }
+.whr-verdict strong { color: var(--whr-navy); }
+.whr-choices, .whr-reasons { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px; }
+.whr-choice { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; padding: 10px 12px; border: 1.5px solid rgba(34, 51, 94, 0.3); font-family: var(--pe-body); font-size: 1rem; line-height: 1.45; cursor: pointer; background: rgba(255, 255, 255, 0.55); }
+.whr-choice.is-on { border-color: var(--whr-orange-ink); background: rgba(242, 102, 31, 0.1); }
+.whr-choice input, .whr-reason input { width: 20px; height: 20px; margin-top: 2px; accent-color: var(--whr-navy); }
+.whr-reason { display: flex; gap: 10px; align-items: center; min-height: 36px; font-family: var(--pe-body); font-size: 1rem; cursor: pointer; }
+.whr-own { display: flex; flex-direction: column; gap: 6px; }
+.whr-own textarea, .whr-own input { width: 100%; font-family: var(--pe-body); font-size: 1rem; line-height: 1.45; padding: 10px 12px; min-height: 44px; border: 1.5px solid rgba(34, 51, 94, 0.4); border-radius: 2px; background: #fff; color: var(--whr-ink); resize: vertical; }
+.whr-own-name { max-width: 22em; }
+.whr-cer { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 10px 16px; font-family: var(--pe-body); font-size: clamp(1rem, 1.4vw, 1.2rem); line-height: 1.5; }
+.whr-cer dt { font-family: var(--pe-ui); font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--whr-orange-ink); padding-top: 0.35em; }
+.whr-cer dd { margin: 0; color: var(--whr-ink); }
+.whr-cer dd .whr-fact-source { display: block; margin-top: 2px; }
+.whr-conclusion { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid rgba(34, 51, 94, 0.18); font-family: var(--pe-body); font-style: italic; font-size: 0.98rem; line-height: 1.55; color: var(--whr-navy); }
+.whr-print-name { display: none; }
+
+/* ───────── Talk about it: an oral history ───────── */
+.whr-talk { overflow: hidden; }
+.whr-oral { height: 100%; display: grid; grid-template-columns: minmax(200px, 250px) minmax(0, 1fr); gap: clamp(18px, 3vw, 44px); }
+.whr-oral-steps { display: flex; flex-direction: column; gap: 14px; }
+.whr-oral-steps ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.whr-oral-step { appearance: none; width: 100%; display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 8px 12px; border: 0; border-left: 3px solid transparent; background: transparent; font-family: var(--pe-ui); font-size: 14px; text-align: left; color: var(--whr-navy); cursor: pointer; }
+.whr-oral-step:hover { background: rgba(246, 239, 228, 0.6); }
+.whr-oral-step[aria-current='step'] { border-left-color: var(--whr-orange); background: var(--whr-paper); font-weight: 500; }
+.whr-oral-step-n { display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--whr-navy); color: var(--whr-paper); font-size: 12px; flex: none; }
+.whr-room .whr-oral-print { align-self: stretch; }
+.whr-oral-body { overflow-y: auto; overscroll-behavior: contain; padding: clamp(18px, 2.4vw, 32px); background: var(--whr-paper); box-shadow: 0 16px 34px -18px rgba(80, 30, 34, 0.45); display: flex; flex-direction: column; gap: 14px; }
+.whr-oral-body > section { display: flex; flex-direction: column; gap: 14px; animation: whr-in 0.5s ease both; }
+.whr-oral-head { font-family: var(--pe-display); font-weight: 900; font-size: clamp(1.5rem, 2.6vw, 2.3rem); line-height: 1.1; color: var(--whr-navy); outline: none; }
+.whr-oral-sub { margin-top: 6px; font-family: var(--pe-ui); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--whr-orange-ink); }
+.whr-oral-lede { font-family: var(--pe-body); font-size: clamp(1.05rem, 1.5vw, 1.3rem); line-height: 1.55; color: var(--whr-ink); }
+.whr-tips { margin: 0; padding: 0 0 0 1.3em; display: flex; flex-direction: column; gap: 12px; font-family: var(--pe-body); font-size: clamp(1rem, 1.4vw, 1.22rem); line-height: 1.5; color: var(--whr-ink); }
+.whr-tips.is-numbered { list-style: decimal; }
+.whr-tips li::marker { color: var(--whr-orange-ink); font-weight: 700; }
+.whr-tips .whr-fact-source { display: block; margin-top: 2px; }
+.whr-qgroup { display: flex; flex-direction: column; gap: 8px; }
+.whr-interview { margin: 0; padding: 0 0 0 1.8em; display: flex; flex-direction: column; gap: 8px; font-family: var(--pe-display); font-weight: 700; font-size: clamp(1.05rem, 1.55vw, 1.35rem); line-height: 1.35; color: var(--whr-navy); }
+.whr-interview li::marker { color: var(--whr-orange); font-weight: 900; }
+.whr-about { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 14px; }
+.whr-room .whr-oral-next { align-self: flex-end; }
+.whr-oral-sources { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(34, 51, 94, 0.14); }
+.whr-questions { margin: 0; padding: 0; list-style: none; counter-reset: q; display: flex; flex-direction: column; gap: 14px; }
+.whr-questions li { counter-increment: q; display: grid; grid-template-columns: 2.2em 1fr; align-items: baseline; font-family: var(--pe-display); font-weight: 700; font-size: clamp(1.05rem, 1.5vw, 1.35rem); line-height: 1.3; }
+.whr-questions li::before { content: counter(q); font-weight: 900; font-size: 1.4em; color: var(--whr-orange); }
+.whr-others { display: flex; flex-direction: column; gap: 10px; padding: 16px 18px; background: rgba(34, 51, 94, 0.05); }
+.whr-others-title { font-family: var(--pe-ui); font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--whr-orange-ink); }
+.whr-others-line { font-family: var(--pe-body); font-size: 1.05rem; line-height: 1.55; color: var(--whr-ink); }
+.whr-print { display: none; }
+
+/* A big screen at the front of a class: everything a size up. */
+@media (min-width: 1600px) {
+  .whr-card-text, .whr-meet-lines, .whr-tips { font-size: 1.5rem; }
+  .whr-interview, .whr-questions li { font-size: 1.6rem; }
+}
 
 @media (max-width: 760px) {
   .whr-stage { min-height: 0; }
@@ -182,9 +293,69 @@
   .whr-plinths.is-revealed { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px 6px; }
   .whr-plinths.is-revealed .whr-statue { max-width: 22px; }
   .whr-plinths.is-revealed .whr-name { display: block; min-height: 2.4em; font-size: 10.5px; line-height: 1.2; overflow-wrap: normal; hyphens: auto; }
+  .whr-side.is-revealed { overflow: visible; padding-right: 0; }
+  .whr-meet { order: 1; overflow: visible; padding: 16px; }
+  .whr-meet-lines { font-size: 1rem; }
+  .whr-statues:has(.whr-meet) { overflow-y: auto; overscroll-behavior: contain; padding-bottom: 12px; }
+  .whr-statues:has(.whr-meet) .whr-side .whr-fact, .whr-statues:has(.whr-meet) .whr-side .whr-result-line { display: none; }
+  .whr-weigh { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'claim' 'scale' 'work'; gap: 10px; }
+  .whr-weigh-claim-text { font-size: 1.05rem; }
+  .whr-scale { max-width: 340px; }
+  .whr-scale-label { font-size: 20px; }
+  .whr-card { padding: 14px; }
+  .whr-card-text { font-size: 1.05rem; }
+  .whr-cer { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .whr-cer dd { margin-bottom: 8px; }
+  .whr-talk { overflow-y: auto; overscroll-behavior: contain; }
+  .whr-oral { height: auto; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .whr-oral-steps ol { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+  .whr-oral-steps li { flex: 1 1 30%; }
+  .whr-oral-step { padding: 6px 8px; font-size: 12px; gap: 6px; border-left: 0; border-bottom: 3px solid transparent; }
+  .whr-oral-step[aria-current='step'] { border-bottom-color: var(--whr-orange); }
+  .whr-oral-body { overflow: visible; padding: 16px; }
+  .whr-tips, .whr-oral-lede { font-size: 1rem; }
+  .whr-interview, .whr-questions li { font-size: 1.02rem; }
+}
+
+/* An iPad held upright: the scale above the card, the statues above the guess, the steps above the guide. */
+@media (min-width: 761px) and (max-width: 1100px) and (orientation: portrait) {
+  .whr-weigh { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'claim' 'scale' 'work'; }
+  .whr-scale { max-width: 460px; }
+  .whr-statues { grid-template-columns: minmax(0, 1fr); align-content: start; overflow-y: auto; overscroll-behavior: contain; }
+  .whr-side.is-revealed { overflow: visible; }
+  .whr-meet { overflow: visible; }
+  .whr-oral { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .whr-oral-steps { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .whr-oral-steps ol { flex-direction: row; flex-wrap: wrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .whr-panel, .whr-result, .whr-level, .whr-weight, .whr-plinths.is-revealed .whr-name { animation: none; }
-  .whr-statue, .whr-beam, .whr-pan, .whr-button, .whr-room .whr-weight-button { transition: none; }
+  .whr-panel, .whr-result, .whr-weight, .whr-plinths.is-revealed .whr-name, .whr-meet, .whr-card, .whr-verdict, .whr-oral-body > section { animation: none; }
+  .whr-statue, .whr-beam, .whr-pan, .whr-button { transition: none; }
+}
+
+/* Print: only the chosen sheet (the interview sheet, the write-up, or the argument). */
+@media print {
+  @page { margin: 0.6in; }
+  body:has(.whr-room[data-print]) * { visibility: hidden; }
+  .whr-room[data-print] { min-height: 0; background: #fff !important; }
+  .whr-room[data-print] .whr-stage { height: auto; min-height: 0; overflow: visible; }
+  .whr-room[data-print] .whr-panel { position: static; animation: none; overflow: visible; }
+  .whr-room[data-print] .whr-panel[hidden], .whr-room[data-print] .whr-bar, .whr-room[data-print] .whr-ground { display: none; }
+  .whr-room[data-print='sheet'] .whr-print-sheet, .whr-room[data-print='writeup'] .whr-print-writeup { display: block; position: absolute; left: 0; top: 0; width: 100%; visibility: visible; color: #000; font-family: Georgia, 'Times New Roman', serif; font-size: 11.5pt; line-height: 1.45; }
+  .whr-room[data-print='sheet'] .whr-print-sheet *, .whr-room[data-print='writeup'] .whr-print-writeup * { visibility: visible; }
+  .whr-print-title { font-family: var(--pe-display); font-size: 20pt; font-weight: 900; margin-bottom: 8pt; color: #22335e; }
+  .whr-print-line { margin: 0 0 8pt; }
+  .whr-print-h { margin: 12pt 0 4pt; font-family: var(--pe-ui); font-size: 10pt; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #a3401a; }
+  .whr-print-sub { margin: 8pt 0 3pt; font-weight: 700; }
+  .whr-print ul, .whr-print ol { margin: 0; padding-left: 1.4em; }
+  .whr-print li { margin-bottom: 4pt; break-inside: avoid; }
+  .whr-print-group { break-inside: avoid; }
+  .whr-print-rule { display: block; height: 0; margin-top: 18pt; border-bottom: 0.75pt solid #888; }
+  .whr-print-answer { white-space: pre-wrap; margin: 0 0 6pt; }
+  .whr-print-sources { margin-top: 14pt; font-size: 8.5pt; color: #444; }
+  .whr-room[data-print='argument'] .whr-argument { visibility: visible; position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; background: #fff; animation: none; }
+  .whr-room[data-print='argument'] .whr-argument * { visibility: visible; }
+  .whr-room[data-print='argument'] .whr-argument .whr-card-buttons, .whr-room[data-print='argument'] .whr-argument .whr-own-name { display: none; }
+  .whr-room[data-print='argument'] .whr-print-name { display: block; order: -1; font-family: var(--pe-ui); font-size: 11pt; }
 }
