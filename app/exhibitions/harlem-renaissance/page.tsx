@@ -150,7 +150,8 @@ export default function HarlemRenaissance() {
       }
     } else {
       switch (special) {
-        case 'dual-identity': return { title: '#b485d2', text: '#ced5bc' }; // lavender titles
+        // Lavender titles, a shade paler on the split, so they read on its light half too (4.3:1).
+        case 'dual-identity': return { title: '#d4bce8', text: '#ced5bc' };
         case 'harlem-night': return { title: '#b485d2', text: '#ced5bc' }; // lavender titles
         case 'ink-spread': return { title: '#ced5bc', text: '#9298a8' }; // blue-gray text
         default: return { title: '#ced5bc', text: '#ced5bc' };

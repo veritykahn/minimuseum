@@ -53,7 +53,8 @@ export const HARLEM_ATMOSPHERES: Record<string, Atmosphere> = {
   'douglas-rays': { parts: 3 },
   'savoy-ballroom': { parts: 3, particles: 9 },
   // A panel with no section look of its own stands in its atmosphere's ground.
-  'color-line': { bg: '#17142f', title: '#b485d2', text: '#ced5bc', parts: 3 },
+  // Its lavender is a shade paler than the others', so titles read on the split's light half too (4.3:1).
+  'color-line': { bg: '#17142f', title: '#d4bce8', text: '#ced5bc', parts: 3 },
   'atlanta-night': { bg: '#262a4d', title: '#b485d2', text: '#ced5bc', parts: 3, particles: 5 },
 };
 

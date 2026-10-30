@@ -196,9 +196,11 @@
 
 /* ───────── color-line: the two halves of Walter White's world ───────── */
 .pe-atmo-color-line .pe-atmo-part-1 {
-  /* light on one side, dark on the other, as in the original ground */
+  /* light on one side, dark on the other, as in the original ground. The
+     light half is as light as it can be with the pale copy still reading
+     across it (4.9:1 at its lightest). */
   inset: 0;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(240, 235, 225, 0.08) 46%, transparent 50%, rgba(15, 10, 30, 0.38) 54%, rgba(10, 5, 20, 0.42) 100%);
+  background: linear-gradient(90deg, rgba(240, 235, 225, 0.3) 0%, rgba(240, 235, 225, 0.27) 49%, transparent 50%, rgba(15, 10, 30, 0.38) 51%, rgba(10, 5, 20, 0.42) 100%);
   animation: hrAtmoShift 8s ease-in-out infinite;
 }
 .pe-atmo-color-line .pe-atmo-part-2 {
@@ -221,7 +223,7 @@
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
   animation: hrAtmoPass 14s ease-in-out infinite alternate;
 }
-@keyframes hrAtmoShift { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.55; } }
+@keyframes hrAtmoShift { 0%, 100% { opacity: 1; } 50% { opacity: 0.8; } }
 @keyframes hrAtmoDraw { from { transform: scaleY(0); } }
 @keyframes hrAtmoPass { from { transform: translateX(-24vw); } to { transform: translateX(24vw); } }
 
