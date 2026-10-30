@@ -1,6 +1,6 @@
 'use client';
 
-import { Children, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { Children, isValidElement, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 
 /*
@@ -22,7 +22,11 @@ type CssVars = CSSProperties & Record<`--${string}`, string | number>;
 
 export default function LandingRow({ className = '', children }: { className?: string; children: ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
-  const count = Children.toArray(children).length;
+  const items = Children.toArray(children);
+  const count = items.length;
+  // How many are display cases: on a tall screen (an iPad held upright) the
+  // posters take one row and the cases the next (poster-exhibition.css).
+  const cases = items.filter((c) => isValidElement<{ className?: string }>(c) && /\bpe-landing-case\b/.test(c.props.className ?? '')).length;
   const [active, setActive] = useState(0);
   const [overflows, setOverflows] = useState(false);
   const reduced = usePrefersReducedMotion();
@@ -68,7 +72,7 @@ export default function LandingRow({ className = '', children }: { className?: s
 
   return (
     <>
-      <div ref={ref} className={`pe-landing-row ${className}`.trim()} style={{ '--pe-n': count } as CssVars}>
+      <div ref={ref} className={`pe-landing-row ${className}`.trim()} style={{ '--pe-n': count, '--pe-cases': Math.max(cases, 1), '--pe-posters': Math.max(count - cases, 1) } as CssVars}>
         {children}
       </div>
       {overflows && (

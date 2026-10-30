@@ -7,6 +7,7 @@ import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
+import LandingRow from '@/components/exhibition/LandingRow';
 import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { HARLEM_TALK } from '@/components/projector/posterTalk';
@@ -425,40 +426,23 @@ export default function HarlemRenaissance() {
         /* ============================================
            MAIN EXHIBITION VIEW
            ============================================ */
-        .hr-exhibition-main {
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 120px 40px 80px;
-          gap: 60px;
-        }
+        /* The landing page's layout, one screen with the posters and the case
+           sized to it, is the shared pe-landing (poster-exhibition.css); these
+           rules give it Harlem's look. */
+        .hr-root { --pe-hint: #efd9b4; }
 
         /* The lessons chip inherits its ink from here (a:link outranks its own color). */
-        .hr-exhibition-title { text-align: center; margin-bottom: 20px; color: #efd9b4; }
+        .hr-exhibition-title { color: #efd9b4; }
         .hr-exhibition-title h1 {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(2.5rem, 8vw, 5rem);
           font-weight: 300;
           color: #efd9b4;
-          margin-bottom: 12px;
         }
         /* The poster's gold and pinks do not read on its purple (2–3:1); its cream does. */
         .hr-exhibition-title p {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1rem, 3vw, 1.4rem);
           font-style: italic;
           color: #efd9b4;
-        }
-
-        .hr-exhibition-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 40px;
-          max-width: 1200px;
-          width: 100%;
-          align-items: center;
         }
 
         .hr-poster-frame {
@@ -468,17 +452,8 @@ export default function HarlemRenaissance() {
         }
         .hr-poster-frame:hover, .hr-poster-frame:focus-visible { transform: translateY(-8px); }
         .hr-poster-frame:hover .hr-poster-hint, .hr-poster-frame:focus-visible .hr-poster-hint { opacity: 1; }
-        .hr-poster-frame img {
-          width: 100%;
-          height: auto;
-          display: block;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
+        .hr-poster-frame img { box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
         .hr-poster-hint {
-          position: absolute;
-          bottom: -30px;
-          left: 50%;
-          transform: translateX(-50%);
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
@@ -492,19 +467,46 @@ export default function HarlemRenaissance() {
            photograph is cut out, so the lit case sits straight on the poster's
            ground. Its type is the poster's cream (5.1:1 and up). */
         .hr-display-case {
-          background: transparent;
-          border: none;
-          box-shadow: none;
-          padding: 32px 24px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          min-height: 300px;
+          isolation: isolate;
+          --pe-case-pad-y: 80px;
+          padding: 56px 34px 22px;
           cursor: pointer;
           transition: all 0.4s ease;
-          overflow: hidden;
         }
+        /* Its frame: an Art Deco arch in the poster's cream, a fine double
+           line, with a gilt sunburst fanning down from its crown. The case
+           still stands on the purple itself, inside the line. */
+        .hr-display-case .pe-case-frame {
+          position: absolute;
+          z-index: -1;
+          inset: 0;
+          border-radius: 999px 999px 4px 4px;
+          border: 1.5px solid rgba(239, 217, 180, 0.75);
+          pointer-events: none;
+          transition: border-color 0.4s ease;
+        }
+        .hr-display-case .pe-case-frame::before {
+          content: '';
+          position: absolute;
+          inset: 6px;
+          border: 1px solid rgba(239, 217, 180, 0.4);
+          border-radius: inherit;
+        }
+        .hr-display-case .pe-case-frame::after {
+          content: '';
+          position: absolute;
+          left: 50%;
+          top: 6px;
+          width: 64%;
+          aspect-ratio: 2 / 1;
+          translate: -50% 0;
+          border-radius: 999px 999px 0 0;
+          background: repeating-conic-gradient(from -90deg at 50% 0%, rgba(226, 190, 120, 0.32) 0 2deg, transparent 2deg 12deg);
+          -webkit-mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, #000 30%, transparent 75%);
+          mask-image: radial-gradient(ellipse 100% 100% at 50% 0%, #000 30%, transparent 75%);
+          opacity: 0.8;
+        }
+        .hr-display-case:hover .pe-case-frame, .hr-display-case:focus-visible .pe-case-frame { border-color: #efd9b4; }
         .hr-display-case:hover, .hr-display-case:focus-visible {
           transform: translateY(-8px);
         }
@@ -513,14 +515,7 @@ export default function HarlemRenaissance() {
           filter: drop-shadow(0 18px 28px rgba(0,0,0,0.35));
         }
 
-        .hr-case-image {
-          width: 100%;
-          max-width: 280px;
-          height: auto;
-          object-fit: contain;
-          margin-bottom: 20px;
-          transition: transform 0.4s ease;
-        }
+        .hr-case-image { transition: transform 0.4s ease; }
         .hr-case-label {
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
@@ -805,7 +800,6 @@ export default function HarlemRenaissance() {
            RESPONSIVE
            ============================================ */
         @media (max-width: 900px) {
-          .hr-exhibition-grid { grid-template-columns: 1fr; gap: 32px; }
           .hr-pos-top-left, .hr-pos-top-right { padding: 15vh 24px 15vh 24px; }
           .hr-pos-bottom-left, .hr-pos-bottom-right, .hr-pos-bottom-center {
             padding-left: 24px;
@@ -831,7 +825,6 @@ export default function HarlemRenaissance() {
           .hr-nav-left { left: 20px; top: 20px; }
           .hr-nav-right { right: 20px; top: 20px; }
           .hr-nav-text { font-size: 24px; }
-          .hr-exhibition-main { padding: 100px 24px 60px; }
           .hr-walkthrough-nav { bottom: 20px; gap: 16px; }
           .hr-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
           .hr-text-content-wrapper { padding: 100px 24px; }
@@ -867,23 +860,24 @@ export default function HarlemRenaissance() {
           MAIN EXHIBITION VIEW
           ============================================ */}
       {activeView === 'main' && !projector && (
-        <div className="hr-exhibition-main">
-          <div className="hr-exhibition-title">
+        <div className="hr-exhibition-main pe-landing">
+          <div className="hr-exhibition-title pe-landing-head">
             <h1>The Harlem Renaissance</h1>
             <p>The Great Migration &amp; the Birth of a Cultural Revolution</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
+            <div className="pe-teach-row">
               <TeachToggle onClick={() => setProjector(true)} style={teachStyle} teach={TEACH} />
             </div>
           </div>
 
-          <div className="hr-exhibition-grid">
-            <button type="button" className="btn-reset hr-poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
+          <LandingRow className="hr-exhibition-grid">
+            <button type="button" className="btn-reset hr-poster-frame pe-landing-poster" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/harlem/poster1.jpg" alt="The Great Migration and The Harlem Renaissance poster: columns of text above the title in cream and gold lettering on purple" />
               <span className="hr-poster-hint">Click to explore</span>
             </button>
 
-            <Link href="/exhibitions/harlem-renaissance/artifacts" className="hr-display-case">
+            <Link href="/exhibitions/harlem-renaissance/artifacts" className="hr-display-case pe-landing-case">
+              <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/harlem/artifacts/display-case.png" alt="Display case holding a copy of The Fire in the Flint by Walter F. White, a Vocalion 78 rpm record and sheet music for I Just Couldn't Take It Baby" className="hr-case-image" />
               <p className="hr-case-label">Gallery II, Case 5</p>
@@ -891,12 +885,12 @@ export default function HarlemRenaissance() {
               <p className="hr-case-subtitle">Artifacts & Experiences from the Renaissance</p>
             </Link>
 
-            <button type="button" className="btn-reset hr-poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
+            <button type="button" className="btn-reset hr-poster-frame pe-landing-poster" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/harlem/poster2.jpg" alt="Walter White: The Civil Rights Hero You've Never Heard Of poster: columns of text over a slate-blue painting of a lone figure on a hill" />
               <span className="hr-poster-hint">Click to explore</span>
             </button>
-          </div>
+          </LandingRow>
         </div>
       )}
 

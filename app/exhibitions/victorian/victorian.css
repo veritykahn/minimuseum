@@ -92,7 +92,7 @@
 [data-exhibition='victorian'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(80, 50, 40, 0.14), 0 22px 50px rgba(80, 50, 40, 0.3); }
 /* The display case's card: an arched parlour window in the green linen,
    edged in a cream lace of dots, with a fine cream rule inside. */
-[data-exhibition='victorian'] .pe-display-case { --pe-frame-fill: var(--vb-linen); --pe-frame-line: var(--vb-cream); --pe-frame-hover: #fff; --pe-frame-weight: 1px; --pe-frame-inset: 12px; --pe-frame-foot: 4px; padding-top: 54px; filter: drop-shadow(0 16px 30px rgba(80, 50, 40, 0.25)); }
+[data-exhibition='victorian'] .pe-display-case { --pe-frame-fill: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.055) 0 1px, transparent 1px 4px), var(--vb-sage); --pe-frame-line: var(--vb-cream); --pe-frame-hover: #fff; --pe-frame-weight: 1px; --pe-frame-inset: 12px; --pe-frame-foot: 4px; padding-top: 54px; filter: drop-shadow(0 16px 30px rgba(80, 50, 40, 0.25)); }
 [data-exhibition='victorian'] .pe-display-case:focus-visible { outline: 2px solid var(--vb-green); outline-offset: 6px; }
 [data-exhibition='victorian'] .pe-case-frame::after {
   content: '';
