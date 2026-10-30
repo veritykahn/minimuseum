@@ -59,10 +59,18 @@ export function ownsEntrance(item: PosterItem | undefined) {
   return entranceOf(item) !== 'theme';
 }
 
+/**
+ * Whether a panel was added from outside the printed poster (it carries its
+ * own sources), so it is set apart from the printed copy and left out of it.
+ */
+export function isAddedPanel(item: PosterItem): boolean {
+  return (item.type === 'paragraph' || item.type === 'section-title') && !!item.sources?.length;
+}
+
 /** Classes a panel's wrapper takes from its section and itself. */
 export function panelClasses(poster: PosterConfig, item: PosterItem) {
   const section = item.section ? poster.sections?.[item.section] : undefined;
-  return [section?.className, item.className].filter(Boolean).join(' ');
+  return [section?.className, item.className, isAddedPanel(item) && 'pe-added'].filter(Boolean).join(' ');
 }
 
 export function positionClass(position?: PanelPosition) {

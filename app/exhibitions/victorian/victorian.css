@@ -621,3 +621,9 @@
 
 /* The visit ticket on the classroom screen: this face is narrow, so it is set a size up. */
 [data-exhibition='victorian'] .pjp-stage .pe-ticket-text { font-size: calc(var(--pjp-u) * 2.9); }
+
+/* ───────── Added panels' sources and "Did you know?" notes (A18): green on the page, the copy stays on its linen ───────── */
+[data-exhibition='victorian'] .vb-linen .pe-source, [data-exhibition='victorian'] .pe-added-source { color: var(--vb-green) !important; opacity: 0.9; }
+[data-exhibition='victorian'] .vb-linen .pe-note { color: var(--vb-green) !important; background: rgba(244, 238, 227, 0.92); }
+[data-exhibition='victorian'] :is([data-atmosphere='gaslamp'], [data-atmosphere='locomotive-steam'], [data-atmosphere='yule-hearth']) .vb-linen .pe-source,
+[data-exhibition='victorian'] :is([data-atmosphere='gaslamp'], [data-atmosphere='locomotive-steam'], [data-atmosphere='yule-hearth']) .pe-added-source { color: #f4eee3 !important; }

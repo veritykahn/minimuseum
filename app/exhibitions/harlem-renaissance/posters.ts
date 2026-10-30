@@ -1,4 +1,5 @@
 import type { Atmosphere, PanelEffect } from '@/components/exhibition/types';
+import type { PanelTrack } from './PanelMusic';
 
 /*
  * The Harlem Renaissance's two posters, panel by panel, for the hand-built
@@ -33,7 +34,21 @@ export type HarlemItem = {
   artworkArtist?: string;
   artworkDate?: string;
   artworkDescription?: string;
+  /**
+   * Recordings to hear beside the panel (PanelMusic): play and pause, never
+   * autoplay, each credited as the project credits it elsewhere.
+   */
+  music?: PanelTrack[];
 };
+
+/*
+ * The recordings for "The Sound of Harlem", from the project's own audio:
+ * two the Migration Map plays (credited as it credits them), and Side A of
+ * the Bessie Smith 78 in the display case (credited as its record).
+ */
+const RIVERSIDE_BLUES: PanelTrack = { src: '/exhibitions/harlem/audio/migration/chicago.mp3', title: '\u201CRiverside Blues\u201D', artist: 'King Oliver\u2019s Creole Jazz Band', year: 'Recorded 1923' };
+const ANY_WOMANS_BLUES: PanelTrack = { src: '/exhibitions/harlem/audio/migration/harlem.mp3', title: '\u201CAny Woman\u2019s Blues\u201D', artist: 'Bessie Smith, vocal \u2014 Fletcher Henderson, piano', year: 'Columbia Records, 1923' };
+const WOMANS_TROUBLE_BLUES: PanelTrack = { src: '/exhibitions/harlem/artifacts/audio/womans-trouble-blues.mp3', title: '\u201CWoman\u2019s Trouble Blues\u201D', artist: 'Bessie Smith', year: 'Columbia Records 78 RPM, c. 1924 \u00B7 Holy Family Library Collection, in the display case' };
 
 /**
  * The walkthrough's atmospheres (harlem.css draws them), each a setting from
@@ -187,7 +202,8 @@ export const poster1Content: HarlemItem[] = [
     position: 'top-right',
     special: 'jazz-swing',
     effect: 'drift',
-    atmosphere: 'savoy-ballroom'
+    atmosphere: 'savoy-ballroom',
+    music: [RIVERSIDE_BLUES]
   },
   {
     type: 'paragraph',
@@ -195,7 +211,8 @@ export const poster1Content: HarlemItem[] = [
     position: 'bottom-left',
     special: 'jazz-swing',
     effect: 'breathe',
-    atmosphere: 'savoy-ballroom'
+    atmosphere: 'savoy-ballroom',
+    music: [ANY_WOMANS_BLUES, WOMANS_TROUBLE_BLUES]
   },
   {
     type: 'paragraph',

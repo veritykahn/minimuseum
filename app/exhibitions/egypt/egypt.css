@@ -413,3 +413,7 @@
   [data-exhibition='egypt'] .pe-atmo-hieroglyphs :is(.pe-atmo-part-1, .pe-atmo-part-2) { display: none; }
   [data-exhibition='egypt'] .pe-atmo-papyrus :is(.pe-atmo-part-1, .pe-atmo-part-2, .pe-atmo-part-3) { left: 2vw; right: 2vw; }
 }
+
+/* Chapter titles added to poster 1 (A18) are sentences, so the script is set smaller than a god's name, with room for its sources. */
+[data-exhibition='egypt'] .pe-added .pe-section-title-text { font-size: clamp(3.2rem, 8vw, 6.5rem); }
+[data-exhibition='egypt'] .pe-added .pe-section-title-text ~ .pe-added-source { margin-top: 2.2em; }
