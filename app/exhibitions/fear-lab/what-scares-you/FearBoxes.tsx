@@ -1,36 +1,52 @@
 'use client';
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { createPortal } from 'react-dom';
 import FactNote from '@/components/exhibition/FactNote';
 import { FEAR_LAB_COPY as C } from '../fearLab';
+import { animationUrl, assetExists } from './assets';
 import { BOX_COUNT, fillBoxes, type Content, type Credit } from './boxes';
 import { pulseFromTaps } from './lab';
-import type { LabSound } from './sound';
+import { creatureSlot, type LabSound } from './sound';
+import SoundPrompt from './SoundPrompt';
+import Swarm from './Swarm';
+import { swarmLength } from './spiderPaths';
 
 /*
  * The fear boxes (poster 1's mystery box, five times over): a row of closed
- * boxes on a shelf in the dark. Pick one, and it creaks slowly open while
- * the heart monitor quickens and the music tightens; then something jumps
- * out at you: a cockroach, a tarantula, a bat, a snake, a rat, a centipede
- * (boxes.ts), or the poster's pinecone, or nothing at all, just the dark.
- * Each creature comes with one checked creepy fact and its photograph's
- * credit.
+ * boxes on a shelf in the dark. A nudge to turn the sound on comes first,
+ * with a warning, and the boxes wait until the visitor says they are ready.
  *
- * A warning comes first, and the boxes wait until the visitor says they are
- * ready. Nothing flashes and nothing is gory. With motion off (or the
- * visitor's reduced-motion setting), nothing jumps or shakes: the creature
- * simply fades in.
+ * Pick one, and the whole screen goes dark. The box creaks slowly open in a
+ * thin light while the heart monitor quickens and the music tightens. Then,
+ * either something harmless rises out of it with a pleasant sound (the
+ * poster's pinecone, or just a breath of air: nothing), or a scary sound
+ * plays and lots and lots of spiders crawl out across the whole screen
+ * (Swarm.tsx). The lights come back up on what was in the box: a cockroach,
+ * a tarantula, a bat, a snake, a rat or a centipede (boxes.ts), with one
+ * checked creepy fact and its photograph's credit. Closing the box shuts its
+ * lid, visibly, on the shelf.
+ *
+ * Gentle mode (a teacher's switch at the top): a few slow, cartoon spiders,
+ * and softer sounds. With motion off (or the visitor's reduced-motion
+ * setting), nothing crawls, jumps or shakes: the spiders fade in and out
+ * where they are, and the creature simply fades in. Skip, or Escape, turns
+ * the lights straight back on. Nothing flashes and nothing is gory.
  *
  * Beside it, a pulse you take yourself, by tapping along with it, before and
  * after: it stays on this screen, and nothing is kept.
  */
 
-/** How long a box takes to creak open, in ms. */
+/** How long a box takes to creak open, in the dark, in ms. */
 export const BUILD_MS = 2600;
+/** How long something harmless shows in the dark, in ms. */
+export const HARMLESS_MS = 2400;
+/** How long the lid takes to close, in ms. */
+export const CLOSE_MS = 700;
 /** How long the jump lasts, in ms, before the heart starts to settle. */
 export const JUMP_MS = 1100;
 
-type Phase = 'warn' | 'pick' | 'build' | 'reveal';
+type Phase = 'warn' | 'pick' | 'build' | 'out' | 'reveal' | 'closing';
 
 /** The pinecone, scale by scale. */
 function Pinecone() {
@@ -61,22 +77,49 @@ function Pinecone() {
   );
 }
 
-/** A box on the shelf: its lid, its front with a number, and the dark inside. */
-function BoxArt({ n, open }: { n: number; open: boolean }) {
+/**
+ * The boxes on the shelf: the owner's crate, hatbox, chest and tin (made
+ * with Leonardo.Ai, cut out, lids shut; not credited on the page, at the owner's request), the fifth
+ * the crate again, turned the other way. Each picture's size, and where its
+ * lid meets the box, as a share of its height: the lid is cut from the
+ * picture there, and lifts on its own.
+ */
+const BOX_LOOKS = [
+  { src: '/exhibitions/fear-lab/boxes/box-crate.webp', w: 900, h: 609, lid: 0.23 },
+  { src: '/exhibitions/fear-lab/boxes/box-hatbox.webp', w: 900, h: 790, lid: 0.33 },
+  { src: '/exhibitions/fear-lab/boxes/box-chest.webp', w: 900, h: 637, lid: 0.46 },
+  { src: '/exhibitions/fear-lab/boxes/box-tin.webp', w: 828, h: 900, lid: 0.3 },
+];
+
+/** A box on the shelf: its picture, cut at the lid, the dark inside under the lid, and its number. */
+function BoxArt({ n, id = 'fl-fb-clip' }: { n: number; id?: string }) {
+  const look = BOX_LOOKS[(n - 1) % BOX_LOOKS.length];
+  const flip = n > BOX_LOOKS.length;
+  const k = Math.min(112 / look.w, 96 / look.h);
+  const w = look.w * k;
+  const h = look.h * k;
+  const x = (120 - w) / 2;
+  const y = 112 - h;
+  const lidY = y + h * look.lid;
+  const clip = `${id}-${n}`;
+  const pic = <image href={look.src} x={x} y={y} width={w} height={h} transform={flip ? 'matrix(-1 0 0 1 120 0)' : undefined} />;
   return (
     <svg viewBox="0 0 120 120" aria-hidden="true" className="fl-fb-art">
-      <ellipse cx="60" cy="114" rx="52" ry="5" fill="rgba(0,0,0,0.45)" />
+      <defs>
+        <clipPath id={`${clip}-body`}>
+          <rect x="0" y={lidY} width="120" height={120 - lidY} />
+        </clipPath>
+        <clipPath id={`${clip}-lid`}>
+          <rect x="0" y="0" width="120" height={lidY} />
+        </clipPath>
+      </defs>
+      <ellipse cx="60" cy="114" rx={w / 2 - 2} ry="4" fill="rgba(0,0,0,0.5)" />
       {/* The dark inside, seen once the lid is up. */}
-      <path d="M 14 44 L 106 44 L 98 54 L 22 54 Z" fill="#03060c" />
-      <rect x="14" y="50" width="92" height="62" fill="url(#fl-fb-front)" stroke="#0b1322" strokeWidth="2" />
-      {[66, 82, 98].map((y) => (
-        <line key={y} x1="16" y1={y} x2="104" y2={y} stroke="#0f1d33" strokeWidth="1.5" />
-      ))}
-      <text x="60" y="98" textAnchor="middle" className="fl-fb-q">{open ? '' : '?'}</text>
-      <text x="96" y="106" textAnchor="end" className="fl-fb-n">{n}</text>
-      <g className="fl-fb-lid">
-        <path d="M 8 38 L 112 38 L 112 50 L 8 50 Z" fill="#2c4a78" stroke="#0b1322" strokeWidth="2" />
-        <rect x="52" y="32" width="16" height="6" rx="2" fill="#f2b33d" opacity="0.8" />
+      <path d={`M ${x + 3} ${lidY} L ${x + w - 3} ${lidY} L ${x + w - 8} ${lidY - 7} L ${x + 8} ${lidY - 7} Z`} fill="#03060c" />
+      <g clipPath={`url(#${clip}-body)`}>{pic}</g>
+      <text x={x + w - 6} y={y + h - 6} textAnchor="end" className="fl-fb-n">{n}</text>
+      <g className="fl-fb-lid" style={{ transformOrigin: `${x + 2}px ${lidY}px` }}>
+        <g clipPath={`url(#${clip}-lid)`}>{pic}</g>
       </g>
     </svg>
   );
@@ -94,12 +137,31 @@ function CreditLine({ credit }: { credit: Credit }) {
 
 const said = (c: Content) => (c.kind === 'creature' ? c.name.replace('!', '') : c.kind === 'pinecone' ? 'a pinecone' : 'nothing');
 
+/** Whether a box's contents give a fright (spiders pour out) or not (something harmless, with a pleasant sound). */
+export const isScary = (c: Content) => c.kind === 'creature';
+
+/**
+ * How long what comes out of the box lasts, in the dark, before the lights
+ * come back up, in ms: the spiders (slower in gentle mode, shorter when
+ * nothing may crawl), or something harmless.
+ */
+export function outMs(c: Content, gentle: boolean, still: boolean): number {
+  if (!isScary(c)) return HARMLESS_MS;
+  return still ? 2600 : swarmLength(gentle) + 300;
+}
+
 export default function FearBoxes({
   motion,
+  gentle,
+  soundOn,
+  onSoundOn,
   sound,
   onFright,
 }: {
   motion: boolean;
+  gentle: boolean;
+  soundOn: boolean;
+  onSoundOn: () => void;
   sound: () => LabSound | null;
   /** How frightened the scene is, 0–1, for the heart monitor and the music. */
   onFright: (f: number) => void;
@@ -110,6 +172,12 @@ export default function FearBoxes({
   const [current, setCurrent] = useState(-1);
   const [status, setStatus] = useState('');
   const [after, setAfter] = useState(false);
+  const [video, setVideo] = useState<string | null>(null);
+  const [portal, setPortal] = useState<HTMLElement | null>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const boxRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const skipRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const later = (ms: number, fn: () => void) => timers.current.push(setTimeout(fn, ms));
   const clearAll = () => {
@@ -117,52 +185,108 @@ export default function FearBoxes({
     timers.current = [];
   };
   useEffect(() => clearAll, []);
+  // The dark covers the whole room, over the tabs and the way back, so it sits at the room's root.
+  useEffect(() => setPortal(root.current?.closest<HTMLElement>('.fl-room') ?? document.body), []);
+  // The owner's own spider animation, if she has dropped one in.
+  useEffect(() => {
+    let live = true;
+    const url = animationUrl(gentle ? 'spiders-gentle' : 'spiders');
+    void assetExists(url).then((ok) => live && setVideo(ok ? url : null));
+    return () => {
+      live = false;
+    };
+  }, [gentle]);
 
   const content = current >= 0 ? boxes[current] : null;
+  const dark = phase === 'build' || phase === 'out';
+
+  // Keyboard: the skip button takes focus in the dark, and Escape skips too.
+  useEffect(() => {
+    if (!dark) return;
+    skipRef.current?.focus();
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape') skipRef.current?.click();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [dark]);
+  useEffect(() => {
+    if (phase === 'reveal') closeRef.current?.focus();
+  }, [phase]);
 
   const pick = (i: number) => {
     if (phase !== 'pick' || opened[i]) return;
     clearAll();
     setCurrent(i);
     setPhase('build');
-    setStatus(`Box ${i + 1} creaks open…`);
-    sound()?.creak(BUILD_MS / 1000);
+    setStatus(`The lights go out. Box ${i + 1} creaks open…`);
+    sound()?.play('creak', { length: BUILD_MS / 1000 });
     // The dread builds as the lid lifts.
     for (let k = 0; k <= 5; k++) later((BUILD_MS * k) / 5, () => onFright(0.3 + k * 0.12));
-    later(BUILD_MS, () => reveal(i));
+    later(BUILD_MS, () => comeOut(i));
   };
 
+  /** What comes out, still in the dark. */
+  const comeOut = (i: number) => {
+    const c = boxes[i];
+    setPhase('out');
+    if (isScary(c)) {
+      sound()?.play('scary');
+      sound()?.play('spiders');
+      onFright(gentle ? 0.7 : 1);
+      setStatus(gentle ? 'A few friendly spiders wander out of the box.' : 'Spiders! Lots and lots of spiders pour out of the box!');
+    } else if (c.kind === 'pinecone') {
+      sound()?.play('harmless');
+      onFright(0.3);
+      setStatus('Something rises gently out of the box…');
+    } else {
+      sound()?.play('empty');
+      onFright(0.45);
+      setStatus('A breath of air from the box…');
+    }
+    later(outMs(c, gentle, !motion), () => reveal(i));
+  };
+
+  /** The lights come back up, on what was in the box. */
   const reveal = (i: number) => {
+    clearAll();
     const c = boxes[i];
     setOpened((o) => o.map((v, k) => v || k === i));
     setPhase('reveal');
     setAfter(true);
     if (c.kind === 'creature') {
-      sound()?.jump();
-      sound()?.creature(c.id);
-      onFright(1);
+      sound()?.play(creatureSlot(c.id));
+      onFright(gentle ? 0.6 : 0.9);
       setStatus(`${c.name} It was in box ${i + 1}.`);
       later(JUMP_MS + 800, () => onFright(0.45));
     } else if (c.kind === 'nothing') {
-      sound()?.creak(0.7);
-      onFright(0.5);
+      onFright(0.4);
       setStatus('Nothing. Just the dark.');
       later(1600, () => onFright(0.2));
     } else {
-      sound()?.beat(0.2);
-      onFright(0.35);
+      onFright(0.2);
       setStatus('It’s really just a pinecone.');
       later(1800, () => onFright(0.1));
     }
   };
 
+  const skip = () => {
+    if (current >= 0 && dark) reveal(current);
+  };
+
   const close = () => {
     clearAll();
-    setPhase('pick');
-    setCurrent(-1);
+    setPhase('closing');
+    sound()?.play('lid-close');
     onFright(0);
-    const left = opened.filter((o) => !o).length;
-    setStatus(left ? `${left} ${left === 1 ? 'box' : 'boxes'} still shut.` : 'Every box is open.');
+    setStatus(`The lid of box ${current + 1} closes.`);
+    later(motion ? CLOSE_MS : 0, () => {
+      const left = opened.filter((o) => !o).length;
+      setPhase('pick');
+      setCurrent(-1);
+      setStatus(left ? `${left} ${left === 1 ? 'box' : 'boxes'} still shut.` : 'Every box is open.');
+      boxRefs.current[opened.findIndex((o) => !o)]?.focus();
+    });
   };
 
   const refill = () => {
@@ -177,42 +301,72 @@ export default function FearBoxes({
 
   const allOpen = opened.every(Boolean);
   const showing = phase === 'reveal' && content;
+  const n = current + 1;
+
+  const overlay =
+    dark && content && portal
+      ? createPortal(
+          <div className="fl-fb-dark" data-stage={phase} data-motion={motion ? 'on' : 'off'} data-gentle={gentle ? 'true' : undefined}>
+            <div
+              className="fl-fb-box fl-fb-dark-box"
+              data-building={phase === 'build' ? 'true' : undefined}
+              data-open={phase === 'out' ? 'true' : undefined}
+              data-scary={phase === 'out' && isScary(content) ? 'true' : undefined}
+              style={{ ['--build' as string]: `${BUILD_MS}ms` } as CSSProperties}
+              aria-hidden="true"
+            >
+              <BoxArt n={n} id="fl-fb-dark-clip" />
+            </div>
+            {phase === 'out' && !isScary(content) && (
+              <div className="fl-fb-gift" data-kind={content.kind} aria-hidden="true">
+                {content.kind === 'pinecone' ? <Pinecone /> : <span className="fl-fb-nothing">…nothing.</span>}
+              </div>
+            )}
+            {phase === 'out' && isScary(content) && <Swarm gentle={gentle} still={!motion} video={video} />}
+            <button ref={skipRef} type="button" className="fl-fb-skip" onClick={skip}>
+              Skip <span aria-hidden="true">(Esc)</span>
+            </button>
+          </div>,
+          portal,
+        )
+      : null;
 
   return (
-    <div className="fl-box fl-fb" data-phase={phase} data-motion={motion ? 'on' : 'off'}>
+    <div ref={root} className="fl-box fl-fb" data-phase={phase} data-motion={motion ? 'on' : 'off'}>
+      {overlay}
       <div className="fl-box-scene fl-fb-scene">
-        <svg width="0" height="0" aria-hidden="true" style={{ position: 'absolute' }}>
-          <defs>
-            <linearGradient id="fl-fb-front" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#25406a" />
-              <stop offset="1" stopColor="#152741" />
-            </linearGradient>
-          </defs>
-        </svg>
         <span className="fl-fb-spot" aria-hidden="true" />
 
         <div className="fl-fb-shelf" role="group" aria-label="Fear boxes">
           {boxes.map((c, i) => {
-            const isOpen = opened[i] || (current === i && phase !== 'pick');
+            const isOpen = current === i && (dark || phase === 'reveal');
             return (
               <button
                 key={i}
+                ref={(el) => {
+                  boxRefs.current[i] = el;
+                }}
                 type="button"
                 className="fl-fb-box"
                 data-open={isOpen ? 'true' : undefined}
-                data-building={current === i && phase === 'build' ? 'true' : undefined}
+                data-closing={current === i && phase === 'closing' ? 'true' : undefined}
+                data-done={opened[i] && !isOpen ? 'true' : undefined}
                 aria-disabled={phase !== 'pick' || opened[i] ? 'true' : undefined}
-                aria-label={opened[i] ? `Box ${i + 1}, open: ${said(c)}` : `Box ${i + 1}`}
+                aria-label={opened[i] ? `Box ${i + 1}, opened: ${said(c)}` : `Box ${i + 1}`}
                 onClick={() => pick(i)}
-                style={{ ['--build' as string]: `${BUILD_MS}ms` } as CSSProperties}
               >
-                <BoxArt n={i + 1} open={opened[i]} />
+                <BoxArt n={i + 1} />
+                {opened[i] && !isOpen && (
+                  <span className="fl-fb-done" aria-hidden="true">
+                    {said(c)}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
 
-        {/* What comes out of the box. */}
+        {/* What was in the box, in the light. */}
         {showing && (
           <div className="fl-fb-reveal" data-kind={content.kind} aria-hidden={content.kind === 'nothing' ? 'true' : undefined}>
             {content.kind === 'creature' && (
@@ -244,21 +398,26 @@ export default function FearBoxes({
           <>
             <h2 className="fl-lab-heading">The Fear Boxes</h2>
             <p className="fl-lab-poster">{C.box}</p>
+            <SoundPrompt soundOn={soundOn} onSoundOn={onSoundOn} why="Every box creaks as it opens, and you’ll hear what comes out." />
             <div className="fl-lab-warning" role="note">
-              <p><strong>Startle warning.</strong> Real animals jump out of some boxes: a cockroach, a spider, a bat, a snake, a rat, a centipede. Nothing flashes and nothing is gory.</p>
-              <p>Turn the sound and the motion on or off with the buttons at the top.</p>
+              {gentle ? (
+                <p><strong>Gentle mode is on.</strong> When a box opens, the room goes dark. A few slow, friendly cartoon spiders may wander out, with soft sounds. Then you’ll see what was inside: maybe a real animal, maybe nothing scary at all.</p>
+              ) : (
+                <p><strong>Startle warning.</strong> When a box opens, the room goes dark. Sometimes lots of spiders crawl out across the whole screen. Then a real animal appears: a cockroach, a spider, a bat, a snake, a rat or a centipede. Nothing flashes and nothing is gory.</p>
+              )}
+              <p>Turn the sound, the motion and gentle mode on or off with the buttons at the top. Press Skip, or Esc, to turn the lights back on.</p>
             </div>
-            <button type="button" className="fl-lab-button" onClick={() => { setPhase('pick'); setStatus('Five boxes. Pick one.'); sound()?.tick(); }}>
+            <button type="button" className="fl-lab-button" onClick={() => { setPhase('pick'); setStatus('Five boxes. Pick one.'); sound()?.play('tick'); }}>
               I’m ready
             </button>
           </>
         )}
 
-        {(phase === 'pick' || phase === 'build') && (
+        {(phase === 'pick' || phase === 'build' || phase === 'out' || phase === 'closing') && (
           <>
             <h2 className="fl-lab-heading">Pick a box</h2>
             <p className="fl-lab-poster">{after ? C.mysteryBox : C.box}</p>
-            <p className="fl-lab-note">Something might jump out. Or nothing at all.</p>
+            <p className="fl-lab-note">Something might crawl out. Or nothing at all.</p>
             {allOpen && phase === 'pick' && (
               <button type="button" className="fl-lab-button" onClick={refill}>New boxes</button>
             )}
@@ -267,7 +426,7 @@ export default function FearBoxes({
 
         {phase === 'reveal' && content && (
           <>
-            <p className="fl-lab-kicker">Box {current + 1}</p>
+            <p className="fl-lab-kicker">Box {n}</p>
             {content.kind === 'creature' && (
               <>
                 <h2 className="fl-lab-heading">{content.name}</h2>
@@ -288,7 +447,7 @@ export default function FearBoxes({
               </>
             )}
             <div className="fl-fb-actions">
-              <button type="button" className="fl-lab-button" onClick={allOpen ? refill : close}>
+              <button ref={closeRef} type="button" className="fl-lab-button" onClick={allOpen ? refill : close}>
                 {allOpen ? 'New boxes' : 'Close the box'}
               </button>
             </div>

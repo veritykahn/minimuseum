@@ -17,6 +17,7 @@ export const PARLOUR_TEXT = {
   intro: 'A parlour on Christmas Eve, waiting to be brought to life. Open each part of a Victorian Christmas: press it in the room, or choose it here.',
   quote: '"Christmas was dead, to begin with. There is no doubt whatever about that."',
   cite: "After Charles Dickens, *A Christmas Carol* (1843): 'Marley was dead: to begin with.'",
+  /** The paintings' credit, as the owner gives it. */
   closing: ['Dickens may not have invented Christmas but he certainly reinvented it.', "Dickens' influence shaped modern Christmas celebrations more profoundly than almost anyone else."],
 };
 

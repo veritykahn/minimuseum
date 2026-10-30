@@ -28,8 +28,9 @@ export const TOYS_TEXT = {
   section: 'The First Motion Pictures (1820s–1830s)',
   thaumaHeading: 'Thaumatrope',
   zoeHeading: 'Zoetrope',
-  thaumaIntro: 'A bird on one side of the disc, an empty cage on the other. Twirl it: it starts slowly, so you can watch each side go by, then turns faster, step by step.',
-  zoeIntro: 'A strip of drawings inside the drum, and slits in its wall to look through. Spin it: it starts slowly, so you can see each drawing, then turns faster, step by step.',
+  makeHeading: 'Make your own',
+  thaumaIntro: 'A bird on one side of the disc, an empty cage on the other. Twirl it: it starts very slowly, so you can watch each side go by, then speeds up little by little. Or slide the speed yourself.',
+  zoeIntro: 'A strip of drawings inside the drum, and slits in its wall to look through. Put your eye to the slits and spin it: it starts very slowly, so you see a slit crawl past, then speeds up little by little. Or slide the speed yourself.',
 };
 
 const VA_ZOETROPE = { label: 'V&A', href: 'https://collections.vam.ac.uk/item/O96347/optical-toy-zoetrope-zoetrope/' };
@@ -56,7 +57,6 @@ export const DISC = {
   name: 'Bird and cage',
   front: 'A small bird, alone on a perch',
   back: 'An empty birdcage',
-  together: 'The bird, inside the cage',
 };
 
 export type StripId = 'horses' | 'dancers';

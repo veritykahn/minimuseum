@@ -1,10 +1,15 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { createPortal } from 'react-dom';
+import { useDialogFocus } from '@/lib/a11y';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
+import { FactSources } from '@/components/exhibition/FactNote';
 import { REMEMBRANCE_LINE } from '../holocaust';
 import { makeFootsteps, type Footsteps } from './footsteps';
 import { EYE, FAR, HALF_WIDTH, STEP, easeStep, fog, hash2, makeView, project, rowStones, rowsInView } from './walkScene';
+import { WALK_LINES, ambientSrc, lineForStep, type Ambient, type WalkLine } from './walkLines';
+import WalkPicture from './WalkPicture';
 
 /*
  * The walk: an original piece, inspired by Menashe Kadishman's Fallen
@@ -13,28 +18,46 @@ import { EYE, FAR, HALF_WIDTH, STEP, easeStep, fog, hash2, makeView, project, ro
  * no faces and nothing of his: a long path of plain, unnamed stones, each
  * standing for a person, and the visitor walks over them, a step at a
  * time, slowly. Each step is heard, if the visitor turns the sound on
- * (footsteps.ts, made with Web Audio; off until chosen). There is no score
- * and no end. After a few steps, poster 1's first sentence is set beside
- * the path.
+ * (footsteps.ts, made with Web Audio; off until chosen), with a quiet
+ * ambient recording under it where the owner has supplied one. There is no
+ * score.
  *
- * A step takes a second and a half, and cannot be hurried. With reduced
- * motion the path is still and moves only a step at a time, by button,
- * with no walking on.
+ * The walk is taken full screen, dark to the edges: the path below, a
+ * picture far ahead (an object or a place, never a person; walkLines.ts),
+ * and one short line a step. Poster 1's first sentence comes at step 3;
+ * from step 4, the history, in order, each line with its source. After the
+ * last line the path simply goes on.
+ *
+ * A step takes a second and a half, and cannot be hurried; walking on, a
+ * step comes every few seconds, time to read its line. With reduced motion
+ * the path is still and moves only a step at a time, by button, with no
+ * walking on and no fades.
  */
 
 export const STEP_MS = 1500;
-const AUTO_MS = 2600;
+/** Walking on: a step this often, long enough to read a line. */
+export const AUTO_MS = 6500;
 /** After this many steps the poster's line is set beside the path. */
 export const LINE_AFTER = 3;
 
 export const KADISHMAN_URL = 'https://www.jmberlin.de/en/shalekhet-fallen-leaves';
 
-export function useWalk() {
+/** What the walk shows at step `steps`: nothing yet, the poster's line, or a line of the history. */
+export function wordsForStep(steps: number): { kind: 'none' } | { kind: 'poster' } | { kind: 'line'; line: WalkLine } {
+  if (steps === LINE_AFTER) return { kind: 'poster' };
+  const line = lineForStep(steps, LINE_AFTER);
+  return line ? { kind: 'line', line } : { kind: 'none' };
+}
+
+const AMBIENT_LEVEL = 0.22;
+
+export function useWalk(ambients: readonly Ambient[] = []) {
   const reduced = usePrefersReducedMotion();
   const [steps, setSteps] = useState(0);
   const [stepAt, setStepAt] = useState<number | null>(null);
   const [walking, setWalking] = useState(false);
   const [sound, setSound] = useState(false);
+  const [full, setFull] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const audio = useRef<Footsteps | null>(null);
   const busyUntil = useRef(0);
@@ -49,8 +72,11 @@ export function useWalk() {
     setSteps(n);
     setStepAt(reduced ? null : now);
     audio.current?.step(n % 2 === 0 ? 1 : -1);
+    const words = wordsForStep(n);
     if (n === 1) setAnnouncement('You step forward, onto the stones.');
-    else if (n === LINE_AFTER) setAnnouncement(REMEMBRANCE_LINE);
+    else if (words.kind === 'poster') setAnnouncement(REMEMBRANCE_LINE);
+    else if (words.kind === 'line') setAnnouncement(words.line.text);
+    else if (n === LINE_AFTER + WALK_LINES.length + 1) setAnnouncement('The path goes on.');
     return true;
   }, [reduced]);
 
@@ -82,15 +108,69 @@ export function useWalk() {
 
   useEffect(() => () => audio.current?.close(), []);
 
-  const stop = useCallback(() => setWalking(false), []);
+  // Under the steps, the part of the walk's ambient recording, where there is one: looped, quiet, faded in and out.
+  const words = wordsForStep(steps);
+  const lastLine = steps > LINE_AFTER ? lineForStep(Math.min(steps, LINE_AFTER + WALK_LINES.length), LINE_AFTER) : null;
+  const part: Ambient = lastLine?.part ?? 'before';
+  const playing = useRef<{ part: Ambient; el: HTMLAudioElement } | null>(null);
+  useEffect(() => {
+    const want = sound && full && ambients.includes(part) ? part : null;
+    const cur = playing.current;
+    if (cur?.part === want) return;
+    if (cur) fadeOut(cur.el);
+    playing.current = null;
+    if (!want || typeof Audio === 'undefined') return;
+    try {
+      const el = new Audio(ambientSrc(want));
+      el.loop = true;
+      el.volume = 0;
+      void el.play()?.catch(() => undefined);
+      fadeTo(el, AMBIENT_LEVEL);
+      playing.current = { part: want, el };
+    } catch {
+      /* no audio here */
+    }
+  }, [sound, full, part, ambients]);
+  useEffect(() => () => {
+    if (playing.current) playing.current.el.pause();
+  }, []);
 
-  return { reduced, steps, stepAt, walking, sound, announcement, step, toggleWalking, toggleSound, stop };
+  const stop = useCallback(() => setWalking(false), []);
+  const enter = useCallback(() => {
+    setFull(true);
+    setAnnouncement('The walk, full screen. Press Escape to leave it.');
+  }, []);
+  const leave = useCallback(() => {
+    setFull(false);
+    setWalking(false);
+    setAnnouncement('You leave the walk.');
+  }, []);
+
+  return { reduced, steps, stepAt, walking, sound, full, words, announcement, step, toggleWalking, toggleSound, stop, enter, leave };
+}
+
+function fadeTo(el: HTMLAudioElement, to: number, ms = 2000) {
+  const from = el.volume;
+  const t0 = Date.now();
+  const id = setInterval(() => {
+    const k = Math.min(1, (Date.now() - t0) / ms);
+    try {
+      el.volume = from + (to - from) * k;
+    } catch {
+      clearInterval(id);
+    }
+    if (k >= 1) clearInterval(id);
+  }, 80);
+}
+function fadeOut(el: HTMLAudioElement) {
+  fadeTo(el, 0, 1500);
+  setTimeout(() => el.pause(), 1600);
 }
 
 type Walk = ReturnType<typeof useWalk>;
 
 /** The path, drawn on one canvas behind the room's title and panel. */
-export function WalkScene({ steps, stepAt, reduced }: Pick<Walk, 'steps' | 'stepAt' | 'reduced'>) {
+export function WalkScene({ steps, stepAt, reduced, full = false }: Pick<Walk, 'steps' | 'stepAt' | 'reduced'> & { full?: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -123,7 +203,7 @@ export function WalkScene({ steps, stepAt, reduced }: Pick<Walk, 'steps' | 'step
       // Where the walker is: between the last step and this one, while it is taken.
       const t = stepAt === null ? 1 : Math.min(1, (now - stepAt) / STEP_MS);
       const at = (steps - 1 + easeStep(t)) * STEP;
-      const view = makeView(size.w, size.h);
+      const view = makeView(size.w, size.h, full);
       // The weight of the step: the eye sinks a little as the foot comes down, and rises.
       view.eye = EYE - (stepAt === null ? 0 : Math.sin(Math.PI * Math.min(1, t * 1.25)) * 0.035);
 
@@ -205,7 +285,7 @@ export function WalkScene({ steps, stepAt, reduced }: Pick<Walk, 'steps' | 'step
       }
       return t >= 1;
     },
-    [size, steps, stepAt],
+    [size, steps, stepAt, full],
   );
 
   useEffect(() => {
@@ -222,7 +302,7 @@ export function WalkScene({ steps, stepAt, reduced }: Pick<Walk, 'steps' | 'step
   }, [draw, reduced, stepAt]);
 
   return (
-    <div className="hos-scene hos-walk-scene" ref={wrapRef} aria-hidden="true">
+    <div className={`hos-scene hos-walk-scene${full ? ' is-full' : ''}`} ref={wrapRef} aria-hidden="true">
       <canvas ref={canvasRef} className="hos-walk-canvas" />
       <span className="hos-walk-glow" />
       <span className="hos-walk-vignette" />
@@ -260,22 +340,100 @@ function trace(g: CanvasRenderingContext2D, pts: [number, number][]) {
   g.closePath();
 }
 
-/** The walk's words and buttons, in the room's panel. */
-export function WalkControls({ reduced, steps, walking, sound, announcement, step, toggleWalking, toggleSound }: Walk) {
+function Credit() {
+  return (
+    <p className="hos-walk-credit">
+      Inspired by Menashe Kadishman’s{' '}
+      <a href={KADISHMAN_URL} target="_blank" rel="noopener noreferrer">
+        <i>Fallen Leaves</i> (<i>Shalekhet</i>)
+      </a>{' '}
+      at the Jewish Museum Berlin
+    </p>
+  );
+}
+
+/** The walk's place in the room's panel: what it is, and the way in. */
+export function WalkControls({ announcement, enter, full }: Walk) {
+  return (
+    <div className="hos-walk">
+      <p className="hos-intro">A path of plain stones. Each one stands for a person. Walk over them slowly.</p>
+      <p className="hos-walk-about">Each step brings one short line of the history, in the order it happened, and a picture of a place or a thing left behind. The walk fills the screen.</p>
+      <button type="button" className="hos-button hos-button-primary" onClick={enter} aria-expanded={full}>
+        Begin the walk
+      </button>
+      <Credit />
+      <p className="visually-hidden" role="status" aria-live="polite">{full ? '' : announcement}</p>
+    </div>
+  );
+}
+
+/** The walk, full screen: the path, a picture far ahead, one line a step, and a few quiet buttons. */
+export function WalkFull({ walk, pictures }: { walk: Walk; pictures: readonly string[] }) {
+  const { reduced, steps, stepAt, walking, sound, words, announcement, step, toggleWalking, toggleSound, leave } = walk;
+  const ref = useRef<HTMLDivElement>(null);
+  const stepRef = useRef<HTMLButtonElement>(null);
+  useDialogFocus(ref, true, { onEscape: leave, initialFocus: stepRef });
+
+  // Full screen where the browser allows it (not on a phone that won't); leaving it leaves the walk.
+  useEffect(() => {
+    const el = ref.current;
+    let asked = false;
+    try {
+      if (el && document.fullscreenEnabled && !document.fullscreenElement && window.matchMedia?.('(min-width: 761px)').matches) {
+        asked = true;
+        void el.requestFullscreen?.().catch(() => undefined);
+      }
+    } catch {
+      /* no full screen here: the walk still fills the window */
+    }
+    const onChange = () => {
+      if (asked && !document.fullscreenElement) leave();
+    };
+    document.addEventListener('fullscreenchange', onChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onChange);
+      if (document.fullscreenElement) void document.exitFullscreen?.().catch(() => undefined);
+    };
+  }, [leave]);
+
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === 'ArrowUp' && !(e.target instanceof HTMLInputElement)) {
+    if ((e.key === 'ArrowUp' || e.key === 'ArrowRight' || e.key === 'PageDown') && !(e.target instanceof HTMLInputElement)) {
       e.preventDefault();
       step();
     }
   };
-  return (
-    <div className="hos-walk" onKeyDown={onKey}>
-      <p className="hos-intro">A path of plain stones. Each one stands for a person. Walk over them slowly.</p>
-      <p className={`hos-walk-line${steps >= LINE_AFTER ? ' is-shown' : ''}`} aria-hidden={steps >= LINE_AFTER ? undefined : true}>
-        {REMEMBRANCE_LINE}
-      </p>
-      <div className="hos-walk-buttons">
-        <button type="button" className="hos-button hos-button-primary" onClick={step} disabled={walking}>
+
+  const line = words.kind === 'line' ? words.line : null;
+  // The picture stays with its line, and the last one stays as the path goes on.
+  const shownLine = line ?? (steps > LINE_AFTER + WALK_LINES.length ? WALK_LINES[WALK_LINES.length - 1] : null);
+
+  return createPortal(
+    <div ref={ref} className={`hos-walk-full${reduced ? ' is-still' : ''}`} data-exhibition="holocaust" role="dialog" aria-modal="true" aria-label="The walk" tabIndex={-1} onKeyDown={onKey}>
+      <WalkScene steps={steps} stepAt={stepAt} reduced={reduced} full />
+      {shownLine && (
+        <div className="hos-walk-ahead" key={shownLine.slot}>
+          <WalkPicture line={shownLine} ready={pictures.includes(shownLine.slot)} />
+        </div>
+      )}
+      <span className="hos-walk-edges" aria-hidden="true" />
+
+      <div className="hos-walk-words">
+        {steps === 0 && <p className="hos-walk-say is-intro">A path of plain stones. Each one stands for a person. Take a step when you are ready.</p>}
+        {words.kind === 'poster' && (
+          <p className="hos-walk-say" key="poster">
+            {REMEMBRANCE_LINE}
+          </p>
+        )}
+        {line && (
+          <div className="hos-walk-say-wrap" key={line.id} data-line={line.id}>
+            <p className="hos-walk-say">{line.text}</p>
+            <FactSources sources={line.sources} className="hos-walk-source" />
+          </div>
+        )}
+      </div>
+
+      <div className="hos-walk-bar">
+        <button ref={stepRef} type="button" className="hos-button hos-button-primary" onClick={step} disabled={walking}>
           Take a step
         </button>
         {!reduced && (
@@ -284,17 +442,14 @@ export function WalkControls({ reduced, steps, walking, sound, announcement, ste
           </button>
         )}
         <button type="button" className="hos-button hos-button-sound" aria-pressed={sound} onClick={toggleSound}>
-          <span aria-hidden="true" className="hos-sound-mark">{sound ? '◉' : '○'}</span> Sound of the steps: {sound ? 'on' : 'off'}
+          <span aria-hidden="true" className="hos-sound-mark">{sound ? '◉' : '○'}</span> Sound: {sound ? 'on' : 'off'}
+        </button>
+        <button type="button" className="hos-button hos-walk-leave" onClick={leave}>
+          Leave the walk
         </button>
       </div>
-      <p className="hos-walk-credit">
-        Inspired by Menashe Kadishman’s{' '}
-        <a href={KADISHMAN_URL} target="_blank" rel="noopener noreferrer">
-          <i>Fallen Leaves</i> (<i>Shalekhet</i>)
-        </a>{' '}
-        at the Jewish Museum Berlin
-      </p>
       <p className="visually-hidden" role="status" aria-live="polite">{announcement}</p>
-    </div>
+    </div>,
+    document.body,
   );
 }

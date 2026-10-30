@@ -196,24 +196,19 @@ describe('the Leonardo.Ai illustrations', () => {
     fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(path.join(d, e.name)) : [path.join(d, e.name)]));
   const code = [...walk(path.join(ROOT, 'app')), ...walk(path.join(ROOT, 'components'))].filter((f) => /\.(tsx?|css)$/.test(f));
 
-  it('are gone, but for the textures of the Holocaust stones room (the walk)', () => {
-    const mentions = code.filter((f) => /Leonardo/.test(fs.readFileSync(f, 'utf8'))).map((f) => path.relative(ROOT, f));
-    expect(mentions.sort()).toEqual(['app/exhibitions/holocaust/stones/MemorialStone.tsx', 'app/exhibitions/holocaust/stones/memorial-stone.css']);
+  // The owner keeps her illustrations in the rooms but wants no "made with Leonardo.Ai" line on the page.
+  it('are never credited on the page', () => {
+    const credits = code.filter((f) => /illustrations? made with Leonardo/i.test(fs.readFileSync(f, 'utf8'))).map((f) => path.relative(ROOT, f));
+    expect(credits).toEqual([]);
   });
 
   it.each([
-    'black-history/landing-barbie-timeline.webp',
-    'black-history/landing-who-do-you-see.webp',
-    'fear-lab/landing-fear-boxes.webp',
     'fear-lab/boxes/box-chest.webp',
-    'great-war/landing-guns-fell-silent.webp',
-    'womens-history/landing-who-gets-remembered.webp',
-    'writing-revolution/landing-typing-station.webp',
     'seeing-is-deceiving/optical-toys/zoetrope.webp',
     'victorian/christmas-card/card-church.webp',
     'victorian/inventions/workshop-bench.webp',
     'victorian/parlour/parlour-warm.webp',
-  ])('%s is removed', (f) => {
-    expect(fs.existsSync(path.join(ROOT, 'public/exhibitions', f))).toBe(false);
+  ])('%s is still in the room', (f) => {
+    expect(fs.existsSync(path.join(ROOT, 'public/exhibitions', f))).toBe(true);
   });
 });

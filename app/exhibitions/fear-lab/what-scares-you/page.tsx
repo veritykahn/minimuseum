@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RoomShell from '../RoomShell';
 import HeartTrace from './HeartTrace';
@@ -19,7 +19,9 @@ import './lab.css';
  * is a drawing, not a reading.
  *
  * Sound starts off and motion follows the visitor's setting; both have a
- * switch at the top. With sound on, a creepy drone loops under every tab
+ * switch at the top, and so does gentle mode, for a teacher: fewer, slower,
+ * cartoon spiders and softer sounds, remembered on this device. Each
+ * experiment asks for the sound to be turned on before it starts. With sound on, a creepy drone loops under every tab
  * (sound.ts), tightening as the fright rises, with the heartbeat at the
  * monitor's pace and the wind over the bushes. No camera or microphone is
  * used.
@@ -32,6 +34,37 @@ const TABS = [
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
+const GENTLE_KEY = 'fl-lab-gentle';
+
+/* Gentle mode, remembered on this device (when storage allows), for every tab. */
+const gentleListeners = new Set<() => void>();
+let gentleFallback = false;
+function readGentle(): boolean {
+  try {
+    const v = window.localStorage.getItem(GENTLE_KEY);
+    return v === null ? gentleFallback : v === 'on';
+  } catch {
+    return gentleFallback;
+  }
+}
+function writeGentle(on: boolean) {
+  gentleFallback = on;
+  try {
+    window.localStorage.setItem(GENTLE_KEY, on ? 'on' : 'off');
+  } catch {
+    // No storage: it holds for this visit only.
+  }
+  gentleListeners.forEach((f) => f());
+}
+function subscribeGentle(f: () => void) {
+  gentleListeners.add(f);
+  window.addEventListener('storage', f);
+  return () => {
+    gentleListeners.delete(f);
+    window.removeEventListener('storage', f);
+  };
+}
+
 export default function WhatScaresYou() {
   const reduced = usePrefersReducedMotion();
   const [tab, setTab] = useState<TabId>('box');
@@ -39,6 +72,8 @@ export default function WhatScaresYou() {
   const [motionChoice, setMotionChoice] = useState<boolean | null>(null);
   const motion = motionChoice ?? !reduced;
   const [fright, setFright] = useState(0);
+  const gentle = useSyncExternalStore(subscribeGentle, readGentle, () => false);
+  const toggleGentle = () => writeGentle(!gentle);
   const sound = useRef<LabSound | null>(null);
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ box: null, choose: null, bushes: null });
 
@@ -79,11 +114,17 @@ export default function WhatScaresYou() {
       sound.current = null;
       setSoundOn(false);
     } else {
-      sound.current = createLabSound();
+      sound.current = createLabSound(gentle);
       setSoundOn(!!sound.current);
     }
   };
+  const turnSoundOn = () => {
+    if (!soundOn) toggleSound();
+  };
   useEffect(() => () => sound.current?.close(), []);
+  useEffect(() => {
+    sound.current?.setGentle(gentle);
+  }, [gentle, soundOn]);
   const getSound = useCallback(() => sound.current, []);
   // The music tightens with the fright, and the wind blows over the bushes.
   useEffect(() => {
@@ -158,13 +199,25 @@ export default function WhatScaresYou() {
               </svg>
               Motion <span className="fl-lab-switch-state" aria-hidden="true">{motion ? 'on' : 'off'}</span>
             </button>
+            <button
+              type="button"
+              className="fl-lab-switch"
+              aria-pressed={gentle}
+              onClick={toggleGentle}
+              title="For teachers: fewer, slower, cartoon spiders and softer sounds"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" className="fl-lab-switch-line" />
+              </svg>
+              Gentle <span className="fl-lab-switch-state" aria-hidden="true">{gentle ? 'on' : 'off'}</span>
+            </button>
           </div>
         </header>
 
         <section className="fl-lab-panel" id="fl-lab-panel" role="tabpanel" aria-labelledby={`fl-lab-tab-${tab}`}>
-          {tab === 'box' && <FearBoxes motion={motion} sound={getSound} onFright={setFright} />}
-          {tab === 'choose' && <KnownOrUnknown sound={getSound} onFright={setFright} />}
-          {tab === 'bushes' && <RustlingBushes motion={motion} sound={getSound} onFright={setFright} />}
+          {tab === 'box' && <FearBoxes motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} />}
+          {tab === 'choose' && <KnownOrUnknown motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} />}
+          {tab === 'bushes' && <RustlingBushes motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} />}
         </section>
 
         <div className="fl-lab-monitor" aria-hidden="true">

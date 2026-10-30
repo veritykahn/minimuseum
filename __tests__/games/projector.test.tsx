@@ -1,3 +1,4 @@
+import { ILLUSIONS } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/data';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import {
   classTally,
@@ -15,8 +16,6 @@ import RealOrReplica from '@/app/exhibitions/in-their-hands/real-or-replica/page
 import { ROUNDS } from '@/app/exhibitions/in-their-hands/real-or-replica/data';
 import { HANDS_CHARACTERS } from '@/app/exhibitions/in-their-hands/hands/data';
 import { INSTRUMENTS } from '@/app/exhibitions/harlem-renaissance/jazz-lab/data';
-import { ILLUSION_CONTENT } from '@/app/exhibitions/seeing-is-deceiving/illusions/data';
-import { plainAnswer } from '@/app/exhibitions/seeing-is-deceiving/illusions/PerceptionLabProjector';
 
 const run = (state: ProjectorState, ...actions: ProjectorAction[]) => actions.reduce(projectorReducer, state);
 const next = { type: 'next' } as const;
@@ -327,19 +326,11 @@ describe('teacher tips', () => {
     expect(tipped(ROUNDS)).toBe(true);
     expect(tipped(HANDS_CHARACTERS)).toBe(true);
     expect(tipped(INSTRUMENTS)).toBe(true);
-    const illusions = ILLUSION_CONTENT.filter((i) => i.type === 'illusion');
-    expect(illusions).toHaveLength(23);
+    const illusions = ILLUSIONS;
+    expect(illusions).toHaveLength(19);
     expect(tipped(illusions)).toBe(true);
     for (const t of [...ROUNDS, ...HANDS_CHARACTERS, ...INSTRUMENTS, ...illusions].map((x) => x.teacherTip!)) {
       expect(t.split(/[.?!]\s/).length).toBe(1);
     }
-  });
-
-  it('gives a plain answer for an illusion when the class answer was not recorded', () => {
-    const byId = (id: string) => ILLUSION_CONTENT.find((i) => i.id === id)!;
-    expect(plainAnswer(byId('checker-shadow'))).toBe('They’re identical.');
-    expect(plainAnswer(byId('rotating-snakes'))).toBe('It’s a still image.');
-    expect(plainAnswer(byId('lilac-chaser'))).toBe('Here’s the answer.');
-    expect(plainAnswer(byId('paris-springtime-svg'))).toBe('Here’s the answer.');
   });
 });

@@ -110,28 +110,6 @@ export function guessLine(guess: number, actual = WOMEN_IN_TOP_50.length): strin
   return `You guessed ${guess}. The answer is ${actual}.`;
 }
 
-/*
- * The scale. On one pan, the men "traditionally credited with 'shaping
- * history'"; on the other, what poster 1 says the story leaves out, in the
- * poster's own words, laid on one at a time. With all six, it is level.
- */
-export const WEIGHTS = [
-  { id: 'inventors', label: 'overlooked inventors' },
-  { id: 'activists', label: 'activists' },
-  { id: 'artists', label: 'artists' },
-  { id: 'writers', label: 'writers' },
-  { id: 'everyday', label: 'the everyday lives of ordinary women' },
-  { id: 'households', label: 'their roles in households and communities' },
-] as const;
-export type WeightId = (typeof WEIGHTS)[number]['id'];
-
-/** The beam's tilt in degrees for `placed` weights: down to the men's side at first, level with all six. */
-export const START_TILT = -16;
-export function beamTilt(placed: number): number {
-  const k = Math.max(0, Math.min(WEIGHTS.length, placed)) / WEIGHTS.length;
-  return Math.round(START_TILT * (1 - k) * 100) / 100 || 0;
-}
-
 /** For the class: open questions, no claims. */
 export const QUESTIONS = [
   'Whose statues, plaques or street names are there where you live? Who chose them?',

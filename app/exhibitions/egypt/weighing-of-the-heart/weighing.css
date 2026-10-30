@@ -1,0 +1,65 @@
+/* ==========================================================================
+   The Weighing of the Heart: the hall in gold on black, lit from above.
+   The tension rises with each wrong answer: the light reddens, Ammit's
+   eye glows and the heart beats faster. At a balance the hall warms to gold.
+   Under reduced motion the hall still changes, but nothing moves.
+   ========================================================================== */
+
+.egw-hall {
+  position: relative;
+  padding: clamp(10px, 2vw, 24px);
+  border: 1px solid var(--egr-line);
+  background: radial-gradient(ellipse 80% 70% at 50% 30%, #2a2116, #0e0c0a 75%);
+  color: var(--egr-gold);
+  transition: background 0.6s ease;
+}
+.egw-hall[data-tension='2'] { background: radial-gradient(ellipse 80% 70% at 50% 30%, #2f1c14, #0e0a09 75%); }
+.egw-hall[data-tension='3'] { background: radial-gradient(ellipse 80% 70% at 50% 30%, #3a1810, #0f0807 75%); }
+.egw-hall[data-state='balanced'] { background: radial-gradient(ellipse 80% 70% at 50% 30%, #3b2d14, #120e08 75%); }
+
+.egw-svg { display: block; width: 100%; height: auto; max-height: 62vh; }
+.egw-gold { color: var(--egr-gold); }
+.egw-gold-fill { fill: var(--egr-gold); }
+.egw-beam, .egw-pan, .egw-ammit { transition: transform 1.1s cubic-bezier(0.34, 1.4, 0.5, 1); }
+.egw-pan-shape line { stroke: var(--egr-gold); stroke-width: 2; }
+.egw-pan-shape path { fill: var(--egr-gold); }
+.egw-heart { fill: #e0573a; transform-box: fill-box; transform-origin: center; animation: egw-beat 1.1s ease-in-out infinite; }
+.egw-hall[data-tension='2'] .egw-heart { animation-duration: 0.8s; }
+.egw-hall[data-tension='3'] .egw-heart { animation-duration: 0.55s; }
+.egw-hall[data-state='balanced'] .egw-heart { animation: none; }
+@keyframes egw-beat { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.12); } 24% { transform: scale(1); } 36% { transform: scale(1.08); } }
+.egw-feather { fill: #f3efe6; }
+.egw-figures text { fill: #efebe5; }
+.egw-anubis { fill: #e8e2d6 !important; }
+.egw-ammit text { fill: #7fa37a; }
+.egw-eye { fill: #ffcf4a; opacity: 0.15; transition: opacity 0.6s ease; }
+.egw-hall[data-tension='1'] .egw-eye { opacity: 0.5; }
+.egw-hall[data-tension='2'] .egw-eye,
+.egw-hall[data-tension='3'] .egw-eye { opacity: 1; animation: egw-glint 1.6s ease-in-out infinite; }
+@keyframes egw-glint { 50% { opacity: 0.45; } }
+.egw-names text { fill: var(--egr-muted); font-family: var(--pe-body); letter-spacing: 0.08em; }
+
+.egw-reading { min-height: 1.6em; margin: 6px 0 0; text-align: center; font-family: var(--pe-display); font-size: clamp(1.1rem, 0.9rem + 0.8vw, 1.6rem); color: #fff; }
+.egw-meter { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+.egw-meter span { width: 16px; height: 16px; border: 1px solid var(--egr-muted); border-radius: 50%; }
+.egw-meter span.is-right { background: var(--egr-gold); border-color: var(--egr-gold); }
+.egw-meter span.is-wrong { background: #b9370e; border-color: #e0573a; }
+
+.egw-panel h2:focus { outline: none; }
+.egw-deed {
+  padding: 22px 18px;
+  border: 1px solid var(--egr-gold);
+  font-family: var(--pe-display);
+  font-size: clamp(1.4rem, 1rem + 1.4vw, 2.2rem);
+  line-height: 1.2;
+  text-align: center;
+  color: #fff;
+  animation: egw-card 0.45s ease both;
+}
+@keyframes egw-card { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
+.egw-choices .egr-button { flex: 1 1 200px; font-size: 0.9em; letter-spacing: 0.06em; }
+.egw-result { font-family: var(--pe-display); font-size: 1.3em; }
+.egw-result.is-right { color: var(--egr-gold); }
+.egw-result.is-wrong { color: #ff8a6b; }
+.egw-quote { margin: 0; padding: 4px 0 4px 16px; border-left: 3px solid var(--egr-gold); font-family: var(--pe-display); font-style: italic; font-size: 1.2em; line-height: 1.4; color: #fff; }
+.egw-score { color: var(--egr-muted); }

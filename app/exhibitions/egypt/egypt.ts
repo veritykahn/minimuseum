@@ -142,6 +142,52 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
+  // The rooms open from the display case (its Interactives). Each card sets a
+  // short typographic emblem until it has a picture of the room itself.
+  interactives: [
+    {
+      href: '/exhibitions/egypt/hieroglyph-name',
+      emblem: 'Your name',
+      label: 'Interactive',
+      title: 'Your Name in Hieroglyphs',
+      subtitle: 'Write your name in a cartouche, and print it',
+    },
+    {
+      href: '/exhibitions/egypt/rosetta-stone',
+      emblem: '196 BC',
+      label: 'Interactive',
+      title: 'The Rosetta Stone Decoder',
+      subtitle: 'Three scripts, and two royal names to crack',
+    },
+    {
+      href: '/exhibitions/egypt/tomb',
+      emblem: 'Torchlight',
+      label: 'Interactive',
+      title: 'Tomb Explorer',
+      subtitle: 'Light the painted walls of a dark tomb',
+    },
+    {
+      href: '/exhibitions/egypt/mummification',
+      emblem: '70 days',
+      label: 'Interactive',
+      title: 'Mummification, Step by Step',
+      subtitle: 'Natron, canopic jars, linen and amulets',
+    },
+    {
+      href: '/exhibitions/egypt/weighing-of-the-heart',
+      emblem: 'Maat',
+      label: 'Interactive',
+      title: 'The Weighing of the Heart',
+      subtitle: 'Help Ani before the judges of the afterlife',
+    },
+    {
+      href: '/exhibitions/egypt/amulet',
+      emblem: 'Ankh',
+      label: 'Interactive',
+      title: 'Design an Amulet',
+      subtitle: 'Choose its symbols, learn their meanings, and print it',
+    },
+  ],
   posters: [
     // ============================================
     // POSTER 1: The Mysteries of Ancient Egypt

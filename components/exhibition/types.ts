@@ -457,6 +457,8 @@ export type ExhibitionConfig<K extends string = string> = {
     /** --pj-* custom properties (see components/projector/themes.ts). */
     theme: CSSProperties;
     links: { label: string; href: string }[];
+    /** A short note for whoever teaches with it, set at the top of "Teach with this" (an age recommendation, say). */
+    teachNote?: string;
   };
 };
 
