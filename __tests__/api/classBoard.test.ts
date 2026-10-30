@@ -11,7 +11,7 @@
  * store that is missing or failing.
  */
 
-import { BOARD_MAX, BOARD_TTL_SECONDS, CODE_ALPHABET, MESSAGE_MAX, checkMessage, cleanText, normalizeCode } from '@/lib/classBoard';
+import { BOARD_MAX, BOARD_TTL_SECONDS, CODE_ALPHABET, MESSAGE_MAX, PROMPT_MAX, checkMessage, checkPrompt, cleanText, normalizeCode, promptWords } from '@/lib/classBoard';
 
 const kv = new Map<string, string>();
 const lists = new Map<string, string[]>();
@@ -299,5 +299,100 @@ describe('the board’s rules', () => {
     for (const ok of ['Class of 2026 says hello!', 'Scunthorpe', 'I passed my assessment', 'Grapes and cocktails?']) expect(checkMessage(ok).ok).toBe(true);
     for (const bad of ['s h i t', 'S.H.I.T', '$hit', 'shiiit', 'what the fuuuck']) expect(checkMessage(bad)).toEqual({ ok: false, reason: 'language' });
     for (const link of ['http://x.y', 'WWW . site', 'me@school.org', 'example(dot)com']) expect(checkMessage(link)).toEqual({ ok: false, reason: 'link' });
+  });
+});
+
+/*
+ * B3: the teacher's prompt (a topic, a word list or a writing prompt), kept
+ * in the board's meta. Older boards have none and read as null; only the
+ * teacher key sets or clears it, and it is moderated as a message is.
+ */
+describe('the teacher’s prompt', () => {
+  const put = (code: string, body: unknown, key?: string) => r.one.PUT(req('PUT', body, key ? { 'x-teacher-key': key } : {}), ctx(code));
+  const read = async (code: string) => (await r.one.GET(req('GET'), ctx(code))).json();
+
+  it('reads as null on a board without one, as boards made before prompts do', async () => {
+    const { body } = await create();
+    expect(body.prompt).toBeNull();
+    expect((await read(body.code)).prompt).toBeNull();
+    // A board saved before prompts existed: its meta has only the hash and the date.
+    kv.set('class-board:23456789:meta', JSON.stringify({ teacher: 'a'.repeat(64), created: 1 }));
+    expect((await read('23456789')).prompt).toBeNull();
+  });
+
+  it('is set with the teacher key, seen by anyone with the code, and renews the 30 days', async () => {
+    const { body } = await create([{ text: 'hello' }]);
+    ttls.set(`class-board:${body.code}:meta`, 100);
+    ttls.set(`class-board:${body.code}:messages`, 100);
+    const res = await put(body.code, { prompt: { kind: 'words', text: 'carriage, platen,  <b>bell</b>' } }, body.teacherKey);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ prompt: { kind: 'words', text: 'carriage, platen, bell' } });
+    expect((await read(body.code)).prompt).toEqual({ kind: 'words', text: 'carriage, platen, bell' });
+    expect(ttls.get(`class-board:${body.code}:meta`)).toBe(BOARD_TTL_SECONDS);
+    expect(ttls.get(`class-board:${body.code}:messages`)).toBe(BOARD_TTL_SECONDS);
+    // The teacher key's hash is untouched, so the key still works, and the messages stay.
+    expect((await put(body.code, { prompt: { kind: 'topic', text: 'Our town' } }, body.teacherKey)).status).toBe(200);
+    expect((await read(body.code)).messages).toHaveLength(1);
+  });
+
+  it('is cleared with null, and leaves no trace in the meta', async () => {
+    const { body } = await create();
+    await put(body.code, { prompt: { kind: 'topic', text: 'Winter' } }, body.teacherKey);
+    const res = await put(body.code, { prompt: null }, body.teacherKey);
+    expect(await res.json()).toEqual({ prompt: null });
+    expect(JSON.parse(kv.get(`class-board:${body.code}:meta`)!)).not.toHaveProperty('prompt');
+    expect((await read(body.code)).prompt).toBeNull();
+  });
+
+  it('needs the teacher key, and a real board', async () => {
+    const { body } = await create();
+    expect((await put(body.code, { prompt: { kind: 'topic', text: 'Hi' } })).status).toBe(403);
+    expect((await put(body.code, { prompt: { kind: 'topic', text: 'Hi' } }, 'wrong')).status).toBe(403);
+    expect((await put('ABCDEFGH', { prompt: { kind: 'topic', text: 'Hi' } }, body.teacherKey)).status).toBe(404);
+    expect((await read(body.code)).prompt).toBeNull();
+  });
+
+  it.each([
+    ['empty', { kind: 'topic', text: '  ' }],
+    ['too-long', { kind: 'prompt', text: 'x'.repeat(PROMPT_MAX + 1) }],
+    ['link', { kind: 'topic', text: 'see example.com' }],
+    ['language', { kind: 'words', text: 'cat, sh1t, dog' }],
+  ])('moderates the teacher’s text: refuses one that is %s', async (reason, prompt) => {
+    const { body } = await create();
+    const res = await put(body.code, { prompt }, body.teacherKey);
+    expect(res.status).toBe(422);
+    expect(await res.json()).toEqual({ error: reason });
+    expect((await read(body.code)).prompt).toBeNull();
+  });
+
+  it('turns away a body without a prompt, and reads an unknown kind as a writing prompt', async () => {
+    const { body } = await create();
+    expect((await put(body.code, {}, body.teacherKey)).status).toBe(400);
+    const res = await put(body.code, { prompt: { kind: 'essay', text: 'Write about a machine you use every day.' } }, body.teacherKey);
+    expect((await res.json()).prompt.kind).toBe('prompt');
+  });
+
+  it('is kept when a board is saved with one, and left off when it breaks the rules', async () => {
+    const made = await (await r.board.POST(req('POST', { messages: [], prompt: { kind: 'topic', text: 'My <i>favourite</i> book' } }))).json();
+    expect(made.prompt).toEqual({ kind: 'topic', text: 'My favourite book' });
+    expect((await read(made.code)).prompt).toEqual({ kind: 'topic', text: 'My favourite book' });
+    const bad = await (await r.board.POST(req('POST', { prompt: { kind: 'topic', text: 'www.bad.example' } }))).json();
+    expect(bad.prompt).toBeNull();
+    expect(bad.code).toBeTruthy();
+  });
+
+  it('is rate limited with the teacher’s other changes, and answers 503 when the store is down', async () => {
+    const { body } = await create();
+    limits.remove = false;
+    expect((await put(body.code, { prompt: { kind: 'topic', text: 'Hi' } }, body.teacherKey)).status).toBe(429);
+    limits.remove = true;
+    db.failing = true;
+    expect((await put(body.code, { prompt: { kind: 'topic', text: 'Hi' } }, body.teacherKey)).status).toBe(503);
+  });
+
+  it('splits a word list at commas, semicolons and new lines', () => {
+    expect(promptWords('carriage, platen;bell\n\nribbon, bell ,')).toEqual(['carriage', 'platen', 'bell', 'ribbon']);
+    expect(checkPrompt({ kind: 'words', text: 'a, b' })).toEqual({ ok: true, prompt: { kind: 'words', text: 'a, b' } });
+    expect(checkPrompt({ kind: 'topic' })).toEqual({ ok: false, reason: 'empty' });
   });
 });

@@ -5,14 +5,19 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
+import { srOnly } from '@/lib/a11y';
 import { WRITING_REVOLUTION } from '../writingRevolution';
 import Typewriter from './Typewriter';
 import IMac from './IMac';
 import TopRow from './TopRow';
 import ClassBoard from './ClassBoard';
+import { PromptLine } from './PromptPanel';
+import { RaceBar, RaceResults, newRace, raceMessage, type RaceState } from './Race';
+import { mistakesLeft, spokenTime } from './challenges';
 import { STATION_TEXT } from './stationText';
 import { useTypingSound } from './typingSound';
 import { useClassBoard } from './useClassBoard';
+import type { Machine } from '@/lib/classBoard';
 import '../writing-revolution.css';
 import './typing.css';
 
@@ -26,6 +31,10 @@ import './typing.css';
  * from ?board=<code>#board), and each machine keeps its page while you try
  * the other. Sound is off until the visitor turns it on or starts typing,
  * and the switch is always in the corner.
+ *
+ * Over the machines: the teacher's prompt when one is set (PromptPanel.tsx,
+ * set on the class board), and the race between the two machines
+ * (Race.tsx). The top row has its "beat ten" challenge (TopRow.tsx).
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -48,6 +57,20 @@ export default function TypingStation() {
   /** Why a message couldn't go up, shown by the machine it was typed on. */
   const [refusal, setRefusal] = useState('');
   const { open } = board;
+  const [promptEditing, setPromptEditing] = useState(false);
+  /** What each machine's page says now: the word list's ticks, and the race's check. */
+  const [typed, setTyped] = useState<Record<Machine, string>>({ typewriter: '', imac: '' });
+  const strikesRef = useRef(0);
+  const [race, setRaceState] = useState<RaceState | null>(null);
+  const raceRef = useRef<RaceState | null>(null);
+  const setRace = (next: RaceState | null) => {
+    raceRef.current = next;
+    setRaceState(next);
+  };
+  /** Each race starts both machines on a fresh page. */
+  const [round, setRound] = useState(0);
+  /** What the race says aloud: a clock stopping, the winner. */
+  const [raceSaid, setRaceSaid] = useState('');
 
   // A link to a saved board (?board=<code>) opens it.
   useEffect(() => {
@@ -107,8 +130,61 @@ export default function TypingStation() {
     return refused;
   };
 
+  /* ───────── The race ───────── */
+  const focusMachine = (m: Machine) => requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>(m === 'imac' ? '.wri-text' : '.wrt-field')?.focus());
+
+  const startRace = () => {
+    setRound((n) => n + 1);
+    setTyped({ typewriter: '', imac: '' });
+    strikesRef.current = 0;
+    setRace(newRace());
+    setRaceSaid(STATION_TEXT.race.first);
+    choose('typewriter');
+    focusMachine('typewriter');
+  };
+
+  /** The racing machine's clock stops: by itself when the line is right, or at "Stop the clock". */
+  const stopClock = (machine: Machine, text: string) => {
+    const r = raceRef.current;
+    if (!r || r.stage !== machine || r.start === null) return;
+    const ms = Date.now() - r.start;
+    const next: RaceState = {
+      ...r,
+      start: null,
+      stage: machine === 'typewriter' ? 'imac' : 'done',
+      times: { ...r.times, [machine]: ms },
+      mistakes: { ...r.mistakes, [machine]: mistakesLeft(text, STATION_TEXT.line) },
+      strikeOvers: machine === 'typewriter' ? strikesRef.current : r.strikeOvers,
+    };
+    setRace(next);
+    sound.play('bell');
+    const name = machine === 'imac' ? STATION_TEXT.imacTab : STATION_TEXT.typewriterTab;
+    setRaceSaid(`${name}: ${spokenTime(ms)}. ${machine === 'typewriter' ? STATION_TEXT.race.next : ''}`);
+  };
+
+  // Each machine tells the room what its page says, keystroke by keystroke.
+  const hear = (machine: Machine, text: string, strikes = 0) => {
+    if (machine === 'typewriter') strikesRef.current = strikes;
+    setTyped((t) => (t[machine] === text ? t : { ...t, [machine]: text }));
+    const r = raceRef.current;
+    if (!r || r.stage !== machine) return;
+    if (r.start === null) {
+      if (!text) return;
+      setRace({ ...r, start: Date.now() });
+    }
+    if (mistakesLeft(text, STATION_TEXT.line) === 0) stopClock(machine, text);
+  };
+
+  const onToImac = () => {
+    choose('imac');
+    focusMachine('imac');
+  };
+
+  const showLine = tab === 'typewriter' || tab === 'imac';
+  const racing = race && race.stage !== 'done' && showLine;
+
   return (
-    <div className="pe-root wrs-room" data-exhibition={slug} data-tab={tab} style={style}>
+    <div className="pe-root wrs-room" data-exhibition={slug} data-tab={tab} data-race={racing ? 'on' : undefined} data-prompt={board.prompt && showLine && !racing ? board.prompt.kind : undefined} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
 
       <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
@@ -154,10 +230,24 @@ export default function TypingStation() {
               </button>
             ))}
           </div>
-          {(tab === 'typewriter' || tab === 'imac') && (
-            <p className="wrs-line">
-              <span className="wrs-line-label">{STATION_TEXT.lineLabel}</span> {STATION_TEXT.line}
-            </p>
+          {racing ? (
+            <RaceBar race={race} line={STATION_TEXT.line} tab={tab} onStop={() => stopClock(race.stage as Machine, typed[race.stage as Machine])} onNext={onToImac} onQuit={() => setRace(null)} />
+          ) : (
+            showLine && (
+              <div className="wrs-line-row">
+                {board.prompt ? (
+                  <PromptLine prompt={board.prompt} typed={typed[tab as Machine]} />
+                ) : (
+                  <p className="wrs-line">
+                    <span className="wrs-line-label">{STATION_TEXT.lineLabel}</span> {STATION_TEXT.line}
+                  </p>
+                )}
+                <button type="button" className="wrs-button wrs-race-start" onClick={startRace}>
+                  <span aria-hidden="true">⏱ </span>
+                  {STATION_TEXT.race.start}
+                </button>
+              </div>
+            )
           )}
         </header>
 
@@ -166,22 +256,36 @@ export default function TypingStation() {
             {refusal}
           </p>
         )}
+        <p role="status" style={srOnly}>{raceSaid}</p>
 
-        {/* All four stay mounted, so each keeps its page while you try another. */}
+        {/* All four stay mounted, so each keeps its page while you try another; a race starts both on a fresh page. */}
         <section className="wrs-panel wrs-panel-typewriter" id="wrs-panel-typewriter" role="tabpanel" aria-labelledby="wrs-tab-typewriter" hidden={tab !== 'typewriter'}>
-          <Typewriter play={sound.play} onPost={postFrom('typewriter')} />
+          <Typewriter key={`typewriter-${round}`} play={sound.play} onPost={postFrom('typewriter')} onText={(text, strikes) => hear('typewriter', text, strikes)} />
         </section>
         <section className="wrs-panel wrs-panel-imac" id="wrs-panel-imac" role="tabpanel" aria-labelledby="wrs-tab-imac" hidden={tab !== 'imac'}>
-          <IMac play={sound.play} onPost={postFrom('imac')} />
+          <IMac key={`imac-${round}`} play={sound.play} onPost={postFrom('imac')} onText={(text) => hear('imac', text)} />
         </section>
         <section className="wrs-panel wrs-panel-top-row" id="wrs-panel-top-row" role="tabpanel" aria-labelledby="wrs-tab-top-row" hidden={tab !== 'top-row'}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img className="wrs-urania" src="/exhibitions/writing-revolution/urania.webp" alt="" aria-hidden="true" />
-          <TopRow play={sound.play} />
+          <TopRow play={sound.play} onPost={(text) => postFrom('typewriter')(text)} />
         </section>
         <section className="wrs-panel wrs-panel-board" id="wrs-panel-board" role="tabpanel" aria-labelledby="wrs-tab-board" hidden={tab !== 'board'}>
-          <ClassBoard board={board} onWrite={(t) => choose(t, true)} />
+          <ClassBoard board={board} onWrite={(t) => choose(t, true)} promptEditing={promptEditing} setPromptEditing={setPromptEditing} />
         </section>
+
+        {race?.stage === 'done' && (
+          <RaceResults
+            race={race}
+            onAgain={startRace}
+            onPost={() => {
+              const r = race;
+              setRace(null);
+              postFrom('typewriter')(raceMessage(r));
+            }}
+            onClose={() => setRace(null)}
+          />
+        )}
       </main>
     </div>
   );

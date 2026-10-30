@@ -2,7 +2,8 @@
 
 import { useId, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import { srOnly } from '@/lib/a11y';
-import { BOARD_MAX, formatCode, type BoardMessage } from '@/lib/classBoard';
+import { BOARD_MAX, PROMPT_LABELS, formatCode, type BoardMessage } from '@/lib/classBoard';
+import PromptPanel from './PromptPanel';
 import { inkJitter } from './typewriterPage';
 import { FONTS } from './IMac';
 import { STATION_TEXT } from './stationText';
@@ -83,7 +84,17 @@ function Card({ m, i, canDelete, onDelete }: { m: BoardMessage; i: number; canDe
   );
 }
 
-export default function ClassBoard({ board, onWrite }: { board: ClassBoardState; onWrite: (tab: 'typewriter' | 'imac') => void }) {
+export default function ClassBoard({
+  board,
+  onWrite,
+  promptEditing = false,
+  setPromptEditing = () => {},
+}: {
+  board: ClassBoardState;
+  onWrite: (tab: 'typewriter' | 'imac') => void;
+  promptEditing?: boolean;
+  setPromptEditing?: (on: boolean) => void;
+}) {
   const { messages, mode, available } = board;
   const [opening, setOpening] = useState(false);
   const [code, setCode] = useState('');
@@ -191,6 +202,8 @@ export default function ClassBoard({ board, onWrite }: { board: ClassBoardState;
         </section>
       )}
 
+      <PromptPanel board={board} editing={promptEditing} setEditing={setPromptEditing} />
+
       <p className="wrb-note">
         {saved ? T.savedNote(formatCode(saved.code)) : available === false ? T.unavailableNote : T.localNote} {T.privacy}
       </p>
@@ -199,6 +212,11 @@ export default function ClassBoard({ board, onWrite }: { board: ClassBoardState;
         <p className="wrb-print-head" aria-hidden="true">
           {STATION_TEXT.title} · {T.title}
           {saved && <> · {formatCode(saved.code)}</>}
+          {board.prompt && (
+            <span className="wrb-print-prompt">
+              {PROMPT_LABELS[board.prompt.kind]}: {board.prompt.text}
+            </span>
+          )}
         </p>
         {messages.length === 0 ? (
           <p className="wrb-empty">{T.empty}</p>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { REFUSALS, checkMessage, formatCode, normalizeCode, type BoardMessage, type Machine } from '@/lib/classBoard';
+import { PROMPT_REFUSALS, REFUSALS, checkMessage, checkPrompt, formatCode, normalizeCode, type BoardMessage, type BoardPrompt, type Machine, type PromptKind } from '@/lib/classBoard';
 
 /*
  * The class board's messages, wherever they live.
@@ -13,7 +13,13 @@ import { REFUSALS, checkMessage, formatCode, normalizeCode, type BoardMessage, t
  * last new message; from then on each post goes there, and the board
  * refreshes itself while it is open. Whoever made the board gets a teacher
  * key, shown once and kept in this browser, which deletes messages or the
- * whole board.
+ * whole board, and sets the class's prompt.
+ *
+ * The prompt (a topic, a word list or a writing prompt) is shown on both
+ * machines. In one sitting anyone at the screen sets it, and it stays on
+ * this page; on a saved board it is the board's, set with the teacher key,
+ * and everyone who opens the code sees it (and sees a change at the next
+ * refresh).
  */
 
 export type BoardMode = { kind: 'local' } | { kind: 'saved'; code: string; teacherKey: string | null };
@@ -58,6 +64,7 @@ const ERRORS: Record<string, string> = {
   full: 'This board is full: it holds 200 messages.',
   'not-found': 'No board has that code. Check it and try again; boards are deleted 30 days after their last new message.',
   forbidden: 'That teacher key isn’t this board’s.',
+  'needs-key': 'Only the teacher key sets this board’s prompt.',
   unavailable: 'Saving boards isn’t available right now. The board on screen still works.',
 };
 const errorText = (e: string) => ERRORS[e] ?? ERRORS.unavailable;
@@ -82,6 +89,8 @@ export function useClassBoard() {
   /** A teacher key just made, to show once. */
   const [newKey, setNewKey] = useState<string | null>(null);
   const [status, setStatus] = useState('');
+  /** The class's prompt, shown on both machines. */
+  const [prompt, setPrompt] = useState<BoardPrompt | null>(null);
   const [busy, setBusy] = useState(false);
   const modeRef = useRef(mode);
   useEffect(() => {
@@ -114,6 +123,8 @@ export function useClassBoard() {
       return false;
     }
     setMessages(r.body.messages as BoardMessage[]);
+    // A board saved before prompts has none to send.
+    setPrompt((r.body.prompt as BoardPrompt | undefined) ?? null);
     return true;
   }, []);
 
@@ -177,18 +188,22 @@ export function useClassBoard() {
   /** Save the board on screen under a new class code. */
   const save = useCallback(async () => {
     setBusy(true);
-    const r = await call('', { method: 'POST', body: JSON.stringify({ messages: messages.map(({ text, machine, font }) => ({ text, machine, font })) }) });
+    const r = await call('', {
+      method: 'POST',
+      body: JSON.stringify({ messages: messages.map(({ text, machine, font }) => ({ text, machine, font })), ...(prompt ? { prompt } : {}) }),
+    });
     setBusy(false);
     if (!r.ok) return setStatus(errorText(String(r.body.error)));
     const code = String(r.body.code);
     const key = String(r.body.teacherKey);
     writeKey(code, key);
     setMessages(r.body.messages as BoardMessage[]);
+    setPrompt((r.body.prompt as BoardPrompt | undefined) ?? null);
     setMode({ kind: 'saved', code, teacherKey: key });
     boardInAddress(code);
     setNewKey(key);
     setStatus(`Saved. The class code is ${formatCode(code)}.`);
-  }, [messages]);
+  }, [messages, prompt]);
 
   /*
    * A key the board turns down is forgotten, here and in this browser, so
@@ -225,14 +240,16 @@ export function useClassBoard() {
       setStatus(`Board ${formatCode(m.code)} is deleted.`);
     } else setStatus('The board is cleared.');
     setMessages([]);
+    if (m.kind === 'saved') setPrompt(null);
     setMode({ kind: 'local' });
     boardInAddress(null);
     setNewKey(null);
   }, [refuse]);
 
-  /** Leave a saved board (it stays saved) for a fresh one-sitting board. */
+  /** Leave a saved board (it stays saved, prompt and all) for a fresh one-sitting board. */
   const leave = useCallback(() => {
     setMessages([]);
+    setPrompt(null);
     setMode({ kind: 'local' });
     boardInAddress(null);
     setNewKey(null);
@@ -255,7 +272,44 @@ export function useClassBoard() {
     if (await load(m.code)) setStatus('The board is up to date.');
   }, [load]);
 
-  return { messages, mode, available, newKey, dismissKey: () => setNewKey(null), status, busy, post, save, open, remove, removeBoard, leave, setTeacherKey, refresh };
+  /**
+   * Set the class's prompt, or clear it (null). Checked here first, as the
+   * API checks it; in one sitting it is set at once, on a saved board it
+   * needs the teacher key. Resolves to a refusal to say, or null once set.
+   */
+  const setBoardPrompt = useCallback(
+    async (next: { kind: PromptKind; text: string } | null): Promise<string | null> => {
+      let value: BoardPrompt | null = null;
+      if (next) {
+        const checked = checkPrompt(next);
+        if (!checked.ok) return PROMPT_REFUSALS[checked.reason];
+        value = checked.prompt;
+      }
+      const m = modeRef.current;
+      if (m.kind === 'saved') {
+        if (!m.teacherKey) return ERRORS['needs-key'];
+        const r = await call(`/${m.code}`, { method: 'PUT', headers: { 'x-teacher-key': m.teacherKey }, body: JSON.stringify({ prompt: value }) });
+        if (!r.ok) {
+          const error = String(r.body.error);
+          refuse(m, error);
+          return error in PROMPT_REFUSALS ? PROMPT_REFUSALS[error as keyof typeof PROMPT_REFUSALS] : errorText(error);
+        }
+        value = (r.body.prompt as BoardPrompt | null) ?? null;
+      }
+      setPrompt(value);
+      setStatus(value ? 'The prompt is on both machines.' : 'The prompt is cleared.');
+      return null;
+    },
+    [refuse],
+  );
+
+  /** Whether this screen may set the prompt: anyone in one sitting, the teacher key on a saved board. */
+  const canSetPrompt = mode.kind === 'local' || !!mode.teacherKey;
+
+  return {
+    messages, mode, available, newKey, dismissKey: () => setNewKey(null), status, busy, post, save, open, remove, removeBoard, leave, setTeacherKey, refresh,
+    prompt, setPrompt: setBoardPrompt, canSetPrompt,
+  };
 }
 
 export type ClassBoardState = ReturnType<typeof useClassBoard>;

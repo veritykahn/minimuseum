@@ -20,6 +20,8 @@ export const FONTS = [
   { name: 'Antonio', stack: "'Antonio', 'Arial Narrow', sans-serif" },
 ];
 const SIZES = [10, 12, 14, 18, 24];
+/* The time, read only in the page's event handlers (the compiler can't tell they never run during render). */
+const clock = () => Date.now();
 
 /** Posts the page to the class board, in its font: null once it is up, or why it can't go. */
 export type PostPage = (text: string, font: string) => string | null;
@@ -28,8 +30,17 @@ export type PostPage = (text: string, font: string) => string | null;
 type Look = { font: string; size: number; bold: boolean; italic: boolean; underline: boolean };
 const FIRST_LOOK: Look = { font: FONTS[0].name, size: 14, bold: false, italic: false, underline: false };
 
-export default function IMac({ play, onPost }: { play: (s: SoundName) => void; onPost?: PostPage }) {
-  const [text, setText] = useState('');
+export default function IMac({ play, onPost, onText }: { play: (s: SoundName) => void; onPost?: PostPage; onText?: (text: string) => void }) {
+  const [text, setPageText] = useState('');
+  const onTextRef = useRef(onText);
+  useEffect(() => {
+    onTextRef.current = onText;
+  }, [onText]);
+  /** The page's words as they now are, kept and told (for the race and the word list). */
+  const setText = (next: string) => {
+    setPageText(next);
+    onTextRef.current?.(next);
+  };
   const [look, setLook] = useState<Look>(FIRST_LOOK);
   const { font, size, bold, italic, underline } = look;
   const [clip, setClip] = useState('');
@@ -52,7 +63,7 @@ export default function IMac({ play, onPost }: { play: (s: SoundName) => void; o
 
   const commit = (next: string, caret?: number, typing = false) => {
     // Typing keeps one undo step per pause, as a word processor does; every cut or paste is its own.
-    const now = Date.now();
+    const now = clock();
     if (!typing || now - lastTyped.current > 900) remember();
     lastTyped.current = typing ? now : 0;
     setText(next);
