@@ -3,106 +3,12 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import { srOnly, activateOnKey, prefersReducedMotion } from '@/lib/a11y';
+import { CITIES } from './cities';
+import TicketPunch, { TicketStrip } from './TicketPunch';
+import { EMPTY_TICKET, answerTicket, type TicketState } from './ticket';
 
 const AUDIO_BASE = '/exhibitions/harlem/audio/migration/';
 const PHOTO_BASE = '/exhibitions/harlem/images/migration/';
-
-type CityData = {
-  id: string;
-  name: string;
-  period: string;
-  cx: number;
-  cy: number;
-  photo: string;
-  /** What the photograph shows, for people who cannot see it. */
-  photoAlt: string;
-  photoCredit: string;
-  text: string;
-  music: { file: string; title: string; artist: string; year: string; note?: string };
-  /**
-   * A quotation, or, when `paraphrase` is set, a saying whose exact wording
-   * cannot be traced to the person: shown without quotation marks.
-   */
-  quote: { text: string; author: string; paraphrase?: boolean };
-};
-
-const CITIES: CityData[] = [
-  {
-    id: 'delta',
-    name: 'The Mississippi Delta',
-    period: 'Before 1910',
-    cx: 280, cy: 550,
-    photo: 'delta.jpg',
-    photoAlt: 'Workers picking cotton in a wide field in Georgia, 1907',
-    photoCredit: '\u201CA Georgia Cotton Field,\u201D 1907. Photograph by Marcus L. Brown, Decatur, Georgia. Library of Congress Prints and Photographs Division. This field is in Georgia, not the Delta: the same work was done in cotton fields across the South.',
-    text: 'It began here \u2014 in the flat cotton fields along the Mississippi River, where African Americans had been enslaved for generations. After emancipation, most stayed as sharecroppers, trapped in cycles of debt and poverty. But they carried something no one could take from them: their music. Work songs, field hollers, and spirituals echoed across the Delta \u2014 the raw material that would become the blues.',
-    music: {
-      file: 'delta.mp3', title: '\u201CSwing Low, Sweet Chariot\u201D', artist: 'Fisk University Jubilee Quartet', year: 'Victor Records, 1909',
-      note: 'Sung by a quartet from Fisk University in Nashville, not in the Delta: one of the earliest recordings of a spiritual, the kind of song sung across the South.',
-    },
-    quote: { text: 'Before I\u2019d be a slave, I\u2019d be buried in my grave, and go home to my Lord and be saved.', author: 'Traditional spiritual, \u201CBefore I\u2019d Be a Slave\u201D' },
-  },
-  {
-    id: 'new-orleans',
-    name: 'New Orleans',
-    period: '1890s\u20131920s',
-    cx: 310, cy: 505,
-    photo: 'new-orleans.jpg',
-    photoAlt: 'Oscar \u201CPapa\u201D Celestin\u2019s Original Tuxedo Band, early 1900s',
-    photoCredit: 'Oscar "Papa" Celestin\'s Original Tuxedo Band, early 1900s. William Russell Jazz Collection, The Historic New Orleans Collection, acquisition made possible by the Clarisse Claiborne Grima Fund.',
-    text: 'Where the Mississippi meets the Gulf, New Orleans was the most musical city in America. In Congo Square, enslaved people of African descent gathered on Sunday afternoons to drum, sing, and dance \u2014 something few other places in the South allowed. By the 1890s, brass bands, ragtime, blues, and Caribbean rhythms were all colliding in the streets. They called the new sound \u201Cjass.\u201D King Oliver, Louis Armstrong, and Sidney Bechet all grew up hearing it.',
-    music: { file: 'new-orleans.mp3', title: '\u201CWay Down Yonder in New Orleans\u201D', artist: 'The Georgians, Frank Guarente', year: 'Columbia Records, 1922' },
-    quote: { text: 'Jazz was born in New Orleans and grew up in Chicago.', author: 'A popular saying, sometimes credited to Louis Armstrong', paraphrase: true },
-  },
-  {
-    id: 'memphis',
-    name: 'Memphis',
-    period: '1900s\u20131920s',
-    cx: 285, cy: 410,
-    photo: 'memphis.jpg',
-    photoAlt: 'W.C. Handy and associates outside the Tri-State Bank of Memphis',
-    photoCredit: 'W.C. Handy (far right) with associates outside the Tri-State Bank of Memphis, Tennessee. Handy published "Memphis Blues" in 1912 \u2014 among the first blues ever published as sheet music.',
-    text: 'Memphis sat at the crossroads \u2014 halfway between the Delta and the North. Beale Street became the main street of Black America, lined with clubs, theaters, and juke joints. W.C. Handy heard the blues here and wrote them down, publishing \u201CMemphis Blues\u201D in 1912 \u2014 one of the first blues ever printed as sheet music. It was the bridge between rural folk music and the commercial recording industry.',
-    music: { file: 'memphis.mp3', title: '\u201CMemphis Blues\u201D', artist: 'Morton Harvey, vocal \u2014 W.C. Handy, composer', year: 'Victor Records, 1914' },
-    quote: { text: 'The blues came from nothingness, from want, from desire.', author: 'W.C. Handy' },
-  },
-  {
-    id: 'st-louis',
-    name: 'St. Louis',
-    period: '1890s\u20131920s',
-    cx: 275, cy: 330,
-    photo: 'st-louis.jpg',
-    photoAlt: 'Fate Marable\u2019s Society Syncopators aboard a Mississippi riverboat, about 1919',
-    photoCredit: 'Fate Marable\u2019s Society Syncopators aboard a Mississippi riverboat, c.\u20091919. Marable\u2019s band played the steamships between New Orleans and St. Louis. A young Louis Armstrong played cornet in this band before leaving for Chicago.',
-    text: 'St. Louis was where the river met the railroad. Fate Marable\u2019s band played jazz on Mississippi riverboats, carrying the sound from New Orleans upriver to St. Louis and beyond. Scott Joplin had already made the city famous for ragtime \u2014 one of the first Black American styles to sweep the nation. When jazz came through on its way north, it picked up ragtime\u2019s sophistication and kept moving.',
-    music: { file: 'st-louis.mp3', title: '\u201CSt. Louis Blues\u201D', artist: 'Original Dixieland Jazz Band with Al Bernard', year: 'Victor Records, 1921' },
-    quote: { text: 'Syncopations are no indication of light or trashy music.', author: 'Scott Joplin' },
-  },
-  {
-    id: 'chicago',
-    name: 'Chicago',
-    period: '1910s\u20131930s',
-    cx: 370, cy: 155,
-    photo: 'chicago.jpg',
-    photoAlt: 'King Oliver\u2019s Creole Jazz Band posing with their instruments, Chicago, about 1923',
-    photoCredit: 'King Oliver\u2019s Creole Jazz Band, Chicago, c.\u20091923. Photograph by Daguerre Studio. Left to right: Baby Dodds (drums), Honor\u00E9 Dutrey (trombone), King Oliver (cornet), Louis Armstrong (cornet), Lil Hardin (piano), Bill Johnson (banjo), Johnny Dodds (clarinet).',
-    text: 'The trains from the South ended at Chicago\u2019s Illinois Central station. Most of the people who rode those trains came from Mississippi and its neighbors, straight up the Illinois Central line. Between 1910 and 1930, Chicago\u2019s Black population grew more than fivefold, from about 44,000 to about 234,000. They settled on the South Side, and the music followed. King Oliver moved from New Orleans to Chicago in 1918, then sent for young Louis Armstrong in 1922. The South Side became a laboratory where blues and jazz fused and evolved.',
-    music: { file: 'chicago.mp3', title: '\u201CRiverside Blues\u201D', artist: 'King Oliver\u2019s Creole Jazz Band', year: 'Recorded 1923' },
-    quote: { text: 'In the summer of 1922, Louis Armstrong took the train from New Orleans all the way to Chicago to join King Oliver\u2019s band.', author: 'Louis Armstrong\u2019s journey, in paraphrase', paraphrase: true },
-  },
-  {
-    id: 'harlem',
-    name: 'Harlem',
-    period: '1920s\u20131930s',
-    cx: 610, cy: 35,
-    photo: 'harlem.jpg',
-    photoAlt: 'A crowd lines a Harlem street as a parade passes; one sign reads \u201CThe New Negro has no fear\u201D',
-    photoCredit: 'Harlem, New York, 1920s. A parade or rally passes through the neighborhood; a sign reads "THE NEW NEGRO HAS NO FEAR." By the 1920s, Harlem was the cultural capital of Black America.',
-    text: 'Harlem was the destination \u2014 the Promised Land. Most of its newcomers had come up the Atlantic coast, from Virginia, the Carolinas, Georgia, and Florida; the music arrived from every direction, and in 1924 Louis Armstrong left Chicago for New York to join Fletcher Henderson\u2019s orchestra. By the 1920s Harlem was the cultural capital of Black America. The Cotton Club, the Apollo Theater, the Savoy Ballroom \u2014 music was everywhere. But the Harlem Renaissance was more than jazz. It was poetry, painting, philosophy, and pride. Langston Hughes, Zora Neale Hurston, and Duke Ellington all called Harlem home. A people who had been told they were nothing created an explosion of art that changed the world.',
-    music: { file: 'harlem.mp3', title: '\u201CAny Woman\u2019s Blues\u201D', artist: 'Bessie Smith, vocal \u2014 Fletcher Henderson, piano', year: 'Columbia Records, 1923' },
-    quote: { text: 'I, too, sing America.', author: 'Langston Hughes' },
-  },
-];
 
 const CITY_COLORS = [
   { main: '#D4A847', light: '#E8D48B', dim: '#8B7535', bg: '#1C1608' },     // Delta — warm gold
@@ -189,6 +95,16 @@ export default function MigrationMapPage() {
   const [quickTrips, setQuickTrips] = useState(false);
   const quickRef = useRef(false);
   const [traveling, setTraveling] = useState(false);
+  // Punch your ticket: a stamp per city, earned from that city's panel.
+  const [ticket, setTicket] = useState<TicketState>(EMPTY_TICKET);
+  const [justStamped, setJustStamped] = useState<string | null>(null);
+  const [lastWrong, setLastWrong] = useState<{ cityId: string; choice: string } | null>(null);
+  const punch = useCallback((cityId: string, choice: string) => {
+    const { state, correct } = answerTicket(ticket, cityId, choice);
+    setTicket(state);
+    if (correct) { setJustStamped(cityId); setLastWrong(null); }
+    else setLastWrong({ cityId, choice });
+  }, [ticket]);
   const skipRef = useRef(false);
   const skipBtnRef = useRef<HTMLButtonElement>(null);
   const cityHeadingRef = useRef<HTMLHeadingElement>(null);
@@ -349,6 +265,8 @@ export default function MigrationMapPage() {
   const collapseCity = useCallback((): Promise<void> => {
     return new Promise((resolve) => {
       stopMusic();
+      setJustStamped(null);
+      setLastWrong(null);
       setCityContentVisible(false);
 
       setTimeout(() => {
@@ -472,6 +390,9 @@ export default function MigrationMapPage() {
     if (isAnimating) return;
     setIsAnimating(true);
     await collapseCity();
+    setTicket(EMPTY_TICKET);
+    setJustStamped(null);
+    setLastWrong(null);
     setCurrentCityIdx(-1);
     setTravelTransition(true);
     setTraveledOffset(1);
@@ -1015,6 +936,109 @@ export default function MigrationMapPage() {
           .mg-train-ticket { padding: 20px; }
           .mg-ticket-destination { font-size: 18px; }
         }
+        /* === PUNCH YOUR TICKET === */
+        .mg-punch {
+          border: 1.5px dashed color-mix(in srgb, var(--mg-gold) 55%, transparent);
+          border-radius: 10px;
+          padding: 20px 22px 22px;
+          background: color-mix(in srgb, var(--mg-gold) 6%, transparent);
+        }
+        .mg-punch-label {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: clamp(14px, 0.5vw + 10px, 17px);
+          letter-spacing: 3px; text-transform: uppercase; font-weight: 700;
+          color: var(--mg-gold); margin: 0 0 14px;
+        }
+        .mg-ticket-strip { margin: 0 0 16px; container-type: inline-size; }
+        .mg-ticket-strip-title {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: clamp(14px, 0.4vw + 11px, 16px);
+          color: var(--mg-text); margin: 0 0 10px;
+          display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+        }
+        .mg-ticket-strip-count { color: var(--mg-gold-light); font-weight: 600; }
+        .mg-stamps {
+          list-style: none; display: grid;
+          grid-template-columns: repeat(6, minmax(0, 1fr));
+          gap: 6px; padding: 0; margin: 0;
+        }
+        .mg-stamp {
+          display: flex; flex-direction: column; align-items: center; gap: 6px;
+          text-align: center; min-width: 0;
+        }
+        .mg-stamp-mark {
+          width: 44px; height: 44px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          border: 2px dashed color-mix(in srgb, var(--stamp, #C9A94E) 50%, transparent);
+          color: color-mix(in srgb, var(--mg-text) 70%, transparent);
+          font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 700;
+        }
+        .mg-stamp.on .mg-stamp-mark {
+          border: 2px solid var(--stamp, #C9A94E);
+          background: color-mix(in srgb, var(--stamp, #C9A94E) 28%, transparent);
+          color: var(--stamp-light, #E8D48B);
+          transform: rotate(-8deg);
+          font-size: 22px;
+        }
+        .mg-stamp.fresh .mg-stamp-mark { animation: mg-stamp-in 0.5s cubic-bezier(0.3, 1.5, 0.5, 1) both; }
+        @keyframes mg-stamp-in {
+          0% { transform: scale(1.9) rotate(-24deg); opacity: 0; }
+          100% { transform: scale(1) rotate(-8deg); opacity: 1; }
+        }
+        .mg-stamp-name {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: 13px; line-height: 1.2; font-weight: 600;
+          color: var(--mg-text);
+        }
+        /* Six stamps in a row where there is room; two rows of three where not. */
+        @container (max-width: 370px) {
+          .mg-stamps { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 12px; }
+        }
+        .mg-punch-q {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(19px, 0.8vw + 13px, 26px); line-height: 1.35;
+          color: var(--mg-text); margin: 0 0 6px;
+        }
+        .mg-punch-hint {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: clamp(14px, 0.4vw + 11px, 17px);
+          color: color-mix(in srgb, var(--mg-text) 75%, transparent); margin: 0 0 14px;
+        }
+        .mg-punch-options { display: flex; flex-direction: column; gap: 10px; }
+        .mg-punch-option {
+          min-height: 52px; padding: 12px 18px; text-align: left;
+          border-radius: 8px; border: 1.5px solid color-mix(in srgb, var(--mg-gold) 55%, transparent);
+          background: color-mix(in srgb, var(--mg-burgundy-deep) 70%, black);
+          color: var(--mg-text);
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: clamp(16px, 0.5vw + 12px, 20px);
+          cursor: pointer; transition: background 0.2s, border-color 0.2s;
+        }
+        .mg-punch-option:hover { border-color: var(--mg-gold); background: color-mix(in srgb, var(--mg-gold) 14%, transparent); }
+        .mg-punch-option:focus-visible, .mg-punch-done:focus-visible { outline: 2px solid #a8d5e5; outline-offset: 3px; }
+        .mg-punch-option.missed {
+          cursor: default; opacity: 0.55; text-decoration: line-through;
+          border-style: dashed;
+        }
+        .mg-punch-option.missed:hover { background: color-mix(in srgb, var(--mg-burgundy-deep) 70%, black); border-color: color-mix(in srgb, var(--mg-gold) 55%, transparent); }
+        .mg-punch-miss {
+          font-family: 'Josefin Sans', sans-serif;
+          font-size: clamp(15px, 0.4vw + 12px, 18px);
+          color: #F0B37E; margin: 12px 0 0;
+        }
+        .mg-punch-done {
+          font-family: 'Playfair Display', serif;
+          font-size: clamp(19px, 0.8vw + 13px, 25px); line-height: 1.4;
+          color: var(--mg-gold-light); margin: 0; outline: none;
+        }
+        .mg-punch-done-mark { color: var(--mg-gold); }
+        .mg-right-col .mg-ticket-strip { margin-top: 24px; width: 100%; }
+        @media (max-width: 480px) {
+          .mg-punch { padding: 16px 14px 18px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .mg-stamp.fresh .mg-stamp-mark { animation: none; }
+        }
       `}</style>
 
       {/* Hidden audio */}
@@ -1213,6 +1237,7 @@ export default function MigrationMapPage() {
                 <button type="button" className="mg-pace-btn" aria-pressed={quickTrips} onClick={toggleQuickTrips}>
                   Quick trips between stops: {quickTrips ? 'on' : 'off'}
                 </button>
+                {currentCityIdx >= 0 && <TicketStrip ticket={ticket} colors={CITY_COLORS} />}
               </div>
             ) : (
               <div className="mg-people-key">
@@ -1316,6 +1341,15 @@ export default function MigrationMapPage() {
                     </div>
                   </div>
                   {city.music.note && <p className="mg-city-music-note">{city.music.note}</p>}
+
+                  <TicketPunch
+                    cityId={city.id}
+                    ticket={ticket}
+                    colors={CITY_COLORS}
+                    justStamped={justStamped}
+                    lastWrong={lastWrong?.cityId === city.id ? lastWrong.choice : null}
+                    onAnswer={(choice) => punch(city.id, choice)}
+                  />
 
                   {currentCityIdx < CITIES.length - 1 ? (<>
                     <button type="button" className="mg-train-ticket" onClick={boardToNext}>

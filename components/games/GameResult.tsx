@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useId, useRef, type CSSProperties, type ReactNode } from 'react';
 import { prefersReducedMotion } from '@/lib/a11y';
+import { Celebration } from './feedback/FeedbackKit';
 import type { GameAction, GamePip } from './types';
 import styles from './games.module.css';
 
@@ -22,6 +23,11 @@ type GameResultProps = {
   /** Any game-specific breakdown, placed between the message and the buttons. */
   children?: ReactNode;
   actions: GameAction[];
+  /**
+   * A good score: confetti and a fanfare (a still row of stars with reduced
+   * motion). Games pass isGoodScore(score, total) from the feedback kit.
+   */
+  celebrate?: boolean;
   /** Heading level of the title; pages without an h1 on the ending use 1. */
   level?: 1 | 2;
   className?: string;
@@ -45,6 +51,7 @@ export default function GameResult({
   pipsLabel = 'Round by round',
   children,
   actions,
+  celebrate = false,
   level = 2,
   className,
   style,
@@ -84,6 +91,7 @@ export default function GameResult({
 
   return (
     <section className={`${styles.result} ${className ?? ''}`} style={style} aria-labelledby={titleId}>
+      {celebrate && <Celebration />}
       {eyebrow && <p className={styles.eyebrow}>{eyebrow}</p>}
       <p className={styles.score}>
         <span ref={numberRef} className={styles.scoreNumber} aria-hidden="true">

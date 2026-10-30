@@ -10,7 +10,7 @@ FAMILY = {
   "hero": {"img": "/exhibitions/in-their-hands/hands.jpg", "pos": "center 40%"},
   "blocks": [
     ("section", {"label": "Welcome", "body": [
-      "Every coin in this exhibition was made, spent and held during the years of the New Testament. Some were in circulation when Jesus was born; one was minted in the very year of his Passion; others passed through the hands of the apostles. This guide will help you talk about the exhibition at home, whether your child visited with their class or you explore it online together."]}),
+      "Every coin in this exhibition was made, spent and held during the years of the New Testament. Some were in circulation when Jesus was born; one was minted within a few years of his Passion, which most scholars date to AD 30 or 33; others passed through the hands of the apostles. This guide will help you talk about the exhibition at home, whether your child visited with their class or you explore it online together."]}),
     ("section", {"label": "What is In Their Hands?", "title": "Eleven coins, three cases", "body": [
       "The exhibition follows the New Testament in three display cases. **Case 6, The World of Jesus,** holds the coins of the rulers at his birth. **Case 7, Ministry and Passion,** holds the coins of his teaching and his trial. **Case 8, The Early Church,** holds the coins of the rulers the apostles stood before. Eight of the coins are genuine; three — the Tribute Penny, the Shekel of Tyre and the coin of Herod Antipas — are museum-quality replicas, because originals are exceptionally rare."]}),
     ("gallery", [
@@ -48,7 +48,7 @@ FAMILY = {
           "What would you have said if someone tried to trap you with a hard question?"]})],
       [("section", {"label": "Grades 3–8", "list": [
           "Which coin surprised you most, and why?",
-          "Pilate’s coin was made in the very year of the Passion. What difference does it make to hold something from that year?",
+          "Pilate’s coin was made within a few years of the Passion. What difference does it make to hold something from that time?",
           "How can you tell a real ancient coin from a fake?",
           "Jesus said, *give back to Caesar what is Caesar’s, and to God what is God’s.* What belongs to God?"]})]]),
     ("section", {"label": "At home", "title": "Five things to try together"}),
