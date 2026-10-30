@@ -30,8 +30,6 @@ export const TOYS_TEXT = {
   zoeHeading: 'Zoetrope',
   makeHeading: 'Make your own',
   thaumaIntro: 'A bird on one side of the disc, an empty cage on the other. Twirl it: it starts very slowly, so you can watch each side go by, then speeds up little by little. Or slide the speed yourself.',
-  /** The toys' illustrations' credit (the zoetrope's drum, the thaumatrope's faces), as the owner gives it. */
-  credit: 'Illustration made with Leonardo.Ai',
   zoeIntro: 'A strip of drawings inside the drum, and slits in its wall to look through. Put your eye to the slits and spin it: it starts very slowly, so you see a slit crawl past, then speeds up little by little. Or slide the speed yourself.',
 };
 

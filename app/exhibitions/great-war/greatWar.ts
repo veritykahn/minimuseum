@@ -125,25 +125,18 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
   interactives: [
     {
       href: '/exhibitions/great-war/silence',
-      // The owner's illustration (Leonardo.Ai): a watch at 11:00, not a relic.
-      image: {
-        src: '/exhibitions/great-war/landing-guns-fell-silent.webp',
-        alt: 'An illustration of an open pocket watch at eleven o’clock on dark earth, a red poppy beside it and barbed wire behind',
-        credit: 'Illustration made with Leonardo.Ai',
-      },
+      image: { src: '/exhibitions/great-war/rooms/silence.webp', alt: 'The When the Guns Fell Silent room: the film’s title over a dark screen, ready to begin' },
       label: 'Interactive',
       title: 'When the Guns Fell Silent',
       subtitle: 'The last minute of the war',
     },
     {
       href: '/exhibitions/great-war/memorial',
-      image: {
-        src: '/exhibitions/great-war/silhouette.jpg',
-        alt: 'A soldier silhouetted beside a wooden cross on a hill, with red poppies',
-      },
+      image: { src: '/exhibitions/great-war/rooms/memorial.webp', alt: 'The Memorial room: a soldier’s silhouette by a cross against the sunset, poppies in the field' },
       label: 'Interactive',
       title: 'The Memorial',
       subtitle: 'A field of poppies, a soldier to remember, and the silence',

@@ -425,7 +425,7 @@ describe('the flag', () => {
 describe('wiring', () => {
   it('sets the room on the landing page, the projector, the map and the sitemap', () => {
     expect(AMERICA_250.interactives?.map((c) => [c.href, c.label, c.title])).toEqual([['/exhibitions/america-250/sign', 'Interactive', 'Put Your Name to It']]);
-    expect(AMERICA_250.interactives?.[0].image?.src).toMatch(/\.svg$/);
+    expect(AMERICA_250.interactives?.[0].image?.src).toBe('/exhibitions/america-250/rooms/sign.webp');
     expect(AMERICA_250.projector.links.map((l) => l.href)).toEqual(['/exhibitions/america-250/sign']);
     expect(getRoomByPath('/exhibitions/america-250/sign')?.id).toBe('ap-sign');
     expect(getLevelConfig('/exhibitions/america-250/sign').title).toBe('America 250');

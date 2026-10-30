@@ -17,6 +17,7 @@ export function caseRootStyle({ fonts, palette }: ExhibitionConfig): CssVars {
     '--pe-ui': fonts.ui ?? fonts.body,
     '--pe-accent': palette.accent,
     '--pe-heading': palette.heading,
+    '--pe-page': palette.page,
   };
 }
 

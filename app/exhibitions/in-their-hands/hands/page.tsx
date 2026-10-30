@@ -432,7 +432,7 @@ export default function HandsOfHistory() {
 
       {/* Header */}
       <header className="hh-header">
-        <button className="hh-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-7')}>
+        <button className="hh-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-7?view=interactives')}>
           <span aria-hidden="true">{'\u2190'}</span>
           Display Case
         </button>
@@ -552,7 +552,7 @@ export default function HandsOfHistory() {
             pipsLabel="Your rounds"
             actions={[
               { label: 'Play again', onClick: playAgain, primary: true },
-              { label: 'Back to Display Case', href: '/exhibitions/in-their-hands/artifacts/case-7' },
+              { label: 'Back to Display Case', href: '/exhibitions/in-their-hands/artifacts/case-7?view=interactives' },
             ]}
           >
             <p className="hh-final-text">{CLOSING}</p>

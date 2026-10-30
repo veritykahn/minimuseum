@@ -10,7 +10,6 @@
   --pe-hint: #b4c0d2;
   --pe-callout-bg: #fbf6ec;
   --pe-callout-ink: #1f3a5f;
-  --pe-poster-h: 46vh;
 }
 
 [data-exhibition='fear-lab'] .pe-exhibition-title h1 {
@@ -21,23 +20,24 @@
   font-weight: 600;
   letter-spacing: 0.02em;
 }
-[data-exhibition='fear-lab'] .pe-exhibition-grid { gap: 48px; }
 [data-exhibition='fear-lab'] .pe-poster-frame img { box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6); }
 
 [data-exhibition='fear-lab'] .pe-section-title-text { color: #f2b33d; }
 [data-exhibition='fear-lab'] .pe-paragraph-text { max-width: 680px; }
 
-/* The display case's card: a navy panel ruled in cream, as the posters box their copy. */
-[data-exhibition='fear-lab'] .pe-display-case {
-  width: auto;
-  max-width: 360px;
-  background: #13243b;
-  border: 2px solid rgba(251, 246, 236, 0.4);
-  padding: 18px 18px 22px;
+/* The display case's card: a navy arch ruled in cream, as the posters box
+   their copy, with a torch's beam falling into it from the top; the beam
+   turns marigold on hover, as the torch switches on. */
+[data-exhibition='fear-lab'] .pe-display-case { --pe-frame-fill: #13243b; --pe-frame-line: rgba(251, 246, 236, 0.45); --pe-frame-hover: #f2b33d; --pe-frame-weight: 2px; --pe-frame-inset: 9px; --pe-frame-foot: 6px; }
+[data-exhibition='fear-lab'] .pe-case-frame::after {
+  content: '';
+  position: absolute;
+  inset: 9px;
+  border-radius: inherit;
+  background: radial-gradient(ellipse 46% 40% at 50% 0%, rgba(251, 246, 236, 0.16), transparent 75%);
+  transition: background 0.4s ease;
 }
-[data-exhibition='fear-lab'] .pe-display-case:hover,
-[data-exhibition='fear-lab'] .pe-display-case:focus-visible { border-color: #f2b33d; }
-[data-exhibition='fear-lab'] .pe-case-image { height: auto; width: 100%; max-height: 30vh; }
+[data-exhibition='fear-lab'] .pe-display-case:is(:hover, :focus-visible) .pe-case-frame::after { background: radial-gradient(ellipse 52% 46% at 50% 0%, rgba(242, 179, 61, 0.28), transparent 75%); }
 [data-exhibition='fear-lab'] .pe-case-label { color: #b4c0d2; }
 [data-exhibition='fear-lab'] .pe-case-title { font-family: var(--pe-display); text-transform: uppercase; letter-spacing: 0.04em; color: #fbf6ec; font-size: 24px; }
 [data-exhibition='fear-lab'] .pe-case-subtitle { font-style: normal; font-weight: 600; color: #f2b33d; }
@@ -102,7 +102,6 @@
 [data-exhibition='fear-lab'] .pe-callout-img { background: #fff; padding: 8px; }
 
 @media (max-width: 900px) {
-  [data-exhibition='fear-lab'] { --pe-poster-h: 40vh; }
 }
 
 /* On a phone the clawed hand stays small enough to clear the walkthrough's arrows. */

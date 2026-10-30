@@ -26,21 +26,7 @@ import SpeedControl from './SpeedControl';
  * step by small step; the slider sets the speed by hand; a flick sideways
  * across either view spins it too. Under reduced motion the drum stays
  * still, and every drawing is shown side by side, stepped by hand.
- *
- * The drum's look is the owner's painting of a zoetrope (made with
- * Leonardo.Ai, credited in the room): its painted band of scrolls turns on
- * the drum's wall, and its turned wooden stand holds the drum up. The
- * slits, and the strip of drawings inside, are drawn here.
  */
-
-const LOOK_SRC = '/exhibitions/seeing-is-deceiving/optical-toys/zoetrope.webp';
-/** Where the painting's parts are, in its pixels: the drum's centre and half-width, its band of scrolls, and the stand under it. */
-const LOOK = { cx: 1505, r: 420, band: [452, 640], stand: [1205, 655, 600, 520] } as const;
-/** The stand's left edge in the painting, top to bottom (the right mirrors it), to cut it from the room behind. */
-const STAND_OUTLINE: [number, number][] = [
-  [1398, 655], [1404, 700], [1448, 745], [1438, 792], [1398, 858], [1418, 930], [1440, 968],
-  [1360, 1008], [1290, 1048], [1236, 1098], [1240, 1148], [1300, 1172], [1505, 1176],
-];
 
 export const ZOE_SEEN_LABEL = {
   still: 'Still: one slit, and a sliver of a drawing behind it',
@@ -86,7 +72,6 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
   // The frame loop calls itself through a ref, so it always runs the latest tick.
   const loop = useRef<FrameRequestCallback | null>(null);
   const last = useRef(0);
-  const look = useRef<HTMLImageElement | null>(null);
   const capRef = useRef(TOY_SPEEDS.zoetrope.top);
 
   // Paint the strip's twelve pictures once, off screen.
@@ -119,7 +104,7 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
   }, [strip]);
 
   const paint = useCallback(() => {
-    drawDrum(drum.current, angle.current, before.current, frames.current, look.current);
+    drawDrum(drum.current, angle.current, before.current, frames.current);
     drawEyepiece(eye.current, frames.current, angle.current);
   }, []);
 
@@ -159,19 +144,6 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
   }, [reduced]);
 
   useEffect(() => () => cancelAnimationFrame(raf.current), []);
-
-  // The painting, loaded once; until it comes (or if it never does), the drum is drawn whole.
-  useEffect(() => {
-    const img = new Image();
-    img.onload = () => {
-      look.current = img;
-      paint();
-    };
-    img.src = LOOK_SRC;
-    return () => {
-      img.onload = null;
-    };
-  }, [paint]);
 
   // Redraw as the stage changes size.
   useEffect(() => {
@@ -360,21 +332,16 @@ function prepare(c: HTMLCanvasElement | null) {
 }
 
 const mix = (a: number[], b: number[], t: number) => `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(',')})`;
-// The painted drum's dark lacquer, lit from the left.
-const WALL_DARK = [16, 12, 10];
-const WALL_LIGHT = [86, 64, 44];
+const WALL_DARK = [14, 17, 22];
+const WALL_LIGHT = [58, 74, 88];
 const SLIT_W = SLOT * 0.16;
 
-/**
- * The drum, from a little above: the strip on the far inside wall, the slits
- * in the near one. Given the painting, its band and stand dress the drum.
- */
-export function drawDrum(c: HTMLCanvasElement | null, phi: number, phiBefore: number, frames: CanvasImageSource[], look: HTMLImageElement | null = null) {
+/** The drum, from a little above: the strip on the far inside wall, the slits in the near one. */
+export function drawDrum(c: HTMLCanvasElement | null, phi: number, phiBefore: number, frames: CanvasImageSource[]) {
   const p = prepare(c);
   if (!p) return;
   const { g, W, H } = p;
-  // The painting's stand is taller than the drawn one: the drum a little smaller to make room.
-  const standScale = look ? (2 / (LOOK.r * 2)) * LOOK.stand[3] : 0.7;
+  const standScale = 0.7;
   const R = Math.min(W * 0.4, H / (0.64 + 0.62 + standScale + 0.04));
   const ry = R * 0.32;
   const Hw = R * 0.62;
@@ -389,24 +356,9 @@ export function drawDrum(c: HTMLCanvasElement | null, phi: number, phiBefore: nu
   g.beginPath();
   g.ellipse(cx, cy + Hw + stand, R * 0.75, ry * 0.5, 0, 0, TAU);
   g.fill();
-  if (look) {
-    // The painting's stand, cut out along its turned outline.
-    const [sx, sy, sw, sh] = LOOK.stand;
-    const k = R / LOOK.r;
-    const top = cy + Hw + ry * 0.4;
-    const at = (x: number, y: number): [number, number] => [cx + (x - LOOK.cx) * k, top + (y - sy) * k];
-    const half = STAND_OUTLINE.map(([x, y]) => at(x, y));
-    const outline = [...half, ...half.slice(0, -1).reverse().map(([x, y]) => [2 * cx - x, y] as [number, number])];
-    g.save();
-    g.beginPath();
-    outline.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
-    g.closePath();
-    g.clip();
-    g.drawImage(look, sx, sy, sw, sh, cx + (sx - LOOK.cx) * k, top, sw * k, sh * k);
-    g.restore();
-  } else drawStand(g, cx, cy, R, ry, Hw, stand);
+  drawStand(g, cx, cy, R, ry, Hw, stand);
 
-  drawWalls(g, cx, cy, R, ry, Hw, samples, frames, look);
+  drawWalls(g, cx, cy, R, ry, Hw, samples, frames);
 }
 
 /** The drawn stand: a brass column on a turned foot. */
@@ -449,7 +401,7 @@ function slitCover(tm: number, samples: number[]) {
   return open / samples.length;
 }
 
-function drawWalls(g: CanvasRenderingContext2D, cx: number, cy: number, R: number, ry: number, Hw: number, samples: number[], frames: CanvasImageSource[], look: HTMLImageElement | null) {
+function drawWalls(g: CanvasRenderingContext2D, cx: number, cy: number, R: number, ry: number, Hw: number, samples: number[], frames: CanvasImageSource[]) {
   const phi = samples[0];
   const SL = 120;
   // The far wall, seen from inside: the dark lining, the slits' light, and the strip
@@ -518,16 +470,6 @@ function drawWalls(g: CanvasRenderingContext2D, cx: number, cy: number, R: numbe
     const lit = Math.max(0, -0.55 * Math.cos(tm) + 0.83 * Math.sin(tm));
     g.fillStyle = mix(WALL_DARK, WALL_LIGHT, lit);
     g.fillRect(x0, yt, sw, Hw);
-    // the painting's band of scrolls, turning with the drum: each strip of wall takes the painting's at its angle on the drum
-    if (look) {
-      const th = (((tm - phi) % Math.PI) + Math.PI) % Math.PI;
-      const px = LOOK.cx + LOOK.r * Math.cos(th);
-      const pw = Math.max(1, LOOK.r * Math.sin(th) * (Math.PI / SL));
-      const [b0, b1] = LOOK.band;
-      g.globalAlpha = 0.55 + 0.45 * lit;
-      g.drawImage(look, px - pw / 2, b0, pw, b1 - b0, x0, yt + Hw * 0.5, sw, Hw * 0.48);
-      g.globalAlpha = 1;
-    }
     const a = (((tm - phi) % SLOT) + SLOT) % SLOT;
     const open = slitCover(tm, samples);
     if (open > 0) {
@@ -535,7 +477,7 @@ function drawWalls(g: CanvasRenderingContext2D, cx: number, cy: number, R: numbe
       g.fillRect(x0, yt + Hw * 0.04, sw, Hw * 0.3);
     }
     // a painted gold dot between each pair of slits, below them (the painting has its scrolls there)
-    if (!look && samples.length === 1 && Math.abs(a) < SLIT_W * 0.35) {
+    if (samples.length === 1 && Math.abs(a) < SLIT_W * 0.35) {
       g.fillStyle = `rgba(214, 178, 96, ${0.9 * (0.4 + lit * 0.6)})`;
       g.fillRect(x0, yt + Hw * 0.62, sw, Hw * 0.08);
     }
@@ -544,7 +486,7 @@ function drawWalls(g: CanvasRenderingContext2D, cx: number, cy: number, R: numbe
   g.lineWidth = Math.max(1.5, R * 0.012);
   for (const [f, col] of [
     [0.38, 'rgba(214, 178, 96, 0.9)'],
-    [look ? 0.49 : 0.86, 'rgba(214, 178, 96, 0.9)'],
+    [0.86, 'rgba(214, 178, 96, 0.9)'],
   ] as const) {
     g.strokeStyle = col;
     g.beginPath();

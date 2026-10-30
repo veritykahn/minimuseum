@@ -189,7 +189,6 @@ body:has(.sid-toys) { margin: 0; }
 }
 /* A note on the toy's history (owner-approved, fact-checked, not the poster's
    words): set small under the caption, its source linked. */
-.vto-credit { margin: 0; font-size: 10.5px; letter-spacing: 0.04em; line-height: 1.4; color: var(--sid-muted); opacity: 0.8; }
 .vto-fact { display: flex; flex-direction: column; gap: 3px; font-size: 0.8rem; line-height: 1.5; color: var(--sid-muted); }
 .vto-fact-source { font-size: 11px; letter-spacing: 0.03em; opacity: 0.9; }
 .vto-fact-source a { color: var(--sid-blue); text-decoration: underline; text-underline-offset: 3px; }
@@ -282,8 +281,7 @@ body:has(.sid-toys) { margin: 0; }
 .vt-disc { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
 .vt-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 .vt-face-back { transform: rotateX(180deg); }
-.vt-face-art { position: relative; display: block; width: 100%; height: 100%; isolation: isolate; }
-.vt-face-art img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; -webkit-user-drag: none; user-select: none; }
+.vt-face-art { display: block; width: 100%; height: 100%; }
 .vt-face .vt-face-art { filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.6)); }
 /* The lamp behind the disc: as light as the card, so the disc turning edge-on
    does not flash the dark room through. */

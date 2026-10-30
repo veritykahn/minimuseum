@@ -13,7 +13,7 @@ import NameThatInstrumentProjector from './NameThatInstrumentProjector';
 import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 
 /** "M ← Collection": the way back, unless the Studio opened the lab. */
-const COLLECTION: MuseumReturn = { href: '/exhibitions/harlem-renaissance/artifacts', label: 'Collection' };
+const COLLECTION: MuseumReturn = { href: '/exhibitions/harlem-renaissance/artifacts?view=interactives', label: 'Collection' };
 
 const TABS = [
   { id: 'band', label: 'Build a Band' },
