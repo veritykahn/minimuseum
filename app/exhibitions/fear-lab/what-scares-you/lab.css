@@ -234,7 +234,6 @@
 .fl-room .fl-fb-box:hover:not([aria-disabled]) { transform: translateY(-4px); filter: drop-shadow(0 0 14px rgba(242, 179, 61, 0.35)); }
 .fl-room .fl-fb-box[aria-disabled] { cursor: default; }
 .fl-fb-art { display: block; width: 100%; height: auto; overflow: visible; }
-.fl-fb-q { font-family: var(--pe-display); font-size: 40px; fill: var(--marigold); }
 .fl-fb-n { font-family: var(--pe-body); font-weight: 700; font-size: 11px; fill: rgba(251, 246, 236, 0.45); }
 /* The lid: shut, creaking slowly up while the box builds, then off to the side. */
 .fl-fb-lid { transform-origin: 8px 44px; transform-box: view-box; transition: transform 0.3s ease; }

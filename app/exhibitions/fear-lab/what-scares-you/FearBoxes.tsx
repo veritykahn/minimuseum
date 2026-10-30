@@ -77,22 +77,49 @@ function Pinecone() {
   );
 }
 
-/** A box on the shelf: its lid, its front with a number, and the dark inside. */
-function BoxArt({ n, open }: { n: number; open: boolean }) {
+/**
+ * The boxes on the shelf: the owner's crate, hatbox, chest and tin (made
+ * with Leonardo.Ai, cut out, lids shut; not credited on the page, at the owner's request), the fifth
+ * the crate again, turned the other way. Each picture's size, and where its
+ * lid meets the box, as a share of its height: the lid is cut from the
+ * picture there, and lifts on its own.
+ */
+const BOX_LOOKS = [
+  { src: '/exhibitions/fear-lab/boxes/box-crate.webp', w: 900, h: 609, lid: 0.23 },
+  { src: '/exhibitions/fear-lab/boxes/box-hatbox.webp', w: 900, h: 790, lid: 0.33 },
+  { src: '/exhibitions/fear-lab/boxes/box-chest.webp', w: 900, h: 637, lid: 0.46 },
+  { src: '/exhibitions/fear-lab/boxes/box-tin.webp', w: 828, h: 900, lid: 0.3 },
+];
+
+/** A box on the shelf: its picture, cut at the lid, the dark inside under the lid, and its number. */
+function BoxArt({ n, id = 'fl-fb-clip' }: { n: number; id?: string }) {
+  const look = BOX_LOOKS[(n - 1) % BOX_LOOKS.length];
+  const flip = n > BOX_LOOKS.length;
+  const k = Math.min(112 / look.w, 96 / look.h);
+  const w = look.w * k;
+  const h = look.h * k;
+  const x = (120 - w) / 2;
+  const y = 112 - h;
+  const lidY = y + h * look.lid;
+  const clip = `${id}-${n}`;
+  const pic = <image href={look.src} x={x} y={y} width={w} height={h} transform={flip ? 'matrix(-1 0 0 1 120 0)' : undefined} />;
   return (
     <svg viewBox="0 0 120 120" aria-hidden="true" className="fl-fb-art">
-      <ellipse cx="60" cy="114" rx="52" ry="5" fill="rgba(0,0,0,0.45)" />
+      <defs>
+        <clipPath id={`${clip}-body`}>
+          <rect x="0" y={lidY} width="120" height={120 - lidY} />
+        </clipPath>
+        <clipPath id={`${clip}-lid`}>
+          <rect x="0" y="0" width="120" height={lidY} />
+        </clipPath>
+      </defs>
+      <ellipse cx="60" cy="114" rx={w / 2 - 2} ry="4" fill="rgba(0,0,0,0.5)" />
       {/* The dark inside, seen once the lid is up. */}
-      <path d="M 14 44 L 106 44 L 98 54 L 22 54 Z" fill="#03060c" />
-      <rect x="14" y="50" width="92" height="62" fill="url(#fl-fb-front)" stroke="#0b1322" strokeWidth="2" />
-      {[66, 82, 98].map((y) => (
-        <line key={y} x1="16" y1={y} x2="104" y2={y} stroke="#0f1d33" strokeWidth="1.5" />
-      ))}
-      <text x="60" y="98" textAnchor="middle" className="fl-fb-q">{open ? '' : '?'}</text>
-      <text x="96" y="106" textAnchor="end" className="fl-fb-n">{n}</text>
-      <g className="fl-fb-lid">
-        <path d="M 8 38 L 112 38 L 112 50 L 8 50 Z" fill="#2c4a78" stroke="#0b1322" strokeWidth="2" />
-        <rect x="52" y="32" width="16" height="6" rx="2" fill="#f2b33d" opacity="0.8" />
+      <path d={`M ${x + 3} ${lidY} L ${x + w - 3} ${lidY} L ${x + w - 8} ${lidY - 7} L ${x + 8} ${lidY - 7} Z`} fill="#03060c" />
+      <g clipPath={`url(#${clip}-body)`}>{pic}</g>
+      <text x={x + w - 6} y={y + h - 6} textAnchor="end" className="fl-fb-n">{n}</text>
+      <g className="fl-fb-lid" style={{ transformOrigin: `${x + 2}px ${lidY}px` }}>
+        <g clipPath={`url(#${clip}-lid)`}>{pic}</g>
       </g>
     </svg>
   );
@@ -288,7 +315,7 @@ export default function FearBoxes({
               style={{ ['--build' as string]: `${BUILD_MS}ms` } as CSSProperties}
               aria-hidden="true"
             >
-              <BoxArt n={n} open={phase === 'out'} />
+              <BoxArt n={n} id="fl-fb-dark-clip" />
             </div>
             {phase === 'out' && !isScary(content) && (
               <div className="fl-fb-gift" data-kind={content.kind} aria-hidden="true">
@@ -308,14 +335,6 @@ export default function FearBoxes({
     <div ref={root} className="fl-box fl-fb" data-phase={phase} data-motion={motion ? 'on' : 'off'}>
       {overlay}
       <div className="fl-box-scene fl-fb-scene">
-        <svg width="0" height="0" aria-hidden="true" style={{ position: 'absolute' }}>
-          <defs>
-            <linearGradient id="fl-fb-front" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stopColor="#25406a" />
-              <stop offset="1" stopColor="#152741" />
-            </linearGradient>
-          </defs>
-        </svg>
         <span className="fl-fb-spot" aria-hidden="true" />
 
         <div className="fl-fb-shelf" role="group" aria-label="Fear boxes">
@@ -336,7 +355,7 @@ export default function FearBoxes({
                 aria-label={opened[i] ? `Box ${i + 1}, opened: ${said(c)}` : `Box ${i + 1}`}
                 onClick={() => pick(i)}
               >
-                <BoxArt n={i + 1} open={opened[i]} />
+                <BoxArt n={i + 1} />
                 {opened[i] && !isOpen && (
                   <span className="fl-fb-done" aria-hidden="true">
                     {said(c)}
