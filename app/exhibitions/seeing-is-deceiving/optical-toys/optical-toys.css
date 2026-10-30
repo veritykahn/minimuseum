@@ -189,6 +189,7 @@ body:has(.sid-toys) { margin: 0; }
 }
 /* A note on the toy's history (owner-approved, fact-checked, not the poster's
    words): set small under the caption, its source linked. */
+.vto-credit { margin: 0; font-size: 10.5px; letter-spacing: 0.04em; line-height: 1.4; color: var(--sid-muted); opacity: 0.8; }
 .vto-fact { display: flex; flex-direction: column; gap: 3px; font-size: 0.8rem; line-height: 1.5; color: var(--sid-muted); }
 .vto-fact-source { font-size: 11px; letter-spacing: 0.03em; opacity: 0.9; }
 .vto-fact-source a { color: var(--sid-blue); text-decoration: underline; text-underline-offset: 3px; }
@@ -273,7 +274,10 @@ body:has(.sid-toys) { margin: 0; }
 .vt-disc { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
 .vt-face { position: absolute; inset: 0; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 .vt-face-back { transform: rotateX(180deg); }
-.vt-face-art { display: block; width: 100%; height: 100%; }
+.vt-face-art { position: relative; display: block; width: 100%; height: 100%; isolation: isolate; }
+.vt-face-art img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; -webkit-user-drag: none; user-select: none; }
+/* Both sides together: the cage over the bird, the paper multiplied away so each drawing shows through. */
+.vt-face-art img.vt-face-over { mix-blend-mode: multiply; }
 .vt-face .vt-face-art, .vt-blend .vt-face-art { filter: drop-shadow(0 0 30px rgba(255, 236, 200, 0.12)) drop-shadow(0 18px 22px rgba(0, 0, 0, 0.6)); }
 .vt-blend { position: absolute; inset: 0; pointer-events: none; }
 /* Merged, the disc's rim blurs with the speed. */

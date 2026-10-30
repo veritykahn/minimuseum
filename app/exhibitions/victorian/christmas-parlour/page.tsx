@@ -10,8 +10,8 @@ import { PARLOUR_TEXT, PARTS, type PartId } from './parlourText';
 import './parlour.css';
 
 /*
- * Dickens' Christmas parlour, on one screen: a parlour on Christmas Eve,
- * dim at first, and beside it the green linen card. Open the parts of a
+ * Dickens' Christmas parlour, on one screen: a parlour on Christmas Eve
+ * (the owner's paintings, ParlourScene), cold at first, and beside it the green linen card. Open the parts of a
  * Victorian Christmas the poster names (the clock, the tree, the cards, the
  * book, the window, the fire), in the room or from the card's list, in any
  * order: each comes to life, the room grows warmer, and the card sets the
@@ -114,6 +114,7 @@ export default function VictorianChristmasParlour() {
               </button>
             </div>
           )}
+
         </section>
 
         <p className="vbr-status" role="status" aria-live="polite">{status}</p>
