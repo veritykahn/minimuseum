@@ -1,23 +1,26 @@
 'use client';
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
-import FactNote from '@/components/exhibition/FactNote';
 import Celebrate from '../Celebrate';
-import { MORSE, NOTES, POSTER, READ_WORDS, SEND_WORDS, WIRE_STEPS, WORKSHOP_TEXT } from './inventionsText';
-import { StepButtons, StepDots } from './Steps';
-import { DIAL, NEEDLES, needleAngles, spell } from './workshop';
+import { MORSE, NOTES, POSTER, READ_WORDS, SEND_WORDS, WIRE_STEPS } from './inventionsText';
+import { CardFoot, StepDots } from './Steps';
+import TelegramBench from './Telegram';
+import { DIAL, NEEDLES, marks, needleAngles, spell } from './workshop';
 
 /*
- * The telegraph bench, in three parts. First, how a telegraph works, step
+ * The telegraph bench, in four parts. First, how a telegraph works, step
  * by step: a battery, a key, a wire, a coil and a needle drawn as one
  * circuit; press the key and the current runs along the wire, the coil
  * glows and the needle swings; then Morse's dots and dashes, tapped on the
- * key. Then the five-needle dial, its 20 letters set in a diamond round the
- * row of needles, as on the 1837 instrument (C, J, Q, U, X and Z left off).
- * Press a letter (each is a button) and its two needles swing to point to
- * it; send a word, and the needles spell it letter by letter; or read one:
- * the needles point, the visitor finds the letter, and a right guess turns
- * green with a burst of stars, a wrong one red.
+ * key. Then Cooke and Wheatstone's five-needle dial, Britain's telegraph of
+ * 1837, its 20 letters set in a diamond round the row of needles (C, J, Q,
+ * U, X and Z left off): press a letter and its two needles swing to point
+ * to it; send a word and the needles spell it; or read one, the visitor
+ * finding the letter the needles point to. Then telegrams in Morse code,
+ * sent and received (Telegram.tsx).
+ *
+ * The letters to find sit in fixed slots, and a right guess changes only
+ * colour and size about its own centre, so nothing shifts as it is read.
  */
 
 const SPELL_MS = 1400;
@@ -31,10 +34,18 @@ const left = (x: number) => `${(x / W) * 100}%`;
 const top = (y: number) => `${((y + H / 2) / H) * 100}%`;
 const FROM_MORSE = Object.fromEntries(Object.entries(MORSE).map(([k, v]) => [v, k]));
 
-type Mode = 'how' | 'send' | 'read';
+type Mode = 'how' | 'needles' | 'send' | 'receive';
+/** The four parts, each with a short name for a phone's one row. */
+const MODES: { id: Mode; label: string; short: string }[] = [
+  { id: 'how', label: 'How it works', short: 'How' },
+  { id: 'needles', label: 'Needle dial', short: 'Needles' },
+  { id: 'send', label: 'Send a telegram', short: 'Send' },
+  { id: 'receive', label: 'Receive a telegram', short: 'Receive' },
+];
 
-export default function Telegraph({ reduced, footer }: { reduced: boolean; footer?: React.ReactNode }) {
+export default function Telegraph({ reduced }: { reduced: boolean }) {
   const [mode, setMode] = useState<Mode>('how');
+  const [dial, setDial] = useState<'send' | 'read'>('send');
   const [step, setStep] = useState(0);
   const [pressedSteps, setPressedSteps] = useState<Set<number>>(() => new Set());
   const [live, setLive] = useState(false);
@@ -56,6 +67,8 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
   // While a word is sent, the needles point to its letter on the way; otherwise to the last one pressed.
   const shown = queue[0] ?? pressed;
   const stepId = WIRE_STEPS[step].id;
+  const sending = mode === 'needles' && dial === 'send';
+  const readingMode = mode === 'needles' && dial === 'read';
 
   // Sending: the needles spell the queue, a letter at a time.
   useEffect(() => {
@@ -84,8 +97,8 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
   }, [tap, live]);
 
   const target = READ_WORDS[word % READ_WORDS.length];
-  const reading = mode === 'read' && read.length < target.length;
-  const angles = needleAngles(mode === 'read' ? (reading ? target[read.length] : null) : mode === 'send' ? shown : null);
+  const reading = readingMode && read.length < target.length;
+  const angles = needleAngles(readingMode ? (reading ? target[read.length] : null) : sending ? shown : null);
 
   /* ── The key ── */
   const keyDown = () => {
@@ -120,7 +133,7 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
 
   /* ── The dial ── */
   const press = (letter: string) => {
-    if (mode === 'send') {
+    if (sending) {
       setQueue([]);
       setPressed(letter);
       setMessage((m) => (m + letter).slice(0, 24));
@@ -128,15 +141,14 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
       return;
     }
     if (!reading) return;
+    guessN.current += 1;
     if (letter === target[read.length]) {
       const next = read + letter;
       setRead(next);
-      guessN.current += 1;
       setGuess({ letter, ok: true, n: guessN.current });
       setBurst((b) => b + 1);
       setStatus(next.length === target.length ? `You read the word: ${target}.` : `${letter}. Right. The needles point to the next letter.`);
     } else {
-      guessN.current += 1;
       setGuess({ letter, ok: false, n: guessN.current });
       setStatus(`Not ${letter}. Look again at which two needles lean, and which way.`);
     }
@@ -150,29 +162,55 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
     setStatus(`Sending ${letters.join('')}.${skipped.length ? ` ${skipped.join(', ')} ${skipped.length > 1 ? 'are' : 'is'} not on the dial, and left out.` : ''}`);
   };
 
-  const switchMode = (m: Mode) => {
-    setMode(m);
+  const reset = () => {
     setMissing([]);
     setQueue([]);
     setPressed(null);
     setRead('');
     setGuess(null);
     setLive(false);
-    setStatus(m === 'read' ? 'The needles point to a letter. Which is it?' : m === 'send' ? 'The five-needle dial. Press a letter.' : 'How a telegraph works.');
+  };
+  const switchMode = (m: Mode) => {
+    setMode(m);
+    reset();
+    setStatus(m === 'needles' ? 'The five-needle dial. Press a letter.' : m === 'how' ? 'How a telegraph works.' : m === 'send' ? 'Send a telegram.' : 'Receive a telegram.');
+  };
+  const switchDial = (d: 'send' | 'read') => {
+    setDial(d);
+    reset();
+    setStatus(d === 'read' ? 'The needles point to a letter. Which is it?' : 'The five-needle dial. Press a letter.');
   };
 
   const goStep = (i: number) => {
-    setStep(Math.max(0, Math.min(WIRE_STEPS.length - 1, i)));
+    const to = Math.max(0, Math.min(WIRE_STEPS.length - 1, i));
+    setStep(to);
     setLive(false);
-    setStatus(`Step ${i + 1}: ${WIRE_STEPS[Math.max(0, Math.min(WIRE_STEPS.length - 1, i))].title}.`);
+    setStatus(`Step ${to + 1}: ${WIRE_STEPS[to].title}.`);
   };
 
-  const pointed = mode === 'read' ? (reading ? target[read.length] : null) : shown;
-  const wordDone = mode === 'read' && !reading;
-  const verdict = (l: string) => (mode === 'read' && guess && guess.letter === l ? (guess.ok ? 'right' : 'wrong') : undefined);
+  const pointed = readingMode ? (reading ? target[read.length] : null) : shown;
+  const wordDone = readingMode && !reading;
+  const verdict = (l: string) => (readingMode && guess && guess.letter === l ? (guess.ok ? 'right' : 'wrong') : undefined);
+
+  const modes = (
+    <div className="vbr-options vbi-modes" role="group" aria-label="The telegraph’s parts">
+      {MODES.map((m) => (
+        <button key={m.id} type="button" className="vbr-option" aria-pressed={mode === m.id} aria-label={m.label} onClick={() => switchMode(m.id)}>
+          <span className="vbi-mode-long">{m.label}</span>
+          <span className="vbi-mode-short" aria-hidden="true">
+            {m.short}
+          </span>
+        </button>
+      ))}
+    </div>
+  );
+
+  if (mode === 'send' || mode === 'receive') return <TelegramBench key={mode} mode={mode} reduced={reduced} modes={modes} />;
+
+  const howFacts = stepId === 'wire' ? [NOTES.wire] : stepId === 'coil' ? [NOTES.oersted] : stepId === 'needle' ? [NOTES.needles] : stepId === 'morse' ? [NOTES.morse, NOTES.morseBritain] : [NOTES.wire];
 
   return (
-    <div className="vbi-bench">
+    <div className="vbi-bench vbi-telegraph">
       <div className="vbr-scene vbi-scene">
         {mode === 'how' ? (
           <Circuit step={stepId} live={live} tap={tap} decoded={decoded} onDown={keyDown} onUp={keyUp} />
@@ -201,7 +239,7 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
                   key={l.letter}
                   type="button"
                   className="vbi-letter"
-                  data-pointed={pointed === l.letter && mode === 'send' ? true : undefined}
+                  data-pointed={pointed === l.letter && sending ? true : undefined}
                   data-verdict={verdict(l.letter)}
                   // A new key each guess, so the same letter guessed twice flashes again.
                   data-n={verdict(l.letter) ? guess?.n : undefined}
@@ -209,7 +247,7 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
                   onClick={() => press(l.letter)}
                   aria-label={l.letter}
                 >
-                  {l.letter}
+                  <span className="vbi-letter-face">{l.letter}</span>
                 </button>
               ))}
               {angles.map((a, k) => (
@@ -223,23 +261,15 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
                 </span>
               )}
             </div>
-            <p className="vbi-board-name" aria-hidden="true">Cooke &amp; Wheatstone · 1837 · 20 letters</p>
+            <p className="vbi-board-name" aria-hidden="true">
+              Cooke &amp; Wheatstone · 1837 · 20 letters
+            </p>
           </div>
         )}
       </div>
 
       <div className="vbr-card vbi-card">
-        <div className="vbr-options vbi-modes" role="group" aria-label="How it works, send or read">
-          <button type="button" className="vbr-option" aria-pressed={mode === 'how'} onClick={() => switchMode('how')}>
-            How it works
-          </button>
-          <button type="button" className="vbr-option" aria-pressed={mode === 'send'} onClick={() => switchMode('send')}>
-            Send a word
-          </button>
-          <button type="button" className="vbr-option" aria-pressed={mode === 'read'} onClick={() => switchMode('read')}>
-            Read the needles
-          </button>
-        </div>
+        {modes}
 
         {mode === 'how' && (
           <>
@@ -249,169 +279,175 @@ export default function Telegraph({ reduced, footer }: { reduced: boolean; foote
             <p className="vbi-task">
               <span className="vbi-task-mark" aria-hidden="true">▸</span> {WIRE_STEPS[step].task}
             </p>
-            <button
-              type="button"
-              className="vbi-key-button"
-              data-live={live || undefined}
-              aria-pressed={live}
-              onPointerDown={(e) => {
-                try {
-                  e.currentTarget.setPointerCapture?.(e.pointerId);
-                } catch {}
-                keyDown();
-              }}
-              onPointerUp={keyUp}
-              onPointerCancel={keyUp}
-              onLostPointerCapture={keyUp}
-              {...keyKeys}
-            >
-              {live ? 'Current flowing…' : 'Press the key'}
-            </button>
-            {stepId === 'morse' && (
-              <p className="vbi-readout vbi-morse-read" aria-live="polite">
-                Tapped: <strong className="vbi-morse-marks">{tap ? tap.replace(/\./g, '•').replace(/-/g, '—') : '…'}</strong>
-                {decoded && (
-                  <>
-                    {' '}
-                    Spells: <strong>{decoded}</strong>
-                  </>
-                )}
-              </p>
-            )}
-            {stepId === 'morse' && (
-              <div className="vbi-morse-help">
-                <span className="vbr-label">Try these letters</span>
-                <ul className="vbi-morse-chips">
+            <div className="vbi-step-area">
+              <button
+                type="button"
+                className="vbi-key-button"
+                data-live={live || undefined}
+                aria-pressed={live}
+                onPointerDown={(e) => {
+                  try {
+                    e.currentTarget.setPointerCapture?.(e.pointerId);
+                  } catch {}
+                  keyDown();
+                }}
+                onPointerUp={keyUp}
+                onPointerCancel={keyUp}
+                onLostPointerCapture={keyUp}
+                onContextMenu={(e) => e.preventDefault()}
+                {...keyKeys}
+              >
+                {live ? 'Current flowing…' : 'Press the key'}
+              </button>
+              {stepId === 'morse' && (
+                <p className="vbi-readout vbi-morse-read" aria-live="polite">
+                  Tapped: <strong className="vbi-morse-marks">{tap ? marks(tap) : '…'}</strong>
+                  {decoded && (
+                    <>
+                      {' '}
+                      Spells: <strong className="vbi-morse-marks">{decoded}</strong>
+                    </>
+                  )}
+                </p>
+              )}
+              {stepId === 'morse' && (
+                <ul className="vbi-morse-chips" aria-label="Try these letters">
                   {'ETAIMNOS'.split('').map((k) => (
                     <li key={k}>
-                      <strong>{k}</strong> <span aria-label={MORSE[k].replace(/\./g, 'dot ').replace(/-/g, 'dash ').trim()}>{MORSE[k].replace(/\./g, '•').replace(/-/g, '—')}</span>
+                      <strong>{k}</strong> <span aria-label={MORSE[k].replace(/\./g, 'dot ').replace(/-/g, 'dash ').trim()}>{marks(MORSE[k])}</span>
                     </li>
                   ))}
                 </ul>
-              </div>
-            )}
-            {stepId === 'wire' && <FactNote fact={NOTES.wire} className="vbr-fact" />}
-            {stepId === 'coil' && <FactNote fact={NOTES.oersted} className="vbr-fact" />}
-            {stepId === 'needle' && <FactNote fact={NOTES.needles} className="vbr-fact" />}
-            {stepId === 'morse' && <FactNote fact={NOTES.morse} className="vbr-fact" />}
-            <StepButtons at={step} count={WIRE_STEPS.length} onGo={goStep} />
-            {step === WIRE_STEPS.length - 1 && (
-              <button type="button" className="vbr-button vbr-button-primary" onClick={() => switchMode('send')}>
-                Now try the five-needle telegraph <span aria-hidden="true">→</span>
-              </button>
-            )}
+              )}
+              {step === WIRE_STEPS.length - 1 && (
+                <button type="button" className="vbr-button vbr-button-primary" onClick={() => switchMode('needles')}>
+                  Now try the five-needle telegraph <span aria-hidden="true">→</span>
+                </button>
+              )}
+            </div>
+            <CardFoot at={step} count={WIRE_STEPS.length} onGo={goStep} facts={howFacts} reset={step} />
           </>
         )}
 
-        {mode === 'send' && (
+        {mode === 'needles' && (
           <>
-            <p className="vbr-intro vbi-step-body">{WORKSHOP_TEXT.telegraphIntro}</p>
-            <label className="vbr-field">
-              <span className="vbr-label">Your word</span>
-              <input type="text" value={message} onChange={(e) => setMessage(e.target.value.slice(0, 24))} maxLength={24} autoComplete="off" spellCheck={false} />
-            </label>
-            <div className="vbr-actions">
-              <button type="button" className="vbr-button vbr-button-primary" onClick={() => send()} disabled={!spell(message).letters.length || queue.length > 0}>
-                Send it
+            <div className="vbr-options vbi-subtabs" role="group" aria-label="Send or read">
+              <button type="button" className="vbr-option" aria-pressed={dial === 'send'} onClick={() => switchDial('send')}>
+                Send a word
               </button>
-              <button
-                type="button"
-                className="vbr-button vbr-button-quiet"
-                onClick={() => {
-                  setMessage('');
-                  setQueue([]);
-                  setPressed(null);
-                  setMissing([]);
-                }}
-                disabled={!message}
-              >
-                Clear
+              <button type="button" className="vbr-option" aria-pressed={dial === 'read'} onClick={() => switchDial('read')}>
+                Read the needles
               </button>
             </div>
-            <div className="vbi-try" role="group" aria-label="Words the dial can spell">
-              <span className="vbr-label">Or tap a word</span>
-              <div className="vbr-options">
-                {SEND_WORDS.map((w) => (
-                  <button
-                    key={w}
-                    type="button"
-                    className="vbr-option"
-                    onClick={() => {
-                      setMessage(w);
-                      setPressed(null);
-                      send(w);
-                    }}
-                    disabled={queue.length > 0}
-                  >
-                    {w}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <p className="vbi-readout vbi-big-readout" aria-live="polite">
-              {shown ? (
+            <div className="vbi-step-area">
+              {sending && (
                 <>
-                  The needles point to <strong>{shown}</strong>
+                  <p className="vbi-step-body">Press a letter, or type a word and send it: two needles point to each letter.</p>
+                  <div className="vbi-send-row">
+                    <label className="vbr-field">
+                      <span className="vbr-label">Your word</span>
+                      <input type="text" value={message} onChange={(e) => setMessage(e.target.value.slice(0, 24))} maxLength={24} autoComplete="off" spellCheck={false} />
+                    </label>
+                    <button type="button" className="vbr-button vbr-button-primary" onClick={() => send()} disabled={!spell(message).letters.length || queue.length > 0}>
+                      Send it
+                    </button>
+                    <button
+                      type="button"
+                      className="vbr-button vbr-button-quiet"
+                      onClick={() => {
+                        setMessage('');
+                        setQueue([]);
+                        setPressed(null);
+                        setMissing([]);
+                      }}
+                      disabled={!message}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <div className="vbr-options" role="group" aria-label="Words the dial can spell">
+                    {SEND_WORDS.map((w) => (
+                      <button
+                        key={w}
+                        type="button"
+                        className="vbr-option"
+                        onClick={() => {
+                          setMessage(w);
+                          setPressed(null);
+                          send(w);
+                        }}
+                        disabled={queue.length > 0}
+                      >
+                        {w}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="vbi-readout vbi-big-readout vbi-pointed" aria-live="polite">
+                    {shown ? (
+                      <>
+                        The needles point to <strong className="vbi-slotchar">{shown}</strong>
+                      </>
+                    ) : (
+                      'The needles stand upright.'
+                    )}
+                  </p>
+                  <p className="vbr-note vbi-left" data-empty={!missing.length || undefined}>
+                    {missing.length > 0 ? `${missing.join(', ')} ${missing.length > 1 ? 'are' : 'is'} not on the dial, so ${missing.length > 1 ? 'they are' : 'it is'} left out.` : ' '}
+                  </p>
                 </>
-              ) : (
-                'The needles stand upright.'
               )}
-            </p>
-            {missing.length > 0 && (
-              <p className="vbr-note vbi-left">
-                {missing.join(', ')} {missing.length > 1 ? 'are' : 'is'} not on the dial, so {missing.length > 1 ? 'they are' : 'it is'} left out.
-              </p>
-            )}
-            <FactNote fact={NOTES.dialLetters} className="vbr-fact" />
-          </>
-        )}
 
-        {mode === 'read' && (
-          <>
-            <p className="vbi-step-body">Two needles lean to point to a letter: follow their lines to where they cross, and press it.</p>
-            <p className="vbi-readout vbi-word" aria-label={`The word so far: ${read || 'no letters yet'}`}>
-              {target.split('').map((c, i) => (
-                <span key={i} className="vbi-word-letter" data-read={i < read.length || undefined}>
-                  {i < read.length ? c : '·'}
-                </span>
-              ))}
-            </p>
-            <div className="vbi-feedback" aria-live="polite" data-verdict={wordDone ? 'right' : guess ? (guess.ok ? 'right' : 'wrong') : undefined}>
-              {!wordDone && <Celebrate burst={guess?.ok ? burst : 0} reduced={reduced} />}
-              {wordDone ? (
-                <p className="vbi-verdict">Well read! The word is {target}.</p>
-              ) : guess ? (
-                <p className="vbi-verdict">{guess.ok ? `Right! ${guess.letter}.` : `Not ${guess.letter}: try again.`}</p>
-              ) : (
-                <p className="vbi-verdict vbi-verdict-quiet">Which letter do the needles point to?</p>
+              {readingMode && (
+                <>
+                  <p className="vbi-step-body">Two needles lean. Follow their lines to where they cross, and press that letter.</p>
+                  <ol className="vbi-word" aria-label={`The word so far: ${read || 'no letters yet'}`} style={{ ['--n' as string]: target.length }}>
+                    {target.split('').map((c, i) => (
+                      <li key={i} className="vbi-word-letter" data-read={i < read.length || undefined} data-next={i === read.length || undefined}>
+                        <span className="vbi-word-dot" aria-hidden="true">
+                          ·
+                        </span>
+                        <span className="vbi-word-char">{i < read.length ? c : ''}</span>
+                      </li>
+                    ))}
+                  </ol>
+                  <div className="vbi-feedback" aria-live="polite" data-verdict={wordDone ? 'right' : guess ? (guess.ok ? 'right' : 'wrong') : undefined}>
+                    {/* Stars for a right letter, drawn over the card (they take no room of their own). */}
+                    {!wordDone && <Celebrate burst={guess?.ok ? burst : 0} reduced={reduced} />}
+                    {wordDone ? (
+                      <p className="vbi-verdict">Well read! The word is {target}.</p>
+                    ) : guess ? (
+                      <p className="vbi-verdict">{guess.ok ? `Right! ${guess.letter}.` : `Not ${guess.letter}: try again.`}</p>
+                    ) : (
+                      <p className="vbi-verdict vbi-verdict-quiet">Which letter do the needles point to?</p>
+                    )}
+                  </div>
+                  <div className="vbr-actions">
+                    <button
+                      type="button"
+                      className="vbr-button vbr-button-primary"
+                      onClick={() => {
+                        setWord((w) => w + 1);
+                        setRead('');
+                        setGuess(null);
+                        setStatus('A new word. The needles point to its first letter.');
+                      }}
+                    >
+                      {reading ? 'Another word' : 'Read another'}
+                    </button>
+                  </div>
+                </>
               )}
             </div>
-            <div className="vbr-actions">
-              <button
-                type="button"
-                className="vbr-button vbr-button-primary"
-                onClick={() => {
-                  setWord((w) => w + 1);
-                  setRead('');
-                  setGuess(null);
-                  setStatus('A new word. The needles point to its first letter.');
-                }}
-              >
-                {reading ? 'Another word' : 'Read another'}
-              </button>
-            </div>
+            <CardFoot facts={[NOTES.telegraph, NOTES.dialLetters, NOTES.needles]} poster={POSTER.innovations} reset={dial} />
           </>
         )}
-
-        {mode !== 'how' && <FactNote fact={NOTES.telegraph} className="vbr-fact" />}
-        <p className="vbr-poster">{POSTER.innovations}</p>
-        {footer}
       </div>
-      <p className="vbr-status" role="status" aria-live="polite">{status}</p>
+      <p className="vbr-status" role="status" aria-live="polite">
+        {status}
+      </p>
     </div>
   );
 }
-
 function pairOf(letter: string) {
   const l = DIAL.find((x) => x.letter === letter)!;
   return `${l.i} and ${l.j}, ${l.above ? 'above' : 'below'}`;
