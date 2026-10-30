@@ -213,19 +213,19 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'moon', label: 'Our Incredible\nMoon', path: '/exhibitions/moon',
     x: 25, y: 80, width: 140, height: 110, accentColor: COLORS.moon,
     parent: 'ground-floor',
-    children: ['mo-case'],
+    children: ['mo-case', 'mo-microscope'],
   },
   {
     id: 'egypt', label: 'Ancient Egypt', path: '/exhibitions/egypt',
     x: 180, y: 80, width: 140, height: 110, accentColor: COLORS.egypt,
     parent: 'ground-floor',
-    children: ['eg-case'],
+    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet'],
   },
   {
     id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
     x: 335, y: 80, width: 140, height: 110, accentColor: COLORS.inTheirHands,
     parent: 'ground-floor',
-    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', ...lessonsChild('in-their-hands')],
+    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', 'ith-resources', ...lessonsChild('in-their-hands')],
   },
   // Bottom row
   {
@@ -599,7 +599,11 @@ export const HARLEM_RENAISSANCE: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — In Their Hands (Floor Plan)
 //
-// Layout: each display case sits above the interactive it leads to
+// Layout: the Exhibition Hall with Resources beside it, and each display
+// case above the interactive it leads to
+// ┌─────────────────────┬──────────┐
+// │   Exhibition Hall   ╎Resources │
+// ├──────────╴ ╶────────┴──────────┤
 // ┌──────────┬──────────┬──────────┐
 // │  Case 6  │  Case 7  │  Case 8  │
 // ├── ───────┼── ───────┼── ───────┤
@@ -614,6 +618,8 @@ const ITH_FLOOR_PLAN: ExhibitionFloorPlan = {
   walls: [
     // Horizontal wall between Exhibition Hall and the cases (with doorway)
     ...wallWithDoorway(40, 130, 460, 130, 20),
+    // Between the Exhibition Hall and Resources (with doorway)
+    ...wallWithDoorway(340, 80, 340, 130),
 
     // Case row vertical walls
     ...wallWithDoorway(180, 130, 180, 245),  // between Case 6 and Case 7
@@ -633,8 +639,14 @@ const ITH_FLOOR_PLAN: ExhibitionFloorPlan = {
     {
       id: 'ith-entrance', label: 'Exhibition Hall', path: '/exhibitions/in-their-hands',
       accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
-      x: 40, y: 80, width: 420, height: 50,
-      labelX: 250, labelY: 105,
+      x: 40, y: 80, width: 300, height: 50,
+      labelX: 190, labelY: 105,
+    },
+    {
+      id: 'ith-resources', label: 'Resources', path: '/exhibitions/in-their-hands/resources',
+      accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
+      x: 340, y: 80, width: 120, height: 50,
+      labelX: 400, labelY: 105,
     },
     // Display cases
     {
@@ -801,32 +813,83 @@ export const GREAT_WAR: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Ancient Egypt (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and its six
+// interactive rooms beyond that, in the order the case lists them
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// └────────────────────────────────┘
+// ├──────╴ ╶──┬───╴ ╶───┬──╴ ╶─────┤
+// │ Your Name │ Rosetta  │  Tomb   │
+// ├──────╴ ╶──┼───╴ ╶───┼──╴ ╶─────┤
+// │Mummificat.│ Weighing │ Amulet  │
+// └───────────┴──────────┴─────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const EGYPT_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 320, rx: 3 },
   accentColor: COLORS.egypt,
   walls: [
-    ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 160, 460, 160),
+    // Under the case, a doorway into each room of the first row
+    ...wallWithDoorway(40, 240, 180, 240),
+    ...wallWithDoorway(180, 240, 320, 240),
+    ...wallWithDoorway(320, 240, 460, 240),
+    // And from each room of the first row into the one beneath it
+    ...wallWithDoorway(40, 320, 180, 320),
+    ...wallWithDoorway(180, 320, 320, 320),
+    ...wallWithDoorway(320, 320, 460, 320),
+    ...wallWithDoorway(180, 240, 180, 400),
+    ...wallWithDoorway(320, 240, 320, 400),
   ],
   rooms: [
     {
       id: 'eg-entrance', label: 'Exhibition Hall', path: '/exhibitions/egypt',
       accentColor: COLORS.egypt, parent: 'egypt',
-      x: 40, y: 80, width: 420, height: 100,
-      labelX: 250, labelY: 130,
+      x: 40, y: 80, width: 420, height: 80,
+      labelX: 250, labelY: 120,
     },
     {
       id: 'eg-case', label: 'Display Case', path: '/exhibitions/egypt/artifacts/case',
       accentColor: COLORS.egypt, parent: 'egypt',
-      x: 40, y: 180, width: 420, height: 100,
-      labelX: 250, labelY: 230,
+      x: 40, y: 160, width: 420, height: 80,
+      labelX: 250, labelY: 200,
+    },
+    {
+      id: 'eg-hieroglyph-name', label: 'Your Name in Hieroglyphs', path: '/exhibitions/egypt/hieroglyph-name',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 40, y: 240, width: 140, height: 80,
+      labelX: 110, labelY: 280,
+    },
+    {
+      id: 'eg-rosetta-stone', label: 'The Rosetta Stone Decoder', path: '/exhibitions/egypt/rosetta-stone',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 180, y: 240, width: 140, height: 80,
+      labelX: 250, labelY: 280,
+    },
+    {
+      id: 'eg-tomb', label: 'Tomb Explorer', path: '/exhibitions/egypt/tomb',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 320, y: 240, width: 140, height: 80,
+      labelX: 390, labelY: 280,
+    },
+    {
+      id: 'eg-mummification', label: 'Mummification, Step by Step', path: '/exhibitions/egypt/mummification',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 40, y: 320, width: 140, height: 80,
+      labelX: 110, labelY: 360,
+    },
+    {
+      id: 'eg-weighing-of-the-heart', label: 'The Weighing of the Heart', path: '/exhibitions/egypt/weighing-of-the-heart',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 180, y: 320, width: 140, height: 80,
+      labelX: 250, labelY: 360,
+    },
+    {
+      id: 'eg-amulet', label: 'Design an Amulet', path: '/exhibitions/egypt/amulet',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 320, y: 320, width: 140, height: 80,
+      labelX: 390, labelY: 360,
     },
   ],
 };
@@ -837,7 +900,7 @@ export const EGYPT: MapLevelConfig = {
   connections: [],
   title: 'Ancient Egypt',
   ...onFloorOf('egypt'),
-  ...withLessons(EGYPT_FLOOR_PLAN, '0 0 500 330', 'egypt'),
+  ...withLessons(EGYPT_FLOOR_PLAN, '0 0 500 450', 'egypt'),
 };
 
 // ═══════════════════════════════════════════════════════════════════

@@ -34,6 +34,7 @@ export const CONNECTIONS: RoomConnection[] = [
   ['in-their-hands', 'ith-case-6'],
   ['in-their-hands', 'ith-case-7'],
   ['in-their-hands', 'ith-case-8'],
+  ['in-their-hands', 'ith-resources'],
   ['ith-case-6', 'ith-timeline'],
   ['ith-case-7', 'ith-hands'],
   ['ith-case-8', 'ith-real-or-replica'],
@@ -62,6 +63,12 @@ export const CONNECTIONS: RoomConnection[] = [
   ['mo-case', 'mo-microscope'],
   ['ap-case', 'ap-sign'],
   ['fl-case', 'fl-what-scares-you'],
+  ['eg-case', 'eg-hieroglyph-name'],
+  ['eg-case', 'eg-rosetta-stone'],
+  ['eg-case', 'eg-tomb'],
+  ['eg-case', 'eg-mummification'],
+  ['eg-case', 'eg-weighing-of-the-heart'],
+  ['eg-case', 'eg-amulet'],
 
   // Each exhibition's Lessons room, once it has lessons
   ...Object.keys(LESSON_ROOM_IDS)

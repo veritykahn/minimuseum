@@ -311,6 +311,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    ...['hieroglyph-name', 'rosetta-stone', 'tomb', 'mummification', 'weighing-of-the-heart', 'amulet'].map((room) => ({
+      url: `${baseUrl}/exhibitions/egypt/${room}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
     {
       url: `${baseUrl}/exhibitions/in-their-hands`,
       lastModified,
