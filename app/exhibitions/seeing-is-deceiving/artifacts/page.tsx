@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { CaseViewTabs, caseViewIds, useCaseView } from '@/components/exhibition/CaseViews';
 
 type Artifact = {
   id: string;
@@ -46,7 +47,7 @@ const artifacts: Artifact[] = [
     id: 'perception-lab',
     title: 'Perception Lab',
     subtitle: 'Test Your Visual System',
-    image: '/exhibitions/seeing/artifacts/perception-lab-thumb.jpg',
+    image: '/exhibitions/seeing/rooms/perception-lab.webp',
     status: 'available',
     type: 'interactive',
     route: '/exhibitions/seeing-is-deceiving/illusions'
@@ -55,7 +56,7 @@ const artifacts: Artifact[] = [
     id: 'optical-toys',
     title: 'Optical Toys',
     subtitle: 'The Thaumatrope & the Zoetrope',
-    image: '/exhibitions/seeing/room-optical-toys.svg',
+    image: '/exhibitions/seeing/rooms/optical-toys.webp',
     status: 'available',
     type: 'interactive',
     route: '/exhibitions/seeing-is-deceiving/optical-toys'
@@ -64,6 +65,9 @@ const artifacts: Artifact[] = [
 
 export default function ArtifactsCollection() {
   const router = useRouter();
+  const [view, setView] = useCaseView();
+  const objects = artifacts.filter((a) => a.type === '3d');
+  const rooms = artifacts.filter((a) => a.type === 'interactive');
 
   // A card for an object or a room, each opening its own page.
   const card = (artifact: Artifact) => {
@@ -122,9 +126,9 @@ export default function ArtifactsCollection() {
 
         .artifacts-page {
           min-height: 100vh;
-          background: #0a0a0a;
-          color: #fafafa;
-          padding: 120px 40px 80px;
+          background: #e0dede;
+          color: #0a0a0a;
+          padding: clamp(80px, 11dvh, 110px) 40px 64px;
         }
 
         /* Navigation */
@@ -138,7 +142,7 @@ export default function ArtifactsCollection() {
           justify-content: space-between;
           align-items: center;
           padding: 24px 32px;
-          background: linear-gradient(to bottom, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0) 100%);
+          background: linear-gradient(to bottom, rgba(224,222,222,0.98) 0%, rgba(224,222,222,0) 100%);
         }
 
         .back-btn {
@@ -147,7 +151,7 @@ export default function ArtifactsCollection() {
           gap: 12px;
           background: none;
           border: none;
-          color: #a8d5e5;
+          color: #1f5a6e;
           font-family: 'Outfit', sans-serif;
           font-size: 12px;
           letter-spacing: 0.1em;
@@ -155,21 +159,28 @@ export default function ArtifactsCollection() {
           cursor: pointer;
           transition: all 0.3s ease;
         }
-        .back-btn:hover { color: #fff; }
+        .back-btn:hover { color: #0a0a0a; }
         .back-btn span { font-size: 18px; }
 
         /* Page header */
         .page-header {
           text-align: center;
-          margin-bottom: 60px;
+          margin-bottom: clamp(20px, 3.4dvh, 32px);
         }
+
+        /* Artifacts | Interactives (CaseViews), in the page's ink and blue. */
+        .sid-case-views { display: flex; width: max-content; margin: 0 auto clamp(24px, 4dvh, 40px); --pe-case-ink: #0a0a0a; --pe-accent: #1f5a6e; --pe-case-tab-on-ink: #fff; --pe-ui: 'Outfit', sans-serif; }
+        .sid-case-view[hidden] { display: none; }
+        /* A room's card shows the room itself, a screenshot, landscape. */
+        .artifacts-grid-rooms { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 820px; }
+        .artifacts-grid-rooms .artifact-image-container { width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 10px; }
 
         .page-label {
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #8a8a8a;
+          color: #3d3d3d;
           margin-bottom: 16px;
         }
 
@@ -177,7 +188,7 @@ export default function ArtifactsCollection() {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(2rem, 6vw, 3rem);
           font-weight: 300;
-          color: #fafafa;
+          color: #0a0a0a;
           margin-bottom: 12px;
         }
 
@@ -185,7 +196,7 @@ export default function ArtifactsCollection() {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(1rem, 2.5vw, 1.2rem);
           font-style: italic;
-          color: #a8d5e5;
+          color: #1f5a6e;
           max-width: 500px;
           margin: 0 auto;
         }
@@ -212,7 +223,7 @@ export default function ArtifactsCollection() {
           font-weight: 400;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #a8d5e5;
+          color: #1f5a6e;
         }
         .section-title::after {
           content: '';
@@ -220,7 +231,7 @@ export default function ArtifactsCollection() {
           width: 48px;
           height: 1px;
           margin: 16px auto 0;
-          background: rgba(168, 213, 229, 0.5);
+          background: rgba(31, 90, 110, 0.5);
         }
 
         @media (max-width: 1024px) {
@@ -248,8 +259,8 @@ export default function ArtifactsCollection() {
           align-items: center;
           gap: 16px;
           padding: 24px 16px;
-          background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-          border: 1px solid rgba(255,255,255,0.06);
+          background: linear-gradient(145deg, rgba(255,255,255,0.55), rgba(255,255,255,0.25));
+          border: 1px solid rgba(10,10,10,0.1);
           border-radius: 16px;
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -259,13 +270,13 @@ export default function ArtifactsCollection() {
         }
 
         .artifact-card.available:hover, .artifact-card.available:focus-visible {
-          border-color: rgba(168, 213, 229, 0.3);
-          background: linear-gradient(145deg, rgba(168, 213, 229, 0.06), rgba(168, 213, 229, 0.02));
+          border-color: rgba(31, 90, 110, 0.3);
+          background: linear-gradient(145deg, rgba(31, 90, 110, 0.06), rgba(31, 90, 110, 0.02));
           transform: translateY(-8px);
         }
 
         .artifact-card.available:hover .artifact-image-container, .artifact-card.available:focus-visible .artifact-image-container {
-          box-shadow: 0 20px 60px rgba(168, 213, 229, 0.15);
+          box-shadow: 0 20px 60px rgba(31, 90, 110, 0.15);
         }
 
         .artifact-card.available:hover .artifact-image, .artifact-card.available:focus-visible .artifact-image {
@@ -285,7 +296,7 @@ export default function ArtifactsCollection() {
           overflow: hidden;
           background: linear-gradient(145deg, #1a1a1a, #0d0d0d);
           box-shadow:
-            0 10px 40px rgba(0,0,0,0.4),
+            0 10px 30px rgba(0,0,0,0.22),
             inset 0 1px 0 rgba(255,255,255,0.05);
           transition: all 0.4s ease;
         }
@@ -321,7 +332,7 @@ export default function ArtifactsCollection() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 1.1rem;
           font-weight: 400;
-          color: #fafafa;
+          color: #0a0a0a;
           margin-bottom: 4px;
         }
 
@@ -329,7 +340,7 @@ export default function ArtifactsCollection() {
           font-family: 'Cormorant Garamond', serif;
           font-size: 0.85rem;
           font-style: italic;
-          color: #8a8a8a;
+          color: #3d3d3d;
           margin-bottom: 10px;
         }
 
@@ -356,15 +367,15 @@ export default function ArtifactsCollection() {
         }
 
         .status-available {
-          background: rgba(168, 213, 229, 0.1);
-          color: #a8d5e5;
-          border: 1px solid rgba(168, 213, 229, 0.3);
+          background: rgba(31, 90, 110, 0.1);
+          color: #1f5a6e;
+          border: 1px solid rgba(31, 90, 110, 0.3);
         }
 
         .status-coming-soon {
-          background: rgba(255, 255, 255, 0.03);
-          color: #808080;
-          border: 1px solid rgba(255, 255, 255, 0.08);
+          background: rgba(10, 10, 10, 0.04);
+          color: #555;
+          border: 1px solid rgba(10, 10, 10, 0.12);
         }
 
         .status-dot {
@@ -374,8 +385,8 @@ export default function ArtifactsCollection() {
         }
 
         .status-dot.active {
-          background: #a8d5e5;
-          box-shadow: 0 0 8px rgba(168, 213, 229, 0.6);
+          background: #1f5a6e;
+          box-shadow: 0 0 8px rgba(31, 90, 110, 0.6);
           animation: pulse 2s ease-in-out infinite;
         }
 
@@ -396,15 +407,15 @@ export default function ArtifactsCollection() {
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          background: rgba(168, 213, 229, 0.1);
-          border: 1px solid rgba(168, 213, 229, 0.3);
+          background: rgba(31, 90, 110, 0.1);
+          border: 1px solid rgba(31, 90, 110, 0.3);
           display: flex;
           align-items: center;
           justify-content: center;
           opacity: 0;
           transform: translateX(-10px);
           transition: all 0.3s ease;
-          color: #a8d5e5;
+          color: #1f5a6e;
           font-size: 14px;
         }
 
@@ -419,9 +430,9 @@ export default function ArtifactsCollection() {
           margin: 60px auto 0;
           padding: 16px 32px;
           background: transparent;
-          border: 1px solid rgba(255,255,255,0.15);
+          border: 1px solid rgba(10,10,10,0.3);
           border-radius: 100px;
-          color: #8a8a8a;
+          color: #3d3d3d;
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
@@ -431,8 +442,8 @@ export default function ArtifactsCollection() {
         }
 
         .return-btn:hover {
-          border-color: #a8d5e5;
-          color: #a8d5e5;
+          border-color: #1f5a6e;
+          color: #1f5a6e;
         }
       `}</style>
 
@@ -453,15 +464,22 @@ export default function ArtifactsCollection() {
         </p>
       </div>
 
-      {/* Artifacts grid */}
-      <div className="artifacts-grid artifacts-grid-objects">
-        {artifacts.filter((a) => a.type === '3d').map(card)}
+      <CaseViewTabs
+        view={view}
+        onChange={setView}
+        idPrefix="sid-case"
+        className="sid-case-views"
+        counts={{ artifacts: objects.length, interactives: rooms.length }}
+      />
+
+      {/* The objects in the case */}
+      <div className="sid-case-view" role="tabpanel" id={caseViewIds('sid-case', 'artifacts').panel} aria-labelledby={caseViewIds('sid-case', 'artifacts').tab} hidden={view !== 'artifacts'}>
+        <div className="artifacts-grid artifacts-grid-objects">{objects.map(card)}</div>
       </div>
 
       {/* The rooms that open from the case */}
-      <h2 className="section-title">Interactives</h2>
-      <div className="artifacts-grid artifacts-grid-rooms">
-        {artifacts.filter((a) => a.type === 'interactive').map(card)}
+      <div className="sid-case-view" role="tabpanel" id={caseViewIds('sid-case', 'interactives').panel} aria-labelledby={caseViewIds('sid-case', 'interactives').tab} hidden={view !== 'interactives'}>
+        <div className="artifacts-grid artifacts-grid-rooms">{rooms.map(card)}</div>
       </div>
 
       {/* Return button */}

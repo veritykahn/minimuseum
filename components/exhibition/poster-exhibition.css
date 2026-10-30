@@ -328,58 +328,252 @@ img.pe-effect-erase { animation: peErase 10s ease forwards; }
 .pjp-stage .pe-text-content-wrapper.pe-has-figure.pe-figure-right { flex-direction: row-reverse; }
 .pjp-stage .pe-figure img { width: auto; max-width: calc(var(--pjp-u) * 34); max-height: calc(var(--pjp-u) * 36); }
 
-/* ───────── Landing page ───────── */
-.pe-exhibition-main {
-  min-height: 100vh;
+/* ───────── Landing page ─────────
+   The whole landing page fits on one screen: a compact head (title, subtitle,
+   "Teach with this"), then the row of posters and display cases filling the
+   height that is left, each sized to it, then any picture credits folded
+   into a toggle. The row is a size container: its items take their height
+   from its height (cqh) and their width from an equal share of its width
+   (--pe-share), so they never overflow it. On a phone the row becomes a
+   swipe row (LandingRow). The pe-landing-* rules carry the layout for the
+   hand-built exhibitions too; their own classes carry only their look. */
+.pe-root .pe-landing {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: var(--pe-landing-top, clamp(60px, 9dvh, 88px)) clamp(16px, 3vw, 40px) var(--pe-landing-foot, clamp(14px, 3dvh, 32px));
+  gap: var(--pe-landing-gap, clamp(10px, 2.4dvh, 26px));
+  overflow: hidden;
+}
+/* The live region after it would otherwise hang a pixel below the screen. */
+.pe-root .pe-landing ~ .visually-hidden { top: 0; left: 0; }
+.pe-root .pe-landing .pe-landing-head { flex: none; margin: 0; text-align: center; }
+.pe-root .pe-landing .pe-landing-head h1 {
+  font-size: var(--pe-landing-h1, clamp(1.9rem, min(5.4vw, 7.6dvh), 4.4rem));
+  line-height: 1.04;
+  margin: 0 0 clamp(2px, 0.8dvh, 8px);
+}
+.pe-root .pe-landing .pe-landing-head p { font-size: var(--pe-landing-sub, clamp(0.95rem, min(2.2vw, 2.9dvh), 1.35rem)); line-height: 1.3; }
+.pe-root .pe-landing .pe-landing-head .pe-teach-row { margin-top: clamp(8px, 1.8dvh, 18px); }
+
+.pe-root .pe-landing .pe-landing-row {
+  --pe-row-gap: var(--pe-landing-row-gap, clamp(16px, 3vw, 48px));
+  --pe-share: calc((100cqw - (var(--pe-n, 3) - 1) * var(--pe-row-gap)) / var(--pe-n, 3));
+  /* the "Click to explore" line under a poster */
+  --pe-hint-h: 26px;
+  position: relative;
+  flex: 1 1 0;
+  min-height: 0;
+  width: 100%;
+  max-width: 1500px;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pe-row-gap);
+  margin: 0;
+}
+.pe-root .pe-landing .pe-landing-row > * { flex: 0 1 auto; min-width: 0; max-width: var(--pe-share); }
+/* A poster: as large as the row allows, never wider than its share. */
+.pe-root .pe-landing .pe-landing-poster img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: var(--pe-share);
+  max-height: calc(100cqh - var(--pe-hint-h) - 10px);
+  margin: 0 auto;
+}
+.pe-root .pe-landing .pe-landing-poster > span:last-child {
+  position: static;
+  transform: none;
+  display: block;
+  height: var(--pe-hint-h);
+  line-height: var(--pe-hint-h);
+  margin: 0;
+  text-align: center;
+}
+/* A display case: its picture takes what the row's height leaves after its words. */
+.pe-root .pe-landing .pe-landing-case {
+  --pe-case-words: 104px;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 80px 40px 40px;
-  gap: 32px;
+  width: auto;
+  max-height: 100cqh;
+  min-height: 0;
+  text-align: center;
 }
-.pe-exhibition-title { text-align: center; margin-bottom: 8px; }
+.pe-root .pe-landing .pe-landing-case > img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: calc(100cqh - var(--pe-case-words) - var(--pe-case-pad-y, 40px));
+  margin: 0 auto clamp(6px, 1.4dvh, 14px);
+  object-fit: contain;
+}
+.pe-root .pe-landing .pe-landing-case .pe-case-placeholder-card { margin-bottom: clamp(4px, 1.2dvh, 12px); gap: clamp(4px, 1dvh, 12px); }
+/* The drawing is 240 × 190; its label adds a line. */
+.pe-root .pe-landing .pe-landing-case .pe-case-placeholder-card .pe-case-placeholder-art {
+  width: min(280px, calc(var(--pe-share) - 64px), calc((100cqh - var(--pe-case-words) - var(--pe-case-pad-y, 40px) - 40px) * 1.26));
+}
+.pe-root .pe-landing .pe-landing-case :is(p, .pe-case-placeholder) { position: relative; z-index: 1; }
+
+/* A tall screen wider than a phone (an iPad held upright): the posters side
+   by side, and the display cases in a row of their own under them. */
+@media (min-width: 641px) and (max-aspect-ratio: 5 / 6) {
+  .pe-root .pe-landing .pe-landing-row {
+    flex-wrap: wrap;
+    align-content: center;
+    row-gap: 0;
+    --pe-row-h: calc((100cqh - clamp(16px, 2.6dvh, 32px)) / 2);
+  }
+  .pe-root .pe-landing .pe-landing-poster {
+    order: 1;
+    --pe-share: calc((100cqw - (var(--pe-posters) - 1) * var(--pe-row-gap)) / var(--pe-posters));
+  }
+  .pe-root .pe-landing .pe-landing-poster img { max-height: calc(var(--pe-row-h) * 1.12 - var(--pe-hint-h) - 10px); }
+  .pe-root .pe-landing .pe-landing-case {
+    order: 2;
+    margin-top: clamp(16px, 2.6dvh, 32px);
+    --pe-share: calc((100cqw - (var(--pe-cases) - 1) * var(--pe-row-gap)) / var(--pe-cases));
+    max-height: calc(var(--pe-row-h) * 0.88);
+  }
+  .pe-root .pe-landing .pe-landing-case > img { max-height: calc(var(--pe-row-h) * 0.88 - var(--pe-case-words) - var(--pe-case-pad-y, 40px)); }
+  .pe-root .pe-landing .pe-landing-case .pe-case-placeholder-card .pe-case-placeholder-art {
+    width: min(280px, calc(var(--pe-share) - 64px), calc((var(--pe-row-h) * 0.88 - var(--pe-case-words) - var(--pe-case-pad-y, 40px) - 40px) * 1.26));
+  }
+  /* A line break in the row, so the cases start their own. */
+  .pe-root .pe-landing .pe-landing-row::before { content: ''; order: 1; flex-basis: 100%; height: 0; }
+}
+
+/* Phones: a swipe row, an item at a time, the next peeking in. */
+@media (max-width: 640px) {
+  .pe-root .pe-landing { --pe-landing-top: 64px; padding-left: 0; padding-right: 0; }
+  .pe-root .pe-landing .pe-landing-head { padding: 0 16px; }
+  .pe-root .pe-landing .pe-landing-row {
+    --pe-row-gap: 18px;
+    --pe-share: 100cqw;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    padding: 0 13vw;
+    scroll-padding: 0 13vw;
+    scrollbar-width: none;
+    max-width: none;
+  }
+  .pe-root .pe-landing .pe-landing-row::-webkit-scrollbar { display: none; }
+  .pe-root .pe-landing .pe-landing-row > * { flex: none; scroll-snap-align: center; scroll-snap-stop: always; }
+  .pe-root .pe-landing .pe-landing-row::after { content: ''; flex: 0 0 1px; }
+  .pe-root .pe-landing .pe-landing-case { width: var(--pe-share); }
+  .pe-root .pe-landing .pe-landing-poster > span:last-child { opacity: 0.8; }
+}
+.pe-swipe-hint {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  margin-top: -6px;
+  font-family: var(--pe-ui, inherit);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pe-hint, currentColor);
+}
+.pe-swipe-arrow { display: inline-block; animation: pe-swipe-nudge 1.6s ease-in-out infinite; }
+.pe-swipe-arrow.is-back { animation-direction: reverse; }
+@keyframes pe-swipe-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+.pe-swipe-dots { display: flex; }
+.pe-swipe-dot {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.pe-swipe-dot::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  transition: background 0.3s ease;
+}
+.pe-swipe-dot[aria-current='true']::before { background: currentColor; }
+.pe-swipe-dot:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; border-radius: 50%; }
+
+/* Picture credits, folded into a toggle at the foot (LandingCredits). */
+.pe-landing-credits {
+  position: relative;
+  flex: none;
+  margin-top: calc(-1 * var(--pe-landing-gap, 12px) + 4px);
+  font-family: var(--pe-ui, var(--pe-body));
+  font-size: 11px;
+  color: var(--pe-credits-ink, currentColor);
+}
+.pe-landing-credits summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 4px 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+.pe-landing-credits summary::-webkit-details-marker { display: none; }
+.pe-landing-credits summary::after { content: ' +'; }
+.pe-landing-credits[open] summary::after { content: ' \2212'; }
+.pe-landing-credits summary:hover, .pe-landing-credits summary:focus-visible { opacity: 1; }
+.pe-landing-credits .pe-credits {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  translate: -50% 0;
+  width: min(640px, calc(100vw - 32px));
+  max-width: none;
+  margin: 0;
+  padding: 14px 18px;
+  background: var(--pe-credits-bg, #fbf8f3);
+  color: var(--pe-credits-ink, #222);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+}
+.pe-landing-credits .pe-credits li + li { margin-top: 6px; }
+
+.pe-exhibition-title { text-align: center; }
 .pe-exhibition-title h1 {
   font-family: var(--pe-display);
-  font-size: clamp(2.5rem, 8vw, 5rem);
   font-weight: 400;
   color: var(--pe-heading);
-  margin-bottom: 12px;
-  line-height: 1.05;
 }
 .pe-exhibition-title p {
   font-family: var(--pe-body);
-  font-size: clamp(1rem, 3vw, 1.4rem);
   color: var(--pe-accent);
 }
-.pe-teach-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 24px; }
+.pe-teach-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
 
-.pe-exhibition-grid {
-  display: flex;
-  gap: 20px;
-  max-width: 95vw;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-}
 .pe-poster-frame {
   cursor: pointer;
   transition: all 0.4s ease;
   position: relative;
-  flex-shrink: 0;
 }
 .pe-poster-frame:hover, .pe-poster-frame:focus-visible { transform: translateY(-8px); }
 .pe-poster-frame:hover .pe-poster-hint, .pe-poster-frame:focus-visible .pe-poster-hint { opacity: 1; }
-.pe-poster-frame img {
-  height: var(--pe-poster-h, 30vh);
-  width: auto;
-  display: block;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-}
+.pe-poster-frame img { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); }
 .pe-poster-hint {
-  display: block;
-  text-align: center;
-  margin-top: 12px;
   font-family: var(--pe-ui);
   font-size: 11px;
   letter-spacing: 0.15em;
@@ -388,44 +582,59 @@ img.pe-effect-erase { animation: peErase 10s ease forwards; }
   opacity: 0;
   transition: opacity 0.3s ease;
 }
+
+/* ───────── The display case's card and its frame ─────────
+   Every exhibition frames its case in its own look, after Black History's
+   arched, outlined blob. The frame (.pe-case-frame) is a decorative layer
+   behind the case: by default an arch drawn in a line (--pe-frame-line) at
+   --pe-frame-inset inside the card, over an optional fill (--pe-frame-fill,
+   none by default, so a photograph of the case stands on the page's own
+   colour). An exhibition sets these, or draws its own frame and its
+   ornaments (.pe-case-frame::before, ::after) in its stylesheet. */
 .pe-display-case {
-  background: #0a0a0a;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 12px 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  --pe-case-pad-y: 66px;
+  padding: 46px 30px 20px;
   cursor: pointer;
-  transition: all 0.4s ease;
-  overflow: visible;
-  width: 100%;
+  transition: transform 0.4s ease;
   text-decoration: none;
+  isolation: isolate;
 }
-.pe-display-case:hover, .pe-display-case:focus-visible { border-color: color-mix(in srgb, var(--pe-accent) 30%, transparent); }
+.pe-display-case:hover, .pe-display-case:focus-visible { transform: translateY(-6px); }
+.pe-display-case:focus-visible { outline: 2px solid var(--pe-accent); outline-offset: 4px; }
 .pe-display-case:hover .pe-case-image { transform: scale(1.02); }
-.pe-case-image { height: 30vh; width: auto; object-fit: contain; margin-bottom: 12px; transition: transform 0.4s ease; }
+.pe-case-frame {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: 999px 999px var(--pe-frame-foot, 18px) var(--pe-frame-foot, 18px);
+  background: var(--pe-frame-fill, transparent);
+  pointer-events: none;
+}
+.pe-case-frame::before {
+  content: '';
+  position: absolute;
+  inset: var(--pe-frame-inset, 6px);
+  border: var(--pe-frame-weight, 1.5px) solid var(--pe-frame-line, var(--pe-accent));
+  border-radius: inherit;
+  transition: border-color 0.4s ease;
+}
+.pe-display-case:hover .pe-case-frame::before,
+.pe-display-case:focus-visible .pe-case-frame::before { border-color: var(--pe-frame-hover, var(--pe-frame-line, var(--pe-accent))); }
+.pe-case-image { object-fit: contain; transition: transform 0.4s ease; }
 .pe-case-label {
   font-family: var(--pe-ui);
   font-size: 10px;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: #8a8a8a;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
-.pe-case-title { font-family: var(--pe-display); font-size: 20px; color: #fafafa; margin-bottom: 8px; }
+.pe-case-title { font-family: var(--pe-display); font-size: 20px; line-height: 1.1; color: #fafafa; margin-bottom: 6px; }
 .pe-case-subtitle { font-family: var(--pe-body); font-size: 14px; font-style: italic; color: var(--pe-accent); }
-.pe-interactives { margin-top: 40px; flex-wrap: wrap; }
-.pe-case-emblem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 140px;
-  margin-bottom: 12px;
-  font-family: var(--pe-ui);
-  font-size: clamp(2.4rem, 6vw, 3.6rem);
-  letter-spacing: 0.04em;
-  color: var(--pe-accent);
+@media (prefers-reduced-motion: reduce) {
+  .pe-swipe-arrow { animation: none; }
+  .pe-display-case, .pe-display-case:hover, .pe-display-case:focus-visible { transform: none; }
+  .pe-case-frame::before { transition: none; }
 }
 
 /* ───────── A case awaiting its photographs (CasePlaceholder) ─────────
@@ -770,9 +979,6 @@ a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink,
 
 /* ───────── Responsive ───────── */
 @media (max-width: 900px) {
-  .pe-exhibition-grid { flex-direction: column; gap: 32px; }
-  .pe-display-case { max-width: 360px; }
-  .pe-poster-frame img, .pe-case-image { height: auto; max-height: 40vh; max-width: 100%; }
   .pe-pos-top-left, .pe-pos-top-right { padding: 15vh 24px; }
   .pe-pos-bottom-left, .pe-pos-bottom-right, .pe-pos-bottom-center { padding-left: 24px; padding-right: 24px; }
   .pe-callout { flex-direction: column; text-align: center; gap: 20px; }
@@ -783,7 +989,6 @@ a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink,
   .pe-nav-left { left: 20px; top: 20px; }
   .pe-nav-right { right: 20px; top: 20px; }
   .pe-nav-text { font-size: 24px; }
-  .pe-exhibition-main { padding: 100px 24px 60px; }
   .pe-walkthrough-nav { bottom: 20px; gap: 16px; }
   .pe-audio-guide { top: 14px; right: 16px; }
   .pe-audio-btn { height: 40px; font-size: 13px; }
@@ -819,12 +1024,34 @@ a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink,
 .pe-case-page-main {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 120px 40px 80px;
+  padding: clamp(72px, 10dvh, 104px) 40px 64px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 56px;
+  gap: clamp(20px, 3.6dvh, 40px);
 }
+/* The page's two views (CaseViews): each a column, as the page was. */
+.pe-case-page-view { width: 100%; display: flex; flex-direction: column; align-items: center; gap: clamp(24px, 4dvh, 48px); }
+.pe-case-page-view[hidden] { display: none; }
+/* On a wide screen the case and its artifacts stand side by side, so both
+   fit the first screen; the display's lines and photographs follow below. */
+@media (min-width: 1000px) and (min-aspect-ratio: 1 / 1) {
+  .pe-case-page-view-artifacts {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    align-items: center;
+    column-gap: clamp(24px, 4vw, 56px);
+  }
+  .pe-case-page-view-artifacts > * { grid-column: 1 / -1; justify-self: center; }
+  .pe-case-page-view-artifacts > .pe-case-page-lead { grid-column: 1; grid-row: 1; }
+  .pe-case-page-view-artifacts > .pe-case-page-artifacts { grid-column: 2; grid-row: 1; }
+  .pe-case-page-view-artifacts .pe-case-page-lead img { max-height: 58dvh; }
+  .pe-case-page-view-artifacts .pe-case-placeholder-page .pe-case-placeholder-art { width: min(420px, 100%, 52dvh); }
+}
+/* So the lead picture and the cards fit the first screen together. */
+.pe-case-page-view .pe-case-page-lead img { width: auto; max-width: 100%; max-height: 40dvh; margin: 0 auto; }
+.pe-case-page-view .pe-case-placeholder-page .pe-case-placeholder-art { width: min(460px, 86vw, 40dvh); }
+
 .pe-case-page-header { text-align: center; }
 .pe-case-page-label {
   font-family: var(--pe-ui);
@@ -837,7 +1064,7 @@ a.pe-callout:is(:link, :visited, :hover, :active) { color: var(--pe-callout-ink,
 .pe-case-page-title {
   font-family: var(--pe-display);
   font-weight: 400;
-  font-size: clamp(2.4rem, 7vw, 4.4rem);
+  font-size: clamp(2rem, min(6vw, 8dvh), 4.2rem);
   line-height: 1.05;
   color: var(--pe-heading);
   margin-bottom: 12px;
@@ -981,7 +1208,7 @@ a.pe-room-card:is(:link, :visited) { color: inherit; }
   align-items: center;
   justify-content: center;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 10;
   margin-bottom: 6px;
   overflow: hidden;
   border-radius: calc(var(--pe-card-radius, 14px) - 6px);
@@ -995,9 +1222,6 @@ a.pe-room-card:is(:link, :visited) { color: inherit; }
   letter-spacing: 0.04em;
   color: var(--pe-accent);
 }
-/* An illustration's credit, small under the card's picture. */
-.pe-room-card-credit,
-.pe-case-credit { margin-top: -8px; font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.04em; line-height: 1.4; opacity: 0.6; }
 .pe-room-card-name { font-family: var(--pe-display); font-size: 1.3rem; line-height: 1.2; }
 .pe-room-card-sub { font-family: var(--pe-body); font-style: italic; font-size: 0.92rem; line-height: 1.45; opacity: 0.8; }
 .pe-room-card-go {

@@ -23,7 +23,9 @@
   --pe-hint: var(--ap-muted);
   --pe-callout-bg: transparent;
   --pe-callout-ink: var(--ap-ink);
-  --pe-poster-h: 52vh;
+  --pe-landing-top: calc(var(--ap-fw) + clamp(40px, 6dvh, 64px));
+  --pe-landing-foot: calc(var(--ap-fw) + 14px);
+  --pe-landing-h1: clamp(3.4rem, min(11vw, 12.5dvh), 8rem);
   color: var(--ap-ink);
 }
 [data-exhibition='america-250']:has(.ap-p2) { --ap-frame: var(--ap-rust); }
@@ -59,13 +61,9 @@
 [data-exhibition='america-250'] .pe-nav-left { left: calc(var(--ap-fw) + 18px); top: calc(var(--ap-fw) + 14px); }
 
 /* ───────── Landing page ───────── */
-[data-exhibition='america-250'] .pe-exhibition-main { padding-top: 100px; padding-bottom: 72px; gap: 28px; }
 [data-exhibition='america-250'] .pe-exhibition-title h1 {
   font-family: var(--ap-script);
   font-weight: 400;
-  font-size: clamp(5.4rem, 17vw, 11rem);
-  line-height: 0.9;
-  margin-bottom: 0;
   color: var(--ap-slate);
 }
 [data-exhibition='america-250'] .pe-exhibition-title p {
@@ -75,15 +73,23 @@
   letter-spacing: 0.01em;
   color: var(--ap-rust);
 }
-[data-exhibition='america-250'] .pe-exhibition-grid { gap: clamp(28px, 4vw, 56px); }
 [data-exhibition='america-250'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(60, 45, 25, 0.12), 0 22px 50px rgba(60, 45, 25, 0.22); }
 [data-exhibition='america-250'] .pe-poster-hint { color: var(--ap-muted); }
-/* The display case's card: on the paper, set like the posters' section heads. */
-[data-exhibition='america-250'] .pe-display-case { background: transparent; border-color: transparent; max-width: 460px; padding: 12px; }
-[data-exhibition='america-250'] .pe-display-case:hover,
-[data-exhibition='america-250'] .pe-display-case:focus-visible { border-color: rgba(168, 79, 51, 0.35); }
+/* The display case's card: on the paper, set like the posters' section heads,
+   under an arched window ruled as the sheet is: a slate line and, inside it,
+   a fine rust one, with the sheet's star at its keystone. */
+[data-exhibition='america-250'] .pe-display-case { --pe-frame-line: var(--ap-slate); --pe-frame-hover: var(--ap-rust); --pe-frame-weight: 2px; --pe-frame-inset: 8px; --pe-frame-foot: 2px; }
+[data-exhibition='america-250'] .pe-case-frame::after {
+  content: '';
+  position: absolute;
+  inset: 15px;
+  border: 1px solid var(--ap-rust);
+  border-radius: inherit;
+  opacity: 0.75;
+}
+[data-exhibition='america-250'] .pe-case-frame { background: radial-gradient(ellipse 60% 45% at 50% 38%, rgba(168, 79, 51, 0.07), transparent 70%); }
 [data-exhibition='america-250'] .pe-case-label { color: var(--ap-muted); }
-[data-exhibition='america-250'] .pe-case-title { font-family: var(--ap-script); font-size: 2.8rem; line-height: 1; color: var(--ap-ink); }
+[data-exhibition='america-250'] .pe-case-title { font-family: var(--ap-script); font-size: clamp(2rem, 5dvh, 2.8rem); line-height: 1; color: var(--ap-ink); }
 [data-exhibition='america-250'] .pe-case-subtitle { font-family: var(--pe-ui); font-style: normal; font-weight: 300; color: var(--ap-rust); }
 /* The case awaiting its photographs: drawn in ink line, lit in the rust. */
 [data-exhibition='america-250'] { --pe-case-frame: var(--ap-ink); --pe-case-glow: var(--ap-rust); --pe-case-placeholder-ink: var(--ap-muted); }
@@ -292,7 +298,6 @@
 [data-exhibition='america-250'] .pjp-stage .ap-subtitle .pe-stack-credit { font-size: calc(var(--pjp-u) * 0.95); }
 
 @media (max-width: 900px) {
-  [data-exhibition='america-250'] { --pe-poster-h: 46vh; }
   [data-exhibition='america-250'] .ap-copy .pe-figure img,
   [data-exhibition='america-250'] .pe-figure-credit { width: min(70vw, 340px); max-width: min(70vw, 340px); }
   [data-exhibition='america-250'] .ap-copy .pe-figure img { max-height: 40vh; }

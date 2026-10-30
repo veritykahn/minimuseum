@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RoomShell from '../RoomShell';
 import HeartTrace from './HeartTrace';
@@ -36,6 +36,35 @@ type TabId = (typeof TABS)[number]['id'];
 
 const GENTLE_KEY = 'fl-lab-gentle';
 
+/* Gentle mode, remembered on this device (when storage allows), for every tab. */
+const gentleListeners = new Set<() => void>();
+let gentleFallback = false;
+function readGentle(): boolean {
+  try {
+    const v = window.localStorage.getItem(GENTLE_KEY);
+    return v === null ? gentleFallback : v === 'on';
+  } catch {
+    return gentleFallback;
+  }
+}
+function writeGentle(on: boolean) {
+  gentleFallback = on;
+  try {
+    window.localStorage.setItem(GENTLE_KEY, on ? 'on' : 'off');
+  } catch {
+    // No storage: it holds for this visit only.
+  }
+  gentleListeners.forEach((f) => f());
+}
+function subscribeGentle(f: () => void) {
+  gentleListeners.add(f);
+  window.addEventListener('storage', f);
+  return () => {
+    gentleListeners.delete(f);
+    window.removeEventListener('storage', f);
+  };
+}
+
 export default function WhatScaresYou() {
   const reduced = usePrefersReducedMotion();
   const [tab, setTab] = useState<TabId>('box');
@@ -43,26 +72,8 @@ export default function WhatScaresYou() {
   const [motionChoice, setMotionChoice] = useState<boolean | null>(null);
   const motion = motionChoice ?? !reduced;
   const [fright, setFright] = useState(0);
-  const [gentle, setGentle] = useState(false);
-  useEffect(() => {
-    try {
-      if (window.localStorage.getItem(GENTLE_KEY) === 'on') setGentle(true);
-    } catch {
-      // No storage: gentle mode starts off.
-    }
-  }, []);
-  const toggleGentle = () => {
-    const next = !gentle;
-    setGentle(next);
-    try {
-      window.localStorage.setItem(GENTLE_KEY, next ? 'on' : 'off');
-    } catch {
-      // No storage: it holds for this visit only.
-    }
-  };
-  useEffect(() => {
-    sound.current?.setGentle(gentle);
-  }, [gentle, soundOn]);
+  const gentle = useSyncExternalStore(subscribeGentle, readGentle, () => false);
+  const toggleGentle = () => writeGentle(!gentle);
   const sound = useRef<LabSound | null>(null);
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ box: null, choose: null, bushes: null });
 
@@ -111,6 +122,9 @@ export default function WhatScaresYou() {
     if (!soundOn) toggleSound();
   };
   useEffect(() => () => sound.current?.close(), []);
+  useEffect(() => {
+    sound.current?.setGentle(gentle);
+  }, [gentle, soundOn]);
   const getSound = useCallback(() => sound.current, []);
   // The music tightens with the fright, and the wind blows over the bushes.
   useEffect(() => {

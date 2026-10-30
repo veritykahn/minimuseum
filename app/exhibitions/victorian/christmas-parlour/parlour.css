@@ -1,7 +1,7 @@
 /* ==========================================================================
-   Dickens' Christmas parlour: the painted room at the centre, cold until
-   its parts are opened, each coming to life in its own way; the buttons
-   over it marked by a soft ring until opened. Under reduced motion each part
+   Dickens' Christmas parlour: the drawn room at the centre, dim until its
+   parts are opened, each coming to life in its own way; the buttons over
+   it marked by a soft ring until opened. Under reduced motion each part
    changes at once, and nothing flickers.
    ========================================================================== */
 
@@ -9,37 +9,45 @@
 .vcp-scene-wrap { align-items: center; }
 .vcp-scene {
   position: relative;
-  width: min(100cqw, 100cqh * 2400 / 1340);
-  aspect-ratio: 2400 / 1340;
+  width: min(100cqw, 100cqh * 1200 / 760);
+  aspect-ratio: 1200 / 760;
   border-radius: 6px;
   overflow: hidden;
   box-shadow: 0 0 0 8px #6b4a32, 0 0 0 10px #c9a24a, 0 22px 40px rgba(47, 30, 20, 0.4);
 }
 .vcp-svg { display: block; width: 100%; height: 100%; }
+.vcp-dim { opacity: calc(0.55 - 0.5 * var(--warmth)); transition: opacity 1.2s ease; pointer-events: none; }
 
-/* The warm painting over the cold: the whole room warming as the parts open (all six, all warm). */
-.vcp-warm { opacity: calc(var(--warmth) * var(--warmth)); transition: opacity 1.2s ease; }
-/* Each part, opened: the warm painting round it. */
-.vcp-lit { opacity: 0; transition: opacity 1.2s ease; }
-.vcp-lit[data-open] { opacity: 1; }
-.vcp-lit-tree[data-open] { animation: vcp-flicker 2.6s ease-in-out infinite; }
-.vcp-lit-hearth[data-open] { animation: vcp-flicker 1.8s ease-in-out infinite; }
-@keyframes vcp-flicker { 50% { opacity: 0.86; } }
-.vcp-shade { transition: opacity 1.2s ease; }
-.vcp-shade[data-open] { opacity: 0; }
-/* The village laid into the frosted glass, the frost and the night still on it. */
-.vcp-village { opacity: 0; mix-blend-mode: multiply; transition: opacity 1.4s ease; }
-.vcp-window[data-open] .vcp-village { opacity: 0.9; }
+/* Each part, shut and opened */
+.vcp-flame, .vcp-star { opacity: 0; transition: opacity 0.8s ease; }
+.vcp-tree[data-open] .vcp-flame { opacity: 1; animation: vcp-flicker 2.6s ease-in-out infinite; }
+.vcp-tree[data-open] .vcp-star { opacity: 1; filter: drop-shadow(0 0 8px #ffd77a); }
+.vcp-tree .vcp-star { opacity: 0.45; }
+@keyframes vcp-flicker { 50% { opacity: 0.82; } }
+.vcp-curtain { transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1); transform-box: fill-box; }
+.vcp-curtain-l { transform-origin: 0 0; }
+.vcp-curtain-r { transform-origin: 100% 0; }
+.vcp-window[data-open] .vcp-curtain { transform: scaleX(0.28); }
+.vcp-night { opacity: 0.35; transition: opacity 1.2s ease; }
+.vcp-window[data-open] .vcp-night { opacity: 0; }
 .vcp-snow { opacity: 0; }
 .vcp-window[data-open] .vcp-snow { opacity: 1; animation: vcp-snow 7s linear infinite; }
-@keyframes vcp-snow { from { transform: translateY(-60px); } to { transform: translateY(60px); } }
+@keyframes vcp-snow { from { transform: translateY(-40px); } to { transform: translateY(40px); } }
+.vcp-fire { transform-box: fill-box; transform-origin: 50% 100%; transform: scale(0.35); opacity: 0.55; transition: transform 1s ease, opacity 1s ease; }
+.vcp-hearth[data-open] .vcp-fire { transform: scale(1); opacity: 1; animation: vcp-blaze 1.8s ease-in-out infinite; }
+@keyframes vcp-blaze { 50% { transform: scale(1.04, 0.97); } }
+.vcp-glow { opacity: 0; transition: opacity 1.2s ease; }
+.vcp-hearth[data-open] .vcp-glow { opacity: 1; }
 .vcp-cards .vcp-card { opacity: 0; transition: opacity 0.6s ease; }
 .vcp-cards[data-open] .vcp-card { opacity: 1; }
-.vcp-clock-sec { opacity: 0; transform-origin: 680px 461px; transition: opacity 0.6s ease; }
-.vcp-clock[data-open] .vcp-clock-sec { opacity: 0.9; animation: vcp-tick 60s steps(60) infinite; }
-@keyframes vcp-tick { to { transform: rotate(360deg); } }
-.vcp-book { opacity: 0; transition: opacity 0.8s ease; }
-.vcp-book[data-open] { opacity: 1; }
+.vcp-pendulum { transform-origin: 925px 262px; }
+.vcp-clock[data-open] .vcp-pendulum { animation: vcp-swing 2s ease-in-out infinite; }
+.vcp-clock-min { transform-origin: 925px 236px; transition: transform 1.6s ease; }
+.vcp-clock[data-open] .vcp-clock-min { transform: rotate(60deg); }
+@keyframes vcp-swing { 0%, 100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
+.vcp-book-open, .vcp-book-candle path { opacity: 0; transition: opacity 0.8s ease; }
+.vcp-book[data-open] .vcp-book-open, .vcp-book[data-open] .vcp-book-candle path { opacity: 1; }
+.vcp-book[data-open] .vcp-book-shut { opacity: 0; transition: opacity 0.4s ease; }
 
 /* The buttons over the drawing: a soft ring until opened, the name on hover and focus. */
 .vb-room .vcp-spot {
@@ -131,6 +139,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vcp-warm, .vcp-lit, .vcp-shade, .vcp-village, .vcp-card, .vcp-clock-sec, .vcp-book, .vcp-spot-label { transition: none !important; }
-  .vcp-lit[data-open], .vcp-window[data-open] .vcp-snow, .vcp-clock[data-open] .vcp-clock-sec, .vcp-spot::after, .vcp-part { animation: none !important; }
+  .vcp-dim, .vcp-flame, .vcp-star, .vcp-curtain, .vcp-night, .vcp-fire, .vcp-glow, .vcp-card, .vcp-clock-min, .vcp-book-open, .vcp-book-candle path, .vcp-book-shut, .vcp-spot-label { transition: none !important; }
+  .vcp-tree[data-open] .vcp-flame, .vcp-window[data-open] .vcp-snow, .vcp-hearth[data-open] .vcp-fire, .vcp-clock[data-open] .vcp-pendulum, .vcp-spot::after, .vcp-part { animation: none !important; }
 }

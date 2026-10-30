@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { CaseViewTabs, caseViewIds, useCaseView, type CaseView } from '@/components/exhibition/CaseViews';
 import { CoinData } from './coin-data';
 
 type InteractiveFeature = {
@@ -26,6 +27,12 @@ type Props = {
 
 export default function CaseListing({ caseNumber, galleryLabel, title, subtitle, coins, basePath, interactive }: Props) {
   const router = useRouter();
+  const [view, setView] = useCaseView();
+  // With a room, the coins and the room are two views of the case, under tabs.
+  const panel = (v: CaseView) =>
+    interactive
+      ? { role: 'tabpanel', id: caseViewIds(`ith-case-${caseNumber}`, v).panel, 'aria-labelledby': caseViewIds(`ith-case-${caseNumber}`, v).tab, hidden: view !== v }
+      : {};
 
   return (
     <div className="case-listing-page">
@@ -36,9 +43,9 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
         .case-listing-page {
           min-height: 100vh;
-          background: #0a0a0a;
+          background: #443c31;
           color: #fafafa;
-          padding: 120px 40px 80px;
+          padding: clamp(80px, 11dvh, 110px) 40px 64px;
         }
 
         .cl-nav-header {
@@ -51,7 +58,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           justify-content: space-between;
           align-items: center;
           padding: 24px 32px;
-          background: linear-gradient(to bottom, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0) 100%);
+          background: linear-gradient(to bottom, rgba(68,60,49,0.98) 0%, rgba(68,60,49,0) 100%);
         }
 
         .cl-back-btn {
@@ -73,7 +80,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
         .cl-page-header {
           text-align: center;
-          margin-bottom: 60px;
+          margin-bottom: clamp(20px, 3.4dvh, 32px);
         }
 
         .cl-page-label {
@@ -81,7 +88,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           font-size: 10px;
           letter-spacing: 0.3em;
           text-transform: uppercase;
-          color: #8a8a8a;
+          color: #d6cbb3;
           margin-bottom: 16px;
         }
 
@@ -174,7 +181,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           font-family: 'Cormorant Garamond', serif;
           font-size: 0.85rem;
           font-style: italic;
-          color: #8a8a8a;
+          color: #d6cbb3;
           margin-bottom: 10px;
         }
 
@@ -270,9 +277,14 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           background: rgba(201, 168, 76, 0.5);
         }
 
+        /* Artifacts | Interactives (CaseViews), in the poster's gold. */
+        .cl-case-views { display: flex; width: max-content; margin: 0 auto clamp(24px, 4dvh, 40px); --pe-case-ink: #efe6d2; --pe-accent: #C9A84C; --pe-case-tab-on-ink: #2a241c; --pe-ui: 'Outfit', sans-serif; }
+        .cl-grid[hidden] { display: none; }
+        /* The room's card shows the room itself, a screenshot, landscape. */
         .cl-card.cl-card-interactive {
-          width: 180px;
+          width: min(420px, 100%);
         }
+        .cl-card-interactive .cl-card-image-container { width: 100%; height: auto; aspect-ratio: 16 / 10; border-radius: 10px; }
 
         .cl-card.coming-soon {
           opacity: 0.6;
@@ -290,7 +302,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
 
         .cl-card-badge-coming-soon {
           background: rgba(255,255,255,0.03);
-          color: #808080;
+          color: #cfc4ab;
           border: 1px solid rgba(255,255,255,0.08);
         }
 
@@ -307,7 +319,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           background: transparent;
           border: 1px solid rgba(255,255,255,0.15);
           border-radius: 100px;
-          color: #8a8a8a;
+          color: #d6cbb3;
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
@@ -340,7 +352,17 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
         <p className="cl-page-subtitle">{subtitle}</p>
       </div>
 
-      <div className="cl-grid">
+      {interactive && (
+        <CaseViewTabs
+          view={view}
+          onChange={setView}
+          idPrefix={`ith-case-${caseNumber}`}
+          className="cl-case-views"
+          counts={{ artifacts: coins.length, interactives: 1 }}
+        />
+      )}
+
+      <div className="cl-grid" {...panel('artifacts')}>
         {coins.map((coin) => (
           <Link
             key={coin.id}
@@ -365,9 +387,11 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
             </div>
           </Link>
         ))}
+      </div>
 
-        {interactive && <h2 className="cl-section-title">Interactives</h2>}
-        {interactive && (() => {
+      {interactive && (
+      <div className="cl-grid cl-grid-rooms" {...panel('interactives')}>
+        {(() => {
           const content = (
             <>
               {interactive.status === 'available' && (
@@ -399,6 +423,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
           );
         })()}
       </div>
+      )}
 
       <button className="cl-return-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
         Return to Exhibition
