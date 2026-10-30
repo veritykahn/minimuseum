@@ -8,15 +8,17 @@ import RoomShell from '../RoomShell';
 import { MICROSCOPE_NOTES, REGOLITH } from '../moon';
 import Eyepiece, { type EyepieceHandle, type WipeReport } from './Eyepiece';
 import Knob from './Knob';
-import { EARTH_SLIDES, MOON_SLIDES, SLIDES, type EarthSample, type MoonSlide, type Slide } from './slides';
+import { EARTH_SLIDES, MOON_SLIDES, SLIDES, type EarthSample, type MoonSlide, type Slide, type SlideId } from './slides';
 import { blurFor } from './focus';
 import './microscope.css';
 
 /*
  * Under the Microscope, on one screen: the view down a microscope, with
  * three tabs (Moon dust, Earth's soil, the two side by side). Turn the knob
- * to bring the slide into focus, change the power, and wipe the slide with a
- * cloth to feel the difference the poster describes. Every claim on screen is
+ * to bring the slide into focus, change the power, and wipe the slide clean
+ * with a cloth to feel the difference the poster describes (Moon dust clings
+ * to the cloth; Earth's grains brush aside). Then place the sample on the
+ * clean slide again, or take a fresh slide. Every claim on screen is
  * poster 1's, from moon.ts, but two notes: what Moon dust is made of, and the
  * meteorite in the case. Those are owner-approved and fact-checked, set apart
  * with their sources (moon.ts, MICROSCOPE_NOTES). The slides are real
@@ -65,7 +67,7 @@ export default function MoonMicroscope() {
   const reduced = usePrefersReducedMotion();
   const [tab, setTab] = useState<TabId>('moon');
   const [earth, setEarth] = useState<EarthSample>('wind');
-  const [moon, setMoon] = useState<MoonSlide>('grains');
+  const [moon, setMoon] = useState<MoonSlide>('soil');
   const [power, setPower] = useState(0);
   const [focus, setFocus] = useState(24);
   const [status, setStatus] = useState('');
@@ -114,23 +116,42 @@ export default function MoonMicroscope() {
   };
 
   const onWiped = useCallback((r: WipeReport) => {
+    if (r.already) {
+      setStatus('The slide is already clean. Place a sample on it.');
+      return;
+    }
     if (r.moon > 0) {
-      setClothDust((d) => Math.min(1, d + r.moon));
+      setClothDust(r.moon);
       setWipedMoon(true);
     }
+    const done = !r.clean ? '' : r.moon > 0 && r.earth > 0 ? ' The slides are wiped clean.' : ' The slide is wiped clean.';
     setStatus(
-      r.moon > 0 && r.earth > 0 ? 'The Moon dust clings to the cloth. The Earth grains brush aside.'
-      : r.moon > 0 ? 'The Moon dust clings to the cloth.'
-      : r.earth > 0 ? 'The grains brush aside.'
+      r.moon > 0 && r.earth > 0 ? `The Moon dust clings to the cloth. The Earth grains brush aside.${done}`
+      : r.moon > 0 ? `The Moon dust clings to the cloth.${done}`
+      : r.earth > 0 ? `The grains brush aside.${done}`
       : 'The cloth missed the grains. Try again.',
     );
   }, []);
 
+  /** Which slides on the stage are clean glass, and whether a change is under way. */
+  const [cleanIds, setCleanIds] = useState<SlideId[]>([]);
+  const [busy, setBusy] = useState(false);
+  const onChange = useCallback((ids: SlideId[], moving: boolean) => {
+    setCleanIds(ids);
+    setBusy(moving);
+  }, []);
+
   const fresh = () => {
-    eyepiece.current?.reset();
+    eyepiece.current?.fresh();
     setClothDust(0);
     setWipedMoon(false);
     setStatus('Fresh slides and a clean cloth.');
+  };
+
+  const place = () => {
+    if (busy) return;
+    if (eyepiece.current?.place()) setStatus('The sample settles on the slide.');
+    else setStatus('The slide has a sample on it. Wipe it clean, or take a fresh slide, first.');
   };
 
   const moonSlide = SLIDES[`moon-${moon}`];
@@ -143,6 +164,14 @@ export default function MoonMicroscope() {
     : left.alt;
   const onStage = right ? [left, right] : [left];
   const activeTab = TABS.find((x) => x.id === tab)!;
+  // A clean slide on the stage: the next thing to do is to put the sample on it.
+  const anyClean = onStage.some((s) => cleanIds.includes(s.id));
+  const allClean = onStage.every((s) => cleanIds.includes(s.id));
+  const glassLabel = 'A clean glass slide, lit from below, with nothing on it';
+  const shownLabel =
+    allClean ? glassLabel
+    : anyClean && right ? `Side by side under the microscope. ${cleanIds.includes(left.id) ? `Left: ${glassLabel}. Right: ${right.alt}` : `Left, Moon dust: ${left.alt}. Right: ${glassLabel}`}`
+    : viewLabel;
 
   return (
     <RoomShell className="mo-microscope">
@@ -189,12 +218,13 @@ export default function MoonMicroscope() {
               power={power}
               blur={blur}
               reduced={reduced}
-              label={viewLabel}
+              label={shownLabel}
               rightLabel="Earth"
               onWiped={onWiped}
+              onChange={onChange}
             />
-            <p className={sharp ? 'mo-ms-hint' : 'mo-ms-hint is-blurry'} aria-hidden="true">
-              {sharp ? 'Drag across the slide to wipe it' : 'Turn the focus knob'}
+            <p className={sharp && !anyClean ? 'mo-ms-hint' : 'mo-ms-hint is-blurry'} aria-hidden="true">
+              {!sharp ? 'Turn the focus knob' : anyClean ? 'Place a sample on the clean slide' : 'Drag across the slide to wipe it'}
             </p>
             {tab !== 'compare' && <FactNote fact={left.caption} className="mo-ms-caption" />}
             <p className="mo-ms-credit">
@@ -266,10 +296,23 @@ export default function MoonMicroscope() {
                     aria-hidden="true"
                     style={{ ['--dust' as string]: String(clothDust) }}
                   />
-                  <button type="button" className="mo-ms-button" onClick={() => eyepiece.current?.sweep()}>
+                  <button
+                    type="button"
+                    className={allClean ? 'mo-ms-button mo-ms-button-quiet' : 'mo-ms-button'}
+                    aria-disabled={busy || undefined}
+                    onClick={() => eyepiece.current?.sweep()}
+                  >
                     Wipe the slide
                   </button>
                 </div>
+                <button
+                  type="button"
+                  className={anyClean ? 'mo-ms-button mo-ms-button-place' : 'mo-ms-button mo-ms-button-quiet'}
+                  aria-disabled={busy || undefined}
+                  onClick={place}
+                >
+                  Place sample
+                </button>
                 <button type="button" className="mo-ms-button mo-ms-button-quiet" onClick={fresh}>
                   Fresh slide
                 </button>
