@@ -28,9 +28,10 @@ export function FactSources({ sources, className }: { sources: readonly FactSour
   );
 }
 
-export default function FactNote({ fact, className, as: Tag = 'p' }: { fact: ApprovedFact; className: string; as?: 'p' | 'div' }) {
+export default function FactNote({ fact, className, as: Tag = 'p', lead }: { fact: ApprovedFact; className: string; as?: 'p' | 'div'; lead?: string }) {
   return (
     <Tag className={className} data-fact="approved">
+      {lead && <><strong className={`${className}-lead`}>{lead}</strong>{' '}</>}
       <span className={`${className}-text`}>{fact.text}</span>{' '}
       <FactSources sources={fact.sources} className={`${className}-source`} />
     </Tag>

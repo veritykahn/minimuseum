@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { FxTheme } from '@/components/poster-fx/PosterFx';
 import type { PosterTalk } from '@/components/projector/posterTalk';
+import type { ApprovedFact, FactSource } from './FactNote';
 
 /*
  * The shape of a poster exhibition: everything PosterExhibition needs to draw
@@ -173,6 +174,17 @@ export type ParagraphItem = PanelBase & {
   position?: PanelPosition;
   figure?: PanelFigure;
   source?: PanelSource;
+  /**
+   * A panel added from outside the printed poster (owner-approved and
+   * fact-checked) carries its sources here, linked beneath its copy as
+   * FactNote sets them. It is never part of the printed copy (isAddedPanel).
+   */
+  sources?: readonly FactSource[];
+  /**
+   * A small "Did you know?" note set beneath printed copy that needs one, with
+   * its sources (FactNote). The printed words stay as they are.
+   */
+  note?: ApprovedFact;
 };
 
 /** A chapter opening. Its text is also the chapter's name in projector mode. */
@@ -180,6 +192,8 @@ export type SectionTitleItem = PanelBase & {
   type: 'section-title';
   text: string;
   position?: PanelPosition;
+  /** A chapter title added from outside the printed poster, with its sources (as ParagraphItem.sources). */
+  sources?: readonly FactSource[];
 };
 
 /**

@@ -277,3 +277,21 @@
   /* on a phone the copy fills the width: the window drops low, beside the arrows */
   .pe-atmo-atlanta-night .pe-atmo-part-3 { top: auto; bottom: 12vh; right: 6vw; }
 }
+
+/* ───────── "The Sound of Harlem": a recording to hear beside the copy (PanelMusic) ───────── */
+.hr-copy-with-music { position: relative; z-index: 10; display: flex; flex-direction: column; gap: 18px; max-width: 600px; }
+.hr-pos-top-right .hr-copy-with-music, .hr-pos-bottom-right .hr-copy-with-music { align-items: flex-end; }
+.hr-music { display: flex; flex-direction: column; gap: 10px; text-align: left; }
+.hr-music-track { display: flex; align-items: center; gap: 12px; }
+.hr-music-btn {
+  flex: none; width: 44px; height: 44px; border-radius: 50%;
+  border: 1.5px solid currentColor; background: rgba(0, 0, 0, 0.35); color: inherit;
+  font-size: 14px; line-height: 1; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.hr-music-btn:hover, .hr-music-btn[aria-pressed='true'] { background: rgba(255, 255, 255, 0.14); }
+.hr-music-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.hr-music-credit { display: flex; flex-direction: column; font-family: 'Outfit', system-ui, sans-serif; font-size: 13px; line-height: 1.35; letter-spacing: 0.02em; }
+.hr-music-title { font-weight: 600; }
+.hr-music-artist, .hr-music-year { opacity: 0.85; }
+.hr-music-year { font-size: 12px; }

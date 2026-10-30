@@ -18,6 +18,7 @@ import { EntranceCopy, VisitTicket } from '@/components/exhibition/EntranceCopy'
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { HARLEM_ATMOSPHERES, poster1Content, poster2Content } from './posters';
+import PanelMusic from './PanelMusic';
 import './harlem.css';
 
 const poster1Marks = chapterMarks(poster1Content);
@@ -956,13 +957,25 @@ export default function HarlemRenaissance() {
               {/* Paragraph */}
               {currentItem.type === 'paragraph' && currentItem.text && (
                 <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
-                  <p
-                    className="hr-paragraph-text"
-                    style={{ color: getSectionColors(currentItem.special).text }}
-                    data-fx={own ? undefined : kind}
-                  >
-                    {own ? <EntranceCopy text={currentItem.text} effect={entrance} /> : <FxText text={currentItem.text} words={kind === 'statement'} />}
-                  </p>
+                  {(() => {
+                    const copy = (
+                      <p
+                        className="hr-paragraph-text"
+                        style={{ color: getSectionColors(currentItem.special).text }}
+                        data-fx={own ? undefined : kind}
+                      >
+                        {own ? <EntranceCopy text={currentItem.text} effect={entrance} /> : <FxText text={currentItem.text} words={kind === 'statement'} />}
+                      </p>
+                    );
+                    // A panel with recordings sets its player under the copy.
+                    if (!currentItem.music?.length) return copy;
+                    return (
+                      <div className="hr-copy-with-music">
+                        {copy}
+                        <PanelMusic tracks={currentItem.music} color={getSectionColors(currentItem.special).text} />
+                      </div>
+                    );
+                  })()}
                 </div>
               )}
 

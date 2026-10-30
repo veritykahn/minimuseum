@@ -4,6 +4,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { FxText, type FxKind } from '@/components/poster-fx/PosterFx';
 import { PosterProjectorEnd } from '@/components/projector/PosterProjector';
 import { BlindSpot, Emph, Lines, Typed, TypedForReaders, VisitTicket } from './EntranceCopy';
+import FactNote, { FactSources, type FactSource } from './FactNote';
 import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass } from './helpers';
 import type { ExhibitionConfig, PanelDecor, PanelEffect, PanelMarks, PosterConfig, PosterItem, PosterItemType } from './types';
 
@@ -68,6 +69,16 @@ function Credit({ credit, className }: { credit?: { text: string; href?: string 
   );
 }
 
+/** An added panel's sources, set small and linked beneath its copy, as FactNote sets them. */
+function AddedSources({ sources, color }: { sources?: readonly FactSource[]; color: string }) {
+  if (!sources?.length) return null;
+  return (
+    <p className="pe-source pe-added-source" style={{ color }}>
+      <FactSources sources={sources} className="pe-added-source-list" />
+    </p>
+  );
+}
+
 /**
  * Where a panel's entrance goes when it has both copy and a picture: the
  * copy's own effects (typing, line by line) on the copy, everything else on
@@ -125,13 +136,21 @@ const PANEL_RENDERERS: Renderers = {
             )}
           </figure>
         )}
-        {item.source ? (
+        {item.source || item.sources?.length || item.note ? (
           <div className="pe-copy">
             {p}
             <TypedForReaders effect={effect} text={item.text} />
-            <p className="pe-source" style={{ color: colors.text }}>
-              <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
-            </p>
+            {item.source && (
+              <p className="pe-source" style={{ color: colors.text }}>
+                <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
+              </p>
+            )}
+            <AddedSources sources={item.sources} color={colors.text} />
+            {item.note && (
+              <div className="pe-note" style={{ color: colors.text }}>
+                <FactNote fact={item.note} className="pe-note-fact" lead="Did you know?" />
+              </div>
+            )}
           </div>
         ) : (
           <>
@@ -146,13 +165,26 @@ const PANEL_RENDERERS: Renderers = {
   'section-title': ({ poster, item, colors }) => {
     const effect = entranceOf(item);
     const own = effect !== 'theme';
+    const heading = (
+      <h2 className={`pe-section-title-text ${effectClass(effect)}`} style={{ color: colors.title }} data-fx={own ? undefined : 'title'}>
+        {own ? <Copy text={item.text} kind="title" effect={effect} reveal={false} /> : <FxText text={item.text} />}
+      </h2>
+    );
     return (
       <div className={`pe-text-content-wrapper ${positionClass(item.position ?? 'full-width')} ${panelClasses(poster, item)}`}>
         <BlindSpot effect={effect} />
-        <h2 className={`pe-section-title-text ${effectClass(effect)}`} style={{ color: colors.title }} data-fx={own ? undefined : 'title'}>
-          {own ? <Copy text={item.text} kind="title" effect={effect} reveal={false} /> : <FxText text={item.text} />}
-        </h2>
-        <TypedForReaders effect={effect} text={item.text} />
+        {item.sources?.length ? (
+          <div className="pe-copy">
+            {heading}
+            <TypedForReaders effect={effect} text={item.text} />
+            <AddedSources sources={item.sources} color={colors.text} />
+          </div>
+        ) : (
+          <>
+            {heading}
+            <TypedForReaders effect={effect} text={item.text} />
+          </>
+        )}
       </div>
     );
   },

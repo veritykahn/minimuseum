@@ -338,6 +338,29 @@ img.pe-effect-erase { animation: peErase 10s ease forwards; }
 .pe-source a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
 .pe-copy { position: relative; z-index: 3; display: flex; flex-direction: column; }
 .pe-source { position: relative; z-index: 3; }
+/*
+ * A panel added from outside the printed poster (ParagraphItem.sources) has
+ * its sources linked beneath it; a "Did you know?" note (ParagraphItem.note)
+ * is set small beneath printed copy, boxed apart from the poster's words.
+ */
+.pe-added-source { max-width: 46em; line-height: 1.5; }
+.pe-note {
+  position: relative; z-index: 3;
+  margin-top: 18px; max-width: 34em; padding: 10px 14px;
+  border-left: 3px solid currentColor;
+  background: rgba(0, 0, 0, 0.32);
+  font-family: var(--pe-ui, var(--pe-body));
+  font-size: 14px; line-height: 1.5; letter-spacing: 0.01em;
+  text-align: left; text-transform: none;
+}
+.pe-pos-top-right .pe-note, .pe-pos-bottom-right .pe-note { margin-left: auto; }
+.pe-pos-center .pe-note { margin-left: auto; margin-right: auto; }
+.pe-note-fact { margin: 0; }
+.pe-note-fact-lead { font-weight: 600; }
+.pe-note-fact-source { display: block; margin-top: 4px; font-size: 12px; opacity: 0.8; }
+.pe-note-fact-source a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
+.pjp-stage .pe-note { font-size: calc(var(--pjp-u, 1vh) * 1.1); max-width: 40em; }
+.pjp-stage .pe-note-fact-source, .pjp-stage .pe-added-source { font-size: calc(var(--pjp-u, 1vh) * 0.85); }
 .pe-figure-credit { position: relative; z-index: 4; max-width: min(34vw, 440px); background: rgba(0, 0, 0, 0.6); padding: 3px 6px; }
 .pjp-stage .pe-text-content-wrapper.pe-has-figure {
   flex-direction: row;
