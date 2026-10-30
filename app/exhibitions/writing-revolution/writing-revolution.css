@@ -345,6 +345,11 @@
 }
 
 /* ───────── qwerty-rows: the keyboard's round keys, the top row struck in turn ───────── */
+/* The copy stands above the three rows of keys, never across them. */
+[data-exhibition='writing-revolution'] [data-atmosphere='qwerty-rows'] .pe-text-content-wrapper { padding-bottom: calc(clamp(34px, 5.2vmin, 58px) * 3.3 + 2vh + 80px); }
+@media (max-width: 700px) {
+  [data-exhibition='writing-revolution'] [data-atmosphere='qwerty-rows'] .pe-text-content-wrapper { padding-bottom: calc(34px * 3.3 + 2vh + 80px); }
+}
 [data-exhibition='writing-revolution'] .pe-atmo-qwerty-rows {
   --wr-key: clamp(34px, 5.2vmin, 58px);
   /* clear of the walkthrough's arrows */

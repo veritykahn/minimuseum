@@ -385,10 +385,10 @@
 [data-exhibition='america-250'] .pe-atmo-july-illuminations .pe-atmo-p {
   /* a firework: a ring of sparks, opening and falling away */
   --c: rgba(242, 207, 122, 0.9);
-  /* high in the sky and out at the sides, clear of the copy */
+  /* high in the sky, in a band above the copy, never bursting over it */
   left: calc(8% + var(--x) * 0.84%);
-  top: calc(7% + var(--y) * 0.2%);
-  width: calc(16vmin + var(--r) * 16vmin);
+  top: calc(4% + var(--y) * 0.1%);
+  width: calc(10vmin + var(--r) * 12vmin);
   aspect-ratio: 1;
   translate: -50% -50%;
   border-radius: 50%;
@@ -522,6 +522,20 @@
   rotate: -17deg;
   animation: apSleet calc(1.6s + var(--r) * 1.6s) linear infinite;
   animation-delay: calc(var(--y) * -0.04s);
+}
+/* The copy and its credits stand clear of the river and its floes. */
+[data-exhibition='america-250'] [data-atmosphere='delaware-ice'] :is(.pe-text-content-wrapper, .pe-artwork-display) { padding-bottom: calc(21vh + 24px); }
+/* On the classroom screen, too, the river runs low under the copy and the pictures' credits. */
+[data-exhibition='america-250'] .pjp-stage .pe-atmo-delaware-ice .pe-atmo-part-2 { height: 9cqh; }
+[data-exhibition='america-250'] .pjp-stage .pe-atmo-delaware-ice .pe-atmo-part-3 { bottom: 5cqh; height: 3cqh; }
+[data-exhibition='america-250'] .pjp-stage .pe-atmo-delaware-ice .pe-atmo-part-4 { height: 4cqh; }
+[data-exhibition='america-250'] .pjp-stage [data-atmosphere='delaware-ice'] :is(.pe-text-content-wrapper, .pe-artwork-display) { padding-bottom: calc(10cqh + var(--pjp-u) * 4); }
+@media (max-width: 700px) {
+  /* On a phone the river runs lower and narrower, under the copy rather than across it. */
+  [data-exhibition='america-250'] .pe-atmo-delaware-ice .pe-atmo-part-2 { height: 9vh; }
+  [data-exhibition='america-250'] .pe-atmo-delaware-ice .pe-atmo-part-3 { bottom: 5vh; height: 3vh; }
+  [data-exhibition='america-250'] .pe-atmo-delaware-ice .pe-atmo-part-4 { height: 4vh; }
+  [data-exhibition='america-250'] [data-atmosphere='delaware-ice'] :is(.pe-text-content-wrapper, .pe-artwork-display) { padding-bottom: calc(10vh + 24px); }
 }
 @keyframes apClouds { from { transform: translateX(-10vw); } to { transform: translateX(10vw); } }
 @keyframes apFloes { from { transform: translateX(0); } to { transform: translateX(-100vw); } }

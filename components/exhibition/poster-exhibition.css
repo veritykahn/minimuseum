@@ -941,7 +941,8 @@ a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-dec
 /* ───────── Decorative pictures ───────── */
 .pe-decor {
   position: absolute;
-  z-index: 3;
+  /* behind the copy, never over it */
+  z-index: 1;
   width: var(--pe-decor-w, min(30vw, 360px));
   height: auto;
   pointer-events: none;

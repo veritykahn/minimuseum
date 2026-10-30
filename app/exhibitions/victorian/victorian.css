@@ -438,9 +438,9 @@
   animation: vbWires 3.6s linear infinite;
 }
 [data-exhibition='victorian'] .pe-atmo-locomotive-steam .pe-atmo-p {
-  /* steam, billowing up and streaming away */
+  /* steam, billowing and streaming away low along the line, under the copy rather than through it */
   left: calc(var(--x) * 0.3%);
-  top: 66%;
+  top: 74%;
   width: calc(12vmin + var(--r) * 18vmin);
   aspect-ratio: 1;
   border-radius: 50%;
@@ -455,7 +455,7 @@
 @keyframes vbSteam {
   0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
   15% { opacity: 1; }
-  100% { transform: translate(85vw, -55vh) scale(1.7); opacity: 0; }
+  100% { transform: translate(85vw, -14vh) scale(1.7); opacity: 0; }
 }
 
 /* ───────── gaslamp: fog drifting round the gas lamps ───────── */

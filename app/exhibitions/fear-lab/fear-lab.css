@@ -474,3 +474,6 @@
   [data-exhibition='fear-lab'] .pe-atmo-penny-candle .pe-atmo-part-3 { bottom: calc(12vh + 0.6vmin); }
   [data-exhibition='fear-lab'] .pe-atmo-penny-candle .pe-atmo-p { bottom: 17vh; }
 }
+
+/* On the classroom screen the copy is set larger: the hand and the spider step back into their corners, clear of it. */
+[data-exhibition='fear-lab'] .pjp-stage .pe-decor { width: min(var(--pe-decor-w, 30vw), calc(var(--pjp-u) * 13)); }
