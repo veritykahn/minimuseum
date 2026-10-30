@@ -80,9 +80,8 @@ describe('Recordings named by the posters', () => {
     expect(new Set(recordings).size).toBe(recordings.length);
   });
 
-  it('Great War poster 1 has one for its title and every panel it reads aloud', () => {
-    const poster1 = GREAT_WAR.posters[0];
-    const read = poster1.items.filter((i) => i.type !== 'full-image' && i.type !== 'end');
+  it.each(GREAT_WAR.posters.map((p) => [p.id, p] as const))('Great War %s has one for its title and every panel it reads aloud', (_id, poster) => {
+    const read = poster.items.filter((i) => !['full-image', 'callout', 'end'].includes(i.type));
     expect(read.every((i) => i.audio)).toBe(true);
   });
 
