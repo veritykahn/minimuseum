@@ -14,7 +14,7 @@ export default function Case8() {
         id: 'real-or-replica',
         title: 'Real or Replica?',
         subtitle: 'Learn to authenticate ancient coins',
-        thumb: '/exhibitions/in-their-hands/real-or-fake.jpg',
+        thumb: '/exhibitions/in-their-hands/rooms/real-or-replica.webp',
         route: '/exhibitions/in-their-hands/real-or-replica',
         status: 'available',
       }}

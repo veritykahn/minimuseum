@@ -302,8 +302,8 @@ export default function ArtifactViewer({ artifactId }: Props) {
 
         .artifact-viewer {
           min-height: 100vh;
-          background: #0a0a0a;
-          color: #fafafa;
+          background: #e0dede;
+          color: #0a0a0a;
           display: flex;
           flex-direction: column;
         }
@@ -319,7 +319,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           justify-content: space-between;
           align-items: center;
           padding: 24px 32px;
-          background: linear-gradient(to bottom, rgba(10,10,10,0.95) 0%, rgba(10,10,10,0) 100%);
+          background: linear-gradient(to bottom, rgba(224,222,222,0.95) 0%, rgba(224,222,222,0) 100%);
         }
 
         .back-btn {
@@ -328,7 +328,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           gap: 12px;
           background: none;
           border: none;
-          color: #a8d5e5;
+          color: #1f5a6e;
           font-family: 'Outfit', sans-serif;
           font-size: 12px;
           letter-spacing: 0.1em;
@@ -336,16 +336,16 @@ export default function ArtifactViewer({ artifactId }: Props) {
           cursor: pointer;
           transition: all 0.3s ease;
         }
-        .back-btn:hover { color: #fff; }
+        .back-btn:hover { color: #0a0a0a; }
         .back-btn span { font-size: 18px; }
 
         .info-btn {
           width: 50px;
           height: 50px;
           border-radius: 50%;
-          border: 1px solid rgba(168, 213, 229, 0.3);
+          border: 1px solid rgba(31, 90, 110, 0.3);
           background: transparent;
-          color: #a8d5e5;
+          color: #1f5a6e;
           font-family: 'Cormorant Garamond', serif;
           font-size: 26px;
           font-style: italic;
@@ -353,12 +353,12 @@ export default function ArtifactViewer({ artifactId }: Props) {
           transition: all 0.3s ease;
         }
         .info-btn:hover {
-          background: rgba(168, 213, 229, 0.1);
-          border-color: #a8d5e5;
+          background: rgba(31, 90, 110, 0.1);
+          border-color: #1f5a6e;
         }
         .info-btn.active {
-          background: #a8d5e5;
-          color: #0a0a0a;
+          background: #1f5a6e;
+          color: #ffffff;
         }
 
         /* Main content */
@@ -375,10 +375,10 @@ export default function ArtifactViewer({ artifactId }: Props) {
           width: 100%;
           position: relative;
           min-height: 60vh;
-          --orbit-accent: #a8d5e5;
+          --orbit-accent: #1f5a6e;
         }
         .model-container:focus-visible { outline-offset: -4px; }
-        .artifact-viewer { --orbit-accent: #a8d5e5; }
+        .artifact-viewer { --orbit-accent: #1f5a6e; }
 
         .model-container canvas {
           cursor: grab;
@@ -396,14 +396,14 @@ export default function ArtifactViewer({ artifactId }: Props) {
           align-items: center;
           justify-content: center;
           gap: 16px;
-          background: rgba(10, 10, 10, 0.8);
+          background: rgba(224, 222, 222, 0.8);
           z-index: 10;
         }
         .loading-spinner {
           width: 40px;
           height: 40px;
-          border: 2px solid rgba(168, 213, 229, 0.2);
-          border-top-color: #a8d5e5;
+          border: 2px solid rgba(31, 90, 110, 0.2);
+          border-top-color: #1f5a6e;
           border-radius: 50%;
           animation: spin 1s linear infinite;
         }
@@ -415,7 +415,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-size: 11px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #737373;
+          color: #4a4a4a;
         }
 
         /* Error/placeholder state */
@@ -429,20 +429,20 @@ export default function ArtifactViewer({ artifactId }: Props) {
           align-items: center;
           gap: 16px;
           padding: 40px;
-          border: 2px dashed rgba(168, 213, 229, 0.3);
+          border: 2px dashed rgba(31, 90, 110, 0.3);
           border-radius: 16px;
           z-index: 5;
         }
         .placeholder-icon {
           font-size: 48px;
-          color: #525252;
+          color: #5a5a5a;
         }
         .placeholder-text {
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: #737373;
+          color: #4a4a4a;
           text-align: center;
         }
 
@@ -452,7 +452,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           justify-content: space-between;
           align-items: flex-end;
           padding: 24px 32px 32px;
-          background: linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0.9) 60%, rgba(10,10,10,0) 100%);
+          background: linear-gradient(to top, rgba(224,222,222,1) 0%, rgba(224,222,222,0.9) 60%, rgba(224,222,222,0) 100%);
         }
 
         .artifact-info {
@@ -464,7 +464,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #737373;
+          color: #4a4a4a;
           margin-bottom: 8px;
         }
 
@@ -472,7 +472,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(1.4rem, 4vw, 1.8rem);
           font-weight: 300;
-          color: #fafafa;
+          color: #0a0a0a;
           margin-bottom: 8px;
         }
 
@@ -480,7 +480,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-family: 'Cormorant Garamond', serif;
           font-size: 1rem;
           font-style: italic;
-          color: #a8d5e5;
+          color: #1f5a6e;
         }
 
         /* Controls hint - right side, hidden on mobile */
@@ -491,7 +491,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-size: 10px;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-          color: #8a8a8a;
+          color: #3d3d3d;
         }
         .control-item {
           display: flex;
@@ -501,7 +501,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
         .control-icon {
           width: 24px;
           height: 24px;
-          border: 1px solid #6b6b6b;
+          border: 1px solid #8a8a8a;
           border-radius: 4px;
           display: flex;
           align-items: center;
@@ -517,8 +517,8 @@ export default function ArtifactViewer({ artifactId }: Props) {
           width: 450px;
           max-width: 90vw;
           height: 100vh;
-          background: linear-gradient(135deg, rgba(20,20,20,0.98) 0%, rgba(10,10,10,0.98) 100%);
-          border-left: 1px solid rgba(255,255,255,0.08);
+          background: linear-gradient(135deg, rgba(236,234,234,0.98) 0%, rgba(224,222,222,0.98) 100%);
+          border-left: 1px solid rgba(10,10,10,0.1);
           transform: translateX(100%);
           transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           z-index: 200;
@@ -538,16 +538,16 @@ export default function ArtifactViewer({ artifactId }: Props) {
           right: 24px;
           width: 40px;
           height: 40px;
-          border: 1px solid rgba(255,255,255,0.2);
+          border: 1px solid rgba(10,10,10,0.25);
           border-radius: 50%;
           background: transparent;
-          color: #fafafa;
+          color: #0a0a0a;
           font-size: 20px;
           cursor: pointer;
           transition: all 0.3s ease;
         }
         .info-close:hover {
-          background: rgba(255,255,255,0.1);
+          background: rgba(10,10,10,0.08);
         }
 
         .info-label {
@@ -555,7 +555,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #a8d5e5;
+          color: #1f5a6e;
           margin-bottom: 8px;
         }
 
@@ -563,7 +563,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-family: 'Cormorant Garamond', serif;
           font-size: 1.8rem;
           font-weight: 300;
-          color: #fafafa;
+          color: #0a0a0a;
           margin-bottom: 8px;
           line-height: 1.3;
         }
@@ -572,7 +572,7 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-family: 'Outfit', sans-serif;
           font-size: 12px;
           letter-spacing: 0.1em;
-          color: #737373;
+          color: #4a4a4a;
           margin-bottom: 24px;
         }
 
@@ -580,10 +580,10 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-family: 'Cormorant Garamond', serif;
           font-size: 1.2rem;
           font-style: italic;
-          color: #a8d5e5;
+          color: #1f5a6e;
           margin-bottom: 32px;
           padding-bottom: 24px;
-          border-bottom: 1px solid rgba(255,255,255,0.08);
+          border-bottom: 1px solid rgba(10,10,10,0.1);
         }
 
         .info-description {
@@ -596,12 +596,12 @@ export default function ArtifactViewer({ artifactId }: Props) {
           font-family: 'Cormorant Garamond', serif;
           font-size: 1.05rem;
           line-height: 1.8;
-          color: #d0d0d0;
+          color: #2a2a2a;
         }
 
         .info-description p:first-letter {
           font-size: 1.3em;
-          color: #a8d5e5;
+          color: #1f5a6e;
         }
 
         /* Backdrop for mobile */

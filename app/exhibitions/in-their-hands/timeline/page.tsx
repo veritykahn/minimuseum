@@ -807,7 +807,7 @@ export default function GospelTimeline() {
 
       {/* Header */}
       <header className="tl-header">
-        <button className="tl-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-6')}>
+        <button className="tl-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-6?view=interactives')}>
           <span>{'\u2190'}</span>
           Display Case
         </button>
@@ -861,7 +861,7 @@ export default function GospelTimeline() {
                 )}
               </ul>
               {isLast && (
-                <Link className="tl-end-btn" href="/exhibitions/in-their-hands/artifacts/case-6">
+                <Link className="tl-end-btn" href="/exhibitions/in-their-hands/artifacts/case-6?view=interactives">
                   Back to Display Case <span aria-hidden="true">{'\u2192'}</span>
                 </Link>
               )}

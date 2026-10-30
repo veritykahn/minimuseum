@@ -14,7 +14,7 @@ export default function Case7() {
         id: 'hands',
         title: 'Hands of History',
         subtitle: 'Who held these coins — and when?',
-        thumb: '/exhibitions/in-their-hands/hands.jpg',
+        thumb: '/exhibitions/in-their-hands/rooms/hands.webp',
         route: '/exhibitions/in-their-hands/hands',
         status: 'available',
       }}

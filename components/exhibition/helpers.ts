@@ -151,11 +151,22 @@ export function roomsCase(config: Pick<ExhibitionConfig, 'cases'>) {
   return config.cases?.[0];
 }
 
+/** The address parameter that opens a display case page at a view (CaseViews). */
+export const CASE_VIEW_PARAM = 'view';
+
+/** A display case's address, opened at its Interactives: where a room's way back goes. */
+export function interactivesView(caseHref: string): string {
+  const [path, hash] = caseHref.split('#');
+  const sep = path.includes('?') ? '&' : '?';
+  return `${path}${sep}${CASE_VIEW_PARAM}=interactives${hash ? `#${hash}` : ''}`;
+}
+
 /**
- * A room's top-left "M ←" link: back to the display case it opens from, or
- * to the exhibition when there is no case.
+ * A room's top-left "M ←" link: back to the display case it opens from, at
+ * its Interactives (?view=interactives, CaseViews), or to the exhibition
+ * when there is no case.
  */
 export function roomReturn(config: Pick<ExhibitionConfig, 'slug' | 'cases'>): { href: string; label: string } {
   const c = roomsCase(config);
-  return c ? { href: c.href, label: c.label } : { href: `/exhibitions/${config.slug}`, label: 'Exhibition' };
+  return c ? { href: interactivesView(c.href), label: c.label } : { href: `/exhibitions/${config.slug}`, label: 'Exhibition' };
 }

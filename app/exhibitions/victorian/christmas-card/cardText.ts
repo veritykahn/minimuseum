@@ -18,8 +18,6 @@ export const CARD_TEXT = {
   poster: "The holiday's revival gained momentum under Queen Victoria and Prince Albert, who popularized German customs like the Christmas tree, while the first Christmas cards appeared in the 1840s.",
   printNote: 'It prints on one Letter page. Fold the top half back behind the bottom, printing outside; then fold the left half back behind the right, and the picture is on the front.',
   privacy: 'Nothing you write is saved or sent.',
-  /** The card fronts' and the lace and gilt borders' credit, as the owner gives it. */
-  credit: 'Illustration made with Leonardo.Ai',
 };
 
 const VA_FIRST_CARD = { label: 'V&A, “The first Christmas card”', href: 'https://www.vam.ac.uk/articles/the-first-christmas-card' };
@@ -35,16 +33,15 @@ export const CARD_NOTES = {
   },
 } satisfies Record<string, ApprovedFact>;
 
-export type PictureId = 'robin' | 'feast' | 'wreath' | 'church';
+export type PictureId = 'tree' | 'village' | 'holly' | 'fireside';
 export type BorderId = 'gilt' | 'lace' | 'holly' | 'rule';
 export type PaperId = 'cream' | 'rose' | 'sage' | 'night';
 
-/** The owner's card fronts (Leonardo.Ai, after the hand-coloured lithographs of the 1840s–1870s); illustrations, not old cards. */
-export const PICTURES: { id: PictureId; name: string; alt: string; src: string }[] = [
-  { id: 'robin', name: 'Robin', alt: 'a robin on a snowy branch of holly with red berries', src: '/exhibitions/victorian/christmas-card/card-robin.webp' },
-  { id: 'feast', name: 'Christmas feast', alt: 'a family at the Christmas table, the pudding alight, a fire in the grate and a tree lit with candles by the window', src: '/exhibitions/victorian/christmas-card/card-feast.webp' },
-  { id: 'wreath', name: 'Holly wreath', alt: 'a wreath of holly and ivy with red berries, tied with a red ribbon', src: '/exhibitions/victorian/christmas-card/card-wreath.webp' },
-  { id: 'church', name: 'Snowy church', alt: 'a village church in the snow at night, its windows lit and lamps along the path to its door', src: '/exhibitions/victorian/christmas-card/card-church.webp' },
+export const PICTURES: { id: PictureId; name: string; alt: string }[] = [
+  { id: 'tree', name: 'Christmas tree', alt: 'a Christmas tree lit with candles and hung with baubles, a star at its top and parcels beneath it' },
+  { id: 'village', name: 'Snowy village', alt: 'a village in the snow at dusk, its windows lit and a church spire behind' },
+  { id: 'holly', name: 'Holly', alt: 'a sprig of holly with red berries, tied with a ribbon' },
+  { id: 'fireside', name: 'Fireside', alt: 'a fire in the grate, with candles and a garland on the mantelpiece' },
 ];
 
 export const BORDERS: { id: BorderId; name: string }[] = [
