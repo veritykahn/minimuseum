@@ -469,19 +469,21 @@
 .vbi-marks { display: inline-flex; align-items: center; gap: 0.2em; height: 1em; vertical-align: middle; }
 .vbi-m-dot { display: block; width: 0.36em; height: 0.36em; border-radius: 50%; background: currentColor; }
 .vbi-m-dash { display: block; width: 0.95em; height: 0.32em; border-radius: 0.16em; background: currentColor; }
-.vbi-tg-code { font-size: calc(var(--cell) * 0.2); }
+.vbi-tg-code { font-size: calc(var(--cell) * 0.26); }
 .vbi-tg-cells { column-gap: calc(var(--cell) * 0.5); }
 .vbi-tg-word { display: flex; flex-wrap: nowrap; }
-.vbi-chart-c { font-size: clamp(9px, 1.5cqw, 13px); height: 1.3em; display: flex; align-items: center; }
+.vbi-chart-c { font-size: clamp(10px, 1.9cqw, 16px); height: 1.3em; display: flex; align-items: center; }
 .vb-room .vbi-chart-button:disabled { opacity: 0.88; }
 .vbi-telegraph .vbi-modes, .vbi-telegram .vbi-modes { display: grid; grid-template-columns: 1fr 1fr; }
 .vb-room .vbi-telegraph .vbi-modes .vbr-option, .vb-room .vbi-telegram .vbi-modes .vbr-option { justify-content: center; }
 .vb-room .vbi-foot-row .vbr-button { white-space: nowrap; padding-left: 16px; padding-right: 16px; }
-.vb-room .vbi-steam { white-space: normal; text-align: left; }
+.vb-room .vbi-steam-on { white-space: normal; text-align: left; }
 .vbi-sun-row { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 12px; }
 .vbi-compare-clocks .vbi-clock-label { font-size: 27px; }
 .vbi-compare-clocks .vbi-clock-sub { font-size: 25px; }
 .vbi-mode-short { display: none; }
+.vbi-tg-titles { display: flex; flex-direction: column; gap: 2px; }
+.vbi-tg-code-name { font-family: 'Jost', sans-serif; font-size: clamp(11px, 2.4cqh, 15px); font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #6b4a32; }
 /* The form takes what room the chart leaves it, and its letters scroll inside it (to the letter being tapped), never past the scene. */
 .vbi-tg { grid-template-rows: minmax(0, max-content) auto; }
 .vbi-tg-form { overflow: hidden; max-height: 100%; }
@@ -500,11 +502,15 @@
 .vbi-tg-sheet-to > div:last-child { border-right: 0; }
 .vbi-tg-sheet-to dt { font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: #6b4a32; }
 .vbi-tg-sheet-to dd { margin: 4px 0 0; min-height: 1.3em; font-size: 20px; font-family: 'Courier New', monospace; font-weight: 700; text-transform: uppercase; }
+.vbi-tg-sheet-to > div:last-child dd { text-transform: none; }
+.vbi-tg-sheet-chart { list-style: none; margin: 0 0 18px; padding: 0; display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; break-inside: avoid; }
+.vbi-tg-sheet-chart li { display: flex; align-items: center; gap: 8px; padding: 4px 6px; border: 1px solid #c9a24a; border-radius: 3px; font-size: 11px; color: #6b4a32; }
+.vbi-tg-sheet-chart strong { font-family: 'Courier New', monospace; font-size: 16px; color: #2a2522; }
 .vbi-tg-sheet-msg { display: flex; flex-wrap: wrap; gap: 14px 18px; padding: 20px; margin-bottom: 24px; border: 1.5px dashed #c9a24a; min-height: 200px; align-content: flex-start; }
 .vbi-tg-sheet-word { display: inline-flex; padding: 6px 4px; border: 1.5px solid #2f4a32; border-radius: 3px; break-inside: avoid; }
-.vbi-tg-sheet-cell { display: inline-grid; justify-items: center; width: 34px; }
+.vbi-tg-sheet-cell { display: inline-grid; justify-items: center; gap: 4px; width: 46px; }
 .vbi-tg-sheet-l { font-family: 'Courier New', monospace; font-weight: 700; font-size: 26px; line-height: 1.2; }
-.vbi-tg-sheet-c { font-family: 'Courier New', monospace; font-size: 12px; letter-spacing: -0.04em; white-space: nowrap; color: #6b4a32; }
+.vbi-tg-sheet-c { font-family: 'Courier New', monospace; font-size: 11px; letter-spacing: -0.04em; white-space: nowrap; color: #6b4a32; }
 
 /* ───────── An iPad held upright: scene above, card below, both wide ───────── */
 @media (min-width: 761px) and (max-width: 1100px) and (orientation: portrait) {
@@ -530,7 +536,8 @@
 
 /* ───────── A phone: the scene above, the card below, as little scrolling as can be ───────── */
 @media (max-width: 760px) {
-  .vbr-stage.vbi-stage { --scene-h: 34dvh; }
+  /* The scene starts below the tabs, never under them. */
+  .vbr-stage.vbi-stage { --scene-h: 34dvh; --vbr-top: 134px; }
   .vbr-stage.vbi-stage[data-tab='telegraph'] { --scene-h: 40dvh; }
   .vb-inventions .vbr-card { gap: 7px; padding-bottom: calc(var(--vb-edge) + 8px); }
   /* The card's foot clear of the map's button in the corner. */
@@ -570,6 +577,10 @@
   .vb-room.vb-inventions .vbi-modes .vbr-option { padding: 4px 4px; font-size: 13.5px; min-height: 38px; }
   .vb-room.vb-inventions .vbi-subtabs .vbr-option, .vb-room.vb-inventions .vbi-stations .vbr-option { padding: 4px 8px; font-size: 13.5px; min-height: 36px; }
   .vbi-board-name { font-size: 10px; letter-spacing: 0.14em; margin: 0; }
+  .vbi-photography .vbi-modes { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+  .vb-room.vb-inventions .vbi-photography .vbi-modes .vbr-option { justify-content: center; text-align: center; padding: 3px 4px; font-size: 12.5px; line-height: 1.15; min-height: 40px; }
+  .vb-room.vb-inventions .vbi-step-area .vbr-actions .vbr-button { padding: 8px 12px; font-size: 12.5px; letter-spacing: 0.08em; }
+  .vbi-send-intro { display: none; }
   .vbi-send-row { grid-template-columns: 1fr auto; }
   .vbi-send-row .vbr-button-quiet { display: none; }
   .vbi-tg { gap: 1.4cqh; --cell: clamp(30px, 8.4cqw, 40px); }

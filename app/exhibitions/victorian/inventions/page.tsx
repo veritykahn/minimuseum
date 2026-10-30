@@ -12,10 +12,12 @@ import './inventions.css';
 /*
  * The inventions workshop, on one screen: three benches for the three
  * inventions poster 1 names, "railways, the telegraph, and photography",
- * each its own tab and address (#railway, #telegraph, #photography). Steam
- * a train west and watch the town clocks fall behind London's; press a
- * letter and watch two needles point to it; make a negative of a window and
- * print from it. Behind each bench, the owner's painting of where its
+ * each its own tab and address (#railway, #telegraph, #photography). Move
+ * the Sun west across a map and watch noon reach each town's clock in turn,
+ * then catch a train and set the clocks to railway time; press a letter and
+ * watch two needles point to it, or write a telegram and tap it out in
+ * Morse code; make a negative of a window and print from it. Each step fits
+ * on one screen. Behind each bench, the owner's painting of where its
  * invention worked (a station platform, a telegraph office, a glass-roofed
  * studio), and under them all her inventor's workbench as the room's ground
  * (made with Leonardo.Ai, not credited on the page, at the owner's request). What each bench shows is fact-checked against the Science

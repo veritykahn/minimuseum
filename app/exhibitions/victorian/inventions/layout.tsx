@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = 'A hands-on workshop of the Victorian inventions: steam a train west and compare the town clocks with railway time, send a word on a five-needle telegraph, and make a negative and prints from it.';
+const description = 'A hands-on workshop of the Victorian inventions: watch noon travel west across a map of town clocks and set them to railway time, send a word on a five-needle telegraph or a telegram in Morse code, and make a negative and prints from it.';
 
 export const metadata: Metadata = {
   title: 'Inventions Workshop | Victorian Britain | The Mini Museum',

@@ -60,7 +60,7 @@ describe('the workshop’s new notes', () => {
     expect(NOTES.morseBritain.sources[0].href).toMatch(/^https:\/\/collection\.sciencemuseumgroup\.org\.uk\/objects\/co8054889/);
     // The halfpenny a word over twelve is the room's own rule, and says so; the code is said to be International Morse.
     expect(TELEGRAM.rule).toMatch(/^Game rule:/);
-    expect(TELEGRAM.morseNote).toBe('The code on this bench is International Morse code.');
+    expect(TELEGRAM.morseNote).toBe('In International Morse code');
   });
 });
 
@@ -219,7 +219,7 @@ describe('railway time: the traveller, the train and the clocks', () => {
     expect(screen.getByText('Steventon keeps railway time!')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Reading' }));
     expect(screen.getByText('2 of 6 clocks set.')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Too slow? Send the time by telegraph' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Send the time by telegraph' }));
     expect(screen.getByText('Every clock on the line now says 12:00.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Step 4: .*\(done\)/ })).toBeInTheDocument();
     const facts = openFacts();
@@ -417,7 +417,7 @@ describe('telegrams in International Morse code', () => {
   it('writes a telegram, says it is International Morse, and prices it as it grows', () => {
     render(<VictorianInventions />);
     fireEvent.click(screen.getByRole('button', { name: 'Send a telegram' }));
-    expect(screen.getByText(TELEGRAM.morseNote)).toBeInTheDocument();
+    expect(document.querySelector('.vbi-tg-head')).toHaveTextContent('Telegram' + TELEGRAM.morseNote);
     expect(screen.getByText(TELEGRAM.rule)).toBeInTheDocument();
     const box = screen.getByRole('textbox', { name: 'Your telegram' });
     fireEvent.change(box, { target: { value: 'arriving bath at noon, send more tea!' } });
@@ -534,6 +534,8 @@ describe('telegrams in International Morse code', () => {
     expect(cells[0].querySelectorAll('.vbi-m-dash')).toHaveLength(1);
     expect(cells[1].querySelectorAll('.vbi-m-dot')).toHaveLength(1);
     expect(sheet).toHaveTextContent('In International Morse code.');
+    // And the chart, A to Z, for whoever it is sent to.
+    expect(sheet.querySelectorAll('.vbi-tg-sheet-chart li')).toHaveLength(26);
     await waitFor(() => expect(print).toHaveBeenCalled(), { timeout: 4000 });
     act(() => {
       window.dispatchEvent(new Event('afterprint'));

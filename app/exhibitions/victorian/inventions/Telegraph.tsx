@@ -342,7 +342,7 @@ export default function Telegraph({ reduced }: { reduced: boolean }) {
             <div className="vbi-step-area">
               {sending && (
                 <>
-                  <p className="vbi-step-body">Press a letter, or type a word and send it: two needles point to each letter.</p>
+                  <p className="vbi-step-body vbi-send-intro">Press a letter, or type a word and send it: two needles point to each letter.</p>
                   <div className="vbi-send-row">
                     <label className="vbr-field">
                       <span className="vbr-label">Your word</span>

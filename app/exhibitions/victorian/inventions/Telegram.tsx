@@ -310,7 +310,10 @@ export default function TelegramBench({ mode, reduced, modes }: { mode: Telegram
           {mode === 'send' ? (
             <section className="vbi-tg-form" aria-label="Your telegram form">
               <header className="vbi-tg-head">
-                <span className="vbi-tg-title">Telegram</span>
+                <span className="vbi-tg-titles">
+                  <span className="vbi-tg-title">Telegram</span>
+                  <span className="vbi-tg-code-name">{TELEGRAM.morseNote}</span>
+                </span>
                 <span className="vbi-tg-meta">
                   {words.length} word{words.length === 1 ? '' : 's'} · {cost ? oldMoney(cost) : '—'}
                 </span>
@@ -326,7 +329,10 @@ export default function TelegramBench({ mode, reduced, modes }: { mode: Telegram
           ) : (
             <section className="vbi-tg-form vbi-tg-in" aria-label="The telegram coming in">
               <header className="vbi-tg-head">
-                <span className="vbi-tg-title">Incoming</span>
+                <span className="vbi-tg-titles">
+                  <span className="vbi-tg-title">Incoming</span>
+                  <span className="vbi-tg-code-name">{TELEGRAM.morseNote}</span>
+                </span>
                 <span className="vbi-tg-lamp vbi-tg-lamp-big" data-on={lamp || undefined} aria-hidden="true" />
               </header>
               <ol className="vbi-tg-cells vbi-tg-decode" aria-label="The telegram, letter by letter">
@@ -473,7 +479,6 @@ export default function TelegramBench({ mode, reduced, modes }: { mode: Telegram
                   <p className="vbr-note">Nothing you write is saved or sent.</p>
                 </>
               )}
-              <p className="vbr-note vbi-morse-note">{TELEGRAM.morseNote}</p>
             </div>
             <CardFoot at={step} count={SEND_STEPS.length} onGo={goStep} facts={sendFacts} poster={POSTER.innovations} reset={`send${step}`} />
           </>
@@ -508,7 +513,6 @@ export default function TelegramBench({ mode, reduced, modes }: { mode: Telegram
                   Show me the answer
                 </button>
               )}
-              <p className="vbr-note vbi-morse-note">{TELEGRAM.morseNote}</p>
             </div>
             <CardFoot facts={[NOTES.morse, NOTES.morseBritain, NOTES.telegramForm]} poster={POSTER.innovations} reset={inN} />
           </>
@@ -667,6 +671,15 @@ function TelegramSheet({ to, from, cells, words, cost }: { to: string; from: str
             </span>
           ))}
       </div>
+      {/* The chart, so whoever it is sent to can read the Morse too. */}
+      <ul className="vbi-tg-sheet-chart" aria-label="International Morse code chart">
+        {LETTERS.map((l) => (
+          <li key={l}>
+            <strong>{l}</strong>
+            <Marks code={MORSE[l]} />
+          </li>
+        ))}
+      </ul>
       <footer className="vbi-sheet-credits">
         <p>
           In International Morse code. {TELEGRAM.words} words for sixpence, as the Post Office charged; each word more a halfpenny, by the workshop’s game rule.

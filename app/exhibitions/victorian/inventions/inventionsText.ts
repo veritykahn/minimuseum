@@ -303,7 +303,8 @@ export const TELEGRAM = {
   /** The game rule: each word over twelve costs a halfpenny more. */
   extraHalfpence: 1,
   rule: 'Game rule: each word over 12 costs a halfpenny more.',
-  morseNote: 'The code on this bench is International Morse code.',
+  /** Said on the telegram form itself, above its letters. */
+  morseNote: 'In International Morse code',
 };
 
 /** Telegrams to receive and decode: short, and every letter in the chart. */

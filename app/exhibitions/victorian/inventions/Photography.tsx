@@ -194,7 +194,7 @@ export default function Photography({ reduced }: { reduced: boolean }) {
   };
 
   return (
-    <div className="vbi-bench">
+    <div className="vbi-bench vbi-photography">
       <div className="vbr-scene vbi-scene">
         {part === 'print' && (
           <div className="vbi-photo" data-stage={stage} data-reduced={reduced || undefined}>

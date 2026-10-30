@@ -283,7 +283,7 @@ export default function Railway({ reduced }: { reduced: boolean }) {
           {id === 'journey' && (
             <>
               <div className="vbr-actions">
-                <button type="button" className="vbr-button vbr-button-primary vbi-steam" onClick={() => go(at + 1)} disabled={at === STATIONS.length - 1}>
+                <button type="button" className="vbr-button vbr-button-primary vbi-steam-on" onClick={() => go(at + 1)} disabled={at === STATIONS.length - 1}>
                   Steam to the next station <span aria-hidden="true">→</span>
                 </button>
                 {at === STATIONS.length - 1 && (
@@ -372,7 +372,7 @@ export default function Railway({ reduced }: { reduced: boolean }) {
               </div>
               {!wired && (
                 <button type="button" className="vbr-button vbi-wire-button" onClick={sendTime}>
-                  Too slow? Send the time by telegraph
+                  Send the time by telegraph
                 </button>
               )}
             </>
