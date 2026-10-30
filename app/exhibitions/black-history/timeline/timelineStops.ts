@@ -59,6 +59,10 @@ export type TimelineStop = {
   stopLabel?: string;
   /** An addition from outside the poster: an approved note and its source. */
   note?: ApprovedFact;
+  /** Older addresses (and photograph keys) that now open this stop: #2009 opens 2008–09. */
+  aliases?: string[];
+  /** The years offered in "guess the year", the right one (`year`) among them; none for Today. */
+  choices?: number[];
   theme: StopTheme;
 };
 
@@ -97,6 +101,7 @@ export const TIMELINE_STOPS: TimelineStop[] = [
     name: 'Francie',
     sentences: [EARLIER, CHRISTIE_FRANCIE],
     mark: ['Francie in 1967', 'Francie was essentially a white doll design with darker skin'],
+    choices: [1958, 1967, 1972, 1985],
     theme: 'lime',
   },
   {
@@ -105,6 +110,7 @@ export const TIMELINE_STOPS: TimelineStop[] = [
     name: 'Christie',
     sentences: [EARLIER, CHRISTIE_FRANCIE],
     mark: ['Christie in 1968', "Christie was presented as part of Barbie's friend group"],
+    choices: [1968, 1975, 1983, 1991],
     theme: 'lime-dark',
   },
   {
@@ -118,6 +124,7 @@ export const TIMELINE_STOPS: TimelineStop[] = [
     ],
     mark: ['introduced by Mattel in 1980', 'designed by Kitty Black Perkins'],
     tag: 'Designed by Kitty Black Perkins',
+    choices: [1971, 1976, 1980, 1989],
     theme: 'blob',
   },
   // Added (owner-approved, fact-checked): Virtual Black Doll Museum.
@@ -130,6 +137,7 @@ export const TIMELINE_STOPS: TimelineStop[] = [
     sentences: [],
     mark: [],
     note: ADDED_NOTES.dollsOfTheWorld,
+    choices: [1979, 1990, 1996, 2003],
     theme: 'pink-red',
   },
   // Added (owner-approved, fact-checked): Virtual Black Doll Museum.
@@ -140,23 +148,22 @@ export const TIMELINE_STOPS: TimelineStop[] = [
     sentences: [],
     mark: [],
     note: ADDED_NOTES.shani,
+    choices: [1984, 1987, 1991, 1998],
     theme: 'lime-dark',
   },
+  // One stop for both: the poster names them in one sentence, and both are marked in it.
+  // The old #2009 address still opens it (`aliases`), and so does a photograph keyed '2009'.
   {
     id: '2008',
+    aliases: ['2009'],
     year: 2008,
-    name: 'AKA Centennial Barbie',
+    yearLabel: '2008–09',
+    stopLabel: '2008',
+    name: 'AKA Centennial Barbie and “So In Style”',
     sentences: [SUCCESS],
-    mark: ['the AKA Centennial Barbie (2008)'],
+    mark: ['the AKA Centennial Barbie (2008)', 'the "So In Style" line (2009)'],
+    choices: [1999, 2008, 2013, 2018],
     theme: 'pink',
-  },
-  {
-    id: '2009',
-    year: 2009,
-    name: '“So In Style”',
-    sentences: [SUCCESS],
-    mark: ['the "So In Style" line (2009)'],
-    theme: 'pink-red',
   },
   // Added (owner-approved, fact-checked): Mattel, NBC News and CNN.
   {
@@ -168,6 +175,7 @@ export const TIMELINE_STOPS: TimelineStop[] = [
     sentences: [],
     mark: [],
     note: ADDED_NOTES.inspiringWomen,
+    choices: [2005, 2012, 2017, 2022],
     theme: 'blob',
   },
   {
@@ -224,9 +232,14 @@ export type OwnerPhoto = {
 };
 export const OWNER_BARBIE_PHOTOS: OwnerPhoto[] = [];
 
-/** The photograph for a stop, if the owner has given one. */
+/**
+ * The photograph for a stop, if the owner has given one: keyed by the stop's
+ * id, or by one of its older ids (a photograph keyed '2009' belongs to the
+ * merged 2008–09 stop). A photograph keyed by the id itself comes first.
+ */
 export function photoFor(stopId: string, photos: OwnerPhoto[] = OWNER_BARBIE_PHOTOS): OwnerPhoto | undefined {
-  return photos.find((p) => p.stop === stopId);
+  const stop = TIMELINE_STOPS.find((s) => s.id === stopId);
+  return photos.find((p) => p.stop === stopId) ?? photos.find((p) => !!stop?.aliases?.includes(p.stop));
 }
 
 export const TIMELINE_TEXT = {
@@ -236,6 +249,25 @@ export const TIMELINE_TEXT = {
   noteSource: 'A museum note, not the poster’s words',
   poster: POSTER.title,
   today: 'Today',
+  guessHeading: 'When was it? Guess the year!',
+  skip: 'Just show me',
+  right: 'Yes! You got it.',
+  wrong: 'Good try! It was',
+  skipped: 'It was',
+  score: 'Right guesses',
+  soundOn: 'Sound on',
+  soundOff: 'Sound off',
+  challenge: 'Final challenge',
+  challengeCta: 'Final challenge: put them in order',
+  orderHeading: 'Put them in order',
+  orderHow: 'Earliest first. Drag a card to move it, or tap two cards to swap them.',
+  earliest: 'Earliest',
+  latest: 'Latest',
+  check: 'Check my order',
+  shuffle: 'Mix them up',
+  backToTimeline: 'Back to the timeline',
+  allRight: 'Every one in the right place!',
+  startOver: 'Play again from the start',
 };
 
 /** A sentence cut into plain runs and marked runs, in order. */
@@ -272,8 +304,56 @@ export function stepFor(key: string, index: number, onTrack: boolean): number | 
   return to === null ? null : Math.max(0, Math.min(last, to));
 }
 
-/** The stop a hash names (#1980, #today), if any. */
+/** The stop a hash names (#1980, #today, and the older #2009), if any. */
 export function stopFromHash(hash: string): number {
   const id = hash.replace(/^#/, '').toLowerCase();
-  return TIMELINE_STOPS.findIndex((s) => s.id === id);
+  return TIMELINE_STOPS.findIndex((s) => s.id === id || !!s.aliases?.includes(id));
+}
+
+/* ───────── The game: guess the year at each stop, then put them in order ───────── */
+
+/** The address of the final challenge. */
+export const ORDER_HASH = 'order';
+
+/** The stops a class guesses and puts in order: every dated one (Today has no year to guess). */
+export const DATED_STOPS = TIMELINE_STOPS.filter((s) => s.year !== null);
+
+/** Whether a guess at a stop is right. */
+export const isRight = (stop: TimelineStop, guess: number) => guess === stop.year;
+
+/**
+ * The stops' ids in a new order, never already right (or there'd be nothing
+ * to do). `rand` is Math.random unless a test gives its own.
+ */
+export function shuffled(ids: readonly string[], rand: () => number = Math.random): string[] {
+  const out = [...ids];
+  for (let tries = 0; tries < 20; tries++) {
+    for (let i = out.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    if (out.some((id, i) => id !== ids[i])) return out;
+  }
+  // A rand that only ever leaves it sorted: turn it round instead.
+  return [...ids].reverse();
+}
+
+/** The cards with `from` and `to` swapped (tap one card, then another). */
+export function swapped(order: readonly string[], from: number, to: number): string[] {
+  const out = [...order];
+  [out[from], out[to]] = [out[to], out[from]];
+  return out;
+}
+
+/** The cards with the one at `from` lifted out and set down at `to` (a drag). */
+export function moved(order: readonly string[], from: number, to: number): string[] {
+  const out = [...order];
+  const [card] = out.splice(from, 1);
+  out.splice(to, 0, card);
+  return out;
+}
+
+/** For each card in the class's order, whether it is in its right place. */
+export function placesRight(order: readonly string[]): boolean[] {
+  return order.map((id, i) => DATED_STOPS[i]?.id === id);
 }
