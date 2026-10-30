@@ -2,9 +2,10 @@
  * The lab's drop-in slots: every sound and animation the owner can replace
  * with her own file. Each slot names one file under
  * public/exhibitions/fear-lab/. Drop a file in at that exact name and the
- * lab uses it the next time the page loads; until then, the lab makes the
- * sound itself (Web Audio, sound.ts) or draws the animation (CSS and SVG).
- * No code needs changing.
+ * lab uses it from the next build; until then, the lab makes the sound
+ * itself (Web Audio, sound.ts) or draws the animation (CSS and SVG). No code
+ * needs changing. Which slots are filled is read from disk when the page is
+ * built (assetSlots.ts), so an empty slot costs no request.
  *
  * Sounds: MP3, short, quiet enough to sit over the drone. Gentle mode plays
  * the same file at about half the volume.
@@ -29,6 +30,13 @@ export const SOUND_SLOTS = {
   'creature-snake': { file: 'sounds/creature-snake.mp3', use: 'The snake: a hiss.' },
   'creature-rat': { file: 'sounds/creature-rat.mp3', use: 'The rat: squeaks and scrabbling.' },
   'creature-centipede': { file: 'sounds/creature-centipede.mp3', use: 'The centipede: a fast, many-legged skitter.' },
+  // The fear boxes: the silly surprises (nothing scary in any of them)
+  slime: { file: 'sounds/slime.mp3', use: 'Slime splats on the screen: a wet, squelchy splat, then a slow slurp as it slides down (about 2 seconds).' },
+  confetti: { file: 'sounds/confetti.mp3', use: 'A party popper: one bright pop, then confetti pattering down, maybe a small cheer.' },
+  boing: { file: 'sounds/boing.mp3', use: 'A jack-in-the-box: a springy, wobbling “boing-oing-oing”.' },
+  squeak: { file: 'sounds/squeak.mp3', use: 'A rubber chicken: a silly squeezed squawk, two or three times.' },
+  bubbles: { file: 'sounds/bubbles.mp3', use: 'Bubbles floating up and popping: soft little plips and pops (about 2 seconds).' },
+  feather: { file: 'sounds/feather.mp3', use: 'A feather drifting down: a soft, airy whoosh with a gentle twinkle.' },
   // Known or unknown
   zap: { file: 'sounds/zap.mp3', use: 'A small electric shock: a short buzz and crackle.' },
   'big-zap': { file: 'sounds/big-zap.mp3', use: 'A stronger electric shock: a longer, lower buzz.' },
@@ -52,6 +60,7 @@ export type SoundSlot = keyof typeof SOUND_SLOTS;
 export const ANIMATION_SLOTS = {
   spiders: { file: 'animations/spiders.webm', use: 'The scare: lots and lots of spiders crawling out across the whole screen (about 4 seconds, over black).' },
   'spiders-gentle': { file: 'animations/spiders-gentle.webm', use: 'Gentle mode: a few slow, cartoonish spiders wandering across (about 5 seconds, over black).' },
+  slime: { file: 'animations/slime.webm', use: 'Optional: green slime splatting onto the screen and sliding down (about 3 seconds, on a transparent background, VP9 with alpha). Without it, the lab draws its own slime.' },
 } as const;
 
 export type AnimationSlot = keyof typeof ANIMATION_SLOTS;
@@ -59,27 +68,11 @@ export type AnimationSlot = keyof typeof ANIMATION_SLOTS;
 export const soundUrl = (slot: SoundSlot) => `${ASSET_DIR}/${SOUND_SLOTS[slot].file}`;
 export const animationUrl = (slot: AnimationSlot) => `${ASSET_DIR}/${ANIMATION_SLOTS[slot].file}`;
 
-const seen = new Map<string, Promise<boolean>>();
+/** The files the owner has dropped in, as named in the slots (for example 'sounds/creak.mp3'). */
+export type OwnedAssets = readonly string[];
 
-/**
- * Whether the owner has dropped a file in at `url`, asked once per page
- * load. False wherever there is no fetch (the tests) or the asking fails.
- */
-export function assetExists(url: string): Promise<boolean> {
-  let p = seen.get(url);
-  if (!p) {
-    p =
-      typeof fetch === 'function'
-        ? fetch(url, { method: 'HEAD' })
-            .then((r) => r.ok && !(r.headers.get('content-type') ?? '').startsWith('text/html'))
-            .catch(() => false)
-        : Promise.resolve(false);
-    seen.set(url, p);
-  }
-  return p;
-}
+/** Every slot's file, sounds and animations together. */
+export const SLOT_FILES: string[] = [...Object.values(SOUND_SLOTS), ...Object.values(ANIMATION_SLOTS)].map((s) => s.file);
 
-/** Forget what was asked: for the tests. */
-export function forgetAssets() {
-  seen.clear();
-}
+export const ownsSound = (owned: OwnedAssets, slot: SoundSlot) => owned.includes(SOUND_SLOTS[slot].file);
+export const ownsAnimation = (owned: OwnedAssets, slot: AnimationSlot) => owned.includes(ANIMATION_SLOTS[slot].file);
