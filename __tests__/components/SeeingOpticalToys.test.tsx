@@ -94,8 +94,9 @@ describe('like the real toys: the picture only through movement', () => {
   it('never lays the thaumatrope’s two sides together as a still', () => {
     const t = src('Thaumatrope.tsx');
     expect(t).not.toMatch(/vt-blend|mix-blend|together:\s*'The bird/);
-    // Each face draws one side only.
-    expect(t).toMatch(/<DiscArt side=\{side\} \/>/);
+    // Each face shows one side's picture only.
+    expect(t).toMatch(/<img src=\{FACES\[side\]\}/);
+    expect(t.match(/<img /g)).toHaveLength(1);
   });
 
   it('never draws the zoetrope’s strip snapped in place, or the slits fading away', () => {

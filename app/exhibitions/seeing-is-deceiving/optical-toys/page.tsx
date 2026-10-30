@@ -76,7 +76,11 @@ export default function SeeingOpticalToys() {
   };
 
   // The one note for both toys, under whichever toy is open.
-  const both = <FactNote fact={TOY_NOTES.both} className="vto-fact" />;
+  const both = (
+    <>
+      <FactNote fact={TOY_NOTES.both} className="vto-fact" />
+    </>
+  );
 
   return (
     <div className="sid-toys">

@@ -1,8 +1,7 @@
 'use client';
 
-import { useCallback, useEffect, useId, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import FactNote from '@/components/exhibition/FactNote';
-import { DiscArt } from './DiscArt';
 import { DISC, POSTER, TOY_NOTES } from './toysText';
 import { faceAt, speedAt, TAU, thaumaSeen, TOY_SPEEDS } from './spin';
 import { useSpeed } from './useSpeed';
@@ -21,8 +20,14 @@ import SpeedControl from './SpeedControl';
  * spins it too. Under reduced motion the disc does not turn: its two sides
  * are shown one at a time, and flipped by hand.
  *
- * Its two faces are drawn (DiscArt.tsx), as a hand-coloured engraving.
+ * Its two faces are the owner's illustrations (made with Leonardo.Ai,
+ * not credited on the page, at the owner's request).
  */
+
+const FACES = {
+  front: '/exhibitions/seeing-is-deceiving/optical-toys/thaum-bird.webp',
+  back: '/exhibitions/seeing-is-deceiving/optical-toys/thaum-cage.webp',
+};
 
 const TOP = TOY_SPEEDS.thaumatrope.top;
 /** How quickly the disc follows the control: a share of the gap closed each second. */
@@ -269,21 +274,12 @@ function sideLabel(s: Side) {
   return s === 'front' ? `Front: ${DISC.front}.` : `Back: ${DISC.back}.`;
 }
 
-/** One face of the card disc: cream card in a thin gold rim, with the holes for its strings. There is no "both at once": the eye makes that. */
+/** One face of the card disc. There is no "both at once": the eye makes that. */
 export function DiscFace({ side }: { side: Side }) {
-  const clip = `vt-clip-${useId().replace(/:/g, '')}`;
   return (
-    <svg className="vt-face-art" viewBox="-100 -100 200 200" aria-hidden="true">
-      <circle r="98" fill="#f3ead6" stroke="#b8963f" strokeWidth="3" />
-      <circle r="92" fill="none" stroke="#a8d5e5" strokeOpacity="0.7" strokeWidth="1.2" />
-      <clipPath id={clip}>
-        <circle r="90" />
-      </clipPath>
-      <g clipPath={`url(#${clip})`}>
-        <DiscArt side={side} />
-      </g>
-      <circle cx="-94" cy="0" r="2.6" fill="#6b5a44" />
-      <circle cx="94" cy="0" r="2.6" fill="#6b5a44" />
-    </svg>
+    <span className="vt-face-art">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={FACES[side]} alt="" draggable={false} />
+    </span>
   );
 }

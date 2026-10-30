@@ -15,15 +15,18 @@ import './inventions.css';
  * each its own tab and address (#railway, #telegraph, #photography). Steam
  * a train west and watch the town clocks fall behind London's; press a
  * letter and watch two needles point to it; make a negative of a window and
- * print from it. What each bench shows is fact-checked against the Science
+ * print from it. Behind each bench, the owner's painting of where its
+ * invention worked (a station platform, a telegraph office, a glass-roofed
+ * studio), and under them all her inventor's workbench as the room's ground
+ * (made with Leonardo.Ai, not credited on the page, at the owner's request). What each bench shows is fact-checked against the Science
  * Museum Group and the V&A, each note set with its source
  * (inventionsText.ts).
  */
 
 const TABS = [
-  { id: 'railway', label: WORKSHOP_TEXT.railwayHeading },
-  { id: 'telegraph', label: WORKSHOP_TEXT.telegraphHeading },
-  { id: 'photography', label: WORKSHOP_TEXT.photoHeading },
+  { id: 'railway', label: WORKSHOP_TEXT.railwayHeading, backdrop: '/exhibitions/victorian/inventions/railway-platform.webp' },
+  { id: 'telegraph', label: WORKSHOP_TEXT.telegraphHeading, backdrop: '/exhibitions/victorian/inventions/telegraph-office.webp' },
+  { id: 'photography', label: WORKSHOP_TEXT.photoHeading, backdrop: '/exhibitions/victorian/inventions/photography-studio.webp' },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
 
@@ -71,8 +74,9 @@ export default function VictorianInventions() {
     <RoomShell className="vb-inventions">
       <div className="vbr-stage vbi-stage" data-tab={tab}>
         <div className="vbr-room" aria-hidden="true">
-          <div className="vbr-paper" />
-          <div className="vbr-light" />
+          {TABS.map((x) => (
+            <div key={x.id} className="vbi-backdrop" data-shown={tab === x.id || undefined} style={{ backgroundImage: `url(${x.backdrop})` }} />
+          ))}
           <div className="vbr-table vbi-bench-top" />
         </div>
 
