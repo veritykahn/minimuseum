@@ -1,8 +1,10 @@
 /* ==========================================================================
    The inventions workshop: three benches on the polished table. The
-   railway's line and its two station clocks; the telegraph's diamond dial
-   with its five needles; the camera between a latticed window and its
-   paper. Each bench's scene sits on the stage, its card beside it.
+   railway's line and its two station clocks; the telegraph's circuit and
+   its diamond dial with five needles; the photography bench's negative and
+   print, its sitter, its three photographs and its sheet. Each bench's
+   scene sits on the stage, its card beside it, in large type for a class
+   reading it off a projector.
    ========================================================================== */
 
 /* The bench's painting behind it, faded across as the tabs change, dimmed at the top for the title; the workbench under all three. */
@@ -16,39 +18,150 @@
 }
 .vb-inventions .vbr-title { color: #f8f0dc; text-shadow: 0 2px 14px rgba(20, 10, 6, 0.7); }
 .vb-room.vb-inventions { --pe-nav-m: var(--vb-cream); --pe-nav-ink: var(--vb-cream); }
-.vb-inventions .vbi-photo figcaption { color: #f8f0dc; text-shadow: 0 1px 6px rgba(20, 10, 6, 0.8); }
 
 .vbi-panel { display: contents; }
 .vbi-panel[hidden] { display: none; }
 .vbi-bench { display: contents; }
-.vbi-readout { font-family: var(--vb-serif); font-size: 1.02rem; line-height: 1.45; }
-.vbi-readout strong { font-family: var(--pe-display); font-size: 1.5rem; font-weight: 400; letter-spacing: 0.08em; }
+.vbi-readout { font-family: var(--vb-serif); font-size: 1.15rem; line-height: 1.45; }
+.vbi-readout strong { font-family: var(--pe-display); font-size: 1.6rem; font-weight: 400; letter-spacing: 0.08em; }
+.vbi-big-readout { font-size: 1.35rem; padding: 10px 14px; border-radius: 6px; background: rgba(255, 255, 255, 0.1); }
+
+/* ───────── The steps in the card ───────── */
+.vbi-steps-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.vbi-step-count { margin: 0; font-size: 0.9rem; letter-spacing: 0.18em; text-transform: uppercase; opacity: 0.9; }
+.vbi-step-dots { list-style: none; margin: 0; padding: 0; display: flex; gap: 6px; }
+.vb-room .vbi-step-dot {
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.vb-room .vbi-step-dot[data-done] { background: #3f8a4a; border-color: #3f8a4a; }
+.vb-room .vbi-step-dot[aria-current='step'] { background: var(--vb-cream); color: var(--vb-green); border-color: var(--vb-cream); }
+.vbi-step-title { font-family: var(--vb-serif) !important; font-weight: 600 !important; font-size: 1.6rem !important; letter-spacing: 0.01em !important; text-transform: none !important; line-height: 1.25 !important; color: #f8f0dc; }
+.vbi-step-body { margin: 0; font-family: var(--vb-serif); font-size: 1.3rem; line-height: 1.5; }
+.vbi-task { margin: 0; font-size: 1.15rem; line-height: 1.45; font-weight: 400; padding: 10px 14px; border-left: 4px solid #f2c45a; background: rgba(0, 0, 0, 0.14); border-radius: 0 6px 6px 0; }
+.vbi-task-mark { color: #f2c45a; }
+.vbi-explain { margin: 0; font-family: var(--vb-serif); font-size: 1.2rem; line-height: 1.45; }
+.vbi-step-buttons { justify-content: space-between; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.3); }
+.vb-room .vbr-option:disabled { opacity: 0.45; cursor: default; }
+.vbi-modes { gap: 8px; }
 
 /* ───────── The railway ───────── */
 .vbi-rail { width: 100%; height: 100%; max-height: 100cqh; }
-.vbi-rail-name { font-family: 'Jost', sans-serif; font-size: 19px; fill: #2f4a32; }
+.vbi-rail-name { font-family: 'Jost', sans-serif; font-size: 21px; fill: #2f4a32; }
 .vbi-rail-name[data-here] { font-weight: 500; fill: #a4565c; }
-.vbi-rail-behind { font-family: 'Jost', sans-serif; font-size: 14px; fill: #5c6b5e; }
+.vbi-rail-behind { font-family: 'Jost', sans-serif; font-size: 16px; fill: #4c5b4e; }
 .vbi-train { transition: transform 1.6s cubic-bezier(0.45, 0, 0.3, 1); }
 .vbi-steam { animation: vbi-puff 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
 @keyframes vbi-puff { 50% { transform: translate(-6px, -3px) scale(1.08); opacity: 0.8; } }
-.vbi-clock-n { font-family: var(--vb-serif); font-size: 17px; fill: #2a2522; }
-.vbi-clock-label { font-family: var(--pe-display); font-size: 24px; letter-spacing: 3px; fill: #2f4a32; text-transform: uppercase; }
-.vbi-clock-sub { font-family: 'Jost', sans-serif; font-size: 17px; fill: #2f4a32; }
+.vbi-clock-n { font-family: var(--vb-serif); font-size: 19px; fill: #2a2522; }
+.vbi-clock-label { font-family: var(--pe-display); font-size: 25px; letter-spacing: 3px; fill: #2f4a32; text-transform: uppercase; }
+.vbi-clock-sub { font-family: 'Jost', sans-serif; font-size: 22px; font-weight: 500; fill: #2f4a32; }
+.vbi-clock-q { font-family: var(--pe-display); font-size: 96px; fill: #f4eee3; }
 .vbi-hand { transition: transform 1.4s cubic-bezier(0.4, 0, 0.2, 1); }
 .vbi-wire-live { stroke-dasharray: 10 8; animation: vbi-signal 0.9s linear infinite; }
 @keyframes vbi-signal { to { stroke-dashoffset: -36; } }
 .vb-room .vbi-unsync { align-self: flex-start; }
+.vbi-stations { gap: 6px; }
+
+/* The puzzle, and the clock to set by hand */
+.vbi-puzzle { display: flex; flex-direction: column; gap: 12px; }
+.vbi-puzzle-q { margin: 0; font-family: var(--vb-serif); font-size: 1.3rem; line-height: 1.5; }
+.vbi-puzzle-q strong { font-weight: 600; color: #f2d68a; }
+.vbi-answers { display: flex; flex-direction: column; gap: 8px; }
+.vb-room .vbi-answer, .vb-room .vbi-nudge {
+  appearance: none;
+  min-height: 54px;
+  padding: 10px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+  font-size: 1.2rem;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.vb-room .vbi-answer:hover:not(:disabled), .vb-room .vbi-nudge:hover:not(:disabled) { background: rgba(255, 255, 255, 0.16); }
+.vb-room .vbi-answer[data-verdict='right'] { background: #3f8a4a; border-color: #8fd59a; }
+.vb-room .vbi-answer[data-verdict='wrong'] { background: #b23a3a; border-color: #f0a0a0; animation: vbr-shake 0.4s ease both; }
+.vb-room .vbi-answer:disabled:not([data-verdict]) { opacity: 0.5; }
+.vbi-why { margin: 8px 0 0; font-family: var(--vb-serif); font-size: 1.15rem; line-height: 1.45; }
+.vbi-setter { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border-radius: 8px; background: rgba(0, 0, 0, 0.14); }
+.vbi-setter-label { margin: 0; font-family: var(--vb-serif); font-size: 1.35rem; }
+.vbi-setter-label strong { font-family: var(--pe-display); font-size: 1.8rem; font-weight: 400; letter-spacing: 0.06em; }
+.vbi-setter-buttons { display: flex; gap: 10px; }
+.vb-room .vbi-nudge { flex: 1; text-align: center; font-size: 1.35rem; font-weight: 500; }
+.vb-room .vbi-nudge:disabled { opacity: 0.4; cursor: default; }
+.vbi-setter[data-verdict='right'] { background: rgba(63, 138, 74, 0.35); }
+.vb-room .vbi-send { align-self: flex-start; }
+
 /* Words the dial can spell, to tap and send. */
 .vbi-try { display: flex; flex-direction: column; }
 .vb-room .vbi-try .vbr-option { letter-spacing: 0.1em; }
-.vb-room .vbr-option:disabled { opacity: 0.45; cursor: default; }
 
-/* ───────── The telegraph ───────── */
+/* ───────── The telegraph: how it works ───────── */
+.vbi-circuit { width: 100%; height: 100%; max-height: 100cqh; filter: drop-shadow(0 14px 18px rgba(47, 30, 20, 0.3)); }
+.vbi-circuit-station { font-family: var(--pe-display); font-size: 30px; letter-spacing: 2px; fill: #2f4a32; }
+.vbi-circuit-label { font-family: 'Jost', sans-serif; font-size: 26px; font-weight: 500; fill: #2f4a32; }
+.vbi-circuit-sign { font-family: 'Jost', sans-serif; font-size: 30px; font-weight: 600; fill: #2a2522; }
+.vbi-circuit-decoded { font-family: var(--pe-display); font-size: 40px; fill: #a4565c; letter-spacing: 4px; }
+.vbi-wire-path { fill: none; stroke: #2a2522; stroke-width: 5; stroke-linejoin: round; }
+.vbi-current { fill: none; stroke: #f2c45a; stroke-width: 9; stroke-linejoin: round; stroke-dasharray: 16 18; opacity: 0; }
+.vbi-circuit[data-live] .vbi-current { opacity: 1; animation: vbi-current 0.6s linear infinite; }
+@keyframes vbi-current { to { stroke-dashoffset: -34; } }
+.vbi-key-lever, .vbi-big-needle { transition: transform 0.25s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.vbi-part { transition: opacity 0.4s ease, filter 0.4s ease; }
+/* The part the step is about is lit; the others step back. */
+.vbi-circuit .vbi-part { opacity: 0.55; }
+.vbi-circuit[data-step='battery'] :is(.vbi-part-battery, .vbi-part-key),
+.vbi-circuit[data-step='wire'] .vbi-part-wire,
+.vbi-circuit[data-step='coil'] .vbi-part-coil,
+.vbi-circuit[data-step='needle'] .vbi-part-needle,
+.vbi-circuit[data-step='morse'] :is(.vbi-part-morse, .vbi-part-key) { opacity: 1; filter: drop-shadow(0 0 10px rgba(242, 196, 90, 0.95)); }
+.vbi-circuit:not([data-step='morse']) .vbi-part-morse { display: none; }
+.vbi-circuit .vbi-part-key, .vbi-circuit .vbi-part-needle { opacity: 1; }
+.vbi-label-wire { font-family: 'Jost', sans-serif; font-size: 26px; font-weight: 500; fill: #2f4a32; }
+.vbi-circuit[data-live] .vbi-part-coil rect { fill: #e0783a; }
+.vb-room .vbi-key-button {
+  appearance: none;
+  align-self: stretch;
+  min-height: 72px;
+  border: 0;
+  border-radius: 14px;
+  background: radial-gradient(circle at 50% 35%, #f6d488, #c9a24a 60%, #8a6a2c);
+  color: #2a2522;
+  font-family: var(--pe-display);
+  font-size: 1.6rem;
+  letter-spacing: 0.08em;
+  box-shadow: 0 6px 0 #6e4f1e, 0 10px 18px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+.vb-room .vbi-key-button[data-live] { transform: translateY(5px); box-shadow: 0 1px 0 #6e4f1e, 0 4px 8px rgba(0, 0, 0, 0.3); }
+.vbi-morse-marks { letter-spacing: 0.2em; }
+.vbi-morse-help { display: flex; flex-direction: column; gap: 4px; }
+.vbi-morse-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.vbi-morse-chips li { padding: 4px 10px; border-radius: 6px; background: rgba(0, 0, 0, 0.18); font-size: 1.1rem; letter-spacing: 0.1em; }
+.vbi-morse-chips strong { font-family: var(--pe-display); margin-right: 4px; }
+
+/* ───────── The telegraph: the dial ───────── */
 .vbi-board { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
 .vbi-dial {
   position: relative;
-  width: min(100cqw, (100cqh - 40px) * 6 / 5.4, 720px);
+  width: min(100cqw, (100cqh - 40px) * 6 / 5.4, 760px);
   aspect-ratio: 6 / 5.4;
   filter: drop-shadow(0 16px 18px rgba(47, 30, 20, 0.3));
 }
@@ -57,17 +170,17 @@
   appearance: none;
   position: absolute;
   transform: translate(-50%, -50%);
-  width: 9%;
+  width: 10.5%;
   aspect-ratio: 1;
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1.5px solid rgba(107, 74, 50, 0.4);
+  border: 2px solid rgba(107, 74, 50, 0.5);
   border-radius: 50%;
   background: #f8f0dc;
   color: #2f4a32;
   font-family: var(--pe-display);
-  font-size: clamp(14px, 2.2cqw, 26px);
+  font-size: clamp(16px, 3cqw, 32px);
   font-weight: 400;
   cursor: pointer;
   z-index: 2;
@@ -75,7 +188,10 @@
 }
 .vb-room .vbi-letter:hover { background: #fff; border-color: #6b4a32; }
 .vb-room .vbi-letter[data-pointed] { background: #a4565c; color: #fff; border-color: #a4565c; }
+.vb-room .vbi-letter[data-verdict='right'] { background: #3f8a4a; color: #fff; border-color: #2d6a37; box-shadow: 0 0 0 5px rgba(63, 138, 74, 0.45); animation: vbr-pop 0.4s ease both; }
+.vb-room .vbi-letter[data-verdict='wrong'] { background: #b23a3a; color: #fff; border-color: #8a2222; box-shadow: 0 0 0 5px rgba(178, 58, 58, 0.4); }
 .vb-room .vbi-letter:focus-visible { outline: 3px solid #2f4a32; outline-offset: 2px; }
+.vbi-dial-cheer { position: absolute; inset: 0; pointer-events: none; z-index: 4; }
 .vbi-needle {
   position: absolute;
   width: 2.6%;
@@ -88,12 +204,14 @@
 }
 .vbi-needle-n { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .vbi-dial[data-reduced] .vbi-needle { transition: none; }
-.vbi-board-name { font-family: 'Jost', sans-serif; font-size: 11px; letter-spacing: 0.24em; text-transform: uppercase; color: #f4eee3; opacity: 0.85; }
+.vbi-board-name { font-family: 'Jost', sans-serif; font-size: 13px; letter-spacing: 0.24em; text-transform: uppercase; color: #f4eee3; text-shadow: 0 1px 6px rgba(20, 10, 6, 0.8); }
 .vbi-word { display: flex; gap: 6px; flex-wrap: wrap; }
-.vbi-word-letter { display: grid; place-items: center; min-width: 1.6em; height: 1.9em; border-bottom: 1.5px solid rgba(255, 255, 255, 0.6); font-family: var(--pe-display); font-size: 1.35rem; }
-.vbi-word-letter[data-read] { border-bottom-color: #fff; }
+.vbi-word-letter { display: grid; place-items: center; min-width: 1.5em; height: 1.8em; border-bottom: 2px solid rgba(255, 255, 255, 0.6); font-family: var(--pe-display); font-size: 1.9rem; }
+.vbi-word-letter[data-read] { border-bottom-color: #8fd59a; color: #c8f0cf; }
 
 /* ───────── Photography ───────── */
+.vb-inventions figcaption { font-family: 'Jost', sans-serif; font-size: 14px; letter-spacing: 0.16em; text-transform: uppercase; color: #f8f0dc; text-shadow: 0 1px 6px rgba(20, 10, 6, 0.85); text-align: center; }
+/* 1. Negative to print */
 .vbi-photo {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -102,29 +220,96 @@
   gap: 2cqw 2.4cqw;
   width: 100%;
   height: 100%;
-  max-width: 980px;
+  max-width: 1000px;
 }
 .vbi-photo figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.vbi-photo figcaption { font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 0.2em; text-transform: uppercase; color: #2f4a32; }
-.vbi-photo-frame { position: relative; width: 100%; aspect-ratio: 290 / 260; box-shadow: 0 12px 20px rgba(47, 30, 20, 0.3); }
-.vbi-window-svg { display: block; width: 100%; height: 100%; }
-.vbi-camera { width: min(14cqw, 140px); }
-.vbi-camera-svg { width: 100%; overflow: visible; }
-/* The paper: blank and cream; the negative darkens in as it is exposed, the print comes up over it. */
-.vbi-paper { background: #efe4cc; }
-.vbi-neg, .vbi-pos { position: absolute; inset: 0; opacity: 0; }
-.vbi-neg { filter: invert(1) sepia(0.7) hue-rotate(-20deg) saturate(0.8) brightness(0.92); }
-.vbi-pos { filter: sepia(0.85) saturate(0.9) brightness(1.04) contrast(0.95); }
-.vbi-photo[data-stage='exposing'] .vbi-neg { opacity: 1; transition: opacity 4s linear; }
+.vbi-photo-frame { position: relative; width: 100%; aspect-ratio: 1200 / 991; box-shadow: 0 12px 20px rgba(47, 30, 20, 0.4); overflow: hidden; }
+.vbi-paper { background: #efe4cc; border: 6px solid #f8f0dc; }
+.vbi-photo-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+.vbi-neg, .vbi-pos { opacity: 0; }
+.vbi-photo[data-stage='exposing'] .vbi-neg { opacity: 1; transition: opacity 3s linear; }
 .vbi-photo[data-stage='negative'] .vbi-neg, .vbi-photo[data-stage='printing'] .vbi-neg { opacity: 1; }
+.vbi-pos[data-shown] { opacity: 1; }
 .vbi-photo[data-stage='printing'] .vbi-pos { opacity: 1; transition: opacity 2.5s ease-in; }
 .vbi-photo[data-reduced] .vbi-neg, .vbi-photo[data-reduced] .vbi-pos { transition: none !important; }
-.vbi-prints { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; gap: 1.4cqw; min-height: 13cqh; }
-.vbi-print { width: min(11cqw, 16cqh * 1.1); aspect-ratio: 290 / 260; padding: 4px; background: #f8f0dc; box-shadow: 0 6px 10px rgba(47, 30, 20, 0.3); filter: sepia(0.85) saturate(0.9); animation: vbi-print-in 0.5s ease both; }
-.vbi-print-more { font-family: var(--pe-display); font-size: 1.4rem; color: #f4eee3; }
+.vbi-print-cheer { position: absolute; inset: 0; pointer-events: none; }
+.vbi-sun { width: min(12cqw, 110px); }
+.vbi-sun-svg { width: 100%; display: block; }
+.vbi-photo[data-stage='printing'] .vbi-sun-svg { animation: vbi-shine 1.2s ease-in-out infinite; }
+@keyframes vbi-shine { 50% { transform: scale(1.08); filter: drop-shadow(0 0 14px #f2c45a); } }
+.vbi-prints { grid-column: 1 / -1; list-style: none; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; gap: 1.4cqw; min-height: 14cqh; }
+.vbi-print { position: relative; width: min(12cqw, 17cqh * 1.2); aspect-ratio: 1200 / 991; padding: 4px; background: #f8f0dc; box-shadow: 0 6px 10px rgba(47, 30, 20, 0.35); animation: vbi-print-in 0.5s ease both; }
+.vbi-print img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vbi-print-more { font-family: var(--pe-display); font-size: 1.6rem; color: #f4eee3; }
 @keyframes vbi-print-in { from { opacity: 0; transform: translateY(-10px); } }
-.vbi-steps { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 0.92rem; line-height: 1.4; }
-.vbi-steps li[data-done] { text-decoration: line-through; text-decoration-color: rgba(255, 255, 255, 0.6); opacity: 0.85; }
+.vbi-photo-steps { margin: 0; padding-left: 1.3em; display: flex; flex-direction: column; gap: 6px; font-size: 1.15rem; line-height: 1.4; }
+.vbi-photo-steps li[data-done] { text-decoration: line-through; text-decoration-color: rgba(255, 255, 255, 0.6); opacity: 0.85; }
+.vbi-photo-steps li[data-done]::marker { color: #8fd59a; }
+.vbi-credit { font-size: 0.86rem !important; opacity: 0.92; }
+
+/* 2. Hold still! */
+.vbi-sitter { display: flex; align-items: center; justify-content: center; gap: 3cqw; width: 100%; height: 100%; }
+.vbi-dag { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; height: 100%; justify-content: center; }
+.vbi-dag-frame { position: relative; height: min(88cqh, 100cqw * 1.15 * 0.7); aspect-ratio: 900 / 1035; background: #1d1612; box-shadow: 0 16px 24px rgba(20, 10, 6, 0.5); border-radius: 4px; overflow: visible; }
+.vbi-dag-frame img { width: 100%; height: 100%; display: block; border-radius: 4px; transition: filter 0.3s ease; }
+.vbi-dag-frame[data-verdict='right'] { box-shadow: 0 0 0 6px #3f8a4a, 0 16px 24px rgba(20, 10, 6, 0.5); }
+.vbi-dag-frame[data-verdict='near'] { box-shadow: 0 0 0 6px #b9862c, 0 16px 24px rgba(20, 10, 6, 0.5); }
+.vbi-dag-frame[data-verdict='wrong'] { box-shadow: 0 0 0 6px #b23a3a, 0 16px 24px rgba(20, 10, 6, 0.5); }
+.vbi-sitter[data-moving] .vbi-dag-frame img { animation: vbi-wobble 0.25s linear infinite; }
+@keyframes vbi-wobble { 25% { transform: translate(-3px, 1px) rotate(-0.6deg); } 75% { transform: translate(3px, -1px) rotate(0.6deg); } }
+.vbi-countdown { position: absolute; right: 10px; top: 10px; width: 64px; height: 64px; display: grid; place-items: center; border-radius: 50%; background: rgba(47, 74, 50, 0.92); color: #fff; font-family: var(--pe-display); font-size: 2.2rem; }
+.vbi-clamp { height: 70%; }
+.vbi-clamp-svg { height: 100%; display: block; }
+.vbi-clamp-label { font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 500; fill: #f8f0dc; }
+.vb-room .vbi-clamp-toggle { align-self: flex-start; }
+.vb-room .vbi-hold-button { font-size: 1.5rem; }
+
+/* 3. Three ways */
+.vbi-three { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2.4cqw; width: 100%; height: 100%; align-items: center; }
+.vbi-three li { height: 100%; display: flex; align-items: center; }
+.vb-room .vbi-three-photo {
+  appearance: none;
+  position: relative;
+  width: 100%;
+  padding: 8px 8px 0;
+  border: 0;
+  border-radius: 6px;
+  background: #f8f0dc;
+  box-shadow: 0 10px 18px rgba(20, 10, 6, 0.45);
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.vb-room .vbi-three-photo:hover { transform: translateY(-4px); }
+.vbi-three-photo img { width: 100%; height: auto; max-height: 62cqh; object-fit: contain; display: block; }
+.vbi-three-label { display: block; width: 100%; padding: 8px 4px; font-family: 'Jost', sans-serif; font-size: clamp(13px, 1.8cqw, 18px); font-weight: 500; color: #2f4a32; text-align: center; }
+.vb-room .vbi-three-photo[data-verdict='right'] { box-shadow: 0 0 0 6px #3f8a4a, 0 10px 18px rgba(20, 10, 6, 0.45); }
+.vb-room .vbi-three-photo[data-verdict='right'] .vbi-three-label { background: #3f8a4a; color: #fff; }
+.vb-room .vbi-three-photo[data-verdict='wrong'] { box-shadow: 0 0 0 6px #b23a3a, 0 10px 18px rgba(20, 10, 6, 0.45); animation: vbr-shake 0.4s ease both; }
+.vbi-clue { margin: 0; font-family: var(--vb-serif); font-style: italic; font-size: 1.4rem; line-height: 1.45; }
+
+/* 4. The sheet: its preview on the stage, and the page it prints */
+.vbi-sheet-preview { height: 100%; width: min(100%, 360px); overflow: auto; background: #fff; box-shadow: 0 16px 24px rgba(20, 10, 6, 0.5); }
+.vbi-sheet-preview .vbi-sheet { zoom: 0.45; }
+.vbi-sheet { box-sizing: border-box; width: 794px; padding: 40px 48px; background: #fffdf8; color: #2a2522; font-family: var(--vb-serif, Georgia, serif); }
+.vbi-sheet-head { text-align: center; border-bottom: 2px solid #2f4a32; padding-bottom: 12px; margin-bottom: 18px; }
+.vbi-sheet-kicker { margin: 0; font-family: 'Jost', sans-serif; font-size: 12px; letter-spacing: 0.24em; text-transform: uppercase; color: #6b4a32; }
+.vbi-sheet h1 { margin: 6px 0; font-family: var(--pe-display, serif); font-size: 40px; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: #2f4a32; }
+.vbi-sheet-name { margin: 0; font-size: 20px; font-style: italic; }
+.vbi-sheet-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 18px; }
+.vbi-sheet-three { grid-template-columns: repeat(3, 1fr); }
+.vbi-sheet figure { margin: 0; break-inside: avoid; }
+.vbi-sheet img { display: block; width: 100%; height: 230px; max-width: 100%; object-fit: contain; background: #f1ead9; }
+.vbi-sheet-three img { height: 250px; }
+.vbi-sheet figcaption { margin-top: 8px; font-family: var(--vb-serif, Georgia, serif); font-size: 15px; line-height: 1.4; letter-spacing: 0; text-transform: none; color: #2a2522; text-shadow: none; text-align: left; }
+.vbi-sheet-credits { border-top: 1px solid #c9a24a; padding-top: 10px; font-family: 'Jost', sans-serif; font-size: 11px; line-height: 1.45; color: #4a4038; }
+.vbi-sheet-credits p { margin: 0 0 4px; }
+@media print {
+  @page { margin: 12mm; }
+  .vbi-print-root .vbi-sheet { width: 100%; padding: 0; }
+}
 
 @media (max-width: 760px) {
   .vbr-stage.vbi-stage { --scene-h: 32dvh; }
@@ -132,24 +317,33 @@
   /* The line down the screen: its towns' names and minutes set to read at a phone's size. */
   .vbi-rail-down .vbi-rail-name { font-size: 27px; }
   .vbi-rail-down .vbi-rail-behind { font-size: 18px; }
-  .vbi-readout { font-size: 0.9rem; }
-  .vbi-readout strong { font-size: 1.2rem; }
+  .vbi-readout { font-size: 1rem; }
+  .vbi-readout strong { font-size: 1.3rem; }
+  .vbi-big-readout { font-size: 1.1rem; }
+  .vbi-step-title { font-size: 1.35rem !important; }
+  .vbi-step-body, .vbi-puzzle-q, .vbi-explain { font-size: 1.08rem; }
+  .vbi-task { font-size: 1rem; }
+  .vbi-clue { font-size: 1.15rem; }
+  .vb-room .vbi-step-dot { width: 34px; height: 34px; font-size: 14px; }
+  .vb-room .vbi-key-button { min-height: 60px; font-size: 1.3rem; }
+  .vb-room .vbi-answer { font-size: 1.05rem; min-height: 48px; }
   .vbi-photo { gap: 6px 8px; }
-  .vbi-photo figcaption { font-size: 10px; letter-spacing: 0.12em; }
+  .vb-inventions figcaption { font-size: 11px; letter-spacing: 0.1em; }
   .vbi-prints { min-height: 9cqh; }
-  .vbi-steps { font-size: 0.8rem; }
+  .vbi-photo-steps { font-size: 1rem; }
+  .vbi-countdown { width: 44px; height: 44px; font-size: 1.5rem; }
+  .vbi-three-label { font-size: 11px; padding: 4px 2px; }
 }
 
-/* A laptop's short screen: the benches' cards drawn closer, so each fits without scrolling. */
+/* A laptop's short screen: the benches' cards drawn closer. */
 @media (min-width: 761px) and (max-height: 820px) {
-  .vb-inventions .vbr-actions .vbr-button { letter-spacing: 0.06em; padding: 8px 14px; }
-  .vb-inventions .vbr-card { gap: 8px; }
-  .vb-inventions .vbr-fact { line-height: 1.4; }
-  .vb-inventions .vbi-readout { font-size: 0.96rem; line-height: 1.35; }
+  .vb-inventions .vbr-card { gap: 10px; }
+  .vbi-step-title { font-size: 1.5rem !important; }
+  .vbi-step-body { font-size: 1.2rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .vbi-train, .vbi-hand, .vbi-needle, .vb-room .vbi-letter { transition: none; }
-  .vbi-steam, .vbi-wire-live, .vbi-print { animation: none; }
+  .vbi-train, .vbi-hand, .vbi-needle, .vb-room .vbi-letter, .vbi-key-lever, .vbi-big-needle, .vbi-part, .vbi-dag-frame img { transition: none; }
+  .vbi-steam, .vbi-wire-live, .vbi-print, .vbi-current, .vbi-sun-svg, .vbi-sitter[data-moving] .vbi-dag-frame img, .vb-room .vbi-answer, .vb-room .vbi-three-photo, .vb-room .vbi-letter { animation: none !important; }
   .vbi-backdrop { transition: none; }
 }
