@@ -85,8 +85,9 @@ export function Bowl() {
 
 export function Flower() {
   const petals = Array.from({ length: 6 }, (_, i) => (i * 360) / 6);
+  // Set a little low, so the petals clear the star; the stem still ends inside the pot's rim.
   return (
-    <g>
+    <g transform="translate(0 8)">
       <path d="M 0 -38 C -3 -14, 3 4, 0 24" />
       <path d="M 0 -6 C -16 -18, -30 -12, -32 -4 C -20 2, -8 0, 0 -6 Z" />
       <path d="M 1 6 C 16 -6, 30 -2, 32 6 C 20 12, 8 12, 1 6 Z" />

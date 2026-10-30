@@ -172,15 +172,18 @@ export const FingerprintCard = forwardRef<SVGSVGElement, { fp: Fingerprint; titl
         {title}
       </text>
       {fp.map((f, i) => (
-        <g key={f.category} transform={`translate(${i % 2 ? 320 : 60} ${620 + Math.floor(i / 2) * 50})`}>
+        <g key={f.category} transform={`translate(${i % 2 ? 320 : 60} ${610 + Math.floor(i / 2) * 44})`}>
           <rect width="22" height="22" rx="4" fill={RING_COLOURS[i]} />
           <text x="34" y="18" fontFamily="Helvetica, Arial, sans-serif" fontSize="19" fill="#1a1a1a">
             {`${f.label}: ${f.score === null ? '–' : `${Math.round(f.score * 100)}%`}`}
           </text>
         </g>
       ))}
-      <text x="300" y="770" textAnchor="middle" fontFamily="Helvetica, Arial, sans-serif" fontSize="14" fill="#777">
-        {`Inner ring: brightness. Outer ring: brain against brain. The further round, the more it fooled ${heading.startsWith('Our') ? 'the class' : 'you'}.`}
+      <text x="300" y="756" textAnchor="middle" fontFamily="Helvetica, Arial, sans-serif" fontSize="15" fill="#666">
+        Inner ring: brightness. Outer ring: brain against brain.
+      </text>
+      <text x="300" y="776" textAnchor="middle" fontFamily="Helvetica, Arial, sans-serif" fontSize="15" fill="#666">
+        {`The further round a ring goes, the more that kind of trick fooled ${heading.startsWith('Our') ? 'the class' : 'you'}.`}
       </text>
     </svg>
   );
