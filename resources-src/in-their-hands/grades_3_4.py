@@ -79,7 +79,7 @@ def verdict(q="The fake is"):
 PILATE = {"img": C + "pilate-front.png", "label": "Case 7 · Ministry and Passion",
           "title": "The coin of Pontius Pilate",
           "facts": [("Coin", "Bronze prutah, genuine"), ("Date", "29/30 AD"), ("Reference", "Hendin 6370"), ("Scripture", "Matthew 27:24")],
-          "body": ["Pilate was the Roman prefect of Judaea from 26 to 36 AD. This coin was minted in the year of the Passion. One side shows a simpulum, a Roman ladle used in pagan worship; the other shows three ears of grain tied together. For decades some scholars questioned whether Pilate was real. In 1961 a stone carved with his name and title was found at Caesarea Maritima. This coin existed before that discovery. It was evidence all along."]}
+          "body": ["Pilate was the Roman prefect of Judaea from 26 to 36 AD. This coin was minted in 29 or 30 AD, within a few years of the Passion, which most scholars date to AD 30 or 33. One side shows a simpulum, a Roman ladle used in pagan worship; the other shows three ears of grain tied together. For decades some scholars questioned whether Pilate was real. In 1961 a stone carved with his name and title was found at Caesarea Maritima. This coin existed before that discovery. It was evidence all along."]}
 
 # Said in the plan and shown on the classroom screen, so written once.
 CLUE = "If a lepton looks perfect, be suspicious. The imperfection is the proof of authenticity."
@@ -296,7 +296,7 @@ GREEN = handout("green", "ITH_Handout_Green_Grades3_4.pdf", [
   ("task", {"label": "Part 3", "title": "A coin that is evidence",
             "blocks": [("coin", {"img": C + "pilate-front.png", "label": "Case 7 · Genuine",
               "title": "The coin of Pontius Pilate",
-              "body": ["Pilate was the Roman governor who put Jesus on trial. He had this coin made in 29/30 AD, the year of the Passion. Some people once wondered if Pilate was real. In 1961 a stone with his name was found — but his coins had been evidence all along."]})],
+              "body": ["Pilate was the Roman governor who put Jesus on trial. He had this coin made in 29/30 AD, within a few years of the Passion. Some people once wondered if Pilate was real. In 1961 a stone with his name was found — but his coins had been evidence all along."]})],
             "body": ["Who had this coin made? In what year? What does it help show about the Gospel?"], "lines": 4}),
   ("task", {"label": "Part 4", "title": "Put the coins in order", "blocks": [
             P("These four coins go with four Gospel stories. Write <b>1, 2, 3, 4</b> in the boxes, from the first story to the last."),
