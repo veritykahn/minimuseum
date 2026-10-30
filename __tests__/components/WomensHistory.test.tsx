@@ -10,7 +10,11 @@ import {
   AF_KLINT_SOURCE,
   IWM_WOMENS_WORK_URL,
   LONDON_MUSEUM_URL,
+  OWN_HISTORY_TITLE,
+  TALK_ABOUT_IT_HREF,
+  WARTIME_TITLE,
   WOMENS_HISTORY,
+  WOMENS_HISTORY_MONTH_GOV_URL,
   WOMENS_HISTORY_CASE,
 } from '@/app/exhibitions/womens-history/womensHistory';
 import { floorReturnFor } from '@/lib/floors';
@@ -26,9 +30,11 @@ const poster = (id: string) => WOMENS_HISTORY.posters.find((p) => p.id === id)!;
 const allItems = WOMENS_HISTORY.posters.flatMap((p) => p.items);
 /** The copy as read: "*…*" marks italics and is not part of the words. */
 const plain = (t: string) => t.replace(/\*/g, '');
-/** A paragraph as read: its bold lead-in, then its copy. */
+/** A printed paragraph as read: its bold lead-in, then its copy (the museum's added panels left out). */
 const paragraphs = (id: string) =>
-  poster(id).items.flatMap((it) => (it.type === 'paragraph' ? [plain(it.lead ? `${it.lead} ${it.text}` : it.text)] : []));
+  poster(id).items.flatMap((it) => (it.type === 'paragraph' && it.section !== 'added' ? [plain(it.lead ? `${it.lead} ${it.text}` : it.text)] : []));
+/** The museum's added panels, in order. */
+const added = (id: string) => poster(id).items.filter((it) => it.section === 'added');
 const allText = allItems
   .map((it) => [('lead' in it && it.lead) || '', 'text' in it && it.text ? plain(it.text) : '', ('subtitle' in it && it.subtitle) || '', ('note' in it && it.note) || ''].filter(Boolean).join(' '))
   .join('\n');
@@ -104,7 +110,47 @@ describe("Women's History Month", () => {
   });
 
   it('splits paragraphs only between sentences', () => {
-    for (const it of allItems) if (it.type === 'paragraph') expect(plain(it.text)).toMatch(/[.!?]"?$/);
+    for (const it of allItems) if (it.type === 'paragraph') expect(plain(it.text)).toMatch(/[.!?]["”]?$/);
+  });
+
+  describe('the museum’s added panels (the owner’s approved drafts)', () => {
+    it('adds seven panels to poster 1, after the painting, after Santa Rosa and in a wartime chapter', () => {
+      const items = poster('poster1').items;
+      const panels = added('poster1').filter((it) => it.type === 'paragraph');
+      const callouts = items.filter((it) => it.type === 'callout');
+      // Six paragraphs, and the second callout (womenshistorymonth.gov).
+      expect(panels).toHaveLength(6);
+      expect(callouts.map((c) => c.type === 'callout' && c.url)).toEqual([IWM_WOMENS_WORK_URL, WOMENS_HISTORY_MONTH_GOV_URL]);
+      expect(items).toHaveLength(17);
+      const at = (start: string) => items.findIndex((it) => 'text' in it && plain(it.text ?? '').startsWith(start));
+      expect(at('The painting is by Hilma af Klint')).toBe(items.findIndex((it) => it.type === 'full-image') + 1);
+      expect(at('The Santa Rosa organizers')).toBe(at('It began in 1978') + 1);
+      expect(at('Between 1988 and 1994')).toBe(at('The Santa Rosa organizers') + 1);
+      expect(at('Each year the National')).toBe(at('Between 1988 and 1994') + 1);
+      expect(at(WARTIME_TITLE)).toBe(at('Their roles in households') + 1);
+      expect(at('The Imperial War Museum began')).toBe(at('Explore the Women') - 1);
+      expect(poster('poster1').talk[WARTIME_TITLE]).toMatch(/“for boys” or “for girls,”/);
+    });
+
+    it('closes poster 2 after the legacy with "Your own women’s history", linked to the Talk About It room', () => {
+      const items = poster('poster2').items;
+      const legacy = items.findIndex((it) => it.className === 'wh-legacy');
+      expect(items[legacy + 1]).toMatchObject({ type: 'section-title', text: OWN_HISTORY_TITLE });
+      const link = items.find((it) => it.type === 'link');
+      expect(link).toMatchObject({ text: 'Step into Talk About It', url: TALK_ABOUT_IT_HREF });
+      expect(TALK_ABOUT_IT_HREF).toBe('/exhibitions/womens-history/remembered#talk');
+      expect(items.indexOf(link!)).toBe(items.findIndex((it) => it.type === 'callout') - 1);
+      expect(allText).toContain("Violet's story is one family's memory, written down so it would not be lost.");
+      expect(poster('poster2').talk[OWN_HISTORY_TITLE]).toMatch(/before it is forgotten\?$/);
+    });
+
+    it('cites every added panel that states a fact, each source a link', () => {
+      const facts = [...added('poster1'), ...added('poster2')].flatMap((it) => (it.type === 'paragraph' ? [it] : []));
+      // The two invitations in "Your own women's history" make no claim.
+      const unsourced = facts.filter((it) => !it.sources).map((it) => plain(it.text).slice(0, 20));
+      expect(unsourced).toEqual(["Violet's story is on", 'Ask. Listen. Write i']);
+      for (const it of facts) for (const s of it.sources ?? []) expect(s.href).toMatch(/^https:\/\//);
+    });
   });
 
   it('uses US spellings', () => {
@@ -152,6 +198,8 @@ describe("Women's History Month", () => {
     const callouts = allItems.flatMap((it) => (it.type === 'callout' ? [{ text: it.text, url: it.url }] : []));
     expect(callouts).toEqual([
       { text: "Explore the Women's Work Collection at the Imperial War Museum", url: IWM_WOMENS_WORK_URL },
+      // Added: where teachers can find more.
+      { text: "Explore Women's History Month resources from the Library of Congress, the National Archives, the National Park Service, the Smithsonian and other national museums together", url: WOMENS_HISTORY_MONTH_GOV_URL },
       { text: 'Explore objects and stories at the London Museum', url: LONDON_MUSEUM_URL },
     ]);
     expect(IWM_WOMENS_WORK_URL).toBe('https://www.iwm.org.uk/history/iwm/collections/womens-work');
@@ -197,12 +245,18 @@ describe("Women's History Month", () => {
       expect(credit).toHaveAttribute('href', AF_KLINT_SOURCE);
       expect(credit.querySelector('em')).toHaveTextContent('The Ten Largest, No. 1, Childhood');
 
+      // The museum's added note on the artist, with its source beneath it.
+      fireEvent.keyDown(document, { key: 'ArrowRight' });
+      tick();
+      expect(content()).toHaveTextContent('The painting is by Hilma af Klint, a Swedish artist born in 1862.');
+      expect(content().querySelector('.pe-source')).toHaveTextContent('Source: Tate, “The first abstract artist? (And it’s not Kandinsky)”');
+
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
       expect(content().querySelector('.pe-lead')).toHaveTextContent("Women's History Month, celebrated every March,");
 
       const callout = poster('poster1').items.findIndex((it) => it.type === 'callout');
-      for (let i = 3; i < callout; i++) {
+      for (let i = 4; i < callout; i++) {
         fireEvent.keyDown(document, { key: 'ArrowRight' });
         tick();
       }
@@ -232,8 +286,18 @@ describe("Women's History Month", () => {
       expect(content().querySelector('.pe-lead')).toHaveTextContent('VIOLET DINA WANT NÉE KNIGHT');
       expect(content().querySelector('.pe-figure img')).toHaveAttribute('src', '/exhibitions/womens-history/photo-violet.jpg');
 
+      // The closing link opens the Talk About It room in place, not in a new tab.
+      const link = poster('poster2').items.findIndex((it) => it.type === 'link');
+      for (let i = 3; i < link; i++) {
+        fireEvent.keyDown(document, { key: 'ArrowRight' });
+        tick();
+      }
+      const room = within(content()).getByRole('link', { name: 'Step into Talk About It' });
+      expect(room).toHaveAttribute('href', TALK_ABOUT_IT_HREF);
+      expect(room).not.toHaveAttribute('target');
+
       const callout = poster('poster2').items.findIndex((it) => it.type === 'callout');
-      for (let i = 3; i < callout; i++) {
+      for (let i = link; i < callout; i++) {
         fireEvent.keyDown(document, { key: 'ArrowRight' });
         tick();
       }

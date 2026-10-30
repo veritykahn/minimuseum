@@ -126,12 +126,16 @@ const PANEL_RENDERERS: Renderers = {
             )}
           </figure>
         )}
-        {item.source ? (
+        {item.source || item.sources?.length ? (
           <div className="pe-copy">
             {p}
             <TypedForReaders effect={effect} text={item.text} />
             <p className="pe-source" style={{ color: colors.text }}>
-              <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
+              {item.source ? (
+                <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
+              ) : (
+                <FactSources sources={item.sources ?? []} className="pe-source-list" />
+              )}
             </p>
           </div>
         ) : (
@@ -312,8 +316,8 @@ const PANEL_RENDERERS: Renderers = {
     <div className={`pe-text-content-wrapper pe-pos-center ${panelClasses(poster, item)}`}>
       <a
         href={item.url}
-        target="_blank"
-        rel="noopener noreferrer"
+        // A room of the museum's own opens in place; anywhere else, in a new tab.
+        {...(item.url.startsWith('/') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
         className={`pe-content-link ${item.effect && item.effect !== 'theme' ? effectClass(item.effect) : 'pfx-fg'}`}
         style={{ color: colors.text, borderColor: colors.text }}
       >
@@ -360,23 +364,6 @@ const PANEL_RENDERERS: Renderers = {
         ) : (
           <p className={cls}>{body}</p>
         )}
-      </div>
-    );
-  },
-
-  note: ({ poster, item, colors }) => {
-    const effect = entranceOf(item);
-    return (
-      <div className={`pe-text-content-wrapper pe-pos-center pe-note ${panelClasses(poster, item)}`}>
-        <div className={`pe-note-body ${effect !== 'theme' ? effectClass(effect) : 'pfx-fg'}`} style={{ color: colors.text }}>
-          {item.kicker && <p className="pe-note-kicker">{item.kicker}</p>}
-          {item.facts.map((f) => (
-            <p key={f.text} className="pe-paragraph-text pe-note-text" data-fact="approved">
-              <Emph text={f.text} />{' '}
-              <FactSources sources={f.sources} className="pe-note-source" />
-            </p>
-          ))}
-        </div>
       </div>
     );
   },

@@ -79,7 +79,7 @@ def verdict(q="The fake is"):
 PILATE = {"img": C + "pilate-front.png", "label": "Case 7 · Ministry and Passion",
           "title": "The coin of Pontius Pilate",
           "facts": [("Coin", "Bronze prutah, genuine"), ("Date", "29/30 AD"), ("Reference", "Hendin 6370"), ("Scripture", "Matthew 27:24")],
-          "body": ["Pilate was the Roman prefect of Judaea from 26 to 36 AD. This coin was minted in the year of the Passion. One side shows a simpulum, a Roman ladle used in pagan worship; the other shows three ears of grain tied together. For decades some scholars questioned whether Pilate was real. In 1961 a stone carved with his name and title was found at Caesarea Maritima. This coin existed before that discovery. It was evidence all along."]}
+          "body": ["Pilate was the Roman prefect of Judaea from 26 to 36 AD. This coin was minted in 29 or 30 AD, within a few years of the Passion, which most scholars date to AD 30 or 33. One side shows a simpulum, a Roman ladle used in pagan worship; the other shows three ears of grain tied together. For decades some scholars questioned whether Pilate was real. In 1961 a stone carved with his name and title was found at Caesarea Maritima. This coin existed before that discovery. It was evidence all along."]}
 
 # Said in the plan and shown on the classroom screen, so written once.
 CLUE = "If a lepton looks perfect, be suspicious. The imperfection is the proof of authenticity."

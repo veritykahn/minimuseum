@@ -25,7 +25,8 @@ const poster = (id: string) => AMERICA_250.posters.find((p) => p.id === id)!;
 const allItems = AMERICA_250.posters.flatMap((p) => p.items);
 /** The copy as read: "*…*" marks italics and is not part of the words. */
 const plain = (t: string) => t.replace(/\*/g, '');
-const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' ? [plain(it.text)] : []));
+/** The printed copy: every paragraph but the museum's added notes (those carry their sources). */
+const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' && !it.sources ? [plain(it.text)] : []));
 const quotes = (id: string) => poster(id).items.flatMap((it) => (it.type === 'quote' ? [{ text: it.text, cite: it.cite }] : []));
 const allText = allItems.map((it) => ('text' in it && it.text ? plain(it.text) : '')).join('\n');
 const tick = (ms = 400) => act(() => { jest.advanceTimersByTime(ms); });
@@ -161,7 +162,7 @@ describe('America 250', () => {
   });
 
   it('splits paragraphs only between sentences', () => {
-    for (const it of allItems) if (it.type === 'paragraph') expect(plain(it.text)).toMatch(/[.!?]"?$/);
+    for (const it of allItems) if (it.type === 'paragraph') expect(plain(it.text)).toMatch(/[.!?]["”]?$/);
   });
 
   it('uses US spellings', () => {
@@ -303,19 +304,22 @@ describe('The America 250 display case page', () => {
 
 describe('Many Faiths, One Declaration (owner-approved museum note, B9.3)', () => {
   const items = poster('poster2').items;
-  const notes = items.flatMap((it, i) => (it.type === 'note' ? [{ it, i }] : []));
+  const notes = items.flatMap((it, i) => (it.type === 'paragraph' && it.sources ? [{ it, i }] : []));
 
-  it('follows the Carroll chapter, as notes and never as poster copy, before The Long Wager', () => {
+  it('follows the Carroll chapter, in its own section and never as poster copy, before The Long Wager', () => {
     const carroll = items.findIndex((it) => it.type === 'section-title' && it.text === 'The Signer Who Refused To Be Anonymous');
     const wager = items.findIndex((it) => it.type === 'section-title' && it.text === 'The Long Wager');
     expect(notes.length).toBeGreaterThan(0);
-    for (const { i } of notes) expect(i > carroll && i < wager).toBe(true);
+    for (const { it, i } of notes) {
+      expect(i > carroll && i < wager).toBe(true);
+      expect(it.section).toBe('added');
+    }
     // Carroll's faith is still named in the copy, as history.
     expect(allText).toContain('Charles Carroll of Carrollton was the only Catholic among the fifty-six signers.');
   });
 
   it('sets every drafted item, each with its linked sources', () => {
-    const facts = notes.flatMap(({ it }) => (it.type === 'note' ? it.facts : []));
+    const facts = notes.flatMap(({ it }) => (it.type === 'paragraph' ? [{ text: it.text, sources: it.sources ?? [] }] : []));
     expect(facts.map((f) => f.text.split(' ').slice(0, 2).join(' '))).toEqual([
       'Carroll was', 'John Witherspoon,', 'Most Quakers', 'Haym Salomon,', 'In August', 'The Bible', 'Some founders', 'The Baptists',
     ]);
@@ -339,7 +343,7 @@ describe('Many Faiths, One Declaration (owner-approved museum note, B9.3)', () =
       tick();
     }
     const content = document.querySelector('.pe-walkthrough-content') as HTMLElement;
-    expect(content).toHaveTextContent('Museum note · Many Faiths, One Declaration');
+    expect(content).toHaveTextContent('Many Faiths, One Declaration. Carroll was not the only signer');
     expect(within(content).getByRole('link', { name: 'National Archives, the Constitution, Article VI' })).toHaveAttribute(
       'href',
       'https://www.archives.gov/founding-docs/constitution-transcript',

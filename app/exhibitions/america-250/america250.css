@@ -581,3 +581,6 @@
   /* A detail above a long paragraph: kept short, so the copy clears the arrows. */
   [data-exhibition='america-250'] .ap-copy .pe-figure img { max-height: 28vh; }
 }
+
+/* The museum's added note (Many Faiths, One Declaration): its sources sit flush with the copy. */
+[data-exhibition='america-250'] .ap-added .pe-source { text-align: left; }

@@ -1,7 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { FxTheme } from '@/components/poster-fx/PosterFx';
 import type { PosterTalk } from '@/components/projector/posterTalk';
-import type { ApprovedFact } from './FactNote';
+import type { FactSource } from './FactNote';
 
 /*
  * The shape of a poster exhibition: everything PosterExhibition needs to draw
@@ -174,6 +174,12 @@ export type ParagraphItem = PanelBase & {
   position?: PanelPosition;
   figure?: PanelFigure;
   source?: PanelSource;
+  /**
+   * A museum note's sources (FactNote's): for a panel the museum adds beside
+   * the printed copy, each fact checked and cited. Set small beneath the copy
+   * as "Source:" or "Sources:", each linked.
+   */
+  sources?: readonly FactSource[];
 };
 
 /** A chapter opening. Its text is also the chapter's name in projector mode. */
@@ -301,7 +307,7 @@ export type QuoteItem = PanelBase & {
   cite?: string;
 };
 
-/** A link out of the poster, set as a button. */
+/** A link out of the poster, set as a button: to another site (in a new tab), or to one of the museum's own rooms ('/exhibitions/…', in place). */
 export type LinkItem = PanelBase & {
   type: 'link';
   text: string;
@@ -321,18 +327,6 @@ export type CalloutItem = PanelBase & {
   url?: string;
 };
 
-/**
- * A museum note: owner-approved, fact-checked facts from outside the poster,
- * each set with its sources beneath it (FactNote), so it reads as a note and
- * never as poster wording. The kicker names it ("Museum note · …"). In a
- * fact, *word* is set in italics.
- */
-export type NoteItem = PanelBase & {
-  type: 'note';
-  kicker?: string;
-  facts: ApprovedFact[];
-};
-
 /** The last panel: "Return to Exhibition", or the projector's end screen. */
 export type EndItem = PanelBase & {
   type: 'end';
@@ -350,7 +344,6 @@ export type PosterItem =
   | QuoteItem
   | LinkItem
   | CalloutItem
-  | NoteItem
   | EndItem;
 
 export type PosterItemType = PosterItem['type'];

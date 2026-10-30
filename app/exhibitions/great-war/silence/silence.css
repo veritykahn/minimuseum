@@ -68,6 +68,34 @@
   font-size: clamp(1.1rem, 2.4vw, 1.45rem);
   line-height: 1.5;
 }
+/* Before Begin: ask for sound, plainly, beside a speaker. */
+.gws-sound-on {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: -6px 0 -4px;
+  padding: 10px 16px;
+  border: 1px solid rgba(237, 230, 218, 0.28);
+  border-radius: 6px;
+  background: rgba(18, 18, 17, 0.45);
+  font-family: var(--pe-ui);
+  font-size: clamp(0.85rem, 1.6vw, 1rem);
+  line-height: 1.4;
+  color: #ece7dd;
+  text-align: left;
+}
+.gws-sound-on strong { font-weight: 600; letter-spacing: 0.04em; color: #fff; }
+.gws-sound-on-icon {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.gws-sound-on-icon path:first-child { fill: currentColor; }
 .gws-sound-note {
   font-family: var(--pe-ui);
   font-size: 12px;
@@ -403,4 +431,12 @@
   .gws-stage .gws-controls { gap: 8px; }
   .gws-sound-note-space { min-height: 3em; }
   .gws-stage .gws-controls .gw-button { padding: 12px 14px; }
+  .gws-ready { gap: 14px; padding: 16px; }
+  .gws-sound-on { gap: 10px; padding: 8px 12px; font-size: 0.85rem; }
+  .gws-sound-on-icon { width: 26px; height: 26px; }
+}
+/* A short screen (a laptop, a projector at 1280 × 800): the ready screen closes up. */
+@media (max-height: 860px) and (min-width: 641px) {
+  .gws-ready { gap: 14px; padding: 12px 24px; }
+  .gws-ready-text { font-size: clamp(1rem, 2vw, 1.25rem); }
 }

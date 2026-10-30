@@ -122,7 +122,7 @@ QUESTIONS = [
     {"img": C + "shekel.png", "title": "Shekel of Tyre", "replica": True, "ref": "Silver shekel · 1 BC–1 AD · Matthew 26:15",
      "q": ["The only coin the Temple accepted carried the image of a pagan god. Why accept it? And what does it mean that it became the price of betrayal?"]},
     {"img": C + "pilate-front.png", "title": "Pontius Pilate", "ref": "Bronze prutah · 29/30 AD · Matthew 27:24",
-     "q": ["Minted in the year of the Passion, by the man who sentenced Jesus. What changes when you know that?",
+     "q": ["Minted within a few years of the Passion, by the man who sentenced Jesus. What changes when you know that?",
            "Some scholars doubted Pilate existed until 1961. What had this coin been all along?"]},
     {"img": C + "antipas-front.png", "title": "Herod Antipas", "replica": True, "ref": "Bronze prutah · 4 BC–39 AD · Luke 23:9",
      "q": ["Jesus spoke to Pilate, to the High Priest and to his accusers, but gave Antipas not one word. Why might silence be an answer?"]},

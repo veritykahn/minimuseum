@@ -28,7 +28,8 @@ import { floorReturnFor } from '@/lib/floors';
  * And one approved section title (B9.2): "The Signer Who Refused To Be
  * Anonymous", in place of "The Catholic Who …"; the copy beneath still names
  * Carroll's faith, as history. After that chapter, a museum note (not poster
- * wording): Many Faiths, One Declaration (MANY_FAITHS).
+ * wording): Many Faiths, One Declaration (MANY_FAITHS), set as paragraphs
+ * in their own section ('added'), each with its sources beneath it.
  * Typesetting only: the two doubled spaces on poster 2 are single, and the
  * title of Paine's pamphlet is set in italics, as are the two stressed words
  * the poster italicizes (*wanted*, *needed*). "*…*" marks italics.
@@ -86,7 +87,8 @@ export const LEUTZE_SOURCE = 'https://commons.wikimedia.org/wiki/File:Washington
  * it was left out ("read aloud every year", "a minority in Connecticut",
  * "with a razor").
  */
-export const MANY_FAITHS_KICKER = 'Museum note · Many Faiths, One Declaration';
+/** Set in bold before the first fact, naming the note. */
+export const MANY_FAITHS_LEAD = 'Many Faiths, One Declaration.';
 export const MANY_FAITHS: Record<string, ApprovedFact> = {
   intro: {
     text: 'Carroll was not the only signer whose faith set him apart. The men and women of the founding era included Presbyterians and Anglicans, Quakers and Baptists, Jews and freethinkers, and in 1787 the Constitution declared that no religious test would ever be required to hold federal office.',
@@ -386,6 +388,8 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         head: { className: 'ap-p2 ap-head', title: INK },
         copy: { className: 'ap-p2 ap-copy' },
         quote: { className: 'ap-p2 ap-quote' },
+        // The museum's added note after the Carroll chapter (MANY_FAITHS), its sources beneath it.
+        added: { className: 'ap-p2 ap-copy ap-added' },
         epigraph: { className: 'ap-p2 ap-quote ap-epigraph' },
         picture: { className: 'ap-p2 ap-picture' },
         link: { className: 'ap-p2 ap-link' },
@@ -450,14 +454,16 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'ink-spread', text: 'Charles Carroll of Carrollton was the only Catholic among the fifty-six signers. In 1776, Catholics could still not hold public office in most of the American colonies.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'line-by-line', text: 'The story goes that when it was observed that there were many men named Charles Carroll and he might escape personal consequence, Carroll responded by adding his full address to his signature — "of Carrollton" — so there could be no mistaking which Charles Carroll had signed. (He often signed that way to tell himself apart from his father, Charles Carroll of Annapolis.) He refused the protection of ambiguity to stand in life and death with his fellow signers.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'blur-to-sharp', text: "Carroll eventually outlived every other signatory, dying in 1832 at the age of ninety-five as the last living connection to that room, that day, that decision. When asked what he considered his most important contribution, he did not mention his wealth or his longevity. Carroll's answer was his signature on the Declaration, and the fact that he had made sure it could be read." },
-        // Museum note, not poster wording (owner-approved, B9.3): Many Faiths, One Declaration.
-        { type: 'note', section: 'copy', atmosphere: 'stone-engraving', effect: 'fade-in', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.intro] },
-        { type: 'note', section: 'copy', atmosphere: 'signing-quill', effect: 'drift', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.witherspoon, MANY_FAITHS.quakers] },
-        { type: 'note', section: 'copy', atmosphere: 'signing-quill', effect: 'rise-expand', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.salomon] },
-        { type: 'note', section: 'copy', atmosphere: 'stone-engraving', effect: 'breathe', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.newport] },
-        { type: 'note', section: 'copy', atmosphere: 'foxed-parchment', effect: 'fade-in', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.saur] },
-        { type: 'note', section: 'copy', atmosphere: 'signing-quill', effect: 'blur-to-sharp', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.freethinkers] },
-        { type: 'note', section: 'copy', atmosphere: 'thirteen-stars', effect: 'ink-spread', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.danbury] },
+        // The museum's added note, not poster wording (owner-approved, B9.3): Many Faiths, One Declaration.
+        // Each panel is one fact with its sources beneath it (`sources`), in the 'added' section.
+        { type: 'paragraph', section: 'added', atmosphere: 'stone-engraving', effect: 'fade-in', lead: MANY_FAITHS_LEAD, text: MANY_FAITHS.intro.text, sources: MANY_FAITHS.intro.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'signing-quill', effect: 'drift', text: MANY_FAITHS.witherspoon.text, sources: MANY_FAITHS.witherspoon.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'signing-quill', effect: 'rise-expand', text: MANY_FAITHS.quakers.text, sources: MANY_FAITHS.quakers.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'stone-engraving', effect: 'line-by-line', text: MANY_FAITHS.salomon.text, sources: MANY_FAITHS.salomon.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'stone-engraving', effect: 'breathe', text: MANY_FAITHS.newport.text, sources: MANY_FAITHS.newport.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'foxed-parchment', effect: 'fade-in', text: MANY_FAITHS.saur.text, sources: MANY_FAITHS.saur.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'signing-quill', effect: 'blur-to-sharp', text: MANY_FAITHS.freethinkers.text, sources: MANY_FAITHS.freethinkers.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'thirteen-stars', effect: 'ink-spread', text: MANY_FAITHS.danbury.text, sources: MANY_FAITHS.danbury.sources },
 
         { type: 'section-title', section: 'head', atmosphere: 'thirteen-stars', effect: 'split-reveal', text: 'The Long Wager' },
         { type: 'paragraph', section: 'copy', atmosphere: 'thirteen-stars', effect: 'rise-expand', text: 'The signatures of 1776 did not end the wager on the colonies\' independence, rather they began it. The independence the Declaration asserted so assuredly still had to be built through the failed confederation, the Constitutional Convention held in secret, and the ratification process that was anything but certain. America was constantly and consistently referred to as an experiment by the same men who were attempting to forge it.' },
