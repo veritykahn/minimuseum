@@ -230,6 +230,7 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
       sections: {
         title: { className: 'mo-earth' },
         right: { className: 'mo-right' },
+        copy: { className: 'mo-copy' },
         link: { className: 'mo-link' },
       },
       items: [
@@ -244,18 +245,18 @@ export const MOON: ExhibitionConfig<'poster1' | 'poster2'> = {
           alt: 'Another Earth',
           decor: { src: '/exhibitions/moon/ringed-planet.jpg', placement: 'top-left', motion: 'none', width: 'min(26vw, 250px)' },
         },
-        { type: 'paragraph', section: 'right', atmosphere: 'exoplanet-transit', effect: 'fade-in', text: 'For centuries, humans have wondered if there are other planets like Earth in the universe. This curiosity led to the discovery of exoplanets—planets outside our solar system.' },
+        { type: 'paragraph', section: 'copy', position: 'top-left', atmosphere: 'exoplanet-transit', effect: 'fade-in', text: 'For centuries, humans have wondered if there are other planets like Earth in the universe. This curiosity led to the discovery of exoplanets—planets outside our solar system.' },
         { type: 'paragraph', section: 'right', atmosphere: 'exoplanet-transit', effect: 'typewriter', text: 'In 1992, astronomers found the first exoplanets orbiting a pulsar, a type of neutron star. Then, in 1995, scientists discovered 51 Pegasi b, the first exoplanet orbiting a star similar to our Sun.' },
-        { type: 'paragraph', section: 'right', atmosphere: 'exoplanet-transit', effect: 'line-by-line', text: 'Since then, over 6,000 exoplanets have been confirmed, including HD 20794 d, a "super-Earth" located about 20 light-years away in the constellation Eridanus. This planet is roughly six times the mass of Earth and orbits within its star\'s habitable zone, where temperatures could allow liquid water to exist.' },
-        { type: 'paragraph', section: 'right', atmosphere: 'exoplanet-transit', effect: 'breathe', text: 'The discovery of HD 20794 d raises hopes of finding alien life, as scientists continue to explore exoplanets that might host life forms.' },
+        { type: 'paragraph', section: 'copy', position: 'bottom-right', atmosphere: 'exoplanet-transit', effect: 'line-by-line', text: 'Since then, over 6,000 exoplanets have been confirmed, including HD 20794 d, a "super-Earth" located about 20 light-years away in the constellation Eridanus. This planet is roughly six times the mass of Earth and orbits within its star\'s habitable zone, where temperatures could allow liquid water to exist.' },
+        { type: 'paragraph', section: 'copy', position: 'top-right', atmosphere: 'exoplanet-transit', effect: 'breathe', text: 'The discovery of HD 20794 d raises hopes of finding alien life, as scientists continue to explore exoplanets that might host life forms.' },
 
-        { type: 'paragraph', section: 'right', atmosphere: 'dark-forest-sky', effect: 'blind-spot-reveal', text: "But if the universe is so vast and full of stars, why haven't we found aliens yet? This question is known as the Fermi Paradox." },
-        { type: 'paragraph', section: 'right', atmosphere: 'dark-forest-sky', effect: 'blur-to-sharp', text: 'One idea, called the "Dark Forest" theory, suggests that intelligent civilizations stay silent to avoid attracting attention, fearing that other civilizations might be dangerous. Another possibility is that life is rare or doesn\'t last long, making it hard for civilizations to find each other before disappearing.' },
+        { type: 'paragraph', section: 'copy', position: 'center', atmosphere: 'dark-forest-sky', effect: 'blind-spot-reveal', text: "But if the universe is so vast and full of stars, why haven't we found aliens yet? This question is known as the Fermi Paradox." },
+        { type: 'paragraph', section: 'copy', position: 'bottom-left', atmosphere: 'dark-forest-sky', effect: 'blur-to-sharp', text: 'One idea, called the "Dark Forest" theory, suggests that intelligent civilizations stay silent to avoid attracting attention, fearing that other civilizations might be dangerous. Another possibility is that life is rare or doesn\'t last long, making it hard for civilizations to find each other before disappearing.' },
         { type: 'paragraph', section: 'right', atmosphere: 'dark-forest-sky', effect: 'split-reveal', text: 'There\'s also the "Great Filter" theory, which suggests that advanced civilizations might destroy themselves before they can develop the technology needed for interstellar travel or communication. This could happen through wars, environmental disasters, or other self-inflicted problems.' },
 
-        { type: 'paragraph', section: 'right', atmosphere: 'meteor-shower', effect: 'pan-lr', text: 'Even once we find a planet like HD 20794 d, traveling there would be extremely difficult. The planet is 20 light-years away, and with current technology, it would take hundreds of thousands of years to reach it.' },
-        { type: 'paragraph', section: 'right', atmosphere: 'meteor-shower', effect: 'shrink-back', text: 'Space travelers would face dangers like harmful radiation and collisions with space dust. Making such a planet habitable would also be challenging, as it might lack the right atmosphere or have extreme temperatures.' },
-        { type: 'paragraph', section: 'right', atmosphere: 'exoplanet-transit', effect: 'ink-spread', text: 'Another concern is the possibility of encountering alien microbes. Scientists warn that our immune systems might struggle to detect and respond to germs originating from other planets, posing significant health risks to humans and other mammals.' },
+        { type: 'paragraph', section: 'copy', position: 'top-left', atmosphere: 'meteor-shower', effect: 'pan-lr', text: 'Even once we find a planet like HD 20794 d, traveling there would be extremely difficult. The planet is 20 light-years away, and with current technology, it would take hundreds of thousands of years to reach it.' },
+        { type: 'paragraph', section: 'copy', position: 'bottom-right', atmosphere: 'meteor-shower', effect: 'shrink-back', text: 'Space travelers would face dangers like harmful radiation and collisions with space dust. Making such a planet habitable would also be challenging, as it might lack the right atmosphere or have extreme temperatures.' },
+        { type: 'paragraph', section: 'copy', position: 'top-right', atmosphere: 'exoplanet-transit', effect: 'ink-spread', text: 'Another concern is the possibility of encountering alien microbes. Scientists warn that our immune systems might struggle to detect and respond to germs originating from other planets, posing significant health risks to humans and other mammals.' },
         {
           type: 'paragraph',
           section: 'right',

@@ -170,12 +170,15 @@
   padding-right: 10vw;
   padding-left: 22vw;
 }
-[data-exhibition='moon'] .mo-right .pe-paragraph-text {
+[data-exhibition='moon'] :is(.mo-right, .mo-copy) .pe-paragraph-text {
   font-weight: 300;
   font-size: clamp(1.15rem, 2.4vw, 1.6rem);
   line-height: 1.6;
   max-width: 680px;
 }
+/* The rest of poster 2's copy moves about the panel, as the other posters' does
+   (its position); centered copy reads from the left, as the poster sets it. */
+[data-exhibition='moon'] .mo-copy.pe-pos-center .pe-paragraph-text { text-align: left; }
 /* The last panel leaves room for the landscape beneath it. */
 [data-exhibition='moon'] .mo-landscape { align-items: flex-start; padding-top: 22vh; }
 
@@ -218,7 +221,7 @@
 @media (max-width: 768px) {
   /* On a phone the copy sits plainly; justified capitals open gaps on a narrow line. */
   [data-exhibition='moon'] .mo-caps .pe-paragraph-text { text-align: left; letter-spacing: 0.12em; padding: 22px 20px; }
-  [data-exhibition='moon'] .mo-right { padding-left: 24px; padding-right: 24px; }
+  [data-exhibition='moon'] :is(.mo-right, .mo-copy) { padding-left: 24px; padding-right: 24px; }
   [data-exhibition='moon'] .pe-decor[src$='ringed-planet.jpg'] { opacity: 0.6; }
   [data-exhibition='moon'] .mo-landscape { padding-top: 16vh; }
   [data-exhibition='moon'] .pe-case-page-photo-row { grid-template-columns: 1fr; }
@@ -487,6 +490,10 @@
 }
 
 /* ───────── exoplanet-transit: a far star dimming as its planet crosses it ───────── */
+/* The star sits low at the left: copy beside it, or the ticket, keeps to its right. */
+@media (min-width: 769px) {
+  [data-exhibition='moon'] [data-atmosphere='exoplanet-transit'] :is(.mo-link, .mo-copy.pe-pos-center, .mo-copy.pe-pos-bottom-left) { padding-left: calc(4vw + 32vmin + 3vw); }
+}
 [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-1 {
   /* the star */
   left: 4vw;
@@ -605,8 +612,8 @@
 
 @media (max-width: 768px) {
   /* On a phone the copy runs the full width: the scenery steps back behind it. */
-  [data-exhibition='moon'] .pe-atmo-exoplanet-transit :is(.pe-atmo-part-1, .pe-atmo-part-2) { left: -8vmin; top: 22%; }
-  [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-1 { opacity: 0.7; }
+  [data-exhibition='moon'] .pe-atmo-exoplanet-transit :is(.pe-atmo-part-1, .pe-atmo-part-2) { left: -8vmin; top: 9%; }
+  [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-1 { opacity: 0.22; }
   [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-2 { left: calc(8vmin - 2.6vmin); }
   [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-3 { display: none; }
   [data-exhibition='moon'] .pe-atmo-apollo-tracking :is(.pe-atmo-part-1, .pe-atmo-part-2) { opacity: 0.6; }
