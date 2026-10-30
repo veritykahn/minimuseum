@@ -74,7 +74,7 @@ function AddedSources({ sources, color }: { sources?: readonly FactSource[]; col
   if (!sources?.length) return null;
   return (
     <p className="pe-source pe-added-source" style={{ color }}>
-      <FactSources sources={sources} className="pe-added-source-list" />
+      <FactSources sources={sources} className="pe-source-list" />
     </p>
   );
 }
@@ -343,8 +343,8 @@ const PANEL_RENDERERS: Renderers = {
     <div className={`pe-text-content-wrapper pe-pos-center ${panelClasses(poster, item)}`}>
       <a
         href={item.url}
-        target="_blank"
-        rel="noopener noreferrer"
+        // A room of the museum's own opens in place; anywhere else, in a new tab.
+        {...(item.url.startsWith('/') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
         className={`pe-content-link ${item.effect && item.effect !== 'theme' ? effectClass(item.effect) : 'pfx-fg'}`}
         style={{ color: colors.text, borderColor: colors.text }}
       >

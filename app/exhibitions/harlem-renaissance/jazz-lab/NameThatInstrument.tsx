@@ -10,6 +10,7 @@ import { ALL_INSTRUMENT_IDS, INSTRUMENTS, INSTRUMENT_MAP, QUIZ_TIERS } from './d
 import { instrumentBreakdown, type useQuiz } from './hooks';
 import InstrumentIcon from './InstrumentIcon';
 import TeachToggle from '@/components/games/projector/TeachToggle';
+import { SoundSwitch, isGoodScore } from '@/components/games/feedback/FeedbackKit';
 
 type Quiz = ReturnType<typeof useQuiz>;
 
@@ -64,12 +65,12 @@ export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTe
         }
         .jl-feedback-title {
           font-family: 'Playfair Display', serif;
-          font-size: 19px;
+          font-size: clamp(20px, 0.8vw + 14px, 26px);
           margin-bottom: 8px !important;
         }
         .jl-feedback-tip {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 15px;
+          font-size: clamp(16px, 0.5vw + 12px, 20px);
           line-height: 1.6;
           color: var(--jl-text);
           font-weight: 300;
@@ -82,7 +83,7 @@ export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTe
           display: inline-block;
           margin-top: 10px;
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
+          font-size: var(--jl-small);
           letter-spacing: 2px;
           text-transform: uppercase;
           color: var(--jl-gold);
@@ -116,7 +117,7 @@ export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTe
         .jl-breakdown svg { width: 34px; height: 34px; color: var(--jl-gold-light); }
         .jl-breakdown-name {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
+          font-size: var(--jl-small);
           letter-spacing: 2px;
           text-transform: uppercase;
           color: #b3a994;
@@ -124,11 +125,23 @@ export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTe
         }
         .jl-breakdown-score {
           font-family: 'Playfair Display', serif;
-          font-size: 18px;
+          font-size: clamp(20px, 0.6vw + 15px, 26px);
           color: var(--jl-gold);
         }
         .jl-quiz-result { padding: 30px 0 10px; }
-        .jl-teach { display: flex; justify-content: center; margin: -6px 0 18px; }
+        .jl-teach { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin: -6px 0 18px; }
+        /* Projector-sized text: no label in the quiz is smaller than 14px on a
+           phone, and they grow with the screen (the page's own sizes are 9 to 12px). */
+        #jl-panel-quiz { --jl-small: clamp(14px, 0.6vw + 8px, 18px); }
+        #jl-panel-quiz .jl-instructions { font-size: clamp(16px, 0.5vw + 12px, 20px); }
+        #jl-panel-quiz .jl-quiz-prompt { font-size: clamp(20px, 0.8vw + 14px, 28px); }
+        #jl-panel-quiz .jl-quiz-hint,
+        #jl-panel-quiz .jl-quiz-progress,
+        #jl-panel-quiz .jl-quiz-answer .jl-answer-name,
+        #jl-panel-quiz .jl-score-label,
+        #jl-panel-quiz .jl-btn { font-size: var(--jl-small); }
+        #jl-panel-quiz .jl-quiz-answer .jl-answer-name { letter-spacing: 1px; }
+        #jl-panel-quiz .jl-score-number { font-size: clamp(30px, 1vw + 22px, 40px); }
         @media (max-width: 600px) {
           .jl-breakdown { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
@@ -139,11 +152,10 @@ export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTe
       <div className="jl-instructions">
         Listen to the sound and <em>tap the instrument</em> you think it is.
       </div>
-      {onTeach && (
-        <div className="jl-teach">
-          <TeachToggle onClick={onTeach} style={{ color: 'var(--jl-gold)', fontFamily: "'Josefin Sans', sans-serif" }} />
-        </div>
-      )}
+      <div className="jl-teach">
+        {onTeach && <TeachToggle onClick={onTeach} style={{ color: 'var(--jl-gold)', fontFamily: "'Josefin Sans', sans-serif" }} />}
+        <SoundSwitch style={{ color: 'var(--jl-gold)', fontFamily: "'Josefin Sans', sans-serif" }} />
+      </div>
 
       <div className="jl-quiz-container">
         {quiz.gameState !== 'gameover' ? (
@@ -282,6 +294,7 @@ function QuizResult({ quiz }: { quiz: Quiz }) {
         title={title}
         message={<p>{message}</p>}
         actions={actions}
+        celebrate={isGoodScore(quiz.score, total)}
       >
         <ul className="jl-breakdown" aria-label="By instrument">
           {rows.map((row) => (

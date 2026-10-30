@@ -63,6 +63,7 @@ describe('The Sound of Harlem: music beside the panels', () => {
       expect(content.querySelector('audio')).toBe(audio);
       pause.mockClear();
       step();
+      tick(1500);
       expect(pause).toHaveBeenCalled();
     });
   });

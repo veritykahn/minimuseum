@@ -4,12 +4,14 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type Reac
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RecordStrip, { STRIP } from './RecordStrip';
 import { useArmisticeSound } from './armisticeSound';
+import type { SoundSlot } from './sounds';
 import {
   FILM_END,
   HOUR_AT,
   IWM,
   RECORD,
   SOUND_NOTE,
+  SOUND_NOTE_WITH_FILES,
   STRIP_START,
   TITLE_CARDS,
   TIMING,
@@ -61,10 +63,16 @@ function announce(s: Scene, pastHour: boolean): string {
   }
 }
 
-/** `returnLink` is set at the foot, beside the transcript. */
-export default function SilenceFilm({ returnLink }: { returnLink?: ReactNode } = {}) {
+/**
+ * `returnLink` is set at the foot, beside the transcript. `owned` are the
+ * sound slots the owner has filled with her own files (sounds.ts), found on
+ * disk when the page was built.
+ */
+export default function SilenceFilm({ returnLink, owned = [] }: { returnLink?: ReactNode; owned?: readonly SoundSlot[] } = {}) {
   const reduced = usePrefersReducedMotion();
-  const sound = useArmisticeSound();
+  const sound = useArmisticeSound(owned);
+  // Her own files may be recordings: then the note no longer says they are not.
+  const note = owned.length ? SOUND_NOTE_WITH_FILES : SOUND_NOTE;
   const [phase, setPhase] = useState<Phase>('ready');
   const [scene, setScene] = useState<Scene>({ kind: 'countdown', n: 5 });
   const [pastHour, setPastHour] = useState(false);
@@ -152,7 +160,7 @@ export default function SilenceFilm({ returnLink }: { returnLink?: ReactNode } =
 
   const begin = useCallback(() => {
     // The click itself starts the sound: browsers allow audio only after one.
-    sound.begin(0, startOf('card', 0), HOUR_AT);
+    sound.begin(0, startOf('card', 0), HOUR_AT, FILM_END);
     focusPauseRef.current = true;
     runFrom(0);
   }, [runFrom, sound]);
@@ -238,10 +246,21 @@ export default function SilenceFilm({ returnLink }: { returnLink?: ReactNode } =
               <p className="gws-ready-text">
                 A short film in memory of the Armistice: a countdown, six title cards, and the 1918 sound-ranging record of the last minute of the war.
               </p>
+              {sound.available && (
+                <p className="gws-sound-on">
+                  <svg viewBox="0 0 24 24" aria-hidden="true" className="gws-sound-on-icon">
+                    <path d="M4 9h4l5-4v14l-5-4H4z" />
+                    <path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" />
+                  </svg>
+                  <span>
+                    <strong>Turn your sound on.</strong> The film is meant to be heard: the guns, and then the silence.
+                  </span>
+                </p>
+              )}
               <button type="button" className="gw-button gw-button-primary" onClick={begin}>
                 Begin
               </button>
-              <p className="gws-sound-note">{SOUND_NOTE}</p>
+              <p className="gws-sound-note">{note}</p>
             </div>
           )}
 
@@ -345,7 +364,7 @@ export default function SilenceFilm({ returnLink }: { returnLink?: ReactNode } =
       </div>
       {phase !== 'ready' ? (
         <p className="gws-sound-note">
-          {sound.available ? SOUND_NOTE : 'Sound is not available in this browser; the film runs in silence.'}
+          {sound.available ? note : 'Sound is not available in this browser; the film runs in silence.'}
         </p>
       ) : (
         // Its room, kept before Begin (the note is in the screen then), so the screen does not shrink as the film starts.
@@ -367,6 +386,9 @@ export default function SilenceFilm({ returnLink }: { returnLink?: ReactNode } =
             </ol>
             <p>
               Then the 1918 sound-ranging record, {RECORD.heading} {RECORD.subheading} {RECORD.date.join(' ')} On the left, {RECORD.before.join(' ').toLowerCase()} On the right, {RECORD.after.join(' ').toLowerCase()}
+            </p>
+            <p>
+              The sound: rifle, machine-gun and artillery fire, growing heavier, until the record reaches 11:00. Then the guns stop dead. After the silence, only a gentle breeze, and right at the end a single bird singing.
             </p>
             <p>
               The photograph in the film: {IWM.trench.description} {IWM.trench.credit}.

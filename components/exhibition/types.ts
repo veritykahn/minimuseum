@@ -175,9 +175,10 @@ export type ParagraphItem = PanelBase & {
   figure?: PanelFigure;
   source?: PanelSource;
   /**
-   * A panel added from outside the printed poster (owner-approved and
-   * fact-checked) carries its sources here, linked beneath its copy as
-   * FactNote sets them. It is never part of the printed copy (isAddedPanel).
+   * A museum note's sources (FactNote's): for a panel the museum adds beside
+   * the printed copy, each fact checked and cited. Set small beneath the copy
+   * as "Source:" or "Sources:", each linked. A panel with sources is never
+   * part of the printed copy (isAddedPanel).
    */
   sources?: readonly FactSource[];
   /**
@@ -314,7 +315,7 @@ export type QuoteItem = PanelBase & {
   cite?: string;
 };
 
-/** A link out of the poster, set as a button. */
+/** A link out of the poster, set as a button: to another site (in a new tab), or to one of the museum's own rooms ('/exhibitions/…', in place). */
 export type LinkItem = PanelBase & {
   type: 'link';
   text: string;

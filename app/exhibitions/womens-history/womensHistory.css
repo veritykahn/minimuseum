@@ -332,6 +332,9 @@
 }
 [data-exhibition='womens-history'] .wh-legacy .pe-paragraph-text { font-size: clamp(1.12rem, 1.95vw, 1.5rem); }
 
+/* The museum's added panels: their sources sit flush with the copy, wherever the panel stands. */
+[data-exhibition='womens-history'] .wh-added .pe-source { text-align: left; }
+
 /* A photograph, mounted as a frame of 35mm negative: black film, and the
    rebate's orange markings up one edge. */
 [data-exhibition='womens-history'] .wh-p2 .pe-figure {

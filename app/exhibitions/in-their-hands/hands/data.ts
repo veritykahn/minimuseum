@@ -26,7 +26,7 @@ export const HANDS_CHARACTERS: HandsCharacter[] = [
     caption: "Pontius Pilate Prutah \u00B7 26\u201336 AD",
     fullImage: "/exhibitions/in-their-hands/Hands/roman-soldier-full-v1.jpg",
     handsImage: "/exhibitions/in-their-hands/Hands/roman-soldier-hands-v1.jpg",
-    story: "A Roman soldier garrisoned in Jerusalem. Soldiers were paid in local currency, and in Judaea that meant small bronze prutot minted by the Roman prefect Pontius Pilate. These coins carried pagan symbols \u2014 a simpulum and three bound ears of grain \u2014 that were deliberately provocative in a Jewish province. A soldier would have used coins like this one to buy food and supplies in the Jerusalem market. This particular coin was minted in 29 or 30 AD, the precise year of the Crucifixion. The man who made it sentenced Jesus to death.",
+    story: "A Roman soldier garrisoned in Jerusalem. Soldiers were paid in local currency, and in Judaea that meant small bronze prutot minted by the Roman prefect Pontius Pilate. These coins carried pagan symbols \u2014 a simpulum and three bound ears of grain \u2014 that were deliberately provocative in a Jewish province. A soldier would have used coins like this one to buy food and supplies in the Jerusalem market. This particular coin was minted in 29 or 30 AD, within a few years of the Crucifixion, which most scholars date to AD 30 or 33. The man who made it sentenced Jesus to death.",
     clue: "Soldiers in Judaea were paid in local currency — small bronze prutot minted by Pontius Pilate — and spent them in the Jerusalem market."
   },
   {

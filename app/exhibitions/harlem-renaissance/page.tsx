@@ -972,7 +972,7 @@ export default function HarlemRenaissance() {
                     return (
                       <div className="hr-copy-with-music">
                         {copy}
-                        <PanelMusic tracks={currentItem.music} color={getSectionColors(currentItem.special).text} />
+                        <PanelMusic key={`${activeView}:${posterStep}`} tracks={currentItem.music} color={getSectionColors(currentItem.special).text} />
                       </div>
                     );
                   })()}

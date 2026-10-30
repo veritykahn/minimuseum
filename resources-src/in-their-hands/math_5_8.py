@@ -364,7 +364,7 @@ GREEN = handout("green", "ITH_Handout_Green_Math.pdf", [
   ("task", {"label": "Part 5", "title": "Half a shekel", "blocks": [
             P("Every Jewish man over twenty owed a **half-shekel** Temple tax each year. In Matthew 17:27, one coin worth one shekel pays the tax for two people, Jesus and Peter."),
             P(f"How many shekels pay the tax for 4 men? {B}  For 10 men? {B}")]}),
-  ("connection", ["In Case 7, find the widow’s two lepta, and Pilate’s prutah: 1.79 grams, 16 millimeters, made in the year of the Passion."]),
+  ("connection", ["In Case 7, find the widow’s two lepta, and Pilate’s prutah: 1.79 grams, 16 millimeters, made within a few years of the Passion."]),
 ])
 
 YELLOW = handout("yellow", "ITH_Handout_Yellow_Math.pdf", [
@@ -384,7 +384,7 @@ YELLOW = handout("yellow", "ITH_Handout_Yellow_Math.pdf", [
             P(f"Longest to shortest: {B}{B}{B}{B}{B}{B}")]}),
   ("coin", {"img": C + "pilate-front.png", "label": "Case 7 · Pontius Pilate · bronze prutah · authentic",
             "title": "AD 29/30, year 16 of Tiberius · 1.79 g · 16 mm",
-            "body": ["Pilate was prefect of Judaea from AD 26 to 36, and this coin was minted in the year of the Passion. It is dated by the emperor’s reign: Tiberius began to reign in AD 14, and that first year counts as year 1."]}),
+            "body": ["Pilate was prefect of Judaea from AD 26 to 36, and this coin was minted within a few years of the Passion. It is dated by the emperor’s reign: Tiberius began to reign in AD 14, and that first year counts as year 1."]}),
   ("task", {"label": "Part 3", "title": "Year 16 of Tiberius", "blocks": [
             P(f"Year 16 of Tiberius began in AD {B}  Show how: {B}{B}{B}"),
             P(f"How many years after Pilate arrived was the coin made? {B}")]}),
@@ -424,7 +424,7 @@ RED = handout("red", "ITH_Handout_Red_Math.pdf", [
             P("*Invented numbers, not from history:* a rich giver puts in **600 lepta**, and that is **5%** of his wealth."),
             P("a. Write and solve an equation for *W*. b. How much does each giver keep? c. His gift is how many times hers in amount? Her fraction is how many times his? d. Write an expression for what any giver keeps, using *W* and *f*. e. In two sentences, use your answers to explain Mark 12:44.")],
             "lines": 4}),
-  ("connection", ["The exhibition says of the widow’s mite: *the object is not the coin but the proportion.* Find her two lepta in Case 7, the same case as Pilate’s coin from the year of the Passion."]),
+  ("connection", ["The exhibition says of the widow’s mite: *the object is not the coin but the proportion.* Find her two lepta in Case 7, the same case as Pilate’s coin from within a few years of the Passion."]),
 ])
 
 DOCS = [LESSON, GREEN, YELLOW, RED]

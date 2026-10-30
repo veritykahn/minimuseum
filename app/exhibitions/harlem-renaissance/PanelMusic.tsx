@@ -25,7 +25,7 @@ export default function PanelMusic({ tracks, color }: { tracks: readonly PanelTr
 
   // Stop when the panel changes (the walkthrough unmounts it).
   useEffect(() => {
-    const list = players.current;
+    const list = [...players.current];
     return () => list.forEach((a) => a?.pause());
   }, []);
 

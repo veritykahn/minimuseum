@@ -1,4 +1,5 @@
 import type { CSSProperties } from 'react';
+import type { FactSource } from '@/components/exhibition/FactNote';
 import type { Atmosphere, CasePageData, ExhibitionConfig, PanelDecor, PanelFigure } from '@/components/exhibition/types';
 import { floorReturnFor } from '@/lib/floors';
 
@@ -41,8 +42,9 @@ import { floorReturnFor } from '@/lib/floors';
  * The "Talk about it" questions are for the projector's teacher strip: open
  * discussion questions, one per chapter, keyed by the section title exactly
  * as it is set (OPENING, '', is the panels before the first section title;
- * neither poster has section titles, so each has one). They make no factual
- * claims.
+ * the printed posters have none, so the only section titles are the museum's
+ * added ones, "Women in wartime" and "Your own women's history"). They make
+ * no factual claims.
  */
 
 // The posters' palette: blush and dusty rose grounds, deep navy type, orange and royal-blue paint.
@@ -68,7 +70,29 @@ export const LONDON_MUSEUM_URL = 'https://www.londonmuseum.org.uk/collections/';
 export const AF_KLINT_CREDIT = 'Hilma af Klint, *The Ten Largest, No. 1, Childhood*, Group IV, 1907. Stiftelsen Hilma af Klints Verk (the Hilma af Klint Foundation). Public domain, via Wikimedia Commons';
 export const AF_KLINT_SOURCE = 'https://commons.wikimedia.org/wiki/File:Hilma_af_Klint_-_The_Ten_Largest_No._1_-_Childhood_-_1907.jpg';
 
-const SPLASH_TL = '/exhibitions/womens-history/splash-tl.png';
+/*
+ * The museum's additions: panels set beside the printed copy, never in it,
+ * each owner-approved, every fact checked against its source and cited
+ * beneath it (`sources`). They stand in their own section ('added'), styled
+ * as the copy around them, so the printed words stay whole and countable.
+ * "[S]" marks a source seen only in a search excerpt (the site blocked
+ * reading it) and "[O]" one outside the owner's list of museums; both kept by
+ * the owner's decision, to be checked in a browser.
+ */
+const NWHM_MONTH: FactSource = { label: 'National Women’s History Museum, “Women’s History Month”', href: 'https://www.womenshistory.org/womens-history/womens-history-month' };
+/* [O] */
+const TATE_AF_KLINT: FactSource = { label: 'Tate, “The first abstract artist? (And it’s not Kandinsky)”', href: 'https://www.tate.org.uk/tate-etc/issue-27-spring-2013/first-abstract-artist-and-its-not-kandinsky' };
+const TNA_HOME_FRONT: FactSource = { label: 'The National Archives (UK), “The home front in the Second World War”', href: 'https://www.nationalarchives.gov.uk/education/teaching-resources/home-front-second-world-war/' };
+/* [S][O] */
+const IWM_WOMENS_WORK_HISTORY: FactSource = { label: 'Imperial War Museums, “A closer look at the Women’s Work Collection”', href: 'https://www.iwm.org.uk/history/a-closer-look-at-the-womens-work-collection' };
+const SMITHSONIAN_ORAL_HISTORY: FactSource = { label: 'Smithsonian Folklife and Oral History Interviewing Guide', href: 'https://folklife.si.edu/the-smithsonian-folklife-and-oral-history-interviewing-guide/smithsonian' };
+export const WOMENS_HISTORY_MONTH_GOV_URL = 'https://womenshistorymonth.gov/';
+/** The Talk About It room: the third tab of Who Gets Remembered? (remembered/). */
+export const TALK_ABOUT_IT_HREF = '/exhibitions/womens-history/remembered#talk';
+export const WARTIME_TITLE = 'Women in wartime';
+export const OWN_HISTORY_TITLE = "Your own women's history";
+
+const SPLASH_TL ='/exhibitions/womens-history/splash-tl.png';
 const SPLASH_TR = '/exhibitions/womens-history/splash-tr.png';
 const splash = (src: string, placement: PanelDecor['placement'], width = 'min(34vw, 440px)'): PanelDecor => ({ src, placement, motion: 'none', width });
 
@@ -244,6 +268,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         painting: { className: 'wh-p1 wh-painting' },
         lede: { className: 'wh-p1 wh-lede' },
         body: { className: 'wh-p1 wh-body' },
+        added: { className: 'wh-p1 wh-body wh-added' },
         link: { className: 'wh-p1 wh-link' },
         end: { className: 'wh-p1' },
       },
@@ -281,6 +306,14 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         },
         {
           type: 'paragraph',
+          section: 'added',
+          atmosphere: 'paint-splash',
+          effect: 'drift',
+          text: 'The painting is by Hilma af Klint, a Swedish artist born in 1862. Between August and December 1907 she painted a series of huge works, made of ovals, circles and curling lines in bright colors. By the time she died in 1944, she had never shown any of her abstract paintings in an exhibition.',
+          sources: [TATE_AF_KLINT],
+        },
+        {
+          type: 'paragraph',
           section: 'lede',
           atmosphere: 'paint-splash',
           effect: 'rise-expand',
@@ -289,6 +322,10 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           decor: splash(SPLASH_TR, 'top-right'),
         },
         { type: 'paragraph', section: 'body', atmosphere: 'paint-splash', effect: 'line-by-line', text: "It began in 1978 as a local week-long celebration in Santa Rosa, California, inspiring similar observances across the U.S. In 1980, President Jimmy Carter declared the first official National Women's History Week, and by 1987, Congress expanded it to the entire month of March." },
+        { type: 'paragraph', section: 'added', atmosphere: 'paint-splash', effect: 'fade-in', text: "The Santa Rosa organizers chose the week of March 8 so that it would line up with International Women's Day.", sources: [NWHM_MONTH] },
+        { type: 'paragraph', section: 'added', atmosphere: 'blitz-letters', effect: 'typewriter', position: 'bottom-right', text: "Between 1988 and 1994, Congress asked the President to name March as Women's History Month each year. Since 1995, every president has done so with a proclamation of their own.", sources: [NWHM_MONTH] },
+        // Goes out of date each year: the theme is the National Women's History Alliance's, for 2026.
+        { type: 'paragraph', section: 'added', atmosphere: 'rose-garden', effect: 'breathe', position: 'top-right', text: "Each year the National Women's History Alliance chooses a theme for the month. The theme for 2026 is \"Leading the Change: Women Shaping a Sustainable Future.\"", sources: [NWHM_MONTH] },
         {
           type: 'paragraph',
           section: 'body',
@@ -298,11 +335,27 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         },
         { type: 'paragraph', section: 'body', atmosphere: 'running-stitch', effect: 'pan-lr', text: 'Their roles in households and communities offer invaluable insight into the way societies function, making it essential to recognize and celebrate their impact in shaping human history.' },
 
+        // Into the IWM link, and on to poster 2's Blitz.
+        { type: 'section-title', section: 'added', atmosphere: 'blackout', effect: 'split-reveal', text: WARTIME_TITLE },
+        {
+          type: 'paragraph',
+          section: 'added',
+          // In the garden's light, for the Land Army's farms (the blackout's taped window, and the seam, would crowd this much copy on a projector).
+          atmosphere: 'rose-garden',
+          effect: 'line-by-line',
+          position: 'top-left',
+          text: 'In the Second World War, British men aged 18 to 41 were needed in the navy and army, which took them away from their jobs. To fill the shortage, women were recruited for jobs previously done by men. Women worked in the factories, constructing weapons, and many others joined the Land Army to work on farms.',
+          sources: [TNA_HOME_FRONT],
+        },
+        { type: 'paragraph', section: 'added', atmosphere: 'blitz-letters', effect: 'blur-to-sharp', text: "The Imperial War Museum began collecting the story of women's war work in 1917, the same year the museum itself was founded. Volunteers gathered most of the Women's Work Collection between 1917 and 1920.", sources: [IWM_WOMENS_WORK_HISTORY] },
         { type: 'callout', section: 'link', atmosphere: 'paint-splash', effect: 'film-credits', text: "Explore the Women's Work Collection at the Imperial War Museum", url: IWM_WOMENS_WORK_URL },
+        // Where teachers can find more: the Library of Congress's site, with its partners.
+        { type: 'callout', section: 'link', atmosphere: 'paint-splash', effect: 'fade-in', text: "Explore Women's History Month resources from the Library of Congress, the National Archives, the National Park Service, the Smithsonian and other national museums together", url: WOMENS_HISTORY_MONTH_GOV_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
         '': 'Women’s lived experiences, and not only famous names, help us understand the past. Whose everyday story, in your family or your community, do you think deserves to be remembered, and why?',
+        [WARTIME_TITLE]: 'Many women in wartime did jobs that people had said only men could do. What jobs or roles do people still sometimes say are “for boys” or “for girls,” and what do you think about that?',
       },
     },
 
@@ -322,6 +375,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         motto: { className: 'wh-p2 wh-motto' },
         name: { className: 'wh-p2 wh-name' },
         bio: { className: 'wh-p2 wh-bio' },
+        added: { className: 'wh-p2 wh-bio wh-added' },
         contact: { className: 'wh-p2 wh-contact' },
         link: { className: 'wh-p2 wh-link' },
         end: { className: 'wh-p2' },
@@ -420,11 +474,34 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         // Legacy
         { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'ink-spread', className: 'wh-legacy', text: BIO.legacy },
 
+        // Your own women's history: the owner's close, into the Talk About It room.
+        { type: 'section-title', section: 'added', atmosphere: 'rose-garden', effect: 'rise-expand', text: OWN_HISTORY_TITLE },
+        {
+          type: 'paragraph',
+          section: 'added',
+          atmosphere: 'rose-garden',
+          effect: 'drift',
+          position: 'top-left',
+          text: "Violet's story is one family's memory, written down so it would not be lost. Every family and every neighborhood has women whose stories are worth keeping: a grandmother, a great-aunt, a mother, a neighbor who is like family. What work did they do? What did they make, grow, cook, mend or sing? What did they live through, and what did they pass on to you?",
+        },
+        {
+          type: 'paragraph',
+          section: 'added',
+          atmosphere: 'parlour-piano',
+          effect: 'blur-to-sharp',
+          position: 'bottom-right',
+          text: "The Smithsonian's guide to collecting oral history puts it simply: \"everybody has a story to tell.\" Its writers hope it will inspire you \"to turn to members of your own family and community as key sources of history, culture, and tradition.\"",
+          sources: [SMITHSONIAN_ORAL_HISTORY],
+        },
+        { type: 'paragraph', section: 'added', atmosphere: 'blitz-letters', effect: 'line-by-line', text: 'Ask. Listen. Write it down. Then step into *Talk About It* for questions to start with.' },
+        { type: 'link', section: 'added', atmosphere: 'blitz-letters', effect: 'fade-in', text: 'Step into Talk About It', url: TALK_ABOUT_IT_HREF },
+
         { type: 'callout', section: 'link', atmosphere: 'blitz-letters', effect: 'film-credits', text: 'Explore objects and stories at the London Museum', url: LONDON_MUSEUM_URL },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
         '': 'Violet’s story is one ordinary life, told through its everyday details. What can one person’s life tell us about the past that a history book might leave out?',
+        [OWN_HISTORY_TITLE]: 'Think of a woman in your family or community. What is one thing she knows how to do that you would like to learn from her before it is forgotten?',
       },
     },
   ],
