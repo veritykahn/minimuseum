@@ -19,12 +19,25 @@
   --pfx-dir: 1;
   --pfx-ease: cubic-bezier(0.16, 1, 0.3, 1);
   --pfx-ease-io: cubic-bezier(0.76, 0, 0.24, 1);
-  --pfx-ls: 0.62em;
+  /* Titles "settling their tracking": drawn wide and closing in. A horizontal
+     scale, never letter-spacing, so the title is laid out once and no word
+     can jump to another line while it settles. */
+  --pfx-track: 1.28;
   --pfx-gold: #e2c27a;
 }
 .pfx-stage[data-dir='back'] { --pfx-dir: -1; }
 @media (max-width: 640px) {
-  .pfx-stage { --pfx-ls: 0.3em; }
+  .pfx-stage { --pfx-track: 1.12; }
+}
+
+/* Nothing on the stage moves until it is laid out in its own faces, with its
+   pictures in (usePosterFxStage marks it entered). Every entrance is held at
+   its first frame till then, so it starts from the copy's final shape. */
+.pfx-stage:not([data-entered]),
+.pfx-stage:not([data-entered]) *,
+.pfx-stage:not([data-entered]) *::before,
+.pfx-stage:not([data-entered]) *::after {
+  animation-play-state: paused !important;
 }
 
 .pfx-defs { position: absolute; width: 0; height: 0; overflow: hidden; }
@@ -137,7 +150,7 @@
 @keyframes pfxSidTitle {
   0% {
     --pfx-slat: 0.04;
-    letter-spacing: var(--pfx-ls);
+    scale: var(--pfx-track) 1;
     filter: blur(8px);
     text-shadow: calc(var(--pfx-dir) * -14px) 0 rgba(255, 59, 107, 0.8), calc(var(--pfx-dir) * 14px) 0 rgba(42, 212, 255, 0.8);
   }
@@ -303,7 +316,7 @@
 .pfx-hr [data-fx='title'] .pfx-line::before { margin-bottom: 0.7em; }
 .pfx-hr [data-fx='title'] .pfx-line::after { margin-top: 0.7em; }
 @keyframes pfxHrTitle {
-  0% { opacity: 0; letter-spacing: var(--pfx-ls); }
+  0% { opacity: 0; scale: var(--pfx-track) 1; }
   30% { opacity: 1; }
 }
 @keyframes pfxHrRule {
@@ -436,7 +449,7 @@
   animation: pfxCrease 1.2s 0.05s var(--pfx-ease) backwards;
 }
 @keyframes pfxUnfold {
-  0% { clip-path: inset(50% -5% 50% -5%); letter-spacing: var(--pfx-ls); opacity: 0.4; }
+  0% { clip-path: inset(50% -5% 50% -5%); scale: var(--pfx-track) 1; opacity: 0.4; }
   100% { clip-path: inset(-20% -5% -20% -5%); opacity: 1; }
 }
 @keyframes pfxCrease {
@@ -575,7 +588,7 @@
   animation: pfxFlTitle 1.3s 0.3s var(--pfx-ease) backwards;
 }
 @keyframes pfxFlTitle {
-  0% { opacity: 0; letter-spacing: var(--pfx-ls); filter: blur(6px); text-shadow: 0 0 0 rgba(242, 179, 61, 0); }
+  0% { opacity: 0; scale: var(--pfx-track) 1; filter: blur(6px); text-shadow: 0 0 0 rgba(242, 179, 61, 0); }
   45% { opacity: 1; filter: blur(0); text-shadow: 0 0 26px rgba(242, 179, 61, 0.35); }
   100% { opacity: 1; text-shadow: 0 0 0 rgba(242, 179, 61, 0); }
 }
@@ -658,7 +671,7 @@
   animation: pfxGwTitle 2.2s 0.6s ease-out backwards;
 }
 @keyframes pfxGwTitle {
-  from { opacity: 0; filter: blur(4px); letter-spacing: 0.08em; }
+  from { opacity: 0; filter: blur(4px); scale: 1.08 1; }
 }
 /* Short statements: a word at a time, unhurried. */
 .pfx-gw :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }
@@ -743,7 +756,7 @@
   animation: pfxEgTitle 1.9s 0.7s ease-out backwards;
 }
 @keyframes pfxEgTitle {
-  from { opacity: 0; filter: blur(3px); letter-spacing: 0.06em; }
+  from { opacity: 0; filter: blur(3px); scale: 1.06 1; }
 }
 /* Short statements: a word at a time, like grains coming to rest. */
 .pfx-eg :is([data-fx='statement'], [data-fx='quote']) .pfx-line { animation: none; }

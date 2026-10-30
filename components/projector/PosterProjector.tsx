@@ -273,12 +273,14 @@ function ProjectorScreen<K extends string>({
     };
     const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(refit);
     ro?.observe(stage);
+    // Each panel may ask for a face not yet loaded (an italic, a display face):
+    // refit once it is in, before the panel starts moving (usePosterFxStage waits for it too).
     void document.fonts?.ready.then(refit);
     return () => {
       cancelAnimationFrame(raf);
       ro?.disconnect();
     };
-  }, [open]);
+  }, [open, step]);
 
   const toggleFullscreen = useCallback(() => {
     if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
