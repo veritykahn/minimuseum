@@ -44,7 +44,10 @@ it('sets the photograph at its own stop only, with its credit beneath', () => {
   render(<BlackBarbieTimeline />);
   expect(screen.queryByRole('img', { name: FIXTURE.alt })).toBeNull();
 
-  fireEvent.click(screen.getByRole('button', { name: '1980, The first Black Barbie' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Stop 3, The first Black Barbie, year hidden' }));
+  // The photograph waits, with the words, for the year to be guessed or shown.
+  expect(screen.queryByRole('img', { name: FIXTURE.alt })).toBeNull();
+  fireEvent.click(screen.getByRole('button', { name: 'Just show me' }));
   const img = screen.getByRole('img', { name: FIXTURE.alt });
   expect(img).toHaveAttribute('src', FIXTURE.src);
   expect(img).toHaveAttribute('width', '600');
@@ -57,16 +60,18 @@ it('sets the photograph at its own stop only, with its credit beneath', () => {
   expect(credit).toHaveAttribute('href', FIXTURE.credit.href);
   expect(credit.closest('figcaption')).toHaveClass('bht-photo-credit');
 
-  fireEvent.click(screen.getByRole('button', { name: 'c. 1990, Dolls of the World' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Stop 4, Dolls of the World, year hidden' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Just show me' }));
   expect(screen.queryByRole('img', { name: FIXTURE.alt })).toBeNull();
 });
 
 it('leaves the arrow keys to the credit’s link, and to the stops as before', () => {
   render(<BlackBarbieTimeline />);
+  fireEvent.click(screen.getByRole('button', { name: 'Stop 3, The first Black Barbie, year hidden' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Just show me' }));
   const stop = screen.getByRole('button', { name: '1980, The first Black Barbie' });
-  fireEvent.click(stop);
   fireEvent.keyDown(screen.getByRole('link', { name: FIXTURE.credit.text }), { key: 'ArrowRight' });
   expect(stop).toHaveAttribute('aria-current', 'step');
   fireEvent.keyDown(stop, { key: 'ArrowRight' });
-  expect(screen.getByRole('button', { name: 'c. 1990, Dolls of the World' })).toHaveAttribute('aria-current', 'step');
+  expect(screen.getByRole('button', { name: 'Stop 4, Dolls of the World, year hidden' })).toHaveAttribute('aria-current', 'step');
 });

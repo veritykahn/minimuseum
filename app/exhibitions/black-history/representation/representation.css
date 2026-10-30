@@ -126,13 +126,27 @@
 .bhr-test-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 4vw; align-items: center; }
 .bhr-test-art { min-height: 0; height: 100%; display: flex; align-items: center; justify-content: center; animation: bhr-pop 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
 @keyframes bhr-pop { from { transform: scale(0.85); opacity: 0; } }
-.bhr-test-picture { width: min(100%, 40vh); height: auto; filter: drop-shadow(8px 8px 0 var(--bh-pink)); }
-.bhr-test-words { min-height: 0; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding: 6px 4px; animation: bhr-in 0.5s ease both; }
+.bhr-test-picture { width: min(100%, 42vh); height: auto; filter: drop-shadow(8px 8px 0 var(--bh-pink)); }
+.bhr-test-words { min-height: 0; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding: 6px 10px 10px 4px; animation: bhr-in 0.5s ease both; }
 .bhr-test-words:focus-visible { outline-offset: 2px; }
-.bhr-step-count { font-family: var(--pe-display); font-weight: 800; font-size: 13px; letter-spacing: 0.1em; }
-.bhr-step-heading { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.5rem, 2.6vw, 2.3rem); line-height: 1.1; }
-.bhr-fact { display: flex; flex-direction: column; gap: 6px; font-family: var(--pe-body); font-weight: 500; font-size: clamp(1.15rem, 1.65vw, 1.5rem); line-height: 1.38; }
-.bhr-fact-source { font-size: 13px; line-height: 1.4; opacity: 0.85; }
+/* Big enough for the back of the classroom: the lesson is led on the projector. */
+.bhr-step-count { font-family: var(--pe-display); font-weight: 800; text-transform: uppercase; font-size: clamp(13px, 1.1vw, 18px); letter-spacing: 0.1em; }
+.bhr-step-heading { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.7rem, 3.4vw, 3.6rem); line-height: 1.05; }
+.bhr-fact { display: flex; flex-direction: column; gap: 6px; font-family: var(--pe-body); font-weight: 500; font-size: clamp(1.2rem, 2vw, 2.15rem); line-height: 1.36; }
+.bhr-fact-source { font-size: clamp(12px, 0.95vw, 15px); line-height: 1.4; opacity: 0.85; }
+/* Each step's question for the class: a pink card that reads across the room. */
+.bhr-prompt { padding: 14px 20px 16px; border-radius: 22px; background: var(--bh-pink); border: 3px solid #141414; box-shadow: 6px 6px 0 #141414; animation: bhr-pop 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) 0.25s both; }
+.bhr-prompt-heading { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(13px, 1.1vw, 18px); margin-bottom: 6px; }
+.bhr-prompt-q { font-family: var(--bh-bubble); font-size: clamp(1.25rem, 2.2vw, 2.4rem); line-height: 1.22; color: #2a1a14; }
+.bhr-prompt-list { display: flex; flex-direction: column; gap: 8px; padding-left: 1.1em; font-family: var(--pe-body); font-weight: 600; font-size: clamp(1.1rem, 1.8vw, 1.9rem); line-height: 1.3; color: #2a1a14; }
+/* The teacher's notes: dark, set apart, and only when asked for. */
+.bhr-notes { padding: 14px 20px; border-radius: 18px; background: #141414; color: #f4f6e4; }
+.bhr-notes-heading { font-family: var(--pe-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(12px, 1vw, 16px); color: var(--bh-lime); margin-bottom: 6px; }
+.bhr-notes ul { display: flex; flex-direction: column; gap: 6px; padding-left: 1.1em; font-family: var(--pe-body); font-size: clamp(1rem, 1.35vw, 1.4rem); line-height: 1.35; }
+.bhr-test-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 28px; }
+.bhr-teach { display: flex; gap: 8px; }
+.bhr-room .bhr-teach .bhr-button[aria-pressed='true'] { background: #141414; color: var(--bh-lime); }
+.bhr-keys { text-align: center; opacity: 0.8; }
 .bhr-fact-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 /* The survey's comparison: the CCBC's figures, smaller, with their source. */
 .bhr-cmp { display: flex; flex-direction: column; gap: 6px; font-family: var(--pe-body); font-weight: 500; font-size: 16px; line-height: 1.35; }
@@ -150,66 +164,92 @@
 .bhr-ring-vig-1 { --a: -150deg; } .bhr-ring-vig-2 { --a: -90deg; } .bhr-ring-vig-3 { --a: -30deg; } .bhr-ring-vig-4 { --a: 30deg; } .bhr-ring-vig-5 { --a: 90deg; } .bhr-ring-vig-6 { --a: 150deg; }
 .bhr-steps { display: flex; align-items: center; justify-content: center; gap: 14px; }
 .bhr-steps ol { display: flex; gap: 10px; list-style: none; margin: 0; padding: 0; }
-.bhr-room .bhr-step-dot { appearance: none; width: 44px; height: 44px; border-radius: 50%; border: 3px solid #141414; background: var(--bh-lime); color: #141414; font-family: var(--pe-display); font-weight: 800; font-size: 15px; cursor: pointer; transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.bhr-room .bhr-step-dot { appearance: none; width: 46px; height: 46px; border-radius: 50%; border: 3px solid #141414; background: var(--bh-lime); color: #141414; font-family: var(--pe-display); font-weight: 800; font-size: 15px; cursor: pointer; transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1); }
 .bhr-room .bhr-step-dot[aria-current='step'] { background: #111; color: var(--bh-pink); transform: scale(1.15); }
-.bhr-room .bhr-step-arrow { appearance: none; width: 46px; height: 46px; border-radius: 50%; border: 0; background: #141414; color: var(--bh-lime); font-size: 20px; cursor: pointer; }
+.bhr-room .bhr-step-arrow { appearance: none; width: 58px; height: 58px; border-radius: 50%; border: 0; background: #141414; color: var(--bh-lime); font-size: 24px; cursor: pointer; }
 .bhr-room .bhr-step-arrow:disabled { opacity: 0.25; cursor: default; }
 
 /* ==========================================================================
    Who's in your books?
    ========================================================================== */
-.bhr-survey { width: min(1180px, 100%); min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.bhr-survey { width: min(1280px, 100%); min-height: 0; display: flex; flex-direction: column; gap: 12px; }
 .bhr-survey-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 22px; }
 .bhr-kinds, .bhr-qtabs { display: flex; flex-wrap: wrap; gap: 6px; }
 .bhr-kind { position: relative; cursor: pointer; }
 .bhr-kind input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
-.bhr-kind span { display: inline-block; padding: 6px 14px; border-radius: 999px; border: 3px solid #141414; background: #fff; font-family: var(--pe-body); font-weight: 600; font-size: 15px; }
+.bhr-kind span { display: inline-block; padding: 6px 14px; border-radius: 999px; border: 3px solid #141414; background: #fff; font-family: var(--pe-body); font-weight: 600; font-size: clamp(15px, 1.2vw, 19px); }
 .bhr-kind input:checked + span { background: #141414; color: var(--bh-lime); }
 .bhr-kind input:focus-visible + span { outline: 3px solid #141414; outline-offset: 3px; }
-.bhr-room .bhr-qtab { appearance: none; padding: 6px 14px; border: 3px solid #141414; border-radius: 8px; background: transparent; font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; font-size: 12px; letter-spacing: 0.05em; color: #141414; cursor: pointer; }
+.bhr-room .bhr-qtab { appearance: none; padding: 7px 16px; border: 3px solid #141414; border-radius: 8px; background: transparent; font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; font-size: clamp(12px, 1vw, 16px); letter-spacing: 0.05em; color: #141414; cursor: pointer; }
 .bhr-room .bhr-qtab[aria-selected='true'] { background: var(--bh-pink); box-shadow: 3px 3px 0 #141414; }
-.bhr-survey-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); grid-template-rows: minmax(0, 1fr); gap: 3vw; }
-/* The tally scrolls inside its column on a short screen, never under the buttons below it. */
-.bhr-tally-wrap { min-height: 0; overflow-y: auto; }
-/* Fixed columns, so the buttons stay put from one chart to the next. */
-.bhr-tally { table-layout: fixed; width: 100%; border-collapse: separate; border-spacing: 0 5px; font-family: var(--pe-body); }
-.bhr-tally caption { text-align: left; padding: 0 0 4px 4px; }
-.bhr-tally th { width: 30%; }
-.bhr-tally-bar { width: auto; }
-.bhr-tally td.bhr-tally-btn { width: 46px; text-align: center; }
-.bhr-tally td.bhr-count { width: 3.2em; }
-.bhr-tally-bar .bhr-bar-track { display: inline-block; vertical-align: middle; width: calc(100% - 3.2em); height: 16px; }
-.bhr-tally-bar .bhr-bar-pct { display: inline-block; width: 3em; text-align: right; font-size: 13px; }
-.bhr-tally th { overflow-wrap: anywhere; text-align: left; font-weight: 600; font-size: clamp(0.95rem, 1.25vw, 1.1rem); padding: 4px 12px; background: rgba(255, 255, 255, 0.6); border-radius: 999px 0 0 999px; }
-.bhr-tally td { background: rgba(255, 255, 255, 0.6); padding: 2px 4px; }
-.bhr-tally td:last-child { border-radius: 0 999px 999px 0; padding-right: 6px; }
-.bhr-count { min-width: 2.4em; text-align: center; font-family: var(--pe-display); font-weight: 800; font-size: 18px; font-variant-numeric: tabular-nums; }
-.bhr-room .bhr-count-btn { appearance: none; width: 34px; height: 34px; border-radius: 50%; border: 2px solid #141414; background: #fff; color: #141414; font-size: 20px; line-height: 1; cursor: pointer; }
+.bhr-survey-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); grid-template-rows: minmax(0, 1fr); gap: 2.5vw; }
+
+/* The teacher's side: the question to read out, and a big stepper for each answer. */
+.bhr-ask { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 22px; background: rgba(255, 255, 255, 0.6); border: 3px solid #141414; }
+.bhr-ask-label { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(12px, 1vw, 16px); }
+.bhr-ask-q { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.25rem, 2.1vw, 2.3rem); line-height: 1.15; }
+.bhr-steppers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.bhr-stepper { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px; padding: 4px 6px 4px 14px; border-radius: 999px; background: #fff; }
+/* Each answer's dot is its bar's color in the chart. */
+.bhr-stepper-label { display: flex; align-items: center; gap: 10px; }
+.bhr-stepper-label::before { content: ''; flex: none; width: 0.85em; height: 0.85em; border-radius: 50%; background: var(--bar); border: 2px solid #141414; }
+.bhr-stepper-label { font-family: var(--pe-body); font-weight: 600; font-size: clamp(0.95rem, 1.35vw, 1.4rem); line-height: 1.15; overflow-wrap: anywhere; }
+.bhr-room .bhr-count-btn { appearance: none; width: clamp(40px, 3.6vw, 56px); height: clamp(40px, 3.6vw, 56px); border-radius: 50%; border: 3px solid #141414; background: #fff; color: #141414; font-size: clamp(22px, 2vw, 32px); font-weight: 700; line-height: 1; cursor: pointer; transition: transform 0.12s ease; }
+.bhr-room .bhr-count-btn:active:not(:disabled) { transform: scale(0.9); }
 .bhr-room .bhr-count-add { background: #141414; color: var(--bh-lime); }
 .bhr-room .bhr-count-btn:disabled { opacity: 0.3; cursor: default; }
-.bhr-survey-side { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 2px 4px; }
+.bhr-count-input { width: 2.6em; height: clamp(40px, 3.6vw, 56px); padding: 0; border: 0; border-radius: 10px; background: transparent; text-align: center; font-family: var(--pe-display); font-weight: 900; font-size: clamp(22px, 2.2vw, 34px); font-variant-numeric: tabular-nums; color: #141414; -moz-appearance: textfield; appearance: textfield; }
+.bhr-count-input::-webkit-outer-spin-button, .bhr-count-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.bhr-count-input:focus-visible { outline: 3px solid #141414; background: var(--bh-lime); }
+
+/* The class's side: the chart, big, then what to talk about. */
+.bhr-survey-side { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 2px 6px 6px 2px; }
 .bhr-chart { margin: 0; padding: 14px 16px; border-radius: 18px; background: #fff; border: 3px solid #141414; }
 .bhr-chart-title { font-family: var(--bh-bubble); font-size: 18px; margin-bottom: 8px; }
 .bhr-chart-total { font-family: var(--pe-body); font-size: 14px; }
 .bhr-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
-.bhr-bar-row { display: grid; grid-template-columns: minmax(7em, 40%) 1fr 4.5em; align-items: center; gap: 10px; font-family: var(--pe-body); font-size: 14px; }
+.bhr-bar-row { display: grid; grid-template-columns: minmax(7em, 34%) 1fr 3em; align-items: center; gap: 10px; font-family: var(--pe-body); font-size: 14px; }
 .bhr-bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.bhr-bar-track { height: 14px; border-bottom: 1px solid rgba(20, 20, 20, 0.25); }
-.bhr-bar-fill { display: block; height: 100%; min-width: 0; background: #141414; border-radius: 0 4px 4px 0; transition: width 0.35s ease; }
-.bhr-bar-value { font-variant-numeric: tabular-nums; font-weight: 700; }
-.bhr-bar-pct { font-weight: 400; opacity: 0.75; }
+.bhr-bar-track { position: relative; display: flex; align-items: center; height: 16px; border-bottom: 1px solid rgba(20, 20, 20, 0.25); }
+.bhr-bar-fill { display: block; height: 100%; min-width: 0; background: var(--bar, #141414); border-radius: 0 4px 4px 0; transition: width 0.6s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.bhr-bar-value { flex: none; margin-left: 6px; font-variant-numeric: tabular-nums; font-weight: 700; }
+.bhr-bar-pct { font-weight: 400; opacity: 0.75; text-align: right; font-variant-numeric: tabular-nums; }
+.bhr-bar-row[data-empty] .bhr-bar-value { opacity: 0.4; }
+/* On screen, the chart is big and lively: thick bars, each count in a bubble that pops as it changes. */
+.bhr-chart-big { padding: 16px 20px 18px; box-shadow: 6px 6px 0 #141414; }
+.bhr-chart-big .bhr-chart-title { font-size: clamp(1.15rem, 1.8vw, 2rem); }
+.bhr-chart-big .bhr-chart-total { font-size: clamp(14px, 1.15vw, 18px); }
+.bhr-chart-big .bhr-bars { gap: clamp(5px, 0.8vh, 10px); }
+.bhr-chart-big .bhr-bar-row { grid-template-columns: minmax(6em, 30%) 1fr 3.2em; font-size: clamp(0.9rem, 1.2vw, 1.3rem); font-weight: 600; }
+.bhr-chart-big .bhr-bar-label { white-space: normal; line-height: 1.1; }
+.bhr-chart-big .bhr-bar-track { height: clamp(22px, 3.2vh, 38px); border-bottom: 0; border-radius: 0 999px 999px 0; background: rgba(20, 20, 20, 0.06); }
+.bhr-chart-big .bhr-bar-fill { border-radius: 0 999px 999px 0; border: 2px solid #141414; border-left: 0; }
+.bhr-chart-big .bhr-bar-row[data-empty] .bhr-bar-fill { border: 0; }
+.bhr-chart-big .bhr-bar-value { display: grid; place-items: center; min-width: 1.9em; height: 1.9em; padding: 0 0.3em; margin-left: -0.3em; border-radius: 999px; background: #141414; color: #fff; font-family: var(--pe-display); font-weight: 900; font-size: 1em; animation: bhr-count-pop 0.5s cubic-bezier(0.3, 1.8, 0.5, 1); }
+.bhr-chart-big .bhr-bar-row[data-empty] .bhr-bar-value { margin-left: 4px; background: transparent; color: #141414; animation: none; }
+@keyframes bhr-count-pop { 0% { transform: scale(1.6); background: var(--bar); } }
 .bhr-compare { padding: 12px 14px; border-radius: 16px; background: var(--bh-pink); }
 .bhr-compare-heading { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; margin-bottom: 4px; }
 .bhr-talk-box { padding: 12px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.82); }
 .bhr-confirm { display: inline-flex; align-items: center; gap: 8px; font-family: var(--pe-body); font-weight: 600; }
 .bhr-print { display: none; }
 
-/* A shorter screen: the tally's rows closer, so the whole chart shows. */
+/* A shorter screen: the steppers closer, so every answer shows. */
 @media (min-width: 761px) and (max-height: 820px) {
-  .bhr-tally { border-spacing: 0 3px; }
-  .bhr-tally th { padding: 2px 12px; }
-  .bhr-room .bhr-count-btn { width: 30px; height: 30px; font-size: 18px; }
-  .bhr-count { font-size: 16px; }
+  .bhr-steppers { gap: 4px; }
+  .bhr-room .bhr-count-btn, .bhr-count-input { width: 40px; height: 40px; font-size: 22px; }
+  .bhr-count-input { width: 2.2em; }
+  .bhr-stepper { padding-top: 2px; padding-bottom: 2px; }
+}
+
+/* An iPad held upright: the Doll Test's picture above its words, the words large. */
+@media (min-width: 761px) and (max-aspect-ratio: 4/5) {
+  .bhr-test-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); gap: 16px; align-items: start; }
+  .bhr-test-art { height: auto; }
+  .bhr-test-picture { width: 26vh; }
+  .bhr-test-ring { --d: 16vh; }
+  .bhr-fact { font-size: clamp(1.2rem, 2.9vw, 2.15rem); }
+  .bhr-prompt-q { font-size: clamp(1.25rem, 3.2vw, 2.4rem); }
 }
 
 /* ───────── On a phone ───────── */
@@ -252,31 +292,41 @@
   .bhr-cmp { font-size: 14px; }
   .bhr-cmp-source { font-size: 11px; }
   .bhr-steps { gap: 6px; }
-  .bhr-steps ol { gap: 5px; }
-  .bhr-room .bhr-step-dot { width: 32px; height: 32px; font-size: 12px; border-width: 2px; }
+  .bhr-steps ol { gap: 4px; }
+  .bhr-room .bhr-step-dot { width: 27px; height: 27px; font-size: 11px; border-width: 2px; padding: 0; }
   .bhr-room .bhr-step-arrow { display: none; }
+  .bhr-test-foot { gap: 6px; }
+  .bhr-prompt { padding: 10px 14px; border-radius: 16px; box-shadow: 4px 4px 0 #141414; }
+  .bhr-prompt-q { font-size: 1.12rem; }
+  .bhr-prompt-list { font-size: 1rem; }
+  .bhr-notes { padding: 10px 14px; }
+  .bhr-notes ul { font-size: 0.95rem; }
+  .bhr-room .bhr-fullscreen, .bhr-keys { display: none; }
 
   .bhr-survey { gap: 8px; }
   .bhr-survey-bar { gap: 6px; }
   .bhr-kind span { font-size: 13px; padding: 4px 10px; border-width: 2px; }
   .bhr-room .bhr-qtab { font-size: 10.5px; padding: 4px 8px; border-width: 2px; }
-  /* The tally and the comparison scroll together, so neither is cut off. */
-  .bhr-survey-body { grid-template-columns: 1fr; grid-template-rows: auto auto; gap: 8px; overflow-y: auto; }
-  .bhr-tally-wrap, .bhr-survey-side { min-height: auto; overflow: visible; }
-  .bhr-tally { border-spacing: 0 3px; }
-  .bhr-tally th { font-size: 0.85rem; padding: 2px 10px; }
-  .bhr-room .bhr-count-btn { width: 28px; height: 28px; font-size: 17px; }
-  .bhr-count { font-size: 15px; }
-  .bhr-tally caption { font-size: 15px; }
-  .bhr-tally th { width: 42%; }
-  .bhr-tally td.bhr-tally-btn { width: 36px; }
-  .bhr-tally td.bhr-count { width: 2.2em; }
+  /* The steppers, then the chart and the comparison, scroll together, so nothing is cut off. */
+  .bhr-survey-body { grid-template-columns: 1fr; grid-template-rows: auto auto; gap: 10px; overflow-y: auto; }
+  .bhr-ask, .bhr-survey-side { min-height: auto; overflow: visible; }
+  .bhr-ask { padding: 10px; border-width: 2px; border-radius: 16px; }
+  .bhr-ask-q { font-size: 1.1rem; }
+  .bhr-steppers { gap: 4px; }
+  .bhr-stepper { gap: 4px; padding-left: 10px; }
+  .bhr-stepper-label { gap: 6px; }
+  .bhr-stepper-label { font-size: 0.88rem; }
+  .bhr-room .bhr-count-btn, .bhr-count-input { width: 40px; height: 40px; font-size: 22px; }
+  .bhr-count-input { width: 2em; }
+  .bhr-chart-big { padding: 12px; box-shadow: 4px 4px 0 #141414; }
+  .bhr-chart-big .bhr-bar-row { grid-template-columns: minmax(5.5em, 34%) 1fr 2.6em; gap: 6px; font-size: 0.82rem; }
+  .bhr-chart-big .bhr-bar-track { height: 22px; }
   .bhr-survey-side .bhr-talk-box { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bhr-panel, .bhr-test-art, .bhr-test-words { animation: none; }
-  .bhr-room .bhr-step-dot, .bhr-bar-fill, .bhr-swatch-dot, .bhr-room .bhr-button { transition: none; }
+  .bhr-panel, .bhr-test-art, .bhr-test-words, .bhr-prompt, .bhr-chart-big .bhr-bar-value { animation: none; }
+  .bhr-room .bhr-step-dot, .bhr-bar-fill, .bhr-swatch-dot, .bhr-room .bhr-button, .bhr-room .bhr-count-btn { transition: none; }
 }
 
 /* Print: the doll alone, or every chart of the survey. */
@@ -285,10 +335,21 @@
   .bhr-room[data-tab='design'] .bhr-doll, .bhr-room[data-tab='design'] .bhr-doll * { visibility: visible; }
   .bhr-room[data-tab='design'] .bhr-doll { position: fixed; left: 50%; top: 0.4in; transform: translateX(-50%); width: auto; height: 9in; max-width: none; max-height: none; filter: none; }
   .bhr-room[data-tab='books'] .bhr-print, .bhr-room[data-tab='books'] .bhr-print * { visibility: visible; }
-  .bhr-room[data-tab='books'] .bhr-print { display: flex; flex-direction: column; gap: 14pt; position: absolute; left: 0; top: 0; width: 100%; }
-  .bhr-print-title { font-family: var(--bh-bubble); font-size: 22pt; }
-  .bhr-print .bhr-chart { break-inside: avoid; border-width: 1.5pt; }
-  /* The bars are the chart: printed even where the browser leaves out backgrounds. */
+  .bhr-room[data-tab='books'] .bhr-print { display: flex; flex-direction: column; gap: 12pt; position: absolute; left: 0; top: 0; width: 100%; color: #141414; }
+  .bhr-print-title { font-family: var(--bh-bubble); font-size: 26pt; line-height: 1.1; }
+  .bhr-print-lines { display: grid; grid-template-columns: auto 1fr auto 0.6fr; align-items: end; gap: 6pt 8pt; font-family: var(--pe-body); font-weight: 600; font-size: 12pt; }
+  .bhr-print-blank { border-bottom: 1pt solid #141414; height: 14pt; }
+  .bhr-print-charts { display: grid; grid-template-columns: 1fr; gap: 12pt; }
+  .bhr-print .bhr-chart { break-inside: avoid; border-width: 1.5pt; border-radius: 10pt; padding: 10pt 12pt; }
+  .bhr-print .bhr-chart-title { font-size: 15pt; margin-bottom: 6pt; }
+  .bhr-print .bhr-chart-total { font-size: 10pt; }
+  .bhr-print .bhr-bars { gap: 4pt; }
+  .bhr-print .bhr-bar-row { grid-template-columns: 34% 1fr 3em; font-size: 10.5pt; }
+  .bhr-print .bhr-bar-label { white-space: normal; }
+  .bhr-print .bhr-bar-track { height: 13pt; border-bottom: 0.5pt solid #999; }
+  .bhr-print .bhr-bar-fill { border-radius: 0 3pt 3pt 0; transition: none; }
+  .bhr-print .bhr-bar-value { font-weight: 800; }
+  /* The bars are the chart: printed in their colors even where the browser leaves out backgrounds. */
   .bhr-print .bhr-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .bhr-stage { overflow: visible; height: auto; }
 }
