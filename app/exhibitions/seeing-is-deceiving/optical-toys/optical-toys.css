@@ -334,6 +334,87 @@ body:has(.sid-toys) { margin: 0; }
 .vz-frame-n { position: absolute; left: 4px; top: 2px; font-size: 11px; color: #3b2a1c; background: rgba(243, 234, 214, 0.85); padding: 0 5px; border-radius: 2px; }
 .vz-frames li[aria-current='step'] .vz-frame { outline: 3px solid var(--sid-blue); outline-offset: 2px; }
 
+/* ───────── Make your own: the printable sheets ───────── */
+.vto-stage[data-tab='make'] { height: auto; min-height: 100dvh; overflow: visible; }
+.vto-panel-make:not([hidden]) { display: block; position: relative; z-index: 2; padding: 180px max(16px, 5vw) 64px; }
+.vmt { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: minmax(260px, 340px) minmax(0, 1fr); gap: 32px; align-items: start; }
+.vmt-intro { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 14px; padding: 22px 24px; background: var(--sid-card); border: 1px solid rgba(168, 213, 229, 0.18); border-top: 2px solid var(--sid-blue); }
+.vmt-heading { margin: 0; font-family: var(--sid-serif); font-weight: 400; font-size: 1.9rem; line-height: 1.1; }
+.vmt-lead { font-size: 1.05rem; line-height: 1.55; color: #dcd8d0; }
+.vmt-pick { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 6px; }
+.vmt-pick legend { padding: 0; margin-bottom: 6px; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--sid-muted); }
+.vmt-check { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 1.05rem; cursor: pointer; }
+.vmt-check input { width: 22px; height: 22px; accent-color: var(--sid-blue); }
+.vmt-paper { font-size: 0.9rem; color: var(--sid-muted); }
+.vmt-print { display: flex; flex-direction: column; gap: 28px; min-width: 0; }
+
+/* A sheet: paper, on screen as on the page. */
+.vmt-sheet {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 7.5in;
+  margin: 0 auto;
+  padding: clamp(14px, 3vw, 32px);
+  background: #fff;
+  color: #1a1a1a;
+  font-family: var(--sid-sans);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55);
+}
+.vmt-sheet :is(h3, h4, p, ul, ol, figure) { margin: 0; }
+.vmt-sheet-kicker { font-size: 0.75rem; letter-spacing: 0.18em; text-transform: uppercase; color: #555; }
+.vmt-sheet-title { font-family: var(--sid-serif); font-weight: 500; font-size: clamp(1.4rem, 3vw, 1.9rem); line-height: 1.15; margin-top: 4px !important; }
+.vmt-discs { display: flex; justify-content: space-around; gap: 12px; margin: 14px 0 10px; }
+.vmt-discs figure { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; max-width: 3.4in; }
+.vmt-discs figcaption { font-size: 0.85rem; color: #444; text-align: center; }
+.vmt-disc { display: block; width: 100%; height: auto; overflow: visible; }
+.vmt-cut { fill: #fff; stroke: #1a1a1a; stroke-width: 1.2; }
+.vmt-star { fill: #1a1a1a; }
+.vmt-hole { fill: none; stroke: #1a1a1a; stroke-width: 1; }
+.vmt-art { fill: none; stroke: #1a1a1a; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.vmt-art .ink-fill { fill: #1a1a1a; }
+.vmt-hint { font-size: 9px; fill: #888; font-family: var(--sid-sans); }
+.vmt-how { display: grid; grid-template-columns: 1fr 1.45fr; gap: 18px; font-size: 0.95rem; line-height: 1.4; }
+.vmt-how h4 { font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px !important; }
+.vmt-how ul, .vmt-how ol { padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; }
+
+@media (max-width: 760px) {
+  .vto-panel-make:not([hidden]) { padding: 130px 12px 40px; }
+  .vmt { grid-template-columns: 1fr; gap: 20px; }
+  .vmt-intro { position: static; padding: 16px; }
+  .vmt-how { grid-template-columns: 1fr; }
+}
+
+@media print {
+  body:has(.vmt) { background: #fff !important; }
+  .sid-toys:has(.vmt) { background: #fff; min-height: 0; }
+  .sid-toys:has(.vmt) :is(.sid-nav, .vto-room, .vto-bar, .vmt-intro) { display: none !important; }
+  .vto-stage[data-tab='make'] { min-height: 0; }
+  .vto-panel-make:not([hidden]) { padding: 0; }
+  .vmt { display: block; max-width: none; }
+  .vmt-print { display: block; }
+  .vmt-sheet {
+    width: 7.5in;
+    max-width: none;
+    height: 10in;
+    padding: 0;
+    box-shadow: none;
+    break-after: page;
+    page-break-after: always;
+    break-inside: avoid;
+    display: flex;
+    flex-direction: column;
+    font-size: 11pt;
+  }
+  .vmt-sheet:last-child { break-after: auto; page-break-after: auto; }
+  .vmt-sheet-kicker { font-size: 8.5pt; }
+  .vmt-sheet-title { font-size: 20pt; }
+  .vmt-discs { margin: 0.2in 0 0.15in; }
+  .vmt-discs figure { flex: none; width: 3.4in; }
+  .vmt-discs figcaption { font-size: 9.5pt; }
+  .vmt-how { font-size: 10.5pt; grid-template-columns: 1fr 1.45fr; }
+  .vmt-how h4 { font-size: 9pt; }
+}
+
 /* ───────── A laptop with little height: a tighter card ───────── */
 @media (max-height: 760px) and (min-width: 761px) {
   .vto-controls { gap: 10px; padding: 16px 22px 18px; }
