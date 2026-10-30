@@ -136,7 +136,7 @@ describe('the room', () => {
     fireEvent.change(word, { target: { value: 'typewriter' } });
     expect(screen.getByText('Every letter is on the top row: 10 letters.')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Keep it' }));
-    expect(screen.getByText('Your words')).toBeInTheDocument();
+    expect(screen.getByText('Longest words')).toBeInTheDocument();
 
     fireEvent.change(word, { target: { value: 'hello' } });
     expect(screen.getByText('Not on the top row: H, L.')).toBeInTheDocument();

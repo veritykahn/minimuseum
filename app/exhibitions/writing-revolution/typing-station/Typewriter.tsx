@@ -24,7 +24,10 @@ const SENTINEL = '  ';
 /** Posts the sheet to the class board: null once it is up, or why it can't go. */
 export type PostSheet = (text: string) => string | null;
 
-export default function Typewriter({ play, onPost }: { play: (s: SoundName) => void; onPost?: PostSheet }) {
+/** Hears the sheet as it changes: its text (each cell's last strike) and its strike-overs, for the race and the word list. */
+export type SheetText = (text: string, strikeOvers: number) => void;
+
+export default function Typewriter({ play, onPost, onText }: { play: (s: SoundName) => void; onPost?: PostSheet; onText?: SheetText }) {
   const [page, setPage] = useState<Page>(newPage);
   const [shift, setShift] = useState(false);
   const [pressed, setPressed] = useState<string | null>(null);
@@ -55,11 +58,21 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
     if (text && !stay) flagTimer.current = setTimeout(() => setFlag(''), 2600);
   }, []);
 
+  const onTextRef = useRef(onText);
+  useEffect(() => {
+    onTextRef.current = onText;
+  }, [onText]);
+  /** The sheet as it now is, kept and told. */
+  const setSheet = useCallback((next: Page) => {
+    pageRef.current = next;
+    setPage(next);
+    onTextRef.current?.(pageText(next), strikeOvers(next));
+  }, []);
+
   const press = useCallback(
     (key: string) => {
       const { page: next, effects } = typeKey(pageRef.current, key);
-      pageRef.current = next;
-      setPage(next);
+      setSheet(next);
       const sound: Record<Effect, SoundName> = { strike: 'clack', locked: 'clack', space: 'space', bell: 'bell', back: 'back', return: 'ret' };
       effects.forEach((e) => play(sound[e]));
       if (effects.includes('bell')) say(`Ding: ${BELL_BEFORE} spaces left on the line.`);
@@ -75,7 +88,7 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
       clearTimeout(pressTimer.current);
       pressTimer.current = setTimeout(() => setPressed(null), 110);
     },
-    [play, say],
+    [play, say, setSheet],
   );
 
   const tapKey = (k: string) => {
@@ -101,8 +114,7 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
   };
 
   const newSheet = () => {
-    pageRef.current = newPage();
-    setPage(pageRef.current);
+    setSheet(newPage());
     say('A new sheet is in.');
     play('ret');
   };
@@ -112,8 +124,7 @@ export default function Typewriter({ play, onPost }: { play: (s: SoundName) => v
     if (!onPost) return;
     const refused = onPost(pageText(pageRef.current));
     if (refused) return say(refused);
-    pageRef.current = newPage();
-    setPage(pageRef.current);
+    setSheet(newPage());
     play('ret');
   };
 
