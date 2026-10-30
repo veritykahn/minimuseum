@@ -25,7 +25,7 @@ describe('In Their Hands, for everyone', () => {
   it('sets the approved poster lines, and the replaced wording is gone', () => {
     expect(texts).toContain("The relationship between scholarship and the Catholic Church is not mere coincidence. The Church's Catechism states the conviction plainly: faith and reason are not enemies. They are partners in the same search for truth.");
     expect(texts).toContain('For Jewish and Christian readers who had always trusted the transmission of Scripture, this was a confirmation. For historians of every belief, it was a rare chance to measure how carefully an ancient text had been copied.');
-    expect(texts).toContain('Scholars of faith have been asking it for centuries');
+    expect(texts).toContain('Scholars of every tradition, religious and secular, have been asking it for centuries');
     expect(texts).toContain('as, many scholars think, deliberate acts of provocation');
     expect(texts).toContain('but most scholars identify it as Tyrian shekels');
     expect(texts).toContain('Before the Story — 126 BC — Tyrian shekel minting begins at Tyre.');

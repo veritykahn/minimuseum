@@ -7,7 +7,7 @@ import type { Atmosphere, PanelEffect } from '@/components/exhibition/types';
  *   Poster 1: three lines describe the faith rather than speak from inside
  *     it (P1-3 "the Catholic Church … The Church's Catechism states the
  *     conviction plainly"; P1-4 "Jewish and Christian readers … historians of
- *     every belief"; P1-5 "Scholars of faith have been asking it").
+ *     every belief"; P1-5 "Scholars of every tradition, religious and secular…").
  *   Poster 2: "as, many scholars think, deliberate acts of provocation"
  *     (P2-2) and "most scholars identify it as Tyrian shekels" (P2-3), as the
  *     coin labels say; and the timeline's first date corrected, 63 BC to
@@ -227,7 +227,7 @@ export const poster1Content: IthItem[] = [
   },
   {
     type: 'paragraph',
-    text: 'Scholars of faith have been asking it for centuries — not from scepticism, but from the confidence that truth is real, that it can be found, and that it will not contradict faith when honestly sought.',
+    text: 'Scholars of every tradition, religious and secular, have been asking it for centuries — not from scepticism, but from the confidence that truth is real, that it can be found, and that it is worth seeking honestly.',
     position: 'bottom-right',
     special: 'authentication',
     effect: 'rise-expand',
