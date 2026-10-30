@@ -4,6 +4,7 @@ import type { CSSProperties, ReactNode } from 'react';
 import { FxText, type FxKind } from '@/components/poster-fx/PosterFx';
 import { PosterProjectorEnd } from '@/components/projector/PosterProjector';
 import { BlindSpot, Emph, Lines, Typed, TypedForReaders, VisitTicket } from './EntranceCopy';
+import { FactSources } from './FactNote';
 import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass } from './helpers';
 import type { ExhibitionConfig, PanelDecor, PanelEffect, PanelMarks, PosterConfig, PosterItem, PosterItemType } from './types';
 
@@ -125,12 +126,16 @@ const PANEL_RENDERERS: Renderers = {
             )}
           </figure>
         )}
-        {item.source ? (
+        {item.source || item.sources?.length ? (
           <div className="pe-copy">
             {p}
             <TypedForReaders effect={effect} text={item.text} />
             <p className="pe-source" style={{ color: colors.text }}>
-              <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
+              {item.source ? (
+                <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
+              ) : (
+                <FactSources sources={item.sources ?? []} className="pe-source-list" />
+              )}
             </p>
           </div>
         ) : (
@@ -311,8 +316,8 @@ const PANEL_RENDERERS: Renderers = {
     <div className={`pe-text-content-wrapper pe-pos-center ${panelClasses(poster, item)}`}>
       <a
         href={item.url}
-        target="_blank"
-        rel="noopener noreferrer"
+        // A room of the museum's own opens in place; anywhere else, in a new tab.
+        {...(item.url.startsWith('/') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
         className={`pe-content-link ${item.effect && item.effect !== 'theme' ? effectClass(item.effect) : 'pfx-fg'}`}
         style={{ color: colors.text, borderColor: colors.text }}
       >

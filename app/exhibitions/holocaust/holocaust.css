@@ -129,6 +129,8 @@
   text-align: left;
   text-wrap: pretty;
 }
+/* The museum's added panels: their sources sit flush with the copy, wherever the panel stands. */
+[data-exhibition='holocaust'] .ho-added .pe-source { text-align: left; }
 /* The posters set *Shoah* and *Righteous Among the Nations* in bold italics. */
 [data-exhibition='holocaust'] .ho-p2 .pe-paragraph-text em { font-weight: 700; }
 
