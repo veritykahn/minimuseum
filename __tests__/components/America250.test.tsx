@@ -294,7 +294,8 @@ describe('The America 250 display case page', () => {
     expect(AMERICA_250_CASE.photos).toHaveLength(0);
     expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
     expect(JSON.stringify(AMERICA_250_CASE)).not.toMatch(/installation|\.jpg/);
-    // The signing room opens from the case.
+    // The signing room opens from the case, under its Interactives tab.
+    fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
     expect(screen.getByRole('link', { name: /Put Your Name to It/ })).toHaveAttribute('href', '/exhibitions/america-250/sign');
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/america-250');
   });

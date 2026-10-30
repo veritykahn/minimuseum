@@ -7,7 +7,7 @@ import { MENTOR_POEM, MENTOR_NOTICES, PROMPT_CARDS } from './mentor-poem';
 import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 
 /** "M ← Collection": the way back, unless the Studio opened the room. */
-const COLLECTION: MuseumReturn = { href: '/exhibitions/harlem-renaissance/artifacts', label: 'Collection' };
+const COLLECTION: MuseumReturn = { href: '/exhibitions/harlem-renaissance/artifacts?view=interactives', label: 'Collection' };
 
 /**
  * A button that removes itself when pressed would drop keyboard focus to

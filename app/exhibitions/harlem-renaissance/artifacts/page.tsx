@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { CaseViewTabs, caseViewIds, useCaseView } from '@/components/exhibition/CaseViews';
 
 type Artifact = {
   id: string;
@@ -69,6 +70,9 @@ const artifacts: Artifact[] = [
 
 export default function ArtifactsCollection() {
   const router = useRouter();
+  const [view, setView] = useCaseView();
+  const objects = artifacts.filter((a) => a.type === '3d');
+  const rooms = artifacts.filter((a) => a.type === 'interactive');
 
   // A card for an object or a room, each opening its own page.
   const card = (artifact: Artifact) => {
@@ -153,7 +157,7 @@ export default function ArtifactsCollection() {
 
         .hr-art-page-header {
           text-align: center;
-          margin-bottom: 60px;
+          margin-bottom: clamp(20px, 3.4dvh, 32px);
         }
 
         .hr-art-page-label {
@@ -194,6 +198,11 @@ export default function ArtifactsCollection() {
         .hr-art-grid-rooms .hr-art-card { grid-column: span 2; }
 
         /* "Interactives": the rooms that open from the case */
+        /* Artifacts | Interactives (CaseViews), in the case's own lavender on
+           black: the inside of this case keeps its colors. */
+        .hr-art-case-views { display: flex; width: max-content; margin: 0 auto clamp(24px, 4dvh, 40px); --pe-case-ink: #fafafa; --pe-accent: #b485d2; --pe-case-tab-on-ink: #0a0a0a; --pe-ui: 'Outfit', sans-serif; }
+        .hr-art-grid[hidden] { display: none; }
+
         .hr-art-section-title {
           text-align: center;
           margin: 72px 0 36px;
@@ -433,13 +442,20 @@ export default function ArtifactsCollection() {
         </p>
       </div>
 
-      <div className="hr-art-grid hr-art-grid-objects">
-        {artifacts.filter((a) => a.type === '3d').map(card)}
+      <CaseViewTabs
+        view={view}
+        onChange={setView}
+        idPrefix="hr-case"
+        className="hr-art-case-views"
+        counts={{ artifacts: objects.length, interactives: rooms.length }}
+      />
+
+      <div className="hr-art-grid hr-art-grid-objects" role="tabpanel" id={caseViewIds('hr-case', 'artifacts').panel} aria-labelledby={caseViewIds('hr-case', 'artifacts').tab} hidden={view !== 'artifacts'}>
+        {objects.map(card)}
       </div>
 
-      <h2 className="hr-art-section-title">Interactives</h2>
-      <div className="hr-art-grid hr-art-grid-rooms">
-        {artifacts.filter((a) => a.type === 'interactive').map(card)}
+      <div className="hr-art-grid hr-art-grid-rooms" role="tabpanel" id={caseViewIds('hr-case', 'interactives').panel} aria-labelledby={caseViewIds('hr-case', 'interactives').tab} hidden={view !== 'interactives'}>
+        {rooms.map(card)}
       </div>
 
       <button className="hr-art-return-btn" onClick={() => router.push('/exhibitions/harlem-renaissance')}>
