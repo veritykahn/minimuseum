@@ -7,7 +7,6 @@ import GreatHall from '@/app/greathall/page';
 import ThirdFloor from '@/app/exhibitions/third-floor/page';
 import FloorPage from '@/components/FloorPage';
 import { GROUND_FLOOR, STUDIO, STUDIO_TOOLS, studioToolHref } from '@/lib/floors';
-import { HOME_LOGO_WORDS, HOME_M_IMAGES, HOME_M_WINDOWS } from '@/lib/homeLogo';
 import { MUSEUM_OVERVIEW } from '@/components/museum-map/data/levels';
 import { roomReturn } from '@/components/exhibition/helpers';
 import { GREAT_WAR } from '@/app/exhibitions/great-war/greatWar';
@@ -57,19 +56,13 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 describe('the landing page logo', () => {
-  it('shows a picture through each big M, from one named slot each', () => {
+  // The owner's own logo image, at its own size: it is never rebuilt from layers.
+  it('is the original logo picture', () => {
     render(<Home />);
     const logo = screen.getByRole('img', { name: 'The Mini Museum' });
     expect(screen.getByRole('heading', { level: 1 })).toContainElement(logo);
-    for (const m of ['mini', 'museum'] as const) {
-      const window_ = logo.querySelector(`[data-m="${m}"]`) as HTMLElement;
-      expect(window_.querySelector('img')).toHaveAttribute('src', HOME_M_IMAGES[m]);
-      expect(window_.style.maskImage).toBe(`url(${HOME_M_WINDOWS[m].mask})`);
-    }
-    expect(HOME_M_IMAGES).toEqual({ mini: '/home/m-mini.jpg', museum: '/home/m-museum.jpg' });
-    for (const file of [...Object.values(HOME_M_IMAGES), HOME_LOGO_WORDS, ...Object.values(HOME_M_WINDOWS).map((w) => w.mask)]) {
-      expect(existsSync(join(process.cwd(), 'public', file))).toBe(true);
-    }
+    expect(logo.getAttribute('src')).toContain('logo.png');
+    expect(existsSync(join(process.cwd(), 'public', 'logo.png'))).toBe(true);
   });
 });
 
