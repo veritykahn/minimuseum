@@ -338,6 +338,7 @@
 @media print {
   @page { margin: 0.6in; }
   body:has(.whr-room[data-print]) * { visibility: hidden; }
+  html:has(.whr-room[data-print]), body:has(.whr-room[data-print]) { background: #fff !important; }
   .whr-room[data-print] { min-height: 0; background: #fff !important; }
   .whr-room[data-print] .whr-stage { height: auto; min-height: 0; overflow: visible; }
   .whr-room[data-print] .whr-panel { position: static; animation: none; overflow: visible; }

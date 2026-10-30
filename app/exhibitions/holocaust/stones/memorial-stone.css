@@ -594,11 +594,12 @@
 @media (max-width: 760px) {
   .hos-veil-prompt-area { min-height: 200px; }
   .hos-walk-ahead { top: 5vh; width: min(78vw, 46vh); }
-  .hos-walk-words { bottom: calc(132px + env(safe-area-inset-bottom, 0px)); padding: 22px 16px 12px; }
+  .hos-walk-words { bottom: calc(128px + env(safe-area-inset-bottom, 0px)); padding: 22px 16px 12px; }
   .hos-walk-say { font-size: 1.15rem; }
-  .hos-walk-bar { gap: 8px; padding: 12px 10px calc(16px + env(safe-area-inset-bottom, 0px)); }
-  .hos-walk-bar .hos-button { padding: 12px 14px; font-size: 11px; letter-spacing: 0.1em; }
-  .hos-walk-bar .hos-button-primary { flex: 1 1 100%; }
+  /* A phone: the step across the foot, the three quieter buttons in one row under it. */
+  .hos-walk-bar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 10px 10px calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .hos-walk-bar .hos-button { padding: 10px 4px; font-size: 10px; letter-spacing: 0.06em; gap: 6px; }
+  .hos-walk-bar .hos-button-primary { grid-column: 1 / -1; font-size: 12px; letter-spacing: 0.14em; }
 }
 @media (min-width: 1600px) {
   .hos-walk-say { font-size: 2.8rem; }
