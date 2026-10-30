@@ -199,7 +199,7 @@ export default function JazzLabPage() {
           display: flex;
           justify-content: center;
           gap: 0;
-          max-width: 500px;
+          max-width: 760px;
           margin: 20px auto 0;
           border-bottom: 1px solid rgba(201,169,78,0.2);
         }
