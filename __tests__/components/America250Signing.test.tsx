@@ -1,9 +1,11 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import America250Signing from '@/app/exhibitions/america-250/sign/page';
-import { COPY_NOTES, COPY_STAGES, FLAG_MILESTONES, FLAG_TEXT, SIGN_TEXT } from '@/app/exhibitions/america-250/sign/signText';
+import { COPIES, FLAG_MILESTONES, FLAG_STATES, FLAG_TEXT, SIGN_TEXT, starLine } from '@/app/exhibitions/america-250/sign/signText';
 import { DECLARATION_BODY, DECLARATION_HEAD, DECLARATION_SIGNERS, DECLARATION_SOURCE, DECLARATION_TITLE, OWN_DECLARATIONS, classWords, gradeWords, ownTitle, ownWording, PRINT_SIGNATURE_LINES } from '@/app/exhibitions/america-250/sign/declaration';
 import { FLAG, starLayout, stripesFor, unionHeight } from '@/app/exhibitions/america-250/sign/flagLayout';
-import { inkAfter, inkAlpha, INK_PER_DIP, nibQuad, scribbleLine, thin, tracePath } from '@/app/exhibitions/america-250/sign/signing';
+import { inkAfter, inkAlpha, INK_PER_DIP, nibPath, nibQuad, thin } from '@/app/exhibitions/america-250/sign/signing';
+import fs from 'fs';
+import path from 'path';
 import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -12,9 +14,9 @@ import sitemap from '@/app/sitemap';
 /*
  * America 250's signing room: every line about 1776 is the posters' own, the
  * quill's ink and nib, signing (typed, for the keyboard), the copies, and the
- * flag. Carved out of "the posters' own": where the Rough Draft and the
- * Engrossed Copy are held (COPY_NOTES) and the flag's milestones
- * (FLAG_MILESTONES), owner-approved and fact-checked, each set with its source.
+ * flag. Carved out of "the posters' own": the four copies' notes (COPIES),
+ * the flag's states and milestones (FLAG_TEXT, FLAG_STATES, FLAG_MILESTONES),
+ * owner-approved and fact-checked, each set with its source.
  * The parchment carries the Declaration's own words, the National Archives'
  * transcription; the class's and the student's declarations are the
  * owner's wording, their blanks filled in, and print with their names.
@@ -26,7 +28,6 @@ const posterText = AMERICA_250.posters
   .flatMap((it) => ['text' in it && it.text ? it.text : '', 'cite' in it && it.cite ? it.cite : ''])
   .join('\n')
   .replace(/\*/g, '');
-const straight = (s: string) => s.replace(/[’‘]/g, "'");
 
 beforeAll(() => {
   // jsdom draws nothing; the room carries on without a canvas.
@@ -36,18 +37,48 @@ beforeAll(() => {
 describe('the words', () => {
   it('quotes the posters word for word, and adds no facts but the approved notes', () => {
     // The approved notes are not quotes, and are not in the quoted list below.
-    for (const n of Object.values(COPY_NOTES)) expect(posterText).not.toContain(n.text);
-    const quoted = [SIGN_TEXT.carroll.text, SIGN_TEXT.epigraph.text, SIGN_TEXT.epigraph.cite, ...SIGN_TEXT.signed, SIGN_TEXT.copiesIntro, SIGN_TEXT.copiesClose, ...COPY_STAGES.map((s) => s.quote)];
+    for (const c of COPIES) expect(posterText).not.toContain(c.note.text);
+    const quoted = [SIGN_TEXT.carroll.text, SIGN_TEXT.epigraph.text, SIGN_TEXT.epigraph.cite, ...SIGN_TEXT.signed, SIGN_TEXT.copiesIntro, SIGN_TEXT.copiesClose, ...COPIES.flatMap((c) => (c.quote ? [c.quote] : []))];
     for (const q of quoted) expect(posterText).toContain(q);
   });
+});
 
-  it('names the copies as the posters do, oldest first', () => {
-    expect(COPY_STAGES.map((s) => s.id)).toEqual(['rough', 'fair', 'engrossed', 'stone', 'transcription']);
-    for (const name of ["Jefferson's Rough Draft", 'July 4 Fair Copy', 'Engrossed Copy']) expect(posterText).toContain(name);
-    expect(straight(COPY_STAGES[0].name)).toBe("Jefferson's Rough Draft");
-    // The one legible line on the sheet, and the words struck from the draft
-    expect(posterText).toContain('We hold these truths to be self-evident');
-    expect(posterText).toContain('sacred and undeniable');
+describe('a copy of a copy: four real copies, side by side', () => {
+  it('sets the Dunlap and Goddard broadsides, Stone’s engraving and the faded original, in that order', () => {
+    expect(COPIES.map((c) => c.id)).toEqual(['dunlap', 'goddard', 'stone', 'original']);
+    expect(COPIES.map((c) => c.date)).toEqual(['July 4–5, 1776', '1777', '1823', 'Signed 1776']);
+  });
+
+  it('shows each as a real photograph in the public folder, credited and linked to its Library of Congress or National Archives record', () => {
+    for (const c of COPIES) {
+      expect(fs.existsSync(path.join(process.cwd(), 'public', c.src))).toBe(true);
+      expect(c.credit.label).toMatch(/(Library of Congress|National Archives).*Public domain\.$/);
+      expect(c.credit.href).toMatch(/^https:\/\/(www\.loc\.gov\/item\/|www\.archives\.gov\/|catalog\.archives\.gov\/id\/)/);
+      expect(c.alt.length).toBeGreaterThan(60);
+      expect(c.ratio).toBeGreaterThan(0.75);
+      expect(c.ratio).toBeLessThan(0.9);
+    }
+    // No credit to an image generator, anywhere in the copies.
+    expect(JSON.stringify(COPIES)).not.toMatch(/leonardo/i);
+  });
+
+  it('gives each a short sourced note from the Library of Congress or the National Archives', () => {
+    for (const c of COPIES) {
+      expect(c.note.sources.length).toBeGreaterThan(0);
+      for (const s of c.note.sources) expect(s.href).toMatch(/^https:\/\/(www\.loc\.gov|blogs\.loc\.gov|www\.archives\.gov)\//);
+    }
+    const [dunlap, goddard, stone, original] = COPIES.map((c) => c.note.text);
+    expect(dunlap).toContain('evening of July 4 and the early morning of July 5, 1776');
+    expect(goddard).toContain('first printing with the signers’ names');
+    expect(goddard).toContain('Mary Katharine Goddard');
+    expect(stone).toContain('The 1823 Stone engraving is the most frequently reproduced version of the Declaration.');
+    expect(original).toContain('faded');
+  });
+
+  it('no longer draws lines of make-believe handwriting', () => {
+    expect(fs.existsSync(path.join(process.cwd(), 'app/exhibitions/america-250/sign/Sheet.tsx'))).toBe(false);
+    const signing = fs.readFileSync(path.join(process.cwd(), 'app/exhibitions/america-250/sign/signing.ts'), 'utf8');
+    expect(signing).not.toMatch(/scribble/);
   });
 });
 
@@ -72,9 +103,7 @@ describe('the quill', () => {
     expect(t[0]).toEqual(s[0]);
     expect(t[t.length - 1]).toEqual(s[s.length - 1]);
     expect(t.length).toBeLessThan(s.length);
-    expect(tracePath([s], 700, 0.004, 3)).toBe(tracePath([s], 700, 0.004, 3));
-    expect(scribbleLine(5, 0, 100, 500, 10)).toBe(scribbleLine(5, 0, 100, 500, 10));
-    expect(scribbleLine(5, 0, 100, 500, 10)).toMatch(/^M/);
+    expect(nibPath([s], 700)).toBe(nibPath([s], 700));
   });
 });
 
@@ -95,20 +124,49 @@ describe('the room', () => {
     expect(window.location.hash).toBe('#flag');
   });
 
-  it('notes where the Rough Draft and the Engrossed Copy are held, each with its source', () => {
+  it('sets the four copies side by side; choosing one gives its note, its sources and its picture’s credit', () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('tab', { name: /A copy of a copy/ }));
     const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
-    expect(within(panel).getByText(COPY_NOTES.rough.text)).toBeInTheDocument();
-    expect(within(panel).getByRole('link', { name: 'Library of Congress' })).toHaveAttribute(
-      'href',
-      'https://www.loc.gov/exhibits/creating-the-united-states/interactives/declaration-of-independence/equal/index.html',
-    );
-    fireEvent.click(within(panel).getByRole('button', { name: /Engrossed Copy/ }));
-    expect(within(panel).getByText(COPY_NOTES.engrossed.text)).toBeInTheDocument();
-    expect(within(panel).getByRole('link', { name: 'National Archives' })).toHaveAttribute('href', 'https://www.archives.gov/milestone-documents/declaration-of-independence');
-    fireEvent.click(within(panel).getByRole('button', { name: /July 4 Fair Copy/ }));
-    expect(within(panel).queryByRole('link')).toBeNull();
+    const desk = screen.getByRole('group', { name: /side by side/ });
+    const pictures = within(desk).getAllByRole('button');
+    expect(pictures).toHaveLength(4);
+    expect(pictures[0]).toHaveAttribute('aria-pressed', 'true');
+    expect(within(panel).getByText(COPIES[0].note.text)).toBeInTheDocument();
+    for (const s of COPIES[0].note.sources) expect(within(panel).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+    expect(within(panel).getByRole('link', { name: COPIES[0].credit.label })).toHaveAttribute('href', COPIES[0].credit.href);
+    // A picture on the desk chooses it
+    fireEvent.click(pictures[1]);
+    expect(pictures[1]).toHaveAttribute('aria-pressed', 'true');
+    expect(within(panel).getByText(COPIES[1].note.text)).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('2 of 4: The Goddard broadside, 1777.');
+    // The numbers on the card choose too, and the posters' words come with Stone's engraving
+    fireEvent.click(within(panel).getByRole('button', { name: /Stone’s engraving/ }));
+    expect(within(panel).getByText(COPIES[2].note.text)).toBeInTheDocument();
+    expect(within(panel).getByText(COPIES[2].quote!)).toBeInTheDocument();
+    fireEvent.click(within(panel).getByRole('button', { name: /The signed parchment today/ }));
+    expect(within(panel).getByText(COPIES[3].note.text)).toBeInTheDocument();
+    expect(within(panel).getByText(SIGN_TEXT.copiesClose)).toBeInTheDocument();
+    expect(within(panel).getByRole('button', { name: /The next copy/ })).toBeDisabled();
+  });
+
+  it('brings a copy up close under a lens the keyboard can move, and back to all four', () => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#copies');
+    render(<America250Signing />);
+    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
+    fireEvent.click(within(panel).getByRole('button', { name: SIGN_TEXT.closer }));
+    expect(screen.queryByRole('group', { name: /side by side/ })).toBeNull();
+    const lens = screen.getByRole('group', { name: COPIES[0].alt });
+    expect(lens).toHaveAttribute('aria-roledescription', 'magnifier');
+    expect(lens).toHaveAttribute('tabIndex', '0');
+    expect(lens.querySelector('img')).toHaveAttribute('src', COPIES[0].src);
+    expect(within(panel).getByText(SIGN_TEXT.lensHint)).toBeInTheDocument();
+    // The next copy stays close
+    fireEvent.click(within(panel).getByRole('button', { name: /The next copy/ }));
+    expect(screen.getByRole('group', { name: COPIES[1].alt })).toBeInTheDocument();
+    fireEvent.click(within(panel).getByRole('button', { name: SIGN_TEXT.sideBySide }));
+    expect(screen.getByRole('group', { name: /side by side/ })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('All four copies, side by side.');
   });
 
   it('signs by keyboard: type a name and an address, put your name to it, and the posters answer', () => {
@@ -158,16 +216,6 @@ describe('the Declaration’s text', () => {
     expect(DECLARATION_SIGNERS[0]).toEqual({ state: 'Georgia', names: ['Button Gwinnett', 'Lyman Hall', 'George Walton'] });
   });
 
-  it('carries on to the Engrossed Copy, Stone’s engraving and the transcription; the drafts keep their drawn hand', () => {
-    window.history.replaceState(null, '', '/exhibitions/america-250/sign#copies');
-    render(<America250Signing />);
-    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
-    expect(screen.getByRole('img', { name: /A draft in handwriting/ })).not.toHaveTextContent('When in the Course');
-    fireEvent.click(within(panel).getByRole('button', { name: /Engrossed Copy/ }));
-    expect(screen.getByRole('img', { name: /A parchment in a formal hand/ })).toHaveTextContent('When in the Course of human events');
-    fireEvent.click(within(panel).getByRole('button', { name: /transcription/ }));
-    expect(screen.getByRole('img', { name: 'A printed page' })).toHaveTextContent('our sacred Honor');
-  });
 });
 
 describe('the class’s and the student’s own declarations', () => {
@@ -332,29 +380,15 @@ describe('the quill and the copies', () => {
     expect(screen.getByRole('status')).toHaveTextContent('The quill is full of ink.');
   });
 
-  it('follows the signature from copy to copy, to the transcription set in type', () => {
+  it('takes the signer on to see how the Declaration was copied', () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
     fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Follow it from copy to copy' }));
+    fireEvent.click(screen.getByRole('button', { name: 'See how it was copied' }));
     const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
-    expect(within(panel).getByText(COPY_STAGES[0].quote)).toBeInTheDocument();
-    expect(within(panel).getByRole('button', { name: 'Earlier' })).toBeDisabled();
-    const next = within(panel).getByRole('button', { name: 'The next copy' });
-    fireEvent.click(next);
-    fireEvent.click(next);
-    expect(screen.getByRole('status')).toHaveTextContent('3 of 5: The Engrossed Copy');
-    expect(screen.getByRole('img', { name: /with your signature/ })).toHaveTextContent('A. Visitor');
-    fireEvent.click(next);
-    fireEvent.click(next);
-    expect(next).toBeDisabled();
-    expect(within(panel).getByText(SIGN_TEXT.copiesClose)).toBeInTheDocument();
-    fireEvent.change(within(panel).getByRole('textbox', { name: SIGN_TEXT.printedNameLabel }), { target: { value: 'Ada Visitor' } });
-    expect(screen.getByRole('img', { name: 'A printed page' })).toHaveTextContent('Ada Visitor');
-    // Any copy can be chosen directly
-    fireEvent.click(within(panel).getByRole('button', { name: /Rough Draft/ }));
-    expect(within(panel).getByText(COPY_STAGES[0].quote)).toBeInTheDocument();
+    expect(within(panel).getByText(COPIES[0].note.text)).toBeInTheDocument();
+    expect(within(panel).getByRole('button', { name: /Earlier/ })).toBeDisabled();
   });
 });
 
@@ -393,7 +427,7 @@ describe('the flag', () => {
     fireEvent.click(flag);
     fireEvent.click(within(panel).getByRole('button', { name: 'Add a star' }));
     expect(flag).toHaveAttribute('aria-valuenow', '15');
-    expect(flag).toHaveAttribute('aria-valuetext', '15 stars and 15 stripes');
+    expect(flag).toHaveAttribute('aria-valuetext', '15 stars and 15 stripes. The newest, Kentucky, 1792');
     expect(within(panel).getByText(FLAG_MILESTONES[1].text)).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent(`1795: ${FLAG_MILESTONES[1].text}`);
 
@@ -414,11 +448,59 @@ describe('the flag', () => {
   it('sets its sources, linked', () => {
     render(<America250Signing />);
     const panel = screen.getByRole('tabpanel', { name: /The flag/ });
-    for (const s of FLAG_TEXT.sources) expect(within(panel).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+    for (const s of FLAG_TEXT.sources) for (const a of within(panel).getAllByRole('link', { name: s.label })) expect(a).toHaveAttribute('href', s.href);
     expect(FLAG_TEXT.sources.map((s) => s.href)).toEqual([
+      'https://www.govinfo.gov/content/pkg/CDOC-108hdoc97/html/CDOC-108hdoc97.htm',
       'https://www.archives.gov/federal-register/codification/executive-order/10834.html',
       'https://postalmuseum.si.edu/exhibition/long-may-it-wave/the-evolution-of-the-american-flag',
     ]);
+  });
+});
+
+describe('the flag’s stars, state by state', () => {
+  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/america-250/sign#flag'));
+
+  it('names a state and the year it joined for every star from 14 to 50, in order, ending with Hawaii in 1959', () => {
+    expect(FLAG_TEXT.originals).toHaveLength(13);
+    expect(FLAG_STATES.map((s) => s.stars)).toEqual(Array.from({ length: 37 }, (_, i) => i + 14));
+    expect(new Set([...FLAG_TEXT.originals, ...FLAG_STATES.map((s) => s.state)]).size).toBe(50);
+    for (let i = 1; i < FLAG_STATES.length; i++) expect(FLAG_STATES[i].year).toBeGreaterThanOrEqual(FLAG_STATES[i - 1].year);
+    expect(FLAG_STATES[0]).toEqual({ stars: 14, state: 'Vermont', year: 1791 });
+    expect(FLAG_STATES[1]).toEqual({ stars: 15, state: 'Kentucky', year: 1792 });
+    expect(FLAG_STATES.find((s) => s.stars === 48)).toEqual({ stars: 48, state: 'Arizona', year: 1912 });
+    expect(FLAG_STATES.at(-2)).toEqual({ stars: 49, state: 'Alaska', year: 1959 });
+    expect(FLAG_STATES.at(-1)).toEqual({ stars: 50, state: 'Hawaii', year: 1959 });
+    expect(starLine(13)).toBeNull();
+    expect(starLine(14)).toBe('The 14th star: Vermont, which joined the Union in 1791.');
+    expect(starLine(22)).toBe('The 22nd star: Alabama, which joined the Union in 1819.');
+    expect(starLine(43)).toBe('The 43rd star: Idaho, which joined the Union in 1890.');
+    expect(FLAG_MILESTONES.at(-1)!.text).toContain('July 4, 1960');
+  });
+
+  it('opens on the 13 stars and the 13 original states, sourced', () => {
+    render(<America250Signing />);
+    const panel = screen.getByRole('tabpanel', { name: /The flag/ });
+    expect(within(panel).getByText(FLAG_TEXT.thirteen.text)).toBeInTheDocument();
+    const list = within(panel).getByRole('list', { name: FLAG_TEXT.originalsLabel });
+    expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual(FLAG_TEXT.originals);
+    expect(within(panel).getAllByRole('link', { name: FLAG_TEXT.sources[0].label }).length).toBeGreaterThan(0);
+  });
+
+  it('says which state each added star stands for, on the card, to the screen reader and on the slider', () => {
+    render(<America250Signing />);
+    const panel = screen.getByRole('tabpanel', { name: /The flag/ });
+    const flag = screen.getByRole('slider', { name: /stars/ });
+    fireEvent.click(within(panel).getByRole('button', { name: 'Add a star' }));
+    expect(within(panel).getByText(starLine(14)!)).toBeInTheDocument();
+    expect(within(panel).queryByRole('list', { name: FLAG_TEXT.originalsLabel })).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent(starLine(14)!);
+    expect(flag).toHaveAttribute('aria-valuetext', '14 stars and 13 stripes. The newest, Vermont, 1791');
+    fireEvent.keyDown(flag, { key: 'End' });
+    expect(within(panel).getByText(starLine(50)!)).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('The 50th star: Hawaii, which joined the Union in 1959.');
+    fireEvent.keyDown(flag, { key: 'Home' });
+    expect(within(panel).getByText(FLAG_TEXT.thirteen.text)).toBeInTheDocument();
+    expect(flag).toHaveAttribute('aria-valuetext', '13 stars and 13 stripes, for the 13 original states');
   });
 });
 
@@ -450,18 +532,6 @@ describe('fine tuning (regressions from trying the room)', () => {
     expect(own.scrollTop).toBe(0);
   });
 
-  it('takes “Sign your name” in the copies to the Declaration, at its own address', () => {
-    render(<America250Signing />);
-    fireEvent.click(screen.getByRole('button', { name: 'Our Class Declaration' }));
-    expect(window.location.hash).toBe('#class');
-    fireEvent.click(screen.getByRole('tab', { name: /A copy of a copy/ }));
-    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
-    fireEvent.click(within(panel).getByRole('button', { name: /Engrossed Copy/ }));
-    fireEvent.click(within(panel).getByRole('button', { name: 'Sign your name' }));
-    expect(window.location.hash).toBe('#sign');
-    expect(screen.getByRole('button', { name: 'The Declaration' })).toHaveAttribute('aria-pressed', 'true');
-  });
-
   it('prints again when Print it is pressed again before the browser says the printing is done', async () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
@@ -471,18 +541,6 @@ describe('fine tuning (regressions from trying the room)', () => {
     await waitFor(() => expect(window.print).toHaveBeenCalledTimes(1));
     fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
     await waitFor(() => expect(window.print).toHaveBeenCalledTimes(2));
-  });
-
-  it('sets a typed signature in type on the transcription, until another name is typed', () => {
-    render(<America250Signing />);
-    fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
-    fireEvent.click(screen.getByRole('tab', { name: /A copy of a copy/ }));
-    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
-    fireEvent.click(within(panel).getByRole('button', { name: /The transcription/ }));
-    expect(screen.getByRole('img', { name: 'A printed page' })).toHaveTextContent('A. Visitor');
-    expect(within(panel).getByRole('textbox', { name: SIGN_TEXT.printedNameLabel })).toHaveAttribute('placeholder', 'A. Visitor');
   });
 
   it('says where it can be seen when the quill runs dry, and a dip fills it', () => {

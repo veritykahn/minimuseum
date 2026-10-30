@@ -136,30 +136,59 @@
   transform: rotate(-1.2deg);
   transition: transform 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
-.aps-stage[data-tab='copies'] .aps-sheet { transform: rotate(0.6deg); }
-.ap-sheet {
-  display: block;
-  width: 100%;
-  height: 100%;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06), 0 26px 50px rgba(0, 0, 0, 0.55), 0 6px 14px rgba(0, 0, 0, 0.35);
-}
 .ap-sheet-script { font-family: var(--ap-script); }
-.ap-sheet-type { font-family: 'Libre Caslon Text', Georgia, serif; }
-.ap-sheet-fell { font-family: 'IM Fell English', 'Libre Caslon Text', Georgia, serif; }
 
-/* The copies' own words: the whole text, run on in a small, close hand. */
-.ap-fair-body {
-  font-family: 'IM Fell English', 'Libre Caslon Text', Georgia, serif;
-  font-size: 11.2px;
-  line-height: 1.32;
-  text-align: justify;
-  hyphens: auto;
-  opacity: 0.82;
+/* ───────── A copy of a copy: four real copies side by side, or one brought up close ───────── */
+.aps-stage[data-tab='copies'] .aps-sheet { width: 100%; height: 100%; aspect-ratio: auto; transform: none; }
+.aps-copies { position: absolute; inset: 0; }
+/* Two by two, or four across where the desk is wide and short. */
+.aps-copies-all { padding: 8px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: clamp(8px, 2.4cqh, 22px) clamp(10px, 2.4cqw, 26px); }
+@container (min-aspect-ratio: 2.3) {
+  .aps-copies-all { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); }
 }
-.ap-fair-stone { opacity: 0.9; letter-spacing: 0.01em; }
-.ap-fair-transcription { font-family: 'Libre Caslon Text', Georgia, serif; font-size: 9.8px; line-height: 1.42; opacity: 0.78; }
-.ap-fair-self { font-weight: 700; opacity: 1; font-size: 1.15em; }
-.ap-fair foreignObject { animation: aps-fade 1.2s ease 0.4s both; }
+.ap-room .aps-copy {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: #f1e9d8;
+  font: inherit;
+}
+.aps-copy-frame { flex: 1; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; }
+.aps-copy-frame img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.5), 0 4px 10px rgba(0, 0, 0, 0.35);
+  outline: 3px solid transparent;
+  outline-offset: 4px;
+  transition: transform 0.3s ease, outline-color 0.3s ease;
+}
+.aps-copy:hover .aps-copy-frame img { transform: translateY(-3px); }
+.aps-copy[aria-pressed='true'] .aps-copy-frame img { outline-color: #e8c77d; }
+.ap-room .aps-copy:focus-visible { outline: none; }
+.ap-room .aps-copy:focus-visible .aps-copy-frame img { outline-color: #fff3d6; outline-style: dashed; }
+.aps-copy-label { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: center; gap: 2px 8px; font-family: var(--pe-ui); font-size: clamp(11px, 1.05vw, 14px); letter-spacing: 0.08em; text-transform: uppercase; text-align: center; line-height: 1.2; color: #e8dcc4; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6); }
+.aps-copy[aria-pressed='true'] .aps-copy-label { color: #fff3d6; }
+.aps-copy-n { display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 50%; border: 1px solid currentColor; font-size: 0.9em; letter-spacing: 0; }
+.aps-copy[aria-pressed='true'] .aps-copy-n { background: #e8c77d; border-color: #e8c77d; color: #2a2724; }
+.aps-copy-date { font-weight: 300; letter-spacing: 0.04em; text-transform: none; }
+.aps-copies-closer { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+.aps-copy-lens { flex: none; box-shadow: 0 26px 50px rgba(0, 0, 0, 0.55), 0 6px 14px rgba(0, 0, 0, 0.35); border-radius: 0; animation: aps-fade 0.5s ease both; }
+.aps-copy-lens img { border-radius: 0; }
+.aps-copy-caption { font-family: var(--pe-ui); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #e8dcc4; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6); }
+.aps-copy-caption span { font-weight: 300; letter-spacing: 0.04em; text-transform: none; }
+@keyframes aps-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* ───────── The parchment to read and sign: the text in type, scrolling inside it ───────── */
 .aps-stage[data-tab='sign'] .aps-sheet { transform: rotate(-0.5deg); }
@@ -407,14 +436,6 @@
   .aps-print-root .aps-parch-slots .aps-parch-of { font-size: 10pt; white-space: nowrap; }
 }
 
-/* Each copy is written in afresh: its lines drawn in, its words fading up. */
-.ap-sheet-ink path { stroke-dasharray: 1 1; stroke-dashoffset: 1; animation: aps-write 1.5s ease-out forwards; }
-.ap-sheet-ink text, .ap-typeset rect { animation: aps-fade 1.2s ease 0.5s both; }
-.ap-sheet-sig { animation: aps-sig 1.4s ease 0.9s both; }
-@keyframes aps-write { to { stroke-dashoffset: 0; } }
-@keyframes aps-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes aps-sig { from { opacity: 0; filter: blur(3px); } to { opacity: 1; filter: none; } }
-
 /* The line to sign on: a quill for a pointer. */
 .aps-pad-box { position: absolute; left: 15%; top: 74.4%; width: 70%; height: 16.8%; }
 .ap-pad {
@@ -579,6 +600,11 @@
 .aps-step[aria-current='step'] .aps-step-n { background: var(--frame); border-color: var(--frame); color: #fff8ec; }
 .aps-step-heading { font-family: var(--ap-script); font-weight: 400; font-size: 2.3rem; line-height: 1; color: var(--frame); margin-bottom: -6px; }
 .aps-close { font-weight: 700; font-size: 1.05rem; line-height: 1.5; }
+.aps-step-date { display: inline-block; font-family: var(--pe-ui); font-size: 13px; letter-spacing: 0.08em; color: #5e5850; vertical-align: 0.4em; margin-left: 4px; }
+.aps-credit { font-family: var(--pe-ui); font-weight: 300; font-size: 11.5px; line-height: 1.45; color: #5e5850; }
+.aps-credit a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.ap-room .aps-credit a:focus-visible { outline: 2px solid var(--frame); outline-offset: 2px; }
+.aps-lens-hint { font-size: 12px; }
 .aps-actions-step { margin-top: auto; }
 
 /* A note from outside the posters (owner-approved, fact-checked): a plain
@@ -588,6 +614,13 @@
 .aps-fact-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .ap-room .aps-fact-source a:focus-visible { outline: 2px solid var(--frame); outline-offset: 2px; }
 .aps-fact-flag { margin-top: auto; }
+/* The newest star: its state and the year it joined, large enough for the back of a room. */
+.aps-star-line .aps-fact-text { font-family: 'Libre Caslon Text', Georgia, serif; font-size: 1.22rem; line-height: 1.4; color: #2a2724; }
+.aps-star-line { animation: aps-panel-in 0.4s ease both; padding-left: 12px; border-left: 3px solid var(--frame); }
+.aps-thirteen { display: flex; flex-direction: column; gap: 6px; }
+.aps-originals-label { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; color: #5e5850; }
+.aps-originals { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.aps-originals li { font-size: 0.86rem; line-height: 1.3; padding: 2px 8px; border: 1px solid rgba(42, 39, 36, 0.18); border-radius: 999px; }
 
 /* ───────── The flag, from 13 stars to 50 ───────── */
 /* The flag laid clear of the candle. */
@@ -612,8 +645,11 @@
   .aps-stage { min-height: 0; --sheet-h: 38dvh; }
   .aps-stage[data-tab='copies'] { --sheet-h: 44dvh; }
   .aps-stage[data-tab='flag'] { --sheet-h: 25dvh; }
-  /* A copy with a note gives the sheet a little less room, so the card still fits. */
-  .aps-stage[data-tab='copies'][data-note] { --sheet-h: 35dvh; }
+  /* Brought up close, the copy gets more of the screen. */
+  .aps-stage[data-tab='copies'][data-closer] { --sheet-h: 52dvh; }
+  .aps-copy-label { font-size: 10px; letter-spacing: 0.04em; gap: 0 4px; }
+  .aps-copy-name, .aps-copy-date { display: none; }
+  .aps-copy-caption { font-size: 11px; }
   .aps-bar { padding: calc(var(--ap-fw) + 44px) 12px 0; gap: 2px; }
   .aps-title { font-size: 2.4rem; }
   .ap-room .aps-tab { font-size: 11px; letter-spacing: 0.14em; padding: 9px 18px; }
@@ -655,6 +691,8 @@
   .aps-fact-source { font-size: 11px; }
   .aps-flag-n { font-size: 2.4rem; }
   .aps-milestone { font-size: 0.84rem; line-height: 1.4; }
+  .aps-star-line .aps-fact-text { font-size: 1.05rem; }
+  .aps-originals li { font-size: 0.8rem; padding: 1px 7px; }
   /* On a phone, only the latest milestone passed. */
   .aps-milestone:not([aria-current='step']) { display: none; }
 }
@@ -699,6 +737,31 @@
   .aps-field > span:first-child { letter-spacing: 0.14em; }
 }
 
+/* An iPad held upright: the copies and the flag across the top, the card below them, both wide. */
+@media (min-width: 761px) and (orientation: portrait) {
+  .aps-stage:is([data-tab='copies'], [data-tab='flag']) { --sheet-h: 42dvh; --side: calc(var(--ap-fw) + 5vw); }
+  .aps-stage[data-tab='copies'][data-closer] { --sheet-h: 46dvh; }
+  .aps-stage[data-tab='flag'] { --sheet-h: 34dvh; }
+  .aps-stage:is([data-tab='copies'], [data-tab='flag']) .aps-sheet-wrap { left: var(--side); right: var(--side); bottom: auto; height: var(--sheet-h); }
+  .aps-stage:is([data-tab='copies'], [data-tab='flag']) .aps-panel {
+    left: var(--side);
+    /* Clear of the map's button in the corner. */
+    right: max(var(--side), 92px);
+    width: auto;
+    top: calc(158px + var(--sheet-h) + 18px);
+    max-height: calc(100dvh - 158px - var(--sheet-h) - 18px - var(--ap-fw) - 24px);
+  }
+  .aps-stage:is([data-tab='copies'], [data-tab='flag']) .aps-candle { left: auto; right: calc(var(--ap-fw) + 14px); top: 14px; height: 120px; }
+  .aps-stage[data-tab='copies'] .aps-steps { flex-direction: row; flex-wrap: wrap; gap: 4px 10px; }
+  /* The copies as a row of numbers: the pictures above are labelled, and the heading names the one chosen. */
+  .ap-room .aps-stage[data-tab='copies'] .aps-step { width: auto; padding: 2px; }
+  .ap-room .aps-stage[data-tab='copies'] .aps-step[aria-current='step'] { background: transparent; }
+  .aps-stage[data-tab='copies'] .aps-step-name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  /* The signing card is narrow here: the three declarations wrap rather than run off its edge. */
+  .aps-docs { flex-wrap: wrap; }
+  .ap-room .aps-doc { flex: 1 1 auto; }
+}
+
 /* A phone's card scrolls whole, its foot clear of the map's button. */
 @media (max-width: 760px) {
   .aps-panel .aps-actions-main, .aps-panel .aps-actions-step { position: static; margin-left: 0; margin-right: 0; margin-bottom: 0; padding: 0; background: none; }
@@ -707,8 +770,9 @@
 @media (prefers-reduced-motion: reduce) {
   .aps-dry { animation: none; }
   .aps-glow, .aps-flame, .aps-panel, .aps-inkwell[data-low] .aps-inkwell-label, .aps-inkwell[data-dipping] .aps-quill { animation: none; }
-  .ap-sheet-ink path { animation: none; stroke-dashoffset: 0; }
-  .ap-sheet-ink text, .ap-typeset rect, .ap-sheet-sig { animation: none; }
-  .aps-flag-star-new, .aps-milestone { animation: none; }
+  .aps-copy-lens { animation: none; }
+  .aps-copy-frame img { transition: none; }
+  .aps-copy:hover .aps-copy-frame img { transform: none; }
+  .aps-flag-star-new, .aps-milestone, .aps-star-line { animation: none; }
   .aps-sheet, .aps-stage::after { transition: none; }
 }
