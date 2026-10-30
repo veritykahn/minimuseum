@@ -8,6 +8,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 import { srOnly, useDialogFocus } from '@/lib/a11y';
 import { useOrbitA11y, OrbitButtons, ORBIT_KEY_HELP, ORBIT_HINTS } from '@/lib/orbit-a11y';
+import { createRenderer, startRenderLoop, disposeRenderer } from '@/lib/three-viewer';
+import { ModelStillImage } from '@/components/exhibition/ModelFallback';
 
 // The scans are Draco-compressed, which cuts each from 5-15MB to 1-2MB. One
 // decoder serves every model; its files are in public/draco/gltf and are only
@@ -98,6 +100,9 @@ export default function HrArtifactViewer({ artifactId }: Props) {
 
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+  // True when the model cannot be shown in 3D (no WebGL, the context was
+  // lost, or the scan failed to load): the still photograph shows instead.
+  const [viewerFailed, setViewerFailed] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
 
   // Audio state
@@ -185,7 +190,13 @@ export default function HrArtifactViewer({ artifactId }: Props) {
     const camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
     camera.position.set(0, 0, 5);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const renderer = createRenderer({ antialias: true, alpha: true });
+    if (!renderer) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- WebGL refused: fall back to the still
+      setViewerFailed(true);
+      setIsLoading(false);
+      return;
+    }
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -236,12 +247,19 @@ export default function HrArtifactViewer({ artifactId }: Props) {
 
     sceneRef.current = { scene, camera, renderer, controls, model: null };
 
-    const animate = () => {
-      requestAnimationFrame(animate);
+    const fail = (err?: unknown) => {
+      if (err) console.warn('3D viewer stopped:', err);
+      setViewerFailed(true);
+      setIsLoading(false);
+    };
+    const stopLoop = startRenderLoop(() => {
       controls.update();
       renderer.render(scene, camera);
-    };
-    animate();
+    }, fail);
+    // iOS drops the GPU context under memory pressure; show the still rather
+    // than a frozen black canvas.
+    const onContextLost = () => fail();
+    renderer.domElement.addEventListener('webglcontextlost', onContextLost);
 
     const handleResize = () => {
       if (!containerRef.current) return;
@@ -261,13 +279,13 @@ export default function HrArtifactViewer({ artifactId }: Props) {
     resizeObserver.observe(container);
 
     return () => {
+      stopLoop();
+      renderer.domElement.removeEventListener('webglcontextlost', onContextLost);
       window.removeEventListener('resize', handleResize);
       resizeObserver.disconnect();
       controls.dispose();
-      renderer.dispose();
-      if (container.contains(renderer.domElement)) {
-        container.removeChild(renderer.domElement);
-      }
+      disposeRenderer(renderer);
+      sceneRef.current = null;
     };
   }, []);
 
@@ -276,7 +294,9 @@ export default function HrArtifactViewer({ artifactId }: Props) {
     if (!sceneRef.current || !artifact) return;
 
     const { scene, camera, controls } = sceneRef.current;
+    let cancelled = false;
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: reset state before async model load
     setIsLoading(true);
     setLoadError(null);
 
@@ -285,28 +305,37 @@ export default function HrArtifactViewer({ artifactId }: Props) {
     loader.load(
       artifact.model,
       (gltf) => {
-        const model = gltf.scene;
-        const box = new THREE.Box3().setFromObject(model);
-        const center = box.getCenter(new THREE.Vector3());
-        const size = box.getSize(new THREE.Vector3());
-        const maxDim = Math.max(size.x, size.y, size.z);
-        const scale = 2.5 / maxDim;
-        model.scale.setScalar(scale);
-        model.position.sub(center.multiplyScalar(scale));
-        scene.add(model);
-        sceneRef.current!.model = model;
-        camera.position.set(0, 0.5, 4);
-        controls.target.set(0, 0, 0);
-        controls.update();
-        setIsLoading(false);
+        if (cancelled) return;
+        try {
+          const model = gltf.scene;
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const scale = 2.5 / maxDim;
+          model.scale.setScalar(scale);
+          model.position.sub(center.multiplyScalar(scale));
+          scene.add(model);
+          if (sceneRef.current) sceneRef.current.model = model;
+          camera.position.set(0, 0.5, 4);
+          controls.target.set(0, 0, 0);
+          controls.update();
+          setIsLoading(false);
+        } catch (err) {
+          console.warn('Error placing model:', err);
+          setIsLoading(false);
+          setLoadError('Failed to load 3D model');
+        }
       },
       undefined,
       (error) => {
-        console.error('Error loading model:', error);
+        if (cancelled) return;
+        console.warn('Error loading model:', error);
         setIsLoading(false);
         setLoadError('Failed to load 3D model');
       }
     );
+    return () => { cancelled = true; };
   }, [artifact]);
 
   // Keyboard and button alternatives to dragging; auto-rotate stops on
@@ -657,28 +686,29 @@ export default function HrArtifactViewer({ artifactId }: Props) {
         <div
           className="hra-model"
           ref={containerRef}
-          tabIndex={0}
-          role="img"
-          aria-label={`${artifact.title}, ${artifact.date}: ${artifact.subtitle}. Interactive 3D model.`}
-          aria-describedby="hra-orbit-help"
-          onKeyDown={orbit.onKeyDown}
+          {...(viewerFailed || loadError ? {} : {
+            tabIndex: 0,
+            role: 'img',
+            'aria-label': `${artifact.title}, ${artifact.date}: ${artifact.subtitle}. Interactive 3D model.`,
+            'aria-describedby': 'hra-orbit-help',
+            onKeyDown: orbit.onKeyDown,
+          })}
         >
-          {isLoading && (
+          {isLoading && !viewerFailed && (
             <div className="hra-loading">
               <div className="hra-spinner" />
               <span className="hra-loading-text">Loading artifact...</span>
             </div>
           )}
-          {!isLoading && loadError && (
-            <div className="hra-placeholder">
-              <div className="hra-placeholder-icon">{'\u25C7'}</div>
-              <div className="hra-placeholder-text">{loadError}</div>
-            </div>
-          )}
+          {(viewerFailed || loadError) && <ModelStillImage id={artifactId} />}
         </div>
 
-        <span id="hra-orbit-help" style={srOnly}>{ORBIT_KEY_HELP}</span>
-        {!loadError && <OrbitButtons orbit={orbit} label={artifact.title} />}
+        {!loadError && !viewerFailed && (
+          <>
+            <span id="hra-orbit-help" style={srOnly}>{ORBIT_KEY_HELP}</span>
+            <OrbitButtons orbit={orbit} label={artifact.title} />
+          </>
+        )}
 
         {/* Bottom bar */}
         <div className="hra-bottom">
@@ -688,7 +718,7 @@ export default function HrArtifactViewer({ artifactId }: Props) {
             <p className="hra-subtitle">{artifact.subtitle}</p>
           </div>
 
-          {(['pointer', 'touch'] as const).map((kind) => (
+          {!viewerFailed && !loadError && (['pointer', 'touch'] as const).map((kind) => (
             <div key={kind} className={`hra-controls orbit-hints-${kind}`}>
               {ORBIT_HINTS[kind].map((hint) => (
                 <div key={hint.label} className="hra-ctrl">

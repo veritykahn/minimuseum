@@ -19,14 +19,19 @@ export interface LessonCard {
   grade: string;
   minutes: number;
   posters: string[];
+  /**
+   * A faith-based lesson: a Religion lesson, or one that prays with the
+   * class. "Teach with this" labels it so, as one choice among the others.
+   */
+  faith?: true;
 }
 
 export const LESSON_CATALOG: Record<string, LessonCard[]> = {
   'in-their-hands': [
-    { slug: 'two-tiny-coins', title: 'Two Tiny Coins', sub: 'PreK–Kindergarten · The Widow’s Mite', grade: 'PreK–K', minutes: 25, posters: [] },
-    { slug: 'whose-hands-held-this', title: 'Whose Hands Held This?', sub: 'Grades 1–2 · Hands of History · Coins and the people who held them', grade: 'Grades 1–2', minutes: 30, posters: ['poster2'] },
+    { slug: 'two-tiny-coins', title: 'Two Tiny Coins', sub: 'PreK–Kindergarten · The Widow’s Mite', grade: 'PreK–K', minutes: 25, posters: [], faith: true },
+    { slug: 'whose-hands-held-this', title: 'Whose Hands Held This?', sub: 'Grades 1–2 · Hands of History · Coins and the people who held them', grade: 'Grades 1–2', minutes: 30, posters: ['poster2'], faith: true },
     { slug: 'coin-detectives', title: 'Coin Detectives', sub: 'Grades 3–4 · Real or Replica? · Coins as evidence', grade: 'Grades 3–4', minutes: 40, posters: ['poster1', 'poster2'] },
-    { slug: 'whose-image-is-this', title: 'Whose Image Is This?', sub: 'Grades 5–8 · Religion · The Tribute Penny', grade: 'Grades 5–8 · Religion', minutes: 45, posters: ['poster2'] },
+    { slug: 'whose-image-is-this', title: 'Whose Image Is This?', sub: 'Grades 5–8 · Religion · The Tribute Penny', grade: 'Grades 5–8 · Religion', minutes: 45, posters: ['poster2'], faith: true },
     { slug: 'who-ruled-judaea', title: 'Who Ruled Judaea?', sub: 'Grades 5–8 · Social Studies · Coins as primary sources', grade: 'Grades 5–8 · Social Studies', minutes: 45, posters: ['poster2'] },
     { slug: 'the-numbers-in-the-coins', title: 'The Numbers in the Coins', sub: 'Grades 5–8 · Math · Timelines, ratios and the widow’s gift', grade: 'Grades 5–8 · Math', minutes: 45, posters: ['poster2'] },
     { slug: 'small-works-of-power', title: 'Small Works of Power', sub: 'Grades 5–8 · Art · Portrait, symbol and inscription', grade: 'Grades 5–8 · Art', minutes: 45, posters: ['poster1'] },
@@ -41,7 +46,7 @@ export const LESSON_CATALOG: Record<string, LessonCard[]> = {
     { slug: 'seeing-in-silhouette', title: 'Seeing in Silhouette', sub: 'Grades 5–8 · Art · Aaron Douglas and the visual language of the Harlem Renaissance', grade: 'Grades 5–8 · Art', minutes: 39, posters: ['poster1'] },
     { slug: 'migration-by-numbers', title: 'Migration by Numbers', sub: 'Grades 5–8 · Mathematics · The Great Migration in data', grade: 'Grades 5–8 · Math', minutes: 45, posters: ['poster1'] },
     { slug: 'move-like-harlem', title: 'Move Like Harlem', sub: 'Grades 5–8 · Physical Education · The Lindy Hop, the Charleston and the Savoy Ballroom', grade: 'Grades 5–8 · PE', minutes: 45, posters: ['poster1'] },
-    { slug: 'created-in-gods-image', title: 'Created in God’s Image', sub: 'Grades 5–8 · Religion', grade: 'Grades 5–8 · Religion', minutes: 45, posters: ['poster1'] },
+    { slug: 'created-in-gods-image', title: 'Created in God’s Image', sub: 'Grades 5–8 · Religion', grade: 'Grades 5–8 · Religion', minutes: 45, posters: ['poster1'], faith: true },
     { slug: 'el-renacimiento-de-harlem', title: 'El Renacimiento de Harlem', sub: 'Grades 5–8 · Spanish', grade: 'Grades 5–8 · Spanish', minutes: 45, posters: ['poster1'] },
     { slug: 'voice-body-story', title: 'Voice, Body, Story', sub: 'Grades 5–8 · Theater', grade: 'Grades 5–8 · Theater', minutes: 40, posters: ['poster1'] },
     { slug: 'the-sound-of-harlem', title: 'The Sound of Harlem', sub: 'Grades 5–8 · Music', grade: 'Grades 5–8 · Music', minutes: 39, posters: ['poster1'] },
@@ -56,7 +61,7 @@ export const LESSON_CATALOG: Record<string, LessonCard[]> = {
     { slug: 'creating-optical-illusions', title: 'Creating Optical Illusions', sub: 'Art Meets Science · Grades 5–8 · Art · 30 minutes', grade: 'Grades 5–8 · Art', minutes: 30, posters: ['poster1'] },
     { slug: 'geometry-of-perspective', title: 'Geometry of Perspective', sub: 'Math Behind Optical Illusions · Grades 5–8 · Math · 30 minutes', grade: 'Grades 5–8 · Math', minutes: 30, posters: ['poster1'] },
     { slug: 'vision-and-athletics', title: 'Vision and Athletics', sub: 'How Your Eyes Affect Performance · Grades 5–8 · PE · 25 minutes', grade: 'Grades 5–8 · PE', minutes: 25, posters: ['poster1'] },
-    { slug: 'bearing-true-witness', title: 'Bearing True Witness', sub: 'Faith and Truth in a World of Deception · Grades 5–8 · Religion · 30 minutes', grade: 'Grades 5–8 · Religion', minutes: 30, posters: ['poster2'] },
+    { slug: 'bearing-true-witness', title: 'Bearing True Witness', sub: 'Faith and Truth in a World of Deception · Grades 5–8 · Religion · 30 minutes', grade: 'Grades 5–8 · Religion', minutes: 30, posters: ['poster2'], faith: true },
     { slug: 'verdad-o-mentira', title: '¿Verdad o Mentira?', sub: 'Truth or Lie? · Grades 5–8 · Spanish · 30 minutes', grade: 'Grades 5–8 · Spanish', minutes: 30, posters: ['poster1', 'poster2'] },
     { slug: 'the-art-of-illusion', title: 'The Art of Illusion', sub: 'Theater’s Willing Deception · Grades 5–8 · Theater · 30 minutes', grade: 'Grades 5–8 · Theater', minutes: 30, posters: ['poster2'] },
     { slug: 'sound-illusions', title: 'Sound Illusions', sub: 'When Your Ears Deceive You · Grades 5–8 · Music · 30 minutes', grade: 'Grades 5–8 · Music', minutes: 30, posters: ['poster1', 'poster2'] },
