@@ -433,3 +433,77 @@
   justify-content: flex-start;
 }
 
+/* ───────── On a phone ─────────
+   The frame is sized for a projector; on a narrow screen the tool bar wraps
+   onto rows of its own, the picker's cards stack, and the keyboard keys
+   (there is no keyboard) step aside, so nothing runs off the side. */
+@media (max-width: 640px) {
+  .frame {
+    padding: 8px 12px 8px;
+    gap: 8px;
+  }
+  .bar {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+  }
+  .barTitle {
+    flex-wrap: wrap;
+    white-space: normal;
+    min-width: 0;
+  }
+  .tools {
+    flex-wrap: wrap;
+    width: 100%;
+    margin-left: 0;
+    gap: 6px;
+  }
+  .tool {
+    padding: 0 12px;
+    font-size: 13px;
+  }
+  .foot {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .strip {
+    flex-direction: column;
+    gap: 4px;
+    font-size: 14px;
+  }
+  .where {
+    max-width: 100%;
+  }
+  .keys {
+    display: none;
+  }
+  .picker {
+    justify-content: flex-start;
+    padding: 4px 0 16px;
+  }
+  .pickerList {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    width: 100%;
+  }
+  .pickerCard {
+    width: min(100%, 340px);
+    padding: 12px;
+  }
+  .pickerImg {
+    height: auto;
+    width: 100%;
+    max-height: 46vh;
+  }
+  .end {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 24px;
+    padding: 20px 16px;
+  }
+  .action {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
