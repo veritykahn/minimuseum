@@ -1,8 +1,8 @@
 /*
  * Wiping a slide with a cloth, on the photograph itself: these work on the
- * photo's own pixels, in the photo's pixels as units. Moon dust clings: the
- * cloth picks the dust up and smears it along its path, so the slide is
- * streaked rather than cleaned, and the cloth grays. Earth's grains are
+ * photo's own pixels, in the photo's pixels as units. Both wipe the glass
+ * clean, but differently. Moon dust clings: the cloth lifts it off the glass
+ * and keeps it, so the cloth grays the more it wipes. Earth's grains are
  * pushed aside, to both sides of the cloth's path, leaving a clear lane of
  * lamp-lit glass, and the cloth stays clean. (The poster: lunar dust can
  * "stick to everything because of static electricity", and was "hard to
@@ -20,10 +20,15 @@ const ALL: Limit = { x0: -Infinity, x1: Infinity };
 /** What the cloth is carrying: the colors it has picked up, around its middle, and how gray it has gone. */
 export type Brush = { r: number; size: number; rgb: Float32Array; loaded: boolean; dust: number };
 
+/** The cloth's own color: white suit cloth. */
+export const CLOTH: [number, number, number] = [243, 240, 250];
+
 export function newBrush(r: number): Brush {
   const rr = Math.max(2, Math.round(r));
   const size = rr * 2 + 1;
-  return { r: rr, size, rgb: new Float32Array(size * size * 3), loaded: false, dust: 0 };
+  const rgb = new Float32Array(size * size * 3);
+  for (let i = 0; i < rgb.length; i += 3) rgb.set(CLOTH, i);
+  return { r: rr, size, rgb, loaded: false, dust: 0 };
 }
 
 /** Soft at the rim, full in the middle: how hard the cloth presses at a distance d of its radius r (eased, so no edge shows). */
@@ -35,15 +40,16 @@ const press = (d: number, r: number) => {
 const lum = (a: ArrayLike<number>, o: number) => a[o] + a[o + 1] + a[o + 2];
 
 /**
- * Moon dust: one dab of the cloth at (x, y). Where the cloth is loaded it
- * leaves some of what it carries, then picks up what lies under it, so dark
- * dust is dragged into streaks. Returns how much dust it picked up, 0 to 1.
+ * Moon dust: one dab of the cloth at (x, y). The cloth lifts the dust off the
+ * glass, down toward the lamp's light, and keeps it: what it takes darkens
+ * the cloth where it touched. A few dabs over the same place leave it clean.
+ * Returns how much dust it lifted, 0 to 1.
  */
-export function smear(px: Pixels, b: Brush, x: number, y: number, limit: Limit = ALL): number {
+export function lift(px: Pixels, b: Brush, x: number, y: number, limit: Limit = ALL): number {
   const { data, width, height } = px;
   const cx = Math.round(x);
   const cy = Math.round(y);
-  let dark = 0;
+  let took = 0;
   let n = 0;
   for (let j = -b.r; j <= b.r; j++) {
     const py = cy + j;
@@ -55,26 +61,25 @@ export function smear(px: Pixels, b: Brush, x: number, y: number, limit: Limit =
       if (w <= 0) continue;
       const k = (py * width + pxx) * 4;
       const q = ((j + b.r) * b.size + (i + b.r)) * 3;
-      // Dark dust is left freely on the pale glass; little of the glass's light is left on the grains.
-      const darker = b.loaded && lum(b.rgb, q) < lum(data, k);
-      const leave = w * (darker ? 0.42 : 0.1);
+      const g = lamp(pxx, py, width, height);
+      // How much darker than bare glass this pixel is: the dust on it.
+      const dust = Math.max(0, (lum(g, 0) - lum(data, k)) / lum(g, 0));
+      const take = w * 0.6;
       for (let c = 0; c < 3; c++) {
         const under = data[k + c];
-        const held = b.loaded ? b.rgb[q + c] : under;
-        // Leave some, then take some up.
-        const left = under + (held - under) * leave;
-        data[k + c] = left;
-        b.rgb[q + c] = held + (left - held) * w * 0.22;
+        data[k + c] = under + (g[c] - under) * take;
+        // The cloth takes on the dust's color, as much as there was dust to take.
+        b.rgb[q + c] += (under - b.rgb[q + c]) * dust * take * 0.35;
       }
-      dark += (255 - (data[k] + data[k + 1] + data[k + 2]) / 3) * w;
+      took += dust * take;
       n += w;
     }
   }
   b.loaded = true;
-  const took = n ? Math.min(1, dark / n / 255) : 0;
-  // The cloth grays a little with every dab over the dust.
-  b.dust = Math.min(1, b.dust + took * 0.008);
-  return took;
+  const t = n ? Math.min(1, took / n) : 0;
+  // The cloth grays with every dab over the dust.
+  b.dust = Math.min(1, b.dust + t * 0.02);
+  return t;
 }
 
 /**
@@ -232,4 +237,74 @@ export function changed(a: Uint8ClampedArray, b: Uint8ClampedArray): number {
   let n = 0;
   for (let i = 0; i < a.length; i += 4) if (a[i] !== b[i] || a[i + 1] !== b[i + 1] || a[i + 2] !== b[i + 2]) n++;
   return n;
+}
+
+/** Bare, lamp-lit glass: every pixel of a photo set to the light under a clean slide. */
+export function paintClean(px: Pixels): void {
+  const { data, width, height } = px;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const g = lamp(x, y, width, height);
+      const k = (y * width + x) * 4;
+      data[k] = g[0];
+      data[k + 1] = g[1];
+      data[k + 2] = g[2];
+      data[k + 3] = 255;
+    }
+  }
+}
+
+/**
+ * How clean a slide is, 0 to 1: the share of its pixels within a little of
+ * bare lamp-lit glass. Looks at every `step`th pixel each way, for speed.
+ */
+export function cleanness(px: Pixels, step = 4): number {
+  const { data, width, height } = px;
+  let clean = 0;
+  let n = 0;
+  for (let y = 0; y < height; y += step) {
+    for (let x = 0; x < width; x += step) {
+      const g = lamp(x, y, width, height);
+      const k = (y * width + x) * 4;
+      const d = Math.abs(data[k] - g[0]) + Math.abs(data[k + 1] - g[1]) + Math.abs(data[k + 2] - g[2]);
+      if (d < 45) clean++;
+      n++;
+    }
+  }
+  return n ? clean / n : 1;
+}
+
+/** One grain of a sample being placed: where it lands (0 to 1 across the slide), how big, when, and from how high. */
+export type Grain = { x: number; y: number; r: number; delay: number; drop: number; spin: number };
+
+/**
+ * The grains of a sample tipped onto a slide: a jittered grid that covers
+ * the whole slide, so that once they have settled the photograph shows
+ * through everywhere. Starts near the middle first, as a sample poured from a
+ * spatula would. Seeded, so the same every time.
+ */
+export function settleGrains(across = 14, seed = 7): Grain[] {
+  let s = seed >>> 0 || 1;
+  const rand = () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+  const cell = 1 / across;
+  const grains: Grain[] = [];
+  for (let j = 0; j < across; j++) {
+    for (let i = 0; i < across; i++) {
+      const x = (i + 0.2 + rand() * 0.6) * cell;
+      const y = (j + 0.2 + rand() * 0.6) * cell;
+      const fromMiddle = Math.hypot(x - 0.5, y - 0.5) / 0.71;
+      grains.push({
+        x,
+        y,
+        r: cell * (0.75 + rand() * 0.35),
+        delay: Math.min(0.62, fromMiddle * 0.5 + rand() * 0.14),
+        drop: 0.12 + rand() * 0.22,
+        spin: (rand() - 0.5) * 1.4,
+      });
+    }
+  }
+  return grains;
 }

@@ -1,8 +1,9 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import MoonMicroscope from '@/app/exhibitions/moon/microscope/page';
+import { TIMES } from '@/app/exhibitions/moon/microscope/Eyepiece';
 import { blurFor, FOCUS_AT } from '@/app/exhibitions/moon/microscope/focus';
 import { EARTH_SLIDES, MOON_SLIDES } from '@/app/exhibitions/moon/microscope/slides';
-import { brushAside, changed, lamp, newBrush, newMask, smear, type Pixels } from '@/app/exhibitions/moon/microscope/wipe';
+import { brushAside, changed, cleanness, lamp, lift, newBrush, newMask, paintClean, settleGrains, type Pixels } from '@/app/exhibitions/moon/microscope/wipe';
 import { MICROSCOPE_NOTES, MOON, MOON_CASE, REGOLITH } from '@/app/exhibitions/moon/moon';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -20,16 +21,35 @@ afterAll(() => jest.restoreAllMocks());
 
 describe('the photographs', () => {
   it('has three of Moon dust and one for each of the poster’s three words, each captioned from its record and credited', () => {
-    expect(MOON_SLIDES.map((s) => s.label)).toEqual(['Grains', 'Orange glass', 'Impact']);
+    expect(MOON_SLIDES.map((s) => s.label)).toEqual(['Soil', 'Glass beads', 'Orange glass']);
     expect(EARTH_SLIDES.map((s) => s.label)).toEqual(['Wind', 'Water', 'Living things']);
     for (const s of [...MOON_SLIDES, ...EARTH_SLIDES]) {
       expect(s.src).toMatch(/^\/exhibitions\/moon\/microscope\/.+\.jpg$/);
       expect(s.caption.sources.length).toBeGreaterThan(0);
       expect(s.credit.href).toMatch(/^https:\/\/(commons\.wikimedia\.org|images\.nasa\.gov)\//);
     }
-    // NASA's are public domain; the Earth sands are Creative Commons, with the licence linked.
-    MOON_SLIDES.forEach((s) => expect(s.credit).toMatchObject({ author: 'NASA', licence: 'Public domain' }));
+    // NASA's are public domain; the rest are Creative Commons, with the licence linked.
+    for (const s of [...MOON_SLIDES, ...EARTH_SLIDES]) {
+      if (s.credit.author === 'NASA') expect(s.credit.licence).toBe('Public domain');
+      else expect(s.credit.licenceHref).toMatch(/creativecommons\.org/);
+    }
     EARTH_SLIDES.forEach((s) => expect(s.credit.licenceHref).toMatch(/creativecommons\.org/));
+  });
+
+  it('shows only real lunar soil on the Moon slides, each from a lunar-sample record', () => {
+    // The owner's check: every Moon slide is a photomicrograph of lunar regolith, not a stand-in.
+    const records = MOON_SLIDES.map((s) => s.credit.href);
+    expect(records).toEqual([
+      'https://commons.wikimedia.org/wiki/File:Chang%27e-6_lunar_regolith_under_stereomicroscope.jpg',
+      'https://commons.wikimedia.org/wiki/File:S73-15083.jpg',
+      'https://images.nasa.gov/details/S73-15171',
+    ]);
+    // The electron-microscope picture of one pit in one glass grain is gone.
+    expect(JSON.stringify(MOON_SLIDES)).not.toMatch(/S70-2041|impact/i);
+    for (const s of MOON_SLIDES) expect(s.caption.text).toMatch(/soil|Apollo 17/i);
+    // The far-side soil is cited to its paper as well as its picture.
+    expect(MOON_SLIDES[0].caption.sources.map((x) => x.href)).toContain('https://doi.org/10.1093/nsr/nwae328');
+    expect(MOON_SLIDES[0].credit).toMatchObject({ licence: 'CC BY 4.0', licenceHref: 'https://creativecommons.org/licenses/by/4.0/' });
   });
 
   it('captions and credits the slide on the stage, and both side by side', () => {
@@ -37,7 +57,7 @@ describe('the photographs', () => {
     render(<MoonMicroscope />);
     expect(screen.getByText(MOON_SLIDES[0].caption.text)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: MOON_SLIDES[0].credit.title })).toHaveAttribute('href', MOON_SLIDES[0].credit.href);
-    fireEvent.click(screen.getByRole('button', { name: 'Orange glass' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Glass beads' }));
     expect(screen.getByText(MOON_SLIDES[1].caption.text)).toBeInTheDocument();
     expect(screen.getByRole('img', { name: MOON_SLIDES[1].alt })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('tab', { name: "Earth's Soil" }));
@@ -65,17 +85,40 @@ describe('the cloth', () => {
     return { data, width, height };
   };
 
-  it('smears Moon dust along its path, and grays as the dust clings to it', () => {
+  it('lifts Moon dust off the glass onto the cloth, which grays as the dust clings to it', () => {
     const px = slide();
     const before = px.data.slice();
     const b = newBrush(10);
-    for (let x = 10; x <= 110; x += 2) smear(px, b, x, 60);
-    expect(changed(before, px.data)).toBeGreaterThan(500);
+    for (let pass = 0; pass < 3; pass++) for (let x = 10; x <= 110; x += 2) lift(px, b, x, 60);
     expect(b.dust).toBeGreaterThan(0);
-    // The glass between the grains is darker for the dust dragged across it.
-    expect(px.data[(61 * px.width + 15) * 4]).toBeLessThan(220);
+    // Under the middle of the cloth's path, the grains are gone: lamp-lit glass.
+    for (const x of [24, 44, 64, 84]) expect(Math.abs(px.data[(60 * px.width + x) * 4] - lamp(x, 60, px.width, px.height)[0])).toBeLessThan(12);
+    // The cloth has taken on the dust's dark color.
+    const mean = b.rgb.reduce((s, v) => s + v, 0) / b.rgb.length;
+    expect(mean).toBeLessThan(238);
     // Nothing beyond the cloth's reach is touched.
     expect(changed(before.subarray(0, 40 * 120 * 4), px.data.subarray(0, 40 * 120 * 4))).toBe(0);
+  });
+
+  it('knows a clean slide when it sees one', () => {
+    const px = slide();
+    expect(cleanness(px, 1)).toBeLessThan(0.9);
+    paintClean(px);
+    expect(cleanness(px, 1)).toBe(1);
+  });
+
+  it('tips a sample onto the slide as grains that cover all of it, the middle first', () => {
+    const grains = settleGrains();
+    expect(grains.length).toBeGreaterThan(100);
+    expect(settleGrains()).toEqual(grains);
+    // Every point of the slide is under some grain once they have settled.
+    for (let y = 0.02; y < 1; y += 0.05) {
+      for (let x = 0.02; x < 1; x += 0.05) expect(grains.some((g) => Math.hypot(g.x - x, g.y - y) <= g.r)).toBe(true);
+    }
+    const near = grains.filter((g) => Math.hypot(g.x - 0.5, g.y - 0.5) < 0.15);
+    const far = grains.filter((g) => Math.hypot(g.x - 0.5, g.y - 0.5) > 0.6);
+    const mean = (gs: typeof grains) => gs.reduce((s, g) => s + g.delay, 0) / gs.length;
+    expect(mean(near)).toBeLessThan(mean(far));
   });
 
   it('pushes Earth grains aside, leaving a lamp-lit lane of glass with soft edges', () => {
@@ -100,11 +143,11 @@ describe('the cloth', () => {
     expect(mask[66 * px.width + 64]).toBeLessThanOrEqual(once[66 * px.width + 64] + 30);
   });
 
-  it('feathers the Moon smear too: the cloth presses softly at its rim', () => {
+  it('feathers the Moon wipe too: the cloth presses softly at its rim', () => {
     const px = slide();
     const before = px.data.slice();
-    smear(px, newBrush(20), 60, 60);
-    smear(px, newBrush(20), 60, 60);
+    lift(px, newBrush(20), 60, 60);
+    lift(px, newBrush(20), 60, 60);
     // Changes fade toward the rim rather than stopping at a hard edge.
     const delta = (x: number) => Math.abs(px.data[(60 * px.width + x) * 4] - before[(60 * px.width + x) * 4]);
     expect(delta(79)).toBeLessThanOrEqual(delta(70) + 1);
@@ -114,7 +157,7 @@ describe('the cloth', () => {
     const px = slide();
     const before = px.data.slice();
     brushAside(px, newMask(px), 50, 60, 70, 60, 14, { x0: 60, x1: Infinity });
-    smear(px, newBrush(14), 60, 60, { x0: 60, x1: Infinity });
+    lift(px, newBrush(14), 60, 60, { x0: 60, x1: Infinity });
     for (let y = 0; y < px.height; y++) {
       for (let x = 0; x < 60; x++) {
         const k = (y * px.width + x) * 4;
@@ -194,37 +237,106 @@ describe('wiping the photograph on the stage', () => {
     for (const op of ['fill', 'stroke', 'arc', 'lineTo']) expect(ops.has(op)).toBe(false);
   });
 
-  it('wipes the photograph itself, and a fresh slide puts it back', async () => {
+  it('wipes the photograph itself where the cloth is dragged', async () => {
     window.history.replaceState(null, '', '/exhibitions/moon/microscope');
     const { container } = render(<MoonMicroscope />);
     await frames();
     const eyepiece = container.querySelector('.mo-ms-eyepiece')!;
+    const canvas = container.querySelector('canvas')!;
     expect(eyepiece).toHaveAttribute('data-wiped', '');
-    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
+    const pointer = (type: string, clientX = 0) => fireEvent(canvas, new MouseEvent(type, { bubbles: true, clientX, clientY: 0 }));
+    pointer('pointerdown', -120);
+    pointer('pointermove', 120);
+    pointer('pointerup');
     await frames();
     // The cloth changed a copy of the photo's own pixels, and the copy is what is shown.
     expect(handedOut).toHaveLength(1);
     expect(changed(photoPixels(handedOut[0].length), handedOut[0])).toBeGreaterThan(100);
-    expect(eyepiece).toHaveAttribute('data-wiped', 'moon-grains');
+    expect(eyepiece).toHaveAttribute('data-wiped', 'moon-soil');
     expect(calls.some((c) => c.op === 'putImageData')).toBe(true);
     expect(lastSlide()).toBeInstanceOf(HTMLCanvasElement);
     expect(screen.getByRole('status')).toHaveTextContent('The Moon dust clings to the cloth.');
+  });
+
+  it('wipes the slide clean, places a sample on the clean glass, and swaps in a fresh slide', async () => {
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
+    const { container } = render(<MoonMicroscope />);
+    await frames();
+    const eyepiece = container.querySelector('.mo-ms-eyepiece')!;
+    const status = () => screen.getByRole('status');
+    // Nothing to place yet: the slide has its sample on it.
+    fireEvent.click(screen.getByRole('button', { name: 'Place sample' }));
+    expect(status()).toHaveTextContent('The slide has a sample on it.');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
+    await frames();
+    expect(eyepiece).toHaveAttribute('data-clean', 'moon-soil');
+    expect(status()).toHaveTextContent('The Moon dust clings to the cloth. The slide is wiped clean.');
+    expect(screen.getByRole('img', { name: /clean glass slide/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Place sample' })).toHaveClass('mo-ms-button-place');
+    // The cloth is gray with the dust it took.
+    expect(Number((container.querySelector('.mo-ms-swatch') as HTMLElement).style.getPropertyValue('--dust'))).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
+    expect(status()).toHaveTextContent('The slide is already clean.');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Place sample' }));
+    await frames();
+    expect(eyepiece).toHaveAttribute('data-clean', '');
+    expect(status()).toHaveTextContent('The sample settles on the slide.');
+    expect((lastSlide() as HTMLImageElement).getAttribute('src')).toBe(MOON_SLIDES[0].src);
+    expect(screen.getByRole('img', { name: MOON_SLIDES[0].alt })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Fresh slide' }));
     await frames();
+    expect(eyepiece).toHaveAttribute('data-clean', 'moon-soil');
     expect(eyepiece).toHaveAttribute('data-wiped', '');
-    expect(lastSlide()).toBeInstanceOf(HTMLImageElement);
-    expect(screen.getByRole('status')).toHaveTextContent('Fresh slides and a clean cloth.');
+    expect(status()).toHaveTextContent('Fresh slides and a clean cloth.');
+    expect((container.querySelector('.mo-ms-swatch') as HTMLElement).style.getPropertyValue('--dust')).toBe('0');
   });
 
-  it('brushes Earth sand aside on its own slide', async () => {
+  it('brushes Earth sand aside on its own slide, and side by side wipes both clean', async () => {
     window.history.replaceState(null, '', '/exhibitions/moon/microscope#earth');
     const { container } = render(<MoonMicroscope />);
     await frames();
     fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
     await frames();
-    expect(container.querySelector('.mo-ms-eyepiece')).toHaveAttribute('data-wiped', 'earth-wind');
-    expect(screen.getByRole('status')).toHaveTextContent('The grains brush aside.');
+    expect(container.querySelector('.mo-ms-eyepiece')).toHaveAttribute('data-clean', 'earth-wind');
+    expect(screen.getByRole('status')).toHaveTextContent('The grains brush aside. The slide is wiped clean.');
+    fireEvent.click(screen.getByRole('tab', { name: 'Side by Side' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
+    await frames();
+    expect(container.querySelector('.mo-ms-eyepiece')?.getAttribute('data-clean')?.split(' ').sort()).toEqual(['earth-wind', 'moon-soil']);
+    expect(screen.getByRole('status')).toHaveTextContent('The Moon dust clings to the cloth. The slide is wiped clean.');
+  });
+
+  it('animates the exchange of slides and the sample settling, when motion is welcome', async () => {
+    window.matchMedia = jest.fn().mockImplementation((q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {} }));
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
+    const { container } = render(<MoonMicroscope />);
+    await frames();
+    const eyepiece = container.querySelector('.mo-ms-eyepiece')!;
+    fireEvent.click(screen.getByRole('button', { name: 'Fresh slide' }));
+    expect(eyepiece).toHaveAttribute('data-anim', 'swap');
+    expect(eyepiece).toHaveAttribute('data-clean', '');
+    // Mid-swap, the edges of both glass slides are drawn crossing the stage (beyond the stage's own fill).
+    calls = [];
+    await frames();
+    const draws = calls.filter((c) => c.op === 'clearRect').length;
+    expect(calls.filter((c) => c.op === 'fillRect').length).toBeGreaterThanOrEqual(draws * 5);
+    await act(() => new Promise((r) => setTimeout(r, TIMES.swap + 60)));
+    expect(eyepiece).toHaveAttribute('data-anim', '');
+    expect(eyepiece).toHaveAttribute('data-clean', 'moon-soil');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Place sample' }));
+    expect(eyepiece).toHaveAttribute('data-anim', 'place');
+    await act(() => new Promise((r) => setTimeout(r, TIMES.place * 0.3)));
+    calls = [];
+    await frames();
+    // The grains fall as round pieces of the photograph.
+    expect(calls.some((c) => c.op === 'arc')).toBe(true);
+    await act(() => new Promise((r) => setTimeout(r, TIMES.place + 60)));
+    expect(eyepiece).toHaveAttribute('data-anim', '');
+    expect(eyepiece).toHaveAttribute('data-clean', '');
   });
 });
 
