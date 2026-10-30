@@ -455,7 +455,8 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'note', section: 'copy', atmosphere: 'signing-quill', effect: 'drift', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.witherspoon, MANY_FAITHS.quakers] },
         { type: 'note', section: 'copy', atmosphere: 'signing-quill', effect: 'rise-expand', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.salomon] },
         { type: 'note', section: 'copy', atmosphere: 'stone-engraving', effect: 'breathe', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.newport] },
-        { type: 'note', section: 'copy', atmosphere: 'foxed-parchment', effect: 'fade-in', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.saur, MANY_FAITHS.freethinkers] },
+        { type: 'note', section: 'copy', atmosphere: 'foxed-parchment', effect: 'fade-in', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.saur] },
+        { type: 'note', section: 'copy', atmosphere: 'signing-quill', effect: 'blur-to-sharp', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.freethinkers] },
         { type: 'note', section: 'copy', atmosphere: 'thirteen-stars', effect: 'ink-spread', kicker: MANY_FAITHS_KICKER, facts: [MANY_FAITHS.danbury] },
 
         { type: 'section-title', section: 'head', atmosphere: 'thirteen-stars', effect: 'split-reveal', text: 'The Long Wager' },
