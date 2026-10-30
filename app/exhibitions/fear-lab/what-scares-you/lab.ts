@@ -20,7 +20,17 @@ export function pulseFromTaps(taps: number[]): number | null {
   return bpm >= 30 && bpm <= 220 ? bpm : null;
 }
 
-export type Round = { bush: number; tiger: boolean };
+/** What gives a round away to an attentive eye (or ear) before the reveal. */
+export type Clue = 'tail' | 'shadow' | 'tracks' | 'growl' | 'leaves' | 'none';
+export const TIGER_CLUES: Clue[] = ['tail', 'shadow', 'tracks', 'growl'];
+
+/**
+ * A round: which bush rustles, where in it (`spot`, -1 left to 1 right),
+ * whether a tiger waits there, and the clue. Each tiger leaves a different
+ * clue; the wind mostly blows a few leaves loose, and sometimes leaves no
+ * clue at all.
+ */
+export type Round = { bush: number; tiger: boolean; spot: number; clue: Clue };
 export type Call = 'tiger' | 'wind';
 
 export const BUSHES = 5;
@@ -31,13 +41,32 @@ export const TIGERS = 3;
 export function makeRounds(rand: () => number = Math.random): Round[] {
   const tigerAt = new Set<number>();
   while (tigerAt.size < TIGERS) tigerAt.add(Math.floor(rand() * ROUNDS));
+  const clues = [...TIGER_CLUES];
+  for (let i = clues.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [clues[i], clues[j]] = [clues[j], clues[i]];
+  }
   let last = -1;
+  let t = 0;
   return Array.from({ length: ROUNDS }, (_, i) => {
     let bush = Math.floor(rand() * BUSHES);
     if (bush === last) bush = (bush + 1 + Math.floor(rand() * (BUSHES - 1))) % BUSHES;
     last = bush;
-    return { bush, tiger: tigerAt.has(i) };
+    const tiger = tigerAt.has(i);
+    const spot = Math.round((rand() * 2 - 1) * 100) / 100;
+    const clue: Clue = tiger ? clues[t++ % clues.length] : rand() < 0.7 ? 'leaves' : 'none';
+    return { bush, tiger, spot, clue };
   });
+}
+
+/** Where the bushes stand this game: spread along the ground, each nudged and sized a little differently. */
+export type BushPlace = { x: number; y: number; scale: number };
+export function makeLayout(rand: () => number = Math.random): BushPlace[] {
+  return Array.from({ length: BUSHES }, (_, i) => ({
+    x: Math.round(70 + i * 140 + (rand() * 2 - 1) * 26),
+    y: Math.round(300 + (rand() * 2 - 1) * 6),
+    scale: Math.round((0.86 + rand() * 0.26) * 100) / 100,
+  }));
 }
 
 export type Tally = { fakeAlarms: number; missed: number; spotted: number; calm: number };

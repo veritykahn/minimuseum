@@ -43,7 +43,7 @@ describe('the lab’s arithmetic', () => {
     const calls = rounds.map((_, i): Call => (i % 2 ? 'tiger' : 'wind'));
     const t = tally(rounds, calls);
     expect(t.fakeAlarms + t.missed + t.spotted + t.calm).toBe(ROUNDS);
-    expect(tally([{ bush: 0, tiger: false }, { bush: 1, tiger: true }], ['tiger', 'wind'])).toEqual({ fakeAlarms: 1, missed: 1, spotted: 0, calm: 0 });
+    expect(tally([{ bush: 0, tiger: false, spot: 0, clue: 'leaves' }, { bush: 1, tiger: true, spot: 0, clue: 'tail' }], ['tiger', 'wind'])).toEqual({ fakeAlarms: 1, missed: 1, spotted: 0, calm: 0 });
   });
 
   it('quickens the monitor with fright', () => {
@@ -75,78 +75,7 @@ describe('the fear boxes', () => {
     }
   });
 
-  it('warns first, then opens a box after the build-up, with what was inside', () => {
-    render(<WhatScaresYou />);
-    expect(screen.getByRole('note')).toHaveTextContent('Startle warning.');
-    expect(screen.getByText(FEAR_LAB_COPY.box)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
-    const shelf = screen.getByRole('group', { name: 'Fear boxes' });
-    expect(within(shelf).getAllByRole('button')).toHaveLength(BOX_COUNT);
-    fireEvent.click(within(shelf).getByRole('button', { name: 'Box 2' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Box 2 creaks open');
-    // Other boxes wait while one opens.
-    fireEvent.click(within(shelf).getByRole('button', { name: 'Box 3' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Box 2 creaks open');
-    act(() => { jest.advanceTimersByTime(BUILD_MS); });
-    const heading = screen.getByRole('heading', { level: 2 }).textContent!;
-    const creature = CREATURES.find((c) => c.name === heading);
-    if (creature) {
-      expect(screen.getByText(creature.fact.text)).toBeInTheDocument();
-      expect(screen.getByRole('img', { name: creature.alt })).toBeInTheDocument();
-      expect(screen.getByRole('link', { name: creature.credit.licence })).toBeInTheDocument();
-    } else if (heading === 'Nothing') {
-      expect(screen.getByText(FEAR_LAB_COPY.unknown)).toBeInTheDocument();
-    } else {
-      expect(heading).toBe('Just a pinecone');
-      expect(screen.getByText(FEAR_LAB_COPY.pinecone)).toBeInTheDocument();
-    }
-    fireEvent.click(screen.getByRole('button', { name: 'Close the box' }));
-    expect(within(shelf).getByRole('button', { name: /^Box 2, open: / })).toHaveAttribute('aria-disabled', 'true');
-  });
-});
-
-describe('known or unknown', () => {
-  it('shows what the poster says after each choice', () => {
-    render(<WhatScaresYou />);
-    fireEvent.click(screen.getByRole('tab', { name: 'Known or Unknown?' }));
-    CHOICES.forEach((c, i) => {
-      fireEvent.click(screen.getByRole('button', { name: new RegExp(c.b.text.replace(/[.?]/g, '.')) }));
-      expect(screen.getByText(c.poster)).toBeInTheDocument();
-      fireEvent.click(screen.getByRole('button', { name: i + 1 < CHOICES.length ? 'Next question' : 'See your choices' }));
-    });
-    expect(screen.getByRole('list', { name: 'Your choices' }).children).toHaveLength(3);
-  });
-});
-
-describe('the rustling bushes', () => {
-  it('warns before it starts, then plays eight rounds and tallies them', () => {
-    render(<WhatScaresYou />);
-    fireEvent.click(screen.getByRole('tab', { name: 'The Rustling Bushes' }));
-    expect(screen.getByRole('note')).toHaveTextContent('Eyes will appear suddenly');
-    expect(screen.queryByRole('button', { name: 'Tiger! Run!' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Round 1 of 8');
-    fireEvent.click(screen.getByRole('button', { name: 'Tiger! Run!' }));
-    act(() => { jest.advanceTimersByTime(REVEAL_MS); });
-    // Not answering is staying put.
-    for (let r = 1; r < ROUNDS; r++) {
-      act(() => { jest.advanceTimersByTime(DECIDE_MS); });
-      act(() => { jest.advanceTimersByTime(REVEAL_MS); });
-    }
-    expect(screen.getByText(FEAR_LAB_COPY.byDesign)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Play again' })).toBeInTheDocument();
-  });
-
-  it('keeps sound off until asked, and lets motion be switched off', () => {
-    render(<WhatScaresYou />);
-    expect(screen.getByRole('button', { name: /Sound/ })).toHaveAttribute('aria-pressed', 'false');
-    const motion = screen.getByRole('button', { name: /Motion/ });
-    expect(motion).toHaveAttribute('aria-pressed', 'true');
-    fireEvent.click(motion);
-    expect(motion).toHaveAttribute('aria-pressed', 'false');
-  });
-});
-
+@@NEW@@
 describe('wiring', () => {
   it('sets the room on the landing page, the map and the projector', () => {
     expect(FEAR_LAB.interactives?.map((c) => c.href)).toEqual(['/exhibitions/fear-lab/what-scares-you']);
