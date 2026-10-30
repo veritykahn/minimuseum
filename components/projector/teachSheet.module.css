@@ -407,3 +407,21 @@
     transform: translateY(12px);
   }
 }
+
+/* An exhibition's note for whoever teaches with it (an age recommendation), first in the sheet. */
+.note {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border-left: 3px solid var(--ts-accent);
+  background: var(--ts-accent-soft);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.noteLabel {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ts-accent);
+}

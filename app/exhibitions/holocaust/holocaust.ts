@@ -203,7 +203,8 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   fx: { theme: 'ho', veil: 'chapters', text: 'all' },
   projector: {
     theme: HOLOCAUST_PROJECTOR_THEME,
-    links: [{ label: 'Lay a Stone: the memorial stone, a minute’s stillness, and the walk', href: '/exhibitions/holocaust/stones' }],
+    links: [{ label: 'Never Forget: lay a stone, keep a minute’s stillness, walk the path', href: '/exhibitions/holocaust/stones' }],
+    teachNote: 'Recommended for grades 6 and up; for younger students, preview first and stay with them.',
   },
   cases: [
     {
@@ -216,10 +217,11 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   interactives: [
     {
       href: '/exhibitions/holocaust/stones',
-      image: { src: '/exhibitions/holocaust/rooms/stones.webp', alt: 'The Lay a Stone room: stones laid along the ledge of a granite memorial in a dark room' },
+      image: { src: '/exhibitions/holocaust/rooms/stones.webp', alt: 'The Never Forget room: stones laid along the ledge of a granite memorial in a dark room' },
       label: 'Interactive',
-      title: 'Lay a Stone',
-      subtitle: 'Stones laid by visitors, a minute’s stillness, and a walk',
+      // Was "Lay a Stone". The subtitle carries the room's three parts, so the card does not read as a repeat of poster 1's close, "Never Forget."
+      title: 'Never Forget',
+      subtitle: 'Lay a stone, keep a minute’s stillness, walk the path',
     },
   ],
   credits: COMMONS_PICTURES.map((p) => ({ text: creditFor(p), href: p.href })),

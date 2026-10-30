@@ -1,4 +1,5 @@
 import type { FactSource } from '@/components/exhibition/FactNote';
+import { STONE_CUSTOM } from '../holocaust';
 
 /*
  * The minute's stillness: what is shown, one at a time, while it lasts. The
@@ -37,7 +38,6 @@ const HMD_SHIPPER = hmd('Zigi Shipper', 'zigi-shipper-hmd-2017');
 const HMD_NIEMOLLER = hmd('Pastor Martin Niemöller', 'pastor-martin-niemoller-hmd-2021');
 const HMD_BOURNE = hmd('Sydney and Golda Bourne', 'sydney-and-golda-bourne');
 const HMD_WIESEL = hmd('Elie Wiesel', 'elie-wiesel-hmd-2017');
-const MJL_STONES: FactSource = { label: 'My Jewish Learning', href: 'https://www.myjewishlearning.com/article/why-do-jews-put-stones-on-graves/' };
 
 export type PromptKind = 'name' | 'words' | 'question';
 
@@ -91,7 +91,7 @@ export const PROMPTS: readonly StillnessPrompt[] = [
   { id: 'S33', kind: 'question', text: 'Martin Niemöller’s poem is about people who did not speak out. When is it hard to speak up for someone else?', sources: [HMD_NIEMOLLER] },
   { id: 'S34', kind: 'question', text: 'Children on the Kindertransport were welcomed by strangers. How can we welcome someone who is new?', sources: [HMD_BOURNE] },
   { id: 'S35', kind: 'question', text: 'Survivors chose “to work for humankind.” What is one small thing you could do for someone else this week?', sources: [HMD_WIESEL] },
-  { id: 'S36', kind: 'question', text: 'A small stone lasts where flowers fade. How do people in your family remember those they have lost?', sources: [MJL_STONES] },
+  { id: 'S36', kind: 'question', text: 'A small stone lasts where flowers fade. How do people in your family remember those they have lost?', sources: STONE_CUSTOM.sources },
 ];
 
 /** S16 is never shown alone: S17, the sentence after it, always follows. */

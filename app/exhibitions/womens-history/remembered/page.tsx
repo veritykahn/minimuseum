@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { flushSync } from 'react-dom';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
@@ -78,16 +79,16 @@ export default function WhoGetsRemembered() {
     return () => window.removeEventListener('hashchange', fromHash);
   }, []);
 
-  // Printing: the chosen sheet is marked on the room, printed, and unmarked.
-  useEffect(() => {
-    if (!printing) return;
+  // Printing: the chosen sheet is marked on the room (in place before the dialog opens), printed, and unmarked.
+  const print = useCallback((kind: PrintKind) => {
+    flushSync(() => setPrinting(kind));
     try {
       window.print();
     } catch {
       /* no print dialog here (a test, or an embedded view) */
     }
     setPrinting(null);
-  }, [printing]);
+  }, []);
 
   useEffect(() => {
     if (!opened.current) return;
@@ -282,12 +283,12 @@ export default function WhoGetsRemembered() {
 
         {/* Tip the scale */}
         <section className="whr-panel whr-scale-panel" id="whr-panel-scale" role="tabpanel" aria-labelledby="whr-tab-scale" hidden={tab !== 'scale'}>
-          <WeighTheEvidence onSay={setAnnouncement} onPrint={() => setPrinting('argument')} />
+          <WeighTheEvidence onSay={setAnnouncement} onPrint={() => print('argument')} />
         </section>
 
         {/* Talk about it */}
         <section className="whr-panel whr-talk" id="whr-panel-talk" role="tabpanel" aria-labelledby="whr-tab-talk" hidden={tab !== 'talk'}>
-          <OralHistory onPrint={setPrinting} />
+          <OralHistory onPrint={print} />
         </section>
 
         <p className="visually-hidden" role="status" aria-live="polite">{announcement}</p>

@@ -2,12 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { FactSources } from '@/components/exhibition/FactNote';
 import { NIEMOLLER } from '../holocaust';
+import { planMinute, promptAt, type StillnessPrompt } from './stillnessPrompts';
 
 /*
  * A minute of stillness. The words of Martin Niemöller, from poster 2, and
  * a button that dims the page for one minute: a thin line that shortens as
- * the minute passes, and nothing else. No sound. Focus is never trapped:
+ * the minute passes, and, one at a time, four short prompts from the
+ * owner-approved bank (stillnessPrompts.ts: a name, someone's own words, a
+ * question to sit with), each with its source, drawn afresh each minute.
+ * No sound. Focus is never trapped:
  * the page behind stays reachable, and Esc (or "End the stillness") ends it.
  */
 
@@ -28,6 +33,8 @@ export default function Stillness() {
   const endsRef = useRef<number | null>(null);
   const returnFocusRef = useRef(false);
   const leaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [plan, setPlan] = useState<StillnessPrompt[]>([]);
+  const lastPlan = useRef<string[]>([]);
 
   const end = useCallback((byVisitor: boolean) => {
     if (endsRef.current === null) return;
@@ -44,6 +51,9 @@ export default function Stillness() {
     if (leaveTimer.current) clearTimeout(leaveTimer.current);
     setLeaving(false);
     const t = Date.now();
+    const next = planMinute(Math.random, lastPlan.current);
+    lastPlan.current = next.map((p) => p.id);
+    setPlan(next);
     endsRef.current = t + STILLNESS_MS;
     setEndsAt(t + STILLNESS_MS);
     setNow(t);
@@ -90,6 +100,8 @@ export default function Stillness() {
   const remaining = endsAt === null ? STILLNESS_MS : endsAt - now;
   /** How much of the minute is left, 1 to 0, for the line. */
   const share = Math.max(0, Math.min(1, remaining / STILLNESS_MS));
+  const shown = endsAt === null ? null : promptAt(STILLNESS_MS - remaining);
+  const prompt = shown === null ? null : plan[shown] ?? null;
 
   const veil = (endsAt !== null || leaving) && typeof document !== 'undefined'
     ? createPortal(
@@ -97,6 +109,18 @@ export default function Stillness() {
           {endsAt !== null && (
             <div className="hos-veil-inner">
               <p className="hos-veil-title">A minute’s stillness</p>
+              <div className="hos-veil-prompt-area" aria-live="polite">
+                {prompt && (
+                  <div key={prompt.id} className={`hos-veil-prompt is-${prompt.kind}`} data-prompt={prompt.id}>
+                    <p className="hos-veil-prompt-text">
+                      {prompt.name && <strong>{prompt.name}</strong>}
+                      {prompt.text}
+                    </p>
+                    {prompt.cite && <p className="hos-veil-prompt-cite">{prompt.cite}</p>}
+                    <FactSources sources={prompt.sources} className="hos-veil-prompt-source" />
+                  </div>
+                )}
+              </div>
               <span className="hos-veil-line" aria-hidden="true">
                 <span style={{ transform: `scaleX(${share})` }} />
               </span>

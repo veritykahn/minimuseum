@@ -38,7 +38,10 @@ export default function PosterExhibition<K extends string>({ config }: { config:
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
   const pjPosters = useMemo(() => projectorPosters(posters), [posters]);
-  const teach = useMemo<TeachContent>(() => ({ slug, name, posters: pjPosters, links: projectorConfig.links }), [slug, name, pjPosters, projectorConfig.links]);
+  const teach = useMemo<TeachContent>(
+    () => ({ slug, name, posters: pjPosters, links: projectorConfig.links, note: projectorConfig.teachNote }),
+    [slug, name, pjPosters, projectorConfig.links, projectorConfig.teachNote],
+  );
   const marks = useMemo(() => Object.fromEntries(posters.map((p) => [p.id, chapterMarks(p.items)])) as Record<K, number[]>, [posters]);
 
   const [projector, setProjector] = useProjectorMode();

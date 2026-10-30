@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import LayAStone from '@/app/exhibitions/holocaust/stones/page';
+import { FOLLOWS, PROMPTS, PROMPT_AT, PROMPT_MS, planMinute, promptAt } from '@/app/exhibitions/holocaust/stones/stillnessPrompts';
 import Stillness from '@/app/exhibitions/holocaust/stones/Stillness';
 import { heapLayout } from '@/app/exhibitions/holocaust/stones/MemorialStone';
 import { HOLOCAUST, NIEMOLLER, STONE_CUSTOM } from '@/app/exhibitions/holocaust/holocaust';
@@ -7,7 +8,7 @@ import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
 /*
- * Lay a Stone: the heap's layout, laying a stone (and the fallback when the
+ * Never Forget (once Lay a Stone): the heap's layout, laying a stone (and the fallback when the
  * shared count can't be reached), the minute's stillness (Esc, and focus),
  * and its place on the landing page, the map and the projector.
  */
@@ -154,6 +155,58 @@ describe('the minute’s stillness', () => {
     act(() => { jest.advanceTimersByTime(31_000); });
     expect(screen.queryByRole('button', { name: 'End the stillness' })).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('A minute has passed. The stillness has ended.');
+  });
+
+  it('shows four prompts in the minute, one at a time, each with its source', () => {
+    render(<Stillness />);
+    fireEvent.click(screen.getByRole('button', { name: 'Keep a minute’s stillness' }));
+    const veil = screen.getByRole('region', { name: 'A minute’s stillness' });
+    const shown: string[] = [];
+    for (let t = 0; t < 60_000; t += 1000) {
+      act(() => { jest.advanceTimersByTime(1000); });
+      const on = veil.querySelectorAll('[data-prompt]');
+      expect(on.length).toBeLessThanOrEqual(1);
+      const id = on[0]?.getAttribute('data-prompt');
+      if (id && shown[shown.length - 1] !== id) {
+        shown.push(id);
+        const p = PROMPTS.find((x) => x.id === id)!;
+        expect(on[0]).toHaveTextContent(p.text);
+        for (const s of p.sources) expect(on[0].querySelector(`a[href="${s.href}"]`)).toHaveTextContent(s.label);
+      }
+      if (!screen.queryByRole('region', { name: 'A minute’s stillness' })) break;
+    }
+    expect(shown).toHaveLength(4);
+    expect(PROMPTS.find((p) => p.id === shown[0])!.kind).toBe('name');
+    expect(PROMPTS.find((p) => p.id === shown[3])!.kind).toBe('question');
+  });
+
+  it('draws a different minute each time: a name, words, a name or words, a question', () => {
+    expect(PROMPTS).toHaveLength(36);
+    expect(PROMPTS.map((p) => p.kind).filter((k) => k === 'name')).toHaveLength(14);
+    expect(PROMPTS.map((p) => p.kind).filter((k) => k === 'words')).toHaveLength(15);
+    expect(PROMPTS.map((p) => p.kind).filter((k) => k === 'question')).toHaveLength(7);
+    for (const p of PROMPTS) expect(p.sources.length).toBeGreaterThan(0);
+    let seed = 1;
+    const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    const seen = new Set<string>();
+    let last: string[] = [];
+    for (let i = 0; i < 40; i++) {
+      const m = planMinute(rand, last);
+      expect(m).toHaveLength(4);
+      expect(m[0].kind).toBe('name');
+      expect(m[1].kind).toBe('words');
+      expect(m[3].kind).toBe('question');
+      expect(new Set(m.map((p) => p.id)).size).toBe(4);
+      // Anne Frank's "good at heart" never stands alone: the next sentence follows it.
+      m.forEach((p, k) => { if (FOLLOWS[p.id]) expect(m[k + 1].id).toBe(FOLLOWS[p.id]); });
+      expect(m.some((p) => last.includes(p.id) && p.kind === 'question')).toBe(false);
+      last = m.map((p) => p.id);
+      last.forEach((id) => seen.add(id));
+    }
+    expect(seen.size).toBeGreaterThan(25);
+    expect(promptAt(PROMPT_AT[0] - 1)).toBeNull();
+    expect(promptAt(PROMPT_AT[2] + 100)).toBe(2);
+    expect(PROMPT_AT[3] + PROMPT_MS).toBeLessThanOrEqual(60_000);
   });
 
   it('Esc ends it at once, and focus goes back', () => {

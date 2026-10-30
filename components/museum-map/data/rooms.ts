@@ -284,7 +284,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
   },
   {
     id: 'ho-stones',
-    label: 'Lay a Stone',
+    label: 'Never Forget',
     path: '/exhibitions/holocaust/stones',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#78716C',
