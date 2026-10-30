@@ -253,6 +253,11 @@ describe('the procedure', () => {
     expect(screen.queryByRole('tablist')).toBeNull();
   });
 
+  it('says plainly that the views are photographs, which the lens buttons zoom', () => {
+    room();
+    expect(screen.getByText('These are photographs taken through real microscopes; the lens buttons zoom the photo.')).toBeInTheDocument();
+  });
+
   it('reminds you to wipe the slide before placing a sample, and does not open the tray', () => {
     const r = room();
     fireEvent.click(r.button('Place sample'));

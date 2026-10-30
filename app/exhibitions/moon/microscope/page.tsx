@@ -518,6 +518,8 @@ export default function MoonMicroscope() {
               <Link href="/exhibitions/moon/artifacts/case" className="mo-ms-case">See the lunar meteorite in the display case</Link>
               <FactNote fact={MICROSCOPE_NOTES.adrar} className="mo-ms-fact" />
             </div>
+
+            <p className="mo-ms-credit mo-ms-photo-note">These are photographs taken through real microscopes; the lens buttons zoom the photo.</p>
           </section>
         </div>
 
