@@ -63,9 +63,9 @@ export function makeRounds(rand: () => number = Math.random): Round[] {
 export type BushPlace = { x: number; y: number; scale: number };
 export function makeLayout(rand: () => number = Math.random): BushPlace[] {
   return Array.from({ length: BUSHES }, (_, i) => ({
-    x: Math.round(70 + i * 140 + (rand() * 2 - 1) * 26),
+    x: Math.round(70 + i * 140 + (rand() * 2 - 1) * 12),
     y: Math.round(300 + (rand() * 2 - 1) * 6),
-    scale: Math.round((0.86 + rand() * 0.26) * 100) / 100,
+    scale: Math.round((0.88 + rand() * 0.16) * 100) / 100,
   }));
 }
 

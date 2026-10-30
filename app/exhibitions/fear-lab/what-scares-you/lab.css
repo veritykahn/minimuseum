@@ -614,8 +614,8 @@
 .fl-sw-video { width: 100%; height: 100%; object-fit: cover; }
 .fl-sp { position: absolute; left: 0; top: 0; will-change: transform, opacity; }
 .fl-sp-art { display: block; width: 100%; height: 100%; overflow: visible; }
-.fl-sp-art .fl-sp-legs path { fill: none; stroke: #2a1e16; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
-.fl-sp-art .fl-sp-body { fill: #1c140f; stroke: #4a3526; stroke-width: 1.5; }
+.fl-sp-art .fl-sp-legs path { fill: none; stroke: #8a6a4c; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.fl-sp-art .fl-sp-body { fill: #2e2118; stroke: #a07c58; stroke-width: 1.8; }
 .fl-sp-mark { fill: none; stroke: #6b4a2e; stroke-width: 2; }
 .fl-sp-eye { fill: #b5372b; }
 .fl-sp-cartoon .fl-sp-legs path { stroke: #4b3a73; stroke-width: 5; }
@@ -696,4 +696,32 @@
   .fl-sp-b { display: none; }
   .fl-ku-fx { animation: fl-fb-fade 0.8s ease both !important; }
   .fl-fb-dark-box .fl-fb-art { animation: none !important; }
+}
+
+/* ───────── A tablet (an iPad): the switches under the tabs; held upright, the scene above the words ───────── */
+@media (min-width: 761px) and (max-width: 1100px) {
+  /* Three switches no longer fit beside the title. */
+  .fl-lab-switches { position: static; }
+}
+@media (min-width: 761px) and (max-width: 1100px) and (orientation: portrait) {
+  .fl-box,
+  .fl-bushes {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+    align-items: stretch;
+    gap: 16px;
+    padding: 16px 48px 8px;
+  }
+  .fl-ku {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    align-content: start;
+    gap: 20px;
+    padding: 16px 48px 8px;
+  }
+  .fl-ku-options,
+  .fl-ku-done,
+  .fl-fb-shelf { margin: 0 auto; }
+  .fl-lab-panel-body { width: 100%; max-width: 680px; margin: 0 auto; max-height: 46dvh; }
+  .fl-bushes-scene svg { max-height: 40vh; }
 }

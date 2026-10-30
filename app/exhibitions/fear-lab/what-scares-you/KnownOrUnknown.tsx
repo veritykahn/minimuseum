@@ -297,7 +297,7 @@ export default function KnownOrUnknown({
               <h2 className="fl-lab-heading fl-ku-question">{choice.question}</h2>
             </div>
             <div className="fl-ku-clock">
-              <Ring left={picked ? 0 : left} paused={paused && !picked} />
+              <Ring left={left} paused={paused && !picked} />
               {!picked && (
                 <button type="button" className="fl-lab-switch fl-ku-pause" aria-pressed={paused} onClick={() => setPaused((p) => !p)}>
                   {paused ? 'Resume timer' : 'Pause timer'}
