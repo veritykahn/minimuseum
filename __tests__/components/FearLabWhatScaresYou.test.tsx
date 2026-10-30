@@ -1,21 +1,33 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import WhatScaresYou from '@/app/exhibitions/fear-lab/what-scares-you/page';
-import { BUILD_MS, CLOSE_MS, HARMLESS_MS, outMs } from '@/app/exhibitions/fear-lab/what-scares-you/FearBoxes';
-import { BOX_COUNT, CONTENTS, CREATURES, fillBoxes } from '@/app/exhibitions/fear-lab/what-scares-you/boxes';
+import WhatScaresYouLab from '@/app/exhibitions/fear-lab/what-scares-you/WhatScaresYouLab';
+import FearBoxes, { BUILD_MS, CLOSE_MS, HARMLESS_MS, SURPRISE_MS, outMs, said } from '@/app/exhibitions/fear-lab/what-scares-you/FearBoxes';
+import {
+  BOX_COUNT,
+  CONTENTS,
+  CREATURES,
+  MOST_SCARES_IN_A_ROW,
+  drawOpening,
+  scareStreak,
+  type Content,
+} from '@/app/exhibitions/fear-lab/what-scares-you/boxes';
+import { SURPRISES } from '@/app/exhibitions/fear-lab/what-scares-you/surprises';
 import { CLUE_MS, CLUE_TEXT, DECIDE_MS, REVEAL_MS } from '@/app/exhibitions/fear-lab/what-scares-you/RustlingBushes';
 import { CHOICES, QUESTION_MS } from '@/app/exhibitions/fear-lab/what-scares-you/KnownOrUnknown';
 import { ROUNDS, TIGERS, TIGER_CLUES, makeLayout, makeRounds, paceFor, pulseFromTaps, tally, type Call } from '@/app/exhibitions/fear-lab/what-scares-you/lab';
 import { makeSwarm, spiderCount, swarmLength } from '@/app/exhibitions/fear-lab/what-scares-you/spiderPaths';
-import { ANIMATION_SLOTS, SOUND_SLOTS, assetExists, forgetAssets, soundUrl } from '@/app/exhibitions/fear-lab/what-scares-you/assets';
-import { creatureSlot } from '@/app/exhibitions/fear-lab/what-scares-you/sound';
+import { ANIMATION_SLOTS, SLOT_FILES, SOUND_SLOTS, soundUrl } from '@/app/exhibitions/fear-lab/what-scares-you/assets';
+import { assetsOnDisk } from '@/app/exhibitions/fear-lab/what-scares-you/assetSlots';
+import { creatureSlot, type LabSound } from '@/app/exhibitions/fear-lab/what-scares-you/sound';
 import { FEAR_LAB, FEAR_LAB_COPY } from '@/app/exhibitions/fear-lab/fearLab';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
 /*
  * What Scares You?: the lab's arithmetic, the fear boxes (with their
- * warning first), known or unknown, the rustling bushes (with its warning
- * first), and the wiring.
+ * warning first, and what is inside drawn by chance as each lid opens),
+ * known or unknown, the rustling bushes (with its warning first), and the
+ * wiring.
  */
 
 // Animation frames run on the fake clock, a frame every 16 ms.
@@ -31,6 +43,20 @@ afterEach(() => {
   jest.useRealTimers();
   jest.restoreAllMocks();
 });
+
+/** A scripted chance: these numbers in turn, then the last one again. */
+const seq = (...xs: number[]) => {
+  let i = 0;
+  return jest.fn(() => xs[Math.min(i++, xs.length - 1)]);
+};
+/** A small seeded random, for long runs of draws. */
+const seeded = (seed: number) => () => {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+};
+/** Chances that draw a scare (the first creature), or a given surprise. */
+const SCARE = [0.01, 0.01];
+const surpriseDraw = (k: number) => [0.99, 0.01, (k + 0.5) / SURPRISES.length];
 
 describe('the lab’s arithmetic', () => {
   it('reads a pulse from five or more steady taps, and ignores a long pause', () => {
@@ -56,17 +82,77 @@ describe('the lab’s arithmetic', () => {
   });
 });
 
-describe('the fear boxes', () => {
-  it('fills a row of five from the eight contents, never all creatures', () => {
-    expect(CONTENTS).toHaveLength(8);
-    for (let k = 0; k < 40; k++) {
-      const row = fillBoxes();
-      expect(row).toHaveLength(BOX_COUNT);
-      expect(new Set(row).size).toBe(BOX_COUNT);
-      expect(row.some((c) => c.kind !== 'creature')).toBe(true);
-    }
+describe('what is in a box: drawn by chance as its lid opens', () => {
+  it('can be a scare or something harmless, from the same chance, injectably', () => {
+    const scare = drawOpening([], false, seq(...SCARE));
+    expect(scare.kind).toBe('creature');
+    expect(scare).toBe(CREATURES[0]);
+    SURPRISES.forEach((s, k) => expect(drawOpening([], false, seq(...surpriseDraw(k)))).toEqual({ kind: 'surprise', id: s.id }));
+    expect(drawOpening([], false, seq(0.99, 0.75))).toEqual({ kind: 'pinecone' });
+    expect(drawOpening([], false, seq(0.99, 0.95))).toEqual({ kind: 'nothing' });
+    // Fourteen things can come out: six creatures, six surprises, the pinecone and nothing.
+    expect(CONTENTS).toHaveLength(14);
   });
 
+  it('is about even, mostly harmless in gentle mode, and never more than three scares in a row (two in gentle mode)', () => {
+    for (const gentle of [false, true]) {
+      const rand = seeded(gentle ? 7 : 3);
+      const history: Content[] = [];
+      for (let k = 0; k < 4000; k++) history.push(drawOpening(history, gentle, rand));
+      const share = history.filter((c) => c.kind === 'creature').length / history.length;
+      const [low, high] = gentle ? [0.18, 0.3] : [0.4, 0.55];
+      expect(share).toBeGreaterThan(low);
+      expect(share).toBeLessThan(high);
+      let run = 0;
+      let longest = 0;
+      history.forEach((c) => {
+        run = c.kind === 'creature' ? run + 1 : 0;
+        longest = Math.max(longest, run);
+      });
+      expect(longest).toBeLessThanOrEqual(MOST_SCARES_IN_A_ROW[gentle ? 'gentle' : 'normal']);
+      // Every surprise, and every creature, turns up.
+      for (const s of SURPRISES) expect(history.some((c) => c.kind === 'surprise' && c.id === s.id)).toBe(true);
+      for (const c of CREATURES) expect(history).toContain(c);
+    }
+    // However the chance falls, gentle mode lets no third scare through.
+    const always = () => 0;
+    const h: Content[] = [];
+    for (let k = 0; k < 9; k++) h.push(drawOpening(h, true, always));
+    expect(h.map((c) => c.kind === 'creature')).toEqual([true, true, false, true, true, false, true, true, false]);
+    expect(scareStreak(h.slice(0, 2))).toBe(2);
+  });
+
+  it('does not bring back a creature or surprise seen in the last few openings', () => {
+    const first = drawOpening([], false, seq(...SCARE));
+    expect(drawOpening([first], false, seq(...SCARE))).not.toBe(first);
+    const slime: Content = { kind: 'surprise', id: 'slime' };
+    expect(drawOpening([slime], false, seq(...surpriseDraw(0)))).not.toEqual(slime);
+  });
+});
+
+/** A sound that only notes what it was asked to play. */
+const fakeSound = () => {
+  const played: string[] = [];
+  const s: LabSound = { beat: () => {}, tension: () => {}, play: (slot) => void played.push(slot), wind: () => {}, setGentle: () => {}, close: () => {} };
+  return { s, played };
+};
+
+function renderBoxes({ rand, motion = true, gentle = false, owned = [] as string[] }: { rand: () => number; motion?: boolean; gentle?: boolean; owned?: string[] }) {
+  const { s, played } = fakeSound();
+  const utils = render(
+    <div className="fl-room">
+      <FearBoxes motion={motion} gentle={gentle} soundOn onSoundOn={() => {}} sound={() => s} onFright={() => {}} rand={rand} owned={owned} />
+    </div>,
+  );
+  fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
+  // Only what the boxes play from here on.
+  played.length = 0;
+  const shelf = screen.getByRole('group', { name: 'Fear boxes' });
+  const open =(n: number) => fireEvent.click(within(shelf).getByRole('button', { name: `Box ${n}` }));
+  return { ...utils, played, shelf, open };
+}
+
+describe('the fear boxes', () => {
   it('gives every creature a checked fact with a source, and a credited photograph', () => {
     expect(CREATURES.map((c) => c.id)).toEqual(['cockroach', 'tarantula', 'bat', 'snake', 'rat', 'centipede']);
     for (const c of CREATURES) {
@@ -80,21 +166,23 @@ describe('the fear boxes', () => {
   });
 
   it('asks for sound and warns first, then darkens the screen, creaks the lid open, and shows what was inside', () => {
-    // A fixed row of boxes, so the test knows what each holds.
-    jest.spyOn(Math, 'random').mockReturnValue(0.3);
-    const row = fillBoxes(() => 0.3);
-    render(<WhatScaresYou />);
+    const rand = seq(...SCARE);
+    render(<WhatScaresYouLab rand={rand} />);
     expect(screen.getByRole('note')).toHaveTextContent('Startle warning.');
+    expect(screen.getByRole('note')).toHaveTextContent('chance decides what comes out');
     expect(screen.getByText(FEAR_LAB_COPY.box)).toBeInTheDocument();
     expect(screen.getByText('Turn the sound on first.')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Turn sound on' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
     const shelf = screen.getByRole('group', { name: 'Fear boxes' });
     expect(within(shelf).getAllByRole('button')).toHaveLength(BOX_COUNT);
+    // Nothing is decided until a lid opens.
+    expect(rand).not.toHaveBeenCalled();
 
-    const i = row.findIndex((c) => c.kind === 'creature');
-    const c = row[i] as (typeof CREATURES)[number];
+    const i = 2;
+    const c = CREATURES[0];
     fireEvent.click(within(shelf).getByRole('button', { name: `Box ${i + 1}` }));
+    expect(rand).toHaveBeenCalled();
     // The whole screen goes dark, and the skip button takes focus.
     expect(document.querySelector('.fl-fb-dark')).toHaveAttribute('data-stage', 'build');
     expect(screen.getByRole('button', { name: /Skip/ })).toHaveFocus();
@@ -108,6 +196,7 @@ describe('the fear boxes', () => {
     expect(document.querySelector('.fl-fb-dark')).toHaveAttribute('data-stage', 'out');
     expect(document.querySelectorAll('[data-spider]')).toHaveLength(spiderCount(window.innerWidth, window.innerHeight, false));
     expect(document.querySelector('.fl-sp-cartoon')).toBeNull();
+    expect(document.querySelector('.fl-su')).toBeNull();
 
     // Then the lights come up on the creature, with its fact and its source.
     act(() => { jest.advanceTimersByTime(outMs(c, false, false)); });
@@ -116,7 +205,7 @@ describe('the fear boxes', () => {
     expect(screen.getByText(c.fact.text)).toBeInTheDocument();
     expect(screen.getByRole('img', { name: c.alt })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: c.credit.licence })).toBeInTheDocument();
-    const box = within(shelf).getByRole('button', { name: new RegExp(`^Box ${i + 1}, opened: `) });
+    const box = within(shelf).getByRole('button', { name: `Box ${i + 1}, opened: ${said(c)}` });
     expect(box).toHaveAttribute('data-open', 'true');
 
     // Closing the box shuts its lid on the shelf.
@@ -128,24 +217,96 @@ describe('the fear boxes', () => {
     expect(box).toHaveAttribute('aria-disabled', 'true');
   });
 
-  it('brings something harmless out with no spiders', () => {
-    jest.spyOn(Math, 'random').mockReturnValue(0.3);
-    const row = fillBoxes(() => 0.3);
-    render(<WhatScaresYou />);
-    fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
-    const i = row.findIndex((c) => c.kind !== 'creature');
-    fireEvent.click(within(screen.getByRole('group', { name: 'Fear boxes' })).getByRole('button', { name: `Box ${i + 1}` }));
+  it('draws again at every opening, so the same box can hold a scare one time and something silly the next', () => {
+    const scary = renderBoxes({ rand: seq(...SCARE) });
+    scary.open(1);
+    act(() => { jest.advanceTimersByTime(BUILD_MS); });
+    expect(document.querySelectorAll('[data-spider]').length).toBeGreaterThan(0);
+    scary.unmount();
+    const silly = renderBoxes({ rand: seq(...surpriseDraw(0)) });
+    silly.open(1);
     act(() => { jest.advanceTimersByTime(BUILD_MS); });
     expect(document.querySelectorAll('[data-spider]')).toHaveLength(0);
-    expect(document.querySelector('.fl-fb-gift')).toBeInTheDocument();
-    act(() => { jest.advanceTimersByTime(HARMLESS_MS); });
-    expect(screen.getByRole('heading', { level: 2, name: row[i].kind === 'pinecone' ? 'Just a pinecone' : 'Nothing' })).toBeInTheDocument();
+    expect(document.querySelector('.fl-su[data-id="slime"]')).toBeInTheDocument();
+  });
+
+  it.each(SURPRISES.map((s, k) => [s.id, s, k] as const))('bursts out something silly (%s) with its own sound and a friendly line', (_, s, k) => {
+    const { played, shelf, open } = renderBoxes({ rand: seq(...surpriseDraw(k)) });
+    open(4);
+    expect(played).toEqual(['creak']);
+    act(() => { jest.advanceTimersByTime(BUILD_MS); });
+    // No spiders, no stinger: the surprise itself, drawn, across the screen.
+    expect(document.querySelectorAll('[data-spider]')).toHaveLength(0);
+    expect(played).not.toContain('scary');
+    const burst = document.querySelector(`.fl-su[data-id="${s.id}"]`);
+    expect(burst).toBeInTheDocument();
+    expect(burst).not.toHaveAttribute('data-still');
+    expect(burst!.querySelector('.fl-su-burst')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(s.out);
+    act(() => { jest.advanceTimersByTime(s.soundAt ?? 0); });
+    expect(played).toEqual(['creak', s.sound]);
+    act(() => { jest.advanceTimersByTime(SURPRISE_MS - (s.soundAt ?? 0)); });
+    // The lights come up on it, with its line.
+    expect(document.querySelector('.fl-fb-dark')).toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: s.name })).toBeInTheDocument();
+    expect(screen.getByText(s.line)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: s.alt })).toBeInTheDocument();
+    // Closed, the box says what was inside.
+    fireEvent.click(screen.getByRole('button', { name: 'Close the box' }));
+    act(() => { jest.advanceTimersByTime(CLOSE_MS); });
+    const box = within(shelf).getByRole('button', { name: `Box 4, opened: ${s.label}` });
+    expect(box).toHaveAttribute('data-done', 'true');
+    expect(box.querySelector('.fl-fb-done')).toHaveTextContent(s.label);
+  });
+
+  it('with motion off, a surprise is a still picture fading in: nothing splats, drips or flies', () => {
+    const { played, open } = renderBoxes({ rand: seq(...surpriseDraw(0)), motion: false });
+    open(2);
+    act(() => { jest.advanceTimersByTime(BUILD_MS); });
+    const burst = document.querySelector('.fl-su[data-id="slime"]');
+    expect(burst).toHaveAttribute('data-still', 'true');
+    expect(document.querySelector('.fl-su-burst, .fl-su-splat, .fl-su-drip')).toBeNull();
+    expect(burst!.querySelector('.fl-su-art')).toHaveAttribute('aria-label', SURPRISES[0].alt);
+    // Its sound plays at once, with nothing to wait for.
+    expect(played).toContain('slime');
+    act(() => { jest.advanceTimersByTime(outMs({ kind: 'surprise', id: 'slime' }, false, true)); });
+    expect(document.querySelector('.fl-fb-dark')).toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: SURPRISES[0].name })).toBeInTheDocument();
+  });
+
+  it('plays the owner’s slime animation, if she has dropped one in', () => {
+    const { open } = renderBoxes({ rand: seq(...surpriseDraw(0)), owned: [ANIMATION_SLOTS.slime.file] });
+    open(1);
+    act(() => { jest.advanceTimersByTime(BUILD_MS); });
+    expect(document.querySelector('.fl-su video')).toHaveAttribute('src', '/exhibitions/fear-lab/animations/slime.webm');
+  });
+
+  it('skips a surprise with Escape, and the close button takes focus', () => {
+    const { open } = renderBoxes({ rand: seq(...surpriseDraw(2)) });
+    open(3);
+    act(() => { jest.advanceTimersByTime(BUILD_MS); });
+    expect(screen.getByRole('button', { name: /Skip/ })).toHaveFocus();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(document.querySelector('.fl-fb-dark')).toBeNull();
+    expect(screen.getByRole('heading', { level: 2, name: SURPRISES[2].name })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Close the box' })).toHaveFocus();
+  });
+
+  it('brings the pinecone or nothing out, with no spiders', () => {
+    for (const [r, heading] of [[0.75, 'Just a pinecone'], [0.95, 'Nothing']] as const) {
+      const { open, unmount } = renderBoxes({ rand: seq(0.99, r) });
+      open(1);
+      act(() => { jest.advanceTimersByTime(BUILD_MS); });
+      expect(document.querySelectorAll('[data-spider]')).toHaveLength(0);
+      expect(document.querySelector('.fl-fb-gift')).toBeInTheDocument();
+      act(() => { jest.advanceTimersByTime(HARMLESS_MS); });
+      expect(screen.getByRole('heading', { level: 2, name: heading })).toBeInTheDocument();
+      unmount();
+    }
   });
 
   it('has a gentle mode with a few cartoon spiders, and Escape turns the lights back on', () => {
-    jest.spyOn(Math, 'random').mockReturnValue(0.3);
-    const row = fillBoxes(() => 0.3);
-    render(<WhatScaresYou />);
+    render(<WhatScaresYouLab rand={seq(...SCARE)} />);
     const gentle = screen.getByRole('button', { name: /Gentle/ });
     expect(gentle).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(gentle);
@@ -153,9 +314,9 @@ describe('the fear boxes', () => {
     // Remembered on this device.
     expect(window.localStorage.getItem('fl-lab-gentle')).toBe('on');
     expect(screen.getByRole('note')).toHaveTextContent('Gentle mode is on.');
+    expect(screen.getByRole('note')).toHaveTextContent('Mostly it’s something silly');
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
-    const i = row.findIndex((c) => c.kind === 'creature');
-    fireEvent.click(within(screen.getByRole('group', { name: 'Fear boxes' })).getByRole('button', { name: `Box ${i + 1}` }));
+    fireEvent.click(within(screen.getByRole('group', { name: 'Fear boxes' })).getByRole('button', { name: 'Box 1' }));
     act(() => { jest.advanceTimersByTime(BUILD_MS); });
     expect(document.querySelectorAll('[data-spider]')).toHaveLength(spiderCount(window.innerWidth, window.innerHeight, true));
     expect(document.querySelectorAll('.fl-sp-cartoon').length).toBeGreaterThan(0);
@@ -164,17 +325,28 @@ describe('the fear boxes', () => {
     expect(screen.getByRole('button', { name: 'Close the box' })).toHaveFocus();
   });
 
+  it('in gentle mode, lets no third scare in a row out of the boxes', () => {
+    const { open } = renderBoxes({ rand: () => 0, gentle: true });
+    const kinds: boolean[] = [];
+    for (let n = 1; n <= 3; n++) {
+      open(n);
+      act(() => { jest.advanceTimersByTime(BUILD_MS); });
+      kinds.push(document.querySelectorAll('[data-spider]').length > 0);
+      fireEvent.keyDown(window, { key: 'Escape' });
+      fireEvent.click(screen.getByRole('button', { name: 'Close the box' }));
+      act(() => { jest.advanceTimersByTime(CLOSE_MS); });
+    }
+    expect(kinds).toEqual([true, true, false]);
+  });
+
   it('with motion off, the spiders fade where they are instead of crawling', () => {
-    jest.spyOn(Math, 'random').mockReturnValue(0.3);
-    const row = fillBoxes(() => 0.3);
-    render(<WhatScaresYou />);
+    render(<WhatScaresYouLab rand={seq(...SCARE)} />);
     fireEvent.click(screen.getByRole('button', { name: /Motion/ }));
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
-    const i = row.findIndex((c) => c.kind === 'creature');
-    fireEvent.click(within(screen.getByRole('group', { name: 'Fear boxes' })).getByRole('button', { name: `Box ${i + 1}` }));
+    fireEvent.click(within(screen.getByRole('group', { name: 'Fear boxes' })).getByRole('button', { name: 'Box 1' }));
     act(() => { jest.advanceTimersByTime(BUILD_MS); });
     expect(document.querySelector('.fl-sw')).toHaveAttribute('data-still', 'true');
-    act(() => { jest.advanceTimersByTime(outMs(row[i], false, true)); });
+    act(() => { jest.advanceTimersByTime(outMs(CREATURES[0], false, true)); });
     expect(document.querySelector('.fl-fb-dark')).toBeNull();
   });
 });
@@ -209,6 +381,7 @@ describe('the spiders’ paths', () => {
   });
 });
 
+
 describe('the drop-in slots', () => {
   it('names a file under the room’s folder for every sound and animation', () => {
     for (const [slot, s] of Object.entries(SOUND_SLOTS)) {
@@ -222,9 +395,28 @@ describe('the drop-in slots', () => {
     CREATURES.forEach((c) => expect(SOUND_SLOTS[creatureSlot(c.id)]).toBeDefined());
   });
 
-  it('falls back to the lab’s own sounds where nothing is dropped in', async () => {
-    forgetAssets();
-    await expect(assetExists('/exhibitions/fear-lab/sounds/creak.mp3')).resolves.toBe(false);
+  it('has a slot for every silly surprise’s sound, and for the owner’s slime animation', () => {
+    expect(SURPRISES.map((s) => SOUND_SLOTS[s.sound].file)).toEqual([
+      'sounds/slime.mp3',
+      'sounds/confetti.mp3',
+      'sounds/boing.mp3',
+      'sounds/squeak.mp3',
+      'sounds/bubbles.mp3',
+      'sounds/feather.mp3',
+    ]);
+    expect(ANIMATION_SLOTS.slime.file).toBe('animations/slime.webm');
+    expect(ANIMATION_SLOTS.slime.use).toMatch(/transparent/);
+    expect(SLOT_FILES).toEqual(expect.arrayContaining(['sounds/slime.mp3', 'sounds/squeak.mp3', 'animations/slime.webm']));
+  });
+
+  it('looks on disk when the page is built, and asks for no file that is not there', () => {
+    expect(assetsOnDisk()).toEqual([]);
+    const fetchSpy = jest.fn();
+    (global as unknown as { fetch: unknown }).fetch = fetchSpy;
+    render(<WhatScaresYou />);
+    fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
+    expect(fetchSpy).not.toHaveBeenCalled();
+    delete (global as unknown as { fetch?: unknown }).fetch;
   });
 });
 

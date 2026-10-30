@@ -1,9 +1,12 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import type { Creature } from './sound';
+import { SURPRISES, type SurpriseId } from './surprises';
 
 /*
- * What is in the fear boxes: six creatures, the poster's pinecone, and
- * nothing at all. Each creature is a real photograph from Wikimedia Commons,
+ * What is in the fear boxes: six creatures, six silly surprises
+ * (surprises.ts), the poster's pinecone, and nothing at all. What is in a
+ * box is not fixed: it is drawn by chance the moment its lid opens
+ * (drawOpening, below), so there is no safe box to learn. Each creature is a real photograph from Wikimedia Commons,
  * cut out from its background and saved as WebP in
  * public/exhibitions/fear-lab/creatures/ (the rat's lower edge, grass in the
  * original, fades out). Each is credited with its title, author and licence.
@@ -19,6 +22,7 @@ export type Credit = { title: string; author: string; licence: string; licenceHr
 
 export type Content =
   | { kind: 'creature'; id: Creature; name: string; src: string; width: number; height: number; alt: string; fact: ApprovedFact; credit: Credit }
+  | { kind: 'surprise'; id: SurpriseId }
   | { kind: 'pinecone' }
   | { kind: 'nothing' };
 
@@ -148,22 +152,50 @@ export const CREATURES: Extract<Content, { kind: 'creature' }>[] = [
   },
 ];
 
-/** Every box's possible contents: the six creatures, the pinecone, and nothing. */
-export const CONTENTS: Content[] = [...CREATURES, { kind: 'pinecone' }, { kind: 'nothing' }];
+/** Every box's possible contents: the six creatures, the six surprises, the pinecone, and nothing. */
+export const CONTENTS: Content[] = [...CREATURES, ...SURPRISES.map((x): Content => ({ kind: 'surprise', id: x.id })), { kind: 'pinecone' }, { kind: 'nothing' }];
 
 export const BOX_COUNT = 5;
 
+/** The chance that an opening is a scare (a creature, with its spiders): even, or low in gentle mode. */
+export const SCARE_CHANCE = { normal: 0.5, gentle: 0.25 } as const;
+/** The most scares there can be in a row, before something harmless must come out. */
+export const MOST_SCARES_IN_A_ROW = { normal: 3, gentle: 2 } as const;
+/** Of the harmless openings, the share that is a silly surprise, the pinecone, or nothing. */
+export const HARMLESS_SHARE = { surprise: 0.7, pinecone: 0.15, nothing: 0.15 } as const;
+/** How many recent openings a creature or surprise is kept from repeating in. */
+const FRESH = 4;
+
+/** How many scares end the run of openings so far. */
+export function scareStreak(history: readonly Content[]): number {
+  let n = 0;
+  for (let k = history.length - 1; k >= 0 && history[k].kind === 'creature'; k--) n++;
+  return n;
+}
+
+const sameThing = (a: Content, b: Content) =>
+  (a.kind === 'creature' && b.kind === 'creature' && a.id === b.id) || (a.kind === 'surprise' && b.kind === 'surprise' && a.id === b.id);
+
 /**
- * A fresh row of boxes: five of the eight contents, in a random order. At
- * least one box holds nothing or the pinecone, so not every box bites.
+ * What comes out of a box, drawn by chance as its lid opens: each opening on
+ * its own, whichever box it is. A scare about half the time (a quarter in
+ * gentle mode), but never more than three in a row (two in gentle mode).
+ * Otherwise something harmless: mostly a silly surprise, sometimes the
+ * pinecone or nothing. A creature or surprise seen in the last few openings
+ * is not picked again while there are others. `history` is every opening so
+ * far this visit, oldest first; `rand` is injectable, for the tests.
  */
-export function fillBoxes(rand: () => number = Math.random): Content[] {
-  const deck = [...CONTENTS];
-  for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
-  }
-  const row: Content[] = deck.slice(0, BOX_COUNT);
-  if (!row.some((c) => c.kind !== 'creature')) row[Math.floor(rand() * BOX_COUNT)] = deck.find((c) => c.kind !== 'creature')!;
-  return row;
+export function drawOpening(history: readonly Content[], gentle: boolean, rand: () => number = Math.random): Content {
+  const mode = gentle ? 'gentle' : 'normal';
+  const recent = history.slice(-FRESH);
+  const pick = <T extends Content>(all: T[]): T => {
+    const fresh = all.filter((c) => !recent.some((r) => sameThing(r, c)));
+    const pool = fresh.length ? fresh : all;
+    return pool[Math.min(pool.length - 1, Math.floor(rand() * pool.length))];
+  };
+  const scary = rand() < SCARE_CHANCE[mode] && scareStreak(history) < MOST_SCARES_IN_A_ROW[mode];
+  if (scary) return pick(CREATURES);
+  const r = rand();
+  if (r < HARMLESS_SHARE.surprise) return pick(SURPRISES.map((x): Content => ({ kind: 'surprise', id: x.id })));
+  return r < HARMLESS_SHARE.surprise + HARMLESS_SHARE.pinecone ? { kind: 'pinecone' } : { kind: 'nothing' };
 }

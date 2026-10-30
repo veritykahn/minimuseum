@@ -1,4 +1,4 @@
-import { SOUND_SLOTS, assetExists, soundUrl, type SoundSlot } from './assets';
+import { SOUND_SLOTS, ownsSound, soundUrl, type OwnedAssets, type SoundSlot } from './assets';
 
 /*
  * The lab's sounds. Sound is off until the visitor turns it on, and the
@@ -11,8 +11,10 @@ import { SOUND_SLOTS, assetExists, soundUrl, type SoundSlot } from './assets';
  *               brings in a rub a semitone up, so it builds as the boxes
  *               creak and the bushes rustle.
  *   effects     every effect is a named slot (assets.ts). If the owner has
- *               dropped in a file for the slot, that file plays; until
- *               then, it is made here, in the browser (Web Audio).
+ *               dropped in a file for the slot (`owned`, read from disk when
+ *               the page was built), that file plays; until then, it is
+ *               made here, in the browser (Web Audio). No other file is
+ *               asked for.
  *   gentle      gentle mode turns every effect down by about half, and
  *               swaps the scare's stinger for a soft “uh-oh”.
  *
@@ -39,7 +41,7 @@ export type LabSound = {
 /** The slot for each creature's own sound. */
 export const creatureSlot = (c: Creature): SoundSlot => `creature-${c}`;
 
-export function createLabSound(gentleAtStart = false): LabSound | null {
+export function createLabSound(gentleAtStart = false, ownedFiles: OwnedAssets = []): LabSound | null {
   const AC = typeof window !== 'undefined' ? window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext : undefined;
   if (!AC) return null;
   const ctx = new AC();
@@ -62,19 +64,20 @@ export function createLabSound(gentleAtStart = false): LabSound | null {
   // The owner's files, fetched once sound is on; any slot without one is made here.
   const owned = new Map<SoundSlot, AudioBuffer>();
   let closed = false;
-  (Object.keys(SOUND_SLOTS) as SoundSlot[]).forEach((slot) => {
-    const url = soundUrl(slot);
-    void assetExists(url).then(async (ok) => {
-      if (!ok || closed) return;
-      try {
-        const data = await (await fetch(url)).arrayBuffer();
-        const buf = await new Promise<AudioBuffer>((res, rej) => ctx.decodeAudioData(data, res, rej));
-        owned.set(slot, buf);
-      } catch {
-        // A file that will not decode: the lab's own sound stays.
-      }
+  (Object.keys(SOUND_SLOTS) as SoundSlot[])
+    .filter((slot) => ownsSound(ownedFiles, slot))
+    .forEach((slot) => {
+      void (async () => {
+        try {
+          const data = await (await fetch(soundUrl(slot))).arrayBuffer();
+          if (closed) return;
+          const buf = await new Promise<AudioBuffer>((res, rej) => ctx.decodeAudioData(data, res, rej));
+          owned.set(slot, buf);
+        } catch {
+          // A file that will not load or decode: the lab's own sound stays.
+        }
+      })();
     });
-  });
   const playOwned = (slot: SoundSlot) => {
     const buf = owned.get(slot);
     if (!buf) return false;
@@ -323,6 +326,77 @@ export function createLabSound(gentleAtStart = false): LabSound | null {
         o.frequency.exponentialRampToValueAtTime(3600, at + d + 0.12);
       });
       skitter(at + 0.5, 14, 0.5, 2600, 0.1);
+    },
+    slime() {
+      // A wet splat (a thump of low, muffled noise), then a slow, bubbly slurp as it slides.
+      const at = ctx.currentTime + 0.01;
+      thud(at, 90, 0.45, 0.2);
+      burst(at, 0.28, 0.4, 'lowpass', 1400, 2, 0.004, 220);
+      for (let i = 0; i < 7; i++) {
+        const t = at + 0.35 + i * 0.16 + Math.random() * 0.06;
+        tone(t, 180 + Math.random() * 120, 0.12, 0.08, 'sine', 420 + Math.random() * 200, 0.01);
+      }
+      burst(at + 0.4, 1.3, 0.1, 'bandpass', 500, 3, 0.3, 260);
+    },
+    confetti() {
+      // A party popper: one bright pop, then a patter of paper falling.
+      const at = ctx.currentTime + 0.01;
+      burst(at, 0.09, 0.5, 'highpass', 900, 0.7, 0.002);
+      thud(at, 120, 0.35, 0.1);
+      for (let i = 0; i < 40; i++) burst(at + 0.15 + Math.random() * 1.6, 0.015, 0.05 + Math.random() * 0.05, 'bandpass', 3000 + Math.random() * 3000, 2, 0.002);
+      [784, 988, 1175].forEach((f, i) => tone(at + 0.12 + i * 0.07, f, 0.5, 0.05, 'triangle'));
+    },
+    boing() {
+      // A spring: a low note that swoops up and wobbles, slowing as it settles.
+      const at = ctx.currentTime + 0.01;
+      const o = tone(at, 110, 1.3, 0.2, 'triangle', 330, 0.01);
+      const wob = ctx.createOscillator();
+      wob.frequency.setValueAtTime(14, at);
+      wob.frequency.linearRampToValueAtTime(6, at + 1.3);
+      const depth = ctx.createGain();
+      depth.gain.setValueAtTime(90, at);
+      depth.gain.exponentialRampToValueAtTime(4, at + 1.3);
+      wob.connect(depth).connect(o.frequency);
+      wob.start(at);
+      wob.stop(at + 1.4);
+    },
+    squeak() {
+      // A rubber chicken: a squeezed, nasal squawk, rising, twice.
+      const at = ctx.currentTime + 0.01;
+      [0, 0.42].forEach((d, i) => {
+        const t = at + d;
+        const o = ctx.createOscillator();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(700 + i * 80, t);
+        o.frequency.exponentialRampToValueAtTime(1500 + i * 120, t + 0.12);
+        o.frequency.exponentialRampToValueAtTime(1100, t + 0.3);
+        const nose = ctx.createBiquadFilter();
+        nose.type = 'bandpass';
+        nose.frequency.value = 1800;
+        nose.Q.value = 3;
+        const g = ctx.createGain();
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.exponentialRampToValueAtTime(0.22, t + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
+        o.connect(nose).connect(g).connect(fx);
+        o.start(t);
+        o.stop(t + 0.35);
+      });
+    },
+    bubbles() {
+      // Little plips, each a quick upward chirp, here and there.
+      const at = ctx.currentTime + 0.05;
+      for (let i = 0; i < 14; i++) {
+        const t = at + Math.random() * 2;
+        const f = 500 + Math.random() * 700;
+        tone(t, f, 0.06, 0.09, 'sine', f * 2.4, 0.004);
+      }
+    },
+    feather() {
+      // A soft, airy whoosh, and a gentle twinkle as it lands.
+      const at = ctx.currentTime + 0.02;
+      burst(at, 2.2, 0.08, 'bandpass', 900, 0.8, 0.8, 500);
+      [1318.5, 1568, 2093].forEach((f, i) => tone(at + 1.6 + i * 0.14, f, 0.9, 0.035, 'sine'));
     },
     zap() {
       // A buzz with a crackle on top.
