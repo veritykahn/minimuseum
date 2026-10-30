@@ -1,0 +1,48 @@
+/* ==========================================================================
+   Mummification: the embalmers' workshop in lamplight, the seventy days as
+   a bar above the table, the step's share of them lit in orange-red.
+   ========================================================================== */
+
+.egm-room {
+  padding: clamp(14px, 2vw, 26px);
+  border: 1px solid var(--egr-line);
+  background: radial-gradient(ellipse 80% 70% at 50% 35%, #2b241b, #0f0d0b 78%);
+}
+.egm-svg { display: block; width: 100%; height: auto; max-height: 56vh; }
+.egm-timeline { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.egm-timeline-bar { position: relative; height: 10px; border-radius: 5px; background: rgba(255, 255, 255, 0.12); }
+.egm-timeline-span { position: absolute; top: 0; bottom: 0; min-width: 8px; border-radius: 5px; background: var(--egr-orange); transition: left 0.5s ease, width 0.5s ease; }
+.egm-timeline-ends { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--egr-muted); }
+.egm-timeline-when { color: #fff; font-family: var(--pe-display); font-size: 1.05rem; }
+
+.egm-bed { fill: #8a5a2b; }
+.egm-body { fill: #6b5442; transition: fill 0.8s ease; }
+.egm-body.is-oiled { fill: #a06a2c; }
+.egm-sheet { fill: #e7decb; }
+.egm-water line { stroke: #8fc3e8; stroke-width: 3; stroke-linecap: round; animation: egm-drip 1.2s linear infinite; }
+@keyframes egm-drip { from { transform: translateY(-20px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(60px); opacity: 0; } }
+.egm-natron { animation: egm-heap 0.8s ease both; }
+@keyframes egm-heap { from { opacity: 0; transform: translateY(14px); } }
+.egm-layer { animation: egm-wrap 0.6s ease both; }
+@keyframes egm-wrap { from { opacity: 0; } }
+.egm-amulet { fill: var(--egr-gold); transition: opacity 0.5s ease; }
+.egm-amulet.is-covered { opacity: 0.18; }
+.egm-coffin path:first-child { fill: #c99a3d; stroke: #6b4a10; stroke-width: 3; }
+.egm-coffin-face { fill: #e2b866; stroke: #6b4a10; stroke-width: 2; }
+.egm-coffin-band { stroke: #1d4f7a; stroke-width: 8; fill: none; }
+.egm-coffin-glyph { fill: #1d4f7a; }
+.egm-coffin { animation: egm-heap 0.9s ease both; }
+.egm-jar path { fill: #d8cbb0; stroke: #8a7a5c; stroke-width: 2; transition: fill 0.4s ease; }
+.egm-jar.is-full path { fill: #e9c97a; }
+.egm-jar-head { fill: #efebe5; }
+
+.egm-days { margin: 8px 0 0; text-align: center; font-family: var(--pe-display); font-size: clamp(1.2rem, 1rem + 1vw, 1.8rem); color: #fff; }
+.egm-days span { display: inline-block; min-width: 2ch; color: var(--egr-orange); font-variant-numeric: tabular-nums; }
+
+.egm-match { display: flex; flex-direction: column; gap: 14px; }
+.egm-jar-glyph { font-size: 1.8rem; }
+.egm-amulet-glyph { font-size: 1.5rem; color: var(--egr-gold); }
+.eg-room .egr-option[aria-pressed='true'] .egm-amulet-glyph { color: #6b4a10; }
+.egm-done { color: var(--egr-gold); font-family: var(--pe-display); font-size: 1.15em; }
+.egm-nav { margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--egr-line); }
+.eg-room .egr-option:disabled { opacity: 0.5; cursor: default; }

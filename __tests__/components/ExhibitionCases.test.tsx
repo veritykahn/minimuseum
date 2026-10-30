@@ -67,8 +67,12 @@ describe.each(cases)('%s display case', (slug, { config, data }) => {
       expect(screen.getAllByRole('link', { name: /Enter the room/ }).map((l) => l.getAttribute('href'))).toEqual(rooms.map((r) => r.href));
       expect(screen.queryAllByRole('link', { name: /View artifact/ })).toHaveLength(0);
       expect(window.location.search).toBe('?view=interactives');
-      // Each room's card shows a screenshot of the room itself.
-      for (const r of rooms) expect(r.image?.src).toMatch(new RegExp(`^/exhibitions/${slug}/rooms/[a-z-]+\\.webp$`));
+      // Each room's card shows a screenshot of the room itself, or, until it
+      // has one (a new room), a short typographic emblem in its place.
+      for (const r of rooms) {
+        if (r.image) expect(r.image.src).toMatch(new RegExp(`^/exhibitions/${slug}/rooms/[a-z-]+\\.webp$`));
+        else expect(r.emblem).toEqual(expect.any(String));
+      }
     } else {
       expect(screen.queryByRole('tab')).toBeNull();
     }

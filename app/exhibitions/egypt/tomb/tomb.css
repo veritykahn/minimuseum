@@ -1,0 +1,57 @@
+/* ==========================================================================
+   The Tomb Explorer: the painting under a layer of dark, with a hole of
+   warm torchlight at the torch's place (--tx, --ty). The light flickers a
+   little, as a flame does; under reduced motion it holds steady. A found
+   detail is ringed in gold.
+   ========================================================================== */
+
+.egt-wall {
+  --tx: 50%;
+  --ty: 50%;
+  --r: clamp(70px, 13vw, 170px);
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid #3a2f22;
+  background: #050403;
+  cursor: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.egt-wall img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+.egt-dark {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle var(--r) at var(--tx) var(--ty), rgba(255, 190, 110, 0.12) 0%, rgba(10, 6, 3, 0.25) 45%, rgba(4, 3, 2, 0.985) 100%);
+  transition: opacity 0.8s ease;
+  animation: egt-flicker 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+.egt-wall.is-lit { cursor: default; }
+.egt-wall.is-lit .egt-dark { opacity: 0; animation: none; }
+.egt-wall:focus-visible { outline: 3px solid var(--egr-orange); outline-offset: 4px; }
+@keyframes egt-flicker {
+  0%, 100% { opacity: 1; }
+  22% { opacity: 0.94; }
+  41% { opacity: 1; }
+  63% { opacity: 0.96; }
+  80% { opacity: 0.99; }
+}
+.egt-mark {
+  position: absolute;
+  width: clamp(54px, 9vw, 110px);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border: 3px solid var(--egr-gold);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.5), 0 0 24px rgba(217, 164, 65, 0.6);
+  pointer-events: none;
+  animation: egt-ring 0.6s ease both;
+}
+@keyframes egt-ring { from { opacity: 0; scale: 1.5; } }
+.egt-hint { margin: 10px 0 0; text-align: center; color: var(--egr-muted); font-size: 0.95rem; }
+.egt-found { font-family: var(--pe-display); font-size: 1.3em; color: var(--egr-gold); }
+.egt-tick { margin-left: 6px; color: var(--egr-gold); }
+.egr-tab[aria-selected='true'] .egt-tick { color: #6b4a10; }
