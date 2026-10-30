@@ -48,12 +48,12 @@
   --pe-case-muted: var(--wh-navy);
   --pe-credits-ink: var(--wh-navy);
   --pe-marks: var(--wh-navy);
-  --pe-poster-h: 54vh;
+  --pe-landing-h1: clamp(2.2rem, min(6.4vw, 8.6dvh), 5.4rem);
   color: var(--wh-navy);
 }
 
 /* ───────── Landing page: paint splashed into the top corners ───────── */
-[data-exhibition='womens-history'] .pe-exhibition-main { position: relative; padding-top: 110px; padding-bottom: 64px; gap: 30px; overflow: hidden; }
+[data-exhibition='womens-history'] .pe-exhibition-main { position: relative; overflow: hidden; }
 [data-exhibition='womens-history'] .pe-exhibition-main > * { position: relative; z-index: 1; }
 [data-exhibition='womens-history'] .pe-exhibition-main::before,
 [data-exhibition='womens-history'] .pe-exhibition-main::after {
@@ -70,12 +70,9 @@
 [data-exhibition='womens-history'] .pe-exhibition-main::after { right: 0; aspect-ratio: 21 / 16; background-image: url('/exhibitions/womens-history/splash-tr.png'); background-position: top right; }
 [data-exhibition='womens-history'] .pe-exhibition-title h1 {
   font-weight: 900;
-  font-size: clamp(2.6rem, 8vw, 6.2rem);
-  line-height: 0.98;
   letter-spacing: -0.005em;
   text-transform: uppercase;
   text-wrap: balance;
-  margin-bottom: 18px;
 }
 [data-exhibition='womens-history'] .pe-exhibition-title h1::after {
   content: '';
@@ -91,30 +88,16 @@
   text-transform: uppercase;
   letter-spacing: 0.42em;
   margin-right: -0.42em;
-  font-size: clamp(0.95rem, 2.2vw, 1.3rem);
 }
-[data-exhibition='womens-history'] .pe-exhibition-grid { gap: clamp(28px, 4vw, 52px); }
 [data-exhibition='womens-history'] .pe-poster-frame img { box-shadow: 0 2px 4px rgba(60, 40, 50, 0.14), 0 22px 50px rgba(60, 40, 50, 0.3); }
-[data-exhibition='womens-history'] .pe-display-case {
-  width: auto;
-  max-width: 340px;
-  padding: 20px 20px 22px;
-  border: 0;
-  background: var(--wh-rose);
-  box-shadow: 0 2px 4px rgba(60, 40, 50, 0.12), 0 22px 46px rgba(60, 40, 50, 0.26);
-}
-[data-exhibition='womens-history'] .pe-display-case:hover,
+/* The display case's card: a rose arch outlined in heavy navy, as the
+   title is underlined, with a block of the posters' orange set behind it. */
+[data-exhibition='womens-history'] .pe-display-case { --pe-frame-fill: var(--wh-rose); --pe-frame-line: var(--wh-navy); --pe-frame-weight: 3px; --pe-frame-inset: 0px; --pe-frame-foot: 6px; padding-top: 52px; }
 [data-exhibition='womens-history'] .pe-display-case:focus-visible { outline: 2px solid var(--wh-navy); outline-offset: 6px; }
-[data-exhibition='womens-history'] .pe-case-image {
-  height: auto;
-  width: 100%;
-  max-height: 30vh;
-  object-fit: cover;
-  border: 10px solid var(--wh-film);
-  border-right-width: 26px;
-}
+[data-exhibition='womens-history'] .pe-case-frame { box-shadow: 9px 9px 0 var(--wh-orange); transition: box-shadow 0.4s ease; }
+[data-exhibition='womens-history'] .pe-display-case:is(:hover, :focus-visible) .pe-case-frame { box-shadow: 13px 12px 0 var(--wh-orange); }
 [data-exhibition='womens-history'] .pe-case-label { color: var(--wh-ink); font-family: var(--wh-mono); letter-spacing: 0.3em; font-size: 11px; }
-[data-exhibition='womens-history'] .pe-case-title { color: var(--wh-navy); font-weight: 900; font-size: 30px; text-transform: uppercase; }
+[data-exhibition='womens-history'] .pe-case-title { color: var(--wh-navy); font-weight: 900; font-size: clamp(24px, 3.8dvh, 30px); text-transform: uppercase; }
 [data-exhibition='womens-history'] .pe-case-subtitle { color: var(--wh-ink); font-family: var(--wh-mono); }
 /* The case awaiting its photographs: navy line, lit in the posters' orange, its label typewritten. */
 [data-exhibition='womens-history'] { --pe-case-frame: var(--wh-navy); --pe-case-glow: var(--wh-orange); --pe-case-placeholder-ink: var(--wh-ink); }
@@ -526,7 +509,6 @@
 [data-exhibition='womens-history'] .pjp-stage .wh-link .pe-callout-text { font-size: calc(var(--pjp-u) * 2.2); }
 
 @media (max-width: 900px) {
-  [data-exhibition='womens-history'] { --pe-poster-h: 46vh; }
   [data-exhibition='womens-history'] .wh-p2 .pe-figure img { width: min(62vw, 300px); }
   [data-exhibition='womens-history'] .wh-p2 .pe-figure { padding-right: 30px; }
 }

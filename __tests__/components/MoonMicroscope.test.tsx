@@ -289,7 +289,7 @@ describe('the approved notes', () => {
 describe('wiring', () => {
   it('sets the room on the landing page, the map and the projector', () => {
     expect(MOON.interactives?.map((c) => c.href)).toEqual(['/exhibitions/moon/microscope']);
-    expect(MOON.interactives?.[0].image?.src).toMatch(/\.svg$/);
+    expect(MOON.interactives?.[0].image?.src).toBe('/exhibitions/moon/rooms/microscope.webp');
     expect(MOON.projector.links.map((l) => l.href)).toEqual(['/exhibitions/moon/microscope']);
     expect(getRoomByPath('/exhibitions/moon/microscope')?.id).toBe('mo-microscope');
     expect(getLevelConfig('/exhibitions/moon/microscope').title).toBe('Our Incredible Moon');

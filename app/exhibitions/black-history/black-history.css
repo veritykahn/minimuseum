@@ -24,7 +24,8 @@
   --pe-callout-ink: #ffffff;
   --pe-case-ink: #141414;
   --pe-case-muted: #3a4214;
-  --pe-poster-h: 54vh;
+  --pe-landing-h1: clamp(1.9rem, min(6vw, 7.2dvh), 4.6rem);
+  --pe-landing-sub: clamp(1.1rem, min(2.8vw, 3.6dvh), 2rem);
   color: #141414;
 }
 
@@ -63,27 +64,22 @@
   text-transform: uppercase;
   letter-spacing: -0.01em;
   line-height: 0.95;
-  font-size: clamp(2.3rem, 7.4vw, 5.6rem);
   color: #fff;
   /* The poster's white on lime, held by a hard black shadow, as a 1970s sign is. */
   text-shadow: 0.05em 0.05em 0 var(--bh-ink);
-  max-width: 11em;
-  margin: 0 auto 18px;
+  max-width: 16em;
+  margin: 0 auto 10px;
 }
 [data-exhibition='black-history'] .pe-exhibition-title p {
   font-family: var(--bh-bubble);
   color: var(--bh-brown);
-  font-size: clamp(1.4rem, 3.6vw, 2.2rem);
 }
-[data-exhibition='black-history'] .pe-exhibition-grid { gap: 44px; }
 [data-exhibition='black-history'] .pe-poster-frame img { box-shadow: 10px 10px 0 var(--bh-ink); }
 [data-exhibition='black-history'] .pe-display-case {
   position: relative;
   background: var(--bh-ink);
   border: 0;
-  width: auto;
-  max-width: 340px;
-  padding: 30px 22px 24px;
+  padding: 34px 26px 24px;
   border-radius: 46% 46% 40% 40% / 30% 30% 24% 24%;
   outline: 4px solid var(--bh-lime);
   outline-offset: -12px;
@@ -91,10 +87,9 @@
 [data-exhibition='black-history'] .pe-display-case:hover,
 [data-exhibition='black-history'] .pe-display-case:focus-visible { outline-color: var(--bh-orange); }
 [data-exhibition='black-history'] .pe-case-label { color: #d8e58a; }
+/* The frame is the blob itself. */
+[data-exhibition='black-history'] .pe-case-frame { display: none; }
 [data-exhibition='black-history'] .pe-case-title { color: #fff; font-size: 24px; font-weight: 800; font-variation-settings: 'wdth' 125; text-transform: uppercase; }
-/* The timeline's card: its years in lime on the blob, its subtitle in poster 2's bubble face. */
-[data-exhibition='black-history'] .pe-display-case-emblem { text-align: center; }
-[data-exhibition='black-history'] .pe-case-emblem { min-height: 120px; font-family: var(--pe-display); font-weight: 900; font-variation-settings: 'wdth' 125; font-size: clamp(1.4rem, 2.6vw, 1.9rem); letter-spacing: -0.01em; white-space: nowrap; color: var(--bh-lime); text-shadow: 0.06em 0.06em 0 var(--bh-red); }
 [data-exhibition='black-history'] .pe-case-subtitle { font-family: var(--bh-bubble); font-style: normal; font-size: 16px; color: var(--bh-pink); }
 /* The case awaiting its photographs: drawn in white on the blob, lit in the vignettes' orange. */
 [data-exhibition='black-history'] { --pe-case-frame: #ffffff; --pe-case-glow: var(--bh-orange); --pe-case-placeholder-ink: #e6eeb4; }

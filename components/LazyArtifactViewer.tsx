@@ -16,7 +16,7 @@ const ArtifactViewer = dynamic(
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: '#0a0a0a',
+          backgroundColor: '#e0dede', // Seeing is Deceiving's own grey
         }}
       >
         <div style={{ textAlign: 'center' }}>
@@ -24,7 +24,7 @@ const ArtifactViewer = dynamic(
           <p
             style={{
               marginTop: '1rem',
-              color: '#737373',
+              color: '#4a4a4a',
               fontSize: '0.75rem',
               textTransform: 'uppercase',
               letterSpacing: '0.2em',

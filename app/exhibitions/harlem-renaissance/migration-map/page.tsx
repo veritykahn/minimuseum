@@ -1042,7 +1042,7 @@ export default function MigrationMapPage() {
       <div style={srOnly} aria-live="polite" role="status">{announcement}</div>
 
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }} inert={cityViewOpen}>
-        <ExhibitionNav className="mg-nav" href="/exhibitions/harlem-renaissance/artifacts" style={{ display: cityViewOpen ? 'none' : 'flex' }}>
+        <ExhibitionNav className="mg-nav" href="/exhibitions/harlem-renaissance/artifacts?view=interactives" style={{ display: cityViewOpen ? 'none' : 'flex' }}>
           <span className="mg-nav-text" aria-hidden="true">M</span>
           <span className="mg-nav-arrow" aria-hidden="true">{'\u2190'}</span>
           <span className="mg-nav-label">Collection</span>

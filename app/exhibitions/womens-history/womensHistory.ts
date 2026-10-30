@@ -206,22 +206,18 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
   interactives: [
     {
       href: '/exhibitions/womens-history/violet',
-      image: { src: PHOTO_VIOLET.src, alt: PHOTO_VIOLET.alt },
+      image: { src: '/exhibitions/womens-history/rooms/violet.webp', alt: 'The Violet’s Life room: her places and moments along a line, above the first page of her story' },
       label: 'Interactive',
       title: 'Violet’s Life',
       subtitle: 'Her places and moments, and a timeline of your own',
     },
-    // The owner's illustration (Leonardo.Ai), no photographs: rows of statues on their plinths, three of them orange.
     {
       href: '/exhibitions/womens-history/remembered',
-      image: {
-        src: '/exhibitions/womens-history/landing-who-gets-remembered.webp',
-        alt: 'An illustration of three rows of navy statues of men on plinths in a park, with three orange statues of women among them',
-        credit: 'Illustration made with Leonardo.Ai',
-      },
+      image: { src: '/exhibitions/womens-history/rooms/remembered.webp', alt: 'The Who Gets Remembered? room: rows of statue figures, a few of them orange, beside a question and a guess' },
       label: 'Interactive',
       title: 'Who Gets Remembered?',
       subtitle: 'Who gets a statue, and whose stories are left out',

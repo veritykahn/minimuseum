@@ -312,7 +312,8 @@ describe('The Fear Lab', () => {
     expect(FEAR_LAB_CASE.photos).toHaveLength(0);
     expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
     expect(JSON.stringify(FEAR_LAB_CASE)).not.toMatch(/installation|\.jpg/);
-    // The lab opens from the case.
+    // The lab opens from the case, under its Interactives tab.
+    fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
     expect(screen.getByRole('link', { name: /What Scares You\?/ })).toHaveAttribute('href', '/exhibitions/fear-lab/what-scares-you');
   });
 
