@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = "Moon dust beside Earth's soil under a microscope: focus the slide, change the power, and wipe it with a cloth.";
+const description = "Use a microscope like a scientist: wipe the slide, place a sample of Moon dust or Earth's soil, focus, change lenses and move the slide.";
 
 export const metadata: Metadata = {
   title: 'Under the Microscope | Our Incredible Moon | The Mini Museum',

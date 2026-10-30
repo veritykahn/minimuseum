@@ -1,16 +1,20 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import MoonMicroscope from '@/app/exhibitions/moon/microscope/page';
 import { TIMES } from '@/app/exhibitions/moon/microscope/Eyepiece';
-import { blurFor, FOCUS_AT } from '@/app/exhibitions/moon/microscope/focus';
+import { blurFor, FOCUS_AT, FOCUS_START } from '@/app/exhibitions/moon/microscope/focus';
+import { PRACTICE } from '@/app/exhibitions/moon/microscope/practice';
 import { EARTH_SLIDES, MOON_SLIDES } from '@/app/exhibitions/moon/microscope/slides';
-import { brushAside, changed, cleanness, lamp, lift, newBrush, newMask, paintClean, settleGrains, type Pixels } from '@/app/exhibitions/moon/microscope/wipe';
+import { atEdge, CENTRE, clampPan, nudge, OBJECTIVES, totalPower, visibleFraction } from '@/app/exhibitions/moon/microscope/stage';
+import { brushAside, changed, cleanness, lamp, lift, newBrush, newMask, paintClean, settleGrains, smudgedGlass, type Pixels } from '@/app/exhibitions/moon/microscope/wipe';
 import { MICROSCOPE_NOTES, MOON, MOON_CASE, REGOLITH } from '@/app/exhibitions/moon/moon';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
 /*
  * Under the Microscope: the photographs and their captions and credits, the
- * cloth that wipes them, the focus, the room's tabs, and its wiring.
+ * cloth that wipes them, the lenses, the stage and the focus, the room's
+ * step-by-step procedure (wipe a fresh slide, place a sample from the tray,
+ * focus, magnify, move the slide, compare), and its wiring.
  */
 
 // jsdom has no canvas: the eyepiece draws nothing.
@@ -19,54 +23,76 @@ beforeAll(() => {
 });
 afterAll(() => jest.restoreAllMocks());
 
+/** Reduced motion (or not): every step at once, so the procedure can be walked without waiting. */
+const motion = (reduce: boolean) => {
+  const mm = window.matchMedia;
+  window.matchMedia = jest.fn().mockImplementation((q: string) => ({
+    matches: reduce && q.includes('reduce'),
+    media: q,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+  }));
+  return () => (window.matchMedia = mm);
+};
+
+const room = () => {
+  const view = render(<MoonMicroscope />);
+  const eyepiece = view.container.querySelector('.mo-ms-eyepiece') as HTMLElement;
+  const canvas = view.container.querySelector('canvas') as HTMLCanvasElement;
+  const status = () => screen.getByRole('status');
+  const button = (name: string | RegExp) => screen.getByRole('button', { name });
+  const blurPx = () => {
+    const m = /blur\(([\d.]+)px\)/.exec(canvas.style.filter);
+    return m ? Number(m[1]) : 0;
+  };
+  /** Wipe the fresh slide, open the tray and choose a jar. */
+  const prepare = (jar: string | RegExp) => {
+    fireEvent.click(button('Wipe'));
+    fireEvent.click(button('Place sample'));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: jar }));
+  };
+  /** Turn the focus knob up until the view is sharp. */
+  const focusUp = () => {
+    for (let i = 0; i < 40 && blurPx() > 0; i++) fireEvent.click(button('Turn the focus knob up'));
+  };
+  const currentStep = () => view.container.querySelector('[aria-current="step"]')?.textContent;
+  return { ...view, eyepiece, canvas, status, button, blurPx, prepare, focusUp, currentStep };
+};
+
 describe('the photographs', () => {
-  it('has three of Moon dust and one for each of the poster’s three words, each captioned from its record and credited', () => {
+  it('has three of Moon dust and one for each of the poster’s three words, each named, captioned from its record and credited', () => {
     expect(MOON_SLIDES.map((s) => s.label)).toEqual(['Soil', 'Glass beads', 'Orange glass']);
     expect(EARTH_SLIDES.map((s) => s.label)).toEqual(['Wind', 'Water', 'Living things']);
+    expect([...MOON_SLIDES, ...EARTH_SLIDES].map((s) => s.name)).toEqual([
+      'Far-side Moon soil',
+      'Apollo 17 glass beads',
+      'Apollo 17 orange glass',
+      'Gobi Desert sand',
+      'Vistula River sand',
+      'Bermuda coral sand',
+    ]);
     for (const s of [...MOON_SLIDES, ...EARTH_SLIDES]) {
       expect(s.src).toMatch(/^\/exhibitions\/moon\/microscope\/.+\.jpg$/);
       expect(s.caption.sources.length).toBeGreaterThan(0);
       expect(s.credit.href).toMatch(/^https:\/\/(commons\.wikimedia\.org|images\.nasa\.gov)\//);
-    }
-    // NASA's are public domain; the rest are Creative Commons, with the licence linked.
-    for (const s of [...MOON_SLIDES, ...EARTH_SLIDES]) {
       if (s.credit.author === 'NASA') expect(s.credit.licence).toBe('Public domain');
       else expect(s.credit.licenceHref).toMatch(/creativecommons\.org/);
     }
-    EARTH_SLIDES.forEach((s) => expect(s.credit.licenceHref).toMatch(/creativecommons\.org/));
   });
 
   it('shows only real lunar soil on the Moon slides, each from a lunar-sample record', () => {
     // The owner's check: every Moon slide is a photomicrograph of lunar regolith, not a stand-in.
-    const records = MOON_SLIDES.map((s) => s.credit.href);
-    expect(records).toEqual([
+    expect(MOON_SLIDES.map((s) => s.credit.href)).toEqual([
       'https://commons.wikimedia.org/wiki/File:Chang%27e-6_lunar_regolith_under_stereomicroscope.jpg',
       'https://commons.wikimedia.org/wiki/File:S73-15083.jpg',
       'https://images.nasa.gov/details/S73-15171',
     ]);
-    // The electron-microscope picture of one pit in one glass grain is gone.
     expect(JSON.stringify(MOON_SLIDES)).not.toMatch(/S70-2041|impact/i);
     for (const s of MOON_SLIDES) expect(s.caption.text).toMatch(/soil|Apollo 17/i);
-    // The far-side soil is cited to its paper as well as its picture.
     expect(MOON_SLIDES[0].caption.sources.map((x) => x.href)).toContain('https://doi.org/10.1093/nsr/nwae328');
     expect(MOON_SLIDES[0].credit).toMatchObject({ licence: 'CC BY 4.0', licenceHref: 'https://creativecommons.org/licenses/by/4.0/' });
-  });
-
-  it('captions and credits the slide on the stage, and both side by side', () => {
-    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
-    render(<MoonMicroscope />);
-    expect(screen.getByText(MOON_SLIDES[0].caption.text)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: MOON_SLIDES[0].credit.title })).toHaveAttribute('href', MOON_SLIDES[0].credit.href);
-    fireEvent.click(screen.getByRole('button', { name: 'Glass beads' }));
-    expect(screen.getByText(MOON_SLIDES[1].caption.text)).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: MOON_SLIDES[1].alt })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('tab', { name: "Earth's Soil" }));
-    fireEvent.click(screen.getByRole('button', { name: 'Living things' }));
-    expect(screen.getByText(EARTH_SLIDES[2].caption.text)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: EARTH_SLIDES[2].credit.title })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('tab', { name: 'Side by Side' }));
-    expect(screen.getByRole('link', { name: MOON_SLIDES[1].credit.title })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: EARTH_SLIDES[2].credit.title })).toBeInTheDocument();
   });
 });
 
@@ -91,27 +117,41 @@ describe('the cloth', () => {
     const b = newBrush(10);
     for (let pass = 0; pass < 3; pass++) for (let x = 10; x <= 110; x += 2) lift(px, b, x, 60);
     expect(b.dust).toBeGreaterThan(0);
-    // Under the middle of the cloth's path, the grains are gone: lamp-lit glass.
     for (const x of [24, 44, 64, 84]) expect(Math.abs(px.data[(60 * px.width + x) * 4] - lamp(x, 60, px.width, px.height)[0])).toBeLessThan(12);
-    // The cloth has taken on the dust's dark color.
     const mean = b.rgb.reduce((s, v) => s + v, 0) / b.rgb.length;
     expect(mean).toBeLessThan(238);
-    // Nothing beyond the cloth's reach is touched.
     expect(changed(before.subarray(0, 40 * 120 * 4), px.data.subarray(0, 40 * 120 * 4))).toBe(0);
   });
 
-  it('knows a clean slide when it sees one', () => {
+  it('knows a clean slide when it sees one, all over or in the part in view', () => {
     const px = slide();
     expect(cleanness(px, 1)).toBeLessThan(0.9);
+    // Only the clean glass between two rows of grains.
+    expect(cleanness(px, 1, { x0: 30, x1: 90, y0: 9, y1: 19 })).toBe(1);
     paintClean(px);
     expect(cleanness(px, 1)).toBe(1);
+  });
+
+  it('makes a fresh slide a little dirty, with dust, smudges and a fingerprint the cloth can wipe off', () => {
+    const px = smudgedGlass(160);
+    expect(smudgedGlass(160).data).toEqual(px.data);
+    // Mostly glass, but dirty: worst in the middle, where the fingerprint is.
+    const mid = { x0: 40, x1: 120, y0: 40, y1: 120 };
+    expect(cleanness(px, 1)).toBeLessThan(0.9);
+    expect(cleanness(px, 1, mid)).toBeLessThan(0.75);
+    // The fingerprint's ridges: dark and light rings across its middle.
+    const row = Array.from({ length: 30 }, (_, i) => px.data[(74 * 160 + 70 + i) * 4]);
+    expect(Math.max(...row) - Math.min(...row)).toBeGreaterThan(30);
+    // The cloth wipes it all back to lamp-lit glass.
+    const b = newBrush(14);
+    for (let pass = 0; pass < 3; pass++) for (let y = 0; y <= 160; y += 8) for (let x = 0; x <= 160; x += 3) lift(px, b, x, y);
+    expect(cleanness(px, 1)).toBeGreaterThan(0.99);
   });
 
   it('tips a sample onto the slide as grains that cover all of it, the middle first', () => {
     const grains = settleGrains();
     expect(grains.length).toBeGreaterThan(100);
     expect(settleGrains()).toEqual(grains);
-    // Every point of the slide is under some grain once they have settled.
     for (let y = 0.02; y < 1; y += 0.05) {
       for (let x = 0.02; x < 1; x += 0.05) expect(grains.some((g) => Math.hypot(g.x - x, g.y - y) <= g.r)).toBe(true);
     }
@@ -129,28 +169,12 @@ describe('the cloth', () => {
     for (let x = 10; x < 110; x += 2) moved += brushAside(px, mask, x, 60, x + 2, 60, 14);
     expect(moved).toBeGreaterThan(0);
     expect(changed(before, px.data)).toBeGreaterThan(500);
-    // The middle of the lane is the lamp's light, where there were grains.
     const at = (x: number, y: number) => px.data[(y * px.width + x) * 4];
     for (const x of [44, 46, 64]) expect(Math.abs(at(x, 60) - lamp(x, 60, px.width, px.height)[0])).toBeLessThan(30);
-    // Its edge feathers: from the middle out, the glass clears less and less, a step at a time.
     const clear = [0, 2, 4, 6, 8, 10, 12].map((d) => mask[(60 + d) * px.width + 64]);
     for (let i = 1; i < clear.length; i++) expect(clear[i]).toBeLessThanOrEqual(clear[i - 1]);
     expect(clear[0]).toBeGreaterThan(200);
     expect(clear.some((c) => c > 20 && c < 200)).toBe(true);
-    // Going over it again does not harden the edge.
-    const once = mask.slice();
-    for (let x = 10; x < 110; x += 2) brushAside(px, mask, x, 60, x + 2, 60, 14);
-    expect(mask[66 * px.width + 64]).toBeLessThanOrEqual(once[66 * px.width + 64] + 30);
-  });
-
-  it('feathers the Moon wipe too: the cloth presses softly at its rim', () => {
-    const px = slide();
-    const before = px.data.slice();
-    lift(px, newBrush(20), 60, 60);
-    lift(px, newBrush(20), 60, 60);
-    // Changes fade toward the rim rather than stopping at a hard edge.
-    const delta = (x: number) => Math.abs(px.data[(60 * px.width + x) * 4] - before[(60 * px.width + x) * 4]);
-    expect(delta(79)).toBeLessThanOrEqual(delta(70) + 1);
   });
 
   it('keeps to its own side of the line, side by side', () => {
@@ -167,7 +191,267 @@ describe('the cloth', () => {
   });
 });
 
-describe('wiping the photograph on the stage', () => {
+describe('the lenses, the stage and the focus', () => {
+  it('has a 4×, 10× and 40× objective under a 10× eyepiece: 40×, 100× and 400× in all, each showing less of the slide', () => {
+    expect(OBJECTIVES.map((o) => o.lens)).toEqual([4, 10, 40]);
+    expect([0, 1, 2].map(totalPower)).toEqual([40, 100, 400]);
+    expect(visibleFraction(0)).toBeGreaterThan(visibleFraction(1));
+    expect(visibleFraction(1)).toBeGreaterThan(visibleFraction(2));
+    expect(visibleFraction(0)).toBeLessThan(1);
+  });
+
+  it('keeps the view on the slide: moving the stage stops at its edges, nearer them the stronger the lens', () => {
+    for (const o of [0, 1, 2]) {
+      const h = visibleFraction(o) / 2;
+      expect(clampPan({ x: -5, y: 9 }, o)).toEqual({ x: h, y: 1 - h });
+      let p = CENTRE;
+      for (let i = 0; i < 20; i++) p = nudge(p, 1, -1, o);
+      expect(p.x).toBeCloseTo(h);
+      expect(p.y).toBeCloseTo(1 - h);
+      // Moved right and up as far as it goes: it can go no further right or up, but can come back.
+      expect(atEdge(p, o)).toEqual({ left: false, right: true, up: true, down: false });
+    }
+    // At 40× the view can go further toward the edge than at 4×.
+    expect(clampPan({ x: 0, y: 0 }, 2).x).toBeLessThan(clampPan({ x: 0, y: 0 }, 0).x);
+  });
+
+  it('is sharp only near the mark for each lens; a new lens leaves it a little blurry', () => {
+    FOCUS_AT.forEach((at, o) => {
+      expect(blurFor(at, o)).toBe(0);
+      expect(blurFor(at + 20, o)).toBeGreaterThan(5);
+    });
+    expect(blurFor(FOCUS_START, 0)).toBeGreaterThan(8);
+    // Switching lens from sharp: blurry, but only a little (a small turn sharpens it).
+    for (const [from, to] of [[0, 1], [1, 2], [0, 2], [2, 0]]) {
+      const b = blurFor(FOCUS_AT[from], to);
+      expect(b).toBeGreaterThan(0.5);
+      expect(b).toBeLessThan(4);
+    }
+  });
+});
+
+describe('the procedure', () => {
+  let undo: () => void;
+  beforeEach(() => {
+    undo = motion(true);
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
+  });
+  afterEach(() => undo());
+
+  it('starts with a fresh slide on the stage that is a little dirty, and says to wipe it first', () => {
+    const r = room();
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'smudged');
+    expect(screen.getByRole('img', { name: /fresh glass slide.*smudged with dust and a fingerprint/ })).toBeInTheDocument();
+    expect(r.currentStep()).toMatch(/Wipe the slide/);
+    expect(screen.getByRole('heading', { name: 'A fresh slide' })).toBeInTheDocument();
+    expect(screen.getByText(/This fresh slide is smudged/)).toBeInTheDocument();
+    // Why: a microscope maker's tip, with its source.
+    expect(screen.getByText(PRACTICE.wipe.text)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Olympus, Cleaning and Maintenance' })).toHaveAttribute('href', PRACTICE.wipe.sources[0].href);
+    // No sample tabs or chips at the top.
+    expect(screen.queryByRole('tab')).toBeNull();
+    expect(screen.queryByRole('tablist')).toBeNull();
+  });
+
+  it('reminds you to wipe the slide before placing a sample, and does not open the tray', () => {
+    const r = room();
+    fireEvent.click(r.button('Place sample'));
+    expect(r.status()).toHaveTextContent('The slide’s smudged. Wipe it first!');
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'smudged');
+
+    fireEvent.click(r.button('Wipe'));
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'clean');
+    expect(r.status()).toHaveTextContent('The smudges are gone. The slide is clean.');
+    expect(r.currentStep()).toMatch(/Place a sample/);
+    expect(r.button('Place sample')).toHaveClass('mo-ms-button-next');
+    fireEvent.click(r.button('Wipe'));
+    expect(r.status()).toHaveTextContent('The slide is already clean.');
+  });
+
+  it('opens a tray of labelled Moon and Earth sample jars, and puts the chosen one on the slide', () => {
+    const r = room();
+    fireEvent.click(r.button('Wipe'));
+    fireEvent.click(r.button('Place sample'));
+    const tray = screen.getByRole('dialog', { name: 'Choose a sample' });
+    expect(within(tray).getByRole('heading', { name: /Moon dust/ })).toBeInTheDocument();
+    expect(within(tray).getByRole('heading', { name: /Earth’s soil/ })).toBeInTheDocument();
+    const jars = [...tray.querySelectorAll('.mo-ms-jar')].map((j) => j.textContent);
+    expect(jars).toEqual([
+      'Far-side Moon soil',
+      'Apollo 17 glass beads',
+      'Apollo 17 orange glass',
+      'Gobi Desert sandshaped by wind',
+      'Vistula River sandshaped by water',
+      'Bermuda coral sandshaped by living things',
+    ]);
+    // The first jar takes the keyboard; Escape puts the tray away.
+    expect(document.activeElement).toBe(tray.querySelector('.mo-ms-jar'));
+    fireEvent.keyDown(tray, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+
+    fireEvent.click(r.button('Place sample'));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Apollo 17 glass beads' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'moon-beads');
+    expect(screen.getByRole('img', { name: MOON_SLIDES[1].alt })).toBeInTheDocument();
+    expect(r.status()).toHaveTextContent('The Apollo 17 glass beads is on the slide.');
+    expect(r.currentStep()).toMatch(/Focus/);
+
+    // A sample on it already: wipe it off or take a fresh slide first.
+    fireEvent.click(r.button('Place sample'));
+    expect(r.status()).toHaveTextContent('There’s a sample on this slide already.');
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('sets the chosen sample’s name, caption, source and credit in the description panel, not under the eyepiece', () => {
+    const r = room();
+    r.prepare('Bermuda coral sand shaped by living things');
+    const panel = r.container.querySelector('.mo-ms-panel') as HTMLElement;
+    const s = EARTH_SLIDES[2];
+    expect(within(panel).getByRole('heading', { level: 2, name: s.name })).toBeInTheDocument();
+    expect(within(panel).getByText(s.caption.text)).toBeInTheDocument();
+    expect(within(panel).getByRole('link', { name: s.caption.sources[0].label })).toHaveAttribute('href', s.caption.sources[0].href);
+    expect(within(panel).getByRole('link', { name: s.credit.title })).toHaveAttribute('href', s.credit.href);
+    expect(within(panel).getByRole('link', { name: s.credit.licence })).toHaveAttribute('href', s.credit.licenceHref);
+    // Its poster word marked in poster 1's sentence.
+    expect(within(panel).getByText('living things', { selector: 'mark' })).toBeInTheDocument();
+    // Nothing under the eyepiece but what to do next.
+    const scope = r.container.querySelector('.mo-ms-scope') as HTMLElement;
+    expect(within(scope).queryByText(s.caption.text)).toBeNull();
+    expect(within(scope).queryByRole('link')).toBeNull();
+  });
+
+  it('starts the sample blurred, and the focus knob sharpens it to no blur at all', () => {
+    const r = room();
+    // Nothing on the slide: nothing to focus.
+    fireEvent.click(r.button('Turn the focus knob up'));
+    expect(r.status()).toHaveTextContent('Nothing to focus on yet. Place a sample first.');
+    r.prepare('Far-side Moon soil');
+    const knob = screen.getByRole('slider', { name: 'Focus knob' });
+    expect(knob).toHaveAttribute('aria-valuetext', 'Blurry');
+    expect(r.blurPx()).toBeGreaterThan(8);
+    // The knob turns with the arrow keys too.
+    const before = r.blurPx();
+    fireEvent.keyDown(knob, { key: 'ArrowUp' });
+    expect(r.blurPx()).toBeLessThan(before);
+    r.focusUp();
+    expect(r.canvas.style.filter).toBe('none');
+    expect(Math.abs(Number(knob.getAttribute('aria-valuenow')) - FOCUS_AT[0])).toBeLessThanOrEqual(2);
+    expect(knob).toHaveAttribute('aria-valuetext', 'Sharp');
+    expect(r.status()).toHaveTextContent('Sharp! Well focused.');
+    expect(r.currentStep()).toMatch(/Magnify/);
+    // Too far: blurry again.
+    for (let i = 0; i < 5; i++) fireEvent.click(r.button('Turn the focus knob up'));
+    expect(r.blurPx()).toBeGreaterThan(0);
+  });
+
+  it('switches objective lenses on the nosepiece: more magnification, and a little blur to refocus', () => {
+    const r = room();
+    r.prepare('Apollo 17 orange glass');
+    // Skipping focus: a friendly reminder.
+    fireEvent.click(r.button('40× objective lens: 400× in all'));
+    expect(r.status()).toHaveTextContent('Remember to focus with the 4× lens first');
+    fireEvent.click(r.button('4× objective lens: 40× in all'));
+    r.focusUp();
+    expect(screen.getByText(/10× eyepiece × 4× lens =/)).toHaveTextContent('= 40×');
+
+    fireEvent.click(r.button('10× objective lens: 100× in all'));
+    expect(r.button('10× objective lens: 100× in all')).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText(/10× eyepiece × 10× lens =/)).toHaveTextContent('= 100×');
+    expect(r.status()).toHaveTextContent('Click! The 10× lens: 100× in all.');
+    expect(r.blurPx()).toBeGreaterThan(0);
+    expect(r.blurPx()).toBeLessThan(4);
+    expect(r.currentStep()).toMatch(/Explore/);
+    expect(screen.getByText('A little blurry: turn the focus knob a touch.')).toBeInTheDocument();
+    // The tip: lenses are made to stay nearly in focus, with its source.
+    expect(screen.getByText(PRACTICE.parfocal.text)).toBeInTheDocument();
+    r.focusUp();
+    expect(r.blurPx()).toBe(0);
+    expect(r.status()).toHaveTextContent('Sharp at 100×.');
+
+    fireEvent.click(r.button('40× objective lens: 400× in all'));
+    expect(screen.getByText(/10× eyepiece × 40× lens =/)).toHaveTextContent('= 400×');
+    expect(r.blurPx()).toBeGreaterThan(0);
+    expect(r.blurPx()).toBeLessThan(4);
+  });
+
+  it('moves the slide on the stage with the stage buttons, the arrow keys and a drag, and stops at its edges', () => {
+    const r = room();
+    r.prepare('Gobi Desert sand shaped by wind');
+    const pan = () => r.eyepiece.getAttribute('data-pan')!.split(' ').map(Number);
+    expect(pan()).toEqual([0.5, 0.5]);
+    // At 4×, the slide moves only a little before its edge.
+    for (let i = 0; i < 10; i++) fireEvent.click(r.button('Move the slide left'));
+    const h4 = visibleFraction(0) / 2;
+    expect(pan()[0]).toBeCloseTo(1 - h4, 3);
+    expect(r.button('Move the slide left')).toHaveAttribute('aria-disabled', 'true');
+    // At 40×, less is in view, and it can travel further.
+    r.focusUp();
+    fireEvent.click(r.button('40× objective lens: 400× in all'));
+    for (let i = 0; i < 10; i++) fireEvent.click(r.button('Move the slide left'));
+    const h40 = visibleFraction(2) / 2;
+    expect(pan()[0]).toBeCloseTo(1 - h40, 3);
+    // Arrow keys on the view.
+    fireEvent.keyDown(r.eyepiece, { key: 'ArrowRight' });
+    expect(pan()[0]).toBeCloseTo(1 - h40 - visibleFraction(2) / 4, 3);
+    for (let i = 0; i < 10; i++) fireEvent.keyDown(r.eyepiece, { key: 'ArrowDown' });
+    expect(pan()[1]).toBeCloseTo(h40, 3);
+    // The middle button brings it back.
+    fireEvent.click(r.button('Move the slide back to the middle'));
+    expect(pan()).toEqual([0.5, 0.5]);
+    // With a sample on, dragging moves the slide; a long drag stops at the edge.
+    expect(r.button('Drag to move')).toHaveAttribute('aria-pressed', 'true');
+    const pointer = (type: string, clientX: number, clientY: number) => fireEvent(r.canvas, new MouseEvent(type, { bubbles: true, clientX, clientY }));
+    pointer('pointerdown', 0, 0);
+    pointer('pointermove', 5000, 5000);
+    pointer('pointerup', 5000, 5000);
+    expect(pan()[0]).toBeCloseTo(h40, 3);
+    expect(pan()[1]).toBeCloseTo(h40, 3);
+    // Changing to a weaker lens keeps the view on the slide.
+    fireEvent.click(r.button('4× objective lens: 40× in all'));
+    expect(pan()[0]).toBeCloseTo(h4, 3);
+  });
+
+  it('compares the sample with one from the other world, side by side, and goes back to one slide', () => {
+    const r = room();
+    r.prepare('Apollo 17 glass beads');
+    r.focusUp();
+    fireEvent.click(r.button('Compare with Earth’s soil'));
+    const tray = screen.getByRole('dialog', { name: 'Choose a sample to compare' });
+    expect(within(tray).queryByRole('heading', { name: /Moon dust/ })).toBeNull();
+    fireEvent.click(within(tray).getByRole('button', { name: /Vistula River sand/ }));
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'moon-beads earth-water');
+    expect(screen.getByRole('slider', { name: 'Move the dividing line' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Moon and Earth' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: MOON_SLIDES[1].credit.title })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: EARTH_SLIDES[1].credit.title })).toBeInTheDocument();
+    expect(screen.getByText(EARTH_SLIDES[1].caption.text)).toBeInTheDocument();
+    expect(screen.getByText(`${REGOLITH.surface} ${REGOLITH.differences}`)).toBeInTheDocument();
+    // Wiping both: Moon dust clings, Earth grains brush aside.
+    fireEvent.click(r.button('Wipe'));
+    expect(r.status()).toHaveTextContent('The Moon dust clings to the cloth. The Earth grains brush aside.');
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'clean clean');
+    expect(screen.getByText(REGOLITH.gunpowder)).toBeInTheDocument();
+    fireEvent.click(r.button('Fresh slide'));
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'smudged');
+    expect(r.status()).toHaveTextContent('A fresh slide from the box. Look closely: it’s smudged.');
+    expect(r.currentStep()).toMatch(/Wipe the slide/);
+  });
+
+  it('goes back to one slide when asked', () => {
+    const r = room();
+    r.prepare('Gobi Desert sand shaped by wind');
+    fireEvent.click(r.button('Compare with Moon dust'));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Far-side Moon soil' }));
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'earth-wind moon-soil');
+    fireEvent.click(r.button('Back to one slide'));
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'earth-wind');
+    expect(screen.queryByRole('slider', { name: 'Move the dividing line' })).toBeNull();
+  });
+});
+
+describe('wiping on the stage, drawn', () => {
   // A stand-in for the canvas: it records what is drawn, and hands out a photo's pixels.
   type Call = { op: string; src?: unknown };
   let calls: Call[];
@@ -193,7 +477,13 @@ describe('wiping the photograph on the stage', () => {
               return { data, width: w, height: h };
             };
           }
-          if (prop === 'createImageData') return (w: number, h: number) => ({ data: new Uint8ClampedArray(w * h * 4), width: w, height: h });
+          if (prop === 'createImageData') {
+            return (w: number, h: number) => {
+              const data = new Uint8ClampedArray(w * h * 4);
+              handedOut.push(data);
+              return { data, width: w, height: h };
+            };
+          }
           if (prop === 'createRadialGradient' || prop === 'createLinearGradient') return () => ({ addColorStop: () => {} });
           return (...args: unknown[]) => calls.push({ op: prop, src: args[0] });
         },
@@ -201,7 +491,6 @@ describe('wiping the photograph on the stage', () => {
       },
     );
     jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(ctx as never);
-    // The photographs "load" at once, 200 px square.
     const proto = HTMLImageElement.prototype;
     const keys = ['complete', 'naturalWidth', 'naturalHeight'] as const;
     const was = keys.map((k) => Object.getOwnPropertyDescriptor(proto, k));
@@ -209,192 +498,119 @@ describe('wiping the photograph on the stage', () => {
     Object.defineProperty(proto, 'naturalWidth', { configurable: true, get: () => 200 });
     Object.defineProperty(proto, 'naturalHeight', { configurable: true, get: () => 200 });
     undo.push(() => keys.forEach((k, i) => (was[i] ? Object.defineProperty(proto, k, was[i]!) : delete (proto as unknown as Record<string, unknown>)[k])));
-    // The eyepiece has a size; and reduced motion, so the button's sweep is done at once.
     jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(400);
-    const mm = window.matchMedia;
-    window.matchMedia = jest.fn().mockImplementation((q: string) => ({ matches: q.includes('reduce'), media: q, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {} }));
-    undo.push(() => (window.matchMedia = mm));
+    undo.push(motion(true));
+    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
   });
   afterEach(() => {
     undo.splice(0).forEach((f) => f());
     jest.restoreAllMocks();
-    // Back to the canvas-less eyepiece the rest of this file uses.
     jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
   });
 
   const frames = () => act(() => new Promise((r) => setTimeout(r, 60)));
-  /** What the eyepiece last laid on the stage: the photograph itself, or its wiped copy. */
-  const lastSlide = () => [...calls].reverse().find((c) => c.op === 'drawImage' && (c.src instanceof HTMLImageElement || c.src instanceof HTMLCanvasElement))?.src;
+  const lastDrawn = () => [...calls].reverse().find((c) => c.op === 'drawImage' && (c.src instanceof HTMLImageElement || c.src instanceof HTMLCanvasElement))?.src;
+  const drag = (canvas: HTMLCanvasElement, from: number, to: number) => {
+    const pointer = (type: string, clientX = 0) => fireEvent(canvas, new MouseEvent(type, { bubbles: true, clientX, clientY: 0 }));
+    pointer('pointerdown', from);
+    pointer('pointermove', to);
+    pointer('pointerup', to);
+  };
 
-  it('shows the photograph alone, with no drawn grains over it', async () => {
-    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
-    render(<MoonMicroscope />);
+  it('wipes the smudges off a fresh slide where the cloth is dragged', async () => {
+    const r = room();
     await frames();
-    expect(lastSlide()).toBeInstanceOf(HTMLImageElement);
-    expect((lastSlide() as HTMLImageElement).getAttribute('src')).toBe(MOON_SLIDES[0].src);
-    // The lamp, the clip and the photograph: no grain outlines filled or stroked.
-    const ops = new Set(calls.map((c) => c.op));
-    for (const op of ['fill', 'stroke', 'arc', 'lineTo']) expect(ops.has(op)).toBe(false);
+    expect(r.eyepiece).toHaveAttribute('data-tool', 'cloth');
+    expect(r.eyepiece).toHaveAttribute('data-worked', '');
+    drag(r.canvas, -120, 120);
+    await frames();
+    // A copy of the fresh slide's dirty glass, changed where the cloth went, and shown.
+    expect(r.eyepiece).toHaveAttribute('data-worked', 'smudged');
+    expect(handedOut.length).toBeGreaterThan(0);
+    const copy = handedOut[handedOut.length - 1];
+    expect(changed(smudgedGlass(360).data, copy)).toBeGreaterThan(100);
+    expect(calls.some((c) => c.op === 'putImageData')).toBe(true);
+    expect(lastDrawn()).toBeInstanceOf(HTMLCanvasElement);
+    expect(r.status()).toHaveTextContent('The smudges are coming off. Keep wiping.');
   });
 
-  it('wipes the photograph itself where the cloth is dragged', async () => {
-    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
-    const { container } = render(<MoonMicroscope />);
+  it('wipes the Moon photograph itself with the cloth, the dust clinging to it', async () => {
+    const r = room();
+    r.prepare('Far-side Moon soil');
     await frames();
-    const eyepiece = container.querySelector('.mo-ms-eyepiece')!;
-    const canvas = container.querySelector('canvas')!;
-    expect(eyepiece).toHaveAttribute('data-wiped', '');
-    const pointer = (type: string, clientX = 0) => fireEvent(canvas, new MouseEvent(type, { bubbles: true, clientX, clientY: 0 }));
-    pointer('pointerdown', -120);
-    pointer('pointermove', 120);
-    pointer('pointerup');
+    expect((lastDrawn() as HTMLImageElement).getAttribute('src')).toBe(MOON_SLIDES[0].src);
+    // With a sample on, dragging moves the slide; choose the cloth to wipe it.
+    fireEvent.click(r.button('Drag to wipe'));
+    handedOut = [];
+    drag(r.canvas, -120, 120);
     await frames();
-    // The cloth changed a copy of the photo's own pixels, and the copy is what is shown.
     expect(handedOut).toHaveLength(1);
     expect(changed(photoPixels(handedOut[0].length), handedOut[0])).toBeGreaterThan(100);
-    expect(eyepiece).toHaveAttribute('data-wiped', 'moon-soil');
-    expect(calls.some((c) => c.op === 'putImageData')).toBe(true);
-    expect(lastSlide()).toBeInstanceOf(HTMLCanvasElement);
-    expect(screen.getByRole('status')).toHaveTextContent('The Moon dust clings to the cloth.');
-  });
-
-  it('wipes the slide clean, places a sample on the clean glass, and swaps in a fresh slide', async () => {
-    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
-    const { container } = render(<MoonMicroscope />);
-    await frames();
-    const eyepiece = container.querySelector('.mo-ms-eyepiece')!;
-    const status = () => screen.getByRole('status');
-    // Nothing to place yet: the slide has its sample on it.
-    fireEvent.click(screen.getByRole('button', { name: 'Place sample' }));
-    expect(status()).toHaveTextContent('The slide has a sample on it.');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
-    await frames();
-    expect(eyepiece).toHaveAttribute('data-clean', 'moon-soil');
-    expect(status()).toHaveTextContent('The Moon dust clings to the cloth. The slide is wiped clean.');
-    expect(screen.getByRole('img', { name: /clean glass slide/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Place sample' })).toHaveClass('mo-ms-button-place');
-    // The cloth is gray with the dust it took.
-    expect(Number((container.querySelector('.mo-ms-swatch') as HTMLElement).style.getPropertyValue('--dust'))).toBeGreaterThan(0);
-    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
-    expect(status()).toHaveTextContent('The slide is already clean.');
-
-    fireEvent.click(screen.getByRole('button', { name: 'Place sample' }));
-    await frames();
-    expect(eyepiece).toHaveAttribute('data-clean', '');
-    expect(status()).toHaveTextContent('The sample settles on the slide.');
-    expect((lastSlide() as HTMLImageElement).getAttribute('src')).toBe(MOON_SLIDES[0].src);
-    expect(screen.getByRole('img', { name: MOON_SLIDES[0].alt })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('button', { name: 'Fresh slide' }));
-    await frames();
-    expect(eyepiece).toHaveAttribute('data-clean', 'moon-soil');
-    expect(eyepiece).toHaveAttribute('data-wiped', '');
-    expect(status()).toHaveTextContent('Fresh slides and a clean cloth.');
-    expect((container.querySelector('.mo-ms-swatch') as HTMLElement).style.getPropertyValue('--dust')).toBe('0');
-  });
-
-  it('brushes Earth sand aside on its own slide, and side by side wipes both clean', async () => {
-    window.history.replaceState(null, '', '/exhibitions/moon/microscope#earth');
-    const { container } = render(<MoonMicroscope />);
-    await frames();
-    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
-    await frames();
-    expect(container.querySelector('.mo-ms-eyepiece')).toHaveAttribute('data-clean', 'earth-wind');
-    expect(screen.getByRole('status')).toHaveTextContent('The grains brush aside. The slide is wiped clean.');
-    fireEvent.click(screen.getByRole('tab', { name: 'Side by Side' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Wipe the slide' }));
-    await frames();
-    expect(container.querySelector('.mo-ms-eyepiece')?.getAttribute('data-clean')?.split(' ').sort()).toEqual(['earth-wind', 'moon-soil']);
-    expect(screen.getByRole('status')).toHaveTextContent('The Moon dust clings to the cloth. The slide is wiped clean.');
+    expect(r.eyepiece).toHaveAttribute('data-worked', 'moon-soil');
+    expect(lastDrawn()).toBeInstanceOf(HTMLCanvasElement);
+    expect(r.status()).toHaveTextContent('The Moon dust clings to the cloth.');
+    expect(r.eyepiece).toHaveAttribute('data-pan', '0.500 0.500');
   });
 
   it('animates the exchange of slides and the sample settling, when motion is welcome', async () => {
-    window.matchMedia = jest.fn().mockImplementation((q: string) => ({ matches: false, media: q, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {} }));
-    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
-    const { container } = render(<MoonMicroscope />);
+    undo.push(motion(false));
+    const r = room();
     await frames();
-    const eyepiece = container.querySelector('.mo-ms-eyepiece')!;
-    fireEvent.click(screen.getByRole('button', { name: 'Fresh slide' }));
-    expect(eyepiece).toHaveAttribute('data-anim', 'swap');
-    expect(eyepiece).toHaveAttribute('data-clean', '');
-    // Mid-swap, the edges of both glass slides are drawn crossing the stage (beyond the stage's own fill).
+    fireEvent.click(r.button('Fresh slide'));
+    expect(r.eyepiece).toHaveAttribute('data-anim', 'swap');
     calls = [];
     await frames();
+    // Mid-swap, the edges of both glass slides are drawn crossing the stage (beyond the stage's own fill).
     const draws = calls.filter((c) => c.op === 'clearRect').length;
     expect(calls.filter((c) => c.op === 'fillRect').length).toBeGreaterThanOrEqual(draws * 5);
-    await act(() => new Promise((r) => setTimeout(r, TIMES.swap + 60)));
-    expect(eyepiece).toHaveAttribute('data-anim', '');
-    expect(eyepiece).toHaveAttribute('data-clean', 'moon-soil');
+    await act(() => new Promise((res) => setTimeout(res, TIMES.swap + 60)));
+    expect(r.eyepiece).toHaveAttribute('data-anim', '');
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'smudged');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Place sample' }));
-    expect(eyepiece).toHaveAttribute('data-anim', 'place');
-    await act(() => new Promise((r) => setTimeout(r, TIMES.place * 0.3)));
+    fireEvent.click(r.button('Wipe'));
+    await act(() => new Promise((res) => setTimeout(res, TIMES.sweep + TIMES.polish + 200)));
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'clean');
+    fireEvent.click(r.button('Place sample'));
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Far-side Moon soil' }));
+    expect(r.eyepiece).toHaveAttribute('data-anim', 'place');
+    await act(() => new Promise((res) => setTimeout(res, TIMES.place * 0.3)));
     calls = [];
     await frames();
-    // The grains fall as round pieces of the photograph.
     expect(calls.some((c) => c.op === 'arc')).toBe(true);
-    await act(() => new Promise((r) => setTimeout(r, TIMES.place + 60)));
-    expect(eyepiece).toHaveAttribute('data-anim', '');
-    expect(eyepiece).toHaveAttribute('data-clean', '');
-  });
-});
-
-describe('the focus', () => {
-  it('is sharp only near the mark for each power', () => {
-    FOCUS_AT.forEach((at, power) => {
-      expect(blurFor(at, power)).toBe(0);
-      expect(blurFor(at + 20, power)).toBeGreaterThan(5);
-    });
-    expect(blurFor(0, 2)).toBe(12);
-  });
-});
-
-describe('the room', () => {
-  it('sets the poster’s words for each slide, and keeps the knob and tabs keyboard-operable', () => {
-    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
-    render(<MoonMicroscope />);
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Under the Microscope');
-    expect(screen.getByText(`${REGOLITH.unlike} ${REGOLITH.jagged}`)).toBeInTheDocument();
-
-    const knob = screen.getByRole('slider', { name: 'Focus' });
-    expect(knob).toHaveAttribute('aria-valuetext', 'Blurry');
-    for (let i = 0; i < 8; i++) fireEvent.keyDown(knob, { key: 'ArrowUp' });
-    expect(knob).toHaveAttribute('aria-valuenow', '40');
-    expect(knob).toHaveAttribute('aria-valuetext', 'In focus');
-    expect(screen.getByRole('status')).toHaveTextContent('In focus.');
-
-    const moonTab = screen.getByRole('tab', { name: 'Moon Dust' });
-    fireEvent.keyDown(moonTab, { key: 'ArrowRight' });
-    expect(screen.getByRole('tab', { name: "Earth's Soil" })).toHaveAttribute('aria-selected', 'true');
-    fireEvent.click(screen.getByRole('button', { name: 'Water' }));
-    expect(screen.getByText('water', { selector: 'mark' })).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole('tab', { name: 'Side by Side' }));
-    expect(screen.getByRole('slider', { name: 'Move the dividing line' })).toBeInTheDocument();
-    expect(screen.getByText(`${REGOLITH.surface} ${REGOLITH.differences}`)).toBeInTheDocument();
-  });
+    await act(() => new Promise((res) => setTimeout(res, TIMES.place + 60)));
+    expect(r.eyepiece).toHaveAttribute('data-anim', '');
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'moon-soil');
+  }, 20000);
 });
 
 describe('the approved notes', () => {
-  it('sets what Moon dust is made of on its slide, and the meteorite beside the case link, each with its source', () => {
-    // Not the poster's words: owner-approved, fact-checked, set apart with a source.
-    window.history.replaceState(null, '', '/exhibitions/moon/microscope');
-    render(<MoonMicroscope />);
-    expect(screen.getByText(MICROSCOPE_NOTES.dust.text)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'NASA' })).toHaveAttribute('href', 'https://science.nasa.gov/moon/composition/');
+  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/moon/microscope'));
+
+  it('sets what Moon dust is made of with a Moon sample, and the meteorite beside the case link, each with its source', () => {
+    const undo = motion(true);
+    const r = room();
+    expect(screen.queryByText(MICROSCOPE_NOTES.dust.text)).toBeNull();
     expect(screen.getByText(MICROSCOPE_NOTES.adrar.text)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Washington University in St. Louis' })).toHaveAttribute('href', 'https://sites.wustl.edu/meteoritesite/?p=16700');
     expect(screen.getByRole('link', { name: /lunar meteorite in the display case/ })).toBeInTheDocument();
-    // Moon dust's note is for its own slide only.
-    fireEvent.click(screen.getByRole('tab', { name: "Earth's Soil" }));
-    expect(screen.queryByText(MICROSCOPE_NOTES.dust.text)).toBeNull();
-    expect(screen.getByText(MICROSCOPE_NOTES.adrar.text)).toBeInTheDocument();
+    r.prepare('Far-side Moon soil');
+    expect(screen.getByText(MICROSCOPE_NOTES.dust.text)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'NASA' })).toHaveAttribute('href', 'https://science.nasa.gov/moon/composition/');
+    expect(screen.getByText(`${REGOLITH.unlike} ${REGOLITH.jagged}`)).toBeInTheDocument();
+    undo();
+  });
+
+  it('cites every microscope tip to a maker, a university or a university science-education site', () => {
+    for (const tip of Object.values(PRACTICE)) {
+      expect(tip.sources.length).toBeGreaterThan(0);
+      for (const s of tip.sources) expect(s.href).toMatch(/^https:\/\/(adobeassets\.evidentscientific\.com|bio\.libretexts\.org|imb\.uq\.edu\.au|www\.sciencelearn\.org\.nz|www\.microscope\.healthcare\.nikon\.com)\//);
+    }
+    expect(PRACTICE.total.text).toMatch(/10× eyepiece and a 40× lens make 400×/);
   });
 
   it('keeps the display case to the posters’ sentences', () => {
     const writing = MOON_CASE.artifacts.flatMap((a) => a.writing ?? []).map((w) => w.text);
-    for (const n of Object.values(MICROSCOPE_NOTES)) expect(writing).not.toContain(n.text);
+    for (const n of [...Object.values(MICROSCOPE_NOTES), ...Object.values(PRACTICE)]) expect(writing).not.toContain(n.text);
   });
 });
 

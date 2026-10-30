@@ -254,16 +254,24 @@ export function paintClean(px: Pixels): void {
   }
 }
 
+/** A part of a photo, in its pixels. */
+export type Rect = { x0: number; y0: number; x1: number; y1: number };
+
 /**
  * How clean a slide is, 0 to 1: the share of its pixels within a little of
- * bare lamp-lit glass. Looks at every `step`th pixel each way, for speed.
+ * bare lamp-lit glass. Looks at every `step`th pixel each way, for speed;
+ * only inside `rect` when given (the part of the slide in view).
  */
-export function cleanness(px: Pixels, step = 4): number {
+export function cleanness(px: Pixels, step = 4, rect?: Rect): number {
   const { data, width, height } = px;
+  const x0 = Math.max(0, Math.floor(rect?.x0 ?? 0));
+  const y0 = Math.max(0, Math.floor(rect?.y0 ?? 0));
+  const x1 = Math.min(width, Math.ceil(rect?.x1 ?? width));
+  const y1 = Math.min(height, Math.ceil(rect?.y1 ?? height));
   let clean = 0;
   let n = 0;
-  for (let y = 0; y < height; y += step) {
-    for (let x = 0; x < width; x += step) {
+  for (let y = y0; y < y1; y += step) {
+    for (let x = x0; x < x1; x += step) {
       const g = lamp(x, y, width, height);
       const k = (y * width + x) * 4;
       const d = Math.abs(data[k] - g[0]) + Math.abs(data[k + 1] - g[1]) + Math.abs(data[k + 2] - g[2]);
@@ -307,4 +315,90 @@ export function settleGrains(across = 14, seed = 7): Grain[] {
     }
   }
   return grains;
+}
+
+/**
+ * A fresh glass slide straight from the box, n × n: lamp-lit glass with a
+ * little dirt on it, to be wiped off before a sample goes on. Specks of dust
+ * all over, a few soft greasy smudges, and a fingerprint near the middle,
+ * its ridges in rings. Seeded, so the same every time.
+ */
+export function smudgedGlass(n = 360, seed = 11): Pixels {
+  let s = seed >>> 0 || 1;
+  const rand = () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 4294967296;
+  };
+  // How dark the dirt is at each pixel, 0 to 1.
+  const dirt = new Float32Array(n * n);
+  const add = (i: number, d: number) => (dirt[i] = 1 - (1 - dirt[i]) * (1 - Math.min(1, d)));
+
+  // Smudges: soft, streaky ovals where a thumb has rubbed the glass.
+  for (let k = 0; k < 7; k++) {
+    const cx = n * (0.2 + rand() * 0.6);
+    const cy = n * (0.2 + rand() * 0.6);
+    const a = n * (0.12 + rand() * 0.1);
+    const b = a * (0.45 + rand() * 0.3);
+    const t = rand() * Math.PI;
+    const depth = 0.16 + rand() * 0.08;
+    const c = Math.cos(t);
+    const sn = Math.sin(t);
+    for (let y = Math.max(0, Math.floor(cy - a)); y < Math.min(n, cy + a); y++) {
+      for (let x = Math.max(0, Math.floor(cx - a)); x < Math.min(n, cx + a); x++) {
+        const u = ((x - cx) * c + (y - cy) * sn) / a;
+        const v = (-(x - cx) * sn + (y - cy) * c) / b;
+        const r = u * u + v * v;
+        if (r >= 1) continue;
+        const soft = (1 - r) * (1 - r);
+        const streak = 0.75 + 0.25 * Math.sin(v * 9 + u * 2);
+        add(y * n + x, depth * soft * streak * 1.6);
+      }
+    }
+  }
+
+  // A fingerprint: rings of ridges in an oval, fading at its rim.
+  const fx = n * 0.52;
+  const fy = n * 0.46;
+  const fa = n * 0.2;
+  const fb = n * 0.26;
+  const period = n / 42;
+  for (let y = Math.max(0, Math.floor(fy - fb)); y < Math.min(n, fy + fb); y++) {
+    for (let x = Math.max(0, Math.floor(fx - fa)); x < Math.min(n, fx + fa); x++) {
+      const r = Math.hypot((x - fx) / fa, (y - fy) / fb);
+      if (r >= 1) continue;
+      const d = Math.hypot((x - fx) * 1.15, y - fy);
+      const ridge = 0.5 + 0.5 * Math.cos((d / period) * Math.PI * 2 + Math.sin((x - fx) / (n * 0.05)) * 0.8);
+      const env = Math.min(1, (1 - r) / 0.25);
+      add(y * n + x, 0.34 * ridge * env);
+    }
+  }
+
+  // Dust: specks scattered across the glass.
+  const specks = Math.round((n * n) / 700);
+  for (let k = 0; k < specks; k++) {
+    const cx = rand() * n;
+    const cy = rand() * n;
+    const r = 0.8 + rand() * rand() * 3.2;
+    const depth = 0.35 + rand() * 0.45;
+    for (let y = Math.max(0, Math.floor(cy - r - 1)); y < Math.min(n, cy + r + 1); y++) {
+      for (let x = Math.max(0, Math.floor(cx - r - 1)); x < Math.min(n, cx + r + 1); x++) {
+        const d = Math.hypot(x - cx, y - cy);
+        if (d < r + 0.8) add(y * n + x, depth * Math.min(1, r + 0.8 - d));
+      }
+    }
+  }
+
+  // The dirt is a gray-brown film over the lamp's light.
+  const tint = [118, 110, 104];
+  const data = new Uint8ClampedArray(n * n * 4);
+  for (let y = 0; y < n; y++) {
+    for (let x = 0; x < n; x++) {
+      const i = y * n + x;
+      const g = lamp(x, y, n, n);
+      const d = dirt[i];
+      for (let c = 0; c < 3; c++) data[i * 4 + c] = g[c] - (g[c] - tint[c]) * d;
+      data[i * 4 + 3] = 255;
+    }
+  }
+  return { data, width: n, height: n };
 }
