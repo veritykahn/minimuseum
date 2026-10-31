@@ -164,7 +164,18 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The doorway opens as a poster opens and at each god's name; every other panel arrives its own way.
   fx: { theme: 'eg', veil: 'chapters', text: 'all' },
-  projector: { theme: EGYPT_PROJECTOR_THEME, links: [] },
+  // The rooms, for "Teach with this" and the projector's "For the classroom".
+  projector: {
+    theme: EGYPT_PROJECTOR_THEME,
+    links: [
+      { label: 'Your Name in Hieroglyphs: write your name in a cartouche, and print it', href: '/exhibitions/egypt/hieroglyph-name' },
+      { label: 'The Rosetta Stone Decoder: three scripts, and two royal names to crack', href: '/exhibitions/egypt/rosetta-stone' },
+      { label: 'Tomb Explorer: light the painted walls of a dark tomb', href: '/exhibitions/egypt/tomb' },
+      { label: 'Mummification, Step by Step: natron, canopic jars, linen and amulets', href: '/exhibitions/egypt/mummification' },
+      { label: 'The Weighing of the Heart: help Ani before the judges of the afterlife', href: '/exhibitions/egypt/weighing-of-the-heart' },
+      { label: 'Design an Amulet: choose its symbols, learn their meanings, and print it', href: '/exhibitions/egypt/amulet' },
+    ],
+  },
   cases: [
     {
       href: '/exhibitions/egypt/artifacts/case',
