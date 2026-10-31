@@ -823,6 +823,16 @@ export default function HarlemRenaissance() {
           .hr-walkthrough-nav { bottom: 20px; gap: 16px; }
           .hr-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
           .hr-text-content-wrapper { padding: 100px 24px; }
+          /* A phone: the painting starts below the M, and its description can
+             scroll clear of the panel controls and the Map button. */
+          .hr-artwork-display { padding: 76px 24px 128px; gap: 24px; }
+          .hr-artwork-image-side img { max-height: 40vh; }
+          .hr-artwork-info-side .hr-artwork-desc { line-height: 1.6; }
+        }
+        /* A phone: the arrows sit a little left of centre, so the Next arrow
+           is clear of the Map button in the corner. */
+        @media (max-width: 480px) {
+          .hr-walkthrough-nav { transform: translateX(calc(-50% - 28px)); }
         }
       `}</style>
 
