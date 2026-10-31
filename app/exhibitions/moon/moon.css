@@ -491,8 +491,8 @@
 
 /* ───────── exoplanet-transit: a far star dimming as its planet crosses it ───────── */
 /* The star sits low at the left: copy beside it, or the ticket, keeps to its right. */
-@media (min-width: 769px) {
-  [data-exhibition='moon'] [data-atmosphere='exoplanet-transit'] :is(.mo-link, .mo-copy.pe-pos-center, .mo-copy.pe-pos-bottom-left) { padding-left: calc(4vw + 32vmin + 3vw); }
+@media (min-width: 769px) and (orientation: landscape) {
+  [data-exhibition='moon'] [data-atmosphere='exoplanet-transit'] :is(.mo-link, .mo-copy.pe-pos-center, .mo-copy.pe-pos-bottom-left, .pe-text-content-wrapper.pe-pos-full-width) { padding-left: calc(4vw + 32vmin + 3vw); }
 }
 [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-1 {
   /* the star */
@@ -608,6 +608,13 @@
   62% { opacity: 0.15; }
   68% { opacity: 0.6; }
   74%, 96% { opacity: 0; }
+}
+
+/* A tablet held upright has no room beside the star: it steps back behind the copy, as on a phone. */
+@media (min-width: 769px) and (orientation: portrait) {
+  [data-exhibition='moon'] .pe-atmo-exoplanet-transit :is(.pe-atmo-part-1, .pe-atmo-part-2) { left: -8vmin; top: 9%; }
+  [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-1 { opacity: 0.22; }
+  [data-exhibition='moon'] .pe-atmo-exoplanet-transit .pe-atmo-part-2 { left: calc(8vmin - 2.6vmin); }
 }
 
 @media (max-width: 768px) {
