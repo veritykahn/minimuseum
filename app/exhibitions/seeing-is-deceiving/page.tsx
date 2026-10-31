@@ -686,6 +686,8 @@ export default function SeeingIsDeceiving() {
           width: 100%;
           height: auto;
           min-width: 100%;
+          /* Never stretched to the screen's height: on a phone that cropped the title's ends ("EEING I"). */
+          min-height: 0;
           object-fit: cover;
         }
         .full-bleed-image.title-image.poster2-title img {
