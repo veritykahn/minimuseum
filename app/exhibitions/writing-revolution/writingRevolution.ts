@@ -67,6 +67,8 @@ const URANIA: PanelFigure = {
  * out of the color blocks behind it (public/exhibitions/writing-revolution/titles/).
  * A sharper export of the same lettering can replace a file at the same path;
  * update its size here.
+ * The cut stays on disk; the title is set in type (`live`, in the poster's
+ * own face, drawn in the exhibition's stylesheet) so it is sharp on any screen.
  */
 const TITLE_SIZES = {
   writingRevolution: { width: 650, height: 421 },
@@ -121,12 +123,25 @@ export const WRITING_REVOLUTION: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The color blocks slide together as a poster opens; after that each panel arrives its own way.
   fx: { theme: 'wr', veil: 'first', text: 'all' },
-  projector: { theme: WRITING_REVOLUTION_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: WRITING_REVOLUTION_PROJECTOR_THEME,
+    links: [{ label: 'The Typing Station: a typewriter, an iMac and the top row', href: '/exhibitions/writing-revolution/typing-station' }],
+  },
   cases: [
     {
       href: '/exhibitions/writing-revolution/artifacts/case',
       label: 'Display Case',
       title: 'Artifacts',
+    },
+  ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
+  interactives: [
+    {
+      href: '/exhibitions/writing-revolution/typing-station',
+      image: { src: '/exhibitions/writing-revolution/rooms/typing-station.webp', alt: 'The Typing Station room: a typewriter on the coral wall, its first line typed on the sheet of paper' },
+      label: 'Interactive',
+      title: 'The Typing Station',
+      subtitle: 'The same line on a typewriter and an iMac',
     },
   ],
   posters: [
@@ -154,6 +169,7 @@ export const WRITING_REVOLUTION: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/writing-revolution/titles/writing-revolution.png',
           ...TITLE_SIZES.writingRevolution,
           framing: 'centered',
+          live: { className: 'wr-live wr-live-writing', lines: [{ text: 'THE' }, { text: 'WRİTİNG' }, { text: 'REVOLUTİON' }] },
           alt: 'The Writing Revolution',
         },
         { type: 'paragraph', atmosphere: 'carriage-return', effect: 'typewriter', position: 'center', text: 'For thousands of years, writing was a privilege reserved for scribes, monks, and the wealthy elite. This exclusivity shattered with each technological leap.' },
@@ -212,6 +228,7 @@ export const WRITING_REVOLUTION: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/writing-revolution/titles/qwertys-accidental-empire.png',
           ...TITLE_SIZES.qwertysAccidentalEmpire,
           framing: 'centered',
+          live: { className: 'wr-live wr-live-qwerty', lines: [{ text: 'QWERTY’S' }, { text: 'ACCİDENTAL' }, { text: 'EMPİRE' }] },
           alt: "QWERTY's Accidental Empire",
         },
         { type: 'paragraph', atmosphere: 'qwerty-rows', effect: 'kenburns-in', section: 'cyan', colors: { bg: CYAN, text: INK, title: INK }, position: 'center', figure: URANIA, className: 'wr-statement', text: 'The keyboard beneath your fingers holds a 150-year-old secret.' },

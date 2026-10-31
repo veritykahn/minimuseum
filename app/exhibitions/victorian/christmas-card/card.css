@@ -1,0 +1,70 @@
+/* ==========================================================================
+   The Christmas card maker: the card stands on the parlour table, a little
+   turned, its shadow on the wood; at "Print it" its front and inside stand
+   side by side. The greeting is set in the posters' book serif (Lora,
+   italic); the inside in the same hand. The print sheet lays the card out
+   in four on a Letter page, to fold.
+   ========================================================================== */
+
+.vcc-scene { align-items: flex-end; padding-bottom: 2vh; }
+.vcc-cards { display: flex; align-items: flex-end; justify-content: center; gap: 4cqw; width: 100%; height: 100%; }
+.vcc-card {
+  height: min(100cqh, 100cqw * 1.3);
+  aspect-ratio: 400 / 525;
+  transform: rotate(-1.6deg);
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 18px 18px rgba(47, 30, 20, 0.35)) drop-shadow(0 3px 4px rgba(47, 30, 20, 0.25));
+  animation: vcc-stand 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+.vcc-cards[data-view='print'] .vcc-card { height: min(92cqh, 46cqw * 1.3); }
+.vcc-cards[data-view='print'] .vcc-card-inside { transform: rotate(1.4deg); }
+.vcc-card-inside { transform: rotate(1.2deg); }
+@keyframes vcc-stand { from { opacity: 0; transform: translateY(12px) rotate(-3deg); } }
+.vcc-card-svg { display: block; width: 100%; height: 100%; }
+.vcc-greeting text { font-family: var(--vb-serif); font-style: italic; }
+.vcc-back-text { font-family: 'Jost', sans-serif; }
+.vcc-inside { font-family: var(--vb-serif); display: flex; flex-direction: column; gap: 14px; height: 100%; justify-content: center; text-align: center; }
+.vcc-inside p { margin: 0; }
+.vcc-inside-to { font-size: 22px; font-style: italic; }
+.vcc-inside-message { font-size: 19px; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.vcc-inside-from { font-size: 21px; font-style: italic; }
+.vcc-swatch { width: 14px; height: 14px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25); }
+
+/* The card's tab in the linen: the greetings run as words, a little smaller. */
+.vb-card .vbr-option { font-size: 12.5px; }
+.vb-card .vbr-card { gap: 12px; }
+
+/* ───────── The print: one Letter page, folded in four ───────── */
+.vcc-print-root { display: none; }
+@media print {
+  @page { size: letter portrait; margin: 0.25in; }
+  /* Only while the card is on the page: a sheet from another room, kept loaded by the browser, prints as itself. */
+  html:has(body > .vcc-print-root), body:has(> .vcc-print-root) { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  body:has(> .vcc-print-root) > :not(.vcc-print-root) { display: none !important; }
+  html body > .vcc-print-root.vcc-print-root { display: block !important; }
+  .vcc-print-sheet {
+    display: grid;
+    grid-template-columns: 4in 4in;
+    grid-template-rows: 5.25in 5.25in;
+    width: 8in;
+    height: 10.5in;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .vcc-print-cell { width: 4in; height: 5.25in; overflow: hidden; break-inside: avoid; }
+  .vcc-print-cell .vcc-card-svg { width: 4in; height: 5.25in; }
+  .vcc-print-turned { transform: rotate(180deg); }
+  .vcc-print-sheet > :nth-child(1) { border-right: 0.5pt dashed #bbb; border-bottom: 0.5pt dashed #bbb; }
+  .vcc-print-sheet > :nth-child(3) { border-right: 0.5pt dashed #bbb; }
+}
+
+@media (max-width: 760px) {
+  .vbr-stage.vcc-stage { --scene-h: 33dvh; --vbr-top: 134px; }
+  .vcc-card { height: min(100cqh, 100cqw * 1.3); }
+  .vb-card .vbr-option { font-size: 11.5px; }
+  .vb-card .vbr-choice legend { margin-bottom: 3px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vcc-card { animation: none; }
+}

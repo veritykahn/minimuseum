@@ -1,4 +1,5 @@
 import CaseListing from '../case-listing';
+import { CASE_NOTES } from '../../notes';
 import { case7Coins } from '../coin-data';
 
 export default function Case7() {
@@ -9,12 +10,13 @@ export default function Case7() {
       title="In Their Hands"
       subtitle="Coins from Jesus' Ministry and Passion"
       coins={case7Coins}
+      notes={CASE_NOTES[7]}
       basePath="/exhibitions/in-their-hands/artifacts/case-7"
       interactive={{
         id: 'hands',
         title: 'Hands of History',
         subtitle: 'Who held these coins — and when?',
-        thumb: '/exhibitions/in-their-hands/hands.jpg',
+        thumb: '/exhibitions/in-their-hands/rooms/hands.webp',
         route: '/exhibitions/in-their-hands/hands',
         status: 'available',
       }}

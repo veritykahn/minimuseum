@@ -1,0 +1,391 @@
+/* ==========================================================================
+   Who Do You See?, on one screen: poster 1's lime and its sunburst rays,
+   the title in poster 2's bubble face over three tabs, and the tab drawn
+   large: the doll on poster 2's pink beside its choices, the Doll Test's
+   pictures on the black blob beside its notes, and the class's tallies
+   beside their charts.
+   ========================================================================== */
+.bhr-room {
+  --ink: #141414;
+  --pe-nav-m: #141414;
+  --pe-nav-ink: #141414;
+  min-height: 100vh;
+  background: var(--bh-lime);
+  color: var(--ink);
+}
+.bhr-stage {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 600px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.bhr-ground { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.bhr-rays { position: absolute; width: 70vmax; height: 70vmax; -webkit-mask-image: radial-gradient(circle, #000 0 36%, transparent 50%); mask-image: radial-gradient(circle, #000 0 36%, transparent 50%); }
+.bhr-rays-a { left: -35vmax; top: -35vmax; background: repeating-conic-gradient(from 0deg, var(--bh-green) 0 4deg, transparent 4deg 18deg); }
+.bhr-rays-b { right: -35vmax; bottom: -35vmax; background: repeating-conic-gradient(from 5deg, #141414 0 7deg, transparent 7deg 24deg); opacity: 0.85; }
+.bhr-room[data-tab='doll-test'] .bhr-rays-b { background: repeating-conic-gradient(from 5deg, var(--bh-red) 0 7deg, transparent 7deg 24deg); }
+/* Where the words run to the right edge, the lower rays are drawn smaller, clear of them. */
+@media (min-width: 761px) {
+  .bhr-room:not([data-tab='design']) .bhr-rays-b { width: 54vmax; height: 54vmax; right: -27vmax; bottom: -27vmax; }
+}
+
+/* ───────── The title and the tabs ───────── */
+.bhr-bar { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 150px 0; text-align: center; }
+.bhr-title { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.6rem, 3vw, 2.5rem); line-height: 1.05; color: var(--ink); }
+.bhr-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 999px; background: #141414; }
+.bhr-room .bhr-tab {
+  appearance: none;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #f4f6e4;
+  font-family: var(--pe-display);
+  font-weight: 800;
+  font-variation-settings: 'wdth' 110;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 13px;
+  padding: 9px 18px;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.bhr-room .bhr-tab[aria-selected='true'] { background: var(--bh-pink); color: #141414; }
+.bhr-room :focus-visible { outline: 3px solid #141414; outline-offset: 3px; }
+.bhr-room .bhr-tabs :focus-visible { outline-color: var(--bh-pink); }
+
+.bhr-panel { position: relative; z-index: 1; flex: 1; min-height: 0; width: 100%; display: flex; justify-content: center; padding: 14px max(3vw, 24px) 26px; animation: bhr-in 0.5s ease both; }
+.bhr-panel[hidden] { display: none; }
+@keyframes bhr-in { from { opacity: 0; transform: translateY(12px); } }
+
+.bhr-room .bhr-button {
+  appearance: none;
+  border: 3px solid #141414;
+  border-radius: 999px;
+  background: #141414;
+  color: #f4f6e4;
+  font-family: var(--pe-body);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.02em;
+  padding: 7px 18px;
+  min-height: 42px;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+.bhr-room .bhr-button:hover { transform: translateY(-1px); }
+.bhr-room .bhr-button-ghost { background: transparent; color: #141414; }
+.bhr-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.bhr-small { font-family: var(--pe-body); font-size: 14px; }
+.bhr-intro { font-family: var(--pe-body); font-weight: 500; font-size: clamp(1rem, 1.3vw, 1.15rem); line-height: 1.35; text-align: center; max-width: 52em; margin: 0 auto; text-wrap: balance; }
+
+/* ==========================================================================
+   Design a doll: the owner's doll, large, on poster 2's pink, stacked from
+   full-canvas layers in one box; beside it the choices, each a picture.
+   ========================================================================== */
+.bhr-design { width: min(1240px, 100%); min-height: 0; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 3vw; align-items: stretch; }
+.bhr-doll-stage { position: relative; min-height: 0; margin: 0; container-type: size; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
+/* The pink plinth behind the doll: a cheap box shadow, not a filter over the layers. */
+.bhr-doll-stage::before { content: ''; position: absolute; left: 50%; top: 50%; width: 92cqmin; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: var(--bh-pink); box-shadow: 8px 8px 0 #141414; }
+/* As big as the stage allows, at the art's own shape, leaving a line for the name. */
+.bhr-doll { position: relative; flex: none; width: min(100cqw, calc((100cqh - 2.6rem) * 768 / 1376)); aspect-ratio: 768 / 1376; }
+.bhr-doll-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; pointer-events: none; }
+/* The name on a tag, so it reads over the plinth's edge. */
+.bhr-doll-name { position: relative; max-width: 100%; padding: 0.1em 0.7em 0.15em; border: 3px solid #141414; border-radius: 999px; background: #fff; font-family: var(--bh-bubble); font-size: clamp(1rem, 1.8vw, 1.6rem); line-height: 1.15; color: #141414; text-align: center; overflow-wrap: anywhere; }
+.bhr-doll-name:empty { display: none; }
+.bhr-maker { min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.bhr-name { display: flex; align-items: center; gap: 10px; }
+.bhr-name input { flex: 1; max-width: 16em; height: 44px; padding: 0 14px; border: 3px solid #141414; border-radius: 999px; background: #fff; font-family: var(--bh-bubble); font-size: 18px; color: #141414; }
+.bhr-field-label { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; color: #141414; }
+.bhr-groups { display: flex; flex-wrap: wrap; gap: 6px; }
+.bhr-room .bhr-group {
+  appearance: none;
+  border: 3px solid #141414;
+  border-radius: 999px;
+  background: #fff;
+  color: #141414;
+  font-family: var(--pe-body);
+  font-weight: 600;
+  font-size: 17px;
+  min-height: 44px;
+  padding: 5px 18px;
+  cursor: pointer;
+}
+.bhr-room .bhr-group[aria-selected='true'] { background: #141414; color: var(--bh-lime); }
+.bhr-choices { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 14px; padding: 14px 16px; border-radius: 22px; background: rgba(255, 255, 255, 0.6); border: 3px solid #141414; }
+.bhr-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.bhr-pair { display: flex; flex-wrap: wrap; gap: 14px 28px; }
+.bhr-note { font-family: var(--pe-body); font-size: 15px; line-height: 1.3; }
+.bhr-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.bhr-option { position: relative; cursor: pointer; }
+.bhr-option input { position: absolute; opacity: 0; width: 100%; height: 100%; inset: 0; margin: 0; cursor: pointer; }
+/* A picture choice: a thumbnail with its name under it, big enough for a small finger. */
+.bhr-tile-face { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; width: 92px; padding: 4px 4px 6px; border: 2px solid #141414; border-radius: 16px; background: #fff; transition: background 0.15s ease, box-shadow 0.15s ease; }
+.bhr-tile-face img, .bhr-tile-none { display: block; width: 76px; height: 76px; border-radius: 12px; object-fit: contain; }
+.bhr-tile-none { background: repeating-linear-gradient(45deg, #f1f1f1 0 6px, #fff 6px 12px); }
+.bhr-tile-label { font-family: var(--pe-body); font-weight: 500; font-size: 13px; line-height: 1.15; text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.3em; }
+.bhr-tile input:checked + .bhr-tile-face { background: var(--bh-pink); box-shadow: 3px 3px 0 #141414; border-width: 3px; padding: 3px 3px 5px; }
+.bhr-tile input:checked + .bhr-tile-face .bhr-tile-label { font-weight: 700; }
+.bhr-toggle input:checked + .bhr-tile-face::after { content: '✓'; position: absolute; top: 4px; right: 6px; width: 24px; height: 24px; border-radius: 50%; background: #141414; color: var(--bh-lime); font-size: 15px; line-height: 24px; text-align: center; }
+.bhr-swatch-dot { display: block; width: 44px; height: 44px; border-radius: 50%; border: 2px solid rgba(20, 20, 20, 0.45); transition: transform 0.15s ease; }
+.bhr-swatch input:checked + .bhr-swatch-dot { border: 3px solid #141414; box-shadow: 0 0 0 3px #fff, 0 0 0 6px #141414; transform: scale(1.04); }
+.bhr-option input:focus-visible + span { outline: 3px solid #141414; outline-offset: 3px; }
+.bhr-field-swatches .bhr-options { gap: 12px; padding: 4px; }
+
+/* ==========================================================================
+   The Doll Test
+   ========================================================================== */
+.bhr-test { width: min(1180px, 100%); min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.bhr-test-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 4vw; align-items: center; }
+.bhr-test-art { min-height: 0; height: 100%; display: flex; align-items: center; justify-content: center; animation: bhr-pop 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+@keyframes bhr-pop { from { transform: scale(0.85); opacity: 0; } }
+.bhr-test-picture { width: min(100%, 42vh); height: auto; filter: drop-shadow(8px 8px 0 var(--bh-pink)); }
+.bhr-test-words { min-height: 0; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding: 6px 10px 10px 4px; animation: bhr-in 0.5s ease both; }
+.bhr-test-words:focus-visible { outline-offset: 2px; }
+/* Big enough for the back of the classroom: the lesson is led on the projector. */
+.bhr-step-count { font-family: var(--pe-display); font-weight: 800; text-transform: uppercase; font-size: clamp(13px, 1.1vw, 18px); letter-spacing: 0.1em; }
+.bhr-step-heading { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.7rem, 3.4vw, 3.6rem); line-height: 1.05; }
+.bhr-fact { display: flex; flex-direction: column; gap: 6px; font-family: var(--pe-body); font-weight: 500; font-size: clamp(1.2rem, 2vw, 2.15rem); line-height: 1.36; }
+.bhr-fact-source { font-size: clamp(12px, 0.95vw, 15px); line-height: 1.4; opacity: 0.85; }
+/* Each step's question for the class: a pink card that reads across the room. */
+.bhr-prompt { padding: 14px 20px 16px; border-radius: 22px; background: var(--bh-pink); border: 3px solid #141414; box-shadow: 6px 6px 0 #141414; animation: bhr-pop 0.6s cubic-bezier(0.3, 1.4, 0.5, 1) 0.25s both; }
+.bhr-prompt-heading { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(13px, 1.1vw, 18px); margin-bottom: 6px; }
+.bhr-prompt-q { font-family: var(--bh-bubble); font-size: clamp(1.25rem, 2.2vw, 2.4rem); line-height: 1.22; color: #2a1a14; }
+.bhr-prompt-list { display: flex; flex-direction: column; gap: 8px; padding-left: 1.1em; font-family: var(--pe-body); font-weight: 600; font-size: clamp(1.1rem, 1.8vw, 1.9rem); line-height: 1.3; color: #2a1a14; }
+/* The teacher's notes: dark, set apart, and only when asked for. */
+.bhr-notes { padding: 14px 20px; border-radius: 18px; background: #141414; color: #f4f6e4; }
+.bhr-notes-heading { font-family: var(--pe-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(12px, 1vw, 16px); color: var(--bh-lime); margin-bottom: 6px; }
+.bhr-notes ul { display: flex; flex-direction: column; gap: 6px; padding-left: 1.1em; font-family: var(--pe-body); font-size: clamp(1rem, 1.35vw, 1.4rem); line-height: 1.35; }
+.bhr-test-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 28px; }
+.bhr-teach { display: flex; gap: 8px; }
+.bhr-room .bhr-teach .bhr-button[aria-pressed='true'] { background: #141414; color: var(--bh-lime); }
+.bhr-keys { text-align: center; opacity: 0.8; }
+.bhr-fact-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+/* The survey's comparison: the CCBC's figures, smaller, with their source. */
+.bhr-cmp { display: flex; flex-direction: column; gap: 6px; font-family: var(--pe-body); font-weight: 500; font-size: 16px; line-height: 1.35; }
+.bhr-cmp-source { font-size: 12px; line-height: 1.4; opacity: 0.85; }
+.bhr-cmp-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+.bhr-poster-quote { margin: 0; padding: 14px 18px; border-radius: 18px; background: var(--bh-pink); box-shadow: 6px 6px 0 #141414; }
+.bhr-poster-quote p { font-family: var(--pe-body); font-weight: 600; font-size: clamp(1.1rem, 1.5vw, 1.35rem); line-height: 1.35; color: #2a1a14; }
+.bhr-poster-quote cite { display: block; margin-top: 6px; font-family: var(--bh-bubble); font-style: normal; font-size: 14px; color: #2a1a14; }
+.bhr-talk-heading { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.06em; font-size: 13px; }
+.bhr-talk { display: flex; flex-direction: column; gap: 6px; padding-left: 1.2em; font-family: var(--pe-body); font-size: clamp(1rem, 1.3vw, 1.15rem); line-height: 1.35; }
+/* The last step: poster 1's vignettes ringed round "You". */
+.bhr-test-ring { --d: min(36vh, 26vw, 330px); position: relative; width: calc(var(--d) * 1.5); height: calc(var(--d) * 1.5); display: grid; place-items: center; }
+.bhr-ring-core { width: var(--d); height: var(--d); border-radius: 50%; background: #111; color: var(--bh-lime); display: grid; place-items: center; font-family: var(--bh-bubble); font-size: calc(var(--d) * 0.26); box-shadow: 0 0 0 8px var(--bh-lime), 0 0 0 13px #141414; }
+.bhr-ring-vig { --size: calc(var(--d) * 0.34); position: absolute; left: calc(50% - var(--size) / 2); top: calc(50% - var(--size) / 2); width: var(--size); height: var(--size); border-radius: 50%; box-shadow: 0 0 0 4px var(--bh-lime); transform: rotate(var(--a)) translate(calc(var(--d) * 0.6)) rotate(calc(var(--a) * -1)); }
+.bhr-ring-vig-1 { --a: -150deg; } .bhr-ring-vig-2 { --a: -90deg; } .bhr-ring-vig-3 { --a: -30deg; } .bhr-ring-vig-4 { --a: 30deg; } .bhr-ring-vig-5 { --a: 90deg; } .bhr-ring-vig-6 { --a: 150deg; }
+.bhr-steps { display: flex; align-items: center; justify-content: center; gap: 14px; }
+.bhr-steps ol { display: flex; gap: 10px; list-style: none; margin: 0; padding: 0; }
+.bhr-room .bhr-step-dot { appearance: none; width: 46px; height: 46px; border-radius: 50%; border: 3px solid #141414; background: var(--bh-lime); color: #141414; font-family: var(--pe-display); font-weight: 800; font-size: 15px; cursor: pointer; transition: transform 0.25s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.bhr-room .bhr-step-dot[aria-current='step'] { background: #111; color: var(--bh-pink); transform: scale(1.15); }
+.bhr-room .bhr-step-arrow { appearance: none; width: 58px; height: 58px; border-radius: 50%; border: 0; background: #141414; color: var(--bh-lime); font-size: 24px; cursor: pointer; }
+.bhr-room .bhr-step-arrow:disabled { opacity: 0.25; cursor: default; }
+
+/* ==========================================================================
+   Who's in your books?
+   ========================================================================== */
+.bhr-survey { width: min(1280px, 100%); min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.bhr-survey-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 22px; }
+.bhr-kinds, .bhr-qtabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.bhr-kind { position: relative; cursor: pointer; }
+.bhr-kind input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.bhr-kind span { display: inline-block; padding: 6px 14px; border-radius: 999px; border: 3px solid #141414; background: #fff; font-family: var(--pe-body); font-weight: 600; font-size: clamp(15px, 1.2vw, 19px); }
+.bhr-kind input:checked + span { background: #141414; color: var(--bh-lime); }
+.bhr-kind input:focus-visible + span { outline: 3px solid #141414; outline-offset: 3px; }
+.bhr-room .bhr-qtab { appearance: none; padding: 7px 16px; border: 3px solid #141414; border-radius: 8px; background: transparent; font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; font-size: clamp(12px, 1vw, 16px); letter-spacing: 0.05em; color: #141414; cursor: pointer; }
+.bhr-room .bhr-qtab[aria-selected='true'] { background: var(--bh-pink); box-shadow: 3px 3px 0 #141414; }
+.bhr-survey-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); grid-template-rows: minmax(0, 1fr); gap: 2.5vw; }
+
+/* The teacher's side: the question to read out, and a big stepper for each answer. */
+.bhr-ask { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 22px; background: rgba(255, 255, 255, 0.6); border: 3px solid #141414; }
+.bhr-ask-label { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(12px, 1vw, 16px); }
+.bhr-ask-q { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.25rem, 2.1vw, 2.3rem); line-height: 1.15; }
+.bhr-steppers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.bhr-stepper { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px; padding: 4px 6px 4px 14px; border-radius: 999px; background: #fff; }
+/* Each answer's dot is its bar's color in the chart. */
+.bhr-stepper-label { display: flex; align-items: center; gap: 10px; }
+.bhr-stepper-label::before { content: ''; flex: none; width: 0.85em; height: 0.85em; border-radius: 50%; background: var(--bar); border: 2px solid #141414; }
+.bhr-stepper-label { font-family: var(--pe-body); font-weight: 600; font-size: clamp(0.95rem, 1.35vw, 1.4rem); line-height: 1.15; overflow-wrap: anywhere; }
+.bhr-room .bhr-count-btn { appearance: none; width: clamp(40px, 3.6vw, 56px); height: clamp(40px, 3.6vw, 56px); border-radius: 50%; border: 3px solid #141414; background: #fff; color: #141414; font-size: clamp(22px, 2vw, 32px); font-weight: 700; line-height: 1; cursor: pointer; transition: transform 0.12s ease; }
+.bhr-room .bhr-count-btn:active:not(:disabled) { transform: scale(0.9); }
+.bhr-room .bhr-count-add { background: #141414; color: var(--bh-lime); }
+.bhr-room .bhr-count-btn:disabled { opacity: 0.3; cursor: default; }
+.bhr-count-input { width: 2.6em; height: clamp(40px, 3.6vw, 56px); padding: 0; border: 0; border-radius: 10px; background: transparent; text-align: center; font-family: var(--pe-display); font-weight: 900; font-size: clamp(22px, 2.2vw, 34px); font-variant-numeric: tabular-nums; color: #141414; -moz-appearance: textfield; appearance: textfield; }
+.bhr-count-input::-webkit-outer-spin-button, .bhr-count-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.bhr-count-input:focus-visible { outline: 3px solid #141414; background: var(--bh-lime); }
+
+/* The class's side: the chart, big, then what to talk about. */
+.bhr-survey-side { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding: 2px 6px 6px 2px; }
+.bhr-chart { margin: 0; padding: 14px 16px; border-radius: 18px; background: #fff; border: 3px solid #141414; }
+.bhr-chart-title { font-family: var(--bh-bubble); font-size: 18px; margin-bottom: 8px; }
+.bhr-chart-total { font-family: var(--pe-body); font-size: 14px; }
+.bhr-bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.bhr-bar-row { display: grid; grid-template-columns: minmax(7em, 34%) 1fr 3em; align-items: center; gap: 10px; font-family: var(--pe-body); font-size: 14px; }
+.bhr-bar-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bhr-bar-track { position: relative; display: flex; align-items: center; height: 16px; border-bottom: 1px solid rgba(20, 20, 20, 0.25); }
+.bhr-bar-fill { display: block; height: 100%; min-width: 0; background: var(--bar, #141414); border-radius: 0 4px 4px 0; transition: width 0.6s cubic-bezier(0.3, 1.4, 0.5, 1); }
+.bhr-bar-value { flex: none; margin-left: 6px; font-variant-numeric: tabular-nums; font-weight: 700; }
+.bhr-bar-pct { font-weight: 400; opacity: 0.75; text-align: right; font-variant-numeric: tabular-nums; }
+.bhr-bar-row[data-empty] .bhr-bar-value { opacity: 0.4; }
+/* On screen, the chart is big and lively: thick bars, each count in a bubble that pops as it changes. */
+.bhr-chart-big { padding: 16px 20px 18px; box-shadow: 6px 6px 0 #141414; }
+.bhr-chart-big .bhr-chart-title { font-size: clamp(1.15rem, 1.8vw, 2rem); }
+.bhr-chart-big .bhr-chart-total { font-size: clamp(14px, 1.15vw, 18px); }
+.bhr-chart-big .bhr-bars { gap: clamp(5px, 0.8vh, 10px); }
+.bhr-chart-big .bhr-bar-row { grid-template-columns: minmax(6em, 30%) 1fr 3.2em; font-size: clamp(0.9rem, 1.2vw, 1.3rem); font-weight: 600; }
+.bhr-chart-big .bhr-bar-label { white-space: normal; line-height: 1.1; }
+.bhr-chart-big .bhr-bar-track { height: clamp(22px, 3.2vh, 38px); border-bottom: 0; border-radius: 0 999px 999px 0; background: rgba(20, 20, 20, 0.06); }
+.bhr-chart-big .bhr-bar-fill { border-radius: 0 999px 999px 0; border: 2px solid #141414; border-left: 0; }
+.bhr-chart-big .bhr-bar-row[data-empty] .bhr-bar-fill { border: 0; }
+.bhr-chart-big .bhr-bar-value { display: grid; place-items: center; min-width: 1.9em; height: 1.9em; padding: 0 0.3em; margin-left: -0.3em; border-radius: 999px; background: #141414; color: #fff; font-family: var(--pe-display); font-weight: 900; font-size: 1em; animation: bhr-count-pop 0.5s cubic-bezier(0.3, 1.8, 0.5, 1); }
+.bhr-chart-big .bhr-bar-row[data-empty] .bhr-bar-value { margin-left: 4px; background: transparent; color: #141414; animation: none; }
+@keyframes bhr-count-pop { 0% { transform: scale(1.6); background: var(--bar); } }
+.bhr-compare { padding: 12px 14px; border-radius: 16px; background: var(--bh-pink); }
+.bhr-compare-heading { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; margin-bottom: 4px; }
+.bhr-talk-box { padding: 12px 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.82); }
+.bhr-confirm { display: inline-flex; align-items: center; gap: 8px; font-family: var(--pe-body); font-weight: 600; }
+.bhr-print { display: none; }
+
+/* A shorter screen: the steppers closer, so every answer shows. */
+@media (min-width: 761px) and (max-height: 820px) {
+  .bhr-steppers { gap: 4px; }
+  .bhr-room .bhr-count-btn, .bhr-count-input { width: 40px; height: 40px; font-size: 22px; }
+  .bhr-count-input { width: 2.2em; }
+  .bhr-stepper { padding-top: 2px; padding-bottom: 2px; }
+}
+
+/* A projector or a big screen: the pictures and names larger, for the back of the room. */
+@media (min-width: 1600px) and (min-height: 950px) {
+  .bhr-tile-face { width: 124px; }
+  .bhr-tile-face img, .bhr-tile-none { width: 108px; height: 108px; }
+  .bhr-tile-label { font-size: 16px; }
+  .bhr-swatch-dot { width: 56px; height: 56px; }
+  .bhr-room .bhr-group { font-size: 20px; min-height: 52px; padding: 6px 22px; }
+  .bhr-field-label { font-size: 15px; }
+}
+
+/* An iPad held upright: the Doll Test's picture above its words, the words large. */
+@media (min-width: 761px) and (max-aspect-ratio: 4/5) {
+  .bhr-design { grid-template-columns: 1fr; grid-template-rows: minmax(0, 46%) minmax(0, 1fr); gap: 16px; }
+  .bhr-tile-face { width: 104px; }
+  .bhr-tile-face img, .bhr-tile-none { width: 88px; height: 88px; }
+  .bhr-test-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); gap: 16px; align-items: start; }
+  .bhr-test-art { height: auto; }
+  .bhr-test-picture { width: 26vh; }
+  .bhr-test-ring { --d: 16vh; }
+  .bhr-fact { font-size: clamp(1.2rem, 2.9vw, 2.15rem); }
+  .bhr-prompt-q { font-size: clamp(1.25rem, 3.2vw, 2.4rem); }
+}
+
+/* ───────── On a phone ───────── */
+@media (max-width: 760px) {
+  .bhr-stage { min-height: 0; }
+  .bhr-bar { padding: 20px 52px 0; gap: 8px; }
+  .bhr-title { font-size: 1.35rem; }
+  .bhr-tabs { gap: 2px; padding: 3px; }
+  .bhr-room .bhr-tab { font-size: 10px; padding: 7px 8px; letter-spacing: 0.01em; white-space: nowrap; }
+  .bhr-panel { padding: 10px 12px 84px; }
+  .bhr-rays { width: 120vw; height: 120vw; }
+  .bhr-rays-a { left: -60vw; top: -60vw; }
+  .bhr-rays-b { right: -60vw; bottom: -60vw; opacity: 0.6; }
+  .bhr-room .bhr-button { font-size: 14px; padding: 5px 12px; min-height: 38px; }
+  .bhr-intro { font-size: 0.92rem; }
+
+  .bhr-design { grid-template-columns: 1fr; grid-template-rows: 38% minmax(0, 1fr); gap: 10px; }
+  .bhr-doll-stage::before { box-shadow: 4px 4px 0 #141414; }
+  .bhr-doll { width: min(100cqw, calc((100cqh - 2.2rem) * 768 / 1376)); }
+  .bhr-doll-name { font-size: 1rem; }
+  .bhr-maker { gap: 8px; }
+  .bhr-name input { height: 40px; font-size: 15px; }
+  .bhr-room .bhr-group { font-size: 14px; min-height: 40px; padding: 3px 11px; border-width: 2px; }
+  .bhr-choices { padding: 10px; gap: 10px; border-radius: 16px; }
+  .bhr-options { gap: 6px; }
+  .bhr-pair { column-gap: 12px; }
+  .bhr-tile-face { width: 74px; border-radius: 12px; }
+  .bhr-tile-face img, .bhr-tile-none { width: 62px; height: 62px; border-radius: 9px; }
+  .bhr-tile-label { font-size: 11.5px; }
+  .bhr-swatch-dot { width: 34px; height: 34px; }
+  .bhr-field-swatches .bhr-options { gap: 7px; padding: 3px; }
+  .bhr-small { font-size: 12px; }
+
+  .bhr-test { gap: 8px; }
+  .bhr-test-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; gap: 8px; align-items: start; }
+  .bhr-test-art { height: auto; }
+  .bhr-test-picture { width: 19vh; filter: drop-shadow(4px 4px 0 var(--bh-pink)); }
+  .bhr-test-ring { --d: 10vh; }
+  .bhr-step-heading { font-size: 1.35rem; }
+  .bhr-fact { font-size: 1.02rem; }
+  .bhr-fact-source { font-size: 11px; }
+  .bhr-cmp { font-size: 14px; }
+  .bhr-cmp-source { font-size: 11px; }
+  .bhr-steps { gap: 6px; }
+  .bhr-steps ol { gap: 4px; }
+  .bhr-room .bhr-step-dot { width: 27px; height: 27px; font-size: 11px; border-width: 2px; padding: 0; }
+  .bhr-room .bhr-step-arrow { display: none; }
+  .bhr-test-foot { gap: 6px; }
+  .bhr-prompt { padding: 10px 14px; border-radius: 16px; box-shadow: 4px 4px 0 #141414; }
+  .bhr-prompt-q { font-size: 1.12rem; }
+  .bhr-prompt-list { font-size: 1rem; }
+  .bhr-notes { padding: 10px 14px; }
+  .bhr-notes ul { font-size: 0.95rem; }
+  .bhr-room .bhr-fullscreen, .bhr-keys { display: none; }
+
+  .bhr-survey { gap: 8px; }
+  .bhr-survey-bar { gap: 6px; }
+  .bhr-kind span { font-size: 13px; padding: 4px 10px; border-width: 2px; }
+  .bhr-room .bhr-qtab { font-size: 10.5px; padding: 4px 8px; border-width: 2px; }
+  /* The steppers, then the chart and the comparison, scroll together, so nothing is cut off. */
+  .bhr-survey-body { grid-template-columns: 1fr; grid-template-rows: auto auto; gap: 10px; overflow-y: auto; }
+  .bhr-ask, .bhr-survey-side { min-height: auto; overflow: visible; }
+  .bhr-ask { padding: 10px; border-width: 2px; border-radius: 16px; }
+  .bhr-ask-q { font-size: 1.1rem; }
+  .bhr-steppers { gap: 4px; }
+  .bhr-stepper { gap: 4px; padding-left: 10px; }
+  .bhr-stepper-label { gap: 6px; }
+  .bhr-stepper-label { font-size: 0.88rem; }
+  .bhr-room .bhr-count-btn, .bhr-count-input { width: 40px; height: 40px; font-size: 22px; }
+  .bhr-count-input { width: 2em; }
+  .bhr-chart-big { padding: 12px; box-shadow: 4px 4px 0 #141414; }
+  .bhr-chart-big .bhr-bar-row { grid-template-columns: minmax(5.5em, 34%) 1fr 2.6em; gap: 6px; font-size: 0.82rem; }
+  .bhr-chart-big .bhr-bar-track { height: 22px; }
+  .bhr-survey-side .bhr-talk-box { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bhr-panel, .bhr-test-art, .bhr-test-words, .bhr-prompt, .bhr-chart-big .bhr-bar-value { animation: none; }
+  .bhr-room .bhr-step-dot, .bhr-bar-fill, .bhr-swatch-dot, .bhr-tile-face, .bhr-room .bhr-button, .bhr-room .bhr-count-btn { transition: none; }
+  .bhr-swatch input:checked + .bhr-swatch-dot { transform: none; }
+}
+
+/* Print: the doll alone, or every chart of the survey. */
+@media print {
+  body:has(.bhr-room) * { visibility: hidden; }
+  /* The doll and its name, on one page. */
+  .bhr-room[data-tab='design'] .bhr-doll-stage, .bhr-room[data-tab='design'] .bhr-doll-stage * { visibility: visible; }
+  .bhr-room[data-tab='design'] .bhr-doll-stage { position: fixed; left: 0; right: 0; top: 0.3in; container-type: normal; display: flex; flex-direction: column; align-items: center; gap: 0.1in; }
+  .bhr-room[data-tab='design'] .bhr-doll-stage::before { display: none; }
+  .bhr-room[data-tab='design'] .bhr-doll { width: auto; height: 9in; max-width: none; max-height: none; filter: none; }
+  .bhr-room[data-tab='design'] .bhr-doll-name { font-size: 30pt; }
+  .bhr-room[data-tab='books'] .bhr-print, .bhr-room[data-tab='books'] .bhr-print * { visibility: visible; }
+  .bhr-room[data-tab='books'] .bhr-print { display: flex; flex-direction: column; gap: 12pt; position: absolute; left: 0; top: 0; width: 100%; color: #141414; }
+  .bhr-print-title { font-family: var(--bh-bubble); font-size: 26pt; line-height: 1.1; }
+  .bhr-print-lines { display: grid; grid-template-columns: auto 1fr auto 0.6fr; align-items: end; gap: 6pt 8pt; font-family: var(--pe-body); font-weight: 600; font-size: 12pt; }
+  .bhr-print-blank { border-bottom: 1pt solid #141414; height: 14pt; }
+  .bhr-print-charts { display: grid; grid-template-columns: 1fr; gap: 12pt; }
+  .bhr-print .bhr-chart { break-inside: avoid; border-width: 1.5pt; border-radius: 10pt; padding: 10pt 12pt; }
+  .bhr-print .bhr-chart-title { font-size: 15pt; margin-bottom: 6pt; }
+  .bhr-print .bhr-chart-total { font-size: 10pt; }
+  .bhr-print .bhr-bars { gap: 4pt; }
+  .bhr-print .bhr-bar-row { grid-template-columns: 34% 1fr 3em; font-size: 10.5pt; }
+  .bhr-print .bhr-bar-label { white-space: normal; }
+  .bhr-print .bhr-bar-track { height: 13pt; border-bottom: 0.5pt solid #999; }
+  .bhr-print .bhr-bar-fill { border-radius: 0 3pt 3pt 0; transition: none; }
+  .bhr-print .bhr-bar-value { font-weight: 800; }
+  /* The bars are the chart: printed in their colors even where the browser leaves out backgrounds. */
+  .bhr-print .bhr-bar-fill { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bhr-stage { overflow: visible; height: auto; }
+}

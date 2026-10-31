@@ -44,6 +44,8 @@ const DATE_HEAD: PanelMarks = { left: '11.11.1918', right: '11:00', placement: '
  * at the posters' resolution (public/exhibitions/great-war/titles/). A
  * sharper export of the same lettering can replace a file at the same path;
  * update its size here when it does.
+ * The cut stays on disk; the title is set in type (`live`, in the poster's
+ * own face, drawn in the exhibition's stylesheet) so it is sharp on any screen.
  */
 const TITLE_SIZES = {
   doughboys: { width: 687, height: 112 },
@@ -125,20 +127,18 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
   interactives: [
     {
       href: '/exhibitions/great-war/silence',
-      emblem: '11:00',
+      image: { src: '/exhibitions/great-war/rooms/silence.webp', alt: 'The When the Guns Fell Silent room: the film’s title over a dark screen, ready to begin' },
       label: 'Interactive',
       title: 'When the Guns Fell Silent',
       subtitle: 'The last minute of the war',
     },
     {
       href: '/exhibitions/great-war/memorial',
-      image: {
-        src: '/exhibitions/great-war/silhouette.jpg',
-        alt: 'A soldier silhouetted beside a wooden cross on a hill, with red poppies',
-      },
+      image: { src: '/exhibitions/great-war/rooms/memorial.webp', alt: 'The Memorial room: a soldier’s silhouette by a cross against the sunset, poppies in the field' },
       label: 'Interactive',
       title: 'The Memorial',
       subtitle: 'A field of poppies, a soldier to remember, and the silence',
@@ -169,14 +169,16 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/great-war/titles/doughboys.png',
           ...TITLE_SIZES.doughboys,
           framing: 'centered',
+          live: { className: 'gw-live', lines: [{ text: 'The Doughboys: America’s' }, { text: 'Sons in The Great War' }] },
           alt: "The Doughboys: America's Sons in The Great War",
+          audio: '/exhibitions/great-war/audio/poster1-01.mp3',
           marks: DATE_FOOT,
         },
-        { type: 'paragraph', atmosphere: 'film-reel', effect: 'film-credits', position: 'center', text: 'They were farmers from Iowa, factory workers from Pittsburgh, teenagers from small Texas towns who lied about their age to enlist.' },
-        { type: 'paragraph', atmosphere: 'film-reel', effect: 'split-reveal', position: 'top-left', text: `When America entered "The Great War" in April 1917, two million young men—many barely out of high school—crossed the Atlantic to fight in the muddy, rat-infested trenches of France.` },
-        { type: 'paragraph', atmosphere: 'film-reel', effect: 'line-by-line', position: 'bottom-right', text: `They were called "doughboys," possibly because the large brass buttons on their uniforms resembled small fried-dough pastries, or perhaps from the dust that coated infantry on the march in the Mexican-American War, as if they'd been rolled in flour. Whatever the origin, the nickname stuck, and these American soldiers carried it with pride into one of the bloodiest conflicts the world had ever seen.` },
+        { type: 'paragraph', atmosphere: 'film-reel', effect: 'film-credits', position: 'center', audio: '/exhibitions/great-war/audio/poster1-02.mp3', text: 'They were farmers from Iowa, factory workers from Pittsburgh, teenagers from small Texas towns who lied about their age to enlist.' },
+        { type: 'paragraph', atmosphere: 'film-reel', effect: 'split-reveal', position: 'top-left', audio: '/exhibitions/great-war/audio/poster1-03.mp3', text: `When America entered "The Great War" in April 1917, two million young men—many barely out of high school—crossed the Atlantic to fight in the muddy, rat-infested trenches of France.` },
+        { type: 'paragraph', atmosphere: 'film-reel', effect: 'line-by-line', position: 'bottom-right', audio: '/exhibitions/great-war/audio/poster1-04.mp3', text: `They were called "doughboys," possibly because the large brass buttons on their uniforms resembled small fried-dough pastries, or perhaps from the dust that coated infantry on the march in the Mexican-American War, as if they'd been rolled in flour. Whatever the origin, the nickname stuck, and these American soldiers carried it with pride into one of the bloodiest conflicts the world had ever seen.` },
 
-        { type: 'section-title', atmosphere: 'trench-rain', effect: 'blur-to-sharp', section: 'dusk', text: 'Life in the trenches was a nightmare of mud, rats, lice, and constant danger.' },
+        { type: 'section-title', atmosphere: 'trench-rain', effect: 'blur-to-sharp', section: 'dusk', audio: '/exhibitions/great-war/audio/poster1-05.mp3', text: 'Life in the trenches was a nightmare of mud, rats, lice, and constant danger.' },
         {
           type: 'full-image',
           section: 'dusk',
@@ -185,16 +187,16 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/great-war/trench.jpg',
           alt: 'Sepia photograph of four soldiers in steel helmets walking away from the camera down a ruined trench',
         },
-        { type: 'paragraph', atmosphere: 'trench-rain', effect: 'fade-in', section: 'dusk', position: 'top-left', text: `Soldiers spent weeks at a time in waterlogged ditches, their feet rotting from "trench foot," their lungs burning from poison gas attacks, their ears ringing from artillery bombardments that never seemed to stop.` },
-        IWM_TRENCH,
-        { type: 'paragraph', atmosphere: 'trench-rain', effect: 'ink-spread', section: 'dusk', position: 'bottom-right', text: `They witnessed horrors that would haunt them for the rest of their lives: friends cut down by machine gun fire, landscapes transformed into cratered moonscapes, horses and men drowning in the sucking mud of No Man's Land.` },
-        { type: 'paragraph', atmosphere: 'film-reel', effect: 'typewriter', section: 'faces', position: 'center', text: 'Most American doughboys were in their early twenties, but many were teenagers—boys who should have been finishing high school or starting their first jobs, not charging into a hail of bullets.' },
+        { type: 'paragraph', atmosphere: 'trench-rain', effect: 'fade-in', section: 'dusk', position: 'top-left', audio: '/exhibitions/great-war/audio/poster1-06.mp3', text: `Soldiers spent weeks at a time in waterlogged ditches, their feet rotting from "trench foot," their lungs burning from poison gas attacks, their ears ringing from artillery bombardments that never seemed to stop.` },
+        { ...IWM_TRENCH, audio: '/exhibitions/great-war/audio/poster1-07.mp3' },
+        { type: 'paragraph', atmosphere: 'trench-rain', effect: 'ink-spread', section: 'dusk', position: 'bottom-right', audio: '/exhibitions/great-war/audio/poster1-08.mp3', text: `They witnessed horrors that would haunt them for the rest of their lives: friends cut down by machine gun fire, landscapes transformed into cratered moonscapes, horses and men drowning in the sucking mud of No Man's Land.` },
+        { type: 'paragraph', atmosphere: 'film-reel', effect: 'typewriter', section: 'faces', position: 'center', audio: '/exhibitions/great-war/audio/poster1-09.mp3', text: 'Most American doughboys were in their early twenties, but many were teenagers—boys who should have been finishing high school or starting their first jobs, not charging into a hail of bullets.' },
 
-        { type: 'section-title', atmosphere: 'searchlight', effect: 'split-reveal', text: 'Yet these ordinary young men showed extraordinary courage.' },
-        { type: 'paragraph', atmosphere: 'searchlight', effect: 'line-by-line', position: 'top-left', text: `They fought in decisive battles like Belleau Wood, where U.S. Marines fought so fiercely that legend says German soldiers called them "Devil Dogs." They pushed through the Argonne Forest in the largest American offensive of the war.` },
-        { type: 'paragraph', atmosphere: 'smoke', effect: 'blur-to-sharp', position: 'bottom-right', text: 'In all, over 116,000 American soldiers died—53,000 in combat, and another 63,000 from disease and accidents. Millions more came home with physical wounds and invisible scars we now recognize as PTSD.' },
-        { type: 'paragraph', atmosphere: 'poppies', effect: 'breathe', section: 'dusk', position: 'center', text: "The doughboys didn't just fight for victory; they fought so that future generations—all of us—would never have to know the horror of such a war." },
-        { type: 'paragraph', atmosphere: 'poppies', effect: 'typewriter', section: 'dusk', position: 'center', className: 'gw-closing', text: "That's why we remember them.", marks: DATE_FOOT },
+        { type: 'section-title', atmosphere: 'searchlight', effect: 'split-reveal', audio: '/exhibitions/great-war/audio/poster1-10.mp3', text: 'Yet these ordinary young men showed extraordinary courage.' },
+        { type: 'paragraph', atmosphere: 'searchlight', effect: 'line-by-line', position: 'top-left', audio: '/exhibitions/great-war/audio/poster1-11.mp3', text: `They fought in decisive battles like Belleau Wood, where U.S. Marines fought so fiercely that legend says German soldiers called them "Devil Dogs." They pushed through the Argonne Forest in the largest American offensive of the war.` },
+        { type: 'paragraph', atmosphere: 'smoke', effect: 'blur-to-sharp', position: 'bottom-right', audio: '/exhibitions/great-war/audio/poster1-12.mp3', text: 'In all, over 116,000 American soldiers died—53,000 in combat, and another 63,000 from disease and accidents. Millions more came home with physical wounds and invisible scars we now recognize as PTSD.' },
+        { type: 'paragraph', atmosphere: 'poppies', effect: 'breathe', section: 'dusk', position: 'center', audio: '/exhibitions/great-war/audio/poster1-13.mp3', text: "The doughboys didn't just fight for victory; they fought so that future generations—all of us—would never have to know the horror of such a war." },
+        { type: 'paragraph', atmosphere: 'poppies', effect: 'typewriter', section: 'dusk', position: 'center', className: 'gw-closing', audio: '/exhibitions/great-war/audio/poster1-14.mp3', text: "That's why we remember them.", marks: DATE_FOOT },
 
         { type: 'end', text: 'Return to Exhibition' },
       ],
@@ -230,7 +232,9 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/great-war/titles/guns-fell-silent.png',
           ...TITLE_SIZES.gunsFellSilent,
           framing: 'centered',
+          live: { className: 'gw-live', lines: [{ text: 'When the Guns Fell Silent at' }, { text: 'the 11^th^ Hour' }] },
           alt: 'When the Guns Fell Silent at the 11th Hour',
+          audio: '/exhibitions/great-war/audio/poster2-01.mp3',
           marks: DATE_HEAD,
         },
         {
@@ -241,7 +245,7 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/great-war/silhouette.jpg',
           alt: 'A soldier in a helmet, a rifle on his back, silhouetted beside a wooden cross on a hill under a gray sky, with red poppies at the right',
         },
-        { type: 'paragraph', atmosphere: 'smoke', effect: 'typewriter', position: 'center', text: 'On the eleventh hour of the eleventh day of the eleventh month of 1918, something miraculous happened on the Western Front: after four years of relentless killing, the guns stopped firing.' },
+        { type: 'paragraph', atmosphere: 'smoke', effect: 'typewriter', position: 'center', audio: '/exhibitions/great-war/audio/poster2-02.mp3', text: 'On the eleventh hour of the eleventh day of the eleventh month of 1918, something miraculous happened on the Western Front: after four years of relentless killing, the guns stopped firing.' },
         {
           type: 'image-text-stacked',
           atmosphere: 'smoke',
@@ -250,26 +254,27 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
           alt: IWM.record.alt,
           credit: { text: IWM.record.credit, href: IWM.record.url },
           text: 'At 11:00 AM on November 11, 1918, the armistice—the peace agreement—took effect, and an eerie silence fell over battlefields that had thundered with artillery for 1,568 days.',
+          audio: '/exhibitions/great-war/audio/poster2-03.mp3',
         },
-        { type: 'paragraph', atmosphere: 'smoke', effect: 'line-by-line', position: 'bottom-right', text: "Soldiers on both sides climbed out of their trenches, stunned and uncertain. Some shook hands with enemies they'd been trying to kill just minutes before. Some wept. Some couldn't believe they'd actually survived. Church bells rang across Europe." },
-        { type: 'paragraph', atmosphere: 'searchlight', effect: 'fade-in', section: 'dusk', position: 'top-left', text: "But that final hour wasn't peaceful—knowing the war would end at 11:00 AM, some commanders still ordered attacks that morning. Nearly 11,000 soldiers became casualties on November 11th alone, including many who died in the final minutes before the ceasefire." },
-        { type: 'paragraph', atmosphere: 'searchlight', effect: 'blur-to-sharp', section: 'dusk', position: 'center', text: 'The last Commonwealth soldier killed was Canadian Private George Lawrence Price, shot at 10:58 AM. A minute later, Private Henry Gunther became the last American to die.' },
+        { type: 'paragraph', atmosphere: 'smoke', effect: 'line-by-line', position: 'bottom-right', audio: '/exhibitions/great-war/audio/poster2-04.mp3', text: "Soldiers on both sides climbed out of their trenches, stunned and uncertain. Some shook hands with enemies they'd been trying to kill just minutes before. Some wept. Some couldn't believe they'd actually survived. Church bells rang across Europe." },
+        { type: 'paragraph', atmosphere: 'searchlight', effect: 'fade-in', section: 'dusk', position: 'top-left', audio: '/exhibitions/great-war/audio/poster2-05.mp3', text: "But that final hour wasn't peaceful—knowing the war would end at 11:00 AM, some commanders still ordered attacks that morning. Nearly 11,000 soldiers became casualties on November 11th alone, including many who died in the final minutes before the ceasefire." },
+        { type: 'paragraph', atmosphere: 'searchlight', effect: 'blur-to-sharp', section: 'dusk', position: 'center', audio: '/exhibitions/great-war/audio/poster2-06.mp3', text: 'The last Commonwealth soldier killed was Canadian Private George Lawrence Price, shot at 10:58 AM. A minute later, Private Henry Gunther became the last American to die.' },
 
-        { type: 'section-title', atmosphere: 'smoke', effect: 'film-credits', className: 'gw-long', text: `World War I was supposed to be "the war to end all wars," but it became one of the deadliest conflicts in human history.` },
-        { type: 'paragraph', atmosphere: 'smoke', effect: 'ink-spread', position: 'top-left', text: 'Around 20 million people died, soldiers and civilians alike. Entire towns in France and Belgium were erased from the map.' },
-        { type: 'paragraph', atmosphere: 'smoke', effect: 'shrink-back', position: 'bottom-right', text: 'A generation of young men was lost—Britain alone lost 880,000 men, France lost 1.4 million, Germany lost 2 million.' },
-        { type: 'paragraph', atmosphere: 'poppies', effect: 'fade-in', position: 'top-left', decor: POPPIES, text: `In the poem "In Flanders Fields," Canadian doctor and soldier John McCrae wrote about the crosses, row on row, marking graves in Flanders, where bright red poppies grew wild among the devastation.` },
-        { type: 'paragraph', atmosphere: 'poppies', effect: 'line-by-line', position: 'top-left', decor: POPPIES, text: "The poppies became a symbol of remembrance because they were often the only living things that could grow in the churned, blood-soaked soil of the battlefields. When we wear poppies in November, we're remembering all those who gave their lives, and we're making a promise: we will never forget their sacrifice." },
+        { type: 'section-title', atmosphere: 'smoke', effect: 'film-credits', className: 'gw-long', audio: '/exhibitions/great-war/audio/poster2-07.mp3', text: `World War I was supposed to be "the war to end all wars," but it became one of the deadliest conflicts in human history.` },
+        { type: 'paragraph', atmosphere: 'smoke', effect: 'ink-spread', position: 'top-left', audio: '/exhibitions/great-war/audio/poster2-08.mp3', text: 'Around 20 million people died, soldiers and civilians alike. Entire towns in France and Belgium were erased from the map.' },
+        { type: 'paragraph', atmosphere: 'smoke', effect: 'shrink-back', position: 'bottom-right', audio: '/exhibitions/great-war/audio/poster2-09.mp3', text: 'A generation of young men was lost—Britain alone lost 880,000 men, France lost 1.4 million, Germany lost 2 million.' },
+        { type: 'paragraph', atmosphere: 'poppies', effect: 'fade-in', position: 'top-left', decor: POPPIES, audio: '/exhibitions/great-war/audio/poster2-10.mp3', text: `In the poem "In Flanders Fields," Canadian doctor and soldier John McCrae wrote about the crosses, row on row, marking graves in Flanders, where bright red poppies grew wild among the devastation.` },
+        { type: 'paragraph', atmosphere: 'poppies', effect: 'line-by-line', position: 'top-left', decor: POPPIES, audio: '/exhibitions/great-war/audio/poster2-11.mp3', text: "The poppies became a symbol of remembrance because they were often the only living things that could grow in the churned, blood-soaked soil of the battlefields. When we wear poppies in November, we're remembering all those who gave their lives, and we're making a promise: we will never forget their sacrifice." },
 
-        { type: 'section-title', atmosphere: 'telegram', effect: 'typewriter', section: 'dusk', text: 'The armistice of November 11, 1918 became a sacred day.' },
-        { type: 'paragraph', atmosphere: 'telegram', effect: 'fade-in', section: 'dusk', position: 'top-left', text: `In 1919, President Woodrow Wilson proclaimed it "Armistice Day," declaring that the day should be "filled with solemn pride in the heroism of those who died in the country's service." At 11:00 AM, Americans paused their work for two minutes to honor the fallen.` },
-        { type: 'paragraph', atmosphere: 'telegram', effect: 'line-by-line', section: 'dusk', position: 'bottom-right', text: 'After World War II and the Korean War, Congress changed the name to "Veterans Day" in 1954 to honor all American veterans, not just those from WWI. But many countries—including Canada, Britain, and France—still call it Remembrance Day and observe the tradition of the two-minute silence at the eleventh hour.' },
-        { type: 'paragraph', atmosphere: 'searchlight', effect: 'blur-to-sharp', section: 'dusk', position: 'center', text: "In Arlington National Cemetery, a wreath is placed at the Tomb of the Unknown Soldier on Veterans Day, by tradition by the President of the United States, honoring all those whose names we'll never know but whose sacrifice we'll never forget." },
+        { type: 'section-title', atmosphere: 'telegram', effect: 'typewriter', section: 'dusk', audio: '/exhibitions/great-war/audio/poster2-12.mp3', text: 'The armistice of November 11, 1918 became a sacred day.' },
+        { type: 'paragraph', atmosphere: 'telegram', effect: 'fade-in', section: 'dusk', position: 'top-left', audio: '/exhibitions/great-war/audio/poster2-13.mp3', text: `In 1919, President Woodrow Wilson proclaimed it "Armistice Day," declaring that the day should be "filled with solemn pride in the heroism of those who died in the country's service." At 11:00 AM, Americans paused their work for two minutes to honor the fallen.` },
+        { type: 'paragraph', atmosphere: 'telegram', effect: 'line-by-line', section: 'dusk', position: 'bottom-right', audio: '/exhibitions/great-war/audio/poster2-14.mp3', text: 'After World War II and the Korean War, Congress changed the name to "Veterans Day" in 1954 to honor all American veterans, not just those from WWI. But many countries—including Canada, Britain, and France—still call it Remembrance Day and observe the tradition of the two-minute silence at the eleventh hour.' },
+        { type: 'paragraph', atmosphere: 'searchlight', effect: 'blur-to-sharp', section: 'dusk', position: 'center', audio: '/exhibitions/great-war/audio/poster2-15.mp3', text: "In Arlington National Cemetery, a wreath is placed at the Tomb of the Unknown Soldier on Veterans Day, by tradition by the President of the United States, honoring all those whose names we'll never know but whose sacrifice we'll never forget." },
 
-        { type: 'section-title', atmosphere: 'poppies', effect: 'split-reveal', text: 'Why do we still remember a war that ended over a century ago?' },
-        { type: 'paragraph', atmosphere: 'poppies', effect: 'fade-in', position: 'top-left', text: "Because those young men—the doughboys in their steel helmets, the soldiers who carried shaving kits and rosaries into battle—went to war so that we might live in peace. They endured unimaginable horrors so that future generations wouldn't have to." },
-        { type: 'paragraph', atmosphere: 'poppies', effect: 'line-by-line', position: 'bottom-right', text: "When we take a moment of silence on Veterans Day, when we wear a poppy, when we say a prayer for those who served, we're keeping a promise to them: You will not be forgotten. Your sacrifice mattered. And because of you, we live in freedom." },
-        { type: 'paragraph', atmosphere: 'poppies', effect: 'breathe', section: 'dusk', position: 'center', className: 'gw-closing', decor: POPPIES, marks: DATE_HEAD, text: 'At the eleventh hour, on the eleventh day, of the eleventh month, the guns fell silent—but our gratitude never will.' },
+        { type: 'section-title', atmosphere: 'poppies', effect: 'split-reveal', audio: '/exhibitions/great-war/audio/poster2-16.mp3', text: 'Why do we still remember a war that ended over a century ago?' },
+        { type: 'paragraph', atmosphere: 'poppies', effect: 'fade-in', position: 'top-left', audio: '/exhibitions/great-war/audio/poster2-17.mp3', text: "Because those young men—the doughboys in their steel helmets, the soldiers who carried shaving kits and rosaries into battle—went to war so that we might live in peace. They endured unimaginable horrors so that future generations wouldn't have to." },
+        { type: 'paragraph', atmosphere: 'poppies', effect: 'line-by-line', position: 'bottom-right', audio: '/exhibitions/great-war/audio/poster2-18.mp3', text: "When we take a moment of silence on Veterans Day, when we wear a poppy, when we say a prayer for those who served, we're keeping a promise to them: You will not be forgotten. Your sacrifice mattered. And because of you, we live in freedom." },
+        { type: 'paragraph', atmosphere: 'poppies', effect: 'breathe', section: 'dusk', position: 'center', className: 'gw-closing', decor: POPPIES, marks: DATE_HEAD, audio: '/exhibitions/great-war/audio/poster2-19.mp3', text: 'At the eleventh hour, on the eleventh day, of the eleventh month, the guns fell silent—but our gratitude never will.' },
 
         { type: 'callout', effect: 'film-credits', text: 'Explore the collections at the Imperial War Museum', url: 'https://www.iwm.org.uk/collections' },
         { type: 'end', text: 'Return to Exhibition' },

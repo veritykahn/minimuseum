@@ -70,7 +70,7 @@ export default function ResourcesPage() {
 
   // Subject options for grades 5-8
   const subjects: { key: Subject; label: string }[] = [
-    { key: 'religion', label: 'Religion' },
+    { key: 'religion', label: 'Religion (faith-based)' },
     { key: 'social-studies', label: 'Social Studies' },
     { key: 'math', label: 'Math' },
     { key: 'art', label: 'Art' },
@@ -224,7 +224,7 @@ export default function ResourcesPage() {
         {currentStep.showParentDownload && (
           <>
             <p className="description-text">
-              Our Parent Resource Guide includes conversation starters, at-home activities, and simple explanations to help you explore the coins of the New Testament with your child.
+              Our Parent Resource Guide includes conversation starters, at-home activities, and simple explanations to help you explore the coins of Roman Judaea, and the stories told about them, with your child.
             </p>
             <div className="download-section">
               <DownloadItem

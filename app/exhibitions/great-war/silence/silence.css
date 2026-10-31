@@ -68,6 +68,34 @@
   font-size: clamp(1.1rem, 2.4vw, 1.45rem);
   line-height: 1.5;
 }
+/* Before Begin: ask for sound, plainly, beside a speaker. */
+.gws-sound-on {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: -6px 0 -4px;
+  padding: 10px 16px;
+  border: 1px solid rgba(237, 230, 218, 0.28);
+  border-radius: 6px;
+  background: rgba(18, 18, 17, 0.45);
+  font-family: var(--pe-ui);
+  font-size: clamp(0.85rem, 1.6vw, 1rem);
+  line-height: 1.4;
+  color: #ece7dd;
+  text-align: left;
+}
+.gws-sound-on strong { font-weight: 600; letter-spacing: 0.04em; color: #fff; }
+.gws-sound-on-icon {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.gws-sound-on-icon path:first-child { fill: currentColor; }
 .gws-sound-note {
   font-family: var(--pe-ui);
   font-size: 12px;
@@ -286,4 +314,129 @@
   .gws-photo,
   .gws-record { animation: none !important; }
   .gws-leader-sweep { display: none; }
+}
+
+/* ==========================================================================
+   One screen, as the Memorial is: the heading, then the film's frame taking
+   all the height that is left (the screen keeps its shape inside it), then
+   the controls, and at the foot the transcript and the way back. Nothing
+   below the fold.
+   ========================================================================== */
+.gws-stage {
+  height: 100vh;
+  height: 100dvh;
+  min-height: 540px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(8px, 1.8vh, 18px);
+  padding: clamp(18px, 3.4vh, 34px) clamp(16px, 4vw, 40px) clamp(8px, 1.6vh, 16px);
+  overflow: hidden;
+}
+.gws-head { flex: none; }
+.gw-case .gws-head .gw-case-label { margin-bottom: clamp(4px, 1vh, 12px); }
+.gw-case .gws-head .gw-case-title { font-size: clamp(2rem, min(5.4vw, 7vh), 4.4rem); margin-bottom: 4px; }
+.gws-head .gw-case-subtitle { font-size: clamp(1rem, min(2.2vw, 2.6vh), 1.3rem); }
+
+.gws-stage .gws { flex: 1 1 auto; min-height: 0; gap: clamp(8px, 1.4vh, 14px); }
+.gws-frame {
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  container-type: size;
+}
+.gws-frame .gws-screen { width: min(100%, 1000px, calc(100cqh * 16 / 9)); }
+.gws-frame .gws-strip-track { height: clamp(110px, min(34vw, 56cqh), 320px); }
+.gws-stage .gws-controls,
+.gws-stage .gws-sound-note { flex: none; }
+.gws-stage .gws-sound-note { line-height: 1.5; }
+.gws-sound-note-space { min-height: 1.5em; }
+
+/* After the film: the record, smaller, and under it what follows, all inside the frame. */
+.gws[data-phase='done'] .gws-screen {
+  flex-direction: column;
+  justify-content: safe center;
+  gap: clamp(10px, 3cqh, 22px);
+  padding: clamp(10px, 3cqh, 24px) 4%;
+}
+.gws[data-phase='done'] .gws-record { position: relative; inset: auto; flex: none; width: 100%; gap: 6px; padding: 0; }
+.gws[data-phase='done'] .gws-strip-track { height: clamp(80px, 24cqh, 200px); }
+.gws[data-phase='done'] .gws-hour { font-size: clamp(0.95rem, 3.2cqh, 1.4rem); }
+.gws[data-phase='done'] .gws-strip-credit { font-size: 13px; }
+.gws-screen .gws-after {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  max-width: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  grid-template-areas: 'closing iwm' 'link iwm';
+  align-items: center;
+  justify-items: center;
+  gap: 12px 28px;
+}
+.gws-screen .gws-closing { grid-area: closing; align-self: end; font-size: clamp(1.15rem, 4.4cqh, 2rem); }
+.gws-screen .gws-after > .gw-button { grid-area: link; align-self: start; }
+.gws-screen .gws-iwm { grid-area: iwm; }
+.gws-screen .gws-iwm img { width: auto; max-width: 100%; max-height: 26cqh; margin: 0 auto; }
+.gws-screen .gws-iwm figcaption { font-size: 0.85rem; line-height: 1.45; margin-top: 8px; }
+
+/* The foot: the transcript, opening over the page above it, and the way back. */
+.gws-foot { position: relative; flex: none; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 28px; }
+.gws-stage .gws-transcript { width: auto; max-width: none; margin: 0; }
+.gws-transcript-body {
+  position: absolute;
+  z-index: 5;
+  left: 50%;
+  bottom: calc(100% + 6px);
+  transform: translateX(-50%);
+  width: min(760px, calc(100vw - 32px));
+  max-height: min(60dvh, 520px);
+  overflow-y: auto;
+  padding: 18px 24px 22px;
+  background: #1b1a18;
+  border: 1px solid rgba(237, 230, 218, 0.18);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  text-align: left;
+}
+.gws-transcript-body ol { margin-top: 0; }
+.gw-room.gw-silence .gws-foot a.gws-return,
+.gw-room.gw-silence .gws-foot a.gws-return:is(:link, :visited) {
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c9c1b4;
+  text-decoration: none;
+  padding: 8px;
+}
+.gw-room.gw-silence .gws-foot a.gws-return:hover { color: #ec4a3f; }
+
+@media (max-width: 640px) {
+  .gws-stage { padding-top: 64px; min-height: 0; }
+  .gws-frame .gws-screen { width: min(100%, calc(100cqh * 3 / 4)); }
+  .gws-screen .gws-after { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'closing' 'iwm' 'link'; gap: 10px; }
+  .gws-screen .gws-closing { align-self: auto; }
+  .gws-screen .gws-iwm img { max-height: 15cqh; }
+  /* After the film, on a phone: everything smaller, so the link is in the frame too. */
+  .gws[data-phase='done'] .gws-screen { gap: 8px; padding: 10px 4%; }
+  .gws[data-phase='done'] .gws-strip-track { height: clamp(70px, 16cqh, 120px); }
+  .gws[data-phase='done'] .gws-strip-credit { font-size: 11px; }
+  .gws-screen .gws-closing { font-size: 1.05rem; }
+  .gws-screen .gws-iwm figcaption { font-size: 0.72rem; margin-top: 4px; }
+  .gws-screen .gws-after > .gw-button { padding: 10px 14px; font-size: 11px; }
+  .gws-stage .gws-controls { gap: 8px; }
+  .gws-sound-note-space { min-height: 3em; }
+  .gws-stage .gws-controls .gw-button { padding: 12px 14px; }
+  .gws-ready { gap: 14px; padding: 16px; }
+  .gws-sound-on { gap: 10px; padding: 8px 12px; font-size: 0.85rem; }
+  .gws-sound-on-icon { width: 26px; height: 26px; }
+}
+/* A short screen (a laptop, a projector at 1280 × 800): the ready screen closes up. */
+@media (max-height: 860px) and (min-width: 641px) {
+  .gws-ready { gap: 14px; padding: 12px 24px; }
+  .gws-ready-text { font-size: clamp(1rem, 2vw, 1.25rem); }
 }

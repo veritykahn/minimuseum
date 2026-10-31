@@ -4,10 +4,10 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'First Floor: Horizons | The Mini Museum',
   description:
-    'Explore the Horizons collection on the first floor. The second collection at The Mini Museum featuring exhibitions from 2025-2026.',
+    'Explore the Horizons collection on the first floor of The Mini Museum, with exhibitions from the 20th century.',
   openGraph: {
     title: 'First Floor: Horizons | The Mini Museum',
-    description: 'The second collection featuring exhibitions from 2025-2026.',
+    description: 'Exhibitions from the 20th century.',
     url: `${SITE_URL}/exhibitions/first-floor`,
   },
 };

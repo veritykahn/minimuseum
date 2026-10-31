@@ -9,6 +9,9 @@
    ========================================================================== */
 
 [data-exhibition='black-history'] {
+  /* The visit ticket at each poster's end (VisitTicket, poster-exhibition.css), in this palette. */
+  --pe-ticket-bg: var(--bh-lime);
+  --pe-ticket-ink: var(--bh-ink);
   --bh-lime: #c5da3b;
   --bh-pink: #ee8dbf;
   --bh-ink: #141414;
@@ -24,7 +27,8 @@
   --pe-callout-ink: #ffffff;
   --pe-case-ink: #141414;
   --pe-case-muted: #3a4214;
-  --pe-poster-h: 54vh;
+  --pe-landing-h1: clamp(1.9rem, min(6vw, 7.2dvh), 4.6rem);
+  --pe-landing-sub: clamp(1.1rem, min(2.8vw, 3.6dvh), 2rem);
   color: #141414;
 }
 
@@ -63,27 +67,22 @@
   text-transform: uppercase;
   letter-spacing: -0.01em;
   line-height: 0.95;
-  font-size: clamp(2.3rem, 7.4vw, 5.6rem);
   color: #fff;
   /* The poster's white on lime, held by a hard black shadow, as a 1970s sign is. */
   text-shadow: 0.05em 0.05em 0 var(--bh-ink);
-  max-width: 11em;
-  margin: 0 auto 18px;
+  max-width: 16em;
+  margin: 0 auto 10px;
 }
 [data-exhibition='black-history'] .pe-exhibition-title p {
   font-family: var(--bh-bubble);
   color: var(--bh-brown);
-  font-size: clamp(1.4rem, 3.6vw, 2.2rem);
 }
-[data-exhibition='black-history'] .pe-exhibition-grid { gap: 44px; }
 [data-exhibition='black-history'] .pe-poster-frame img { box-shadow: 10px 10px 0 var(--bh-ink); }
 [data-exhibition='black-history'] .pe-display-case {
   position: relative;
   background: var(--bh-ink);
   border: 0;
-  width: auto;
-  max-width: 340px;
-  padding: 30px 22px 24px;
+  padding: 34px 26px 24px;
   border-radius: 46% 46% 40% 40% / 30% 30% 24% 24%;
   outline: 4px solid var(--bh-lime);
   outline-offset: -12px;
@@ -91,7 +90,10 @@
 [data-exhibition='black-history'] .pe-display-case:hover,
 [data-exhibition='black-history'] .pe-display-case:focus-visible { outline-color: var(--bh-orange); }
 [data-exhibition='black-history'] .pe-case-label { color: #d8e58a; }
+/* The frame is the blob itself. */
+[data-exhibition='black-history'] .pe-case-frame { display: none; }
 [data-exhibition='black-history'] .pe-case-title { color: #fff; font-size: 24px; font-weight: 800; font-variation-settings: 'wdth' 125; text-transform: uppercase; }
+[data-exhibition='black-history'] .pe-case-subtitle { font-family: var(--bh-bubble); font-style: normal; font-size: 16px; color: var(--bh-pink); }
 /* The case awaiting its photographs: drawn in white on the blob, lit in the vignettes' orange. */
 [data-exhibition='black-history'] { --pe-case-frame: #ffffff; --pe-case-glow: var(--bh-orange); --pe-case-placeholder-ink: #e6eeb4; }
 /* On the case and artifact pages the case stands on the lime itself: drawn in black. */
@@ -122,7 +124,21 @@
 [data-exhibition='black-history'] .bh-title:not(.bh-title-bubble) .pe-title-image-heading img { filter: drop-shadow(6px 6px 0 #141414); }
 [data-exhibition='black-history'] .bh-title { --pe-title-scale: 1.7; }
 /* Poster 2's title steps right of the red lockup at the left, as the poster sets it. */
-[data-exhibition='black-history'] .pe-title-image.bh-title-bubble { padding-left: 14vw; padding-right: 4vw; }
+[data-exhibition='black-history'] .pe-title-image.bh-title-bubble { --pe-title-scale: 1.45; padding-left: 15vw; padding-right: 5vw; }
+[data-exhibition='black-history'] .bh-title-bubble.pe-frame-centered img { width: min(78vw, calc(var(--pe-title-w) * var(--pe-title-scale))); }
+[data-exhibition='black-history'] .pjp-stage .bh-title-bubble.pe-frame-centered img { width: min(74cqw, calc(var(--pe-title-w) * var(--pe-title-scale))); }
+/* The titles set in type (sharp on any screen), in the posters' own faces and proportions. */
+[data-exhibition='black-history'] .bh-live-month {
+  font-family: var(--pe-display);
+  font-weight: 900;
+  font-stretch: 125%;
+  font-variation-settings: 'wdth' 125;
+  font-size: calc(var(--pe-tu) * 7);
+  line-height: 1.02;
+  text-align: left;
+  color: #fff;
+  text-shadow: 0.075em 0.075em 0 #141414;
+}
 
 /* ───────── Copy: a condensed grotesque, as poster 1 sets it ───────── */
 [data-exhibition='black-history'] .pe-paragraph-text {
@@ -148,27 +164,29 @@
   font-variation-settings: normal;
   line-height: 1.3;
 }
+/* Decoration stays beside the copy, never over it: on the ring of vignettes the
+   copy is narrowed to the room between them, and beside a lockup it steps in
+   from that side. In projector mode the decoration keeps its window-based
+   sizes inside the smaller stage, so the room is measured from the stage. */
+[data-exhibition='black-history'] [data-atmosphere='vignette-ring'] .pe-text-content-wrapper .pe-paragraph-text {
+  max-width: min(760px, calc(100vw - 2 * (9vw + clamp(92px, 12.5vw, 196px) + 28px)));
+}
+[data-exhibition='black-history'] .pjp-stage [data-atmosphere='vignette-ring'] .pe-text-content-wrapper .pe-paragraph-text {
+  max-width: calc(100cqw - 2 * (9vw + clamp(92px, 12.5vw, 196px) + 44px));
+}
+[data-exhibition='black-history'] .pjp-stage [data-atmosphere='groovy-bubbles'] .pe-text-content-wrapper :is(.pe-paragraph-text, .pe-section-title-text) {
+  max-width: 72cqw;
+}
+@media (min-width: 701px) {
+  [data-exhibition='black-history'] [data-atmosphere='bubblegum-rays'] .pe-text-content-wrapper {
+    padding-left: calc(5vw + 3 * clamp(20px, 2.9vw, 42px) + 3vw);
+  }
+  [data-exhibition='black-history'] [data-atmosphere='month-lockup'] .pe-text-content-wrapper {
+    padding-right: calc(6vw + 3 * clamp(22px, 3.1vw, 46px) + 3vw);
+  }
+}
 /* The ring of vignettes beside the copy turns slowly as you read. */
 [data-exhibition='black-history'] .pe-figure img { width: min(40vw, 560px); }
-
-/* ───────── The link out: the black blob, ringed in lime ───────── */
-[data-exhibition='black-history'] .pe-callout {
-  border-radius: 999px;
-  padding: 30px 48px;
-  border: 4px solid var(--bh-lime);
-  box-shadow: 0 0 0 8px var(--bh-ink), 0 0 0 11px var(--bh-orange);
-  justify-content: center;
-  text-align: center;
-}
-[data-exhibition='black-history'] .pe-callout-text {
-  font-weight: 800;
-  font-variation-settings: 'wdth' 112;
-  font-size: clamp(1.1rem, 2.3vw, 1.6rem);
-  letter-spacing: 0.01em;
-}
-[data-exhibition='black-history'] .pe-callout-text em { font-family: var(--bh-bubble); font-style: normal; font-weight: 400; text-transform: none; color: var(--bh-lime); }
-[data-exhibition='black-history'] a.pe-callout:hover,
-[data-exhibition='black-history'] a.pe-callout:focus-visible { border-color: var(--bh-pink); outline: 2px solid var(--bh-pink); outline-offset: 14px; }
 
 /* ───────── The ending ───────── */
 [data-exhibition='black-history'] .pe-content-end { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 120; text-transform: uppercase; border-width: 3px; border-radius: 999px; }
@@ -176,7 +194,6 @@
 /* ───────── On the classroom screen ───────── */
 [data-exhibition='black-history'] .pjp-stage .pe-section-title-text { font-size: calc(var(--pjp-u) * 4.4); }
 [data-exhibition='black-history'] .pjp-stage .bh-long .pe-section-title-text { font-size: calc(var(--pjp-u) * 3); }
-[data-exhibition='black-history'] .pjp-stage .pe-callout-text { font-size: calc(var(--pjp-u) * 2); }
 
 /* ───────── The display case page ───────── */
 [data-exhibition='black-history'] .pe-case-page-title { font-weight: 900; font-variation-settings: 'wdth' 125; text-transform: uppercase; color: #fff; text-shadow: 0.05em 0.05em 0 var(--bh-ink); }
@@ -188,7 +205,6 @@
 @media (max-width: 700px) {
   [data-exhibition='black-history'] .pe-figure img { width: min(78vw, 420px); }
   [data-exhibition='black-history'] .pe-text-content-wrapper.pe-has-figure { flex-direction: column; padding-top: 90px; }
-  [data-exhibition='black-history'] .pe-callout { padding: 24px 26px; border-radius: 48px; }
 }
 
 /* ==========================================================================
@@ -217,6 +233,8 @@
   background: repeating-conic-gradient(from 4.5deg, transparent 0 9deg, #f7a21b 9deg 10.5deg, transparent 10.5deg 18deg);
   animation: pfxBhFold 1.25s 0.18s cubic-bezier(0.7, 0, 0.3, 1) both;
 }
+/* Poster 2 opens in its own palette: the Barbie pink and red, with its orange rays. */
+.pfx-bh[data-poster-id='poster2'] .pfx-bh-burst::before { background: repeating-conic-gradient(from 0deg, #d7262e 0 9deg, #ee8dbf 9deg 18deg); }
 /* The rays close like a fan into the corner: each wedge narrows to nothing. */
 @keyframes pfxBhFold {
   from { clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%); rotate: 0deg; }
@@ -423,24 +441,31 @@
   mask-image: radial-gradient(ellipse 60% 55% at 50% 50%, transparent 55%, #000 80%);
   animation: bhRingDrift 40s linear infinite;
 }
+[data-exhibition='black-history'] .pe-atmo-groovy-bubbles {
+  /* The lane either side of the copy (its widest is 840px, centered) that the bubbles rise in. */
+  --bh-lane: max(56px, calc((100% - 840px) / 2 - 2vw));
+}
+[data-exhibition='black-history'] .pjp-stage .pe-atmo-groovy-bubbles { --bh-lane: 12cqw; }
 [data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p {
-  /* they rise either side of the copy, never through it */
+  /* they rise either side of the copy, in their lanes, never through it */
+  --bh-w: min(210px, calc(var(--bh-lane) * (0.45 + var(--r) * 0.55)));
   top: 100%;
-  left: calc(var(--x) * 0.2% - 4%);
-  width: calc(60px + var(--r) * 150px);
-  height: calc(60px + var(--r) * 150px);
+  left: calc(1vw + (var(--bh-lane) - var(--bh-w)) * var(--x) / 100);
+  width: var(--bh-w);
+  height: auto;
+  aspect-ratio: 1;
   background: #d7262e;
   opacity: 0.32;
   border-radius: 46% 54% 60% 40% / 52% 44% 56% 48%;
   animation: bhRise calc(16s + var(--r) * 14s) linear infinite, bhGoo calc(6s + var(--r) * 4s) ease-in-out infinite alternate;
   animation-delay: calc(var(--y) * -0.3s), 0s;
 }
-[data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p:nth-child(even) { left: calc(80% + var(--x) * 0.2%); }
+[data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p:nth-child(even) { left: calc(100% - 1vw - var(--bh-w) - (var(--bh-lane) - var(--bh-w)) * var(--x) / 100); }
 [data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p:nth-child(3n) { background: #f7a21b; opacity: 0.38; }
 [data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p:nth-child(4n) { background: #2a1a14; opacity: 0.16; }
 [data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p:nth-child(5n) { background: #ffffff; opacity: 0.4; }
 @keyframes bhRingDrift { to { background-position: 24vmin 24vmin; } }
-@keyframes bhRise { from { translate: 0 0; } to { translate: 4vw calc(-100vh - 220px); } }
+@keyframes bhRise { from { translate: 0 0; } to { translate: 0 calc(-100vh - 220px); } }
 @keyframes bhGoo {
   from { border-radius: 46% 54% 60% 40% / 52% 44% 56% 48%; scale: 1 1; }
   to { border-radius: 58% 42% 40% 60% / 42% 58% 44% 56%; scale: 0.92 1.08; }
@@ -465,7 +490,9 @@
   [data-exhibition='black-history'] .pe-atmo-lime-sunburst .pe-atmo-part-1 { left: -50vmin; top: -50vmin; width: 100vmin; height: 100vmin; }
   [data-exhibition='black-history'] .pe-atmo-vignette-ring :is(.bh-vignette-1, .bh-vignette-2) { top: 11vh; }
   [data-exhibition='black-history'] .pe-atmo-vignette-ring :is(.bh-vignette-5, .bh-vignette-6) { bottom: 13vh; }
-  [data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p { opacity: 0.22; width: calc(28px + var(--r) * 60px); height: calc(28px + var(--r) * 60px); }
-  [data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p:nth-child(even) { left: calc(84% + var(--x) * 0.16%); }
+  /* On a phone there is no room beside the copy: the bubbles stay small and faint, at the edges, well behind it. */
+  [data-exhibition='black-history'] .pe-atmo-groovy-bubbles { --bh-lane: 64px; }
+  [data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p { opacity: 0.12; left: calc(-24px + (var(--bh-lane) - var(--bh-w)) * var(--x) / 100); }
+  [data-exhibition='black-history'] .pe-atmo-groovy-bubbles .pe-atmo-p:nth-child(even) { left: calc(100% + 24px - var(--bh-w) - (var(--bh-lane) - var(--bh-w)) * var(--x) / 100); }
   [data-exhibition='black-history'] .pe-title-image.bh-title-bubble { padding-left: 4vw; }
 }

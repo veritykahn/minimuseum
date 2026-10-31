@@ -13,6 +13,7 @@ import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import { useScoredGame } from '@/components/games/useScoredGame';
 import TeachToggle from '@/components/games/projector/TeachToggle';
 import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
+import { SoundSwitch, isGoodScore } from '@/components/games/feedback/FeedbackKit';
 import { CLOSING, OWN_CASE, ROUNDS, TIERS, fakeSides, type ReplicaRound, type Side } from './data';
 import RealOrReplicaProjector from './RealOrReplicaProjector';
 
@@ -33,6 +34,8 @@ const THEME = {
   '--game-surface': '#1C1409',
   '--game-display': "'Cormorant Garamond', serif",
   '--game-body': "'Outfit', sans-serif",
+  // Projector-sized labels: 14px on a phone, up to 18px on a wide screen.
+  '--game-small': 'clamp(14px, 0.6vw + 8px, 18px)',
 } as CSSProperties;
 
 export default function RealOrReplica() {
@@ -139,7 +142,7 @@ export default function RealOrReplica() {
           border: none;
           color: #C9A84C;
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           letter-spacing: 0.1em;
           text-transform: uppercase;
           cursor: pointer;
@@ -147,12 +150,12 @@ export default function RealOrReplica() {
           min-height: 44px;
         }
         .rr-back-btn:hover { color: #fafafa; }
-        .rr-back-btn span { font-size: 18px; }
+        .rr-back-btn span[aria-hidden] { font-size: 18px; }
 
         .rr-header-right { display: flex; align-items: center; gap: 20px; }
         .rr-score-display {
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           letter-spacing: 0.1em;
           color: #C9A84C;
         }
@@ -176,8 +179,9 @@ export default function RealOrReplica() {
           outline: none;
         }
         .rr-hint {
+          max-width: 40em;
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           letter-spacing: 0.08em;
           color: #a8a08e;
           text-align: center;
@@ -226,7 +230,7 @@ export default function RealOrReplica() {
 
         .rr-coin-label {
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: #a8a08e;
@@ -235,7 +239,7 @@ export default function RealOrReplica() {
           align-items: center;
         }
         .rr-tag {
-          font-size: 10px;
+          font-size: var(--game-small);
           padding: 3px 8px;
           border-radius: 100px;
           border: 1px solid currentColor;
@@ -252,7 +256,7 @@ export default function RealOrReplica() {
           background: transparent;
           color: #C9A84C;
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           letter-spacing: 0.15em;
           text-transform: uppercase;
           cursor: pointer;
@@ -279,19 +283,19 @@ export default function RealOrReplica() {
         }
         .rr-result-verdict {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.6rem;
+          font-size: clamp(1.6rem, 0.8vw + 1.3rem, 2.1rem);
           font-weight: 500;
           margin-bottom: 8px;
         }
         .rr-result-coin {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.25rem;
+          font-size: clamp(1.25rem, 0.5vw + 1.05rem, 1.55rem);
           color: #7a5c14;
           margin-bottom: 4px;
         }
         .rr-result-method {
           font-family: 'Outfit', sans-serif;
-          font-size: 11px;
+          font-size: var(--game-small);
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: #6b5f4d;
@@ -301,14 +305,14 @@ export default function RealOrReplica() {
         }
         .rr-result-explanation {
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.1rem;
-          line-height: 1.8;
+          font-size: clamp(1.15rem, 0.5vw + 0.95rem, 1.4rem);
+          line-height: 1.75;
           color: #3D3428;
           margin-bottom: 20px;
         }
         .rr-look-title {
           font-family: 'Outfit', sans-serif;
-          font-size: 11px;
+          font-size: var(--game-small);
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: #6b5f4d;
@@ -325,20 +329,20 @@ export default function RealOrReplica() {
           gap: 12px;
           align-items: baseline;
           font-family: 'Cormorant Garamond', serif;
-          font-size: 1.05rem;
+          font-size: clamp(1.1rem, 0.4vw + 0.95rem, 1.35rem);
           line-height: 1.5;
           color: #3D3428;
         }
         .rr-look-n {
           flex: 0 0 auto;
-          width: 24px;
-          height: 24px;
+          width: 28px;
+          height: 28px;
           border-radius: 50%;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           font-weight: 600;
           color: #111;
           transform: translateY(-2px);
@@ -347,7 +351,7 @@ export default function RealOrReplica() {
         .rr-look-n.real { background: #7cc98a; }
         .rr-look-where {
           font-family: 'Outfit', sans-serif;
-          font-size: 10px;
+          font-size: var(--game-small);
           letter-spacing: 0.14em;
           text-transform: uppercase;
           color: #6b5f4d;
@@ -362,7 +366,7 @@ export default function RealOrReplica() {
           background: #2a1f0e;
           color: #F5EDD8;
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           letter-spacing: 0.12em;
           text-transform: uppercase;
           cursor: pointer;
@@ -383,7 +387,7 @@ export default function RealOrReplica() {
         }
         .rr-own-kicker {
           font-family: 'Outfit', sans-serif;
-          font-size: 11px;
+          font-size: var(--game-small);
           letter-spacing: 0.2em;
           text-transform: uppercase;
           color: #a8a08e;
@@ -430,7 +434,7 @@ export default function RealOrReplica() {
           left: 10px;
           z-index: 4;
           font-family: 'Outfit', sans-serif;
-          font-size: 10px;
+          font-size: var(--game-small);
           letter-spacing: 0.16em;
           text-transform: uppercase;
           padding: 4px 9px;
@@ -446,7 +450,7 @@ export default function RealOrReplica() {
         }
         .rr-own-meta {
           font-family: 'Outfit', sans-serif;
-          font-size: 11px;
+          font-size: var(--game-small);
           letter-spacing: 0.08em;
           color: #a8a08e;
           line-height: 1.6;
@@ -459,14 +463,14 @@ export default function RealOrReplica() {
         }
         .rr-own-actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
         .rr-flip {
-          min-height: 36px;
+          min-height: 44px;
           padding: 6px 16px;
           border-radius: 100px;
           border: 1px solid rgba(201, 168, 76, 0.6);
           background: transparent;
           color: #C9A84C;
           font-family: 'Outfit', sans-serif;
-          font-size: 11px;
+          font-size: var(--game-small);
           letter-spacing: 0.12em;
           text-transform: uppercase;
           cursor: pointer;
@@ -474,7 +478,7 @@ export default function RealOrReplica() {
         .rr-flip[aria-pressed='true'] { background: rgba(201, 168, 76, 0.15); }
         .rr-own-link {
           font-family: 'Outfit', sans-serif;
-          font-size: 12px;
+          font-size: var(--game-small);
           color: #C9A84C;
           text-underline-offset: 3px;
         }
@@ -514,13 +518,20 @@ export default function RealOrReplica() {
         @media (prefers-reduced-motion: reduce) {
           .rr-page, .rr-own-card { animation: none; }
         }
+        @media (max-width: 600px) {
+          .rr-back-label {
+            position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+            overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+          }
+          .rr-back-btn { min-width: 44px; }
+        }
       `}</style>
 
       {/* Header */}
       <header className="rr-header">
-        <button className="rr-back-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
+        <button className="rr-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-8?view=interactives')}>
           <span aria-hidden="true">{'←'}</span>
-          Exhibition
+          <span className="rr-back-label">Display Case</span>
         </button>
         <div className="rr-header-right">
           {stage === 'rounds' && (
@@ -528,6 +539,7 @@ export default function RealOrReplica() {
               Round {game.index + 1} of {ROUNDS.length} &middot; Score: {game.score}
             </span>
           )}
+          <SoundSwitch style={{ color: '#C9A84C', fontFamily: "'Outfit', sans-serif" }} />
           <TeachToggle onClick={() => setProjector(true)} style={{ color: '#C9A84C', fontFamily: "'Outfit', sans-serif" }} />
         </div>
       </header>
@@ -629,9 +641,10 @@ export default function RealOrReplica() {
               correct: r.correct,
             }))}
             pipsLabel="Your rounds"
+            celebrate={isGoodScore(game.score, ROUNDS.length)}
             actions={[
               { label: 'Play again', onClick: restart, primary: true },
-              { label: 'Back to Exhibition', href: '/exhibitions/in-their-hands' },
+              { label: 'Back to Display Case', href: '/exhibitions/in-their-hands/artifacts/case-8?view=interactives' },
             ]}
           >
             <p className="rr-final-closing">{CLOSING}</p>

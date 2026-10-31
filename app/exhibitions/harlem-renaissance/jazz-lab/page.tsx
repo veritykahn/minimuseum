@@ -10,6 +10,10 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
 import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import NameThatInstrumentProjector from './NameThatInstrumentProjector';
+import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
+
+/** "M ← Collection": the way back, unless the Studio opened the lab. */
+const COLLECTION: MuseumReturn = { href: '/exhibitions/harlem-renaissance/artifacts?view=interactives', label: 'Collection' };
 
 const TABS = [
   { id: 'band', label: 'Build a Band' },
@@ -31,9 +35,27 @@ export default function JazzLabPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  // A tab's address (#band, #studio, #quiz) opens the lab on that tab, as the
+  // Studio floor's door to the Jazz Studio does.
+  useEffect(() => {
+    const fromHash = () => {
+      const tab = TABS.find((t) => t.id === window.location.hash.replace(/^#/, ''));
+      if (tab) setActiveTab(tab.id);
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, []);
+
   const stopAudio = () => {
     band.stopAll();
     audioEngine.stopAll();
+  };
+
+  const back = useMuseumReturn(COLLECTION);
+  const leave = () => {
+    rememberReturn(back);
+    router.push(back.href);
   };
 
   const handleTabChange = (tab: 'band' | 'studio' | 'quiz') => {
@@ -177,13 +199,13 @@ export default function JazzLabPage() {
           display: flex;
           justify-content: center;
           gap: 0;
-          max-width: 500px;
+          max-width: 760px;
           margin: 20px auto 0;
           border-bottom: 1px solid rgba(201,169,78,0.2);
         }
         .jl-tab {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 3px;
           text-transform: uppercase;
           font-weight: 600;
@@ -257,7 +279,7 @@ export default function JazzLabPage() {
           left: 50%;
           transform: translateX(-50%);
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 4px;
           text-transform: uppercase;
           color: var(--jl-gold-dim);
@@ -338,7 +360,7 @@ export default function JazzLabPage() {
         .jl-slot.active.backing { opacity: 0.65; }
         .jl-slot-name {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 2px;
           text-transform: uppercase;
           color: var(--jl-text-dim);
@@ -358,7 +380,7 @@ export default function JazzLabPage() {
         }
         .jl-section-label {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 4px;
           text-transform: uppercase;
           color: var(--jl-gold-dim);
@@ -411,7 +433,7 @@ export default function JazzLabPage() {
         }
         .jl-section-name {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 8px;
+          font-size: clamp(11px, 0.3vw + 9px, 14px);
           letter-spacing: 1px;
           text-transform: uppercase;
           color: var(--jl-text-dim);
@@ -478,7 +500,7 @@ export default function JazzLabPage() {
         }
         .jl-btn {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 11px;
+          font-size: clamp(13px, 0.4vw + 10px, 16px);
           letter-spacing: 3px;
           text-transform: uppercase;
           font-weight: 600;
@@ -688,7 +710,7 @@ export default function JazzLabPage() {
         }
         .jl-score-label {
           font-family: 'Josefin Sans', sans-serif;
-          font-size: 9px;
+          font-size: 14px;
           letter-spacing: 3px;
           text-transform: uppercase;
           color: var(--jl-text-dim);
@@ -912,11 +934,11 @@ export default function JazzLabPage() {
           .jl-band-slots { gap: 14px 8px; }
           .jl-slot { max-width: 110px; }
           .jl-slot-icon { width: 64px; height: 64px; font-size: 28px; }
-          .jl-slot-name { font-size: 9px; letter-spacing: 1px; }
+          .jl-slot-name { font-size: 12px; letter-spacing: 1px; }
           .jl-controls { gap: 10px; }
-          .jl-btn { padding: 10px 16px; font-size: 10px; letter-spacing: 2px; }
+          .jl-btn { padding: 10px 16px; font-size: 13px; letter-spacing: 2px; }
           .jl-quiz-answers { grid-template-columns: repeat(2, 1fr); }
-          .jl-tab { padding: 12px 18px; font-size: 10px; letter-spacing: 2px; }
+          .jl-tab { padding: 12px 14px; font-size: 13px; letter-spacing: 1.5px; }
           .jl-section-selector {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -924,17 +946,17 @@ export default function JazzLabPage() {
           }
           .jl-section-btn { min-width: unset; padding: 8px 4px; }
           .jl-section-num { width: 32px; height: 32px; font-size: 14px; }
-          .jl-section-name { font-size: 7px; }
+          .jl-section-name { font-size: 11px; letter-spacing: 0.5px; white-space: normal; text-align: center; line-height: 1.2; }
         }
       `}</style>
 
       {/* ── WELCOME SCREEN ── */}
       {view === 'welcome' && (
         <div className="jl-welcome">
-          <button className="jl-welcome-back" onClick={() => router.push('/exhibitions/harlem-renaissance/artifacts')}>
+          <button className="jl-welcome-back" onClick={leave}>
             <span className="jl-welcome-back-text">M</span>
             <span className="jl-welcome-back-arrow">{'\u2190'}</span>
-            <span className="jl-welcome-back-label">Collection</span>
+            <span className="jl-welcome-back-label">{back.label}</span>
           </button>
           <div className="jl-welcome-deco-top">
             <div className="jl-welcome-deco-diamond" />
@@ -962,10 +984,10 @@ export default function JazzLabPage() {
       </div>
 
       {/* Navigation */}
-      <ExhibitionNav className="jl-nav" href="/exhibitions/harlem-renaissance/artifacts" onClick={stopAudio}>
+      <ExhibitionNav className="jl-nav" href={back.href} onClick={() => { stopAudio(); rememberReturn(back); }}>
         <span className="jl-nav-text" aria-hidden="true">M</span>
         <span className="jl-nav-arrow" aria-hidden="true">{'\u2190'}</span>
-        <span className="jl-nav-label">Collection</span>
+        <span className="jl-nav-label">{back.label}</span>
       </ExhibitionNav>
 
       {/* Header */}

@@ -82,15 +82,60 @@ export function chapterMarks(items: FxItem[]): number[] {
   return items.flatMap((item, i) => (i > 0 && item.type === 'section-title' ? [i] : []));
 }
 
+/** The longest a panel waits for its faces and pictures before it arrives anyway. */
+const SETTLE_LIMIT_MS = 1500;
+
+/**
+ * Resolves once the stage's text is set in its own faces and its pictures are
+ * in: the fonts it asked for have loaded and every <img> in it has loaded (or
+ * failed). Until then a line could still re-wrap when a face swaps in, or copy
+ * could be pushed along when a picture beside it takes its size.
+ */
+function stageSettled(el: HTMLElement): Promise<unknown> {
+  const fonts = typeof document !== 'undefined' && document.fonts ? document.fonts.ready : Promise.resolve();
+  const pictures = Array.from(el.querySelectorAll('img')).map((img) =>
+    img.complete
+      ? Promise.resolve()
+      : new Promise<void>((done) => {
+          img.addEventListener('load', () => done(), { once: true });
+          img.addEventListener('error', () => done(), { once: true });
+        }),
+  );
+  return Promise.all([fonts, ...pictures]);
+}
+
 /**
  * Props for the element that remounts on every step. A callback ref marks it
- * entered two frames after mount, which lets CSS transitions carry the
+ * entered once it is ready to move, which lets CSS transitions carry the
  * foreground and background layers in at different rates (the parallax).
+ *
+ * Ready means laid out in its final shape: two frames after mount (so the
+ * browser has asked for the faces the copy needs), then once those faces and
+ * the panel's pictures are in, or SETTLE_LIMIT_MS at the most. Until then
+ * every animation on the stage is held at its first frame (poster-fx.css), so
+ * nothing starts moving while a late font or picture could still re-wrap the
+ * copy under it. That was the jolt on a first visit: the copy began its
+ * entrance in a fallback face and jumped when the poster's own face arrived.
  */
 export function usePosterFxStage(theme: FxTheme, direction: 1 | -1, panel: string, bg: string, ink: string) {
   const ref = useCallback((el: HTMLElement | null) => {
     if (!el || el.hasAttribute('data-entered')) return;
-    requestAnimationFrame(() => requestAnimationFrame(() => el.setAttribute('data-entered', '')));
+    let entered = false;
+    const enter = () => {
+      if (entered) return;
+      entered = true;
+      // One more frame, so anything sized to the copy (the projector's fit) has caught up.
+      requestAnimationFrame(() => el.setAttribute('data-entered', ''));
+    };
+    const limit = window.setTimeout(enter, SETTLE_LIMIT_MS);
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        void stageSettled(el).then(() => {
+          window.clearTimeout(limit);
+          enter();
+        });
+      }),
+    );
   }, []);
   const style: CssVars = { '--pfx-bg': bg, '--pfx-ink': ink };
   return {

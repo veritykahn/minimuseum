@@ -3,6 +3,7 @@ import { MetadataRoute } from 'next';
 import { lessonsFor } from '@/lib/lessons';
 import { EXHIBITION_CASES } from '@/lib/exhibitionCases';
 import { artifactPath } from '@/components/exhibition/artifacts';
+import { ALL_FLOORS } from '@/lib/floors';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = SITE_URL;
@@ -33,18 +34,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
-    {
-      url: `${baseUrl}/exhibitions/ground-floor`,
+    // Every floor: the three of exhibitions, and the Studio.
+    ...ALL_FLOORS.map((floor) => ({
+      url: `${baseUrl}${floor.path}`,
       lastModified,
-      changeFrequency: 'weekly',
+      changeFrequency: 'weekly' as const,
       priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/exhibitions/first-floor`,
-      lastModified,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
+    })),
     {
       url: `${baseUrl}/exhibitions/seeing-is-deceiving`,
       lastModified,
@@ -53,6 +49,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/exhibitions/seeing-is-deceiving/illusions`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/exhibitions/seeing-is-deceiving/optical-toys`,
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.8,
@@ -166,6 +168,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: `${baseUrl}/exhibitions/america-250/artifacts/case`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/america-250/sign`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/exhibitions/victorian`,
       lastModified,
       changeFrequency: 'weekly',
@@ -177,6 +191,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    ...['christmas-card', 'inventions', 'christmas-parlour'].map((room) => ({
+      url: `${baseUrl}/exhibitions/victorian/${room}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
     {
       url: `${baseUrl}/exhibitions/womens-history`,
       lastModified,
@@ -185,6 +205,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/exhibitions/womens-history/artifacts/case`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/womens-history/violet`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/womens-history/remembered`,
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.7,
@@ -202,6 +234,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/exhibitions/holocaust/stones`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/exhibitions/black-history`,
       lastModified,
       changeFrequency: 'weekly',
@@ -209,6 +247,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/exhibitions/black-history/artifacts/case`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/black-history/timeline`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/black-history/representation`,
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.7,
@@ -226,6 +276,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: `${baseUrl}/exhibitions/writing-revolution/typing-station`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/exhibitions/moon`,
       lastModified,
       changeFrequency: 'weekly',
@@ -233,6 +289,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/exhibitions/moon/artifacts/case`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/moon/microscope`,
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.7,
@@ -249,6 +311,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    ...['hieroglyph-name', 'rosetta-stone', 'tomb', 'mummification', 'weighing-of-the-heart', 'amulet'].map((room) => ({
+      url: `${baseUrl}/exhibitions/egypt/${room}`,
+      lastModified,
+      changeFrequency: 'monthly' as const,
+      priority: 0.7,
+    })),
     {
       url: `${baseUrl}/exhibitions/in-their-hands`,
       lastModified,
@@ -380,6 +448,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified,
       changeFrequency: 'weekly',
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/exhibitions/fear-lab/artifacts/case`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/fear-lab/what-scares-you`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/exhibitions/great-war`,

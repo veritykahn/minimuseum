@@ -275,7 +275,7 @@
         "story": "A mother uses small coins to buy bread and oil for her family. King Herod made these coins, and they have no face on them, because Jewish law did not allow it. When Jesus was born, an angel told Joseph in a dream to take Mary and the baby to Egypt, where they would be safe.",
         "ref": "Matthew 2:13–15"
       },
-      "purpose": "Meet an everyday coin with no face, and hear how God kept the Holy Family safe.",
+      "purpose": "Meet an everyday coin with no face, and hear how Joseph took his family to safety in Egypt, as Matthew tells it.",
       "students": [
         "What will she buy with her coins?",
         "King Herod’s coin has no face. Why not?"
@@ -401,7 +401,7 @@
       "id": "look-back",
       "phase": "Close",
       "color": "#A8452F",
-      "section": "Look back and pray",
+      "section": "Look back and share",
       "title": "Look back",
       "minutes": 2,
       "script": [
@@ -424,20 +424,40 @@
       ]
     },
     {
-      "id": "closing-prayer",
+      "id": "look-back-and-share",
       "phase": "Close",
       "color": "#A8452F",
-      "section": "Look back and pray",
-      "title": "Closing prayer",
-      "minutes": 2,
+      "section": "Look back and share",
+      "title": "Look back and share",
+      "minutes": 1,
       "script": [
-        "Ask the children to hold out their open hands. Pray together, a line at a time: *“Jesus, the widow gave you everything in her hands. Here are my hands. Help me to give with a happy heart — my time, my kindness and my love. Amen.”*"
+        "Then say: *“The widow gave everything she had. Hold out your open hands. Tell a partner one thing you could share with someone today: a thing, some time, or a kindness.”*"
+      ],
+      "screen": {
+        "kind": "question",
+        "question": "The widow gave everything she had. Hold out your open hands. Tell a partner one thing you could share with someone today: a thing, some time, or a kindness."
+      },
+      "purpose": "Close with open hands, like the widow: name something to share today.",
+      "students": [
+        "Hold out your open hands.",
+        "Tell a partner one thing you could share today."
+      ]
+    },
+    {
+      "id": "closing-prayer-faith-based-option",
+      "phase": "Close",
+      "color": "#A8452F",
+      "section": "Look back and share",
+      "title": "Closing prayer (faith-based option)",
+      "minutes": 1,
+      "script": [
+        "**Faith-based option:** pray together, a line at a time: *“Jesus, the widow gave you everything in her hands. Here are my hands. Help me to give with a happy heart — my time, my kindness and my love. Amen.”*"
       ],
       "screen": {
         "kind": "prayer",
         "prayer": "Jesus, the widow gave you everything in her hands. Here are my hands. Help me to give with a happy heart — my time, my kindness and my love. Amen."
       },
-      "purpose": "Give the lesson back to God with open hands.",
+      "purpose": "For faith schools: give the lesson back to God with open hands.",
       "students": [
         "Hold out your open hands, and pray a line at a time."
       ]

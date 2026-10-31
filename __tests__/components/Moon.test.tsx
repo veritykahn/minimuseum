@@ -1,4 +1,5 @@
 import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
+import { isAddedPanel } from '@/components/exhibition/helpers';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { posterChapters } from '@/components/projector/posterTalk';
@@ -14,7 +15,7 @@ import { floorReturnFor } from '@/lib/floors';
 
 const allItems = MOON.posters.flatMap((p) => p.items);
 const paragraphs = (id: string) =>
-  MOON.posters.find((x) => x.id === id)!.items.flatMap((it) => (it.type === 'paragraph' ? [it.text] : []));
+  MOON.posters.find((x) => x.id === id)!.items.flatMap((it) => (it.type === 'paragraph' && !isAddedPanel(it) ? [it.text] : []));
 const allText = allItems.map((it) => ('text' in it ? it.text : '')).join('\n');
 const tick = (ms = 400) => act(() => { jest.advanceTimersByTime(ms); });
 
@@ -101,7 +102,7 @@ describe('Our Incredible Moon', () => {
   });
 
   it('splits paragraphs only between sentences', () => {
-    for (const it of allItems) if (it.type === 'paragraph') expect(it.text).toMatch(/[.!?]$/);
+    for (const it of allItems) if (it.type === 'paragraph') expect(it.text).toMatch(/[.!?]"?$/);
   });
 
   it('uses US spellings', () => {
@@ -135,7 +136,7 @@ describe('Our Incredible Moon', () => {
     expect(decor.sort()).toEqual(['/exhibitions/moon/ringed-planet.jpg', '/exhibitions/moon/three-moons.jpg']);
     // The titles are the posters' own lettering (poster 1's with its rising moon).
     const titles = allItems.flatMap((it) => (it.type === 'title-image' ? [it.src] : []));
-    expect(titles).toEqual(['/exhibitions/moon/titles/our-incredible-moon.png', '/exhibitions/moon/titles/another-earth.png']);
+    expect(titles).toEqual(['/exhibitions/moon/titles/our-incredible-moon.webp', '/exhibitions/moon/titles/another-earth.webp']);
     for (const c of MOON.cases ?? []) expect(c.image).toBeUndefined();
   });
 

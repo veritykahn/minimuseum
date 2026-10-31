@@ -41,6 +41,15 @@ export function colorsFor(poster: PosterConfig, item: PosterItem | undefined, at
  * reveal). The ending, with its lessons, always takes the theme's.
  */
 export function entranceOf(item: PosterItem | undefined): PanelEffect {
+  return panelEntrance(item);
+}
+
+/**
+ * The same, for any walkthrough's panels: the engine's, or a hand-built
+ * page's own items (Harlem, In Their Hands, Seeing is Deceiving), which name
+ * their entrances from the same vocabulary.
+ */
+export function panelEntrance(item: { type: string; effect?: PanelEffect } | undefined): PanelEffect {
   if (!item || item.type === 'end') return 'theme';
   return item.effect ?? 'theme';
 }
@@ -50,10 +59,18 @@ export function ownsEntrance(item: PosterItem | undefined) {
   return entranceOf(item) !== 'theme';
 }
 
+/**
+ * Whether a panel was added from outside the printed poster (it carries its
+ * own sources), so it is set apart from the printed copy and left out of it.
+ */
+export function isAddedPanel(item: PosterItem): boolean {
+  return (item.type === 'paragraph' || item.type === 'section-title') && !!item.sources?.length;
+}
+
 /** Classes a panel's wrapper takes from its section and itself. */
 export function panelClasses(poster: PosterConfig, item: PosterItem) {
   const section = item.section ? poster.sections?.[item.section] : undefined;
-  return [section?.className, item.className].filter(Boolean).join(' ');
+  return [section?.className, item.className, isAddedPanel(item) && 'pe-added'].filter(Boolean).join(' ');
 }
 
 export function positionClass(position?: PanelPosition) {
@@ -131,4 +148,33 @@ export function emphasisRuns(text: string): { text: string; em: boolean }[] {
   return text.split(/(\*[^*]+\*)/).filter(Boolean).map((part) =>
     part.length > 2 && part.startsWith('*') && part.endsWith('*') ? { text: part.slice(1, -1), em: true } : { text: part, em: false },
   );
+}
+
+/**
+ * Where an exhibition's interactive rooms are shown: in its first display
+ * case, the one its case page lists them under. An exhibition with no case
+ * yet keeps them on its landing page.
+ */
+export function roomsCase(config: Pick<ExhibitionConfig, 'cases'>) {
+  return config.cases?.[0];
+}
+
+/** The address parameter that opens a display case page at a view (CaseViews). */
+export const CASE_VIEW_PARAM = 'view';
+
+/** A display case's address, opened at its Interactives: where a room's way back goes. */
+export function interactivesView(caseHref: string): string {
+  const [path, hash] = caseHref.split('#');
+  const sep = path.includes('?') ? '&' : '?';
+  return `${path}${sep}${CASE_VIEW_PARAM}=interactives${hash ? `#${hash}` : ''}`;
+}
+
+/**
+ * A room's top-left "M ←" link: back to the display case it opens from, at
+ * its Interactives (?view=interactives, CaseViews), or to the exhibition
+ * when there is no case.
+ */
+export function roomReturn(config: Pick<ExhibitionConfig, 'slug' | 'cases'>): { href: string; label: string } {
+  const c = roomsCase(config);
+  return c ? { href: interactivesView(c.href), label: c.label } : { href: `/exhibitions/${config.slug}`, label: 'Exhibition' };
 }

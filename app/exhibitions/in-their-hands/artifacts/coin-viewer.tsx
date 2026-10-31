@@ -48,7 +48,7 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
 
         .coin-viewer-page {
           min-height: 100vh;
-          background: #0a0a0a;
+          background: #443c31;
           color: #fafafa;
           display: flex;
           flex-direction: column;
@@ -66,7 +66,7 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
           justify-content: space-between;
           align-items: center;
           padding: 24px 32px;
-          background: linear-gradient(to bottom, rgba(10,10,10,0.98) 0%, rgba(10,10,10,0) 100%);
+          background: linear-gradient(to bottom, rgba(68,60,49,0.98) 0%, rgba(68,60,49,0) 100%);
         }
 
         .cv-back-btn {
@@ -195,7 +195,7 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
           padding: 10px 24px;
           border-radius: 100px;
           border: 1px solid rgba(${accentColor === '#C9A84C' ? '201, 168, 76' : '168, 213, 229'}, 0.3);
-          background: rgba(10, 10, 10, 0.8);
+          background: rgba(68, 60, 49, 0.8);
           backdrop-filter: blur(10px);
           color: ${accentColor};
           font-family: 'Outfit', sans-serif;
@@ -224,7 +224,7 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
           justify-content: space-between;
           align-items: flex-end;
           padding: 24px 32px 32px;
-          background: linear-gradient(to top, rgba(10,10,10,1) 0%, rgba(10,10,10,0.9) 60%, rgba(10,10,10,0) 100%);
+          background: linear-gradient(to top, rgba(68,60,49,1) 0%, rgba(68,60,49,0.9) 60%, rgba(68,60,49,0) 100%);
         }
 
         .cv-artifact-info { flex: 1; }
@@ -283,7 +283,7 @@ export default function CoinViewer({ coin, backRoute, backLabel, accentColor = '
           width: 480px;
           max-width: 90vw;
           height: 100vh;
-          background: linear-gradient(135deg, rgba(20,20,20,0.98) 0%, rgba(10,10,10,0.98) 100%);
+          background: linear-gradient(135deg, rgba(78,69,57,0.98) 0%, rgba(68,60,49,0.98) 100%);
           border-left: 1px solid rgba(255,255,255,0.08);
           transform: translateX(100%);
           transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);

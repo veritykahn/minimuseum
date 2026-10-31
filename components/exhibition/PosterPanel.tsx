@@ -3,8 +3,9 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { FxText, type FxKind } from '@/components/poster-fx/PosterFx';
 import { PosterProjectorEnd } from '@/components/projector/PosterProjector';
-import PosterLessons from '@/components/lesson/PosterLessons';
-import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass, sentences } from './helpers';
+import { BlindSpot, Emph, Lines, Typed, TypedForReaders, VisitTicket } from './EntranceCopy';
+import FactNote, { FactSources, type FactSource } from './FactNote';
+import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass } from './helpers';
 import type { ExhibitionConfig, PanelDecor, PanelEffect, PanelMarks, PosterConfig, PosterItem, PosterItemType } from './types';
 
 /*
@@ -41,62 +42,6 @@ type CssVars = CSSProperties & Record<`--${string}`, string | number>;
 /** Entrances drawn on the copy even where a panel also has a picture. */
 const COPY_EFFECTS: PanelEffect[] = ['typewriter', 'line-by-line', 'ink-spread'];
 
-/** Short copy with "*…*" set in italics: a credit, a caption, a citation. */
-function Emph({ text }: { text: string }) {
-  return (
-    <>
-      {emphasisRuns(text).map((r, i) => (r.em ? <em key={i}>{r.text}</em> : <span key={i}>{r.text}</span>))}
-    </>
-  );
-}
-
-/** Copy typed out a character at a time. The line is read whole (the typing is hidden from assistive technology). */
-function Typed({ text }: { text: string }) {
-  const runs = emphasisRuns(text);
-  const total = runs.reduce((n, r) => n + r.text.length, 0);
-  // About three seconds however long the copy, and never faster than a brisk typist.
-  const step = Math.min(0.045, 3.2 / Math.max(total, 1));
-  let c = 0;
-  return (
-    <span className="pe-typed" aria-hidden="true" style={{ '--tw-step': `${step.toFixed(4)}s`, '--tw-total': `${(step * total).toFixed(2)}s` } as CssVars}>
-      {runs.map((r, ri) => {
-        // Words stay whole at the end of a line: each is a nowrap run of letters.
-        const words = r.text.split(/(\s+)/);
-        const body = words.map((w, wi) => {
-          if (/^\s+$/.test(w)) {
-            c += w.length;
-            return ' ';
-          }
-          return (
-            <span key={wi} className="pe-typed-word">
-              {Array.from(w).map((ch, ci) => (
-                <span key={ci} className="pe-typed-ch" style={{ '--c': c++ } as CssVars}>
-                  {ch}
-                </span>
-              ))}
-            </span>
-          );
-        });
-        return r.em ? <em key={ri}>{body}</em> : <span key={ri}>{body}</span>;
-      })}
-      <span className="pe-typed-caret" />
-    </span>
-  );
-}
-
-/** Copy set a sentence at a time. */
-function Lines({ text }: { text: string }) {
-  return (
-    <>
-      {sentences(text).map((s, i) => (
-        <span key={i} className="pe-line" style={{ '--n': i } as CssVars}>
-          <Emph text={s} />
-        </span>
-      ))}
-    </>
-  );
-}
-
 /**
  * Panel copy. With its own entrance it is set plainly (or typed, or a line at
  * a time); otherwise it takes part in the exhibition's reveal when the
@@ -108,16 +53,6 @@ function Copy({ text, kind, effect, reveal }: { text: string; kind: FxKind; effe
   const emphasis = text.includes('*');
   if (effect !== 'theme' || !reveal) return emphasis ? <Emph text={text} /> : <>{text}</>;
   return <FxText text={text} words={kind === 'statement' || kind === 'quote'} emphasis={emphasis} />;
-}
-
-/** The line typed out, kept whole for assistive technology beside the hidden typing. */
-function TypedForReaders({ effect, text }: { effect: PanelEffect; text: string }) {
-  if (effect !== 'typewriter') return null;
-  return (
-    <span className="visually-hidden">
-      <Emph text={text} />
-    </span>
-  );
 }
 
 /** A picture's credit as its owner specifies it, linked to its record. */
@@ -134,9 +69,14 @@ function Credit({ credit, className }: { credit?: { text: string; href?: string 
   );
 }
 
-/** The disc of the ground that hides the middle of the panel and fades, as the blind spot fills in. */
-function BlindSpot({ effect }: { effect: PanelEffect }) {
-  return effect === 'blind-spot-reveal' ? <span className="pe-blind-spot" aria-hidden="true" /> : null;
+/** An added panel's sources, set small and linked beneath its copy, as FactNote sets them. */
+function AddedSources({ sources, color }: { sources?: readonly FactSource[]; color: string }) {
+  if (!sources?.length) return null;
+  return (
+    <p className="pe-source pe-added-source" style={{ color }}>
+      <FactSources sources={sources} className="pe-source-list" />
+    </p>
+  );
 }
 
 /**
@@ -196,13 +136,21 @@ const PANEL_RENDERERS: Renderers = {
             )}
           </figure>
         )}
-        {item.source ? (
+        {item.source || item.sources?.length || item.note ? (
           <div className="pe-copy">
             {p}
             <TypedForReaders effect={effect} text={item.text} />
-            <p className="pe-source" style={{ color: colors.text }}>
-              <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
-            </p>
+            {item.source && (
+              <p className="pe-source" style={{ color: colors.text }}>
+                <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
+              </p>
+            )}
+            <AddedSources sources={item.sources} color={colors.text} />
+            {item.note && (
+              <div className="pe-note" style={{ color: colors.text }}>
+                <FactNote fact={item.note} className="pe-note-fact" lead="Did you know?" />
+              </div>
+            )}
           </div>
         ) : (
           <>
@@ -217,13 +165,26 @@ const PANEL_RENDERERS: Renderers = {
   'section-title': ({ poster, item, colors }) => {
     const effect = entranceOf(item);
     const own = effect !== 'theme';
+    const heading = (
+      <h2 className={`pe-section-title-text ${effectClass(effect)}`} style={{ color: colors.title }} data-fx={own ? undefined : 'title'}>
+        {own ? <Copy text={item.text} kind="title" effect={effect} reveal={false} /> : <FxText text={item.text} />}
+      </h2>
+    );
     return (
       <div className={`pe-text-content-wrapper ${positionClass(item.position ?? 'full-width')} ${panelClasses(poster, item)}`}>
         <BlindSpot effect={effect} />
-        <h2 className={`pe-section-title-text ${effectClass(effect)}`} style={{ color: colors.title }} data-fx={own ? undefined : 'title'}>
-          {own ? <Copy text={item.text} kind="title" effect={effect} reveal={false} /> : <FxText text={item.text} />}
-        </h2>
-        <TypedForReaders effect={effect} text={item.text} />
+        {item.sources?.length ? (
+          <div className="pe-copy">
+            {heading}
+            <TypedForReaders effect={effect} text={item.text} />
+            <AddedSources sources={item.sources} color={colors.text} />
+          </div>
+        ) : (
+          <>
+            {heading}
+            <TypedForReaders effect={effect} text={item.text} />
+          </>
+        )}
       </div>
     );
   },
@@ -232,21 +193,38 @@ const PANEL_RENDERERS: Renderers = {
     const effect = entranceOf(item);
     const own = effect !== 'theme';
     const framing = item.framing ?? item.fit ?? 'width';
-    const size = item.width ? ({ '--pe-title-w': `${item.width}px` } as CssVars) : undefined;
+    const size = item.width ? ({ '--pe-title-w': `${Math.round(item.width / (item.density ?? 1))}px` } as CssVars) : undefined;
     return (
-      <div className={`pe-title-image pe-frame-${framing} ${panelClasses(poster, item)}`} style={size}>
-        <h2 className="pe-title-image-heading">
-          <span className="visually-hidden">{item.alt}</span>
-          {/* eslint-disable-next-line @next/next/no-img-element -- lettering cut from the poster, animated in CSS; the heading above is what is read */}
-          <img
-            src={item.src}
-            alt=""
-            aria-hidden="true"
-            width={item.width}
-            height={item.height}
-            className={own ? effectClass(effect) : 'pfx-media'}
-          />
-        </h2>
+      <div className={`pe-title-image pe-frame-${framing} ${item.live ? 'pe-title-image-live' : ''} ${panelClasses(poster, item)}`} style={size}>
+        {item.live ? (
+          <>
+            {/* The title as it is read; the lettering set in type beside it is for the eye, and sharp at any size. */}
+            <h2 className="visually-hidden">{item.alt}</h2>
+            <div className="pe-title-image-heading" aria-hidden="true">
+              <span className={`pe-title-live ${item.live.className ?? ''} ${own ? effectClass(effect) : 'pfx-fg'}`}>
+                {item.live.lines.map((line, i) => (
+                  <span key={i} className={`pe-title-live-line pe-title-live-line-${i + 1} ${line.className ?? ''}`}>
+                    {/* "^th^" is set as a superscript, as a poster sets "11th". */}
+                    {line.text.split('^').map((part, j) => (j % 2 ? <sup key={j}>{part}</sup> : part))}
+                  </span>
+                ))}
+              </span>
+            </div>
+          </>
+        ) : (
+          <h2 className="pe-title-image-heading">
+            <span className="visually-hidden">{item.alt}</span>
+            {/* eslint-disable-next-line @next/next/no-img-element -- lettering cut from the poster, animated in CSS; the heading's hidden text is what is read */}
+            <img
+              src={item.src}
+              alt=""
+              aria-hidden="true"
+              width={item.width}
+              height={item.height}
+              className={own ? effectClass(effect) : 'pfx-media'}
+            />
+          </h2>
+        )}
       </div>
     );
   },
@@ -365,8 +343,8 @@ const PANEL_RENDERERS: Renderers = {
     <div className={`pe-text-content-wrapper pe-pos-center ${panelClasses(poster, item)}`}>
       <a
         href={item.url}
-        target="_blank"
-        rel="noopener noreferrer"
+        // A room of the museum's own opens in place; anywhere else, in a new tab.
+        {...(item.url.startsWith('/') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
         className={`pe-content-link ${item.effect && item.effect !== 'theme' ? effectClass(item.effect) : 'pfx-fg'}`}
         style={{ color: colors.text, borderColor: colors.text }}
       >
@@ -377,6 +355,14 @@ const PANEL_RENDERERS: Renderers = {
 
   callout: ({ poster, item }) => {
     const effect = entranceOf(item);
+    // A link out to a museum is the visit ticket, as every poster ends.
+    if (item.url && !item.image) {
+      return (
+        <div className={`pe-text-content-wrapper pe-pos-center pe-ticket-panel ${panelClasses(poster, item)}`}>
+          <VisitTicket text={item.text} url={item.url} className={effect !== 'theme' ? effectClass(effect) : 'pfx-fg'} />
+        </div>
+      );
+    }
     const cls = `pe-callout ${effect !== 'theme' ? effectClass(effect) : 'pfx-fg'}`;
     const body = (
       <>
@@ -409,7 +395,7 @@ const PANEL_RENDERERS: Renderers = {
     );
   },
 
-  end: ({ config, poster, item, colors, projector, returnToMain }) =>
+  end: ({ poster, item, colors, projector, returnToMain }) =>
     projector ? (
       <PosterProjectorEnd />
     ) : (
@@ -417,7 +403,6 @@ const PANEL_RENDERERS: Renderers = {
         <button type="button" className="pe-content-end pfx-fg" onClick={returnToMain} style={{ color: colors.text, borderColor: colors.text }}>
           {item.text}
         </button>
-        <PosterLessons exhibition={config.slug} poster={poster.id} color={colors.text} />
       </div>
     ),
 };

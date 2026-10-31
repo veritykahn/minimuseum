@@ -5,6 +5,7 @@ import "./globals.css";
 import MuseumMap from "@/components/museum-map/MuseumMapRefactored";
 import { OrganizationJsonLd } from "@/components/JsonLd";
 import StyledJsxRegistry from "@/components/StyledJsxRegistry";
+import PageGround from "@/components/PageGround";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -55,6 +56,7 @@ export default function RootLayout({
           <Suspense>
             <MuseumMap />
           </Suspense>
+          <PageGround />
         </StyledJsxRegistry>
       </body>
     </html>

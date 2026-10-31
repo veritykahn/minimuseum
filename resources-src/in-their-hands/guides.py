@@ -122,7 +122,7 @@ QUESTIONS = [
     {"img": C + "shekel.png", "title": "Shekel of Tyre", "replica": True, "ref": "Silver shekel · 1 BC–1 AD · Matthew 26:15",
      "q": ["The only coin the Temple accepted carried the image of a pagan god. Why accept it? And what does it mean that it became the price of betrayal?"]},
     {"img": C + "pilate-front.png", "title": "Pontius Pilate", "ref": "Bronze prutah · 29/30 AD · Matthew 27:24",
-     "q": ["Minted in the year of the Passion, by the man who sentenced Jesus. What changes when you know that?",
+     "q": ["Minted within a few years of the Passion, by the man who sentenced Jesus. What changes when you know that?",
            "Some scholars doubted Pilate existed until 1961. What had this coin been all along?"]},
     {"img": C + "antipas-front.png", "title": "Herod Antipas", "replica": True, "ref": "Bronze prutah · 4 BC–39 AD · Luke 23:9",
      "q": ["Jesus spoke to Pilate, to the High Priest and to his accusers, but gave Antipas not one word. Why might silence be an answer?"]},
@@ -139,14 +139,14 @@ QUESTIONS = [
 
 GUIDE = {
   "out": "ITH_Teaching_Guide.pdf", "eyebrow": "Quick teaching guide", "title": "In Their Hands",
-  "sub": "Coins of the New Testament · Everything you need to plan a visit or a virtual visit, PreK–8",
+  "sub": "Coins of Roman Judaea · Everything you need to plan a visit or a virtual visit, PreK–8",
   "foot": "Quick Teaching Guide", "css": GUIDE_CSS,
   "hero": {"img": "/exhibitions/in-their-hands/timeline/widow-tissot.jpg", "pos": "center 30%",
            "credit": "James Tissot (1836–1902), Brooklyn Museum"},
   "blocks": [
     ("chips", ["Cases 6 · 7 · 8", "Eleven coins", "Eight authentic · three replicas", "PreK–8"]),
     ("section", {"label": "Exhibition overview", "title": "Eleven coins, three cases", "body": [
-      "Every coin in this exhibition was made, spent and held during the years of the New Testament. They follow the story in three display cases. **Case 6, The World of Jesus,** holds the coins of the rulers at his birth. **Case 7, Ministry and Passion,** holds the coins of his teaching and his trial. **Case 8, The Early Church,** holds the coins of the rulers the apostles stood before. Eight of the coins are genuine. Three — the Tribute Penny, the Shekel of Tyre and the coin of Herod Antipas — are museum-quality replicas, because original examples are of exceptional rarity.",
+      "Every coin in this exhibition was spent and held during the years of the New Testament. They follow the story in three display cases. **Case 6, The World of Jesus,** holds the coins of the rulers at his birth. **Case 7, Ministry and Passion,** holds the coins of his teaching and his trial. **Case 8, The Early Church,** holds the coins of the rulers the apostles stood before. Eight of the coins are genuine. Three — the Tribute Penny, the Shekel of Tyre and the coin of Herod Antipas — are museum-quality replicas, because original examples are of exceptional rarity.",
       "**The core message:** the world the Gospels describe was a real world. The coins do not prove the faith — the exhibition says plainly that faith is not proved by archaeology — but its rulers, its taxes and its money can be held in the hand."]}),
     ("gallery", [{"label": l, "items": i} for l, i in CASES]),
     ("section", {"label": "Around the cases", "title": "Four more ways in", "list": [

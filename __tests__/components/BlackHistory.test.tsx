@@ -57,9 +57,9 @@ describe('Black History Month', () => {
     expect(BLACK_HISTORY.fx.theme).toBe('bh');
   });
 
-  it('goes back to the first floor, as its fifth Horizons room', () => {
+  it('goes back to the second floor, as its first Reflections room', () => {
     expect(BLACK_HISTORY.back).toEqual(floorReturnFor('black-history'));
-    expect(BLACK_HISTORY.back).toEqual({ href: '/exhibitions/first-floor', label: 'First Floor', remember: { key: 'firstFloorIndex', value: '4' } });
+    expect(BLACK_HISTORY.back).toEqual({ href: '/exhibitions/second-floor', label: 'Second Floor', remember: { key: 'secondFloorIndex', value: '0' } });
   });
 
   it('sets poster 1 exactly as printed', () => {
@@ -100,13 +100,16 @@ describe('Black History Month', () => {
     const files = (d: string): string[] =>
       fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? files(path.join(d, e.name)).map((f) => `${e.name}/${f}`) : [e.name]));
 
-    it('holds only the posters, their lettering and poster 1’s illustrated figures', () => {
-      expect(files(dir).sort()).toEqual([
+    it('holds only the posters, their lettering, poster 1’s illustrated figures, the screenshots of the rooms for their cards, and the owner’s doll artwork', () => {
+      // The audio guide's recordings are the owner's voice, not pictures (AudioGuide.test.tsx); the doll layers are checked in DollDesigner.test.tsx.
+      expect(files(dir).filter((f) => !f.startsWith('audio/') && !f.startsWith('dolls/')).sort()).toEqual([
         'poster1.jpg',
         'poster2.jpg',
         'ring.webp',
+        'rooms/representation.webp',
+        'rooms/timeline.webp',
         'titles/black-history-month.png',
-        'titles/importance-of-black-barbie.png',
+        'titles/importance-of-black-barbie.webp',
         'vignettes/atom.webp',
         'vignettes/musician.webp',
         'vignettes/notes.webp',
@@ -151,7 +154,7 @@ describe('Black History Month', () => {
       const caseLink = screen.getByRole('link', { name: /display case/i });
       expect(caseLink).toHaveAttribute('href', '/exhibitions/black-history/artifacts/case');
       expect(caseLink).toHaveTextContent('Display case — photographs to come');
-      expect(screen.getByRole('link', { name: 'First Floor' })).toHaveAttribute('href', '/exhibitions/first-floor');
+      expect(screen.getByRole('link', { name: 'Second Floor' })).toHaveAttribute('href', '/exhibitions/second-floor');
     });
 
     it('opens Black History Month on its lettering, and ends with the link to Cultural Expressions in italics', () => {
@@ -160,7 +163,10 @@ describe('Black History Month', () => {
       tick();
       const content = () => document.querySelector('.pe-walkthrough-content') as HTMLElement;
       expect(within(content()).getByRole('heading', { level: 2, name: 'Black History Month' })).toBeInTheDocument();
-      expect(content().querySelector('.pe-title-image img')).toHaveAttribute('src', '/exhibitions/black-history/titles/black-history-month.png');
+      // Set in type, in the poster's own face, so it is sharp on any screen; the lettering is for the eye only.
+      const live = content().querySelector('.pe-title-live') as HTMLElement;
+      expect(live.closest('[aria-hidden="true"]')).not.toBeNull();
+      expect(live).toHaveTextContent('BLACK HISTORYMONTH');
 
       const items = poster('poster1').items;
       const callout = items.findIndex((it) => it.type === 'callout');
@@ -213,17 +219,19 @@ describe('The Black History Month display case page', () => {
 });
 
 describe('Black History Month on the museum map', () => {
-  it('is a room on the First Floor, with an Exhibition Hall and a Display Case', () => {
+  it('is a room on the Second Floor, with an Exhibition Hall, a Display Case and its two interactive rooms', () => {
     const level = getLevelConfig('/exhibitions/black-history/artifacts/case');
     expect(level.title).toBe('Black History Month');
-    expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
+    expect(level.backTarget?.path).toBe('/exhibitions/second-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/black-history'],
       ['Display Case', '/exhibitions/black-history/artifacts/case'],
+      ['The Black Barbie Timeline', '/exhibitions/black-history/timeline'],
+      ['Who Do You See?', '/exhibitions/black-history/representation'],
     ]);
-    expect(getRoomByPath('/exhibitions/black-history')?.parent).toBe('first-floor');
+    expect(getRoomByPath('/exhibitions/black-history')?.parent).toBe('second-floor');
     expect(getRoomByPath('/exhibitions/black-history/artifacts/case')?.parent).toBe('black-history');
-    const room = getLevelConfig('/exhibitions/first-floor').rooms.find((r) => r.id === 'black-history')!;
+    const room = getLevelConfig('/exhibitions/second-floor').rooms.find((r) => r.id === 'black-history')!;
     expect(room.comingSoon).toBeFalsy();
     expect(room.path).toBe('/exhibitions/black-history');
   });

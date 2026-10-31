@@ -50,7 +50,7 @@ export function activateOnKey(handler: () => void) {
 }
 
 const FOCUSABLE =
-  'a[href], area[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
+  'a[href], area[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), details > summary:first-of-type, [tabindex]:not([tabindex="-1"]), [contenteditable="true"]';
 
 /**
  * Dialog behavior for an element that is open while `active` is true:

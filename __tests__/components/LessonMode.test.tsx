@@ -115,7 +115,7 @@ describe('Resources page', () => {
     };
     await choose('Teacher');
     await choose('Grades 5–8');
-    await choose('Religion');
+    await choose('Religion (faith-based)');
     expect(screen.getByRole('link', { name: /Teach this lesson on screen/ })).toHaveAttribute(
       'href',
       `${BASE}/whose-image-is-this`,

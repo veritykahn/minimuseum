@@ -1,6 +1,14 @@
 import { MapRoom, RoomConnection, MapLevelConfig, ExhibitionFloorPlan, FloorPlanWall } from '../types';
 import { LESSON_ROOM_IDS, hasLessons, lessonsPath } from '@/lib/lessons/catalog';
-import { GROUND_FLOOR as GROUND_FLOOR_PAGE, FIRST_FLOOR as FIRST_FLOOR_PAGE } from '@/lib/floors';
+import {
+  FLOORS,
+  GROUND_FLOOR as GROUND_FLOOR_PAGE,
+  FIRST_FLOOR as FIRST_FLOOR_PAGE,
+  SECOND_FLOOR as SECOND_FLOOR_PAGE,
+  STUDIO as STUDIO_PAGE,
+  findExhibition,
+  studioToolHref,
+} from '@/lib/floors';
 
 /**
  * Per-level layout configurations for the hierarchical museum map.
@@ -16,6 +24,8 @@ import { GROUND_FLOOR as GROUND_FLOOR_PAGE, FIRST_FLOOR as FIRST_FLOOR_PAGE } fr
 const COLORS = {
   sage: '#7D8471',
   sageLighter: '#9aa091',
+  slate: SECOND_FLOOR_PAGE.accent,
+  brass: STUDIO_PAGE.accent,
   seeingIsDeceiving: '#a8d5e5',
   harlemRenaissance: '#b485d2',
   inTheirHands: '#C9A84C',
@@ -90,6 +100,35 @@ const lessonsChild = (exhibition: string) => (hasLessons(exhibition) ? [LESSON_R
 // The ids are the exhibitions' slugs: /exhibitions/<id>.
 const GROUND_FLOOR_IDS = GROUND_FLOOR_PAGE.exhibitions.map((e) => e.slug);
 const FIRST_FLOOR_IDS = FIRST_FLOOR_PAGE.exhibitions.map((e) => e.slug);
+const SECOND_FLOOR_IDS = SECOND_FLOOR_PAGE.exhibitions.map((e) => e.slug);
+
+// The Studio's tools, each a door to its room in its exhibition.
+const STUDIO_IDS = STUDIO_PAGE.tools.map((_, i) => `studio-${i + 1}`);
+
+// Each floor as the map names it, and its color.
+const MAP_FLOORS: Record<string, { label: string; accentColor: string }> = {
+  [GROUND_FLOOR_PAGE.path]: { label: 'Ground Floor', accentColor: COLORS.sage },
+  [FIRST_FLOOR_PAGE.path]: { label: '1st Floor', accentColor: COLORS.sageLighter },
+  [SECOND_FLOOR_PAGE.path]: { label: '2nd Floor', accentColor: COLORS.slate },
+};
+
+/**
+ * An exhibition's way back up the map: its floor, as the back target and the
+ * second of its ancestors, so it follows the exhibition to whichever floor
+ * lib/floors.ts puts it on.
+ */
+function onFloorOf(exhibition: string): Pick<MapLevelConfig, 'backTarget' | 'ancestors'> {
+  const floor = FLOORS.find((f) => f.exhibitions.some((e) => e.slug === exhibition));
+  if (!floor) throw new Error(`No floor holds the exhibition "${exhibition}"`);
+  const { label, accentColor } = MAP_FLOORS[floor.path];
+  return {
+    backTarget: { label, path: floor.path },
+    ancestors: [
+      { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+      { label, viewPath: floor.path, accentColor },
+    ],
+  };
+}
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 1 — Museum Overview
@@ -110,15 +149,28 @@ const LEVEL1_ROOMS: MapRoom[] = [
     x: 360, y: 30, width: 90, height: 60, accentColor: COLORS.sage,
     parent: 'greathall',
   },
+  // The floors, top first, as the stairs climb them
+  {
+    id: 'third-floor', label: '3rd Floor: Studio', path: '/exhibitions/third-floor',
+    x: 100, y: 125, width: 300, height: 52, accentColor: COLORS.brass,
+    parent: 'greathall',
+    children: STUDIO_IDS,
+  },
+  {
+    id: 'second-floor', label: '2nd Floor: Reflections', path: '/exhibitions/second-floor',
+    x: 100, y: 197, width: 300, height: 52, accentColor: COLORS.slate,
+    parent: 'greathall',
+    children: SECOND_FLOOR_IDS,
+  },
   {
     id: 'first-floor', label: '1st Floor: Horizons', path: '/exhibitions/first-floor',
-    x: 100, y: 140, width: 300, height: 80, accentColor: COLORS.sageLighter,
+    x: 100, y: 269, width: 300, height: 52, accentColor: COLORS.sageLighter,
     parent: 'greathall',
     children: FIRST_FLOOR_IDS,
   },
   {
     id: 'ground-floor', label: 'Ground Floor: Origins', path: '/exhibitions/ground-floor',
-    x: 100, y: 280, width: 300, height: 80, accentColor: COLORS.sage,
+    x: 100, y: 341, width: 300, height: 52, accentColor: COLORS.sage,
     parent: 'greathall',
     children: GROUND_FLOOR_IDS,
   },
@@ -127,13 +179,15 @@ const LEVEL1_ROOMS: MapRoom[] = [
 const LEVEL1_CONNECTIONS: RoomConnection[] = [
   ['greathall', 'about'],
   ['greathall', 'contact'],
-  ['greathall', 'first-floor'],
+  ['greathall', 'third-floor'],
+  ['third-floor', 'second-floor'],
+  ['second-floor', 'first-floor'],
   ['first-floor', 'ground-floor'],
 ];
 
 export const MUSEUM_OVERVIEW: MapLevelConfig = {
   level: 'museum',
-  viewBox: '0 0 500 400',
+  viewBox: '0 0 500 410',
   rooms: LEVEL1_ROOMS,
   connections: LEVEL1_CONNECTIONS,
 };
@@ -159,31 +213,32 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'moon', label: 'Our Incredible\nMoon', path: '/exhibitions/moon',
     x: 25, y: 80, width: 140, height: 110, accentColor: COLORS.moon,
     parent: 'ground-floor',
-    children: ['mo-case'],
+    children: ['mo-case', 'mo-microscope'],
   },
   {
     id: 'egypt', label: 'Ancient Egypt', path: '/exhibitions/egypt',
     x: 180, y: 80, width: 140, height: 110, accentColor: COLORS.egypt,
     parent: 'ground-floor',
-    children: ['eg-case'],
+    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet'],
   },
   {
     id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
     x: 335, y: 80, width: 140, height: 110, accentColor: COLORS.inTheirHands,
     parent: 'ground-floor',
-    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', ...lessonsChild('in-their-hands')],
+    children: ['ith-case-6', 'ith-case-7', 'ith-case-8', 'ith-timeline', 'ith-hands', 'ith-real-or-replica', 'ith-resources', ...lessonsChild('in-their-hands')],
   },
   // Bottom row
   {
     id: 'america-250', label: 'America 250', path: '/exhibitions/america-250',
     x: 102, y: 230, width: 140, height: 100, accentColor: COLORS.america250,
     parent: 'ground-floor',
+    children: ['ap-case', 'ap-sign'],
   },
   {
     id: 'victorian', label: 'Victorian\nBritain', path: '/exhibitions/victorian',
     x: 257, y: 230, width: 140, height: 100, accentColor: COLORS.victorian,
     parent: 'ground-floor',
-    children: ['vb-case'],
+    children: ['vb-case', 'vb-christmas-card', 'vb-inventions', 'vb-christmas-parlour'],
   },
 ];
 
@@ -210,26 +265,24 @@ export const GROUND_FLOOR: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 2 — First Floor: Horizons
 //
-// The 20th century and the mind, two rows of four, read left to right
-// and top to bottom:
-// ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐
-// │ Great│─│Harlem│─│Women │─│Holoc.│
-// │  War │ │ Ren. │ │ Hist.│ │ Mem. │
-// └──────┘ └──────┘ └──────┘ └──────┘
-//    │                          │
-// ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐
-// │Black │─│Writ. │─│Seeing│─│ Fear │
-// │ Hist.│ │ Rev. │ │ Dec. │ │  Lab │
-// └──────┘ └──────┘ └──────┘ └──────┘
+// The 20th century, two rows of two, read left to right and top to bottom:
+//   ┌──────────┐ ┌──────────┐
+//   │ The Great│─│  Harlem  │
+//   │   War    │ │Renaissance│
+//   └──────────┘ └──────────┘
+//        │            │
+//   ┌──────────┐ ┌──────────┐
+//   │ Women's  │─│Holocaust │
+//   │ History  │ │ Mem. Day │
+//   └──────────┘ └──────────┘
 // ═══════════════════════════════════════════════════════════════════
 
-// Four 108-wide rooms with 12 between them, centred in the 500-wide view
-const COL = [16, 136, 256, 376];
-const TOP = { y: 80, width: 108, height: 110 };
-const BOTTOM = { y: 230, width: 108, height: 110 };
+// Two 140-wide rooms with 15 between them, centred in the 500-wide view
+const COL = [102, 257];
+const TOP = { y: 80, width: 140, height: 110 };
+const BOTTOM = { y: 230, width: 140, height: 100 };
 
 const FIRST_FLOOR_ROOMS: MapRoom[] = [
-  // Top row
   {
     id: 'great-war', label: 'The Great War', path: '/exhibitions/great-war',
     x: COL[0], ...TOP, accentColor: COLORS.greatWar,
@@ -244,52 +297,23 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
   },
   {
     id: 'womens-history', label: "Women's\nHistory Month", path: '/exhibitions/womens-history',
-    x: COL[2], ...TOP, accentColor: COLORS.womensHistory,
+    x: COL[0], ...BOTTOM, accentColor: COLORS.womensHistory,
     parent: 'first-floor',
-    children: ['wh-case', ...lessonsChild('womens-history')],
+    children: ['wh-case', 'wh-violet', 'wh-remembered', ...lessonsChild('womens-history')],
   },
   {
     id: 'holocaust', label: 'Holocaust\nMemorial Day', path: '/exhibitions/holocaust',
-    x: COL[3], ...TOP, accentColor: COLORS.holocaust,
+    x: COL[1], ...BOTTOM, accentColor: COLORS.holocaust,
     parent: 'first-floor',
-    children: ['ho-case', ...lessonsChild('holocaust')],
-  },
-  // Bottom row
-  {
-    id: 'black-history', label: 'Black History\nMonth', path: '/exhibitions/black-history',
-    x: COL[0], ...BOTTOM, accentColor: COLORS.blackHistory,
-    parent: 'first-floor',
-    children: ['bh-case', ...lessonsChild('black-history')],
-  },
-  {
-    id: 'writing-revolution', label: 'The Writing\nRevolution', path: '/exhibitions/writing-revolution',
-    x: COL[1], ...BOTTOM, accentColor: COLORS.writingRevolution,
-    parent: 'first-floor',
-    children: ['wr-case', ...lessonsChild('writing-revolution')],
-  },
-  {
-    id: 'seeing-is-deceiving', label: 'Seeing is\nDeceiving', path: '/exhibitions/seeing-is-deceiving',
-    x: COL[2], ...BOTTOM, accentColor: COLORS.seeingIsDeceiving,
-    parent: 'first-floor',
-    children: ['illusions', 'artifacts', 'resources', ...lessonsChild('seeing-is-deceiving')],
-  },
-  {
-    id: 'fear-lab', label: 'The Fear Lab', path: '/exhibitions/fear-lab',
-    x: COL[3], ...BOTTOM, accentColor: COLORS.fearLab,
-    parent: 'first-floor',
-    children: [...lessonsChild('fear-lab')],
+    children: ['ho-case', 'ho-stones', ...lessonsChild('holocaust')],
   },
 ];
 
 const FIRST_FLOOR_CONNECTIONS: RoomConnection[] = [
   ['great-war', 'harlem-renaissance'],
-  ['harlem-renaissance', 'womens-history'],
+  ['great-war', 'womens-history'],
+  ['harlem-renaissance', 'holocaust'],
   ['womens-history', 'holocaust'],
-  ['great-war', 'black-history'],
-  ['holocaust', 'fear-lab'],
-  ['black-history', 'writing-revolution'],
-  ['writing-revolution', 'seeing-is-deceiving'],
-  ['seeing-is-deceiving', 'fear-lab'],
 ];
 
 export const FIRST_FLOOR: MapLevelConfig = {
@@ -305,51 +329,172 @@ export const FIRST_FLOOR: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
+// LEVEL 2 — Second Floor: Reflections
+//
+// Identity, words and the mind, two rows of two:
+//   ┌──────────┐ ┌──────────┐
+//   │  Black   │─│ Writing  │
+//   │ History  │ │Revolution│
+//   └──────────┘ └──────────┘
+//        │            │
+//   ┌──────────┐ ┌──────────┐
+//   │ Seeing is│─│ The Fear │
+//   │ Deceiving│ │   Lab    │
+//   └──────────┘ └──────────┘
+// ═══════════════════════════════════════════════════════════════════
+
+const SECOND_FLOOR_ROOMS: MapRoom[] = [
+  {
+    id: 'black-history', label: 'Black History\nMonth', path: '/exhibitions/black-history',
+    x: COL[0], ...TOP, accentColor: COLORS.blackHistory,
+    parent: 'second-floor',
+    children: ['bh-case', 'bh-timeline', 'bh-representation', ...lessonsChild('black-history')],
+  },
+  {
+    id: 'writing-revolution', label: 'The Writing\nRevolution', path: '/exhibitions/writing-revolution',
+    x: COL[1], ...TOP, accentColor: COLORS.writingRevolution,
+    parent: 'second-floor',
+    children: ['wr-case', 'wr-typing', ...lessonsChild('writing-revolution')],
+  },
+  {
+    id: 'seeing-is-deceiving', label: 'Seeing is\nDeceiving', path: '/exhibitions/seeing-is-deceiving',
+    x: COL[0], ...BOTTOM, accentColor: COLORS.seeingIsDeceiving,
+    parent: 'second-floor',
+    children: ['illusions', 'artifacts', 'resources', 'sid-optical-toys', ...lessonsChild('seeing-is-deceiving')],
+  },
+  {
+    id: 'fear-lab', label: 'The Fear Lab', path: '/exhibitions/fear-lab',
+    x: COL[1], ...BOTTOM, accentColor: COLORS.fearLab,
+    parent: 'second-floor',
+    children: ['fl-case', 'fl-what-scares-you', ...lessonsChild('fear-lab')],
+  },
+];
+
+const SECOND_FLOOR_CONNECTIONS: RoomConnection[] = [
+  ['black-history', 'writing-revolution'],
+  ['black-history', 'seeing-is-deceiving'],
+  ['writing-revolution', 'fear-lab'],
+  ['seeing-is-deceiving', 'fear-lab'],
+];
+
+export const SECOND_FLOOR: MapLevelConfig = {
+  level: 'floor',
+  viewBox: '0 0 500 380',
+  rooms: SECOND_FLOOR_ROOMS,
+  connections: SECOND_FLOOR_CONNECTIONS,
+  title: '2nd Floor: Reflections',
+  backTarget: { label: 'Museum Overview', path: '/greathall' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// LEVEL 2 — Third Floor: Studio
+//
+// One workshop, its tools along two benches, each a door to the room in its
+// exhibition where the tool lives (lib/floors.ts STUDIO_TOOLS), in its
+// exhibition's color:
+// ┌─────┬─────┬─────┬─────┬─────┐
+// │  1  │  2  │  3  │  4  │  5  │
+// ├─────┼─────┼─────┼─────┼─────┤
+// │  6  │  7  │  8  │  9  │ 10  │
+// └─────┴─────┴─────┴─────┴─────┘
+// ═══════════════════════════════════════════════════════════════════
+
+// Five 86-wide benches with 8 between them, centred in the 500-wide view
+const BENCH = { width: 86, height: 110, gap: 8, left: 17, top: 80, rowGap: 30 };
+
+// A tool's name on two lines where it is long.
+const benchLabel = (title: string) => {
+  const words = title.split(' ');
+  if (title.length <= 12 || words.length < 2) return title;
+  const mid = Math.ceil(words.length / 2);
+  return `${words.slice(0, mid).join(' ')}\n${words.slice(mid).join(' ')}`;
+};
+
+const STUDIO_ROOMS: MapRoom[] = STUDIO_PAGE.tools.map((tool, i) => ({
+  id: STUDIO_IDS[i],
+  label: benchLabel(tool.title),
+  path: studioToolHref(tool.href), // through the Studio's door, so the tool's "M ←" comes back to it
+  x: BENCH.left + (i % 5) * (BENCH.width + BENCH.gap),
+  y: BENCH.top + Math.floor(i / 5) * (BENCH.height + BENCH.rowGap),
+  width: BENCH.width,
+  height: BENCH.height,
+  accentColor: findExhibition(tool.exhibition)?.accent ?? COLORS.brass,
+  parent: 'third-floor',
+}));
+
+export const STUDIO: MapLevelConfig = {
+  level: 'floor',
+  viewBox: '0 0 500 380',
+  rooms: STUDIO_ROOMS,
+  connections: [],
+  title: '3rd Floor: Studio',
+  backTarget: { label: 'Museum Overview', path: '/greathall' },
+  ancestors: [
+    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
+  ],
+};
+
+// ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Seeing is Deceiving (Floor Plan)
 //
-// Layout: three rooms in a row sharing walls
-// ┌────────────┬────────────┬────────────┐
-// │            │            │            │
-// │  Illusions │  Artifacts │  Resources │
-// │            │            │            │
-// └────────────┴────────────┴────────────┘
+// Layout: the Exhibition Hall with Resources beside it, the display case
+// (Artifacts) beyond, and the two interactive rooms beyond that
+// ┌───────────────────────┬────────────┐
+// │    Exhibition Hall    ╎ Resources  │
+// ├──────────╴ ╶──────────┴────────────┤
+// │      Artifacts (Display Case)      │
+// ├────────╴ ╶───────┬───────╴ ╶───────┤
+// │    Illusions     ╎   Optical Toys  │
+// └──────────────────┴─────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const SID_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 170, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 250, rx: 3 },
   accentColor: COLORS.seeingIsDeceiving,
   walls: [
-    // Horizontal wall between Exhibition Hall and rooms (with doorway)
-    ...wallWithDoorway(40, 130, 460, 130, 20),
-    // Vertical wall between Illusions and Artifacts (with doorway)
-    ...wallWithDoorway(180, 130, 180, 250),
-    // Vertical wall between Artifacts and Resources (with doorway)
-    ...wallWithDoorway(320, 130, 320, 250),
+    // Between the Exhibition Hall and Resources (with doorway)
+    ...wallWithDoorway(340, 80, 340, 130),
+    // Under the Exhibition Hall, into the case (with doorway); Resources is closed to it
+    ...wallWithDoorway(40, 130, 340, 130, 20),
+    { x1: 340, y1: 130, x2: 460, y2: 130 },
+    // Under the case, a doorway into each room
+    ...wallWithDoorway(40, 230, 250, 230),
+    ...wallWithDoorway(250, 230, 460, 230),
+    ...wallWithDoorway(250, 230, 250, 330),
   ],
   rooms: [
     {
       id: 'sid-entrance', label: 'Exhibition Hall', path: '/exhibitions/seeing-is-deceiving',
       accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
-      x: 40, y: 80, width: 420, height: 50,
-      labelX: 250, labelY: 105,
-    },
-    {
-      id: 'illusions', label: 'Illusions', path: '/exhibitions/seeing-is-deceiving/illusions',
-      accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
-      x: 40, y: 130, width: 140, height: 120,
-      labelX: 110, labelY: 190,
-    },
-    {
-      id: 'artifacts', label: 'Artifacts', path: '/exhibitions/seeing-is-deceiving/artifacts',
-      accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
-      x: 180, y: 130, width: 140, height: 120,
-      labelX: 250, labelY: 190,
+      x: 40, y: 80, width: 300, height: 50,
+      labelX: 190, labelY: 105,
     },
     {
       id: 'resources', label: 'Resources', path: '/exhibitions/seeing-is-deceiving/resources',
       accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
-      x: 320, y: 130, width: 140, height: 120,
-      labelX: 390, labelY: 190,
+      x: 340, y: 80, width: 120, height: 50,
+      labelX: 400, labelY: 105,
+    },
+    {
+      id: 'artifacts', label: 'Artifacts', path: '/exhibitions/seeing-is-deceiving/artifacts',
+      accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
+      x: 40, y: 130, width: 420, height: 100,
+      labelX: 250, labelY: 180,
+    },
+    {
+      id: 'illusions', label: 'Illusions', path: '/exhibitions/seeing-is-deceiving/illusions',
+      accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
+      x: 40, y: 230, width: 210, height: 100,
+      labelX: 145, labelY: 280,
+    },
+    {
+      id: 'sid-optical-toys', label: 'Optical Toys', path: '/exhibitions/seeing-is-deceiving/optical-toys',
+      accentColor: COLORS.seeingIsDeceiving, parent: 'seeing-is-deceiving',
+      x: 250, y: 230, width: 210, height: 100,
+      labelX: 355, labelY: 280,
     },
   ],
 };
@@ -359,29 +504,23 @@ export const SEEING_IS_DECEIVING: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'Seeing is Deceiving',
-  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
-  ],
-  ...withLessons(SID_FLOOR_PLAN, '0 0 500 300', 'seeing-is-deceiving'),
+  ...onFloorOf('seeing-is-deceiving'),
+  ...withLessons(SID_FLOOR_PLAN, '0 0 500 380', 'seeing-is-deceiving'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Harlem Renaissance (Floor Plan)
 //
-// Layout: 3 rooms on top, 2 rooms on bottom, all connected
-// ┌──────────┬──────────┬──────────────┐
-// │          │          │   Harlem in  │
-// │ Artifacts│ Jazz Lab │    Words     │
-// │          │          │              │
-// ├── ───────┼── ───────┼── ──────┐    │
-// │          │          │         │    │
-// │ Great    │          │         └────┤
-// │ Migration│ Resources│              │
-// │   Map    │(coming)  │              │
-// └──────────┴──────────┘              │
-//                                      │
+// Layout: the Exhibition Hall with Resources beside it, the display case
+// (Artifacts) beyond, and the three interactive rooms beyond that
+// ┌───────────────────────┬────────────┐
+// │    Exhibition Hall    ╎ Resources  │
+// ├──────────╴ ╶──────────┴────────────┤
+// │      Artifacts (Display Case)      │
+// ├────╴ ╶─────┬────╴ ╶────┬────╴ ╶────┤
+// │  Jazz Lab  ╎ Migration ╎ Harlem in │
+// │            ╎    Map    ╎   Words   │
+// └────────────┴───────────┴───────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const HR_FLOOR_PLAN: ExhibitionFloorPlan = {
@@ -390,59 +529,60 @@ const HR_FLOOR_PLAN: ExhibitionFloorPlan = {
   },
   accentColor: COLORS.harlemRenaissance,
   walls: [
-    // Horizontal wall between Exhibition Hall and top row (with doorway)
-    ...wallWithDoorway(40, 130, 460, 130, 20),
+    // Between the Exhibition Hall and Resources (with doorway)
+    ...wallWithDoorway(340, 80, 340, 130),
+    // Under the Exhibition Hall, into the case (with doorway); Resources is closed to it
+    ...wallWithDoorway(40, 130, 340, 130, 20),
+    { x1: 340, y1: 130, x2: 460, y2: 130 },
 
-    // Top row vertical walls
-    ...wallWithDoorway(180, 130, 180, 245),   // between Artifacts and Jazz Lab
-    ...wallWithDoorway(320, 130, 320, 245),   // between Jazz Lab and Harlem in Words
+    // Under the case, a doorway into each room
+    ...wallWithDoorway(40, 245, 180, 245),
+    ...wallWithDoorway(180, 245, 320, 245),
+    ...wallWithDoorway(320, 245, 460, 245),
 
-    // Horizontal wall (top/bottom row separator)
-    ...wallWithDoorway(40, 245, 180, 245),   // under Artifacts
-    ...wallWithDoorway(180, 245, 320, 245),  // under Jazz Lab
-
-    // Bottom row vertical wall
-    ...wallWithDoorway(220, 245, 220, 360),  // between Migration Map and Resources
+    // Between the rooms
+    ...wallWithDoorway(180, 245, 180, 360),
+    ...wallWithDoorway(320, 245, 320, 360),
   ],
   rooms: [
-    // Exhibition Hall entrance
+    // Exhibition Hall entrance, and Resources beside it
     {
       id: 'hr-entrance', label: 'Exhibition Hall', path: '/exhibitions/harlem-renaissance',
       accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 40, y: 80, width: 420, height: 50,
-      labelX: 250, labelY: 105,
-    },
-    // Top row
-    {
-      id: 'hr-artifacts', label: 'Artifacts', path: '/exhibitions/harlem-renaissance/artifacts',
-      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 40, y: 130, width: 140, height: 115,
-      labelX: 110, labelY: 188,
-    },
-    {
-      id: 'hr-jazz-lab', label: 'Jazz Lab', path: '/exhibitions/harlem-renaissance/jazz-lab',
-      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 180, y: 130, width: 140, height: 115,
-      labelX: 250, labelY: 188,
-    },
-    {
-      id: 'hr-harlem-in-words', label: 'Harlem in Words', path: '/exhibitions/harlem-renaissance/harlem-in-words',
-      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 320, y: 130, width: 140, height: 230,
-      labelX: 390, labelY: 245,
-    },
-    // Bottom row
-    {
-      id: 'hr-migration-map', label: 'Great Migration Map', path: '/exhibitions/harlem-renaissance/migration-map',
-      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 40, y: 245, width: 180, height: 115,
-      labelX: 130, labelY: 302,
+      x: 40, y: 80, width: 300, height: 50,
+      labelX: 190, labelY: 105,
     },
     {
       id: 'hr-resources', label: 'Resources', path: '/exhibitions/harlem-renaissance/resources',
       accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
-      x: 220, y: 245, width: 100, height: 115,
-      labelX: 270, labelY: 302,
+      x: 340, y: 80, width: 120, height: 50,
+      labelX: 400, labelY: 105,
+    },
+    // The display case
+    {
+      id: 'hr-artifacts', label: 'Artifacts', path: '/exhibitions/harlem-renaissance/artifacts',
+      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
+      x: 40, y: 130, width: 420, height: 115,
+      labelX: 250, labelY: 188,
+    },
+    // The rooms beyond it
+    {
+      id: 'hr-jazz-lab', label: 'Jazz Lab', path: '/exhibitions/harlem-renaissance/jazz-lab',
+      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
+      x: 40, y: 245, width: 140, height: 115,
+      labelX: 110, labelY: 302,
+    },
+    {
+      id: 'hr-migration-map', label: 'Great Migration\nMap', path: '/exhibitions/harlem-renaissance/migration-map',
+      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
+      x: 180, y: 245, width: 140, height: 115,
+      labelX: 250, labelY: 302,
+    },
+    {
+      id: 'hr-harlem-in-words', label: 'Harlem in Words', path: '/exhibitions/harlem-renaissance/harlem-in-words',
+      accentColor: COLORS.harlemRenaissance, parent: 'harlem-renaissance',
+      x: 320, y: 245, width: 140, height: 115,
+      labelX: 390, labelY: 302,
     },
   ],
 };
@@ -452,18 +592,18 @@ export const HARLEM_RENAISSANCE: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'Harlem Renaissance',
-  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
-  ],
+  ...onFloorOf('harlem-renaissance'),
   ...withLessons(HR_FLOOR_PLAN, '0 0 500 410', 'harlem-renaissance'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — In Their Hands (Floor Plan)
 //
-// Layout: each display case sits above the interactive it leads to
+// Layout: the Exhibition Hall with Resources beside it, and each display
+// case above the interactive it leads to
+// ┌─────────────────────┬──────────┐
+// │   Exhibition Hall   ╎Resources │
+// ├──────────╴ ╶────────┴──────────┤
 // ┌──────────┬──────────┬──────────┐
 // │  Case 6  │  Case 7  │  Case 8  │
 // ├── ───────┼── ───────┼── ───────┤
@@ -478,6 +618,8 @@ const ITH_FLOOR_PLAN: ExhibitionFloorPlan = {
   walls: [
     // Horizontal wall between Exhibition Hall and the cases (with doorway)
     ...wallWithDoorway(40, 130, 460, 130, 20),
+    // Between the Exhibition Hall and Resources (with doorway)
+    ...wallWithDoorway(340, 80, 340, 130),
 
     // Case row vertical walls
     ...wallWithDoorway(180, 130, 180, 245),  // between Case 6 and Case 7
@@ -497,8 +639,14 @@ const ITH_FLOOR_PLAN: ExhibitionFloorPlan = {
     {
       id: 'ith-entrance', label: 'Exhibition Hall', path: '/exhibitions/in-their-hands',
       accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
-      x: 40, y: 80, width: 420, height: 50,
-      labelX: 250, labelY: 105,
+      x: 40, y: 80, width: 300, height: 50,
+      labelX: 190, labelY: 105,
+    },
+    {
+      id: 'ith-resources', label: 'Resources', path: '/exhibitions/in-their-hands/resources',
+      accentColor: COLORS.inTheirHands, parent: 'in-their-hands',
+      x: 340, y: 80, width: 120, height: 50,
+      labelX: 400, labelY: 105,
     },
     // Display cases
     {
@@ -546,33 +694,49 @@ export const IN_THEIR_HANDS: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'In Their Hands',
-  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
-  ],
+  ...onFloorOf('in-their-hands'),
   ...withLessons(ITH_FLOOR_PLAN, '0 0 500 410', 'in-their-hands'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Fear Lab (Floor Plan)
 //
-// Layout: the Exhibition Hall alone for now (no cases or interactives yet)
+// Layout: the Exhibition Hall, the display case beyond it, and the
+// interactive room beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
+// ├───────────────╴ ╶──────────────┤
+// │        What Scares You?        │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const FEAR_LAB_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 120, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.fearLab,
-  walls: [],
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
+  ],
   rooms: [
     {
       id: 'fl-entrance', label: 'Exhibition Hall', path: '/exhibitions/fear-lab',
       accentColor: COLORS.fearLab, parent: 'fear-lab',
-      x: 40, y: 80, width: 420, height: 120,
-      labelX: 250, labelY: 140,
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'fl-case', label: 'Display Case', path: '/exhibitions/fear-lab/artifacts/case',
+      accentColor: COLORS.fearLab, parent: 'fear-lab',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
+    },
+    {
+      id: 'fl-what-scares-you', label: 'What Scares You?', path: '/exhibitions/fear-lab/what-scares-you',
+      accentColor: COLORS.fearLab, parent: 'fear-lab',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
     },
   ],
 };
@@ -582,12 +746,8 @@ export const FEAR_LAB: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'The Fear Lab',
-  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
-  ],
-  ...withLessons(FEAR_LAB_FLOOR_PLAN, '0 0 500 250', 'fear-lab'),
+  ...onFloorOf('fear-lab'),
+  ...withLessons(FEAR_LAB_FLOOR_PLAN, '0 0 500 430', 'fear-lab'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -646,43 +806,90 @@ export const GREAT_WAR: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'The Great War',
-  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
-  ],
+  ...onFloorOf('great-war'),
   ...withLessons(GREAT_WAR_FLOOR_PLAN, '0 0 500 430', 'great-war'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Ancient Egypt (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and its six
+// interactive rooms beyond that, in the order the case lists them
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// └────────────────────────────────┘
+// ├──────╴ ╶──┬───╴ ╶───┬──╴ ╶─────┤
+// │ Your Name │ Rosetta  │  Tomb   │
+// ├──────╴ ╶──┼───╴ ╶───┼──╴ ╶─────┤
+// │Mummificat.│ Weighing │ Amulet  │
+// └───────────┴──────────┴─────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const EGYPT_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 320, rx: 3 },
   accentColor: COLORS.egypt,
   walls: [
-    ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 160, 460, 160),
+    // Under the case, a doorway into each room of the first row
+    ...wallWithDoorway(40, 240, 180, 240),
+    ...wallWithDoorway(180, 240, 320, 240),
+    ...wallWithDoorway(320, 240, 460, 240),
+    // And from each room of the first row into the one beneath it
+    ...wallWithDoorway(40, 320, 180, 320),
+    ...wallWithDoorway(180, 320, 320, 320),
+    ...wallWithDoorway(320, 320, 460, 320),
+    ...wallWithDoorway(180, 240, 180, 400),
+    ...wallWithDoorway(320, 240, 320, 400),
   ],
   rooms: [
     {
       id: 'eg-entrance', label: 'Exhibition Hall', path: '/exhibitions/egypt',
       accentColor: COLORS.egypt, parent: 'egypt',
-      x: 40, y: 80, width: 420, height: 100,
-      labelX: 250, labelY: 130,
+      x: 40, y: 80, width: 420, height: 80,
+      labelX: 250, labelY: 120,
     },
     {
       id: 'eg-case', label: 'Display Case', path: '/exhibitions/egypt/artifacts/case',
       accentColor: COLORS.egypt, parent: 'egypt',
-      x: 40, y: 180, width: 420, height: 100,
-      labelX: 250, labelY: 230,
+      x: 40, y: 160, width: 420, height: 80,
+      labelX: 250, labelY: 200,
+    },
+    {
+      id: 'eg-hieroglyph-name', label: 'Your Name in Hieroglyphs', path: '/exhibitions/egypt/hieroglyph-name',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 40, y: 240, width: 140, height: 80,
+      labelX: 110, labelY: 280,
+    },
+    {
+      id: 'eg-rosetta-stone', label: 'The Rosetta Stone Decoder', path: '/exhibitions/egypt/rosetta-stone',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 180, y: 240, width: 140, height: 80,
+      labelX: 250, labelY: 280,
+    },
+    {
+      id: 'eg-tomb', label: 'Tomb Explorer', path: '/exhibitions/egypt/tomb',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 320, y: 240, width: 140, height: 80,
+      labelX: 390, labelY: 280,
+    },
+    {
+      id: 'eg-mummification', label: 'Mummification, Step by Step', path: '/exhibitions/egypt/mummification',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 40, y: 320, width: 140, height: 80,
+      labelX: 110, labelY: 360,
+    },
+    {
+      id: 'eg-weighing-of-the-heart', label: 'The Weighing of the Heart', path: '/exhibitions/egypt/weighing-of-the-heart',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 180, y: 320, width: 140, height: 80,
+      labelX: 250, labelY: 360,
+    },
+    {
+      id: 'eg-amulet', label: 'Design an Amulet', path: '/exhibitions/egypt/amulet',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 320, y: 320, width: 140, height: 80,
+      labelX: 390, labelY: 360,
     },
   ],
 };
@@ -692,30 +899,30 @@ export const EGYPT: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'Ancient Egypt',
-  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
-  ],
-  ...withLessons(EGYPT_FLOOR_PLAN, '0 0 500 330', 'egypt'),
+  ...onFloorOf('egypt'),
+  ...withLessons(EGYPT_FLOOR_PLAN, '0 0 500 450', 'egypt'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Our Incredible Moon (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the
+// interactive room beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
+// ├───────────────╴ ╶──────────────┤
+// │      Under the Microscope      │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const MOON_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.moon,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
   ],
   rooms: [
     {
@@ -730,6 +937,12 @@ const MOON_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'mo-microscope', label: 'Under the Microscope', path: '/exhibitions/moon/microscope',
+      accentColor: COLORS.moon, parent: 'moon',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
+    },
   ],
 };
 
@@ -738,35 +951,49 @@ export const MOON: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'Our Incredible Moon',
-  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
-  ],
-  ...withLessons(MOON_FLOOR_PLAN, '0 0 500 330', 'moon'),
+  ...onFloorOf('moon'),
+  ...withLessons(MOON_FLOOR_PLAN, '0 0 500 430', 'moon'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — America 250 (Floor Plan)
 //
-// Layout: the Exhibition Hall alone (there is no display case)
+// Layout: the Exhibition Hall, the display case beyond it, and the signing
+// room beyond that
 // ┌────────────────────────────────┐
-// │                                │
 // │        Exhibition Hall         │
-// │                                │
+// ├───────────────╴ ╶──────────────┤
+// │          Display Case          │
+// ├───────────────╴ ╶──────────────┤
+// │      Put Your Name to It       │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const AMERICA_250_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.america250,
-  walls: [],
+  walls: [
+    ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
+  ],
   rooms: [
     {
       id: 'ap-entrance', label: 'Exhibition Hall', path: '/exhibitions/america-250',
       accentColor: COLORS.america250, parent: 'america-250',
-      x: 40, y: 80, width: 420, height: 200,
-      labelX: 250, labelY: 180,
+      x: 40, y: 80, width: 420, height: 100,
+      labelX: 250, labelY: 130,
+    },
+    {
+      id: 'ap-case', label: 'Display Case', path: '/exhibitions/america-250/artifacts/case',
+      accentColor: COLORS.america250, parent: 'america-250',
+      x: 40, y: 180, width: 420, height: 100,
+      labelX: 250, labelY: 230,
+    },
+    {
+      id: 'ap-sign', label: 'Put Your Name to It', path: '/exhibitions/america-250/sign',
+      accentColor: COLORS.america250, parent: 'america-250',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
     },
   ],
 };
@@ -776,30 +1003,35 @@ export const AMERICA_250: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'America 250',
-  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
-  ],
-  ...withLessons(AMERICA_250_FLOOR_PLAN, '0 0 500 330', 'america-250'),
+  ...onFloorOf('america-250'),
+  ...withLessons(AMERICA_250_FLOOR_PLAN, '0 0 500 430', 'america-250'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Victorian Britain (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case, and three interactive
+// rooms beyond: the card maker, the inventions workshop and the parlour
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// └────────────────────────────────┘
+// ├──────╴ ╶──┬───╴ ╶───┬──╴ ╶─────┤
+// │Card Maker │Inventions│ Parlour │
+// └───────────┴──────────┴─────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const VICTORIAN_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.victorian,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    // Under the case, a doorway into each room
+    ...wallWithDoorway(40, 280, 180, 280),
+    ...wallWithDoorway(180, 280, 320, 280),
+    ...wallWithDoorway(320, 280, 460, 280),
+    ...wallWithDoorway(180, 280, 180, 380),
+    ...wallWithDoorway(320, 280, 320, 380),
   ],
   rooms: [
     {
@@ -814,6 +1046,24 @@ const VICTORIAN_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'vb-christmas-card', label: 'Card Maker', path: '/exhibitions/victorian/christmas-card',
+      accentColor: COLORS.victorian, parent: 'victorian',
+      x: 40, y: 280, width: 140, height: 100,
+      labelX: 110, labelY: 330,
+    },
+    {
+      id: 'vb-inventions', label: 'Inventions', path: '/exhibitions/victorian/inventions',
+      accentColor: COLORS.victorian, parent: 'victorian',
+      x: 180, y: 280, width: 140, height: 100,
+      labelX: 250, labelY: 330,
+    },
+    {
+      id: 'vb-christmas-parlour', label: 'Parlour', path: '/exhibitions/victorian/christmas-parlour',
+      accentColor: COLORS.victorian, parent: 'victorian',
+      x: 320, y: 280, width: 140, height: 100,
+      labelX: 390, labelY: 330,
+    },
   ],
 };
 
@@ -822,30 +1072,32 @@ export const VICTORIAN: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'Victorian Britain',
-  backTarget: { label: 'Ground Floor', path: '/exhibitions/ground-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: 'Ground Floor', viewPath: '/exhibitions/ground-floor', accentColor: COLORS.sage },
-  ],
-  ...withLessons(VICTORIAN_FLOOR_PLAN, '0 0 500 330', 'victorian'),
+  ...onFloorOf('victorian'),
+  ...withLessons(VICTORIAN_FLOOR_PLAN, '0 0 500 430', 'victorian'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Women's History Month (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the two
+// interactive rooms beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// └────────────────────────────────┘
+// ├───────╴ ╶───────┬──────╴ ╶─────┤
+// │  Violet’s Life  ╎ Who Gets…    │
+// └─────────────────┴──────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const WOMENS_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.womensHistory,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 250, 280),
+    ...wallWithDoorway(250, 280, 460, 280),
+    ...wallWithDoorway(250, 280, 250, 380),
   ],
   rooms: [
     {
@@ -860,6 +1112,18 @@ const WOMENS_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'wh-violet', label: 'Violet’s Life', path: '/exhibitions/womens-history/violet',
+      accentColor: COLORS.womensHistory, parent: 'womens-history',
+      x: 40, y: 280, width: 210, height: 100,
+      labelX: 145, labelY: 330,
+    },
+    {
+      id: 'wh-remembered', label: 'Who Gets\nRemembered?', path: '/exhibitions/womens-history/remembered',
+      accentColor: COLORS.womensHistory, parent: 'womens-history',
+      x: 250, y: 280, width: 210, height: 100,
+      labelX: 355, labelY: 330,
+    },
   ],
 };
 
@@ -868,30 +1132,30 @@ export const WOMENS_HISTORY: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: "Women's History Month",
-  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
-  ],
-  ...withLessons(WOMENS_HISTORY_FLOOR_PLAN, '0 0 500 330', 'womens-history'),
+  ...onFloorOf('womens-history'),
+  ...withLessons(WOMENS_HISTORY_FLOOR_PLAN, '0 0 500 430', 'womens-history'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Holocaust Memorial Day (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the
+// interactive room beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
+// ├───────────────╴ ╶──────────────┤
+// │          Never Forget          │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.holocaust,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
   ],
   rooms: [
     {
@@ -906,6 +1170,12 @@ const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'ho-stones', label: 'Never Forget', path: '/exhibitions/holocaust/stones',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
+    },
   ],
 };
 
@@ -914,30 +1184,33 @@ export const HOLOCAUST: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'Holocaust Memorial Day',
-  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
-  ],
-  ...withLessons(HOLOCAUST_FLOOR_PLAN, '0 0 500 330', 'holocaust'),
+  ...onFloorOf('holocaust'),
+  ...withLessons(HOLOCAUST_FLOOR_PLAN, '0 0 500 430', 'holocaust'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Black History Month (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the two
+// interactive rooms beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// └────────────────────────────────┘
+// ├───────╴ ╶───────┬──────╴ ╶─────┤
+// │ The Black Barbie╎ Who Do You   │
+// │    Timeline     ╎    See?      │
+// └─────────────────┴──────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const BLACK_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.blackHistory,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 250, 280),
+    ...wallWithDoorway(250, 280, 460, 280),
+    ...wallWithDoorway(250, 280, 250, 380),
   ],
   rooms: [
     {
@@ -952,6 +1225,18 @@ const BLACK_HISTORY_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'bh-timeline', label: 'The Black Barbie Timeline', path: '/exhibitions/black-history/timeline',
+      accentColor: COLORS.blackHistory, parent: 'black-history',
+      x: 40, y: 280, width: 210, height: 100,
+      labelX: 145, labelY: 330,
+    },
+    {
+      id: 'bh-representation', label: 'Who Do You See?', path: '/exhibitions/black-history/representation',
+      accentColor: COLORS.blackHistory, parent: 'black-history',
+      x: 250, y: 280, width: 210, height: 100,
+      labelX: 355, labelY: 330,
+    },
   ],
 };
 
@@ -960,30 +1245,30 @@ export const BLACK_HISTORY: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'Black History Month',
-  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
-  ],
-  ...withLessons(BLACK_HISTORY_FLOOR_PLAN, '0 0 500 330', 'black-history'),
+  ...onFloorOf('black-history'),
+  ...withLessons(BLACK_HISTORY_FLOOR_PLAN, '0 0 500 430', 'black-history'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — The Writing Revolution (Floor Plan)
 //
-// Layout: the Exhibition Hall, and the display case beyond it
+// Layout: the Exhibition Hall, the display case beyond it, and the
+// interactive room beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
+// ├───────────────╴ ╶──────────────┤
+// │       The Typing Station       │
 // └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const WRITING_REVOLUTION_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 200, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
   accentColor: COLORS.writingRevolution,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
+    ...wallWithDoorway(40, 280, 460, 280),
   ],
   rooms: [
     {
@@ -998,6 +1283,12 @@ const WRITING_REVOLUTION_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 40, y: 180, width: 420, height: 100,
       labelX: 250, labelY: 230,
     },
+    {
+      id: 'wr-typing', label: 'The Typing Station', path: '/exhibitions/writing-revolution/typing-station',
+      accentColor: COLORS.writingRevolution, parent: 'writing-revolution',
+      x: 40, y: 280, width: 420, height: 100,
+      labelX: 250, labelY: 330,
+    },
   ],
 };
 
@@ -1006,12 +1297,8 @@ export const WRITING_REVOLUTION: MapLevelConfig = {
   rooms: [],
   connections: [],
   title: 'The Writing Revolution',
-  backTarget: { label: '1st Floor', path: '/exhibitions/first-floor' },
-  ancestors: [
-    { label: 'Great Hall', viewPath: '/greathall', accentColor: COLORS.sage },
-    { label: '1st Floor', viewPath: '/exhibitions/first-floor', accentColor: COLORS.sageLighter },
-  ],
-  ...withLessons(WRITING_REVOLUTION_FLOOR_PLAN, '0 0 500 330', 'writing-revolution'),
+  ...onFloorOf('writing-revolution'),
+  ...withLessons(WRITING_REVOLUTION_FLOOR_PLAN, '0 0 500 430', 'writing-revolution'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1032,7 +1319,9 @@ export function getLevelConfig(pathname: string): MapLevelConfig {
   if (pathname.startsWith('/exhibitions/holocaust')) return HOLOCAUST;
   if (pathname.startsWith('/exhibitions/black-history')) return BLACK_HISTORY;
   if (pathname.startsWith('/exhibitions/writing-revolution')) return WRITING_REVOLUTION;
-  if (pathname === '/exhibitions/first-floor') return FIRST_FLOOR;
-  if (pathname === '/exhibitions/ground-floor') return GROUND_FLOOR;
+  if (pathname === STUDIO_PAGE.path) return STUDIO;
+  if (pathname === SECOND_FLOOR_PAGE.path) return SECOND_FLOOR;
+  if (pathname === FIRST_FLOOR_PAGE.path) return FIRST_FLOOR;
+  if (pathname === GROUND_FLOOR_PAGE.path) return GROUND_FLOOR;
   return MUSEUM_OVERVIEW;
 }

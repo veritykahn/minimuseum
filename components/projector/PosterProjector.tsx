@@ -18,8 +18,9 @@ import { srOnly } from '@/lib/a11y';
 import { focusHeadingIn } from '@/lib/a11y/focus';
 import { chapterAt, posterChapters, type Chapter, type PosterTalk } from './posterTalk';
 import { posterKeyCommand } from './posterKeys';
-import { catalogFor, lessonPath, lessonsForPoster, lessonsPath, type LessonCard } from '@/lib/lessons/catalog';
+import { catalogFor, lessonsPath } from '@/lib/lessons/catalog';
 import { holdProjectorScreen, takeJustExited, writeProjectorParams } from './useProjectorMode';
+import type { AudioGuideState } from '@/components/exhibition/AudioGuide';
 import styles from './posterProjector.module.css';
 import './poster-projector.css';
 
@@ -54,7 +55,7 @@ type Props<K extends string> = {
   /** --pj-* custom properties (see themes.ts). */
   theme: CSSProperties;
   links: { label: string; href: string }[];
-  /** "seeing-is-deceiving": lists the exhibition's on-screen lessons, and each poster's own. */
+  /** "seeing-is-deceiving": the picker links the exhibition's lessons (they are listed in full under "Teach with this"). */
   exhibitionSlug?: string;
   posters: ProjectorPoster<K>[];
   activeView: 'main' | K;
@@ -64,6 +65,8 @@ type Props<K extends string> = {
   nextStep: () => void;
   prevStep: () => void;
   returnToMain: () => void;
+  /** The poster's audio guide, when it has recordings: its controls join the tool bar. */
+  audioGuide?: AudioGuideState;
   /** The page's walkthrough, as it renders outside projector mode. */
   children: ReactNode;
 };
@@ -75,11 +78,6 @@ type EndContext = {
   nextTitle: string | null;
   chapters: Chapter[];
   links: { label: string; href: string }[];
-  /** the lessons that go with this poster, and where the exhibition's whole list is */
-  lessons: LessonCard[];
-  lessonCount: number;
-  lessonHref: (slug: string) => string;
-  allLessonsHref: string;
   continueOn: () => void;
   backToFirst: () => void;
   goToStep: (step: number) => void;
@@ -192,6 +190,7 @@ function ProjectorScreen<K extends string>({
   nextStep,
   prevStep,
   returnToMain,
+  audioGuide,
   children,
 }: Props<K>) {
   const [strip, setStrip] = useState(true);
@@ -207,7 +206,11 @@ function ProjectorScreen<K extends string>({
   const count = poster?.items.length ?? 0;
   const chapters = useMemo(() => (poster ? posterChapters(poster.items, poster.title) : []), [poster]);
   const chapter = open ? chapterAt(chapters, step) : null;
-  const allLessons = exhibitionSlug ? catalogFor(exhibitionSlug) : [];
+  const lessonCount = exhibitionSlug ? catalogFor(exhibitionSlug).length : 0;
+  const pickerLinks =
+    exhibitionSlug && lessonCount > 0
+      ? [{ label: `${lessonCount} ${lessonCount === 1 ? 'lesson' : 'lessons'} to teach on screen`, href: lessonsPath(exhibitionSlug) }, ...links]
+      : links;
   const question = chapter ? poster?.talk[chapter.key] : undefined;
   const atEnd = open && poster?.items[step]?.type === 'end';
 
@@ -269,12 +272,14 @@ function ProjectorScreen<K extends string>({
     };
     const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(refit);
     ro?.observe(stage);
+    // Each panel may ask for a face not yet loaded (an italic, a display face):
+    // refit once it is in, before the panel starts moving (usePosterFxStage waits for it too).
     void document.fonts?.ready.then(refit);
     return () => {
       cancelAnimationFrame(raf);
       ro?.disconnect();
     };
-  }, [open]);
+  }, [open, step]);
 
   const toggleFullscreen = useCallback(() => {
     if (document.fullscreenElement) void document.exitFullscreen().catch(() => {});
@@ -286,7 +291,14 @@ function ProjectorScreen<K extends string>({
     onExit();
   }, [onExit]);
 
+  const latestGuide = useRef(audioGuide);
+  useLayoutEffect(() => {
+    latestGuide.current = audioGuide;
+  });
+
   const setBlankAndSay = useCallback((next: boolean) => {
+    // A blanked screen is a pause for the class: the guide stops talking too.
+    if (next) latestGuide.current?.pause();
     setBlank(next);
     setNotice(next ? 'Screen blanked. Press B to show it again.' : 'Screen shown.');
   }, []);
@@ -296,6 +308,20 @@ function ProjectorScreen<K extends string>({
       setNotice(v ? 'Teacher strip hidden.' : 'Teacher strip shown.');
       return !v;
     });
+  }, []);
+
+  const toggleGuide = useCallback(() => {
+    const g = latestGuide.current;
+    if (!g) return;
+    if (g.on) g.turnOff();
+    else g.turnOn();
+    setNotice(g.on ? 'Audio guide off.' : 'Audio guide on.');
+  }, []);
+
+  const playPause = useCallback(() => {
+    const g = latestGuide.current;
+    if (!g?.on || !g.available) return;
+    g.toggle();
   }, []);
 
   const continueOn = useCallback(() => {
@@ -358,13 +384,19 @@ function ProjectorScreen<K extends string>({
         case 'fullscreen':
           toggleFullscreen();
           break;
+        case 'audio':
+          toggleGuide();
+          break;
+        case 'play':
+          playPause();
+          break;
         case 'swallow':
           break;
       }
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [goToStep, nextStep, openPoster, posters, prevStep, setBlankAndSay, toggleFullscreen, toggleStrip]);
+  }, [goToStep, nextStep, openPoster, playPause, posters, prevStep, setBlankAndSay, toggleFullscreen, toggleGuide, toggleStrip]);
 
   const endContext: EndContext | null = poster
     ? {
@@ -374,10 +406,6 @@ function ProjectorScreen<K extends string>({
         nextTitle: posters[posterIndex + 1]?.title ?? null,
         chapters,
         links,
-        lessons: exhibitionSlug && poster ? lessonsForPoster(exhibitionSlug, poster.id) : [],
-        lessonCount: allLessons.length,
-        lessonHref: (slug) => lessonPath(exhibitionSlug ?? '', slug),
-        allLessonsHref: lessonsPath(exhibitionSlug ?? ''),
         continueOn,
         backToFirst,
         goToStep,
@@ -401,6 +429,36 @@ function ProjectorScreen<K extends string>({
       >
         Teacher strip <kbd>T</kbd>
       </button>
+      {audioGuide && open && (
+        <>
+          <button
+            type="button"
+            className={styles.tool}
+            aria-pressed={audioGuide.on}
+            aria-keyshortcuts="A"
+            onClick={(e) => {
+              release(e);
+              toggleGuide();
+            }}
+          >
+            Audio guide <kbd>A</kbd>
+          </button>
+          {audioGuide.on && (
+            <button
+              type="button"
+              className={styles.tool}
+              aria-keyshortcuts="P"
+              disabled={!audioGuide.available}
+              onClick={(e) => {
+                release(e);
+                playPause();
+              }}
+            >
+              {audioGuide.playing ? 'Pause' : 'Play'} <kbd>P</kbd>
+            </button>
+          )}
+        </>
+      )}
       <button
         type="button"
         className={styles.tool}
@@ -454,6 +512,11 @@ function ProjectorScreen<K extends string>({
       <span>
         <kbd>F</kbd> full screen
       </span>
+      {open && audioGuide && (
+        <span>
+          <kbd>A</kbd> audio guide
+        </span>
+      )}
     </p>
   );
 
@@ -494,25 +557,11 @@ function ProjectorScreen<K extends string>({
                 </li>
               ))}
             </ul>
-            {allLessons.length > 0 && exhibitionSlug && (
-              <div className={styles.pickerLinks}>
-                <h2 className={styles.smallHeading}>Or teach a whole lesson</h2>
-                <ul>
-                  {allLessons.map((l) => (
-                    <li key={l.slug}>
-                      <Link href={lessonPath(exhibitionSlug, l.slug)} className={styles.link}>
-                        {l.title} <span className={styles.lessonSub}>{l.grade}</span> <span aria-hidden="true">→</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {links.length > 0 && (
+            {pickerLinks.length > 0 && (
               <div className={styles.pickerLinks}>
                 <h2 className={styles.smallHeading}>For the classroom</h2>
                 <ul>
-                  {links.map((l) => (
+                  {pickerLinks.map((l) => (
                     <li key={l.href}>
                       <Link href={l.href} className={styles.link}>
                         {l.label} <span aria-hidden="true">→</span>
@@ -620,28 +669,6 @@ export function PosterProjectorEnd() {
         {!last && ctx.nextTitle && <p className={styles.nextName}>Next: {ctx.nextTitle}</p>}
       </div>
       <div className={styles.endCol}>
-        {ctx.lessonCount > 0 && (
-          <div className={styles.endLinks}>
-            <h3 className={styles.smallHeading}>{ctx.lessons.length > 0 ? 'Teach a lesson with this poster' : 'Teach a lesson'}</h3>
-            <ul className={styles.lessonList}>
-              {ctx.lessons.map((l) => (
-                <li key={l.slug}>
-                  <Link href={ctx.lessonHref(l.slug)} className={`${styles.link} ${styles.lessonLink}`}>
-                    <span>
-                      {l.title} <span aria-hidden="true">→</span>
-                    </span>
-                    <span className={styles.lessonSub}>{l.grade}</span>
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <Link href={ctx.allLessonsHref} className={styles.link}>
-                  {ctx.lessons.length > 0 ? `All ${ctx.lessonCount} lessons` : `${ctx.lessonCount} lessons for this exhibition`} <span aria-hidden="true">→</span>
-                </Link>
-              </li>
-            </ul>
-          </div>
-        )}
         {ctx.chapters.length > 0 && (
           <div>
             <h3 className={styles.smallHeading}>Look back at a chapter</h3>

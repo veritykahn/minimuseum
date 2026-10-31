@@ -1,4 +1,5 @@
 import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
+import { isAddedPanel } from '@/components/exhibition/helpers';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { posterChapters } from '@/components/projector/posterTalk';
@@ -16,7 +17,7 @@ const textOf = (id: string, from: number, to: number) => {
   const p = EGYPT.posters.find((x) => x.id === id)!;
   return p.items
     .slice(from, to)
-    .filter((it) => it.type === 'paragraph')
+    .filter((it) => it.type === 'paragraph' && !isAddedPanel(it))
     .map((it) => ('text' in it ? it.text : ''))
     .join(' ');
 };
@@ -67,7 +68,7 @@ describe('Ancient Egypt', () => {
       expect(textOf('poster2', at(god), end)).toBe(PRINTED[god]);
     });
     // every panel break falls between sentences
-    for (const it of allItems) if (it.type === 'paragraph') expect(it.text).toMatch(/[.!]$/);
+    for (const it of allItems) if (it.type === 'paragraph') expect(it.text).toMatch(/[.!?]"?$/);
   });
 
   it('uses US spellings', () => {

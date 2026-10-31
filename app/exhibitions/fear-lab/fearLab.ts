@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
 import { floorReturnFor } from '@/lib/floors';
-import type { Atmosphere, ExhibitionConfig, PanelDecor } from '@/components/exhibition/types';
+import type { Atmosphere, CasePageData, ExhibitionConfig, PanelDecor } from '@/components/exhibition/types';
 
 /*
  * The Fear Lab: every word on screen, and the look.
@@ -14,6 +14,9 @@ import type { Atmosphere, ExhibitionConfig, PanelDecor } from '@/components/exhi
  * 1's with the spider crouched over it, as printed). Poster 2's starburst
  * line follows as a panel of its own, in its own words. The two vampire
  * illustrations are set beside the copy they illustrate on the poster.
+ *
+ * The display case (FEAR_LAB_CASE) lists the artifacts exactly as the Mini
+ * Museum record does; it has not been photographed yet.
  *
  * The "Talk about it" questions are for the projector's teacher strip: open
  * discussion questions, one per chapter, keyed by the section title exactly
@@ -29,15 +32,40 @@ const SPIDER: PanelDecor = { src: '/exhibitions/fear-lab/spider.png', placement:
 const HAND: PanelDecor = { src: '/exhibitions/fear-lab/hand.png', placement: 'bottom-left', motion: 'rise', width: 'min(30vw, 400px)' };
 
 /*
+ * Poster 1's paragraphs that the lab (what-scares-you/) sets as well as the
+ * walkthrough: each lives here once, and both read it from here.
+ */
+export const FEAR_LAB_COPY = {
+  box: `Put your hand in a box you can't see into. Your heart races before you even touch anything. Why?`,
+  unknown: `Because your brain's #1 fear isn't spiders or snakes—it's the UNKNOWN. And your imagination is programmed to fill that unknown with the worst possible thing.`,
+  ambiguity: `Scientists call it "ambiguity aversion"—we'd rather face a known danger than an unknown possibility. In experiments, a 50% chance of a small electric shock stressed people out more than knowing for certain they'd get one.`,
+  amygdala: `Uncertainty itself sets off the amygdala (your brain's alarm system). When you can't see what's in that box, your brain screams "THREAT!" louder than if you saw an actual spider.`,
+  dread: `Brain scans show that dread is real: in one study, some people chose a stronger shock right away rather than wait for a weaker one.`,
+  mysteryBox: `That's why reaching into a mystery box feels scarier than touching what's actually inside—your imagination creates horrors worse than reality.`,
+  pinecone: `Your brain invents poisonous spiders, slimy worms or nibbling rodents when it's really just a pinecone.`,
+  byDesign: `This isn't a flaw—it's by design. Our brains know it is better to see 100 fake threats than miss one real predator.`,
+  tigers: `When faced with uncertainty, your brain doesn't imagine neutral scenarios—it imagines disasters. This "negativity bias" kept ancestors alive. Those who assumed rustling bushes contained tigers lived longer than optimists.`,
+};
+const C = FEAR_LAB_COPY;
+
+/* Poster 2's paragraphs on the Point Horror series, which its case sets as well. */
+const POINT_HORROR = {
+  launch: `In 1991, Scholastic realized teenagers wanted their own horror, launching the Point Horror series with authors like R.L. Stine (whose "Blind Date" launched his career), Christopher Pike, Caroline B. Cooney, and Diane Hoh.`,
+  hallways: `With titles like "The Babysitter" and "The Boyfriend," these books moved horror from Gothic castles to high school hallways.`,
+};
+
+/*
  * The posters' titles as pictures: their own lettering, cut from the posters
- * at the posters' resolution with the navy ground keyed out
+ * at the posters' 1728px exports with the navy ground keyed out
  * (public/exhibitions/fear-lab/titles/). A sharper export of the same
  * lettering can replace a file at the same path; update its size here when
  * it does.
  */
+/** Cut from the poster's 1728px export: 1728 of its pixels to every 1050 of the served poster's. */
+const TITLE_DENSITY = 1728 / 1050;
 const TITLE_SIZES = {
-  scienceOfBeingScared: { width: 943, height: 332 },
-  pageTurners: { width: 832, height: 170 },
+  scienceOfBeingScared: { width: 1552, height: 546, density: TITLE_DENSITY },
+  pageTurners: { width: 1369, height: 280, density: TITLE_DENSITY },
 };
 
 /*
@@ -88,8 +116,27 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The torch switches on as a poster opens and at each chapter; every other panel arrives its own way.
   fx: { theme: 'fl', veil: 'chapters', text: 'all' },
-  projector: { theme: FEAR_LAB_PROJECTOR_THEME, links: [] },
-  // No display cases yet: the artifacts have not been photographed.
+  projector: {
+    theme: FEAR_LAB_PROJECTOR_THEME,
+    links: [{ label: 'What Scares You? The fear boxes, known or unknown, and the rustling bushes', href: '/exhibitions/fear-lab/what-scares-you' }],
+  },
+  cases: [
+    {
+      href: '/exhibitions/fear-lab/artifacts/case',
+      label: 'Display Case',
+      title: 'Artifacts',
+    },
+  ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
+  interactives: [
+    {
+      href: '/exhibitions/fear-lab/what-scares-you',
+      image: { src: '/exhibitions/fear-lab/rooms/what-scares-you.webp', alt: 'The What Scares You? room: five old boxes on a dark shelf, waiting to be picked, above a beating pulse line' },
+      label: 'Interactive',
+      title: 'What Scares You?',
+      subtitle: 'The fear boxes, known or unknown, and the rustling bushes',
+    },
+  ],
   posters: [
     // ============================================
     // POSTER 1: The Science of Being Scared: Fear Lab
@@ -107,30 +154,30 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
           type: 'title-image',
           atmosphere: 'shadow-people',
           effect: 'mega-zoom-out',
-          src: '/exhibitions/fear-lab/titles/science-of-being-scared.png',
+          src: '/exhibitions/fear-lab/titles/science-of-being-scared.webp',
           ...TITLE_SIZES.scienceOfBeingScared,
           framing: 'centered',
           alt: 'The Science of Being Scared: Fear Lab',
         },
-        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'line-by-line', position: 'bottom-right', decor: HAND, text: `Put your hand in a box you can't see into. Your heart races before you even touch anything. Why?` },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'blind-spot-reveal', position: 'center', text: `Because your brain's #1 fear isn't spiders or snakes—it's the UNKNOWN. And your imagination is programmed to fill that unknown with the worst possible thing.` },
+        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'line-by-line', position: 'bottom-right', decor: HAND, text: C.box },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'blind-spot-reveal', position: 'center', text: C.unknown },
 
         { type: 'section-title', atmosphere: 'amygdala-alarm', effect: 'glitch', text: `Fear of the Unknown: Your Brain's Biggest Trick` },
-        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'typewriter', position: 'top-left', text: `Scientists call it "ambiguity aversion"—we'd rather face a known danger than an unknown possibility. In experiments, a 50% chance of a small electric shock stressed people out more than knowing for certain they'd get one.` },
-        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'split-reveal', position: 'bottom-right', text: `Uncertainty itself sets off the amygdala (your brain's alarm system). When you can't see what's in that box, your brain screams "THREAT!" louder than if you saw an actual spider.` },
+        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'typewriter', position: 'top-left', text: C.ambiguity },
+        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'split-reveal', position: 'bottom-right', text: C.amygdala },
 
         { type: 'section-title', atmosphere: 'racing-heart', effect: 'breathe', text: 'Anticipation Makes Everything Scarier' },
-        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'fade-in', position: 'top-right', text: `Brain scans show that dread is real: in one study, some people chose a stronger shock right away rather than wait for a weaker one.` },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'ink-spread', position: 'bottom-left', text: `That's why reaching into a mystery box feels scarier than touching what's actually inside—your imagination creates horrors worse than reality.` },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'film-credits', position: 'center', decor: SPIDER, text: `Your brain invents poisonous spiders, slimy worms or nibbling rodents when it's really just a pinecone.` },
+        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'fade-in', position: 'top-right', text: C.dread },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'ink-spread', position: 'bottom-left', text: C.mysteryBox },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'film-credits', position: 'center', decor: SPIDER, text: C.pinecone },
 
         { type: 'section-title', atmosphere: 'shadow-people', effect: 'blur-to-sharp', text: 'Pareidolia: Seeing Monsters Everywhere' },
         { type: 'paragraph', atmosphere: 'shadow-people', effect: 'line-by-line', position: 'top-left', text: `Your brain is a pattern-seeking machine that sees faces and threats where none exist. In experiments, people saw imaginary faces as male about four times as often as female.` },
         { type: 'paragraph', atmosphere: 'shadow-people', effect: 'drift', position: 'center', text: `Shadow people? Just your brain turning random darkness into human shapes.` },
-        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'fade-in', position: 'bottom-right', text: `This isn't a flaw—it's by design. Our brains know it is better to see 100 fake threats than miss one real predator.` },
+        { type: 'paragraph', atmosphere: 'amygdala-alarm', effect: 'fade-in', position: 'bottom-right', text: C.byDesign },
 
         { type: 'section-title', atmosphere: 'amygdala-alarm', effect: 'split-reveal', text: 'Your Brain Catastrophizes on Purpose' },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'typewriter', position: 'top-right', text: `When faced with uncertainty, your brain doesn't imagine neutral scenarios—it imagines disasters. This "negativity bias" kept ancestors alive. Those who assumed rustling bushes contained tigers lived longer than optimists.` },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'typewriter', position: 'top-right', text: C.tigers },
         { type: 'paragraph', atmosphere: 'racing-heart', effect: 'rise-expand', position: 'bottom-right', decor: HAND, text: `Today, that same wiring makes you imagine the worst possible thing in a dark box. Your brain literally can't help lying to you about danger—it's trying to save your life.` },
 
         {
@@ -171,7 +218,7 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
           type: 'title-image',
           atmosphere: 'penny-candle',
           effect: 'split-reveal',
-          src: '/exhibitions/fear-lab/titles/page-turners.png',
+          src: '/exhibitions/fear-lab/titles/page-turners.webp',
           ...TITLE_SIZES.pageTurners,
           framing: 'centered',
           alt: 'Page Turners & Spine Tinglers',
@@ -197,8 +244,8 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', atmosphere: 'penny-candle', effect: 'pan-lr', position: 'bottom-left', text: `Later writers like H.P. Lovecraft, Shirley Jackson and Stephen King bridged oceans and decades and proved that horror was not to be dismissed as peculiar to the Victorian era.` },
 
         { type: 'section-title', atmosphere: 'racing-heart', effect: 'split-reveal', text: 'Point Horror: Horror Grows Up (By Growing Down)' },
-        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'fade-in', position: 'top-left', text: `In 1991, Scholastic realized teenagers wanted their own horror, launching the Point Horror series with authors like R.L. Stine (whose "Blind Date" launched his career), Christopher Pike, Caroline B. Cooney, and Diane Hoh.` },
-        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'blur-to-sharp', position: 'bottom-right', text: `With titles like "The Babysitter" and "The Boyfriend," these books moved horror from Gothic castles to high school hallways.` },
+        { type: 'paragraph', atmosphere: 'racing-heart', effect: 'fade-in', position: 'top-left', text: POINT_HORROR.launch },
+        { type: 'paragraph', atmosphere: 'shadow-people', effect: 'blur-to-sharp', position: 'bottom-right', text: POINT_HORROR.hallways },
 
         { type: 'section-title', atmosphere: 'red-eye-glitch', effect: 'glitch', text: 'Red Eye: Horror for the Digital Generation' },
         { type: 'paragraph', atmosphere: 'red-eye-glitch', effect: 'typewriter', position: 'top-right', text: `Today's Red Eye series (Stripes Publishing's modern horror line) features books like "Frozen Charlotte" and "Sleepless"—updating classic fears for the Instagram age.` },
@@ -228,4 +275,37 @@ export const FEAR_LAB: ExhibitionConfig<'poster1' | 'poster2'> = {
       },
     },
   ],
+};
+
+/*
+ * The display case: the artifacts exactly as the Mini Museum record lists
+ * them, each with the posters' own sentences about it (the box you can't see
+ * into, on poster 1; the Point Horror series, on poster 2).
+ */
+export const FEAR_LAB_CASE: CasePageData = {
+  label: 'Display Case',
+  title: 'Artifacts',
+  // Photographs to come: the case has not been photographed yet.
+  photos: [],
+  artifacts: [
+    {
+      id: 'fear-boxes',
+      name: 'Mystery Fear Boxes',
+      record: 'Two tactile, mystery Fear Boxes with rotating weekly contents',
+      writing: [
+        { poster: 'poster1', text: C.box },
+        { poster: 'poster1', text: C.mysteryBox },
+      ],
+    },
+    {
+      id: 'point-horror',
+      name: 'Point Horror paperback editions',
+      record: 'Vintage collection of original Point Horror paperback editions with library cards',
+      writing: [
+        { poster: 'poster2', text: POINT_HORROR.launch },
+        { poster: 'poster2', text: POINT_HORROR.hallways },
+      ],
+    },
+  ],
+  display: ['Educational panels explaining the neuroscience of fear, pareidolia, and Gothic literature'],
 };

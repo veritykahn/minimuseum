@@ -10,6 +10,8 @@
  *   --game-surface   ground behind buttons when filled
  *   --game-display   display font       --game-body    body font
  *   --game-number    the score's font (defaults to the display font)
+ *   --game-small     the smallest label size (projector-readable by default:
+ *                    14px on a phone, growing to 18px on a wide screen)
  */
 
 .srOnly {
@@ -40,7 +42,7 @@
 
 .eyebrow {
   font-family: var(--game-body, inherit);
-  font-size: 11px;
+  font-size: var(--game-small, clamp(14px, 0.6vw + 8px, 18px));
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--game-muted, #a59c8c);
@@ -66,7 +68,7 @@
 
 .scoreCaption {
   font-family: var(--game-body, inherit);
-  font-size: 13px;
+  font-size: var(--game-small, clamp(14px, 0.6vw + 8px, 18px));
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--game-muted, #a59c8c);
@@ -86,10 +88,10 @@
 
 .message {
   font-family: var(--game-display, inherit);
-  font-size: 1.1rem;
-  line-height: 1.75;
+  font-size: clamp(1.15rem, 0.5vw + 0.95rem, 1.45rem);
+  line-height: 1.7;
   color: var(--game-text, #e8e0d0);
-  max-width: 560px;
+  max-width: 620px;
   margin: 0 0 24px;
 }
 .message p + p {
@@ -107,8 +109,8 @@
 }
 
 .pip {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   border: 1.5px solid var(--game-muted, #a59c8c);
   animation: gamePop 0.45s cubic-bezier(0.3, 1.5, 0.5, 1) both;
@@ -134,14 +136,14 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 44px;
+  min-height: 48px;
   padding: 12px 28px;
   border-radius: var(--game-radius, 100px);
   border: 1px solid var(--game-accent, #c9a94e);
   background: transparent;
   color: var(--game-accent, #c9a94e);
   font-family: var(--game-body, inherit);
-  font-size: 12px;
+  font-size: var(--game-small, clamp(14px, 0.6vw + 8px, 18px));
   letter-spacing: 0.14em;
   text-transform: uppercase;
   text-decoration: none;
@@ -208,7 +210,7 @@
 .teacherNote summary {
   cursor: pointer;
   padding: 10px 0;
-  font-size: 11px;
+  font-size: var(--game-small, clamp(14px, 0.6vw + 8px, 18px));
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--game-muted, #a59c8c);
@@ -219,7 +221,7 @@
   outline-offset: 2px;
 }
 .teacherNote p {
-  font-size: 14px;
+  font-size: clamp(15px, 0.4vw + 11px, 18px);
   line-height: 1.65;
   margin: 0 0 12px;
 }

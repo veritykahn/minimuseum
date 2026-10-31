@@ -255,9 +255,9 @@
       "id": "look-back",
       "phase": "Close",
       "color": "#A8452F",
-      "section": "Look back and pray",
+      "section": "Look back and share",
       "title": "Look back",
-      "minutes": 2,
+      "minutes": 1,
       "script": [
         "Put the questions on the screen. For each one, the children show a thumb up, sideways or down: *“Can you now count the widow’s coins? Can you say why her tiny gift was the biggest? Can you name a gift you could give?”*"
       ],
@@ -274,20 +274,40 @@
       ]
     },
     {
-      "id": "closing-prayer",
+      "id": "look-back-and-share",
       "phase": "Close",
       "color": "#A8452F",
-      "section": "Look back and pray",
-      "title": "Closing prayer",
+      "section": "Look back and share",
+      "title": "Look back and share",
       "minutes": 1,
       "script": [
-        "Ask the children to hold out their cupped hands, like the widow. Pray together, a line at a time: *“Dear Jesus, the widow gave you all she had. Help me to give you my heart, and to share with others. Amen.”*"
+        "Then say: *“The widow gave everything she had. Hold out your cupped hands. Tell a partner one thing you could share with someone today: a thing, some time, or a kindness.”*"
+      ],
+      "screen": {
+        "kind": "question",
+        "question": "The widow gave everything she had. Hold out your cupped hands. Tell a partner one thing you could share with someone today: a thing, some time, or a kindness."
+      },
+      "purpose": "Close with open hands, like the widow: name something to share today.",
+      "students": [
+        "Hold out your cupped hands, like the widow.",
+        "Tell a partner one thing you could share today."
+      ]
+    },
+    {
+      "id": "closing-prayer-faith-based-option",
+      "phase": "Close",
+      "color": "#A8452F",
+      "section": "Look back and share",
+      "title": "Closing prayer (faith-based option)",
+      "minutes": 1,
+      "script": [
+        "**Faith-based option:** pray together, a line at a time: *“Dear Jesus, the widow gave you all she had. Help me to give you my heart, and to share with others. Amen.”*"
       ],
       "screen": {
         "kind": "prayer",
         "prayer": "Dear Jesus, the widow gave you all she had. Help me to give you my heart, and to share with others. Amen."
       },
-      "purpose": "Give the lesson back to God with open hands, like the widow.",
+      "purpose": "For faith schools: give the lesson back to God with open hands, like the widow.",
       "students": [
         "Hold out your cupped hands, like the widow."
       ]

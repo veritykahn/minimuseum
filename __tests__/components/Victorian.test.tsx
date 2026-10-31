@@ -1,4 +1,5 @@
 import { artifactPath, plainText, recordLines } from '@/components/exhibition/artifacts';
+import { isAddedPanel } from '@/components/exhibition/helpers';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import VictorianCase from '@/app/exhibitions/victorian/artifacts/case/page';
@@ -26,7 +27,7 @@ const poster = (id: string) => VICTORIAN.posters.find((p) => p.id === id)!;
 const allItems = VICTORIAN.posters.flatMap((p) => p.items);
 /** The copy as read: "*…*" marks italics and is not part of the words. */
 const plain = (t: string) => t.replace(/\*/g, '');
-const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' ? [plain(it.text)] : []));
+const paragraphs = (id: string) => poster(id).items.flatMap((it) => (it.type === 'paragraph' && !isAddedPanel(it) ? [plain(it.text)] : []));
 const allText = allItems.map((it) => ('text' in it && it.text ? plain(it.text) : '')).join('\n');
 const tick = (ms = 400) => act(() => { jest.advanceTimersByTime(ms); });
 
@@ -117,8 +118,8 @@ describe('Victorian Britain', () => {
 
   it('sets A Christmas Carol in italics wherever it is named', () => {
     const copy = allItems.map((it) => ('text' in it && it.text ? it.text : '') + (it.type === 'quote' ? ` ${it.cite}` : '')).join('\n');
-    expect(copy.match(/A Christmas Carol/g)).toHaveLength(3);
-    expect(copy.match(/\*A Christmas Carol\*/g)).toHaveLength(3);
+    expect(copy.match(/A Christmas Carol/g)).toHaveLength(4);
+    expect(copy.match(/\*A Christmas Carol\*/g)).toHaveLength(4);
   });
 
   it('splits paragraphs only between sentences', () => {
@@ -251,13 +252,16 @@ describe('The Victorian Britain display case page', () => {
 });
 
 describe('Victorian Britain on the museum map', () => {
-  it('is a room on the Ground Floor, with an Exhibition Hall and a Display Case', () => {
+  it('is a room on the Ground Floor, with an Exhibition Hall, a Display Case and three interactive rooms', () => {
     const level = getLevelConfig('/exhibitions/victorian/artifacts/case');
     expect(level.title).toBe('Victorian Britain');
     expect(level.backTarget?.path).toBe('/exhibitions/ground-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/victorian'],
       ['Display Case', '/exhibitions/victorian/artifacts/case'],
+      ['Card Maker', '/exhibitions/victorian/christmas-card'],
+      ['Inventions', '/exhibitions/victorian/inventions'],
+      ['Parlour', '/exhibitions/victorian/christmas-parlour'],
     ]);
     expect(getRoomByPath('/exhibitions/victorian')?.parent).toBe('ground-floor');
     expect(getRoomByPath('/exhibitions/victorian/artifacts/case')?.parent).toBe('victorian');

@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
-import type { Atmosphere, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
+import type { Atmosphere, CasePageData, ExhibitionConfig, PanelFigure } from '@/components/exhibition/types';
+import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import { floorReturnFor } from '@/lib/floors';
 
 /*
@@ -21,6 +22,14 @@ import { floorReturnFor } from '@/lib/floors';
  *      him the greatest man in the world;
  *   7. the first pull quote is credited to Verity Kahn, *The Myth of the
  *      Declaration of Independence*.
+ * And one approved move on each poster: its pull quote ("Before it was
+ * sacred …", "It took fifty-six signatures …") is its last panel before the
+ * link, closing the poster, in place of its spot mid-way.
+ * And one approved section title (B9.2): "The Signer Who Refused To Be
+ * Anonymous", in place of "The Catholic Who …"; the copy beneath still names
+ * Carroll's faith, as history. After that chapter, a museum note (not poster
+ * wording): Many Faiths, One Declaration (MANY_FAITHS), set as paragraphs
+ * in their own section ('added'), each with its sources beneath it.
  * Typesetting only: the two doubled spaces on poster 2 are single, and the
  * title of Paine's pamphlet is set in italics, as are the two stressed words
  * the poster italicizes (*wanted*, *needed*). "*…*" marks italics.
@@ -36,8 +45,8 @@ import { floorReturnFor } from '@/lib/floors';
  * public-domain originals on Wikimedia Commons, each credited where it
  * appears: John Trumbull's Declaration of Independence (U.S. Capitol) and
  * Emanuel Leutze's Washington Crossing the Delaware (The Metropolitan Museum
- * of Art). There is no display case: the exhibition has no installation
- * photographs yet.
+ * of Art). The display case (AMERICA_250_CASE) lists the artifacts exactly
+ * as the Mini Museum record does; it has not been photographed yet.
  *
  * The "Talk about it" questions are for the projector's teacher strip: open
  * discussion questions, one per chapter, keyed by the section title exactly
@@ -68,6 +77,73 @@ export const TRUMBULL_CREDIT = 'John Trumbull, *Declaration of Independence*, 18
 export const TRUMBULL_SOURCE = 'https://commons.wikimedia.org/wiki/File:Declaration_of_Independence_(1819),_by_John_Trumbull.jpg';
 export const LEUTZE_CREDIT = 'Emanuel Leutze, *Washington Crossing the Delaware*, 1851. The Metropolitan Museum of Art. Public domain.';
 export const LEUTZE_SOURCE = 'https://commons.wikimedia.org/wiki/File:Washington_Crossing_the_Delaware_by_Emanuel_Leutze,_MMA-NYC,_1851.jpg';
+
+/*
+ * "Many Faiths, One Declaration" (proposal B9.3, owner-approved): a museum
+ * note set straight after the Carroll chapter, so it is clearly not poster
+ * wording. It keeps Carroll's Catholic fact as history and sets it among the
+ * religious variety of the founding era. Each fact carries its sources
+ * (FactNote); where a source could not be confirmed, the claim that hung on
+ * it was left out ("read aloud every year", "a minority in Connecticut",
+ * "with a razor").
+ */
+/** Set in bold before the first fact, naming the note. */
+export const MANY_FAITHS_LEAD = 'Many Faiths, One Declaration.';
+export const MANY_FAITHS: Record<string, ApprovedFact> = {
+  intro: {
+    text: 'Carroll was not the only signer whose faith set him apart. The men and women of the founding era included Presbyterians and Anglicans, Quakers and Baptists, Jews and freethinkers, and in 1787 the Constitution declared that no religious test would ever be required to hold federal office.',
+    sources: [{ label: 'National Archives, the Constitution, Article VI', href: 'https://www.archives.gov/founding-docs/constitution-transcript' }],
+  },
+  witherspoon: {
+    text: 'John Witherspoon, a Presbyterian minister born in Scotland and president of the College of New Jersey (now Princeton University), signed for New Jersey. He was the only clergyman to sign.',
+    sources: [
+      { label: 'National Archives, Signers gallery', href: 'https://www.archives.gov/founding-docs/signers-gallery' },
+      { label: 'Library of Congress, Religion and the Founding of the American Republic', href: 'https://www.loc.gov/exhibits/religion/rel03.html' },
+      { label: 'Princeton University, “Princeton in the nation’s service”', href: 'https://www.princeton.edu/news/2026/06/25/princeton-service-new-nation' },
+    ],
+  },
+  quakers: {
+    text: 'Most Quakers held to their faith’s refusal of violence and would not fight. Those who took up arms were disowned by their meetings, and some of them formed their own congregation, the Free Quakers.',
+    sources: [{ label: 'Library of Congress, “Religion and the American Revolution”', href: 'https://www.loc.gov/exhibits/religion/rel03.html' }],
+  },
+  salomon: {
+    text: 'Haym Salomon, a Jewish immigrant from Poland, worked in Philadelphia as a broker for Robert Morris, the Superintendent of Finance, selling the bills of exchange that helped pay for the war. Members of Congress, among them James Madison, depended on him for personal loans.',
+    sources: [
+      { label: 'Founders Online (National Archives), Madison Papers, editorial note, October 18, 1782', href: 'https://founders.archives.gov/documents/Madison/01-05-02-0090' },
+      { label: 'Britannica Money, Haym Salomon', href: 'https://www.britannica.com/money/Haym-Salomon' },
+    ],
+  },
+  newport: {
+    text: 'In August 1790 President Washington visited Newport, Rhode Island, and answered a letter from its Jewish congregation. The government of the United States, he wrote, “gives to bigotry no sanction, to persecution no assistance.” He borrowed the phrase from the congregation’s own letter, written by its warden, Moses Seixas. Their synagogue, dedicated in 1763, is the oldest synagogue building in the United States.',
+    sources: [
+      { label: 'National Park Service, Touro Synagogue', href: 'https://www.nps.gov/places/touro-synagogue.htm' },
+      { label: 'Founders Online (National Archives), From George Washington to the Hebrew Congregation in Newport, August 18, 1790', href: 'https://founders.archives.gov/documents/Washington/05-06-02-0135' },
+      { label: 'George Washington’s Mount Vernon, “Moses Seixas”', href: 'https://mountvernon.org/digital-encyclopedia/article/moses-seixas' },
+    ],
+  },
+  saur: {
+    text: 'The Bible leaf in this exhibition’s display case comes from the German Bible printed at Germantown, Pennsylvania, by Christoph Saur II, a minister of the Brethren (the “Dunkers”), a small peace church. His father’s edition of 1743 was the first Bible printed in North America in a European language.',
+    sources: [
+      { label: 'Bridwell Library, Southern Methodist University, “Saur Bible”', href: 'https://bridwell.omeka.net/exhibits/show/pietists/northamerica/saur' },
+      { label: 'Museum of the Bible, “The Gun-Wad Bible”', href: 'https://collections.museumofthebible.org/artifacts/2337-the-gun-wad-bible' },
+    ],
+  },
+  freethinkers: {
+    text: 'Some founders questioned the churches of their day. Benjamin Franklin wrote in his autobiography that as a young man he “soon became a thorough Deist.” Late in life Thomas Jefferson cut passages from the Gospels and rearranged them into his own book of Jesus’s moral teachings. The Smithsonian calls it “a personal exercise in understanding Jesus’s moral teachings separated from religious doctrine.”',
+    sources: [
+      { label: 'Center for the Study of the American Constitution, University of Wisconsin–Madison, “Deism and the Founders”', href: 'https://csac.history.wisc.edu/2025/07/17/deism-and-the-founders/' },
+      { label: 'Smithsonian National Museum of American History, Jefferson’s Bible', href: 'https://amhistory.si.edu/documentsgallery/exhibitions/jefferson/index.html' },
+      { label: 'Smithsonian, Jefferson’s Bible: making the book', href: 'https://amhistory.si.edu/documentsgallery/exhibitions/jefferson/2.html' },
+    ],
+  },
+  danbury: {
+    text: 'The Baptists of Danbury, Connecticut, wrote to President Jefferson about their religious liberty. On January 1, 1802, he answered that the First Amendment had built “a wall of separation between church and state.” In his draft he had first written “a wall of *eternal* separation.”',
+    sources: [
+      { label: 'Library of Congress, “Religion and the Federal Government”', href: 'https://loc.gov/exhibits/religion/rel06-2.html' },
+      { label: 'Library of Congress Information Bulletin, June 1998, James Hutson, “‘A Wall of Separation’”', href: 'https://www.loc.gov/loc/lcib/9806/danbury.html' },
+    ],
+  },
+};
 
 const trumbull = { text: TRUMBULL_CREDIT, href: TRUMBULL_SOURCE };
 const leutze = { text: LEUTZE_CREDIT, href: LEUTZE_SOURCE };
@@ -175,7 +251,27 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
   atmospheres: ATMOSPHERES,
   // The press comes down as a poster opens and at each chapter; every panel arrives its own way.
   fx: { theme: 'ap', veil: 'chapters', text: 'all' },
-  projector: { theme: AMERICA_PROJECTOR_THEME, links: [] },
+  projector: {
+    theme: AMERICA_PROJECTOR_THEME,
+    links: [{ label: 'Put Your Name to It: sign with a quill, and follow a copy of a copy', href: '/exhibitions/america-250/sign' }],
+  },
+  cases: [
+    {
+      href: '/exhibitions/america-250/artifacts/case',
+      label: 'Display Case',
+      title: 'Artifacts',
+    },
+  ],
+  // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
+  interactives: [
+    {
+      href: '/exhibitions/america-250/sign',
+      image: { src: '/exhibitions/america-250/rooms/sign.webp', alt: 'The Put Your Name to It room: the Declaration on parchment beside a candle, and the signing steps' },
+      label: 'Interactive',
+      title: 'Put Your Name to It',
+      subtitle: 'Sign with a quill, and follow a copy of a copy',
+    },
+  ],
   posters: [
     // ============================================
     // POSTER 1: Before it was Sacred
@@ -239,7 +335,6 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'section-title', section: 'head', atmosphere: 'stone-engraving', effect: 'blur-to-sharp', text: 'The Wrong Document' },
         { type: 'paragraph', section: 'copy', atmosphere: 'stone-engraving', effect: 'mega-zoom-out', figure: DRAFT, text: "What most people picture as the Declaration of Independence was not the actual document present at the Continental Congress. It is, in fact, an engraving made in 1823 by William J. Stone — itself an imperfect copy of the Engrossed parchment, now in the National Archives, which was a reproduction of the July 4 Fair Copy, itself an edited version of Jefferson's Rough Draft." },
         { type: 'paragraph', section: 'copy', atmosphere: 'stone-engraving', effect: 'line-by-line', text: 'Congress did not order the Engrossed Copy until July 19, and most delegates signed it on August 2. Even the transcription offered by the National Archives is a transcription of the Stone engraving, not the original. The document Americans venerate is a copy of a copy, made nearly fifty years after the fact.' },
-        { type: 'quote', section: 'quote', atmosphere: 'stone-engraving', effect: 'ink-spread', text: 'Before it was sacred, the Declaration was a formality. Understanding what it actually was makes what it became considerably more remarkable.' },
 
         { type: 'section-title', section: 'head', atmosphere: 'signing-quill', effect: 'film-credits', text: 'The Wrong Author' },
         {
@@ -261,6 +356,8 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'erase', figure: HANCOCK, text: 'For the first fifteen years after its adoption the Declaration was largely ignored, kept in poor conditions, its parchment already deteriorating. Adams himself called it "hackneyed" — not an idea in it that had not been discussed in Congress for two years prior.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'rise-expand', text: "It was Jefferson's rising political career, and then his death in 1826 on the fiftieth anniversary of its adoption — the same day Adams also died, an event widely interpreted as divine providence — that transformed the document into something approaching scripture." },
         { type: 'paragraph', section: 'copy', atmosphere: 'thirteen-stars', effect: 'line-by-line', text: 'Abraham Lincoln completed the transformation at Gettysburg, elevating the preamble above the Constitution itself and making "all men are created equal" the founding promise of the nation. The charges against the King, which had been the Declaration\'s entire purpose, were forgotten. The philosophy, which had been secondary, became everything.' },
+        // The owner's approved move: this line closes the poster.
+        { type: 'quote', section: 'quote', atmosphere: 'stone-engraving', effect: 'ink-spread', text: 'Before it was sacred, the Declaration was a formality. Understanding what it actually was makes what it became considerably more remarkable.' },
 
         { type: 'callout', section: 'link', atmosphere: 'foxed-parchment', effect: 'breathe', text: 'Read the Declaration at the National Archives', url: NARA_DECLARATION_URL },
         { type: 'end', section: 'end', text: END },
@@ -291,6 +388,8 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         head: { className: 'ap-p2 ap-head', title: INK },
         copy: { className: 'ap-p2 ap-copy' },
         quote: { className: 'ap-p2 ap-quote' },
+        // The museum's added note after the Carroll chapter (MANY_FAITHS), its sources beneath it.
+        added: { className: 'ap-p2 ap-copy ap-added' },
         epigraph: { className: 'ap-p2 ap-quote ap-epigraph' },
         picture: { className: 'ap-p2 ap-picture' },
         link: { className: 'ap-p2 ap-link' },
@@ -350,28 +449,81 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'copy', atmosphere: 'delaware-ice', effect: 'mega-zoom-out', figure: CROSSING, text: 'The signers were now identified men. They had put their names to an act of treason and this meant real consequences. Richard Stockton, a New Jersey delegate, was captured by the British, imprisoned, and tortured. His home was burned, his library destroyed. Under those conditions he recanted his signature.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'line-by-line', text: 'It is the most human moment in the whole story of the Declaration: a man in pain, in fear, saying what his captors *wanted* him to say and what he *needed* to say to avoid execution.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'fade-in', text: 'Stockton never recovered his health and died in 1781, broken by what had been done to him and what he had done under duress. He had pledged everything the Declaration asked of him, yet by the time of his death Independence had still not been won.' },
-        { type: 'quote', section: 'quote', atmosphere: 'thirteen-stars', effect: 'breathe', text: 'It took fifty-six signatures, seven years of war, and a generation of men willing to lose everything to fulfill the Declaration.' },
 
-        { type: 'section-title', section: 'head', atmosphere: 'signing-quill', effect: 'film-credits', text: 'The Catholic Who Refused To Be Anonymous' },
+        { type: 'section-title', section: 'head', atmosphere: 'signing-quill', effect: 'film-credits', text: 'The Signer Who Refused To Be Anonymous' },
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'ink-spread', text: 'Charles Carroll of Carrollton was the only Catholic among the fifty-six signers. In 1776, Catholics could still not hold public office in most of the American colonies.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'signing-quill', effect: 'line-by-line', text: 'The story goes that when it was observed that there were many men named Charles Carroll and he might escape personal consequence, Carroll responded by adding his full address to his signature — "of Carrollton" — so there could be no mistaking which Charles Carroll had signed. (He often signed that way to tell himself apart from his father, Charles Carroll of Annapolis.) He refused the protection of ambiguity to stand in life and death with his fellow signers.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'foxed-parchment', effect: 'blur-to-sharp', text: "Carroll eventually outlived every other signatory, dying in 1832 at the age of ninety-five as the last living connection to that room, that day, that decision. When asked what he considered his most important contribution, he did not mention his wealth or his longevity. Carroll's answer was his signature on the Declaration, and the fact that he had made sure it could be read." },
+        // The museum's added note, not poster wording (owner-approved, B9.3): Many Faiths, One Declaration.
+        // Each panel is one fact with its sources beneath it (`sources`), in the 'added' section.
+        { type: 'paragraph', section: 'added', atmosphere: 'stone-engraving', effect: 'fade-in', lead: MANY_FAITHS_LEAD, text: MANY_FAITHS.intro.text, sources: MANY_FAITHS.intro.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'signing-quill', effect: 'drift', text: MANY_FAITHS.witherspoon.text, sources: MANY_FAITHS.witherspoon.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'signing-quill', effect: 'rise-expand', text: MANY_FAITHS.quakers.text, sources: MANY_FAITHS.quakers.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'stone-engraving', effect: 'line-by-line', text: MANY_FAITHS.salomon.text, sources: MANY_FAITHS.salomon.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'stone-engraving', effect: 'breathe', text: MANY_FAITHS.newport.text, sources: MANY_FAITHS.newport.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'foxed-parchment', effect: 'fade-in', text: MANY_FAITHS.saur.text, sources: MANY_FAITHS.saur.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'signing-quill', effect: 'blur-to-sharp', text: MANY_FAITHS.freethinkers.text, sources: MANY_FAITHS.freethinkers.sources },
+        { type: 'paragraph', section: 'added', atmosphere: 'thirteen-stars', effect: 'ink-spread', text: MANY_FAITHS.danbury.text, sources: MANY_FAITHS.danbury.sources },
 
         { type: 'section-title', section: 'head', atmosphere: 'thirteen-stars', effect: 'split-reveal', text: 'The Long Wager' },
         { type: 'paragraph', section: 'copy', atmosphere: 'thirteen-stars', effect: 'rise-expand', text: 'The signatures of 1776 did not end the wager on the colonies\' independence, rather they began it. The independence the Declaration asserted so assuredly still had to be built through the failed confederation, the Constitutional Convention held in secret, and the ratification process that was anything but certain. America was constantly and consistently referred to as an experiment by the same men who were attempting to forge it.' },
         { type: 'paragraph', section: 'copy', atmosphere: 'thirteen-stars', effect: 'kenburns-in', figure: WASHINGTON, text: "Washington fought the war, presided over the Constitutional Convention, served two terms as the republic's first president, and then voluntarily surrendered power and returned to his farm, a choice King George III is reported to have said would make Washington the greatest man in the world." },
         { type: 'paragraph', section: 'copy', atmosphere: 'july-illuminations', effect: 'line-by-line', text: 'The wager fifty-six men made with their signatures in 1776 was not settled on a battlefield. It was settled by what they built, and what they were willing to give up, in the decades that followed.' },
+        // The owner's approved move: this line closes the poster.
+        { type: 'quote', section: 'quote', atmosphere: 'thirteen-stars', effect: 'breathe', text: 'It took fifty-six signatures, seven years of war, and a generation of men willing to lose everything to fulfill the Declaration.' },
 
-        { type: 'callout', section: 'link', atmosphere: 'july-illuminations', effect: 'breathe', text: 'Meet the signers at the National Archives', url: NARA_SIGNERS_URL },
+        { type: 'callout', section: 'link', atmosphere: 'july-illuminations', effect: 'film-credits', text: 'Meet the signers at the National Archives', url: NARA_SIGNERS_URL },
         { type: 'end', section: 'end', text: END },
       ],
       talk: {
         '': 'The signers could not know how the war would turn out. What makes it hard to stand up for something when you cannot know how it will end?',
         'The War That Nearly Was Not Won': 'Looking back, the outcome of a war can seem certain. Why do you think stories about the past can make events feel more certain than they felt at the time?',
         'What Signing Actually Meant': 'Richard Stockton said what he needed to say to survive. How should we think about what people say or do when they are in pain or afraid?',
-        'The Catholic Who Refused To Be Anonymous': 'Charles Carroll made sure his signature could not be mistaken. When might it matter to put your own name to what you believe?',
+        'The Signer Who Refused To Be Anonymous': 'Charles Carroll made sure his signature could not be mistaken. When might it matter to put your own name to what you believe?',
         'The Long Wager': 'The poster says the wager was settled by what the signers built and what they were willing to give up. What is something worth building that takes many years to finish?',
       },
     },
   ],
+};
+
+/*
+ * The display case: the artifacts exactly as the Mini Museum record lists
+ * them. The two newspapers share a line of the record, and each has a page of
+ * its own. The posters do not discuss these objects, so none carries poster
+ * writing.
+ */
+export const AMERICA_250_CASE: CasePageData = {
+  label: 'Display Case',
+  title: 'Artifacts',
+  // Photographs to come: the case has not been photographed yet.
+  photos: [],
+  artifacts: [
+    {
+      id: 'valley-forge-iron-bolt',
+      name: 'Valley Forge iron bolt',
+      record: 'Hand-forged Valley Forge iron bolt',
+    },
+    // "Gun wad" is the leaf's traditional name, kept as the record has it. The
+    // story behind it (that unbound pages of Saur's Bible were used for
+    // cartridge paper at the Battle of Germantown, 1777) is a legend, now
+    // mostly discredited (Museum of the Bible, "The Gun-Wad Bible"): any label
+    // that ever tells it says "the story goes" (owner-approved; the case's
+    // test checks it).
+    {
+      id: 'gun-wad-bible-leaf',
+      name: 'Gun wad Bible leaf',
+      record: "18th-century gun wad Bible leaf from Christoph Saur II's Germantown Bible",
+    },
+    {
+      id: 'london-evening-post',
+      name: '*The London Evening Post*',
+      record: "Original editions of *The London Evening Post* (carrying Howe's Declaration) and *The London Chronicle*",
+    },
+    {
+      id: 'london-chronicle',
+      name: '*The London Chronicle*',
+      record: "Original editions of *The London Evening Post* (carrying Howe's Declaration) and *The London Chronicle*",
+    },
+  ],
+  display: ['Flat jersey shadow boxes with velvet risers, black mat LED lip lighting, and tethered magnifiers'],
 };

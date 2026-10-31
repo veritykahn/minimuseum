@@ -3,429 +3,22 @@
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import { floorReturnFor } from '@/lib/floors';
-import TypewriterText from '@/components/TypewriterText';
 import PosterNavHint from '@/components/PosterNavHint';
 import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
-import LessonsLink from '@/components/lesson/LessonsLink';
-import PosterLessons from '@/components/lesson/PosterLessons';
+import LandingRow from '@/components/exhibition/LandingRow';
+import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { SEEING_TALK } from '@/components/projector/posterTalk';
 import { SEEING_POSTER_THEME, SEEING_POSTER_LINKS } from '@/components/projector/themes';
 import { FxChannelGhosts, FxDefs, FxText, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
-
-type ContentItem = {
-  type: string;
-  text?: string;
-  src?: string;
-  alt?: string;
-  url?: string;
-  position?: string;
-  effect?: string;
-  special?: string;
-  items?: string[];
-};
-
-// Poster 1 content - Seeing is Deceiving
-const poster1Content: ContentItem[] = [
-  {
-    type: 'title-image',
-    src: '/exhibitions/seeing/poster1-title.jpg',
-    alt: 'Seeing is Deceiving',
-    effect: 'kenburns-in'
-  },
-  {
-    type: 'section-title',
-    text: 'The Science of How We See',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'paragraph',
-    text: 'Right now, you believe you\'re seeing the world exactly as it is. But you\'re not. Your eyes are simply sensors that gather light – it is your brain that does all the interpreting and it takes remarkable shortcuts.',
-    position: 'top-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'Every second, 11 million bits of sensory information flood into your brain. You consciously process only about 40 bits. Which means your brain discards 99.999% of visual information and constructs what it thinks you need to see.',
-    position: 'bottom-right',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'So reality is not quite as you see it.',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'paragraph',
-    text: 'To handle this impossible task, your brain doesn\'t record reality like a camera – it predicts reality. Based on past experience, it fills in gaps, smooths over inconsistencies, and makes thousands of assumptions.',
-    position: 'top-right',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'You can read tihs senetnce even wehn the leettrs are srcambled because your brain predicts what should be there.',
-    position: 'center',
-    effect: 'typewriter'
-  },
-  {
-    type: 'paragraph',
-    text: 'This prediction system keeps you alive—you can catch a ball, spot danger, recognize faces. But it also means you see what you expect to see, not necessarily what\'s actually there.',
-    position: 'bottom-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'blind-spot',
-    text: 'Your eyes have a blind spot where the optic nerve connects to your retina—a patch in each eye where you literally cannot see. Right now, you have two holes in your vision. You\'ve never noticed because your brain seamlessly fills them in, inventing information to complete the picture.',
-    position: 'center',
-    effect: 'blind-spot-reveal'
-  },
-  {
-    type: 'paragraph',
-    text: 'If your brain lies to you about something this basic, what else is it hiding?',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'section-title',
-    text: 'The First Motion Pictures (1820s–1830s)',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'vintage-film'
-  },
-  {
-    type: 'paragraph',
-    text: 'Inventors discovered something strange: show the eye rapid sequences of still images and the brain sees continuous motion that doesn\'t exist. The thaumatrope (1825) was a disk with different images on each side—spin it and a bird appears inside a cage. The zoetrope (1834) showed sequential drawings through slits—spin it and horses gallop, people dance.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'vintage-film'
-  },
-  {
-    type: 'paragraph',
-    text: 'Nothing actually moves. Your brain creates the motion. Movies are still pictures shown fast. Every screen you look at exploits this biological quirk discovered 200 years ago.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'vintage-film'
-  },
-  {
-    type: 'section-title',
-    text: 'The Stereoscope: Inventing Depth',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'depth-parallax'
-  },
-  {
-    type: 'paragraph',
-    text: 'In the 1830s, physicist Charles Wheatstone discovered that your two eyes see slightly different images, and your brain calculates depth from those differences. He built the first stereoscope—showing each eye a different flat picture. Your brain combines them and suddenly you perceive three dimensions that don\'t exist.',
-    position: 'top-right',
-    effect: 'fade-in',
-    special: 'depth-parallax'
-  },
-  {
-    type: 'paragraph',
-    text: 'By the late 1800s, Victorians used stereoscopes to "travel" to Egypt or Niagara Falls without leaving home. The same principle powers modern 3D movies and VR headsets. The technology evolved. Your brain didn\'t.',
-    position: 'bottom-left',
-    effect: 'fade-in',
-    special: 'depth-parallax'
-  },
-  {
-    type: 'full-image',
-    src: '/exhibitions/seeing/face.jpg',
-    alt: 'Continuous black line drawing of half a face: one eye, a nose and lips',
-    effect: 'mega-zoom-out'
-  },
-  {
-    type: 'section-title',
-    text: 'Color Illusions: Context Changes Everything',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'color-shift'
-  },
-  {
-    type: 'paragraph',
-    text: 'Your brain doesn\'t show you "true" color—it interprets based on context. In the checkerboard shadow illusion, two squares appear completely different shades. Measure the actual light and they\'re identical. Your brain "corrects" for the shadow, and you cannot see them as the same color even when you know they are.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'color-shift'
-  },
-  {
-    type: 'paragraph',
-    text: 'Remember the dress that broke the internet in 2015—blue and black or white and gold? Your brain\'s assumptions about lighting changed the actual colors you perceived. Two identical things can look completely different depending on what surrounds them.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'color-shift'
-  },
-  {
-    type: 'section-title',
-    text: 'One Picture, Two Realities',
-    position: 'full-width',
-    effect: 'split-reveal'
-  },
-  {
-    type: 'paragraph',
-    text: 'Some illusions show your brain\'s pattern-finding obsession. The old woman/young woman illusion (1888) uses the same lines to create two completely different faces. The rabbit/duck illusion (1892) can be seen as either animal but never both simultaneously. The Rubin vase (1915): white vase or two black faces?',
-    position: 'top-right',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'Your brain organizes visual information into familiar patterns, sometimes finding multiple interpretations of the same image. What you "see" depends on which pattern your brain emphasizes.',
-    position: 'bottom-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'section-title',
-    text: 'Motion That Isn\'t There',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'peripheral-drift'
-  },
-  {
-    type: 'paragraph',
-    text: 'Some static images appear to move. The peripheral drift illusion uses high-contrast patterns—stare at the center and edges seem to rotate, though nothing moves. The Rotating Snakes illusion (2003) shows circles that appear to spin when you glance around the image. Your brain is so committed to detecting motion that it sometimes sees movement that isn\'t there.',
-    position: 'center',
-    effect: 'fade-in',
-    special: 'peripheral-drift'
-  },
-  {
-    type: 'section-title',
-    text: 'Impossible Objects',
-    position: 'full-width',
-    effect: 'split-reveal'
-  },
-  {
-    type: 'paragraph',
-    text: 'The Penrose triangle (1934) and M.C. Escher\'s impossible staircases (1960) show objects that cannot exist in three-dimensional space. Your brain tries to make sense of them and fails, creating that unsettling feeling when you see something impossible.',
-    position: 'center',
-    effect: 'fade-in'
-  },
-  {
-    type: 'section-title',
-    text: 'Why Your Eyes Aren\'t Trustworthy',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'paragraph',
-    text: 'You don\'t see reality—you see your brain\'s interpretation based on prediction, context, pattern recognition, and efficiency shortcuts. Your brain takes these shortcuts to help you survive: you can catch balls, spot danger, recognize faces. But you can also be fooled by colors that aren\'t what they appear, motion that doesn\'t exist, depth that isn\'t there, and details your brain invents to fill gaps.',
-    position: 'center',
-    effect: 'fade-in'
-  },
-  { type: 'end', text: 'Return to Exhibition' }
-];
-
-// Poster 2 content - A History of Lies
-const poster2Content = [
-  {
-    type: 'title-image',
-    src: '/exhibitions/seeing/poster2-title.jpg',
-    alt: 'A History of Lies: From Magic Lanterns to AI Deepfakes',
-    effect: 'drift'
-  },
-  {
-    type: 'section-title',
-    text: 'The First Visual Deceptions (1600s–1800s)',
-    position: 'full-width',
-    effect: 'split-reveal'
-  },
-  {
-    type: 'paragraph',
-    text: 'Long before photography, humans created visual trickery. In the 1600s, camera obscura devices projected upside-down images onto walls in darkened rooms. People who didn\'t understand the optics believed they were seeing magic.',
-    position: 'top-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'By the 1700s, traveling showmen used magic lanterns—early projectors casting painted images onto screens. In darkened rooms, they created moving ghosts and demons that terrified audiences who\'d never seen projected light.',
-    position: 'bottom-right',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'The lesson: new technology creates windows for deception. When people don\'t understand how something works, realistic results are accepted as truth.',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'section-title',
-    text: 'Spirit Photography: When Cameras Lied (1860s–1920s)',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'static-overlay'
-  },
-  {
-    type: 'paragraph',
-    text: 'In 1862, photographer William Mumler accidentally created the first spirit photograph using double exposure—exposing the same plate twice. A ghostly figure appeared beside him. Grieving families paid fortunes for photographs of dead relatives, not understanding how cameras could be manipulated.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'static-overlay'
-  },
-  {
-    type: 'paragraph',
-    text: 'For sixty years, spirit photography boomed. Photographers used simple tricks—double exposures, hanging cloth, accomplices in sheets—to create "proof" of the afterlife. Why did it work? Photography was new, the images looked real, people wanted to believe, and "seeing is believing" was still reliable.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'static-overlay'
-  },
-  {
-    type: 'paragraph',
-    text: 'By the 1920s, magicians like Houdini exposed the tricks, but for decades fake photographs had influenced beliefs and extracted money from grieving families.',
-    position: 'center',
-    effect: 'fade-in',
-    special: 'static-overlay'
-  },
-  {
-    type: 'section-title',
-    text: 'Hollywood Magic: Manufacturing Reality (1920s–1980s)',
-    position: 'full-width',
-    effect: 'film-credits',
-    special: 'vintage-film'
-  },
-  {
-    type: 'paragraph',
-    text: 'Film brought new illusions. Miniatures made tiny models look massive—King Kong (1933) was an 18-inch puppet. Matte paintings created castles and cities that didn\'t exist. Stop-motion brought creatures to life frame by frame. Rear projection put actors in exotic locations while they stood in studios.',
-    position: 'top-right',
-    effect: 'fade-in',
-    special: 'vintage-film'
-  },
-  {
-    type: 'paragraph',
-    text: 'Everyone knew movies were fiction, but your brain believed them anyway. You knew the monster wasn\'t real, but your heart still raced.',
-    position: 'center',
-    effect: 'blur-to-sharp',
-    special: 'vintage-film'
-  },
-  {
-    type: 'section-title',
-    text: 'Photoshop: Everyone Can Fake (1990s–2000s)',
-    position: 'full-width',
-    effect: 'split-reveal',
-    special: 'rgb-split'
-  },
-  {
-    type: 'paragraph',
-    text: 'In 1990, Photoshop made photo editing accessible to anyone with a computer. Suddenly you could remove people from photographs, add things that were never there, alter faces and bodies, combine multiple images. Magazine covers showed impossible perfection. News photos were altered to remove inconvenient politicians.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'rgb-split'
-  },
-  {
-    type: 'paragraph',
-    text: 'The manipulation was often detectable if you looked closely—inconsistent lighting, weird shadows, wrong proportions. But most people weren\'t looking closely. They were scrolling fast, trusting their eyes. A new assumption emerged: every photograph might be fake.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'rgb-split'
-  },
-  {
-    type: 'full-image',
-    src: '/exhibitions/seeing/waves.jpg',
-    alt: 'Op-art pattern of rippling black and pale blue stripes',
-    effect: 'waves-drift'
-  },
-  {
-    type: 'section-title',
-    text: 'Deepfakes: AI Creates Reality (2017–Present)',
-    position: 'center',
-    effect: 'glitch',
-    special: 'glitch-persistent'
-  },
-  {
-    type: 'paragraph',
-    text: 'In 2017, AI could generate photorealistic images of people who don\'t exist. By 2018, AI created convincing videos of real people saying things they never said. By 2020, these "deepfakes" were indistinguishable from authentic footage.',
-    position: 'top-left',
-    effect: 'fade-in',
-    special: 'glitch-persistent'
-  },
-  {
-    type: 'paragraph',
-    text: 'You can create deepfakes with free software, a decent computer, and hours of source footage. No expertise required. The technology also enables voice cloning from seconds of audio, AI-generated photographs of events that never happened, and face-swapping in real-time video.',
-    position: 'bottom-right',
-    effect: 'fade-in',
-    special: 'glitch-persistent'
-  },
-  {
-    type: 'paragraph',
-    text: 'We\'re now in a world where seeing something happen is no longer reliable evidence that it happened.',
-    position: 'center',
-    effect: 'glitch',
-    special: 'glitch-persistent'
-  },
-  {
-    type: 'section-title',
-    text: 'The Pattern Across 400 Years',
-    position: 'full-width',
-    effect: 'split-reveal'
-  },
-  {
-    type: 'timeline',
-    items: [
-      '1600s: Magic lanterns deceive people who\'ve never seen projected light.',
-      '1860s: Spirit photography deceives people who don\'t understand cameras.',
-      '1930s: Film creates convincing fictional realities.',
-      '1990s: Photoshop makes manipulation accessible to everyone.',
-      '2020s: AI generates realistic content of things that never existed.'
-    ],
-    position: 'center',
-    effect: 'line-by-line'
-  },
-  {
-    type: 'paragraph',
-    text: 'The tools change. Human psychology doesn\'t. Every advance creates a window where realistic results are accepted as truth until people learn to recognize the tricks.',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'section-title',
-    text: 'How Deception Has Been Used',
-    position: 'full-width',
-    effect: 'split-reveal'
-  },
-  {
-    type: 'paragraph',
-    text: 'Visual manipulation has been weaponized to exploit grief, sell products, create false evidence, spread propaganda, manipulate politics, influence markets, destroy reputations, and evade accountability. The motivation hasn\'t changed in 400 years: profit, power, politics, personal gain.',
-    position: 'center',
-    effect: 'fade-in'
-  },
-  {
-    type: 'section-title',
-    text: 'How to Verify What You See',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'paragraph',
-    text: 'Question the source: Who created this? Why? Who benefits? If you can\'t answer, you don\'t have enough information.',
-    position: 'top-left',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'Look for technical tells: Unnatural blinking, mismatched lighting, audio sync issues, weird artifacts, strangely smooth skin textures.',
-    position: 'top-right',
-    effect: 'fade-in'
-  },
-  {
-    type: 'paragraph',
-    text: 'Recognize confirmation bias: Content that confirms what you already believe is most dangerous. It feels true because you want it to be true. That\'s when you should be MOST skeptical.',
-    position: 'bottom-center',
-    effect: 'fade-in'
-  },
-  {
-    type: 'quote',
-    text: 'Spirit photography worked because people wanted proof their loved ones weren\'t gone. Deepfakes work because your brain treats seeing as evidence. This instinct served humanity for thousands of years—until we invented ways to show you things that never happened.',
-    position: 'center',
-    effect: 'blur-to-sharp'
-  },
-  {
-    type: 'link',
-    text: 'Explore More: Josef Albers — The Interaction of Color',
-    url: 'https://artsandculture.google.com/story/josef-albers-the-interaction-of-color-bechtler-museum-of-modern-art/owVxXkSkjQuPJA'
-  },
-  { type: 'end', text: 'Return to Exhibition' }
-];
+import AtmosphereLayer from '@/components/exhibition/AtmosphereLayer';
+import { EntranceCopy, VisitTicket } from '@/components/exhibition/EntranceCopy';
+import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
+import '@/components/exhibition/poster-exhibition.css';
+import { SEEING_ATMOSPHERES, poster1Content, poster2Content } from './posters';
+import './seeing.css';
 
 // Line by line component
 const LineByLine = ({ items, color }: { items: string[]; color: string }) => {
@@ -458,6 +51,9 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
   { id: 'poster1', title: 'Seeing is Deceiving: The Science of How We See', thumb: '/exhibitions/seeing/poster1.jpg', items: poster1Content, talk: SEEING_TALK.poster1 },
   { id: 'poster2', title: 'A History of Lies: From Magic Lanterns to AI Deepfakes', thumb: '/exhibitions/seeing/poster2.jpg', items: poster2Content, talk: SEEING_TALK.poster2 },
 ];
+
+/** What "Teach with this" opens: the lessons, printables and discussion questions for each role. */
+const TEACH: TeachContent = { slug: 'seeing-is-deceiving', name: 'Seeing is Deceiving', posters: PROJECTOR_POSTERS, links: SEEING_POSTER_LINKS };
 
 const FilmOverlay = () => {
   return (
@@ -520,13 +116,28 @@ export default function SeeingIsDeceiving() {
   const darkCharcoal = '#2a2a2a';
   const bgColor = isPoster1 ? '#e0dede' : '#0a0a0a';
   const textColor = isPoster1 ? darkCharcoal : wavesBlue;
+  /* The landing page stands in poster 1's pale grey, its type in the poster's black (14.8:1) and charcoal (10.7:1). */
+  const posterGrey = '#e0dede';
+  const isMain = activeView === 'main';
+  const navM = isMain ? '#0a0a0a' : '#525252';
+  const navInk = isMain ? darkCharcoal : '#7D8471';
+  const teachStyle = { '--teach-color': darkCharcoal, '--teach-border': 'rgba(42,42,42,0.55)' } as React.CSSProperties;
   const fx = usePosterFxStage('sid', direction, currentItem?.type ?? '', bgColor, isPoster1 ? 'rgba(42,42,42,0.55)' : 'rgba(168,213,229,0.6)');
   /**
    * The panels keep their own authored entrances. The chromatic slat reveal is
    * reserved for the split-reveal section titles, so it marks a new chapter
    * rather than every click.
    */
-  const fxTitle = currentItem?.type === 'section-title' && currentItem.effect === 'split-reveal';
+  /**
+   * How this panel arrives: its own entrance (typed, set line by line,
+   * glitched, filling in like the blind spot), or, for a section title with
+   * none, the chromatic slat reveal. The title cards and the two full
+   * pictures keep their own motions.
+   */
+  const entrance = panelEntrance(currentItem);
+  const fxTitle = currentItem?.type === 'section-title' && entrance === 'theme';
+  const atmosphere = currentItem?.atmosphere;
+  const atmo = atmosphere ? SEEING_ATMOSPHERES[atmosphere] : undefined;
 
   // Position classes
   const getPositionClass = (position?: string) => {
@@ -541,19 +152,8 @@ export default function SeeingIsDeceiving() {
     }
   };
 
-  // Effect classes
-  const getEffectClass = (effect?: string) => {
-    switch(effect) {
-      case 'blur-to-sharp': return 'effect-blur-sharp';
-      case 'split-reveal': return 'effect-split-reveal';
-      case 'glitch': return 'effect-glitch';
-      case 'film-credits': return 'effect-film-credits';
-      default: return '';
-    }
-  };
-
   return (
-    <div style={{ background: activeView === 'main' ? '#0a0a0a' : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
+    <div className={`pe-root sid-root ${!isMain && isPoster1 ? 'sid-light' : ''}`} style={{ background: isMain ? posterGrey : bgColor, minHeight: '100vh', transition: 'background 0.5s ease' }}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -589,15 +189,6 @@ export default function SeeingIsDeceiving() {
           transition: all 0.4s ease;
         }
 
-        /* Typewriter cursor */
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          51%, 100% { opacity: 0; }
-        }
-        .typewriter-cursor {
-          animation: blink 0.8s infinite;
-          margin-left: 2px;
-        }
 
         /* Simple paragraph fade-in */
         @keyframes paragraphFade {
@@ -622,45 +213,9 @@ export default function SeeingIsDeceiving() {
           text-align: left;
         }
 
-        /* Blur to sharp */
-        @keyframes blurToSharp {
-          from { filter: blur(12px); opacity: 0; }
-          to { filter: blur(0); opacity: 1; }
-        }
-        .effect-blur-sharp {
-          animation: blurToSharp 1.2s ease forwards;
-        }
 
-        /* Split reveal */
-        @keyframes splitReveal {
-          from { clip-path: inset(0 50% 0 50%); opacity: 0; }
-          to { clip-path: inset(0 0 0 0); opacity: 1; }
-        }
-        .effect-split-reveal {
-          animation: splitReveal 0.8s ease forwards;
-        }
 
-        /* Glitch effect */
-        @keyframes glitch {
-          0% { transform: translate(0); }
-          20% { transform: translate(-3px, 3px); filter: hue-rotate(90deg); }
-          40% { transform: translate(-3px, -3px); filter: hue-rotate(180deg); }
-          60% { transform: translate(3px, 3px); filter: hue-rotate(270deg); }
-          80% { transform: translate(3px, -3px); filter: hue-rotate(360deg); }
-          100% { transform: translate(0); filter: hue-rotate(0); }
-        }
-        .effect-glitch {
-          animation: glitch 0.4s ease forwards, blurToSharp 0.8s ease forwards;
-        }
 
-        /* Film credits slide */
-        @keyframes filmCredits {
-          from { transform: translateY(100px); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        .effect-film-credits {
-          animation: filmCredits 1s ease forwards;
-        }
 
         /* Ken Burns zoom in */
         @keyframes kenburnIn {
@@ -703,20 +258,6 @@ export default function SeeingIsDeceiving() {
         /* Static noise overlay */
         .static-overlay {
           position: relative;
-        }
-        .static-overlay::before {
-          content: '';
-          position: absolute;
-          inset: -50%;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
-          opacity: 0.18;
-          pointer-events: none;
-          animation: staticNoise 0.2s steps(10) infinite;
-          z-index: 1;
-        }
-        @keyframes staticNoise {
-          0% { background-position: 0 0; }
-          100% { background-position: 100% 100%; }
         }
 
         /* RGB split */
@@ -847,43 +388,7 @@ export default function SeeingIsDeceiving() {
           position: relative;
         }
         
-        /* Floating depth layers behind text */
-        .depth-parallax::before {
-          content: '';
-          position: absolute;
-          top: 20%;
-          left: 10%;
-          right: 10%;
-          bottom: 20%;
-          border: 2px solid rgba(168, 213, 229, 0.15);
-          border-radius: 20px;
-          animation: depthLayerFloat 4s ease-in-out infinite;
-          pointer-events: none;
-        }
-        .depth-parallax::after {
-          content: '';
-          position: absolute;
-          top: 15%;
-          left: 5%;
-          right: 5%;
-          bottom: 15%;
-          border: 1px solid rgba(168, 213, 229, 0.08);
-          border-radius: 30px;
-          animation: depthLayerFloat 4s ease-in-out infinite reverse;
-          animation-delay: -2s;
-          pointer-events: none;
-        }
         
-        @keyframes depthLayerFloat {
-          0%, 100% { 
-            transform: translateZ(0) scale(1);
-            opacity: 0.5;
-          }
-          50% { 
-            transform: translateZ(20px) scale(1.02);
-            opacity: 1;
-          }
-        }
         
         /* Text with dramatic shadow for depth */
         .depth-parallax .section-title-text {
@@ -920,45 +425,7 @@ export default function SeeingIsDeceiving() {
           }
         }
         
-        /* Floating orbs for depth perception */
-        .depth-orb {
-          position: fixed;
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 5;
-        }
-        .depth-orb-1 {
-          width: 100px;
-          height: 100px;
-          top: 15%;
-          left: 10%;
-          background: radial-gradient(circle at 30% 30%, rgba(168, 213, 229, 0.15), transparent 70%);
-          animation: orbFloat 6s ease-in-out infinite;
-        }
-        .depth-orb-2 {
-          width: 60px;
-          height: 60px;
-          top: 70%;
-          right: 15%;
-          background: radial-gradient(circle at 30% 30%, rgba(168, 213, 229, 0.1), transparent 70%);
-          animation: orbFloat 5s ease-in-out infinite reverse;
-        }
-        .depth-orb-3 {
-          width: 40px;
-          height: 40px;
-          top: 40%;
-          right: 25%;
-          background: radial-gradient(circle at 30% 30%, rgba(168, 213, 229, 0.12), transparent 70%);
-          animation: orbFloat 7s ease-in-out infinite;
-          animation-delay: -2s;
-        }
         
-        @keyframes orbFloat {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          25% { transform: translate(10px, -15px) scale(1.1); }
-          50% { transform: translate(5px, 10px) scale(0.95); }
-          75% { transform: translate(-10px, -5px) scale(1.05); }
-        }
 
         /* ============================================
            COLOR SHIFT - Already working, keeping it
@@ -966,50 +433,6 @@ export default function SeeingIsDeceiving() {
         .color-shift {
           position: relative;
           overflow: hidden;
-        }
-        .color-shift::before {
-          content: '';
-          position: absolute;
-          inset: -50%;
-          background: 
-            conic-gradient(
-              from 0deg at 50% 50%,
-              rgba(255, 100, 100, 0.15) 0deg,
-              rgba(255, 255, 100, 0.15) 60deg,
-              rgba(100, 255, 100, 0.15) 120deg,
-              rgba(100, 255, 255, 0.15) 180deg,
-              rgba(100, 100, 255, 0.15) 240deg,
-              rgba(255, 100, 255, 0.15) 300deg,
-              rgba(255, 100, 100, 0.15) 360deg
-            );
-          animation: colorRotate 10s linear infinite;
-          pointer-events: none;
-          z-index: 0;
-        }
-        .color-shift::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(
-            135deg,
-            rgba(255, 180, 180, 0.12) 0%,
-            rgba(180, 255, 180, 0.12) 33%,
-            rgba(180, 180, 255, 0.12) 66%,
-            rgba(255, 255, 180, 0.12) 100%
-          );
-          background-size: 200% 200%;
-          animation: colorShift 5s ease infinite;
-          pointer-events: none;
-          z-index: 1;
-        }
-        @keyframes colorRotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes colorShift {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
         }
         .color-shift .section-title-text,
         .color-shift .paragraph-text {
@@ -1020,28 +443,6 @@ export default function SeeingIsDeceiving() {
         /* Peripheral drift effect */
         .peripheral-drift {
           position: relative;
-        }
-        .peripheral-drift::before,
-        .peripheral-drift::after {
-          content: '';
-          position: fixed;
-          width: 200px;
-          height: 200px;
-          border-radius: 50%;
-          background: repeating-conic-gradient(
-            from 0deg,
-            rgba(42,42,42,0.04) 0deg 10deg,
-            transparent 10deg 20deg
-          );
-          pointer-events: none;
-          animation: peripheralRotate 20s linear infinite;
-          z-index: 0;
-        }
-        .peripheral-drift::before { top: 10%; left: -50px; }
-        .peripheral-drift::after { bottom: 15%; right: -50px; animation-direction: reverse; }
-        @keyframes peripheralRotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
         }
 
         /* Persistent glitch effect */
@@ -1119,42 +520,25 @@ export default function SeeingIsDeceiving() {
         }
 
         /* Main Exhibition View */
-        .exhibition-main {
-          min-height: 100vh;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 120px 40px 80px;
-          gap: 60px;
-        }
+        /* The landing page's layout, one screen with the posters and the case
+           sized to it, is the shared pe-landing (poster-exhibition.css); these
+           rules give it the exhibition's look. */
+        .sid-root { --pe-hint: #2a2a2a; }
 
-        .exhibition-title { text-align: center; margin-bottom: 20px; }
+        /* The lessons chip inherits its ink from here (a:link outranks its own color). */
+        .exhibition-title { color: #2a2a2a; }
         .exhibition-title h1 {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(2.5rem, 8vw, 5rem);
           font-weight: 300;
-          color: #fafafa;
-          margin-bottom: 12px;
+          color: #0a0a0a;
         }
         .exhibition-title p {
           font-family: 'Cormorant Garamond', serif;
-          font-size: clamp(1rem, 3vw, 1.4rem);
           font-style: italic;
-          color: #a8d5e5;
-        }
-
-        .exhibition-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 40px;
-          max-width: 1200px;
-          width: 100%;
-          align-items: center;
+          color: #2a2a2a;
         }
 
         @media (max-width: 900px) {
-          .exhibition-grid { grid-template-columns: 1fr; gap: 32px; }
           .pos-top-left, .pos-top-right { padding: 15vh 24px 15vh 24px; }
           .pos-bottom-left, .pos-bottom-right, .pos-bottom-center {
             padding-left: 24px;
@@ -1169,72 +553,100 @@ export default function SeeingIsDeceiving() {
         }
         .poster-frame:hover, .poster-frame:focus-visible { transform: translateY(-8px); }
         .poster-frame:hover .poster-hint, .poster-frame:focus-visible .poster-hint { opacity: 1; }
-        .poster-frame img {
-          width: 100%;
-          height: auto;
-          display: block;
-          box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
+        .poster-frame img { box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
         .poster-hint {
-          position: absolute;
-          bottom: -30px;
-          left: 50%;
-          transform: translateX(-50%);
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
           letter-spacing: 0.15em;
           text-transform: uppercase;
-          color: #7D8471;
+          color: #2a2a2a;
           opacity: 0;
           transition: opacity 0.3s ease;
         }
 
+        /* The case stands on the page's own grey, with no card round it: the
+           photograph is cut out, so the lit case sits straight on the poster's
+           ground. Its type is the poster's black and a deepened blue (5.7:1 and up). */
         .display-case {
-          background: #0a0a0a;
-          border: 1px solid rgba(255,255,255,0.1);
-          padding: 32px 24px;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
+          isolation: isolate;
+          --pe-case-pad-y: 116px;
+          padding: 80px 46px 36px;
           cursor: pointer;
           transition: all 0.4s ease;
-          overflow: hidden;
+        }
+        /* Its frame, an op-art arch after the posters' rippling lines: nested
+           arches in the poster's black, each a little finer and fainter than
+           the one inside it, so the rim seems to shimmer and swell (a moiré,
+           the eye's own doing). On hover the rings spread outward like a
+           ripple; the innermost line is the sharp edge the eye fixes on. */
+        .display-case .pe-case-frame {
+          --sid-ring: 7px;
+          position: absolute;
+          z-index: -1;
+          inset: 22px;
+          border-radius: 999px 999px 2px 2px;
+          border: 1.5px solid #0a0a0a;
+          pointer-events: none;
+          box-shadow:
+            0 0 0 calc(var(--sid-ring) * 1) #e0dede, 0 0 0 calc(var(--sid-ring) * 1 + 1.2px) rgba(10, 10, 10, 0.78),
+            0 0 0 calc(var(--sid-ring) * 2) #e0dede, 0 0 0 calc(var(--sid-ring) * 2 + 1px) rgba(10, 10, 10, 0.56),
+            0 0 0 calc(var(--sid-ring) * 3) #e0dede, 0 0 0 calc(var(--sid-ring) * 3 + 0.8px) rgba(10, 10, 10, 0.36),
+            0 0 0 calc(var(--sid-ring) * 4) #e0dede, 0 0 0 calc(var(--sid-ring) * 4 + 0.6px) rgba(10, 10, 10, 0.2);
+          transition: --sid-ring 0.6s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+          animation: sid-frame-shimmer 6s ease-in-out infinite;
+        }
+        /* An eye's glint at the crown: the one-line face's pupil from poster 1. */
+        .display-case .pe-case-frame::after {
+          content: '';
+          position: absolute;
+          top: 14px;
+          left: 50%;
+          width: 30px;
+          height: 14px;
+          translate: -50% 0;
+          border: 1.5px solid #0a0a0a;
+          border-radius: 50% / 100% 100% 0 0;
+          border-bottom: 0;
+          background: radial-gradient(circle at 50% 100%, #0a0a0a 0 4px, transparent 4.5px);
+        }
+        .display-case:hover .pe-case-frame, .display-case:focus-visible .pe-case-frame { --sid-ring: 10px; }
+        @property --sid-ring { syntax: '<length>'; inherits: false; initial-value: 7px; }
+        @keyframes sid-frame-shimmer {
+          0%, 100% { --sid-ring: 7px; }
+          50% { --sid-ring: 7.8px; }
+        }
+        .display-case:hover .pe-case-frame, .display-case:focus-visible .pe-case-frame { animation: none; }
+        @media (prefers-reduced-motion: reduce) {
+          .display-case .pe-case-frame { animation: none; transition: none; }
         }
         .display-case:hover, .display-case:focus-visible {
-          border-color: rgba(168, 213, 229, 0.3);
+          transform: translateY(-8px);
         }
         .display-case:hover .case-image {
           transform: scale(1.02);
+          filter: drop-shadow(0 18px 28px rgba(0,0,0,0.35));
         }
 
-        .case-image {
-          width: 100%;
-          max-width: 280px;
-          height: auto;
-          object-fit: contain;
-          margin-bottom: 20px;
-          transition: transform 0.4s ease;
-        }
+        .case-image { transition: transform 0.4s ease; }
         .case-label {
           font-family: 'Outfit', sans-serif;
           font-size: 10px;
           letter-spacing: 0.2em;
           text-transform: uppercase;
-          color: #8a8a8a;
+          color: #3a3a3a;
           margin-bottom: 8px;
         }
         .case-title {
           font-family: 'Cormorant Garamond', serif;
           font-size: 20px;
-          color: #fafafa;
+          color: #0a0a0a;
           margin-bottom: 8px;
         }
         .case-subtitle {
           font-family: 'Cormorant Garamond', serif;
           font-size: 14px;
           font-style: italic;
-          color: #a8d5e5;
+          color: #1f5a6e;
         }
 
         /* Walkthrough */
@@ -1246,10 +658,12 @@ export default function SeeingIsDeceiving() {
         }
         .poster-walkthrough.fade-out { opacity: 0; }
 
+        /* Above the atmosphere (z-index 1), which stands behind every panel. */
         .walkthrough-content {
           min-height: 100vh;
           width: 100%;
           position: relative;
+          z-index: 2;
         }
 
         /* Full bleed images */
@@ -1334,6 +748,9 @@ export default function SeeingIsDeceiving() {
           text-decoration: none;
           transition: all 0.3s ease;
         }
+        /* A panel that opens onto a room: its link under the text, at the text's edge */
+        .room-stack { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: flex-end; }
+        .content-room-link { position: relative; z-index: 10; margin-top: 28px; font-size: 12px; padding: 12px 24px; }
         .content-link:hover {
           background: #a8d5e5;
           color: #0a0a0a;
@@ -1489,7 +906,6 @@ export default function SeeingIsDeceiving() {
           .nav-m-left { left: 20px; top: 20px; }
           .nav-m-right { right: 20px; top: 20px; }
           .nav-m-text { font-size: 24px; }
-          .exhibition-main { padding: 100px 24px 60px; }
           .walkthrough-nav { bottom: 20px; gap: 16px; }
           .nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
           .text-content-wrapper { padding: 100px 24px; }
@@ -1506,41 +922,41 @@ export default function SeeingIsDeceiving() {
           href={activeView === 'main' ? FLOOR_RETURN.href : undefined}
           onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
         >
-          <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
-          <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: '#7D8471' }}>←</span>
-          <span className="nav-label" style={{ color: '#7D8471' }}>
+          <span className="nav-m-text" aria-hidden="true" style={{ color: navM }}>M</span>
+          <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: navInk }}>←</span>
+          <span className="nav-label" style={{ color: navInk }}>
             {activeView === 'main' ? FLOOR_RETURN.label : 'Exhibition'}
           </span>
         </ExhibitionNav>
 
         <ExhibitionNav className="nav-m nav-m-right" href="/exhibitions/seeing-is-deceiving/resources">
-          <span className="nav-label" style={{ color: '#7D8471' }}>Resources</span>
-          <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: '#7D8471' }}>→</span>
-          <span className="nav-m-text" aria-hidden="true" style={{ color: '#525252' }}>M</span>
+          <span className="nav-label" style={{ color: navInk }}>Resources</span>
+          <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>→</span>
+          <span className="nav-m-text" aria-hidden="true" style={{ color: navM }}>M</span>
         </ExhibitionNav>
         </>
       )}
 
       {/* Main Exhibition View */}
       {activeView === 'main' && !projector && (
-        <div className="exhibition-main">
-          <div className="exhibition-title">
+        <div className="exhibition-main pe-landing">
+          <div className="exhibition-title pe-landing-head">
             <h1>Seeing is Deceiving</h1>
             <p>The Science of How We See</p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 24 }}>
-              <TeachToggle onClick={() => setProjector(true)} style={{ '--teach-color': '#a8d5e5', '--teach-border': 'rgba(168,213,229,0.55)' } as React.CSSProperties} />
-              <LessonsLink exhibition="seeing-is-deceiving" style={{ '--teach-color': '#a8d5e5', '--teach-border': 'rgba(168,213,229,0.55)' } as React.CSSProperties} />
+            <div className="pe-teach-row">
+              <TeachToggle onClick={() => setProjector(true)} style={teachStyle} teach={TEACH} />
             </div>
           </div>
 
-          <div className="exhibition-grid">
-            <button type="button" className="btn-reset poster-frame" data-poster="poster1" onClick={() => openPoster('poster1')}>
+          <LandingRow className="exhibition-grid">
+            <button type="button" className="btn-reset poster-frame pe-landing-poster" data-poster="poster1" onClick={() => openPoster('poster1')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/seeing/poster1.jpg" alt="Seeing is Deceiving poster: the title in black capitals, reflected upside down, beneath a one-line drawing of a face" />
               <span className="poster-hint">Click to explore</span>
             </button>
 
-            <Link href="/exhibitions/seeing-is-deceiving/artifacts" className="display-case">
+            <Link href="/exhibitions/seeing-is-deceiving/artifacts" className="display-case pe-landing-case">
+              <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/exhibitions/seeing/artifacts/display-case.png"
@@ -1552,12 +968,12 @@ export default function SeeingIsDeceiving() {
               <p className="case-subtitle">Including Interactive Perception Lab</p>
             </Link>
 
-            <button type="button" className="btn-reset poster-frame" data-poster="poster2" onClick={() => openPoster('poster2')}>
+            <button type="button" className="btn-reset poster-frame pe-landing-poster" data-poster="poster2" onClick={() => openPoster('poster2')}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/exhibitions/seeing/poster2.jpg" alt="A History of Lies: From Magic Lanterns to AI Deepfakes poster: the title wrapped around a column of rippling blue and black stripes" />
               <span className="poster-hint">Click to explore</span>
             </button>
-          </div>
+          </LandingRow>
         </div>
       )}
 
@@ -1587,13 +1003,20 @@ export default function SeeingIsDeceiving() {
         prevStep={prevStep}
         returnToMain={returnToMain}
       >
+        <>
+        {(activeView === 'poster1' || activeView === 'poster2') && atmosphere && atmo && (
+          <AtmosphereLayer key={`${activeView}:${atmosphere}`} name={atmosphere} atmosphere={atmo} />
+        )}
         {(activeView === 'poster1' || activeView === 'poster2') && (
           <div
+            // The key comes before the spreads, so React builds the element with jsx() and not createElement().
+            key={animationKey}
             {...stageProps}
             {...fx}
             className={`poster-walkthrough ${fx.className} ${fadeIn ? '' : 'fade-out'}`}
             data-tone={isPoster1 ? 'light' : 'dark'}
-            key={animationKey}
+            data-entrance={entrance}
+            data-atmosphere={atmosphere}
           >
             <div className="walkthrough-content" ref={contentRef} tabIndex={-1} data-focus-target="">
               {/* The split-colour scan runs once, as the poster opens. */}
@@ -1634,20 +1057,12 @@ export default function SeeingIsDeceiving() {
                 <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
                   {/* Film overlay for vintage film sections */}
                   {currentItem.special === 'vintage-film' && <FilmOverlay />}
-                  {/* Depth orbs for stereoscope sections */}
-                  {currentItem.special === 'depth-parallax' && (
-                    <>
-                      <div className="depth-orb depth-orb-1"></div>
-                      <div className="depth-orb depth-orb-2"></div>
-                      <div className="depth-orb depth-orb-3"></div>
-                    </>
-                  )}
                   <h2
-                    className={`section-title-text ${fxTitle ? '' : getEffectClass(currentItem.effect)} ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
+                    className={`section-title-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
                     style={{ color: textColor, position: 'relative', zIndex: 10 }}
                     data-fx={fxTitle ? 'title' : undefined}
                   >
-                    {fxTitle ? <FxText text={currentItem.text ?? ''} /> : currentItem.text}
+                    {fxTitle ? <FxText text={currentItem.text ?? ''} /> : <EntranceCopy text={currentItem.text ?? ''} effect={entrance} />}
                   </h2>
                 </div>
               )}
@@ -1657,24 +1072,27 @@ export default function SeeingIsDeceiving() {
                 <div className={`text-content-wrapper ${getPositionClass(currentItem.position)} ${currentItem.special === 'static-overlay' ? 'static-overlay' : ''} ${currentItem.special === 'vintage-film' ? 'vintage-film' : ''} ${currentItem.special === 'depth-parallax' ? 'depth-parallax' : ''} ${currentItem.special === 'color-shift' ? 'color-shift' : ''} ${currentItem.special === 'peripheral-drift' ? 'peripheral-drift' : ''} ${currentItem.special === 'glitch-persistent' ? 'glitch-persistent' : ''}`}>
                   {/* Film overlay for vintage film sections */}
                   {currentItem.special === 'vintage-film' && <FilmOverlay />}
-                  {/* Depth orbs for stereoscope sections */}
-                  {currentItem.special === 'depth-parallax' && (
-                    <>
-                      <div className="depth-orb depth-orb-1"></div>
-                      <div className="depth-orb depth-orb-2"></div>
-                      <div className="depth-orb depth-orb-3"></div>
-                    </>
+                  {currentItem.room && !projector ? (
+                    <div className="room-stack">
+                      <p className="paragraph-text" style={{ color: textColor }}>
+                        <EntranceCopy text={currentItem.text} effect={entrance} />
+                      </p>
+                      <Link
+                        href={currentItem.room.href}
+                        className="content-link content-room-link"
+                        style={{ color: textColor, borderColor: textColor }}
+                      >
+                        {currentItem.room.label} <span aria-hidden="true">→</span>
+                      </Link>
+                    </div>
+                  ) : (
+                    <p
+                      className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''}`}
+                      style={{ color: textColor, position: 'relative', zIndex: 10 }}
+                    >
+                      <EntranceCopy text={currentItem.text} effect={entrance} />
+                    </p>
                   )}
-                  <p
-                    className={`paragraph-text ${currentItem.special === 'rgb-split' ? 'rgb-split' : ''} ${currentItem.effect === 'fade-in' ? 'effect-fade-in' : ''} ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''} ${currentItem.effect === 'glitch' ? 'effect-glitch' : ''}`}
-                    style={{ color: textColor, position: 'relative', zIndex: 10 }}
-                  >
-                    {currentItem.effect === 'typewriter' ? (
-                      <TypewriterText text={currentItem.text} color={textColor} cursorClassName="typewriter-cursor" />
-                    ) : (
-                      currentItem.text
-                    )}
-                  </p>
                 </div>
               )}
 
@@ -1699,26 +1117,18 @@ export default function SeeingIsDeceiving() {
               {currentItem.type === 'quote' && currentItem.text && (
                 <div className={`text-content-wrapper pos-center`}>
                   <blockquote
-                    className={`quote-text ${currentItem.effect === 'blur-to-sharp' ? 'effect-blur-sharp' : ''}`}
+                    className="quote-text"
                     style={{ color: textColor, borderColor: textColor }}
                   >
-                    {currentItem.text}
+                    <EntranceCopy text={currentItem.text} effect={entrance} />
                   </blockquote>
                 </div>
               )}
 
-              {/* Link */}
-              {currentItem.type === 'link' && (
-                <div className="text-content-wrapper pos-center">
-                  <a
-                    href={currentItem.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="content-link"
-                    style={{ color: textColor, borderColor: textColor }}
-                  >
-                    {currentItem.text}
-                  </a>
+              {/* Link: the visit ticket, as every poster ends */}
+              {currentItem.type === 'link' && currentItem.url && (
+                <div className="text-content-wrapper pos-center pe-ticket-panel">
+                  <VisitTicket text={currentItem.text ?? ''} url={currentItem.url} className={effectClass(entrance)} />
                 </div>
               )}
 
@@ -1733,7 +1143,6 @@ export default function SeeingIsDeceiving() {
                   >
                     {currentItem.text}
                   </button>
-                  <PosterLessons exhibition="seeing-is-deceiving" poster={activeView} color={textColor} />
                 </div>
               )}
             </div>
@@ -1771,6 +1180,7 @@ export default function SeeingIsDeceiving() {
             )}
           </div>
         )}
+        </>
       </PosterProjector>
 
 
