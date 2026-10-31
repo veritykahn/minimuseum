@@ -936,7 +936,7 @@ export default function InTheirHands() {
             <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case pe-landing-case">
               <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Lit display case with three coins in round holders before a printed information card" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.webp" alt="Lit display case with three coins in round holders before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 6</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the World of Jesus</p>
@@ -945,7 +945,7 @@ export default function InTheirHands() {
             <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case pe-landing-case">
               <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Lit display case with six coins in round holders before two printed information cards" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.webp" alt="Lit display case with six coins in round holders before two printed information cards" />
               <p className="ith-case-label">Gallery II, Case 7</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
@@ -954,7 +954,7 @@ export default function InTheirHands() {
             <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case pe-landing-case">
               <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-3.webp" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 8</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the Early Church</p>

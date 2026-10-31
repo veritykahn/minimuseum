@@ -141,7 +141,7 @@
                 "replica": true
               },
               {
-                "img": "/exhibitions/in-their-hands/artifacts/coins/claudius-front.png",
+                "img": "/exhibitions/in-their-hands/artifacts/coins/claudius-front.webp",
                 "caption": "Claudius",
                 "sub": "41–54 AD",
                 "alt": "A bronze coin of the emperor Claudius: his head"
@@ -184,7 +184,7 @@
                 "alt": "Pontius Pilate’s bronze prutah: a simpulum, a Roman ladle"
               },
               {
-                "img": "/exhibitions/in-their-hands/artifacts/coins/festus-front.png",
+                "img": "/exhibitions/in-their-hands/artifacts/coins/festus-front.webp",
                 "caption": "Festus",
                 "sub": "c. 59–62 AD",
                 "alt": "The bronze prutah of Porcius Festus"
@@ -375,7 +375,7 @@
             ]
           },
           {
-            "img": "/exhibitions/in-their-hands/artifacts/coins/claudius-front.png",
+            "img": "/exhibitions/in-their-hands/artifacts/coins/claudius-front.webp",
             "cells": [
               "Claudius",
               "Emperor",
@@ -385,7 +385,7 @@
             ]
           },
           {
-            "img": "/exhibitions/in-their-hands/artifacts/coins/festus-front.png",
+            "img": "/exhibitions/in-their-hands/artifacts/coins/festus-front.webp",
             "cells": [
               "Porcius Festus",
               "Roman procurator",

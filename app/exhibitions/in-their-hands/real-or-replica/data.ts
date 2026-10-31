@@ -97,7 +97,7 @@ export const ROUNDS: ReplicaRound[] = [
     teacherTip:
       'Ask why a lepton that looks too clean and too perfect should make an expert suspicious.',
     coinName: "Widow's Mite — Lepton",
-    fakeImage: `${IMG}/widow-fake.png`,
+    fakeImage: `${IMG}/widow-fake.webp`,
     realImage: `${IMG}/widow-real.png`,
     method: 'Modern Reproduction',
     explanation:
