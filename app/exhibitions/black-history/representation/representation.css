@@ -364,11 +364,17 @@
 /* Print: the doll alone, or every chart of the survey. */
 @media print {
   body:has(.bhr-room) * { visibility: hidden; }
-  /* The doll and its name, on one page. */
+  /* White paper, not the site's dark ground, while this room is printed. */
+  html:has(.bhr-room), body:has(.bhr-room) { background: #fff !important; }
+  /* The doll and its name, on one page (Letter or A4). The room behind it takes no space,
+     so the hidden page under the doll does not run on to a second, empty sheet. */
+  .bhr-room[data-tab='design'] { min-height: 0; height: 0; overflow: hidden; }
+  /* No entrance animation: its transform would hold the doll inside the collapsed room instead of on the page. */
+  .bhr-room[data-tab='design'] .bhr-panel { animation: none; }
   .bhr-room[data-tab='design'] .bhr-doll-stage, .bhr-room[data-tab='design'] .bhr-doll-stage * { visibility: visible; }
-  .bhr-room[data-tab='design'] .bhr-doll-stage { position: fixed; left: 0; right: 0; top: 0.3in; container-type: normal; display: flex; flex-direction: column; align-items: center; gap: 0.1in; }
+  .bhr-room[data-tab='design'] .bhr-doll-stage { position: fixed; left: 0; right: 0; top: 0.2in; container-type: normal; display: flex; flex-direction: column; align-items: center; gap: 0.1in; }
   .bhr-room[data-tab='design'] .bhr-doll-stage::before { display: none; }
-  .bhr-room[data-tab='design'] .bhr-doll { width: auto; height: 9in; max-width: none; max-height: none; filter: none; }
+  .bhr-room[data-tab='design'] .bhr-doll { width: auto; height: 8.4in; max-width: none; max-height: none; filter: none; }
   .bhr-room[data-tab='design'] .bhr-doll-name { font-size: 30pt; }
   .bhr-room[data-tab='books'] .bhr-print, .bhr-room[data-tab='books'] .bhr-print * { visibility: visible; }
   .bhr-room[data-tab='books'] .bhr-print { display: flex; flex-direction: column; gap: 12pt; position: absolute; left: 0; top: 0; width: 100%; color: #141414; }
