@@ -82,7 +82,7 @@ function allFiles() {
     if (typeof v === 'string' && v.endsWith('.webp')) files.add(v);
     else if (v && typeof v === 'object') Object.values(v).forEach(walk);
   };
-  for (const k of ['bodies', 'prosthetic', 'hair', 'outfits', 'head', 'extras']) walk(manifest[k]);
+  for (const k of ['bodies', 'prosthetic', 'seatedHands', 'hair', 'outfits', 'head', 'extras']) walk(manifest[k]);
   return [...files].sort();
 }
 
@@ -561,6 +561,7 @@ async function main() {
     extras: manifest.extras,
     rules: manifest.rules,
     kippahLift: manifest.kippahLift,
+    seatedHands: manifest.seatedHands ?? {},
     coversHair: [...new Set(coversHair.map((h) => h.split(':')[1]))],
     skinSwatch,
     hairSwatch,
@@ -598,6 +599,8 @@ export type DollArtData = {
   outfits: Record<Pose, Record<string, OneFile>>;
   head: Record<Sex, Record<string, OneFile>>;
   extras: { M: { beard: ByColour; glasses: OneFile; hearing: OneFile }; W: { glasses: OneFile; hearing: OneFile } };
+  /** The seated woman's hands, by skin tone: stacked right after the outfit so they rest on her lap. */
+  seatedHands: { note?: string } & Partial<Record<Pose, Record<Tone, string>>>;
   rules: string[];
   kippahLift: Record<string, number>;
   coversHair: string[];

@@ -59,7 +59,7 @@ describe('the doll’s artwork', () => {
   it('matches the owner’s manifest, where her folder is on this machine', () => {
     if (!fs.existsSync(SRC_MANIFEST)) return;
     const m = JSON.parse(fs.readFileSync(SRC_MANIFEST, 'utf8'));
-    for (const k of ['canvas', 'order', 'skinTones', 'skinToneLabels', 'bodies', 'prosthetic', 'hairColours', 'hair', 'outfits', 'head', 'extras', 'rules', 'kippahLift'] as const) {
+    for (const k of ['canvas', 'order', 'skinTones', 'skinToneLabels', 'bodies', 'prosthetic', 'hairColours', 'hair', 'outfits', 'head', 'extras', 'rules', 'kippahLift', 'seatedHands'] as const) {
       expect(DOLL_ART[k]).toEqual(m[k]);
     }
   });
@@ -88,9 +88,9 @@ describe('the doll’s artwork', () => {
 });
 
 describe('the stack', () => {
-  it('follows the manifest’s order: body, outfit, hair, beard, head, then glasses and hearing aid', () => {
-    expect(DOLL_ART.order).toEqual(['body', 'outfit', 'hair', 'extra (beard)', 'head', 'extra (glasses, hearing aid)']);
-    expect(SLOT_ORDER).toEqual(['body', 'outfit', 'hair', 'beard', 'head', 'glasses', 'hearing']);
+  it('follows the manifest’s order: body, outfit, the seated woman’s hands, hair, beard, head, then glasses and hearing aid', () => {
+    expect(DOLL_ART.order).toEqual(['body', 'outfit', 'hands (seated woman only)', 'hair', 'extra (beard)', 'head', 'extra (glasses, hearing aid)']);
+    expect(SLOT_ORDER).toEqual(['body', 'outfit', 'hands', 'hair', 'beard', 'head', 'glasses', 'hearing']);
     const man: Doll = { ...FIRST_DOLL, sex: 'M', beard: true, glasses: true, hearing: true, covering: { W: null, M: 'kufi' } };
     expect(slots(man)).toEqual(['body', 'outfit', 'hair', 'beard', 'head', 'glasses', 'hearing']);
     expect(files(man)).toEqual([
@@ -104,9 +104,17 @@ describe('the stack', () => {
     ]);
   });
 
+  it('rests the seated woman’s hands on her lap, in her own skin tone, right over her outfit', () => {
+    const d = setSeated({ ...FIRST_DOLL, tone: 't3' }, true);
+    expect(slots(d).slice(0, 3)).toEqual(['body', 'outfit', 'hands']);
+    expect(files(d)).toContain('body/WS-t3-hands.webp');
+    expect(slots(FIRST_DOLL)).not.toContain('hands');
+    expect(slots(setSeated({ ...FIRST_DOLL, sex: 'M' }, true))).not.toContain('hands');
+  });
+
   it('gives the seated dolls the standing doll’s hair, head and extras', () => {
     const d = setSeated({ ...FIRST_DOLL, glasses: true, covering: { W: 'hijab', M: null } }, true);
-    expect(files(d)).toEqual(['body/WS-t2.webp', 'outfit/WS-out-sundress.webp', 'head/W-hijab.webp', 'extra/W-glasses.webp']);
+    expect(files(d)).toEqual(['body/WS-t2.webp', 'outfit/WS-out-sundress.webp', 'body/WS-t2-hands.webp', 'head/W-hijab.webp', 'extra/W-glasses.webp']);
   });
 
   it('draws the layers as full-canvas pictures in one box, in order', () => {

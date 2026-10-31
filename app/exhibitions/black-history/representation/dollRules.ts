@@ -32,7 +32,7 @@ export type Doll = {
 };
 
 export type Option = { id: string; label: string };
-export type Slot = 'body' | 'outfit' | 'hair' | 'beard' | 'head' | 'glasses' | 'hearing';
+export type Slot = 'body' | 'outfit' | 'hands' | 'hair' | 'beard' | 'head' | 'glasses' | 'hearing';
 export type Layer = { slot: Slot; file: string; src: string; lift: number };
 
 export const SEXES: Sex[] = ['W', 'M'];
@@ -40,9 +40,10 @@ export const POSES: Pose[] = ['W', 'M', 'WS', 'MS'];
 export const SEX_LABEL: Record<Sex, string> = { W: 'Woman', M: 'Man' };
 export const NAME_MAX = 24;
 
-/** The manifest's stacking order, as layer slots: body, outfit, hair, beard, head, then glasses and hearing aid. */
+/** The manifest's stacking order, as layer slots: body, outfit, the seated woman's hands, hair, beard, head, then glasses and hearing aid. */
 export const SLOT_ORDER: Slot[] = DOLL_ART.order.flatMap((o): Slot[] => {
   if (o === 'extra (beard)') return ['beard'];
+  if (/^hands\b/.test(o)) return ['hands'];
   if (/^extra \(/.test(o)) return ['glasses', 'hearing'];
   return [o as Slot];
 });
@@ -149,6 +150,8 @@ export function layersOf(d: Doll): Layer[] {
     body: { file: d.prosthetic && !d.seated ? DOLL_ART.prosthetic[sex][d.tone] : DOLL_ART.bodies[pose][d.tone] },
     outfit: { file: DOLL_ART.outfits[pose][d.outfit[pose]].file },
   };
+  const hands = (DOLL_ART.seatedHands as Partial<Record<Pose, Record<string, string>>>)[pose]?.[d.tone];
+  if (hands) files.hands = { file: hands };
   if (!hidesHair(covering)) files.hair = { file: DOLL_ART.hair[sex][style].files[d.hairColour] };
   if (sex === 'M' && d.beard) files.beard = { file: DOLL_ART.extras.M.beard.files[d.hairColour] };
   if (covering) files.head = { file: DOLL_ART.head[sex][covering].file, lift: covering === KIPPAH ? kippahLift(style) : 0 };
