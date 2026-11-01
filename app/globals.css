@@ -187,7 +187,8 @@ a:link, a:visited, a:hover, a:active {
 
 /* The floating Map button covers the foot of a scrolling page on a phone.
    Pages listed as 'clear' in components/museum-map/placement.ts get room to
-   scroll their last row above it. */
-@media (max-width: 768px) {
+   scroll their last row above it. On screen only: a printed page is about
+   this narrow too, and the extra room there pushed a blank page out. */
+@media screen and (max-width: 768px) {
   html[data-map-fab='clear'] body { padding-bottom: 88px; }
 }

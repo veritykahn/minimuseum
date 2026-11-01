@@ -38,6 +38,17 @@ describe('AudioGuide', () => {
     expect(screen.getByRole('button', { name: /audio guide/i })).toHaveAttribute('aria-pressed', 'false');
   });
 
+  it('downloads nothing while it is off, and loads each panel once it is on', () => {
+    const preload = jest.spyOn(HTMLMediaElement.prototype, 'preload', 'set');
+    const { rerender } = render(<Guide src="/a.mp3" />);
+    rerender(<Guide src="/b.mp3" />);
+    expect(preload).toHaveBeenCalled();
+    expect(preload.mock.calls.every(([v]) => v === 'none')).toBe(true);
+
+    fireEvent.click(screen.getByRole('button', { name: /audio guide/i }));
+    expect(preload).toHaveBeenLastCalledWith('auto');
+  });
+
   it('plays each panel as it arrives once on, and remembers the choice', () => {
     const { rerender } = render(<Guide src="/a.mp3" />);
     fireEvent.click(screen.getByRole('button', { name: /audio guide/i }));

@@ -27,7 +27,7 @@ export default function JazzLabPage() {
   const [activeTab, setActiveTab] = useState<'band' | 'studio' | 'quiz'>('band');
   const [loaded, setLoaded] = useState(false);
   const audioEngine = useAudioEngine();
-  const band = useBandBuilder(audioEngine);
+  const band = useBandBuilder(audioEngine, { preload: view === 'lab' && activeTab === 'band' });
   const quiz = useQuiz(audioEngine);
 
   useEffect(() => {

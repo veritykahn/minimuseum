@@ -21,6 +21,9 @@ import { HARLEM_ATMOSPHERES, poster1Content, poster2Content } from './posters';
 import PanelMusic from './PanelMusic';
 import './harlem.css';
 
+/** A paragraph longer than this (in characters) is set to fit a short screen: hr-long. */
+const LONG_PARAGRAPH = 600;
+
 const poster1Marks = chapterMarks(poster1Content);
 const poster2Marks = chapterMarks(poster2Content);
 
@@ -638,6 +641,14 @@ export default function HarlemRenaissance() {
           z-index: 10;
         }
 
+        /* A very long paragraph sets a little smaller on a short screen, so it
+           stays clear of the panel controls instead of running under them. */
+        .hr-long { padding-top: 10vh; }
+        .hr-long .hr-paragraph-text {
+          font-size: clamp(1.1rem, min(3vw, 2.9vh), 1.6rem);
+          line-height: 1.6;
+        }
+
         /* Quote */
         .hr-quote-text {
           font-family: 'Cormorant Garamond', serif;
@@ -812,6 +823,16 @@ export default function HarlemRenaissance() {
           .hr-walkthrough-nav { bottom: 20px; gap: 16px; }
           .hr-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
           .hr-text-content-wrapper { padding: 100px 24px; }
+          /* A phone: the painting starts below the M, and its description can
+             scroll clear of the panel controls and the Map button. */
+          .hr-artwork-display { padding: 76px 24px 128px; gap: 24px; }
+          .hr-artwork-image-side img { max-height: 40vh; }
+          .hr-artwork-info-side .hr-artwork-desc { line-height: 1.6; }
+        }
+        /* A phone: the arrows sit a little left of centre, so the Next arrow
+           is clear of the Map button in the corner. */
+        @media (max-width: 480px) {
+          .hr-walkthrough-nav { transform: translateX(calc(-50% - 28px)); }
         }
       `}</style>
 
@@ -956,7 +977,7 @@ export default function HarlemRenaissance() {
 
               {/* Paragraph */}
               {currentItem.type === 'paragraph' && currentItem.text && (
-                <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
+                <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)} ${currentItem.text.length > LONG_PARAGRAPH ? 'hr-long' : ''}`}>
                   {(() => {
                     const copy = (
                       <p

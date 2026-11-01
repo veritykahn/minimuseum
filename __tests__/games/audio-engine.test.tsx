@@ -195,6 +195,15 @@ describe('useAudioEngine', () => {
     expect(result.current.active.size).toBe(0);
   });
 
+  it('fetches the band’s loops only once the band is in view', () => {
+    const { rerender } = renderHook(({ preload }) => useBandBuilder(useAudioEngine(), { preload }), {
+      initialProps: { preload: false },
+    });
+    expect(global.fetch).not.toHaveBeenCalled();
+    rerender({ preload: true });
+    expect(global.fetch).toHaveBeenCalled();
+  });
+
   it('is one stable object across renders', () => {
     const { result, rerender } = renderHook(() => useAudioEngine());
     const first = result.current;
