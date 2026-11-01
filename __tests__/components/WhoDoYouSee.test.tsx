@@ -49,15 +49,34 @@ describe('the Doll Test', () => {
     const panel = screen.getByRole('tabpanel', { name: 'The Doll Test' });
     expect(within(panel).getByRole('heading', { level: 2, name: 'Separate schools' })).toBeInTheDocument();
     expect(within(panel).getByText(DOLL_TEST_FACTS.segregation.text)).toBeInTheDocument();
-    expect(within(panel).getByRole('link', { name: /National Archives/ })).toHaveAttribute('href', 'https://www.archives.gov/milestone-documents/brown-v-board-of-education');
+    // Nothing cited on the lesson's screen: its sources are in the room's drawer.
+    expect(within(panel).queryByRole('link')).toBeNull();
 
     fireEvent.click(within(panel).getByRole('button', { name: 'Next' }));
     expect(within(panel).getByRole('heading', { level: 2, name: 'Two psychologists' })).toBeInTheDocument();
-    expect(within(panel).getByRole('link', { name: /NAACP Legal Defense Fund/ })).toHaveAttribute('href', 'https://www.naacpldf.org/brown-vs-board/significance-doll-test/');
+    expect(within(panel).queryByRole('link', { name: /NAACP Legal Defense Fund/ })).toBeNull();
     fireEvent.keyDown(within(panel).getByRole('button', { name: '2: Two psychologists' }), { key: 'End' });
     expect(within(panel).getByRole('button', { name: `${DOLL_TEST_STEPS.length}: What it teaches` })).toHaveFocus();
     expect(within(panel).getByText(DOLL_TEST_TEXT.poster)).toBeInTheDocument();
     expect(within(panel).getByText(`${DOLL_TEST_STEPS.length} of ${DOLL_TEST_STEPS.length}: What it teaches`)).toHaveAttribute('role', 'status');
+  });
+
+  it('puts every source in the room’s Sources drawer, step by step, and the book survey’s', () => {
+    render(<WhoDoYouSee />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    DOLL_TEST_STEPS.forEach((step, i) => {
+      const group = within(drawer).getByRole('heading', { name: `The Doll Test, step ${i + 1}: ${step.heading}` }).closest('section') as HTMLElement;
+      for (const src of step.facts.flatMap((f) => f.sources)) {
+        expect(within(group).getByRole('link', { name: src.label })).toHaveAttribute('href', src.href);
+      }
+    });
+    expect(within(drawer).getByRole('heading', { name: 'Who’s in your books?' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('link', { name: /Cooperative Children’s Book Center/ })).toBeInTheDocument();
+    // Escape closes it, and the Sources button has the keyboard again.
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: 'Sources' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Sources' })).toHaveFocus();
   });
 });
 

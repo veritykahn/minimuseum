@@ -4,12 +4,13 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Keyb
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
+import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { BLACK_HISTORY } from '../blackHistory';
 import BookSurvey from './BookSurvey';
 import DollDesigner from './DollDesigner';
 import DollTest from './DollTest';
-import { ROOM_TEXT } from './representationText';
+import { CCBC_FACT, DOLL_TEST_STEPS, ROOM_TEXT } from './representationText';
 import '../black-history.css';
 import './representation.css';
 
@@ -24,6 +25,9 @@ import './representation.css';
  *
  * The look is poster 1's lime and its sunburst rays, poster 2's pink for
  * the doll, and the black blob for the history.
+ *
+ * Nothing is cited inline: the Doll Test's sources, step by step, and the
+ * book survey's are in the room's Sources drawer (bottom left).
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -34,6 +38,15 @@ const TABS = [
   { id: 'books', label: ROOM_TEXT.booksTab },
 ] as const;
 type TabId = (typeof TABS)[number]['id'];
+
+/** Every step's sources (each once), then the book survey's. */
+const SOURCES: SourceGroup[] = [
+  ...DOLL_TEST_STEPS.map((step, i) => ({
+    title: `${ROOM_TEXT.dollTestTab}, step ${i + 1}: ${step.heading}`,
+    items: step.facts.flatMap((f) => f.sources).filter((s, k, all) => all.findIndex((x) => x.href === s.href) === k),
+  })),
+  { title: ROOM_TEXT.booksTab, items: CCBC_FACT.sources },
+];
 
 export default function WhoDoYouSee() {
   const { fonts, palette, slug } = BLACK_HISTORY;
@@ -75,58 +88,60 @@ export default function WhoDoYouSee() {
   };
 
   return (
-    <div className="pe-root bhr-room" data-exhibition={slug} data-tab={tab} style={style}>
-      <style>{`@import url('${fonts.href}');`}</style>
+    <SourcesDrawer groups={SOURCES}>
+      <div className="pe-root bhr-room" data-exhibition={slug} data-tab={tab} style={style}>
+        <style>{`@import url('${fonts.href}');`}</style>
 
-      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
-        <span className="pe-nav-text" aria-hidden="true">M</span>
-        <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
-        <span className="pe-nav-label">{back.label}</span>
-      </ExhibitionNav>
+        <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
+          <span className="pe-nav-text" aria-hidden="true">M</span>
+          <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
+          <span className="pe-nav-label">{back.label}</span>
+        </ExhibitionNav>
 
-      <main className="bhr-stage">
-        <div className="bhr-ground" aria-hidden="true">
-          <span className="bhr-rays bhr-rays-a" />
-          <span className="bhr-rays bhr-rays-b" />
-        </div>
-
-        <header className="bhr-bar">
-          <h1 className="bhr-title">{ROOM_TEXT.title}</h1>
-          <div className="bhr-tabs" role="tablist" aria-label={ROOM_TEXT.title}>
-            {TABS.map((x) => (
-              <button
-                key={x.id}
-                ref={(el) => {
-                  tabRefs.current[x.id] = el;
-                }}
-                type="button"
-                role="tab"
-                id={`bhr-tab-${x.id}`}
-                aria-controls={`bhr-panel-${x.id}`}
-                aria-selected={tab === x.id}
-                tabIndex={tab === x.id ? 0 : -1}
-                className="bhr-tab"
-                onClick={() => choose(x.id)}
-                onKeyDown={onTabKey}
-              >
-                {x.label}
-              </button>
-            ))}
+        <main className="bhr-stage">
+          <div className="bhr-ground" aria-hidden="true">
+            <span className="bhr-rays bhr-rays-a" />
+            <span className="bhr-rays bhr-rays-b" />
           </div>
-        </header>
 
-        {/* All three stay mounted, so each keeps its state while you try another. */}
-        <section className="bhr-panel" id="bhr-panel-design" role="tabpanel" aria-labelledby="bhr-tab-design" hidden={tab !== 'design'}>
-          {/* The designer is one self-contained component: the owner's doll artwork will replace it here, whole. */}
-          <DollDesigner />
-        </section>
-        <section className="bhr-panel" id="bhr-panel-doll-test" role="tabpanel" aria-labelledby="bhr-tab-doll-test" hidden={tab !== 'doll-test'}>
-          <DollTest active={tab === 'doll-test'} />
-        </section>
-        <section className="bhr-panel" id="bhr-panel-books" role="tabpanel" aria-labelledby="bhr-tab-books" hidden={tab !== 'books'}>
-          <BookSurvey />
-        </section>
-      </main>
-    </div>
+          <header className="bhr-bar">
+            <h1 className="bhr-title">{ROOM_TEXT.title}</h1>
+            <div className="bhr-tabs" role="tablist" aria-label={ROOM_TEXT.title}>
+              {TABS.map((x) => (
+                <button
+                  key={x.id}
+                  ref={(el) => {
+                    tabRefs.current[x.id] = el;
+                  }}
+                  type="button"
+                  role="tab"
+                  id={`bhr-tab-${x.id}`}
+                  aria-controls={`bhr-panel-${x.id}`}
+                  aria-selected={tab === x.id}
+                  tabIndex={tab === x.id ? 0 : -1}
+                  className="bhr-tab"
+                  onClick={() => choose(x.id)}
+                  onKeyDown={onTabKey}
+                >
+                  {x.label}
+                </button>
+              ))}
+            </div>
+          </header>
+
+          {/* All three stay mounted, so each keeps its state while you try another. */}
+          <section className="bhr-panel" id="bhr-panel-design" role="tabpanel" aria-labelledby="bhr-tab-design" hidden={tab !== 'design'}>
+            {/* The designer is one self-contained component: the owner's doll artwork will replace it here, whole. */}
+            <DollDesigner />
+          </section>
+          <section className="bhr-panel" id="bhr-panel-doll-test" role="tabpanel" aria-labelledby="bhr-tab-doll-test" hidden={tab !== 'doll-test'}>
+            <DollTest active={tab === 'doll-test'} />
+          </section>
+          <section className="bhr-panel" id="bhr-panel-books" role="tabpanel" aria-labelledby="bhr-tab-books" hidden={tab !== 'books'}>
+            <BookSurvey />
+          </section>
+        </main>
+      </div>
+    </SourcesDrawer>
   );
 }
