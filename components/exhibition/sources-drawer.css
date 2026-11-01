@@ -1,29 +1,51 @@
 /* ==========================================================================
-   An interactive's Sources button and drawer (SourcesDrawer): small, quiet,
-   bottom left, in the room's own colors where it sets --mm-sources-*.
+   A page's "i" and its Sources and credits drawer (SourcesDrawer): small,
+   quiet, bottom left, in the room's own colors where it sets --mm-sources-*.
    ========================================================================== */
 
+/* A small round "i", quiet until it is wanted. 38px to see, 44px to touch. */
 .mm-sources-btn {
   position: fixed;
   left: calc(16px + env(safe-area-inset-left, 0px));
   bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   z-index: 900;
-  min-height: 36px;
-  padding: 0 14px;
-  border: 1px solid color-mix(in srgb, var(--mm-sources-ink, #fafafa) 35%, transparent);
-  border-radius: 999px;
-  background: var(--mm-sources-bg, rgba(10, 10, 10, 0.75));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--mm-sources-ink, #fafafa) 40%, transparent);
+  border-radius: 50%;
+  background: var(--mm-sources-bg, rgba(10, 10, 10, 0.6));
   color: var(--mm-sources-ink, #fafafa);
-  font: 500 11px/1 system-ui, sans-serif;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 0.65;
   cursor: pointer;
   transition: opacity 0.2s ease;
+}
+/* The hit area reaches 44px without making the circle bigger. */
+.mm-sources-btn::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+}
+.mm-sources-i {
+  font: italic 600 19px/1 Georgia, 'Times New Roman', serif;
+  /* the italic leans right; bring it back to the middle */
+  margin-left: -1px;
 }
 .mm-sources-btn:hover,
 .mm-sources-btn[aria-expanded='true'] { opacity: 1; }
 .mm-sources-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; opacity: 1; }
+/* Set in a tool bar instead of the corner (a lesson's). */
+.mm-sources-btn.mm-sources-btn-inline { position: relative; left: auto; bottom: auto; z-index: auto; pointer-events: auto; flex: none; }
+@media (max-width: 480px) {
+  .mm-sources-btn:not(.mm-sources-btn-inline) { left: calc(12px + env(safe-area-inset-left, 0px)); bottom: calc(14px + env(safe-area-inset-bottom, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-sources-btn { transition: none; }
+}
 
 .mm-sources-scrim {
   position: fixed;
@@ -54,6 +76,7 @@
 }
 .mm-sources-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
 .mm-sources-head h2 { margin: 0; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; }
+.mm-sources-group em { font-style: italic; }
 .mm-sources-close {
   width: 44px;
   height: 44px;

@@ -74,9 +74,9 @@ describe.each(ROOMS)('%s', (_name, Room, groups, cited) => {
     expect(main.textContent).not.toMatch(/\bSources?:/);
     const outside = [...container.querySelectorAll('a[href^="http"]')].filter((a) => !a.closest('[role="dialog"]'));
     expect(outside).toHaveLength(0);
-    expect(screen.getAllByRole('button', { name: 'Sources' })).toHaveLength(1);
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = within(screen.getByRole('dialog', { name: 'Sources' }));
+    expect(screen.getAllByRole('button', { name: 'Sources and credits' })).toHaveLength(1);
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(screen.getByRole('dialog', { name: 'Sources and credits' }));
     expect(drawer.getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(groups.map((g) => g.title));
     for (const g of groups) for (const i of g.items) expect(drawer.getAllByRole('link', { name: i.label }).length).toBeGreaterThan(0);
   });

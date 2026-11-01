@@ -105,8 +105,8 @@ describe('the Christmas card maker', () => {
     expect(within(panel).getByText(CARD_NOTES.first.text)).toBeInTheDocument();
     // Its source is in the room's Sources drawer, not under the note.
     expect(within(panel).queryByRole('link', { name: /The first Christmas card/ })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = within(screen.getByRole('dialog', { name: 'Sources' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(screen.getByRole('dialog', { name: 'Sources and credits' }));
     expect(drawer.getByRole('link', { name: /The first Christmas card/ })).toHaveAttribute('href', 'https://www.vam.ac.uk/articles/the-first-christmas-card');
     fireEvent.click(drawer.getByRole('button', { name: 'Close sources' }));
     fireEvent.click(within(panel).getByRole('button', { name: 'Print the card' }));

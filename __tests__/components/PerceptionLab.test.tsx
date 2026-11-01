@@ -252,8 +252,8 @@ describe('a station: Try it, Break it, Why?', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Tell me more' }));
     expect(screen.getByText(byId('checker').more[0].text)).toBeInTheDocument();
     // The Sources drawer: this illusion's inventor, the owner's picture, and the source.
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     expect(within(drawer).getByRole('heading', { name: 'Bench 3 · Adelson’s checker shadow' })).toBeInTheDocument();
     expect(within(drawer).getByText('Original illusion images: Verity Kahn')).toBeInTheDocument();
     expect(within(drawer).getByRole('link', { name: 'Edward H. Adelson (1995)' })).toBeInTheDocument();
@@ -272,8 +272,8 @@ describe('a station: Try it, Break it, Why?', () => {
     expect(screen.getByRole('button', { name: 'Print my notebook' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save my fingerprint as a picture' })).toBeInTheDocument();
     // On the notebook, the drawer lists every illusion's sources, bench by bench.
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const all = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const all = screen.getByRole('dialog', { name: 'Sources and credits' });
     expect(within(all).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(
       ILLUSIONS.map((i) => `${i.bench < 7 ? `Bench ${i.bench}` : 'Bonus'} · ${i.name}`),
     );
@@ -282,8 +282,8 @@ describe('a station: Try it, Break it, Why?', () => {
   it('keeps every source and credit, moved into the drawer, none lost', () => {
     at('#notebook');
     render(<PerceptionLab />);
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     const hrefs = new Set(within(drawer).getAllByRole('link').map((l) => l.getAttribute('href')));
     for (const i of ILLUSIONS) for (const f of [i.why, ...i.more]) for (const s of f.sources) expect(hrefs).toContain(s.href);
     expect(within(drawer).getByText(/A well-known reading demonstration, with no single original source/)).toBeInTheDocument();

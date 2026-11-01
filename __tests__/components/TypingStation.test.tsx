@@ -461,7 +461,7 @@ describe('sources', () => {
   it('cites nothing, inline or in a drawer', () => {
     window.history.replaceState(null, '', '/');
     const { container } = render(<TypingStation />);
-    expect(screen.queryByRole('button', { name: 'Sources' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Sources and credits' })).toBeNull();
     expect(container.textContent).not.toMatch(/\bSources?:/);
   });
 });

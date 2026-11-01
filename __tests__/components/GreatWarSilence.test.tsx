@@ -359,8 +359,8 @@ describe('the sound', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Skip to the end' }));
     expect(container.querySelector('.gws-strip-credit')).toBeNull();
     expect(within(container.querySelector('.gws-screen') as HTMLElement).queryByText(/© IWM|Image: IWM|Redrawn from/)).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(SILENCE_SOURCES.map((g) => g.title));
     expect(within(drawer).getByRole('link', { name: IWM.trench.credit })).toHaveAttribute('href', IWM.trench.url);
     expect(within(drawer).getAllByRole('link', { name: IWM.record.credit })[0]).toHaveAttribute('href', IWM.record.url);

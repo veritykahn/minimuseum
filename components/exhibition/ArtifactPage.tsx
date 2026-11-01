@@ -5,6 +5,7 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import { casePath, artifactPath, neighbours, plainText, posterTitle } from './artifacts';
 import { ARTIFACT_PHOTO_SIZE } from './casePhotoPaths';
 import FactNote from './FactNote';
+import SourcesDrawer from './SourcesDrawer';
 import { ArtifactGlyph, Emphasized, caseRootStyle } from './caseShared';
 import type { CaseArtifact, CasePageData, ExhibitionConfig } from './types';
 import './poster-exhibition.css';
@@ -16,6 +17,8 @@ import './poster-exhibition.css';
  * model and the interactive are to come, and their spaces say so. The writing
  * is the owner's only: the record's line for the object, and any sentences
  * from the exhibition's posters about it, each under its poster's title.
+ * The fact-checked "About it" note's source is behind the page's "i"
+ * (SourcesDrawer), not printed under it.
  */
 
 export default function ArtifactPage({
@@ -49,6 +52,7 @@ export default function ArtifactPage({
         <span className="pe-nav-label">{data.label}</span>
       </ExhibitionNav>
 
+      <SourcesDrawer groups={artifact.about ? [{ title: 'About it', items: artifact.about.sources }] : []}>
       <main className="pe-artifact-main">
         <nav className="pe-artifact-trail" aria-label="Breadcrumb">
           <Link href={home}>{exhibition}</Link>
@@ -133,6 +137,7 @@ export default function ArtifactPage({
           </Link>
         </div>
       </main>
+      </SourcesDrawer>
     </div>
   );
 }

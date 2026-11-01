@@ -4,7 +4,8 @@ import type { CSSProperties, ReactNode } from 'react';
 import { FxText, type FxKind } from '@/components/poster-fx/PosterFx';
 import { PosterProjectorEnd } from '@/components/projector/PosterProjector';
 import { BlindSpot, Emph, Lines, Typed, TypedForReaders, VisitTicket } from './EntranceCopy';
-import FactNote, { FactSources, type FactSource } from './FactNote';
+import FactNote from './FactNote';
+import { InlineSourcesContext } from './SourcesDrawer';
 import { effectClass, emphasisRuns, entranceOf, panelClasses, positionClass } from './helpers';
 import type { ExhibitionConfig, PanelDecor, PanelEffect, PanelMarks, PosterConfig, PosterItem, PosterItemType } from './types';
 
@@ -18,6 +19,9 @@ import type { ExhibitionConfig, PanelDecor, PanelEffect, PanelMarks, PosterConfi
  * theme's word-by-word rise, its developing photographs) steps back for it.
  * Copy is always real text: set a sentence at a time, or typed out with the
  * whole line kept for assistive technology.
+ *
+ * No source or picture credit is printed on the panel: every one is in the
+ * walkthrough's "i", Sources and credits (panelSourceGroups, helpers.ts).
  *
  * Class names keep the shared fragments the projector looks for
  * (…paragraph-text, …quote-text, …text-content-wrapper), so fitStage() sizes
@@ -53,30 +57,6 @@ function Copy({ text, kind, effect, reveal }: { text: string; kind: FxKind; effe
   const emphasis = text.includes('*');
   if (effect !== 'theme' || !reveal) return emphasis ? <Emph text={text} /> : <>{text}</>;
   return <FxText text={text} words={kind === 'statement' || kind === 'quote'} emphasis={emphasis} />;
-}
-
-/** A picture's credit as its owner specifies it, linked to its record. */
-function Credit({ credit, className }: { credit?: { text: string; href?: string }; className: string }) {
-  if (!credit) return null;
-  return (
-    <span className={className}>
-      {credit.href ? (
-        <a href={credit.href} target="_blank" rel="noopener noreferrer"><Emph text={credit.text} /></a>
-      ) : (
-        <Emph text={credit.text} />
-      )}
-    </span>
-  );
-}
-
-/** An added panel's sources, set small and linked beneath its copy, as FactNote sets them. */
-function AddedSources({ sources, color }: { sources?: readonly FactSource[]; color: string }) {
-  if (!sources?.length) return null;
-  return (
-    <p className="pe-source pe-added-source" style={{ color }}>
-      <FactSources sources={sources} className="pe-source-list" />
-    </p>
-  );
 }
 
 /**
@@ -125,30 +105,18 @@ const PANEL_RENDERERS: Renderers = {
           <figure className={`pe-figure ${own ? '' : 'pfx-media'}`}>
             {/* eslint-disable-next-line @next/next/no-img-element -- the reveals animate the element itself */}
             <img src={figure.src} alt={figure.alt} className={own ? parts.picture : ''} />
-            {figure.credit && (
-              <figcaption className="pe-figure-credit">
-                {figure.credit.href ? (
-                  <a href={figure.credit.href} target="_blank" rel="noopener noreferrer"><Emph text={figure.credit.text} /></a>
-                ) : (
-                  <Emph text={figure.credit.text} />
-                )}
-              </figcaption>
-            )}
           </figure>
         )}
         {item.source || item.sources?.length || item.note ? (
           <div className="pe-copy">
             {p}
             <TypedForReaders effect={effect} text={item.text} />
-            {item.source && (
-              <p className="pe-source" style={{ color: colors.text }}>
-                <a href={item.source.href} target="_blank" rel="noopener noreferrer">{item.source.text}</a>
-              </p>
-            )}
-            <AddedSources sources={item.sources} color={colors.text} />
             {item.note && (
               <div className="pe-note" style={{ color: colors.text }}>
-                <FactNote fact={item.note} className="pe-note-fact" lead="Did you know?" />
+                {/* The note's source is in the Sources and credits drawer. */}
+                <InlineSourcesContext.Provider value={false}>
+                  <FactNote fact={item.note} className="pe-note-fact" lead="Did you know?" />
+                </InlineSourcesContext.Provider>
               </div>
             )}
           </div>
@@ -177,7 +145,6 @@ const PANEL_RENDERERS: Renderers = {
           <div className="pe-copy">
             {heading}
             <TypedForReaders effect={effect} text={item.text} />
-            <AddedSources sources={item.sources} color={colors.text} />
           </div>
         ) : (
           <>
@@ -266,22 +233,14 @@ const PANEL_RENDERERS: Renderers = {
     </div>
   ),
 
-  'full-image': ({ poster, item, colors }) => {
+  'full-image': ({ poster, item }) => {
     const effect = entranceOf(item);
     const own = effect !== 'theme';
+    // Its caption is its picture credit, in the Sources and credits drawer.
     return (
       <div className={`pe-full-bleed-image pe-full-image ${own ? '' : 'pfx-media'} ${panelClasses(poster, item)}`}>
         {/* eslint-disable-next-line @next/next/no-img-element -- the reveals animate the element itself */}
         <img src={item.src} alt={item.alt} className={effectClass(effect)} />
-        {item.text && (
-          <span className="pe-image-caption" style={{ color: colors.text }}>
-            {item.href ? (
-              <a href={item.href} target="_blank" rel="noopener noreferrer"><Emph text={item.text} /></a>
-            ) : (
-              <Emph text={item.text} />
-            )}
-          </span>
-        )}
       </div>
     );
   },
@@ -294,7 +253,6 @@ const PANEL_RENDERERS: Renderers = {
         <figure className={`pe-artwork-picture ${parts.own ? '' : 'pfx-media'}`}>
           {/* eslint-disable-next-line @next/next/no-img-element -- the reveals animate the element itself */}
           <img src={item.src} alt={item.alt} className={parts.picture === 'pfx-media' ? '' : parts.picture} />
-          <Credit credit={item.credit} className="pe-figure-credit pe-artwork-credit" />
         </figure>
         <div className={`pe-artwork-info ${parts.own ? '' : 'pfx-fg'}`} style={{ color: colors.text }}>
           {item.title && (
@@ -416,7 +374,6 @@ function Stacked({ config, poster, item, colors, kind }: PanelProps<Extract<Post
     <figure className={`pe-stack-picture ${parts.own ? '' : 'pfx-media'}`}>
       {/* eslint-disable-next-line @next/next/no-img-element -- the reveals animate the element itself */}
       <img src={item.src} alt={item.alt} className={parts.picture === 'pfx-media' ? '' : parts.picture} />
-      <Credit credit={item.credit} className="pe-figure-credit pe-stack-credit" />
     </figure>
   );
   const copy = (

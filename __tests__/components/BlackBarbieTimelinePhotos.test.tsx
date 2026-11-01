@@ -58,8 +58,8 @@ it('sets the photograph at its own stop only, its credit in the Sources drawer',
   expect(figure.style.getPropertyValue('--photo-w')).toBe('min(calc(var(--disc-d) * 0.45), calc(var(--disc-d) * 0.5), 600px)');
   // No credit under the photograph: it is in the drawer, under its stop, as its source asks for it.
   expect(figure.querySelector('figcaption')).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-  const group = within(screen.getByRole('dialog', { name: 'Sources' })).getByRole('heading', { name: '1980: The first Black Barbie' }).closest('section') as HTMLElement;
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  const group = within(screen.getByRole('dialog', { name: 'Sources and credits' })).getByRole('heading', { name: '1980: The first Black Barbie' }).closest('section') as HTMLElement;
   expect(within(group).getByRole('link', { name: FIXTURE.credit.text })).toHaveAttribute('href', FIXTURE.credit.href);
   fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
 
@@ -73,7 +73,7 @@ it('leaves the arrow keys to the credit’s link in the drawer, and to the stops
   fireEvent.click(screen.getByRole('button', { name: 'Stop 3, The first Black Barbie, year hidden' }));
   fireEvent.click(screen.getByRole('button', { name: 'Just show me' }));
   const stop = screen.getByRole('button', { name: '1980, The first Black Barbie' });
-  fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
   fireEvent.keyDown(screen.getByRole('link', { name: FIXTURE.credit.text }), { key: 'ArrowRight' });
   expect(stop).toHaveAttribute('aria-current', 'step');
   fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));

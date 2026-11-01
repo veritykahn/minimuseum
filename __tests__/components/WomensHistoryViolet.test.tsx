@@ -104,8 +104,8 @@ describe('walking the thread', () => {
     // Its source is in the room's Sources drawer, not under the note.
     expect(within(note).queryByRole('link')).toBeNull();
     expect(note).not.toHaveTextContent(/Source/);
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = within(screen.getByRole('dialog', { name: 'Sources' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(screen.getByRole('dialog', { name: 'Sources and credits' }));
     expect(drawer.getByRole('heading', { name: 'The Blitz' })).toBeInTheDocument();
     expect(drawer.getByRole('link', { name: 'Imperial War Museums' })).toHaveAttribute('href', 'https://memorials.iwm.org.uk/memorial/96212');
     fireEvent.click(drawer.getByRole('button', { name: 'Close sources' }));

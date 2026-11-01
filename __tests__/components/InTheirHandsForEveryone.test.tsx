@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { poster1Content, poster2Content } from '@/app/exhibitions/in-their-hands/posters';
 import { CASE_NOTES } from '@/app/exhibitions/in-their-hands/notes';
 import Case6 from '@/app/exhibitions/in-their-hands/artifacts/case-6/page';
@@ -52,12 +52,16 @@ describe('In Their Hands, for everyone', () => {
     [6, Case6, 'How we know', ['Four kinds of witness']],
     [7, Case7, 'Beside the coins', ['Coins of a Jewish kingdom', 'The half-shekel and the money of Tyre']],
     [8, Case8, 'What came next', ['Shekels of a free Jerusalem, AD 66–70', 'Judaea Capta: Rome’s answer, AD 71', 'After the Temple: the half-shekel goes to Rome', 'Bar Kokhba: the last revolt, AD 132–135']],
-  ] as const)('Case %i sets its notes under the coins, with their sources', (_n, Page, heading, titles) => {
+  ] as const)('Case %i sets its notes under the coins, their sources behind the page\'s "i"', (_n, Page, heading, titles) => {
     render(<Page />);
     const section = screen.getByRole('region', { name: heading });
     expect(within(section).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(titles);
-    for (const note of section.querySelectorAll('[data-fact="approved"]')) {
-      expect(note.querySelector('.cl-note-source a')).toHaveAttribute('target', '_blank');
+    expect(section.querySelector('.cl-note-source')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(screen.getByRole('dialog', { name: 'Sources and credits' }));
+    for (const title of titles) {
+      const links = within(drawer.getByRole('list', { name: title })).getAllByRole('link');
+      for (const a of links) expect(a).toHaveAttribute('target', '_blank');
     }
   });
 });

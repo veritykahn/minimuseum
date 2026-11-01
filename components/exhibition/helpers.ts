@@ -1,5 +1,6 @@
 import { fxKindFor, type FxKind } from '@/components/poster-fx/PosterFx';
 import type { ProjectorPoster } from '@/components/projector/PosterProjector';
+import type { SourceEntry, SourceGroup } from './SourcesDrawer';
 import type { Atmosphere, ExhibitionConfig, PanelEffect, PanelPosition, PosterConfig, PosterItem } from './types';
 
 /** Panels per poster, keyed by id: what usePosterWalkthrough and the deep link need. */
@@ -177,4 +178,43 @@ export function interactivesView(caseHref: string): string {
 export function roomReturn(config: Pick<ExhibitionConfig, 'slug' | 'cases'>): { href: string; label: string } {
   const c = roomsCase(config);
   return c ? { href: interactivesView(c.href), label: c.label } : { href: `/exhibitions/${config.slug}`, label: 'Exhibition' };
+}
+
+/** A picture credit as the drawer lists it: its owner's words, linked to its record. */
+function pictureCredit(credit: { text: string; href?: string } | undefined): SourceEntry[] {
+  return credit ? [{ note: 'Picture', label: credit.text, href: credit.href }] : [];
+}
+
+/** Every source and picture credit one panel carries, for the Sources and credits drawer. */
+export function panelSources(item: PosterItem): SourceEntry[] {
+  switch (item.type) {
+    case 'paragraph':
+      return [
+        ...pictureCredit(item.figure?.credit),
+        ...(item.source ? [{ note: 'The wording', label: item.source.text, href: item.source.href }] : []),
+        ...(item.sources ?? []),
+        ...(item.note?.sources.map((s) => ({ ...s, note: 'Did you know?' })) ?? []),
+      ];
+    case 'section-title':
+      return [...(item.sources ?? [])];
+    case 'full-image':
+      return item.text ? pictureCredit({ text: item.text, href: item.href }) : [];
+    case 'artwork-display':
+    case 'text-image-stacked':
+    case 'image-text-stacked':
+      return pictureCredit(item.credit);
+    default:
+      return [];
+  }
+}
+
+/**
+ * The open poster's sources and credits, a group a panel: the panel on
+ * screen first ("This panel"), then the others in order ("Panel 2").
+ */
+export function posterSourceGroups(poster: PosterConfig, step: number): SourceGroup[] {
+  const groups = poster.items.map((item, i) => ({ i, items: panelSources(item) })).filter((g) => g.items.length > 0);
+  const here = groups.filter((g) => g.i === step);
+  const rest = groups.filter((g) => g.i !== step);
+  return [...here, ...rest].map((g) => ({ title: g.i === step ? 'This panel' : `Panel ${g.i + 1}`, items: g.items }));
 }

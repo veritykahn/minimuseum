@@ -19,6 +19,14 @@ import {
 } from '@/app/exhibitions/womens-history/womensHistory';
 import { floorReturnFor } from '@/lib/floors';
 
+/** The open panel's sources and credits, behind the small "i": opens the drawer, returns its "This panel" list. */
+const thisPanelSources = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return within(screen.getByRole('dialog', { name: 'Sources and credits' })).getByRole('list', { name: 'This panel' });
+};
+const closeSources = () => fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
+
+
 /*
  * Women's History Month: its config, the poster copy against the
  * transcription (with only the owner's approved decisions), the af Klint
@@ -219,6 +227,8 @@ describe("Women's History Month", () => {
       expect(screen.getByRole('heading', { level: 1, name: "Women's History Month" })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /display case/i })).toHaveAttribute('href', '/exhibitions/womens-history/artifacts/case');
       expect(screen.getByRole('link', { name: 'First Floor' })).toHaveAttribute('href', '/exhibitions/first-floor');
+      // Behind the small "i": Sources and credits.
+      fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
       const credit = within(screen.getByRole('list', { name: 'Picture credits' })).getByRole('link');
       expect(credit).toHaveAttribute('href', AF_KLINT_SOURCE);
       expect(credit.querySelector('em')).toHaveTextContent('The Ten Largest, No. 1, Childhood');
@@ -241,15 +251,19 @@ describe("Women's History Month", () => {
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      const credit = content().querySelector('.pe-image-caption a') as HTMLElement;
+      expect(content().querySelector('.pe-image-caption')).toBeNull();
+      const credit = within(thisPanelSources()).getByRole('link');
       expect(credit).toHaveAttribute('href', AF_KLINT_SOURCE);
       expect(credit.querySelector('em')).toHaveTextContent('The Ten Largest, No. 1, Childhood');
+      closeSources();
 
-      // The museum's added note on the artist, with its source beneath it.
+      // The museum's added note on the artist; its source is behind the "i".
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
       expect(content()).toHaveTextContent('The painting is by Hilma af Klint, a Swedish artist born in 1862.');
-      expect(content().querySelector('.pe-source')).toHaveTextContent('Source: Tate, “The first abstract artist? (And it’s not Kandinsky)”');
+      expect(content().querySelector('.pe-source')).toBeNull();
+      expect(thisPanelSources()).toHaveTextContent('Tate, “The first abstract artist? (And it’s not Kandinsky)”');
+      closeSources();
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();

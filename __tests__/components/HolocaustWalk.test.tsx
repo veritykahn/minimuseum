@@ -180,8 +180,8 @@ describe('the walk', () => {
   it('lists every line’s and every name’s source, by step, in the walk’s Sources drawer; no credit to Fallen Leaves, now the walk walks over nothing', () => {
     const walk = begin();
     expect(within(walk).queryByRole('link')).toBeNull();
-    fireEvent.click(within(walk).getByRole('button', { name: 'Sources' }));
-    const drawer = within(walk).getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(within(walk).getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(walk).getByRole('dialog', { name: 'Sources and credits' });
     expect(within(drawer).queryByRole('link', { name: /Fallen Leaves/ })).toBeNull();
     WALK_BEATS.forEach((beat, i) => {
       const group = within(drawer).getByRole('heading', { name: `The walk, step ${i + 1}` }).closest('section')!;
@@ -192,7 +192,7 @@ describe('the walk', () => {
     expect(walkSourceGroups()).toHaveLength(WALK_BEATS.length);
     // Escape closes the drawer, and leaves the walk open.
     fireEvent.keyDown(drawer, { key: 'Escape' });
-    expect(within(walk).queryByRole('dialog', { name: 'Sources' })).toBeNull();
+    expect(within(walk).queryByRole('dialog', { name: 'Sources and credits' })).toBeNull();
     expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
   });
 

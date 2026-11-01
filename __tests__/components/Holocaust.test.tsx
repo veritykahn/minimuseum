@@ -16,6 +16,14 @@ import {
 } from '@/app/exhibitions/holocaust/holocaust';
 import { floorReturnFor } from '@/lib/floors';
 
+/** The open panel's sources and credits, behind the small "i": opens the drawer, returns its "This panel" list. */
+const thisPanelSources = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return within(screen.getByRole('dialog', { name: 'Sources and credits' })).getByRole('list', { name: 'This panel' });
+};
+const closeSources = () => fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
+
+
 /*
  * Holocaust Memorial Day: its config, the poster copy against the
  * transcription (with only the owner's approved decisions), the pictures
@@ -261,6 +269,8 @@ describe('Holocaust Memorial Day', () => {
       expect(caseLink).toHaveAttribute('href', '/exhibitions/holocaust/artifacts/case');
       expect(caseLink).toHaveTextContent('Photographs on their way');
       expect(screen.getByRole('link', { name: 'First Floor' })).toHaveAttribute('href', '/exhibitions/first-floor');
+      // Behind the small "i": Sources and credits.
+      fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
       const credits = within(screen.getByRole('list', { name: 'Picture credits' })).getAllByRole('link');
       expect(credits.map((a) => a.getAttribute('href'))).toEqual(COMMONS_PICTURES.map((c) => c.href));
     });
@@ -297,18 +307,25 @@ describe('Holocaust Memorial Day', () => {
       // The museum's added panels come next, each with its sources beneath it.
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      expect(content().querySelector('.pe-source')).toHaveTextContent(/^Source: USHMM Holocaust Encyclopedia, “International Holocaust Remembrance Day”$/);
+      // None inline: they are behind the small "i", this panel's first.
+      expect(content().querySelector('.pe-source')).toBeNull();
+      expect(thisPanelSources()).toHaveTextContent(/^USHMM Holocaust Encyclopedia, “International Holocaust Remembrance Day”$/);
+      closeSources();
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      expect(content().querySelector('.pe-source')).toHaveTextContent(/^Sources: .*Jewish Life in Europe.*; .*Introduction to the Holocaust/);
-      expect(content().querySelector('.pe-source a')).toHaveAttribute('target', '_blank');
+      const sources = thisPanelSources();
+      expect(sources).toHaveTextContent(/Jewish Life in Europe.*Introduction to the Holocaust/);
+      expect(within(sources).getAllByRole('link')[0]).toHaveAttribute('target', '_blank');
+      closeSources();
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      const credit = content().querySelector('.pe-figure-credit a') as HTMLElement;
+      expect(content().querySelector('.pe-figure-credit')).toBeNull();
+      const credit = within(thisPanelSources()).getByRole('link');
       expect(credit).toHaveAttribute('href', COMMONS_PICTURES[1].href);
       expect(credit).toHaveTextContent('Dietmar Rabich');
       expect(credit).toHaveTextContent('CC BY-SA 4.0');
+      closeSources();
     });
 
     it('opens What Was the Holocaust?, sets the Niemöller quotation, and links to the USHMM', () => {

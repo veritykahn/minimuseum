@@ -169,9 +169,9 @@ describe('the display case’s interactives, and the way back', () => {
       const { container, unmount } = render(<Room />);
       expect(container.querySelector('.eg-room-stage')!.textContent).not.toMatch(/\bSources?: /);
       expect(container.querySelector('.egr-fact-source')).toBeNull();
-      const button = screen.getByRole('button', { name: 'Sources' });
+      const button = screen.getByRole('button', { name: 'Sources and credits' });
       fireEvent.click(button);
-      expect(within(screen.getByRole('dialog', { name: 'Sources' })).getAllByRole('heading', { level: 3 }).length).toBeGreaterThan(1);
+      expect(within(screen.getByRole('dialog', { name: 'Sources and credits' })).getAllByRole('heading', { level: 3 }).length).toBeGreaterThan(1);
       unmount();
     }
   });
@@ -179,8 +179,8 @@ describe('the display case’s interactives, and the way back', () => {
   it('keeps the Rosetta Stone photograph’s licence credit complete in the drawer', () => {
     window.history.replaceState(null, '', '/exhibitions/egypt/rosetta-stone');
     render(<RosettaStone />);
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     expect(drawer).toHaveTextContent(/Hans Hillewaert/);
     expect(drawer).toHaveTextContent(/CC BY-SA 4\.0/);
     expect(drawer).toHaveTextContent(/cropped/);

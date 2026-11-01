@@ -10,6 +10,7 @@ import {
   totalElapsed,
   MINUTE,
 } from '@/lib/lessons/session';
+import type { SourceEntry, SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { ChartScroll } from './ChartScroll';
 import { Inline, plain } from './Inline';
 import { TimingBar } from './TimingBar';
@@ -34,7 +35,8 @@ type Props = {
 /**
  * The projected frame: what the class sees. Every size is in container
  * units, so the same frame fills a projector or sits as a thumbnail in the
- * presenter view.
+ * presenter view. Picture and recording credits are not set on the frame:
+ * they are behind the classroom's "i" (lessonSourceGroups).
  */
 export function StepStage({ lesson, session, now, minutes, mini, controls, coverActions }: Props) {
   const n = lesson.steps.length;
@@ -328,14 +330,11 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
                 />
               </div>
             </div>
-            {(s.caption || s.img.credit) && (
+            {s.caption && (
               <figcaption>
-                {s.caption && (
-                  <span className={styles.imageCaption}>
-                    <Inline text={s.caption} />
-                  </span>
-                )}
-                {s.img.credit && <span className={styles.imageCredit}>{s.img.credit}</span>}
+                <span className={styles.imageCaption}>
+                  <Inline text={s.caption} />
+                </span>
               </figcaption>
             )}
           </figure>
@@ -375,7 +374,6 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
                 style={{ objectPosition: s.pos ?? 'center 30%' }}
               />
             </div>
-            {s.img.credit && <figcaption>{s.img.credit}</figcaption>}
           </figure>
           <blockquote className={`${styles.verseCard} ${s.verse.text.length > 360 ? styles.verseLong : ''}`}>
             <p>
@@ -585,7 +583,6 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
               <div className={styles.frameImg}>
                 <Image src={s.img.img} alt={mini ? '' : (s.alt ?? plain(s.work))} fill sizes="40vw" style={{ objectPosition: s.img.pos ?? 'center' }} />
               </div>
-              {s.img.credit && <figcaption>{s.img.credit}</figcaption>}
             </figure>
           )}
           <div className={styles.artworkLabel}>
@@ -629,7 +626,6 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
                 {c.sub && <p className={styles.clipSub}>{c.sub}</p>}
                 {/* the presenter's thumbnail shows the clips, the classroom plays them */}
                 {!mini && <audio controls preload="none" src={c.src} className={styles.clipPlayer} aria-label={plain(c.label)} />}
-                {c.credit && <p className={styles.clipCredit}>{c.credit}</p>}
               </li>
             ))}
           </ul>
@@ -779,9 +775,25 @@ function Cover({ lesson, mini, actions }: { lesson: Lesson; mini?: boolean; acti
         {actions}
       </div>
       {lesson.objectives && <ObjectivesCard objectives={lesson.objectives} mini={mini} />}
-      {lesson.hero?.credit && <p className={styles.credit}>{lesson.hero.credit}</p>}
     </div>
   );
+}
+
+/**
+ * A lesson's picture and recording credits, for its Sources and credits
+ * drawer: the cover's picture, then each step's, by step.
+ */
+export function lessonSourceGroups(lesson: Lesson): SourceGroup[] {
+  const groups: SourceGroup[] = [];
+  if (lesson.hero?.credit) groups.push({ title: 'The cover', items: [{ note: 'Picture', label: lesson.hero.credit }] });
+  lesson.steps.forEach((step, k) => {
+    const s = step.screen;
+    const items: SourceEntry[] = [];
+    if ((s.kind === 'painting' || s.kind === 'image' || s.kind === 'artwork') && s.img?.credit) items.push({ note: 'Picture', label: s.img.credit });
+    if (s.kind === 'listen') for (const c of s.clips) if (c.credit) items.push({ note: plain(c.label), label: c.credit });
+    if (items.length) groups.push({ title: `Step ${k + 1}: ${step.title}`, items });
+  });
+  return groups;
 }
 
 /** The learning objectives, set on a parchment card like the museum labels. */

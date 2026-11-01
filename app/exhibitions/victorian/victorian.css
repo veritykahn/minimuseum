@@ -39,7 +39,6 @@
   --pe-callout-ink: #fff;
   --pe-case-ink: var(--vb-green);
   --pe-case-muted: var(--vb-green);
-  --pe-credits-ink: var(--vb-green);
   --pe-landing-h1: clamp(2.2rem, min(6.4vw, 9dvh), 5.6rem);
   color: var(--vb-green);
 }
@@ -113,7 +112,6 @@
 [data-exhibition='victorian'] { --pe-case-frame: var(--vb-green); --pe-case-glow: #fff3d6; --pe-case-placeholder-ink: var(--vb-green); }
 [data-exhibition='victorian'] .pe-display-case { --pe-case-frame: var(--vb-cream); --pe-case-glow: var(--vb-peach); --pe-case-placeholder-ink: #f4eee3; }
 [data-exhibition='victorian'] .pe-case-placeholder-label { font-family: var(--vb-serif); }
-[data-exhibition='victorian'] .pe-credits { max-width: 560px; font-weight: 400; }
 
 /* ───────── Titles: the posters' own thin, wide capitals, cut from them ───────── */
 [data-exhibition='victorian'] .vb-title.pe-title-image { --pe-title-scale: 1.7; padding-left: 10vw; padding-right: 8vw; }

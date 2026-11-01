@@ -16,6 +16,14 @@ import {
 import { isAddedPanel } from '@/components/exhibition/helpers';
 import { floorReturnFor } from '@/lib/floors';
 
+/** The open panel's sources and credits, behind the small "i": opens the drawer, returns its "This panel" list. */
+const thisPanelSources = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return within(screen.getByRole('dialog', { name: 'Sources and credits' })).getByRole('list', { name: 'This panel' });
+};
+const closeSources = () => fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
+
+
 /*
  * America 250: its config, the poster copy against the transcription (with
  * only the owner's seven approved fixes), the paintings' credits, and the
@@ -240,10 +248,12 @@ describe('America 250', () => {
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
       expect(content()).toHaveTextContent('The Wager Fifty-Six Men Made With Their Signatures');
-      const credit = content().querySelector('.pe-stack-credit a') as HTMLElement;
+      expect(content().querySelector('.pe-stack-credit')).toBeNull();
+      const credit = within(thisPanelSources()).getByRole('link');
       expect(credit).toHaveTextContent('Emanuel Leutze, Washington Crossing the Delaware, 1851. The Metropolitan Museum of Art. Public domain.');
       expect(credit).toHaveAttribute('href', LEUTZE_SOURCE);
       expect(credit.querySelector('em')).toHaveTextContent('Washington Crossing the Delaware');
+      closeSources();
 
       const stockton = poster('poster2').items.findIndex((it) => it.type === 'paragraph' && it.text.includes('*wanted*'));
       for (let i = 2; i < stockton; i++) {
@@ -346,7 +356,8 @@ describe('Many Faiths, One Declaration (owner-approved museum note, B9.3)', () =
     }
     const content = document.querySelector('.pe-walkthrough-content') as HTMLElement;
     expect(content).toHaveTextContent('Many Faiths, One Declaration. Carroll was not the only signer');
-    expect(within(content).getByRole('link', { name: 'National Archives, the Constitution, Article VI' })).toHaveAttribute(
+    expect(within(content).queryByRole('link', { name: 'National Archives, the Constitution, Article VI' })).toBeNull();
+    expect(within(thisPanelSources()).getByRole('link', { name: 'National Archives, the Constitution, Article VI' })).toHaveAttribute(
       'href',
       'https://www.archives.gov/founding-docs/constitution-transcript',
     );

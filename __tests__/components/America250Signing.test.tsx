@@ -14,8 +14,8 @@ import { SIGN_SOURCES } from '@/app/exhibitions/america-250/sign/sources';
 
 /** The room's Sources drawer, opened: every source and picture credit is there, none inline. */
 function openSources() {
-  fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-  return screen.getByRole('dialog', { name: 'Sources' });
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return screen.getByRole('dialog', { name: 'Sources and credits' });
 }
 /** The drawer's group for a step, by its heading. */
 function sourcesGroup(drawer: HTMLElement, title: string) {

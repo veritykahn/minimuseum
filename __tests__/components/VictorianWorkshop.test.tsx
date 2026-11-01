@@ -41,8 +41,8 @@ const at = (hash = '') => window.history.replaceState(null, '', `/exhibitions/vi
 
 /** The workshop's Sources drawer, opened, and the group whose heading starts so. */
 const sourcesFor = (title: string) => {
-  if (!screen.queryByRole('dialog', { name: 'Sources' })) fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-  const drawer = screen.getByRole('dialog', { name: 'Sources' });
+  if (!screen.queryByRole('dialog', { name: 'Sources and credits' })) fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
   return within(drawer).getByRole('heading', { name: new RegExp(`^${title.replace(/[()]/g, '\\$&')}`) }).closest('section') as HTMLElement;
 };
 const closeSources = () => fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));

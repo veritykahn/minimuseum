@@ -581,8 +581,8 @@ describe('the rustling bushes', () => {
 describe('sources and the boxes', () => {
   it('lists every fact’s source and every photograph’s credit, with its licence, in one Sources drawer', () => {
     render(<WhatScaresYou />);
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     for (const c of CREATURES) {
       for (const src of c.fact.sources) expect(within(drawer).getAllByRole('link', { name: src.label }).map((a) => a.getAttribute('href'))).toContain(src.href);
       const credit = within(drawer).getByRole('link', { name: `${c.credit.title}, ${c.credit.author}` });

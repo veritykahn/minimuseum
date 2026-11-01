@@ -108,8 +108,8 @@ describe('laying a stone', () => {
     expect(panel).toHaveTextContent('Lay a stone, to remember.');
     expect(panel).toHaveTextContent(STONE_CUSTOM.text);
     expect(within(panel).queryByRole('link')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     const stone = within(drawer).getByRole('heading', { name: 'Lay a stone' }).closest('section')!;
     expect(within(stone).getByRole('link', { name: 'My Jewish Learning' })).toHaveAttribute('href', 'https://www.myjewishlearning.com/article/ask-the-expert-stones-on-graves/');
     // Every stillness prompt's source is there too, under Stillness.

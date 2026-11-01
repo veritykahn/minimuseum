@@ -2,16 +2,17 @@ import fs from 'fs';
 import path from 'path';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import LandingRow from '@/components/exhibition/LandingRow';
-import LandingCredits from '@/components/exhibition/LandingCredits';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { CaseViewTabs, useCaseView, viewFromSearch } from '@/components/exhibition/CaseViews';
-import { interactivesView, roomReturn } from '@/components/exhibition/helpers';
+import { interactivesView, posterSourceGroups, roomReturn } from '@/components/exhibition/helpers';
+import type { PosterConfig } from '@/components/exhibition/types';
 import { EXHIBITION_CASES } from '@/lib/exhibitionCases';
 
 /*
  * The owner's review notes: every landing page fits on one screen (a compact
  * head, the posters and case sized to the screen, a swipe row on a phone
- * with a hint, credits folded into a toggle); every case card has its
+ * with a hint, credits behind the small "i"); every case card has its
  * exhibition's frame; every display case page has Artifacts | Interactives
  * tabs, and a room's way back opens the Interactives; the rooms are also in
  * an Explore row below the first screen (owner-approved, Nov 2026); the Leonardo.Ai
@@ -74,21 +75,46 @@ describe('the landing row', () => {
 describe('the landing page', () => {
   const credits = [{ text: '*A Picture*, by Someone', href: 'https://example.org/a' }];
 
-  it('folds the picture credits into a toggle at its foot', () => {
-    render(<LandingCredits credits={credits} />);
-    const toggle = screen.getByText('Picture credits');
-    expect(toggle.tagName).toBe('SUMMARY');
-    const details = toggle.closest('details') as HTMLDetailsElement;
-    expect(details.open).toBe(false);
-    fireEvent.click(toggle);
-    const link = within(screen.getByRole('list', { name: 'Picture credits' })).getByRole('link');
+  it('puts the picture credits behind the small "i", Sources and credits', () => {
+    render(<SourcesDrawer groups={[{ title: 'Picture credits', items: credits.map((c) => ({ label: c.text, href: c.href })) }]} />);
+    const button = screen.getByRole('button', { name: 'Sources and credits' });
+    expect(button).toHaveAttribute('title', 'Sources and credits');
+    expect(button).toHaveTextContent(/^i$/);
+    expect(button).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(button);
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
+    const group = within(drawer).getByRole('heading', { name: 'Picture credits' }).closest('section') as HTMLElement;
+    const link = within(group).getByRole('link');
     expect(link).toHaveAttribute('href', 'https://example.org/a');
     expect(link.querySelector('em')).toHaveTextContent('A Picture');
   });
 
-  it('draws nothing when there are no credits', () => {
-    const { container } = render(<LandingCredits credits={[]} />);
+  it('draws no "i" when there are no credits', () => {
+    const { container } = render(<SourcesDrawer groups={[{ title: 'Picture credits', items: [] }]} />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  it('lists an open poster\'s sources and credits panel by panel, the panel on screen first', () => {
+    const poster = {
+      id: 'p',
+      title: 'P',
+      hero: { src: '/p.jpg', alt: 'P' },
+      colors: { bg: '#000', text: '#fff', title: '#fff' },
+      items: [
+        { type: 'full-image', src: '/a.jpg', alt: 'A', text: '*A*, by Someone', href: 'https://example.org/a' },
+        { type: 'paragraph', text: 'Words.' },
+        { type: 'paragraph', text: 'More.', note: { text: 'A fact.', sources: [{ label: 'A book', href: 'https://example.org/b' }] } },
+      ],
+    } as unknown as PosterConfig;
+    expect(posterSourceGroups(poster, 2).map((g) => g.title)).toEqual(['This panel', 'Panel 1']);
+    expect(posterSourceGroups(poster, 0)[0]).toEqual({ title: 'This panel', items: [{ note: 'Picture', label: '*A*, by Someone', href: 'https://example.org/a' }] });
+    expect(posterSourceGroups(poster, 1).map((g) => g.title)).toEqual(['Panel 1', 'Panel 3']);
+    expect(posterSourceGroups(poster, 1)[1].items).toEqual([{ label: 'A book', href: 'https://example.org/b', note: 'Did you know?' }]);
+  });
+
+  it('leaves the "i" out in projector mode', () => {
+    render(<SourcesDrawer groups={[{ title: 'Picture credits', items: credits.map((c) => ({ label: c.text, href: c.href })) }]} hideButton />);
+    expect(screen.queryByRole('button', { name: 'Sources and credits' })).toBeNull();
   });
 
   it.each(EXHIBITION_CASES.map((c) => [c.config.slug, c.config] as const))('%s: one screen, its case framed, its rooms in the Explore row below', (_slug, config) => {

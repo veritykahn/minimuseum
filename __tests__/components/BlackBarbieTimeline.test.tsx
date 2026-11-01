@@ -39,8 +39,8 @@ const stopButton = (name: string) => screen.getByRole('button', { name: new RegE
 const showMe = () => fireEvent.click(screen.getByRole('button', { name: 'Just show me' }));
 /** The room's Sources drawer, opened; and a stop's group in it. */
 const openSources = () => {
-  fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-  return screen.getByRole('dialog', { name: 'Sources' });
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return screen.getByRole('dialog', { name: 'Sources and credits' });
 };
 const sourcesGroup = (drawer: HTMLElement, title: string) => within(drawer).getByRole('heading', { name: title }).closest('section') as HTMLElement;
 

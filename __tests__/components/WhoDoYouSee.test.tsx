@@ -63,8 +63,8 @@ describe('the Doll Test', () => {
 
   it('puts every source in the room’s Sources drawer, step by step, and the book survey’s', () => {
     render(<WhoDoYouSee />);
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     DOLL_TEST_STEPS.forEach((step, i) => {
       const group = within(drawer).getByRole('heading', { name: `The Doll Test, step ${i + 1}: ${step.heading}` }).closest('section') as HTMLElement;
       for (const src of step.facts.flatMap((f) => f.sources)) {
@@ -75,8 +75,8 @@ describe('the Doll Test', () => {
     expect(within(drawer).getByRole('link', { name: /Cooperative Children’s Book Center/ })).toBeInTheDocument();
     // Escape closes it, and the Sources button has the keyboard again.
     fireEvent.keyDown(window, { key: 'Escape' });
-    expect(screen.queryByRole('dialog', { name: 'Sources' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Sources' })).toHaveFocus();
+    expect(screen.queryByRole('dialog', { name: 'Sources and credits' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Sources and credits' })).toHaveFocus();
   });
 });
 

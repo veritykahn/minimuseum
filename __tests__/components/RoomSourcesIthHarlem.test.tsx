@@ -16,8 +16,8 @@ import { MENTOR_POEM, MENTOR_SOURCES } from '@/app/exhibitions/harlem-renaissanc
 
 const read = (p: string) => fs.readFileSync(path.join(process.cwd(), p), 'utf8');
 const openDrawer = () => {
-  fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-  return screen.getByRole('dialog', { name: 'Sources' });
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return screen.getByRole('dialog', { name: 'Sources and credits' });
 };
 
 describe('The Gospel Timeline: Sources drawer', () => {
@@ -58,7 +58,7 @@ describe('Real or Replica?: Sources drawer', () => {
   it('has no sources to cite yet, so shows no Sources button, and cites nothing inline', () => {
     expect(REPLICA_SOURCES).toEqual([]);
     render(<RealOrReplica />);
-    expect(screen.queryByRole('button', { name: 'Sources' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Sources and credits' })).toBeNull();
     expect(document.body).not.toHaveTextContent(/Sources?:/);
   });
 

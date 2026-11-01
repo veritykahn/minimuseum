@@ -374,8 +374,8 @@ img.pe-effect-erase { animation: peErase 10s ease forwards; }
 /* ───────── Landing page ─────────
    The whole landing page fits on one screen: a compact head (title, subtitle,
    "Teach with this"), then the row of posters and display cases filling the
-   height that is left, each sized to it, then any picture credits folded
-   into a toggle. The row is a size container: its items take their height
+   height that is left, each sized to it (any picture credits are behind
+   the "i", SourcesDrawer). The row is a size container: its items take their height
    from its height (cqh) and their width from an equal share of its width
    (--pe-share), so they never overflow it. On a phone the row becomes a
    swipe row (LandingRow). The pe-landing-* rules carry the layout for the
@@ -571,44 +571,6 @@ img.pe-effect-erase { animation: peErase 10s ease forwards; }
 }
 .pe-swipe-dot[aria-current='true']::before { background: currentColor; }
 .pe-swipe-dot:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; border-radius: 50%; }
-
-/* Picture credits, folded into a toggle at the foot (LandingCredits). */
-.pe-landing-credits {
-  position: relative;
-  flex: none;
-  margin-top: calc(-1 * var(--pe-landing-gap, 12px) + 4px);
-  font-family: var(--pe-ui, var(--pe-body));
-  font-size: 11px;
-  color: var(--pe-credits-ink, currentColor);
-}
-.pe-landing-credits summary {
-  cursor: pointer;
-  list-style: none;
-  padding: 4px 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  opacity: 0.8;
-}
-.pe-landing-credits summary::-webkit-details-marker { display: none; }
-.pe-landing-credits summary::after { content: ' +'; }
-.pe-landing-credits[open] summary::after { content: ' \2212'; }
-.pe-landing-credits summary:hover, .pe-landing-credits summary:focus-visible { opacity: 1; }
-.pe-landing-credits .pe-credits {
-  position: absolute;
-  z-index: 20;
-  left: 50%;
-  bottom: calc(100% + 6px);
-  translate: -50% 0;
-  width: min(640px, calc(100vw - 32px));
-  max-width: none;
-  margin: 0;
-  padding: 14px 18px;
-  background: var(--pe-credits-bg, #fbf8f3);
-  color: var(--pe-credits-ink, #222);
-  border-radius: 10px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
-}
-.pe-landing-credits .pe-credits li + li { margin-top: 6px; }
 
 .pe-exhibition-title { text-align: center; }
 .pe-exhibition-title h1 {
@@ -1513,21 +1475,6 @@ a.pe-case-page-return:focus-visible { border-color: var(--pe-accent); color: var
   .pe-artifact-card:hover, .pe-artifact-card:focus-visible { transform: none; }
   .pe-artifact-stage-art .pe-artifact-glyph { animation: none; }
 }
-
-/* ───────── Picture credits at the foot of the landing page (ExhibitionConfig.credits) ───────── */
-.pe-credits {
-  list-style: none;
-  margin: 8px 0 0;
-  padding: 0;
-  max-width: 760px;
-  text-align: center;
-  font-family: var(--pe-ui, var(--pe-body));
-  font-size: 12px;
-  line-height: 1.5;
-  letter-spacing: 0.02em;
-  color: var(--pe-credits-ink, currentColor);
-}
-.pe-credits a { color: inherit; text-decoration: underline; text-underline-offset: 0.2em; }
 
 /* ───────── A quote's citation, a title's subtitle (QuoteItem.cite, TitleTextItem.subtitle) ───────── */
 .pe-has-cite { flex-direction: column; gap: 20px; }

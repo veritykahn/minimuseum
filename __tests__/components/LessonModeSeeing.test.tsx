@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { render, screen, fireEvent, act } from '@testing-library/react';
+import { render, screen, fireEvent, act, within } from '@testing-library/react';
 import { ClassroomView } from '@/components/lesson/ClassroomView';
 import ResourcesPage from '@/app/exhibitions/seeing-is-deceiving/resources/page';
 import { getLesson, lessonsFor } from '@/lib/lessons';
@@ -117,7 +117,12 @@ describe('illusions on screen', () => {
     const l = lesson('fact-checkers');
     render(<ClassroomView lesson={l} basePath={BASE} />);
     goTo(l, 'Is this picture moving?');
-    expect(screen.getByText('Rotating Snakes · Akiyoshi Kitaoka, 2003')).toBeInTheDocument();
+    // Not on the frame: behind the small "i" in the tool bar, under its step.
+    expect(screen.queryByText('Rotating Snakes · Akiyoshi Kitaoka, 2003')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(screen.getByRole('dialog', { name: 'Sources and credits' }));
+    expect(drawer.getByText('Rotating Snakes · Akiyoshi Kitaoka, 2003')).toBeInTheDocument();
+    expect(drawer.getByRole('heading', { name: /^Step \d+: Is this picture moving\?$/ })).toBeInTheDocument();
   });
 
   it('sets the vase and the faces side by side for the youngest', () => {

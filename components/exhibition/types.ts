@@ -301,7 +301,7 @@ export type FullImageItem = PanelBase & {
   type: 'full-image';
   src: string;
   alt: string;
-  /** A caption under the picture, such as its credit. *Title* is set in italics. */
+  /** Its picture credit, listed in the Sources and credits drawer (never on the panel). *Title* is set in italics. */
   text?: string;
   /** Where the caption links: the picture's source record. */
   href?: string;
@@ -450,7 +450,7 @@ export type ExhibitionConfig<K extends string = string> = {
    */
   interactives?: DisplayCase[];
   /**
-   * Picture credits, folded into a toggle at the foot of the landing page (LandingCredits), for pictures
+   * Picture credits, in the landing page's Sources and credits drawer (its "i", SourcesDrawer), for pictures
    * the exhibition draws on for its look (a photograph washed in behind the
    * posters), each as its owner specifies, linked to its record. *Title* is
    * set in italics. Leave out when there are none.
