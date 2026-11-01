@@ -353,8 +353,8 @@ describe('the toys’ history', () => {
     expect(within(zoe).getByText(TOY_NOTES.zoetrope.text)).toBeInTheDocument();
     expect(within(zoe).queryByRole('link')).not.toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['Thaumatrope', 'Zoetrope', 'Both toys']);
     expect(within(drawer).getByRole('link', { name: 'Science Museum Group' })).toHaveAttribute('href', 'https://collection.sciencemuseumgroup.org.uk/objects/co8085499');
     const va = within(drawer).getAllByRole('link', { name: 'V&A' });

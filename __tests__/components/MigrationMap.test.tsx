@@ -126,8 +126,8 @@ describe('the page', () => {
   it('keeps photo credits off the page and puts every source and credit in the Sources drawer', () => {
     render(<MigrationMapPage />);
     for (const c of CITIES) if (c.photoCredit) expect(c.photoCaption).not.toContain('Collection,');
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     expect(within(drawer).getByRole('heading', { name: 'The map' })).toBeInTheDocument();
     expect(within(drawer).getByRole('link', { name: /U.S. Census Bureau/ })).toBeInTheDocument();
     expect(within(drawer).getByRole('link', { name: /Mississippi Encyclopedia, “Railroads”/ })).toBeInTheDocument();

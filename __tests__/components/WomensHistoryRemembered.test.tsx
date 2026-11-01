@@ -38,8 +38,8 @@ function onScreen(el: Element) {
 
 /** The room's Sources drawer, opened: nothing is cited on the student's screen, every source is here. */
 function openSources() {
-  fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-  return within(screen.getByRole('dialog', { name: 'Sources' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return within(screen.getByRole('dialog', { name: 'Sources and credits' }));
 }
 
 const posterText = () => WOMENS_HISTORY.posters.flatMap((p) => p.items.map((i) => ('text' in i ? i.text : ''))).join(' ');

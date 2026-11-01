@@ -147,8 +147,8 @@ describe('the walk', () => {
   it('lists every line’s source, by step, and the Kadishman credit, in the walk’s Sources drawer', () => {
     const walk = begin();
     expect(within(walk).queryByRole('link')).toBeNull();
-    fireEvent.click(within(walk).getByRole('button', { name: 'Sources' }));
-    const drawer = within(walk).getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(within(walk).getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(walk).getByRole('dialog', { name: 'Sources and credits' });
     expect(within(drawer).getByRole('link', { name: /Fallen Leaves/ })).toHaveAttribute('href', KADISHMAN_URL);
     WALK_LINES.forEach((line, i) => {
       const group = within(drawer).getByRole('heading', { name: `The walk, step ${i + 1}` }).closest('section')!;
@@ -156,7 +156,7 @@ describe('the walk', () => {
     });
     // Escape closes the drawer, and leaves the walk open.
     fireEvent.keyDown(drawer, { key: 'Escape' });
-    expect(within(walk).queryByRole('dialog', { name: 'Sources' })).toBeNull();
+    expect(within(walk).queryByRole('dialog', { name: 'Sources and credits' })).toBeNull();
     expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
   });
 
@@ -185,7 +185,7 @@ describe('the walk', () => {
     window.history.replaceState(null, '', '/#walk');
     render(<NeverForget />);
     expect(screen.queryByRole('link', { name: /Fallen Leaves/ })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
     const link = screen.getByRole('link', { name: /Fallen Leaves/ });
     expect(link).toHaveAttribute('href', KADISHMAN_URL);
     expect(KADISHMAN_URL).toBe('https://www.jmberlin.de/en/shalekhet-fallen-leaves');

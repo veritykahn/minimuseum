@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import CasePage from '@/components/exhibition/CasePage';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
@@ -195,11 +195,14 @@ describe('the Egypt scarab', () => {
     expect(card).not.toHaveTextContent(anubis.record);
   });
 
-  it('shows it, with its source, on the scarab\'s own page', () => {
+  it('shows it on the scarab\'s own page, its source behind the page\'s "i"', () => {
     const scarab = EGYPT_CASE.artifacts.find((a) => a.id === 'scarab')!;
     render(<ArtifactPage config={EGYPT} data={EGYPT_CASE} artifact={scarab} />);
     expect(screen.getByRole('heading', { name: 'About it' })).toBeInTheDocument();
     expect(screen.getByText(scarab.about!.text)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /British Museum/ })).toHaveAttribute('href', scarab.about!.sources[0].href);
+    expect(screen.queryByRole('link', { name: /British Museum/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(screen.getByRole('dialog', { name: 'Sources and credits' }));
+    expect(within(drawer.getByRole('list', { name: 'About it' })).getByRole('link', { name: /British Museum/ })).toHaveAttribute('href', scarab.about!.sources[0].href);
   });
 });

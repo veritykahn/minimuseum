@@ -60,8 +60,8 @@ const room = () => {
   const currentStep = () => view.container.querySelector('[aria-current="step"]')?.textContent;
   /** Open the room's Sources drawer: every source and credit, by step. */
   const sources = () => {
-    if (!screen.queryByRole('dialog', { name: 'Sources' })) fireEvent.click(button('Sources'));
-    return screen.getByRole('dialog', { name: 'Sources' });
+    if (!screen.queryByRole('dialog', { name: 'Sources and credits' })) fireEvent.click(button('Sources and credits'));
+    return screen.getByRole('dialog', { name: 'Sources and credits' });
   };
   return { ...view, eyepiece, canvas, status, button, blurPx, prepare, focusUp, currentStep, sources };
 };

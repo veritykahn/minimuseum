@@ -49,7 +49,6 @@
   --pe-callout-ink: var(--wh-navy);
   --pe-case-ink: var(--wh-navy);
   --pe-case-muted: var(--wh-navy);
-  --pe-credits-ink: var(--wh-navy);
   --pe-marks: var(--wh-navy);
   --pe-landing-h1: clamp(2.2rem, min(6.4vw, 8.6dvh), 5.4rem);
   color: var(--wh-navy);
@@ -113,7 +112,6 @@
 /* The case awaiting its photographs: navy line, lit in the posters' orange, its label typewritten. */
 [data-exhibition='womens-history'] { --pe-case-frame: var(--wh-navy); --pe-case-glow: var(--wh-orange); --pe-case-placeholder-ink: var(--wh-ink); }
 [data-exhibition='womens-history'] .pe-case-placeholder-label { font-family: var(--wh-mono); font-style: normal; }
-[data-exhibition='womens-history'] .pe-credits { max-width: 600px; }
 
 /* The walkthrough's arrows and rail. */
 [data-exhibition='womens-history'] .pe-walkthrough-nav .pfx-progress-head { box-shadow: 0 0 0 2px currentColor; }

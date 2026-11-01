@@ -123,8 +123,8 @@ describe('the Sources drawer', () => {
     window.history.replaceState(null, '', '/exhibitions/great-war/memorial');
     render(<GreatWarMemorial />);
     expect(screen.queryByText(/^Sources?:/)).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
-    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(MEMORIAL_SOURCES.map((g) => g.title));
     expect(within(drawer).getByRole('link', { name: ABMC_RECORDS.label })).toHaveAttribute('href', 'https://weremember.abmc.gov/');
   });

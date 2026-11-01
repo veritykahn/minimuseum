@@ -17,6 +17,14 @@ import {
 } from '@/app/exhibitions/victorian/victorian';
 import { floorReturnFor } from '@/lib/floors';
 
+/** The open panel's sources and credits, behind the small "i": opens the drawer, returns its "This panel" list. */
+const thisPanelSources = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return within(screen.getByRole('dialog', { name: 'Sources and credits' })).getByRole('list', { name: 'This panel' });
+};
+const closeSources = () => fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
+
+
 /*
  * Victorian Britain: its config, the poster copy against the transcription
  * (with only the owner's approved fixes), the V&A credits, the walkthrough
@@ -185,6 +193,8 @@ describe('Victorian Britain', () => {
       expect(screen.getByRole('heading', { level: 1, name: 'Victorian Britain' })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /display case/i })).toHaveAttribute('href', '/exhibitions/victorian/artifacts/case');
       expect(screen.getByRole('link', { name: 'Ground Floor' })).toHaveAttribute('href', '/exhibitions/ground-floor');
+      // Behind the small "i": Sources and credits.
+      fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
       const credits = screen.getByRole('list', { name: 'Picture credits' });
       const credit = within(credits).getByRole('link');
       expect(credit).toHaveAttribute('href', VA_REFRESHMENT_ROOM_SOURCE);
@@ -201,9 +211,11 @@ describe('Victorian Britain', () => {
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      const credit = content().querySelector('.pe-figure-credit a') as HTMLElement;
+      expect(content().querySelector('.pe-figure-credit')).toBeNull();
+      const credit = within(thisPanelSources()).getByRole('link');
       expect(credit).toHaveTextContent(VA_COURT_DRESS_CREDIT);
       expect(credit).toHaveAttribute('href', VA_COURT_DRESS_SOURCE);
+      closeSources();
 
       const callout = poster('poster1').items.findIndex((it) => it.type === 'callout');
       for (let i = 1; i < callout; i++) {

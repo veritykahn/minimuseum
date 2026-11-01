@@ -12,12 +12,12 @@ import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useP
 import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import PosterPanel from './PosterPanel';
 import CasePlaceholder from './CasePlaceholder';
-import LandingCredits from './LandingCredits';
+import SourcesDrawer, { type SourceGroup } from './SourcesDrawer';
 import LandingRow from './LandingRow';
 import ExploreRow, { ExploreCue } from './ExploreRow';
 import AtmosphereLayer from './AtmosphereLayer';
 import AudioGuide, { useAudioGuide } from './AudioGuide';
-import { atmosphereName, colorsFor, entranceOf, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
+import { atmosphereName, colorsFor, entranceOf, fxKind, posterLengths, posterSourceGroups, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
 
@@ -30,6 +30,9 @@ import './poster-exhibition.css';
  * pages': keyboard, swipe and tap navigation (usePosterWalkthrough), the
  * first-open hint, a polite live region, ?projector=1&poster=N&panel=N deep
  * links, focus handling, and reduced motion (poster-fx.css, and here).
+ * Every source and picture credit is behind one small "i" in the bottom-left
+ * corner (SourcesDrawer): the landing page's picture credits, or the open
+ * poster's, panel by panel. Projector mode leaves it out.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -77,6 +80,13 @@ export default function PosterExhibition<K extends string>({ config }: { config:
   const fx = usePosterFxStage(fxConfig.theme, direction, item?.type ?? '', colors.bg, colors.text);
   const veil = veilFor(fxConfig.veil, item, posterStep);
   const hasGuide = !!poster?.items.some((i) => i.audio);
+  const sourceGroups = useMemo<SourceGroup[]>(
+    () =>
+      poster
+        ? posterSourceGroups(poster as PosterConfig, posterStep)
+        : [{ title: 'Picture credits', items: credits.map((c) => ({ label: c.text, href: c.href })) }],
+    [poster, posterStep, credits],
+  );
   const guide = useAudioGuide(item?.audio);
 
   const rememberFloorPosition = back.remember
@@ -170,7 +180,6 @@ export default function PosterExhibition<K extends string>({ config }: { config:
             {rest.map(posterButton)}
           </LandingRow>
 
-          <LandingCredits credits={credits} />
           <ExploreCue rooms={interactives} />
         </div>
 
@@ -183,6 +192,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
         {announcement}
       </p>
       <PosterNavHint visible={hintVisible && !projector} onDismiss={dismissHint} />
+      <SourcesDrawer groups={sourceGroups} hideButton={projector} />
       {poster && <h1 className="visually-hidden">{poster.title}</h1>}
       {fxConfig.theme === 'sid' && <FxDefs />}
 
