@@ -1,7 +1,11 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import NeverForget from '@/app/exhibitions/holocaust/stones/NeverForget';
 import Countdown, { isRemembranceDay, nextRemembrance } from '@/app/exhibitions/holocaust/stones/Countdown';
-import { AUTO_MS, STEP_MS, WALK_BEGIN, WALK_CLOSE, WALK_INTRO, walkSourceGroups, wordsForStep } from '@/app/exhibitions/holocaust/stones/Walk';
+import { AUTO_MS, CANDLE, STEP_MS, WALK_BEGIN, WALK_CLOSE, WALK_INSPIRATION, WALK_INSPIRED_BY, WALK_INTRO, WALK_SOUND, walkSourceGroups, wordsForStep } from '@/app/exhibitions/holocaust/stones/Walk';
+import { EYE, STEP, easeStep, hash2, lightAt, makeView, project, rowPieces, rowsInView, type IronShoe } from '@/app/exhibitions/holocaust/stones/walkScene';
+import { PLATE, hitsForStep } from '@/app/exhibitions/holocaust/stones/footsteps';
+import fs from 'node:fs';
+import path from 'node:path';
 import { AMBIENTS, PLACEHOLDERS, WALK_LINES, ambientSrc, slotFiles, slotNumber } from '@/app/exhibitions/holocaust/stones/walkLines';
 import { WALK_BEATS, WALK_NAMES, beatForStep } from '@/app/exhibitions/holocaust/stones/walkNames';
 import { SILHOUETTE_KINDS } from '@/app/exhibitions/holocaust/stones/WalkPicture';
@@ -80,7 +84,7 @@ describe('the walk', () => {
     const walk = begin();
     expect(walk).toHaveClass('hos-walk-full');
     expect(walk.parentElement).toBe(document.body);
-    expect(walk.querySelector('.hos-candle-corner.is-lit')).toBeInTheDocument();
+    expect(walk.querySelector('.hos-walk-candle.is-lit')).toBeInTheDocument();
     expect(walk).toHaveTextContent(WALK_BEGIN);
     fireEvent.keyDown(walk, { key: 'Escape' });
     expect(screen.queryByRole('dialog', { name: 'The walk' })).toBeNull();
@@ -121,7 +125,7 @@ describe('the walk', () => {
     const seen: string[] = [];
     WALK_BEATS.forEach((beat, i) => {
       if (i > 0) next();
-      expect(walk.querySelector('.hos-candle-corner.is-lit')).toBeInTheDocument();
+      expect(walk.querySelector('.hos-walk-candle.is-lit')).toBeInTheDocument();
       if (beat.kind === 'line') {
         const { line } = beat;
         seen.push(line.id);
@@ -150,7 +154,7 @@ describe('the walk', () => {
     next();
     expect(status(walk)).toBe(WALK_CLOSE);
     expect(walk).toHaveTextContent(WALK_CLOSE);
-    expect(walk.querySelector('.hos-candle-corner.is-lit')).toBeInTheDocument();
+    expect(walk.querySelector('.hos-walk-candle.is-lit')).toBeInTheDocument();
     expect(within(walk).queryByRole('button', { name: 'Take a step' })).toBeNull();
     expect(within(walk).queryByRole('button', { name: 'Walk on slowly' })).toBeNull();
     // It may be walked again, from the beginning, the candle still lit.
@@ -177,19 +181,27 @@ describe('the walk', () => {
     expect(still.querySelectorAll('.hos-walk-layer')).toHaveLength(1);
   });
 
-  it('lists every line’s and every name’s source, by step, in the walk’s Sources drawer; no credit to Fallen Leaves, now the walk walks over nothing', () => {
+  it('lists every line’s and every name’s source, by step, in the walk’s Sources drawer, and the two works it is inspired by', () => {
     const walk = begin();
     expect(within(walk).queryByRole('link')).toBeNull();
     fireEvent.click(within(walk).getByRole('button', { name: 'Sources and credits' }));
     const drawer = within(walk).getByRole('dialog', { name: 'Sources and credits' });
-    expect(within(drawer).queryByRole('link', { name: /Fallen Leaves/ })).toBeNull();
+    const inspired = within(drawer).getByRole('heading', { name: WALK_INSPIRED_BY }).closest('section')!;
+    const [kadishman, danube] = within(inspired).getAllByRole('link');
+    expect(kadishman).toHaveTextContent('Menashe Kadishman, Fallen Leaves (Shalekhet), Jewish Museum Berlin');
+    expect(kadishman).toHaveAttribute('href', 'https://www.jmberlin.de/en/shalekhet-fallen-leaves');
+    expect(danube).toHaveTextContent('Can Togay and Gyula Pauer, Shoes on the Danube Bank, Budapest');
+    expect(danube).toHaveAttribute('href', WALK_INSPIRATION[1].href);
+    // No credit for the candle: it is the owner's own.
+    expect(within(inspired).getAllByRole('link')).toHaveLength(2);
+    expect(drawer).not.toHaveTextContent(/Leonardo/i);
     WALK_BEATS.forEach((beat, i) => {
       const group = within(drawer).getByRole('heading', { name: `The walk, step ${i + 1}` }).closest('section')!;
       const sources = beat.kind === 'line' ? beat.line.sources : [beat.name.source];
       for (const s of sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
       if (beat.kind === 'name') expect(group).toHaveTextContent(`${beat.name.name}, ${beat.name.age}`);
     });
-    expect(walkSourceGroups()).toHaveLength(WALK_BEATS.length);
+    expect(walkSourceGroups()).toHaveLength(WALK_BEATS.length + 1);
     // Escape closes the drawer, and leaves the walk open.
     fireEvent.keyDown(drawer, { key: 'Escape' });
     expect(within(walk).queryByRole('dialog', { name: 'Sources and credits' })).toBeNull();
@@ -207,7 +219,7 @@ describe('the walk', () => {
 
   it('keeps the sound off until the visitor turns it on', () => {
     const walk = begin();
-    const sound = within(walk).getByRole('button', { name: /Sound: off/ });
+    const sound = within(walk).getByRole('button', { name: WALK_SOUND });
     expect(sound).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(sound);
     // jsdom has no Web Audio: it says so, and stays off.
@@ -315,5 +327,84 @@ describe('the walk’s lines and slots', () => {
     expect(beatForStep(WALK_BEATS.length + 1)).toBeNull();
     expect(wordsForStep(0)).toEqual({ kind: 'none' });
     expect(wordsForStep(WALK_BEATS.length + 1)).toEqual({ kind: 'end' });
+  });
+});
+
+describe('the walk’s hall: the iron floor, the candle, the sound', () => {
+  afterEach(() => reducedMotion(false));
+
+  const light = () => {
+    window.history.replaceState(null, '', '/#walk');
+    render(<NeverForget />);
+    fireEvent.click(screen.getByRole('button', { name: 'Light a candle' }));
+    return screen.getByRole('dialog', { name: 'The walk' });
+  };
+
+  it('carries the owner’s candle in front, her film of it; its still under reduced motion; never the drawn candle', () => {
+    const walk = light();
+    const video = walk.querySelector('.hos-walk-candle video')!;
+    expect(video).toHaveAttribute('poster', CANDLE.still);
+    expect(video).toHaveAttribute('loop');
+    expect((video as HTMLVideoElement).muted).toBe(true);
+    expect(Array.from(video.querySelectorAll('source')).map((s) => s.getAttribute('src'))).toEqual([CANDLE.webm, CANDLE.mp4]);
+    expect(walk.querySelector('canvas.hos-walk-floor')).toBeInTheDocument();
+    expect(document.querySelector('svg.hos-candle')).toBeNull();
+    for (const f of [CANDLE.mp4, CANDLE.webm, CANDLE.still]) expect(fs.existsSync(path.join(process.cwd(), 'public', f))).toBe(true);
+    cleanup();
+    reducedMotion(true);
+    const still = light();
+    expect(still.querySelector('.hos-walk-candle video')).toBeNull();
+    expect(still.querySelector('.hos-walk-candle img')).toHaveAttribute('src', CANDLE.still);
+  });
+
+  it('lays the floor with iron faces, each with two eyes and a mouth cut through, and pairs of iron shoes, men’s, women’s and children’s: the same each time', () => {
+    const rows = Array.from({ length: 200 }, (_, r) => rowPieces(r));
+    expect(rowPieces(17)).toEqual(rows[17]);
+    const all = rows.flat();
+    const faces = all.flatMap((p) => (p.kind === 'face' ? [p] : []));
+    const shoes = all.filter((p): p is IronShoe => p.kind === 'shoe');
+    expect(faces.length).toBeGreaterThan(shoes.length * 3);
+    expect(shoes.length).toBeGreaterThan(50);
+    for (const f of faces) {
+      expect(f.holes).toHaveLength(3);
+      expect(Math.max(...f.outline.map(([u, v]) => Math.hypot(u, v)))).toBeLessThan(0.36);
+    }
+    expect(new Set(shoes.map((s) => s.size))).toEqual(new Set(['man', 'woman', 'child']));
+    // Faces of different sizes, lying every way.
+    expect(new Set(faces.map((f) => Math.round(f.outline[0][0] * 100))).size).toBeGreaterThan(20);
+    // Each row lies far to near, so nearer iron lies over farther.
+    for (const row of rows) for (let i = 1; i < row.length; i++) expect(row[i].z).toBeLessThanOrEqual(row[i - 1].z);
+    expect(hash2(3, 4)).toBe(hash2(3, 4));
+  });
+
+  it('sees the floor ahead in perspective, a step at a time, lit by the candle and falling away into the dark', () => {
+    const v = makeView(1280, 800);
+    const near = project(v, 0, 3)!;
+    const far = project(v, 0, 12)!;
+    expect(near[1]).toBeGreaterThan(far[1]);
+    expect(far[1]).toBeGreaterThan(v.horizon);
+    expect(project(v, 0, 3, EYE)![1]).toBeCloseTo(v.horizon);
+    expect(project(v, 0, -1)).toBeNull();
+    expect(STEP).toBeGreaterThan(0.5);
+    const rows = rowsInView(4 * STEP);
+    expect(rows[0]).toBeGreaterThan(rows[rows.length - 1]);
+    // The candle lights the nearest iron; the far floor is nearly dark, the sides darker than the middle; unlit, almost nothing.
+    expect(lightAt(0, 3)).toBeGreaterThan(0.6);
+    expect(lightAt(0, 12)).toBeLessThan(0.1);
+    expect(lightAt(2.5, 3)).toBeLessThan(lightAt(0, 3));
+    expect(lightAt(0, 3, 0)).toBeLessThan(0.02);
+    expect(easeStep(0)).toBe(0);
+    expect(easeStep(1)).toBe(1);
+    expect(easeStep(0.5)).toBeCloseTo(0.5);
+  });
+
+  it('is heard, when chosen, as two to four small knocks of iron, rung inharmonically', () => {
+    const seen = new Set<number>();
+    for (let i = 0; i < 12; i++) seen.add(hitsForStep(() => i / 12));
+    expect([...seen].sort()).toEqual([2, 3, 4]);
+    expect(PLATE[0]).toBe(1);
+    // Not a musical note: no partial a whole multiple of the lowest.
+    for (const r of PLATE.slice(1)) expect(Math.abs(r - Math.round(r))).toBeGreaterThan(0.05);
+    expect(WALK_SOUND).toBe('Hear your steps');
   });
 });
