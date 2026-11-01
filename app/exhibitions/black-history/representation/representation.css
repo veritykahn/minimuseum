@@ -160,6 +160,8 @@
 .bhr-notes-heading { font-family: var(--pe-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(12px, 1vw, 16px); color: var(--bh-lime); margin-bottom: 6px; }
 .bhr-notes ul { display: flex; flex-direction: column; gap: 6px; padding-left: 1.1em; font-family: var(--pe-body); font-size: clamp(1rem, 1.35vw, 1.4rem); line-height: 1.35; }
 .bhr-test-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 28px; }
+/* Its last button stays clear of the Map button in the corner. */
+@media (min-width: 761px) { .bhr-test-foot { padding-inline: 88px; } }
 .bhr-teach { display: flex; gap: 8px; }
 .bhr-room .bhr-teach .bhr-button[aria-pressed='true'] { background: #141414; color: var(--bh-lime); }
 .bhr-keys { text-align: center; opacity: 0.8; }
@@ -364,11 +366,17 @@
 /* Print: the doll alone, or every chart of the survey. */
 @media print {
   body:has(.bhr-room) * { visibility: hidden; }
-  /* The doll and its name, on one page. */
+  /* White paper, not the site's dark ground, while this room is printed. */
+  html:has(.bhr-room), body:has(.bhr-room) { background: #fff !important; }
+  /* The doll and its name, on one page (Letter or A4). The room behind it takes no space,
+     so the hidden page under the doll does not run on to a second, empty sheet. */
+  .bhr-room[data-tab='design'] { min-height: 0; height: 0; overflow: hidden; }
+  /* No entrance animation: its transform would hold the doll inside the collapsed room instead of on the page. */
+  .bhr-room[data-tab='design'] .bhr-panel { animation: none; }
   .bhr-room[data-tab='design'] .bhr-doll-stage, .bhr-room[data-tab='design'] .bhr-doll-stage * { visibility: visible; }
-  .bhr-room[data-tab='design'] .bhr-doll-stage { position: fixed; left: 0; right: 0; top: 0.3in; container-type: normal; display: flex; flex-direction: column; align-items: center; gap: 0.1in; }
+  .bhr-room[data-tab='design'] .bhr-doll-stage { position: fixed; left: 0; right: 0; top: 0.2in; container-type: normal; display: flex; flex-direction: column; align-items: center; gap: 0.1in; }
   .bhr-room[data-tab='design'] .bhr-doll-stage::before { display: none; }
-  .bhr-room[data-tab='design'] .bhr-doll { width: auto; height: 9in; max-width: none; max-height: none; filter: none; }
+  .bhr-room[data-tab='design'] .bhr-doll { width: auto; height: 8.4in; max-width: none; max-height: none; filter: none; }
   .bhr-room[data-tab='design'] .bhr-doll-name { font-size: 30pt; }
   .bhr-room[data-tab='books'] .bhr-print, .bhr-room[data-tab='books'] .bhr-print * { visibility: visible; }
   .bhr-room[data-tab='books'] .bhr-print { display: flex; flex-direction: column; gap: 12pt; position: absolute; left: 0; top: 0; width: 100%; color: #141414; }

@@ -285,8 +285,20 @@ describe('fixes from the QA pass', () => {
     const css = readFileSync(join(process.cwd(), 'app/exhibitions/black-history/representation/representation.css'), 'utf8');
     const print = css.slice(css.indexOf('@media print'));
     expect(print).toMatch(/\.bhr-print \.bhr-bar-fill \{[^}]*print-color-adjust: exact/);
-    expect(print).toMatch(/\.bhr-room\[data-tab='design'\] \.bhr-doll \{[^}]*height: 9in;[^}]*max-height: none;/);
+    expect(print).toMatch(/\.bhr-room\[data-tab='design'\] \.bhr-doll \{[^}]*height: 8\.4in;[^}]*max-height: none;/);
     expect(print).toMatch(/\.bhr-room\[data-tab='design'\] \.bhr-doll-stage, \.bhr-room\[data-tab='design'\] \.bhr-doll-stage \* \{ visibility: visible; \}/);
+  });
+
+  // Second QA pass: the doll ran on to a second sheet, its name alone on a lime page.
+  it('prints the doll and its name on one white page', () => {
+    const css = readFileSync(join(process.cwd(), 'app/exhibitions/black-history/representation/representation.css'), 'utf8');
+    const print = css.slice(css.indexOf('@media print'));
+    // The hidden room takes no space, so nothing runs on to a second sheet...
+    expect(print).toMatch(/\.bhr-room\[data-tab='design'\] \{[^}]*height: 0;[^}]*overflow: hidden;/);
+    // ...and nothing gives the panel a transform, which would hold the doll inside the collapsed room.
+    expect(print).toMatch(/\.bhr-room\[data-tab='design'\] \.bhr-panel \{ animation: none; \}/);
+    // The doll (8.4in), its top (0.2in) and its name fit inside Letter's and A4's printable height.
+    expect(print).toMatch(/html:has\(\.bhr-room\), body:has\(\.bhr-room\) \{ background: #fff !important; \}/);
   });
 
   it('takes the focus into the survey’s question and back out again', async () => {

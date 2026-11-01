@@ -477,3 +477,8 @@
 
 /* On the classroom screen the copy is set larger: the hand and the spider step back into their corners, clear of it. */
 [data-exhibition='fear-lab'] .pjp-stage .pe-decor { width: min(var(--pe-decor-w, 30vw), calc(var(--pjp-u) * 13)); }
+
+/* On an upright screen (an iPad held upright, a phone) the copy runs the full width, so the moon rises above it, smaller, instead of sitting behind "Then came". */
+@media (max-aspect-ratio: 1/1) {
+  [data-exhibition='fear-lab'] .pe-atmo-vampire-storm .pe-atmo-part-1 { top: 1.5vh; right: 8vw; width: 12vmin; height: 12vmin; }
+}
