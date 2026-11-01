@@ -9,8 +9,11 @@ import { HOLOCAUST } from '../holocaust';
 import MemorialStone, { StoneControls } from './MemorialStone';
 import Countdown from './Countdown';
 import Stillness from './Stillness';
-import { WalkControls, WalkFull, WalkScene, useWalk } from './Walk';
-import type { Ambient } from './walkLines';
+import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
+import { STONE_CUSTOM } from '../holocaust';
+import { WalkControls, WalkFull, WalkScene, useWalk, walkSourceGroups } from './Walk';
+import type { Ambient, WalkPictures } from './walkLines';
+import { PROMPTS } from './stillnessPrompts';
 import { useStones } from './useStones';
 import './memorial-stone.css';
 
@@ -41,7 +44,19 @@ function tabFromHash(hash: string): TabId | null {
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
-export default function NeverForget({ pictures = [], ambients = [] }: { pictures?: readonly string[]; ambients?: readonly Ambient[] }) {
+/** Every source in the room, by tab (and the walk by step), for its Sources drawer: nothing is cited on the page itself. */
+export function roomSourceGroups(): SourceGroup[] {
+  const shorten = (t: string) => (t.length > 60 ? `${t.slice(0, 57).trimEnd()}…` : t);
+  return [
+    { title: 'Lay a stone', items: STONE_CUSTOM.sources.map((s) => ({ ...s, note: 'Stones on a memorial' })) },
+    { title: 'Stillness', items: PROMPTS.flatMap((p) => p.sources.map((s) => ({ ...s, note: p.name ?? p.cite ?? shorten(p.text) }))) },
+    ...walkSourceGroups(),
+  ];
+}
+
+const NO_PICTURES: WalkPictures = {};
+
+export default function NeverForget({ pictures = NO_PICTURES, ambients = [] }: { pictures?: WalkPictures; ambients?: readonly Ambient[] }) {
   const { fonts, slug } = HOLOCAUST;
   const back = useMuseumReturn(roomReturn(HOLOCAUST));
   const stones = useStones();
@@ -99,60 +114,62 @@ export default function NeverForget({ pictures = [], ambients = [] }: { pictures
   };
 
   return (
-    <div className="pe-root ho-room" data-exhibition={slug} style={style}>
-      <style>{`@import url('${fonts.href}');`}</style>
+    <SourcesDrawer groups={roomSourceGroups()}>
+      <div className="pe-root ho-room" data-exhibition={slug} style={style}>
+        <style>{`@import url('${fonts.href}');`}</style>
 
-      <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
-        <span className="pe-nav-text" aria-hidden="true">M</span>
-        <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
-        <span className="pe-nav-label">{back.label}</span>
-      </ExhibitionNav>
+        <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
+          <span className="pe-nav-text" aria-hidden="true">M</span>
+          <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
+          <span className="pe-nav-label">{back.label}</span>
+        </ExhibitionNav>
 
-      <main className="hos-stage" data-tab={tab}>
-        {tab === 'walk' ? <WalkScene steps={walk.steps} stepAt={walk.stepAt} reduced={walk.reduced} /> : <MemorialStone count={stones.count} settleFrom={settleFrom} />}
+        <main className="hos-stage" data-tab={tab}>
+          {tab === 'walk' ? <WalkScene steps={walk.steps} stepAt={walk.stepAt} reduced={walk.reduced} /> : <MemorialStone count={stones.count} settleFrom={settleFrom} />}
 
-        <header className="hos-bar">
-          <h1 className="hos-title">
-            Never Forget
-            <span className="hos-title-date">January 27</span>
-          </h1>
-          <Countdown />
-          <div className="hos-tabs" role="tablist" aria-label="The memorial stone">
-            {TABS.map((x) => (
-              <button
-                key={x.id}
-                ref={(el) => {
-                  tabRefs.current[x.id] = el;
-                }}
-                type="button"
-                role="tab"
-                id={`hos-tab-${x.id}`}
-                aria-controls={`hos-panel-${x.id}`}
-                aria-selected={tab === x.id}
-                tabIndex={tab === x.id ? 0 : -1}
-                className="hos-tab"
-                onClick={() => choose(x.id)}
-                onKeyDown={onTabKey}
-              >
-                {x.label}
-              </button>
-            ))}
-          </div>
-        </header>
+          <header className="hos-bar">
+            <h1 className="hos-title">
+              Never Forget
+              <span className="hos-title-date">January 27</span>
+            </h1>
+            <Countdown />
+            <div className="hos-tabs" role="tablist" aria-label="The memorial stone">
+              {TABS.map((x) => (
+                <button
+                  key={x.id}
+                  ref={(el) => {
+                    tabRefs.current[x.id] = el;
+                  }}
+                  type="button"
+                  role="tab"
+                  id={`hos-tab-${x.id}`}
+                  aria-controls={`hos-panel-${x.id}`}
+                  aria-selected={tab === x.id}
+                  tabIndex={tab === x.id ? 0 : -1}
+                  className="hos-tab"
+                  onClick={() => choose(x.id)}
+                  onKeyDown={onTabKey}
+                >
+                  {x.label}
+                </button>
+              ))}
+            </div>
+          </header>
 
-        <section className="hos-panel" id="hos-panel-stone" role="tabpanel" aria-labelledby="hos-tab-stone" hidden={tab !== 'stone'}>
-          <StoneControls {...stones} onLaid={() => setSettleFrom(performance.now())} />
-        </section>
+          <section className="hos-panel" id="hos-panel-stone" role="tabpanel" aria-labelledby="hos-tab-stone" hidden={tab !== 'stone'}>
+            <StoneControls {...stones} onLaid={() => setSettleFrom(performance.now())} />
+          </section>
 
-        <section className="hos-panel hos-panel-stillness" id="hos-panel-stillness" role="tabpanel" aria-labelledby="hos-tab-stillness" hidden={tab !== 'stillness'}>
-          <Stillness />
-        </section>
+          <section className="hos-panel hos-panel-stillness" id="hos-panel-stillness" role="tabpanel" aria-labelledby="hos-tab-stillness" hidden={tab !== 'stillness'}>
+            <Stillness />
+          </section>
 
-        <section className="hos-panel hos-panel-walk" id="hos-panel-walk" role="tabpanel" aria-labelledby="hos-tab-walk" hidden={tab !== 'walk'}>
-          <WalkControls {...walk} />
-        </section>
-        {tab === 'walk' && walk.full && <WalkFull walk={walk} pictures={pictures} />}
-      </main>
-    </div>
+          <section className="hos-panel hos-panel-walk" id="hos-panel-walk" role="tabpanel" aria-labelledby="hos-tab-walk" hidden={tab !== 'walk'}>
+            <WalkControls {...walk} />
+          </section>
+          {tab === 'walk' && walk.full && <WalkFull walk={walk} pictures={pictures} />}
+        </main>
+      </div>
+    </SourcesDrawer>
   );
 }

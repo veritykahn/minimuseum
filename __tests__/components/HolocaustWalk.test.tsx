@@ -1,20 +1,21 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import NeverForget from '@/app/exhibitions/holocaust/stones/NeverForget';
 import Countdown, { isRemembranceDay, nextRemembrance } from '@/app/exhibitions/holocaust/stones/Countdown';
-import { AUTO_MS, KADISHMAN_URL, LINE_AFTER, STEP_MS, wordsForStep } from '@/app/exhibitions/holocaust/stones/Walk';
-import { AMBIENTS, WALK_LINES, ambientSrc, lineForStep } from '@/app/exhibitions/holocaust/stones/walkLines';
-import { MOTIFS } from '@/app/exhibitions/holocaust/stones/WalkPicture';
+import { AUTO_MS, KADISHMAN_URL, STEP_MS, walkSourceGroups, wordsForStep } from '@/app/exhibitions/holocaust/stones/Walk';
+import { AMBIENTS, PLACEHOLDERS, WALK_LINES, ambientSrc, lineForStep, shownLineForStep, slotFiles, slotNumber } from '@/app/exhibitions/holocaust/stones/walkLines';
+import { SILHOUETTE_KINDS } from '@/app/exhibitions/holocaust/stones/WalkPicture';
 import { walkSlotsOnDisk } from '@/app/exhibitions/holocaust/stones/walkSlots';
 import { ACROSS, HALF_WIDTH, fog, project, makeView, rowStones, rowsInView } from '@/app/exhibitions/holocaust/stones/walkScene';
-import { LIBERATION_LINE, REMEMBRANCE_LINE } from '@/app/exhibitions/holocaust/holocaust';
+import { LIBERATION_LINE } from '@/app/exhibitions/holocaust/holocaust';
 
 /*
  * Never Forget's countdown to January 27 and its walk: the date sums, the
  * day's own line, the path's geometry, and walking it (slowly, a step at a
- * time, full screen; the poster's line after a few steps, then the
- * history a line a step, each with its source and its picture slot; the sound off until chosen;
- * no walking on under reduced motion; the credit to the Jewish Museum
- * Berlin).
+ * time, full screen; the history a line a step from the first step, each
+ * with its picture (or its placeholder) and its source in the Sources
+ * drawer, never inline; no blank step; the sound off until chosen; no
+ * walking on under reduced motion; the credit to the Jewish Museum Berlin,
+ * in the drawer).
  */
 
 beforeAll(() => {
@@ -109,47 +110,65 @@ describe('the walk', () => {
     expect(screen.queryByRole('dialog', { name: 'The walk' })).toBeNull();
   });
 
-  it('walks slowly, a step at a time: the poster’s line at step 3, then the history a line a step, in order, each with its source', () => {
+  it('walks slowly, a step at a time: a line of the history and a picture at every step, from the first, in order, with no blank step', () => {
     jest.useFakeTimers();
     const walk = begin();
     const step = within(walk).getByRole('button', { name: 'Take a step' });
     const say = () => walk.querySelector('[role="status"]')!.textContent;
     fireEvent.click(step);
-    expect(say()).toBe('You step forward, onto the stones.');
+    expect(say()).toBe(WALK_LINES[0].text);
     // A step cannot be hurried: a second press while it is taken does nothing.
     fireEvent.click(step);
+    expect(walk.querySelector('[data-line]')).toHaveAttribute('data-step', '1');
     const next = () => {
       act(() => { jest.advanceTimersByTime(STEP_MS + 10); });
       fireEvent.click(step);
     };
-    for (let i = 1; i < LINE_AFTER; i++) next();
-    expect(say()).toBe(REMEMBRANCE_LINE);
-    expect(walk).toHaveTextContent(REMEMBRANCE_LINE);
-    for (const line of WALK_LINES.slice(0, 4)) {
-      next();
+    WALK_LINES.forEach((line, i) => {
+      if (i > 0) next();
       expect(say()).toBe(line.text);
       const words = walk.querySelector(`[data-line="${line.id}"]`)!;
       expect(words).toHaveTextContent(line.text);
-      for (const s of line.sources) expect(within(words as HTMLElement).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
-      // The picture ahead: the owner's slot, standing in until she supplies it.
-      expect(walk.querySelector(`[data-slot="${line.slot}"]`)).toBeInTheDocument();
-      expect(within(walk).getByRole('img', { name: line.image })).toBeInTheDocument();
-    }
+      // Its sources are in the drawer, not under the line.
+      expect(within(words as HTMLElement).queryByRole('link')).toBeNull();
+      // The picture ahead: the owner's slot, its placeholder standing in, marked as temporary.
+      const picture = walk.querySelector(`[data-slot="${line.slot}"]`)!;
+      expect(picture).toHaveAttribute('data-placeholder', line.placeholder);
+      expect(picture).toHaveTextContent('Picture to come');
+      expect(within(walk).getByRole('img', { name: `${line.image} (picture to come)` })).toBeInTheDocument();
+    });
+    // Past the last line, the path goes on: the last line and picture stay.
+    next();
+    expect(say()).toBe('The path goes on.');
+    expect(walk.querySelector(`[data-line="${WALK_LINES[31].id}"]`)).toHaveTextContent('The path goes on.');
+    expect(walk.querySelector(`[data-slot="${WALK_LINES[31].slot}"]`)).toBeInTheDocument();
   });
 
-  it('uses the owner’s picture once it is in its slot', () => {
+  it('lists every line’s source, by step, and the Kadishman credit, in the walk’s Sources drawer', () => {
+    const walk = begin();
+    expect(within(walk).queryByRole('link')).toBeNull();
+    fireEvent.click(within(walk).getByRole('button', { name: 'Sources' }));
+    const drawer = within(walk).getByRole('dialog', { name: 'Sources' });
+    expect(within(drawer).getByRole('link', { name: /Fallen Leaves/ })).toHaveAttribute('href', KADISHMAN_URL);
+    WALK_LINES.forEach((line, i) => {
+      const group = within(drawer).getByRole('heading', { name: `The walk, step ${i + 1}` }).closest('section')!;
+      for (const s of line.sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+    });
+    // Escape closes the drawer, and leaves the walk open.
+    fireEvent.keyDown(drawer, { key: 'Escape' });
+    expect(within(walk).queryByRole('dialog', { name: 'Sources' })).toBeNull();
+    expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
+  });
+
+  it('uses the owner’s picture once it is in its slot, under either name', () => {
     window.history.replaceState(null, '', '/#walk');
-    render(<NeverForget pictures={[WALK_LINES[0].slot]} />);
+    render(<NeverForget pictures={{ [WALK_LINES[0].slot]: 'walk-01.jpg' }} />);
     fireEvent.click(screen.getByRole('button', { name: 'Begin the walk' }));
-    expect(wordsForStep(LINE_AFTER + 1)).toEqual({ kind: 'line', line: WALK_LINES[0] });
+    expect(wordsForStep(1)).toEqual({ kind: 'line', line: WALK_LINES[0], end: false });
     const walk = screen.getByRole('dialog', { name: 'The walk' });
-    for (let i = 0; i <= LINE_AFTER; i++) {
-      act(() => { jest.spyOn(performance, 'now').mockReturnValue(1e6 + i * 10_000); });
-      fireEvent.click(within(walk).getByRole('button', { name: 'Take a step' }));
-    }
-    expect(within(walk).getByRole('img', { name: WALK_LINES[0].image })).toHaveAttribute('src', `/exhibitions/holocaust/walk/${WALK_LINES[0].slot}.webp`);
-    jest.restoreAllMocks();
-    jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(null);
+    fireEvent.click(within(walk).getByRole('button', { name: 'Take a step' }));
+    expect(within(walk).getByRole('img', { name: WALK_LINES[0].image })).toHaveAttribute('src', '/exhibitions/holocaust/walk/walk-01.jpg');
+    expect(within(walk).queryByText('Picture to come')).toBeNull();
   });
 
   it('keeps the sound off until the visitor turns it on', () => {
@@ -162,13 +181,16 @@ describe('the walk', () => {
     expect(walk.querySelector('[role="status"]')).toHaveTextContent('Sound is not available in this browser.');
   });
 
-  it('credits Menashe Kadishman’s Fallen Leaves, at the Jewish Museum Berlin', () => {
+  it('credits Menashe Kadishman’s Fallen Leaves, at the Jewish Museum Berlin, in the room’s Sources drawer', () => {
     window.history.replaceState(null, '', '/#walk');
     render(<NeverForget />);
+    expect(screen.queryByRole('link', { name: /Fallen Leaves/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
     const link = screen.getByRole('link', { name: /Fallen Leaves/ });
     expect(link).toHaveAttribute('href', KADISHMAN_URL);
     expect(KADISHMAN_URL).toBe('https://www.jmberlin.de/en/shalekhet-fallen-leaves');
-    expect(link.closest('p')).toHaveTextContent('Inspired by Menashe Kadishman’s Fallen Leaves (Shalekhet) at the Jewish Museum Berlin');
+    expect(link.closest('li')).toHaveTextContent('The walk is an original piece, inspired by: Menashe Kadishman, Fallen Leaves (Shalekhet), Jewish Museum Berlin');
+    expect(walkSourceGroups()).toHaveLength(WALK_LINES.length + 1);
   });
 
   it('walks on by itself only when motion is allowed, slowly enough to read', () => {
@@ -192,30 +214,49 @@ describe('the walk', () => {
 });
 
 describe('the walk’s lines and slots', () => {
-  it('has the 32 drafted lines, in order, each with a source, a picture slot and a part', () => {
+  it('has 32 short lines, in the order of the history, each with a source from Yad Vashem, the USHMM or the HMD Trust, a picture slot and a part', () => {
     expect(WALK_LINES.map((l) => l.id)).toEqual(Array.from({ length: 32 }, (_, i) => `W${i + 1}`));
     for (const l of WALK_LINES) {
       expect(l.sources.length).toBeGreaterThan(0);
+      for (const s of l.sources) expect(s.href).toMatch(/^https:\/\/(encyclopedia\.ushmm\.org|collections\.ushmm\.org|(www\.)?hmd\.org\.uk|www\.yadvashem\.org)\//);
       expect(l.slot).toMatch(/^w\d\d-[a-z-]+$/);
-      expect(MOTIFS).toContain(l.motif);
+      expect(PLACEHOLDERS).toContain(l.placeholder);
       expect(l.text.split(/\s+/).length).toBeLessThanOrEqual(30);
     }
+    // Every slot is used once, so every picture has one place.
     expect(new Set(WALK_LINES.map((l) => l.slot)).size).toBe(32);
-    expect(WALK_LINES.find((l) => l.id === 'W7')!.text).toBe('November 9–10, 1938. More than 1,400 synagogues were burned.');
+    expect(WALK_LINES.map((l) => slotNumber(l.slot)).sort((x, y) => x - y)).toEqual(Array.from({ length: 32 }, (_, i) => i + 1));
+    expect(WALK_LINES.find((l) => l.text.includes('synagogues'))!.text).toBe('November 9–10, 1938. More than 1,400 synagogues were burned.');
+    // In order: every year named comes no earlier than the last.
+    const years = WALK_LINES.map((l) => l.text.match(/\b(19[2-4]\d)\b/)?.[1]).filter(Boolean).map(Number);
+    expect(years).toEqual([...years].sort((x, y) => x - y));
+    expect(years[0]).toBe(1929);
+    expect(WALK_LINES[2].text).toMatch(/^In 1933/);
     // Objects and places only: no picture shows a person.
     expect(WALK_LINES.map((l) => l.image.replace(/\(no [^)]*\)/, '')).join(' ')).not.toMatch(/\b(person|people|child|man|woman|face|body|victim)\b/i);
     expect(WALK_LINES.map((l) => l.part)).toEqual([...Array(3).fill('before'), ...Array(21).fill('during'), ...Array(8).fill('after')]);
   });
 
-  it('finds the owner’s files when the page is built, and none are there yet', () => {
-    expect(walkSlotsOnDisk()).toEqual({ pictures: [], ambients: [] });
+  it('stands in with silhouettes of the agreed objects only, until the owner’s pictures come', () => {
+    expect([...SILHOUETTE_KINDS].sort()).toEqual([...PLACEHOLDERS].sort());
+    expect([...PLACEHOLDERS].sort()).toEqual(['candle', 'chair', 'door', 'shoes', 'suitcase', 'tracks']);
+  });
+
+  it('finds the owner’s files when the page is built, under the slot’s name or its number, and none are there yet', () => {
+    expect(walkSlotsOnDisk()).toEqual({ pictures: {}, ambients: [] });
+    expect(slotFiles('w07-broken-window')).toEqual(['w07-broken-window.webp', 'w07-broken-window.jpg', 'walk-07.jpg', 'walk-07.webp', 'walk-07.png']);
     expect(AMBIENTS.map(ambientSrc)).toEqual([
       '/exhibitions/holocaust/walk/sound/ambient-before.mp3',
       '/exhibitions/holocaust/walk/sound/ambient-during.mp3',
       '/exhibitions/holocaust/walk/sound/ambient-after.mp3',
     ]);
-    expect(lineForStep(LINE_AFTER, LINE_AFTER)).toBeNull();
-    expect(lineForStep(LINE_AFTER + 32, LINE_AFTER)).toBe(WALK_LINES[31]);
-    expect(lineForStep(LINE_AFTER + 33, LINE_AFTER)).toBeNull();
+    expect(lineForStep(0)).toBeNull();
+    expect(lineForStep(1)).toBe(WALK_LINES[0]);
+    expect(lineForStep(32)).toBe(WALK_LINES[31]);
+    expect(lineForStep(33)).toBeNull();
+    expect(shownLineForStep(0)).toBeNull();
+    expect(shownLineForStep(40)).toBe(WALK_LINES[31]);
+    expect(wordsForStep(0)).toEqual({ kind: 'none' });
+    expect(wordsForStep(32)).toEqual({ kind: 'line', line: WALK_LINES[31], end: true });
   });
 });
