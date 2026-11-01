@@ -2,8 +2,12 @@
 
 import { useState, useRef, useCallback, useEffect } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { srOnly, activateOnKey, prefersReducedMotion } from '@/lib/a11y';
 import { CITIES } from './cities';
+import { MIGRATION_SOURCES } from './sources';
+import { COAST_PLACES, CENTRAL_PATH, EAST_COAST_PATH, MUSIC_PATH, at, type LonLat } from './routes';
+import { MAP_H, MAP_W, RIVERS, STATES } from './usMap';
 import TicketPunch, { TicketStrip } from './TicketPunch';
 import { EMPTY_TICKET, answerTicket, type TicketState } from './ticket';
 
@@ -11,8 +15,8 @@ const AUDIO_BASE = '/exhibitions/harlem/audio/migration/';
 const PHOTO_BASE = '/exhibitions/harlem/images/migration/';
 
 const CITY_COLORS = [
-  { main: '#D4A847', light: '#E8D48B', dim: '#8B7535', bg: '#1C1608' },     // Delta — warm gold
   { main: '#5CBFAA', light: '#8DD9C9', dim: '#3D8072', bg: '#0A1C18' },     // New Orleans — teal
+  { main: '#D4A847', light: '#E8D48B', dim: '#8B7535', bg: '#1C1608' },     // Delta — warm gold
   { main: '#D4864A', light: '#E8B088', dim: '#8B5A32', bg: '#1C1008' },     // Memphis — amber
   { main: '#7BA3C7', light: '#A8C4DD', dim: '#526D86', bg: '#0C1420' },     // St. Louis — steel blue
   { main: '#D4645A', light: '#E89B94', dim: '#8B433C', bg: '#1C0C0A' },     // Chicago — brick red
@@ -30,15 +34,31 @@ const DOT_LABELS: Record<string, string> = {
   harlem: 'Harlem',
 };
 
-const ROUTE_PATH = 'M280,550 C290,530 305,515 310,505 Q315,480 295,440 Q290,425 285,410 Q280,390 278,370 Q275,350 275,330 Q280,290 310,260 Q330,240 345,225 Q360,200 370,170 Q375,160 370,155 Q390,140 430,115 Q470,95 510,75 Q550,55 580,42 Q595,37 610,35';
+// The map: the states, the Mississippi and the Ohio (usMap.ts), with every
+// stop and line placed by its real latitude and longitude (routes.ts).
+const ROUTE_PATH = MUSIC_PATH;
+
+/** Where each stop's name sits beside its dot, clear of its neighbours and the route. */
+const DOT_LABEL_AT: Record<string, { dx: number; dy: number; anchor: 'start' | 'end'; lines?: string[] }> = {
+  'new-orleans': { dx: 22, dy: 16, anchor: 'start', lines: ['New', 'Orleans'] },
+  delta: { dx: -22, dy: 2, anchor: 'end', lines: ['Mississippi', 'Delta'] },
+  memphis: { dx: 22, dy: 0, anchor: 'start' },
+  'st-louis': { dx: -22, dy: 0, anchor: 'end' },
+  chicago: { dx: -22, dy: -10, anchor: 'end' },
+  harlem: { dx: -4, dy: -26, anchor: 'start' },
+};
+
+/** Names of the seas and the lake, to find your way. */
+const WATER_LABELS: { name: string; at: LonLat }[] = [
+  { name: 'Gulf of Mexico', at: [-89.6, 27.3] },
+  { name: 'Atlantic Ocean', at: [-74.6, 33.6] },
+  { name: 'Lake Michigan', at: [-86.95, 43.6] },
+];
 
 // ─── How the people moved ─────────────────────────────────────────
 // The journey above follows the music. The people mostly took the railroad
 // nearest home: up the Atlantic coast to Washington, Philadelphia and New
-// York, or up the middle of the country to Chicago. Positions are schematic,
-// like the rest of this map.
-const EAST_COAST_PATH = 'M500,575 Q470,535 478,500 Q500,455 545,420 Q578,365 585,300 Q594,262 598,228 Q606,185 606,140 Q610,90 610,35';
-const CENTRAL_PATH = 'M280,550 Q300,480 285,410 Q290,300 330,230 Q352,190 370,155';
+// York, or up the middle of the country to Chicago on the Illinois Central.
 
 type PeopleRoute = { id: string; label: string; detail: string; color: string; path: string };
 const PEOPLE_ROUTES: PeopleRoute[] = [
@@ -58,14 +78,8 @@ const PEOPLE_ROUTES: PeopleRoute[] = [
   },
 ];
 
-const PEOPLE_PLACES: { name: string; x: number; y: number; anchor: 'start' | 'end' }[] = [
-  { name: 'Florida', x: 500, y: 575, anchor: 'start' },
-  { name: 'Georgia', x: 478, y: 500, anchor: 'start' },
-  { name: 'The Carolinas', x: 545, y: 420, anchor: 'start' },
-  { name: 'Virginia', x: 585, y: 300, anchor: 'start' },
-  { name: 'Washington', x: 598, y: 228, anchor: 'end' },
-  { name: 'Philadelphia', x: 606, y: 140, anchor: 'end' },
-];
+// Each named on the inland side of the line: the sea is on the other.
+const PEOPLE_PLACES: { name: string; x: number; y: number; anchor: 'start' | 'end' }[] = COAST_PLACES.map((pl) => ({ name: pl.name, ...at(pl.at), anchor: 'end' }));
 
 type RouteView = 'music' | 'people';
 
@@ -114,6 +128,7 @@ export default function MigrationMapPage() {
 
   const routePathRef = useRef<SVGPathElement>(null);
   const routeLengthRef = useRef(0);
+  const [chevrons, setChevrons] = useState<{ x: number; y: number; angle: number }[]>([]);
   const cityPathPositionsRef = useRef<number[]>([]);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const trainAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -130,7 +145,8 @@ export default function MigrationMapPage() {
   // Initialize route path positions
   useEffect(() => {
     const path = routePathRef.current;
-    if (!path) return;
+    // (No measuring in a browser without layout, such as a test's.)
+    if (!path || typeof path.getTotalLength !== 'function') return;
     const len = path.getTotalLength();
     routeLengthRef.current = len;
 
@@ -148,6 +164,14 @@ export default function MigrationMapPage() {
       positions.push(bestT);
     });
     cityPathPositionsRef.current = positions;
+    // A chevron midway along the route between each stop and the next, pointing the way.
+    setChevrons(positions.slice(1).map((t, k) => {
+      const mid = ((positions[k] + t) / 2) * len;
+      const a = path.getPointAtLength(mid);
+      const b = path.getPointAtLength(Math.min(len, mid + 2));
+      const angle = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI + 90;
+      return { x: Math.round(a.x * 10) / 10, y: Math.round(a.y * 10) / 10, angle: Math.round(angle) };
+    }));
   }, []);
 
   const stopMusic = useCallback(() => {
@@ -308,8 +332,8 @@ export default function MigrationMapPage() {
       const span = Math.max(dx, dy, 100);
       const scale = Math.min(2.5, Math.max(1.5, 300 / span));
       setMapZoom({
-        originX: (centerX / 700) * 100,
-        originY: (centerY / 620) * 100,
+        originX: (centerX / MAP_W) * 100,
+        originY: (centerY / MAP_H) * 100,
         scale,
       });
 
@@ -561,17 +585,27 @@ export default function MigrationMapPage() {
           overflow: visible;
         }
         .mg-map-svg-wrap svg {
-          width: 100%; height: auto; display: block;
+          width: 100%; height: auto; display: block; margin: 0 auto;
           max-height: calc(100vh - 140px);
           transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+          /* The map fades out at its edges, rather than stopping at a hard line. */
+          -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+          -webkit-mask-composite: source-in;
+          mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+          mask-composite: intersect;
         }
 
         /* Route */
         .mg-route-path { stroke: var(--mg-gold); stroke-width: 3; fill: none; opacity: 0.35; filter: drop-shadow(0 0 6px rgba(201,169,78,0.2)); }
         .mg-route-traveled { stroke: var(--mg-gold); stroke-width: 3.5; fill: none; opacity: 0.8; filter: drop-shadow(0 0 10px rgba(201,169,78,0.4)); }
-        .mg-route-chevrons { opacity: 0.15; }
-        .mg-water { fill: rgba(201,169,78,0.015); stroke: rgba(201,169,78,0.04); stroke-width: 0.5; }
-        .mg-state-outline { fill: none; stroke: rgba(201,169,78,0.04); stroke-width: 0.5; }
+        .mg-route-chevrons { opacity: 0.55; }
+        /* The map: dark land, faint state lines, the rivers in a muted blue, the seas left black */
+        .mg-state { fill: #15130e; stroke: rgba(201,169,78,0.28); stroke-width: 0.7; stroke-linejoin: round; }
+        .mg-river { fill: none; stroke: #3f6c86; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; opacity: 0.85; }
+        .mg-water-label {
+          font-family: 'Playfair Display', serif; font-style: italic; font-size: 12px;
+          fill: #6f8fa3; letter-spacing: 1px; pointer-events: none;
+        }
 
         /* City dots — each city has its own color from CITY_COLORS applied inline */
         .city-dot { cursor: pointer; outline: none; }
@@ -872,6 +906,11 @@ export default function MigrationMapPage() {
           font-size: 10px; color: var(--mg-text-dim);
           letter-spacing: 2px; font-weight: 300;
         }
+        /* Clear of the Sources and Map buttons in the bottom corners. */
+        .mg-footer { padding-inline: 84px; }
+        @media (max-width: 768px) {
+          .mg-footer { padding-bottom: 84px; }
+        }
 
         /* Return to map link in city view */
         .mg-return-map {
@@ -926,7 +965,10 @@ export default function MigrationMapPage() {
           .mg-city-columns { grid-template-columns: 1fr; gap: 24px; }
         }
         @media (max-width: 600px) {
-          .mg-city-body { padding: 16px 20px 32px; }
+          /* The map is drawn small on a phone: its words larger, to stay readable. */
+          .mg-city-label { font-size: 19px; letter-spacing: 1px; }
+          .mg-water-label { font-size: 17px; }
+          .mg-city-body { padding: 16px 20px 96px; }
           .mg-city-name { font-size: 28px; }
           .mg-city-text { font-size: 13px; }
           .mg-city-photo-wrap { height: 45vh; min-height: 260px; }
@@ -1041,6 +1083,9 @@ export default function MigrationMapPage() {
         }
       `}</style>
 
+      {/* Every source and picture credit, by stop, in one drawer (bottom left) */}
+      <SourcesDrawer groups={MIGRATION_SOURCES} />
+
       {/* Hidden audio */}
       <audio ref={trainAudioRef} preload="auto" src={AUDIO_BASE + 'train.mp3'} />
 
@@ -1089,10 +1134,11 @@ export default function MigrationMapPage() {
           <div className="mg-left-col">
             {routeView === 'music' ? (
               <div className="mg-intro">
+                {/* REVIEW (Verity): the last sentence is new, for the journey's new order (sources in routes.ts). */}
                 Between 1910 and 1940, over <em>1.5 million</em> African Americans left the rural South
                 and traveled north, carrying their music with them. This journey follows the music
-                &mdash; from the cotton fields of the Mississippi Delta, up the river to Chicago, and
-                on to the stages of Harlem.
+                &mdash; from New Orleans, up the Mississippi River through the cotton fields of the Delta,
+                north to Chicago, and on to the stages of Harlem.
               </div>
             ) : (
               <div className="mg-intro">
@@ -1106,19 +1152,26 @@ export default function MigrationMapPage() {
 
           <div className="mg-map-container">
           <div className="mg-map-svg-wrap">
-            <svg ref={svgRef} viewBox="0 0 700 620" xmlns="http://www.w3.org/2000/svg"
+            <svg ref={svgRef} viewBox={`0 0 ${MAP_W} ${MAP_H}`} xmlns="http://www.w3.org/2000/svg"
               style={{
                 transform: `scale(${mapZoom.scale})`,
                 transformOrigin: `${mapZoom.originX}% ${mapZoom.originY}%`,
               }}>
-              {/* Geography */}
-              <path d="M310,570 Q300,500 290,450 Q285,400 295,350 Q305,300 300,250 Q290,200 285,150 Q280,100 275,60" className="mg-water" strokeWidth="7" opacity="0.3" />
-              <ellipse cx="420" cy="130" rx="75" ry="35" className="mg-water" />
-              <path d="M230,480 L340,480 L340,580 L230,580 Z" className="mg-state-outline" />
-              <path d="M200,570 L340,570 L360,620 L180,620 Z" className="mg-state-outline" />
-              <path d="M200,370 L420,370 L420,420 L200,420 Z" className="mg-state-outline" />
-              <path d="M200,270 L360,270 L360,370 L200,370 Z" className="mg-state-outline" />
-              <path d="M310,150 L400,150 L400,300 L310,300 Z" className="mg-state-outline" />
+              {/* Geography: the states (U.S. Census Bureau outlines), the Mississippi and the Ohio, and the seas */}
+              <g aria-hidden="true">
+                {STATES.map((st) => (
+                  <path key={st.name} d={st.d} className="mg-state" data-state={st.name} />
+                ))}
+                {Object.entries(RIVERS).map(([name, d]) => (
+                  <path key={name} d={d} className="mg-river" data-river={name} />
+                ))}
+                {WATER_LABELS.map((w) => {
+                  const p = at(w.at);
+                  return (
+                    <text key={w.name} className="mg-water-label" x={p.x} y={p.y} textAnchor="middle">{w.name}</text>
+                  );
+                })}
+              </g>
 
               {/* Route paths */}
               <g className={routeView === 'people' ? 'mg-music-dim' : undefined}>
@@ -1133,15 +1186,11 @@ export default function MigrationMapPage() {
                 }}
               />
 
-              {/* Chevrons */}
-              <g className="mg-route-chevrons" fill="none" stroke="var(--mg-gold)" strokeWidth="1">
-                <path d="M295,490 l5,-7 l5,7" />
-                <path d="M287,420 l5,-7 l5,7" />
-                <path d="M278,340 l5,-7 l5,7" />
-                <path d="M325,245 l5,-7 l5,7" />
-                <path d="M365,160 l5,-6 l6,4" />
-                <path d="M470,95 l6,-4 l3,6" />
-                <path d="M555,50 l7,-3 l2,6" />
+              {/* Chevrons: which way the journey goes, midway between stops */}
+              <g className="mg-route-chevrons" fill="none" stroke="var(--mg-gold)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                {chevrons.map((c, k) => (
+                  <path key={k} d="M-5,4 L0,-3 L5,4" transform={`translate(${c.x},${c.y}) rotate(${c.angle})`} />
+                ))}
               </g>
               </g>
 
@@ -1196,26 +1245,17 @@ export default function MigrationMapPage() {
                     fill={cc.dim} stroke={cc.main} />
                   <circle className="mg-dot-inner" cx={c.cx} cy={c.cy} r="8"
                     fill={cc.main} />
-                  {c.id === 'delta' && (<>
-                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 22} textAnchor="end" fill={cc.dim}>Mississippi{' '}</text>
-                    <text className="mg-city-label" x={c.cx - 40} y={c.cy + 36} textAnchor="end" fill={cc.dim}>Delta</text>
-                  </>)}
-                  {c.id === 'new-orleans' && (<>
-                    <text className="mg-city-label" x={c.cx + 36} y={c.cy - 5} fill={cc.dim}>New{' '}</text>
-                    <text className="mg-city-label" x={c.cx + 36} y={c.cy + 9} fill={cc.dim}>Orleans</text>
-                  </>)}
-                  {c.id === 'memphis' && (
-                    <text className="mg-city-label" x={c.cx - 44} y={c.cy + 4} textAnchor="end" fill={cc.dim}>Memphis</text>
-                  )}
-                  {c.id === 'st-louis' && (
-                    <text className="mg-city-label" x={c.cx - 44} y={c.cy + 4} textAnchor="end" fill={cc.dim}>St. Louis</text>
-                  )}
-                  {c.id === 'chicago' && (
-                    <text className="mg-city-label" x={c.cx - 44} y={c.cy - 4} textAnchor="end" fill={cc.dim}>Chicago</text>
-                  )}
-                  {c.id === 'harlem' && (
-                    <text className="mg-city-label" x={c.cx - 44} y={c.cy - 6} textAnchor="end" fill={cc.dim}>Harlem</text>
-                  )}
+                  {(() => {
+                    const l = DOT_LABEL_AT[c.id];
+                    const lines = l.lines ?? [DOT_LABELS[c.id] ?? c.name];
+                    return (
+                      <text className="mg-city-label" x={c.cx + l.dx} y={c.cy + l.dy} textAnchor={l.anchor} fill={cc.light}>
+                        {lines.map((line, n) => (
+                          <tspan key={line} x={c.cx + l.dx} dy={n === 0 ? `${0.35 - (lines.length - 1) * 0.55}em` : '1.1em'}>{line}</tspan>
+                        ))}
+                      </text>
+                    );
+                  })()}
                 </g>
                 );
               })}
@@ -1232,7 +1272,7 @@ export default function MigrationMapPage() {
                   see the photographs, and trace the path the music took north.
                 </p>
                 <button ref={boardBtnRef} className="mg-board-btn" onClick={startJourney}>
-                  {'\u25C6'} Begin in the Delta {'\u25C6'}
+                  {'\u25C6'} Begin in New Orleans {'\u25C6'}
                 </button>
                 <button type="button" className="mg-pace-btn" aria-pressed={quickTrips} onClick={toggleQuickTrips}>
                   Quick trips between stops: {quickTrips ? 'on' : 'off'}
@@ -1303,7 +1343,7 @@ export default function MigrationMapPage() {
               <div className="mg-city-station-badge">Stop {currentCityIdx + 1} of 6</div>
             </div>
 
-            <div className="mg-city-photo-credit">{city.photoCredit}</div>
+            <div className="mg-city-photo-credit">{city.photoCaption}</div>
 
             <div className="mg-city-body">
               <div className="mg-city-stop-number">Stop {currentCityIdx + 1}</div>

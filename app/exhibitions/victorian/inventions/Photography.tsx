@@ -180,13 +180,12 @@ export default function Photography({ reduced }: { reduced: boolean }) {
   const donePrinting = useCallback(() => setPrinting(false), []);
   usePrintSheet(printing, donePrinting);
 
-  // Each part's notes and the credits of its photographs, behind "Did you know?".
+  // Each part's notes, behind "Did you know?" (their sources, and the photographs' credits, in the Sources drawer).
   const facts =
     part === 'print' ? [NOTES.negative, ...(hasNegative ? [NOTES.calotype] : []), ...(prints > 0 ? [NOTES.sunPrint, NOTES.positives] : [])]
     : part === 'still' ? [NOTES.exposure, NOTES.clamp, ...(sitting === 'done' ? [NOTES.prunes] : [])]
     : part === 'three' ? (justMatched && current.photo === 'cameron' ? [NOTES.cameron] : [])
     : [NOTES.positives];
-  const credits: PhotoId[] = part === 'print' ? ['negative'] : part === 'still' ? ['daguerreotype'] : part === 'three' ? ['daguerreotype', 'openDoor', 'cameron'] : ['negative', 'daguerreotype', 'openDoor', 'cameron'];
 
   const choosePart = (p: PhotoPart) => {
     setPart(p);
@@ -415,11 +414,7 @@ export default function Photography({ reduced }: { reduced: boolean }) {
           )}
         </div>
 
-        <CardFoot facts={facts} poster={POSTER.innovations} reset={part}>
-          {credits.map((c) => (
-            <Credit key={c} id={c} extra={c === 'negative' ? POSITIVE.note : undefined} />
-          ))}
-        </CardFoot>
+        <CardFoot facts={facts} poster={POSTER.innovations} reset={part} />
       </div>
       <p className="vbr-status" role="status" aria-live="polite">
         {status}
@@ -433,23 +428,6 @@ export default function Photography({ reduced }: { reduced: boolean }) {
           document.body,
         )}
     </div>
-  );
-}
-
-/** A photograph's credit, linked to its record at the Met; `extra` for the room's own print made from it. */
-function Credit({ id, extra }: { id: PhotoId; extra?: string }) {
-  const p = PHOTOS[id];
-  return (
-    <p className="vbr-fact vbi-credit">
-      <span className="vbr-fact-text">
-        Photograph: {p.maker}, <em>{p.title}</em>, {p.date}. {p.medium}.{extra ? ` ${extra}` : ''}
-      </span>{' '}
-      <span className="vbr-fact-source">
-        <a href={p.href} target="_blank" rel="noopener noreferrer">
-          {MET_CREDIT}
-        </a>
-      </span>
-    </p>
   );
 }
 

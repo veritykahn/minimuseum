@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import VictorianInventions from '@/app/exhibitions/victorian/inventions/page';
 import { BRISTOL_CLOCK, INCOMING, MAP_TOWNS, MORSE, NOTES, PHOTOS, PLYMOUTH, POSITIVE, PROCESS_CLUES, RAIL_STEPS, READ_WORDS, SEND_WORDS, STATIONS, TELEGRAM, TRAIN_PUZZLES, WIRE_STEPS, blurFor, verdictFor } from '@/app/exhibitions/victorian/inventions/inventionsText';
+import { INVENTIONS_SOURCES, RAIL_FACTS, WIRE_FACTS } from '@/app/exhibitions/victorian/inventions/sources';
 import { DIAL, DIAL_LETTERS, DIAL_ROWS, MAP, catchTrain, clockTime, dragMinute, hands, morseTimeline, needleAngles, oldMoney, onDial, project, spell, sunTimeAt, sunX, telegramCost, telegramWords, toMorse } from '@/app/exhibitions/victorian/inventions/workshop';
 
 /*
@@ -37,6 +38,14 @@ afterEach(() => {
 });
 
 const at = (hash = '') => window.history.replaceState(null, '', `/exhibitions/victorian/inventions${hash}`);
+
+/** The workshop's Sources drawer, opened, and the group whose heading starts so. */
+const sourcesFor = (title: string) => {
+  if (!screen.queryByRole('dialog', { name: 'Sources' })) fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+  const drawer = screen.getByRole('dialog', { name: 'Sources' });
+  return within(drawer).getByRole('heading', { name: new RegExp(`^${title.replace(/[()]/g, '\\$&')}`) }).closest('section') as HTMLElement;
+};
+const closeSources = () => fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
 /** Jumps a bench's card to one of its steps, by its numbered dot. */
 const goStep = (n: number) => fireEvent.click(screen.getByRole('button', { name: new RegExp(`^Step ${n}: `) }));
 const railStep = (id: (typeof RAIL_STEPS)[number]['id']) => goStep(RAIL_STEPS.findIndex((s) => s.id === id) + 1);
@@ -45,6 +54,18 @@ function openFacts() {
   fireEvent.click(screen.getByRole('button', { name: /Did you know\?/ }));
   return screen.getByRole('region', { name: 'Did you know?' });
 }
+
+describe('the workshop’s Sources drawer', () => {
+  it('lists every note’s source and every photograph’s credit, bench by bench and step by step, and none inline', () => {
+    const drawn = INVENTIONS_SOURCES.flatMap((g) => g.items.map((i) => i.href));
+    for (const note of Object.values(NOTES)) for (const s of note.sources) expect(drawn).toContain(s.href);
+    for (const p of Object.values(PHOTOS)) expect(drawn).toContain(p.href);
+    expect(INVENTIONS_SOURCES.map((g) => g.title)).toEqual(expect.arrayContaining(RAIL_STEPS.map((s, i) => `The railway, step ${i + 1}: ${s.title}`)));
+    // The benches read their notes from the same map as the drawer.
+    for (const s of RAIL_STEPS) expect(RAIL_FACTS[s.id].length).toBeGreaterThan(0);
+    for (const s of WIRE_STEPS) expect(WIRE_FACTS[s.id].length).toBeGreaterThan(0);
+  });
+});
 
 describe('the workshop’s new notes', () => {
   it('sets each new sentence with its source: RMG, Bristol City Council, BT Archives and the Science Museum Group', () => {
@@ -240,7 +261,11 @@ describe('railway time: the traveller, the train and the clocks', () => {
     expect(clock).toHaveAccessibleName(expect.stringContaining('The red hand shows London time'));
     const facts = openFacts();
     expect(within(facts).getByText(NOTES.bristolClock.text)).toBeInTheDocument();
-    expect(within(facts).getByRole('link', { name: /Bristol City Council/ })).toHaveAttribute('href', NOTES.bristolClock.sources[0].href);
+    // Its source is in the workshop's Sources drawer, under the step.
+    expect(within(facts).queryByRole('link')).toBeNull();
+    const group = sourcesFor('The railway, step 5');
+    expect(within(group).getByRole('link', { name: /Bristol City Council/ })).toHaveAttribute('href', NOTES.bristolClock.sources[0].href);
+    closeSources();
     expect(within(facts).getByText(NOTES.legalTime.text)).toBeInTheDocument();
   });
 
@@ -430,7 +455,10 @@ describe('telegrams in International Morse code', () => {
     expect((box as HTMLTextAreaElement).value.trim().split(/\s+/)).toHaveLength(TELEGRAM.maxWords);
     const facts = openFacts();
     expect(within(facts).getByText(NOTES.telegramPrice.text)).toBeInTheDocument();
-    expect(within(facts).getAllByRole('link', { name: /BT Archives/ })).toHaveLength(2);
+    expect(within(facts).queryByRole('link')).toBeNull();
+    // The two notes share one BT Archives source: the drawer lists it once.
+    expect(within(sourcesFor('The telegraph: send a telegram')).getAllByRole('link', { name: /BT Archives/ })).toHaveLength(1);
+    closeSources();
   });
 
   it('taps it out letter by letter, the chart lighting each letter’s code; a wrong tap starts that letter again', () => {
@@ -609,8 +637,12 @@ describe('photography, in four parts', () => {
     expect(screen.getByText('2 prints from the one negative.')).toBeInTheDocument();
     const facts = openFacts();
     for (const n of [NOTES.negative, NOTES.calotype, NOTES.sunPrint, NOTES.positives]) expect(within(facts).getByText(n.text)).toBeInTheDocument();
-    expect(within(facts).getByText(/Made for this room from Talbot’s negative/)).toBeInTheDocument();
-    expect(within(facts).getByRole('link', { name: 'The Metropolitan Museum of Art, public domain' })).toHaveAttribute('href', PHOTOS.negative.href);
+    // The photograph's credit (and the room's print made from it) is in the Sources drawer, not under the notes.
+    expect(within(facts).queryByText(/Made for this room from Talbot’s negative/)).toBeNull();
+    const group = sourcesFor('Photography: Negative to print');
+    expect(within(group).getByRole('link', { name: /Made for this room from Talbot’s negative/ })).toHaveAttribute('href', PHOTOS.negative.href);
+    expect(within(group).getByText(/The Metropolitan Museum of Art, public domain/)).toBeInTheDocument();
+    closeSources();
   });
 
   it('under reduced motion, makes each sheet at once', () => {

@@ -765,7 +765,8 @@ export default function JazzLabPage() {
         /* ── Footer ── */
         .jl-footer {
           text-align: center;
-          padding: 20px 20px 40px;
+          /* Clear of the Map button in the corner. */
+          padding: 20px 84px 88px;
           font-family: 'Josefin Sans', sans-serif;
           font-size: 11px;
           color: var(--jl-text-dim);

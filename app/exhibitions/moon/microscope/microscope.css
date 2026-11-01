@@ -520,6 +520,26 @@
   .mo-knob { width: 88px; height: 88px; }
 }
 
+/* A small laptop or an iPad on its side (1024 × 768): a smaller eyepiece and closer controls, so the three columns fit side by side, on one screen, clear of the corner buttons. */
+@media (min-width: 761px) and (max-width: 1100px) and (orientation: landscape) {
+  .mo-ms-bar { padding-left: 90px; padding-right: 90px; }
+  .mo-ms-step { font-size: 15px; padding-right: 10px; gap: 6px; }
+  .mo-ms-body {
+    --eye: min(44dvh, 28vw, 640px);
+    grid-template-columns: minmax(232px, 250px) auto minmax(0, 1fr);
+    gap: 22px;
+    padding: 4px 24px 86px;
+  }
+  .mo-ms-tools { gap: 10px; }
+  .mo-ms-pad { grid-template-columns: repeat(3, 44px); grid-template-rows: repeat(3, 44px); }
+  .mo-room .mo-ms-pad .mo-ms-round { min-height: 44px; width: 44px; height: 44px; }
+  .mo-knob { width: 80px; height: 80px; }
+  .mo-ms-tool { gap: 6px; }
+  .mo-ms-hand { flex-wrap: nowrap; }
+  .mo-room .mo-ms-chip { min-height: 44px; padding: 0 12px; font-size: 14px; }
+  .mo-ms-panel { gap: 12px; }
+}
+
 /* ───────── An iPad held upright, or a phone: one column, down the page ───────── */
 @media (max-width: 1100px) and (orientation: portrait), (max-width: 760px) {
   .mo-ms-stage { height: auto; min-height: 100dvh; overflow: visible; }
@@ -530,7 +550,8 @@
     flex-direction: column;
     align-items: center;
     gap: 26px;
-    padding: 16px 24px 48px;
+    /* Room at the end to scroll the last controls clear of the Sources and Map buttons. */
+    padding: 16px 24px 96px;
   }
   .mo-ms-tools { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 24px 36px; width: 100%; }
   .mo-ms-panel { width: min(100%, 720px); max-height: none; overflow: visible; padding: 0; }
@@ -547,7 +568,7 @@
     grid-template-areas: 'scope scope' 'tools panel';
     align-items: start;
     gap: 28px 32px;
-    padding: 12px 32px 48px;
+    padding: 12px 32px 96px;
   }
   .mo-ms-tools { flex-direction: column; align-items: center; flex-wrap: nowrap; }
   .mo-ms-panel { width: 100%; }
@@ -562,7 +583,7 @@
   .mo-ms-step .mo-ms-step-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   .mo-ms-step.is-now { padding-right: 12px; }
   .mo-ms-step.is-now .mo-ms-step-label { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
-  .mo-ms-body { --eye: min(84vw, 46dvh); padding: 8px 16px 40px; gap: 22px; }
+  .mo-ms-body { --eye: min(84vw, 46dvh); padding: 8px 16px 96px; gap: 22px; }
   .mo-ms-eyepiece { margin-top: 20px; }
   .mo-ms-tools { gap: 22px 18px; }
   .mo-ms-tool { flex: 1 1 100%; }

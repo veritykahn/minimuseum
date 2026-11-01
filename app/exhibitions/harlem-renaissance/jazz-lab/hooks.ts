@@ -250,7 +250,7 @@ export function bandVolume(id: BandInstrumentId, spotlight: BandInstrumentId | n
  */
 export function useBandBuilder(audio: AudioEngine, { preload = true }: { preload?: boolean } = {}) {
   const [active, setActive] = useState<Set<BandInstrumentId>>(new Set());
-  const [section, setSection] = useState(3); // Piano Solo — all 6 instruments available
+  const [section, setSection] = useState(1); // A tune starts at its Intro
   const [spotlight, setSpotlight] = useState<BandInstrumentId | null>(null);
   const [lastTouched, setLastTouched] = useState<BandInstrumentId | null>(null);
 

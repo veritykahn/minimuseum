@@ -171,6 +171,9 @@ export default function DollTest({ active = true }: { active?: boolean }) {
   const [i, setI] = useState(0);
   const [notes, setNotes] = useState(false);
   const stepRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  // A step longer than the screen scrolls in its own column, and says so with an arrow until the end is in view.
+  const wordsRef = useRef<HTMLElement>(null);
+  const [more, setMore] = useState(false);
   const fullscreen = useSyncExternalStore(subscribeFullscreen, isFullscreen, () => false);
   const fullscreenOk = useSyncExternalStore(subscribeFullscreen, canFullscreen, () => false);
   const step = DOLL_TEST_STEPS[i];
@@ -209,6 +212,21 @@ export default function DollTest({ active = true }: { active?: boolean }) {
     return () => window.removeEventListener('keydown', onWindowKey);
   }, [active]);
 
+  useEffect(() => {
+    const el = wordsRef.current;
+    if (!el || !active) return;
+    const check = () => setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+    check();
+    el.addEventListener('scroll', check, { passive: true });
+    const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(check);
+    ro?.observe(el);
+    if (el.firstElementChild) ro?.observe(el.firstElementChild);
+    return () => {
+      el.removeEventListener('scroll', check);
+      ro?.disconnect();
+    };
+  }, [i, notes, active]);
+
   const toggleFullscreen = () => {
     if (document.fullscreenElement) void document.exitFullscreen?.();
     else void document.documentElement.requestFullscreen?.().catch(() => {});
@@ -222,7 +240,7 @@ export default function DollTest({ active = true }: { active?: boolean }) {
         <div className="bhr-test-art" key={`p-${step.id}`}>
           <Picture kind={step.picture} />
         </div>
-        <section className="bhr-test-words" key={`w-${step.id}`} aria-labelledby="bhr-step-heading" tabIndex={0}>
+        <section className="bhr-test-words" key={`w-${step.id}`} ref={wordsRef} data-more={more || undefined} aria-labelledby="bhr-step-heading" tabIndex={0}>
           <p className="bhr-step-count" aria-hidden="true">
             Step {i + 1} of {DOLL_TEST_STEPS.length}
           </p>
@@ -258,6 +276,7 @@ export default function DollTest({ active = true }: { active?: boolean }) {
               </ul>
             </aside>
           )}
+          <span className="bhr-more" aria-hidden="true">&#8595;</span>
         </section>
       </div>
 

@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type Reac
 import { createPortal } from 'react-dom';
 import Celebrate from '../Celebrate';
 import { usePrintSheet } from '../usePrintSheet';
-import { INCOMING, MORSE, NOTES, POSTER, TELEGRAM, TELEGRAM_IDEAS } from './inventionsText';
+import { INCOMING, MORSE, POSTER, TELEGRAM, TELEGRAM_IDEAS } from './inventionsText';
+import { RECEIVE_FACTS, SEND_FACTS } from './sources';
 import { CardFoot, StepDots } from './Steps';
 import { marks, morseTimeline, oldMoney, spoken, telegramCost, telegramWords, toMorse } from './workshop';
 
@@ -301,7 +302,7 @@ export default function TelegramBench({ mode, reduced, modes }: { mode: Telegram
 
   const chartPick = mode === 'receive' ? guess : undefined;
 
-  const sendFacts = step === 0 ? [NOTES.telegramPrice, NOTES.telegramForm] : step === 1 ? [NOTES.morse, NOTES.morseBritain] : [NOTES.telegramForm];
+  const sendFacts = SEND_FACTS[step];
 
   return (
     <div className="vbi-bench vbi-telegram">
@@ -514,7 +515,7 @@ export default function TelegramBench({ mode, reduced, modes }: { mode: Telegram
                 </button>
               )}
             </div>
-            <CardFoot facts={[NOTES.morse, NOTES.morseBritain, NOTES.telegramForm]} poster={POSTER.innovations} reset={inN} />
+            <CardFoot facts={RECEIVE_FACTS} poster={POSTER.innovations} reset={inN} />
           </>
         )}
       </div>
