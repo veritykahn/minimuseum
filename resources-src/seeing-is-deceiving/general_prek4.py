@@ -121,7 +121,7 @@ GUIDE_CSS = COMMON_CSS + """
 """
 
 GUIDE = {
-  "out": "Teaching Guide_ Optical Illusions & Visual Deception.pdf", "eyebrow": "Teaching guide",
+  "out": "Teaching-Guide-Optical-Illusions-and-Visual-Deception.pdf", "eyebrow": "Teaching guide",
   "title": "Optical Illusions & Visual Deception",
   "sub": "A comprehensive guide for educators using the Mini Museum exhibition to teach critical thinking, media literacy, and the science of perception.",
   "foot": "Teaching Guide", "css": GUIDE_CSS,
@@ -327,7 +327,7 @@ PARENT_CSS = GUIDE_CSS + """
 """
 
 PARENT = {
-  "out": "parents/Parent Resource Guide_ Optical Illusions & Visual Deception.pdf", "eyebrow": "Parent resource guide",
+  "out": "parents/Parent-Resource-Guide-Optical-Illusions-and-Visual-Deception.pdf", "eyebrow": "Parent resource guide",
   "title": "Optical Illusions & Visual Deception",
   "sub": "Resources to explore with your child at home",
   "foot": "Parent Resource Guide", "css": PARENT_CSS,
