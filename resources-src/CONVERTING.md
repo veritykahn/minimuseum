@@ -60,7 +60,7 @@ Every document gets a `"hero"` from the exhibition's own folder in
 
 - **Seeing is Deceiving** (`/exhibitions/seeing/`): `poster1.jpg`,
   `poster2.jpg`, and the illusion images (`balcony.jpg`, `rubins-vase.jpg`,
-  `fraser-spiral.jpg`, `chromostereopsis.jpg`, `rotating-snakes.jpg`,
+  `fraser-spiral.jpg`, `rotating-snakes.jpg`,
   `ponzo-corridor.jpg`, `impossible-trident.jpg`, `waves.jpg`…). Choose one
   that suits the document (Ponzo for a math lesson on perspective, Rubin's
   vase for the parent guide, and so on). No credit line.
