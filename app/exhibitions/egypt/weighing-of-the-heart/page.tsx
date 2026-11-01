@@ -1,154 +1,328 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import FactNote from '@/components/exhibition/FactNote';
-import RoomShell, { RoomHeader } from '../RoomShell';
+import RoomShell, { RoomHeader, TombDoor } from '../RoomShell';
+import { markDone } from '../tombState';
 import Scales from './Scales';
-import { DEEDS, JUDGEMENT_NOTES, MISTAKES_ALLOWED, tilt, verdict, type Deed } from './judgement';
+import { CHAPTERS, DEEDS, FIGURES, HEART_WORDS, JUDGEMENT_NOTES, MY_CHOICES, PAPYRI, TIP, WEIGHING_SOURCES, wouldTip, type FigureId } from './judgement';
 import './weighing.css';
 
 /*
- * The Weighing of the Heart, on one screen: the hall of judgement on the
- * left, and on the right the scribe Ani's deeds, one card at a time. Sort
- * each by what Ani says of it before the judges; then read his own words.
- * Right answers lighten his heart toward the feather, wrong ones weigh it
- * down and bring Ammit closer. The facts are museum notes with their sources
- * (judgement.ts); the hall is drawn, not photographed.
+ * The Weighing of the Heart, told as a story in six chapters, each with
+ * Back and Next in one place: the two papyri that show it (Ani's and
+ * Hunefer's, which is which); the hall and who is in it; Ani's heart on
+ * the scales; Ani's words to the judges, one deed at a time; the verdict;
+ * and, last, a quiet look at the visitor's own good choices. The scales
+ * start level. At each turn the visitor predicts what they will do, and
+ * then they move (judgement.ts). Nothing is scored, and nothing frightens.
  */
 
-type Answer = { deed: Deed; chose: Deed['kind']; right: boolean };
+type Phase = 'speak' | 'predict' | 'shown';
+type Guess = 'level' | 'tip';
 
 export default function WeighingOfTheHeart() {
-  const [answers, setAnswers] = useState<Answer[]>([]);
-  const [started, setStarted] = useState(false);
-  const [showing, setShowing] = useState(false);
-  const panelRef = useRef<HTMLHeadingElement>(null);
-  const right = answers.filter((a) => a.right).length;
-  const wrong = answers.length - right;
-  const state = verdict(right, wrong);
-  const current = DEEDS[answers.length];
-  const last = answers[answers.length - 1];
+  const [chapter, setChapter] = useState(0);
+  const [focus, setFocus] = useState<FigureId | null>(null);
+  const [heartGuess, setHeartGuess] = useState<Guess | null>(null);
+  const [deed, setDeed] = useState(0);
+  const [phase, setPhase] = useState<Phase>('speak');
+  const [spokeWrong, setSpokeWrong] = useState(false);
+  const [guess, setGuess] = useState<Guess | null>(null);
+  const [tilt, setTilt] = useState(0);
+  const [mine, setMine] = useState<string[]>([]);
+  const [status, setStatus] = useState('');
+  const heading = useRef<HTMLHeadingElement>(null);
+  const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const id = CHAPTERS[chapter].id;
+  const current = DEEDS[deed];
+  const wordsDone = deed === DEEDS.length - 1 && phase === 'shown';
 
-  const choose = (kind: Deed['kind']) => {
-    if (!current || showing) return;
-    setAnswers((a) => [...a, { deed: current, chose: kind, right: current.kind === kind }]);
-    setShowing(true);
+  useEffect(() => () => {
+    if (settle.current) clearTimeout(settle.current);
+  }, []);
+  // The verdict reached: the tomb remembers the scales balanced.
+  useEffect(() => {
+    if (id === 'verdict') markDone('weighing');
+  }, [id]);
+
+  /** Tip the scales, then let them settle level again. */
+  const tipThenSettle = (deg: number, after: string) => {
+    if (settle.current) clearTimeout(settle.current);
+    setTilt(deg);
+    settle.current = setTimeout(() => {
+      setTilt(0);
+      setStatus(after);
+    }, 1700);
   };
-  const next = () => {
-    setShowing(false);
-    panelRef.current?.focus();
+
+  const go = (i: number) => {
+    const to = Math.max(0, Math.min(CHAPTERS.length - 1, i));
+    if (settle.current) clearTimeout(settle.current);
+    setTilt(0);
+    setFocus(null);
+    setChapter(to);
+    setStatus(`Chapter ${to + 1} of ${CHAPTERS.length}: ${CHAPTERS[to].name}.`);
+    heading.current?.focus();
   };
+
+  const predictHeart = (g: Guess) => {
+    setHeartGuess(g);
+    tipThenSettle(4, 'The scales wobble, then settle perfectly level.');
+    setStatus(g === 'level' ? 'Yes: the scales stay level.' : 'Good guess, but look: the scales stay level.');
+  };
+
+  const speak = (kind: 'never' | 'did') => {
+    if (kind === current.kind) {
+      setSpokeWrong(false);
+      setPhase('predict');
+      setStatus(`Ani says: ${current.quote}`);
+    } else {
+      setSpokeWrong(true);
+      setStatus('Think again: is this something kind, or something unkind?');
+    }
+  };
+
+  const predict = (g: Guess) => {
+    setGuess(g);
+    setPhase('shown');
+    if (wouldTip(current)) {
+      setStatus('If Ani had done this, the scales would tip out of balance.');
+      tipThenSettle(TIP, 'But Ani never did it. The scales settle level again.');
+    } else {
+      setStatus('A good deed keeps the scales level.');
+      tipThenSettle(3, 'The scales stay level.');
+    }
+  };
+
+  const nextDeed = () => {
+    if (deed >= DEEDS.length - 1) return;
+    if (settle.current) clearTimeout(settle.current);
+    setTilt(0);
+    setDeed(deed + 1);
+    setPhase('speak');
+    setGuess(null);
+    setSpokeWrong(false);
+    setStatus(`Deed ${deed + 2} of ${DEEDS.length}.`);
+  };
+
   const again = () => {
-    setAnswers([]);
-    setShowing(false);
-    setStarted(true);
-    panelRef.current?.focus();
+    setHeartGuess(null);
+    setDeed(0);
+    setPhase('speak');
+    setGuess(null);
+    setMine([]);
+    go(0);
   };
 
-  const closeness = Math.min(4, wrong);
-  const t = tilt(right, wrong);
-  const finished = state !== 'weighing' && !showing;
-  const status = showing && last
-    ? `${last.right ? 'Right.' : 'Not quite.'} Ani says: ${last.deed.quote} The heart ${last.right ? 'grows lighter' : 'grows heavier'}.`
-    : finished
-      ? state === 'balanced'
-        ? 'The scales balance. Thoth writes down the result.'
-        : 'The heart is heavier than the feather. Ammit waits.'
-      : '';
+  const canGoOn = id === 'heart' ? heartGuess !== null : id === 'words' ? wordsDone : true;
+  const right = guess !== null && (guess === 'tip') === wouldTip(current);
 
   return (
-    <RoomShell className="eg-weighing">
+    <RoomShell className="eg-weighing" sources={WEIGHING_SOURCES}>
       <RoomHeader kicker="Interactive · The hall of judgement" title="The Weighing of the Heart">
-        <p className="egr-lede">The scribe Ani stands before the judges. His heart will be weighed against the feather of Maat. Help him speak his words.</p>
+        <p className="egr-lede">Follow the scribe Ani through his judgement. As the story goes on, guess what the scales will do.</p>
       </RoomHeader>
 
+      <ol className="egw-chapters" aria-label="The story">
+        {CHAPTERS.map((c, i) => (
+          <li key={c.id} className={i === chapter ? 'is-here' : i < chapter ? 'is-past' : ''} aria-current={i === chapter ? 'step' : undefined}>
+            <span aria-hidden="true">{i + 1}</span> {c.name}
+          </li>
+        ))}
+      </ol>
+
       <div className="egr-layout">
-        <div className="egr-scene egw-hall" data-state={state} data-tension={Math.min(3, wrong)}>
-          <Scales tilt={t} closeness={closeness} verdict={finished ? state : 'weighing'} />
+        <div className="egr-scene egw-hall" data-chapter={id}>
+          <Scales tilt={tilt} heart={id !== 'papyri' && id !== 'hall'} focus={focus} balanced={id === 'verdict' || id === 'you'} />
           <p className="egw-reading" aria-hidden="true">
-            {finished && state === 'balanced' ? 'Balanced' : t > 0 ? 'The heart is heavier' : ''}
+            {tilt >= TIP ? 'Out of balance' : tilt === 0 && id !== 'papyri' ? 'Level' : ''}
           </p>
-          <div
-            className="egw-meter"
-            role="meter"
-            aria-label="Ani’s deeds sorted"
-            aria-valuemin={0}
-            aria-valuemax={DEEDS.length}
-            aria-valuenow={answers.length}
-            aria-valuetext={`${answers.length} of ${DEEDS.length} sorted, ${right} right`}
-          >
-            {DEEDS.map((d, i) => (
-              <span key={d.id} className={i < answers.length ? (answers[i].right ? 'is-right' : 'is-wrong') : ''} />
-            ))}
-          </div>
+          {id === 'you' && mine.length > 0 && (
+            <ul className="egw-mine" aria-label="Your good choices">
+              {mine.map((m) => (
+                <li key={m}>{m}</li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        <section className="egr-panel egw-panel" aria-labelledby="egw-panel-heading">
-          <h2 id="egw-panel-heading" ref={panelRef} tabIndex={-1}>
-            {!started ? 'Before the judges' : finished ? (state === 'balanced' ? 'The scales balance' : 'The heart is too heavy') : `Deed ${Math.min(answers.length + (showing ? 0 : 1), DEEDS.length)} of ${DEEDS.length}`}
-          </h2>
+        <section className="egr-panel egr-stepper egw-panel" aria-labelledby="egw-panel-heading">
+          <div className="egr-step-body">
+            <p className="egr-label">
+              Chapter {chapter + 1} of {CHAPTERS.length}
+            </p>
 
-          {!started && (
-            <>
-              <p>For each deed, choose what Ani tells the judges: is it a wrong he swears he <strong>never did</strong>, or a good deed he says he <strong>did</strong>?</p>
-              <FactNote fact={JUDGEMENT_NOTES.scales} className="egr-fact" />
-              <div className="egr-actions">
-                <button type="button" className="egr-button egr-button-primary" onClick={again}>
-                  Begin the weighing
-                </button>
-              </div>
-            </>
-          )}
+            {id === 'papyri' && (
+              <>
+                <h2 id="egw-panel-heading" ref={heading} tabIndex={-1}>
+                  Two papyri, one story
+                </h2>
+                <p>Two famous papyri in the British Museum show the weighing of the heart. They were made for two different men.</p>
+                <div className="egw-papyri">
+                  <article className="egw-papyrus">
+                    <p className="egr-label">EA 10470</p>
+                    <h3>The Papyrus of Ani</h3>
+                    <FactNote fact={PAPYRI.ani} className="egr-fact" />
+                  </article>
+                  <article className="egw-papyrus">
+                    <p className="egr-label">EA 9901</p>
+                    <h3>The Book of the Dead of Hunefer</h3>
+                    <FactNote fact={PAPYRI.hunefer} className="egr-fact" />
+                  </article>
+                </div>
+              </>
+            )}
 
-          {started && !finished && !showing && current && (
-            <>
-              <p className="egw-deed">{current.label}</p>
-              <div className="egr-actions egw-choices">
-                <button type="button" className="egr-button" onClick={() => choose('never')}>
-                  Ani never did this
-                </button>
-                <button type="button" className="egr-button" onClick={() => choose('did')}>
-                  Ani did this
-                </button>
-              </div>
-            </>
-          )}
+            {id === 'hall' && (
+              <>
+                <h2 id="egw-panel-heading" ref={heading} tabIndex={-1}>
+                  Into the Hall of Judgement
+                </h2>
+                <p>Ani’s papyrus shows who is waiting in the hall. Tap each one to meet them.</p>
+                <div className="egr-options">
+                  {(Object.keys(FIGURES) as FigureId[]).map((f) => (
+                    <button key={f} type="button" className="egr-option" aria-pressed={focus === f} onClick={() => setFocus(f)}>
+                      {FIGURES[f].name}
+                    </button>
+                  ))}
+                </div>
+                {focus && <FactNote fact={FIGURES[focus].fact} className="egr-fact egw-meet" />}
+              </>
+            )}
 
-          {started && showing && last && (
-            <>
-              <p className={`egw-result ${last.right ? 'is-right' : 'is-wrong'}`}>{last.right ? 'Right!' : 'Not quite.'} Ani says:</p>
-              <blockquote className="egw-quote">“{last.deed.quote}”</blockquote>
-              <FactNote fact={JUDGEMENT_NOTES.ani} className="egr-fact" />
-              <div className="egr-actions">
-                <button type="button" className="egr-button egr-button-primary" onClick={next}>
-                  {answers.length < DEEDS.length ? 'Next deed' : 'See the scales'} <span aria-hidden="true">→</span>
-                </button>
-              </div>
-            </>
-          )}
+            {id === 'heart' && (
+              <>
+                <h2 id="egw-panel-heading" ref={heading} tabIndex={-1}>
+                  Ani’s heart on the scales
+                </h2>
+                <FactNote fact={JUDGEMENT_NOTES.heartWords} className="egr-fact" />
+                <blockquote className="egw-quote">“{HEART_WORDS}”</blockquote>
+                <fieldset className="egr-choice">
+                  <legend>Guess: if Ani’s heart is true, what will the scales do?</legend>
+                  <div className="egr-options">
+                    <button type="button" className="egr-option" aria-pressed={heartGuess === 'level'} onClick={() => predictHeart('level')}>
+                      Stay level
+                    </button>
+                    <button type="button" className="egr-option" aria-pressed={heartGuess === 'tip'} onClick={() => predictHeart('tip')}>
+                      Tip out of balance
+                    </button>
+                  </div>
+                </fieldset>
+                {heartGuess && (
+                  <>
+                    <p className="egw-result is-right">{heartGuess === 'level' ? 'You guessed it!' : 'Good guess, but look: they stay level.'}</p>
+                    <FactNote fact={JUDGEMENT_NOTES.level} className="egr-fact" />
+                  </>
+                )}
+              </>
+            )}
 
-          {finished && (
-            <>
-              {state === 'balanced' ? (
-                <p>Ani’s heart is as light as the feather. Thoth writes down the result, and Ani goes on to meet Osiris.</p>
-              ) : (
-                <p>
-                  The heart sinks below the feather, and Ammit leans in, waiting. This is only a game: Ani can try again. Sort his words with no more than {MISTAKES_ALLOWED} mistake to balance the scales.
+            {id === 'words' && (
+              <>
+                <h2 id="egw-panel-heading" ref={heading} tabIndex={-1}>
+                  Ani’s words · {deed + 1} of {DEEDS.length}
+                </h2>
+                {deed === 0 && phase === 'speak' && <FactNote fact={JUDGEMENT_NOTES.confession} className="egr-fact" />}
+                <p className="egw-deed" key={current.id}>
+                  {current.label}
                 </p>
-              )}
-              <p className="egw-score">
-                {right} of {DEEDS.length} sorted right.
-              </p>
-              <FactNote fact={JUDGEMENT_NOTES.confession} className="egr-fact" />
-              <FactNote fact={JUDGEMENT_NOTES.maat} className="egr-fact" />
-              <FactNote fact={JUDGEMENT_NOTES.heart} className="egr-fact" />
-              <div className="egr-actions">
-                <button type="button" className="egr-button egr-button-primary" onClick={again}>
-                  Weigh again
-                </button>
-              </div>
-            </>
-          )}
+                {phase === 'speak' && (
+                  <fieldset className="egr-choice">
+                    <legend>Help Ani speak. What does he tell the judges?</legend>
+                    <div className="egr-actions egw-choices">
+                      <button type="button" className="egr-button" onClick={() => speak('never')}>
+                        “I have not …”
+                      </button>
+                      <button type="button" className="egr-button" onClick={() => speak('did')}>
+                        “I have …”
+                      </button>
+                    </div>
+                    {spokeWrong && <p className="egw-hint">Think again: is this something kind, or something unkind?</p>}
+                  </fieldset>
+                )}
+                {phase !== 'speak' && <blockquote className="egw-quote">“{current.quote}”</blockquote>}
+                {phase === 'predict' && (
+                  <fieldset className="egr-choice">
+                    <legend>{current.kind === 'never' ? 'Ani never did this. But if he had, what would the scales do?' : 'Ani did this good deed. What will the scales do?'}</legend>
+                    <div className="egr-options">
+                      <button type="button" className="egr-option" onClick={() => predict('level')}>
+                        Stay level
+                      </button>
+                      <button type="button" className="egr-option" onClick={() => predict('tip')}>
+                        Tip out of balance
+                      </button>
+                    </div>
+                  </fieldset>
+                )}
+                {phase === 'shown' && (
+                  <>
+                    <p className={`egw-result ${right ? 'is-right' : 'is-kind'}`}>
+                      {right ? 'You guessed it! ' : 'Not quite, and that’s fine. '}
+                      {wouldTip(current) ? 'A wrong like this would tip the scales out of balance. But Ani says he never did it, so they settle level.' : 'A good deed keeps the scales level.'}
+                    </p>
+                    {deed < DEEDS.length - 1 ? (
+                      <div className="egr-actions">
+                        <button type="button" className="egr-button egr-button-primary" onClick={nextDeed}>
+                          Next deed <span aria-hidden="true">→</span>
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="egw-result is-right">Ani has spoken. Now for the verdict.</p>
+                    )}
+                    {deed === DEEDS.length - 1 && <FactNote fact={JUDGEMENT_NOTES.ani} className="egr-fact" />}
+                  </>
+                )}
+              </>
+            )}
+
+            {id === 'verdict' && (
+              <>
+                <h2 id="egw-panel-heading" ref={heading} tabIndex={-1}>
+                  The scales balance
+                </h2>
+                <FactNote fact={JUDGEMENT_NOTES.verdict} className="egr-fact" />
+                <FactNote fact={JUDGEMENT_NOTES.reeds} className="egr-fact" />
+                <FactNote fact={JUDGEMENT_NOTES.scales} className="egr-fact" lead="In Hunefer’s papyrus too:" />
+                <FactNote fact={JUDGEMENT_NOTES.heart} className="egr-fact" />
+              </>
+            )}
+
+            {id === 'you' && (
+              <>
+                <h2 id="egw-panel-heading" ref={heading} tabIndex={-1}>
+                  Weigh your own choices
+                </h2>
+                {/* REVIEW: new text (a reflection). */}
+                <p>Ani’s story asks a big question: did he live a good life? You can ask yourself the same thing, kindly. Tap the good choices you have made this week.</p>
+                <div className="egr-options">
+                  {MY_CHOICES.map((c) => (
+                    <button key={c} type="button" className="egr-option" aria-pressed={mine.includes(c)} onClick={() => setMine((m) => (m.includes(c) ? m.filter((x) => x !== c) : [...m, c]))}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
+                {mine.length > 0 && <p className="egw-result is-right">Every one of those counts.</p>}
+                <p>And if there is something you would do differently next time, that’s all right. Everyone makes mistakes, and every day is a new chance to choose again.</p>
+                <p className="egw-small">Nothing you tap here is saved or sent.</p>
+                <div className="egr-actions">
+                  <TombDoor />
+                  <button type="button" className="egr-button" onClick={again}>
+                    Hear the story again
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="egr-step-nav">
+            <button type="button" className="egr-button" onClick={() => go(chapter - 1)} disabled={chapter === 0}>
+              <span aria-hidden="true">←</span> Back
+            </button>
+            <button type="button" className="egr-button egr-button-primary" onClick={() => go(chapter + 1)} disabled={chapter === CHAPTERS.length - 1 || !canGoOn}>
+              Next <span aria-hidden="true">→</span>
+            </button>
+          </div>
         </section>
       </div>
 

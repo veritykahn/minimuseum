@@ -188,7 +188,7 @@
             "alt": "Coin A: a widow’s mite, both sides"
           },
           {
-            "img": "/exhibitions/in-their-hands/real-or-fake/widow-fake.png",
+            "img": "/exhibitions/in-their-hands/real-or-fake/widow-fake.webp",
             "label": "Coin B",
             "alt": "Coin B: a widow’s mite, both sides"
           }
@@ -221,7 +221,7 @@
             "stampTone": "gold"
           },
           {
-            "img": "/exhibitions/in-their-hands/real-or-fake/widow-fake.png",
+            "img": "/exhibitions/in-their-hands/real-or-fake/widow-fake.webp",
             "label": "Coin B",
             "alt": "Coin B: the fake, both sides",
             "stamp": "Fake",
@@ -338,7 +338,7 @@
         "kind": "coins",
         "coins": [
           {
-            "img": "/exhibitions/in-their-hands/artifacts/coins/festus-front.png",
+            "img": "/exhibitions/in-their-hands/artifacts/coins/festus-front.webp",
             "name": "Porcius Festus",
             "sub": "Paul appeals to Caesar",
             "alt": "The coin of Porcius Festus"

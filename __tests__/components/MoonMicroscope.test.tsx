@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import MoonMicroscope from '@/app/exhibitions/moon/microscope/page';
 import { TIMES } from '@/app/exhibitions/moon/microscope/Eyepiece';
-import { blurFor, FOCUS_AT, FOCUS_START } from '@/app/exhibitions/moon/microscope/focus';
+import { blurFor, FOCUS_AT, FOCUS_START, FOCUS_STEP, SHARP_WITHIN } from '@/app/exhibitions/moon/microscope/focus';
 import { PRACTICE } from '@/app/exhibitions/moon/microscope/practice';
 import { EARTH_SLIDES, MOON_SLIDES } from '@/app/exhibitions/moon/microscope/slides';
 import { atEdge, CENTRE, clampPan, nudge, OBJECTIVES, totalPower, visibleFraction } from '@/app/exhibitions/moon/microscope/stage';
@@ -58,7 +58,12 @@ const room = () => {
     for (let i = 0; i < 40 && blurPx() > 0; i++) fireEvent.click(button('Turn the focus knob up'));
   };
   const currentStep = () => view.container.querySelector('[aria-current="step"]')?.textContent;
-  return { ...view, eyepiece, canvas, status, button, blurPx, prepare, focusUp, currentStep };
+  /** Open the room's Sources drawer: every source and credit, by step. */
+  const sources = () => {
+    if (!screen.queryByRole('dialog', { name: 'Sources' })) fireEvent.click(button('Sources'));
+    return screen.getByRole('dialog', { name: 'Sources' });
+  };
+  return { ...view, eyepiece, canvas, status, button, blurPx, prepare, focusUp, currentStep, sources };
 };
 
 describe('the photographs', () => {
@@ -221,6 +226,20 @@ describe('the lenses, the stage and the focus', () => {
       expect(blurFor(at + 20, o)).toBeGreaterThan(5);
     });
     expect(blurFor(FOCUS_START, 0)).toBeGreaterThan(8);
+    // A press is big (8 or more), but no wider than the sharp zone: it can't jump right over it.
+    expect(FOCUS_STEP).toBeGreaterThanOrEqual(8);
+    expect(FOCUS_STEP).toBeLessThanOrEqual(SHARP_WITHIN * 2);
+    // From the start, three presses bring the 4× lens sharp; after a lens change, one or two.
+    let at = FOCUS_START;
+    let presses = 0;
+    while (blurFor(at, 0) > 0) (at += FOCUS_STEP), presses++;
+    expect(presses).toBeLessThanOrEqual(3);
+    for (const [from, to] of [[0, 1], [1, 2], [0, 2]]) {
+      let f = FOCUS_AT[from];
+      let n = 0;
+      while (blurFor(f, to) > 0 && n < 10) (f += FOCUS_STEP), n++;
+      expect(n).toBeLessThanOrEqual(2);
+    }
     // Switching lens from sharp: blurry, but only a little (a small turn sharpens it).
     for (const [from, to] of [[0, 1], [1, 2], [0, 2], [2, 0]]) {
       const b = blurFor(FOCUS_AT[from], to);
@@ -247,7 +266,11 @@ describe('the procedure', () => {
     expect(screen.getByText(/This fresh slide is smudged/)).toBeInTheDocument();
     // Why: a microscope maker's tip, with its source.
     expect(screen.getByText(PRACTICE.wipe.text)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Olympus, Cleaning and Maintenance' })).toHaveAttribute('href', PRACTICE.wipe.sources[0].href);
+    // Its source is in the Sources drawer, under the step, not on the page.
+    expect(screen.queryByRole('link', { name: 'Olympus, Cleaning and Maintenance' })).toBeNull();
+    const drawer = r.sources();
+    expect(within(drawer).getByRole('heading', { name: 'Wipe the slide' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('link', { name: 'Olympus, Cleaning and Maintenance' })).toHaveAttribute('href', PRACTICE.wipe.sources[0].href);
     // No sample tabs or chips at the top.
     expect(screen.queryByRole('tab')).toBeNull();
     expect(screen.queryByRole('tablist')).toBeNull();
@@ -309,16 +332,20 @@ describe('the procedure', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
   });
 
-  it('sets the chosen sample’s name, caption, source and credit in the description panel, not under the eyepiece', () => {
+  it('sets the chosen sample’s name and caption in the description panel, not under the eyepiece, its source and credit in the drawer', () => {
     const r = room();
     r.prepare('Bermuda coral sand shaped by living things');
     const panel = r.container.querySelector('.mo-ms-panel') as HTMLElement;
     const s = EARTH_SLIDES[2];
     expect(within(panel).getByRole('heading', { level: 2, name: s.name })).toBeInTheDocument();
     expect(within(panel).getByText(s.caption.text)).toBeInTheDocument();
-    expect(within(panel).getByRole('link', { name: s.caption.sources[0].label })).toHaveAttribute('href', s.caption.sources[0].href);
-    expect(within(panel).getByRole('link', { name: s.credit.title })).toHaveAttribute('href', s.credit.href);
-    expect(within(panel).getByRole('link', { name: s.credit.licence })).toHaveAttribute('href', s.credit.licenceHref);
+    expect(within(panel).queryByRole('link', { name: s.caption.sources[0].label })).toBeNull();
+    expect(within(panel).queryByText(/^Photo:/)).toBeNull();
+    const drawer = r.sources();
+    expect(within(drawer).getAllByRole('link', { name: s.caption.sources[0].label }).map((a) => a.getAttribute('href'))).toContain(s.caption.sources[0].href);
+    expect(within(drawer).getByRole('link', { name: `${s.credit.title}, ${s.credit.author}` })).toHaveAttribute('href', s.credit.href);
+    expect(within(drawer).getAllByRole('link', { name: s.credit.licence }).map((a) => a.getAttribute('href'))).toContain(s.credit.licenceHref);
+    fireEvent.keyDown(window, { key: 'Escape' });
     // Its poster word marked in poster 1's sentence.
     expect(within(panel).getByText('living things', { selector: 'mark' })).toBeInTheDocument();
     // Nothing under the eyepiece but what to do next.
@@ -342,7 +369,7 @@ describe('the procedure', () => {
     expect(r.blurPx()).toBeLessThan(before);
     r.focusUp();
     expect(r.canvas.style.filter).toBe('none');
-    expect(Math.abs(Number(knob.getAttribute('aria-valuenow')) - FOCUS_AT[0])).toBeLessThanOrEqual(2);
+    expect(Math.abs(Number(knob.getAttribute('aria-valuenow')) - FOCUS_AT[0])).toBeLessThanOrEqual(SHARP_WITHIN);
     expect(knob).toHaveAttribute('aria-valuetext', 'Sharp');
     expect(r.status()).toHaveTextContent('Sharp! Well focused.');
     expect(r.currentStep()).toMatch(/Magnify/);
@@ -429,8 +456,8 @@ describe('the procedure', () => {
     expect(r.eyepiece).toHaveAttribute('data-slots', 'moon-beads earth-water');
     expect(screen.getByRole('slider', { name: 'Move the dividing line' })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Moon and Earth' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: MOON_SLIDES[1].credit.title })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: EARTH_SLIDES[1].credit.title })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: MOON_SLIDES[1].name })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: EARTH_SLIDES[1].name })).toBeInTheDocument();
     expect(screen.getByText(EARTH_SLIDES[1].caption.text)).toBeInTheDocument();
     expect(screen.getByText(`${REGOLITH.surface} ${REGOLITH.differences}`)).toBeInTheDocument();
     // Wiping both: Moon dust clings, Earth grains brush aside.
@@ -586,6 +613,21 @@ describe('wiping on the stage, drawn', () => {
     expect(r.eyepiece).toHaveAttribute('data-anim', '');
     expect(r.eyepiece).toHaveAttribute('data-slots', 'moon-soil');
   }, 20000);
+
+  it('opens the jar tray with one press of Place sample, even while the cloth is still wiping', async () => {
+    undo.push(motion(false));
+    const r = room();
+    await frames();
+    fireEvent.click(r.button('Wipe'));
+    await frames();
+    // Pressed mid-wipe: no "wipe it first", and the tray waits for the cloth.
+    fireEvent.click(r.button('Place sample'));
+    expect(r.status()).not.toHaveTextContent('Wipe it first');
+    expect(screen.queryByRole('dialog')).toBeNull();
+    await act(() => new Promise((res) => setTimeout(res, TIMES.sweep + TIMES.polish + 200)));
+    expect(r.eyepiece).toHaveAttribute('data-slots', 'clean');
+    expect(screen.getByRole('dialog', { name: 'Choose a sample' })).toBeInTheDocument();
+  }, 20000);
 });
 
 describe('the approved notes', () => {
@@ -596,11 +638,12 @@ describe('the approved notes', () => {
     const r = room();
     expect(screen.queryByText(MICROSCOPE_NOTES.dust.text)).toBeNull();
     expect(screen.getByText(MICROSCOPE_NOTES.adrar.text)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Washington University in St. Louis' })).toHaveAttribute('href', 'https://sites.wustl.edu/meteoritesite/?p=16700');
+    expect(within(r.sources()).getByRole('link', { name: 'Washington University in St. Louis' })).toHaveAttribute('href', 'https://sites.wustl.edu/meteoritesite/?p=16700');
+    fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
     expect(screen.getByRole('link', { name: /lunar meteorite in the display case/ })).toBeInTheDocument();
     r.prepare('Far-side Moon soil');
     expect(screen.getByText(MICROSCOPE_NOTES.dust.text)).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'NASA' })).toHaveAttribute('href', 'https://science.nasa.gov/moon/composition/');
+    expect(within(r.sources()).getByRole('link', { name: 'NASA' })).toHaveAttribute('href', 'https://science.nasa.gov/moon/composition/');
     expect(screen.getByText(`${REGOLITH.unlike} ${REGOLITH.jagged}`)).toBeInTheDocument();
     undo();
   });

@@ -10,7 +10,6 @@ import { CLOSING, TIERS, type HandsRound } from './data';
 function buildItems(rounds: HandsRound[]): ProjectorItem[] {
   return rounds.map(({ character, options }) => ({
     id: character.id,
-    kicker: character.caption,
     prompt: character.prompt,
     choices: options.map((o) => ({ id: o.character, label: o.character })),
     judge: (choice) => choice === character.character,
@@ -38,6 +37,8 @@ function buildItems(rounds: HandsRound[]): ProjectorItem[] {
     },
     explanation: (
       <>
+        {/* The coin's caption names it ("Widow's Mite"…), so it is shown with the answer, not above the question. */}
+        <p className={pj.label}>{character.caption}</p>
         <p className={pj.label}>Why these hands</p>
         <p className={pj.lead}>{character.clue}</p>
         <p className={pj.small} style={{ marginTop: '1em' }}>{character.story}</p>

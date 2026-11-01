@@ -35,7 +35,7 @@
   display: block;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 88px clamp(16px, 4vw, 64px) 72px;
+  padding: 88px clamp(16px, 4vw, 64px) 112px;
 }
 
 .egr-glyph { font-family: 'Egypt Hieroglyphs', 'Noto Sans Egyptian Hieroglyphs', serif; font-style: normal; line-height: 1; }
@@ -158,6 +158,28 @@
   letter-spacing: 0.04em;
 }
 
+/* A link set as a button (the way back into the tomb, a room's door). */
+.eg-room a.egr-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
+
+/* ───────── A room told in steps: the panel keeps one size and its Back and
+   Next stay put; only the step's body changes (and scrolls, if it must).
+   On a phone and a portrait tablet the step buttons sit at the top of the
+   panel, just under the scene, so they do not move either. ───────── */
+.egr-stepper .egr-step-body { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.egr-step-nav {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid var(--egr-line);
+}
+.eg-room .egr-step-nav .egr-button { white-space: nowrap; }
+@media (min-width: 981px) {
+  .egr-panel.egr-stepper { height: clamp(520px, 72vh, 760px); }
+  .egr-stepper .egr-step-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: 6px; scrollbar-width: thin; }
+}
+
 /* Tabs: a row of steps or views. */
 .egr-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
 .eg-room .egr-tab {
@@ -190,9 +212,10 @@
 /* ───────── A phone and a portrait tablet: the scene above, the panel below ───────── */
 @media (max-width: 980px) {
   .egr-layout { grid-template-columns: minmax(0, 1fr); }
+  .egr-stepper .egr-step-nav { order: -1; padding: 0 0 14px; border-top: 0; border-bottom: 1px solid var(--egr-line); }
 }
 @media (max-width: 600px) {
-  .eg-room-stage { padding: 76px 16px 88px; }
+  .eg-room-stage { padding: 76px 16px 96px; }
   .eg-room .egr-button { padding: 10px 16px; }
 }
 

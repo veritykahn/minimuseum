@@ -10,6 +10,7 @@ import {
   totalElapsed,
   MINUTE,
 } from '@/lib/lessons/session';
+import { ChartScroll } from './ChartScroll';
 import { Inline, plain } from './Inline';
 import { TimingBar } from './TimingBar';
 import { onDark } from './color';
@@ -473,7 +474,7 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
       return (
         <div className={styles.wideView}>
           {task}
-          <div className={styles.chartCard} tabIndex={mini ? undefined : 0} role={mini ? undefined : 'region'} aria-label={mini ? undefined : s.caption}>
+          <ChartScroll label={s.caption} mini={mini}>
             <table className={styles.chart}>
               <caption className={styles.srOnly}>{s.caption}</caption>
               <thead>
@@ -512,7 +513,7 @@ function StepContent({ step, mini }: { step: Step; mini?: boolean }) {
                 ))}
               </tbody>
             </table>
-          </div>
+          </ChartScroll>
         </div>
       );
     case 'gallery':

@@ -19,15 +19,20 @@ import {
   voteLine,
 } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/results';
 import { CHECKER_TRUTH } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/Brightness';
-import { STROOP_INKS, STROOP_WORDS } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/Brain';
+import { amesChildPx, amesDepth, STROOP_INKS, STROOP_WORDS } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/Brain';
+import { snakeDisc, SNAKE_ORDER, SNAKE_PLAIN } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/Motion';
+import { SLOTS, SLOT_DIR } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/slots';
+import { entryText, stroopMatchResult } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/results';
 
 /*
- * The Perception Lab, rebuilt from the owner-approved proposal (B4): six
- * benches and a bonus Ames room; each illusion in three steps (Try it,
- * Break it, Why?); results measured, never marked wrong, in a printable Lab
- * Notebook with an Illusion Fingerprint; a calm warning before anything that
- * moves; a class mode with hands-up tallies; and every explaining sentence
- * set with its source.
+ * The Perception Lab, rebuilt from the owner-approved proposal (B4) and the
+ * November review (B2): six benches and a bonus Ames room, from the biggest
+ * "wow" to the subtlest, the moving illusions together; each illusion in
+ * three steps (Try it, Break it, Why?), one notebook entry each, before and
+ * after; results measured, never marked wrong, in a printable Lab Notebook
+ * with an Illusion Fingerprint; a calm warning before anything that moves;
+ * a class mode with hands-up tallies; every explaining sentence with its
+ * source, and every source in the Sources drawer, not on the page.
  */
 
 const LAB = path.join(process.cwd(), 'app/exhibitions/seeing-is-deceiving/illusions');
@@ -59,16 +64,26 @@ afterEach(() => {
 });
 
 describe('the benches, as the proposal lists them', () => {
-  it('has six benches and a bonus, with the proposal’s illusions on each', () => {
+  it('has six benches and a bonus, in the review’s order, the moving illusions together', () => {
     const on = (n: number) => ILLUSIONS.filter((i) => i.bench === n).map((i) => i.id);
-    expect(BENCHES).toHaveLength(7);
-    expect(on(1)).toEqual(['checker', 'contrast', 'lilac']);
-    expect(on(2)).toEqual(['muller-lyer', 'ebbinghaus', 'ponzo', 'jastrow']);
-    expect(on(3)).toEqual(['cafe-wall', 'fraser', 'poggendorff']);
-    expect(on(4)).toEqual(['blind-spot', 'kanizsa', 'troxler']);
-    expect(on(5)).toEqual(['waterfall', 'snakes']);
-    expect(on(6)).toEqual(['stroop', 'paris', 'rubin']);
+    expect(BENCHES.map((b) => b.title)).toEqual([
+      'Your brain fills the gaps',
+      'Size and length',
+      'Brightness',
+      'Lines and angles',
+      'Motion that isn’t there',
+      'Brain against brain',
+      'Bonus: the Ames room',
+    ]);
+    expect(on(1)).toEqual(['blind-spot', 'kanizsa', 'rubin']);
+    expect(on(2)).toEqual(['ebbinghaus', 'muller-lyer', 'ponzo', 'jastrow']);
+    expect(on(3)).toEqual(['checker', 'contrast']);
+    expect(on(4)).toEqual(['cafe-wall', 'fraser', 'poggendorff']);
+    expect(on(5)).toEqual(['lilac', 'waterfall', 'snakes', 'troxler']);
+    expect(on(6)).toEqual(['stroop', 'paris']);
     expect(on(7)).toEqual(['ames']);
+    // The array runs in bench order, so Next walks the benches.
+    expect(ILLUSIONS.map((i) => i.bench)).toEqual([...ILLUSIONS.map((i) => i.bench)].sort((a, b) => a - b));
   });
 
   it('gives every illusion a task, one switch to break it, a hands-up question and a one-sentence teacher tip', () => {
@@ -82,8 +97,8 @@ describe('the benches, as the proposal lists them', () => {
     }
   });
 
-  it('flags the motion illusions for a warning first', () => {
-    expect(ILLUSIONS.filter((i) => i.motion).map((i) => i.id)).toEqual(['lilac', 'waterfall', 'snakes']);
+  it('flags every illusion on the motion bench for a warning first', () => {
+    expect(ILLUSIONS.filter((i) => i.motion).map((i) => i.id)).toEqual(['lilac', 'waterfall', 'snakes', 'troxler']);
   });
 });
 
@@ -128,10 +143,18 @@ describe('every explaining sentence has its source', () => {
   });
 
   it('draws its own rotating snakes, crediting Kitaoka, and uses no image of his', () => {
-    const src = labSource();
-    expect(src).toMatch(/drawn for the museum after Akiyoshi Kitaoka’s Rotating Snakes/);
-    expect(src).not.toMatch(/<img/);
+    expect(byId('snakes').creator?.label).toMatch(/Akiyoshi Kitaoka, Rotating Snakes \(2003\); circles drawn for the museum after his/);
+    expect(SLOTS.snakes.file).toBeNull();
+    expect(labSource()).not.toMatch(/rotating-snakes\.jpg/);
     expect(byId('snakes').more[0].sources[0].href).toBe('https://www.psy.ritsumei.ac.jp/~akitaoka/rotsnakee.html');
+  });
+
+  it('gives the Müller-Lyer a real explanation, marked for review with its source', () => {
+    const ml = byId('muller-lyer');
+    expect(ml.why.text).toMatch(/Richard Gregory, in 1968/);
+    expect(ml.why.text).toMatch(/still testing it/);
+    expect(ml.why.sources.map((s) => s.href)).toContain('https://michaelbach.de/ot/sze-muelue/');
+    expect(fs.readFileSync(path.join(LAB, 'lab/data.ts'), 'utf8')).toMatch(/REVIEW \(new text\)[\s\S]*sze-muelue[\s\S]*Richard Gregory/);
   });
 });
 
@@ -140,16 +163,24 @@ describe('measured, never marked wrong', () => {
     expect(checkerResult(CHECKER_TRUTH, CHECKER_TRUTH)).toEqual({ line: 'You matched B’s real shade almost exactly.', strength: 0 });
     expect(checkerResult(168, 120).line).toBe('You saw B 40% lighter than it really is.');
     expect(checkerResult(168, 120).strength).toBe(1);
+    expect(CHECKER_TRUTH).toBe(111);
     expect(contrastResult(100, 128).line).toMatch(/22% darker/);
-    expect(mullerLyerResult(0.41).line).toBe('With fins: you put the middle 9% of the line too far to the left.');
-    expect(mullerLyerResult(0.41, 0.5).line).toMatch(/Without fins: exact\./);
+    expect(mullerLyerResult(0.41).line).toBe('You put the middle 9% of the line too far to the left.');
+    expect(mullerLyerResult(0.5).line).toBe('You found the exact middle.');
     expect(ebbinghausResult(39, 34).line).toBe('You made the right circle 15% too big.');
     expect(ponzoResult(120, 140).line).toBe('You made the top bar 14% too short.');
     expect(poggendorffResult(176, 156, 400).line).toBe('Your guess was 5% of the picture’s height too low.');
     expect(troxlerResult(null).strength).toBe(0);
     expect(troxlerResult(8).strength).toBe(1);
     expect(stroopResult(8, 12).line).toBe('Round 1: 8.0 s. Round 2: 12.0 s. The words made you 4.0 s slower.');
+    expect(stroopMatchResult(7.5, 12).line).toBe('Round 3: 7.5 s, against 12.0 s for Round 2.');
     expect(observed('x', null).strength).toBeNull();
+  });
+
+  it('keeps one notebook entry per illusion: before, then after', () => {
+    expect(entryText({ before: { line: 'A.', strength: 1 }, after: { line: 'B.', strength: 0 } })).toBe('Trick on: A. Trick off: B.');
+    expect(entryText({ after: { line: 'B.', strength: 0 } })).toBe('Trick off: B.');
+    expect(entryText(undefined)).toBeNull();
   });
 
   it('makes the Stroop words name a different colour from their ink, every time', () => {
@@ -157,55 +188,108 @@ describe('measured, never marked wrong', () => {
   });
 
   it('builds the fingerprint from the kinds of trick, and the class’s from the hands', () => {
-    const fp = fingerprint({ checker: { line: '', strength: 1 }, contrast: { line: '', strength: 0 }, rubin: { line: '', strength: null } });
+    const fp = fingerprint({
+      checker: { before: { line: '', strength: 1 }, after: { line: '', strength: 0 } },
+      contrast: { before: { line: '', strength: 0 } },
+      rubin: { before: { line: '', strength: null } },
+    });
     expect(fp.map((f) => f.category)).toEqual(CATEGORIES.map((c) => c.id));
-    expect(fp[0]).toMatchObject({ category: 'brightness', score: 0.5, count: 2 });
-    expect(fp.find((f) => f.category === 'brain')!.score).toBeNull();
+    // The fingerprint counts what fooled you with the trick on.
+    expect(fp.find((f) => f.category === 'brightness')).toMatchObject({ score: 0.5, count: 2 });
+    expect(fp.find((f) => f.category === 'gaps')!.score).toBeNull();
     expect(fingerprintTitle(fp)).toBe('Fooled most by: brightness.');
     expect(fingerprintTitle(fingerprint({}))).toMatch(/Try an illusion/);
     const cfp = classFingerprint({ checker: { a: 6, b: 0, same: 2 } });
-    expect(cfp[0].score).toBe(0.75);
+    expect(cfp.find((f) => f.category === 'brightness')!.score).toBe(0.75);
     expect(voteLine(byId('checker'), { a: 6, same: 2 })).toBe('A looks darker: 6 · B looks darker: 0 · They look the same: 2 (8 hands)');
   });
 });
 
 describe('a station: Try it, Break it, Why?', () => {
-  it('starts at the benches, and takes the visitor through the three steps, writing the result in the notebook', () => {
+  it('starts at the benches, at Bench 1: the blind spot', () => {
     at('');
     render(<PerceptionLab />);
     expect(screen.getByRole('heading', { level: 1, name: 'Perception Lab' })).toBeInTheDocument();
     expect(screen.getByText('Being fooled isn’t wrong. It’s the result.')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Start at Bench 1' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Your blind spot' })).toBeInTheDocument();
+    expect(window.location.hash).toBe('#blind-spot');
+    expect(screen.getByText(/Bench 1: Your brain fills the gaps · 1 of 19/)).toBeInTheDocument();
+  });
+
+  it('takes the visitor through Try it, Break it and Why?, keeping one entry, before and after', () => {
+    at('#checker');
+    render(<PerceptionLab />);
     expect(screen.getByRole('heading', { level: 1, name: 'Adelson’s checker shadow' })).toBeInTheDocument();
-    expect(window.location.hash).toBe('#checker');
     expect(screen.getByRole('tab', { name: 'Try it' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText(byId('checker').task)).toBeInTheDocument();
-    // Measure, and write it down.
-    fireEvent.change(screen.getByRole('slider', { name: 'Paint chip shade' }), { target: { value: '168' } });
+    // The owner's own picture, in its slot.
+    expect(document.querySelector('[data-slot="checker.jpg"] image')).toHaveAttribute('href', `${SLOT_DIR}checker.jpg`);
+    // Try it: measure, and write it down.
+    fireEvent.change(screen.getByRole('slider', { name: 'Paint chip shade' }), { target: { value: '155' } });
     fireEvent.click(screen.getByRole('button', { name: 'Write it in my notebook' }));
     expect(screen.getByText('You saw B 40% lighter than it really is.')).toBeInTheDocument();
-    // Break it: one switch, on and off.
-    fireEvent.click(screen.getByRole('tab', { name: 'Break it' }));
+    // Break it: the same picture, a strip from A to B; the chip carries over, and is measured again.
+    fireEvent.click(screen.getByRole('button', { name: /Now break it/ }));
+    expect(screen.getByRole('tab', { name: 'Break it' })).toHaveAttribute('aria-selected', 'true');
+    expect(document.querySelector('[data-slot="checker.jpg"] [data-mark="strip"]')).not.toBeNull();
+    expect(screen.getByRole('slider', { name: 'Paint chip shade' })).toHaveValue('155');
     const sw = screen.getByRole('button', { name: 'Join A and B' });
     expect(sw).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.change(screen.getByRole('slider', { name: 'Paint chip shade' }), { target: { value: '111' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Write it in my notebook: trick off' }));
+    expect(screen.getByText('You matched B’s real shade almost exactly.')).toBeInTheDocument();
+    // Switched back on, nothing is measured.
     fireEvent.click(sw);
     expect(sw).toHaveAttribute('aria-pressed', 'false');
-    // Why: one sentence with its source, then more.
+    expect(screen.queryByRole('slider', { name: 'Paint chip shade' })).not.toBeInTheDocument();
+    expect(document.querySelector('[data-mark="strip"]')).toBeNull();
+    // Why: the science, and no source on the page: they are in the drawer.
     fireEvent.click(screen.getByRole('tab', { name: 'Why?' }));
     expect(screen.getByText(byId('checker').why.text)).toBeInTheDocument();
-    expect(screen.getAllByRole('link', { name: 'Michael Bach, Optical Illusions' })[0]).toHaveAttribute('href', 'https://michaelbach.de/ot/lum-adelsonCheckShadow/');
+    expect(screen.queryByRole('link', { name: 'Michael Bach, Optical Illusions' })).not.toBeInTheDocument();
+    expect(screen.queryByText(/^Sources?:/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Tell me more' }));
     expect(screen.getByText(byId('checker').more[0].text)).toBeInTheDocument();
-    // On to the next, and the notebook has it.
+    // The Sources drawer: this illusion's inventor, the owner's picture, and the source.
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    expect(within(drawer).getByRole('heading', { name: 'Bench 3 · Adelson’s checker shadow' })).toBeInTheDocument();
+    expect(within(drawer).getByText('Original illusion images: Verity Kahn')).toBeInTheDocument();
+    expect(within(drawer).getByRole('link', { name: 'Edward H. Adelson (1995)' })).toBeInTheDocument();
+    expect(within(drawer).getByRole('link', { name: 'Michael Bach, Optical Illusions' })).toHaveAttribute('href', 'https://michaelbach.de/ot/lum-adelsonCheckShadow/');
+    fireEvent.click(within(drawer).getByRole('button', { name: 'Close sources' }));
+    // On to the next, and the notebook has one entry: before and after.
     fireEvent.click(screen.getByRole('button', { name: /Next: Simultaneous contrast/ }));
     expect(screen.getByRole('heading', { level: 1, name: 'Simultaneous contrast' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /My notebook/ }));
     const nb = screen.getByRole('region', { name: 'My Lab Notebook' });
-    expect(within(nb).getByText('You saw B 40% lighter than it really is.')).toBeInTheDocument();
+    const item = within(nb).getByRole('button', { name: 'Adelson’s checker shadow' }).closest('li')!;
+    expect(item).toHaveTextContent('Trick on: You saw B 40% lighter than it really is.');
+    expect(item).toHaveTextContent('Trick off: You matched B’s real shade almost exactly.');
     expect(within(nb).getAllByText('Not tried yet.')).toHaveLength(ILLUSIONS.length - 1);
     expect(screen.getByRole('img', { name: /My Illusion Fingerprint\. Fooled most by: brightness\./ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Print my notebook' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save my fingerprint as a picture' })).toBeInTheDocument();
+    // On the notebook, the drawer lists every illusion's sources, bench by bench.
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const all = screen.getByRole('dialog', { name: 'Sources' });
+    expect(within(all).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(
+      ILLUSIONS.map((i) => `${i.bench < 7 ? `Bench ${i.bench}` : 'Bonus'} · ${i.name}`),
+    );
+  });
+
+  it('keeps every source and credit, moved into the drawer, none lost', () => {
+    at('#notebook');
+    render(<PerceptionLab />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    const hrefs = new Set(within(drawer).getAllByRole('link').map((l) => l.getAttribute('href')));
+    for (const i of ILLUSIONS) for (const f of [i.why, ...i.more]) for (const s of f.sources) expect(hrefs).toContain(s.href);
+    expect(within(drawer).getByText(/A well-known reading demonstration, with no single original source/)).toBeInTheDocument();
+    expect(within(drawer).getByRole('link', { name: /circles drawn for the museum after his/ })).toBeInTheDocument();
+    // The owner's pictures are credited wherever they are used.
+    expect(within(drawer).getAllByText('Original illusion images: Verity Kahn')).toHaveLength(Object.values(SLOTS).filter((s) => s.file && s.owner).length);
   });
 
   it('opens each illusion from its own address, and the step tabs work with the arrow keys', () => {
@@ -220,15 +304,26 @@ describe('a station: Try it, Break it, Why?', () => {
     expect(screen.getByRole('tab', { name: 'Why?' })).toHaveAttribute('aria-selected', 'true');
   });
 
-  it('records the Müller-Lyer halfway test with fins, then without', () => {
+  it('records the Müller-Lyer halfway test with fins, then without, the marker carried over', () => {
     at('#muller-lyer');
     render(<PerceptionLab />);
     fireEvent.change(screen.getByRole('slider', { name: 'Move the middle' }), { target: { value: '410' } });
     fireEvent.click(screen.getByRole('button', { name: 'Write it in my notebook' }));
     fireEvent.click(screen.getByRole('tab', { name: 'Break it' }));
+    expect(screen.getByRole('slider', { name: 'Move the middle' })).toHaveValue('410');
     fireEvent.change(screen.getByRole('slider', { name: 'Move the middle' }), { target: { value: '500' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Write both in my notebook' }));
-    expect(screen.getByText('With fins: you put the middle 9% of the line too far to the left. Without fins: exact.')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Write it in my notebook: trick off' }));
+    const noted = screen.getByText('In your notebook').parentElement!;
+    expect(noted).toHaveTextContent('Trick on: You put the middle 9% of the line too far to the left.');
+    expect(noted).toHaveTextContent('Trick off: You found the exact middle.');
+  });
+
+  it('starts the Ponzo bars the same length', () => {
+    at('#ponzo');
+    render(<PerceptionLab />);
+    expect(screen.getByRole('slider', { name: 'Top bar’s length' })).toHaveValue('140');
+    const bars = [...document.querySelectorAll('.pl-figure rect[fill="#c0392b"]')].map((r) => r.getAttribute('width'));
+    expect(bars).toEqual(['140', '140']);
   });
 
   it('times a Stroop race, round by round', () => {
@@ -248,7 +343,14 @@ describe('a station: Try it, Break it, Why?', () => {
       jest.advanceTimersByTime(200);
     });
     fireEvent.click(screen.getByRole('button', { name: 'Done!' }));
-    expect(screen.getByText('Round 1: 8.0 s. Round 2: 12.0 s. The words made you 4.0 s slower.')).toBeInTheDocument();
+    expect(screen.getByText('In your notebook').parentElement).toHaveTextContent('Trick on: Round 1: 8.0 s. Round 2: 12.0 s. The words made you 4.0 s slower.');
+    // Break it: Round 3, the words matching their ink, timed into the same entry.
+    fireEvent.click(screen.getByRole('tab', { name: 'Break it' }));
+    now.mockReturnValue(30000);
+    fireEvent.click(screen.getByRole('button', { name: 'Start Round 3' }));
+    now.mockReturnValue(37500);
+    fireEvent.click(screen.getByRole('button', { name: 'Done!' }));
+    expect(screen.getByText('In your notebook').parentElement).toHaveTextContent('Trick off: Round 3: 7.5 s, against 12.0 s for Round 2.');
     now.mockRestore();
   });
 
@@ -256,6 +358,9 @@ describe('a station: Try it, Break it, Why?', () => {
     at('#kanizsa');
     render(<PerceptionLab />);
     const turns = [4, 2, 3];
+    // Every disc inside the picture, nothing cut off at its foot.
+    const vb = document.querySelector('.pl-figure svg')!.getAttribute('viewBox')!.split(' ').map(Number);
+    expect(vb[1] + vb[3]).toBeGreaterThan(125 + 66);
     turns.forEach((n, i) => {
       // Each shape turns from the picture itself (a tap, or Enter) and from its button beside it.
       const [inPicture, beside] = screen.getAllByRole('button', { name: `Turn shape ${i + 1}` });
@@ -287,7 +392,9 @@ describe('motion, with care', () => {
     expect(screen.getByText(/photosensitive epilepsy, skip this one/)).toBeInTheDocument();
     expect(screen.queryByRole('img', { name: /lilac spots/ })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Skip this one' }));
-    expect(screen.getByRole('heading', { level: 1, name: 'Müller-Lyer' })).toBeInTheDocument();
+    // The next on the motion bench waits behind its own warning.
+    expect(screen.getByRole('heading', { level: 1, name: 'The waterfall effect' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Before you look' })).toBeInTheDocument();
   });
 
   it('shows the illusion once asked, and under reduced motion says why it waited', () => {
@@ -297,6 +404,65 @@ describe('motion, with care', () => {
     expect(screen.getByText(/set to reduce motion/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Show it' }));
     expect(screen.getByRole('img', { name: /Nothing in the picture moves/ })).toBeInTheDocument();
+  });
+});
+
+describe('the rebuilt illusions', () => {
+  it('runs every snake ring the same way round, black, dark blue, white, yellow; Break it evens the middle shades', () => {
+    expect(SNAKE_ORDER).toEqual(['#000000', '#1f3c9c', '#ffffff', '#e6d23c']);
+    expect(SNAKE_PLAIN[1]).toBe(SNAKE_PLAIN[3]);
+    const angle = (seg: string) => {
+      const [x, y] = seg.trim().split(/[ L]/).map(Number);
+      return Math.atan2(y, x);
+    };
+    for (const dir of [1, -1] as const) {
+      const { paths, rings } = snakeDisc(0, 0, 140, dir);
+      expect(rings).toBeGreaterThan(4);
+      // Piece by piece, each shade starts a little further round (in the disc's direction) than the shade before it.
+      const starts = paths.map((p) => p.split('M').filter(Boolean).map(angle));
+      for (let b = 1; b < 4; b++)
+        starts[b].forEach((a, k) => {
+          const d = Math.atan2(Math.sin(a - starts[b - 1][k]), Math.cos(a - starts[b - 1][k]));
+          expect(Math.sign(d)).toBe(dir);
+        });
+    }
+  });
+
+  it('keeps the Ames child one height: their picture shrinks with their real distance, as the plan shows', () => {
+    expect(amesDepth(-2.5)).toBeCloseTo(1.5);
+    expect(amesDepth(2.5)).toBeCloseTo(0.75);
+    // Picture height times real distance is the same everywhere: one child, one height.
+    for (const x of [-2.1, -1, 0, 1, 2.1]) expect(amesChildPx(x) * amesDepth(x)).toBeCloseTo(amesChildPx(0));
+    at('#ames');
+    render(<PerceptionLab />);
+    const h0 = Number(document.querySelector('[data-child-px]')!.getAttribute('data-child-px'));
+    fireEvent.change(screen.getByRole('slider', { name: 'Move the child' }), { target: { value: '100' } });
+    const h1 = Number(document.querySelector('[data-child-px]')!.getAttribute('data-child-px'));
+    expect(h1 / h0).toBeCloseTo(amesDepth(-2.1) / amesDepth(2.1), 2);
+    fireEvent.click(screen.getByRole('tab', { name: 'Break it' }));
+    expect(screen.getByRole('img', { name: /The child is the same size wherever they stand/ })).toBeInTheDocument();
+    expect(document.querySelector('[data-child-r]')!.getAttribute('data-child-r')).toBe('11');
+  });
+
+  it('keeps the same picture in Try it, Break it and Why?', () => {
+    at('#fraser');
+    render(<PerceptionLab />);
+    const vb = () => document.querySelector('.pl-figure svg')!.getAttribute('viewBox');
+    const first = vb();
+    fireEvent.click(screen.getByRole('tab', { name: 'Break it' }));
+    expect(vb()).toBe(first);
+    fireEvent.click(screen.getByRole('tab', { name: 'Why?' }));
+    expect(vb()).toBe(first);
+  });
+
+  it('documents a picture slot for every illusion, and every slot file exists, web-sized', () => {
+    expect(Object.keys(SLOTS).sort()).toEqual(ILLUSIONS.map((i) => i.id).sort());
+    for (const s of Object.values(SLOTS)) {
+      if (!s.file) continue;
+      const f = path.join(process.cwd(), 'public', SLOT_DIR, s.file);
+      expect(fs.existsSync(f)).toBe(true);
+      expect(fs.statSync(f).size).toBeLessThan(400 * 1024);
+    }
   });
 });
 
@@ -315,7 +481,7 @@ describe('class mode', () => {
     expect(screen.getByText(/Teacher tip:/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Class notebook/ }));
     expect(screen.getByText('A looks darker: 3 · B looks darker: 0 · They look the same: 1 (4 hands)')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /Our Class’s Illusion Fingerprint\. Fooled most by: brightness\. Brightness: 75%/ })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Our Class’s Illusion Fingerprint\. Fooled most by: brightness\..* Brightness: 75%/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Leave class mode' }));
     expect(screen.getByRole('button', { name: 'Teach with this' })).toBeInTheDocument();
   });
@@ -327,6 +493,10 @@ describe('printing and the way back', () => {
     expect(fs.readFileSync(path.join(LAB, 'lab/Notebook.tsx'), 'utf8')).toContain("'@page { size: 8.5in 11in; margin: 0.5in; }'");
     expect(css).toMatch(/@media print[\s\S]*\.pl-lab :is\(\.pl-top, \.pl-nb-tools, \.pl-foot, \.pl-station, \.pl-intro\) \{ display: none !important; \}/);
     expect(css).toMatch(/\.pl-nb-page \{[^}]*break-after: page/);
+    // One fixed layout: the station fills the screen, the panel scrolls, the pager stays clear of the corner buttons.
+    expect(css).toMatch(/\.pl-lab\[data-view='illusion'\] \{[^}]*height: 100dvh;/);
+    expect(css).toMatch(/\.pl-panel \{[^}]*overflow-y: auto;/);
+    expect(css).toMatch(/\.pl-pager \{[^}]*padding: 10px 96px 16px 136px;/);
   });
 
   it('goes back to the display case at the Interactives, and says nothing is stored', () => {

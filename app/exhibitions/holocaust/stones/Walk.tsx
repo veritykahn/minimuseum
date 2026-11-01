@@ -4,11 +4,10 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 're
 import { createPortal } from 'react-dom';
 import { useDialogFocus } from '@/lib/a11y';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
-import { FactSources } from '@/components/exhibition/FactNote';
-import { REMEMBRANCE_LINE } from '../holocaust';
+import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { makeFootsteps, type Footsteps } from './footsteps';
 import { EYE, FAR, HALF_WIDTH, STEP, easeStep, fog, hash2, makeView, project, rowStones, rowsInView } from './walkScene';
-import { WALK_LINES, ambientSrc, lineForStep, type Ambient, type WalkLine } from './walkLines';
+import { WALK_LINES, ambientSrc, shownLineForStep, type Ambient, type WalkLine, type WalkPictures } from './walkLines';
 import WalkPicture from './WalkPicture';
 
 /*
@@ -24,9 +23,10 @@ import WalkPicture from './WalkPicture';
  *
  * The walk is taken full screen, dark to the edges: the path below, a
  * picture far ahead (an object or a place, never a person; walkLines.ts),
- * and one short line a step. Poster 1's first sentence comes at step 3;
- * from step 4, the history, in order, each line with its source. After the
- * last line the path simply goes on.
+ * and one short line a step: from the first step, the history, in order,
+ * every step with its line and its picture. After the last line the path
+ * simply goes on, with the last line and picture still there. The sources,
+ * and the credit to Kadishman, are in the walk's Sources drawer.
  *
  * A step takes a second and a half, and cannot be hurried; walking on, a
  * step comes every few seconds, time to read its line. With reduced motion
@@ -37,16 +37,21 @@ import WalkPicture from './WalkPicture';
 export const STEP_MS = 1500;
 /** Walking on: a step this often, long enough to read a line. */
 export const AUTO_MS = 6500;
-/** After this many steps the poster's line is set beside the path. */
-export const LINE_AFTER = 3;
 
 export const KADISHMAN_URL = 'https://www.jmberlin.de/en/shalekhet-fallen-leaves';
 
-/** What the walk shows at step `steps`: nothing yet, the poster's line, or a line of the history. */
-export function wordsForStep(steps: number): { kind: 'none' } | { kind: 'poster' } | { kind: 'line'; line: WalkLine } {
-  if (steps === LINE_AFTER) return { kind: 'poster' };
-  const line = lineForStep(steps, LINE_AFTER);
-  return line ? { kind: 'line', line } : { kind: 'none' };
+/** What the walk shows at step `steps`: nothing before the first step, then a line of the history every step (the last one again, once the walk has gone past it). */
+export function wordsForStep(steps: number): { kind: 'none' } | { kind: 'line'; line: WalkLine; end: boolean } {
+  const line = shownLineForStep(steps);
+  return line ? { kind: 'line', line, end: steps >= WALK_LINES.length } : { kind: 'none' };
+}
+
+/** The walk's sources, by step, and the credit to the piece that inspired it: for the Sources drawer. */
+export function walkSourceGroups(): SourceGroup[] {
+  return [
+    { title: 'The walk: inspiration', items: [{ label: 'Menashe Kadishman, Fallen Leaves (Shalekhet), Jewish Museum Berlin', href: KADISHMAN_URL, note: 'The walk is an original piece, inspired by' }] },
+    ...WALK_LINES.map((l, i) => ({ title: `The walk, step ${i + 1}`, items: l.sources.map((s) => ({ ...s, note: l.text.length > 60 ? `${l.text.slice(0, 57).trimEnd()}…` : l.text.replace(/\.$/, '') })) })),
+  ];
 }
 
 const AMBIENT_LEVEL = 0.22;
@@ -72,11 +77,10 @@ export function useWalk(ambients: readonly Ambient[] = []) {
     setSteps(n);
     setStepAt(reduced ? null : now);
     audio.current?.step(n % 2 === 0 ? 1 : -1);
-    const words = wordsForStep(n);
-    if (n === 1) setAnnouncement('You step forward, onto the stones.');
-    else if (words.kind === 'poster') setAnnouncement(REMEMBRANCE_LINE);
-    else if (words.kind === 'line') setAnnouncement(words.line.text);
-    else if (n === LINE_AFTER + WALK_LINES.length + 1) setAnnouncement('The path goes on.');
+    if (n <= WALK_LINES.length) setAnnouncement(WALK_LINES[n - 1].text);
+    else if (n === WALK_LINES.length + 1) setAnnouncement('The path goes on.');
+    // Walking on stops at the last line: the visitor may walk on, by step, or leave.
+    if (n >= WALK_LINES.length) setWalking(false);
     return true;
   }, [reduced]);
 
@@ -110,8 +114,7 @@ export function useWalk(ambients: readonly Ambient[] = []) {
 
   // Under the steps, the part of the walk's ambient recording, where there is one: looped, quiet, faded in and out.
   const words = wordsForStep(steps);
-  const lastLine = steps > LINE_AFTER ? lineForStep(Math.min(steps, LINE_AFTER + WALK_LINES.length), LINE_AFTER) : null;
-  const part: Ambient = lastLine?.part ?? 'before';
+  const part: Ambient = shownLineForStep(steps)?.part ?? 'before';
   const playing = useRef<{ part: Ambient; el: HTMLAudioElement } | null>(null);
   useEffect(() => {
     const want = sound && full && ambients.includes(part) ? part : null;
@@ -340,35 +343,22 @@ function trace(g: CanvasRenderingContext2D, pts: [number, number][]) {
   g.closePath();
 }
 
-function Credit() {
-  return (
-    <p className="hos-walk-credit">
-      Inspired by Menashe Kadishman’s{' '}
-      <a href={KADISHMAN_URL} target="_blank" rel="noopener noreferrer">
-        <i>Fallen Leaves</i> (<i>Shalekhet</i>)
-      </a>{' '}
-      at the Jewish Museum Berlin
-    </p>
-  );
-}
-
 /** The walk's place in the room's panel: what it is, and the way in. */
 export function WalkControls({ announcement, enter, full }: Walk) {
   return (
     <div className="hos-walk">
       <p className="hos-intro">A path of plain stones. Each one stands for a person. Walk over them slowly.</p>
-      <p className="hos-walk-about">Each step brings one short line of the history, in the order it happened, and a picture of a place or a thing left behind. The walk fills the screen.</p>
+      <p className="hos-walk-about">Each step brings one short line of the history, in the order it happened, and a picture of a place or a thing left behind. The walk fills the screen. Sound is off until you turn it on.</p>
       <button type="button" className="hos-button hos-button-primary" onClick={enter} aria-expanded={full}>
         Begin the walk
       </button>
-      <Credit />
       <p className="visually-hidden" role="status" aria-live="polite">{full ? '' : announcement}</p>
     </div>
   );
 }
 
 /** The walk, full screen: the path, a picture far ahead, one line a step, and a few quiet buttons. */
-export function WalkFull({ walk, pictures }: { walk: Walk; pictures: readonly string[] }) {
+export function WalkFull({ walk, pictures }: { walk: Walk; pictures: WalkPictures }) {
   const { reduced, steps, stepAt, walking, sound, words, announcement, step, toggleWalking, toggleSound, leave } = walk;
   const ref = useRef<HTMLDivElement>(null);
   const stepRef = useRef<HTMLButtonElement>(null);
@@ -404,30 +394,23 @@ export function WalkFull({ walk, pictures }: { walk: Walk; pictures: readonly st
   };
 
   const line = words.kind === 'line' ? words.line : null;
-  // The picture stays with its line, and the last one stays as the path goes on.
-  const shownLine = line ?? (steps > LINE_AFTER + WALK_LINES.length ? WALK_LINES[WALK_LINES.length - 1] : null);
 
   return createPortal(
     <div ref={ref} className={`hos-walk-full${reduced ? ' is-still' : ''}`} data-exhibition="holocaust" role="dialog" aria-modal="true" aria-label="The walk" tabIndex={-1} onKeyDown={onKey}>
       <WalkScene steps={steps} stepAt={stepAt} reduced={reduced} full />
-      {shownLine && (
-        <div className="hos-walk-ahead" key={shownLine.slot}>
-          <WalkPicture line={shownLine} ready={pictures.includes(shownLine.slot)} />
+      {line && (
+        <div className="hos-walk-ahead" key={line.slot}>
+          <WalkPicture line={line} file={pictures[line.slot]} />
         </div>
       )}
       <span className="hos-walk-edges" aria-hidden="true" />
 
       <div className="hos-walk-words">
         {steps === 0 && <p className="hos-walk-say is-intro">A path of plain stones. Each one stands for a person. Take a step when you are ready.</p>}
-        {words.kind === 'poster' && (
-          <p className="hos-walk-say" key="poster">
-            {REMEMBRANCE_LINE}
-          </p>
-        )}
         {line && (
-          <div className="hos-walk-say-wrap" key={line.id} data-line={line.id}>
+          <div className="hos-walk-say-wrap" key={line.id} data-line={line.id} data-step={WALK_LINES.indexOf(line) + 1}>
             <p className="hos-walk-say">{line.text}</p>
-            <FactSources sources={line.sources} className="hos-walk-source" />
+            {words.kind === 'line' && words.end && <p className="hos-walk-end">The path goes on. Walk on in silence, or leave the walk when you are ready.</p>}
           </div>
         )}
       </div>
@@ -447,6 +430,10 @@ export function WalkFull({ walk, pictures }: { walk: Walk; pictures: readonly st
         <button type="button" className="hos-button hos-walk-leave" onClick={leave}>
           Leave the walk
         </button>
+      </div>
+      {/* Every line's source, and the credit to Kadishman, by step: the walk's own drawer, at its top left, clear of the steps. */}
+      <div className="hos-walk-sources">
+        <SourcesDrawer groups={walkSourceGroups()} />
       </div>
       <p className="visually-hidden" role="status" aria-live="polite">{announcement}</p>
     </div>,

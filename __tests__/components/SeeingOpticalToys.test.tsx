@@ -336,7 +336,7 @@ describe('make your own thaumatrope', () => {
 describe('the toys’ history', () => {
   const VA = 'https://collections.vam.ac.uk/item/O96347/optical-toy-zoetrope-zoetrope/';
 
-  it('notes each toy’s history, and once for both, each with its source linked', () => {
+  it('notes each toy’s history, and once for both, with every source in the Sources drawer, not on the card', () => {
     window.history.replaceState(null, '', '/exhibitions/seeing-is-deceiving/optical-toys');
     render(<SeeingOpticalToys />);
     // The carve-out: these notes are not the poster's words.
@@ -345,16 +345,28 @@ describe('the toys’ history', () => {
     expect(screen.getAllByText(TOY_NOTES.both.text)).toHaveLength(1);
     const thauma = screen.getByRole('tabpanel', { name: 'Thaumatrope' });
     expect(within(thauma).getByText(TOY_NOTES.thaumatrope.text)).toBeInTheDocument();
-    expect(within(thauma).getByRole('link', { name: 'Science Museum Group' })).toHaveAttribute('href', 'https://collection.sciencemuseumgroup.org.uk/objects/co8085499');
+    expect(within(thauma).queryByRole('link')).not.toBeInTheDocument();
+    expect(within(thauma).queryByText(/^Sources?:/)).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('tab', { name: 'Zoetrope' }));
     const zoe = screen.getByRole('tabpanel', { name: 'Zoetrope' });
     expect(within(zoe).getByText(TOY_NOTES.zoetrope.text)).toBeInTheDocument();
-    const va = within(zoe).getAllByRole('link', { name: 'V&A' });
+    expect(within(zoe).queryByRole('link')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['Thaumatrope', 'Zoetrope', 'Both toys']);
+    expect(within(drawer).getByRole('link', { name: 'Science Museum Group' })).toHaveAttribute('href', 'https://collection.sciencemuseumgroup.org.uk/objects/co8085499');
+    const va = within(drawer).getAllByRole('link', { name: 'V&A' });
     expect(va).toHaveLength(2);
     for (const l of va) expect(l).toHaveAttribute('href', VA);
-    expect(within(zoe).getByRole('link', { name: 'US Patent 64,117' })).toHaveAttribute('href', 'https://patents.google.com/patent/US64117A/en');
+    expect(within(drawer).getByRole('link', { name: 'US Patent 64,117' })).toHaveAttribute('href', 'https://patents.google.com/patent/US64117A/en');
     expect(TOY_NOTES.both.sources).toEqual([{ label: 'V&A', href: VA }]);
+  });
+
+  it('turns the disc with no pale lamp behind it', () => {
+    const css = fs.readFileSync(path.join(process.cwd(), 'app/exhibitions/seeing-is-deceiving/optical-toys/optical-toys.css'), 'utf8');
+    expect(css).not.toMatch(/\.vt-disc-holder::before/);
   });
 });
 

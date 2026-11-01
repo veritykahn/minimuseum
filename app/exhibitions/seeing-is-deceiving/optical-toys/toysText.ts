@@ -1,4 +1,5 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
+import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
 
 /*
  * The optical toys room's words. Every line that explains the toys is quoted
@@ -8,8 +9,9 @@ import type { ApprovedFact } from '@/components/exhibition/FactNote';
  * buttons do, and what is on screen at each speed.
  *
  * The toys' history is the exception: three notes (TOY_NOTES), owner-approved
- * and fact-checked, each set with its source (the Science Museum Group, the
- * V&A, and US Patent 64,117), apart from the poster's lines. They came with
+ * and fact-checked, each with its source (the Science Museum Group, the
+ * V&A, and US Patent 64,117), apart from the poster's lines. The sources
+ * are listed in the room's Sources drawer (TOY_SOURCES), not on the cards. They came with
  * the toys from Victorian Britain, where the room first stood.
  */
 
@@ -51,6 +53,13 @@ export const TOY_NOTES = {
     sources: [VA_ZOETROPE],
   },
 } satisfies Record<string, ApprovedFact>;
+
+/** The room's Sources drawer: every source, by toy. */
+export const TOY_SOURCES: SourceGroup[] = [
+  { title: 'Thaumatrope', items: TOY_NOTES.thaumatrope.sources.map((s) => ({ ...s, note: 'Who invented it' })) },
+  { title: 'Zoetrope', items: TOY_NOTES.zoetrope.sources.map((s) => ({ ...s, note: s.label === 'V&A' ? 'Horner’s daedaleum' : 'Lincoln’s patent' })) },
+  { title: 'Both toys', items: TOY_NOTES.both.sources.map((s) => ({ ...s, note: 'Victorian family entertainment' })) },
+];
 
 /** The thaumatrope's two sides, and what the eye makes of them. */
 export const DISC = {

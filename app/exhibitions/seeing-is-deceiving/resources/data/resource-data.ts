@@ -39,7 +39,7 @@ export const SUBJECT_LESSON_PLANS: Record<string, string> = {
   'science': 'Lesson Plan_ How Vision Works (Science 5-8) - Teacher Guide.pdf',
   'ela': 'Lesson Plan_ Evaluating Sources (ELA 5-8) - Teacher Guide.pdf',
   'social-studies': 'Lesson Plan_ Visual Propaganda Through History (Social Studies 5-8) - Teacher Guide.pdf',
-  'art': 'Lesson Plan_ Creating Optical Illusions (Art, Grades 5-8) - Teacher Guide.pdf',
+  'art': 'Lesson-Plan-Creating-Optical-Illusions-Art-Grades-5-8-Teacher-Guide.pdf',
   'math': 'Lesson Plan_ Geometry of Perspective (Math 5-8) - Teacher Guide.pdf',
   'pe': 'Lesson Plan_ Vision and Athletics (PE 5-8) - Teacher Guide.pdf',
   'religion': 'Lesson Plan_ Bearing True Witness (Religion 5-8) - Teacher Guide.pdf',
@@ -179,4 +179,4 @@ export const ON_SCREEN_LESSONS: Record<string, string> = {
 };
 
 // Parent resource
-export const PARENT_RESOURCE_PATH = '/resources/seeing-is-deceiving/parents/Parent Resource Guide_ Optical Illusions & Visual Deception.pdf';
+export const PARENT_RESOURCE_PATH = '/resources/seeing-is-deceiving/parents/Parent-Resource-Guide-Optical-Illusions-and-Visual-Deception.pdf';

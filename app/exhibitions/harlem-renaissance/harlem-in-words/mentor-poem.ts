@@ -36,6 +36,24 @@ export const MENTOR_POEM = {
   credit: 'First published in The Crisis, June 1921. Public domain in the United States.',
 } as const;
 
+/**
+ * The room's Sources drawer: the poem's publication and licence credit, and
+ * the two transcriptions its text was checked against (named as above).
+ */
+export const MENTOR_SOURCES = [
+  {
+    title: 'Read a mentor poem',
+    items: [
+      {
+        label: `${MENTOR_POEM.author}, “${MENTOR_POEM.title}.” First published in The Crisis (NAACP), June 1921`,
+        licence: 'Public domain in the United States',
+      },
+      { note: 'Text checked against', label: 'Wikisource, “The Negro Speaks of Rivers (Crisis)”' },
+      { note: 'Text checked against', label: 'Lehigh University, “African American Poetry: A Digital Anthology”' },
+    ],
+  },
+] as const;
+
 /** What to notice: craft moves a student can borrow, all visible in the text. */
 export const MENTOR_NOTICES = [
   {

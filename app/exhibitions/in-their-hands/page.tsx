@@ -8,6 +8,7 @@ import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
 import LandingRow from '@/components/exhibition/LandingRow';
+import ExploreRow, { ExploreCue } from '@/components/exhibition/ExploreRow';
 import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { ITH_TALK } from '@/components/projector/posterTalk';
@@ -18,6 +19,7 @@ import { EntranceCopy } from '@/components/exhibition/EntranceCopy';
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { ITH_ATMOSPHERES, poster1Content, poster2Content, type IthItem } from './posters';
+import { ITH_ROOMS } from './rooms';
 import './in-their-hands.css';
 
 const poster1Marks = chapterMarks(poster1Content);
@@ -917,6 +919,7 @@ export default function InTheirHands() {
           MAIN EXHIBITION VIEW
           ============================================ */}
       {activeView === 'main' && !projector && (
+        <>
         <div className="ith-exhibition-main pe-landing">
           <div className="ith-exhibition-title pe-landing-head">
             <h1>In Their Hands</h1>
@@ -936,7 +939,7 @@ export default function InTheirHands() {
             <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case pe-landing-case">
               <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Lit display case with three coins in round holders before a printed information card" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.webp" alt="Lit display case with three coins in round holders before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 6</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the World of Jesus</p>
@@ -945,7 +948,7 @@ export default function InTheirHands() {
             <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case pe-landing-case">
               <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Lit display case with six coins in round holders before two printed information cards" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.webp" alt="Lit display case with six coins in round holders before two printed information cards" />
               <p className="ith-case-label">Gallery II, Case 7</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
@@ -954,7 +957,7 @@ export default function InTheirHands() {
             <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case pe-landing-case">
               <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-3.webp" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 8</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the Early Church</p>
@@ -967,7 +970,12 @@ export default function InTheirHands() {
             </button>
           </LandingRow>
 
+          <ExploreCue rooms={ITH_ROOMS} />
         </div>
+
+        {/* The interactive rooms, below the first screen; the case's Interactives list the same (rooms.ts). */}
+        <ExploreRow rooms={ITH_ROOMS} style={{ '--pe-explore-ink': gold, '--pe-explore-accent': gold, '--pe-explore-on-accent': poster1Sepia, '--pe-display': "'Cormorant Garamond', serif", '--pe-body': "'Cormorant Garamond', serif", '--pe-ui': "'Outfit', sans-serif" }} />
+        </>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">

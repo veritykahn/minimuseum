@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import VioletsLife from '@/app/exhibitions/womens-history/violet/page';
 import { BLITZ_NOTE, LIFE, threadLayout, threadPath } from '@/app/exhibitions/womens-history/violet/violetLife';
 import { BIO, WOMENS_HISTORY } from '@/app/exhibitions/womens-history/womensHistory';
@@ -101,7 +101,14 @@ describe('walking the thread', () => {
     const note = screen.getByRole('complementary', { name: 'Museum note' });
     expect(note).toHaveTextContent('The first V-1 to hit London fell on June 13, 1944.');
     expect(note.closest('.whv-copy')).toBeNull();
-    expect(screen.getByRole('link', { name: 'Imperial War Museums' })).toHaveAttribute('href', 'https://memorials.iwm.org.uk/memorial/96212');
+    // Its source is in the room's Sources drawer, not under the note.
+    expect(within(note).queryByRole('link')).toBeNull();
+    expect(note).not.toHaveTextContent(/Source/);
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = within(screen.getByRole('dialog', { name: 'Sources' }));
+    expect(drawer.getByRole('heading', { name: 'The Blitz' })).toBeInTheDocument();
+    expect(drawer.getByRole('link', { name: 'Imperial War Museums' })).toHaveAttribute('href', 'https://memorials.iwm.org.uk/memorial/96212');
+    fireEvent.click(drawer.getByRole('button', { name: 'Close sources' }));
     fireEvent.click(screen.getByRole('tab', { name: /The factory/ }));
     expect(screen.queryByRole('complementary', { name: 'Museum note' })).toBeNull();
   });

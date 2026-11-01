@@ -229,16 +229,6 @@
   color: #e8372c;
 }
 .gws-hour-date { color: #ede6da; font-weight: 400; }
-.gws-strip-credit {
-  position: relative;
-  z-index: 1;
-  font-family: var(--pe-body);
-  font-style: italic;
-  font-size: 15px;
-  color: #c9c1b4;
-  text-align: center;
-  padding: 0 16px;
-}
 
 /* Reduced motion: no grain, no sweep, no scroll. The record is shown whole. */
 .gws-reduced .gws-screen::after,
@@ -365,7 +355,6 @@
 .gws[data-phase='done'] .gws-record { position: relative; inset: auto; flex: none; width: 100%; gap: 6px; padding: 0; }
 .gws[data-phase='done'] .gws-strip-track { height: clamp(80px, 24cqh, 200px); }
 .gws[data-phase='done'] .gws-hour { font-size: clamp(0.95rem, 3.2cqh, 1.4rem); }
-.gws[data-phase='done'] .gws-strip-credit { font-size: 13px; }
 .gws-screen .gws-after {
   position: relative;
   z-index: 1;
@@ -416,7 +405,8 @@
 .gw-room.gw-silence .gws-foot a.gws-return:hover { color: #ec4a3f; }
 
 @media (max-width: 640px) {
-  .gws-stage { padding-top: 64px; min-height: 0; }
+  /* The foot ends above the Sources and map buttons in the screen's corners. */
+  .gws-stage { padding-top: 64px; padding-bottom: 60px; min-height: 0; }
   .gws-frame .gws-screen { width: min(100%, calc(100cqh * 3 / 4)); }
   .gws-screen .gws-after { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'closing' 'iwm' 'link'; gap: 10px; }
   .gws-screen .gws-closing { align-self: auto; }
@@ -424,7 +414,8 @@
   /* After the film, on a phone: everything smaller, so the link is in the frame too. */
   .gws[data-phase='done'] .gws-screen { gap: 8px; padding: 10px 4%; }
   .gws[data-phase='done'] .gws-strip-track { height: clamp(70px, 16cqh, 120px); }
-  .gws[data-phase='done'] .gws-strip-credit { font-size: 11px; }
+  /* On a short phone, what follows the record scrolls inside the frame rather than being cut off. */
+  .gws[data-phase='done'] .gws-screen .gws-after { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
   .gws-screen .gws-closing { font-size: 1.05rem; }
   .gws-screen .gws-iwm figcaption { font-size: 0.72rem; margin-top: 4px; }
   .gws-screen .gws-after > .gw-button { padding: 10px 14px; font-size: 11px; }

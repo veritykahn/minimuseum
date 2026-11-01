@@ -6,6 +6,10 @@ import { CATEGORIES, ILLUSIONS, type Category, type Illusion, type IllusionId } 
  * notebook line says what the visitor measured, and a strength from 0 (not
  * fooled at all) to 1 (fooled as much as most people are) feeds the
  * Illusion Fingerprint, the average strength for each kind of trick.
+ *
+ * One entry per illusion, before and after: what the visitor measured with
+ * the trick on (Try it) and with it switched off (Break it). The result is
+ * the difference. The fingerprint counts the "before".
  */
 
 export type LabResult = {
@@ -15,7 +19,26 @@ export type LabResult = {
   strength: number | null;
 };
 
-export type Results = Partial<Record<IllusionId, LabResult>>;
+/** Try it, then Break it: the one notebook entry for an illusion. */
+export type Entry = { before?: LabResult; after?: LabResult };
+
+export type Phase = keyof Entry;
+
+export type Results = Partial<Record<IllusionId, Entry>>;
+
+/** The notebook's line for an entry: before, then after. */
+export function entryLines(e: Entry | undefined): { label: string; line: string }[] {
+  if (!e) return [];
+  const out: { label: string; line: string }[] = [];
+  if (e.before) out.push({ label: 'Trick on', line: e.before.line });
+  if (e.after) out.push({ label: 'Trick off', line: e.after.line });
+  return out;
+}
+
+export function entryText(e: Entry | undefined): string | null {
+  const lines = entryLines(e);
+  return lines.length ? lines.map((l) => `${l.label}: ${l.line}`).join(' ') : null;
+}
 
 const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
 const pct = (n: number) => `${Math.round(Math.abs(n))}%`;
@@ -39,15 +62,10 @@ export function contrastResult(right: number, truth: number): LabResult {
   return { line, strength: clamp01(Math.abs(off) / 25) };
 }
 
-/** Müller-Lyer: the middle's place along the line (0 to 1), with fins and, if tried, without. */
-export function mullerLyerResult(withFins: number, withoutFins?: number): LabResult {
-  const off = (withFins - 0.5) * 100;
-  const side = off > 0 ? 'right' : 'left';
-  let line = Math.abs(off) < 1 ? 'With fins: you found the exact middle.' : `With fins: you put the middle ${pct(off)} of the line too far to the ${side}.`;
-  if (withoutFins !== undefined) {
-    const o2 = (withoutFins - 0.5) * 100;
-    line += Math.abs(o2) < 1 ? ' Without fins: exact.' : ` Without fins: ${pct(o2)} off.`;
-  }
+/** Müller-Lyer: the middle's place along the line (0 to 1). */
+export function mullerLyerResult(m: number): LabResult {
+  const off = (m - 0.5) * 100;
+  const line = Math.abs(off) < 1 ? 'You found the exact middle.' : `You put the middle ${pct(off)} of the line too far to the ${off > 0 ? 'right' : 'left'}.`;
   return { line, strength: clamp01(Math.abs(off) / 10) };
 }
 
@@ -74,8 +92,14 @@ export function poggendorffResult(guess: number, truth: number, height: number):
 
 /** Troxler: seconds until it faded, or null if it never did. */
 export function troxlerResult(seconds: number | null): LabResult {
-  if (seconds === null) return { line: 'The colours did not fade for you this time.', strength: 0 };
-  return { line: `The colours faded after ${Math.round(seconds)} seconds.`, strength: clamp01(1 - (seconds - 8) / 40) };
+  if (seconds === null) return { line: 'The colors did not fade for you this time.', strength: 0 };
+  return { line: `The colors faded after ${Math.round(seconds)} seconds.`, strength: clamp01(1 - (seconds - 8) / 40) };
+}
+
+/** Stroop, Round 3: the words match their ink. */
+export function stroopMatchResult(matching: number, words?: number): LabResult {
+  const line = `Round 3: ${matching.toFixed(1)} s${words === undefined ? '.' : `, against ${words.toFixed(1)} s for Round 2.`}`;
+  return { line, strength: null };
 }
 
 /** Stroop: the two rounds' times, in seconds. */
@@ -99,7 +123,7 @@ export type Fingerprint = { category: Category; label: string; score: number | n
 export function fingerprint(results: Results): Fingerprint {
   return CATEGORIES.map((c) => {
     const s = ILLUSIONS.filter((i) => i.category === c.id)
-      .map((i) => results[i.id]?.strength)
+      .map((i) => results[i.id]?.before?.strength)
       .filter((x): x is number => typeof x === 'number');
     return { category: c.id, label: c.label, score: s.length ? s.reduce((a, b) => a + b, 0) / s.length : null, count: s.length };
   });

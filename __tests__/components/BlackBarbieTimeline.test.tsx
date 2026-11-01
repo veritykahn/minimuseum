@@ -37,6 +37,12 @@ const posterCopy = BLACK_HISTORY.posters[1].items.map((i) => (i as { text?: stri
 const stopButton = (name: string) => screen.getByRole('button', { name: new RegExp(`(^|, )${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(, year hidden)?$`) });
 /** Show the year at the stop on screen without guessing. */
 const showMe = () => fireEvent.click(screen.getByRole('button', { name: 'Just show me' }));
+/** The room's Sources drawer, opened; and a stop's group in it. */
+const openSources = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+  return screen.getByRole('dialog', { name: 'Sources' });
+};
+const sourcesGroup = (drawer: HTMLElement, title: string) => within(drawer).getByRole('heading', { name: title }).closest('section') as HTMLElement;
 
 beforeEach(() => {
   window.history.replaceState(null, '', '/');
@@ -403,11 +409,13 @@ describe('fixes from the QA pass', () => {
     // Down scrolls the words; it doesn't move the timeline.
     fireEvent.keyDown(screen.getByRole('region', { name: '1980: The first Black Barbie' }), { key: 'ArrowDown' });
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('1980: The first Black Barbie');
-    // A link in a note keeps its keys.
+    // A link in the Sources drawer keeps its keys, and so does the drawer.
     fireEvent.click(stopButton('Shani'));
     showMe();
-    fireEvent.keyDown(screen.getByRole('link', { name: /Shani and Her Friends/ }), { key: 'ArrowRight' });
-    expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('1991: Shani');
+    const drawer = openSources();
+    fireEvent.keyDown(within(drawer).getByRole('link', { name: /Shani and Her Friends/ }), { key: 'ArrowRight' });
+    fireEvent.keyDown(drawer, { key: 'ArrowRight' });
+    expect(document.getElementById('bht-stop-heading')).toHaveTextContent('1991: Shani');
   });
 
   it('keeps only the stop shown in the tab order', () => {
@@ -433,7 +441,7 @@ describe('fixes from the QA pass', () => {
 });
 
 describe('the added stops', () => {
-  it('each show their note and its source link, with no poster quote', () => {
+  it('each show their note, its sources in the Sources drawer, with no poster quote', () => {
     render(<BlackBarbieTimeline />);
     const cases: [string, string, string, string[]][] = [
       ['Dolls of the World', 'c. 1990: Dolls of the World', ADDED_NOTES.dollsOfTheWorld.text, ['https://virtualblackdollmuseum.com/2024/03/15/barbie-dolls-of-the-world/']],
@@ -456,10 +464,17 @@ describe('the added stops', () => {
       expect(words).toHaveTextContent(text);
       expect(words.querySelector('.bht-sentence')).toBeNull();
       expect(words.querySelector('mark')).toBeNull();
-      const links = Array.from(words.querySelectorAll('a')).map((a) => a.getAttribute('href'));
-      expect(links).toEqual(hrefs);
+      // Nothing cited inline: the sources are in the drawer, under the stop.
+      expect(words.querySelectorAll('a')).toHaveLength(0);
+      expect(within(words).queryByText(/^Sources?:/)).toBeNull();
       expect(screen.getByText(/A museum note/)).toBeInTheDocument();
+      const group = sourcesGroup(openSources(), heading);
+      expect(within(group).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(hrefs);
+      fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
     }
+    // The drawer lists the three added stops, and only them, until the owner's photographs come.
+    expect(within(openSources()).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(['c. 1990: Dolls of the World', '1991: Shani', '2022–23: Inspiring Women']);
+    fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
     // Back on a poster stop, the source line is the poster's again.
     fireEvent.click(stopButton('AKA Centennial Barbie and “So In Style”'));
     expect(screen.getByText(/In the words of the poster/)).toBeInTheDocument();

@@ -1,11 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { AMBIENTS, WALK_LINES, ambientSrc, slotSrc, type Ambient } from './walkLines';
+import { AMBIENTS, WALK_DIR, WALK_LINES, ambientSrc, slotFiles, type Ambient, type WalkPictures } from './walkLines';
 
 /*
  * Which of the walk's picture and sound slots the owner has filled: read
  * from public/ when the page is built (server only), so a file dropped in
  * place is used from the next build, and an empty slot costs no request.
+ * A picture may be named for its slot (w07-broken-window.webp) or by its
+ * number (walk-07.jpg); the first found is used.
  */
 
 const onDisk = (src: string) => {
@@ -16,9 +18,11 @@ const onDisk = (src: string) => {
   }
 };
 
-export function walkSlotsOnDisk(): { pictures: string[]; ambients: Ambient[] } {
-  return {
-    pictures: [...new Set(WALK_LINES.map((l) => l.slot))].filter((s) => onDisk(slotSrc(s))),
-    ambients: AMBIENTS.filter((a) => onDisk(ambientSrc(a))),
-  };
+export function walkSlotsOnDisk(): { pictures: WalkPictures; ambients: Ambient[] } {
+  const pictures: Record<string, string> = {};
+  for (const { slot } of WALK_LINES) {
+    const file = slotFiles(slot).find((f) => onDisk(`${WALK_DIR}/${f}`));
+    if (file) pictures[slot] = file;
+  }
+  return { pictures, ambients: AMBIENTS.filter((a) => onDisk(ambientSrc(a))) };
 }

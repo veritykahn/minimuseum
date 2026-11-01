@@ -1,0 +1,76 @@
+/* ==========================================================================
+   An interactive's Sources button and drawer (SourcesDrawer): small, quiet,
+   bottom left, in the room's own colors where it sets --mm-sources-*.
+   ========================================================================== */
+
+.mm-sources-btn {
+  position: fixed;
+  left: calc(16px + env(safe-area-inset-left, 0px));
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  z-index: 900;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--mm-sources-ink, #fafafa) 35%, transparent);
+  border-radius: 999px;
+  background: var(--mm-sources-bg, rgba(10, 10, 10, 0.75));
+  color: var(--mm-sources-ink, #fafafa);
+  font: 500 11px/1 system-ui, sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.mm-sources-btn:hover,
+.mm-sources-btn[aria-expanded='true'] { opacity: 1; }
+.mm-sources-btn:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; opacity: 1; }
+
+.mm-sources-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  background: rgba(0, 0, 0, 0.35);
+}
+.mm-sources-panel {
+  width: min(440px, 100%);
+  max-height: min(70vh, 100%);
+  overflow-y: auto;
+  margin: 0 0 0 0;
+  padding: 18px 20px calc(24px + env(safe-area-inset-bottom, 0px));
+  overscroll-behavior: contain;
+  border-radius: 14px 14px 0 0;
+  background: #faf8f3;
+  color: #1c1b19;
+  font: 14px/1.5 system-ui, sans-serif;
+  box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.3);
+  outline: none;
+}
+@media (min-width: 601px) {
+  .mm-sources-scrim { padding: 0 0 16px 16px; }
+  .mm-sources-panel { border-radius: 14px; }
+}
+.mm-sources-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.mm-sources-head h2 { margin: 0; font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; }
+.mm-sources-close {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 24px;
+  cursor: pointer;
+}
+.mm-sources-group h3 { margin: 14px 0 4px; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; opacity: 0.7; }
+.mm-sources-group ul { margin: 0; padding-left: 18px; }
+.mm-sources-group li { margin: 4px 0; overflow-wrap: anywhere; }
+.mm-sources-group a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.mm-sources-note { opacity: 0.8; }
+.mm-sources-licence { opacity: 0.7; font-size: 13px; }
+
+@media print {
+  .mm-sources-btn,
+  .mm-sources-scrim { display: none; }
+}

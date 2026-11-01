@@ -130,6 +130,11 @@ export function MapToggleButton({ isOpen, onClick, placement = 'corner' }: MapTo
         @media (prefers-reduced-motion: reduce) {
           .map-toggle-btn, .map-toggle-btn:hover { transition: none; transform: none; }
         }
+
+        /* Never on paper: it printed over the foot of a poem or a mentor page. */
+        @media print {
+          .map-toggle-btn { display: none; }
+        }
       `}</style>
     </>
   );

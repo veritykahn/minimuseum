@@ -69,7 +69,7 @@ export const case6Coins: CoinData[] = [
       'This same king\'s governor later pursued Paul in Damascus; Paul escaped by being lowered in a basket from the city wall (2 Cor 11:32–33). One coin. Three New Testament stories.',
     ],
     frontImage: `${basePath}/coins/aretas-front.png`,
-    backImage: `${basePath}/coins/aretas-back.png`,
+    backImage: `${basePath}/coins/aretas-back.webp`,
     displayCard: `${basePath}/display-cards/Aretas.jpg`,
   },
 ];
@@ -200,8 +200,8 @@ export const case8Coins: CoinData[] = [
     description: [
       'Claudius reigned from 41 to 54 AD. An expulsion of Jews from Rome under Claudius is also mentioned by the historian Suetonius (Claudius 25.4). It is usually dated to about 49 AD, though the date is debated. According to Acts, this order is why Aquila and Priscilla were in Corinth, where Paul met them. Without it, two of Paul\'s most important co-workers might never have crossed his path. They are mentioned in Romans, 1 Corinthians, and 2 Timothy.',
     ],
-    frontImage: `${basePath}/coins/claudius-front.png`,
-    backImage: `${basePath}/coins/claudius-back.png`,
+    frontImage: `${basePath}/coins/claudius-front.webp`,
+    backImage: `${basePath}/coins/claudius-back.webp`,
     displayCard: `${basePath}/display-cards/claudius.jpg`,
   },
   {
@@ -217,8 +217,8 @@ export const case8Coins: CoinData[] = [
     description: [
       'Festus succeeded Felix as Roman Procurator of Judaea in approximately 59 AD and died in office around 62 AD. Paul had been held in Caesarea for two years. When Festus reopened his case, Paul invoked his right as a Roman citizen to appeal directly to the Emperor — one of the most dramatic legal moments in Acts. Scholars who argue for the historical reliability of Acts often point to procedural details like this one, which fit what is known of Roman legal practice. Coins like this one were struck under Festus in the years Acts describes.',
     ],
-    frontImage: `${basePath}/coins/festus-front.png`,
-    backImage: `${basePath}/coins/festus-back.png`,
+    frontImage: `${basePath}/coins/festus-front.webp`,
+    backImage: `${basePath}/coins/festus-back.webp`,
     displayCard: `${basePath}/display-cards/festus.jpg`,
   },
 ];

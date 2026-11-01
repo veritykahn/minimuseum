@@ -3,8 +3,10 @@
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import CasePlaceholder from './CasePlaceholder';
+import { ARTIFACT_PHOTO_SIZE, NO_CASE_PHOTOS, leadCasePhoto, type CasePhotosOnDisk } from './casePhotoPaths';
 import { CaseViewTabs, caseViewIds, useCaseView } from './CaseViews';
 import { artifactPath } from './artifacts';
+import { roomsInOrder } from './roomsInOrder';
 import { ArtifactGlyph, Emphasized, caseRootStyle } from './caseShared';
 import type { CasePageData, ExhibitionConfig } from './types';
 import './poster-exhibition.css';
@@ -14,7 +16,9 @@ import './poster-exhibition.css';
  * exhibitions' case listings are: the case's name and writing, then a card for
  * each artifact in it, each opening the artifact's own page (ArtifactPage).
  * Above them, a photograph of the case, or until it is photographed an empty
- * case drawn in outline, "Display case — photographs to come"; below them,
+ * case drawn in outline (CasePlaceholder); each artifact's card shows its
+ * photograph once the owner drops it in (casePhotoPaths.ts: the route reads
+ * which are there and passes them as `photos`); below them,
  * the record's lines about the display itself. A pair of tabs at the top
  * switches to the case's other view, "Interactives": a card for each of the
  * exhibition's rooms (its config's `interactives`), each with a picture of
@@ -27,13 +31,16 @@ import './poster-exhibition.css';
  * pe-room-* classes under [data-exhibition='<slug>'].
  */
 
-export default function CasePage({ config, data }: { config: ExhibitionConfig; data: CasePageData }) {
+export default function CasePage({ config, data, photos = NO_CASE_PHOTOS }: { config: ExhibitionConfig; data: CasePageData; photos?: CasePhotosOnDisk }) {
   const { name, subtitle, slug } = config;
-  const [first, ...rest] = data.photos;
+  // The record's photographs, or the owner's case.jpg once it is dropped in (casePhotoPaths.ts).
+  const first = leadCasePhoto(data, photos, name);
+  const rest = data.photos.slice(1);
   const home = `/exhibitions/${slug}`;
   const display = data.display ?? [];
-  // An exhibition has one case (artifacts/case), and its rooms open from it.
-  const rooms = config.interactives ?? [];
+  // An exhibition has one case (artifacts/case), and its rooms open from it,
+  // in the order the landing page's Explore row lists them (roomsInOrder).
+  const rooms = roomsInOrder(config.interactives);
   const [view, setView] = useCaseView();
   const artifactsIds = caseViewIds(`${slug}-case`, 'artifacts');
   const roomsIds = caseViewIds(`${slug}-case`, 'interactives');
@@ -87,14 +94,19 @@ export default function CasePage({ config, data }: { config: ExhibitionConfig; d
               {data.artifacts.map((a) => (
                 <li key={a.id}>
                   <Link href={artifactPath(config, a)} className="pe-artifact-card">
-                    <span className="pe-artifact-card-art">
-                      <ArtifactGlyph />
+                    <span className={`pe-artifact-card-art ${photos.artifacts[a.id] ? 'has-photo' : ''}`.trim()}>
+                      {photos.artifacts[a.id] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={photos.artifacts[a.id]} alt="" width={ARTIFACT_PHOTO_SIZE.width} height={ARTIFACT_PHOTO_SIZE.height} loading="lazy" />
+                      ) : (
+                        <ArtifactGlyph />
+                      )}
                     </span>
                     <span className="pe-artifact-card-name">
                       <Emphasized text={a.name} />
                     </span>
                     <span className="pe-artifact-card-record">
-                      <Emphasized text={a.record} />
+                      <Emphasized text={a.about?.text ?? a.record} />
                     </span>
                     <span className="pe-artifact-card-go">
                       View artifact <span aria-hidden="true">&#8594;</span>
@@ -154,6 +166,7 @@ export default function CasePage({ config, data }: { config: ExhibitionConfig; d
                           <span className="pe-room-card-emblem">{r.emblem}</span>
                         )}
                       </span>
+                      {r.start && <span className="pe-room-card-start">{r.start}</span>}
                       <span className="pe-room-card-name">{r.title}</span>
                       {r.subtitle && <span className="pe-room-card-sub">{r.subtitle}</span>}
                       <span className="pe-room-card-go">

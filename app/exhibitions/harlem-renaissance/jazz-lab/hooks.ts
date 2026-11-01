@@ -248,20 +248,22 @@ export function bandVolume(id: BandInstrumentId, spotlight: BandInstrumentId | n
  * stage only through their own remove control. `lastTouched` drives the fact
  * card, so it shows whatever the visitor last tapped, solo or not.
  */
-export function useBandBuilder(audio: AudioEngine) {
+export function useBandBuilder(audio: AudioEngine, { preload = true }: { preload?: boolean } = {}) {
   const [active, setActive] = useState<Set<BandInstrumentId>>(new Set());
-  const [section, setSection] = useState(3); // Piano Solo — all 6 instruments available
+  const [section, setSection] = useState(1); // A tune starts at its Intro
   const [spotlight, setSpotlight] = useState<BandInstrumentId | null>(null);
   const [lastTouched, setLastTouched] = useState<BandInstrumentId | null>(null);
 
-  // Preload audio for the current section
+  // Preload audio for the current section, once the band is in view (not
+  // behind the welcome screen or another tab: six loops are ~3 MB a phone).
   useEffect(() => {
+    if (!preload) return;
     BAND_INSTRUMENTS.forEach(inst => {
       if (inst.sections.includes(section)) {
         audio.loadAudio(getBandAudioSrc(inst.id, section)).catch(() => {});
       }
     });
-  }, [section, audio]);
+  }, [section, audio, preload]);
 
   // If the engine silences everything itself (the page is going away), the
   // stage empties with it rather than showing players who make no sound.

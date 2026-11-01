@@ -1,4 +1,5 @@
 import CasePage from '@/components/exhibition/CasePage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { VICTORIAN, VICTORIAN_CASE } from '../../victorian';
 import '../../victorian.css';
 
@@ -7,5 +8,5 @@ import '../../victorian.css';
  * record lists them, and the case itself, with its photographs to come.
  */
 export default function VictorianCase() {
-  return <CasePage config={VICTORIAN} data={VICTORIAN_CASE} />;
+  return <CasePage config={VICTORIAN} data={VICTORIAN_CASE} photos={casePhotosOnDisk(VICTORIAN, VICTORIAN_CASE)} />;
 }

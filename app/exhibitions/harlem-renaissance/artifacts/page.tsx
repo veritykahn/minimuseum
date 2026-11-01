@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CaseViewTabs, caseViewIds, useCaseView } from '@/components/exhibition/CaseViews';
+import { HARLEM_ROOMS } from '../rooms';
 
 type Artifact = {
   id: string;
@@ -36,36 +37,17 @@ const artifacts: Artifact[] = [
     emoji: '\u{1F4D6}',
     thumb: '/exhibitions/harlem/artifacts/flint-thumb.png',
   },
-  {
-    id: 'jazz-lab',
-    title: 'The Jazz Lab',
-    subtitle: 'Build a Band & Test Your Ear',
+  // The rooms, from the list the landing page's Explore row shares (rooms.ts).
+  ...HARLEM_ROOMS.map((r): Artifact => ({
+    id: r.href.split('/').pop() ?? r.href,
+    title: r.title,
+    subtitle: r.subtitle ?? '',
     status: 'available',
     type: 'interactive',
-    route: '/exhibitions/harlem-renaissance/jazz-lab',
-    emoji: '\u{1F3B7}',
-    thumb: '/exhibitions/harlem/artifacts/jazz-thumb.jpg',
-  },
-  {
-    id: 'migration-map',
-    title: 'The Great Migration Map',
-    subtitle: 'Trace the Journey North',
-    status: 'available',
-    type: 'interactive',
-    route: '/exhibitions/harlem-renaissance/migration-map',
-    emoji: '\u{1F5FA}\u{FE0F}',
-    thumb: '/exhibitions/harlem/artifacts/migration-thumb.jpg',
-  },
-  {
-    id: 'harlem-in-words',
-    title: 'Harlem in Words',
-    subtitle: 'Poetry of the Renaissance',
-    status: 'available',
-    type: 'interactive',
-    route: '/exhibitions/harlem-renaissance/harlem-in-words',
-    emoji: '\u{270D}\u{FE0F}',
-    thumb: '/exhibitions/harlem/artifacts/words-thumb.jpg',
-  },
+    route: r.href,
+    emoji: r.emblem ?? '',
+    thumb: r.image?.src,
+  })),
 ];
 
 export default function ArtifactsCollection() {

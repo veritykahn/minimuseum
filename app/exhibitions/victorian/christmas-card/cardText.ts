@@ -1,4 +1,5 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
+import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
 
 /*
  * The Christmas card maker's words. The one line about the cards' history is
@@ -33,6 +34,12 @@ export const CARD_NOTES = {
     sources: [{ label: 'V&A, Christmas card, MSL/1987/3293', href: 'https://collections.vam.ac.uk/item/O1370293/christmas-card-to-henry-christmas-card-horsley-john-callcott/' }],
   },
 } satisfies Record<string, ApprovedFact>;
+
+/** The room's Sources drawer: the two V&A notes, by the tab that sets them. The card fronts and borders are the owner's own and carry no credit. */
+export const CARD_SOURCES: readonly SourceGroup[] = [
+  { title: 'The front', items: CARD_NOTES.greeting.sources.map((s) => ({ ...s, note: 'The first card’s greeting' })) },
+  { title: 'Print it', items: CARD_NOTES.first.sources.map((s) => ({ ...s, note: 'Who sent the first Christmas card' })) },
+];
 
 export type PictureId = 'robin' | 'feast' | 'wreath' | 'church';
 export type BorderId = 'gilt' | 'lace' | 'holly' | 'rule';

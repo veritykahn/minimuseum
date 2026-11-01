@@ -48,7 +48,8 @@ export function useAudioGuide(src?: string): AudioGuideState {
 
   useEffect(() => {
     const a = new Audio();
-    a.preload = 'auto';
+    // Nothing is fetched while the guide is off (see below).
+    a.preload = 'none';
     const tick = () => setProgress(a.duration ? a.currentTime / a.duration : 0);
     const play = () => setPlaying(true);
     const stop = () => setPlaying(false);
@@ -75,6 +76,9 @@ export function useAudioGuide(src?: string): AudioGuideState {
       a.load();
       return;
     }
+    // With the guide off, a panel's recording is not downloaded: a class of
+    // phones walking a poster would otherwise each fetch every recording.
+    a.preload = on ? 'auto' : 'none';
     a.src = src;
     if (on) a.play().catch(() => setPlaying(false));
   }, [src, on]);

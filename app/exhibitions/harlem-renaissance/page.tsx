@@ -8,6 +8,7 @@ import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
 import LandingRow from '@/components/exhibition/LandingRow';
+import ExploreRow, { ExploreCue } from '@/components/exhibition/ExploreRow';
 import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { HARLEM_TALK } from '@/components/projector/posterTalk';
@@ -19,7 +20,11 @@ import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { HARLEM_ATMOSPHERES, poster1Content, poster2Content } from './posters';
 import PanelMusic from './PanelMusic';
+import { HARLEM_ROOMS } from './rooms';
 import './harlem.css';
+
+/** A paragraph longer than this (in characters) is set to fit a short screen: hr-long. */
+const LONG_PARAGRAPH = 600;
 
 const poster1Marks = chapterMarks(poster1Content);
 const poster2Marks = chapterMarks(poster2Content);
@@ -638,6 +643,14 @@ export default function HarlemRenaissance() {
           z-index: 10;
         }
 
+        /* A very long paragraph sets a little smaller on a short screen, so it
+           stays clear of the panel controls instead of running under them. */
+        .hr-long { padding-top: 10vh; }
+        .hr-long .hr-paragraph-text {
+          font-size: clamp(1.1rem, min(3vw, 2.9vh), 1.6rem);
+          line-height: 1.6;
+        }
+
         /* Quote */
         .hr-quote-text {
           font-family: 'Cormorant Garamond', serif;
@@ -812,6 +825,16 @@ export default function HarlemRenaissance() {
           .hr-walkthrough-nav { bottom: 20px; gap: 16px; }
           .hr-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
           .hr-text-content-wrapper { padding: 100px 24px; }
+          /* A phone: the painting starts below the M, and its description can
+             scroll clear of the panel controls and the Map button. */
+          .hr-artwork-display { padding: 76px 24px 128px; gap: 24px; }
+          .hr-artwork-image-side img { max-height: 40vh; }
+          .hr-artwork-info-side .hr-artwork-desc { line-height: 1.6; }
+        }
+        /* A phone: the arrows sit a little left of centre, so the Next arrow
+           is clear of the Map button in the corner. */
+        @media (max-width: 480px) {
+          .hr-walkthrough-nav { transform: translateX(calc(-50% - 28px)); }
         }
       `}</style>
 
@@ -844,6 +867,7 @@ export default function HarlemRenaissance() {
           MAIN EXHIBITION VIEW
           ============================================ */}
       {activeView === 'main' && !projector && (
+        <>
         <div className="hr-exhibition-main pe-landing">
           <div className="hr-exhibition-title pe-landing-head">
             <h1>The Harlem Renaissance</h1>
@@ -875,7 +899,12 @@ export default function HarlemRenaissance() {
               <span className="hr-poster-hint">Click to explore</span>
             </button>
           </LandingRow>
+          <ExploreCue rooms={HARLEM_ROOMS} />
         </div>
+
+        {/* The interactive rooms, below the first screen; the case's Interactives list the same (rooms.ts). */}
+        <ExploreRow rooms={HARLEM_ROOMS} style={{ '--pe-explore-ink': poster1Cream, '--pe-explore-accent': '#e2c27a', '--pe-explore-on-accent': '#17142f', '--pe-display': "'Cormorant Garamond', serif", '--pe-body': "'Cormorant Garamond', serif", '--pe-ui': "'Outfit', sans-serif" }} />
+        </>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
@@ -956,7 +985,7 @@ export default function HarlemRenaissance() {
 
               {/* Paragraph */}
               {currentItem.type === 'paragraph' && currentItem.text && (
-                <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)}`}>
+                <div className={`hr-text-content-wrapper ${getPositionClass(currentItem.position)} ${getSpecialClass(currentItem.special)} ${currentItem.text.length > LONG_PARAGRAPH ? 'hr-long' : ''}`}>
                   {(() => {
                     const copy = (
                       <p

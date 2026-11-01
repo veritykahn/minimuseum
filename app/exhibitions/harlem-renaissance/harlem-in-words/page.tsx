@@ -3,7 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { srOnly, useDialogFocus } from '@/lib/a11y';
-import { MENTOR_POEM, MENTOR_NOTICES, PROMPT_CARDS } from './mentor-poem';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
+import { MENTOR_POEM, MENTOR_NOTICES, MENTOR_SOURCES, PROMPT_CARDS } from './mentor-poem';
 import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 
 /** "M ← Collection": the way back, unless the Studio opened the room. */
@@ -546,6 +547,8 @@ export default function HarlemInWordsPage() {
   }, []);
 
   return (
+    // Every source is in the Sources drawer; the poem's credit still prints under it.
+    <SourcesDrawer groups={MENTOR_SOURCES}>
     <div className="hw-root">
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Josefin+Sans:wght@300;400;600;700&family=Poiret+One&display=swap');
@@ -1256,6 +1259,8 @@ export default function HarlemInWordsPage() {
           padding-left: 1.5em;
           text-indent: -1.5em;
         }
+        /* On screen the credit is in the Sources drawer; on paper it stays under the poem. */
+        @media screen { .hw-mentor-credit { display: none; } }
         .hw-mentor-credit {
           margin-top: 24px;
           padding-top: 14px;
@@ -2395,5 +2400,6 @@ export default function HarlemInWordsPage() {
         </div>
       )}
     </div>
+    </SourcesDrawer>
   );
 }

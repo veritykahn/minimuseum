@@ -103,7 +103,12 @@ describe('the Christmas card maker', () => {
     const panel = screen.getByRole('tabpanel', { name: 'Print it' });
     expect(within(panel).getByText(CARD_TEXT.poster)).toBeInTheDocument();
     expect(within(panel).getByText(CARD_NOTES.first.text)).toBeInTheDocument();
-    expect(within(panel).getByRole('link', { name: /The first Christmas card/ })).toHaveAttribute('href', 'https://www.vam.ac.uk/articles/the-first-christmas-card');
+    // Its source is in the room's Sources drawer, not under the note.
+    expect(within(panel).queryByRole('link', { name: /The first Christmas card/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = within(screen.getByRole('dialog', { name: 'Sources' }));
+    expect(drawer.getByRole('link', { name: /The first Christmas card/ })).toHaveAttribute('href', 'https://www.vam.ac.uk/articles/the-first-christmas-card');
+    fireEvent.click(drawer.getByRole('button', { name: 'Close sources' }));
     fireEvent.click(within(panel).getByRole('button', { name: 'Print the card' }));
     const sheet = document.querySelector('.vcc-print-sheet')!;
     expect(sheet.children).toHaveLength(4);

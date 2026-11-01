@@ -1,7 +1,8 @@
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import WhatScaresYou from '@/app/exhibitions/fear-lab/what-scares-you/page';
 import WhatScaresYouLab from '@/app/exhibitions/fear-lab/what-scares-you/WhatScaresYouLab';
-import FearBoxes, { BUILD_MS, CLOSE_MS, HARMLESS_MS, SURPRISE_MS, outMs, said } from '@/app/exhibitions/fear-lab/what-scares-you/FearBoxes';
+import FearBoxes, { BOX_LOOK, BUILD_MS, CLOSE_MS, HARMLESS_MS, SURPRISE_MS, outMs, said } from '@/app/exhibitions/fear-lab/what-scares-you/FearBoxes';
+import { LAB_SOURCES } from '@/app/exhibitions/fear-lab/what-scares-you/labSources';
 import {
   BOX_COUNT,
   CONTENTS,
@@ -12,7 +13,7 @@ import {
   type Content,
 } from '@/app/exhibitions/fear-lab/what-scares-you/boxes';
 import { SURPRISES } from '@/app/exhibitions/fear-lab/what-scares-you/surprises';
-import { CLUE_MS, CLUE_TEXT, DECIDE_MS, REVEAL_MS } from '@/app/exhibitions/fear-lab/what-scares-you/RustlingBushes';
+import RustlingBushes, { CLUE_MS, CLUE_TEXT, DECIDE_MS, REVEAL_MS } from '@/app/exhibitions/fear-lab/what-scares-you/RustlingBushes';
 import { CHOICES, QUESTION_MS } from '@/app/exhibitions/fear-lab/what-scares-you/KnownOrUnknown';
 import { ROUNDS, TIGERS, TIGER_CLUES, makeLayout, makeRounds, paceFor, pulseFromTaps, tally, type Call } from '@/app/exhibitions/fear-lab/what-scares-you/lab';
 import { makeSwarm, spiderCount, swarmLength } from '@/app/exhibitions/fear-lab/what-scares-you/spiderPaths';
@@ -198,13 +199,14 @@ describe('the fear boxes', () => {
     expect(document.querySelector('.fl-sp-cartoon')).toBeNull();
     expect(document.querySelector('.fl-su')).toBeNull();
 
-    // Then the lights come up on the creature, with its fact and its source.
+    // Then the lights come up on the creature, with its fact; its source and the photograph's credit are in the Sources drawer.
     act(() => { jest.advanceTimersByTime(outMs(c, false, false)); });
     expect(document.querySelector('.fl-fb-dark')).toBeNull();
     expect(screen.getByRole('heading', { level: 2, name: c.name })).toBeInTheDocument();
     expect(screen.getByText(c.fact.text)).toBeInTheDocument();
     expect(screen.getByRole('img', { name: c.alt })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: c.credit.licence })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: c.fact.sources[0].label })).toBeNull();
+    expect(screen.queryByText(/Photo, cut out/)).toBeNull();
     const box = within(shelf).getByRole('button', { name: `Box ${i + 1}, opened: ${said(c)}` });
     expect(box).toHaveAttribute('data-open', 'true');
 
@@ -473,11 +475,13 @@ describe('known or unknown', () => {
 });
 
 describe('the rustling bushes', () => {
-  it('warns before it starts, then plays eight rounds and tallies them', () => {
+  it('warns before it starts, then plays eight timed rounds and tallies them', () => {
     render(<WhatScaresYou />);
     fireEvent.click(screen.getByRole('tab', { name: 'The Rustling Bushes' }));
     expect(screen.getByRole('note')).toHaveTextContent('Eyes will appear suddenly');
     expect(screen.queryByRole('button', { name: 'Tiger! Run!' })).not.toBeInTheDocument();
+    // Guessing first is the way it starts; this game is played with the timer.
+    fireEvent.click(screen.getByRole('button', { name: /Guess first/ }));
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
     expect(screen.getByRole('status')).toHaveTextContent('Round 1 of 8');
     // A clue appears in the rustling bush, a moment after it starts.
@@ -495,11 +499,10 @@ describe('the rustling bushes', () => {
     expect(screen.getByRole('button', { name: 'Play again' })).toBeInTheDocument();
   });
 
-  it('can take the timer away, so a class can guess first', () => {
+  it('starts with no timer, so a class can guess first, and moves on only when the class is ready', () => {
     render(<WhatScaresYou />);
     fireEvent.click(screen.getByRole('tab', { name: 'The Rustling Bushes' }));
     const guess = screen.getByRole('button', { name: /Guess first/ });
-    fireEvent.click(guess);
     expect(guess).toHaveAttribute('aria-pressed', 'true');
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
     act(() => { jest.advanceTimersByTime(DECIDE_MS * 3); });
@@ -509,6 +512,42 @@ describe('the rustling bushes', () => {
     expect(screen.getByText(/No timer. Look for a clue/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Just the wind' }));
     expect(screen.getByRole('status')).toHaveTextContent('The clue:');
+    // The answer stays until the class moves on.
+    act(() => { jest.advanceTimersByTime(REVEAL_MS * 5); });
+    expect(screen.getByRole('status')).toHaveTextContent('The clue:');
+    const next = screen.getByRole('button', { name: 'Next round' });
+    expect(next).toHaveFocus();
+    fireEvent.click(next);
+    expect(screen.getByRole('status')).toHaveTextContent('Round 2 of 8. A bush rustles.');
+    for (let r = 2; r <= ROUNDS; r++) {
+      fireEvent.click(screen.getByRole('button', { name: 'Tiger! Run!' }));
+      fireEvent.click(screen.getByRole('button', { name: r === ROUNDS ? 'See the results' : 'Next round' }));
+    }
+    expect(screen.getByText(FEAR_LAB_COPY.byDesign)).toBeInTheDocument();
+  });
+
+  it('gives time to spot the clue: ten seconds with the timer', () => {
+    expect(DECIDE_MS).toBeGreaterThanOrEqual(10000);
+    expect(CLUE_MS).toBeLessThan(DECIDE_MS / 4);
+  });
+
+  it.each(['tail', 'shadow', 'tracks', 'growl', 'leaves'] as const)('draws the %s clue big enough to see with the sound off', (clue) => {
+    const rounds = Array.from({ length: ROUNDS }, (_, i) => ({ bush: i % 5, tiger: clue !== 'leaves', spot: 0, clue }));
+    render(<RustlingBushes motion gentle={false} soundOn={false} onSoundOn={() => {}} sound={() => null} onFright={() => {}} deal={() => rounds} />);
+    fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
+    act(() => { jest.advanceTimersByTime(CLUE_MS); });
+    const art = document.querySelector('.fl-bush[data-rustling] .fl-clue')!;
+    expect(art).toBeInTheDocument();
+    // A sound clue is drawn too: the growl as words and sound lines, the wind as streaks and leaves.
+    if (clue === 'growl') {
+      expect(art).toHaveTextContent('GRRR');
+      expect(art.querySelectorAll('.fl-clue-waves path').length).toBeGreaterThan(0);
+    }
+    if (clue === 'leaves') {
+      expect(art.querySelectorAll('.fl-clue-leaf').length).toBeGreaterThanOrEqual(6);
+      expect(art.querySelector('.fl-clue-wind')).toBeInTheDocument();
+    }
+    if (clue === 'shadow' || clue === 'tracks') expect(art.querySelector('.fl-clue-moonlit')).toBeInTheDocument();
   });
 
   it('gives each tiger a different clue, moves the rustle about, and rearranges the bushes', () => {
@@ -536,6 +575,38 @@ describe('the rustling bushes', () => {
     expect(motion).toHaveAttribute('aria-pressed', 'true');
     fireEvent.click(motion);
     expect(motion).toHaveAttribute('aria-pressed', 'false');
+  });
+});
+
+describe('sources and the boxes', () => {
+  it('lists every fact’s source and every photograph’s credit, with its licence, in one Sources drawer', () => {
+    render(<WhatScaresYou />);
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    for (const c of CREATURES) {
+      for (const src of c.fact.sources) expect(within(drawer).getAllByRole('link', { name: src.label }).map((a) => a.getAttribute('href'))).toContain(src.href);
+      const credit = within(drawer).getByRole('link', { name: `${c.credit.title}, ${c.credit.author}` });
+      expect(credit).toHaveAttribute('href', c.credit.href);
+      expect(credit.closest('li')).toHaveTextContent(c.credit.licence);
+    }
+    for (const ch of CHOICES) for (const src of ch.fact?.sources ?? []) expect(within(drawer).getByRole('link', { name: src.label })).toHaveAttribute('href', src.href);
+    expect(LAB_SOURCES.map((g) => g.title)).toEqual(['The Fear Boxes: the creatures’ facts', 'The Fear Boxes: the photographs (cut out from their backgrounds)', 'Known or Unknown?']);
+  });
+
+  it('sets out a matching set of five boxes, each with its lid hinged at the back', () => {
+    window.history.replaceState(null, '', '/#box');
+    render(<WhatScaresYouLab />);
+    fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
+    const arts = document.querySelectorAll('.fl-fb-shelf .fl-fb-art');
+    expect(arts).toHaveLength(BOX_COUNT);
+    const looks = new Set([...arts].map((a) => (a as HTMLElement).style.getPropertyValue('--box-src')));
+    expect([...looks]).toEqual([`url(${BOX_LOOK.src})`]);
+    for (const a of arts) {
+      expect(a.querySelector('.fl-fb-lid .fl-fb-lid-front')).toBeInTheDocument();
+      expect(a.querySelector('.fl-fb-lid .fl-fb-lid-top')).toBeInTheDocument();
+      expect(a.querySelector('.fl-fb-mouth')).toBeInTheDocument();
+    }
+    expect(BOX_LOOK.src).toBe('/exhibitions/fear-lab/boxes/box-chest.webp');
   });
 });
 

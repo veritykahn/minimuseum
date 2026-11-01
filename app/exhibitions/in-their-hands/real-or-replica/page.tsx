@@ -14,7 +14,8 @@ import { useScoredGame } from '@/components/games/useScoredGame';
 import TeachToggle from '@/components/games/projector/TeachToggle';
 import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
 import { SoundSwitch, isGoodScore } from '@/components/games/feedback/FeedbackKit';
-import { CLOSING, OWN_CASE, ROUNDS, TIERS, fakeSides, type ReplicaRound, type Side } from './data';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
+import { CLOSING, OWN_CASE, REPLICA_SOURCES, ROUNDS, TIERS, fakeSides, type ReplicaRound, type Side } from './data';
 import RealOrReplicaProjector from './RealOrReplicaProjector';
 
 /** Numbered markers for one photograph, numbered in the order of the round's list. */
@@ -107,6 +108,8 @@ export default function RealOrReplica() {
   }
 
   return (
+    // The room cites nothing yet; its Sources button appears once REPLICA_SOURCES has an entry.
+    <SourcesDrawer groups={REPLICA_SOURCES}>
     <div className="rr-page" style={THEME}>
       <style jsx global>{`
         @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&display=swap');
@@ -207,9 +210,13 @@ export default function RealOrReplica() {
           gap: 16px;
         }
 
+        /* One height for every round (the magnifier's 320px picture, its
+           padding and border), so the Fake buttons below stay put from round
+           to round however tall a coin's photograph is. */
         .rr-coin-img-wrap {
           width: 100%;
-          min-height: 260px;
+          height: 358px;
+          box-sizing: border-box;
           border-radius: 12px;
           background: #0d0a04;
           border: 3px solid transparent;
@@ -652,6 +659,7 @@ export default function RealOrReplica() {
         </div>
       )}
     </div>
+    </SourcesDrawer>
   );
 }
 

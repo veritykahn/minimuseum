@@ -9,6 +9,8 @@ import { RIBBON_START, RIBBON_END, formatYear, ribbonPosition, windowPosition, p
 import { coinHref, HANDS_HREF, HANDS_COIN_NAME, COIN_LESSON, lessonHref } from '../story-links';
 import { Celebration, SoundSwitch } from '@/components/games/feedback/FeedbackKit';
 import PlaceTheCoin from './PlaceTheCoin';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
+import { TIMELINE_SOURCES } from './sources';
 
 
 // Axis labels: the two ends and the turn of the era. There is no year 0,
@@ -196,6 +198,8 @@ export default function GospelTimeline() {
   }, [currentIndex]);
 
   return (
+    // Each stop's passage and painting credit, in the Sources drawer.
+    <SourcesDrawer groups={TIMELINE_SOURCES}>
     <div
       className={`tl-page ${loaded ? 'tl-loaded' : ''}`}
       onTouchStart={handleTouchStart}
@@ -797,7 +801,8 @@ export default function GospelTimeline() {
           .tl-card-more { display: none; }
           /* The page scrolls under the header and the ribbon here: give them ground */
           .tl-header { background: linear-gradient(to bottom, #1C1409 0%, #1C1409 70%, rgba(28, 20, 9, 0) 100%); padding-bottom: 28px; }
-          .tl-nav { background: linear-gradient(to top, #1C1409 0%, #1C1409 82%, rgba(28, 20, 9, 0) 100%); }
+          /* The ribbon runs the full width here: keep its arrows clear of the site's MAP button (bottom-right) */
+          .tl-nav { background: linear-gradient(to top, #1C1409 0%, #1C1409 82%, rgba(28, 20, 9, 0) 100%); padding-left: 96px; padding-right: 96px; }
           .tl-card-area {
             max-width: 100%;
           }
@@ -1154,5 +1159,6 @@ export default function GospelTimeline() {
         </button>
       </nav>
     </div>
+    </SourcesDrawer>
   );
 }

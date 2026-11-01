@@ -8,6 +8,7 @@ import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
 import LandingRow from '@/components/exhibition/LandingRow';
+import ExploreRow, { ExploreCue } from '@/components/exhibition/ExploreRow';
 import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { SEEING_TALK } from '@/components/projector/posterTalk';
@@ -18,6 +19,7 @@ import { EntranceCopy, VisitTicket } from '@/components/exhibition/EntranceCopy'
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { SEEING_ATMOSPHERES, poster1Content, poster2Content } from './posters';
+import { SEEING_ROOMS } from './rooms';
 import './seeing.css';
 
 // Line by line component
@@ -119,8 +121,13 @@ export default function SeeingIsDeceiving() {
   /* The landing page stands in poster 1's pale grey, its type in the poster's black (14.8:1) and charcoal (10.7:1). */
   const posterGrey = '#e0dede';
   const isMain = activeView === 'main';
-  const navM = isMain ? '#0a0a0a' : '#525252';
-  const navInk = isMain ? darkCharcoal : '#7D8471';
+  /* A full-screen picture (poster 2's waves, poster 1's face) runs under the
+     corner links and the arrows, so there they sit on a backing in the
+     poster's own ground, in its type color. */
+  const overImage = !isMain && currentItem?.type === 'full-image';
+  const backing = overImage ? (isPoster1 ? 'rgba(224, 222, 222, 0.88)' : 'rgba(10, 10, 10, 0.78)') : undefined;
+  const navM = isMain ? '#0a0a0a' : overImage ? textColor : '#525252';
+  const navInk = isMain ? darkCharcoal : overImage ? textColor : '#7D8471';
   const teachStyle = { '--teach-color': darkCharcoal, '--teach-border': 'rgba(42,42,42,0.55)' } as React.CSSProperties;
   const fx = usePosterFxStage('sid', direction, currentItem?.type ?? '', bgColor, isPoster1 ? 'rgba(42,42,42,0.55)' : 'rgba(168,213,229,0.6)');
   /**
@@ -686,6 +693,8 @@ export default function SeeingIsDeceiving() {
           width: 100%;
           height: auto;
           min-width: 100%;
+          /* Never stretched to the screen's height: on a phone that cropped the title's ends ("EEING I"). */
+          min-height: 0;
           object-fit: cover;
         }
         .full-bleed-image.title-image.poster2-title img {
@@ -811,6 +820,22 @@ export default function SeeingIsDeceiving() {
           background: rgba(168, 213, 229, 0.2);
         }
 
+        /* Over a full-screen picture: the backing set in the page's colors above. */
+        .nav-m-backed {
+          padding: 4px 14px;
+          border-radius: 999px;
+          -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+        }
+        .nav-m-left.nav-m-backed { margin: -4px 0 0 -14px; }
+        .nav-m-right.nav-m-backed { margin: -4px -14px 0 0; }
+        .walkthrough-nav-backed {
+          padding: 8px 12px;
+          border-radius: 999px;
+          -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+        }
+
         .step-indicator {
           font-family: 'Outfit', sans-serif;
           font-size: 11px;
@@ -918,9 +943,10 @@ export default function SeeingIsDeceiving() {
         <>
         {/* Navigation */}
         <ExhibitionNav
-          className="nav-m nav-m-left"
+          className={`nav-m nav-m-left ${overImage ? 'nav-m-backed' : ''}`}
           href={activeView === 'main' ? FLOOR_RETURN.href : undefined}
           onClick={activeView === 'main' ? rememberFloorPosition : returnToMain}
+          style={backing ? { background: backing } : undefined}
         >
           <span className="nav-m-text" aria-hidden="true" style={{ color: navM }}>M</span>
           <span className="nav-arrow nav-arrow-left" aria-hidden="true" style={{ color: navInk }}>←</span>
@@ -929,7 +955,11 @@ export default function SeeingIsDeceiving() {
           </span>
         </ExhibitionNav>
 
-        <ExhibitionNav className="nav-m nav-m-right" href="/exhibitions/seeing-is-deceiving/resources">
+        <ExhibitionNav
+          className={`nav-m nav-m-right ${overImage ? 'nav-m-backed' : ''}`}
+          href="/exhibitions/seeing-is-deceiving/resources"
+          style={backing ? { background: backing } : undefined}
+        >
           <span className="nav-label" style={{ color: navInk }}>Resources</span>
           <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>→</span>
           <span className="nav-m-text" aria-hidden="true" style={{ color: navM }}>M</span>
@@ -939,6 +969,7 @@ export default function SeeingIsDeceiving() {
 
       {/* Main Exhibition View */}
       {activeView === 'main' && !projector && (
+        <>
         <div className="exhibition-main pe-landing">
           <div className="exhibition-title pe-landing-head">
             <h1>Seeing is Deceiving</h1>
@@ -974,7 +1005,12 @@ export default function SeeingIsDeceiving() {
               <span className="poster-hint">Click to explore</span>
             </button>
           </LandingRow>
+          <ExploreCue rooms={SEEING_ROOMS} />
         </div>
+
+        {/* The interactive rooms, below the first screen; the case's Interactives list the same (rooms.ts). */}
+        <ExploreRow rooms={SEEING_ROOMS} style={{ '--pe-explore-ink': darkCharcoal, '--pe-explore-accent': '#1f5a6e', '--pe-explore-on-accent': posterGrey, '--pe-display': "'Cormorant Garamond', serif", '--pe-body': "'Cormorant Garamond', serif", '--pe-ui': "'Outfit', sans-serif" }} />
+        </>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
@@ -1149,7 +1185,7 @@ export default function SeeingIsDeceiving() {
 
             {/* Navigation - minimal and transparent */}
             {currentItem.type !== 'end' && (
-              <div className="walkthrough-nav">
+              <div className={`walkthrough-nav ${overImage ? 'walkthrough-nav-backed' : ''}`} style={backing ? { background: backing } : undefined}>
                 <button
                   className="nav-arrow-btn"
                   onClick={prevStep}

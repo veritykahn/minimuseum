@@ -18,8 +18,13 @@ import SoundPrompt from './SoundPrompt';
  * after the rustling starts, there is a clue for those watching (and
  * listening) closely: a striped tail tip, a shadow on the ground, paw
  * prints, a low growl (shown as words, too), or leaves blowing loose in the
- * wind. The reveal names the clue. "Guess first" takes the timer away, so a
- * class can talk it over before anyone calls.
+ * wind. Every clue can be seen, big and bright enough for the back of a
+ * class with the sound off: the growl as large shaking words and sound
+ * lines, the wind as streaks and a flurry of leaves. The reveal names the
+ * clue. "Guess first" takes the timer away, so a class can talk it over
+ * before anyone calls; it is on to begin with (for younger classes), and
+ * with it on the class moves on to the next round when it is ready. With
+ * the timer, there are ten seconds to decide.
  *
  * A warning comes first. The eyes appear without any flashing; with motion
  * off, nothing shakes and the leaves fade instead of blowing, and with sound
@@ -27,9 +32,9 @@ import SoundPrompt from './SoundPrompt';
  */
 
 /** How long there is to decide, how long the answer shows, and when the clue appears, in ms. */
-export const DECIDE_MS = 3500;
-export const REVEAL_MS = 1800;
-export const CLUE_MS = 900;
+export const DECIDE_MS = 10000;
+export const REVEAL_MS = 2600;
+export const CLUE_MS = 1200;
 
 /** What the reveal says each clue was. */
 export const CLUE_TEXT: Record<Clue, string> = {
@@ -46,49 +51,71 @@ type Phase = 'warn' | 'rustle' | 'reveal' | 'done';
 function Paw({ x, y }: { x: number; y: number }) {
   return (
     <g transform={`translate(${x} ${y})`}>
-      <ellipse rx="4.5" ry="3.6" />
-      <circle cx="-4.5" cy="-4.5" r="1.6" />
-      <circle cx="-1.5" cy="-6.4" r="1.6" />
-      <circle cx="1.8" cy="-6.4" r="1.6" />
-      <circle cx="4.7" cy="-4.4" r="1.6" />
+      <ellipse rx="7" ry="5.6" />
+      <circle cx="-7" cy="-7" r="2.5" />
+      <circle cx="-2.4" cy="-10" r="2.5" />
+      <circle cx="2.8" cy="-10" r="2.5" />
+      <circle cx="7.3" cy="-6.8" r="2.5" />
     </g>
   );
 }
 
-/** A clue, drawn in the bush's own space (its foot at 0, 0). `side` is the side away from the eyes. */
+/**
+ * A clue, drawn in the bush's own space (its foot at 0, 0). `side` is the
+ * side away from the eyes. Each is big and bright enough to see from the
+ * back of a class with the sound off: a sound clue is drawn as well as heard.
+ */
 function ClueArt({ clue, side }: { clue: Clue; side: 1 | -1 }) {
   if (clue === 'tail')
     return (
-      <g className="fl-clue fl-clue-tail" transform={`translate(${side * 56} -12) scale(${side} 1)`}>
+      <g className="fl-clue fl-clue-tail" transform={`translate(${side * 58} -8) scale(${side * 1.5} 1.5)`}>
         <g className="fl-clue-swish">
-          <path d="M 0 0 q 18 -2 22 -20 q 3 -12 -6 -14" className="fl-clue-tail-fur" />
-          <path d="M 0 0 q 18 -2 22 -20 q 3 -12 -6 -14" className="fl-clue-tail-stripes" />
+          <path d="M 0 0 q 26 -2 32 -30 q 4 -18 -10 -22" className="fl-clue-tail-fur" />
+          <path d="M 0 0 q 26 -2 32 -30 q 4 -18 -10 -22" className="fl-clue-tail-stripes" />
         </g>
       </g>
     );
   if (clue === 'shadow')
-    // The moon is up and to the right, so the shadow falls to the left.
-    return <path className="fl-clue fl-clue-shadow" d="M -128 14 q 12 -9 32 -8 l 4 -7 l 5 6 q 9 -1 16 1 l 5 -6 l 3 7 q 16 3 24 7 q -40 7 -89 0 Z" />;
+    // The moon is up and to the right, so the shadow falls to the left, across a patch of moonlit ground.
+    return (
+      <g className="fl-clue fl-clue-shadow-wrap">
+        <ellipse className="fl-clue-moonlit" cx="-112" cy="12" rx="78" ry="13" />
+        <path className="fl-clue-shadow" d="M -178 16 q 16 -12 44 -11 l 6 -10 l 7 9 q 13 -1 22 1 l 7 -9 l 4 10 q 22 4 34 10 q -56 10 -124 0 Z" />
+      </g>
+    );
   if (clue === 'tracks')
     return (
       <g className="fl-clue fl-clue-tracks" transform={`scale(${side} 1)`}>
-        <Paw x={150} y={24} />
-        <Paw x={126} y={14} />
-        <Paw x={102} y={24} />
-        <Paw x={80} y={14} />
+        <ellipse className="fl-clue-moonlit" cx="128" cy="20" rx="70" ry="13" />
+        <Paw x={178} y={26} />
+        <Paw x={146} y={14} />
+        <Paw x={114} y={26} />
+        <Paw x={84} y={14} />
       </g>
     );
   if (clue === 'growl')
     return (
-      <text className="fl-clue fl-clue-growl" x={side * 40} y={-96} textAnchor="middle">
-        grrr…
-      </text>
+      <g className="fl-clue fl-clue-growl-wrap">
+        <g className="fl-clue-waves" transform="translate(0 -40)">
+          <path d="M -80 -22 q -14 22 0 44 M -96 -32 q -20 32 0 64 M 80 -22 q 14 22 0 44 M 96 -32 q 20 32 0 64" />
+        </g>
+        <text className="fl-clue-growl" x={side * 30} y={-108} textAnchor="middle">
+          GRRR…
+        </text>
+      </g>
     );
   if (clue === 'leaves')
     return (
       <g className="fl-clue fl-clue-leaves">
-        {[0, 1, 2].map((k) => (
-          <path key={k} className="fl-clue-leaf" style={{ animationDelay: `${k * 0.45}s` }} transform={`translate(${-10 + k * 16} ${-70 + k * 8})`} d="M 0 0 q 6 -7 12 0 q -6 7 -12 0 Z" />
+        <path className="fl-clue-wind" d="M 90 -90 q -60 -8 -120 4 M 110 -60 q -70 -6 -150 6 M 80 -30 q -50 -4 -110 4" />
+        {[0, 1, 2, 3, 4, 5].map((k) => (
+          <path
+            key={k}
+            className="fl-clue-leaf"
+            style={{ animationDelay: `${k * 0.35}s` }}
+            transform={`translate(${-24 + (k % 3) * 22} ${-86 + Math.floor(k / 3) * 26 + (k % 2) * 6})`}
+            d="M 0 0 q 9 -10 18 0 q -9 10 -18 0 Z"
+          />
         ))}
       </g>
     );
@@ -138,6 +165,7 @@ export default function RustlingBushes({
   onSoundOn,
   sound,
   onFright,
+  deal = makeRounds,
 }: {
   motion: boolean;
   gentle: boolean;
@@ -145,6 +173,8 @@ export default function RustlingBushes({
   onSoundOn: () => void;
   sound: () => LabSound | null;
   onFright: (f: number) => void;
+  /** Where the rounds come from: injectable, for the tests. */
+  deal?: () => Round[];
 }) {
   const [phase, setPhase] = useState<Phase>('warn');
   const [rounds, setRounds] = useState<Round[]>([]);
@@ -154,13 +184,14 @@ export default function RustlingBushes({
   const [status, setStatus] = useState('');
   const [startled, setStartled] = useState(0);
   const [clueOn, setClueOn] = useState(false);
-  /** Guess first: no timer, so a class can talk it over. */
-  const [untimed, setUntimed] = useState(false);
+  /** Guess first: no timer, so a class can talk it over (the way it starts, for younger classes). */
+  const [untimed, setUntimed] = useState(true);
   /** Whole seconds left to decide, for the clock. */
   const [left, setLeft] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clueTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const callsRef = useRef<Call[]>([]);
+  const nextRef = useRef<HTMLButtonElement>(null);
 
   const round = rounds[index];
 
@@ -177,7 +208,7 @@ export default function RustlingBushes({
   );
 
   const start = () => {
-    setRounds(makeRounds());
+    setRounds(deal());
     setLayout(makeLayout());
     setIndex(0);
     setCalls([]);
@@ -235,22 +266,34 @@ export default function RustlingBushes({
     return () => clearInterval(iv);
   }, [phase, index, untimed]);
 
-  // After the answer shows, the next round, or the tally.
-  useEffect(() => {
+  /** On from the answer: the next round, or the tally. */
+  const nextRound = () => {
     if (phase !== 'reveal') return;
-    timer.current = setTimeout(() => {
-      onFright(0.1);
-      if (index + 1 >= ROUNDS) {
-        setPhase('done');
-        setStatus('All eight rounds done.');
-        onFright(0);
-      } else {
-        setIndex(index + 1);
-        setPhase('rustle');
-      }
-    }, untimed ? REVEAL_MS * 2 : REVEAL_MS);
+    clear();
+    onFright(0.1);
+    if (index + 1 >= ROUNDS) {
+      setPhase('done');
+      setStatus('All eight rounds done.');
+      onFright(0);
+    } else {
+      setIndex(index + 1);
+      setPhase('rustle');
+    }
+  };
+
+  // With the timer, the next round comes by itself once the answer has shown; guessing first, the class says when.
+  useEffect(() => {
+    if (phase !== 'reveal' || untimed) return;
+    timer.current = setTimeout(nextRound, REVEAL_MS);
     return clear;
-  }, [phase, index, onFright, untimed]);
+    // nextRound reads this round's state; the reveal (and the timer switch) is the trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase, index, untimed]);
+
+  // Guessing first, the way on takes focus once the answer shows.
+  useEffect(() => {
+    if (phase === 'reveal' && untimed) nextRef.current?.focus();
+  }, [phase, untimed]);
 
   const t = tally(rounds, calls);
   const showEyes = phase === 'reveal' && !!round?.tiger;
@@ -318,7 +361,7 @@ export default function RustlingBushes({
         {phase === 'warn' && (
           <>
             <h2 className="fl-lab-heading">The Rustling Bushes</h2>
-            <p className="fl-lab-note">A bush rustles in the dark. Is it a tiger, or just the wind? Watch and listen for a clue, then decide before the time runs out.</p>
+            <p className="fl-lab-note">A bush rustles in the dark. Is it a tiger, or just the wind? Watch for a clue (some you can hear, too), then decide. Guessing first, there is no timer: talk it over, then call it.</p>
             <SoundPrompt soundOn={soundOn} onSoundOn={onSoundOn} why="Some clues are sounds." />
             <div className="fl-lab-warning" role="note">
               <p><strong>Startle warning.</strong> Eyes will appear suddenly in the dark. Nothing flashes.</p>
@@ -340,6 +383,11 @@ export default function RustlingBushes({
                 Just the wind
               </button>
             </div>
+            {phase === 'reveal' && untimed && (
+              <button ref={nextRef} type="button" className="fl-lab-button fl-bushes-next" onClick={nextRound}>
+                {index + 1 >= ROUNDS ? 'See the results' : 'Next round'}
+              </button>
+            )}
             {guessToggle}
           </>
         )}

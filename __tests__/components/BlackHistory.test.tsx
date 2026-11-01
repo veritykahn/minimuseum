@@ -153,7 +153,7 @@ describe('Black History Month', () => {
       expect(screen.getByRole('heading', { level: 1, name: 'Black History Month' })).toBeInTheDocument();
       const caseLink = screen.getByRole('link', { name: /display case/i });
       expect(caseLink).toHaveAttribute('href', '/exhibitions/black-history/artifacts/case');
-      expect(caseLink).toHaveTextContent('Display case — photographs to come');
+      expect(caseLink).toHaveTextContent('Photographs on their way');
       expect(screen.getByRole('link', { name: 'Second Floor' })).toHaveAttribute('href', '/exhibitions/second-floor');
     });
 
@@ -213,7 +213,7 @@ describe('The Black History Month display case page', () => {
     for (const a of BLACK_HISTORY_CASE.artifacts) expect(a.writing).toBeUndefined();
     expect(BLACK_HISTORY_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/black-history');
   });
 });

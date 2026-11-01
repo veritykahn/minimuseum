@@ -17,18 +17,18 @@ export type TicketQuestion = {
 
 export const TICKET_QUESTIONS: readonly TicketQuestion[] = [
   {
-    cityId: 'delta',
-    question: 'Work songs, field hollers and spirituals were the raw material for which music?',
-    options: ['Ragtime', 'The blues', 'Swing'],
-    answer: 'The blues',
-    evidence: 'the raw material that would become the blues',
-  },
-  {
     cityId: 'new-orleans',
     question: 'What did people call the new sound in New Orleans?',
     options: ['“Jass”', '“Swing”', '“Bebop”'],
     answer: '“Jass”',
     evidence: 'They called the new sound “jass.”',
+  },
+  {
+    cityId: 'delta',
+    question: 'Work songs, field hollers and spirituals were the raw material for which music?',
+    options: ['Ragtime', 'The blues', 'Swing'],
+    answer: 'The blues',
+    evidence: 'the raw material that would become the blues',
   },
   {
     cityId: 'memphis',

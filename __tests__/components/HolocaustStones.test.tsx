@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import LayAStone from '@/app/exhibitions/holocaust/stones/page';
 import { FOLLOWS, PROMPTS, PROMPT_AT, PROMPT_MS, planMinute, promptAt } from '@/app/exhibitions/holocaust/stones/stillnessPrompts';
 import Stillness from '@/app/exhibitions/holocaust/stones/Stillness';
@@ -100,14 +100,21 @@ describe('laying a stone', () => {
     expect(await screen.findByText('No stones laid yet')).toBeInTheDocument();
   });
 
-  it('sets one quiet note on the custom beside the invitation, with its source', async () => {
-    // Not poster copy: owner-approved and fact-checked, set with its source.
+  it('sets one quiet note on the custom beside the invitation, its source in the room’s Sources drawer', async () => {
+    // Not poster copy: owner-approved and fact-checked; cited in the drawer, not on the page.
     mockFetch(() => ({ status: 503, body: {} }));
     render(<LayAStone />);
     const panel = screen.getByRole('tabpanel', { name: 'Lay a stone' });
     expect(panel).toHaveTextContent('Lay a stone, to remember.');
     expect(panel).toHaveTextContent(STONE_CUSTOM.text);
-    expect(screen.getByRole('link', { name: 'My Jewish Learning' })).toHaveAttribute('href', 'https://www.myjewishlearning.com/article/ask-the-expert-stones-on-graves/');
+    expect(within(panel).queryByRole('link')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    const stone = within(drawer).getByRole('heading', { name: 'Lay a stone' }).closest('section')!;
+    expect(within(stone).getByRole('link', { name: 'My Jewish Learning' })).toHaveAttribute('href', 'https://www.myjewishlearning.com/article/ask-the-expert-stones-on-graves/');
+    // Every stillness prompt's source is there too, under Stillness.
+    const still = within(drawer).getByRole('heading', { name: 'Stillness' }).closest('section')!;
+    for (const p of PROMPTS) for (const src of p.sources) expect(within(still).getAllByRole('link', { name: src.label })[0]).toHaveAttribute('href', src.href);
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
   });
 

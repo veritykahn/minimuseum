@@ -18,14 +18,14 @@ export const MATERIALS = [
   'A glue stick',
   'Two pieces of string, or two rubber bands, each about 12 inches (30 cm) long',
   'A hole punch, or a sharp pencil to poke the holes (ask a grown-up to help)',
-  'Crayons, coloured pencils or markers',
+  'Crayons, colored pencils or markers',
 ];
 
 export function steps(blank: boolean) {
   return [
     blank
       ? 'Draw a picture on each circle. Draw the one on the back circle upside down, with its top towards the bottom of the circle, away from the star.'
-      : 'Colour in the two pictures.',
+      : 'Color in the two pictures.',
     'Cut out both circles along the solid line.',
     'If your paper is thin, glue one circle onto thin card, and cut the card to match.',
     'Glue the two circles back to back, with both stars at the top, together. (The back picture is upside down on purpose.)',
