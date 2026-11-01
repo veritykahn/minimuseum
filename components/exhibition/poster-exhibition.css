@@ -1163,6 +1163,8 @@ a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-dec
   .pe-case-page-view-artifacts > .pe-case-page-lead { grid-column: 1; grid-row: 1; }
   .pe-case-page-view-artifacts > .pe-case-page-artifacts { grid-column: 2; grid-row: 1; }
   .pe-case-page-view-artifacts .pe-case-page-lead img { max-height: 58dvh; }
+  /* A photograph of the case sits at the top beside the cards, as they run on down. */
+  .pe-case-page-view-artifacts > figure.pe-case-page-lead { align-self: start; }
   .pe-case-page-view-artifacts .pe-case-placeholder-page .pe-case-placeholder-art { width: min(420px, 100%, 52dvh); }
 }
 /* So the lead picture and the cards fit the first screen together. */
