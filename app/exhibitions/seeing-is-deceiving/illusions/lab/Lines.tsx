@@ -39,7 +39,7 @@ export function CafeWall({ broken, record }: BenchProps) {
       task={
         broken ? (
           <>
-            <Slider label="Mortar: black to white" value={mortar} min={0} max={255} big={16} onChange={setMortar} valueText={mortar < 40 ? 'black' : mortar > 215 ? 'white' : 'grey'} />
+            <Slider label="Mortar: black to white" value={mortar} min={0} max={255} big={16} onChange={setMortar} valueText={mortar < 40 ? 'black' : mortar > 215 ? 'white' : 'gray'} />
             <Slider label="Line the rows up" value={shift} min={0} max={100} onChange={setShift} valueText={`${shift}% shifted`} />
           </>
         ) : (
@@ -165,7 +165,7 @@ export function Poggendorff({ broken, record }: BenchProps) {
     <Work
       label="Poggendorff"
       figure={
-        <svg viewBox="0 0 600 400" className="pl-svg" role="img" aria-label="A slanting line going up behind a tall grey bar, and a marker on the bar’s right edge for where the line comes out.">
+        <svg viewBox="0 0 600 400" className="pl-svg" role="img" aria-label="A slanting line going up behind a tall gray bar, and a marker on the bar’s right edge for where the line comes out.">
           <rect width="600" height="400" fill="#f4f1ea" />
           <g stroke="#1a1a1a" strokeWidth="5" strokeLinecap="round">
             <path d={line(40, ENTER.y + SLOPE * 210, ENTER.x)} />

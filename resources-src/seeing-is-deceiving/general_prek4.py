@@ -646,7 +646,7 @@ G12_LESSON = {
     ("section", {"label": "Closing · 2 minutes",
       "screen": {"phase": "Closing", "title": "This week, be a Brain Detective!", "show": "question",
                  "question": "This week, be a Brain Detective!",
-                 "purpose": "Send the class off with one habit to practise this week.",
+                 "purpose": "Send the class off with one habit to practice this week.",
                  "students": ["When you think you know what you’re seeing, pause and look closer first."]},
       "body": [
       "*“This week, be a Brain Detective! When you think you know what you’re seeing, pause and look closer first. Sometimes our brains make guesses that aren’t quite right.”*"]}),

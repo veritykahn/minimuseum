@@ -130,7 +130,7 @@ export function Snakes({ broken, record }: BenchProps) {
     <Work
       label="Rotating snakes"
       figure={
-        <svg viewBox="0 0 600 600" className="pl-svg pl-square" role="img" aria-label="Four circles made of rings of black, dark blue, white and yellow stripes, on grey. Nothing in the picture moves.">
+        <svg viewBox="0 0 600 600" className="pl-svg pl-square" role="img" aria-label="Four circles made of rings of black, dark blue, white and yellow stripes, on gray. Nothing in the picture moves.">
           <rect width="600" height="600" fill="#9a9a9a" />
           <SnakeDisc cx={150} cy={150} flip={false} colours={colours} />
           <SnakeDisc cx={450} cy={150} flip colours={colours} />
@@ -155,7 +155,7 @@ export function Snakes({ broken, record }: BenchProps) {
               ]}
             />
           )}
-          <p className="pl-say">{broken ? 'The two middle shades are now the same grey.' : 'Now look straight at one circle and hold your eyes still: it stops.'}</p>
+          <p className="pl-say">{broken ? 'The two middle shades are now the same gray.' : 'Now look straight at one circle and hold your eyes still: it stops.'}</p>
           <p className="pl-credit">Circles drawn for the museum after Akiyoshi Kitaoka’s Rotating Snakes (2003).</p>
         </>
       }

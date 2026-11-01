@@ -70,7 +70,7 @@ export function Ebbinghaus({ broken, record }: BenchProps) {
     <Work
       label="Ebbinghaus circles"
       figure={
-        <svg viewBox="0 0 640 320" className="pl-svg" role="img" aria-label="Two orange circles. The left one is ringed by six big grey circles; the right one, whose size you set, by eight small grey circles.">
+        <svg viewBox="0 0 640 320" className="pl-svg" role="img" aria-label="Two orange circles. The left one is ringed by six big gray circles; the right one, whose size you set, by eight small gray circles.">
           <rect width="640" height="320" fill="#f4f1ea" />
           <g fill="#9aa3ad" opacity={rings}>
             {Array.from({ length: 6 }, (_, k) => {

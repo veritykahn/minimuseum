@@ -67,7 +67,7 @@ export function Stroop({ broken, record }: BenchProps) {
       task={
         <>
           <p className="pl-q">
-            {shown === 1 ? 'Round 1: say the colour of each patch, out loud.' : shown === 2 ? 'Round 2: say the colour of the ink, not the word.' : 'Round 3: say the ink colours again. The words match now.'}
+            {shown === 1 ? 'Round 1: say the color of each patch, out loud.' : shown === 2 ? 'Round 2: say the color of the ink, not the word.' : 'Round 3: say the ink colors again. The words match now.'}
           </p>
           {running ? (
             <>
@@ -97,7 +97,7 @@ export function Stroop({ broken, record }: BenchProps) {
               Race again
             </button>
           )}
-          <p className="pl-tip">No stopwatch needed: you can just say them out loud and notice which round feels harder. If some of these colours are hard for you to tell apart, try it with a friend.</p>
+          <p className="pl-tip">No stopwatch needed: you can just say them out loud and notice which round feels harder. If some of these colors are hard for you to tell apart, try it with a friend.</p>
         </>
       }
     />

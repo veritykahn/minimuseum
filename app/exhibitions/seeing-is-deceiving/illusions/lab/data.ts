@@ -112,7 +112,7 @@ export const ILLUSIONS: Illusion[] = [
     category: 'brightness',
     task: 'Slide the paint chip until it is the same shade as square B looks.',
     breakLabel: 'Join A and B',
-    breakText: 'A strip of grey joins A to B. Where it touches them, A and B are the same shade as the strip.',
+    breakText: 'A strip of gray joins A to B. Where it touches them, A and B are the same shade as the strip.',
     why: {
       text: 'Your brain judges a square’s shade by the light it thinks is falling on it: B is in the cylinder’s shadow, so your brain decides B must really be a light square.',
       sources: [bach('lum-adelsonCheckShadow')],
@@ -128,9 +128,9 @@ export const ILLUSIONS: Illusion[] = [
     category: 'brightness',
     task: 'Make the right-hand square look the same shade as the left-hand one.',
     breakLabel: 'Frame the squares',
-    breakText: 'A plain grey frame round each square cuts it off from the background. Now compare them.',
+    breakText: 'A plain gray frame round each square cuts it off from the background. Now compare them.',
     why: {
-      text: 'Your eyes and brain compare each patch with what is around it, so the same grey looks lighter on dark and darker on light.',
+      text: 'Your eyes and brain compare each patch with what is around it, so the same gray looks lighter on dark and darker on light.',
       sources: [bach('lum-inducedBrightness')],
     },
     more: [],
@@ -143,11 +143,11 @@ export const ILLUSIONS: Illusion[] = [
     bench: 1,
     category: 'brightness',
     motion: true,
-    task: 'Stare at the cross for 15 seconds. Then: what colour is the gap going round?',
+    task: 'Stare at the cross for 15 seconds. Then: what color is the gap going round?',
     breakLabel: 'Stop the motion',
     breakText: 'With every spot standing still, the green goes away.',
     why: {
-      text: 'Each lilac spot tires your eye a little where it falls, so when it vanishes you see the opposite colour, green.',
+      text: 'Each lilac spot tires your eye a little where it falls, so when it vanishes you see the opposite color, green.',
       sources: [bach('col-lilacChaser')],
     },
     more: [
@@ -157,11 +157,11 @@ export const ILLUSIONS: Illusion[] = [
       },
     ],
     vote: {
-      question: 'Hands up: what colour was the gap?',
+      question: 'Hands up: what color was the gap?',
       options: [
         { id: 'green', label: 'Green', fooled: true },
         { id: 'lilac', label: 'Lilac' },
-        { id: 'none', label: 'No colour' },
+        { id: 'none', label: 'No color' },
       ],
     },
     teacherTip: 'Ask everyone to keep their eyes on the cross for the whole count, then hide the motion and ask where the green went.',
@@ -252,7 +252,7 @@ export const ILLUSIONS: Illusion[] = [
     category: 'lines',
     task: 'Do the lines between the rows look straight, or tilted?',
     breakLabel: 'Change the mortar',
-    breakText: 'Slide the mortar from black to grey to white, and slide the rows into line. When does the tilt appear?',
+    breakText: 'Slide the mortar from black to gray to white, and slide the rows into line. When does the tilt appear?',
     why: {
       text: 'The tilt appears only when the mortar is a shade between the dark and the light tiles.',
       sources: [GREGORY],
@@ -373,7 +373,7 @@ export const ILLUSIONS: Illusion[] = [
     name: 'Troxler fading',
     bench: 4,
     category: 'gaps',
-    task: 'Start the timer, then stare at the dot in the middle. Tap “It faded!” when the colours go.',
+    task: 'Start the timer, then stare at the dot in the middle. Tap “It faded!” when the colors go.',
     breakLabel: 'Nudge it',
     breakText: 'Now the ring jumps a little every few seconds. Does it still fade?',
     why: {
@@ -382,7 +382,7 @@ export const ILLUSIONS: Illusion[] = [
     },
     more: [{ text: 'Ignaz Troxler first described it in 1804.', sources: [BONNEH] }],
     vote: {
-      question: 'Hands up: did the colours fade?',
+      question: 'Hands up: did the colors fade?',
       options: [
         { id: 'yes', label: 'They faded', fooled: true },
         { id: 'no', label: 'They stayed' },
@@ -428,7 +428,7 @@ export const ILLUSIONS: Illusion[] = [
     motion: true,
     task: 'Look around the picture. Do the circles seem to turn? Now look straight at one circle and hold still. What happens to it?',
     breakLabel: 'Change the order',
-    breakText: 'The same circles with the two middle shades made the same grey. Do they still turn?',
+    breakText: 'The same circles with the two middle shades made the same gray. Do they still turn?',
     why: {
       text: 'The motion depends on your eyes moving and on the order of the shades, from black to dark blue to white to yellow; hold your eyes still and it stops.',
       sources: [bach('mot-snakes'), KITAOKA],
@@ -455,11 +455,11 @@ export const ILLUSIONS: Illusion[] = [
     name: 'Stroop race',
     bench: 6,
     category: 'brain',
-    task: 'Round 1: say the colour of each patch, out loud. Round 2: say the colour of the ink each word is printed in, not the word.',
+    task: 'Round 1: say the color of each patch, out loud. Round 2: say the color of the ink each word is printed in, not the word.',
     breakLabel: 'Round 3: matching ink',
-    breakText: 'Now every word is printed in its own colour. Say the ink colours again.',
+    breakText: 'Now every word is printed in its own color. Say the ink colors again.',
     why: {
-      text: 'Reading is so automatic that your brain reads the word before you can stop it, and that gets in the way of naming the colour.',
+      text: 'Reading is so automatic that your brain reads the word before you can stop it, and that gets in the way of naming the color.',
       sources: [STROOP],
     },
     more: [{ text: 'J. Ridley Stroop published this test in 1935.', sources: [STROOP] }],
@@ -470,7 +470,7 @@ export const ILLUSIONS: Illusion[] = [
         { id: 'no', label: 'They felt the same' },
       ],
     },
-    teacherTip: 'Have the whole class say the colours aloud together while you time each round.',
+    teacherTip: 'Have the whole class say the colors aloud together while you time each round.',
   },
   {
     id: 'paris',

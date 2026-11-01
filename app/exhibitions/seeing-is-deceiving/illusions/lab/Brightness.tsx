@@ -82,14 +82,14 @@ export function Checker({ broken, record }: BenchProps) {
       figure={<CheckerBoard broken={broken} />}
       task={
         broken ? (
-          <p className="pl-say">Follow the grey strip from A to B. There is no join: it is all one shade.</p>
+          <p className="pl-say">Follow the gray strip from A to B. There is no join: it is all one shade.</p>
         ) : (
           <>
             <div className="pl-chip-row">
               <span className="pl-chip" style={{ background: grey(chip) }} aria-hidden="true" />
               <span className="pl-chip-name">Your paint chip</span>
             </div>
-            <Slider label="Paint chip shade" value={chip} min={40} max={240} onChange={setChip} valueText={chip > 150 ? 'light grey' : chip > 100 ? 'mid grey' : 'dark grey'} />
+            <Slider label="Paint chip shade" value={chip} min={40} max={240} onChange={setChip} valueText={chip > 150 ? 'light gray' : chip > 100 ? 'mid gray' : 'dark gray'} />
             <Record onClick={() => record(checkerResult(chip, CHECKER_TRUTH))} />
           </>
         )
@@ -110,7 +110,7 @@ export function Contrast({ broken, record }: BenchProps) {
     <Work
       label="Simultaneous contrast"
       figure={
-        <svg viewBox="0 0 600 300" className="pl-svg" role="img" aria-label="Two grey squares on a background that runs from black on the left to white on the right.">
+        <svg viewBox="0 0 600 300" className="pl-svg" role="img" aria-label="Two gray squares on a background that runs from black on the left to white on the right.">
           <defs>
             <linearGradient id="pl-bw" x1="0" x2="1">
               <stop offset="0" stopColor="#000" />
@@ -167,10 +167,10 @@ export function Lilac({ broken, record, result }: BenchProps) {
     setAnswer(a);
     record(
       a === 'green'
-        ? observed('The gap looked green: your eyes made a colour that wasn’t there.', 1)
+        ? observed('The gap looked green: your eyes made a color that wasn’t there.', 1)
         : a === 'lilac'
           ? observed('The gap looked lilac: no green for you this time.', 0.2)
-          : observed('The gap had no colour for you this time.', 0),
+          : observed('The gap had no color for you this time.', 0),
     );
   };
 
@@ -178,7 +178,7 @@ export function Lilac({ broken, record, result }: BenchProps) {
     <Work
       label="Lilac chaser"
       figure={
-        <svg viewBox="0 0 400 400" className="pl-svg pl-square" role="img" aria-label="Twelve soft lilac spots in a ring on grey, with a cross in the middle. One spot at a time disappears, round and round.">
+        <svg viewBox="0 0 400 400" className="pl-svg pl-square" role="img" aria-label="Twelve soft lilac spots in a ring on gray, with a cross in the middle. One spot at a time disappears, round and round.">
           <defs>
             <filter id="pl-blur" x="-60%" y="-60%" width="220%" height="220%">
               <feGaussianBlur stdDeviation="9" />
@@ -209,13 +209,13 @@ export function Lilac({ broken, record, result }: BenchProps) {
             )}
             {(count === 0 || result) && (
               <Choices
-                question="What colour is the gap going round?"
+                question="What color is the gap going round?"
                 value={answer}
                 onChoose={choose}
                 options={[
                   { id: 'green', label: 'Green', swatch: '#7fd38a' },
                   { id: 'lilac', label: 'Lilac', swatch: '#d38ad8' },
-                  { id: 'grey', label: 'Grey', swatch: '#bdbdbd' },
+                  { id: 'grey', label: 'Gray', swatch: '#bdbdbd' },
                   { id: 'none', label: 'I can’t tell' },
                 ]}
               />

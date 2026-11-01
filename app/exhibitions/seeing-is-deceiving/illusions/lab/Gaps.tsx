@@ -190,7 +190,7 @@ export function Troxler({ broken, record }: BenchProps) {
     <Work
       label="Troxler fading"
       figure={
-        <svg viewBox="0 0 400 400" className="pl-svg pl-square" role="img" aria-label="Soft pale patches of colour in a ring on grey, with a small black dot in the middle.">
+        <svg viewBox="0 0 400 400" className="pl-svg pl-square" role="img" aria-label="Soft pale patches of color in a ring on gray, with a small black dot in the middle.">
           <defs>
             <filter id="pl-fog" x="-80%" y="-80%" width="260%" height="260%">
               <feGaussianBlur stdDeviation="20" />
@@ -208,7 +208,7 @@ export function Troxler({ broken, record }: BenchProps) {
       }
       task={
         broken ? (
-          <p className="pl-say">Stare at the dot again. The colours jump a little every two seconds: do they still fade?</p>
+          <p className="pl-say">Stare at the dot again. The colors jump a little every two seconds: do they still fade?</p>
         ) : t === null ? (
           <button
             type="button"

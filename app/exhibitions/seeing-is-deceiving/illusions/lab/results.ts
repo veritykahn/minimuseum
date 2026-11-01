@@ -74,8 +74,8 @@ export function poggendorffResult(guess: number, truth: number, height: number):
 
 /** Troxler: seconds until it faded, or null if it never did. */
 export function troxlerResult(seconds: number | null): LabResult {
-  if (seconds === null) return { line: 'The colours did not fade for you this time.', strength: 0 };
-  return { line: `The colours faded after ${Math.round(seconds)} seconds.`, strength: clamp01(1 - (seconds - 8) / 40) };
+  if (seconds === null) return { line: 'The colors did not fade for you this time.', strength: 0 };
+  return { line: `The colors faded after ${Math.round(seconds)} seconds.`, strength: clamp01(1 - (seconds - 8) / 40) };
 }
 
 /** Stroop: the two rounds' times, in seconds. */
