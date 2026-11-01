@@ -14,6 +14,7 @@ import PosterPanel from './PosterPanel';
 import CasePlaceholder from './CasePlaceholder';
 import LandingCredits from './LandingCredits';
 import LandingRow from './LandingRow';
+import ExploreRow, { ExploreCue } from './ExploreRow';
 import AtmosphereLayer from './AtmosphereLayer';
 import AudioGuide, { useAudioGuide } from './AudioGuide';
 import { atmosphereName, colorsFor, entranceOf, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
@@ -22,7 +23,8 @@ import './poster-exhibition.css';
 
 /*
  * A poster exhibition, drawn from its config: the landing page (title,
- * "Teach with this" and its sheet of lessons and materials, the posters and any display cases),
+ * "Teach with this" and its sheet of lessons and materials, the posters and any display cases,
+ * and below them the Explore row of its interactive rooms),
  * the step-by-step poster walkthrough with the exhibition's reveal, and
  * teacher projector mode around it. The behavior is the existing exhibition
  * pages': keyboard, swipe and tap navigation (usePosterWalkthrough), the
@@ -33,7 +35,7 @@ import './poster-exhibition.css';
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function PosterExhibition<K extends string>({ config }: { config: ExhibitionConfig<K> }) {
-  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], credits = [], atmospheres, fx: fxConfig, projector: projectorConfig } = config;
+  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives, credits = [], atmospheres, fx: fxConfig, projector: projectorConfig } = config;
 
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
@@ -152,6 +154,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
       )}
 
       {activeView === 'main' && !projector && (
+        <>
         <div className="pe-exhibition-main pe-landing">
           <div className="pe-exhibition-title pe-landing-head">
             <h1>{name}</h1>
@@ -161,7 +164,6 @@ export default function PosterExhibition<K extends string>({ config }: { config:
             </div>
           </div>
 
-          {/* The interactive rooms are in the display case (CasePage), not here. */}
           <LandingRow className="pe-exhibition-grid">
             {first && posterButton(first)}
             {cases.map(caseLink)}
@@ -169,7 +171,12 @@ export default function PosterExhibition<K extends string>({ config }: { config:
           </LandingRow>
 
           <LandingCredits credits={credits} />
+          <ExploreCue rooms={interactives} />
         </div>
+
+        {/* The interactive rooms, below the first screen; the case's Interactives tab lists the same. */}
+        <ExploreRow rooms={interactives} style={{ '--pe-explore-on-accent': palette.page }} />
+        </>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">

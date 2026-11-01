@@ -1,4 +1,5 @@
 import CasePage from '@/components/exhibition/CasePage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { BLACK_HISTORY, BLACK_HISTORY_CASE } from '../../blackHistory';
 import '../../black-history.css';
 
@@ -7,5 +8,5 @@ import '../../black-history.css';
  * record lists them, and the case itself, with its photographs to come.
  */
 export default function BlackHistoryCase() {
-  return <CasePage config={BLACK_HISTORY} data={BLACK_HISTORY_CASE} />;
+  return <CasePage config={BLACK_HISTORY} data={BLACK_HISTORY_CASE} photos={casePhotosOnDisk(BLACK_HISTORY, BLACK_HISTORY_CASE)} />;
 }

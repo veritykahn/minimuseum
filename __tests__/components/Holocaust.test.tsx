@@ -259,7 +259,7 @@ describe('Holocaust Memorial Day', () => {
       expect(screen.getByRole('heading', { level: 1, name: 'Holocaust Memorial Day' })).toBeInTheDocument();
       const caseLink = screen.getByRole('link', { name: /display case/i });
       expect(caseLink).toHaveAttribute('href', '/exhibitions/holocaust/artifacts/case');
-      expect(caseLink).toHaveTextContent('Display case — photographs to come');
+      expect(caseLink).toHaveTextContent('Photographs on their way');
       expect(screen.getByRole('link', { name: 'First Floor' })).toHaveAttribute('href', '/exhibitions/first-floor');
       const credits = within(screen.getByRole('list', { name: 'Picture credits' })).getAllByRole('link');
       expect(credits.map((a) => a.getAttribute('href'))).toEqual(COMMONS_PICTURES.map((c) => c.href));
@@ -361,7 +361,7 @@ describe('The Holocaust Memorial Day display case page', () => {
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(HOLOCAUST_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(JSON.stringify([HOLOCAUST, HOLOCAUST_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/holocaust');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/holocaust');

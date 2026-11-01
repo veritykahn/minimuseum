@@ -8,6 +8,7 @@ import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
 import LandingRow from '@/components/exhibition/LandingRow';
+import ExploreRow, { ExploreCue } from '@/components/exhibition/ExploreRow';
 import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { ITH_TALK } from '@/components/projector/posterTalk';
@@ -18,6 +19,7 @@ import { EntranceCopy } from '@/components/exhibition/EntranceCopy';
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { ITH_ATMOSPHERES, poster1Content, poster2Content, type IthItem } from './posters';
+import { ITH_ROOMS } from './rooms';
 import './in-their-hands.css';
 
 const poster1Marks = chapterMarks(poster1Content);
@@ -917,6 +919,7 @@ export default function InTheirHands() {
           MAIN EXHIBITION VIEW
           ============================================ */}
       {activeView === 'main' && !projector && (
+        <>
         <div className="ith-exhibition-main pe-landing">
           <div className="ith-exhibition-title pe-landing-head">
             <h1>In Their Hands</h1>
@@ -967,7 +970,12 @@ export default function InTheirHands() {
             </button>
           </LandingRow>
 
+          <ExploreCue rooms={ITH_ROOMS} />
         </div>
+
+        {/* The interactive rooms, below the first screen; the case's Interactives list the same (rooms.ts). */}
+        <ExploreRow rooms={ITH_ROOMS} style={{ '--pe-explore-ink': gold, '--pe-explore-accent': gold, '--pe-explore-on-accent': poster1Sepia, '--pe-display': "'Cormorant Garamond', serif", '--pe-body': "'Cormorant Garamond', serif", '--pe-ui': "'Outfit', sans-serif" }} />
+        </>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">

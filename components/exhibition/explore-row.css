@@ -1,0 +1,176 @@
+/* ==========================================================================
+   The landing page's Explore row (ExploreRow): a card for each interactive
+   room, below the one-screen landing, reached by scrolling. Its ink and
+   accent are the exhibition's (--pe-explore-ink / --pe-explore-accent, else
+   --pe-heading / --pe-accent), so it sits in each exhibition's colors.
+   ========================================================================== */
+
+.pe-explore {
+  --pe-explore-c: var(--pe-explore-ink, var(--pe-heading, currentColor));
+  --pe-explore-a: var(--pe-explore-accent, var(--pe-accent, currentColor));
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  /* The foot clears the floating Map button (56px, 24px in from the bottom). */
+  padding: clamp(28px, 6dvh, 64px) 16px 120px;
+  color: var(--pe-explore-c);
+  text-align: center;
+  scroll-margin-top: 0;
+}
+.pe-explore *,
+.pe-explore *::before,
+.pe-explore *::after { box-sizing: border-box; }
+/* Wider than a phone, 88px clear of each side of the screen, as the landing row is. */
+@media (min-width: 641px) {
+  .pe-explore { width: min(100%, calc(100vw - 176px)); padding-left: 0; padding-right: 0; }
+}
+
+.pe-explore-kicker {
+  margin: 0 0 6px;
+  font-family: var(--pe-ui, var(--pe-body, inherit));
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+.pe-explore-title {
+  margin: 0;
+  font-family: var(--pe-display, inherit);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 1.1;
+}
+.pe-explore-title::after {
+  content: '';
+  display: block;
+  width: 64px;
+  height: 1px;
+  margin: 16px auto 0;
+  background: var(--pe-explore-a);
+}
+
+.pe-explore-grid {
+  list-style: none;
+  margin: clamp(20px, 4dvh, 36px) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 290px));
+  justify-content: center;
+  gap: clamp(16px, 2.4vw, 28px);
+}
+.pe-explore-grid > li { display: flex; min-width: 0; }
+
+.pe-explore-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 12px 18px;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  background: color-mix(in srgb, var(--pe-explore-c) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--pe-explore-c) 18%, transparent);
+  border-radius: 14px;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+a.pe-explore-card:is(:link, :visited) { color: inherit; }
+.pe-explore-card:hover,
+.pe-explore-card:focus-visible { transform: translateY(-4px); border-color: var(--pe-explore-a); }
+.pe-explore-card:focus-visible { outline: 2px solid var(--pe-explore-a); outline-offset: 3px; }
+.pe-explore-card.is-start { border-color: color-mix(in srgb, var(--pe-explore-a) 70%, transparent); }
+
+.pe-explore-art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--pe-explore-c) 8%, transparent);
+}
+.pe-explore-art img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.pe-explore-art.is-emblem { border: 1px dashed color-mix(in srgb, var(--pe-explore-c) 30%, transparent); background: transparent; }
+.pe-explore-emblem { font-family: var(--pe-ui, inherit); font-size: 2.2rem; color: var(--pe-explore-a); }
+
+.pe-explore-words { display: flex; flex-direction: column; gap: 4px; min-width: 0; padding: 12px 4px 0; flex: 1; }
+.pe-explore-start {
+  align-self: flex-start;
+  margin-bottom: 2px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--pe-explore-a);
+  color: var(--pe-explore-on-accent, #fff);
+  font-family: var(--pe-ui, var(--pe-body, inherit));
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.pe-explore-name { font-family: var(--pe-display, inherit); font-size: 1.25rem; line-height: 1.2; overflow-wrap: anywhere; }
+.pe-explore-hook { font-family: var(--pe-body, inherit); font-style: italic; font-size: 0.92rem; line-height: 1.4; opacity: 0.82; overflow-wrap: anywhere; }
+.pe-explore-go {
+  margin-top: auto;
+  padding-top: 10px;
+  font-family: var(--pe-ui, var(--pe-body, inherit));
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--pe-explore-a);
+}
+
+/* Phones: one column of smaller cards, the picture beside the words. */
+@media (max-width: 640px) {
+  .pe-explore-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .pe-explore-card { flex-direction: row; align-items: stretch; gap: 12px; padding: 10px; }
+  .pe-explore-art { flex: 0 0 38%; width: auto; aspect-ratio: 16 / 10; align-self: center; }
+  .pe-explore-words { padding: 0; }
+  .pe-explore-name { font-size: 1.08rem; }
+  .pe-explore-hook { font-size: 0.86rem; }
+  .pe-explore-go { padding-top: 6px; }
+}
+
+/* The cue at the foot of the first screen: "Explore ↓". Set out of the
+   screen's flow (an exhibition's own `.pe-landing > *` rules don't reach it). */
+.pe-root .pe-landing { position: relative; }
+.pe-root .pe-landing > a.pe-explore-cue {
+  position: absolute;
+  left: 50%;
+  /* In the screen's foot padding, under the credits toggle or the swipe dots. */
+  bottom: max(0px, calc(var(--pe-landing-foot, clamp(14px, 3dvh, 32px)) - 22px));
+  translate: -50% 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 20px;
+  padding: 0 10px;
+  font-family: var(--pe-ui, var(--pe-body, inherit));
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  color: var(--pe-explore-ink, var(--pe-heading, currentColor));
+  opacity: 0.75;
+  transition: opacity 0.2s ease;
+}
+a.pe-explore-cue:is(:link, :visited) { color: var(--pe-explore-ink, var(--pe-heading, currentColor)); }
+.pe-explore-cue:hover,
+.pe-explore-cue:focus-visible { opacity: 1; }
+.pe-explore-cue:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 4px; }
+.pe-explore-cue-arrow { display: inline-block; font-size: 15px; line-height: 1; letter-spacing: 0; animation: pe-explore-nudge 1.8s ease-in-out infinite; }
+@keyframes pe-explore-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .pe-explore-cue-arrow { animation: none; }
+  .pe-explore-card { transition: none; }
+  .pe-explore-card:hover, .pe-explore-card:focus-visible { transform: none; }
+}
+
+@media print {
+  .pe-explore-cue { display: none; }
+}

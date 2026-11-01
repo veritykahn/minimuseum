@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CaseViewTabs, caseViewIds, useCaseView } from '@/components/exhibition/CaseViews';
+import { SEEING_ROOMS } from '../rooms';
 
 type Artifact = {
   id: string;
@@ -43,24 +44,16 @@ const artifacts: Artifact[] = [
     type: '3d',
     route: '/exhibitions/seeing-is-deceiving/artifacts/victorian-cards'
   },
-  {
-    id: 'perception-lab',
-    title: 'Perception Lab',
-    subtitle: 'Test Your Visual System',
-    image: '/exhibitions/seeing/rooms/perception-lab.webp',
+  // The rooms, from the list the landing page's Explore row shares (rooms.ts).
+  ...SEEING_ROOMS.map((r): Artifact => ({
+    id: r.href.split('/').pop() ?? r.href,
+    title: r.title,
+    subtitle: r.subtitle ?? '',
+    image: r.image?.src ?? '',
     status: 'available',
     type: 'interactive',
-    route: '/exhibitions/seeing-is-deceiving/illusions'
-  },
-  {
-    id: 'optical-toys',
-    title: 'Optical Toys',
-    subtitle: 'The Thaumatrope & the Zoetrope',
-    image: '/exhibitions/seeing/rooms/optical-toys.webp',
-    status: 'available',
-    type: 'interactive',
-    route: '/exhibitions/seeing-is-deceiving/optical-toys'
-  }
+    route: r.href,
+  })),
 ];
 
 export default function ArtifactsCollection() {

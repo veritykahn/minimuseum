@@ -13,7 +13,8 @@ import { EXHIBITION_CASES } from '@/lib/exhibitionCases';
  * head, the posters and case sized to the screen, a swipe row on a phone
  * with a hint, credits folded into a toggle); every case card has its
  * exhibition's frame; every display case page has Artifacts | Interactives
- * tabs, and a room's way back opens the Interactives; the Leonardo.Ai
+ * tabs, and a room's way back opens the Interactives; the rooms are also in
+ * an Explore row below the first screen (owner-approved, Nov 2026); the Leonardo.Ai
  * illustrations are gone, but for the Holocaust walk room's textures.
  */
 
@@ -90,14 +91,18 @@ describe('the landing page', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it.each(EXHIBITION_CASES.map((c) => [c.config.slug, c.config] as const))('%s: one screen, its case framed, no rooms', (_slug, config) => {
+  it.each(EXHIBITION_CASES.map((c) => [c.config.slug, c.config] as const))('%s: one screen, its case framed, its rooms in the Explore row below', (_slug, config) => {
     window.history.replaceState(null, '', '/');
     render(<PosterExhibition config={config} />);
     expect(document.querySelector('.pe-landing .pe-landing-head h1')).toHaveTextContent(config.name);
     const row = document.querySelector('.pe-landing .pe-landing-row') as HTMLElement;
     expect(row.querySelectorAll(':scope > .pe-landing-poster')).toHaveLength(config.posters.length);
     for (const c of row.querySelectorAll(':scope > .pe-landing-case')) expect(c.querySelector('.pe-case-frame')).toHaveAttribute('aria-hidden', 'true');
-    for (const r of config.interactives ?? []) expect(document.querySelector(`a[href="${r.href}"]`)).toBeNull();
+    // The rooms are not in the one-screen row: they are in the Explore row after it.
+    for (const r of config.interactives ?? []) {
+      expect(row.querySelector(`a[href="${r.href}"]`)).toBeNull();
+      expect(document.querySelector(`.pe-explore a[href="${r.href}"]`)).not.toBeNull();
+    }
   });
 
   it.each([

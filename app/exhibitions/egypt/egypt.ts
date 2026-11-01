@@ -183,8 +183,9 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
-  // The rooms open from the display case (its Interactives), each card with a
-  // picture of the room itself (public/exhibitions/egypt/rooms/).
+  // The rooms, in the landing page's Explore row and the display case's
+  // Interactives, each card with a picture of the room itself
+  // (public/exhibitions/egypt/rooms/).
   interactives: [
     {
       href: '/exhibitions/egypt/hieroglyph-name',
@@ -206,6 +207,8 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       label: 'Interactive',
       title: 'Tomb Explorer',
       subtitle: 'Light the painted walls of a dark tomb',
+      // The way in: the tomb opens the other rooms, so the Explore row and the case list it first.
+      start: 'Start here',
     },
     {
       href: '/exhibitions/egypt/mummification',
@@ -405,6 +408,13 @@ export const EGYPT_CASE: CasePageData = {
       id: 'scarab',
       name: 'Scarab beetle amulet',
       record: 'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
+      // REVIEW: new text for the scarab's own card (it shared the Anubis
+      // statue's record line), from the British Museum's Room 4 Touch Tour
+      // guide, "Colossal scarab beetle" (EA 74).
+      about: {
+        text: 'A scarab is a dung beetle. The Egyptians linked it with rebirth, and with the god Khepri, who was thought to push the sun into the morning sky as a beetle pushes its ball of dung.',
+        sources: [{ label: 'British Museum, Room 4 Touch Tour, “Colossal scarab beetle”', href: 'https://www.britishmuseum.org/sites/default/files/2023-11/Room-4-Touch-Tour-Guide.pdf' }],
+      },
     },
   ],
   display: ['Display panels covering Egyptian pantheon mythology, with QR links to digital collections'],

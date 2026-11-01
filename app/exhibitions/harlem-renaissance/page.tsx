@@ -8,6 +8,7 @@ import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
 import LandingRow from '@/components/exhibition/LandingRow';
+import ExploreRow, { ExploreCue } from '@/components/exhibition/ExploreRow';
 import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { HARLEM_TALK } from '@/components/projector/posterTalk';
@@ -19,6 +20,7 @@ import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { HARLEM_ATMOSPHERES, poster1Content, poster2Content } from './posters';
 import PanelMusic from './PanelMusic';
+import { HARLEM_ROOMS } from './rooms';
 import './harlem.css';
 
 /** A paragraph longer than this (in characters) is set to fit a short screen: hr-long. */
@@ -865,6 +867,7 @@ export default function HarlemRenaissance() {
           MAIN EXHIBITION VIEW
           ============================================ */}
       {activeView === 'main' && !projector && (
+        <>
         <div className="hr-exhibition-main pe-landing">
           <div className="hr-exhibition-title pe-landing-head">
             <h1>The Harlem Renaissance</h1>
@@ -896,7 +899,12 @@ export default function HarlemRenaissance() {
               <span className="hr-poster-hint">Click to explore</span>
             </button>
           </LandingRow>
+          <ExploreCue rooms={HARLEM_ROOMS} />
         </div>
+
+        {/* The interactive rooms, below the first screen; the case's Interactives list the same (rooms.ts). */}
+        <ExploreRow rooms={HARLEM_ROOMS} style={{ '--pe-explore-ink': poster1Cream, '--pe-explore-accent': '#e2c27a', '--pe-explore-on-accent': '#17142f', '--pe-display': "'Cormorant Garamond', serif", '--pe-body': "'Cormorant Garamond', serif", '--pe-ui': "'Outfit', sans-serif" }} />
+        </>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">

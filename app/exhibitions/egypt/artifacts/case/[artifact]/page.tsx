@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { EGYPT, EGYPT_CASE } from '../../../egypt';
 import '../../../egypt.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function EgyptArtifact({ params }: Props) {
   const artifact = findArtifact(EGYPT_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={EGYPT} data={EGYPT_CASE} artifact={artifact} />;
+  return <ArtifactPage config={EGYPT} data={EGYPT_CASE} artifact={artifact} photo={casePhotosOnDisk(EGYPT, EGYPT_CASE).artifacts[artifact.id]} />;
 }

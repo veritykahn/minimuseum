@@ -7,7 +7,7 @@
  * exhibition's accent), set in its own stylesheet.
  */
 
-export const CASE_PLACEHOLDER_LABEL = 'Display case — photographs to come';
+export const CASE_PLACEHOLDER_LABEL = 'Photographs on their way';
 
 export default function CasePlaceholder({ size = 'page', className = '' }: { size?: 'card' | 'page'; className?: string }) {
   return (

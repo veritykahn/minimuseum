@@ -96,7 +96,7 @@ describe('PosterExhibition', () => {
 
   it('draws an empty case, photographs to come, for a display case with no photograph', () => {
     render(<PosterExhibition config={makeConfig({ cases: [{ href: '/case-1', label: 'Display Case', title: 'Artifacts' }] })} />);
-    const caseLink = screen.getByRole('link', { name: /Display case — photographs to come/ });
+    const caseLink = screen.getByRole('link', { name: /Photographs on their way/ });
     expect(caseLink).toHaveAttribute('href', '/case-1');
     expect(within(caseLink).queryAllByRole('img')).toHaveLength(0);
     expect(caseLink.querySelector('.pe-case-placeholder svg')).toHaveAttribute('aria-hidden', 'true');
@@ -310,7 +310,7 @@ describe('The Fear Lab', () => {
     expect(cards.map((c) => c.getAttribute('href'))).toEqual(['/exhibitions/fear-lab/artifacts/case/fear-boxes', '/exhibitions/fear-lab/artifacts/case/point-horror']);
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(FEAR_LAB_CASE.photos).toHaveLength(0);
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(JSON.stringify(FEAR_LAB_CASE)).not.toMatch(/installation|\.jpg/);
     // The lab opens from the case, under its Interactives tab.
     fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
