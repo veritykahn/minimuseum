@@ -1,9 +1,13 @@
+'use client';
+
 /*
  * A museum note: a fact from outside the posters, owner-approved and
  * fact-checked, set as a plain caption with its source beneath it, small and
  * linked. Each room styles it in its own caption voice through `className`
  * (the note) and `${className}-source` (its source line).
  */
+
+import { useInlineSources } from './SourcesDrawer';
 
 export type FactSource = { label: string; href: string };
 
@@ -13,6 +17,8 @@ export type ApprovedFact = {
 };
 
 export function FactSources({ sources, className }: { sources: readonly FactSource[]; className: string }) {
+  // Inside an interactive's SourcesDrawer, the drawer cites them instead.
+  if (!useInlineSources()) return null;
   return (
     <span className={className}>
       {sources.length > 1 ? 'Sources: ' : 'Source: '}
