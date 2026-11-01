@@ -10,6 +10,9 @@
 }
 
 body {
+  /* No browser margin: without it every page that fills the screen (the
+     entrance, the 404) scrolled by 16px and sat in an 8px frame. */
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: 'Outfit', sans-serif;
