@@ -797,7 +797,8 @@ export default function GospelTimeline() {
           .tl-card-more { display: none; }
           /* The page scrolls under the header and the ribbon here: give them ground */
           .tl-header { background: linear-gradient(to bottom, #1C1409 0%, #1C1409 70%, rgba(28, 20, 9, 0) 100%); padding-bottom: 28px; }
-          .tl-nav { background: linear-gradient(to top, #1C1409 0%, #1C1409 82%, rgba(28, 20, 9, 0) 100%); }
+          /* The ribbon runs the full width here: keep its arrows clear of the site's MAP button (bottom-right) */
+          .tl-nav { background: linear-gradient(to top, #1C1409 0%, #1C1409 82%, rgba(28, 20, 9, 0) 100%); padding-left: 96px; padding-right: 96px; }
           .tl-card-area {
             max-width: 100%;
           }
