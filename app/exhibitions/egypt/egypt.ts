@@ -168,11 +168,11 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
   projector: {
     theme: EGYPT_PROJECTOR_THEME,
     links: [
+      { label: 'Tomb Explorer: carry a torch through a dark tomb; what you find opens every other room', href: '/exhibitions/egypt/tomb' },
       { label: 'Your Name in Hieroglyphs: write your name in a cartouche, and print it', href: '/exhibitions/egypt/hieroglyph-name' },
       { label: 'The Rosetta Stone Decoder: three scripts, and two royal names to crack', href: '/exhibitions/egypt/rosetta-stone' },
-      { label: 'Tomb Explorer: light the painted walls of a dark tomb', href: '/exhibitions/egypt/tomb' },
       { label: 'Mummification, Step by Step: natron, canopic jars, linen and amulets', href: '/exhibitions/egypt/mummification' },
-      { label: 'The Weighing of the Heart: help Ani before the judges of the afterlife', href: '/exhibitions/egypt/weighing-of-the-heart' },
+      { label: 'The Weighing of the Heart: follow Ani’s judgement, and guess what the scales will do', href: '/exhibitions/egypt/weighing-of-the-heart' },
       { label: 'Design an Amulet: choose its symbols, learn their meanings, and print it', href: '/exhibitions/egypt/amulet' },
     ],
   },
@@ -184,8 +184,16 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
     },
   ],
   // The rooms open from the display case (its Interactives), each card with a
-  // picture of the room itself (public/exhibitions/egypt/rooms/).
+  // picture of the room itself (public/exhibitions/egypt/rooms/). The tomb
+  // comes first: it is the way into all the others.
   interactives: [
+    {
+      href: '/exhibitions/egypt/tomb',
+      image: { src: '/exhibitions/egypt/rooms/tomb.webp', alt: 'The Tomb Explorer room: a torch’s circle of light in a dark burial chamber, beside the list of things hidden in the dark' },
+      label: 'Interactive',
+      title: 'Tomb Explorer',
+      subtitle: 'Carry a torch through the tomb: what you find opens every other room',
+    },
     {
       href: '/exhibitions/egypt/hieroglyph-name',
       image: { src: '/exhibitions/egypt/rooms/hieroglyph-name.webp', alt: 'The Your Name in Hieroglyphs room: the name Cleopatra in gold signs inside a cartouche, each sign above its letter' },
@@ -201,29 +209,22 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       subtitle: 'Three scripts, and two royal names to crack',
     },
     {
-      href: '/exhibitions/egypt/tomb',
-      image: { src: '/exhibitions/egypt/rooms/tomb.webp', alt: 'The Tomb Explorer room: a torch’s circle of light on a painted tomb wall in the dark' },
-      label: 'Interactive',
-      title: 'Tomb Explorer',
-      subtitle: 'Light the painted walls of a dark tomb',
-    },
-    {
       href: '/exhibitions/egypt/mummification',
-      image: { src: '/exhibitions/egypt/rooms/mummification.webp', alt: 'The Mummification, Step by Step room: a body on the embalmers’ table, with the four canopic jars beneath it' },
+      image: { src: '/exhibitions/egypt/rooms/mummification.webp', alt: 'The Mummification, Step by Step room: a figure on the embalmers’ table, with the four canopic jars beneath it, beside the step on the organs and their jars' },
       label: 'Interactive',
       title: 'Mummification, Step by Step',
       subtitle: 'Natron, canopic jars, linen and amulets',
     },
     {
       href: '/exhibitions/egypt/weighing-of-the-heart',
-      image: { src: '/exhibitions/egypt/rooms/weighing-of-the-heart.webp', alt: 'The Weighing of the Heart room: the heart and the feather on the scales before Anubis, Thoth and Ammit, and the first deed to judge' },
+      image: { src: '/exhibitions/egypt/rooms/weighing-of-the-heart.webp', alt: 'The Weighing of the Heart room: the level scales before Ani and Tutu, Anubis, Maat, Thoth and Ammit, beside the two papyri that show the judgement' },
       label: 'Interactive',
       title: 'The Weighing of the Heart',
-      subtitle: 'Help Ani before the judges of the afterlife',
+      subtitle: 'Follow Ani’s judgement, and guess what the scales will do',
     },
     {
       href: '/exhibitions/egypt/amulet',
-      image: { src: '/exhibitions/egypt/rooms/amulet.webp', alt: 'The Design an Amulet room: a gold scarab amulet carved with an ankh and a wedjat eye, beside the shapes, materials and symbols to choose' },
+      image: { src: '/exhibitions/egypt/rooms/amulet.webp', alt: 'The Design an Amulet room: a gold scarab amulet carved with an ankh and a wedjat eye, beside the questions of who it is for and what it should protect' },
       label: 'Interactive',
       title: 'Design an Amulet',
       subtitle: 'Choose its symbols, learn their meanings, and print it',
@@ -404,7 +405,10 @@ export const EGYPT_CASE: CasePageData = {
     {
       id: 'scarab',
       name: 'Scarab beetle amulet',
-      record: 'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
+      // The record has one line for the Anubis statue and this amulet together
+      // (kept, word for word, on the Anubis card); the scarab's own line is new.
+      // REVIEW: new text. British Museum, "Ancient Egypt: Symbols of the pharaoh": scarab beetles roll a ball of dung, linked with the sun moving across the sky; the grubs hatching from the ball were a sign of rebirth. https://www.britishmuseum.org/sites/default/files/2019-09/Visit_Egypt_Symbols_KS2b.pdf
+      record: 'Scarab beetle amulet, a symbol of the sun and of rebirth',
     },
   ],
   display: ['Display panels covering Egyptian pantheon mythology, with QR links to digital collections'],

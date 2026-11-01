@@ -1,35 +1,73 @@
 'use client';
 
-import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import Link from 'next/link';
 import FactNote from '@/components/exhibition/FactNote';
+import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
-import RoomShell, { Glyphs, RoomHeader } from '../RoomShell';
+import RoomShell, { Glyphs, RoomHeader, TombDoor } from '../RoomShell';
+import { SYMBOLS } from '../amulet/amulets';
 import { GLYPHS } from '../rooms';
-import MummyScene from './MummyScene';
-import { ANUBIS_POSTER, JARS, LAYERS, ORGANS, STEPS, WRAP_AMULETS, jarFor } from './steps';
+import { fromTomb, markDone, useTomb } from '../tombState';
+import MummyScene, { NATRON_SPOTS, WASH_PATCHES, type MummyState } from './MummyScene';
+import { ANUBIS_POSTER, CHECK, HEART_NOTE, JARS, LAYERS, ORGANS, STEPS, WRAP_AMULETS, jarFor } from './steps';
 import './mummy.css';
 
 /*
- * Mummification, step by step: seven steps across the seventy days, each a
- * tab (and #address) with Back and Next. The embalmers' table shows the
- * step; the visitor does a little of the work: matches each organ to its
- * canopic jar, sets the forty days of natron going, and wraps the linen,
- * tucking amulets between the layers. The facts are museum notes with their
- * sources (steps.ts).
+ * Mummification, step by step: eight steps across the seventy days, each a
+ * tab (and #address) with Back and Next, which stay in one place (the
+ * panel keeps its size; only the step's body changes). The visitor does the
+ * work: wipes the dust away, draws out the brain, drags each organ to its
+ * canopic jar (and notices the heart left inside), packs the natron and
+ * counts the forty days, rubs in the oils, wraps the linen with the amulets
+ * they choose (their own, from the amulet maker, among them), and lays the
+ * mummy in its coffin. Three quick questions, then the doorway to the Hall
+ * of Judgement. The facts are museum notes; their sources are in the
+ * room's Sources drawer (steps.ts).
  */
+
+const SOURCES: SourceGroup[] = [
+  ...STEPS.map((s) => ({
+    title: s.title,
+    items: [...new Map([...s.notes, ...(s.id === 'organs' ? [HEART_NOTE] : []), ...(s.id === 'wrap' ? WRAP_AMULETS.map((a) => a.note) : [])].flatMap((n) => n.sources).map((x) => [x.href, x])).values()],
+  })),
+  {
+    title: 'Pictures',
+    items: [
+      { label: 'The embalmers’ table and the figure are drawn for the Mini Museum.' },
+      { label: 'Hieroglyphs set in Noto Sans Egyptian Hieroglyphs', licence: 'SIL Open Font License' },
+    ],
+  },
+];
+
+const PACK = NATRON_SPOTS.length;
+const OILS = 3;
 
 export default function Mummification() {
   const reduced = usePrefersReducedMotion();
+  const [tomb] = useTomb();
   const [index, setIndex] = useState(0);
+  const [dusty, setDusty] = useState<number[]>(WASH_PATCHES.map((_, i) => i));
+  const [brainOut, setBrainOut] = useState(false);
   const [organ, setOrgan] = useState<string | null>(null);
   const [filled, setFilled] = useState<string[]>([]);
+  const [hint, setHint] = useState('');
+  const [heartAnswer, setHeartAnswer] = useState<string | null>(null);
+  const [drag, setDrag] = useState<{ organ: string; x: number; y: number } | null>(null);
+  const [packed, setPacked] = useState(0);
   const [days, setDays] = useState(0);
+  const [oiled, setOiled] = useState(0);
   const [layers, setLayers] = useState(0);
   const [amulets, setAmulets] = useState<{ id: string; glyph: string; layer: number }[]>([]);
+  const [inCoffin, setInCoffin] = useState(false);
+  const [closed, setClosed] = useState(false);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
   const [status, setStatus] = useState('');
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const svg = useRef<SVGSVGElement>(null);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
   const step = STEPS[index];
+  const dried = days >= 40;
 
   useEffect(() => {
     const fromHash = () => {
@@ -47,7 +85,8 @@ export default function Mummification() {
   const go = (i: number, focus = false) => {
     const to = Math.max(0, Math.min(STEPS.length - 1, i));
     setIndex(to);
-    window.history.replaceState(null, '', `#${STEPS[to].id}`);
+    setHint('');
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${STEPS[to].id}`);
     setStatus(`Step ${to + 1} of ${STEPS.length}: ${STEPS[to].title}.`);
     if (focus) tabRefs.current[to]?.focus();
   };
@@ -63,27 +102,79 @@ export default function Mummification() {
     go(to, true);
   };
 
-  // The canopic jars: choose an organ, then the jar of the god who protects it.
-  const pickJar = (god: string) => {
-    if (!organ) {
-      setStatus('First choose an organ.');
+  // Washing: wipe the dust away with a finger or the mouse, or pour water a patch at a time.
+  const wipeAt = (e: PointerEvent<HTMLDivElement>) => {
+    if (step.id !== 'wash' || (e.pointerType === 'mouse' && e.buttons === 0 && e.type === 'pointermove')) return;
+    const el = svg.current;
+    const m = el?.getScreenCTM?.();
+    if (!el || !m) return;
+    const p = new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse());
+    const near = (i: number) => Math.hypot(WASH_PATCHES[i].x - p.x, (WASH_PATCHES[i].y - p.y) * 1.6) < 34;
+    if (dusty.some(near)) washed((d) => d.filter((i) => !near(i)));
+  };
+  const washed = (update: (d: number[]) => number[]) => {
+    setDusty((d) => {
+      const left = update(d);
+      setStatus(left.length ? `Washing: ${WASH_PATCHES.length - left.length} of ${WASH_PATCHES.length} clean.` : 'The body is washed clean.');
+      return left;
+    });
+  };
+
+  // The organs: drag one to its jar, or choose it and then the jar.
+  const toJar = (god: string, which = organ) => {
+    if (!which) {
+      setHint('First choose an organ.');
       return;
     }
-    const jar = jarFor(organ);
+    const jar = jarFor(which);
     if (jar.god === god) {
-      setFilled((f) => (f.includes(god) ? f : [...f, god]));
-      setStatus(`Yes: ${jar.head}-headed ${jar.god} protects the ${organ}.`);
+      const next = filled.includes(god) ? filled : [...filled, god];
+      setFilled(next);
+      setHint('');
+      setStatus(`Yes: ${jar.head}-headed ${jar.god} protects the ${which}.${next.length === JARS.length ? ' All four jars are full.' : ''}`);
       setOrgan(null);
     } else {
-      setStatus(`Not that jar. Which god protects the ${organ}?`);
+      // A gentle hint: the head of the right god.
+      const msg = `Not that jar. The ${which} was looked after by the god with a ${jar.head}’s head.`;
+      setHint(msg);
+      setStatus(msg);
     }
+  };
+  const startDrag = (o: string, e: PointerEvent<HTMLButtonElement>) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    setOrgan(o);
+    setDrag({ organ: o, x: e.clientX, y: e.clientY });
+  };
+  useEffect(() => {
+    if (!drag) return;
+    const move = (e: globalThis.PointerEvent) => setDrag((d) => (d ? { ...d, x: e.clientX, y: e.clientY } : d));
+    const up = (e: globalThis.PointerEvent) => {
+      const target = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-jar]');
+      const o = drag.organ;
+      setDrag(null);
+      if (target) toJar(target.dataset.jar!, o);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up, { once: true });
+    return () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+    };
+    // toJar reads the latest state through the render it was made in; the drag's own organ is passed in.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drag?.organ]);
+
+  const pack = () => {
+    const n = Math.min(PACK, packed + 1);
+    setPacked(n);
+    setStatus(n === PACK ? 'All the natron is packed, inside and out. Now count the 40 days.' : `${n} of ${PACK} bags of natron packed.`);
   };
 
   const startNatron = () => {
     if (timer.current) clearInterval(timer.current);
     if (reduced) {
       setDays(40);
-      setStatus('Forty days have passed.');
+      setStatus('Forty days have passed. The body is dry.');
       return;
     }
     setDays(0);
@@ -94,9 +185,15 @@ export default function Mummification() {
       if (d >= 40) {
         clearInterval(timer.current!);
         timer.current = null;
-        setStatus('Forty days have passed.');
+        setStatus('Forty days have passed. The body is dry.');
       }
     }, 70);
+  };
+
+  const rub = () => {
+    const n = Math.min(OILS, oiled + 1);
+    setOiled(n);
+    setStatus(n === OILS ? 'The body is coated in oils and resin.' : `Coat ${n} of ${OILS} of oils and resin.`);
   };
 
   const wrapLayer = () => {
@@ -104,17 +201,77 @@ export default function Mummification() {
     setLayers(n);
     setStatus(n >= LAYERS ? 'The last layer of linen is on.' : `Layer ${n} of ${LAYERS} of linen.`);
   };
+  // The amulets to tuck in: the visitor's own (from the amulet maker), then the three the embalmers used.
+  const own = tomb.amulet;
+  const ownSymbols = (own?.symbols ?? []).map((id) => SYMBOLS.find((x) => x.id === id)).filter((x) => !!x);
+  const choices = [
+    ...(own ? [{ id: 'own', name: 'Your amulet', glyph: ownSymbols.map((x) => x.glyph).join('') || GLYPHS.L1, note: null }] : []),
+    ...WRAP_AMULETS.map((a) => ({ ...a, note: a.note })),
+  ];
   const tuck = (id: string) => {
-    const a = WRAP_AMULETS.find((x) => x.id === id)!;
+    const a = choices.find((x) => x.id === id)!;
     setAmulets((list) => [...list, { id, glyph: a.glyph, layer: layers }]);
-    setStatus(`A ${a.name.toLowerCase()} is tucked into the wrappings.`);
+    setStatus(`${a.name} is tucked into the wrappings.`);
   };
   const lastAmulet = WRAP_AMULETS.find((a) => a.id === amulets[amulets.length - 1]?.id);
 
+  const layIn = () => {
+    setInCoffin(true);
+    setStatus('The mummy is laid in its coffin.');
+  };
+  const closeLid = () => {
+    setClosed(true);
+    markDone('mummification');
+    setStatus('The lid is closed. The seventy days are over.');
+  };
+
+  const allDone = filled.length === JARS.length;
+  const checked = CHECK.every((_, i) => answers[i] === CHECK[i].answer);
+
+  const scene: MummyState = {
+    step: step.id,
+    dusty,
+    brainOut,
+    filled,
+    packed: step.id === 'natron' ? packed : PACK,
+    dried,
+    oiled,
+    layers,
+    amulets,
+    inCoffin,
+    closed,
+    showHeart: step.id === 'organs' && allDone,
+  };
+
+  const sceneLabel =
+    step.id === 'coffin'
+      ? closed
+        ? 'The coffin, closed, with a painted face'
+        : inCoffin
+          ? 'The wrapped mummy lying in its open coffin'
+          : 'The wrapped mummy on the embalmers’ bed, beside its open coffin'
+      : step.id === 'wrap'
+        ? `The body on the embalmers’ bed, wrapped in ${layers} of ${LAYERS} layers of linen`
+        : step.id === 'natron'
+          ? dried
+            ? 'The body, dried and shrunken after forty days in natron'
+            : `The body on the embalmers’ bed, with ${packed} of ${PACK} bags of natron packed around it`
+          : step.id === 'wash'
+            ? `The body on the embalmers’ bed, ${dusty.length ? `${dusty.length} dusty patches still to wash` : 'washed clean'}`
+            : step.id === 'brain'
+              ? brainOut
+                ? 'The body on the embalmers’ bed; the brain has been drawn out through the nose and is gone'
+                : 'The body on the embalmers’ bed, a long bronze hook above the nose'
+              : step.id === 'organs'
+                ? `The body on the embalmers’ bed, with a cut on its left side, and four canopic jars, ${filled.length} of them filled`
+                : step.id === 'oils'
+                  ? `The dried body, ${oiled} of ${OILS} coats of oil rubbed in`
+                  : 'A body lying face up on the embalmers’ lion-legged bed, in a white kilt';
+
   return (
-    <RoomShell className="eg-mummy">
+    <RoomShell className="eg-mummy" sources={SOURCES}>
       <RoomHeader kicker="Interactive · Seventy days" title="Mummification, Step by Step">
-        <p className="egr-lede">Follow the embalmers through the seventy days, one step at a time.</p>
+        <p className="egr-lede">Work beside the embalmers through the seventy days, one step at a time.</p>
       </RoomHeader>
 
       <div className="egr-tabs" role="tablist" aria-label="The steps">
@@ -152,101 +309,218 @@ export default function Mummification() {
               <span>Day 70</span>
             </span>
           </div>
-          <div
-            role="img"
-            aria-label={
-              step.id === 'coffin'
-                ? 'The wrapped body inside a coffin shaped like a person, with a painted face'
-                : step.id === 'wrap'
-                  ? `The body on the embalmers’ bed, wrapped in ${layers} of ${LAYERS} layers of linen`
-                  : step.id === 'natron'
-                    ? 'The body on the embalmers’ bed, heaped over with white natron salt'
-                    : 'A body lying on the embalmers’ lion-legged bed, under a sheet'
-            }
-          >
-            <MummyScene step={step.id} filled={filled} layers={layers} amulets={amulets} />
+          <div role="img" aria-label={sceneLabel} className={`egm-table ${step.id === 'wash' && dusty.length ? 'is-washing' : ''}`} onPointerDown={wipeAt} onPointerMove={wipeAt}>
+            <MummyScene ref={svg} s={scene} onSpot={() => pack()} />
           </div>
-          {step.id === 'natron' && (
-            <p className="egm-days" aria-hidden="true">
-              <span>{days}</span> {days === 1 ? 'day' : 'days'} in natron
-            </p>
-          )}
+          <p className="egm-days" aria-hidden="true">
+            {step.id === 'natron' ? (
+              <>
+                <span>{days}</span> {days === 1 ? 'day' : 'days'} in natron
+              </>
+            ) : step.id === 'wash' && dusty.length ? (
+              'Wipe the dust away with your finger or mouse'
+            ) : (
+              ' '
+            )}
+          </p>
         </div>
 
-        <section className="egr-panel" aria-labelledby="egm-title">
-          <p className="egr-label">
-            Step {index + 1} of {STEPS.length} · {step.when}
-          </p>
-          <h2 id="egm-title">{step.title}</h2>
+        <section className="egr-panel egr-stepper" aria-labelledby="egm-title">
+          <div className="egr-step-body">
+            <p className="egr-label">
+              Step {index + 1} of {STEPS.length} · {step.when}
+            </p>
+            <h2 id="egm-title">{step.title}</h2>
 
-          {step.id === 'why' && <p className="egr-poster">{ANUBIS_POSTER}</p>}
+            {step.id === 'why' && <p className="egr-poster">{ANUBIS_POSTER}</p>}
 
-          {step.notes.map((n) => (
-            <FactNote key={n.text} fact={n} className="egr-fact" />
-          ))}
+            {step.notes.map((n) => (
+              <FactNote key={n.text} fact={n} className="egr-fact" />
+            ))}
 
-          {step.id === 'organs' && (
-            <div className="egm-match">
-              <fieldset className="egr-choice">
-                <legend>1. Choose an organ</legend>
-                <div className="egr-options">
-                  {ORGANS.map((o) => {
-                    const done = filled.includes(jarFor(o).god);
-                    return (
-                      <button key={o} type="button" className="egr-option" aria-pressed={organ === o} disabled={done} onClick={() => setOrgan(o)}>
-                        {o[0].toUpperCase() + o.slice(1)}
-                        {done && <span aria-label=" (in its jar)"> ✓</span>}
-                      </button>
-                    );
-                  })}
-                </div>
-              </fieldset>
-              <fieldset className="egr-choice">
-                <legend>2. Choose its jar</legend>
-                <div className="egr-options">
-                  {JARS.map((j) => (
-                    <button key={j.god} type="button" className="egr-option egm-jar-button" onClick={() => pickJar(j.god)} aria-label={`${j.god}, the ${j.head}-headed jar`}>
-                      <Glyphs text={GLYPHS[j.glyph]} className="egm-jar-glyph" />
-                      <span aria-hidden="true">{j.god}</span>
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-              {filled.length === JARS.length && <p className="egm-done">All four organs are safe in their jars.</p>}
-            </div>
-          )}
-
-          {step.id === 'natron' && (
-            <div className="egr-actions">
-              <button type="button" className="egr-button" onClick={startNatron}>
-                {days >= 40 ? 'Count the 40 days again' : 'Start the 40 days'}
-              </button>
-            </div>
-          )}
-
-          {step.id === 'wrap' && (
-            <>
+            {step.id === 'wash' && (
               <div className="egr-actions">
-                <button type="button" className="egr-button" onClick={wrapLayer} disabled={layers >= LAYERS}>
-                  Wrap a layer of linen ({layers}/{LAYERS})
+                <button type="button" className="egr-button" disabled={!dusty.length} onClick={() => washed((d) => d.slice(1))}>
+                  Pour water ({WASH_PATCHES.length - dusty.length}/{WASH_PATCHES.length})
+                </button>
+                {!dusty.length && <p className="egm-done">Washed clean.</p>}
+              </div>
+            )}
+
+            {step.id === 'brain' && (
+              <div className="egr-actions">
+                <button
+                  type="button"
+                  className="egr-button"
+                  disabled={brainOut}
+                  onClick={() => {
+                    setBrainOut(true);
+                    setStatus('The brain is drawn out through the nose, and it is not kept.');
+                  }}
+                >
+                  Draw out the brain
+                </button>
+                {brainOut && <p className="egm-done">Gone: the brain was not kept.</p>}
+              </div>
+            )}
+
+            {step.id === 'organs' && (
+              <div className="egm-match">
+                <p>Drag each organ to the jar of the god who protects it, or choose an organ and then its jar.</p>
+                <fieldset className="egr-choice">
+                  <legend>The organs</legend>
+                  <div className="egr-options">
+                    {ORGANS.map((o) => {
+                      const done = filled.includes(jarFor(o).god);
+                      return (
+                        <button
+                          key={o}
+                          type="button"
+                          className="egr-option egm-organ"
+                          aria-pressed={organ === o}
+                          disabled={done}
+                          onClick={() => setOrgan(o)}
+                          onPointerDown={(e) => !done && startDrag(o, e)}
+                        >
+                          {o[0].toUpperCase() + o.slice(1)}
+                          {done && <span aria-label=" (in its jar)"> ✓</span>}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+                <fieldset className="egr-choice">
+                  <legend>The four jars</legend>
+                  <div className="egm-jars-row">
+                    {JARS.map((j) => (
+                      <button
+                        key={j.god}
+                        type="button"
+                        data-jar={j.god}
+                        className={`egr-option egm-jar-button ${filled.includes(j.god) ? 'is-full' : ''}`}
+                        onClick={() => toJar(j.god)}
+                        aria-label={`${j.god}, the ${j.head}-headed jar${filled.includes(j.god) ? ' (full)' : ''}`}
+                      >
+                        <Glyphs text={GLYPHS[j.glyph]} className="egm-jar-glyph" />
+                        <span aria-hidden="true">{j.god}</span>
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+                <p className="egm-hint" aria-hidden="true">{hint}</p>
+                {allDone && (
+                  <fieldset className="egr-choice egm-heart-q">
+                    <legend>All four jars are full. But look closely at the body: which organ is still inside?</legend>
+                    <div className="egr-options">
+                      {['The brain', 'The heart', 'The lungs'].map((o) => (
+                        <button key={o} type="button" className="egr-option" aria-pressed={heartAnswer === o} onClick={() => setHeartAnswer(o)}>
+                          {o}
+                        </button>
+                      ))}
+                    </div>
+                    {heartAnswer && heartAnswer !== 'The heart' && <p className="egm-hint">Look again: the small red shape on the chest.</p>}
+                    {heartAnswer === 'The heart' && (
+                      <>
+                        <p className="egm-done">Yes, the heart.</p>
+                        <FactNote fact={HEART_NOTE} className="egr-fact" />
+                      </>
+                    )}
+                  </fieldset>
+                )}
+              </div>
+            )}
+
+            {step.id === 'natron' && (
+              <div className="egr-actions">
+                <button type="button" className="egr-button" onClick={pack} disabled={packed >= PACK}>
+                  Pack a bag of natron ({packed}/{PACK})
+                </button>
+                <button type="button" className="egr-button" onClick={startNatron} disabled={packed < PACK}>
+                  {dried ? 'Count the 40 days again' : 'Start the 40 days'}
+                </button>
+                {dried && <p className="egm-done">Dry, and a little shrunken.</p>}
+              </div>
+            )}
+
+            {step.id === 'oils' && (
+              <div className="egr-actions">
+                <button type="button" className="egr-button" onClick={rub} disabled={oiled >= OILS}>
+                  Rub in oil and resin ({oiled}/{OILS})
                 </button>
               </div>
-              <fieldset className="egr-choice">
-                <legend>Tuck in an amulet</legend>
-                <div className="egr-options">
-                  {WRAP_AMULETS.map((a) => (
-                    <button key={a.id} type="button" className="egr-option" onClick={() => tuck(a.id)} disabled={layers >= LAYERS || amulets.length >= 6}>
-                      <Glyphs text={a.glyph} className="egm-amulet-glyph" />
-                      {a.name}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-              {lastAmulet && <FactNote fact={lastAmulet.note} className="egr-fact" />}
-            </>
-          )}
+            )}
 
-          <div className="egr-actions egm-nav">
+            {step.id === 'wrap' && (
+              <>
+                <div className="egr-actions">
+                  <button type="button" className="egr-button" onClick={wrapLayer} disabled={layers >= LAYERS}>
+                    Wrap a layer of linen ({layers}/{LAYERS})
+                  </button>
+                </div>
+                <fieldset className="egr-choice">
+                  <legend>Choose amulets to tuck in, between the layers</legend>
+                  <div className="egr-options">
+                    {choices.map((a) => (
+                      <button key={a.id} type="button" className="egr-option" onClick={() => tuck(a.id)} disabled={layers >= LAYERS || amulets.length >= 6}>
+                        <Glyphs text={a.glyph} className="egm-amulet-glyph" />
+                        {a.name}
+                      </button>
+                    ))}
+                  </div>
+                </fieldset>
+                {!own && (
+                  <p className="egm-small">
+                    Want to tuck in your own? <Link href={fromTomb('/exhibitions/egypt/amulet')}>Design an amulet</Link>, then come back.
+                  </p>
+                )}
+                {lastAmulet && <FactNote fact={lastAmulet.note} className="egr-fact" />}
+              </>
+            )}
+
+            {step.id === 'coffin' && (
+              <>
+                <div className="egr-actions">
+                  <button type="button" className="egr-button" onClick={layIn} disabled={inCoffin}>
+                    Lay the mummy in its coffin
+                  </button>
+                  <button type="button" className="egr-button" onClick={closeLid} disabled={!inCoffin || closed}>
+                    Close the lid
+                  </button>
+                </div>
+                {closed && (
+                  <div className="egm-check">
+                    <h3>Three quick questions</h3>
+                    {CHECK.map((c, i) => (
+                      <fieldset key={c.q} className="egr-choice">
+                        <legend>{c.q}</legend>
+                        <div className="egr-options">
+                          {c.options.map((o) => (
+                            <button key={o} type="button" className="egr-option" aria-pressed={answers[i] === o} onClick={() => setAnswers((a) => ({ ...a, [i]: o }))}>
+                              {o}
+                            </button>
+                          ))}
+                        </div>
+                        {answers[i] && <p className={answers[i] === c.answer ? 'egm-done' : 'egm-hint'}>{answers[i] === c.answer ? `Yes! ${c.after}` : 'Not quite. Have another go.'}</p>}
+                      </fieldset>
+                    ))}
+                    {checked && (
+                      <div className="egm-ending">
+                        <p>The mummy is ready. Next, its heart will be weighed in the Hall of Judgement.</p>
+                        <div className="egr-actions">
+                          <Link className="egr-button egr-button-primary" href={fromTomb('/exhibitions/egypt/weighing-of-the-heart')}>
+                            Into the Hall of Judgement <span aria-hidden="true">→</span>
+                          </Link>
+                          <TombDoor />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          <div className="egr-step-nav">
             <button type="button" className="egr-button" onClick={() => go(index - 1)} disabled={index === 0}>
               <span aria-hidden="true">←</span> Back
             </button>
@@ -256,6 +530,12 @@ export default function Mummification() {
           </div>
         </section>
       </div>
+
+      {drag && (
+        <span className="egm-drag" style={{ left: drag.x, top: drag.y }} aria-hidden="true">
+          {drag.organ}
+        </span>
+      )}
 
       <p className="egr-status" role="status" aria-live="polite">
         {status}

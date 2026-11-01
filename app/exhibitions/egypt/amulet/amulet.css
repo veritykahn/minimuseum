@@ -29,3 +29,10 @@
   .ega-print-meanings .egr-glyph { font-size: 16pt; }
   .ega-print-source a { color: inherit; }
 }
+
+/* First: who it is for, and what it should protect; the suggested symbols marked */
+.ega-purpose { display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--egr-line); }
+.ega-suggest { margin: 0; padding: 10px 12px; border-left: 3px solid var(--egr-gold); background: rgba(217, 164, 65, 0.08); }
+.eg-room .ega-symbol.is-suggested { border-color: var(--egr-gold); }
+.ega-tag { padding: 1px 7px; border-radius: 999px; background: var(--egr-gold); color: #141414; font-size: 0.68em; letter-spacing: 0.06em; text-transform: uppercase; }
+.eg-room .egr-option[aria-pressed='true'] .ega-tag { background: #6b4a10; color: #fff; }

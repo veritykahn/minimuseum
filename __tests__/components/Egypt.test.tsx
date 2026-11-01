@@ -159,6 +159,8 @@ describe('The Ancient Egypt display case page', () => {
     expect(recordLines(EGYPT_CASE).map(plainText)).toEqual([
       'Hand-crafted replica Bastet statue, goddess of protection and cats',
       'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
+      // The scarab's own line (new, for the owner's review): no longer the Anubis line again.
+      'Scarab beetle amulet, a symbol of the sun and of rebirth',
       'Display panels covering Egyptian pantheon mythology, with QR links to digital collections',
     ]);
     const cards = screen.getAllByRole('link', { name: /View artifact/ });
