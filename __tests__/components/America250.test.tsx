@@ -215,11 +215,12 @@ describe('America 250', () => {
     });
     afterEach(() => jest.useRealTimers());
 
-    it('sets the display case on the landing page, and the signing room inside it', () => {
+    it('sets the display case on the landing page, and the signing room inside it and in the Explore row below', () => {
       render(<PosterExhibition config={AMERICA_250} />);
       expect(screen.getByRole('heading', { level: 1, name: 'America 250' })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /display case/i })).toHaveAttribute('href', '/exhibitions/america-250/artifacts/case');
-      expect(document.querySelector('a[href="/exhibitions/america-250/sign"]')).toBeNull();
+      expect(document.querySelector('.pe-landing-row a[href="/exhibitions/america-250/sign"]')).toBeNull();
+      expect(document.querySelector('.pe-explore a[href="/exhibitions/america-250/sign"]')).not.toBeNull();
       expect(screen.getByRole('link', { name: 'Ground Floor' })).toHaveAttribute('href', '/exhibitions/ground-floor');
     });
 
