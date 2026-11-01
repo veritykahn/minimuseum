@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { HOLOCAUST, HOLOCAUST_CASE } from '../../../holocaust';
 import '../../../holocaust.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function HolocaustArtifact({ params }: Props) {
   const artifact = findArtifact(HOLOCAUST_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={HOLOCAUST} data={HOLOCAUST_CASE} artifact={artifact} />;
+  return <ArtifactPage config={HOLOCAUST} data={HOLOCAUST_CASE} artifact={artifact} photo={casePhotosOnDisk(HOLOCAUST, HOLOCAUST_CASE).artifacts[artifact.id]} />;
 }

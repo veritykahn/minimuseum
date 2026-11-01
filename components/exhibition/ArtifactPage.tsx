@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
-import { casePath, artifactPath, neighbours, posterTitle } from './artifacts';
+import { casePath, artifactPath, neighbours, plainText, posterTitle } from './artifacts';
+import { ARTIFACT_PHOTO_SIZE } from './casePhotoPaths';
+import FactNote from './FactNote';
 import { ArtifactGlyph, Emphasized, caseRootStyle } from './caseShared';
 import type { CaseArtifact, CasePageData, ExhibitionConfig } from './types';
 import './poster-exhibition.css';
@@ -16,7 +18,18 @@ import './poster-exhibition.css';
  * from the exhibition's posters about it, each under its poster's title.
  */
 
-export default function ArtifactPage({ config, data, artifact }: { config: ExhibitionConfig; data: CasePageData; artifact: CaseArtifact }) {
+export default function ArtifactPage({
+  config,
+  data,
+  artifact,
+  photo,
+}: {
+  config: ExhibitionConfig;
+  data: CasePageData;
+  artifact: CaseArtifact;
+  /** The owner's photograph of it, once dropped in (casePhotoPaths.ts). */
+  photo?: string;
+}) {
   const { name: exhibition, slug } = config;
   const home = `/exhibitions/${slug}`;
   const caseHref = casePath(config);
@@ -43,10 +56,17 @@ export default function ArtifactPage({ config, data, artifact }: { config: Exhib
           <Link href={caseHref}>{data.label}</Link>
         </nav>
 
-        <section className="pe-artifact-stage" aria-label="3D model">
-          <span className="pe-artifact-stage-art">
-            <ArtifactGlyph />
-          </span>
+        <section className={`pe-artifact-stage ${photo ? 'has-photo' : ''}`.trim()} aria-label="3D model">
+          {photo ? (
+            <figure className="pe-artifact-stage-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo} alt={plainText(artifact.name)} width={ARTIFACT_PHOTO_SIZE.width} height={ARTIFACT_PHOTO_SIZE.height} />
+            </figure>
+          ) : (
+            <span className="pe-artifact-stage-art">
+              <ArtifactGlyph />
+            </span>
+          )}
           <p className="pe-artifact-soon">3D model to come</p>
         </section>
 
@@ -61,6 +81,12 @@ export default function ArtifactPage({ config, data, artifact }: { config: Exhib
           <p className="pe-artifact-record">
             <Emphasized text={artifact.record} />
           </p>
+          {artifact.about && (
+            <div className="pe-artifact-about">
+              <h2 className="pe-artifact-source">About it</h2>
+              <FactNote fact={artifact.about} className="pe-artifact-note" />
+            </div>
+          )}
           {[...byPoster].map(([poster, texts]) => (
             <div key={poster} className="pe-artifact-poster">
               <h2 className="pe-artifact-source">

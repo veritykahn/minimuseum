@@ -10,6 +10,17 @@ import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 import sitemap from '@/app/sitemap';
+import { SIGN_SOURCES } from '@/app/exhibitions/america-250/sign/sources';
+
+/** The room's Sources drawer, opened: every source and picture credit is there, none inline. */
+function openSources() {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+  return screen.getByRole('dialog', { name: 'Sources' });
+}
+/** The drawer's group for a step, by its heading. */
+function sourcesGroup(drawer: HTMLElement, title: string) {
+  return within(drawer).getByRole('heading', { name: title }).closest('section') as HTMLElement;
+}
 
 /*
  * America 250's signing room: every line about 1776 is the posters' own, the
@@ -124,7 +135,7 @@ describe('the room', () => {
     expect(window.location.hash).toBe('#flag');
   });
 
-  it('sets the four copies side by side; choosing one gives its note, its sources and its picture’s credit', () => {
+  it('sets the four copies side by side; choosing one gives its note, its sources and credit left to the Sources drawer', () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('tab', { name: /A copy of a copy/ }));
     const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
@@ -133,8 +144,9 @@ describe('the room', () => {
     expect(pictures).toHaveLength(4);
     expect(pictures[0]).toHaveAttribute('aria-pressed', 'true');
     expect(within(panel).getByText(COPIES[0].note.text)).toBeInTheDocument();
-    for (const s of COPIES[0].note.sources) expect(within(panel).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
-    expect(within(panel).getByRole('link', { name: COPIES[0].credit.label })).toHaveAttribute('href', COPIES[0].credit.href);
+    // Nothing cited on the card: the sources and the picture's credit are in the Sources drawer.
+    for (const s of [...COPIES[0].note.sources, COPIES[0].credit]) expect(within(panel).queryByRole('link', { name: s.label })).toBeNull();
+    expect(within(panel).queryByText(/^(Source|Sources|Picture):/)).toBeNull();
     // A picture on the desk chooses it
     fireEvent.click(pictures[1]);
     expect(pictures[1]).toHaveAttribute('aria-pressed', 'true');
@@ -188,7 +200,7 @@ describe('the room', () => {
     expect(parchment).toHaveTextContent('of Baltimore');
   });
 
-  it('sets the Declaration’s own words on the parchment, to read inside it, with the signers and the source', () => {
+  it('sets the Declaration’s own words on the parchment, to read inside it, with the signers, its source in the drawer', () => {
     render(<America250Signing />);
     const parchment = screen.getByRole('region', { name: /Declaration of Independence/ });
     expect(parchment).toHaveAttribute('tabindex', '0');
@@ -196,9 +208,12 @@ describe('the room', () => {
     expect(within(parchment).getByRole('heading', { name: DECLARATION_TITLE })).toBeInTheDocument();
     for (const p of DECLARATION_BODY) expect(within(parchment).getByText(p)).toBeInTheDocument();
     expect(within(parchment).getByText('Charles Carroll of Carrollton')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: DECLARATION_SOURCE.label })).toHaveAttribute('href', 'https://www.archives.gov/founding-docs/declaration-transcript');
     fireEvent.click(screen.getByRole('button', { name: /Go to the line to sign/ }));
     expect(screen.getByRole('status')).toHaveTextContent('the line to sign on');
+    // The transcription's source is in the Sources drawer, not under the sheet.
+    expect(screen.queryByRole('link', { name: DECLARATION_SOURCE.label })).toBeNull();
+    const group = sourcesGroup(openSources(), SIGN_TEXT.signHeading);
+    expect(within(group).getByRole('link', { name: DECLARATION_SOURCE.label })).toHaveAttribute('href', 'https://www.archives.gov/founding-docs/declaration-transcript');
   });
 });
 
@@ -445,10 +460,12 @@ describe('the flag', () => {
     expect(flag).toHaveAttribute('aria-valuenow', '13');
   });
 
-  it('sets its sources, linked', () => {
+  it('sets its sources, linked, in the Sources drawer', () => {
     render(<America250Signing />);
     const panel = screen.getByRole('tabpanel', { name: /The flag/ });
-    for (const s of FLAG_TEXT.sources) for (const a of within(panel).getAllByRole('link', { name: s.label })) expect(a).toHaveAttribute('href', s.href);
+    for (const s of FLAG_TEXT.sources) expect(within(panel).queryByRole('link', { name: s.label })).toBeNull();
+    const group = sourcesGroup(openSources(), SIGN_TEXT.flagHeading);
+    for (const s of FLAG_TEXT.sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
     expect(FLAG_TEXT.sources.map((s) => s.href)).toEqual([
       'https://www.govinfo.gov/content/pkg/CDOC-108hdoc97/html/CDOC-108hdoc97.htm',
       'https://www.archives.gov/federal-register/codification/executive-order/10834.html',
@@ -483,7 +500,7 @@ describe('the flag’s stars, state by state', () => {
     expect(within(panel).getByText(FLAG_TEXT.thirteen.text)).toBeInTheDocument();
     const list = within(panel).getByRole('list', { name: FLAG_TEXT.originalsLabel });
     expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual(FLAG_TEXT.originals);
-    expect(within(panel).getAllByRole('link', { name: FLAG_TEXT.sources[0].label }).length).toBeGreaterThan(0);
+    expect(within(sourcesGroup(openSources(), SIGN_TEXT.flagHeading)).getByRole('link', { name: FLAG_TEXT.sources[0].label })).toBeInTheDocument();
   });
 
   it('says which state each added star stands for, on the card, to the screen reader and on the slider', () => {
@@ -561,6 +578,23 @@ describe('fine tuning (regressions from trying the room)', () => {
       expect(screen.queryByText(/The quill is dry/)).toBeNull();
     } finally {
       rect.mockRestore();
+    }
+  });
+});
+
+describe('the Sources drawer', () => {
+  it('lists every source and picture credit, by tab and by copy, and nothing is cited on the page', () => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign');
+    const { container } = render(<America250Signing />);
+    expect(container.querySelector('.aps-credit, .aps-fact-source')).toBeNull();
+    expect(screen.queryByText(/^(Source|Sources|Picture):/)).toBeNull();
+    const drawer = openSources();
+    expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(SIGN_SOURCES.map((g) => g.title));
+    for (const c of COPIES) {
+      const group = sourcesGroup(drawer, `${SIGN_TEXT.copiesHeading}: ${c.name}`);
+      for (const s of c.note.sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+      // The picture credit, whole, with its "Public domain."
+      expect(within(group).getByRole('link', { name: c.credit.label })).toHaveAttribute('href', c.credit.href);
     }
   });
 });

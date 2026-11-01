@@ -83,7 +83,13 @@ export default function SourcesDrawer({
             {label}
           </button>
           {open && (
-            <div className="mm-sources-scrim" onClick={() => setOpen(false)}>
+            <div
+              className="mm-sources-scrim"
+              onClick={() => {
+                setOpen(false);
+                button.current?.focus();
+              }}
+            >
               <div
                 ref={panel}
                 className="mm-sources-panel"

@@ -3,12 +3,13 @@
 import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import FactNote from '@/components/exhibition/FactNote';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RoomShell from '../RoomShell';
 import GhostStory from './GhostStory';
 import ParlourScene from './ParlourScene';
 import { GHOST_TEXT } from './ghostText';
-import { PARLOUR_TEXT, PARTS, type PartId } from './parlourText';
+import { PARLOUR_SOURCES, PARLOUR_TEXT, PARTS, type PartId } from './parlourText';
 import './parlour.css';
 
 /*
@@ -105,6 +106,7 @@ export default function VictorianChristmasParlour() {
 
   return (
     <RoomShell className="vb-parlour">
+      <SourcesDrawer groups={PARLOUR_SOURCES}>
       <div className="vbr-stage vcp-stage" data-warm={all || undefined} data-tab={tab}>
         <div className="vbr-room" aria-hidden="true">
           <div className="vbr-paper" />
@@ -142,6 +144,18 @@ export default function VictorianChristmasParlour() {
           </div>
 
           <section ref={card} className="vbr-card vcp-card" aria-label="The parts of a Victorian Christmas">
+            {/* The parts come first, so they stay put as the part below them changes. */}
+            <ol className="vcp-parts" aria-label="Open each part">
+              {PARTS.map((p) => (
+                <li key={p.id}>
+                  <button type="button" className="vcp-part-button" aria-pressed={open.has(p.id)} aria-current={current === p.id ? 'true' : undefined} onClick={() => openPart(p.id)}>
+                    <span className="vcp-part-mark" aria-hidden="true">{open.has(p.id) ? '✦' : '○'}</span>
+                    <Italics text={p.name === 'A Christmas Carol' ? '*A Christmas Carol*' : p.name} />
+                  </button>
+                </li>
+              ))}
+            </ol>
+
             {!part ? (
               <>
                 <figure className="vbr-quote">
@@ -174,17 +188,6 @@ export default function VictorianChristmasParlour() {
               </div>
             )}
 
-            <ol className="vcp-parts" aria-label="Open each part">
-              {PARTS.map((p) => (
-                <li key={p.id}>
-                  <button type="button" className="vcp-part-button" aria-pressed={open.has(p.id)} aria-current={current === p.id ? 'true' : undefined} onClick={() => openPart(p.id)}>
-                    <span className="vcp-part-mark" aria-hidden="true">{open.has(p.id) ? '✦' : '○'}</span>
-                    <Italics text={p.name === 'A Christmas Carol' ? '*A Christmas Carol*' : p.name} />
-                  </button>
-                </li>
-              ))}
-            </ol>
-
             {all && (
               <div className="vcp-closing">
                 {t.closing.map((c) => (
@@ -204,6 +207,7 @@ export default function VictorianChristmasParlour() {
           <GhostStory />
         </div>
       </div>
+      </SourcesDrawer>
     </RoomShell>
   );
 }

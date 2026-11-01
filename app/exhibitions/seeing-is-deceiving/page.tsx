@@ -8,6 +8,7 @@ import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
 import LandingRow from '@/components/exhibition/LandingRow';
+import ExploreRow, { ExploreCue } from '@/components/exhibition/ExploreRow';
 import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { SEEING_TALK } from '@/components/projector/posterTalk';
@@ -18,6 +19,7 @@ import { EntranceCopy, VisitTicket } from '@/components/exhibition/EntranceCopy'
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
 import '@/components/exhibition/poster-exhibition.css';
 import { SEEING_ATMOSPHERES, poster1Content, poster2Content } from './posters';
+import { SEEING_ROOMS } from './rooms';
 import './seeing.css';
 
 // Line by line component
@@ -967,6 +969,7 @@ export default function SeeingIsDeceiving() {
 
       {/* Main Exhibition View */}
       {activeView === 'main' && !projector && (
+        <>
         <div className="exhibition-main pe-landing">
           <div className="exhibition-title pe-landing-head">
             <h1>Seeing is Deceiving</h1>
@@ -1002,7 +1005,12 @@ export default function SeeingIsDeceiving() {
               <span className="poster-hint">Click to explore</span>
             </button>
           </LandingRow>
+          <ExploreCue rooms={SEEING_ROOMS} />
         </div>
+
+        {/* The interactive rooms, below the first screen; the case's Interactives list the same (rooms.ts). */}
+        <ExploreRow rooms={SEEING_ROOMS} style={{ '--pe-explore-ink': darkCharcoal, '--pe-explore-accent': '#1f5a6e', '--pe-explore-on-accent': posterGrey, '--pe-display': "'Cormorant Garamond', serif", '--pe-body': "'Cormorant Garamond', serif", '--pe-ui': "'Outfit', sans-serif" }} />
+        </>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">

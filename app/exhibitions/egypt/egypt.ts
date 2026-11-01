@@ -183,9 +183,10 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'Artifacts',
     },
   ],
-  // The rooms open from the display case (its Interactives), each card with a
-  // picture of the room itself (public/exhibitions/egypt/rooms/). The tomb
-  // comes first: it is the way into all the others.
+  // The rooms, in the landing page's Explore row and the display case's
+  // Interactives, each card with a picture of the room itself
+  // (public/exhibitions/egypt/rooms/). The tomb comes first: it is the way
+  // into all the others.
   interactives: [
     {
       href: '/exhibitions/egypt/tomb',
@@ -193,6 +194,8 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       label: 'Interactive',
       title: 'Tomb Explorer',
       subtitle: 'Carry a torch through the tomb: what you find opens every other room',
+      // The way in: the tomb opens the other rooms, so the Explore row and the case list it first.
+      start: 'Start here',
     },
     {
       href: '/exhibitions/egypt/hieroglyph-name',
@@ -405,10 +408,14 @@ export const EGYPT_CASE: CasePageData = {
     {
       id: 'scarab',
       name: 'Scarab beetle amulet',
-      // The record has one line for the Anubis statue and this amulet together
-      // (kept, word for word, on the Anubis card); the scarab's own line is new.
-      // REVIEW: new text. British Museum, "Ancient Egypt: Symbols of the pharaoh": scarab beetles roll a ball of dung, linked with the sun moving across the sky; the grubs hatching from the ball were a sign of rebirth. https://www.britishmuseum.org/sites/default/files/2019-09/Visit_Egypt_Symbols_KS2b.pdf
-      record: 'Scarab beetle amulet, a symbol of the sun and of rebirth',
+      record: 'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
+      // REVIEW: new text for the scarab's own card (it shared the Anubis
+      // statue's record line), from the British Museum's Room 4 Touch Tour
+      // guide, "Colossal scarab beetle" (EA 74).
+      about: {
+        text: 'A scarab is a dung beetle. The Egyptians linked it with rebirth, and with the god Khepri, who was thought to push the sun into the morning sky as a beetle pushes its ball of dung.',
+        sources: [{ label: 'British Museum, Room 4 Touch Tour, “Colossal scarab beetle”', href: 'https://www.britishmuseum.org/sites/default/files/2023-11/Room-4-Touch-Tour-Guide.pdf' }],
+      },
     },
   ],
   display: ['Display panels covering Egyptian pantheon mythology, with QR links to digital collections'],

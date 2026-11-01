@@ -379,11 +379,12 @@ export type PosterConfig<K extends string = string> = {
 
 /**
  * A display case on the landing page, or an interactive room on its case
- * page: a link to its own page. A case shows the owner's cut-out photograph
- * of it, or, with none, an empty case drawn in outline, labelled "Display
- * case — photographs to come" (CasePlaceholder). A room shows a screenshot
- * of itself (public/exhibitions/<slug>/rooms/), or a short typographic
- * emblem in its place ("11:00").
+ * page and in the landing page's Explore row: a link to its own page. A case
+ * shows the owner's photograph of it (dropped in at casePhotoPaths, see
+ * casePhotos.ts), or, with none, an empty case drawn in outline
+ * (CasePlaceholder). A room shows a screenshot of itself
+ * (public/exhibitions/<slug>/rooms/), or a short typographic emblem in its
+ * place ("11:00").
  */
 export type DisplayCase = {
   href: string;
@@ -394,6 +395,11 @@ export type DisplayCase = {
   label: string;
   title: string;
   subtitle?: string;
+  /**
+   * A room that is the way in to the others: listed first, with this label
+   * ("Start here"), in the Explore row and the case's Interactives.
+   */
+  start?: string;
 };
 
 export type ExhibitionConfig<K extends string = string> = {
@@ -437,9 +443,10 @@ export type ExhibitionConfig<K extends string = string> = {
    */
   cases?: DisplayCase[];
   /**
-   * Interactive rooms, listed under "Interactives" on the first display
-   * case's page (CasePage). They live in the case, never on the landing
-   * page. Leave out when there are none.
+   * Interactive rooms: a card for each in the landing page's Explore row,
+   * below the posters and cases (ExploreRow), and under "Interactives" on the
+   * first display case's page (CasePage), both in the order roomsInOrder
+   * gives. Leave out when there are none.
    */
   interactives?: DisplayCase[];
   /**
@@ -490,7 +497,8 @@ export type CasePageData = {
   /**
    * The first is set large above the artifacts; the rest in a row below them.
    * Empty until the case is photographed: an empty case drawn in outline,
-   * "Display case — photographs to come", stands in its place.
+   * "Photographs on their way" (CasePlaceholder), stands in its place, or the
+   * owner's case.jpg once dropped in (casePhotoPaths.ts).
    */
   photos: CasePhoto[];
   /** Each object in the case, with its own page at <case path>/<id>. */
@@ -517,4 +525,10 @@ export type CaseArtifact = {
   record: string;
   /** Sentences from the exhibition's posters about it, each with its poster's id. */
   writing?: { poster: string; text: string }[];
+  /**
+   * A fact-checked line of its own, with its source, where the record's line
+   * names more than this object (a scarab sharing the Anubis statue's line).
+   * Shown on its card in place of the record line, and on its page.
+   */
+  about?: ApprovedFact;
 };

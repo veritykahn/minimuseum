@@ -1,9 +1,10 @@
-import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
+import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react';
 import SilenceFilm from '@/app/exhibitions/great-war/silence/SilenceFilm';
 import GreatWarSilence from '@/app/exhibitions/great-war/silence/page';
 import { ArmisticeSound, BIRD_LEAD, BREEZE_AFTER, HUSH, birdSong, gunfireSchedule, renderGunfire, thudSchedule, useArmisticeSound } from '@/app/exhibitions/great-war/silence/armisticeSound';
 import { SLOT_NAMES, SOUND_SLOTS, soundSrc } from '@/app/exhibitions/great-war/silence/sounds';
 import { soundSlotsOnDisk } from '@/app/exhibitions/great-war/silence/soundSlots';
+import { SILENCE_SOURCES } from '@/app/exhibitions/great-war/silence/sources';
 import { FILM_END, HOUR_AT, IWM, SOUND_NOTE, SOUND_NOTE_WITH_FILES, STRIP_START, TITLE_CARDS, sceneAt, startOf } from '@/app/exhibitions/great-war/silence/film';
 
 /*
@@ -315,7 +316,9 @@ describe('the sound', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Skip to the end' }));
     expect(live.size).toBe(0);
     expect(screen.getByRole('link', { name: /How sound ranging worked, at the Imperial War Museum/ })).toHaveAttribute('href', IWM.reconstruction.url);
-    expect(screen.getByRole('link', { name: '© IWM (Q 47886)' })).toHaveAttribute('href', IWM.record.url);
+    // The photograph's credit is in the room's Sources drawer, not under it.
+    expect(screen.queryByRole('link', { name: '© IWM (Q 47886)' })).toBeNull();
+    expect(screen.getByRole('img', { name: IWM.record.alt })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Watch again' })).toHaveFocus();
   });
 
@@ -341,7 +344,29 @@ describe('the sound', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Skip to the end' }));
     const screenEl = container.querySelector('.gws-screen')!;
     expect(screenEl).toContainElement(screen.getByText('At 11:00 on November 11, 1918, the guns fell silent.'));
-    expect(screenEl).toContainElement(screen.getByRole('link', { name: '© IWM (Q 47886)' }));
+    expect(screenEl).toContainElement(screen.getByRole('img', { name: IWM.record.alt }));
+  });
+
+  it('lists every picture credit and source in its Sources drawer, the licence in full, and cites nothing on the screen', () => {
+    jest.useFakeTimers();
+    const { container } = render(<GreatWarSilence />);
+    fireEvent.click(screen.getByRole('button', { name: 'Begin' }));
+    act(() => { jest.advanceTimersByTime(startOf('photo', 0) + 200); });
+    // The trench photograph, with its description and no credit line under it.
+    const photo = container.querySelector('.gws-photo figcaption')!;
+    expect(photo).toHaveTextContent(IWM.trench.description);
+    expect(within(photo as HTMLElement).queryByRole('link')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Skip to the end' }));
+    expect(container.querySelector('.gws-strip-credit')).toBeNull();
+    expect(within(container.querySelector('.gws-screen') as HTMLElement).queryByText(/© IWM|Image: IWM|Redrawn from/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(SILENCE_SOURCES.map((g) => g.title));
+    expect(within(drawer).getByRole('link', { name: IWM.trench.credit })).toHaveAttribute('href', IWM.trench.url);
+    expect(within(drawer).getAllByRole('link', { name: IWM.record.credit })[0]).toHaveAttribute('href', IWM.record.url);
+    expect(within(drawer).getByRole('link', { name: /Redrawn from the 1918 sound-ranging record/ })).toHaveAttribute('href', IWM.record.url);
+    expect(within(drawer).getByRole('link', { name: IWM.licence.label })).toHaveAttribute('href', IWM.licence.url);
+    expect(within(drawer).getAllByText(/IWM Non-Commercial Licence/).length).toBeGreaterThanOrEqual(3);
   });
 
   it('closes the transcript with Esc', () => {

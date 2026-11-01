@@ -9,6 +9,8 @@ import { RIBBON_START, RIBBON_END, formatYear, ribbonPosition, windowPosition, p
 import { coinHref, HANDS_HREF, HANDS_COIN_NAME, COIN_LESSON, lessonHref } from '../story-links';
 import { Celebration, SoundSwitch } from '@/components/games/feedback/FeedbackKit';
 import PlaceTheCoin from './PlaceTheCoin';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
+import { TIMELINE_SOURCES } from './sources';
 
 
 // Axis labels: the two ends and the turn of the era. There is no year 0,
@@ -196,6 +198,8 @@ export default function GospelTimeline() {
   }, [currentIndex]);
 
   return (
+    // Each stop's passage and painting credit, in the Sources drawer.
+    <SourcesDrawer groups={TIMELINE_SOURCES}>
     <div
       className={`tl-page ${loaded ? 'tl-loaded' : ''}`}
       onTouchStart={handleTouchStart}
@@ -1155,5 +1159,6 @@ export default function GospelTimeline() {
         </button>
       </nav>
     </div>
+    </SourcesDrawer>
   );
 }

@@ -1,4 +1,5 @@
 import CasePage from '@/components/exhibition/CasePage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { HOLOCAUST, HOLOCAUST_CASE } from '../../holocaust';
 import '../../holocaust.css';
 
@@ -7,5 +8,5 @@ import '../../holocaust.css';
  * Museum record lists them, and the case itself, with its photographs to come.
  */
 export default function HolocaustCase() {
-  return <CasePage config={HOLOCAUST} data={HOLOCAUST_CASE} />;
+  return <CasePage config={HOLOCAUST} data={HOLOCAUST_CASE} photos={casePhotosOnDisk(HOLOCAUST, HOLOCAUST_CASE)} />;
 }

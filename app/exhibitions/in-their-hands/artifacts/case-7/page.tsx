@@ -1,4 +1,5 @@
 import CaseListing from '../case-listing';
+import { caseRoom } from '../../rooms';
 import { CASE_NOTES } from '../../notes';
 import { case7Coins } from '../coin-data';
 
@@ -12,14 +13,7 @@ export default function Case7() {
       coins={case7Coins}
       notes={CASE_NOTES[7]}
       basePath="/exhibitions/in-their-hands/artifacts/case-7"
-      interactive={{
-        id: 'hands',
-        title: 'Hands of History',
-        subtitle: 'Who held these coins — and when?',
-        thumb: '/exhibitions/in-their-hands/rooms/hands.webp',
-        route: '/exhibitions/in-their-hands/hands',
-        status: 'available',
-      }}
+      interactive={caseRoom(7)}
     />
   );
 }

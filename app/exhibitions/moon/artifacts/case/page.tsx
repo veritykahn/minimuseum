@@ -1,4 +1,5 @@
 import CasePage from '@/components/exhibition/CasePage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { MOON, MOON_CASE } from '../../moon';
 import '../../moon.css';
 
@@ -7,5 +8,5 @@ import '../../moon.css';
  * record lists them, and the case itself, with its photographs to come.
  */
 export default function MoonCase() {
-  return <CasePage config={MOON} data={MOON_CASE} />;
+  return <CasePage config={MOON} data={MOON_CASE} photos={casePhotosOnDisk(MOON, MOON_CASE)} />;
 }

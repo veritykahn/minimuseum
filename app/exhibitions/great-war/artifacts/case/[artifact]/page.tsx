@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { GREAT_WAR, GREAT_WAR_CASE } from '../../../greatWar';
 import '../../../great-war.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function GreatWarArtifact({ params }: Props) {
   const artifact = findArtifact(GREAT_WAR_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={GREAT_WAR} data={GREAT_WAR_CASE} artifact={artifact} />;
+  return <ArtifactPage config={GREAT_WAR} data={GREAT_WAR_CASE} artifact={artifact} photo={casePhotosOnDisk(GREAT_WAR, GREAT_WAR_CASE).artifacts[artifact.id]} />;
 }

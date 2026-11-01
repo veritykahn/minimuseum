@@ -1,4 +1,5 @@
 import { mulberry32 } from '@/components/games/scoring';
+import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import type { GameItemMeta } from '@/components/games/types';
 import { case7Coins, type CoinData } from '../artifacts/coin-data';
 
@@ -25,6 +26,14 @@ export type ReplicaRound = GameItemMeta & {
 };
 
 const IMG = '/exhibitions/in-their-hands/real-or-fake';
+
+/**
+ * The room's Sources drawer, by round. Empty for now: the site names no
+ * source for the fake-and-genuine photographs in real-or-fake/ (the owner
+ * to supply), and the replicas in "Our own case" are the museum's own coins.
+ * Add a group here and the Sources button appears.
+ */
+export const REPLICA_SOURCES: SourceGroup[] = [];
 
 export const ROUNDS: ReplicaRound[] = [
   {
