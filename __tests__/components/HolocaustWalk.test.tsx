@@ -242,8 +242,11 @@ describe('the walk’s lines and slots', () => {
     expect([...PLACEHOLDERS].sort()).toEqual(['candle', 'chair', 'door', 'shoes', 'suitcase', 'tracks']);
   });
 
-  it('finds the owner’s files when the page is built, under the slot’s name or its number, and none are there yet', () => {
-    expect(walkSlotsOnDisk()).toEqual({ pictures: {}, ambients: [] });
+  it('finds the owner’s files when the page is built, under the slot’s name or its number: all 32 pictures are in, the sounds not yet', () => {
+    const onDisk = walkSlotsOnDisk();
+    expect(Object.keys(onDisk.pictures)).toHaveLength(32);
+    expect(onDisk.pictures['w07-broken-window']).toBe('walk-07.webp');
+    expect(onDisk.ambients).toEqual([]);
     expect(slotFiles('w07-broken-window')).toEqual(['w07-broken-window.webp', 'w07-broken-window.jpg', 'walk-07.jpg', 'walk-07.webp', 'walk-07.png']);
     expect(AMBIENTS.map(ambientSrc)).toEqual([
       '/exhibitions/holocaust/walk/sound/ambient-before.mp3',
