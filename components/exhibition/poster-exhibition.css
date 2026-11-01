@@ -496,6 +496,20 @@ img.pe-effect-erase { animation: peErase 10s ease forwards; }
   .pe-root .pe-landing .pe-landing-row::before { content: ''; order: 1; flex-basis: 100%; height: 0; }
 }
 
+/* The floating Map button (56px, 24px in from the bottom right) sits over the
+   page's foot. Wider than a phone, the row keeps 88px clear of each side of
+   the screen, so the right-hand poster never runs under it (it did on a
+   landscape iPad); the head above keeps the full width. On an upright iPad,
+   where the cases' row runs the full width, the row ends 88px above the
+   bottom instead. */
+@media (min-width: 641px) {
+  .pe-root .pe-landing .pe-landing-row { width: min(100%, calc(100vw - 176px)); }
+}
+@media (min-width: 641px) and (max-aspect-ratio: 5 / 6) {
+  .pe-root .pe-landing { padding-bottom: max(var(--pe-landing-foot, clamp(14px, 3dvh, 32px)), 88px); }
+  .pe-root .pe-landing .pe-landing-row { width: 100%; }
+}
+
 /* Phones: a swipe row, an item at a time, the next peeking in. */
 @media (max-width: 640px) {
   .pe-root .pe-landing { --pe-landing-top: 64px; padding-left: 0; padding-right: 0; }
