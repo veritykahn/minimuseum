@@ -2,7 +2,7 @@
 
 import { forwardRef, useRef, useState } from 'react';
 import { BENCHES, ILLUSIONS, type IllusionId } from './data';
-import { fingerprint, fingerprintTitle, voteLine, type Fingerprint, type Results, type Votes } from './results';
+import { entryLines, fingerprint, fingerprintTitle, voteLine, type Fingerprint, type Results, type Votes } from './results';
 
 /*
  * The Lab Notebook: each illusion's stamp beside the visitor's result, bench
@@ -180,7 +180,7 @@ export const FingerprintCard = forwardRef<SVGSVGElement, { fp: Fingerprint; titl
         </g>
       ))}
       <text x="300" y="756" textAnchor="middle" fontFamily="Helvetica, Arial, sans-serif" fontSize="15" fill="#666">
-        Inner ring: brightness. Outer ring: brain against brain.
+        Inner ring: filling the gaps. Outer ring: brain against brain.
       </text>
       <text x="300" y="776" textAnchor="middle" fontFamily="Helvetica, Arial, sans-serif" fontSize="15" fill="#666">
         {`The further round a ring goes, the more that kind of trick fooled ${heading.startsWith('Our') ? 'the class' : 'you'}.`}
@@ -229,9 +229,15 @@ export default function Notebook({
   const card = useRef<SVGSVGElement>(null);
   const fp = classFp ?? fingerprint(results);
   const title = fingerprintTitle(fp);
-  // In class mode, each line is the class's hands; otherwise the visitor's own result.
-  const lineFor = (id: IllusionId) => (classFp ? voteLine(ILLUSIONS.find((i) => i.id === id)!, votes?.[id]) : results[id]?.line ?? null);
-  const done = ILLUSIONS.filter((i) => lineFor(i.id)).length;
+  // In class mode, each line is the class's hands; otherwise the visitor's own results, before and after.
+  const linesFor = (id: IllusionId): { label?: string; line: string }[] => {
+    if (classFp) {
+      const v = voteLine(ILLUSIONS.find((i) => i.id === id)!, votes?.[id]);
+      return v ? [{ line: v }] : [];
+    }
+    return entryLines(results[id]);
+  };
+  const done = ILLUSIONS.filter((i) => linesFor(i.id).length).length;
 
   const save = async () => {
     if (!card.current) return;
@@ -280,15 +286,23 @@ export default function Notebook({
               <h3>{b.n < 7 ? `Bench ${b.n}: ${b.title}` : b.title}</h3>
               <ul>
                 {ILLUSIONS.filter((i) => i.bench === b.n).map((i) => {
-                  const line = lineFor(i.id);
+                  const lines = linesFor(i.id);
                   return (
-                    <li key={i.id} data-done={line ? 'yes' : undefined}>
+                    <li key={i.id} data-done={lines.length ? 'yes' : undefined}>
                       <Stamp id={i.id} />
                       <div>
                         <button type="button" className="pl-nb-name" onClick={() => onOpen(i.id)}>
                           {i.name}
                         </button>
-                        <p>{line ?? (classFp ? 'No hands counted yet.' : 'Not tried yet.')}</p>
+                        {lines.length ? (
+                          lines.map((l) => (
+                            <p key={l.label ?? 'class'}>
+                              {l.label && <span className="pl-nb-when">{l.label}:</span>} {l.line}
+                            </p>
+                          ))
+                        ) : (
+                          <p>{classFp ? 'No hands counted yet.' : 'Not tried yet.'}</p>
+                        )}
                       </div>
                     </li>
                   );
