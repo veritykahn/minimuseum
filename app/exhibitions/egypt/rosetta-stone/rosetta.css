@@ -33,7 +33,20 @@
   border-radius: 999px;
   box-shadow: inset -10px 0 0 -6px var(--egr-gold);
 }
-.egs-cartouche-long { border-radius: 60px; }
+.egs-cartouche { max-width: 100%; }
+/* Cleopatra's eleven signs stay on one line: the signs shrink to fit. */
+.egs-cartouche-long { flex-wrap: nowrap; width: 100%; gap: 2px; padding: 12px 18px 12px 14px; border-radius: 60px; }
+.eg-room .egs-cartouche-long .egs-sign { flex: 1 1 0; min-width: 0; min-height: 0; padding: 6px 0; }
+.egs-cartouche-long .egs-sign .egr-glyph { font-size: clamp(1.3rem, 3.1vw, 2.8rem); }
+@media (min-width: 981px) {
+  .egs-cartouche-long .egs-sign .egr-glyph { font-size: clamp(1.6rem, 2.7vw, 2.8rem); }
+}
+.eg-room .egs-sign.is-asking { border-color: var(--egr-orange); background: rgba(240, 74, 26, 0.16); animation: egs-ask 1.4s ease-in-out infinite; }
+@keyframes egs-ask { 50% { background: rgba(240, 74, 26, 0.3); } }
+.eg-room .egs-sign.is-twist { box-shadow: 0 0 0 2px var(--egr-gold), 0 0 18px rgba(217, 164, 65, 0.6); }
+.egs-feedback { min-height: 1.5em; margin: 0; color: #ffd2a8; font-size: 0.92em; }
+.egs-deduce legend { text-transform: none; letter-spacing: 0; font-size: 1em; color: #fff; line-height: 1.45; }
+.egs-twist { padding: 10px 12px; border: 1px solid var(--egr-gold); }
 .eg-room .egs-sign {
   appearance: none;
   display: flex;
@@ -55,13 +68,16 @@
 .eg-room .egs-sign[aria-pressed='true'] { border-color: var(--egr-orange); background: rgba(240, 74, 26, 0.16); }
 .eg-room .egs-sign.is-done { color: var(--egr-gold); cursor: default; }
 .eg-room .egs-sign.is-done .egs-sound { color: var(--egr-gold); }
-.egs-read { margin: 0; font-family: var(--pe-display); font-size: clamp(1.4rem, 1rem + 1.6vw, 2.4rem); letter-spacing: 0.18em; color: #fff; }
+.egs-read { display: flex; flex-wrap: nowrap; justify-content: center; gap: clamp(4px, 1vw, 12px); margin: 0; font-family: var(--pe-display); font-size: clamp(1.1rem, 0.8rem + 1.4vw, 2.2rem); color: #fff; }
+.egs-read span { min-width: 0.8em; text-align: center; }
+.egs-read .egs-read-end { color: var(--egr-muted); }
 .eg-room .egs-sound-button { min-width: 60px; justify-content: center; font-family: var(--pe-display); font-size: 1.3em; }
 .eg-room .egr-option:disabled { opacity: 0.35; cursor: default; }
 .egs-eureka { gap: 22px; }
 .egs-big { padding: 10px 26px; border: 4px double var(--egr-gold); border-radius: 999px; color: var(--egr-gold); }
-.egs-big .egr-glyph { font-size: clamp(2rem, 1.4rem + 2vw, 3.4rem); letter-spacing: 0.08em; }
-.egs-credit { margin-top: 28px; }
+.egs-big { max-width: 100%; }
+.egs-big .egr-glyph { font-size: clamp(1.6rem, 1.2rem + 2vw, 3.4rem); letter-spacing: 0.08em; }
+.egs-big-long .egr-glyph { font-size: clamp(1.1rem, 3.4vw, 2.6rem); letter-spacing: 0.02em; }
 
 @media (max-width: 980px) {
   .egs-stone-row { grid-template-columns: minmax(0, 1fr); }
@@ -69,6 +85,8 @@
   .egs-columns { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 600px) {
-  .eg-room .egs-sign { min-width: 46px; min-height: 76px; }
-  .egs-cartouche { padding: 10px 14px; border-radius: 40px; }
+  .eg-room .egs-sign { min-width: 40px; min-height: 72px; }
+  .egs-cartouche { padding: 10px 12px; border-radius: 40px; }
+  .egs-cartouche-long { padding: 8px 10px; }
+  .egs-big { padding: 8px 14px; }
 }

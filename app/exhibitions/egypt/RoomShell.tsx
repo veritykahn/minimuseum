@@ -1,11 +1,14 @@
 'use client';
 
-import type { CSSProperties, ReactNode } from 'react';
+import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
-import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
+import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
+import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 import { EGYPT } from './egypt';
+import { FROM_TOMB, TOMB_PATH } from './tombState';
 import './egypt.css';
 import './rooms.css';
 
@@ -14,15 +17,25 @@ import './rooms.css';
  * the heart, the tomb, mummification, the Rosetta Stone, the amulet maker):
  * the posters' near-black ground, white type and orange-red, the
  * exhibition's faces, "M ← Display Case" in the corner (back to the case's
- * Interactives; "M ← Studio" when the Studio opened it), and one stage that
- * sets its own heading. Each room's own stylesheet draws its scene.
+ * Interactives; "M ← Studio" when the Studio opened it; "M ← Tomb" when the
+ * tomb did), and one stage that sets its own heading. Each room's sources
+ * and picture credits are in one Sources drawer (bottom left), grouped by
+ * step, so none is cited inline. Each room's own stylesheet draws its scene.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
-export default function RoomShell({ className, children }: { className: string; children: ReactNode }) {
+const TOMB_RETURN: MuseumReturn = { href: TOMB_PATH, label: 'Tomb' };
+
+export default function RoomShell({ className, sources, children }: { className: string; sources?: readonly SourceGroup[]; children: ReactNode }) {
   const { fonts, palette, slug } = EGYPT;
-  const back = useMuseumReturn(roomReturn(EGYPT));
+  const museumBack = useMuseumReturn(roomReturn(EGYPT));
+  // The tomb's doors carry ?from=tomb; read once, in the browser.
+  const [fromTomb, setFromTomb] = useState(false);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('from') === FROM_TOMB) setFromTomb(true);
+  }, []);
+  const back = fromTomb ? TOMB_RETURN : museumBack;
   const style: CssVars = {
     background: palette.page,
     '--pe-display': fonts.display,
@@ -42,7 +55,9 @@ export default function RoomShell({ className, children }: { className: string; 
         <span className="pe-nav-label">{back.label}</span>
       </ExhibitionNav>
 
-      <main className="eg-room-stage">{children}</main>
+      <SourcesDrawer groups={sources ?? []}>
+        <main className="eg-room-stage">{children}</main>
+      </SourcesDrawer>
     </div>
   );
 }
@@ -55,6 +70,15 @@ export function RoomHeader({ title, kicker, children }: { title: string; kicker:
       <h1 className="egr-title">{title}</h1>
       {children}
     </header>
+  );
+}
+
+/** The way back into the tomb, at the end of a room: what the room made is waiting there. */
+export function TombDoor({ children = 'Back into the tomb' }: { children?: ReactNode }) {
+  return (
+    <Link href={TOMB_PATH} className="egr-button egr-tomb-door">
+      <span aria-hidden="true">←</span> {children}
+    </Link>
   );
 }
 

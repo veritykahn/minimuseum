@@ -1,8 +1,8 @@
 /* ==========================================================================
    The Weighing of the Heart: the hall in gold on black, lit from above.
-   The tension rises with each wrong answer: the light reddens, Ammit's
-   eye glows and the heart beats faster. At a balance the hall warms to gold.
-   Under reduced motion the hall still changes, but nothing moves.
+   The scales start level and move as the story goes; at the verdict the
+   hall warms to gold. A figure being met is lit and the others dim. Under
+   reduced motion the hall still changes, but nothing moves.
    ========================================================================== */
 
 .egw-hall {
@@ -13,53 +13,71 @@
   color: var(--egr-gold);
   transition: background 0.6s ease;
 }
-.egw-hall[data-tension='2'] { background: radial-gradient(ellipse 80% 70% at 50% 30%, #2f1c14, #0e0a09 75%); }
-.egw-hall[data-tension='3'] { background: radial-gradient(ellipse 80% 70% at 50% 30%, #3a1810, #0f0807 75%); }
-.egw-hall[data-state='balanced'] { background: radial-gradient(ellipse 80% 70% at 50% 30%, #3b2d14, #120e08 75%); }
+.egw-hall[data-chapter='verdict'],
+.egw-hall[data-chapter='you'] { background: radial-gradient(ellipse 80% 70% at 50% 30%, #3b2d14, #120e08 75%); }
 
-.egw-svg { display: block; width: 100%; height: auto; max-height: 62vh; }
+.egw-svg { display: block; width: 100%; height: auto; max-height: 60vh; }
 .egw-gold { color: var(--egr-gold); }
 .egw-gold-fill { fill: var(--egr-gold); }
-.egw-beam, .egw-pan, .egw-ammit { transition: transform 1.1s cubic-bezier(0.34, 1.4, 0.5, 1); }
+.egw-beam, .egw-pan { transition: transform 1.1s cubic-bezier(0.34, 1.4, 0.5, 1); }
 .egw-pan-shape line { stroke: var(--egr-gold); stroke-width: 2; }
 .egw-pan-shape path { fill: var(--egr-gold); }
-.egw-heart { fill: #e0573a; transform-box: fill-box; transform-origin: center; animation: egw-beat 1.1s ease-in-out infinite; }
-.egw-hall[data-tension='2'] .egw-heart { animation-duration: 0.8s; }
-.egw-hall[data-tension='3'] .egw-heart { animation-duration: 0.55s; }
-.egw-hall[data-state='balanced'] .egw-heart { animation: none; }
-@keyframes egw-beat { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.12); } 24% { transform: scale(1); } 36% { transform: scale(1.08); } }
+.egw-heart { fill: #e0573a; transform-box: fill-box; transform-origin: center; animation: egw-beat 1.4s ease-in-out infinite, egw-in 0.6s ease both; }
+@keyframes egw-beat { 0%, 100% { transform: scale(1); } 12% { transform: scale(1.1); } 24% { transform: scale(1); } }
+@keyframes egw-in { from { opacity: 0; } }
 .egw-feather { fill: #f3efe6; }
 .egw-figures text { fill: #efebe5; }
 .egw-anubis { fill: #e8e2d6 !important; }
-.egw-ammit text { fill: #7fa37a; }
-.egw-eye { fill: #ffcf4a; opacity: 0.15; transition: opacity 0.6s ease; }
-.egw-hall[data-tension='1'] .egw-eye { opacity: 0.5; }
-.egw-hall[data-tension='2'] .egw-eye,
-.egw-hall[data-tension='3'] .egw-eye { opacity: 1; animation: egw-glint 1.6s ease-in-out infinite; }
-@keyframes egw-glint { 50% { opacity: 0.45; } }
 .egw-names text { fill: var(--egr-muted); font-family: var(--pe-body); letter-spacing: 0.08em; }
 
+/* The people and Ammit, drawn */
+.egw-skin { fill: #b07a52; }
+.egw-hair { fill: #1c1410; }
+.egw-robe { fill: #f2ede2; }
+.egw-croc { fill: #6f8f5a; stroke: #3d5531; stroke-width: 2; }
+.egw-croc-line { stroke: #3d5531; stroke-width: 1.5; }
+.egw-lion { fill: #c9953c; stroke: #7a5418; stroke-width: 2; }
+.egw-mane { fill: #8a5a1c; }
+.egw-hippo { fill: #8a7d73; stroke: #4e463f; stroke-width: 2; }
+.egw-eye { fill: #ffcf4a; }
+
+/* Meeting a figure: it is lit, the others dim */
+.egw-svg .is-dim { opacity: 0.35; transition: opacity 0.4s ease; }
+.egw-svg .is-focus { filter: drop-shadow(0 0 10px rgba(255, 207, 74, 0.85)); transition: opacity 0.4s ease; }
+
 .egw-reading { min-height: 1.6em; margin: 6px 0 0; text-align: center; font-family: var(--pe-display); font-size: clamp(1.1rem, 0.9rem + 0.8vw, 1.6rem); color: #fff; }
-.egw-meter { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
-.egw-meter span { width: 16px; height: 16px; border: 1px solid var(--egr-muted); border-radius: 50%; }
-.egw-meter span.is-right { background: var(--egr-gold); border-color: var(--egr-gold); }
-.egw-meter span.is-wrong { background: #b9370e; border-color: #e0573a; }
+/* The visitor's good choices, laid over the top of the hall so the scene keeps its size. */
+.egw-mine { position: absolute; top: 10px; left: 10px; right: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.egw-mine li { padding: 3px 10px; border-radius: 999px; background: rgba(217, 164, 65, 0.2); border: 1px solid var(--egr-gold); color: #fff; font-family: var(--pe-body); font-size: 0.82rem; animation: egw-in 0.4s ease both; }
+
+/* The story's chapters, as a quiet row */
+.egw-chapters { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 18px; padding: 0; list-style: none; font-family: var(--pe-body); font-size: clamp(0.82rem, 0.72rem + 0.3vw, 1rem); color: var(--egr-muted); }
+.egw-chapters li { display: inline-flex; align-items: center; gap: 6px; }
+.egw-chapters li span { display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; border: 1px solid var(--egr-line); border-radius: 50%; font-size: 0.85em; }
+.egw-chapters li.is-past span { border-color: var(--egr-gold); color: var(--egr-gold); }
+.egw-chapters li.is-here { color: #fff; }
+.egw-chapters li.is-here span { background: var(--egr-ink); color: #141414; border-color: var(--egr-ink); }
 
 .egw-panel h2:focus { outline: none; }
+.egw-papyri { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+.egw-papyrus { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border: 1px solid var(--egr-line); border-left: 4px solid var(--egr-gold); }
+.egw-papyrus + .egw-papyrus { border-left-color: var(--egr-orange); }
 .egw-deed {
-  padding: 22px 18px;
+  margin: 0;
+  padding: 18px 16px;
   border: 1px solid var(--egr-gold);
   font-family: var(--pe-display);
-  font-size: clamp(1.4rem, 1rem + 1.4vw, 2.2rem);
+  font-size: clamp(1.3rem, 1rem + 1.2vw, 2rem);
   line-height: 1.2;
   text-align: center;
   color: #fff;
   animation: egw-card 0.45s ease both;
 }
 @keyframes egw-card { from { opacity: 0; transform: translateY(8px) scale(0.98); } }
-.egw-choices .egr-button { flex: 1 1 200px; font-size: 0.9em; letter-spacing: 0.06em; }
-.egw-result { font-family: var(--pe-display); font-size: 1.3em; }
+.egw-choices .egr-button { flex: 1 1 160px; font-size: 0.95em; letter-spacing: 0.04em; text-transform: none; }
+.egw-result { margin: 0; font-family: var(--pe-display); font-size: 1.1em; }
 .egw-result.is-right { color: var(--egr-gold); }
-.egw-result.is-wrong { color: #ff8a6b; }
-.egw-quote { margin: 0; padding: 4px 0 4px 16px; border-left: 3px solid var(--egr-gold); font-family: var(--pe-display); font-style: italic; font-size: 1.2em; line-height: 1.4; color: #fff; }
-.egw-score { color: var(--egr-muted); }
+.egw-result.is-kind { color: #ffd2a8; }
+.egw-hint { margin: 0; color: #ffd2a8; }
+.egw-small { font-size: 0.85em; color: var(--egr-muted); }
+.egw-quote { margin: 0; padding: 4px 0 4px 16px; border-left: 3px solid var(--egr-gold); font-family: var(--pe-display); font-style: italic; font-size: 1.1em; line-height: 1.4; color: #fff; }

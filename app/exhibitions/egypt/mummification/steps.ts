@@ -1,19 +1,20 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import { EGYPT_CASE } from '../egypt';
-import { BM_HIEROGLYPHS, BM_MUMMY_NOTES, BM_MUMMY_VISIT, GLYPHS, met, type GlyphCode } from '../rooms';
+import { BM_HIEROGLYPHS, BM_MUMMY_NOTES, BM_MUMMY_VISIT, BUDGE, GLYPHS, met, type GlyphCode } from '../rooms';
 
 /*
  * Mummification, step by step: the seventy days as the British Museum's
  * teaching resources describe them, after Herodotus. It is told plainly and
  * gently, with nothing drawn that a young visitor need look away from: the
- * body lies under a sheet, the organs are named but never shown, and the
- * brain is not mentioned.
+ * body is a simple figure in the Egyptian manner, the organs are simple
+ * shapes, and the brain is a grey shape that leaves through the nose and is
+ * gone (as the British Museum says, it was not kept).
  *
  * Every sentence of fact is a museum note with its source; the one poster
  * line (Anubis) is quoted from the posters' own text.
  */
 
-export type StepId = 'why' | 'wash' | 'organs' | 'natron' | 'oils' | 'wrap' | 'coffin';
+export type StepId = 'why' | 'wash' | 'brain' | 'organs' | 'natron' | 'oils' | 'wrap' | 'coffin';
 
 export type Step = {
   id: StepId;
@@ -58,6 +59,25 @@ export const STEPS: Step[] = [
       {
         text: 'Mummifying a body was the work of specialist workers. First, the body was purified by washing.',
         sources: [BM_MUMMY_VISIT],
+      },
+    ],
+  },
+  {
+    id: 'brain',
+    name: 'The brain',
+    title: 'The brain, through the nose',
+    span: [0.02, 0.04],
+    when: 'The first days',
+    notes: [
+      // REVIEW: new text. British Museum, "Ancient Egyptian mummification" visit resource, p. 4: "The brain was removed through the nose and discarded."
+      {
+        text: 'The brain was removed through the nose, and it was not kept: it was thrown away.',
+        sources: [BM_MUMMY_VISIT],
+      },
+      // REVIEW: new text. British Museum, "What is mummification?" notes for teachers, slide 3: "Bronze probe from Egypt, after 664 BC. Hooks such as this were used to remove the brain."
+      {
+        text: 'The embalmers used a long bronze hook. The British Museum has one, made after 664 BC.',
+        sources: [BM_MUMMY_NOTES],
       },
     ],
   },
@@ -179,3 +199,21 @@ export const WRAP_AMULETS: { id: string; name: string; glyph: string; note: Appr
 
 /** How many layers of linen the wrapping takes, in the room. */
 export const LAYERS = 4;
+
+/**
+ * The heart, left inside: once the four jars are full, the visitor is asked
+ * which organ the embalmers did not take out.
+ */
+export const HEART_NOTE: ApprovedFact = {
+  // REVIEW: new text. British Museum visit resource, p. 4: "the internal organs, apart from the heart and sometimes the kidneys, were removed". E. A. Wallis Budge, The Book of the Dead (British Museum), ch. VII: "the heart was considered to be the seat of all will, emotion, feeling, reason and intelligence".
+  text: 'The heart was left inside the body. The Egyptians thought the heart held a person’s will, feelings and thoughts, and in the afterlife it would be weighed against the feather of truth.',
+  sources: [BM_MUMMY_VISIT, BUDGE],
+};
+
+/** The short check at the end: three questions, each answered from a step the visitor has done. */
+export const CHECK: { q: string; options: string[]; answer: string; after: string }[] = [
+  // REVIEW: new text, each answer from the notes above (British Museum visit resource and notes for teachers).
+  { q: 'About how many days did the whole process take?', options: ['7 days', '70 days', '700 days'], answer: '70 days', after: 'About 70 days, with 40 of them in natron.' },
+  { q: 'Which organ was left inside the body?', options: ['The heart', 'The brain', 'The liver'], answer: 'The heart', after: 'The heart stayed, ready for the weighing.' },
+  { q: 'What dried the body out?', options: ['Sand from the river', 'Natron, a natural salt', 'Smoke from a fire'], answer: 'Natron, a natural salt', after: 'Natron, packed inside and out for 40 days.' },
+];
