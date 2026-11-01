@@ -1,4 +1,5 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
+import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { BIO, BIO_LEAD, PHOTO_FAMILY, PHOTO_FOUR_WOMEN, PHOTO_PROMENADE, PHOTO_VIOLET } from '../womensHistory';
 import type { KeepsakeId } from './Keepsake';
 
@@ -93,3 +94,9 @@ export function threadPath(pts: Point[]): string {
   }
   return d;
 }
+
+/** The room's Sources drawer: each stop's museum note, by stop. The photographs are the owner's family's own and carry no credit. */
+export const VIOLET_SOURCES: readonly SourceGroup[] = LIFE.filter((s) => s.note).map((s) => ({
+  title: s.label,
+  items: s.note!.sources.map((src) => ({ ...src, note: s.note!.text.replace(/\.$/, '') })),
+}));

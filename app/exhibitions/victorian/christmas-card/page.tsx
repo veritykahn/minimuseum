@@ -3,10 +3,11 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import FactNote from '@/components/exhibition/FactNote';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import RoomShell from '../RoomShell';
 import { usePrintSheet } from '../usePrintSheet';
 import { CardBack, CardFront, CardInside } from './CardArt';
-import { BORDERS, CARD_NOTES, CARD_TEXT, GREETINGS, PAPERS, PICTURES, type BorderId, type PaperId, type PictureId } from './cardText';
+import { BORDERS, CARD_NOTES, CARD_SOURCES, CARD_TEXT, GREETINGS, PAPERS, PICTURES, type BorderId, type PaperId, type PictureId } from './cardText';
 import './card.css';
 
 /*
@@ -18,7 +19,7 @@ import './card.css';
  * in four. Nothing written is stored or sent.
  *
  * The two notes on the first Christmas card are from the V&A, fact-checked
- * and set with their sources (cardText.ts).
+ * and cited in the room's Sources drawer (cardText.ts), not on the card.
  */
 
 const TABS = [
@@ -92,6 +93,7 @@ export default function VictorianChristmasCard() {
 
   return (
     <RoomShell className="vb-card">
+      <SourcesDrawer groups={CARD_SOURCES}>
       <div className="vbr-stage vcc-stage" data-tab={tab}>
         <div className="vbr-room" aria-hidden="true">
           <div className="vbr-paper" />
@@ -215,6 +217,7 @@ export default function VictorianChristmasCard() {
 
         <p className="vbr-status" role="status" aria-live="polite">{status}</p>
       </div>
+      </SourcesDrawer>
 
       {printing &&
         createPortal(

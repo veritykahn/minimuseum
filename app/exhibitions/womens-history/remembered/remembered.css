@@ -157,7 +157,7 @@
 .whr-result-n { font-family: var(--pe-display); font-weight: 900; font-size: 4rem; line-height: 1; color: var(--whr-orange); }
 
 /* ───────── Meet the three women, and the note on four names ───────── */
-.whr-side.is-revealed { align-self: stretch; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; justify-content: center; }
+.whr-side.is-revealed { align-self: stretch; overflow-y: auto; overscroll-behavior: contain; padding-right: 4px; justify-content: safe center; }
 .whr-meet-pick { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .whr-meet-pick-title { flex-basis: 100%; font-family: var(--pe-ui); font-size: 11px; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--whr-orange-ink); }
 .whr-room .whr-meet-button { align-self: auto; border-color: var(--whr-orange-ink); color: var(--whr-orange-ink); padding: 10px 14px; letter-spacing: 0.08em; }
@@ -203,6 +203,10 @@
 .whr-card-ask { font-family: var(--pe-ui); font-size: 14px; font-weight: 500; color: var(--whr-navy); }
 .whr-card-note, .whr-card-hint { font-family: var(--pe-body); font-size: 1rem; line-height: 1.5; color: var(--whr-muted); }
 .whr-card-hint { font-size: 0.9rem; }
+/* Words held in one place (the evidence cards, their verdicts): only the current one is seen, and the place keeps the height of the longest, so the buttons below never move. */
+.whr-hold { display: grid; }
+.whr-hold > * { grid-area: 1 / 1; }
+.whr-hold > [data-held] { visibility: hidden; }
 .whr-card-buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 .whr-card-buttons .whr-button { align-self: auto; }
 .whr-button:disabled { opacity: 0.45; cursor: default; }
@@ -227,6 +231,8 @@
 .whr-cer dt { font-family: var(--pe-ui); font-size: 12px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--whr-orange-ink); padding-top: 0.35em; }
 .whr-cer dd { margin: 0; color: var(--whr-ink); }
 .whr-cer dd .whr-fact-source { display: block; margin-top: 2px; }
+/* The argument's source, on its printout only (the screen cites it in the Sources drawer). */
+.whr-print-source { display: none; }
 .whr-conclusion { display: flex; flex-direction: column; gap: 6px; padding-top: 10px; border-top: 1px solid rgba(34, 51, 94, 0.18); font-family: var(--pe-body); font-style: italic; font-size: 0.98rem; line-height: 1.55; color: var(--whr-navy); }
 .whr-print-name { display: none; }
 
@@ -253,8 +259,7 @@
 .whr-interview { margin: 0; padding: 0 0 0 1.8em; display: flex; flex-direction: column; gap: 8px; font-family: var(--pe-display); font-weight: 700; font-size: clamp(1.05rem, 1.55vw, 1.35rem); line-height: 1.35; color: var(--whr-navy); }
 .whr-interview li::marker { color: var(--whr-orange); font-weight: 900; }
 .whr-about { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px 14px; }
-.whr-room .whr-oral-next { align-self: flex-end; }
-.whr-oral-sources { margin-top: auto; padding-top: 10px; border-top: 1px solid rgba(34, 51, 94, 0.14); }
+.whr-room .whr-oral-next { align-self: flex-end; margin-top: auto; position: sticky; bottom: 0; box-shadow: 0 0 0 8px var(--whr-paper); }
 .whr-questions { margin: 0; padding: 0; list-style: none; counter-reset: q; display: flex; flex-direction: column; gap: 14px; }
 .whr-questions li { counter-increment: q; display: grid; grid-template-columns: 2.2em 1fr; align-items: baseline; font-family: var(--pe-display); font-weight: 700; font-size: clamp(1.05rem, 1.5vw, 1.35rem); line-height: 1.3; }
 .whr-questions li::before { content: counter(q); font-weight: 900; font-size: 1.4em; color: var(--whr-orange); }
@@ -307,7 +312,8 @@
   .whr-cer { grid-template-columns: minmax(0, 1fr); gap: 2px; }
   .whr-cer dd { margin-bottom: 8px; }
   .whr-talk { overflow-y: auto; overscroll-behavior: contain; }
-  .whr-oral { height: auto; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  /* At least the panel's height, so Next keeps to its foot on a short step too. */
+  .whr-oral { height: auto; min-height: 100%; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 1fr; gap: 12px; }
   .whr-oral-steps ol { flex-direction: row; flex-wrap: wrap; gap: 4px; }
   .whr-oral-steps li { flex: 1 1 30%; }
   .whr-oral-step { padding: 6px 8px; font-size: 12px; gap: 6px; border-left: 0; border-bottom: 3px solid transparent; }
@@ -358,5 +364,9 @@
   .whr-room[data-print='argument'] .whr-argument { visibility: visible; position: absolute; left: 0; top: 0; width: 100%; box-shadow: none; background: #fff; animation: none; }
   .whr-room[data-print='argument'] .whr-argument * { visibility: visible; }
   .whr-room[data-print='argument'] .whr-argument .whr-card-buttons, .whr-room[data-print='argument'] .whr-argument .whr-own-name { display: none; }
+  .whr-room[data-print='argument'] .whr-print-source { display: block; margin-top: 2pt; font-size: 8.5pt; color: #444; }
   .whr-room[data-print='argument'] .whr-print-name { display: block; order: -1; font-family: var(--pe-ui); font-size: 11pt; }
 }
+
+/* The Sources button (SourcesDrawer), in the room's navy and paper. */
+.whr-room { --mm-sources-bg: var(--whr-navy); --mm-sources-ink: var(--whr-paper); }

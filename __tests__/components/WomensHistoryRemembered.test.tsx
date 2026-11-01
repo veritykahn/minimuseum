@@ -29,6 +29,19 @@ import sitemap from '@/app/sitemap';
 
 beforeEach(() => window.history.replaceState(null, '', '/'));
 
+/** What the student sees: the element's words without the print-only sheets and lines. */
+function onScreen(el: Element) {
+  const copy = el.cloneNode(true) as Element;
+  copy.querySelectorAll('.whr-print, .whr-print-source').forEach((e) => e.remove());
+  return copy.textContent ?? '';
+}
+
+/** The room's Sources drawer, opened: nothing is cited on the student's screen, every source is here. */
+function openSources() {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+  return within(screen.getByRole('dialog', { name: 'Sources' }));
+}
+
 const posterText = () => WOMENS_HISTORY.posters.flatMap((p) => p.items.map((i) => ('text' in i ? i.text : ''))).join(' ');
 
 describe('its words and figures', () => {
@@ -117,7 +130,12 @@ describe('the room', () => {
     expect(screen.getByRole('list', { name: /50 people/ })).toBeInTheDocument();
     expect(screen.getByText('Abraham Lincoln')).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('You guessed 7. The answer is 3. Joan of Arc, Harriet Tubman, Sacagawea.');
-    expect(screen.getAllByRole('link', { name: AUDIT.label })).toHaveLength(2);
+    // The audit is cited once, in the Sources drawer, not under the facts.
+    expect(screen.queryAllByRole('link', { name: AUDIT.label })).toHaveLength(0);
+    expect(document.querySelector('.whr-statues')).not.toHaveTextContent(/Sources?:/);
+    const drawer = openSources();
+    expect(drawer.getAllByRole('link', { name: AUDIT.label }).length).toBeGreaterThan(0);
+    fireEvent.click(drawer.getByRole('button', { name: 'Close sources' }));
     fireEvent.click(screen.getByRole('button', { name: 'Guess again' }));
     expect(screen.queryByText('Abraham Lincoln')).toBeNull();
   });
@@ -132,7 +150,11 @@ describe('the room', () => {
     const card = screen.getByRole('article', { name: 'Harriet Tubman' });
     expect(card).toHaveTextContent('Number 24 in the Top 50, with 21 recorded monuments.');
     for (const l of THREE_WOMEN[1].lines) expect(card).toHaveTextContent(l);
-    expect(within(card).getByRole('link', { name: NWHM_TUBMAN.label })).toHaveAttribute('href', NWHM_TUBMAN.href);
+    expect(within(card).queryByRole('link', { name: NWHM_TUBMAN.label })).toBeNull();
+    const drawer = openSources();
+    expect(drawer.getAllByText('Harriet Tubman', { exact: false }).length).toBeGreaterThan(0);
+    expect(drawer.getByRole('link', { name: NWHM_TUBMAN.label })).toHaveAttribute('href', NWHM_TUBMAN.href);
+    fireEvent.click(drawer.getByRole('button', { name: 'Close sources' }));
     fireEvent.click(within(card).getByRole('button', { name: 'Meet Sacagawea' }));
     expect(screen.getByRole('article', { name: 'Sacagawea' })).toHaveTextContent('has been of great service to me as a pilot through this country.');
     fireEvent.click(screen.getByRole('button', { name: 'Back to the fifty statues' }));
@@ -147,7 +169,10 @@ describe('the room', () => {
     fireEvent.click(screen.getByRole('button', { name: /About four of these names/ }));
     const note = screen.getByRole('article', { name: 'About four of these names' });
     expect(note).toHaveTextContent(FACT_CONFEDERATE.text);
-    for (const s of FACT_CONFEDERATE.sources) expect(within(note).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+    // Its sources are in the drawer, under "Who gets a statue?".
+    expect(within(note).queryAllByRole('link')).toHaveLength(0);
+    const drawer = openSources();
+    for (const s of FACT_CONFEDERATE.sources) expect(drawer.getAllByRole('link', { name: s.label })[0]).toHaveAttribute('href', s.href);
   });
 
   it('weighs the evidence, card by card, then builds and prints an argument', () => {
@@ -208,7 +233,7 @@ describe('the room', () => {
     for (const q of questions) expect(within(panel).getAllByText(q).length).toBeGreaterThan(0);
     fireEvent.click(within(panel).getByRole('button', { name: 'While you listen' }));
     for (const t of LISTENING) expect(panel).toHaveTextContent(t.text);
-    expect(within(panel).getAllByRole('link', { name: VETERANS_HISTORY.label }).length).toBeGreaterThan(0);
+    expect(within(panel).queryAllByRole('link', { name: VETERANS_HISTORY.label })).toHaveLength(0);
     fireEvent.click(within(panel).getByRole('button', { name: 'Afterwards' }));
     for (const t of AFTER) expect(panel).toHaveTextContent(t.text);
     // The interview sheet: the tips and all fourteen questions, to take along.
@@ -232,6 +257,11 @@ describe('the room', () => {
     expect(screen.getByRole('complementary', { name: 'Not only women' })).toHaveTextContent(FACT_OTHERS.text);
     expect(screen.getByRole('link', { name: 'Make a timeline of a woman in your life' })).toHaveAttribute('href', '/exhibitions/womens-history/violet#make');
     expect(ORAL_SOURCES.map((x) => x.href)).toContain('https://www.loc.gov/vets/conducttheinterview.html');
+    // Every interview guide is in the drawer; the printed sheets keep their own source lines.
+    expect(onScreen(panel)).not.toMatch(/Sources?:/);
+    const drawer = openSources();
+    for (const s of ORAL_SOURCES) expect(drawer.getAllByRole('link', { name: s.label })[0]).toHaveAttribute('href', s.href);
+    expect(document.querySelector('.whr-print-sheet')).toHaveTextContent(`Sources: ${ORAL_SOURCES.map((x) => x.label).join('; ')}`);
     print.mockRestore();
   });
 });

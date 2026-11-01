@@ -1,4 +1,6 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import GreatWarMemorial from '@/app/exhibitions/great-war/memorial/page';
+import { ABMC_RECORDS, MEMORIAL_SOURCES } from '@/app/exhibitions/great-war/memorial/sources';
 import TwoMinuteSilence, { countdownParts, inArmisticeSilence, nextArmistice } from '@/app/exhibitions/great-war/memorial/TwoMinuteSilence';
 import { fieldLayout } from '@/app/exhibitions/great-war/memorial/PoppyField';
 import { GREAT_WAR } from '@/app/exhibitions/great-war/greatWar';
@@ -108,5 +110,22 @@ describe('wiring', () => {
     expect(getRoomByPath('/exhibitions/great-war/silence')?.id).toBe('gw-silence');
     expect(getRoomByPath('/exhibitions/great-war/memorial')?.id).toBe('gw-memorial');
     expect(getLevelConfig('/exhibitions/great-war/memorial').title).toBe('The Great War');
+  });
+});
+
+describe('the Sources drawer', () => {
+  beforeEach(() => {
+    // The records load when "Remember a soldier" mounts; they are not needed here.
+    global.fetch = jest.fn(() => new Promise(() => {})) as jest.Mock;
+  });
+
+  it('cites the soldiers’ records in the drawer, and nothing inline', () => {
+    window.history.replaceState(null, '', '/exhibitions/great-war/memorial');
+    render(<GreatWarMemorial />);
+    expect(screen.queryByText(/^Sources?:/)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sources' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources' });
+    expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(MEMORIAL_SOURCES.map((g) => g.title));
+    expect(within(drawer).getByRole('link', { name: ABMC_RECORDS.label })).toHaveAttribute('href', 'https://weremember.abmc.gov/');
   });
 });

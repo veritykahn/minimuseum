@@ -528,3 +528,6 @@
   .whv-form { gap: 6px; }
   .whv-own .whv-heading { font-size: 1.4rem; }
 }
+
+/* The Sources button (SourcesDrawer), in the room's navy and paper. */
+.wh-room { --mm-sources-bg: var(--whv-navy); --mm-sources-ink: var(--whv-paper); }

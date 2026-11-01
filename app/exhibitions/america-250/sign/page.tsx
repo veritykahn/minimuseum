@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
-import FactNote, { FactSources } from '@/components/exhibition/FactNote';
+import FactNote from '@/components/exhibition/FactNote';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RoomShell from '../RoomShell';
 import Flag from './Flag';
@@ -10,9 +11,10 @@ import { milestonesAt } from './flagLayout';
 import Parchment, { hasSigned, type Doc, type Signer } from './Parchment';
 import Copies from './Copies';
 import SignaturePad from './SignaturePad';
-import { DECLARATION_SOURCE, OWN_DECLARATIONS, type OwnFill, type VersionId } from './declaration';
+import { OWN_DECLARATIONS, type OwnFill, type VersionId } from './declaration';
 import { COPIES, FLAG_MAX, FLAG_MILESTONES, FLAG_MIN, FLAG_TEXT, SIGN_TEXT, starLine, type CopyId } from './signText';
 import type { Stroke } from './signing';
+import { SIGN_SOURCES } from './sources';
 import './sign.css';
 
 /*
@@ -30,8 +32,9 @@ import './sign.css';
  * Nothing signed or written is stored or sent.
  *
  * The four copies' notes, the flag's states and milestones are
- * owner-approved, fact-checked notes from outside the posters, each set with
- * its source (signText.ts). The Declaration's text is the
+ * owner-approved, fact-checked notes from outside the posters (signText.ts),
+ * their sources and the copies' picture credits listed in the room's Sources
+ * drawer (sources.ts), not inline. The Declaration's text is the
  * National Archives' transcription, and the class's and the student's are
  * the owner's own wording (declaration.ts).
  */
@@ -222,6 +225,8 @@ export default function America250Signing() {
 
   return (
     <RoomShell className="ap-signing">
+      {/* Every source and picture credit, in one drawer; nothing cited inline (sources.ts). */}
+      <SourcesDrawer groups={SIGN_SOURCES}>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');`}</style>
       <div className="aps-stage" data-tab={tab} data-doc={tab === 'sign' ? doc : undefined} data-sealed={sealed || undefined} data-closer={(tab === 'copies' && closer) || undefined}>
         <Desk />
@@ -393,11 +398,6 @@ export default function America250Signing() {
                   </button>
                 </div>
               )}
-              {doc === 'declaration' && (
-                <p className="aps-fact aps-fact-text">
-                  <FactSources sources={[DECLARATION_SOURCE]} className="aps-fact-source" />
-                </p>
-              )}
               <p className="aps-note">{own ? t.privacyWritten : t.privacy}</p>
             </>
           ) : doc === 'declaration' ? (
@@ -460,12 +460,6 @@ export default function America250Signing() {
             </figure>
           )}
           {copy.id === 'original' && <p className="aps-close">{t.copiesClose}</p>}
-          <p className="aps-credit">
-            Picture:{' '}
-            <a href={copy.credit.href} target="_blank" rel="noopener noreferrer">
-              {copy.credit.label}
-            </a>
-          </p>
           {closer && <p className="aps-note aps-lens-hint">{t.lensHint}</p>}
           <div className="aps-actions aps-actions-step">
             <button type="button" className="aps-button aps-button-closer" aria-pressed={closer} onClick={toggleCloser}>
@@ -519,9 +513,6 @@ export default function America250Signing() {
               </li>
             ))}
           </ol>
-          <p className="aps-fact aps-fact-flag">
-            <FactSources sources={FLAG_TEXT.sources} className="aps-fact-source" />
-          </p>
         </section>
 
         <p className="aps-status" role="status" aria-live="polite">{status}</p>
@@ -540,6 +531,7 @@ export default function America250Signing() {
           </div>,
           document.body,
         )}
+      </SourcesDrawer>
     </RoomShell>
   );
 }

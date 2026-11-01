@@ -7,11 +7,13 @@ import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import FactNote, { FactSources } from '@/components/exhibition/FactNote';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { WOMENS_HISTORY } from '../womensHistory';
 import { AUDIT, FACT_MERMAIDS, FACT_TOP_50, TOP_50, WOMEN_IN_TOP_50, guessLine } from './remembered';
 import { CONFEDERATE_NAMES, FACT_CONFEDERATE, THREE_WOMEN, rankOf, type WomanId } from './threeWomen';
 import WeighTheEvidence from './WeighTheEvidence';
 import OralHistory, { type PrintKind } from './OralHistory';
+import { REMEMBERED_SOURCES } from './sources';
 import './remembered.css';
 
 /*
@@ -24,7 +26,9 @@ import './remembered.css';
  * choose the strongest and say why (WeighTheEvidence.tsx). "Talk about it":
  * an oral history with a woman in your family, with an interview sheet and a
  * write-up to print (OralHistory.tsx). Facts from outside the poster are
- * cited. Nothing moves under reduced motion.
+ * cited in the room's Sources drawer (sources.ts), not on the screen; the
+ * print sheets keep their own source lines. Nothing moves under reduced
+ * motion.
  */
 
 const TABS = [
@@ -148,6 +152,7 @@ export default function WhoGetsRemembered() {
         <span className="pe-nav-label">{back.label}</span>
       </ExhibitionNav>
 
+      <SourcesDrawer groups={REMEMBERED_SOURCES}>
       <main className="whr-stage" data-tab={tab}>
         <span className="whr-ground" aria-hidden="true" />
         <header className="whr-bar">
@@ -293,6 +298,7 @@ export default function WhoGetsRemembered() {
 
         <p className="visually-hidden" role="status" aria-live="polite">{announcement}</p>
       </main>
+      </SourcesDrawer>
     </div>
   );
 }

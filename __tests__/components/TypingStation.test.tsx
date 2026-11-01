@@ -453,3 +453,15 @@ describe('fixes from the QA pass', () => {
     expect(css).toMatch(/\.wrq-kept \.wrq-label \{[^}]*background: var\(--wr-ink\); color: #fff;/);
   });
 });
+
+describe('sources', () => {
+  // The station's words are poster 2's own and its interface; it makes no
+  // claims to cite and uses no credited picture (the Urania is the owner's own),
+  // so it has nothing for a Sources drawer and shows no Sources button.
+  it('cites nothing, inline or in a drawer', () => {
+    window.history.replaceState(null, '', '/');
+    const { container } = render(<TypingStation />);
+    expect(screen.queryByRole('button', { name: 'Sources' })).toBeNull();
+    expect(container.textContent).not.toMatch(/\bSources?:/);
+  });
+});

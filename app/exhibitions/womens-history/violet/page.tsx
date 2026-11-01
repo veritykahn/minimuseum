@@ -6,12 +6,13 @@ import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import FactNote from '@/components/exhibition/FactNote';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { BIOGRAPHY_MOTTO, VIOLET_DATES, VIOLET_LETTERING, VIOLET_NAME, VIOLET_NEE, WOMENS_HISTORY } from '../womensHistory';
 import Keepsake from './Keepsake';
 import OwnTimeline from './OwnTimeline';
 import type { OwnTimeline as Timeline } from './yourTimeline';
 import { useBox } from './useBox';
-import { LIFE, threadLayout, threadPath } from './violetLife';
+import { LIFE, VIOLET_SOURCES, threadLayout, threadPath } from './violetLife';
 import './violet.css';
 
 /*
@@ -22,8 +23,8 @@ import './violet.css';
  * the family photograph the poster sets with it. The thread is sewn in
  * orange as far as the visitor has come. Each stop has its own address
  * (#fulham, #blitz…). The Blitz also carries a museum note, owner-approved
- * and fact-checked, set apart from the typed biography with its source
- * (violetLife.ts).
+ * and fact-checked, set apart from the typed biography; its source is in
+ * the room's Sources drawer (violetLife.ts).
  *
  * A second mode, "Make your own" (#make), sets the same thread out for a
  * woman in the visitor's own life (OwnTimeline.tsx).
@@ -116,6 +117,7 @@ export default function VioletsLife() {
         <span className="pe-nav-label">{back.label}</span>
       </ExhibitionNav>
 
+      <SourcesDrawer groups={VIOLET_SOURCES}>
       <main className="whv-stage">
         <span className="whv-cloth" aria-hidden="true" />
 
@@ -240,6 +242,7 @@ export default function VioletsLife() {
         )}
         <p className="visually-hidden" role="status" aria-live="polite">{announcement}</p>
       </main>
+      </SourcesDrawer>
     </div>
   );
 }
