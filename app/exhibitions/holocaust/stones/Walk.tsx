@@ -6,52 +6,61 @@ import { useDialogFocus } from '@/lib/a11y';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { makeFootsteps, type Footsteps } from './footsteps';
-import { EYE, FAR, HALF_WIDTH, STEP, easeStep, fog, hash2, makeView, project, rowStones, rowsInView } from './walkScene';
-import { WALK_LINES, ambientSrc, shownLineForStep, type Ambient, type WalkLine, type WalkPictures } from './walkLines';
+import { WALK_LINES, ambientSrc, slotSrc, type Ambient, type WalkPictures } from './walkLines';
+import { WALK_BEATS, beatForStep, nameText, type WalkBeat } from './walkNames';
 import WalkPicture from './WalkPicture';
 
 /*
- * The walk: an original piece, inspired by Menashe Kadishman's Fallen
- * Leaves (Shalekhet) at the Jewish Museum Berlin, where visitors walk over
- * the faces that cover the floor and hear them as they go. Here there are
- * no faces and nothing of his: a long path of plain, unnamed stones, each
- * standing for a person, and the visitor walks over them, a step at a
- * time, slowly. Each step is heard, if the visitor turns the sound on
- * (footsteps.ts, made with Web Audio; off until chosen), with a quiet
- * ambient recording under it where the owner has supplied one. There is no
- * score.
+ * The walk: the visitor lights a candle, and then walks slowly through the
+ * history, full screen, one step at a time. Each step is one of the owner's
+ * pictures (an object or a place, never a person; walkLines.ts), filling the
+ * screen, dark at the edges and drifting very slowly, with one short line of
+ * the history beneath it, in order. Now and then, between the steps, one
+ * child's name and age, alone on black (walkNames.ts). The candle stays lit
+ * in a corner all the way, and at the end the walk closes quietly, the
+ * candle still burning. There is no score.
  *
- * The walk is taken full screen, dark to the edges: the path below, a
- * picture far ahead (an object or a place, never a person; walkLines.ts),
- * and one short line a step: from the first step, the history, in order,
- * every step with its line and its picture. After the last line the path
- * simply goes on, with the last line and picture still there. The sources,
- * and the credit to Kadishman, are in the walk's Sources drawer.
+ * Each step fades slowly into the next, and cannot be hurried; walking on,
+ * a step comes every few seconds, time to read its line. The footsteps
+ * (footsteps.ts, made with Web Audio) and the quiet ambient recordings under
+ * them, where the owner has supplied them, are off until the visitor turns
+ * them on. With reduced motion nothing drifts or fades, the flame is still,
+ * and the walk moves only a step at a time, by button.
  *
- * A step takes a second and a half, and cannot be hurried; walking on, a
- * step comes every few seconds, time to read its line. With reduced motion
- * the path is still and moves only a step at a time, by button, with no
- * walking on and no fades.
+ * Every line's and every name's source is in the walk's Sources drawer, by
+ * step, never on the screen.
  */
 
-export const STEP_MS = 1500;
+/** A step's fade; a step can't be taken again until it is done. */
+export const STEP_MS = 1800;
 /** Walking on: a step this often, long enough to read a line. */
 export const AUTO_MS = 6500;
 
-export const KADISHMAN_URL = 'https://www.jmberlin.de/en/shalekhet-fallen-leaves';
+// REVIEW (Verity): the walk's own words, new with the candle.
+export const WALK_INTRO = 'Light a candle, then walk slowly through the history, one step at a time.';
+export const WALK_ABOUT =
+  'Each step brings a picture of a place or a thing left behind, and one short line of the history, in the order it happened. Between the steps, now and then, one child’s name. The walk fills the screen. Sound is off until you turn it on.';
+export const WALK_BEGIN = 'Your candle is lit. Take a step when you are ready.';
+export const WALK_CLOSE = 'You can leave your candle burning.';
 
-/** What the walk shows at step `steps`: nothing before the first step, then a line of the history every step (the last one again, once the walk has gone past it). */
-export function wordsForStep(steps: number): { kind: 'none' } | { kind: 'line'; line: WalkLine; end: boolean } {
-  const line = shownLineForStep(steps);
-  return line ? { kind: 'line', line, end: steps >= WALK_LINES.length } : { kind: 'none' };
+export type WalkWords = { kind: 'none' } | { kind: 'end' } | WalkBeat;
+
+/** What the walk shows at step `steps`: nothing before the first step, then each line or name in turn, then the quiet close. */
+export function wordsForStep(steps: number): WalkWords {
+  if (steps < 1) return { kind: 'none' };
+  return beatForStep(steps) ?? { kind: 'end' };
 }
 
-/** The walk's sources, by step, and the credit to the piece that inspired it: for the Sources drawer. */
+/** What is read out at a step. */
+const spoken = (w: WalkWords) => (w.kind === 'line' ? w.line.text : w.kind === 'name' ? nameText(w.name) : w.kind === 'end' ? WALK_CLOSE : '');
+
+/** The walk's sources, step by step (each line's, and each name's own): for the Sources drawer. */
 export function walkSourceGroups(): SourceGroup[] {
-  return [
-    { title: 'The walk: inspiration', items: [{ label: 'Menashe Kadishman, Fallen Leaves (Shalekhet), Jewish Museum Berlin', href: KADISHMAN_URL, note: 'The walk is an original piece, inspired by' }] },
-    ...WALK_LINES.map((l, i) => ({ title: `The walk, step ${i + 1}`, items: l.sources.map((s) => ({ ...s, note: l.text.length > 60 ? `${l.text.slice(0, 57).trimEnd()}…` : l.text.replace(/\.$/, '') })) })),
-  ];
+  const short = (t: string) => (t.length > 60 ? `${t.slice(0, 57).trimEnd()}…` : t.replace(/\.$/, ''));
+  return WALK_BEATS.map((b, i) => ({
+    title: `The walk, step ${i + 1}`,
+    items: b.kind === 'line' ? b.line.sources.map((s) => ({ ...s, note: short(b.line.text) })) : [{ ...b.name.source, note: nameText(b.name) }],
+  }));
 }
 
 const AMBIENT_LEVEL = 0.22;
@@ -59,30 +68,29 @@ const AMBIENT_LEVEL = 0.22;
 export function useWalk(ambients: readonly Ambient[] = []) {
   const reduced = usePrefersReducedMotion();
   const [steps, setSteps] = useState(0);
-  const [stepAt, setStepAt] = useState<number | null>(null);
   const [walking, setWalking] = useState(false);
   const [sound, setSound] = useState(false);
   const [full, setFull] = useState(false);
+  const [lit, setLit] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const audio = useRef<Footsteps | null>(null);
   const busyUntil = useRef(0);
   const stepsRef = useRef(0);
+  const last = WALK_BEATS.length + 1;
 
   const step = useCallback(() => {
     const now = performance.now();
-    if (now < busyUntil.current) return false;
+    if (now < busyUntil.current || stepsRef.current >= last) return false;
     busyUntil.current = now + (reduced ? 300 : STEP_MS);
     const n = stepsRef.current + 1;
     stepsRef.current = n;
     setSteps(n);
-    setStepAt(reduced ? null : now);
     audio.current?.step(n % 2 === 0 ? 1 : -1);
-    if (n <= WALK_LINES.length) setAnnouncement(WALK_LINES[n - 1].text);
-    else if (n === WALK_LINES.length + 1) setAnnouncement('The path goes on.');
-    // Walking on stops at the last line: the visitor may walk on, by step, or leave.
-    if (n >= WALK_LINES.length) setWalking(false);
+    setAnnouncement(spoken(wordsForStep(n)));
+    // Walking on stops at the close.
+    if (n >= last) setWalking(false);
     return true;
-  }, [reduced]);
+  }, [reduced, last]);
 
   // Walking on: a step every few seconds, until the visitor stops.
   useEffect(() => {
@@ -114,7 +122,7 @@ export function useWalk(ambients: readonly Ambient[] = []) {
 
   // Under the steps, the part of the walk's ambient recording, where there is one: looped, quiet, faded in and out.
   const words = wordsForStep(steps);
-  const part: Ambient = shownLineForStep(steps)?.part ?? 'before';
+  const part: Ambient = partAt(steps);
   const playing = useRef<{ part: Ambient; el: HTMLAudioElement } | null>(null);
   useEffect(() => {
     const want = sound && full && ambients.includes(part) ? part : null;
@@ -143,13 +151,34 @@ export function useWalk(ambients: readonly Ambient[] = []) {
     setFull(true);
     setAnnouncement('The walk, full screen. Press Escape to leave it.');
   }, []);
+  /** The way in: the candle is lit, and the walk begins. */
+  const light = useCallback(() => {
+    setLit(true);
+    enter();
+  }, [enter]);
   const leave = useCallback(() => {
     setFull(false);
     setWalking(false);
-    setAnnouncement('You leave the walk.');
+    setAnnouncement('You leave the walk. Your candle is still lit.');
+  }, []);
+  /** From the close, back to the beginning; the candle stays lit. */
+  const again = useCallback(() => {
+    stepsRef.current = 0;
+    busyUntil.current = 0;
+    setSteps(0);
+    setAnnouncement(WALK_BEGIN);
   }, []);
 
-  return { reduced, steps, stepAt, walking, sound, full, words, announcement, step, toggleWalking, toggleSound, stop, enter, leave };
+  return { reduced, steps, walking, sound, full, lit, words, announcement, step, toggleWalking, toggleSound, stop, enter, light, leave, again };
+}
+
+/** The part of the walk at step `steps`, for its ambient sound: the last line reached. */
+function partAt(steps: number): Ambient {
+  for (let i = Math.min(steps, WALK_BEATS.length) - 1; i >= 0; i--) {
+    const b = WALK_BEATS[i];
+    if (b.kind === 'line') return b.line.part;
+  }
+  return 'before';
 }
 
 function fadeTo(el: HTMLAudioElement, to: number, ms = 2000) {
@@ -172,194 +201,71 @@ function fadeOut(el: HTMLAudioElement) {
 
 type Walk = ReturnType<typeof useWalk>;
 
-/** The path, drawn on one canvas behind the room's title and panel. */
-export function WalkScene({ steps, stepAt, reduced, full = false }: Pick<Walk, 'steps' | 'stepAt' | 'reduced'> & { full?: boolean }) {
-  const wrapRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [size, setSize] = useState({ w: 0, h: 0 });
-
-  useEffect(() => {
-    const el = wrapRef.current;
-    if (!el) return;
-    const measure = () => setSize({ w: el.clientWidth, h: el.clientHeight });
-    measure();
-    if (typeof ResizeObserver === 'undefined') {
-      window.addEventListener('resize', measure);
-      return () => window.removeEventListener('resize', measure);
-    }
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
-  const draw = useCallback(
-    (now: number) => {
-      const canvas = canvasRef.current;
-      if (!canvas || !size.w || !size.h) return true;
-      const g = canvas.getContext?.('2d');
-      if (!g) return true;
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
-      if (canvas.width !== Math.round(size.w * dpr)) canvas.width = Math.round(size.w * dpr);
-      if (canvas.height !== Math.round(size.h * dpr)) canvas.height = Math.round(size.h * dpr);
-      g.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-      // Where the walker is: between the last step and this one, while it is taken.
-      const t = stepAt === null ? 1 : Math.min(1, (now - stepAt) / STEP_MS);
-      const at = (steps - 1 + easeStep(t)) * STEP;
-      const view = makeView(size.w, size.h, full);
-      // The weight of the step: the eye sinks a little as the foot comes down, and rises.
-      view.eye = EYE - (stepAt === null ? 0 : Math.sin(Math.PI * Math.min(1, t * 1.25)) * 0.035);
-
-      g.fillStyle = '#060606';
-      g.fillRect(0, 0, size.w, size.h);
-      // The bed the stones are laid in: a little less dark than the dark beside it.
-      const near = project(view, 0, 1.2);
-      if (near) {
-        const bed = g.createLinearGradient(0, view.horizon, 0, size.h);
-        bed.addColorStop(0, '#080808');
-        bed.addColorStop(1, '#141312');
-        const l0 = project(view, -HALF_WIDTH * 1.04, FAR);
-        const r0 = project(view, HALF_WIDTH * 1.04, FAR);
-        const l1 = project(view, -HALF_WIDTH * 1.04, 1.2);
-        const r1 = project(view, HALF_WIDTH * 1.04, 1.2);
-        if (l0 && r0 && l1 && r1) {
-          g.fillStyle = bed;
-          g.beginPath();
-          g.moveTo(l0[0], l0[1]);
-          g.lineTo(r0[0], r0[1]);
-          g.lineTo(r1[0], r1[1]);
-          g.lineTo(l1[0], l1[1]);
-          g.closePath();
-          g.fill();
-        }
-      }
-      const grain = grainPattern(g);
-
-      for (const row of rowsInView(Math.max(0, at))) {
-        for (const s of rowStones(row)) {
-          const dz = s.z - at;
-          const ground: [number, number][] = [];
-          const top: [number, number][] = [];
-          let ok = true;
-          for (const [ox, oz] of s.outline) {
-            const a = project(view, s.x + ox, dz + oz);
-            const b = project(view, s.x + ox, dz + oz, s.rise);
-            if (!a || !b) {
-              ok = false;
-              break;
-            }
-            ground.push(a);
-            top.push(b);
-          }
-          if (!ok) continue;
-          if (top.every(([, y]) => y > size.h + 4)) continue;
-          const f = fog(dz);
-          // Its grey: dark as iron to pale as limestone, then lost in the dark with distance.
-          const base = 58 + s.tone * 70;
-          const lit = base * (1 - f * 0.92) + 6 * f;
-          const shade = (v: number, k: number) => Math.round(v * k);
-          // Its near side, in shadow; then its face, a little lit from ahead.
-          trace(g, ground);
-          g.fillStyle = `rgb(${shade(lit, 0.32)},${shade(lit, 0.31)},${shade(lit, 0.3)})`;
-          g.fill();
-          // Its face: lit from ahead, so its far edge is a little lighter than its near one.
-          let y0 = Infinity;
-          let y1 = -Infinity;
-          for (const [, y] of top) {
-            y0 = Math.min(y0, y);
-            y1 = Math.max(y1, y);
-          }
-          const face = g.createLinearGradient(0, y0, 0, y1);
-          face.addColorStop(0, `rgb(${shade(lit, 0.98)},${shade(lit, 0.96)},${shade(lit, 0.92)})`);
-          face.addColorStop(1, `rgb(${shade(lit, 0.7)},${shade(lit, 0.68)},${shade(lit, 0.66)})`);
-          trace(g, top);
-          g.fillStyle = face;
-          g.fill();
-          // The grain of the stone, on the nearer ones.
-          if (dz < 12 && grain) {
-            g.save();
-            g.clip();
-            g.globalAlpha = 0.5 * (1 - f);
-            g.fillStyle = grain;
-            g.fillRect(Math.min(...top.map(([x]) => x)), y0, Math.max(...top.map(([x]) => x)) - Math.min(...top.map(([x]) => x)), y1 - y0);
-            g.restore();
-          }
-        }
-      }
-      return t >= 1;
-    },
-    [size, steps, stepAt, full],
-  );
-
-  useEffect(() => {
-    if (reduced || stepAt === null) {
-      draw(Infinity);
-      return;
-    }
-    let raf = 0;
-    const frame = (now: number) => {
-      if (!draw(now)) raf = requestAnimationFrame(frame);
-    };
-    raf = requestAnimationFrame(frame);
-    return () => cancelAnimationFrame(raf);
-  }, [draw, reduced, stepAt]);
-
+/** A candle, drawn: unlit, or with a small flame that moves a little, as a flame does (still, under reduced motion). */
+export function Candle({ lit, className = '' }: { lit: boolean; className?: string }) {
   return (
-    <div className={`hos-scene hos-walk-scene${full ? ' is-full' : ''}`} ref={wrapRef} aria-hidden="true">
-      <canvas ref={canvasRef} className="hos-walk-canvas" />
-      <span className="hos-walk-glow" />
-      <span className="hos-walk-vignette" />
+    <svg className={`hos-candle${lit ? ' is-lit' : ''} ${className}`} viewBox="0 0 40 80" aria-hidden="true" focusable="false">
+      {lit && (
+        <g className="hos-candle-flame">
+          <ellipse className="hos-candle-glow" cx="20" cy="22" rx="18" ry="20" />
+          <path className="hos-candle-outer" d="M 20 6 C 25 15 27 21 26 26 C 25 31 15 31 14 26 C 13 21 15 15 20 6 Z" />
+          <path className="hos-candle-inner" d="M 20 15 C 22.5 20 23.5 23 23 26 C 22.4 29 17.6 29 17 26 C 16.5 23 17.5 20 20 15 Z" />
+        </g>
+      )}
+      <path className="hos-candle-wick" d="M 20 27 V 33" />
+      <path className="hos-candle-body" d="M 12 34 Q 20 31.5 28 34 V 76 H 12 Z" />
+    </svg>
+  );
+}
+
+/** Behind the room's title and panel, on the walk's tab: the walk's first picture, very dim, in the dark; or just the dark. */
+export function WalkBackdrop({ pictures }: { pictures: WalkPictures }) {
+  const first = WALK_LINES[0];
+  const file = pictures[first.slot];
+  return (
+    <div className="hos-scene hos-walk-backdrop" aria-hidden="true">
+      {file && (
+        // eslint-disable-next-line @next/next/no-img-element -- the owner's picture, as a dim backdrop
+        <img src={slotSrc(first.slot, file)} alt="" />
+      )}
+      <span className="hos-walk-backdrop-veil" />
     </div>
   );
 }
 
-/** A tile of fine speckle, laid over the nearer stones as their grain (made once). */
-let grainTile: HTMLCanvasElement | null = null;
-function grainPattern(g: CanvasRenderingContext2D): CanvasPattern | null {
-  if (!grainTile) {
-    const tile = document.createElement('canvas');
-    tile.width = tile.height = 128;
-    const t = tile.getContext('2d');
-    if (!t) return null;
-    for (let i = 0; i < 1400; i++) {
-      t.fillStyle = hash2(i, 1) > 0.5 ? `rgba(255,248,236,${0.05 + hash2(i, 2) * 0.12})` : `rgba(0,0,0,${0.08 + hash2(i, 3) * 0.2})`;
-      t.fillRect(hash2(i, 4) * 128, hash2(i, 5) * 128, 0.6 + hash2(i, 6) * 1.2, 0.6 + hash2(i, 7) * 1.2);
-    }
-    grainTile = tile;
-  }
-  return g.createPattern(grainTile, 'repeat');
-}
-
-function trace(g: CanvasRenderingContext2D, pts: [number, number][]) {
-  g.beginPath();
-  const mid = (a: [number, number], b: [number, number]) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2] as const;
-  const n = pts.length;
-  const m0 = mid(pts[n - 1], pts[0]);
-  g.moveTo(m0[0], m0[1]);
-  for (let j = 0; j < n; j++) {
-    const m = mid(pts[j], pts[(j + 1) % n]);
-    g.quadraticCurveTo(pts[j][0], pts[j][1], m[0], m[1]);
-  }
-  g.closePath();
-}
-
-/** The walk's place in the room's panel: what it is, and the way in. */
-export function WalkControls({ announcement, enter, full }: Walk) {
+/** The walk's place in the room's panel: what it is, and the way in, by lighting a candle. */
+export function WalkControls({ announcement, enter, light, full, lit }: Walk) {
   return (
     <div className="hos-walk">
-      <p className="hos-intro">A path of plain stones. Each one stands for a person. Walk over them slowly.</p>
-      <p className="hos-walk-about">Each step brings one short line of the history, in the order it happened, and a picture of a place or a thing left behind. The walk fills the screen. Sound is off until you turn it on.</p>
-      <button type="button" className="hos-button hos-button-primary" onClick={enter} aria-expanded={full}>
-        Begin the walk
-      </button>
+      <p className="hos-intro">{WALK_INTRO}</p>
+      <p className="hos-walk-about">{WALK_ABOUT}</p>
+      <Candle lit={lit} className="hos-candle-panel" />
+      {lit ? (
+        <button type="button" className="hos-button hos-button-primary" onClick={enter} aria-expanded={full}>
+          Return to the walk
+        </button>
+      ) : (
+        <button type="button" className="hos-button hos-button-primary" onClick={light} aria-expanded={full}>
+          Light a candle
+        </button>
+      )}
       <p className="visually-hidden" role="status" aria-live="polite">{full ? '' : announcement}</p>
     </div>
   );
 }
 
-/** The walk, full screen: the path, a picture far ahead, one line a step, and a few quiet buttons. */
+/** What fills the screen at a step: a picture, or black (a name, the beginning, the close). */
+type Layer = { key: string; beat: WalkBeat | null };
+const layerAt = (steps: number): Layer => {
+  const b = beatForStep(steps);
+  if (b?.kind === 'line') return { key: b.line.id, beat: b };
+  if (b?.kind === 'name') return { key: b.name.id, beat: b };
+  return { key: steps < 1 ? 'begin' : 'end', beat: null };
+};
+
+/** The walk, full screen: a picture a step, with its line beneath; a name now and then; the candle in its corner; a few quiet buttons. */
 export function WalkFull({ walk, pictures }: { walk: Walk; pictures: WalkPictures }) {
-  const { reduced, steps, stepAt, walking, sound, words, announcement, step, toggleWalking, toggleSound, leave } = walk;
+  const { reduced, steps, walking, sound, words, announcement, step, toggleWalking, toggleSound, leave, again } = walk;
   const ref = useRef<HTMLDivElement>(null);
   const stepRef = useRef<HTMLButtonElement>(null);
   useDialogFocus(ref, true, { onEscape: leave, initialFocus: stepRef });
@@ -393,36 +299,62 @@ export function WalkFull({ walk, pictures }: { walk: Walk; pictures: WalkPicture
     }
   };
 
-  const line = words.kind === 'line' ? words.line : null;
+  const ended = words.kind === 'end';
+  // The step before stays beneath while this one fades in over it (no fade with reduced motion).
+  const layers = [...(reduced || steps < 1 ? [] : [layerAt(steps - 1)]), layerAt(steps)];
 
   return createPortal(
     <div ref={ref} className={`hos-walk-full${reduced ? ' is-still' : ''}`} data-exhibition="holocaust" role="dialog" aria-modal="true" aria-label="The walk" tabIndex={-1} onKeyDown={onKey}>
-      <WalkScene steps={steps} stepAt={stepAt} reduced={reduced} full />
-      {line && (
-        <div className="hos-walk-ahead" key={line.slot}>
-          <WalkPicture line={line} file={pictures[line.slot]} />
+      <div className="hos-walk-layers">
+        {layers.map((l, i) => {
+          const current = i === layers.length - 1;
+          return (
+            <div key={l.key} className={`hos-walk-layer${current ? ' is-current' : ' is-before'}${l.beat?.kind === 'line' ? '' : ' is-dark'}`} aria-hidden={current ? undefined : true}>
+              {l.beat?.kind === 'line' && <WalkPicture line={l.beat.line} file={pictures[l.beat.line.slot]} />}
+            </div>
+          );
+        })}
+        <span className="hos-walk-edges" aria-hidden="true" />
+      </div>
+
+      {words.kind === 'name' && (
+        <div className="hos-walk-name" key={words.name.id} data-name={words.name.id} data-step={steps}>
+          <p>{nameText(words.name)}</p>
         </div>
       )}
-      <span className="hos-walk-edges" aria-hidden="true" />
+
+      <Candle lit className="hos-candle-corner" />
 
       <div className="hos-walk-words">
-        {steps === 0 && <p className="hos-walk-say is-intro">A path of plain stones. Each one stands for a person. Take a step when you are ready.</p>}
-        {line && (
-          <div className="hos-walk-say-wrap" key={line.id} data-line={line.id} data-step={WALK_LINES.indexOf(line) + 1}>
-            <p className="hos-walk-say">{line.text}</p>
-            {words.kind === 'line' && words.end && <p className="hos-walk-end">The path goes on. Walk on in silence, or leave the walk when you are ready.</p>}
+        {words.kind === 'none' && <p className="hos-walk-say is-intro">{WALK_BEGIN}</p>}
+        {words.kind === 'line' && (
+          <div className="hos-walk-say-wrap" key={words.line.id} data-line={words.line.id} data-step={steps}>
+            <p className="hos-walk-say">{words.line.text}</p>
+          </div>
+        )}
+        {ended && (
+          <div className="hos-walk-say-wrap" key="end" data-end="true">
+            <p className="hos-walk-say is-close">{WALK_CLOSE}</p>
           </div>
         )}
       </div>
 
       <div className="hos-walk-bar">
-        <button ref={stepRef} type="button" className="hos-button hos-button-primary" onClick={step} disabled={walking}>
-          Take a step
-        </button>
-        {!reduced && (
-          <button type="button" className="hos-button" aria-pressed={walking} onClick={toggleWalking}>
-            {walking ? 'Stop' : 'Walk on slowly'}
+        {ended ? (
+          <button ref={stepRef} type="button" className="hos-button" onClick={again}>
+            Walk again
           </button>
+        ) : (
+          <>
+            <button ref={stepRef} type="button" className="hos-button hos-button-primary" onClick={step} disabled={walking}>
+              Take a step
+            </button>
+            {!reduced && (
+              <button type="button" className="hos-button" aria-pressed={walking} onClick={toggleWalking}>
+                {walking ? 'Stop' : 'Walk on slowly'}
+              </button>
+            )}
+          </>
         )}
         <button type="button" className="hos-button hos-button-sound" aria-pressed={sound} onClick={toggleSound}>
           <span aria-hidden="true" className="hos-sound-mark">{sound ? '◉' : '○'}</span> Sound: {sound ? 'on' : 'off'}
@@ -431,7 +363,7 @@ export function WalkFull({ walk, pictures }: { walk: Walk; pictures: WalkPicture
           Leave the walk
         </button>
       </div>
-      {/* Every line's source, and the credit to Kadishman, by step: the walk's own drawer, at its top left, clear of the steps. */}
+      {/* Every line's and every name's source, by step: the walk's own drawer, at its top left, clear of the steps. */}
       <div className="hos-walk-sources">
         <SourcesDrawer groups={walkSourceGroups()} />
       </div>

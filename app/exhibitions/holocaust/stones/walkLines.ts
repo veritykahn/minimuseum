@@ -7,8 +7,8 @@ import type { FactSource } from '@/components/exhibition/FactNote';
  * the survivors, and remembering. It began as the owner-approved draft
  * (A18/B13/B14 proposal, 2D); the lines changed or moved since say so in
  * their REVIEW notes. The first step brings the first line; every step has
- * a line and a picture, and after the last the walk goes on quietly with
- * the last of them.
+ * a line and a picture. Between some of the steps, a child's name
+ * (walkNames.ts); after the last, the walk closes quietly (Walk.tsx).
  *
  * Every line comes from Yad Vashem, the USHMM or the Holocaust Memorial Day
  * Trust, and every survivor's words are quoted exactly from the page named
@@ -148,7 +148,7 @@ export const WALK_LINES: readonly WalkLine[] = [
   // REVIEW: https://www.hmd.org.uk/what-is-holocaust-memorial-day/
   line('W31', 'Each January 27, people light a candle in their window to remember, and to stand against hatred today.', [HMD_WHAT], 'w31-candle-window', 'A candle in a window at night', 'candle', 'after'),
   // REVIEW: https://hmd.org.uk/resource/zigi-shipper-hmd-2017/ (his words, exactly as quoted there)
-  line('W32', '“There is nothing we can do about the past, but we can do a lot about the present and the future” (Zigi Shipper)', [HMD('Zigi Shipper', 'zigi-shipper-hmd-2017')], 'w32-path-into-light', 'The stone path running on ahead, into light', 'candle', 'after'),
+  line('W32', '“There is nothing we can do about the past, but we can do a lot about the present and the future” (Zigi Shipper)', [HMD('Zigi Shipper', 'zigi-shipper-hmd-2017')], 'w32-path-into-light', 'A cobbled path between trees, running on into light', 'candle', 'after'),
 ];
 
 /** A slot's number, from its name: 'w07-broken-window' is 7. */
@@ -165,14 +165,3 @@ export type WalkPictures = Readonly<Record<string, string>>;
 
 /** Where a slot's picture is served from: the file found for it (walkSlots.ts), or its first name. */
 export const slotSrc = (slot: string, file = slotFiles(slot)[0]) => `${WALK_DIR}/${file}`;
-
-/** The line for step `steps` (1-based): the first step brings the first line; null before it, and after the last. */
-export function lineForStep(steps: number): WalkLine | null {
-  const i = steps - 1;
-  return i >= 0 && i < WALK_LINES.length ? WALK_LINES[i] : null;
-}
-
-/** The line shown at step `steps`: its own, and after the last, the last, as the path goes on. */
-export function shownLineForStep(steps: number): WalkLine | null {
-  return steps < 1 ? null : WALK_LINES[Math.min(steps, WALK_LINES.length) - 1];
-}

@@ -11,7 +11,7 @@ import Countdown from './Countdown';
 import Stillness from './Stillness';
 import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { STONE_CUSTOM } from '../holocaust';
-import { WalkControls, WalkFull, WalkScene, useWalk, walkSourceGroups } from './Walk';
+import { WalkBackdrop, WalkControls, WalkFull, useWalk, walkSourceGroups } from './Walk';
 import type { Ambient, WalkPictures } from './walkLines';
 import { PROMPTS } from './stillnessPrompts';
 import { useStones } from './useStones';
@@ -22,8 +22,8 @@ import './memorial-stone.css';
  * stones visitors have laid along its ledge, and three tabs beside it: lay
  * a stone; a minute's stillness with the words of Martin Niemöller, and
  * names, words and questions shown during it (stillnessPrompts.ts); and the
- * walk, full screen, a path of plain stones to walk over, after Menashe
- * Kadishman's Fallen Leaves, a line of the history a step (Walk.tsx). Each tab has its own address (#stone,
+ * walk: a candle lit, then the history full screen, a picture and a line a
+ * step, with children's names between some steps (Walk.tsx). Each tab has its own address (#stone,
  * #stillness, #walk). Under the title, the days to International Holocaust
  * Remembrance Day (Countdown.tsx). Quiet throughout: nothing celebrates,
  * and the only sound is the walk's footsteps, off until the visitor turns
@@ -125,7 +125,7 @@ export default function NeverForget({ pictures = NO_PICTURES, ambients = [] }: {
         </ExhibitionNav>
 
         <main className="hos-stage" data-tab={tab}>
-          {tab === 'walk' ? <WalkScene steps={walk.steps} stepAt={walk.stepAt} reduced={walk.reduced} /> : <MemorialStone count={stones.count} settleFrom={settleFrom} />}
+          {tab === 'walk' ? <WalkBackdrop pictures={pictures} /> : <MemorialStone count={stones.count} settleFrom={settleFrom} />}
 
           <header className="hos-bar">
             <h1 className="hos-title">

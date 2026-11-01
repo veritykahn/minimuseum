@@ -249,14 +249,31 @@
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent);
 }
 
-/* ───────── The walk ───────── */
-.hos-walk-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-/* A cold, faint light far ahead, where the path goes. */
-.hos-walk-glow {
-  inset: 0;
-  background: radial-gradient(ellipse 30% 16% at var(--hos-walk-x, 36%) 36%, rgba(214, 214, 220, 0.12), transparent 75%);
+/* ───────── The walk, in the room: its first picture, very dim, in the dark ───────── */
+.hos-walk-backdrop { background: #060606; }
+.hos-walk-backdrop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.16; filter: grayscale(0.5); }
+.hos-walk-backdrop-veil { inset: 0; background: radial-gradient(ellipse 75% 85% at 50% 45%, rgba(6, 6, 6, 0.35), rgba(0, 0, 0, 0.92) 100%); }
+
+/* ───────── The candle ───────── */
+.hos-candle { display: block; overflow: visible; }
+.hos-candle-body { fill: #e4dccf; opacity: 0.82; }
+.hos-candle-wick { stroke: #2a2622; stroke-width: 1.2; stroke-linecap: round; }
+.hos-candle.is-lit .hos-candle-wick { stroke: #4a3a2a; }
+.hos-candle-glow { fill: rgba(255, 200, 120, 0.13); }
+.hos-candle-outer { fill: rgba(255, 196, 110, 0.9); }
+.hos-candle-inner { fill: #fff3d6; }
+/* The flame moves a little, as a flame does: slowly, and never in step with itself. */
+.hos-candle-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: hos-flicker 3.2s ease-in-out infinite alternate; }
+.hos-candle-glow { animation: hos-glow 4.6s ease-in-out infinite alternate; }
+@keyframes hos-flicker {
+  0% { transform: scale(1, 1) skewX(0deg); }
+  30% { transform: scale(0.97, 1.04) skewX(-1.5deg); }
+  55% { transform: scale(1.02, 0.97) skewX(1deg); }
+  80% { transform: scale(0.98, 1.03) skewX(-0.5deg); }
+  100% { transform: scale(1, 0.99) skewX(1.2deg); }
 }
-.hos-walk-vignette { inset: 0; background: radial-gradient(ellipse 80% 90% at var(--hos-walk-x, 36%) 50%, transparent 45%, rgba(0, 0, 0, 0.75) 100%); }
+@keyframes hos-glow { from { opacity: 0.75; } to { opacity: 1; } }
+.hos-candle-panel { width: 34px; height: 68px; margin: 4px 0 -4px; }
 
 /* ───────── Over the scene: the title, the tabs and the panels ───────── */
 .hos-bar {
@@ -448,8 +465,7 @@
 .hos-walk-credit a:hover { color: var(--hos-pale); }
 
 @media (max-width: 760px) {
-  .hos-stage { --hos-x: 50%; --hos-walk-x: 50%; min-height: 0; }
-  .hos-walk-glow { background: radial-gradient(ellipse 50% 10% at 50% 27%, rgba(214, 214, 220, 0.12), transparent 75%); }
+  .hos-stage { --hos-x: 50%; min-height: 0; }
   .hos-bar { padding: 66px 12px 0; gap: 10px; }
   .hos-countdown-units { gap: 10px; }
   .hos-countdown-n { font-size: 15px; }
@@ -541,26 +557,19 @@
   font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
   animation: hos-dim 1.6s ease both;
 }
-.hos-walk-full .hos-walk-scene { position: absolute; inset: 0; }
-.hos-walk-full .hos-walk-glow { background: radial-gradient(ellipse 34% 18% at 50% 44%, rgba(214, 214, 220, 0.1), transparent 75%); }
-.hos-walk-full .hos-walk-vignette { background: radial-gradient(ellipse 70% 80% at 50% 46%, transparent 40%, rgba(0, 0, 0, 0.82) 100%); }
+/* A step: the picture fills the screen, and fades slowly in over the one before. */
+.hos-walk-layers { position: absolute; inset: 0; overflow: hidden; }
+.hos-walk-layer { position: absolute; inset: 0; overflow: hidden; background: #050505; }
+.hos-walk-layer.is-current { animation: hos-ahead 1.8s ease both; }
 /* Dark to the edges, all round. */
-.hos-walk-edges { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 18vmin 6vmin #000; }
-/* The picture far ahead, where the path goes: soft-edged, lit faintly, as if seen in the distance. */
-.hos-walk-ahead {
-  position: absolute;
-  left: 50%;
-  top: 7vh;
-  width: min(46vw, 560px, 52vh);
-  aspect-ratio: 10 / 7;
-  transform: translateX(-50%);
-  animation: hos-ahead 2.6s ease both;
-}
+.hos-walk-edges { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 72% 72% at 50% 44%, transparent 40%, rgba(0, 0, 0, 0.85) 100%); box-shadow: inset 0 0 14vmin 4vmin #000; }
 .hos-walk-picture { margin: 0; width: 100%; height: 100%; color: #cfc8bf; }
-.hos-walk-picture img { width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.35) brightness(0.85); -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 55%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 55%, transparent 100%); }
+/* The picture drifts, very slowly, while it is shown. */
+.hos-walk-picture img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.2) brightness(0.78); transform-origin: 50% 45%; animation: hos-drift 16s ease-out both; }
+@keyframes hos-drift { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.1) translate(-1%, -1.2%); } }
 /* Until the owner's picture is in: a dark silhouette, lit softly from behind, and a quiet note that it is to come. */
-.hos-walk-picture.is-placeholder { position: relative; }
-.hos-walk-picture svg { width: 100%; height: 100%; overflow: visible; }
+.hos-walk-picture.is-placeholder { position: relative; display: flex; align-items: center; justify-content: center; }
+.hos-walk-picture svg { width: min(60vw, 560px); height: auto; max-height: 60vh; overflow: visible; }
 .hos-walk-silhouette .is-rim { fill: #0b0a09; stroke: rgba(226, 214, 196, 0.42); stroke-width: 1; stroke-linejoin: round; }
 .hos-walk-silhouette .is-seam { fill: none; stroke: rgba(226, 214, 196, 0.16); stroke-width: 1; }
 .hos-walk-silhouette .is-warm-line { stroke: rgba(240, 200, 140, 0.55); stroke-width: 1.4; stroke-linecap: round; }
@@ -570,7 +579,7 @@
 .hos-walk-tocome {
   position: absolute;
   left: 50%;
-  bottom: -2px;
+  top: 72%;
   translate: -50% 0;
   white-space: nowrap;
   font-size: 10px;
@@ -579,6 +588,12 @@
   color: rgba(207, 200, 191, 0.45);
 }
 @keyframes hos-ahead { from { opacity: 0; } to { opacity: 1; } }
+
+/* A name, alone on black. */
+.hos-walk-name { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 24px 120px; text-align: center; animation: hos-ahead 2.4s ease 0.6s both; }
+.hos-walk-name p { margin: 0; font-family: var(--pe-body, 'Inter', sans-serif); font-size: clamp(1.6rem, 3.6vw, 3.2rem); font-weight: 300; letter-spacing: 0.04em; color: #ece7e1; }
+/* The visitor's candle, lit, in its corner all the way. */
+.hos-candle-corner { position: absolute; top: calc(18px + env(safe-area-inset-top, 0px)); right: calc(22px + env(safe-area-inset-right, 0px)); width: 28px; height: 56px; pointer-events: none; }
 
 /* One line a step, large enough for the back of a classroom, on a dark band over the path. */
 .hos-walk-words {
@@ -595,7 +610,7 @@
 .hos-walk-say-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; animation: hos-ahead 1.8s ease both; }
 .hos-walk-say { max-width: 30em; font-family: var(--pe-body, 'Inter', sans-serif); font-size: clamp(1.25rem, 2.7vw, 2.4rem); line-height: 1.4; color: #f1ece5; text-wrap: balance; animation: hos-ahead 1.8s ease both; }
 .hos-walk-say.is-intro { font-size: clamp(1.05rem, 2vw, 1.6rem); color: #cfc8bf; }
-.hos-walk-end { margin: 0; font-size: 13px; letter-spacing: 0.06em; color: #9a938a; animation: hos-ahead 2.4s ease 1s both; }
+.hos-walk-say.is-close { color: #d6cfc7; animation-delay: 0.8s; }
 /* The walk's own Sources button: top left, where nothing else is, clear of the steps along the foot. */
 .hos-walk-sources .mm-sources-btn { top: calc(16px + env(safe-area-inset-top, 0px)); bottom: auto; --mm-sources-ink: #cfc8bf; --mm-sources-bg: rgba(5, 5, 5, 0.6); }
 .hos-walk-sources .mm-sources-scrim { z-index: 2; }
@@ -619,7 +634,7 @@
 
 @media (max-width: 760px) {
   .hos-veil-prompt-area { min-height: 200px; }
-  .hos-walk-ahead { top: 5vh; width: min(78vw, 46vh); }
+  .hos-candle-corner { width: 22px; height: 44px; right: 14px; }
   .hos-walk-words { bottom: calc(128px + env(safe-area-inset-bottom, 0px)); padding: 22px 16px 12px; }
   .hos-walk-say { font-size: 1.15rem; }
   /* A phone: the step across the foot, the three quieter buttons in one row under it. */
@@ -629,10 +644,10 @@
 }
 @media (min-width: 1600px) {
   .hos-walk-say { font-size: 2.8rem; }
-  .hos-walk-end { font-size: 15px; }
   .hos-veil-prompt-source { font-size: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hos-veil-prompt, .hos-walk-full, .hos-walk-ahead, .hos-walk-say, .hos-walk-say-wrap, .hos-walk-end { animation: none; }
+  .hos-veil-prompt, .hos-walk-full, .hos-walk-layer.is-current, .hos-walk-picture img, .hos-walk-name, .hos-walk-say, .hos-walk-say-wrap,
+  .hos-candle-flame, .hos-candle-glow { animation: none; }
 }
