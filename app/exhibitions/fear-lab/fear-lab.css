@@ -114,6 +114,16 @@
   [data-exhibition='fear-lab'] .pe-artwork-info { flex: 0 1 auto; }
 }
 
+/* On an upright iPad the vampire stands above his copy too, and the copy
+   takes a wider column than the narrow one beside him. */
+@media (min-width: 701px) and (max-aspect-ratio: 1/1) {
+  [data-exhibition='fear-lab'] .pe-artwork-display { flex-direction: column; gap: 28px; padding: 96px 56px 120px; }
+  [data-exhibition='fear-lab'] .pe-artwork-picture { max-width: 70%; align-items: center; }
+  [data-exhibition='fear-lab'] .pe-artwork-picture img { max-height: 44vh; }
+  [data-exhibition='fear-lab'] .pe-artwork-info { flex: 0 1 auto; width: min(100%, 580px); }
+  [data-exhibition='fear-lab'] .pe-artwork-info .pe-paragraph-text { max-width: none; }
+}
+
 /* Righteous's "&" reads as "€"; where the projector sets a poster's title in the
    display face (its strip, picker and end screen) use the body face instead. */
 [data-exhibition='fear-lab'] [data-projector] :is([class*='endTitle'], [class*='chapterName'], [class*='pickerName']) {
@@ -295,6 +305,12 @@
   /* the tower, its parapet and its spire */
   clip-path: polygon(28% 100%, 28% 30%, 22% 30%, 22% 25%, 26% 25%, 26% 27%, 30% 27%, 30% 25%, 34% 25%, 50% 0%, 66% 25%, 70% 25%, 70% 27%, 74% 27%, 74% 25%, 78% 25%, 78% 30%, 72% 30%, 72% 100%);
   filter: drop-shadow(0 0 1px rgba(170, 200, 240, 0.3));
+}
+/* While the vampire's own picture is up (poster 2, "But these contemporary
+   horrors"), its copy stands where the tower does: the tower steps back into
+   the dark, its red windows with it, so the words read clear. */
+[data-exhibition='fear-lab']:has(.pe-artwork-display) .pe-atmo-vampire-storm .pe-atmo-part-3 {
+  opacity: 0.15;
 }
 [data-exhibition='fear-lab'] .pe-atmo-vampire-storm .pe-atmo-p {
   /* rain, slanting as on the poster */
