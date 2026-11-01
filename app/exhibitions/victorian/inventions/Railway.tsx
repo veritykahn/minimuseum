@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import Celebrate from '../Celebrate';
-import { BRISTOL_CLOCK, MAP_TOWNS, NOTES, POSTER, RAIL_STEPS, STATIONS, TRAIN_PUZZLES } from './inventionsText';
+import { BRISTOL_CLOCK, MAP_TOWNS, POSTER, RAIL_STEPS, STATIONS, TRAIN_PUZZLES } from './inventionsText';
+import { RAIL_FACTS } from './sources';
 import { CardFoot, StepDots } from './Steps';
 import { MAP, catchTrain, clockTime, dragMinute, hands, project, sunTimeAt, sunX } from './workshop';
 
@@ -52,24 +53,29 @@ const list = (xs: string[]) => (xs.length < 2 ? xs.join('') : `${xs.slice(0, -1)
  */
 const ARRIVE = [10 * 60, 10 * 60 + 40, 11 * 60 + 10, 11 * 60 + 50, 12 * 60 + 10, 12 * 60 + 25, 13 * 60 + 15];
 
-/** Where each town's clock hangs on the map, beside the town and joined to it by a line. */
+/** Where each town's clock hangs on the map, beside the town and joined to it by a line; the top row spaced so no plaque touches the next. */
 const BADGE: Record<string, { x: number; y: number }> = {
   London: { x: 860, y: 100 },
   Reading: { x: 720, y: 315 },
-  Steventon: { x: 635, y: 100 },
-  Chippenham: { x: 520, y: 100 },
+  Steventon: { x: 700, y: 100 },
+  Chippenham: { x: 540, y: 100 },
   Bath: { x: 500, y: 335 },
-  Bristol: { x: 405, y: 100 },
+  Bristol: { x: 380, y: 100 },
   Bridgewater: { x: 330, y: 385 },
   Plymouth: { x: 120, y: 405 },
 };
 
-/** Where each town's name sits by its dot on the journey's map (below and centred, unless said), clear of its neighbours. */
+/**
+ * Where each town's name sits by its dot on the journey's map (below and
+ * centred, unless said), clear of its neighbours and of the line: Bristol to
+ * its west, over the Severn, which leaves the space above the line to
+ * Chippenham; Bath below.
+ */
 const LABEL: Record<string, { dx?: number; dy?: number; anchor?: 'start' | 'middle' | 'end' }> = {
   Steventon: { dy: -16 },
-  Chippenham: { dx: 4, dy: -18 },
-  Bristol: { dx: -14, dy: -12, anchor: 'end' },
-  Bath: { dx: 4, dy: 32 },
+  Chippenham: { dx: -4, dy: -14 },
+  Bristol: { dx: -16, dy: 8, anchor: 'end' },
+  Bath: { dx: -2, dy: 34 },
 };
 
 /** The coast of the south of England and Wales, as longitude and latitude, round from mid Wales. */
@@ -235,12 +241,7 @@ export default function Railway({ reduced }: { reduced: boolean }) {
     return s === 'sun' ? sunDone : s === 'journey' ? furthest === STATIONS.length - 1 : s === 'catch' ? solved > 0 : s === 'set' ? setCount === towns.length : bristolRight;
   };
 
-  const facts =
-    id === 'sun' ? [NOTES.sunTime, NOTES.plymouth]
-    : id === 'journey' ? [NOTES.railwayTime, NOTES.travellersWatch]
-    : id === 'catch' ? [NOTES.missTrain, NOTES.railwayTime]
-    : id === 'set' ? [NOTES.clearingHouse, NOTES.timeSignals]
-    : [NOTES.bristolClock, NOTES.legalTime];
+  const facts = RAIL_FACTS[id];
 
   return (
     <div className="vbi-bench vbi-railway">
@@ -545,6 +546,8 @@ function MapScene({ mode, narrow, sunT, at, watch, reduced, onSun }: { mode: 'su
 function MiniClock({ x, y, minutes, name, reached, noon, reduced }: { x: number; y: number; minutes: number; name: string; reached: boolean; noon: boolean; reduced: boolean }) {
   const h = hands(minutes);
   const r = 30;
+  // The plaque grows with a long name (Chippenham), so the name never spills out of it.
+  const plaque = Math.max(116, Math.round(name.length * 13.4) + 18);
   return (
     <g transform={`translate(${x} ${y})`} className="vbi-mini" data-reached={reached || undefined} data-noon={noon || undefined}>
       <circle r={r + 6} className="vbi-mini-rim" />
@@ -555,7 +558,7 @@ function MiniClock({ x, y, minutes, name, reached, noon, reduced }: { x: number;
       <line className="vbi-hand" x1="0" y1="3" x2="0" y2={-r * 0.5} stroke="#2a2522" strokeWidth="3.6" strokeLinecap="round" style={{ transform: `rotate(${h.hour}deg)`, transition: reduced ? 'none' : undefined }} />
       <line className="vbi-hand" x1="0" y1="4" x2="0" y2={-r * 0.82} stroke="#2a2522" strokeWidth="2.2" strokeLinecap="round" style={{ transform: `rotate(${h.minute}deg)`, transition: reduced ? 'none' : undefined }} />
       <circle r="3" fill="#a4565c" />
-      <rect x="-58" y={r + 10} width="116" height="50" rx="6" className="vbi-mini-plaque" />
+      <rect x={-plaque / 2} y={r + 10} width={plaque} height="50" rx="6" className="vbi-mini-plaque" />
       <text y={r + 31} textAnchor="middle" className="vbi-mini-name">
         {name}
       </text>
