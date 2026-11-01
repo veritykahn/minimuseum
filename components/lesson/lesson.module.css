@@ -101,6 +101,8 @@
   overflow: hidden;
   display: grid;
   grid-template-rows: auto 1fr auto;
+  /* One column, never wider than the stage: on a phone the timing bar's labels widened it past the screen. */
+  grid-template-columns: minmax(0, 1fr);
   padding: 2.4cqw 4.4cqw 2cqw;
   background:
     radial-gradient(ellipse 70% 60% at 30% 45%, rgba(201, 168, 76, 0.07), transparent 70%),
@@ -2031,7 +2033,8 @@
     position: static;
   }
   .foot {
-    grid-template-columns: auto 1fr;
+    /* minmax(0, …): the timing bar's labels may not push it past the screen's edge */
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 12px;
   }
   .foot .controls {
