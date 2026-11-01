@@ -15,11 +15,14 @@ export default function Knob({
   onChange,
   label,
   valueText,
+  step = 2,
 }: {
   value: number;
   onChange: (v: number) => void;
   label: string;
   valueText?: string;
+  /** How far an arrow key turns it (three times as far, Page Up and Down; half as far, a notch of the scroll wheel). */
+  step?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const drag = useRef<{ angle: number; value: number; y: number } | null>(null);
@@ -58,15 +61,15 @@ export default function Knob({
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
-    const step =
-      e.key === 'ArrowUp' || e.key === 'ArrowRight' ? 2
-      : e.key === 'ArrowDown' || e.key === 'ArrowLeft' ? -2
-      : e.key === 'PageUp' ? 10
-      : e.key === 'PageDown' ? -10
+    const by =
+      e.key === 'ArrowUp' || e.key === 'ArrowRight' ? step
+      : e.key === 'ArrowDown' || e.key === 'ArrowLeft' ? -step
+      : e.key === 'PageUp' ? step * 3
+      : e.key === 'PageDown' ? -step * 3
       : null;
-    if (step !== null) {
+    if (by !== null) {
       e.preventDefault();
-      onChange(clamp(value + step));
+      onChange(clamp(value + by));
     } else if (e.key === 'Home' || e.key === 'End') {
       e.preventDefault();
       onChange(e.key === 'Home' ? 0 : 100);
@@ -91,7 +94,7 @@ export default function Knob({
       onPointerUp={onPointerUp}
       onPointerCancel={onPointerUp}
       onKeyDown={onKeyDown}
-      onWheel={(e) => onChange(clamp(value + (e.deltaY < 0 ? 2 : -2)))}
+      onWheel={(e) => onChange(clamp(value + (e.deltaY < 0 ? step / 2 : -step / 2)))}
     >
       <svg viewBox="0 0 100 100" aria-hidden="true">
         <defs>
