@@ -20,6 +20,8 @@ export type SourceItem = FactSource & {
   note?: string;
   /** A picture credit's licence line, e.g. "CC BY-SA 4.0, via Wikimedia Commons". */
   licence?: string;
+  /** The licence's deed, when it has one (CC BY 4.0's page, say). */
+  licenceHref?: string;
 };
 
 /** Sources without a link (a printed book, the owner's own photograph). */
@@ -119,7 +121,18 @@ export default function SourcesDrawer({
                           ) : (
                             s.label
                           )}
-                          {s.licence && <span className="mm-sources-licence"> — {s.licence}</span>}
+                          {s.licence && (
+                            <span className="mm-sources-licence">
+                              {' — '}
+                              {s.licenceHref ? (
+                                <a href={s.licenceHref} target="_blank" rel="noopener noreferrer">
+                                  {s.licence}
+                                </a>
+                              ) : (
+                                s.licence
+                              )}
+                            </span>
+                          )}
                         </li>
                       ))}
                     </ul>
