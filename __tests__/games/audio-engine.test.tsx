@@ -204,6 +204,14 @@ describe('useAudioEngine', () => {
     expect(global.fetch).toHaveBeenCalled();
   });
 
+  it('starts the song at its Intro (section 1), and fetches only the Intro’s loops', () => {
+    const { result } = renderHook(() => useBandBuilder(useAudioEngine(), { preload: true }));
+    expect(result.current.section).toBe(1);
+    const urls = (global.fetch as jest.Mock).mock.calls.map((c) => String(c[0]));
+    expect(urls.length).toBeGreaterThan(0);
+    expect(urls.every((u) => /-1\.mp3$/.test(u))).toBe(true);
+  });
+
   it('is one stable object across renders', () => {
     const { result, rerender } = renderHook(() => useAudioEngine());
     const first = result.current;
