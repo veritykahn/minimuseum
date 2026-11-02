@@ -412,8 +412,8 @@ describe('the drop-in slots', () => {
   });
 
   it('looks on disk when the page is built, and asks for no file that is not there', () => {
-    // The owner's sounds are in, all but the quiet room; the animations are still to come.
-    expect(assetsOnDisk()).toEqual(SLOT_FILES.filter((f) => f.startsWith('sounds/') && f !== 'sounds/quiet.mp3'));
+    // The owner's sounds are all in; the animations are still to come.
+    expect(assetsOnDisk()).toEqual(SLOT_FILES.filter((f) => f.startsWith('sounds/')));
     const fetchSpy = jest.fn();
     (global as unknown as { fetch: unknown }).fetch = fetchSpy;
     render(<WhatScaresYouLab owned={[]} />);

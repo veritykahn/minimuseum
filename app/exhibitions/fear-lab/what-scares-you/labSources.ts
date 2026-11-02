@@ -43,6 +43,7 @@ const SOUNDS: readonly [string, string, string, string][] = [
   ['tick', 'Soft UI Button Click', 'Jummit', 'https://freesound.org/s/528561/'],
   ['rustle', 'Leaves_Rustling_Edited', 'AmberdeMeillon', 'https://freesound.org/s/443065/'],
   ['growl', 'growl6', 'lendrick', 'https://freesound.org/s/77637/'],
+  ['quiet', 'CFX-20130329-UK-DorsetRoomTone01', 'Carlvus', 'https://freesound.org/s/182600/'],
   ['gust', 'Wind5', 'vandale', 'https://freesound.org/s/379472/'],
   ['startle', 'Thump', 'DigestContent', 'https://freesound.org/s/458877/'],
 ];
