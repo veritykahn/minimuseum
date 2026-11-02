@@ -30,6 +30,7 @@ export const SILENCE_SOURCES: SourceGroup[] = [
     items: [
       { label: '“Firefight” by TheBuilder15', href: 'https://freesound.org/s/404334/', note: 'The gunfire', licence: 'CC0, via Freesound' },
       { label: '“R12-31-Artillery Guns Firing” by craigsmith', href: 'https://freesound.org/s/486027/', note: 'The artillery', licence: 'CC0, via Freesound' },
+      { label: '“Wind is blowing in the grass of a patagonian plain” by felix.blume', href: 'https://freesound.org/s/139337/', note: 'The breeze after 11:00', licence: 'CC0, via Freesound' },
       { label: '“skylark.wav” by squashy555', href: 'https://freesound.org/s/244357/', note: 'The bird at the end', licence: 'CC0, via Freesound' },
     ],
   },

@@ -412,10 +412,11 @@ describe('the drop-in slots', () => {
   });
 
   it('looks on disk when the page is built, and asks for no file that is not there', () => {
-    expect(assetsOnDisk()).toEqual([]);
+    // The owner's sounds are in, all but the quiet room; the animations are still to come.
+    expect(assetsOnDisk()).toEqual(SLOT_FILES.filter((f) => f.startsWith('sounds/') && f !== 'sounds/quiet.mp3'));
     const fetchSpy = jest.fn();
     (global as unknown as { fetch: unknown }).fetch = fetchSpy;
-    render(<WhatScaresYou />);
+    render(<WhatScaresYouLab owned={[]} />);
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
     expect(fetchSpy).not.toHaveBeenCalled();
     delete (global as unknown as { fetch?: unknown }).fetch;
@@ -590,7 +591,7 @@ describe('sources and the boxes', () => {
       expect(credit.closest('li')).toHaveTextContent(c.credit.licence);
     }
     for (const ch of CHOICES) for (const src of ch.fact?.sources ?? []) expect(within(drawer).getByRole('link', { name: src.label })).toHaveAttribute('href', src.href);
-    expect(LAB_SOURCES.map((g) => g.title)).toEqual(['The Fear Boxes: the creatures’ facts', 'The Fear Boxes: the photographs (cut out from their backgrounds)', 'Known or Unknown?']);
+    expect(LAB_SOURCES.map((g) => g.title)).toEqual(['The Fear Boxes: the creatures’ facts', 'The Fear Boxes: the photographs (cut out from their backgrounds)', 'Known or Unknown?', 'The lab’s sounds']);
   });
 
   it('sets out a matching set of five boxes, each with its lid hinged at the back', () => {

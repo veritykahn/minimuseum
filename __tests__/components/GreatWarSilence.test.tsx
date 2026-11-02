@@ -224,8 +224,8 @@ describe('the drop-in sound slots', () => {
   });
 
   it('looks on disk, and asks for no file that is not there', () => {
-    // The owner's gunfire, artillery and bird are in; the breeze is still made in the browser.
-    expect(soundSlotsOnDisk()).toEqual(['battle', 'artillery', 'bird']);
+    // All four of the owner's recordings are in.
+    expect(soundSlotsOnDisk()).toEqual(['battle', 'artillery', 'breeze', 'bird']);
     const fetchSpy = jest.fn();
     (global as unknown as { fetch: unknown }).fetch = fetchSpy;
     render(<SilenceFilm owned={[]} />);
