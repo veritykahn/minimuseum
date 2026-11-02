@@ -10,7 +10,7 @@ import { useEffect, useRef, useState } from 'react';
  */
 
 export const HALL_SOUND_SRC = '/greathall/sound/hall.mp3';
-const LEVEL = 0.3;
+const LEVEL = 0.6;
 const FADE_MS = 1200;
 
 export default function HallSound() {
