@@ -12,8 +12,7 @@ import Stillness from './Stillness';
 import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { STONE_CUSTOM } from '../holocaust';
 import { WalkBackdrop, WalkControls, WalkFull, useWalk, walkSourceGroups } from './Walk';
-import type { Ambient, WalkPictures } from './walkLines';
-import { NO_STEP_RECORDINGS, type StepRecordings } from './footsteps';
+import { NO_SOUNDS, type WalkPictures, type WalkSounds } from './walkLines';
 import { PROMPTS } from './stillnessPrompts';
 import { useStones } from './useStones';
 import './memorial-stone.css';
@@ -57,21 +56,13 @@ export function roomSourceGroups(): SourceGroup[] {
 
 const NO_PICTURES: WalkPictures = {};
 
-export default function NeverForget({
-  pictures = NO_PICTURES,
-  ambients = [],
-  steps = NO_STEP_RECORDINGS,
-}: {
-  pictures?: WalkPictures;
-  ambients?: readonly Ambient[];
-  steps?: StepRecordings;
-}) {
+export default function NeverForget({ pictures = NO_PICTURES, sounds = NO_SOUNDS }: { pictures?: WalkPictures; sounds?: WalkSounds }) {
   const { fonts, slug } = HOLOCAUST;
   const back = useMuseumReturn(roomReturn(HOLOCAUST));
   const stones = useStones();
   const [settleFrom, setSettleFrom] = useState<number | null>(null);
   const [tab, setTab] = useState<TabId>('stone');
-  const walk = useWalk(ambients, steps);
+  const walk = useWalk(sounds);
   const { stop: stopWalking } = walk;
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ stone: null, stillness: null, walk: null });
 

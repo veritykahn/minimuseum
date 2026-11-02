@@ -27,11 +27,13 @@ import type { FactSource } from '@/components/exhibition/FactNote';
  *   public/exhibitions/holocaust/walk/walk-NN.jpg   (NN the slot's number, walk-01.jpg; or .webp, .png)
  * and is used from the next build (walkSlots.ts looks for the files).
  *
- * Sound: the footsteps are made in the browser (footsteps.ts). Under them,
- * if the owner supplies them, three quiet ambient recordings, one for each
- * part of the walk, looped and faded, and never before the visitor turns
- * the sound on:
- *   public/exhibitions/holocaust/walk/sound/<ambient>.mp3
+ * Sound: nothing but the steps. Each footfall is a clank of metal, from the
+ * owner's recordings cut into single clanks, with a long resonant rattle
+ * that comes in over about one step in three (metal.ts):
+ *   public/exhibitions/holocaust/walk/sound/clank-01.mp3, clank-02.mp3, …
+ *   public/exhibitions/holocaust/walk/sound/rattle.mp3
+ * Until the clanks are in place, the steps are made in the browser
+ * (footsteps.ts).
  */
 
 export const WALK_DIR = '/exhibitions/holocaust/walk';
@@ -62,14 +64,16 @@ const HMD_WHAT: FactSource = { label: 'Holocaust Memorial Day Trust, “What is 
 export type Placeholder = 'tracks' | 'shoes' | 'suitcase' | 'door' | 'chair' | 'candle';
 export const PLACEHOLDERS: readonly Placeholder[] = ['tracks', 'shoes', 'suitcase', 'door', 'chair', 'candle'];
 
+/** The three parts of the walk: ordinary life, the history, and remembering. */
 export type Ambient = 'before' | 'during' | 'after';
-export const AMBIENTS: readonly Ambient[] = ['before', 'during', 'after'];
-export const ambientSrc = (a: Ambient) => `${WALK_DIR}/sound/ambient-${a}.mp3`;
 
-/** The steps' own recordings, where the owner has supplied them: fourteen clanks of iron underfoot, and a rattle now and then. */
-export const CLANKS: readonly string[] = Array.from({ length: 14 }, (_, i) => `clank-${String(i + 1).padStart(2, '0')}`);
-export const RATTLE = 'rattle';
-export const stepSoundSrc = (name: string) => `${WALK_DIR}/sound/${name}.mp3`;
+export const SOUND_DIR = `${WALK_DIR}/sound`;
+/** A clank's file name: clank-01.mp3, clank-02.mp3, … */
+export const CLANK_FILE = /^clank-\d{2}\.mp3$/;
+export const RATTLE_SRC = `${SOUND_DIR}/rattle.mp3`;
+/** The metal the walk's steps are made of: the clanks found, and the rattle if there is one. */
+export type WalkSounds = { clanks: readonly string[]; rattle: string | null };
+export const NO_SOUNDS: WalkSounds = { clanks: [], rattle: null };
 
 export type WalkLine = {
   id: string;
@@ -80,7 +84,7 @@ export type WalkLine = {
   image: string;
   /** The silhouette that stands in until the picture is there. */
   placeholder: Placeholder;
-  /** Which part of the walk: its ambient sound. */
+  /** Which part of the walk this line belongs to. */
   part: Ambient;
 };
 

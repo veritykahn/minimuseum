@@ -1,12 +1,13 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import NeverForget from '@/app/exhibitions/holocaust/stones/NeverForget';
 import Countdown, { isRemembranceDay, nextRemembrance } from '@/app/exhibitions/holocaust/stones/Countdown';
-import { AUTO_MS, CANDLE, STEP_MS, WALK_BEGIN, WALK_CLOSE, WALK_INSPIRATION, WALK_INSPIRED_BY, WALK_INTRO, WALK_SOUND, walkSourceGroups, wordsForStep } from '@/app/exhibitions/holocaust/stones/Walk';
+import { AUTO_MS, CANDLE, GAP_MS, HESITATE_CHANCE, HESITATE_MS, STEP_MS, WALK_BEGIN, WALK_BEGIN_STILL, WALK_CLOSE, WALK_INSPIRATION, WALK_INSPIRED_BY, WALK_INTRO, WALK_SOUND, nextGap, walkSourceGroups, wordsForStep } from '@/app/exhibitions/holocaust/stones/Walk';
 import { EYE, STEP, easeStep, hash2, lightAt, makeView, project, rowPieces, rowsInView, type IronShoe } from '@/app/exhibitions/holocaust/stones/walkScene';
-import { PLATE, hitsForStep, nextClank } from '@/app/exhibitions/holocaust/stones/footsteps';
+import { PLATE, hitsForStep } from '@/app/exhibitions/holocaust/stones/footsteps';
+import { RATTLE_CHANCE } from '@/app/exhibitions/holocaust/stones/metal';
 import fs from 'node:fs';
 import path from 'node:path';
-import { AMBIENTS, PLACEHOLDERS, WALK_LINES, ambientSrc, slotFiles, slotNumber } from '@/app/exhibitions/holocaust/stones/walkLines';
+import { PLACEHOLDERS, WALK_LINES, slotFiles, slotNumber } from '@/app/exhibitions/holocaust/stones/walkLines';
 import { WALK_BEATS, WALK_NAMES, beatForStep } from '@/app/exhibitions/holocaust/stones/walkNames';
 import { SILHOUETTE_KINDS } from '@/app/exhibitions/holocaust/stones/WalkPicture';
 import { walkSlotsOnDisk } from '@/app/exhibitions/holocaust/stones/walkSlots';
@@ -17,8 +18,10 @@ import { LIBERATION_LINE } from '@/app/exhibitions/holocaust/holocaust';
  * day's own line, and the walk (a candle lit first, then slowly, a step at
  * a time, full screen: the history a line and a picture a step, children's
  * names between some steps, each source in the Sources drawer, never
- * inline; no blank step; a quiet close with the candle still lit; the sound
- * off until chosen; no walking on, drift or fades under reduced motion).
+ * inline; no blank step; a quiet close with the candle still lit; begun,
+ * it walks on by itself at an uneven pace, its sound starting with it and
+ * staying off once turned off; nothing heard but the metal; under reduced
+ * motion, no walking on, drift or fades, a step at a time).
  */
 
 beforeAll(() => {
@@ -29,6 +32,38 @@ beforeEach(() => {
   window.history.replaceState(null, '', '/');
   global.fetch = jest.fn(async () => ({ ok: false, status: 503, json: async () => ({}) }) as Response) as unknown as typeof fetch;
 });
+
+/** A stand-in for Web Audio, so the walk's sound can be turned on in jsdom: every node connects, every value can be set. */
+function fakeAudio() {
+  const param = () => ({ value: 0, setValueAtTime: () => {}, exponentialRampToValueAtTime: () => {}, linearRampToValueAtTime: () => {} });
+  const node = (): Record<string, unknown> => {
+    const n: Record<string, unknown> = { gain: param(), frequency: param(), Q: param(), pan: param(), delayTime: param(), playbackRate: param(), buffer: null, type: '' };
+    n.connect = (to: unknown) => to;
+    n.start = () => {};
+    n.stop = () => {};
+    return n;
+  };
+  class FakeContext {
+    state = 'running';
+    currentTime = 0;
+    sampleRate = 44100;
+    destination = node();
+    createGain = node;
+    createDelay = node;
+    createBiquadFilter = node;
+    createStereoPanner = node;
+    createBufferSource = node;
+    createOscillator = node;
+    createBuffer = (_c: number, length: number) => ({ getChannelData: () => new Float32Array(length) });
+    decodeAudioData = async () => ({});
+    resume = async () => {};
+    close = async () => {};
+  }
+  (window as unknown as { AudioContext: unknown }).AudioContext = FakeContext;
+  return () => {
+    delete (window as unknown as { AudioContext?: unknown }).AudioContext;
+  };
+}
 
 function reducedMotion(on: boolean) {
   window.matchMedia = ((q: string) => ({ matches: on && q.includes('reduce'), media: q, addEventListener: () => {}, removeEventListener: () => {} })) as unknown as typeof window.matchMedia;
@@ -108,8 +143,9 @@ describe('the walk', () => {
     expect(document.querySelector('.hos-walk-backdrop img')).toBeNull();
   });
 
-  it('walks slowly, a step at a time, start to finish: every line with its picture, in order, the names between, no blank step, then a quiet close with the candle still lit', () => {
+  it('with reduced motion, is taken a step at a time, start to finish: every line with its picture, in order, the names between, no blank step, then a quiet close with the candle still lit', () => {
     jest.useFakeTimers();
+    reducedMotion(true);
     const all = Object.fromEntries(WALK_LINES.map((l) => [l.slot, `walk-${String(slotNumber(l.slot)).padStart(2, '0')}.webp`]));
     const walk = begin({ pictures: all });
     const stepButton = () => within(walk).getByRole('button', { name: 'Take a step' });
@@ -156,23 +192,20 @@ describe('the walk', () => {
     expect(walk).toHaveTextContent(WALK_CLOSE);
     expect(walk.querySelector('.hos-walk-candle.is-lit')).toBeInTheDocument();
     expect(within(walk).queryByRole('button', { name: 'Take a step' })).toBeNull();
-    expect(within(walk).queryByRole('button', { name: 'Walk on slowly' })).toBeNull();
+    expect(within(walk).queryByRole('button', { name: 'Walk on' })).toBeNull();
     // It may be walked again, from the beginning, the candle still lit.
     fireEvent.click(within(walk).getByRole('button', { name: 'Walk again' }));
-    expect(walk).toHaveTextContent(WALK_BEGIN);
+    expect(walk).toHaveTextContent(WALK_BEGIN_STILL);
     expect(within(walk).getByRole('button', { name: 'Take a step' })).toBeEnabled();
   });
 
-  it('fades each step in over the one before; with reduced motion, one picture at a time, no fade', () => {
+  it('fades each line in over the one before; with reduced motion, one picture at a time, no fade', () => {
     jest.useFakeTimers();
     const walk = begin();
-    const stepButton = within(walk).getByRole('button', { name: 'Take a step' });
-    fireEvent.click(stepButton);
-    act(() => { jest.advanceTimersByTime(STEP_MS + 10); });
-    fireEvent.click(stepButton);
+    act(() => { jest.advanceTimersByTime(2 * (AUTO_MS + HESITATE_MS[1]) + 100); });
     expect(walk.querySelectorAll('.hos-walk-layer')).toHaveLength(2);
     expect(walk.querySelector('.hos-walk-layer.is-before')).toHaveAttribute('aria-hidden', 'true');
-    expect(walk.querySelector(`.hos-walk-layer.is-current [data-slot="${WALK_LINES[1].slot}"]`)).toBeInTheDocument();
+    expect(walk.querySelector('.hos-walk-layer.is-current')).toBeInTheDocument();
     cleanup();
     jest.useRealTimers();
     reducedMotion(true);
@@ -211,6 +244,7 @@ describe('the walk', () => {
   });
 
   it('stands in with a placeholder where a picture is not yet in its slot', () => {
+    reducedMotion(true);
     const walk = begin();
     fireEvent.click(within(walk).getByRole('button', { name: 'Take a step' }));
     expect(wordsForStep(1)).toEqual({ kind: 'line', line: WALK_LINES[0] });
@@ -219,25 +253,94 @@ describe('the walk', () => {
     expect(picture).toHaveTextContent('Picture to come');
   });
 
-  it('keeps the sound off until the visitor turns it on', () => {
+  it('starts its sound with the walk, from the visitor’s own press; turned off, it stays off when they come back', () => {
+    const restore = fakeAudio();
+    try {
+      let walk = begin();
+      let sound = within(walk).getByRole('button', { name: WALK_SOUND });
+      expect(sound).toHaveAttribute('aria-pressed', 'true');
+      fireEvent.click(sound);
+      expect(sound).toHaveAttribute('aria-pressed', 'false');
+      expect(status(walk)).toBe('Sound off.');
+      fireEvent.click(within(walk).getByRole('button', { name: 'Leave the walk' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Return to the walk' }));
+      walk = screen.getByRole('dialog', { name: 'The walk' });
+      sound = within(walk).getByRole('button', { name: WALK_SOUND });
+      expect(sound).toHaveAttribute('aria-pressed', 'false');
+      fireEvent.click(sound);
+      expect(sound).toHaveAttribute('aria-pressed', 'true');
+    } finally {
+      restore();
+    }
+  });
+
+  it('says so, and stays quiet, where the browser has no sound', () => {
     const walk = begin();
     const sound = within(walk).getByRole('button', { name: WALK_SOUND });
     expect(sound).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(sound);
-    // jsdom has no Web Audio: it says so, and stays off.
     expect(sound).toHaveAttribute('aria-pressed', 'false');
     expect(status(walk)).toBe('Sound is not available in this browser.');
   });
 
-  it('walks on by itself only when motion is allowed, slowly enough to read', () => {
-    expect(AUTO_MS).toBeGreaterThanOrEqual(6000);
+  it('is heard as nothing but the metal: no recording plays under the steps', () => {
+    const restore = fakeAudio();
+    const audio = jest.fn();
+    const before = window.Audio;
+    window.Audio = audio as unknown as typeof Audio;
+    jest.useFakeTimers();
+    try {
+      begin({ sounds: { clanks: ['/exhibitions/holocaust/walk/sound/clank-01.mp3'], rattle: '/exhibitions/holocaust/walk/sound/rattle.mp3' } });
+      act(() => { jest.advanceTimersByTime(3 * AUTO_MS); });
+      expect(audio).not.toHaveBeenCalled();
+    } finally {
+      window.Audio = before;
+      restore();
+    }
+  });
+
+  it('walks on by itself once begun, at an uneven pace, a new line about every six and a half seconds; Pause and Walk on, never a step button', () => {
+    jest.useFakeTimers();
     const walk = begin();
-    expect(within(walk).getByRole('button', { name: 'Walk on slowly' })).toBeInTheDocument();
+    expect(within(walk).queryByRole('button', { name: 'Take a step' })).toBeNull();
+    expect(walk).toHaveTextContent(WALK_BEGIN);
+    // Footfalls, but no line until a while in.
+    act(() => { jest.advanceTimersByTime(AUTO_MS - 100); });
+    expect(walk.querySelector('[data-line]')).toBeNull();
+    act(() => { jest.advanceTimersByTime(HESITATE_MS[1] + 200); });
+    expect(walk.querySelector('[data-line]')).toHaveAttribute('data-step', '1');
+    expect(status(walk)).toBe(WALK_LINES[0].text);
+    // Paused, it waits.
+    fireEvent.click(within(walk).getByRole('button', { name: 'Pause' }));
+    expect(status(walk)).toBe('You pause.');
+    act(() => { jest.advanceTimersByTime(4 * AUTO_MS); });
+    expect(walk.querySelector('[data-line]')).toHaveAttribute('data-step', '1');
+    fireEvent.click(within(walk).getByRole('button', { name: 'Walk on' }));
+    act(() => { jest.advanceTimersByTime(AUTO_MS + HESITATE_MS[1]); });
+    expect(walk.querySelector('[data-line]')).toHaveAttribute('data-step', '2');
+  });
+
+  it('steps unevenly: 1.15 to 1.75 seconds a footfall, and about one in seven a longer pause of 2.4 to 3.4', () => {
+    expect(AUTO_MS).toBe(6500);
+    expect(GAP_MS).toEqual([1150, 1750]);
+    expect(HESITATE_MS).toEqual([2400, 3400]);
+    expect(HESITATE_CHANCE).toBeCloseTo(1 / 7);
+    expect(nextGap(0.5, 0)).toBe(1150);
+    expect(nextGap(0.5, 1)).toBe(1750);
+    expect(nextGap(0.1, 0)).toBe(2400);
+    expect(nextGap(0.1, 1)).toBe(3400);
+  });
+
+  it('walks on by itself only when motion is allowed', () => {
+    const walk = begin();
+    expect(within(walk).getByRole('button', { name: 'Pause' })).toBeInTheDocument();
     cleanup();
     reducedMotion(true);
     const still = begin();
     expect(still).toHaveClass('is-still');
-    expect(within(still).queryByRole('button', { name: 'Walk on slowly' })).toBeNull();
+    expect(still).toHaveTextContent(WALK_BEGIN_STILL);
+    expect(within(still).queryByRole('button', { name: 'Pause' })).toBeNull();
+    expect(within(still).queryByRole('button', { name: 'Walk on' })).toBeNull();
     expect(within(still).getByRole('button', { name: 'Take a step' })).toBeEnabled();
   });
 
@@ -312,20 +415,15 @@ describe('the walk’s lines and slots', () => {
     expect([...PLACEHOLDERS].sort()).toEqual(['candle', 'chair', 'door', 'shoes', 'suitcase', 'tracks']);
   });
 
-  it('finds the owner’s files when the page is built, under the slot’s name or its number: all 32 pictures and the steps’ recordings are in, the ambient sounds not yet', () => {
+  it('finds the owner’s files when the page is built, under the slot’s name or its number: all 32 pictures, the 14 clanks and the rattle', () => {
     const onDisk = walkSlotsOnDisk();
     expect(Object.keys(onDisk.pictures)).toHaveLength(32);
     expect(onDisk.pictures['w07-broken-window']).toBe('walk-07.webp');
-    expect(onDisk.ambients).toEqual([]);
-    expect(onDisk.steps.clanks).toHaveLength(14);
-    expect(onDisk.steps.clanks[0]).toBe('/exhibitions/holocaust/walk/sound/clank-01.mp3');
-    expect(onDisk.steps.rattle).toBe('/exhibitions/holocaust/walk/sound/rattle.mp3');
+    expect(onDisk).not.toHaveProperty('ambients');
+    expect(onDisk.sounds.clanks).toHaveLength(14);
+    expect(onDisk.sounds.clanks[0]).toBe('/exhibitions/holocaust/walk/sound/clank-01.mp3');
+    expect(onDisk.sounds.rattle).toBe('/exhibitions/holocaust/walk/sound/rattle.mp3');
     expect(slotFiles('w07-broken-window')).toEqual(['w07-broken-window.webp', 'w07-broken-window.jpg', 'walk-07.jpg', 'walk-07.webp', 'walk-07.png']);
-    expect(AMBIENTS.map(ambientSrc)).toEqual([
-      '/exhibitions/holocaust/walk/sound/ambient-before.mp3',
-      '/exhibitions/holocaust/walk/sound/ambient-during.mp3',
-      '/exhibitions/holocaust/walk/sound/ambient-after.mp3',
-    ]);
     expect(beatForStep(0)).toBeNull();
     expect(beatForStep(1)).toEqual({ kind: 'line', line: WALK_LINES[0] });
     expect(beatForStep(WALK_BEATS.length)).toEqual({ kind: 'line', line: WALK_LINES[31] });
@@ -403,20 +501,11 @@ describe('the walk’s hall: the iron floor, the candle, the sound', () => {
     expect(easeStep(0.5)).toBeCloseTo(0.5);
   });
 
-  it('plays the recorded clanks in turn, never the same one twice running', () => {
-    for (let last = 0; last < 14; last++) {
-      for (let i = 0; i < 20; i++) {
-        const n = nextClank(14, last, () => i / 20);
-        expect(n).not.toBe(last);
-        expect(n).toBeGreaterThanOrEqual(0);
-        expect(n).toBeLessThan(14);
-      }
-    }
-    expect(nextClank(1, 0)).toBe(0);
-    expect(nextClank(14, -1, () => 0)).toBe(0);
+  it('brings the rattle in over about one step in three', () => {
+    expect(RATTLE_CHANCE).toBeCloseTo(1 / 3);
   });
 
-  it('is heard, when chosen, as two to four small knocks of iron, rung inharmonically', () => {
+  it('makes its steps in the browser, until the recordings are in place, as two to four small knocks of iron, rung inharmonically', () => {
     const seen = new Set<number>();
     for (let i = 0; i < 12; i++) seen.add(hitsForStep(() => i / 12));
     expect([...seen].sort()).toEqual([2, 3, 4]);
