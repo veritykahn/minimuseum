@@ -9,6 +9,6 @@ import { walkSlotsOnDisk } from './walkSlots';
  */
 
 export default function NeverForgetPage() {
-  const { pictures, ambients } = walkSlotsOnDisk();
-  return <NeverForget pictures={pictures} ambients={ambients} />;
+  const { pictures, ambients, steps } = walkSlotsOnDisk();
+  return <NeverForget pictures={pictures} ambients={ambients} steps={steps} />;
 }

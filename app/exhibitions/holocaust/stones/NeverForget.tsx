@@ -13,6 +13,7 @@ import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/Sources
 import { STONE_CUSTOM } from '../holocaust';
 import { WalkBackdrop, WalkControls, WalkFull, useWalk, walkSourceGroups } from './Walk';
 import type { Ambient, WalkPictures } from './walkLines';
+import { NO_STEP_RECORDINGS, type StepRecordings } from './footsteps';
 import { PROMPTS } from './stillnessPrompts';
 import { useStones } from './useStones';
 import './memorial-stone.css';
@@ -56,13 +57,21 @@ export function roomSourceGroups(): SourceGroup[] {
 
 const NO_PICTURES: WalkPictures = {};
 
-export default function NeverForget({ pictures = NO_PICTURES, ambients = [] }: { pictures?: WalkPictures; ambients?: readonly Ambient[] }) {
+export default function NeverForget({
+  pictures = NO_PICTURES,
+  ambients = [],
+  steps = NO_STEP_RECORDINGS,
+}: {
+  pictures?: WalkPictures;
+  ambients?: readonly Ambient[];
+  steps?: StepRecordings;
+}) {
   const { fonts, slug } = HOLOCAUST;
   const back = useMuseumReturn(roomReturn(HOLOCAUST));
   const stones = useStones();
   const [settleFrom, setSettleFrom] = useState<number | null>(null);
   const [tab, setTab] = useState<TabId>('stone');
-  const walk = useWalk(ambients);
+  const walk = useWalk(ambients, steps);
   const { stop: stopWalking } = walk;
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ stone: null, stillness: null, walk: null });
 

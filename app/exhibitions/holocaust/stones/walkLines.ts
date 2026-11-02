@@ -66,6 +66,11 @@ export type Ambient = 'before' | 'during' | 'after';
 export const AMBIENTS: readonly Ambient[] = ['before', 'during', 'after'];
 export const ambientSrc = (a: Ambient) => `${WALK_DIR}/sound/ambient-${a}.mp3`;
 
+/** The steps' own recordings, where the owner has supplied them: fourteen clanks of iron underfoot, and a rattle now and then. */
+export const CLANKS: readonly string[] = Array.from({ length: 14 }, (_, i) => `clank-${String(i + 1).padStart(2, '0')}`);
+export const RATTLE = 'rattle';
+export const stepSoundSrc = (name: string) => `${WALK_DIR}/sound/${name}.mp3`;
+
 export type WalkLine = {
   id: string;
   text: string;

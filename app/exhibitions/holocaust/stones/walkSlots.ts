@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { AMBIENTS, WALK_DIR, WALK_LINES, ambientSrc, slotFiles, type Ambient, type WalkPictures } from './walkLines';
+import { AMBIENTS, CLANKS, RATTLE, WALK_DIR, WALK_LINES, ambientSrc, slotFiles, stepSoundSrc, type Ambient, type WalkPictures } from './walkLines';
+import type { StepRecordings } from './footsteps';
 
 /*
  * Which of the walk's picture and sound slots the owner has filled: read
@@ -18,11 +19,13 @@ const onDisk = (src: string) => {
   }
 };
 
-export function walkSlotsOnDisk(): { pictures: WalkPictures; ambients: Ambient[] } {
+export function walkSlotsOnDisk(): { pictures: WalkPictures; ambients: Ambient[]; steps: StepRecordings } {
   const pictures: Record<string, string> = {};
   for (const { slot } of WALK_LINES) {
     const file = slotFiles(slot).find((f) => onDisk(`${WALK_DIR}/${f}`));
     if (file) pictures[slot] = file;
   }
-  return { pictures, ambients: AMBIENTS.filter((a) => onDisk(ambientSrc(a))) };
+  const clanks = CLANKS.map(stepSoundSrc).filter(onDisk);
+  const rattle = stepSoundSrc(RATTLE);
+  return { pictures, ambients: AMBIENTS.filter((a) => onDisk(ambientSrc(a))), steps: { clanks, rattle: onDisk(rattle) ? rattle : undefined } };
 }

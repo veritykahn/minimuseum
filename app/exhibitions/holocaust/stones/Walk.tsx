@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import { useDialogFocus } from '@/lib/a11y';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
-import { makeFootsteps, type Footsteps } from './footsteps';
+import { NO_STEP_RECORDINGS, makeFootsteps, type Footsteps, type StepRecordings } from './footsteps';
 import { WALK_DIR, WALK_LINES, ambientSrc, slotSrc, type Ambient, type WalkPictures } from './walkLines';
 import { WALK_BEATS, beatForStep, nameText, type WalkBeat } from './walkNames';
 import { STEP, drawFloor, easeStep, makeView, type View } from './walkScene';
@@ -32,7 +32,8 @@ import WalkPicture from './WalkPicture';
  * Each step moves the visitor forward over the iron, and the picture fades
  * slowly into the next; a step cannot be hurried; walking on, a step comes
  * every few seconds, time to read its line. The steps are heard as the iron
- * knocking together (footsteps.ts, made with Web Audio), with the quiet
+ * knocking together (footsteps.ts: the owner's recordings of iron underfoot
+ * where they are in place, made with Web Audio until then), with the quiet
  * ambient recordings under them where the owner has supplied them, all off
  * until the visitor turns them on. With reduced motion nothing moves or
  * fades: the floor is still, the light steady, the candle a still picture,
@@ -90,12 +91,19 @@ export function walkSourceGroups(): SourceGroup[] {
       items: b.kind === 'line' ? b.line.sources.map((s) => ({ ...s, note: short(b.line.text) })) : [{ ...b.name.source, note: nameText(b.name) }],
     })),
     { title: WALK_INSPIRED_BY, items: WALK_INSPIRATION.map((s) => ({ ...s })) },
+    { title: 'The walk’s sounds', items: WALK_SOUND_CREDITS.map((s) => ({ ...s, licence: 'CC0, via Freesound' })) },
   ];
 }
 
+/** The recordings the steps are cut from. */
+const WALK_SOUND_CREDITS = [
+  { label: '“Japan_Matsudo_Stepping_on_Small_Manhole_Cover.wav” by RutgerMuller', href: 'https://freesound.org/s/365411/', note: 'The steps on iron' },
+  { label: '“METLImpt_Metal Resonant Impact With Rattle” by SoundDesignForYou', href: 'https://freesound.org/s/697754/', note: 'The rattle' },
+];
+
 const AMBIENT_LEVEL = 0.22;
 
-export function useWalk(ambients: readonly Ambient[] = []) {
+export function useWalk(ambients: readonly Ambient[] = [], recordings: StepRecordings = NO_STEP_RECORDINGS) {
   const reduced = usePrefersReducedMotion();
   const [steps, setSteps] = useState(0);
   const [walking, setWalking] = useState(false);
@@ -143,7 +151,7 @@ export function useWalk(ambients: readonly Ambient[] = []) {
       setAnnouncement('Sound off.');
       return;
     }
-    audio.current = makeFootsteps();
+    audio.current = makeFootsteps(recordings);
     setSound(!!audio.current);
     setAnnouncement(audio.current ? 'Sound on. Each step is heard.' : 'Sound is not available in this browser.');
   };

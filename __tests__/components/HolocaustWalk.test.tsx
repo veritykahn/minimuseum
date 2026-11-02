@@ -3,7 +3,7 @@ import NeverForget from '@/app/exhibitions/holocaust/stones/NeverForget';
 import Countdown, { isRemembranceDay, nextRemembrance } from '@/app/exhibitions/holocaust/stones/Countdown';
 import { AUTO_MS, CANDLE, STEP_MS, WALK_BEGIN, WALK_CLOSE, WALK_INSPIRATION, WALK_INSPIRED_BY, WALK_INTRO, WALK_SOUND, walkSourceGroups, wordsForStep } from '@/app/exhibitions/holocaust/stones/Walk';
 import { EYE, STEP, easeStep, hash2, lightAt, makeView, project, rowPieces, rowsInView, type IronShoe } from '@/app/exhibitions/holocaust/stones/walkScene';
-import { PLATE, hitsForStep } from '@/app/exhibitions/holocaust/stones/footsteps';
+import { PLATE, hitsForStep, nextClank } from '@/app/exhibitions/holocaust/stones/footsteps';
 import fs from 'node:fs';
 import path from 'node:path';
 import { AMBIENTS, PLACEHOLDERS, WALK_LINES, ambientSrc, slotFiles, slotNumber } from '@/app/exhibitions/holocaust/stones/walkLines';
@@ -181,7 +181,7 @@ describe('the walk', () => {
     expect(still.querySelectorAll('.hos-walk-layer')).toHaveLength(1);
   });
 
-  it('lists every line’s and every name’s source, by step, in the walk’s Sources drawer, and the two works it is inspired by', () => {
+  it('lists every line’s and every name’s source, by step, in the walk’s Sources drawer, the two works it is inspired by, and the recordings its steps are cut from', () => {
     const walk = begin();
     expect(within(walk).queryByRole('link')).toBeNull();
     fireEvent.click(within(walk).getByRole('button', { name: 'Sources and credits' }));
@@ -201,7 +201,9 @@ describe('the walk', () => {
       for (const s of sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
       if (beat.kind === 'name') expect(group).toHaveTextContent(`${beat.name.name}, ${beat.name.age}`);
     });
-    expect(walkSourceGroups()).toHaveLength(WALK_BEATS.length + 1);
+    const sounds = within(drawer).getByRole('heading', { name: 'The walk’s sounds' }).closest('section')!;
+    expect(within(sounds).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(['https://freesound.org/s/365411/', 'https://freesound.org/s/697754/']);
+    expect(walkSourceGroups()).toHaveLength(WALK_BEATS.length + 2);
     // Escape closes the drawer, and leaves the walk open.
     fireEvent.keyDown(drawer, { key: 'Escape' });
     expect(within(walk).queryByRole('dialog', { name: 'Sources and credits' })).toBeNull();
@@ -310,11 +312,14 @@ describe('the walk’s lines and slots', () => {
     expect([...PLACEHOLDERS].sort()).toEqual(['candle', 'chair', 'door', 'shoes', 'suitcase', 'tracks']);
   });
 
-  it('finds the owner’s files when the page is built, under the slot’s name or its number: all 32 pictures are in, the sounds not yet', () => {
+  it('finds the owner’s files when the page is built, under the slot’s name or its number: all 32 pictures and the steps’ recordings are in, the ambient sounds not yet', () => {
     const onDisk = walkSlotsOnDisk();
     expect(Object.keys(onDisk.pictures)).toHaveLength(32);
     expect(onDisk.pictures['w07-broken-window']).toBe('walk-07.webp');
     expect(onDisk.ambients).toEqual([]);
+    expect(onDisk.steps.clanks).toHaveLength(14);
+    expect(onDisk.steps.clanks[0]).toBe('/exhibitions/holocaust/walk/sound/clank-01.mp3');
+    expect(onDisk.steps.rattle).toBe('/exhibitions/holocaust/walk/sound/rattle.mp3');
     expect(slotFiles('w07-broken-window')).toEqual(['w07-broken-window.webp', 'w07-broken-window.jpg', 'walk-07.jpg', 'walk-07.webp', 'walk-07.png']);
     expect(AMBIENTS.map(ambientSrc)).toEqual([
       '/exhibitions/holocaust/walk/sound/ambient-before.mp3',
@@ -396,6 +401,19 @@ describe('the walk’s hall: the iron floor, the candle, the sound', () => {
     expect(easeStep(0)).toBe(0);
     expect(easeStep(1)).toBe(1);
     expect(easeStep(0.5)).toBeCloseTo(0.5);
+  });
+
+  it('plays the recorded clanks in turn, never the same one twice running', () => {
+    for (let last = 0; last < 14; last++) {
+      for (let i = 0; i < 20; i++) {
+        const n = nextClank(14, last, () => i / 20);
+        expect(n).not.toBe(last);
+        expect(n).toBeGreaterThanOrEqual(0);
+        expect(n).toBeLessThan(14);
+      }
+    }
+    expect(nextClank(1, 0)).toBe(0);
+    expect(nextClank(14, -1, () => 0)).toBe(0);
   });
 
   it('is heard, when chosen, as two to four small knocks of iron, rung inharmonically', () => {

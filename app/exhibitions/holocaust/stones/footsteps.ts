@@ -1,6 +1,9 @@
 /*
- * The walk's steps, made here with Web Audio: no recordings, so nothing to
- * license. The floor is covered with cast-iron faces, and as a foot comes
+ * The walk's steps. Where the owner's recordings are in place (clank-01 to
+ * clank-14 and a rattle, in the walk's sound folder; walkSlots.ts finds them),
+ * each step plays one of the clanks, never the same twice running, sometimes
+ * with a second, softer knock, and now and then the rattle. Until they are
+ * there, or while they load, the steps are made here with Web Audio. The floor is covered with cast-iron faces, and as a foot comes
  * down they knock against each other: a few small, quick hits, one after
  * another (two to four, never the same twice), each a short metallic ring
  * (a few inharmonic tones, as a struck iron plate rings, dying away fast)
@@ -20,7 +23,22 @@ export function hitsForStep(rand: () => number = Math.random): number {
 
 export type Footsteps = { step: (side: number) => void; close: () => void };
 
-export function makeFootsteps(): Footsteps | null {
+/** The recordings found on disk, as paths under public/. */
+export type StepRecordings = { clanks: readonly string[]; rattle?: string };
+export const NO_STEP_RECORDINGS: StepRecordings = { clanks: [] };
+
+/** The recordings' level, against the made steps'. */
+const RECORDED_LEVEL = 1.5;
+
+/** Which clank to play: any but the last one heard. */
+export function nextClank(count: number, last: number, rand: () => number = Math.random): number {
+  if (count < 2) return 0;
+  const n = Math.floor(rand() * (count - 1));
+  if (last < 0) return Math.floor(rand() * count);
+  return n >= last ? n + 1 : n;
+}
+
+export function makeFootsteps(recordings: StepRecordings = NO_STEP_RECORDINGS): Footsteps | null {
   const Ctx = typeof window !== 'undefined' ? window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext : undefined;
   if (!Ctx) return null;
   const ctx = new Ctx();
@@ -114,11 +132,41 @@ export function makeFootsteps(): Footsteps | null {
     o.stop(at + 0.2);
   };
 
+  // The owner's recordings, loaded once sound is on. A file that will not load is left out.
+  const clanks: AudioBuffer[] = [];
+  let rattle: AudioBuffer | null = null;
+  let lastClank = -1;
+  const load = (src: string) =>
+    fetch(src)
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error(src))))
+      .then((b) => ctx.decodeAudioData(b))
+      .catch(() => null);
+  recordings.clanks.forEach((src) => void load(src).then((b) => b && clanks.push(b)));
+  if (recordings.rattle) void load(recordings.rattle).then((b) => (rattle = b));
+
+  const play = (buffer: AudioBuffer, at: number, level: number, pan: number) => {
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    src.playbackRate.value = 0.94 + Math.random() * 0.12;
+    const g = ctx.createGain();
+    g.gain.value = RECORDED_LEVEL * level;
+    src.connect(g).connect(out(pan));
+    src.start(at);
+  };
+
   return {
     step(side: number) {
       if (ctx.state === 'suspended') void ctx.resume();
       const at = ctx.currentTime + 0.02;
       const pan = side * 0.2;
+      if (clanks.length) {
+        lastClank = nextClank(clanks.length, lastClank);
+        play(clanks[lastClank], at, 1, pan);
+        // Sometimes a second face knocks against the first.
+        if (Math.random() < 0.35) play(clanks[nextClank(clanks.length, lastClank)], at + 0.06 + Math.random() * 0.08, 0.35 + Math.random() * 0.25, pan + (Math.random() - 0.5) * 0.3);
+        if (rattle && Math.random() < 0.14) play(rattle, at + 0.05, 0.3, pan);
+        return;
+      }
       thud(at, 1, pan);
       // Two to four faces knock together, one after another, each its own size.
       const hits = hitsForStep();
