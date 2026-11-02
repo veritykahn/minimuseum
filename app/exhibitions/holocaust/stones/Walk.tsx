@@ -8,7 +8,8 @@ import { FactSources } from '@/components/exhibition/FactNote';
 import { REMEMBRANCE_LINE } from '../holocaust';
 import { makeFootsteps, type Footsteps } from './footsteps';
 import { EYE, FAR, HALF_WIDTH, STEP, easeStep, fog, hash2, makeView, project, rowStones, rowsInView } from './walkScene';
-import { WALK_LINES, ambientSrc, lineForStep, type Ambient, type WalkLine } from './walkLines';
+import { makeMetal } from './metal';
+import { NO_SOUNDS, WALK_LINES, lineForStep, type WalkLine, type WalkSounds } from './walkLines';
 import WalkPicture from './WalkPicture';
 
 /*
@@ -17,10 +18,12 @@ import WalkPicture from './WalkPicture';
  * the faces that cover the floor and hear them as they go. Here there are
  * no faces and nothing of his: a long path of plain, unnamed stones, each
  * standing for a person, and the visitor walks over them, a step at a
- * time, slowly. Each step is heard, if the visitor turns the sound on
- * (footsteps.ts, made with Web Audio; off until chosen), with a quiet
- * ambient recording under it where the owner has supplied one. There is no
- * score.
+ * time, slowly. The visitor begins it, and it walks on by itself, at a
+ * slow, uneven pace, until they stop it. Each step is heard: a clank of
+ * metal, and now and then a long rattle over it (metal.ts, from the owner's
+ * recordings; footsteps.ts makes a step in the browser until they are in
+ * place). Nothing else is heard: no score, no room tone. The sound starts
+ * with the walk, from the visitor's own press, and a button turns it off.
  *
  * The walk is taken full screen, dark to the edges: the path below, a
  * picture far ahead (an object or a place, never a person; walkLines.ts),
@@ -28,15 +31,21 @@ import WalkPicture from './WalkPicture';
  * from step 4, the history, in order, each line with its source. After the
  * last line the path simply goes on.
  *
- * A step takes a second and a half, and cannot be hurried; walking on, a
- * step comes every few seconds, time to read its line. With reduced motion
- * the path is still and moves only a step at a time, by button, with no
- * walking on and no fades.
+ * A footfall comes every second and a half or so, unevenly, with now and
+ * then a pause; a new line comes on a footfall every six and a half
+ * seconds or so, time to read it. With reduced motion the path is still
+ * and moves only a step at a time, by button (a line and a clank each),
+ * with no walking on and no fades.
  */
 
-export const STEP_MS = 1500;
-/** Walking on: a step this often, long enough to read a line. */
+/** One footfall: the path moves on a stone, and the walker's weight comes down. */
+export const STEP_MS = 1000;
+/** Walking on: a new line at least this long after the last, long enough to read it. It comes on a footfall. */
 export const AUTO_MS = 6500;
+/** Walking on: the gap between footfalls, uneven, as a person walks; and now and then a longer one, a hesitation. */
+export const GAP_MS: readonly [number, number] = [1150, 1750];
+export const HESITATE_MS: readonly [number, number] = [2400, 3400];
+export const HESITATE_CHANCE = 0.14;
 /** After this many steps the poster's line is set beside the path. */
 export const LINE_AFTER = 3;
 
@@ -49,44 +58,80 @@ export function wordsForStep(steps: number): { kind: 'none' } | { kind: 'poster'
   return line ? { kind: 'line', line } : { kind: 'none' };
 }
 
-const AMBIENT_LEVEL = 0.22;
+/** How long until the next footfall: mostly an even, slow pace, sometimes a pause. */
+export function nextGap(r1 = Math.random(), r2 = Math.random()): number {
+  const [lo, hi] = r1 < HESITATE_CHANCE ? HESITATE_MS : GAP_MS;
+  return lo + r2 * (hi - lo);
+}
 
-export function useWalk(ambients: readonly Ambient[] = []) {
+export function useWalk(sounds: WalkSounds = NO_SOUNDS) {
   const reduced = usePrefersReducedMotion();
+  // `steps` counts the lines reached; `feet`, the footfalls (several to a line when walking on).
   const [steps, setSteps] = useState(0);
-  const [stepAt, setStepAt] = useState<number | null>(null);
+  const [feet, setFeet] = useState(0);
+  const [footAt, setFootAt] = useState<number | null>(null);
   const [walking, setWalking] = useState(false);
   const [sound, setSound] = useState(false);
   const [full, setFull] = useState(false);
   const [announcement, setAnnouncement] = useState('');
   const audio = useRef<Footsteps | null>(null);
+  const muted = useRef(false);
   const busyUntil = useRef(0);
   const stepsRef = useRef(0);
+  const feetRef = useRef(0);
+  const lastLineAt = useRef(0);
 
+  const footfall = useCallback(() => {
+    const n = feetRef.current + 1;
+    feetRef.current = n;
+    setFeet(n);
+    setFootAt(reduced ? null : performance.now());
+    audio.current?.step(n % 2 === 0 ? 1 : -1);
+  }, [reduced]);
+
+  /** A footfall that brings the next line. */
   const step = useCallback(() => {
     const now = performance.now();
     if (now < busyUntil.current) return false;
     busyUntil.current = now + (reduced ? 300 : STEP_MS);
+    lastLineAt.current = now;
     const n = stepsRef.current + 1;
     stepsRef.current = n;
     setSteps(n);
-    setStepAt(reduced ? null : now);
-    audio.current?.step(n % 2 === 0 ? 1 : -1);
+    footfall();
     const words = wordsForStep(n);
     if (n === 1) setAnnouncement('You step forward, onto the stones.');
     else if (words.kind === 'poster') setAnnouncement(REMEMBRANCE_LINE);
     else if (words.kind === 'line') setAnnouncement(words.line.text);
     else if (n === LINE_AFTER + WALK_LINES.length + 1) setAnnouncement('The path goes on.');
     return true;
-  }, [reduced]);
+  }, [reduced, footfall]);
 
-  // Walking on: a step every few seconds, until the visitor stops.
+  // Walking on: footfalls at a slow, uneven pace, and a new line on the first one after AUTO_MS, until the visitor stops.
   useEffect(() => {
     if (!walking || reduced) return;
-    step();
-    const id = setInterval(step, AUTO_MS);
-    return () => clearInterval(id);
-  }, [walking, reduced, step]);
+    // Starting: the first line comes a while in. Walking on again after a pause: the line already there stays a little.
+    lastLineAt.current = performance.now() - (stepsRef.current === 0 ? 0 : AUTO_MS / 2);
+    let id: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      if (performance.now() - lastLineAt.current >= AUTO_MS) step();
+      else footfall();
+      id = setTimeout(tick, nextGap());
+    };
+    tick();
+    return () => clearTimeout(id);
+  }, [walking, reduced, step, footfall]);
+
+  const soundOn = useCallback(() => {
+    if (!audio.current) audio.current = makeMetal(sounds.clanks, sounds.rattle) ?? makeFootsteps();
+    setSound(!!audio.current);
+    return !!audio.current;
+  }, [sounds]);
+  const soundOff = useCallback(() => {
+    audio.current?.close();
+    audio.current = null;
+    setSound(false);
+  }, []);
 
   const toggleWalking = () => {
     setWalking((w) => !w);
@@ -95,82 +140,45 @@ export function useWalk(ambients: readonly Ambient[] = []) {
 
   const toggleSound = () => {
     if (sound) {
-      audio.current?.close();
-      audio.current = null;
-      setSound(false);
+      muted.current = true;
+      soundOff();
       setAnnouncement('Sound off.');
       return;
     }
-    audio.current = makeFootsteps();
-    setSound(!!audio.current);
-    setAnnouncement(audio.current ? 'Sound on. Each step is heard.' : 'Sound is not available in this browser.');
+    muted.current = false;
+    setAnnouncement(soundOn() ? 'Sound on. Each step is heard.' : 'Sound is not available in this browser.');
   };
 
   useEffect(() => () => audio.current?.close(), []);
 
-  // Under the steps, the part of the walk's ambient recording, where there is one: looped, quiet, faded in and out.
-  const words = wordsForStep(steps);
-  const lastLine = steps > LINE_AFTER ? lineForStep(Math.min(steps, LINE_AFTER + WALK_LINES.length), LINE_AFTER) : null;
-  const part: Ambient = lastLine?.part ?? 'before';
-  const playing = useRef<{ part: Ambient; el: HTMLAudioElement } | null>(null);
-  useEffect(() => {
-    const want = sound && full && ambients.includes(part) ? part : null;
-    const cur = playing.current;
-    if (cur?.part === want) return;
-    if (cur) fadeOut(cur.el);
-    playing.current = null;
-    if (!want || typeof Audio === 'undefined') return;
-    try {
-      const el = new Audio(ambientSrc(want));
-      el.loop = true;
-      el.volume = 0;
-      void el.play()?.catch(() => undefined);
-      fadeTo(el, AMBIENT_LEVEL);
-      playing.current = { part: want, el };
-    } catch {
-      /* no audio here */
-    }
-  }, [sound, full, part, ambients]);
-  useEffect(() => () => {
-    if (playing.current) playing.current.el.pause();
-  }, []);
-
   const stop = useCallback(() => setWalking(false), []);
+  // Beginning the walk is the visitor's own press, so the sound can start with it (unless they have turned it off).
   const enter = useCallback(() => {
     setFull(true);
-    setAnnouncement('The walk, full screen. Press Escape to leave it.');
-  }, []);
+    if (!muted.current) soundOn();
+    if (reduced) {
+      setAnnouncement('The walk, full screen. Take a step when you are ready. Press Escape to leave it.');
+    } else {
+      setWalking(true);
+      setAnnouncement('The walk, full screen. You walk on, slowly. Press Escape to leave it.');
+    }
+  }, [reduced, soundOn]);
   const leave = useCallback(() => {
     setFull(false);
     setWalking(false);
+    soundOff();
     setAnnouncement('You leave the walk.');
-  }, []);
+  }, [soundOff]);
 
-  return { reduced, steps, stepAt, walking, sound, full, words, announcement, step, toggleWalking, toggleSound, stop, enter, leave };
-}
-
-function fadeTo(el: HTMLAudioElement, to: number, ms = 2000) {
-  const from = el.volume;
-  const t0 = Date.now();
-  const id = setInterval(() => {
-    const k = Math.min(1, (Date.now() - t0) / ms);
-    try {
-      el.volume = from + (to - from) * k;
-    } catch {
-      clearInterval(id);
-    }
-    if (k >= 1) clearInterval(id);
-  }, 80);
-}
-function fadeOut(el: HTMLAudioElement) {
-  fadeTo(el, 0, 1500);
-  setTimeout(() => el.pause(), 1600);
+  const words = wordsForStep(steps);
+  return { reduced, steps, feet, footAt, walking, sound, full, words, announcement, step, toggleWalking, toggleSound, stop, enter, leave };
 }
 
 type Walk = ReturnType<typeof useWalk>;
 
 /** The path, drawn on one canvas behind the room's title and panel. */
-export function WalkScene({ steps, stepAt, reduced, full = false }: Pick<Walk, 'steps' | 'stepAt' | 'reduced'> & { full?: boolean }) {
+/** `steps`: how many footfalls the walker has taken; `stepAt`: when the last began (null: standing still). */
+export function WalkScene({ steps, stepAt, reduced, full = false }: { steps: number; stepAt: number | null; reduced: boolean; full?: boolean }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [size, setSize] = useState({ w: 0, h: 0 });
@@ -357,7 +365,7 @@ export function WalkControls({ announcement, enter, full }: Walk) {
   return (
     <div className="hos-walk">
       <p className="hos-intro">A path of plain stones. Each one stands for a person. Walk over them slowly.</p>
-      <p className="hos-walk-about">Each step brings one short line of the history, in the order it happened, and a picture of a place or a thing left behind. The walk fills the screen.</p>
+      <p className="hos-walk-about">Every few steps brings one short line of the history, in the order it happened, and a picture of a place or a thing left behind. The walk fills the screen and moves on by itself, slowly; each step is heard, and you can pause it or turn the sound off at any time.</p>
       <button type="button" className="hos-button hos-button-primary" onClick={enter} aria-expanded={full}>
         Begin the walk
       </button>
@@ -369,7 +377,7 @@ export function WalkControls({ announcement, enter, full }: Walk) {
 
 /** The walk, full screen: the path, a picture far ahead, one line a step, and a few quiet buttons. */
 export function WalkFull({ walk, pictures }: { walk: Walk; pictures: readonly string[] }) {
-  const { reduced, steps, stepAt, walking, sound, words, announcement, step, toggleWalking, toggleSound, leave } = walk;
+  const { reduced, steps, feet, footAt, walking, sound, words, announcement, step, toggleWalking, toggleSound, leave } = walk;
   const ref = useRef<HTMLDivElement>(null);
   const stepRef = useRef<HTMLButtonElement>(null);
   useDialogFocus(ref, true, { onEscape: leave, initialFocus: stepRef });
@@ -397,7 +405,7 @@ export function WalkFull({ walk, pictures }: { walk: Walk; pictures: readonly st
   }, [leave]);
 
   const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    if ((e.key === 'ArrowUp' || e.key === 'ArrowRight' || e.key === 'PageDown') && !(e.target instanceof HTMLInputElement)) {
+    if (reduced && (e.key === 'ArrowUp' || e.key === 'ArrowRight' || e.key === 'PageDown') && !(e.target instanceof HTMLInputElement)) {
       e.preventDefault();
       step();
     }
@@ -409,7 +417,7 @@ export function WalkFull({ walk, pictures }: { walk: Walk; pictures: readonly st
 
   return createPortal(
     <div ref={ref} className={`hos-walk-full${reduced ? ' is-still' : ''}`} data-exhibition="holocaust" role="dialog" aria-modal="true" aria-label="The walk" tabIndex={-1} onKeyDown={onKey}>
-      <WalkScene steps={steps} stepAt={stepAt} reduced={reduced} full />
+      <WalkScene steps={feet} stepAt={footAt} reduced={reduced} full />
       {shownLine && (
         <div className="hos-walk-ahead" key={shownLine.slot}>
           <WalkPicture line={shownLine} ready={pictures.includes(shownLine.slot)} />
@@ -418,7 +426,7 @@ export function WalkFull({ walk, pictures }: { walk: Walk; pictures: readonly st
       <span className="hos-walk-edges" aria-hidden="true" />
 
       <div className="hos-walk-words">
-        {steps === 0 && <p className="hos-walk-say is-intro">A path of plain stones. Each one stands for a person. Take a step when you are ready.</p>}
+        {steps === 0 && <p className="hos-walk-say is-intro">A path of plain stones. Each one stands for a person. {reduced ? 'Take a step when you are ready.' : 'You walk over them, slowly.'}</p>}
         {words.kind === 'poster' && (
           <p className="hos-walk-say" key="poster">
             {REMEMBRANCE_LINE}
@@ -433,12 +441,13 @@ export function WalkFull({ walk, pictures }: { walk: Walk; pictures: readonly st
       </div>
 
       <div className="hos-walk-bar">
-        <button ref={stepRef} type="button" className="hos-button hos-button-primary" onClick={step} disabled={walking}>
-          Take a step
-        </button>
-        {!reduced && (
-          <button type="button" className="hos-button" aria-pressed={walking} onClick={toggleWalking}>
-            {walking ? 'Stop' : 'Walk on slowly'}
+        {reduced ? (
+          <button ref={stepRef} type="button" className="hos-button hos-button-primary" onClick={step}>
+            Take a step
+          </button>
+        ) : (
+          <button ref={stepRef} type="button" className="hos-button hos-button-primary" onClick={toggleWalking}>
+            {walking ? 'Pause' : 'Walk on'}
           </button>
         )}
         <button type="button" className="hos-button hos-button-sound" aria-pressed={sound} onClick={toggleSound}>
