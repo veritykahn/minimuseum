@@ -10,7 +10,7 @@ import MemorialStone, { StoneControls } from './MemorialStone';
 import Countdown from './Countdown';
 import Stillness from './Stillness';
 import { WalkControls, WalkFull, WalkScene, useWalk } from './Walk';
-import type { Ambient } from './walkLines';
+import { NO_SOUNDS, type WalkSounds } from './walkLines';
 import { useStones } from './useStones';
 import './memorial-stone.css';
 
@@ -41,13 +41,13 @@ function tabFromHash(hash: string): TabId | null {
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
-export default function NeverForget({ pictures = [], ambients = [] }: { pictures?: readonly string[]; ambients?: readonly Ambient[] }) {
+export default function NeverForget({ pictures = [], sounds = NO_SOUNDS }: { pictures?: readonly string[]; sounds?: WalkSounds }) {
   const { fonts, slug } = HOLOCAUST;
   const back = useMuseumReturn(roomReturn(HOLOCAUST));
   const stones = useStones();
   const [settleFrom, setSettleFrom] = useState<number | null>(null);
   const [tab, setTab] = useState<TabId>('stone');
-  const walk = useWalk(ambients);
+  const walk = useWalk(sounds);
   const { stop: stopWalking } = walk;
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ stone: null, stillness: null, walk: null });
 
@@ -109,7 +109,7 @@ export default function NeverForget({ pictures = [], ambients = [] }: { pictures
       </ExhibitionNav>
 
       <main className="hos-stage" data-tab={tab}>
-        {tab === 'walk' ? <WalkScene steps={walk.steps} stepAt={walk.stepAt} reduced={walk.reduced} /> : <MemorialStone count={stones.count} settleFrom={settleFrom} />}
+        {tab === 'walk' ? <WalkScene steps={walk.feet} stepAt={walk.footAt} reduced={walk.reduced} /> : <MemorialStone count={stones.count} settleFrom={settleFrom} />}
 
         <header className="hos-bar">
           <h1 className="hos-title">

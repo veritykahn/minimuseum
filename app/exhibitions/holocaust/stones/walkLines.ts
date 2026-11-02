@@ -14,10 +14,13 @@ import type { FactSource } from '@/components/exhibition/FactNote';
  *   public/exhibitions/holocaust/walk/<slot>.webp
  * and is used from the next build (walkSlots.ts looks for the files).
  *
- * Sound: the footsteps are made in the browser (footsteps.ts). Under them,
- * if the owner supplies them, three quiet ambient recordings, one for each
- * part of the walk, looped and faded:
- *   public/exhibitions/holocaust/walk/sound/<ambient>.mp3
+ * Sound: nothing but the steps. Each footfall is a clank of metal, from the
+ * owner's recordings cut into single clanks, with a long resonant rattle
+ * that comes in over some of them (metal.ts):
+ *   public/exhibitions/holocaust/walk/sound/clank-01.mp3, clank-02.mp3, …
+ *   public/exhibitions/holocaust/walk/sound/rattle.mp3
+ * Until the clanks are in place, the steps are made in the browser
+ * (footsteps.ts).
  */
 
 export const WALK_DIR = '/exhibitions/holocaust/walk';
@@ -51,9 +54,16 @@ export type Motif =
   | 'gate' | 'bookcase' | 'diary' | 'bicycle' | 'tracks' | 'suitcases' | 'note' | 'candle' | 'shoes'
   | 'shutter' | 'boat' | 'table' | 'stones' | 'tree' | 'path';
 
+/** The three parts of the walk: ordinary life, the history, and remembering. */
 export type Ambient = 'before' | 'during' | 'after';
-export const AMBIENTS: readonly Ambient[] = ['before', 'during', 'after'];
-export const ambientSrc = (a: Ambient) => `${WALK_DIR}/sound/ambient-${a}.mp3`;
+
+export const SOUND_DIR = `${WALK_DIR}/sound`;
+/** A clank's file name: clank-01.mp3, clank-02.mp3, … */
+export const CLANK_FILE = /^clank-\d{2}\.mp3$/;
+export const RATTLE_SRC = `${SOUND_DIR}/rattle.mp3`;
+/** The metal the walk's steps are made of: the clanks found, and the rattle if there is one. */
+export type WalkSounds = { clanks: readonly string[]; rattle: string | null };
+export const NO_SOUNDS: WalkSounds = { clanks: [], rattle: null };
 
 export type WalkLine = {
   id: string;
@@ -63,7 +73,7 @@ export type WalkLine = {
   slot: string;
   image: string;
   motif: Motif;
-  /** Which part of the walk: its ambient sound. */
+  /** Which part of the walk this line belongs to. */
   part: Ambient;
 };
 

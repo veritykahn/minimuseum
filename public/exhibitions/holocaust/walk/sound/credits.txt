@@ -1,0 +1,4 @@
+The walk's sounds (Never Forget, The walk). All Creative Commons 0 (public domain): free to use with no conditions; credited here with thanks.
+
+clank-01.mp3 to clank-14.mp3: single steps cut from "Japan_Matsudo_Stepping_on_Small_Manhole_Cover.wav" by RutgerMuller, https://freesound.org/people/RutgerMuller/sounds/365411/ (trimmed, filtered below 50 Hz, levelled)
+rattle.mp3: "METLImpt_Metal Resonant Impact With Rattle_SDFY_Metal Resonant.wav" by SoundDesignForYou, https://freesound.org/people/SoundDesignForYou/sounds/697754/ (trimmed, faded, levelled)
