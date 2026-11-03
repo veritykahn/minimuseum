@@ -1,27 +1,56 @@
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
-import NeverForget from '@/app/exhibitions/holocaust/stones/NeverForget';
-import Countdown, { isRemembranceDay, nextRemembrance } from '@/app/exhibitions/holocaust/stones/Countdown';
-import { AUTO_MS, CANDLE, GAP_MS, HESITATE_CHANCE, HESITATE_MS, STEP_MS, WALK_BEGIN, WALK_BEGIN_STILL, WALK_CLOSE, WALK_INSPIRATION, WALK_INSPIRED_BY, WALK_INTRO, WALK_SOUND, nextGap, walkSourceGroups, wordsForStep } from '@/app/exhibitions/holocaust/stones/Walk';
-import { EYE, STEP, easeStep, hash2, lightAt, makeView, project, rowPieces, rowsInView, type IronShoe } from '@/app/exhibitions/holocaust/stones/walkScene';
-import { PLATE, hitsForStep } from '@/app/exhibitions/holocaust/stones/footsteps';
-import { RATTLE_CHANCE } from '@/app/exhibitions/holocaust/stones/metal';
 import fs from 'node:fs';
 import path from 'node:path';
-import { PLACEHOLDERS, WALK_LINES, slotFiles, slotNumber } from '@/app/exhibitions/holocaust/stones/walkLines';
-import { WALK_BEATS, WALK_NAMES, beatForStep } from '@/app/exhibitions/holocaust/stones/walkNames';
-import { SILHOUETTE_KINDS } from '@/app/exhibitions/holocaust/stones/WalkPicture';
-import { walkSlotsOnDisk } from '@/app/exhibitions/holocaust/stones/walkSlots';
+import WalkRoom from '@/app/exhibitions/holocaust/walk/WalkRoom';
+import { FILM_FONT_HREF } from '@/app/exhibitions/holocaust/walk/Film';
+import { FILM_BLEEDS, FILM_FRAMES, FILM_LINE_MS, FILM_MS, FILM_OPENING, FILM_OPENING_MS, FILM_SKIP, filmSourceGroups } from '@/app/exhibitions/holocaust/walk/filmText';
+import {
+  BEAT_MS,
+  FIRST_NAME_AT,
+  GAP_MS,
+  HESITATE_CHANCE,
+  HESITATE_MS,
+  NAMES_PER_WALK,
+  NAME_FEET,
+  WALK_BEATS,
+  WALK_BEGIN,
+  WALK_BEGIN_STILL,
+  WALK_CLOSE,
+  WALK_INSPIRATION,
+  WALK_INSPIRED_BY,
+  WALK_INTRO,
+  WALK_MS,
+  WALK_NAMES_HEADING,
+  WALK_SOUND,
+  WALK_STONE_INVITE,
+  nameSpacing,
+  nextGap,
+  walkSourceGroups,
+} from '@/app/exhibitions/holocaust/walk/Walk';
+import { EYE, STEP, easeStep, hash2, hazeAt, lightAt, makeView, project, rowPieces, rowsInView, type IronShoe } from '@/app/exhibitions/holocaust/walk/walkScene';
+import { PLATE, hitsForStep } from '@/app/exhibitions/holocaust/walk/footsteps';
+import { RATTLE_CHANCE } from '@/app/exhibitions/holocaust/walk/metal';
+import { MUSIC_SRC, PLACEHOLDERS, WALK_DIR, WALK_LINES, slotFiles, slotNumber } from '@/app/exhibitions/holocaust/walk/walkLines';
+import { WALK_NAMES } from '@/app/exhibitions/holocaust/walk/walkNames';
+import { SILHOUETTE_KINDS } from '@/app/exhibitions/holocaust/walk/WalkPicture';
+import { walkSlotsOnDisk } from '@/app/exhibitions/holocaust/walk/walkSlots';
+import { FALLBACK_VICTIMS, SHOWN_KEY, VICTIMS, drawWalkNames, readVictims, victimText, walkPool, type Victim } from '@/app/exhibitions/holocaust/walk/victims';
+import Countdown, { isRemembranceDay, nextRemembrance } from '@/app/exhibitions/holocaust/stones/Countdown';
 import { LIBERATION_LINE } from '@/app/exhibitions/holocaust/holocaust';
 
 /*
- * Never Forget's countdown to January 27 and its walk: the date sums, the
- * day's own line, and the walk (a candle lit first, then slowly, a step at
- * a time, full screen: the history a line and a picture a step, children's
- * names between some steps, each source in the Sources drawer, never
- * inline; no blank step; a quiet close with the candle still lit; begun,
- * it walks on by itself at an uneven pace, its sound starting with it and
- * staying off once turned off; nothing heard but the metal; under reduced
- * motion, no walking on, drift or fades, a step at a time).
+ * The Walk, its own room: Begin opens it full screen; first the film (a few
+ * opening words on what the Holocaust was, then the history's 32 lines,
+ * each over its picture, in order, in black and white; about five and a
+ * half seconds a line, Pause and Play, a quiet skip; the owner's music, if
+ * it is there, from the same press, fading as the film ends; under reduced
+ * motion, a line at a time by button); then the grey hall, the iron floor
+ * and the clanks, the walk walking on by itself, one child's name at a
+ * time coming toward the visitor every two or three footfalls, never
+ * crowding; a fresh set each walk, avoiding names shown before; about four
+ * minutes; then a quiet close and the way to lay a stone. Every source in
+ * the Sources drawer, never inline. And the countdown to January 27, in
+ * Lay a Stone.
  */
 
 beforeAll(() => {
@@ -30,7 +59,10 @@ beforeAll(() => {
 beforeEach(() => {
   localStorage.clear();
   window.history.replaceState(null, '', '/');
-  global.fetch = jest.fn(async () => ({ ok: false, status: 503, json: async () => ({}) }) as Response) as unknown as typeof fetch;
+});
+afterEach(() => {
+  jest.useRealTimers();
+  reducedMotion(false);
 });
 
 /** A stand-in for Web Audio, so the walk's sound can be turned on in jsdom: every node connects, every value can be set. */
@@ -65,9 +97,61 @@ function fakeAudio() {
   };
 }
 
-function reducedMotion(on: boolean) {
-  window.matchMedia = ((q: string) => ({ matches: on && q.includes('reduce'), media: q, addEventListener: () => {}, removeEventListener: () => {} })) as unknown as typeof window.matchMedia;
+/** A stand-in for an <audio> element, for the film's music. */
+function fakeMusic() {
+  const made: { src: string; volume: number; plays: number; pauses: number }[] = [];
+  const before = window.Audio;
+  class FakeMusic {
+    src: string;
+    volume = 1;
+    preload = '';
+    plays = 0;
+    pauses = 0;
+    constructor(src: string) {
+      this.src = src;
+      made.push(this);
+    }
+    play() {
+      this.plays += 1;
+      return Promise.resolve();
+    }
+    pause() {
+      this.pauses += 1;
+    }
+  }
+  window.Audio = FakeMusic as unknown as typeof Audio;
+  return { made, restore: () => (window.Audio = before) };
 }
+
+function reducedMotion(on: boolean) {
+  window.matchMedia = ((q: string) => ({ matches: on && q.includes('reduce'), media: q, addEventListener: () => {}, removeEventListener: () => {}, addListener: () => {}, removeListener: () => {} })) as unknown as typeof window.matchMedia;
+}
+
+/** Fixtures: as many children's records as asked for, in victims.json's shape, so the tests hold whatever the file holds. */
+const victims = (n: number): Victim[] =>
+  Array.from({ length: n }, (_, i) => ({ id: `v${i + 1}`, name: `Child ${i + 1}`, age: String(3 + (i % 14)), died: String(1941 + (i % 4)), place: ['Auschwitz', 'Sobibor', 'Treblinka', 'Bergen-Belsen'][i % 4], source: { label: `Record ${i + 1}`, href: `https://example.org/record/${i + 1}` } }));
+const MANY = victims(200);
+
+const ALL_PICTURES = Object.fromEntries(WALK_LINES.map((l) => [l.slot, `walk-${String(slotNumber(l.slot)).padStart(2, '0')}.webp`]));
+
+const tick = (ms: number) => act(() => { jest.advanceTimersByTime(ms); });
+
+function begin(props: Parameters<typeof WalkRoom>[0] = {}) {
+  render(<WalkRoom pool={MANY} {...props} />);
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('The Walk');
+  expect(screen.getByRole('region', { name: 'The walk' })).toHaveTextContent(WALK_INTRO);
+  fireEvent.click(screen.getByRole('button', { name: 'Begin' }));
+  return screen.getByRole('dialog', { name: 'The film' });
+}
+const full = () => document.querySelector('.hos-walk-full') as HTMLElement;
+const status = () => full().querySelector(':scope > [role="status"]')!.textContent;
+/** Straight to the walk, past the film. */
+function walkNow(props: Parameters<typeof WalkRoom>[0] = {}) {
+  const film = begin(props);
+  fireEvent.click(within(film).getByRole('button', { name: FILM_SKIP }));
+  return screen.getByRole('dialog', { name: 'The walk' });
+}
+const shownNames = () => Array.from(full().querySelectorAll('[data-name]')).map((n) => [n.getAttribute('data-name')!, Number(n.getAttribute('data-at'))] as const);
 
 describe('the countdown to January 27', () => {
   it('counts to the next January 27, this year’s until it begins', () => {
@@ -80,13 +164,12 @@ describe('the countdown to January 27', () => {
 
   describe('on screen', () => {
     beforeEach(() => jest.useFakeTimers());
-    afterEach(() => jest.useRealTimers());
 
     it('gives days, hours, minutes and seconds, with a spoken label', () => {
       jest.setSystemTime(new Date(2027, 0, 25, 22, 30, 15));
       render(<Countdown />);
       expect(screen.getByRole('timer', { name: '1 day, 1 hour and 29 minutes until International Holocaust Remembrance Day, January 27, 2027' })).toHaveTextContent('1day01hour29minutes45seconds');
-      act(() => { jest.advanceTimersByTime(1000); });
+      tick(1000);
       expect(screen.getByRole('timer')).toHaveTextContent('44seconds');
     });
 
@@ -99,171 +182,378 @@ describe('the countdown to January 27', () => {
   });
 });
 
-describe('the walk', () => {
-  afterEach(() => {
-    jest.useRealTimers();
-    reducedMotion(false);
+describe('the film', () => {
+  it('opens full screen on Begin, with a few words on the Holocaust first, alone on the dark, in a typewriter face', () => {
+    const film = begin();
+    expect(film.parentElement).toBe(document.body);
+    expect(film).toHaveClass('hos-walk-full', 'is-film');
+    expect(film.querySelector('.hof-film')).toBeInTheDocument();
+    expect(film.querySelector('[data-opening="F1"]')).toHaveTextContent(FILM_OPENING[0].text);
+    expect(film.querySelector('.hof-words.is-card')).toBeInTheDocument();
+    expect(status()).toBe(FILM_OPENING[0].text);
+    expect(FILM_FONT_HREF).toMatch(/family=Special\+Elite/);
+    expect(Array.from(document.querySelectorAll('style')).some((s) => s.textContent?.includes(FILM_FONT_HREF))).toBe(true);
+    // The old film over it: grain, scratches, flicker, a darkened edge.
+    for (const c of ['hof-grain', 'hof-scratches', 'hof-flicker', 'hof-vignette', 'hof-gate']) expect(film.querySelector(`.${c}`)).toBeInTheDocument();
+    // Escape leaves it.
+    fireEvent.keyDown(film, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Begin' })).toBeInTheDocument();
   });
 
-  const begin = (props: Parameters<typeof NeverForget>[0] = {}) => {
-    window.history.replaceState(null, '', '/#walk');
-    render(<NeverForget {...props} />);
-    const panel = screen.getByRole('tabpanel', { name: 'The walk' });
-    expect(panel).toHaveTextContent(WALK_INTRO);
-    fireEvent.click(screen.getByRole('button', { name: 'Light a candle' }));
-    return screen.getByRole('dialog', { name: 'The walk' });
-  };
-  const status = (walk: HTMLElement) => walk.querySelector(':scope > [role="status"]')!.textContent;
-
-  it('begins with a candle: lit, the walk is taken full screen, and left with Escape or its button; the candle stays lit', () => {
-    const walk = begin();
-    expect(walk).toHaveClass('hos-walk-full');
-    expect(walk.parentElement).toBe(document.body);
-    expect(walk.querySelector('.hos-walk-candle.is-lit')).toBeInTheDocument();
-    expect(walk).toHaveTextContent(WALK_BEGIN);
-    fireEvent.keyDown(walk, { key: 'Escape' });
-    expect(screen.queryByRole('dialog', { name: 'The walk' })).toBeNull();
-    // Lit once, it stays lit: the way back in is to return to the walk.
-    expect(screen.queryByRole('button', { name: 'Light a candle' })).toBeNull();
-    expect(document.querySelector('.hos-candle-panel.is-lit')).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Return to the walk' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Leave the walk' }));
-    expect(screen.queryByRole('dialog', { name: 'The walk' })).toBeNull();
-  });
-
-  it('has no stones behind it in the room: the first picture, dim, or the dark', () => {
-    window.history.replaceState(null, '', '/#walk');
-    const { unmount } = render(<NeverForget pictures={{ [WALK_LINES[0].slot]: 'walk-01.webp' }} />);
-    expect(document.querySelector('.hos-walk-backdrop canvas')).toBeNull();
-    expect(document.querySelector('.hos-walk-backdrop img')).toHaveAttribute('src', '/exhibitions/holocaust/walk/walk-01.webp');
-    unmount();
-    window.history.replaceState(null, '', '/#walk');
-    render(<NeverForget />);
-    expect(document.querySelector('.hos-walk-backdrop')).toBeInTheDocument();
-    expect(document.querySelector('.hos-walk-backdrop img')).toBeNull();
-  });
-
-  it('with reduced motion, is taken a step at a time, start to finish: every line with its picture, in order, the names between, no blank step, then a quiet close with the candle still lit', () => {
+  it('plays by itself: the opening words, then all 32 lines in order, each over its picture, about five and a half seconds a line, then the walk', () => {
     jest.useFakeTimers();
-    reducedMotion(true);
-    const all = Object.fromEntries(WALK_LINES.map((l) => [l.slot, `walk-${String(slotNumber(l.slot)).padStart(2, '0')}.webp`]));
-    const walk = begin({ pictures: all });
-    const stepButton = () => within(walk).getByRole('button', { name: 'Take a step' });
-    fireEvent.click(stepButton());
-    expect(status(walk)).toBe(WALK_LINES[0].text);
-    // A step cannot be hurried: a second press while it fades in does nothing.
-    fireEvent.click(stepButton());
-    expect(walk.querySelector('[data-line]')).toHaveAttribute('data-step', '1');
-    const next = () => {
-      act(() => { jest.advanceTimersByTime(STEP_MS + 10); });
-      fireEvent.click(stepButton());
-    };
-    const seen: string[] = [];
-    WALK_BEATS.forEach((beat, i) => {
-      if (i > 0) next();
-      expect(walk.querySelector('.hos-walk-candle.is-lit')).toBeInTheDocument();
-      if (beat.kind === 'line') {
-        const { line } = beat;
-        seen.push(line.id);
-        expect(status(walk)).toBe(line.text);
-        const words = walk.querySelector(`[data-line="${line.id}"]`)!;
-        expect(words).toHaveTextContent(line.text);
-        expect(words).toHaveAttribute('data-step', String(i + 1));
-        // Its sources are in the drawer, not under the line.
-        expect(within(words as HTMLElement).queryByRole('link')).toBeNull();
-        // Its picture fills the screen.
-        expect(within(walk).getByRole('img', { name: line.image })).toHaveAttribute('src', `/exhibitions/holocaust/walk/${all[line.slot]}`);
-        expect(walk.querySelector('[data-name]')).toBeNull();
-      } else {
-        seen.push(beat.name.id);
-        const text = `${beat.name.name}, ${beat.name.age}`;
-        expect(status(walk)).toBe(text);
-        // A name alone on black: no picture, no line.
-        const name = walk.querySelector(`[data-name="${beat.name.id}"]`)!;
-        expect(name.textContent).toBe(text);
-        expect(walk.querySelector('[data-line]')).toBeNull();
-        expect(walk.querySelector('.hos-walk-layer.is-current img')).toBeNull();
-      }
+    const film = begin({ pictures: ALL_PICTURES });
+    for (const o of FILM_OPENING) {
+      expect(film.querySelector(`[data-opening="${o.id}"]`)).toHaveTextContent(o.text);
+      tick(FILM_OPENING_MS);
+    }
+    WALK_LINES.forEach((line, i) => {
+      const words = film.querySelector(`[data-line="${line.id}"]`)!;
+      expect(words).toHaveTextContent(line.text);
+      expect(words.textContent).toBe(line.text);
+      expect(status()).toBe(line.text);
+      // Its sources are in the drawer, never under the line.
+      expect(within(words as HTMLElement).queryByRole('link')).toBeNull();
+      // Its picture fills the screen, behind it.
+      expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('src', `${WALK_DIR}/${ALL_PICTURES[line.slot]}`);
+      expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('alt', line.image);
+      // Not before its time.
+      tick(FILM_LINE_MS - 50);
+      expect(film.querySelector(`[data-line="${line.id}"]`)).toBeInTheDocument();
+      tick(50);
+      if (i < WALK_LINES.length - 1) expect(film.querySelector(`[data-line="${WALK_LINES[i + 1].id}"]`)).toBeInTheDocument();
     });
-    expect(seen).toHaveLength(WALK_LINES.length + WALK_NAMES.length);
-    // Past the last line, the walk closes quietly; the candle stays lit; there is no further step.
-    next();
-    expect(status(walk)).toBe(WALK_CLOSE);
-    expect(walk).toHaveTextContent(WALK_CLOSE);
-    expect(walk.querySelector('.hos-walk-candle.is-lit')).toBeInTheDocument();
-    expect(within(walk).queryByRole('button', { name: 'Take a step' })).toBeNull();
-    expect(within(walk).queryByRole('button', { name: 'Walk on' })).toBeNull();
-    // It may be walked again, from the beginning, the candle still lit.
-    fireEvent.click(within(walk).getByRole('button', { name: 'Walk again' }));
-    expect(walk).toHaveTextContent(WALK_BEGIN_STILL);
-    expect(within(walk).getByRole('button', { name: 'Take a step' })).toBeEnabled();
+    // After the last line, the walk.
+    expect(screen.getByRole('dialog', { name: 'The walk' })).toHaveClass('is-walk');
+    expect(FILM_MS).toBe(FILM_OPENING.length * FILM_OPENING_MS + 32 * FILM_LINE_MS);
+    expect(FILM_LINE_MS).toBeGreaterThanOrEqual(5000);
+    expect(FILM_LINE_MS).toBeLessThanOrEqual(6000);
   });
 
-  it('fades each line in over the one before; with reduced motion, one picture at a time, no fade', () => {
+  it('fades each frame in over the one before; Pause holds it, Play goes on', () => {
     jest.useFakeTimers();
-    const walk = begin();
-    act(() => { jest.advanceTimersByTime(2 * (AUTO_MS + HESITATE_MS[1]) + 100); });
-    expect(walk.querySelectorAll('.hos-walk-layer')).toHaveLength(2);
-    expect(walk.querySelector('.hos-walk-layer.is-before')).toHaveAttribute('aria-hidden', 'true');
-    expect(walk.querySelector('.hos-walk-layer.is-current')).toBeInTheDocument();
-    cleanup();
-    jest.useRealTimers();
-    reducedMotion(true);
-    const still = begin();
-    fireEvent.click(within(still).getByRole('button', { name: 'Take a step' }));
-    expect(still.querySelectorAll('.hos-walk-layer')).toHaveLength(1);
+    const film = begin();
+    tick(FILM_OPENING_MS);
+    expect(film.querySelectorAll('.hof-layer')).toHaveLength(2);
+    expect(film.querySelector('.hof-layer.is-before')).toHaveAttribute('aria-hidden', 'true');
+    tick(FILM_OPENING_MS / 2);
+    fireEvent.click(within(film).getByRole('button', { name: 'Pause' }));
+    expect(status()).toBe('The film is paused.');
+    tick(10 * FILM_LINE_MS);
+    expect(film.querySelector('[data-opening="F2"]')).toBeInTheDocument();
+    fireEvent.click(within(film).getByRole('button', { name: 'Play' }));
+    // Only what was left of the frame.
+    tick(FILM_OPENING_MS / 2 + 10);
+    expect(film.querySelector('[data-opening="F3"]')).toBeInTheDocument();
   });
 
-  it('lists every line’s and every name’s source, by step, in the walk’s Sources drawer, the two works it is inspired by, and the recordings its steps are cut from', () => {
-    const walk = begin();
-    expect(within(walk).queryByRole('link')).toBeNull();
-    fireEvent.click(within(walk).getByRole('button', { name: 'Sources and credits' }));
-    const drawer = within(walk).getByRole('dialog', { name: 'Sources and credits' });
+  it('can be skipped, quietly, straight to the walk', () => {
+    const film = begin();
+    const skip = within(film).getByRole('button', { name: FILM_SKIP });
+    expect(skip).toHaveClass('hof-skip');
+    fireEvent.click(skip);
+    const walk = screen.getByRole('dialog', { name: 'The walk' });
+    expect(walk).toBe(film);
+    expect(walk.querySelector('.hof-film')).toBeNull();
+    expect(walk.querySelector('canvas.hos-walk-floor')).toBeInTheDocument();
+  });
+
+  it('with reduced motion: no flicker or weave, and a line at a time by button, then the walk', () => {
+    reducedMotion(true);
+    jest.useFakeTimers();
+    const film = begin();
+    expect(film.querySelector('.hof-film')).toHaveClass('is-still');
+    expect(within(film).queryByRole('button', { name: 'Pause' })).toBeNull();
+    tick(5 * FILM_LINE_MS);
+    expect(film.querySelector('[data-opening="F1"]')).toBeInTheDocument();
+    for (let i = 1; i < FILM_FRAMES.length; i++) {
+      fireEvent.click(within(film).getByRole('button', { name: 'Next' }));
+      expect(film.querySelectorAll('.hof-layer')).toHaveLength(1);
+    }
+    expect(film.querySelector(`[data-line="${WALK_LINES[31].id}"]`)).toBeInTheDocument();
+    fireEvent.click(within(film).getByRole('button', { name: 'Next' }));
+    expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
+  });
+
+  it('stands in with a placeholder where a picture is not yet in its slot', () => {
+    reducedMotion(true);
+    const film = begin();
+    for (let i = 0; i < FILM_OPENING.length; i++) fireEvent.click(within(film).getByRole('button', { name: 'Next' }));
+    const picture = film.querySelector(`[data-slot="${WALK_LINES[0].slot}"]`)!;
+    expect(picture).toHaveAttribute('data-placeholder', WALK_LINES[0].placeholder);
+    expect(picture).toHaveTextContent('Picture to come');
+  });
+
+  it('lets a picture’s color through only now and then, never on two pictures running', () => {
+    const ids = WALK_LINES.map((l) => l.id);
+    expect(FILM_BLEEDS.size).toBeGreaterThanOrEqual(2);
+    expect(FILM_BLEEDS.size).toBeLessThanOrEqual(8);
+    for (const id of FILM_BLEEDS) expect(FILM_BLEEDS.has(ids[ids.indexOf(id) + 1])).toBe(false);
+  });
+
+  it('plays the owner’s music from the visitor’s press, if it is there, pausing with the film and fading as it ends', () => {
+    jest.useFakeTimers();
+    const music = fakeMusic();
+    try {
+      const film = begin({ music: MUSIC_SRC });
+      expect(music.made).toHaveLength(1);
+      const [m] = music.made;
+      expect(m.src).toBe(MUSIC_SRC);
+      expect(m.plays).toBe(1);
+      fireEvent.click(within(film).getByRole('button', { name: 'Pause' }));
+      expect(m.pauses).toBe(1);
+      fireEvent.click(within(film).getByRole('button', { name: 'Play' }));
+      expect(m.plays).toBe(2);
+      // A button turns it off and on.
+      const toggle = within(film).getByRole('button', { name: 'Music' });
+      expect(toggle).toHaveAttribute('aria-pressed', 'true');
+      // As the last line comes, it fades, and is silent as the film ends.
+      tick(FILM_MS - FILM_LINE_MS + 10);
+      const full = m.volume;
+      tick(FILM_LINE_MS / 2);
+      expect(m.volume).toBeLessThan(full);
+      tick(FILM_LINE_MS);
+      expect(m.volume).toBe(0);
+      expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
+    } finally {
+      music.restore();
+    }
+  });
+
+  it('is silent, with no music button, while the music is not there', () => {
+    const music = fakeMusic();
+    try {
+      const film = begin();
+      expect(music.made).toHaveLength(0);
+      expect(within(film).queryByRole('button', { name: 'Music' })).toBeNull();
+    } finally {
+      music.restore();
+    }
+  });
+
+  it('lists every line’s sources, by line, and the opening words’, in the Sources drawer, with what the walk is inspired by and its sounds', () => {
+    const film = begin();
+    expect(within(film.querySelector('.hof-film') as HTMLElement).queryByRole('link')).toBeNull();
+    fireEvent.click(within(film).getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(film).getByRole('dialog', { name: 'Sources and credits' });
+    const opening = within(drawer).getByRole('heading', { name: 'The film: its opening words' }).closest('section')!;
+    expect(within(opening).getAllByRole('link')[0]).toHaveAttribute('href', 'https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust');
+    WALK_LINES.forEach((line, i) => {
+      const group = within(drawer).getByRole('heading', { name: `The film, line ${i + 1}` }).closest('section')!;
+      for (const s of line.sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+    });
     const inspired = within(drawer).getByRole('heading', { name: WALK_INSPIRED_BY }).closest('section')!;
     const [kadishman, danube] = within(inspired).getAllByRole('link');
     expect(kadishman).toHaveTextContent('Menashe Kadishman, Fallen Leaves (Shalekhet), Jewish Museum Berlin');
     expect(kadishman).toHaveAttribute('href', 'https://www.jmberlin.de/en/shalekhet-fallen-leaves');
     expect(danube).toHaveTextContent('Can Togay and Gyula Pauer, Shoes on the Danube Bank, Budapest');
     expect(danube).toHaveAttribute('href', WALK_INSPIRATION[1].href);
-    // No credit for the candle: it is the owner's own.
     expect(within(inspired).getAllByRole('link')).toHaveLength(2);
-    expect(drawer).not.toHaveTextContent(/Leonardo/i);
-    WALK_BEATS.forEach((beat, i) => {
-      const group = within(drawer).getByRole('heading', { name: `The walk, step ${i + 1}` }).closest('section')!;
-      const sources = beat.kind === 'line' ? beat.line.sources : [beat.name.source];
-      for (const s of sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
-      if (beat.kind === 'name') expect(group).toHaveTextContent(`${beat.name.name}, ${beat.name.age}`);
-    });
     const sounds = within(drawer).getByRole('heading', { name: 'The walk’s sounds' }).closest('section')!;
     expect(within(sounds).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(['https://freesound.org/s/365411/', 'https://freesound.org/s/697754/']);
-    expect(walkSourceGroups()).toHaveLength(WALK_BEATS.length + 2);
-    // Escape closes the drawer, and leaves the walk open.
+    expect(drawer).not.toHaveTextContent(/Leonardo|candle/i);
+    // No names yet: their heading comes with the first.
+    expect(within(drawer).queryByRole('heading', { name: WALK_NAMES_HEADING })).toBeNull();
+    expect(filmSourceGroups()).toHaveLength(1 + 32);
+    // Escape closes the drawer, and leaves the film open.
     fireEvent.keyDown(drawer, { key: 'Escape' });
-    expect(within(walk).queryByRole('dialog', { name: 'Sources and credits' })).toBeNull();
-    expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
+    expect(within(film).queryByRole('dialog', { name: 'Sources and credits' })).toBeNull();
+    expect(screen.getByRole('dialog', { name: 'The film' })).toBeInTheDocument();
+  });
+});
+
+describe('the walk', () => {
+  it('opens out into the grey hall: the iron floor, no candle, no pictures and no lines of the history', () => {
+    const walk = walkNow({ pictures: ALL_PICTURES });
+    expect(walk).toHaveClass('is-walk');
+    expect(walk.querySelector('canvas.hos-walk-floor')).toBeInTheDocument();
+    expect(walk.querySelector('.how-open')).toBeInTheDocument();
+    expect(walk.querySelector('.hos-candle, video, img')).toBeNull();
+    expect(walk.querySelector('[data-line]')).toBeNull();
+    expect(walk).toHaveTextContent(WALK_BEGIN);
+    expect(walk).not.toHaveTextContent(/candle/i);
+    // The candle's files are gone.
+    for (const f of ['candle.mp4', 'candle.webm', 'candle.jpg']) expect(fs.existsSync(path.join(process.cwd(), 'public', WALK_DIR, f))).toBe(false);
   });
 
-  it('stands in with a placeholder where a picture is not yet in its slot', () => {
+  it('walks on by itself: a child’s name every two or three footfalls, coming toward the visitor and passing, never more than one arriving as one goes', () => {
+    jest.useFakeTimers();
+    walkNow();
+    const seen = new Map<string, number>();
+    for (let t = 0; t < 60_000; t += 250) {
+      tick(250);
+      const now = shownNames();
+      expect(now.length).toBeLessThanOrEqual(2);
+      if (now.length === 2) expect(full().querySelectorAll('.how-name.is-passing')).toHaveLength(1);
+      for (const [id, at] of now) seen.set(id, at);
+    }
+    const ats = [...seen.values()].sort((a, b) => a - b);
+    expect(ats[0]).toBe(FIRST_NAME_AT);
+    expect(ats.length).toBeGreaterThan(10);
+    for (let i = 1; i < ats.length; i++) expect(NAME_FEET).toContain(ats[i] - ats[i - 1]);
+    // Each name is read out as it comes: name, age, the year and the place.
+    const last = MANY.find((v) => v.id === [...seen.keys()].pop())!;
+    expect(status()).toBe(victimText(last));
+  });
+
+  it('shows a name, age, year and place, styled apart: “Hana Brady, 13 · died 1944, Auschwitz”', () => {
+    jest.useFakeTimers();
+    const hana: Victim = { id: 'hana', name: 'Hana Brady', age: '13', died: '1944', place: 'Auschwitz', source: { label: 'USHMM Collections, Hana Brady (biography)', href: 'https://collections.ushmm.org/search/catalog/pa1164219' } };
+    expect(victimText(hana)).toBe('Hana Brady, 13 · died 1944, Auschwitz');
+    walkNow({ pool: [hana] });
+    // One name to show: it comes a while in, spread through the walk.
+    tick(20_000);
+    const name = full().querySelector('[data-name="hana"]')!;
+    expect(name.querySelector('.how-name-who')).toHaveTextContent('Hana Brady, 13');
+    expect(name.querySelector('.how-name-death')).toHaveTextContent('died 1944, Auschwitz');
+    expect(within(name as HTMLElement).queryByRole('link')).toBeNull();
+  });
+
+  it('lasts about four minutes of walking, then closes quietly and invites the visitor to lay a stone', () => {
+    jest.useFakeTimers();
+    const walk = walkNow();
+    expect(WALK_MS).toBe(WALK_BEATS * BEAT_MS);
+    expect(WALK_BEATS).toBe(39);
+    expect(BEAT_MS).toBe(6500);
+    tick(WALK_MS - 4000);
+    expect(walk.querySelector('[data-end]')).toBeNull();
+    tick(4000 + HESITATE_MS[1] + 100);
+    expect(walk.querySelector('[data-end]')).toBeInTheDocument();
+    expect(walk).toHaveTextContent(WALK_CLOSE);
+    expect(status()).toBe(WALK_CLOSE);
+    expect(walk.querySelector('[data-name]')).toBeNull();
+    expect(within(walk).getByRole('link', { name: WALK_STONE_INVITE })).toHaveAttribute('href', '/exhibitions/holocaust/stones');
+    expect(within(walk).queryByRole('button', { name: 'Pause' })).toBeNull();
+    // Nothing more comes.
+    const feet = shownNames().length;
+    tick(30_000);
+    expect(shownNames()).toHaveLength(feet);
+    expect(within(walk).getByRole('button', { name: 'Walk again' })).toBeInTheDocument();
+  });
+
+  it('walks again with different names, remembering in this browser the ones it has shown', () => {
+    jest.useFakeTimers();
+    const walk = walkNow();
+    const first = new Set<string>();
+    const collect = (into: Set<string>, ms: number) => {
+      for (let t = 0; t < ms; t += 500) {
+        tick(500);
+        for (const [id] of shownNames()) into.add(id);
+      }
+    };
+    collect(first, WALK_MS + 5000);
+    expect(first.size).toBeGreaterThan(20);
+    expect(first.size).toBeLessThanOrEqual(NAMES_PER_WALK);
+    expect(JSON.parse(localStorage.getItem(SHOWN_KEY)!)).toEqual(expect.arrayContaining([...first]));
+    fireEvent.click(within(walk).getByRole('button', { name: 'Walk again' }));
+    expect(walk.querySelector('[data-end]')).toBeNull();
+    const second = new Set<string>();
+    collect(second, 60_000);
+    expect(second.size).toBeGreaterThan(5);
+    for (const id of second) expect(first.has(id)).toBe(false);
+  });
+
+  it('has Pause and Walk on, never a step button, when motion is allowed', () => {
+    jest.useFakeTimers();
+    const walk = walkNow();
+    expect(within(walk).queryByRole('button', { name: 'Take a step' })).toBeNull();
+    tick(8000);
+    const before = shownNames().map(([id]) => id).join();
+    fireEvent.click(within(walk).getByRole('button', { name: 'Pause' }));
+    expect(status()).toBe('You pause.');
+    tick(30_000);
+    expect(shownNames().map(([id]) => id).join()).toBe(before);
+    fireEvent.click(within(walk).getByRole('button', { name: 'Walk on' }));
+    expect(status()).toBe('You walk on, slowly.');
+  });
+
+  it('steps unevenly: 1.15 to 1.75 seconds a footfall, and about one in seven a longer pause of 2.4 to 3.4', () => {
+    expect(GAP_MS).toEqual([1150, 1750]);
+    expect(HESITATE_MS).toEqual([2400, 3400]);
+    expect(HESITATE_CHANCE).toBeCloseTo(1 / 7);
+    expect(nextGap(0.5, 0)).toBe(1150);
+    expect(nextGap(0.5, 1)).toBe(1750);
+    expect(nextGap(0.1, 0)).toBe(2400);
+    expect(nextGap(0.1, 1)).toBe(3400);
+    // A name every two or three footfalls; with only a few to show, spread through the walk.
+    expect(NAME_FEET).toEqual([2, 3]);
+    expect(nameSpacing(NAMES_PER_WALK, 2)).toBe(2);
+    expect(nameSpacing(NAMES_PER_WALK, 3)).toBe(3);
+    expect(nameSpacing(7, 2)).toBeGreaterThan(10);
+  });
+
+  it('with reduced motion, is taken a step at a time, a name each step, then the close', () => {
     reducedMotion(true);
-    const walk = begin();
+    jest.useFakeTimers();
+    const pool = victims(5);
+    const walk = walkNow({ pool });
+    expect(walk).toHaveClass('is-still');
+    expect(walk.querySelector('.how-open')).toBeNull();
+    expect(walk).toHaveTextContent(WALK_BEGIN_STILL);
+    expect(within(walk).queryByRole('button', { name: 'Pause' })).toBeNull();
+    const seen: string[] = [];
+    for (let i = 0; i < pool.length; i++) {
+      fireEvent.click(within(walk).getByRole('button', { name: 'Take a step' }));
+      const now = shownNames();
+      expect(now).toHaveLength(1);
+      seen.push(now[0][0]);
+      expect(status()).toBe(victimText(pool.find((v) => v.id === now[0][0])!));
+      // A step can't be hurried.
+      fireEvent.click(within(walk).getByRole('button', { name: 'Take a step' }));
+      expect(shownNames()[0][0]).toBe(now[0][0]);
+      tick(400);
+    }
+    expect(new Set(seen).size).toBe(pool.length);
     fireEvent.click(within(walk).getByRole('button', { name: 'Take a step' }));
-    expect(wordsForStep(1)).toEqual({ kind: 'line', line: WALK_LINES[0] });
-    const picture = walk.querySelector(`[data-slot="${WALK_LINES[0].slot}"]`)!;
-    expect(picture).toHaveAttribute('data-placeholder', WALK_LINES[0].placeholder);
-    expect(picture).toHaveTextContent('Picture to come');
+    expect(walk).toHaveTextContent(WALK_CLOSE);
+    expect(within(walk).getByRole('link', { name: WALK_STONE_INVITE })).toBeInTheDocument();
+    fireEvent.click(within(walk).getByRole('button', { name: 'Walk again' }));
+    expect(walk).toHaveTextContent(WALK_BEGIN_STILL);
   });
 
-  it('starts its sound with the walk, from the visitor’s own press; turned off, it stays off when they come back', () => {
+  it('falls back to the seven children while victims.json is empty, with what is known of them', () => {
+    reducedMotion(true);
+    jest.useFakeTimers();
+    const walk = walkNow({ pool: walkPool([]) });
+    fireEvent.click(within(walk).getByRole('button', { name: 'Take a step' }));
+    const [[id]] = shownNames();
+    const child = WALK_NAMES.find((n) => n.id === id)!;
+    expect(status()).toBe(`${child.name}, ${child.age}`);
+    expect(full().querySelector('.how-name-death')).toBeNull();
+  });
+
+  it('lists the record of every name it has shown in the Sources drawer', () => {
+    reducedMotion(true);
+    jest.useFakeTimers();
+    const walk = walkNow();
+    for (let i = 0; i < 3; i++) {
+      fireEvent.click(within(walk).getByRole('button', { name: 'Take a step' }));
+      tick(400);
+    }
+    fireEvent.click(within(walk).getByRole('button', { name: 'Sources and credits' }));
+    const drawer = within(walk).getByRole('dialog', { name: 'Sources and credits' });
+    const names = within(drawer).getByRole('heading', { name: WALK_NAMES_HEADING }).closest('section')!;
+    expect(within(names).getAllByRole('link')).toHaveLength(3);
+    const v = MANY.find((x) => x.id === shownNames()[0][0])!;
+    expect(within(names).getByRole('link', { name: v.source.label })).toHaveAttribute('href', v.source.href);
+    expect(names).toHaveTextContent(victimText(v));
+    expect(walkSourceGroups([v]).find((g) => g.title === WALK_NAMES_HEADING)!.items).toHaveLength(1);
+  });
+
+  it('starts its sound with the walk, from the press of Begin; turned off, it stays off when the visitor comes back', () => {
     const restore = fakeAudio();
     try {
-      let walk = begin();
+      let walk = walkNow();
       let sound = within(walk).getByRole('button', { name: WALK_SOUND });
       expect(sound).toHaveAttribute('aria-pressed', 'true');
       fireEvent.click(sound);
       expect(sound).toHaveAttribute('aria-pressed', 'false');
-      expect(status(walk)).toBe('Sound off.');
+      expect(status()).toBe('Sound off.');
       fireEvent.click(within(walk).getByRole('button', { name: 'Leave the walk' }));
-      fireEvent.click(screen.getByRole('button', { name: 'Return to the walk' }));
+      expect(screen.queryByRole('dialog')).toBeNull();
+      fireEvent.click(screen.getByRole('button', { name: 'Begin' }));
+      fireEvent.click(within(screen.getByRole('dialog', { name: 'The film' })).getByRole('button', { name: FILM_SKIP }));
       walk = screen.getByRole('dialog', { name: 'The walk' });
       sound = within(walk).getByRole('button', { name: WALK_SOUND });
       expect(sound).toHaveAttribute('aria-pressed', 'false');
@@ -275,12 +565,12 @@ describe('the walk', () => {
   });
 
   it('says so, and stays quiet, where the browser has no sound', () => {
-    const walk = begin();
+    const walk = walkNow();
     const sound = within(walk).getByRole('button', { name: WALK_SOUND });
     expect(sound).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(sound);
     expect(sound).toHaveAttribute('aria-pressed', 'false');
-    expect(status(walk)).toBe('Sound is not available in this browser.');
+    expect(status()).toBe('Sound is not available in this browser.');
   });
 
   it('is heard as nothing but the metal: no recording plays under the steps', () => {
@@ -290,8 +580,8 @@ describe('the walk', () => {
     window.Audio = audio as unknown as typeof Audio;
     jest.useFakeTimers();
     try {
-      begin({ sounds: { clanks: ['/exhibitions/holocaust/walk/sound/clank-01.mp3'], rattle: '/exhibitions/holocaust/walk/sound/rattle.mp3' } });
-      act(() => { jest.advanceTimersByTime(3 * AUTO_MS); });
+      walkNow({ sounds: { clanks: ['/exhibitions/holocaust/walk/sound/clank-01.mp3'], rattle: '/exhibitions/holocaust/walk/sound/rattle.mp3' } });
+      tick(3 * BEAT_MS);
       expect(audio).not.toHaveBeenCalled();
     } finally {
       window.Audio = before;
@@ -299,94 +589,107 @@ describe('the walk', () => {
     }
   });
 
-  it('walks on by itself once begun, at an uneven pace, a new line about every six and a half seconds; Pause and Walk on, never a step button', () => {
-    jest.useFakeTimers();
-    const walk = begin();
-    expect(within(walk).queryByRole('button', { name: 'Take a step' })).toBeNull();
-    expect(walk).toHaveTextContent(WALK_BEGIN);
-    // Footfalls, but no line until a while in.
-    act(() => { jest.advanceTimersByTime(AUTO_MS - 100); });
-    expect(walk.querySelector('[data-line]')).toBeNull();
-    act(() => { jest.advanceTimersByTime(HESITATE_MS[1] + 200); });
-    expect(walk.querySelector('[data-line]')).toHaveAttribute('data-step', '1');
-    expect(status(walk)).toBe(WALK_LINES[0].text);
-    // Paused, it waits.
-    fireEvent.click(within(walk).getByRole('button', { name: 'Pause' }));
-    expect(status(walk)).toBe('You pause.');
-    act(() => { jest.advanceTimersByTime(4 * AUTO_MS); });
-    expect(walk.querySelector('[data-line]')).toHaveAttribute('data-step', '1');
-    fireEvent.click(within(walk).getByRole('button', { name: 'Walk on' }));
-    act(() => { jest.advanceTimersByTime(AUTO_MS + HESITATE_MS[1]); });
-    expect(walk.querySelector('[data-line]')).toHaveAttribute('data-step', '2');
+  it('leaves with Escape or its button, back to the room', () => {
+    const walk = walkNow();
+    fireEvent.keyDown(walk, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Begin' })).toHaveAttribute('aria-expanded', 'false');
   });
 
-  it('steps unevenly: 1.15 to 1.75 seconds a footfall, and about one in seven a longer pause of 2.4 to 3.4', () => {
-    expect(AUTO_MS).toBe(6500);
-    expect(GAP_MS).toEqual([1150, 1750]);
-    expect(HESITATE_MS).toEqual([2400, 3400]);
-    expect(HESITATE_CHANCE).toBeCloseTo(1 / 7);
-    expect(nextGap(0.5, 0)).toBe(1150);
-    expect(nextGap(0.5, 1)).toBe(1750);
-    expect(nextGap(0.1, 0)).toBe(2400);
-    expect(nextGap(0.1, 1)).toBe(3400);
-  });
-
-  it('walks on by itself only when motion is allowed', () => {
-    const walk = begin();
-    expect(within(walk).getByRole('button', { name: 'Pause' })).toBeInTheDocument();
-    cleanup();
-    reducedMotion(true);
-    const still = begin();
-    expect(still).toHaveClass('is-still');
-    expect(still).toHaveTextContent(WALK_BEGIN_STILL);
-    expect(within(still).queryByRole('button', { name: 'Pause' })).toBeNull();
-    expect(within(still).queryByRole('button', { name: 'Walk on' })).toBeNull();
-    expect(within(still).getByRole('button', { name: 'Take a step' })).toBeEnabled();
-  });
-
-  it('is the third tab, with its own address', () => {
-    render(<NeverForget />);
-    fireEvent.keyDown(screen.getByRole('tab', { name: 'Lay a stone' }), { key: 'End' });
-    expect(screen.getByRole('tab', { name: 'The walk' })).toHaveAttribute('aria-selected', 'true');
-    expect(window.location.hash).toBe('#walk');
+  it('has the film’s first picture, dim, behind the room, or the dark', () => {
+    const { unmount } = render(<WalkRoom pictures={{ [WALK_LINES[0].slot]: 'walk-01.webp' }} />);
+    expect(document.querySelector('.hos-walk-backdrop img')).toHaveAttribute('src', '/exhibitions/holocaust/walk/walk-01.webp');
+    unmount();
+    render(<WalkRoom />);
+    expect(document.querySelector('.hos-walk-backdrop')).toBeInTheDocument();
+    expect(document.querySelector('.hos-walk-backdrop img')).toBeNull();
   });
 });
 
-describe('the names on the walk', () => {
-  it('are real children, each with their own record at the USHMM or the HMD Trust: name and age only', () => {
-    expect(WALK_NAMES.length).toBeGreaterThanOrEqual(6);
-    expect(WALK_NAMES.length).toBeLessThanOrEqual(8);
-    expect(new Set(WALK_NAMES.map((n) => n.source.href)).size).toBe(WALK_NAMES.length);
-    for (const n of WALK_NAMES) {
-      expect(n.source.href).toMatch(/^https:\/\/(encyclopedia\.ushmm\.org\/content\/en\/id-card\/|collections\.ushmm\.org\/search\/catalog\/|(www\.)?hmd\.org\.uk\/resource\/)/);
-      expect(n.age).toMatch(/^\d{1,2}$/);
-      expect(Number(n.age)).toBeLessThan(18);
+describe('the names', () => {
+  it('reads victims.json, whatever it holds, keeping only records with an id, a name and a linked source, each once', () => {
+    expect(Array.isArray(VICTIMS)).toBe(true);
+    for (const v of VICTIMS) {
+      expect(v.id).toBeTruthy();
+      expect(v.name).toBeTruthy();
+      expect(v.source.href).toMatch(/^https?:\/\//);
     }
-    expect(WALK_NAMES.map((n) => `${n.name}, ${n.age}`)).toEqual([
-      'Henoch Kornfeld, 3',
-      'Tomas Kulka, 7',
-      'Hana Brady, 13',
-      'Zigmond Adler, 7',
-      'Judith Schwed, 12',
-      'Settela Steinbach, 9',
-      'Anne Frank, 15',
+    expect(new Set(VICTIMS.map((v) => v.id)).size).toBe(VICTIMS.length);
+    expect(readVictims(null)).toEqual([]);
+    expect(
+      readVictims([
+        { id: 'a', name: 'Ada', age: 9, died: 1943, place: 'Sobibor', source: { label: 'Record', href: 'https://example.org/a' } },
+        { id: 'a', name: 'Twice', source: { label: 'Record', href: 'https://example.org/a2' } },
+        { id: 'b', name: '', source: { label: 'Record', href: 'https://example.org/b' } },
+        { id: 'c', name: 'No source' },
+        { id: 'd', name: 'Not a link', source: { label: 'Record', href: 'somewhere' } },
+        { id: 'e', name: 'Eli', source: { label: 'Record', href: 'https://example.org/e' } },
+      ]),
+    ).toEqual([
+      { id: 'a', name: 'Ada', age: '9', died: '1943', place: 'Sobibor', source: { label: 'Record', href: 'https://example.org/a' } },
+      { id: 'e', name: 'Eli', age: null, died: null, place: null, source: { label: 'Record', href: 'https://example.org/e' } },
     ]);
   });
 
-  it('come in their place in the history: never before the ghettos, never two together, never first or last', () => {
-    const ids = WALK_LINES.map((l) => l.id);
-    for (const n of WALK_NAMES) expect(ids.indexOf(n.after)).toBeGreaterThanOrEqual(ids.indexOf('W11'));
-    WALK_BEATS.forEach((b, i) => {
-      if (b.kind === 'name') expect(WALK_BEATS[i - 1].kind).toBe('line');
+  it('falls back to the seven children, name and age, while the file is empty', () => {
+    expect(walkPool([])).toBe(FALLBACK_VICTIMS);
+    expect(walkPool(MANY)).toBe(MANY);
+    expect(FALLBACK_VICTIMS.map(victimText)).toEqual(['Henoch Kornfeld, 3', 'Tomas Kulka, 7', 'Hana Brady, 13', 'Zigmond Adler, 7', 'Judith Schwed, 12', 'Settela Steinbach, 9', 'Anne Frank, 15']);
+    expect(walkPool()).toBe(VICTIMS.length ? VICTIMS : FALLBACK_VICTIMS);
+    expect(victimText({ ...MANY[0], died: '1942', place: null })).toBe('Child 1, 3 · died 1942');
+    expect(victimText({ ...MANY[0], died: null, place: 'Treblinka' })).toBe('Child 1, 3 · died in Treblinka');
+    expect(victimText({ ...MANY[0], age: null, died: null, place: null })).toBe('Child 1');
+  });
+
+  it('are real children, each with their own record at the USHMM or the HMD Trust', () => {
+    expect(WALK_NAMES).toHaveLength(7);
+    expect(new Set(WALK_NAMES.map((n) => n.source.href)).size).toBe(7);
+    for (const n of WALK_NAMES) {
+      expect(n.source.href).toMatch(/^https:\/\/(encyclopedia\.ushmm\.org\/content\/en\/id-card\/|collections\.ushmm\.org\/search\/catalog\/|(www\.)?hmd\.org\.uk\/resource\/)/);
+      expect(Number(n.age)).toBeLessThan(18);
+    }
+  });
+
+  it('draws a fresh set each walk, avoiding names already shown, and starts again when they run out', () => {
+    const pool = victims(10);
+    const ids = (vs: Victim[]) => vs.map((v) => v.id);
+    const a = drawWalkNames(pool, 4, []);
+    expect(a.names).toHaveLength(4);
+    const b = drawWalkNames(pool, 4, a.shown);
+    for (const id of ids(b.names)) expect(ids(a.names)).not.toContain(id);
+    expect(b.shown).toHaveLength(8);
+    // Two left unshown: those two first, then the list again, without repeating within the walk.
+    const c = drawWalkNames(pool, 4, b.shown);
+    const left = ids(pool).filter((id) => !b.shown.includes(id));
+    expect(ids(c.names).slice(0, 2).sort()).toEqual(left.sort());
+    expect(new Set(ids(c.names)).size).toBe(4);
+    expect(c.shown).toEqual(ids(c.names));
+    // Never more than the list holds, each once.
+    expect(drawWalkNames(pool, 50, []).names).toHaveLength(10);
+    // Ids no longer in the list are forgotten.
+    expect(drawWalkNames(pool, 1, ['gone']).shown).not.toContain('gone');
+  });
+
+  it('keeps going where there is no storage', () => {
+    const spy = jest.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new Error('blocked');
     });
-    expect(WALK_BEATS[0].kind).toBe('line');
-    expect(WALK_BEATS[WALK_BEATS.length - 1].kind).toBe('line');
-    // Every line, in order, once.
-    expect(WALK_BEATS.flatMap((b) => (b.kind === 'line' ? [b.line.id] : []))).toEqual(ids);
+    const set = jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('blocked');
+    });
+    try {
+      reducedMotion(true);
+      const walk = walkNow();
+      fireEvent.click(within(walk).getByRole('button', { name: 'Take a step' }));
+      expect(shownNames()).toHaveLength(1);
+    } finally {
+      spy.mockRestore();
+      set.mockRestore();
+    }
   });
 });
 
-describe('the walk’s lines and slots', () => {
+describe('the film’s lines and slots', () => {
   it('has 32 short lines, in the order of the history, each with a source from Yad Vashem, the USHMM or the HMD Trust, a picture slot and a part', () => {
     expect(WALK_LINES.map((l) => l.id)).toEqual(Array.from({ length: 32 }, (_, i) => `W${i + 1}`));
     for (const l of WALK_LINES) {
@@ -396,70 +699,47 @@ describe('the walk’s lines and slots', () => {
       expect(PLACEHOLDERS).toContain(l.placeholder);
       expect(l.text.split(/\s+/).length).toBeLessThanOrEqual(30);
     }
-    // Every slot is used once, so every picture has one place.
     expect(new Set(WALK_LINES.map((l) => l.slot)).size).toBe(32);
     expect(WALK_LINES.map((l) => slotNumber(l.slot)).sort((x, y) => x - y)).toEqual(Array.from({ length: 32 }, (_, i) => i + 1));
     expect(WALK_LINES.find((l) => l.text.includes('synagogues'))!.text).toBe('November 9–10, 1938. More than 1,400 synagogues were burned.');
-    // In order: every year named comes no earlier than the last.
     const years = WALK_LINES.map((l) => l.text.match(/\b(19[2-4]\d)\b/)?.[1]).filter(Boolean).map(Number);
     expect(years).toEqual([...years].sort((x, y) => x - y));
     expect(years[0]).toBe(1929);
     expect(WALK_LINES[2].text).toMatch(/^In 1933/);
-    // Objects and places only: no picture shows a person.
     expect(WALK_LINES.map((l) => l.image.replace(/\(no [^)]*\)/, '')).join(' ')).not.toMatch(/\b(person|people|child|man|woman|face|body|victim)\b/i);
     expect(WALK_LINES.map((l) => l.part)).toEqual([...Array(3).fill('before'), ...Array(21).fill('during'), ...Array(8).fill('after')]);
+    // The film carries them all, in order, after its opening words.
+    expect(FILM_FRAMES.flatMap((f) => (f.kind === 'line' ? [f.line.id] : []))).toEqual(WALK_LINES.map((l) => l.id));
+    expect(FILM_FRAMES.slice(0, FILM_OPENING.length).every((f) => f.kind === 'words')).toBe(true);
+  });
+
+  it('opens with a few plain words, for children, with nothing graphic', () => {
+    expect(FILM_OPENING.length).toBeGreaterThanOrEqual(2);
+    expect(FILM_OPENING.length).toBeLessThanOrEqual(5);
+    const words = FILM_OPENING.map((o) => o.text).join(' ');
+    expect(words).toMatch(/six million/);
+    expect(words).toMatch(/Holocaust/);
+    expect(words).not.toMatch(/\b(gas|gassed|corpse|bodies|blood|burned alive|shot)\b/i);
   });
 
   it('stands in with silhouettes of the agreed objects only, until the owner’s pictures come', () => {
     expect([...SILHOUETTE_KINDS].sort()).toEqual([...PLACEHOLDERS].sort());
-    expect([...PLACEHOLDERS].sort()).toEqual(['candle', 'chair', 'door', 'shoes', 'suitcase', 'tracks']);
   });
 
-  it('finds the owner’s files when the page is built, under the slot’s name or its number: all 32 pictures, the 14 clanks and the rattle', () => {
+  it('finds the owner’s files when the page is built: all 32 pictures, the 14 clanks, the rattle, and the film’s music if it is there', () => {
     const onDisk = walkSlotsOnDisk();
     expect(Object.keys(onDisk.pictures)).toHaveLength(32);
     expect(onDisk.pictures['w07-broken-window']).toBe('walk-07.webp');
-    expect(onDisk).not.toHaveProperty('ambients');
     expect(onDisk.sounds.clanks).toHaveLength(14);
     expect(onDisk.sounds.clanks[0]).toBe('/exhibitions/holocaust/walk/sound/clank-01.mp3');
     expect(onDisk.sounds.rattle).toBe('/exhibitions/holocaust/walk/sound/rattle.mp3');
+    expect(MUSIC_SRC).toBe('/exhibitions/holocaust/walk/film-music.mp3');
+    expect(onDisk.music).toBe(fs.existsSync(path.join(process.cwd(), 'public', MUSIC_SRC)) ? MUSIC_SRC : null);
     expect(slotFiles('w07-broken-window')).toEqual(['w07-broken-window.webp', 'w07-broken-window.jpg', 'walk-07.jpg', 'walk-07.webp', 'walk-07.png']);
-    expect(beatForStep(0)).toBeNull();
-    expect(beatForStep(1)).toEqual({ kind: 'line', line: WALK_LINES[0] });
-    expect(beatForStep(WALK_BEATS.length)).toEqual({ kind: 'line', line: WALK_LINES[31] });
-    expect(beatForStep(WALK_BEATS.length + 1)).toBeNull();
-    expect(wordsForStep(0)).toEqual({ kind: 'none' });
-    expect(wordsForStep(WALK_BEATS.length + 1)).toEqual({ kind: 'end' });
   });
 });
 
-describe('the walk’s hall: the iron floor, the candle, the sound', () => {
-  afterEach(() => reducedMotion(false));
-
-  const light = () => {
-    window.history.replaceState(null, '', '/#walk');
-    render(<NeverForget />);
-    fireEvent.click(screen.getByRole('button', { name: 'Light a candle' }));
-    return screen.getByRole('dialog', { name: 'The walk' });
-  };
-
-  it('carries the owner’s candle in front, her film of it; its still under reduced motion; never the drawn candle', () => {
-    const walk = light();
-    const video = walk.querySelector('.hos-walk-candle video')!;
-    expect(video).toHaveAttribute('poster', CANDLE.still);
-    expect(video).toHaveAttribute('loop');
-    expect((video as HTMLVideoElement).muted).toBe(true);
-    expect(Array.from(video.querySelectorAll('source')).map((s) => s.getAttribute('src'))).toEqual([CANDLE.webm, CANDLE.mp4]);
-    expect(walk.querySelector('canvas.hos-walk-floor')).toBeInTheDocument();
-    expect(document.querySelector('svg.hos-candle')).toBeNull();
-    for (const f of [CANDLE.mp4, CANDLE.webm, CANDLE.still]) expect(fs.existsSync(path.join(process.cwd(), 'public', f))).toBe(true);
-    cleanup();
-    reducedMotion(true);
-    const still = light();
-    expect(still.querySelector('.hos-walk-candle video')).toBeNull();
-    expect(still.querySelector('.hos-walk-candle img')).toHaveAttribute('src', CANDLE.still);
-  });
-
+describe('the walk’s hall: grey concrete, pale light, the iron floor, the sound', () => {
   it('lays the floor with iron faces, each with two eyes and a mouth cut through, and pairs of iron shoes, men’s, women’s and children’s: the same each time', () => {
     const rows = Array.from({ length: 200 }, (_, r) => rowPieces(r));
     expect(rowPieces(17)).toEqual(rows[17]);
@@ -473,14 +753,12 @@ describe('the walk’s hall: the iron floor, the candle, the sound', () => {
       expect(Math.max(...f.outline.map(([u, v]) => Math.hypot(u, v)))).toBeLessThan(0.36);
     }
     expect(new Set(shoes.map((s) => s.size))).toEqual(new Set(['man', 'woman', 'child']));
-    // Faces of different sizes, lying every way.
     expect(new Set(faces.map((f) => Math.round(f.outline[0][0] * 100))).size).toBeGreaterThan(20);
-    // Each row lies far to near, so nearer iron lies over farther.
     for (const row of rows) for (let i = 1; i < row.length; i++) expect(row[i].z).toBeLessThanOrEqual(row[i - 1].z);
     expect(hash2(3, 4)).toBe(hash2(3, 4));
   });
 
-  it('sees the floor ahead in perspective, a step at a time, lit by the candle and falling away into the dark', () => {
+  it('sees the floor ahead in perspective, in an even, pale light that never falls to dark, lost far off in a grey haze', () => {
     const v = makeView(1280, 800);
     const near = project(v, 0, 3)!;
     const far = project(v, 0, 12)!;
@@ -491,11 +769,15 @@ describe('the walk’s hall: the iron floor, the candle, the sound', () => {
     expect(STEP).toBeGreaterThan(0.5);
     const rows = rowsInView(4 * STEP);
     expect(rows[0]).toBeGreaterThan(rows[rows.length - 1]);
-    // The candle lights the nearest iron; the far floor is nearly dark, the sides darker than the middle; unlit, almost nothing.
+    // Even: as light far off as near, a little less under the walls; no candle's pool.
+    expect(lightAt(0, 12)).toBeCloseTo(lightAt(0, 3));
     expect(lightAt(0, 3)).toBeGreaterThan(0.6);
-    expect(lightAt(0, 12)).toBeLessThan(0.1);
     expect(lightAt(2.5, 3)).toBeLessThan(lightAt(0, 3));
-    expect(lightAt(0, 3, 0)).toBeLessThan(0.02);
+    expect(lightAt(2.5, 3)).toBeGreaterThan(0.6);
+    // The haze grows with distance.
+    expect(hazeAt(0)).toBe(0);
+    expect(hazeAt(3)).toBeLessThan(hazeAt(12));
+    expect(hazeAt(12)).toBeLessThan(1);
     expect(easeStep(0)).toBe(0);
     expect(easeStep(1)).toBe(1);
     expect(easeStep(0.5)).toBeCloseTo(0.5);
@@ -510,8 +792,9 @@ describe('the walk’s hall: the iron floor, the candle, the sound', () => {
     for (let i = 0; i < 12; i++) seen.add(hitsForStep(() => i / 12));
     expect([...seen].sort()).toEqual([2, 3, 4]);
     expect(PLATE[0]).toBe(1);
-    // Not a musical note: no partial a whole multiple of the lowest.
     for (const r of PLATE.slice(1)) expect(Math.abs(r - Math.round(r))).toBeGreaterThan(0.05);
     expect(WALK_SOUND).toBe('Hear your steps');
   });
 });
+
+afterAll(() => cleanup());

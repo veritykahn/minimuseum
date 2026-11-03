@@ -1,0 +1,189 @@
+/* ==========================================================================
+   The Walk. In the room: the film's first picture, very dim, in the dark,
+   behind the title and the way in. Full screen: first the film (film.css),
+   then the walk, in a high hall of bare grey concrete, strangely light, as
+   the Memory Void at the Jewish Museum Berlin is: a pale, even daylight from
+   far above, the iron floor drawn on a canvas (walkScene.ts), and one name
+   at a time coming toward the visitor. Nothing bright, nothing that
+   flashes; under reduced motion nothing moves.
+   The room's title, panel and buttons are shared (../room.css).
+   ========================================================================== */
+
+/* ───────── The walk, in the room: its first picture, very dim, in the dark ───────── */
+.hos-walk-backdrop { background: #060606; }
+.hos-walk-backdrop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.16; filter: grayscale(1); }
+.hos-walk-backdrop-veil { inset: 0; background: radial-gradient(ellipse 75% 85% at 50% 45%, rgba(6, 6, 6, 0.35), rgba(0, 0, 0, 0.92) 100%); }
+
+/* ───────── The walk's panel: the way in ───────── */
+.hos-panel-walk { top: 32vh; }
+.hos-walk { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+.hos-walk-about { max-width: 26em; font-family: var(--pe-body); font-size: 0.95rem; line-height: 1.6; color: var(--hos-muted); }
+
+/* ───────── Full screen: the film, then the walk ───────── */
+.hos-walk-full {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  background: #050505;
+  color: #ece7e1;
+  overflow: hidden;
+  outline: none;
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  animation: hos-dim 1.6s ease both;
+}
+.hos-walk-full.is-walk { background: #b8b7b2; color: #2a2927; animation: none; }
+
+/* ───────── The hall: grey concrete, pale light from far above ───────── */
+.how-hall { position: absolute; inset: 0; }
+.hos-walk-floor { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+/* The daylight from high overhead, and the hall's corners a little greyer. */
+.how-sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(to bottom, rgba(250, 250, 247, 0.42), rgba(250, 250, 247, 0) 34%),
+    radial-gradient(ellipse 90% 80% at 50% 40%, transparent 55%, rgba(70, 70, 68, 0.28) 100%);
+}
+/* As the film ends: its frame opens out into the hall, and the hall's light comes up inside it. */
+.how-open {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  z-index: 3;
+  width: min(92vw, 138vh);
+  height: min(61vw, 92vh);
+  translate: -50% -50%;
+  pointer-events: none;
+  background: #050505;
+  box-shadow: 0 0 0 200vmax #050505;
+  animation: how-open 3.4s cubic-bezier(0.55, 0, 0.25, 1) both;
+}
+@keyframes how-open {
+  0% { width: min(92vw, 138vh); height: min(61vw, 92vh); background: rgba(5, 5, 5, 1); box-shadow: 0 0 0 200vmax rgba(5, 5, 5, 1); }
+  35% { background: rgba(5, 5, 5, 0); }
+  100% { width: 170vw; height: 170vh; background: rgba(5, 5, 5, 0); box-shadow: 0 0 0 200vmax rgba(5, 5, 5, 0); }
+}
+
+/* ───────── A name ahead: it comes toward the visitor, a footfall at a time, and passes ───────── */
+.how-names { position: absolute; inset: 0; pointer-events: none; }
+.how-name {
+  --p: 0;
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  width: min(90vw, 980px);
+  text-align: center;
+  transform: translate(-50%, -50%) translateY(calc(var(--p) * 22vh)) scale(calc(0.5 + var(--p) * 0.8));
+  transform-origin: 50% 50%;
+  transition: transform 1s ease-in-out, opacity 1.1s ease;
+  animation: how-name-in 1.6s ease both;
+}
+.how-name.is-passing { opacity: 0; }
+@keyframes how-name-in { from { opacity: 0; } to { opacity: 1; } }
+.how-name-who {
+  margin: 0;
+  font-family: var(--pe-body, 'Inter', sans-serif);
+  font-size: clamp(1.7rem, 3.8vw, 3.6rem);
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: #22211f;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  text-wrap: balance;
+}
+.how-name-age { font-weight: 500; }
+.how-name-death {
+  display: inline-block;
+  margin: 0.55em 0 0;
+  padding-top: 0.5em;
+  border-top: 1px solid rgba(34, 33, 31, 0.3);
+  font-family: 'Special Elite', 'Courier New', monospace;
+  font-size: clamp(0.85rem, 1.4vw, 1.25rem);
+  letter-spacing: 0.12em;
+  color: #46443f;
+}
+/* Before the first name, and at the close. */
+.how-say { margin: 0; font-family: var(--pe-body, 'Inter', sans-serif); font-size: clamp(1.05rem, 1.9vw, 1.6rem); line-height: 1.45; color: #34332f; text-align: center; text-wrap: balance; }
+.how-say.is-intro { position: absolute; left: 50%; top: 38%; translate: -50% -50%; width: min(90vw, 40em); animation: how-name-in 2s ease 1.6s both; }
+.how-close {
+  position: absolute;
+  left: 50%;
+  top: 40%;
+  translate: -50% -50%;
+  z-index: 2;
+  width: min(90vw, 40em);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 26px;
+  animation: how-name-in 2.4s ease 0.6s both;
+}
+.how-stone-mark {
+  width: 20px;
+  height: 13px;
+  border-radius: 55% 45% 48% 52% / 60% 58% 42% 40%;
+  background: radial-gradient(circle at 35% 30%, #d9d3c9, #8d8781 60%, #5d5955);
+}
+.how-stone-link { text-decoration: none; }
+
+/* The full screen's own Sources button: top left, where nothing else is, clear of the buttons along the foot. */
+.hos-walk-sources .mm-sources-btn { top: calc(16px + env(safe-area-inset-top, 0px)); bottom: auto; --mm-sources-ink: #cfc8bf; --mm-sources-bg: rgba(5, 5, 5, 0.6); }
+.hos-walk-full.is-walk .hos-walk-sources .mm-sources-btn { --mm-sources-ink: #2a2927; --mm-sources-bg: rgba(236, 235, 231, 0.7); }
+.hos-walk-sources .mm-sources-scrim { z-index: 4; }
+
+/* ───────── The buttons along the foot ───────── */
+.hos-walk-bar,
+.hof-bar {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 18px 24px calc(22px + env(safe-area-inset-bottom, 0px));
+}
+.hos-walk-bar-side,
+.hof-bar-side { display: flex; flex-wrap: wrap; gap: 10px; }
+.hos-walk-bar-side:last-child,
+.hof-bar-side:last-child { justify-content: flex-end; }
+.hos-walk-full .hos-button { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #ece7e1; border-color: rgba(236, 231, 225, 0.45); background: rgba(5, 5, 5, 0.72); }
+.hos-walk-full .hos-button-primary { border-color: #d6cfc7; }
+.hos-walk-full .hos-button:focus-visible { outline: 2px solid #d6cfc7; outline-offset: 3px; }
+.hos-walk-full .hos-button[aria-pressed='true'] { border-color: #ece7e1; background: rgba(40, 36, 32, 0.85); }
+.hos-walk-full .hos-walk-leave { border-color: rgba(236, 231, 225, 0.25); color: #a39b92; }
+/* In the light hall: graphite on pale stone. */
+.hos-walk-full.is-walk .hos-button { color: #262523; border-color: rgba(38, 37, 35, 0.45); background: rgba(236, 235, 231, 0.72); }
+.hos-walk-full.is-walk .hos-button-primary { border-color: #262523; }
+.hos-walk-full.is-walk .hos-button:hover,
+.hos-walk-full.is-walk .hos-button:focus-visible { background: rgba(250, 250, 247, 0.9); outline-color: #262523; }
+.hos-walk-full.is-walk .hos-button[aria-pressed='true'] { border-color: #262523; background: rgba(214, 212, 206, 0.92); }
+.hos-walk-full.is-walk .hos-walk-leave { border-color: rgba(38, 37, 35, 0.25); color: #4d4b47; }
+
+@media (max-width: 760px) {
+  .hos-panel-walk { max-height: 52dvh; }
+  .hos-walk { gap: 12px; }
+  .hos-walk .hos-intro { font-size: 1rem; }
+  .how-name { top: 34%; }
+  /* A phone: the first button across the foot, the quieter ones in a row under it. */
+  .hos-walk-bar,
+  .hof-bar { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; padding: 10px 10px calc(14px + env(safe-area-inset-bottom, 0px)); }
+  .hos-walk-bar-side,
+  .hof-bar-side { display: contents; }
+  .hos-walk-bar .hos-button,
+  .hof-bar .hos-button { padding: 10px 4px; font-size: 10px; letter-spacing: 0.06em; gap: 6px; }
+  .hos-walk-bar .hos-button-primary { grid-column: 1 / -1; font-size: 12px; letter-spacing: 0.14em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hos-walk-full, .how-open, .how-name, .how-say.is-intro, .how-close { animation: none; }
+  .how-open { display: none; }
+  .how-name { transition: none; }
+}
+.hos-walk-full.is-still .how-open { display: none; }
+.hos-walk-full.is-still .how-name,
+.hos-walk-full.is-still .how-say,
+.hos-walk-full.is-still .how-close { animation: none; transition: none; }

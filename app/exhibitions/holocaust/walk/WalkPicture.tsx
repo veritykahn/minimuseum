@@ -3,14 +3,14 @@ import type { Placeholder, WalkLine } from './walkLines';
 import { slotSrc } from './walkLines';
 
 /*
- * The picture for one step of the walk, filling the screen: the owner's own
- * picture when it is in place (walkSlots.ts finds it), and until then a placeholder: a
- * dark silhouette of one of the agreed objects (empty tracks, shoes, a
- * suitcase, a closed door, an empty chair, a candle), softly lit from
- * behind, with "Picture to come" beneath it, so it reads as temporary.
- * Objects only: never a person, nothing graphic. Each fades in slowly, and
- * drifts very slowly while it is shown (neither under reduced motion,
- * memorial-stone.css).
+ * The picture for one line of the film that opens the walk, filling the
+ * screen: the owner's own picture when it is in place (walkSlots.ts finds
+ * it), and until then a placeholder: a dark silhouette of one of the agreed
+ * objects (empty tracks, shoes, a suitcase, a closed door, an empty chair,
+ * a candle), softly lit from behind, with "Picture to come" beneath it, so
+ * it reads as temporary. Objects only: never a person, nothing graphic. The
+ * film shows it in black and white, and drifts it very slowly while it is
+ * shown (not under reduced motion, film.css).
  */
 
 /** Each silhouette in a 200 × 140 box, standing on the ground at y = 120. */

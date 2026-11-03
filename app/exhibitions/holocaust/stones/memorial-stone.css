@@ -1,33 +1,14 @@
 /* ==========================================================================
    Lay a Stone, on one screen: a granite memorial stone in a dark room, the
    Star of David cut into its face, the stones visitors have laid along its
-   ledge; two tabs over it (lay a stone, a minute's stillness). The
+   ledge. A Minute's Stillness keeps its minute in the same room, before the
+   same stone (stillness/stillness.css has its words and its veil). The
    exhibition's faces and stone greys; nothing bright, nothing that flashes.
    The granite, the ledge, the wall and the floor take their stone from the
-   owner's textures (made with Leonardo.Ai, not credited on the page, at the owner's request). They
+   owner's textures (not credited on the page, at the owner's request). They
    aren't seamless tiles, so each is laid once, cropped, never repeated.
+   The room's title, panel and buttons are shared (../room.css).
    ========================================================================== */
-.ho-room {
-  --hos-pale: #ece7e1;
-  --hos-stone: #d6cfc7;
-  --hos-muted: #a39b92;
-  --hos-tall: 'League Gothic', 'Arial Narrow', sans-serif;
-  --pe-nav-m: var(--hos-stone);
-  --pe-nav-ink: var(--hos-muted);
-  min-height: 100vh;
-  color: var(--hos-pale);
-}
-.ho-room :focus-visible { outline: 2px solid var(--hos-stone); outline-offset: 3px; }
-
-.hos-stage {
-  position: relative;
-  display: block;
-  height: 100vh;
-  height: 100dvh;
-  min-height: 600px;
-  overflow: hidden;
-}
-
 /* ───────── The scene ───────── */
 .hos-scene { position: absolute; inset: 0; overflow: hidden; }
 .hos-scene > span { position: absolute; pointer-events: none; }
@@ -249,98 +230,7 @@
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent);
 }
 
-/* ───────── The walk, in the room: its first picture, very dim, in the dark ───────── */
-.hos-walk-backdrop { background: #060606; }
-.hos-walk-backdrop img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.16; filter: grayscale(0.5); }
-.hos-walk-backdrop-veil { inset: 0; background: radial-gradient(ellipse 75% 85% at 50% 45%, rgba(6, 6, 6, 0.35), rgba(0, 0, 0, 0.92) 100%); }
-
-/* ───────── The candle: the owner's own, filmed on black; screened, so the black falls away ───────── */
-.hos-candle { display: block; position: relative; mix-blend-mode: lighten; pointer-events: none; }
-.hos-candle video, .hos-candle img { display: block; width: 100%; height: 100%; object-fit: contain; background: #000; }
-/* Not yet lit: the candle only, dim; the flame not yet there. */
-.hos-candle:not(.is-lit) img { clip-path: inset(29% 0 0 0); filter: brightness(0.55) grayscale(0.3); }
-.hos-candle-panel { width: 64px; height: 96px; margin: -2px 0 -6px; }
-/* In the panel there is nothing beneath to screen it against: the film's black is faded away at its edges instead. */
-.hos-candle-panel video, .hos-candle-panel img { -webkit-mask-image: radial-gradient(ellipse 24% 50% at 50% 55%, #000 70%, transparent 100%); mask-image: radial-gradient(ellipse 24% 50% at 50% 55%, #000 70%, transparent 100%); }
-
-/* ───────── Over the scene: the title, the tabs and the panels ───────── */
-.hos-bar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 2;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  padding: 26px 96px 0;
-}
-.hos-title {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--pe-display);
-  font-weight: 400;
-  font-size: clamp(1.7rem, 2.8vw, 2.5rem);
-  letter-spacing: 0.04em;
-  line-height: 1;
-  text-transform: uppercase;
-  color: var(--hos-stone);
-}
-.hos-title-date { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.3em; padding-left: 0.3em; color: var(--hos-muted); }
-.hos-tabs {
-  display: flex;
-  gap: 4px;
-  padding: 4px;
-  border: 1px solid rgba(236, 231, 225, 0.16);
-  border-radius: 999px;
-  background: rgba(11, 10, 10, 0.5);
-}
-.ho-room .hos-tab {
-  appearance: none;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--hos-muted);
-  font-family: var(--pe-ui);
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  padding: 10px 20px;
-  cursor: pointer;
-  transition: background 0.4s ease, color 0.4s ease;
-}
-.ho-room .hos-tab:hover { color: var(--hos-pale); }
-.ho-room .hos-tab[aria-selected='true'] { background: var(--hos-stone); color: #141210; }
-
-.hos-panel {
-  position: absolute;
-  z-index: 1;
-  right: max(5%, calc(50vw - 660px));
-  top: 30vh;
-  width: min(440px, 32vw);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  animation: hos-panel-in 0.9s ease both;
-}
-.hos-panel[hidden] { display: none; }
-.hos-panel-stillness { top: max(25vh, 216px); }
-.hos-panel-walk { top: 32vh; }
-@keyframes hos-panel-in { from { opacity: 0; } to { opacity: 1; } }
-
-.hos-controls,
-.hos-stillness { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.hos-intro {
-  font-family: var(--pe-body);
-  font-size: clamp(1.1rem, 1.6vw, 1.3rem);
-  line-height: 1.5;
-  color: var(--hos-pale);
-  text-wrap: balance;
-}
+.hos-controls { display: flex; flex-direction: column; align-items: center; gap: 20px; }
 .hos-custom { text-wrap: pretty; display: flex; flex-direction: column; gap: 6px; max-width: 30em; margin-top: -8px; font-family: var(--pe-body); font-size: 0.9rem; line-height: 1.6; color: var(--hos-muted); }
 .hos-custom-source { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.06em; color: var(--hos-muted); opacity: 0.85; }
 .hos-custom-source a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
@@ -354,28 +244,6 @@
 .hos-count[data-status='offline'],
 .hos-count[data-status='loading'] { font-family: var(--pe-body); font-size: 1rem; letter-spacing: 0; color: var(--hos-muted); }
 .hos-message { font-family: var(--pe-body); font-size: 1rem; line-height: 1.5; color: var(--hos-muted); min-height: 1.5em; max-width: 26em; }
-
-.hos-button {
-  font-family: var(--pe-ui);
-  font-size: 12px;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  padding: 14px 26px;
-  min-height: 44px;
-  border: 1px solid rgba(236, 231, 225, 0.45);
-  background: transparent;
-  color: var(--hos-pale);
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  transition: border-color 0.4s ease, background-color 0.4s ease, color 0.4s ease;
-}
-.hos-button:hover,
-.hos-button:focus-visible { border-color: var(--hos-pale); background: rgba(236, 231, 225, 0.08); }
-.hos-button-primary { padding: 16px 36px; font-size: 13px; border-color: var(--hos-stone); }
-.hos-button:disabled { opacity: 0.5; cursor: default; background: transparent; border-color: rgba(236, 231, 225, 0.3); }
 /* A small stone on the button. */
 .hos-button-stone {
   width: 20px;
@@ -383,43 +251,7 @@
   border-radius: 55% 45% 48% 52% / 60% 58% 42% 40%;
   background: radial-gradient(circle at 35% 30%, #d9d3c9, #8d8781 60%, #5d5955);
 }
-
-/* The words of Martin Niemöller, as poster 2 sets them: tall condensed capitals. */
-.hos-quote { display: flex; flex-direction: column; gap: 12px; }
-.hos-quote p {
-  font-family: var(--hos-tall);
-  font-size: clamp(1.25rem, 1.9vw, 1.6rem);
-  line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--hos-pale);
-}
-.hos-quote footer { font-family: var(--pe-body); font-style: italic; font-size: 1rem; color: var(--hos-muted); }
-
-/* While the stillness lasts, the stone dims a little more. */
-.hos-veil {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  /* Dark enough that the words behind fall away: only the line and the minute are left. */
-  background: radial-gradient(ellipse at 50% 45%, rgba(14, 13, 12, 0.965), rgba(5, 5, 5, 0.99) 70%);
-  color: #ece7e1;
-  animation: hos-dim 3s ease both;
-}
-.hos-veil.is-leaving { animation: hos-undim 1.5s ease both; pointer-events: none; }
-@keyframes hos-dim { from { opacity: 0; } to { opacity: 1; } }
-@keyframes hos-undim { from { opacity: 1; } to { opacity: 0; } }
-.hos-veil-inner { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 24px; text-align: center; }
-.hos-veil-title { font-family: 'Anton', 'Impact', sans-serif; font-size: clamp(1.6rem, 4vw, 2.4rem); letter-spacing: 0.06em; text-transform: uppercase; color: #d6cfc7; }
-.hos-veil-line { display: block; width: min(420px, 72vw); height: 1px; background: rgba(236, 231, 225, 0.12); }
-.hos-veil-line span { display: block; height: 100%; background: #d6cfc7; transform-origin: center; transition: transform 1s linear; }
-.hos-veil-time { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 13px; letter-spacing: 0.2em; color: #a39b92; font-variant-numeric: tabular-nums; }
-.hos-veil .hos-button { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; }
-.hos-veil .hos-button:focus-visible { outline: 2px solid #d6cfc7; outline-offset: 3px; }
-.hos-veil-hint { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 12px; letter-spacing: 0.08em; color: #8a837b; }
+.hos-stone-credit { margin: 0; font-family: var(--pe-ui); font-size: 11px; line-height: 1.6; letter-spacing: 0.04em; color: var(--hos-muted); }
 
 /* ───────── The countdown, under the title ───────── */
 .hos-countdown { display: flex; flex-direction: column; align-items: center; gap: 4px; }
@@ -432,29 +264,7 @@
 .hos-today { max-width: 40em; font-family: var(--pe-body); font-size: 0.95rem; line-height: 1.5; color: var(--hos-pale); text-align: center; text-wrap: balance; }
 .hos-today-day { color: var(--hos-stone); font-weight: 500; }
 
-/* ───────── The walk's panel ───────── */
-.hos-walk { display: flex; flex-direction: column; align-items: center; gap: 18px; }
-.hos-walk-line {
-  max-width: 28em;
-  font-family: var(--pe-body);
-  font-size: 1rem;
-  line-height: 1.6;
-  color: var(--hos-pale);
-  opacity: 0;
-  transition: opacity 3s ease;
-}
-.hos-walk-line.is-shown { opacity: 1; }
-.hos-walk-buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-.hos-button[aria-pressed='true'] { border-color: var(--hos-pale); background: rgba(236, 231, 225, 0.1); }
-.hos-sound-mark { font-size: 10px; }
-.hos-stone-credit { margin: 0; font-family: var(--pe-ui); font-size: 11px; line-height: 1.6; letter-spacing: 0.04em; color: var(--hos-muted); }
-.hos-walk-credit { max-width: 26em; font-family: var(--pe-ui); font-size: 11px; line-height: 1.6; letter-spacing: 0.04em; color: var(--hos-muted); }
-.hos-walk-credit a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
-.hos-walk-credit a:hover { color: var(--hos-pale); }
-
 @media (max-width: 760px) {
-  .hos-stage { --hos-x: 50%; min-height: 0; }
-  .hos-bar { padding: 66px 12px 0; gap: 10px; }
   .hos-countdown-units { gap: 10px; }
   .hos-countdown-n { font-size: 15px; }
   .hos-countdown-label { font-size: 9px; letter-spacing: 0.12em; }
@@ -462,39 +272,18 @@
   .hos-today { font-size: 0.85rem; }
   .hos-motes { left: 10%; width: 80%; }
   .hos-beam { left: -10%; width: 120%; }
-  .ho-room .hos-tab { font-size: 11px; letter-spacing: 0.14em; padding: 10px 16px; }
   .hos-monument { left: 6%; width: 88%; top: 31%; height: 30%; }
   .hos-ledge { flex-basis: 14px; }
   .hos-heap { margin-bottom: -9px; }
   .hos-floor { top: 61%; }
   .hos-ground { top: 61%; }
-  .hos-panel,
-  .hos-panel-stillness {
-    left: 0;
-    right: 0;
-    top: auto;
-    bottom: 0;
-    width: auto;
-    max-height: 46dvh;
-    overflow-y: auto;
-    padding: 28px 16px 96px;
-    background: linear-gradient(to bottom, rgba(12, 11, 10, 0), rgba(12, 11, 10, 0.92) 40px);
-  }
   /* Laying a stone sits just under the stone; the stillness, with its words, runs to the foot. */
-  .ho-room .hos-panel:not(.hos-panel-stillness):not(.hos-panel-walk) { top: 63%; bottom: auto; background: none; padding-top: 12px; }
-  .hos-panel-walk { max-height: 52dvh; }
+  .ho-room .hos-panel:not(.hos-panel-stillness) { top: 63%; bottom: auto; background: none; padding-top: 12px; }
   /* With Niemöller's words below it, the stone stands smaller and higher, so the words never lie over its inscription. */
   .hos-stage[data-tab='stillness'] .hos-monument { top: 27%; height: 20%; }
   .hos-stage[data-tab='stillness'] .hos-floor,
   .hos-stage[data-tab='stillness'] .hos-ground { top: 47%; }
-  .hos-walk { gap: 12px; }
-  .hos-walk .hos-intro { font-size: 1rem; }
-  .hos-walk-line { font-size: 0.86rem; }
-  .hos-walk-buttons { gap: 8px; }
-  .hos-walk-buttons .hos-button { padding: 12px 16px; }
-  .hos-panel-stillness { max-height: 50dvh; }
-  .hos-controls, .hos-stillness { gap: 14px; }
-  .hos-quote p { font-size: 1.05rem; }
+  .hos-controls { gap: 14px; }
   .hos-custom { margin-top: -6px; font-size: 0.78rem; line-height: 1.5; gap: 3px; }
   .hos-custom-source { font-size: 10px; }
 }
@@ -509,189 +298,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hos-stone-light, .hos-panel, .hos-beam { animation: none; }
-  .hos-walk-line { transition: none; }
-  .hos-button, .ho-room .hos-tab { transition: none; }
-  .hos-veil-line span { transition: none; }
-  .hos-veil,
-  .hos-veil.is-leaving { animation: none; }
-  .hos-veil.is-leaving { display: none; }
-}
-
-/* ───────── The stillness: one prompt at a time, with its source ───────── */
-.hos-veil-prompt-area { display: flex; align-items: center; justify-content: center; width: min(760px, 88vw); min-height: clamp(150px, 26vh, 260px); }
-.hos-veil-prompt { display: flex; flex-direction: column; align-items: center; gap: 12px; animation: hos-prompt 12s ease both; }
-.hos-veil-prompt-text { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: clamp(1.15rem, 2.3vw, 1.85rem); line-height: 1.5; color: #ece7e1; text-wrap: balance; }
-.hos-veil-prompt-text strong { font-weight: 600; color: #f4efe8; }
-.hos-veil-prompt.is-words .hos-veil-prompt-text { font-style: italic; }
-.hos-veil-prompt.is-question .hos-veil-prompt-text { color: #d6cfc7; }
-.hos-veil-prompt-cite { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: clamp(0.85rem, 1.2vw, 1rem); color: #a39b92; }
-.hos-veil-prompt-source { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 11px; letter-spacing: 0.04em; color: #8a837b; }
-.hos-veil-prompt-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
-@keyframes hos-prompt { 0% { opacity: 0; } 14% { opacity: 1; } 86% { opacity: 1; } 100% { opacity: 0; } }
-
-/* ───────── The walk's panel: the way in ───────── */
-.hos-walk-about { max-width: 26em; font-family: var(--pe-body); font-size: 0.95rem; line-height: 1.6; color: var(--hos-muted); }
-
-/* ───────── The walk, full screen: a dark hall, a floor of iron, pictures on the far wall, a candle carried in front ───────── */
-.hos-walk-full {
-  --scr-top: calc(5vh + env(safe-area-inset-top, 0px));
-  --scr-h: min(38vh, 40vw);
-  position: fixed;
-  inset: 0;
-  z-index: 1200;
-  background: #030303;
-  color: #ece7e1;
-  overflow: hidden;
-  outline: none;
-  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
-  animation: hos-dim 1.6s ease both;
-}
-/* The floor (walkScene.ts), and the dark closing in at the edges. */
-.hos-walk-floor { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.hos-walk-edges { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 60% 64% at 50% 90%, transparent 28%, rgba(0, 0, 0, 0.6) 58%, rgba(0, 0, 0, 0.97) 100%); }
-/* The far wall: a picture a step, as a film on it, in the dark. */
-.hos-walk-screen {
-  position: absolute;
-  top: var(--scr-top);
-  left: 50%;
-  height: var(--scr-h);
-  aspect-ratio: 3 / 2;
-  translate: -50% 0;
-  overflow: hidden;
-  background: #070707;
-  box-shadow: 0 0 6vmin 1vmin rgba(214, 206, 192, 0.07), 0 0 0 1px rgba(214, 206, 192, 0.05);
-}
-.hos-walk-layers { position: absolute; inset: 0; overflow: hidden; }
-.hos-walk-layer { position: absolute; inset: 0; overflow: hidden; background: #070707; }
-.hos-walk-layer.is-current { animation: hos-ahead 1.8s ease both; }
-/* The picture before goes as the next has come, so nothing of it is left at the edges. */
-.hos-walk-layer.is-before { animation: hos-behind 1.8s ease both; }
-@keyframes hos-behind { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
-/* Before the first picture and after the last: the projector's light, and nothing on it. */
-.hos-walk-layer.is-blank { background: radial-gradient(ellipse 80% 80% at 50% 50%, #1c1a17, #0d0c0b); }
-.hos-walk-layer.is-dark { background: #050505; }
-/* A gentle flicker, as a projector's light has; and the film's edges a little soft. */
-.hos-walk-flicker { position: absolute; inset: 0; pointer-events: none; background: #000; opacity: 0; box-shadow: inset 0 0 3vmin rgba(0, 0, 0, 0.6); animation: hos-projector 5.3s steps(1, end) infinite; }
-@keyframes hos-projector {
-  0% { opacity: 0.03; } 11% { opacity: 0; } 19% { opacity: 0.05; } 23% { opacity: 0.01; } 41% { opacity: 0.035; }
-  52% { opacity: 0; } 67% { opacity: 0.045; } 71% { opacity: 0.015; } 88% { opacity: 0.03; } 100% { opacity: 0.03; }
-}
-.hos-walk-picture { margin: 0; width: 100%; height: 100%; color: #cfc8bf; }
-/* The picture drifts, very slowly, while it is shown. */
-.hos-walk-picture img { display: block; width: 100%; height: 100%; object-fit: cover; filter: grayscale(0.15) brightness(0.9) contrast(0.95); transform-origin: 50% 45%; animation: hos-drift 16s ease-out both; }
-@keyframes hos-drift { from { transform: scale(1.01); } to { transform: scale(1.06) translate(-0.6%, -0.6%); } }
-/* Until the owner's picture is in: a dark silhouette, lit softly from behind, and a quiet note that it is to come. */
-.hos-walk-picture.is-placeholder { position: relative; display: flex; align-items: center; justify-content: center; }
-.hos-walk-picture svg { width: 70%; height: auto; max-height: 80%; overflow: visible; }
-.hos-walk-silhouette .is-rim { fill: #0b0a09; stroke: rgba(226, 214, 196, 0.42); stroke-width: 1; stroke-linejoin: round; }
-.hos-walk-silhouette .is-seam { fill: none; stroke: rgba(226, 214, 196, 0.16); stroke-width: 1; }
-.hos-walk-silhouette .is-warm-line { stroke: rgba(240, 200, 140, 0.55); stroke-width: 1.4; stroke-linecap: round; }
-.hos-walk-silhouette .is-flame { fill: rgba(246, 214, 160, 0.85); }
-.hos-walk-silhouette .is-flame-glow { fill: rgba(246, 214, 160, 0.1); }
-.hos-walk-picture .is-ground { stroke: rgba(207, 200, 191, 0.22); stroke-width: 1; }
-.hos-walk-tocome {
-  position: absolute;
-  left: 50%;
-  bottom: 8%;
-  translate: -50% 0;
-  white-space: nowrap;
-  font-size: 10px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(207, 200, 191, 0.45);
-}
-@keyframes hos-ahead { from { opacity: 0; } to { opacity: 1; } }
-
-/* A name, alone on the black of the wall. */
-.hos-walk-name { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 0 16px; text-align: center; animation: hos-ahead 2.4s ease 0.6s both; }
-.hos-walk-name p { margin: 0; font-family: var(--pe-body, 'Inter', sans-serif); font-size: clamp(1.4rem, 3.2vw, 3rem); font-weight: 300; letter-spacing: 0.04em; color: #ece7e1; }
-
-/* One line a step, beneath the pictures, large enough for the back of a classroom. */
-.hos-walk-words {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(var(--scr-top) + var(--scr-h) + 2.2vh);
-  display: flex;
-  justify-content: center;
-  padding: 0 24px;
-  text-align: center;
-  pointer-events: none;
-}
-.hos-walk-say-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; animation: hos-ahead 1.8s ease both; }
-.hos-walk-say { margin: 0; max-width: 30em; font-family: var(--pe-body, 'Inter', sans-serif); font-size: clamp(1.15rem, 2.3vw, 2.1rem); line-height: 1.4; color: #f1ece5; text-wrap: balance; text-shadow: 0 0 18px #000, 0 0 6px #000, 0 1px 2px #000; animation: hos-ahead 1.8s ease both; }
-.hos-walk-say.is-intro { font-size: clamp(1rem, 1.8vw, 1.5rem); color: #cfc8bf; }
-.hos-walk-say.is-close { color: #d6cfc7; animation-delay: 0.8s; }
-
-/* The candle's light on the nearest of the iron, warm, never still for long; and the candle, carried just in front. */
-.hos-walk-light {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  background: radial-gradient(ellipse 32% 28% at 50% 86%, rgba(255, 178, 96, 0.11), rgba(255, 160, 80, 0.04) 50%, transparent 78%);
-  transform-origin: 50% 86%;
-  animation: hos-light-in 2.6s ease-out both, hos-candlelight 4.7s ease-in-out 2.6s infinite alternate;
-}
-@keyframes hos-light-in { from { opacity: 0; transform: scale(0.4); } to { opacity: 1; transform: scale(1); } }
-@keyframes hos-candlelight {
-  0% { opacity: 1; } 18% { opacity: 0.9; } 33% { opacity: 0.97; } 51% { opacity: 0.86; } 70% { opacity: 1; } 84% { opacity: 0.92; } 100% { opacity: 0.97; }
-}
-.hos-walk-candle {
-  position: absolute;
-  left: 50%;
-  bottom: -22vh;
-  height: 60vh;
-  aspect-ratio: 2 / 3;
-  translate: -50% 0;
-  z-index: 1;
-  animation: hos-ahead 1.6s ease 0.2s both;
-}
-
-/* The walk's own Sources button: top left, where nothing else is, clear of the steps along the foot. */
-.hos-walk-sources .mm-sources-btn { top: calc(16px + env(safe-area-inset-top, 0px)); bottom: auto; --mm-sources-ink: #cfc8bf; --mm-sources-bg: rgba(5, 5, 5, 0.6); }
-.hos-walk-sources .mm-sources-scrim { z-index: 2; }
-/* The buttons, either side of the candle. */
-.hos-walk-bar {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 2;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 10px;
-  padding: 18px 24px calc(22px + env(safe-area-inset-bottom, 0px));
-}
-.hos-walk-bar-side { display: flex; flex-wrap: wrap; gap: 10px; max-width: calc(50% - 15vh); }
-.hos-walk-bar-side:last-child { justify-content: flex-end; }
-.hos-walk-full .hos-button { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; color: #ece7e1; border-color: rgba(236, 231, 225, 0.45); background: rgba(5, 5, 5, 0.72); }
-.hos-walk-full .hos-button-primary { border-color: #d6cfc7; }
-.hos-walk-full .hos-button:focus-visible { outline: 2px solid #d6cfc7; outline-offset: 3px; }
-.hos-walk-full .hos-button[aria-pressed='true'] { border-color: #ece7e1; background: rgba(40, 36, 32, 0.85); }
-.hos-walk-full .hos-walk-leave { border-color: rgba(236, 231, 225, 0.25); color: #a39b92; }
-
-@media (max-width: 760px) {
-  .hos-veil-prompt-area { min-height: 200px; }
-  .hos-walk-full { --scr-top: calc(64px + env(safe-area-inset-top, 0px)); --scr-h: min(30vh, 58vw); }
-  .hos-walk-words { padding: 0 16px; }
-  .hos-walk-say { font-size: 1.1rem; }
-  .hos-walk-candle { height: 36vh; bottom: -6vh; }
-  .hos-walk-light { background: radial-gradient(ellipse 70% 34% at 50% 80%, rgba(255, 178, 96, 0.13), rgba(255, 160, 80, 0.05) 50%, transparent 78%); }
-  /* A phone: the step across the foot, the three quieter buttons in one row under it. */
-  .hos-walk-bar { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 10px 10px calc(14px + env(safe-area-inset-bottom, 0px)); }
-  .hos-walk-bar-side { display: contents; }
-  .hos-walk-bar .hos-button { padding: 10px 4px; font-size: 10px; letter-spacing: 0.06em; gap: 6px; }
-  .hos-walk-bar .hos-button-primary { grid-column: 1 / -1; font-size: 12px; letter-spacing: 0.14em; }
-}
-@media (min-width: 1600px) {
-  .hos-walk-say { font-size: 2.6rem; }
-  .hos-veil-prompt-source { font-size: 14px; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hos-veil-prompt, .hos-walk-full, .hos-walk-layer.is-current, .hos-walk-layer.is-before, .hos-walk-picture img, .hos-walk-name, .hos-walk-say, .hos-walk-say-wrap,
-  .hos-walk-flicker, .hos-walk-light, .hos-walk-candle { animation: none; }
+  .hos-stone-light, .hos-beam { animation: none; }
 }

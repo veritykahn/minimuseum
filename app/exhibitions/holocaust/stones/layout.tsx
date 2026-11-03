@@ -1,18 +1,19 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = 'A memorial stone, with the stones laid on it by visitors; a minute’s stillness with the words of Martin Niemöller, and names and words to remember; a candle, and a walk through the history a picture and a line at a time, with the names of children who were murdered; and the days to International Holocaust Remembrance Day.';
+// REVIEW (Verity): the room's description, now that it is Lay a Stone alone.
+const description = 'A memorial stone, with the stones laid on it by visitors, and the days to International Holocaust Remembrance Day.';
 
 export const metadata: Metadata = {
-  title: 'Never Forget | Holocaust Memorial Day | The Mini Museum',
+  title: 'Lay a Stone | Holocaust Memorial Day | The Mini Museum',
   description,
   openGraph: {
-    title: 'Never Forget | Holocaust Memorial Day',
+    title: 'Lay a Stone | Holocaust Memorial Day',
     description,
     url: `${SITE_URL}/exhibitions/holocaust/stones`,
   },
 };
 
-export default function NeverForgetLayout({ children }: { children: React.ReactNode }) {
+export default function LayAStoneLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

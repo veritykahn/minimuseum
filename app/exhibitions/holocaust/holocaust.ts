@@ -121,11 +121,11 @@ const BLOCK_24A: PanelFigure = {
   side: 'left',
 };
 
-/** Poster 1's first two sentences: the walkthrough and Lay a Stone's countdown and walk (stones/) set them from here. */
+/** Poster 1's first two sentences: the walkthrough and Lay a Stone's countdown (stones/) set them from here. */
 export const REMEMBRANCE_LINE = 'International Holocaust Remembrance Day is observed annually on January 27 to commemorate the six million Jewish people who were murdered by the Nazi regime, as well as the millions of other victims who were persecuted.';
 export const LIBERATION_LINE = 'The date marks the liberation of Auschwitz-Birkenau, the largest Nazi concentration and extermination camp, in 1945.';
 
-/** Poster 2's quotation: the walkthrough and the memorial stone's room (stones/) both set it from here. */
+/** Poster 2's quotation: the walkthrough and A Minute's Stillness (stillness/) both set it from here. */
 export const NIEMOLLER = {
   text: '“First they came for the socialists, and I did not speak out—because I was not a socialist. Then they came for the trade unionists, and I did not speak out—because I was not a trade unionist. Then they came for the Jews, and I did not speak out—because I was not a Jew. Then they came for me—and there was no one left to speak for me.”',
   cite: '— Martin Niemöller',
@@ -264,7 +264,12 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   fx: { theme: 'ho', veil: 'chapters', text: 'all' },
   projector: {
     theme: HOLOCAUST_PROJECTOR_THEME,
-    links: [{ label: 'Never Forget: lay a stone, keep a minute’s stillness, walk the path', href: '/exhibitions/holocaust/stones' }],
+    // REVIEW (Verity): the three rooms, as the teaching sheet lists them.
+    links: [
+      { label: 'The Walk: a film of the history, then a walk, remembering children by name', href: '/exhibitions/holocaust/walk' },
+      { label: 'Lay a Stone: a stone on the memorial, and the days to January 27', href: '/exhibitions/holocaust/stones' },
+      { label: 'A Minute’s Stillness: the words of Martin Niemöller, and a minute to remember', href: '/exhibitions/holocaust/stillness' },
+    ],
     teachNote: 'Recommended for grades 6 and up; for younger students, preview first and stay with them.',
   },
   cases: [
@@ -275,15 +280,43 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
     },
   ],
   // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
+  // Once one room, Never Forget, with three tabs; now three rooms, each its own page (roomPaths.ts).
   interactives: [
+    // The film of the history, then the walk over the iron, with the children's names (walk/).
+    {
+      href: '/exhibitions/holocaust/walk',
+      image: { src: '/exhibitions/holocaust/rooms/walk.webp', alt: 'The Walk: a high grey hall, its floor covered with iron faces and empty iron shoes, and a child’s name ahead' },
+      label: 'Interactive',
+      // REVIEW (Verity): the card's title and subtitle.
+      title: 'The Walk',
+      subtitle: 'A film of the history, then a walk, remembering children by name',
+    },
+    // The memorial stone, with the stones visitors have laid, and the countdown to January 27 (stones/).
     {
       href: '/exhibitions/holocaust/stones',
-      image: { src: '/exhibitions/holocaust/rooms/stones.webp', alt: 'The Never Forget room: stones laid along the ledge of a granite memorial in a dark room' },
+      image: { src: '/exhibitions/holocaust/rooms/stones.webp', alt: 'Lay a Stone: stones laid along the ledge of a granite memorial in a dark room' },
       label: 'Interactive',
-      // Was "Lay a Stone". The subtitle carries the room's three parts, so the card does not read as a repeat of poster 1's close, "Never Forget."
-      title: 'Never Forget',
-      subtitle: 'Lay a stone, keep a minute’s stillness, walk the path',
+      // REVIEW (Verity): the card's title and subtitle.
+      title: 'Lay a Stone',
+      subtitle: 'Lay a stone on the memorial, and count the days to January 27',
     },
+    // The words of Martin Niemöller, and a minute's stillness before the stone (stillness/).
+    {
+      href: '/exhibitions/holocaust/stillness',
+      image: { src: '/exhibitions/holocaust/rooms/stillness.webp', alt: 'A Minute’s Stillness: the words of Martin Niemöller beside the memorial stone in a dark room' },
+      label: 'Interactive',
+      // REVIEW (Verity): the card's title and subtitle.
+      title: 'A Minute’s Stillness',
+      subtitle: 'The words of Martin Niemöller, and a minute to remember',
+    },
+    // The fourth room, the Holocaust timeline (/exhibitions/holocaust/timeline), comes here, after these three.
+    // {
+    //   href: '/exhibitions/holocaust/timeline',
+    //   image: { src: '/exhibitions/holocaust/rooms/timeline.webp', alt: '…' },
+    //   label: 'Interactive',
+    //   title: '…',
+    //   subtitle: '…',
+    // },
   ],
   credits: COMMONS_PICTURES.map((p) => ({ text: creditFor(p), href: p.href })),
   posters: [
@@ -337,7 +370,7 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'body', atmosphere: 'candle-vigil', className: 'ho-glow', figure: commonsFigure(COMMONS_CANDLES, 'left'), text: 'It serves as a powerful reminder of the consequences of hatred, discrimination, and indifference, encouraging reflection, remembrance and a commitment to building a safer, more inclusive world.' },
         { type: 'paragraph', section: 'added', atmosphere: 'candle-vigil', effect: 'rise-expand', position: 'top-right', text: 'Every year on Holocaust Memorial Day, people across the UK light a candle in their window “to remember those murdered and to stand against hatred today.”', sources: [SRC.whatIsHmd] },
         { type: 'section-title', section: 'close', atmosphere: 'candle-vigil', effect: 'split-reveal', text: 'Never Forget.' },
-        // The promise, under the poster's own close: no second "Never Forget" (the room's card is "Never Forget" too, with its own subtitle).
+        // The promise, under the poster's own close: no second "Never Forget".
         { type: 'paragraph', section: 'added', atmosphere: 'first-light', effect: 'line-by-line', text: 'In 2000, representatives from 46 governments met in Stockholm and promised to keep the memory of the Holocaust alive. Their declaration says: “The selfless sacrifices of those who defied the Nazis, and sometimes gave their own lives to protect or rescue the Holocaust’s victims, must also be inscribed in our hearts.”', sources: [SRC.stockholm] },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],

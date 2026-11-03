@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
   outputFileTracingExcludes: {
     '/exhibitions/fear-lab/what-scares-you': ['public/**'],
     '/exhibitions/great-war/silence': ['public/**'],
-    '/exhibitions/holocaust/stones': ['public/**'],
+    '/exhibitions/holocaust/walk': ['public/**'],
     // Each key matches every route that contains it (Next matches with
     // `contains`), so one per exhibition covers its landing page, its case
     // page and its artifacts' pages.

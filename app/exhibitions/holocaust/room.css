@@ -1,0 +1,126 @@
+/* ==========================================================================
+   The Holocaust exhibition's rooms (Lay a Stone, A Minute's Stillness, The
+   Walk): what they share. The dark room, its title over the scene, the panel
+   beside it, and the quiet buttons. The exhibition's faces and stone greys;
+   nothing bright, nothing that flashes. Each room's own scene is in its own
+   file (stones/memorial-stone.css, stillness/stillness.css, walk/walk.css).
+   ========================================================================== */
+.ho-room {
+  --hos-pale: #ece7e1;
+  --hos-stone: #d6cfc7;
+  --hos-muted: #a39b92;
+  --hos-tall: 'League Gothic', 'Arial Narrow', sans-serif;
+  --pe-nav-m: var(--hos-stone);
+  --pe-nav-ink: var(--hos-muted);
+  min-height: 100vh;
+  color: var(--hos-pale);
+}
+.ho-room :focus-visible { outline: 2px solid var(--hos-stone); outline-offset: 3px; }
+
+.hos-stage {
+  position: relative;
+  display: block;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 600px;
+  overflow: hidden;
+}
+
+/* ───────── Over the scene: the title and the panel ───────── */
+.hos-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 26px 96px 0;
+}
+.hos-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--pe-display);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 2.8vw, 2.5rem);
+  letter-spacing: 0.04em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--hos-stone);
+}
+.hos-title-date { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.3em; padding-left: 0.3em; color: var(--hos-muted); }
+
+.hos-panel {
+  position: absolute;
+  z-index: 1;
+  right: max(5%, calc(50vw - 660px));
+  top: 30vh;
+  width: min(440px, 32vw);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: hos-panel-in 0.9s ease both;
+}
+.hos-panel[hidden] { display: none; }
+.hos-panel-stillness { top: max(25vh, 216px); }
+@keyframes hos-panel-in { from { opacity: 0; } to { opacity: 1; } }
+
+.hos-intro {
+  font-family: var(--pe-body);
+  font-size: clamp(1.1rem, 1.6vw, 1.3rem);
+  line-height: 1.5;
+  color: var(--hos-pale);
+  text-wrap: balance;
+}
+
+.hos-button {
+  font-family: var(--pe-ui);
+  font-size: 12px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 14px 26px;
+  min-height: 44px;
+  border: 1px solid rgba(236, 231, 225, 0.45);
+  background: transparent;
+  color: var(--hos-pale);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  transition: border-color 0.4s ease, background-color 0.4s ease, color 0.4s ease;
+}
+.hos-button:hover,
+.hos-button:focus-visible { border-color: var(--hos-pale); background: rgba(236, 231, 225, 0.08); }
+.hos-button-primary { padding: 16px 36px; font-size: 13px; border-color: var(--hos-stone); }
+.hos-button:disabled { opacity: 0.5; cursor: default; background: transparent; border-color: rgba(236, 231, 225, 0.3); }
+.hos-button[aria-pressed='true'] { border-color: var(--hos-pale); background: rgba(236, 231, 225, 0.1); }
+.hos-sound-mark { font-size: 10px; }
+@keyframes hos-dim { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hos-undim { from { opacity: 1; } to { opacity: 0; } }
+
+@media (max-width: 760px) {
+  .hos-stage { --hos-x: 50%; min-height: 0; }
+  .hos-bar { padding: 66px 12px 0; gap: 10px; }
+  .hos-panel {
+    left: 0;
+    right: 0;
+    top: auto;
+    bottom: 0;
+    width: auto;
+    max-height: 46dvh;
+    overflow-y: auto;
+    padding: 28px 16px 96px;
+    background: linear-gradient(to bottom, rgba(12, 11, 10, 0), rgba(12, 11, 10, 0.92) 40px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hos-panel { animation: none; }
+  .hos-button { transition: none; }
+}

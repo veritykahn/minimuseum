@@ -7,9 +7,11 @@
  * geometry, worked out from its row and place, so the floor is the same
  * each time and goes on as far as the visitor walks.
  *
- * The iron is dark, near black, with a little rust in it. The only light is
- * the visitor's candle, carried just in front of them: it catches the rims
- * of the nearest faces and shoes, and the floor falls away into darkness.
+ * The hall is lit as the Memory Void at the Jewish Museum Berlin is, where
+ * Fallen Leaves lies: bare grey concrete, high walls, and a pale daylight
+ * from far above, even and grey, strangely light. Nothing is in shadow and
+ * nothing glows: the iron is dark grey with a little rust in it, its upper
+ * edges catching the sky, and the floor runs on ahead into a pale haze.
  *
  * Distances are in metres, on the floor: x across the hall (0 its middle),
  * z ahead of where the walk began.
@@ -25,11 +27,10 @@ export const ACROSS = 17;
 export const STEP = 0.8;
 /** The eye's height above the floor. */
 export const EYE = 1.55;
-/** How far ahead the floor is drawn; beyond, only darkness. */
+/** How far ahead the floor is drawn; beyond, only the pale haze. */
 export const FAR = 13;
-/** The candle: carried this far ahead of the eye, this high. */
-const CANDLE_Z = 0.35;
-const CANDLE_UP = 1.05;
+/** The walls: this high, before they are lost in the light from above. */
+export const WALL_UP = 16;
 
 export type Pt = [number, number];
 
@@ -256,16 +257,18 @@ export function rowsInView(at: number, near = 0.9, far = FAR): number[] {
 }
 
 /**
- * The candle's light on the floor at (x, dz ahead): about 1 on the nearest
- * iron, falling away soon to nothing in the dark; `glow` is the candle
- * itself, 0 (not yet lit) to 1.
+ * The daylight on the floor at (x, dz ahead): even, from far above, about
+ * 0.8 everywhere, a little less close under the walls. It never falls away
+ * to dark; distance is the haze's (hazeAt), not the light's.
  */
-export function lightAt(x: number, dz: number, glow = 1): number {
-  const d2 = x * x * 1.4 + (dz - CANDLE_Z) * (dz - CANDLE_Z) + CANDLE_UP * CANDLE_UP;
-  const candle = Math.min(1.25, 6.5 / d2) * glow;
-  // Far off, the faint light of the pictures on the end wall, just enough to see the floor goes on.
-  const far = 0.025 * Math.exp(-((dz - FAR * 0.8) ** 2) / 14);
-  return (candle + far) * Math.exp(-dz / 14);
+export function lightAt(x: number, dz: number): number {
+  const wall = Math.min(1, (x / HALF_WIDTH) ** 2);
+  return 0.82 * (1 - 0.14 * wall) * (dz > 0 ? 1 : 0.9);
+}
+
+/** How much of the pale haze lies between the eye and a point `dz` ahead: 0 at the feet, toward 1 far off. */
+export function hazeAt(dz: number): number {
+  return 1 - Math.exp(-Math.max(0, dz) / 6.5);
 }
 
 /** Ease in and out, for a step taken slowly. */
@@ -285,43 +288,116 @@ function piecesOf(row: number) {
   return p;
 }
 
-/** Dark cast iron, nearly black, and a little rust; the candle warms it only slightly. */
-const IRON = [36, 35, 34];
-const RUST = [60, 40, 30];
+/** Dark grey cast iron, a little rust in it; and the grey of the haze it is lost in, far off. */
+const IRON = [62, 62, 63];
+const RUST = [84, 62, 48];
+const HAZE = [184, 183, 179];
 
-function ironColour(p: Iron, light: number, shade: number) {
+/** A piece's light: the daylight on it, and the haze before it. */
+type Lit = { light: number; haze: number };
+
+const mix = (c: number[], k: number) => c.map((v, i) => v * (1 - k) + HAZE[i] * k);
+const rgb = (c: number[], a = 1) => `rgba(${Math.min(255, c[0]) | 0},${Math.min(255, c[1]) | 0},${Math.min(255, c[2]) | 0},${a.toFixed(3)})`;
+
+function ironColour(p: Iron, { light, haze }: Lit, shade: number) {
   const rust = p.rust * 0.35;
-  const warm = Math.min(1, light);
-  const c = IRON.map((v, i) => (v * (1 - rust) + RUST[i] * rust) * p.tone * shade * (0.3 + light * 1.7) * [1, 1 - 0.06 * warm, 1 - 0.13 * warm][i]);
-  return `rgb(${Math.min(255, c[0]) | 0},${Math.min(255, c[1]) | 0},${Math.min(255, c[2]) | 0})`;
+  const c = IRON.map((v, i) => (v * (1 - rust) + RUST[i] * rust) * p.tone * shade * (0.55 + light * 0.6));
+  return rgb(mix(c, haze * 0.88));
 }
 
-/** The candle caught on an iron edge: warm, and only where the light reaches. */
-const rimLight = (light: number, k = 1) => `rgba(255, 198, 140, ${Math.min(0.7, light * light * 0.55 * k).toFixed(3)})`;
+/** The sky caught on an upper edge of the iron: pale, cool, never bright. */
+const rimLight = ({ light, haze }: Lit, k = 1) => `rgba(232, 232, 228, ${Math.min(0.55, light * 0.42 * k * (1 - haze)).toFixed(3)})`;
+/** The dark under the iron, seen through an eye or a mouth, or a shoe's opening. */
+const holeColour = ({ haze }: Lit) => rgb(mix([22, 22, 23], haze * 0.85));
+/** A shoe's soft shadow, under the even light. */
+const shadowColour = ({ haze }: Lit) => `rgba(18, 18, 20, ${(0.32 * (1 - haze)).toFixed(3)})`;
 
 /**
- * Draws the floor as seen from `at` along it, lit by the candle at `glow`.
- * The canvas is cleared to black first; what the light doesn't reach stays dark.
- * Each row's shoes are drawn just after the faces of the row in front of
- * it, so the flat faces never hide the shoes standing among them.
+ * The hall itself, behind the iron: the pale light from far above, the
+ * grey concrete walls rising either side, their formwork joints just seen,
+ * and the floor between them running into the haze.
  */
-export function drawFloor(ctx: CanvasRenderingContext2D, v: View, at: number, glow = 1) {
-  ctx.fillStyle = '#030303';
+function drawHall(ctx: CanvasRenderingContext2D, v: View, at: number) {
+  // Above: the light from high overhead, palest at the top.
+  const sky = ctx.createLinearGradient(0, 0, 0, v.h);
+  sky.addColorStop(0, '#ecebe7');
+  sky.addColorStop(Math.max(0.05, (v.horizon / v.h) * 0.92), '#c2c1bc');
+  sky.addColorStop(Math.min(0.99, v.horizon / v.h + 0.02), '#b4b3ae');
+  sky.addColorStop(1, '#6a6965');
+  ctx.fillStyle = sky;
   ctx.fillRect(0, 0, v.w, v.h);
+  // The walls, either side, high and bare, darker near and paler far off.
+  for (const side of [-1, 1]) {
+    const x = side * HALF_WIDTH;
+    const nearFoot = project(v, x, 0.4)!;
+    const farFoot = project(v, x, FAR * 2)!;
+    const nearTop = project(v, x, 0.4, WALL_UP)!;
+    const farTop = project(v, x, FAR * 2, WALL_UP)!;
+    const g = ctx.createLinearGradient(nearFoot[0], 0, farFoot[0], 0);
+    g.addColorStop(0, '#8f8e8a');
+    g.addColorStop(1, '#bdbcb7');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(nearFoot[0], nearFoot[1]);
+    ctx.lineTo(farFoot[0], farFoot[1]);
+    ctx.lineTo(farTop[0], farTop[1]);
+    ctx.lineTo(nearTop[0], nearTop[1]);
+    ctx.closePath();
+    ctx.fill();
+    // The formwork joints, a board's width apart, coming past as the visitor walks.
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = 'rgba(40, 40, 40, 0.07)';
+    const first = Math.ceil((at + 0.6) / 1.2);
+    for (let k = first; k < first + 18; k++) {
+      const dz = k * 1.2 - at;
+      const foot = project(v, x, dz);
+      const top = project(v, x, dz, WALL_UP);
+      if (!foot || !top) continue;
+      ctx.beginPath();
+      ctx.moveTo(foot[0], foot[1]);
+      ctx.lineTo(top[0], top[1]);
+      ctx.stroke();
+    }
+  }
+  // The floor between the walls, under the iron, running into the haze.
+  const l0 = project(v, -HALF_WIDTH, 0.4)!;
+  const r0 = project(v, HALF_WIDTH, 0.4)!;
+  const l1 = project(v, -HALF_WIDTH, FAR * 2)!;
+  const r1 = project(v, HALF_WIDTH, FAR * 2)!;
+  const floor = ctx.createLinearGradient(0, v.horizon, 0, v.h);
+  floor.addColorStop(0, '#b0afaa');
+  floor.addColorStop(0.35, '#83827e');
+  floor.addColorStop(1, '#4f4e4b');
+  ctx.fillStyle = floor;
+  ctx.beginPath();
+  ctx.moveTo(l0[0], l0[1]);
+  ctx.lineTo(l1[0], l1[1]);
+  ctx.lineTo(r1[0], r1[1]);
+  ctx.lineTo(r0[0], r0[1]);
+  ctx.closePath();
+  ctx.fill();
+}
+
+/**
+ * Draws the hall and its floor as seen from `at` along it, in the even
+ * grey light. Each row's shoes are drawn just after the faces of the row in
+ * front of it, so the flat faces never hide the shoes standing among them.
+ */
+export function drawFloor(ctx: CanvasRenderingContext2D, v: View, at: number) {
+  drawHall(ctx, v, at);
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
   let shoes: IronShoe[] = [];
   const each = (p: FloorPiece) => {
     const dz = p.z - at;
     if (dz <= 0.3) return;
-    const light = lightAt(p.x, dz, glow);
-    if (light < 0.02) return;
+    const lit: Lit = { light: lightAt(p.x, dz), haze: hazeAt(dz) };
     const scale = v.focal / dz;
     // Off to the side, out of view.
     const sx = v.cx + p.x * scale;
     if (sx < -0.4 * scale || sx > v.w + 0.4 * scale) return;
-    if (p.kind === 'face') drawFace(ctx, v, p, dz, light, scale);
-    else drawShoe(ctx, v, p, dz, light, scale);
+    if (p.kind === 'face') drawFace(ctx, v, p, dz, lit, scale);
+    else drawShoe(ctx, v, p, dz, lit, scale);
   };
   for (const row of rowsInView(at)) {
     const pieces = piecesOf(row);
@@ -360,14 +436,14 @@ function arc(pts: Pt[], cy: number, near: boolean): Pt[] {
   return out;
 }
 
-function drawFace(ctx: CanvasRenderingContext2D, v: View, f: IronFace, dz: number, light: number, scale: number) {
+function drawFace(ctx: CanvasRenderingContext2D, v: View, f: IronFace, dz: number, light: Lit, scale: number) {
   const top = (p: Pt) => f.rise + Math.max(-f.rise + 0.005, f.slope[0] * p[0] + f.slope[1] * p[1]);
   // Its edge, the thickness of the iron, nearly black.
   if (path(ctx, v, f.outline, f.x, dz, (p) => top(p) - 0.03)) {
     ctx.fillStyle = ironColour(f, light, 0.28);
     ctx.fill();
   }
-  // Its face: dull, dark iron, a little brighter toward the candle.
+  // Its face: dull, dark grey iron, a little paler toward its far edge, where the sky is caught.
   if (!path(ctx, v, f.outline, f.x, dz, top)) return;
   const px = scale * 0.2;
   if (px > 22) {
@@ -384,7 +460,7 @@ function drawFace(ctx: CanvasRenderingContext2D, v: View, f: IronFace, dz: numbe
   if (px > 18 && f.rust > 0.15) {
     ctx.save();
     ctx.clip();
-    ctx.fillStyle = `rgba(66, 40, 28, ${(0.05 + f.rust * 0.12).toFixed(3)})`;
+    ctx.fillStyle = `rgba(86, 60, 44, ${((0.05 + f.rust * 0.12) * (1 - light.haze)).toFixed(3)})`;
     for (const [u, w, rr] of f.mottles) {
       const c = project(v, f.x + u, dz + w, top([u, w]));
       if (!c) continue;
@@ -394,8 +470,8 @@ function drawFace(ctx: CanvasRenderingContext2D, v: View, f: IronFace, dz: numbe
     }
     ctx.restore();
   }
-  // The eyes and the mouth, cut through to the dark beneath; the far wall of each catches the candle.
-  ctx.fillStyle = '#020202';
+  // The eyes and the mouth, cut through to the dark beneath; the far wall of each catches the light.
+  ctx.fillStyle = holeColour(light);
   for (const h of f.holes) if (path(ctx, v, h, f.x, dz, top)) ctx.fill();
   if (px > 10) {
     ctx.lineWidth = Math.max(0.6, scale * 0.004);
@@ -405,13 +481,13 @@ function drawFace(ctx: CanvasRenderingContext2D, v: View, f: IronFace, dz: numbe
       if (path(ctx, v, arc(h, cy, false), f.x, dz, top, false)) ctx.stroke();
     }
   }
-  // The rim toward the candle catches its light.
+  // The rim catches the light from above.
   ctx.lineWidth = Math.max(0.7, scale * 0.006);
   ctx.strokeStyle = rimLight(light);
   if (path(ctx, v, arc(f.outline, 0, true), f.x, dz, top, false)) ctx.stroke();
 }
 
-function drawShoe(ctx: CanvasRenderingContext2D, v: View, s: IronShoe, dz: number, light: number, scale: number) {
+function drawShoe(ctx: CanvasRenderingContext2D, v: View, s: IronShoe, dz: number, light: Lit, scale: number) {
   const shape = SHOES[s.size];
   // It stands on the faces beneath it.
   const base = project(v, s.x, dz, 0.05);
@@ -434,7 +510,7 @@ function drawShoe(ctx: CanvasRenderingContext2D, v: View, s: IronShoe, dz: numbe
     if (close) ctx.closePath();
   };
   // Its shadow on the iron beneath.
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+  ctx.fillStyle = shadowColour(light);
   ctx.beginPath();
   ctx.ellipse(base[0], base[1], len * s.side * 0.58, len * 0.07, 0, 0, Math.PI * 2);
   ctx.fill();
@@ -458,9 +534,9 @@ function drawShoe(ctx: CanvasRenderingContext2D, v: View, s: IronShoe, dz: numbe
   const c = at([ot, oup]);
   ctx.beginPath();
   ctx.ellipse(c[0], c[1], orx * len * s.side, Math.max(1, ory * len), s.lean * s.facing, 0, Math.PI * 2);
-  ctx.fillStyle = '#020202';
+  ctx.fillStyle = holeColour(light);
   ctx.fill();
-  // The candle along its top edge and the rim of the opening.
+  // The light along its top edge and the rim of the opening.
   ctx.lineWidth = Math.max(0.7, scale * 0.005);
   ctx.strokeStyle = rimLight(light, 1.1);
   ctx.stroke();

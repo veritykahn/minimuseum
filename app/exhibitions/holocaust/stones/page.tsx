@@ -1,14 +1,11 @@
-import NeverForget from './NeverForget';
-import { walkSlotsOnDisk } from './walkSlots';
+import LayAStone from './LayAStone';
 
 /*
- * Never Forget: the room itself is NeverForget.tsx. This page, on the
- * server, only looks to see which of the walk's pictures and sounds the
- * owner has dropped into public/exhibitions/holocaust/walk/ (walkSlots.ts),
- * so the walk uses each one as soon as it is there.
+ * Lay a Stone: the room itself is LayAStone.tsx. The address is the one
+ * Never Forget had, so old links still come here; an old link to its walk
+ * or its stillness (#walk, #stillness) is sent on from the room.
  */
 
-export default function NeverForgetPage() {
-  const { pictures, sounds } = walkSlotsOnDisk();
-  return <NeverForget pictures={pictures} sounds={sounds} />;
+export default function LayAStonePage() {
+  return <LayAStone />;
 }

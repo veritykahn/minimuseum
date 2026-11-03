@@ -305,7 +305,7 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'holocaust', label: 'Holocaust\nMemorial Day', path: '/exhibitions/holocaust',
     x: COL[1], ...BOTTOM, accentColor: COLORS.holocaust,
     parent: 'first-floor',
-    children: ['ho-case', 'ho-stones', ...lessonsChild('holocaust')],
+    children: ['ho-case', 'ho-walk', 'ho-stones', 'ho-stillness', ...lessonsChild('holocaust')],
   },
 ];
 
@@ -1139,15 +1139,16 @@ export const WOMENS_HISTORY: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Holocaust Memorial Day (Floor Plan)
 //
-// Layout: the Exhibition Hall, the display case beyond it, and the
-// interactive room beyond that
+// Layout: the Exhibition Hall, the display case beyond it, and the three
+// interactive rooms beyond that, in the order the landing page lists them
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// ├───────────────╴ ╶──────────────┤
-// │          Never Forget          │
-// └────────────────────────────────┘
+// ├────╴ ╶───┬────╴ ╶───┬────╴ ╶───┤
+// │ The Walk ╎  Lay a   ╎ A Minute’s│
+// │          ╎  Stone   ╎ Stillness │
+// └──────────┴──────────┴──────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
@@ -1155,7 +1156,11 @@ const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
   accentColor: COLORS.holocaust,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
-    ...wallWithDoorway(40, 280, 460, 280),
+    ...wallWithDoorway(40, 280, 180, 280),
+    ...wallWithDoorway(180, 280, 320, 280),
+    ...wallWithDoorway(320, 280, 460, 280),
+    ...wallWithDoorway(180, 280, 180, 380),
+    ...wallWithDoorway(320, 280, 320, 380),
   ],
   rooms: [
     {
@@ -1171,10 +1176,22 @@ const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
       labelX: 250, labelY: 230,
     },
     {
-      id: 'ho-stones', label: 'Never Forget', path: '/exhibitions/holocaust/stones',
+      id: 'ho-walk', label: 'The Walk', path: '/exhibitions/holocaust/walk',
       accentColor: COLORS.holocaust, parent: 'holocaust',
-      x: 40, y: 280, width: 420, height: 100,
+      x: 40, y: 280, width: 140, height: 100,
+      labelX: 110, labelY: 330,
+    },
+    {
+      id: 'ho-stones', label: 'Lay a Stone', path: '/exhibitions/holocaust/stones',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 180, y: 280, width: 140, height: 100,
       labelX: 250, labelY: 330,
+    },
+    {
+      id: 'ho-stillness', label: 'A Minute’s\nStillness', path: '/exhibitions/holocaust/stillness',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 320, y: 280, width: 140, height: 100,
+      labelX: 390, labelY: 330,
     },
   ],
 };

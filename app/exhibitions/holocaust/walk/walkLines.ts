@@ -1,35 +1,38 @@
 import type { FactSource } from '@/components/exhibition/FactNote';
 
 /*
- * The walk, one line per step, in the order of the history: from Jewish
- * life before 1933, through the laws, Kristallnacht, the Kindertransport,
- * the ghettos, hiding, the deportations and the rescuers, to liberation,
- * the survivors, and remembering. It began as the owner-approved draft
- * (A18/B13/B14 proposal, 2D); the lines changed or moved since say so in
- * their REVIEW notes. The first step brings the first line; every step has
- * a line and a picture. Between some of the steps, a child's name
- * (walkNames.ts); after the last, the walk closes quietly (Walk.tsx).
+ * The history, one line at a time, in its order: from Jewish life before
+ * 1933, through the laws, Kristallnacht, the Kindertransport, the ghettos,
+ * hiding, the deportations and the rescuers, to liberation, the survivors,
+ * and remembering. It began as the owner-approved draft (A18/B13/B14
+ * proposal, 2D) for the walk; the lines changed or moved since say so in
+ * their REVIEW notes. The lines are now carried by the film that opens the
+ * walk (Film.tsx), each over its picture, in order; the walk itself has
+ * only the children's names (victims.ts).
  *
  * Every line comes from Yad Vashem, the USHMM or the Holocaust Memorial Day
  * Trust, and every survivor's words are quoted exactly from the page named
  * with them. Each line has a REVIEW note with its source, for the owner.
- * The sources are listed in the room's Sources drawer, by step, never under
- * the line itself.
+ * The sources are listed in the walk's Sources drawer, by line, never on
+ * the screen with the line.
  *
  * Each line has a picture slot: an object or a place, never a person,
  * nothing graphic. The owner supplies her own pictures; until one is in
  * place, a dark, softly lit silhouette of one of the agreed objects (empty
  * tracks, shoes, a suitcase, a closed door, an empty chair, a candle;
  * `placeholder`, WalkPicture.tsx), marked "Picture to come", stands in.
- * A slot keeps its number wherever its line falls in the walk, and its
- * picture is dropped in under either name:
+ * A slot keeps its number wherever its line falls, and its picture is
+ * dropped in under either name:
  *   public/exhibitions/holocaust/walk/<slot>.webp   (or .jpg; e.g. w01-open-door.webp)
  *   public/exhibitions/holocaust/walk/walk-NN.jpg   (NN the slot's number, walk-01.jpg; or .webp, .png)
  * and is used from the next build (walkSlots.ts looks for the files).
  *
- * Sound: nothing but the steps. Each footfall is a clank of metal, from the
- * owner's recordings cut into single clanks, with a long resonant rattle
- * that comes in over about one step in three (metal.ts):
+ * Sound. The film's music, when the owner has put it in place, plays with
+ * the film and fades as it ends:
+ *   public/exhibitions/holocaust/walk/film-music.mp3
+ * On the walk, nothing but the steps. Each footfall is a clank of metal,
+ * from the owner's recordings cut into single clanks, with a long resonant
+ * rattle that comes in over about one step in three (metal.ts):
  *   public/exhibitions/holocaust/walk/sound/clank-01.mp3, clank-02.mp3, …
  *   public/exhibitions/holocaust/walk/sound/rattle.mp3
  * Until the clanks are in place, the steps are made in the browser
@@ -64,13 +67,15 @@ const HMD_WHAT: FactSource = { label: 'Holocaust Memorial Day Trust, “What is 
 export type Placeholder = 'tracks' | 'shoes' | 'suitcase' | 'door' | 'chair' | 'candle';
 export const PLACEHOLDERS: readonly Placeholder[] = ['tracks', 'shoes', 'suitcase', 'door', 'chair', 'candle'];
 
-/** The three parts of the walk: ordinary life, the history, and remembering. */
+/** The three parts of the history: ordinary life, the history, and remembering. */
 export type Ambient = 'before' | 'during' | 'after';
 
 export const SOUND_DIR = `${WALK_DIR}/sound`;
 /** A clank's file name: clank-01.mp3, clank-02.mp3, … */
 export const CLANK_FILE = /^clank-\d{2}\.mp3$/;
 export const RATTLE_SRC = `${SOUND_DIR}/rattle.mp3`;
+/** The film's music, when it is in place. */
+export const MUSIC_SRC = `${WALK_DIR}/film-music.mp3`;
 /** The metal the walk's steps are made of: the clanks found, and the rattle if there is one. */
 export type WalkSounds = { clanks: readonly string[]; rattle: string | null };
 export const NO_SOUNDS: WalkSounds = { clanks: [], rattle: null };
@@ -84,7 +89,7 @@ export type WalkLine = {
   image: string;
   /** The silhouette that stands in until the picture is there. */
   placeholder: Placeholder;
-  /** Which part of the walk this line belongs to. */
+  /** Which part of the history this line belongs to. */
   part: Ambient;
 };
 
