@@ -1,0 +1,2 @@
+The floor hall's sound from America 250's doorway (components/FloorSound.ts). A stand-in until "The President's March" (fife and drum, Pixabay) is in sounds-in.
+floor.mp3 — a mantel clock, with a quill on parchment now and then: "mantelclock" by photog123, https://freesound.org/s/198965/ (CC0), and "Ink Quill Writing on Parchment ASMR" by brktkrgll, https://freesound.org/s/856167/ (CC0). Mixed, made mono, looped seamlessly (crossfade), levelled quiet.

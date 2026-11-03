@@ -1,0 +1,2 @@
+The floor hall's sound from Egypt's doorway (components/FloorSound.ts). A stand-in until "Desert Sand Dunes" (Pixabay) is in sounds-in.
+floor.mp3 — "Wind is blowing in the grass of a patagonian plain…" by felix.blume, https://freesound.org/s/139337/ (CC0). 60 s from 0:44, filtered dry and soft, made mono, looped seamlessly (crossfade), levelled quiet.

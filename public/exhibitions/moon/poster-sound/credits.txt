@@ -1,0 +1,2 @@
+The floor hall's sound from the Moon's doorway (components/FloorSound.ts). A stand-in until "Ambient soundscapes 001 (space atmosphere)" (Pixabay) is in sounds-in.
+floor.mp3 — a low, still hum, made for the museum with ffmpeg (filtered noise and two low tones); no recording used.
