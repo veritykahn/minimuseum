@@ -1,2 +1,3 @@
-The floor hall's sound from the Moon's doorway (components/FloorSound.ts). A stand-in until "Ambient soundscapes 001 (space atmosphere)" (Pixabay) is in sounds-in.
-floor.mp3 — a low, still hum, made for the museum with ffmpeg (filtered noise and two low tones); no recording used.
+The posters' room sound (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet.
+posters.mp3 — "Ambient soundscapes 001 (space atmosphere)" by AudioPapkin, https://pixabay.com/sound-effects/film-special-effects-ambient-soundscapes-001-space-atmosphere-303246/ (Pixabay Content License). First 120 s.
+floor.mp3 — a copy of posters.mp3: the room heard from its doorway in the floor's hall (components/FloorSound.ts). It replaces the stand-in made earlier on 3 November.

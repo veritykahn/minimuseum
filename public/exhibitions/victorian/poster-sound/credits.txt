@@ -1,2 +1,4 @@
-The posters' room sound (components/exhibition/RoomSound.tsx). From Freesound, Creative Commons 0 (public domain). Mixed, made mono, looped seamlessly (crossfade), levelled quiet.
+The posters' room sound (components/exhibition/RoomSound.tsx). Mixed, made mono, looped seamlessly (crossfade), levelled quiet.
+poster1.mp3 (Revolutionary Victorian Britain: a steam engine) — "Steam Engine" by DebWong1951, https://pixabay.com/sound-effects/film-special-effects-steam-engine-624854/ (Pixabay Content License)
 poster2.mp3 (Dickens and Christmas: a music box by the fire) — "Music Box - J. Brahms - Opus 39 - Waltz no 3" by Flying_Deer_Fx, https://freesound.org/s/369405/ (CC0), over "fire crackles" by florianreichelt, https://freesound.org/s/563766/ (CC0)
+floor.mp3 — a copy of poster2.mp3: the parlour heard from the hall (components/FloorSound.ts)
