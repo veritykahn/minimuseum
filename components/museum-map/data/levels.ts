@@ -305,7 +305,7 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'holocaust', label: 'Holocaust\nMemorial Day', path: '/exhibitions/holocaust',
     x: COL[1], ...BOTTOM, accentColor: COLORS.holocaust,
     parent: 'first-floor',
-    children: ['ho-case', 'ho-stones', ...lessonsChild('holocaust')],
+    children: ['ho-case', 'ho-stones', 'ho-timeline', ...lessonsChild('holocaust')],
   },
 ];
 
@@ -1139,15 +1139,16 @@ export const WOMENS_HISTORY: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Holocaust Memorial Day (Floor Plan)
 //
-// Layout: the Exhibition Hall, the display case beyond it, and the
-// interactive room beyond that
+// Layout: the Exhibition Hall, the display case beyond it, and the two
+// interactive rooms beyond that
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// ├───────────────╴ ╶──────────────┤
-// │          Never Forget          │
-// └────────────────────────────────┘
+// ├───────╴ ╶───────┬──────╴ ╶─────┤
+// │  Never Forget   ╎ The Timeline │
+// │                 ╎ of the Holo. │
+// └─────────────────┴──────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
@@ -1155,7 +1156,9 @@ const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
   accentColor: COLORS.holocaust,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
-    ...wallWithDoorway(40, 280, 460, 280),
+    ...wallWithDoorway(40, 280, 250, 280),
+    ...wallWithDoorway(250, 280, 460, 280),
+    ...wallWithDoorway(250, 280, 250, 380),
   ],
   rooms: [
     {
@@ -1173,8 +1176,14 @@ const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
     {
       id: 'ho-stones', label: 'Never Forget', path: '/exhibitions/holocaust/stones',
       accentColor: COLORS.holocaust, parent: 'holocaust',
-      x: 40, y: 280, width: 420, height: 100,
-      labelX: 250, labelY: 330,
+      x: 40, y: 280, width: 210, height: 100,
+      labelX: 145, labelY: 330,
+    },
+    {
+      id: 'ho-timeline', label: 'The Timeline of the Holocaust', path: '/exhibitions/holocaust/timeline',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 250, y: 280, width: 210, height: 100,
+      labelX: 355, labelY: 330,
     },
   ],
 };
