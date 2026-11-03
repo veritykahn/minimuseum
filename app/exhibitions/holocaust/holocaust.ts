@@ -264,11 +264,12 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   fx: { theme: 'ho', veil: 'chapters', text: 'all' },
   projector: {
     theme: HOLOCAUST_PROJECTOR_THEME,
-    // REVIEW (Verity): the three rooms, as the teaching sheet lists them.
+    // REVIEW (Verity): the four rooms, as the teaching sheet lists them.
     links: [
       { label: 'The Walk: a film of the history, then a walk, remembering children by name', href: '/exhibitions/holocaust/walk' },
       { label: 'Lay a Stone: a stone on the memorial, and the days to January 27', href: '/exhibitions/holocaust/stones' },
       { label: 'A Minute’s Stillness: the words of Martin Niemöller, and a minute to remember', href: '/exhibitions/holocaust/stillness' },
+      { label: 'The Timeline of the Holocaust: from January 1933 to May 1945, a date at a time', href: '/exhibitions/holocaust/timeline' },
     ],
     teachNote: 'Recommended for grades 6 and up; for younger students, preview first and stay with them.',
   },
@@ -280,7 +281,7 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
     },
   ],
   // Each room's card shows the room itself: a screenshot of it (public/exhibitions/<slug>/rooms/).
-  // Once one room, Never Forget, with three tabs; now three rooms, each its own page (roomPaths.ts).
+  // Once one room, Never Forget, with three tabs; now three rooms, each its own page (roomPaths.ts), and the timeline after them.
   interactives: [
     // The film of the history, then the walk over the iron, with the children's names (walk/).
     {
@@ -309,14 +310,15 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
       title: 'A Minute’s Stillness',
       subtitle: 'The words of Martin Niemöller, and a minute to remember',
     },
-    // The fourth room, the Holocaust timeline (/exhibitions/holocaust/timeline), comes here, after these three.
-    // {
-    //   href: '/exhibitions/holocaust/timeline',
-    //   image: { src: '/exhibitions/holocaust/rooms/timeline.webp', alt: '…' },
-    //   label: 'Interactive',
-    //   title: '…',
-    //   subtitle: '…',
-    // },
+    // The fourth room: the Holocaust from January 1933 to May 1945, a date at a time (timeline/).
+    {
+      href: '/exhibitions/holocaust/timeline',
+      image: { src: '/exhibitions/holocaust/rooms/timeline.webp', alt: 'The Timeline of the Holocaust: pale dates and words either side of a line down a black page, with barbed wire down both margins' },
+      label: 'Interactive',
+      title: 'The Timeline of the Holocaust',
+      // REVIEW (Verity): the card's subtitle.
+      subtitle: 'From January 1933 to May 1945, a date at a time',
+    },
   ],
   credits: COMMONS_PICTURES.map((p) => ({ text: creditFor(p), href: p.href })),
   posters: [

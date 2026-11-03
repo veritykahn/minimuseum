@@ -135,6 +135,10 @@ const MANY = victims(200);
 const ALL_PICTURES = Object.fromEntries(WALK_LINES.map((l) => [l.slot, `walk-${String(slotNumber(l.slot)).padStart(2, '0')}.webp`]));
 
 const tick = (ms: number) => act(() => { jest.advanceTimersByTime(ms); });
+/** Time passing a little at a time, so each timer the rooms set as they go is run in its turn. */
+const pass = (ms: number, by = 250) => {
+  for (let t = 0; t < ms; t += by) tick(Math.min(by, ms - t));
+};
 
 function begin(props: Parameters<typeof WalkRoom>[0] = {}) {
   render(<WalkRoom pool={MANY} {...props} />);
@@ -240,7 +244,7 @@ describe('the film', () => {
     tick(FILM_OPENING_MS / 2);
     fireEvent.click(within(film).getByRole('button', { name: 'Pause' }));
     expect(status()).toBe('The film is paused.');
-    tick(10 * FILM_LINE_MS);
+    pass(10 * FILM_LINE_MS);
     expect(film.querySelector('[data-opening="F2"]')).toBeInTheDocument();
     fireEvent.click(within(film).getByRole('button', { name: 'Play' }));
     // Only what was left of the frame.
@@ -265,7 +269,7 @@ describe('the film', () => {
     const film = begin();
     expect(film.querySelector('.hof-film')).toHaveClass('is-still');
     expect(within(film).queryByRole('button', { name: 'Pause' })).toBeNull();
-    tick(5 * FILM_LINE_MS);
+    pass(5 * FILM_LINE_MS);
     expect(film.querySelector('[data-opening="F1"]')).toBeInTheDocument();
     for (let i = 1; i < FILM_FRAMES.length; i++) {
       fireEvent.click(within(film).getByRole('button', { name: 'Next' }));
@@ -309,11 +313,13 @@ describe('the film', () => {
       const toggle = within(film).getByRole('button', { name: 'Music' });
       expect(toggle).toHaveAttribute('aria-pressed', 'true');
       // As the last line comes, it fades, and is silent as the film ends.
-      tick(FILM_MS - FILM_LINE_MS + 10);
+      pass(FILM_MS - FILM_LINE_MS + 10);
+      expect(document.querySelector('.hof-film')).toHaveAttribute('data-frame', WALK_LINES[31].id);
       const full = m.volume;
-      tick(FILM_LINE_MS / 2);
+      pass(FILM_LINE_MS / 2);
+
       expect(m.volume).toBeLessThan(full);
-      tick(FILM_LINE_MS);
+      pass(FILM_LINE_MS);
       expect(m.volume).toBe(0);
       expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
     } finally {
@@ -352,7 +358,9 @@ describe('the film', () => {
     expect(within(inspired).getAllByRole('link')).toHaveLength(2);
     const sounds = within(drawer).getByRole('heading', { name: 'The walk’s sounds' }).closest('section')!;
     expect(within(sounds).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(['https://freesound.org/s/365411/', 'https://freesound.org/s/697754/']);
-    expect(drawer).not.toHaveTextContent(/Leonardo|candle/i);
+    expect(drawer).not.toHaveTextContent(/Leonardo/i);
+    // No credit for a candle: it has gone from the walk.
+    expect(within(drawer).queryByRole('heading', { name: /candle/i })).toBeNull();
     // No names yet: their heading comes with the first.
     expect(within(drawer).queryByRole('heading', { name: WALK_NAMES_HEADING })).toBeNull();
     expect(filmSourceGroups()).toHaveLength(1 + 32);
@@ -402,8 +410,8 @@ describe('the walk', () => {
     const hana: Victim = { id: 'hana', name: 'Hana Brady', age: '13', died: '1944', place: 'Auschwitz', source: { label: 'USHMM Collections, Hana Brady (biography)', href: 'https://collections.ushmm.org/search/catalog/pa1164219' } };
     expect(victimText(hana)).toBe('Hana Brady, 13 · died 1944, Auschwitz');
     walkNow({ pool: [hana] });
-    // One name to show: it comes a while in, spread through the walk.
-    tick(20_000);
+    // One name to show: it comes on the second footfall, then no other.
+    pass(3_500);
     const name = full().querySelector('[data-name="hana"]')!;
     expect(name.querySelector('.how-name-who')).toHaveTextContent('Hana Brady, 13');
     expect(name.querySelector('.how-name-death')).toHaveTextContent('died 1944, Auschwitz');
@@ -416,9 +424,9 @@ describe('the walk', () => {
     expect(WALK_MS).toBe(WALK_BEATS * BEAT_MS);
     expect(WALK_BEATS).toBe(39);
     expect(BEAT_MS).toBe(6500);
-    tick(WALK_MS - 4000);
+    pass(WALK_MS - 4000);
     expect(walk.querySelector('[data-end]')).toBeNull();
-    tick(4000 + HESITATE_MS[1] + 100);
+    pass(4000 + HESITATE_MS[1] + 100);
     expect(walk.querySelector('[data-end]')).toBeInTheDocument();
     expect(walk).toHaveTextContent(WALK_CLOSE);
     expect(status()).toBe(WALK_CLOSE);
@@ -427,7 +435,7 @@ describe('the walk', () => {
     expect(within(walk).queryByRole('button', { name: 'Pause' })).toBeNull();
     // Nothing more comes.
     const feet = shownNames().length;
-    tick(30_000);
+    pass(30_000);
     expect(shownNames()).toHaveLength(feet);
     expect(within(walk).getByRole('button', { name: 'Walk again' })).toBeInTheDocument();
   });
@@ -458,14 +466,16 @@ describe('the walk', () => {
     jest.useFakeTimers();
     const walk = walkNow();
     expect(within(walk).queryByRole('button', { name: 'Take a step' })).toBeNull();
-    tick(8000);
+    pass(8000);
     const before = shownNames().map(([id]) => id).join();
     fireEvent.click(within(walk).getByRole('button', { name: 'Pause' }));
     expect(status()).toBe('You pause.');
-    tick(30_000);
+    pass(30_000);
     expect(shownNames().map(([id]) => id).join()).toBe(before);
     fireEvent.click(within(walk).getByRole('button', { name: 'Walk on' }));
-    expect(status()).toBe('You walk on, slowly.');
+    // Walking on at once: the next name may come with the first footfall, and is read out in its place.
+    expect(within(walk).getByRole('button', { name: 'Pause' })).toBeInTheDocument();
+    expect(['You walk on, slowly.', ...MANY.map(victimText)]).toContain(status());
   });
 
   it('steps unevenly: 1.15 to 1.75 seconds a footfall, and about one in seven a longer pause of 2.4 to 3.4', () => {
@@ -581,7 +591,7 @@ describe('the walk', () => {
     jest.useFakeTimers();
     try {
       walkNow({ sounds: { clanks: ['/exhibitions/holocaust/walk/sound/clank-01.mp3'], rattle: '/exhibitions/holocaust/walk/sound/rattle.mp3' } });
-      tick(3 * BEAT_MS);
+      pass(3 * BEAT_MS);
       expect(audio).not.toHaveBeenCalled();
     } finally {
       window.Audio = before;

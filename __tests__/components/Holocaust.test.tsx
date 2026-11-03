@@ -285,9 +285,12 @@ describe('Holocaust Memorial Day', () => {
       expect(note).toHaveTextContent('Recommended for grades 6 and up; for younger students, preview first and stay with them.');
       fireEvent.click(within(dialog).getByRole('button', { name: /Parent/ }));
       expect(within(dialog).getByRole('note')).toBe(note);
-      // The interactive, renamed, in the sheet's list.
-      expect(within(dialog).getByRole('link', { name: /Never Forget/ })).toHaveAttribute('href', '/exhibitions/holocaust/stones');
-      expect(HOLOCAUST.interactives?.[0]).toMatchObject({ title: 'Never Forget', subtitle: 'Lay a stone, keep a minute’s stillness, walk the path' });
+      // The four rooms, in the sheet's list.
+      expect(within(dialog).getByRole('link', { name: /^The Walk/ })).toHaveAttribute('href', '/exhibitions/holocaust/walk');
+      expect(within(dialog).getByRole('link', { name: /^Lay a Stone/ })).toHaveAttribute('href', '/exhibitions/holocaust/stones');
+      expect(within(dialog).getByRole('link', { name: /^A Minute’s Stillness/ })).toHaveAttribute('href', '/exhibitions/holocaust/stillness');
+      expect(within(dialog).getByRole('link', { name: /^The Timeline of the Holocaust/ })).toHaveAttribute('href', '/exhibitions/holocaust/timeline');
+      expect(HOLOCAUST.interactives?.map((r) => r.title)).toEqual(['The Walk', 'Lay a Stone', 'A Minute’s Stillness', 'The Timeline of the Holocaust']);
       window.sessionStorage.removeItem('mm-teach-role');
     });
 
@@ -386,14 +389,17 @@ describe('The Holocaust Memorial Day display case page', () => {
 });
 
 describe('Holocaust Memorial Day on the museum map', () => {
-  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and Never Forget', () => {
+  it('is a room on the First Floor, with an Exhibition Hall, a Display Case, the Walk, Lay a Stone, A Minute’s Stillness and the timeline', () => {
     const level = getLevelConfig('/exhibitions/holocaust/artifacts/case');
     expect(level.title).toBe('Holocaust Memorial Day');
     expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/holocaust'],
       ['Display Case', '/exhibitions/holocaust/artifacts/case'],
-      ['Never Forget', '/exhibitions/holocaust/stones'],
+      ['The Walk', '/exhibitions/holocaust/walk'],
+      ['Lay a Stone', '/exhibitions/holocaust/stones'],
+      ['A Minute’s Stillness', '/exhibitions/holocaust/stillness'],
+      ['The Timeline of the Holocaust', '/exhibitions/holocaust/timeline'],
     ]);
     expect(getRoomByPath('/exhibitions/holocaust')?.parent).toBe('first-floor');
     expect(getRoomByPath('/exhibitions/holocaust/artifacts/case')?.parent).toBe('holocaust');

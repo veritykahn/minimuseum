@@ -272,7 +272,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#78716C',
     parent: 'first-floor',
-    children: ['ho-case', 'ho-walk', 'ho-stones', 'ho-stillness', ...lessonsChild('holocaust')],
+    children: ['ho-case', 'ho-walk', 'ho-stones', 'ho-stillness', 'ho-timeline', ...lessonsChild('holocaust')],
   },
   {
     id: 'ho-case',
@@ -302,6 +302,14 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     id: 'ho-stillness',
     label: 'A Minute’s Stillness',
     path: '/exhibitions/holocaust/stillness',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#78716C',
+    parent: 'holocaust',
+  },
+  {
+    id: 'ho-timeline',
+    label: 'The Timeline of the Holocaust',
+    path: '/exhibitions/holocaust/timeline',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#78716C',
     parent: 'holocaust',

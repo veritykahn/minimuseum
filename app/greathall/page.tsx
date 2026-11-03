@@ -5,7 +5,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { focusElement } from '@/lib/a11y/focus';
 import { type Floor, type StudioFloor, ALL_FLOORS, GREAT_HALL_FLOORS_ID } from '@/lib/floors';
-import HallSound from './HallSound';
 
 const COUNT_WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve'];
 
@@ -570,8 +569,8 @@ export default function GreatHall() {
         }
       `}</style>
 
-      {/* Hero Section */}
-      <HallSound />
+      {/* Hero Section (the hall's sound and its button live in the root
+          layout, components/HallSound.tsx, so they carry on up the stairs) */}
       <section className="hero">
         {/* Title */}
         <div className="title-container fade-in-up">

@@ -59,6 +59,7 @@ export const CONNECTIONS: RoomConnection[] = [
   ['ho-case', 'ho-walk'],
   ['ho-case', 'ho-stones'],
   ['ho-case', 'ho-stillness'],
+  ['ho-case', 'ho-timeline'],
   ['vb-case', 'vb-christmas-card'],
   ['vb-case', 'vb-inventions'],
   ['vb-case', 'vb-christmas-parlour'],

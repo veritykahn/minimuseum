@@ -1,17 +1,30 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import fs from 'node:fs';
+import path from 'node:path';
 import LayAStone from '@/app/exhibitions/holocaust/stones/page';
-import { FOLLOWS, PROMPTS, PROMPT_AT, PROMPT_MS, planMinute, promptAt } from '@/app/exhibitions/holocaust/stones/stillnessPrompts';
-import Stillness from '@/app/exhibitions/holocaust/stones/Stillness';
+import StillnessPage from '@/app/exhibitions/holocaust/stillness/page';
+import { FOLLOWS, PROMPTS, PROMPT_AT, PROMPT_MS, planMinute, promptAt } from '@/app/exhibitions/holocaust/stillness/stillnessPrompts';
+import Stillness from '@/app/exhibitions/holocaust/stillness/Stillness';
+import { ROOM_PATHS, oldTabRoom } from '@/app/exhibitions/holocaust/roomPaths';
 import { heapLayout } from '@/app/exhibitions/holocaust/stones/MemorialStone';
 import { HOLOCAUST, NIEMOLLER, STONE_CUSTOM } from '@/app/exhibitions/holocaust/holocaust';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
 /*
- * Never Forget (once Lay a Stone): the heap's layout, laying a stone (and the fallback when the
- * shared count can't be reached), the minute's stillness (Esc, and focus),
- * and its place on the landing page, the map and the projector.
+ * Lay a Stone and A Minute's Stillness, each its own room (they were tabs of
+ * Never Forget): the heap's layout, laying a stone (and the fallback when
+ * the shared count can't be reached), the minute's stillness (Esc, and
+ * focus), the old tab addresses sent on to the rooms they became, and the
+ * rooms' places on the landing page, the map and the projector.
  */
+
+const mockReplace = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ push: jest.fn(), replace: mockReplace, prefetch: jest.fn(), back: jest.fn(), forward: jest.fn() }),
+  usePathname: () => '/',
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 beforeAll(() => {
   // jsdom draws no canvas: the stones are drawn only in a browser.
@@ -104,7 +117,7 @@ describe('laying a stone', () => {
     // Not poster copy: owner-approved and fact-checked; cited in the drawer, not on the page.
     mockFetch(() => ({ status: 503, body: {} }));
     render(<LayAStone />);
-    const panel = screen.getByRole('tabpanel', { name: 'Lay a stone' });
+    const panel = screen.getByRole('region', { name: 'Lay a stone' });
     expect(panel).toHaveTextContent('Lay a stone, to remember.');
     expect(panel).toHaveTextContent(STONE_CUSTOM.text);
     expect(within(panel).queryByRole('link')).toBeNull();
@@ -112,9 +125,8 @@ describe('laying a stone', () => {
     const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
     const stone = within(drawer).getByRole('heading', { name: 'Lay a stone' }).closest('section')!;
     expect(within(stone).getByRole('link', { name: 'My Jewish Learning' })).toHaveAttribute('href', 'https://www.myjewishlearning.com/article/ask-the-expert-stones-on-graves/');
-    // Every stillness prompt's source is there too, under Stillness.
-    const still = within(drawer).getByRole('heading', { name: 'Stillness' }).closest('section')!;
-    for (const p of PROMPTS) for (const src of p.sources) expect(within(still).getAllByRole('link', { name: src.label })[0]).toHaveAttribute('href', src.href);
+    // Only this room's sources: the stillness and the walk have their own rooms, and drawers.
+    expect(within(drawer).queryByRole('heading', { name: 'Stillness' })).toBeNull();
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
   });
 
@@ -126,17 +138,50 @@ describe('laying a stone', () => {
     await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('The memorial can’t be reached just now.'));
   });
 
-  it('moves between the tabs with the arrow keys, and gives each its address', async () => {
+  it('is a room of its own now: no tabs, the countdown under its title', async () => {
     mockFetch(() => ({ status: 503, body: {} }));
     render(<LayAStone />);
-    const stone = screen.getByRole('tab', { name: 'Lay a stone' });
-    expect(stone).toHaveAttribute('aria-selected', 'true');
-    fireEvent.keyDown(stone, { key: 'ArrowRight' });
-    const still = screen.getByRole('tab', { name: 'Stillness' });
-    expect(still).toHaveAttribute('aria-selected', 'true');
-    expect(still).toHaveFocus();
-    expect(window.location.hash).toBe('#stillness');
-    expect(screen.getByRole('tabpanel', { name: 'Stillness' })).toHaveTextContent('Martin Niemöller');
+    expect(screen.queryByRole('tab')).toBeNull();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Lay a Stone');
+    expect(document.querySelector('.hos-countdown, .hos-today')).toBeInTheDocument();
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+  });
+
+  it('sends an old Never Forget tab’s address on to the room it became', async () => {
+    mockFetch(() => ({ status: 503, body: {} }));
+    expect(oldTabRoom('#walk')).toBe('/exhibitions/holocaust/walk');
+    expect(oldTabRoom('#stillness')).toBe('/exhibitions/holocaust/stillness');
+    expect(oldTabRoom('#stone')).toBeNull();
+    expect(oldTabRoom('')).toBeNull();
+    for (const [hash, to] of [['#walk', ROOM_PATHS.walk], ['#stillness', ROOM_PATHS.stillness]] as const) {
+      mockReplace.mockClear();
+      window.history.replaceState(null, '', `/exhibitions/holocaust/stones${hash}`);
+      const { unmount } = render(<LayAStone />);
+      expect(mockReplace).toHaveBeenCalledWith(to);
+      unmount();
+    }
+    mockReplace.mockClear();
+    window.history.replaceState(null, '', '/exhibitions/holocaust/stones#stone');
+    render(<LayAStone />);
+    expect(mockReplace).not.toHaveBeenCalled();
+    await waitFor(() => expect(global.fetch).toHaveBeenCalled());
+  });
+});
+
+describe('A Minute’s Stillness, its own room', () => {
+  it('keeps its minute before the memorial stone, its prompts’ sources in its own Sources drawer', async () => {
+    mockFetch(() => ({ status: 503, body: {} }));
+    render(<StillnessPage />);
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('A Minute’s Stillness');
+    expect(document.querySelector('.hos-monument')).toBeInTheDocument();
+    const panel = screen.getByRole('region', { name: 'A minute’s stillness' });
+    expect(panel).toHaveTextContent('Martin Niemöller');
+    expect(within(panel).queryByRole('link')).toBeNull();
+    expect(screen.queryByRole('tab')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+    const drawer = screen.getByRole('dialog', { name: 'Sources and credits' });
+    const still = within(drawer).getByRole('heading', { name: 'Stillness' }).closest('section')!;
+    for (const p of PROMPTS) for (const src of p.sources) expect(within(still).getAllByRole('link', { name: src.label })[0]).toHaveAttribute('href', src.href);
     await waitFor(() => expect(global.fetch).toHaveBeenCalled());
   });
 });
@@ -228,11 +273,17 @@ describe('the minute’s stillness', () => {
 });
 
 describe('wiring', () => {
-  it('sets the room on the landing page, the map and the projector', () => {
-    expect(HOLOCAUST.interactives?.map((c) => c.href)).toEqual(['/exhibitions/holocaust/stones']);
-    expect(HOLOCAUST.interactives?.[0].image?.src).toBe('/exhibitions/holocaust/rooms/stones.webp');
-    expect(HOLOCAUST.projector.links.map((l) => l.href)).toEqual(['/exhibitions/holocaust/stones']);
+  it('sets the rooms on the landing page, the map and the projector, in order, the timeline after the three', () => {
+    const rooms = ['/exhibitions/holocaust/walk', '/exhibitions/holocaust/stones', '/exhibitions/holocaust/stillness', '/exhibitions/holocaust/timeline'];
+    expect(HOLOCAUST.interactives?.map((c) => c.href)).toEqual(rooms);
+    expect(HOLOCAUST.interactives?.map((c) => c.image?.src)).toEqual(['walk', 'stones', 'stillness', 'timeline'].map((r) => `/exhibitions/holocaust/rooms/${r}.webp`));
+    // Each card's picture is there.
+    for (const c of HOLOCAUST.interactives ?? []) expect(fs.existsSync(path.join(process.cwd(), 'public', c.image!.src))).toBe(true);
+    expect(HOLOCAUST.projector.links.map((l) => l.href)).toEqual(rooms);
+    expect(getRoomByPath('/exhibitions/holocaust/walk')?.id).toBe('ho-walk');
     expect(getRoomByPath('/exhibitions/holocaust/stones')?.id).toBe('ho-stones');
-    expect(getLevelConfig('/exhibitions/holocaust/stones').title).toBe('Holocaust Memorial Day');
+    expect(getRoomByPath('/exhibitions/holocaust/stillness')?.id).toBe('ho-stillness');
+    expect(getRoomByPath('/exhibitions/holocaust/timeline')?.id).toBe('ho-timeline');
+    for (const r of rooms) expect(getLevelConfig(r).title).toBe('Holocaust Memorial Day');
   });
 });
