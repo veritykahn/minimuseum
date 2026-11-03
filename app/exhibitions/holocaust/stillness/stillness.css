@@ -39,6 +39,9 @@
 .hos-veil-time { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 13px; letter-spacing: 0.2em; color: #a39b92; font-variant-numeric: tabular-nums; }
 .hos-veil .hos-button { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; }
 .hos-veil .hos-button:focus-visible { outline: 2px solid #d6cfc7; outline-offset: 3px; }
+/* The close: a word of thanks, and the two ways on, side by side. */
+.hos-veil-close-text { max-width: 30em; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: clamp(1.05rem, 1.9vw, 1.5rem); line-height: 1.5; color: #ece7e1; text-wrap: balance; animation: hos-dim 2s ease both; }
+.hos-veil-back { border-color: rgba(236, 231, 225, 0.25); color: #a39b92; }
 .hos-veil-hint { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 12px; letter-spacing: 0.08em; color: #8a837b; }
 
 /* ───────── The stillness: one prompt at a time, with its source ───────── */

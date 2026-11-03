@@ -101,6 +101,15 @@
 .hos-button:disabled { opacity: 0.5; cursor: default; background: transparent; border-color: rgba(236, 231, 225, 0.3); }
 .hos-button[aria-pressed='true'] { border-color: var(--hos-pale); background: rgba(236, 231, 225, 0.1); }
 .hos-sound-mark { font-size: 10px; }
+/* At the end of the walk and of the stillness: the two ways on, side by side; laying a stone, with a small stone. */
+.hos-ways-on { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.hos-stone-link { text-decoration: none; }
+.hos-stone-mark {
+  width: 20px;
+  height: 13px;
+  border-radius: 55% 45% 48% 52% / 60% 58% 42% 40%;
+  background: radial-gradient(circle at 35% 30%, #d9d3c9, #8d8781 60%, #5d5955);
+}
 @keyframes hos-dim { from { opacity: 0; } to { opacity: 1; } }
 @keyframes hos-undim { from { opacity: 1; } to { opacity: 0; } }
 

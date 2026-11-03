@@ -4,7 +4,7 @@ import path from 'node:path';
 import LayAStone from '@/app/exhibitions/holocaust/stones/page';
 import StillnessPage from '@/app/exhibitions/holocaust/stillness/page';
 import { FOLLOWS, PROMPTS, PROMPT_AT, PROMPT_MS, planMinute, promptAt } from '@/app/exhibitions/holocaust/stillness/stillnessPrompts';
-import Stillness from '@/app/exhibitions/holocaust/stillness/Stillness';
+import Stillness, { STILLNESS_AGAIN, STILLNESS_BACK, STILLNESS_CLOSE, STILLNESS_STONE } from '@/app/exhibitions/holocaust/stillness/Stillness';
 import { ROOM_PATHS, oldTabRoom } from '@/app/exhibitions/holocaust/roomPaths';
 import { heapLayout } from '@/app/exhibitions/holocaust/stones/MemorialStone';
 import { HOLOCAUST, NIEMOLLER, STONE_CUSTOM } from '@/app/exhibitions/holocaust/holocaust';
@@ -259,6 +259,22 @@ describe('the minute’s stillness', () => {
     expect(promptAt(PROMPT_AT[0] - 1)).toBeNull();
     expect(promptAt(PROMPT_AT[2] + 100)).toBe(2);
     expect(PROMPT_AT[3] + PROMPT_MS).toBeLessThanOrEqual(60_000);
+  });
+
+  it('closes, when the minute is over, with the choice of another minute or laying a stone', () => {
+    render(<Stillness />);
+    fireEvent.click(screen.getByRole('button', { name: 'Keep a minute’s stillness' }));
+    act(() => { jest.advanceTimersByTime(61_000); });
+    const veil = screen.getByRole('region', { name: 'A minute’s stillness' });
+    expect(veil).toHaveTextContent(STILLNESS_CLOSE);
+    expect(within(veil).getByRole('button', { name: STILLNESS_AGAIN })).toHaveFocus();
+    expect(within(veil).getByRole('link', { name: STILLNESS_STONE })).toHaveAttribute('href', '/exhibitions/holocaust/stones');
+    fireEvent.click(within(veil).getByRole('button', { name: STILLNESS_AGAIN }));
+    expect(screen.getByRole('button', { name: 'End the stillness' })).toHaveFocus();
+    fireEvent.click(screen.getByRole('button', { name: 'End the stillness' }));
+    fireEvent.click(screen.getByRole('button', { name: STILLNESS_BACK }));
+    expect(screen.queryByRole('link', { name: STILLNESS_STONE })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Keep a minute’s stillness' })).toHaveFocus();
   });
 
   it('Esc ends it at once, and focus goes back', () => {

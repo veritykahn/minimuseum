@@ -16,19 +16,22 @@ import { drawWalkNames, loadShown, saveShown, victimDeath, victimText, walkPool,
  * (Shalekhet) at the Jewish Museum Berlin, where visitors walk over iron
  * faces that cover the floor and hear them as they go, and by the iron
  * Shoes on the Danube Bank in Budapest. After the film (Film.tsx), the
- * screen opens out into a high hall, strangely grey and light, as the
- * Memory Void where Fallen Leaves lies is: bare concrete walls, a pale
- * daylight from far above, and the floor covered with cast-iron faces and
- * empty iron shoes (walkScene.ts, drawn here, nothing of theirs).
+ * visitor walks out of the dark into a high hall, strangely grey and
+ * light, as the Memory Void where Fallen Leaves lies is: bare concrete
+ * walls, a pale daylight from far above, and the floor covered with
+ * cast-iron faces and empty iron shoes (walkScene.ts, drawn here, nothing
+ * of theirs); and, as the walk nears its end, back into the dark
+ * (darkness).
  *
  * The visitor walks on over the iron, and one at a time, ahead of them, a
  * child's name comes toward them and passes: their age, and the year they
  * died and where, as far as their record gives them (victims.ts). A name
  * every two or three footfalls, never two crowding: each new name comes
  * only as the last is passing. Each walk draws a fresh set of names,
- * avoiding those already shown in this browser. The walk lasts about as
- * long as it always has (WALK_BEATS of BEAT_MS, about four minutes of
- * walking), then closes quietly, and invites the visitor to lay a stone.
+ * avoiding those already shown in this browser. The walk lasts as long as
+ * the walk over the faces in the Memory Void takes (WALK_MS, about a
+ * minute and a quarter), then closes quietly, in the dark, and invites the
+ * visitor to lay a stone.
  *
  * It walks on by itself, at a slow, uneven pace, until the visitor pauses
  * it: a footfall every second and a half or so, and now and then a longer
@@ -48,10 +51,8 @@ import { drawWalkNames, loadShown, saveShown, victimDeath, victimText, walkPool,
 
 /** A footfall: forward over the iron. */
 export const MOVE_MS = 1000;
-/** The walk's length: as long as it has always taken, 39 steps of the history and the names at about six and a half seconds each, about four minutes. */
-export const BEAT_MS = 6500;
-export const WALK_BEATS = 39;
-export const WALK_MS = WALK_BEATS * BEAT_MS;
+/** The walk's length: as long as the walk over the faces in the Memory Void takes, about a minute and a quarter (Verity's own walk: 1 min 15–30 s). */
+export const WALK_MS = 75_000;
 /** Walking on: the gap between footfalls, uneven, as a person walks; and now and then a longer one, a hesitation. */
 export const GAP_MS: readonly [number, number] = [1150, 1750];
 export const HESITATE_MS: readonly [number, number] = [2400, 3400];
@@ -67,15 +68,30 @@ export const FIRST_NAME_AT = 2;
 /** As many names as a walk has room for, a name every two or three footfalls. */
 export const NAMES_PER_WALK = Math.floor((WALK_FOOTFALLS - FIRST_NAME_AT) / ((NAME_FEET[0] + NAME_FEET[1]) / 2));
 /** With reduced motion, a step a name, and never more steps than this. */
-export const STILL_STEPS = WALK_BEATS;
+export const STILL_STEPS = NAMES_PER_WALK;
 /** A press of "Take a step" can't be hurried. */
 export const STILL_STEP_MS = 300;
+
+/** The dark at the walk's start and end: never quite black, so the nearest iron is just seen. */
+export const DARK_MOST = 0.96;
+/** How much of the walk it takes to come out of the dark into the light, and, at the end, to go back into it. */
+export const INTO_LIGHT = 0.28;
+export const INTO_DARK = 0.28;
+const smooth = (x: number) => {
+  const k = Math.max(0, Math.min(1, x));
+  return k * k * (3 - 2 * k);
+};
+/** How dark the hall is, this far through the walk (0 to 1): dark at the start, walking into the light, and dark again at the end. */
+export function darkness(progress: number, ended = false): number {
+  if (ended) return DARK_MOST;
+  return DARK_MOST * (1 - Math.min(smooth(progress / INTO_LIGHT), smooth((1 - progress) / INTO_DARK)));
+}
 
 // REVIEW (Verity): the walk's own words, new with the film and the grey hall.
 export const WALK_INTRO = 'First, a short film of the history. Then a slow walk through a quiet hall, remembering children by name.';
 // REVIEW (Verity): new with the film and the names.
 export const WALK_ABOUT =
-  'The film shows the history in pictures and short lines, in the order it happened. Then the screen opens into a high grey hall, its floor covered with iron faces and empty iron shoes. As you walk, one child’s name at a time comes toward you, with their age, and, where it is known, when and where they died. The walk moves on by itself, slowly. Each step is heard; you can pause, or turn the sound off, at any time.';
+  'The film shows the history in pictures and short lines, in the order it happened. Then, out of the dark, you walk into a high grey hall, its floor covered with iron faces and empty iron shoes, and on into the dark again. As you walk, one child’s name at a time comes toward you, with their age, and, where it is known, when and where they died. The walk moves on by itself, slowly. Each step is heard; you can pause, or turn the sound off, at any time.';
 // REVIEW (Verity): the way in.
 export const WALK_BEGIN_LABEL = 'Begin';
 // REVIEW (Verity): shown as the hall opens out.
@@ -137,6 +153,8 @@ export type NameOnWalk = { victim: Victim; at: number; feet: number };
 
 export function useWalk(sounds: WalkSounds = NO_SOUNDS, reduced = false, pool: readonly Victim[] = walkPool()) {
   const [feet, setFeet] = useState(0);
+  // How far through the walk, 0 to 1: by time walking, or under reduced motion, by steps.
+  const [progress, setProgress] = useState(0);
   const [walking, setWalking] = useState(false);
   const [ended, setEnded] = useState(false);
   const [sound, setSound] = useState(false);
@@ -196,6 +214,7 @@ export function useWalk(sounds: WalkSounds = NO_SOUNDS, reduced = false, pool: r
     busyUntil.current = 0;
     endedRef.current = false;
     setFeet(0);
+    setProgress(0);
     setNames([]);
     setShown([]);
     setEnded(false);
@@ -212,7 +231,9 @@ export function useWalk(sounds: WalkSounds = NO_SOUNDS, reduced = false, pool: r
       end();
       return;
     }
-    showName(footfall());
+    const n = footfall();
+    setProgress(Math.min(1, n / STILL_STEPS));
+    showName(n);
   }, [footfall, showName, end]);
 
   // Walking on: footfalls at a slow, uneven pace, a name coming every two or three, until the visitor pauses, or the walk is done.
@@ -222,6 +243,7 @@ export function useWalk(sounds: WalkSounds = NO_SOUNDS, reduced = false, pool: r
     let gap = 0;
     const tick = () => {
       elapsed.current += gap;
+      setProgress(Math.min(1, elapsed.current / WALK_MS));
       if (elapsed.current >= WALK_MS) {
         end();
         return;
@@ -274,7 +296,7 @@ export function useWalk(sounds: WalkSounds = NO_SOUNDS, reduced = false, pool: r
 
   useEffect(() => () => audio.current?.close(), []);
 
-  return { reduced, feet, walking, ended, sound, names, shown, announcement, start, step, prime, toggleWalking, toggleSound, leave, setAnnouncement };
+  return { reduced, feet, progress, walking, ended, sound, names, shown, announcement, start, step, prime, toggleWalking, toggleSound, leave, setAnnouncement };
 }
 
 export type WalkState = ReturnType<typeof useWalk>;
@@ -401,15 +423,17 @@ function NameAhead({ n, feet, reduced }: { n: NameOnWalk; feet: number; reduced:
   );
 }
 
-/** The walk, full screen: the grey hall and its iron floor, a name at a time ahead, a few quiet buttons; at the end, the close and the way to lay a stone. */
+/** The walk, full screen: out of the dark into the grey hall and its iron floor, and back into the dark; a name at a time ahead, a few quiet buttons; at the end, the close and its two ways on: walk again, or lay a stone. */
 export function WalkHall({ walk, primaryRef, onLeave, opening }: { walk: WalkState; primaryRef: RefObject<HTMLButtonElement | null>; onLeave: () => void; opening: boolean }) {
-  const { reduced, feet, walking, ended, sound, names, step, toggleWalking, toggleSound, start } = walk;
+  const { reduced, feet, progress, walking, ended, sound, names, step, toggleWalking, toggleSound, start } = walk;
+  const dark = darkness(progress, ended);
   // Only the names still coming, or passing now: never more than two, one arriving as the other goes.
   const ahead = reduced ? names.slice(-1) : names.filter((n) => feet - n.at <= n.feet);
   return (
-    <div className="how-hall">
+    <div className={`how-hall${dark > 0.5 ? ' is-dark' : ''}`} style={{ '--dark': dark.toFixed(3) } as React.CSSProperties} data-dark={dark.toFixed(2)}>
       <WalkFloor feet={feet} reduced={reduced} />
       <span className="how-sky" aria-hidden="true" />
+      <span className="how-dark" aria-hidden="true" />
       {opening && !reduced && <span className="how-open" aria-hidden="true" />}
 
       <div className="how-names">
@@ -420,20 +444,21 @@ export function WalkHall({ walk, primaryRef, onLeave, opening }: { walk: WalkSta
       {ended && (
         <div className="how-close" data-end="true">
           <p className="how-say is-close">{WALK_CLOSE}</p>
-          <Link href={ROOM_PATHS.stones} className="hos-button hos-button-primary how-stone-link">
-            <span className="how-stone-mark" aria-hidden="true" />
-            {WALK_STONE_INVITE}
-          </Link>
+          <div className="hos-ways-on">
+            <button ref={primaryRef} type="button" className="hos-button" onClick={start}>
+              Walk again
+            </button>
+            <Link href={ROOM_PATHS.stones} className="hos-button hos-button-primary hos-stone-link">
+              <span className="hos-stone-mark" aria-hidden="true" />
+              {WALK_STONE_INVITE}
+            </Link>
+          </div>
         </div>
       )}
 
       <div className="hos-walk-bar">
         <div className="hos-walk-bar-side">
-          {ended ? (
-            <button ref={primaryRef} type="button" className="hos-button" onClick={start}>
-              Walk again
-            </button>
-          ) : reduced ? (
+          {ended ? null : reduced ? (
             <button ref={primaryRef} type="button" className="hos-button hos-button-primary" onClick={step}>
               Take a step
             </button>

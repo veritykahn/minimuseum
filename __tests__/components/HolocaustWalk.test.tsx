@@ -5,14 +5,13 @@ import WalkRoom from '@/app/exhibitions/holocaust/walk/WalkRoom';
 import { FILM_FONT_HREF } from '@/app/exhibitions/holocaust/walk/Film';
 import { FILM_BLEEDS, FILM_FRAMES, FILM_LINE_MS, FILM_MS, FILM_OPENING, FILM_OPENING_MS, FILM_SKIP, filmSourceGroups } from '@/app/exhibitions/holocaust/walk/filmText';
 import {
-  BEAT_MS,
+  DARK_MOST,
   FIRST_NAME_AT,
   GAP_MS,
   HESITATE_CHANCE,
   HESITATE_MS,
   NAMES_PER_WALK,
   NAME_FEET,
-  WALK_BEATS,
   WALK_BEGIN,
   WALK_BEGIN_STILL,
   WALK_CLOSE,
@@ -20,6 +19,7 @@ import {
   WALK_INSPIRED_BY,
   WALK_INTRO,
   WALK_MS,
+  darkness,
   WALK_NAMES_HEADING,
   WALK_SOUND,
   WALK_STONE_INVITE,
@@ -418,12 +418,10 @@ describe('the walk', () => {
     expect(within(name as HTMLElement).queryByRole('link')).toBeNull();
   });
 
-  it('lasts about four minutes of walking, then closes quietly and invites the visitor to lay a stone', () => {
+  it('lasts as long as the walk over the faces in the Memory Void, about a minute and a quarter, then closes quietly and invites the visitor to lay a stone', () => {
     jest.useFakeTimers();
     const walk = walkNow();
-    expect(WALK_MS).toBe(WALK_BEATS * BEAT_MS);
-    expect(WALK_BEATS).toBe(39);
-    expect(BEAT_MS).toBe(6500);
+    expect(WALK_MS).toBe(75_000);
     pass(WALK_MS - 4000);
     expect(walk.querySelector('[data-end]')).toBeNull();
     pass(4000 + HESITATE_MS[1] + 100);
@@ -433,11 +431,34 @@ describe('the walk', () => {
     expect(walk.querySelector('[data-name]')).toBeNull();
     expect(within(walk).getByRole('link', { name: WALK_STONE_INVITE })).toHaveAttribute('href', '/exhibitions/holocaust/stones');
     expect(within(walk).queryByRole('button', { name: 'Pause' })).toBeNull();
+    // The two ways on, side by side, at the close.
+    const ways = walk.querySelector('[data-end] .hos-ways-on') as HTMLElement;
+    expect(within(ways).getByRole('button', { name: 'Walk again' })).toBeInTheDocument();
+    expect(within(ways).getByRole('link', { name: WALK_STONE_INVITE })).toBeInTheDocument();
     // Nothing more comes.
     const feet = shownNames().length;
     pass(30_000);
     expect(shownNames()).toHaveLength(feet);
     expect(within(walk).getByRole('button', { name: 'Walk again' })).toBeInTheDocument();
+  });
+
+  it('starts in the dark, walks into the light, and ends in the dark again', () => {
+    expect(darkness(0)).toBeCloseTo(DARK_MOST);
+    expect(darkness(0.1)).toBeGreaterThan(darkness(0.2));
+    expect(darkness(0.5)).toBe(0);
+    expect(darkness(0.8)).toBeLessThan(darkness(0.9));
+    expect(darkness(1)).toBeCloseTo(DARK_MOST);
+    expect(darkness(0.5, true)).toBe(DARK_MOST);
+    jest.useFakeTimers();
+    const walk = walkNow();
+    const dark = () => Number(walk.querySelector('.how-hall')!.getAttribute('data-dark'));
+    expect(dark()).toBeGreaterThan(0.9);
+    pass(WALK_MS / 2);
+    expect(dark()).toBe(0);
+    pass(WALK_MS / 2 - 4000);
+    expect(dark()).toBeGreaterThan(0.5);
+    pass(4000 + HESITATE_MS[1] + 100);
+    expect(dark()).toBeCloseTo(DARK_MOST);
   });
 
   it('walks again with different names, remembering in this browser the ones it has shown', () => {
@@ -451,7 +472,7 @@ describe('the walk', () => {
       }
     };
     collect(first, WALK_MS + 5000);
-    expect(first.size).toBeGreaterThan(20);
+    expect(first.size).toBeGreaterThan(10);
     expect(first.size).toBeLessThanOrEqual(NAMES_PER_WALK);
     expect(JSON.parse(localStorage.getItem(SHOWN_KEY)!)).toEqual(expect.arrayContaining([...first]));
     fireEvent.click(within(walk).getByRole('button', { name: 'Walk again' }));
@@ -490,7 +511,7 @@ describe('the walk', () => {
     expect(NAME_FEET).toEqual([2, 3]);
     expect(nameSpacing(NAMES_PER_WALK, 2)).toBe(2);
     expect(nameSpacing(NAMES_PER_WALK, 3)).toBe(3);
-    expect(nameSpacing(7, 2)).toBeGreaterThan(10);
+    expect(nameSpacing(7, 2)).toBeGreaterThan(4);
   });
 
   it('with reduced motion, is taken a step at a time, a name each step, then the close', () => {
@@ -591,7 +612,7 @@ describe('the walk', () => {
     jest.useFakeTimers();
     try {
       walkNow({ sounds: { clanks: ['/exhibitions/holocaust/walk/sound/clank-01.mp3'], rattle: '/exhibitions/holocaust/walk/sound/rattle.mp3' } });
-      pass(3 * BEAT_MS);
+      pass(20_000);
       expect(audio).not.toHaveBeenCalled();
     } finally {
       window.Audio = before;

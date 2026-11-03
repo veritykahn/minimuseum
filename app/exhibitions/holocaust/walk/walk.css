@@ -1,7 +1,8 @@
 /* ==========================================================================
    The Walk. In the room: the film's first picture, very dim, in the dark,
    behind the title and the way in. Full screen: first the film (film.css),
-   then the walk, in a high hall of bare grey concrete, strangely light, as
+   then the walk, out of the dark into a high hall of bare grey concrete,
+   strangely light, and back into the dark at the end, as the walk through
    the Memory Void at the Jewish Museum Berlin is: a pale, even daylight from
    far above, the iron floor drawn on a canvas (walkScene.ts), and one name
    at a time coming toward the visitor. Nothing bright, nothing that
@@ -45,6 +46,16 @@
     linear-gradient(to bottom, rgba(250, 250, 247, 0.42), rgba(250, 250, 247, 0) 34%),
     radial-gradient(ellipse 90% 80% at 50% 40%, transparent 55%, rgba(70, 70, 68, 0.28) 100%);
 }
+/* The dark at the walk's start and end (--dark, set by Walk.tsx): it lifts and falls a footfall at a time, slowly.
+   The names, the words and the buttons turn pale as it deepens, so they are read in the dark as in the light. */
+@property --dark { syntax: '<number>'; inherits: true; initial-value: 0.96; }
+.how-hall { --dark: 0.96; transition: --dark 1.6s ease; }
+.how-dark { position: absolute; inset: 0; z-index: 1; pointer-events: none; background: #050505; opacity: var(--dark); }
+.how-names { z-index: 2; }
+.how-hall .how-name-who,
+.how-hall .how-say { color: color-mix(in srgb, #ece7e1 calc(var(--dark) * 100%), #22211f); text-shadow: none; }
+.how-hall .how-name-death { color: color-mix(in srgb, #b9b1a8 calc(var(--dark) * 100%), #46443f); border-top-color: color-mix(in srgb, rgba(236, 231, 225, 0.3) calc(var(--dark) * 100%), rgba(34, 33, 31, 0.3)); }
+
 /* As the film ends: its frame opens out into the hall, and the hall's light comes up inside it. */
 .how-open {
   position: absolute;
@@ -119,13 +130,6 @@
   gap: 26px;
   animation: how-name-in 2.4s ease 0.6s both;
 }
-.how-stone-mark {
-  width: 20px;
-  height: 13px;
-  border-radius: 55% 45% 48% 52% / 60% 58% 42% 40%;
-  background: radial-gradient(circle at 35% 30%, #d9d3c9, #8d8781 60%, #5d5955);
-}
-.how-stone-link { text-decoration: none; }
 
 /* The full screen's own Sources button: top left, where nothing else is, clear of the buttons along the foot. */
 .hos-walk-sources .mm-sources-btn { top: calc(16px + env(safe-area-inset-top, 0px)); bottom: auto; --mm-sources-ink: #cfc8bf; --mm-sources-bg: rgba(5, 5, 5, 0.6); }
@@ -163,6 +167,14 @@
 .hos-walk-full.is-walk .hos-button[aria-pressed='true'] { border-color: #262523; background: rgba(214, 212, 206, 0.92); }
 .hos-walk-full.is-walk .hos-walk-leave { border-color: rgba(38, 37, 35, 0.25); color: #4d4b47; }
 
+/* In the dark: the buttons as in the film, pale on black. */
+.hos-walk-full.is-walk .how-hall.is-dark .hos-button { color: #ece7e1; border-color: rgba(236, 231, 225, 0.45); background: rgba(5, 5, 5, 0.72); }
+.hos-walk-full.is-walk .how-hall.is-dark .hos-button-primary { border-color: #d6cfc7; }
+.hos-walk-full.is-walk .how-hall.is-dark .hos-button:hover,
+.hos-walk-full.is-walk .how-hall.is-dark .hos-button:focus-visible { background: rgba(30, 28, 26, 0.9); outline-color: #d6cfc7; }
+.hos-walk-full.is-walk .how-hall.is-dark .hos-button[aria-pressed='true'] { border-color: #ece7e1; background: rgba(40, 36, 32, 0.85); }
+.hos-walk-full.is-walk .how-hall.is-dark .hos-walk-leave { border-color: rgba(236, 231, 225, 0.25); color: #a39b92; }
+
 @media (max-width: 760px) {
   .hos-panel-walk { max-height: 52dvh; }
   .hos-walk { gap: 12px; }
@@ -181,9 +193,10 @@
 @media (prefers-reduced-motion: reduce) {
   .hos-walk-full, .how-open, .how-name, .how-say.is-intro, .how-close { animation: none; }
   .how-open { display: none; }
-  .how-name { transition: none; }
+  .how-name, .how-hall { transition: none; }
 }
 .hos-walk-full.is-still .how-open { display: none; }
 .hos-walk-full.is-still .how-name,
 .hos-walk-full.is-still .how-say,
-.hos-walk-full.is-still .how-close { animation: none; transition: none; }
+.hos-walk-full.is-still .how-close,
+.hos-walk-full.is-still .how-hall { animation: none; transition: none; }
