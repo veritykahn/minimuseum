@@ -52,11 +52,11 @@ function fix(text: string, from: string, to: string) {
 
 /** The owner's approved fixes to poster 2's copy, and nothing else. */
 function approved2() {
-  // 3. the lingering effects of Puritan opposition
+  // 3. the first sentence, rewritten: Christmas was hardly celebrated, and why
   let t = fix(
     PRINTED_2,
-    'impacted by Puritan opposition to pagan roots and the Industrial Revolution',
-    'impacted by the lingering effects of Puritan opposition to its pagan roots and the Industrial Revolution',
+    'In the 19th century, Christmas traditions were in decline, impacted by Puritan opposition to pagan roots and the Industrial Revolution, which left workers little time for celebration.',
+    'At the start of the 19th century, Christmas was hardly celebrated. Many businesses did not treat it as a holiday, and the long hours of the Industrial Revolution left workers little time for celebration.',
   );
   // 1. popularized, not introduced
   t = fix(t, 'who introduced German customs like the Christmas tree', 'who popularized German customs like the Christmas tree');
@@ -114,9 +114,9 @@ describe('Victorian Britain', () => {
 
   it('applies the approved fixes, and the replaced wording is gone', () => {
     expect(allText).toContain('who popularized German customs like the Christmas tree');
-    expect(allText).toContain('impacted by the lingering effects of Puritan opposition to its pagan roots and the Industrial Revolution');
+    expect(allText).toContain('At the start of the 19th century, Christmas was hardly celebrated. Many businesses did not treat it as a holiday, and the long hours of the Industrial Revolution left workers little time for celebration.');
     expect(allText).not.toMatch(/introduced German customs/);
-    expect(allText).not.toMatch(/impacted by Puritan opposition|opposition to pagan roots/);
+    expect(allText).not.toMatch(/Puritan|pagan|in decline/);
     // "Dickens'" stays as printed.
     expect(allText).toContain("Charles Dickens' A Christmas Carol (1843)");
     expect(allText).toContain("Dickens' \"Carol Philosophy\"");

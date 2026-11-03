@@ -49,7 +49,8 @@ export const PARTS: { id: PartId; name: string; poster: string; note?: ApprovedF
   {
     id: 'clock',
     name: 'The clock',
-    poster: 'In the 19th century, Christmas traditions were in decline, impacted by the lingering effects of Puritan opposition to its pagan roots and the Industrial Revolution, which left workers little time for celebration.',
+    // REVIEW (Verity): poster 2's first sentence, rewritten (victorian.ts, fix 3).
+    poster: 'At the start of the 19th century, Christmas was hardly celebrated. Many businesses did not treat it as a holiday, and the long hours of the Industrial Revolution left workers little time for celebration.',
     opened: 'The clock on the mantelpiece ticks.',
   },
   { id: 'tree', name: 'The Christmas tree', poster: REVIVAL, note: PARLOUR_NOTES.tree, opened: 'The candles on the tree are lit.' },
