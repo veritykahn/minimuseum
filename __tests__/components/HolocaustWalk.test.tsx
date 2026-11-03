@@ -34,7 +34,7 @@ import { MUSIC_SRC, PLACEHOLDERS, WALK_DIR, WALK_LINES, slotFiles, slotNumber } 
 import { WALK_NAMES } from '@/app/exhibitions/holocaust/walk/walkNames';
 import { SILHOUETTE_KINDS } from '@/app/exhibitions/holocaust/walk/WalkPicture';
 import { walkSlotsOnDisk } from '@/app/exhibitions/holocaust/walk/walkSlots';
-import { FALLBACK_VICTIMS, SHOWN_KEY, VICTIMS, drawWalkNames, readVictims, victimText, walkPool, type Victim } from '@/app/exhibitions/holocaust/walk/victims';
+import { FALLBACK_VICTIMS, LETY_SHARE, SHOWN_KEY, VICTIMS, drawWalkNames, readVictims, victimText, walkPool, type Victim } from '@/app/exhibitions/holocaust/walk/victims';
 import Countdown, { isRemembranceDay, nextRemembrance } from '@/app/exhibitions/holocaust/stones/Countdown';
 import { LIBERATION_LINE } from '@/app/exhibitions/holocaust/holocaust';
 
@@ -678,6 +678,16 @@ describe('the names', () => {
     expect(drawWalkNames(pool, 50, []).names).toHaveLength(10);
     // Ids no longer in the list are forgotten.
     expect(drawWalkNames(pool, 1, ['gone']).shown).not.toContain('gone');
+  });
+
+  it('shows the children who died at Lety in fair proportion, about one name in ten, though they are many in the list', () => {
+    const child = (i: number, place: string): Victim => ({ id: `x-${i}`, name: `Child ${i}`, age: '9', died: '1943', place, source: { label: 'Record', href: 'https://example.org/' } });
+    const pool = [...Array.from({ length: 60 }, (_, i) => child(i, 'Lety')), ...Array.from({ length: 60 }, (_, i) => child(100 + i, 'Auschwitz'))];
+    const { names } = drawWalkNames(pool, 40, []);
+    expect(names).toHaveLength(40);
+    expect(names.filter((v) => v.place === 'Lety')).toHaveLength(Math.round(40 * LETY_SHARE));
+    // With no one else left, they are still shown.
+    expect(drawWalkNames(pool.slice(0, 60), 10, []).names).toHaveLength(10);
   });
 
   it('keeps going where there is no storage', () => {

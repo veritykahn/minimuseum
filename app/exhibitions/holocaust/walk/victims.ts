@@ -118,17 +118,41 @@ function shuffled<T>(list: readonly T[], random: () => number): T[] {
  * with this walk's own. Returns the names, in the order they will come, and
  * the ids to remember as shown.
  */
+/**
+ * The children who died at Lety are many in the list, because the Czech
+ * records give a date of death for few children who died anywhere else. A
+ * walk shows them in fair proportion: about one name in ten.
+ */
+export const LETY_SHARE = 0.1;
+const atLety = (v: Victim) => v.place === 'Lety';
+
+/** The first `n` of `list`, in its order, with no more than their share from Lety (more only if there are no others). */
+function balanced(list: readonly Victim[], n: number): Victim[] {
+  const cap = Math.max(1, Math.round(n * LETY_SHARE));
+  const out: Victim[] = [];
+  const held: Victim[] = [];
+  let lety = 0;
+  for (const v of list) {
+    if (out.length >= n) break;
+    if (atLety(v) && lety >= cap) held.push(v);
+    else {
+      out.push(v);
+      if (atLety(v)) lety++;
+    }
+  }
+  return out.length < n ? [...out, ...held.slice(0, n - out.length)] : out;
+}
+
 export function drawWalkNames(pool: readonly Victim[], count: number, shown: readonly string[], random: () => number = Math.random): { names: Victim[]; shown: string[] } {
   const n = Math.max(0, Math.min(count, pool.length));
   const before = new Set(shown);
-  const fresh = shuffled(pool.filter((v) => !before.has(v.id)), random);
+  const fresh = balanced(shuffled(pool.filter((v) => !before.has(v.id)), random), n);
   if (fresh.length >= n) {
-    const names = fresh.slice(0, n);
-    return { names, shown: [...shown.filter((id) => pool.some((v) => v.id === id)), ...names.map((v) => v.id)] };
+    return { names: fresh, shown: [...shown.filter((id) => pool.some((v) => v.id === id)), ...fresh.map((v) => v.id)] };
   }
   // Every name has been shown: the rest of the fresh ones, then the list from the beginning again.
   const taken = new Set(fresh.map((v) => v.id));
-  const again = shuffled(pool.filter((v) => !taken.has(v.id)), random).slice(0, n - fresh.length);
+  const again = balanced(shuffled(pool.filter((v) => !taken.has(v.id)), random), n - fresh.length);
   const names = [...fresh, ...again];
   return { names, shown: names.map((v) => v.id) };
 }
