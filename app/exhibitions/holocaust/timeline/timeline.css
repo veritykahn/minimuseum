@@ -1,0 +1,367 @@
+/* ==========================================================================
+   The Timeline of the Holocaust, as the owner's poster sets it: black, the
+   type in the posters' pale stone, a line down the middle with a dot for
+   each date, the date and the words on either side of it, turn and turn
+   about, and cream barbed wire down both margins. The colors are
+   holocaust.ts's: BLACK (#0B0A0A), STONE_LIGHT (#D6CFC7, 12.9:1 on the
+   black) for the type, and the wire's cream (#EFE6D2). The faces too: Anton
+   for the title and the years, League Gothic for the opening line and the
+   dates (tall, spaced capitals), Inter, bold, for the words.
+
+   On a phone the line moves to the left, the date over the words beside it.
+   Each entry fades up as it scrolls into view only where the browser ties
+   animations to scrolling and the visitor has not asked for less motion;
+   everywhere else every entry is simply there.
+   ========================================================================== */
+.hot-room {
+  --hot-black: #0b0a0a;
+  --hot-ink: #d6cfc7;
+  --hot-soft: #b9b1a8;
+  --hot-wire: #efe6d2;
+  --hot-wire-w: 28px;
+  --hot-wire-x: 10px;
+  --hot-gutter: calc(var(--hot-wire-x) + var(--hot-wire-w) + 28px);
+  --pe-nav-m: var(--hot-ink);
+  --pe-nav-ink: var(--hot-soft);
+  --mm-sources-ink: var(--hot-ink);
+  --mm-sources-bg: rgba(11, 10, 10, 0.75);
+  --display: 'Anton', 'Impact', 'Haettenschweiler', 'Arial Narrow Bold', sans-serif;
+  --tall: 'League Gothic', 'Arial Narrow', sans-serif;
+  --sans: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
+  background: var(--hot-black);
+  color: var(--hot-ink);
+  font-family: var(--sans);
+}
+body:has(.hot-room) { background: #0b0a0a; }
+
+.hot-room :focus-visible { outline: 2px solid var(--hot-ink); outline-offset: 4px; }
+
+/* The corner links clear the wire. */
+.hot-room .pe-nav-left { left: calc(var(--hot-wire-x) + var(--hot-wire-w) + 14px); }
+.hot-room .mm-sources-btn:not(.mm-sources-btn-inline) { left: calc(var(--hot-wire-x) + var(--hot-wire-w) + 10px); }
+
+/* ───────── The barbed wire, down both margins ───────── */
+.hot-wire {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: var(--hot-wire-w);
+  height: 100vh;
+  color: var(--hot-wire);
+  pointer-events: none;
+}
+.hot-wire-left { left: var(--hot-wire-x); }
+.hot-wire-right { right: var(--hot-wire-x); }
+
+/* ───────── The head: the poster's title, star and opening line ───────── */
+.hot-main {
+  position: relative;
+  z-index: 2;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 96px var(--hot-gutter) 140px;
+}
+.hot-head {
+  position: relative;
+  text-align: center;
+}
+.hot-title {
+  margin: 0;
+  font-weight: 400;
+  line-height: 1;
+}
+.hot-title-over {
+  display: block;
+  font-family: var(--tall);
+  font-size: clamp(26px, 4.4vw, 46px);
+  letter-spacing: 0.32em;
+  margin-right: -0.32em;
+}
+.hot-title-main {
+  display: block;
+  margin-top: 0.08em;
+  font-family: var(--display);
+  font-size: clamp(64px, 14vw, 150px);
+  letter-spacing: 0.01em;
+}
+.hot-star {
+  position: absolute;
+  top: clamp(36px, 7vw, 70px);
+  right: 0;
+  width: clamp(44px, 9vw, 104px);
+  height: auto;
+  color: var(--hot-wire);
+}
+/* Narrower, the star stands under the title rather than crowd it. */
+@media (max-width: 900px) {
+  .hot-star { position: static; display: block; margin: 16px auto 0; width: 52px; }
+}
+.hot-intro {
+  max-width: 46em;
+  margin: 28px auto 0;
+  font-family: var(--tall);
+  font-size: clamp(19px, 2.5vw, 27px);
+  letter-spacing: 0.09em;
+  line-height: 1.45;
+}
+.hot-source {
+  margin: 18px 0 0;
+  font-size: 14px;
+  color: var(--hot-soft);
+}
+.hot-source cite { font-style: italic; }
+
+/* The years: straight to a year's first entry. */
+.hot-years ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.hot-years a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--hot-ink) 38%, transparent);
+  border-radius: 22px;
+  color: var(--hot-ink);
+  font-family: var(--tall);
+  font-size: 23px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+.hot-years a:hover { border-color: var(--hot-ink); background: color-mix(in srgb, var(--hot-ink) 8%, transparent); }
+
+/* ───────── The line and its dates ───────── */
+.hot-line {
+  position: relative;
+  margin: 64px 0 0;
+  padding: 0 0 56px;
+  list-style: none;
+}
+/* The line itself, ending in a dot as the poster's does. */
+.hot-line::before {
+  content: '';
+  position: absolute;
+  top: 16px;
+  bottom: 18px;
+  left: 50%;
+  width: 6px;
+  margin-left: -3px;
+  border-radius: 3px;
+  background: var(--hot-ink);
+}
+.hot-line::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  margin-left: -17px;
+  border-radius: 50%;
+  background: var(--hot-ink);
+}
+.hot-entry {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 64px 1fr;
+  align-items: start;
+  padding: 0 0 clamp(56px, 9vw, 104px);
+  scroll-margin: 96px 0;
+}
+.hot-entry:focus { outline: none; }
+.hot-entry:focus-visible .hot-words { outline: 2px solid var(--hot-ink); outline-offset: 8px; }
+.hot-dot {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+  width: 34px;
+  height: 34px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--hot-ink);
+}
+.hot-when,
+.hot-words { grid-row: 1; margin: 0; }
+.hot-when > span[aria-hidden] { display: flex; flex-direction: column; }
+.hot-year {
+  font-family: var(--display);
+  font-size: clamp(46px, 6.4vw, 76px);
+  line-height: 1;
+}
+.hot-date {
+  margin-top: 14px;
+  font-family: var(--tall);
+  font-size: clamp(21px, 2.5vw, 29px);
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+}
+.hot-words {
+  margin-top: 2px;
+  font-weight: 700;
+  font-size: clamp(17px, 2vw, 22px);
+  line-height: 1.38;
+  max-width: 24ch;
+}
+.hot-words em { font-style: italic; }
+/* The words to the right of the line, the date to its left; and the other way about. */
+.hot-entry[data-side='right'] .hot-when { grid-column: 1; text-align: right; }
+.hot-entry[data-side='right'] .hot-when > span[aria-hidden] { align-items: flex-end; }
+.hot-entry[data-side='right'] .hot-words { grid-column: 3; text-align: left; }
+.hot-entry[data-side='left'] .hot-when { grid-column: 3; text-align: left; }
+.hot-entry[data-side='left'] .hot-words { grid-column: 1; text-align: right; justify-self: end; }
+
+/* Each entry opens as it comes into view, where scrolling can drive it, and only then. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hot-entry > * {
+      animation: hot-open linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 70%;
+    }
+  }
+}
+@keyframes hot-open {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ───────── The close: the poster's "Learn more" box, and the exercise ───────── */
+.hot-end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  margin-top: 56px;
+}
+.hot-learn {
+  display: block;
+  max-width: 14em;
+  padding: 14px 20px;
+  background: var(--hot-ink);
+  color: var(--hot-black);
+  font-family: var(--display);
+  font-size: clamp(19px, 2.4vw, 24px);
+  line-height: 1.55;
+  text-align: center;
+  text-decoration: none;
+}
+.hot-learn:hover { background: #ece7e1; }
+.hot-btn {
+  min-height: 44px;
+  padding: 10px 22px;
+  border: 1px solid var(--hot-ink);
+  border-radius: 24px;
+  background: transparent;
+  color: var(--hot-ink);
+  font: 600 16px/1.2 var(--sans);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.hot-btn:hover { background: color-mix(in srgb, var(--hot-ink) 10%, transparent); }
+.hot-btn-quiet { border-color: color-mix(in srgb, var(--hot-ink) 38%, transparent); color: var(--hot-soft); }
+
+/* ───────── Put them in order ───────── */
+.hot-order {
+  max-width: 640px;
+  margin: 56px auto 0;
+}
+.hot-order-heading {
+  margin: 0;
+  font-family: var(--tall);
+  font-weight: 400;
+  font-size: clamp(34px, 5vw, 48px);
+  letter-spacing: 0.08em;
+  text-align: center;
+}
+.hot-order-heading:focus { outline: none; }
+.hot-order-how {
+  margin: 12px 0 0;
+  color: var(--hot-soft);
+  line-height: 1.5;
+  text-align: center;
+}
+.hot-order-end {
+  margin: 24px 0 8px;
+  font-family: var(--tall);
+  font-size: 20px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--hot-soft);
+}
+.hot-order-end:last-of-type { margin: 8px 0 0; }
+.hot-cards {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.hot-card {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 4px 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--hot-ink) 40%, transparent);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--hot-ink);
+  font: 700 17px/1.4 var(--sans);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+.hot-card:hover { border-color: var(--hot-ink); }
+.hot-card[aria-pressed='true'] { border: 2px solid var(--hot-ink); padding: 13px 15px; background: color-mix(in srgb, var(--hot-ink) 12%, transparent); }
+.hot-card[data-mark='right'] { box-shadow: inset 5px 0 0 var(--hot-ink); }
+.hot-card[data-mark='not-yet'] { border-style: dashed; }
+.hot-card-n { font-family: var(--tall); font-weight: 400; font-size: 24px; line-height: 1.1; color: var(--hot-soft); }
+.hot-card-words em { font-style: italic; }
+.hot-card-when {
+  grid-column: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font: 400 15px/1.4 var(--sans);
+  color: var(--hot-soft);
+}
+.hot-card-mark { font-style: italic; }
+.hot-order-result { margin: 20px 0 0; text-align: center; line-height: 1.5; }
+.hot-order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+/* ───────── Phones: the line to the left, the date over the words ───────── */
+@media (max-width: 640px) {
+  .hot-room { --hot-wire-w: 18px; --hot-wire-x: 2px; --hot-gutter: 30px; }
+  .hot-room .pe-nav-left { top: 20px; }
+  .hot-main { padding-top: 76px; padding-bottom: 110px; }
+  .hot-line::before { left: 15px; }
+  .hot-line::after { left: 15px; width: 26px; height: 26px; margin-left: -13px; }
+  .hot-entry { grid-template-columns: 30px 1fr; column-gap: 14px; padding-bottom: 52px; }
+  .hot-dot { grid-column: 1; width: 26px; height: 26px; margin-top: 6px; }
+  .hot-entry[data-side] .hot-when { grid-column: 2; grid-row: 1; text-align: left; }
+  .hot-entry[data-side] .hot-when > span[aria-hidden] { align-items: flex-start; }
+  .hot-entry[data-side] .hot-words { grid-column: 2; grid-row: 2; margin-top: 12px; text-align: left; justify-self: start; max-width: none; }
+  .hot-date { margin-top: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hot-years a,
+  .hot-btn,
+  .hot-card { transition: none; }
+}

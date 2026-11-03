@@ -386,7 +386,7 @@ describe('The Holocaust Memorial Day display case page', () => {
 });
 
 describe('Holocaust Memorial Day on the museum map', () => {
-  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and Never Forget', () => {
+  it('is a room on the First Floor, with an Exhibition Hall, a Display Case, Never Forget and the timeline', () => {
     const level = getLevelConfig('/exhibitions/holocaust/artifacts/case');
     expect(level.title).toBe('Holocaust Memorial Day');
     expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
@@ -394,6 +394,7 @@ describe('Holocaust Memorial Day on the museum map', () => {
       ['Exhibition Hall', '/exhibitions/holocaust'],
       ['Display Case', '/exhibitions/holocaust/artifacts/case'],
       ['Never Forget', '/exhibitions/holocaust/stones'],
+      ['The Timeline of the Holocaust', '/exhibitions/holocaust/timeline'],
     ]);
     expect(getRoomByPath('/exhibitions/holocaust')?.parent).toBe('first-floor');
     expect(getRoomByPath('/exhibitions/holocaust/artifacts/case')?.parent).toBe('holocaust');
