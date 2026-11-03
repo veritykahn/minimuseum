@@ -33,8 +33,10 @@ type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export type RoomSoundState = {
   on: boolean;
-  /** This poster has a room sound. */
+  /** This poster has a room sound, or moments on its panels: its switch is shown. */
   available: boolean;
+  /** A projector's screen is blanked. */
+  hushed: boolean;
   turnOn: () => void;
   turnOff: () => void;
   /** Silences it for now (a blanked screen) without turning it off, or brings it back. */
@@ -43,7 +45,7 @@ export type RoomSoundState = {
 
 type AudioContextClass = typeof AudioContext;
 
-export function useRoomSound(src: string | undefined, { duck = false }: { duck?: boolean } = {}): RoomSoundState {
+export function useRoomSound(src: string | undefined, { duck = false, moments = false }: { duck?: boolean; moments?: boolean } = {}): RoomSoundState {
   const audio = useRef<HTMLAudioElement | null>(null);
   const ctx = useRef<AudioContext | null>(null);
   const gain = useRef<GainNode | null>(null);
@@ -184,7 +186,7 @@ export function useRoomSound(src: string | undefined, { duck = false }: { duck?:
   };
   const turnOff = () => setOn(false);
 
-  return { on, available: !!src, turnOn, turnOff, hush: setHushed };
+  return { on, available: !!src || moments, hushed, turnOn, turnOff, hush: setHushed };
 }
 
 /** The button beside the audio guide; drawn only on a poster that has a room sound. */

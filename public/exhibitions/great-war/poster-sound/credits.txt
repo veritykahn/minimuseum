@@ -1,2 +1,4 @@
-The posters' room sound (components/exhibition/RoomSound.tsx). From Freesound, Creative Commons 0 (public domain).
-posters.mp3 — "R12-31-Artillery Guns Firing" by craigsmith, https://freesound.org/s/486027/ (CC0). From ../sounds/artillery.mp3, filtered to a distant rumble, looped seamlessly, levelled quiet.
+The posters' music (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet.
+poster1.mp3 (The Doughboys) — "Marching Music - The Stars and Stripes Forever By John Philip Sousa" by Nesrality, https://pixabay.com/music/marching-band-marching-music-the-stars-and-stripes-forever-by-john-philip-sousa-95379/ (Pixabay Content License). Sousa, 1896.
+poster2.mp3 (When the Guns Fell Silent) — "Peace v.1" by PinGUs_robfan, https://pixabay.com/music/modern-classical-peace-v1-409524/ (Pixabay Content License)
+posters.mp3 and floor.mp3 — copies of poster1.mp3 (floor.mp3: heard from the doorway in the floor's hall, components/FloorSound.ts). The distant guns that were here before are now only in the silence room (../sounds/).

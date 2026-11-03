@@ -102,7 +102,7 @@ describe('Black History Month', () => {
 
     it('holds only the posters, their lettering, poster 1’s illustrated figures, the screenshots of the rooms for their cards, and the owner’s doll artwork', () => {
       // The audio guide's recordings are the owner's voice, not pictures (AudioGuide.test.tsx); the doll layers are checked in DollDesigner.test.tsx.
-      expect(files(dir).filter((f) => !f.startsWith('audio/') && !f.startsWith('dolls/')).sort()).toEqual([
+      expect(files(dir).filter((f) => !f.startsWith('audio/') && !f.startsWith('dolls/') && !f.startsWith('poster-sound/')).sort()).toEqual([
         'poster1.jpg',
         'poster2.jpg',
         'ring.webp',

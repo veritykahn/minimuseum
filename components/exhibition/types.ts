@@ -143,6 +143,12 @@ type PanelBase = {
   marks?: PanelMarks;
   /** The audio guide's recording for this panel (AudioGuide): a path under public/. */
   audio?: string;
+  /**
+   * This panel's moment: a sound effect or a voice played once as it arrives,
+   * named for its file, public/exhibitions/<slug>/poster-sound/moments/<name>.mp3
+   * (PanelMoment.ts). Played only once the file is there.
+   */
+  moment?: string;
 };
 
 /**
@@ -467,6 +473,12 @@ export type ExhibitionConfig<K extends string = string> = {
    * posterSoundPaths.ts): leave out of the config itself.
    */
   posterSounds?: Partial<Record<K, string>>;
+  /**
+   * Each poster's moments, panel by panel, where their files are in place
+   * (posterMomentsOnDisk, PanelMoment.ts). Found on disk when the page is
+   * built: leave out of the config itself.
+   */
+  moments?: Partial<Record<K, (string | null)[]>>;
   /** The panel reveal (components/poster-fx). */
   fx: {
     theme: FxTheme;

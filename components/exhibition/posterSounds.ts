@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { ALL_POSTERS_SOUND, FLOOR_SOUND, SILENT_EXHIBITIONS, posterSoundDir, type PosterSounds } from './posterSoundPaths';
+import { ALL_POSTERS_SOUND, FLOOR_SOUND, SILENT_EXHIBITIONS, momentSrc, posterSoundDir, type PosterMoments, type PosterSounds } from './posterSoundPaths';
 import type { ExhibitionConfig } from './types';
 
 /*
@@ -44,4 +44,25 @@ export function floorSoundsOnDisk(slugs: readonly string[]): Record<string, stri
     if (src) sounds[slug] = src;
   }
   return Object.keys(sounds).length ? sounds : undefined;
+}
+
+/**
+ * Each poster's moments, panel by panel (PanelMoment.ts): the file of the
+ * moment a panel names, where it is in place, else null.
+ */
+export function posterMomentsOnDisk<K extends string>(config: Pick<ExhibitionConfig<K>, 'slug' | 'posters'>): PosterMoments<K> | undefined {
+  if (SILENT_EXHIBITIONS.includes(config.slug)) return undefined;
+  const there = (name: string) => {
+    try {
+      return fs.existsSync(path.join(process.cwd(), 'public', momentSrc(config.slug, name)));
+    } catch {
+      return false;
+    }
+  };
+  const out: PosterMoments<K> = {};
+  for (const p of config.posters) {
+    const files = p.items.map((i) => (i.moment && there(i.moment) ? momentSrc(config.slug, i.moment) : null));
+    if (files.some(Boolean)) out[p.id] = files;
+  }
+  return Object.keys(out).length ? out : undefined;
 }

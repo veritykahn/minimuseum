@@ -1,3 +1,3 @@
 The posters' room sound (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet.
-posters.mp3 — "Desert Sand Dunes" by DRAGON-STUDIO, https://pixabay.com/sound-effects/film-special-effects-desert-sand-dunes-482890/ (Pixabay Content License). 20–110 s.
-floor.mp3 — a copy of posters.mp3: the room heard from its doorway in the floor's hall (components/FloorSound.ts). It replaces the stand-in made earlier on 3 November.
+posters.mp3 — "Ancient Egypt" by Echobrainz, https://pixabay.com/music/world-ancient-egypt-616742/ (Pixabay Content License)
+floor.mp3 — a copy of posters.mp3: the room heard from its doorway in the floor's hall (components/FloorSound.ts).

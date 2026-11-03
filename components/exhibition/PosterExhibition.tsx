@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, type CSSProperties } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import PosterNavHint from '@/components/PosterNavHint';
@@ -18,6 +18,7 @@ import ExploreRow, { ExploreCue } from './ExploreRow';
 import AtmosphereLayer from './AtmosphereLayer';
 import AudioGuide, { useAudioGuide } from './AudioGuide';
 import RoomSound, { useRoomSound } from './RoomSound';
+import { usePanelMoment } from './PanelMoment';
 import { atmosphereName, colorsFor, entranceOf, fxKind, posterLengths, posterSourceGroups, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
@@ -39,7 +40,7 @@ import './poster-exhibition.css';
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function PosterExhibition<K extends string>({ config }: { config: ExhibitionConfig<K> }) {
-  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives, credits = [], atmospheres, posterSounds, fx: fxConfig, projector: projectorConfig } = config;
+  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives, credits = [], atmospheres, posterSounds, moments, fx: fxConfig, projector: projectorConfig } = config;
 
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
@@ -81,6 +82,10 @@ export default function PosterExhibition<K extends string>({ config }: { config:
   const fx = usePosterFxStage(fxConfig.theme, direction, item?.type ?? '', colors.bg, colors.text);
   const veil = veilFor(fxConfig.veil, item, posterStep);
   const hasGuide = !!poster?.items.some((i) => i.audio);
+  // This panel's moment, and whether the poster has any (found on disk; PanelMoment.ts).
+  const posterMoments = poster ? moments?.[poster.id] : undefined;
+  const momentFile = posterMoments?.[posterStep] ?? undefined;
+  const posterHasMoments = !!posterMoments?.some(Boolean);
   const sourceGroups = useMemo<SourceGroup[]>(
     () =>
       poster
@@ -89,8 +94,17 @@ export default function PosterExhibition<K extends string>({ config }: { config:
     [poster, posterStep, credits],
   );
   const guide = useAudioGuide(item?.audio);
-  // The room's sound under the open poster (posterSoundPaths.ts), quieter while the guide speaks.
-  const roomSound = useRoomSound(poster ? posterSounds?.[poster.id] : undefined, { duck: guide.on && guide.playing });
+  // The room's music under the open poster (posterSoundPaths.ts), dipping while the guide
+  // speaks or a panel's moment sounds (PanelMoment.ts: a train's whistle, a voice).
+  const guideSpeaking = guide.on && guide.playing;
+  const [momentSounding, setMomentSounding] = useState(false);
+  const roomSound = useRoomSound(poster ? posterSounds?.[poster.id] : undefined, { duck: guideSpeaking || momentSounding, moments: posterHasMoments });
+  usePanelMoment(momentFile, `${activeView}:${posterStep}`, {
+    on: roomSound.on,
+    softer: guideSpeaking,
+    hushed: roomSound.hushed,
+    onSounding: setMomentSounding,
+  });
 
   const rememberFloorPosition = back.remember
     ? () => {

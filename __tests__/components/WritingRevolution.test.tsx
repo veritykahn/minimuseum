@@ -105,7 +105,8 @@ describe('The Writing Revolution', () => {
       fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? files(path.join(d, e.name)).map((f) => `${e.name}/${f}`) : [e.name]));
 
     it('holds only the posters, their lettering, the Urania cut out of poster 2 and the screenshot of the room for its card', () => {
-      expect(files(dir).sort()).toEqual([
+      // Pictures only: the room's sounds (poster-sound/) are checked with the sound.
+      expect(files(dir).filter((f) => !f.startsWith('poster-sound/')).sort()).toEqual([
         'poster1.jpg',
         'poster2.jpg',
         'rooms/typing-station.webp',

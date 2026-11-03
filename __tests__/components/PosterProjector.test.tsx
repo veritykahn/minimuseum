@@ -246,7 +246,7 @@ describe('PosterProjector', () => {
   });
 
   it('puts the room sound in the tool bar: S turns it on and off, and blanking hushes it', () => {
-    const room = { on: false, available: true, turnOn: jest.fn(), turnOff: jest.fn(), hush: jest.fn() };
+    const room = { on: false, available: true, hushed: false, turnOn: jest.fn(), turnOff: jest.fn(), hush: jest.fn() };
     const { rerender, props } = setup({ roomSound: room });
     expect(screen.getByRole('button', { name: /Room sound/ })).toHaveAttribute('aria-pressed', 'false');
     press('s');
