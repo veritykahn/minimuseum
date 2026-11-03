@@ -1,7 +1,8 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import HallSound, { HALL_SOUND_KEY, isHallRoute } from '@/components/HallSound';
+import HallSound, { HALL_SOUND_KEY, isHallRoute, unlockHallSound } from '@/components/HallSound';
+import { setMuseumSound } from '@/lib/museumSound';
 import { MUSEUM_SOUND_KEY, resetMuseumSoundForTests, setHallDim } from '@/lib/museumSound';
 
 /*
@@ -77,6 +78,31 @@ describe('HallSound', () => {
     expect(isHallRoute('/exhibitions/ground-floor-x')).toBe(false);
     expect(isHallRoute('/')).toBe(false);
     expect(isHallRoute(null)).toBe(false);
+  });
+
+  it('is unlocked by the door’s sound switch, silently, and heard as the visitor walks into the Great Hall', async () => {
+    pathname = '/';
+    const { rerender } = render(<HallSound />);
+    // The press at the door: the hall's audio is made and played muted, then paused.
+    act(() => {
+      setMuseumSound(true);
+      unlockHallSound();
+    });
+    expect(made).toHaveLength(1);
+    expect(made[0].play).toHaveBeenCalledTimes(1);
+    expect(made[0].muted).toBe(true);
+    await act(async () => {});
+    expect(made[0].paused).toBe(true);
+    expect(made[0].muted).toBe(false);
+    // Through the door: the same audio, played and faded in.
+    pathname = '/greathall';
+    rerender(<HallSound />);
+    loaded();
+    await settle();
+    expect(made).toHaveLength(1);
+    expect(made[0].play).toHaveBeenCalledTimes(2);
+    expect(made[0].volume).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: 'Sound on' })).toHaveAttribute('aria-pressed', 'true');
   });
 
   it('shows no button while the sound file is not there', () => {

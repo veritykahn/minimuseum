@@ -40,6 +40,44 @@ export function isHallRoute(pathname: string | null | undefined): boolean {
   return HALL_PATHS.includes(path);
 }
 
+/*
+ * The one audio element, shared with the front door (unlockHallSound): a
+ * browser that lets a sound start only from a press on that sound (Safari, an
+ * iPad) is given that press at the door, so the hall can be heard from the
+ * moment the visitor walks in.
+ */
+let shared: HTMLAudioElement | null = null;
+
+function hallAudio(): HTMLAudioElement {
+  if (!shared) {
+    const a = new Audio();
+    a.loop = true;
+    a.preload = 'metadata';
+    a.volume = 0;
+    a.src = HALL_SOUND_SRC;
+    shared = a;
+  }
+  return shared;
+}
+
+/** Called from a press outside the halls (the door's sound switch): readies the hall's sound and unlocks it, silently. */
+export function unlockHallSound(): void {
+  try {
+    const a = hallAudio();
+    a.muted = true;
+    const p = a.play();
+    const done = () => {
+      // Already in a hall and fading in: leave it playing.
+      if (a.volume === 0) a.pause();
+      a.muted = false;
+    };
+    if (p && typeof p.then === 'function') p.then(done, () => { a.muted = false; });
+    else done();
+  } catch {
+    /* no audio in this browser: the hall stays quiet */
+  }
+}
+
 export default function HallSound() {
   const pathname = usePathname();
   const inHall = isHallRoute(pathname);
@@ -57,13 +95,10 @@ export default function HallSound() {
   // kept from then on, so walking between halls never restarts it.
   useEffect(() => {
     if (!inHall || audio.current) return;
-    const a = new Audio();
-    a.loop = true;
-    a.preload = 'metadata';
-    a.volume = 0;
-    a.addEventListener('loadedmetadata', () => setReady(true), { once: true });
-    a.src = HALL_SOUND_SRC;
+    const a = hallAudio();
     audio.current = a;
+    if (a.readyState >= 1) queueMicrotask(() => setReady(true));
+    else a.addEventListener('loadedmetadata', () => setReady(true), { once: true });
   }, [inHall]);
 
   // Only when the layout itself goes (never, in a visit; a test's unmount).
@@ -76,6 +111,7 @@ export default function HallSound() {
       a.removeAttribute('src');
       a.load();
       audio.current = null;
+      shared = null;
     },
     [],
   );

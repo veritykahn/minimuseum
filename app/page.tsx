@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import { useMuseumSound } from '@/lib/museumSound';
+import { unlockHallSound } from '@/components/HallSound';
 
 // REVIEW (Verity): the sound switch at the door, and its recommendation.
 const DOOR_SOUND_OFF = 'Turn the museum’s sound on';
@@ -15,6 +16,11 @@ export default function Home() {
   const reduceMotion = usePrefersReducedMotion();
   // The museum's one sound switch (lib/museumSound.ts): turned on here, the halls and the rooms are heard from the Great Hall on.
   const [sound, setSound] = useMuseumSound();
+  const toggleSound = () => {
+    // The press itself unlocks the hall's sound, for browsers that ask for one on the sound itself.
+    if (!sound) unlockHallSound();
+    setSound(!sound);
+  };
   const [logoTimerDone, setLogoVisible] = useState(false);
   const [taglineTimerDone, setTaglineVisible] = useState(false);
   const [detailsTimerDone, setDetailsVisible] = useState(false);
@@ -124,65 +130,57 @@ export default function Home() {
           >
             Enter
           </Link>
+        </div>
 
-          {/* Below Enter: the museum's sound, recommended on. */}
-          <div className="flex flex-col items-center" style={{ marginTop: '28px', gap: '10px' }}>
-            <button type="button" className="door-sound" aria-pressed={sound} onClick={() => setSound(!sound)}>
-              <span className="door-sound-dot" aria-hidden="true" />
-              {sound ? DOOR_SOUND_ON : DOOR_SOUND_OFF}
-            </button>
-            <p className="door-sound-hint">{DOOR_SOUND_HINT}</p>
-          </div>
-          <style jsx>{`
-            .door-sound {
-              display: inline-flex;
-              align-items: center;
-              gap: 10px;
-              min-height: 44px;
-              padding: 0 18px;
-              border: 1px solid rgba(250, 250, 250, 0.3);
-              border-radius: 999px;
-              background: transparent;
-              color: #fafafa;
-              font: 300 11px/1 'Outfit', system-ui, sans-serif;
-              letter-spacing: 0.18em;
-              text-transform: uppercase;
-              opacity: 0.8;
-              cursor: pointer;
-              transition: opacity 0.3s ease, background 0.3s ease;
-            }
-            .door-sound:hover,
-            .door-sound[aria-pressed='true'] {
-              opacity: 1;
-              background: rgba(250, 250, 250, 0.05);
-            }
-            .door-sound:focus-visible {
-              outline: 2px solid #fafafa;
-              outline-offset: 3px;
-            }
-            .door-sound-dot {
-              width: 6px;
-              height: 6px;
-              border-radius: 50%;
-              border: 1px solid currentColor;
-            }
-            .door-sound[aria-pressed='true'] .door-sound-dot {
-              background: currentColor;
-            }
-            .door-sound-hint {
-              margin: 0;
-              max-width: 22em;
-              padding: 0 16px;
-              text-align: center;
-              font: italic 300 13px/1.5 Georgia, 'Times New Roman', serif;
-              color: #808080;
-            }
-            @media (prefers-reduced-motion: reduce) {
-              .door-sound {
-                transition: none;
-              }
-            }
-          `}</style>
+        {/* Below Enter, in a box of its own (Enter's own box keeps Enter's width): the museum's sound, recommended on. */}
+        <div
+          className={`flex flex-col items-center transition-all duration-1000 ease-out ${
+            detailsVisible ? 'opacity-100 translate-y-0 visible' : 'opacity-0 translate-y-4 invisible'
+          }`}
+          style={{ marginTop: '28px', gap: '10px' }}
+        >
+          <button
+            type="button"
+            aria-pressed={sound}
+            onClick={toggleSound}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '10px',
+              minHeight: '44px',
+              padding: '0 18px',
+              border: '1px solid rgba(250, 250, 250, 0.3)',
+              borderRadius: '999px',
+              background: sound ? 'rgba(250, 250, 250, 0.05)' : 'transparent',
+              color: '#fafafa',
+              fontFamily: 'Outfit, sans-serif',
+              fontSize: '11px',
+              fontWeight: 300,
+              letterSpacing: '0.18em',
+              textTransform: 'uppercase',
+              opacity: sound ? 1 : 0.8,
+              cursor: 'pointer',
+              transition: 'opacity 0.3s ease, background 0.3s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.opacity = '1';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.opacity = sound ? '1' : '0.8';
+            }}
+          >
+            <span
+              aria-hidden="true"
+              style={{ width: '6px', height: '6px', borderRadius: '50%', border: '1px solid currentColor', background: sound ? 'currentColor' : 'transparent' }}
+            />
+            {sound ? DOOR_SOUND_ON : DOOR_SOUND_OFF}
+          </button>
+          <p
+            className="font-serif"
+            style={{ margin: 0, maxWidth: '22em', padding: '0 16px', textAlign: 'center', fontStyle: 'italic', fontWeight: 300, fontSize: '15px', lineHeight: 1.5, color: '#808080' }}
+          >
+            {DOOR_SOUND_HINT}
+          </p>
         </div>
       </div>
     </div>
