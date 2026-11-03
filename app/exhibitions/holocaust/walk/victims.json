@@ -4048,6 +4048,17 @@
     }
   },
   {
+    "id": "nl-125658",
+    "name": "Simon Hans Knap",
+    "age": 1,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Simon Hans Knap”",
+      "href": "https://www.joodsmonument.nl/en/page/125658/simon-hans-knap"
+    }
+  },
+  {
     "id": "nl-125790",
     "name": "Joël Jacobs",
     "age": 13,
@@ -4059,6 +4070,72 @@
     }
   },
   {
+    "id": "nl-125868",
+    "name": "Henny Eva Bril",
+    "age": 15,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Henny Eva Bril”",
+      "href": "https://www.joodsmonument.nl/en/page/125868/henny-eva-bril"
+    }
+  },
+  {
+    "id": "nl-125951",
+    "name": "Marie Laie Lampasiak",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Marie Laie Lampasiak”",
+      "href": "https://www.joodsmonument.nl/en/page/125951/marie-laie-lampasiak"
+    }
+  },
+  {
+    "id": "nl-126061",
+    "name": "Meijer Jacob Slier",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Meijer Jacob Slier”",
+      "href": "https://www.joodsmonument.nl/en/page/126061/meijer-jacob-slier"
+    }
+  },
+  {
+    "id": "nl-126062",
+    "name": "Sara Slier",
+    "age": 15,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Sara Slier”",
+      "href": "https://www.joodsmonument.nl/en/page/126062/sara-slier"
+    }
+  },
+  {
+    "id": "nl-127522",
+    "name": "Sonja de Leeuw",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Sonja de Leeuw”",
+      "href": "https://www.joodsmonument.nl/en/page/127522/sonja-de-leeuw"
+    }
+  },
+  {
+    "id": "nl-127660",
+    "name": "Josephine Wessel",
+    "age": 3,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Josephine Wessel”",
+      "href": "https://www.joodsmonument.nl/en/page/127660/josephine-wessel"
+    }
+  },
+  {
     "id": "nl-128179",
     "name": "Margaretha van der Sluis",
     "age": 17,
@@ -4067,6 +4144,50 @@
     "source": {
       "label": "Joods Monument, “Margaretha van der Sluis”",
       "href": "https://www.joodsmonument.nl/en/page/128179/margaretha-van-der-sluis"
+    }
+  },
+  {
+    "id": "nl-128804",
+    "name": "Juda Zwart",
+    "age": 14,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Juda Zwart”",
+      "href": "https://www.joodsmonument.nl/en/page/128804/juda-zwart"
+    }
+  },
+  {
+    "id": "nl-128829",
+    "name": "Hans Keizer",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Hans Keizer”",
+      "href": "https://www.joodsmonument.nl/en/page/128829/hans-keizer"
+    }
+  },
+  {
+    "id": "nl-128830",
+    "name": "Estella Keizer",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Estella Keizer”",
+      "href": "https://www.joodsmonument.nl/en/page/128830/estella-keizer"
+    }
+  },
+  {
+    "id": "nl-129253",
+    "name": "Rosa Elisabeth Wolf",
+    "age": 16,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Rosa Elisabeth Wolf”",
+      "href": "https://www.joodsmonument.nl/en/page/129253/rosa-elisabeth-wolf"
     }
   },
   {
@@ -4114,6 +4235,39 @@
     }
   },
   {
+    "id": "nl-130994",
+    "name": "David Schmidt",
+    "age": 9,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “David Schmidt”",
+      "href": "https://www.joodsmonument.nl/en/page/130994/david-schmidt"
+    }
+  },
+  {
+    "id": "nl-130995",
+    "name": "Erna Schmidt",
+    "age": 14,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Erna Schmidt”",
+      "href": "https://www.joodsmonument.nl/en/page/130995/erna-schmidt"
+    }
+  },
+  {
+    "id": "nl-130997",
+    "name": "Wita Schmidt",
+    "age": 17,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Wita Schmidt”",
+      "href": "https://www.joodsmonument.nl/en/page/130997/wita-schmidt"
+    }
+  },
+  {
     "id": "nl-131272",
     "name": "Henny Henriette Adler",
     "age": 12,
@@ -4122,6 +4276,50 @@
     "source": {
       "label": "Joods Monument, “Henny Henriette Adler”",
       "href": "https://www.joodsmonument.nl/en/page/131272/henny-henriette-adler"
+    }
+  },
+  {
+    "id": "nl-131547",
+    "name": "Hartog Louis Granaada",
+    "age": 1,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Hartog Louis Granaada”",
+      "href": "https://www.joodsmonument.nl/en/page/131547/hartog-louis-granaada"
+    }
+  },
+  {
+    "id": "nl-131549",
+    "name": "Martha Granaada",
+    "age": 5,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Martha Granaada”",
+      "href": "https://www.joodsmonument.nl/en/page/131549/martha-granaada"
+    }
+  },
+  {
+    "id": "nl-131650",
+    "name": "Magdalena Valk",
+    "age": 9,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Magdalena Valk”",
+      "href": "https://www.joodsmonument.nl/en/page/131650/magdalena-valk"
+    }
+  },
+  {
+    "id": "nl-131653",
+    "name": "Josef Valk",
+    "age": 17,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Josef Valk”",
+      "href": "https://www.joodsmonument.nl/en/page/131653/josef-valk"
     }
   },
   {
@@ -4158,6 +4356,39 @@
     }
   },
   {
+    "id": "nl-132013",
+    "name": "Eduard Kerkmeester",
+    "age": 11,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Eduard Kerkmeester”",
+      "href": "https://www.joodsmonument.nl/en/page/132013/eduard-kerkmeester"
+    }
+  },
+  {
+    "id": "nl-132015",
+    "name": "Betty Kerkmeester",
+    "age": 16,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Betty Kerkmeester”",
+      "href": "https://www.joodsmonument.nl/en/page/132015/betty-kerkmeester"
+    }
+  },
+  {
+    "id": "nl-133110",
+    "name": "Elisabeth Sonja Poons",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Elisabeth Sonja Poons”",
+      "href": "https://www.joodsmonument.nl/en/page/133110/elisabeth-sonja-poons"
+    }
+  },
+  {
     "id": "nl-133203",
     "name": "Vrouwtje Sarlui",
     "age": 14,
@@ -4191,6 +4422,39 @@
     }
   },
   {
+    "id": "nl-133359",
+    "name": "Susanna Philips",
+    "age": 17,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Susanna Philips”",
+      "href": "https://www.joodsmonument.nl/en/page/133359/susanna-philips"
+    }
+  },
+  {
+    "id": "nl-133361",
+    "name": "Jeannette Philips",
+    "age": 14,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jeannette Philips”",
+      "href": "https://www.joodsmonument.nl/en/page/133361/jeannette-philips"
+    }
+  },
+  {
+    "id": "nl-133362",
+    "name": "Beppie Philips",
+    "age": 4,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Beppie Philips”",
+      "href": "https://www.joodsmonument.nl/en/page/133362/beppie-philips"
+    }
+  },
+  {
     "id": "nl-134143",
     "name": "Regina Bertha Blein",
     "age": 4,
@@ -4210,6 +4474,17 @@
     "source": {
       "label": "Joods Monument, “Anna Elisabeth de Jong”",
       "href": "https://www.joodsmonument.nl/en/page/134339/anna-elisabeth-de-jong"
+    }
+  },
+  {
+    "id": "nl-134733",
+    "name": "Etty Heerma van Voss",
+    "age": 11,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Etty Heerma van Voss”",
+      "href": "https://www.joodsmonument.nl/en/page/134733/etty-heerma-van-voss"
     }
   },
   {
@@ -4235,6 +4510,50 @@
     }
   },
   {
+    "id": "nl-135322",
+    "name": "Freerk Marcus van Dam",
+    "age": 12,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Freerk Marcus van Dam”",
+      "href": "https://www.joodsmonument.nl/en/page/135322/freerk-marcus-van-dam"
+    }
+  },
+  {
+    "id": "nl-135323",
+    "name": "Alexander Andries van Dam",
+    "age": 14,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Alexander Andries van Dam”",
+      "href": "https://www.joodsmonument.nl/en/page/135323/alexander-andries-van-dam"
+    }
+  },
+  {
+    "id": "nl-135324",
+    "name": "Netje van Dam",
+    "age": 16,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Netje van Dam”",
+      "href": "https://www.joodsmonument.nl/en/page/135324/netje-van-dam"
+    }
+  },
+  {
+    "id": "nl-135325",
+    "name": "Froukje van Dam",
+    "age": 16,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Froukje van Dam”",
+      "href": "https://www.joodsmonument.nl/en/page/135325/froukje-van-dam"
+    }
+  },
+  {
     "id": "nl-135813",
     "name": "Henderina Bollegraaf",
     "age": 16,
@@ -4257,6 +4576,72 @@
     }
   },
   {
+    "id": "nl-136383",
+    "name": "Klara de Vries",
+    "age": 10,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Klara de Vries”",
+      "href": "https://www.joodsmonument.nl/en/page/136383/klara-de-vries"
+    }
+  },
+  {
+    "id": "nl-136384",
+    "name": "Samuel de Vries",
+    "age": 11,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Samuel de Vries”",
+      "href": "https://www.joodsmonument.nl/en/page/136384/samuel-de-vries"
+    }
+  },
+  {
+    "id": "nl-136385",
+    "name": "Esther de Vries",
+    "age": 12,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Esther de Vries”",
+      "href": "https://www.joodsmonument.nl/en/page/136385/esther-de-vries"
+    }
+  },
+  {
+    "id": "nl-136386",
+    "name": "Keetje de Vries",
+    "age": 14,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Keetje de Vries”",
+      "href": "https://www.joodsmonument.nl/en/page/136386/keetje-de-vries"
+    }
+  },
+  {
+    "id": "nl-136388",
+    "name": "Rachel de Vries",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Rachel de Vries”",
+      "href": "https://www.joodsmonument.nl/en/page/136388/rachel-de-vries"
+    }
+  },
+  {
+    "id": "nl-136452",
+    "name": "Betty Slager",
+    "age": 12,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Betty Slager”",
+      "href": "https://www.joodsmonument.nl/en/page/136452/betty-slager"
+    }
+  },
+  {
     "id": "nl-137043",
     "name": "Benjamin Andries Jacobs",
     "age": 14,
@@ -4265,6 +4650,39 @@
     "source": {
       "label": "Joods Monument, “Benjamin Andries Jacobs”",
       "href": "https://www.joodsmonument.nl/en/page/137043/benjamin-andries-jacobs"
+    }
+  },
+  {
+    "id": "nl-137068",
+    "name": "Frouke Elisabeth Duitz",
+    "age": 0,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Frouke Elisabeth Duitz”",
+      "href": "https://www.joodsmonument.nl/en/page/137068/frouke-elisabeth-duitz"
+    }
+  },
+  {
+    "id": "nl-137295",
+    "name": "Daniel Weijl",
+    "age": 14,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Daniel Weijl”",
+      "href": "https://www.joodsmonument.nl/en/page/137295/daniel-weijl"
+    }
+  },
+  {
+    "id": "nl-137977",
+    "name": "Max Slager",
+    "age": 7,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Max Slager”",
+      "href": "https://www.joodsmonument.nl/en/page/137977/max-slager"
     }
   },
   {
@@ -4312,6 +4730,28 @@
     }
   },
   {
+    "id": "nl-138582",
+    "name": "Louis Brandon",
+    "age": 4,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Louis Brandon”",
+      "href": "https://www.joodsmonument.nl/en/page/138582/louis-brandon"
+    }
+  },
+  {
+    "id": "nl-138586",
+    "name": "Lea Brandon",
+    "age": 15,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Lea Brandon”",
+      "href": "https://www.joodsmonument.nl/en/page/138586/lea-brandon"
+    }
+  },
+  {
     "id": "nl-139270",
     "name": "Elionore Keizer",
     "age": 6,
@@ -4331,6 +4771,39 @@
     "source": {
       "label": "Joods Monument, “Selma Gertruida Keizer”",
       "href": "https://www.joodsmonument.nl/en/page/139271/selma-gertruida-keizer"
+    }
+  },
+  {
+    "id": "nl-139387",
+    "name": "Linda ten Brink",
+    "age": 11,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Linda ten Brink”",
+      "href": "https://www.joodsmonument.nl/en/page/139387/linda-ten-brink"
+    }
+  },
+  {
+    "id": "nl-139388",
+    "name": "Samuel Brink",
+    "age": 14,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Samuel Brink”",
+      "href": "https://www.joodsmonument.nl/en/page/139388/samuel-victor-ten-brink"
+    }
+  },
+  {
+    "id": "nl-139391",
+    "name": "Hendeliena ten Brink",
+    "age": 15,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Hendeliena ten Brink”",
+      "href": "https://www.joodsmonument.nl/en/page/139391/hendeliena-ten-brink"
     }
   },
   {
@@ -4364,6 +4837,39 @@
     "source": {
       "label": "Joods Monument, “Rachel Roffesa”",
       "href": "https://www.joodsmonument.nl/en/page/139734/rachel-roffesa"
+    }
+  },
+  {
+    "id": "nl-140486",
+    "name": "Emanuel Koster",
+    "age": 8,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Emanuel Koster”",
+      "href": "https://www.joodsmonument.nl/en/page/140486/emanuel-koster"
+    }
+  },
+  {
+    "id": "nl-140487",
+    "name": "Eva Koster",
+    "age": 11,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Eva Koster”",
+      "href": "https://www.joodsmonument.nl/en/page/140487/eva-koster"
+    }
+  },
+  {
+    "id": "nl-140488",
+    "name": "Israël Koster",
+    "age": 13,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Israël Koster”",
+      "href": "https://www.joodsmonument.nl/en/page/140488/isra%C3%ABl-koster"
     }
   },
   {
@@ -4433,6 +4939,83 @@
     }
   },
   {
+    "id": "nl-140929",
+    "name": "Herman Davey Cohen",
+    "age": 16,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Herman Davey Cohen”",
+      "href": "https://www.joodsmonument.nl/en/page/140929/herman-davey-cohen"
+    }
+  },
+  {
+    "id": "nl-140931",
+    "name": "Alice Elizabeth Cohen",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Alice Elizabeth Cohen”",
+      "href": "https://www.joodsmonument.nl/en/page/140931/alice-elizabeth-cohen"
+    }
+  },
+  {
+    "id": "nl-141112",
+    "name": "Salomon Jacques Hakker",
+    "age": 6,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Salomon Jacques Hakker”",
+      "href": "https://www.joodsmonument.nl/en/page/141112/salomon-jacques-hakker"
+    }
+  },
+  {
+    "id": "nl-141578",
+    "name": "Joseph Henri Feijten",
+    "age": 17,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Joseph Henri Feijten”",
+      "href": "https://www.joodsmonument.nl/en/page/141578/joseph-henri-feijten"
+    }
+  },
+  {
+    "id": "nl-141820",
+    "name": "Bertha Susanna Wolff",
+    "age": 10,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Bertha Susanna Wolff”",
+      "href": "https://www.joodsmonument.nl/en/page/141820/bertha-susanna-wolff"
+    }
+  },
+  {
+    "id": "nl-141897",
+    "name": "Jacques Hakker",
+    "age": 8,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jacques Hakker”",
+      "href": "https://www.joodsmonument.nl/en/page/141897/jacques-hakker"
+    }
+  },
+  {
+    "id": "nl-141898",
+    "name": "Alida Hakker",
+    "age": 10,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Alida Hakker”",
+      "href": "https://www.joodsmonument.nl/en/page/141898/alida-hakker"
+    }
+  },
+  {
     "id": "nl-142094",
     "name": "Anna Fresco",
     "age": 17,
@@ -4441,6 +5024,28 @@
     "source": {
       "label": "Joods Monument, “Anna Fresco”",
       "href": "https://www.joodsmonument.nl/en/page/142094/anna-fresco"
+    }
+  },
+  {
+    "id": "nl-142926",
+    "name": "Eduard Dagloonder",
+    "age": 2,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Eduard Dagloonder”",
+      "href": "https://www.joodsmonument.nl/en/page/142926/eduard-dagloonder"
+    }
+  },
+  {
+    "id": "nl-142928",
+    "name": "Esther Dagloonder",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Esther Dagloonder”",
+      "href": "https://www.joodsmonument.nl/en/page/142928/esther-dagloonder"
     }
   },
   {
@@ -4532,6 +5137,17 @@
     }
   },
   {
+    "id": "nl-143459",
+    "name": "Bernard Kupferschmidt",
+    "age": 6,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Bernard Kupferschmidt”",
+      "href": "https://www.joodsmonument.nl/en/page/143459/bernard-kupferschmidt"
+    }
+  },
+  {
     "id": "nl-144483",
     "name": "Joseph Tobias Gobets",
     "age": 15,
@@ -4551,6 +5167,61 @@
     "source": {
       "label": "Joods Monument, “Louis Emanuel Levin”",
       "href": "https://www.joodsmonument.nl/en/page/144509/louis-emanuel-levin"
+    }
+  },
+  {
+    "id": "nl-144654",
+    "name": "Roland Hartog Zeldenrust",
+    "age": 10,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Roland Hartog Zeldenrust”",
+      "href": "https://www.joodsmonument.nl/en/page/144654/roland-hartog-zeldenrust"
+    }
+  },
+  {
+    "id": "nl-144775",
+    "name": "Frouke Betsy Vet",
+    "age": 0,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Frouke Betsy Vet”",
+      "href": "https://www.joodsmonument.nl/en/page/144775/frouke-betsy-vet"
+    }
+  },
+  {
+    "id": "nl-144787",
+    "name": "Klaartje Fresco",
+    "age": 8,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Klaartje Fresco”",
+      "href": "https://www.joodsmonument.nl/en/page/144787/klaartje-fresco"
+    }
+  },
+  {
+    "id": "nl-144789",
+    "name": "Aäron Fresco",
+    "age": 13,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Aäron Fresco”",
+      "href": "https://www.joodsmonument.nl/en/page/144789/a%C3%A4ron-fresco"
+    }
+  },
+  {
+    "id": "nl-145160",
+    "name": "Rosine Geertruida van Praag",
+    "age": 8,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Rosine Geertruida van Praag”",
+      "href": "https://www.joodsmonument.nl/en/page/145160/rosine-geertruida-van-praag"
     }
   },
   {
@@ -4584,6 +5255,17 @@
     "source": {
       "label": "Joods Monument, “Betty Polak”",
       "href": "https://www.joodsmonument.nl/en/page/146020/betty-polak"
+    }
+  },
+  {
+    "id": "nl-146307",
+    "name": "Louis Herman Izaaks",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Louis Herman Izaaks”",
+      "href": "https://www.joodsmonument.nl/en/page/146307/louis-herman-izaaks"
     }
   },
   {
@@ -4653,6 +5335,61 @@
     }
   },
   {
+    "id": "nl-146910",
+    "name": "Hirsch Jackob Siebzehner",
+    "age": 7,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Hirsch Jackob Siebzehner”",
+      "href": "https://www.joodsmonument.nl/en/page/146910/hirsch-jackob-siebzehner"
+    }
+  },
+  {
+    "id": "nl-146911",
+    "name": "Gita Siebzehner",
+    "age": 10,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Gita Siebzehner”",
+      "href": "https://www.joodsmonument.nl/en/page/146911/gita-siebzehner"
+    }
+  },
+  {
+    "id": "nl-146912",
+    "name": "Sara Kreindla Siebzehner",
+    "age": 14,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Sara Kreindla Siebzehner”",
+      "href": "https://www.joodsmonument.nl/en/page/146912/sara-kreindla-siebzehner"
+    }
+  },
+  {
+    "id": "nl-146913",
+    "name": "Hinda Siebzehner",
+    "age": 16,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Hinda Siebzehner”",
+      "href": "https://www.joodsmonument.nl/en/page/146913/hinda-siebzehner"
+    }
+  },
+  {
+    "id": "nl-147354",
+    "name": "Izaak Sachs",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Izaak Sachs”",
+      "href": "https://www.joodsmonument.nl/en/page/147354/izaak-sachs"
+    }
+  },
+  {
     "id": "nl-148150",
     "name": "Rachel Pinto",
     "age": 2,
@@ -4672,6 +5409,17 @@
     "source": {
       "label": "Joods Monument, “Hendrik Pinto”",
       "href": "https://www.joodsmonument.nl/en/page/148151/hendrik-pinto"
+    }
+  },
+  {
+    "id": "nl-148461",
+    "name": "Salomon Boekbinder",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Salomon Boekbinder”",
+      "href": "https://www.joodsmonument.nl/en/page/148461/salomon-boekbinder"
     }
   },
   {
@@ -4719,6 +5467,61 @@
     }
   },
   {
+    "id": "nl-149529",
+    "name": "Sara Catharina van der Sluis",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Sara Catharina van der Sluis”",
+      "href": "https://www.joodsmonument.nl/en/page/149529/sara-catharina-van-der-sluis"
+    }
+  },
+  {
+    "id": "nl-149666",
+    "name": "Max Henri Lievendag",
+    "age": 3,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Max Henri Lievendag”",
+      "href": "https://www.joodsmonument.nl/en/page/149666/max-henri-lievendag"
+    }
+  },
+  {
+    "id": "nl-149907",
+    "name": "Johanna van Gelder",
+    "age": 8,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Johanna van Gelder”",
+      "href": "https://www.joodsmonument.nl/en/page/149907/johanna-van-gelder"
+    }
+  },
+  {
+    "id": "nl-149908",
+    "name": "Tallientje Saartje van Gelder",
+    "age": 14,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Tallientje Saartje van Gelder”",
+      "href": "https://www.joodsmonument.nl/en/page/149908/tallientje-saartje-van-gelder"
+    }
+  },
+  {
+    "id": "nl-149909",
+    "name": "Benjamin van Gelder",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Benjamin van Gelder”",
+      "href": "https://www.joodsmonument.nl/en/page/149909/benjamin-van-gelder"
+    }
+  },
+  {
     "id": "nl-150210",
     "name": "Johanna Bastheim",
     "age": 16,
@@ -4760,6 +5563,17 @@
     "source": {
       "label": "Joods Monument, “Zelma Bertie Zilversmit”",
       "href": "https://www.joodsmonument.nl/en/page/150695/zelma-bertie-zilversmit"
+    }
+  },
+  {
+    "id": "nl-151093",
+    "name": "Marianne Elise Heijmann",
+    "age": 10,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Marianne Elise Heijmann”",
+      "href": "https://www.joodsmonument.nl/en/page/151093/marianne-elise-heijmann"
     }
   },
   {
@@ -4851,6 +5665,72 @@
     }
   },
   {
+    "id": "nl-153314",
+    "name": "Roosje Heide",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Roosje Heide”",
+      "href": "https://www.joodsmonument.nl/en/page/153314/roosje-heide"
+    }
+  },
+  {
+    "id": "nl-153315",
+    "name": "Jochem Heide",
+    "age": 16,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Jochem Heide”",
+      "href": "https://www.joodsmonument.nl/en/page/153315/jochem-heide"
+    }
+  },
+  {
+    "id": "nl-153426",
+    "name": "Greta Cohen Rodriguez",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Greta Cohen Rodriguez”",
+      "href": "https://www.joodsmonument.nl/en/page/153426/greta-cohen-rodriguez"
+    }
+  },
+  {
+    "id": "nl-153427",
+    "name": "Isaac Cohen Rodriguez",
+    "age": 10,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Isaac Cohen Rodriguez”",
+      "href": "https://www.joodsmonument.nl/en/page/153427/isaac-cohen-rodriguez"
+    }
+  },
+  {
+    "id": "nl-154034",
+    "name": "Israël Hans Koopman",
+    "age": 15,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Israël Hans Koopman”",
+      "href": "https://www.joodsmonument.nl/en/page/154034/isra%C3%ABl-hans-koopman"
+    }
+  },
+  {
+    "id": "nl-154246",
+    "name": "Carla Simone Granaat",
+    "age": 14,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Carla Simone Granaat”",
+      "href": "https://www.joodsmonument.nl/en/page/154246/carla-simone-granaat"
+    }
+  },
+  {
     "id": "nl-154279",
     "name": "Risella Parsser",
     "age": 9,
@@ -4884,6 +5764,94 @@
     }
   },
   {
+    "id": "nl-155512",
+    "name": "Rebekka Cauveren",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Rebekka Cauveren”",
+      "href": "https://www.joodsmonument.nl/en/page/155512/rebekka-cauveren"
+    }
+  },
+  {
+    "id": "nl-155513",
+    "name": "Nancy Cauveren",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Nancy Cauveren”",
+      "href": "https://www.joodsmonument.nl/en/page/155513/nancy-cauveren"
+    }
+  },
+  {
+    "id": "nl-155894",
+    "name": "Kaatje Wurms",
+    "age": 15,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Kaatje Wurms”",
+      "href": "https://www.joodsmonument.nl/en/page/155894/kaatje-wurms"
+    }
+  },
+  {
+    "id": "nl-155895",
+    "name": "Veronica Wurms",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Veronica Wurms”",
+      "href": "https://www.joodsmonument.nl/en/page/155895/veronica-wurms"
+    }
+  },
+  {
+    "id": "nl-156407",
+    "name": "Jack Abraham Citroen",
+    "age": 14,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Jack Abraham Citroen”",
+      "href": "https://www.joodsmonument.nl/en/page/156407/jack-abraham-citroen"
+    }
+  },
+  {
+    "id": "nl-156968",
+    "name": "Greta Bloemendaal",
+    "age": 12,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Greta Bloemendaal”",
+      "href": "https://www.joodsmonument.nl/en/page/156968/greta-bloemendaal"
+    }
+  },
+  {
+    "id": "nl-156969",
+    "name": "Salomon Bloemendaal",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Salomon Bloemendaal”",
+      "href": "https://www.joodsmonument.nl/en/page/156969/salomon-bloemendaal"
+    }
+  },
+  {
+    "id": "nl-157387",
+    "name": "Rudolf Simon Lucasse",
+    "age": 0,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Rudolf Simon Lucasse”",
+      "href": "https://www.joodsmonument.nl/en/page/157387/rudolf-simon-lucasse"
+    }
+  },
+  {
     "id": "nl-159255",
     "name": "Robert Kreveld",
     "age": 2,
@@ -4906,6 +5874,17 @@
     }
   },
   {
+    "id": "nl-159873",
+    "name": "Gerda Gertrud Schlösser",
+    "age": 1,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Gerda Gertrud Schlösser”",
+      "href": "https://www.joodsmonument.nl/en/page/159873/gerda-gertrud-schl%C3%B6sser"
+    }
+  },
+  {
     "id": "nl-160110",
     "name": "Sophia de Vries",
     "age": 8,
@@ -4914,6 +5893,28 @@
     "source": {
       "label": "Joods Monument, “Sophia de Vries”",
       "href": "https://www.joodsmonument.nl/en/page/160110/sophia-de-vries"
+    }
+  },
+  {
+    "id": "nl-160390",
+    "name": "Jozua Croonenberg",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jozua Croonenberg”",
+      "href": "https://www.joodsmonument.nl/en/page/160390/jozua-croonenberg"
+    }
+  },
+  {
+    "id": "nl-160698",
+    "name": "Machiel Dresden",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Machiel Dresden”",
+      "href": "https://www.joodsmonument.nl/en/page/160698/machiel-dresden"
     }
   },
   {
@@ -4950,6 +5951,61 @@
     }
   },
   {
+    "id": "nl-161714",
+    "name": "Jacob Wertheim",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jacob Wertheim”",
+      "href": "https://www.joodsmonument.nl/en/page/161714/jacob-wertheim"
+    }
+  },
+  {
+    "id": "nl-161715",
+    "name": "Benjamin Wertheim",
+    "age": 9,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Benjamin Wertheim”",
+      "href": "https://www.joodsmonument.nl/en/page/161715/benjamin-wertheim"
+    }
+  },
+  {
+    "id": "nl-161716",
+    "name": "Greta Wertheim",
+    "age": 11,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Greta Wertheim”",
+      "href": "https://www.joodsmonument.nl/en/page/161716/greta-wertheim"
+    }
+  },
+  {
+    "id": "nl-161717",
+    "name": "Juda Wertheim",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Juda Wertheim”",
+      "href": "https://www.joodsmonument.nl/en/page/161717/juda-wertheim"
+    }
+  },
+  {
+    "id": "nl-161718",
+    "name": "Reina Wertheim",
+    "age": 14,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Reina Wertheim”",
+      "href": "https://www.joodsmonument.nl/en/page/161718/reina-wertheim"
+    }
+  },
+  {
     "id": "nl-162213",
     "name": "Lida Bacharach",
     "age": 2,
@@ -4958,6 +6014,17 @@
     "source": {
       "label": "Joods Monument, “Lida Bacharach”",
       "href": "https://www.joodsmonument.nl/en/page/162213/lida-bacharach"
+    }
+  },
+  {
+    "id": "nl-162229",
+    "name": "Elisabeth de Hond",
+    "age": 17,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Elisabeth de Hond”",
+      "href": "https://www.joodsmonument.nl/en/page/162229/elisabeth-de-hond"
     }
   },
   {
@@ -4980,6 +6047,28 @@
     "source": {
       "label": "Joods Monument, “Barend Cohen”",
       "href": "https://www.joodsmonument.nl/en/page/162423/barend-cohen"
+    }
+  },
+  {
+    "id": "nl-162669",
+    "name": "Josef Taube",
+    "age": 16,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Josef Taube”",
+      "href": "https://www.joodsmonument.nl/en/page/162669/josef-taube"
+    }
+  },
+  {
+    "id": "nl-162974",
+    "name": "Johanna Bromet",
+    "age": 4,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Johanna Bromet”",
+      "href": "https://www.joodsmonument.nl/en/page/162974/johanna-bromet"
     }
   },
   {
@@ -5049,6 +6138,17 @@
     }
   },
   {
+    "id": "nl-164426",
+    "name": "Josefine Furster",
+    "age": 1,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Josefine Furster”",
+      "href": "https://www.joodsmonument.nl/en/page/164426/josefine-tilly-engelina-furster"
+    }
+  },
+  {
     "id": "nl-164576",
     "name": "Keetje Branca IJzerman",
     "age": 9,
@@ -5082,6 +6182,17 @@
     }
   },
   {
+    "id": "nl-165676",
+    "name": "Louis Maurice Acathan",
+    "age": 6,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Louis Maurice Acathan”",
+      "href": "https://www.joodsmonument.nl/en/page/165676/louis-maurice-acathan"
+    }
+  },
+  {
     "id": "nl-165770",
     "name": "Rosette Overst",
     "age": 11,
@@ -5093,6 +6204,50 @@
     }
   },
   {
+    "id": "nl-166085",
+    "name": "Barend Duis",
+    "age": 8,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Barend Duis”",
+      "href": "https://www.joodsmonument.nl/en/page/166085/barend-duis"
+    }
+  },
+  {
+    "id": "nl-166667",
+    "name": "Nathan de Hoop",
+    "age": 4,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Nathan de Hoop”",
+      "href": "https://www.joodsmonument.nl/en/page/166667/nathan-de-hoop"
+    }
+  },
+  {
+    "id": "nl-166668",
+    "name": "Emanuel de Hoop",
+    "age": 11,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Emanuel de Hoop”",
+      "href": "https://www.joodsmonument.nl/en/page/166668/emanuel-de-hoop"
+    }
+  },
+  {
+    "id": "nl-166669",
+    "name": "Jacob Emanuel de Hoop",
+    "age": 12,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jacob Emanuel de Hoop”",
+      "href": "https://www.joodsmonument.nl/en/page/166669/jacob-emanuel-de-hoop"
+    }
+  },
+  {
     "id": "nl-167459",
     "name": "Debora de Jong",
     "age": 16,
@@ -5101,6 +6256,28 @@
     "source": {
       "label": "Joods Monument, “Debora de Jong”",
       "href": "https://www.joodsmonument.nl/en/page/167459/debora-de-jong"
+    }
+  },
+  {
+    "id": "nl-168199",
+    "name": "Judith Rachel Wolff",
+    "age": 4,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Judith Rachel Wolff”",
+      "href": "https://www.joodsmonument.nl/en/page/168199/judith-rachel-wolff"
+    }
+  },
+  {
+    "id": "nl-168223",
+    "name": "Louis David",
+    "age": 4,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Louis David”",
+      "href": "https://www.joodsmonument.nl/en/page/168223/louis-david"
     }
   },
   {
@@ -5123,6 +6300,17 @@
     "source": {
       "label": "Joods Monument, “Hirsch Majlech Färber”",
       "href": "https://www.joodsmonument.nl/en/page/168522/hirsch-majlech-f%C3%A4rber"
+    }
+  },
+  {
+    "id": "nl-169260",
+    "name": "Ursula Heilbut",
+    "age": 9,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Ursula Heilbut”",
+      "href": "https://www.joodsmonument.nl/en/page/169260/ursula-heilbut"
     }
   },
   {
@@ -5170,6 +6358,83 @@
     }
   },
   {
+    "id": "nl-170285",
+    "name": "Esther Witteboon",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Esther Witteboon”",
+      "href": "https://www.joodsmonument.nl/en/page/170285/esther-witteboon"
+    }
+  },
+  {
+    "id": "nl-171775",
+    "name": "Rebecca Roco",
+    "age": 9,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Rebecca Roco”",
+      "href": "https://www.joodsmonument.nl/en/page/171775/rebecca-roco"
+    }
+  },
+  {
+    "id": "nl-171776",
+    "name": "Sara Roco",
+    "age": 14,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Sara Roco”",
+      "href": "https://www.joodsmonument.nl/en/page/171776/sara-roco"
+    }
+  },
+  {
+    "id": "nl-171777",
+    "name": "Jonas Roco",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Jonas Roco”",
+      "href": "https://www.joodsmonument.nl/en/page/171777/jonas-roco"
+    }
+  },
+  {
+    "id": "nl-172747",
+    "name": "Aron van Beugen",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Aron van Beugen”",
+      "href": "https://www.joodsmonument.nl/en/page/172747/aron-van-beugen"
+    }
+  },
+  {
+    "id": "nl-173001",
+    "name": "Max Kleinberger",
+    "age": 11,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Max Kleinberger”",
+      "href": "https://www.joodsmonument.nl/en/page/173001/max-kleinberger"
+    }
+  },
+  {
+    "id": "nl-173470",
+    "name": "Joseph Kroet",
+    "age": 8,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Joseph Kroet”",
+      "href": "https://www.joodsmonument.nl/en/page/173470/joseph-kroet"
+    }
+  },
+  {
     "id": "nl-173912",
     "name": "Elias Abraham Szladkowski",
     "age": 5,
@@ -5189,6 +6454,61 @@
     "source": {
       "label": "Joods Monument, “Samuel Henri Szladkowski”",
       "href": "https://www.joodsmonument.nl/en/page/173913/samuel-henri-szladkowski"
+    }
+  },
+  {
+    "id": "nl-173930",
+    "name": "Martha Caransa",
+    "age": 2,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Martha Caransa”",
+      "href": "https://www.joodsmonument.nl/en/page/173930/martha-caransa"
+    }
+  },
+  {
+    "id": "nl-173931",
+    "name": "Max Caransa",
+    "age": 3,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Max Caransa”",
+      "href": "https://www.joodsmonument.nl/en/page/173931/max-caransa"
+    }
+  },
+  {
+    "id": "nl-173932",
+    "name": "Benjamin Caransa",
+    "age": 8,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Benjamin Caransa”",
+      "href": "https://www.joodsmonument.nl/en/page/173932/benjamin-caransa"
+    }
+  },
+  {
+    "id": "nl-174134",
+    "name": "Eddy van Kamerik",
+    "age": 5,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Eddy van Kamerik”",
+      "href": "https://www.joodsmonument.nl/en/page/174134/eddy-van-kamerik"
+    }
+  },
+  {
+    "id": "nl-174135",
+    "name": "Emanuel van Kamerik",
+    "age": 14,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Emanuel van Kamerik”",
+      "href": "https://www.joodsmonument.nl/en/page/174135/emanuel-van-kamerik"
     }
   },
   {
@@ -5258,6 +6578,116 @@
     }
   },
   {
+    "id": "nl-175732",
+    "name": "Harry Natkiel",
+    "age": 12,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Harry Natkiel”",
+      "href": "https://www.joodsmonument.nl/en/page/175732/harry-natkiel"
+    }
+  },
+  {
+    "id": "nl-175743",
+    "name": "Rebecca Kuijt",
+    "age": 9,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Rebecca Kuijt”",
+      "href": "https://www.joodsmonument.nl/en/page/175743/rebecca-kuijt"
+    }
+  },
+  {
+    "id": "nl-175744",
+    "name": "Michel David Kuijt",
+    "age": 14,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Michel David Kuijt”",
+      "href": "https://www.joodsmonument.nl/en/page/175744/michel-david-kuijt"
+    }
+  },
+  {
+    "id": "nl-176173",
+    "name": "Judith Rootveldt",
+    "age": 12,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Judith Rootveldt”",
+      "href": "https://www.joodsmonument.nl/en/page/176173/judith-rootveldt"
+    }
+  },
+  {
+    "id": "nl-176431",
+    "name": "Joseph Cune",
+    "age": 10,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Joseph Cune”",
+      "href": "https://www.joodsmonument.nl/en/page/176431/joseph-cune"
+    }
+  },
+  {
+    "id": "nl-176432",
+    "name": "Wolf Cune",
+    "age": 11,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Wolf Cune”",
+      "href": "https://www.joodsmonument.nl/en/page/176432/wolf-cune"
+    }
+  },
+  {
+    "id": "nl-176918",
+    "name": "Jacques Sal Ephraim",
+    "age": 0,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jacques Sal Ephraim”",
+      "href": "https://www.joodsmonument.nl/en/page/176918/jacques-sal-ephraim"
+    }
+  },
+  {
+    "id": "nl-176919",
+    "name": "Clarina Ephraim",
+    "age": 2,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Clarina Ephraim”",
+      "href": "https://www.joodsmonument.nl/en/page/176919/clarina-ephraim"
+    }
+  },
+  {
+    "id": "nl-177211",
+    "name": "Salomon Mok",
+    "age": 4,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Salomon Mok”",
+      "href": "https://www.joodsmonument.nl/en/page/177211/salomon-mok"
+    }
+  },
+  {
+    "id": "nl-177212",
+    "name": "Sara Mok",
+    "age": 6,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Sara Mok”",
+      "href": "https://www.joodsmonument.nl/en/page/177212/sara-mok"
+    }
+  },
+  {
     "id": "nl-177350",
     "name": "Anna Reens",
     "age": 2,
@@ -5277,6 +6707,72 @@
     "source": {
       "label": "Joods Monument, “Sonja Kater”",
       "href": "https://www.joodsmonument.nl/en/page/177361/sonja-kater"
+    }
+  },
+  {
+    "id": "nl-177715",
+    "name": "Philip Visser",
+    "age": 2,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Philip Visser”",
+      "href": "https://www.joodsmonument.nl/en/page/177715/philip-visser"
+    }
+  },
+  {
+    "id": "nl-177716",
+    "name": "Jaantje Visser",
+    "age": 16,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jaantje Visser”",
+      "href": "https://www.joodsmonument.nl/en/page/177716/jaantje-visser"
+    }
+  },
+  {
+    "id": "nl-177717",
+    "name": "Hartog Visser",
+    "age": 14,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Hartog Visser”",
+      "href": "https://www.joodsmonument.nl/en/page/177717/hartog-visser"
+    }
+  },
+  {
+    "id": "nl-177718",
+    "name": "Leendert Visser",
+    "age": 12,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Leendert Visser”",
+      "href": "https://www.joodsmonument.nl/en/page/177718/leendert-visser"
+    }
+  },
+  {
+    "id": "nl-177719",
+    "name": "Lea Visser",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Lea Visser”",
+      "href": "https://www.joodsmonument.nl/en/page/177719/lea-visser"
+    }
+  },
+  {
+    "id": "nl-177777",
+    "name": "Abraham Soep",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Abraham Soep”",
+      "href": "https://www.joodsmonument.nl/en/page/177777/abraham-soep"
     }
   },
   {
@@ -5313,6 +6809,28 @@
     }
   },
   {
+    "id": "nl-178170",
+    "name": "Levie Nebig",
+    "age": 4,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Levie Nebig”",
+      "href": "https://www.joodsmonument.nl/en/page/178170/levie-nebig"
+    }
+  },
+  {
+    "id": "nl-178171",
+    "name": "Louise Elisabeth Nebig",
+    "age": 5,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Louise Elisabeth Nebig”",
+      "href": "https://www.joodsmonument.nl/en/page/178171/louise-elisabeth-nebig"
+    }
+  },
+  {
     "id": "nl-178372",
     "name": "Lea Bleekveld",
     "age": 17,
@@ -5332,6 +6850,17 @@
     "source": {
       "label": "Joods Monument, “Hendrika Lever-Polak”",
       "href": "https://www.joodsmonument.nl/en/page/178411/hendrika-lever-polak"
+    }
+  },
+  {
+    "id": "nl-179593",
+    "name": "Germaine van der Woude",
+    "age": 12,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Germaine van der Woude”",
+      "href": "https://www.joodsmonument.nl/en/page/179593/germaine-frederique-van-der-woude"
     }
   },
   {
@@ -5379,6 +6908,28 @@
     }
   },
   {
+    "id": "nl-180593",
+    "name": "Levie Knegje",
+    "age": 3,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Levie Knegje”",
+      "href": "https://www.joodsmonument.nl/en/page/180593/levie-knegje"
+    }
+  },
+  {
+    "id": "nl-180594",
+    "name": "Karel Knegje",
+    "age": 8,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Karel Knegje”",
+      "href": "https://www.joodsmonument.nl/en/page/180594/karel-knegje"
+    }
+  },
+  {
     "id": "nl-181322",
     "name": "Rosa Johanna Schaap",
     "age": 12,
@@ -5387,6 +6938,17 @@
     "source": {
       "label": "Joods Monument, “Rosa Johanna Schaap”",
       "href": "https://www.joodsmonument.nl/en/page/181322/rosa-johanna-schaap"
+    }
+  },
+  {
+    "id": "nl-181587",
+    "name": "Betty Elly de Wilde",
+    "age": 8,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Betty Elly de Wilde”",
+      "href": "https://www.joodsmonument.nl/en/page/181587/betty-elly-de-wilde"
     }
   },
   {
@@ -5489,6 +7051,50 @@
     }
   },
   {
+    "id": "nl-183117",
+    "name": "Sara van de Kar",
+    "age": 9,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Sara van de Kar”",
+      "href": "https://www.joodsmonument.nl/en/page/183117/sara-sora-selina-van-de-kar"
+    }
+  },
+  {
+    "id": "nl-183118",
+    "name": "Jacques van de Kar",
+    "age": 11,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Jacques van de Kar”",
+      "href": "https://www.joodsmonument.nl/en/page/183118/jacques-van-de-kar"
+    }
+  },
+  {
+    "id": "nl-183119",
+    "name": "Levie van de Kar",
+    "age": 14,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Levie van de Kar”",
+      "href": "https://www.joodsmonument.nl/en/page/183119/levie-van-de-kar"
+    }
+  },
+  {
+    "id": "nl-183120",
+    "name": "Duifje van de Kar",
+    "age": 16,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Duifje van de Kar”",
+      "href": "https://www.joodsmonument.nl/en/page/183120/duifje-van-de-kar"
+    }
+  },
+  {
     "id": "nl-183310",
     "name": "Salomon Vorst",
     "age": 0,
@@ -5497,6 +7103,61 @@
     "source": {
       "label": "Joods Monument, “Salomon Vorst”",
       "href": "https://www.joodsmonument.nl/en/page/183310/salomon-vorst"
+    }
+  },
+  {
+    "id": "nl-183689",
+    "name": "Stefanie Grünberg",
+    "age": 13,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Stefanie Grünberg”",
+      "href": "https://www.joodsmonument.nl/en/page/183689/stefanie-gr%C3%BCnberg"
+    }
+  },
+  {
+    "id": "nl-184355",
+    "name": "Margaretha Bertha Aussen",
+    "age": 0,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Margaretha Bertha Aussen”",
+      "href": "https://www.joodsmonument.nl/en/page/184355/margaretha-bertha-aussen"
+    }
+  },
+  {
+    "id": "nl-184794",
+    "name": "Marianne Vrachtdoender",
+    "age": 2,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Marianne Vrachtdoender”",
+      "href": "https://www.joodsmonument.nl/en/page/184794/marianne-vrachtdoender"
+    }
+  },
+  {
+    "id": "nl-184795",
+    "name": "Alexander Vrachtdoender",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Alexander Vrachtdoender”",
+      "href": "https://www.joodsmonument.nl/en/page/184795/alexander-vrachtdoender"
+    }
+  },
+  {
+    "id": "nl-185059",
+    "name": "Mozes Harpman",
+    "age": 11,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Mozes Harpman”",
+      "href": "https://www.joodsmonument.nl/en/page/185059/mozes-harpman"
     }
   },
   {
@@ -5511,6 +7172,50 @@
     }
   },
   {
+    "id": "nl-185754",
+    "name": "David Espinosa",
+    "age": 15,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “David Espinosa”",
+      "href": "https://www.joodsmonument.nl/en/page/185754/david-espinosa"
+    }
+  },
+  {
+    "id": "nl-185755",
+    "name": "Jacob Espinosa",
+    "age": 16,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Jacob Espinosa”",
+      "href": "https://www.joodsmonument.nl/en/page/185755/jacob-espinosa"
+    }
+  },
+  {
+    "id": "nl-185760",
+    "name": "Esther Andrea Espinosa",
+    "age": 0,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Esther Andrea Espinosa”",
+      "href": "https://www.joodsmonument.nl/en/page/185760/esther-andrea-espinosa"
+    }
+  },
+  {
+    "id": "nl-185763",
+    "name": "Isaac Kool",
+    "age": 4,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Isaac Kool”",
+      "href": "https://www.joodsmonument.nl/en/page/185763/isaac-kool"
+    }
+  },
+  {
     "id": "nl-186194",
     "name": "Leo Sjouwerman",
     "age": 9,
@@ -5519,6 +7224,105 @@
     "source": {
       "label": "Joods Monument, “Leo Sjouwerman”",
       "href": "https://www.joodsmonument.nl/en/page/186194/leo-sjouwerman"
+    }
+  },
+  {
+    "id": "nl-186424",
+    "name": "Samuel Kool",
+    "age": 12,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Samuel Kool”",
+      "href": "https://www.joodsmonument.nl/en/page/186424/samuel-kool"
+    }
+  },
+  {
+    "id": "nl-186481",
+    "name": "Maurice Groen",
+    "age": 10,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Maurice Groen”",
+      "href": "https://www.joodsmonument.nl/en/page/186481/maurice-groen"
+    }
+  },
+  {
+    "id": "nl-186903",
+    "name": "Klara Bing",
+    "age": 5,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Klara Bing”",
+      "href": "https://www.joodsmonument.nl/en/page/186903/klara-bing"
+    }
+  },
+  {
+    "id": "nl-186904",
+    "name": "Sara Bing",
+    "age": 9,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Sara Bing”",
+      "href": "https://www.joodsmonument.nl/en/page/186904/sara-bing"
+    }
+  },
+  {
+    "id": "nl-187121",
+    "name": "Aaltje Wallega",
+    "age": 3,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Aaltje Wallega”",
+      "href": "https://www.joodsmonument.nl/en/page/187121/aaltje-wallega"
+    }
+  },
+  {
+    "id": "nl-187760",
+    "name": "Louise Blitz",
+    "age": 6,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Louise Blitz”",
+      "href": "https://www.joodsmonument.nl/en/page/187760/louise-blitz"
+    }
+  },
+  {
+    "id": "nl-187763",
+    "name": "Lou de Gorter",
+    "age": 10,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Lou de Gorter”",
+      "href": "https://www.joodsmonument.nl/en/page/187763/lou-de-gorter"
+    }
+  },
+  {
+    "id": "nl-188084",
+    "name": "Rebecca Henriette Cune",
+    "age": 2,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Rebecca Henriette Cune”",
+      "href": "https://www.joodsmonument.nl/en/page/188084/rebecca-henriette-cune"
+    }
+  },
+  {
+    "id": "nl-188085",
+    "name": "Andries Cune",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Andries Cune”",
+      "href": "https://www.joodsmonument.nl/en/page/188085/andries-cune"
     }
   },
   {
@@ -5541,6 +7345,39 @@
     "source": {
       "label": "Joods Monument, “Flora Droomer”",
       "href": "https://www.joodsmonument.nl/en/page/188500/flora-droomer"
+    }
+  },
+  {
+    "id": "nl-188513",
+    "name": "Abraham Bril",
+    "age": 2,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Abraham Bril”",
+      "href": "https://www.joodsmonument.nl/en/page/188513/abraham-bril"
+    }
+  },
+  {
+    "id": "nl-190402",
+    "name": "Jacques de Vries",
+    "age": 2,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jacques de Vries”",
+      "href": "https://www.joodsmonument.nl/en/page/190402/jacques-de-vries"
+    }
+  },
+  {
+    "id": "nl-190403",
+    "name": "Henri de Vries",
+    "age": 7,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Henri de Vries”",
+      "href": "https://www.joodsmonument.nl/en/page/190403/henri-de-vries"
     }
   },
   {
@@ -5577,6 +7414,28 @@
     }
   },
   {
+    "id": "nl-190732",
+    "name": "Anton Nabarro",
+    "age": 8,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Anton Nabarro”",
+      "href": "https://www.joodsmonument.nl/en/page/190732/anton-nabarro"
+    }
+  },
+  {
+    "id": "nl-190733",
+    "name": "Reneé Nabarro",
+    "age": 13,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Reneé Nabarro”",
+      "href": "https://www.joodsmonument.nl/en/page/190733/rene%C3%A9-nabarro"
+    }
+  },
+  {
     "id": "nl-190842",
     "name": "Rika van Gelder",
     "age": 15,
@@ -5610,6 +7469,39 @@
     }
   },
   {
+    "id": "nl-191639",
+    "name": "Victor David van Wezel",
+    "age": 10,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Victor David van Wezel”",
+      "href": "https://www.joodsmonument.nl/en/page/191639/victor-david-van-wezel"
+    }
+  },
+  {
+    "id": "nl-191641",
+    "name": "Louis van Wezel",
+    "age": 8,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Louis van Wezel”",
+      "href": "https://www.joodsmonument.nl/en/page/191641/louis-van-wezel"
+    }
+  },
+  {
+    "id": "nl-191968",
+    "name": "Abraham Weenen",
+    "age": 11,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Abraham Weenen”",
+      "href": "https://www.joodsmonument.nl/en/page/191968/abraham-weenen"
+    }
+  },
+  {
     "id": "nl-192229",
     "name": "Max de Vries",
     "age": 7,
@@ -5640,6 +7532,28 @@
     "source": {
       "label": "Joods Monument, “Leentje de Vries”",
       "href": "https://www.joodsmonument.nl/en/page/192231/leentje-de-vries"
+    }
+  },
+  {
+    "id": "nl-192361",
+    "name": "Flora Parser",
+    "age": 0,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Flora Parser”",
+      "href": "https://www.joodsmonument.nl/en/page/192361/flora-parser"
+    }
+  },
+  {
+    "id": "nl-192362",
+    "name": "Joseph Parser",
+    "age": 5,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Joseph Parser”",
+      "href": "https://www.joodsmonument.nl/en/page/192362/joseph-parser"
     }
   },
   {
@@ -5687,6 +7601,50 @@
     }
   },
   {
+    "id": "nl-193126",
+    "name": "Carol Eduard Vischschraper",
+    "age": 6,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Carol Eduard Vischschraper”",
+      "href": "https://www.joodsmonument.nl/en/page/193126/carol-eduard-vischschraper"
+    }
+  },
+  {
+    "id": "nl-193127",
+    "name": "Louis Vischschraper",
+    "age": 8,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Louis Vischschraper”",
+      "href": "https://www.joodsmonument.nl/en/page/193127/louis-vischschraper"
+    }
+  },
+  {
+    "id": "nl-193294",
+    "name": "Jetje Goedel",
+    "age": 6,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jetje Goedel”",
+      "href": "https://www.joodsmonument.nl/en/page/193294/jetje-goedel"
+    }
+  },
+  {
+    "id": "nl-193295",
+    "name": "Sara Goedel",
+    "age": 11,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Sara Goedel”",
+      "href": "https://www.joodsmonument.nl/en/page/193295/sara-goedel"
+    }
+  },
+  {
     "id": "nl-193376",
     "name": "Annie Polak",
     "age": 10,
@@ -5731,6 +7689,17 @@
     }
   },
   {
+    "id": "nl-193606",
+    "name": "Roosje van der Horst",
+    "age": 17,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Roosje van der Horst”",
+      "href": "https://www.joodsmonument.nl/en/page/193606/roosje-van-der-horst"
+    }
+  },
+  {
     "id": "nl-194195",
     "name": "Hartog Waterman",
     "age": 17,
@@ -5739,6 +7708,39 @@
     "source": {
       "label": "Joods Monument, “Hartog Waterman”",
       "href": "https://www.joodsmonument.nl/en/page/194195/hartog-waterman"
+    }
+  },
+  {
+    "id": "nl-194325",
+    "name": "Samuel Schwarz",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Samuel Schwarz”",
+      "href": "https://www.joodsmonument.nl/en/page/194325/samuel-schwarz"
+    }
+  },
+  {
+    "id": "nl-194326",
+    "name": "Heiman Schwarz",
+    "age": 11,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Heiman Schwarz”",
+      "href": "https://www.joodsmonument.nl/en/page/194326/heiman-schwarz"
+    }
+  },
+  {
+    "id": "nl-194327",
+    "name": "Rika Schwarz",
+    "age": 16,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Rika Schwarz”",
+      "href": "https://www.joodsmonument.nl/en/page/194327/rika-schwarz"
     }
   },
   {
@@ -5761,6 +7763,17 @@
     "source": {
       "label": "Joods Monument, “Judith Roozelaar”",
       "href": "https://www.joodsmonument.nl/en/page/194601/judith-roozelaar"
+    }
+  },
+  {
+    "id": "nl-194640",
+    "name": "Barend Vischschraper",
+    "age": 3,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Barend Vischschraper”",
+      "href": "https://www.joodsmonument.nl/en/page/194640/barend-vischschraper"
     }
   },
   {
@@ -5852,6 +7865,83 @@
     }
   },
   {
+    "id": "nl-194994",
+    "name": "Benjamin Polak",
+    "age": 11,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Benjamin Polak”",
+      "href": "https://www.joodsmonument.nl/en/page/194994/benjamin-polak"
+    }
+  },
+  {
+    "id": "nl-195405",
+    "name": "Eva Cardozo",
+    "age": 10,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Eva Cardozo”",
+      "href": "https://www.joodsmonument.nl/en/page/195405/eva-cardozo"
+    }
+  },
+  {
+    "id": "nl-195406",
+    "name": "Maurits Cardozo",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Maurits Cardozo”",
+      "href": "https://www.joodsmonument.nl/en/page/195406/maurits-cardozo"
+    }
+  },
+  {
+    "id": "nl-195408",
+    "name": "Clara Lea Cardozo",
+    "age": 1,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Clara Lea Cardozo”",
+      "href": "https://www.joodsmonument.nl/en/page/195408/clara-lea-cardozo"
+    }
+  },
+  {
+    "id": "nl-196020",
+    "name": "Maurits Jacques Allegro",
+    "age": 1,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Maurits Jacques Allegro”",
+      "href": "https://www.joodsmonument.nl/en/page/196020/maurits-jacques-allegro"
+    }
+  },
+  {
+    "id": "nl-196194",
+    "name": "Elly Grobfeld",
+    "age": 4,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Elly Grobfeld”",
+      "href": "https://www.joodsmonument.nl/en/page/196194/elly-grobfeld"
+    }
+  },
+  {
+    "id": "nl-196195",
+    "name": "Hanna Grobfeld",
+    "age": 6,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Hanna Grobfeld”",
+      "href": "https://www.joodsmonument.nl/en/page/196195/hanna-grobfeld"
+    }
+  },
+  {
     "id": "nl-196428",
     "name": "Alfred Melkman",
     "age": 9,
@@ -5918,6 +8008,50 @@
     }
   },
   {
+    "id": "nl-197102",
+    "name": "Margaretha Rebecca van Moppes",
+    "age": 4,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Margaretha Rebecca van Moppes”",
+      "href": "https://www.joodsmonument.nl/en/page/197102/margaretha-rebecca-van-moppes"
+    }
+  },
+  {
+    "id": "nl-197395",
+    "name": "Anna Beem",
+    "age": 15,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Anna Beem”",
+      "href": "https://www.joodsmonument.nl/en/page/197395/anna-beem"
+    }
+  },
+  {
+    "id": "nl-197396",
+    "name": "Isaac Beem",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Isaac Beem”",
+      "href": "https://www.joodsmonument.nl/en/page/197396/isaac-beem"
+    }
+  },
+  {
+    "id": "nl-197402",
+    "name": "Betje Caransa",
+    "age": 7,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Betje Caransa”",
+      "href": "https://www.joodsmonument.nl/en/page/197402/betje-caransa"
+    }
+  },
+  {
     "id": "nl-197936",
     "name": "Dora Rosa van Gelderen",
     "age": 16,
@@ -5962,6 +8096,39 @@
     }
   },
   {
+    "id": "nl-199049",
+    "name": "Jenny van Loggem",
+    "age": 8,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Jenny van Loggem”",
+      "href": "https://www.joodsmonument.nl/en/page/199049/jenny-van-loggem"
+    }
+  },
+  {
+    "id": "nl-199082",
+    "name": "Alfred Aussen",
+    "age": 3,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Alfred Aussen”",
+      "href": "https://www.joodsmonument.nl/en/page/199082/alfred-aussen"
+    }
+  },
+  {
+    "id": "nl-199083",
+    "name": "Catharina Aussen",
+    "age": 4,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Catharina Aussen”",
+      "href": "https://www.joodsmonument.nl/en/page/199083/catharina-aussen"
+    }
+  },
+  {
     "id": "nl-199586",
     "name": "Margret Hedwig Steinweg",
     "age": 10,
@@ -5973,6 +8140,61 @@
     }
   },
   {
+    "id": "nl-199592",
+    "name": "Marion Emilie de Jong",
+    "age": 17,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Marion Emilie de Jong”",
+      "href": "https://www.joodsmonument.nl/en/page/199592/marion-emilie-de-jong"
+    }
+  },
+  {
+    "id": "nl-199803",
+    "name": "Alex Isaac Neuberger",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Alex Isaac Neuberger”",
+      "href": "https://www.joodsmonument.nl/en/page/199803/alex-isaac-neuberger"
+    }
+  },
+  {
+    "id": "nl-200539",
+    "name": "Alfred Herman Acohen",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Alfred Herman Acohen”",
+      "href": "https://www.joodsmonument.nl/en/page/200539/alfred-herman-acohen"
+    }
+  },
+  {
+    "id": "nl-200979",
+    "name": "Helena Lisser",
+    "age": 10,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Helena Lisser”",
+      "href": "https://www.joodsmonument.nl/en/page/200979/helena-anna-roza-lisser"
+    }
+  },
+  {
+    "id": "nl-200980",
+    "name": "Hartog Lion Lisser",
+    "age": 2,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Hartog Lion Lisser”",
+      "href": "https://www.joodsmonument.nl/en/page/200980/hartog-lion-lisser"
+    }
+  },
+  {
     "id": "nl-201699",
     "name": "Michel Emile Levy",
     "age": 7,
@@ -5981,6 +8203,39 @@
     "source": {
       "label": "Joods Monument, “Michel Emile Levy”",
       "href": "https://www.joodsmonument.nl/en/page/201699/michel-emile-levy"
+    }
+  },
+  {
+    "id": "nl-202061",
+    "name": "Rudolf Romijn",
+    "age": 15,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Rudolf Romijn”",
+      "href": "https://www.joodsmonument.nl/en/page/202061/rudolf-romijn"
+    }
+  },
+  {
+    "id": "nl-202063",
+    "name": "Elly Romijn",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Elly Romijn”",
+      "href": "https://www.joodsmonument.nl/en/page/202063/elly-romijn"
+    }
+  },
+  {
+    "id": "nl-202981",
+    "name": "Lea Judith de la Penha",
+    "age": 6,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Lea Judith de la Penha”",
+      "href": "https://www.joodsmonument.nl/en/page/202981/lea-judith-de-la-penha"
     }
   },
   {
@@ -6050,6 +8305,17 @@
     }
   },
   {
+    "id": "nl-206391",
+    "name": "Manfred Herz",
+    "age": 5,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Manfred Herz”",
+      "href": "https://www.joodsmonument.nl/en/page/206391/manfred-herz"
+    }
+  },
+  {
     "id": "nl-207257",
     "name": "Sara Mullem",
     "age": 6,
@@ -6105,6 +8371,17 @@
     }
   },
   {
+    "id": "nl-207630",
+    "name": "Henriette Bril",
+    "age": 11,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Henriette Bril”",
+      "href": "https://www.joodsmonument.nl/en/page/207630/henriette-bril"
+    }
+  },
+  {
     "id": "nl-208314",
     "name": "Marius de Haan",
     "age": 15,
@@ -6146,6 +8423,61 @@
     "source": {
       "label": "Joods Monument, “Isaäc Troeder”",
       "href": "https://www.joodsmonument.nl/en/page/208482/isa%C3%A4c-troeder"
+    }
+  },
+  {
+    "id": "nl-208601",
+    "name": "David Kesnig",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “David Kesnig”",
+      "href": "https://www.joodsmonument.nl/en/page/208601/david-kesnig"
+    }
+  },
+  {
+    "id": "nl-208710",
+    "name": "Jeannette Agsteribbe",
+    "age": 4,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Jeannette Agsteribbe”",
+      "href": "https://www.joodsmonument.nl/en/page/208710/jeannette-agsteribbe"
+    }
+  },
+  {
+    "id": "nl-208712",
+    "name": "Marcus Agsteribbe",
+    "age": 9,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Marcus Agsteribbe”",
+      "href": "https://www.joodsmonument.nl/en/page/208712/marcus-agsteribbe"
+    }
+  },
+  {
+    "id": "nl-208813",
+    "name": "Salomon Berklou",
+    "age": 1,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Salomon Berklou”",
+      "href": "https://www.joodsmonument.nl/en/page/208813/salomon-berklou"
+    }
+  },
+  {
+    "id": "nl-208814",
+    "name": "Judith Berklou",
+    "age": 2,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Judith Berklou”",
+      "href": "https://www.joodsmonument.nl/en/page/208814/judith-berklou"
     }
   },
   {
@@ -6215,6 +8547,17 @@
     }
   },
   {
+    "id": "nl-209010",
+    "name": "Engelina Messcher",
+    "age": 4,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Engelina Messcher”",
+      "href": "https://www.joodsmonument.nl/en/page/209010/engelina-messcher"
+    }
+  },
+  {
     "id": "nl-209172",
     "name": "Joseph Sigaar",
     "age": 0,
@@ -6226,6 +8569,17 @@
     }
   },
   {
+    "id": "nl-209597",
+    "name": "Isaäc Ben Melkman",
+    "age": 12,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Isaäc Ben Melkman”",
+      "href": "https://www.joodsmonument.nl/en/page/209597/isa%C3%A4c-ben-melkman"
+    }
+  },
+  {
     "id": "nl-210009",
     "name": "Salli Zimmer",
     "age": 14,
@@ -6234,6 +8588,39 @@
     "source": {
       "label": "Joods Monument, “Salli Zimmer”",
       "href": "https://www.joodsmonument.nl/en/page/210009/salli-zimmer"
+    }
+  },
+  {
+    "id": "nl-210930",
+    "name": "Rebecca Sluijter",
+    "age": 7,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Rebecca Sluijter”",
+      "href": "https://www.joodsmonument.nl/en/page/210930/rebecca-sluijter"
+    }
+  },
+  {
+    "id": "nl-210931",
+    "name": "Hanna Sluijter",
+    "age": 14,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Hanna Sluijter”",
+      "href": "https://www.joodsmonument.nl/en/page/210931/hanna-sluijter"
+    }
+  },
+  {
+    "id": "nl-211160",
+    "name": "Henri Abraham Groenstad",
+    "age": 15,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Henri Abraham Groenstad”",
+      "href": "https://www.joodsmonument.nl/en/page/211160/henri-abraham-groenstad"
     }
   },
   {
@@ -6259,6 +8646,17 @@
     }
   },
   {
+    "id": "nl-211655",
+    "name": "Zacharias Agsteribbe",
+    "age": 10,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Zacharias Agsteribbe”",
+      "href": "https://www.joodsmonument.nl/en/page/211655/zacharias-agsteribbe"
+    }
+  },
+  {
     "id": "nl-211811",
     "name": "Mozes Waas",
     "age": 6,
@@ -6278,6 +8676,50 @@
     "source": {
       "label": "Joods Monument, “Esther Waas”",
       "href": "https://www.joodsmonument.nl/en/page/211812/esther-waas"
+    }
+  },
+  {
+    "id": "nl-211863",
+    "name": "Kitty Lakmaker",
+    "age": 1,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Kitty Lakmaker”",
+      "href": "https://www.joodsmonument.nl/en/page/211863/kitty-lakmaker"
+    }
+  },
+  {
+    "id": "nl-211864",
+    "name": "Fietje Lakmaker",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Fietje Lakmaker”",
+      "href": "https://www.joodsmonument.nl/en/page/211864/fietje-lakmaker"
+    }
+  },
+  {
+    "id": "nl-211866",
+    "name": "Mietje Lakmaker",
+    "age": 4,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Mietje Lakmaker”",
+      "href": "https://www.joodsmonument.nl/en/page/211866/mietje-lakmaker"
+    }
+  },
+  {
+    "id": "nl-211867",
+    "name": "Lea Lakmaker",
+    "age": 6,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Lea Lakmaker”",
+      "href": "https://www.joodsmonument.nl/en/page/211867/lea-lakmaker"
     }
   },
   {
@@ -6303,6 +8745,17 @@
     }
   },
   {
+    "id": "nl-212007",
+    "name": "Betty Blom",
+    "age": 12,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Betty Blom”",
+      "href": "https://www.joodsmonument.nl/en/page/212007/betty-blom"
+    }
+  },
+  {
     "id": "nl-212295",
     "name": "Ludo Fred Nerden",
     "age": 10,
@@ -6322,6 +8775,28 @@
     "source": {
       "label": "Joods Monument, “Mary Betty Nerden”",
       "href": "https://www.joodsmonument.nl/en/page/212296/mary-betty-nerden"
+    }
+  },
+  {
+    "id": "nl-212472",
+    "name": "Maurice Peper",
+    "age": 16,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Maurice Peper”",
+      "href": "https://www.joodsmonument.nl/en/page/212472/maurice-peper"
+    }
+  },
+  {
+    "id": "nl-212645",
+    "name": "Abraham Werkendam",
+    "age": 17,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Abraham Werkendam”",
+      "href": "https://www.joodsmonument.nl/en/page/212645/abraham-werkendam"
     }
   },
   {
@@ -6380,6 +8855,17 @@
     }
   },
   {
+    "id": "nl-214270",
+    "name": "Rudolf Zacharias Coronel",
+    "age": 15,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Rudolf Zacharias Coronel”",
+      "href": "https://www.joodsmonument.nl/en/page/214270/rudolf-zacharias-coronel"
+    }
+  },
+  {
     "id": "nl-215297",
     "name": "Jacob Frank",
     "age": 14,
@@ -6388,6 +8874,28 @@
     "source": {
       "label": "Joods Monument, “Jacob Frank”",
       "href": "https://www.joodsmonument.nl/en/page/215297/jacob-frank"
+    }
+  },
+  {
+    "id": "nl-215350",
+    "name": "Mary Koopman",
+    "age": 13,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Mary Koopman”",
+      "href": "https://www.joodsmonument.nl/en/page/215350/mary-koopman"
+    }
+  },
+  {
+    "id": "nl-215352",
+    "name": "Samuel Koopman",
+    "age": 15,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Samuel Koopman”",
+      "href": "https://www.joodsmonument.nl/en/page/215352/samuel-koopman"
     }
   },
   {
@@ -6402,6 +8910,94 @@
     }
   },
   {
+    "id": "nl-215608",
+    "name": "Marcus Canes",
+    "age": 10,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Marcus Canes”",
+      "href": "https://www.joodsmonument.nl/en/page/215608/marcus-canes"
+    }
+  },
+  {
+    "id": "nl-216335",
+    "name": "Emanuel Kahn",
+    "age": 1,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Emanuel Kahn”",
+      "href": "https://www.joodsmonument.nl/en/page/216335/emanuel-kahn"
+    }
+  },
+  {
+    "id": "nl-216438",
+    "name": "Jentje Hilversum",
+    "age": 9,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Jentje Hilversum”",
+      "href": "https://www.joodsmonument.nl/en/page/216438/jentje-hilversum"
+    }
+  },
+  {
+    "id": "nl-216439",
+    "name": "Sara Hilversum",
+    "age": 16,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Sara Hilversum”",
+      "href": "https://www.joodsmonument.nl/en/page/216439/sara-hilversum"
+    }
+  },
+  {
+    "id": "nl-217065",
+    "name": "Karla Philips",
+    "age": 15,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Karla Philips”",
+      "href": "https://www.joodsmonument.nl/en/page/217065/karla-philips"
+    }
+  },
+  {
+    "id": "nl-217242",
+    "name": "Johanna Vorst",
+    "age": 0,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Johanna Vorst”",
+      "href": "https://www.joodsmonument.nl/en/page/217242/johanna-vorst"
+    }
+  },
+  {
+    "id": "nl-217293",
+    "name": "Robby Comprecht Ritmeester",
+    "age": 1,
+    "died": 1945,
+    "place": "Bergen-Belsen",
+    "source": {
+      "label": "Joods Monument, “Robby Comprecht Ritmeester”",
+      "href": "https://www.joodsmonument.nl/en/page/217293/robby-comprecht-ritmeester"
+    }
+  },
+  {
+    "id": "nl-218344",
+    "name": "Ronald Bobbe",
+    "age": 1,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Ronald Bobbe”",
+      "href": "https://www.joodsmonument.nl/en/page/218344/ronald-bobbe"
+    }
+  },
+  {
     "id": "nl-218777",
     "name": "Annie Zeelander",
     "age": 17,
@@ -6410,6 +9006,28 @@
     "source": {
       "label": "Joods Monument, “Annie Zeelander”",
       "href": "https://www.joodsmonument.nl/en/page/218777/annie-zeelander"
+    }
+  },
+  {
+    "id": "nl-219101",
+    "name": "Willem Weiss",
+    "age": 15,
+    "died": 1944,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Willem Weiss”",
+      "href": "https://www.joodsmonument.nl/en/page/219101/willem-weiss"
+    }
+  },
+  {
+    "id": "nl-219338",
+    "name": "Bertha de Vries",
+    "age": 1,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Bertha de Vries”",
+      "href": "https://www.joodsmonument.nl/en/page/219338/bertha-de-vries"
     }
   },
   {
@@ -6432,6 +9050,39 @@
     "source": {
       "label": "Joods Monument, “Dora Rofessa”",
       "href": "https://www.joodsmonument.nl/en/page/220478/dora-rofessa"
+    }
+  },
+  {
+    "id": "nl-220978",
+    "name": "Rachel Pais",
+    "age": 0,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Rachel Pais”",
+      "href": "https://www.joodsmonument.nl/en/page/220978/rachel-pais"
+    }
+  },
+  {
+    "id": "nl-221647",
+    "name": "Jacob Limburg",
+    "age": 4,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Jacob Limburg”",
+      "href": "https://www.joodsmonument.nl/en/page/221647/jacob-limburg"
+    }
+  },
+  {
+    "id": "nl-222101",
+    "name": "Moritz Körner",
+    "age": 14,
+    "died": 1943,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Moritz Körner”",
+      "href": "https://www.joodsmonument.nl/en/page/222101/moritz-k%C3%B6rner"
     }
   },
   {
@@ -6498,6 +9149,39 @@
     "source": {
       "label": "Joods Monument, “Aäron Dagloonder”",
       "href": "https://www.joodsmonument.nl/en/page/224238/a%C3%A4ron-dagloonder"
+    }
+  },
+  {
+    "id": "nl-227060",
+    "name": "Mieke Meuleman",
+    "age": 3,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Mieke Meuleman”",
+      "href": "https://www.joodsmonument.nl/en/page/227060/mieke-meuleman"
+    }
+  },
+  {
+    "id": "nl-25903",
+    "name": "Izak Levij",
+    "age": 1,
+    "died": 1942,
+    "place": "Auschwitz",
+    "source": {
+      "label": "Joods Monument, “Izak Levij”",
+      "href": "https://www.joodsmonument.nl/en/page/25903/izak-levij"
+    }
+  },
+  {
+    "id": "nl-27294",
+    "name": "Emmy Eleonore Passmann",
+    "age": 4,
+    "died": 1943,
+    "place": "Sobibor",
+    "source": {
+      "label": "Joods Monument, “Emmy Eleonore Passmann”",
+      "href": "https://www.joodsmonument.nl/en/page/27294/emmy-eleonore-passmann"
     }
   },
   {
