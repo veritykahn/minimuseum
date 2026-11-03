@@ -3,6 +3,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import type { ComponentType } from 'react';
 import Home from '@/app/page';
+import { MUSEUM_SOUND_KEY, isMuseumSoundOn } from '@/lib/museumSound';
 import GreatHall from '@/app/greathall/page';
 import ThirdFloor from '@/app/exhibitions/third-floor/page';
 import FloorPage from '@/components/FloorPage';
@@ -63,6 +64,21 @@ describe('the landing page logo', () => {
     expect(screen.getByRole('heading', { level: 1 })).toContainElement(logo);
     expect(logo.getAttribute('src')).toContain('logo.png');
     expect(existsSync(join(process.cwd(), 'public', 'logo.png'))).toBe(true);
+  });
+});
+
+describe('the door', () => {
+  it('offers the museum’s sound below Enter, recommended on, and turns it on for the visit', () => {
+    render(<Home />);
+    const enter = screen.getByRole('link', { name: 'Enter' });
+    const sound = screen.getByRole('button', { name: 'Turn the museum’s sound on' });
+    expect(enter.compareDocumentPosition(sound) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(screen.getByText(/Best with sound on/)).toBeInTheDocument();
+    expect(sound).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(sound);
+    expect(screen.getByRole('button', { name: 'Museum sound on' })).toHaveAttribute('aria-pressed', 'true');
+    expect(isMuseumSoundOn()).toBe(true);
+    expect(sessionStorage.getItem(MUSEUM_SOUND_KEY)).toBe('on');
   });
 });
 

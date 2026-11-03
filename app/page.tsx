@@ -4,9 +4,17 @@ import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
+import { useMuseumSound } from '@/lib/museumSound';
+
+// REVIEW (Verity): the sound switch at the door, and its recommendation.
+const DOOR_SOUND_OFF = 'Turn the museum’s sound on';
+const DOOR_SOUND_ON = 'Museum sound on';
+const DOOR_SOUND_HINT = 'Best with sound on: the halls and rooms are heard as you walk through.';
 
 export default function Home() {
   const reduceMotion = usePrefersReducedMotion();
+  // The museum's one sound switch (lib/museumSound.ts): turned on here, the halls and the rooms are heard from the Great Hall on.
+  const [sound, setSound] = useMuseumSound();
   const [logoTimerDone, setLogoVisible] = useState(false);
   const [taglineTimerDone, setTaglineVisible] = useState(false);
   const [detailsTimerDone, setDetailsVisible] = useState(false);
@@ -116,6 +124,65 @@ export default function Home() {
           >
             Enter
           </Link>
+
+          {/* Below Enter: the museum's sound, recommended on. */}
+          <div className="flex flex-col items-center" style={{ marginTop: '28px', gap: '10px' }}>
+            <button type="button" className="door-sound" aria-pressed={sound} onClick={() => setSound(!sound)}>
+              <span className="door-sound-dot" aria-hidden="true" />
+              {sound ? DOOR_SOUND_ON : DOOR_SOUND_OFF}
+            </button>
+            <p className="door-sound-hint">{DOOR_SOUND_HINT}</p>
+          </div>
+          <style jsx>{`
+            .door-sound {
+              display: inline-flex;
+              align-items: center;
+              gap: 10px;
+              min-height: 44px;
+              padding: 0 18px;
+              border: 1px solid rgba(250, 250, 250, 0.3);
+              border-radius: 999px;
+              background: transparent;
+              color: #fafafa;
+              font: 300 11px/1 'Outfit', system-ui, sans-serif;
+              letter-spacing: 0.18em;
+              text-transform: uppercase;
+              opacity: 0.8;
+              cursor: pointer;
+              transition: opacity 0.3s ease, background 0.3s ease;
+            }
+            .door-sound:hover,
+            .door-sound[aria-pressed='true'] {
+              opacity: 1;
+              background: rgba(250, 250, 250, 0.05);
+            }
+            .door-sound:focus-visible {
+              outline: 2px solid #fafafa;
+              outline-offset: 3px;
+            }
+            .door-sound-dot {
+              width: 6px;
+              height: 6px;
+              border-radius: 50%;
+              border: 1px solid currentColor;
+            }
+            .door-sound[aria-pressed='true'] .door-sound-dot {
+              background: currentColor;
+            }
+            .door-sound-hint {
+              margin: 0;
+              max-width: 22em;
+              padding: 0 16px;
+              text-align: center;
+              font: italic 300 13px/1.5 Georgia, 'Times New Roman', serif;
+              color: #808080;
+            }
+            @media (prefers-reduced-motion: reduce) {
+              .door-sound {
+                transition: none;
+              }
+            }
+          `}</style>
         </div>
       </div>
     </div>
