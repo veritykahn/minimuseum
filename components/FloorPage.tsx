@@ -456,6 +456,12 @@ function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; ca
           .studio-glyph { margin-bottom: 20px; }
           .studio-description { font-size: 14px; margin-bottom: 32px; }
         }
+        /* The halls' sound button (components/HallSound.tsx) sits bottom
+           left, 44px tall; on a narrow screen the centered hint would run
+           into it, so the hint lifts above it (and above the Studio's rule). */
+        @media (max-width: 700px) {
+          .scroll-hint { bottom: calc(88px + env(safe-area-inset-bottom, 0px)); }
+        }
       `}</style>
 
       <h1 className="visually-hidden">{floor.heading}</h1>
