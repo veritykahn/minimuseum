@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { ALL_FLOORS } from '@/lib/floors';
+import { useHallDim, useMuseumSound } from '@/lib/museumSound';
 
 /*
  * The halls' sound: a quiet loop of a large museum hall (Speyer Cathedral,
@@ -16,14 +17,16 @@ import { ALL_FLOORS } from '@/lib/floors';
  * own) fades it out and pauses it; coming back to a hall with it still on
  * fades it back in.
  *
- * The visitor's choice is kept for the visit in sessionStorage, so a reload
- * remembers it. A browser may refuse to play after a reload until the
+ * The button is the museum's one sound switch (lib/museumSound.ts): turned
+ * on here, every room's sound is on too, and the choice is kept for the
+ * visit, so a reload remembers it. A floor turns the hall down as a room's
+ * own sound comes up beside it (useHallDim, FloorSound.tsx). A browser may refuse to play after a reload until the
  * visitor has touched the page; until it can play, the button shows off,
  * and the hall tries again each time the visitor walks into one.
  */
 
 export const HALL_SOUND_SRC = '/greathall/sound/hall.mp3';
-/** sessionStorage key: '1' while the visitor wants the sound on. */
+/** The hall's own key before the museum had one switch (read by lib/museumSound.ts). */
 export const HALL_SOUND_KEY = 'hallSound';
 const LEVEL = 0.6;
 const FADE_MS = 1200;
@@ -37,38 +40,18 @@ export function isHallRoute(pathname: string | null | undefined): boolean {
   return HALL_PATHS.includes(path);
 }
 
-function readWish(): boolean {
-  try {
-    return window.sessionStorage.getItem(HALL_SOUND_KEY) === '1';
-  } catch {
-    return false;
-  }
-}
-
-function storeWish(on: boolean) {
-  try {
-    if (on) window.sessionStorage.setItem(HALL_SOUND_KEY, '1');
-    else window.sessionStorage.removeItem(HALL_SOUND_KEY);
-  } catch {
-    /* storage blocked: the choice lasts until the page is left */
-  }
-}
-
 export default function HallSound() {
   const pathname = usePathname();
   const inHall = isHallRoute(pathname);
   const audio = useRef<HTMLAudioElement | null>(null);
   const fade = useRef<number | null>(null);
   const [ready, setReady] = useState(false);
-  /** What the visitor chose: kept for the visit. */
-  const [wish, setWish] = useState(false);
+  /** What the visitor chose: the museum's sound switch. */
+  const [wish, setWish] = useMuseumSound();
+  /** How far a floor has turned the hall down, 0 to 1. */
+  const dim = useHallDim();
   /** What the button shows: on only while the sound can actually play. */
   const [on, setOn] = useState(false);
-
-  // The visitor's choice from earlier in the visit (read after hydration).
-  useEffect(() => {
-    setWish(readWish());
-  }, []);
 
   // The one audio element, made the first time the visitor is in a hall and
   // kept from then on, so walking between halls never restarts it.
@@ -129,7 +112,7 @@ export default function HallSound() {
         () => {
           if (!live) return;
           setOn(true);
-          fadeTo(LEVEL);
+          fadeTo(LEVEL * dim);
         },
         () => {
           if (live) setOn(false);
@@ -142,23 +125,20 @@ export default function HallSound() {
     if (!wish) setOn(false);
     if (!a.paused) fadeTo(0, () => a.pause());
     return undefined;
-  }, [inHall, wish, ready, pathname, fadeTo]);
+  }, [inHall, wish, ready, pathname, fadeTo, dim]);
 
   const toggle = () => {
     const a = audio.current;
     if (!a) return;
     if (on) {
-      storeWish(false);
       setWish(false);
       setOn(false);
       return;
     }
     // Played here, in the press itself, so the browser counts it as chosen.
-    storeWish(true);
     setWish(true);
     setOn(true);
     a.play().catch(() => {
-      storeWish(false);
       setWish(false);
       setOn(false);
     });

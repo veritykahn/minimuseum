@@ -228,3 +228,17 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* The museum's sound switch, top right, opposite the way back (RoomShell). */
+.egr-sound {
+  position: fixed;
+  top: 26px;
+  right: 28px;
+  z-index: 101;
+}
+@media (max-width: 768px) {
+  .egr-sound { top: 14px; right: 16px; }
+}
+@media print {
+  .egr-sound { display: none; }
+}

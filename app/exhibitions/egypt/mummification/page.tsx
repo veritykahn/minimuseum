@@ -12,6 +12,7 @@ import { fromTomb, markDone, useTomb } from '../tombState';
 import MummyScene, { NATRON_SPOTS, WASH_PATCHES, type MummyState } from './MummyScene';
 import { ANUBIS_POSTER, CHECK, HEART_NOTE, JARS, LAYERS, ORGANS, STEPS, WRAP_AMULETS, jarFor } from './steps';
 import './mummy.css';
+import { playEgypt } from '../egyptSound';
 
 /*
  * Mummification, step by step: eight steps across the seventy days, each a
@@ -113,6 +114,8 @@ export default function Mummification() {
     if (dusty.some(near)) washed((d) => d.filter((i) => !near(i)));
   };
   const washed = (update: (d: number[]) => number[]) => {
+    // The splash is played here, not in the update (which React may run twice).
+    if (update(dusty).length < dusty.length) playEgypt('water');
     setDusty((d) => {
       const left = update(d);
       setStatus(left.length ? `Washing: ${WASH_PATCHES.length - left.length} of ${WASH_PATCHES.length} clean.` : 'The body is washed clean.');
@@ -130,11 +133,13 @@ export default function Mummification() {
     if (jar.god === god) {
       const next = filled.includes(god) ? filled : [...filled, god];
       setFilled(next);
+      playEgypt('find');
       setHint('');
       setStatus(`Yes: ${jar.head}-headed ${jar.god} protects the ${which}.${next.length === JARS.length ? ' All four jars are full.' : ''}`);
       setOrgan(null);
     } else {
       // A gentle hint: the head of the right god.
+      playEgypt('miss');
       const msg = `Not that jar. The ${which} was looked after by the god with a ${jar.head}’s head.`;
       setHint(msg);
       setStatus(msg);

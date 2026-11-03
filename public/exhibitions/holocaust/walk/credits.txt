@@ -1,0 +1,2 @@
+The film's music (app/exhibitions/holocaust/walk/filmMusic.ts). A stand-in until the owner's own recording (Ravel, Kaddisch) is in place.
+film-music.mp3 — "Jewish Longing (Jewish Sorrow Deep Clarinet)" by Ashot_Danielyan, https://pixabay.com/music/nostalgia-jewish-longing-jewish-sorrow-deep-clarinet-182630/ (Pixabay Content License; downloaded 3 November 2026). Re-encoded at 160 kbps.

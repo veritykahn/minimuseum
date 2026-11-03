@@ -9,6 +9,7 @@ import { useTomb } from '../tombState';
 import Cartouche from './Cartouche';
 import { CHART, MAX_LETTERS, NAME_NOTES, NAME_SOURCES, SIGNS, consonantsOnly, readOut, spell } from './alphabet';
 import './name.css';
+import { playEgypt } from '../egyptSound';
 
 /*
  * Your Name in Hieroglyphs: type a name and it is spelled sign by sign in a
@@ -37,6 +38,7 @@ export default function HieroglyphName() {
   const carved = !!shown && tomb.cartouche === shown;
 
   const carve = () => {
+    playEgypt('grind');
     updateTomb((s) => ({ ...s, cartouche: shown, done: { ...s.done, name: true } }));
   };
 
@@ -87,6 +89,8 @@ export default function HieroglyphName() {
               type="text"
               value={name}
               onChange={(e) => {
+                // Each new letter: a sign cut into the stone.
+                if (e.target.value.length > name.length) playEgypt('chisel');
                 setName(e.target.value);
                 setPicked(null);
               }}

@@ -34,9 +34,14 @@ const nextConfig: NextConfig = {
     '/exhibitions/fear-lab/what-scares-you': ['public/**'],
     '/exhibitions/great-war/silence': ['public/**'],
     '/exhibitions/holocaust/walk': ['public/**'],
+    // The floors read their rooms' sounds (floorSoundsOnDisk).
+    '/exhibitions/ground-floor': ['public/**'],
+    '/exhibitions/first-floor': ['public/**'],
+    '/exhibitions/second-floor': ['public/**'],
     // Each key matches every route that contains it (Next matches with
     // `contains`), so one per exhibition covers its landing page, its case
-    // page and its artifacts' pages.
+    // page and its artifacts' pages. The landing pages also read their room
+    // sounds (components/exhibition/posterSounds.ts).
     ...Object.fromEntries(CASE_PHOTO_EXHIBITIONS.map((slug) => [`/exhibitions/${slug}`, ['public/**']])),
   },
 

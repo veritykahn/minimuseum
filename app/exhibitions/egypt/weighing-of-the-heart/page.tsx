@@ -7,6 +7,7 @@ import { markDone } from '../tombState';
 import Scales from './Scales';
 import { CHAPTERS, DEEDS, FIGURES, HEART_WORDS, JUDGEMENT_NOTES, MY_CHOICES, PAPYRI, TIP, WEIGHING_SOURCES, wouldTip, type FigureId } from './judgement';
 import './weighing.css';
+import { playEgypt } from '../egyptSound';
 
 /*
  * The Weighing of the Heart, told as a story in six chapters, each with
@@ -50,9 +51,11 @@ export default function WeighingOfTheHeart() {
   const tipThenSettle = (deg: number, after: string) => {
     if (settle.current) clearTimeout(settle.current);
     setTilt(deg);
+    playEgypt('creak');
     settle.current = setTimeout(() => {
       setTilt(0);
       setStatus(after);
+      playEgypt('settle');
     }, 1700);
   };
 

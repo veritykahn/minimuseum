@@ -6,6 +6,7 @@ import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
 import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
+import { SoundSwitch } from '@/components/games/feedback/FeedbackKit';
 import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 import { EGYPT } from './egypt';
 import { FROM_TOMB, TOMB_PATH } from './tombState';
@@ -21,6 +22,8 @@ import './rooms.css';
  * tomb did), and one stage that sets its own heading. Each room's sources
  * and picture credits are in one Sources drawer (bottom left), grouped by
  * step, so none is cited inline. Each room's own stylesheet draws its scene.
+ * Top right, the museum's sound switch: the rooms' chisels, scales, water and
+ * torch (egyptSound.ts) are heard once it is on, here or anywhere.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -54,6 +57,10 @@ export default function RoomShell({ className, sources, children }: { className:
         <span className="pe-nav-arrow pe-nav-arrow-left" aria-hidden="true">&#8592;</span>
         <span className="pe-nav-label">{back.label}</span>
       </ExhibitionNav>
+
+      <div className="egr-sound">
+        <SoundSwitch style={{ color: palette.heading, fontFamily: 'var(--pe-ui)' }} />
+      </div>
 
       <SourcesDrawer groups={sources ?? []}>
         <main className="eg-room-stage">{children}</main>

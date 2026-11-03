@@ -15,6 +15,7 @@ import OrderChallenge from './OrderChallenge';
 import { TIMELINE_SOURCES } from './sources';
 import '../black-history.css';
 import './timeline.css';
+import { useMuseumSound } from '@/lib/museumSound';
 
 /*
  * The Black Barbie timeline, on one screen: the year large on the black
@@ -41,7 +42,6 @@ import './timeline.css';
  */
 
 type Guess = number | 'skip';
-const SOUND_KEY = 'mm-bh-timeline-sound';
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
@@ -82,7 +82,8 @@ export default function BlackBarbieTimeline() {
   const [index, setIndex] = useState(0);
   const [guesses, setGuesses] = useState<Record<string, Guess>>({});
   const [challenge, setChallenge] = useState(false);
-  const [sound, setSound] = useState(false);
+  // The museum's one sound switch (lib/museumSound.ts).
+  const [sound, setSound] = useMuseumSound();
   const [party, setParty] = useState(0);
   const [said, setSaid] = useState('');
   const revealFocus = useRef(false);
@@ -97,15 +98,6 @@ export default function BlackBarbieTimeline() {
   const guess = guesses[stop.id];
   const rightCount = DATED_STOPS.filter((s) => typeof guesses[s.id] === 'number' && isRight(s, guesses[s.id] as number)).length;
 
-  // Sound stays off until the visitor turns it on; the choice is remembered in this browser.
-  useEffect(() => {
-    try {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- the visitor's sound choice comes back from this browser
-      if (window.localStorage.getItem(SOUND_KEY) === 'on') setSound(true);
-    } catch {
-      // No storage: sound stays off.
-    }
-  }, []);
   const cue = useCallback(
     (c: Cue) => {
       if (sound) play(c);
@@ -116,11 +108,6 @@ export default function BlackBarbieTimeline() {
     const on = !sound;
     setSound(on);
     if (on) play('on');
-    try {
-      window.localStorage.setItem(SOUND_KEY, on ? 'on' : 'off');
-    } catch {
-      // Private windows: the choice lasts as long as the page.
-    }
   };
 
   useEffect(() => {

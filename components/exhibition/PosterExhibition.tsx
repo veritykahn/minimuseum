@@ -17,6 +17,7 @@ import LandingRow from './LandingRow';
 import ExploreRow, { ExploreCue } from './ExploreRow';
 import AtmosphereLayer from './AtmosphereLayer';
 import AudioGuide, { useAudioGuide } from './AudioGuide';
+import RoomSound, { useRoomSound } from './RoomSound';
 import { atmosphereName, colorsFor, entranceOf, fxKind, posterLengths, posterSourceGroups, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
@@ -38,7 +39,7 @@ import './poster-exhibition.css';
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function PosterExhibition<K extends string>({ config }: { config: ExhibitionConfig<K> }) {
-  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives, credits = [], atmospheres, fx: fxConfig, projector: projectorConfig } = config;
+  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives, credits = [], atmospheres, posterSounds, fx: fxConfig, projector: projectorConfig } = config;
 
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
@@ -88,6 +89,8 @@ export default function PosterExhibition<K extends string>({ config }: { config:
     [poster, posterStep, credits],
   );
   const guide = useAudioGuide(item?.audio);
+  // The room's sound under the open poster (posterSoundPaths.ts), quieter while the guide speaks.
+  const roomSound = useRoomSound(poster ? posterSounds?.[poster.id] : undefined, { duck: guide.on && guide.playing });
 
   const rememberFloorPosition = back.remember
     ? () => {
@@ -212,6 +215,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
         prevStep={prevStep}
         returnToMain={returnToMain}
         audioGuide={hasGuide ? guide : undefined}
+        roomSound={roomSound.available ? roomSound : undefined}
       >
         <>
           {poster && item && atmosphere && atmo && (
@@ -278,8 +282,13 @@ export default function PosterExhibition<K extends string>({ config }: { config:
               )}
             </div>
           )}
-          {/* Outside the stage too; in projector mode the guide is in the tool bar instead. */}
-          {hasGuide && !projector && <AudioGuide guide={guide} color={colors.text} bg={colors.bg} />}
+          {/* Outside the stage too; in projector mode the guide and the room sound are in the tool bar instead. */}
+          {!projector && (hasGuide || roomSound.available) && (
+            <div className="pe-sound-controls">
+              <RoomSound sound={roomSound} color={colors.text} bg={colors.bg} />
+              {hasGuide && <AudioGuide guide={guide} color={colors.text} bg={colors.bg} />}
+            </div>
+          )}
         </>
       </PosterProjector>
     </div>

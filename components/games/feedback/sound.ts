@@ -1,13 +1,14 @@
 'use client';
 
 import { useSyncExternalStore } from 'react';
+import { MUSEUM_SOUND_KEY, isMuseumSoundOn, resetMuseumSoundForTests, setMuseumSound, subscribeMuseumSound } from '@/lib/museumSound';
 
 /*
  * The feedback kit's sounds: short tones made with Web Audio, so there are no
  * files to load. Sound is OFF until the visitor turns it on with the
  * SoundSwitch, and no AudioContext exists until then: a page never makes a
- * noise the visitor did not ask for. The choice is remembered for the next
- * game (per browser), and every read and write of storage is guarded.
+ * noise the visitor did not ask for. The switch is the museum's own
+ * (lib/museumSound.ts): on here, it is on in every room for the visit.
  */
 
 export type Cue = 'right' | 'wrong' | 'finale' | 'click';
@@ -43,48 +44,23 @@ export const CUES: Record<Cue, readonly Tone[]> = {
   ],
 };
 
-export const SOUND_KEY = 'minimuseum:game-sound';
-
-let soundOn: boolean | null = null;
-const listeners = new Set<() => void>();
-
-function readStored(): boolean {
-  try {
-    return window.localStorage.getItem(SOUND_KEY) === 'on';
-  } catch {
-    return false;
-  }
-}
+/** The museum's one sound switch (lib/museumSound.ts): the games' effects follow it. */
+export const SOUND_KEY = MUSEUM_SOUND_KEY;
 
 export function isSoundOn(): boolean {
-  if (typeof window === 'undefined') return false;
-  if (soundOn === null) soundOn = readStored();
-  return soundOn;
+  return isMuseumSoundOn();
 }
 
 export function setSoundOn(on: boolean): void {
-  soundOn = on;
-  try {
-    window.localStorage.setItem(SOUND_KEY, on ? 'on' : 'off');
-  } catch {
-    /* private window or blocked storage: the switch still works for this page */
-  }
-  // Turning sound on is the visitor's gesture: the only moment the audio
-  // context is made or woken.
+  setMuseumSound(on);
+  // Turning sound on is the visitor's gesture: the moment the audio context is
+  // made or woken. (Turned on elsewhere, it is made at the game's first cue.)
   if (on) context();
-  listeners.forEach((l) => l());
-}
-
-function subscribe(l: () => void) {
-  listeners.add(l);
-  return () => {
-    listeners.delete(l);
-  };
 }
 
 /** [on, set]; always off during server render. */
 export function useGameSound(): [boolean, (on: boolean) => void] {
-  const on = useSyncExternalStore(subscribe, isSoundOn, () => false);
+  const on = useSyncExternalStore(subscribeMuseumSound, isSoundOn, () => false);
   return [on, setSoundOn];
 }
 
@@ -139,6 +115,6 @@ export function playCue(cue: Cue): boolean {
 
 /** For tests: forget the cached choice and context. */
 export function resetSoundForTests(): void {
-  soundOn = null;
+  resetMuseumSoundForTests();
   ctx = null;
 }

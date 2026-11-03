@@ -10,6 +10,7 @@ import { CHAMBER, THINGS } from './things';
 import { TOMB_NOTES, WALLS, detailAt, tombSources } from './scenes';
 import TorchStage from './TorchStage';
 import './tomb.css';
+import { playEgypt, startTorch } from '../egyptSound';
 
 /*
  * The Tomb Explorer: the way into the Egypt rooms. First the burial
@@ -30,6 +31,8 @@ const SOURCES = tombSources([]);
 export default function TombExplorer() {
   const [view, setView] = useState<string>('chamber');
   const [lit, setLit] = useState(false);
+  // The torch crackles while it is in the visitor's hand (not once the room is lit).
+  useEffect(() => (lit ? undefined : startTorch()), [lit]);
   const [status, setStatus] = useState('');
   const [tomb, updateTomb] = useTomb();
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -49,6 +52,7 @@ export default function TombExplorer() {
   }, []);
 
   const choose = (id: string, focus = false) => {
+    if (id !== view) playEgypt('grind');
     setView(id);
     setLit(false);
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${id}`);
@@ -78,6 +82,7 @@ export default function TombExplorer() {
         const wallsDone = WALLS.every((w) => w.details.every((d) => (found[w.id] ?? []).includes(d.id)));
         return { ...s, found, done: wallsDone ? { ...s.done, walls: true } : s.done };
       });
+      playEgypt('find');
       setStatus(said);
     },
     [updateTomb],

@@ -1,0 +1,2 @@
+The posters' room sound (components/exhibition/RoomSound.tsx). From Freesound, Creative Commons 0 (public domain).
+posters.mp3 — "R12-31-Artillery Guns Firing" by craigsmith, https://freesound.org/s/486027/ (CC0). From ../sounds/artillery.mp3, filtered to a distant rumble, looped seamlessly, levelled quiet.

@@ -8,6 +8,7 @@ import { INCOMING, MORSE, POSTER, TELEGRAM, TELEGRAM_IDEAS } from './inventionsT
 import { RECEIVE_FACTS, SEND_FACTS } from './sources';
 import { CardFoot, StepDots } from './Steps';
 import { marks, morseTimeline, oldMoney, spoken, telegramCost, telegramWords, toMorse } from './workshop';
+import { useMuseumSound } from '@/lib/museumSound';
 
 /*
  * Telegrams, in International Morse code (said so on the page).
@@ -80,7 +81,8 @@ function useTone(on: boolean) {
 export default function TelegramBench({ mode, reduced, modes }: { mode: TelegramMode; reduced: boolean; modes: ReactNode }) {
   const [status, setStatus] = useState('');
   const [burst, setBurst] = useState(0);
-  const [sound, setSound] = useState(false);
+  // The museum's one sound switch (lib/museumSound.ts).
+  const [sound, setSound] = useMuseumSound();
   const tone = useTone(sound);
 
   /* ── Send: write, tap, print ── */

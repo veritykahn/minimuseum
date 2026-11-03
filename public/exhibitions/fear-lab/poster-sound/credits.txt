@@ -1,0 +1,2 @@
+The posters' room sound (components/exhibition/RoomSound.tsx). From Freesound, Creative Commons 0 (public domain). Made mono, looped seamlessly (crossfade), levelled quiet.
+posters.mp3 — "Dark ambient drone sound" by martinbeltov, https://freesound.org/s/244196/ (CC0)

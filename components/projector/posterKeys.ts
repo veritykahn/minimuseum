@@ -1,7 +1,7 @@
 /*
  * Keys in poster projector mode. A clicker sends PageDown/PageUp (some send
  * the arrows, and "." or B to blank, as in presentation software); a keyboard
- * adds Space, Home/End, T and F, and A and P for the audio guide. Pure, so it can be tested on its own.
+ * adds Space, Home/End, T and F, A and P for the audio guide, and S for the room sound. Pure, so it can be tested on its own.
  */
 
 export type PosterKeyCommand =
@@ -17,6 +17,8 @@ export type PosterKeyCommand =
   | { type: 'audio' }
   /** Pause the audio guide, or play this panel again. */
   | { type: 'play' }
+  /** Turn the poster's room sound on or off. */
+  | { type: 'room' }
   /** Taken so it does nothing (Escape would otherwise close the poster underneath). */
   | { type: 'swallow' };
 
@@ -73,6 +75,9 @@ export function posterKeyCommand(
     case 'p':
     case 'P':
       return ctx.open ? { type: 'play' } : null;
+    case 's':
+    case 'S':
+      return ctx.open ? { type: 'room' } : null;
     case 'Escape':
       return ctx.open ? { type: 'swallow' } : null;
     default:

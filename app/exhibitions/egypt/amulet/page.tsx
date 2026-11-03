@@ -23,6 +23,7 @@ import {
   type SymbolId,
 } from './amulets';
 import './amulet.css';
+import { playEgypt } from '../egyptSound';
 
 /*
  * Design an Amulet: first, who it is for and what it should protect; the
@@ -61,10 +62,12 @@ export default function AmuletMaker() {
     const name = SYMBOLS.find((s) => s.id === id)!.name;
     if (next === chosen) setStatus(`Your amulet has room for ${MAX_SYMBOLS} symbols. Take one off first.`);
     else setStatus(next.includes(id) ? `${name} added.` : `${name} taken off.`);
+    if (next !== chosen && next.includes(id)) playEgypt('find');
     setChosen(next);
   };
 
   const place = () => {
+    playEgypt('grind');
     updateTomb((s) => ({ ...s, amulet: { shape, material, symbols: chosen, owner: owner.trim() }, done: { ...s.done, amulet: true } }));
     setStatus('Your amulet is placed in the tomb’s niche.');
   };

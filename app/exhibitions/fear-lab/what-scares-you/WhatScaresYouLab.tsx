@@ -12,6 +12,7 @@ import RustlingBushes from './RustlingBushes';
 import { paceFor } from './lab';
 import type { OwnedAssets } from './assets';
 import { createLabSound, type LabSound } from './sound';
+import { useMuseumSound } from '@/lib/museumSound';
 
 /*
  * What Scares You?, on one screen: a dark lab with a heart monitor running
@@ -71,7 +72,9 @@ function subscribeGentle(f: () => void) {
 export default function WhatScaresYouLab({ owned = [], rand }: { owned?: OwnedAssets; rand?: () => number }) {
   const reduced = usePrefersReducedMotion();
   const [tab, setTab] = useState<TabId>('box');
+  // The lab's sound is running; it follows the museum's one sound switch (lib/museumSound.ts).
   const [soundOn, setSoundOn] = useState(false);
+  const [museumSound, setMuseumSound] = useMuseumSound();
   const [motionChoice, setMotionChoice] = useState<boolean | null>(null);
   const motion = motionChoice ?? !reduced;
   const [fright, setFright] = useState(0);
@@ -116,11 +119,38 @@ export default function WhatScaresYouLab({ owned = [], rand }: { owned?: OwnedAs
       sound.current?.close();
       sound.current = null;
       setSoundOn(false);
+      setMuseumSound(false);
     } else {
-      sound.current = createLabSound(gentle, owned);
+      sound.current ??= createLabSound(gentle, owned);
       setSoundOn(!!sound.current);
+      if (sound.current) setMuseumSound(true);
     }
   };
+  // Sound turned on elsewhere in the museum: the lab's sound starts at the
+  // visitor's first press here, as browsers ask. Turned off: it stops.
+  useEffect(() => {
+    if (museumSound && !sound.current) {
+      const wake = () => {
+        if (sound.current) return;
+        sound.current = createLabSound(gentle, owned);
+        setSoundOn(!!sound.current);
+      };
+      window.addEventListener('pointerdown', wake, { once: true });
+      window.addEventListener('keydown', wake, { once: true });
+      return () => {
+        window.removeEventListener('pointerdown', wake);
+        window.removeEventListener('keydown', wake);
+      };
+    }
+    if (!museumSound && sound.current) {
+      sound.current.close();
+      sound.current = null;
+      setSoundOn(false);
+    }
+    return undefined;
+    // gentle and owned are read once, when the sound is made.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [museumSound]);
   const turnSoundOn = () => {
     if (!soundOn) toggleSound();
   };

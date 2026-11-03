@@ -1012,7 +1012,18 @@ a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-dec
   background: color-mix(in srgb, var(--pe-accent) 20%, transparent);
 }
 
-/* ───────── Audio guide ───────── */
+/* ───────── Audio guide and room sound ───────── */
+/* Top right, opposite the way back: the room sound, then the guide. */
+.pe-sound-controls {
+  position: fixed;
+  top: 26px;
+  right: 28px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 101;
+}
+.pe-sound-controls .pe-audio-guide { position: static; }
 .pe-audio-guide {
   /* top right, opposite the way back, clear of the arrows and the map */
   position: fixed;
@@ -1069,7 +1080,10 @@ a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-dec
   .pe-nav-right { right: 20px; top: 20px; }
   .pe-nav-text { font-size: 24px; }
   .pe-walkthrough-nav { bottom: 20px; gap: 16px; }
-  .pe-audio-guide { top: 14px; right: 16px; }
+  .pe-audio-guide, .pe-sound-controls { top: 14px; right: 16px; }
+  /* on a phone the room sound shows its speaker only */
+  .pe-room-sound { width: 40px; padding: 0; justify-content: center; }
+  .pe-room-sound span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .pe-audio-btn { height: 40px; font-size: 13px; }
   .pe-audio-play { width: 40px; }
   .pe-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }

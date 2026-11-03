@@ -290,7 +290,7 @@ describe('sound', () => {
     fireEvent.keyDown(document.body, { key: 'ArrowRight' });
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute('aria-pressed', 'true');
-    expect(window.localStorage.getItem('mm-bh-timeline-sound')).toBe('on');
+    expect(window.sessionStorage.getItem('mm-sound')).toBe('on');
     made.length = 0;
     fireEvent.click(screen.getByRole('button', { name: /1968$/ }));
     expect(made).toHaveLength(notesFor('right').length);

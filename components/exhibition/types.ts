@@ -461,6 +461,12 @@ export type ExhibitionConfig<K extends string = string> = {
    * name (`atmosphere`). Drawn by the exhibition's stylesheet; see Atmosphere.
    */
   atmospheres?: Record<string, Atmosphere>;
+  /**
+   * Each poster's room sound, a quiet loop under it that the visitor turns on
+   * (RoomSound.tsx). Found on disk when the page is built (posterSoundsOnDisk,
+   * posterSoundPaths.ts): leave out of the config itself.
+   */
+  posterSounds?: Partial<Record<K, string>>;
   /** The panel reveal (components/poster-fx). */
   fx: {
     theme: FxTheme;

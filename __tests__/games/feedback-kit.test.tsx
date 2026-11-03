@@ -45,6 +45,7 @@ beforeEach(() => {
   oscillators = 0;
   contextsMade = 0;
   window.localStorage.clear();
+  window.sessionStorage.clear();
   resetSoundForTests();
   (window as unknown as { AudioContext: unknown }).AudioContext = FakeAudioContext;
   setReducedMotion(false);
@@ -65,7 +66,8 @@ describe('feedback kit: sound', () => {
 
   it('plays short cues once turned on, and remembers the choice', () => {
     setSoundOn(true);
-    expect(window.localStorage.getItem(SOUND_KEY)).toBe('on');
+    // The museum's one switch, kept for the visit (lib/museumSound.ts).
+    expect(window.sessionStorage.getItem(SOUND_KEY)).toBe('on');
     expect(playCue('right')).toBe(true);
     expect(oscillators).toBe(CUES.right.length);
     // Every cue is short and quiet.

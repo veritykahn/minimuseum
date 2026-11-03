@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import HallSound, { HALL_SOUND_KEY, isHallRoute } from '@/components/HallSound';
+import { MUSEUM_SOUND_KEY, resetMuseumSoundForTests, setHallDim } from '@/lib/museumSound';
 
 /*
  * The halls' sound: one audio element for the whole visit, mounted in the
@@ -27,6 +28,7 @@ describe('HallSound', () => {
     pathname = '/greathall';
     playResult = () => Promise.resolve();
     window.sessionStorage.clear();
+    resetMuseumSoundForTests();
     window.Audio = jest.fn(() => {
       const a = new RealAudio();
       let paused = true;
@@ -101,7 +103,7 @@ describe('HallSound', () => {
     });
     expect(made[0].play).toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Sound on' })).toHaveAttribute('aria-pressed', 'true');
-    expect(window.sessionStorage.getItem(HALL_SOUND_KEY)).toBe('1');
+    expect(window.sessionStorage.getItem(MUSEUM_SOUND_KEY)).toBe('on');
     await settle();
     expect(made[0].volume).toBeCloseTo(0.6);
 
@@ -109,7 +111,7 @@ describe('HallSound', () => {
       fireEvent.click(screen.getByRole('button', { name: 'Sound on' }));
     });
     expect(screen.getByRole('button', { name: 'Hear the hall' })).toHaveAttribute('aria-pressed', 'false');
-    expect(window.sessionStorage.getItem(HALL_SOUND_KEY)).toBeNull();
+    expect(window.sessionStorage.getItem(MUSEUM_SOUND_KEY)).toBe('off');
     await settle();
     expect(made[0].volume).toBe(0);
     expect(made[0].pause).toHaveBeenCalled();
@@ -196,6 +198,21 @@ describe('HallSound', () => {
     rerender(<HallSound />);
     await settle();
     expect(screen.getByRole('button', { name: 'Sound on' })).toHaveAttribute('aria-pressed', 'true');
+    expect(made[0].volume).toBeCloseTo(0.6);
+  });
+
+  it('steps back when a floor dims it, and comes back up', async () => {
+    window.sessionStorage.setItem(MUSEUM_SOUND_KEY, 'on');
+    pathname = '/exhibitions/first-floor';
+    render(<HallSound />);
+    loaded();
+    await settle();
+    expect(made[0].volume).toBeCloseTo(0.6);
+    act(() => setHallDim(0.1));
+    await settle();
+    expect(made[0].volume).toBeCloseTo(0.06);
+    act(() => setHallDim(1));
+    await settle();
     expect(made[0].volume).toBeCloseTo(0.6);
   });
 

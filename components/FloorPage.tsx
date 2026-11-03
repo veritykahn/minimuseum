@@ -1,12 +1,13 @@
 'use client';
 
-import { useRef, useEffect, type CSSProperties, type ReactNode } from 'react';
+import { useRef, useEffect, useMemo, type CSSProperties, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type Floor, type StudioFloor, GREAT_HALL_FLOORS, exhibitionPath, findExhibition, studioToolHref } from '@/lib/floors';
 import { type HallLight, HALL_HINT, hallBackground, hallBody, hallText, ticketText } from '@/lib/hallLight';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import StudioGlyph from './StudioGlyph';
+import { useFloorSound } from './FloorSound';
 
 /**
  * A floor of the museum: a horizontal carousel of exhibition cards, one per
@@ -25,6 +26,10 @@ import StudioGlyph from './StudioGlyph';
  * into the next. With reduced motion the light changes by a short fade once
  * a card has settled instead. A layer carries its exhibition's slug
  * (data-exhibition), so a faint motif of its own could be laid in later.
+ *
+ * With sound on, each exhibition is heard faintly from its doorway as its
+ * card passes, as its light is seen (FloorSound.ts; the sounds are found on
+ * disk when the floor is built, floorSoundsOnDisk).
  *
  * "M ← Great Hall" returns to the Great Hall's stairs, not its entrance.
  */
@@ -55,7 +60,7 @@ type FloorCard = {
 
 type FloorFrame = Pick<Floor, 'heading' | 'name' | 'theme' | 'accent' | 'storageKey'>;
 
-export default function FloorPage({ floor }: { floor: Floor }) {
+export default function FloorPage({ floor, sounds }: { floor: Floor; sounds?: Record<string, string> }) {
   const cards: FloorCard[] = floor.exhibitions.map((e, i) => ({
     key: e.slug,
     kicker: `Exhibition ${String(i + 1).padStart(2, '0')}`,
@@ -68,7 +73,7 @@ export default function FloorPage({ floor }: { floor: Floor }) {
     href: exhibitionPath(e.slug),
     ticket: 'Enter Exhibition',
   }));
-  return <FloorCarousel floor={floor} cards={cards} />;
+  return <FloorCarousel floor={floor} cards={cards} sounds={sounds} />;
 }
 
 /** The Studio: every make-your-own tool, each card a door to it in its exhibition. */
@@ -93,12 +98,16 @@ export function StudioFloorPage({ floor }: { floor: StudioFloor }) {
   return <FloorCarousel floor={floor} cards={cards} studio />;
 }
 
-function FloorCarousel({ floor, cards, studio = false }: { floor: FloorFrame; cards: FloorCard[]; studio?: boolean }) {
+function FloorCarousel({ floor, cards, studio = false, sounds }: { floor: FloorFrame; cards: FloorCard[]; studio?: boolean; sounds?: Record<string, string> }) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
   const lightRefs = useRef<(HTMLDivElement | null)[]>([]);
   const reduceMotion = usePrefersReducedMotion();
   const { storageKey } = floor;
+  // The rooms' sounds as their cards pass (none on the Studio floor).
+  const slugKey = studio ? '' : cards.map((c) => c.exhibition).join('|');
+  const slugs = useMemo(() => (slugKey ? slugKey.split('|') : []), [slugKey]);
+  useFloorSound(slugs, sounds, scrollRef);
 
   useEffect(() => {
     const savedIndex = sessionStorage.getItem(storageKey);

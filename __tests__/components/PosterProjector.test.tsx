@@ -48,6 +48,12 @@ describe('posterKeyCommand', () => {
     expect(posterKeyCommand('P', ctx)).toEqual({ type: 'play' });
     expect(posterKeyCommand('A', { ...ctx, open: false })).toBeNull();
   });
+
+  it('turns the room sound on and off with S, on an open poster', () => {
+    expect(posterKeyCommand('s', ctx)).toEqual({ type: 'room' });
+    expect(posterKeyCommand('S', ctx)).toEqual({ type: 'room' });
+    expect(posterKeyCommand('s', { ...ctx, open: false })).toBeNull();
+  });
 });
 
 describe('projector deep links', () => {
@@ -237,6 +243,32 @@ describe('PosterProjector', () => {
     press('b');
     press('A');
     expect(guide.turnOff).toHaveBeenCalled();
+  });
+
+  it('puts the room sound in the tool bar: S turns it on and off, and blanking hushes it', () => {
+    const room = { on: false, available: true, turnOn: jest.fn(), turnOff: jest.fn(), hush: jest.fn() };
+    const { rerender, props } = setup({ roomSound: room });
+    expect(screen.getByRole('button', { name: /Room sound/ })).toHaveAttribute('aria-pressed', 'false');
+    press('s');
+    expect(room.turnOn).toHaveBeenCalled();
+
+    const on = { ...room, on: true };
+    rerender(
+      <PosterProjector {...props} roomSound={on}>
+        <div data-poster-stage="" />
+      </PosterProjector>,
+    );
+    press('b');
+    expect(room.hush).toHaveBeenLastCalledWith(true);
+    press('b');
+    expect(room.hush).toHaveBeenLastCalledWith(false);
+    press('S');
+    expect(room.turnOff).toHaveBeenCalled();
+  });
+
+  it('leaves the room sound out for a poster without one', () => {
+    setup();
+    expect(screen.queryByRole('button', { name: /Room sound/ })).toBeNull();
   });
 
   it('leaves the audio guide out for a poster with no recordings', () => {

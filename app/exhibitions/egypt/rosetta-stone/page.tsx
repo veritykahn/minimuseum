@@ -20,6 +20,7 @@ import {
   shuffledSounds,
 } from './rosetta';
 import './rosetta.css';
+import { playEgypt } from '../egyptSound';
 
 /*
  * The Rosetta Stone decoder, in four parts, each a tab with its own
@@ -98,8 +99,10 @@ export default function RosettaStone() {
       const next = [...matched, chosenSign];
       setMatched(next);
       setChosenSign(null);
+      playEgypt(next.length === PTOLEMY.length ? 'find' : 'chisel');
       setStatus(next.length === PTOLEMY.length ? 'All seven signs matched: P, T, O, L, M, I, S. Ptolemy!' : `Yes: that sign says ${sound}.`);
     } else {
+      playEgypt('miss');
       setStatus(PTOLEMY.some((s) => s.sound === sound) ? `Not ${sound}. Try another sound for that sign.` : `Not ${sound}: there is no ${sound} in Ptolemy’s name.`);
     }
   };
@@ -111,8 +114,10 @@ export default function RosettaStone() {
       if (SHARED.includes(i)) {
         const next = [...found, i];
         setFound(next);
+        playEgypt(next.length === SHARED.length ? 'find' : 'chisel');
         setStatus(next.length === SHARED.length ? `All ${SHARED.length} known signs found. Now for the new ones.` : `Yes: you know that one. It says ${CLEOPATRA[i].sound}.`);
       } else {
+        playEgypt('miss');
         setStatus('That sign is new: it is not in Ptolemy’s name. Find the ones you know first.');
       }
     }
@@ -124,8 +129,10 @@ export default function RosettaStone() {
     if (CLEOPATRA[step.sign].sound === letter) {
       setSolved((s) => ({ ...s, [step.sign]: letter }));
       setMiss('');
+      playEgypt(DEDUCE.filter((d) => !solved[d.sign]).length === 1 ? 'find' : 'chisel');
       setStatus(step.sign === HAND ? `Yes: the hand says T, just like the bread loaf.` : `Yes: that sign says ${letter}.`);
     } else {
+      playEgypt('miss');
       setMiss(`Not ${letter}. Look at the Greek spelling again: K-L-E-O-P-A-T-R-A.`);
       setStatus(`Not ${letter}.`);
     }
