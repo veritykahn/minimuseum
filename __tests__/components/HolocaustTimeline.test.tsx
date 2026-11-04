@@ -18,6 +18,8 @@ import {
   swapped,
 } from '@/app/exhibitions/holocaust/timeline/timelineEntries';
 import { POSTER_GROUP, TIMELINE_SOURCES } from '@/app/exhibitions/holocaust/timeline/sources';
+import { STOP_SOUNDS, STOP_TEXT, TIMELINE_STOPS } from '@/app/exhibitions/holocaust/timeline/timelineStops';
+import { setMuseumSound } from '@/lib/museumSound';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 
@@ -182,6 +184,90 @@ describe('the Sources drawer', () => {
   });
 });
 
+describe('the stops', () => {
+  const openStop = (id: string) => fireEvent.click(document.getElementById(`hot-open-${id}`)!);
+
+  it('opens each date in a window, with its words as printed, and walks the timeline', () => {
+    render(<HolocaustTimeline />);
+    const first = TIMELINE_ENTRIES[0];
+    openStop(first.id);
+    const dialog = screen.getByRole('dialog', { name: first.when });
+    expect(within(dialog).getByText(first.words)).toBeInTheDocument();
+    expect(within(dialog).getByText(STOP_TEXT.of(1, TIMELINE_ENTRIES.length))).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: /Before/ })).toBeDisabled();
+    expect(within(dialog).getByRole('button', { name: STOP_TEXT.close })).toHaveFocus();
+
+    fireEvent.click(within(dialog).getByRole('button', { name: /Next/ }));
+    expect(screen.getByRole('dialog', { name: TIMELINE_ENTRIES[1].when })).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'ArrowRight' });
+    expect(screen.getByRole('dialog', { name: TIMELINE_ENTRIES[2].when })).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'ArrowLeft' });
+    expect(screen.getByRole('dialog', { name: TIMELINE_ENTRIES[1].when })).toBeInTheDocument();
+  });
+
+  it('closes with Esc, back on the date last open', async () => {
+    render(<HolocaustTimeline />);
+    openStop(TIMELINE_ENTRIES[0].id);
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'ArrowRight' });
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    await act(() => new Promise((r) => requestAnimationFrame(() => r(undefined))));
+    expect(document.getElementById(`hot-open-${TIMELINE_ENTRIES[1].id}`)).toHaveFocus();
+  });
+
+  it('the last stop has no Next', () => {
+    render(<HolocaustTimeline />);
+    openStop(TIMELINE_ENTRIES[TIMELINE_ENTRIES.length - 1].id);
+    expect(within(screen.getByRole('dialog')).getByRole('button', { name: /Next/ })).toBeDisabled();
+  });
+
+  it('shows a photograph, credited in the Sources drawer, or a quiet "Picture to come"', () => {
+    render(<HolocaustTimeline />);
+    for (const stop of TIMELINE_STOPS) {
+      openStop(stop.id);
+      const dialog = screen.getByRole('dialog');
+      if (stop.picture) {
+        expect(within(dialog).getByRole('img', { name: stop.picture.alt })).toHaveAttribute('src', stop.picture.src);
+        const group = TIMELINE_SOURCES.find((g) => g.title.startsWith(stop.when))!;
+        expect(group.items).toContainEqual(expect.objectContaining({ note: 'Photograph', href: stop.picture.credit.href }));
+      } else {
+        expect(within(dialog).getByText(STOP_TEXT.pictureToCome)).toBeInTheDocument();
+      }
+      fireEvent.keyDown(dialog, { key: 'Escape' });
+    }
+  });
+
+  it('a stop with a sound plays it once, only with the museum’s sound on', () => {
+    jest.useFakeTimers();
+    const play = jest.spyOn(HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve());
+    try {
+      const [id] = Object.keys(STOP_SOUNDS);
+      setMuseumSound(false);
+      render(<HolocaustTimeline />);
+      openStop(id);
+      act(() => jest.advanceTimersByTime(1000));
+      expect(play).not.toHaveBeenCalled();
+      const speaker = within(screen.getByRole('dialog')).getByRole('button', { name: STOP_TEXT.sound });
+      expect(speaker).toHaveAttribute('aria-pressed', 'false');
+      fireEvent.click(speaker);
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      openStop(id);
+      act(() => jest.advanceTimersByTime(1000));
+      expect(play).toHaveBeenCalledTimes(1);
+      // Most stops are silent, and show no speaker.
+      const silent = TIMELINE_ENTRIES.find((e) => !STOP_SOUNDS[e.id])!;
+      fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+      openStop(silent.id);
+      expect(within(screen.getByRole('dialog')).queryByRole('button', { name: STOP_TEXT.sound })).not.toBeInTheDocument();
+      expect(Object.keys(STOP_SOUNDS).length).toBeLessThan(TIMELINE_ENTRIES.length / 2);
+    } finally {
+      setMuseumSound(false);
+      play.mockRestore();
+      jest.useRealTimers();
+    }
+  });
+});
+
 describe('put them in order', () => {
   const IDS = ['1933-01-30', '1938-11-09', '1941-06-22', '1943-04-19', '1945-05-08'];
 
@@ -263,7 +349,7 @@ describe('wiring', () => {
     // The room's card on the landing page is for the owner to add (holocaust.ts is being restructured).
     const href = '/exhibitions/holocaust/timeline';
     expect(getRoomByPath(href)?.id).toBe('ho-timeline');
-    expect(getLevelConfig(href).title).toBe('Holocaust Memorial Day');
+    expect(getLevelConfig(href).title).toBe('International Holocaust Remembrance Day');
     expect(getLevelConfig(href).floorPlan?.rooms.map((r) => r.id)).toEqual(expect.arrayContaining(['ho-stones', 'ho-timeline']));
   });
 });

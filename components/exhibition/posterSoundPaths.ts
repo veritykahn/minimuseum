@@ -17,8 +17,11 @@
  * a file dropped in is used from the next build, and a room without one
  * shows no sound button at all.
  *
- * The Holocaust exhibition has none, whatever is in its folder: its quiet is
- * part of what it says (the walk, too, is heard only as its metal).
+ * The Holocaust exhibition has no music, whatever is in its folder: its
+ * quiet is part of what it says (the walk, too, is heard only as its metal).
+ * Its posters keep only three very quiet moments, at the owner's choice: a
+ * candle lit, a distant church clock for Anne Frank, and water under the
+ * Danish fishing boats.
  */
 
 /** The folder an exhibition's room sound goes in, under public/. */
@@ -33,7 +36,7 @@ export const ALL_POSTERS_SOUND = 'posters';
 /** Its sound in the floor's hall, heard from its doorway, if not its posters' (FloorSound.ts). */
 export const FLOOR_SOUND = 'floor';
 
-/** Exhibitions kept silent, by slug. */
+/** Exhibitions kept silent, by slug: no music under their posters and nothing heard from the hall; only a few very quiet moments of their own (the Holocaust's candle, church clock and water). */
 export const SILENT_EXHIBITIONS: readonly string[] = ['holocaust'];
 
 /** Each poster's moments, by poster id: for each panel, its moment's public address, or null. */

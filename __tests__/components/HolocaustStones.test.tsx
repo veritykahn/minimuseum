@@ -300,6 +300,6 @@ describe('wiring', () => {
     expect(getRoomByPath('/exhibitions/holocaust/stones')?.id).toBe('ho-stones');
     expect(getRoomByPath('/exhibitions/holocaust/stillness')?.id).toBe('ho-stillness');
     expect(getRoomByPath('/exhibitions/holocaust/timeline')?.id).toBe('ho-timeline');
-    for (const r of rooms) expect(getLevelConfig(r).title).toBe('Holocaust Memorial Day');
+    for (const r of rooms) expect(getLevelConfig(r).title).toBe('International Holocaust Remembrance Day');
   });
 });

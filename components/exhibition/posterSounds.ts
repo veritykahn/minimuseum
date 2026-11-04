@@ -51,7 +51,7 @@ export function floorSoundsOnDisk(slugs: readonly string[]): Record<string, stri
  * moment a panel names, where it is in place, else null.
  */
 export function posterMomentsOnDisk<K extends string>(config: Pick<ExhibitionConfig<K>, 'slug' | 'posters'>): PosterMoments<K> | undefined {
-  if (SILENT_EXHIBITIONS.includes(config.slug)) return undefined;
+  /* A silent exhibition (the Holocaust) has no music and is not heard from the hall, but may keep a few very quiet moments of its own. */
   const there = (name: string) => {
     try {
       return fs.existsSync(path.join(process.cwd(), 'public', momentSrc(config.slug, name)));

@@ -267,7 +267,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
   },
   {
     id: 'holocaust',
-    label: 'Holocaust Memorial Day',
+    label: 'International Holocaust Remembrance Day',
     path: '/exhibitions/holocaust',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#78716C',

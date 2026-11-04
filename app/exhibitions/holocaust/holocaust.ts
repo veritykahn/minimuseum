@@ -4,13 +4,13 @@ import type { Atmosphere, CasePageData, ExhibitionConfig, PanelFigure } from '@/
 import { floorReturnFor } from '@/lib/floors';
 
 /*
- * Holocaust Memorial Day: every word on screen, and the look.
+ * International Holocaust Remembrance Day: every word on screen, and the look.
  *
  * The poster copy is set exactly as printed on the two posters, with only the
  * owner's approved decisions:
  *   1. the day is named "International Holocaust Remembrance Day" in poster
- *      1's title and its first sentence (the exhibition itself keeps its
- *      name, "Holocaust Memorial Day");
+ *      1's title and its first sentence (the exhibition is named so too,
+ *      since the room was renamed on November 4, 2026);
  *   2. "Jews deported to camps like Auschwitz often had identification
  *      numbers tattooed on their arms, …" is set "Prisoners registered at
  *      Auschwitz had identification numbers tattooed on their arms, …";
@@ -244,7 +244,7 @@ export const HOLOCAUST_PROJECTOR_THEME = {
 
 export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   slug: 'holocaust',
-  name: 'Holocaust Memorial Day',
+  name: 'International Holocaust Remembrance Day',
   subtitle: 'Never Forget',
   fonts: {
     href: 'https://fonts.googleapis.com/css2?family=Anton&family=League+Gothic&family=Inter:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap',
@@ -370,7 +370,7 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'added', atmosphere: 'still-stone', effect: 'drift', position: 'bottom-right', text: 'The Holocaust Memorial Day Trust reminds us: “Genocide never just happens. There is always a set of circumstances which occur or which are created to build the climate in which genocide can take place.”', sources: [SRC.whatIsGenocide] },
         // The candles come up out of the dark, as the reveal brings them up (the theme's own entrance).
         { type: 'paragraph', section: 'body', atmosphere: 'candle-vigil', className: 'ho-glow', figure: commonsFigure(COMMONS_CANDLES, 'left'), text: 'It serves as a powerful reminder of the consequences of hatred, discrimination, and indifference, encouraging reflection, remembrance and a commitment to building a safer, more inclusive world.' },
-        { type: 'paragraph', section: 'added', atmosphere: 'candle-vigil', effect: 'rise-expand', position: 'top-right', text: 'Every year on Holocaust Memorial Day, people across the UK light a candle in their window “to remember those murdered and to stand against hatred today.”', sources: [SRC.whatIsHmd] },
+        { type: 'paragraph', moment: 'candle', section: 'added', atmosphere: 'candle-vigil', effect: 'rise-expand', position: 'top-right', text: 'Every year on Holocaust Memorial Day, people across the UK light a candle in their window “to remember those murdered and to stand against hatred today.”', sources: [SRC.whatIsHmd] },
         { type: 'section-title', section: 'close', atmosphere: 'candle-vigil', effect: 'split-reveal', text: 'Never Forget.' },
         // The promise, under the poster's own close: no second "Never Forget".
         { type: 'paragraph', section: 'added', atmosphere: 'first-light', effect: 'line-by-line', text: 'In 2000, representatives from 46 governments met in Stockholm and promised to keep the memory of the Holocaust alive. Their declaration says: “The selfless sacrifices of those who defied the Nazis, and sometimes gave their own lives to protect or rescue the Holocaust’s victims, must also be inscribed in our hearts.”', sources: [SRC.stockholm] },
@@ -438,14 +438,14 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
         // Children.
         { type: 'section-title', section: 'added', atmosphere: 'remembrance-stones', effect: 'fade-in', text: CHILDREN },
         { type: 'paragraph', section: 'added', atmosphere: 'remembrance-stones', effect: 'blur-to-sharp', position: 'top-left', text: 'As many as 1.5 million Jewish children were murdered. Thousands of Jewish children survived, many because they were hidden. From December 1938 to May 1940, the Kindertransport brought about 10,000 children, without their parents, to safety in Great Britain.', sources: [SRC.children, SRC.kindertransport] },
-        { type: 'paragraph', section: 'added', atmosphere: 'still-stone', effect: 'drift', position: 'bottom-right', text: 'Anne Frank was born in Frankfurt, Germany, in 1929. In July 1942 her family went into hiding in Amsterdam, in rooms behind a bookcase in her father’s office building. There she kept her diary. The eight people in hiding were discovered on August 4, 1944. Anne died at Bergen-Belsen in February 1945. Her father, Otto, was the only one of them to survive.', sources: [SRC.whoWasAnne, SRC.anneFrankHmd, SRC.anneFrankBio] },
+        { type: 'paragraph', moment: 'church-clock', section: 'added', atmosphere: 'still-stone', effect: 'drift', position: 'bottom-right', text: 'Anne Frank was born in Frankfurt, Germany, in 1929. In July 1942 her family went into hiding in Amsterdam, in rooms behind a bookcase in her father’s office building. There she kept her diary. The eight people in hiding were discovered on August 4, 1944. Anne died at Bergen-Belsen in February 1945. Her father, Otto, was the only one of them to survive.', sources: [SRC.whoWasAnne, SRC.anneFrankHmd, SRC.anneFrankBio] },
         { type: 'paragraph', section: 'body', atmosphere: 'film-strip', effect: 'kenburns-in', figure: BLOCK_24A, text: 'Prisoners registered at Auschwitz had identification numbers tattooed on their arms, stripping them of their identities and humanity.' },
 
         // Rescue.
         { type: 'section-title', section: 'added', atmosphere: 'first-light', effect: 'split-reveal', text: RESCUE },
         { type: 'paragraph', section: 'body', atmosphere: 'first-light', effect: 'rise-expand', text: 'Despite the horrors, acts of bravery emerged as individuals and groups risked their lives to save Jews. These rescuers are honored as the *Righteous Among the Nations*, a title awarded by Yad Vashem, Israel’s Holocaust memorial, to recognize their courage and humanity in the face of unspeakable evil.' },
         { type: 'paragraph', section: 'added', atmosphere: 'first-light', effect: 'fade-in', position: 'top-right', text: 'Yad Vashem has recognized more than 28,000 people as Righteous Among the Nations. A little over half of them are women.', sources: [SRC.yvRighteous, SRC.yv2024] },
-        { type: 'paragraph', section: 'added', atmosphere: 'first-light', effect: 'waves-drift', position: 'bottom-left', text: 'In October 1943, people across Denmark hid their Jewish neighbors in homes, hospitals and churches. Fishermen ferried some 7,200 Danish Jews and 680 non-Jewish family members across the water to safety in Sweden.', sources: [SRC.denmark] },
+        { type: 'paragraph', moment: 'water', section: 'added', atmosphere: 'first-light', effect: 'waves-drift', position: 'bottom-left', text: 'In October 1943, people across Denmark hid their Jewish neighbors in homes, hospitals and churches. Fishermen ferried some 7,200 Danish Jews and 680 non-Jewish family members across the water to safety in Sweden.', sources: [SRC.denmark] },
         { type: 'paragraph', section: 'added', atmosphere: 'first-light', effect: 'line-by-line', position: 'top-left', text: 'From 1940 to 1944, the people of the French village of Le Chambon-sur-Lignon and its neighbors gave refuge to an estimated 5,000 people. In 1990 Israel honored them all together as Righteous Among the Nations.', sources: [SRC.leChambon] },
         {
           // The monument comes up under a lamp, as the reveal brings it (the theme's own entrance).

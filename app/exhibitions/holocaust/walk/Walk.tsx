@@ -103,6 +103,16 @@ export const WALK_CLOSE = 'The walk ends here. Thank you for remembering them.';
 export const WALK_STONE_INVITE = 'Lay a stone for them';
 // REVIEW (Verity): the sound button, inviting the visitor to hear the iron.
 export const WALK_SOUND = 'Hear your steps';
+// REVIEW (Verity): the note on what the walk is, shown in silence after the film, before the walk begins (it also comes after "Skip to the walk").
+export const WALK_MEANING: readonly string[] = [
+  'This walk is inspired by Menashe Kadishman’s Fallen Leaves, at the Jewish Museum Berlin, and by the Shoes on the Danube Bank in Budapest.',
+  'The floor is covered with iron faces, each one different, too many to count. They stand for the people who died in the Holocaust.',
+  'Among them lie empty iron shoes, for the men, women and children who never came home.',
+  'As you walk, the iron sounds under your feet. It is the sound of those who died, crying up from below.',
+  'Children’s names will come toward you, one at a time. Each was a real child who died in the Holocaust.',
+];
+// REVIEW (Verity): the button that begins the walk, after the note.
+export const WALK_GO = 'Begin the walk';
 // REVIEW (Verity): the heading in the Sources drawer over the names' records.
 export const WALK_NAMES_HEADING = 'The names on this walk';
 
@@ -419,6 +429,33 @@ function NameAhead({ n, feet, reduced }: { n: NameOnWalk; feet: number; reduced:
           {death}
         </p>
       )}
+    </div>
+  );
+}
+
+/** Between the film and the walk: the note on what the walk is, in the dark, in silence, until the visitor begins it. */
+export function WalkThreshold({ primaryRef, onBegin, onLeave }: { primaryRef: RefObject<HTMLButtonElement | null>; onBegin: () => void; onLeave: () => void }) {
+  return (
+    <div className="how-threshold">
+      <div className="how-meaning">
+        {WALK_MEANING.map((p, i) => (
+          <p key={i} className={i === 0 ? 'is-first' : undefined} style={{ animationDelay: `${0.6 + i * 1.2}s` }}>
+            {p}
+          </p>
+        ))}
+      </div>
+      <div className="hos-walk-bar">
+        <div className="hos-walk-bar-side">
+          <button ref={primaryRef} type="button" className="hos-button hos-button-primary" onClick={onBegin}>
+            {WALK_GO}
+          </button>
+        </div>
+        <div className="hos-walk-bar-side">
+          <button type="button" className="hos-button hos-walk-leave" onClick={onLeave}>
+            Leave the walk
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

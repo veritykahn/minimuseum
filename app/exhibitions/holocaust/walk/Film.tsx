@@ -51,7 +51,7 @@ export function useFilm({ music, reduced, onEnd }: { music: string | null; reduc
       remaining.current = frameMs(FILM_FRAMES[i]);
       setIndex(i);
       setAnnouncement(frameText(FILM_FRAMES[i]));
-      // The music fades as the last line is shown.
+      // The music plays to the end: it fades as the last line is shown, so the film ends on it.
       if (i === last) player.current?.fade(FILM_FADE_MS);
     },
     [last],

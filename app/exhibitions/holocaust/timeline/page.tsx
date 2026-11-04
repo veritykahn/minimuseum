@@ -23,6 +23,8 @@ import {
   italicRuns,
 } from './timelineEntries';
 import OrderEvents from './OrderEvents';
+import TimelineStop from './TimelineStop';
+import { STOP_TEXT } from './timelineStops';
 import { TIMELINE_SOURCES } from './sources';
 import './timeline.css';
 
@@ -43,10 +45,14 @@ import './timeline.css';
  * go straight to a year's first entry, and each entry has its own address
  * (#1938-11-09; #1938 opens the year).
  *
+ * Each date's words open it as a stop (TimelineStop.tsx): its photograph,
+ * the date and the words again, and Before and Next to walk the timeline;
+ * a few stops have one very quiet sound, with the museum's sound on.
+ *
  * At the end, the poster's own "Learn more" box is a link to the USHMM's
  * timeline, where its QR code leads; and "Put them in order" is a quiet
  * exercise for a class (OrderEvents.tsx, #order). Solemn throughout: no
- * sound, nothing celebrates, nothing graphic beyond the poster's words.
+ * music, nothing celebrates, nothing graphic beyond the poster's words.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
@@ -92,6 +98,8 @@ export default function HolocaustTimeline() {
   const back = useMuseumReturn(roomReturn(HOLOCAUST));
   const reduced = useReducedMotion();
   const [order, setOrder] = useState(false);
+  // The stop open in its window, by its place on the timeline.
+  const [stopAt, setStopAt] = useState<number | null>(null);
 
   /** Bring an entry into view and give it the focus, so the keyboard and the screen reader go with it. */
   const goTo = useCallback(
@@ -132,6 +140,18 @@ export default function HolocaustTimeline() {
     setOrder(false);
     window.history.replaceState(null, '', window.location.pathname + window.location.search);
     requestAnimationFrame(() => document.getElementById('hot-order-open')?.focus());
+  };
+
+  const closeStop = () => {
+    const id = stopAt === null ? null : TIMELINE_ENTRIES[stopAt].id;
+    setStopAt(null);
+    if (!id) return;
+    // Back to the date last open, which may be further along than the one first opened.
+    requestAnimationFrame(() => {
+      const btn = document.getElementById(`hot-open-${id}`);
+      btn?.scrollIntoView?.({ behavior: 'auto', block: 'center' });
+      btn?.focus({ preventScroll: true });
+    });
   };
 
   const style: CssVars = {
@@ -188,7 +208,7 @@ export default function HolocaustTimeline() {
             <>
               {/* REVIEW (Verity): the timeline's name for screen readers. */}
               <ol className="hot-line" aria-label="The timeline, 1933 to 1945">
-                {TIMELINE_ENTRIES.map((e) => (
+                {TIMELINE_ENTRIES.map((e, i) => (
                   <li key={e.id} id={e.id} className="hot-entry" data-side={e.side} tabIndex={-1}>
                     <span className="hot-dot" aria-hidden="true" />
                     <p className="hot-when">
@@ -199,7 +219,13 @@ export default function HolocaustTimeline() {
                       <span style={srOnly}>{e.when}</span>
                     </p>
                     <p className="hot-words">
-                      <Words text={e.words} />
+                      <button type="button" id={`hot-open-${e.id}`} className="hot-stop-open" aria-haspopup="dialog" onClick={() => setStopAt(i)}>
+                        <Words text={e.words} />
+                        <span className="hot-stop-cue">
+                          <span aria-hidden="true">+ </span>
+                          {STOP_TEXT.open}
+                        </span>
+                      </button>
                     </p>
                   </li>
                 ))}
@@ -218,6 +244,8 @@ export default function HolocaustTimeline() {
             </>
           )}
         </main>
+
+        {stopAt !== null && <TimelineStop index={stopAt} onMove={setStopAt} onClose={closeStop} />}
       </SourcesDrawer>
     </div>
   );

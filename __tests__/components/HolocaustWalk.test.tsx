@@ -5,6 +5,8 @@ import WalkRoom from '@/app/exhibitions/holocaust/walk/WalkRoom';
 import { FILM_FONT_HREF } from '@/app/exhibitions/holocaust/walk/Film';
 import { FILM_BLEEDS, FILM_FRAMES, FILM_LINE_MS, FILM_MS, FILM_OPENING, FILM_OPENING_MS, FILM_SKIP, filmSourceGroups } from '@/app/exhibitions/holocaust/walk/filmText';
 import {
+  WALK_GO,
+  WALK_MEANING,
   DARK_MOST,
   FIRST_NAME_AT,
   GAP_MS,
@@ -40,7 +42,7 @@ import { LIBERATION_LINE } from '@/app/exhibitions/holocaust/holocaust';
 
 /*
  * The Walk, its own room: Begin opens it full screen; first the film (a few
- * opening words on what the Holocaust was, then the history's 32 lines,
+ * opening words on what the Holocaust was, then the history's lines,
  * each over its picture, in order, in black and white; about five and a
  * half seconds a line, Pause and Play, a quiet skip; the owner's music, if
  * it is there, from the same press, fading as the film ends; under reduced
@@ -99,11 +101,12 @@ function fakeAudio() {
 
 /** A stand-in for an <audio> element, for the film's music. */
 function fakeMusic() {
-  const made: { src: string; volume: number; plays: number; pauses: number }[] = [];
+  const made: { src: string; volume: number; plays: number; pauses: number; loop: boolean }[] = [];
   const before = window.Audio;
   class FakeMusic {
     src: string;
     volume = 1;
+    loop = false;
     preload = '';
     plays = 0;
     pauses = 0;
@@ -153,6 +156,13 @@ const status = () => full().querySelector(':scope > [role="status"]')!.textConte
 function walkNow(props: Parameters<typeof WalkRoom>[0] = {}) {
   const film = begin(props);
   fireEvent.click(within(film).getByRole('button', { name: FILM_SKIP }));
+  return intoTheWalk();
+}
+/** Past the note on what the walk is, into the walk itself. */
+function intoTheWalk() {
+  const before = screen.getByRole('dialog', { name: 'The walk' });
+  expect(before).toHaveClass('is-threshold');
+  fireEvent.click(within(before).getByRole('button', { name: WALK_GO }));
   return screen.getByRole('dialog', { name: 'The walk' });
 }
 const shownNames = () => Array.from(full().querySelectorAll('[data-name]')).map((n) => [n.getAttribute('data-name')!, Number(n.getAttribute('data-at'))] as const);
@@ -205,7 +215,7 @@ describe('the film', () => {
     expect(screen.getByRole('button', { name: 'Begin' })).toBeInTheDocument();
   });
 
-  it('plays by itself: the opening words, then all 32 lines in order, each over its picture, about five and a half seconds a line, then the walk', () => {
+  it('plays by itself: the opening words, then every line in order, each over its picture, about five and a half seconds a line (longer for the toll), then the walk', () => {
     jest.useFakeTimers();
     const film = begin({ pictures: ALL_PICTURES });
     for (const o of FILM_OPENING) {
@@ -223,14 +233,18 @@ describe('the film', () => {
       expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('src', `${WALK_DIR}/${ALL_PICTURES[line.slot]}`);
       expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('alt', line.image);
       // Not before its time.
-      tick(FILM_LINE_MS - 50);
+      tick((line.hold ?? FILM_LINE_MS) - 50);
       expect(film.querySelector(`[data-line="${line.id}"]`)).toBeInTheDocument();
       tick(50);
       if (i < WALK_LINES.length - 1) expect(film.querySelector(`[data-line="${WALK_LINES[i + 1].id}"]`)).toBeInTheDocument();
     });
-    // After the last line, the walk.
-    expect(screen.getByRole('dialog', { name: 'The walk' })).toHaveClass('is-walk');
-    expect(FILM_MS).toBe(FILM_OPENING.length * FILM_OPENING_MS + 32 * FILM_LINE_MS);
+    // After the last line, the note on what the walk is, then the walk.
+    expect(screen.getByRole('dialog', { name: 'The walk' })).toHaveClass('is-threshold');
+    expect(intoTheWalk()).toHaveClass('is-walk');
+    expect(FILM_MS).toBe(FILM_OPENING.length * FILM_OPENING_MS + WALK_LINES.reduce((t, l) => t + (l.hold ?? FILM_LINE_MS), 0));
+    // The killing centers' names and the toll are held longer, the last line longest.
+    expect(WALK_LINES.filter((l) => l.hold).length).toBeGreaterThanOrEqual(4);
+    expect(WALK_LINES[WALK_LINES.length - 1].hold).toBe(Math.max(...WALK_LINES.map((l) => l.hold ?? 0)));
     expect(FILM_LINE_MS).toBeGreaterThanOrEqual(5000);
     expect(FILM_LINE_MS).toBeLessThanOrEqual(6000);
   });
@@ -252,15 +266,32 @@ describe('the film', () => {
     expect(film.querySelector('[data-opening="F3"]')).toBeInTheDocument();
   });
 
-  it('can be skipped, quietly, straight to the walk', () => {
+  it('can be skipped, quietly, to the walk: first, in silence, a few words on what the walk is, then the walk', () => {
     const film = begin();
     const skip = within(film).getByRole('button', { name: FILM_SKIP });
     expect(skip).toHaveClass('hof-skip');
     fireEvent.click(skip);
-    const walk = screen.getByRole('dialog', { name: 'The walk' });
-    expect(walk).toBe(film);
-    expect(walk.querySelector('.hof-film')).toBeNull();
+    const before = screen.getByRole('dialog', { name: 'The walk' });
+    expect(before).toBe(film);
+    expect(before).toHaveClass('is-threshold');
+    expect(before.querySelector('.hof-film')).toBeNull();
+    expect(before.querySelector('canvas.hos-walk-floor')).toBeNull();
+    for (const p of WALK_MEANING) expect(before).toHaveTextContent(p);
+    expect(WALK_MEANING.join(' ')).toMatch(/iron faces/);
+    expect(WALK_MEANING.join(' ')).toMatch(/Kadishman/);
+    expect(status()).toBe(WALK_MEANING.join(' '));
+    // Its button has the focus, and begins the walk.
+    expect(document.activeElement).toHaveTextContent(WALK_GO);
+    const walk = intoTheWalk();
+    expect(walk).toHaveClass('is-walk');
     expect(walk.querySelector('canvas.hos-walk-floor')).toBeInTheDocument();
+  });
+
+  it('leaves from the note too, back to the room', () => {
+    const film = begin();
+    fireEvent.click(within(film).getByRole('button', { name: FILM_SKIP }));
+    fireEvent.click(within(screen.getByRole('dialog', { name: 'The walk' })).getByRole('button', { name: 'Leave the walk' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('with reduced motion: no flicker or weave, and a line at a time by button, then the walk', () => {
@@ -275,7 +306,7 @@ describe('the film', () => {
       fireEvent.click(within(film).getByRole('button', { name: 'Next' }));
       expect(film.querySelectorAll('.hof-layer')).toHaveLength(1);
     }
-    expect(film.querySelector(`[data-line="${WALK_LINES[31].id}"]`)).toBeInTheDocument();
+    expect(film.querySelector(`[data-line="${WALK_LINES[WALK_LINES.length - 1].id}"]`)).toBeInTheDocument();
     fireEvent.click(within(film).getByRole('button', { name: 'Next' }));
     expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
   });
@@ -312,15 +343,22 @@ describe('the film', () => {
       // A button turns it off and on.
       const toggle = within(film).getByRole('button', { name: 'Music' });
       expect(toggle).toHaveAttribute('aria-pressed', 'true');
-      // As the last line comes, it fades, and is silent as the film ends.
-      pass(FILM_MS - FILM_LINE_MS + 10);
-      expect(document.querySelector('.hof-film')).toHaveAttribute('data-frame', WALK_LINES[31].id);
-      const full = m.volume;
+      // It goes round, as the film is longer than the recording.
+      expect(m.loop).toBe(true);
+      // It plays to the end: as the last line comes, it fades, and is silent as the film ends.
+      const lastLine = WALK_LINES[WALK_LINES.length - 1];
+      const toll = WALK_LINES.find((l) => /^Six million/.test(l.text))!;
+      pass(FILM_MS - (lastLine.hold ?? FILM_LINE_MS) + 10);
+      expect(document.querySelector('.hof-film')).toHaveAttribute('data-frame', lastLine.id);
+      expect(m.volume).toBeGreaterThan(0);
+      expect(toll).toBeTruthy();
+      const loud = m.volume;
       pass(FILM_LINE_MS / 2);
-
-      expect(m.volume).toBeLessThan(full);
-      pass(FILM_LINE_MS);
+      expect(m.volume).toBeLessThan(loud);
+      pass(lastLine.hold ?? FILM_LINE_MS);
       expect(m.volume).toBe(0);
+      // Then, in silence, the note on what the walk is.
+      expect(full()).toHaveClass('is-threshold');
       expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
     } finally {
       music.restore();
@@ -363,7 +401,7 @@ describe('the film', () => {
     expect(within(drawer).queryByRole('heading', { name: /candle/i })).toBeNull();
     // No names yet: their heading comes with the first.
     expect(within(drawer).queryByRole('heading', { name: WALK_NAMES_HEADING })).toBeNull();
-    expect(filmSourceGroups()).toHaveLength(1 + 32);
+    expect(filmSourceGroups()).toHaveLength(1 + WALK_LINES.length);
     // Escape closes the drawer, and leaves the film open.
     fireEvent.keyDown(drawer, { key: 'Escape' });
     expect(within(film).queryByRole('dialog', { name: 'Sources and credits' })).toBeNull();
@@ -585,7 +623,7 @@ describe('the walk', () => {
       expect(screen.queryByRole('dialog')).toBeNull();
       fireEvent.click(screen.getByRole('button', { name: 'Begin' }));
       fireEvent.click(within(screen.getByRole('dialog', { name: 'The film' })).getByRole('button', { name: FILM_SKIP }));
-      walk = screen.getByRole('dialog', { name: 'The walk' });
+      walk = intoTheWalk();
       sound = within(walk).getByRole('button', { name: WALK_SOUND });
       expect(sound).toHaveAttribute('aria-pressed', 'false');
       fireEvent.click(sound);
@@ -731,45 +769,59 @@ describe('the names', () => {
 });
 
 describe('the film’s lines and slots', () => {
-  it('has 32 short lines, in the order of the history, each with a source from Yad Vashem, the USHMM or the HMD Trust, a picture slot and a part', () => {
-    expect(WALK_LINES.map((l) => l.id)).toEqual(Array.from({ length: 32 }, (_, i) => `W${i + 1}`));
+  it('has short lines, in the order of the history, building step by step to the toll, each with a source, a picture slot and a part', () => {
+    expect(WALK_LINES.map((l) => l.id)).toEqual(Array.from({ length: WALK_LINES.length }, (_, i) => `W${i + 1}`));
+    expect(WALK_LINES.length).toBeGreaterThanOrEqual(40);
     for (const l of WALK_LINES) {
       expect(l.sources.length).toBeGreaterThan(0);
-      for (const s of l.sources) expect(s.href).toMatch(/^https:\/\/(encyclopedia\.ushmm\.org|collections\.ushmm\.org|(www\.)?hmd\.org\.uk|www\.yadvashem\.org)\//);
+      // From Yad Vashem, the USHMM or the HMD Trust; Heine's words, from the Jewish Review of Books.
+      for (const s of l.sources) expect(s.href).toMatch(/^https:\/\/(encyclopedia\.ushmm\.org|collections\.ushmm\.org|www\.ushmm\.org|(www\.)?hmd\.org\.uk|www\.yadvashem\.org|jewishreviewofbooks\.com)\//);
       expect(l.slot).toMatch(/^w\d\d-[a-z-]+$/);
       expect(PLACEHOLDERS).toContain(l.placeholder);
       expect(l.text.split(/\s+/).length).toBeLessThanOrEqual(30);
     }
-    expect(new Set(WALK_LINES.map((l) => l.slot)).size).toBe(32);
-    expect(WALK_LINES.map((l) => slotNumber(l.slot)).sort((x, y) => x - y)).toEqual(Array.from({ length: 32 }, (_, i) => i + 1));
-    expect(WALK_LINES.find((l) => l.text.includes('synagogues'))!.text).toBe('November 9–10, 1938. More than 1,400 synagogues were burned.');
+    // A slot to each line, each with its own number; the owner's 32 pictures keep theirs.
+    expect(new Set(WALK_LINES.map((l) => l.slot)).size).toBe(WALK_LINES.length);
+    expect(new Set(WALK_LINES.map((l) => slotNumber(l.slot))).size).toBe(WALK_LINES.length);
+    expect(WALK_LINES.find((l) => l.text.includes('synagogues'))!.text).toBe('November 9–10, 1938. Nazis burned more than 1,400 synagogues and smashed thousands of Jewish shops.');
     const years = WALK_LINES.map((l) => l.text.match(/\b(19[2-4]\d)\b/)?.[1]).filter(Boolean).map(Number);
     expect(years).toEqual([...years].sort((x, y) => x - y));
     expect(years[0]).toBe(1929);
     expect(WALK_LINES[2].text).toMatch(/^In 1933/);
+    // The steps, in their order: the first camp, the books, the laws, Kristallnacht, the war, Wannsee, the killing centers, the uprising, Hungary, the death marches, the toll.
+    const at = (re: RegExp) => WALK_LINES.findIndex((l) => re.test(l.text));
+    const steps = [/Dachau/, /books into bonfires/, /could not be citizens/, /synagogues/, /invaded Poland/, /Wannsee/, /killing centers/, /Warsaw ghetto\.$/, /Hungary/, /could not keep walking/, /^Six million/];
+    const where = steps.map(at);
+    expect(where.every((i) => i >= 0)).toBe(true);
+    expect(where).toEqual([...where].sort((x, y) => x - y));
+    expect(WALK_LINES.some((l) => l.text === 'It was not enough.')).toBe(true);
     expect(WALK_LINES.map((l) => l.image.replace(/\(no [^)]*\)/, '')).join(' ')).not.toMatch(/\b(person|people|child|man|woman|face|body|victim)\b/i);
-    expect(WALK_LINES.map((l) => l.part)).toEqual([...Array(3).fill('before'), ...Array(21).fill('during'), ...Array(8).fill('after')]);
+    const parts = WALK_LINES.map((l) => l.part);
+    expect(parts).toEqual([...parts].sort((x, y) => ['before', 'during', 'after'].indexOf(x) - ['before', 'during', 'after'].indexOf(y)));
+    expect(parts.filter((p) => p === 'before')).toHaveLength(3);
     // The film carries them all, in order, after its opening words.
     expect(FILM_FRAMES.flatMap((f) => (f.kind === 'line' ? [f.line.id] : []))).toEqual(WALK_LINES.map((l) => l.id));
     expect(FILM_FRAMES.slice(0, FILM_OPENING.length).every((f) => f.kind === 'words')).toBe(true);
   });
 
-  it('opens with a few plain words, for children, with nothing graphic', () => {
+  it('opens with a few plain words, for children, with nothing graphic, and leaves the toll for the end', () => {
     expect(FILM_OPENING.length).toBeGreaterThanOrEqual(2);
     expect(FILM_OPENING.length).toBeLessThanOrEqual(5);
     const words = FILM_OPENING.map((o) => o.text).join(' ');
-    expect(words).toMatch(/six million/);
-    expect(words).toMatch(/Holocaust/);
+    expect(words).toMatch(/step by step/);
+    expect(words).not.toMatch(/six million/i);
     expect(words).not.toMatch(/\b(gas|gassed|corpse|bodies|blood|burned alive|shot)\b/i);
+    expect(WALK_LINES.slice(-5).some((l) => /^Six million/.test(l.text))).toBe(true);
   });
 
   it('stands in with silhouettes of the agreed objects only, until the owner’s pictures come', () => {
     expect([...SILHOUETTE_KINDS].sort()).toEqual([...PLACEHOLDERS].sort());
   });
 
-  it('finds the owner’s files when the page is built: all 32 pictures, the 14 clanks, the rattle, and the film’s music if it is there', () => {
+  it('finds the owner’s files when the page is built: her pictures, the 14 clanks, the rattle, and the film’s music if it is there', () => {
     const onDisk = walkSlotsOnDisk();
-    expect(Object.keys(onDisk.pictures)).toHaveLength(32);
+    // The owner's 32 pictures are on disk; the slots added when the film was rebuilt wait for theirs.
+    expect(Object.keys(onDisk.pictures)).toHaveLength(WALK_LINES.filter((l) => slotNumber(l.slot) <= 32).length);
     expect(onDisk.pictures['w07-broken-window']).toBe('walk-07.webp');
     expect(onDisk.sounds.clanks).toHaveLength(14);
     expect(onDisk.sounds.clanks[0]).toBe('/exhibitions/holocaust/walk/sound/clank-01.mp3');

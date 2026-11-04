@@ -14,7 +14,7 @@ import { EGYPT } from '@/app/exhibitions/egypt/egypt';
  * opens on its own lettering, except where noted below.
  */
 
-const EXHIBITIONS: [string, ExhibitionConfig][] = [['Holocaust Memorial Day', HOLOCAUST as ExhibitionConfig]];
+const EXHIBITIONS: [string, ExhibitionConfig][] = [['International Holocaust Remembrance Day', HOLOCAUST as ExhibitionConfig]];
 /*
  * Poster 1 opens on its title set in type, not on the poster's lettering:
  * the lettering reads "NATIONAL HOLOCAUST MEMORIAL DAY", and the owner
