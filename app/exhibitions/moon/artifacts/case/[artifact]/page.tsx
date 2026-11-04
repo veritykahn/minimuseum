@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { MOON, MOON_CASE } from '../../../moon';
 import '../../../moon.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function MoonArtifact({ params }: Props) {
   const artifact = findArtifact(MOON_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={MOON} data={MOON_CASE} artifact={artifact} />;
+  return <ArtifactPage config={MOON} data={MOON_CASE} artifact={artifact} photo={casePhotosOnDisk(MOON, MOON_CASE).artifacts[artifact.id]} />;
 }

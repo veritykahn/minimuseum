@@ -105,7 +105,8 @@ describe('The Writing Revolution', () => {
       fs.readdirSync(d, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? files(path.join(d, e.name)).map((f) => `${e.name}/${f}`) : [e.name]));
 
     it('holds only the posters, their lettering, the Urania cut out of poster 2 and the screenshot of the room for its card', () => {
-      expect(files(dir).sort()).toEqual([
+      // Pictures only: the room's sounds (poster-sound/) are checked with the sound.
+      expect(files(dir).filter((f) => !f.startsWith('poster-sound/')).sort()).toEqual([
         'poster1.jpg',
         'poster2.jpg',
         'rooms/typing-station.webp',
@@ -145,7 +146,7 @@ describe('The Writing Revolution', () => {
       expect(screen.getByRole('heading', { level: 1, name: 'The Writing Revolution' })).toBeInTheDocument();
       const caseLink = screen.getByRole('link', { name: /display case/i });
       expect(caseLink).toHaveAttribute('href', '/exhibitions/writing-revolution/artifacts/case');
-      expect(caseLink).toHaveTextContent('Display case — photographs to come');
+      expect(caseLink).toHaveTextContent('Photographs on their way');
       expect(screen.getByRole('link', { name: 'Second Floor' })).toHaveAttribute('href', '/exhibitions/second-floor');
     });
 
@@ -202,7 +203,7 @@ describe('The Writing Revolution display case page', () => {
     for (const a of WRITING_REVOLUTION_CASE.artifacts) expect(a.writing).toBeUndefined();
     expect(WRITING_REVOLUTION_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/writing-revolution');
   });
 });

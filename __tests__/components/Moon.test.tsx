@@ -195,7 +195,7 @@ describe('The Our Incredible Moon display case page', () => {
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(MOON_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(JSON.stringify([MOON, MOON_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/moon');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/moon');

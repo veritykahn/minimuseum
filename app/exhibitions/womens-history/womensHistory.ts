@@ -344,6 +344,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           atmosphere: 'rose-garden',
           effect: 'line-by-line',
           position: 'top-left',
+          moment: 'factory-whistle',
           text: 'In the Second World War, British men aged 18 to 41 were needed in the navy and army, which took them away from their jobs. To fill the shortage, women were recruited for jobs previously done by men. Women worked in the factories, constructing weapons, and many others joined the Land Army to work on farms.',
           sources: [TNA_HOME_FRONT],
         },
@@ -424,8 +425,8 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'typewriter', text: BIO.father },
 
         // Work
-        { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'line-by-line', text: BIO.factory },
-        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'rise-expand', text: BIO.garden },
+        { type: 'paragraph', moment: 'sewing-machine', section: 'bio', atmosphere: 'running-stitch', effect: 'line-by-line', text: BIO.factory },
+        { type: 'paragraph', moment: 'garden-birds', section: 'bio', atmosphere: 'rose-garden', effect: 'rise-expand', text: BIO.garden },
 
         // Marriage
         {
@@ -434,6 +435,7 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
           atmosphere: 'blitz-letters',
           effect: 'pan-lr',
           figure: PHOTO_PROMENADE,
+          moment: 'brass-band',
           text: BIO.faith,
         },
         { type: 'paragraph', section: 'bio', atmosphere: 'blitz-letters', effect: 'fade-in', text: BIO.harold },
@@ -450,17 +452,17 @@ export const WOMENS_HISTORY: ExhibitionConfig<'poster1' | 'poster2'> = {
         { type: 'paragraph', section: 'bio', atmosphere: 'running-stitch', effect: 'typewriter', text: BIO.seamstress },
 
         // Music
-        { type: 'paragraph', section: 'bio', atmosphere: 'parlour-piano', effect: 'waves-drift', text: BIO.music },
+        { type: 'paragraph', moment: 'knees-up', section: 'bio', atmosphere: 'parlour-piano', effect: 'waves-drift', text: BIO.music },
 
         // The war
-        { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'line-by-line', text: BIO.blitz },
+        { type: 'paragraph', moment: 'air-raid-siren', section: 'bio', atmosphere: 'blackout', effect: 'line-by-line', text: BIO.blitz },
         { type: 'paragraph', section: 'bio', atmosphere: 'blackout', effect: 'fade-in', text: BIO.blast },
 
         // After the war
         { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'blur-to-sharp', text: BIO.essex },
 
         // Later life
-        { type: 'paragraph', section: 'bio', atmosphere: 'rose-garden', effect: 'typewriter', text: BIO.greengrocer },
+        { type: 'paragraph', moment: 'shop-bell', section: 'bio', atmosphere: 'rose-garden', effect: 'typewriter', text: BIO.greengrocer },
         {
           type: 'full-image',
           section: 'contact',

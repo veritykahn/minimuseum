@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { CaseViewTabs, caseViewIds, useCaseView, type CaseView } from '@/components/exhibition/CaseViews';
 import FactNote from '@/components/exhibition/FactNote';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { CoinData } from './coin-data';
 import type { IthNoteGroup } from '../notes';
 
@@ -430,7 +431,9 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
         ))}
       </div>
 
+      {/* The museum notes' sources, behind the page's "i" (none under the notes). */}
       {notes && (
+        <SourcesDrawer groups={notes.notes.map((n) => ({ title: n.title, items: n.sources }))}>
         <section className="cl-notes" aria-labelledby={`ith-case-${caseNumber}-notes`} hidden={Boolean(interactive) && view !== 'artifacts'}>
           <h2 className="cl-section-title" id={`ith-case-${caseNumber}-notes`}>{notes.heading}</h2>
           {notes.notes.map((n) => (
@@ -440,6 +443,7 @@ export default function CaseListing({ caseNumber, galleryLabel, title, subtitle,
             </article>
           ))}
         </section>
+        </SourcesDrawer>
       )}
 
       {interactive && (

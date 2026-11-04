@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { FEAR_LAB, FEAR_LAB_CASE } from '../../../fearLab';
 import '../../../fear-lab.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function FearLabArtifact({ params }: Props) {
   const artifact = findArtifact(FEAR_LAB_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={FEAR_LAB} data={FEAR_LAB_CASE} artifact={artifact} />;
+  return <ArtifactPage config={FEAR_LAB} data={FEAR_LAB_CASE} artifact={artifact} photo={casePhotosOnDisk(FEAR_LAB, FEAR_LAB_CASE).artifacts[artifact.id]} />;
 }

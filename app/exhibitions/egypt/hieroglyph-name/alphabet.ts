@@ -1,12 +1,14 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
-import { BM_SYMBOLS, EES_CARTOUCHE, GLYPHS, type GlyphCode } from '../rooms';
+import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
+import { BM_SYMBOLS, EES_CARTOUCHE, GLYPHS, UNIKEMET, type GlyphCode } from '../rooms';
 
 /*
  * Your name in hieroglyphs: the sign for each English letter, as the Egypt
  * Exploration Society's chart "Try writing your name in hieroglyphs" sets
  * them, with its two signs for "ch" and "sh". Where the chart gives a
  * choice (Y: two reeds or two strokes) the first is used. X is the basket
- * and the folded cloth, k + s, as the chart draws it.
+ * and the folded cloth, k + s, as the chart draws it. E is the two reeds,
+ * checked against the chart itself (November 2026).
  *
  * This is a modern sound-alike for fun, and the room says so: the Egyptians
  * wrote consonants only, and their signs were not an alphabet.
@@ -48,7 +50,7 @@ export const CHART = [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'CH', 'SH'];
 
 export const MAX_LETTERS = 14;
 
-export type Spelled = { letters: string; glyphs: string };
+export type Spelled = { letters: string; glyphs: string; codes: GlyphCode[] };
 
 /**
  * A name spelled sign by sign: "ch" and "sh" each take their own sign,
@@ -66,10 +68,22 @@ export function spell(name: string): Spelled[] {
   for (let i = 0; i < plain.length; i++) {
     const two = plain.slice(i, i + 2);
     const letters = SIGNS[two] && two.length === 2 ? two : plain[i];
-    out.push({ letters, glyphs: SIGNS[letters].map((c) => GLYPHS[c]).join('') });
+    out.push({ letters, glyphs: SIGNS[letters].map((c) => GLYPHS[c]).join(''), codes: SIGNS[letters] });
     if (letters.length === 2) i++;
   }
   return out;
+}
+
+const VOWELS = new Set(['A', 'E', 'I', 'O', 'U']);
+
+/**
+ * Closer to how an Egyptian scribe would write it: the same signs, with the
+ * vowels left out, since hieroglyphs wrote consonants only (NAME_NOTES.modern).
+ * A name of vowels only keeps its first sign, so there is something to see.
+ */
+export function consonantsOnly(spelled: Spelled[]): Spelled[] {
+  const kept = spelled.filter((s) => !VOWELS.has(s.letters));
+  return kept.length || !spelled.length ? kept : spelled.slice(0, 1);
 }
 
 /** The name as it is read aloud with its cartouche: "M, A, Y, A". */
@@ -94,4 +108,16 @@ export const NAME_NOTES = {
     text: 'The straight line at one end marks the end of the name and helps show the reading direction. Hieroglyphs could be written left to right or right to left, but always top to bottom.',
     sources: [EES_CARTOUCHE],
   },
+  // REVIEW: new text. British Museum, "Symbols of the pharaoh": hieroglyphs wrote consonants only, with no vowels. EES chart: "we can add the sound ‘e’ to make reading the words easier. For example, the biliteral sign mn might be pronounced as ‘men’ today".
+  scribe: {
+    text: 'An Egyptian scribe would have left the vowels out, writing only the consonants. Today we often add an “e” to make the words easier to say: the sign mn can be said “men”.',
+    sources: [BM_SYMBOLS, EES_CARTOUCHE],
+  },
 } satisfies Record<string, ApprovedFact>;
+
+/** The room's Sources drawer. */
+export const NAME_SOURCES: SourceGroup[] = [
+  { title: 'The chart and the cartouche', items: [EES_CARTOUCHE, BM_SYMBOLS] },
+  { title: 'What each sign shows', items: [UNIKEMET] },
+  { title: 'Lettering', items: [{ label: 'Hieroglyphs set in Noto Sans Egyptian Hieroglyphs', licence: 'SIL Open Font License' }] },
+];

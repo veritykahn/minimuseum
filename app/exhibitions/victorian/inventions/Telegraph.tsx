@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import Celebrate from '../Celebrate';
-import { MORSE, NOTES, POSTER, READ_WORDS, SEND_WORDS, WIRE_STEPS } from './inventionsText';
+import { MORSE, POSTER, READ_WORDS, SEND_WORDS, WIRE_STEPS } from './inventionsText';
+import { NEEDLE_FACTS, WIRE_FACTS } from './sources';
 import { CardFoot, StepDots } from './Steps';
 import TelegramBench from './Telegram';
 import { DIAL, NEEDLES, marks, needleAngles, spell } from './workshop';
@@ -207,7 +208,7 @@ export default function Telegraph({ reduced }: { reduced: boolean }) {
 
   if (mode === 'send' || mode === 'receive') return <TelegramBench key={mode} mode={mode} reduced={reduced} modes={modes} />;
 
-  const howFacts = stepId === 'wire' ? [NOTES.wire] : stepId === 'coil' ? [NOTES.oersted] : stepId === 'needle' ? [NOTES.needles] : stepId === 'morse' ? [NOTES.morse, NOTES.morseBritain] : [NOTES.wire];
+  const howFacts = WIRE_FACTS[stepId];
 
   return (
     <div className="vbi-bench vbi-telegraph">
@@ -438,7 +439,7 @@ export default function Telegraph({ reduced }: { reduced: boolean }) {
                 </>
               )}
             </div>
-            <CardFoot facts={[NOTES.telegraph, NOTES.dialLetters, NOTES.needles]} poster={POSTER.innovations} reset={dial} />
+            <CardFoot facts={NEEDLE_FACTS} poster={POSTER.innovations} reset={dial} />
           </>
         )}
       </div>

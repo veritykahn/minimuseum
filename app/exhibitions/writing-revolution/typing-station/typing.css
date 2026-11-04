@@ -498,6 +498,8 @@
 .wrs-room .wrb-delete:focus-visible { outline: 3px solid var(--wr-ink); outline-offset: 1px; }
 @keyframes wrb-pin { from { opacity: 0; transform: translateY(-16px) rotate(calc(var(--tilt, 0deg) * 4)); } }
 .wrb-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; min-height: 42px; }
+/* "Clear the board" ends short of the floating Map button in the corner (on a phone the board's foot clears it instead). */
+@media (min-width: 761px) { .wrb-foot { padding-right: 72px; } }
 .wrb-count { font-family: 'Courier Prime', 'Courier New', monospace; font-size: 14px; color: var(--wr-ink); background: #fff; padding: 3px 8px; }
 .wrb-status { flex: 1; font-family: var(--pe-body); font-weight: 700; font-size: 14px; color: var(--wr-ink); }
 .wrs-room .wrb-foot .wrs-button-ghost { color: var(--wr-ink); border-color: var(--wr-ink); box-shadow: none; }

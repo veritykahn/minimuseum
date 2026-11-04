@@ -17,6 +17,14 @@ import {
 } from '@/app/exhibitions/victorian/victorian';
 import { floorReturnFor } from '@/lib/floors';
 
+/** The open panel's sources and credits, behind the small "i": opens the drawer, returns its "This panel" list. */
+const thisPanelSources = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return within(screen.getByRole('dialog', { name: 'Sources and credits' })).getByRole('list', { name: 'This panel' });
+};
+const closeSources = () => fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
+
+
 /*
  * Victorian Britain: its config, the poster copy against the transcription
  * (with only the owner's approved fixes), the V&A credits, the walkthrough
@@ -44,11 +52,11 @@ function fix(text: string, from: string, to: string) {
 
 /** The owner's approved fixes to poster 2's copy, and nothing else. */
 function approved2() {
-  // 3. the lingering effects of Puritan opposition
+  // 3. the first sentence, rewritten: Christmas was hardly celebrated, and why
   let t = fix(
     PRINTED_2,
-    'impacted by Puritan opposition to pagan roots and the Industrial Revolution',
-    'impacted by the lingering effects of Puritan opposition to its pagan roots and the Industrial Revolution',
+    'In the 19th century, Christmas traditions were in decline, impacted by Puritan opposition to pagan roots and the Industrial Revolution, which left workers little time for celebration.',
+    'At the start of the 19th century, Christmas was hardly celebrated. Many businesses did not treat it as a holiday, and the long hours of the Industrial Revolution left workers little time for celebration.',
   );
   // 1. popularized, not introduced
   t = fix(t, 'who introduced German customs like the Christmas tree', 'who popularized German customs like the Christmas tree');
@@ -106,9 +114,9 @@ describe('Victorian Britain', () => {
 
   it('applies the approved fixes, and the replaced wording is gone', () => {
     expect(allText).toContain('who popularized German customs like the Christmas tree');
-    expect(allText).toContain('impacted by the lingering effects of Puritan opposition to its pagan roots and the Industrial Revolution');
+    expect(allText).toContain('At the start of the 19th century, Christmas was hardly celebrated. Many businesses did not treat it as a holiday, and the long hours of the Industrial Revolution left workers little time for celebration.');
     expect(allText).not.toMatch(/introduced German customs/);
-    expect(allText).not.toMatch(/impacted by Puritan opposition|opposition to pagan roots/);
+    expect(allText).not.toMatch(/Puritan|pagan|in decline/);
     // "Dickens'" stays as printed.
     expect(allText).toContain("Charles Dickens' A Christmas Carol (1843)");
     expect(allText).toContain("Dickens' \"Carol Philosophy\"");
@@ -152,7 +160,9 @@ describe('Victorian Britain', () => {
       if (it.type === 'paragraph' && it.figure) return [{ src: it.figure.src, alt: it.figure.alt, credit: it.figure.credit?.text, href: it.figure.credit?.href }];
       return [];
     });
+    // The dress twice: beside the opening line, and again beside its fun tidbit.
     expect(pictures.map((p) => p.src)).toEqual([
+      '/exhibitions/victorian/va-court-dress.jpg',
       '/exhibitions/victorian/va-court-dress.jpg',
       '/exhibitions/victorian/va-refreshment-room.jpg',
       '/exhibitions/victorian/village.jpg',
@@ -185,6 +195,8 @@ describe('Victorian Britain', () => {
       expect(screen.getByRole('heading', { level: 1, name: 'Victorian Britain' })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /display case/i })).toHaveAttribute('href', '/exhibitions/victorian/artifacts/case');
       expect(screen.getByRole('link', { name: 'Ground Floor' })).toHaveAttribute('href', '/exhibitions/ground-floor');
+      // Behind the small "i": Sources and credits.
+      fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
       const credits = screen.getByRole('list', { name: 'Picture credits' });
       const credit = within(credits).getByRole('link');
       expect(credit).toHaveAttribute('href', VA_REFRESHMENT_ROOM_SOURCE);
@@ -201,9 +213,11 @@ describe('Victorian Britain', () => {
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      const credit = content().querySelector('.pe-figure-credit a') as HTMLElement;
+      expect(content().querySelector('.pe-figure-credit')).toBeNull();
+      const credit = within(thisPanelSources()).getByRole('link');
       expect(credit).toHaveTextContent(VA_COURT_DRESS_CREDIT);
       expect(credit).toHaveAttribute('href', VA_COURT_DRESS_SOURCE);
+      closeSources();
 
       const callout = poster('poster1').items.findIndex((it) => it.type === 'callout');
       for (let i = 1; i < callout; i++) {
@@ -244,7 +258,7 @@ describe('The Victorian Britain display case page', () => {
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(VICTORIAN_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(JSON.stringify([VICTORIAN, VICTORIAN_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/victorian');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/victorian');

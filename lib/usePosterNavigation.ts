@@ -39,6 +39,10 @@ function isFormField(el: EventTarget | null): boolean {
   return false;
 }
 
+function inSourcesDrawer(el: EventTarget | Element | null): boolean {
+  return el instanceof Element && !!el.closest('.mm-sources-panel');
+}
+
 function hintAlreadySeen(): boolean {
   try {
     return window.sessionStorage.getItem(HINT_KEY) === '1';
@@ -96,6 +100,8 @@ export function usePosterNavigation({ active, step, count, goTo, goBy, onClose }
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) return;
       if (isFormField(e.target) || isFormField(document.activeElement)) return;
+      // Not under the open Sources and credits drawer (SourcesDrawer): its keys are its own.
+      if (inSourcesDrawer(e.target) || inSourcesDrawer(document.activeElement)) return;
       const { count: n, goTo: go, onClose: close, by } = latest.current;
       switch (e.key) {
         case 'ArrowRight':

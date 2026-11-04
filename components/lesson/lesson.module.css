@@ -101,6 +101,8 @@
   overflow: hidden;
   display: grid;
   grid-template-rows: auto 1fr auto;
+  /* One column, never wider than the stage: on a phone the timing bar's labels widened it past the screen. */
+  grid-template-columns: minmax(0, 1fr);
   padding: 2.4cqw 4.4cqw 2cqw;
   background:
     radial-gradient(ellipse 70% 60% at 30% 45%, rgba(201, 168, 76, 0.07), transparent 70%),
@@ -353,8 +355,7 @@
   /* the scan has a pale margin; crop it */
   transform: scale(1.06);
 }
-.frame figcaption,
-.credit {
+.frame figcaption {
   margin-top: 1.4cqh;
   font-size: max(11px, 0.72cqw);
   letter-spacing: 0.08em;
@@ -949,11 +950,6 @@
   line-height: 1.4;
   color: var(--parchment);
 }
-.cover.coverSplit .credit {
-  bottom: auto;
-  top: 100%;
-  margin-top: 1.2cqh;
-}
 .objectives {
   position: relative;
   background: var(--parchment);
@@ -1037,11 +1033,6 @@
 }
 .coverLede + .coverLede {
   margin-top: 1.6cqh;
-}
-.cover .credit {
-  position: absolute;
-  right: 0;
-  bottom: 0;
 }
 .url {
   margin-top: 3cqh;
@@ -1328,6 +1319,19 @@
 }
 .toolsGap {
   flex: 1;
+}
+/* The Sources and credits "i" (SourcesDrawer), round, in the tools' gold. */
+.tools .sourcesTool {
+  --mm-sources-bg: rgba(18, 12, 5, 0.55);
+  --mm-sources-ink: #b5a88f;
+  width: 44px;
+  height: 44px;
+  border-color: rgba(201, 168, 76, 0.28);
+  opacity: 1;
+}
+.tools .sourcesTool:hover {
+  --mm-sources-ink: var(--parchment);
+  border-color: var(--gold);
 }
 .tool,
 .tool:link,
@@ -2027,11 +2031,9 @@
     max-width: none;
     font-size: 1.1rem;
   }
-  .cover .credit {
-    position: static;
-  }
   .foot {
-    grid-template-columns: auto 1fr;
+    /* minmax(0, …): the timing bar's labels may not push it past the screen's edge */
+    grid-template-columns: auto minmax(0, 1fr);
     gap: 12px;
   }
   .foot .controls {
@@ -2077,10 +2079,6 @@
   }
   .coverSplit .coverTitle {
     font-size: 2.8rem;
-  }
-  .cover.coverSplit .credit {
-    position: static;
-    margin-top: 0;
   }
   .why {
     max-width: none;
@@ -2208,7 +2206,7 @@
   grid-area: task;
   align-self: end;
 }
-.chartCard,
+.chartWrap,
 .gallery,
 .nline,
 .workedRow {
@@ -2230,7 +2228,71 @@
   justify-items: start;
 }
 
-/* chart: a parchment card with a table to read from */
+/* chart: a parchment card with a table to read from. While the table is
+   wider than the card (a phone), the edge with more fades out and a hint
+   under the card says to scroll (ChartScroll). */
+.chartWrap {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.chartFrame {
+  position: relative;
+  min-width: 0;
+}
+.chartFade {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 44px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.chartFadeLeft {
+  left: 0;
+  border-radius: 3px 0 0 3px;
+  background: linear-gradient(to left, rgba(245, 237, 216, 0), var(--parchment) 85%);
+}
+.chartFadeRight {
+  right: 0;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(to right, rgba(245, 237, 216, 0), var(--parchment) 85%);
+}
+.chartWrap[data-more-left] .chartFadeLeft,
+.chartWrap[data-more-right] .chartFadeRight {
+  opacity: 1;
+}
+.chartHint {
+  justify-self: end;
+  margin: 0;
+  font-family: var(--body);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--parchment);
+}
+.chartHintArrow {
+  display: inline-block;
+  letter-spacing: 0;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .chartWrap[data-more-right] .chartHintArrow {
+    animation: chartNudge 1.6s ease-in-out 3;
+  }
+}
+@keyframes chartNudge {
+  50% {
+    transform: translateX(4px);
+  }
+}
+@media print {
+  .chartFade,
+  .chartHint {
+    display: none;
+  }
+}
 .chartCard {
   position: relative;
   overflow: auto;
@@ -3566,12 +3628,6 @@
   width: 100%;
   margin-top: 2cqh;
 }
-.clipCredit {
-  margin-top: 1.4cqh !important;
-  font-size: max(11px, 0.72cqw);
-  line-height: 1.4;
-  color: var(--ink-2);
-}
 
 @media (max-aspect-ratio: 1/1) {
   .words p {
@@ -3658,11 +3714,6 @@
   font-weight: 500;
   line-height: 1.2;
   color: var(--parchment);
-}
-.imageCredit {
-  font-size: max(11px, 0.72cqw);
-  letter-spacing: 0.08em;
-  color: var(--muted);
 }
 
 @media (max-aspect-ratio: 1/1) {

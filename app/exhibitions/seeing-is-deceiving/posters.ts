@@ -31,6 +31,8 @@ export type SidItem = {
   special?: string;
   /** The setting it stands in (SEEING_ATMOSPHERES), drawn behind the panel. */
   atmosphere?: string;
+  /** A short sound played once as this panel arrives (poster-sound/moments/<name>.mp3). */
+  moment?: string;
   items?: string[];
 };
 
@@ -127,6 +129,7 @@ export const poster1Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'Inventors discovered something strange: show the eye rapid sequences of still images and the brain sees continuous motion that doesn\'t exist. The thaumatrope (1825) was a disk with different images on each side—spin it and a bird appears inside a cage. The zoetrope (1834) showed sequential drawings through slits—spin it and horses gallop, people dance.',
+    moment: 'zoetrope',
     position: 'top-left',
     special: 'vintage-film',
     effect: 'line-by-line',
@@ -151,6 +154,7 @@ export const poster1Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'In the 1830s, physicist Charles Wheatstone discovered that your two eyes see slightly different images, and your brain calculates depth from those differences. He built the first stereoscope—showing each eye a different flat picture. Your brain combines them and suddenly you perceive three dimensions that don\'t exist.',
+    moment: 'stereoscope-click',
     position: 'top-right',
     special: 'depth-parallax',
     effect: 'rise-expand',
@@ -159,6 +163,7 @@ export const poster1Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'By the late 1800s, Victorians used stereoscopes to "travel" to Egypt or Niagara Falls without leaving home. The same principle powers modern 3D movies and VR headsets. The technology evolved. Your brain didn\'t.',
+    moment: 'niagara',
     position: 'bottom-left',
     special: 'depth-parallax',
     effect: 'pan-lr',
@@ -234,6 +239,7 @@ export const poster1Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'The Penrose triangle (1934) and M.C. Escher\'s impossible staircases (1960) show objects that cannot exist in three-dimensional space. Your brain tries to make sense of them and fails, creating that unsettling feeling when you see something impossible.',
+    moment: 'shepard-tone',
     position: 'center',
     effect: 'breathe'
   },
@@ -276,6 +282,7 @@ export const poster2Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'By the 1700s, traveling showmen used magic lanterns—early projectors casting painted images onto screens. In darkened rooms, they created moving ghosts and demons that terrified audiences who\'d never seen projected light.',
+    moment: 'phantasmagoria',
     position: 'bottom-right',
     effect: 'fade-in',
     atmosphere: 'projected-light'
@@ -297,6 +304,7 @@ export const poster2Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'In 1862, photographer William Mumler accidentally created the first spirit photograph using double exposure—exposing the same plate twice. A ghostly figure appeared beside him. Grieving families paid fortunes for photographs of dead relatives, not understanding how cameras could be manipulated.',
+    moment: 'spirit-photo',
     position: 'top-left',
     special: 'static-overlay',
     effect: 'ink-spread',
@@ -313,6 +321,7 @@ export const poster2Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'By the 1920s, magicians like Houdini exposed the tricks, but for decades fake photographs had influenced beliefs and extracted money from grieving families.',
+    moment: 'chains',
     position: 'center',
     special: 'static-overlay',
     effect: 'shrink-back',
@@ -329,6 +338,7 @@ export const poster2Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'Film brought new illusions. Miniatures made tiny models look massive—King Kong (1933) was an 18-inch puppet. Matte paintings created castles and cities that didn\'t exist. Stop-motion brought creatures to life frame by frame. Rear projection put actors in exotic locations while they stood in studios.',
+    moment: 'kong-roar',
     position: 'top-right',
     special: 'vintage-film',
     effect: 'pan-lr',
@@ -337,6 +347,7 @@ export const poster2Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'Everyone knew movies were fiction, but your brain believed them anyway. You knew the monster wasn\'t real, but your heart still raced.',
+    moment: 'heartbeat',
     position: 'center',
     special: 'vintage-film',
     effect: 'blur-to-sharp',
@@ -351,6 +362,7 @@ export const poster2Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'In 1990, Photoshop made photo editing accessible to anyone with a computer. Suddenly you could remove people from photographs, add things that were never there, alter faces and bodies, combine multiple images. Magazine covers showed impossible perfection. News photos were altered to remove inconvenient politicians.',
+    moment: 'computer-boot',
     position: 'top-left',
     special: 'rgb-split',
     effect: 'split-reveal'
@@ -379,6 +391,7 @@ export const poster2Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'In 2017, AI could generate photorealistic images of people who don\'t exist. By 2018, AI created convincing videos of real people saying things they never said. By 2020, these "deepfakes" were indistinguishable from authentic footage.',
+    moment: 'glitch',
     position: 'top-left',
     special: 'glitch-persistent',
     effect: 'typewriter',
@@ -395,6 +408,7 @@ export const poster2Content: SidItem[] = [
   {
     type: 'paragraph',
     text: 'We\'re now in a world where seeing something happen is no longer reliable evidence that it happened.',
+    moment: 'i-see-you',
     position: 'center',
     special: 'glitch-persistent',
     effect: 'glitch',

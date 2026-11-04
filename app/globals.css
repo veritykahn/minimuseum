@@ -10,6 +10,9 @@
 }
 
 body {
+  /* No browser margin: without it every page that fills the screen (the
+     entrance, the 404) scrolled by 16px and sat in an 8px frame. */
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
   font-family: 'Outfit', sans-serif;
@@ -187,7 +190,8 @@ a:link, a:visited, a:hover, a:active {
 
 /* The floating Map button covers the foot of a scrolling page on a phone.
    Pages listed as 'clear' in components/museum-map/placement.ts get room to
-   scroll their last row above it. */
-@media (max-width: 768px) {
+   scroll their last row above it. On screen only: a printed page is about
+   this narrow too, and the extra room there pushed a blank page out. */
+@media screen and (max-width: 768px) {
   html[data-map-fab='clear'] body { padding-bottom: 88px; }
 }

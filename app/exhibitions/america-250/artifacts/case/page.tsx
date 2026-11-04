@@ -1,4 +1,5 @@
 import CasePage from '@/components/exhibition/CasePage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { AMERICA_250, AMERICA_250_CASE } from '../../america250';
 import '../../america250.css';
 
@@ -8,5 +9,5 @@ import '../../america250.css';
  * signing room, which opens from here.
  */
 export default function America250Case() {
-  return <CasePage config={AMERICA_250} data={AMERICA_250_CASE} />;
+  return <CasePage config={AMERICA_250} data={AMERICA_250_CASE} photos={casePhotosOnDisk(AMERICA_250, AMERICA_250_CASE)} />;
 }

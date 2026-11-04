@@ -1,5 +1,6 @@
 import { act, fireEvent, render, renderHook, screen } from '@testing-library/react';
-import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
+import PosterProjector, { PLAY_THROUGH_DONE, PLAY_THROUGH_ON, PosterProjectorEnd, THROUGH_HOLD_MS, THROUGH_PAUSE_MS, type ProjectorPoster } from '@/components/projector/PosterProjector';
+import type { AudioGuideState } from '@/components/exhibition/AudioGuide';
 import { posterKeyCommand } from '@/components/projector/posterKeys';
 import { HARLEM_TALK, ITH_TALK, OPENING, SEEING_TALK, chapterAt, posterChapters } from '@/components/projector/posterTalk';
 import { posterRequested, projectorRequested, usePosterDeepLink, writeProjectorParams } from '@/components/projector/useProjectorMode';
@@ -47,6 +48,14 @@ describe('posterKeyCommand', () => {
     expect(posterKeyCommand('a', ctx)).toEqual({ type: 'audio' });
     expect(posterKeyCommand('P', ctx)).toEqual({ type: 'play' });
     expect(posterKeyCommand('A', { ...ctx, open: false })).toBeNull();
+  });
+
+  it('turns the room sound on and off with S, on an open poster', () => {
+    expect(posterKeyCommand('s', ctx)).toEqual({ type: 'room' });
+    expect(posterKeyCommand('S', ctx)).toEqual({ type: 'room' });
+    expect(posterKeyCommand('g', ctx)).toEqual({ type: 'through' });
+    expect(posterKeyCommand('G', { ...ctx, open: false })).toBeNull();
+    expect(posterKeyCommand('s', { ...ctx, open: false })).toBeNull();
   });
 });
 
@@ -217,7 +226,7 @@ describe('PosterProjector', () => {
   });
 
   it('puts the audio guide in the tool bar: A turns it on, P pauses, and blanking quiets it', () => {
-    const guide = { on: false, playing: false, progress: 0, available: true, turnOn: jest.fn(), turnOff: jest.fn(), toggle: jest.fn(), pause: jest.fn() };
+    const guide = { on: false, playing: false, progress: 0, available: true, ended: false, turnOn: jest.fn(), turnOff: jest.fn(), toggle: jest.fn(), pause: jest.fn() };
     const { rerender, props } = setup({ audioGuide: guide });
     expect(screen.getByRole('button', { name: /Audio guide/ })).toHaveAttribute('aria-pressed', 'false');
     press('a');
@@ -237,6 +246,106 @@ describe('PosterProjector', () => {
     press('b');
     press('A');
     expect(guide.turnOff).toHaveBeenCalled();
+  });
+
+  describe('Play through', () => {
+    const guideState = (over: Partial<AudioGuideState> = {}): AudioGuideState => ({
+      on: true, playing: false, progress: 0, available: true, ended: false,
+      turnOn: jest.fn(), turnOff: jest.fn(), toggle: jest.fn(), pause: jest.fn(), ...over,
+    });
+    const show = (r: ReturnType<typeof setup>, step: number, audioGuide: AudioGuideState) =>
+      r.rerender(
+        <PosterProjector {...r.props} step={step} audioGuide={audioGuide}>
+          <div data-poster-stage="" />
+        </PosterProjector>,
+      );
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it('is off until G; it turns the guide on, and moves on 2 s after each recording ends, stopping at the last panel', () => {
+      const off = guideState({ on: false });
+      const r = setup({ audioGuide: off, step: 1 });
+      const button = screen.getByRole('button', { name: /Play through/ });
+      expect(button).toHaveAttribute('aria-pressed', 'false');
+      press('g');
+      expect(off.turnOn).toHaveBeenCalled();
+
+      show(r, 1, guideState({ playing: true }));
+      expect(screen.getByRole('button', { name: /Play through/ })).toHaveAttribute('aria-pressed', 'true');
+      expect(screen.getAllByText(PLAY_THROUGH_ON).length).toBeGreaterThan(0);
+      act(() => jest.advanceTimersByTime(10_000));
+      expect(r.nextStep).not.toHaveBeenCalled();
+
+      show(r, 1, guideState({ ended: true }));
+      act(() => jest.advanceTimersByTime(THROUGH_PAUSE_MS - 100));
+      expect(r.nextStep).not.toHaveBeenCalled();
+      act(() => jest.advanceTimersByTime(200));
+      expect(r.nextStep).toHaveBeenCalledTimes(1);
+
+      show(r, 2, guideState({ ended: true }));
+      act(() => jest.advanceTimersByTime(THROUGH_PAUSE_MS + 100));
+      expect(r.nextStep).toHaveBeenCalledTimes(2);
+
+      // The last panel: its recording ends, and Play through finishes there.
+      show(r, 3, guideState({ ended: true }));
+      act(() => jest.advanceTimersByTime(THROUGH_PAUSE_MS + 100));
+      expect(r.nextStep).toHaveBeenCalledTimes(2);
+      expect(screen.getAllByText(PLAY_THROUGH_DONE).length).toBeGreaterThan(0);
+      expect(screen.getByRole('button', { name: /Play through/ })).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('holds a panel with no recording for 6 s', () => {
+      const r = setup({ audioGuide: guideState({ available: false }), step: 1 });
+      press('G');
+      act(() => jest.advanceTimersByTime(THROUGH_HOLD_MS - 100));
+      expect(r.nextStep).not.toHaveBeenCalled();
+      act(() => jest.advanceTimersByTime(200));
+      expect(r.nextStep).toHaveBeenCalledTimes(1);
+    });
+
+    it('stops when the teacher moves, pauses or blanks', () => {
+      const r = setup({ audioGuide: guideState({ playing: true }), step: 1 });
+      press('g');
+      press('ArrowRight');
+      expect(r.nextStep).toHaveBeenCalledTimes(1);
+      show(r, 2, guideState({ ended: true }));
+      act(() => jest.advanceTimersByTime(THROUGH_HOLD_MS));
+      expect(r.nextStep).toHaveBeenCalledTimes(1);
+
+      press('g');
+      press('b');
+      press('b');
+      show(r, 2, guideState({ ended: true, available: true }));
+      act(() => jest.advanceTimersByTime(THROUGH_HOLD_MS));
+      expect(r.nextStep).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole('button', { name: /Play through/ })).toHaveAttribute('aria-pressed', 'false');
+    });
+  });
+
+  it('puts the room sound in the tool bar: S turns it on and off, and blanking hushes it', () => {
+    const room = { on: false, available: true, hushed: false, turnOn: jest.fn(), turnOff: jest.fn(), hush: jest.fn() };
+    const { rerender, props } = setup({ roomSound: room });
+    expect(screen.getByRole('button', { name: /Room sound/ })).toHaveAttribute('aria-pressed', 'false');
+    press('s');
+    expect(room.turnOn).toHaveBeenCalled();
+
+    const on = { ...room, on: true };
+    rerender(
+      <PosterProjector {...props} roomSound={on}>
+        <div data-poster-stage="" />
+      </PosterProjector>,
+    );
+    press('b');
+    expect(room.hush).toHaveBeenLastCalledWith(true);
+    press('b');
+    expect(room.hush).toHaveBeenLastCalledWith(false);
+    press('S');
+    expect(room.turnOff).toHaveBeenCalled();
+  });
+
+  it('leaves the room sound out for a poster without one', () => {
+    setup();
+    expect(screen.queryByRole('button', { name: /Room sound/ })).toBeNull();
   });
 
   it('leaves the audio guide out for a poster with no recordings', () => {

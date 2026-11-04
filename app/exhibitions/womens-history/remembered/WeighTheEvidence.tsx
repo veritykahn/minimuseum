@@ -114,7 +114,14 @@ export default function WeighTheEvidence({ onSay, onPrint }: { onSay: (s: string
             <h2 className="whr-card-head" id="whr-card-head" ref={headRef} tabIndex={-1}>
               Evidence {index + 1} of {EVIDENCE.length}
             </h2>
-            <p className="whr-card-text">{card.text}</p>
+            {/* Every card's words are set in one place, the others unseen, so the card keeps the height of the longest and its buttons stay put from card to card. */}
+            <div className="whr-hold">
+              {EVIDENCE.map((c) => (
+                <p key={c.id} className="whr-card-text" aria-hidden={c.id === card.id ? undefined : true} data-held={c.id === card.id ? undefined : ''}>
+                  {c.text}
+                </p>
+              ))}
+            </div>
             <FactSources sources={card.sources} className="whr-fact-source" />
             {!choice ? (
               <>
@@ -130,18 +137,28 @@ export default function WeighTheEvidence({ onSay, onPrint }: { onSay: (s: string
               </>
             ) : (
               <div className={`whr-verdict ${isRight(card, choice) ? 'is-right' : 'is-wrong'}`}>
-                <p>
-                  <strong>{verdict(card.weighs, choice)}</strong> {card.why}
-                </p>
+                {/* As with the cards: every verdict held in one place, so "Next card" stays put. */}
+                <div className="whr-hold">
+                  <p>
+                    <strong>{verdict(card.weighs, choice)}</strong> {card.why}
+                  </p>
+                  {EVIDENCE.flatMap((c) =>
+                    (['scale', 'aside'] as const).map((ch) => (
+                      <p key={`${c.id}-${ch}`} aria-hidden="true" data-held="">
+                        {`${verdict(c.weighs, ch)} ${c.why}`}
+                      </p>
+                    )),
+                  )}
+                </div>
                 <div className="whr-card-buttons">
+                  <button type="button" className="whr-button whr-button-primary" onClick={next}>
+                    {index < EVIDENCE.length - 1 ? 'Next card' : 'Weigh it up'}
+                  </button>
                   {!isRight(card, choice) && (
                     <button type="button" className="whr-button" onClick={() => decide(choice === 'scale' ? 'aside' : 'scale')}>
                       {choice === 'scale' ? 'Set it aside instead' : 'Lay it on the scale instead'}
                     </button>
                   )}
-                  <button type="button" className="whr-button whr-button-primary" onClick={next}>
-                    {index < EVIDENCE.length - 1 ? 'Next card' : 'Weigh it up'}
-                  </button>
                 </div>
               </div>
             )}
@@ -215,6 +232,8 @@ export default function WeighTheEvidence({ onSay, onPrint }: { onSay: (s: string
               <dt>Evidence</dt>
               <dd>
                 {arg.evidence} <FactSources sources={chosen.sources} className="whr-fact-source" />
+                {/* On the printout only: the student's screen cites it in the Sources drawer. */}
+                <span className="whr-print-source">Source: {chosen.sources.map((s) => s.label).join('; ')}</span>
               </dd>
               <dt>Reasoning</dt>
               <dd>{arg.reasoning}</dd>

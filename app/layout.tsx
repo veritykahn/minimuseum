@@ -6,6 +6,7 @@ import MuseumMap from "@/components/museum-map/MuseumMapRefactored";
 import { OrganizationJsonLd } from "@/components/JsonLd";
 import StyledJsxRegistry from "@/components/StyledJsxRegistry";
 import PageGround from "@/components/PageGround";
+import HallSound from "@/components/HallSound";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -56,6 +57,9 @@ export default function RootLayout({
           <Suspense>
             <MuseumMap />
           </Suspense>
+          {/* The Great Hall's sound: mounted once, here, so it plays on
+              unbroken from the hall up into the floors' halls. */}
+          <HallSound />
           <PageGround />
         </StyledJsxRegistry>
       </body>

@@ -1,4 +1,5 @@
 import CasePage from '@/components/exhibition/CasePage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { GREAT_WAR, GREAT_WAR_CASE } from '../../greatWar';
 import '../../great-war.css';
 
@@ -8,5 +9,5 @@ import '../../great-war.css';
  * photographs to come.
  */
 export default function GreatWarCase() {
-  return <CasePage config={GREAT_WAR} data={GREAT_WAR_CASE} />;
+  return <CasePage config={GREAT_WAR} data={GREAT_WAR_CASE} photos={casePhotosOnDisk(GREAT_WAR, GREAT_WAR_CASE)} />;
 }

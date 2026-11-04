@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { WOMENS_HISTORY, WOMENS_HISTORY_CASE } from '../../../womensHistory';
 import '../../../womensHistory.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function WomensHistoryArtifact({ params }: Props) {
   const artifact = findArtifact(WOMENS_HISTORY_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={WOMENS_HISTORY} data={WOMENS_HISTORY_CASE} artifact={artifact} />;
+  return <ArtifactPage config={WOMENS_HISTORY} data={WOMENS_HISTORY_CASE} artifact={artifact} photo={casePhotosOnDisk(WOMENS_HISTORY, WOMENS_HISTORY_CASE).artifacts[artifact.id]} />;
 }

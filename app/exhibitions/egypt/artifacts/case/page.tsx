@@ -1,4 +1,5 @@
 import CasePage from '@/components/exhibition/CasePage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { EGYPT, EGYPT_CASE } from '../../egypt';
 import '../../egypt.css';
 
@@ -7,5 +8,5 @@ import '../../egypt.css';
  * record lists them, and the case itself, with its photographs to come.
  */
 export default function EgyptCase() {
-  return <CasePage config={EGYPT} data={EGYPT_CASE} />;
+  return <CasePage config={EGYPT} data={EGYPT_CASE} photos={casePhotosOnDisk(EGYPT, EGYPT_CASE)} />;
 }

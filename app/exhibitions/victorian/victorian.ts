@@ -12,8 +12,11 @@ import { floorReturnFor } from '@/lib/floors';
  *      tree (the poster says "introduced");
  *   2. the Dickens quote is credited "After Charles Dickens, *A Christmas
  *      Carol* (1843): 'Marley was dead: to begin with.'";
- *   3. "impacted by the lingering effects of Puritan opposition to its pagan
- *      roots and the Industrial Revolution";
+ *   3. poster 2's first sentence is rewritten, to say simply that Christmas
+ *      was hardly celebrated, and why (after the V&A): "At the start of the
+ *      19th century, Christmas was hardly celebrated. Many businesses did
+ *      not treat it as a holiday, and the long hours of the Industrial
+ *      Revolution left workers little time for celebration.";
  *   4. the V&A photographs are used only where they could be matched to the
  *      V&A's own records, credited as the V&A specifies and linked (below);
  *   5. poster 1's QR code is a link to the V&A's own history of the museum.
@@ -126,7 +129,6 @@ const S = {
   dickens: { label: 'V&A, “Charles Dickens”', href: 'https://www.vam.ac.uk/articles/charles-dickens' },
   stocktonDarlington: { label: 'Science Museum Group Archive, “Commonplace books of an unknown engineer” (the Stockton & Darlington Railway, 1825)', href: 'https://archives.sciencemuseumgroup.ac.uk/Details/archive/110073953' },
   twoTelegraphs: { label: 'Science Museum Group Journal, “A tale of two telegraphs”', href: 'https://journal.sciencemuseum.ac.uk/article/cooke-and-wheatstones' },
-  namChristmas: { label: 'National Army Museum, “Christmas at war”', href: 'https://www.nam.ac.uk/explore/war-christmas' },
 } satisfies Record<string, FactSource>;
 
 /** The "Did you know?" notes set beneath printed copy. */
@@ -135,9 +137,10 @@ export const VICTORIAN_NOTES = {
     text: 'All three began just before Victoria came to the throne in 1837: the first steam-operated public railway opened in 1825, the oldest surviving photographic negative was taken in 1835, and Cooke and Wheatstone filed their first telegraph patent early in 1837. Her reign is when they spread.',
     sources: [S.stocktonDarlington, S.photography, S.twoTelegraphs],
   },
-  puritans: {
-    text: 'The Puritans’ ban was long over by then: Parliament abolished the feast of Christmas in June 1647, and it was fully restored in 1660. The V&A says simply that at the start of the 19th century, “Christmas was hardly celebrated.”',
-    sources: [S.namChristmas, S.christmasTraditions],
+  // REVIEW (Verity): rewritten with poster 2's first sentence; quoted from the V&A, "Victorian Christmas traditions".
+  hardlyCelebrated: {
+    text: 'The V&A says that at the dawn of the 19th century, “Christmas was hardly celebrated – at least, not in a way we would recognise today.” Gifts had traditionally been given at New Year, not at Christmas.',
+    sources: [S.christmasTraditions],
   },
 } satisfies Record<string, ApprovedFact>;
 
@@ -245,8 +248,8 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
           alt: 'Revolutionary Victorian Britain',
         },
         { type: 'paragraph', section: 'lede', atmosphere: 'wallpaper-damask', effect: 'kenburns-in', figure: COURT_DRESS, text: 'Victorian Britain was a time of innovation, fashion, culture, and the birth of one of the most iconic museums in the world today!' },
-        // Added (A18): the dress.
-        { type: 'paragraph', section: 'linen', position: 'top-right', atmosphere: 'wallpaper-damask', effect: 'fade-in', lead: 'Fun tidbit:', text: 'The ivory silk court dress shown here was made in the 1860s. Its wide skirt sat over a crinoline, and its embroidered train is 11 feet long! Young women spent hours practising how to curtsey and walk backward in a dress like this before being presented at court.', sources: [S.courtDress] },
+        // Added (A18): the dress, beside its picture.
+        { type: 'paragraph', moment: 'silk-rustle', section: 'linen', position: 'center', atmosphere: 'wallpaper-damask', effect: 'fade-in', figure: { ...COURT_DRESS, side: 'left' }, lead: 'Fun tidbit:', text: 'The ivory silk court dress shown here was made in the 1860s. Its wide skirt sat over a crinoline, and its embroidered train is 11 feet long! Young women spent hours practising how to curtsey and walk backward in a dress like this before being presented at court.', sources: [S.courtDress] },
         { type: 'paragraph', section: 'linen', position: 'bottom-left', atmosphere: 'wallpaper-damask', effect: 'breathe', lead: 'Fun tidbit:', text: 'A crinoline was a light cage of spring-steel hoops worn under the skirt to hold it out. Some were nicknamed "skeleton" petticoats!', sources: [S.crinoline] },
 
         { type: 'paragraph', section: 'linen', atmosphere: 'locomotive-steam', effect: 'line-by-line', text: 'The Victorian era in Britain lasted from 1837 to 1901, during the reign of Queen Victoria. This period saw rapid industrial growth, transforming the nation into a global superpower with an expanding empire.' },
@@ -254,15 +257,15 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
 
         // Added (A18): the inventions.
         { type: 'section-title', atmosphere: 'locomotive-steam', effect: 'film-credits', colors: { title: CREAM }, text: 'Trains, wires and photographs changed everyday life.', sources: [S.standardTime, S.photography] },
-        { type: 'paragraph', section: 'linen', position: 'top-left', atmosphere: 'locomotive-steam', effect: 'drift', text: 'Before the railways, every town set its clocks by the Sun, so Bristol\'s time was 11 minutes behind London\'s! Time signals were then sent from the Royal Observatory at Greenwich along the telegraph, and by 1855 nearly every town had switched to "railway time."', sources: [S.standardTime] },
-        { type: 'paragraph', section: 'linen', position: 'bottom-right', atmosphere: 'locomotive-steam', effect: 'ink-spread', text: "William Cooke and Charles Wheatstone's electric telegraph used needles that swung to point to letters on a dial. Its first commercially successful use anywhere in the world was on a London railway in 1840.", sources: [S.standardTime] },
-        { type: 'paragraph', section: 'linen', position: 'top-right', atmosphere: 'glazed-roof', effect: 'rise-expand', lead: 'Fun tidbit:', text: 'The oldest photographic negative that still survives is a picture of a window, taken by William Henry Fox Talbot in August 1835. Then, in 1843, Anna Atkins began publishing the first book in Britain illustrated with photographs: bright blue "cyanotype" prints of seaweed, made by laying the plants on sun-sensitive paper.', sources: [S.photography] },
+        { type: 'paragraph', moment: 'steam-train', section: 'linen', position: 'top-left', atmosphere: 'locomotive-steam', effect: 'drift', text: 'Before the railways, every town set its clocks by the Sun, so Bristol\'s time was 11 minutes behind London\'s! Time signals were then sent from the Royal Observatory at Greenwich along the telegraph, and by 1855 nearly every town had switched to "railway time."', sources: [S.standardTime] },
+        { type: 'paragraph', moment: 'telegraph', section: 'linen', position: 'bottom-right', atmosphere: 'locomotive-steam', effect: 'ink-spread', text: "William Cooke and Charles Wheatstone's electric telegraph used needles that swung to point to letters on a dial. Its first commercially successful use anywhere in the world was on a London railway in 1840.", sources: [S.standardTime] },
+        { type: 'paragraph', moment: 'camera', section: 'linen', position: 'top-right', atmosphere: 'glazed-roof', effect: 'rise-expand', lead: 'Fun tidbit:', text: 'The oldest photographic negative that still survives is a picture of a window, taken by William Henry Fox Talbot in August 1835. Then, in 1843, Anna Atkins began publishing the first book in Britain illustrated with photographs: bright blue "cyanotype" prints of seaweed, made by laying the plants on sun-sensitive paper.', sources: [S.photography] },
 
         { type: 'paragraph', section: 'linen', atmosphere: 'glazed-roof', effect: 'blur-to-sharp', text: 'The Victoria and Albert Museum (V&A) was founded in 1852 as a hallmark of this age, showcasing decorative arts and design to inspire creativity and educate the public.' },
 
         // Added (A18): the museum.
         { type: 'section-title', atmosphere: 'glazed-roof', effect: 'mega-zoom-out', text: 'It all began with the Great Exhibition.', sources: [S.building] },
-        { type: 'paragraph', section: 'linen', position: 'bottom-left', atmosphere: 'glazed-roof', effect: 'typewriter', text: 'In 1851, the Great Exhibition filled a gigantic "Crystal Palace" in London\'s Hyde Park with everything from steam engines to treasures from around the world. About six million people visited, a third of Britain\'s population, including Charles Darwin and Charles Dickens.', sources: [S.building] },
+        { type: 'paragraph', moment: 'crowd', section: 'linen', position: 'bottom-left', atmosphere: 'glazed-roof', effect: 'typewriter', text: 'In 1851, the Great Exhibition filled a gigantic "Crystal Palace" in London\'s Hyde Park with everything from steam engines to treasures from around the world. About six million people visited, a third of Britain\'s population, including Charles Darwin and Charles Dickens.', sources: [S.building] },
         { type: 'paragraph', section: 'linen', position: 'top-right', atmosphere: 'wallpaper-damask', effect: 'line-by-line', text: 'Prince Albert urged that the Exhibition\'s profits be used to build museums and colleges in South Kensington, and the V&A was the first of them. Its first director, Henry Cole, said the museum should be "a schoolroom for everyone."', sources: [S.building] },
         { type: 'paragraph', section: 'linen', position: 'center', atmosphere: 'gaslamp', effect: 'glitch', lead: 'Fun tidbit:', text: 'The museum once had a "Chamber of Horrors": a gallery of badly designed everyday objects, meant to teach visitors good taste. The manufacturers were mortified and complained, and it closed after only two weeks!', sources: [S.building] },
         {
@@ -340,23 +343,23 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
           src: '/exhibitions/victorian/village.jpg',
           alt: 'A painting of a snowy Victorian village street at dusk: snow-covered houses with lit windows, a church spire, two tall Christmas trees, and people walking in the snow',
         },
-        { type: 'paragraph', section: 'linen', atmosphere: 'locomotive-steam', effect: 'line-by-line', text: 'In the 19th century, Christmas traditions were in decline, impacted by the lingering effects of Puritan opposition to its pagan roots and the Industrial Revolution, which left workers little time for celebration.', note: VICTORIAN_NOTES.puritans },
+        { type: 'paragraph', section: 'linen', atmosphere: 'locomotive-steam', effect: 'line-by-line', text: 'At the start of the 19th century, Christmas was hardly celebrated. Many businesses did not treat it as a holiday, and the long hours of the Industrial Revolution left workers little time for celebration.', note: VICTORIAN_NOTES.hardlyCelebrated },
         // Added (A18).
         { type: 'paragraph', section: 'linen', position: 'top-left', atmosphere: 'christmas-snow', effect: 'fade-in', text: "At the start of the 1800s, many businesses didn't even treat Christmas as a holiday, and presents were traditionally given at New Year. By the end of the century, Christmas had become the biggest celebration of the year in Britain.", sources: [S.christmasTraditions] },
-        { type: 'paragraph', section: 'linen', atmosphere: 'yule-hearth', effect: 'rise-expand', text: "The holiday's revival gained momentum under Queen Victoria and Prince Albert, who popularized German customs like the Christmas tree, while the first Christmas cards appeared in the 1840s." },
+        { type: 'paragraph', moment: 'sleigh-bells', section: 'linen', atmosphere: 'yule-hearth', effect: 'rise-expand', text: "The holiday's revival gained momentum under Queen Victoria and Prince Albert, who popularized German customs like the Christmas tree, while the first Christmas cards appeared in the 1840s." },
         // Added (A18): the tree, the first card, the cracker, the railways.
         { type: 'paragraph', section: 'linen', position: 'bottom-right', atmosphere: 'christmas-snow', effect: 'drift', text: 'In 1848, the *Illustrated London News* printed a picture of the royal family gathered around a decorated Christmas tree, and trees quickly became popular all over Britain. The first advertisements for tree ornaments appeared in 1853.', sources: [S.christmasTraditions] },
         { type: 'section-title', atmosphere: 'wallpaper-damask', effect: 'mega-zoom-out', text: "The very first Christmas card was sent by the V&A's own first director.", sources: [S.firstCard] },
         { type: 'paragraph', section: 'linen', position: 'top-right', atmosphere: 'wallpaper-damask', effect: 'line-by-line', text: 'In 1843, Henry Cole had so much Christmas mail piling up that he asked his friend, the artist John Callcott Horsley, to design a card he could send instead. It showed three generations of the Cole family raising a toast, surrounded by scenes of giving to people in need.', sources: [S.firstCard] },
         { type: 'paragraph', section: 'linen', position: 'bottom-left', atmosphere: 'glazed-roof', effect: 'breathe', lead: 'Fun tidbit:', text: 'Cole printed 1,000 cards and sold the spares for a shilling each, which was so expensive that the venture was judged a flop. But when one of his cards was auctioned in 2013, it sold for £22,000!', sources: [S.firstCard] },
         { type: 'paragraph', section: 'linen', position: 'center', atmosphere: 'christmas-snow', effect: 'shrink-back', lead: 'Fun tidbit:', text: 'Victorian Christmas cards made robins, holly, snowy scenes and Father Christmas into the symbols of the season. One even shows Father Christmas riding a bicycle! Today, around a billion Christmas cards are bought in the UK every year.', sources: [S.firstCard] },
-        { type: 'paragraph', section: 'linen', position: 'top-left', atmosphere: 'yule-hearth', effect: 'glitch', lead: 'Fun tidbit:', text: 'Christmas crackers are a Victorian invention too! Sweet-shop owner Tom Smith came up with the idea in the 1840s after seeing paper-wrapped sweets in Paris, and by the 1860s he had perfected the "bang."', sources: [S.christmasTraditions] },
-        { type: 'paragraph', section: 'linen', position: 'top-right', atmosphere: 'locomotive-steam', effect: 'pan-lr', text: 'The new railways helped too. People who had moved to the cities to find work could travel home to spend Christmas with the people they loved.', sources: [S.christmasTraditions] },
-        { type: 'paragraph', section: 'linen', atmosphere: 'gaslamp', effect: 'film-credits', text: "However it was Charles Dickens' *A Christmas Carol* (1843) that truly gave us the Christmas we know today." },
+        { type: 'paragraph', moment: 'cracker', section: 'linen', position: 'top-left', atmosphere: 'yule-hearth', effect: 'glitch', lead: 'Fun tidbit:', text: 'Christmas crackers are a Victorian invention too! Sweet-shop owner Tom Smith came up with the idea in the 1840s after seeing paper-wrapped sweets in Paris, and by the 1860s he had perfected the "bang."', sources: [S.christmasTraditions] },
+        { type: 'paragraph', moment: 'steam-train', section: 'linen', position: 'top-right', atmosphere: 'locomotive-steam', effect: 'pan-lr', text: 'The new railways helped too. People who had moved to the cities to find work could travel home to spend Christmas with the people they loved.', sources: [S.christmasTraditions] },
+        { type: 'paragraph', moment: 'merry-christmas', section: 'linen', atmosphere: 'gaslamp', effect: 'film-credits', text: "However it was Charles Dickens' *A Christmas Carol* (1843) that truly gave us the Christmas we know today." },
         // Added (A18).
         { type: 'paragraph', section: 'linen', position: 'bottom-right', atmosphere: 'gaslamp', effect: 'typewriter', lead: 'Fun tidbit:', text: "Dickens's own handwritten manuscript of *A Christmas Carol* still survives. It is kept at the Morgan Library in New York.", sources: [S.dickens] },
         { type: 'paragraph', section: 'linen', atmosphere: 'yule-hearth', effect: 'split-reveal', text: 'Dickens may not have invented Christmas but he certainly reinvented it.' },
-        { type: 'paragraph', section: 'linen', atmosphere: 'yule-hearth', effect: 'breathe', text: "*A Christmas Carol* emphasized kindness, charity, and community through Scrooge's transformation. Dickens' \"Carol Philosophy\" celebrated the holiday as a time to open hearts and embrace humanity, a message still resonating nearly 200 years later." },
+        { type: 'paragraph', moment: 'church-bells', section: 'linen', atmosphere: 'yule-hearth', effect: 'breathe', text: "*A Christmas Carol* emphasized kindness, charity, and community through Scrooge's transformation. Dickens' \"Carol Philosophy\" celebrated the holiday as a time to open hearts and embrace humanity, a message still resonating nearly 200 years later." },
         { type: 'paragraph', section: 'linen', atmosphere: 'christmas-snow', effect: 'fade-in', text: "Dickens' influence shaped modern Christmas celebrations more profoundly than almost anyone else." },
 
         { type: 'end', section: 'end', text: 'Return to Exhibition' },

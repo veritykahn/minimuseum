@@ -6,13 +6,16 @@ import '@/components/exhibition/poster-exhibition.css';
 import { roomReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import FactNote from '@/components/exhibition/FactNote';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { srOnly, useReducedMotion } from '@/lib/a11y';
 import { BLACK_HISTORY } from '../blackHistory';
 import { DATED_STOPS, ORDER_HASH, OWNER_BARBIE_PHOTOS, TIMELINE_STOPS, TIMELINE_TEXT, isRight, markRuns, photoFor, stepFor, stopFromHash, type TimelineStop } from './timelineStops';
 import { play, type Cue } from './cheer';
 import OrderChallenge from './OrderChallenge';
+import { TIMELINE_SOURCES } from './sources';
 import '../black-history.css';
 import './timeline.css';
+import { useMuseumSound } from '@/lib/museumSound';
 
 /*
  * The Black Barbie timeline, on one screen: the year large on the black
@@ -23,10 +26,11 @@ import './timeline.css';
  *
  * The added stops (Dolls of the World, Shani, Inspiring Women) are
  * owner-approved and fact-checked, from outside the poster: set as a plain
- * note with its source (timelineStops.ts), never as the poster's words.
+ * note (timelineStops.ts), never as the poster's words, its source in the
+ * room's Sources drawer (sources.ts).
  *
  * Where the owner has given a photograph for a stop (OWNER_BARBIE_PHOTOS),
- * it is pinned beside the year disc with its credit beneath; with none, the
+ * it is pinned beside the year disc, its credit in the Sources drawer; with none, the
  * room has no photograph and no space kept for one.
  *
  * It is a game for a class as well: at each dated stop the year is hidden
@@ -38,7 +42,6 @@ import './timeline.css';
  */
 
 type Guess = number | 'skip';
-const SOUND_KEY = 'mm-bh-timeline-sound';
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
@@ -79,7 +82,8 @@ export default function BlackBarbieTimeline() {
   const [index, setIndex] = useState(0);
   const [guesses, setGuesses] = useState<Record<string, Guess>>({});
   const [challenge, setChallenge] = useState(false);
-  const [sound, setSound] = useState(false);
+  // The museum's one sound switch (lib/museumSound.ts).
+  const [sound, setSound] = useMuseumSound();
   const [party, setParty] = useState(0);
   const [said, setSaid] = useState('');
   const revealFocus = useRef(false);
@@ -94,15 +98,6 @@ export default function BlackBarbieTimeline() {
   const guess = guesses[stop.id];
   const rightCount = DATED_STOPS.filter((s) => typeof guesses[s.id] === 'number' && isRight(s, guesses[s.id] as number)).length;
 
-  // Sound stays off until the visitor turns it on; the choice is remembered in this browser.
-  useEffect(() => {
-    try {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- the visitor's sound choice comes back from this browser
-      if (window.localStorage.getItem(SOUND_KEY) === 'on') setSound(true);
-    } catch {
-      // No storage: sound stays off.
-    }
-  }, []);
   const cue = useCallback(
     (c: Cue) => {
       if (sound) play(c);
@@ -113,11 +108,6 @@ export default function BlackBarbieTimeline() {
     const on = !sound;
     setSound(on);
     if (on) play('on');
-    try {
-      window.localStorage.setItem(SOUND_KEY, on ? 'on' : 'off');
-    } catch {
-      // Private windows: the choice lasts as long as the page.
-    }
   };
 
   useEffect(() => {
@@ -178,7 +168,8 @@ export default function BlackBarbieTimeline() {
     const onKey = (e: globalThis.KeyboardEvent) => {
       if (challenge || e.defaultPrevented || e.metaKey || e.ctrlKey || e.altKey) return;
       const el = e.target as HTMLElement;
-      if (el !== document.body && (!el.closest('.bht-room') || el.closest('a, input, textarea, select'))) return;
+      // The Sources drawer keeps its own keys too.
+      if (el !== document.body && (!el.closest('.bht-room') || el.closest('a, input, textarea, select, .mm-sources-scrim'))) return;
       // The keys 1 to 4 guess, where the year is still hidden: a keyboard at the front of the class.
       const choice = /^[1-9]$/.test(e.key) && !shown && stop.choices ? stop.choices[Number(e.key) - 1] : undefined;
       if (choice !== undefined) {
@@ -243,6 +234,8 @@ export default function BlackBarbieTimeline() {
   return (
     <div className="pe-root bht-room" data-exhibition={slug} data-theme={challenge ? 'pink' : stop.theme} data-mode={challenge ? 'order' : 'stops'} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
+      {/* The added stops' sources and the photographs' credits, in one drawer (sources.ts); none inline. */}
+      <SourcesDrawer groups={TIMELINE_SOURCES}>
 
       <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
@@ -329,9 +322,6 @@ export default function BlackBarbieTimeline() {
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} />
-                <figcaption className="bht-photo-credit">
-                  {photo.credit.href ? <a href={photo.credit.href}>{photo.credit.text}</a> : photo.credit.text}
-                </figcaption>
               </figure>
             )}
 
@@ -420,6 +410,7 @@ export default function BlackBarbieTimeline() {
           </>
         )}
       </main>
+      </SourcesDrawer>
     </div>
   );
 }

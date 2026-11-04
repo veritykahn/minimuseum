@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, type CSSProperties } from 'react';
+import { useMemo, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import PosterNavHint from '@/components/PosterNavHint';
@@ -12,28 +12,35 @@ import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useP
 import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import PosterPanel from './PosterPanel';
 import CasePlaceholder from './CasePlaceholder';
-import LandingCredits from './LandingCredits';
+import SourcesDrawer, { type SourceGroup } from './SourcesDrawer';
 import LandingRow from './LandingRow';
+import ExploreRow, { ExploreCue } from './ExploreRow';
 import AtmosphereLayer from './AtmosphereLayer';
 import AudioGuide, { useAudioGuide } from './AudioGuide';
-import { atmosphereName, colorsFor, entranceOf, fxKind, posterLengths, projectorPosters, veilFor } from './helpers';
+import RoomSound, { useRoomSound } from './RoomSound';
+import { usePanelMoment } from './PanelMoment';
+import { atmosphereName, colorsFor, entranceOf, fxKind, posterLengths, posterSourceGroups, projectorPosters, veilFor } from './helpers';
 import type { DisplayCase, ExhibitionConfig, PosterConfig } from './types';
 import './poster-exhibition.css';
 
 /*
  * A poster exhibition, drawn from its config: the landing page (title,
- * "Teach with this" and its sheet of lessons and materials, the posters and any display cases),
+ * "Teach with this" and its sheet of lessons and materials, the posters and any display cases,
+ * and below them the Explore row of its interactive rooms),
  * the step-by-step poster walkthrough with the exhibition's reveal, and
  * teacher projector mode around it. The behavior is the existing exhibition
  * pages': keyboard, swipe and tap navigation (usePosterWalkthrough), the
  * first-open hint, a polite live region, ?projector=1&poster=N&panel=N deep
  * links, focus handling, and reduced motion (poster-fx.css, and here).
+ * Every source and picture credit is behind one small "i" in the bottom-left
+ * corner (SourcesDrawer): the landing page's picture credits, or the open
+ * poster's, panel by panel. Projector mode leaves it out.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function PosterExhibition<K extends string>({ config }: { config: ExhibitionConfig<K> }) {
-  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], credits = [], atmospheres, fx: fxConfig, projector: projectorConfig } = config;
+  const { slug, name, subtitle, fonts, palette, back, corner, posters, cases = [], interactives, credits = [], atmospheres, posterSounds, moments, fx: fxConfig, projector: projectorConfig } = config;
 
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
@@ -75,7 +82,29 @@ export default function PosterExhibition<K extends string>({ config }: { config:
   const fx = usePosterFxStage(fxConfig.theme, direction, item?.type ?? '', colors.bg, colors.text);
   const veil = veilFor(fxConfig.veil, item, posterStep);
   const hasGuide = !!poster?.items.some((i) => i.audio);
+  // This panel's moment, and whether the poster has any (found on disk; PanelMoment.ts).
+  const posterMoments = poster ? moments?.[poster.id] : undefined;
+  const momentFile = posterMoments?.[posterStep] ?? undefined;
+  const posterHasMoments = !!posterMoments?.some(Boolean);
+  const sourceGroups = useMemo<SourceGroup[]>(
+    () =>
+      poster
+        ? posterSourceGroups(poster as PosterConfig, posterStep)
+        : [{ title: 'Picture credits', items: credits.map((c) => ({ label: c.text, href: c.href })) }],
+    [poster, posterStep, credits],
+  );
   const guide = useAudioGuide(item?.audio);
+  // The room's music under the open poster (posterSoundPaths.ts), dipping while the guide
+  // speaks or a panel's moment sounds (PanelMoment.ts: a train's whistle, a voice).
+  const guideSpeaking = guide.on && guide.playing;
+  const [momentSounding, setMomentSounding] = useState(false);
+  const roomSound = useRoomSound(poster ? posterSounds?.[poster.id] : undefined, { duck: guideSpeaking || momentSounding, moments: posterHasMoments });
+  usePanelMoment(momentFile, `${activeView}:${posterStep}`, {
+    on: roomSound.on,
+    softer: guideSpeaking,
+    hushed: roomSound.hushed,
+    onSounding: setMomentSounding,
+  });
 
   const rememberFloorPosition = back.remember
     ? () => {
@@ -152,6 +181,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
       )}
 
       {activeView === 'main' && !projector && (
+        <>
         <div className="pe-exhibition-main pe-landing">
           <div className="pe-exhibition-title pe-landing-head">
             <h1>{name}</h1>
@@ -161,21 +191,25 @@ export default function PosterExhibition<K extends string>({ config }: { config:
             </div>
           </div>
 
-          {/* The interactive rooms are in the display case (CasePage), not here. */}
           <LandingRow className="pe-exhibition-grid">
             {first && posterButton(first)}
             {cases.map(caseLink)}
             {rest.map(posterButton)}
           </LandingRow>
 
-          <LandingCredits credits={credits} />
+          <ExploreCue rooms={interactives} />
         </div>
+
+        {/* The interactive rooms, below the first screen; the case's Interactives tab lists the same. */}
+        <ExploreRow rooms={interactives} style={{ '--pe-explore-on-accent': palette.page }} />
+        </>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
         {announcement}
       </p>
       <PosterNavHint visible={hintVisible && !projector} onDismiss={dismissHint} />
+      <SourcesDrawer groups={sourceGroups} hideButton={projector} />
       {poster && <h1 className="visually-hidden">{poster.title}</h1>}
       {fxConfig.theme === 'sid' && <FxDefs />}
 
@@ -195,6 +229,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
         prevStep={prevStep}
         returnToMain={returnToMain}
         audioGuide={hasGuide ? guide : undefined}
+        roomSound={roomSound.available ? roomSound : undefined}
       >
         <>
           {poster && item && atmosphere && atmo && (
@@ -261,8 +296,13 @@ export default function PosterExhibition<K extends string>({ config }: { config:
               )}
             </div>
           )}
-          {/* Outside the stage too; in projector mode the guide is in the tool bar instead. */}
-          {hasGuide && !projector && <AudioGuide guide={guide} color={colors.text} bg={colors.bg} />}
+          {/* Outside the stage too; in projector mode the guide and the room sound are in the tool bar instead. */}
+          {!projector && (hasGuide || roomSound.available) && (
+            <div className="pe-sound-controls">
+              <RoomSound sound={roomSound} color={colors.text} bg={colors.bg} />
+              {hasGuide && <AudioGuide guide={guide} color={colors.text} bg={colors.bg} />}
+            </div>
+          )}
         </>
       </PosterProjector>
     </div>

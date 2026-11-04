@@ -98,9 +98,9 @@ const RESOURCES: Record<string, { guide: string; handoutsGuide: string; parentGu
     library: true,
   },
   'seeing-is-deceiving': {
-    guide: '/resources/seeing-is-deceiving/Teaching Guide_ Optical Illusions & Visual Deception.pdf',
+    guide: '/resources/seeing-is-deceiving/Teaching-Guide-Optical-Illusions-and-Visual-Deception.pdf',
     handoutsGuide: '/resources/seeing-is-deceiving/Using Differentiated Student Handouts.pdf',
-    parentGuide: '/resources/seeing-is-deceiving/parents/Parent Resource Guide_ Optical Illusions & Visual Deception.pdf',
+    parentGuide: '/resources/seeing-is-deceiving/parents/Parent-Resource-Guide-Optical-Illusions-and-Visual-Deception.pdf',
     library: true,
   },
 };

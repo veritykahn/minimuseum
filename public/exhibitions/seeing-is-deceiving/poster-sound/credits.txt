@@ -1,0 +1,4 @@
+The posters' music (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet. Pixabay files under the Pixabay Content License.
+poster1.mp3 (Seeing is Deceiving: a mysterious harpsichord for the tricks of the eye) — "Medieval Mysterious Harpischord Organ" by TheoJT, https://pixabay.com/music/ambient-medieval-mysterious-harpischord-organ-593602/
+poster2.mp3 (When Seeing Stopped Being Believing: a haunted music box) — "Horror Music Box" by leberch, https://pixabay.com/music/orchestral-horror-music-box-585986/
+floor.mp3 — a copy of poster1.mp3: the room heard from the hall (components/FloorSound.ts)

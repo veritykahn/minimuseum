@@ -1,0 +1,9 @@
+The panels' moments (components/exhibition/PanelMoment.ts): each played once as its panel arrives. Trimmed, made mono, faded, levelled. Pixabay files under the Pixabay Content License.
+garden-birds.mp3 (Mendel's monastery garden) — "30 Seconds Bird Sounds from Garden" by KalsStockMedia, https://pixabay.com/sound-effects/nature-30-seconds-bird-sounds-from-garden-485745/
+jar-breaks.mp3 (the shepherd's stone, 1947) — "Small Rock Break" by LordSonny, https://pixabay.com/sound-effects/film-special-effects-small-rock-break-194553/, then "Break a clay pot" by spinopel, https://pixabay.com/sound-effects/break-a-clay-pot-456377/, with a cave echo
+scroll-unroll.mp3 (the Great Isaiah Scroll) — "Old Heavy Parchment" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-old-heavy-parchment-107797/
+coin-ring.mp3 (a coin cannot be forged the way a text can) — "Coin Drop" by Universfield, https://pixabay.com/sound-effects/film-special-effects-coin-drop-229314/
+pickaxe.mp3 (the Pilate Stone, Caesarea, 1961) — "Pickaxe Blow" by CreatorsHome, https://pixabay.com/sound-effects/film-special-effects-pickaxe-blow-333695/
+coins-counted.mp3 (the thirty pieces) — "Coins Counting" by yuliana-yurukova, https://pixabay.com/sound-effects/film-special-effects-coins-counting-275779/
+coins-thrown-down.mp3 (Judas returns the silver) — "Coins falling on the floor" by spinopel, https://pixabay.com/sound-effects/film-special-effects-coins-falling-on-the-floor-393251/
+cave-roof.mp3 (the Caiaphas tomb, 1990) — "Rocks Crumbling from room or cave" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-rocks-crumbling-from-room-or-cave-76827/

@@ -1,0 +1,10 @@
+The panels' moments (components/exhibition/PanelMoment.ts): each played once as its panel arrives. Trimmed, made mono, faded, levelled. Pixabay files under the Pixabay Content License.
+silk-rustle.mp3 (the court dress) — "Dancing in dress" by freesound_community, https://pixabay.com/sound-effects/household-dancing-in-dress-27326/
+steam-train.mp3 (the railways; home for Christmas) — "Steam Engine" by DebWong1951, https://pixabay.com/sound-effects/film-special-effects-steam-engine-624854/, then "Old train-steam-whistle" by Amber2023, https://pixabay.com/sound-effects/film-special-effects-old-train-steam-whistle-256872/
+telegraph.mp3 (Cooke and Wheatstone's telegraph) — "broadcast news keyer" by wcfl10, https://freesound.org/s/112773/ (CC0)
+camera.mp3 (the first photographs) — "Vintage Camera Flash Powder and Shutter" by freesound_community, https://pixabay.com/sound-effects/technology-vintage-camera-flash-powder-and-shutter-6243/
+crowd.mp3 (the Great Exhibition) — "happy crowd at interval" by freesound_community, https://pixabay.com/sound-effects/city-happy-crowd-at-interval-23485/
+sleigh-bells.mp3 (the royal Christmas tree) — "Sleigh Bells" by MissyWhimsyArt, https://pixabay.com/sound-effects/film-special-effects-sleigh-bells-272151/
+cracker.mp3 (Tom Smith's crackers) — "partypopper" by Streety, https://freesound.org/s/26349/ (CC0), with a moment of "happy crowd at interval" (above)
+merry-christmas.mp3 (A Christmas Carol) — "MERRY-CHRISTMAS" by freesound_community, https://pixabay.com/sound-effects/people-merry-christmas-38071/
+church-bells.mp3 (Scrooge's Christmas morning) — "church bells" by jasonlee3071, https://pixabay.com/sound-effects/city-church-bells-194653/

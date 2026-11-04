@@ -299,7 +299,7 @@ export default function ResourcesPage() {
               <DownloadItem
                 name="Quick Teaching Guide"
                 subtitle="PDF • Overview & key concepts"
-                href="/resources/seeing-is-deceiving/Teaching Guide_ Optical Illusions & Visual Deception.pdf"
+                href="/resources/seeing-is-deceiving/Teaching-Guide-Optical-Illusions-and-Visual-Deception.pdf"
               />
               <DownloadItem
                 name="Teacher Explanation Sheet"

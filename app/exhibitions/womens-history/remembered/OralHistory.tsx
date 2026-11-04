@@ -176,9 +176,6 @@ export default function OralHistory({ onPrint }: { onPrint: (kind: PrintKind) =>
                 <textarea rows={3} value={notes[f.id]} maxLength={1500} onChange={(e) => setNotes({ ...notes, [f.id]: e.target.value })} />
               </label>
             ))}
-            <p className="whr-fact-source">
-              The last two questions are the guide’s own “Time to Reflect” questions. <FactSources sources={[ORAL_SOURCES[0]]} className="whr-fact-source" />
-            </p>
             <button type="button" className="whr-button whr-button-primary" onClick={() => onPrint('writeup')}>
               Print my write-up
             </button>
@@ -209,9 +206,6 @@ export default function OralHistory({ onPrint }: { onPrint: (kind: PrintKind) =>
             Next: {nextStep.label} <span aria-hidden="true">→</span>
           </button>
         )}
-        <p className="whr-oral-sources">
-          <FactSources sources={ORAL_SOURCES} className="whr-fact-source" />
-        </p>
       </div>
 
       {/* What prints: the interview sheet, or the write-up (never on screen). */}

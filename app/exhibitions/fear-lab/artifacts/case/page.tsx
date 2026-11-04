@@ -1,4 +1,5 @@
 import CasePage from '@/components/exhibition/CasePage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { FEAR_LAB, FEAR_LAB_CASE } from '../../fearLab';
 import '../../fear-lab.css';
 
@@ -8,5 +9,5 @@ import '../../fear-lab.css';
  * lab (what-scares-you), which opens from here.
  */
 export default function FearLabCase() {
-  return <CasePage config={FEAR_LAB} data={FEAR_LAB_CASE} />;
+  return <CasePage config={FEAR_LAB} data={FEAR_LAB_CASE} photos={casePhotosOnDisk(FEAR_LAB, FEAR_LAB_CASE)} />;
 }

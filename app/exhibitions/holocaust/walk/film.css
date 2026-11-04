@@ -1,0 +1,169 @@
+/* ==========================================================================
+   The film that opens the walk, full screen (Film.tsx): old film, drawn
+   here, nothing recorded. Black and white; a little flicker in the light,
+   grain, a slight weave in the gate, the odd scratch, a darkened edge; and
+   now and then, on a few pictures, their own color bleeding through for a
+   moment. The words in Special Elite, a typewriter face, as the documents
+   of the 1930s and 1940s were typed: the opening words as an old film's
+   title cards, framed alone on the dark; each line of the history over its
+   picture. Under reduced motion: no flicker, no weave, no scratches, no
+   fades, no bleed; one still frame at a time.
+   ========================================================================== */
+.hof-film { position: absolute; inset: 0; overflow: hidden; background: #050505; color: #ece7e1; }
+
+/* The gate: the frame weaves, very slightly, as old film does in the projector. */
+.hof-gate { position: absolute; inset: 0; animation: hof-weave 0.9s steps(1, end) infinite; }
+@keyframes hof-weave {
+  0% { transform: translate(0, 0); }
+  17% { transform: translate(0.6px, -0.8px); }
+  33% { transform: translate(-0.4px, 0.5px) rotate(0.03deg); }
+  51% { transform: translate(0.3px, 1px); }
+  68% { transform: translate(-0.7px, -0.3px) rotate(-0.03deg); }
+  84% { transform: translate(0.2px, 0.6px); }
+}
+
+/* Each frame: a picture filling the screen, in black and white; the one before fades as it comes. */
+.hof-layer { position: absolute; inset: 0; overflow: hidden; background: #070707; }
+.hof-layer.is-current { animation: hof-in 1.4s ease both; }
+.hof-layer.is-before { animation: hof-out 1.4s ease both; }
+@keyframes hof-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hof-out { 0%, 70% { opacity: 1; } 100% { opacity: 0; } }
+/* A title card: the dark, a little lighter at its middle, as a projector's light is. */
+.hof-layer.is-card { background: radial-gradient(ellipse 80% 80% at 50% 50%, #1b1a18, #070707); }
+.hof-layer .hos-walk-picture { margin: 0; width: 100%; height: 100%; color: #cfc8bf; }
+.hof-layer .hos-walk-picture img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.12) brightness(0.88);
+  transform-origin: 50% 45%;
+  animation: hof-drift 8s ease-out both;
+}
+@keyframes hof-drift { from { transform: scale(1.02); } to { transform: scale(1.07) translate(-0.5%, -0.5%); } }
+/* Now and then, on a picture, its color bleeds through for a moment, and is gone. */
+.hof-layer.is-bleed .hos-walk-picture img { animation: hof-drift 8s ease-out both, hof-bleed 5.5s ease both; }
+@keyframes hof-bleed {
+  0%, 38% { filter: grayscale(1) contrast(1.12) brightness(0.88); }
+  48% { filter: grayscale(0.25) contrast(1.05) brightness(0.92); }
+  56% { filter: grayscale(0.35) contrast(1.05) brightness(0.92); }
+  70%, 100% { filter: grayscale(1) contrast(1.12) brightness(0.88); }
+}
+/* Until the owner's picture is in: a dark silhouette, lit softly from behind, and a quiet note that it is to come. */
+.hof-layer .hos-walk-picture.is-placeholder { position: relative; display: flex; align-items: center; justify-content: center; }
+.hof-layer .hos-walk-picture svg { width: 70%; height: auto; max-height: 80%; overflow: visible; }
+.hos-walk-silhouette .is-rim { fill: #0b0a09; stroke: rgba(226, 222, 214, 0.42); stroke-width: 1; stroke-linejoin: round; }
+.hos-walk-silhouette .is-seam { fill: none; stroke: rgba(226, 222, 214, 0.16); stroke-width: 1; }
+.hos-walk-silhouette .is-warm-line { stroke: rgba(226, 222, 214, 0.55); stroke-width: 1.4; stroke-linecap: round; }
+.hos-walk-silhouette .is-flame { fill: rgba(236, 232, 224, 0.85); }
+.hos-walk-silhouette .is-flame-glow { fill: rgba(236, 232, 224, 0.1); }
+.hos-walk-picture .is-ground { stroke: rgba(207, 204, 198, 0.22); stroke-width: 1; }
+.hos-walk-tocome {
+  position: absolute;
+  left: 50%;
+  bottom: 8%;
+  translate: -50% 0;
+  white-space: nowrap;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(207, 204, 198, 0.45);
+}
+
+/* The words: each line over its picture, low on the screen, typed; the opening words framed alone, as a title card. */
+.hof-words {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  justify-content: center;
+  padding: 0 24px;
+  pointer-events: none;
+  animation: hof-in 1.4s ease 0.35s both;
+}
+.hof-words p {
+  margin: 0;
+  max-width: 34em;
+  padding: 0.55em 1em 0.6em;
+  font-family: 'Special Elite', 'Courier New', Courier, monospace;
+  font-size: clamp(1.1rem, 2.2vw, 2rem);
+  line-height: 1.45;
+  text-align: center;
+  text-wrap: balance;
+  color: #f1ede6;
+  background: rgba(6, 6, 6, 0.66);
+  text-shadow: 0 0 10px #000, 0 1px 2px #000;
+}
+.hof-words.is-card { top: 0; bottom: 0; align-items: center; }
+.hof-words.is-card p {
+  max-width: 26em;
+  padding: 1.3em 1.7em;
+  font-size: clamp(1.2rem, 2.6vw, 2.3rem);
+  line-height: 1.5;
+  background: transparent;
+  border: 3px double rgba(236, 231, 225, 0.5);
+}
+
+/* The old film over everything: grain, scratches, flicker and a darkened edge. */
+.hof-grain {
+  position: absolute;
+  inset: -40%;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='g'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 2.2 -1'/></filter><rect width='100%' height='100%' filter='url(%23g)'/></svg>");
+  animation: hof-grain 0.7s steps(1, end) infinite;
+}
+@keyframes hof-grain {
+  0% { transform: translate(0, 0); }
+  14% { transform: translate(-7%, 4%); }
+  28% { transform: translate(5%, -6%); }
+  42% { transform: translate(-3%, -9%); }
+  57% { transform: translate(8%, 3%); }
+  71% { transform: translate(-6%, 7%); }
+  85% { transform: translate(3%, -2%); }
+}
+.hof-scratches { position: absolute; inset: 0; pointer-events: none; }
+.hof-scratches i { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(240, 236, 228, 0.5); opacity: 0; }
+.hof-scratches i:nth-child(1) { left: 23%; animation: hof-scratch 7.3s steps(1, end) infinite; }
+.hof-scratches i:nth-child(2) { left: 71%; width: 2px; background: rgba(10, 10, 10, 0.55); animation: hof-scratch 11.9s steps(1, end) 2.1s infinite; }
+.hof-scratches i:nth-child(3) { left: 46%; animation: hof-scratch 17.7s steps(1, end) 5.3s infinite; }
+@keyframes hof-scratch {
+  0% { opacity: 0; transform: translateX(0); }
+  61% { opacity: 0.55; transform: translateX(0); }
+  63% { opacity: 0.4; transform: translateX(6px); }
+  65% { opacity: 0.5; transform: translateX(-3px); }
+  67% { opacity: 0; }
+}
+.hof-flicker { position: absolute; inset: 0; pointer-events: none; background: #000; opacity: 0; animation: hof-flicker 2.9s steps(1, end) infinite; }
+@keyframes hof-flicker {
+  0% { opacity: 0.04; } 9% { opacity: 0.1; } 13% { opacity: 0.02; } 27% { opacity: 0.07; } 34% { opacity: 0; }
+  48% { opacity: 0.09; } 52% { opacity: 0.03; } 66% { opacity: 0.12; } 70% { opacity: 0.04; } 83% { opacity: 0.08; } 91% { opacity: 0.01; }
+}
+.hof-vignette { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse 72% 70% at 50% 48%, transparent 52%, rgba(0, 0, 0, 0.55) 82%, rgba(0, 0, 0, 0.88) 100%); }
+
+/* The quiet way on to the walk. */
+.hos-walk-full .hof-skip { border-color: rgba(236, 231, 225, 0.22); color: #a39b92; background: rgba(5, 5, 5, 0.5); }
+
+@media (max-width: 760px) {
+  .hof-words { bottom: calc(120px + env(safe-area-inset-bottom, 0px)); padding: 0 12px; }
+  .hof-words p { font-size: 1.05rem; }
+  .hof-words.is-card p { font-size: 1.15rem; padding: 1em 1.1em; }
+}
+@media (min-width: 1600px) {
+  .hof-words p { font-size: 2.4rem; }
+}
+
+/* Reduced motion: one still frame at a time; no flicker, weave, scratch, fade or bleed. */
+.hof-film.is-still .hof-gate,
+.hof-film.is-still .hof-grain,
+.hof-film.is-still .hof-layer,
+.hof-film.is-still .hof-words,
+.hof-film.is-still .hos-walk-picture img { animation: none; }
+.hof-film.is-still .hof-scratches,
+.hof-film.is-still .hof-flicker { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .hof-gate, .hof-grain, .hof-layer, .hof-words, .hof-layer .hos-walk-picture img { animation: none; }
+  .hof-scratches, .hof-flicker { display: none; }
+}

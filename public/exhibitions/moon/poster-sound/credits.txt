@@ -1,0 +1,4 @@
+The posters' music (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet.
+poster1.mp3 (Our Incredible Moon) — "Clair De Lune - Debussy (Soft Piano)" by Saturn-3-Music, https://pixabay.com/music/solo-piano-clair-de-lune-debussy-soft-piano-411227/ (Pixabay Content License). Debussy, 1905.
+poster2.mp3 (Another Earth) and posters.mp3 — "Ambient soundscapes 001 (space atmosphere)" by AudioPapkin, https://pixabay.com/sound-effects/film-special-effects-ambient-soundscapes-001-space-atmosphere-303246/ (Pixabay Content License). First 120 s.
+floor.mp3 — a copy of poster2.mp3 (the space atmosphere): heard from the doorway in the floor's hall (components/FloorSound.ts).

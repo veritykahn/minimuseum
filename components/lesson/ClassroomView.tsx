@@ -1,9 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import type { Lesson } from '@/lib/lessons/types';
-import { StepStage } from './StepStage';
+import { StepStage, lessonSourceGroups } from './StepStage';
 import { Notes } from './Notes';
 import { useLessonSession } from './useLessonSession';
 import { useLessonKeys, releaseAfterPointer } from './useLessonKeys';
@@ -15,7 +16,9 @@ type Props = { lesson: Lesson; basePath: string };
 /**
  * The classroom view: what goes on the projector. One screen can run the
  * whole lesson (N shows the notes beside the frame); with two, the
- * presenter view opens in its own window and both stay in step.
+ * presenter view opens in its own window and both stay in step. The
+ * pictures' and recordings' credits are behind the small "i" in the tool
+ * bar (SourcesDrawer), not on the frame.
  */
 export function ClassroomView({ lesson, basePath }: Props) {
   const { session, now, dispatch, minutes } = useLessonSession(lesson);
@@ -23,6 +26,7 @@ export function ClassroomView({ lesson, basePath }: Props) {
   const [fullscreen, setFullscreen] = useState(false);
   const toggleNotes = useCallback(() => setNotes((v) => !v), []);
   useLessonKeys(dispatch, toggleNotes);
+  const sources = useMemo(() => lessonSourceGroups(lesson), [lesson]);
 
   // ?notes=1 opens with the notes showing, for a one-screen classroom
   useEffect(() => {
@@ -63,6 +67,7 @@ export function ClassroomView({ lesson, basePath }: Props) {
       <Link href={basePath} className={styles.tool}>
         <span aria-hidden="true">←</span> Lessons
       </Link>
+      <SourcesDrawer groups={sources} inline buttonClassName={styles.sourcesTool} />
       <span className={styles.toolsGap} />
       <button
         type="button"

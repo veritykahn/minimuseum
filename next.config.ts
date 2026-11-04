@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const SITE_URL = 'https://www.minimuseumproject.org';
 
+// The engine-built exhibitions, whose landing, case and artifact pages look
+// in public/exhibitions/<slug>/case/ for the owner's photographs
+// (components/exhibition/casePhotos.ts).
+const CASE_PHOTO_EXHIBITIONS = ['great-war', 'egypt', 'moon', 'victorian', 'womens-history', 'holocaust', 'black-history', 'writing-revolution', 'america-250', 'fear-lab'];
+
 const nextConfig: NextConfig = {
   // One address for Google. minimuseumproject.com (with or without www)
   // permanently redirects to the same page on www.minimuseumproject.org, so
@@ -28,7 +33,16 @@ const nextConfig: NextConfig = {
   outputFileTracingExcludes: {
     '/exhibitions/fear-lab/what-scares-you': ['public/**'],
     '/exhibitions/great-war/silence': ['public/**'],
-    '/exhibitions/holocaust/stones': ['public/**'],
+    '/exhibitions/holocaust/walk': ['public/**'],
+    // The floors read their rooms' sounds (floorSoundsOnDisk).
+    '/exhibitions/ground-floor': ['public/**'],
+    '/exhibitions/first-floor': ['public/**'],
+    '/exhibitions/second-floor': ['public/**'],
+    // Each key matches every route that contains it (Next matches with
+    // `contains`), so one per exhibition covers its landing page, its case
+    // page and its artifacts' pages. The landing pages also read their room
+    // sounds (components/exhibition/posterSounds.ts).
+    ...Object.fromEntries(CASE_PHOTO_EXHIBITIONS.map((slug) => [`/exhibitions/${slug}`, ['public/**']])),
   },
 
   // Tell search engines the preferred address of every page with a

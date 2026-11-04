@@ -53,6 +53,7 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 .pl-lab .pl-link[aria-current='page'] { color: var(--pl-ink); text-decoration-thickness: 3px; }
 .pl-count-badge { display: inline-block; min-width: 1.6em; padding: 0 6px; margin-left: 4px; border-radius: 999px; background: var(--pl-blue); color: #0a0a0a; font-size: 0.8em; text-align: center; text-decoration: none; }
 .pl-teach { color: var(--pl-blue); font-family: var(--pl-sans); }
+.pl-top-short { display: none; }
 
 .pl-main { padding: 0 max(16px, 3vw) 48px; max-width: 1500px; margin: 0 auto; }
 
@@ -114,33 +115,43 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 .pl-moves { margin-left: auto; font-size: 0.7em; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pl-sepia); border: 1px solid var(--pl-sepia); border-radius: 999px; padding: 0 8px; }
 .pl-tick + .pl-moves { margin-left: 8px; }
 
-/* ───────── An illusion's station ───────── */
-.pl-station { display: flex; flex-direction: column; gap: 18px; }
-.pl-station-head { display: flex; flex-direction: column; gap: 8px; }
+/* ───────── An illusion's station: one fixed layout (B2.4) ─────────
+   The station fills the screen under the top bar: its head; the stage,
+   which is the picture's fixed box and the task panel beside it (under it on
+   a phone or an upright iPad), the panel scrolling on its own; and Previous
+   and Next pinned at the foot, between the Sources button (bottom left) and
+   the Map button (bottom right). Nothing in it grows with its content, so
+   from step to step only the content changes. */
+.pl-lab[data-view='illusion'] { height: 100vh; height: 100dvh; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.pl-lab[data-view='illusion'] .pl-main { flex: 1; min-height: 0; width: 100%; padding-bottom: 0; }
+.pl-station { height: 100%; display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 14px; }
+.pl-station-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 24px; }
+.pl-station-head .pl-bench-label { flex-basis: 100%; }
 .pl-bench-label { font-size: 0.8em; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pl-sepia); }
-.pl-name-h { font-family: var(--pl-serif); font-weight: 400; font-size: clamp(2rem, 4.4vw, 3.2rem); line-height: 1.05; outline: none; }
-.pl-steps { display: flex; gap: 6px; padding: 5px; border: 1px solid var(--pl-line); border-radius: 999px; align-self: flex-start; flex-wrap: wrap; }
-.pl-lab .pl-step { appearance: none; min-height: 48px; padding: 8px 22px; border: 0; border-radius: 999px; background: transparent; color: var(--pl-muted); font: inherit; font-size: 0.95em; cursor: pointer; }
+.pl-name-h { font-family: var(--pl-serif); font-weight: 400; font-size: clamp(1.8rem, 3.4vw, 2.8rem); line-height: 1.05; outline: none; }
+.pl-steps { display: flex; gap: 6px; padding: 5px; border: 1px solid var(--pl-line); border-radius: 999px; }
+.pl-lab .pl-step { appearance: none; min-height: 48px; padding: 8px 22px; border: 0; border-radius: 999px; background: transparent; color: var(--pl-muted); font: inherit; font-size: 0.95em; cursor: pointer; white-space: nowrap; }
 .pl-lab .pl-step:hover { color: var(--pl-ink); }
 .pl-lab .pl-step[aria-selected='true'] { background: var(--pl-blue); color: #0a0a0a; font-weight: 500; }
 
-.pl-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
-  grid-template-areas: 'fig instr' 'fig task' 'fig side';
-  grid-template-rows: auto auto 1fr;
-  gap: 18px 32px;
-  align-items: start;
+.pl-stage { min-height: 0; display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px 32px; }
+.pl-stage-wait { display: block; overflow-y: auto; }
+/* The picture's box: a fixed size, the picture fitted inside it whole, never cropped. */
+.pl-figure { min-width: 0; min-height: 0; margin: 0; display: flex; justify-content: center; align-items: center; container-type: size; }
+.pl-svg {
+  display: block;
+  width: min(100cqw, calc(100cqh * var(--ar, 1.5)));
+  height: min(100cqh, calc(100cqw / var(--ar, 1.5)));
+  border-radius: 6px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
 }
-.pl-work { display: contents; }
-.pl-figure { grid-area: fig; display: flex; justify-content: center; align-items: center; min-width: 0; }
-.pl-instr { grid-area: instr; display: flex; flex-direction: column; gap: 14px; }
-.pl-task { grid-area: task; display: flex; flex-direction: column; gap: 16px; }
-.pl-side { grid-area: side; display: flex; flex-direction: column; gap: 14px; }
-.pl-station[data-step='why'] .pl-task { display: none; }
+.pl-panel { min-height: 0; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 16px; padding: 2px 8px 18px 2px; }
+.pl-panel:focus-visible { outline-offset: -3px; }
+.pl-instr { display: flex; flex-direction: column; gap: 14px; }
+.pl-task-slot, .pl-task { display: flex; flex-direction: column; gap: 16px; }
+.pl-task-slot:empty { display: none; }
+.pl-lab .pl-onward { align-self: flex-start; }
 .pl-q-big { font-size: 1.2em; line-height: 1.4; }
-.pl-svg { display: block; width: 100%; height: auto; max-height: 72vh; border-radius: 6px; box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55); }
-.pl-svg.pl-square { max-width: min(100%, 72vh); }
 .pl-drag { touch-action: none; cursor: ew-resize; }
 .pl-svg-label { font: 600 30px var(--pl-sans); }
 .pl-svg-small { font: 20px var(--pl-sans); fill: #3b2a1c; }
@@ -163,7 +174,8 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 .pl-lab :is(.pl-fact-big-source, .pl-fact-source, .pl-sources) a { color: var(--pl-blue); text-underline-offset: 3px; }
 .pl-lab .pl-more { align-self: flex-start; }
 
-.pl-noted { padding: 12px 14px; background: rgba(143, 224, 165, 0.08); border-left: 4px solid #8fe0a5; }
+.pl-noted { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; background: rgba(143, 224, 165, 0.08); border-left: 4px solid #8fe0a5; font-size: 0.9em; }
+.pl-noted strong { font-weight: 500; color: #8fe0a5; }
 .pl-noted-label { display: block; font-size: 0.7em; letter-spacing: 0.16em; text-transform: uppercase; color: #8fe0a5; }
 .pl-teacher-tip { font-size: 0.8em; color: var(--pl-sepia); }
 
@@ -172,21 +184,25 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 .pl-chip-name { color: #fff; font-size: 0.9em; }
 
 /* The motion warning */
-.pl-warning { max-width: 720px; display: flex; flex-direction: column; gap: 16px; padding: 24px; border: 2px solid var(--pl-sepia); background: rgba(201, 166, 107, 0.08); border-radius: 8px; }
+.pl-warning { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; padding: 24px; border: 2px solid var(--pl-sepia); background: rgba(201, 166, 107, 0.08); border-radius: 8px; }
 .pl-warning h2 { font-family: var(--pl-serif); font-weight: 500; font-size: 1.6em; }
 
-.pl-pager { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 76px 0 0; border-top: 1px solid var(--pl-line); }
+/* Previous and Next: pinned at the foot, between the Sources button (left, about 120px) and the Map button (right, 80px). */
+.pl-pager { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 96px 16px 136px; border-top: 1px solid var(--pl-line); }
+.pl-pager-short { display: none; }
+.pl-lab .pl-pager .pl-btn { white-space: nowrap; min-width: 0; }
+.pl-pager-full { overflow: hidden; text-overflow: ellipsis; }
 
 /* Stroop and Paris, drawn in HTML */
-.pl-stroop { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(8px, 2vw, 20px); width: 100%; padding: clamp(16px, 3vw, 36px); background: #161616; border-radius: 6px; }
+.pl-stroop { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(8px, 2vw, 20px); width: min(100%, 170cqh); padding: clamp(16px, 3vw, 36px); background: #161616; border-radius: 6px; }
 .pl-stroop-patch { aspect-ratio: 2 / 1; border-radius: 6px; }
 .pl-stroop-word { display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: clamp(1.1rem, 3.2vw, 2.6rem); letter-spacing: 0.04em; min-height: 2.2em; }
-.pl-sign { width: min(100%, 560px); aspect-ratio: 1.1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 4px; padding: 34% 12% 12%; background: #f2c230; clip-path: polygon(50% 0, 100% 100%, 0 100%); color: #111; }
+.pl-sign { --sign: min(100cqw, 560px, 110cqh); width: var(--sign); aspect-ratio: 1.1; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px; padding: 32% 12% 11%; background: #f2c230; clip-path: polygon(50% 0, 100% 100%, 0 100%); color: #111; }
 .pl-sign-row { display: flex; gap: 0.4em; }
-.pl-lab .pl-word { appearance: none; border: 0; background: none; padding: 2px 4px; min-height: 48px; font: 700 clamp(1.3rem, 4vw, 2.4rem) var(--pl-sans); letter-spacing: 0.05em; color: #111; cursor: pointer; border-radius: 4px; }
+.pl-lab .pl-word { appearance: none; border: 0; background: none; padding: 0.12em 0.18em; min-height: 0; font: 700 calc(var(--sign) * 0.072) var(--pl-sans); letter-spacing: 0.05em; color: #111; cursor: pointer; border-radius: 4px; }
 .pl-lab .pl-word[aria-pressed='true'] { background: rgba(0, 0, 0, 0.12); }
 .pl-lab .pl-word[data-wrong] { background: #111; color: #f2c230; }
-.pl-sign-line { aspect-ratio: auto; clip-path: none; padding: 28px; border-radius: 8px; font: 700 clamp(1.2rem, 3.2vw, 2.2rem) var(--pl-sans); text-align: center; }
+.pl-sign-line { width: min(100%, 720px); aspect-ratio: auto; clip-path: none; padding: 28px; border-radius: 8px; font: 700 clamp(1.2rem, 3.2vw, 2.2rem) var(--pl-sans); text-align: center; }
 
 /* Fraser: the ring traced */
 .pl-trace { animation: pl-trace 3.5s ease-in-out both; }
@@ -222,31 +238,54 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 .pl-nb-bench li .pl-stamp { color: #c8bfae; width: 36px; height: 36px; }
 .pl-nb-bench li[data-done] .pl-stamp { color: #2e86c1; }
 .pl-nb-bench p { font-size: 0.85em; line-height: 1.35; color: #333; }
+.pl-nb-when { font-weight: 500; color: #6b5a44; }
 .pl-lab .pl-nb-name { appearance: none; border: 0; background: none; padding: 0; font: inherit; font-weight: 600; font-size: 0.9em; color: #1a1a1a; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 32px; text-align: left; }
 .pl-nb-fp { padding: 0; overflow: hidden; }
 .pl-fp-card { display: block; width: 100%; height: auto; }
 
-/* ───────── iPad and phone: one column ───────── */
+/* ───────── An upright iPad and a phone: the picture on top, the task under it ───────── */
+@media (max-width: 1000px) and (orientation: portrait), (max-width: 700px) {
+  .pl-stage { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 46fr) minmax(0, 54fr); }
+}
 @media (max-width: 1000px) {
-  .pl-grid { grid-template-columns: 1fr; grid-template-areas: 'instr' 'fig' 'task' 'side'; grid-template-rows: none; }
-  .pl-svg { max-height: 60vh; }
-  .pl-svg.pl-square { max-width: min(100%, 60vh); }
   .pl-print { grid-template-columns: 1fr; }
   .pl-nb-fp { max-width: 600px; }
 }
 @media (max-width: 600px) {
-  .pl-top { padding: 12px 16px; }
+  .pl-top { padding: 10px 16px; gap: 4px 12px; flex-wrap: nowrap; }
+  .pl-top-links { gap: 2px; flex-wrap: nowrap; }
+  .pl-lab .pl-link { padding: 8px 8px; }
+  .pl-top-full { display: none; }
+  .pl-top-short { display: inline; }
+  .pl-bench-label { font-size: 0.7em; letter-spacing: 0.1em; }
   .pl-nav-label { display: none; }
   .pl-main { padding: 0 16px 40px; }
   .pl-lab .pl-btn { padding: 10px 14px; }
-  .pl-pager .pl-btn { flex: 1; }
+  .pl-lab[data-view='illusion'] { --pl-text: 18px; }
+  .pl-station { gap: 10px; }
+  .pl-station-head { gap: 4px 14px; }
+  .pl-name-h { font-size: 1.7rem; }
+  .pl-lab .pl-step { padding: 6px 14px; min-height: 44px; }
+  .pl-stage { gap: 12px; }
+  /* Previous (an arrow) and Next fit between the Sources and Map buttons. */
+  /* The Sources button ends 110px in, the Map button starts 64px from the right edge (16px of it the gutter). */
+  .pl-pager { padding: 8px 56px 16px 102px; gap: 8px; }
+  .pl-lab .pl-pager .pl-btn { padding: 10px 12px; }
+  .pl-pager-full, .pl-pager-prev-word { display: none; }
+  .pl-pager-short { display: inline; }
   .pl-vote-row { grid-template-columns: 1fr 2em 52px 52px; }
   .pl-vote-bar { grid-column: 1 / -1; grid-row: 2; }
 }
 
+/* Between a phone and a tablet the Map button is its full 56px again, 24px in. */
+@media (min-width: 481px) and (max-width: 600px) {
+  .pl-pager { padding-right: 72px; }
+}
+
 /* Class mode: bigger still, the illusion filling the screen. */
-.pl-lab[data-teach] .pl-grid { grid-template-columns: minmax(0, 1.8fr) minmax(360px, 1fr); }
-.pl-lab[data-teach] .pl-svg { max-height: 78vh; }
+@media (min-width: 701px) and (orientation: landscape) {
+  .pl-lab[data-teach] .pl-stage { grid-template-columns: minmax(0, 1.8fr) minmax(360px, 1fr); }
+}
 .pl-lab[data-teach] .pl-btn { min-height: 64px; }
 
 @media (prefers-reduced-motion: reduce) {
@@ -256,7 +295,7 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 
 /* ───────── Printing the notebook: Letter, the notebook then the fingerprint ───────── */
 @media print {
-  body:has(.pl-lab) { background: #fff !important; }
+  html:has(.pl-lab), body:has(.pl-lab) { background: #fff !important; }
   .pl-lab { background: #fff; color: #000; --pl-text: 11pt; min-height: 0; }
   .pl-lab :is(.pl-top, .pl-nb-tools, .pl-foot, .pl-station, .pl-intro) { display: none !important; }
   body:has(.pl-lab) .map-toggle-btn { display: none !important; }
@@ -266,10 +305,13 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
   .pl-nb-page:last-child { break-after: auto; page-break-after: auto; }
   .pl-nb-title { font-size: 22pt; }
   .pl-nb-benches { display: block; columns: 2; column-gap: 0.35in; }
-  .pl-nb-bench { break-inside: avoid; margin-bottom: 10pt; }
-  .pl-nb-bench ul { gap: 4pt; }
-  .pl-nb-bench li .pl-stamp { width: 20pt; height: 20pt; }
-  .pl-nb-bench p { font-size: 9pt; }
+  /* Before and after for all nineteen still fit on one Letter page. */
+  .pl-nb-bench { break-inside: avoid; margin-bottom: 7pt; }
+  .pl-nb-bench h3 { margin-bottom: 3pt; }
+  .pl-nb-bench ul { gap: 3pt; }
+  .pl-nb-bench li { gap: 8pt; }
+  .pl-nb-bench li .pl-stamp { width: 18pt; height: 18pt; }
+  .pl-nb-bench p { font-size: 8pt; line-height: 1.25; }
   .pl-lab .pl-nb-name { font-size: 9.5pt; min-height: 0; }
   .pl-nb-fp { max-width: none; display: flex; justify-content: center; }
   .pl-fp-card { width: 7.2in; height: 9.6in; }

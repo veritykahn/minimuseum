@@ -290,12 +290,8 @@ export default function SilenceFilm({ returnLink, owned = [] }: { returnLink?: R
             <figure className="gws-photo">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={IWM.trench.src} alt={IWM.trench.alt} width={IWM.trench.width} height={IWM.trench.height} />
-              <figcaption>
-                {IWM.trench.description}{' '}
-                <a href={IWM.trench.url} target="_blank" rel="noopener noreferrer">
-                  {IWM.trench.credit}
-                </a>
-              </figcaption>
+              {/* Its credit, IWM (Q 1), and its licence are in the room's Sources drawer (sources.ts). */}
+              <figcaption>{IWM.trench.description}</figcaption>
             </figure>
           )}
 
@@ -311,7 +307,6 @@ export default function SilenceFilm({ returnLink, owned = [] }: { returnLink?: R
                 <span className="gws-hour-date">11.11.1918</span>
                 <span className="gws-hour-time">{pastHour ? '11:00' : '10:59'}</span>
               </div>
-              <p className="gws-strip-credit">{RECORD.redrawnCredit}</p>
             </div>
           )}
 
@@ -323,11 +318,9 @@ export default function SilenceFilm({ returnLink, owned = [] }: { returnLink?: R
               <figure className="gws-iwm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={IWM.record.src} alt={IWM.record.alt} width={IWM.record.width} height={IWM.record.height} loading="lazy" />
+                {/* Its credit, © IWM (Q 47886), and its licence are in the room's Sources drawer (sources.ts). */}
                 <figcaption>
-                  <span>The record itself. {IWM.record.description}</span>{' '}
-                  <a href={IWM.record.url} target="_blank" rel="noopener noreferrer">
-                    {IWM.record.credit}
-                  </a>
+                  <span>The record itself. {IWM.record.description}</span>
                 </figcaption>
               </figure>
               <a className="gw-button gw-button-link" href={IWM.reconstruction.url} target="_blank" rel="noopener noreferrer">

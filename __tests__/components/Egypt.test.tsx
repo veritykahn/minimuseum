@@ -156,6 +156,7 @@ describe('The Ancient Egypt display case page', () => {
     render(<EgyptCase />);
     expect(screen.getByRole('heading', { level: 1, name: 'Ancient Egypt' })).toBeInTheDocument();
     // Every line of the record is kept: the objects' lines (each object a card) and the display's.
+    // The scarab shares the Anubis line in the record; its own text is its card's `about`.
     expect(recordLines(EGYPT_CASE).map(plainText)).toEqual([
       'Hand-crafted replica Bastet statue, goddess of protection and cats',
       'Replica Anubis statue, god of mummification, and a scarab beetle amulet',
@@ -166,7 +167,7 @@ describe('The Ancient Egypt display case page', () => {
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(EGYPT_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(JSON.stringify([EGYPT, EGYPT_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/egypt');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/egypt');

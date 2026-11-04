@@ -1,0 +1,3 @@
+The posters' music (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet.
+poster1.mp3 (Women's History) — "Clara Schumann - Notturno / Nocturne in F Major - Op. 6, No. 2" by GregorQuendel, https://pixabay.com/music/solo-piano-clara-schumann-notturno-nocturne-in-f-major-op-6-no-2-298389/ (Pixabay Content License). Clara Schumann, 1836.
+poster2.mp3 (Working Woman's: Violet) — "Cinematic Nostalgia 1940s Piano" by KonstantinPazuzuStudio, https://pixabay.com/music/modern-classical-cinematic-nostalgia-1940s-piano-525157/ (Pixabay Content License)

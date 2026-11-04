@@ -1,0 +1,75 @@
+/* ==========================================================================
+   A Minute's Stillness: the words of Martin Niemöller beside the memorial
+   stone (its scene is stones/memorial-stone.css), and the veil that dims the
+   room for the minute, with one prompt at a time. No sound, nothing bright.
+   ========================================================================== */
+.hos-panel-stillness { top: max(25vh, 216px); }
+.hos-stillness { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+/* The words of Martin Niemöller, as poster 2 sets them: tall condensed capitals. */
+.hos-quote { display: flex; flex-direction: column; gap: 12px; }
+.hos-quote p {
+  font-family: var(--hos-tall);
+  font-size: clamp(1.25rem, 1.9vw, 1.6rem);
+  line-height: 1.3;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--hos-pale);
+}
+.hos-quote footer { font-family: var(--pe-body); font-style: italic; font-size: 1rem; color: var(--hos-muted); }
+
+/* While the stillness lasts, the stone dims a little more. */
+.hos-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Dark enough that the words behind fall away: only the line and the minute are left. */
+  background: radial-gradient(ellipse at 50% 45%, rgba(14, 13, 12, 0.965), rgba(5, 5, 5, 0.99) 70%);
+  color: #ece7e1;
+  animation: hos-dim 3s ease both;
+}
+.hos-veil.is-leaving { animation: hos-undim 1.5s ease both; pointer-events: none; }
+.hos-veil-inner { display: flex; flex-direction: column; align-items: center; gap: 26px; padding: 24px; text-align: center; }
+.hos-veil-title { font-family: 'Anton', 'Impact', sans-serif; font-size: clamp(1.6rem, 4vw, 2.4rem); letter-spacing: 0.06em; text-transform: uppercase; color: #d6cfc7; }
+.hos-veil-line { display: block; width: min(420px, 72vw); height: 1px; background: rgba(236, 231, 225, 0.12); }
+.hos-veil-line span { display: block; height: 100%; background: #d6cfc7; transform-origin: center; transition: transform 1s linear; }
+.hos-veil-time { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 13px; letter-spacing: 0.2em; color: #a39b92; font-variant-numeric: tabular-nums; }
+.hos-veil .hos-button { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; }
+.hos-veil .hos-button:focus-visible { outline: 2px solid #d6cfc7; outline-offset: 3px; }
+/* The close: a word of thanks, and the two ways on, side by side. */
+.hos-veil-close-text { max-width: 30em; font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: clamp(1.05rem, 1.9vw, 1.5rem); line-height: 1.5; color: #ece7e1; text-wrap: balance; animation: hos-dim 2s ease both; }
+.hos-veil-back { border-color: rgba(236, 231, 225, 0.25); color: #a39b92; }
+.hos-veil-hint { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 12px; letter-spacing: 0.08em; color: #8a837b; }
+
+/* ───────── The stillness: one prompt at a time, with its source ───────── */
+.hos-veil-prompt-area { display: flex; align-items: center; justify-content: center; width: min(760px, 88vw); min-height: clamp(150px, 26vh, 260px); }
+.hos-veil-prompt { display: flex; flex-direction: column; align-items: center; gap: 12px; animation: hos-prompt 12s ease both; }
+.hos-veil-prompt-text { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: clamp(1.15rem, 2.3vw, 1.85rem); line-height: 1.5; color: #ece7e1; text-wrap: balance; }
+.hos-veil-prompt-text strong { font-weight: 600; color: #f4efe8; }
+.hos-veil-prompt.is-words .hos-veil-prompt-text { font-style: italic; }
+.hos-veil-prompt.is-question .hos-veil-prompt-text { color: #d6cfc7; }
+.hos-veil-prompt-cite { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: clamp(0.85rem, 1.2vw, 1rem); color: #a39b92; }
+.hos-veil-prompt-source { font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif; font-size: 11px; letter-spacing: 0.04em; color: #8a837b; }
+.hos-veil-prompt-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+@keyframes hos-prompt { 0% { opacity: 0; } 14% { opacity: 1; } 86% { opacity: 1; } 100% { opacity: 0; } }
+
+@media (max-width: 760px) {
+  .hos-panel-stillness { max-height: 50dvh; }
+  .hos-stillness { gap: 14px; }
+  .hos-quote p { font-size: 1.05rem; }
+  .hos-veil-prompt-area { min-height: 200px; }
+}
+@media (min-width: 1600px) {
+  .hos-veil-prompt-source { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hos-veil-line span { transition: none; }
+  .hos-veil,
+  .hos-veil.is-leaving { animation: none; }
+  .hos-veil.is-leaving { display: none; }
+  .hos-veil-prompt { animation: none; }
+}

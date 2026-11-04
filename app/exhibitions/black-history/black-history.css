@@ -475,6 +475,8 @@
   /* On a phone the ring steps back to the corners and the lockups go small. */
   [data-exhibition='black-history'] .pe-atmo-vignette-ring .bh-vignette { width: 70px; opacity: 0.5; box-shadow: 0 0 0 4px #c5da3b, 0 0 0 6px #141414; }
   [data-exhibition='black-history'] .pe-atmo-vignette-ring :is(.bh-vignette-3, .bh-vignette-4) { display: none; }
+  /* With the ring in the corners, the copy takes the room between them (the wide-screen measure left a column a word wide). */
+  [data-exhibition='black-history'] [data-atmosphere='vignette-ring'] .pe-text-content-wrapper .pe-paragraph-text { max-width: calc(100vw - 2 * 60px); }
   [data-exhibition='black-history'] .pe-atmo-vignette-ring .bh-vignette-1 { top: 2vh; left: -4vw; }
   [data-exhibition='black-history'] .pe-atmo-vignette-ring .bh-vignette-2 { top: 2vh; right: -4vw; }
   [data-exhibition='black-history'] .pe-atmo-vignette-ring .bh-vignette-5 { bottom: 2vh; left: -4vw; }

@@ -517,7 +517,8 @@
   /* The scene no taller than its drawings need, so the card below has the room. */
   .vb-inventions .vbr-stage { --scene-h: min(42dvh, 90vw * 0.62); --vbr-top: 122px; }
   .vb-inventions .vbr-card { padding-bottom: calc(var(--vb-edge) + 10px); }
-  .vb-inventions .vbi-foot { margin-right: 64px; }
+  /* The card's foot clear of the Sources button (bottom left) and the Map button (bottom right). */
+  .vb-inventions .vbi-foot { margin-right: 64px; margin-left: 100px; }
 }
 
 /* ───────── A laptop's short screen: the cards drawn closer ───────── */
@@ -539,9 +540,8 @@
   /* The scene starts below the tabs, never under them. */
   .vbr-stage.vbi-stage { --scene-h: 34dvh; --vbr-top: 134px; }
   .vbr-stage.vbi-stage[data-tab='telegraph'] { --scene-h: 40dvh; }
-  .vb-inventions .vbr-card { gap: 7px; padding-bottom: calc(var(--vb-edge) + 8px); }
-  /* The card's foot clear of the map's button in the corner. */
-  .vb-inventions .vbi-foot { margin-right: 58px; }
+  /* The card's foot sits above the Sources and Map buttons in the bottom corners. */
+  .vb-inventions .vbr-card { gap: 7px; padding-bottom: calc(var(--vb-edge) + 62px); }
   .vbi-map-name { font-size: 30px; }
   .vbi-mini-name { font-size: 24px; }
   .vbi-mini-time { font-size: 26px; }

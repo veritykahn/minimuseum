@@ -3,6 +3,7 @@ import ArtifactPage from '@/components/exhibition/ArtifactPage';
 import CasePage from '@/components/exhibition/CasePage';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { roomReturn } from '@/components/exhibition/helpers';
+import { roomsInOrder } from '@/components/exhibition/roomsInOrder';
 import AmericaRoomShell from '@/app/exhibitions/america-250/RoomShell';
 import FearLabRoomShell from '@/app/exhibitions/fear-lab/RoomShell';
 import { artifactParams, artifactPath, casePath, findArtifact, plainText, posterTitle } from '@/components/exhibition/artifacts';
@@ -51,11 +52,11 @@ describe.each(cases)('%s display case', (slug, { config, data }) => {
     const cards = screen.getAllByRole('link', { name: /View artifact/ });
     expect(cards.map((c) => c.getAttribute('href'))).toEqual(data.artifacts.map((a) => `${casePath(config)}/${a.id}`));
     for (const [i, a] of data.artifacts.entries()) expect(cards[i]).toHaveTextContent(plainText(a.name));
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
   });
 
-  it('lists its interactive rooms under the "Interactives" tab on the case page, and not on the landing page', () => {
-    const rooms = config.interactives ?? [];
+  it('lists its interactive rooms under the "Interactives" tab on the case page, and in the landing page\'s Explore row', () => {
+    const rooms = roomsInOrder(config.interactives);
     window.history.replaceState(null, '', casePath(config));
     const { unmount } = render(<CasePage config={config} data={data} />);
     if (rooms.length) {
@@ -79,7 +80,9 @@ describe.each(cases)('%s display case', (slug, { config, data }) => {
     unmount();
     window.history.replaceState(null, '', '/');
     render(<PosterExhibition config={config} />);
-    for (const r of rooms) expect(document.querySelector(`a[href="${r.href}"]`)).toBeNull();
+    // Below the posters and cases, not among them.
+    for (const r of rooms) expect(document.querySelector(`.pe-landing-row a[href="${r.href}"]`)).toBeNull();
+    expect(Array.from(document.querySelectorAll('.pe-explore a')).map((a) => a.getAttribute('href'))).toEqual(rooms.map((r) => r.href));
     // The rooms go back to the case they open from, at its Interactives.
     expect(roomReturn(config)).toEqual({ href: `${casePath(config)}?view=interactives`, label: 'Display Case' });
   });

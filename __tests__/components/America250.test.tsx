@@ -16,6 +16,14 @@ import {
 import { isAddedPanel } from '@/components/exhibition/helpers';
 import { floorReturnFor } from '@/lib/floors';
 
+/** The open panel's sources and credits, behind the small "i": opens the drawer, returns its "This panel" list. */
+const thisPanelSources = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return within(screen.getByRole('dialog', { name: 'Sources and credits' })).getByRole('list', { name: 'This panel' });
+};
+const closeSources = () => fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
+
+
 /*
  * America 250: its config, the poster copy against the transcription (with
  * only the owner's seven approved fixes), the paintings' credits, and the
@@ -215,11 +223,12 @@ describe('America 250', () => {
     });
     afterEach(() => jest.useRealTimers());
 
-    it('sets the display case on the landing page, and the signing room inside it', () => {
+    it('sets the display case on the landing page, and the signing room inside it and in the Explore row below', () => {
       render(<PosterExhibition config={AMERICA_250} />);
       expect(screen.getByRole('heading', { level: 1, name: 'America 250' })).toBeInTheDocument();
       expect(screen.getByRole('link', { name: /display case/i })).toHaveAttribute('href', '/exhibitions/america-250/artifacts/case');
-      expect(document.querySelector('a[href="/exhibitions/america-250/sign"]')).toBeNull();
+      expect(document.querySelector('.pe-landing-row a[href="/exhibitions/america-250/sign"]')).toBeNull();
+      expect(document.querySelector('.pe-explore a[href="/exhibitions/america-250/sign"]')).not.toBeNull();
       expect(screen.getByRole('link', { name: 'Ground Floor' })).toHaveAttribute('href', '/exhibitions/ground-floor');
     });
 
@@ -239,10 +248,12 @@ describe('America 250', () => {
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
       expect(content()).toHaveTextContent('The Wager Fifty-Six Men Made With Their Signatures');
-      const credit = content().querySelector('.pe-stack-credit a') as HTMLElement;
+      expect(content().querySelector('.pe-stack-credit')).toBeNull();
+      const credit = within(thisPanelSources()).getByRole('link');
       expect(credit).toHaveTextContent('Emanuel Leutze, Washington Crossing the Delaware, 1851. The Metropolitan Museum of Art. Public domain.');
       expect(credit).toHaveAttribute('href', LEUTZE_SOURCE);
       expect(credit.querySelector('em')).toHaveTextContent('Washington Crossing the Delaware');
+      closeSources();
 
       const stockton = poster('poster2').items.findIndex((it) => it.type === 'paragraph' && it.text.includes('*wanted*'));
       for (let i = 2; i < stockton; i++) {
@@ -294,7 +305,7 @@ describe('The America 250 display case page', () => {
     expect(cards.slice(2).map((c) => c.querySelector('.pe-artifact-card-name em')?.textContent)).toEqual(['The London Evening Post', 'The London Chronicle']);
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(AMERICA_250_CASE.photos).toHaveLength(0);
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(JSON.stringify(AMERICA_250_CASE)).not.toMatch(/installation|\.jpg/);
     // The signing room opens from the case, under its Interactives tab.
     fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
@@ -345,7 +356,8 @@ describe('Many Faiths, One Declaration (owner-approved museum note, B9.3)', () =
     }
     const content = document.querySelector('.pe-walkthrough-content') as HTMLElement;
     expect(content).toHaveTextContent('Many Faiths, One Declaration. Carroll was not the only signer');
-    expect(within(content).getByRole('link', { name: 'National Archives, the Constitution, Article VI' })).toHaveAttribute(
+    expect(within(content).queryByRole('link', { name: 'National Archives, the Constitution, Article VI' })).toBeNull();
+    expect(within(thisPanelSources()).getByRole('link', { name: 'National Archives, the Constitution, Article VI' })).toHaveAttribute(
       'href',
       'https://www.archives.gov/founding-docs/constitution-transcript',
     );

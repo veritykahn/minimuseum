@@ -27,6 +27,11 @@ import type { FactSource } from '@/components/exhibition/FactNote';
  *   BM_ANI / BUDGE  the Papyrus of Ani (British Museum EA10470) and the
  *                   British Museum's translation of its chapter 125 by
  *                   E. A. Wallis Budge, then Keeper of Egyptian Antiquities
+ *   BM_ANI_JUDGEMENT / BM_HUNEFER  the British Museum's records of the two
+ *                   judgement scenes: Ani's (EA10470,3) and Hunefer's
+ *                   (EA9901,3), never to be mixed up
+ *   BUDGE_ROSETTA   E. A. Wallis Budge, The Rosetta Stone (British Museum,
+ *                   1913): how Ptolemy's and Cleopatra's names were compared
  *   MET_*           The Metropolitan Museum of Art's object records
  */
 
@@ -61,6 +66,21 @@ export const BM_ANI: FactSource = {
 export const BUDGE: FactSource = {
   label: 'E. A. Wallis Budge, The Book of the Dead (British Museum translation)',
   href: 'https://www.gutenberg.org/ebooks/7145',
+};
+
+// REVIEW: new sources (read in Wayback snapshots of the British Museum's collection pages, 2025–26).
+export const BM_ANI_JUDGEMENT: FactSource = {
+  label: 'British Museum, the Papyrus of Ani, frame 3: Ani’s judgment (EA10470,3)',
+  href: 'https://www.britishmuseum.org/collection/object/Y_EA10470-3',
+};
+export const BM_HUNEFER: FactSource = {
+  label: 'British Museum, the Book of the Dead of Hunefer, frame 3 (EA9901,3)',
+  href: 'https://www.britishmuseum.org/collection/object/Y_EA9901-3',
+};
+// REVIEW: new source. Budge's own book for the British Museum (1913), Project Gutenberg's text.
+export const BUDGE_ROSETTA: FactSource = {
+  label: 'E. A. Wallis Budge, The Rosetta Stone (British Museum, 1913)',
+  href: 'https://www.gutenberg.org/ebooks/48649',
 };
 
 /** The Met's record for an object, as a source. */
@@ -125,3 +145,42 @@ export const GLYPHS = {
 } as const;
 
 export type GlyphCode = keyof typeof GLYPHS;
+
+// REVIEW: new source and text. Unicode's Unikemet data (the Unicode Character Database), its kEH_Desc for each sign.
+export const UNIKEMET: FactSource = {
+  label: 'Unicode Consortium, Unikemet: descriptions of the Egyptian hieroglyphs (Unicode Character Database)',
+  href: 'https://www.unicode.org/Public/UCD/latest/ucd/Unikemet.txt',
+};
+
+/**
+ * What each sign in the name chart is a picture of, in plain words, after
+ * Unicode's own description of the sign (UNIKEMET): "A horned desert viper
+ * (Cerastes cerastes)" is "a horned viper".
+ */
+// REVIEW: new text, each from its sign's kEH_Desc in Unikemet.
+export const SIGN_NAMES: Partial<Record<GlyphCode, string>> = {
+  G1: 'an Egyptian vulture',
+  D58: 'a foot and lower leg',
+  V31: 'a basket with a handle',
+  D46: 'a hand',
+  M17: 'a flowering reed',
+  M17A: 'two flowering reeds',
+  I9: 'a horned viper',
+  W11: 'a stand for jars',
+  V28: 'a wick of twisted flax',
+  I10: 'a cobra, resting',
+  E23: 'a lion, lying down',
+  G17: 'an owl',
+  N35: 'a ripple of water',
+  V4: 'a lasso',
+  Q3: 'a stool made of reed matting',
+  N29: 'a sandy hill slope',
+  D21: 'a mouth',
+  S29: 'a folded cloth',
+  X1: 'a half loaf of bread',
+  G43: 'a quail chick',
+  Z4: 'two strokes',
+  O34: 'a door bolt',
+  V13: 'a rope for tethering animals',
+  N37: 'a pool',
+};

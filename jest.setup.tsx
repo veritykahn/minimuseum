@@ -72,3 +72,15 @@ global.IntersectionObserver = jest.fn().mockImplementation(() => ({
   unobserve: jest.fn(),
   disconnect: jest.fn(),
 }));
+
+// The museum's one sound switch (lib/museumSound.ts) lives for the page, as a
+// visit does: each test starts a new visit, with sound off.
+beforeEach(() => {
+  try {
+    window.sessionStorage.removeItem('mm-sound');
+  } catch {
+    /* no storage in this environment */
+  }
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  (require('@/lib/museumSound') as typeof import('@/lib/museumSound')).resetMuseumSoundForTests();
+});

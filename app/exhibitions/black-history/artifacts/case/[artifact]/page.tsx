@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { BLACK_HISTORY, BLACK_HISTORY_CASE } from '../../../blackHistory';
 import '../../../black-history.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function BlackHistoryArtifact({ params }: Props) {
   const artifact = findArtifact(BLACK_HISTORY_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={BLACK_HISTORY} data={BLACK_HISTORY_CASE} artifact={artifact} />;
+  return <ArtifactPage config={BLACK_HISTORY} data={BLACK_HISTORY_CASE} artifact={artifact} photo={casePhotosOnDisk(BLACK_HISTORY, BLACK_HISTORY_CASE).artifacts[artifact.id]} />;
 }

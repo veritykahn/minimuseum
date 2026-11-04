@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { AMERICA_250, AMERICA_250_CASE } from '../../../america250';
 import '../../../america250.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function America250Artifact({ params }: Props) {
   const artifact = findArtifact(AMERICA_250_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={AMERICA_250} data={AMERICA_250_CASE} artifact={artifact} />;
+  return <ArtifactPage config={AMERICA_250} data={AMERICA_250_CASE} artifact={artifact} photo={casePhotosOnDisk(AMERICA_250, AMERICA_250_CASE).artifacts[artifact.id]} />;
 }

@@ -1,0 +1,6 @@
+The panels' moments (components/exhibition/PanelMoment.ts): each played once as its panel arrives. Trimmed, made mono, faded, levelled. Pixabay files (Pixabay Content License).
+quill.mp3 (Adams writes to Abigail; the signers) — "Quill pen writing on hard paper various speed" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-quill-pen-writing-on-hard-paper-various-speed-57020/
+fireworks.mp3 (the Fourth of July Adams foresaw: "guns, bells, bonfires, and illuminations") — "New Year Fireworks (Sound2)" by AudioCoffee, https://pixabay.com/sound-effects/film-special-effects-new-year-fireworks-sound2-180202/
+cannon.mp3 (the Battle of Long Island) — "Distant Cannon Fire (simulated)" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-distant-cannon-fire-simulated-36464/
+printing-press.mp3 (Paine's The American Crisis) — "Printing Press" by PWLPL, https://pixabay.com/sound-effects/technology-printing-press-506323/
+cell-door.mp3 (Richard Stockton, captured) — "JailDoorClose" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-jaildoorclose-6173/

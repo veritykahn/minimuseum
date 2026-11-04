@@ -156,9 +156,9 @@ body:has(.sid-toys) { margin: 0; }
   right: max(5vw, calc(50vw - 680px));
   top: 170px;
   width: min(420px, 34vw);
-  /* The whole card, border and all, ends above the film strip at the foot. */
+  /* The whole card, border and all, ends above the Map button (bottom right, 80px up) and the film strip. */
   box-sizing: border-box;
-  max-height: calc(100dvh - 170px - 28px);
+  max-height: calc(100dvh - 170px - 96px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -285,17 +285,6 @@ body:has(.sid-toys) { margin: 0; }
 .vt-face-art { position: relative; display: block; width: 100%; height: 100%; }
 .vt-face-art img { position: absolute; inset: 0; display: block; width: 100%; height: 100%; object-fit: contain; -webkit-user-drag: none; user-select: none; }
 .vt-face .vt-face-art { filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.6)); }
-/* The lamp behind the disc: as light as the card, so the disc turning edge-on
-   does not flash the dark room through. */
-.vt-disc-holder::before {
-  content: '';
-  position: absolute;
-  inset: 4%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(226, 214, 190, 0.9) 0 58%, rgba(226, 214, 190, 0.4) 70%, transparent 74%);
-  pointer-events: none;
-}
-
 /* One side at a time (reduced motion) */
 .vt-one-side { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .sid-toys .vt-side-button { appearance: none; padding: 0; border: 0; background: none; border-radius: 50%; width: min(48vh, 70vw, 440px); aspect-ratio: 1; cursor: pointer; }
@@ -448,7 +437,8 @@ body:has(.sid-toys) { margin: 0; }
     left: 8px;
     right: 8px;
     top: calc(124px + var(--toy-h) + 6px);
-    bottom: 26px;
+    /* Clear of the Sources button (bottom left) and the Map button (bottom right). */
+    bottom: 72px;
     width: auto;
     max-height: none;
     gap: 9px;

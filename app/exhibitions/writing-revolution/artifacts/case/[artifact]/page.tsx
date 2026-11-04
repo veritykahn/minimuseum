@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { WRITING_REVOLUTION, WRITING_REVOLUTION_CASE } from '../../../writingRevolution';
 import '../../../writing-revolution.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function WritingRevolutionArtifact({ params }: Props) {
   const artifact = findArtifact(WRITING_REVOLUTION_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={WRITING_REVOLUTION} data={WRITING_REVOLUTION_CASE} artifact={artifact} />;
+  return <ArtifactPage config={WRITING_REVOLUTION} data={WRITING_REVOLUTION_CASE} artifact={artifact} photo={casePhotosOnDisk(WRITING_REVOLUTION, WRITING_REVOLUTION_CASE).artifacts[artifact.id]} />;
 }

@@ -16,9 +16,26 @@
 .egm-timeline-when { color: #fff; font-family: var(--pe-display); font-size: 1.05rem; }
 
 .egm-bed { fill: #8a5a2b; }
-.egm-body { fill: #6b5442; transition: fill 0.8s ease; }
-.egm-body.is-oiled { fill: #a06a2c; }
-.egm-sheet { fill: #e7decb; }
+.egm-figure { transition: transform 1s ease; }
+.egm-body { fill: #b07a52; stroke: #6e4529; stroke-width: 2; transition: fill 0.8s ease; }
+.egm-body.is-dried { fill: #7d5a3e; }
+.egm-body.is-oiled { fill: #8f5f2a; }
+.egm-limb { fill: none; stroke: #6e4529; stroke-width: 2; opacity: 0.7; }
+.egm-eye { fill: #1c1410; }
+.egm-kilt { fill: #f2ede2; stroke: #c9bfa8; stroke-width: 1.5; }
+.egm-dust { fill: #8b7a5c; opacity: 0.85; transition: opacity 0.4s ease; }
+.egm-table.is-washing { cursor: grab; touch-action: none; }
+.egm-cut { fill: none; stroke: #5a1f12; stroke-width: 2.5; stroke-linecap: round; }
+.egm-heart { fill: #c8402a; opacity: 0.55; transition: opacity 0.4s ease; }
+.egm-heart.is-shown { opacity: 1; animation: egm-pulse 1.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes egm-pulse { 50% { transform: scale(1.25); } }
+.egm-hook { fill: none; stroke: #b8873c; stroke-width: 3; stroke-linecap: round; }
+.egm-brain-shape { fill: #a7a29a; transition: transform 1.4s ease, opacity 1.4s ease; }
+.egm-brain.is-out .egm-brain-shape { transform: translateY(-80px); opacity: 0; }
+.egm-brain.is-out .egm-hook { opacity: 0.3; transition: opacity 1s ease 0.6s; }
+.egm-spot { fill: rgba(242, 240, 234, 0.08); stroke: #f2f0ea; stroke-width: 2; stroke-dasharray: 5 4; cursor: pointer; }
+.egm-bag { stroke: #c9c3b4; stroke-width: 1.5; animation: egm-heap 0.4s ease both; }
+.egm-coffin-open { fill: none; stroke: #c99a3d; stroke-width: 8; stroke-linecap: round; animation: egm-heap 0.6s ease both; }
 .egm-water line { stroke: #8fc3e8; stroke-width: 3; stroke-linecap: round; animation: egm-drip 1.2s linear infinite; }
 @keyframes egm-drip { from { transform: translateY(-20px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(60px); opacity: 0; } }
 .egm-natron { animation: egm-heap 0.8s ease both; }
@@ -36,7 +53,7 @@
 .egm-jar.is-full path { fill: #e9c97a; }
 .egm-jar-head { fill: #efebe5; }
 
-.egm-days { margin: 8px 0 0; text-align: center; font-family: var(--pe-display); font-size: clamp(1.2rem, 1rem + 1vw, 1.8rem); color: #fff; }
+.egm-days { min-height: 1.6em; margin: 8px 0 0; text-align: center; font-family: var(--pe-display); font-size: clamp(1.2rem, 1rem + 1vw, 1.8rem); color: #fff; }
 .egm-days span { display: inline-block; min-width: 2ch; color: var(--egr-orange); font-variant-numeric: tabular-nums; }
 
 .egm-match { display: flex; flex-direction: column; gap: 14px; }
@@ -46,3 +63,29 @@
 .egm-done { color: var(--egr-gold); font-family: var(--pe-display); font-size: 1.15em; }
 .egm-nav { margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--egr-line); }
 .eg-room .egr-option:disabled { opacity: 0.5; cursor: default; }
+.egm-jars-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.eg-room .egm-jar-button { flex-direction: column; justify-content: center; min-height: 84px; padding: 6px 4px; font-size: 0.78em; }
+.eg-room .egm-jar-button.is-full { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.16); }
+.eg-room .egm-organ { touch-action: none; }
+.egm-hint { min-height: 1.5em; margin: 0; color: #ffb59c; font-size: 0.92em; }
+.egm-small { font-size: 0.88em; color: var(--egr-muted); }
+.egm-heart-q { padding-top: 12px; border-top: 1px solid var(--egr-line); }
+.egm-heart-q legend { text-transform: none; letter-spacing: 0; font-size: 1em; color: #fff; }
+.egm-check { display: flex; flex-direction: column; gap: 14px; padding-top: 12px; border-top: 1px solid var(--egr-line); }
+.egm-check legend { text-transform: none; letter-spacing: 0; font-size: 0.95em; color: #fff; }
+.egm-ending { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border: 2px solid var(--egr-gold); background: rgba(217, 164, 65, 0.1); }
+.egm-drag {
+  position: fixed;
+  z-index: 1000;
+  translate: -50% -120%;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--egr-gold);
+  color: #141414;
+  font-family: var(--pe-body);
+  text-transform: capitalize;
+  pointer-events: none;
+}
+@media (max-width: 600px) {
+  .egm-jars-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}

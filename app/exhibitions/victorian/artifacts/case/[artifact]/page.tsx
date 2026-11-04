@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import ArtifactPage from '@/components/exhibition/ArtifactPage';
+import { casePhotosOnDisk } from '@/components/exhibition/casePhotos';
 import { artifactMetadata, artifactParams, findArtifact } from '@/components/exhibition/artifacts';
 import { VICTORIAN, VICTORIAN_CASE } from '../../../victorian';
 import '../../../victorian.css';
@@ -25,5 +26,5 @@ export async function generateMetadata({ params }: Props) {
 export default async function VictorianArtifact({ params }: Props) {
   const artifact = findArtifact(VICTORIAN_CASE, (await params).artifact);
   if (!artifact) notFound();
-  return <ArtifactPage config={VICTORIAN} data={VICTORIAN_CASE} artifact={artifact} />;
+  return <ArtifactPage config={VICTORIAN} data={VICTORIAN_CASE} artifact={artifact} photo={casePhotosOnDisk(VICTORIAN, VICTORIAN_CASE).artifacts[artifact.id]} />;
 }

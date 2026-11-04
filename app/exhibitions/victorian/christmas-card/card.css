@@ -68,3 +68,6 @@
 @media (prefers-reduced-motion: reduce) {
   .vcc-card { animation: none; }
 }
+
+/* The Sources button (SourcesDrawer), in the linen card's sage. */
+.vb-card { --mm-sources-bg: var(--vb-sage); --mm-sources-ink: #fff; }

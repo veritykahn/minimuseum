@@ -3,7 +3,8 @@ import GameResult from '@/components/games/GameResult';
 import Magnifier from '@/components/games/Magnifier';
 import HandsOfHistory from '@/app/exhibitions/in-their-hands/hands/page';
 import RealOrReplica from '@/app/exhibitions/in-their-hands/real-or-replica/page';
-import { HANDS_CHARACTERS } from '@/app/exhibitions/in-their-hands/hands/data';
+import { HANDS_CHARACTERS, buildRounds } from '@/app/exhibitions/in-their-hands/hands/data';
+import HandsProjector from '@/app/exhibitions/in-their-hands/hands/HandsProjector';
 import { ROUNDS } from '@/app/exhibitions/in-their-hands/real-or-replica/data';
 
 beforeAll(() => {
@@ -69,16 +70,26 @@ describe('Hands of History', () => {
       // Always choose wrongly: the first option that isn't this round's answer.
       const prompt = screen.getByRole('heading', { level: 1 }).textContent ?? '';
       const answer = HANDS_CHARACTERS.find((c) => c.prompt === prompt)!;
-      const wrong = screen.getAllByRole('button').find((b) => HANDS_CHARACTERS.some((c) => c.character === b.textContent && c.id !== answer.id))!;
+      // The coin's caption ("Widow's Mite — Lepton"…) would give the answer away: hidden until they answer.
+      expect(screen.queryByText(answer.caption)).toBeNull();
+      const wrong =screen.getAllByRole('button').find((b) => HANDS_CHARACTERS.some((c) => c.character === b.textContent && c.id !== answer.id))!;
       fireEvent.click(wrong);
       expect(screen.getByText(`Not quite — these were the hands of ${answer.character}.`)).toBeInTheDocument();
       expect(screen.getByText(answer.clue)).toBeInTheDocument();
+      expect(screen.getByText(answer.caption)).toBeInTheDocument();
       fireEvent.click(screen.getByRole('button', { name: /Next|See Results/ }));
     }
     expect(screen.getByRole('heading', { name: 'These hands kept their secrets.' })).toHaveFocus();
     expect(screen.queryByText('You know these hands.')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Play again' }));
     expect(screen.getByText(/Round 1 of 7/)).toBeInTheDocument();
+  });
+
+  it('keeps the coin’s caption off the projector’s question too', () => {
+    const rounds = buildRounds(7);
+    render(<HandsProjector rounds={rounds} onExit={() => {}} onRestart={() => {}} />);
+    expect(screen.getByRole('heading', { level: 1, name: rounds[0].character.prompt })).toBeInTheDocument();
+    for (const c of HANDS_CHARACTERS) expect(screen.queryByText(c.caption)).toBeNull();
   });
 });
 

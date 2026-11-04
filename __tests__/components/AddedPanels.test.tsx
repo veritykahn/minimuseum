@@ -1,4 +1,4 @@
-import { act, fireEvent, render } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import PosterExhibition from '@/components/exhibition/PosterExhibition';
 import { isAddedPanel } from '@/components/exhibition/helpers';
 import type { ExhibitionConfig } from '@/components/exhibition/types';
@@ -8,9 +8,19 @@ import { VICTORIAN } from '@/app/exhibitions/victorian/victorian';
 
 /*
  * The panels added to the Moon, Egypt and Victorian posters (A18), and the
- * "Did you know?" notes set beneath printed copy: each shows its sources,
- * linked, apart from the printed words.
+ * "Did you know?" notes set beneath printed copy: each names its sources,
+ * linked, behind the walkthrough's small "i" (Sources and credits), never
+ * inline beside the printed words.
  */
+
+/** The links the "i" lists for the panel on screen, read and closed again. */
+const thisPanelLinks = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  const list = within(screen.getByRole('dialog', { name: 'Sources and credits' })).queryByRole('list', { name: 'This panel' });
+  const links = list ? within(list).queryAllByRole('link').map((a) => a.getAttribute('href')) : [];
+  fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
+  return links;
+};
 
 const EXHIBITIONS: [string, ExhibitionConfig][] = [
   ['Moon', MOON as ExhibitionConfig],
@@ -60,14 +70,15 @@ describe('panels added to the posters', () => {
           const content = document.querySelector('.pe-walkthrough-content') as HTMLElement;
           if (isAddedPanel(it) && (it.type === 'paragraph' || it.type === 'section-title')) {
             expect(content.querySelector('.pe-added')).not.toBeNull();
-            const links = [...content.querySelectorAll('.pe-added-source a')].map((a) => a.getAttribute('href'));
-            expect(links).toEqual(it.sources!.map((s) => s.href));
+            expect(content.querySelector('.pe-added-source')).toBeNull();
+            expect(thisPanelLinks()).toEqual(expect.arrayContaining(it.sources!.map((s) => s.href)));
           }
           if (it.type === 'paragraph' && it.note) {
             const note = content.querySelector('.pe-note') as HTMLElement;
             expect(note).not.toBeNull();
             expect(note.textContent).toMatch(/^Did you know\?/);
-            expect([...note.querySelectorAll('a')].map((a) => a.getAttribute('href'))).toEqual(it.note.sources.map((s) => s.href));
+            expect(note.querySelectorAll('a')).toHaveLength(0);
+            expect(thisPanelLinks()).toEqual(expect.arrayContaining(it.note.sources.map((s) => s.href)));
           }
         });
         unmount();

@@ -497,7 +497,10 @@ export default function HandsOfHistory() {
                     aria-hidden={roundState !== 'revealed' || undefined}
                   />
                 </div>
-                <p className="hh-image-caption">{character.caption}</p>
+                {/* The coin's caption names it ("Widow's Mite"…), so it waits for the answer; its line is kept so nothing moves. */}
+                <p className="hh-image-caption" aria-hidden={roundState !== 'revealed' || undefined}>
+                  {roundState === 'revealed' ? character.caption : ' '}
+                </p>
               </div>
 
               {/* Right: question panel */}

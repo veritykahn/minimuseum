@@ -1,0 +1,8 @@
+The panels' moments (components/exhibition/PanelMoment.ts): each played once as its panel arrives. Trimmed, made mono, faded, levelled. Pixabay files (Pixabay Content License).
+factory-whistle.mp3 (women in wartime) — "Factory whistle, train whistle" by freesound_community, https://pixabay.com/sound-effects/city-factory-whistle-train-whistle-67127/
+sewing-machine.mp3 (Violet, a piecework machinist) — "sewing machine" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-sewing-machine-30323/
+garden-birds.mp3 (gardening with her father) — "30 Seconds Bird Sounds from Garden" by KalsStockMedia, https://pixabay.com/sound-effects/nature-30-seconds-bird-sounds-from-garden-485745/
+brass-band.mp3 (the Salvation Army) — "Lament for the pits" by MediaHobbyist, https://pixabay.com/music/marching-band-lament-for-the-pits-527928/
+knees-up.mp3 (the piano at her knees-up parties) — "Ragtime Piano - Honky-Tonk (Swipesy)" by Back_Drop, https://pixabay.com/music/vintage-ragtime-piano-honky-tonk-swipesy-354895/
+air-raid-siren.mp3 (the Blitz) — "air raid siren" by LazyChillZone, https://pixabay.com/sound-effects/film-special-effects-air-raid-siren-225303/
+shop-bell.mp3 (the greengrocer's) — "Shop door bell" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-shop-door-bell-6405/

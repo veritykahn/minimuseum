@@ -527,6 +527,10 @@ export default function ArtifactViewer({ artifactId }: Props) {
         .info-panel.open {
           transform: translateX(0);
         }
+        /* The panel is a dialog: while it is open the floating Map button steps aside, not over its close button and copy. */
+        body:has(.info-panel.open) .map-toggle-btn {
+          display: none;
+        }
 
         .info-panel-content {
           padding: 100px 40px 60px;

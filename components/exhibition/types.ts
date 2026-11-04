@@ -143,6 +143,12 @@ type PanelBase = {
   marks?: PanelMarks;
   /** The audio guide's recording for this panel (AudioGuide): a path under public/. */
   audio?: string;
+  /**
+   * This panel's moment: a sound effect or a voice played once as it arrives,
+   * named for its file, public/exhibitions/<slug>/poster-sound/moments/<name>.mp3
+   * (PanelMoment.ts). Played only once the file is there.
+   */
+  moment?: string;
 };
 
 /**
@@ -301,7 +307,7 @@ export type FullImageItem = PanelBase & {
   type: 'full-image';
   src: string;
   alt: string;
-  /** A caption under the picture, such as its credit. *Title* is set in italics. */
+  /** Its picture credit, listed in the Sources and credits drawer (never on the panel). *Title* is set in italics. */
   text?: string;
   /** Where the caption links: the picture's source record. */
   href?: string;
@@ -379,11 +385,12 @@ export type PosterConfig<K extends string = string> = {
 
 /**
  * A display case on the landing page, or an interactive room on its case
- * page: a link to its own page. A case shows the owner's cut-out photograph
- * of it, or, with none, an empty case drawn in outline, labelled "Display
- * case — photographs to come" (CasePlaceholder). A room shows a screenshot
- * of itself (public/exhibitions/<slug>/rooms/), or a short typographic
- * emblem in its place ("11:00").
+ * page and in the landing page's Explore row: a link to its own page. A case
+ * shows the owner's photograph of it (dropped in at casePhotoPaths, see
+ * casePhotos.ts), or, with none, an empty case drawn in outline
+ * (CasePlaceholder). A room shows a screenshot of itself
+ * (public/exhibitions/<slug>/rooms/), or a short typographic emblem in its
+ * place ("11:00").
  */
 export type DisplayCase = {
   href: string;
@@ -394,6 +401,11 @@ export type DisplayCase = {
   label: string;
   title: string;
   subtitle?: string;
+  /**
+   * A room that is the way in to the others: listed first, with this label
+   * ("Start here"), in the Explore row and the case's Interactives.
+   */
+  start?: string;
 };
 
 export type ExhibitionConfig<K extends string = string> = {
@@ -437,13 +449,14 @@ export type ExhibitionConfig<K extends string = string> = {
    */
   cases?: DisplayCase[];
   /**
-   * Interactive rooms, listed under "Interactives" on the first display
-   * case's page (CasePage). They live in the case, never on the landing
-   * page. Leave out when there are none.
+   * Interactive rooms: a card for each in the landing page's Explore row,
+   * below the posters and cases (ExploreRow), and under "Interactives" on the
+   * first display case's page (CasePage), both in the order roomsInOrder
+   * gives. Leave out when there are none.
    */
   interactives?: DisplayCase[];
   /**
-   * Picture credits, folded into a toggle at the foot of the landing page (LandingCredits), for pictures
+   * Picture credits, in the landing page's Sources and credits drawer (its "i", SourcesDrawer), for pictures
    * the exhibition draws on for its look (a photograph washed in behind the
    * posters), each as its owner specifies, linked to its record. *Title* is
    * set in italics. Leave out when there are none.
@@ -454,6 +467,18 @@ export type ExhibitionConfig<K extends string = string> = {
    * name (`atmosphere`). Drawn by the exhibition's stylesheet; see Atmosphere.
    */
   atmospheres?: Record<string, Atmosphere>;
+  /**
+   * Each poster's room sound, a quiet loop under it that the visitor turns on
+   * (RoomSound.tsx). Found on disk when the page is built (posterSoundsOnDisk,
+   * posterSoundPaths.ts): leave out of the config itself.
+   */
+  posterSounds?: Partial<Record<K, string>>;
+  /**
+   * Each poster's moments, panel by panel, where their files are in place
+   * (posterMomentsOnDisk, PanelMoment.ts). Found on disk when the page is
+   * built: leave out of the config itself.
+   */
+  moments?: Partial<Record<K, (string | null)[]>>;
   /** The panel reveal (components/poster-fx). */
   fx: {
     theme: FxTheme;
@@ -490,7 +515,8 @@ export type CasePageData = {
   /**
    * The first is set large above the artifacts; the rest in a row below them.
    * Empty until the case is photographed: an empty case drawn in outline,
-   * "Display case — photographs to come", stands in its place.
+   * "Photographs on their way" (CasePlaceholder), stands in its place, or the
+   * owner's case.jpg once dropped in (casePhotoPaths.ts).
    */
   photos: CasePhoto[];
   /** Each object in the case, with its own page at <case path>/<id>. */
@@ -517,4 +543,10 @@ export type CaseArtifact = {
   record: string;
   /** Sentences from the exhibition's posters about it, each with its poster's id. */
   writing?: { poster: string; text: string }[];
+  /**
+   * A fact-checked line of its own, with its source, where the record's line
+   * names more than this object (a scarab sharing the Anubis statue's line).
+   * Shown on its card in place of the record line, and on its page.
+   */
+  about?: ApprovedFact;
 };

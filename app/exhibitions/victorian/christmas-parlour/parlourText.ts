@@ -1,4 +1,6 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
+import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
+import { GHOST_NOTES, GHOST_TEXT } from './ghostText';
 
 /*
  * Dickens' Christmas parlour's words. Every line about Christmas is poster
@@ -47,7 +49,8 @@ export const PARTS: { id: PartId; name: string; poster: string; note?: ApprovedF
   {
     id: 'clock',
     name: 'The clock',
-    poster: 'In the 19th century, Christmas traditions were in decline, impacted by the lingering effects of Puritan opposition to its pagan roots and the Industrial Revolution, which left workers little time for celebration.',
+    // REVIEW (Verity): poster 2's first sentence, rewritten (victorian.ts, fix 3).
+    poster: 'At the start of the 19th century, Christmas was hardly celebrated. Many businesses did not treat it as a holiday, and the long hours of the Industrial Revolution left workers little time for celebration.',
     opened: 'The clock on the mantelpiece ticks.',
   },
   { id: 'tree', name: 'The Christmas tree', poster: REVIVAL, note: PARLOUR_NOTES.tree, opened: 'The candles on the tree are lit.' },
@@ -70,5 +73,18 @@ export const PARTS: { id: PartId; name: string; poster: string; note?: ApprovedF
     name: 'The fire',
     poster: 'Dickens\' "Carol Philosophy" celebrated the holiday as a time to open hearts and embrace humanity, a message still resonating nearly 200 years later.',
     opened: 'The fire is blazing in the grate.',
+  },
+];
+
+/** The room's Sources drawer, by tab: each part's note, then the ghost story's. The paintings are the owner's own and carry no credit. */
+export const PARLOUR_SOURCES: readonly SourceGroup[] = [
+  { title: 'The parlour', items: PARTS.flatMap((p) => (p.note?.sources ?? []).map((s) => ({ ...s, note: p.name }))) },
+  {
+    title: GHOST_TEXT.tab,
+    items: [
+      ...GHOST_NOTES.fireside.sources.map((s) => ({ ...s, note: 'Ghost stories round the Christmas fire' })),
+      ...GHOST_NOTES.carol.sources.map((s) => ({ ...s, note: 'A Ghost Story of Christmas' })),
+      ...GHOST_NOTES.dickens.sources.map((s) => ({ ...s, note: 'Dickens and ghosts' })),
+    ],
   },
 ];

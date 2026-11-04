@@ -305,7 +305,7 @@ const FIRST_FLOOR_ROOMS: MapRoom[] = [
     id: 'holocaust', label: 'Holocaust\nMemorial Day', path: '/exhibitions/holocaust',
     x: COL[1], ...BOTTOM, accentColor: COLORS.holocaust,
     parent: 'first-floor',
-    children: ['ho-case', 'ho-stones', ...lessonsChild('holocaust')],
+    children: ['ho-case', 'ho-walk', 'ho-stones', 'ho-stillness', 'ho-timeline', ...lessonsChild('holocaust')],
   },
 ];
 
@@ -1139,42 +1139,70 @@ export const WOMENS_HISTORY: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Holocaust Memorial Day (Floor Plan)
 //
-// Layout: the Exhibition Hall, the display case beyond it, and the
-// interactive room beyond that
+// Layout: the Exhibition Hall, the display case beyond it, and its four
+// interactive rooms beyond that, two by two, in the order the landing page
+// lists them
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
-// ├───────────────╴ ╶──────────────┤
-// │          Never Forget          │
-// └────────────────────────────────┘
+// ├───────╴ ╶───────┬──────╴ ╶─────┤
+// │    The Walk     ╎ Lay a Stone  │
+// ├───────╴ ╶───────┼──────╴ ╶─────┤
+// │ A Minute’s      ╎ The Timeline │
+// │   Stillness     ╎ of the Holo. │
+// └─────────────────┴──────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const HOLOCAUST_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 300, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 320, rx: 3 },
   accentColor: COLORS.holocaust,
   walls: [
-    ...wallWithDoorway(40, 180, 460, 180),
-    ...wallWithDoorway(40, 280, 460, 280),
+    ...wallWithDoorway(40, 160, 460, 160),
+    // Under the case, a doorway into each room of the first row
+    ...wallWithDoorway(40, 240, 250, 240),
+    ...wallWithDoorway(250, 240, 460, 240),
+    // And from each room of the first row into the one beneath it
+    ...wallWithDoorway(40, 320, 250, 320),
+    ...wallWithDoorway(250, 320, 460, 320),
+    ...wallWithDoorway(250, 240, 250, 400),
   ],
   rooms: [
     {
       id: 'ho-entrance', label: 'Exhibition Hall', path: '/exhibitions/holocaust',
       accentColor: COLORS.holocaust, parent: 'holocaust',
-      x: 40, y: 80, width: 420, height: 100,
-      labelX: 250, labelY: 130,
+      x: 40, y: 80, width: 420, height: 80,
+      labelX: 250, labelY: 120,
     },
     {
       id: 'ho-case', label: 'Display Case', path: '/exhibitions/holocaust/artifacts/case',
       accentColor: COLORS.holocaust, parent: 'holocaust',
-      x: 40, y: 180, width: 420, height: 100,
-      labelX: 250, labelY: 230,
+      x: 40, y: 160, width: 420, height: 80,
+      labelX: 250, labelY: 200,
     },
     {
-      id: 'ho-stones', label: 'Never Forget', path: '/exhibitions/holocaust/stones',
+      id: 'ho-walk', label: 'The Walk', path: '/exhibitions/holocaust/walk',
       accentColor: COLORS.holocaust, parent: 'holocaust',
-      x: 40, y: 280, width: 420, height: 100,
-      labelX: 250, labelY: 330,
+      x: 40, y: 240, width: 210, height: 80,
+      labelX: 145, labelY: 280,
+    },
+    {
+      id: 'ho-stones', label: 'Lay a Stone', path: '/exhibitions/holocaust/stones',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 250, y: 240, width: 210, height: 80,
+      labelX: 355, labelY: 280,
+    },
+    {
+      id: 'ho-stillness', label: 'A Minute’s Stillness', path: '/exhibitions/holocaust/stillness',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 40, y: 320, width: 210, height: 80,
+      labelX: 145, labelY: 360,
+    },
+    {
+      id: 'ho-timeline', label: 'The Timeline of the Holocaust', path: '/exhibitions/holocaust/timeline',
+      accentColor: COLORS.holocaust, parent: 'holocaust',
+      x: 250, y: 320, width: 210, height: 80,
+      labelX: 355, labelY: 360,
     },
   ],
 };
@@ -1185,7 +1213,7 @@ export const HOLOCAUST: MapLevelConfig = {
   connections: [],
   title: 'Holocaust Memorial Day',
   ...onFloorOf('holocaust'),
-  ...withLessons(HOLOCAUST_FLOOR_PLAN, '0 0 500 430', 'holocaust'),
+  ...withLessons(HOLOCAUST_FLOOR_PLAN, '0 0 500 450', 'holocaust'),
 };
 
 // ═══════════════════════════════════════════════════════════════════

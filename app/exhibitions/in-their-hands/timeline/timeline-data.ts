@@ -138,7 +138,7 @@ export const timelineStops: TimelineStop[] = [
     ruler: "Emperor Claudius",
     reference: "Acts 18:1\u20133",
     coin: "AE As · 41–54 AD · RIC I 100",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/claudius-front.png",
+    coinImage: "/exhibitions/in-their-hands/artifacts/coins/claudius-front.webp",
     painting: "/exhibitions/in-their-hands/timeline/paul-tissot.jpg",
     passage: "After this, Paul left Athens and went to Corinth. There he met a Jew named Aquila, a native of Pontus, who had recently come from Italy with his wife Priscilla, because Claudius had ordered all Jews to leave Rome. Paul went to see them, and because he was a tentmaker as they were, he stayed and worked with them.",
     story: "Around 49 AD, the Emperor Claudius expelled Jews from Rome. The Roman historian Suetonius also mentions it. The expulsion forced a married couple called Aquila and Priscilla to leave Italy and travel to Corinth. When Paul arrived in Corinth, he met them and they worked together as tentmakers. Aquila and Priscilla became two of Paul\u2019s most important partners in spreading the early Church. Without Claudius\u2019s edict, they might never have been in Corinth when Paul arrived. This coin was minted during Claudius\u2019s reign."
@@ -150,7 +150,7 @@ export const timelineStops: TimelineStop[] = [
     ruler: "Porcius Festus",
     reference: "Acts 25:10\u201312",
     coin: "AE Prutah · 59–62 AD · Hendin 1348 · NGC Certified",
-    coinImage: "/exhibitions/in-their-hands/artifacts/coins/festus-front.png",
+    coinImage: "/exhibitions/in-their-hands/artifacts/coins/festus-front.webp",
     painting: "/exhibitions/in-their-hands/timeline/festus-surikov.jpg",
     passage: "Paul answered: \u2018I am now standing before Caesar\u2019s court, where I ought to be tried. I have not done any wrong to the Jews, as you yourself know very well. I appeal to Caesar!\u2019 After Festus had conferred with his advisers, he declared: \u2018You have appealed to Caesar. To Caesar you will go!\u2019",
     story: "Paul had been held prisoner in Caesarea for two years. When Porcius Festus arrived as the new governor, he tried to send Paul back to Jerusalem to face trial, but Paul knew an ambush was planned for the journey. He used his right as a Roman citizen to appeal directly to the Emperor. Festus had no choice but to grant the appeal. This is what sent Paul on his journey to Rome. This coin was struck under Festus during his governorship, the years described in Acts, and has been independently authenticated by NGC, the world\u2019s largest coin grading service. Professional numismatists have confirmed it is genuine."

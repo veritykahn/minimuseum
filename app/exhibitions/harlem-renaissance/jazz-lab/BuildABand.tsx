@@ -5,6 +5,7 @@ import { prefersReducedMotion } from '@/lib/a11y';
 import { BAND_INSTRUMENTS, BAND_INSTRUMENT_MAP, SECTIONS } from './data';
 import type { useBandBuilder } from './hooks';
 import InstrumentIcon from './InstrumentIcon';
+import StagePlayers from './StagePlayers';
 
 type Band = ReturnType<typeof useBandBuilder>;
 
@@ -108,6 +109,57 @@ export default function BuildABand({ band }: { band: Band }) {
           .jl-slot-icon svg { width: 38px; height: 38px; }
           .jl-slot-remove { right: calc(50% - 44px); }
         }
+
+        /* The players on the stage floor: they walk on from the wings, and off again. */
+        .jl-stage-floor {
+          --floor: clamp(96px, 16vw, 150px);
+          position: relative;
+          z-index: 2;
+          display: grid;
+          grid-template-columns: repeat(6, minmax(0, 1fr));
+          align-items: end;
+          height: var(--floor);
+          margin: 30px 0 0;
+        }
+        /* The instruments sit closer under the players. */
+        #jl-panel-band .jl-band-slots { min-height: 0; padding-top: 18px; }
+        #jl-panel-band .jl-stage { min-height: 0; }
+        .jl-stage-boards {
+          position: absolute;
+          left: 0; right: 0; bottom: 0;
+          height: 10px;
+          border-top: 1px solid rgba(201,169,78,0.35);
+          background: repeating-linear-gradient(90deg, rgba(201,169,78,0.10) 0 46px, rgba(201,169,78,0.04) 46px 48px);
+          pointer-events: none;
+        }
+        .jl-player-spot { position: relative; display: flex; justify-content: center; align-items: flex-end; }
+        .jl-player { width: min(100%, calc(var(--floor) * 80 / 112)); aspect-ratio: 80 / 112; animation: jl-walk-on 1s cubic-bezier(0.25, 0.8, 0.35, 1) both; }
+        .jl-player.is-leaving { animation: jl-walk-off 0.65s ease-in both; }
+        .jl-player-figure { display: block; width: 100%; height: 100%; overflow: visible; }
+        .jl-player-body { fill: #6f5f33; stroke: none; }
+        .jl-player-limb { fill: none; stroke: #6f5f33; stroke-width: 7; stroke-linecap: round; }
+        .jl-player-stool { stroke-width: 3.5; }
+        .jl-player-instrument { color: var(--jl-gold-light); }
+        .jl-player.is-solo .jl-player-body { fill: #a38b45; }
+        .jl-player.is-solo .jl-player-limb { stroke: #a38b45; }
+        .jl-player-light { fill: rgba(232,212,139,0.14); }
+        .jl-player:not(.is-leaving) .jl-player-legs { animation: jl-step 0.25s ease-in-out 4 alternate; transform-origin: 40px 74px; }
+        @keyframes jl-walk-on {
+          from { transform: translateX(calc(var(--from) * 120vw)); opacity: 0.2; }
+          to { transform: none; opacity: 1; }
+        }
+        @keyframes jl-walk-off {
+          from { transform: none; opacity: 1; }
+          to { transform: translateX(calc(var(--from) * 120vw)); opacity: 0.2; }
+        }
+        @keyframes jl-step { from { transform: skewX(-8deg); } to { transform: skewX(8deg); } }
+        @media (max-width: 600px) {
+          .jl-stage-floor { margin-top: 30px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .jl-player, .jl-player.is-leaving, .jl-player:not(.is-leaving) .jl-player-legs { animation: none; }
+          .jl-player.is-leaving { display: none; }
+        }
       `}</style>
 
       <div className="jl-instructions">
@@ -148,6 +200,7 @@ export default function BuildABand({ band }: { band: Band }) {
           style={{ '--spotlight-x': spotlightX } as React.CSSProperties}
         >
           <div className="jl-stage-label">{'\u{25C6}'} The Stage {'\u{25C6}'}</div>
+          <StagePlayers active={band.active} spotlight={band.spotlight} />
           <div className="jl-band-slots" role="group" aria-label="Instruments">
             {BAND_INSTRUMENTS.map((inst) => {
               const isAvailable = inst.sections.includes(band.section);

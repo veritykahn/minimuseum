@@ -1,0 +1,13 @@
+The panels' moments (components/exhibition/PanelMoment.ts): each played once as its panel arrives. Trimmed, made mono, faded, levelled. Pixabay files under the Pixabay Content License.
+zoetrope.mp3 (inventors discover persistence of vision) — "Spinning wheel" by tommy_mooney, https://freesound.org/s/386712/ (CC0)
+stereoscope-click.mp3 (Wheatstone's stereoscope) — "Old Camera Shutter" by oxidvideos, https://pixabay.com/sound-effects/film-special-effects-old-camera-shutter-183213/
+niagara.mp3 (Victorians "visit" Niagara through stereoscopes) — "Waterfall" by freesound_community, https://pixabay.com/sound-effects/nature-waterfall-24060/
+shepard-tone.mp3 (the impossible Penrose triangle: a sound that rises forever) — "Rising Shepard tone 60sec take 2" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-rising-shepard-tone-60sec-take-2-77465/
+phantasmagoria.mp3 (magic-lantern ghost shows) — "creepyghosts" by freesound_community, https://pixabay.com/sound-effects/horror-creepyghosts-68582/
+spirit-photo.mp3 (Mumler's spirit photographs) — camera.mp3 from the Victorian Britain moments ("Vintage Camera Flash Powder and Shutter" by freesound_community, https://pixabay.com/sound-effects/technology-vintage-camera-flash-powder-and-shutter-6243/), then "Ghost Whisper" by dragon-studio, https://pixabay.com/sound-effects/horror-ghost-whisper-351569/
+chains.mp3 (Houdini exposes the fake mediums) — "Chains Rattling" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-chains-rattling-74557/
+kong-roar.mp3 (film brings new illusions) — "Gorilla Roar" by flutie8211, https://pixabay.com/sound-effects/film-special-effects-gorilla-roar-523007/
+heartbeat.mp3 (everyone knew movies were fiction... didn't they?) — "Thudding Heartbeat" by dragon-studio, https://pixabay.com/sound-effects/film-special-effects-thudding-heartbeat-372487/
+computer-boot.mp3 (Photoshop, 1990) — "Old Computer Booting Sound Effect" by pwlpl, https://pixabay.com/sound-effects/film-special-effects-old-computer-booting-sound-effect-521121/
+glitch.mp3 (AI can generate faces) — "Digital Glitch" by pwlpl, https://pixabay.com/sound-effects/film-special-effects-digital-glitch-361820/
+i-see-you.mp3 (a world where seeing isn't believing) — "I See You (Creepy Ghost Whisper)" by dragon-studio, https://pixabay.com/sound-effects/horror-i-see-you-creepy-ghost-whisper-401711/

@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import RoomShell from '../RoomShell';
 import SilenceFilm from './SilenceFilm';
 import { soundSlotsOnDisk } from './soundSlots';
+import { SILENCE_SOURCES } from './sources';
 import './silence.css';
 
 /*
@@ -10,12 +12,14 @@ import './silence.css';
  * its foot the film's controls, the transcript and the way back. On the
  * server, the page only looks to see which of the film's sound slots the
  * owner has filled (sounds.ts), so the film uses each file as soon as it is
- * there and asks for none that is not.
+ * there and asks for none that is not. The film's picture credits and
+ * sources are in the room's Sources drawer (sources.ts), not on the screen.
  */
 export default function GreatWarSilence() {
   const owned = soundSlotsOnDisk();
   return (
     <RoomShell className="gw-silence" label="Interactive" title="When the Guns Fell Silent" bare>
+      <SourcesDrawer groups={SILENCE_SOURCES}>
       <div className="gws-stage">
         <header className="gw-case-header gws-head">
           <p className="gw-case-label">Interactive</p>
@@ -24,6 +28,7 @@ export default function GreatWarSilence() {
         </header>
         <SilenceFilm owned={owned} returnLink={<Link href="/exhibitions/great-war" className="gws-return">Return to Exhibition</Link>} />
       </div>
+      </SourcesDrawer>
     </RoomShell>
   );
 }

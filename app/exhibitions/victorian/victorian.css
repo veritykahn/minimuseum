@@ -39,7 +39,6 @@
   --pe-callout-ink: #fff;
   --pe-case-ink: var(--vb-green);
   --pe-case-muted: var(--vb-green);
-  --pe-credits-ink: var(--vb-green);
   --pe-landing-h1: clamp(2.2rem, min(6.4vw, 9dvh), 5.6rem);
   color: var(--vb-green);
 }
@@ -113,7 +112,6 @@
 [data-exhibition='victorian'] { --pe-case-frame: var(--vb-green); --pe-case-glow: #fff3d6; --pe-case-placeholder-ink: var(--vb-green); }
 [data-exhibition='victorian'] .pe-display-case { --pe-case-frame: var(--vb-cream); --pe-case-glow: var(--vb-peach); --pe-case-placeholder-ink: #f4eee3; }
 [data-exhibition='victorian'] .pe-case-placeholder-label { font-family: var(--vb-serif); }
-[data-exhibition='victorian'] .pe-credits { max-width: 560px; font-weight: 400; }
 
 /* ───────── Titles: the posters' own thin, wide capitals, cut from them ───────── */
 [data-exhibition='victorian'] .vb-title.pe-title-image { --pe-title-scale: 1.7; padding-left: 10vw; padding-right: 8vw; }
@@ -141,7 +139,7 @@
   max-width: 15em;
   text-wrap: pretty;
 }
-[data-exhibition='victorian'] .vb-lede .pe-figure img {
+[data-exhibition='victorian'] .pe-figure img {
   width: min(30vw, 400px);
   max-height: 70vh;
   object-fit: cover;
@@ -290,7 +288,7 @@
 /* ───────── The classroom screen ───────── */
 [data-exhibition='victorian'] .pjp-stage { --vb-edge: calc(var(--pjp-u) * 1.6); }
 [data-exhibition='victorian'] .pjp-stage .vb-lede .pe-paragraph-text { font-size: calc(var(--pjp-u) * 2.6); }
-[data-exhibition='victorian'] .pjp-stage .vb-lede .pe-figure img { width: auto; max-width: calc(var(--pjp-u) * 30); max-height: calc(var(--pjp-u) * 38); }
+[data-exhibition='victorian'] .pjp-stage .pe-figure img { width: auto; max-width: calc(var(--pjp-u) * 30); max-height: calc(var(--pjp-u) * 38); }
 [data-exhibition='victorian'] .pjp-stage .pe-figure-credit { font-size: calc(var(--pjp-u) * 0.85); max-width: calc(var(--pjp-u) * 30); }
 [data-exhibition='victorian'] .pjp-stage .vb-linen .pe-paragraph-text { padding: calc(var(--pjp-u) * 4.2) calc(var(--pjp-u) * 4.5); }
 [data-exhibition='victorian'] .pjp-stage .vb-picture.pe-full-image { padding: calc(var(--pjp-u) * 3) calc(var(--pjp-u) * 4) calc(var(--pjp-u) * 6); gap: calc(var(--pjp-u) * 0.8); }
@@ -300,9 +298,11 @@
 [data-exhibition='victorian'] .pjp-stage .vb-quote .pe-quote-cite { font-size: calc(var(--pjp-u) * 1.5); }
 
 @media (max-width: 900px) {
-  [data-exhibition='victorian'] .vb-lede .pe-figure img,
+  [data-exhibition='victorian'] .pe-figure img,
   [data-exhibition='victorian'] .pe-figure-credit { width: min(70vw, 320px); max-width: min(70vw, 320px); }
-  [data-exhibition='victorian'] .vb-lede .pe-figure img { max-height: 42vh; }
+  [data-exhibition='victorian'] .pe-figure img { max-height: 42vh; }
+  /* beside a longer fun tidbit, the picture gives the words more of the screen */
+  [data-exhibition='victorian'] .vb-linen .pe-figure img { max-height: 32vh; width: auto; margin: 0 auto; object-fit: contain; }
   [data-exhibition='victorian'] .vb-lede .pe-paragraph-text { text-align: center; }
 }
 @media (max-width: 700px) {

@@ -1,0 +1,12 @@
+The panels' moments (components/exhibition/PanelMoment.ts): each played once as its panel arrives. Trimmed, made mono, faded, levelled. Pixabay files (Pixabay Content License).
+quill.mp3 (scribes and monks) — "Quill pen writing on hard paper various speed" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-quill-pen-writing-on-hard-paper-various-speed-57020/
+printing-press.mp3 (Gutenberg) — "Printing Press" by PWLPL, https://pixabay.com/sound-effects/technology-printing-press-506323/
+typewriter.mp3 (Sholes's typewriter) — "TYPEWRITER CLICK WITH BELL #1" by MIGHTUSER, https://pixabay.com/sound-effects/film-special-effects-typewriter-click-with-bell-1-296477/
+typing-pool.mp3 (women in the offices: three typists at once) — "Loading Paper and Typewriter Typing" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-loading-paper-and-typewriter-typing-17613/, and "oldfashioned typewriter" by freesound_community, https://pixabay.com/sound-effects/household-oldfashioned-typewriter-20367/
+dot-matrix.mp3 (the 1970s word processor) — "dot matrix printer" by freesound_community, https://pixabay.com/sound-effects/technology-dot-matrix-printer-73220/
+dial-up.mp3 (the internet) — "The Sound of dial-up Internet" by freesound_community, https://pixabay.com/sound-effects/technology-the-sound-of-dial-up-internet-6240/
+notification.mp3 (a teenager's tweet) — "sms notification" by digitalstore07, https://pixabay.com/sound-effects/film-special-effects-sms-notification-430383/
+keyboard.mp3 (the keyboard beneath your fingers) — "Computer keyboard typing" by MatthewVakaliuk73627, https://pixabay.com/sound-effects/film-special-effects-computer-keyboard-typing-290582/
+bell.mp3 (QWERTY: no more jams) — "typewriter bell" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-typewriter-bell-100087/
+electric-typewriter.mp3 — "Electric Typewriter" by freesound_community, https://pixabay.com/sound-effects/household-electric-typewriter-28801/
+phone-typing.mp3 (touchscreens) — "Phone Keyboard" by Rubyland1, https://pixabay.com/sound-effects/film-special-effects-phone-keyboard-359370/

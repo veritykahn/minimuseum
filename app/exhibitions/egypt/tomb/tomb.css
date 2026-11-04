@@ -1,16 +1,17 @@
 /* ==========================================================================
-   The Tomb Explorer: the painting under a layer of dark, with a hole of
-   warm torchlight at the torch's place (--tx, --ty). The light flickers a
-   little, as a flame does; under reduced motion it holds steady. A found
-   detail is ringed in gold.
+   The Tomb Explorer: a picture (a painted wall, or the drawn burial chamber)
+   under a layer of dark, with a hole of warm torchlight at the torch's place
+   (--tx, --ty). The light flickers a little, as a flame does; under reduced
+   motion it holds steady. A found detail is ringed in gold. The stage keeps
+   the picture's own shape, sized to fit the screen's height, so the picture
+   is never cropped or letterboxed.
    ========================================================================== */
 
-.egt-wall {
+.egt-stage {
   --tx: 50%;
   --ty: 50%;
   --r: clamp(70px, 13vw, 170px);
   position: relative;
-  width: 100%;
   margin: 0 auto;
   overflow: hidden;
   border: 1px solid #3a2f22;
@@ -20,7 +21,10 @@
   user-select: none;
   -webkit-user-select: none;
 }
-.egt-wall img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+/* Wide enough to fill, never taller than 68vh: the width follows the picture's shape. */
+.egt-stage { width: min(100%, calc(68vh * var(--egt-aspect, 1.6))); }
+.egt-stage img,
+.egt-stage .egt-chamber { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 .egt-dark {
   position: absolute;
   inset: 0;
@@ -29,9 +33,23 @@
   animation: egt-flicker 2.6s ease-in-out infinite;
   pointer-events: none;
 }
-.egt-wall.is-lit { cursor: default; }
-.egt-wall.is-lit .egt-dark { opacity: 0; animation: none; }
-.egt-wall:focus-visible { outline: 3px solid var(--egr-orange); outline-offset: 4px; }
+.egt-stage.is-lit { cursor: crosshair; }
+.egt-stage.is-lit .egt-dark { opacity: 0; animation: none; }
+/* With the wall lit, a small lens shows where the torch's centre is. */
+.egt-stage.is-lit::after {
+  content: '';
+  position: absolute;
+  left: var(--tx);
+  top: var(--ty);
+  width: 34px;
+  height: 34px;
+  translate: -50% -50%;
+  border: 2px dashed rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.egt-stage:focus-visible { outline: 3px solid var(--egr-orange); outline-offset: 4px; }
 @keyframes egt-flicker {
   0%, 100% { opacity: 1; }
   22% { opacity: 0.94; }
@@ -41,7 +59,7 @@
 }
 .egt-mark {
   position: absolute;
-  width: clamp(54px, 9vw, 110px);
+  width: clamp(44px, 8vw, 100px);
   aspect-ratio: 1;
   translate: -50% -50%;
   border: 3px solid var(--egr-gold);
@@ -52,6 +70,29 @@
 }
 @keyframes egt-ring { from { opacity: 0; scale: 1.5; } }
 .egt-hint { margin: 10px 0 0; text-align: center; color: var(--egr-muted); font-size: 0.95rem; }
-.egt-found { font-family: var(--pe-display); font-size: 1.3em; color: var(--egr-gold); }
+.egt-found { margin: 0; font-family: var(--pe-display); font-size: 1.3em; color: var(--egr-gold); }
 .egt-tick { margin-left: 6px; color: var(--egr-gold); }
 .egr-tab[aria-selected='true'] .egt-tick { color: #6b4a10; }
+
+/* The clues on a wall, and the things in the chamber */
+.egt-clues,
+.egt-things { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.egt-clues li { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--egr-line); }
+.egt-clues li.is-found { border-color: rgba(217, 164, 65, 0.6); }
+.egt-clue { display: flex; align-items: baseline; gap: 10px; }
+.egt-clue-mark { display: inline-grid; place-items: center; flex: none; width: 1.6em; height: 1.6em; border: 1px solid var(--egr-muted); border-radius: 50%; font-size: 0.85em; color: var(--egr-muted); }
+.is-found .egt-clue-mark { border-color: var(--egr-gold); background: var(--egr-gold); color: #141414; }
+.egt-reward { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border: 2px solid var(--egr-gold); background: rgba(217, 164, 65, 0.1); animation: egt-ring 0.6s ease both; }
+
+.egt-things li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--egr-line); }
+.egt-things li.is-done { border-color: rgba(217, 164, 65, 0.6); }
+.egt-thing-name { grid-column: 1; margin: 0; font-family: var(--pe-display); color: #fff; }
+.egt-thing-name .egt-tick { margin: 0 6px 0 0; }
+.egt-thing-line { grid-column: 1; margin: 0; font-size: 0.9em; }
+.egt-hidden { color: var(--egr-muted); font-style: italic; }
+.eg-room .egt-door { grid-column: 2; grid-row: 1 / span 2; min-height: 44px; padding: 8px 16px; font-size: 0.78em; }
+
+@media (max-width: 600px) {
+  .egt-things li { grid-template-columns: minmax(0, 1fr); }
+  .eg-room .egt-door { grid-column: 1; grid-row: auto; justify-self: start; }
+}

@@ -194,7 +194,8 @@ export default function Eyepiece({
     const word = (s: Slot) => s.sample?.id ?? (s.smudged ? 'smudged' : 'clean');
     const kinds = [...new Set(all.map((s) => s.anim?.kind).filter(Boolean))].join(' ');
     setShown({ slots: all.map(word).join(' '), worked: all.filter((s) => s.work).map(word).join(' '), anim: kinds });
-    onChangeRef.current?.({ left: viewOf(left), right: right ? viewOf(right) : null }, kinds !== '');
+    // The cloth's sweep counts as moving too, so the room can wait for it to finish.
+    onChangeRef.current?.({ left: viewOf(left), right: right ? viewOf(right) : null }, kinds !== '' || sweeping.current !== 0);
   }, []);
 
   /** The wiped copy of a slide, made on its first wipe; null for bare glass, or until its photograph has loaded. */
@@ -680,6 +681,7 @@ export default function Eyepiece({
         }
       };
       sweeping.current = requestAnimationFrame(tick);
+      publish();
     },
     fresh() {
       if (sweeping.current) {

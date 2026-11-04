@@ -16,6 +16,14 @@ import {
 } from '@/app/exhibitions/holocaust/holocaust';
 import { floorReturnFor } from '@/lib/floors';
 
+/** The open panel's sources and credits, behind the small "i": opens the drawer, returns its "This panel" list. */
+const thisPanelSources = () => {
+  fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
+  return within(screen.getByRole('dialog', { name: 'Sources and credits' })).getByRole('list', { name: 'This panel' });
+};
+const closeSources = () => fireEvent.click(screen.getByRole('button', { name: 'Close sources' }));
+
+
 /*
  * Holocaust Memorial Day: its config, the poster copy against the
  * transcription (with only the owner's approved decisions), the pictures
@@ -259,8 +267,10 @@ describe('Holocaust Memorial Day', () => {
       expect(screen.getByRole('heading', { level: 1, name: 'Holocaust Memorial Day' })).toBeInTheDocument();
       const caseLink = screen.getByRole('link', { name: /display case/i });
       expect(caseLink).toHaveAttribute('href', '/exhibitions/holocaust/artifacts/case');
-      expect(caseLink).toHaveTextContent('Display case — photographs to come');
+      expect(caseLink).toHaveTextContent('Photographs on their way');
       expect(screen.getByRole('link', { name: 'First Floor' })).toHaveAttribute('href', '/exhibitions/first-floor');
+      // Behind the small "i": Sources and credits.
+      fireEvent.click(screen.getByRole('button', { name: 'Sources and credits' }));
       const credits = within(screen.getByRole('list', { name: 'Picture credits' })).getAllByRole('link');
       expect(credits.map((a) => a.getAttribute('href'))).toEqual(COMMONS_PICTURES.map((c) => c.href));
     });
@@ -275,9 +285,12 @@ describe('Holocaust Memorial Day', () => {
       expect(note).toHaveTextContent('Recommended for grades 6 and up; for younger students, preview first and stay with them.');
       fireEvent.click(within(dialog).getByRole('button', { name: /Parent/ }));
       expect(within(dialog).getByRole('note')).toBe(note);
-      // The interactive, renamed, in the sheet's list.
-      expect(within(dialog).getByRole('link', { name: /Never Forget/ })).toHaveAttribute('href', '/exhibitions/holocaust/stones');
-      expect(HOLOCAUST.interactives?.[0]).toMatchObject({ title: 'Never Forget', subtitle: 'Lay a stone, keep a minute’s stillness, walk the path' });
+      // The four rooms, in the sheet's list.
+      expect(within(dialog).getByRole('link', { name: /^The Walk/ })).toHaveAttribute('href', '/exhibitions/holocaust/walk');
+      expect(within(dialog).getByRole('link', { name: /^Lay a Stone/ })).toHaveAttribute('href', '/exhibitions/holocaust/stones');
+      expect(within(dialog).getByRole('link', { name: /^A Minute’s Stillness/ })).toHaveAttribute('href', '/exhibitions/holocaust/stillness');
+      expect(within(dialog).getByRole('link', { name: /^The Timeline of the Holocaust/ })).toHaveAttribute('href', '/exhibitions/holocaust/timeline');
+      expect(HOLOCAUST.interactives?.map((r) => r.title)).toEqual(['The Walk', 'Lay a Stone', 'A Minute’s Stillness', 'The Timeline of the Holocaust']);
       window.sessionStorage.removeItem('mm-teach-role');
     });
 
@@ -297,18 +310,25 @@ describe('Holocaust Memorial Day', () => {
       // The museum's added panels come next, each with its sources beneath it.
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      expect(content().querySelector('.pe-source')).toHaveTextContent(/^Source: USHMM Holocaust Encyclopedia, “International Holocaust Remembrance Day”$/);
+      // None inline: they are behind the small "i", this panel's first.
+      expect(content().querySelector('.pe-source')).toBeNull();
+      expect(thisPanelSources()).toHaveTextContent(/^USHMM Holocaust Encyclopedia, “International Holocaust Remembrance Day”$/);
+      closeSources();
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      expect(content().querySelector('.pe-source')).toHaveTextContent(/^Sources: .*Jewish Life in Europe.*; .*Introduction to the Holocaust/);
-      expect(content().querySelector('.pe-source a')).toHaveAttribute('target', '_blank');
+      const sources = thisPanelSources();
+      expect(sources).toHaveTextContent(/Jewish Life in Europe.*Introduction to the Holocaust/);
+      expect(within(sources).getAllByRole('link')[0]).toHaveAttribute('target', '_blank');
+      closeSources();
 
       fireEvent.keyDown(document, { key: 'ArrowRight' });
       tick();
-      const credit = content().querySelector('.pe-figure-credit a') as HTMLElement;
+      expect(content().querySelector('.pe-figure-credit')).toBeNull();
+      const credit = within(thisPanelSources()).getByRole('link');
       expect(credit).toHaveAttribute('href', COMMONS_PICTURES[1].href);
       expect(credit).toHaveTextContent('Dietmar Rabich');
       expect(credit).toHaveTextContent('CC BY-SA 4.0');
+      closeSources();
     });
 
     it('opens What Was the Holocaust?, sets the Niemöller quotation, and links to the USHMM', () => {
@@ -361,7 +381,7 @@ describe('The Holocaust Memorial Day display case page', () => {
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(HOLOCAUST_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
-    expect(screen.getByText('Display case — photographs to come')).toBeInTheDocument();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(JSON.stringify([HOLOCAUST, HOLOCAUST_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/holocaust');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/holocaust');
@@ -369,14 +389,17 @@ describe('The Holocaust Memorial Day display case page', () => {
 });
 
 describe('Holocaust Memorial Day on the museum map', () => {
-  it('is a room on the First Floor, with an Exhibition Hall, a Display Case and Never Forget', () => {
+  it('is a room on the First Floor, with an Exhibition Hall, a Display Case, the Walk, Lay a Stone, A Minute’s Stillness and the timeline', () => {
     const level = getLevelConfig('/exhibitions/holocaust/artifacts/case');
     expect(level.title).toBe('Holocaust Memorial Day');
     expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/holocaust'],
       ['Display Case', '/exhibitions/holocaust/artifacts/case'],
-      ['Never Forget', '/exhibitions/holocaust/stones'],
+      ['The Walk', '/exhibitions/holocaust/walk'],
+      ['Lay a Stone', '/exhibitions/holocaust/stones'],
+      ['A Minute’s Stillness', '/exhibitions/holocaust/stillness'],
+      ['The Timeline of the Holocaust', '/exhibitions/holocaust/timeline'],
     ]);
     expect(getRoomByPath('/exhibitions/holocaust')?.parent).toBe('first-floor');
     expect(getRoomByPath('/exhibitions/holocaust/artifacts/case')?.parent).toBe('holocaust');

@@ -660,6 +660,15 @@ export default function HrArtifactViewer({ artifactId }: Props) {
           .hra-pbar-track-name { font-size: 12px; }
           .hra-info-btn { width: 42px; height: 42px; font-size: 22px; }
         }
+        /* A phone: the track's name gives way, and the time stands without its bar, so the whole player fits. */
+        @media (max-width: 560px) {
+          .hra-player-bar { gap: 10px; }
+          .hra-pbar-side { padding: 5px 10px; }
+          .hra-pbar-track { flex: 1 1 auto; }
+          .hra-pbar-track-artist { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+          .hra-pbar-progress { flex: 0 0 auto; min-width: 0; }
+          .hra-pbar-prog-bar { display: none; }
+        }
       `}</style>
 
       {/* Header */}

@@ -276,6 +276,8 @@
 
 /* ───────── The stops along the lime line ───────── */
 .bht-track { grid-area: track; position: relative; z-index: 2; display: flex; align-items: center; gap: 18px; padding: 10px max(4vw, 24px) 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
+/* Where the line runs to the screen's edges (an iPad), it sits above the Map button in the corner, so the "Later" arrow is never under it. */
+@media (min-width: 761px) and (max-width: 1240px) { .bht-track { padding-bottom: 84px; } }
 .bht-stops-wrap { position: relative; flex: 1; }
 .bht-line { position: absolute; left: 4%; right: 4%; top: 50%; width: 92%; height: 40px; transform: translateY(-50%); }
 .bht-line path { fill: none; stroke: var(--line); stroke-width: 4; vector-effect: non-scaling-stroke; }

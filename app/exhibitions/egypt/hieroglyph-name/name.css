@@ -24,17 +24,28 @@
 .egn-empty { margin: 0; color: var(--egr-muted); font-size: var(--egr-text); }
 
 .egn-key { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.egn-key li {
+.egn-key li { animation: egn-in 0.35s ease both; }
+.eg-room .egn-key-button {
+  appearance: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
   min-width: 56px;
+  min-height: 44px;
   padding: 8px 10px;
   border: 1px solid var(--egr-line);
   background: rgba(0, 0, 0, 0.25);
-  animation: egn-in 0.35s ease both;
+  color: inherit;
+  cursor: pointer;
 }
+.eg-room .egn-key-button:hover { border-color: var(--egr-gold); }
+.eg-room .egn-key-button[aria-pressed='true'] { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.2); }
+.egn-what { min-height: 1.5em; margin: 0; text-align: center; font-family: var(--pe-body); font-size: var(--egr-text); color: var(--egr-ink); }
+.egn-what strong { color: var(--egr-gold); }
+.egn-scribe { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; padding-top: 14px; border-top: 1px solid var(--egr-line); }
+.egn-cartouche-small,
+.egn-wall[data-direction='down'] .egn-cartouche-small { width: min(100%, 420px); height: auto; max-height: 18vh; }
 .egn-key-glyph { font-size: 2rem; color: var(--egr-gold); }
 .egn-key-letter { font-family: var(--pe-display); font-size: 1.1rem; color: #fff; }
 @keyframes egn-in { from { opacity: 0; transform: translateY(6px); } }
@@ -42,9 +53,10 @@
 .egn-hint { font-size: 0.85em; color: var(--egr-muted); }
 
 .egn-chart summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-family: var(--pe-display); font-size: 1.05em; }
-.egn-chart-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
+.egn-chart-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 6px; margin: 10px 0 0; padding: 0; list-style: none; }
 .egn-chart-grid li { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border: 1px solid var(--egr-line); font-family: var(--pe-display); }
 .egn-chart-glyph { font-size: 1.8rem; color: var(--egr-gold); }
+.egn-chart-what { font-family: var(--pe-body); font-size: 0.68em; line-height: 1.2; text-align: center; color: var(--egr-muted); }
 
 /* A phone or a portrait tablet: the name box first, then the cartouche. */
 @media (max-width: 980px) {

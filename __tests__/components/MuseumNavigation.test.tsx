@@ -3,6 +3,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import type { ComponentType } from 'react';
 import Home from '@/app/page';
+import { MUSEUM_SOUND_KEY, isMuseumSoundOn } from '@/lib/museumSound';
 import GreatHall from '@/app/greathall/page';
 import ThirdFloor from '@/app/exhibitions/third-floor/page';
 import FloorPage from '@/components/FloorPage';
@@ -63,6 +64,36 @@ describe('the landing page logo', () => {
     expect(screen.getByRole('heading', { level: 1 })).toContainElement(logo);
     expect(logo.getAttribute('src')).toContain('logo.png');
     expect(existsSync(join(process.cwd(), 'public', 'logo.png'))).toBe(true);
+  });
+});
+
+describe('the door', () => {
+  it('asks at Enter whether to bring the sound, recommended on, and enters with it', () => {
+    render(<Home />);
+    expect(screen.queryByRole('button', { name: /sound/i })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('link', { name: 'Enter' }));
+    const ask = screen.getByRole('dialog', { name: 'Sound on?' });
+    expect(ask).toHaveTextContent(/best with sound on/);
+    const yes = screen.getByRole('button', { name: 'Enter with sound' });
+    expect(yes).toHaveFocus();
+    expect(push).not.toHaveBeenCalled();
+    fireEvent.click(yes);
+    expect(isMuseumSoundOn()).toBe(true);
+    expect(sessionStorage.getItem(MUSEUM_SOUND_KEY)).toBe('on');
+    expect(push).toHaveBeenCalledWith('/greathall');
+  });
+
+  it('enters without sound, or closes the question with Esc and goes back to Enter', () => {
+    render(<Home />);
+    const enter = screen.getByRole('link', { name: 'Enter' });
+    fireEvent.click(enter);
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(enter).toHaveFocus();
+    fireEvent.click(enter);
+    fireEvent.click(screen.getByRole('button', { name: 'Enter without sound' }));
+    expect(isMuseumSoundOn()).toBe(false);
+    expect(push).toHaveBeenCalledWith('/greathall');
   });
 });
 

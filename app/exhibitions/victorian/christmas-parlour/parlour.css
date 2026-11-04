@@ -93,7 +93,7 @@
 .vcp-spot:focus-visible .vcp-spot-label { opacity: 1; }
 
 /* The card's list of parts */
-.vcp-parts { list-style: none; margin: 0; padding: 12px 0 0; border-top: 1px solid rgba(255, 255, 255, 0.3); display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.vcp-parts { list-style: none; margin: 0; padding: 0 0 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.3); display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .vb-room .vcp-part-button {
   appearance: none;
   width: 100%;
@@ -124,7 +124,7 @@
   .vbr-stage.vcp-stage { --vbr-top: 118px; --scene-h: 36dvh; }
   .vcp-spot::after { width: 18px; height: 18px; margin: -9px 0 0 -9px; }
   .vcp-scene { box-shadow: 0 0 0 4px #6b4a32, 0 0 0 5px #c9a24a, 0 10px 20px rgba(47, 30, 20, 0.4); }
-  .vcp-parts { gap: 4px; padding-top: 8px; }
+  .vcp-parts { gap: 4px; padding-bottom: 8px; }
   .vb-room .vcp-part-button { min-height: 42px; font-size: 14.5px; padding: 6px 8px; }
   .vcp-closing { font-size: 1.05rem; }
   .vcp-closing p:first-child { font-size: 1.15rem; }
@@ -212,3 +212,6 @@
   .vcp-warm, .vcp-lit, .vcp-shade, .vcp-village, .vcp-card, .vcp-clock-sec, .vcp-book, .vcp-spot-label { transition: none !important; }
   .vcp-lit[data-open], .vcp-window[data-open] .vcp-snow, .vcp-clock[data-open] .vcp-clock-sec, .vcp-spot::after, .vcp-part { animation: none !important; }
 }
+
+/* The Sources button (SourcesDrawer), in the linen card's sage. */
+.vb-parlour { --mm-sources-bg: var(--vb-sage); --mm-sources-ink: #fff; }

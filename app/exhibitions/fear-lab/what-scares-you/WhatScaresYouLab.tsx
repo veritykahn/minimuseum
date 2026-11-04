@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent } from 'react';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import RoomShell from '../RoomShell';
+import { LAB_SOURCES } from './labSources';
 import HeartTrace from './HeartTrace';
 import KnownOrUnknown from './KnownOrUnknown';
 import FearBoxes from './FearBoxes';
@@ -10,6 +12,7 @@ import RustlingBushes from './RustlingBushes';
 import { paceFor } from './lab';
 import type { OwnedAssets } from './assets';
 import { createLabSound, type LabSound } from './sound';
+import { useMuseumSound } from '@/lib/museumSound';
 
 /*
  * What Scares You?, on one screen: a dark lab with a heart monitor running
@@ -69,7 +72,9 @@ function subscribeGentle(f: () => void) {
 export default function WhatScaresYouLab({ owned = [], rand }: { owned?: OwnedAssets; rand?: () => number }) {
   const reduced = usePrefersReducedMotion();
   const [tab, setTab] = useState<TabId>('box');
+  // The lab's sound is running; it follows the museum's one sound switch (lib/museumSound.ts).
   const [soundOn, setSoundOn] = useState(false);
+  const [museumSound, setMuseumSound] = useMuseumSound();
   const [motionChoice, setMotionChoice] = useState<boolean | null>(null);
   const motion = motionChoice ?? !reduced;
   const [fright, setFright] = useState(0);
@@ -114,11 +119,38 @@ export default function WhatScaresYouLab({ owned = [], rand }: { owned?: OwnedAs
       sound.current?.close();
       sound.current = null;
       setSoundOn(false);
+      setMuseumSound(false);
     } else {
-      sound.current = createLabSound(gentle, owned);
+      sound.current ??= createLabSound(gentle, owned);
       setSoundOn(!!sound.current);
+      if (sound.current) setMuseumSound(true);
     }
   };
+  // Sound turned on elsewhere in the museum: the lab's sound starts at the
+  // visitor's first press here, as browsers ask. Turned off: it stops.
+  useEffect(() => {
+    if (museumSound && !sound.current) {
+      const wake = () => {
+        if (sound.current) return;
+        sound.current = createLabSound(gentle, owned);
+        setSoundOn(!!sound.current);
+      };
+      window.addEventListener('pointerdown', wake, { once: true });
+      window.addEventListener('keydown', wake, { once: true });
+      return () => {
+        window.removeEventListener('pointerdown', wake);
+        window.removeEventListener('keydown', wake);
+      };
+    }
+    if (!museumSound && sound.current) {
+      sound.current.close();
+      sound.current = null;
+      setSoundOn(false);
+    }
+    return undefined;
+    // gentle and owned are read once, when the sound is made.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [museumSound]);
   const turnSoundOn = () => {
     if (!soundOn) toggleSound();
   };
@@ -155,79 +187,81 @@ export default function WhatScaresYouLab({ owned = [], rand }: { owned?: OwnedAs
   }, [soundOn]);
 
   return (
-    <RoomShell className="fl-lab">
-      <div className="fl-lab-stage" data-tab={tab} data-motion={motion ? 'on' : 'off'} style={{ ['--beat' as string]: `${(60 / pace).toFixed(2)}s`, ['--fright' as string]: fright.toFixed(2) }}>
-        <div className="fl-lab-dark" aria-hidden="true" />
+    <SourcesDrawer groups={LAB_SOURCES}>
+      <RoomShell className="fl-lab">
+        <div className="fl-lab-stage" data-tab={tab} data-motion={motion ? 'on' : 'off'} style={{ ['--beat' as string]: `${(60 / pace).toFixed(2)}s`, ['--fright' as string]: fright.toFixed(2) }}>
+          <div className="fl-lab-dark" aria-hidden="true" />
 
-        <header className="fl-lab-bar">
-          <h1 className="fl-lab-title">
-            What Scares You?
-            <span className="fl-lab-title-sub">The Fear Lab</span>
-          </h1>
-          <div className="fl-lab-tabs" role="tablist" aria-label="Experiments">
-            {TABS.map((x) => (
-              <button
-                key={x.id}
-                ref={(el) => {
-                  tabRefs.current[x.id] = el;
-                }}
-                type="button"
-                role="tab"
-                id={`fl-lab-tab-${x.id}`}
-                aria-controls="fl-lab-panel"
-                aria-selected={tab === x.id}
-                tabIndex={tab === x.id ? 0 : -1}
-                className="fl-lab-tab"
-                onClick={() => choose(x.id)}
-                onKeyDown={onTabKey}
-              >
-                <span className="fl-lab-tab-long">{x.label}</span>
-                <span className="fl-lab-tab-short" aria-hidden="true">{x.short}</span>
+          <header className="fl-lab-bar">
+            <h1 className="fl-lab-title">
+              What Scares You?
+              <span className="fl-lab-title-sub">The Fear Lab</span>
+            </h1>
+            <div className="fl-lab-tabs" role="tablist" aria-label="Experiments">
+              {TABS.map((x) => (
+                <button
+                  key={x.id}
+                  ref={(el) => {
+                    tabRefs.current[x.id] = el;
+                  }}
+                  type="button"
+                  role="tab"
+                  id={`fl-lab-tab-${x.id}`}
+                  aria-controls="fl-lab-panel"
+                  aria-selected={tab === x.id}
+                  tabIndex={tab === x.id ? 0 : -1}
+                  className="fl-lab-tab"
+                  onClick={() => choose(x.id)}
+                  onKeyDown={onTabKey}
+                >
+                  <span className="fl-lab-tab-long">{x.label}</span>
+                  <span className="fl-lab-tab-short" aria-hidden="true">{x.short}</span>
+                </button>
+              ))}
+            </div>
+            <div className="fl-lab-switches">
+              <button type="button" className="fl-lab-switch" aria-pressed={soundOn} onClick={toggleSound}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M4 9h4l5-4v14l-5-4H4z" />
+                  {soundOn ? <path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" className="fl-lab-switch-line" /> : <path d="M16 9l5 6M21 9l-5 6" className="fl-lab-switch-line" />}
+                </svg>
+                Sound <span className="fl-lab-switch-state" aria-hidden="true">{soundOn ? 'on' : 'off'}</span>
               </button>
-            ))}
-          </div>
-          <div className="fl-lab-switches">
-            <button type="button" className="fl-lab-switch" aria-pressed={soundOn} onClick={toggleSound}>
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 9h4l5-4v14l-5-4H4z" />
-                {soundOn ? <path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" className="fl-lab-switch-line" /> : <path d="M16 9l5 6M21 9l-5 6" className="fl-lab-switch-line" />}
-              </svg>
-              Sound <span className="fl-lab-switch-state" aria-hidden="true">{soundOn ? 'on' : 'off'}</span>
-            </button>
-            <button type="button" className="fl-lab-switch" aria-pressed={motion} onClick={() => setMotionChoice(!motion)}>
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M3 12c3-6 6 6 9 0s6 6 9 0" className="fl-lab-switch-line" />
-              </svg>
-              Motion <span className="fl-lab-switch-state" aria-hidden="true">{motion ? 'on' : 'off'}</span>
-            </button>
-            <button
-              type="button"
-              className="fl-lab-switch"
-              aria-pressed={gentle}
-              onClick={toggleGentle}
-              title="For teachers: mostly harmless boxes, fewer, slower, cartoon spiders and softer sounds"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" className="fl-lab-switch-line" />
-              </svg>
-              Gentle <span className="fl-lab-switch-state" aria-hidden="true">{gentle ? 'on' : 'off'}</span>
-            </button>
-          </div>
-        </header>
+              <button type="button" className="fl-lab-switch" aria-pressed={motion} onClick={() => setMotionChoice(!motion)}>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M3 12c3-6 6 6 9 0s6 6 9 0" className="fl-lab-switch-line" />
+                </svg>
+                Motion <span className="fl-lab-switch-state" aria-hidden="true">{motion ? 'on' : 'off'}</span>
+              </button>
+              <button
+                type="button"
+                className="fl-lab-switch"
+                aria-pressed={gentle}
+                onClick={toggleGentle}
+                title="For teachers: mostly harmless boxes, fewer, slower, cartoon spiders and softer sounds"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z" className="fl-lab-switch-line" />
+                </svg>
+                Gentle <span className="fl-lab-switch-state" aria-hidden="true">{gentle ? 'on' : 'off'}</span>
+              </button>
+            </div>
+          </header>
 
-        <section className="fl-lab-panel" id="fl-lab-panel" role="tabpanel" aria-labelledby={`fl-lab-tab-${tab}`}>
-          {tab === 'box' && <FearBoxes motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} owned={owned} rand={rand} />}
-          {tab === 'choose' && <KnownOrUnknown motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} />}
-          {tab === 'bushes' && <RustlingBushes motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} />}
-        </section>
+          <section className="fl-lab-panel" id="fl-lab-panel" role="tabpanel" aria-labelledby={`fl-lab-tab-${tab}`}>
+            {tab === 'box' && <FearBoxes motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} owned={owned} rand={rand} />}
+            {tab === 'choose' && <KnownOrUnknown motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} />}
+            {tab === 'bushes' && <RustlingBushes motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} />}
+          </section>
 
-        <div className="fl-lab-monitor" aria-hidden="true">
-          <svg className="fl-lab-heart" viewBox="0 0 32 30">
-            <path d="M16 28 C 6 20 1 14 1 8.5 C 1 4.4 4.3 1 8.4 1 C 11.6 1 14.3 3 16 5.8 C 17.7 3 20.4 1 23.6 1 C 27.7 1 31 4.4 31 8.5 C 31 14 26 20 16 28 Z" />
-          </svg>
-          <HeartTrace pace={pace} still={!motion} />
+          <div className="fl-lab-monitor" aria-hidden="true">
+            <svg className="fl-lab-heart" viewBox="0 0 32 30">
+              <path d="M16 28 C 6 20 1 14 1 8.5 C 1 4.4 4.3 1 8.4 1 C 11.6 1 14.3 3 16 5.8 C 17.7 3 20.4 1 23.6 1 C 27.7 1 31 4.4 31 8.5 C 31 14 26 20 16 28 Z" />
+            </svg>
+            <HeartTrace pace={pace} still={!motion} />
+          </div>
         </div>
-      </div>
-    </RoomShell>
+      </RoomShell>
+    </SourcesDrawer>
   );
 }

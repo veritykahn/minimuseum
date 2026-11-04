@@ -43,7 +43,6 @@
   --pe-callout-ink: var(--ho-black);
   --pe-case-ink: var(--ho-ink);
   --pe-case-muted: var(--ho-ink);
-  --pe-credits-ink: var(--ho-ink);
   --pe-marks: var(--ho-ink);
   --pe-landing-top: clamp(84px, 14dvh, 128px);
   --pe-landing-h1: clamp(2.4rem, min(6.4vw, 9dvh), 5.6rem);
@@ -92,7 +91,6 @@
 [data-exhibition='holocaust'] { --pe-case-frame: var(--ho-ink); --pe-case-glow: #e9dcc4; --pe-case-placeholder-ink: var(--ho-ink); }
 [data-exhibition='holocaust'] .pe-display-case { --pe-case-frame: var(--ho-stone-light); --pe-case-glow: #e9dcc4; --pe-case-placeholder-ink: var(--ho-stone-light); }
 [data-exhibition='holocaust'] .pe-case-placeholder-label { font-style: normal; letter-spacing: 0.04em; }
-[data-exhibition='holocaust'] .pe-credits { max-width: 640px; }
 
 /* The walkthrough's corner link on poster 2's black: the stone grey. */
 [data-exhibition='holocaust']:has(.pe-walkthrough-content .ho-p2) { --pe-nav-m: var(--ho-stone-light); --pe-nav-ink: var(--ho-stone-light); }

@@ -569,7 +569,8 @@ export default function GreatHall() {
         }
       `}</style>
 
-      {/* Hero Section */}
+      {/* Hero Section (the hall's sound and its button live in the root
+          layout, components/HallSound.tsx, so they carry on up the stairs) */}
       <section className="hero">
         {/* Title */}
         <div className="title-container fade-in-up">

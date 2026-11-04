@@ -1,12 +1,14 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import RoomShell from '../RoomShell';
 import PoppyField, { PoppyControls } from './PoppyField';
 import TwoMinuteSilence from './TwoMinuteSilence';
 import RememberSoldier from './RememberSoldier';
 import { usePoppies } from './usePoppies';
 import { MEMORIAL_TEXT } from './memorialText';
+import { MEMORIAL_SOURCES } from './sources';
 import './memorial.css';
 import './remember.css';
 
@@ -69,6 +71,8 @@ export default function GreatWarMemorial() {
 
   return (
     <RoomShell className="gw-memorial" label="Interactive" title={t.title} bare>
+      {/* The records' source, in the room's Sources drawer (sources.ts). */}
+      <SourcesDrawer groups={MEMORIAL_SOURCES}>
       <div className="gwm-stage" data-tab={tab}>
         <PoppyField count={poppies.count} growFrom={growFrom} />
 
@@ -115,6 +119,7 @@ export default function GreatWarMemorial() {
           <TwoMinuteSilence />
         </section>
       </div>
+      </SourcesDrawer>
     </RoomShell>
   );
 }

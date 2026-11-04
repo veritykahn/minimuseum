@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom';
 import FactNote from '@/components/exhibition/FactNote';
 import { FEAR_LAB_COPY as C } from '../fearLab';
 import { animationUrl, ownsAnimation, type OwnedAssets } from './assets';
-import { BOX_COUNT, drawOpening, type Content, type Credit } from './boxes';
+import { BOX_COUNT, drawOpening, type Content } from './boxes';
 import { pulseFromTaps } from './lab';
 import { creatureSlot, type LabSound } from './sound';
 import SoundPrompt from './SoundPrompt';
@@ -25,7 +25,8 @@ import { swarmLength } from './spiderPaths';
  * is safe to learn: about half the time a scary sound plays and lots and
  * lots of spiders crawl out across the whole screen (Swarm.tsx), and the
  * lights come back up on a cockroach, a tarantula, a bat, a snake, a rat or
- * a centipede, with one checked creepy fact and its photograph's credit.
+ * a centipede, with one checked creepy fact (its source, and the
+ * photograph's credit, are in the lab's Sources drawer, labSources.ts).
  * Otherwise, something harmless: mostly a silly surprise that bursts out
  * with a silly sound (slime, confetti, a jack-in-the-box, a rubber chicken,
  * bubbles, a feather: Surprise.tsx) and a friendly line, sometimes the
@@ -86,60 +87,39 @@ function Pinecone() {
 }
 
 /**
- * The boxes on the shelf: the owner's crate, hatbox, chest and tin (made
- * with Leonardo.Ai, cut out, lids shut; not credited on the page, at the owner's request), the fifth
- * the crate again, turned the other way. Each picture's size, and where its
- * lid meets the box, as a share of its height: the lid is cut from the
- * picture there, and lifts on its own.
+ * The boxes on the shelf: a matching set of five, all the owner's chest
+ * (made with Leonardo.Ai, cut out, lid shut; not credited on the page, at
+ * the owner's request), each with its number. To use another of her boxes
+ * (box-crate, box-hatbox, box-tin, in the same folder) or a new one, change
+ * BOX_LOOK: its picture, its size, and where its lid meets the box, as a
+ * share of its height.
+ *
+ * The box is built in 3D from the picture: the front of the body; the lid,
+ * cut from the picture, with a plain top behind it; and the dark inside.
+ * The lid is hinged along the back edge of the box, so it swings up and
+ * back, and its dark underside shows when it is open.
  */
-const BOX_LOOKS = [
-  { src: '/exhibitions/fear-lab/boxes/box-crate.webp', w: 900, h: 609, lid: 0.23 },
-  { src: '/exhibitions/fear-lab/boxes/box-hatbox.webp', w: 900, h: 790, lid: 0.33 },
-  { src: '/exhibitions/fear-lab/boxes/box-chest.webp', w: 900, h: 637, lid: 0.46 },
-  { src: '/exhibitions/fear-lab/boxes/box-tin.webp', w: 828, h: 900, lid: 0.3 },
-];
+export const BOX_LOOK = { src: '/exhibitions/fear-lab/boxes/box-chest.webp', w: 900, h: 637, lid: 0.46 } as const;
 
-/** A box on the shelf: its picture, cut at the lid, the dark inside under the lid, and its number. */
-function BoxArt({ n, id = 'fl-fb-clip' }: { n: number; id?: string }) {
-  const look = BOX_LOOKS[(n - 1) % BOX_LOOKS.length];
-  const flip = n > BOX_LOOKS.length;
-  const k = Math.min(112 / look.w, 96 / look.h);
-  const w = look.w * k;
-  const h = look.h * k;
-  const x = (120 - w) / 2;
-  const y = 112 - h;
-  const lidY = y + h * look.lid;
-  const clip = `${id}-${n}`;
-  const pic = <image href={look.src} x={x} y={y} width={w} height={h} transform={flip ? 'matrix(-1 0 0 1 120 0)' : undefined} />;
+/** A box: its body, its dark inside, its lid on a hinge at the back, and its number. */
+function BoxArt({ n }: { n: number }) {
+  const look = BOX_LOOK;
+  const vars = { ['--box-src' as string]: `url(${look.src})`, ['--box-lid' as string]: String(look.lid), aspectRatio: `${look.w} / ${look.h}` } as CSSProperties;
   return (
-    <svg viewBox="0 0 120 120" aria-hidden="true" className="fl-fb-art">
-      <defs>
-        <clipPath id={`${clip}-body`}>
-          <rect x="0" y={lidY} width="120" height={120 - lidY} />
-        </clipPath>
-        <clipPath id={`${clip}-lid`}>
-          <rect x="0" y="0" width="120" height={lidY} />
-        </clipPath>
-      </defs>
-      <ellipse cx="60" cy="114" rx={w / 2 - 2} ry="4" fill="rgba(0,0,0,0.5)" />
-      {/* The dark inside, seen once the lid is up. */}
-      <path d={`M ${x + 3} ${lidY} L ${x + w - 3} ${lidY} L ${x + w - 8} ${lidY - 7} L ${x + 8} ${lidY - 7} Z`} fill="#03060c" />
-      <g clipPath={`url(#${clip}-body)`}>{pic}</g>
-      <text x={x + w - 6} y={y + h - 6} textAnchor="end" className="fl-fb-n">{n}</text>
-      <g className="fl-fb-lid" style={{ transformOrigin: `${x + 2}px ${lidY}px` }}>
-        <g clipPath={`url(#${clip}-lid)`}>{pic}</g>
-      </g>
-    </svg>
-  );
-}
-
-/** A photograph's credit: its title, author and licence, each linked. */
-function CreditLine({ credit }: { credit: Credit }) {
-  return (
-    <p className="fl-lab-credit">
-      Photo, cut out: <a href={credit.href} target="_blank" rel="noopener noreferrer">{credit.title}</a>, {credit.author},{' '}
-      {credit.licenceHref ? <a href={credit.licenceHref} target="_blank" rel="noopener noreferrer">{credit.licence}</a> : credit.licence}
-    </p>
+    <span className="fl-fb-art" style={vars} aria-hidden="true">
+      <span className="fl-fb-3d">
+        <span className="fl-fb-mouth" />
+        <span className="fl-fb-body" />
+        <span className="fl-fb-lid">
+          <span className="fl-fb-lid-back" />
+          <span className="fl-fb-lid-top" />
+          <span className="fl-fb-lid-front">
+            <span className="fl-fb-lid-under" />
+          </span>
+        </span>
+      </span>
+      <span className="fl-fb-n">{n}</span>
+    </span>
   );
 }
 
@@ -348,7 +328,7 @@ export default function FearBoxes({
               style={{ ['--build' as string]: `${BUILD_MS}ms` } as CSSProperties}
               aria-hidden="true"
             >
-              <BoxArt n={n} id="fl-fb-dark-clip" />
+              <BoxArt n={n} />
             </div>
             {phase === 'out' && content.kind === 'surprise' && <SurpriseBurst id={content.id} still={!motion} video={surpriseVideo(content)} />}
             {phase === 'out' && (content.kind === 'pinecone' || content.kind === 'nothing') && (
@@ -466,7 +446,6 @@ export default function FearBoxes({
               <>
                 <h2 className="fl-lab-heading">{content.name}</h2>
                 <FactNote fact={content.fact} className="fl-lab-fact" />
-                <CreditLine credit={content.credit} />
               </>
             )}
             {content.kind === 'surprise' && (

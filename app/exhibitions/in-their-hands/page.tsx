@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import { floorReturnFor } from '@/lib/floors';
@@ -8,6 +9,7 @@ import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector, { PosterProjectorEnd, type ProjectorPoster } from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
 import LandingRow from '@/components/exhibition/LandingRow';
+import ExploreRow, { ExploreCue } from '@/components/exhibition/ExploreRow';
 import type { TeachContent } from '@/components/projector/TeachSheet';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { ITH_TALK } from '@/components/projector/posterTalk';
@@ -16,8 +18,12 @@ import { FxText, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '
 import AtmosphereLayer from '@/components/exhibition/AtmosphereLayer';
 import { EntranceCopy } from '@/components/exhibition/EntranceCopy';
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
+import RoomSound, { useRoomSound } from '@/components/exhibition/RoomSound';
+import { usePanelMoment } from '@/components/exhibition/PanelMoment';
+import { momentSrc, posterSoundDir } from '@/components/exhibition/posterSoundPaths';
 import '@/components/exhibition/poster-exhibition.css';
 import { ITH_ATMOSPHERES, poster1Content, poster2Content, type IthItem } from './posters';
+import { ITH_ROOMS } from './rooms';
 import './in-their-hands.css';
 
 const poster1Marks = chapterMarks(poster1Content);
@@ -39,6 +45,7 @@ const TEACH: TeachContent = { slug: 'in-their-hands', name: 'In Their Hands', po
 // ============================================
 /** The top-left link back to this exhibition's floor, at its card. */
 const FLOOR_RETURN = floorReturnFor('in-their-hands');
+const SLUG = 'in-their-hands';
 
 export default function InTheirHands() {
   const [projector, setProjector] = useProjectorMode();
@@ -129,6 +136,19 @@ export default function InTheirHands() {
   const copyClass = own && !onCopy ? 'pe-follow' : own ? '' : 'ith-effect-fade-in';
   const atmosphere = currentItem?.atmosphere;
   const atmo = atmosphere ? ITH_ATMOSPHERES[atmosphere] : undefined;
+
+  /* The room's sound: each poster its own music under the panels (poster 1
+     monks' voices in an old monastery, poster 2 an oud at dusk), and a short
+     moment as some panels arrive: the shepherd's stone and the breaking jar,
+     the scroll unrolling, the coins counted out and thrown down. */
+  const posterMusic = isMain ? undefined : `${posterSoundDir(SLUG)}/${activeView}.mp3`;
+  const [momentSounding, setMomentSounding] = useState(false);
+  const roomSound = useRoomSound(posterMusic, { duck: momentSounding, moments: !isMain });
+  usePanelMoment(!isMain && currentItem?.moment ? momentSrc(SLUG, currentItem.moment) : undefined, `${activeView}:${posterStep}`, {
+    on: roomSound.on,
+    hushed: roomSound.hushed,
+    onSounding: setMomentSounding,
+  });
   /** Coins are transparent cut-outs: they get a shadow that follows the metal and a glint. */
   const isCoin = (item: IthItem) => item.special === 'thirty-pieces' && !!item.src?.endsWith('.png');
 
@@ -365,7 +385,7 @@ export default function InTheirHands() {
           align-items: flex-start;
           justify-content: flex-start;
           text-align: left;
-          padding-top: 15vh;
+          padding-top: max(15vh, 96px);
           padding-left: 10vw;
           padding-right: 30vw;
         }
@@ -374,7 +394,7 @@ export default function InTheirHands() {
           align-items: flex-start;
           justify-content: flex-end;
           text-align: right;
-          padding-top: 15vh;
+          padding-top: max(15vh, 96px);
           padding-right: 10vw;
           padding-left: 30vw;
         }
@@ -855,7 +875,7 @@ export default function InTheirHands() {
            ============================================ */
         @media (max-width: 900px) {
           .ith-entry-cards { grid-template-columns: 1fr; gap: 20px; }
-          .ith-pos-top-left, .ith-pos-top-right { padding: 15vh 24px 15vh 24px; }
+          .ith-pos-top-left, .ith-pos-top-right { padding: max(15vh, 84px) 24px 15vh 24px; }
           .ith-pos-bottom-left, .ith-pos-bottom-right, .ith-pos-bottom-center {
             padding-left: 24px;
             padding-right: 24px;
@@ -905,11 +925,19 @@ export default function InTheirHands() {
           </span>
         </ExhibitionNav>
 
-        <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
-          <span className="ith-nav-label" style={{ color: navInk }}>Resources</span>
-          <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>&#8594;</span>
-          <span className="ith-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
-        </ExhibitionNav>
+        {/* The room sound sits beside the Resources corner, in one row with it (pe-corner-row). */}
+        <div className="pe-corner-row">
+          {!isMain && (
+            <div className="pe-sound-controls">
+              <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
+            </div>
+          )}
+          <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
+            <span className="ith-nav-label" style={{ color: navInk }}>Resources</span>
+            <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>&#8594;</span>
+            <span className="ith-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
+          </ExhibitionNav>
+        </div>
         </>
       )}
 
@@ -917,6 +945,7 @@ export default function InTheirHands() {
           MAIN EXHIBITION VIEW
           ============================================ */}
       {activeView === 'main' && !projector && (
+        <>
         <div className="ith-exhibition-main pe-landing">
           <div className="ith-exhibition-title pe-landing-head">
             <h1>In Their Hands</h1>
@@ -936,7 +965,7 @@ export default function InTheirHands() {
             <Link href="/exhibitions/in-their-hands/artifacts/case-6" className="ith-display-case pe-landing-case">
               <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.png" alt="Lit display case with three coins in round holders before a printed information card" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-1.webp" alt="Lit display case with three coins in round holders before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 6</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the World of Jesus</p>
@@ -945,7 +974,7 @@ export default function InTheirHands() {
             <Link href="/exhibitions/in-their-hands/artifacts/case-7" className="ith-display-case pe-landing-case">
               <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.png" alt="Lit display case with six coins in round holders before two printed information cards" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-2.webp" alt="Lit display case with six coins in round holders before two printed information cards" />
               <p className="ith-case-label">Gallery II, Case 7</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from Jesus&rsquo; Ministry and Passion</p>
@@ -954,7 +983,7 @@ export default function InTheirHands() {
             <Link href="/exhibitions/in-their-hands/artifacts/case-8" className="ith-display-case pe-landing-case">
               <span className="pe-case-frame" aria-hidden="true" />
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/Case-3.png" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
+              <img className="ith-case-image" src="/exhibitions/in-their-hands/artifacts/case-3.webp" alt="Lit display case with two coins in round holders and a third in a sealed grading slab, before a printed information card" />
               <p className="ith-case-label">Gallery II, Case 8</p>
               <p className="ith-case-title">In Their Hands</p>
               <p className="ith-case-subtitle">Coins from the Early Church</p>
@@ -967,7 +996,12 @@ export default function InTheirHands() {
             </button>
           </LandingRow>
 
+          <ExploreCue rooms={ITH_ROOMS} />
         </div>
+
+        {/* The interactive rooms, below the first screen; the case's Interactives list the same (rooms.ts). */}
+        <ExploreRow rooms={ITH_ROOMS} style={{ '--pe-explore-ink': gold, '--pe-explore-accent': gold, '--pe-explore-on-accent': poster1Sepia, '--pe-display': "'Cormorant Garamond', serif", '--pe-body': "'Cormorant Garamond', serif", '--pe-ui': "'Outfit', sans-serif" }} />
+        </>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">
@@ -996,6 +1030,7 @@ export default function InTheirHands() {
         nextStep={nextStep}
         prevStep={prevStep}
         returnToMain={returnToMain}
+        roomSound={roomSound.available ? roomSound : undefined}
       >
         <>
         {(activeView === 'poster1' || activeView === 'poster2') && atmosphere && atmo && (

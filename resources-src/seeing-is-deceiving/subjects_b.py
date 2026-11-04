@@ -117,7 +117,7 @@ VASE_OR_FACES = [
 
 ART_LP = {
   "slug": "creating-optical-illusions",
-  "out": ART + "Lesson Plan_ Creating Optical Illusions (Art, Grades 5-8) - Teacher Guide.pdf",
+  "out": ART + "Lesson-Plan-Creating-Optical-Illusions-Art-Grades-5-8-Teacher-Guide.pdf",
   "eyebrow": "Teacher lesson plan", "title": "Creating Optical Illusions",
   "sub": "Art Meets Science · Grades 5–8 · Art · 30 minutes",
   "foot": "Teacher Lesson Plan · Grades 5–8 Art", "hero": ART_HERO, "css": CSS,

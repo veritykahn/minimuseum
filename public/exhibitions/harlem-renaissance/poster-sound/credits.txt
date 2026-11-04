@@ -1,0 +1,2 @@
+The floor hall's sound from Harlem's doorway (components/FloorSound.ts).
+floor.mp3 — "Riverside Blues", King Oliver's Creole Jazz Band, 1923 (public domain in the US). From ../../harlem/audio/migration/chicago.mp3, looped seamlessly, levelled quiet.

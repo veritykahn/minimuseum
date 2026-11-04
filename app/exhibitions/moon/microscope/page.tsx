@@ -3,13 +3,14 @@
 import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
-import FactNote from '@/components/exhibition/FactNote';
+import FactNote, { type ApprovedFact } from '@/components/exhibition/FactNote';
+import SourcesDrawer, { type SourceEntry, type SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import RoomShell from '../RoomShell';
 import { MICROSCOPE_NOTES, REGOLITH } from '../moon';
 import Eyepiece, { type EyepieceHandle, type StageView, type WipeReport } from './Eyepiece';
 import Knob from './Knob';
 import { EARTH_SLIDES, MOON_SLIDES, SLIDES, isMoon, type EarthSample, type Slide } from './slides';
-import { blurFor, FOCUS_START } from './focus';
+import { blurFor, FOCUS_START, FOCUS_STEP } from './focus';
 import { atEdge, CENTRE, clampPan, EYEPIECE, nudge, OBJECTIVES, totalPower, type Pan } from './stage';
 import { PRACTICE } from './practice';
 import './microscope.css';
@@ -37,8 +38,9 @@ import './microscope.css';
  * source: each photograph's caption from its own record (slides.ts), what
  * Moon dust is made of and the meteorite in the case (moon.ts,
  * MICROSCOPE_NOTES), and the microscope tips (practice.ts). The chosen
- * sample's name, caption, source and credit are set in the description
- * panel, at reading size.
+ * sample's name and caption are set in the description panel, at reading
+ * size; every source and photograph credit (title, author and licence, each
+ * linked) is in the room's Sources drawer, by step.
  */
 
 const STEPS = [
@@ -50,17 +52,23 @@ const STEPS = [
 ] as const;
 type StepKey = (typeof STEPS)[number]['key'];
 
+const cite = (fact: ApprovedFact, note: string): SourceEntry[] => fact.sources.map((s) => ({ ...s, note }));
 
-/** A photograph's credit: its title, author and licence, each linked. */
-function Credit({ slide }: { slide: Slide }) {
-  const c = slide.credit;
-  return (
-    <p className="mo-ms-credit">
-      Photo: <a href={c.href} target="_blank" rel="noopener noreferrer">{c.title}</a>, {c.author},{' '}
-      {c.licenceHref ? <a href={c.licenceHref} target="_blank" rel="noopener noreferrer">{c.licence}</a> : c.licence}
-    </p>
-  );
-}
+/** The Sources drawer, step by step: the tips, each photograph's record and credit, and the notes. */
+const MICROSCOPE_SOURCES: SourceGroup[] = [
+  { title: 'Wipe the slide', items: cite(PRACTICE.wipe, 'Wiping a slide clean') },
+  {
+    title: 'Place a sample: the photographs',
+    items: [...MOON_SLIDES, ...EARTH_SLIDES].flatMap((s): SourceEntry[] => [
+      ...cite(s.caption, s.name),
+      { note: `${s.name}, photograph`, label: `${s.credit.title}, ${s.credit.author}`, href: s.credit.href, licence: s.credit.licence, licenceHref: s.credit.licenceHref },
+    ]),
+  },
+  { title: 'Focus', items: cite(PRACTICE.lowFirst, 'Focusing with the lowest-power lens first') },
+  { title: 'Magnify', items: [...cite(PRACTICE.total, 'Total magnification'), ...cite(PRACTICE.parfocal, 'Lenses that stay nearly in focus')] },
+  { title: 'Explore', items: [...cite(PRACTICE.field, 'The field of view'), ...cite(MICROSCOPE_NOTES.dust, 'What Moon dust is made of')] },
+  { title: 'In the display case', items: cite(MICROSCOPE_NOTES.adrar, 'The lunar meteorite Adrar 013') },
+];
 
 const earthWord = (slide: Slide) => {
   const key = slide.id.replace('earth-', '') as EarthSample;
@@ -144,7 +152,7 @@ function Tray({ only, onChoose, onClose }: { only: 'moon' | 'earth' | null; onCh
   );
 }
 
-/** One sample's description: its name, what its photograph shows (with its source), and its credit. */
+/** One sample's description: its name and what its photograph shows (its source and credit are in the Sources drawer). */
 function About({ slide, heading: Heading }: { slide: Slide; heading: 'h2' | 'h3' }) {
   return (
     <div className="mo-ms-about">
@@ -152,7 +160,6 @@ function About({ slide, heading: Heading }: { slide: Slide; heading: 'h2' | 'h3'
         {slide.name}
       </Heading>
       <FactNote fact={slide.caption} className="mo-ms-caption" />
-      <Credit slide={slide} />
     </div>
   );
 }
@@ -222,8 +229,8 @@ export default function MoonMicroscope() {
 
   const wipe = () => eyepiece.current?.sweep();
 
-  const placeSample = (e: { currentTarget: HTMLButtonElement }) => {
-    if (busy) return;
+  /** Open the jar tray, if the slide is ready for a sample. */
+  const openPlace = () => {
     if (stage.left.smudged) {
       setStatus('The slide’s smudged. Wipe it first!');
       return;
@@ -232,9 +239,25 @@ export default function MoonMicroscope() {
       setStatus('There’s a sample on this slide already. Wipe it off, or take a fresh slide.');
       return;
     }
-    opener.current = e.currentTarget;
     setTray('place');
   };
+  // Pressed while the cloth is still wiping: the tray comes out as soon as it stops, so one press is enough.
+  const [trayWaiting, setTrayWaiting] = useState(false);
+  const placeSample = (e: { currentTarget: HTMLButtonElement }) => {
+    opener.current = e.currentTarget;
+    if (busy) {
+      setTrayWaiting(true);
+      return;
+    }
+    openPlace();
+  };
+  useEffect(() => {
+    if (busy || !trayWaiting) return;
+    setTrayWaiting(false);
+    openPlace();
+    // Only once the stage stops moving.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [busy, trayWaiting]);
 
   const fresh = () => {
     eyepiece.current?.fresh();
@@ -340,191 +363,192 @@ export default function MoonMicroscope() {
   const moonOnStage = (left && isMoon(left)) || (right && isMoon(right));
 
   return (
-    <RoomShell className="mo-microscope">
-      <div className="mo-ms-stage" data-step={step}>
-        <div className="mo-ms-sky" aria-hidden="true">
-          <span className="mo-ms-glow" />
-        </div>
-
-        <header className="mo-ms-bar">
-          <h1 className="mo-ms-title">
-            Under the Microscope
-            <span className="mo-ms-title-sub">Moon dust · Earth&rsquo;s soil</span>
-          </h1>
-          <ol className="mo-ms-steps" aria-label="Steps">
-            {STEPS.map((s, i) => (
-              <li
-                key={s.key}
-                className={i < stepAt ? 'mo-ms-step is-done' : i === stepAt ? 'mo-ms-step is-now' : 'mo-ms-step'}
-                aria-current={i === stepAt ? 'step' : undefined}
-              >
-                <span className="mo-ms-step-num" aria-hidden="true">{i < stepAt ? '✓' : i + 1}</span>
-                <span className="mo-ms-step-label">{s.label}</span>
-                {i < stepAt && <span className="mo-ms-sr"> (done)</span>}
-              </li>
-            ))}
-          </ol>
-        </header>
-
-        <div className="mo-ms-body">
-          <div className="mo-ms-scope">
-            <Eyepiece
-              ref={eyepiece}
-              objective={objective}
-              pan={pan}
-              blur={blur}
-              reduced={reduced}
-              label={shownLabel}
-              tool={tool}
-              onWiped={onWiped}
-              onChange={onChange}
-              onPan={onPan}
-              onMove={move}
-            />
-            <p className="mo-ms-prompt">{prompt[step]}</p>
-            <p className="mo-ms-status" role="status">{status}</p>
-            <div className="mo-ms-actions">
-              <span className="mo-ms-swatch" aria-hidden="true" style={{ ['--dust' as string]: String(clothDust) }} />
-              <button type="button" className={step === 'wipe' ? 'mo-ms-button mo-ms-button-next' : 'mo-ms-button'} aria-disabled={busy || undefined} onClick={wipe}>
-                Wipe
-              </button>
-              <button
-                type="button"
-                className={step === 'place' ? 'mo-ms-button mo-ms-button-next' : 'mo-ms-button'}
-                aria-disabled={busy || undefined}
-                aria-haspopup="dialog"
-                onClick={placeSample}
-              >
-                Place sample
-              </button>
-              <button type="button" className="mo-ms-button mo-ms-button-quiet" onClick={fresh}>
-                Fresh slide
-              </button>
-            </div>
+    <SourcesDrawer groups={MICROSCOPE_SOURCES}>
+      <RoomShell className="mo-microscope">
+        <div className="mo-ms-stage" data-step={step}>
+          <div className="mo-ms-sky" aria-hidden="true">
+            <span className="mo-ms-glow" />
           </div>
 
-          <div className="mo-ms-tools">
-            <div className="mo-ms-tool mo-ms-focus" role="group" aria-labelledby="mo-ms-focus-label">
-              <h2 className="mo-ms-tool-label" id="mo-ms-focus-label">Focus</h2>
-              <div className="mo-ms-focus-row">
-                <button type="button" className="mo-ms-round" aria-label="Turn the focus knob down" onClick={() => turnFocus(focus - 2)}>
-                  −
+          <header className="mo-ms-bar">
+            <h1 className="mo-ms-title">
+              Under the Microscope
+              <span className="mo-ms-title-sub">Moon dust · Earth&rsquo;s soil</span>
+            </h1>
+            <ol className="mo-ms-steps" aria-label="Steps">
+              {STEPS.map((s, i) => (
+                <li
+                  key={s.key}
+                  className={i < stepAt ? 'mo-ms-step is-done' : i === stepAt ? 'mo-ms-step is-now' : 'mo-ms-step'}
+                  aria-current={i === stepAt ? 'step' : undefined}
+                >
+                  <span className="mo-ms-step-num" aria-hidden="true">{i < stepAt ? '✓' : i + 1}</span>
+                  <span className="mo-ms-step-label">{s.label}</span>
+                  {i < stepAt && <span className="mo-ms-sr"> (done)</span>}
+                </li>
+              ))}
+            </ol>
+          </header>
+
+          <div className="mo-ms-body">
+            <div className="mo-ms-scope">
+              <Eyepiece
+                ref={eyepiece}
+                objective={objective}
+                pan={pan}
+                blur={blur}
+                reduced={reduced}
+                label={shownLabel}
+                tool={tool}
+                onWiped={onWiped}
+                onChange={onChange}
+                onPan={onPan}
+                onMove={move}
+              />
+              <p className="mo-ms-prompt">{prompt[step]}</p>
+              <p className="mo-ms-status" role="status">{status}</p>
+              <div className="mo-ms-actions">
+                <span className="mo-ms-swatch" aria-hidden="true" style={{ ['--dust' as string]: String(clothDust) }} />
+                <button type="button" className={step === 'wipe' ? 'mo-ms-button mo-ms-button-next' : 'mo-ms-button'} aria-disabled={busy || undefined} onClick={wipe}>
+                  Wipe
                 </button>
-                <Knob value={focus} onChange={turnFocus} label="Focus knob" valueText={!left ? 'Nothing to focus on' : sharp ? 'Sharp' : 'Blurry'} />
-                <button type="button" className="mo-ms-round" aria-label="Turn the focus knob up" onClick={() => turnFocus(focus + 2)}>
-                  +
+                <button
+                  type="button"
+                  className={step === 'place' ? 'mo-ms-button mo-ms-button-next' : 'mo-ms-button'}
+                  aria-haspopup="dialog"
+                  onClick={placeSample}
+                >
+                  Place sample
+                </button>
+                <button type="button" className="mo-ms-button mo-ms-button-quiet" onClick={fresh}>
+                  Fresh slide
                 </button>
               </div>
-              <p className={step === 'focus' || (left && !sharp) ? 'mo-ms-readout is-next' : 'mo-ms-readout'} aria-hidden="true">
-                {!left ? '—' : sharp ? 'Sharp' : 'Blurry'}
-              </p>
             </div>
 
-            <div className="mo-ms-tool" role="group" aria-labelledby="mo-ms-lens-label">
-              <h2 className="mo-ms-tool-label" id="mo-ms-lens-label">Objective lens</h2>
-              <div className="mo-ms-nosepiece">
-                {OBJECTIVES.map((o, i) => (
-                  <button
-                    key={o.lens}
-                    type="button"
-                    className="mo-ms-lens"
-                    aria-pressed={objective === i}
-                    aria-label={`${o.lens}× objective lens: ${totalPower(i)}× in all`}
-                    onClick={() => chooseObjective(i)}
-                  >
-                    <span className="mo-ms-lens-barrel" aria-hidden="true" style={{ height: 14 + i * 9 }} />
-                    <span aria-hidden="true">{o.lens}×</span>
+            <div className="mo-ms-tools">
+              <div className="mo-ms-tool mo-ms-focus" role="group" aria-labelledby="mo-ms-focus-label">
+                <h2 className="mo-ms-tool-label" id="mo-ms-focus-label">Focus</h2>
+                <div className="mo-ms-focus-row">
+                  <button type="button" className="mo-ms-round" aria-label="Turn the focus knob down" onClick={() => turnFocus(focus - FOCUS_STEP)}>
+                    −
                   </button>
-                ))}
+                  <Knob value={focus} onChange={turnFocus} step={FOCUS_STEP} label="Focus knob" valueText={!left ? 'Nothing to focus on' : sharp ? 'Sharp' : 'Blurry'} />
+                  <button type="button" className="mo-ms-round" aria-label="Turn the focus knob up" onClick={() => turnFocus(focus + FOCUS_STEP)}>
+                    +
+                  </button>
+                </div>
+                <p className={step === 'focus' || (left && !sharp) ? 'mo-ms-readout is-next' : 'mo-ms-readout'} aria-hidden="true">
+                  {!left ? '—' : sharp ? 'Sharp' : 'Blurry'}
+                </p>
               </div>
-              <p className="mo-ms-readout">
-                {EYEPIECE}× eyepiece × {OBJECTIVES[objective].lens}× lens = <strong>{totalPower(objective)}×</strong>
-              </p>
+
+              <div className="mo-ms-tool" role="group" aria-labelledby="mo-ms-lens-label">
+                <h2 className="mo-ms-tool-label" id="mo-ms-lens-label">Objective lens</h2>
+                <div className="mo-ms-nosepiece">
+                  {OBJECTIVES.map((o, i) => (
+                    <button
+                      key={o.lens}
+                      type="button"
+                      className="mo-ms-lens"
+                      aria-pressed={objective === i}
+                      aria-label={`${o.lens}× objective lens: ${totalPower(i)}× in all`}
+                      onClick={() => chooseObjective(i)}
+                    >
+                      <span className="mo-ms-lens-barrel" aria-hidden="true" style={{ height: 14 + i * 9 }} />
+                      <span aria-hidden="true">{o.lens}×</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="mo-ms-readout">
+                  {EYEPIECE}× eyepiece × {OBJECTIVES[objective].lens}× lens = <strong>{totalPower(objective)}×</strong>
+                </p>
+              </div>
+
+              <div className="mo-ms-tool" role="group" aria-labelledby="mo-ms-stage-label">
+                <h2 className="mo-ms-tool-label" id="mo-ms-stage-label">Move the slide</h2>
+                <div className="mo-ms-pad">
+                  <button type="button" className="mo-ms-round mo-ms-pad-up" aria-label="Move the slide up" aria-disabled={edges.up || undefined} onClick={() => move(0, -0.25)}>
+                    ▲
+                  </button>
+                  <button type="button" className="mo-ms-round mo-ms-pad-left" aria-label="Move the slide left" aria-disabled={edges.left || undefined} onClick={() => move(-0.25, 0)}>
+                    ◀
+                  </button>
+                  <button type="button" className="mo-ms-round mo-ms-pad-mid" aria-label="Move the slide back to the middle" onClick={() => setPan(CENTRE)}>
+                    ●
+                  </button>
+                  <button type="button" className="mo-ms-round mo-ms-pad-right" aria-label="Move the slide right" aria-disabled={edges.right || undefined} onClick={() => move(0.25, 0)}>
+                    ▶
+                  </button>
+                  <button type="button" className="mo-ms-round mo-ms-pad-down" aria-label="Move the slide down" aria-disabled={edges.down || undefined} onClick={() => move(0, 0.25)}>
+                    ▼
+                  </button>
+                </div>
+                <div className="mo-ms-hand" role="group" aria-label="Dragging on the slide">
+                  <button type="button" className="mo-ms-chip" aria-pressed={tool === 'move'} onClick={() => setToolChoice('move')}>
+                    Drag to move
+                  </button>
+                  <button type="button" className="mo-ms-chip" aria-pressed={tool === 'cloth'} onClick={() => setToolChoice('cloth')}>
+                    Drag to wipe
+                  </button>
+                </div>
+              </div>
             </div>
 
-            <div className="mo-ms-tool" role="group" aria-labelledby="mo-ms-stage-label">
-              <h2 className="mo-ms-tool-label" id="mo-ms-stage-label">Move the slide</h2>
-              <div className="mo-ms-pad">
-                <button type="button" className="mo-ms-round mo-ms-pad-up" aria-label="Move the slide up" aria-disabled={edges.up || undefined} onClick={() => move(0, -0.25)}>
-                  ▲
-                </button>
-                <button type="button" className="mo-ms-round mo-ms-pad-left" aria-label="Move the slide left" aria-disabled={edges.left || undefined} onClick={() => move(-0.25, 0)}>
-                  ◀
-                </button>
-                <button type="button" className="mo-ms-round mo-ms-pad-mid" aria-label="Move the slide back to the middle" onClick={() => setPan(CENTRE)}>
-                  ●
-                </button>
-                <button type="button" className="mo-ms-round mo-ms-pad-right" aria-label="Move the slide right" aria-disabled={edges.right || undefined} onClick={() => move(0.25, 0)}>
-                  ▶
-                </button>
-                <button type="button" className="mo-ms-round mo-ms-pad-down" aria-label="Move the slide down" aria-disabled={edges.down || undefined} onClick={() => move(0, 0.25)}>
-                  ▼
-                </button>
+            <section className="mo-ms-panel" aria-labelledby="mo-ms-heading">
+              <p className="mo-ms-kicker">{right ? 'Two slides, side by side' : left ? `On the stage · ${isMoon(left) ? 'Moon' : 'Earth'}` : 'On the stage'}</p>
+              {right && left ? (
+                <>
+                  <h2 className="mo-ms-heading" id="mo-ms-heading">Moon and Earth</h2>
+                  <About slide={left} heading="h3" />
+                  <About slide={right} heading="h3" />
+                </>
+              ) : left ? (
+                <About slide={left} heading="h2" />
+              ) : (
+                <h2 className="mo-ms-heading" id="mo-ms-heading">{stage.left.smudged ? 'A fresh slide' : 'A clean slide'}</h2>
+              )}
+
+              {left && (
+                <div className="mo-ms-actions mo-ms-actions-compare">
+                  {right ? (
+                    <button type="button" className="mo-ms-button mo-ms-button-quiet" onClick={() => eyepiece.current?.endCompare()}>
+                      Back to one slide
+                    </button>
+                  ) : (
+                    <button type="button" className={step === 'explore' ? 'mo-ms-button mo-ms-button-next' : 'mo-ms-button'} aria-haspopup="dialog" onClick={compare}>
+                      Compare with {isMoon(left) ? 'Earth’s soil' : 'Moon dust'}
+                    </button>
+                  )}
+                </div>
+              )}
+
+              <div className="mo-ms-poster">
+                {right ? <p>{REGOLITH.surface} {REGOLITH.differences}</p>
+                : left && isMoon(left) ? <p>{REGOLITH.unlike} {REGOLITH.jagged}</p>
+                : left ? <p><Unlike slide={left} /></p>
+                : <p>{REGOLITH.study} {REGOLITH.surface}</p>}
+                {wipedMoon && (moonOnStage || !left) && <p className="mo-ms-poster-more">{REGOLITH.gunpowder}</p>}
               </div>
-              <div className="mo-ms-hand" role="group" aria-label="Dragging on the slide">
-                <button type="button" className="mo-ms-chip" aria-pressed={tool === 'move'} onClick={() => setToolChoice('move')}>
-                  Drag to move
-                </button>
-                <button type="button" className="mo-ms-chip" aria-pressed={tool === 'cloth'} onClick={() => setToolChoice('cloth')}>
-                  Drag to wipe
-                </button>
+              {moonOnStage && <FactNote fact={MICROSCOPE_NOTES.dust} className="mo-ms-fact" />}
+
+              <div className="mo-ms-tip">
+                <p className="mo-ms-tip-title">Microscope tip</p>
+                <FactNote fact={tip} className="mo-ms-fact" />
               </div>
-            </div>
+
+              <div className="mo-ms-case-wrap">
+                <Link href="/exhibitions/moon/artifacts/case" className="mo-ms-case">See the lunar meteorite in the display case</Link>
+                <FactNote fact={MICROSCOPE_NOTES.adrar} className="mo-ms-fact" />
+              </div>
+
+              <p className="mo-ms-credit mo-ms-photo-note">These are photographs taken through real microscopes; the lens buttons zoom the photo.</p>
+            </section>
           </div>
 
-          <section className="mo-ms-panel" aria-labelledby="mo-ms-heading">
-            <p className="mo-ms-kicker">{right ? 'Two slides, side by side' : left ? `On the stage · ${isMoon(left) ? 'Moon' : 'Earth'}` : 'On the stage'}</p>
-            {right && left ? (
-              <>
-                <h2 className="mo-ms-heading" id="mo-ms-heading">Moon and Earth</h2>
-                <About slide={left} heading="h3" />
-                <About slide={right} heading="h3" />
-              </>
-            ) : left ? (
-              <About slide={left} heading="h2" />
-            ) : (
-              <h2 className="mo-ms-heading" id="mo-ms-heading">{stage.left.smudged ? 'A fresh slide' : 'A clean slide'}</h2>
-            )}
-
-            {left && (
-              <div className="mo-ms-actions mo-ms-actions-compare">
-                {right ? (
-                  <button type="button" className="mo-ms-button mo-ms-button-quiet" onClick={() => eyepiece.current?.endCompare()}>
-                    Back to one slide
-                  </button>
-                ) : (
-                  <button type="button" className={step === 'explore' ? 'mo-ms-button mo-ms-button-next' : 'mo-ms-button'} aria-haspopup="dialog" onClick={compare}>
-                    Compare with {isMoon(left) ? 'Earth’s soil' : 'Moon dust'}
-                  </button>
-                )}
-              </div>
-            )}
-
-            <div className="mo-ms-poster">
-              {right ? <p>{REGOLITH.surface} {REGOLITH.differences}</p>
-              : left && isMoon(left) ? <p>{REGOLITH.unlike} {REGOLITH.jagged}</p>
-              : left ? <p><Unlike slide={left} /></p>
-              : <p>{REGOLITH.study} {REGOLITH.surface}</p>}
-              {wipedMoon && (moonOnStage || !left) && <p className="mo-ms-poster-more">{REGOLITH.gunpowder}</p>}
-            </div>
-            {moonOnStage && <FactNote fact={MICROSCOPE_NOTES.dust} className="mo-ms-fact" />}
-
-            <div className="mo-ms-tip">
-              <p className="mo-ms-tip-title">Microscope tip</p>
-              <FactNote fact={tip} className="mo-ms-fact" />
-            </div>
-
-            <div className="mo-ms-case-wrap">
-              <Link href="/exhibitions/moon/artifacts/case" className="mo-ms-case">See the lunar meteorite in the display case</Link>
-              <FactNote fact={MICROSCOPE_NOTES.adrar} className="mo-ms-fact" />
-            </div>
-
-            <p className="mo-ms-credit mo-ms-photo-note">These are photographs taken through real microscopes; the lens buttons zoom the photo.</p>
-          </section>
+          {tray && <Tray only={tray === 'compare' && left ? (isMoon(left) ? 'earth' : 'moon') : null} onChoose={choose} onClose={closeTray} />}
         </div>
-
-        {tray && <Tray only={tray === 'compare' && left ? (isMoon(left) ? 'earth' : 'moon') : null} onChoose={choose} onClose={closeTray} />}
-      </div>
-    </RoomShell>
+      </RoomShell>
+    </SourcesDrawer>
   );
 }

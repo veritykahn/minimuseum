@@ -6,3 +6,4 @@ export { default as CasePage } from './CasePage';
 export { default as CasePlaceholder, CASE_PLACEHOLDER_LABEL } from './CasePlaceholder';
 export { default as ArtifactPage } from './ArtifactPage';
 export * from './artifacts';
+export * from './roomsInOrder';

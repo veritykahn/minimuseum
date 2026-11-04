@@ -1,5 +1,6 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
-import { BM_HIEROGLYPHS, EES_CARTOUCHE, GLYPHS, type GlyphCode } from '../rooms';
+import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
+import { BM_HIEROGLYPHS, BUDGE_ROSETTA, EES_CARTOUCHE, GLYPHS, type GlyphCode } from '../rooms';
 
 /*
  * The Rosetta Stone decoder. The stone's three scripts side by side, cut
@@ -113,8 +114,38 @@ export const CLEOPATRA: Sign[] = [
 /** How many of Cleopatra's signs spell her name: K L E O P A T R A. */
 export const NAME_SIGNS = 9;
 
-/** The sounds offered in Ptolemy's game, in an order that is not the answer's. */
+/** The sounds offered in Ptolemy's game: his seven, and six that are not in his name, so it cannot be spelled off in order. */
 export const PTOLEMY_SOUNDS = ['S', 'L', 'P', 'I', 'O', 'T', 'M'];
+export const DISTRACTORS = ['K', 'R', 'A', 'N', 'B', 'E'];
+
+/** The sounds, shuffled (a fresh order each visit; `random` is for tests). */
+export function shuffledSounds(random: () => number = Math.random): string[] {
+  const all = [...PTOLEMY_SOUNDS, ...DISTRACTORS];
+  for (let i = all.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [all[i], all[j]] = [all[j], all[i]];
+  }
+  return all;
+}
+
+/**
+ * Cleopatra's new signs, worked out as Budge tells Champollion's reasoning
+ * (The Rosetta Stone, British Museum, 1913): once L, O and P are known from
+ * Ptolemy, the Greek spelling K-L-E-O-P-A-T-R-A leaves only one sound for
+ * each new sign. In the order he reasons them, each with its clue.
+ */
+// REVIEW: new text, each clue after Budge, The Rosetta Stone (1913): "No. 1 in B must represent K" (since L is second), the two vowels between L and P, "Nos. 6 and 9 are the two a's", No. 7 the same sound as the t of Ptolemy, "No. 8 … must be R".
+export const DEDUCE: { sign: number; clue: string }[] = [
+  { sign: 0, clue: 'L is the second letter of K-L-E-O-P-A-T-R-A. So the sign before the lion must say…' },
+  { sign: 2, clue: 'The lasso says O. In the Greek name, which letter comes between L and O?' },
+  { sign: 5, clue: 'The Greek name has two A’s, one after P and one at the end. This sign comes just after P…' },
+  { sign: 8, clue: 'The vulture again! It must be the second A, near the end…' },
+  { sign: 6, clue: 'K-L-E-O-P-A-?-R-A: which letter belongs here? (Careful: this sign is a hand, not the bread loaf you know from Ptolemy.)' },
+  { sign: 7, clue: 'Only one letter of K-L-E-O-P-A-T-R-A is left without a sign…' },
+];
+
+/** The letters offered for Cleopatra's new signs. */
+export const CLEO_LETTERS = ['K', 'E', 'A', 'T', 'R', 'M', 'S'];
 
 /** The signs of Cleopatra's cartouche that also stand in Ptolemy's: the ones a decoder already knows. */
 export function sharedSigns(): number[] {
@@ -149,6 +180,21 @@ export const ROSETTA_NOTES = {
     text: 'On 14 September 1822, Champollion hurried to his brother, waving his notes: “Look, I’ve got it!” That day is considered the moment of decipherment.',
     sources: [BM_HIEROGLYPHS],
   },
+  // REVIEW: new text. Budge, The Rosetta Stone (1913): "on the obelisk which Mr. Bankes had brought from Philæ there is an inscription in two languages"; the Rosetta Stone's decree names Ptolemy V (British Museum).
+  notOnStone: {
+    text: 'Cleopatra’s name is not on the Rosetta Stone, which names King Ptolemy. It came from an obelisk from Philae, carved in Egyptian and in Greek, which William John Bankes took to England.',
+    sources: [BUDGE_ROSETTA, BM_HIEROGLYPHS],
+  },
+  // REVIEW: new text. Budge, The Rosetta Stone (1913): the sign "No. 7" in Cleopatra's name is replaced in some copies by the t of Ptolemy, so "we may assume that [the two signs] have substantially the same sound, and that that sound is T."
+  hand: {
+    text: 'In Ptolemy’s name, t is the bread loaf. In Cleopatra’s, it is a hand. Two different signs with the same sound: one of the puzzles Champollion had to solve.',
+    sources: [BUDGE_ROSETTA],
+  },
+  // REVIEW: new text. Budge, The Rosetta Stone (1913): Young "noticed that the two signs" always followed "the name of a goddess, queen, or princess".
+  ending: {
+    text: 'Her cartouche ends with two more signs, the bread and the egg. Thomas Young noticed that this pair always followed the name of a goddess, a queen or a princess.',
+    sources: [BUDGE_ROSETTA],
+  },
   young: {
     text: 'Thomas Young’s work helped Champollion crack the hieroglyphic code, but his richest gift to Egyptology was his work on the demotic script.',
     sources: [BM_HIEROGLYPHS],
@@ -160,3 +206,19 @@ export const STONE_CREDIT = {
   href: 'https://commons.wikimedia.org/wiki/File:Rosetta_Stone.JPG',
   licence: 'https://creativecommons.org/licenses/by-sa/4.0/',
 };
+
+/** The room's Sources drawer, by part. */
+export const ROSETTA_SOURCES: SourceGroup[] = [
+  {
+    title: 'Three scripts',
+    items: [
+      { label: 'Rosetta Stone photograph by Hans Hillewaert', href: STONE_CREDIT.href, note: 'Picture (the close-ups are cropped from it)', licence: 'CC BY-SA 4.0 (creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons' },
+      BM_HIEROGLYPHS,
+      EES_CARTOUCHE,
+    ],
+  },
+  { title: 'Ptolemy', items: [...ROSETTA_NOTES.cartouches.sources] },
+  { title: 'Cleopatra', items: [BM_HIEROGLYPHS, BUDGE_ROSETTA] },
+  { title: '“I’ve got it!”', items: [...ROSETTA_NOTES.eureka.sources] },
+  { title: 'Lettering', items: [{ label: 'Hieroglyphs set in Noto Sans Egyptian Hieroglyphs', licence: 'SIL Open Font License' }] },
+];

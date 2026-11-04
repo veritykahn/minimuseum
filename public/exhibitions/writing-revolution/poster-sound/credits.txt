@@ -1,0 +1,5 @@
+The posters' music (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet.
+poster1.mp3 (The Writing Revolution) — "Scott Joplin - Ragtime Dance" by Abydos_Music, https://pixabay.com/music/solo-piano-scott-joplin-ragtime-dance-216752/ (Pixabay Content License). Joplin, 1906.
+poster2.mp3 (QWERTY's Accidental Empire) — "Scott Joplin - The Entertainer" by Abydos_Music, https://pixabay.com/music/vintage-scott-joplin-the-entertainer-216754/ (Pixabay Content License). Joplin, 1902.
+floor.mp3 — a copy of poster1.mp3: heard from the doorway in the floor's hall (components/FloorSound.ts).
+The quill and typewriter that were the posters' sound before are now moments (moments/).

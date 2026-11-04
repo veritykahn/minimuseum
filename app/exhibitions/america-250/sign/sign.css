@@ -601,9 +601,6 @@
 .aps-step-heading { font-family: var(--ap-script); font-weight: 400; font-size: 2.3rem; line-height: 1; color: var(--frame); margin-bottom: -6px; }
 .aps-close { font-weight: 700; font-size: 1.05rem; line-height: 1.5; }
 .aps-step-date { display: inline-block; font-family: var(--pe-ui); font-size: 13px; letter-spacing: 0.08em; color: #5e5850; vertical-align: 0.4em; margin-left: 4px; }
-.aps-credit { font-family: var(--pe-ui); font-weight: 300; font-size: 11.5px; line-height: 1.45; color: #5e5850; }
-.aps-credit a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
-.ap-room .aps-credit a:focus-visible { outline: 2px solid var(--frame); outline-offset: 2px; }
 .aps-lens-hint { font-size: 12px; }
 .aps-actions-step { margin-top: auto; }
 
@@ -613,7 +610,6 @@
 .aps-fact-source { font-weight: 300; font-size: 12px; color: #5e5850; }
 .aps-fact-source a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
 .ap-room .aps-fact-source a:focus-visible { outline: 2px solid var(--frame); outline-offset: 2px; }
-.aps-fact-flag { margin-top: auto; }
 /* The newest star: its state and the year it joined, large enough for the back of a room. */
 .aps-star-line .aps-fact-text { font-family: 'Libre Caslon Text', Georgia, serif; font-size: 1.22rem; line-height: 1.4; color: #2a2724; }
 .aps-star-line { animation: aps-panel-in 0.4s ease both; padding-left: 12px; border-left: 3px solid var(--frame); }
@@ -707,6 +703,11 @@
   background: linear-gradient(to bottom, rgba(248, 246, 240, 0), #f8f6f0 12px);
 }
 .aps-panel .aps-actions-step { margin-top: auto; }
+/* The copies' card keeps one height from copy to copy, its foot at the screen's
+   foot, so "Earlier" and "The next copy" stay put while the note changes. */
+@media (min-width: 761px) {
+  .aps-panel-copies { bottom: calc(var(--ap-fw) + 24px); }
+}
 
 /* A laptop's short screen: the title, the tabs and the card drawn closer, so the card's words and buttons fit. */
 @media (min-width: 761px) and (max-height: 820px) {
@@ -762,9 +763,16 @@
   .ap-room .aps-doc { flex: 1 1 auto; }
 }
 
-/* A phone's card scrolls whole, its foot clear of the map's button. */
+/* A phone's card ends above the Sources and map buttons at the screen's foot;
+   its buttons stay at its foot while what is above them scrolls, so "Earlier"
+   and "The next copy" stay put from copy to copy. */
 @media (max-width: 760px) {
-  .aps-panel .aps-actions-main, .aps-panel .aps-actions-step { position: static; margin-left: 0; margin-right: 0; margin-bottom: 0; padding: 0; background: none; }
+  .aps-panel { bottom: calc(var(--ap-fw) + 64px); padding-bottom: 16px; }
+  .aps-panel .aps-actions-main { position: static; margin: 0; padding: 0; background: none; }
+  .aps-stage[data-tab='copies']:not([data-closer]) { --sheet-h: 36dvh; }
+  .aps-panel-copies { padding-bottom: 0; }
+  .aps-panel .aps-actions-step { margin: auto -16px 0; padding: 8px 16px 12px; flex-wrap: nowrap; gap: 6px; }
+  .ap-room .aps-actions-step .aps-button { flex: 0 1 auto; min-width: 0; padding: 8px 9px; letter-spacing: 0.06em; white-space: nowrap; }
 }
 
 @media (prefers-reduced-motion: reduce) {
