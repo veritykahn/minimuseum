@@ -303,11 +303,11 @@ img.pe-effect-erase { animation: peErase 10s ease forwards; }
 .pe-pos-full-width { width: 100%; }
 .pe-pos-top-left {
   display: flex; align-items: flex-start; justify-content: flex-start; text-align: left;
-  padding-top: 15vh; padding-left: 10vw; padding-right: 30vw;
+  padding-top: max(15vh, 96px); padding-left: 10vw; padding-right: 30vw;
 }
 .pe-pos-top-right {
   display: flex; align-items: flex-start; justify-content: flex-end; text-align: right;
-  padding-top: 15vh; padding-right: 10vw; padding-left: 30vw;
+  padding-top: max(15vh, 96px); padding-right: 10vw; padding-left: 30vw;
 }
 .pe-pos-bottom-left {
   display: flex; align-items: center; justify-content: flex-start; text-align: left;
@@ -1024,6 +1024,20 @@ a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-dec
   z-index: 101;
 }
 .pe-sound-controls .pe-audio-guide { position: static; }
+/* A room with a link in the top-right corner (Resources) keeps the room sound
+   in one row with it, to its left, so a growing label pushes the sound along
+   rather than running under it. */
+.pe-corner-row {
+  position: fixed;
+  top: 26px;
+  right: 32px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.pe-corner-row > .pe-sound-controls,
+.pe-corner-row > a { position: static; }
 .pe-audio-guide {
   /* top right, opposite the way back, clear of the arrows and the map */
   position: fixed;
@@ -1069,7 +1083,7 @@ a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-dec
 
 /* ───────── Responsive ───────── */
 @media (max-width: 900px) {
-  .pe-pos-top-left, .pe-pos-top-right { padding: 15vh 24px; }
+  .pe-pos-top-left, .pe-pos-top-right { padding: max(15vh, 84px) 24px 15vh; }
   .pe-pos-bottom-left, .pe-pos-bottom-right, .pe-pos-bottom-center { padding-left: 24px; padding-right: 24px; }
   .pe-callout { flex-direction: column; text-align: center; gap: 20px; }
   .pe-text-content-wrapper.pe-has-figure { flex-direction: column; gap: 28px; padding-left: 24px; padding-right: 24px; }
@@ -1081,6 +1095,7 @@ a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-dec
   .pe-nav-text { font-size: 24px; }
   .pe-walkthrough-nav { bottom: 20px; gap: 16px; }
   .pe-audio-guide, .pe-sound-controls { top: 14px; right: 16px; }
+  .pe-corner-row { top: 14px; right: 20px; gap: 12px; }
   /* on a phone the room sound shows its speaker only */
   .pe-room-sound { width: 40px; padding: 0; justify-content: center; }
   .pe-room-sound span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

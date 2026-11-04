@@ -223,8 +223,6 @@ export default function InTheirHands() {
         }
         .ith-nav-left { left: 32px; }
         .ith-nav-right { right: 32px; }
-        /* The room sound sits under the Resources corner, in the same right-hand column. */
-        .ith-root .pe-sound-controls { top: 84px; right: 28px; }
         .ith-nav:hover .ith-nav-label, .ith-nav:focus-visible .ith-nav-label { opacity: 1; max-width: 150px; }
         .ith-nav:hover .ith-nav-arrow-left, .ith-nav:focus-visible .ith-nav-arrow-left { transform: translateX(-4px); }
         .ith-nav:hover .ith-nav-arrow-right, .ith-nav:focus-visible .ith-nav-arrow-right { transform: translateX(4px); }
@@ -387,7 +385,7 @@ export default function InTheirHands() {
           align-items: flex-start;
           justify-content: flex-start;
           text-align: left;
-          padding-top: 15vh;
+          padding-top: max(15vh, 96px);
           padding-left: 10vw;
           padding-right: 30vw;
         }
@@ -396,7 +394,7 @@ export default function InTheirHands() {
           align-items: flex-start;
           justify-content: flex-end;
           text-align: right;
-          padding-top: 15vh;
+          padding-top: max(15vh, 96px);
           padding-right: 10vw;
           padding-left: 30vw;
         }
@@ -877,7 +875,7 @@ export default function InTheirHands() {
            ============================================ */
         @media (max-width: 900px) {
           .ith-entry-cards { grid-template-columns: 1fr; gap: 20px; }
-          .ith-pos-top-left, .ith-pos-top-right { padding: 15vh 24px 15vh 24px; }
+          .ith-pos-top-left, .ith-pos-top-right { padding: max(15vh, 84px) 24px 15vh 24px; }
           .ith-pos-bottom-left, .ith-pos-bottom-right, .ith-pos-bottom-center {
             padding-left: 24px;
             padding-right: 24px;
@@ -903,7 +901,6 @@ export default function InTheirHands() {
         @media (max-width: 768px) {
           .ith-nav-left { left: 20px; top: 20px; }
           .ith-nav-right { right: 20px; top: 20px; }
-          .ith-root .pe-sound-controls { top: 64px; right: 16px; }
           .ith-nav-text { font-size: 24px; }
           .ith-walkthrough-nav { bottom: 20px; gap: 16px; }
           .ith-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
@@ -928,11 +925,19 @@ export default function InTheirHands() {
           </span>
         </ExhibitionNav>
 
-        <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
-          <span className="ith-nav-label" style={{ color: navInk }}>Resources</span>
-          <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>&#8594;</span>
-          <span className="ith-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
-        </ExhibitionNav>
+        {/* The room sound sits beside the Resources corner, in one row with it (pe-corner-row). */}
+        <div className="pe-corner-row">
+          {!isMain && (
+            <div className="pe-sound-controls">
+              <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
+            </div>
+          )}
+          <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
+            <span className="ith-nav-label" style={{ color: navInk }}>Resources</span>
+            <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>&#8594;</span>
+            <span className="ith-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
+          </ExhibitionNav>
+        </div>
         </>
       )}
 
@@ -1003,11 +1008,6 @@ export default function InTheirHands() {
         {announcement}
       </p>
       <PosterNavHint visible={hintVisible && !projector} onDismiss={dismissHint} />
-      {!projector && !isMain && (
-        <div className="pe-sound-controls">
-          <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
-        </div>
-      )}
       {activeView !== 'main' && (
         <h1 className="visually-hidden">{activeView === 'poster1' ? 'Faith and Reason' : 'The Weight of Thirty Pieces'}</h1>
       )}

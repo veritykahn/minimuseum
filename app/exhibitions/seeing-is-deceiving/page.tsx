@@ -199,8 +199,6 @@ export default function SeeingIsDeceiving() {
         }
         .nav-m-left { left: 32px; }
         .nav-m-right { right: 32px; }
-        /* The room sound sits under the Resources corner, in the same right-hand column. */
-        .sid-root .pe-sound-controls { top: 84px; right: 28px; }
         .nav-m:hover .nav-label, .nav-m:focus-visible .nav-label { opacity: 1; max-width: 150px; }
         .nav-m:hover .nav-arrow-left, .nav-m:focus-visible .nav-arrow-left { transform: translateX(-4px); }
         .nav-m:hover .nav-arrow-right, .nav-m:focus-visible .nav-arrow-right { transform: translateX(4px); }
@@ -503,7 +501,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-start;
           justify-content: flex-start;
           text-align: left;
-          padding-top: 15vh;
+          padding-top: max(15vh, 96px);
           padding-left: 10vw;
           padding-right: 30vw;
         }
@@ -512,7 +510,7 @@ export default function SeeingIsDeceiving() {
           align-items: flex-start;
           justify-content: flex-end;
           text-align: right;
-          padding-top: 15vh;
+          padding-top: max(15vh, 96px);
           padding-right: 10vw;
           padding-left: 30vw;
         }
@@ -566,7 +564,7 @@ export default function SeeingIsDeceiving() {
         }
 
         @media (max-width: 900px) {
-          .pos-top-left, .pos-top-right { padding: 15vh 24px 15vh 24px; }
+          .pos-top-left, .pos-top-right { padding: max(15vh, 84px) 24px 15vh 24px; }
           .pos-bottom-left, .pos-bottom-right, .pos-bottom-center {
             padding-left: 24px;
             padding-right: 24px;
@@ -950,7 +948,6 @@ export default function SeeingIsDeceiving() {
         @media (max-width: 768px) {
           .nav-m-left { left: 20px; top: 20px; }
           .nav-m-right { right: 20px; top: 20px; }
-          .sid-root .pe-sound-controls { top: 64px; right: 16px; }
           .nav-m-text { font-size: 24px; }
           .walkthrough-nav { bottom: 20px; gap: 16px; }
           .nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
@@ -976,15 +973,23 @@ export default function SeeingIsDeceiving() {
           </span>
         </ExhibitionNav>
 
-        <ExhibitionNav
-          className={`nav-m nav-m-right ${overImage ? 'nav-m-backed' : ''}`}
-          href="/exhibitions/seeing-is-deceiving/resources"
-          style={backing ? { background: backing } : undefined}
-        >
-          <span className="nav-label" style={{ color: navInk }}>Resources</span>
-          <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>→</span>
-          <span className="nav-m-text" aria-hidden="true" style={{ color: navM }}>M</span>
-        </ExhibitionNav>
+        {/* The room sound sits beside the Resources corner, in one row with it (pe-corner-row). */}
+        <div className="pe-corner-row">
+          {!isMain && (
+            <div className="pe-sound-controls">
+              <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
+            </div>
+          )}
+          <ExhibitionNav
+            className={`nav-m nav-m-right ${overImage ? 'nav-m-backed' : ''}`}
+            href="/exhibitions/seeing-is-deceiving/resources"
+            style={backing ? { background: backing } : undefined}
+          >
+            <span className="nav-label" style={{ color: navInk }}>Resources</span>
+            <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>→</span>
+            <span className="nav-m-text" aria-hidden="true" style={{ color: navM }}>M</span>
+          </ExhibitionNav>
+        </div>
         </>
       )}
 
@@ -1040,11 +1045,6 @@ export default function SeeingIsDeceiving() {
       <PosterNavHint visible={hintVisible && !projector} onDismiss={dismissHint} />
       {activeView !== 'main' && (
         <h1 className="visually-hidden">{activeView === 'poster1' ? 'Seeing is Deceiving: The Science of How We See' : 'A History of Lies: From Magic Lanterns to AI Deepfakes'}</h1>
-      )}
-      {!projector && !isMain && (
-        <div className="pe-sound-controls">
-          <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
-        </div>
       )}
       <FxDefs />
 
