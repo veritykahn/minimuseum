@@ -177,7 +177,7 @@ export const FIRST_FLOOR: Floor = {
     },
     {
       slug: 'holocaust',
-      title: 'Holocaust Memorial Day',
+      title: 'International Holocaust Remembrance Day',
       subtitle: 'Never Forget',
       accent: '#78716C',
       darkAccent: '#1c1917',

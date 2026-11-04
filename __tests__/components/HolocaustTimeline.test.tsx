@@ -263,7 +263,7 @@ describe('wiring', () => {
     // The room's card on the landing page is for the owner to add (holocaust.ts is being restructured).
     const href = '/exhibitions/holocaust/timeline';
     expect(getRoomByPath(href)?.id).toBe('ho-timeline');
-    expect(getLevelConfig(href).title).toBe('Holocaust Memorial Day');
+    expect(getLevelConfig(href).title).toBe('International Holocaust Remembrance Day');
     expect(getLevelConfig(href).floorPlan?.rooms.map((r) => r.id)).toEqual(expect.arrayContaining(['ho-stones', 'ho-timeline']));
   });
 });

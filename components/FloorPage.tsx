@@ -214,6 +214,7 @@ function FloorCarousel({ floor, cards, studio = false, sounds }: { floor: FloorF
           fontSize: studio ? 'clamp(2.2rem, 5.5vw, 4rem)' : 'clamp(2.5rem, 6vw, 4.5rem)',
           fontWeight: 300,
           lineHeight: 0.95,
+          textWrap: 'balance',
           color: card.active ? '#fafafa' : '#a3a3a3',
           marginBottom: '16px'
         }}>

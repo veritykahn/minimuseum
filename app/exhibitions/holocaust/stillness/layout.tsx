@@ -5,10 +5,10 @@ import { SITE_URL } from '@/lib/site';
 const description = 'A minute’s stillness before a memorial stone, with the words of Martin Niemöller, and names, words and questions to remember.';
 
 export const metadata: Metadata = {
-  title: 'A Minute’s Stillness | Holocaust Memorial Day | The Mini Museum',
+  title: 'A Minute’s Stillness | International Holocaust Remembrance Day | The Mini Museum',
   description,
   openGraph: {
-    title: 'A Minute’s Stillness | Holocaust Memorial Day',
+    title: 'A Minute’s Stillness | International Holocaust Remembrance Day',
     description,
     url: `${SITE_URL}/exhibitions/holocaust/stillness`,
   },

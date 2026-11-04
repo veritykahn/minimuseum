@@ -1137,7 +1137,7 @@ export const WOMENS_HISTORY: MapLevelConfig = {
 };
 
 // ═══════════════════════════════════════════════════════════════════
-// LEVEL 3 — Holocaust Memorial Day (Floor Plan)
+// LEVEL 3 — International Holocaust Remembrance Day (Floor Plan)
 //
 // Layout: the Exhibition Hall, the display case beyond it, and its four
 // interactive rooms beyond that, two by two, in the order the landing page
@@ -1211,7 +1211,7 @@ export const HOLOCAUST: MapLevelConfig = {
   level: 'exhibition',
   rooms: [],
   connections: [],
-  title: 'Holocaust Memorial Day',
+  title: 'International Holocaust Remembrance Day',
   ...onFloorOf('holocaust'),
   ...withLessons(HOLOCAUST_FLOOR_PLAN, '0 0 500 450', 'holocaust'),
 };

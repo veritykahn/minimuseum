@@ -5,10 +5,10 @@ import { SITE_URL } from '@/lib/site';
 const description = 'A memorial stone, with the stones laid on it by visitors, and the days to International Holocaust Remembrance Day.';
 
 export const metadata: Metadata = {
-  title: 'Lay a Stone | Holocaust Memorial Day | The Mini Museum',
+  title: 'Lay a Stone | International Holocaust Remembrance Day | The Mini Museum',
   description,
   openGraph: {
-    title: 'Lay a Stone | Holocaust Memorial Day',
+    title: 'Lay a Stone | International Holocaust Remembrance Day',
     description,
     url: `${SITE_URL}/exhibitions/holocaust/stones`,
   },

@@ -4,13 +4,13 @@ import type { Atmosphere, CasePageData, ExhibitionConfig, PanelFigure } from '@/
 import { floorReturnFor } from '@/lib/floors';
 
 /*
- * Holocaust Memorial Day: every word on screen, and the look.
+ * International Holocaust Remembrance Day: every word on screen, and the look.
  *
  * The poster copy is set exactly as printed on the two posters, with only the
  * owner's approved decisions:
  *   1. the day is named "International Holocaust Remembrance Day" in poster
- *      1's title and its first sentence (the exhibition itself keeps its
- *      name, "Holocaust Memorial Day");
+ *      1's title and its first sentence (the exhibition is named so too,
+ *      since the room was renamed on November 4, 2026);
  *   2. "Jews deported to camps like Auschwitz often had identification
  *      numbers tattooed on their arms, …" is set "Prisoners registered at
  *      Auschwitz had identification numbers tattooed on their arms, …";
@@ -244,7 +244,7 @@ export const HOLOCAUST_PROJECTOR_THEME = {
 
 export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   slug: 'holocaust',
-  name: 'Holocaust Memorial Day',
+  name: 'International Holocaust Remembrance Day',
   subtitle: 'Never Forget',
   fonts: {
     href: 'https://fonts.googleapis.com/css2?family=Anton&family=League+Gothic&family=Inter:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap',

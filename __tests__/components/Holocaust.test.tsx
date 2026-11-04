@@ -57,10 +57,10 @@ function fix(text: string, from: string, to: string) {
   return text.replace(from, to);
 }
 
-describe('Holocaust Memorial Day', () => {
+describe('International Holocaust Remembrance Day', () => {
   it('has two posters, each opening on its title and ending with Return to Exhibition, and one display case', () => {
     expect(HOLOCAUST.slug).toBe('holocaust');
-    expect(HOLOCAUST.name).toBe('Holocaust Memorial Day');
+    expect(HOLOCAUST.name).toBe('International Holocaust Remembrance Day');
     expect(HOLOCAUST.subtitle).toBe('Never Forget');
     expect(HOLOCAUST.posters.map((p) => p.id)).toEqual(['poster1', 'poster2']);
     expect(HOLOCAUST.posters.map((p) => p.title)).toEqual(['International Holocaust Remembrance Day', 'What Was the Holocaust?']);
@@ -264,7 +264,7 @@ describe('Holocaust Memorial Day', () => {
 
     it('shows the posters, the display case and the picture credits on the landing page', () => {
       render(<PosterExhibition config={HOLOCAUST} />);
-      expect(screen.getByRole('heading', { level: 1, name: 'Holocaust Memorial Day' })).toBeInTheDocument();
+      expect(screen.getByRole('heading', { level: 1, name: 'International Holocaust Remembrance Day' })).toBeInTheDocument();
       const caseLink = screen.getByRole('link', { name: /display case/i });
       expect(caseLink).toHaveAttribute('href', '/exhibitions/holocaust/artifacts/case');
       expect(caseLink).toHaveTextContent('Photographs on their way');
@@ -280,7 +280,7 @@ describe('Holocaust Memorial Day', () => {
       render(<PosterExhibition config={HOLOCAUST} />);
       fireEvent.click(screen.getByRole('button', { name: /Teach with this/ }));
       tick(50);
-      const dialog = screen.getByRole('dialog', { name: 'Holocaust Memorial Day' });
+      const dialog = screen.getByRole('dialog', { name: 'International Holocaust Remembrance Day' });
       const note = within(dialog).getByRole('note');
       expect(note).toHaveTextContent('Recommended for grades 6 and up; for younger students, preview first and stay with them.');
       fireEvent.click(within(dialog).getByRole('button', { name: /Parent/ }));
@@ -357,10 +357,10 @@ describe('Holocaust Memorial Day', () => {
   });
 });
 
-describe('The Holocaust Memorial Day display case page', () => {
+describe('The International Holocaust Remembrance Day display case page', () => {
   it('keeps the record, with a card for each artifact, beside an empty case awaiting its photographs', () => {
     render(<HolocaustCase />);
-    expect(screen.getByRole('heading', { level: 1, name: 'Holocaust Memorial Day' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'International Holocaust Remembrance Day' })).toBeInTheDocument();
     // Every line of the record is kept: the objects' lines (each object a card) and the display's.
     expect(recordLines(HOLOCAUST_CASE).map(plainText)).toEqual([
       'Original 1 Krone Theresienstadt ghetto scrip',
@@ -388,10 +388,10 @@ describe('The Holocaust Memorial Day display case page', () => {
   });
 });
 
-describe('Holocaust Memorial Day on the museum map', () => {
+describe('International Holocaust Remembrance Day on the museum map', () => {
   it('is a room on the First Floor, with an Exhibition Hall, a Display Case, the Walk, Lay a Stone, A Minute’s Stillness and the timeline', () => {
     const level = getLevelConfig('/exhibitions/holocaust/artifacts/case');
-    expect(level.title).toBe('Holocaust Memorial Day');
+    expect(level.title).toBe('International Holocaust Remembrance Day');
     expect(level.backTarget?.path).toBe('/exhibitions/first-floor');
     expect(level.floorPlan?.rooms.map((r) => [r.label, r.path])).toEqual([
       ['Exhibition Hall', '/exhibitions/holocaust'],
