@@ -1,6 +1,6 @@
 import { act, render } from '@testing-library/react';
 import { MOMENT_DELAY_MS, MOMENT_LEVEL, MOMENT_UNDER_GUIDE, usePanelMoment } from '@/components/exhibition/PanelMoment';
-import { posterMomentsOnDisk } from '@/components/exhibition/posterSounds';
+import { posterMomentsOnDisk, posterSoundsOnDisk } from '@/components/exhibition/posterSounds';
 import { momentSrc } from '@/components/exhibition/posterSoundPaths';
 import { VICTORIAN } from '@/app/exhibitions/victorian/victorian';
 import { GREAT_WAR } from '@/app/exhibitions/great-war/greatWar';
@@ -113,7 +113,11 @@ describe('moments on disk', () => {
     for (const f of ['poster1', 'poster2', 'floor']) expect(onDisk(`/exhibitions/${slug}/poster-sound/${f}.mp3`)).toBe(true);
   });
 
-  it('never finds one for the Holocaust exhibition', () => {
-    expect(posterMomentsOnDisk(HOLOCAUST)).toBeUndefined();
+  it('keeps the Holocaust posters silent but for three very quiet moments, and gives them no music', () => {
+    const found = (posterMomentsOnDisk(HOLOCAUST) ?? {}) as Record<string, (string | null)[] | undefined>;
+    const files = Object.values(found).flatMap((f) => f ?? []).filter(Boolean);
+    expect(files.sort()).toEqual(['candle', 'church-clock', 'water'].map((n) => momentSrc('holocaust', n)).sort());
+    for (const p of HOLOCAUST.posters) p.items.forEach((i, n) => expect(found[p.id]?.[n] ?? null).toBe(i.moment ? momentSrc('holocaust', i.moment) : null));
+    expect(posterSoundsOnDisk(HOLOCAUST)).toBeUndefined();
   });
 });

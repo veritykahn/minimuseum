@@ -25,6 +25,8 @@ export function makeFilmMusic(src: string | null): FilmMusic | null {
     return null;
   }
   audio.preload = 'auto';
+  // The film is longer than the stand-in recording: it goes round, and fades over the film's last line.
+  audio.loop = true;
   audio.volume = MUSIC_VOLUME;
   let fading: ReturnType<typeof setInterval> | null = null;
   let done = false;

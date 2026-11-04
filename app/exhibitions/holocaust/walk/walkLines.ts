@@ -1,10 +1,15 @@
 import type { FactSource } from '@/components/exhibition/FactNote';
 
 /*
- * The history, one line at a time, in its order: from Jewish life before
- * 1933, through the laws, Kristallnacht, the Kindertransport, the ghettos,
- * hiding, the deportations and the rescuers, to liberation, the survivors,
- * and remembering. It began as the owner-approved draft (A18/B13/B14
+ * The history, one line at a time, in its order, step by step: Jewish life
+ * before 1933; the first camp, the boycott, the burned books, the laws,
+ * Kristallnacht; the war, the star, the ghettos; the killing squads; Wannsee
+ * and the "Final Solution"; the trains and the killing centers; the fighters
+ * who rose up, and that it was not enough; Hungary in 1944, when Germany was
+ * already losing; the death marches; and the toll. Rebuilt on November 4,
+ * 2026, at the owner's request, so that it builds; the rescuers, the hiding
+ * and the survivors' words stay on the posters. The film ends on its music;
+ * then, in silence, a few words on what the walk is (WalkThreshold, Walk.tsx). It began as the owner-approved draft (A18/B13/B14
  * proposal, 2D) for the walk; the lines changed or moved since say so in
  * their REVIEW notes. The lines are now carried by the film that opens the
  * walk (Film.tsx), each over its picture, in order; the walk itself has
@@ -53,15 +58,25 @@ const KINDER = USHMM('Kindertransport, 1938–40', 'kindertransport-1938-40');
 const DEPORTATIONS = USHMM('Deportations to Killing Centers', 'deportations-to-killing-centers');
 const WARSAW = USHMM('Warsaw Ghetto Uprising', 'warsaw-ghetto-uprising');
 const CHILDREN = USHMM('Children during the Holocaust', 'children-during-the-holocaust');
-const DENMARK = USHMM('Rescue in Denmark', 'rescue-in-denmark');
-const CHAMBON = USHMM('Le Chambon-sur-Lignon', 'le-chambon-sur-lignon');
 const AUSCHWITZ = USHMM('Auschwitz', 'auschwitz');
-const RIGHTEOUS = USHMM('Righteous Among the Nations', 'righteous-among-the-nations');
-const LUGGAGE: FactSource = { label: 'USHMM, “Luggage belonging to Jews who were deported to killing centers”', href: 'https://encyclopedia.ushmm.org/content/en/photo/luggage-belonging-to-jews-who-were-deported-to-killing-centers' };
-const SCRIP: FactSource = { label: 'USHMM Collections, Theresienstadt scrip, 1 krone note', href: 'https://collections.ushmm.org/search/catalog/irn548074' };
 const YV_NAMES: FactSource = { label: 'Yad Vashem, press release, November 11, 2025', href: 'https://www.yadvashem.org/press-release/11-november-2025-08-44.html' };
-const YV_RIGHTEOUS: FactSource = { label: 'Yad Vashem, “The Righteous Among the Nations”', href: 'https://www.yadvashem.org/righteous/stories.html' };
-const HMD_WHAT: FactSource = { label: 'Holocaust Memorial Day Trust, “What is Holocaust Memorial Day?”', href: 'https://www.hmd.org.uk/what-is-holocaust-memorial-day/' };
+const DACHAU = USHMM('Dachau', 'dachau');
+const BOYCOTT = USHMM('Boycott of Jewish Businesses', 'boycott-of-jewish-businesses');
+const HEINE: FactSource = { label: 'Heinrich Heine, Almansor (1821), as discussed in the Jewish Review of Books, “Where They Have Burned Books, They Will End Up Burning People”', href: 'https://jewishreviewofbooks.com/articles/2788/burned-books-will-end-burning-people/' };
+const POPULATION: FactSource = { label: 'USHMM, “Jewish Population of Europe in 1933”', href: 'https://encyclopedia.ushmm.org/narrative/2906' };
+const BADGE = USHMM('Jewish Badge: During the Nazi Era', 'jewish-badge-during-the-nazi-era');
+const WARSAW_GHETTO = USHMM('Warsaw', 'warsaw');
+const EINSATZ = USHMM('Einsatzgruppen', 'einsatzgruppen');
+const WANNSEE = USHMM('Wannsee Conference and the “Final Solution”', 'wannsee-conference-and-the-final-solution');
+const KILLING_CENTERS = USHMM('Killing Centers: An Overview', 'killing-centers-an-overview');
+const REVOLTS = USHMM('Killing Center Revolts', 'killing-center-revolts');
+const HUNGARY = USHMM('The Holocaust in Hungary', 'the-holocaust-in-hungary');
+const ANNE = USHMM('Anne Frank Biography', 'anne-frank-biography');
+const DEATH_MARCHES = USHMM('Death Marches', 'death-marches');
+const NUMBERS = USHMM('Documenting Numbers of Victims of the Holocaust and Nazi Persecution', 'documenting-numbers-of-victims-of-the-holocaust-and-nazi-persecution');
+const POLAND = USHMM('Invasion of Poland, Fall 1939', 'invasion-of-poland-fall-1939');
+const WIESEL_LIFE = USHMM('Elie Wiesel', 'elie-wiesel');
+const WIESEL: FactSource = { label: 'USHMM, Elie Wiesel’s remarks at the Museum’s dedication, April 22, 1993', href: 'https://www.ushmm.org/information/about-the-museum/mission-and-history/wiesel' };
 
 /** The agreed objects, drawn as dark, softly lit silhouettes until the owner's picture is in place. */
 export type Placeholder = 'tracks' | 'shoes' | 'suitcase' | 'door' | 'chair' | 'candle';
@@ -91,78 +106,109 @@ export type WalkLine = {
   placeholder: Placeholder;
   /** Which part of the history this line belongs to. */
   part: Ambient;
+  /** How long the film holds this line, when longer than the rest (FILM_LINE_MS): the names of the killing centers, and the toll. */
+  hold?: number;
 };
 
-const line = (id: string, text: string, sources: FactSource[], slot: string, image: string, placeholder: Placeholder, part: Ambient): WalkLine => ({ id, text, sources, slot, image, placeholder, part });
+const line = (id: string, text: string, sources: FactSource[], slot: string, image: string, placeholder: Placeholder, part: Ambient, hold?: number): WalkLine => ({ id, text, sources, slot, image, placeholder, part, ...(hold ? { hold } : {}) });
 
 export const WALK_LINES: readonly WalkLine[] = [
+  // The film was rebuilt on November 4, 2026, at the owner's request: it climbs step by step, from the first laws to the death marches and the toll, with nothing bright in it but the people who fought back, and that was not enough. The rescuers, the hiding and the survivors' words stay on the posters.
   // ── Before ──
   // REVIEW: https://encyclopedia.ushmm.org/content/en/article/jewish-life-in-europe-before-the-holocaust ("Jews have lived in Europe for more than two thousand years.")
   line('W1', 'Jews had lived in Europe for more than two thousand years.', [JEWISH_LIFE], 'w01-open-door', 'An open front door, warm light inside', 'door', 'before'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/jewish-life-in-europe-before-the-holocaust (photo caption: "Leipzig, Germany, April 1929"). Moved before the 1933 line, so the walk keeps to the order of the history.
-  line('W2', 'Leipzig, April 1929: Berta Rosenheim holds a large cone of sweets on her first day of school.', [JEWISH_LIFE], 'w03-school-cone', 'A paper school cone (Schultüte) on a desk', 'chair', 'before'),
+  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/jewish-life-in-europe-before-the-holocaust (photo caption: "Leipzig, Germany, April 1929").
+  line('W2', 'Leipzig, April 1929: Berta Rosenheim holds a large paper school cone on her first day of school.', [JEWISH_LIFE], 'w03-school-cone', 'A paper school cone (Schultüte) on a desk', 'chair', 'before'),
   // REVIEW: https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust ("in 1933 numbered 9 million people")
   line('W3', 'In 1933, about nine million Jewish people lived in Europe.', [INTRO], 'w02-lit-windows', 'Rows of lit windows in a town at dusk', 'candle', 'before'),
-  // ── During ──
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/book-burning
-  line('W4', 'May 1933. Students threw tens of thousands of books into bonfires.', [BOOKS], 'w04-closed-book', 'A single closed book on stone', 'chair', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/the-nuremberg-race-laws
-  line('W5', 'September 15, 1935. New laws said Jews could not be citizens.', [NUREMBERG], 'w05-nameplate-removed', 'A door with its nameplate removed', 'door', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/kristallnacht (the owner's decision: the USHMM figure, "more than 1,400 synagogues")
-  line('W6', 'November 9–10, 1938. More than 1,400 synagogues were burned.', [KRISTALLNACHT], 'w07-broken-window', 'A broken window pane, glass on the sill (no fire, no people)', 'door', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/kindertransport-1938-40 ("From December 1938 until May 1940 … about 10,000 children to safety in Great Britain"; "Parents or guardians could not accompany the children.")
-  line('W7', 'From December 1938, the Kindertransport carried about 10,000 children to safety in Britain. Their parents could not come.', [KINDER], 'w08-suitcase-platform', 'A small suitcase on a station platform', 'suitcase', 'during'),
-  // REVIEW: https://hmd.org.uk/resource/ann-kirk/ (her words, exactly as quoted there)
-  line('W8', '“…wearing labels round our necks and carrying only a small suitcase, we waited for our names to be called out.” (Ann Kirk)', [HMD('Ann Kirk', 'ann-kirk')], 'w09-luggage-tag', 'A luggage tag on a suitcase handle', 'suitcase', 'during'),
-  // REVIEW: https://hmd.org.uk/resource/martha-blend/ (her words, exactly as quoted there)
-  line('W9', '“Then with a light suitcase, a heavy heart and a silly red hat that kept flopping into my face, I climbed into a compartment.” (Martha Blend)', [HMD('Martha Blend', 'martha-blend')], 'w10-red-hat', 'A red hat on a train seat', 'chair', 'during'),
-  // REVIEW: https://hmd.org.uk/resource/steven-frank/ ("I was no longer allowed to play in the park"; he was five when the Nazis invaded the Netherlands, in 1940). Moved after the Kindertransport, to 1940, where it falls; "aged five" is now "a boy in the occupied Netherlands", as the page does not give his age when the rule came.
-  line('W10', '“I was no longer allowed to play in the park.” (Steven Frank, a boy in the occupied Netherlands)', [HMD('Steven Frank', 'steven-frank')], 'w06-park-bench', 'An empty park bench', 'chair', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust ("forced Jews to live in overcrowded and unsanitary conditions")
-  line('W11', 'Ghettos were parts of towns where Jews were forced to live, overcrowded and unsanitary.', [INTRO], 'w11-closed-gate', 'A closed gate in a brick wall', 'door', 'during'),
+  // ── The steps ──
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/dachau ("established in March 1933"; "the first regular concentration camp"; its first prisoners "German Communists, Social Democrats, trade unionists")
+  line('W4', 'March 1933. The Nazis opened Dachau, their first regular concentration camp, for people who opposed them.', [DACHAU], 'w33-camp-gate', 'A gate in a high wire fence, shut (no people)', 'door', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/boycott-of-jewish-businesses ("On April 1, 1933, the Nazis carried out the first nationwide, planned action against Jews")
+  line('W5', 'April 1, 1933. The Nazis told Germans not to buy from Jewish shops.', [BOYCOTT], 'w34-shop-door', 'A small shop door with its blind pulled down', 'door', 'during'),
+  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/book-burning ("tens of thousands of books"; from May 10, 1933)
+  line('W6', 'May 1933. Students threw tens of thousands of books into bonfires.', [BOOKS], 'w04-closed-book', 'A single closed book on stone', 'chair', 'during'),
+  // REVIEW (new): Heinrich Heine, Almansor (1821): "Dort, wo man Bücher verbrennt, verbrennt man auch am Ende Menschen." Engraved at the book-burning memorial on Bebelplatz, Berlin. Please confirm the English wording you prefer.
+  line('W7', '“Where they burn books, in the end they will burn people too.” (Heinrich Heine, a German Jewish poet, in his play Almansor, 1821)', [HEINE], 'w36-embers', 'Embers and grey ash on stone, the fire gone out', 'candle', 'during'),
+  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/the-nuremberg-race-laws (Jews could not be citizens; "future intermarriages … between Jews and people 'of German or related blood'" were banned)
+  line('W8', 'September 15, 1935. New laws said Jews could not be citizens, and could not marry non-Jewish Germans.', [NUREMBERG], 'w05-nameplate-removed', 'A door with its nameplate removed', 'door', 'during'),
+  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/kristallnacht ("more than 1,400 synagogues"; "vandalized thousands of Jewish-owned businesses")
+  line('W9', 'November 9–10, 1938. Nazis burned more than 1,400 synagogues and smashed thousands of Jewish shops.', [KRISTALLNACHT], 'w07-broken-window', 'A broken window pane, glass on the sill (no fire, no people)', 'door', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/kristallnacht ("about 26,000 Jewish men were imprisoned in the three camps": Dachau, Buchenwald, Sachsenhausen)
+  line('W10', 'Then they sent about 26,000 Jewish men to concentration camps.', [KRISTALLNACHT], 'w11-closed-gate', 'A closed gate in a brick wall', 'door', 'during'),
+  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/kindertransport-1938-40 ("about 10,000 children to safety in Great Britain"; "Parents or guardians could not accompany the children.")
+  line('W11', 'From December 1938, about 10,000 children were sent alone to safety in Britain. Their parents could not come.', [KINDER], 'w08-suitcase-platform', 'A small suitcase on a station platform', 'suitcase', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/kindertransport-1938-40 ("many had not heard from their families since 1941 or 1942", and learned after the war that their parents had been murdered)
+  line('W12', 'Many of those children later learned that their parents had been murdered.', [KINDER], 'w10-red-hat', 'A red hat on a train seat', 'chair', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/narrative/2906 (Jewish population of Europe in 1933: Poland "about 3,000,000", the largest community)
+  line('W13', 'September 1, 1939. Germany invaded Poland, home to about three million Jews, more than any other country in Europe.', [POLAND, POPULATION], 'w39-empty-road', 'An empty country road under a low grey sky', 'tracks', 'during'),
+  // REVIEW: https://hmd.org.uk/resource/steven-frank/ ("I was no longer allowed to play in the park"; the Netherlands, occupied in 1940)
+  line('W14', '“I was no longer allowed to play in the park.” (Steven Frank, a boy in the occupied Netherlands)', [HMD('Steven Frank', 'steven-frank')], 'w06-park-bench', 'An empty park bench', 'chair', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/warsaw (sealed "mid-November 1940"; "over 400,000 Jews"; "an area of 1.3 square miles")
+  line('W15', 'November 1940. More than 400,000 Jews were shut inside the Warsaw ghetto, an area of 1.3 square miles.', [WARSAW_GHETTO], 'w38-ghetto-wall', 'A high brick wall across a street, topped with wire', 'door', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/einsatzgruppen (after the invasion of the Soviet Union in June 1941, "the scale of Einsatzgruppen mass murder operations vastly increased")
+  line('W16', 'June 1941. Germany invaded the Soviet Union. Killing squads followed the army and shot Jewish men, women and children.', [EINSATZ], 'w42-forest-edge', 'The edge of a dark pine forest, empty', 'tracks', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/einsatzgruppen ("33,771 Jews" at Babi Yar, "over two days in September 1941")
+  line('W17', 'September 1941. At Babi Yar, outside Kyiv, 33,771 Jews were shot in two days.', [EINSATZ], 'w43-ravine', 'An empty ravine under a grey sky', 'tracks', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/einsatzgruppen ("One third of Jewish Holocaust victims died in shooting actions")
+  line('W18', 'One in every three Jews murdered in the Holocaust was shot.', [EINSATZ], 'w44-field-dusk', 'A ploughed field at dusk', 'tracks', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/jewish-badge-during-the-nazi-era (from September 1941 all Jews in the Reich "six years of age or older"; in occupied Poland from 1939)
+  line('W19', 'Jews were forced to wear a star on their clothes. In Germany, from 1941, every Jew aged six or older.', [BADGE], 'w40-star', 'A cloth star sewn on a dark coat on a hook', 'chair', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/wannsee-conference-and-the-final-solution (January 20, 1942; 15 officials; a villa in Wannsee)
+  line('W20', 'January 20, 1942. Fifteen officials met at a villa at Wannsee, near Berlin, to plan the “Final Solution.”', [WANNSEE], 'w45-meeting-table', 'A long polished table, fifteen chairs, papers (no people)', 'chair', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/wannsee-conference-and-the-final-solution ("the code name for the systematic, deliberate, physical annihilation of the European Jews"; "approximately 11,000,000 Jews in Europe")
+  line('W21', 'It meant the murder of every Jew in Europe. Their list counted about 11 million.', [WANNSEE], 'w46-typed-list', 'A typed list of countries and numbers on a desk', 'chair', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/wannsee-conference-and-the-final-solution ("The men at the table did not deliberate whether such a plan should be undertaken")
+  line('W22', 'They did not discuss whether to do it. Only how.', [WANNSEE], 'w47-chairs-pushed-back', 'The same table, the chairs pushed back, the meeting over', 'chair', 'during'),
   // REVIEW: https://hmd.org.uk/resource/miep-gies/ ("on 6 July 1942, Otto and his family went to the upper rear rooms of his office building") and https://hmd.org.uk/resource/anne-frank/
-  line('W12', 'July 6, 1942. The Frank family went into hiding, behind a bookcase.', [HMD('Miep Gies', 'miep-gies'), HMD('Anne Frank', 'anne-frank')], 'w12-bookcase', 'A bookcase, slightly open, like a door', 'door', 'during'),
-  // REVIEW: https://hmd.org.uk/resource/anne-frank/ (her words, exactly as quoted there)
-  line('W13', '“I want the diary to be my friend, and I’m going to call this friend Kitty.” (Anne Frank)', [HMD('Anne Frank', 'anne-frank')], 'w13-diary', 'An open diary with a checked cover', 'chair', 'during'),
-  // REVIEW: https://hmd.org.uk/resource/miep-gies/ ("Miep sourced food from different places and would make several trips each day … so she never had to carry more than one or two bags at a time"). Rewritten from the HMD Trust's page: the old line (shopping bags on her bicycle) came from the Anne Frank House.
-  line('W14', 'Miep Gies brought food to the hiding place, one or two bags at a time, several trips each day.', [HMD('Miep Gies', 'miep-gies')], 'w14-bicycle', 'A bicycle with shopping bags', 'chair', 'during'),
+  line('W23', 'July 6, 1942. The Frank family went into hiding, behind a bookcase.', [HMD('Miep Gies', 'miep-gies'), HMD('Anne Frank', 'anne-frank')], 'w12-bookcase', 'A bookcase, slightly open, like a door', 'door', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/warsaw (83,000 Jews died of starvation and disease between 1940 and mid-1942). Placed after July 1942, where its date falls; that summer the deportations to Treblinka began.
+  line('W24', 'In the Warsaw ghetto alone, 83,000 Jews had died of hunger and disease by the summer of 1942.', [WARSAW_GHETTO], 'w41-empty-bowl', 'An empty tin bowl and spoon on a bare table', 'chair', 'during'),
   // REVIEW: https://encyclopedia.ushmm.org/content/en/article/deportations-to-killing-centers
-  line('W15', 'Trains carried Jews from across Europe. The Nazis called it “resettlement to the east.”', [DEPORTATIONS], 'w15-tracks-fog', 'Empty railway tracks into fog', 'tracks', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/photo/luggage-belonging-to-jews-who-were-deported-to-killing-centers
-  line('W16', 'The suitcases of people who were deported now rest at the foot of a railcar in the US Holocaust Memorial Museum.', [LUGGAGE], 'w16-suitcases', 'A row of old suitcases', 'suitcase', 'during'),
-  // REVIEW: https://collections.ushmm.org/search/catalog/irn548074
-  line('W17', 'In Theresienstadt, prisoners were given scrip instead of money, “to create a false appearance of normalcy.”', [SCRIP], 'w17-scrip', 'A paper banknote on a wooden table', 'chair', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/warsaw-ghetto-uprising ("On April 19, 1943, the Warsaw ghetto uprising began"; "About 700 young Jewish fighters")
-  line('W18', 'April 19, 1943. About 700 young Jewish fighters rose up in the Warsaw ghetto.', [WARSAW], 'w18-candle', 'One candle, burning steadily', 'candle', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/children-during-the-holocaust
-  line('W19', 'As many as 1.5 million Jewish children were murdered.', [CHILDREN], 'w19-small-shoes', 'One pair of small shoes', 'shoes', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/children-during-the-holocaust
-  line('W20', 'Thousands of Jewish children survived, many because someone hid them.', [CHILDREN], 'w20-shutter-light', 'A shuttered window with a crack of light', 'door', 'during'),
-  // REVIEW: https://hmd.org.uk/resource/yvonne-bernstein/ (her words, exactly as quoted there)
-  line('W21', '“Being a hidden child during the Holocaust was a distressing experience; we lived in constant fear.” (Yvonne Bernstein)', [HMD('Yvonne Bernstein', 'yvonne-bernstein')], 'w21-shutter-closed', 'The same window, shutters closed', 'door', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/rescue-in-denmark
-  line('W22', 'October 1943. Danish fishermen ferried some 7,200 Jews to safety in Sweden.', [DENMARK], 'w22-fishing-boat', 'A small fishing boat on a calm night sea', 'candle', 'during'),
-  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/le-chambon-sur-lignon
-  line('W23', 'A French village and its neighbors gave refuge to an estimated 5,000 people.', [CHAMBON], 'w23-farmhouse-door', 'A farmhouse door, open', 'door', 'during'),
-  // REVIEW: https://hmd.org.uk/resource/louisa-gould/ (her words, exactly as quoted there)
-  line('W24', '“I had to do something for another mother’s son.” (Louisa Gould, Jersey)', [HMD('Louisa Gould', 'louisa-gould')], 'w24-table-for-one-more', 'A kitchen table set for one more', 'chair', 'during'),
-  // ── After ──
+  line('W25', 'Trains carried Jews from across Europe. The Nazis called it “resettlement to the east.”', [DEPORTATIONS], 'w15-tracks-fog', 'Empty railway tracks into fog', 'tracks', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/killing-centers-an-overview (five killing centers, for "the sole purpose of murdering Jewish people on a mass scale using poisonous gas")
+  line('W26', 'The trains went to killing centers, built for one purpose: to murder Jews with poison gas.', [KILLING_CENTERS], 'w16-suitcases', 'A row of old suitcases', 'suitcase', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/killing-centers-an-overview (the five: Chełmno, Belzec, Sobibor, Treblinka, Auschwitz-Birkenau). Held a little longer.
+  line('W27', 'Chełmno. Belzec. Sobibor. Treblinka. Auschwitz-Birkenau.', [KILLING_CENTERS], 'w48-sidings', 'Railway sidings running up to a closed gate', 'tracks', 'during', 7000),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/killing-centers-an-overview ("approximately 2.7 million of them were murdered at the five killing centers")
+  line('W28', 'About 2.7 million Jews were murdered there.', [KILLING_CENTERS], 'w49-birch-trees', 'A grey sky over an empty field and a line of birch trees', 'tracks', 'during'),
+  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/children-during-the-holocaust ("As many as 1.5 million Jewish children alone were murdered")
+  line('W29', 'As many as 1.5 million Jewish children were murdered.', [CHILDREN], 'w19-small-shoes', 'One pair of small shoes', 'shoes', 'during', 7000),
+  // REVIEW: https://encyclopedia.ushmm.org/content/en/article/warsaw-ghetto-uprising ("On April 19, 1943"; the eve of Passover; "about 700 young Jewish fighters")
+  line('W30', 'April 19, 1943, the eve of Passover. About 700 young Jewish fighters rose up in the Warsaw ghetto.', [WARSAW], 'w18-candle', 'One candle, burning steadily', 'candle', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/warsaw-ghetto-uprising (the resistance lasted 27 days; the Germans razed the ghetto, "burning and demolishing it block by block")
+  line('W31', 'They held out for 27 days. The Germans burned the ghetto down, block by block.', [WARSAW], 'w50-burned-street', 'A street of burned-out buildings, empty', 'door', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/killing-center-revolts (Treblinka, August 2, 1943: about 300 escaped, about a third survived recapture; Sobibor, October 14, 1943: about 300 escaped, "Fifty were alive at the war's end")
+  line('W32', 'At Treblinka and Sobibor, prisoners rose up too. Hundreds escaped. Few lived to see the war end.', [REVOLTS], 'w20-shutter-light', 'A shuttered window with a crack of light', 'door', 'during'),
+  // REVIEW (new): the owner's words, after the revolts (the uprisings were crushed; few of those who escaped survived).
+  line('W33', 'It was not enough.', [REVOLTS], 'w21-shutter-closed', 'The same window, shutters closed', 'door', 'during', 6500),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/the-holocaust-in-hungary (deportations "Between May 15 and July 9, 1944"), as the Allies were about to land in France.
+  line('W34', 'May 1944. Germany was losing the war. Still the trains ran.', [HUNGARY], 'w51-signal', 'A railway signal in summer haze', 'tracks', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/the-holocaust-in-hungary ("approximately 437,000 Jews were deported from Hungary"; about 330,000, "about 75 percent", "murdered in the gas chambers upon arrival" at Auschwitz-Birkenau)
+  line('W35', 'In less than eight weeks, about 437,000 Jews were deported from Hungary. Most were murdered as soon as they reached Auschwitz.', [HUNGARY], 'w28-suitcase-on-side', 'A suitcase, closed, on its side', 'suitcase', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/anne-frank-biography ("On August 4, 1944, the German SS and police discovered the hiding place")
+  line('W36', 'August 4, 1944. The Franks’ hiding place was found.', [ANNE], 'w13-diary', 'An open diary with a checked cover', 'chair', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/death-marches (the winter of 1944–1945; the SS evacuated the camps as the Allies closed in, on foot)
+  line('W37', 'Winter 1944–45. As the Allied armies closed in, the SS forced prisoners out of the camps on foot, through the snow.', [DEATH_MARCHES], 'w52-snow-road', 'A road through snow, trodden (no people)', 'tracks', 'during'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/death-marches ("SS guards had strict orders to kill prisoners who could no longer walk"; "Thousands of prisoners died of exposure, starvation, and exhaustion")
+  line('W38', 'Prisoners who could not keep walking were shot. Thousands more died of cold, hunger and exhaustion.', [DEATH_MARCHES], 'w53-shoe-in-snow', 'One worn shoe in the snow by a roadside', 'shoes', 'during'),
+  // ── The end ──
   // REVIEW: https://encyclopedia.ushmm.org/content/en/article/auschwitz ("On January 27, 1945, Soviet troops liberated approximately 7,000 prisoners")
-  line('W25', 'January 27, 1945. Soviet troops liberated about 7,000 prisoners at Auschwitz.', [AUSCHWITZ], 'w25-tracks-snow', 'Empty tracks in snow, first light', 'tracks', 'after'),
-  // REVIEW: https://hmd.org.uk/resource/helen-aronson-bem/ (her words, exactly as quoted there)
-  line('W26', '“A Russian soldier said ‘the war is finished and you are free’.” (Helen Aronson)', [HMD('Helen Aronson', 'helen-aronson-bem')], 'w26-door-daylight', 'A hatch or door opening onto daylight', 'door', 'after'),
-  // REVIEW: https://hmd.org.uk/resource/otto-rosenberg/ (his words, exactly as quoted there)
-  line('W27', '“We found the danger is over for the time being. We are safe.” (Otto Rosenberg, after liberation)', [HMD('Otto Rosenberg', 'otto-rosenberg')], 'w27-morning-window', 'A window with morning light', 'candle', 'after'),
-  // REVIEW: https://hmd.org.uk/resource/martha-blend/ (her words, exactly as quoted there)
-  line('W28', '“There was nothing to go back to Austria for.” (Martha Blend, after the war)', [HMD('Martha Blend', 'martha-blend')], 'w28-suitcase-on-side', 'A suitcase, closed, on its side', 'suitcase', 'after'),
-  // REVIEW: https://www.yadvashem.org/press-release/11-november-2025-08-44.html (Yad Vashem's site refused an automated re-check on November 1, 2026: please confirm the figure)
-  line('W29', 'Yad Vashem has recovered five million names of the six million Jews who were murdered.', [YV_NAMES], 'w29-stones-ledge', 'Stones, each a little different, along a ledge', 'candle', 'after'),
-  // REVIEW: https://www.yadvashem.org/righteous/stories.html and https://encyclopedia.ushmm.org/content/en/article/righteous-among-the-nations ("28,707 individuals from 51 countries"; "a place where trees are planted to commemorate rescuers")
-  line('W30', 'More than 28,000 rescuers have been honored as Righteous Among the Nations. Trees are planted in their honor.', [YV_RIGHTEOUS, RIGHTEOUS], 'w30-young-tree', 'A young tree on a path', 'chair', 'after'),
-  // REVIEW: https://www.hmd.org.uk/what-is-holocaust-memorial-day/
-  line('W31', 'Each January 27, people light a candle in their window to remember, and to stand against hatred today.', [HMD_WHAT], 'w31-candle-window', 'A candle in a window at night', 'candle', 'after'),
-  // REVIEW: https://hmd.org.uk/resource/zigi-shipper-hmd-2017/ (his words, exactly as quoted there)
-  line('W32', '“There is nothing we can do about the past, but we can do a lot about the present and the future” (Zigi Shipper)', [HMD('Zigi Shipper', 'zigi-shipper-hmd-2017')], 'w32-path-into-light', 'A cobbled path between trees, running on into light', 'candle', 'after'),
+  line('W39', 'January 27, 1945. Soviet troops reached Auschwitz. About 7,000 prisoners were still alive there.', [AUSCHWITZ], 'w25-tracks-snow', 'Empty tracks in snow, first light', 'tracks', 'after'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/anne-frank-biography ("Anne Frank died in February or March 1945"; Bergen-Belsen; typhus; "at the age of 15")
+  line('W40', 'February or March 1945. Anne Frank died at Bergen-Belsen, of typhus. She was 15.', [ANNE], 'w27-morning-window', 'A window with morning light', 'candle', 'after', 7000),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust (it "ended in May 1945, when the Allied Powers defeated Nazi Germany")
+  line('W41', 'May 1945. The war in Europe ended.', [INTRO], 'w26-door-daylight', 'A hatch or door opening onto daylight', 'door', 'after'),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust ("six million European Jews").
+  line('W42', 'Six million Jews had been murdered.', [INTRO], 'w29-stones-ledge', 'Stones, each a little different, along a ledge', 'candle', 'after', 8000),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust ("nearly two out of every three European Jews")
+  line('W43', 'Nearly two out of every three Jews in Europe.', [INTRO], 'w24-table-for-one-more', 'A kitchen table set, the chairs empty', 'chair', 'after', 8000),
+  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/documenting-numbers-of-victims-of-the-holocaust-and-nazi-persecution (Roma "at least 250,000"; people with disabilities "250,000–300,000"; Soviet prisoners of war "around 3.3 million"; non-Jewish Polish civilians "around 1.8 million")
+  line('W44', 'The Nazis also murdered at least 250,000 Roma and Sinti people, 250,000 disabled people, and millions of others.', [NUMBERS], 'w23-farmhouse-door', 'A farmhouse door, open, no one there', 'door', 'after', 8000),
+  // REVIEW: Yad Vashem, November 3, 2025: the names of five million of the six million recovered; about a million still to be identified (as reported by Reuters, JTA and the Smithsonian). Yad Vashem's own page refused an automated check: please confirm.
+  line('W45', 'Yad Vashem has found the names of five million of the six million Jews. About one million still have no name.', [YV_NAMES], 'w55-names-wall', 'A stone wall carved with rows of names, too many to read', 'candle', 'after', 8000),
+  // REVIEW (new): https://www.ushmm.org/information/about-the-museum/mission-and-history/wiesel (his words, engraved at the entrance to the US Holocaust Memorial Museum)
+  line('W46', '“For the dead and the living, we must bear witness.” (Elie Wiesel, who survived Auschwitz and Buchenwald)', [WIESEL, WIESEL_LIFE], 'w31-candle-window', 'A candle in a window at night', 'candle', 'after', 10000),
 ];
 
 /** A slot's number, from its name: 'w07-broken-window' is 7. */

@@ -1,0 +1,4 @@
+The panels' moments (components/exhibition/PanelMoment.ts): each played once, very quietly, as its panel arrives. There is no music under these posters. Trimmed, made mono, faded, levelled low. Pixabay files under the Pixabay Content License.
+candle.mp3 (poster 1: people light a candle in their window) — "StrikeMatchLightCandle" by freesound_community, https://pixabay.com/sound-effects/household-strikematchlightcandle-45767/
+church-clock.mp3 (poster 2: Anne Frank in hiding, who wrote of the Westerkerk's bells) — "Church Bell Distant" by u_xg7ssi08yr, https://pixabay.com/sound-effects/film-special-effects-church-bell-distant-362056/ (softened)
+water.mp3 (poster 2: Denmark, October 1943, the fishing boats to Sweden) — "Gentle lapping lake water waves cottage 24 96 180721" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-gentle-lapping-lake-water-waves-cottage-24-96-180721-54836/
