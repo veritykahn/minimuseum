@@ -1,0 +1,5 @@
+The panels' moments (components/exhibition/PanelMoment.ts): each played once as its panel arrives. Trimmed, made mono, faded, levelled. Pixabay files (Pixabay Content License).
+school-bell.mp3 (Negro History Week, for schoolchildren) — "Vintage interior school bell ringing" by DobCommunications, https://pixabay.com/sound-effects/film-special-effects-vintage-interior-school-bell-ringing-376334/
+harlem-jazz.mp3 (Langston Hughes and the Harlem Renaissance) — "Riverside Blues", King Oliver's Creole Jazz Band, 1923 (public domain in the US), from ../../../harlem/audio/migration/chicago.mp3
+sparkle.mp3 (the first Black Barbie, 1980) — "Magic sparkle" by Liecio, https://pixabay.com/sound-effects/film-special-effects-magic-sparkle-190030/
+kids-cheer.mp3 — "Kids Cheering", https://pixabay.com/sound-effects/people-kids-cheering-335547/

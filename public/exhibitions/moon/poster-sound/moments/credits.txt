@@ -1,0 +1,10 @@
+The panels' moments (components/exhibition/PanelMoment.ts): each played once as its panel arrives. Trimmed, made mono, faded, levelled. Pixabay files (Pixabay Content License).
+waves.mp3 (the Moon's pull on the tides) — "Gentle Ocean Waves" by DRAGON-STUDIO, https://pixabay.com/sound-effects/nature-gentle-ocean-waves-499666/
+impact.mp3 (Theia strikes the young Earth) — "Trailer Big Powerful Impact" by Tomasz_Redman, https://pixabay.com/sound-effects/film-special-effects-trailer-big-powerful-impact-241356/
+eagle-landed.mp3 (July 20, 1969) — "The Eagle Has Landed" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-the-eagle-has-landed-101681/ (Apollo 11 air-to-ground audio, NASA)
+laser.mp3 (the Apollo 11 prisms) — "Space Laser" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-space-laser-38082/
+rocket-launch.mp3 (Artemis II) — "Rocket Launch sfx" by JCI21, https://pixabay.com/sound-effects/film-special-effects-rocket-launch-sfx-253937/
+kepler-launch.mp3 (Kepler, 2009) — "Space Rocket Launch Rumble" by Jerryblessed, https://pixabay.com/sound-effects/film-special-effects-space-rocket-launch-rumble-544846/
+webb-sparkle.mp3 (the James Webb Space Telescope) — "Sound Effect: Twinkle/Sparkle" by ShidenBeatsMusic, https://pixabay.com/sound-effects/film-special-effects-sound-effect-twinklesparkle-115095/
+space-static.mp3 ("Where is everybody?") — "Space Static" by freesound_community, https://pixabay.com/sound-effects/film-special-effects-space-static-76550/
+voyager-beep.mp3 (Voyager 1) — "beep...beep...beep.." by freesound_community, https://pixabay.com/sound-effects/film-special-effects-beepbeepbeep-53921/

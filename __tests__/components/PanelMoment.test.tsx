@@ -5,6 +5,10 @@ import { momentSrc } from '@/components/exhibition/posterSoundPaths';
 import { VICTORIAN } from '@/app/exhibitions/victorian/victorian';
 import { GREAT_WAR } from '@/app/exhibitions/great-war/greatWar';
 import { WRITING_REVOLUTION } from '@/app/exhibitions/writing-revolution/writingRevolution';
+import { MOON } from '@/app/exhibitions/moon/moon';
+import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
+import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
+import { WOMENS_HISTORY } from '@/app/exhibitions/womens-history/womensHistory';
 import { HOLOCAUST } from '@/app/exhibitions/holocaust/holocaust';
 
 /*
@@ -84,9 +88,14 @@ describe('moments on disk', () => {
   it.each([
     ['the Great War', GREAT_WAR],
     ['the Writing Revolution', WRITING_REVOLUTION],
-  ])('has a file in place for every moment %s names', (_name, config) => {
+    ['the Moon', MOON],
+    ['America 250', AMERICA_250],
+    ['Black History Month', BLACK_HISTORY],
+    ["Women's History", WOMENS_HISTORY],
+  ] as const)('has a file in place for every moment %s names', (_name, config) => {
     const found = posterMomentsOnDisk(config) ?? {};
-    for (const p of config.posters) p.items.forEach((i, n) => expect(found[p.id as keyof typeof found]?.[n] ?? null).toBe(i.moment ? momentSrc(config.slug, i.moment) : null));
+    const byPoster = found as Record<string, (string | null)[] | undefined>;
+    for (const p of config.posters) p.items.forEach((i, n) => expect(byPoster[p.id]?.[n] ?? null).toBe(i.moment ? momentSrc(config.slug, i.moment) : null));
   });
 
   it('never finds one for the Holocaust exhibition', () => {
