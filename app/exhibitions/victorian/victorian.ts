@@ -248,8 +248,8 @@ export const VICTORIAN: ExhibitionConfig<'poster1' | 'poster2'> = {
           alt: 'Revolutionary Victorian Britain',
         },
         { type: 'paragraph', section: 'lede', atmosphere: 'wallpaper-damask', effect: 'kenburns-in', figure: COURT_DRESS, text: 'Victorian Britain was a time of innovation, fashion, culture, and the birth of one of the most iconic museums in the world today!' },
-        // Added (A18): the dress.
-        { type: 'paragraph', moment: 'silk-rustle', section: 'linen', position: 'top-right', atmosphere: 'wallpaper-damask', effect: 'fade-in', lead: 'Fun tidbit:', text: 'The ivory silk court dress shown here was made in the 1860s. Its wide skirt sat over a crinoline, and its embroidered train is 11 feet long! Young women spent hours practising how to curtsey and walk backward in a dress like this before being presented at court.', sources: [S.courtDress] },
+        // Added (A18): the dress, beside its picture.
+        { type: 'paragraph', moment: 'silk-rustle', section: 'linen', position: 'center', atmosphere: 'wallpaper-damask', effect: 'fade-in', figure: { ...COURT_DRESS, side: 'left' }, lead: 'Fun tidbit:', text: 'The ivory silk court dress shown here was made in the 1860s. Its wide skirt sat over a crinoline, and its embroidered train is 11 feet long! Young women spent hours practising how to curtsey and walk backward in a dress like this before being presented at court.', sources: [S.courtDress] },
         { type: 'paragraph', section: 'linen', position: 'bottom-left', atmosphere: 'wallpaper-damask', effect: 'breathe', lead: 'Fun tidbit:', text: 'A crinoline was a light cage of spring-steel hoops worn under the skirt to hold it out. Some were nicknamed "skeleton" petticoats!', sources: [S.crinoline] },
 
         { type: 'paragraph', section: 'linen', atmosphere: 'locomotive-steam', effect: 'line-by-line', text: 'The Victorian era in Britain lasted from 1837 to 1901, during the reign of Queen Victoria. This period saw rapid industrial growth, transforming the nation into a global superpower with an expanding empire.' },

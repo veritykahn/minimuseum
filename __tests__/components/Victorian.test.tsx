@@ -160,7 +160,9 @@ describe('Victorian Britain', () => {
       if (it.type === 'paragraph' && it.figure) return [{ src: it.figure.src, alt: it.figure.alt, credit: it.figure.credit?.text, href: it.figure.credit?.href }];
       return [];
     });
+    // The dress twice: beside the opening line, and again beside its fun tidbit.
     expect(pictures.map((p) => p.src)).toEqual([
+      '/exhibitions/victorian/va-court-dress.jpg',
       '/exhibitions/victorian/va-court-dress.jpg',
       '/exhibitions/victorian/va-refreshment-room.jpg',
       '/exhibitions/victorian/village.jpg',
