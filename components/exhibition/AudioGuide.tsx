@@ -26,6 +26,8 @@ export type AudioGuideState = {
   progress: number;
   /** This panel has a recording. */
   available: boolean;
+  /** This panel's recording has played to its end (projector mode's Play through moves on from here). */
+  ended: boolean;
   turnOn: () => void;
   turnOff: () => void;
   /** Pause, or play this panel's recording (again, from the start, once it has ended). */
@@ -45,19 +47,29 @@ export function useAudioGuide(src?: string): AudioGuideState {
   });
   const [playing, setPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  // The recording last played to its end; a new panel's is a different one.
+  const [endedSrc, setEndedSrc] = useState<string | null>(null);
+  const current = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     const a = new Audio();
     // Nothing is fetched while the guide is off (see below).
     a.preload = 'none';
     const tick = () => setProgress(a.duration ? a.currentTime / a.duration : 0);
-    const play = () => setPlaying(true);
+    const play = () => {
+      setPlaying(true);
+      setEndedSrc(null);
+    };
     const stop = () => setPlaying(false);
+    const finish = () => {
+      setPlaying(false);
+      setEndedSrc(current.current ?? null);
+    };
     a.addEventListener('timeupdate', tick);
     a.addEventListener('emptied', tick);
     a.addEventListener('play', play);
     a.addEventListener('pause', stop);
-    a.addEventListener('ended', stop);
+    a.addEventListener('ended', finish);
     audio.current = a;
     return () => {
       a.pause();
@@ -71,6 +83,7 @@ export function useAudioGuide(src?: string): AudioGuideState {
     const a = audio.current;
     if (!a) return;
     a.pause();
+    current.current = src;
     if (!src) {
       a.removeAttribute('src');
       a.load();
@@ -110,7 +123,7 @@ export function useAudioGuide(src?: string): AudioGuideState {
   };
   const pause = () => audio.current?.pause();
 
-  return { on, playing, progress, available: !!src, turnOn, turnOff, toggle, pause };
+  return { on, playing, progress, available: !!src, ended: !!src && endedSrc === src, turnOn, turnOff, toggle, pause };
 }
 
 export default function AudioGuide({ guide, color, bg }: { guide: AudioGuideState; color: string; bg: string }) {

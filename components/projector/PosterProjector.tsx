@@ -95,6 +95,16 @@ function release(e: MouseEvent<HTMLElement>) {
   if (e.detail > 0) e.currentTarget.blur();
 }
 
+// REVIEW (Verity): Play through's words.
+export const PLAY_THROUGH = 'Play through';
+export const PLAY_THROUGH_ON = 'Playing through. Each panel moves on when its recording ends. Any key or button takes over.';
+export const PLAY_THROUGH_OFF = 'Play through stopped.';
+export const PLAY_THROUGH_DONE = 'Play through finished.';
+/** After a recording ends, a breath before the next panel. */
+export const THROUGH_PAUSE_MS = 2000;
+/** A panel with no recording is held this long. */
+export const THROUGH_HOLD_MS = 6000;
+
 function wordCount(text: string) {
   const t = text.trim();
   return t ? t.split(/\s+/).length : 0;
@@ -201,6 +211,9 @@ function ProjectorScreen<K extends string>({
   const [blank, setBlank] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [notice, setNotice] = useState('');
+  // Play through: off until the teacher turns it on; the guide moves the poster on.
+  // It holds the panel it is playing, so any other panel (the teacher moved) means it has stopped.
+  const [throughAt, setThroughAt] = useState<number | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const pickerHeading = useRef<HTMLHeadingElement>(null);
 
@@ -304,7 +317,10 @@ function ProjectorScreen<K extends string>({
 
   const setBlankAndSay = useCallback((next: boolean) => {
     // A blanked screen is a pause for the class: the guide stops talking too.
-    if (next) latestGuide.current?.pause();
+    if (next) {
+      latestGuide.current?.pause();
+      setThroughAt(null);
+    }
     // ...and the room goes quiet until the screen is shown again.
     latestRoom.current?.hush(next);
     setBlank(next);
@@ -337,8 +353,45 @@ function ProjectorScreen<K extends string>({
   const playPause = useCallback(() => {
     const g = latestGuide.current;
     if (!g?.on || !g.available) return;
+    // Pausing hands the poster back to the teacher.
+    if (g.playing) setThroughAt(null);
     g.toggle();
   }, []);
+
+  const through = throughAt !== null && throughAt === step && open && (audioGuide?.on ?? false);
+  const toggleThrough = useCallback(() => {
+    if (through) {
+      setThroughAt(null);
+      setNotice(PLAY_THROUGH_OFF);
+      return;
+    }
+    const g = latestGuide.current;
+    if (!g) return;
+    if (!g.on) g.turnOn();
+    setThroughAt(step);
+    setNotice(PLAY_THROUGH_ON);
+  }, [through, step]);
+
+  const guideEnded = audioGuide?.ended ?? false;
+  const guideAvailable = audioGuide?.available ?? false;
+  useEffect(() => {
+    if (!through || blank) return;
+    // A panel with a recording waits for it to end; one without is held a while.
+    if (guideAvailable && !guideEnded) return;
+    const t = window.setTimeout(
+      () => {
+        if (step >= count - 1) {
+          setThroughAt(null);
+          setNotice(PLAY_THROUGH_DONE);
+          return;
+        }
+        setThroughAt(step + 1);
+        nextStep();
+      },
+      guideAvailable ? THROUGH_PAUSE_MS : THROUGH_HOLD_MS,
+    );
+    return () => window.clearTimeout(t);
+  }, [through, blank, guideAvailable, guideEnded, step, count, nextStep]);
 
   const continueOn = useCallback(() => {
     const next = posters[posterIndex + 1];
@@ -371,6 +424,7 @@ function ProjectorScreen<K extends string>({
       if (!cmd) return;
       e.preventDefault();
       e.stopPropagation();
+      if (cmd.type === 'next' || cmd.type === 'prev' || cmd.type === 'first' || cmd.type === 'last') setThroughAt(null);
       switch (cmd.type) {
         case 'next':
           if (!s.open) openPoster(posters[0].id);
@@ -409,13 +463,16 @@ function ProjectorScreen<K extends string>({
         case 'room':
           toggleRoom();
           break;
+        case 'through':
+          toggleThrough();
+          break;
         case 'swallow':
           break;
       }
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [goToStep, nextStep, openPoster, playPause, posters, prevStep, setBlankAndSay, toggleFullscreen, toggleGuide, toggleRoom, toggleStrip]);
+  }, [goToStep, nextStep, openPoster, playPause, posters, prevStep, setBlankAndSay, toggleFullscreen, toggleGuide, toggleRoom, toggleStrip, toggleThrough]);
 
   const endContext: EndContext | null = poster
     ? {
@@ -476,6 +533,18 @@ function ProjectorScreen<K extends string>({
               {audioGuide.playing ? 'Pause' : 'Play'} <kbd>P</kbd>
             </button>
           )}
+          <button
+            type="button"
+            className={styles.tool}
+            aria-pressed={through}
+            aria-keyshortcuts="G"
+            onClick={(e) => {
+              release(e);
+              toggleThrough();
+            }}
+          >
+            {PLAY_THROUGH} <kbd>G</kbd>
+          </button>
         </>
       )}
       {roomSound && open && (
@@ -548,6 +617,11 @@ function ProjectorScreen<K extends string>({
       {open && audioGuide && (
         <span>
           <kbd>A</kbd> audio guide
+        </span>
+      )}
+      {open && audioGuide && (
+        <span>
+          <kbd>G</kbd> play through
         </span>
       )}
       {open && roomSound && (

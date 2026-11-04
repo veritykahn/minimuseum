@@ -87,6 +87,10 @@
 
 .tools {
   display: flex;
+  /* with the audio guide on there are more tools than a narrow screen's bar holds: they wrap, right-aligned */
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 0;
   gap: calc(var(--pjp-u) * 0.5);
   margin-left: auto;
 }
