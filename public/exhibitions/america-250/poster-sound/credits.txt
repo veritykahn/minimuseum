@@ -1,3 +1,4 @@
 The posters' room sound (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet.
-posters.mp3 — "The Presidents March" by freesound_community, https://pixabay.com/music/military-historical-the-presidents-march-33/ (Pixabay Content License)
+posters.mp3 (poster 1, Before it was Sacred, and the hall) — "The Presidents March" by freesound_community, https://pixabay.com/music/military-historical-the-presidents-march-33/ (Pixabay Content License)
 floor.mp3 — a copy of posters.mp3: the room heard from its doorway in the floor's hall (components/FloorSound.ts). It replaces the stand-in made earlier on 3 November.
+poster2.mp3 (We Shall All Hang Together) — "Fife Feature: Lowlands Away / Trenton, from the George Washington Show" by freesound_community, https://pixabay.com/music/tragedy-fife-feature-lowlands-awaytrenton-from-the-george-washington-show-78/ (Pixabay Content License)
