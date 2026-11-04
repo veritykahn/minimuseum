@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import { floorReturnFor } from '@/lib/floors';
@@ -17,6 +18,9 @@ import { FxChannelGhosts, FxDefs, FxText, FxVeil, PosterProgress, chapterMarks, 
 import AtmosphereLayer from '@/components/exhibition/AtmosphereLayer';
 import { EntranceCopy, VisitTicket } from '@/components/exhibition/EntranceCopy';
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
+import RoomSound, { useRoomSound } from '@/components/exhibition/RoomSound';
+import { usePanelMoment } from '@/components/exhibition/PanelMoment';
+import { momentSrc, posterSoundDir } from '@/components/exhibition/posterSoundPaths';
 import '@/components/exhibition/poster-exhibition.css';
 import { SEEING_ATMOSPHERES, poster1Content, poster2Content } from './posters';
 import { SEEING_ROOMS } from './rooms';
@@ -47,6 +51,7 @@ const poster1Marks = chapterMarks(poster1Content);
 const poster2Marks = chapterMarks(poster2Content);
 
 /* Teacher projector mode: the two posters, their chapter questions and the picker images. */
+const SLUG = 'seeing-is-deceiving';
 const POSTER_IDS = ['poster1', 'poster2'] as const;
 const POSTER_LENGTHS = { poster1: poster1Content.length, poster2: poster2Content.length };
 const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
@@ -146,6 +151,19 @@ export default function SeeingIsDeceiving() {
   const atmosphere = currentItem?.atmosphere;
   const atmo = atmosphere ? SEEING_ATMOSPHERES[atmosphere] : undefined;
 
+  /* The room's sound: each poster its own music under the panels (poster 1 a
+     tiptoeing tune for the tricks of the eye, poster 2 a haunted music box),
+     and a short moment as some panels arrive, the zoetrope, Niagara, the
+     spirit photographer's flash, Houdini's chains, King Kong. */
+  const posterMusic = isMain ? undefined : `${posterSoundDir(SLUG)}/${activeView}.mp3`;
+  const [momentSounding, setMomentSounding] = useState(false);
+  const roomSound = useRoomSound(posterMusic, { duck: momentSounding, moments: !isMain });
+  usePanelMoment(!isMain && currentItem?.moment ? momentSrc(SLUG, currentItem.moment) : undefined, `${activeView}:${posterStep}`, {
+    on: roomSound.on,
+    hushed: roomSound.hushed,
+    onSounding: setMomentSounding,
+  });
+
   // Position classes
   const getPositionClass = (position?: string) => {
     switch(position) {
@@ -181,6 +199,8 @@ export default function SeeingIsDeceiving() {
         }
         .nav-m-left { left: 32px; }
         .nav-m-right { right: 32px; }
+        /* The room sound sits under the Resources corner, in the same right-hand column. */
+        .sid-root .pe-sound-controls { top: 84px; right: 28px; }
         .nav-m:hover .nav-label, .nav-m:focus-visible .nav-label { opacity: 1; max-width: 150px; }
         .nav-m:hover .nav-arrow-left, .nav-m:focus-visible .nav-arrow-left { transform: translateX(-4px); }
         .nav-m:hover .nav-arrow-right, .nav-m:focus-visible .nav-arrow-right { transform: translateX(4px); }
@@ -930,6 +950,7 @@ export default function SeeingIsDeceiving() {
         @media (max-width: 768px) {
           .nav-m-left { left: 20px; top: 20px; }
           .nav-m-right { right: 20px; top: 20px; }
+          .sid-root .pe-sound-controls { top: 64px; right: 16px; }
           .nav-m-text { font-size: 24px; }
           .walkthrough-nav { bottom: 20px; gap: 16px; }
           .nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
@@ -1020,6 +1041,11 @@ export default function SeeingIsDeceiving() {
       {activeView !== 'main' && (
         <h1 className="visually-hidden">{activeView === 'poster1' ? 'Seeing is Deceiving: The Science of How We See' : 'A History of Lies: From Magic Lanterns to AI Deepfakes'}</h1>
       )}
+      {!projector && !isMain && (
+        <div className="pe-sound-controls">
+          <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
+        </div>
+      )}
       <FxDefs />
 
       {/* Poster Walkthrough View */}
@@ -1038,6 +1064,7 @@ export default function SeeingIsDeceiving() {
         nextStep={nextStep}
         prevStep={prevStep}
         returnToMain={returnToMain}
+        roomSound={roomSound.available ? roomSound : undefined}
       >
         <>
         {(activeView === 'poster1' || activeView === 'poster2') && atmosphere && atmo && (

@@ -38,6 +38,8 @@ export type IthItem = {
   /** The setting it stands in (ITH_ATMOSPHERES), drawn behind the panel. */
   atmosphere?: string;
   items?: string[];
+  /** A short sound played once as this panel arrives (poster-sound/moments/<name>.mp3). */
+  moment?: string;
   artworkTitle?: string;
   artworkArtist?: string;
   artworkDate?: string;
@@ -110,6 +112,7 @@ export const poster1Content: IthItem[] = [
     artworkArtist: 'Augustinian friar',
     artworkDate: '1822–1884',
     text: 'Gregor Mendel, the Augustinian friar, founded genetics in a monastery garden. The Dominican scholars of the École Biblique in Jerusalem were among the first to work on the Dead Sea Scrolls.',
+    moment: 'garden-birds',
     special: 'parchment',
     position: 'right',
     atmosphere: 'scriptorium'
@@ -148,6 +151,7 @@ export const poster1Content: IthItem[] = [
   {
     type: 'paragraph',
     text: 'In 1947, a young Bedouin shepherd threw a stone into a cave above the Dead Sea and heard something break.',
+    moment: 'jar-breaks',
     position: 'center',
     special: 'scrolls',
     effect: 'split-reveal',
@@ -173,6 +177,7 @@ export const poster1Content: IthItem[] = [
   {
     type: 'paragraph',
     text: 'And the text, across all that time, had barely changed. The Great Isaiah Scroll, over seven metres long and two millennia old, matches the text we use today with extraordinary fidelity.',
+    moment: 'scroll-unroll',
     position: 'top-left',
     special: 'scrolls',
     effect: 'typewriter',
@@ -280,6 +285,7 @@ export const poster2Content: IthItem[] = [
   {
     type: 'paragraph',
     text: 'A coin cannot be forged the way a text can: its metal can be tested, its die-marks traced to specific mints, its age confirmed by the earth it came from.',
+    moment: 'coin-ring',
     position: 'top-left',
     special: 'passion',
     effect: 'split-reveal',
@@ -290,6 +296,7 @@ export const poster2Content: IthItem[] = [
     src: '/exhibitions/in-their-hands/poster2-pilate-stone.jpg',
     alt: 'The Pilate Stone: a weathered limestone block carved with Latin lettering naming Pontius Pilate',
     text: 'For decades, some scholars questioned whether Pontius Pilate was a historical figure. Then in 1961, a construction crew at Caesarea Maritima uncovered a limestone block inscribed PONTIVS PILATVS PRAEFECTVS IVDAEAE.',
+    moment: 'pickaxe',
     special: 'passion',
     position: 'right',
     effect: 'mega-zoom-out',
@@ -321,6 +328,7 @@ export const poster2Content: IthItem[] = [
   {
     type: 'paragraph',
     text: 'No detail in the Passion narrative has generated more numismatic attention than the thirty pieces of silver paid to Judas Iscariot.',
+    moment: 'coins-counted',
     position: 'center',
     special: 'thirty-pieces',
     effect: 'blur-to-sharp',
@@ -368,6 +376,7 @@ export const poster2Content: IthItem[] = [
     artworkTitle: 'Judas Returns the Money (Judas rend l\'argent)',
     artworkArtist: 'James Tissot',
     text: 'When Judas returned the thirty pieces in remorse, the priests refused to receive them back — blood money could not re-enter the treasury — and used them instead to purchase a potter\'s field for the burial of strangers.',
+    moment: 'coins-thrown-down',
     special: 'thirty-pieces',
     position: 'right',
     atmosphere: 'tyrian-silver'
@@ -398,6 +407,7 @@ export const poster2Content: IthItem[] = [
   {
     type: 'paragraph',
     text: 'In 1990, a construction crew in Jerusalem accidentally broke through the roof of a burial cave.',
+    moment: 'cave-roof',
     position: 'center',
     special: 'accident',
     effect: 'film-credits',

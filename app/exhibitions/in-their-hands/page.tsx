@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import { floorReturnFor } from '@/lib/floors';
@@ -17,6 +18,9 @@ import { FxText, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '
 import AtmosphereLayer from '@/components/exhibition/AtmosphereLayer';
 import { EntranceCopy } from '@/components/exhibition/EntranceCopy';
 import { effectClass, panelEntrance } from '@/components/exhibition/helpers';
+import RoomSound, { useRoomSound } from '@/components/exhibition/RoomSound';
+import { usePanelMoment } from '@/components/exhibition/PanelMoment';
+import { momentSrc, posterSoundDir } from '@/components/exhibition/posterSoundPaths';
 import '@/components/exhibition/poster-exhibition.css';
 import { ITH_ATMOSPHERES, poster1Content, poster2Content, type IthItem } from './posters';
 import { ITH_ROOMS } from './rooms';
@@ -41,6 +45,7 @@ const TEACH: TeachContent = { slug: 'in-their-hands', name: 'In Their Hands', po
 // ============================================
 /** The top-left link back to this exhibition's floor, at its card. */
 const FLOOR_RETURN = floorReturnFor('in-their-hands');
+const SLUG = 'in-their-hands';
 
 export default function InTheirHands() {
   const [projector, setProjector] = useProjectorMode();
@@ -131,6 +136,19 @@ export default function InTheirHands() {
   const copyClass = own && !onCopy ? 'pe-follow' : own ? '' : 'ith-effect-fade-in';
   const atmosphere = currentItem?.atmosphere;
   const atmo = atmosphere ? ITH_ATMOSPHERES[atmosphere] : undefined;
+
+  /* The room's sound: each poster its own music under the panels (poster 1
+     monks' voices in an old monastery, poster 2 an oud at dusk), and a short
+     moment as some panels arrive: the shepherd's stone and the breaking jar,
+     the scroll unrolling, the coins counted out and thrown down. */
+  const posterMusic = isMain ? undefined : `${posterSoundDir(SLUG)}/${activeView}.mp3`;
+  const [momentSounding, setMomentSounding] = useState(false);
+  const roomSound = useRoomSound(posterMusic, { duck: momentSounding, moments: !isMain });
+  usePanelMoment(!isMain && currentItem?.moment ? momentSrc(SLUG, currentItem.moment) : undefined, `${activeView}:${posterStep}`, {
+    on: roomSound.on,
+    hushed: roomSound.hushed,
+    onSounding: setMomentSounding,
+  });
   /** Coins are transparent cut-outs: they get a shadow that follows the metal and a glint. */
   const isCoin = (item: IthItem) => item.special === 'thirty-pieces' && !!item.src?.endsWith('.png');
 
@@ -205,6 +223,8 @@ export default function InTheirHands() {
         }
         .ith-nav-left { left: 32px; }
         .ith-nav-right { right: 32px; }
+        /* The room sound sits under the Resources corner, in the same right-hand column. */
+        .ith-root .pe-sound-controls { top: 84px; right: 28px; }
         .ith-nav:hover .ith-nav-label, .ith-nav:focus-visible .ith-nav-label { opacity: 1; max-width: 150px; }
         .ith-nav:hover .ith-nav-arrow-left, .ith-nav:focus-visible .ith-nav-arrow-left { transform: translateX(-4px); }
         .ith-nav:hover .ith-nav-arrow-right, .ith-nav:focus-visible .ith-nav-arrow-right { transform: translateX(4px); }
@@ -883,6 +903,7 @@ export default function InTheirHands() {
         @media (max-width: 768px) {
           .ith-nav-left { left: 20px; top: 20px; }
           .ith-nav-right { right: 20px; top: 20px; }
+          .ith-root .pe-sound-controls { top: 64px; right: 16px; }
           .ith-nav-text { font-size: 24px; }
           .ith-walkthrough-nav { bottom: 20px; gap: 16px; }
           .ith-nav-arrow-btn { width: 40px; height: 40px; font-size: 16px; }
@@ -982,6 +1003,11 @@ export default function InTheirHands() {
         {announcement}
       </p>
       <PosterNavHint visible={hintVisible && !projector} onDismiss={dismissHint} />
+      {!projector && !isMain && (
+        <div className="pe-sound-controls">
+          <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
+        </div>
+      )}
       {activeView !== 'main' && (
         <h1 className="visually-hidden">{activeView === 'poster1' ? 'Faith and Reason' : 'The Weight of Thirty Pieces'}</h1>
       )}
@@ -1004,6 +1030,7 @@ export default function InTheirHands() {
         nextStep={nextStep}
         prevStep={prevStep}
         returnToMain={returnToMain}
+        roomSound={roomSound.available ? roomSound : undefined}
       >
         <>
         {(activeView === 'poster1' || activeView === 'poster2') && atmosphere && atmo && (

@@ -10,6 +10,10 @@ import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
 import { WOMENS_HISTORY } from '@/app/exhibitions/womens-history/womensHistory';
 import { HOLOCAUST } from '@/app/exhibitions/holocaust/holocaust';
+import { poster1Content as SID_POSTER1, poster2Content as SID_POSTER2 } from '@/app/exhibitions/seeing-is-deceiving/posters';
+import { poster1Content as ITH_POSTER1, poster2Content as ITH_POSTER2 } from '@/app/exhibitions/in-their-hands/posters';
+import fs from 'fs';
+import path from 'path';
 
 /*
  * A panel's moment: one sound as the panel arrives, a beat after it, only
@@ -96,6 +100,17 @@ describe('moments on disk', () => {
     const found = posterMomentsOnDisk(config) ?? {};
     const byPoster = found as Record<string, (string | null)[] | undefined>;
     for (const p of config.posters) p.items.forEach((i, n) => expect(byPoster[p.id]?.[n] ?? null).toBe(i.moment ? momentSrc(config.slug, i.moment) : null));
+  });
+
+  it.each([
+    ['Seeing is Deceiving', 'seeing-is-deceiving', [...SID_POSTER1, ...SID_POSTER2], ['zoetrope', 'spirit-photo', 'chains', 'i-see-you']],
+    ['In Their Hands', 'in-their-hands', [...ITH_POSTER1, ...ITH_POSTER2], ['jar-breaks', 'coins-counted', 'coins-thrown-down']],
+  ] as const)('has the music and a file for every moment %s names', (_name, slug, items, some) => {
+    const onDisk = (src: string) => fs.existsSync(path.join(process.cwd(), 'public', src));
+    const named = items.map((i) => i.moment).filter((m): m is string => !!m);
+    expect(named).toEqual(expect.arrayContaining([...some]));
+    for (const m of named) expect(onDisk(momentSrc(slug, m))).toBe(true);
+    for (const f of ['poster1', 'poster2', 'floor']) expect(onDisk(`/exhibitions/${slug}/poster-sound/${f}.mp3`)).toBe(true);
   });
 
   it('never finds one for the Holocaust exhibition', () => {

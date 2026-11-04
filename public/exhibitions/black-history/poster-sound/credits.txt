@@ -1,3 +1,4 @@
 The posters' music (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet.
-poster1.mp3 (Black History Month) — "Silent Film Piano (Joplin Maple Leaf Rag)" by Art_Roseman, https://pixabay.com/music/small-drama-silent-film-piano-joplin-maple-leaf-rag-579306/ (Pixabay Content License). Scott Joplin, 1899.
+poster1.mp3 (Black History Month) — "Jazz — Piano Fog" by Ornave, https://pixabay.com/music/beats-jazz-piano-fog-595002/ (Pixabay Content License). Lo-fi jazz piano.
 poster2.mp3 (The Importance of Black Barbie) — "1980s" by Rockfan572, https://pixabay.com/music/funk-1980s-406424/ (Pixabay Content License). The first 180 s.
+floor.mp3: a copy of poster2.mp3, so the hall hears the Barbie funk (components/FloorSound.ts)

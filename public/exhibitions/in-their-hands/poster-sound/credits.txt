@@ -1,0 +1,4 @@
+The posters' music (components/exhibition/RoomSound.tsx). Made mono, looped seamlessly (crossfade), levelled quiet. Pixabay files under the Pixabay Content License.
+poster1.mp3 (Faith and Reason: voices in an old monastery) — "Echoes from an old monastery" by Alban_Gogh, https://pixabay.com/music/ambient-echoes-from-an-old-monastery-289824/
+poster2.mp3 (The Weight of Thirty Pieces: an oud at dusk) — "Celestial Oud – Deep Relaxation" by djovan, https://pixabay.com/music/flamenco-celestial-oud-deep-relaxation-489152/
+floor.mp3 — a copy of poster1.mp3: the room heard from the hall (components/FloorSound.ts)
