@@ -145,12 +145,14 @@ describe('International Holocaust Remembrance Day', () => {
       }
     });
 
-    it('keeps poster 1’s close as its only "Never Forget", with the promise under it', () => {
+    it('ends poster 1 on its close, its only "Never Forget", with the promise just before it', () => {
       const items = poster('poster1').items;
       const close = items.findIndex((it) => it.type === 'section-title');
       expect(items[close]).toMatchObject({ text: 'Never Forget.' });
       expect(items.filter((it) => 'text' in it && /Never Forget/.test(it.text ?? ''))).toHaveLength(1);
-      expect(items[close + 1]).toMatchObject({ section: 'added', text: expect.stringMatching(/^In 2000, representatives from 46 governments met in Stockholm/) });
+      // The last panel: nothing after it but the way back.
+      expect(items.slice(close + 1).map((it) => it.type)).toEqual(['end']);
+      expect(items[close - 1]).toMatchObject({ section: 'added', text: expect.stringMatching(/^In 2000, representatives from 46 governments met in Stockholm/) });
       expect(poster('poster1').talk['Never Forget.']).toMatch(/^What are some of the ways people and communities keep the memory of the past alive/);
     });
 
