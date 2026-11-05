@@ -60,6 +60,7 @@ function Where({ where }: { where: StopMore['where'] }) {
         <span className={`hot-map-light${where.wide ? ' is-wide' : ''}`} style={{ left: `${x}%`, top: `${y}%` }} />
       </div>
       <p className="hot-where-label">{where.label}</p>
+      {where.note && <p className="hot-where-today">{where.note}</p>}
       {where.today && <p className="hot-where-today">{where.today}</p>}
     </div>
   );

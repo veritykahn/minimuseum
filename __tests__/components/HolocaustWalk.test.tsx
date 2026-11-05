@@ -19,7 +19,7 @@ import {
   WALK_CLOSE,
   WALK_INSPIRATION,
   WALK_INSPIRED_BY,
-  WALK_INTRO,
+  WALK_ABOUT,
   WALK_MS,
   darkness,
   WALK_NAMES_HEADING,
@@ -147,7 +147,7 @@ const pass = (ms: number, by = 250) => {
 function begin(props: Parameters<typeof WalkRoom>[0] = {}) {
   render(<WalkRoom pool={MANY} {...props} />);
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('The Walk');
-  expect(screen.getByRole('region', { name: 'The walk' })).toHaveTextContent(WALK_INTRO);
+  expect(screen.getByRole('region', { name: 'The walk' })).toHaveTextContent(WALK_ABOUT);
   fireEvent.click(screen.getByRole('button', { name: 'Begin' }));
   return screen.getByRole('dialog', { name: 'The film' });
 }

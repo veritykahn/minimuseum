@@ -16,7 +16,9 @@ import type { FactSource } from '@/components/exhibition/FactNote';
  * owner, never quietly fixed). The dates are in capitals because the poster
  * prints them so. "*…*" marks the words the poster sets in italics
  * (*Kristallnacht*, *Aktion T4*), as holocaust.ts does. Every word was
- * readable: nothing is marked unreadable.
+ * readable: nothing is marked unreadable. One entry differs from the print,
+ * at the owner's request: March 1942, reworded to match the sources (its
+ * note says how the poster reads).
  *
  * Each entry has its sources, from the USHMM Holocaust Encyclopedia, for the
  * room's Sources drawer (sources.ts). Where a source gives a fact differently
@@ -214,9 +216,9 @@ export const TIMELINE_ENTRIES: TimelineEntry[] = [
     year: 1942,
     date: 'MARCH',
     when: 'March 1942',
-    words: 'Mass extermination begins at Belzec, Sobibor, and Treblinka camps',
+    words: 'Mass extermination begins at Belzec, followed by Sobibor and Treblinka that spring and summer',
     side: 'right',
-    // REVIEW (Verity): the date differs from the source for two of the three camps. The USHMM: killing at Belzec began in March 1942, Sobibor began operating in May 1942, and Treblinka II opened in July 1942. The poster's "March" is right for Belzec only. The words stay as printed.
+    // REVIEW (Verity): changed from the poster at the owner's request (November 4, 2026), to match the USHMM: killing at Belzec began in March 1942, Sobibor began operating in May 1942, and Treblinka II opened in July 1942. The printed poster reads "Mass extermination begins at Belzec, Sobibor, and Treblinka camps".
     sources: [ushmm('Operation Reinhard (Einsatz Reinhard)', 'article/operation-reinhard-einsatz-reinhard')],
   },
   {

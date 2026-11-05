@@ -87,10 +87,8 @@ export function darkness(progress: number, ended = false): number {
   return DARK_MOST * (1 - Math.min(smooth(progress / INTO_LIGHT), smooth((1 - progress) / INTO_DARK)));
 }
 
-// REVIEW (Verity): the room's way in, rewritten short on November 4, 2026, at the owner's request (the long description is gone).
-export const WALK_INTRO = 'A short film of the history, then a quiet walk to remember the children by name.';
-// REVIEW (Verity): about five minutes: the film (FILM_MS, about four) and the walk (WALK_MS, 75 seconds).
-export const WALK_ABOUT = 'About five minutes, with sound. You can pause or leave at any time.';
+// REVIEW (Verity): the room's way in, under its title: at the owner's request (November 4, 2026), only this; the description, the line on what is to come and the length are gone.
+export const WALK_ABOUT = 'You can pause or leave at any time.';
 // REVIEW (Verity): the way in.
 export const WALK_BEGIN_LABEL = 'Begin';
 // REVIEW (Verity): shown as the hall opens out.

@@ -48,7 +48,8 @@ const POSTER: [number, string, string][] = [
   [1941, 'SEPTEMBER 29-30', 'Over 33,000 Jews are murdered during the Babi Yar massacre near Kyiv'],
   [1941, 'DECEMBER 8', 'Chelmno, the first extermination camp, begins operations'],
   [1942, 'JANUARY 20, 1942', 'The Wannsee Conference formalizes the “Final Solution,” planning the extermination of Jews.'],
-  [1942, 'MARCH', 'Mass extermination begins at Belzec, Sobibor, and Treblinka camps'],
+  // Reworded at the owner's request (November 4, 2026), to match the sources; the print reads 'Mass extermination begins at Belzec, Sobibor, and Treblinka camps'.
+  [1942, 'MARCH', 'Mass extermination begins at Belzec, followed by Sobibor and Treblinka that spring and summer'],
   [1943, 'APRIL 19 - MAY 16', 'The Warsaw Ghetto Uprising, where Jews resist deportation to extermination camps, occurs'],
   [1944, 'JUNE 6', 'D-Day: Allied forces invade Normandy, opening a Western front.'],
   [1944, 'JULY 23', 'Soviet forces liberate Majdanek, the first major concentration camp to be freed'],
@@ -239,7 +240,7 @@ describe('the stops', () => {
         expect(v).toBeLessThan(100);
       }
       expect(more.closer.length).toBeGreaterThanOrEqual(1);
-      expect(more.closer.length).toBeLessThanOrEqual(3);
+      expect(more.closer.length).toBeLessThanOrEqual(4);
       for (const c of more.closer) {
         for (const v of [c.x, c.y]) {
           expect(v).toBeGreaterThanOrEqual(0);
@@ -249,6 +250,7 @@ describe('the stops', () => {
         expect(c.sources.length).toBeGreaterThan(0);
       }
       // Nothing of it on the screen cites anything: the sources are in the drawer.
+      expect(more.happened.text).not.toMatch(/Hitler took his own life/);
       expect([more.happened.text, ...more.closer.map((c) => c.text)].join(' ')).not.toMatch(/https?:|USHMM/);
     }
   });

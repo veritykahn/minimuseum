@@ -620,7 +620,7 @@ body:has(.hot-room) { background: #0b0a0a; }
 .hot-happened { margin: 0; font-size: 17px; line-height: 1.6; }
 
 .hot-where { display: flex; flex-direction: column; gap: 6px; }
-.hot-map { position: relative; width: 100%; max-width: 360px; }
+.hot-map { position: relative; width: 100%; max-width: 280px; }
 .hot-map img { display: block; width: 100%; height: auto; opacity: 0.3; }
 .hot-map-light {
   position: absolute;
