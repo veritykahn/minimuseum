@@ -371,14 +371,14 @@ export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
         // The candles come up out of the dark, as the reveal brings them up (the theme's own entrance).
         { type: 'paragraph', section: 'body', atmosphere: 'candle-vigil', className: 'ho-glow', figure: commonsFigure(COMMONS_CANDLES, 'left'), text: 'It serves as a powerful reminder of the consequences of hatred, discrimination, and indifference, encouraging reflection, remembrance and a commitment to building a safer, more inclusive world.' },
         { type: 'paragraph', moment: 'candle', section: 'added', atmosphere: 'candle-vigil', effect: 'rise-expand', position: 'top-right', text: 'Every year on Holocaust Memorial Day, people across the UK light a candle in their window “to remember those murdered and to stand against hatred today.”', sources: [SRC.whatIsHmd] },
+        // The promise to remember, rescuers included, just before the poster's close (at the owner's request, November 4, 2026): the poster ends on "Never Forget.", and says it once. In the candles' light, like the panels around it.
+        { type: 'paragraph', section: 'added', atmosphere: 'candle-vigil', effect: 'line-by-line', text: 'In 2000, representatives from 46 governments met in Stockholm and promised to keep the memory of the Holocaust alive. Their declaration says: “The selfless sacrifices of those who defied the Nazis, and sometimes gave their own lives to protect or rescue the Holocaust’s victims, must also be inscribed in our hearts.”', sources: [SRC.stockholm] },
         { type: 'section-title', section: 'close', atmosphere: 'candle-vigil', effect: 'split-reveal', text: 'Never Forget.' },
-        // The promise, under the poster's own close: no second "Never Forget".
-        { type: 'paragraph', section: 'added', atmosphere: 'first-light', effect: 'line-by-line', text: 'In 2000, representatives from 46 governments met in Stockholm and promised to keep the memory of the Holocaust alive. Their declaration says: “The selfless sacrifices of those who defied the Nazis, and sometimes gave their own lives to protect or rescue the Holocaust’s victims, must also be inscribed in our hearts.”', sources: [SRC.stockholm] },
         { type: 'end', section: 'end', text: 'Return to Exhibition' },
       ],
       talk: {
         '': 'The poster names hatred, discrimination, and indifference. What everyday choices can people make to help build a safer, more inclusive world?',
-        // One question per chapter: the poster's own question stays, and the Stockholm Declaration's follows it.
+        // One question per chapter: the poster's own question stays, and the Stockholm Declaration's (its panel just before the close) follows it.
         'Never Forget.': 'What are some of the ways people and communities keep the memory of the past alive, and why do you think remembering matters? The Stockholm Declaration asks us to remember the people who helped others. Why do you think it matters to remember those who helped, as well as those who were harmed?',
       },
     },
