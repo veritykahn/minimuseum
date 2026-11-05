@@ -33,6 +33,7 @@ import { EYE, STEP, easeStep, hash2, hazeAt, lightAt, makeView, project, rowPiec
 import { PLATE, hitsForStep } from '@/app/exhibitions/holocaust/walk/footsteps';
 import { RATTLE_CHANCE } from '@/app/exhibitions/holocaust/walk/metal';
 import { MUSIC_SRC, PLACEHOLDERS, WALK_DIR, WALK_LINES, slotFiles, slotNumber } from '@/app/exhibitions/holocaust/walk/walkLines';
+import { FILM_PICTURE_CREDITS } from '@/app/exhibitions/holocaust/walk/filmPictures';
 import { WALK_NAMES } from '@/app/exhibitions/holocaust/walk/walkNames';
 import { SILHOUETTE_KINDS } from '@/app/exhibitions/holocaust/walk/WalkPicture';
 import { walkSlotsOnDisk } from '@/app/exhibitions/holocaust/walk/walkSlots';
@@ -231,7 +232,8 @@ describe('the film', () => {
       expect(within(words as HTMLElement).queryByRole('link')).toBeNull();
       // Its picture fills the screen, behind it.
       expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('src', `${WALK_DIR}/${ALL_PICTURES[line.slot]}`);
-      expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('alt', line.image);
+      // Described for a screen reader: the photograph itself, where it is credited, else what the slot shows.
+      expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('alt', FILM_PICTURE_CREDITS[line.slot]?.alt ?? line.image);
       // Not before its time.
       tick((line.hold ?? FILM_LINE_MS) - 50);
       expect(film.querySelector(`[data-line="${line.id}"]`)).toBeInTheDocument();
@@ -386,6 +388,9 @@ describe('the film', () => {
     WALK_LINES.forEach((line, i) => {
       const group = within(drawer).getByRole('heading', { name: `The film, line ${i + 1}` }).closest('section')!;
       for (const s of line.sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+      // A photograph that is not the owner's is credited under its line, last.
+      const picture = FILM_PICTURE_CREDITS[line.slot];
+      if (picture) expect(within(group).getAllByRole('link').at(-1)).toHaveAttribute('href', picture.href);
     });
     const inspired = within(drawer).getByRole('heading', { name: WALK_INSPIRED_BY }).closest('section')!;
     const [kadishman, danube] = within(inspired).getAllByRole('link');
@@ -825,8 +830,12 @@ describe('the film’s lines and slots', () => {
 
   it('finds the owner’s files when the page is built: her pictures, the 14 clanks, the rattle, and the film’s music if it is there', () => {
     const onDisk = walkSlotsOnDisk();
-    // The owner's 32 pictures are on disk; the slots added when the film was rebuilt wait for theirs.
-    expect(Object.keys(onDisk.pictures)).toHaveLength(WALK_LINES.filter((l) => slotNumber(l.slot) <= 32).length);
+    // Every line has its picture: the owner's own, and, for the slots added when the film was rebuilt, a credited photograph.
+    expect(Object.keys(onDisk.pictures).sort()).toEqual(WALK_LINES.map((l) => l.slot).sort());
+    for (const l of WALK_LINES) {
+      if (slotNumber(l.slot) <= 32) expect(FILM_PICTURE_CREDITS[l.slot]).toBeUndefined();
+      else expect(FILM_PICTURE_CREDITS[l.slot]).toEqual(expect.objectContaining({ href: expect.stringMatching(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/), label: expect.stringMatching(/, via Wikimedia Commons$/) }));
+    }
     expect(onDisk.pictures['w07-broken-window']).toBe('walk-07.webp');
     expect(onDisk.sounds.clanks).toHaveLength(14);
     expect(onDisk.sounds.clanks[0]).toBe('/exhibitions/holocaust/walk/sound/clank-01.mp3');
