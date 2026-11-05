@@ -19,7 +19,7 @@ import {
   WALK_CLOSE,
   WALK_INSPIRATION,
   WALK_INSPIRED_BY,
-  WALK_INTRO,
+  WALK_ABOUT,
   WALK_MS,
   darkness,
   WALK_NAMES_HEADING,
@@ -33,6 +33,7 @@ import { EYE, STEP, easeStep, hash2, hazeAt, lightAt, makeView, project, rowPiec
 import { PLATE, hitsForStep } from '@/app/exhibitions/holocaust/walk/footsteps';
 import { RATTLE_CHANCE } from '@/app/exhibitions/holocaust/walk/metal';
 import { MUSIC_SRC, PLACEHOLDERS, WALK_DIR, WALK_LINES, slotFiles, slotNumber } from '@/app/exhibitions/holocaust/walk/walkLines';
+import { FILM_PICTURE_CREDITS } from '@/app/exhibitions/holocaust/walk/filmPictures';
 import { WALK_NAMES } from '@/app/exhibitions/holocaust/walk/walkNames';
 import { SILHOUETTE_KINDS } from '@/app/exhibitions/holocaust/walk/WalkPicture';
 import { walkSlotsOnDisk } from '@/app/exhibitions/holocaust/walk/walkSlots';
@@ -146,7 +147,7 @@ const pass = (ms: number, by = 250) => {
 function begin(props: Parameters<typeof WalkRoom>[0] = {}) {
   render(<WalkRoom pool={MANY} {...props} />);
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('The Walk');
-  expect(screen.getByRole('region', { name: 'The walk' })).toHaveTextContent(WALK_INTRO);
+  expect(screen.getByRole('region', { name: 'The walk' })).toHaveTextContent(WALK_ABOUT);
   fireEvent.click(screen.getByRole('button', { name: 'Begin' }));
   return screen.getByRole('dialog', { name: 'The film' });
 }
@@ -231,7 +232,8 @@ describe('the film', () => {
       expect(within(words as HTMLElement).queryByRole('link')).toBeNull();
       // Its picture fills the screen, behind it.
       expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('src', `${WALK_DIR}/${ALL_PICTURES[line.slot]}`);
-      expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('alt', line.image);
+      // Described for a screen reader: the photograph itself, where it is credited, else what the slot shows.
+      expect(film.querySelector('.hof-layer.is-current img')).toHaveAttribute('alt', FILM_PICTURE_CREDITS[line.slot]?.alt ?? line.image);
       // Not before its time.
       tick((line.hold ?? FILM_LINE_MS) - 50);
       expect(film.querySelector(`[data-line="${line.id}"]`)).toBeInTheDocument();
@@ -386,6 +388,9 @@ describe('the film', () => {
     WALK_LINES.forEach((line, i) => {
       const group = within(drawer).getByRole('heading', { name: `The film, line ${i + 1}` }).closest('section')!;
       for (const s of line.sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
+      // A photograph that is not the owner's is credited under its line, last.
+      const picture = FILM_PICTURE_CREDITS[line.slot];
+      if (picture) expect(within(group).getAllByRole('link').at(-1)).toHaveAttribute('href', picture.href);
     });
     const inspired = within(drawer).getByRole('heading', { name: WALK_INSPIRED_BY }).closest('section')!;
     const [kadishman, danube] = within(inspired).getAllByRole('link');
@@ -771,7 +776,8 @@ describe('the names', () => {
 describe('the film’s lines and slots', () => {
   it('has short lines, in the order of the history, building step by step to the toll, each with a source, a picture slot and a part', () => {
     expect(WALK_LINES.map((l) => l.id)).toEqual(Array.from({ length: WALK_LINES.length }, (_, i) => `W${i + 1}`));
-    expect(WALK_LINES.length).toBeGreaterThanOrEqual(40);
+    // The owner's film script (November 4, 2026), row for row: 38 lines of the history.
+    expect(WALK_LINES).toHaveLength(38);
     for (const l of WALK_LINES) {
       expect(l.sources.length).toBeGreaterThan(0);
       // From Yad Vashem, the USHMM or the HMD Trust; Heine's words, from the Jewish Review of Books.
@@ -794,7 +800,11 @@ describe('the film’s lines and slots', () => {
     const where = steps.map(at);
     expect(where.every((i) => i >= 0)).toBe(true);
     expect(where).toEqual([...where].sort((x, y) => x - y));
-    expect(WALK_LINES.some((l) => l.text === 'It was not enough.')).toBe(true);
+    // The rows the owner deleted from her script are gone, and her rewordings are in.
+    for (const gone of [/^It was not enough\.$/, /later learned that their parents/, /One in every three/, /83,000/, /2\.7 million/, /1\.5 million/, /Treblinka and Sobibor, prisoners/, /Killing squads/]) expect(at(gone)).toBe(-1);
+    expect(WALK_LINES[at(/Kindertransport|10,000 children/)].text).toBe('From December 1938, about 10,000 children were sent alone to Britain to find safety. Their parents could not come.');
+    expect(WALK_LINES[at(/a star on their clothes/)].text).toBe('In Germany, from 1941, every Jew aged six or older was forced to wear a star on their clothes.');
+    expect(WALK_LINES[at(/behind a bookcase/)].text).toBe('In Amsterdam, July 6, 1942. The Frank family went into hiding, behind a bookcase.');
     expect(WALK_LINES.map((l) => l.image.replace(/\(no [^)]*\)/, '')).join(' ')).not.toMatch(/\b(person|people|child|man|woman|face|body|victim)\b/i);
     const parts = WALK_LINES.map((l) => l.part);
     expect(parts).toEqual([...parts].sort((x, y) => ['before', 'during', 'after'].indexOf(x) - ['before', 'during', 'after'].indexOf(y)));
@@ -820,8 +830,12 @@ describe('the film’s lines and slots', () => {
 
   it('finds the owner’s files when the page is built: her pictures, the 14 clanks, the rattle, and the film’s music if it is there', () => {
     const onDisk = walkSlotsOnDisk();
-    // The owner's 32 pictures are on disk; the slots added when the film was rebuilt wait for theirs.
-    expect(Object.keys(onDisk.pictures)).toHaveLength(WALK_LINES.filter((l) => slotNumber(l.slot) <= 32).length);
+    // Every line has its picture: the owner's own, and, for the slots added when the film was rebuilt, a credited photograph.
+    expect(Object.keys(onDisk.pictures).sort()).toEqual(WALK_LINES.map((l) => l.slot).sort());
+    for (const l of WALK_LINES) {
+      if (slotNumber(l.slot) <= 32) expect(FILM_PICTURE_CREDITS[l.slot]).toBeUndefined();
+      else expect(FILM_PICTURE_CREDITS[l.slot]).toEqual(expect.objectContaining({ href: expect.stringMatching(/^https:\/\/commons\.wikimedia\.org\/wiki\/File:/), label: expect.stringMatching(/, via Wikimedia Commons$/) }));
+    }
     expect(onDisk.pictures['w07-broken-window']).toBe('walk-07.webp');
     expect(onDisk.sounds.clanks).toHaveLength(14);
     expect(onDisk.sounds.clanks[0]).toBe('/exhibitions/holocaust/walk/sound/clank-01.mp3');

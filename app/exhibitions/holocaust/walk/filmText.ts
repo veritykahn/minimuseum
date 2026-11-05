@@ -2,6 +2,7 @@ import type { FactSource } from '@/components/exhibition/FactNote';
 import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { WALK_LINES, type WalkLine } from './walkLines';
 import { hash2 } from './walkScene';
+import { FILM_PICTURE_CREDITS } from './filmPictures';
 
 /*
  * The film that opens the walk: what it says, in order, and for how long.
@@ -76,11 +77,15 @@ export const FILM_SKIP = 'Skip to the walk';
 export const FILM_NEXT = 'Next';
 export const FILM_MUSIC = 'Music';
 
-/** The film's sources, line by line, for the Sources drawer: the opening words, then each line of the history. */
+/** The film's sources, line by line, for the Sources drawer: the opening words, then each line of the history, with its picture's credit where the picture is not the owner's own. */
 export function filmSourceGroups(): SourceGroup[] {
   const short = (t: string) => (t.length > 60 ? `${t.slice(0, 57).trimEnd()}…` : t.replace(/\.$/, ''));
   return [
     { title: 'The film: its opening words', items: FILM_OPENING.flatMap((o) => o.sources.map((s) => ({ ...s, note: short(o.text) }))) },
-    ...WALK_LINES.map((l, i) => ({ title: `The film, line ${i + 1}`, items: l.sources.map((s) => ({ ...s, note: short(l.text) })) })),
+    ...WALK_LINES.map((l, i) => {
+      const picture = FILM_PICTURE_CREDITS[l.slot];
+      const items = l.sources.map((s) => ({ ...s, note: short(l.text) }));
+      return { title: `The film, line ${i + 1}`, items: picture ? [...items, { note: 'Picture', label: picture.label, href: picture.href }] : items };
+    }),
   ];
 }

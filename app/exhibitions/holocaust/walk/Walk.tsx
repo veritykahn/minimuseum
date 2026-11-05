@@ -87,11 +87,8 @@ export function darkness(progress: number, ended = false): number {
   return DARK_MOST * (1 - Math.min(smooth(progress / INTO_LIGHT), smooth((1 - progress) / INTO_DARK)));
 }
 
-// REVIEW (Verity): the walk's own words, new with the film and the grey hall.
-export const WALK_INTRO = 'First, a short film of the history. Then a slow walk through a quiet hall, remembering children by name.';
-// REVIEW (Verity): new with the film and the names.
-export const WALK_ABOUT =
-  'The film shows the history in pictures and short lines, in the order it happened. Then, out of the dark, you walk into a high grey hall, its floor covered with iron faces and empty iron shoes, and on into the dark again. As you walk, one child’s name at a time comes toward you, with their age, and, where it is known, when and where they died. The walk moves on by itself, slowly. Each step is heard; you can pause, or turn the sound off, at any time.';
+// REVIEW (Verity): the room's way in, under its title: at the owner's request (November 4, 2026), only this; the description, the line on what is to come and the length are gone.
+export const WALK_ABOUT = 'You can pause or leave at any time.';
 // REVIEW (Verity): the way in.
 export const WALK_BEGIN_LABEL = 'Begin';
 // REVIEW (Verity): shown as the hall opens out.
@@ -109,7 +106,6 @@ export const WALK_MEANING: readonly string[] = [
   'The floor is covered with iron faces, each one different, too many to count. They stand for the people who died in the Holocaust.',
   'Among them lie empty iron shoes, for the men, women and children who never came home.',
   'As you walk, the iron sounds under your feet. It is the sound of those who died, crying up from below.',
-  'Children’s names will come toward you, one at a time. Each was a real child who died in the Holocaust.',
 ];
 // REVIEW (Verity): the button that begins the walk, after the note.
 export const WALK_GO = 'Begin the walk';

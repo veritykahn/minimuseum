@@ -1,6 +1,7 @@
 import { useId, type ReactNode } from 'react';
 import type { Placeholder, WalkLine } from './walkLines';
 import { slotSrc } from './walkLines';
+import { FILM_PICTURE_CREDITS } from './filmPictures';
 
 /*
  * The picture for one line of the film that opens the walk, filling the
@@ -71,7 +72,7 @@ export default function WalkPicture({ line, file }: { line: WalkLine; file?: str
     <figure className={`hos-walk-picture${file ? ' has-picture' : ' is-placeholder'}`} data-slot={line.slot} data-placeholder={file ? undefined : line.placeholder}>
       {file ? (
         // eslint-disable-next-line @next/next/no-img-element -- the owner's picture, dropped in place; sized by the room
-        <img src={slotSrc(line.slot, file)} alt={line.image} />
+        <img src={slotSrc(line.slot, file)} alt={FILM_PICTURE_CREDITS[line.slot]?.alt ?? line.image} />
       ) : (
         <>
           <svg viewBox="0 0 200 140" role="img" aria-label={`${line.image} (picture to come)`}>

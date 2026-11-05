@@ -8,16 +8,17 @@ import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import HolocaustRoom from '../HolocaustRoom';
 import { FILM_FONT_HREF, FilmScreen, useFilm, type FilmState } from './Film';
 import { NO_SOUNDS, type WalkPictures, type WalkSounds } from './walkLines';
-import { WALK_ABOUT, WALK_BEGIN_LABEL, WALK_INTRO, WALK_MEANING, WalkBackdrop, WalkHall, WalkThreshold, useWalk, walkSourceGroups, type WalkState } from './Walk';
+import { WALK_ABOUT, WALK_BEGIN_LABEL, WALK_MEANING, WalkBackdrop, WalkHall, WalkThreshold, useWalk, walkSourceGroups, type WalkState } from './Walk';
 import { walkPool, type Victim } from './victims';
 import './walk.css';
 import './film.css';
 
 /*
  * The Walk, a room of its own: in the dark, the film's first picture, very
- * dim, behind the room's title and a few words on what is to come, and
- * Begin. Begin opens it full screen: first the film (Film.tsx), the history
- * a line and a picture at a time, ending on its music; then, as it ends or
+ * dim, behind the room's title, a quiet word that it can be paused or
+ * left, and Begin, all together in the middle of the screen. Begin opens it full screen: first
+ * the film (Film.tsx), the history a line and a picture at a time, ending
+ * on its music; then, as it ends or
  * is skipped, a few words on what the walk is, alone in the dark and in
  * silence, until the visitor begins it (WalkThreshold); then the screen
  * opens out into the grey hall, and the walk (Walk.tsx), with the
@@ -143,13 +144,12 @@ export default function WalkRoom({ pictures = {}, sounds = NO_SOUNDS, music = nu
     <HolocaustRoom groups={walkSourceGroups(walk.shown)} fontHref={FILM_FONT_HREF}>
       <main className="hos-stage" data-tab="walk">
         <WalkBackdrop pictures={pictures} />
-        <header className="hos-bar">
-          {/* REVIEW (Verity): the room's title, as on its card. */}
-          <h1 className="hos-title">The Walk</h1>
-        </header>
+        {/* The way in, alone in the middle of the dark: the title, a quiet word that it can be paused or left, and Begin. */}
         <section className="hos-panel hos-panel-walk" aria-label="The walk">
           <div className="hos-walk">
-            <p className="hos-intro">{WALK_INTRO}</p>
+            {/* REVIEW (Verity): the room's title, as on its card. */}
+            <h1 className="hos-title hos-walk-title">The Walk</h1>
+            <span className="hos-walk-rule" aria-hidden="true" />
             <p className="hos-walk-about">{WALK_ABOUT}</p>
             <button type="button" className="hos-button hos-button-primary" onClick={begin} aria-expanded={phase !== 'room'}>
               {WALK_BEGIN_LABEL}

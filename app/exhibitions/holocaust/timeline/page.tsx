@@ -24,7 +24,7 @@ import {
 } from './timelineEntries';
 import OrderEvents from './OrderEvents';
 import TimelineStop from './TimelineStop';
-import { STOP_TEXT } from './timelineStops';
+import { STOP_TEXT, TIMELINE_STOPS } from './timelineStops';
 import { TIMELINE_SOURCES } from './sources';
 import './timeline.css';
 
@@ -45,9 +45,15 @@ import './timeline.css';
  * go straight to a year's first entry, and each entry has its own address
  * (#1938-11-09; #1938 opens the year).
  *
- * Each date's words open it as a stop (TimelineStop.tsx): its photograph,
- * the date and the words again, and Before and Next to walk the timeline;
- * a few stops have one very quiet sound, with the museum's sound on.
+ * Each date has its photograph under it, which comes in as the date is
+ * reached and drifts slowly as the page goes by, and the line draws itself
+ * down the page with the reader, each dot lighting as the line reaches it
+ * (scroll-driven, in CSS; under reduced motion, all simply there). The
+ * words, or the photograph, open the date as a stop (TimelineStop.tsx):
+ * the photograph again, larger, with spots to look closer at, the date and
+ * the words, what happened, where, and Before and Next to walk the
+ * timeline; a few stops have one very quiet sound, with the museum's sound
+ * on.
  *
  * At the end, the poster's own "Learn more" box is a link to the USHMM's
  * timeline, where its QR code leads; and "Put them in order" is a quiet
@@ -208,7 +214,7 @@ export default function HolocaustTimeline() {
             <>
               {/* REVIEW (Verity): the timeline's name for screen readers. */}
               <ol className="hot-line" aria-label="The timeline, 1933 to 1945">
-                {TIMELINE_ENTRIES.map((e, i) => (
+                {TIMELINE_STOPS.map((e, i) => (
                   <li key={e.id} id={e.id} className="hot-entry" data-side={e.side} tabIndex={-1}>
                     <span className="hot-dot" aria-hidden="true" />
                     <p className="hot-when">
@@ -218,6 +224,16 @@ export default function HolocaustTimeline() {
                       </span>
                       <span style={srOnly}>{e.when}</span>
                     </p>
+                    {/* The date's photograph, under the date: it comes in as it is reached, and drifts as the page goes by. A second way into the stop, for a mouse or a finger; the keyboard has the words. */}
+                    {e.picture && (
+                      <button type="button" className="hot-photo" tabIndex={-1} aria-label={`${STOP_TEXT.open}: ${e.when}`} onClick={() => setStopAt(i)}>
+                        {/* eslint-disable-next-line @next/next/no-img-element -- a still, framed and drifting with the scroll */}
+                        <img src={e.picture.src} alt="" loading="lazy" decoding="async" />
+                        <span className="hot-photo-cue" aria-hidden="true">
+                          {STOP_TEXT.open}
+                        </span>
+                      </button>
+                    )}
                     <p className="hot-words">
                       <button type="button" id={`hot-open-${e.id}`} className="hot-stop-open" aria-haspopup="dialog" onClick={() => setStopAt(i)}>
                         <Words text={e.words} />
