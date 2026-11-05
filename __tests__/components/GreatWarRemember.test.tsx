@@ -1,5 +1,7 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { FALLEN, type Fallen } from '@/app/exhibitions/great-war/memorial/fallen';
+import fs from 'node:fs';
+import path from 'node:path';
+import { FALLEN_SRC, decodeFallen, loadFallen, type Fallen, type PackedFallen } from '@/app/exhibitions/great-war/memorial/fallen';
 import {
   announcement,
   buildIndex,
@@ -23,6 +25,17 @@ jest.mock('html-to-image', () => ({ toPng: jest.fn(async () => 'data:image/png;b
  * "Remember a soldier": the pool, the draw (no repeats until all have come),
  * the search, the card's words, and the printed sheet's measurements.
  */
+
+/** The pool as the site serves it, from public/, and as the card maker reads it back. */
+const PACKED: PackedFallen = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'public', FALLEN_SRC), 'utf8'));
+const FALLEN = decodeFallen(PACKED);
+
+/** The browser's fetch, standing in: the packed pool, from disk. */
+function serveFallen(ok = true) {
+  const fetchMock = jest.fn(async () => ({ ok, status: ok ? 200 : 500, json: async () => PACKED }));
+  (global as unknown as { fetch: unknown }).fetch = fetchMock;
+  return fetchMock;
+}
 
 /** A seeded random for repeatable shuffles. */
 function seeded(seed: number) {
@@ -63,6 +76,20 @@ describe('the pool of the fallen', () => {
     }
     expect(FALLEN.some((f) => f.unknown)).toBe(true);
     expect(FALLEN.some((f) => f.resting.kind === 'missing')).toBe(true);
+  });
+
+  it('is served packed, each table written once, and read back with nothing added', async () => {
+    expect(PACKED.count).toBe(PACKED.rows.length);
+    expect(FALLEN).toHaveLength(PACKED.count);
+    for (const k of ['rank', 'unit', 'branch', 'state', 'cemetery'] as const) expect(new Set(PACKED[k]).size).toBe(PACKED[k].length);
+    for (const f of FALLEN) {
+      for (const v of Object.values(f)) expect(v === '' || v === undefined).toBe(false);
+      expect(f.id).toMatch(/^[a-z0-9-]+-[0-9a-f]{6,8}$/);
+    }
+    const fetchMock = serveFallen();
+    const pool = await loadFallen();
+    expect(fetchMock).toHaveBeenCalledWith(FALLEN_SRC);
+    expect(pool).toEqual(FALLEN);
   });
 
   it('carries the researched soldiers as ABMC records them, plots that match their story cards', () => {
@@ -262,6 +289,7 @@ describe('the Remember a soldier section', () => {
   afterEach(() => jest.restoreAllMocks());
 
   async function ready() {
+    serveFallen();
     render(<RememberSoldier />);
     const button = screen.getByRole('button', { name: 'Remember a soldier' });
     await waitFor(() => expect(button).toBeEnabled());
@@ -342,7 +370,8 @@ describe('the Remember a soldier section', () => {
     sheet = document.querySelector('.gwm-print-sheet')!;
     const printed = Array.from(sheet.querySelectorAll('h3')).map((h) => h.textContent);
     expect(printed).toHaveLength(4);
-    expect(new Set(printed).size).toBe(4);
+    // Four different soldiers: unknown soldiers share their title, so the whole card is compared.
+    expect(new Set(Array.from(sheet.querySelectorAll('.gwm-mc')).map((c) => c.textContent)).size).toBe(4);
     expect(printed[0]).toBe(shown);
     // Printed cards hold the still flame, never the playing one.
     expect(sheet.querySelector('[data-testid="live-flame"]')).toBeNull();

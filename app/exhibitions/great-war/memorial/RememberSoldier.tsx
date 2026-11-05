@@ -4,7 +4,7 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } f
 import { createPortal } from 'react-dom';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import MemorialCard from './MemorialCard';
-import type { Fallen } from './fallen';
+import { loadFallen, type Fallen } from './fallen';
 import { announcement, buildIndex, createPicker, search, summary, type Picker } from './remember';
 import { printCss } from './printLayout';
 import { cardToPng, downloadDataUrl } from './exportCard';
@@ -36,11 +36,16 @@ export default function RememberSoldier() {
 
   useEffect(() => {
     let alive = true;
-    import('./fallen').then((m) => {
-      if (!alive) return;
-      picker.current = createPicker(m.FALLEN.length);
-      setPool(m.FALLEN);
-    });
+    loadFallen().then(
+      (fallen) => {
+        if (!alive) return;
+        picker.current = createPicker(fallen.length);
+        setPool(fallen);
+      },
+      () => {
+        if (alive) setMessage('The soldiers’ records could not be loaded. Please try again later.');
+      },
+    );
     return () => {
       alive = false;
     };
