@@ -12,8 +12,11 @@ import { FILM_PICTURE_CREDITS } from './filmPictures';
  * picture, in order, in their exact words, climbing step by step to the
  * toll. About five and a half seconds a line, six for each of the opening
  * words, longer for the names of the killing centers and for the toll.
- * The music plays to the end and fades over the last line; then, before the
- * walk, a few words on what the walk is, in silence (WalkThreshold).
+ * The music plays once, through, and the film is cut to its length (at the
+ * owner's request, November 5, 2026): it ends as "Six million Jews had been
+ * murdered." is shown (FILM_MUSIC_ENDS_ON), and the few lines after it are
+ * in silence; then, before the walk, still in silence, a few words on what
+ * the walk is (WalkThreshold).
  * Under reduced motion the visitor moves it on, a line at a time.
  *
  * It is shown in black and white, as an old film is, and now and then, for
@@ -28,6 +31,10 @@ import { FILM_PICTURE_CREDITS } from './filmPictures';
 export const FILM_OPENING_MS = 6000;
 /** Each line of the history is shown this long: time to read it. */
 export const FILM_LINE_MS = 5500;
+/** The line the music ends on, played through: the toll. Its recording is heard to about 3:08, and the film reaches this line at 3:06. */
+export const FILM_MUSIC_ENDS_ON = 'W31';
+/** If the visitor reaches it sooner (moving on by hand), the music fades out over this long. */
+export const FILM_MUSIC_END_MS = 3000;
 /** The music fades out over the last line, so the film ends on it; if the film is skipped, more quickly. */
 export const FILM_FADE_MS = FILM_LINE_MS;
 export const FILM_SKIP_FADE_MS = 1200;

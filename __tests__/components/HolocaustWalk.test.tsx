@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import WalkRoom from '@/app/exhibitions/holocaust/walk/WalkRoom';
 import { FILM_FONT_HREF } from '@/app/exhibitions/holocaust/walk/Film';
-import { FILM_BLEEDS, FILM_FRAMES, FILM_LINE_MS, FILM_MS, FILM_OPENING, FILM_OPENING_MS, FILM_SKIP, filmSourceGroups } from '@/app/exhibitions/holocaust/walk/filmText';
+import { FILM_BLEEDS, FILM_FRAMES, FILM_LINE_MS, FILM_MS, FILM_MUSIC_END_MS, FILM_MUSIC_ENDS_ON, FILM_OPENING, FILM_OPENING_MS, FILM_SKIP, filmSourceGroups, frameMs } from '@/app/exhibitions/holocaust/walk/filmText';
 import {
   WALK_GO,
   WALK_MEANING,
@@ -345,20 +345,27 @@ describe('the film', () => {
       // A button turns it off and on.
       const toggle = within(film).getByRole('button', { name: 'Music' });
       expect(toggle).toHaveAttribute('aria-pressed', 'true');
-      // It goes round, as the film is longer than the recording.
-      expect(m.loop).toBe(true);
-      // It plays to the end: as the last line comes, it fades, and is silent as the film ends.
-      const lastLine = WALK_LINES[WALK_LINES.length - 1];
+      // It plays once, never round: the film is cut to its length.
+      expect(m.loop).toBe(false);
+      // It ends on the toll: reached, it fades (this stand-in has no length, so it fades rather than ending on its own), and the lines after it are in silence.
       const toll = WALK_LINES.find((l) => /^Six million/.test(l.text))!;
-      pass(FILM_MS - (lastLine.hold ?? FILM_LINE_MS) + 10);
-      expect(document.querySelector('.hof-film')).toHaveAttribute('data-frame', lastLine.id);
+      expect(toll.id).toBe(FILM_MUSIC_ENDS_ON);
+      const tollAt = FILM_FRAMES.findIndex((f) => f.kind === 'line' && f.line.id === toll.id);
+      const before = FILM_FRAMES.slice(0, tollAt).reduce((t, f) => t + frameMs(f), 0);
+      pass(before - 100);
       expect(m.volume).toBeGreaterThan(0);
-      expect(toll).toBeTruthy();
-      const loud = m.volume;
-      pass(FILM_LINE_MS / 2);
-      expect(m.volume).toBeLessThan(loud);
-      pass(lastLine.hold ?? FILM_LINE_MS);
+      pass(110);
+      expect(document.querySelector('.hof-film')).toHaveAttribute('data-frame', toll.id);
+      pass(FILM_MUSIC_END_MS + 200);
       expect(m.volume).toBe(0);
+      const plays = m.plays;
+      fireEvent.click(within(film).getByRole('button', { name: 'Pause' }));
+      fireEvent.click(within(film).getByRole('button', { name: 'Play' }));
+      expect(m.plays).toBe(plays);
+      const lastLine = WALK_LINES[WALK_LINES.length - 1];
+      pass(FILM_MS - before);
+      expect(document.querySelector('.hof-film')).toBeNull();
+      expect(lastLine.id).not.toBe(toll.id);
       // Then, in silence, the note on what the walk is.
       expect(full()).toHaveClass('is-threshold');
       expect(screen.getByRole('dialog', { name: 'The walk' })).toBeInTheDocument();
@@ -776,8 +783,8 @@ describe('the names', () => {
 describe('the film’s lines and slots', () => {
   it('has short lines, in the order of the history, building step by step to the toll, each with a source, a picture slot and a part', () => {
     expect(WALK_LINES.map((l) => l.id)).toEqual(Array.from({ length: WALK_LINES.length }, (_, i) => `W${i + 1}`));
-    // The owner's film script (November 4, 2026), row for row: 38 lines of the history.
-    expect(WALK_LINES).toHaveLength(38);
+    // The owner's film script (November 4, 2026), row for row, shortened at her request (November 5, 2026) to fit her music: 34 lines of the history.
+    expect(WALK_LINES).toHaveLength(34);
     for (const l of WALK_LINES) {
       expect(l.sources.length).toBeGreaterThan(0);
       // From Yad Vashem, the USHMM or the HMD Trust; Heine's words, from the Jewish Review of Books.
@@ -796,12 +803,12 @@ describe('the film’s lines and slots', () => {
     expect(WALK_LINES[2].text).toMatch(/^In 1933/);
     // The steps, in their order: the first camp, the books, the laws, Kristallnacht, the war, Wannsee, the killing centers, the uprising, Hungary, the death marches, the toll.
     const at = (re: RegExp) => WALK_LINES.findIndex((l) => re.test(l.text));
-    const steps = [/Dachau/, /books into bonfires/, /could not be citizens/, /synagogues/, /invaded Poland/, /Wannsee/, /killing centers/, /Warsaw ghetto\.$/, /Hungary/, /could not keep walking/, /^Six million/];
+    const steps = [/Dachau/, /books into bonfires/, /could not be citizens/, /synagogues/, /invaded Poland/, /Wannsee/, /killing centers/, /Warsaw ghetto\.$/, /Hungary/, /through the snow/, /^Six million/];
     const where = steps.map(at);
     expect(where.every((i) => i >= 0)).toBe(true);
     expect(where).toEqual([...where].sort((x, y) => x - y));
     // The rows the owner deleted from her script are gone, and her rewordings are in.
-    for (const gone of [/^It was not enough\.$/, /later learned that their parents/, /One in every three/, /83,000/, /2\.7 million/, /1\.5 million/, /Treblinka and Sobibor, prisoners/, /Killing squads/]) expect(at(gone)).toBe(-1);
+    for (const gone of [/^It was not enough\.$/, /later learned that their parents/, /One in every three/, /83,000/, /2\.7 million/, /1\.5 million/, /Treblinka and Sobibor, prisoners/, /Killing squads/, /26,000 Jewish men/, /hiding place was found/, /could not keep walking/, /two out of every three/]) expect(at(gone)).toBe(-1);
     expect(WALK_LINES[at(/Kindertransport|10,000 children/)].text).toBe('From December 1938, about 10,000 children were sent alone to Britain to find safety. Their parents could not come.');
     expect(WALK_LINES[at(/a star on their clothes/)].text).toBe('In Germany, from 1941, every Jew aged six or older was forced to wear a star on their clothes.');
     expect(WALK_LINES[at(/behind a bookcase/)].text).toBe('In Amsterdam, July 6, 1942. The Frank family went into hiding, behind a bookcase.');
@@ -812,6 +819,20 @@ describe('the film’s lines and slots', () => {
     // The film carries them all, in order, after its opening words.
     expect(FILM_FRAMES.flatMap((f) => (f.kind === 'line' ? [f.line.id] : []))).toEqual(WALK_LINES.map((l) => l.id));
     expect(FILM_FRAMES.slice(0, FILM_OPENING.length).every((f) => f.kind === 'words')).toBe(true);
+  });
+
+  it('is cut to the owner’s music: it ends, heard to about 3:08, while the toll is shown, and two or three lines follow in silence', () => {
+    const tollAt = FILM_FRAMES.findIndex((f) => f.kind === 'line' && f.line.id === FILM_MUSIC_ENDS_ON);
+    const toll = FILM_FRAMES[tollAt];
+    expect(toll.kind === 'line' && toll.line.text).toBe('Six million Jews had been murdered.');
+    const start = FILM_FRAMES.slice(0, tollAt).reduce((t, f) => t + frameMs(f), 0);
+    const MUSIC_HEARD_MS = 188300;
+    expect(start).toBeLessThanOrEqual(MUSIC_HEARD_MS);
+    expect(start + frameMs(toll)).toBeGreaterThan(MUSIC_HEARD_MS + 1000);
+    expect(FILM_FRAMES.length - 1 - tollAt).toBeGreaterThanOrEqual(2);
+    expect(FILM_FRAMES.length - 1 - tollAt).toBeLessThanOrEqual(3);
+    // No heeled shoes: the death marches' shoe picture went with its line.
+    expect(WALK_LINES.some((l) => l.slot === 'w53-shoe-in-snow')).toBe(false);
   });
 
   it('opens with a few plain words, for children, with nothing graphic, and leaves the toll for the end', () => {
