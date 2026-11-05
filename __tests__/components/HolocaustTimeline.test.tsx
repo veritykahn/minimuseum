@@ -177,9 +177,11 @@ describe('the Sources drawer', () => {
     const drawer = openSources();
     expect(TIMELINE_SOURCES[0]).toBe(POSTER_GROUP);
     expect(within(drawer).getAllByRole('heading', { level: 3 })).toHaveLength(TIMELINE_ENTRIES.length + 1);
-    for (const e of TIMELINE_ENTRIES) {
+    for (const e of TIMELINE_STOPS) {
       const group = sourcesGroup(drawer, `${e.when}: ${plainWords(e.words)}`);
-      expect(within(group).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(e.sources.map((s) => s.href));
+      // The entry's sources, then its photograph's credit.
+      const hrefs = [...e.sources.map((s) => s.href), ...(e.picture ? [e.picture.credit.href] : [])];
+      expect(within(group).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(hrefs);
     }
   });
 });
@@ -219,6 +221,10 @@ describe('the stops', () => {
     render(<HolocaustTimeline />);
     openStop(TIMELINE_ENTRIES[TIMELINE_ENTRIES.length - 1].id);
     expect(within(screen.getByRole('dialog')).getByRole('button', { name: /Next/ })).toBeDisabled();
+  });
+
+  it('every stop has its photograph', () => {
+    expect(TIMELINE_STOPS.filter((s) => !s.picture).map((s) => s.id)).toEqual([]);
   });
 
   it('shows a photograph, credited in the Sources drawer, or a quiet "Picture to come"', () => {

@@ -429,9 +429,9 @@ body:has(.hot-room) { background: #0b0a0a; }
 .hot-stop-figure img {
   display: block;
   width: 100%;
-  max-height: 52vh;
+  /* The whole window fits a laptop's screen, a tall page included. */
+  max-height: 44vh;
   object-fit: contain;
-  background: #000;
   filter: grayscale(0.15);
 }
 .hot-stop-figure figcaption { margin-top: 8px; font-size: 14px; color: var(--hot-soft); }
