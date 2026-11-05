@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from 'react';
-import { FILM_BLEEDS, FILM_FADE_MS, FILM_FRAMES, FILM_MUSIC, FILM_NEXT, FILM_SKIP, FILM_SKIP_FADE_MS, frameId, frameMs, frameText, type FilmFrame } from './filmText';
+import { FILM_BLEEDS, FILM_FADE_MS, FILM_FRAMES, FILM_MUSIC, FILM_MUSIC_END_MS, FILM_MUSIC_ENDS_ON, FILM_NEXT, FILM_SKIP, FILM_SKIP_FADE_MS, frameId, frameMs, frameText, type FilmFrame } from './filmText';
 import { makeFilmMusic, type FilmMusic } from './filmMusic';
 import type { WalkPictures } from './walkLines';
 import WalkPicture from './WalkPicture';
@@ -19,8 +19,8 @@ import WalkPicture from './WalkPicture';
  *
  * It plays by itself, about five and a half seconds a line, with Pause and
  * Play, and a quiet "Skip to the walk". The owner's music plays with it
- * when it is in place (filmMusic.ts), from the same press, and fades as the
- * film ends. Under reduced motion nothing flickers or weaves, and the
+ * when it is in place (filmMusic.ts), from the same press, once through,
+ * ending on the toll; the lines after it are in silence. Under reduced motion nothing flickers or weaves, and the
  * visitor moves it on a line at a time. When it ends, or is skipped, the
  * walk opens out (Walk.tsx). Every line's sources are in the walk's Sources
  * drawer, never on the screen.
@@ -51,7 +51,9 @@ export function useFilm({ music, reduced, onEnd }: { music: string | null; reduc
       remaining.current = frameMs(FILM_FRAMES[i]);
       setIndex(i);
       setAnnouncement(frameText(FILM_FRAMES[i]));
-      // The music plays to the end: it fades as the last line is shown, so the film ends on it.
+      // The music ends on the toll: played through, on its own; reached sooner, it fades. The lines after it are in silence.
+      const f = FILM_FRAMES[i];
+      if (f.kind === 'line' && f.line.id === FILM_MUSIC_ENDS_ON) player.current?.endBy(FILM_MUSIC_END_MS);
       if (i === last) player.current?.fade(FILM_FADE_MS);
     },
     [last],

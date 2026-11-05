@@ -10,8 +10,13 @@ import type { FactSource } from '@/components/exhibition/FactNote';
  * the owner's request, so that it builds; the rescuers, the hiding and the
  * survivors' words stay on the posters. The lines are the owner's own film
  * script ("The Walk: film script", November 4, 2026), word for word: the
- * rows she deleted there are gone from here too. The film ends on its music;
- * then, in silence, a few words on what the walk is (WalkThreshold, Walk.tsx). It began as the owner-approved draft (A18/B13/B14
+ * rows she deleted there are gone from here too. On November 5, 2026, at her
+ * request, it was shortened so that her music ends, without going round, as
+ * "Six million Jews had been murdered." is shown: the 26,000 men sent to the
+ * camps, the Franks' hiding place found, the shot prisoners of the death
+ * marches (and its picture, heeled shoes) and "Nearly two out of every three"
+ * went; the three lines after the toll are in silence. Then, still in
+ * silence, a few words on what the walk is (WalkThreshold, Walk.tsx). It began as the owner-approved draft (A18/B13/B14
  * proposal, 2D) for the walk; the lines changed or moved since say so in
  * their REVIEW notes. The lines are now carried by the film that opens the
  * walk (Film.tsx), each over its picture, in order; the walk itself has
@@ -134,65 +139,57 @@ export const WALK_LINES: readonly WalkLine[] = [
   line('W8', 'September 15, 1935. New laws said Jews could not be citizens, and could not marry non-Jewish Germans.', [NUREMBERG], 'w05-nameplate-removed', 'A door with its nameplate removed', 'door', 'during'),
   // REVIEW: https://encyclopedia.ushmm.org/content/en/article/kristallnacht ("more than 1,400 synagogues"; "vandalized thousands of Jewish-owned businesses")
   line('W9', 'November 9–10, 1938. Nazis burned more than 1,400 synagogues and smashed thousands of Jewish shops.', [KRISTALLNACHT], 'w07-broken-window', 'A broken window pane, glass on the sill (no fire, no people)', 'door', 'during'),
-  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/kristallnacht ("about 26,000 Jewish men were imprisoned in the three camps": Dachau, Buchenwald, Sachsenhausen)
-  line('W10', 'Then they sent about 26,000 Jewish men to concentration camps.', [KRISTALLNACHT], 'w11-closed-gate', 'A closed gate in a brick wall', 'door', 'during'),
   // REVIEW: https://encyclopedia.ushmm.org/content/en/article/kindertransport-1938-40 ("about 10,000 children to safety in Great Britain"; "Parents or guardians could not accompany the children.")
-  line('W11', 'From December 1938, about 10,000 children were sent alone to Britain to find safety. Their parents could not come.', [KINDER], 'w08-suitcase-platform', 'A small suitcase on a station platform', 'suitcase', 'during'),
+  line('W10', 'From December 1938, about 10,000 children were sent alone to Britain to find safety. Their parents could not come.', [KINDER], 'w08-suitcase-platform', 'A small suitcase on a station platform', 'suitcase', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/narrative/2906 (Jewish population of Europe in 1933: Poland "about 3,000,000", the largest community)
-  line('W12', 'September 1, 1939. Germany invaded Poland, home to about three million Jews, more than any other country in Europe.', [POLAND, POPULATION], 'w39-empty-road', 'An empty country road under a low grey sky', 'tracks', 'during'),
+  line('W11', 'September 1, 1939. Germany invaded Poland, home to about three million Jews, more than any other country in Europe.', [POLAND, POPULATION], 'w39-empty-road', 'An empty country road under a low grey sky', 'tracks', 'during'),
   // REVIEW: https://hmd.org.uk/resource/steven-frank/ ("I was no longer allowed to play in the park"; the Netherlands, occupied in 1940)
-  line('W13', '“I was no longer allowed to play in the park.” (Steven Frank, a boy in the occupied Netherlands)', [HMD('Steven Frank', 'steven-frank')], 'w06-park-bench', 'An empty park bench', 'chair', 'during'),
+  line('W12', '“I was no longer allowed to play in the park.” (Steven Frank, a boy in the occupied Netherlands)', [HMD('Steven Frank', 'steven-frank')], 'w06-park-bench', 'An empty park bench', 'chair', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/warsaw (sealed "mid-November 1940"; "over 400,000 Jews"; "an area of 1.3 square miles")
-  line('W14', 'November 1940. More than 400,000 Jews were shut inside the Warsaw ghetto, an area of 1.3 square miles.', [WARSAW_GHETTO], 'w38-ghetto-wall', 'A high brick wall across a street, topped with wire', 'door', 'during'),
+  line('W13', 'November 1940. More than 400,000 Jews were shut inside the Warsaw ghetto, an area of 1.3 square miles.', [WARSAW_GHETTO], 'w38-ghetto-wall', 'A high brick wall across a street, topped with wire', 'door', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/einsatzgruppen ("33,771 Jews" at Babi Yar, "over two days in September 1941")
-  line('W15', 'September 1941. At Babi Yar, outside Kyiv, 33,771 Jews were shot in two days.', [EINSATZ], 'w43-ravine', 'An empty ravine under a grey sky', 'tracks', 'during'),
+  line('W14', 'September 1941. At Babi Yar, outside Kyiv, 33,771 Jews were shot in two days.', [EINSATZ], 'w43-ravine', 'An empty ravine under a grey sky', 'tracks', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/jewish-badge-during-the-nazi-era (from September 1941 all Jews in the Reich "six years of age or older"; in occupied Poland from 1939)
-  line('W16', 'In Germany, from 1941, every Jew aged six or older was forced to wear a star on their clothes.', [BADGE], 'w40-star', 'A cloth star sewn on a dark coat on a hook', 'chair', 'during'),
+  line('W15', 'In Germany, from 1941, every Jew aged six or older was forced to wear a star on their clothes.', [BADGE], 'w40-star', 'A cloth star sewn on a dark coat on a hook', 'chair', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/wannsee-conference-and-the-final-solution (January 20, 1942; 15 officials; a villa in Wannsee)
-  line('W17', 'January 20, 1942. Fifteen officials met at a villa at Wannsee, near Berlin, to plan the “Final Solution.”', [WANNSEE], 'w45-meeting-table', 'A long polished table, fifteen chairs, papers (no people)', 'chair', 'during'),
+  line('W16', 'January 20, 1942. Fifteen officials met at a villa at Wannsee, near Berlin, to plan the “Final Solution.”', [WANNSEE], 'w45-meeting-table', 'A long polished table, fifteen chairs, papers (no people)', 'chair', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/wannsee-conference-and-the-final-solution ("the code name for the systematic, deliberate, physical annihilation of the European Jews"; "approximately 11,000,000 Jews in Europe")
-  line('W18', 'It meant the murder of every Jew in Europe. Their list counted about 11 million.', [WANNSEE], 'w46-typed-list', 'A typed list of countries and numbers on a desk', 'chair', 'during'),
+  line('W17', 'It meant the murder of every Jew in Europe. Their list counted about 11 million.', [WANNSEE], 'w46-typed-list', 'A typed list of countries and numbers on a desk', 'chair', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/wannsee-conference-and-the-final-solution ("The men at the table did not deliberate whether such a plan should be undertaken")
-  line('W19', 'They did not discuss whether to do it. Only how.', [WANNSEE], 'w47-chairs-pushed-back', 'The same table, the chairs pushed back, the meeting over', 'chair', 'during'),
+  line('W18', 'They did not discuss whether to do it. Only how.', [WANNSEE], 'w47-chairs-pushed-back', 'The same table, the chairs pushed back, the meeting over', 'chair', 'during'),
   // REVIEW: https://hmd.org.uk/resource/miep-gies/ ("on 6 July 1942, Otto and his family went to the upper rear rooms of his office building") and https://hmd.org.uk/resource/anne-frank/
-  line('W20', 'In Amsterdam, July 6, 1942. The Frank family went into hiding, behind a bookcase.', [HMD('Miep Gies', 'miep-gies'), HMD('Anne Frank', 'anne-frank')], 'w12-bookcase', 'A bookcase, slightly open, like a door', 'door', 'during'),
+  line('W19', 'In Amsterdam, July 6, 1942. The Frank family went into hiding, behind a bookcase.', [HMD('Miep Gies', 'miep-gies'), HMD('Anne Frank', 'anne-frank')], 'w12-bookcase', 'A bookcase, slightly open, like a door', 'door', 'during'),
   // REVIEW: https://encyclopedia.ushmm.org/content/en/article/deportations-to-killing-centers
-  line('W21', 'Trains carried Jews from across Europe. The Nazis called it “resettlement to the east.”', [DEPORTATIONS], 'w15-tracks-fog', 'Empty railway tracks into fog', 'tracks', 'during'),
+  line('W20', 'Trains carried Jews from across Europe. The Nazis called it “resettlement to the east.”', [DEPORTATIONS], 'w15-tracks-fog', 'Empty railway tracks into fog', 'tracks', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/killing-centers-an-overview (five killing centers, for "the sole purpose of murdering Jewish people on a mass scale using poisonous gas")
-  line('W22', 'The trains went to killing centers, built for one purpose: to murder Jews with poison gas.', [KILLING_CENTERS], 'w16-suitcases', 'A row of old suitcases', 'suitcase', 'during'),
+  line('W21', 'The trains went to killing centers, built for one purpose: to murder Jews with poison gas.', [KILLING_CENTERS], 'w16-suitcases', 'A row of old suitcases', 'suitcase', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/killing-centers-an-overview (the five: Chełmno, Belzec, Sobibor, Treblinka, Auschwitz-Birkenau). Held a little longer.
-  line('W23', 'Chełmno. Belzec. Sobibor. Treblinka. Auschwitz-Birkenau.', [KILLING_CENTERS], 'w48-sidings', 'Railway sidings running up to a closed gate', 'tracks', 'during', 7000),
+  line('W22', 'Chełmno. Belzec. Sobibor. Treblinka. Auschwitz-Birkenau.', [KILLING_CENTERS], 'w48-sidings', 'Railway sidings running up to a closed gate', 'tracks', 'during', 7000),
   // REVIEW: https://encyclopedia.ushmm.org/content/en/article/warsaw-ghetto-uprising ("On April 19, 1943"; the eve of Passover; "about 700 young Jewish fighters")
-  line('W24', 'April 19, 1943, the eve of Passover. About 700 young Jewish fighters rose up in the Warsaw ghetto.', [WARSAW], 'w18-candle', 'One candle, burning steadily', 'candle', 'during'),
+  line('W23', 'April 19, 1943, the eve of Passover. About 700 young Jewish fighters rose up in the Warsaw ghetto.', [WARSAW], 'w18-candle', 'One candle, burning steadily', 'candle', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/warsaw-ghetto-uprising (the resistance lasted 27 days; the Germans razed the ghetto, "burning and demolishing it block by block")
-  line('W25', 'They held out for 27 days. The Germans burned the ghetto down, block by block.', [WARSAW], 'w50-burned-street', 'A street of burned-out buildings, empty', 'door', 'during'),
+  line('W24', 'They held out for 27 days. The Germans burned the ghetto down, block by block.', [WARSAW], 'w50-burned-street', 'A street of burned-out buildings, empty', 'door', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/the-holocaust-in-hungary (deportations "Between May 15 and July 9, 1944"), as the Allies were about to land in France.
-  line('W26', 'May 1944. Germany was losing the war. Still the trains ran.', [HUNGARY], 'w51-signal', 'A railway signal in summer haze', 'tracks', 'during'),
+  line('W25', 'May 1944. Germany was losing the war. Still the trains ran.', [HUNGARY], 'w51-signal', 'A railway signal in summer haze', 'tracks', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/the-holocaust-in-hungary ("approximately 437,000 Jews were deported from Hungary"; about 330,000, "about 75 percent", "murdered in the gas chambers upon arrival" at Auschwitz-Birkenau)
-  line('W27', 'In less than eight weeks, about 437,000 Jews were deported from Hungary. Most were murdered as soon as they reached Auschwitz.', [HUNGARY], 'w28-suitcase-on-side', 'A suitcase, closed, on its side', 'suitcase', 'during'),
-  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/anne-frank-biography ("On August 4, 1944, the German SS and police discovered the hiding place")
-  line('W28', 'August 4, 1944. The Franks’ hiding place was found.', [ANNE], 'w13-diary', 'An open diary with a checked cover', 'chair', 'during'),
+  line('W26', 'In less than eight weeks, about 437,000 Jews were deported from Hungary. Most were murdered as soon as they reached Auschwitz.', [HUNGARY], 'w28-suitcase-on-side', 'A suitcase, closed, on its side', 'suitcase', 'during'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/death-marches (the winter of 1944–1945; the SS evacuated the camps as the Allies closed in, on foot)
-  line('W29', 'Winter 1944–45. As the Allied armies closed in, the SS forced prisoners out of the camps on foot, through the snow.', [DEATH_MARCHES], 'w52-snow-road', 'A road through snow, trodden (no people)', 'tracks', 'during'),
-  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/death-marches ("SS guards had strict orders to kill prisoners who could no longer walk"; "Thousands of prisoners died of exposure, starvation, and exhaustion")
-  line('W30', 'Prisoners who could not keep walking were shot. Thousands more died of cold, hunger and exhaustion.', [DEATH_MARCHES], 'w53-shoe-in-snow', 'One worn shoe in the snow by a roadside', 'shoes', 'during'),
+  line('W27', 'Winter 1944–45. As the Allied armies closed in, the SS forced prisoners out of the camps on foot, through the snow.', [DEATH_MARCHES], 'w52-snow-road', 'A road through snow, trodden (no people)', 'tracks', 'during'),
   // ── The end ──
   // REVIEW: https://encyclopedia.ushmm.org/content/en/article/auschwitz ("On January 27, 1945, Soviet troops liberated approximately 7,000 prisoners")
-  line('W31', 'January 27, 1945. Soviet troops reached Auschwitz. About 7,000 prisoners were still alive there.', [AUSCHWITZ], 'w25-tracks-snow', 'Empty tracks in snow, first light', 'tracks', 'after'),
+  line('W28', 'January 27, 1945. Soviet troops reached Auschwitz. About 7,000 prisoners were still alive there.', [AUSCHWITZ], 'w25-tracks-snow', 'Empty tracks in snow, first light', 'tracks', 'after'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/anne-frank-biography ("Anne Frank died in February or March 1945"; Bergen-Belsen; typhus; "at the age of 15")
-  line('W32', 'February or March 1945. Anne Frank died at Bergen-Belsen, of typhus. She was 15.', [ANNE], 'w27-morning-window', 'A window with morning light', 'candle', 'after', 7000),
+  line('W29', 'February or March 1945. Anne Frank died at Bergen-Belsen, of typhus. She was 15.', [ANNE], 'w27-morning-window', 'A window with morning light', 'candle', 'after', 7000),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust (it "ended in May 1945, when the Allied Powers defeated Nazi Germany")
-  line('W33', 'May 1945. The war in Europe ended.', [INTRO], 'w26-door-daylight', 'A hatch or door opening onto daylight', 'door', 'after'),
+  line('W30', 'May 1945. The war in Europe ended.', [INTRO], 'w26-door-daylight', 'A hatch or door opening onto daylight', 'door', 'after'),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust ("six million European Jews").
-  line('W34', 'Six million Jews had been murdered.', [INTRO], 'w29-stones-ledge', 'Stones, each a little different, along a ledge', 'candle', 'after', 8000),
-  // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/introduction-to-the-holocaust ("nearly two out of every three European Jews")
-  line('W35', 'Nearly two out of every three Jews in Europe.', [INTRO], 'w24-table-for-one-more', 'A kitchen table set, the chairs empty', 'chair', 'after', 8000),
+  line('W31', 'Six million Jews had been murdered.', [INTRO], 'w29-stones-ledge', 'Stones, each a little different, along a ledge', 'candle', 'after', 8000),
   // REVIEW (new): https://encyclopedia.ushmm.org/content/en/article/documenting-numbers-of-victims-of-the-holocaust-and-nazi-persecution (Roma "at least 250,000"; people with disabilities "250,000–300,000"; Soviet prisoners of war "around 3.3 million"; non-Jewish Polish civilians "around 1.8 million")
-  line('W36', 'The Nazis also murdered at least 250,000 Roma and Sinti people, 250,000 disabled people, and millions of others.', [NUMBERS], 'w23-farmhouse-door', 'A farmhouse door, open, no one there', 'door', 'after', 8000),
+  line('W32', 'The Nazis also murdered at least 250,000 Roma and Sinti people, 250,000 disabled people, and millions of others.', [NUMBERS], 'w23-farmhouse-door', 'A farmhouse door, open, no one there', 'door', 'after', 8000),
   // REVIEW: Yad Vashem, November 3, 2025: the names of five million of the six million recovered; about a million still to be identified (as reported by Reuters, JTA and the Smithsonian). Yad Vashem's own page refused an automated check: please confirm.
-  line('W37', 'Yad Vashem has found the names of five million of the six million Jews. About one million still have no name.', [YV_NAMES], 'w55-names-wall', 'A stone wall carved with rows of names, too many to read', 'candle', 'after', 8000),
+  line('W33', 'Yad Vashem has found the names of five million of the six million Jews. About one million still have no name.', [YV_NAMES], 'w55-names-wall', 'A stone wall carved with rows of names, too many to read', 'candle', 'after', 8000),
   // REVIEW (new): https://www.ushmm.org/information/about-the-museum/mission-and-history/wiesel (his words, engraved at the entrance to the US Holocaust Memorial Museum)
-  line('W38', '“For the dead and the living, we must bear witness.” (Elie Wiesel, who survived Auschwitz and Buchenwald)', [WIESEL, WIESEL_LIFE], 'w31-candle-window', 'A candle in a window at night', 'candle', 'after', 10000),
+  line('W34', '“For the dead and the living, we must bear witness.” (Elie Wiesel, who survived Auschwitz and Buchenwald)', [WIESEL, WIESEL_LIFE], 'w31-candle-window', 'A candle in a window at night', 'candle', 'after', 10000),
 ];
 
 /** A slot's number, from its name: 'w07-broken-window' is 7. */
