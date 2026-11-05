@@ -17,7 +17,8 @@ import {
   sortedIds,
   swapped,
 } from '@/app/exhibitions/holocaust/timeline/timelineEntries';
-import { POSTER_GROUP, TIMELINE_SOURCES } from '@/app/exhibitions/holocaust/timeline/sources';
+import { MORE_NOTES, POSTER_GROUP, TIMELINE_SOURCES } from '@/app/exhibitions/holocaust/timeline/sources';
+import { MAP_CREDIT, STOP_MORE, mapPoint } from '@/app/exhibitions/holocaust/timeline/stopMore';
 import { STOP_SOUNDS, STOP_TEXT, TIMELINE_STOPS } from '@/app/exhibitions/holocaust/timeline/timelineStops';
 import { setMuseumSound } from '@/lib/museumSound';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
@@ -176,13 +177,16 @@ describe('the Sources drawer', () => {
     render(<HolocaustTimeline />);
     const drawer = openSources();
     expect(TIMELINE_SOURCES[0]).toBe(POSTER_GROUP);
-    expect(within(drawer).getAllByRole('heading', { level: 3 })).toHaveLength(TIMELINE_ENTRIES.length + 1);
+    // The poster, each entry, and the map.
+    expect(within(drawer).getAllByRole('heading', { level: 3 })).toHaveLength(TIMELINE_ENTRIES.length + 2);
     for (const e of TIMELINE_STOPS) {
       const group = sourcesGroup(drawer, `${e.when}: ${plainWords(e.words)}`);
-      // The entry's sources, then its photograph's credit.
-      const hrefs = [...e.sources.map((s) => s.href), ...(e.picture ? [e.picture.credit.href] : [])];
+      // The entry's sources; then, each once, those of what happened and of the things to look closer at; then its photograph's credit.
+      const more = STOP_MORE[e.id];
+      const hrefs = [...new Set([...e.sources, ...more.happened.sources, ...more.closer.flatMap((c) => c.sources)].map((s) => s.href)), ...(e.picture ? [e.picture.credit.href] : [])];
       expect(within(group).getAllByRole('link').map((a) => a.getAttribute('href'))).toEqual(hrefs);
     }
+    expect(within(sourcesGroup(drawer, MORE_NOTES.map)).getByRole('link')).toHaveAttribute('href', MAP_CREDIT.href);
   });
 });
 
@@ -221,6 +225,68 @@ describe('the stops', () => {
     render(<HolocaustTimeline />);
     openStop(TIMELINE_ENTRIES[TIMELINE_ENTRIES.length - 1].id);
     expect(within(screen.getByRole('dialog')).getByRole('button', { name: /Next/ })).toBeDisabled();
+  });
+
+  it('has more at every stop: what happened, in a few plain words; where, on the map; and things in the photograph to look closer at, all sourced', () => {
+    for (const e of TIMELINE_STOPS) {
+      const more = STOP_MORE[e.id];
+      expect(more).toBeDefined();
+      expect(more.happened.text.split(/\s+/).length).toBeLessThanOrEqual(60);
+      expect(more.happened.sources.length).toBeGreaterThan(0);
+      const { x, y } = mapPoint(more.where.lat, more.where.lon);
+      for (const v of [x, y]) {
+        expect(v).toBeGreaterThan(0);
+        expect(v).toBeLessThan(100);
+      }
+      expect(more.closer.length).toBeGreaterThanOrEqual(1);
+      expect(more.closer.length).toBeLessThanOrEqual(3);
+      for (const c of more.closer) {
+        for (const v of [c.x, c.y]) {
+          expect(v).toBeGreaterThanOrEqual(0);
+          expect(v).toBeLessThanOrEqual(100);
+        }
+        expect(c.text.split(/\s+/).length).toBeLessThanOrEqual(40);
+        expect(c.sources.length).toBeGreaterThan(0);
+      }
+      // Nothing of it on the screen cites anything: the sources are in the drawer.
+      expect([more.happened.text, ...more.closer.map((c) => c.text)].join(' ')).not.toMatch(/https?:|USHMM/);
+    }
+  });
+
+  it('opens on what happened, keeps the tab chosen from stop to stop, and moves between the tabs with the arrow keys', () => {
+    render(<HolocaustTimeline />);
+    const [a, b] = TIMELINE_STOPS;
+    openStop(a.id);
+    const dialog = () => screen.getByRole('dialog');
+    expect(within(dialog()).getByRole('tab', { name: STOP_TEXT.happened })).toHaveAttribute('aria-selected', 'true');
+    expect(within(dialog()).getByRole('tabpanel')).toHaveTextContent(STOP_MORE[a.id].happened.text);
+
+    fireEvent.click(within(dialog()).getByRole('tab', { name: STOP_TEXT.where }));
+    expect(within(dialog()).getByRole('tabpanel')).toHaveTextContent(STOP_MORE[a.id].where.label);
+    fireEvent.click(within(dialog()).getByRole('button', { name: /Next/ }));
+    expect(screen.getByRole('dialog', { name: b.when })).toBeInTheDocument();
+    expect(within(dialog()).getByRole('tab', { name: STOP_TEXT.where })).toHaveAttribute('aria-selected', 'true');
+    expect(within(dialog()).getByRole('tabpanel')).toHaveTextContent(STOP_MORE[b.id].where.label);
+
+    // On a tab, the arrows go from tab to tab, not from stop to stop.
+    fireEvent.keyDown(within(dialog()).getByRole('tab', { name: STOP_TEXT.where }), { key: 'ArrowRight' });
+    expect(within(dialog()).getByRole('tab', { name: STOP_TEXT.closer })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('dialog', { name: b.when })).toBeInTheDocument();
+  });
+
+  it('a + on the photograph opens what it points at, under Look closer', () => {
+    render(<HolocaustTimeline />);
+    const stop = TIMELINE_STOPS.find((s) => STOP_MORE[s.id].closer.length > 1)!;
+    const spot = STOP_MORE[stop.id].closer[1];
+    openStop(stop.id);
+    const dialog = screen.getByRole('dialog');
+    const plus = within(dialog).getByRole('button', { name: `${STOP_TEXT.closer}: ${spot.title}` });
+    expect(plus).toHaveStyle({ left: `${spot.x}%`, top: `${spot.y}%` });
+    fireEvent.click(plus);
+    expect(plus).toHaveAttribute('aria-pressed', 'true');
+    expect(within(dialog).getByRole('tab', { name: STOP_TEXT.closer })).toHaveAttribute('aria-selected', 'true');
+    expect(within(dialog).getByRole('tabpanel')).toHaveTextContent(spot.text);
+    expect(within(dialog).getByRole('button', { name: spot.title })).toHaveAttribute('aria-expanded', 'true');
   });
 
   it('every stop has its photograph', () => {

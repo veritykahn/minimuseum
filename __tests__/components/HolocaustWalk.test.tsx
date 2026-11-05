@@ -771,7 +771,8 @@ describe('the names', () => {
 describe('the film’s lines and slots', () => {
   it('has short lines, in the order of the history, building step by step to the toll, each with a source, a picture slot and a part', () => {
     expect(WALK_LINES.map((l) => l.id)).toEqual(Array.from({ length: WALK_LINES.length }, (_, i) => `W${i + 1}`));
-    expect(WALK_LINES.length).toBeGreaterThanOrEqual(40);
+    // The owner's film script (November 4, 2026), row for row: 38 lines of the history.
+    expect(WALK_LINES).toHaveLength(38);
     for (const l of WALK_LINES) {
       expect(l.sources.length).toBeGreaterThan(0);
       // From Yad Vashem, the USHMM or the HMD Trust; Heine's words, from the Jewish Review of Books.
@@ -794,7 +795,11 @@ describe('the film’s lines and slots', () => {
     const where = steps.map(at);
     expect(where.every((i) => i >= 0)).toBe(true);
     expect(where).toEqual([...where].sort((x, y) => x - y));
-    expect(WALK_LINES.some((l) => l.text === 'It was not enough.')).toBe(true);
+    // The rows the owner deleted from her script are gone, and her rewordings are in.
+    for (const gone of [/^It was not enough\.$/, /later learned that their parents/, /One in every three/, /83,000/, /2\.7 million/, /1\.5 million/, /Treblinka and Sobibor, prisoners/, /Killing squads/]) expect(at(gone)).toBe(-1);
+    expect(WALK_LINES[at(/Kindertransport|10,000 children/)].text).toBe('From December 1938, about 10,000 children were sent alone to Britain to find safety. Their parents could not come.');
+    expect(WALK_LINES[at(/a star on their clothes/)].text).toBe('In Germany, from 1941, every Jew aged six or older was forced to wear a star on their clothes.');
+    expect(WALK_LINES[at(/behind a bookcase/)].text).toBe('In Amsterdam, July 6, 1942. The Frank family went into hiding, behind a bookcase.');
     expect(WALK_LINES.map((l) => l.image.replace(/\(no [^)]*\)/, '')).join(' ')).not.toMatch(/\b(person|people|child|man|woman|face|body|victim)\b/i);
     const parts = WALK_LINES.map((l) => l.part);
     expect(parts).toEqual([...parts].sort((x, y) => ['before', 'during', 'after'].indexOf(x) - ['before', 'during', 'after'].indexOf(y)));

@@ -95,12 +95,18 @@ export const TIMELINE_STOPS: TimelineStop[] = TIMELINE_ENTRIES.map((e) => ({
 
 /** The words around a stop, said to screen readers and on the buttons. REVIEW (Verity). */
 export const STOP_TEXT = {
-  open: 'Open this date',
+  open: 'Find out more',
   close: 'Close',
   previous: 'Before',
   next: 'Next',
   /** The speaker at a stop with a sound; pressed, the museum's sound is on. */
   sound: 'Sound',
   pictureToCome: 'Picture to come',
+  /** The three tabs under the poster's words, and what they are called together for a screen reader. */
+  more: 'More about this date',
+  happened: 'What happened',
+  where: 'Where',
+  closer: 'Look closer',
+  closerHow: 'Tap a + on the photograph, or a name below.',
   of: (n: number, count: number) => `${n} of ${count}`,
 };
