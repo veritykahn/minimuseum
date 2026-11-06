@@ -1192,6 +1192,8 @@ a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-dec
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
 }
 .pe-case-page-lead { width: 100%; max-width: 900px; }
+/* The owner's cut-out of the case: no box behind it, only a shadow that follows the case. */
+.pe-case-page figure.is-cutout img { box-shadow: none; filter: drop-shadow(0 22px 34px rgba(0, 0, 0, 0.55)); }
 .pe-case-page-artifacts { width: 100%; max-width: 1000px; }
 .pe-case-page-display { width: 100%; max-width: 760px; }
 .pe-case-page-photos { width: 100%; max-width: 900px; }
@@ -1428,6 +1430,23 @@ a.pe-case-page-return:focus-visible { border-color: var(--pe-accent); color: var
 .pe-artifact-stage.has-photo { border-style: solid; }
 .pe-artifact-stage-photo { width: min(420px, 100%); margin: 0; }
 .pe-artifact-page .pe-artifact-stage-photo img { display: block; width: 100%; height: auto; max-height: 52vh; object-fit: contain; border-radius: 8px; box-shadow: none; }
+/* The owner's 3D scan, turning on the stage (ArtifactModel.tsx); its buttons sit inside the stage, not fixed to the window. */
+.pe-artifact-stage.has-model { border-style: solid; padding: 0; overflow: hidden; }
+.pe-artifact-model { position: relative; width: 100%; height: min(60vh, 520px); }
+.pe-artifact-model-view { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+.pe-artifact-model-view canvas { display: block; touch-action: none; }
+.pe-artifact-model-view:focus-visible { outline: 2px solid var(--pe-accent); outline-offset: -4px; }
+.pe-artifact-model-loading { position: absolute; margin: 0; }
+.pe-artifact-model .orbit-btns.pe-artifact-orbit { position: absolute; right: 14px; top: 50%; }
+.pe-artifact-model-hints { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; pointer-events: none; font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pe-case-muted, #a59d90); }
+.pe-artifact-model-hints ul { display: flex; margin: 0; padding: 0; list-style: none; gap: 18px; }
+.pe-artifact-model-still { padding: 20px; }
+@media (max-width: 600px) {
+  /* On a phone, the buttons run in a row along the foot of the stage, and the hints sit at its head, clear of the scan. */
+  .pe-artifact-model .orbit-btns.pe-artifact-orbit { top: auto; bottom: 12px; right: 50%; transform: translateX(50%); flex-direction: row; }
+  .pe-artifact-model-hints { bottom: auto; top: 12px; letter-spacing: 0.06em; font-size: 10px; }
+  .pe-artifact-model-hints ul { gap: 10px; }
+}
 .pe-artifact-stage-art .pe-artifact-glyph { width: 100%; animation: pe-artifact-turn 9s ease-in-out infinite; transform-origin: 50% 50%; }
 @keyframes pe-artifact-turn {
   0%, 100% { transform: scaleX(1); }

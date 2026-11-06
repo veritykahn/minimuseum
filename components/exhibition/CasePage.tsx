@@ -78,7 +78,7 @@ export default function CasePage({ config, data, photos = NO_CASE_PHOTOS }: { co
           hidden={rooms.length > 0 && view !== 'artifacts'}
         >
           {first ? (
-            <figure className="pe-case-page-lead">
+            <figure className={`pe-case-page-lead${first.cutout ? ' is-cutout' : ''}`}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={first.src} alt={first.alt} width={first.width} height={first.height} />
             </figure>

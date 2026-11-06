@@ -9,7 +9,7 @@ import { CASE_PLACEHOLDER_LABEL } from '@/components/exhibition/CasePlaceholder'
 import { roomsInOrder } from '@/components/exhibition/roomsInOrder';
 import { casePath } from '@/components/exhibition/artifacts';
 import { expectedCasePhotos, leadCasePhoto, NO_CASE_PHOTOS } from '@/components/exhibition/casePhotoPaths';
-import { casePhotosOnDisk, casesWithPhotos } from '@/components/exhibition/casePhotos';
+import { artifactFilesOnDisk, casePhotosOnDisk, casesWithPhotos } from '@/components/exhibition/casePhotos';
 import { EXHIBITION_CASES } from '@/lib/exhibitionCases';
 import { EGYPT, EGYPT_CASE } from '@/app/exhibitions/egypt/egypt';
 import HarlemRenaissance from '@/app/exhibitions/harlem-renaissance/page';
@@ -134,17 +134,32 @@ describe('the display case photographs', () => {
     }
   });
 
-  it('finds none yet, so every case keeps its placeholder', () => {
+  it('finds none yet, apart from the Great War’s, so every other case keeps its placeholder', () => {
     for (const { config, data } of EXHIBITION_CASES) {
-      expect(casePhotosOnDisk(config, data)).toEqual({ case: undefined, cutout: undefined, artifacts: {} });
+      if (config.slug === 'great-war') continue;
+      expect(casePhotosOnDisk(config, data)).toEqual({ case: undefined, cutout: undefined, artifacts: {}, models: {} });
       expect(casesWithPhotos(config)).toEqual(config.cases);
     }
+  });
+
+  it('finds the Great War’s case photograph, its cut-out and the helmet’s 3D scan (November 5, 2026)', () => {
+    const gw = EXHIBITION_CASES.find((c) => c.config.slug === 'great-war')!;
+    expect(casePhotosOnDisk(gw.config, gw.data)).toEqual({
+      case: undefined,
+      cutout: '/exhibitions/great-war/case/case-cutout.webp',
+      artifacts: { 'brodie-helmet': '/exhibitions/great-war/case/brodie-helmet.webp' },
+      models: { 'brodie-helmet': '/exhibitions/great-war/case/brodie-helmet.glb' },
+    });
+    expect(artifactFilesOnDisk(gw.config, gw.data, 'brodie-helmet')).toEqual({ photo: '/exhibitions/great-war/case/brodie-helmet.webp', model: '/exhibitions/great-war/case/brodie-helmet.glb' });
+    expect(casesWithPhotos(gw.config)?.find((c) => c.image)?.image).toEqual({ src: '/exhibitions/great-war/case/case-cutout.webp', alt: 'The Great War display case' });
+    // With no case.jpg, the cut-out heads the case page too, with no box behind it.
+    expect(leadCasePhoto(gw.data, casePhotosOnDisk(gw.config, gw.data), gw.config.name)).toEqual({ src: '/exhibitions/great-war/case/case-cutout.webp', alt: 'The Great War display case', width: 1600, height: 1200, cutout: true });
   });
 
   it('uses a photograph once its file is there', () => {
     const spy = jest.spyOn(fs, 'existsSync').mockImplementation((p) => /egypt[/\\]case[/\\](case|scarab)\.jpg$/.test(String(p)));
     try {
-      expect(casePhotosOnDisk(EGYPT, EGYPT_CASE)).toEqual({ case: '/exhibitions/egypt/case/case.jpg', cutout: undefined, artifacts: { scarab: '/exhibitions/egypt/case/scarab.jpg' } });
+      expect(casePhotosOnDisk(EGYPT, EGYPT_CASE)).toEqual({ case: '/exhibitions/egypt/case/case.jpg', cutout: undefined, artifacts: { scarab: '/exhibitions/egypt/case/scarab.jpg' }, models: {} });
       expect(casesWithPhotos(EGYPT)?.[0].image).toEqual({ src: '/exhibitions/egypt/case/case.jpg', alt: 'The Ancient Egypt display case' });
     } finally {
       spy.mockRestore();
@@ -174,6 +189,13 @@ describe('the display case photographs', () => {
     render(<ArtifactPage config={EGYPT} data={EGYPT_CASE} artifact={scarab} photo="/exhibitions/egypt/case/scarab.jpg" />);
     expect(screen.getByRole('img', { name: 'Scarab beetle amulet' })).toHaveAttribute('src', '/exhibitions/egypt/case/scarab.jpg');
     expect(screen.getByText('3D model to come')).toBeInTheDocument();
+  });
+
+  it('sets the owner\'s 3D scan on an artifact\'s page, once it is there, in place of the placeholder', () => {
+    const scarab = EGYPT_CASE.artifacts.find((a) => a.id === 'scarab')!;
+    const { container } = render(<ArtifactPage config={EGYPT} data={EGYPT_CASE} artifact={scarab} photo="/exhibitions/egypt/case/scarab.jpg" model="/exhibitions/egypt/case/scarab.glb" />);
+    expect(container.querySelector('.pe-artifact-stage')).toHaveClass('has-model');
+    expect(screen.queryByText('3D model to come')).toBeNull();
   });
 
   it('keeps public/ out of the functions of every page that looks for the photographs', () => {

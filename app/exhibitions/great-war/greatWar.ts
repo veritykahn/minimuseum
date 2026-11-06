@@ -297,12 +297,16 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
  * (artifacts/case/<id>). Every word is the owner's: each name and record line
  * from the Mini Museum record (*words* set in italics), the writing from this
  * exhibition's posters. The record's lines about the display itself are listed
- * on the case page. Photographs and 3D models are to come.
+ * on the case page. The case's photograph, cut out (public/exhibitions/
+ * great-war/case/case-cutout.webp), and the helmet's 3D scan
+ * (brodie-helmet.glb, with its still, brodie-helmet.webp) are the owner's
+ * (November 5, 2026); the other objects'
+ * photographs and scans are to come.
  */
 export const GREAT_WAR_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  // Photographs to come: the case will be photographed anew.
+  // The case's photograph is dropped in on disk (case/case-cutout.webp), not listed here.
   photos: [],
   artifacts: [
     {

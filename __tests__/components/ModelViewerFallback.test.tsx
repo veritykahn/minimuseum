@@ -15,6 +15,7 @@ import { startRenderLoop, disposeRenderer, createRenderer } from '@/lib/three-vi
 import { ModelErrorBoundary } from '@/components/exhibition/ModelFallback';
 import HrArtifactViewer from '@/app/exhibitions/harlem-renaissance/artifacts/hr-artifact-viewer';
 import ArtifactViewer from '@/app/exhibitions/seeing-is-deceiving/artifacts/artifact-viewer';
+import ArtifactModel from '@/components/exhibition/ArtifactModel';
 
 // --- three.js stand-ins -----------------------------------------------------
 
@@ -279,5 +280,39 @@ describe('three-viewer helpers', () => {
     const stop = startRenderLoop(() => {});
     stop();
     expect(cancel).toHaveBeenCalledWith(7);
+  });
+});
+
+describe('an artifact\'s 3D scan on a poster exhibition\'s case page (ArtifactModel)', () => {
+  const helmet = () => <ArtifactModel src="/exhibitions/great-war/case/brodie-helmet.glb" name="M1917 Brodie doughboy helmet" photo="/exhibitions/great-war/case/brodie-helmet.webp" />;
+  const STILL = 'A still of the object. The 3D view could not start on this device.';
+
+  it('turns, with the buttons and keys to handle it, while it loads', () => {
+    render(helmet());
+    expect(screen.getByRole('img', { name: 'M1917 Brodie doughboy helmet. Interactive 3D model.' })).toHaveAttribute('tabindex', '0');
+    expect(screen.getByRole('button', { name: 'Rotate left' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the 3D model…')).toBeInTheDocument();
+    expect(screen.queryByText(STILL)).toBeNull();
+  });
+
+  it('shows its still instead of crashing when WebGL is unavailable', () => {
+    webgl.fail = true;
+    render(helmet());
+    expect(screen.getByText(STILL)).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'M1917 Brodie doughboy helmet' })).toHaveAttribute('src', '/exhibitions/great-war/case/brodie-helmet.webp');
+    expect(screen.queryByRole('button', { name: 'Rotate left' })).toBeNull();
+  });
+
+  it('shows its still when the scan fails to load', async () => {
+    gltf.mode = 'error';
+    render(helmet());
+    expect(await screen.findByText(STILL)).toBeInTheDocument();
+  });
+
+  it('has its scan and still on disk, Draco-compressed and small, like the others', () => {
+    const glb = readFileSync(join(process.cwd(), 'public/exhibitions/great-war/case/brodie-helmet.glb'));
+    expect(glb.length).toBeLessThan(3_000_000);
+    expect(glb.toString('latin1', 0, 4000)).toContain('KHR_draco_mesh_compression');
+    expect(existsSync(join(process.cwd(), 'public/exhibitions/great-war/case/brodie-helmet.webp'))).toBe(true);
   });
 });
