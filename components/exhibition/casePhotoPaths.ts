@@ -10,9 +10,7 @@ import type { CasePageData, CasePhoto, ExhibitionConfig } from './types';
  *                         and, with no cut-out, on the landing page's case card.
  *   case-cutout.png       optional: the case cut out on a transparent ground,
  *                         about 1000 px tall, for the landing page's case card
- *                         (as the Harlem and Seeing is Deceiving cases are),
- *                         and, with no case.jpg, at the head of the case page,
- *                         with no frame or box behind it.
+ *                         (as the Harlem and Seeing is Deceiving cases are).
  *   <artifact id>.jpg     each object on its own, square, 1200 × 1200 px, on a
  *                         plain ground. Its card on the case page and the head
  *                         of its own page. The ids are the artifacts' page
@@ -65,10 +63,9 @@ export function expectedCasePhotos(config: Pick<ExhibitionConfig, 'slug'>, data:
 /** "The Ancient Egypt display case"; "The Great War display case", not "The The …". */
 export const caseAlt = (name: string) => `${/^the /i.test(name) ? name : `The ${name}`} display case`;
 
-/** The case page's lead photograph: the record's own first, else the owner's dropped-in case.jpg, else her cut-out of the case. */
+/** The case page's lead photograph: the record's own first, else the owner's dropped-in case.jpg. The cut-out is for the landing page's card only. */
 export function leadCasePhoto(data: Pick<CasePageData, 'photos'>, onDisk: CasePhotosOnDisk, name: string): CasePhoto | undefined {
   if (data.photos[0]) return data.photos[0];
   if (onDisk.case) return { src: onDisk.case, alt: caseAlt(name), ...CASE_PHOTO_SIZE };
-  if (onDisk.cutout) return { src: onDisk.cutout, alt: caseAlt(name), ...CASE_PHOTO_SIZE, cutout: true };
   return undefined;
 }

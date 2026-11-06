@@ -503,8 +503,7 @@ export type ExhibitionConfig<K extends string = string> = {
 };
 
 /** A photograph on a display case page, with its size so the page does not jump as it loads. */
-/** A photograph of the case; `cutout` when it is the case cut out on a transparent ground (case-cutout.png), which takes no frame or box. */
-export type CasePhoto = { src: string; alt: string; width: number; height: number; cutout?: true };
+export type CasePhoto = { src: string; alt: string; width: number; height: number };
 
 export type CasePageData = {
   /** "Display Case" */

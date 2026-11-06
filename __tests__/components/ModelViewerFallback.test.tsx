@@ -309,10 +309,12 @@ describe('an artifact\'s 3D scan on a poster exhibition\'s case page (ArtifactMo
     expect(await screen.findByText(STILL)).toBeInTheDocument();
   });
 
-  it('has its scan and still on disk, Draco-compressed and small, like the others', () => {
-    const glb = readFileSync(join(process.cwd(), 'public/exhibitions/great-war/case/brodie-helmet.glb'));
-    expect(glb.length).toBeLessThan(3_000_000);
-    expect(glb.toString('latin1', 0, 4000)).toContain('KHR_draco_mesh_compression');
-    expect(existsSync(join(process.cwd(), 'public/exhibitions/great-war/case/brodie-helmet.webp'))).toBe(true);
+  it('has the Great War\'s scans and stills on disk, Draco-compressed and small, like the others', () => {
+    for (const id of ['brodie-helmet', 'shaving-kit']) {
+      const glb = readFileSync(join(process.cwd(), `public/exhibitions/great-war/case/${id}.glb`));
+      expect(glb.length).toBeLessThan(3_000_000);
+      expect(glb.toString('latin1', 0, 4000)).toContain('KHR_draco_mesh_compression');
+      expect(existsSync(join(process.cwd(), `public/exhibitions/great-war/case/${id}.webp`))).toBe(true);
+    }
   });
 });

@@ -73,15 +73,15 @@ describe('The Great War display case page', () => {
     expect(recordLines(GREAT_WAR_CASE).map(plainText)).toEqual([
       'M1917 Brodie doughboy helmet with American Legion decal',
       'US Army issue shaving kit and the Service for the Mobilized Soldier field manual',
-      'Ammunition pouch and commemorative service pins',
       'Backlit silhouette display, take-away soldier profile cards, and an iPad Armistice audio station',
     ]);
     const cards = screen.getAllByRole('link', { name: /View artifact/ });
     expect(cards.map((c) => c.getAttribute('href'))).toEqual(GREAT_WAR_CASE.artifacts.map((a) => artifactPath({ slug: GREAT_WAR.slug }, a)));
     // No installation photographs: the owner's own photograph of the case (November 5, 2026), dropped in on disk.
     expect(GREAT_WAR_CASE.photos).toHaveLength(0);
-    expect(screen.getByRole('img', { name: 'The Great War display case' })).toHaveAttribute('src', '/exhibitions/great-war/case/case-cutout.webp');
-    expect(screen.getByRole('img', { name: 'The Great War display case' }).closest('figure')).toHaveClass('is-cutout');
+    // At the owner's request, her cut-out of the case is on the landing page's card only: here, the drawn case stands in.
+    expect(screen.queryByRole('img', { name: 'The Great War display case' })).toBeNull();
+    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
     expect(JSON.stringify([GREAT_WAR, GREAT_WAR_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');

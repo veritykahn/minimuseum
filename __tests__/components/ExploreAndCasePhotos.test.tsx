@@ -142,18 +142,18 @@ describe('the display case photographs', () => {
     }
   });
 
-  it('finds the Great War’s case photograph, its cut-out and the helmet’s 3D scan (November 5, 2026)', () => {
+  it('finds the Great War’s cut-out of its case and the 3D scans of the helmet and the shaving kit (November 5, 2026)', () => {
     const gw = EXHIBITION_CASES.find((c) => c.config.slug === 'great-war')!;
     expect(casePhotosOnDisk(gw.config, gw.data)).toEqual({
       case: undefined,
       cutout: '/exhibitions/great-war/case/case-cutout.webp',
-      artifacts: { 'brodie-helmet': '/exhibitions/great-war/case/brodie-helmet.webp' },
-      models: { 'brodie-helmet': '/exhibitions/great-war/case/brodie-helmet.glb' },
+      artifacts: { 'brodie-helmet': '/exhibitions/great-war/case/brodie-helmet.webp', 'shaving-kit': '/exhibitions/great-war/case/shaving-kit.webp' },
+      models: { 'brodie-helmet': '/exhibitions/great-war/case/brodie-helmet.glb', 'shaving-kit': '/exhibitions/great-war/case/shaving-kit.glb' },
     });
     expect(artifactFilesOnDisk(gw.config, gw.data, 'brodie-helmet')).toEqual({ photo: '/exhibitions/great-war/case/brodie-helmet.webp', model: '/exhibitions/great-war/case/brodie-helmet.glb' });
     expect(casesWithPhotos(gw.config)?.find((c) => c.image)?.image).toEqual({ src: '/exhibitions/great-war/case/case-cutout.webp', alt: 'The Great War display case' });
-    // With no case.jpg, the cut-out heads the case page too, with no box behind it.
-    expect(leadCasePhoto(gw.data, casePhotosOnDisk(gw.config, gw.data), gw.config.name)).toEqual({ src: '/exhibitions/great-war/case/case-cutout.webp', alt: 'The Great War display case', width: 1600, height: 1200, cutout: true });
+    // The cut-out is for the landing page's card only, not the head of the case page.
+    expect(leadCasePhoto(gw.data, casePhotosOnDisk(gw.config, gw.data), gw.config.name)).toBeUndefined();
   });
 
   it('uses a photograph once its file is there', () => {
