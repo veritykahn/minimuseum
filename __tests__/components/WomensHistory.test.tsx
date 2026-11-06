@@ -335,7 +335,9 @@ describe("The Women's History Month display case page", () => {
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(WOMENS_HISTORY_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
-    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
+    // The owner's rule for every case page (November 5, 2026): only the artifacts, no case drawn or photographed, no list of the display.
+    expect(screen.queryByText('Photographs on their way')).toBeNull();
+    expect(screen.queryByText('In the display')).toBeNull();
     expect(JSON.stringify([WOMENS_HISTORY, WOMENS_HISTORY_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/womens-history');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/womens-history');

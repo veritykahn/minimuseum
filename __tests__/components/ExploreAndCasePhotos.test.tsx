@@ -166,10 +166,10 @@ describe('the display case photographs', () => {
     }
   });
 
-  it('sets the case photograph at the head of the case page, and each artifact\'s on its card', () => {
+  it('sets each artifact\'s photograph on its card, and nothing else: no case at the head of the case page (owner\'s rule)', () => {
     render(<CasePage config={EGYPT} data={EGYPT_CASE} photos={egyptDisk} />);
     expect(screen.queryByText(CASE_PLACEHOLDER_LABEL)).toBeNull();
-    expect(document.querySelector('.pe-case-page-lead img')).toHaveAttribute('src', '/exhibitions/egypt/case/case.jpg');
+    expect(document.querySelector('.pe-case-page-lead')).toBeNull();
     const bastet = screen.getByRole('link', { name: /Bastet/ });
     expect(bastet.querySelector('img')).toHaveAttribute('src', '/exhibitions/egypt/case/bastet.jpg');
     const anubis = screen.getByRole('link', { name: /Anubis statue/ });
@@ -177,11 +177,11 @@ describe('the display case photographs', () => {
     expect(anubis.querySelector('.pe-artifact-glyph')).not.toBeNull();
   });
 
-  it('keeps the placeholder, with its warmer label, until then', () => {
-    expect(CASE_PLACEHOLDER_LABEL).toBe('Photographs on their way');
+  it('shows no drawn case on the case page either, only the artifacts in the middle', () => {
     expect(leadCasePhoto(EGYPT_CASE, NO_CASE_PHOTOS, EGYPT.name)).toBeUndefined();
     render(<CasePage config={EGYPT} data={EGYPT_CASE} />);
-    expect(screen.getByText(CASE_PLACEHOLDER_LABEL)).toBeInTheDocument();
+    expect(screen.queryByText(CASE_PLACEHOLDER_LABEL)).toBeNull();
+    expect(document.querySelector('.pe-case-page-view-artifacts')).toHaveClass('is-artifacts-only');
   });
 
   it('sets an artifact\'s photograph on its own page', () => {
@@ -191,11 +191,23 @@ describe('the display case photographs', () => {
     expect(screen.getByText('3D model to come')).toBeInTheDocument();
   });
 
-  it('sets the owner\'s 3D scan on an artifact\'s page, once it is there, in place of the placeholder', () => {
+  it('shows an artifact with the owner\'s 3D scan full screen, as the original viewers do, with its display card behind the "i"', () => {
     const scarab = EGYPT_CASE.artifacts.find((a) => a.id === 'scarab')!;
     const { container } = render(<ArtifactPage config={EGYPT} data={EGYPT_CASE} artifact={scarab} photo="/exhibitions/egypt/case/scarab.jpg" model="/exhibitions/egypt/case/scarab.glb" />);
-    expect(container.querySelector('.pe-artifact-stage')).toHaveClass('has-model');
+    expect(container.querySelector('.pe-artifact-full')).not.toBeNull();
+    expect(container.querySelector('.pe-artifact-stage')).toBeNull();
     expect(screen.queryByText('3D model to come')).toBeNull();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Scarab beetle amulet');
+    expect(screen.getByRole('link', { name: /Back to the Display Case/ })).toHaveAttribute('href', '/exhibitions/egypt/artifacts/case');
+    const info = screen.getByRole('button', { name: 'About this artifact' });
+    expect(info).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(info);
+    expect(info).toHaveAttribute('aria-expanded', 'true');
+    const card = screen.getByRole('dialog', { name: /Scarab beetle amulet/ });
+    expect(card).toHaveClass('is-open');
+    expect(within(card).getByText('Display Card')).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(info).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('keeps public/ out of the functions of every page that looks for the photographs', () => {

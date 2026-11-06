@@ -53,8 +53,8 @@ describe('posterKeyCommand', () => {
   it('turns the room sound on and off with S, on an open poster', () => {
     expect(posterKeyCommand('s', ctx)).toEqual({ type: 'room' });
     expect(posterKeyCommand('S', ctx)).toEqual({ type: 'room' });
-    expect(posterKeyCommand('g', ctx)).toEqual({ type: 'through' });
-    expect(posterKeyCommand('G', { ...ctx, open: false })).toBeNull();
+    // No Play through key: with the guide on, the poster moves on by itself.
+    expect(posterKeyCommand('g', ctx)).toBeNull();
     expect(posterKeyCommand('s', { ...ctx, open: false })).toBeNull();
   });
 });
@@ -248,7 +248,7 @@ describe('PosterProjector', () => {
     expect(guide.turnOff).toHaveBeenCalled();
   });
 
-  describe('Play through', () => {
+  describe('the guide moves the poster on by itself', () => {
     const guideState = (over: Partial<AudioGuideState> = {}): AudioGuideState => ({
       on: true, playing: false, progress: 0, available: true, ended: false,
       turnOn: jest.fn(), turnOff: jest.fn(), toggle: jest.fn(), pause: jest.fn(), ...over,
@@ -262,17 +262,15 @@ describe('PosterProjector', () => {
     beforeEach(() => jest.useFakeTimers());
     afterEach(() => jest.useRealTimers());
 
-    it('is off until G; it turns the guide on, and moves on 2 s after each recording ends, stopping at the last panel', () => {
+    it('with the guide on, moves on 2 s after each recording ends, with nothing to press, and stops at the last panel', () => {
       const off = guideState({ on: false });
       const r = setup({ audioGuide: off, step: 1 });
-      const button = screen.getByRole('button', { name: /Play through/ });
-      expect(button).toHaveAttribute('aria-pressed', 'false');
-      press('g');
+      expect(screen.queryByRole('button', { name: /Play through/ })).toBeNull();
+      press('a');
       expect(off.turnOn).toHaveBeenCalled();
+      expect(screen.getAllByText(PLAY_THROUGH_ON).length).toBeGreaterThan(0);
 
       show(r, 1, guideState({ playing: true }));
-      expect(screen.getByRole('button', { name: /Play through/ })).toHaveAttribute('aria-pressed', 'true');
-      expect(screen.getAllByText(PLAY_THROUGH_ON).length).toBeGreaterThan(0);
       act(() => jest.advanceTimersByTime(10_000));
       expect(r.nextStep).not.toHaveBeenCalled();
 
@@ -286,39 +284,47 @@ describe('PosterProjector', () => {
       act(() => jest.advanceTimersByTime(THROUGH_PAUSE_MS + 100));
       expect(r.nextStep).toHaveBeenCalledTimes(2);
 
-      // The last panel: its recording ends, and Play through finishes there.
+      // The last panel: its recording ends, and the guide stops there.
       show(r, 3, guideState({ ended: true }));
       act(() => jest.advanceTimersByTime(THROUGH_PAUSE_MS + 100));
       expect(r.nextStep).toHaveBeenCalledTimes(2);
       expect(screen.getAllByText(PLAY_THROUGH_DONE).length).toBeGreaterThan(0);
-      expect(screen.getByRole('button', { name: /Play through/ })).toHaveAttribute('aria-pressed', 'false');
     });
 
-    it('holds a panel with no recording for 6 s', () => {
+    it('holds a panel with no recording for 6 s, then moves on', () => {
       const r = setup({ audioGuide: guideState({ available: false }), step: 1 });
-      press('G');
       act(() => jest.advanceTimersByTime(THROUGH_HOLD_MS - 100));
       expect(r.nextStep).not.toHaveBeenCalled();
       act(() => jest.advanceTimersByTime(200));
       expect(r.nextStep).toHaveBeenCalledTimes(1);
     });
 
-    it('stops when the teacher moves, pauses or blanks', () => {
+    it('does not move on while the guide is off', () => {
+      const r = setup({ audioGuide: guideState({ on: false, ended: true }), step: 1 });
+      act(() => jest.advanceTimersByTime(THROUGH_HOLD_MS * 2));
+      expect(r.nextStep).not.toHaveBeenCalled();
+    });
+
+    it('holds the panel when the teacher pauses or blanks, and goes on from a panel the teacher moves to', () => {
       const r = setup({ audioGuide: guideState({ playing: true }), step: 1 });
-      press('g');
+      // Paused: held here.
+      press('p');
+      show(r, 1, guideState({ ended: true }));
+      act(() => jest.advanceTimersByTime(THROUGH_HOLD_MS));
+      expect(r.nextStep).not.toHaveBeenCalled();
+      // The teacher moves on: from the new panel, it moves on by itself again.
       press('ArrowRight');
       expect(r.nextStep).toHaveBeenCalledTimes(1);
       show(r, 2, guideState({ ended: true }));
-      act(() => jest.advanceTimersByTime(THROUGH_HOLD_MS));
-      expect(r.nextStep).toHaveBeenCalledTimes(1);
-
-      press('g');
+      act(() => jest.advanceTimersByTime(THROUGH_PAUSE_MS + 100));
+      expect(r.nextStep).toHaveBeenCalledTimes(2);
+      // Blanked: held.
+      show(r, 3, guideState({ playing: true }));
       press('b');
       press('b');
-      show(r, 2, guideState({ ended: true, available: true }));
+      show(r, 3, guideState({ ended: true }));
       act(() => jest.advanceTimersByTime(THROUGH_HOLD_MS));
-      expect(r.nextStep).toHaveBeenCalledTimes(1);
-      expect(screen.getByRole('button', { name: /Play through/ })).toHaveAttribute('aria-pressed', 'false');
+      expect(r.nextStep).toHaveBeenCalledTimes(2);
     });
   });
 

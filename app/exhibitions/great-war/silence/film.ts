@@ -28,12 +28,13 @@ export const COUNTDOWN = [5, 4, 3, 2, 1] as const;
 
 /*
  * What the sound is. The guns follow the record's timing (firing until the
- * hour, silent after it); the breeze and the single bird after the hour are
- * ours, added to mark the quiet, and are said to be.
+ * hour, silent after it); the wind that blows on through the hour, the old
+ * projector's countdown and crackle, and the single bird are ours, added,
+ * and are said to be.
  */
-export const SOUND_NOTE = 'Our sound reconstruction, not a recording. The guns are timed to the sound-ranging record; the breeze and the bird are added.';
+export const SOUND_NOTE = 'Our sound reconstruction, not a recording. The guns are timed to the sound-ranging record; the wind, the projector and the bird are added.';
 /** The same, when the owner has dropped in files of her own (which may be recordings). */
-export const SOUND_NOTE_WITH_FILES = 'Sound timed to the sound-ranging record: the guns fire until 11:00, then stop. The breeze and the bird are added.';
+export const SOUND_NOTE_WITH_FILES = 'Sound timed to the sound-ranging record: the guns fire until 11:00, then stop. The wind, the projector and the bird are added.';
 
 /** The words printed on the 1918 record, as they appear on it. */
 export const RECORD = {

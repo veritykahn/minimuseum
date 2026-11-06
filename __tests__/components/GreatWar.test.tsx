@@ -79,9 +79,11 @@ describe('The Great War display case page', () => {
     expect(cards.map((c) => c.getAttribute('href'))).toEqual(GREAT_WAR_CASE.artifacts.map((a) => artifactPath({ slug: GREAT_WAR.slug }, a)));
     // No installation photographs: the owner's own photograph of the case (November 5, 2026), dropped in on disk.
     expect(GREAT_WAR_CASE.photos).toHaveLength(0);
-    // At the owner's request, her cut-out of the case is on the landing page's card only: here, the drawn case stands in.
+    // At the owner's request, no case here, photographed or drawn: only the artifacts, in the middle. Her cut-out is on the landing page's card.
     expect(screen.queryByRole('img', { name: 'The Great War display case' })).toBeNull();
-    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
+    expect(screen.queryByText('Photographs on their way')).toBeNull();
+    expect(document.querySelector('.pe-case-page-lead')).toBeNull();
+    expect(document.querySelector('.pe-case-page-view-artifacts')).toHaveClass('is-artifacts-only');
     expect(JSON.stringify([GREAT_WAR, GREAT_WAR_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');

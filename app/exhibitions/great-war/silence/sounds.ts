@@ -23,7 +23,7 @@ export const SOUND_SLOTS = {
   },
   breeze: {
     file: 'sounds/breeze.mp3',
-    use: 'A gentle breeze, nothing else. Fades in a moment after 11:00, loops quietly, and fades away after the film.',
+    use: 'The wind across the field, nothing else. Comes up with the battle, loops quietly on through 11:00, when the guns stop and it is all that is left, and fades away after the film.',
   },
   bird: {
     file: 'sounds/bird.mp3',

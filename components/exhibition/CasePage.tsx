@@ -2,8 +2,7 @@
 
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
-import CasePlaceholder from './CasePlaceholder';
-import { ARTIFACT_PHOTO_SIZE, NO_CASE_PHOTOS, leadCasePhoto, type CasePhotosOnDisk } from './casePhotoPaths';
+import { ARTIFACT_PHOTO_SIZE, NO_CASE_PHOTOS, type CasePhotosOnDisk } from './casePhotoPaths';
 import { CaseViewTabs, caseViewIds, useCaseView } from './CaseViews';
 import { artifactPath } from './artifacts';
 import { roomsInOrder } from './roomsInOrder';
@@ -14,12 +13,13 @@ import './poster-exhibition.css';
 /*
  * A display case page for a poster exhibition, laid out as the original
  * exhibitions' case listings are: the case's name and writing, then a card for
- * each artifact in it, each opening the artifact's own page (ArtifactPage).
- * Above them, a photograph of the case, or until it is photographed an empty
- * case drawn in outline (CasePlaceholder); each artifact's card shows its
- * photograph once the owner drops it in (casePhotoPaths.ts: the route reads
- * which are there and passes them as `photos`); below them,
- * the record's lines about the display itself. A pair of tabs at the top
+ * each artifact in it, in the middle, each opening the artifact's own page
+ * (ArtifactPage); each card shows its photograph once the owner drops it in
+ * (casePhotoPaths.ts: the route reads which are there and passes them as
+ * `photos`). At the owner's request (November 5, 2026), for every exhibition:
+ * nothing else, no photograph or drawing of the case and no list of what is
+ * in the display (the record's lines stay in its data, unshown); the case's
+ * cut-out photograph is for the landing page's card. A pair of tabs at the top
  * switches to the case's other view, "Interactives": a card for each of the
  * exhibition's rooms (its config's `interactives`), each with a picture of
  * the room as it looks, which open from the case rather than the landing
@@ -33,11 +33,7 @@ import './poster-exhibition.css';
 
 export default function CasePage({ config, data, photos = NO_CASE_PHOTOS }: { config: ExhibitionConfig; data: CasePageData; photos?: CasePhotosOnDisk }) {
   const { name, subtitle, slug } = config;
-  // The record's photographs, or the owner's case.jpg once it is dropped in (casePhotoPaths.ts).
-  const first = leadCasePhoto(data, photos, name);
-  const rest = data.photos.slice(1);
   const home = `/exhibitions/${slug}`;
-  const display = data.display ?? [];
   // An exhibition has one case (artifacts/case), and its rooms open from it,
   // in the order the landing page's Explore row lists them (roomsInOrder).
   const rooms = roomsInOrder(config.interactives);
@@ -73,21 +69,10 @@ export default function CasePage({ config, data, photos = NO_CASE_PHOTOS }: { co
         )}
 
         <div
-          className="pe-case-page-view pe-case-page-view-artifacts"
+          className="pe-case-page-view pe-case-page-view-artifacts is-artifacts-only"
           {...(rooms.length > 0 ? { role: 'tabpanel', id: artifactsIds.panel, 'aria-labelledby': artifactsIds.tab } : {})}
           hidden={rooms.length > 0 && view !== 'artifacts'}
         >
-          {first ? (
-            <figure className="pe-case-page-lead">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={first.src} alt={first.alt} width={first.width} height={first.height} />
-            </figure>
-          ) : (
-            <div className="pe-case-page-lead pe-case-page-awaiting">
-              <CasePlaceholder size="page" />
-            </div>
-          )}
-
           <section className="pe-case-page-artifacts" aria-labelledby={`${slug}-case-artifacts`}>
             <h2 id={`${slug}-case-artifacts`}>{data.title}</h2>
             <ul className="pe-artifact-grid">
@@ -117,32 +102,6 @@ export default function CasePage({ config, data, photos = NO_CASE_PHOTOS }: { co
             </ul>
           </section>
 
-          {display.length > 0 && (
-            <section className="pe-case-page-display" aria-labelledby={`${slug}-case-display`}>
-              <h2 id={`${slug}-case-display`}>In the display</h2>
-              <ul>
-                {display.map((line) => (
-                  <li key={line}>
-                    <Emphasized text={line} />
-                  </li>
-                ))}
-              </ul>
-            </section>
-          )}
-
-          {rest.length > 0 && (
-            <section className="pe-case-page-photos" aria-labelledby={`${slug}-case-photos`}>
-              <h2 id={`${slug}-case-photos`}>{data.subtitle}</h2>
-              <div className={`pe-case-page-photo-row ${rest.length === 1 ? 'is-single' : ''}`}>
-                {rest.map((p) => (
-                  <figure key={p.src}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.src} alt={p.alt} width={p.width} height={p.height} loading="lazy" />
-                  </figure>
-                ))}
-              </div>
-            </section>
-          )}
         </div>
 
         {rooms.length > 0 && (

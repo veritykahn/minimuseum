@@ -512,19 +512,15 @@ export type CasePageData = {
   title: string;
   /** The photographs' heading, when there are photographs below the artifacts. */
   subtitle?: string;
-  /**
-   * The first is set large above the artifacts; the rest in a row below them.
-   * Empty until the case is photographed: an empty case drawn in outline,
-   * "Photographs on their way" (CasePlaceholder), stands in its place, or the
-   * owner's case.jpg once dropped in (casePhotoPaths.ts).
-   */
+  /** Photographs of the case, from the record. Not shown on the case page, which shows only its artifacts (owner's rule, November 5, 2026). */
   photos: CasePhoto[];
   /** Each object in the case, with its own page at <case path>/<id>. */
   artifacts: CaseArtifact[];
   /**
    * The record's lines about the display itself rather than an object in it
    * (panels, posters, the case, a digital extension), exactly as the record
-   * has them. Listed on the case page; they have no page of their own.
+   * has them. Kept for the record; not shown on the case page (owner's rule,
+   * November 5, 2026).
    */
   display?: string[];
 };

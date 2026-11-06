@@ -1,7 +1,7 @@
 import { act, fireEvent, render, renderHook, screen, within } from '@testing-library/react';
 import SilenceFilm from '@/app/exhibitions/great-war/silence/SilenceFilm';
 import GreatWarSilence from '@/app/exhibitions/great-war/silence/page';
-import { ArmisticeSound, BIRD_LEAD, BREEZE_AFTER, HUSH, birdSong, gunfireSchedule, renderGunfire, thudSchedule, useArmisticeSound } from '@/app/exhibitions/great-war/silence/armisticeSound';
+import { ArmisticeSound, BEEP, BIRD_LEAD, BREEZE_AFTER, COUNT_STEP, HUSH, birdSong, gunfireSchedule, renderCrackle, renderGunfire, thudSchedule, useArmisticeSound } from '@/app/exhibitions/great-war/silence/armisticeSound';
 import { SLOT_NAMES, SOUND_SLOTS, soundSrc } from '@/app/exhibitions/great-war/silence/sounds';
 import { soundSlotsOnDisk } from '@/app/exhibitions/great-war/silence/soundSlots';
 import { SILENCE_SOURCES } from '@/app/exhibitions/great-war/silence/sources';
@@ -42,10 +42,11 @@ class FakeNode {
   connect() {}
   disconnect() {}
   startedAt = 0;
+  stopAt: number | null = null;
   start(when = 0) { this.startedAt = when; started.push(this); live.add(this); }
   /** stop(when) only schedules the end; stop() with no time stops it now. */
   stop(when?: number) {
-    if (when !== undefined) return;
+    if (when !== undefined) { this.stopAt = when; return; }
     this.stopped = true;
     live.delete(this);
   }
@@ -90,7 +91,7 @@ describe('the film’s words and timing', () => {
       'After one final soldier fell at 10:59 AM.',
       'The guns finally went silent.',
     ]);
-    expect(SOUND_NOTE).toBe('Our sound reconstruction, not a recording. The guns are timed to the sound-ranging record; the breeze and the bird are added.');
+    expect(SOUND_NOTE).toBe('Our sound reconstruction, not a recording. The guns are timed to the sound-ranging record; the wind, the projector and the bird are added.');
   });
 
   it('runs countdown, cards (with the photograph after the third), the record, then the end', () => {
@@ -170,26 +171,43 @@ describe('the sound’s shape: battle, the hour, the quiet', () => {
   const hour = HOUR_AT / 1000;
   const end = FILM_END / 1000;
 
-  it('falls silent at the hour, then only a breeze, then a single bird right at the end', () => {
+  it('stops the guns dead at the hour, while the wind blows on through it, and a single bird sings right at the end', () => {
     play();
     const at = started.map((n) => n.startedAt);
     expect(at.filter((t) => t < hour).length).toBeGreaterThan(50);
     // Nothing starts in the last moment before the hour, nor in the first second after it.
     expect(at.filter((t) => t > hour - HUSH && t < hour + 1)).toEqual([]);
+    // The wind: one looping noise and its two slow swells, from the first card (5 s), on through the hour, past the end.
+    const wind = started.filter((n) => n.stopAt === end + BREEZE_AFTER);
+    expect(wind).toHaveLength(3);
+    expect(wind.every((n) => n.startedAt === 5)).toBe(true);
+    expect(wind.some((n) => n.loop)).toBe(true);
+    // The bird: all that starts after the hour, and only in the film's last seconds.
     const after = started.filter((n) => n.startedAt >= hour);
-    // The breeze: one looping noise and its two slow swells, starting a second after the hour.
-    const breeze = after.filter((n) => n.startedAt === hour + 1);
-    expect(breeze).toHaveLength(3);
-    expect(breeze.some((n) => n.loop)).toBe(true);
-    // The bird: everything else after the hour, and only in the film's last seconds.
-    const bird = after.filter((n) => n.startedAt !== hour + 1);
-    expect(bird.length).toBe(birdSong().length);
-    expect(Math.min(...bird.map((n) => n.startedAt))).toBeCloseTo(end - BIRD_LEAD, 5);
+    expect(after.length).toBe(birdSong().length);
+    expect(Math.min(...after.map((n) => n.startedAt))).toBeCloseTo(end - BIRD_LEAD, 5);
   });
 
-  it('starts only the quiet when begun after the hour, and nothing once all is over', () => {
+  it('runs an old projector and the film’s crackle from Begin to the end, with a beep on each number of the countdown', () => {
+    play();
+    // The crackle, the whirr and its shutter: from Begin, never cut at the hour, ending with the film.
+    const projector = started.filter((n) => n.startedAt === 0 && n.stopAt === end);
+    expect(projector).toHaveLength(3);
+    expect(projector.some((n) => n.loop)).toBe(true);
+    // The leader's beep on each of its five numbers.
+    const beeps = started.filter((n) => n.frequency.value === BEEP.hz && n.startedAt < 5);
+    expect(beeps.map((n) => n.startedAt)).toEqual([0, 1, 2, 3, 4]);
+    expect(COUNT_STEP).toBe(1000);
+    // The crackle is a few loud pops among many faint ones.
+    const c = renderCrackle(8000, 4);
+    const peaks = Array.from(c).map(Math.abs);
+    expect(peaks.filter((v) => v > 0.4).length).toBeGreaterThan(0);
+    expect(Math.max(...peaks)).toBeLessThanOrEqual(2);
+  });
+
+  it('starts only the wind, the projector and the bird when begun after the hour, and nothing once all is over', () => {
     play(HOUR_AT + 2000);
-    expect(started.length).toBe(3 + birdSong().length);
+    expect(started.length).toBe(3 + 3 + birdSong().length);
     started = [];
     play(FILM_END + BREEZE_AFTER * 1000 + 10);
     expect(started).toHaveLength(0);
@@ -204,10 +222,33 @@ describe('the sound’s shape: battle, the hour, the quiet', () => {
     expect(sources).toHaveLength(2);
     expect(sources.find((n) => n.loop)?.startedAt).toBe(5);
     expect(sources.find((n) => !n.loop)?.startedAt).toBeCloseTo(end - BIRD_LEAD, 5);
-    // A file that will not decode falls back to the made breeze.
-    expect(started.filter((n) => n.startedAt === hour + 1)).toHaveLength(3);
+    // A file that will not decode falls back to the made wind.
+    expect(started.filter((n) => n.stopAt === end + BREEZE_AFTER && n.startedAt === 5)).toHaveLength(3);
     // The made gunfire is not made when her file is there: one rendered buffer fewer.
     expect(started.filter((n) => n.buffer && (n.buffer as { getChannelData?: unknown }).getChannelData && !n.loop && n.startedAt === 5)).toHaveLength(0);
+  });
+});
+
+describe('full screen, for a classroom projector', () => {
+  it('offers full screen where the browser has it, and fills the screen with the film', () => {
+    Object.defineProperty(document, 'fullscreenEnabled', { value: true, configurable: true });
+    const req = jest.fn(() => Promise.resolve());
+    const before = HTMLElement.prototype.requestFullscreen;
+    HTMLElement.prototype.requestFullscreen = req as unknown as typeof before;
+    try {
+      const { container } = render(<SilenceFilm />);
+      fireEvent.click(screen.getByRole('button', { name: 'Full screen' }));
+      expect(req).toHaveBeenCalledTimes(1);
+      expect(req.mock.contexts[0]).toBe(container.querySelector('section.gws'));
+    } finally {
+      HTMLElement.prototype.requestFullscreen = before;
+      delete (document as unknown as { fullscreenEnabled?: boolean }).fullscreenEnabled;
+    }
+  });
+
+  it('offers none where the browser has none', () => {
+    render(<SilenceFilm />);
+    expect(screen.queryByRole('button', { name: 'Full screen' })).toBeNull();
   });
 });
 

@@ -21,9 +21,15 @@ import { soundSrc, type SoundSlot } from './sounds';
  * a classroom projector carries it. At the hour every one of these sounds
  * stops dead.
  *
- * Then, only the quiet:
- *   breeze     a gentle breeze, coming up a moment after 11:00, rising and
- *              falling slowly, until a little after the film ends.
+ * The wind, and the film itself:
+ *   breeze     the wind across the field, rising and falling slowly: it comes
+ *              up with the battle and blows on through 11:00, when the guns
+ *              stop dead and it is all that is left, until a little after the
+ *              film ends (at the owner's request, November 5, 2026: the quiet
+ *              after the guns is the wind, not a dead silence).
+ *   projector  an old projector running, its shutter's flutter and the
+ *              film's crackle, quietly, from Begin to the end; and over the
+ *              countdown leader a beep on each number, as old leaders had.
  *   bird       right at the very end, a single bird singing.
  *
  * Nothing sounds until the visitor presses Begin (browsers allow sound only
@@ -192,6 +198,30 @@ export function birdSong(seed = 1111): Note[] {
 export const BIRD_LEAD = 3.4;
 /** How long the breeze goes on after the film's end (s), fading away. */
 export const BREEZE_AFTER = 10;
+/** The countdown leader's numbers come this far apart (ms), from Begin: a beep on each. */
+export const COUNT_STEP = 1000;
+/** The beep's pitch (Hz) and length (s): the tone of an old film leader. */
+export const BEEP = { hz: 1000, dur: 0.11 };
+
+/**
+ * The film's crackle: dust and the odd sharp pop, rendered once into a few
+ * seconds of sound that loops. Each crackle is a tiny click with a quick
+ * decay, at random, a few loud ones among many faint.
+ */
+export function renderCrackle(sampleRate: number, seconds: number, seed = 35): Float32Array {
+  const out = new Float32Array(Math.max(1, Math.floor(sampleRate * seconds)));
+  const rand = seeded(seed);
+  const clicks = Math.floor(seconds * 70);
+  for (let k = 0; k < clicks; k++) {
+    const at = Math.floor(rand() * out.length);
+    const loud = rand() < 0.08;
+    const level = loud ? 0.5 + rand() * 0.5 : 0.04 + rand() * 0.16;
+    const len = Math.floor(sampleRate * (loud ? 0.004 + rand() * 0.006 : 0.0008 + rand() * 0.0015));
+    const sign = rand() < 0.5 ? -1 : 1;
+    for (let i = 0; i < len && at + i < out.length; i++) out[at + i] += sign * level * Math.exp(-i / (len / 4)) * (rand() * 0.6 + 0.4);
+  }
+  return out;
+}
 
 type Ctx = AudioContext;
 
@@ -301,11 +331,12 @@ export class ArmisticeSound {
               file: (b) => this.loop(b, toCtx(startAt), hour, this.bus, 1, 2, 0),
             }
           : null,
+      // The wind comes up with the battle and blows on through the hour: when the guns stop, it is what is left.
       breeze:
         end !== null
           ? {
-              make: () => this.breeze(hour + 1, end + BREEZE_AFTER),
-              file: (b) => this.loop(b, hour + 1, end + BREEZE_AFTER, this.after, 0.5, 4, 4),
+              make: () => this.breeze(toCtx(startAt), end + BREEZE_AFTER),
+              file: (b) => this.loop(b, toCtx(startAt), end + BREEZE_AFTER, this.after, 0.5, 3, 4),
             }
           : null,
       bird:
@@ -330,6 +361,11 @@ export class ArmisticeSound {
         () => !this.closed && s.make(),
       );
     });
+
+    // The film itself: the projector running and the film's crackle, from Begin to its end;
+    // and on the countdown leader, a beep on each number.
+    this.projector(Math.max(now, zero), end ?? hour, toCtx(startAt));
+    for (let ms = 0; ms < startAt; ms += COUNT_STEP) this.beep(toCtx(ms));
 
     // At 11:00 the whole battle stops dead.
     if (hour > now) {
@@ -540,6 +576,91 @@ export class ArmisticeSound {
       node.stop(to);
       this.keep(node);
     }
+  }
+
+  /**
+   * The projector and the film: a soft whirr with the shutter's flutter, and
+   * the crackle, from `from` to `to`, a little louder over the countdown
+   * leader (until `filmAt`), as a projector starting up is, then quiet under
+   * the film. None of it is cut at the hour: the film runs on.
+   */
+  private projector(from: number, to: number, filmAt: number) {
+    const ctx = this.ctx;
+    const start = Math.max(ctx.currentTime, from);
+    if (to <= start) return;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, start);
+    env.gain.exponentialRampToValueAtTime(1, start + 0.25);
+    if (filmAt > start) {
+      env.gain.setValueAtTime(1, filmAt);
+      env.gain.linearRampToValueAtTime(0.55, filmAt + 2);
+    }
+    const under = filmAt > start ? 0.55 : 1;
+    env.gain.setValueAtTime(under, Math.max(start + 0.3, filmAt + 2, to - 2.5));
+    env.gain.linearRampToValueAtTime(0, to);
+    env.connect(this.after);
+
+    // The crackle.
+    const crackleBuf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 4), ctx.sampleRate);
+    crackleBuf.getChannelData(0).set(renderCrackle(ctx.sampleRate, 4));
+    const crackle = ctx.createBufferSource();
+    crackle.buffer = crackleBuf;
+    crackle.loop = true;
+    const crackleHi = ctx.createBiquadFilter();
+    crackleHi.type = 'highpass';
+    crackleHi.frequency.value = 900;
+    const crackleLevel = ctx.createGain();
+    crackleLevel.gain.value = 0.16;
+    crackle.connect(crackleHi);
+    crackleHi.connect(crackleLevel);
+    crackleLevel.connect(env);
+
+    // The whirr, fluttering with the shutter (24 frames a second).
+    const whirr = ctx.createBufferSource();
+    whirr.buffer = this.noise;
+    whirr.loop = true;
+    const band = ctx.createBiquadFilter();
+    band.type = 'bandpass';
+    band.frequency.value = 1400;
+    band.Q.value = 1.2;
+    const flutter = ctx.createGain();
+    flutter.gain.value = 0.03;
+    const shutter = ctx.createOscillator();
+    shutter.type = 'square';
+    shutter.frequency.value = 24;
+    const depth = ctx.createGain();
+    depth.gain.value = 0.015;
+    shutter.connect(depth);
+    depth.connect(flutter.gain);
+    whirr.connect(band);
+    band.connect(flutter);
+    flutter.connect(env);
+
+    for (const node of [crackle, whirr, shutter]) {
+      node.start(start);
+      node.stop(to);
+      this.keep(node);
+    }
+  }
+
+  /** The countdown leader's beep, at `at`. */
+  private beep(at: number) {
+    const ctx = this.ctx;
+    if (at < ctx.currentTime - 0.01) return;
+    const t = Math.max(ctx.currentTime, at);
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = BEEP.hz;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0.0001, t);
+    env.gain.exponentialRampToValueAtTime(0.16, t + 0.006);
+    env.gain.setValueAtTime(0.16, t + BEEP.dur - 0.02);
+    env.gain.exponentialRampToValueAtTime(0.0001, t + BEEP.dur);
+    osc.connect(env);
+    env.connect(this.after);
+    osc.start(t);
+    osc.stop(t + BEEP.dur + 0.02);
+    this.keep(osc);
   }
 
   /** A single bird singing, from `at`. */

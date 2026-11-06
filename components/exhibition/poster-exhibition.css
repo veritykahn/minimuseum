@@ -1158,6 +1158,9 @@ a.pe-ticket:focus-visible .pe-ticket-text { text-decoration: underline; text-dec
   .pe-case-page-view-artifacts > figure.pe-case-page-lead { align-self: start; }
   .pe-case-page-view-artifacts .pe-case-placeholder-page .pe-case-placeholder-art { width: min(420px, 100%, 52dvh); }
 }
+/* A case shown by its artifacts alone: one column, in the middle. */
+.pe-case-page-view-artifacts.is-artifacts-only { display: flex; }
+.pe-case-page-view-artifacts.is-artifacts-only .pe-case-page-artifacts { max-width: 760px; }
 /* So the lead picture and the cards fit the first screen together. */
 .pe-case-page-view .pe-case-page-lead img { width: auto; max-width: 100%; max-height: 40dvh; margin: 0 auto; }
 .pe-case-page-view .pe-case-placeholder-page .pe-case-placeholder-art { width: min(460px, 86vw, 40dvh); }
@@ -1428,22 +1431,58 @@ a.pe-case-page-return:focus-visible { border-color: var(--pe-accent); color: var
 .pe-artifact-stage.has-photo { border-style: solid; }
 .pe-artifact-stage-photo { width: min(420px, 100%); margin: 0; }
 .pe-artifact-page .pe-artifact-stage-photo img { display: block; width: 100%; height: auto; max-height: 52vh; object-fit: contain; border-radius: 8px; box-shadow: none; }
-/* The owner's 3D scan, turning on the stage (ArtifactModel.tsx); its buttons sit inside the stage, not fixed to the window. */
-.pe-artifact-stage.has-model { border-style: solid; padding: 0; overflow: hidden; }
-.pe-artifact-model { position: relative; width: 100%; height: min(60vh, 520px); }
+/* The owner's 3D scan, full screen with its display card (ArtifactFullView.tsx, ArtifactModel.tsx), as the original exhibitions' viewers are, in the exhibition's own colors and faces. */
+.pe-artifact-full { position: fixed; inset: 0; overflow: hidden; color: var(--pe-heading, #ede6da); --orbit-accent: var(--pe-accent); }
+.pe-artifact-full-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 30; display: flex; justify-content: space-between; align-items: center; padding: 24px 32px; background: linear-gradient(to bottom, color-mix(in srgb, var(--pe-page, #111) 95%, transparent), transparent); pointer-events: none; }
+.pe-artifact-full-bar > * { pointer-events: auto; }
+.pe-artifact-full .pe-artifact-full-back { position: static; display: inline-flex; align-items: center; gap: 12px; font-family: var(--pe-ui); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pe-accent); text-decoration: none; }
+.pe-artifact-full .pe-artifact-full-back:hover, .pe-artifact-full .pe-artifact-full-back:focus-visible { color: var(--pe-heading, #ede6da); }
+.pe-artifact-full-back span[aria-hidden] { font-size: 18px; }
+.pe-artifact-full-info { width: 50px; height: 50px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--pe-accent) 45%, transparent); background: transparent; color: var(--pe-accent); font-family: var(--pe-body); font-size: 26px; font-style: italic; cursor: pointer; transition: background 0.3s ease, color 0.3s ease; }
+.pe-artifact-full-info:hover { background: color-mix(in srgb, var(--pe-accent) 14%, transparent); }
+.pe-artifact-full-info.is-open { background: var(--pe-accent); color: var(--pe-page, #111); }
+.pe-artifact-full-main { position: absolute; inset: 0; }
+.pe-artifact-full .pe-artifact-model { position: absolute; inset: 0; }
 .pe-artifact-model-view { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-.pe-artifact-model-view canvas { display: block; touch-action: none; }
-.pe-artifact-model-view:focus-visible { outline: 2px solid var(--pe-accent); outline-offset: -4px; }
+.pe-artifact-model-view canvas { display: block; touch-action: none; cursor: grab; }
+.pe-artifact-model-view canvas:active { cursor: grabbing; }
+.pe-artifact-model-view:focus-visible { outline: 2px solid var(--pe-accent); outline-offset: -6px; }
 .pe-artifact-model-loading { position: absolute; margin: 0; }
-.pe-artifact-model .orbit-btns.pe-artifact-orbit { position: absolute; right: 14px; top: 50%; }
-.pe-artifact-model-hints { position: absolute; left: 0; right: 0; bottom: 10px; display: flex; justify-content: center; pointer-events: none; font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--pe-case-muted, #a59d90); }
-.pe-artifact-model-hints ul { display: flex; margin: 0; padding: 0; list-style: none; gap: 18px; }
-.pe-artifact-model-still { padding: 20px; }
+.pe-artifact-model .orbit-btns.pe-artifact-orbit { position: absolute; right: 32px; top: 50%; }
+.pe-artifact-model-hints { position: absolute; right: 110px; bottom: 40px; z-index: 5; pointer-events: none; font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: color-mix(in srgb, var(--pe-heading, #ede6da) 70%, transparent); }
+.pe-artifact-model-hints ul { display: flex; margin: 0; padding: 0; list-style: none; gap: 22px; }
+.pe-artifact-model-still { padding: 90px 20px 140px; }
+.pe-artifact-model-still img { max-height: 60vh; }
+.pe-artifact-full-foot { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; padding: 60px 32px 32px; background: linear-gradient(to top, var(--pe-page, #111) 0%, color-mix(in srgb, var(--pe-page, #111) 85%, transparent) 55%, transparent); pointer-events: none; }
+.pe-artifact-full-label { margin: 0 0 8px; font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pe-accent); }
+.pe-artifact-full-name { margin: 0; max-width: 60%; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.5rem, 3.6vw, 2.4rem); line-height: 1.15; color: var(--pe-heading, #ede6da); }
+.pe-artifact-full-scrim { position: fixed; inset: 0; z-index: 40; background: rgba(0, 0, 0, 0.6); opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.pe-artifact-full-scrim.is-open { opacity: 1; visibility: visible; }
+.pe-artifact-card-panel { position: fixed; top: 0; right: 0; z-index: 50; width: 450px; max-width: 92vw; height: 100dvh; overflow-y: auto; background: var(--pe-page, #111); border-left: 1px solid color-mix(in srgb, var(--pe-accent) 30%, transparent); transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+.pe-artifact-card-panel.is-open { transform: none; }
+body:has(.pe-artifact-card-panel.is-open) .map-toggle-btn { display: none; }
+.pe-artifact-card-close { position: absolute; top: 24px; right: 24px; width: 40px; height: 40px; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--pe-heading, #ede6da) 30%, transparent); background: transparent; color: var(--pe-heading, #ede6da); font-size: 20px; cursor: pointer; }
+.pe-artifact-card-close:hover { background: color-mix(in srgb, var(--pe-heading, #ede6da) 10%, transparent); }
+.pe-artifact-card-body { padding: 100px 40px 60px; }
+.pe-artifact-card-label { margin: 0 0 8px; font-family: var(--pe-ui); font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--pe-accent); }
+.pe-artifact-card-title { margin: 0 0 18px; font-family: var(--pe-display); font-weight: 400; font-size: 1.9rem; line-height: 1.25; color: var(--pe-heading, #ede6da); }
+.pe-artifact-card-record { margin: 0 0 28px; padding-bottom: 24px; border-bottom: 1px solid color-mix(in srgb, var(--pe-heading, #ede6da) 15%, transparent); font-family: var(--pe-body); font-style: italic; font-size: 1.15rem; line-height: 1.5; color: var(--pe-accent); }
+.pe-artifact-card-poster h3 { margin: 0 0 10px; font-family: var(--pe-ui); font-weight: 400; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: color-mix(in srgb, var(--pe-heading, #ede6da) 65%, transparent); }
+.pe-artifact-card-poster cite { font-style: normal; color: var(--pe-heading, #ede6da); }
+.pe-artifact-card-poster p, .pe-artifact-card-note { margin: 0 0 20px; font-family: var(--pe-body); font-size: 1.08rem; line-height: 1.75; color: color-mix(in srgb, var(--pe-heading, #ede6da) 88%, transparent); }
+.pe-artifact-card-pager { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; padding-top: 22px; border-top: 1px solid color-mix(in srgb, var(--pe-heading, #ede6da) 15%, transparent); }
+.pe-artifact-card-pager a { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pe-accent); text-decoration: none; }
+.pe-artifact-card-pager a:hover, .pe-artifact-card-pager a:focus-visible { color: var(--pe-heading, #ede6da); }
+@media (max-width: 1024px) {
+  .pe-artifact-model-hints { display: none; }
+  .pe-artifact-full-name { max-width: 100%; }
+}
 @media (max-width: 600px) {
-  /* On a phone, the buttons run in a row along the foot of the stage, and the hints sit at its head, clear of the scan. */
-  .pe-artifact-model .orbit-btns.pe-artifact-orbit { top: auto; bottom: 12px; right: 50%; transform: translateX(50%); flex-direction: row; }
-  .pe-artifact-model-hints { bottom: auto; top: 12px; letter-spacing: 0.06em; font-size: 10px; }
-  .pe-artifact-model-hints ul { gap: 10px; }
+  .pe-artifact-full-bar { padding: 16px 16px; }
+  .pe-artifact-full-foot { padding: 50px 16px 84px; }
+  .pe-artifact-card-body { padding: 84px 24px 40px; }
+  /* On a phone the buttons run in a row along the foot, under the name. */
+  .pe-artifact-model .orbit-btns.pe-artifact-orbit { top: auto; bottom: 24px; right: auto; left: 16px; transform: none; flex-direction: row; z-index: 6; }
 }
 .pe-artifact-stage-art .pe-artifact-glyph { width: 100%; animation: pe-artifact-turn 9s ease-in-out infinite; transform-origin: 50% 50%; }
 @keyframes pe-artifact-turn {

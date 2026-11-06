@@ -95,11 +95,9 @@ function release(e: MouseEvent<HTMLElement>) {
   if (e.detail > 0) e.currentTarget.blur();
 }
 
-// REVIEW (Verity): Play through's words.
-export const PLAY_THROUGH = 'Play through';
-export const PLAY_THROUGH_ON = 'Playing through. Each panel moves on when its recording ends. Any key or button takes over.';
-export const PLAY_THROUGH_OFF = 'Play through stopped.';
-export const PLAY_THROUGH_DONE = 'Play through finished.';
+// REVIEW (Verity): what the audio guide says it does in projector mode. As decided with the owner: with the guide on, the poster moves on by itself, no button to press.
+export const PLAY_THROUGH_ON = 'Audio guide on. Each panel moves on by itself when its recording ends. Pause or B holds it; the arrows still move it.';
+export const PLAY_THROUGH_DONE = 'The audio guide has reached the end of the poster.';
 /** After a recording ends, a breath before the next panel. */
 export const THROUGH_PAUSE_MS = 2000;
 /** A panel with no recording is held this long. */
@@ -211,9 +209,10 @@ function ProjectorScreen<K extends string>({
   const [blank, setBlank] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const [notice, setNotice] = useState('');
-  // Play through: off until the teacher turns it on; the guide moves the poster on.
-  // It holds the panel it is playing, so any other panel (the teacher moved) means it has stopped.
-  const [throughAt, setThroughAt] = useState<number | null>(null);
+  // With the audio guide on, the poster moves on by itself as each recording ends.
+  // The teacher holds it on a panel by pausing the guide or blanking the screen (heldAt is that panel);
+  // a new panel, or Play, lets it go on again.
+  const [heldAt, setHeldAt] = useState<number | null>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const pickerHeading = useRef<HTMLHeadingElement>(null);
 
@@ -309,9 +308,11 @@ function ProjectorScreen<K extends string>({
   }, [onExit]);
 
   const latestGuide = useRef(audioGuide);
+  const latestStep = useRef(step);
   const latestRoom = useRef(roomSound);
   useLayoutEffect(() => {
     latestGuide.current = audioGuide;
+    latestStep.current = step;
     latestRoom.current = roomSound;
   });
 
@@ -319,7 +320,7 @@ function ProjectorScreen<K extends string>({
     // A blanked screen is a pause for the class: the guide stops talking too.
     if (next) {
       latestGuide.current?.pause();
-      setThroughAt(null);
+      setHeldAt(latestStep.current);
     }
     // ...and the room goes quiet until the screen is shown again.
     latestRoom.current?.hush(next);
@@ -338,8 +339,11 @@ function ProjectorScreen<K extends string>({
     const g = latestGuide.current;
     if (!g) return;
     if (g.on) g.turnOff();
-    else g.turnOn();
-    setNotice(g.on ? 'Audio guide off.' : 'Audio guide on.');
+    else {
+      g.turnOn();
+      setHeldAt(null);
+    }
+    setNotice(g.on ? 'Audio guide off.' : PLAY_THROUGH_ON);
   }, []);
 
   const toggleRoom = useCallback(() => {
@@ -353,25 +357,12 @@ function ProjectorScreen<K extends string>({
   const playPause = useCallback(() => {
     const g = latestGuide.current;
     if (!g?.on || !g.available) return;
-    // Pausing hands the poster back to the teacher.
-    if (g.playing) setThroughAt(null);
+    // Pausing holds the poster on this panel; playing again lets it move on.
+    setHeldAt(g.playing ? latestStep.current : null);
     g.toggle();
   }, []);
 
-  const through = throughAt !== null && throughAt === step && open && (audioGuide?.on ?? false);
-  const toggleThrough = useCallback(() => {
-    if (through) {
-      setThroughAt(null);
-      setNotice(PLAY_THROUGH_OFF);
-      return;
-    }
-    const g = latestGuide.current;
-    if (!g) return;
-    if (!g.on) g.turnOn();
-    setThroughAt(step);
-    setNotice(PLAY_THROUGH_ON);
-  }, [through, step]);
-
+  const through = open && (audioGuide?.on ?? false) && heldAt !== step;
   const guideEnded = audioGuide?.ended ?? false;
   const guideAvailable = audioGuide?.available ?? false;
   useEffect(() => {
@@ -381,11 +372,10 @@ function ProjectorScreen<K extends string>({
     const t = window.setTimeout(
       () => {
         if (step >= count - 1) {
-          setThroughAt(null);
+          setHeldAt(step);
           setNotice(PLAY_THROUGH_DONE);
           return;
         }
-        setThroughAt(step + 1);
         nextStep();
       },
       guideAvailable ? THROUGH_PAUSE_MS : THROUGH_HOLD_MS,
@@ -424,7 +414,6 @@ function ProjectorScreen<K extends string>({
       if (!cmd) return;
       e.preventDefault();
       e.stopPropagation();
-      if (cmd.type === 'next' || cmd.type === 'prev' || cmd.type === 'first' || cmd.type === 'last') setThroughAt(null);
       switch (cmd.type) {
         case 'next':
           if (!s.open) openPoster(posters[0].id);
@@ -463,16 +452,13 @@ function ProjectorScreen<K extends string>({
         case 'room':
           toggleRoom();
           break;
-        case 'through':
-          toggleThrough();
-          break;
         case 'swallow':
           break;
       }
     };
     window.addEventListener('keydown', onKey, true);
     return () => window.removeEventListener('keydown', onKey, true);
-  }, [goToStep, nextStep, openPoster, playPause, posters, prevStep, setBlankAndSay, toggleFullscreen, toggleGuide, toggleRoom, toggleStrip, toggleThrough]);
+  }, [goToStep, nextStep, openPoster, playPause, posters, prevStep, setBlankAndSay, toggleFullscreen, toggleGuide, toggleRoom, toggleStrip]);
 
   const endContext: EndContext | null = poster
     ? {
@@ -533,18 +519,6 @@ function ProjectorScreen<K extends string>({
               {audioGuide.playing ? 'Pause' : 'Play'} <kbd>P</kbd>
             </button>
           )}
-          <button
-            type="button"
-            className={styles.tool}
-            aria-pressed={through}
-            aria-keyshortcuts="G"
-            onClick={(e) => {
-              release(e);
-              toggleThrough();
-            }}
-          >
-            {PLAY_THROUGH} <kbd>G</kbd>
-          </button>
         </>
       )}
       {roomSound && open && (
@@ -616,12 +590,7 @@ function ProjectorScreen<K extends string>({
       </span>
       {open && audioGuide && (
         <span>
-          <kbd>A</kbd> audio guide
-        </span>
-      )}
-      {open && audioGuide && (
-        <span>
-          <kbd>G</kbd> play through
+          <kbd>A</kbd> audio guide (moves on by itself)
         </span>
       )}
       {open && roomSound && (
