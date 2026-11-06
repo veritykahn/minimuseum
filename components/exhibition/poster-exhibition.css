@@ -1469,7 +1469,7 @@ body:has(.pe-artifact-card-panel.is-open) .map-toggle-btn { display: none; }
 .pe-artifact-card-record { margin: 0 0 28px; padding-bottom: 24px; border-bottom: 1px solid color-mix(in srgb, var(--pe-heading, #ede6da) 15%, transparent); font-family: var(--pe-body); font-style: italic; font-size: 1.15rem; line-height: 1.5; color: var(--pe-accent); }
 .pe-artifact-card-poster h3 { margin: 0 0 10px; font-family: var(--pe-ui); font-weight: 400; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: color-mix(in srgb, var(--pe-heading, #ede6da) 65%, transparent); }
 .pe-artifact-card-poster cite { font-style: normal; color: var(--pe-heading, #ede6da); }
-.pe-artifact-card-poster p, .pe-artifact-card-note { margin: 0 0 20px; font-family: var(--pe-body); font-size: 1.08rem; line-height: 1.75; color: color-mix(in srgb, var(--pe-heading, #ede6da) 88%, transparent); }
+.pe-artifact-card-text, .pe-artifact-card-poster p, .pe-artifact-card-note { margin: 0 0 20px; font-family: var(--pe-body); font-size: 1.08rem; line-height: 1.75; color: color-mix(in srgb, var(--pe-heading, #ede6da) 88%, transparent); }
 .pe-artifact-card-pager { display: flex; flex-direction: column; gap: 12px; margin-top: 28px; padding-top: 22px; border-top: 1px solid color-mix(in srgb, var(--pe-heading, #ede6da) 15%, transparent); }
 .pe-artifact-card-pager a { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--pe-accent); text-decoration: none; }
 .pe-artifact-card-pager a:hover, .pe-artifact-card-pager a:focus-visible { color: var(--pe-heading, #ede6da); }

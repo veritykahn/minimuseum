@@ -312,7 +312,9 @@ describe('The America 250 display case page', () => {
     // The signing room opens from the case, under its Interactives tab.
     fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
     expect(screen.getByRole('link', { name: /Put Your Name to It/ })).toHaveAttribute('href', '/exhibitions/america-250/sign');
-    expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/america-250');
+    // No Return to Exhibition at the foot: the M at the top left goes back (owner, November 6, 2026).
+    expect(screen.queryByRole('link', { name: 'Return to Exhibition' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/america-250');
   });
 });
 

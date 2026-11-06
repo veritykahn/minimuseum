@@ -545,4 +545,10 @@ export type CaseArtifact = {
    * Shown on its card in place of the record line, and on its page.
    */
   about?: ApprovedFact;
+  /**
+   * The object's museum card, for its full-screen page (ArtifactFullView): a
+   * few fact-checked paragraphs on what it is and its story, with their
+   * sources, which are listed in the page's Sources drawer, not under the text.
+   */
+  card?: { paragraphs: readonly string[]; sources: readonly FactSource[] };
 };

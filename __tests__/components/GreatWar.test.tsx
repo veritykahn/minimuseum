@@ -85,7 +85,9 @@ describe('The Great War display case page', () => {
     expect(document.querySelector('.pe-case-page-lead')).toBeNull();
     expect(document.querySelector('.pe-case-page-view-artifacts')).toHaveClass('is-artifacts-only');
     expect(JSON.stringify([GREAT_WAR, GREAT_WAR_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
-    expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');
+    // No Return to Exhibition at the foot: the M at the top left goes back (owner, November 6, 2026).
+    expect(screen.queryByRole('link', { name: 'Return to Exhibition' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/great-war');
   });
 
@@ -94,5 +96,27 @@ describe('The Great War display case page', () => {
     expect(getLevelConfig('/exhibitions/great-war/artifacts/case').floorPlan?.rooms.map((r) => r.id)).toEqual(['gw-entrance', 'gw-case', 'gw-silence', 'gw-memorial']);
     expect(getRoomByPath('/exhibitions/great-war/artifacts/case')?.id).toBe('gw-case');
     expect(getRoomByPath('/exhibitions/great-war')?.comingSoon).toBeFalsy();
+  });
+});
+
+describe('the Great War’s 3D objects: their museum cards', () => {
+  it('gives the helmet and the shaving kit a museum card of their own, sourced, with no posters’ quotation and no link to the other object', () => {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const ArtifactPage = require('@/components/exhibition/ArtifactPage').default;
+    for (const id of ['brodie-helmet', 'shaving-kit']) {
+      const a = GREAT_WAR_CASE.artifacts.find((x) => x.id === id)!;
+      expect(a.card?.paragraphs.length).toBeGreaterThanOrEqual(2);
+      expect(a.card?.sources.length).toBeGreaterThan(0);
+      const { unmount } = render(<ArtifactPage config={GREAT_WAR} data={GREAT_WAR_CASE} artifact={a} model={`/exhibitions/great-war/case/${id}.glb`} />);
+      fireEvent.click(screen.getByRole('button', { name: 'About this artifact' }));
+      const card = screen.getByRole('dialog', { name: new RegExp(plainText(a.name)) });
+      expect(within(card).getByText(a.card!.paragraphs[0])).toBeInTheDocument();
+      expect(within(card).queryByText(/From the poster/)).toBeNull();
+      expect(within(card).queryAllByRole('link')).toHaveLength(0);
+      unmount();
+    }
+    // The numbers the sources disagree on are left out.
+    const helmet = GREAT_WAR_CASE.artifacts.find((x) => x.id === 'brodie-helmet')!;
+    expect(helmet.card!.paragraphs.join(' ')).not.toMatch(/million/);
   });
 });
