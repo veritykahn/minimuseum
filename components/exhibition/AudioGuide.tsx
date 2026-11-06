@@ -26,7 +26,7 @@ export type AudioGuideState = {
   progress: number;
   /** This panel has a recording. */
   available: boolean;
-  /** This panel's recording has played to its end (projector mode's Play through moves on from here). */
+  /** This panel's recording has played to its end (in projector mode, the poster moves on from here by itself). */
   ended: boolean;
   turnOn: () => void;
   turnOff: () => void;

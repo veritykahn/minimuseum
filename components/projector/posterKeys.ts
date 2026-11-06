@@ -18,7 +18,6 @@ export type PosterKeyCommand =
   /** Pause the audio guide, or play this panel again. */
   | { type: 'play' }
   /** Play the poster through with the audio guide, or stop. */
-  | { type: 'through' }
   /** Turn the poster's room sound on or off. */
   | { type: 'room' }
   /** Taken so it does nothing (Escape would otherwise close the poster underneath). */
@@ -77,9 +76,6 @@ export function posterKeyCommand(
     case 'p':
     case 'P':
       return ctx.open ? { type: 'play' } : null;
-    case 'g':
-    case 'G':
-      return ctx.open ? { type: 'through' } : null;
     case 's':
     case 'S':
       return ctx.open ? { type: 'room' } : null;

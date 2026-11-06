@@ -431,3 +431,11 @@
   .gws-ready { gap: 14px; padding: 12px 24px; }
   .gws-ready-text { font-size: clamp(1rem, 2vw, 1.25rem); }
 }
+
+/* Full screen, for a classroom projector: the film fills the screen, its controls under it; the transcript and the notes wait outside. */
+.gws:fullscreen { background: #0b0b0a; padding: 2.4vh 3vw; justify-content: center; gap: 1.6vh; }
+.gws:fullscreen .gws-frame { flex: 1 1 auto; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; container-type: size; }
+.gws:fullscreen .gws-frame .gws-screen { width: min(100%, calc(100cqh * 16 / 9)); max-width: none; }
+.gws:fullscreen .gws-frame .gws-strip-track { height: clamp(110px, 56cqh, 560px); }
+.gws:fullscreen .gws-foot,
+.gws:fullscreen .gws-sound-note { display: none; }

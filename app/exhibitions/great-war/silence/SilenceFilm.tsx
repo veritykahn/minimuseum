@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type KeyboardEvent, type ReactNode } from 'react';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RecordStrip, { STRIP } from './RecordStrip';
 import { useArmisticeSound } from './armisticeSound';
@@ -32,12 +32,22 @@ import {
  * whole, and at the hour its silent half is marked.
  *
  * All on one screen: the film's frame takes the height the page leaves it.
+ * "Full screen" fills the whole screen with the film and its controls, for a
+ * classroom projector (Esc, or the button again, leaves it).
  * When the film ends, what follows (the closing line, IWM's photograph of
  * the record and its link) is set in the frame under the record, and the
  * transcript opens over the foot of the page rather than below it.
  */
 
 type Phase = 'ready' | 'playing' | 'paused' | 'done';
+
+// Full screen, for a classroom projector: whether the browser offers it (assumed not on the server), and whether the film is in it.
+const onFullscreenChange = (cb: () => void) => {
+  document.addEventListener('fullscreenchange', cb);
+  return () => document.removeEventListener('fullscreenchange', cb);
+};
+const canFullscreen = () => !!document.fullscreenEnabled;
+const serverNo = () => false;
 
 function sceneKey(s: Scene) {
   if (s.kind === 'countdown') return `c${s.n}`;
@@ -84,6 +94,17 @@ export default function SilenceFilm({ returnLink, owned = [] }: { returnLink?: R
   const rafRef = useRef<number | null>(null);
   const sceneKeyRef = useRef('');
   const pastHourRef = useRef(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const fullscreenOk = useSyncExternalStore(onFullscreenChange, canFullscreen, serverNo);
+  const isFull = useSyncExternalStore(onFullscreenChange, () => !!sectionRef.current && document.fullscreenElement === sectionRef.current, serverNo);
+  const toggleFull = useCallback(() => {
+    try {
+      if (document.fullscreenElement) void document.exitFullscreen?.().catch(() => undefined);
+      else void sectionRef.current?.requestFullscreen?.().catch(() => undefined);
+    } catch {
+      /* no full screen here: the film plays in the page */
+    }
+  }, []);
   const windowRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const pauseRef = useRef<HTMLButtonElement>(null);
@@ -236,7 +257,7 @@ export default function SilenceFilm({ returnLink, owned = [] }: { returnLink?: R
   const showStrip = showStripNow;
 
   return (
-    <section className={`gws ${reduced ? 'gws-reduced' : ''}`} aria-labelledby="gws-heading" data-phase={phase} data-scene={sceneKey(scene)}>
+    <section ref={sectionRef} className={`gws ${reduced ? 'gws-reduced' : ''}`} aria-labelledby="gws-heading" data-phase={phase} data-scene={sceneKey(scene)}>
       <h2 id="gws-heading" className="visually-hidden">The film</h2>
 
       <div className="gws-frame">
@@ -354,6 +375,11 @@ export default function SilenceFilm({ returnLink, owned = [] }: { returnLink?: R
             Watch again
           </button>
         )}
+        {fullscreenOk && (
+          <button type="button" className="gw-button" aria-pressed={isFull} onClick={toggleFull}>
+            {isFull ? 'Exit full screen' : 'Full screen'}
+          </button>
+        )}
       </div>
       {phase !== 'ready' ? (
         <p className="gws-sound-note">
@@ -381,7 +407,7 @@ export default function SilenceFilm({ returnLink, owned = [] }: { returnLink?: R
               Then the 1918 sound-ranging record, {RECORD.heading} {RECORD.subheading} {RECORD.date.join(' ')} On the left, {RECORD.before.join(' ').toLowerCase()} On the right, {RECORD.after.join(' ').toLowerCase()}
             </p>
             <p>
-              The sound: rifle, machine-gun and artillery fire, growing heavier, until the record reaches 11:00. Then the guns stop dead. After the silence, only a gentle breeze, and right at the end a single bird singing.
+              The sound: an old projector starting, with a beep on each number of the countdown, and the film crackling all through. Then rifle, machine-gun and artillery fire, growing heavier, with the wind under it, until the record reaches 11:00. Then the guns stop dead, and only the wind goes on; right at the end, a single bird singing.
             </p>
             <p>
               The photograph in the film: {IWM.trench.description} {IWM.trench.credit}.
