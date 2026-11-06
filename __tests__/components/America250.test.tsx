@@ -305,7 +305,9 @@ describe('The America 250 display case page', () => {
     expect(cards.slice(2).map((c) => c.querySelector('.pe-artifact-card-name em')?.textContent)).toEqual(['The London Evening Post', 'The London Chronicle']);
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(AMERICA_250_CASE.photos).toHaveLength(0);
-    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
+    // The owner's rule for every case page (November 5, 2026): only the artifacts, no case drawn or photographed, no list of the display.
+    expect(screen.queryByText('Photographs on their way')).toBeNull();
+    expect(screen.queryByText('In the display')).toBeNull();
     expect(JSON.stringify(AMERICA_250_CASE)).not.toMatch(/installation|\.jpg/);
     // The signing room opens from the case, under its Interactives tab.
     fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));

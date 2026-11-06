@@ -52,7 +52,9 @@ describe.each(cases)('%s display case', (slug, { config, data }) => {
     const cards = screen.getAllByRole('link', { name: /View artifact/ });
     expect(cards.map((c) => c.getAttribute('href'))).toEqual(data.artifacts.map((a) => `${casePath(config)}/${a.id}`));
     for (const [i, a] of data.artifacts.entries()) expect(cards[i]).toHaveTextContent(plainText(a.name));
-    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
+    // The owner's rule for every case page (November 5, 2026): only the artifacts, no case drawn or photographed, no list of the display.
+    expect(screen.queryByText('Photographs on their way')).toBeNull();
+    expect(screen.queryByText('In the display')).toBeNull();
   });
 
   it('lists its interactive rooms under the "Interactives" tab on the case page, and in the landing page\'s Explore row', () => {

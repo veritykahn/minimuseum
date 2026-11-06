@@ -310,7 +310,9 @@ describe('The Fear Lab', () => {
     expect(cards.map((c) => c.getAttribute('href'))).toEqual(['/exhibitions/fear-lab/artifacts/case/fear-boxes', '/exhibitions/fear-lab/artifacts/case/point-horror']);
     // No installation photographs: an empty case, drawn, stands in for them.
     expect(FEAR_LAB_CASE.photos).toHaveLength(0);
-    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
+    // The owner's rule for every case page (November 5, 2026): only the artifacts, no case drawn or photographed, no list of the display.
+    expect(screen.queryByText('Photographs on their way')).toBeNull();
+    expect(screen.queryByText('In the display')).toBeNull();
     expect(JSON.stringify(FEAR_LAB_CASE)).not.toMatch(/installation|\.jpg/);
     // The lab opens from the case, under its Interactives tab.
     fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));

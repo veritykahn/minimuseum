@@ -1,26 +1,24 @@
 'use client';
 
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import { casePath, artifactPath, neighbours, plainText, posterTitle } from './artifacts';
 import { ARTIFACT_PHOTO_SIZE } from './casePhotoPaths';
+import ArtifactFullView from './ArtifactFullView';
 import FactNote from './FactNote';
 import SourcesDrawer from './SourcesDrawer';
 import { ArtifactGlyph, Emphasized, caseRootStyle } from './caseShared';
 import type { CaseArtifact, CasePageData, ExhibitionConfig } from './types';
 import './poster-exhibition.css';
 
-// three.js comes only with a page that has a model.
-const ArtifactModel = dynamic(() => import('./ArtifactModel'), { ssr: false });
 
 /*
  * One artifact in a poster exhibition's display case, laid out as the original
  * exhibitions' artifact viewers are: a stage for the object's photogrammetry
  * 3D model, its name, and its writing; then a space for its interactive.
- * The model, once the owner's scan is dropped in (casePhotoPaths.ts), turns
- * on the stage (ArtifactModel); until then, and the interactive, their
- * spaces say they are to come. The writing
+ * Once the owner's scan is dropped in (casePhotoPaths.ts), the object is
+ * shown full screen instead, with its display card (ArtifactFullView); until
+ * then, and the interactive, their spaces say they are to come. The writing
  * is the owner's only: the record's line for the object, and any sentences
  * from the exhibition's posters about it, each under its poster's title.
  * The fact-checked "About it" note's source is behind the page's "i"
@@ -42,6 +40,8 @@ export default function ArtifactPage({
   /** The owner's photogrammetry scan of it, once dropped in: a Draco-compressed .glb. */
   model?: string;
 }) {
+  // With the owner's scan, the object is shown full screen, as the original exhibitions' viewers are.
+  if (model) return <ArtifactFullView config={config} data={data} artifact={artifact} model={model} photo={photo} />;
   const { name: exhibition, slug } = config;
   const home = `/exhibitions/${slug}`;
   const caseHref = casePath(config);
@@ -69,24 +69,18 @@ export default function ArtifactPage({
           <Link href={caseHref}>{data.label}</Link>
         </nav>
 
-        <section className={`pe-artifact-stage ${photo ? 'has-photo' : ''} ${model ? 'has-model' : ''}`.trim()} aria-label="3D model">
-          {model ? (
-            <ArtifactModel src={model} name={plainText(artifact.name)} photo={photo} />
+        <section className={`pe-artifact-stage ${photo ? 'has-photo' : ''}`.trim()} aria-label="3D model">
+          {photo ? (
+            <figure className="pe-artifact-stage-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photo} alt={plainText(artifact.name)} width={ARTIFACT_PHOTO_SIZE.width} height={ARTIFACT_PHOTO_SIZE.height} />
+            </figure>
           ) : (
-            <>
-              {photo ? (
-                <figure className="pe-artifact-stage-photo">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={photo} alt={plainText(artifact.name)} width={ARTIFACT_PHOTO_SIZE.width} height={ARTIFACT_PHOTO_SIZE.height} />
-                </figure>
-              ) : (
-                <span className="pe-artifact-stage-art">
-                  <ArtifactGlyph />
-                </span>
-              )}
-              <p className="pe-artifact-soon">3D model to come</p>
-            </>
+            <span className="pe-artifact-stage-art">
+              <ArtifactGlyph />
+            </span>
           )}
+          <p className="pe-artifact-soon">3D model to come</p>
         </section>
 
         <header className="pe-artifact-header">

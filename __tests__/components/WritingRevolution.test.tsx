@@ -199,11 +199,13 @@ describe('The Writing Revolution display case page', () => {
       '/exhibitions/writing-revolution/artifacts/case/imac-g3',
     ]);
     expect(cards.map((c) => c.getAttribute('href'))).toEqual(WRITING_REVOLUTION_CASE.artifacts.map((a) => artifactPath({ slug: WRITING_REVOLUTION.slug }, a)));
-    expect(screen.getByRole('heading', { level: 2, name: 'In the display' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { level: 2, name: 'In the display' })).toBeNull();
     for (const a of WRITING_REVOLUTION_CASE.artifacts) expect(a.writing).toBeUndefined();
     expect(WRITING_REVOLUTION_CASE.photos).toHaveLength(0);
     expect(screen.queryAllByRole('img')).toHaveLength(0);
-    expect(screen.getByText('Photographs on their way')).toBeInTheDocument();
+    // The owner's rule for every case page (November 5, 2026): only the artifacts, no case drawn or photographed, no list of the display.
+    expect(screen.queryByText('Photographs on their way')).toBeNull();
+    expect(screen.queryByText('In the display')).toBeNull();
     expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/writing-revolution');
   });
 });
