@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { casePath } from './artifacts';
-import { PHOTO_EXTENSIONS, casePhotoDir, type CasePhotosOnDisk } from './casePhotoPaths';
+import { PHOTO_EXTENSIONS, caseAlt, casePhotoDir, type CasePhotosOnDisk } from './casePhotoPaths';
 import type { CasePageData, DisplayCase, ExhibitionConfig } from './types';
 
 /*
@@ -27,11 +27,20 @@ const found = (slug: string, name: string, exts: readonly string[] = PHOTO_EXTEN
 
 export function casePhotosOnDisk(config: Pick<ExhibitionConfig, 'slug'>, data: Pick<CasePageData, 'artifacts'>): CasePhotosOnDisk {
   const artifacts: Record<string, string> = {};
+  const models: Record<string, string> = {};
   for (const a of data.artifacts) {
     const src = found(config.slug, a.id);
     if (src) artifacts[a.id] = src;
+    const model = found(config.slug, a.id, ['glb']);
+    if (model) models[a.id] = model;
   }
-  return { case: found(config.slug, 'case'), cutout: found(config.slug, 'case-cutout', ['png', 'webp']), artifacts };
+  return { case: found(config.slug, 'case'), cutout: found(config.slug, 'case-cutout', ['png', 'webp']), artifacts, models };
+}
+
+/** One artifact's photograph and 3D scan, for its own page (ArtifactPage). */
+export function artifactFilesOnDisk(config: Pick<ExhibitionConfig, 'slug'>, data: Pick<CasePageData, 'artifacts'>, id: string): { photo?: string; model?: string } {
+  const onDisk = casePhotosOnDisk(config, data);
+  return { photo: onDisk.artifacts[id], model: onDisk.models?.[id] };
 }
 
 /**
@@ -43,5 +52,5 @@ export function casesWithPhotos(config: Pick<ExhibitionConfig, 'slug' | 'name' |
   if (!config.cases) return config.cases;
   const ownCase = casePath(config);
   const src = found(config.slug, 'case-cutout', ['png', 'webp']) ?? found(config.slug, 'case');
-  return config.cases.map((c) => (c.image || c.href !== ownCase || !src ? c : { ...c, image: { src, alt: `The ${config.name} display case` } }));
+  return config.cases.map((c) => (c.image || c.href !== ownCase || !src ? c : { ...c, image: { src, alt: caseAlt(config.name) } }));
 }

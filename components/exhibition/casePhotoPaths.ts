@@ -15,6 +15,10 @@ import type { CasePageData, CasePhoto, ExhibitionConfig } from './types';
  *                         plain ground. Its card on the case page and the head
  *                         of its own page. The ids are the artifacts' page
  *                         addresses: /exhibitions/<slug>/artifacts/case/<id>.
+ *   <artifact id>.glb     optional: the object's photogrammetry scan,
+ *                         Draco-compressed (as the original exhibitions' are,
+ *                         1–2 MB), turning on its own page (ArtifactModel);
+ *                         its photograph stands in where 3D cannot run.
  *
  * A .webp or .png of the same name works too. Until a file is there, the
  * empty case drawn in outline (CasePlaceholder) or the object on its stand
@@ -40,6 +44,8 @@ export type CasePhotosOnDisk = {
   cutout?: string;
   /** Each artifact's photograph, by artifact id. */
   artifacts: Record<string, string>;
+  /** Each artifact's 3D scan (<id>.glb), by artifact id. */
+  models?: Record<string, string>;
 };
 
 export const NO_CASE_PHOTOS: CasePhotosOnDisk = { artifacts: {} };
@@ -54,9 +60,12 @@ export function expectedCasePhotos(config: Pick<ExhibitionConfig, 'slug'>, data:
   ];
 }
 
-/** The case page's lead photograph: the record's own first, else the owner's dropped-in case.jpg. */
+/** "The Ancient Egypt display case"; "The Great War display case", not "The The …". */
+export const caseAlt = (name: string) => `${/^the /i.test(name) ? name : `The ${name}`} display case`;
+
+/** The case page's lead photograph: the record's own first, else the owner's dropped-in case.jpg. The cut-out is for the landing page's card only. */
 export function leadCasePhoto(data: Pick<CasePageData, 'photos'>, onDisk: CasePhotosOnDisk, name: string): CasePhoto | undefined {
   if (data.photos[0]) return data.photos[0];
-  if (!onDisk.case) return undefined;
-  return { src: onDisk.case, alt: `The ${name} display case`, ...CASE_PHOTO_SIZE };
+  if (onDisk.case) return { src: onDisk.case, alt: caseAlt(name), ...CASE_PHOTO_SIZE };
+  return undefined;
 }

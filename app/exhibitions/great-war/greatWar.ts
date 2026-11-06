@@ -297,12 +297,17 @@ export const GREAT_WAR: ExhibitionConfig<'poster1' | 'poster2'> = {
  * (artifacts/case/<id>). Every word is the owner's: each name and record line
  * from the Mini Museum record (*words* set in italics), the writing from this
  * exhibition's posters. The record's lines about the display itself are listed
- * on the case page. Photographs and 3D models are to come.
+ * on the case page. The case's photograph, cut out, on the landing page's
+ * card only, not on the case page, at the owner's request (public/exhibitions/
+ * great-war/case/case-cutout.webp), and the 3D scans of the helmet and the
+ * shaving kit (brodie-helmet.glb, shaving-kit.glb, with their stills) are the
+ * owner's (November 5, 2026); the other objects'
+ * photographs and scans are to come.
  */
 export const GREAT_WAR_CASE: CasePageData = {
   label: 'Display Case',
   title: 'Artifacts',
-  // Photographs to come: the case will be photographed anew.
+  // The case's photograph, cut out, is for the landing page's card only (case/case-cutout.webp).
   photos: [],
   artifacts: [
     {
@@ -321,21 +326,10 @@ export const GREAT_WAR_CASE: CasePageData = {
         { poster: 'poster2', text: "Because those young men—the doughboys in their steel helmets, the soldiers who carried shaving kits and rosaries into battle—went to war so that we might live in peace." },
       ],
     },
-    {
-      id: 'field-manual',
-      name: '*Service for the Mobilized Soldier* field manual',
-      record: 'US Army issue shaving kit and the *Service for the Mobilized Soldier* field manual',
-    },
-    {
-      id: 'ammunition-pouch',
-      name: 'Ammunition pouch',
-      record: 'Ammunition pouch and commemorative service pins',
-    },
-    {
-      id: 'service-pins',
-      name: 'Commemorative service pins',
-      record: 'Ammunition pouch and commemorative service pins',
-    },
+    // Held back for now at the owner's request (November 5, 2026), until they are photographed and scanned: the
+    // Service for the Mobilized Soldier field manual ('field-manual'), the ammunition pouch ('ammunition-pouch') and the
+    // commemorative service pins ('service-pins'). Their record lines: "US Army issue shaving kit and the *Service for the
+    // Mobilized Soldier* field manual"; "Ammunition pouch and commemorative service pins".
   ],
   display: ['Backlit silhouette display, take-away soldier profile cards, and an iPad Armistice audio station'],
 };
