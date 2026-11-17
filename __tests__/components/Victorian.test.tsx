@@ -262,7 +262,9 @@ describe('The Victorian Britain display case page', () => {
     expect(screen.queryByText('Photographs on their way')).toBeNull();
     expect(screen.queryByText('In the display')).toBeNull();
     expect(JSON.stringify([VICTORIAN, VICTORIAN_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
-    expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/victorian');
+    // No Return to Exhibition at the foot: the M at the top left goes back (owner, November 6, 2026).
+    expect(screen.queryByRole('link', { name: 'Return to Exhibition' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/victorian');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/victorian');
   });
 });

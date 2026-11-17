@@ -339,7 +339,9 @@ describe("The Women's History Month display case page", () => {
     expect(screen.queryByText('Photographs on their way')).toBeNull();
     expect(screen.queryByText('In the display')).toBeNull();
     expect(JSON.stringify([WOMENS_HISTORY, WOMENS_HISTORY_CASE])).not.toMatch(/installation|case(-thumb|-table)?\.jpg|microscopes?(-sands)?\.jpg|sand-specimens\.jpg|moon-dust\.jpg/);
-    expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/womens-history');
+    // No Return to Exhibition at the foot: the M at the top left goes back (owner, November 6, 2026).
+    expect(screen.queryByRole('link', { name: 'Return to Exhibition' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/womens-history');
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/womens-history');
   });
 });

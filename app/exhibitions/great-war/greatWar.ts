@@ -314,6 +314,19 @@ export const GREAT_WAR_CASE: CasePageData = {
       id: 'brodie-helmet',
       name: 'M1917 Brodie doughboy helmet',
       record: 'M1917 Brodie doughboy helmet with American Legion decal',
+      // REVIEW (Verity): the helmet's museum card, written November 6, 2026, every fact checked against the sources below (the numbers made are left out: the sources disagree).
+      card: {
+        paragraphs: [
+          'When the United States entered the war in 1917, the Army took up the British steel helmet, the Brodie, buying some 400,000 from Britain at first. From January 1918, American soldiers wore helmets made in the United States, designated the M1917.',
+          'The helmet was pressed from a single piece of manganese steel, with a wide brim, made to shield the head and shoulders from shrapnel bursting above the trenches. To stop it catching the light, it was painted with sand, sawdust or crushed cork mixed into the paint. Soldiers called it their “tin hat.”',
+          'The decal is the emblem of the American Legion. Soldiers of the American Expeditionary Forces founded the Legion in Paris in March 1919, as veterans of the war, and Congress chartered it that September.',
+        ],
+        sources: [
+          { label: 'Wikipedia, “Brodie helmet”', href: 'https://en.wikipedia.org/wiki/Brodie_helmet' },
+          { label: 'Aegis Digital Museum, Kennesaw State University, “M1917 ‘Doughboy’ Helmet”', href: 'https://aegisdigitalmuseum.kennesaw.edu/items/show/240' },
+          { label: 'The American Legion, “History of The American Legion”', href: 'https://www.legion.org/about/organization/history' },
+        ],
+      },
       writing: [
         { poster: 'poster2', text: "Because those young men—the doughboys in their steel helmets, the soldiers who carried shaving kits and rosaries into battle—went to war so that we might live in peace." },
       ],
@@ -322,6 +335,16 @@ export const GREAT_WAR_CASE: CasePageData = {
       id: 'shaving-kit',
       name: 'US Army issue shaving kit',
       record: 'US Army issue shaving kit and the *Service for the Mobilized Soldier* field manual',
+      // REVIEW (Verity): the shaving kit's museum card, written November 6, 2026, every fact checked against the sources below. It does not say who made this kit: nothing on it is read from the photograph.
+      card: {
+        paragraphs: [
+          'In the First World War, the US Army issued shaving kits to its soldiers. The Gillette company won the contract to supply American troops with double-edged safety razors, and delivered 3.5 million razors and 32 million blades.',
+          'The soldiers were allowed to keep their razors when they came home, and kept the habit of shaving with them. Gillette’s safety razor became the most common kind of razor during and after the war.',
+        ],
+        sources: [
+          { label: 'Wikipedia, “Safety razor”', href: 'https://en.wikipedia.org/wiki/Safety_razor' },
+        ],
+      },
       writing: [
         { poster: 'poster2', text: "Because those young men—the doughboys in their steel helmets, the soldiers who carried shaving kits and rosaries into battle—went to war so that we might live in peace." },
       ],

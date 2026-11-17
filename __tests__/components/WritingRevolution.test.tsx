@@ -206,7 +206,9 @@ describe('The Writing Revolution display case page', () => {
     // The owner's rule for every case page (November 5, 2026): only the artifacts, no case drawn or photographed, no list of the display.
     expect(screen.queryByText('Photographs on their way')).toBeNull();
     expect(screen.queryByText('In the display')).toBeNull();
-    expect(screen.getByRole('link', { name: 'Return to Exhibition' })).toHaveAttribute('href', '/exhibitions/writing-revolution');
+    // No Return to Exhibition at the foot: the M at the top left goes back (owner, November 6, 2026).
+    expect(screen.queryByRole('link', { name: 'Return to Exhibition' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/writing-revolution');
   });
 });
 

@@ -73,8 +73,9 @@ export default function CasePage({ config, data, photos = NO_CASE_PHOTOS }: { co
           {...(rooms.length > 0 ? { role: 'tabpanel', id: artifactsIds.panel, 'aria-labelledby': artifactsIds.tab } : {})}
           hidden={rooms.length > 0 && view !== 'artifacts'}
         >
-          <section className="pe-case-page-artifacts" aria-labelledby={`${slug}-case-artifacts`}>
-            <h2 id={`${slug}-case-artifacts`}>{data.title}</h2>
+          {/* With the tabs above, the Artifacts tab already names this: no heading again here (owner, November 6, 2026). */}
+          <section className="pe-case-page-artifacts" aria-labelledby={rooms.length > 0 ? undefined : `${slug}-case-artifacts`} aria-label={rooms.length > 0 ? data.title : undefined}>
+            {rooms.length === 0 && <h2 id={`${slug}-case-artifacts`}>{data.title}</h2>}
             <ul className="pe-artifact-grid">
               {data.artifacts.map((a) => (
                 <li key={a.id}>
@@ -139,9 +140,7 @@ export default function CasePage({ config, data, photos = NO_CASE_PHOTOS }: { co
           </div>
         )}
 
-        <Link href={home} className="pe-case-page-return">
-          Return to Exhibition
-        </Link>
+        {/* No "Return to Exhibition" here: the M at the top left goes back to the exhibition (owner, November 6, 2026). */}
       </main>
     </div>
   );

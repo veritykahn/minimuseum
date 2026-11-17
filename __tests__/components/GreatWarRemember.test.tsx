@@ -62,7 +62,8 @@ function makePool(n: number): Fallen[] {
 
 describe('the pool of the fallen', () => {
   it('holds ABMC records, each with a unique id, an ISO date where there is one, and no unknown soldier named', () => {
-    expect(FALLEN.length).toBeGreaterThanOrEqual(2000);
+    // Every one of ABMC's 35,418 World War I records (November 6, 2026).
+    expect(FALLEN.length).toBe(35418);
     expect(new Set(FALLEN.map((f) => f.id)).size).toBe(FALLEN.length);
     for (const f of FALLEN) {
       expect(f.source).toBe('ABMC');
@@ -148,7 +149,9 @@ describe('searching', () => {
   const names = (q: string) => search(index, q).map((i) => FALLEN[i].name);
 
   it('finds by name, any part, ignoring case and punctuation', () => {
-    expect(names('stowers')).toEqual(['Freddie Stowers']);
+    // The whole of ABMC's World War I records: Freddie Stowers, and a Walter C. Stowers too.
+    expect(names('stowers')).toEqual(['Freddie Stowers', 'Walter C. Stowers']);
+    expect(names('freddie stowers')).toEqual(['Freddie Stowers']);
     expect(names('Ebin M')).toEqual(['Ebin M. Stout']);
     expect(names('KOCAK')).toEqual(['Matej Kocak']);
     expect(names('zzz')).toEqual([]);
