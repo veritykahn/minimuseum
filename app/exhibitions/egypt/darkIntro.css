@@ -71,6 +71,7 @@
   text-transform: uppercase;
   cursor: pointer;
 }
+.egi-root:focus { outline: none; }
 .egi-begin:focus-visible, .egi-skip:focus-visible { outline: 2px solid #f3ece0; outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) {
   .egi-title, .egi-line, .egi-begin { transition: none; }

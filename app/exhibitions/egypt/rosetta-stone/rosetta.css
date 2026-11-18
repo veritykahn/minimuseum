@@ -1,111 +1,245 @@
 /* ==========================================================================
-   The Rosetta Stone decoder: the stone in its dark granodiorite, its three
-   scripts side by side, and the cartouches as rows of large sign buttons on
-   grey stone, each with its sound beneath once it is known.
+   The Rosetta Stone Decoder: a code-breaker's bench on grey granodiorite.
+   The mission bar sits at the top the whole time, a gold cartouche of
+   seven empty slots that fills with signs and then sounds. Each step has
+   its own look: the stone's three bands stacked, each labelled as it is
+   tapped (1); the top band close up, wide, its ovals waiting to be found
+   (2); the decoder, a strip of Greek letters with the cartouche's signs
+   beneath, to be dragged up onto them (3); two cartouches one above the
+   other, matching signs lit in both (4); and the cracked name with the
+   code-breakers' three stops (5). Back, the step dots and Next sit at the
+   foot. The room fits one screen at laptop and tablet sizes.
    ========================================================================== */
 
-.egs-stone-row { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(320px, 1fr); gap: clamp(20px, 3vw, 44px); align-items: start; }
-.egs-stone { margin: 0; }
-.egs-stone img { display: block; width: 100%; height: auto; max-height: 64vh; object-fit: contain; }
+.eg-rosetta { --egs-stone: #2c2e31; }
 
-.egs-columns { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(14px, 2vw, 28px); margin: clamp(24px, 4vh, 44px) 0 0; padding: 0; list-style: none; }
-.egs-column { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid var(--egr-line); background: var(--egr-panel); font-family: var(--pe-body); font-weight: 300; font-size: var(--egr-text); }
-.egs-column h3 { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.3rem, 1rem + 1vw, 1.9rem); color: #fff; }
-.egs-column p { margin: 0; }
-.egs-column img { display: block; width: 100%; height: auto; aspect-ratio: 2.2 / 1; object-fit: cover; border: 1px solid #2c2c2c; }
-
-.egs-board {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 14px;
-  padding: clamp(18px, 3vw, 40px) clamp(10px, 2vw, 28px);
-  border: 1px solid var(--egr-line);
-  background: radial-gradient(ellipse 80% 70% at 50% 40%, #34363a, #17181a 80%);
-}
-.egs-cartouche {
+/* ───────── The mission ───────── */
+.egs-mission {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  padding: 16px 26px 16px 22px;
-  border: 4px double var(--egr-gold);
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 18px;
+  margin-bottom: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgba(217, 164, 65, 0.55);
+  background: linear-gradient(90deg, rgba(217, 164, 65, 0.14), rgba(217, 164, 65, 0.03));
+  font-family: var(--pe-body);
+}
+.egs-mission.is-done { border-color: var(--egr-gold); box-shadow: 0 0 24px rgba(217, 164, 65, 0.35); }
+.egs-mission-goal { margin: 0; font-family: var(--pe-display); font-size: clamp(1rem, 0.9rem + 0.5vw, 1.35rem); color: #fff; }
+.egs-mission-kicker { margin-right: 8px; font-family: var(--pe-body); font-size: 0.62em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--egr-gold); }
+.egs-mission-slots { display: flex; gap: 4px; margin: 0; padding: 4px 18px 4px 14px; border: 3px double var(--egr-gold); border-radius: 999px; list-style: none; box-shadow: inset -8px 0 0 -5px var(--egr-gold); }
+.egs-mission-slot { display: flex; flex-direction: column; align-items: center; justify-content: center; width: clamp(30px, 3.2vw, 44px); min-height: 52px; }
+.egs-mission-sign { display: grid; place-items: center; width: 100%; height: 30px; border-bottom: 1px dashed rgba(217, 164, 65, 0.4); color: var(--egr-gold); }
+.egs-mission-sign .egr-glyph { font-size: clamp(1.2rem, 1rem + 0.8vw, 1.7rem); animation: egs-pop 0.4s ease both; }
+.egs-mission-sound { min-height: 1.2em; font-family: var(--pe-display); font-size: 1rem; color: #fff; }
+.egs-mission-slot.has-sound .egs-mission-sound { animation: egs-pop 0.4s ease both; color: var(--egr-gold); }
+@keyframes egs-pop { from { opacity: 0; transform: scale(1.6); } }
+
+/* ───────── A step ───────── */
+.egs-step { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.egs-step-title { display: flex; align-items: center; gap: 12px; margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.25rem, 1rem + 0.9vw, 1.8rem); color: #fff; }
+.egs-step-n { display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%; background: var(--egr-gold); color: #141414; font-size: 0.8em; font-weight: 700; }
+.egs-step .egr-task { font-family: var(--pe-body); font-weight: 300; font-size: var(--egr-text); }
+.egs-step .egr-task strong { font-weight: 500; color: var(--egr-gold); }
+.egs-feedback { min-height: 1.5em; margin: 0; text-align: center; font-family: var(--pe-body); font-size: var(--egr-text); color: #ffd2a8; }
+.egs-win { margin: 0; text-align: center; font-family: var(--pe-display); font-size: clamp(1.3rem, 1rem + 1.2vw, 2.1rem); color: var(--egr-gold); animation: egs-pop 0.5s ease both; }
+.egs-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--egr-line); }
+.eg-room .egs-nav .egr-button { white-space: nowrap; }
+.egs-nav .egr-dots-nav { justify-content: center; }
+
+/* ───────── 1: the stone's three bands ───────── */
+.egs-bands { display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 6px; flex: 1 1 auto; min-height: 0; margin: 0; padding: 0; list-style: none; }
+.egs-band-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(12px, 2vw, 28px); min-height: 0; }
+.eg-room .egs-band {
+  appearance: none;
+  justify-self: end;
+  height: 100%;
+  max-height: 200px;
+  max-width: 100%;
+  padding: 0;
+  overflow: hidden;
+  border: 2px solid #3a3c40;
+  border-radius: 4px;
+  background: var(--egs-stone);
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.egs-band-row:first-child .egs-band { border-radius: 40px 40px 4px 4px; }
+.egs-band img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.eg-room .egs-band:hover { border-color: rgba(255, 255, 255, 0.6); }
+.egs-band-row.is-seen .egs-band { border-color: #6c6f75; }
+.egs-band-row.is-right .egs-band { border-color: var(--egr-gold); box-shadow: 0 0 0 2px var(--egr-gold), 0 0 30px rgba(217, 164, 65, 0.45); }
+.egs-band-tag { position: relative; min-width: 0; padding-left: 16px; border-left: 2px solid var(--egr-line); font-family: var(--pe-body); font-weight: 300; }
+.egs-band-row.is-seen .egs-band-tag { animation: egs-slide 0.35s ease both; }
+.egs-band-row.is-right .egs-band-tag { border-left-color: var(--egr-gold); }
+@keyframes egs-slide { from { opacity: 0; transform: translateX(-10px); } }
+.egs-band-place { margin: 0; font-size: 0.8em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--egr-muted); }
+.egs-band-name { margin: 0 0 2px; font-family: var(--pe-display); font-size: 1.3em; color: #fff; }
+.egs-band-row.is-right .egs-band-name { color: var(--egr-gold); }
+.egs-band-tag .egr-fact { font-size: 0.9em; line-height: 1.35; }
+.egs-greek-name { margin-left: 14px; font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-size: clamp(1.4rem, 1rem + 1.4vw, 2.3rem); letter-spacing: 0.08em; color: var(--egr-gold); }
+
+/* ───────── 2: the top band, close up ───────── */
+.egs-find { flex: 1 1 auto; min-height: 0; display: grid; place-items: center; }
+.egs-pano { position: relative; width: 100%; overflow: hidden; border: 2px solid #3a3c40; cursor: crosshair; touch-action: manipulation; }
+.egs-pano img { display: block; width: 100%; height: 100%; object-fit: cover; user-select: none; -webkit-user-select: none; }
+.egs-pano.is-found { cursor: default; }
+.eg-room .egs-oval {
+  position: absolute;
+  appearance: none;
+  min-width: 44px;
+  min-height: 30px;
+  padding: 0;
+  border: 3px solid transparent;
   border-radius: 999px;
-  box-shadow: inset -10px 0 0 -6px var(--egr-gold);
+  background: transparent;
+  cursor: crosshair;
 }
-.egs-cartouche { max-width: 100%; }
-/* Cleopatra's eleven signs stay on one line: the signs shrink to fit. */
-.egs-cartouche-long { flex-wrap: nowrap; width: 100%; gap: 2px; padding: 12px 18px 12px 14px; border-radius: 60px; }
-.eg-room .egs-cartouche-long .egs-sign { flex: 1 1 0; min-width: 0; min-height: 0; padding: 6px 0; }
-.egs-cartouche-long .egs-sign .egr-glyph { font-size: clamp(1.3rem, 3.1vw, 2.8rem); }
-@media (min-width: 981px) {
-  .egs-cartouche-long .egs-sign .egr-glyph { font-size: clamp(1.6rem, 2.7vw, 2.8rem); }
-}
-.eg-room .egs-sign.is-asking { border-color: var(--egr-orange); background: rgba(240, 74, 26, 0.16); animation: egs-ask 1.4s ease-in-out infinite; }
-@keyframes egs-ask { 50% { background: rgba(240, 74, 26, 0.3); } }
-.eg-room .egs-sign.is-twist { box-shadow: 0 0 0 2px var(--egr-gold), 0 0 18px rgba(217, 164, 65, 0.6); }
-.egs-feedback { min-height: 1.5em; margin: 0; color: #ffd2a8; font-size: 0.92em; }
-.egs-deduce legend { text-transform: none; letter-spacing: 0; font-size: 1em; color: #fff; line-height: 1.45; }
-.egs-twist { padding: 10px 12px; border: 1px solid var(--egr-gold); }
-.eg-room .egs-sign {
+.egs-pano.is-found .egs-oval { border-color: var(--egr-gold); box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.5), 0 0 30px rgba(217, 164, 65, 0.8); animation: egs-pop 0.5s ease both; cursor: default; }
+.egs-miss { position: absolute; width: 46px; height: 46px; translate: -50% -50%; border: 2px solid #ffd2a8; border-radius: 50%; pointer-events: none; animation: egs-fade 1s ease forwards; }
+@keyframes egs-fade { to { opacity: 0; scale: 1.6; } }
+.egs-zoom { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px 20px; font-family: var(--pe-body); font-size: var(--egr-text); animation: egs-pop 0.4s ease both; }
+.egs-zoom p { margin: 0; max-width: 46ch; }
+.egs-zoom-oval { padding: 6px 26px 6px 20px; border: 4px double var(--egr-gold); border-radius: 999px; box-shadow: inset -10px 0 0 -6px var(--egr-gold); color: var(--egr-gold); }
+.egs-zoom-oval .egr-glyph { font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem); letter-spacing: 0.06em; }
+
+/* ───────── 3: the decoder ───────── */
+.egs-code { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(10px, 2.2vh, 22px); flex: 1 1 auto; min-height: 0; }
+.egs-rules { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 0; padding: 0; list-style: none; font-family: var(--pe-body); font-weight: 300; font-size: var(--egr-text); }
+.egs-rules li { display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border: 1px solid rgba(217, 164, 65, 0.6); border-radius: 999px; background: rgba(217, 164, 65, 0.08); }
+.egs-rules strong { font-weight: 500; color: var(--egr-gold); }
+.egs-rule-n { display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; border-radius: 50%; background: var(--egr-gold); color: #141414; font-weight: 700; font-size: 0.85em; }
+/* The Greek name, as a strip of slots: the sign dropped on a letter sits above it. */
+.egs-tape { display: flex; gap: clamp(3px, 0.6vw, 8px); margin: 0; padding: 10px; border: 1px solid #45484d; border-radius: 6px; background: linear-gradient(#34363a, #232528); list-style: none; }
+.eg-room .egs-slot {
   appearance: none;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 2px;
+  width: clamp(44px, 5.6vw, 76px);
+  padding: 6px 2px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
+  cursor: pointer;
+}
+.eg-room .egs-slot:hover:not(:disabled) { border-color: #fff; background: rgba(255, 255, 255, 0.08); }
+.eg-room .egs-slot:disabled { cursor: default; }
+.egs-slot-sign { display: grid; place-items: center; width: 100%; height: clamp(40px, 6vh, 60px); border-bottom: 1px dashed rgba(255, 255, 255, 0.3); color: var(--egr-gold); font-size: 1.4rem; }
+.egs-slot-sign .egr-glyph { font-size: clamp(1.8rem, 1.3rem + 1.4vw, 2.8rem); animation: egs-pop 0.4s ease both; }
+.eg-room .egs-slot.is-filled { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.14); }
+.eg-room .egs-slot.is-skipped { opacity: 0.5; }
+.eg-room .egs-slot.is-wrong { animation: egs-shake 0.4s ease; border-color: #ffd2a8; }
+@keyframes egs-shake { 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+.egs-greek-letter { font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-size: clamp(1.4rem, 1rem + 1.2vw, 2.3rem); line-height: 1.1; color: #fff; }
+.egs-greek-sound { font-family: var(--pe-body); font-size: 0.95rem; color: var(--egr-muted); }
+
+/* The cartouche: gold rope, signs to drag. */
+.egs-cartouche {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: center;
   gap: 4px;
-  min-width: 60px;
-  min-height: 92px;
+  max-width: 100%;
+  padding: 10px 28px 10px 22px;
+  border: 4px double var(--egr-gold);
+  border-radius: 999px;
+  box-shadow: inset -10px 0 0 -6px var(--egr-gold);
+  background: radial-gradient(ellipse at 50% 40%, #3a3c40, #1c1d1f);
+}
+.eg-room .egs-tile {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 56px;
+  min-height: 80px;
   padding: 6px 4px;
   border: 1px solid transparent;
   border-radius: 10px;
   background: transparent;
   color: #f1ece2;
-  cursor: pointer;
+  cursor: default;
+  touch-action: none;
+  opacity: 0.55;
 }
-.egs-sign .egr-glyph { font-size: clamp(2.2rem, 1.6rem + 2.2vw, 3.6rem); }
-.egs-sound { font-family: var(--pe-display); font-size: 1.15rem; color: var(--egr-muted); }
-.eg-room .egs-sign:hover:not(:disabled) { border-color: rgba(255, 255, 255, 0.4); }
-.eg-room .egs-sign[aria-pressed='true'] { border-color: var(--egr-orange); background: rgba(240, 74, 26, 0.16); }
-.eg-room .egs-sign.is-done { color: var(--egr-gold); cursor: default; }
-.eg-room .egs-sign.is-done .egs-sound { color: var(--egr-gold); }
-.egs-read { display: flex; flex-wrap: nowrap; justify-content: center; gap: clamp(4px, 1vw, 12px); margin: 0; font-family: var(--pe-display); font-size: clamp(1.1rem, 0.8rem + 1.4vw, 2.2rem); color: #fff; }
-.egs-read span { min-width: 0.8em; text-align: center; }
-.egs-read .egs-read-end { color: var(--egr-muted); }
-.eg-room .egs-sound-button { min-width: 60px; justify-content: center; font-family: var(--pe-display); font-size: 1.3em; }
-.eg-room .egr-option:disabled { opacity: 0.35; cursor: default; }
-.egs-eureka { gap: 22px; }
-.egs-big { padding: 10px 26px; border: 4px double var(--egr-gold); border-radius: 999px; color: var(--egr-gold); }
-.egs-big { max-width: 100%; }
-.egs-big .egr-glyph { font-size: clamp(1.6rem, 1.2rem + 2vw, 3.4rem); letter-spacing: 0.08em; }
-.egs-big-long .egr-glyph { font-size: clamp(1.1rem, 3.4vw, 2.6rem); letter-spacing: 0.02em; }
+.egs-tile .egr-glyph { font-size: clamp(2rem, 1.5rem + 1.8vw, 3.2rem); }
+.eg-room .egs-tile.is-next { opacity: 1; border-color: var(--egr-orange); background: rgba(240, 74, 26, 0.16); cursor: grab; animation: egs-ask 1.4s ease-in-out infinite; }
+.eg-room .egs-tile.is-placed { opacity: 1; color: var(--egr-gold); }
+.eg-room .egs-tile.is-dragging { position: relative; z-index: 20; cursor: grabbing; animation: none; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6); background: rgba(40, 20, 10, 0.95); }
+@keyframes egs-ask { 50% { background: rgba(240, 74, 26, 0.32); } }
+.egs-sound { font-family: var(--pe-display); font-size: 1.1rem; color: var(--egr-muted); }
+.egs-tile.is-placed .egs-sound { color: var(--egr-gold); }
 
+/* ───────── 4: Ptolemy above, Cleopatra below ───────── */
+.egs-check { display: flex; flex-direction: column; gap: 8px; flex: 1 1 auto; min-height: 0; }
+.egs-compare { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1 1 auto; justify-content: center; min-height: 0; padding: 10px; border: 1px solid var(--egr-line); background: radial-gradient(ellipse 80% 70% at 50% 40%, #34363a, #17181a 80%); }
+.egs-compare .egr-label { margin: 0; }
+.eg-room .egs-pair {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 72px;
+  min-height: 44px;
+  padding: 4px 2px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #f1ece2;
+  font: inherit;
+}
+.egs-known .egs-pair { cursor: default; }
+.egs-cleo { width: min(100%, 860px); }
+.egs-cleo .egs-pair { cursor: pointer; }
+.eg-room .egs-cleo .egs-pair:hover { border-color: rgba(255, 255, 255, 0.4); }
+.egs-pair .egr-glyph { font-size: clamp(1.5rem, 1rem + 1.8vw, 2.8rem); }
+.eg-room .egs-pair.is-match { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.18); color: var(--egr-gold); animation: egs-pop 0.4s ease both; }
+.eg-room .egs-pair.is-match .egs-sound { color: var(--egr-gold); }
+.eg-room .egs-pair.is-new .egs-sound { color: #fff; }
+.eg-room .egs-pair.is-ending { opacity: 0.55; }
+.egs-over { min-height: 1.2em; font-family: 'Playfair Display', Georgia, serif; font-size: 1.05rem; color: #fff; }
+.egs-pair.is-ending .egs-sound { font-family: var(--pe-body); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; }
+.egs-caption { max-width: 70ch; text-align: center; font-size: 0.82em; color: var(--egr-muted); }
+.egs-notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 20px; }
+.egs-notes .egr-fact { font-size: 0.86em; }
+
+/* ───────── 5: cracked ───────── */
+.egs-cracked { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(14px, 3vh, 30px); flex: 1 1 auto; min-height: 0; }
+.egs-trophy { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.egs-trophy-oval { box-shadow: inset -10px 0 0 -6px var(--egr-gold), 0 0 50px rgba(217, 164, 65, 0.35); }
+.egs-trophy-oval .egs-pair { max-width: 80px; animation: none; }
+.egs-timeline { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; width: 100%; margin: 0; padding: 0; list-style: none; }
+.egs-timeline li { position: relative; padding: 18px 16px 0; border-top: 2px solid var(--egr-gold); font-family: var(--pe-body); font-weight: 300; }
+.egs-timeline li::before { content: ''; position: absolute; top: -8px; left: 16px; width: 14px; height: 14px; border-radius: 50%; background: var(--egr-gold); }
+.egs-when { margin: 0; font-size: 0.78em; letter-spacing: 0.18em; text-transform: uppercase; color: var(--egr-gold); }
+.egs-timeline h3 { margin: 2px 0 6px; font-family: var(--pe-display); font-weight: 400; font-size: 1.2em; color: #fff; }
+.egs-timeline .egr-fact { font-size: 0.86em; }
+
+/* ───────── Smaller screens ───────── */
 @media (max-width: 980px) {
-  .egs-stone-row { grid-template-columns: minmax(0, 1fr); }
-  .egs-stone img { max-height: 46vh; margin: 0 auto; }
-  .egs-columns { grid-template-columns: minmax(0, 1fr); }
+  .egs-notes { grid-template-columns: minmax(0, 1fr); }
 }
-@media (max-width: 600px) {
-  .eg-room .egs-sign { min-width: 40px; min-height: 72px; }
-  .egs-cartouche { padding: 10px 12px; border-radius: 40px; }
-  .egs-cartouche-long { padding: 8px 10px; }
-  .egs-big { padding: 8px 14px; }
+@media (max-width: 760px) {
+  .egs-band-row { grid-template-columns: minmax(0, 1fr); }
+  .eg-room .egs-band { justify-self: center; height: auto; width: 100%; }
+  .egs-band-tag { padding-left: 0; border-left: 0; }
+  .egs-tape { flex-wrap: wrap; justify-content: center; }
+  .egs-cartouche { flex-wrap: wrap; border-radius: 30px; }
+  .egs-timeline { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .egs-nav { flex-wrap: wrap; }
 }
-
-/* Ptolemy's name in the stone's Greek, each letter over its sound: the clue beside his cartouche. */
-.egs-greek { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; padding-top: 12px; border-top: 1px solid var(--egr-line); }
-.egs-greek .egr-label { margin: 0; }
-.egs-greek-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px clamp(4px, 1vw, 12px); margin: 0; padding: 0; list-style: none; }
-.egs-greek-row li { display: flex; flex-direction: column; align-items: center; min-width: 1.4em; }
-.egs-greek-letter { font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-size: clamp(1.6rem, 1.1rem + 1.6vw, 2.6rem); line-height: 1.1; color: #fff; }
-.egs-greek-sound { font-family: var(--pe-body); font-size: 0.95rem; color: var(--egr-muted); }
-
-/* Ptolemy's cartouche above Cleopatra's, for comparing: a shared sign lights up in both. */
-.egs-cartouche-known { gap: 2px; padding: 8px 20px 8px 16px; opacity: 0.92; }
-.eg-room .egs-sign-known { min-width: 44px; min-height: 0; padding: 2px 4px; cursor: default; }
-.egs-sign-known .egr-glyph { font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2.2rem); }
-.egs-sign-known .egs-sound { font-size: 0.95rem; }
-.eg-room .egs-sign-known.is-match { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.14); color: var(--egr-gold); }
-.eg-room .egs-sign-known.is-match .egs-sound { color: var(--egr-gold); }
-.eg-room .egs-sign-known.is-flash { animation: egs-flash 1s ease 1; }
-@keyframes egs-flash { 0%, 100% { box-shadow: none; } 40% { box-shadow: 0 0 0 3px var(--egr-gold), 0 0 20px rgba(217, 164, 65, 0.7); } }
-.eg-rosetta .egs-board { gap: 10px; }
+@media (min-width: 700px) and (min-height: 600px) {
+  .egr-fit .egs-pano { width: min(100cqw, calc(100cqh * 1400 / 637)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eg-room .egs-tile.is-next { animation: none; }
+}

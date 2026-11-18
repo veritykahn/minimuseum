@@ -18,7 +18,8 @@ import { met } from '../rooms';
  *
  * The wall's note is the Met's own record of the painting: what the scene
  * shows, where it was painted and when. Where the record says only that,
- * the note says only that.
+ * the note says only that. Its `big` fact is the one the whole wall lights
+ * up with once its three details are found, from the same records.
  *
  *   menna-marshes     https://www.metmuseum.org/art/collection/search/548437
  *   menna-harvest     https://www.metmuseum.org/art/collection/search/548574
@@ -73,6 +74,11 @@ export type Wall = {
   alt: string;
   details: Detail[];
   note: ApprovedFact;
+  /**
+   * The one big fact the wall lights up with, once all its details are found:
+   * the most important thing it tells us, from the same records as its notes.
+   */
+  big: ApprovedFact;
   credit: { text: string; href: string };
 };
 
@@ -132,6 +138,11 @@ export const WALLS: Wall[] = [
       text: 'Menna fishes and hunts birds in the papyrus marshes, with his family crowded into his papyrus boat. The marsh teems with birds, fish, a crocodile and a small cat.',
       sources: [MARSHES],
     },
+    // REVIEW: new text, from the Met's record 548437 (as the crocodile's note): "By defeating these enemies, Menna was helping to ensure the maintenance of the Egyptian world."
+    big: {
+      text: 'Menna hunts in the marshes with his family. By defeating the wild creatures of the marsh, he was helping to keep the Egyptian world in order.',
+      sources: [MARSHES],
+    },
     credit: {
       text: 'Nina de Garis Davies, facsimile, 1924, of a painting in the tomb of Menna (TT 69), Thebes, about 1396–1347 BCE. The Metropolitan Museum of Art, Rogers Fund, 1930. Public domain.',
       href: 'https://www.metmuseum.org/art/collection/search/548437',
@@ -185,6 +196,11 @@ export const WALLS: Wall[] = [
     ],
     note: {
       text: 'In the fields of the next world, Sennedjem and his wife Iineferti harvest grain, sow seeds and pull flax. The scene illustrates spell 110 of the Book of the Dead.',
+      sources: [FIELDS],
+    },
+    // REVIEW: new text, the wall's own note and the Met's title for it ("Sennedjem and Iineferti in the Fields of Iaru").
+    big: {
+      text: 'These are the fields of the next world: Sennedjem and his wife farming in the Fields of Iaru. The scene illustrates spell 110 of the Book of the Dead.',
       sources: [FIELDS],
     },
     credit: {
@@ -242,6 +258,11 @@ export const WALLS: Wall[] = [
       text: 'A cat fights a serpent beside a tree, in the tomb of Sennedjem. The Met links the scene with chapter 17 of the Book of the Dead.',
       sources: [met(548564, 'Wall painting of a cat killing a serpent')],
     },
+    // REVIEW: new text, joining the wall's note (the Met) and the serpent's (UCL Digital Egypt).
+    big: {
+      text: 'The Met links this scene with chapter 17 of the Book of the Dead, where the sun god Ra appears as a big tomcat who kills the snake of evil.',
+      sources: [met(548564, 'Wall painting of a cat killing a serpent'), UCL_CAT_RA],
+    },
     credit: {
       text: 'Charles K. Wilkinson, facsimile, 1920–1921, of a painting in the tomb of Sennedjem (TT 1), Deir el-Medina, about 1300–1224 BCE. The Metropolitan Museum of Art, Rogers Fund, 1930. Public domain.',
       href: 'https://www.metmuseum.org/art/collection/search/548564',
@@ -296,6 +317,11 @@ export const WALLS: Wall[] = [
     note: {
       text: 'Harvest scenes from the tomb of Menna at Thebes, painted about 1396–1347 BCE, in the reigns of Thutmose IV to Amenhotep III.',
       sources: [met(548574, 'Harvest Scenes, Tomb of Menna')],
+    },
+    // REVIEW: new text, from Wilkinson and Hill, p. 49 (as the rope's and the scribes' notes).
+    big: {
+      text: 'Menna was in charge of the government’s lands. On the estate, surveyors measure the grain with a knotted rope, and scribes write down the harvest.',
+      sources: [MET_FACSIMILES],
     },
     credit: {
       text: 'Charles K. Wilkinson, facsimile of a painting in the tomb of Menna, Thebes, about 1396–1347 BCE. The Metropolitan Museum of Art, Rogers Fund, 1930. Public domain.',
@@ -352,6 +378,11 @@ export const WALLS: Wall[] = [
       text: 'Winemaking, from the tomb of Ipuy at Deir el-Medina, painted in the reign of Ramesses II, about 1290–1224 BCE.',
       sources: [met(548573, 'Winemaking, Tomb of Ipuy')],
     },
+    // REVIEW: new text, joining the grapes' note (Wilkinson and Hill, p. 50) and the wall's note (the Met).
+    big: {
+      text: 'This wall shows wine being made, from picking the grapes to sealing the wine in jars. It was painted in the reign of Ramesses II.',
+      sources: [MET_FACSIMILES, met(548573, 'Winemaking, Tomb of Ipuy')],
+    },
     credit: {
       text: 'Charles K. Wilkinson, facsimile of a painting in the tomb of Ipuy (TT 217), Deir el-Medina, about 1290–1224 BCE. The Metropolitan Museum of Art, Rogers Fund, 1930. Public domain.',
       href: 'https://www.metmuseum.org/art/collection/search/548573',
@@ -385,6 +416,19 @@ export function toScreen(x: number, y: number, box: Box, w: number, h: number) {
   return { x: box.left + (x / w) * box.width, y: box.top + (y / h) * box.height };
 }
 
+/**
+ * The piece of the painting a find's card shows: a 4:3 window around the
+ * detail, a little wider than its search circle, kept inside the picture.
+ * In the picture's natural pixels.
+ */
+export function cropAround(d: { x: number; y: number; r: number }, w: number, h: number): Box {
+  const width = Math.min(w, Math.max(360, d.r * 3.4));
+  const height = Math.min(h, width * 0.75);
+  const left = Math.min(Math.max(0, d.x - width / 2), w - width);
+  const top = Math.min(Math.max(0, d.y - height / 2), h - height);
+  return { left, top, width, height };
+}
+
 /** The detail the torch's centre is on (in the picture's natural pixels), if any. */
 export function detailAt<T extends { x: number; y: number; r: number }>(details: readonly T[], x: number, y: number): T | undefined {
   return details.find((d) => Math.hypot(x - d.x, y - d.y) <= d.r);
@@ -398,21 +442,14 @@ export const TOMB_NOTES = {
 } satisfies Record<string, ApprovedFact>;
 
 /** The tomb's Sources drawer: each wall's picture credit and the sources of its notes. */
-export function tombSources(chamber: readonly { label: string; tells?: ApprovedFact }[]): SourceGroup[] {
+export function tombSources(): SourceGroup[] {
   const uniq = (list: FactSource[]) => [...new Map(list.map((s) => [s.href, s])).values()];
   return [
-    {
-      title: 'The burial chamber',
-      items: [
-        { label: 'The chamber is drawn for the Mini Museum.', note: 'Picture' },
-        ...uniq(chamber.flatMap((c) => c.tells?.sources ?? [])),
-      ],
-    },
     ...WALLS.map((w) => ({
       title: w.title,
       items: [
         { label: w.title, href: w.credit.href, note: 'Picture', licence: w.credit.text },
-        ...uniq([...w.note.sources, ...w.details.flatMap((d) => d.tells.sources)]),
+        ...uniq([...w.note.sources, ...w.big.sources, ...w.details.flatMap((d) => d.tells.sources)]),
       ],
     })),
     { title: 'About these copies', items: [...TOMB_NOTES.copies.sources] },
