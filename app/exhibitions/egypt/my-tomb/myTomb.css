@@ -159,6 +159,7 @@
 @media (min-width: 700px) and (max-width: 980px) and (min-height: 600px) {
   /* a portrait tablet: keep the chamber from taking the whole height */
   .egr-fit .egt-pic { width: min(100%, calc((100dvh - 420px) * 1200 / 700)); margin: 0 auto; }
+  .egt-walls { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 @media (max-width: 699px) {
   .egt-room { grid-template-rows: auto auto auto; }
