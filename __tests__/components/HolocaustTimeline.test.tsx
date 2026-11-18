@@ -62,7 +62,16 @@ const openSources = () => {
   return screen.getByRole('dialog', { name: 'Sources and credits' });
 };
 const sourcesGroup = (drawer: HTMLElement, title: string) => within(drawer).getByRole('heading', { name: title }).closest('section') as HTMLElement;
-const timeline = () => screen.getByRole('list', { name: 'The timeline, 1933 to 1945' });
+const timeline = () => screen.getByRole('region', { name: 'The timeline, 1933 to 1945' });
+/** The page's own Next (not a stop window's). */
+const pageNext = () => within(timeline()).getByRole('button', { name: /Next/ });
+const pageBack = () => within(timeline()).getByRole('button', { name: /Back/ });
+/** Bring a date onto the screen: its year, then Next until it is there. */
+const showDate = (id: string) => {
+  const e = TIMELINE_ENTRIES.find((x) => x.id === id)!;
+  fireEvent.click(within(screen.getByRole('navigation', { name: 'Go to a year' })).getByRole('link', { name: String(e.year) }));
+  while (!document.getElementById(`hot-open-${id}`)) fireEvent.click(pageNext());
+};
 
 beforeEach(() => {
   window.history.replaceState(null, '', '/');
@@ -101,21 +110,39 @@ describe('the poster’s words', () => {
 });
 
 describe('the room', () => {
-  it('sets the title, the opening line and every entry, with its date for the screen reader', () => {
+  it('sets the title, the opening line and one date at a time, each with its date for the screen reader, walked with Back and Next', () => {
     render(<HolocaustTimeline />);
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('TIMELINE OF THE Holocaust');
     expect(screen.getByText(POSTER_INTRO)).toBeInTheDocument();
-    const items = within(timeline()).getAllByRole('listitem');
-    expect(items).toHaveLength(TIMELINE_ENTRIES.length);
-    items.forEach((li, i) => {
-      const e = TIMELINE_ENTRIES[i];
-      expect(li).toHaveAttribute('id', e.id);
-      expect(li).toHaveTextContent(plainWords(e.words));
-      expect(li).toHaveTextContent(e.date);
-      expect(li).toHaveTextContent(e.when);
+    expect(pageBack()).toBeDisabled();
+    const italic: string[] = [];
+    TIMELINE_ENTRIES.forEach((e, i) => {
+      // One date on the screen, and it is this one.
+      const slides = within(timeline()).getAllByRole('article');
+      expect(slides).toHaveLength(1);
+      const slide = slides[0];
+      expect(slide).toHaveAttribute('id', e.id);
+      expect(slide).toHaveTextContent(plainWords(e.words));
+      expect(slide).toHaveTextContent(e.date);
+      expect(slide).toHaveTextContent(e.when);
+      expect(within(timeline()).getByText(`${i + 1} of ${TIMELINE_ENTRIES.length}`)).toBeInTheDocument();
+      italic.push(...within(slide).queryAllByText(/^(Kristallnacht|Aktion T4)$/).map((el) => el.tagName));
+      if (i < TIMELINE_ENTRIES.length - 1) fireEvent.click(pageNext());
     });
+    expect(pageNext()).toBeDisabled();
     // The poster's italics, in italics.
-    expect(within(timeline()).getAllByText(/^(Kristallnacht|Aktion T4)$/).map((el) => el.tagName)).toEqual(['EM', 'EM']);
+    expect(italic).toEqual(['EM', 'EM']);
+    fireEvent.click(pageBack());
+    expect(within(timeline()).getByRole('article')).toHaveAttribute('id', TIMELINE_ENTRIES[TIMELINE_ENTRIES.length - 2].id);
+    expect(window.location.hash).toBe(`#${TIMELINE_ENTRIES[TIMELINE_ENTRIES.length - 2].id}`);
+  });
+
+  it('puts "Put them in order" at the top, before the years and the date', () => {
+    render(<HolocaustTimeline />);
+    const order = screen.getByRole('button', { name: 'Put them in order' });
+    const years = screen.getByRole('navigation', { name: 'Go to a year' });
+    expect(order.compareDocumentPosition(years) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(order.compareDocumentPosition(timeline()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
   it('cites nothing inline: no links on the line, no "Source:" lines', () => {
@@ -140,6 +167,7 @@ describe('the room', () => {
     fireEvent.click(screen.getByRole('link', { name: '1938' }));
     expect(document.activeElement).toBe(document.getElementById('1938-03-12'));
     expect(window.location.hash).toBe('#1938-03-12');
+    expect(screen.getByRole('link', { name: '1938' })).toHaveAttribute('aria-current', 'true');
   });
 
   it('opens at the entry or the year an address names', async () => {
@@ -192,7 +220,10 @@ describe('the Sources drawer', () => {
 });
 
 describe('the stops', () => {
-  const openStop = (id: string) => fireEvent.click(document.getElementById(`hot-open-${id}`)!);
+  const openStop = (id: string) => {
+    showDate(id);
+    fireEvent.click(document.getElementById(`hot-open-${id}`)!);
+  };
 
   it('opens each date in a window, with its words as printed, and walks the timeline', () => {
     render(<HolocaustTimeline />);
@@ -362,7 +393,7 @@ describe('put them in order', () => {
     expect(placesRight(swapped(IDS, 0, 4))).toEqual([false, true, true, true, false]);
   });
 
-  it('opens from the end of the timeline, and goes back to it', () => {
+  it('opens from the top of the timeline, and goes back to it', () => {
     render(<HolocaustTimeline />);
     fireEvent.click(screen.getByRole('button', { name: 'Put them in order' }));
     expect(window.location.hash).toBe('#order');

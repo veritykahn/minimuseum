@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { srOnly } from '@/lib/a11y';
 import { WRITING_REVOLUTION } from '../writingRevolution';
@@ -49,7 +49,7 @@ type TabId = (typeof TABS)[number]['id'];
 
 export default function TypingStation() {
   const { fonts, palette, slug } = WRITING_REVOLUTION;
-  const back = useMuseumReturn(roomReturn(WRITING_REVOLUTION));
+  const back = useMuseumReturn(exhibitionReturn(WRITING_REVOLUTION));
   const sound = useTypingSound();
   const [tab, setTab] = useState<TabId>('typewriter');
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ typewriter: null, imac: null, 'top-row': null, board: null });

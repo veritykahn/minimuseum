@@ -536,9 +536,9 @@ export default function RealOrReplica() {
 
       {/* Header */}
       <header className="rr-header">
-        <button className="rr-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-8?view=interactives')}>
+        <button className="rr-back-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
           <span aria-hidden="true">{'←'}</span>
-          <span className="rr-back-label">Display Case</span>
+          <span className="rr-back-label">In Their Hands</span>
         </button>
         <div className="rr-header-right">
           {stage === 'rounds' && (

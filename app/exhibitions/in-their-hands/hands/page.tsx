@@ -457,9 +457,9 @@ export default function HandsOfHistory() {
 
       {/* Header */}
       <header className="hh-header">
-        <button className="hh-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-7?view=interactives')}>
+        <button className="hh-back-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
           <span aria-hidden="true">{'\u2190'}</span>
-          <span className="hh-back-label">Display Case</span>
+          <span className="hh-back-label">In Their Hands</span>
         </button>
         <div className="hh-header-right">
           {roundState !== 'finished' && (

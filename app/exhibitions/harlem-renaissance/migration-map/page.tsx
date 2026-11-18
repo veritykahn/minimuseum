@@ -499,7 +499,7 @@ export default function MigrationMapPage() {
           font-family: 'Cormorant Garamond', 'Playfair Display', serif;
           transition: all 0.3s ease; cursor: pointer;
         }
-        .mg-nav:hover .mg-nav-label, .mg-nav:focus-visible .mg-nav-label { opacity: 1; max-width: 150px; }
+        .mg-nav:hover .mg-nav-label, .mg-nav:focus-visible .mg-nav-label { opacity: 1; max-width: 260px; }
         .mg-nav:hover .mg-nav-arrow, .mg-nav:focus-visible .mg-nav-arrow { transform: translateX(-4px); }
         .mg-nav-text { font-size: 28px; font-weight: 300; color: #525252; }
         .mg-nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
@@ -686,15 +686,6 @@ export default function MigrationMapPage() {
           background: linear-gradient(transparent, var(--mg-burgundy-deep));
           pointer-events: none;
         }
-        .mg-city-station-badge {
-          position: absolute; top: 24px; right: 24px;
-          background: color-mix(in srgb, var(--mg-burgundy-deep) 80%, transparent);
-          border: 1px solid color-mix(in srgb, var(--mg-gold) 30%, transparent);
-          padding: 8px 16px; font-family: 'Josefin Sans', sans-serif;
-          font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-          color: var(--mg-gold); font-weight: 600;
-          backdrop-filter: blur(8px); border-radius: 3px;
-        }
         .mg-city-photo-credit {
           position: relative; z-index: 6;
           padding: 16px 28px;
@@ -727,14 +718,6 @@ export default function MigrationMapPage() {
           color: rgba(232,224,208,0.8); font-weight: 300;
         }
 
-        .mg-city-columns {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 40px;
-          margin-top: 28px;
-        }
-        .mg-city-col-left { display: flex; flex-direction: column; gap: 28px; }
-        .mg-city-col-right { display: flex; flex-direction: column; gap: 24px; }
 
         /* Music player */
         .mg-city-music {
@@ -954,26 +937,17 @@ export default function MigrationMapPage() {
           /* Clear the back link, which sits over the title on a phone. */
           .mg-header { padding-top: 64px; }
           .mg-people-key { max-width: 500px; }
-          /* Room for the city's last buttons to scroll clear of the Map button. */
-          .mg-city-body { padding-bottom: 96px; }
         }
         @media (max-width: 480px) {
           .mg-view-toggle { flex-wrap: nowrap; }
           .mg-view-btn { letter-spacing: 0.5px; padding: 8px 10px; }
         }
-        @media (max-width: 768px) {
-          .mg-city-columns { grid-template-columns: 1fr; gap: 24px; }
-        }
         @media (max-width: 600px) {
           /* The map is drawn small on a phone: its words larger, to stay readable. */
           .mg-city-label { font-size: 19px; letter-spacing: 1px; }
           .mg-water-label { font-size: 17px; }
-          .mg-city-body { padding: 16px 20px 96px; }
           .mg-city-name { font-size: 28px; }
           .mg-city-text { font-size: 13px; }
-          .mg-city-photo-wrap { height: 45vh; min-height: 260px; }
-          .mg-city-photo-credit { padding: 10px 20px; font-size: 10px; }
-          .mg-city-station-badge { top: 16px; right: 16px; padding: 6px 12px; font-size: 9px; }
           .mg-sound-toggle { top: 16px; left: 16px; padding: 6px 12px; font-size: 9px; }
           .mg-train-ticket { padding: 20px; }
           .mg-ticket-destination { font-size: 18px; }
@@ -1081,6 +1055,129 @@ export default function MigrationMapPage() {
         @media (prefers-reduced-motion: reduce) {
           .mg-stamp.fresh .mg-stamp-mark { animation: none; }
         }
+
+        /* === THE STOP AS A POP-UP ===
+           One screen per stop, over the map: the photograph (with its
+           quotation and record) on one side, the short story, the ticket
+           question and the way on beside it (stacked on a tall screen). */
+        .mg-city-view {
+          display: flex; align-items: center; justify-content: center;
+          padding: 16px; overflow: hidden;
+        }
+        .mg-city-view .mg-city-content {
+          width: min(1120px, 100%);
+          height: min(760px, calc(100dvh - 32px));
+          min-height: 0;
+          display: grid;
+          grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+          border: 1px solid color-mix(in srgb, var(--mg-gold) 35%, transparent);
+          border-radius: 14px; overflow: hidden;
+          box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+        }
+        .mg-city-close {
+          position: absolute; top: 10px; right: 10px; z-index: 10;
+          width: 44px; height: 44px; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 26px; line-height: 1; cursor: pointer;
+          background: color-mix(in srgb, var(--mg-burgundy-deep) 85%, transparent);
+          border: 1px solid color-mix(in srgb, var(--mg-gold) 40%, transparent);
+          color: var(--mg-gold);
+        }
+        .mg-city-close:hover { border-color: var(--mg-gold); }
+        .mg-city-close:focus-visible { outline: 2px solid #a8d5e5; outline-offset: 3px; }
+
+        .mg-city-figure {
+          display: flex; flex-direction: column; min-height: 0;
+          border-right: 1px solid color-mix(in srgb, var(--mg-gold) 18%, transparent);
+        }
+        .mg-city-view .mg-city-photo-wrap { flex: 1 1 auto; height: auto; min-height: 0; }
+        .mg-city-view .mg-city-photo { position: absolute; inset: 0; }
+        .mg-city-view .mg-city-photo-overlay { height: 55%; }
+        .mg-city-view .mg-city-quote {
+          position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+          padding: 14px 20px 14px; border-top: none;
+        }
+        .mg-city-view .mg-city-quote .mg-quote-text { font-size: clamp(15px, 1.3vw, 19px); line-height: 1.45; text-shadow: 0 1px 8px rgba(0,0,0,0.7); }
+        .mg-city-view .mg-city-quote cite { margin-top: 6px; font-size: 9px; letter-spacing: 2px; }
+        .mg-city-view .mg-city-photo-credit {
+          max-width: none; margin: 0; padding: 8px 18px;
+          font-size: 12px; line-height: 1.5;
+        }
+        .mg-city-view .mg-city-music { margin: 0 14px 14px; padding: 10px 14px; border-radius: 8px; }
+        .mg-city-view .mg-city-music-play { width: 42px; height: 42px; font-size: 16px; }
+        .mg-city-view .mg-city-music-note { margin: -6px 18px 12px; font-size: 11px; line-height: 1.5; }
+
+        .mg-city-view .mg-city-body {
+          max-width: none; margin: 0; min-height: 0;
+          padding: 22px 26px 20px;
+          display: flex; flex-direction: column; gap: 12px;
+          /* Only if a very short screen cannot hold it all. */
+          overflow-y: auto; overscroll-behavior: contain;
+        }
+        .mg-city-view .mg-city-stop-number { margin: 0; padding-right: 48px; }
+        .mg-city-view .mg-city-name { font-size: clamp(26px, 2.6vw, 36px); margin: -6px 0 0; padding-right: 48px; }
+        .mg-city-view .mg-city-period { margin: -10px 0 0; }
+        .mg-city-view .mg-city-text { font-size: 14.5px; line-height: 1.65; color: rgba(232,224,208,0.9); }
+
+        .mg-city-view .mg-punch { padding: 12px 16px 14px; }
+        .mg-city-view .mg-punch-label { font-size: 13px; margin: 0 0 6px; }
+        .mg-city-view .mg-ticket-strip { margin: 0 0 8px; }
+        .mg-city-view .mg-ticket-strip-title { font-size: 13px; margin: 0 0 6px; }
+        .mg-city-view .mg-stamp { gap: 3px; }
+        .mg-city-view .mg-stamp-mark { width: 32px; height: 32px; font-size: 14px; }
+        .mg-city-view .mg-stamp.on .mg-stamp-mark { font-size: 17px; }
+        .mg-city-view .mg-stamp-name { font-size: 11px; }
+        .mg-city-view .mg-punch-q { font-size: clamp(17px, 0.6vw + 12px, 21px); margin: 0 0 2px; }
+        .mg-city-view .mg-punch-hint { font-size: 13px; margin: 0 0 8px; }
+        .mg-city-view .mg-punch-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+        .mg-city-view .mg-punch-option { min-height: 48px; padding: 8px 10px; text-align: center; font-size: clamp(14px, 0.4vw + 10px, 17px); line-height: 1.25; }
+        .mg-city-view .mg-punch-miss { margin: 8px 0 0; font-size: 14px; }
+        .mg-city-view .mg-punch-done { font-size: clamp(17px, 0.6vw + 12px, 21px); }
+
+        .mg-city-actions { display: flex; flex-direction: column; align-items: center; gap: 6px; margin-top: auto; }
+        .mg-city-view .mg-train-ticket {
+          width: min(100%, 380px); padding: 10px 24px;
+          display: flex; flex-direction: column; align-items: center; gap: 2px;
+        }
+        .mg-city-view .mg-ticket-label, .mg-city-view .mg-ticket-destination { margin: 0; }
+        .mg-city-view .mg-ticket-destination { font-size: 19px; }
+        .mg-city-minor { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 16px; }
+        .mg-city-view .mg-return-map, .mg-city-view .mg-pace-btn { margin: 0; min-height: 36px; }
+        .mg-city-view .mg-arrival-ticket { padding: 4px 0 0; margin-top: auto; }
+        .mg-city-view .mg-arrival-ticket .mg-ticket-destination { margin-bottom: 8px; }
+        .mg-city-view .mg-reflect { margin: 0 0 12px; }
+        .mg-city-view .mg-reflect p { font-size: 13.5px; line-height: 1.6; }
+
+        /* A tall, narrower screen (an iPad held upright): picture on top. */
+        @media (max-width: 900px) {
+          .mg-city-view { padding: 12px; }
+          .mg-city-view .mg-city-content {
+            height: calc(100dvh - 24px);
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-rows: auto minmax(0, 1fr);
+          }
+          .mg-city-figure {
+            display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+            grid-template-rows: auto auto 1fr;
+            border-right: none;
+            border-bottom: 1px solid color-mix(in srgb, var(--mg-gold) 18%, transparent);
+          }
+          .mg-city-view .mg-city-photo-wrap { grid-row: 1 / span 3; height: min(30dvh, 300px); }
+          .mg-city-view .mg-city-photo-credit { grid-column: 2; align-self: start; padding: 56px 16px 8px; }
+          .mg-city-view .mg-city-music { grid-column: 2; margin: 0 14px 10px; }
+          .mg-city-view .mg-city-music-note { grid-column: 2; margin: 0 16px 10px; }
+          .mg-city-view .mg-city-body { padding: 16px 20px 16px; gap: 10px; }
+        }
+        /* A phone: the whole pop-up scrolls, picture first. */
+        @media (max-width: 600px) {
+          .mg-city-view { padding: 0; }
+          .mg-city-view .mg-city-content { height: 100dvh; border-radius: 0; border: none; display: block; overflow-y: auto; }
+          .mg-city-figure { display: flex; }
+          .mg-city-view .mg-city-photo-wrap { height: 36dvh; flex: none; }
+          .mg-city-view .mg-city-photo-credit { padding: 8px 16px; }
+          .mg-city-view .mg-city-body { overflow: visible; padding-bottom: 96px; }
+          .mg-city-view .mg-punch-options { grid-template-columns: minmax(0, 1fr); }
+        }
       `}</style>
 
       {/* Every source and picture credit, by stop, in one drawer (bottom left) */}
@@ -1101,7 +1198,8 @@ export default function MigrationMapPage() {
             background: currentCityIdx >= 0
               ? (expandState === 'positioned'
                 ? CITY_COLORS[currentCityIdx].main
-                : CITY_COLORS[currentCityIdx].bg)
+                // A see-through wash: the map stays in sight behind the stop's pop-up.
+                : `color-mix(in srgb, ${CITY_COLORS[currentCityIdx].bg} 78%, transparent)`)
               : undefined,
           }}
         />
@@ -1111,10 +1209,10 @@ export default function MigrationMapPage() {
       <div style={srOnly} aria-live="polite" role="status">{announcement}</div>
 
       <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }} inert={cityViewOpen}>
-        <ExhibitionNav className="mg-nav" href="/exhibitions/harlem-renaissance/artifacts?view=interactives" style={{ display: cityViewOpen ? 'none' : 'flex' }}>
+        <ExhibitionNav className="mg-nav" href="/exhibitions/harlem-renaissance" style={{ display: cityViewOpen ? 'none' : 'flex' }}>
           <span className="mg-nav-text" aria-hidden="true">M</span>
           <span className="mg-nav-arrow" aria-hidden="true">{'\u2190'}</span>
-          <span className="mg-nav-label">Collection</span>
+          <span className="mg-nav-label">The Harlem Renaissance</span>
         </ExhibitionNav>
 
         <div className="mg-header">
@@ -1314,119 +1412,129 @@ export default function MigrationMapPage() {
         </button>
       )}
 
-      {/* === CITY VIEW === */}
+      {/* === CITY VIEW: a pop-up over the map, one screen per stop === */}
       {cityViewOpen && city && (
-        <div className="mg-city-view" ref={cityViewRef} role="region" aria-labelledby="mg-city-name">
+        <div
+          className="mg-city-view"
+          ref={cityViewRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="mg-city-name"
+          onKeyDown={(e) => { if (e.key === 'Escape') { e.stopPropagation(); backToMap(); } }}
+        >
           <div className={`mg-city-content ${cityContentVisible ? 'visible' : ''}`} style={{
               '--mg-gold': CITY_COLORS[currentCityIdx].main,
               '--mg-gold-light': CITY_COLORS[currentCityIdx].light,
               '--mg-gold-dim': CITY_COLORS[currentCityIdx].dim,
               '--mg-burgundy-deep': CITY_COLORS[currentCityIdx].bg,
             } as React.CSSProperties}>
-            <div className="mg-city-photo-wrap">
-              {!photoLoaded && (
-                <div className="mg-city-photo-placeholder">Photograph loading&hellip;</div>
-              )}
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className="mg-city-photo"
-                src={PHOTO_BASE + city.photo}
-                alt={city.photoAlt}
-                style={{ opacity: photoLoaded ? 1 : 0, position: photoLoaded ? 'relative' : 'absolute' }}
-                onLoad={() => setPhotoLoaded(true)}
-                onError={() => setPhotoLoaded(false)}
-              />
-              <div className="mg-city-photo-overlay" />
-              <button type="button" className="mg-sound-toggle" onClick={toggleSound}>
-                {soundOn ? '\u266A Turn music off' : '\u266A Turn music on'}
-              </button>
-              <div className="mg-city-station-badge">Stop {currentCityIdx + 1} of 6</div>
+            <button type="button" className="mg-city-close" onClick={() => backToMap()} aria-label="Close and return to the map">
+              <span aria-hidden="true">{'\u00D7'}</span>
+            </button>
+
+            {/* The picture side: photograph (with its quotation), caption and record. */}
+            <div className="mg-city-figure">
+              <div className="mg-city-photo-wrap">
+                {!photoLoaded && (
+                  <div className="mg-city-photo-placeholder">Photograph loading&hellip;</div>
+                )}
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className="mg-city-photo"
+                  src={PHOTO_BASE + city.photo}
+                  alt={city.photoAlt}
+                  style={{ opacity: photoLoaded ? 1 : 0 }}
+                  onLoad={() => setPhotoLoaded(true)}
+                  onError={() => setPhotoLoaded(false)}
+                />
+                <div className="mg-city-photo-overlay" />
+                <button type="button" className="mg-sound-toggle" onClick={toggleSound}>
+                  {soundOn ? '\u266A Turn music off' : '\u266A Turn music on'}
+                </button>
+                <figure className="mg-city-quote">
+                  {city.quote.paraphrase ? (
+                    <p className="mg-quote-text">{city.quote.text}</p>
+                  ) : (
+                    <blockquote className="mg-quote-text">{'\u201C'}{city.quote.text}{'\u201D'}</blockquote>
+                  )}
+                  <figcaption><cite>{'\u2014'} {city.quote.author}</cite></figcaption>
+                </figure>
+              </div>
+
+              <div className="mg-city-photo-credit">{city.photoCaption}</div>
+
+              <div className="mg-city-music">
+                <button
+                  type="button"
+                  className={`mg-city-music-play ${musicPlaying ? 'playing' : ''}`}
+                  onClick={toggleMusic}
+                  aria-label={`Play ${city.music.title}`}
+                  aria-pressed={musicPlaying}
+                >
+                  <span aria-hidden="true">{musicPlaying ? '\u23F8' : '\u25B6'}</span>
+                </button>
+                <div className="mg-city-music-info">
+                  <div className="mg-city-music-title">{city.music.title}</div>
+                  <div className="mg-city-music-artist">{city.music.artist}</div>
+                  <div className="mg-city-music-year">{city.music.year}</div>
+                </div>
+              </div>
+              {city.music.note && <p className="mg-city-music-note">{city.music.note}</p>}
             </div>
 
-            <div className="mg-city-photo-credit">{city.photoCaption}</div>
-
+            {/* The story side: the stop, its short story, the ticket question, the way on. */}
             <div className="mg-city-body">
-              <div className="mg-city-stop-number">Stop {currentCityIdx + 1}</div>
+              <div className="mg-city-stop-number">Stop {currentCityIdx + 1} of {CITIES.length}</div>
               <h2 className="mg-city-name" id="mg-city-name" tabIndex={-1} ref={cityHeadingRef}>{city.name}</h2>
               <div className="mg-city-period">{city.period}</div>
 
-              <div className="mg-city-columns">
-                <div className="mg-city-col-left">
-                  <div className="mg-city-text">{city.text}</div>
-                  <figure className="mg-city-quote">
-                    {city.quote.paraphrase ? (
-                      <p className="mg-quote-text">{city.quote.text}</p>
-                    ) : (
-                      <blockquote className="mg-quote-text">{'\u201C'}{city.quote.text}{'\u201D'}</blockquote>
-                    )}
-                    <figcaption><cite>{'\u2014'} {city.quote.author}</cite></figcaption>
-                  </figure>
-                </div>
+              <div className="mg-city-text">{city.text}</div>
 
-                <div className="mg-city-col-right">
-                  <div className="mg-city-music">
-                    <button
-                      type="button"
-                      className={`mg-city-music-play ${musicPlaying ? 'playing' : ''}`}
-                      onClick={toggleMusic}
-                      aria-label={`Play ${city.music.title}`}
-                      aria-pressed={musicPlaying}
-                    >
-                      <span aria-hidden="true">{musicPlaying ? '\u23F8' : '\u25B6'}</span>
-                    </button>
-                    <div className="mg-city-music-info">
-                      <div className="mg-city-music-title">{city.music.title}</div>
-                      <div className="mg-city-music-artist">{city.music.artist}</div>
-                      <div className="mg-city-music-year">{city.music.year}</div>
-                    </div>
-                  </div>
-                  {city.music.note && <p className="mg-city-music-note">{city.music.note}</p>}
+              <TicketPunch
+                cityId={city.id}
+                ticket={ticket}
+                colors={CITY_COLORS}
+                justStamped={justStamped}
+                lastWrong={lastWrong?.cityId === city.id ? lastWrong.choice : null}
+                onAnswer={(choice) => punch(city.id, choice)}
+              />
 
-                  <TicketPunch
-                    cityId={city.id}
-                    ticket={ticket}
-                    colors={CITY_COLORS}
-                    justStamped={justStamped}
-                    lastWrong={lastWrong?.cityId === city.id ? lastWrong.choice : null}
-                    onAnswer={(choice) => punch(city.id, choice)}
-                  />
-
-                  {currentCityIdx < CITIES.length - 1 ? (<>
-                    <button type="button" className="mg-train-ticket" onClick={boardToNext}>
-                      <span className="mg-ticket-label" style={{ display: 'block' }}>Next Stop</span>
-                      <span className="mg-ticket-destination" style={{ display: 'block' }}>{CITIES[currentCityIdx + 1].name}</span>
-                      <span className="mg-ticket-line" style={{ display: 'block' }} />
-                      <span className="mg-ticket-action" style={{ display: 'block' }}><span aria-hidden="true">{'\u25C6'}</span> Board the Train <span aria-hidden="true">{'\u25C6'}</span></span>
+              {currentCityIdx < CITIES.length - 1 ? (
+                <div className="mg-city-actions">
+                  <button type="button" className="mg-train-ticket" onClick={boardToNext}>
+                    <span className="mg-ticket-label">Next Stop</span>
+                    <span className="mg-ticket-destination">{CITIES[currentCityIdx + 1].name}</span>
+                    <span className="mg-ticket-action"><span aria-hidden="true">{'\u25C6'}</span> Board the Train <span aria-hidden="true">{'\u25C6'}</span></span>
+                  </button>
+                  <div className="mg-city-minor">
+                    <button className="mg-return-map" onClick={() => backToMap()}>
+                      {'\u2190'} Return to Map
                     </button>
                     <button type="button" className="mg-pace-btn" aria-pressed={quickTrips} onClick={toggleQuickTrips}>
                       Quick trips between stops: {quickTrips ? 'on' : 'off'}
                     </button>
-                    <button className="mg-return-map" onClick={() => backToMap()}>
-                      {'\u2190'} Return to Map
-                    </button>
-                  </>) : (
-                    <div className="mg-arrival-ticket">
-                      <div className="mg-ticket-label">You Have Arrived</div>
-                      <div className="mg-ticket-destination">The music made it. So did the people.</div>
-                      <div className="mg-ticket-line" />
-                      <div className="mg-reflect">
-                        <h3 className="mg-reflect-label">Think About It</h3>
-                        <p>
-                          Most of the people who built Harlem came up the Atlantic coast, but much of
-                          its music came by way of New Orleans and Chicago. Why might a song travel a
-                          different road from the people who sing it? What carries music from place
-                          to place today?
-                        </p>
-                      </div>
-                      <div className="mg-arrival-links">
-                        <button className="mg-arrival-link" onClick={() => backToMap('people')}>See How the People Moved</button>
-                        <button className="mg-arrival-link" onClick={restartJourney}>Make the Journey Again</button>
-                        <button className="mg-arrival-link" onClick={() => backToMap()}>View Map</button>
-                      </div>
-                    </div>
-                  )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="mg-arrival-ticket">
+                  <div className="mg-ticket-label">You Have Arrived</div>
+                  <div className="mg-ticket-destination">The music made it. So did the people.</div>
+                  <div className="mg-reflect">
+                    <h3 className="mg-reflect-label">Think About It</h3>
+                    <p>
+                      Most of the people who built Harlem came up the Atlantic coast, but much of
+                      its music came by way of New Orleans and Chicago. Why might a song travel a
+                      different road from the people who sing it? What carries music from place
+                      to place today?
+                    </p>
+                  </div>
+                  <div className="mg-arrival-links">
+                    <button className="mg-arrival-link" onClick={() => backToMap('people')}>See How the People Moved</button>
+                    <button className="mg-arrival-link" onClick={restartJourney}>Make the Journey Again</button>
+                    <button className="mg-arrival-link" onClick={() => backToMap()}>View Map</button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

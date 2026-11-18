@@ -7,8 +7,8 @@ import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { MENTOR_POEM, MENTOR_NOTICES, MENTOR_SOURCES, PROMPT_CARDS } from './mentor-poem';
 import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 
-/** "M ← Collection": the way back, unless the Studio opened the room. */
-const COLLECTION: MuseumReturn = { href: '/exhibitions/harlem-renaissance/artifacts?view=interactives', label: 'Collection' };
+/** "M ← The Harlem Renaissance": back to the exhibition, unless the Studio opened the room. */
+const EXHIBITION: MuseumReturn = { href: '/exhibitions/harlem-renaissance', label: 'The Harlem Renaissance' };
 
 /**
  * A button that removes itself when pressed would drop keyboard focus to
@@ -146,7 +146,7 @@ type UndoAction = {
    ═══════════════════════════════════════════════════════════ */
 export default function HarlemInWordsPage() {
   const router = useRouter();
-  const back = useMuseumReturn(COLLECTION);
+  const back = useMuseumReturn(EXHIBITION);
   const leave = () => {
     rememberReturn(back);
     router.push(back.href);
@@ -715,7 +715,7 @@ export default function HarlemInWordsPage() {
           white-space: nowrap;
           transition: all 0.4s ease;
         }
-        .hw-welcome-back:hover .hw-welcome-back-label { opacity: 1; max-width: 150px; }
+        .hw-welcome-back:hover .hw-welcome-back-label { opacity: 1; max-width: 260px; }
         .hw-welcome-back:hover .hw-welcome-back-arrow { transform: translateX(-4px); }
 
         @media (max-width: 768px) {
@@ -758,7 +758,7 @@ export default function HarlemInWordsPage() {
           font-family: 'Cormorant Garamond', 'Playfair Display', serif;
           transition: all 0.3s ease;
         }
-        .hw-nav:hover .hw-nav-label { opacity: 1; max-width: 150px; }
+        .hw-nav:hover .hw-nav-label { opacity: 1; max-width: 260px; }
         .hw-nav:hover .hw-nav-arrow { transform: translateX(-4px); }
         .hw-nav-text { font-size: 28px; font-weight: 300; color: #525252; }
         .hw-nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }

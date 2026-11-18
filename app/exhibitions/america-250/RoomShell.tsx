@@ -3,14 +3,14 @@
 import type { CSSProperties, ReactNode } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { AMERICA_250 } from './america250';
 import './america250.css';
 
 /*
  * The frame of an America 250 room (the signing): the exhibition's faces,
- * "M ← Display Case" in the corner ("M ← Studio" when the Studio opened it:
+ * "M ← <the exhibition>" in the corner ("M ← Studio" when the Studio opened it:
  * lib/museumReturn.ts), and a full-screen stage that sets its own heading,
  * as the Great War's memorial does.
  */
@@ -19,7 +19,7 @@ type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function RoomShell({ className, children }: { className: string; children: ReactNode }) {
   const { fonts, palette, slug } = AMERICA_250;
-  const back = useMuseumReturn(roomReturn(AMERICA_250));
+  const back = useMuseumReturn(exhibitionReturn(AMERICA_250));
   const style: CssVars = {
     background: palette.page,
     '--pe-display': fonts.display,

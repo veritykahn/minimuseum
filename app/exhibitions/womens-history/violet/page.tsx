@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import FactNote from '@/components/exhibition/FactNote';
 import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
@@ -42,7 +42,7 @@ function stopFromHash(hash: string): number {
 
 export default function VioletsLife() {
   const { fonts, slug } = WOMENS_HISTORY;
-  const back = useMuseumReturn(roomReturn(WOMENS_HISTORY));
+  const back = useMuseumReturn(exhibitionReturn(WOMENS_HISTORY));
   const [index, setIndex] = useState(0);
   const [visited, setVisited] = useState<Set<number>>(() => new Set([0]));
   const [announcement, setAnnouncement] = useState('');

@@ -413,6 +413,8 @@ export type ExhibitionConfig<K extends string = string> = {
   slug: string;
   /** The exhibition's name, as its landing page and projector show it. */
   name: string;
+  /** A shorter name for tight places, such as a room's "M ←" corner link; defaults to `name`. */
+  shortName?: string;
   subtitle: string;
   fonts: {
     /** A Google Fonts css2 URL, loaded the way the other exhibitions load theirs. */

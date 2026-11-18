@@ -3,7 +3,7 @@
 import type { CSSProperties, ReactNode } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { HOLOCAUST } from './holocaust';
@@ -24,7 +24,7 @@ type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function HolocaustRoom({ groups, fontHref, children }: { groups: readonly SourceGroup[]; fontHref?: string; children: ReactNode }) {
   const { fonts, slug } = HOLOCAUST;
-  const back = useMuseumReturn(roomReturn(HOLOCAUST));
+  const back = useMuseumReturn(exhibitionReturn(HOLOCAUST));
   const style: CssVars = {
     background: '#0e0d0c',
     '--pe-display': fonts.display,
