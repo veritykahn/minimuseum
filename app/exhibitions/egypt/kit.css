@@ -1,0 +1,137 @@
+/* ==========================================================================
+   The Egypt rooms' kit, laid over rooms.css: a dark band behind the corner
+   links, a short heading (one line of title, one of purpose), the pop-up
+   card (Modal.tsx), the step dots (StepDots), and the "fit" stage, which
+   sets a room as one screen: the heading, then the room filling the rest
+   of the window, its task and its Back / Next always in view.
+   ========================================================================== */
+
+/* ───────── The band behind the corner links: nothing slides under them unseen ───────── */
+.egr-topband {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 55;
+  height: 74px;
+  background: linear-gradient(to bottom, var(--egr-page, #1b1b1b) 0, var(--egr-page, #1b1b1b) 78%, transparent);
+  pointer-events: none;
+}
+@media (max-width: 768px) {
+  .egr-topband { height: 62px; }
+}
+@media print {
+  .egr-topband { display: none; }
+}
+
+/* ───────── The stage, and a short heading ───────── */
+.eg-room .eg-room-stage { padding: 74px clamp(16px, 3vw, 48px) 64px; }
+.eg-room .egr-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 16px; margin-bottom: 10px; }
+.eg-room .egr-title { order: 1; font-size: clamp(1.5rem, 1.05rem + 1.2vw, 2.25rem); }
+.eg-room .egr-kicker { order: 2; margin: 0; font-size: clamp(0.72rem, 0.66rem + 0.2vw, 0.86rem); }
+.eg-room .egr-lede { order: 3; flex-basis: 100%; max-width: 80ch; margin: 2px 0 0; font-size: clamp(0.95rem, 0.86rem + 0.3vw, 1.1rem); line-height: 1.35; }
+.eg-room .egr-head-tools { order: 4; margin-left: auto; display: flex; gap: 8px; }
+.eg-room .egr-tabs { gap: 6px; margin-bottom: 10px; }
+.eg-room .egr-tab { min-height: 40px; padding: 6px 14px; }
+@media (max-width: 600px) {
+  .eg-room .eg-room-stage { padding: 64px 16px 80px; }
+}
+
+/* A quiet button: "About", "How it works", "Did you know?" */
+.eg-room .egr-button-quiet { min-height: 40px; padding: 6px 16px; border-color: rgba(255, 255, 255, 0.4); font-size: 0.78em; letter-spacing: 0.08em; text-transform: none; }
+.egr-q { display: inline-grid; place-items: center; width: 1.5em; height: 1.5em; margin-right: 6px; border-radius: 50%; background: var(--egr-gold); color: #141414; font-weight: 700; font-size: 0.9em; }
+
+/* One short instruction: what to do now */
+.egr-task { margin: 0; padding: 8px 12px; border-left: 4px solid var(--egr-gold); background: rgba(217, 164, 65, 0.08); color: #fff; line-height: 1.4; }
+
+/* ───────── The fit stage: one screen ───────── */
+@media (min-width: 700px) and (min-height: 600px) {
+  .eg-room .eg-room-stage.egr-fit {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 600px;
+    padding-bottom: 60px;
+  }
+  .egr-fit > * { flex: none; }
+  .egr-fit > .egr-fill { flex: 1 1 auto; min-height: 0; }
+  /* Scene beside panel, both the height of what is left; the panel's Back / Next at its foot. */
+  .egr-fit .egr-layout.egr-fill { grid-template-rows: minmax(0, 1fr); align-items: stretch; }
+  .egr-fit .egr-layout.egr-fill > .egr-scene { position: relative; top: auto; min-height: 0; }
+  .egr-fit .egr-layout.egr-fill > .egr-panel { min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+  .egr-fit .egr-panel.egr-stepper { height: auto; }
+  .egr-fit .egr-stepper .egr-step-body { flex: 1 1 auto; min-height: 0; overflow: visible; padding-right: 0; }
+  .egr-fit .egr-stepper .egr-step-nav { position: sticky; bottom: 0; z-index: 2; margin-top: auto; padding-bottom: 2px; background: var(--egr-panel); }
+  /* A picture that fills its cell, keeping its shape. */
+  .egr-fit .egr-sizer { container-type: size; display: grid; place-items: center; min-height: 0; }
+}
+/* A portrait tablet in the fit stage: the scene above (a share of the height), the panel below. */
+@media (min-width: 700px) and (max-width: 980px) and (min-height: 600px) {
+  .egr-fit .egr-layout.egr-fill { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1.1fr) minmax(0, 1fr); }
+  .egr-fit .egr-stepper .egr-step-nav { order: 0; padding: 14px 0 2px; border-top: 1px solid var(--egr-line); border-bottom: 0; }
+}
+
+/* ───────── Step dots ───────── */
+.egr-dots-nav { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; }
+.egr-dots-count { margin: 0; font-size: 0.72em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--egr-muted); }
+.egr-dots { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.eg-room .egr-dot {
+  appearance: none;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  background: transparent;
+  color: #fff;
+  font-family: var(--pe-body);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+.eg-room .egr-dot[data-done] { border-color: var(--egr-gold); color: var(--egr-gold); }
+.eg-room .egr-dot[aria-current='step'] { background: var(--egr-ink); border-color: var(--egr-ink); color: #141414; }
+
+/* ───────── The pop-up card ───────── */
+.egr-modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.62);
+  animation: egr-fade 0.2s ease both;
+}
+.egr-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: min(560px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  padding: clamp(18px, 2.4vw, 28px);
+  border: 1px solid var(--egr-line);
+  background: var(--egr-panel);
+  color: var(--egr-ink);
+  font-family: var(--pe-body);
+  font-weight: 300;
+  font-size: var(--egr-text);
+  line-height: 1.5;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+  animation: egr-pop 0.25s ease both;
+}
+.egr-modal:focus { outline: none; }
+.egr-modal.is-gold { border: 2px solid var(--egr-gold); }
+.egr-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.egr-modal-kicker { margin: 0 0 4px; font-size: 0.72em; letter-spacing: 0.2em; text-transform: uppercase; color: var(--egr-orange); }
+.egr-modal.is-gold .egr-modal-kicker { color: var(--egr-gold); }
+.egr-modal-title { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.3rem, 1rem + 1vw, 1.9rem); line-height: 1.15; color: #fff; }
+.eg-room .egr-modal-x { flex: none; min-height: 40px; padding: 6px 14px; font-size: 0.72em; }
+.egr-modal-body { display: flex; flex-direction: column; gap: 12px; }
+.egr-modal-body p { margin: 0; }
+.egr-modal-body h3 { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: 1.1em; color: #fff; }
+@keyframes egr-fade { from { opacity: 0; } }
+@keyframes egr-pop { from { opacity: 0; transform: translateY(10px) scale(0.98); } }
+@media print {
+  .egr-modal-scrim { display: none; }
+}

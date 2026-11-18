@@ -3,8 +3,9 @@
    under a layer of dark, with a hole of warm torchlight at the torch's place
    (--tx, --ty). The light flickers a little, as a flame does; under reduced
    motion it holds steady. A found detail is ringed in gold. The stage keeps
-   the picture's own shape, sized to fit the screen's height, so the picture
-   is never cropped or letterboxed.
+   the picture's own shape, sized to fill the space left on the screen
+   (its cell is a size container), so the picture is never cropped or
+   letterboxed. A wall's bar sits beneath it.
    ========================================================================== */
 
 .egt-stage {
@@ -74,21 +75,71 @@
 .egt-tick { margin-left: 6px; color: var(--egr-gold); }
 .egr-tab[aria-selected='true'] .egt-tick { color: #6b4a10; }
 
-/* The clues on a wall, and the things in the chamber */
-.egt-clues,
-.egt-things { display: flex; flex-direction: column; gap: 12px; margin: 0; padding: 0; list-style: none; }
-.egt-clues li { display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; border: 1px solid var(--egr-line); }
-.egt-clues li.is-found { border-color: rgba(217, 164, 65, 0.6); }
-.egt-clue { display: flex; align-items: baseline; gap: 10px; }
+/* The wall's bar, beneath the painting: where it is, what to search for, and the way on. */
+.egt-wall { display: flex; flex-direction: column; gap: 10px; }
+.egt-bar {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.6fr) auto;
+  align-items: center;
+  gap: 8px 18px;
+  padding: 10px 14px;
+  border: 1px solid var(--egr-line);
+  background: var(--egr-panel);
+  font-family: var(--pe-body);
+  font-weight: 300;
+  font-size: clamp(0.92rem, 0.8rem + 0.35vw, 1.1rem);
+}
+.egt-bar-info { min-width: 0; }
+.egt-bar-info .egr-label { margin: 0; }
+.egt-count { color: #fff; }
+.egt-count.is-done { color: var(--egr-gold); }
+.egt-bar-title { margin: 2px 0 0; overflow: hidden; font-family: var(--pe-display); font-weight: 400; font-size: 1.05em; line-height: 1.25; color: #fff; text-overflow: ellipsis; white-space: nowrap; }
+.egt-bar-clues { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.egt-bar-clues .egt-hint { margin: 0; text-align: left; font-size: 0.88em; }
+.eg-room .egt-bar-actions { flex-wrap: nowrap; }
+.eg-room .egt-bar-actions .egr-button { white-space: nowrap; }
+.egt-clues { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.egt-clue { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin: 0; padding: 4px 12px 4px 6px; border: 1px solid var(--egr-line); border-radius: 999px; color: var(--egr-ink); }
+.eg-room button.egt-clue { appearance: none; border-color: rgba(217, 164, 65, 0.7); background: rgba(217, 164, 65, 0.12); font: inherit; cursor: pointer; }
+.eg-room button.egt-clue:hover { background: rgba(217, 164, 65, 0.24); }
 .egt-clue-mark { display: inline-grid; place-items: center; flex: none; width: 1.6em; height: 1.6em; border: 1px solid var(--egr-muted); border-radius: 50%; font-size: 0.85em; color: var(--egr-muted); }
 .is-found .egt-clue-mark { border-color: var(--egr-gold); background: var(--egr-gold); color: #141414; }
 .egt-reward { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border: 2px solid var(--egr-gold); background: rgba(217, 164, 65, 0.1); animation: egt-ring 0.6s ease both; }
+.egt-left { color: var(--egr-muted); }
+.egt-things { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.egt-panel { gap: 10px; }
+.egt-panel .egr-task { font-size: 0.9em; }
 
-.egt-things li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: center; padding: 10px 12px; border: 1px solid var(--egr-line); }
+/* One screen (the room's fit stage): the painting as large as the space allows, the bar beneath. */
+@media (min-width: 700px) and (min-height: 600px) {
+  .egr-fit .egt-view { display: grid; grid-template-rows: minmax(0, 1fr); }
+  .egr-fit .egt-wall { min-height: 0; }
+  .egr-fit .egt-stage-cell { flex: 1 1 auto; }
+  .egr-fit .egt-stage { width: min(100cqw, calc(100cqh * var(--egt-aspect, 1.6))); }
+  .egr-fit .egt-chamber-view { grid-template-rows: minmax(0, 1fr); align-items: stretch; min-height: 0; }
+  .egr-fit .egt-chamber-view > .egr-scene { position: relative; top: auto; }
+  .egr-fit .egt-chamber-view > .egr-panel { min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+}
+@media (min-width: 700px) and (max-width: 980px) and (min-height: 600px) {
+  .egr-fit .egt-chamber-view { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+}
+@media (max-width: 1100px) {
+  .egt-bar { grid-template-columns: minmax(0, 1fr) auto; }
+  .egt-bar-info { grid-column: 1 / -1; }
+}
+@media (max-width: 600px) {
+  .egt-bar { grid-template-columns: minmax(0, 1fr); }
+  .eg-room .egt-bar-actions { flex-wrap: wrap; }
+}
+
+.egt-things li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 8px 12px; border: 1px solid var(--egr-line); }
 .egt-things li.is-done { border-color: rgba(217, 164, 65, 0.6); }
 .egt-thing-name { grid-column: 1; margin: 0; font-family: var(--pe-display); color: #fff; }
 .egt-thing-name .egt-tick { margin: 0 6px 0 0; }
-.egt-thing-line { grid-column: 1; margin: 0; font-size: 0.9em; }
+.egt-thing-line { grid-column: 1; margin: 0; font-size: 0.86em; line-height: 1.4; }
 .egt-hidden { color: var(--egr-muted); font-style: italic; }
 .eg-room .egt-door { grid-column: 2; grid-row: 1 / span 2; min-height: 44px; padding: 8px 16px; font-size: 0.78em; }
 

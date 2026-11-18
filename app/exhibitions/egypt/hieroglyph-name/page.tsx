@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import FactNote, { FactSources } from '@/components/exhibition/FactNote';
 import RoomShell, { Glyphs, RoomHeader, TombDoor } from '../RoomShell';
+import Modal from '../Modal';
 import PrintSheet from '../PrintSheet';
 import { EES_CARTOUCHE, BM_SYMBOLS, GLYPHS, SIGN_NAMES } from '../rooms';
 import { useTomb } from '../tombState';
@@ -18,7 +19,9 @@ import { playEgypt } from '../egyptSound';
  * as an Egyptian scribe would more likely have written it, consonants only.
  * It prints on one Letter page, and it can be carved on the tomb's wall
  * (kept in this browser only). The room says plainly that this is a modern
- * sound-alike (alphabet.ts, NAME_NOTES). Nothing typed is sent anywhere.
+ * sound-alike (alphabet.ts, NAME_NOTES), in its "How it works" card,
+ * with the whole chart; the cartouche itself stays the star of the room.
+ * Nothing typed is sent anywhere.
  */
 
 export default function HieroglyphName() {
@@ -26,6 +29,7 @@ export default function HieroglyphName() {
   const [direction, setDirection] = useState<'across' | 'down'>('across');
   const [printing, setPrinting] = useState(false);
   const [picked, setPicked] = useState<number | null>(null);
+  const [how, setHow] = useState(false);
   const [tomb, updateTomb] = useTomb();
   const spelled = useMemo(() => spell(name), [name]);
   const scribe = useMemo(() => consonantsOnly(spelled), [spelled]);
@@ -124,27 +128,34 @@ export default function HieroglyphName() {
           </div>
           {carved && <TombDoor>See it in the tomb</TombDoor>}
 
-          <FactNote fact={NAME_NOTES.chart} className="egr-fact" />
-          <FactNote fact={NAME_NOTES.modern} className="egr-fact" />
-          <FactNote fact={NAME_NOTES.scribe} className="egr-fact" />
-          <FactNote fact={NAME_NOTES.cartouche} className="egr-fact" />
-          <FactNote fact={NAME_NOTES.line} className="egr-fact" />
-
-          <details className="egn-chart">
-            <summary>See every sign in the chart</summary>
-            <ul className="egn-chart-grid">
-              {CHART.map((letter) => (
-                <li key={letter} title={SIGNS[letter].map((c) => SIGN_NAMES[c] ?? c).join(' and ')}>
-                  <Glyphs text={SIGNS[letter].map((c) => GLYPHS[c]).join('')} className="egn-chart-glyph" />
-                  <span>{letter}</span>
-                  <span className="egn-chart-what">{SIGNS[letter].map((c) => SIGN_NAMES[c] ?? c).join(' + ')}</span>
-                </li>
-              ))}
-            </ul>
-          </details>
+          <div className="egr-actions">
+            <button type="button" className="egr-button egr-button-quiet" aria-haspopup="dialog" onClick={() => setHow(true)}>
+              <span className="egr-q" aria-hidden="true">?</span>How it works
+            </button>
+          </div>
           <p className="egr-credit">Nothing you type is sent anywhere. If you carve your name in the tomb, it is kept only in this browser.</p>
         </section>
       </div>
+
+      <Modal open={how} onClose={() => setHow(false)} kicker="Your name in hieroglyphs" title="How it works">
+        <FactNote fact={NAME_NOTES.chart} className="egr-fact" />
+        <FactNote fact={NAME_NOTES.modern} className="egr-fact" />
+        <FactNote fact={NAME_NOTES.scribe} className="egr-fact" />
+        <FactNote fact={NAME_NOTES.cartouche} className="egr-fact" />
+        <FactNote fact={NAME_NOTES.line} className="egr-fact" />
+        <details className="egn-chart">
+          <summary>See every sign in the chart</summary>
+          <ul className="egn-chart-grid">
+            {CHART.map((letter) => (
+              <li key={letter} title={SIGNS[letter].map((c) => SIGN_NAMES[c] ?? c).join(' and ')}>
+                <Glyphs text={SIGNS[letter].map((c) => GLYPHS[c]).join('')} className="egn-chart-glyph" />
+                <span>{letter}</span>
+                <span className="egn-chart-what">{SIGNS[letter].map((c) => SIGN_NAMES[c] ?? c).join(' + ')}</span>
+              </li>
+            ))}
+          </ul>
+        </details>
+      </Modal>
 
       <p className="egr-status" role="status" aria-live="polite">
         {spelled.length ? `${spelled.length} ${spelled.length === 1 ? 'sign' : 'signs'}: ${readOut(spelled)}` : ''}

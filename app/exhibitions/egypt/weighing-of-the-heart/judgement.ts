@@ -53,11 +53,14 @@ export const DEEDS: Deed[] = [
 /** Ani's words to his own heart, as it goes on the scales (chapter 30B), exactly as Budge translates them. */
 export const HEART_WORDS = 'My heart of my mother! My heart of my mother! My heart of my being! Make no stand against me when testifying … utter no lie against me before the Great God, the Lord of Amentt.';
 
-/** The story's chapters, each a step with its own Back and Next. */
+/**
+ * The story's chapters, each a step with its own Back and Next. It opens on
+ * the scales and the first guess; the two papyri the story comes from are in
+ * the room's About card.
+ */
 export const CHAPTERS = [
-  { id: 'papyri', name: 'Two papyri' },
-  { id: 'hall', name: 'The hall' },
   { id: 'heart', name: 'The heart' },
+  { id: 'hall', name: 'The hall' },
   { id: 'words', name: 'Ani’s words' },
   { id: 'verdict', name: 'The verdict' },
   { id: 'you', name: 'Your scales' },
