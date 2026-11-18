@@ -45,6 +45,9 @@
 .ega-tools { grid-area: tools; }
 .ega-side { grid-area: side; }
 .ega-side:empty { visibility: hidden; }
+/* When there is nothing learned yet, the amulet takes the space instead,
+   so the bench stays centred rather than leaving an empty column. */
+.ega-workshop.no-side { grid-template-columns: minmax(250px, 1fr) minmax(300px, 2.15fr); grid-template-areas: 'strip strip' 'tools bench' 'nav nav'; }
 .ega-nav { grid-area: nav; margin: 0; }
 
 /* The bench: the amulet on a dark linen cloth, under a warm light */
@@ -143,6 +146,7 @@ svg.ega-mark { color: #f2c766; }
   .ega-strip h2 { white-space: normal; }
   .ega-workshop.is-carve { grid-template-areas: 'strip strip' 'bench bench' 'tools tools' 'side side' 'nav nav'; grid-template-rows: auto minmax(240px, 1fr) auto auto auto; }
   .ega-tray { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .ega-workshop.no-side { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'strip' 'bench' 'tools' 'nav'; grid-template-rows: auto minmax(260px, 1fr) auto auto; }
 }
 @media (max-width: 600px) {
   .ega-workshop, .ega-workshop.is-carve { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'strip' 'bench' 'tools' 'side' 'nav'; grid-template-rows: auto minmax(260px, auto) auto auto auto; }

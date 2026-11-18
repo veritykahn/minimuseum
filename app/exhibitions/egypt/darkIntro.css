@@ -56,8 +56,9 @@
 .egi-begin[data-on] { opacity: 1; pointer-events: auto; }
 .egi-skip {
   position: absolute;
-  right: 24px;
-  bottom: 24px;
+  /* top-left: the museum's Map button sits bottom-right */
+  left: 24px;
+  top: 24px;
   min-height: 44px;
   padding: 0 18px;
   border-radius: 100px;

@@ -311,7 +311,7 @@ export default function AmuletMaker() {
       {intro && <DarkIntro title="Design an Amulet" lines={AMULET_INTRO} voice="amulet-intro" onDone={() => setIntro(false)} />}
       <RoomHeader kicker="Interactive · The amulet maker" title="Design an Amulet" />
 
-      <section className={`ega-workshop egr-fill is-${step}`} aria-labelledby="ega-step-title" data-carrying={carrying ? '' : undefined}>
+      <section className={`ega-workshop egr-fill is-${step}${side ? '' : ' no-side'}`} aria-labelledby="ega-step-title" data-carrying={carrying ? '' : undefined}>
         <div className="ega-strip">
           <StepDots steps={STEPS} at={at} done={stepDone} onGo={go} label="The amulet’s steps" />
           <h2 id="ega-step-title" ref={heading} tabIndex={-1}>
@@ -350,9 +350,11 @@ export default function AmuletMaker() {
           )}
         </div>
 
-        <aside className="ega-side" aria-label="What you have learned">
-          {side}
-        </aside>
+        {side && (
+          <aside className="ega-side" aria-label="What you have learned">
+            {side}
+          </aside>
+        )}
 
         <div className="egr-step-nav ega-nav">
           <button type="button" className="egr-button" onClick={() => go(at - 1)} disabled={at === 0}>
