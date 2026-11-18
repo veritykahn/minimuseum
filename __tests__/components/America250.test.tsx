@@ -85,7 +85,7 @@ function approved2() {
 }
 
 describe('America 250', () => {
-  it('has two posters, each opening on its title and ending with Return to Exhibition, one display case, and the signing room', () => {
+  it('has two posters, each opening on its title and ending with Return to Exhibition, one display case, and the three rooms of the signing', () => {
     expect(AMERICA_250.slug).toBe('america-250');
     expect(AMERICA_250.name).toBe('America 250');
     expect(AMERICA_250.subtitle).toBe('The Declaration of Independence at 250');
@@ -96,7 +96,7 @@ describe('America 250', () => {
       expect(p.items[p.items.length - 1].type).toBe('end');
     }
     expect(AMERICA_250.cases?.map((c) => [c.href, c.label, c.title])).toEqual([['/exhibitions/america-250/artifacts/case', 'Display Case', 'Artifacts']]);
-    expect(AMERICA_250.interactives?.map((c) => c.href)).toEqual(['/exhibitions/america-250/sign']);
+    expect(AMERICA_250.interactives?.map((c) => c.href)).toEqual(['/exhibitions/america-250/sign', '/exhibitions/america-250/copies', '/exhibitions/america-250/flag']);
     expect(AMERICA_250.fx.theme).toBe('ap');
   });
 
@@ -309,9 +309,11 @@ describe('The America 250 display case page', () => {
     expect(screen.queryByText('Photographs on their way')).toBeNull();
     expect(screen.queryByText('In the display')).toBeNull();
     expect(JSON.stringify(AMERICA_250_CASE)).not.toMatch(/installation|\.jpg/);
-    // The signing room opens from the case, under its Interactives tab.
+    // The three rooms of the signing open from the case, under its Interactives tab.
     fireEvent.click(screen.getByRole('tab', { name: /Interactives/ }));
     expect(screen.getByRole('link', { name: /Put Your Name to It/ })).toHaveAttribute('href', '/exhibitions/america-250/sign');
+    expect(screen.getByRole('link', { name: /A Copy of a Copy/ })).toHaveAttribute('href', '/exhibitions/america-250/copies');
+    expect(screen.getByRole('link', { name: /Add a Star/ })).toHaveAttribute('href', '/exhibitions/america-250/flag');
     // No Return to Exhibition at the foot: the M at the top left goes back (owner, November 6, 2026).
     expect(screen.queryByRole('link', { name: 'Return to Exhibition' })).toBeNull();
     expect(screen.getByRole('link', { name: 'Exhibition' })).toHaveAttribute('href', '/exhibitions/america-250');

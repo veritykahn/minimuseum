@@ -1,62 +1,57 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { createPortal } from 'react-dom';
-import FactNote from '@/components/exhibition/FactNote';
+import Link from 'next/link';
 import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RoomShell from '../RoomShell';
-import Flag from './Flag';
-import { milestonesAt } from './flagLayout';
 import Parchment, { hasSigned, type Doc, type Signer } from './Parchment';
-import Copies from './Copies';
 import SignaturePad from './SignaturePad';
 import { OWN_DECLARATIONS, type OwnFill, type VersionId } from './declaration';
-import { COPIES, FLAG_MAX, FLAG_MILESTONES, FLAG_MIN, FLAG_TEXT, SIGN_TEXT, starLine, type CopyId } from './signText';
+import { COPIES_HREF, FLAG_HREF, SIGN_TEXT } from './signText';
 import type { Stroke } from './signing';
 import { SIGN_SOURCES } from './sources';
 import './sign.css';
 
 /*
- * The signing, on one screen: a sheet of parchment on the green cloth of the
- * Congress's tables, by candlelight, with three tabs over it. Read the
- * Declaration in its own words (the parchment scrolls inside itself), sign
- * your name at its foot with a quill (and add your address, as Carroll did);
- * or fill in, sign and print the owner's declarations, your class's (in a
- * classroom's version or a middle school's) or your own. Then
- * see how the Declaration was copied and spread, four real copies side by
- * side (the Dunlap and Goddard broadsides, Stone's engraving and the faded
- * parchment), each to look at closely under a lens; and add the flag's
- * stars, from its first 13 to 50, each new star naming its state. Each tab has its own address (#sign, #copies, #flag),
- * and so do the class's and the student's parchments (#class, #mine).
- * Nothing signed or written is stored or sent.
+ * Put Your Name to It: a sheet of parchment on the green cloth of the
+ * Congress's tables, by candlelight. The room opens in the middle of the
+ * desk on what to do (read it, dip the quill, sign) and three declarations
+ * to choose from, each its own thing: the Declaration in its own words, the
+ * class's (in a classroom's version or a middle school's) and the student's
+ * own. Then the chosen parchment fills the desk, the inkwell beside it, the
+ * three steps across the top (each ticked as it is done) and a tray of what
+ * to do under it. Read it (the parchment scrolls inside itself), dip the
+ * quill (it starts dry), and sign on the line at its foot by finger, pen or
+ * mouse, or type the name; add an address, as Carroll did. The class's takes
+ * name after name and prints with lines to sign; the others sign once. Each
+ * declaration has its own address (#sign, #class, #mine). Nothing signed or
+ * written is stored or sent.
  *
- * The four copies' notes, the flag's states and milestones are
- * owner-approved, fact-checked notes from outside the posters (signText.ts),
- * their sources and the copies' picture credits listed in the room's Sources
- * drawer (sources.ts), not inline. The Declaration's text is the
- * National Archives' transcription, and the class's and the student's are
- * the owner's own wording (declaration.ts).
+ * The Declaration's text is the National Archives' transcription, and the
+ * class's and the student's are the owner's own wording (declaration.ts);
+ * every line about 1776 is the posters' own (signText.ts), its source in the
+ * room's Sources drawer (sources.ts). "A Copy of a Copy" and "Add a Star",
+ * once tabs here, are rooms of their own (../copies, ../flag); their old
+ * addresses here (#copies, #flag) open them.
  */
 
-const TABS = [
-  { id: 'sign', label: SIGN_TEXT.signHeading, short: SIGN_TEXT.signShort },
-  { id: 'copies', label: SIGN_TEXT.copiesHeading, short: SIGN_TEXT.copiesShort },
-  { id: 'flag', label: SIGN_TEXT.flagHeading, short: SIGN_TEXT.flagShort },
-] as const;
-type TabId = (typeof TABS)[number]['id'];
-
-const DOCS: { id: Doc; label: string; short: string }[] = [
-  { id: 'declaration', label: SIGN_TEXT.declarationName, short: SIGN_TEXT.declarationShort },
-  { id: 'class', label: OWN_DECLARATIONS.class.name, short: OWN_DECLARATIONS.class.short },
-  { id: 'mine', label: OWN_DECLARATIONS.mine.name, short: OWN_DECLARATIONS.mine.short },
+const DOCS: { id: Doc; label: string; short: string; tag: string }[] = [
+  { id: 'declaration', label: SIGN_TEXT.declarationName, short: SIGN_TEXT.declarationShort, tag: '1776' },
+  { id: 'class', label: OWN_DECLARATIONS.class.name, short: OWN_DECLARATIONS.class.short, tag: 'Everyone signs' },
+  { id: 'mine', label: OWN_DECLARATIONS.mine.name, short: OWN_DECLARATIONS.mine.short, tag: 'Just you' },
 ];
 
-function fromHash(hash: string): { tab: TabId; doc?: Doc } | null {
+/** The old tabs' addresses, now rooms of their own. */
+const MOVED: Record<string, string> = { copies: COPIES_HREF, flag: FLAG_HREF };
+
+function fromHash(hash: string): Doc | null {
   const h = hash.replace(/^#(aps-)?/, '');
-  if (h === 'class' || h === 'mine') return { tab: 'sign', doc: h };
-  const tab = TABS.find((t) => t.id === h)?.id;
-  return tab ? { tab, doc: tab === 'sign' ? 'declaration' : undefined } : null;
+  if (h === 'class' || h === 'mine') return h;
+  if (h === 'sign' || h === 'declaration') return 'declaration';
+  if (MOVED[h]) window.location.replace(MOVED[h]);
+  return null;
 }
 
 const blank = (): Signer => ({ strokes: [], typed: '', address: '' });
@@ -65,10 +60,12 @@ const byDoc = <T,>(make: () => T): Record<Doc, T> => ({ declaration: make(), cla
 export default function America250Signing() {
   const t = SIGN_TEXT;
   const reduced = usePrefersReducedMotion();
-  const [tab, setTab] = useState<TabId>('sign');
+  const [view, setView] = useState<'choose' | 'sign'>('choose');
   const [doc, setDoc] = useState<Doc>('declaration');
-  const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ sign: null, copies: null, flag: null });
   const scroll = useRef<HTMLDivElement>(null);
+  const chooseHead = useRef<HTMLHeadingElement>(null);
+  const signHead = useRef<HTMLHeadingElement>(null);
+  const moved = useRef(false);
 
   // The signature: drawn with the quill, or typed. Each parchment has its own
   // line to sign on, and its own names signed.
@@ -78,57 +75,46 @@ export default function America250Signing() {
   // The owner's declarations: their blanks as filled in, and the class's version.
   const [fills, setFills] = useState<Record<'class' | 'mine', OwnFill>>({ class: {}, mine: {} });
   const [version, setVersion] = useState<VersionId>('classroom');
-  const [ink, setInk] = useState(1);
+  // The quill starts dry: dipping it is the second step.
+  const [ink, setInk] = useState(0);
+  const [dipped, setDipped] = useState(false);
+  const [read, setRead] = useState<Record<Doc, boolean>>(() => byDoc(() => false));
   const [dipping, setDipping] = useState(false);
   const [status, setStatus] = useState('');
   // What is being printed; `n` counts the presses, so a second press prints again even if the browser never said it was done.
   const [printing, setPrinting] = useState<{ doc: Doc; n: number } | null>(null);
   const print = (d: Doc) => setPrinting((p) => ({ doc: d, n: (p?.n ?? 0) + 1 }));
 
-  // The copies: the one chosen, and whether it is brought up close.
-  const [stage, setStage] = useState(0);
-  const [closer, setCloser] = useState(false);
-
-  // The flag.
-  const [stars, setStars] = useState(FLAG_MIN);
-  const [grew, setGrew] = useState(false);
-
   useEffect(() => {
-    const read = () => {
+    const go = () => {
       const h = fromHash(window.location.hash);
       if (!h) return;
-      setTab(h.tab);
-      if (h.doc) setDoc(h.doc);
+      setDoc(h);
+      setView('sign');
     };
-    read();
-    window.addEventListener('hashchange', read);
-    return () => window.removeEventListener('hashchange', read);
+    go();
+    window.addEventListener('hashchange', go);
+    return () => window.removeEventListener('hashchange', go);
   }, []);
 
-  const choose = useCallback((id: TabId, focus = false, on: Doc = doc) => {
-    setTab(id);
-    window.history.replaceState(null, '', `#${id === 'sign' && on !== 'declaration' ? on : id}`);
-    if (focus) tabRefs.current[id]?.focus();
-  }, [doc]);
+  // After a choice (made here, not by an address), the focus goes to the new view's heading.
+  useEffect(() => {
+    if (!moved.current) return;
+    (view === 'choose' ? chooseHead : signHead).current?.focus({ preventScroll: true });
+  }, [view]);
 
-  const chooseDoc = (d: Doc) => {
+  const open = (d: Doc) => {
+    moved.current = true;
     setDoc(d);
+    setView('sign');
     window.history.replaceState(null, '', `#${d === 'declaration' ? 'sign' : d}`);
-    setStatus(DOCS.find((x) => x.id === d)!.label);
+    setStatus(`${DOCS.find((x) => x.id === d)!.label}.`);
   };
-
-  // Arrow keys, Home and End move between the tabs.
-  const onTabKey = (e: KeyboardEvent<HTMLButtonElement>) => {
-    const i = TABS.findIndex((x) => x.id === tab);
-    const to =
-      e.key === 'ArrowRight' ? (i + 1) % TABS.length
-      : e.key === 'ArrowLeft' ? (i - 1 + TABS.length) % TABS.length
-      : e.key === 'Home' ? 0
-      : e.key === 'End' ? TABS.length - 1
-      : -1;
-    if (to < 0) return;
-    e.preventDefault();
-    choose(TABS[to].id, true);
+  const backToChoose = () => {
+    moved.current = true;
+    setView('choose');
+    window.history.replaceState(null, '', window.location.pathname + window.location.search);
+    setStatus('');
   };
 
   const pad = pads[doc];
@@ -142,8 +128,9 @@ export default function America250Signing() {
 
   const dip = () => {
     setInk(1);
+    setDipped(true);
     setDipping(true);
-    setStatus('The quill is full of ink.');
+    setStatus('The quill is full of ink. Now sign on the line at the foot of the parchment.');
     window.setTimeout(() => setDipping(false), 700);
   };
 
@@ -172,7 +159,9 @@ export default function America250Signing() {
     setStatus('Every name is cleared from the class declaration.');
   };
 
+  const markRead = useCallback(() => setRead((r) => (r[doc] ? r : { ...r, [doc]: true })), [doc]);
   const toFoot = () => {
+    markRead();
     const el = scroll.current;
     if (!el) return;
     el.scrollTo?.({ top: el.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
@@ -195,342 +184,273 @@ export default function America250Signing() {
     };
   }, [printing]);
 
-  const go = (i: number, close = closer) => {
-    const to = Math.max(0, Math.min(COPIES.length - 1, i));
-    setStage(to);
-    setCloser(close);
-    setStatus(`${to + 1} of ${COPIES.length}: ${COPIES[to].name}, ${COPIES[to].date}.${close ? ' Brought up close, to look at with the lens.' : ''}`);
-  };
-  const pick = (id: CopyId, close = closer) => go(COPIES.findIndex((c) => c.id === id), close);
-  const toggleCloser = () => {
-    setCloser((c) => !c);
-    setStatus(closer ? 'All four copies, side by side.' : `${COPIES[stage].name}, brought up close, to look at with the lens.`);
-  };
-
-  const setFlagStars = (n: number) => {
-    const to = Math.max(FLAG_MIN, Math.min(FLAG_MAX, n));
-    if (to === stars) return;
-    setGrew(to > stars);
-    setStars(to);
-    const reached = to > stars ? FLAG_MILESTONES.filter((m) => m.stars > stars && m.stars <= to).pop() : undefined;
-    const added = to > stars ? starLine(to) : null;
-    setStatus(`${to} stars.${added ? ` ${added}` : ''}${reached ? ` ${reached.year}: ${reached.text}` : ''}`);
-  };
-  const passed = milestonesAt(stars);
-
-  const copy = COPIES[stage];
-  const newest = starLine(stars);
-  const live = tab === 'sign' && !sealed;
+  const live = view === 'sign' && !sealed;
   const own = doc === 'declaration' ? null : OWN_DECLARATIONS[doc];
+  // The three steps, each ticked once done, and the next one marked.
+  const stepWords = mode === 'type' ? t.stepsTyped : t.steps;
+  const anySigned = sealed || (doc === 'class' && names.length > 0);
+  const done = [
+    read[doc] || hasSignature || anySigned,
+    (mode === 'type' ? !!pad.typed.trim() : dipped) || hasSignature || anySigned,
+    anySigned,
+  ];
+  const next = done.findIndex((d) => !d);
 
   return (
     <RoomShell className="ap-signing">
-      {/* Every source and picture credit, in one drawer; nothing cited inline (sources.ts). */}
+      {/* Every source, in one drawer; nothing cited inline (sources.ts). */}
       <SourcesDrawer groups={SIGN_SOURCES}>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');`}</style>
-      <div className="aps-stage" data-tab={tab} data-doc={tab === 'sign' ? doc : undefined} data-sealed={sealed || undefined} data-closer={(tab === 'copies' && closer) || undefined}>
-        <Desk />
+        <style>{`@import url('https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&display=swap');`}</style>
+        <div className="aps-stage" data-view={view} data-doc={view === 'sign' ? doc : undefined} data-sealed={sealed || undefined}>
+          <Desk />
 
-        <header className="aps-bar">
-          <h1 className="aps-title">{t.title}</h1>
-          <div className="aps-tabs" role="tablist" aria-label="The signing">
-            {TABS.map((x) => (
-              <button
-                key={x.id}
-                ref={(el) => {
-                  tabRefs.current[x.id] = el;
-                }}
-                type="button"
-                role="tab"
-                id={`aps-tab-${x.id}`}
-                aria-controls={`aps-panel-${x.id}`}
-                aria-selected={tab === x.id}
-                tabIndex={tab === x.id ? 0 : -1}
-                className="aps-tab"
-                onClick={() => choose(x.id)}
-                onKeyDown={onTabKey}
-              >
-                <span className="aps-tab-long">{x.label}</span>
-                <span className="aps-tab-short" aria-hidden="true">{x.short}</span>
-              </button>
-            ))}
-          </div>
-        </header>
-
-        <div className="aps-sheet-wrap">
-          <div className="aps-sheet">
-            {tab === 'flag' ? (
-              <Flag stars={stars} grew={grew} onStars={setFlagStars} />
-            ) : tab === 'sign' ? (
-              <Parchment
-                // Each parchment opens at its head, not where the last one was left.
-                key={doc}
-                ref={scroll}
-                doc={doc}
-                signers={names}
-                typing={live && mode === 'type' ? pad.typed : ''}
-                address={live ? pad.address : ''}
-                version={doc === 'class' ? version : 'classroom'}
-                fill={doc === 'declaration' ? undefined : fills[doc]}
-                onFill={(change) => {
-                  if (doc !== 'declaration') setFills((f) => ({ ...f, [doc]: { ...f[doc], ...change } }));
-                }}
-                pad={
-                  live ? (
-                    mode === 'draw' ? (
-                      <div className="aps-pad-box">
-                        <SignaturePad
-                          key={doc}
-                          strokes={pad.strokes}
-                          onStroke={(s: Stroke) => setPads((all) => ({ ...all, [doc]: { ...all[doc], strokes: [...all[doc].strokes, s] } }))}
-                          ink={ink}
-                          onInk={setInk}
-                          onDry={() => setStatus('The quill has run dry. Dip it in the ink.')}
-                          label="The line to sign on. Write with your finger, pen or mouse."
-                        />
-                        {!pad.strokes.length && <span className="aps-pad-hint" aria-hidden="true">Sign here</span>}
-                      </div>
-                    ) : (
-                      <div className="aps-pad-box aps-pad-box-typed">
-                        {!pad.typed.trim() && <span className="aps-pad-hint" aria-hidden="true">Your name here</span>}
-                      </div>
-                    )
-                  ) : undefined
-                }
-              />
-            ) : (
-              <Copies selected={copy.id} closer={closer} onSelect={pick} />
-            )}
-            {live && mode === 'draw' && ink <= 0 && (
-              <span className="aps-dry" aria-hidden="true">
-                The quill is dry. Dip it in the ink <span>→</span>
-              </span>
-            )}
-            {live && mode === 'draw' && (
-              <button type="button" className="aps-inkwell" data-low={ink < 0.25 || undefined} data-dipping={dipping || undefined} onClick={dip} aria-label="Dip the quill in the ink">
-                <Inkwell level={ink} />
-                <span className="aps-inkwell-label" aria-hidden="true">Dip</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        <section className="aps-panel aps-panel-sign" id="aps-panel-sign" role="tabpanel" aria-labelledby="aps-tab-sign" hidden={tab !== 'sign'}>
-          <div className="aps-docs" role="group" aria-label="Which declaration">
-            {DOCS.map((d) => (
-              <button key={d.id} type="button" className="aps-doc" aria-pressed={doc === d.id} onClick={() => chooseDoc(d.id)}>
-                <span className="aps-doc-long">{d.label}</span>
-                <span className="aps-doc-short" aria-hidden="true">{d.short}</span>
-              </button>
-            ))}
-          </div>
-
-          {!sealed ? (
+          {view === 'choose' ? (
+            <section className="aps-choose" aria-labelledby="aps-choose-title">
+              <h1 className="aps-title" id="aps-choose-title" ref={chooseHead} tabIndex={-1}>
+                {t.title}
+              </h1>
+              <p className="aps-choose-lead">{t.chooseLead}</p>
+              <ol className="aps-how" aria-label="How it works">
+                {t.steps.map((s, i) => (
+                  <li key={s}>
+                    <span className="aps-how-n" aria-hidden="true">{i + 1}</span>
+                    {s}
+                  </li>
+                ))}
+              </ol>
+              <h2 className="aps-choose-ask">{t.chooseAsk}</h2>
+              <ul className="aps-choices">
+                {DOCS.map((d) => (
+                  <li key={d.id}>
+                    <button type="button" className="aps-choice" data-doc={d.id} onClick={() => open(d.id)}>
+                      <span className="aps-choice-sheet" aria-hidden="true">
+                        <span className="aps-choice-lines" />
+                        <span className="aps-choice-seal" />
+                      </span>
+                      <span className="aps-choice-tag">{d.tag}</span>
+                      <span className="aps-choice-name">{d.label}</span>
+                      <span className="aps-choice-text">{t.choices[d.id]}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : (
             <>
-              <p className="aps-intro">
-                {doc === 'declaration' ? (mode === 'draw' ? t.signIntro : t.typeIntro) : doc === 'class' ? t.classIntro : t.mineIntro}
-              </p>
-              {doc === 'declaration' && (
-                <button type="button" className="aps-button aps-button-quiet aps-to-foot" onClick={toFoot}>
-                  {t.toFoot} <span aria-hidden="true">↓</span>
-                </button>
-              )}
-              {doc === 'class' && (
-                <div className="aps-versions" role="group" aria-label={t.versionLabel}>
-                  <span className="aps-versions-label" aria-hidden="true">{t.versionLabel}</span>
-                  {OWN_DECLARATIONS.class.versions.map((v) => (
-                    <button
-                      key={v.id}
-                      type="button"
-                      className="aps-version"
-                      aria-pressed={version === v.id}
-                      onClick={() => {
-                        setVersion(v.id);
-                        setStatus(`${v.label} version.`);
-                      }}
-                    >
-                      {v.label}
+              <header className="aps-bar">
+                <h1 className="aps-title aps-title-small" ref={signHead} tabIndex={-1}>
+                  {t.title}
+                </h1>
+                <div className="aps-docs" role="group" aria-label="Which declaration">
+                  {DOCS.map((d) => (
+                    <button key={d.id} type="button" className="aps-doc" aria-pressed={doc === d.id} onClick={() => open(d.id)}>
+                      <span className="aps-doc-long">{d.label}</span>
+                      <span className="aps-doc-short" aria-hidden="true">{d.short}</span>
                     </button>
                   ))}
                 </div>
-              )}
-              {/* The name and where you are from: one under the other, or side by side on a short screen (sign.css). */}
-              <div className="aps-fields">
-                {mode === 'type' && (
-                  <label className="aps-field">
-                    <span>Your name</span>
-                    <input type="text" value={pad.typed} onChange={(e) => setPad({ typed: e.target.value })} maxLength={40} autoComplete="off" spellCheck={false} />
-                  </label>
-                )}
-                <label className="aps-field aps-field-of">
-                  <span>{t.addressLabel}</span>
-                  <span className="aps-of">
-                    <span aria-hidden="true">of</span>
-                    <input type="text" value={pad.address} onChange={(e) => setPad({ address: e.target.value })} maxLength={32} placeholder={t.addressPlaceholder} autoComplete="off" />
-                  </span>
-                </label>
-              </div>
-              {doc === 'declaration' && (
-                <figure className="aps-quote aps-quote-small">
-                  <blockquote>{t.carroll.text}</blockquote>
-                </figure>
-              )}
-              <div className="aps-actions aps-actions-main">
-                <button type="button" className="aps-button aps-button-primary" onClick={seal} disabled={!hasSignature}>
-                  {doc === 'class' ? t.addName : 'Put your name to it'}
-                </button>
-                <button type="button" className="aps-button" onClick={startAgain} disabled={!hasSignature && !pad.address}>
-                  Start again
-                </button>
-                <button type="button" className="aps-button aps-button-quiet" aria-pressed={mode === 'type'} onClick={() => setMode((m) => (m === 'draw' ? 'type' : 'draw'))}>
-                  {mode === 'draw' ? 'Type it instead' : 'Sign with the quill'}
-                </button>
-              </div>
-              {doc === 'class' && (
-                <div className="aps-actions aps-actions-class">
-                  <p className="aps-count">{names.length === 1 ? '1 name signed' : `${names.length} names signed`}</p>
-                  {/* Printable before anyone signs: its lines can be signed by hand. */}
-                  <button type="button" className="aps-button" onClick={() => print('class')}>
-                    Print it
-                  </button>
-                  <button type="button" className="aps-button aps-button-quiet" onClick={clearClass} disabled={!names.length}>
-                    Clear every name
-                  </button>
+                <ol className="aps-steps-strip" aria-label="Three steps">
+                  {stepWords.map((s, i) => (
+                    <li key={s} data-done={done[i] || undefined} aria-current={i === next ? 'step' : undefined}>
+                      <span className="aps-how-n" aria-hidden="true">{done[i] ? '✓' : i + 1}</span>
+                      {s}
+                      {done[i] && <span className="aps-sr"> (done)</span>}
+                    </li>
+                  ))}
+                </ol>
+              </header>
+
+              <div className="aps-sheet-wrap">
+                <div className="aps-sheet">
+                  <Parchment
+                    // Each parchment opens at its head, not where the last one was left.
+                    key={doc}
+                    ref={scroll}
+                    doc={doc}
+                    signers={names}
+                    typing={live && mode === 'type' ? pad.typed : ''}
+                    address={live ? pad.address : ''}
+                    version={doc === 'class' ? version : 'classroom'}
+                    fill={doc === 'declaration' ? undefined : fills[doc]}
+                    onFill={(change) => {
+                      if (doc !== 'declaration') setFills((f) => ({ ...f, [doc]: { ...f[doc], ...change } }));
+                    }}
+                    onAtFoot={markRead}
+                    pad={
+                      live ? (
+                        mode === 'draw' ? (
+                          <div className="aps-pad-box">
+                            <SignaturePad
+                              key={doc}
+                              strokes={pad.strokes}
+                              onStroke={(s: Stroke) => setPads((all) => ({ ...all, [doc]: { ...all[doc], strokes: [...all[doc].strokes, s] } }))}
+                              ink={ink}
+                              onInk={setInk}
+                              onDry={() => setStatus(dipped ? 'The quill has run dry. Dip it in the ink.' : 'The quill is dry. Dip it in the ink first.')}
+                              label="The line to sign on. Write with your finger, pen or mouse."
+                            />
+                            {!pad.strokes.length && (
+                              <span className="aps-pad-hint" aria-hidden="true">
+                                {ink > 0 ? 'Sign here' : 'Dip the quill first'}
+                              </span>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="aps-pad-box aps-pad-box-typed">
+                            {!pad.typed.trim() && <span className="aps-pad-hint" aria-hidden="true">Your name here</span>}
+                          </div>
+                        )
+                      ) : undefined
+                    }
+                  />
                 </div>
-              )}
-              <p className="aps-note">{own ? t.privacyWritten : t.privacy}</p>
+                {live && mode === 'draw' && (
+                  <div className="aps-well">
+                    <button type="button" className="aps-inkwell" data-low={ink < 0.25 || undefined} data-dipping={dipping || undefined} onClick={dip} aria-label="Dip the quill in the ink">
+                      <Inkwell level={ink} />
+                      <span className="aps-inkwell-label" aria-hidden="true">Dip</span>
+                    </button>
+                    {ink <= 0 && (
+                      <span className="aps-dry" aria-hidden="true">
+                        {dipped ? 'The quill is dry. Dip it again' : t.dipFirst}
+                      </span>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <section className="aps-tray" aria-label="Sign it">
+                {!sealed ? (
+                  <>
+                    <div className="aps-tray-row">
+                      <button type="button" className="aps-button aps-button-quiet aps-to-foot" onClick={toFoot}>
+                        {t.toFoot} <span aria-hidden="true">↓</span>
+                      </button>
+                      {doc === 'class' && (
+                        <div className="aps-versions" role="group" aria-label={t.versionLabel}>
+                          <span className="aps-versions-label" aria-hidden="true">{t.versionLabel}</span>
+                          {OWN_DECLARATIONS.class.versions.map((v) => (
+                            <button
+                              key={v.id}
+                              type="button"
+                              className="aps-version"
+                              aria-pressed={version === v.id}
+                              onClick={() => {
+                                setVersion(v.id);
+                                setStatus(`${v.label} version.`);
+                              }}
+                            >
+                              {v.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {mode === 'type' && (
+                        <label className="aps-field">
+                          <span>Your name</span>
+                          <input type="text" value={pad.typed} onChange={(e) => setPad({ typed: e.target.value })} maxLength={40} autoComplete="off" spellCheck={false} />
+                        </label>
+                      )}
+                      <label className="aps-field aps-field-of">
+                        <span>{t.addressLabel}</span>
+                        <span className="aps-of">
+                          <span aria-hidden="true">of</span>
+                          <input type="text" value={pad.address} onChange={(e) => setPad({ address: e.target.value })} maxLength={32} placeholder={t.addressPlaceholder} autoComplete="off" />
+                        </span>
+                      </label>
+                    </div>
+                    <div className="aps-tray-row aps-actions-main">
+                      <button type="button" className="aps-button aps-button-primary" onClick={seal} disabled={!hasSignature}>
+                        {doc === 'class' ? t.addName : 'Put your name to it'}
+                      </button>
+                      <button type="button" className="aps-button" onClick={startAgain} disabled={!hasSignature && !pad.address}>
+                        Start again
+                      </button>
+                      <button type="button" className="aps-button aps-button-quiet" aria-pressed={mode === 'type'} onClick={() => setMode((m) => (m === 'draw' ? 'type' : 'draw'))}>
+                        {mode === 'draw' ? 'Type it instead' : 'Sign with the quill'}
+                      </button>
+                      {doc === 'class' && (
+                        <>
+                          <span className="aps-count">{names.length === 1 ? '1 name signed' : `${names.length} names signed`}</span>
+                          {/* Printable before anyone signs: its lines can be signed by hand. */}
+                          <button type="button" className="aps-button" onClick={() => print('class')}>
+                            Print it
+                          </button>
+                          <button type="button" className="aps-button aps-button-quiet" onClick={clearClass} disabled={!names.length}>
+                            Clear every name
+                          </button>
+                        </>
+                      )}
+                      <button type="button" className="aps-button aps-button-quiet" onClick={backToChoose}>
+                        {t.chooseOther}
+                      </button>
+                    </div>
+                    {doc === 'declaration' && <p className="aps-carroll">{t.carroll.text}</p>}
+                    <p className="aps-note">{own ? t.privacyWritten : t.privacy}</p>
+                  </>
+                ) : doc === 'declaration' ? (
+                  <div className="aps-signed">
+                    <div className="aps-signed-words">
+                      {t.signed.map((s) => (
+                        <p key={s} className="aps-signed-line">{s}</p>
+                      ))}
+                      <figure className="aps-quote">
+                        <blockquote>{t.epigraph.text}</blockquote>
+                        <figcaption>{t.epigraph.cite}</figcaption>
+                      </figure>
+                    </div>
+                    <div className="aps-tray-row">
+                      <Link className="aps-button aps-button-primary" href={COPIES_HREF}>
+                        {t.copiesNext} <span aria-hidden="true">→</span>
+                      </Link>
+                      <button type="button" className="aps-button" onClick={() => print('declaration')}>
+                        Print it
+                      </button>
+                      <button type="button" className="aps-button" onClick={startAgain}>
+                        Sign again
+                      </button>
+                      <button type="button" className="aps-button aps-button-quiet" onClick={backToChoose}>
+                        {t.chooseOther}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="aps-signed">
+                    <p className="aps-signed-line">{t.mineSigned}</p>
+                    <div className="aps-tray-row">
+                      <button type="button" className="aps-button aps-button-primary" onClick={() => print('mine')}>
+                        Print it
+                      </button>
+                      <button type="button" className="aps-button" onClick={startAgain}>
+                        Sign again
+                      </button>
+                      <button type="button" className="aps-button aps-button-quiet" onClick={backToChoose}>
+                        {t.chooseOther}
+                      </button>
+                    </div>
+                    <p className="aps-note">{t.privacyWritten}</p>
+                  </div>
+                )}
+              </section>
             </>
-          ) : doc === 'declaration' ? (
-            <div className="aps-signed">
-              {t.signed.map((s) => (
-                <p key={s} className="aps-signed-line">{s}</p>
-              ))}
-              <figure className="aps-quote">
-                <blockquote>{t.epigraph.text}</blockquote>
-                <figcaption>{t.epigraph.cite}</figcaption>
-              </figure>
-              <div className="aps-actions">
-                <button type="button" className="aps-button aps-button-primary" onClick={() => choose('copies')}>
-                  See how it was copied
-                </button>
-                <button type="button" className="aps-button" onClick={() => print('declaration')}>
-                  Print it
-                </button>
-                <button type="button" className="aps-button" onClick={startAgain}>
-                  Sign again
-                </button>
-              </div>
-            </div>
-          ) : (
-            <div className="aps-signed">
-              <p className="aps-signed-line">{t.mineSigned}</p>
-              <div className="aps-actions">
-                <button type="button" className="aps-button aps-button-primary" onClick={() => print('mine')}>
-                  Print it
-                </button>
-                <button type="button" className="aps-button" onClick={startAgain}>
-                  Sign again
-                </button>
-              </div>
-              <p className="aps-note">{t.privacyWritten}</p>
-            </div>
           )}
-        </section>
 
-        <section className="aps-panel aps-panel-copies" id="aps-panel-copies" role="tabpanel" aria-labelledby="aps-tab-copies" hidden={tab !== 'copies'}>
-          <p className="aps-intro">{t.copiesIntro}</p>
-          <p className="aps-note aps-copies-how">{t.copiesHow}</p>
-          <ol className="aps-steps" aria-label="The copies">
-            {COPIES.map((s, i) => (
-              <li key={s.id}>
-                <button type="button" className="aps-step" aria-current={i === stage ? 'step' : undefined} onClick={() => go(i)}>
-                  <span className="aps-step-n" aria-hidden="true">{i + 1}</span>
-                  <span className="aps-step-name">{s.name}</span>
-                </button>
-              </li>
-            ))}
-          </ol>
-          <h2 className="aps-step-heading">
-            {copy.name} <span className="aps-step-date">{copy.date}</span>
-          </h2>
-          <FactNote key={copy.id} fact={copy.note} className="aps-fact" />
-          {copy.quote && (
-            <figure className="aps-quote">
-              <blockquote>{copy.quote}</blockquote>
-            </figure>
+          <p className="aps-status" role="status" aria-live="polite">{status}</p>
+        </div>
+
+        {printing &&
+          createPortal(
+            <div className="aps-print-root" data-exhibition="america-250" style={{ '--pe-ui': "'IBM Plex Sans', sans-serif" } as CSSProperties} aria-hidden="true">
+              <Parchment
+                doc={printing.doc}
+                signers={signed[printing.doc]}
+                version={printing.doc === 'class' ? version : 'classroom'}
+                fill={printing.doc === 'declaration' ? undefined : fills[printing.doc]}
+                print
+              />
+            </div>,
+            document.body,
           )}
-          {copy.id === 'original' && <p className="aps-close">{t.copiesClose}</p>}
-          {closer && <p className="aps-note aps-lens-hint">{t.lensHint}</p>}
-          <div className="aps-actions aps-actions-step">
-            <button type="button" className="aps-button aps-button-closer" aria-pressed={closer} onClick={toggleCloser}>
-              {closer ? t.sideBySide : t.closer}
-            </button>
-            <button type="button" className="aps-button" onClick={() => go(stage - 1)} disabled={stage === 0}>
-              <span aria-hidden="true">←</span> Earlier
-            </button>
-            <button type="button" className="aps-button aps-button-primary" onClick={() => go(stage + 1)} disabled={stage === COPIES.length - 1}>
-              The next copy <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        </section>
-
-        <section className="aps-panel aps-panel-flag" id="aps-panel-flag" role="tabpanel" aria-labelledby="aps-tab-flag" hidden={tab !== 'flag'}>
-          <p className="aps-intro">{FLAG_TEXT.intro}</p>
-          <p className="aps-flag-count" aria-hidden="true">
-            <span className="aps-flag-n">{stars}</span> stars
-          </p>
-          <div className="aps-actions">
-            <button type="button" className="aps-button aps-button-primary" onClick={() => setFlagStars(stars + 1)} disabled={stars === FLAG_MAX}>
-              Add a star
-            </button>
-            <button type="button" className="aps-button" onClick={() => setFlagStars(stars - 1)} disabled={stars === FLAG_MIN}>
-              Take one away
-            </button>
-            <button type="button" className="aps-button aps-button-quiet" onClick={() => setFlagStars(FLAG_MIN)} disabled={stars === FLAG_MIN}>
-              Back to 13
-            </button>
-          </div>
-          {newest ? (
-            <div className="aps-star-line" key={stars}>
-              <FactNote fact={{ text: newest, sources: [FLAG_TEXT.sources[0]] }} className="aps-fact" />
-            </div>
-          ) : (
-            <div className="aps-thirteen">
-              <FactNote fact={FLAG_TEXT.thirteen} className="aps-fact" />
-              <p className="aps-originals-label">{FLAG_TEXT.originalsLabel}</p>
-              <ul className="aps-originals" aria-label={FLAG_TEXT.originalsLabel}>
-                {FLAG_TEXT.originals.map((st) => (
-                  <li key={st}>{st}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          <ol className="aps-milestones" aria-label="Milestones">
-            {passed.map((m, i) => (
-              <li key={m.year} className="aps-milestone" aria-current={i === passed.length - 1 ? 'step' : undefined}>
-                <span className="aps-milestone-year">{m.year}</span>
-                <span className="aps-milestone-text">{m.text}</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-
-        <p className="aps-status" role="status" aria-live="polite">{status}</p>
-      </div>
-
-      {printing &&
-        createPortal(
-          <div className="aps-print-root" data-exhibition="america-250" style={{ '--pe-ui': "'IBM Plex Sans', sans-serif" } as CSSProperties} aria-hidden="true">
-            <Parchment
-              doc={printing.doc}
-              signers={signed[printing.doc]}
-              version={printing.doc === 'class' ? version : 'classroom'}
-              fill={printing.doc === 'declaration' ? undefined : fills[printing.doc]}
-              print
-            />
-          </div>,
-          document.body,
-        )}
       </SourcesDrawer>
     </RoomShell>
   );

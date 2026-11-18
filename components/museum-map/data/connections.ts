@@ -65,6 +65,8 @@ export const CONNECTIONS: RoomConnection[] = [
   ['vb-case', 'vb-christmas-parlour'],
   ['mo-case', 'mo-microscope'],
   ['ap-case', 'ap-sign'],
+  ['ap-case', 'ap-copies'],
+  ['ap-case', 'ap-flag'],
   ['fl-case', 'fl-what-scares-you'],
   ['eg-case', 'eg-hieroglyph-name'],
   ['eg-case', 'eg-rosetta-stone'],
