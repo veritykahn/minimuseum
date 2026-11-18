@@ -1,0 +1,252 @@
+/* ==========================================================================
+   Add a Star: the flag under a night sky, inside the posters' own border in
+   the flag's blue. The flag fills the middle of the screen; under it, the
+   state's ticket and the ruler of decades to tap, side to side.
+   ========================================================================== */
+
+.ap-flag-room { min-height: 100vh; color: #f3f1ea; }
+.ap-flag-room .pe-nav-text { color: #f3f1ea; }
+.ap-flag-room :is(.pe-nav-arrow, .pe-nav-label) { color: #d3d6e6; }
+.ap-flag-room .pe-nav-left { left: calc(var(--ap-fw) + 18px); top: calc(var(--ap-fw) + 14px); z-index: 60; }
+.ap-flag-room .ap-room-stage { display: block; }
+.ap-flag-room :focus-visible { outline: 2px solid #f0d38f; outline-offset: 3px; }
+
+.apf-stage {
+  --frame: #2f3561;
+  --gold: #f0d38f;
+  --gutter: calc(var(--ap-fw) + 16px);
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 600px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: var(--gutter);
+  background: #0b0f22;
+}
+.apf-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  border: var(--ap-fw) solid var(--frame);
+  box-shadow: inset 0 0 0 1.5px rgba(240, 211, 143, 0.35);
+}
+/* The night sky: a scatter of small stars, and a glow behind the flag. */
+.apf-sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1.4px 1.4px at 12% 18%, rgba(255, 255, 255, 0.9), transparent 60%),
+    radial-gradient(1.2px 1.2px at 28% 72%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(1.6px 1.6px at 44% 12%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(1.1px 1.1px at 63% 84%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1.5px 1.5px at 78% 22%, rgba(255, 255, 255, 0.85), transparent 60%),
+    radial-gradient(1.2px 1.2px at 90% 60%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(1.3px 1.3px at 6% 52%, rgba(255, 255, 255, 0.7), transparent 60%),
+    radial-gradient(1px 1px at 52% 48%, rgba(255, 255, 255, 0.5), transparent 60%),
+    radial-gradient(1.3px 1.3px at 36% 36%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(1.2px 1.2px at 84% 90%, rgba(255, 255, 255, 0.6), transparent 60%),
+    radial-gradient(ellipse 60% 45% at 50% 40%, rgba(90, 100, 170, 0.35), transparent 70%),
+    linear-gradient(to bottom, #0b0f22 0%, #141a3a 60%, #1c2348 100%);
+}
+.apf-sound { position: absolute; z-index: 5; top: calc(var(--ap-fw) + 12px); right: calc(var(--ap-fw) + 14px); color: #f3f1ea; }
+
+.apf-title {
+  font-family: var(--ap-script);
+  font-weight: 400;
+  font-size: clamp(3rem, 5.4vw, 4.6rem);
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.5);
+}
+.ap-flag-room :is(.apf-title, .apf-ticket-name):focus { outline: none; }
+
+/* ───────── The way in, and the end ───────── */
+.apf-intro, .apf-done {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-height: 0;
+  width: min(820px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.8dvh, 16px);
+  text-align: center;
+  animation: apf-in 0.6s ease both;
+}
+.apf-flag-intro, .apf-flag-done { width: min(440px, 64vw, 30dvh * 1.9); }
+.apf-lead { max-width: 34em; font-family: 'Libre Caslon Text', Georgia, serif; font-size: clamp(1.02rem, 1.4vw, 1.18rem); line-height: 1.5; color: #eceaf2; }
+.apf-fact { max-width: 40em; font-family: var(--pe-ui); font-size: 14px; line-height: 1.5; color: #c9cde0; }
+.apf-originals { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 5px 6px; max-width: 46em; }
+.apf-originals li { font-family: var(--pe-ui); font-size: 12px; padding: 3px 10px; border-radius: 999px; border: 1px solid rgba(240, 211, 143, 0.4); color: #f3eedd; }
+.apf-scoring { font-family: var(--pe-ui); font-size: 14px; color: var(--gold); }
+.apf-final { font-family: var(--pe-ui); font-size: 1.1rem; color: #eceaf2; }
+.apf-final strong { font-size: 1.6rem; color: var(--gold); }
+.apf-milestones { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-width: 40em; text-align: left; font-family: var(--pe-ui); font-size: 14px; line-height: 1.45; color: #d6d9e8; }
+.apf-milestone-year { display: inline-block; min-width: 3.2em; font-weight: 600; color: var(--gold); }
+.apf-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 14px; }
+
+/* ───────── Playing: the bar, the flag, the ticket and the ruler ───────── */
+.apf-bar { position: relative; z-index: 3; flex: none; display: flex; align-items: center; justify-content: center; gap: 24px; padding: 0 76px; }
+.apf-bar-title { font-family: var(--ap-script); font-size: clamp(2rem, 3vw, 2.6rem); line-height: 1; color: #fff; }
+.apf-tally { display: flex; gap: 16px; font-family: var(--pe-ui); font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #c9cde0; }
+.apf-tally strong { font-size: 1.3rem; letter-spacing: 0; color: var(--gold); font-variant-numeric: tabular-nums; }
+
+.apf-flag-wrap {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(8px, 1.6dvh, 16px) 0;
+}
+.apf-flag { aspect-ratio: 1.9; transform: rotate(-0.6deg); }
+.apf-flag-wrap .apf-flag { width: min(100cqw, 100cqh * 1.9, 860px); }
+.apf-flag-art { display: block; width: 100%; height: 100%; box-shadow: 0 26px 60px rgba(0, 0, 0, 0.6), 0 0 80px rgba(120, 130, 210, 0.18); }
+.apf-star-new { animation: apf-star 0.6s cubic-bezier(0.3, 1.6, 0.5, 1) both; }
+@keyframes apf-star { from { transform: scale(0.1) rotate(-72deg); opacity: 0; } }
+.apf-flag[data-verdict='bullseye'] .apf-flag-art { animation: apf-glow 1s ease; }
+@keyframes apf-glow { 40% { box-shadow: 0 26px 60px rgba(0, 0, 0, 0.6), 0 0 90px rgba(240, 211, 143, 0.55); } }
+
+/* What happened: a ribbon over the flag's foot. */
+.apf-result {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: clamp(4px, 1dvh, 10px);
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: min(92%, 680px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 4px 10px;
+  padding: 8px 18px;
+  border-radius: 10px;
+  background: rgba(11, 15, 34, 0.9);
+  border: 1px solid rgba(240, 211, 143, 0.45);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  text-align: center;
+  animation: apf-rise 0.45s ease both;
+}
+.apf-result-line { font-family: var(--pe-ui); font-size: 15px; line-height: 1.4; color: #f3f1ea; }
+.apf-result[data-verdict='bullseye'] { border-color: var(--gold); }
+.apf-result[data-verdict='bullseye'] .apf-result-line { color: var(--gold); font-weight: 600; }
+.apf-points { font-family: var(--pe-ui); font-weight: 700; font-size: 15px; color: #0b0f22; background: var(--gold); border-radius: 999px; padding: 1px 9px; }
+.apf-milestone { flex-basis: 100%; font-family: var(--pe-ui); font-size: 13px; line-height: 1.4; color: #d6d9e8; }
+
+.apf-play { position: relative; z-index: 2; flex: none; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.apf-ticket { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 2px 14px; text-align: center; }
+.apf-ticket-n { font-family: var(--pe-ui); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); }
+.apf-ticket-name { font-family: 'Libre Caslon Text', Georgia, serif; font-weight: 700; font-size: clamp(1.5rem, 2.6vw, 2.1rem); line-height: 1.15; color: #fff; }
+.apf-ticket-ask { font-family: var(--pe-ui); font-size: 15px; color: #d6d9e8; }
+
+/* The ruler of decades. */
+.apf-ruler { width: min(1100px, 100%); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.apf-ruler-label { font-family: var(--pe-ui); font-size: 11px; letter-spacing: 0.22em; text-transform: uppercase; color: #9fa5c4; }
+.apf-decades {
+  list-style: none;
+  margin: 0;
+  padding: 0 4px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(17, minmax(0, 1fr));
+  gap: 4px;
+  border-top: 2px solid rgba(240, 211, 143, 0.5);
+}
+.ap-flag-room .apf-decade {
+  appearance: none;
+  width: 100%;
+  min-height: 56px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 6px 2px 8px;
+  border: 1px solid rgba(201, 205, 224, 0.25);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  background: rgba(20, 26, 58, 0.75);
+  color: #f3f1ea;
+  font-family: var(--pe-ui);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.ap-flag-room .apf-decade:hover { background: #3a4290; transform: translateY(2px); }
+.ap-flag-room .apf-decade:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+.apf-decade-label { font-size: 13px; font-variant-numeric: tabular-nums; }
+.apf-pins { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; min-height: 8px; max-width: 32px; }
+.apf-pin { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 6px rgba(240, 211, 143, 0.6); }
+
+.ap-flag-room .apf-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 10px 22px;
+  border: 1.5px solid currentColor;
+  border-radius: 2px;
+  background: transparent;
+  color: #f3f1ea;
+  font-family: var(--pe-ui);
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+}
+.ap-flag-room .apf-button-primary { background: #b33a40; border-color: #b33a40; color: #fff; }
+.ap-flag-room .apf-button-primary:hover { background: #c94a50; }
+.ap-flag-room .apf-button-quiet { border-color: transparent; text-decoration: underline; text-underline-offset: 4px; }
+
+.apf-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+@keyframes apf-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; } }
+@keyframes apf-rise { from { opacity: 0; transform: translate(-50%, 8px); } to { opacity: 1; transform: translateX(-50%); } }
+
+/* A laptop's short screen: everything drawn a little closer. */
+@media (min-width: 761px) and (max-height: 820px) {
+  .apf-stage { --gutter: calc(var(--ap-fw) + 8px); }
+  .apf-flag-intro, .apf-flag-done { width: min(360px, 26dvh * 1.9); }
+  .apf-fact { font-size: 13px; }
+  .apf-milestones { font-size: 13px; }
+  .ap-flag-room .apf-decade { min-height: 50px; }
+  .apf-play { gap: 6px; }
+}
+
+/* An iPad held upright: the ruler in two rows, so every decade is easy to tap. */
+@media (min-width: 761px) and (orientation: portrait) {
+  .apf-decades { grid-template-columns: repeat(9, minmax(0, 1fr)); row-gap: 10px; border-top: 0; }
+  .ap-flag-room .apf-decade { border-top: 2px solid rgba(240, 211, 143, 0.5); min-height: 60px; }
+}
+
+/* A phone: one column that scrolls. */
+@media (max-width: 760px) {
+  .apf-stage { height: auto; min-height: 100dvh; overflow: visible; --gutter: calc(var(--ap-fw) + 6px); padding-top: calc(var(--ap-fw) + 52px); padding-bottom: calc(var(--ap-fw) + 72px); }
+  .apf-bar { padding: 0; flex-wrap: wrap; gap: 6px 16px; }
+  .apf-flag-wrap { flex: none; height: 34dvh; }
+  .apf-result { position: relative; left: auto; bottom: auto; transform: none; margin-top: 10px; animation: none; }
+  .apf-flag-wrap { flex-direction: column; height: auto; container-type: inline-size; }
+  .apf-flag-wrap .apf-flag { width: 100%; }
+  .apf-decades { grid-template-columns: repeat(5, minmax(0, 1fr)); row-gap: 8px; border-top: 0; }
+  .ap-flag-room .apf-decade { border-top: 2px solid rgba(240, 211, 143, 0.5); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .apf-intro, .apf-done, .apf-result, .apf-star-new, .apf-flag[data-verdict='bullseye'] .apf-flag-art { animation: none; }
+  .ap-flag-room .apf-decade { transition: none; }
+  .ap-flag-room .apf-decade:hover { transform: none; }
+}

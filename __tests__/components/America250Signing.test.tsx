@@ -1,6 +1,10 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import America250Signing from '@/app/exhibitions/america-250/sign/page';
-import { COPIES, FLAG_MILESTONES, FLAG_STATES, FLAG_TEXT, SIGN_TEXT, starLine } from '@/app/exhibitions/america-250/sign/signText';
+import ACopyOfACopy from '@/app/exhibitions/america-250/copies/page';
+import AddAStar from '@/app/exhibitions/america-250/flag/page';
+import { MISSIONS } from '@/app/exhibitions/america-250/copies/missions';
+import { DECADES, MAX_SCORE, ROUNDS, decadeOf, judge, milestoneBetween, namesOf, verdictLine } from '@/app/exhibitions/america-250/flag/game';
+import { COPIES, COPIES_HREF, FLAG_HREF, FLAG_MILESTONES, FLAG_STATES, FLAG_TEXT, SIGN_TEXT, starLine } from '@/app/exhibitions/america-250/sign/signText';
 import { DECLARATION_BODY, DECLARATION_HEAD, DECLARATION_SIGNERS, DECLARATION_SOURCE, DECLARATION_TITLE, OWN_DECLARATIONS, classWords, gradeWords, ownTitle, ownWording, PRINT_SIGNATURE_LINES } from '@/app/exhibitions/america-250/sign/declaration';
 import { FLAG, starLayout, stripesFor, unionHeight } from '@/app/exhibitions/america-250/sign/flagLayout';
 import { inkAfter, inkAlpha, INK_PER_DIP, nibPath, nibQuad, thin } from '@/app/exhibitions/america-250/sign/signing';
@@ -10,7 +14,7 @@ import { AMERICA_250 } from '@/app/exhibitions/america-250/america250';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
 import sitemap from '@/app/sitemap';
-import { SIGN_SOURCES } from '@/app/exhibitions/america-250/sign/sources';
+import { COPIES_SOURCES, FLAG_SOURCES, SIGN_SOURCES } from '@/app/exhibitions/america-250/sign/sources';
 
 /** The room's Sources drawer, opened: every source and picture credit is there, none inline. */
 function openSources() {
@@ -22,15 +26,19 @@ function sourcesGroup(drawer: HTMLElement, title: string) {
   return within(drawer).getByRole('heading', { name: title }).closest('section') as HTMLElement;
 }
 
+
 /*
- * America 250's signing room: every line about 1776 is the posters' own, the
- * quill's ink and nib, signing (typed, for the keyboard), the copies, and the
- * flag. Carved out of "the posters' own": the four copies' notes (COPIES),
- * the flag's states and milestones (FLAG_TEXT, FLAG_STATES, FLAG_MILESTONES),
- * owner-approved and fact-checked, each set with its source.
- * The parchment carries the Declaration's own words, the National Archives'
- * transcription; the class's and the student's declarations are the
- * owner's wording, their blanks filled in, and print with their names.
+ * America 250's signing, now three rooms of its own: Put Your Name to It
+ * (read the Declaration, dip the quill, sign; or the class's or the
+ * student's own declaration), A Copy of a Copy (a detective's case, copy by
+ * copy) and Add a Star (guess when each state joined, and grow the flag).
+ * Every line about 1776 is the posters' own; carved out of that, the four
+ * copies' notes (COPIES), the flag's states and milestones (FLAG_TEXT,
+ * FLAG_STATES, FLAG_MILESTONES), owner-approved and fact-checked, each set
+ * with its source. The parchment carries the Declaration's own words, the
+ * National Archives' transcription; the class's and the student's
+ * declarations are the owner's wording, their blanks filled in, and print
+ * with their names.
  */
 
 /** The posters' words, as read: "*…*" marks italics; quotes and cites both. */
@@ -118,68 +126,69 @@ describe('the quill', () => {
   });
 });
 
-describe('the room', () => {
+describe('Put Your Name to It: the way in', () => {
   beforeEach(() => window.history.replaceState(null, '', '/exhibitions/america-250/sign'));
 
-  it('has three tabs, and the keyboard moves between them', () => {
+  it('says what to do in the middle of the room, and offers the three declarations as separate choices', () => {
     render(<America250Signing />);
-    const sign = screen.getByRole('tab', { name: /Sign your name/ });
-    const copies = screen.getByRole('tab', { name: /A copy of a copy/ });
-    expect(sign).toHaveAttribute('aria-selected', 'true');
-    fireEvent.keyDown(sign, { key: 'ArrowRight' });
-    expect(copies).toHaveAttribute('aria-selected', 'true');
-    expect(copies).toHaveFocus();
-    expect(window.location.hash).toBe('#copies');
-    fireEvent.keyDown(copies, { key: 'ArrowRight' });
-    expect(screen.getByRole('tab', { name: /The flag/ })).toHaveAttribute('aria-selected', 'true');
-    expect(window.location.hash).toBe('#flag');
+    expect(screen.getByRole('heading', { level: 1, name: SIGN_TEXT.title })).toBeInTheDocument();
+    expect(screen.getByText(SIGN_TEXT.chooseLead)).toBeInTheDocument();
+    const how = screen.getByRole('list', { name: 'How it works' });
+    expect(within(how).getAllByRole('listitem').map((li) => li.textContent)).toEqual(SIGN_TEXT.steps.map((s, i) => `${i + 1}${s}`));
+    expect(screen.getByRole('heading', { level: 2, name: SIGN_TEXT.chooseAsk })).toBeInTheDocument();
+    for (const name of [/The Declaration/, /Our Class Declaration/, /My Declaration/]) expect(screen.getByRole('button', { name })).toBeInTheDocument();
+    // Nothing to the side: no parchment, no tray, until one is chosen.
+    expect(screen.queryByRole('region', { name: /Declaration of Independence/ })).toBeNull();
+    expect(screen.queryByRole('tab')).toBeNull();
   });
 
-  it('sets the four copies side by side; choosing one gives its note, its sources and credit left to the Sources drawer', () => {
+  it('opens the chosen one on the desk, at its own address, and goes back to choose another', () => {
     render(<America250Signing />);
-    fireEvent.click(screen.getByRole('tab', { name: /A copy of a copy/ }));
-    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
-    const desk = screen.getByRole('group', { name: /side by side/ });
-    const pictures = within(desk).getAllByRole('button');
-    expect(pictures).toHaveLength(4);
-    expect(pictures[0]).toHaveAttribute('aria-pressed', 'true');
-    expect(within(panel).getByText(COPIES[0].note.text)).toBeInTheDocument();
-    // Nothing cited on the card: the sources and the picture's credit are in the Sources drawer.
-    for (const s of [...COPIES[0].note.sources, COPIES[0].credit]) expect(within(panel).queryByRole('link', { name: s.label })).toBeNull();
-    expect(within(panel).queryByText(/^(Source|Sources|Picture):/)).toBeNull();
-    // A picture on the desk chooses it
-    fireEvent.click(pictures[1]);
-    expect(pictures[1]).toHaveAttribute('aria-pressed', 'true');
-    expect(within(panel).getByText(COPIES[1].note.text)).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('2 of 4: The Goddard broadside, 1777.');
-    // The numbers on the card choose too, and the posters' words come with Stone's engraving
-    fireEvent.click(within(panel).getByRole('button', { name: /Stone’s engraving/ }));
-    expect(within(panel).getByText(COPIES[2].note.text)).toBeInTheDocument();
-    expect(within(panel).getByText(COPIES[2].quote!)).toBeInTheDocument();
-    fireEvent.click(within(panel).getByRole('button', { name: /The signed parchment today/ }));
-    expect(within(panel).getByText(COPIES[3].note.text)).toBeInTheDocument();
-    expect(within(panel).getByText(SIGN_TEXT.copiesClose)).toBeInTheDocument();
-    expect(within(panel).getByRole('button', { name: /The next copy/ })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: /Our Class Declaration/ }));
+    expect(window.location.hash).toBe('#class');
+    expect(screen.getByRole('region', { name: /Our Class Declaration/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Our Class Declaration' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('heading', { level: 1, name: SIGN_TEXT.title })).toHaveFocus();
+    fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.chooseOther }));
+    expect(window.location.hash).toBe('');
+    expect(screen.getByRole('heading', { level: 2, name: SIGN_TEXT.chooseAsk })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /The Declaration/ }));
+    expect(window.location.hash).toBe('#sign');
+    expect(screen.getByRole('region', { name: /Declaration of Independence/ })).toBeInTheDocument();
   });
 
-  it('brings a copy up close under a lens the keyboard can move, and back to all four', () => {
-    window.history.replaceState(null, '', '/exhibitions/america-250/sign#copies');
+  it('walks the three steps: read it, dip the quill (it starts dry), sign', () => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign');
     render(<America250Signing />);
-    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
-    fireEvent.click(within(panel).getByRole('button', { name: SIGN_TEXT.closer }));
-    expect(screen.queryByRole('group', { name: /side by side/ })).toBeNull();
-    const lens = screen.getByRole('group', { name: COPIES[0].alt });
-    expect(lens).toHaveAttribute('aria-roledescription', 'magnifier');
-    expect(lens).toHaveAttribute('tabIndex', '0');
-    expect(lens.querySelector('img')).toHaveAttribute('src', COPIES[0].src);
-    expect(within(panel).getByText(SIGN_TEXT.lensHint)).toBeInTheDocument();
-    // The next copy stays close
-    fireEvent.click(within(panel).getByRole('button', { name: /The next copy/ }));
-    expect(screen.getByRole('group', { name: COPIES[1].alt })).toBeInTheDocument();
-    fireEvent.click(within(panel).getByRole('button', { name: SIGN_TEXT.sideBySide }));
-    expect(screen.getByRole('group', { name: /side by side/ })).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('All four copies, side by side.');
+    const steps = within(screen.getByRole('list', { name: 'Three steps' })).getAllByRole('listitem');
+    expect(steps[0]).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByText(SIGN_TEXT.dipFirst, { selector: '.aps-dry' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Go to the line to sign/ }));
+    expect(steps[0]).toHaveTextContent('(done)');
+    expect(steps[1]).toHaveAttribute('aria-current', 'step');
+    fireEvent.click(screen.getByRole('button', { name: 'Dip the quill in the ink' }));
+    expect(screen.getByRole('status')).toHaveTextContent('The quill is full of ink.');
+    expect(screen.queryByText(SIGN_TEXT.dipFirst, { selector: '.aps-dry' })).toBeNull();
+    expect(steps[2]).toHaveAttribute('aria-current', 'step');
   });
+
+  it('asks for a dip before the dry quill will write', () => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign');
+    const box = { left: 0, top: 0, right: 100, bottom: 30, width: 100, height: 30, x: 0, y: 0, toJSON: () => ({}) };
+    const rect = jest.spyOn(HTMLCanvasElement.prototype, 'getBoundingClientRect').mockReturnValue(box as DOMRect);
+    try {
+      render(<America250Signing />);
+      const pad = screen.getByRole('img', { name: /The line to sign on/ });
+      fireEvent(pad, new MouseEvent('pointerdown', { bubbles: true, clientX: 10, clientY: 10 }));
+      expect(screen.getByRole('status')).toHaveTextContent('The quill is dry. Dip it in the ink first.');
+    } finally {
+      rect.mockRestore();
+    }
+  });
+});
+
+describe('Put Your Name to It: the Declaration', () => {
+  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign'));
 
   it('signs by keyboard: type a name and an address, put your name to it, and the posters answer', () => {
     render(<America250Signing />);
@@ -212,7 +221,7 @@ describe('the room', () => {
     expect(screen.getByRole('status')).toHaveTextContent('the line to sign on');
     // The transcription's source is in the Sources drawer, not under the sheet.
     expect(screen.queryByRole('link', { name: DECLARATION_SOURCE.label })).toBeNull();
-    const group = sourcesGroup(openSources(), SIGN_TEXT.signHeading);
+    const group = sourcesGroup(openSources(), SIGN_TEXT.title);
     expect(within(group).getByRole('link', { name: DECLARATION_SOURCE.label })).toHaveAttribute('href', 'https://www.archives.gov/founding-docs/declaration-transcript');
   });
 });
@@ -236,7 +245,7 @@ describe('the Declaration’s text', () => {
 describe('the class’s and the student’s own declarations', () => {
   const print = jest.fn();
   beforeEach(() => {
-    window.history.replaceState(null, '', '/exhibitions/america-250/sign');
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign');
     print.mockClear();
     window.print = print;
   });
@@ -386,30 +395,91 @@ describe('the class’s and the student’s own declarations', () => {
   });
 });
 
-describe('the quill and the copies', () => {
-  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/america-250/sign'));
+describe('A Copy of a Copy', () => {
+  beforeEach(() => window.history.replaceState(null, '', COPIES_HREF));
 
-  it('dips the quill', () => {
-    render(<America250Signing />);
-    fireEvent.click(screen.getByRole('button', { name: 'Dip the quill in the ink' }));
-    expect(screen.getByRole('status')).toHaveTextContent('The quill is full of ink.');
+  it('asks one thing to find on each copy, in the copies’ order, every answer among its choices', () => {
+    expect(MISSIONS.map((m) => m.copy)).toEqual(COPIES.map((c) => c.id));
+    for (const m of MISSIONS) {
+      expect(m.choices.map((c) => c.id)).toContain(m.answer);
+      expect(new Set(m.choices.map((c) => c.id)).size).toBe(m.choices.length);
+    }
+    // What is found is what each photograph shows (its alt text) and its note says.
+    expect(COPIES[0].alt).toContain('only John Hancock’s and Charles Thomson’s names printed at its foot');
+    expect(COPIES[1].note.text).toContain('her own name at its foot');
+    expect(COPIES[2].alt).toContain('John Hancock’s largest');
+    expect(COPIES[3].alt).toContain('nearly all the signatures faded almost away');
   });
 
-  it('takes the signer on to see how the Declaration was copied', () => {
-    render(<America250Signing />);
-    fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
-    fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
-    fireEvent.click(screen.getByRole('button', { name: 'See how it was copied' }));
-    const panel = screen.getByRole('tabpanel', { name: /A copy of a copy/ });
-    expect(within(panel).getByText(COPIES[0].note.text)).toBeInTheDocument();
-    expect(within(panel).getByRole('button', { name: /Earlier/ })).toBeDisabled();
+  it('opens on the case: the posters’ words, what to do, and one button to start', () => {
+    render(<ACopyOfACopy />);
+    expect(screen.getByRole('heading', { level: 1, name: SIGN_TEXT.copiesHeading })).toBeInTheDocument();
+    expect(screen.getByText(SIGN_TEXT.copiesIntro)).toBeInTheDocument();
+    expect(screen.getByText(SIGN_TEXT.copiesLead)).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: COPIES[0].alt })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.copiesStart }));
+    expect(screen.getByRole('heading', { level: 1, name: /The Dunlap broadside/ })).toHaveFocus();
+    const lens = screen.getByRole('group', { name: COPIES[0].alt });
+    expect(lens).toHaveAttribute('aria-roledescription', 'magnifier');
+    expect(lens.querySelector('img')).toHaveAttribute('src', COPIES[0].src);
+    const chain = within(screen.getByRole('list', { name: /The copy chain/ })).getAllByRole('listitem');
+    expect(chain).toHaveLength(4);
+    expect(chain[0]).toHaveAttribute('aria-current', 'step');
+    expect(chain[1]).toHaveTextContent('Not opened yet');
+  });
+
+  it('says where to look again after a wrong guess, then turns the slip over to what the copy is', () => {
+    render(<ACopyOfACopy />);
+    fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.copiesStart }));
+    fireEvent.click(screen.getByRole('button', { name: 'All fifty-six signers' }));
+    expect(screen.getByRole('button', { name: /All fifty-six signers/ })).toBeDisabled();
+    expect(screen.getByText(MISSIONS[0].hint)).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Not that one.');
+    expect(screen.queryByText(COPIES[0].note.text)).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Just two' }));
+    expect(screen.getByText(MISSIONS[0].found)).toBeInTheDocument();
+    expect(screen.getByText(COPIES[0].note.text)).toBeInTheDocument();
+    expect(screen.queryByText(/a star!/)).toBeNull();
+    // Nothing cited on the slip: the sources and the picture's credit are in the Sources drawer.
+    for (const src of [...COPIES[0].note.sources, COPIES[0].credit]) expect(screen.queryByRole('link', { name: src.label })).toBeNull();
+    const next = screen.getByRole('button', { name: /The next copy/ });
+    expect(next).toHaveFocus();
+    fireEvent.click(next);
+    expect(screen.getByRole('heading', { level: 1, name: /The Goddard broadside/ })).toBeInTheDocument();
+    expect(within(screen.getByRole('list', { name: /The copy chain/ })).getAllByRole('listitem')[0]).toHaveTextContent('(solved)');
+  });
+
+  it('closes the case with the stars found first time, the posters’ last word, and the way on', () => {
+    render(<ACopyOfACopy />);
+    fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.copiesStart }));
+    for (const [i, m] of MISSIONS.entries()) {
+      fireEvent.click(screen.getByRole('button', { name: m.choices.find((c) => c.id === m.answer)!.label }));
+      expect(screen.getByText(/Found first time: a star!/, { selector: '.apc-star-earned' })).toBeInTheDocument();
+      if (COPIES[i].quote) expect(screen.getByText(COPIES[i].quote!)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: i === MISSIONS.length - 1 ? /Close the case/ : /The next copy/ }));
+    }
+    expect(screen.getByRole('heading', { level: 1, name: SIGN_TEXT.copiesEnd })).toHaveFocus();
+    expect(screen.getByText('4 of 4 found first time')).toBeInTheDocument();
+    expect(screen.getByText(SIGN_TEXT.copiesClose)).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /Next: Add a Star/ })).toHaveAttribute('href', FLAG_HREF);
+    fireEvent.click(screen.getByRole('button', { name: 'Play again' }));
+    expect(screen.getByRole('heading', { level: 1, name: /The Dunlap broadside/ })).toBeInTheDocument();
+  });
+
+  it('lists each copy’s sources and picture credit in its Sources drawer', () => {
+    const { container } = render(<ACopyOfACopy />);
+    expect(container.querySelector('.apc-fact-source')).toBeNull();
+    const drawer = openSources();
+    expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(COPIES_SOURCES.map((g) => g.title));
+    for (const c of COPIES) {
+      const group = sourcesGroup(drawer, `${SIGN_TEXT.copiesHeading}: ${c.name}`);
+      for (const src of c.note.sources) expect(within(group).getByRole('link', { name: src.label })).toHaveAttribute('href', src.href);
+      expect(within(group).getByRole('link', { name: c.credit.label })).toHaveAttribute('href', c.credit.href);
+    }
   });
 });
 
-describe('the flag', () => {
-  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/america-250/sign#flag'));
-
+describe('Add a Star: the flag', () => {
   it('draws 13 to 50 stars, 15 stripes only from 1795 to 1818, and the 50 as Executive Order 10834 sets them', () => {
     expect(stripesFor(13)).toBe(13);
     expect(stripesFor(15)).toBe(15);
@@ -430,53 +500,6 @@ describe('the flag', () => {
     expect(FLAG_MILESTONES.map((m) => [m.year, m.stars])).toEqual([[1777, 13], [1795, 15], [1818, 20], [1960, 50]]);
   });
 
-  it('opens at #flag; a tap, the button and the arrow keys add stars, and the milestones appear as they pass', () => {
-    render(<America250Signing />);
-    expect(screen.getByRole('tab', { name: /The flag/ })).toHaveAttribute('aria-selected', 'true');
-    const panel = screen.getByRole('tabpanel', { name: /The flag/ });
-    const flag = screen.getByRole('slider', { name: /stars/ });
-    expect(flag).toHaveAttribute('aria-valuenow', '13');
-    expect(within(panel).getByText(FLAG_MILESTONES[0].text)).toBeInTheDocument();
-    expect(within(panel).queryByText(FLAG_MILESTONES[1].text)).toBeNull();
-
-    fireEvent.click(flag);
-    fireEvent.click(within(panel).getByRole('button', { name: 'Add a star' }));
-    expect(flag).toHaveAttribute('aria-valuenow', '15');
-    expect(flag).toHaveAttribute('aria-valuetext', '15 stars and 15 stripes. The newest, Kentucky, 1792');
-    expect(within(panel).getByText(FLAG_MILESTONES[1].text)).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent(`1795: ${FLAG_MILESTONES[1].text}`);
-
-    for (let i = 0; i < 5; i++) fireEvent.keyDown(flag, { key: 'ArrowRight' });
-    expect(flag).toHaveAttribute('aria-valuenow', '20');
-    expect(within(panel).getByText(FLAG_MILESTONES[2].text)).toBeInTheDocument();
-    fireEvent.keyDown(flag, { key: 'End' });
-    expect(flag).toHaveAttribute('aria-valuenow', '50');
-    expect(within(panel).getByText(FLAG_MILESTONES[3].text)).toBeInTheDocument();
-    expect(within(panel).getByRole('button', { name: 'Add a star' })).toBeDisabled();
-    fireEvent.keyDown(flag, { key: 'ArrowDown' });
-    expect(flag).toHaveAttribute('aria-valuenow', '49');
-    expect(within(panel).queryByText(FLAG_MILESTONES[3].text)).toBeNull();
-    fireEvent.click(within(panel).getByRole('button', { name: 'Back to 13' }));
-    expect(flag).toHaveAttribute('aria-valuenow', '13');
-  });
-
-  it('sets its sources, linked, in the Sources drawer', () => {
-    render(<America250Signing />);
-    const panel = screen.getByRole('tabpanel', { name: /The flag/ });
-    for (const s of FLAG_TEXT.sources) expect(within(panel).queryByRole('link', { name: s.label })).toBeNull();
-    const group = sourcesGroup(openSources(), SIGN_TEXT.flagHeading);
-    for (const s of FLAG_TEXT.sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
-    expect(FLAG_TEXT.sources.map((s) => s.href)).toEqual([
-      'https://www.govinfo.gov/content/pkg/CDOC-108hdoc97/html/CDOC-108hdoc97.htm',
-      'https://www.archives.gov/federal-register/codification/executive-order/10834.html',
-      'https://postalmuseum.si.edu/exhibition/long-may-it-wave/the-evolution-of-the-american-flag',
-    ]);
-  });
-});
-
-describe('the flag’s stars, state by state', () => {
-  beforeEach(() => window.history.replaceState(null, '', '/exhibitions/america-250/sign#flag'));
-
   it('names a state and the year it joined for every star from 14 to 50, in order, ending with Hawaii in 1959', () => {
     expect(FLAG_TEXT.originals).toHaveLength(13);
     expect(FLAG_STATES.map((s) => s.stars)).toEqual(Array.from({ length: 37 }, (_, i) => i + 14));
@@ -493,49 +516,109 @@ describe('the flag’s stars, state by state', () => {
     expect(starLine(43)).toBe('The 43rd star: Idaho, which joined the Union in 1890.');
     expect(FLAG_MILESTONES.at(-1)!.text).toContain('July 4, 1960');
   });
+});
 
-  it('opens on the 13 stars and the 13 original states, sourced', () => {
-    render(<America250Signing />);
-    const panel = screen.getByRole('tabpanel', { name: /The flag/ });
-    expect(within(panel).getByText(FLAG_TEXT.thirteen.text)).toBeInTheDocument();
-    const list = within(panel).getByRole('list', { name: FLAG_TEXT.originalsLabel });
-    expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual(FLAG_TEXT.originals);
-    expect(within(sourcesGroup(openSources(), SIGN_TEXT.flagHeading)).getByRole('link', { name: FLAG_TEXT.sources[0].label })).toBeInTheDocument();
+describe('Add a Star: the game', () => {
+  beforeEach(() => window.history.replaceState(null, '', FLAG_HREF));
+
+  it('takes the states in the order they joined, those of one year together, on a ruler of decades from the 1790s to the 1950s', () => {
+    expect(ROUNDS.flatMap((r) => r.states.map((s) => s.stars))).toEqual(FLAG_STATES.map((s) => s.stars));
+    expect(ROUNDS).toHaveLength(new Set(FLAG_STATES.map((s) => s.year)).size);
+    expect(namesOf(ROUNDS.find((r) => r.year === 1889)!)).toBe('North Dakota, South Dakota, Montana and Washington');
+    expect(namesOf(ROUNDS.find((r) => r.year === 1959)!)).toBe('Alaska and Hawaii');
+    expect(DECADES[0]).toBe(1790);
+    expect(DECADES.at(-1)).toBe(1950);
+    expect(DECADES).toHaveLength(17);
+    expect(decadeOf(1791)).toBe(1790);
+    expect([judge(1790, 1791), judge(1800, 1791), judge(1780, 1791), judge(1830, 1803), judge(1790, 1803)]).toEqual(['bullseye', 'close', 'close', 'late', 'close']);
+    expect(judge(1790, 1821)).toBe('early');
+    expect(verdictLine('bullseye', ROUNDS[0])).toBe('Bullseye! Vermont joined the Union in 1791.');
+    expect(milestoneBetween(14, 15)?.year).toBe(1795);
+    expect(milestoneBetween(15, 16)).toBeUndefined();
+    expect(MAX_SCORE).toBe(ROUNDS.length * 3);
   });
 
-  it('says which state each added star stands for, on the card, to the screen reader and on the slider', () => {
-    render(<America250Signing />);
-    const panel = screen.getByRole('tabpanel', { name: /The flag/ });
-    const flag = screen.getByRole('slider', { name: /stars/ });
-    fireEvent.click(within(panel).getByRole('button', { name: 'Add a star' }));
-    expect(within(panel).getByText(starLine(14)!)).toBeInTheDocument();
-    expect(within(panel).queryByRole('list', { name: FLAG_TEXT.originalsLabel })).toBeNull();
-    expect(screen.getByRole('status')).toHaveTextContent(starLine(14)!);
-    expect(flag).toHaveAttribute('aria-valuetext', '14 stars and 13 stripes. The newest, Vermont, 1791');
-    fireEvent.keyDown(flag, { key: 'End' });
-    expect(within(panel).getByText(starLine(50)!)).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('The 50th star: Hawaii, which joined the Union in 1959.');
-    fireEvent.keyDown(flag, { key: 'Home' });
-    expect(within(panel).getByText(FLAG_TEXT.thirteen.text)).toBeInTheDocument();
-    expect(flag).toHaveAttribute('aria-valuetext', '13 stars and 13 stripes, for the 13 original states');
+  it('opens on the 13 stars and the 13 original states, and how to play', () => {
+    render(<AddAStar />);
+    expect(screen.getByRole('heading', { level: 1, name: SIGN_TEXT.flagHeading })).toBeInTheDocument();
+    expect(screen.getByText(FLAG_TEXT.intro)).toBeInTheDocument();
+    expect(screen.getByText(FLAG_TEXT.thirteen.text)).toBeInTheDocument();
+    const list = screen.getByRole('list', { name: FLAG_TEXT.originalsLabel });
+    expect(within(list).getAllByRole('listitem').map((li) => li.textContent)).toEqual(FLAG_TEXT.originals);
+    expect(screen.getByRole('img', { name: 'The flag with 13 stars' })).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: FLAG_TEXT.pick })).toBeNull();
+  });
+
+  it('asks the decade before each star goes on, and says when the state really joined', () => {
+    render(<AddAStar />);
+    fireEvent.click(screen.getByRole('button', { name: FLAG_TEXT.start }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Vermont' })).toHaveFocus();
+    const ruler = screen.getByRole('group', { name: FLAG_TEXT.pick });
+    expect(within(ruler).getAllByRole('button').map((b) => b.textContent)).toEqual(DECADES.map((d) => `${d}s`));
+    fireEvent.click(within(ruler).getByRole('button', { name: '1790s' }));
+    expect(screen.getByRole('img', { name: 'The flag with 14 stars' })).toBeInTheDocument();
+    expect(screen.getByText('Bullseye! Vermont joined the Union in 1791.')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Next: Kentucky.');
+    expect(screen.getByRole('heading', { level: 1, name: 'Kentucky' })).toBeInTheDocument();
+    // Kentucky joined in 1792: the 1810s are too late, and its star passes the 1795 milestone.
+    fireEvent.click(within(ruler).getByRole('button', { name: '1810s' }));
+    expect(screen.getByText('Too late. Kentucky joined the Union in 1792, earlier than that.')).toBeInTheDocument();
+    expect(screen.getByText(FLAG_MILESTONES[1].text)).toBeInTheDocument();
+    expect(screen.getByText(/Score/)).toHaveTextContent('Score 3');
+  });
+
+  it('grows the flag to 50 stars, and ends with the score and every milestone', () => {
+    render(<AddAStar />);
+    fireEvent.click(screen.getByRole('button', { name: FLAG_TEXT.start }));
+    for (const r of ROUNDS) fireEvent.click(screen.getByRole('button', { name: `${decadeOf(r.year)}s` }));
+    expect(screen.getByRole('heading', { level: 1, name: FLAG_TEXT.finished })).toHaveFocus();
+    expect(screen.getByRole('img', { name: 'The flag with 50 stars' })).toBeInTheDocument();
+    expect(screen.getByText(/You scored/)).toHaveTextContent(`You scored ${MAX_SCORE} of ${MAX_SCORE}, with ${ROUNDS.length} bullseyes.`);
+    const milestones = within(screen.getByRole('list', { name: 'Milestones' })).getAllByRole('listitem');
+    expect(milestones.map((m) => m.textContent)).toEqual(FLAG_MILESTONES.map((m) => `${m.year} ${m.text}`));
+    expect(screen.getByRole('link', { name: SIGN_TEXT.backToSign })).toHaveAttribute('href', '/exhibitions/america-250/sign');
+    fireEvent.click(screen.getByRole('button', { name: FLAG_TEXT.again }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Vermont' })).toBeInTheDocument();
+  });
+
+  it('sets its sources, linked, in the Sources drawer', () => {
+    render(<AddAStar />);
+    for (const src of FLAG_TEXT.sources) expect(screen.queryByRole('link', { name: src.label })).toBeNull();
+    const drawer = openSources();
+    expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(FLAG_SOURCES.map((g) => g.title));
+    const group = sourcesGroup(drawer, SIGN_TEXT.flagHeading);
+    for (const src of FLAG_TEXT.sources) expect(within(group).getByRole('link', { name: src.label })).toHaveAttribute('href', src.href);
+    expect(FLAG_TEXT.sources.map((x) => x.href)).toEqual([
+      'https://www.govinfo.gov/content/pkg/CDOC-108hdoc97/html/CDOC-108hdoc97.htm',
+      'https://www.archives.gov/federal-register/codification/executive-order/10834.html',
+      'https://postalmuseum.si.edu/exhibition/long-may-it-wave/the-evolution-of-the-american-flag',
+    ]);
   });
 });
 
 describe('wiring', () => {
-  it('sets the room on the landing page, the projector, the map and the sitemap', () => {
-    expect(AMERICA_250.interactives?.map((c) => [c.href, c.label, c.title])).toEqual([['/exhibitions/america-250/sign', 'Interactive', 'Put Your Name to It']]);
+  it('sets the three rooms on the landing page, the projector, the map and the sitemap', () => {
+    const rooms = [
+      ['/exhibitions/america-250/sign', 'Put Your Name to It', 'ap-sign'],
+      ['/exhibitions/america-250/copies', 'A Copy of a Copy', 'ap-copies'],
+      ['/exhibitions/america-250/flag', 'Add a Star', 'ap-flag'],
+    ];
+    expect(AMERICA_250.interactives?.map((c) => [c.href, c.label, c.title])).toEqual(rooms.map(([href, title]) => [href, 'Interactive', title]));
     expect(AMERICA_250.interactives?.[0].image?.src).toBe('/exhibitions/america-250/rooms/sign.webp');
-    expect(AMERICA_250.projector.links.map((l) => l.href)).toEqual(['/exhibitions/america-250/sign']);
-    expect(getRoomByPath('/exhibitions/america-250/sign')?.id).toBe('ap-sign');
-    expect(getLevelConfig('/exhibitions/america-250/sign').title).toBe('America 250');
-    expect(getLevelConfig('/exhibitions/america-250').floorPlan?.rooms.map((r) => r.path)).toContain('/exhibitions/america-250/sign');
-    expect(sitemap().map((e) => e.url)).toContainEqual(expect.stringMatching(/\/exhibitions\/america-250\/sign$/));
+    expect(AMERICA_250.projector.links.map((l) => l.href)).toEqual(rooms.map(([href]) => href));
+    const plan = getLevelConfig('/exhibitions/america-250').floorPlan?.rooms.map((r) => r.path);
+    for (const [href, , id] of rooms) {
+      expect(getRoomByPath(href)?.id).toBe(id);
+      expect(getLevelConfig(href).title).toBe('America 250');
+      expect(plan).toContain(href);
+      expect(sitemap().map((e) => e.url)).toContainEqual(expect.stringMatching(new RegExp(`${href}$`)));
+    }
   });
 });
 
 describe('fine tuning (regressions from trying the room)', () => {
   beforeEach(() => {
-    window.history.replaceState(null, '', '/exhibitions/america-250/sign');
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign');
     window.print = jest.fn();
   });
 
@@ -565,6 +648,7 @@ describe('fine tuning (regressions from trying the room)', () => {
     const rect = jest.spyOn(HTMLCanvasElement.prototype, 'getBoundingClientRect').mockReturnValue(box as DOMRect);
     try {
       render(<America250Signing />);
+      fireEvent.click(screen.getByRole('button', { name: 'Dip the quill in the ink' }));
       expect(screen.queryByText(/The quill is dry/)).toBeNull();
       const pad = screen.getByRole('img', { name: /The line to sign on/ });
       // jsdom has no PointerEvent: a mouse event of the pointer's type carries the position.
@@ -580,21 +664,23 @@ describe('fine tuning (regressions from trying the room)', () => {
       rect.mockRestore();
     }
   });
+
+  it('takes the signer on to A Copy of a Copy', () => {
+    render(<America250Signing />);
+    fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
+    expect(screen.getByRole('link', { name: /Next: A Copy of a Copy/ })).toHaveAttribute('href', COPIES_HREF);
+  });
 });
 
 describe('the Sources drawer', () => {
-  it('lists every source and picture credit, by tab and by copy, and nothing is cited on the page', () => {
-    window.history.replaceState(null, '', '/exhibitions/america-250/sign');
+  it('lists the Declaration’s source, and nothing is cited on the page', () => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign');
     const { container } = render(<America250Signing />);
     expect(container.querySelector('.aps-credit, .aps-fact-source')).toBeNull();
     expect(screen.queryByText(/^(Source|Sources|Picture):/)).toBeNull();
     const drawer = openSources();
     expect(within(drawer).getAllByRole('heading', { level: 3 }).map((h) => h.textContent)).toEqual(SIGN_SOURCES.map((g) => g.title));
-    for (const c of COPIES) {
-      const group = sourcesGroup(drawer, `${SIGN_TEXT.copiesHeading}: ${c.name}`);
-      for (const s of c.note.sources) expect(within(group).getByRole('link', { name: s.label })).toHaveAttribute('href', s.href);
-      // The picture credit, whole, with its "Public domain."
-      expect(within(group).getByRole('link', { name: c.credit.label })).toHaveAttribute('href', c.credit.href);
-    }
   });
 });

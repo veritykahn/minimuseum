@@ -53,10 +53,12 @@ type Props = {
   onFill?: (change: OwnFill) => void;
   /** For the printer: no scrolling, no inputs. */
   print?: boolean;
+  /** Told when the line to sign on comes into sight (read to the foot). */
+  onAtFoot?: () => void;
 };
 
 const Parchment = forwardRef<HTMLDivElement, Props>(function Parchment(
-  { doc, signers, pad, typing = '', address = '', version = 'classroom', fill = {}, onFill, print = false },
+  { doc, signers, pad, typing = '', address = '', version = 'classroom', fill = {}, onFill, print = false, onAtFoot },
   ref,
 ) {
   const [atFoot, setAtFoot] = useState(false);
@@ -76,8 +78,12 @@ const Parchment = forwardRef<HTMLDivElement, Props>(function Parchment(
   );
   const onScroll = useCallback(() => {
     const el = inner.current;
-    if (el) setAtFoot(el.scrollTop + el.clientHeight >= el.scrollHeight - 160);
-  }, []);
+    if (!el) return;
+    const foot = el.scrollTop + el.clientHeight >= el.scrollHeight - 160;
+    setAtFoot(foot);
+    // Only a real scroll down to it counts as read (jsdom and a closed parchment measure nothing).
+    if (foot && el.scrollHeight > el.clientHeight && el.scrollTop > 0) onAtFoot?.();
+  }, [onAtFoot]);
   useEffect(onScroll);
   useEffect(() => {
     const el = inner.current;

@@ -116,16 +116,6 @@ export const HANDS_CHARACTERS: HandsCharacter[] = [
   }
 ];
 
-/**
- * Three things to look for before the first guess. Each comes from the
- * stories above: whose coin it is, what metal, and how small.
- */
-export const HANDS_CLUES = [
-  { title: 'Whose name is on the coin?', text: 'A governor, a king or an emperor made each one. Think who used that ruler’s money.' },
-  { title: 'Silver or bronze?', text: 'The Temple accepted only the silver Tyrian shekel. Small bronze prutot bought bread in the market.' },
-  { title: 'How small is it?', text: 'The lepton was the smallest coin in circulation — worth less than half a penny.' },
-] as const;
-
 export const TIERS: Tier[] = [
   {
     min: 1,

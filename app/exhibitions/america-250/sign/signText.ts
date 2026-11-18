@@ -14,17 +14,30 @@ import type { ApprovedFact, FactSource } from '@/components/exhibition/FactNote'
  * Museum), and the test carves them out by name.
  */
 
+/** The three rooms that were once tabs of this one. */
+export const SIGN_HREF = '/exhibitions/america-250/sign';
+export const COPIES_HREF = '/exhibitions/america-250/copies';
+export const FLAG_HREF = '/exhibitions/america-250/flag';
+
 export const SIGN_TEXT = {
   title: 'Put Your Name to It',
-  signHeading: 'Sign your name',
-  signShort: 'Sign',
-  copiesHeading: 'A copy of a copy',
-  copiesShort: 'Copies',
-  flagHeading: 'The flag',
-  flagShort: 'Flag',
+  copiesHeading: 'A Copy of a Copy',
+  flagHeading: 'Add a Star',
 
-  signIntro: 'Read the Declaration on the parchment, scrolling inside it. Then dip the quill, and sign on the line at its foot with your finger or mouse.',
-  typeIntro: 'Read the Declaration on the parchment, scrolling inside it. Then type your name, and it is set on the line at its foot in a flowing hand.',
+  // The way in (instructions only): what to do, and the three declarations to choose from.
+  chooseLead: 'Read a declaration on the parchment, dip the quill in the ink, and sign your name on the line at its foot, with your finger or your mouse.',
+  chooseAsk: 'Which declaration will you put your name to?',
+  steps: ['Read it on the parchment', 'Dip the quill in the ink', 'Sign on the line at its foot'],
+  stepsTyped: ['Read it on the parchment', 'Type your name below', 'Put your name to it'],
+  choices: {
+    declaration: 'The Declaration of Independence, in its own words. Read it, then sign under the signers.',
+    class: 'Your class’s own declaration. Fill in your teacher and grade, then everyone signs, one after another.',
+    mine: 'Your own declaration for the year ahead. Add your name and grade, sign it, and print it.',
+  },
+  chooseOther: 'Choose another',
+  dipFirst: 'Dip the quill in the ink',
+  copiesNext: 'Next: A Copy of a Copy',
+
   toFoot: 'Go to the line to sign',
   privacy: 'Nothing you sign is saved or sent.',
   privacyWritten: 'Nothing you write or sign is saved or sent. Print it to keep it.',
@@ -32,8 +45,6 @@ export const SIGN_TEXT = {
   // The class's and the student's own declarations: instructions only (their wording is the owner's: declaration.ts).
   declarationName: 'The Declaration',
   declarationShort: '1776',
-  classIntro: 'Fill in your teacher’s name and your grade at the head of the parchment, and read your class’s declaration. Then each of you signs at its foot, one after another, and you print it.',
-  mineIntro: 'Add your name and grade at the head of the parchment if you like, and read your declaration. Then sign at its foot, and print it.',
   versionLabel: 'Version',
   addName: 'Add my name',
   mineSigned: 'Signed. Your declaration is yours to print.',
@@ -52,12 +63,18 @@ export const SIGN_TEXT = {
     'When they lifted their pens to sign, not one of those men could say with certainty what the outcome would be.',
   ],
 
+  // A Copy of a Copy, as a detective's case (instructions only: ../copies).
+  copiesLead: 'Four copies of the Declaration, from the first printing to the signed parchment today. On each one, find one thing with the lens. Then find out how that copy was made.',
+  copiesStart: 'Open the case',
+  copiesFound: 'Found it!',
+  copiesNextCopy: 'The next copy',
+  copiesEnd: 'Case closed',
+  copiesAgain: 'Look again with the lens.',
+  backToSign: 'Back to Put Your Name to It',
+  flagNext: 'Next: Add a Star',
+
   copiesIntro: 'What most people picture as the Declaration of Independence was not the actual document present at the Continental Congress.',
   copiesClose: 'The document Americans venerate is a copy of a copy, made nearly fifty years after the fact.',
-  /** Instructions for the four copies: no facts. */
-  copiesHow: 'Four copies, side by side. Choose one to read about it, then look closer with the magnifier.',
-  closer: 'Look closer',
-  sideBySide: 'All four side by side',
   lensHint: 'Move over the page, or tap it, to magnify. With the keyboard: Enter, then the arrow keys.',
 };
 
@@ -162,7 +179,14 @@ export const COPIES: Copy[] = [
 const OUR_FLAG: FactSource = { label: 'U.S. House of Representatives, “Our Flag” (H. Doc. 108-97)', href: 'https://www.govinfo.gov/content/pkg/CDOC-108hdoc97/html/CDOC-108hdoc97.htm' };
 
 export const FLAG_TEXT = {
-  intro: 'Add a star for each state. Tap the flag, use the buttons, or the arrow keys.',
+  intro: 'Each star on the flag stands for a state. Before each new star goes on, guess the decade its state joined the Union. The flag grows from 13 stars to 50.',
+  /** How it scores (instructions only). */
+  scoring: 'The right decade is a bullseye: 3 points. One decade out: 1 point.',
+  ask: 'When did it join the Union?',
+  start: 'Start with 13 stars',
+  pick: 'Tap a decade',
+  finished: 'Fifty stars!',
+  again: 'Play again',
   thirteen: {
     text: 'The flag began with a star for each of the 13 states that had been the Thirteen Colonies. A resolution of June 14, 1777, called for “thirteen stars, white in a blue field representing a new constellation.”',
     sources: [OUR_FLAG],
