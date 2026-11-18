@@ -1,0 +1,441 @@
+/* The role cards and the lesson finder, shared by "Teach with this" and the
+   Resources hub. Every colour is a --tw-* custom property set by the page
+   (teachTheme in lib/lessons/teach.ts), so each room's sheet wears its own. */
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Who are you? ── */
+
+.roleCards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 2vw, 20px);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.roleCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  min-height: 176px;
+  padding: 22px 20px 20px;
+  border: 1px solid var(--tw-line);
+  border-radius: 18px;
+  background: var(--tw-surface);
+  color: var(--tw-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
+}
+.roleCard:hover {
+  border-color: var(--tw-accent);
+  background: var(--tw-soft);
+  transform: translateY(-2px);
+}
+.roleIcon {
+  width: 48px;
+  height: 48px;
+  margin-bottom: auto;
+  padding-bottom: 14px;
+  box-sizing: content-box;
+  color: var(--tw-accent);
+}
+.roleName {
+  font-family: var(--tw-display);
+  font-size: clamp(1.4rem, 2.4vw, 1.75rem);
+  line-height: 1.1;
+  color: var(--tw-heading);
+}
+.roleHint {
+  font-size: 0.95rem;
+  color: var(--tw-muted);
+}
+
+.roleBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.roleBarLabel {
+  margin-right: 4px;
+  font-size: 0.9rem;
+  color: var(--tw-muted);
+}
+.roleChip,
+.gradeChip,
+.subjectChip {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--tw-line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--tw-ink);
+  font: inherit;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+.roleChip:hover,
+.gradeChip:hover,
+.subjectChip:hover {
+  border-color: var(--tw-accent);
+}
+.roleChip[aria-pressed='true'],
+.gradeChip[aria-pressed='true'],
+.subjectChip[aria-pressed='true'] {
+  background: var(--tw-accent);
+  border-color: var(--tw-accent);
+  color: var(--tw-on-accent);
+}
+.gradeChip {
+  min-width: 52px;
+  padding: 0 14px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── The finder ── */
+
+.finder {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+.askRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px 28px;
+}
+.ask {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.question {
+  margin: 0;
+  font-family: var(--tw-display);
+  font-size: clamp(1.25rem, 2.2vw, 1.5rem);
+  color: var(--tw-heading);
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.faith {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px 8px 10px;
+  border: 1px solid var(--tw-line);
+  border-radius: 999px;
+}
+.switch {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.switch::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  top: 10px;
+  height: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--tw-muted);
+  background: transparent;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.switchKnob {
+  position: absolute;
+  left: 6px;
+  top: 14px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--tw-muted);
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+.switch[aria-checked='true']::before {
+  background: var(--tw-accent);
+  border-color: var(--tw-accent);
+}
+.switch[aria-checked='true'] .switchKnob {
+  transform: translateX(20px);
+  background: var(--tw-on-accent);
+}
+.switchLabel {
+  font-size: 0.95rem;
+  color: var(--tw-ink);
+  cursor: pointer;
+}
+
+.answer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.prompt {
+  margin: 0;
+  padding: 26px 24px;
+  border: 1px dashed var(--tw-line);
+  border-radius: 16px;
+  color: var(--tw-muted);
+  text-align: center;
+}
+.forWho {
+  margin: 6px 0 0;
+  font-family: var(--tw-display);
+  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  font-weight: 400;
+  color: var(--tw-heading);
+}
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* One lesson: online on the left, its printables alongside. */
+.lesson {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  border: 1px solid var(--tw-line);
+  border-radius: 20px;
+  background: var(--tw-surface);
+  overflow: hidden;
+}
+.lessonOnline {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: clamp(20px, 3vw, 32px);
+}
+.lessonExhibition {
+  margin: 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tw-accent-text);
+}
+.lessonTitle {
+  margin: 0;
+  font-family: var(--tw-display);
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--tw-heading);
+}
+.lessonSub {
+  margin: 0;
+  color: var(--tw-muted);
+}
+.lessonMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin: 0 0 10px;
+  font-size: 0.9rem;
+  color: var(--tw-ink);
+}
+.faithTag {
+  margin-left: 8px;
+  padding: 2px 10px;
+  border: 1px solid var(--tw-accent);
+  border-radius: 999px;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--tw-accent-text);
+}
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid var(--tw-accent);
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+.primary {
+  background: var(--tw-accent);
+  color: var(--tw-on-accent);
+}
+.primary:hover {
+  filter: brightness(1.06);
+}
+.secondary {
+  background: transparent;
+  color: var(--tw-accent-text);
+}
+.secondary:hover {
+  background: var(--tw-soft);
+}
+.lessonHow {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--tw-muted);
+}
+.lessonPrint {
+  padding: clamp(20px, 3vw, 32px);
+  border-left: 1px solid var(--tw-line);
+  background: var(--tw-soft);
+}
+.printHead {
+  margin: 0 0 10px;
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tw-accent-text);
+}
+.printList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.printRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 6px 10px;
+  margin: 0 -10px;
+  border-radius: 10px;
+  color: var(--tw-ink);
+  text-decoration: none;
+}
+.printRow:hover {
+  background: var(--tw-surface);
+}
+.printIcon {
+  flex: none;
+  color: var(--tw-accent);
+}
+.printText {
+  display: flex;
+  flex-direction: column;
+}
+.printLabel {
+  font-weight: 500;
+}
+.printPlan .printLabel {
+  font-weight: 600;
+}
+.printDetail {
+  font-size: 0.82rem;
+  color: var(--tw-muted);
+}
+.quiet {
+  margin: 0 0 6px;
+  font-size: 0.9rem;
+  color: var(--tw-muted);
+}
+.library,
+.guides {
+  padding: 18px 22px;
+  border: 1px solid var(--tw-line);
+  border-radius: 16px;
+}
+.empty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 20px;
+  padding: 20px 24px;
+  border: 1px dashed var(--tw-line);
+  border-radius: 16px;
+}
+.empty p {
+  margin: 0;
+}
+.seeAll {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-size: 0.9rem;
+  color: var(--tw-muted);
+  text-decoration: underline;
+  text-decoration-color: var(--tw-line);
+  text-underline-offset: 4px;
+}
+.seeAll:hover {
+  color: var(--tw-ink);
+}
+
+@media (max-width: 900px) {
+  .roleCards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .roleCard {
+    min-height: 150px;
+  }
+}
+@media (max-width: 720px) {
+  .lesson {
+    grid-template-columns: 1fr;
+  }
+  .lessonPrint {
+    border-left: 0;
+    border-top: 1px solid var(--tw-line);
+  }
+}
+@media (max-width: 420px) {
+  .roleCards {
+    grid-template-columns: 1fr;
+  }
+  .roleCard {
+    min-height: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .roleCard,
+  .switchKnob,
+  .switch::before {
+    transition: none;
+  }
+  .roleCard:hover {
+    transform: none;
+  }
+}
+
+.finder :focus-visible,
+.roleCards :focus-visible,
+.roleBar :focus-visible {
+  outline: 3px solid var(--tw-accent);
+  outline-offset: 3px;
+}

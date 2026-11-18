@@ -12,6 +12,7 @@ export const CONNECTIONS: RoomConnection[] = [
   // From Great Hall
   ['greathall', 'about'],
   ['greathall', 'contact'],
+  ['greathall', 'resources-hub'],
   ...[...FLOORS, STUDIO].map((floor): RoomConnection => ['greathall', floorId(floor.path)]),
 
   // Each floor to its exhibitions

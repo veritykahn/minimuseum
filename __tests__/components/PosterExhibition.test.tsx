@@ -152,7 +152,8 @@ describe('PosterExhibition', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'Test Exhibition' })).toBeInTheDocument();
   });
 
-  it('opens "Teach with this" as a dialog: choose a role, see its lessons by grade, close on Escape', () => {
+  it('opens "Teach with this" as a dialog: choose who you are, present, the interactives, then your lesson; close on Escape', () => {
+    window.sessionStorage.clear();
     render(<PosterExhibition config={makeConfig({ slug: 'in-their-hands' })} />);
     const teach = screen.getByRole('button', { name: /Teach with this/ });
     teach.focus();
@@ -160,48 +161,101 @@ describe('PosterExhibition', () => {
     tick(50);
     const dialog = screen.getByRole('dialog', { name: 'Test Exhibition' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
-    expect(within(dialog).getByRole('heading', { name: 'Who is teaching?' })).toBeInTheDocument();
+    // the sheet wears the room's colours
+    expect(document.querySelector('[data-teach-sheet]')?.getAttribute('style')).toMatch(/--tw-bg/);
+    expect(within(dialog).getByRole('heading', { name: 'Who are you?' })).toBeInTheDocument();
+    ['Teacher', 'Librarian', 'Parent', 'Homeschool'].forEach((r) => expect(within(dialog).getByRole('button', { name: new RegExp(`^${r}`) })).toBeInTheDocument());
 
-    fireEvent.click(within(dialog).getByRole('button', { name: /Teacher/ }));
+    fireEvent.click(within(dialog).getByRole('button', { name: /^Teacher/ }));
     expect(window.sessionStorage.getItem('mm-teach-role')).toBe('teacher');
     expect(within(dialog).getByRole('button', { name: 'Teacher' })).toHaveAttribute('aria-pressed', 'true');
-    expect(within(dialog).getByRole('heading', { name: 'Lessons by grade' })).toBeInTheDocument();
-    expect(within(dialog).getByRole('heading', { name: 'PreK–K' })).toBeInTheDocument();
-    // a faith-based lesson is one choice among the others, and says so
-    expect(within(dialog).getByRole('link', { name: /Whose Image Is This\?.*Faith-based/ })).toHaveAttribute(
-      'href',
-      '/exhibitions/in-their-hands/lessons/whose-image-is-this',
-    );
-    expect(within(dialog).getByRole('link', { name: /Who Ruled Judaea\?/ }).textContent).not.toMatch(/Faith-based/);
-    expect(within(dialog).getByRole('heading', { name: 'Printables' })).toBeInTheDocument();
-    // the poster's chapter questions, and the classroom links that are not the resources page
-    expect(within(dialog).getByText('Question about A?')).toBeInTheDocument();
+
+    // 1. Present the posters, with the questions to print
+    expect(within(dialog).getByRole('heading', { name: /Present the posters/ })).toBe(document.activeElement);
+    const print = jest.fn();
+    const realPrint = window.print;
+    window.print = print;
+    fireEvent.click(within(dialog).getByRole('button', { name: /Print the questions/ }));
+    expect(print).toHaveBeenCalledTimes(1);
+    window.print = realPrint;
+    expect(document.body.textContent).toContain('Question about A?');
+
+    // 2. The interactives: closed until opened. With no rooms of its own, the classroom links stand in.
+    const interactives = within(dialog).getByRole('button', { name: /Interactives/ });
+    expect(interactives).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(interactives);
+    expect(interactives).toHaveAttribute('aria-expanded', 'true');
     expect(within(dialog).getByRole('link', { name: /Teacher resources/ })).toHaveAttribute('href', '/resources');
 
-    // a parent leads with talking about it
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Parent / homeschool' }));
-    const groups = Array.from(dialog.querySelectorAll('h4')).map((h) => h.textContent);
-    expect(groups[0]).toBe('Talk about it together');
+    // 3. Lesson plans: grade, then subject, then just that lesson, online or printed
+    expect(within(dialog).getByRole('heading', { name: /Lesson plans/ })).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Grade 8' }));
+    expect(within(dialog).queryByRole('button', { name: 'Religion' })).toBeNull();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Social Studies' }));
+    const lesson = within(dialog).getByRole('article', { name: 'Who Ruled Judaea?' });
+    expect(within(lesson).getByRole('link', { name: /Teach it online/ })).toHaveAttribute('href', '/exhibitions/in-their-hands/lessons/who-ruled-judaea');
+    expect(within(lesson).getByRole('link', { name: /Lesson plan/ })).toHaveAttribute('target', '_blank');
+    expect(within(dialog).getAllByRole('article')).toHaveLength(1);
+    expect(within(dialog).getByRole('link', { name: /See all 7 lessons/ })).toHaveAttribute('href', '/exhibitions/in-their-hands/lessons');
+
+    // a homeschooler is asked the same way, and the grade is kept
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Homeschool' }));
+    expect(window.sessionStorage.getItem('mm-teach-role')).toBe('homeschool');
+    expect(within(dialog).getByText('What grade are you teaching?')).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Grade 8' })).toHaveAttribute('aria-pressed', 'true');
     expect(within(dialog).getByRole('link', { name: /Parent Resource Guide/ })).toHaveAttribute('target', '_blank');
 
     fireEvent.keyDown(document, { key: 'Escape' });
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(screen.getByRole('heading', { level: 1, name: 'Test Exhibition' })).toBeInTheDocument();
+    expect(teach).toBe(document.activeElement);
+    window.sessionStorage.clear();
   });
 
-  it('remembers the role, and opens projector mode from "Present the posters"', () => {
+  it('keeps faith-based lessons out until the switch is on, and remembers the switch for the visit', () => {
+    window.sessionStorage.clear();
+    window.sessionStorage.setItem('mm-teach-role', 'teacher');
+    render(<PosterExhibition config={makeConfig({ slug: 'in-their-hands' })} />);
+    fireEvent.click(screen.getByRole('button', { name: /Teach with this/ }));
+    const dialog = screen.getByRole('dialog');
+    const faith = within(dialog).getByRole('switch', { name: 'Include faith-based lessons' });
+    expect(faith).toHaveAttribute('aria-checked', 'false');
+
+    // Grade 1's only lesson is a faith-based one: hidden, and the sheet says why
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Grade 1' }));
+    expect(within(dialog).queryByRole('article')).toBeNull();
+    expect(within(dialog).getByText(/is a faith-based one/)).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Show faith-based lessons' }));
+    expect(faith).toHaveAttribute('aria-checked', 'true');
+    expect(window.sessionStorage.getItem('mm-teach-faith')).toBe('on');
+    const lesson = within(dialog).getByRole('article', { name: 'Whose Hands Held This?' });
+    expect(lesson).toHaveTextContent('Faith-based option');
+
+    // with the switch on, Religion joins the subjects at grades 5–8
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Grade 6' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Religion' }));
+    expect(within(dialog).getByRole('article', { name: 'Whose Image Is This?' })).toHaveTextContent('Faith-based option');
+    // off again: the chosen subject goes with it
+    fireEvent.click(faith);
+    expect(window.sessionStorage.getItem('mm-teach-faith')).toBe('off');
+    expect(within(dialog).queryByRole('button', { name: 'Religion' })).toBeNull();
+    expect(within(dialog).queryByRole('article')).toBeNull();
+    window.sessionStorage.clear();
+  });
+
+  it('remembers the role, says plainly when lesson plans are on their way, and opens projector mode', () => {
     window.sessionStorage.setItem('mm-teach-role', 'librarian');
     render(<PosterExhibition config={makeConfig()} />);
     fireEvent.click(screen.getByRole('button', { name: /Teach with this/ }));
     const dialog = screen.getByRole('dialog');
-    expect(within(dialog).getByRole('heading', { name: 'For librarians' })).toBeInTheDocument();
-    // no lessons for this exhibition: no lessons group, no printables
-    expect(within(dialog).queryByRole('heading', { name: /Lessons/ })).toBeNull();
-    expect(within(dialog).queryByRole('heading', { name: 'Printables' })).toBeNull();
+    expect(within(dialog).getByRole('button', { name: 'Librarian' })).toHaveAttribute('aria-pressed', 'true');
+    expect(within(dialog).getByText('Lesson plans for Test Exhibition are on their way.')).toBeInTheDocument();
+    expect(within(dialog).queryByRole('switch')).toBeNull();
+    expect(within(dialog).queryByRole('button', { name: 'Grade 1' })).toBeNull();
     fireEvent.click(within(dialog).getByRole('button', { name: /Open projector mode/ }));
     tick();
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(screen.getByRole('navigation', { name: 'Projector tools' })).toBeInTheDocument();
+    window.sessionStorage.clear();
   });
 
   it('shows no lessons when the exhibition has none', () => {

@@ -37,8 +37,15 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
   { id: 'poster2', title: 'The Weight of Thirty Pieces', thumb: '/exhibitions/in-their-hands/poster2-hero.jpg', items: poster2Content, talk: ITH_TALK.poster2 },
 ];
 
-/** What "Teach with this" opens: the lessons, printables and discussion questions for each role. */
-const TEACH: TeachContent = { slug: 'in-their-hands', name: 'In Their Hands', posters: PROJECTOR_POSTERS, links: ITH_POSTER_LINKS };
+/** What "Teach with this" opens: the posters, the rooms and the lesson finder, in the landing page's sepia, gold and cream. */
+const TEACH: TeachContent = {
+  slug: 'in-their-hands',
+  name: 'In Their Hands',
+  posters: PROJECTOR_POSTERS,
+  links: ITH_POSTER_LINKS,
+  rooms: ITH_ROOMS.map(({ href, title, subtitle, image }) => ({ href, title, subtitle, image })),
+  theme: { bg: '#443C31', ink: '#F0EDD8', heading: '#C9A84C', accent: '#C9A84C', muted: '#b3a68c', display: "'Cormorant Garamond', Georgia, serif", body: "'Outfit', system-ui, sans-serif" },
+};
 
 // ============================================
 // MAIN COMPONENT
@@ -925,19 +932,14 @@ export default function InTheirHands() {
           </span>
         </ExhibitionNav>
 
-        {/* The room sound sits beside the Resources corner, in one row with it (pe-corner-row). */}
-        <div className="pe-corner-row">
-          {!isMain && (
+        {/* The room sound, top right (pe-corner-row). The room's materials are under "Teach with this". */}
+        {!isMain && (
+          <div className="pe-corner-row">
             <div className="pe-sound-controls">
               <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
             </div>
-          )}
-          <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
-            <span className="ith-nav-label" style={{ color: navInk }}>Resources</span>
-            <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>&#8594;</span>
-            <span className="ith-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
-          </ExhibitionNav>
-        </div>
+          </div>
+        )}
         </>
       )}
 

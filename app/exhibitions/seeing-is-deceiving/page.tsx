@@ -60,7 +60,15 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
 ];
 
 /** What "Teach with this" opens: the lessons, printables and discussion questions for each role. */
-const TEACH: TeachContent = { slug: 'seeing-is-deceiving', name: 'Seeing is Deceiving', posters: PROJECTOR_POSTERS, links: SEEING_POSTER_LINKS };
+const TEACH: TeachContent = {
+  slug: 'seeing-is-deceiving',
+  name: 'Seeing is Deceiving',
+  posters: PROJECTOR_POSTERS,
+  links: SEEING_POSTER_LINKS,
+  rooms: SEEING_ROOMS.map(({ href, title, subtitle, image }) => ({ href, title, subtitle, image })),
+  // The landing page's grey and charcoal, with the Explore row's deep blue.
+  theme: { bg: '#e0dede', ink: '#2a2a2a', heading: '#0a0a0a', accent: '#1f5a6e', display: "'Cormorant Garamond', Georgia, serif", body: "'Outfit', system-ui, sans-serif" },
+};
 
 const FilmOverlay = () => {
   return (
@@ -973,23 +981,14 @@ export default function SeeingIsDeceiving() {
           </span>
         </ExhibitionNav>
 
-        {/* The room sound sits beside the Resources corner, in one row with it (pe-corner-row). */}
-        <div className="pe-corner-row">
-          {!isMain && (
+        {/* The room sound, top right (pe-corner-row). The room's materials are under "Teach with this". */}
+        {!isMain && (
+          <div className="pe-corner-row">
             <div className="pe-sound-controls">
               <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
             </div>
-          )}
-          <ExhibitionNav
-            className={`nav-m nav-m-right ${overImage ? 'nav-m-backed' : ''}`}
-            href="/exhibitions/seeing-is-deceiving/resources"
-            style={backing ? { background: backing } : undefined}
-          >
-            <span className="nav-label" style={{ color: navInk }}>Resources</span>
-            <span className="nav-arrow nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>→</span>
-            <span className="nav-m-text" aria-hidden="true" style={{ color: navM }}>M</span>
-          </ExhibitionNav>
-        </div>
+          </div>
+        )}
         </>
       )}
 

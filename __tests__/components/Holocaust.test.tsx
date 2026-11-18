@@ -287,7 +287,10 @@ describe('International Holocaust Remembrance Day', () => {
       expect(note).toHaveTextContent('Recommended for grades 6 and up; for younger students, preview first and stay with them.');
       fireEvent.click(within(dialog).getByRole('button', { name: /Parent/ }));
       expect(within(dialog).getByRole('note')).toBe(note);
-      // The four rooms, in the sheet's list.
+      // No lesson plans yet: the sheet says so plainly.
+      expect(within(dialog).getByText('Lesson plans for International Holocaust Remembrance Day are on their way.')).toBeInTheDocument();
+      // The four rooms, in the sheet's list, behind its Interactives button.
+      fireEvent.click(within(dialog).getByRole('button', { name: /Interactives/ }));
       expect(within(dialog).getByRole('link', { name: /^The Walk/ })).toHaveAttribute('href', '/exhibitions/holocaust/walk');
       expect(within(dialog).getByRole('link', { name: /^Lay a Stone/ })).toHaveAttribute('href', '/exhibitions/holocaust/stones');
       expect(within(dialog).getByRole('link', { name: /^A Minute’s Stillness/ })).toHaveAttribute('href', '/exhibitions/holocaust/stillness');

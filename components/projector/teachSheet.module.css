@@ -1,26 +1,18 @@
-/* "Teach with this": the sheet. Its own quiet paper and ink, so it reads the
-   same over every exhibition's ground. */
+/* "Teach with this": a full-screen sheet in the room's own colours. Every
+   colour is a --tw-* custom property the sheet sets from the room's palette
+   (teachTheme in lib/lessons/teach.ts), checked for contrast there. Roomy on
+   a laptop and an iPad; one column on a phone. */
 
 .overlay {
-  --ts-bg: #fbf8f2;
-  --ts-raised: #ffffff;
-  --ts-ink: #201c17;
-  --ts-muted: #645b50;
-  --ts-line: rgba(32, 28, 23, 0.14);
-  --ts-accent: #7a3b14;
-  --ts-accent-soft: rgba(122, 59, 20, 0.08);
-  --ts-faith: #4b3a78;
   position: fixed;
   inset: 0;
   z-index: 4000;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px 16px;
-  background: rgba(12, 10, 8, 0.55);
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 16px;
-  line-height: 1.45;
+  background: var(--tw-bg);
+  color: var(--tw-ink);
+  font-family: var(--tw-body);
+  font-size: 17px;
+  line-height: 1.5;
   text-align: left;
   letter-spacing: normal;
   text-transform: none;
@@ -35,19 +27,19 @@
 .sheet {
   display: flex;
   flex-direction: column;
-  width: min(680px, 100%);
-  max-height: min(88dvh, 920px);
-  background: var(--ts-bg);
-  color: var(--ts-ink);
-  border-radius: 14px;
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.4);
-  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  background:
+    radial-gradient(1100px 520px at 100% 0%, var(--tw-soft), transparent 65%),
+    radial-gradient(900px 480px at 0% 100%, var(--tw-soft), transparent 60%),
+    var(--tw-bg);
+  color: var(--tw-ink);
   outline: none;
 }
 
 .sheet :focus-visible {
-  outline: 2px solid var(--ts-accent);
-  outline-offset: 2px;
+  outline: 3px solid var(--tw-accent);
+  outline-offset: 3px;
 }
 .sheet [tabindex='-1']:focus-visible {
   outline: none;
@@ -55,43 +47,48 @@
 
 .head {
   flex: none;
+  border-bottom: 1px solid var(--tw-line);
+}
+.headInner {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 20px 20px 16px 24px;
-  border-bottom: 1px solid var(--ts-line);
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: clamp(14px, 2.4vh, 24px) clamp(16px, 4vw, 48px);
 }
 .eyebrow {
   margin: 0 0 2px;
   font-size: 12px;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--ts-accent);
+  color: var(--tw-accent-text);
 }
 .title {
   margin: 0;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 26px;
+  font-family: var(--tw-display);
+  font-size: clamp(26px, 3.4vw, 40px);
   font-weight: 400;
-  line-height: 1.15;
+  line-height: 1.1;
+  color: var(--tw-heading);
 }
 .close {
   flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  margin: -4px -6px 0 0;
-  border: 0;
+  width: 48px;
+  height: 48px;
+  border: 1px solid var(--tw-line);
   border-radius: 50%;
   background: transparent;
-  color: var(--ts-ink);
+  color: var(--tw-ink);
   cursor: pointer;
 }
 .close:hover {
-  background: var(--ts-accent-soft);
+  background: var(--tw-soft);
+  border-color: var(--tw-accent);
 }
 
 .body {
@@ -100,328 +97,362 @@
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
-  padding: 20px 24px 28px;
 }
-
-/* ── Choosing a role ── */
-
-.who {
-  margin: 4px 0 4px;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 22px;
-  font-weight: 400;
-}
-.lead {
-  margin: 0 0 18px;
-  color: var(--ts-muted);
-}
-.roleCards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.roleCard {
+.inner {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 4px;
-  width: 100%;
-  height: 100%;
-  min-height: 88px;
-  padding: 16px;
-  border: 1px solid var(--ts-line);
-  border-radius: 10px;
-  background: var(--ts-raised);
-  color: var(--ts-ink);
-  font: inherit;
-  text-align: left;
-  cursor: pointer;
-}
-.roleCard:hover {
-  border-color: var(--ts-accent);
-  background: var(--ts-accent-soft);
-}
-.roleName {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 19px;
-}
-.roleHint {
-  font-size: 14px;
-  color: var(--ts-muted);
+  gap: clamp(28px, 4.5vh, 48px);
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  padding: clamp(24px, 4vh, 44px) clamp(16px, 4vw, 48px) clamp(48px, 8vh, 96px);
 }
 
-.roleBar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 18px;
-}
-.roleChip {
-  min-height: 44px;
-  padding: 0 16px;
-  border: 1px solid var(--ts-line);
-  border-radius: 100px;
-  background: var(--ts-raised);
-  color: var(--ts-ink);
-  font: inherit;
-  font-size: 15px;
-  cursor: pointer;
-}
-.roleChip:hover {
-  border-color: var(--ts-accent);
-}
-.roleChip[aria-pressed='true'] {
-  border-color: var(--ts-accent);
-  background: var(--ts-accent);
-  color: #fff;
-}
-
-.forRole {
-  margin: 0 0 4px;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 22px;
-  font-weight: 400;
-  outline: none;
-}
-
-/* ── Groups ── */
-
-.group {
-  padding: 18px 0 4px;
-  border-top: 1px solid var(--ts-line);
-  margin-top: 14px;
-}
-.forRole + .group {
-  border-top: 0;
-  margin-top: 0;
-}
-.groupTitle {
-  margin: 0 0 4px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ts-accent);
-}
-.groupIntro {
-  margin: 0 0 12px;
-  font-size: 15px;
-  color: var(--ts-muted);
-}
-
-.primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 48px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 100px;
-  background: var(--ts-accent);
-  color: #fff;
-  font: inherit;
-  font-size: 16px;
-  cursor: pointer;
-}
-.primary:hover {
-  background: #5f2d0e;
-}
-
-.band + .band {
-  margin-top: 14px;
-}
-.bandTitle {
-  margin: 0 0 6px;
-  font-size: 15px;
-  font-weight: 600;
-}
-.lessonList,
-.linkList {
-  display: grid;
-  gap: 6px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.lesson,
-.linkRow {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-height: 44px;
-  padding: 10px 14px;
-  border: 1px solid var(--ts-line);
-  border-radius: 8px;
-  background: var(--ts-raised);
-  color: var(--ts-ink);
-  text-decoration: none;
-}
-.lesson:hover,
-.linkRow:hover {
-  border-color: var(--ts-accent);
-  background: var(--ts-accent-soft);
-}
-.lessonTitle,
-.linkLabel {
-  font-size: 16px;
-}
-.lessonMeta,
-.linkDetail {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 8px;
-  font-size: 14px;
-  color: var(--ts-muted);
-}
-.faith {
-  padding: 1px 8px;
-  border: 1px solid currentColor;
-  border-radius: 100px;
-  font-size: 12px;
-  letter-spacing: 0.04em;
-  color: var(--ts-faith);
-}
-.more {
-  display: inline-block;
-  padding: 12px 0;
-  margin-top: 2px;
-  color: var(--ts-accent);
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.details {
-  border: 1px solid var(--ts-line);
-  border-radius: 8px;
-  background: var(--ts-raised);
-}
-.details + .details {
-  margin-top: 8px;
-}
-.summary {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 4px 8px;
-  min-height: 44px;
-  padding: 11px 14px;
-  list-style: none;
-  cursor: pointer;
-}
-.summary::-webkit-details-marker {
-  display: none;
-}
-/* A turned arrow: closed points right, open points down. */
-.summary::before {
-  content: '';
-  flex: none;
-  align-self: center;
-  width: 7px;
-  height: 7px;
-  margin-right: 4px;
-  border-right: 2px solid var(--ts-accent);
-  border-bottom: 2px solid var(--ts-accent);
-  transform: rotate(-45deg);
-}
-.details[open] > .summary::before {
-  transform: rotate(45deg);
-}
-.summaryLabel {
-  font-size: 12px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ts-accent);
-}
-.summaryCount {
-  margin-left: auto;
-  font-size: 14px;
-  color: var(--ts-muted);
-}
-.questions {
-  display: grid;
-  gap: 12px;
-  margin: 0;
-  padding: 4px 16px 16px 36px;
-}
-.chapter {
-  display: block;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--ts-muted);
-}
-
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-/* A phone: the sheet is the whole screen, and scrolls inside. */
-@media (max-width: 600px) {
-  .overlay {
-    padding: 0;
-    align-items: stretch;
-  }
-  .sheet {
-    width: 100%;
-    height: 100dvh;
-    max-height: none;
-    border-radius: 0;
-  }
-  .head {
-    padding: 14px 12px 12px 16px;
-  }
-  .title {
-    font-size: 22px;
-  }
-  .body {
-    padding: 16px 16px calc(28px + env(safe-area-inset-bottom));
-  }
-  .roleCards {
-    grid-template-columns: 1fr;
-  }
-  .roleCard {
-    min-height: 64px;
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .sheet {
-    animation: tsIn 0.18s ease-out;
-  }
-}
-@keyframes tsIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-}
-
-/* An exhibition's note for whoever teaches with it (an age recommendation), first in the sheet. */
 .note {
-  margin: 0 0 18px;
-  padding: 12px 14px;
-  border-left: 3px solid var(--ts-accent);
-  background: var(--ts-accent-soft);
-  font-size: 15px;
-  line-height: 1.5;
+  margin: 0;
+  padding: 14px 18px;
+  border-left: 4px solid var(--tw-accent);
+  border-radius: 0 12px 12px 0;
+  background: var(--tw-surface);
 }
 .noteLabel {
   display: block;
   margin-bottom: 2px;
   font-size: 12px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--ts-accent);
+  color: var(--tw-accent-text);
+}
+
+/* ── Who are you? ── */
+
+.intro {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: clamp(0px, 4vh, 40px);
+}
+.who {
+  margin: 0;
+  font-family: var(--tw-display);
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.05;
+  color: var(--tw-heading);
+}
+.lead {
+  max-width: 60ch;
+  margin: 0 0 18px;
+  font-size: 1.05rem;
+  color: var(--tw-muted);
+}
+
+/* ── The steps ── */
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.stepTitle {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0;
+  font-family: var(--tw-display);
+  font-size: clamp(1.7rem, 3vw, 2.3rem);
+  font-weight: 400;
+  line-height: 1.1;
+  color: var(--tw-heading);
+}
+.stepNumber {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--tw-accent);
+  border-radius: 50%;
+  font-family: var(--tw-body);
+  font-size: 16px;
+  color: var(--tw-accent-text);
+}
+.stepLead {
+  margin: -6px 0 0 54px;
+  color: var(--tw-muted);
+}
+
+.presentGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(14px, 2vw, 22px);
+  align-items: start;
+}
+.projectorCard,
+.questionsCard {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid var(--tw-line);
+  border-radius: 22px;
+  background: var(--tw-surface);
+}
+.projectorCard {
+  border-color: var(--tw-accent);
+  background: linear-gradient(160deg, var(--tw-soft), var(--tw-surface) 70%);
+}
+.bigIcon {
+  color: var(--tw-accent);
+  margin-bottom: 6px;
+}
+.cardTitle {
+  margin: 0;
+  font-family: var(--tw-display);
+  font-size: clamp(1.4rem, 2.4vw, 1.75rem);
+  font-weight: 400;
+  color: var(--tw-heading);
+}
+.cardText {
+  margin: 0 0 8px;
+  color: var(--tw-muted);
+}
+.cardActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 1px solid var(--tw-accent);
+  border-radius: 999px;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+}
+.primary {
+  background: var(--tw-accent);
+  color: var(--tw-on-accent);
+}
+.primary:hover {
+  filter: brightness(1.06);
+}
+.secondary {
+  background: transparent;
+  color: var(--tw-accent-text);
+}
+.secondary:hover {
+  background: var(--tw-soft);
+}
+.questionPanel {
+  width: 100%;
+  margin-top: 6px;
+  padding-top: 14px;
+  border-top: 1px solid var(--tw-line);
+}
+
+.qPoster + .qPoster {
+  margin-top: 18px;
+}
+.qPosterTitle {
+  margin: 0 0 8px;
+  font-family: var(--tw-display);
+  font-size: 1.2rem;
+  color: var(--tw-heading);
+}
+.qPosterLabel {
+  display: block;
+  font-family: var(--tw-body);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tw-accent-text);
+}
+.questions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding-left: 22px;
+}
+.chapter {
+  display: block;
+  font-size: 0.82rem;
+  color: var(--tw-muted);
+}
+
+/* Interactives: the step's heading opens and closes it. */
+.disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 48px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+}
+.disclosureCount {
+  padding: 4px 12px;
+  border: 1px solid var(--tw-line);
+  border-radius: 999px;
+  font-family: var(--tw-body);
+  font-size: 0.85rem;
+  color: var(--tw-muted);
+}
+.chevron {
+  color: var(--tw-accent);
+  transition: transform 0.2s ease;
+}
+.disclosure[aria-expanded='true'] .chevron {
+  transform: rotate(180deg);
+}
+.rooms {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  gap: 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.room {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 100%;
+  min-height: 88px;
+  padding: 12px;
+  border: 1px solid var(--tw-line);
+  border-radius: 16px;
+  background: var(--tw-surface);
+  color: var(--tw-ink);
+  text-decoration: none;
+}
+.room:hover {
+  border-color: var(--tw-accent);
+}
+.roomImage {
+  flex: none;
+  display: block;
+  width: 96px;
+  height: 64px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--tw-soft);
+}
+.roomText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.roomTitle {
+  font-family: var(--tw-display);
+  font-size: 1.2rem;
+  color: var(--tw-heading);
+}
+.roomSub {
+  font-size: 0.9rem;
+  color: var(--tw-muted);
+}
+
+.onTheWay {
+  padding: clamp(22px, 3vw, 32px);
+  border: 1px dashed var(--tw-line);
+  border-radius: 20px;
+}
+.onTheWayTitle {
+  margin: 0 0 6px;
+  font-family: var(--tw-display);
+  font-size: clamp(1.3rem, 2.4vw, 1.6rem);
+  color: var(--tw-heading);
+}
+
+@media (max-width: 760px) {
+  .presentGrid {
+    grid-template-columns: 1fr;
+  }
+  .stepLead {
+    margin-left: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron {
+    transition: none;
+  }
+}
+
+/* ── The discussion questions on paper ── */
+
+.printSheet {
+  display: none;
+}
+
+/* The page-wide print rules (everything else hidden) are global, so they
+   live beside the sheet in TeachSheet.tsx (PRINT_CSS); these style the paper. */
+@media print {
+  .overlay {
+    display: block !important;
+    position: static !important;
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .sheet {
+    display: none !important;
+  }
+  .printSheet {
+    display: block !important;
+    color: #000;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 12pt;
+    line-height: 1.45;
+  }
+  .printEyebrow {
+    margin: 0;
+    font-size: 9pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .printTitle {
+    margin: 4pt 0 14pt;
+    font-family: var(--tw-display), Georgia, serif;
+    font-size: 24pt;
+  }
+  .printSheet .qPoster + .qPoster {
+    margin-top: 16pt;
+  }
+  .printSheet .qPosterTitle {
+    margin: 0 0 6pt;
+    font-size: 14pt;
+    color: #000;
+    break-after: avoid;
+  }
+  .printSheet .qPosterLabel,
+  .printSheet .chapter {
+    color: #444;
+    font-family: Georgia, serif;
+  }
+  .printSheet .questions {
+    gap: 10pt;
+    padding-left: 18pt;
+  }
+  .printSheet .questions li {
+    break-inside: avoid;
+    padding-bottom: 28pt;
+    border-bottom: 0.5pt solid #bbb;
+  }
+  .printFoot {
+    margin: 18pt 0 0;
+    font-size: 9pt;
+    color: #444;
+  }
 }
