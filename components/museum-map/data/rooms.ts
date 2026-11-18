@@ -88,6 +88,18 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#7D8471',
     parent: 'greathall',
   },
+  // The Resources hub, off the Great Hall: every exhibition's lessons and printables.
+  {
+    id: 'resources-hub',
+    label: 'Resources',
+    path: '/resources',
+    x: 130,
+    y: 400,
+    width: 240,
+    height: 40,
+    accentColor: '#7D8471',
+    parent: 'greathall',
+  },
   // The floors, top first: the Studio's children are its tools (see
   // levels.ts), each a door to a room in its exhibition.
   ...[

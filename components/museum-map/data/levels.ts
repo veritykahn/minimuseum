@@ -174,6 +174,12 @@ const LEVEL1_ROOMS: MapRoom[] = [
     parent: 'greathall',
     children: GROUND_FLOOR_IDS,
   },
+  // The Resources hub: every exhibition's lessons and printables, by role.
+  {
+    id: 'resources-hub', label: 'Resources: Lessons & Printables', path: '/resources',
+    x: 100, y: 420, width: 300, height: 44, accentColor: COLORS.sage,
+    parent: 'greathall',
+  },
 ];
 
 const LEVEL1_CONNECTIONS: RoomConnection[] = [
@@ -183,11 +189,13 @@ const LEVEL1_CONNECTIONS: RoomConnection[] = [
   ['third-floor', 'second-floor'],
   ['second-floor', 'first-floor'],
   ['first-floor', 'ground-floor'],
+  // Drawn from the Ground Floor, so its line does not cross the floors.
+  ['ground-floor', 'resources-hub'],
 ];
 
 export const MUSEUM_OVERVIEW: MapLevelConfig = {
   level: 'museum',
-  viewBox: '0 0 500 410',
+  viewBox: '0 0 500 484',
   rooms: LEVEL1_ROOMS,
   connections: LEVEL1_CONNECTIONS,
 };

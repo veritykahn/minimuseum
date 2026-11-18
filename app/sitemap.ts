@@ -34,6 +34,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
+    // The Resources hub: every exhibition's lessons and printables, by role.
+    {
+      url: `${baseUrl}/resources`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
     // Every floor: the three of exhibitions, and the Studio.
     ...ALL_FLOORS.map((floor) => ({
       url: `${baseUrl}${floor.path}`,

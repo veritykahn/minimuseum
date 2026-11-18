@@ -524,6 +524,44 @@ export default function GreatHall() {
           }
         }
 
+        /* The Resources hub, below the floors */
+        .hall-resources {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          width: 100%;
+          max-width: 700px;
+          margin-top: 56px;
+          padding: 32px 24px;
+          border-top: 1px solid #2a2a2a;
+          text-align: center;
+          transition: background 0.4s ease;
+        }
+        .hall-resources:hover, .hall-resources:focus-visible {
+          background: rgba(125, 132, 113, 0.12);
+        }
+        .hall-resources-kicker {
+          font-family: 'Outfit', sans-serif;
+          font-size: 10px;
+          letter-spacing: 0.3em;
+          text-transform: uppercase;
+          color: #a9b39c;
+        }
+        .hall-resources-name {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: clamp(1.8rem, 4.5vw, 2.4rem);
+          font-weight: 300;
+          color: #fafafa;
+          line-height: 1.1;
+        }
+        .hall-resources-sub {
+          font-family: 'Cormorant Garamond', Georgia, serif;
+          font-size: 16px;
+          font-style: italic;
+          color: #a3a3a3;
+        }
+
         /* Scroll indicator on side */
         .scroll-indicator {
           position: fixed;
@@ -631,6 +669,15 @@ export default function GreatHall() {
             </Link>
           ))}
         </div>
+
+        {/* The Resources hub: every exhibition's lessons and printables, by role (also on the museum map). */}
+        <Link href="/resources" className="hall-resources">
+          <span className="hall-resources-kicker">For teachers, librarians and families</span>
+          <span className="hall-resources-name">Resources</span>
+          <span className="hall-resources-sub">
+            Lessons and printables from every exhibition <span aria-hidden="true">→</span>
+          </span>
+        </Link>
       </section>
 
     </div>
