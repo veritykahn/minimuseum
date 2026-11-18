@@ -150,7 +150,6 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 .pl-instr { display: flex; flex-direction: column; gap: 14px; }
 .pl-task-slot, .pl-task { display: flex; flex-direction: column; gap: 16px; }
 .pl-task-slot:empty { display: none; }
-.pl-lab .pl-onward { align-self: flex-start; }
 .pl-q-big { font-size: 1.2em; line-height: 1.4; }
 .pl-drag { touch-action: none; cursor: ew-resize; }
 .pl-svg-label { font: 600 30px var(--pl-sans); }
@@ -159,12 +158,18 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 .pl-tap:focus-visible { outline: none; }
 .pl-tap:focus-visible > * { stroke: var(--pl-blue); stroke-width: 6px; }
 
-/* Break it: one switch */
-.pl-lab .pl-switch { align-self: flex-start; padding-left: 12px; }
+/* Break it and Why?: one switch, "Trick: on/off" (on: the knob right, in blue) */
+.pl-trick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
+.pl-lab .pl-switch { align-self: flex-start; padding-left: 12px; font-weight: 500; }
+.pl-trick-what { font-size: 0.85em; color: var(--pl-muted); }
 .pl-switch-track { position: relative; width: 52px; height: 28px; border-radius: 999px; background: rgba(244, 241, 234, 0.25); flex: none; }
 .pl-switch-knob { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--pl-ink); transition: left 0.2s ease; }
-.pl-switch[aria-pressed='true'] .pl-switch-track { background: #0a0a0a; }
-.pl-switch[aria-pressed='true'] .pl-switch-knob { left: 27px; background: var(--pl-blue); }
+.pl-switch[aria-checked='true'] .pl-switch-track { background: rgba(168, 213, 229, 0.35); }
+.pl-switch[aria-checked='true'] .pl-switch-knob { left: 27px; background: var(--pl-blue); }
+
+/* Why?: how the trick works, drawn over the picture in pink, with white labels edged in dark */
+.pl-explain { pointer-events: none; }
+.pl-explain-text { font-family: var(--pl-sans); font-weight: 600; fill: #fff; stroke: #1a1a1a; paint-order: stroke; stroke-linejoin: round; }
 
 /* Why? */
 .pl-why { display: flex; flex-direction: column; gap: 14px; }
@@ -196,12 +201,19 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 /* Stroop and Paris, drawn in HTML */
 .pl-stroop { display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(8px, 2vw, 20px); width: min(100%, 170cqh); padding: clamp(16px, 3vw, 36px); background: #161616; border-radius: 6px; }
 .pl-stroop-patch { aspect-ratio: 2 / 1; border-radius: 6px; }
-.pl-stroop-word { display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: clamp(1.1rem, 3.2vw, 2.6rem); letter-spacing: 0.04em; min-height: 2.2em; }
+.pl-stroop-word { display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 600; font-size: clamp(1.1rem, 3.2vw, 2.6rem); letter-spacing: 0.04em; min-height: 2.2em; }
+/* Why?: under each word, the ink color you have to say */
+.pl-stroop-say { display: inline-flex; align-items: center; gap: 6px; margin-top: 2px; padding: 1px 8px; border: 2px solid #ff4fa3; border-radius: 999px; color: #fff; font-size: max(14px, 0.38em); font-weight: 500; letter-spacing: 0; }
+.pl-stroop-swatch { width: 0.9em; height: 0.9em; border-radius: 50%; }
 .pl-sign { --sign: min(100cqw, 560px, 110cqh); width: var(--sign); aspect-ratio: 1.1; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 2px; padding: 32% 12% 11%; background: #f2c230; clip-path: polygon(50% 0, 100% 100%, 0 100%); color: #111; }
 .pl-sign-row { display: flex; gap: 0.4em; }
 .pl-lab .pl-word { appearance: none; border: 0; background: none; padding: 0.12em 0.18em; min-height: 0; font: 700 calc(var(--sign) * 0.072) var(--pl-sans); letter-spacing: 0.05em; color: #111; cursor: pointer; border-radius: 4px; }
 .pl-lab .pl-word[aria-pressed='true'] { background: rgba(0, 0, 0, 0.12); }
 .pl-lab .pl-word[data-wrong] { background: #111; color: #f2c230; }
+/* Why?: the word that is there twice, ringed and numbered */
+.pl-lab .pl-sign [data-twice] { position: relative; outline: 4px solid #ff4fa3; outline-offset: 1px; border-radius: 4px; }
+.pl-sign [data-twice]::after { content: attr(data-twice); position: absolute; top: -0.7em; right: -0.6em; min-width: 1.4em; height: 1.4em; border-radius: 50%; background: #ff4fa3; color: #fff; font: 600 max(14px, 0.5em) / 1.4em var(--pl-sans); text-align: center; letter-spacing: 0; }
+.pl-sign-w { display: inline-block; margin: 0 0.1em; }
 .pl-sign-line { width: min(100%, 720px); aspect-ratio: auto; clip-path: none; padding: 28px; border-radius: 8px; font: 700 clamp(1.2rem, 3.2vw, 2.2rem) var(--pl-sans); text-align: center; }
 
 /* Fraser: the ring traced */
@@ -240,8 +252,15 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
 .pl-nb-bench p { font-size: 0.85em; line-height: 1.35; color: #333; }
 .pl-nb-when { font-weight: 500; color: #6b5a44; }
 .pl-lab .pl-nb-name { appearance: none; border: 0; background: none; padding: 0; font: inherit; font-weight: 600; font-size: 0.9em; color: #1a1a1a; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 32px; text-align: left; }
+.pl-nb-empty { font-size: 0.9em; color: #555; }
+/* The illusions not tried yet: a small grid of tiles, each opening its illusion */
+.pl-nb-todo h3 { font-size: 0.8em; letter-spacing: 0.12em; text-transform: uppercase; color: #6b5a44; border-bottom: 1px solid #d8cfbf; padding-bottom: 4px; margin: 0 0 8px; }
+.pl-nb-tiles { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); gap: 8px; }
+.pl-lab .pl-nb-tile { appearance: none; width: 100%; height: 100%; min-height: 52px; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 6px; border: 1px solid #d8cfbf; border-radius: 6px; background: #fff; color: #1a1a1a; font: inherit; font-size: 0.7em; line-height: 1.2; text-align: center; cursor: pointer; }
+.pl-lab .pl-nb-tile:hover { border-color: #2e86c1; }
+.pl-nb-tile .pl-stamp { width: 30px; height: 30px; color: #b3a891; }
 .pl-nb-fp { padding: 0; overflow: hidden; }
-.pl-fp-card { display: block; width: 100%; height: auto; }
+.pl-fp-card { display: block; width: 100%; height: auto; max-height: calc(100dvh - 140px); }
 
 /* ───────── An upright iPad and a phone: the picture on top, the task under it ───────── */
 @media (max-width: 1000px) and (orientation: portrait), (max-width: 700px) {
@@ -313,8 +332,11 @@ body:has(.pl-lab) { margin: 0; background: #0a0a0a; }
   .pl-nb-bench li .pl-stamp { width: 18pt; height: 18pt; }
   .pl-nb-bench p { font-size: 8pt; line-height: 1.25; }
   .pl-lab .pl-nb-name { font-size: 9.5pt; min-height: 0; }
+  .pl-nb-tiles { grid-template-columns: repeat(6, 1fr); gap: 4pt; }
+  .pl-lab .pl-nb-tile { font-size: 7pt; min-height: 0; padding: 3pt; }
+  .pl-nb-tile .pl-stamp { width: 14pt; height: 14pt; }
   .pl-nb-fp { max-width: none; display: flex; justify-content: center; }
-  .pl-fp-card { width: 7.2in; height: 9.6in; }
+  .pl-fp-card { width: 7.2in; height: 9.6in; max-height: none; }
 }
 
 .pl-foot { padding: 24px max(16px, 3vw) 96px; font-size: 0.85em; }

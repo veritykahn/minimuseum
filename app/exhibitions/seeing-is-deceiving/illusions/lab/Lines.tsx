@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { observed, poggendorffResult } from './results';
-import { Choices, grey, Picture, RecordFor, Slider, Work, type BenchProps } from './ui';
+import { Choices, Explain, ExplainPath, ExplainText, grey, Picture, RecordFor, Slider, Work, type BenchProps } from './ui';
 
 // ───────── Café wall: big tiles, thin mortar (the strongest form) ─────────
 
@@ -11,7 +11,7 @@ const MORTAR = 3;
 const ROWS = 6;
 const WALL_H = ROWS * (TILE + MORTAR) - MORTAR;
 
-export function CafeWall({ step, broken, phase, record }: BenchProps) {
+export function CafeWall({ step, broken, explain, phase, record }: BenchProps) {
   const [mortar, setMortar] = useState(128);
   const [shift, setShift] = useState(50);
   const [answer, setAnswer] = useState<'tilted' | 'little' | 'straight' | null>(null);
@@ -30,7 +30,16 @@ export function CafeWall({ step, broken, phase, record }: BenchProps) {
           broken={broken}
           label="Café wall"
           drawing={
-            <svg viewBox={`0 0 600 ${WALL_H}`} className="pl-svg" role="img" aria-label="A wall of big black and white tiles in rows, each row shifted along from the one above, with thin gray mortar lines between the rows.">
+            <svg
+              viewBox={`0 0 600 ${WALL_H}`}
+              className="pl-svg"
+              role="img"
+              aria-label={
+                explain
+                  ? 'The café wall with a straight dashed line laid along every mortar line: every one is perfectly straight and level.'
+                  : 'A wall of big black and white tiles in rows, each row shifted along from the one above, with thin gray mortar lines between the rows.'
+              }
+            >
               <rect width="600" height={WALL_H} fill={grey(m)} />
               {Array.from({ length: ROWS }, (_, r) => {
                 const off = cycle[r % 4] * (sh / 100) * TILE;
@@ -45,6 +54,14 @@ export function CafeWall({ step, broken, phase, record }: BenchProps) {
                   </g>
                 );
               })}
+              {explain && (
+                <Explain id="cafe-wall">
+                  <ExplainPath d={Array.from({ length: ROWS - 1 }, (_, r) => `M8 ${r * (TILE + MORTAR) + TILE + MORTAR / 2} H592`).join(' ')} dash="14 8" />
+                  <ExplainText x={300} y={TILE / 2 + 8} size={24}>
+                    every line is straight
+                  </ExplainText>
+                </Explain>
+              )}
             </svg>
           }
         />
@@ -152,7 +169,7 @@ function cord(r: number, tilt: number) {
   return out;
 }
 
-export function Fraser({ step, broken, phase, record, reduced }: BenchProps) {
+export function Fraser({ step, broken, explain, phase, record, reduced }: BenchProps) {
   const [answer, setAnswer] = useState<'spiral' | 'circles' | null>(null);
   const [after, setAfter] = useState<'spiral' | 'circles' | null>(null);
   const [traced, setTraced] = useState(false);
@@ -169,7 +186,16 @@ export function Fraser({ step, broken, phase, record, reduced }: BenchProps) {
           broken={broken}
           label="Fraser spiral"
           drawing={
-            <svg viewBox="-250 -250 500 500" className="pl-svg" role="img" aria-label="Rings of twisted black-and-white cord on a background of blue and green checks.">
+            <svg
+              viewBox="-250 -250 500 500"
+              className="pl-svg"
+              role="img"
+              aria-label={
+                explain
+                  ? 'The rings of twisted cord with three of them traced in dashed pink: each is a perfect circle, not a spiral.'
+                  : 'Rings of twisted black-and-white cord on a background of blue and green checks.'
+              }
+            >
               <rect x="-250" y="-250" width="500" height="500" fill="#4f8fb8" />
               <path d={checks(broken ? 0 : 0.5)} fill="#8cc68a" />
               <circle r="38" fill="#4f8fb8" />
@@ -187,6 +213,16 @@ export function Fraser({ step, broken, phase, record, reduced }: BenchProps) {
                   className={reduced ? undefined : 'pl-trace'}
                   style={{ ['--len' as string]: `${C}` }}
                 />
+              )}
+              {explain && (
+                <Explain id="fraser">
+                  {[1, 3, 6].map((k) => (
+                    <ExplainPath key={k} d={`M${-RINGS[k]} 0 a${RINGS[k]} ${RINGS[k]} 0 1 0 ${2 * RINGS[k]} 0 a${RINGS[k]} ${RINGS[k]} 0 1 0 ${-2 * RINGS[k]} 0`} width={5} dash="12 8" />
+                  ))}
+                  <ExplainText x={0} y={-226} size={24}>
+                    each ring is a circle
+                  </ExplainText>
+                </Explain>
               )}
             </svg>
           }
@@ -240,7 +276,7 @@ const SLOPE = 0.6;
 const ENTER = { x: 250, y: 216 };
 export const POGG_TRUTH = ENTER.y - SLOPE * 100;
 
-export function Poggendorff({ step, broken, phase, entry, record }: BenchProps) {
+export function Poggendorff({ step, broken, explain, phase, entry, record }: BenchProps) {
   const [guess, setGuess] = useState(236);
   const [shown, setShown] = useState(false);
   const line = (x0: number, y0: number, x1: number) => `M${x0} ${y0} L${x1} ${y0 - SLOPE * (x1 - x0)}`;
@@ -256,7 +292,16 @@ export function Poggendorff({ step, broken, phase, entry, record }: BenchProps) 
           broken={broken}
           label="Poggendorff"
           drawing={
-            <svg viewBox="0 0 600 400" className="pl-svg" role="img" aria-label="A slanting line going up behind a tall gray bar, and a marker on the bar’s right edge for where the line comes out.">
+            <svg
+              viewBox="0 0 600 400"
+              className="pl-svg"
+              role="img"
+              aria-label={
+                explain
+                  ? 'The slanting line with a ruler laid along it, right through the bar: it is one straight line, and the black line on the right is where it really comes out.'
+                  : 'A slanting line going up behind a tall gray bar, and a marker on the bar’s right edge for where the line comes out.'
+              }
+            >
               <rect width="600" height="400" fill="#f4f1ea" />
               <g stroke="#1a1a1a" strokeWidth="5" strokeLinecap="round">
                 <path d={line(40, ENTER.y + SLOPE * 210, ENTER.x)} />
@@ -270,6 +315,14 @@ export function Poggendorff({ step, broken, phase, entry, record }: BenchProps) 
               {reveal && <path d={line(ENTER.x, ENTER.y, 350)} stroke="#1a1a1a" strokeWidth="5" strokeDasharray="6 8" />}
               <path d={line(350, guess, 560)} stroke="#e0703a" strokeWidth="5" strokeLinecap="round" strokeDasharray={reveal ? '12 10' : undefined} />
               <circle cx="350" cy={guess} r="11" fill="#e0703a" stroke="#1a1a1a" strokeWidth="2" />
+              {explain && (
+                <Explain id="poggendorff">
+                  <ExplainPath d={line(20, ENTER.y + SLOPE * 230, 580)} width={2} dash="4 6" />
+                  <ExplainText x={150} y={ENTER.y + SLOPE * 100 + 40}>
+                    one straight line
+                  </ExplainText>
+                </Explain>
+              )}
             </svg>
           }
         />
