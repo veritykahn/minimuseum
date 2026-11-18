@@ -2,11 +2,11 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { observed, troxlerResult } from './results';
-import { Choices, Picture, Work, type BenchProps } from './ui';
+import { Choices, Explain, EXPLAIN, ExplainPath, ExplainText, Picture, Work, type BenchProps } from './ui';
 
 // ───────── Your blind spot ─────────
 
-export function BlindSpot({ step, broken, phase, record }: BenchProps) {
+export function BlindSpot({ step, broken, explain, phase, record }: BenchProps) {
   const [mode, setMode] = useState<'dot' | 'line'>('dot');
   const [answer, setAnswer] = useState<string | null>(null);
   const [after, setAfter] = useState<'back' | 'gone' | null>(null);
@@ -20,7 +20,14 @@ export function BlindSpot({ step, broken, phase, record }: BenchProps) {
           broken={broken}
           label="Blind spot test"
           drawing={
-            <svg viewBox="0 0 800 300" className="pl-svg" role="img" aria-label={mode === 'dot' ? 'A cross on the left and a black dot on the right, on white.' : 'A cross on the left, and on the right a black line with a gap in it.'}>
+            <svg
+              viewBox="0 0 800 300"
+              className="pl-svg"
+              role="img"
+              aria-label={`${mode === 'dot' ? 'A cross on the left and a black dot on the right, on white.' : 'A cross on the left, and on the right a black line with a gap in it.'}${
+                explain ? ` A dashed ring marks where your blind spot lands while you look at the cross${mode === 'line' ? ', and a dashed line shows the gap your brain fills in' : ''}.` : ''
+              }`}
+            >
               <rect width="800" height="300" fill="#fff" />
               <path d="M120 128 V172 M98 150 H142" stroke="#000" strokeWidth="6" />
               {mode === 'dot' ? (
@@ -30,6 +37,21 @@ export function BlindSpot({ step, broken, phase, record }: BenchProps) {
                   <line x1="380" y1="150" x2="496" y2="150" />
                   <line x1="544" y1="150" x2="760" y2="150" />
                 </g>
+              )}
+              {explain && (
+                <Explain id="blind-spot">
+                  <circle cx="520" cy="150" r="54" fill="none" stroke={EXPLAIN} strokeWidth="4" strokeDasharray="9 7" />
+                  {mode === 'line' && !broken && <ExplainPath d="M500 150 H540" width={6} dash="6 5" />}
+                  <ExplainText x={120} y={100}>
+                    look here
+                  </ExplainText>
+                  <ExplainText x={520} y={80}>
+                    your blind spot lands here
+                  </ExplainText>
+                  <ExplainText x={520} y={244}>
+                    {broken ? 'your other eye sees it' : mode === 'dot' ? 'no light-sensing cells' : 'your brain fills it in'}
+                  </ExplainText>
+                </Explain>
               )}
             </svg>
           }
@@ -108,7 +130,7 @@ function pacman(dir: number, r: number) {
   return `M0 0 L${P(dir + 30)} A${r} ${r} 0 1 1 ${P(dir - 30)} Z`;
 }
 
-export function Kanizsa({ step, broken, phase, record }: BenchProps) {
+export function Kanizsa({ step, broken, explain, phase, record }: BenchProps) {
   const [turns, setTurns] = useState([2, 4, 3]);
   const [answer, setAnswer] = useState<string | null>(null);
   const [after, setAfter] = useState<string | null>(null);
@@ -131,7 +153,16 @@ export function Kanizsa({ step, broken, phase, record }: BenchProps) {
           label="Kanizsa triangle"
           drawing={
             // The whole figure, discs and all, sits inside the picture with room to spare.
-            <svg viewBox="-300 -280 600 520" className="pl-svg" role="img" aria-label="Three black discs, each with a slice cut out like a mouth.">
+            <svg
+              viewBox="-300 -280 600 520"
+              className="pl-svg"
+              role="img"
+              aria-label={
+                explain && !broken
+                  ? 'Three black discs with their mouths pointing to the middle, and a dashed outline where you see the triangle’s edges: nothing is drawn there.'
+                  : 'Three black discs, each with a slice cut out like a mouth.'
+              }
+            >
               <rect x="-300" y="-280" width="600" height="520" fill="#fff" />
               {CORNERS.map((c, i) => (
                 <g
@@ -144,9 +175,17 @@ export function Kanizsa({ step, broken, phase, record }: BenchProps) {
                   onClick={() => step === 'try' && turn(i)}
                   onKeyDown={key(i)}
                 >
-                  {broken ? <circle r="66" fill="#111" /> : <path d={pacman(inward[i] + turns[i] * 60, 66)} fill="#111" />}
+                  {broken ? <circle r="66" fill="#111" /> : <path d={pacman(inward[i] + (explain ? 0 : turns[i]) * 60, 66)} fill="#111" />}
                 </g>
               ))}
+              {explain && (
+                <Explain id="kanizsa">
+                  {!broken && <ExplainPath d={`M${CORNERS.map((c) => `${c.x} ${c.y}`).join(' L')} Z`} dash="10 8" />}
+                  <ExplainText x={0} y={228}>
+                    {broken ? 'no mouths, no gaps to join' : 'no edges here: your brain adds them'}
+                  </ExplainText>
+                </Explain>
+              )}
             </svg>
           }
         />
@@ -202,7 +241,25 @@ export function Kanizsa({ step, broken, phase, record }: BenchProps) {
 
 const BLOBS = ['#e7a7c9', '#9fc3e8', '#a8dcb0', '#efd98f', '#c9b2e6', '#f2b79a'];
 
-export function Troxler({ step, broken, phase, record }: BenchProps) {
+/** Why?: where to keep your eyes, and the edge of your vision, where still, faint colors fade. In a square picture `size` wide. */
+function TroxlerExplain({ size, id }: { size: number; id: 'troxler' }) {
+  const u = size / 400;
+  const c = size / 2;
+  return (
+    <Explain id={id}>
+      <circle cx={c} cy={c} r={22 * u} fill="none" stroke={EXPLAIN} strokeWidth={4 * u} />
+      <circle cx={c} cy={c} r={130 * u} fill="none" stroke={EXPLAIN} strokeWidth={4 * u} strokeDasharray={`${10 * u} ${8 * u}`} />
+      <ExplainText x={c} y={c - 34 * u} size={18 * u}>
+        keep your eyes here
+      </ExplainText>
+      <ExplainText x={c} y={30 * u} size={18 * u}>
+        out here, still faint colors fade
+      </ExplainText>
+    </Explain>
+  );
+}
+
+export function Troxler({ step, broken, explain, phase, record }: BenchProps) {
   // The stare's seconds, and the step it was started on: a new step starts afresh.
   const [timer, setTimer] = useState<{ t: number; on: typeof phase } | null>(null);
   const [nudge, setNudge] = useState(0);
@@ -239,7 +296,12 @@ export function Troxler({ step, broken, phase, record }: BenchProps) {
           step={step}
           broken={broken}
           shift={dx * 40}
-          label="Soft pale colors swirling round a small black cross in the middle."
+          marks={explain && <TroxlerExplain size={1400} id="troxler" />}
+          label={
+            explain
+              ? 'Soft pale colors round a small black cross. A small ring marks where to keep your eyes, and a big dashed ring the edge of your vision, where the faint colors fade.'
+              : 'Soft pale colors swirling round a small black cross in the middle.'
+          }
           drawing={
             <svg viewBox="0 0 400 400" className="pl-svg" role="img" aria-label="Soft pale patches of color in a ring on gray, with a small black dot in the middle.">
               <defs>
@@ -255,6 +317,7 @@ export function Troxler({ step, broken, phase, record }: BenchProps) {
                 })}
               </g>
               <circle cx="200" cy="200" r="5" fill="#000" />
+              {explain && <TroxlerExplain size={400} id="troxler" />}
             </svg>
           }
         />

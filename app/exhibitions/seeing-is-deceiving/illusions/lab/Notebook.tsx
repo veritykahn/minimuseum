@@ -5,8 +5,9 @@ import { BENCHES, ILLUSIONS, type IllusionId } from './data';
 import { entryLines, fingerprint, fingerprintTitle, voteLine, type Fingerprint, type Results, type Votes } from './results';
 
 /*
- * The Lab Notebook: each illusion's stamp beside the visitor's result, bench
- * by bench, and "My Illusion Fingerprint": six rings, one for each kind of
+ * The Lab Notebook: the illusions the visitor has tried, each stamp beside
+ * its result, bench by bench; the ones not tried yet as a small grid of
+ * tiles that open them; and "My Illusion Fingerprint": six rings, one for each kind of
  * trick, each drawn as far round as that kind fooled them. It prints on US
  * Letter (the notebook, then the fingerprint, a page each) or saves the
  * fingerprint as a picture, as the doll and memorial cards do. Nothing is
@@ -237,7 +238,9 @@ export default function Notebook({
     }
     return entryLines(results[id]);
   };
-  const done = ILLUSIONS.filter((i) => linesFor(i.id).length).length;
+  const tried = ILLUSIONS.filter((i) => linesFor(i.id).length);
+  const untried = ILLUSIONS.filter((i) => !linesFor(i.id).length);
+  const done = tried.length;
 
   const save = async () => {
     if (!card.current) return;
@@ -280,37 +283,53 @@ export default function Notebook({
           <p className="pl-nb-meta">
             {name ? `${name} · ` : ''}Perception Lab · {done} of {ILLUSIONS.length} illusions tried
           </p>
-          <div className="pl-nb-benches">
-          {BENCHES.map((b) => (
-            <div key={b.n} className="pl-nb-bench">
-              <h3>{b.n < 7 ? `Bench ${b.n}: ${b.title}` : b.title}</h3>
-              <ul>
-                {ILLUSIONS.filter((i) => i.bench === b.n).map((i) => {
-                  const lines = linesFor(i.id);
-                  return (
-                    <li key={i.id} data-done={lines.length ? 'yes' : undefined}>
-                      <Stamp id={i.id} />
-                      <div>
-                        <button type="button" className="pl-nb-name" onClick={() => onOpen(i.id)}>
-                          {i.name}
-                        </button>
-                        {lines.length ? (
-                          lines.map((l) => (
-                            <p key={l.label ?? 'class'}>
-                              {l.label && <span className="pl-nb-when">{l.label}:</span>} {l.line}
-                            </p>
-                          ))
-                        ) : (
-                          <p>{classFp ? 'No hands counted yet.' : 'Not tried yet.'}</p>
-                        )}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+          {tried.length > 0 ? (
+            <div className="pl-nb-benches">
+              {BENCHES.filter((b) => tried.some((i) => i.bench === b.n)).map((b) => (
+                <div key={b.n} className="pl-nb-bench">
+                  <h3>{b.n < 7 ? `Bench ${b.n}: ${b.title}` : b.title}</h3>
+                  <ul>
+                    {tried
+                      .filter((i) => i.bench === b.n)
+                      .map((i) => (
+                        <li key={i.id} data-done="yes">
+                          <Stamp id={i.id} />
+                          <div>
+                            <button type="button" className="pl-nb-name" onClick={() => onOpen(i.id)}>
+                              {i.name}
+                            </button>
+                            {linesFor(i.id).map((l) => (
+                              <p key={l.label ?? 'class'}>
+                                {l.label && <span className="pl-nb-when">{l.label}:</span>} {l.line}
+                              </p>
+                            ))}
+                          </div>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              ))}
             </div>
-          ))}
-          </div>
+          ) : (
+            <p className="pl-nb-empty">{classFp ? 'Count the hands on an illusion, and the class’s answers appear here.' : 'Try an illusion, and your results appear here.'}</p>
+          )}
+          {untried.length > 0 && (
+            <section className="pl-nb-todo" aria-labelledby="pl-nb-todo-title">
+              <h3 id="pl-nb-todo-title">
+                {classFp ? 'No hands counted yet' : 'Not tried yet'} ({untried.length})
+              </h3>
+              <ul className="pl-nb-tiles">
+                {untried.map((i) => (
+                  <li key={i.id}>
+                    <button type="button" className="pl-nb-tile" onClick={() => onOpen(i.id)}>
+                      <Stamp id={i.id} />
+                      <span>{i.name}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
         <div className="pl-nb-page pl-nb-fp">
           <FingerprintCard ref={card} fp={fp} title={title} name={name} heading={classFp ? 'Our Class’s Illusion Fingerprint' : 'My Illusion Fingerprint'} />
