@@ -469,22 +469,29 @@ export default function InTheirHands() {
 
         /* Each case stands on the page's own sepia, with no card round it: the
            photographs are cut out, so the lit cases sit straight on the poster's
-           ground. Its type is cream and the poster's gold (4.7:1 and up). */
+           ground. Its type is cream and the poster's gold (4.7:1 and up).
+           The photographs are square-shouldered (the case's glass runs to its
+           top corners), so the picture starts below the arch's curve: the top
+           padding (--ith-arch-rise + 12px) is always deeper than the arch, at
+           every width, and the case's corners stay inside the gate. */
         .ith-display-case {
           isolation: isolate;
-          --pe-case-pad-y: 60px;
-          padding: 42px 16px 18px;
+          --ith-arch-rise: clamp(40px, 7dvh, 56px);
+          --pe-case-pad-y: calc(var(--ith-arch-rise) + 12px + 18px);
+          padding: calc(var(--ith-arch-rise) + 12px) 18px 18px;
           cursor: pointer;
           transition: all 0.4s ease;
         }
         /* Its frame: a city gate's arch in the poster's gold, its inner line
-           beaded like a coin's rim. The case still stands on the sepia
-           itself, inside the line. */
+           beaded like a coin's rim. The arch is a shallow one (half the
+           case's width across, --ith-arch-rise high) rather than a full half
+           circle, whose curve would cut across the photograph's corners on a
+           wide case. The case still stands on the sepia itself, inside the line. */
         .ith-display-case .pe-case-frame {
           position: absolute;
           z-index: -1;
           inset: 0;
-          border-radius: 999px 999px 3px 3px;
+          border-radius: 50% 50% 3px 3px / var(--ith-arch-rise) var(--ith-arch-rise) 3px 3px;
           border: 1.5px solid rgba(201, 168, 76, 0.7);
           pointer-events: none;
           transition: border-color 0.4s ease;
