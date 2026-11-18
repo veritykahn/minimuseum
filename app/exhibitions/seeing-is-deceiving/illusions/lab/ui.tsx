@@ -17,8 +17,10 @@ export type Step = 'try' | 'break' | 'why';
 export type BenchProps = {
   /** Which step the visitor is on. */
   step: Step;
-  /** "Break it" is on: the trick is switched off. */
+  /** The trick is switched off (Break it starts so; on Why? it is the visitor's choice). */
   broken: boolean;
+  /** Why?: draw how the trick works over the picture (measuring lines, outlines, labels). */
+  explain: boolean;
   /**
    * What a measurement now is: "before" on Try it, "after" on Break it with
    * the trick switched off, and null otherwise (nothing to write down).
@@ -218,6 +220,44 @@ export function useSvgDrag(svg: RefObject<SVGSVGElement | null>, onMove: (x: num
       dragging.current = false;
     },
   };
+}
+
+/** The colour of every Why? explanation drawn over a picture. */
+export const EXPLAIN = '#ff4fa3';
+
+/** Why?: the marks that show how the trick works, over the illusion's own drawing. */
+export function Explain({ id, children }: { id: IllusionId; children: ReactNode }) {
+  return (
+    <g className="pl-explain" data-explain={id} aria-hidden="true">
+      {children}
+    </g>
+  );
+}
+
+/** A label in an explanation: white with a dark edge, readable on any picture. */
+export function ExplainText({ x, y, size = 22, anchor = 'middle', children }: { x: number; y: number; size?: number; anchor?: 'start' | 'middle' | 'end'; children: ReactNode }) {
+  return (
+    <text x={x} y={y} textAnchor={anchor} className="pl-explain-text" style={{ fontSize: size, strokeWidth: size * 0.28 }}>
+      {children}
+    </text>
+  );
+}
+
+/** A straight arrow from one point to another, with an open head. */
+export function arrow(x1: number, y1: number, x2: number, y2: number, head = 12) {
+  const a = Math.atan2(y2 - y1, x2 - x1);
+  const h = (d: number) => `${(x2 - head * Math.cos(a + d)).toFixed(1)} ${(y2 - head * Math.sin(a + d)).toFixed(1)}`;
+  return `M${x1.toFixed(1)} ${y1.toFixed(1)} L${x2.toFixed(1)} ${y2.toFixed(1)} M${h(0.5)} L${x2.toFixed(1)} ${y2.toFixed(1)} L${h(-0.5)}`;
+}
+
+/** An explanation's line: pink over a dark edge, so it shows on light and dark alike. */
+export function ExplainPath({ d, width = 4, dash }: { d: string; width?: number; dash?: string }) {
+  return (
+    <>
+      <path d={d} fill="none" stroke="#1a1a1a" strokeWidth={width + 4} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={dash} opacity="0.55" />
+      <path d={d} fill="none" stroke={EXPLAIN} strokeWidth={width} strokeLinecap="round" strokeLinejoin="round" strokeDasharray={dash} />
+    </>
+  );
 }
 
 /** A grey from 0 (black) to 255 (white). */

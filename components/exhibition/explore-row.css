@@ -133,6 +133,71 @@ a.pe-explore-card:is(:link, :visited) { color: inherit; }
   .pe-explore-go { padding-top: 6px; }
 }
 
+/* On a laptop or a tablet the rooms are on the first screen: the landing
+   gives up a strip at its foot (--pe-explore-peek), the posters and cases
+   shrink to the rest (their row is sized to what the landing leaves), and
+   the row is set in that strip as one line of small cards, side by side,
+   scrolling sideways if an exhibition has more than fit. Every exhibition's
+   landing is a .pe-landing followed by its .pe-explore, so this one rule
+   serves the poster exhibitions and the hand-built ones alike. Phones keep
+   the row below, reached by the Explore cue. */
+@media (min-width: 641px) and (min-height: 600px) {
+  .pe-root {
+    --pe-explore-peek: clamp(124px, 16dvh, 140px);
+  }
+  .pe-root .pe-landing:has(+ .pe-explore) {
+    height: calc(100dvh - var(--pe-explore-peek));
+    padding-bottom: 6px;
+  }
+  .pe-root .pe-landing:has(+ .pe-explore) > a.pe-explore-cue { display: none; }
+  .pe-root .pe-landing + .pe-explore {
+    height: var(--pe-explore-peek);
+    padding: 0 clamp(0px, 4vw, 72px) 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 0;
+    text-align: left;
+    box-sizing: border-box;
+  }
+  .pe-landing + .pe-explore .pe-explore-kicker { margin: 0 0 0 calc(6px + clamp(0px, 4vw, 72px)); font-size: 10px; }
+  /* The strip's kicker names it; the heading stays for screen readers. */
+  .pe-landing + .pe-explore .pe-explore-title {
+    position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+  }
+  .pe-landing + .pe-explore .pe-explore-grid {
+    margin: 0;
+    display: flex;
+    justify-content: safe center;
+    gap: 12px;
+    /* Room for a card's lift and focus ring inside the scroller. */
+    padding: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+  .pe-landing + .pe-explore .pe-explore-grid > li { flex: 0 0 clamp(190px, 19vw, 250px); scroll-snap-align: start; }
+  .pe-landing + .pe-explore .pe-explore-card { flex-direction: row; align-items: center; gap: 10px; padding: 8px; border-radius: 10px; }
+  .pe-landing + .pe-explore .pe-explore-card:hover,
+  .pe-landing + .pe-explore .pe-explore-card:focus-visible { transform: translateY(-2px); }
+  .pe-landing + .pe-explore .pe-explore-art { flex: 0 0 40%; width: auto; border-radius: 6px; }
+  .pe-landing + .pe-explore .pe-explore-emblem { font-size: 1.5rem; }
+  .pe-landing + .pe-explore .pe-explore-words { gap: 2px; padding: 0; }
+  .pe-landing + .pe-explore .pe-explore-start { margin-bottom: 0; padding: 2px 7px; font-size: 9px; }
+  .pe-landing + .pe-explore .pe-explore-name,
+  .pe-landing + .pe-explore .pe-explore-hook {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+  }
+  .pe-landing + .pe-explore .pe-explore-name { font-size: 1rem; line-height: 1.15; }
+  .pe-landing + .pe-explore .pe-explore-hook { font-size: 0.8rem; line-height: 1.3; }
+  .pe-landing + .pe-explore .pe-explore-go { display: none; }
+}
+
 /* The cue at the foot of the first screen: "Explore ↓". Set out of the
    screen's flow (an exhibition's own `.pe-landing > *` rules don't reach it). */
 .pe-root .pe-landing { position: relative; }

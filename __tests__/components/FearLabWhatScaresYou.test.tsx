@@ -309,7 +309,8 @@ describe('the fear boxes', () => {
 
   it('has a gentle mode with a few cartoon spiders, and Escape turns the lights back on', () => {
     render(<WhatScaresYouLab rand={seq(...SCARE)} />);
-    const gentle = screen.getByRole('button', { name: /Gentle/ });
+    // The lab's own switch at the top (the warning's pop-up has a Gentle mode button too).
+    const gentle = screen.getByRole('button', { name: 'Gentle' });
     expect(gentle).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(gentle);
     expect(gentle).toHaveAttribute('aria-pressed', 'true');
@@ -325,6 +326,32 @@ describe('the fear boxes', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(document.querySelector('.fl-fb-dark')).toBeNull();
     expect(screen.getByRole('button', { name: 'Close the box' })).toHaveFocus();
+  });
+
+  it('warns in a short pop-up, with I’m ready and Gentle mode; Gentle mode turns the lab’s gentle mode on and starts', () => {
+    render(<WhatScaresYouLab rand={seq(...SCARE)} />);
+    // Gentle mode is remembered from test to test: start with it off.
+    if (screen.getByRole('button', { name: 'Gentle' }).getAttribute('aria-pressed') === 'true') fireEvent.click(screen.getByRole('button', { name: 'Gentle' }));
+    const dialog = screen.getByRole('dialog', { name: 'Startle warning' });
+    expect(within(dialog).getByRole('button', { name: 'I’m ready' })).toHaveFocus();
+    expect(within(dialog).getByRole('button', { name: 'Close the warning' })).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Gentle mode' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Gentle' })).toHaveAttribute('aria-pressed', 'true');
+    expect(window.localStorage.getItem('fl-lab-gentle')).toBe('on');
+    expect(within(screen.getByRole('group', { name: 'Fear boxes' })).getAllByRole('button')).toHaveLength(BOX_COUNT);
+    // Off again, for the tests after.
+    fireEvent.click(screen.getByRole('button', { name: 'Gentle' }));
+  });
+
+  it('closes the warning with Esc, and opens it again from the panel', () => {
+    render(<WhatScaresYouLab rand={seq(...SCARE)} />);
+    // Gentle mode is remembered from test to test: start with it off.
+    if (screen.getByRole('button', { name: 'Gentle' }).getAttribute('aria-pressed') === 'true') fireEvent.click(screen.getByRole('button', { name: 'Gentle' }));
+    fireEvent.keyDown(screen.getByRole('dialog'), { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Open the boxes' }));
+    expect(screen.getByRole('dialog', { name: 'Startle warning' })).toBeInTheDocument();
   });
 
   it('in gentle mode, lets no third scare in a row out of the boxes', () => {

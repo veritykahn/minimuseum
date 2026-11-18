@@ -229,24 +229,35 @@ describe('a station: Try it, Break it, Why?', () => {
     fireEvent.change(screen.getByRole('slider', { name: 'Paint chip shade' }), { target: { value: '155' } });
     fireEvent.click(screen.getByRole('button', { name: 'Write it in my notebook' }));
     expect(screen.getByText('You saw B 40% lighter than it really is.')).toBeInTheDocument();
+    // The big button leads on to Break it: no Next yet, so Break it and Why? are not skipped.
+    expect(screen.queryByRole('button', { name: /^Next:/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Break it' }));
     // Break it: the same picture, a strip from A to B; the chip carries over, and is measured again.
-    fireEvent.click(screen.getByRole('button', { name: /Now break it/ }));
     expect(screen.getByRole('tab', { name: 'Break it' })).toHaveAttribute('aria-selected', 'true');
     expect(document.querySelector('[data-slot="checker.jpg"] [data-mark="strip"]')).not.toBeNull();
     expect(screen.getByRole('slider', { name: 'Paint chip shade' })).toHaveValue('155');
-    const sw = screen.getByRole('button', { name: 'Join A and B' });
-    expect(sw).toHaveAttribute('aria-pressed', 'true');
+    const sw = screen.getByRole('switch', { name: 'Trick: off' });
+    expect(sw).toHaveAttribute('aria-checked', 'false');
+    expect(sw).toHaveAccessibleDescription('Off: Join A and B');
     fireEvent.change(screen.getByRole('slider', { name: 'Paint chip shade' }), { target: { value: '111' } });
     fireEvent.click(screen.getByRole('button', { name: 'Write it in my notebook: trick off' }));
     expect(screen.getByText('You matched B’s real shade almost exactly.')).toBeInTheDocument();
     // Switched back on, nothing is measured.
     fireEvent.click(sw);
-    expect(sw).toHaveAttribute('aria-pressed', 'false');
+    expect(sw).toHaveAttribute('aria-checked', 'true');
+    expect(sw).toHaveAccessibleName('Trick: on');
     expect(screen.queryByRole('slider', { name: 'Paint chip shade' })).not.toBeInTheDocument();
     expect(document.querySelector('[data-mark="strip"]')).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Next:/ })).not.toBeInTheDocument();
     // Why: the science, and no source on the page: they are in the drawer.
-    fireEvent.click(screen.getByRole('tab', { name: 'Why?' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Why?' }));
+    expect(screen.getByRole('tab', { name: 'Why?' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText(byId('checker').why.text)).toBeInTheDocument();
+    // The picture shows how: A and B through two holes in a card over the board, the trick on and switchable.
+    expect(document.querySelector('[data-slot="checker.jpg"] [data-explain="checker"] mask circle')).not.toBeNull();
+    expect(screen.getByRole('switch', { name: 'Trick: on' })).toHaveAttribute('aria-checked', 'true');
+    fireEvent.click(screen.getByRole('switch', { name: 'Trick: on' }));
+    expect(document.querySelector('[data-slot="checker.jpg"] [data-mark="strip"]')).not.toBeNull();
     expect(screen.queryByRole('link', { name: 'Michael Bach, Optical Illusions' })).not.toBeInTheDocument();
     expect(screen.queryByText(/^Sources?:/)).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Tell me more' }));
@@ -267,7 +278,11 @@ describe('a station: Try it, Break it, Why?', () => {
     const item = within(nb).getByRole('button', { name: 'Adelson’s checker shadow' }).closest('li')!;
     expect(item).toHaveTextContent('Trick on: You saw B 40% lighter than it really is.');
     expect(item).toHaveTextContent('Trick off: You matched B’s real shade almost exactly.');
-    expect(within(nb).getAllByText('Not tried yet.')).toHaveLength(ILLUSIONS.length - 1);
+    // The illusions not tried yet are tiles, each opening its illusion; the tried one is not among them.
+    const todo = within(nb).getByRole('region', { name: `Not tried yet (${ILLUSIONS.length - 1})` });
+    expect(within(todo).getAllByRole('button')).toHaveLength(ILLUSIONS.length - 1);
+    expect(within(todo).queryByRole('button', { name: 'Adelson’s checker shadow' })).not.toBeInTheDocument();
+    expect(within(nb).queryByText('Not tried yet.')).not.toBeInTheDocument();
     expect(screen.getByRole('img', { name: /My Illusion Fingerprint\. Fooled most by: brightness\./ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Print my notebook' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Save my fingerprint as a picture' })).toBeInTheDocument();
@@ -381,6 +396,81 @@ describe('a station: Try it, Break it, Why?', () => {
     const words = screen.getAllByRole('button', { name: 'THE' });
     fireEvent.click(words[1]);
     expect(screen.getByText('Yes: that “THE” is there twice.')).toBeInTheDocument();
+  });
+});
+
+describe('the big button, the Trick switch and Why?’s pictures', () => {
+  it('leads Try it → Break it → Why? → Next, while the tabs still go anywhere', () => {
+    at('#muller-lyer');
+    render(<PerceptionLab />);
+    const pager = screen.getByRole('navigation', { name: 'Illusions' });
+    const big = within(pager).getByRole('button', { name: 'Break it' });
+    expect(big).toHaveClass('pl-btn-primary');
+    big.focus();
+    fireEvent.click(big);
+    expect(screen.getByRole('tab', { name: 'Break it' })).toHaveAttribute('aria-selected', 'true');
+    // One button, relabelled, so focus stays on it.
+    expect(big).toHaveAccessibleName('Why?');
+    expect(big).toHaveFocus();
+    fireEvent.click(big);
+    expect(screen.getByRole('tab', { name: 'Why?' })).toHaveAttribute('aria-selected', 'true');
+    expect(big).toHaveAccessibleName('Next: Ponzo railway');
+    // The tabs still go anywhere, and the button follows.
+    fireEvent.click(screen.getByRole('tab', { name: 'Try it' }));
+    expect(big).toHaveAccessibleName('Break it');
+    fireEvent.click(screen.getByRole('tab', { name: 'Why?' }));
+    fireEvent.click(big);
+    expect(screen.getByRole('heading', { level: 1, name: 'Ponzo railway' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Try it' })).toHaveAttribute('aria-selected', 'true');
+  });
+
+  it('ends at the notebook from the last Why?', () => {
+    at('#ames');
+    render(<PerceptionLab />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Why?' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Open my notebook' }));
+    expect(screen.getByRole('region', { name: 'My Lab Notebook' })).toBeInTheDocument();
+  });
+
+  it('gives every illusion a Trick switch and a picture that shows how the trick works on Why?', () => {
+    at('#blind-spot');
+    render(<PerceptionLab />);
+    for (const i of ILLUSIONS) {
+      act(() => {
+        at(`#${i.id}`);
+        window.dispatchEvent(new HashChangeEvent('hashchange'));
+      });
+      if (i.motion) fireEvent.click(screen.getByRole('button', { name: 'Show it' }));
+      expect(screen.getByRole('heading', { level: 1, name: i.name })).toBeInTheDocument();
+      // Try it has no switch: the trick is on while you measure.
+      expect(screen.queryByRole('switch')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('tab', { name: 'Why?' }));
+      expect(document.querySelector(`.pl-figure [data-explain="${i.id}"]`)).not.toBeNull();
+      const sw = screen.getByRole('switch', { name: 'Trick: on' });
+      expect(sw).toHaveAccessibleDescription(`Off: ${i.breakLabel}`);
+      fireEvent.click(sw);
+      expect(sw).toHaveAccessibleName('Trick: off');
+      // Switched off, the explanation still shows, over the broken picture.
+      expect(document.querySelector(`.pl-figure [data-explain="${i.id}"]`)).not.toBeNull();
+    }
+  });
+
+  it('measures the Müller-Lyer halves on Why?, the middle fin at the true middle', () => {
+    at('#muller-lyer');
+    render(<PerceptionLab />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Why?' }));
+    const ex = document.querySelector('[data-explain="muller-lyer"]')!;
+    expect(ex.textContent).toMatch(/same length.*same length/);
+    expect(screen.getByRole('img', { name: /two halves are the same length/ })).toBeInTheDocument();
+  });
+
+  it('names the control each task uses', () => {
+    expect(byId('muller-lyer').task).toMatch(/“Move the middle” slider/);
+    expect(byId('muller-lyer').task).not.toMatch(/^Drag/);
+    at('#muller-lyer');
+    render(<PerceptionLab />);
+    expect(screen.getByRole('slider', { name: 'Move the middle' })).toBeInTheDocument();
+    expect(byId('ames').task).toMatch(/“Move the child” slider/);
   });
 });
 
@@ -499,12 +589,12 @@ describe('printing and the way back', () => {
     expect(css).toMatch(/\.pl-pager \{[^}]*padding: 10px 96px 16px 136px;/);
   });
 
-  it('goes back to the display case at the Interactives, and says nothing is stored', () => {
+  it('goes back to the exhibition from the corner, to the display case from the foot, and says nothing is stored', () => {
     at('');
     render(<PerceptionLab />);
-    for (const l of screen.getAllByRole('link', { name: /Display Case|Back to the display case/i })) {
-      expect(l.getAttribute('href')).toBe('/exhibitions/seeing-is-deceiving/artifacts?view=interactives');
-    }
+    expect(screen.getByRole('link', { name: 'Seeing is Deceiving' })).toHaveAttribute('href', '/exhibitions/seeing-is-deceiving');
+    expect(screen.queryByRole('link', { name: 'Display Case' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Back to the display case' })).toHaveAttribute('href', '/exhibitions/seeing-is-deceiving/artifacts?view=interactives');
     expect(screen.getByText('Nothing you do here is saved or sent anywhere.')).toBeInTheDocument();
   });
 

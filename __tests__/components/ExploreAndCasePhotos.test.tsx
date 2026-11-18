@@ -121,6 +121,15 @@ describe('the Explore row', () => {
     // On a phone, one column: no sideways scroll.
     expect(css).toMatch(/@media \(max-width: 640px\) \{\s*\.pe-explore-grid \{ grid-template-columns: minmax\(0, 1fr\);/);
   });
+
+  it('puts the rooms on the first screen of a laptop or tablet: the landing gives up a strip for them', () => {
+    const css = read('components/exhibition/explore-row.css');
+    const block = css.slice(css.indexOf('@media (min-width: 641px) and (min-height: 600px)'));
+    expect(block).toMatch(/\.pe-root \.pe-landing:has\(\+ \.pe-explore\) \{\s*height: calc\(100dvh - var\(--pe-explore-peek\)\);/);
+    expect(block).toMatch(/\.pe-root \.pe-landing \+ \.pe-explore \{\s*height: var\(--pe-explore-peek\);/);
+    // The cue that says "scroll down" is not needed there.
+    expect(block).toMatch(/a\.pe-explore-cue \{ display: none; \}/);
+  });
 });
 
 describe('the display case photographs', () => {

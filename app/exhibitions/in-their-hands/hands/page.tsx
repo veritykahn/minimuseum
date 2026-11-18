@@ -12,7 +12,7 @@ import { useScoredGame } from '@/components/games/useScoredGame';
 import TeachToggle from '@/components/games/projector/TeachToggle';
 import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
 import { SoundSwitch, isGoodScore } from '@/components/games/feedback/FeedbackKit';
-import { CLOSING, HANDS_CHARACTERS, TIERS, buildRounds } from './data';
+import { CLOSING, HANDS_CHARACTERS, HANDS_CLUES, TIERS, buildRounds } from './data';
 import HandsProjector from './HandsProjector';
 
 const THEME = {
@@ -51,8 +51,12 @@ export default function HandsOfHistory() {
   const chosenName = game.current?.choice ?? null;
   const isCorrect = game.current?.correct ?? false;
 
+  // The coin's long story waits behind More, so Next is always in view.
+  const [more, setMore] = useState(false);
+
   const handleChoice = (name: string) => {
     if (!character || roundState !== 'guessing') return;
+    setMore(false);
     game.answer(character.id, name, name === character.character);
   };
 
@@ -427,6 +431,85 @@ export default function HandsOfHistory() {
         }
 
 
+        /* ========== ONE SCREEN: clues, short answer, Next in view ========== */
+        .hh-question { margin-bottom: 18px; }
+        .hh-options:not(.hh-options-answered) .hh-option-btn { padding: 13px 22px; }
+        .hh-clues {
+          margin-top: 18px;
+          padding: 12px 16px;
+          border: 1px solid rgba(201, 168, 76, 0.22);
+          border-radius: 12px;
+          background: rgba(201, 168, 76, 0.05);
+        }
+        .hh-clues-title {
+          font-family: 'Outfit', sans-serif;
+          font-size: var(--game-small);
+          font-weight: 400;
+          letter-spacing: 0.16em;
+          text-transform: uppercase;
+          color: #C9A84C;
+          margin-bottom: 6px;
+        }
+        .hh-clues ol { list-style: none; display: grid; gap: 6px; }
+        .hh-clues li {
+          font-family: 'Outfit', sans-serif;
+          font-size: clamp(14px, 0.35vw + 10px, 16px);
+          line-height: 1.4;
+          color: #d0d0d0;
+        }
+        .hh-clues strong { color: #f0e6c8; font-weight: 500; }
+        .hh-options-answered {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .hh-reveal-verdict { margin-bottom: 8px; }
+        .hh-clue { margin-bottom: 12px; line-height: 1.5; }
+        .hh-reveal-coin { font-size: 1.35rem; margin-bottom: 0; }
+        .hh-reveal-coin .hh-reveal-date {
+          display: inline;
+          margin: 0 0 0 8px;
+          padding: 0;
+          border: 0;
+          white-space: nowrap;
+        }
+        .hh-reveal-foot {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 12px;
+          margin-top: 14px;
+          padding-top: 12px;
+          border-top: 1px solid rgba(255,255,255,0.08);
+        }
+        .hh-more-btn {
+          min-height: 44px;
+          padding: 8px 18px;
+          border-radius: 100px;
+          border: 1px solid rgba(255,255,255,0.18);
+          background: transparent;
+          color: #e6e1d6;
+          font-family: 'Outfit', sans-serif;
+          font-size: var(--game-small);
+          letter-spacing: 0.08em;
+          cursor: pointer;
+        }
+        .hh-more-btn:hover { border-color: #C9A84C; color: #C9A84C; }
+        .hh-more-btn:focus-visible { outline: 2px solid #C9A84C; outline-offset: 3px; }
+        .hh-reveal-foot .hh-next-btn { align-self: auto; }
+        #hh-more .hh-reveal-story { margin: 14px 0 0; line-height: 1.6; }
+        .hh-dots { padding-top: 16px; }
+        @media (max-width: 900px) {
+          .hh-main { padding-top: 72px; gap: 10px; }
+          .hh-image-area { height: 30vh; height: 30dvh; }
+          .hh-question { font-size: clamp(1.4rem, 3vw, 1.8rem); margin-bottom: 12px; }
+          .hh-options:not(.hh-options-answered) { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+          .hh-option-btn { padding: 12px 16px; }
+          .hh-clues { margin-top: 12px; }
+          .hh-panel { flex: 1 1 0; min-height: 0; max-height: none; }
+        }
+
         /* ========== MOBILE ========== */
         @media (max-width: 900px) {
           .hh-main {
@@ -457,9 +540,9 @@ export default function HandsOfHistory() {
 
       {/* Header */}
       <header className="hh-header">
-        <button className="hh-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-7?view=interactives')}>
+        <button className="hh-back-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
           <span aria-hidden="true">{'\u2190'}</span>
-          <span className="hh-back-label">Display Case</span>
+          <span className="hh-back-label">In Their Hands</span>
         </button>
         <div className="hh-header-right">
           {roundState !== 'finished' && (
@@ -520,6 +603,16 @@ export default function HandsOfHistory() {
                         </button>
                       ))}
                     </div>
+                    <section className="hh-clues" aria-labelledby="hh-clues-title">
+                      <h2 className="hh-clues-title" id="hh-clues-title">Look for 3 clues</h2>
+                      <ol>
+                        {HANDS_CLUES.map((c) => (
+                          <li key={c.title}>
+                            <strong>{c.title}</strong> {c.text}
+                          </li>
+                        ))}
+                      </ol>
+                    </section>
                   </>
                 ) : (
                   <div className="hh-reveal">
@@ -537,12 +630,26 @@ export default function HandsOfHistory() {
                     >
                       <p className="hh-clue-label">Why these hands</p>
                       <p className="hh-clue">{character.clue}</p>
-                      <h2 className="hh-reveal-coin">{character.coinName}</h2>
-                      <p className="hh-reveal-date">{character.coinDate}</p>
-                      <p className="hh-reveal-story">{character.story}</p>
-                      <button type="button" className="hh-next-btn" onClick={game.next}>
-                        {game.isLast ? 'See Results' : 'Next'} <span aria-hidden="true">{'\u2192'}</span>
-                      </button>
+                      <h2 className="hh-reveal-coin">
+                        {character.coinName} <span className="hh-reveal-date">{character.coinDate}</span>
+                      </h2>
+                      <div className="hh-reveal-foot">
+                        <button
+                          type="button"
+                          className="hh-more-btn"
+                          aria-expanded={more}
+                          aria-controls="hh-more"
+                          onClick={() => setMore((m) => !m)}
+                        >
+                          {more ? 'Less' : 'More'} <span aria-hidden="true">{more ? '\u25B4' : '\u25BE'}</span>
+                        </button>
+                        <button type="button" className="hh-next-btn" onClick={game.next}>
+                          {game.isLast ? 'See Results' : 'Next'} <span aria-hidden="true">{'\u2192'}</span>
+                        </button>
+                      </div>
+                      <div id="hh-more" hidden={!more}>
+                        <p className="hh-reveal-story">{character.story}</p>
+                      </div>
                     </Verdict>
                   </div>
                 )}

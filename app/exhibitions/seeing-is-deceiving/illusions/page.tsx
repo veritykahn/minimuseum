@@ -9,6 +9,7 @@ import TeachToggle from '@/components/games/projector/TeachToggle';
 import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
 import { holdProjectorScreen } from '@/components/projector/useProjectorMode';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
+import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 import { BENCHES, ILLUSIONS, LAB_TEXT, labSourceGroups, type IllusionId } from './lab/data';
 import { classFingerprint, entryLines, type LabResult, type Phase, type Results, type Votes } from './lab/results';
 import { ownerPicture } from './lab/slots';
@@ -47,9 +48,18 @@ import './lab/lab.css';
  *
  * Each illusion has its own address (#checker, #muller-lyer, …), and the
  * notebook has #notebook.
+ *
+ * The one big button at the foot leads the way: "Break it →" on Try it,
+ * "Why? →" on Break it, and only on Why? "Next: <illusion> →". The tabs
+ * still go anywhere. On Break it and Why? the "Trick: on/off" switch takes
+ * the trick away and puts it back; on Why? each picture also shows how the
+ * trick works (its `explain` drawing).
  */
 
+/** The footer's way back: the display case, at the Interactives. */
 const BACK = '/exhibitions/seeing-is-deceiving/artifacts?view=interactives';
+/** "M ← Seeing is Deceiving": the exhibition's own page, unless the Studio opened the lab. */
+const EXHIBITION: MuseumReturn = { href: '/exhibitions/seeing-is-deceiving', label: 'Seeing is Deceiving' };
 
 const BENCH_PARTS: Record<IllusionId, ComponentType<BenchProps>> = {
   'blind-spot': BlindSpot,
@@ -95,7 +105,9 @@ export default function PerceptionLab() {
   const [teach, setTeach] = useProjectorMode();
   const [view, setView] = useState<View>({ kind: 'intro' });
   const [step, setStep] = useState<Step>('try');
-  const [switchOn, setSwitchOn] = useState(true);
+  // The trick: on for Try it and Why?, off as Break it opens.
+  const [trickOn, setTrickOn] = useState(true);
+  const corner = useMuseumReturn(EXHIBITION);
   const [more, setMore] = useState(false);
   const [results, setResults] = useState<Results>({});
   const [votes, setVotes] = useState<Votes>({});
@@ -115,7 +127,7 @@ export default function PerceptionLab() {
       if (!v) return;
       setView(v);
       setStep('try');
-      setSwitchOn(true);
+      setTrickOn(true);
       setMore(false);
     };
     fromHash();
@@ -126,7 +138,7 @@ export default function PerceptionLab() {
   const go = useCallback((v: View) => {
     setView(v);
     setStep('try');
-    setSwitchOn(true);
+    setTrickOn(true);
     setMore(false);
     const hash = v.kind === 'illusion' ? `#${ILLUSIONS[v.index].id}` : v.kind === 'notebook' ? '#notebook' : ' ';
     window.history.replaceState(null, '', hash === ' ' ? window.location.pathname + window.location.search : hash);
@@ -144,7 +156,7 @@ export default function PerceptionLab() {
 
   const toStep = useCallback((s: Step, focus = false) => {
     setStep(s);
-    setSwitchOn(true);
+    setTrickOn(s !== 'break');
     setMore(false);
     panel.current?.scrollTo?.({ top: 0 });
     if (focus) stepRefs.current[s]?.focus();
@@ -163,10 +175,26 @@ export default function PerceptionLab() {
   const illusion = view.kind === 'illusion' ? ILLUSIONS[view.index] : null;
   const Part = illusion ? BENCH_PARTS[illusion.id] : null;
   const waiting = illusion?.motion && !shown[illusion.id];
-  const phase: Phase | null = step === 'try' ? 'before' : step === 'break' && switchOn ? 'after' : null;
+  const phase: Phase | null = step === 'try' ? 'before' : step === 'break' && !trickOn ? 'after' : null;
+  const broken = step !== 'try' && !trickOn;
   const noted = illusion ? entryLines(results[illusion.id]) : [];
   const groups = useMemo(() => labSourceGroups(illusion ? [illusion.id] : ALL_IDS, ownerPicture), [illusion]);
   const next = view.kind === 'illusion' && view.index < ILLUSIONS.length - 1 ? ILLUSIONS[view.index + 1] : null;
+  /** The pager's big button: Break it on Try it, Why? on Break it, and the next illusion (or the notebook) only on Why?. */
+  const onwardTo: Step | 'next' | 'notebook' = !waiting && step === 'try' ? 'break' : !waiting && step === 'break' ? 'why' : next ? 'next' : 'notebook';
+  const onward =
+    onwardTo === 'break'
+      ? { full: 'Break it', short: 'Break it', primary: true }
+      : onwardTo === 'why'
+        ? { full: 'Why?', short: 'Why?', primary: true }
+        : onwardTo === 'next' && next
+          ? { full: `Next: ${next.name}`, short: 'Next', primary: !waiting }
+          : { full: 'Open my notebook', short: 'Notebook', primary: !waiting };
+  const goOnward = () => {
+    if (onwardTo === 'break' || onwardTo === 'why') toStep(onwardTo);
+    else if (onwardTo === 'next' && view.kind === 'illusion') go({ kind: 'illusion', index: view.index + 1 });
+    else go({ kind: 'notebook' });
+  };
 
   return (
     <SourcesDrawer groups={groups}>
@@ -174,10 +202,10 @@ export default function PerceptionLab() {
         <style>{`@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Outfit:wght@300;400;500;600&display=swap');`}</style>
 
         <header className="pl-top">
-          <ExhibitionNav className="pl-nav" href={BACK}>
+          <ExhibitionNav className="pl-nav" href={corner.href} onClick={() => rememberReturn(corner)}>
             <span className="pl-nav-m" aria-hidden="true">M</span>
             <span className="pl-nav-arrow" aria-hidden="true">←</span>
-            <span className="pl-nav-label">Display Case</span>
+            <span className="pl-nav-label">{corner.label}</span>
           </ExhibitionNav>
           <nav className="pl-top-links" aria-label="Perception Lab">
             <button type="button" className="pl-link" onClick={() => go({ kind: 'intro' })} aria-current={view.kind === 'intro' ? 'page' : undefined}>
@@ -307,7 +335,8 @@ export default function PerceptionLab() {
                     <Part
                       key={illusion.id}
                       step={step}
-                      broken={step === 'break' && switchOn}
+                      broken={broken}
+                      explain={step === 'why'}
                       phase={phase}
                       entry={results[illusion.id]}
                       record={(p, r) => record(illusion.id, p, r)}
@@ -318,17 +347,20 @@ export default function PerceptionLab() {
                   <div className="pl-panel" ref={panel} tabIndex={0} aria-label="Task">
                     <div className="pl-instr">
                       {step === 'try' && <p className="pl-q-big">{illusion.task}</p>}
-                      {step === 'break' && (
-                        <>
-                          <button type="button" className="pl-btn pl-switch" aria-pressed={switchOn} onClick={() => setSwitchOn(!switchOn)}>
+                      {step !== 'try' && (
+                        <div className="pl-trick">
+                          <button type="button" role="switch" aria-checked={trickOn} aria-describedby="pl-trick-what" className="pl-btn pl-switch" onClick={() => setTrickOn(!trickOn)}>
                             <span className="pl-switch-track" aria-hidden="true">
                               <span className="pl-switch-knob" />
                             </span>
-                            {illusion.breakLabel}
+                            Trick: {trickOn ? 'on' : 'off'}
                           </button>
-                          <p className="pl-q-big">{switchOn ? illusion.breakText : 'The trick is back on. Switch it off to measure again.'}</p>
-                        </>
+                          <span id="pl-trick-what" className="pl-trick-what">
+                            Off: {illusion.breakLabel}
+                          </span>
+                        </div>
                       )}
+                      {step === 'break' && <p className="pl-q-big">{trickOn ? 'The trick is back on. Switch it off to measure again.' : illusion.breakText}</p>}
                       {step === 'why' && (
                         <div className="pl-why">
                           {illusion.why.text ? <FactNote fact={illusion.why} className="pl-fact-big" /> : <p className="pl-fact-big">{illusion.unsourced}</p>}
@@ -354,11 +386,6 @@ export default function PerceptionLab() {
                         ))}
                       </div>
                     )}
-                    {step !== 'why' && (
-                      <button type="button" className="pl-btn pl-onward" onClick={() => toStep(step === 'try' ? 'break' : 'why')}>
-                        {step === 'try' ? 'Now break it' : 'Now find out why'} <span aria-hidden="true">→</span>
-                      </button>
-                    )}
                     {teach && <ClassVote illusion={illusion} votes={votes[illusion.id] ?? {}} onChange={(v) => setVotes({ ...votes, [illusion.id]: v })} />}
                     {teach && <p className="pl-teacher-tip">Teacher tip: {illusion.teacherTip}</p>}
                   </div>
@@ -369,24 +396,14 @@ export default function PerceptionLab() {
                 <button type="button" className="pl-btn" onClick={() => go({ kind: 'illusion', index: view.index - 1 })} disabled={view.index === 0} aria-label="Previous">
                   <span aria-hidden="true">←</span> <span className="pl-pager-prev-word">Previous</span>
                 </button>
-                {next ? (
-                  <button type="button" className="pl-btn pl-btn-primary" onClick={() => go({ kind: 'illusion', index: view.index + 1 })} aria-label={`Next: ${next.name}`}>
-                    <span className="pl-pager-full">Next: {next.name}</span>
-                    <span className="pl-pager-short" aria-hidden="true">
-                      Next
-                    </span>{' '}
-                    <span aria-hidden="true">→</span>
-                  </button>
-                ) : (
-                  <button type="button" className="pl-btn pl-btn-primary" onClick={() => go({ kind: 'notebook' })} aria-label="Open my notebook">
-                    <span className="pl-pager-full">
-                      Open my notebook <span aria-hidden="true">→</span>
-                    </span>
-                    <span className="pl-pager-short" aria-hidden="true">
-                      Notebook
-                    </span>
-                  </button>
-                )}
+                {/* One button that leads the way, so focus stays on it as it changes: Break it, then Why?, then Next. */}
+                <button type="button" className={onward.primary ? 'pl-btn pl-btn-primary' : 'pl-btn'} onClick={goOnward} aria-label={onward.full}>
+                  <span className="pl-pager-full">{onward.full}</span>
+                  <span className="pl-pager-short" aria-hidden="true">
+                    {onward.short}
+                  </span>{' '}
+                  <span aria-hidden="true">→</span>
+                </button>
               </nav>
             </article>
           )}

@@ -3,14 +3,14 @@
 import type { CSSProperties, ReactNode } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { MOON } from './moon';
 import './moon.css';
 
 /*
  * The frame of an Our Incredible Moon room (the microscope): the exhibition's
- * faces and night sky, "M ← Display Case" in the corner, and one full-screen
+ * faces and night sky, "M ← <the exhibition>" in the corner, and one full-screen
  * stage that sets its own heading.
  */
 
@@ -18,7 +18,7 @@ type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function RoomShell({ className, children }: { className: string; children: ReactNode }) {
   const { fonts, palette, slug } = MOON;
-  const back = useMuseumReturn(roomReturn(MOON));
+  const back = useMuseumReturn(exhibitionReturn(MOON));
   const style: CssVars = {
     background: palette.page,
     '--pe-display': fonts.display,

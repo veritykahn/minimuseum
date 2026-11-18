@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { observed, stroopMatchResult, stroopResult } from './results';
-import { Choices, Picture, Slider, useSvgDrag, Work, type BenchProps } from './ui';
+import { Choices, Explain, EXPLAIN, ExplainText, Picture, Slider, useSvgDrag, Work, type BenchProps } from './ui';
 
 // ───────── Stroop race ─────────
 
@@ -19,13 +19,14 @@ export const STROOP_WORDS = STROOP_INKS.map((ink, k) => (ink + 1 + (k % 3)) % 4)
 
 type Round = 1 | 2 | 3;
 
-export function Stroop({ step, broken, phase, record }: BenchProps) {
+export function Stroop({ step, broken, explain, phase, record }: BenchProps) {
   const [round, setRound] = useState<Round>(1);
   const [running, setRunning] = useState(false);
   const [times, setTimes] = useState<Partial<Record<Round, number>>>({});
   const started = useRef(0);
   const [now, setNow] = useState(0);
-  const shown: Round = broken ? 3 : round;
+  // Why?: Round 2 (the words fighting the ink), or Round 3 with the trick off.
+  const shown: Round = broken ? 3 : explain ? 2 : round;
 
   useEffect(() => {
     if (!running) return;
@@ -58,7 +59,7 @@ export function Stroop({ step, broken, phase, record }: BenchProps) {
           broken={broken}
           label="Stroop race"
           drawing={
-            <div className="pl-stroop" aria-label={`Round ${shown}`} role="list">
+            <div className="pl-stroop" aria-label={explain ? `Round ${shown}: under each word, the ink color you have to say` : `Round ${shown}`} role="list" data-explain={explain ? 'stroop' : undefined}>
               {STROOP_INKS.map((ink, k) => {
                 const c = INKS[ink];
                 if (shown === 1) return <span key={k} role="listitem" className="pl-stroop-patch" style={{ background: c.ink }} aria-label={c.id} />;
@@ -66,6 +67,12 @@ export function Stroop({ step, broken, phase, record }: BenchProps) {
                 return (
                   <span key={k} role="listitem" className="pl-stroop-word" style={{ color: c.ink }} aria-label={`${word} in ${c.id} ink`}>
                     {word}
+                    {explain && (
+                      <span className="pl-stroop-say" aria-hidden="true">
+                        <span className="pl-stroop-swatch" style={{ background: c.ink }} />
+                        say {c.id}
+                      </span>
+                    )}
                   </span>
                 );
               })}
@@ -123,13 +130,15 @@ export const PHRASES = [
   [['A', 'BIRD'], ['IN', 'THE'], ['THE', 'HAND']],
 ];
 
-export function Paris({ step, broken, phase, record }: BenchProps) {
+export function Paris({ step, broken, explain, phase, record }: BenchProps) {
   const [n, setN] = useState(0);
   const [first, setFirst] = useState<'missed' | 'spotted' | null>(null);
   const [after, setAfter] = useState<'yes' | 'no' | null>(null);
   const [tapped, setTapped] = useState<string | null>(null);
   const lines = PHRASES[n];
   const wrong = '2-0';
+  /** Why?: the word that is there twice, numbered 1 and 2: the end of one line and the start of the next. */
+  const twice = (i: number, j: number) => (i === 1 && j === lines[1].length - 1 ? '1' : `${i}-${j}` === wrong ? '2' : undefined);
 
   return (
     <Work
@@ -142,9 +151,19 @@ export function Paris({ step, broken, phase, record }: BenchProps) {
           label="Read the sign"
           drawing={
             broken ? (
-              <div className="pl-sign pl-sign-line">{lines.flat().join(' ')}</div>
+              <div className="pl-sign pl-sign-line" data-explain={explain ? 'paris' : undefined}>
+                {explain
+                  ? lines.flatMap((line, i) =>
+                      line.map((w, j) => (
+                        <span key={`${i}-${j}`} className="pl-sign-w" data-twice={twice(i, j)}>
+                          {w}{' '}
+                        </span>
+                      )),
+                    )
+                  : lines.flat().join(' ')}
+              </div>
             ) : (
-              <div className="pl-sign">
+              <div className="pl-sign" data-explain={explain ? 'paris' : undefined}>
                 {lines.map((line, i) => (
                   <div key={i} className="pl-sign-row">
                     {line.map((w, j) => (
@@ -154,6 +173,7 @@ export function Paris({ step, broken, phase, record }: BenchProps) {
                         className="pl-word"
                         aria-pressed={tapped === `${i}-${j}`}
                         data-wrong={tapped === `${i}-${j}` && `${i}-${j}` === wrong ? 'yes' : undefined}
+                        data-twice={explain ? twice(i, j) : undefined}
                         onClick={() => setTapped(`${i}-${j}`)}
                         disabled={step === 'why'}
                       >
@@ -247,7 +267,7 @@ function vasePath() {
 
 const VASE = vasePath();
 
-export function Rubin({ step, broken, phase, record }: BenchProps) {
+export function Rubin({ step, broken, explain, phase, record }: BenchProps) {
   const [first, setFirst] = useState<'vase' | 'faces' | null>(null);
   const [flip, setFlip] = useState<'yes' | 'no' | null>(null);
   const [after, setAfter] = useState<'faces' | 'vase' | 'both' | null>(null);
@@ -265,7 +285,14 @@ export function Rubin({ step, broken, phase, record }: BenchProps) {
           broken={broken}
           label="Rubin’s vase"
           drawing={
-            <svg viewBox="0 0 600 400" className="pl-svg" role="img" aria-label="A white vase in the middle of a black picture. Its edges are also the profiles of two black faces looking at each other.">
+            <svg
+              viewBox="0 0 600 400"
+              className="pl-svg"
+              role="img"
+              aria-label={`A white vase in the middle of a black picture. Its edges are also the profiles of two black faces looking at each other.${
+                explain ? ' The edge is traced in dashed pink: one edge, which belongs to the vase or to the faces, never both at once.' : ''
+              }`}
+            >
               <rect width="600" height="400" fill="#111" />
               <path d={VASE} fill="#f4f1ea" />
               {broken && (
@@ -275,6 +302,23 @@ export function Rubin({ step, broken, phase, record }: BenchProps) {
                   <path d="M110 86 q20 -10 40 -2" stroke="#f4f1ea" strokeWidth="4" fill="none" />
                   <path d="M490 86 q-20 -10 -40 -2" stroke="#f4f1ea" strokeWidth="4" fill="none" />
                 </g>
+              )}
+              {explain && (
+                <Explain id="rubin">
+                  <path d={VASE} fill="none" stroke={EXPLAIN} strokeWidth="4" strokeDasharray="10 7" />
+                  <ExplainText x={300} y={56}>
+                    one edge, two shapes
+                  </ExplainText>
+                  <ExplainText x={300} y={250}>
+                    vase
+                  </ExplainText>
+                  <ExplainText x={70} y={250}>
+                    face
+                  </ExplainText>
+                  <ExplainText x={530} y={250}>
+                    face
+                  </ExplainText>
+                </Explain>
               )}
             </svg>
           }
@@ -411,7 +455,7 @@ function Child({ x, y, h }: { x: number; y: number; h: number }) {
 const PLAN = { s: 36, ox: 340, oy: 384 };
 const plan = (x: number, z: number) => ({ x: PLAN.ox + PLAN.s * x, y: PLAN.oy - PLAN.s * z });
 
-function AmesPlan({ cx }: { cx: number }) {
+function AmesPlan({ cx, also }: { cx: number; also?: number }) {
   const lam = (x: number) => amesDepth(x);
   // The real room: everything on the left pushed 1.5 times as far along its sight line, the right 0.75 times.
   const L = plan(-HALF * lam(-HALF), Z0 * lam(-HALF));
@@ -420,6 +464,7 @@ function AmesPlan({ cx }: { cx: number }) {
   const RF = plan(HALF * lam(HALF), 3 * lam(HALF));
   const eye = plan(0, 0);
   const child = plan(cx * lam(cx), Z0 * lam(cx));
+  const other = also === undefined ? null : plan(also * lam(also), Z0 * lam(also));
   return (
     <>
       <rect width="640" height="400" fill="#f4f1ea" />
@@ -444,11 +489,17 @@ function AmesPlan({ cx }: { cx: number }) {
       </text>
       {/* The child, the same size wherever they stand. */}
       <circle cx={child.x} cy={child.y} r="11" fill="#e0703a" stroke="#1a1a1a" strokeWidth="2" data-child-r="11" />
+      {other && (
+        <>
+          <path d={`M${eye.x} ${eye.y} L${other.x} ${other.y}`} stroke="#e0703a" strokeWidth="2" />
+          <circle cx={other.x} cy={other.y} r="11" fill="#e0703a" stroke="#1a1a1a" strokeWidth="2" />
+        </>
+      )}
     </>
   );
 }
 
-export function Ames({ step, broken, phase, record }: BenchProps) {
+export function Ames({ step, broken, explain, phase, record }: BenchProps) {
   const [t, setT] = useState(0);
   const [answer, setAnswer] = useState<string | null>(null);
   const [after, setAfter] = useState<string | null>(null);
@@ -471,7 +522,46 @@ export function Ames({ step, broken, phase, record }: BenchProps) {
           drawing={
             broken ? (
               <svg viewBox="0 0 640 400" className="pl-svg" role="img" aria-label="The room seen from above: its back wall slants, so the left corner is much further from the peephole than the right corner. The child is the same size wherever they stand.">
-                <AmesPlan cx={cx} />
+                {explain ? (
+                  <>
+                    <AmesPlan cx={-REACH} also={REACH} />
+                    <Explain id="ames">
+                      <ExplainText x={320} y={34}>
+                        the same child, in each corner
+                      </ExplainText>
+                    </Explain>
+                  </>
+                ) : (
+                  <AmesPlan cx={cx} />
+                )}
+              </svg>
+            ) : explain ? (
+              <svg
+                viewBox="0 0 640 400"
+                className="pl-svg"
+                role="img"
+                aria-label="The peephole view with the same child in both corners: small in the far left corner, big in the near right corner. A small plan from above shows the slanted back wall."
+              >
+                <AmesView />
+                <Child x={proj(-REACH, FLOOR, Z0).x} y={proj(-REACH, FLOOR, Z0).y} h={amesChildPx(-REACH)} />
+                <Child x={proj(REACH, FLOOR, Z0).x} y={proj(REACH, FLOOR, Z0).y} h={amesChildPx(REACH)} />
+                <Explain id="ames">
+                  <ExplainText x={proj(-REACH, FLOOR, Z0).x} y={proj(-REACH, FLOOR, Z0).y - amesChildPx(-REACH) - 14} size={18}>
+                    really far away
+                  </ExplainText>
+                  <ExplainText x={proj(REACH, FLOOR, Z0).x - 20} y={proj(REACH, FLOOR, Z0).y - amesChildPx(REACH) - 14} size={18}>
+                    really near
+                  </ExplainText>
+                  <g transform="translate(16 12)">
+                    <rect x="-3" y="-3" width="185" height="122" fill="#1a1a1a" rx="4" />
+                    <svg viewBox="0 0 640 400" width="179" height="112" aria-hidden="true">
+                      <AmesPlan cx={-REACH} also={REACH} />
+                    </svg>
+                  </g>
+                  <ExplainText x={105} y={146} size={16}>
+                    seen from above
+                  </ExplainText>
+                </Explain>
               </svg>
             ) : (
               <svg ref={svg} viewBox="0 0 640 400" className="pl-svg pl-drag" role="img" aria-label="A room seen through a peephole: a back wall with two windows, a checkered floor, and a child you can move from the left corner to the right." {...drag}>

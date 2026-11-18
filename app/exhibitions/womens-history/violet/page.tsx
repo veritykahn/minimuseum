@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import FactNote from '@/components/exhibition/FactNote';
 import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
@@ -13,6 +13,8 @@ import OwnTimeline from './OwnTimeline';
 import type { OwnTimeline as Timeline } from './yourTimeline';
 import { useBox } from './useBox';
 import { LIFE, VIOLET_SOURCES, threadLayout, threadPath } from './violetLife';
+import { QUESTIONS, photoAt } from './questions';
+import StopQuestionDialog from './StopQuestionDialog';
 import './violet.css';
 
 /*
@@ -42,7 +44,7 @@ function stopFromHash(hash: string): number {
 
 export default function VioletsLife() {
   const { fonts, slug } = WOMENS_HISTORY;
-  const back = useMuseumReturn(roomReturn(WOMENS_HISTORY));
+  const back = useMuseumReturn(exhibitionReturn(WOMENS_HISTORY));
   const [index, setIndex] = useState(0);
   const [visited, setVisited] = useState<Set<number>>(() => new Set([0]));
   const [announcement, setAnnouncement] = useState('');
@@ -51,9 +53,18 @@ export default function VioletsLife() {
   // Your own timeline, held here while Violet's life is open (its photographs live nowhere else).
   const [own, setOwn] = useState<Timeline | null>(null);
   const stopRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  // Each stop's question, in a pop-up; the stops whose question has an answer.
+  const [asking, setAsking] = useState(false);
+  const [answered, setAnswered] = useState<Set<string>>(() => new Set());
+  const askRef = useRef<HTMLButtonElement>(null);
+  const closeQuestion = () => {
+    setAsking(false);
+    askRef.current?.focus();
+  };
 
   const go = useCallback((i: number, { focus = false, announce = false } = {}) => {
     if (i < 0 || i >= LIFE.length) return;
+    setAsking(false);
     setIndex(i);
     setVisited((v) => (v.has(i) ? v : new Set(v).add(i)));
     window.history.replaceState(null, '', `#${LIFE[i].id}`);
@@ -100,6 +111,8 @@ export default function VioletsLife() {
   const sewnPath = useMemo(() => threadPath(points.slice(0, index + 1)), [points, index]);
 
   const stop = LIFE[index];
+  const photo = photoAt(index);
+  const question = QUESTIONS[stop.id];
   const style: CssVars = {
     background: '#d9a8a6',
     '--pe-display': fonts.display,
@@ -188,15 +201,22 @@ export default function VioletsLife() {
                 <p className="whv-name-nee">{VIOLET_NEE}</p>
                 <p className="whv-name-dates">{VIOLET_DATES}</p>
                 <p className="whv-name-motto">{BIOGRAPHY_MOTTO}</p>
-                <p className="whv-hint">Follow the thread: open each keepsake in turn.</p>
+                <p className="whv-hint">Follow the thread: open each keepsake, and answer a question at each stop.</p>
               </div>
             ) : (
               <>
                 <div className="whv-side">
-                  <figure className={`whv-picture${stop.photo ? ' whv-picture-photo' : ''}`}>
-                    {stop.photo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={stop.photo.src} alt={stop.photo.alt} />
+                  {/* A family photograph at every stop, with the stop's keepsake pinned to its corner. */}
+                  <figure className={`whv-picture${photo ? ' whv-picture-photo' : ''}`}>
+                    {photo ? (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={photo.src} alt={photo.alt} />
+                        <span className="whv-picture-badge" aria-hidden="true">
+                          <Keepsake id={stop.keepsake} className="whv-picture-badge-art" />
+                        </span>
+                        {photo.caption && <figcaption className="whv-picture-caption">{photo.caption}</figcaption>}
+                      </>
                     ) : (
                       <Keepsake id={stop.keepsake} className="whv-picture-art" />
                     )}
@@ -230,8 +250,23 @@ export default function VioletsLife() {
             <button type="button" className="whv-step" onClick={() => go(index - 1, { announce: true })} disabled={index === 0}>
               <span aria-hidden="true">&#8592;</span> Back
             </button>
-            <span className="whv-step-count" aria-hidden="true">
-              {index + 1} / {LIFE.length}
+            <span className="whv-steps-mid">
+              <span className="whv-step-count" aria-hidden="true">
+                {index + 1} / {LIFE.length}
+              </span>
+              {question && (
+                <button
+                  ref={askRef}
+                  type="button"
+                  className={`whv-ask${answered.has(stop.id) ? ' is-done' : ''}`}
+                  aria-haspopup="dialog"
+                  onClick={() => setAsking(true)}
+                >
+                  <span aria-hidden="true">{answered.has(stop.id) ? '✓' : '?'}</span>
+                  {question.kind === 'choice' ? 'Question' : 'Think and tap'}
+                  {answered.has(stop.id) && <span className="visually-hidden"> (answered)</span>}
+                </button>
+              )}
             </span>
             <button type="button" className="whv-step whv-step-next" onClick={() => go(index + 1, { announce: true })} disabled={index === LIFE.length - 1}>
               Next <span aria-hidden="true">&#8594;</span>
@@ -239,6 +274,15 @@ export default function VioletsLife() {
           </nav>
         </section>
         </>
+        )}
+        {mode === 'violet' && asking && question && (
+          <StopQuestionDialog
+            key={stop.id}
+            question={question}
+            label={stop.label}
+            onClose={closeQuestion}
+            onAnswered={() => setAnswered((a) => (a.has(stop.id) ? a : new Set(a).add(stop.id)))}
+          />
         )}
         <p className="visually-hidden" role="status" aria-live="polite">{announcement}</p>
       </main>

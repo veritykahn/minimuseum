@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState, type CSSProperties, type Keyb
 import { flushSync } from 'react-dom';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import FactNote, { FactSources } from '@/components/exhibition/FactNote';
 import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
@@ -62,7 +62,7 @@ function Statue() {
 
 export default function WhoGetsRemembered() {
   const { fonts, slug } = WOMENS_HISTORY;
-  const back = useMuseumReturn(roomReturn(WOMENS_HISTORY));
+  const back = useMuseumReturn(exhibitionReturn(WOMENS_HISTORY));
   const [tab, setTab] = useState<TabId>('statues');
   const [guess, setGuess] = useState(10);
   const [revealed, setRevealed] = useState(false);

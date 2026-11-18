@@ -12,8 +12,8 @@ import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import NameThatInstrumentProjector from './NameThatInstrumentProjector';
 import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 
-/** "M ← Collection": the way back, unless the Studio opened the lab. */
-const COLLECTION: MuseumReturn = { href: '/exhibitions/harlem-renaissance/artifacts?view=interactives', label: 'Collection' };
+/** "M ← The Harlem Renaissance": back to the exhibition, unless the Studio opened the lab. */
+const EXHIBITION: MuseumReturn = { href: '/exhibitions/harlem-renaissance', label: 'The Harlem Renaissance' };
 
 const TABS = [
   { id: 'band', label: 'Build a Band' },
@@ -52,7 +52,7 @@ export default function JazzLabPage() {
     audioEngine.stopAll();
   };
 
-  const back = useMuseumReturn(COLLECTION);
+  const back = useMuseumReturn(EXHIBITION);
   const leave = () => {
     rememberReturn(back);
     router.push(back.href);
@@ -164,7 +164,7 @@ export default function JazzLabPage() {
           transition: all 0.3s ease;
           cursor: pointer;
         }
-        .jl-nav:hover .jl-nav-label, .jl-nav:focus-visible .jl-nav-label { opacity: 1; max-width: 150px; }
+        .jl-nav:hover .jl-nav-label, .jl-nav:focus-visible .jl-nav-label { opacity: 1; max-width: 260px; }
         .jl-nav:hover .jl-nav-arrow, .jl-nav:focus-visible .jl-nav-arrow { transform: translateX(-4px); }
         .jl-nav-text { font-size: 28px; font-weight: 300; color: #525252; transition: color 0.3s ease; }
         .jl-nav-arrow { font-size: 16px; color: #7D8471; transition: all 0.3s ease; }
@@ -182,7 +182,7 @@ export default function JazzLabPage() {
         /* ── Header ── */
         .jl-header {
           text-align: center;
-          padding: 40px 20px 15px;
+          padding: 28px 20px 8px;
         }
         .jl-header h1 {
           font-family: 'Playfair Display', serif;
@@ -200,7 +200,7 @@ export default function JazzLabPage() {
           justify-content: center;
           gap: 0;
           max-width: 760px;
-          margin: 20px auto 0;
+          margin: 10px auto 0;
           border-bottom: 1px solid rgba(201,169,78,0.2);
         }
         .jl-tab {
@@ -908,7 +908,7 @@ export default function JazzLabPage() {
           white-space: nowrap;
           transition: all 0.4s ease;
         }
-        .jl-welcome-back:hover .jl-welcome-back-label { opacity: 1; max-width: 150px; }
+        .jl-welcome-back:hover .jl-welcome-back-label { opacity: 1; max-width: 260px; }
         .jl-welcome-back:hover .jl-welcome-back-arrow { transform: translateX(-4px); }
 
         @media (max-width: 768px) {

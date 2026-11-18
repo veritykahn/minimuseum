@@ -72,3 +72,12 @@
   .egn-print-key .egr-glyph { font-size: 20pt; }
   .egn-print-source a { color: inherit; }
 }
+
+/* The cartouche, the star, sized so the room fits one screen */
+.egn-wall { gap: 14px; min-height: clamp(300px, 52vh, 600px); }
+.egn-cartouche { max-height: 34vh; }
+.egn-wall[data-direction='down'] .egn-cartouche { height: min(46vh, 520px); }
+.egn-cartouche-small,
+.egn-wall[data-direction='down'] .egn-cartouche-small { max-height: 12vh; }
+.egn-scribe { padding-top: 10px; }
+.egr-modal .egn-chart summary { color: #fff; }

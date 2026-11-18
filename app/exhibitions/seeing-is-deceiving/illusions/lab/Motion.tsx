@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { observed } from './results';
-import { Choices, Picture, Work, type BenchProps } from './ui';
+import { arrow, Choices, Explain, ExplainPath, ExplainText, Picture, Work, type BenchProps } from './ui';
 
 // ───────── The waterfall effect (motion aftereffect) ─────────
 
@@ -22,7 +22,7 @@ const SPIRAL = spiralPath();
 
 type Drift = 'grow' | 'shrink' | 'no';
 
-export function Waterfall({ step, broken, phase, record }: BenchProps) {
+export function Waterfall({ step, broken, explain, phase, record }: BenchProps) {
   // The stare's seconds, and which step it was started on (a new step starts afresh).
   const [stare, setStare] = useState<{ t: number; on: typeof phase } | null>(null);
   const [answer, setAnswer] = useState<{ a: Drift; on: typeof phase } | null>(null);
@@ -52,7 +52,20 @@ export function Waterfall({ step, broken, phase, record }: BenchProps) {
           broken={broken}
           label="The waterfall effect"
           drawing={
-            <svg viewBox="-250 -250 500 500" className="pl-svg" role="img" aria-label={still ? 'The same spiral, standing still.' : 'A black spiral on white, which turns while you stare at its middle.'}>
+            <svg
+              viewBox="-250 -250 500 500"
+              className="pl-svg"
+              role="img"
+              aria-label={
+                explain
+                  ? broken
+                    ? 'The spiral, standing still, with arrows pointing both in and out: turning both ways.'
+                    : 'The spiral, standing still, with solid arrows pointing in, the way its lines move while it turns, and dashed arrows pointing out, the way the still spiral seems to drift afterwards.'
+                  : still
+                    ? 'The same spiral, standing still.'
+                    : 'A black spiral on white, which turns while you stare at its middle.'
+              }
+            >
               <rect x="-250" y="-250" width="500" height="500" fill="#fff" />
               <g className={running ? 'pl-spin' : undefined} style={{ animationDirection: reverse ? 'reverse' : 'normal' }}>
                 <path d={SPIRAL} fill="none" stroke="#111" strokeWidth="16" strokeLinecap="round" />
@@ -60,6 +73,7 @@ export function Waterfall({ step, broken, phase, record }: BenchProps) {
               </g>
               <circle r="5" fill="#e0703a" />
               {t !== null && <circle r="236" fill="none" stroke="#e0703a" strokeWidth="10" strokeDasharray={ring} strokeDashoffset={ring * (1 - done)} transform="rotate(-90)" />}
+              {explain && <WaterfallExplain both={broken} />}
             </svg>
           }
         />
@@ -102,6 +116,38 @@ export function Waterfall({ step, broken, phase, record }: BenchProps) {
         )
       }
     />
+  );
+}
+
+/**
+ * Why?: turning (the CSS spin is clockwise), the spiral's lines move in
+ * towards the middle (solid arrows); afterwards the still spiral seems to
+ * drift the other way, out (dashed). Turning both ways: arrows both ways.
+ */
+function WaterfallExplain({ both }: { both: boolean }) {
+  const at = [0, 1, 2, 3].map((k) => (k * Math.PI) / 2 + Math.PI / 4);
+  const p = (r: number, a: number) => [r * Math.cos(a), r * Math.sin(a)] as const;
+  return (
+    <Explain id="waterfall">
+      {at.map((a, k) => {
+        const [ox, oy] = p(205, a);
+        const [ix, iy] = p(120, a);
+        return (
+          <g key={k}>
+            <ExplainPath d={arrow(ox, oy, ix, iy, 16)} width={6} />
+            {both ? <ExplainPath d={arrow(ix, iy, ox, oy, 16)} width={6} /> : <ExplainPath d={arrow(...p(70, a + 0.5), ...p(150, a + 0.5), 14)} width={5} dash="8 7" />}
+          </g>
+        );
+      })}
+      <ExplainText x={0} y={-222} size={22}>
+        {both ? 'turning both ways' : 'turning: the lines move in'}
+      </ExplainText>
+      {!both && (
+        <ExplainText x={0} y={238} size={22}>
+          afterwards: it seems to move out
+        </ExplainText>
+      )}
+    </Explain>
   );
 }
 
@@ -159,9 +205,44 @@ function SnakeDisc({ cx, cy, R, dir, colours }: { cx: number; cy: number; R: num
   );
 }
 
+/** Why?: on each disc, an arrow the way the shades run (the way it seems to turn), and the run of shades in the middle. */
+function SnakesExplain({ colours, plain }: { colours: readonly string[]; plain: boolean }) {
+  const discs: [number, number, 1 | -1][] = [
+    [150, 150, 1],
+    [450, 150, -1],
+    [150, 450, -1],
+    [450, 450, 1],
+  ];
+  const r = 62;
+  return (
+    <Explain id="snakes">
+      {!plain &&
+        discs.map(([cx, cy, dir]) => {
+          const a0 = -Math.PI / 2 - dir * 1.2;
+          const a1 = -Math.PI / 2 + dir * 1.2;
+          const P = (a: number) => [cx + r * Math.cos(a), cy + r * Math.sin(a)] as const;
+          const [x0, y0] = P(a0);
+          const [x1, y1] = P(a1);
+          // The head points along the circle, the way the shades run.
+          const tx = -Math.sin(a1) * dir;
+          const ty = Math.cos(a1) * dir;
+          const head = arrow(x1 - tx * 18, y1 - ty * 18, x1, y1, 16);
+          return <ExplainPath key={`${cx}${cy}`} d={`M${x0.toFixed(1)} ${y0.toFixed(1)} A${r} ${r} 0 0 ${dir > 0 ? 1 : 0} ${x1.toFixed(1)} ${y1.toFixed(1)} ${head}`} width={6} />;
+        })}
+      <rect x={244} y={286} width={112} height={28} rx={4} fill="#1a1a1a" />
+      {colours.map((c, k) => (
+        <rect key={k} x={250 + k * 26} y={292} width={22} height={16} fill={c} />
+      ))}
+      <ExplainText x={300} y={340} size={18}>
+        {plain ? 'no order' : 'shade order'}
+      </ExplainText>
+    </Explain>
+  );
+}
+
 type Turn = 'yes' | 'little' | 'no';
 
-export function Snakes({ step, broken, phase, record }: BenchProps) {
+export function Snakes({ step, broken, explain, phase, record }: BenchProps) {
   const [answer, setAnswer] = useState<Turn | null>(null);
   const [after, setAfter] = useState<Turn | null>(null);
   const colours = broken ? SNAKE_PLAIN : SNAKE_ORDER;
@@ -183,12 +264,20 @@ export function Snakes({ step, broken, phase, record }: BenchProps) {
           broken={broken}
           label="Rotating snakes"
           drawing={
-            <svg viewBox="0 0 600 600" className="pl-svg" role="img" aria-label="Four circles made of rings of black, dark blue, white and yellow pieces, on pale gray. Nothing in the picture moves.">
+            <svg
+              viewBox="0 0 600 600"
+              className="pl-svg"
+              role="img"
+              aria-label={`Four circles made of rings of black, dark blue, white and yellow pieces, on pale gray. Nothing in the picture moves.${
+                explain && !broken ? ' An arrow on each circle shows the way it seems to turn: the way the shades run, black to dark blue to white to yellow.' : ''
+              }`}
+            >
               <rect width="600" height="600" fill="#d8d8d8" />
               <SnakeDisc cx={150} cy={150} R={140} dir={1} colours={colours} />
               <SnakeDisc cx={450} cy={150} R={140} dir={-1} colours={colours} />
               <SnakeDisc cx={150} cy={450} R={140} dir={-1} colours={colours} />
               <SnakeDisc cx={450} cy={450} R={140} dir={1} colours={colours} />
+              {explain && <SnakesExplain colours={colours} plain={broken} />}
             </svg>
           }
         />

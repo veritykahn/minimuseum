@@ -63,7 +63,7 @@ export type Illusion = {
   motion?: boolean;
   /** Try it: the one task, in plain words. */
   task: string;
-  /** Break it: the switch, and what to notice. */
+  /** Break it: what switching the trick off does ("Off: …" beside the Trick switch), and what to notice. */
   breakLabel: string;
   breakText: string;
   /** Why: one sentence, with its source. */
@@ -220,7 +220,7 @@ export const ILLUSIONS: Illusion[] = [
     name: 'Müller-Lyer',
     bench: 2,
     category: 'size',
-    task: 'Drag the orange marker until it sits exactly halfway along the line.',
+    task: 'Use the “Move the middle” slider to move the orange marker until it sits exactly halfway along the line.',
     breakLabel: 'Hide the fins',
     breakText: 'The fins are hidden. Find halfway again.',
     why: {
@@ -512,7 +512,7 @@ export const ILLUSIONS: Illusion[] = [
     bench: 6,
     category: 'brain',
     task: 'Round 1: say the color of each patch, out loud. Round 2: say the color of the ink each word is printed in, not the word.',
-    breakLabel: 'Round 3: matching ink',
+    breakLabel: 'Round 3, matching ink',
     breakText: 'Now every word is printed in its own color. Say the ink colors again, and time it.',
     why: {
       text: 'Reading is so automatic that your brain reads the word before you can stop it, and that gets in the way of naming the color.',
@@ -557,7 +557,7 @@ export const ILLUSIONS: Illusion[] = [
     name: 'The Ames room',
     bench: 7,
     category: 'size',
-    task: 'Look into the room through the peephole. Drag the child from one corner to the other.',
+    task: 'Look into the room through the peephole. Use the “Move the child” slider to walk the child from one corner to the other.',
     breakLabel: 'Fly above',
     breakText: 'From above you can see the room’s real shape, and the child, who never changes size.',
     why: {

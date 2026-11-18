@@ -36,3 +36,15 @@
 .eg-room .ega-symbol.is-suggested { border-color: var(--egr-gold); }
 .ega-tag { padding: 1px 7px; border-radius: 999px; background: var(--egr-gold); color: #141414; font-size: 0.68em; letter-spacing: 0.06em; text-transform: uppercase; }
 .eg-room .egr-option[aria-pressed='true'] .ega-tag { background: #6b4a10; color: #fff; }
+
+/* One choice to a screen: the amulet fills its side, always in view */
+.eg-amulet .egr-step-body { gap: 14px; }
+.eg-amulet .egr-step-body h2:focus { outline: none; }
+.eg-room .ega-symbol { min-height: 52px; }
+@media (min-width: 700px) and (min-height: 600px) {
+  .egr-fit .ega-bench { min-height: 0; padding: clamp(10px, 2vw, 28px); }
+  .egr-fit .ega-art { width: min(100cqw, 460px, calc(100cqh * 400 / 480)); max-height: none; }
+}
+@media (min-width: 700px) and (max-width: 980px) and (min-height: 600px) {
+  .eg-amulet .egr-fit .egr-layout.egr-fill { grid-template-rows: minmax(0, 0.75fr) minmax(0, 1.25fr); }
+}

@@ -984,9 +984,9 @@ export default function GospelTimeline() {
 
       {/* Header */}
       <header className="tl-header">
-        <button className="tl-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-6?view=interactives')}>
-          <span>{'\u2190'}</span>
-          Display Case
+        <button className="tl-back-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
+          <span aria-hidden="true">{'\u2190'}</span>
+          In Their Hands
         </button>
         <div className="tl-header-right">
           <SoundSwitch className="tl-header-btn" style={{ color: '#C9A84C', fontFamily: "'Outfit', sans-serif" }} />

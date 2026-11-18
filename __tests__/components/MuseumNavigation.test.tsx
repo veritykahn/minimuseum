@@ -229,9 +229,9 @@ describe("a tool's way back", () => {
     '/exhibitions/writing-revolution/typing-station': TypingStation,
   };
 
-  const backLink = () =>
-    screen.queryByRole('link', { name: /^(M\s*←\s*)?(Studio|Display Case|Collection)$/ }) ??
-    screen.getByRole('button', { name: /^(M\s*←\s*)?(Studio|Display Case|Collection)$/ });
+  // The corner link: "M ← Studio", or "M ← <the exhibition>" on a direct visit.
+  const EXHIBITIONS = /^(M\s*←\s*)?(Studio|America 250|Victorian Britain|The Great War|The Harlem Renaissance|Women's History Month|Black History Month|The Writing Revolution)$/;
+  const backLink = () => screen.queryByRole('link', { name: EXHIBITIONS }) ?? screen.getByRole('button', { name: EXHIBITIONS });
 
   it('covers every tool the Studio opens, except the Jazz Lab (its audio engine needs a browser)', () => {
     const routes = new Set(STUDIO_TOOLS.map((t) => t.href.split('#')[0]));
@@ -253,12 +253,12 @@ describe("a tool's way back", () => {
     },
   );
 
-  it.each(Object.entries(ROOMS))('%s: back to its display case on a direct visit', (route, Room) => {
+  it.each(Object.entries(ROOMS))('%s: back to its exhibition on a direct visit', (route, Room) => {
     window.history.replaceState(null, '', route);
     render(<Room />);
     const back = backLink();
     expect(back).not.toHaveTextContent(/Studio/);
-    if (back.tagName === 'A') expect(back.getAttribute('href')).toMatch(/\/artifacts/);
+    if (back.tagName === 'A') expect(back.getAttribute('href')).toBe(route.split('/').slice(0, 3).join('/'));
   });
 
   it("sends a room's foot link the same way as its corner", () => {

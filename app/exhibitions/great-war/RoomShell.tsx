@@ -4,14 +4,14 @@ import type { CSSProperties, ReactNode } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { GREAT_WAR } from './greatWar';
 import './great-war.css';
 
 /*
  * The frame of a Great War room (the silence, the memorial): the
- * exhibition's faces and ground, "M ← Display Case" in the corner ("M ←
+ * exhibition's faces and ground, "M ← <the exhibition>" in the corner ("M ←
  * Studio" when the Studio opened it: lib/museumReturn.ts), and the room's
  * label, title and subtitle set as the display case page sets them.
  */
@@ -35,7 +35,7 @@ export default function RoomShell({
   children: ReactNode;
 }) {
   const { fonts, palette, slug } = GREAT_WAR;
-  const back = useMuseumReturn(roomReturn(GREAT_WAR));
+  const back = useMuseumReturn(exhibitionReturn(GREAT_WAR));
   const style: CssVars = {
     background: palette.page,
     '--pe-display': fonts.display,

@@ -38,7 +38,7 @@ body:has(.pe-root) { margin: 0; overflow-x: hidden; }
 }
 .pe-nav-left { left: 32px; }
 .pe-nav-right { right: 32px; }
-.pe-nav:hover .pe-nav-label, .pe-nav:focus-visible .pe-nav-label { opacity: 1; max-width: 150px; }
+.pe-nav:hover .pe-nav-label, .pe-nav:focus-visible .pe-nav-label { opacity: 1; max-width: 260px; }
 .pe-nav:hover .pe-nav-arrow-left, .pe-nav:focus-visible .pe-nav-arrow-left { transform: translateX(-4px); }
 .pe-nav:hover .pe-nav-arrow-right, .pe-nav:focus-visible .pe-nav-arrow-right { transform: translateX(4px); }
 .pe-nav-text { font-size: 28px; font-weight: 300; color: var(--pe-nav-m, #525252); transition: color 0.3s ease; }

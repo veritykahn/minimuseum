@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { checkerResult, contrastResult, observed } from './results';
-import { Choices, grey, Picture, RecordFor, Slider, Work, type BenchProps } from './ui';
+import { Choices, Explain, EXPLAIN, ExplainText, grey, Picture, RecordFor, Slider, Work, type BenchProps } from './ui';
 
 // ───────── Adelson's checker shadow (the owner's picture) ─────────
 
@@ -16,8 +16,39 @@ export const CHECKER_TRUTH = 111;
 const A = { x: 553, y: 262 };
 const B = { x: 541, y: 386 };
 
+/**
+ * Why?: a card laid over the picture with two holes, one over A and one
+ * over B. With the board and the shadow covered, A and B are plainly the
+ * same gray. In the picture's own pixels.
+ */
+function CheckerHoles({ a, b, w, h, r, size }: { a: { x: number; y: number }; b: { x: number; y: number }; w: number; h: number; r: number; size: number }) {
+  return (
+    <Explain id="checker">
+      <defs>
+        <mask id="pl-checker-holes">
+          <rect width={w} height={h} fill="#fff" />
+          <circle cx={a.x} cy={a.y} r={r} fill="#000" />
+          <circle cx={b.x} cy={b.y} r={r} fill="#000" />
+        </mask>
+      </defs>
+      <rect width={w} height={h} fill="#f4f1ea" opacity="0.94" mask="url(#pl-checker-holes)" />
+      <circle cx={a.x} cy={a.y} r={r + 4} fill="none" stroke={EXPLAIN} strokeWidth={size * 0.2} />
+      <circle cx={b.x} cy={b.y} r={r + 4} fill="none" stroke={EXPLAIN} strokeWidth={size * 0.2} />
+      <ExplainText x={a.x + r * 1.6} y={a.y + size * 0.35} size={size} anchor="start">
+        A
+      </ExplainText>
+      <ExplainText x={b.x + r * 1.6} y={b.y + size * 0.35} size={size} anchor="start">
+        B
+      </ExplainText>
+      <ExplainText x={w / 2} y={size * 1.6} size={size}>
+        Cover the rest: A and B are the same gray
+      </ExplainText>
+    </Explain>
+  );
+}
+
 /** The drawing, used only if the picture is taken out of its slot: the board, with a full cylinder shadow over B. */
-function CheckerDrawing({ broken }: { broken: boolean }) {
+function CheckerDrawing({ broken, explain }: { broken: boolean; explain: boolean }) {
   // A 5×5 board seen from above at a slant; the cylinder stands behind B and its shadow covers B and its neighbours.
   const toScreen = (x: number, y: number) => ({ x: 300 + (x - y) * 0.7071, y: 60 + (x + y) * 0.4243 });
   const poly = (pts: [number, number][]) => pts.map(([a, b]) => toScreen(a, b)).map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
@@ -52,18 +83,23 @@ function CheckerDrawing({ broken }: { broken: boolean }) {
       <rect x="430" y="70" width="80" height="150" fill="url(#pl-cyl)" />
       <ellipse cx="470" cy="220" rx="40" ry="16" fill="#2f6b2f" />
       <ellipse cx="470" cy="70" rx="40" ry="16" fill="#8fd08a" stroke="#2f6b2f" />
+      {explain && <CheckerHoles a={a} b={b} w={600} h={380} r={18} size={22} />}
       {broken && <path d={`M${a.x} ${a.y} L${b.x} ${b.y}`} stroke={grey(DARK)} strokeWidth="18" />}
-      <text x={a.x} y={a.y + 10} textAnchor="middle" className="pl-svg-label" fill="#fff">
-        A
-      </text>
-      <text x={b.x} y={b.y + 10} textAnchor="middle" className="pl-svg-label" fill="#222">
-        B
-      </text>
+      {!explain && (
+        <>
+          <text x={a.x} y={a.y + 10} textAnchor="middle" className="pl-svg-label" fill="#fff">
+            A
+          </text>
+          <text x={b.x} y={b.y + 10} textAnchor="middle" className="pl-svg-label" fill="#222">
+            B
+          </text>
+        </>
+      )}
     </svg>
   );
 }
 
-export function Checker({ step, broken, phase, record }: BenchProps) {
+export function Checker({ step, broken, explain, phase, record }: BenchProps) {
   const [chip, setChip] = useState(175);
   return (
     <Work
@@ -74,8 +110,13 @@ export function Checker({ step, broken, phase, record }: BenchProps) {
           step={step}
           broken={broken}
           label="A checkerboard with a cylinder standing on it, casting a shadow. Square A is a dark square in the light; square B is a light square in the cylinder’s shadow."
-          marks={broken && <path d={`M${A.x} ${A.y} L${B.x} ${B.y}`} stroke={grey(CHECKER_TRUTH)} strokeWidth="34" data-mark="strip" />}
-          drawing={<CheckerDrawing broken={broken} />}
+          marks={
+            <>
+              {explain && <CheckerHoles a={A} b={B} w={1080} h={757} r={30} size={40} />}
+              {broken && <path d={`M${A.x} ${A.y} L${B.x} ${B.y}`} stroke={grey(CHECKER_TRUTH)} strokeWidth="34" data-mark="strip" />}
+            </>
+          }
+          drawing={<CheckerDrawing broken={broken} explain={explain} />}
         />
       }
       task={
@@ -99,7 +140,7 @@ export function Checker({ step, broken, phase, record }: BenchProps) {
 
 export const CONTRAST_TRUTH = 128;
 
-export function Contrast({ step, broken, phase, record }: BenchProps) {
+export function Contrast({ step, broken, explain, phase, record }: BenchProps) {
   const [right, setRight] = useState(92);
   return (
     <Work
@@ -111,7 +152,16 @@ export function Contrast({ step, broken, phase, record }: BenchProps) {
           broken={broken}
           label="Simultaneous contrast"
           drawing={
-            <svg viewBox="0 0 600 300" className="pl-svg" role="img" aria-label="Two gray squares on a background that runs from black on the left to white on the right.">
+            <svg
+              viewBox="0 0 600 300"
+              className="pl-svg"
+              role="img"
+              aria-label={
+                explain
+                  ? 'The two gray squares joined by a bridge of the very same gray, across the background from black to white: it is one gray all the way.'
+                  : 'Two gray squares on a background that runs from black on the left to white on the right.'
+              }
+            >
               <defs>
                 <linearGradient id="pl-bw" x1="0" x2="1">
                   <stop offset="0" stopColor="#000" />
@@ -126,7 +176,16 @@ export function Contrast({ step, broken, phase, record }: BenchProps) {
                 </>
               )}
               <rect x={70} y={100} width={80} height={80} fill={grey(CONTRAST_TRUTH)} />
-              <rect x={450} y={100} width={80} height={80} fill={grey(right)} />
+              {explain && <rect x={150} y={125} width={300} height={30} fill={grey(CONTRAST_TRUTH)} data-mark="bridge" />}
+              <rect x={450} y={100} width={80} height={80} fill={grey(explain ? CONTRAST_TRUTH : right)} />
+              {explain && (
+                <Explain id="contrast">
+                  <path d="M70 100 H150 V125 H450 V100 H530 V180 H450 V155 H150 V180 H70 Z" fill="none" stroke={EXPLAIN} strokeWidth="4" strokeDasharray="8 6" strokeLinejoin="round" />
+                  <ExplainText x={300} y={106}>
+                    one gray, joined
+                  </ExplainText>
+                </Explain>
+              )}
             </svg>
           }
         />
@@ -145,7 +204,7 @@ export function Contrast({ step, broken, phase, record }: BenchProps) {
 
 // ───────── Lilac chaser ─────────
 
-export function Lilac({ step, broken, phase, record }: BenchProps) {
+export function Lilac({ step, broken, explain, phase, record }: BenchProps) {
   const [gone, setGone] = useState(0);
   const [count, setCount] = useState<number | null>(null);
   const [answer, setAnswer] = useState<'green' | 'lilac' | 'grey' | 'none' | null>(null);
@@ -186,7 +245,18 @@ export function Lilac({ step, broken, phase, record }: BenchProps) {
           broken={broken}
           label="Lilac chaser"
           drawing={
-            <svg viewBox="0 0 400 400" className="pl-svg" role="img" aria-label="Twelve soft lilac spots in a ring on gray, with a cross in the middle. One spot at a time disappears, round and round.">
+            <svg
+              viewBox="0 0 400 400"
+              className="pl-svg"
+              role="img"
+              aria-label={
+                explain && !broken
+                  ? 'Twelve soft lilac spots in a ring, one at a time disappearing, with a dashed green ring round the gap: where a spot vanishes, your eyes see green.'
+                  : broken
+                    ? 'Twelve soft lilac spots standing still in a ring on gray, with a cross in the middle.'
+                    : 'Twelve soft lilac spots in a ring on gray, with a cross in the middle. One spot at a time disappears, round and round.'
+              }
+            >
               <defs>
                 <filter id="pl-blur" x="-60%" y="-60%" width="220%" height="220%">
                   <feGaussianBlur stdDeviation="9" />
@@ -198,6 +268,19 @@ export function Lilac({ step, broken, phase, record }: BenchProps) {
                 return broken || k !== gone ? <circle key={k} cx={200 + 140 * Math.cos(a)} cy={200 + 140 * Math.sin(a)} r="22" fill="#d38ad8" filter="url(#pl-blur)" /> : null;
               })}
               <path d="M200 188 V212 M188 200 H212" stroke="#000" strokeWidth="3" />
+              {explain && (
+                <Explain id="lilac">
+                  {!broken && (
+                    <circle cx={200 + 140 * Math.cos((gone / 12) * Math.PI * 2)} cy={200 + 140 * Math.sin((gone / 12) * Math.PI * 2)} r="30" fill="none" stroke="#2fbf5a" strokeWidth="4" strokeDasharray="6 5" />
+                  )}
+                  <ExplainText x={200} y={160} size={18}>
+                    {broken ? 'Nothing vanishes now,' : 'Where a spot vanishes,'}
+                  </ExplainText>
+                  <ExplainText x={200} y={256} size={18}>
+                    {broken ? 'so no gap goes round' : 'your eyes see green'}
+                  </ExplainText>
+                </Explain>
+              )}
             </svg>
           }
         />

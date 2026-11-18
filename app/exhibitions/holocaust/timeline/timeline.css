@@ -712,3 +712,124 @@ body:has(.hot-room) { background: #0b0a0a; }
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
+/* ==========================================================================
+   One date at a time (November 2026, after the owner's testing): the whole
+   room on one screen. The title smaller, "Put them in order" at the top,
+   the row of years, the one date (its photograph beside its words), and
+   Back and Next under it, with a quiet row of dots for where it stands on
+   the line. The same black, stone and faces; nothing moves but a slow fade
+   as a date arrives (none under reduced motion).
+   ========================================================================== */
+.hot-main {
+  min-height: 100dvh;
+  padding-top: clamp(40px, 6dvh, 64px);
+  padding-bottom: 60px;
+  display: flex;
+  flex-direction: column;
+}
+.hot-title-over { font-size: clamp(20px, 2.4vw, 32px); }
+.hot-title-main { font-size: clamp(50px, 8dvh, 80px); }
+.hot-star { top: 4px; width: clamp(40px, 6vw, 70px); }
+.hot-intro { margin-top: 10px; font-size: clamp(15px, 1.3vw, 19px); line-height: 1.35; }
+.hot-source { margin-top: 6px; font-size: 13px; }
+.hot-years ul { margin-top: 14px; gap: 6px; }
+.hot-years a { min-height: 40px; padding: 0 11px; font-size: 20px; }
+.hot-years a[aria-current='true'] { background: var(--hot-ink); border-color: var(--hot-ink); color: var(--hot-black); }
+
+/* "Put them in order", up at the top: right of the title on a wide screen. */
+.hot-order-top { position: absolute; top: 0; left: 0; z-index: 3; }
+@media (max-width: 900px) {
+  .hot-order-top { position: static; display: block; margin: 0 auto 12px; }
+  .hot-star { width: 40px; margin-top: 8px; }
+}
+
+.hot-stage {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: clamp(12px, 2dvh, 24px);
+}
+.hot-slide {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 18px clamp(24px, 4vw, 48px);
+  scroll-margin: 96px 0;
+}
+.hot-slide:focus { outline: none; }
+.hot-slide:focus-visible .hot-words { outline: 2px solid var(--hot-ink); outline-offset: 8px; }
+.hot-slide .hot-photo {
+  grid-row: auto;
+  width: 100%;
+  max-width: 460px;
+  max-height: min(30dvh, 320px);
+  margin: 0;
+  justify-self: end;
+}
+.hot-photo-none { background: #151312; aspect-ratio: 4 / 3; }
+.hot-slide .hot-photo img { transform: none; animation: none; }
+.hot-slide .hot-photo-cue { opacity: 1; }
+.hot-slide-text { min-width: 0; }
+.hot-slide .hot-when > span[aria-hidden] { display: flex; flex-direction: column; }
+.hot-slide .hot-year { font-size: clamp(44px, 7dvh, 70px); }
+.hot-slide .hot-date { margin-top: 6px; }
+.hot-slide .hot-words { margin-top: 14px; max-width: 26ch; }
+
+.hot-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-top: clamp(16px, 3dvh, 28px);
+}
+.hot-steps .hot-btn { min-width: 112px; }
+.hot-btn:disabled { opacity: 0.35; cursor: default; }
+.hot-btn:disabled:hover { background: transparent; }
+.hot-step-count {
+  margin: 0;
+  min-width: 5.5em;
+  text-align: center;
+  font-family: var(--tall);
+  font-size: 21px;
+  letter-spacing: 0.12em;
+  color: var(--hot-soft);
+}
+.hot-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.hot-dots li {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--hot-ink) 22%, transparent);
+}
+.hot-dots li[data-at='past'] { background: color-mix(in srgb, var(--hot-ink) 60%, transparent); }
+.hot-dots li[data-at='here'] { background: var(--hot-ink); transform: scale(1.5); }
+
+/* The poster's "Learn more" box, smaller, under the steps. */
+.hot-end { margin-top: 16px; gap: 12px; }
+.hot-learn { max-width: 30em; padding: 8px 16px; font-size: clamp(14px, 1.3vw, 16px); line-height: 1.4; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hot-slide { animation: hot-arrive 0.6s ease both; }
+}
+@keyframes hot-arrive {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* A phone: the date over its photograph, the whole room scrolls a little. */
+@media (max-width: 640px) {
+  .hot-slide { grid-template-columns: minmax(0, 1fr); }
+  .hot-slide .hot-photo { justify-self: center; max-width: 420px; max-height: 32dvh; order: 2; }
+  .hot-slide-text { order: 1; }
+  .hot-steps .hot-btn { min-width: 0; }
+  .hot-main { padding-top: 76px; }
+}

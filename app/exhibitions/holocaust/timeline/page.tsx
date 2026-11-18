@@ -1,12 +1,12 @@
 'use client';
 
-import { useCallback, useEffect, useState, type CSSProperties, type MouseEvent } from 'react';
+import { useCallback, useEffect, useReducer, useRef, useState, type CSSProperties, type MouseEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
-import { srOnly, useReducedMotion } from '@/lib/a11y';
+import { srOnly } from '@/lib/a11y';
 import { HOLOCAUST } from '../holocaust';
 import {
   ORDER_HASH,
@@ -38,7 +38,11 @@ import './timeline.css';
  * the page is cited inline, and every source is in the Sources drawer
  * (sources.ts), with the poster's credit as the owner's design.
  *
- * It is read by scrolling, slowly, a date at a time: where the browser can
+ * It was read by scrolling; it is now read a date at a time, on one
+ * screen (November 2026, after the owner's testing): a row of years along
+ * the top, the one date with its photograph and the poster's words, and
+ * Back and Next under it, with "Put them in order" up at the top. What
+ * follows describes the scrolling version, kept for its spirit: where the browser can
  * tie an animation to scrolling, each entry opens (fades up) as it comes
  * into view, in CSS alone (timeline.css); with reduced motion, or in a
  * browser that cannot, every entry is simply there. The years along the top
@@ -101,22 +105,31 @@ const Words = ({ text }: { text: string }) => (
 
 export default function HolocaustTimeline() {
   const { fonts, slug } = HOLOCAUST;
-  const back = useMuseumReturn(roomReturn(HOLOCAUST));
-  const reduced = useReducedMotion();
+  const back = useMuseumReturn(exhibitionReturn(HOLOCAUST));
   const [order, setOrder] = useState(false);
+  // The one date on the screen, by its place on the timeline.
+  const [at, setAt] = useState(0);
   // The stop open in its window, by its place on the timeline.
   const [stopAt, setStopAt] = useState<number | null>(null);
 
-  /** Bring an entry into view and give it the focus, so the keyboard and the screen reader go with it. */
-  const goTo = useCallback(
-    (id: string) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.scrollIntoView?.({ behavior: reduced ? 'auto' : 'smooth', block: 'center' });
-      el.focus({ preventScroll: true });
-    },
-    [reduced],
-  );
+  // What takes the focus once the date asked for is on the screen (an element's id).
+  const focusNext = useRef<string | null>(null);
+  // A render even when the date asked for is already on the screen, so the focus still moves.
+  const [, rerender] = useReducer((n: number) => n + 1, 0);
+  useEffect(() => {
+    const id = focusNext.current;
+    focusNext.current = null;
+    if (id) document.getElementById(id)?.focus({ preventScroll: true });
+  });
+
+  /** Show a date and give it the focus, so the keyboard and the screen reader go with it. */
+  const goTo = useCallback((id: string) => {
+    const i = TIMELINE_ENTRIES.findIndex((e) => e.id === id);
+    if (i < 0) return;
+    focusNext.current = id;
+    setAt(i);
+    rerender();
+  }, []);
 
   useEffect(() => {
     const fromHash = () => {
@@ -133,6 +146,13 @@ export default function HolocaustTimeline() {
     return () => window.removeEventListener('hashchange', fromHash);
   }, [goTo]);
 
+  /** Back or Next: the date before or after, with its own address. */
+  const step = (by: number) => {
+    const i = Math.min(TIMELINE_ENTRIES.length - 1, Math.max(0, at + by));
+    if (i === at) return;
+    window.history.replaceState(null, '', `#${TIMELINE_ENTRIES[i].id}`);
+    setAt(i);
+  };
   const onYear = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
     e.preventDefault();
     window.history.replaceState(null, '', `#${id}`);
@@ -149,15 +169,13 @@ export default function HolocaustTimeline() {
   };
 
   const closeStop = () => {
-    const id = stopAt === null ? null : TIMELINE_ENTRIES[stopAt].id;
+    const i = stopAt;
     setStopAt(null);
-    if (!id) return;
+    if (i === null) return;
     // Back to the date last open, which may be further along than the one first opened.
-    requestAnimationFrame(() => {
-      const btn = document.getElementById(`hot-open-${id}`);
-      btn?.scrollIntoView?.({ behavior: 'auto', block: 'center' });
-      btn?.focus({ preventScroll: true });
-    });
+    focusNext.current = `hot-open-${TIMELINE_ENTRIES[i].id}`;
+    setAt(i);
+    rerender();
   };
 
   const style: CssVars = {
@@ -165,6 +183,8 @@ export default function HolocaustTimeline() {
     '--pe-body': fonts.body,
     '--pe-ui': fonts.body,
   };
+  const e = TIMELINE_STOPS[at];
+  const count = TIMELINE_STOPS.length;
 
   return (
     <div className="pe-root hot-room" data-exhibition={slug} data-mode={order ? 'order' : 'timeline'} style={style}>
@@ -182,6 +202,11 @@ export default function HolocaustTimeline() {
 
         <main className="hot-main">
           <header className="hot-head">
+            {!order && (
+              <button type="button" id="hot-order-open" className="hot-btn hot-order-top" onClick={openOrder}>
+                {TIMELINE_TEXT.orderOpen}
+              </button>
+            )}
             <h1 className="hot-title">
               <span className="hot-title-over">{POSTER_TITLE.over}</span> <span className="hot-title-main">{POSTER_TITLE.main}</span>
             </h1>
@@ -197,7 +222,7 @@ export default function HolocaustTimeline() {
                     const id = firstOfYear(y)!.id;
                     return (
                       <li key={y}>
-                        <a href={`#${id}`} onClick={(e) => onYear(e, id)}>
+                        <a href={`#${id}`} onClick={(ev) => onYear(ev, id)} aria-current={e.year === y ? 'true' : undefined}>
                           {y}
                         </a>
                       </li>
@@ -212,30 +237,31 @@ export default function HolocaustTimeline() {
             <OrderEvents onBack={closeOrder} />
           ) : (
             <>
-              {/* REVIEW (Verity): the timeline's name for screen readers. */}
-              <ol className="hot-line" aria-label="The timeline, 1933 to 1945">
-                {TIMELINE_STOPS.map((e, i) => (
-                  <li key={e.id} id={e.id} className="hot-entry" data-side={e.side} tabIndex={-1}>
-                    <span className="hot-dot" aria-hidden="true" />
-                    <p className="hot-when">
+              {/* REVIEW (Verity): the timeline's name for screen readers. One date at a time. */}
+              <section className="hot-stage" aria-label="The timeline, 1933 to 1945">
+                <article key={e.id} id={e.id} className="hot-slide" tabIndex={-1} aria-labelledby={`hot-when-${e.id}`}>
+                  {e.picture ? (
+                    /* The date's photograph: a second way into the stop, for a mouse or a finger; the keyboard has the words. */
+                    <button type="button" className="hot-photo" tabIndex={-1} aria-label={`${STOP_TEXT.open}: ${e.when}`} onClick={() => setStopAt(at)}>
+                      {/* eslint-disable-next-line @next/next/no-img-element -- a still, framed */}
+                      <img src={e.picture.src} alt="" decoding="async" />
+                      <span className="hot-photo-cue" aria-hidden="true">
+                        {STOP_TEXT.open}
+                      </span>
+                    </button>
+                  ) : (
+                    <span className="hot-photo hot-photo-none" aria-hidden="true" />
+                  )}
+                  <div className="hot-slide-text">
+                    <p className="hot-when" id={`hot-when-${e.id}`}>
                       <span aria-hidden="true">
                         <span className="hot-year">{e.year}</span>
                         <span className="hot-date">{e.date}</span>
                       </span>
                       <span style={srOnly}>{e.when}</span>
                     </p>
-                    {/* The date's photograph, under the date: it comes in as it is reached, and drifts as the page goes by. A second way into the stop, for a mouse or a finger; the keyboard has the words. */}
-                    {e.picture && (
-                      <button type="button" className="hot-photo" tabIndex={-1} aria-label={`${STOP_TEXT.open}: ${e.when}`} onClick={() => setStopAt(i)}>
-                        {/* eslint-disable-next-line @next/next/no-img-element -- a still, framed and drifting with the scroll */}
-                        <img src={e.picture.src} alt="" loading="lazy" decoding="async" />
-                        <span className="hot-photo-cue" aria-hidden="true">
-                          {STOP_TEXT.open}
-                        </span>
-                      </button>
-                    )}
                     <p className="hot-words">
-                      <button type="button" id={`hot-open-${e.id}`} className="hot-stop-open" aria-haspopup="dialog" onClick={() => setStopAt(i)}>
+                      <button type="button" id={`hot-open-${e.id}`} className="hot-stop-open" aria-haspopup="dialog" onClick={() => setStopAt(at)}>
                         <Words text={e.words} />
                         <span className="hot-stop-cue">
                           <span aria-hidden="true">+ </span>
@@ -243,9 +269,27 @@ export default function HolocaustTimeline() {
                         </span>
                       </button>
                     </p>
-                  </li>
-                ))}
-              </ol>
+                  </div>
+                </article>
+
+                <div className="hot-steps">
+                  <button type="button" className="hot-btn hot-btn-quiet" onClick={() => step(-1)} disabled={at === 0}>
+                    <span aria-hidden="true">&#8592; </span>Back
+                  </button>
+                  <p className="hot-step-count" aria-live="polite">
+                    {STOP_TEXT.of(at + 1, count)}
+                  </p>
+                  <button type="button" className="hot-btn" onClick={() => step(1)} disabled={at === count - 1}>
+                    Next<span aria-hidden="true"> &#8594;</span>
+                  </button>
+                </div>
+                {/* The line, a dot for each date: where this one stands. */}
+                <ol className="hot-dots" aria-hidden="true">
+                  {TIMELINE_STOPS.map((d, i) => (
+                    <li key={d.id} data-at={i === at ? 'here' : i < at ? 'past' : undefined} />
+                  ))}
+                </ol>
+              </section>
 
               <div className="hot-end">
                 <a className="hot-learn" href={POSTER_QR_URL} target="_blank" rel="noopener noreferrer">
@@ -253,9 +297,6 @@ export default function HolocaustTimeline() {
                   {/* REVIEW (Verity): said only to screen readers. */}
                   <span style={srOnly}> (opens the United States Holocaust Memorial Museum’s timeline in a new tab)</span>
                 </a>
-                <button type="button" id="hot-order-open" className="hot-btn" onClick={openOrder}>
-                  {TIMELINE_TEXT.orderOpen}
-                </button>
               </div>
             </>
           )}
