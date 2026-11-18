@@ -12,7 +12,8 @@ import './card.css';
 
 /*
  * The Christmas card maker, on one screen: the card stands on the parlour
- * table, and beside it the green linen card holds three tabs: the front
+ * table, and beside it, the two centred together as one group, the green
+ * linen card holds three tabs: the front
  * (its picture, border, paper and greeting), the inside (who it is to, the
  * message, who it is from) and printing it. Each tab has its own address
  * (#front, #inside, #print). It prints on one Letter page, laid out to fold
@@ -186,7 +187,7 @@ export default function VictorianChristmasCard() {
           </label>
           <label className="vbr-field">
             <span className="vbr-label">Your message</span>
-            <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={5} maxLength={320} />
+            <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={6} maxLength={320} />
           </label>
           <label className="vbr-field">
             <span className="vbr-label">From</span>
