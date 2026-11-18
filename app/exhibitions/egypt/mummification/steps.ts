@@ -14,52 +14,46 @@ import { BM_HIEROGLYPHS, BM_MUMMY_NOTES, BM_MUMMY_VISIT, BUDGE, GLYPHS, met, typ
  * line (Anubis) is quoted from the posters' own text.
  */
 
-export type StepId = 'why' | 'wash' | 'brain' | 'organs' | 'natron' | 'oils' | 'wrap' | 'coffin';
+export type StepId = 'wash' | 'brain' | 'gods' | 'organs' | 'natron' | 'oils' | 'wrap' | 'coffin';
 
 export type Step = {
   id: StepId;
-  /** The step's short name, for its tab. */
+  /** The step's short name, for its dot. */
   name: string;
   title: string;
-  /** Where the step falls in the seventy days, for the timeline: a share of it, or null when it has no place there. */
-  span: [number, number] | null;
+  /** Where the step falls in the seventy days, as a share of them, for the timeline. */
+  span: [number, number];
   /** The timeline's words for it. */
   when: string;
+  /**
+   * What the step teaches, shown once its work is done: one short note (two
+   * at most), about that step and nothing else.
+   */
   notes: ApprovedFact[];
 };
 
 /** Poster 2's line on Anubis, word for word. */
 export const ANUBIS_POSTER = EGYPT_CASE.artifacts.find((a) => a.id === 'anubis')!.writing![0].text;
 
+/** The room's dark opening, read aloud (voice: mummification-intro). The second line is the poster's, word for word. */
+// REVIEW: new text, read aloud. The seventy days: British Museum visit resource (Herodotus); Anubis: poster 2.
+export const MUMMY_INTRO = ['The finest mummies took about seventy days to make.', ANUBIS_POSTER, 'Today, you work beside the embalmers.', 'Every step is yours to do.'];
+
+const HERODOTUS: ApprovedFact = {
+  text: 'The clearest written account of mummification comes from Herodotus, a Greek historian who visited Egypt in about 450 BC. In the most elaborate and expensive mummifications, he records, the whole process took 70 days.',
+  sources: [BM_MUMMY_VISIT],
+};
+
 export const STEPS: Step[] = [
-  {
-    id: 'why',
-    name: 'Why',
-    title: 'A body for the afterlife',
-    span: null,
-    when: 'Before it begins',
-    notes: [
-      {
-        text: 'Preserving the body was an essential part of ancient Egyptian funerary belief. The body was needed to house the ba, a person’s spiritual side, and let the person live in the afterlife.',
-        sources: [BM_MUMMY_NOTES],
-      },
-      {
-        text: 'The clearest written account of mummification comes from Herodotus, a Greek historian who visited Egypt in about 450 BC. In the most elaborate and expensive mummifications, he records, the whole process took 70 days.',
-        sources: [BM_MUMMY_VISIT],
-      },
-    ],
-  },
   {
     id: 'wash',
     name: 'Washing',
-    title: 'Washing the body',
-    span: [0, 0.03],
-    when: 'The first day',
+    title: 'Wash the body',
+    span: [0, 0.02],
+    when: 'Day 1',
     notes: [
-      {
-        text: 'Mummifying a body was the work of specialist workers. First, the body was purified by washing.',
-        sources: [BM_MUMMY_VISIT],
-      },
+      // REVIEW: new text, shortened. British Museum visit resource: "First, the body was purified by washing."
+      { text: 'First, the body was washed, to make it pure.', sources: [BM_MUMMY_VISIT] },
     ],
   },
   {
@@ -70,36 +64,32 @@ export const STEPS: Step[] = [
     when: 'The first days',
     notes: [
       // REVIEW: new text. British Museum, "Ancient Egyptian mummification" visit resource, p. 4: "The brain was removed through the nose and discarded."
-      {
-        text: 'The brain was removed through the nose, and it was not kept: it was thrown away.',
-        sources: [BM_MUMMY_VISIT],
-      },
+      { text: 'The brain was removed through the nose, and it was not kept: it was thrown away.', sources: [BM_MUMMY_VISIT] },
       // REVIEW: new text. British Museum, "What is mummification?" notes for teachers, slide 3: "Bronze probe from Egypt, after 664 BC. Hooks such as this were used to remove the brain."
-      {
-        text: 'The embalmers used a long bronze hook. The British Museum has one, made after 664 BC.',
-        sources: [BM_MUMMY_NOTES],
-      },
+      { text: 'The embalmers used a long bronze hook. The British Museum has one, made after 664 BC.', sources: [BM_MUMMY_NOTES] },
+    ],
+  },
+  {
+    id: 'gods',
+    name: 'Four gods',
+    title: 'Meet the four jar gods',
+    span: [0.02, 0.06],
+    when: 'The first days',
+    notes: [
+      { text: 'Each jar had a protective god: human-headed Imset preserved the liver, baboon-headed Hapi cared for the lungs, jackal-headed Duamutef protected the stomach, and falcon-headed Qebehsenuef looked after the intestines.', sources: [BM_HIEROGLYPHS] },
+      // REVIEW: new text, shortened. British Museum notes for teachers: "From the late Eighteenth Dynasty, the jars’ stoppers often show these four Sons of Horus, minor gods who protect the organs."
+      { text: 'The jars’ lids often show these four gods, the Sons of Horus.', sources: [BM_MUMMY_NOTES] },
     ],
   },
   {
     id: 'organs',
     name: 'Canopic jars',
-    title: 'The organs and the canopic jars',
+    title: 'The organs go into the jars',
     span: [0.02, 0.06],
     when: 'The first days',
     notes: [
-      {
-        text: 'The internal organs, apart from the heart and sometimes the kidneys, were removed through a cut in the left side of the body. They were dried, wrapped and placed in canopic jars.',
-        sources: [BM_MUMMY_VISIT],
-      },
-      {
-        text: 'Each jar had a protective god: human-headed Imset preserved the liver, baboon-headed Hapi cared for the lungs, jackal-headed Duamutef protected the stomach, and falcon-headed Qebehsenuef looked after the intestines.',
-        sources: [BM_HIEROGLYPHS],
-      },
-      {
-        text: 'From the late Eighteenth Dynasty, the jars’ stoppers often show these four Sons of Horus, minor gods who protect the organs.',
-        sources: [BM_MUMMY_NOTES],
-      },
+      // REVIEW: new text, shortened. British Museum visit resource: "The internal organs, apart from the heart and sometimes the kidneys, were removed through a cut in the left side of the body. They were dried, wrapped and placed in canopic jars."
+      { text: 'The organs came out through a cut in the left side of the body. They were dried, wrapped and put in canopic jars.', sources: [BM_MUMMY_VISIT] },
     ],
   },
   {
@@ -108,81 +98,38 @@ export const STEPS: Step[] = [
     title: 'Forty days in natron',
     span: [0.06, 0.63],
     when: '40 days',
-    notes: [
-      {
-        text: 'Bags of natron, a natural salt, were packed inside and outside the body and left for 40 days, until all the moisture had gone.',
-        sources: [BM_MUMMY_VISIT],
-      },
-    ],
+    notes: [{ text: 'Bags of natron, a natural salt, were packed inside and outside the body and left for 40 days, until all the moisture had gone.', sources: [BM_MUMMY_VISIT] }],
   },
   {
     id: 'oils',
     name: 'Oils',
-    title: 'Oils and resin',
+    title: 'Rub in oils and resin',
     span: [0.63, 0.7],
     when: 'After the natron',
     notes: [
-      {
-        text: 'The body was filled with linen or clean natron, to restore some of its shape, and coated in resin and sweet-smelling oils to help preserve it.',
-        sources: [BM_MUMMY_NOTES, BM_MUMMY_VISIT],
-      },
+      // REVIEW: new text, shortened. British Museum notes for teachers and visit resource: the body was "coated in resin and sweet-smelling oils to help preserve it".
+      { text: 'After the natron, the body was coated in resin and sweet-smelling oils, to help preserve it.', sources: [BM_MUMMY_NOTES, BM_MUMMY_VISIT] },
     ],
   },
   {
     id: 'wrap',
     name: 'Wrapping',
-    title: 'Wrapping, with amulets',
+    title: 'Wrap the linen, with amulets',
     span: [0.7, 0.97],
     when: 'The last weeks',
     notes: [
-      {
-        text: 'The bandaging was done very carefully, with amulets placed between the layers to protect the body and spirit. The bandages were not always made specially: they could be strips of household linen.',
-        sources: [BM_MUMMY_NOTES],
-      },
-      {
-        text: 'It has been estimated that one mummy in the British Museum, a young woman’s, needed about 448 square yards of linen wrappings.',
-        sources: [BM_MUMMY_NOTES],
-      },
+      // REVIEW: new text, shortened. British Museum notes for teachers: "The bandaging was done very carefully, with amulets placed between the layers to protect the body and spirit."
+      { text: 'The linen was wrapped very carefully, with amulets placed between the layers to protect the body and spirit.', sources: [BM_MUMMY_NOTES] },
     ],
   },
   {
     id: 'coffin',
     name: 'Day 70',
-    title: 'Ready for the coffin',
+    title: 'Into the coffin',
     span: [0.97, 1],
     when: 'About day 70',
-    notes: [
-      {
-        text: 'The mummy was then ready to be placed in its coffin, or coffins, for the burial ceremony.',
-        sources: [BM_MUMMY_NOTES],
-      },
-    ],
+    notes: [{ text: 'The mummy was then ready to be placed in its coffin, or coffins, for the burial ceremony.', sources: [BM_MUMMY_NOTES] }, HERODOTUS],
   },
-];
-
-/**
- * The room's five steps, each made of one or more of the steps above:
- * washing and the brain; the canopic jars (a game of its own); the forty
- * days in natron, then the oils; the wrapping; and day 70. Each keeps the
- * notes of the steps it is made of.
- */
-export type StageId = 'wash' | 'organs' | 'natron' | 'wrap' | 'coffin';
-export type Stage = {
-  id: StageId;
-  /** Its short name, for its dot. */
-  name: string;
-  title: string;
-  steps: StepId[];
-  span: [number, number];
-  when: string;
-};
-
-export const STAGES: Stage[] = [
-  { id: 'wash', name: 'Washing', title: 'Washing, and the brain', steps: ['why', 'wash', 'brain'], span: [0, 0.04], when: 'The first days' },
-  { id: 'organs', name: 'Canopic jars', title: 'The organs and the canopic jars', steps: ['organs'], span: [0.02, 0.06], when: 'The first days' },
-  { id: 'natron', name: 'Drying', title: 'Forty days in natron, then oils', steps: ['natron', 'oils'], span: [0.06, 0.7], when: '40 days, then oils' },
-  { id: 'wrap', name: 'Wrapping', title: 'Wrapping, with amulets', steps: ['wrap'], span: [0.7, 0.97], when: 'The last weeks' },
-  { id: 'coffin', name: 'Day 70', title: 'Ready for the coffin', steps: ['coffin'], span: [0.97, 1], when: 'About day 70' },
 ];
 
 /** A step's notes, by its id. */
@@ -191,10 +138,10 @@ export function stepNotes(id: StepId): ApprovedFact[] {
 }
 
 /**
- * The note that names which god protects which organ: the game's answers,
- * kept out of the room's text until the four jars are full.
+ * The note that names which god protects which organ: the room teaches it
+ * first (meeting the four gods), then the visitor puts each organ away.
  */
-export const JARS_ANSWER = stepNotes('organs')[1];
+export const JARS_ANSWER = stepNotes('gods')[0];
 
 /** The four Sons of Horus and the organ each protected (the British Museum's Hieroglyphs exhibition text). */
 export const JARS: { god: string; head: string; glyph: GlyphCode; organ: string }[] = [
@@ -204,7 +151,7 @@ export const JARS: { god: string; head: string; glyph: GlyphCode; organ: string 
   { god: 'Qebehsenuef', head: 'falcon', glyph: 'G5', organ: 'intestines' },
 ];
 
-/** The organs in the order the matching game offers them: not the jars' order. */
+/** The organs in the order the tray offers them: not the jars' order. */
 export const ORGANS = ['stomach', 'liver', 'intestines', 'lungs'];
 
 export function jarFor(organ: string) {

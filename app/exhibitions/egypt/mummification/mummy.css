@@ -1,133 +1,95 @@
 /* ==========================================================================
-   Mummification: the embalmers' workshop in lamplight, the seventy days as
-   a bar above the table, the step's share of them lit in orange-red.
+   Mummification: the embalmers' workshop. Not a picture beside a panel: the
+   step and its one instruction run across the top, with the seventy days as
+   a bar; the lamplit workshop fills the middle, as wide as it can be; the
+   tray beneath holds the tools (organs, natron, amulets, the quiet tap
+   alternatives) on the left and what the step has just taught on the
+   right; Back and Next at the foot.
    ========================================================================== */
 
-.egm-room {
-  padding: clamp(14px, 2vw, 26px);
-  border: 1px solid var(--egr-line);
-  background: radial-gradient(ellipse 80% 70% at 50% 35%, #2b241b, #0f0d0b 78%);
+.egm-work {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  gap: 10px;
+  min-width: 0;
+  padding: clamp(10px, 1.4vw, 18px);
+  border: 1px solid rgba(217, 164, 65, 0.35);
+  background: linear-gradient(180deg, #1f160d 0%, #120d08 100%);
+  font-family: var(--pe-body);
+  font-weight: 300;
+  font-size: var(--egr-text);
+  line-height: 1.45;
 }
-.egm-svg { display: block; width: 100%; height: auto; max-height: 56vh; }
-.egm-timeline { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-.egm-timeline-bar { position: relative; height: 10px; border-radius: 5px; background: rgba(255, 255, 255, 0.12); }
-.egm-timeline-span { position: absolute; top: 0; bottom: 0; min-width: 8px; border-radius: 5px; background: var(--egr-orange); transition: left 0.5s ease, width 0.5s ease; }
-.egm-timeline-ends { display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--egr-muted); }
-.egm-timeline-when { color: #fff; font-family: var(--pe-display); font-size: 1.05rem; }
 
-.egm-bed { fill: #8a5a2b; }
-.egm-figure { transition: transform 1s ease; }
-.egm-body { fill: #b07a52; stroke: #6e4529; stroke-width: 2; transition: fill 0.8s ease; }
-.egm-body.is-dried { fill: #7d5a3e; }
-.egm-body.is-oiled { fill: #8f5f2a; }
+/* ───── The strip: dots, title and the seventy days, one instruction ───── */
+.egm-strip { display: grid; grid-template-columns: auto minmax(220px, 1fr) minmax(0, 1.3fr); align-items: center; gap: 8px 22px; }
+.egm-strip-title { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.egm-strip h2 { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.2rem, 1rem + 0.8vw, 1.7rem); line-height: 1.15; color: #fff; }
+.egm-strip h2:focus { outline: none; }
+.egm-strip .egr-task, .egm-strip .egm-done { margin: 0; }
+.egm-timeline { display: flex; flex-direction: column; gap: 2px; }
+.egm-timeline-bar { position: relative; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.14); }
+.egm-timeline-span { position: absolute; top: 0; bottom: 0; min-width: 6px; border-radius: 3px; background: var(--egr-orange); transition: left 0.5s ease, width 0.5s ease; }
+.egm-timeline-ends { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--egr-muted); }
+.egm-timeline-when { color: #fff; }
+
+/* ───── The workshop ───── */
+.egm-scene { position: relative; min-height: 0; display: grid; place-items: center; border-radius: 6px; background: #120d08; overflow: hidden; }
+.egm-pic { position: relative; width: 100%; aspect-ratio: 640 / 330; margin: 0 auto; }
+.egm-gods-pic { aspect-ratio: 800 / 330; }
+.egm-pic .egm-table { position: absolute; inset: 0; }
+.egm-svg { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; -webkit-user-select: none; }
+.egm-days { position: absolute; top: 8px; right: 14px; margin: 0; font-family: var(--pe-display); font-size: clamp(1.1rem, 0.9rem + 1vw, 1.7rem); color: #fff; text-shadow: 0 2px 6px #000; }
+.egm-days span { display: inline-block; min-width: 2ch; color: var(--egr-gold); font-variant-numeric: tabular-nums; }
+
+/* The workshop's things */
+.egm-wall-jackal { fill: #17110c; stroke: #c99a3d; stroke-width: 1; opacity: 0.85; }
+.egm-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: egm-flicker 1.6s ease-in-out infinite; }
+@keyframes egm-flicker { 0%, 100% { transform: scale(1, 1); } 30% { transform: scale(0.9, 1.12); } 60% { transform: scale(1.06, 0.92); } }
+.egm-bed { transition: opacity 0.6s ease; }
+.egm-bed.is-away { opacity: 0.15; }
+.egm-figure { transition: transform 0.15s linear; }
+.egm-body { fill: #b07a52; stroke: #6e4529; stroke-width: 2; }
+[data-step='wash'] .egm-body, [data-step='oils'] .egm-body { cursor: grab; }
 .egm-limb { fill: none; stroke: #6e4529; stroke-width: 2; opacity: 0.7; }
 .egm-eye { fill: #1c1410; }
 .egm-kilt { fill: #f2ede2; stroke: #c9bfa8; stroke-width: 1.5; }
-.egm-dust { fill: #8b7a5c; opacity: 0.85; transition: opacity 0.4s ease; }
-.egm-table.is-washing { cursor: grab; touch-action: none; }
+.egm-dust { fill: #8b7a5c; opacity: 0.85; }
 .egm-cut { fill: none; stroke: #5a1f12; stroke-width: 2.5; stroke-linecap: round; }
-.egm-heart { fill: #c8402a; opacity: 0.55; transition: opacity 0.4s ease; }
+.egm-heart { fill: #c8402a; opacity: 0.7; }
 .egm-heart.is-shown { opacity: 1; animation: egm-pulse 1.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
-@keyframes egm-pulse { 50% { transform: scale(1.25); } }
-.egm-hook { fill: none; stroke: #b8873c; stroke-width: 3; stroke-linecap: round; }
-.egm-brain-shape { fill: #a7a29a; transition: transform 1.4s ease, opacity 1.4s ease; }
-.egm-brain.is-out .egm-brain-shape { transform: translateY(-80px); opacity: 0; }
-.egm-brain.is-out .egm-hook { opacity: 0.3; transition: opacity 1s ease 0.6s; }
-.egm-spot { fill: rgba(242, 240, 234, 0.08); stroke: #f2f0ea; stroke-width: 2; stroke-dasharray: 5 4; cursor: pointer; }
-.egm-bag { stroke: #c9c3b4; stroke-width: 1.5; animation: egm-heap 0.4s ease both; }
-.egm-coffin-open { fill: none; stroke: #c99a3d; stroke-width: 8; stroke-linecap: round; animation: egm-heap 0.6s ease both; }
+@keyframes egm-pulse { 50% { transform: scale(1.3); } }
+.egm-organ-in { animation: egm-in 0.4s ease both; }
+.egm-hook-tool { cursor: grab; }
+.egm-hook { fill: none; stroke: #c99a3d; stroke-width: 4; stroke-linecap: round; }
+.egm-brain-shape { fill: #a7a29a; }
+.egm-brain-shape.is-inside { opacity: 0.45; }
+.egm-hint-arrow { fill: none; stroke: var(--egr-gold); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; animation: egm-nudge 1.2s ease-in-out infinite; }
+@keyframes egm-nudge { 50% { opacity: 0.35; } }
+.egm-spot { fill: rgba(242, 240, 234, 0.1); stroke: #f2f0ea; stroke-width: 2; stroke-dasharray: 5 4; }
+.egm-bag { animation: egm-in 0.35s ease both; }
 .egm-water line { stroke: #8fc3e8; stroke-width: 3; stroke-linecap: round; animation: egm-drip 1.2s linear infinite; }
-@keyframes egm-drip { from { transform: translateY(-20px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(60px); opacity: 0; } }
-.egm-natron { animation: egm-heap 0.8s ease both; }
-@keyframes egm-heap { from { opacity: 0; transform: translateY(14px); } }
-.egm-layer { animation: egm-wrap 0.6s ease both; }
-@keyframes egm-wrap { from { opacity: 0; } }
-.egm-amulet { fill: var(--egr-gold); transition: opacity 0.5s ease; }
-.egm-amulet.is-covered { opacity: 0.18; }
-.egm-coffin path:first-child { fill: #c99a3d; stroke: #6b4a10; stroke-width: 3; }
-.egm-coffin-face { fill: #e2b866; stroke: #6b4a10; stroke-width: 2; }
-.egm-coffin-band { stroke: #1d4f7a; stroke-width: 8; fill: none; }
-.egm-coffin-glyph { fill: #1d4f7a; }
-.egm-coffin { animation: egm-heap 0.9s ease both; }
-.egm-jar path { fill: #d8cbb0; stroke: #8a7a5c; stroke-width: 2; transition: fill 0.4s ease; }
-.egm-jar.is-full path { fill: #e9c97a; }
-.egm-jar-head { fill: #efebe5; }
+@keyframes egm-drip { from { transform: translateY(-20px); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(50px); opacity: 0; } }
+@keyframes egm-in { from { opacity: 0; transform: translateY(-10px); } }
+.egm-glint { animation: egm-glint 2.4s ease-in-out infinite; }
+@keyframes egm-glint { 50% { opacity: 0.3; } }
+.egm-roll.is-on { cursor: grab; }
+.egm-roll.is-off { opacity: 0.4; }
+.egm-amulet { fill: var(--egr-gold); transition: opacity 0.6s ease; }
+.egm-amulet.is-covered { opacity: 0.2; }
+.egm-coffin { animation: egm-in 0.6s ease both; }
+.egm-lid { cursor: grab; transition: transform 0.15s linear; }
+.egm-jar-lid { transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.5, 1); }
 
-.egm-days { min-height: 1.6em; margin: 8px 0 0; text-align: center; font-family: var(--pe-display); font-size: clamp(1.2rem, 1rem + 1vw, 1.8rem); color: #fff; }
-.egm-days span { display: inline-block; min-width: 2ch; color: var(--egr-orange); font-variant-numeric: tabular-nums; }
-
-.egm-match { display: flex; flex-direction: column; gap: 14px; }
-.egm-jar-glyph { font-size: 1.8rem; }
-.egm-amulet-glyph { font-size: 1.5rem; color: var(--egr-gold); }
-.eg-room .egr-option[aria-pressed='true'] .egm-amulet-glyph { color: #6b4a10; }
-.egm-done { color: var(--egr-gold); font-family: var(--pe-display); font-size: 1.15em; }
-.egm-nav { margin-top: 6px; padding-top: 14px; border-top: 1px solid var(--egr-line); }
-.eg-room .egr-option:disabled { opacity: 0.5; cursor: default; }
-.egm-jars-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
-.eg-room .egm-jar-button { flex-direction: column; justify-content: center; min-height: 84px; padding: 6px 4px; font-size: 0.78em; }
-.eg-room .egm-jar-button.is-full { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.16); }
-.eg-room .egm-organ { touch-action: none; }
-.egm-hint { min-height: 1.5em; margin: 0; color: #ffb59c; font-size: 0.92em; }
-.egm-small { font-size: 0.88em; color: var(--egr-muted); }
-.egm-heart-q { padding-top: 12px; border-top: 1px solid var(--egr-line); }
-.egm-heart-q legend { text-transform: none; letter-spacing: 0; font-size: 1em; color: #fff; }
-.egm-check { display: flex; flex-direction: column; gap: 14px; padding-top: 12px; border-top: 1px solid var(--egr-line); }
-.egm-check legend { text-transform: none; letter-spacing: 0; font-size: 0.95em; color: #fff; }
-.egm-ending { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border: 2px solid var(--egr-gold); background: rgba(217, 164, 65, 0.1); }
-.egm-drag {
-  position: fixed;
-  z-index: 1000;
-  translate: -50% -120%;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: var(--egr-gold);
-  color: #141414;
-  font-family: var(--pe-body);
-  text-transform: capitalize;
-  pointer-events: none;
-}
-@media (max-width: 600px) {
-  .egm-jars-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-/* ───────── The picture keeps its own shape (the SVG's viewBox), so the jars' drop targets lie exactly on the jars ───────── */
-.egm-pic { position: relative; width: 100%; aspect-ratio: 640 / 290; margin: 0 auto; }
-.egm-pic .egm-table { position: absolute; inset: 0; }
-.egm-pic .egm-svg { width: 100%; height: 100%; max-height: none; }
-@media (min-width: 700px) and (min-height: 600px) {
-  .egr-fit .egm-room { display: flex; flex-direction: column; min-height: 0; }
-  .egr-fit .egm-scene-cell { flex: 1 1 auto; }
-  .egr-fit .egm-pic { width: min(100cqw, calc(100cqh * 640 / 290)); }
-}
-
-/* One thing to do now, its buttons, and what it has just taught */
-.egm-task { display: flex; flex-direction: column; gap: 12px; }
-.egm-learned { padding: 10px 12px; border-left: 3px solid var(--egr-gold); background: rgba(217, 164, 65, 0.06); animation: egm-heap 0.4s ease both; }
-.eg-mummy .egr-step-body { gap: 12px; }
-.eg-mummy .egr-step-body h2:focus { outline: none; }
-.eg-room .egm-nav { flex-wrap: wrap; align-items: center; }
-.egm-answered { font-size: 1em; }
-
-/* ───────── The canopic jars: the whole screen. The organs just above the picture; the jars in it are the drop targets. ───────── */
-.egm-game { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: clamp(12px, 1.6vw, 20px); border: 1px solid var(--egr-line); background: var(--egr-panel); font-family: var(--pe-body); font-weight: 300; font-size: var(--egr-text); line-height: 1.45; }
-.egm-game-head { display: grid; grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.6fr); gap: 10px 24px; align-items: start; }
-.egm-game-title { display: flex; flex-direction: column; gap: 6px; }
-.egm-game h2 { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.3rem, 1rem + 1vw, 1.9rem); line-height: 1.15; color: #fff; }
-.egm-game h2:focus { outline: none; }
-.egm-tray { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.egm-tray .egr-options { gap: 10px; }
-.eg-room .egm-organ { min-height: 52px; padding: 8px 20px; font-size: 1em; cursor: grab; }
-.eg-room .egm-organ[aria-pressed='true'] { background: var(--egr-gold); border-color: var(--egr-gold); color: #141414; }
-.egm-heart-q { padding-top: 0; border-top: 0; }
-.egm-game-scene { position: relative; min-height: 0; padding: 8px; border: 1px solid var(--egr-line); background: radial-gradient(ellipse 80% 70% at 50% 35%, #2b241b, #0f0d0b 78%); }
+/* Places to drop things, laid over the picture */
 .eg-room .egm-drop {
   appearance: none;
   position: absolute;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding: 0 0 6%;
-  border: 2px dashed rgba(255, 255, 255, 0.35);
+  padding: 0 0 4%;
+  border: 2px dashed rgba(255, 255, 255, 0.3);
   border-radius: 14px;
   background: transparent;
   color: #141414;
@@ -136,11 +98,70 @@
 .eg-room .egm-drop.is-ready { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.12); }
 .eg-room .egm-drop:hover { border-color: #fff; }
 .eg-room .egm-drop.is-full { border-style: solid; border-color: var(--egr-gold); }
-.egm-drop-name { padding: 1px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.85); font-family: var(--pe-body); font-size: clamp(0.62rem, 0.5rem + 0.5vw, 0.95rem); font-weight: 500; line-height: 1.3; }
-.egm-game .egm-nav { padding-top: 10px; }
+.eg-room .egm-meet[aria-pressed='true'] { border-color: #fff; background: rgba(255, 255, 255, 0.06); }
+.eg-room .egm-spot-drop { border-radius: 50%; padding: 0; min-width: 0; }
+.egm-body-drop { position: absolute; border: 2px dashed var(--egr-gold); border-radius: 40px; background: rgba(217, 164, 65, 0.08); animation: egm-nudge 1.4s ease-in-out infinite; pointer-events: auto; }
+.egm-drop-name { padding: 1px 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.88); font-family: var(--pe-body); font-size: clamp(0.62rem, 0.5rem + 0.45vw, 0.92rem); font-weight: 500; line-height: 1.3; }
+
+/* ───── The tray ───── */
+.egm-tray { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 14px; min-height: 0; max-height: 34vh; }
+.egm-tools, .egm-learned { min-height: 0; overflow-y: auto; scrollbar-width: thin; display: flex; flex-direction: column; gap: 10px; }
+.egm-learned { padding: 10px 14px; border-left: 3px solid var(--egr-gold); background: rgba(217, 164, 65, 0.07); }
+.egm-learned:empty { visibility: hidden; }
+.egm-learned-kicker { margin: 0; font-size: 0.72em; letter-spacing: 0.18em; text-transform: uppercase; color: var(--egr-gold); }
+.egm-learned .egr-fact { animation: egm-in 0.4s ease both; }
+.egm-organs { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.eg-room .egm-thing {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 6px 14px 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #3a2a1a, #261a0f);
+  color: #fff;
+  font-family: var(--pe-body);
+  font-size: 0.92em;
+}
+.eg-room .egm-thing svg { width: 52px; height: 42px; flex: none; }
+.eg-room .egm-thing[aria-pressed='true'] { border-color: var(--egr-gold); box-shadow: 0 0 0 2px var(--egr-gold); }
+.eg-room .egm-thing:hover { border-color: #fff; }
+.egm-own-amulet { width: 40px !important; height: 48px !important; }
+.egm-amulet-glyph { font-size: 1.6rem; color: var(--egr-gold); }
+.egm-ghost { display: block; }
+.egm-ghost-amulet { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%; background: #2a1b0e; border: 2px solid var(--egr-gold); color: var(--egr-gold); font-size: 1.8rem; }
+.egm-meeting { display: flex; align-items: center; gap: 14px; animation: egm-in 0.35s ease both; }
+.egm-meeting-head { width: 84px; height: 88px; flex: none; }
+.egm-meeting p { margin: 0; font-size: 1.1em; }
+.egm-meter-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.egm-meter { position: relative; width: 180px; height: 14px; border-radius: 7px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+.egm-meter span { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, #b8862b, #ffd77a); transition: width 0.15s linear; }
+.egm-layers { display: inline-flex; gap: 4px; }
+.egm-layers span { width: 26px; height: 14px; border-radius: 3px; background: rgba(255, 255, 255, 0.12); }
+.egm-layers span[data-on] { background: #eee4cb; }
+.egm-hint { min-height: 1.4em; margin: 0; color: #ffb59c; font-size: 0.92em; }
+.egm-small { margin: 0; font-size: 0.88em; color: var(--egr-muted); }
+.egm-done { margin: 0; color: var(--egr-gold); font-family: var(--pe-display); font-size: 1.15em; }
+.egm-heart-q legend { text-transform: none; letter-spacing: 0; font-size: 1em; color: #fff; }
+.egm-check { display: flex; flex-direction: column; gap: 10px; }
+.egm-check legend { text-transform: none; letter-spacing: 0; font-size: 0.98em; color: #fff; }
+.egm-answered { font-size: 1em; }
+.egm-ending { display: flex; flex-direction: column; gap: 10px; padding: 12px 14px; border: 2px solid var(--egr-gold); background: rgba(217, 164, 65, 0.1); }
+.egm-nav { margin: 0; padding-top: 10px; }
+.eg-room .egm-nav .egr-button { min-height: 48px; }
+
+/* ───── One screen: the workshop as large as the space allows, keeping its shape ───── */
 @media (min-width: 700px) and (min-height: 600px) {
-  .egr-fit .egm-game-scene { flex: 1 1 auto; }
+  .egr-fit .egm-scene { container-type: size; }
+  .egr-fit .egm-pic { width: min(100cqw, calc(100cqh * 640 / 330)); }
+  .egr-fit .egm-gods-pic { width: min(100cqw, calc(100cqh * 800 / 330)); }
 }
 @media (max-width: 980px) {
-  .egm-game-head { grid-template-columns: minmax(0, 1fr); }
+  .egm-strip { grid-template-columns: minmax(0, 1fr); }
+  .egm-tray { grid-template-columns: minmax(0, 1fr); max-height: none; }
+}
+@media (max-width: 699px) {
+  .egm-work { grid-template-rows: auto auto auto auto; }
 }

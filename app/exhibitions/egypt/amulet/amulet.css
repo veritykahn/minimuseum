@@ -1,50 +1,157 @@
 /* ==========================================================================
-   Design an Amulet: the amulet on a dark cloth under a warm light, large
-   enough to read from the back of a classroom; the choices and their
-   meanings beside it. The print sets it in colour with its meanings.
+   Design an Amulet: a craftsperson's workbench. A strip across the top (the
+   step, its title, one instruction); below it three parts side by side, the
+   tools, the amulet on its cloth in the middle (the largest), and what has
+   just been learned; Back and Next in their own bar at the foot, a row of
+   the grid of their own, so nothing can slide beneath them. On a portrait
+   tablet the amulet comes first, the tools and notes under it.
    ========================================================================== */
 
-.ega-bench {
+.ega-workshop {
+  display: grid;
+  grid-template-columns: minmax(250px, 1fr) minmax(300px, 1.3fr) minmax(220px, 0.85fr);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas: 'strip strip strip' 'tools bench side' 'nav nav nav';
+  gap: 12px clamp(14px, 2vw, 26px);
+  min-width: 0;
+  padding: clamp(12px, 1.6vw, 20px);
+  border: 1px solid rgba(217, 164, 65, 0.4);
+  background:
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.08) 0 3px, transparent 3px 41px),
+    linear-gradient(180deg, #3a2716 0%, #2a1b0f 100%);
+  font-family: var(--pe-body);
+  font-weight: 300;
+  font-size: var(--egr-text);
+  line-height: 1.45;
+}
+.ega-strip { grid-area: strip; display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: 8px 20px; }
+.ega-strip h2 { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.25rem, 1rem + 0.9vw, 1.8rem); line-height: 1.15; color: #fff; white-space: nowrap; }
+.ega-strip h2:focus { outline: none; }
+.ega-strip .egr-task { justify-self: start; }
+
+.ega-tools,
+.ega-side {
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
   display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: rgba(12, 9, 6, 0.55);
+}
+.ega-tools { grid-area: tools; }
+.ega-side { grid-area: side; }
+.ega-side:empty { visibility: hidden; }
+.ega-nav { grid-area: nav; margin: 0; }
+
+/* The bench: the amulet on a dark linen cloth, under a warm light */
+.ega-bench {
+  grid-area: bench;
+  position: relative;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: clamp(320px, 60vh, 680px);
-  padding: clamp(16px, 3vw, 40px);
-  border: 1px solid var(--egr-line);
-  background: radial-gradient(ellipse 70% 60% at 50% 40%, #3a2c1a, #120e0a 78%);
+  gap: 10px;
+  padding: clamp(10px, 1.6vw, 20px);
+  border-radius: 8px;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 42%, rgba(255, 214, 140, 0.28), transparent 70%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.03) 0 2px, transparent 2px 6px),
+    radial-gradient(ellipse 80% 80% at 50% 50%, #3b1d1a, #1a0c0b 85%);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
 }
-.ega-art { width: min(100%, 460px); height: auto; max-height: 64vh; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.55)); }
+.ega-on-bench { display: grid; place-items: center; min-height: 0; width: 100%; flex: 1 1 auto; border-radius: 12px; transition: box-shadow 0.25s ease; }
+.ega-on-bench.is-ready { cursor: pointer; box-shadow: 0 0 0 3px var(--egr-gold), 0 0 30px rgba(217, 164, 65, 0.4); }
+.ega-art { width: min(100%, 420px); height: auto; max-height: 60vh; filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.6)); }
 .ega-art g, .ega-art path, .ega-art ellipse { transition: fill 0.4s ease; }
-.ega-swatch { width: 16px; height: 16px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.3); }
-.ega-symbol-glyph { font-size: 1.6rem; }
-.ega-meanings { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; border-top: 1px solid var(--egr-line); }
+.ega-carved { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.eg-room .ega-chip { min-height: 44px; font-size: 0.8em; }
+
+/* Tiles: who, what, which shape, which material */
+.ega-tiles { display: flex; flex-wrap: wrap; gap: 8px; }
+.eg-room .ega-tile { min-height: 52px; padding: 8px 16px; font-size: 0.95em; }
+.ega-blanks { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.eg-room .ega-blank { flex-direction: column; justify-content: center; gap: 4px; min-height: 110px; padding: 6px; font-size: 0.85em; }
+.ega-blank-art { width: 100%; max-width: 90px; height: 76px; }
+.ega-swatch { width: 22px; height: 22px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35), inset 2px 3px 4px rgba(255, 255, 255, 0.45); }
+.ega-material.is-faience .ega-swatch { background: radial-gradient(circle at 35% 30%, #d6fff4, #3fb3a3 45%, #1d6f73); }
+.ega-material.is-gold .ega-swatch { background: linear-gradient(135deg, #5c3d0c 0%, #b98a2c 18%, #f6dd85 34%, #fffbe2 44%, #f1c94f 52%, #a5721a 70%, #e9c260 86%, #7a5410 100%); }
+.ega-material.is-red .ega-swatch { background: radial-gradient(circle at 35% 30%, #ffc6b0, #c9502f 45%, #7a2414); }
+.ega-material.is-blue .ega-swatch { background: radial-gradient(circle at 35% 30%, #c6d4ff, #3557a8 45%, #172f6b); }
+.ega-name input { width: 100%; }
+
+/* The carving tray: each symbol a little tile, to drag or to pick up */
+.ega-tray { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.eg-room .ega-symbol {
+  appearance: none;
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 6px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: linear-gradient(180deg, #5a3d22, #3d2814);
+  color: #f6e7c4;
+  font-family: var(--pe-body);
+  font-size: 0.86em;
+  text-align: left;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+.eg-room .ega-symbol:hover:not(:disabled) { border-color: #fff; }
+.eg-room .ega-symbol[aria-pressed='true'] { border-color: var(--egr-gold); box-shadow: 0 0 0 2px var(--egr-gold); }
+.eg-room .ega-symbol:disabled { opacity: 0.4; cursor: default; }
+.eg-room .ega-symbol.is-suggested { border-color: var(--egr-gold); }
+.ega-mark { flex: none; font-size: 1.9rem; color: #f2c766; }
+svg.ega-mark { color: #f2c766; }
+.ega-symbol-name { line-height: 1.2; }
+.ega-tag { position: absolute; top: -8px; right: 6px; padding: 1px 7px; border-radius: 999px; background: var(--egr-gold); color: #141414; font-size: 0.62em; letter-spacing: 0.06em; text-transform: uppercase; }
+.ega-ghost { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(42, 27, 15, 0.92); border: 2px solid var(--egr-gold); }
+.ega-ghost .ega-mark { font-size: 2.4rem; }
+
+/* What has just been learned */
+.ega-meanings { display: flex; flex-direction: column; gap: 12px; }
 .ega-meaning { display: flex; flex-direction: column; gap: 4px; animation: ega-in 0.4s ease both; }
-.ega-meaning-glyph { font-size: 1.6rem; color: var(--egr-gold); vertical-align: middle; }
+.ega-meaning h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: 1.1em; color: #fff; }
+.ega-meaning .ega-mark { font-size: 1.5rem; }
 @keyframes ega-in { from { opacity: 0; transform: translateY(6px); } }
+.ega-suggest { margin: 0; padding: 10px 12px; border-left: 3px solid var(--egr-gold); background: rgba(217, 164, 65, 0.08); }
+.ega-finish { display: flex; flex-direction: column; gap: 12px; }
+.ega-links { display: flex; flex-direction: column; gap: 8px; }
+.eg-room .ega-links .egr-button { font-size: 0.78em; }
+
+/* ───────── Laptop and landscape tablet: one screen ───────── */
+@media (min-width: 700px) and (min-height: 600px) {
+  .egr-fit .ega-art { width: min(100cqw, 420px, calc(100cqh * 400 / 480)); max-height: none; }
+  .egr-fit .ega-bench { container-type: size; }
+}
+
+/* ───────── Portrait tablet: the amulet first, the tools and notes side by side beneath ───────── */
+@media (max-width: 980px) {
+  .ega-workshop {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto minmax(260px, 1fr) auto auto;
+    grid-template-areas: 'strip strip' 'bench bench' 'tools side' 'nav nav';
+  }
+  .ega-strip { grid-template-columns: minmax(0, 1fr); }
+  .ega-strip h2 { white-space: normal; }
+  .ega-workshop.is-carve { grid-template-areas: 'strip strip' 'bench bench' 'tools tools' 'side side' 'nav nav'; grid-template-rows: auto minmax(240px, 1fr) auto auto auto; }
+  .ega-tray { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .ega-workshop, .ega-workshop.is-carve { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'strip' 'bench' 'tools' 'side' 'nav'; grid-template-rows: auto minmax(260px, auto) auto auto auto; }
+  .ega-tray { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 
 @media print {
   .ega-print { text-align: center; }
   .ega-print-art { display: block; width: 4.4in; height: auto; margin: 8px auto 12px; }
   .ega-print-meanings { text-align: left; max-width: 6.5in; margin: 0 auto; }
-  .ega-print-meanings .egr-glyph { font-size: 16pt; }
   .ega-print-source a { color: inherit; }
-}
-
-/* First: who it is for, and what it should protect; the suggested symbols marked */
-.ega-purpose { display: flex; flex-direction: column; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--egr-line); }
-.ega-suggest { margin: 0; padding: 10px 12px; border-left: 3px solid var(--egr-gold); background: rgba(217, 164, 65, 0.08); }
-.eg-room .ega-symbol.is-suggested { border-color: var(--egr-gold); }
-.ega-tag { padding: 1px 7px; border-radius: 999px; background: var(--egr-gold); color: #141414; font-size: 0.68em; letter-spacing: 0.06em; text-transform: uppercase; }
-.eg-room .egr-option[aria-pressed='true'] .ega-tag { background: #6b4a10; color: #fff; }
-
-/* One choice to a screen: the amulet fills its side, always in view */
-.eg-amulet .egr-step-body { gap: 14px; }
-.eg-amulet .egr-step-body h2:focus { outline: none; }
-.eg-room .ega-symbol { min-height: 52px; }
-@media (min-width: 700px) and (min-height: 600px) {
-  .egr-fit .ega-bench { min-height: 0; padding: clamp(10px, 2vw, 28px); }
-  .egr-fit .ega-art { width: min(100cqw, 460px, calc(100cqh * 400 / 480)); max-height: none; }
-}
-@media (min-width: 700px) and (max-width: 980px) and (min-height: 600px) {
-  .eg-amulet .egr-fit .egr-layout.egr-fill { grid-template-rows: minmax(0, 0.75fr) minmax(0, 1.25fr); }
 }
