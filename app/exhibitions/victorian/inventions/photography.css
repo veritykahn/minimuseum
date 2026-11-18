@@ -1,0 +1,82 @@
+/* ==========================================================================
+   The photography bench's own looks. Making a negative: a wooden camera
+   beside the sensitive paper inside it, the seconds counting on the sheet
+   while the cap is off. Hold still: the sitter's portrait beside the head
+   clamp's stand, gripped to hold still. Three ways: three photographs to
+   turn over and read, then to tell apart.
+   ========================================================================== */
+
+/* ───────── 1. Make a negative ───────── */
+.vbi-photo[data-phase='camera'] { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); max-width: 940px; gap: 3cqw; }
+.vbi-camera { width: min(30cqw, 62cqh * 260 / 300, 280px); cursor: pointer; }
+.vbi-camera-svg { width: 100%; display: block; filter: drop-shadow(0 14px 18px rgba(20, 10, 6, 0.45)); }
+.vbi-camera-light { transition: opacity 0.3s ease; }
+.vbi-in-camera { width: min(100%, 82cqh * 1200 / 991); justify-self: center; }
+.vbi-fog { position: absolute; inset: 0; background: #1d1612; pointer-events: none; }
+.vbi-seconds {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(47, 74, 50, 0.92);
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+  font-size: 1rem;
+}
+.vbi-seconds strong { font-family: 'Jost', sans-serif; font-size: 2.2rem; font-weight: 500; font-variant-numeric: tabular-nums; line-height: 1; }
+.vbi-seconds[data-result='good'] { background: #3f8a4a; }
+.vbi-seconds[data-result='faint'], .vbi-seconds[data-result='dark'] { background: #b23a3a; }
+.vb-room .vbi-cap-button { font-size: 1rem; padding: 12px 22px; }
+
+/* ───────── 2. Hold still! ───────── */
+.vbi-clamp-stand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  height: min(80cqh, 420px);
+  padding: 10px 14px;
+  border-radius: 16px;
+  background: rgba(42, 30, 22, 0.6);
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.vbi-clamp-stand .vbi-clamp-svg { height: calc(100% - 2.6em); width: auto; display: block; }
+.vbi-clamp-stand[data-holding] { background: rgba(63, 138, 74, 0.55); box-shadow: 0 0 0 4px #8fd59a; }
+.vbi-clamp-stand[data-moving] { background: rgba(178, 58, 58, 0.55); box-shadow: 0 0 0 4px #f0a0a0; }
+.vbi-clamp-state { font-family: 'Jost', sans-serif; font-size: 15px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: #f8f0dc; white-space: nowrap; }
+.vbi-sitter .vbi-dag-frame { height: min(80cqh, 100cqw * 0.55 * 1035 / 900); }
+.vb-room .vbi-hold-button[data-live] { background: radial-gradient(circle at 50% 35%, #b9eac1, #3f8a4a 60%, #2d6a37); color: #fff; }
+.vb-room .vbi-hold-button[data-moving] { background: radial-gradient(circle at 50% 35%, #f6b3a8, #b23a3a 60%, #8a2222); color: #fff; }
+.vb-room .vbi-hold-button { font-size: 1.3rem; }
+
+/* ───────── 3. Three ways: learn, then the quiz ───────── */
+.vb-room .vbi-learn-card { padding-bottom: 8px; }
+.vb-room .vbi-learn-card[aria-pressed='true'] { box-shadow: 0 0 0 5px #f2c45a, 0 10px 18px rgba(20, 10, 6, 0.45); }
+.vbi-three:not([data-quiz]) .vbi-three-photo img { max-height: 42cqh; }
+.vbi-learn-text { display: block; min-height: 4.2em; padding: 0 6px; font-family: var(--vb-serif); font-size: clamp(12px, 1.5cqw, 16px); line-height: 1.35; color: #2a2522; text-align: center; }
+.vbi-learn-text:not([data-open]) { font-style: italic; color: #6b4a32; }
+
+@media (max-width: 760px) {
+  .vbi-photo[data-phase='camera'] { gap: 8px; }
+  .vbi-camera { width: min(32cqw, 60cqh * 260 / 300); }
+  .vbi-seconds { padding: 3px 8px; font-size: 0.8rem; }
+  .vbi-seconds strong { font-size: 1.4rem; }
+  .vbi-clamp-stand { height: 86cqh; padding: 4px 6px; }
+  .vbi-clamp-state { font-size: 11px; letter-spacing: 0.06em; }
+  .vbi-learn-text { min-height: 0; font-size: 10.5px; }
+  .vbi-three:not([data-quiz]) .vbi-three-photo img { max-height: 30cqh; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vbi-camera-light, .vbi-clamp-stand { transition: none !important; }
+  .vbi-camera-svg g { transition: none !important; }
+}

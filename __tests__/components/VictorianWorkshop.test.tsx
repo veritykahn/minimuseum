@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import fs from 'fs';
 import path from 'path';
 import VictorianInventions from '@/app/exhibitions/victorian/inventions/page';
-import { BRISTOL_CLOCK, INCOMING, MAP_TOWNS, MORSE, NOTES, PHOTOS, PLYMOUTH, POSITIVE, PROCESS_CLUES, RAIL_STEPS, READ_WORDS, SEND_WORDS, STATIONS, TELEGRAM, TRAIN_PUZZLES, WIRE_STEPS, blurFor, verdictFor } from '@/app/exhibitions/victorian/inventions/inventionsText';
+import { BRISTOL_CLOCK, EXPOSURE, EXPOSURE_WORDS, INCOMING, INCOMING_NOTE, MAP_TOWNS, MORSE, NOTES, PHOTOS, PLYMOUTH, POSITIVE, PROCESS_CLUES, QUIZ_ORDER, RAIL_STEPS, READ_WORDS, SEND_WORDS, STATIONS, TELEGRAM, TRAIN_PUZZLES, WIRE_PARTS, blurFor, exposureFor, verdictFor } from '@/app/exhibitions/victorian/inventions/inventionsText';
 import { INVENTIONS_SOURCES, RAIL_FACTS, WIRE_FACTS } from '@/app/exhibitions/victorian/inventions/sources';
 import { DIAL, DIAL_LETTERS, DIAL_ROWS, MAP, catchTrain, clockTime, dragMinute, hands, morseTimeline, needleAngles, oldMoney, onDial, project, spell, sunTimeAt, sunX, telegramCost, telegramWords, toMorse } from '@/app/exhibitions/victorian/inventions/workshop';
 
@@ -63,7 +63,7 @@ describe('the workshop’s Sources drawer', () => {
     expect(INVENTIONS_SOURCES.map((g) => g.title)).toEqual(expect.arrayContaining(RAIL_STEPS.map((s, i) => `The railway, step ${i + 1}: ${s.title}`)));
     // The benches read their notes from the same map as the drawer.
     for (const s of RAIL_STEPS) expect(RAIL_FACTS[s.id].length).toBeGreaterThan(0);
-    for (const s of WIRE_STEPS) expect(WIRE_FACTS[s.id].length).toBeGreaterThan(0);
+    for (const p of WIRE_PARTS) expect(WIRE_FACTS[p.id].length).toBeGreaterThan(0);
   });
 });
 
@@ -289,7 +289,7 @@ describe('railway time: the traveller, the train and the clocks', () => {
   });
 });
 
-describe('the telegraph: how it works and the needle dial', () => {
+describe('the telegraph: build it, and the needle dial', () => {
   beforeEach(() => at('#telegraph'));
 
   it('sets the five-needle dial’s 20 letters where their two needles cross', () => {
@@ -311,47 +311,70 @@ describe('the telegraph: how it works and the needle dial', () => {
     expect(hands(720).minute).toBeGreaterThan(hands(709).minute);
   });
 
-  it('opens on how it works, the key setting the current running by pointer and by keyboard', () => {
-    expect(WIRE_STEPS.map((s) => s.id)).toEqual(['battery', 'wire', 'coil', 'needle', 'morse']);
+  it('opens on building a telegraph: each part put where it does its job, a wrong place explained, then the key sets the current running', () => {
+    expect(WIRE_PARTS.map((p) => p.id)).toEqual(['battery', 'key', 'wire', 'coil', 'needle']);
     render(<VictorianInventions />);
-    expect(screen.getByRole('button', { name: 'How it works' })).toHaveAttribute('aria-pressed', 'true');
-    const circuit = screen.getByRole('img', { name: /A telegraph circuit/ });
+    expect(screen.getByRole('button', { name: 'Build a telegraph' })).toHaveAttribute('aria-pressed', 'true');
+    // Its own look: the scene across the bench and the card a strip along the foot, not the steps of before.
+    expect(document.querySelector('.vbi-build')).toHaveAttribute('data-look', 'strip');
+    expect(screen.queryByRole('button', { name: /^Step 1: / })).toBeNull();
+    const circuit = screen.getByRole('img', { name: /A telegraph circuit to build/ });
+    expect(circuit).toHaveAccessibleName(expect.stringContaining('0 of 5 parts in place'));
+    const tray = screen.getByRole('list', { name: 'The parts tray' });
+    // A place tapped with nothing picked says what to do.
+    fireEvent.click(screen.getByRole('button', { name: 'Empty place: Makes the electric current' }));
+    expect(screen.getByRole('status')).toHaveTextContent('First pick a part from the tray.');
+    // The battery in the key's place: it says what it is, and what that place needs.
+    fireEvent.click(within(tray).getByRole('button', { name: /Battery/ }));
+    expect(within(tray).getByRole('button', { name: /Battery/ })).toHaveAttribute('aria-pressed', 'true');
+    const keyPlace = screen.getByRole('button', { name: 'Empty place: A switch: press it to send' });
+    fireEvent.click(keyPlace);
+    expect(keyPlace).toHaveAttribute('data-wrong', '1');
+    expect(screen.getByRole('status')).toHaveTextContent('That’s the battery. This place needs the part that switches the current on and off.');
+    // After a wrong place the battery stays in the hand, ready for its right place.
+    expect(within(tray).getByRole('button', { name: /Battery/ })).toHaveAttribute('aria-pressed', 'true');
+    for (const p of WIRE_PARTS) {
+      const btn = within(tray).getByRole('button', { name: new RegExp(p.name) });
+      if (btn.getAttribute('aria-pressed') !== 'true') fireEvent.click(btn);
+      fireEvent.click(screen.getByRole('button', { name: `Empty place: ${p.job}` }));
+      expect(screen.queryByRole('button', { name: `Empty place: ${p.job}` })).toBeNull();
+      if (p.id !== 'needle') expect(screen.getByText(p.line)).toBeInTheDocument();
+    }
+    expect(screen.getByText('Your telegraph is built!')).toBeInTheDocument();
     const key = screen.getByRole('button', { name: 'Press the key' });
     fireEvent.pointerDown(key);
     expect(circuit).toHaveAttribute('data-live', 'true');
     fireEvent.pointerUp(key);
+    expect(circuit).not.toHaveAttribute('data-live');
     fireEvent.keyDown(key, { key: ' ' });
     expect(circuit).toHaveAttribute('data-live', 'true');
     fireEvent.keyUp(key, { key: ' ' });
     expect(circuit).not.toHaveAttribute('data-live');
-    for (const [id, note] of [['wire', NOTES.wire], ['coil', NOTES.oersted], ['needle', NOTES.needles], ['morse', NOTES.morse]] as const) {
-      fireEvent.click(screen.getByRole('button', { name: /^Next/ }));
-      expect(circuit).toHaveAttribute('data-step', id);
-      expect(openFacts()).toHaveTextContent(note.text);
-      fireEvent.click(screen.getByRole('button', { name: /Close/ }));
-    }
+    // Each part's note, behind "Did you know?".
+    const facts = openFacts();
+    for (const n of [NOTES.wire, NOTES.oersted, NOTES.needles]) expect(facts).toHaveTextContent(n.text);
+    fireEvent.click(screen.getByRole('button', { name: /Close/ }));
     fireEvent.click(screen.getByRole('button', { name: /Now try the five-needle telegraph/ }));
     expect(screen.getByRole('button', { name: 'Needle dial' })).toHaveAttribute('aria-pressed', 'true');
   });
 
-  it('taps Morse on the key in step 5: a quick tap a dot, a long press a dash, a pause the letter', () => {
-    jest.useFakeTimers();
+  it('drags a part from the tray onto its place on the drawing', () => {
     render(<VictorianInventions />);
-    goStep(5);
-    const key = screen.getByRole('button', { name: 'Press the key' });
-    const tap = (ms: number) => {
-      fireEvent.pointerDown(key);
-      act(() => {
-        jest.advanceTimersByTime(ms);
-      });
-      fireEvent.pointerUp(key);
-    };
-    tap(80);
-    tap(600);
-    act(() => {
-      jest.advanceTimersByTime(1200);
-    });
-    expect(screen.getByRole('status')).toHaveTextContent('.- is A.');
+    const place = screen.getByRole('button', { name: 'Empty place: Makes the electric current' });
+    const was = document.elementsFromPoint;
+    document.elementsFromPoint = jest.fn(() => [place]);
+    try {
+      const battery = within(screen.getByRole('list', { name: 'The parts tray' })).getByRole('button', { name: /Battery/ });
+      fireEvent.pointerDown(battery, { clientX: 10, clientY: 10 });
+      fireEvent.pointerMove(battery, { clientX: 200, clientY: 120 });
+      expect(document.querySelector('.vbi-ghost')).not.toBeNull();
+      fireEvent.pointerUp(battery, { clientX: 300, clientY: 200 });
+      fireEvent.click(battery);
+    } finally {
+      document.elementsFromPoint = was;
+    }
+    expect(screen.queryByRole('button', { name: 'Empty place: Makes the electric current' })).toBeNull();
+    expect(screen.getByRole('img', { name: /A telegraph circuit to build/ })).toHaveAccessibleName(expect.stringContaining('1 of 5 parts in place'));
   });
 
   it('sends a word on the needles, saying which letters the dial has not got', () => {
@@ -416,6 +439,7 @@ describe('the telegraph: how it works and the needle dial', () => {
 
 describe('telegrams in International Morse code', () => {
   beforeEach(() => at('#telegraph'));
+  afterEach(() => jest.restoreAllMocks());
 
   it('counts a telegram’s words and its price: twelve for sixpence, and (the game rule) a halfpenny a word more', () => {
     expect(telegramWords('Arriving Bath, 4 o’clock!  ')).toEqual(['ARRIVING', 'BATH', 'OCLOCK']);
@@ -439,112 +463,17 @@ describe('telegrams in International Morse code', () => {
     for (const m of INCOMING) for (const c of m.replace(/ /g, '')) expect(MORSE[c]).toBeTruthy();
   });
 
-  it('writes a telegram, says it is International Morse, and prices it as it grows', () => {
-    render(<VictorianInventions />);
-    fireEvent.click(screen.getByRole('button', { name: 'Send a telegram' }));
-    expect(document.querySelector('.vbi-tg-head')).toHaveTextContent('Telegram' + TELEGRAM.morseNote);
-    expect(screen.getByText(TELEGRAM.rule)).toBeInTheDocument();
-    const box = screen.getByRole('textbox', { name: 'Your telegram' });
-    fireEvent.change(box, { target: { value: 'arriving bath at noon, send more tea!' } });
-    expect(box).toHaveValue('ARRIVING BATH AT NOON SEND MORE TEA');
-    expect(document.querySelector('.vbi-tg-meta')).toHaveTextContent('7 words · 6d');
-    fireEvent.change(box, { target: { value: 'one two three four five six seven eight nine ten eleven twelve thirteen fourteen' } });
-    expect(document.querySelector('.vbi-tg-meta')).toHaveTextContent('14 words · 7d');
-    // No more than twenty words.
-    fireEvent.change(box, { target: { value: 'a '.repeat(30) } });
-    expect((box as HTMLTextAreaElement).value.trim().split(/\s+/)).toHaveLength(TELEGRAM.maxWords);
-    const facts = openFacts();
-    expect(within(facts).getByText(NOTES.telegramPrice.text)).toBeInTheDocument();
-    expect(within(facts).queryByRole('link')).toBeNull();
-    // The two notes share one BT Archives source: the drawer lists it once.
-    expect(within(sourcesFor('The telegraph: send a telegram')).getAllByRole('link', { name: /BT Archives/ })).toHaveLength(1);
-    closeSources();
-  });
-
-  it('taps it out letter by letter, the chart lighting each letter’s code; a wrong tap starts that letter again', () => {
-    render(<VictorianInventions />);
-    fireEvent.click(screen.getByRole('button', { name: 'Send a telegram' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Your telegram' }), { target: { value: 'tea' } });
-    goStep(2);
-    const lit = () => document.querySelector('.vbi-chart-cell[data-lit]')?.textContent?.[0];
-    expect(lit()).toBe('T');
-    expect(screen.getByText(/Letter 1 of 3:/)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Dot' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Not quite: T is dash. Try T again.');
-    expect(document.querySelector('.vbi-tg-cell[data-current]')).toHaveAttribute('data-miss', '1');
-    fireEvent.click(screen.getByRole('button', { name: 'Dash' }));
-    expect(lit()).toBe('E');
-    expect(document.querySelectorAll('.vbi-tg-cell[data-done]')).toHaveLength(1);
-    fireEvent.click(screen.getByRole('button', { name: 'Dot' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Dot' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Dash' }));
-    expect(screen.getByRole('status')).toHaveTextContent('The whole telegram is sent!');
-    expect(screen.getByRole('button', { name: /^Step 2: .*\(done\)/ })).toBeInTheDocument();
-    expect(openFacts()).toHaveTextContent(NOTES.morseBritain.text);
-  });
-
-  it('taps by the key too, quick for a dot and held for a dash, and the clerk can send the rest', () => {
-    jest.useFakeTimers();
-    render(<VictorianInventions />);
-    fireEvent.click(screen.getByRole('button', { name: 'Send a telegram' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Your telegram' }), { target: { value: 'at home' } });
-    goStep(2);
-    const key = screen.getByRole('button', { name: /The key/ });
-    fireEvent.keyDown(key, { key: ' ' });
-    act(() => {
-      jest.advanceTimersByTime(80);
-    });
-    fireEvent.keyUp(key, { key: ' ' });
-    fireEvent.pointerDown(key);
-    act(() => {
-      jest.advanceTimersByTime(500);
-    });
-    fireEvent.pointerUp(key);
-    expect(screen.getByRole('status')).toHaveTextContent('A, sent. Next: T, dash.');
-    fireEvent.click(screen.getByRole('button', { name: 'Let the clerk send the rest' }));
-    for (let i = 0; i < 40; i++)
-      act(() => {
-        jest.advanceTimersByTime(500);
-      });
-    expect(screen.getByRole('status')).toHaveTextContent('The clerk has sent your whole telegram.');
-    expect(document.querySelectorAll('.vbi-tg-cell[data-done]')).toHaveLength(6);
-  });
-
-  it('keeps the sound off until it is turned on', () => {
-    const made = jest.fn();
-    const osc = { frequency: { value: 0 }, connect: jest.fn(), start: jest.fn(), stop: jest.fn() };
-    const was = (window as unknown as { AudioContext?: unknown }).AudioContext;
-    (window as unknown as { AudioContext: unknown }).AudioContext = jest.fn(() => {
-      made();
-      return { createGain: () => ({ gain: { value: 0 }, connect: jest.fn() }), createOscillator: () => osc, destination: {} };
-    });
-    try {
-      render(<VictorianInventions />);
-      fireEvent.click(screen.getByRole('button', { name: 'Send a telegram' }));
-      fireEvent.change(screen.getByRole('textbox', { name: 'Your telegram' }), { target: { value: 'tea' } });
-      goStep(2);
-      const key = screen.getByRole('button', { name: /The key/ });
-      expect(screen.getByRole('button', { name: /Sound off/ })).toHaveAttribute('aria-pressed', 'false');
-      fireEvent.pointerDown(key);
-      fireEvent.pointerUp(key);
-      expect(made).not.toHaveBeenCalled();
-      fireEvent.click(screen.getByRole('button', { name: /Sound off/ }));
-      fireEvent.pointerDown(key);
-      expect(made).toHaveBeenCalledTimes(1);
-      expect(osc.start).toHaveBeenCalled();
-      fireEvent.pointerUp(key);
-      expect(osc.stop).toHaveBeenCalled();
-    } finally {
-      (window as unknown as { AudioContext?: unknown }).AudioContext = was;
-    }
-  });
-
-  it('prints the telegram form: to, from, the message with its Morse under every letter, and the price', async () => {
+  it('prints the telegram form once it is paid for and sent: to, from, the message with its Morse under every letter, and the price', async () => {
+    jest.spyOn(Math, 'random').mockReturnValue(0);
     const print = jest.fn();
     window.print = print;
     render(<VictorianInventions />);
     fireEvent.click(screen.getByRole('button', { name: 'Send a telegram' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Your telegram' }), { target: { value: 'tea at four' } });
+    // Not before it is handed over the counter.
+    goStep(3);
+    expect(screen.queryByRole('textbox', { name: 'To' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Hand it over the counter' }));
     goStep(3);
     fireEvent.change(screen.getByRole('textbox', { name: 'To' }), { target: { value: 'Grandma' } });
     fireEvent.change(screen.getByRole('textbox', { name: 'From' }), { target: { value: 'Ada' } });
@@ -571,14 +500,19 @@ describe('telegrams in International Morse code', () => {
     expect(document.querySelector('body > .vbr-print-root')).toBeNull();
   });
 
-  it('receives a telegram: the lamp flashes it, the tape shows it, and you decode it from the chart, wrong red and right green', () => {
+  it('receives one of many telegrams, chosen at random: the lamp flashes it, the tape shows it, and you decode it from the chart, wrong red and right green', () => {
     jest.useFakeTimers();
+    jest.spyOn(Math, 'random').mockReturnValue(0);
     render(<VictorianInventions />);
     fireEvent.click(screen.getByRole('button', { name: 'Receive a telegram' }));
     const message = INCOMING[0];
     const chart = screen.getByRole('group', { name: 'International Morse code chart' });
     expect(within(chart).getByRole('button', { name: /^T: dash$/ })).toBeDisabled();
+    expect(screen.getByText(INCOMING_NOTE)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Play the telegram' }));
+    act(() => {
+      jest.advanceTimersByTime(1);
+    });
     const lamp = document.querySelector('.vbi-tg-lamp-big')!;
     expect(lamp).toHaveAttribute('data-on', 'true');
     act(() => {
@@ -593,10 +527,23 @@ describe('telegrams in International Morse code', () => {
     for (const c of message.replace(/ /g, '')) fireEvent.click(within(chart).getByRole('button', { name: new RegExp(`^${c}: `) }));
     expect(screen.getByText(`Well decoded! “${message}”`).closest('[data-verdict]')).toHaveAttribute('data-verdict', 'right');
     expect(document.querySelectorAll('.vbi-tg-decode .vbi-tg-cell[data-done]')).toHaveLength(message.replace(/ /g, '').length);
+    // Another: a different one.
+    (Math.random as jest.Mock).mockReturnValue(0.5);
+    fireEvent.click(screen.getByRole('button', { name: 'Another telegram' }));
+    const cellsNow = document.querySelectorAll('.vbi-tg-decode .vbi-tg-cell').length;
+    expect(INCOMING.filter((m) => m !== message).map((m) => m.replace(/ /g, '').length)).toContain(cellsNow);
+  });
+
+  it('has many different telegrams to receive, all made up and short', () => {
+    expect(INCOMING.length).toBeGreaterThanOrEqual(20);
+    expect(new Set(INCOMING).size).toBe(INCOMING.length);
+    for (const m of INCOMING) expect(m.split(' ').length).toBeLessThanOrEqual(5);
+    expect(INCOMING_NOTE).toMatch(/Made-up telegrams/);
   });
 
   it('under reduced motion, brings the incoming telegram up on the tape at once, the lamp still', () => {
     jest.useFakeTimers();
+    jest.spyOn(Math, 'random').mockReturnValue(0);
     media((q) => q.includes('prefers-reduced-motion'));
     render(<VictorianInventions />);
     fireEvent.click(screen.getByRole('button', { name: 'Receive a telegram' }));
@@ -617,15 +564,49 @@ describe('photography, in four parts', () => {
     expect(fs.existsSync(path.join(process.cwd(), 'public', POSITIVE.src))).toBe(true);
   });
 
-  it('makes Talbot’s negative and prints from it, as many prints as you like, its notes and credit behind "Did you know?"', () => {
+  it('times a negative by hand: too faint, too dark, or good, and its result said', () => {
+    expect(exposureFor(2)).toBe('faint');
+    expect(exposureFor(EXPOSURE.best[0])).toBe('good');
+    expect(exposureFor(EXPOSURE.best[1])).toBe('good');
+    expect(exposureFor(EXPOSURE.darkAbove + 1)).toBe('dark');
     jest.useFakeTimers();
     render(<VictorianInventions />);
-    expect(screen.getByRole('button', { name: 'Print from it' })).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', { name: 'Uncover the lens' }));
+    const cap = () => screen.getByRole('button', { name: /Lift the lens cap|Put the cap back/ });
+    // Too short.
+    fireEvent.click(cap());
     act(() => {
-      jest.advanceTimersByTime(3000);
+      jest.advanceTimersByTime(2000);
     });
+    expect(cap()).toHaveTextContent('Put the cap back');
+    fireEvent.click(cap());
+    expect(screen.getByText(EXPOSURE_WORDS.faint).closest('[data-verdict]')).toHaveAttribute('data-verdict', 'wrong');
+    // A new sheet starts again with blank paper (it used to do nothing).
+    fireEvent.click(screen.getByRole('button', { name: 'A new sheet' }));
+    expect(screen.getByRole('img', { name: 'A sheet of sensitive paper in the camera, still blank' })).toBeInTheDocument();
+    // Too long: the cap goes back by itself at the most the sheet can take.
+    fireEvent.click(cap());
+    act(() => {
+      jest.advanceTimersByTime(EXPOSURE.max * 1000 + 200);
+    });
+    expect(screen.getByText(EXPOSURE_WORDS.dark)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'A new sheet' }));
+    // Just right.
+    fireEvent.click(cap());
+    act(() => {
+      jest.advanceTimersByTime(6000);
+    });
+    fireEvent.click(cap());
     expect(screen.getByRole('img', { name: /Talbot’s negative/ })).toBeInTheDocument();
+  });
+
+  it('prints from a good negative, as many prints as you like, its notes and credit behind "Did you know?"', () => {
+    jest.useFakeTimers();
+    render(<VictorianInventions />);
+    fireEvent.click(screen.getByRole('button', { name: 'Lift the lens cap' }));
+    act(() => {
+      jest.advanceTimersByTime(6000);
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Put the cap back' }));
     fireEvent.click(screen.getByRole('button', { name: 'Print from it' }));
     act(() => {
       jest.advanceTimersByTime(2500);
@@ -643,26 +624,47 @@ describe('photography, in four parts', () => {
     expect(within(group).getByRole('link', { name: /Made for this room from Talbot’s negative/ })).toHaveAttribute('href', PHOTOS.negative.href);
     expect(within(group).getByText(/The Metropolitan Museum of Art, public domain/)).toBeInTheDocument();
     closeSources();
+    // A new sheet from the print bench goes back to the camera, blank.
+    fireEvent.click(screen.getByRole('button', { name: 'A new sheet' }));
+    expect(screen.getByRole('button', { name: 'Lift the lens cap' })).toBeInTheDocument();
   });
 
-  it('under reduced motion, makes each sheet at once', () => {
+  it('under reduced motion, makes each print at once', () => {
     jest.useFakeTimers();
     media((q) => q.includes('prefers-reduced-motion'));
     render(<VictorianInventions />);
-    fireEvent.click(screen.getByRole('button', { name: 'Uncover the lens' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Lift the lens cap' }));
+    act(() => {
+      jest.advanceTimersByTime(6000);
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Put the cap back' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Print from it' }));
     act(() => {
       jest.advanceTimersByTime(0);
     });
-    expect(screen.getByRole('button', { name: 'Print from it' })).toBeEnabled();
+    expect(screen.getByText('One print from the negative.')).toBeInTheDocument();
   });
 
-  it('sits for a daguerreotype: hold still and it comes out sharp; let go and it blurs', () => {
-    expect(blurFor(2000, true)).toBe(blurFor(2000, false) / 2);
-    expect(verdictFor(0).tone).toBe('right');
+  it('sits for a daguerreotype: holding the clamp is holding still, letting go is moving, and it says which, honestly', () => {
+    expect(blurFor(0)).toBe(0);
+    expect(verdictFor(blurFor(0)).tone).toBe('right');
     jest.useFakeTimers();
     render(<VictorianInventions />);
     fireEvent.click(screen.getByRole('button', { name: '2. Hold still!' }));
-    const hold = screen.getByRole('button', { name: 'Hold still' });
+    expect(screen.queryByRole('button', { name: /Use the head clamp/ })).toBeNull();
+    expect(screen.getByText(/Press and hold the clamp/, { selector: 'strong' })).toBeInTheDocument();
+    const hold = screen.getByRole('button', { name: 'Press and hold the clamp' });
+    fireEvent.pointerDown(hold);
+    act(() => {
+      jest.advanceTimersByTime(1000);
+    });
+    // Held: still, and it says so; nothing moved.
+    expect(hold).toHaveTextContent(/Holding the clamp: still/);
+    expect(document.querySelector('.vbi-sitter')).not.toHaveAttribute('data-moving');
+    fireEvent.pointerUp(hold);
+    // Let go: moving, and it says so.
+    expect(hold).toHaveTextContent(/You let go!/);
+    expect(document.querySelector('.vbi-sitter')).toHaveAttribute('data-moving', 'true');
     fireEvent.pointerDown(hold);
     act(() => {
       jest.advanceTimersByTime(8100);
@@ -670,21 +672,42 @@ describe('photography, in four parts', () => {
     fireEvent.pointerUp(hold);
     expect(screen.getByText(verdictFor(0).words).closest('[data-verdict]')).toHaveAttribute('data-verdict', 'right');
     expect(openFacts()).toHaveTextContent(NOTES.prunes.text);
+    fireEvent.click(screen.getByRole('button', { name: /Close/ }));
+    // Again, letting go for most of it: a blur.
+    fireEvent.click(screen.getByRole('button', { name: 'Sit again' }));
+    const again = screen.getByRole('button', { name: 'Press and hold the clamp' });
+    fireEvent.pointerDown(again);
+    fireEvent.pointerUp(again);
+    act(() => {
+      jest.advanceTimersByTime(8100);
+    });
+    expect(screen.getByText(verdictFor(blurFor(8000)).words).closest('[data-verdict]')).toHaveAttribute('data-verdict', 'wrong');
   });
 
-  it('matches daguerreotype, calotype and wet collodion to real photographs, the right one’s note shown at once', () => {
+  it('teaches the three ways first, then asks: daguerreotype, calotype and wet collodion matched to real photographs', () => {
     render(<VictorianInventions />);
     fireEvent.click(screen.getByRole('button', { name: '3. Three ways' }));
-    const wrong = screen.getByRole('button', { name: new RegExp(PHOTOS[PROCESS_CLUES[1].photo].title) });
+    const quiz = screen.getByRole('button', { name: /Take the quiz/ });
+    expect(quiz).toBeDisabled();
+    for (const c of PROCESS_CLUES) {
+      const card = screen.getByRole('button', { name: new RegExp(`^${c.short}: `) });
+      fireEvent.click(card);
+      expect(card).toHaveAttribute('aria-pressed', 'true');
+      expect(card).toHaveTextContent(c.teach);
+    }
+    fireEvent.click(quiz);
+    const wrongId = QUIZ_ORDER[1];
+    const wrong = screen.getByRole('button', { name: new RegExp(PHOTOS[wrongId].title) });
     fireEvent.click(wrong);
     expect(wrong).toHaveAttribute('data-verdict', 'wrong');
-    for (const c of PROCESS_CLUES) {
-      fireEvent.click(screen.getByRole('button', { name: new RegExp(PHOTOS[c.photo].title) }));
+    for (const id of QUIZ_ORDER) {
+      const c = PROCESS_CLUES.find((x) => x.photo === id)!;
+      expect(screen.getByText(`“${c.clue}”`)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(PHOTOS[id].title) }));
       expect(screen.getByText(NOTES[c.note].text)).toBeVisible();
-      if (c !== PROCESS_CLUES[PROCESS_CLUES.length - 1]) fireEvent.click(screen.getByRole('button', { name: /Next clue/ }));
+      if (id !== QUIZ_ORDER[QUIZ_ORDER.length - 1]) fireEvent.click(screen.getByRole('button', { name: /Next clue/ }));
     }
     expect(screen.getByText(/^All three matched:/)).toBeInTheDocument();
-    expect(openFacts()).toHaveTextContent(NOTES.cameron.text);
   });
 
   it('prints a sheet of the photographs and what you made, with their credits, once its pictures are in', async () => {

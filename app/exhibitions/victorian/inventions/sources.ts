@@ -1,6 +1,6 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import type { SourceEntry, SourceGroup } from '@/components/exhibition/SourcesDrawer';
-import { MET_CREDIT, NOTES, PHOTO_PARTS, PHOTOS, POSITIVE, RAIL_STEPS, WIRE_STEPS, WORKSHOP_TEXT, type PhotoId, type PhotoPart, type RailStepId, type WireStepId } from './inventionsText';
+import { MET_CREDIT, NOTES, PHOTO_PARTS, PHOTOS, POSITIVE, RAIL_STEPS, WIRE_PARTS, WORKSHOP_TEXT, type PhotoId, type PhotoPart, type RailStepId, type WirePartId } from './inventionsText';
 
 /*
  * Which notes each step of each bench opens under "Did you know?", and the
@@ -18,23 +18,26 @@ export const RAIL_FACTS: Record<RailStepId, ApprovedFact[]> = {
   bristol: [NOTES.bristolClock, NOTES.legalTime],
 };
 
-/** The telegraph's "How it works", step by step. */
-export const WIRE_FACTS: Record<WireStepId, ApprovedFact[]> = {
+/** The telegraph: building it, part by part (each part's note once it is in place). */
+export const WIRE_FACTS: Record<WirePartId, ApprovedFact[]> = {
   battery: [NOTES.wire],
+  key: [NOTES.wire],
   wire: [NOTES.wire],
   coil: [NOTES.oersted],
   needle: [NOTES.needles],
-  morse: [NOTES.morse, NOTES.morseBritain],
 };
 
 /** The needle dial. */
 export const NEEDLE_FACTS: ApprovedFact[] = [NOTES.telegraph, NOTES.dialLetters, NOTES.needles];
 
-/** Sending a telegram: write it, tap it out, print it. */
-export const SEND_FACTS: ApprovedFact[][] = [[NOTES.telegramPrice, NOTES.telegramForm], [NOTES.morse, NOTES.morseBritain], [NOTES.telegramForm]];
+/** The telegraph office: write it and pay, the clerk sends it, address it and print it. */
+export const SEND_FACTS: ApprovedFact[][] = [[NOTES.telegramPrice, NOTES.telegramForm], [NOTES.morseBritain, NOTES.telegramForm], [NOTES.telegramForm]];
 
 /** Receiving a telegram. */
 export const RECEIVE_FACTS: ApprovedFact[] = [NOTES.morse, NOTES.morseBritain, NOTES.telegramForm];
+
+/** The Morse code bench: learn, send, decode. */
+export const MORSE_FACTS: ApprovedFact[] = [NOTES.morse, NOTES.morseBritain];
 
 /** Every note a photography part can show (some only once something is done), and the photographs it shows. */
 export const PHOTO_FACTS: Record<PhotoPart, ApprovedFact[]> = {
@@ -67,10 +70,11 @@ const credit = (id: PhotoId): SourceEntry => {
 
 export const INVENTIONS_SOURCES: SourceGroup[] = [
   ...RAIL_STEPS.map((s, i) => ({ title: `${WORKSHOP_TEXT.railwayHeading}, step ${i + 1}: ${s.title}`, items: cite(RAIL_FACTS[s.id]) })),
-  ...WIRE_STEPS.map((s, i) => ({ title: `${WORKSHOP_TEXT.telegraphHeading}, how it works, step ${i + 1}: ${s.title}`, items: cite(WIRE_FACTS[s.id]) })),
+  { title: `${WORKSHOP_TEXT.telegraphHeading}: build a telegraph`, items: cite(WIRE_PARTS.flatMap((p) => WIRE_FACTS[p.id])) },
   { title: `${WORKSHOP_TEXT.telegraphHeading}: the needle dial`, items: cite(NEEDLE_FACTS) },
   { title: `${WORKSHOP_TEXT.telegraphHeading}: send a telegram`, items: cite(SEND_FACTS.flat()) },
   { title: `${WORKSHOP_TEXT.telegraphHeading}: receive a telegram`, items: cite(RECEIVE_FACTS) },
+  { title: `${WORKSHOP_TEXT.morseHeading}: learn, send and decode`, items: cite(MORSE_FACTS) },
   ...PHOTO_PARTS.map((p) => ({
     title: `${WORKSHOP_TEXT.photoHeading}: ${p.label}`,
     items: [...cite(PHOTO_FACTS[p.id]), ...PHOTO_CREDITS[p.id].map(credit)],
