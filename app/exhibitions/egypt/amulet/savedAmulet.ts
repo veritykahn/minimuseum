@@ -76,5 +76,5 @@ export function describeAmulet(a: Pick<SavedAmulet, 'shape' | 'material' | 'symb
   const shape = SHAPES.find((s) => s.id === a.shape)!.name.toLowerCase();
   const material = MATERIALS.find((m) => m.id === a.material)!.name.toLowerCase();
   const picked = a.symbols.map((id) => SYMBOLS.find((s) => s.id === id)!.name.toLowerCase());
-  return `a ${shape} of ${material}${picked.length ? `, carved with ${picked.map((p) => `the ${p}`).join(' and ')}` : ''}`;
+  return `${/^[aeiou]/.test(shape) ? 'an' : 'a'} ${shape} of ${material}${picked.length ? `, carved with ${picked.map((p) => `the ${p}`).join(' and ')}` : ''}`;
 }

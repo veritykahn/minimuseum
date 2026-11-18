@@ -219,7 +219,7 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'egypt', label: 'Ancient Egypt', path: '/exhibitions/egypt',
     x: 180, y: 80, width: 140, height: 110, accentColor: COLORS.egypt,
     parent: 'ground-floor',
-    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet'],
+    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet', 'eg-my-tomb'],
   },
   {
     id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
@@ -813,7 +813,7 @@ export const GREAT_WAR: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Ancient Egypt (Floor Plan)
 //
-// Layout: the Exhibition Hall, the display case beyond it, and its six
+// Layout: the Exhibition Hall, the display case beyond it, and its seven
 // interactive rooms beyond that, in the order the case lists them
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
@@ -823,11 +823,13 @@ export const GREAT_WAR: MapLevelConfig = {
 // │ Your Name │ Rosetta  │  Tomb   │
 // ├──────╴ ╶──┼───╴ ╶───┼──╴ ╶─────┤
 // │Mummificat.│ Weighing │ Amulet  │
-// └───────────┴──────────┴─────────┘
+// ├───────────────╴ ╶──────────────┤
+// │      Build Your Own Tomb       │
+// └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const EGYPT_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 320, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 380, rx: 3 },
   accentColor: COLORS.egypt,
   walls: [
     ...wallWithDoorway(40, 160, 460, 160),
@@ -841,6 +843,8 @@ const EGYPT_FLOOR_PLAN: ExhibitionFloorPlan = {
     ...wallWithDoorway(320, 320, 460, 320),
     ...wallWithDoorway(180, 240, 180, 400),
     ...wallWithDoorway(320, 240, 320, 400),
+    // And from the second row into the tomb builder along the foot
+    ...wallWithDoorway(40, 400, 460, 400),
   ],
   rooms: [
     {
@@ -891,6 +895,12 @@ const EGYPT_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 320, y: 320, width: 140, height: 80,
       labelX: 390, labelY: 360,
     },
+    {
+      id: 'eg-my-tomb', label: 'Build Your Own Tomb', path: '/exhibitions/egypt/my-tomb',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 40, y: 400, width: 420, height: 60,
+      labelX: 250, labelY: 430,
+    },
   ],
 };
 
@@ -900,7 +910,7 @@ export const EGYPT: MapLevelConfig = {
   connections: [],
   title: 'Ancient Egypt',
   ...onFloorOf('egypt'),
-  ...withLessons(EGYPT_FLOOR_PLAN, '0 0 500 450', 'egypt'),
+  ...withLessons(EGYPT_FLOOR_PLAN, '0 0 500 510', 'egypt'),
 };
 
 // ═══════════════════════════════════════════════════════════════════

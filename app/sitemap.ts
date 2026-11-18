@@ -329,7 +329,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
-    ...['hieroglyph-name', 'rosetta-stone', 'tomb', 'mummification', 'weighing-of-the-heart', 'amulet'].map((room) => ({
+    ...['hieroglyph-name', 'rosetta-stone', 'tomb', 'mummification', 'weighing-of-the-heart', 'amulet', 'my-tomb'].map((room) => ({
       url: `${baseUrl}/exhibitions/egypt/${room}`,
       lastModified,
       changeFrequency: 'monthly' as const,

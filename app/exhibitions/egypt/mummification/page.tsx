@@ -332,8 +332,14 @@ export default function Mummification() {
     gesture.current = null;
     setCloth(null);
     if (!g) return;
-    if (g.kind === 'mummy') (mummy > 0.6 ? layIn() : setMummy(0));
-    if (g.kind === 'lid') (lid > 0.6 ? closeLid() : setLid(0));
+    if (g.kind === 'mummy') {
+      if (mummy > 0.6) layIn();
+      else setMummy(0);
+    }
+    if (g.kind === 'lid') {
+      if (lid > 0.6) closeLid();
+      else setLid(0);
+    }
   };
 
   const { drag, carrying, start } = useDragDrop<Carry>((c, d) => {

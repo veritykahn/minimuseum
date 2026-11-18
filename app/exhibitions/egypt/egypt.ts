@@ -174,6 +174,8 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       { label: 'Mummification, Step by Step: natron, canopic jars, linen and amulets', href: '/exhibitions/egypt/mummification' },
       { label: 'The Weighing of the Heart: follow Ani’s judgement, and guess what the scales will do', href: '/exhibitions/egypt/weighing-of-the-heart' },
       { label: 'Design an Amulet: choose its symbols, learn their meanings, and print it', href: '/exhibitions/egypt/amulet' },
+      // REVIEW: new room.
+      { label: 'Build Your Own Tomb: choose its painted wall, fill the chamber, carve your name, and print it', href: '/exhibitions/egypt/my-tomb' },
     ],
   },
   cases: [
@@ -231,6 +233,15 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       label: 'Interactive',
       title: 'Design an Amulet',
       subtitle: 'Choose its symbols, learn their meanings, and print it',
+    },
+    {
+      // REVIEW: new room. It has no screenshot yet, so its card shows an emblem; a picture of the room
+      // (public/exhibitions/egypt/rooms/my-tomb.webp) can replace it once the room is on the site.
+      href: '/exhibitions/egypt/my-tomb',
+      emblem: '\u{26B1}\u{FE0F}',
+      label: 'Interactive',
+      title: 'Build Your Own Tomb',
+      subtitle: 'Choose its painted wall, fill the chamber, carve your name, and print it',
     },
   ],
   posters: [

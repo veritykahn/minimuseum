@@ -10,6 +10,13 @@ import { BM_HIEROGLYPHS, BM_MUMMY_NOTES, BM_MUMMY_VISIT, BUDGE, GLYPHS, met, typ
  * shapes, and the brain is a grey shape that leaves through the nose and is
  * gone (as the British Museum says, it was not kept).
  *
+ * Eight steps, each done by hand in the room: wash the body, draw out the
+ * brain with the hook, meet the four Sons of Horus (which god guards which
+ * organ comes first), lay the organs in their jars, pack the natron and
+ * watch the forty days, rub in the oils and resin, wrap the linen with
+ * amulets between the layers, and close the coffin. Each step's notes are
+ * short, and about that step alone.
+ *
  * Every sentence of fact is a museum note with its source; the one poster
  * line (Anubis) is quoted from the posters' own text.
  */
