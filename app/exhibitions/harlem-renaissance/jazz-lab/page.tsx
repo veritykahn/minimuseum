@@ -182,7 +182,7 @@ export default function JazzLabPage() {
         /* ── Header ── */
         .jl-header {
           text-align: center;
-          padding: 40px 20px 15px;
+          padding: 28px 20px 8px;
         }
         .jl-header h1 {
           font-family: 'Playfair Display', serif;
@@ -200,7 +200,7 @@ export default function JazzLabPage() {
           justify-content: center;
           gap: 0;
           max-width: 760px;
-          margin: 20px auto 0;
+          margin: 10px auto 0;
           border-bottom: 1px solid rgba(201,169,78,0.2);
         }
         .jl-tab {

@@ -1056,3 +1056,52 @@
   .fl-fb .fl-fb-surprise { animation: fl-fb-fade 0.8s ease both !important; }
   .fl-fb-dark-box[data-pop] .fl-fb-art { animation: none !important; }
 }
+
+/* The startle warning, in a short pop-up over the boxes: two buttons, nothing to scroll. */
+.fl-fb-warn-scrim {
+  /* The lab's colors: the pop-up sits at the room's root, outside the stage that sets them. */
+  --cream: #fbf6ec;
+  --marigold: #f2b33d;
+  --navy: #1f3a5f;
+  --muted: #b4c0d2;
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(8, 14, 26, 0.78);
+}
+.fl-fb-warn {
+  position: relative;
+  width: min(520px, 100%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 24px 24px 22px;
+  border: 2px solid var(--cream, #fbf6ec);
+  background: var(--navy, #1f3a5f);
+  color: var(--cream, #fbf6ec);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+.fl-fb-warn .fl-lab-heading { margin: 0; padding-right: 44px; }
+.fl-fb-warn-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.fl-room .fl-fb-warn-actions .fl-lab-button { align-self: auto; }
+.fl-fb-warn-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(251, 246, 236, 0.5);
+  background: transparent;
+  color: var(--cream, #fbf6ec);
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+}
+.fl-fb-warn-close:hover { border-color: var(--marigold, #f2b33d); color: var(--marigold, #f2b33d); }
+.fl-fb-warn :focus-visible { outline: 3px solid var(--marigold, #f2b33d); outline-offset: 2px; }

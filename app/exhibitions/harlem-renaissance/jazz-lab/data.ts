@@ -289,3 +289,52 @@ export const BAND_INSTRUMENTS: BandInstrumentDef[] = [
 export const BAND_INSTRUMENT_MAP: Record<BandInstrumentId, BandInstrumentDef> = Object.fromEntries(
   BAND_INSTRUMENTS.map(i => [i.id, i])
 ) as Record<BandInstrumentId, BandInstrumentDef>;
+
+// ─── Build a Band: goals ───────────────────────────────────────────────────
+
+/** What a goal is checked against: the band as it stands. */
+export type BandState = { section: number; active: ReadonlySet<BandInstrumentId>; spotlight: BandInstrumentId | null };
+
+export type BandGoal = {
+  id: string;
+  /** The goal, as the kid reads it. */
+  goal: string;
+  /** One line on how, from what the section and the stage already say. */
+  hint: string;
+  check: (band: BandState) => boolean;
+};
+
+/**
+ * A few goals, taken in turn, each from what a song section already says it
+ * is (SECTIONS): a piano solo, a horn solo, the walking bass, the finale.
+ */
+export const BAND_GOALS: readonly BandGoal[] = [
+  {
+    id: 'piano-solo',
+    goal: 'Build the band for a piano solo',
+    hint: 'Pick Piano Solo. Bring on drums and bass, then give the piano the spotlight.',
+    check: (b) => b.section === 3 && b.spotlight === 'piano' && b.active.has('drums') && b.active.has('bass'),
+  },
+  {
+    id: 'horn-solo',
+    goal: 'Build the band for a horn solo',
+    hint: 'Pick Horn Solo. Keep drums and bass playing, and put a saxophone or trumpet in the spotlight.',
+    check: (b) =>
+      b.section === 4 && (b.spotlight === 'saxophone' || b.spotlight === 'trumpet') && b.active.has('drums') && b.active.has('bass'),
+  },
+  {
+    id: 'walking-bass',
+    goal: 'Let the bass walk',
+    hint: 'Pick Walking Bass. Bring on the drums, then give the bass the spotlight.',
+    check: (b) => b.section === 5 && b.spotlight === 'bass' && b.active.has('drums'),
+  },
+  {
+    id: 'finale',
+    goal: 'Bring the whole band on for the finale',
+    hint: 'Pick Finale and bring on every instrument. Tap the soloist so the whole band plays evenly.',
+    check: (b) =>
+      b.section === 8 &&
+      b.spotlight === null &&
+      BAND_INSTRUMENTS.filter((i) => i.sections.includes(8)).every((i) => b.active.has(i.id)),
+  },
+];

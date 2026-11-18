@@ -1384,6 +1384,50 @@ export default function HarlemInWordsPage() {
         .hw-prompt-btns { display: flex; flex-wrap: wrap; gap: 8px; }
         .hw-mini { display: none; }
 
+        /* The prompt above the poem board, in sight while writing. */
+        .hw-left-panel .hw-prompt-strip {
+          position: relative; z-index: 2;
+          width: 90%; max-width: 440px;
+          margin: 0 0 14px;
+          padding: 12px 16px 10px;
+          border: 1px solid rgba(201,169,78,0.35);
+          background: rgba(10,10,10,0.82);
+        }
+        .hw-left-panel .hw-prompt-text { font-size: 15px; line-height: 1.5; color: var(--hw-text); }
+        .hw-left-panel .hw-prompt-tag { display: block; margin-bottom: 3px; font-size: 11px; }
+
+        /* ── Mentor poem beside the prompts: one screen ── */
+        .hw-mentor { padding: 64px 24px 56px; }
+        .hw-mentor .hw-mentor-inner { max-width: 1180px; }
+        .hw-mentor .hw-mentor-kicker { margin-bottom: 6px; }
+        .hw-mentor .hw-mentor-heading { font-size: clamp(26px, 3vw, 34px); margin-bottom: 6px; }
+        .hw-mentor .hw-mentor-intro { font-size: 14px; line-height: 1.5; margin-bottom: 18px; max-width: 640px; }
+        .hw-mentor-grid {
+          display: grid;
+          grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+          gap: 28px;
+          align-items: start;
+        }
+        .hw-mentor .hw-mentor-poem { margin: 0; padding: 22px clamp(18px, 2.4vw, 32px); }
+        .hw-mentor .hw-mentor-title { font-size: clamp(20px, 2vw, 25px); }
+        .hw-mentor .hw-mentor-author { margin-bottom: 14px; }
+        .hw-mentor .hw-mentor-stanza { margin-bottom: 10px; }
+        .hw-mentor .hw-mentor-line { font-size: clamp(15px, 1.25vw, 17px); line-height: 1.45; }
+        .hw-mentor-side { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+        .hw-mentor .hw-mentor-section { margin: 0; }
+        .hw-mentor .hw-mentor-h2 { margin-bottom: 8px; }
+        .hw-mentor .hw-notice-list { gap: 6px; }
+        .hw-mentor .hw-notice-list li { font-size: 13.5px; line-height: 1.45; padding-left: 12px; }
+        .hw-mentor .hw-prompt-grid { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+        .hw-mentor .hw-prompt-card { padding: 8px 12px; font-size: 13.5px; line-height: 1.4; align-items: center; }
+        .hw-mentor .hw-mentor-actions { margin: 0; justify-content: flex-start; }
+        .hw-mentor .hw-teacher { padding-top: 8px; }
+        /* A phone: the poem first, then the prompts. */
+        @media (max-width: 720px) {
+          .hw-mentor-grid { grid-template-columns: minmax(0, 1fr); }
+          .hw-mentor .hw-mentor-actions { justify-content: center; }
+        }
+
         /* ── Mobile: stacked layout ── */
         @media (max-width: 900px) {
           .hw-compose-page {
@@ -1867,6 +1911,7 @@ export default function HarlemInWordsPage() {
               Poets learn from other poets. Read this poem aloud, slowly, then borrow one of its moves for your own.
             </p>
 
+            <div className="hw-mentor-grid">
             <figure className="hw-mentor-poem">
               <h2 className="hw-mentor-title">{MENTOR_POEM.title}</h2>
               <p className="hw-mentor-author">{MENTOR_POEM.author}</p>
@@ -1885,6 +1930,7 @@ export default function HarlemInWordsPage() {
               </figcaption>
             </figure>
 
+            <div className="hw-mentor-side">
             <section className="hw-mentor-section" aria-labelledby="hw-notice-h">
               <h2 id="hw-notice-h" className="hw-mentor-h2">What to notice</h2>
               <ul className="hw-notice-list">
@@ -1926,6 +1972,8 @@ export default function HarlemInWordsPage() {
                 copy for the classroom wall.
               </p>
             </details>
+            </div>
+            </div>
           </div>
         </div>
       )}
@@ -1959,6 +2007,26 @@ export default function HarlemInWordsPage() {
                 );
               })}
             </svg>
+
+            {/* The prompt chosen (or a way to get one), above the poem board, in sight while writing. */}
+            <div className="hw-prompt-strip">
+              <p className="hw-prompt-text">
+                <span className="hw-prompt-tag">{promptIdx === null ? 'Need an idea?' : 'Your prompt'}</span>{' '}
+                {promptIdx === null ? 'Try a prompt inspired by Langston Hughes.' : PROMPT_CARDS[promptIdx]}
+              </p>
+              <div className="hw-prompt-btns">
+                <button type="button" className="hw-shuffle-sm" onClick={() => {
+                  const next = promptIdx === null ? 0 : (promptIdx + 1) % PROMPT_CARDS.length;
+                  setPromptIdx(next);
+                  setAnnouncement(`Prompt: ${PROMPT_CARDS[next]}`);
+                }}>
+                  {promptIdx === null ? 'Show a prompt' : 'Next prompt'}
+                </button>
+                <button type="button" className="hw-shuffle-sm" onClick={() => setView('mentor')}>
+                  Reread the poem
+                </button>
+              </div>
+            </div>
 
             {/* Workshop label */}
             <div className="hw-workshop-label">Poetry Workshop</div>
@@ -2072,25 +2140,6 @@ export default function HarlemInWordsPage() {
                   <span key={i} className="hw-mini-line">{line.map(w => w.text).join(' ') || '\u00A0'}</span>
                 ))}
               </span>
-            </div>
-
-            <div className="hw-prompt-strip">
-              <p className="hw-prompt-text">
-                <span className="hw-prompt-tag">{promptIdx === null ? 'Need an idea?' : 'Your prompt'}</span>{' '}
-                {promptIdx === null ? 'Try a prompt inspired by Langston Hughes.' : PROMPT_CARDS[promptIdx]}
-              </p>
-              <div className="hw-prompt-btns">
-                <button type="button" className="hw-shuffle-sm" onClick={() => {
-                  const next = promptIdx === null ? 0 : (promptIdx + 1) % PROMPT_CARDS.length;
-                  setPromptIdx(next);
-                  setAnnouncement(`Prompt: ${PROMPT_CARDS[next]}`);
-                }}>
-                  {promptIdx === null ? 'Show a prompt' : 'Next prompt'}
-                </button>
-                <button type="button" className="hw-shuffle-sm" onClick={() => setView('mentor')}>
-                  Reread the poem
-                </button>
-              </div>
             </div>
 
             {/* Connectors */}

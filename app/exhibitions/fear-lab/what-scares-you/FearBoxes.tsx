@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import FactNote from '@/components/exhibition/FactNote';
 import { FEAR_LAB_COPY as C } from '../fearLab';
@@ -17,7 +17,9 @@ import { swarmLength } from './spiderPaths';
 /*
  * The fear boxes (poster 1's mystery box, five times over): a row of closed
  * boxes on a shelf in the dark. A nudge to turn the sound on comes first,
- * with a warning, and the boxes wait until the visitor says they are ready.
+ * with a warning, in a short pop-up ("I'm ready", or "Gentle mode", which
+ * turns the lab's gentle mode on and starts), and the boxes wait until the
+ * visitor says they are ready.
  *
  * Pick one, and the whole screen goes dark. The box creaks slowly open in a
  * thin light while the heart monitor quickens and the music tightens. Only
@@ -151,9 +153,12 @@ export default function FearBoxes({
   onFright,
   owned = [],
   rand = Math.random,
+  onGentle,
 }: {
   motion: boolean;
   gentle: boolean;
+  /** Turns gentle mode on or off (the lab's own switch), from the warning's pop-up. */
+  onGentle?: (on: boolean) => void;
   soundOn: boolean;
   onSoundOn: () => void;
   sound: () => LabSound | null;
@@ -165,6 +170,10 @@ export default function FearBoxes({
   rand?: () => number;
 }) {
   const [phase, setPhase] = useState<Phase>('warn');
+  // The startle warning, in a short pop-up over the boxes until the visitor is ready.
+  const [warnOpen, setWarnOpen] = useState(true);
+  const warnRef = useRef<HTMLDivElement>(null);
+  const readyRef = useRef<HTMLButtonElement>(null);
   // What each box turned out to hold, once opened; nothing is decided before a lid lifts.
   const [inside, setInside] = useState<(Content | null)[]>(() => Array(BOX_COUNT).fill(null));
   const opened = inside.map((c) => c !== null);
@@ -210,6 +219,33 @@ export default function FearBoxes({
   useEffect(() => {
     if (phase === 'reveal') closeRef.current?.focus();
   }, [phase]);
+  useEffect(() => {
+    if (phase === 'warn' && warnOpen) readyRef.current?.focus();
+  }, [phase, warnOpen, portal]);
+
+  const ready = () => {
+    setWarnOpen(false);
+    setPhase('pick');
+    setStatus('Five boxes. Pick one.');
+    sound()?.play('tick');
+    // The pop-up goes: the focus goes to the first box.
+    boxRefs.current[0]?.focus();
+  };
+  /** The warning's keys: Esc closes it; Tab keeps to its buttons. */
+  const onWarnKey = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      e.stopPropagation();
+      setWarnOpen(false);
+    } else if (e.key === 'Tab') {
+      const items = [...(warnRef.current?.querySelectorAll<HTMLElement>('button') ?? [])];
+      if (!items.length) return;
+      const at = items.indexOf(document.activeElement as HTMLElement);
+      const next = e.shiftKey ? (at <= 0 ? items.length - 1 : at - 1) : at === items.length - 1 ? 0 : at + 1;
+      e.preventDefault();
+      items[next].focus();
+    }
+  };
 
   const pick = (i: number) => {
     if (phase !== 'pick' || opened[i]) return;
@@ -408,23 +444,58 @@ export default function FearBoxes({
         )}
       </div>
 
+      {phase === 'warn' && warnOpen && portal && createPortal(
+        <div className="fl-fb-warn-scrim">
+          <div
+            ref={warnRef}
+            className="fl-fb-warn"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="fl-fb-warn-title"
+            onKeyDown={onWarnKey}
+          >
+            <button type="button" className="fl-fb-warn-close" aria-label="Close the warning" onClick={() => setWarnOpen(false)}>
+              <span aria-hidden="true">×</span>
+            </button>
+            <h2 className="fl-lab-heading" id="fl-fb-warn-title">{gentle ? 'Gentle mode is on' : 'Startle warning'}</h2>
+            <SoundPrompt soundOn={soundOn} onSoundOn={onSoundOn} why="Every box creaks as it opens, and you’ll hear what comes out." />
+            <div className="fl-lab-warning" role="note">
+              {gentle ? (
+                <p><strong>Gentle mode is on.</strong> The room goes dark as a box opens. Mostly it’s something silly; now and then a few slow, friendly cartoon spiders, then a real animal.</p>
+              ) : (
+                <p><strong>Startle warning.</strong> The room goes dark as a box opens, and chance decides what comes out: maybe lots of spiders, then a real animal, or something silly. Nothing flashes and nothing is gory.</p>
+              )}
+              <p>Press Skip, or Esc, to turn the lights back on.</p>
+            </div>
+            <div className="fl-fb-warn-actions">
+              <button ref={readyRef} type="button" className="fl-lab-button" onClick={ready}>
+                I’m ready
+              </button>
+              {gentle ? (
+                <button type="button" className="fl-lab-button fl-lab-button-quiet" onClick={() => onGentle?.(false)}>
+                  Gentle mode off
+                </button>
+              ) : (
+                <button type="button" className="fl-lab-button fl-lab-button-quiet" onClick={() => { onGentle?.(true); ready(); }}>
+                  Gentle mode
+                </button>
+              )}
+            </div>
+          </div>
+        </div>,
+        portal,
+      )}
+
       <div className="fl-lab-panel-body">
         {phase === 'warn' && (
           <>
             <h2 className="fl-lab-heading">The Fear Boxes</h2>
             <p className="fl-lab-poster">{C.box}</p>
-            <SoundPrompt soundOn={soundOn} onSoundOn={onSoundOn} why="Every box creaks as it opens, and you’ll hear what comes out." />
-            <div className="fl-lab-warning" role="note">
-              {gentle ? (
-                <p><strong>Gentle mode is on.</strong> When a box opens, the room goes dark, and chance decides what comes out. Mostly it’s something silly, like bubbles or a rubber chicken. Now and then, a few slow, friendly cartoon spiders wander out, with soft sounds, and then you’ll see a real animal.</p>
-              ) : (
-                <p><strong>Startle warning.</strong> When a box opens, the room goes dark, and chance decides what comes out, every time. Sometimes lots of spiders crawl out across the whole screen, and then a real animal appears: a cockroach, a spider, a bat, a snake, a rat or a centipede. Sometimes it’s something silly, like slime or confetti, or nothing at all. Nothing flashes and nothing is gory.</p>
-              )}
-              <p>Turn the sound, the motion and gentle mode on or off with the buttons at the top. Press Skip, or Esc, to turn the lights back on.</p>
-            </div>
-            <button type="button" className="fl-lab-button" onClick={() => { setPhase('pick'); setStatus('Five boxes. Pick one.'); sound()?.play('tick'); }}>
-              I’m ready
-            </button>
+            {!warnOpen && (
+              <button type="button" className="fl-lab-button" onClick={() => setWarnOpen(true)}>
+                Open the boxes
+              </button>
+            )}
           </>
         )}
 
