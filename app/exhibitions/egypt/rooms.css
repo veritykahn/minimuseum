@@ -175,6 +175,8 @@
   border-top: 1px solid var(--egr-line);
 }
 .eg-room .egr-step-nav .egr-button { white-space: nowrap; }
+/* Next stays clear of the museum's Map button, bottom right. */
+.eg-room .egr-step-nav { padding-right: 72px !important; } /* beats the stepper layouts' padding shorthand */
 @media (min-width: 981px) {
   .egr-panel.egr-stepper { height: clamp(520px, 72vh, 760px); }
   .egr-stepper .egr-step-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-right: 6px; scrollbar-width: thin; }
