@@ -75,6 +75,7 @@ export const CONNECTIONS: RoomConnection[] = [
   ['eg-case', 'eg-mummification'],
   ['eg-case', 'eg-weighing-of-the-heart'],
   ['eg-case', 'eg-amulet'],
+  ['eg-case', 'eg-my-tomb'],
 
   // Each exhibition's Lessons room, once it has lessons
   ...Object.keys(LESSON_ROOM_IDS)

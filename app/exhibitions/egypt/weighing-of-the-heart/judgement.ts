@@ -3,31 +3,41 @@ import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { BM_ANI, BM_ANI_JUDGEMENT, BM_HIEROGLYPHS, BM_HUNEFER, BM_MUMMY_NOTES, BUDGE, PENN_JUDGMENT } from '../rooms';
 
 /*
- * The Weighing of the Heart, told as a story the visitor follows and
- * predicts. Two papyri in the British Museum show this judgement: the
- * Papyrus of Ani (EA10470) and the Book of the Dead of Hunefer (EA9901).
- * The room introduces both, says which is which, and then follows Ani's,
- * which E. A. Wallis Budge calls the most complete form of the scene.
- * Ani's words are his own, from chapters 30B and 125 of his Book of the
- * Dead, in Budge's translation for the British Museum, quoted exactly.
+ * The Weighing of the Heart, told as a story the visitor takes part in. It
+ * opens by unrolling a papyrus to meet Ani: who he was, and why we call his
+ * Book of the Dead "Ani's papyrus". Then the hall, where the visitor taps
+ * each figure to meet them; the rule of the scales, tried out by hand (a
+ * heart that matches the truth balances the feather of Maat; a wrong added
+ * to its pan tips them); Ani's words, sorted card by card into the two
+ * things he says ("I have not ..." and "I have ..."); the weighing itself,
+ * where the visitor lays Ani's heart on the scales and predicts; the
+ * verdict; and, last, a quiet look at the visitor's own good choices.
  *
- * The scales start level, with nothing in the pans. As the story goes on,
- * the visitor predicts what the scales will do, and they move: Ani's heart
- * goes in, a wrong he swears he never did would tip them (and they tip, to
- * show it, then settle back as he speaks the truth), a good deed keeps
- * them level. At the end they balance, as Budge says they do in Ani's
- * papyrus, and Ani goes on to the Field of Reeds. A wrong guess never
- * weighs Ani down: it is only a guess, and the room says so kindly.
+ * Two papyri in the British Museum show this judgement: the Papyrus of Ani
+ * (EA10470) and the Book of the Dead of Hunefer (EA9901). The room follows
+ * Ani's, which E. A. Wallis Budge calls the most complete form of the
+ * scene; the About card says which is which. Ani's words are his own, from
+ * chapters 30B and 125 of his Book of the Dead, in Budge's translation for
+ * the British Museum, quoted exactly.
  *
  * Which way an unbalanced scale tips is told differently by different
  * writers (Budge writes of hearts "light in the balance"), so the room says
  * only "tip out of balance", never "heavier" or "lighter". Ammit is drawn
  * as the British Museum describes her in Ani's papyrus: the head of a
  * crocodile, the forepart of a lion, the hindquarters of a hippopotamus.
- * Nothing is eaten, and nothing frightening is said.
+ * Nothing is eaten, and nothing frightening is said. A wrong guess is only
+ * a guess, and the room says so kindly.
  *
  * Everything below marked REVIEW is new text for the owner's review.
  */
+
+// REVIEW: new text, read aloud as the room opens (introductions only; the facts are in the notes below).
+export const WEIGHING_INTRO = [
+  'Long ago in Egypt lived a scribe called Ani.',
+  'When he died, his story was painted on a papyrus roll.',
+  'It shows his heart being weighed on a great pair of scales.',
+  'Come into the hall, and see what the scales will do.',
+];
 
 export type Deed = {
   id: string;
@@ -54,16 +64,18 @@ export const DEEDS: Deed[] = [
 export const HEART_WORDS = 'My heart of my mother! My heart of my mother! My heart of my being! Make no stand against me when testifying … utter no lie against me before the Great God, the Lord of Amentt.';
 
 /**
- * The story's chapters, each a step with its own Back and Next. It opens on
- * the scales and the first guess; the two papyri the story comes from are in
- * the room's About card.
+ * The story's chapters, each a step with its own Back and Next, and one
+ * plain instruction for what to do in it. The two papyri the story comes
+ * from are in the room's About card.
  */
 export const CHAPTERS = [
-  { id: 'heart', name: 'The heart' },
-  { id: 'hall', name: 'The hall' },
-  { id: 'words', name: 'Ani’s words' },
-  { id: 'verdict', name: 'The verdict' },
-  { id: 'you', name: 'Your scales' },
+  { id: 'ani', name: 'Meet Ani', task: 'Drag the roll to the right to unroll Ani’s papyrus.' },
+  { id: 'hall', name: 'The hall', task: 'Tap each figure in the hall to meet them.' },
+  { id: 'rule', name: 'The rule', task: 'Put a wrong on the heart’s side and watch the scales. Then take it off.' },
+  { id: 'words', name: 'Ani’s words', task: 'Sort each card onto the scroll where Ani says it.' },
+  { id: 'weigh', name: 'The weighing', task: 'Lay Ani’s heart on the scales, then guess what they will do.' },
+  { id: 'verdict', name: 'The verdict', task: 'The scales have spoken. Read what happens to Ani.' },
+  { id: 'you', name: 'Your scales', task: 'Tap the good choices you have made this week.' },
 ] as const;
 export type ChapterId = (typeof CHAPTERS)[number]['id'];
 
@@ -85,6 +97,16 @@ export function wouldTip(deed: Deed): boolean {
 /** The good choices a visitor can set on their own scales at the end (no wrong answers, nothing scored, nothing stored). */
 // REVIEW: new text (a reflection, not a fact).
 export const MY_CHOICES = ['I helped someone', 'I told the truth when it was hard', 'I shared', 'I said sorry', 'I was kind to someone new', 'I kept trying', 'I listened', 'I looked after something living'];
+
+/** The two scrolls the visitor sorts Ani's words onto. */
+export const SCROLLS = [
+  { kind: 'never', name: 'I have not …', hint: 'The wrongs Ani says he never did' },
+  { kind: 'did', name: 'I have …', hint: 'The good things Ani says he did' },
+] as const;
+
+/** What the room says when a card goes onto the wrong scroll: a nudge, never a scolding. */
+// REVIEW: new text (an instruction).
+export const SORT_HINT = 'Think again: is this something kind, or something unkind?';
 
 export const PAPYRI = {
   ani: {
@@ -112,7 +134,8 @@ export const FIGURES: Record<FigureId, { name: string; fact: ApprovedFact }> = {
   },
   thoth: {
     name: 'Thoth',
-    fact: { text: 'Thoth, the god of writing, records the result.', sources: [BM_HIEROGLYPHS] },
+    // REVIEW: new text. British Museum EA9901,3: "Thoth, ibis-headed, holds a pen and scribal palette to record the outcome of the weighing." British Museum hieroglyphs resource: "Thoth, the god of writing, records the result."
+    fact: { text: 'Ibis-headed Thoth, the god of writing, holds his pen and palette, ready to write down the result.', sources: [BM_HUNEFER, BM_HIEROGLYPHS] },
   },
   maat: {
     name: 'Maat',
@@ -123,6 +146,20 @@ export const FIGURES: Record<FigureId, { name: string; fact: ApprovedFact }> = {
     // REVIEW: new text. British Museum EA10470,3: "This creature has the head of a crocodile, the forepart of a lion, and the hindquarters of a hippopotamus."
     fact: { text: 'Ammit waits by the scales. She has the head of a crocodile, the front of a lion and the back of a hippopotamus.', sources: [BM_ANI_JUDGEMENT] },
   },
+};
+
+/** Who Ani was, and what "Ani's papyrus" is: told as the papyrus unrolls. */
+export const ANI_INTRO: ApprovedFact = {
+  // REVIEW: new text. Budge: "the scribe Ani"; British Museum EA10470: the Papyrus of Ani, a 'Book of the Dead', production date "1250BC (circa)", in the British Museum's collection; EA10470,3: "Into this formidable gathering comes Ani, accompanied by his wife Tutu."
+  text: 'Ani was a scribe who lived about 1250 BC. His Book of the Dead, a long papyrus roll painted for him, is what we call “Ani’s papyrus”. It shows Ani and his wife, Tutu, at his judgement. Today it is in the British Museum in London.',
+  sources: [BM_ANI, BM_ANI_JUDGEMENT, BUDGE],
+};
+
+/** The rule of the scales, taught before the visitor predicts. */
+export const RULE: ApprovedFact = {
+  // REVIEW: new text. British Museum notes for teachers: "Hunefer's heart being weighed against the feather of Maat". Budge, ch. VII: the gods "were quite satisfied if it exactly counterbalanced Truth"; "when Ani's heart was weighed against Truth, the beam of the Great Balance remained perfectly horizontal".
+  text: 'A heart was weighed against the feather of Maat, the goddess of truth. The gods hoped the heart would balance the feather exactly, so the beam of the scales stayed level.',
+  sources: [BM_MUMMY_NOTES, BUDGE],
 };
 
 export const JUDGEMENT_NOTES = {
@@ -170,8 +207,10 @@ export const JUDGEMENT_NOTES = {
 
 /** The room's Sources drawer, by chapter. */
 export const WEIGHING_SOURCES: SourceGroup[] = [
+  { title: 'Meet Ani', items: ANI_INTRO.sources },
   { title: 'Two papyri', items: [...PAPYRI.ani.sources, ...PAPYRI.hunefer.sources] },
   { title: 'The hall', items: [...new Map(Object.values(FIGURES).flatMap((f) => f.fact.sources).map((s) => [s.href, s])).values()] },
+  { title: 'The rule', items: RULE.sources },
   { title: 'The heart', items: [...JUDGEMENT_NOTES.heartWords.sources, ...JUDGEMENT_NOTES.level.sources.filter((s) => s !== BUDGE), ...JUDGEMENT_NOTES.heart.sources] },
   { title: 'Ani’s words', items: [...JUDGEMENT_NOTES.ani.sources, ...JUDGEMENT_NOTES.confession.sources] },
   { title: 'The verdict', items: [...JUDGEMENT_NOTES.verdict.sources, ...JUDGEMENT_NOTES.scales.sources, ...JUDGEMENT_NOTES.maat.sources.filter((s) => s !== BM_HIEROGLYPHS)] },

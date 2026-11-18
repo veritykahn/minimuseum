@@ -410,7 +410,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 110,
     accentColor: '#F04A1A',
     parent: 'ground-floor',
-    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet'],
+    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet', 'eg-my-tomb'],
   },
   {
     id: 'eg-case',
@@ -464,6 +464,14 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     id: 'eg-amulet',
     label: 'Design an Amulet',
     path: '/exhibitions/egypt/amulet',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#F04A1A',
+    parent: 'egypt',
+  },
+  {
+    id: 'eg-my-tomb',
+    label: 'Build Your Own Tomb',
+    path: '/exhibitions/egypt/my-tomb',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#F04A1A',
     parent: 'egypt',

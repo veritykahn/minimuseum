@@ -4,26 +4,28 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import { EGYPT } from '@/app/exhibitions/egypt/egypt';
 import { GLYPHS, SIGN_NAMES } from '@/app/exhibitions/egypt/rooms';
-import { TOMB_KEY, readTomb } from '@/app/exhibitions/egypt/tombState';
+import { readTomb } from '@/app/exhibitions/egypt/tombState';
 import HieroglyphName from '@/app/exhibitions/egypt/hieroglyph-name/page';
 import { CHART, MAX_LETTERS, NAME_NOTES, ROYAL_EXAMPLE, SIGNS, consonantsOnly, spell } from '@/app/exhibitions/egypt/hieroglyph-name/alphabet';
 import { CARTOUCHE_KEY, readCartouche } from '@/app/exhibitions/egypt/hieroglyph-name/savedCartouche';
 import WeighingOfTheHeart from '@/app/exhibitions/egypt/weighing-of-the-heart/page';
-import { CHAPTERS, DEEDS, FIGURES, JUDGEMENT_NOTES, PAPYRI, WEIGHING_SOURCES, wouldTip } from '@/app/exhibitions/egypt/weighing-of-the-heart/judgement';
+import { FIGURES, JUDGEMENT_NOTES, PAPYRI } from '@/app/exhibitions/egypt/weighing-of-the-heart/judgement';
 import TombExplorer from '@/app/exhibitions/egypt/tomb/page';
 import DarkIntro from '@/app/exhibitions/egypt/DarkIntro';
 import { TOMB_NOTES, WALLS, cropAround, detailAt, renderedBox, toPicture, toScreen, tombSources } from '@/app/exhibitions/egypt/tomb/scenes';
 import Mummification from '@/app/exhibitions/egypt/mummification/page';
-import { ANUBIS_POSTER, CHECK, HEART_NOTE, JARS, JARS_ANSWER, STAGES, STEPS, WRAP_AMULETS } from '@/app/exhibitions/egypt/mummification/steps';
+import { ANUBIS_POSTER, HEART_NOTE, STEPS, WRAP_AMULETS } from '@/app/exhibitions/egypt/mummification/steps';
 import RosettaStone from '@/app/exhibitions/egypt/rosetta-stone/page';
 import { CLEOPATRA, CLEOPATRA_GREEK, NAME_SIGNS, PTOLEMY, PTOLEMY_GREEK, PTOLEMY_ORDER, ROSETTA_NOTES, ROSETTA_SOURCES, SCRIPTS, SHARED_IN_NAME, SKIPPED, STONE_CARTOUCHES, onCartouche, sharedSigns } from '@/app/exhibitions/egypt/rosetta-stone/rosetta';
 import AmuletMaker from '@/app/exhibitions/egypt/amulet/page';
-import { AMULET_NOTES, MAX_SYMBOLS, NEEDS, SYMBOLS, toggleSymbol } from '@/app/exhibitions/egypt/amulet/amulets';
+import { AMULET_NOTES, SYMBOLS } from '@/app/exhibitions/egypt/amulet/amulets';
+import MyTomb from '@/app/exhibitions/egypt/my-tomb/page';
 
 /*
- * Ancient Egypt's six rooms: the tomb explorer,
+ * Ancient Egypt’s seven rooms: the tomb explorer,
  * the name cartouche, the weighing of the heart, mummification, the Rosetta
- * Stone decoder and the amulet maker. Every fact from outside the posters is
+ * Stone decoder, the amulet maker and the tomb builder (the four craft rooms
+ * are played through in EgyptCraftRooms.test.tsx). Every fact from outside the posters is
  * a museum note with a source the owner trusts, cited in the room's one
  * Sources drawer and never inline; the one poster line quoted is word for
  * word. Each room opens from the display case's Interactives and from the
@@ -39,7 +41,10 @@ const ROOMS = [
   '/exhibitions/egypt/mummification',
   '/exhibitions/egypt/weighing-of-the-heart',
   '/exhibitions/egypt/amulet',
+  '/exhibitions/egypt/my-tomb',
 ];
+/** Rooms not yet photographed for their card: an emblem stands in for the screenshot. */
+const NO_SCREENSHOT_YET = ['/exhibitions/egypt/my-tomb'];
 
 const posterText = EGYPT.posters
   .flatMap((p) => p.items)
@@ -136,17 +141,24 @@ describe('the words and the pictures', () => {
     const egypt = JSON.stringify(EGYPT.interactives);
     expect(egypt).not.toMatch(/Leonardo/i);
     // Each card's picture is a screenshot of the room on the site, not a photograph.
-    for (const r of EGYPT.interactives!) expect(r.image!.src).toBe(`/exhibitions/egypt/rooms/${r.href.split('/').pop()}.webp`);
+    for (const r of EGYPT.interactives!) {
+      if (NO_SCREENSHOT_YET.includes(r.href)) expect(r.image).toBeUndefined();
+      else expect(r.image!.src).toBe(`/exhibitions/egypt/rooms/${r.href.split('/').pop()}.webp`);
+    }
   });
 });
 
 describe('the display case’s interactives, and the way back', () => {
-  it('lists the six rooms, the tomb first, each with a screenshot of the room, its alt text, and a page', () => {
+  it('lists the seven rooms, the tomb first, each with a screenshot of the room (or, until it has one, an emblem), its alt text, and a page', () => {
     expect(EGYPT.interactives!.map((r) => r.href)).toEqual(ROOMS);
     for (const r of EGYPT.interactives!) {
-      expect(r.emblem).toBeUndefined();
-      expect(existsSync(join(ROOT, 'public', r.image!.src))).toBe(true);
-      expect(r.image!.alt).toContain(`${r.title.replace(/^The /, '')} room: `);
+      if (NO_SCREENSHOT_YET.includes(r.href)) {
+        expect(r.emblem).toBeTruthy();
+      } else {
+        expect(r.emblem).toBeUndefined();
+        expect(existsSync(join(ROOT, 'public', r.image!.src))).toBe(true);
+        expect(r.image!.alt).toContain(`${r.title.replace(/^The /, '')} room: `);
+      }
       expect(existsSync(join(ROOT, 'app', r.href.replace(/^\//, ''), 'page.tsx'))).toBe(true);
       expect(existsSync(join(ROOT, 'app', r.href.replace(/^\//, ''), 'layout.tsx'))).toBe(true);
     }
@@ -171,7 +183,7 @@ describe('the display case’s interactives, and the way back', () => {
   });
 
   it('cites nothing inline: each room has one Sources drawer, grouped by step', () => {
-    for (const Room of [TombExplorer, HieroglyphName, WeighingOfTheHeart, Mummification, RosettaStone, AmuletMaker]) {
+    for (const Room of [TombExplorer, HieroglyphName, WeighingOfTheHeart, Mummification, RosettaStone, AmuletMaker, MyTomb]) {
       window.history.replaceState(null, '', '/exhibitions/egypt/x');
       const { container, unmount } = render(<Room />);
       expect(container.querySelector('.eg-room-stage')!.textContent).not.toMatch(/\bSources?: /);
@@ -392,176 +404,6 @@ describe('Tomb Explorer', () => {
   });
 });
 
-describe('Mummification, step by step', () => {
-  it('names the four Sons of Horus and their organs as the British Museum does, and says what happened to the brain', () => {
-    expect(JARS.map((j) => `${j.god}:${j.organ}`)).toEqual(['Imset:liver', 'Hapi:lungs', 'Duamutef:stomach', 'Qebehsenuef:intestines']);
-    const jarsNote = STEPS.find((s) => s.id === 'organs')!.notes.map((n) => n.text).join(' ');
-    for (const j of JARS) expect(jarsNote).toContain(j.god);
-    expect(STEPS.map((s) => s.id)).toEqual(['why', 'wash', 'brain', 'organs', 'natron', 'oils', 'wrap', 'coffin']);
-    // Five steps in the room, each of the eight in exactly one, in order.
-    expect(STAGES.map((s) => s.id)).toEqual(['wash', 'organs', 'natron', 'wrap', 'coffin']);
-    expect(STAGES.flatMap((s) => s.steps)).toEqual(STEPS.map((s) => s.id));
-    for (const j of JARS) expect(JARS_ANSWER.text).toContain(j.god);
-    expect(STEPS.find((s) => s.id === 'brain')!.notes[0].text).toMatch(/through the nose, and it was not kept/);
-    expect(HEART_NOTE.text).toMatch(/heart was left inside/);
-    expect(STEPS.find((s) => s.id === 'natron')!.notes[0].text).toMatch(/40 days/);
-    expect(STEPS.find((s) => s.id === 'why')!.notes[1].text).toMatch(/70 days/);
-    expect(CHECK).toHaveLength(3);
-  });
-
-  it('is played start to finish: wash and the brain, the jars and the heart, natron and oils, wrapping with chosen amulets, the coffin, three questions', () => {
-    reducedMotion(true);
-    window.localStorage.setItem(TOMB_KEY, JSON.stringify({ done: {}, found: {}, amulet: { shape: 'scarab', material: 'gold', symbols: ['ankh', 'lotus'], owner: '' } }));
-    window.history.replaceState(null, '', '/exhibitions/egypt/mummification');
-    render(<Mummification />);
-    const next = () => fireEvent.click(screen.getByRole('button', { name: /Next step/ }));
-    const at = (n: number) => expect(screen.getByRole('button', { name: new RegExp(`^Step ${n}: `) })).toHaveAttribute('aria-current', 'step');
-    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument();
-    // The why, and the poster's line on Anubis, are in "Did you know?".
-    fireEvent.click(screen.getByRole('button', { name: /Did you know/ }));
-    expect(within(screen.getByRole('dialog')).getByText(ANUBIS_POSTER)).toBeInTheDocument();
-    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close' }));
-    for (let i = 0; i < 6; i++) fireEvent.click(screen.getByRole('button', { name: /Pour water/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('The body is washed clean.');
-    fireEvent.click(screen.getByRole('button', { name: 'Draw out the brain' }));
-    expect(screen.getByText('Gone: the brain was not kept.')).toBeInTheDocument();
-    next();
-    // The canopic jars: a step of its own, and which organ goes where is not given away.
-    at(2);
-    expect(document.body.textContent).not.toContain(JARS_ANSWER.text);
-    fireEvent.click(screen.getByRole('button', { name: /Did you know/ }));
-    expect(screen.getByRole('dialog')).not.toHaveTextContent(JARS_ANSWER.text);
-    fireEvent.keyDown(document, { key: 'Escape' });
-    fireEvent.click(screen.getByRole('button', { name: 'Liver' }));
-    fireEvent.click(screen.getByRole('button', { name: /^Hapi, the baboon-headed jar/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('Not that jar. The liver was looked after by the god with a human’s head.');
-    fireEvent.click(screen.getByRole('button', { name: /^Imset, the human-headed jar/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('human-headed Imset protects the liver');
-    for (const [organ, god] of [['Stomach', 'Duamutef'], ['Lungs', 'Hapi'], ['Intestines', 'Qebehsenuef']]) {
-      fireEvent.click(screen.getByRole('button', { name: organ }));
-      fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${god},`) }));
-    }
-    fireEvent.click(screen.getByRole('button', { name: 'The heart' }));
-    const heart = screen.getByRole('dialog', { name: 'The heart stays inside' });
-    expect(within(heart).getByText(HEART_NOTE.text)).toBeInTheDocument();
-    expect(within(heart).getByText(JARS_ANSWER.text)).toBeInTheDocument();
-    next();
-    at(3);
-    expect(screen.queryByRole('dialog')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Start the 40 days' })).toBeDisabled();
-    for (let i = 0; i < 6; i++) fireEvent.click(screen.getByRole('button', { name: /Pack a bag of natron/ }));
-    fireEvent.click(screen.getByRole('button', { name: 'Start the 40 days' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Forty days have passed.');
-    for (let i = 0; i < 3; i++) fireEvent.click(screen.getByRole('button', { name: /Rub in oil/ }));
-    expect(screen.getByText('Dried, oiled and ready to wrap.')).toBeInTheDocument();
-    next();
-    fireEvent.click(screen.getByRole('button', { name: /Your amulet/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('Your amulet is tucked into the wrappings.');
-    fireEvent.click(screen.getByRole('button', { name: /Wedjat eye/ }));
-    expect(screen.getByText(WRAP_AMULETS[0].note.text)).toBeInTheDocument();
-    for (let i = 0; i < 4; i++) fireEvent.click(screen.getByRole('button', { name: /Wrap a layer of linen/ }));
-    expect(screen.getByRole('img', { name: /wrapped in 4 of 4 layers/ })).toBeInTheDocument();
-    next();
-    fireEvent.click(screen.getByRole('button', { name: 'Lay the mummy in its coffin' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Close the lid' }));
-    expect(readTomb().done.mummification).toBe(true);
-    // Three questions, one at a time.
-    fireEvent.click(screen.getByRole('button', { name: '7 days' }));
-    expect(screen.getByText('Not quite. Have another go.')).toBeInTheDocument();
-    expect(screen.queryByRole('group', { name: CHECK[1].q })).toBeNull();
-    for (const c of CHECK) fireEvent.click(within(screen.getByRole('group', { name: c.q })).getByRole('button', { name: c.answer }));
-    expect(screen.getByRole('link', { name: /Into the Hall of Judgement/ })).toHaveAttribute('href', '/exhibitions/egypt/weighing-of-the-heart?from=tomb');
-    expect(screen.getByRole('link', { name: /Back to Ancient Egypt/ })).toHaveAttribute('href', '/exhibitions/egypt');
-  });
-
-  it('opens an old step’s address at the step it is now part of', () => {
-    window.history.replaceState(null, '', '/exhibitions/egypt/mummification#oils');
-    render(<Mummification />);
-    expect(screen.getByRole('button', { name: /^Step 3: / })).toHaveAttribute('aria-current', 'step');
-  });
-});
-
-describe('The Weighing of the Heart', () => {
-  it('introduces both papyri, each by its own museum number, and never mixes them up', () => {
-    expect(PAPYRI.ani.text).toMatch(/Papyrus of Ani \(British Museum EA 10470\)/);
-    expect(PAPYRI.ani.text).not.toMatch(/Hunefer|9901/);
-    expect(PAPYRI.hunefer.text).toMatch(/Hunefer \(British Museum EA 9901\)/);
-    expect(PAPYRI.hunefer.text).not.toMatch(/\bAni\b|10470/);
-    expect(PAPYRI.ani.sources.map((s) => s.href)).toContain('https://www.britishmuseum.org/collection/object/Y_EA10470-3');
-    expect(PAPYRI.hunefer.sources.map((s) => s.href)).toContain('https://www.britishmuseum.org/collection/object/Y_EA9901-3');
-    expect(FIGURES.ammit.fact.text).toMatch(/head of a crocodile, the front of a lion and the back of a hippopotamus/);
-    expect(WEIGHING_SOURCES.map((g) => g.title)).toEqual(expect.arrayContaining(['Two papyri', 'The hall']));
-  });
-
-  it('quotes Ani’s words from the papyrus, and knows which deeds would tip the scales', () => {
-    for (const d of DEEDS) {
-      expect(d.quote).toMatch(d.kind === 'never' ? /^I have (not|made no one)/ : /^I have given/);
-      expect(wouldTip(d)).toBe(d.kind === 'never');
-    }
-  });
-
-  it('starts level, moves as the story is told, and ends balanced and kind', () => {
-    jest.useFakeTimers();
-    window.history.replaceState(null, '', '/exhibitions/egypt/weighing-of-the-heart');
-    const { container } = render(<WeighingOfTheHeart />);
-    const tilt = () => container.querySelector('.egw-svg')!.getAttribute('data-tilt');
-    const next = () => fireEvent.click(within(container.querySelector('.egr-step-nav')!).getByRole('button', { name: /Next|Finish/ }));
-    expect(tilt()).toBe('0');
-    // It opens on the scales and the guess; the scales say nothing until the visitor has guessed.
-    expect(screen.getByRole('heading', { name: 'Ani’s heart on the scales' })).toBeInTheDocument();
-    expect(container.querySelector('.egw-reading')!.textContent).toBe('');
-    // The two papyri are in the About card.
-    fireEvent.click(screen.getByRole('button', { name: /About the papyri/ }));
-    const about = screen.getByRole('dialog', { name: 'Two papyri, one story' });
-    expect(within(about).getByText(PAPYRI.ani.text)).toBeInTheDocument();
-    expect(within(about).getByText(PAPYRI.hunefer.text)).toBeInTheDocument();
-    fireEvent.keyDown(document, { key: 'Escape' });
-    expect(screen.queryByRole('dialog')).toBeNull();
-    // Next waits for a guess.
-    expect(within(container.querySelector('.egr-step-nav')!).getByRole('button', { name: /Next/ })).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', { name: 'Tip out of balance' }));
-    expect(screen.getByText('Good guess, but look: they stay level.')).toBeInTheDocument();
-    act(() => {
-      jest.advanceTimersByTime(2000);
-    });
-    expect(tilt()).toBe('0');
-    expect(container.querySelector('.egw-reading')).toHaveTextContent('Level');
-    next();
-    fireEvent.click(screen.getByRole('button', { name: 'Ammit' }));
-    expect(screen.getByText(FIGURES.ammit.fact.text)).toBeInTheDocument();
-    next();
-    for (const [i, d] of DEEDS.entries()) {
-      if (i === 0) {
-        fireEvent.click(screen.getByRole('button', { name: '“I have …”' }));
-        expect(container.querySelector('.egw-hint')).toHaveTextContent('Think again: is this something kind, or something unkind?');
-      }
-      fireEvent.click(screen.getByRole('button', { name: d.kind === 'never' ? '“I have not …”' : '“I have …”' }));
-      expect(screen.getByText(`“${d.quote}”`)).toBeInTheDocument();
-      expect(container.querySelector('.egw-reading')!.textContent).toBe('');
-      fireEvent.click(screen.getByRole('button', { name: d.kind === 'never' ? 'Tip out of balance' : 'Stay level' }));
-      expect(screen.getByText(/You guessed it!/)).toBeInTheDocument();
-      if (d.kind === 'never') expect(Number(tilt())).toBeGreaterThan(0);
-      act(() => {
-        jest.advanceTimersByTime(2000);
-      });
-      expect(tilt()).toBe('0');
-      if (i < DEEDS.length - 1) fireEvent.click(screen.getByRole('button', { name: /Next deed/ }));
-    }
-    next();
-    expect(screen.getByRole('heading', { name: 'The scales balance' })).toBeInTheDocument();
-    expect(screen.getByText(JUDGEMENT_NOTES.verdict.text)).toBeInTheDocument();
-    expect(readTomb().done.weighing).toBe(true);
-    next();
-    expect(screen.getByRole('heading', { name: 'Weigh your own choices' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'I shared' }));
-    expect(screen.getByRole('list', { name: 'Your good choices' })).toHaveTextContent('I shared');
-    expect(screen.getByRole('link', { name: /Back to Ancient Egypt/ })).toHaveAttribute('href', '/exhibitions/egypt');
-    // Kind throughout: nothing is eaten, nobody is punished, nothing is scored.
-    expect(container.textContent).not.toMatch(/\b(eat|eats|eaten|devour|devours|devoured|punish|wrong answer|score|fail)\b/i);
-    expect(CHAPTERS.map((c) => c.id)).toEqual(['heart', 'hall', 'words', 'verdict', 'you']);
-  });
-});
-
 describe('The Rosetta Stone Decoder', () => {
   it('sets the stone’s three scripts top to bottom, and the code: Ptolemy’s signs in the Greek’s order, skipping vowels', () => {
     expect(SCRIPTS.map((s) => `${s.place}:${s.name}`)).toEqual(['Top:Hieroglyphic', 'Middle:Demotic', 'Bottom:Greek']);
@@ -734,47 +576,5 @@ describe('Your Name in Hieroglyphs', () => {
       window.dispatchEvent(new Event('afterprint'));
     });
     expect(document.querySelector('.egr-print-root')).toBeNull();
-  });
-});
-
-describe('Design an Amulet', () => {
-  it('asks who it is for and what it should protect, suggests symbols, carves up to three, and places it in the tomb', () => {
-    expect(toggleSymbol(['ankh'], 'ankh')).toEqual([]);
-    expect(toggleSymbol(['ankh', 'djed', 'lotus'], 'heart')).toEqual(['ankh', 'djed', 'lotus']);
-    expect(MAX_SYMBOLS).toBe(3);
-    for (const n of NEEDS) for (const id of n.suggests) expect(SYMBOLS.some((s) => s.id === id)).toBe(true);
-    window.history.replaceState(null, '', '/exhibitions/egypt/amulet');
-    render(<AmuletMaker />);
-    const next = () => fireEvent.click(within(document.querySelector('.egr-step-nav') as HTMLElement).getByRole('button', { name: /Next/ }));
-    // One choice to a screen, the amulet always in view.
-    expect(screen.getByText('Step 1 of 7')).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: 'Who is it for?' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'The afterlife' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'A friend' }));
-    next();
-    expect(screen.getByRole('button', { name: /^Step 1: Who is it for\? \(done\)/ })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'The afterlife' }));
-    expect(screen.getByText(/An Egyptian might choose/)).toHaveTextContent('Heart, Djed pillar, Scarab beetle');
-    next();
-    next();
-    next();
-    expect(screen.getByRole('heading', { name: 'Choose up to three symbols' })).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: /Your amulet: a scarab/ })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Heart (suggested)' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /Wedjat eye/ }));
-    expect(screen.getByText(SYMBOLS.find((s) => s.id === 'wedjat')!.meaning.text)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /Scarab beetle/ }));
-    fireEvent.click(screen.getByRole('button', { name: /Lotus flower/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('room for 3 symbols');
-    expect(screen.getByRole('button', { name: /Lotus flower/ })).toHaveAttribute('aria-pressed', 'false');
-    next();
-    fireEvent.change(screen.getByRole('textbox', { name: /Carve a name/ }), { target: { value: 'Ra' } });
-    expect(screen.getByRole('img', { name: /a scarab of blue-green faience, carved with the ankh and the wedjat eye and the scarab beetle, and the name Ra/ })).toBeInTheDocument();
-    next();
-    expect(screen.getByRole('heading', { name: 'Your amulet is ready' })).toBeInTheDocument();
-    for (const id of ['ankh', 'wedjat', 'scarab'] as const) expect(screen.getByText(SYMBOLS.find((s) => s.id === id)!.meaning.text)).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Place it in the tomb' }));
-    expect(readTomb().amulet).toEqual({ shape: 'scarab', material: 'faience', symbols: ['ankh', 'wedjat', 'scarab'], owner: 'Ra' });
-    expect(screen.getByRole('button', { name: 'In the tomb’s niche ✓' })).toBeDisabled();
   });
 });
