@@ -119,6 +119,23 @@ export const ROUNDS: ReplicaRound[] = [
   },
 ];
 
+/**
+ * Three things to look for before the first guess: surface, sharpness and
+ * wear, each in the rounds' own words (the explanations above).
+ */
+export const REPLICA_CLUES = [
+  { title: 'The surface', text: 'A genuine coin’s patina has natural depth and variation. A fake can look too uniform, or grainy and soft.' },
+  { title: 'The sharpness', text: 'A struck coin keeps crisp lines, like an owl’s feathers or curls of hair. A cast fake looks softer and blurred.' },
+  { title: 'The wear and the edge', text: 'Real wear softens the high points evenly. Artificial wear, or a different edge, gives a fake away.' },
+] as const;
+
+/** The first sentences of a round's explanation, for the answer card; the rest waits behind More. */
+export function shortExplanation(text: string, count = 2): { short: string; rest: string } {
+  const all = text.match(/[^.!?]+[.!?]+["”’]?(\s+|$)/g) ?? [text];
+  if (all.join('') !== text) return { short: text, rest: '' };
+  return { short: all.slice(0, count).join('').trim(), rest: all.slice(count).join('').trim() };
+}
+
 export const TIERS = [
   {
     min: 1,

@@ -135,9 +135,9 @@ describe("a room's way back", () => {
   it.each([
     ['america-250', AmericaRoomShell],
     ['fear-lab', FearLabRoomShell],
-  ] as const)('%s: the room frame goes back to the display case', (slug, RoomShell) => {
+  ] as const)('%s: the room frame goes back to its exhibition, by name', (slug, RoomShell) => {
     render(<RoomShell className="test-room">room</RoomShell>);
-    expect(screen.getByRole('link', { name: /Display Case/ })).toHaveAttribute('href', `/exhibitions/${slug}/artifacts/case?view=interactives`);
+    expect(screen.getByRole('link', { name: slug === 'fear-lab' ? 'The Fear Lab' : 'America 250' })).toHaveAttribute('href', `/exhibitions/${slug}`);
   });
 
   it('goes back to the exhibition when there is no case', () => {

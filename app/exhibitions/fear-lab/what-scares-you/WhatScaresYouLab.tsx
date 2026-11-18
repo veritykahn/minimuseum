@@ -249,7 +249,7 @@ export default function WhatScaresYouLab({ owned = [], rand }: { owned?: OwnedAs
           </header>
 
           <section className="fl-lab-panel" id="fl-lab-panel" role="tabpanel" aria-labelledby={`fl-lab-tab-${tab}`}>
-            {tab === 'box' && <FearBoxes motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} owned={owned} rand={rand} />}
+            {tab === 'box' && <FearBoxes motion={motion} gentle={gentle} onGentle={writeGentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} owned={owned} rand={rand} />}
             {tab === 'choose' && <KnownOrUnknown motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} />}
             {tab === 'bushes' && <RustlingBushes motion={motion} gentle={gentle} soundOn={soundOn} onSoundOn={turnSoundOn} sound={getSound} onFright={setFright} />}
           </section>

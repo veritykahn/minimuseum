@@ -85,6 +85,23 @@ describe('Hands of History', () => {
     expect(screen.getByText(/Round 1 of 7/)).toBeInTheDocument();
   });
 
+  it('gives three clues before the guess, and keeps the long story behind More with Next in view', () => {
+    render(<HandsOfHistory />);
+    const clues = screen.getByRole('region', { name: 'Look for 3 clues' });
+    expect(clues.querySelectorAll('li')).toHaveLength(3);
+    const prompt = screen.getByRole('heading', { level: 1 }).textContent ?? '';
+    const answer = HANDS_CHARACTERS.find((c) => c.prompt === prompt)!;
+    fireEvent.click(screen.getByRole('button', { name: answer.character }));
+    expect(screen.getByRole('button', { name: /Next|See Results/ })).toBeInTheDocument();
+    const more = screen.getByRole('button', { name: /More/ });
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    // The page fades in, so check the drawer's own hidden flag, not visibility.
+    expect(screen.getByText(answer.story).closest('#hh-more')).toHaveAttribute('hidden');
+    fireEvent.click(more);
+    expect(screen.getByRole('button', { name: /Less/ })).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByText(answer.story).closest('#hh-more')).not.toHaveAttribute('hidden');
+  });
+
   it('keeps the coin’s caption off the projector’s question too', () => {
     const rounds = buildRounds(7);
     render(<HandsProjector rounds={rounds} onExit={() => {}} onRestart={() => {}} />);
@@ -94,6 +111,18 @@ describe('Hands of History', () => {
 });
 
 describe('Real or Replica?', () => {
+  it('shows three clues before the first guess, and a short answer with More and Next', () => {
+    render(<RealOrReplica />);
+    expect(screen.getByRole('region', { name: 'Look for 3 clues' }).querySelectorAll('li')).toHaveLength(3);
+    fireEvent.click(screen.getByRole('button', { name: 'Coin A is the fake' }));
+    expect(screen.queryByRole('region', { name: 'Look for 3 clues' })).toBeNull();
+    expect(screen.getByRole('button', { name: /Next Round|One more case/ })).toBeInTheDocument();
+    const more = screen.getByRole('button', { name: /More/ });
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(more);
+    expect(screen.getByRole('button', { name: /Less/ })).toHaveAttribute('aria-expanded', 'true');
+  });
+
   it('scores, shows callouts, visits our own case, and ends without calling 0/5 a numismatist', () => {
     render(<RealOrReplica />);
     for (let i = 0; i < ROUNDS.length; i++) {

@@ -63,6 +63,6 @@ describe('Real or Replica?: Sources drawer', () => {
   });
 
   it('keeps every round’s Fake buttons in one place: the coin frame has one height', () => {
-    expect(read('app/exhibitions/in-their-hands/real-or-replica/page.tsx')).toMatch(/\.rr-coin-img-wrap \{[^}]*height: 358px;/);
+    expect(read('app/exhibitions/in-their-hands/real-or-replica/page.tsx')).toMatch(/\.rr-coin-img-wrap \{[^}]*height: 258px;/);
   });
 });

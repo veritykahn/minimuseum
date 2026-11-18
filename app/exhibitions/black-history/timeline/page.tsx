@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type TouchEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import FactNote from '@/components/exhibition/FactNote';
 import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
@@ -77,7 +77,7 @@ function useCountingYear(target: number | null, still: boolean) {
 
 export default function BlackBarbieTimeline() {
   const { fonts, palette, slug } = BLACK_HISTORY;
-  const back = useMuseumReturn(roomReturn(BLACK_HISTORY));
+  const back = useMuseumReturn(exhibitionReturn(BLACK_HISTORY));
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [guesses, setGuesses] = useState<Record<string, Guess>>({});

@@ -180,6 +180,16 @@ export function roomReturn(config: Pick<ExhibitionConfig, 'slug' | 'cases'>): { 
   return c ? { href: interactivesView(c.href), label: c.label } : { href: `/exhibitions/${config.slug}`, label: 'Exhibition' };
 }
 
+/**
+ * A room's top-left "M ←" link: back to its exhibition's own page, named
+ * with the exhibition's short name ("M ← The Fear Lab"). The display case
+ * still lists the rooms; this is the way home a child expects from a room.
+ * (useMuseumReturn still swaps in "M ← Studio" when the Studio opened it.)
+ */
+export function exhibitionReturn(config: Pick<ExhibitionConfig, 'slug' | 'name' | 'shortName'>): { href: string; label: string } {
+  return { href: `/exhibitions/${config.slug}`, label: config.shortName ?? config.name };
+}
+
 /** A picture credit as the drawer lists it: its owner's words, linked to its record. */
 function pictureCredit(credit: { text: string; href?: string } | undefined): SourceEntry[] {
   return credit ? [{ note: 'Picture', label: credit.text, href: credit.href }] : [];

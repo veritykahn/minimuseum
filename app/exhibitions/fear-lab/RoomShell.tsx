@@ -3,14 +3,14 @@
 import type { CSSProperties, ReactNode } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { FEAR_LAB } from './fearLab';
 import './fear-lab.css';
 
 /*
  * The frame of a Fear Lab room (what-scares-you): the exhibition's faces and
- * navy ground, "M ← Display Case" in the corner, and one full-screen stage
+ * navy ground, "M ← <the exhibition>" in the corner, and one full-screen stage
  * that sets its own heading.
  */
 
@@ -18,7 +18,7 @@ type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 export default function RoomShell({ className, children }: { className: string; children: ReactNode }) {
   const { fonts, palette, slug } = FEAR_LAB;
-  const back = useMuseumReturn(roomReturn(FEAR_LAB));
+  const back = useMuseumReturn(exhibitionReturn(FEAR_LAB));
   const style: CssVars = {
     background: palette.page,
     '--pe-display': fonts.display,

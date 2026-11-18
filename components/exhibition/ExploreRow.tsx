@@ -8,9 +8,11 @@ import './explore-row.css';
  * The landing page's "Explore" row: a card for each of the exhibition's
  * interactive rooms (its picture, its name and its one-line hook), below the
  * posters and display cases, so a visitor finds the rooms without opening the
- * case first. The landing page's first screen keeps its look; the row is
- * reached by scrolling, and a small cue at the foot of that screen
- * (ExploreCue) says it is there.
+ * case first. On a laptop or tablet (641px wide and 600px tall or more) the
+ * row is on the first screen: the landing gives up a strip at its foot and
+ * the row sits in it as one line of small cards (explore-row.css). On a
+ * phone the row is reached by scrolling, and a small cue at the foot of
+ * the first screen (ExploreCue) says it is there.
  *
  * It lists the same rooms, in the same order, as the case page's
  * Interactives tab (roomsInOrder over the same list), so the two cannot

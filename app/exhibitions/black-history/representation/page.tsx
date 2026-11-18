@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
+import { exhibitionReturn } from '@/components/exhibition/helpers';
 import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { rememberReturn, useMuseumReturn } from '@/lib/museumReturn';
 import { BLACK_HISTORY } from '../blackHistory';
@@ -50,7 +50,7 @@ const SOURCES: SourceGroup[] = [
 
 export default function WhoDoYouSee() {
   const { fonts, palette, slug } = BLACK_HISTORY;
-  const back = useMuseumReturn(roomReturn(BLACK_HISTORY));
+  const back = useMuseumReturn(exhibitionReturn(BLACK_HISTORY));
   const [tab, setTab] = useState<TabId>('design');
   const tabRefs = useRef<Record<TabId, HTMLButtonElement | null>>({ design: null, 'doll-test': null, books: null });
 

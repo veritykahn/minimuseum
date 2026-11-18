@@ -198,17 +198,23 @@ describe('a display case page’s views', () => {
   });
 
   it.each([
-    'app/exhibitions/harlem-renaissance/jazz-lab/page.tsx',
-    'app/exhibitions/harlem-renaissance/harlem-in-words/page.tsx',
-    'app/exhibitions/harlem-renaissance/migration-map/page.tsx',
-    'app/exhibitions/seeing-is-deceiving/illusions/page.tsx',
-    'app/exhibitions/seeing-is-deceiving/optical-toys/page.tsx',
-    'app/exhibitions/in-their-hands/hands/page.tsx',
-    'app/exhibitions/in-their-hands/timeline/page.tsx',
-    'app/exhibitions/in-their-hands/real-or-replica/page.tsx',
-  ])('%s goes back to its case at the Interactives', (file) => {
+    ['app/exhibitions/harlem-renaissance/jazz-lab/page.tsx', 'harlem-renaissance'],
+    ['app/exhibitions/harlem-renaissance/harlem-in-words/page.tsx', 'harlem-renaissance'],
+    ['app/exhibitions/harlem-renaissance/migration-map/page.tsx', 'harlem-renaissance'],
+    ['app/exhibitions/seeing-is-deceiving/optical-toys/page.tsx', 'seeing-is-deceiving'],
+    ['app/exhibitions/in-their-hands/hands/page.tsx', 'in-their-hands'],
+    ['app/exhibitions/in-their-hands/timeline/page.tsx', 'in-their-hands'],
+    ['app/exhibitions/in-their-hands/real-or-replica/page.tsx', 'in-their-hands'],
+  ])('%s: the corner goes back to its exhibition; any link to its case still opens at the Interactives', (file, slug) => {
+    const src = read(file);
+    expect(src).toMatch(new RegExp(`(href=|push\\(|href: )['"]/exhibitions/${slug}['"]`));
     // Every quoted address of its case (not of an artifact in it).
-    const backs = read(file).match(/['"]\/exhibitions\/[a-z-]+\/artifacts(\/case-\d)?(\?[^'"]*)?['"]/g) ?? [];
+    const backs = src.match(/['"]\/exhibitions\/[a-z-]+\/artifacts(\/case-\d)?(\?[^'"]*)?['"]/g) ?? [];
+    for (const b of backs) expect(b).toMatch(/\?view=interactives['"]$/);
+  });
+
+  it('the Perception Lab illusions still go back to their case at the Interactives', () => {
+    const backs = read('app/exhibitions/seeing-is-deceiving/illusions/page.tsx').match(/['"]\/exhibitions\/[a-z-]+\/artifacts(\/case-\d)?(\?[^'"]*)?['"]/g) ?? [];
     expect(backs.length).toBeGreaterThan(0);
     for (const b of backs) expect(b).toMatch(/\?view=interactives['"]$/);
   });

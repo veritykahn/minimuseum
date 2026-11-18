@@ -15,7 +15,7 @@ import TeachToggle from '@/components/games/projector/TeachToggle';
 import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
 import { SoundSwitch, isGoodScore } from '@/components/games/feedback/FeedbackKit';
 import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
-import { CLOSING, OWN_CASE, REPLICA_SOURCES, ROUNDS, TIERS, fakeSides, type ReplicaRound, type Side } from './data';
+import { CLOSING, OWN_CASE, REPLICA_CLUES, REPLICA_SOURCES, ROUNDS, TIERS, fakeSides, shortExplanation, type ReplicaRound, type Side } from './data';
 import RealOrReplicaProjector from './RealOrReplicaProjector';
 
 /** Numbered markers for one photograph, numbered in the order of the round's list. */
@@ -58,7 +58,13 @@ export default function RealOrReplica() {
   const chosen = game.current?.choice as Side | undefined;
   const correct = game.current?.correct ?? false;
 
-  const choose = (side: Side) => game.answer(round.id, side, side === fakeSide);
+  const choose = (side: Side) => {
+    setMore(false);
+    game.answer(round.id, side, side === fakeSide);
+  };
+  // The answer card: two sentences, the rest behind More.
+  const [more, setMore] = useState(false);
+  const { short: shortText, rest: restText } = shortExplanation(round.explanation);
 
   const next = () => {
     if (game.isLast) setStage('own-case');
@@ -168,7 +174,7 @@ export default function RealOrReplica() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          padding: 100px 40px 60px;
+          padding: 84px 40px 48px;
           min-height: 100vh;
         }
 
@@ -196,7 +202,7 @@ export default function RealOrReplica() {
           gap: 48px;
           align-items: flex-start;
           justify-content: center;
-          margin-bottom: 32px;
+          margin-bottom: 20px;
           width: 100%;
           max-width: 960px;
         }
@@ -215,7 +221,7 @@ export default function RealOrReplica() {
            to round however tall a coin's photograph is. */
         .rr-coin-img-wrap {
           width: 100%;
-          height: 358px;
+          height: 258px;
           box-sizing: border-box;
           border-radius: 12px;
           background: #0d0a04;
@@ -280,8 +286,8 @@ export default function RealOrReplica() {
           max-width: 960px;
           background: #F5EDD8;
           border-radius: 12px;
-          padding: 32px 36px;
-          margin-top: 8px;
+          padding: 20px 28px;
+          margin-top: 0;
           --game-right: #2f6b40;
           --game-wrong: #8a5a00;
           --game-accent: #8a6a1c;
@@ -298,7 +304,7 @@ export default function RealOrReplica() {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(1.25rem, 0.5vw + 1.05rem, 1.55rem);
           color: #7a5c14;
-          margin-bottom: 4px;
+          margin-bottom: 6px;
         }
         .rr-result-method {
           font-family: 'Outfit', sans-serif;
@@ -306,16 +312,15 @@ export default function RealOrReplica() {
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: #6b5f4d;
-          margin-bottom: 16px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid rgba(139, 125, 107, 0.25);
+          margin-left: 10px;
+          white-space: nowrap;
         }
         .rr-result-explanation {
           font-family: 'Cormorant Garamond', serif;
           font-size: clamp(1.15rem, 0.5vw + 0.95rem, 1.4rem);
-          line-height: 1.75;
+          line-height: 1.55;
           color: #3D3428;
-          margin-bottom: 20px;
+          margin-bottom: 12px;
         }
         .rr-look-title {
           font-family: 'Outfit', sans-serif;
@@ -364,7 +369,41 @@ export default function RealOrReplica() {
           color: #6b5f4d;
           margin-right: 6px;
         }
-        .rr-result-foot { display: flex; justify-content: flex-end; }
+        .rr-result-foot { display: flex; justify-content: flex-end; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .rr-more-btn {
+          min-height: 44px; padding: 10px 22px; border-radius: 100px;
+          border: 1px solid rgba(42, 31, 14, 0.5); background: transparent; color: #2a1f0e;
+          font-family: 'Outfit', sans-serif; font-size: var(--game-small);
+          letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+        }
+        .rr-more-btn:hover { background: rgba(42, 31, 14, 0.08); }
+        .rr-more-btn:focus-visible { outline: 2px solid #2a1f0e; outline-offset: 3px; }
+        .rr-more { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(139, 125, 107, 0.25); }
+        .rr-more[hidden] { display: none; }
+
+        /* ========== THE CLUES, before a guess ========== */
+        .rr-clues { width: 100%; max-width: 960px; margin: -12px 0 18px; }
+        .rr-clues-title {
+          font-family: 'Outfit', sans-serif; font-size: var(--game-small); font-weight: 400;
+          letter-spacing: 0.15em; text-transform: uppercase; color: #C9A84C;
+          text-align: center; margin-bottom: 8px;
+        }
+        .rr-clues-list { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+        .rr-clues-list li {
+          display: flex; gap: 10px; align-items: flex-start;
+          padding: 10px 12px; border: 1px solid rgba(201, 168, 76, 0.3); border-radius: 10px;
+          background: rgba(201, 168, 76, 0.06);
+          font-family: 'Outfit', sans-serif; font-size: 0.9rem; line-height: 1.4; color: #e8e0d0;
+        }
+        .rr-clues-list strong { color: #C9A84C; font-weight: 500; }
+        .rr-clue-n {
+          flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%;
+          display: inline-flex; align-items: center; justify-content: center;
+          background: #C9A84C; color: #1C1409; font-size: 0.8rem; font-weight: 600;
+        }
+        @media (max-width: 760px) {
+          .rr-clues-list { grid-template-columns: minmax(0, 1fr); }
+        }
         .rr-next-btn {
           min-height: 44px;
           padding: 12px 28px;
@@ -536,9 +575,9 @@ export default function RealOrReplica() {
 
       {/* Header */}
       <header className="rr-header">
-        <button className="rr-back-btn" onClick={() => router.push('/exhibitions/in-their-hands/artifacts/case-8?view=interactives')}>
+        <button className="rr-back-btn" onClick={() => router.push('/exhibitions/in-their-hands')}>
           <span aria-hidden="true">{'←'}</span>
-          <span className="rr-back-label">Display Case</span>
+          <span className="rr-back-label">In Their Hands</span>
         </button>
         <div className="rr-header-right">
           {stage === 'rounds' && (
@@ -558,6 +597,21 @@ export default function RealOrReplica() {
           <h1 className="rr-title" ref={titleRef} tabIndex={-1}>Which is the fake?</h1>
           <p className="rr-hint">Hover, tap or focus a coin to look through the magnifier.</p>
 
+          {/* Three clues to look for, before each guess. */}
+          {!answered && (
+            <section className="rr-clues" aria-labelledby="rr-clues-title">
+              <h2 className="rr-clues-title" id="rr-clues-title">Look for 3 clues</h2>
+              <ol className="rr-clues-list">
+                {REPLICA_CLUES.map((c, i) => (
+                  <li key={c.title}>
+                    <span className="rr-clue-n" aria-hidden="true">{i + 1}</span>
+                    <span><strong>{c.title}.</strong> {c.text}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+
           {sides && (
             <div className="rr-coins-row">
               {(['a', 'b'] as Side[]).map((side) => {
@@ -567,6 +621,7 @@ export default function RealOrReplica() {
                   <div className="rr-coin-slot" key={`${round.id}-${side}`}>
                     <div className={`rr-coin-img-wrap ${border}`}>
                       <Magnifier
+                        maxHeight={220}
                         src={imageFor(side)}
                         alt={`Coin ${side.toUpperCase()}: ${round.coinName}, both faces`}
                         callouts={answered ? calloutsFor(round, isFake ? 'fake' : 'real') : undefined}
@@ -604,27 +659,40 @@ export default function RealOrReplica() {
                 titleClassName="rr-result-verdict"
                 title={correct ? `Correct! ${fakeLabel} is the fake.` : `Not quite — ${fakeLabel} is the fake.`}
               >
-                <p className="rr-result-coin">{round.coinName}</p>
-                <p className="rr-result-method">Method: {round.method}</p>
-                <p className="rr-result-explanation">{round.explanation}</p>
-                <p className="rr-look-title" id="rr-look-title">Look closer — the numbers on the coins</p>
-                <ol className="rr-look" aria-labelledby="rr-look-title">
-                  {round.callouts.map((c, i) => (
-                    <li key={i}>
-                      <span className={`rr-look-n ${c.on}`} aria-hidden="true">{i + 1}</span>
-                      <span>
-                        <span className="rr-look-where">
-                          {c.on === 'fake' ? 'Fake' : 'Genuine'} (coin {(c.on === 'fake' ? fakeSide : fakeSide === 'a' ? 'b' : 'a').toUpperCase()})
-                        </span>
-                        {c.text}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+                <p className="rr-result-coin">
+                  {round.coinName} <span className="rr-result-method">Method: {round.method}</span>
+                </p>
+                <p className="rr-result-explanation">{shortText}</p>
                 <div className="rr-result-foot">
+                  <button
+                    type="button"
+                    className="rr-more-btn"
+                    aria-expanded={more}
+                    aria-controls="rr-more"
+                    onClick={() => setMore((m) => !m)}
+                  >
+                    {more ? 'Less' : 'More'} <span aria-hidden="true">{more ? '▴' : '▾'}</span>
+                  </button>
                   <button type="button" className="rr-next-btn" onClick={next}>
                     {game.isLast ? 'One more case' : 'Next Round'} <span aria-hidden="true">{'→'}</span>
                   </button>
+                </div>
+                <div id="rr-more" className="rr-more" hidden={!more}>
+                  {restText && <p className="rr-result-explanation">{restText}</p>}
+                  <p className="rr-look-title" id="rr-look-title">Look closer — the numbers on the coins</p>
+                  <ol className="rr-look" aria-labelledby="rr-look-title">
+                    {round.callouts.map((c, i) => (
+                      <li key={i}>
+                        <span className={`rr-look-n ${c.on}`} aria-hidden="true">{i + 1}</span>
+                        <span>
+                          <span className="rr-look-where">
+                            {c.on === 'fake' ? 'Fake' : 'Genuine'} (coin {(c.on === 'fake' ? fakeSide : fakeSide === 'a' ? 'b' : 'a').toUpperCase()})
+                          </span>
+                          {c.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ol>
                 </div>
               </Verdict>
             </div>

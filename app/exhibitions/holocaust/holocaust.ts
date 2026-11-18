@@ -245,6 +245,7 @@ export const HOLOCAUST_PROJECTOR_THEME = {
 export const HOLOCAUST: ExhibitionConfig<'poster1' | 'poster2'> = {
   slug: 'holocaust',
   name: 'International Holocaust Remembrance Day',
+  shortName: 'Holocaust Remembrance Day',
   subtitle: 'Never Forget',
   fonts: {
     href: 'https://fonts.googleapis.com/css2?family=Anton&family=League+Gothic&family=Inter:ital,wght@0,400;0,500;0,700;1,400;1,700&display=swap',

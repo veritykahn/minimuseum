@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import VioletsLife from '@/app/exhibitions/womens-history/violet/page';
 import { BLITZ_NOTE, LIFE, threadLayout, threadPath } from '@/app/exhibitions/womens-history/violet/violetLife';
+import { QUESTIONS, photoAt } from '@/app/exhibitions/womens-history/violet/questions';
 import { BIO, WOMENS_HISTORY } from '@/app/exhibitions/womens-history/womensHistory';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -111,6 +112,69 @@ describe('walking the thread', () => {
     fireEvent.click(drawer.getByRole('button', { name: 'Close sources' }));
     fireEvent.click(screen.getByRole('tab', { name: /The factory/ }));
     expect(screen.queryByRole('complementary', { name: 'Museum note' })).toBeNull();
+  });
+});
+
+describe('a photograph and a question at every stop', () => {
+  const FAMILY = [
+    '/exhibitions/womens-history/photo-violet.jpg',
+    '/exhibitions/womens-history/photo-promenade.jpg',
+    '/exhibitions/womens-history/photo-family.jpg',
+    '/exhibitions/womens-history/photo-four-women.jpg',
+  ];
+
+  it('shows one of the family photographs at every stop after her name, its own where the poster sets one', () => {
+    expect(photoAt(0)).toBeNull();
+    LIFE.forEach((s, i) => {
+      if (i === 0) return;
+      const p = photoAt(i)!;
+      expect(FAMILY).toContain(p.src);
+      if (s.photo) expect(p.src).toBe(s.photo.src);
+      expect(p.alt.length).toBeGreaterThan(20);
+      expect(p.caption).not.toBe('');
+    });
+  });
+
+  it('has one question for every stop, with its right answer among the options', () => {
+    expect(Object.keys(QUESTIONS).sort()).toEqual(LIFE.map((s) => s.id).sort());
+    for (const q of Object.values(QUESTIONS)) {
+      if (q.kind === 'choice') expect(q.options[q.answer]).toBeDefined();
+    }
+  });
+
+  it('puts the photograph in the sheet, in place of the drawn keepsake', () => {
+    window.history.replaceState(null, '', '/#factory');
+    render(<VioletsLife />);
+    const img = within(screen.getByRole('tabpanel')).getByRole('img', { name: /Violet as a young woman/ });
+    expect(img).toHaveAttribute('src', '/exhibitions/womens-history/photo-violet.jpg');
+    expect(screen.getByText('Violet as a young woman')).toBeInTheDocument();
+  });
+
+  it('opens the stop’s question in a pop-up, says why, closes on Escape and gives focus back', () => {
+    window.history.replaceState(null, '', '/#marriage');
+    render(<VioletsLife />);
+    const ask = screen.getByRole('button', { name: /Question/ });
+    fireEvent.click(ask);
+    const dialog = screen.getByRole('dialog', { name: 'Why did Violet say she chose Harold?' });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'He was rich' }));
+    expect(within(dialog).getByRole('status')).toHaveTextContent(/Not quite\. .*made her laugh/);
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Try again' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'He made her laugh' }));
+    expect(within(dialog).getByRole('status')).toHaveTextContent(/^Yes!/);
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('button', { name: /Question.*answered/ })).toHaveFocus();
+  });
+
+  it('a think-and-tap question shows what the stop says, and its close button closes it', () => {
+    window.history.replaceState(null, '', '/#blitz');
+    render(<VioletsLife />);
+    fireEvent.click(screen.getByRole('button', { name: /Think and tap/ }));
+    const dialog = screen.getByRole('dialog');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Tap to see what happened' }));
+    expect(within(dialog).getByRole('status')).toHaveTextContent('scattered the family across the South of England');
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Close the question' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 });
 
