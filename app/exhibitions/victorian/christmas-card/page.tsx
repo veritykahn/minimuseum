@@ -157,7 +157,7 @@ export default function VictorianChristmasCard() {
               ))}
             </div>
           </fieldset>
-          <fieldset className="vbr-choice">
+          <fieldset className="vbr-choice vcc-greetings">
             <legend>Greeting</legend>
             <div className="vbr-options">
               {GREETINGS.map((g, i) => (

@@ -191,40 +191,41 @@ export const READ_WORDS = ['STEAM', 'TRAIN', 'LONDON', 'BRISTOL', 'TELEGRAPH', '
 /*
  * The railway bench's steps, one idea each, in few words (instruction, no
  * claims beyond the notes): noon moving west across the map, a traveller's
- * watch against the town clocks, a train to catch, the stationmaster setting
- * the clocks, and Bristol's clock with two minute hands.
+ * watch against the town clocks, a train to catch, the stationmaster's job
+ * of winding the station clocks on to London time, and Bristol's clock with
+ * two minute hands, set by hand and used to catch a train.
  */
 export type RailStepId = 'sun' | 'journey' | 'catch' | 'set' | 'bristol';
 export const RAIL_STEPS: { id: RailStepId; title: string; body: string; task: string }[] = [
   {
     id: 'sun',
     title: 'Noon moves west',
-    body: 'Each town set its clocks by the Sun. Noon reached the towns in the west later.',
-    task: 'Move the Sun west. Watch noon reach each town.',
+    body: 'Each town set its clocks by the Sun. Noon came later to the towns further west.',
+    task: 'Drag the Sun west across the map. Watch noon reach each town.',
   },
   {
     id: 'journey',
     title: 'Your watch says London time',
-    body: 'You set your watch in London and take the train west. The town clocks disagree with it!',
-    task: 'Steam west. Compare your watch with each town’s clock.',
+    body: 'Your watch keeps London time. Each town’s clock keeps its own time.',
+    task: 'Press Steam on. At each town, compare your watch with the town clock.',
   },
   {
     id: 'catch',
     title: 'Will you catch the train?',
     body: 'The trains ran by London time. The town clocks did not.',
-    task: 'Read the town clock, then choose.',
+    task: 'Count on the minutes to find London time. Then decide.',
   },
   {
     id: 'set',
     title: 'You’re the stationmaster',
-    body: 'The railways chose one time for every station: London time.',
-    task: 'Drag the minute hand until the town clock says the same as London.',
+    body: 'Your job: make every station clock on the line say London time.',
+    task: 'Work out how many minutes each clock needs. Then wind it on.',
   },
   {
     id: 'bristol',
     title: 'A clock with two minute hands',
-    body: 'Bristol’s Exchange clock shows two times at once: Bristol’s own, and London’s.',
-    task: 'Which minute hand shows London time? Press it.',
+    body: 'Bristol’s Exchange clock shows two times at once: London’s on its red hand, and Bristol’s own on its black hand.',
+    task: 'Set both hands. Then use the clock to catch your train.',
   },
 ];
 
@@ -240,8 +241,25 @@ export const TRAIN_PUZZLES: { town: string; train: number; clock: number }[] = [
   { town: 'Bristol', train: 12 * 60 + 30, clock: 12 * 60 + 15 },
 ];
 
+/**
+ * "You're the stationmaster": the London time the telegraph wire brings
+ * (the game's, not history's), and the stations whose clocks still show
+ * their own town's time, to be wound on to it.
+ */
+export const STATION_JOB = {
+  london: 12 * 60 + 10,
+  towns: ['Reading', 'Chippenham', 'Bath', 'Bridgewater'],
+  goal: [
+    'The trains run by London time, so every station clock must say London time.',
+    'A message comes down the telegraph wire from London with the time.',
+    'But these station clocks still show their own town’s time. How many minutes must you wind each one on?',
+  ],
+};
+
 /** Bristol's Exchange clock as the bench draws it: London time, and Bristol's own 11 minutes behind (the 1841 timetable). */
 export const BRISTOL_CLOCK = { london: 12 * 60 + 10, behind: 11 };
+/** The game's train from Bristol to London, by London time, caught with the clock. */
+export const BRISTOL_TRAIN = 12 * 60 + 30;
 
 /*
  * The telegraph's steps: how a telegraph works, part by part, before the

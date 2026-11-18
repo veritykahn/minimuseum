@@ -1,0 +1,351 @@
+/* ==========================================================================
+   The railway bench (Railway.tsx): the whole stage under the title and the
+   tabs, centred. A ribbon at the top (the step, its words, its task), the
+   step's own scene filling the middle, laid out its own way, and a slim
+   foot (Back, "Did you know?", Next). Each step fits on one screen at a
+   laptop's 1366 × 800 and on an iPad either way up; on a phone the bench
+   scrolls as one column. The notes open over the scene.
+   ========================================================================== */
+
+/* The platform painting reaches the foot of the room: no workbench across its bottom on this tab. */
+.vbi-stage[data-tab='railway'] .vbi-bench-top { display: none; }
+.vbi-stage[data-tab='railway'] .vbi-backdrop::after { background: linear-gradient(to bottom, rgba(30, 18, 14, 0.6), rgba(30, 18, 14, 0.3) 34%, rgba(30, 18, 14, 0.45)); }
+
+.vrw {
+  position: absolute;
+  z-index: 2;
+  top: var(--vbr-top, 150px);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 0 max(20px, 3vw) 12px;
+  color: #fff;
+  font-family: 'Jost', sans-serif;
+}
+.vrw :is(h2, h3, p, figure, ol, ul) { margin: 0; }
+.vrw :focus-visible { outline: 3px solid #f2c45a; outline-offset: 3px; }
+.vrw-cap { display: block; font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; opacity: 0.95; }
+.vrw-big-time { display: block; font-size: 2rem; line-height: 1.1; }
+.vrw-cheer { position: absolute; left: 50%; top: 45%; width: 0; height: 0; pointer-events: none; }
+
+/* ───────── The ribbon: the step, its words, its task ───────── */
+.vrw-head {
+  flex: 0 0 auto;
+  width: min(1240px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 20px 12px;
+  border-radius: 10px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.045) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.055) 0 1px, transparent 1px 4px),
+    #3c5541;
+  box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35);
+  animation: vrw-in 0.4s ease both;
+}
+@keyframes vrw-in { from { opacity: 0; transform: translateY(-6px); } }
+.vrw-head-top { display: flex; align-items: center; justify-content: space-between; gap: 6px 18px; flex-wrap: wrap; }
+.vrw-head .vbi-steps-nav { flex: 0 0 auto; gap: 12px; }
+.vrw-head-words { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; align-items: center; }
+.vb-inventions .vrw .vbi-step-body { font-size: 1.12rem; line-height: 1.4; }
+.vb-inventions .vrw .vbi-task { font-size: 1.08rem; }
+
+/* ───────── The stage, and the foot ───────── */
+.vrw-stage { position: relative; flex: 1 1 auto; min-height: 0; width: min(1240px, 100%); }
+.vrw-stage > * { height: 100%; }
+.vrw-foot { flex: 0 0 auto; width: min(760px, calc(100% - 200px)); }
+.vb-inventions .vrw .vbi-foot { margin: 0; }
+.vb-inventions .vrw .vbi-foot-row { border-top: 0; padding: 5px 8px; border-radius: 999px; background: rgba(47, 74, 50, 0.94); box-shadow: 0 8px 18px rgba(20, 10, 6, 0.35); }
+.vb-inventions .vrw .vbi-dyk-panel {
+  inset: 0 auto 72px 50%;
+  transform: translateX(-50%);
+  width: min(780px, calc(100vw - 32px));
+  border-radius: 12px;
+  box-shadow: 0 20px 44px rgba(10, 6, 4, 0.5);
+  z-index: 20;
+}
+
+/* ───────── 1. Noon moves west: London's clock, the map, the noon book ───────── */
+.vrw-sun { display: grid; grid-template-columns: minmax(150px, 0.75fr) minmax(0, 3fr) minmax(210px, 1fr); gap: 16px; }
+.vrw-london {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 10px;
+  border-radius: 14px;
+  background: rgba(31, 47, 34, 0.9);
+  text-align: center;
+  box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35);
+}
+.vrw-london-svg { width: 100%; max-width: 230px; height: auto; max-height: 72%; }
+.vrw-sun-map { display: flex; flex-direction: column; gap: 8px; min-width: 0; min-height: 0; }
+.vrw-map { flex: 1 1 auto; min-height: 0; width: 100%; filter: drop-shadow(0 14px 18px rgba(20, 10, 6, 0.4)); }
+.vrw-sun-track, .vrw-sun-disc { cursor: grab; touch-action: none; }
+.vrw-sun-disc:active { cursor: grabbing; }
+.vrw-drag-hint { font-family: 'Jost', sans-serif; font-size: 24px; font-weight: 600; fill: #7a3b1f; paint-order: stroke; stroke: #fdf3d8; stroke-width: 6px; animation: vrw-nudge 1.4s ease-in-out infinite; }
+@keyframes vrw-nudge { 50% { transform: translateX(-8px); } }
+.vrw-mini-cover { fill: #5b524a; }
+.vrw-mini-q { font-family: 'Jost', sans-serif; font-size: 34px; font-weight: 600; fill: #f4eee3; }
+.vrw-sun-controls { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; padding: 6px 14px; border-radius: 999px; background: rgba(31, 47, 34, 0.9); }
+.vrw-slider { flex: 1 1 auto; display: flex; align-items: center; gap: 10px; }
+.vrw-slider input { flex: 1 1 auto; height: 40px; accent-color: #f2c45a; cursor: pointer; }
+.vrw-slider-end { font-size: 0.85rem; letter-spacing: 0.14em; text-transform: uppercase; }
+
+.vrw-book {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  overflow: hidden;
+  padding: 14px 16px;
+  border-radius: 4px;
+  color: #2a2522;
+  background: repeating-linear-gradient(to bottom, transparent 0 33px, rgba(79, 106, 117, 0.28) 33px 34px), #f7f0df;
+  box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35), inset 6px 0 0 #a4565c;
+}
+.vrw-book-title { font-family: var(--vb-serif); font-weight: 600; font-size: 1.25rem; }
+.vrw-book-sub { font-family: var(--vb-serif); font-style: italic; font-size: 0.95rem; line-height: 1.3; }
+.vrw-book-list { list-style: none; padding: 0; display: flex; flex-direction: column; }
+.vrw-book-list li { display: grid; grid-template-columns: 1fr auto 4.6em; align-items: baseline; gap: 8px; min-height: 31px; font-size: 1.02rem; opacity: 0.5; }
+.vrw-book-list li[data-in] { opacity: 1; }
+.vrw-book-time { font-family: var(--vb-serif); font-style: italic; font-weight: 600; color: #7a3b1f; }
+.vrw-book-list li[data-in] .vrw-book-time { animation: vrw-write 0.5s ease both; }
+@keyframes vrw-write { from { opacity: 0; transform: translateX(-6px); } }
+.vrw-book-later { font-size: 0.85rem; color: #4f6a75; text-align: right; }
+.vrw-book-end { font-family: var(--vb-serif); font-weight: 600; color: #3f8a4a; font-size: 1.02rem; }
+
+/* ───────── 2. Your watch: the line as a wide strip, the two clocks under it ───────── */
+.vrw-journey { display: flex; flex-direction: column; gap: 12px; }
+/* Sized to its own drawing, so no edge of the map ever shows beside it. */
+.vrw-strip { flex: 0 0 auto; align-self: center; height: 42%; width: auto; max-width: 100%; aspect-ratio: 620 / 226; border-radius: 14px; background: #c9d8dc; box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35); }
+.vrw-strip .vbi-town:not([data-here]) .vbi-map-name { opacity: 0.85; }
+.vrw-compare { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) minmax(230px, 300px) minmax(0, 1fr); gap: 16px; }
+.vrw-clockcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 0;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(31, 47, 34, 0.9);
+  text-align: center;
+  box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35);
+}
+.vrw-clockcard svg { flex: 1 1 auto; min-height: 0; width: 100%; }
+.vrw-towncard { background: rgba(74, 52, 36, 0.92); }
+.vrw-nameboard { fill: #2f4a32; stroke: #c9a24a; stroke-width: 3; }
+.vrw-nameboard-text { font-family: 'Jost', sans-serif; font-size: 24px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; fill: #f4eee3; }
+.vrw-compare-mid { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; }
+.vrw-gap { padding: 10px 16px; border-radius: 12px; background: #a4565c; font-family: var(--vb-serif); font-size: 1.3rem; line-height: 1.3; box-shadow: 0 8px 16px rgba(20, 10, 6, 0.3); }
+.vrw-gap[data-zero] { background: rgba(31, 47, 34, 0.9); }
+.vb-room.vb-inventions .vrw-steam { min-height: 58px; font-size: 16px; }
+.vrw-progress { font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6); }
+
+/* ───────── 3. Will you catch it? The platform, and the ticket office under it ───────── */
+.vrw-catch { display: flex; flex-direction: column; gap: 10px; }
+.vrw-platform-wrap { position: relative; flex: 1 1 auto; min-height: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35); }
+.vrw-platform { display: block; width: 100%; height: 100%; }
+.vrw-sign { font-family: 'Jost', sans-serif; font-size: 22px; font-weight: 600; fill: #2f4a32; }
+.vrw-board-note { font-family: 'Jost', sans-serif; font-size: 19px; letter-spacing: 2px; text-transform: uppercase; fill: #f4eee3; }
+.vrw-board-now { font-family: 'Jost', sans-serif; font-size: 46px; font-weight: 600; fill: #f4eee3; font-variant-numeric: tabular-nums; }
+.vrw-board-now[data-known] { fill: #f2d68a; }
+.vrw-catch-train, .vrw-bristol-train { transition: transform 2s cubic-bezier(0.5, 0, 0.8, 0.4); }
+.vrw-catch-train[data-gone] { transform: translateX(1400px); }
+.vrw-ticket {
+  flex: 0 0 auto;
+  align-self: center;
+  width: min(1000px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 18px 12px;
+  border: 2px solid #c9a24a;
+  border-radius: 12px;
+  background: var(--vb-green);
+  box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35);
+}
+.vrw-ticket-n { font-size: 0.82rem; letter-spacing: 0.16em; text-transform: uppercase; color: #f2d68a; }
+.vrw-ticket-row { display: flex; align-items: center; gap: 12px 20px; flex-wrap: wrap; }
+.vrw-ticket-q { flex: 1 1 300px; font-family: var(--vb-serif); font-size: 1.2rem; line-height: 1.4; }
+.vrw-ticket-q strong { color: #f2d68a; font-weight: 600; }
+.vrw-count { display: flex; align-items: center; gap: 10px; }
+.vrw-counted { min-width: 6.5ch; font-size: 1.3rem; text-align: center; }
+.vrw-answers { flex: 0 1 420px; }
+
+/* ───────── 4. The stationmaster: the job, then the line of stations and the desk ───────── */
+.vrw-set { display: flex; flex-direction: column; gap: 12px; }
+.vrw-goal {
+  align-self: center;
+  margin: auto 0;
+  width: min(680px, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 24px 30px 26px;
+  border: 2px solid #c9a24a;
+  border-radius: 14px;
+  background: var(--vb-green);
+  box-shadow: 0 18px 36px rgba(20, 10, 6, 0.45);
+  animation: vrw-in 0.4s ease both;
+}
+.vrw-goal-kicker { font-size: 0.85rem; letter-spacing: 0.2em; text-transform: uppercase; color: #f2d68a; }
+.vrw-goal-title { font-family: var(--vb-serif); font-weight: 600; font-size: 1.6rem; line-height: 1.2; color: #f8f0dc; }
+.vrw-goal-list { padding-left: 1.3em; display: flex; flex-direction: column; gap: 8px; font-family: var(--vb-serif); font-size: 1.18rem; line-height: 1.4; }
+.vrw-goal-list li::marker { color: #f2d68a; font-family: 'Jost', sans-serif; font-weight: 600; }
+
+.vrw-line { position: relative; flex: 0 0 auto; list-style: none; padding: 0; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+.vrw-line::before { content: ''; position: absolute; left: 4%; right: 4%; top: 50%; height: 6px; margin-top: -3px; background: repeating-linear-gradient(90deg, #2a2522 0 18px, #6b4a32 18px 26px); border-radius: 3px; }
+.vrw-line li { position: relative; }
+.vb-room .vrw-station {
+  appearance: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 64px;
+  padding: 6px 16px 6px 8px;
+  border: 3px solid transparent;
+  border-radius: 12px;
+  background: #f4eee3;
+  color: var(--vb-green);
+  font-family: 'Jost', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(20, 10, 6, 0.3);
+}
+.vb-room .vrw-station[aria-pressed='true'] { border-color: #f2c45a; background: #fff8e4; }
+.vb-room .vrw-station[data-set] { background: #e3f1e2; }
+.vrw-station-face { width: 52px; height: 52px; }
+.vrw-station-flag { min-width: 1em; color: #3f8a4a; font-weight: 700; font-size: 1.3rem; }
+
+.vrw-desk { flex: 1 1 auto; min-height: 0; display: grid; grid-template-columns: minmax(170px, 230px) minmax(0, 1fr) minmax(250px, 330px); gap: 18px; align-items: center; }
+.vrw-telegram {
+  align-self: center;
+  padding: 14px 16px 16px;
+  color: #2a2522;
+  background: #f3e3b6;
+  border-top: 10px solid #a4565c;
+  transform: rotate(-2.5deg);
+  box-shadow: 0 12px 22px rgba(20, 10, 6, 0.4);
+  animation: vrw-telegram 0.6s cubic-bezier(0.2, 0.8, 0.3, 1.2) both;
+}
+@keyframes vrw-telegram { from { opacity: 0; transform: translateY(-30px) rotate(-8deg); } }
+.vrw-telegram-head { font-family: var(--pe-display); font-size: 1.5rem; letter-spacing: 0.18em; text-transform: uppercase; }
+.vrw-telegram-from { font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: #6b4a32; margin-bottom: 8px !important; }
+.vrw-telegram-body { font-family: 'Courier New', Courier, monospace; font-weight: 700; font-size: 1.12rem; line-height: 1.5; }
+.vrw-bigclock { position: relative; height: 100%; min-height: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+.vrw-bigclock svg { flex: 1 1 auto; min-height: 0; width: 100%; filter: drop-shadow(0 14px 18px rgba(20, 10, 6, 0.45)); }
+.vrw-bigclock figcaption { padding: 4px 18px; border-radius: 10px; background: rgba(31, 47, 34, 0.9); }
+.vrw-winder { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 14px; background: rgba(31, 47, 34, 0.94); box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35); }
+.vrw-winder-q, .vrw-winder-done { font-family: var(--vb-serif); font-size: 1.18rem; line-height: 1.35; }
+.vrw-winder-q strong { color: #f2d68a; font-weight: 600; }
+.vrw-winder-done { color: #b9eab9; }
+.vrw-stepper { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
+.vrw-stepper-n { min-width: 4.5ch; font-size: 1.6rem; text-align: center; }
+.vb-room.vb-inventions .vrw-wind { width: 100%; }
+.vb-room.vb-inventions .vrw-clue { align-self: flex-start; min-height: 44px; font-size: 14px; letter-spacing: 0.04em; text-transform: none; }
+.vrw-clue-text { font-family: var(--vb-serif); font-size: 1.02rem; line-height: 1.35; padding: 6px 10px; border-left: 4px solid #f2c45a; background: rgba(0, 0, 0, 0.18); }
+.vrw-winder-count { font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; opacity: 0.95; }
+
+/* ───────── 5. Bristol's clock: the Exchange filling its frame, the three jobs under it ───────── */
+.vrw-bristol { display: flex; flex-direction: column; gap: 10px; }
+.vrw-exchange { position: relative; flex: 1 1 auto; min-height: 0; border-radius: 14px; overflow: hidden; box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35); }
+.vrw-exchange-svg { display: block; width: 100%; height: 100%; }
+.vrw-hands { cursor: grab; touch-action: none; outline: none; }
+.vrw-hands:active { cursor: grabbing; }
+.vrw-hands:focus-visible > circle:first-child { stroke: #f2c45a; stroke-width: 8; }
+.vrw-hands[aria-disabled] { cursor: default; }
+.vrw-bhand[data-active] line { filter: drop-shadow(0 0 6px #f2c45a); }
+.vrw-wedge { fill: rgba(192, 57, 43, 0.16); stroke: #c0392b; stroke-width: 2; stroke-dasharray: 6 5; }
+.vrw-bristol-train[data-gone] { transform: translateX(1200px); }
+.vrw-bristol-panel { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; gap: 10px 20px; flex-wrap: wrap; padding: 10px 18px; border-radius: 12px; background: var(--vb-green); box-shadow: 0 12px 24px rgba(20, 10, 6, 0.35); }
+.vrw-phases { list-style: none; padding: 0; display: flex; gap: 6px; }
+.vrw-phases li { display: flex; align-items: center; gap: 6px; padding: 4px 12px 4px 4px; border-radius: 999px; font-size: 0.95rem; border: 1.5px solid rgba(255, 255, 255, 0.4); }
+.vrw-phases li[aria-current='step'] { background: #f4eee3; color: var(--vb-green); border-color: #f4eee3; font-weight: 500; }
+.vrw-phases li[data-done] { background: #3f8a4a; border-color: #3f8a4a; }
+.vrw-phase-n { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(0, 0, 0, 0.2); font-weight: 600; }
+.vrw-bristol-task { flex: 1 1 320px; font-family: var(--vb-serif); font-size: 1.18rem; line-height: 1.35; }
+.vrw-bristol .vrw-stepper { grid-template-columns: auto auto; }
+
+/* ───────── A laptop's short screen ───────── */
+@media (min-width: 761px) and (max-height: 820px) {
+  .vrw { gap: 8px; padding-bottom: 8px; }
+  .vrw-head { padding: 8px 18px 10px; gap: 4px; }
+  .vb-inventions .vrw .vbi-step-body { font-size: 1.05rem; }
+  .vb-inventions .vrw .vbi-task { font-size: 1rem; }
+  .vrw-big-time { font-size: 1.7rem; }
+  .vrw-ticket-q, .vrw-bristol-task, .vrw-winder-q, .vrw-winder-done { font-size: 1.08rem; }
+  .vrw-goal-list { font-size: 1.08rem; }
+  .vrw-book-list li { min-height: 28px; }
+  .vrw-book { background: repeating-linear-gradient(to bottom, transparent 0 27px, rgba(79, 106, 117, 0.28) 27px 28px), #f7f0df; }
+  .vb-room .vrw-station { min-height: 56px; }
+  .vrw-station-face { width: 44px; height: 44px; }
+}
+
+/* ───────── An iPad held upright: the scenes stacked where three columns would be thin ───────── */
+@media (min-width: 761px) and (max-width: 1100px) and (orientation: portrait) {
+  .vrw-head-words { grid-template-columns: 1fr; gap: 8px; }
+  .vrw-sun { grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); grid-template-rows: minmax(0, 1.5fr) minmax(0, 1fr); }
+  .vrw-sun-map { grid-column: 1 / -1; grid-row: 1; }
+  .vrw-book-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; }
+  .vrw-desk { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); }
+  .vrw-telegram { grid-column: 1 / -1; justify-self: center; width: min(420px, 100%); }
+  .vrw-strip { height: 40%; }
+}
+
+/* ───────── A phone: the bench as one column, scrolled ───────── */
+@media (max-width: 760px) {
+  .vrw { overflow-y: auto; padding: 0 8px 76px; gap: 8px; }
+  .vrw-head { padding: 8px 12px; }
+  .vrw-head-words { grid-template-columns: 1fr; gap: 4px; }
+  .vb-inventions .vrw .vbi-step-body { font-size: 1rem; }
+  .vrw-stage { flex: 0 0 auto; }
+  .vrw-stage > * { height: auto; }
+  .vrw-foot { width: 100%; }
+  .vb-inventions .vrw .vbi-dyk-panel { inset: 0 auto 0 50%; width: calc(100vw - 16px); }
+  .vrw-big-time { font-size: 1.4rem; }
+
+  .vrw-sun { display: flex; flex-direction: column; gap: 10px; }
+  .vrw-london { flex-direction: row; padding: 8px 12px; }
+  .vrw-london-svg { width: 90px; max-height: none; }
+  .vrw-map { height: 54vw; flex: none; }
+  .vrw-sun-controls { border-radius: 14px; }
+  .vrw-book-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 12px; }
+  .vrw-book-list li { grid-template-columns: 1fr auto; font-size: 0.9rem; }
+  .vrw-book-later { display: none; }
+
+  .vrw-strip { height: 40vw; }
+  .vrw-compare { grid-template-columns: 1fr 1fr; }
+  .vrw-compare-mid { grid-column: 1 / -1; grid-row: 2; }
+  .vrw-clockcard svg { height: 34vw; flex: none; }
+
+  .vrw-platform-wrap { flex: none; height: 50vw; }
+  .vrw-ticket-q { flex-basis: 100%; font-size: 1rem; }
+
+  .vrw-desk { display: flex; flex-direction: column; }
+  .vrw-telegram { transform: none; width: 100%; }
+  .vrw-bigclock svg { height: 56vw; flex: none; }
+  .vrw-winder { width: 100%; }
+  .vb-room .vrw-station { min-height: 48px; font-size: 0.95rem; padding: 4px 10px 4px 4px; }
+  .vrw-station-face { width: 38px; height: 38px; }
+
+  .vrw-exchange { flex: none; height: 62vw; }
+  .vrw-bristol-task { font-size: 1rem; }
+  .vrw-phases li { font-size: 0.8rem; padding-right: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vrw-catch-train, .vrw-bristol-train { transition: none !important; }
+  .vrw .vbi-steam, .vrw-drag-hint, .vrw-head, .vrw-goal, .vrw-telegram, .vrw-book-time { animation: none !important; }
+}

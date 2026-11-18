@@ -164,6 +164,18 @@ describe('wiring', () => {
 describe('fine tuning (regressions from trying the rooms)', () => {
   beforeEach(() => window.history.replaceState(null, '', '/'));
 
+  it('stands the card and its panel together in the middle of the room, roomy, the panel’s words at full strength on a deeper green', () => {
+    const card = fs.readFileSync(path.join(process.cwd(), 'app/exhibitions/victorian/christmas-card/card.css'), 'utf8');
+    // One centred group, the card and the panel side by side with a clear gap between them: not pushed to the right.
+    expect(card).toMatch(/\.vb-card \.vbr-scene \{ left: calc\(50% - var\(--vcc-w\) \/ 2\); right: calc\(50% \+ var\(--vcc-w\) \* 0\.04\);/);
+    expect(card).toMatch(/\.vb-card \.vbr-card \{\s*left: calc\(50% - var\(--vcc-w\) \* 0\.04 \+ var\(--vcc-gap\)\);\s*right: auto;\s*width: calc\(var\(--vcc-w\) \* 0\.54 - var\(--vcc-gap\)\);/);
+    // White words, none faded, on a green dark enough to read them (about 9 to 1).
+    expect(card).toMatch(/\.vb-card \{ --vcc-panel: #34503a; \}/);
+    expect(card).toMatch(/\.vb-card \.vbr-note, [^{]*\{ opacity: 1; color: #fff; \}/);
+    // Choices big enough to press.
+    expect(card).toMatch(/\.vb-room\.vb-card \.vbr-option \{ font-size: 14\.5px; min-height: 44px;/);
+  });
+
   it('sets a long message smaller inside the card, so "To" and "from" stay on it', () => {
     expect(messageSize('With love.')).toBe(19);
     expect(messageSize('x'.repeat(320))).toBeLessThan(messageSize('x'.repeat(200)));

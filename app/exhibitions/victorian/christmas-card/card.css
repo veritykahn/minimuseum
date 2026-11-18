@@ -34,15 +34,16 @@
 
 /* ───────── A roomy, centred layout (laptop and iPad landscape) ─────────
    The card and its linen panel stand together as one group in the middle of
-   the room, half each, with a clear gap between them: not pushed to the
-   right, and the panel wide enough for its choices to breathe. */
+   the room, with a clear gap between them: not pushed to the right, and
+   the panel wide enough for its choices to breathe. */
 @media (min-width: 761px) {
   .vb-card { --vcc-w: min(1160px, calc(100vw - 184px)); --vcc-gap: clamp(28px, 3.4vw, 56px); }
-  .vb-card .vbr-scene { left: calc(50% - var(--vcc-w) / 2); right: calc(50% + var(--vcc-gap) / 2); bottom: 4vh; }
+  /* The card takes 46% of the group, the panel the rest after the gap. */
+  .vb-card .vbr-scene { left: calc(50% - var(--vcc-w) / 2); right: calc(50% + var(--vcc-w) * 0.04); bottom: 4vh; }
   .vb-card .vbr-card {
-    left: calc(50% + var(--vcc-gap) / 2);
+    left: calc(50% - var(--vcc-w) * 0.04 + var(--vcc-gap));
     right: auto;
-    width: calc(var(--vcc-w) / 2 - var(--vcc-gap) / 2);
+    width: calc(var(--vcc-w) * 0.54 - var(--vcc-gap));
     padding-left: clamp(26px, 2.6vw, 40px);
     padding-right: clamp(26px, 2.6vw, 40px);
   }
@@ -83,6 +84,9 @@
 .vb-room.vb-card .vbr-option { font-size: 14.5px; min-height: 44px; padding: 8px 14px; border-color: rgba(255, 255, 255, 0.6); }
 .vb-card .vbr-options { gap: 8px; }
 .vb-card .vbr-field input, .vb-card .vbr-field textarea { font-size: 1.08rem; padding: 10px 12px; }
+/* The greetings, long words, two to a row. */
+.vcc-greetings .vbr-options { display: grid; grid-template-columns: 1fr 1fr; }
+.vb-room.vb-card .vcc-greetings .vbr-option { text-align: left; line-height: 1.25; }
 
 /* ───────── The print: one Letter page, folded in four ───────── */
 .vcc-print-root { display: none; }
