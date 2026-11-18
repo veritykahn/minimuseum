@@ -224,7 +224,7 @@
 .ap-copies-room .apc-slip .apc-button-primary { background: var(--frame); border-color: var(--frame); color: #fff; }
 .ap-copies-room .apc-button-primary:hover { filter: brightness(1.08); }
 .ap-copies-room .apc-button-quiet { border-color: transparent; text-decoration: underline; text-underline-offset: 4px; }
-.apc-start { align-self: center; font-size: 14px; padding: 14px 30px; }
+.ap-copies-room .apc-start { align-self: center; font-size: 14px; padding: 14px 30px; }
 
 /* ───────── Case closed ───────── */
 .apc-score { display: flex; flex-direction: column; align-items: center; gap: 6px; font-family: var(--pe-ui); font-size: 15px; letter-spacing: 0.06em; color: #cfd8dc; }
@@ -243,12 +243,19 @@
 /* A laptop's short screen: the chain drawn closer, so the copy keeps its height. */
 @media (min-width: 761px) and (max-height: 820px) {
   .apc-stage { --gutter: calc(var(--ap-fw) + 8px); }
-  .apc-head { flex-direction: row; justify-content: center; gap: 16px; }
+  .apc-head { flex-direction: row; justify-content: center; gap: 16px; padding: 0 236px 0 0; } /* clear of the sound button, top right */
   .apc-link-date { display: none; }
   .apc-slip { padding: 20px 22px 18px; gap: 10px; }
   .apc-task { font-size: 1rem; }
   .apc-fact { font-size: 13px; line-height: 1.5; }
   .apc-fan img { width: clamp(70px, 9vw, 104px); }
+}
+
+/* A narrower short screen (an iPad on its side): only the copy you are on keeps its name in the chain. */
+@media (min-width: 761px) and (max-width: 1300px) and (max-height: 820px) {
+  .apc-link-text { display: none; }
+  .apc-link { padding-right: 6px; }
+  .apc-link[data-state='now'] .apc-link-text { display: flex; }
 }
 
 /* An iPad held upright, or any narrow screen: the copy above, the slip under it. */

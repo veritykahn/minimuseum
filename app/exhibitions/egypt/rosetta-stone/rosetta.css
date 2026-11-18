@@ -45,7 +45,7 @@
 .egs-step .egr-task strong { font-weight: 500; color: var(--egr-gold); }
 .egs-feedback { min-height: 1.5em; margin: 0; text-align: center; font-family: var(--pe-body); font-size: var(--egr-text); color: #ffd2a8; }
 .egs-win { margin: 0; text-align: center; font-family: var(--pe-display); font-size: clamp(1.3rem, 1rem + 1.2vw, 2.1rem); color: var(--egr-gold); animation: egs-pop 0.5s ease both; }
-.egs-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--egr-line); }
+.egs-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; padding-right: 72px; /* Next stays clear of the Map button (bottom right) */ border-top: 1px solid var(--egr-line); }
 .eg-room .egs-nav .egr-button { white-space: nowrap; }
 .egs-nav .egr-dots-nav { justify-content: center; }
 

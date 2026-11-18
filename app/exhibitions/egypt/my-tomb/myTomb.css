@@ -87,7 +87,7 @@
 .egt-small { font-size: 0.85em; color: var(--egr-muted); }
 
 /* The paintings to choose from */
-.egt-walls { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; }
+.egt-walls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
 .eg-room .egt-wall {
   display: flex;
   flex-direction: column;
@@ -102,7 +102,7 @@
   text-align: left;
   cursor: pointer;
 }
-.egt-wall img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 3px; }
+.egt-wall img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; flex: none; object-fit: cover; border-radius: 3px; }
 .eg-room .egt-wall[aria-pressed='true'] { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.16); }
 
 /* The things to take */
