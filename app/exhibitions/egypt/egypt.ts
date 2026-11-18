@@ -168,7 +168,7 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
   projector: {
     theme: EGYPT_PROJECTOR_THEME,
     links: [
-      { label: 'Tomb Explorer: carry a torch through a dark tomb; what you find opens every other room', href: '/exhibitions/egypt/tomb' },
+      { label: 'Tomb Explorer: turn on your torch and search five painted tomb walls in the dark', href: '/exhibitions/egypt/tomb' },
       { label: 'Your Name in Hieroglyphs: write your name in a cartouche, and print it', href: '/exhibitions/egypt/hieroglyph-name' },
       { label: 'The Rosetta Stone Decoder: three scripts, and two royal names to crack', href: '/exhibitions/egypt/rosetta-stone' },
       { label: 'Mummification, Step by Step: natron, canopic jars, linen and amulets', href: '/exhibitions/egypt/mummification' },
@@ -185,16 +185,15 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
   ],
   // The rooms, in the landing page's Explore row and the display case's
   // Interactives, each card with a picture of the room itself
-  // (public/exhibitions/egypt/rooms/). The tomb comes first: it is the way
-  // into all the others.
+  // (public/exhibitions/egypt/rooms/). The tomb comes first.
   interactives: [
     {
       href: '/exhibitions/egypt/tomb',
       image: { src: '/exhibitions/egypt/rooms/tomb.webp', alt: 'The Tomb Explorer room: a torch’s circle of light in a dark burial chamber, beside the list of things hidden in the dark' },
       label: 'Interactive',
       title: 'Tomb Explorer',
-      subtitle: 'Carry a torch through the tomb: what you find opens every other room',
-      // The way in: the tomb opens the other rooms, so the Explore row and the case list it first.
+      subtitle: 'Turn on your torch and search the tomb’s painted walls in the dark',
+      // The Explore row and the case list it first.
       start: 'Start here',
     },
     {

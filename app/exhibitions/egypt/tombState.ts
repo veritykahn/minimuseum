@@ -3,10 +3,12 @@
 import { useCallback, useEffect, useState } from 'react';
 
 /*
- * What the tomb remembers. The Tomb Explorer is the way into the Egypt
- * rooms: each room, once finished, leaves something behind in the tomb (the
- * visitor's amulet in its niche, their cartouche on the wall, the mummy in
- * its coffin), so the tomb fills up with their work.
+ * What the Egypt rooms remember: the details found on each of the Tomb
+ * Explorer's painted walls, each room finished, the visitor's amulet and the
+ * name they wrote in a cartouche. (The tomb was once the way into the other
+ * rooms, through a burial chamber; it is now just the Tomb Explorer, and no
+ * room sends the visitor back to it. The exports stay, so rooms that still
+ * use them keep working.)
  *
  * It is kept in this browser only (localStorage, one key), never sent
  * anywhere. Every read and write is wrapped: in a private window, or with
@@ -113,7 +115,7 @@ export function useTomb(): [TombState, (update: (s: TombState) => TombState) => 
   return [state, update];
 }
 
-/** The tomb's address, and a room's address when the tomb opens it (its "M ←" then goes back to the tomb). */
+/** The tomb's address. `fromTomb` once marked a room opened from the chamber; the mark is now ignored (rooms go back to the exhibition). */
 export const TOMB_PATH = '/exhibitions/egypt/tomb';
 export const FROM_TOMB = 'tomb';
 export const fromTomb = (href: string) => `${href}?from=${FROM_TOMB}`;

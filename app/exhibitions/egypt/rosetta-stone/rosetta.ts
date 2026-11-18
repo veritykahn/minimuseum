@@ -3,13 +3,15 @@ import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { BM_HIEROGLYPHS, BUDGE_ROSETTA, EES_CARTOUCHE, GLYPHS, type GlyphCode } from '../rooms';
 
 /*
- * The Rosetta Stone decoder. The stone's three scripts side by side, cut
- * from one photograph of it (Hans Hillewaert, CC BY-SA 4.0, Wikimedia
- * Commons; cropped, in public/exhibitions/egypt/rosetta/); then the
- * decipherment as Champollion made it: Ptolemy's cartouche matched sign by
- * sign to the sounds of his name, and Cleopatra's read with the signs it
- * shares. The notes are the British Museum's own account, from its
- * exhibition "Hieroglyphs: unlocking ancient Egypt".
+ * The Rosetta Stone decoder. The stone's three scripts, cut from one
+ * photograph of it (Hans Hillewaert, CC BY-SA 4.0, Wikimedia Commons;
+ * cropped, in public/exhibitions/egypt/rosetta/), and the two ovals ringing
+ * the king's name in its hieroglyphs; then the decipherment as Champollion
+ * made it: Ptolemy's cartouche matched sign by sign to his name in the
+ * Greek, in order, skipping some vowels, and checked against Cleopatra's,
+ * which shares three of its signs. The notes are the British Museum's own
+ * account, from its exhibition "Hieroglyphs: unlocking ancient Egypt", and
+ * Budge's book for the British Museum, The Rosetta Stone (1913).
  *
  * The cartouches are set in hieroglyphs as Champollion compared them:
  * Ptolemy (Ptolmys) p t o l m i s, and Cleopatra k l e o p a t r a, with the
@@ -79,6 +81,21 @@ export const SCRIPTS: Script[] = [
   },
 ];
 
+/**
+ * The two ovals (cartouches) ringing the king's name in the top band's
+ * close-up (hieroglyphic.jpg, 1400 × 637), checked against the photograph:
+ * centre and half-width and half-height, in the picture's own pixels.
+ */
+export const STONE_CARTOUCHES = [
+  { x: 589, y: 257, rx: 76, ry: 32 },
+  { x: 1068, y: 506, rx: 74, ry: 30 },
+];
+
+/** Is a point (in hieroglyphic.jpg's pixels) on one of the ovals? */
+export function onCartouche(x: number, y: number) {
+  return STONE_CARTOUCHES.some((c) => ((x - c.x) / c.rx) ** 2 + ((y - c.y) / c.ry) ** 2 <= 1);
+}
+
 export type Sign = { code: GlyphCode; sound: string };
 
 /** Ptolemy's cartouche, sign by sign, with the sound of each. */
@@ -133,44 +150,25 @@ export const PTOLEMY_GREEK: { letter: string; sound: string }[] = [
   { letter: 'Σ', sound: 'S' },
 ];
 
-/** The sounds offered in Ptolemy's game: his seven, and six that are not in his name, so it cannot be spelled off in order. */
-export const PTOLEMY_SOUNDS = ['S', 'L', 'P', 'I', 'O', 'T', 'M'];
-export const DISTRACTORS = ['K', 'R', 'A', 'N', 'B', 'E'];
-
-/** The sounds, shuffled (a fresh order each visit; `random` is for tests). */
-export function shuffledSounds(random: () => number = Math.random): string[] {
-  const all = [...PTOLEMY_SOUNDS, ...DISTRACTORS];
-  for (let i = all.length - 1; i > 0; i--) {
-    const j = Math.floor(random() * (i + 1));
-    [all[i], all[j]] = [all[j], all[i]];
-  }
-  return all;
-}
-
 /**
- * Cleopatra's new signs, worked out as Budge tells Champollion's reasoning
- * (The Rosetta Stone, British Museum, 1913): once L, O and P are known from
- * Ptolemy, the Greek spelling K-L-E-O-P-A-T-R-A leaves only one sound for
- * each new sign. In the order he reasons them, each with its clue.
+ * Which Greek letter each of Ptolemy's signs says, in order: the code the
+ * visitor cracks. The signs follow the Greek letters in order, and the
+ * Greek vowels E, A and the second O have no sign of their own (SKIPPED).
  */
-// REVIEW: new text, each clue after Budge, The Rosetta Stone (1913): "No. 1 in B must represent K" (since L is second), the two vowels between L and P, "Nos. 6 and 9 are the two a's", No. 7 the same sound as the t of Ptolemy, "No. 8 … must be R".
-export const DEDUCE: { sign: number; clue: string }[] = [
-  { sign: 0, clue: 'L is the second letter of K-L-E-O-P-A-T-R-A. So the sign before the lion must say…' },
-  { sign: 2, clue: 'The lasso says O. In the Greek name, which letter comes between L and O?' },
-  { sign: 5, clue: 'The Greek name has two A’s, one after P and one at the end. This sign comes just after P…' },
-  { sign: 8, clue: 'The vulture again! It must be the second A, near the end…' },
-  { sign: 6, clue: 'K-L-E-O-P-A-?-R-A: which letter belongs here? (Careful: this sign is a hand, not the bread loaf you know from Ptolemy.)' },
-  { sign: 7, clue: 'Only one letter of K-L-E-O-P-A-T-R-A is left without a sign…' },
-];
+export const PTOLEMY_ORDER = [0, 1, 2, 3, 5, 7, 9];
+export const SKIPPED = PTOLEMY_GREEK.map((_, i) => i).filter((i) => !PTOLEMY_ORDER.includes(i));
 
-/** The letters offered for Cleopatra's new signs. */
-export const CLEO_LETTERS = ['K', 'E', 'A', 'T', 'R', 'M', 'S'];
+/** Cleopatra's name in the Greek, letter by letter, over her cartouche. */
+export const CLEOPATRA_GREEK = 'KLEOPATRA'.split('');
 
 /** The signs of Cleopatra's cartouche that also stand in Ptolemy's: the ones a decoder already knows. */
 export function sharedSigns(): number[] {
   const known = new Set(PTOLEMY.map((s) => s.code));
   return CLEOPATRA.map((s, i) => (known.has(s.code) ? i : -1)).filter((i) => i >= 0);
 }
+
+/** The shared signs inside her name itself (L, O and P); the bread at the end is part of the ending. */
+export const SHARED_IN_NAME = sharedSigns().filter((i) => i < NAME_SIGNS);
 
 export const glyph = (s: Sign) => GLYPHS[s.code];
 
@@ -183,9 +181,10 @@ export const ROSETTA_NOTES = {
     text: 'The stone carries one priestly decree, repeated in each script. It was drawn up on 27 March 196 BC by a council of Egyptian priests in Memphis, in the reign of Ptolemy V.',
     sources: [BM_HIEROGLYPHS],
   },
-  museum: {
-    text: 'Today the Rosetta Stone is in the British Museum, numbered EA24.',
-    sources: [EES_CARTOUCHE],
+  // REVIEW: new text. Budge, The Rosetta Stone (1913), gives the Greek text in translation, naming the king; the British Museum's exhibition text: the decree was made in the reign of Ptolemy V.
+  greek: {
+    text: 'Scholars could still read Greek. The Greek text names the king: Ptolemy.',
+    sources: [BUDGE_ROSETTA, BM_HIEROGLYPHS],
   },
   cartouches: {
     text: 'Like the scholars before him, Jean-François Champollion focused on the oval cartouches enclosing royal names. Thomas Young had already read Ptolemy’s name in the stone’s cartouche, though not every sign correctly.',
@@ -218,6 +217,11 @@ export const ROSETTA_NOTES = {
     text: 'Thomas Young’s work helped Champollion crack the hieroglyphic code, but his richest gift to Egyptology was his work on the demotic script.',
     sources: [BM_HIEROGLYPHS],
   },
+  // REVIEW: new text, two sentences of the British Museum's exhibition text made short: "Thomas Young had already read Ptolemy's name in the stone's cartouche, though not every sign correctly" and "Thomas Young's work helped Champollion crack the hieroglyphic code".
+  youngShort: {
+    text: 'Before Champollion, Thomas Young read Ptolemy’s name in the stone’s cartouche, though not every sign correctly. His work helped Champollion crack the code.',
+    sources: [BM_HIEROGLYPHS],
+  },
 } satisfies Record<string, ApprovedFact>;
 
 export const STONE_CREDIT = {
@@ -228,16 +232,18 @@ export const STONE_CREDIT = {
 
 /** The room's Sources drawer, by part. */
 export const ROSETTA_SOURCES: SourceGroup[] = [
+  { title: 'The story (the intro)', items: [BM_HIEROGLYPHS, BUDGE_ROSETTA] },
   {
-    title: 'Three scripts',
+    title: 'The stone and its three scripts',
     items: [
       { label: 'Rosetta Stone photograph by Hans Hillewaert', href: STONE_CREDIT.href, note: 'Picture (the close-ups are cropped from it)', licence: 'CC BY-SA 4.0 (creativecommons.org/licenses/by-sa/4.0), via Wikimedia Commons' },
       BM_HIEROGLYPHS,
-      EES_CARTOUCHE,
+      BUDGE_ROSETTA,
+      { ...EES_CARTOUCHE, note: 'The Rosetta Stone is in the British Museum, numbered EA24' },
     ],
   },
-  { title: 'Ptolemy', items: [...ROSETTA_NOTES.cartouches.sources] },
-  { title: 'Cleopatra', items: [BM_HIEROGLYPHS, BUDGE_ROSETTA] },
-  { title: '“I’ve got it!”', items: [...ROSETTA_NOTES.eureka.sources] },
+  { title: 'Cracking Ptolemy’s name', items: [BM_HIEROGLYPHS, BUDGE_ROSETTA] },
+  { title: 'Checking it with Cleopatra', items: [BM_HIEROGLYPHS, BUDGE_ROSETTA] },
+  { title: 'The code-breakers', items: [...ROSETTA_NOTES.eureka.sources] },
   { title: 'Lettering', items: [{ label: 'Hieroglyphs set in Noto Sans Egyptian Hieroglyphs', licence: 'SIL Open Font License' }] },
 ];
