@@ -10,6 +10,7 @@ import {
   DEDUCE,
   DISTRACTORS,
   PTOLEMY,
+  PTOLEMY_GREEK,
   PTOLEMY_SOUNDS,
   ROSETTA_NOTES,
   ROSETTA_SOURCES,
@@ -25,9 +26,10 @@ import { playEgypt } from '../egyptSound';
 /*
  * The Rosetta Stone decoder, in four parts, each a tab with its own
  * #address: the stone and its three scripts side by side; Ptolemy's
- * cartouche, matched sign by sign to its sounds, picked from a shuffled
- * set with sounds that are not in his name; Cleopatra's, cracked by
- * Champollion's own method (the signs she shares with Ptolemy first, then
+ * cartouche, matched sign by sign to its sounds, with his name in the
+ * stone's Greek beside it as the clue, picked from a shuffled set with
+ * sounds that are not in his name; Cleopatra's, cracked by Champollion's
+ * own method (beside Ptolemy's cartouche, the signs the two share first, then
  * each new sign reasoned from the Greek spelling, with the twist of her
  * hand-shaped t); and the moment of decipherment. Every fact is a museum
  * note; the sources and the photograph's licence are in the room's
@@ -43,6 +45,25 @@ const PARTS = [
 type PartId = (typeof PARTS)[number]['id'];
 
 const SHARED = sharedSigns();
+
+/** Ptolemy's name in the Greek text, each letter over its sound: the clue for his cartouche. */
+function GreekName() {
+  return (
+    <div className="egs-greek">
+      <p className="egr-label">In the Greek text, his name is spelled</p>
+      <ol className="egs-greek-row" aria-label={`ΠΤΟΛΕΜΑΙΟΣ: ${PTOLEMY_GREEK.map((g) => g.sound).join(', ')}`}>
+        {PTOLEMY_GREEK.map((g, i) => (
+          <li key={i} aria-hidden="true">
+            <span className="egs-greek-letter" lang="grc">
+              {g.letter}
+            </span>
+            <span className="egs-greek-sound">{g.sound}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  );
+}
 const HAND = CLEOPATRA.findIndex((s) => s.code === 'D46');
 
 export default function RosettaStone() {
@@ -52,6 +73,8 @@ export default function RosettaStone() {
   const [chosenSign, setChosenSign] = useState<number | null>(null);
   const [matched, setMatched] = useState<number[]>([]);
   const [found, setFound] = useState<number[]>([]);
+  // The shared sign last tapped, lit in Ptolemy's cartouche too.
+  const [lastFound, setLastFound] = useState<number | null>(null);
   const [solved, setSolved] = useState<Record<number, string>>({});
   const [miss, setMiss] = useState('');
   const [status, setStatus] = useState('');
@@ -114,8 +137,9 @@ export default function RosettaStone() {
       if (SHARED.includes(i)) {
         const next = [...found, i];
         setFound(next);
+        setLastFound(i);
         playEgypt(next.length === SHARED.length ? 'find' : 'chisel');
-        setStatus(next.length === SHARED.length ? `All ${SHARED.length} known signs found. Now for the new ones.` : `Yes: you know that one. It says ${CLEOPATRA[i].sound}.`);
+        setStatus(next.length === SHARED.length ? `All ${SHARED.length} shared signs found: P, T, O and L. That was Champollion’s trick. Now for the new ones.` : `Yes: that sign is in Ptolemy’s name too. It says ${CLEOPATRA[i].sound}.`);
       } else {
         playEgypt('miss');
         setStatus('That sign is new: it is not in Ptolemy’s name. Find the ones you know first.');
@@ -227,10 +251,11 @@ export default function RosettaStone() {
                 );
               })}
             </div>
+            <GreekName />
           </div>
           <section className="egr-panel" aria-labelledby="egs-ptolemy-title">
             <h2 id="egs-ptolemy-title">{ptolemyDone ? 'P-T-O-L-M-I-S: Ptolemy!' : 'Match each sign to a sound'}</h2>
-            <p>The Greek text names King Ptolemy. Find his name in hieroglyphs: choose a sign in the cartouche, then the sound you think it makes. Careful: some of these sounds are not in his name at all.</p>
+            <p className="egr-task">Tap a sign in the cartouche, then the sound it makes. The Greek spelling is your clue: the signs follow it in order, skipping some of its vowels.</p>
             <fieldset className="egr-choice">
               <legend>Sounds</legend>
               <div className="egr-options">
@@ -260,6 +285,18 @@ export default function RosettaStone() {
       {part === 'cleopatra' && (
         <div id="egs-panel-cleopatra" role="tabpanel" aria-labelledby="egs-tab-cleopatra" className="egr-layout">
           <div className="egr-scene egs-board">
+            <p className="egr-label">Ptolemy’s cartouche, which you have read</p>
+            <div className="egs-cartouche egs-cartouche-known" role="list" aria-label="Ptolemy’s cartouche, for comparing">
+              {PTOLEMY.map((s, i) => {
+                const match = found.some((f) => CLEOPATRA[f].code === s.code);
+                return (
+                  <span key={i} role="listitem" className={`egs-sign egs-sign-known ${match ? 'is-match' : ''} ${lastFound !== null && CLEOPATRA[lastFound].code === s.code ? 'is-flash' : ''}`} aria-label={`${s.sound}${match ? ', also in Cleopatra’s name' : ''}`}>
+                    <Glyphs text={glyph(s)} />
+                    <span className="egs-sound" aria-hidden="true">{s.sound}</span>
+                  </span>
+                );
+              })}
+            </div>
             <p className="egr-label">Cleopatra’s cartouche</p>
             <div className="egs-cartouche egs-cartouche-long" role="group" aria-label="The signs in Cleopatra’s cartouche">
               {CLEOPATRA.map((s, i) => {
@@ -294,10 +331,11 @@ export default function RosettaStone() {
             <h2 id="egs-cleo-title">{cleoDone ? 'K-L-E-O-P-A-T-R-A' : knownDone ? 'Work out the new signs' : 'Which signs do you already know?'}</h2>
             {!knownDone && (
               <>
-                <p>This cartouche names Queen Cleopatra. Some of its signs are in Ptolemy’s name too. Tap every sign you already know.</p>
+                <p className="egr-task">Compare the two names. Tap every sign in Cleopatra’s cartouche that is also in Ptolemy’s: those you can already read.</p>
                 <p className="egr-label">
-                  {found.length} of {SHARED.length} found
+                  {found.length} of {SHARED.length} shared signs found
                 </p>
+                <p className="egs-feedback" aria-hidden="true">{status}</p>
               </>
             )}
             {knownDone && step && (
@@ -314,7 +352,7 @@ export default function RosettaStone() {
               </fieldset>
             )}
             {solved[HAND] && <FactNote fact={ROSETTA_NOTES.hand} className="egr-fact egs-twist" lead="The twist:" />}
-            {knownDone && <FactNote fact={ROSETTA_NOTES.cleopatra} className="egr-fact" />}
+            {knownDone && <FactNote fact={ROSETTA_NOTES.cleopatra} className="egr-fact" lead="Champollion’s trick:" />}
             <FactNote fact={ROSETTA_NOTES.notOnStone} className="egr-fact" />
             {cleoDone && (
               <>

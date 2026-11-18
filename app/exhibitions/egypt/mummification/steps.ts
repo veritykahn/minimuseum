@@ -160,6 +160,42 @@ export const STEPS: Step[] = [
   },
 ];
 
+/**
+ * The room's five steps, each made of one or more of the steps above:
+ * washing and the brain; the canopic jars (a game of its own); the forty
+ * days in natron, then the oils; the wrapping; and day 70. Each keeps the
+ * notes of the steps it is made of.
+ */
+export type StageId = 'wash' | 'organs' | 'natron' | 'wrap' | 'coffin';
+export type Stage = {
+  id: StageId;
+  /** Its short name, for its dot. */
+  name: string;
+  title: string;
+  steps: StepId[];
+  span: [number, number];
+  when: string;
+};
+
+export const STAGES: Stage[] = [
+  { id: 'wash', name: 'Washing', title: 'Washing, and the brain', steps: ['why', 'wash', 'brain'], span: [0, 0.04], when: 'The first days' },
+  { id: 'organs', name: 'Canopic jars', title: 'The organs and the canopic jars', steps: ['organs'], span: [0.02, 0.06], when: 'The first days' },
+  { id: 'natron', name: 'Drying', title: 'Forty days in natron, then oils', steps: ['natron', 'oils'], span: [0.06, 0.7], when: '40 days, then oils' },
+  { id: 'wrap', name: 'Wrapping', title: 'Wrapping, with amulets', steps: ['wrap'], span: [0.7, 0.97], when: 'The last weeks' },
+  { id: 'coffin', name: 'Day 70', title: 'Ready for the coffin', steps: ['coffin'], span: [0.97, 1], when: 'About day 70' },
+];
+
+/** A step's notes, by its id. */
+export function stepNotes(id: StepId): ApprovedFact[] {
+  return STEPS.find((s) => s.id === id)!.notes;
+}
+
+/**
+ * The note that names which god protects which organ: the game's answers,
+ * kept out of the room's text until the four jars are full.
+ */
+export const JARS_ANSWER = stepNotes('organs')[1];
+
 /** The four Sons of Horus and the organ each protected (the British Museum's Hieroglyphs exhibition text). */
 export const JARS: { god: string; head: string; glyph: GlyphCode; organ: string }[] = [
   { god: 'Imset', head: 'human', glyph: 'D1', organ: 'liver' },

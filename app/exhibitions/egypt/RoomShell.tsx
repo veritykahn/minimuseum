@@ -4,7 +4,6 @@ import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
-import { roomReturn } from '@/components/exhibition/helpers';
 import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { SoundSwitch } from '@/components/games/feedback/FeedbackKit';
 import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
@@ -12,14 +11,18 @@ import { EGYPT } from './egypt';
 import { FROM_TOMB, TOMB_PATH } from './tombState';
 import './egypt.css';
 import './rooms.css';
+import './kit.css';
 
 /*
  * The frame of an Ancient Egypt room (the name cartouche, the weighing of
  * the heart, the tomb, mummification, the Rosetta Stone, the amulet maker):
  * the posters' near-black ground, white type and orange-red, the
- * exhibition's faces, "M ← Display Case" in the corner (back to the case's
- * Interactives; "M ← Studio" when the Studio opened it; "M ← Tomb" when the
- * tomb did), and one stage that sets its own heading. Each room's sources
+ * exhibition's faces, "M ← Ancient Egypt" in the corner (back to the
+ * exhibition's page; "M ← Studio" when the Studio opened it; "M ← Tomb" when
+ * the tomb did), and one stage that sets its own heading. A dark band sits
+ * behind the corner links, so nothing scrolls under them unseen. A room
+ * that fits one screen (`fit`) sets its stage as a column the height of the
+ * window: the heading, then the room, filling what is left. Each room's sources
  * and picture credits are in one Sources drawer (bottom left), grouped by
  * step, so none is cited inline. Each room's own stylesheet draws its scene.
  * Top right, the museum's sound switch: the rooms' chisels, scales, water and
@@ -29,10 +32,12 @@ import './rooms.css';
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
 const TOMB_RETURN: MuseumReturn = { href: TOMB_PATH, label: 'Tomb' };
+/** The rooms' usual way back: the Ancient Egypt exhibition's own page. */
+export const EGYPT_RETURN: MuseumReturn = { href: '/exhibitions/egypt', label: 'Ancient Egypt' };
 
-export default function RoomShell({ className, sources, children }: { className: string; sources?: readonly SourceGroup[]; children: ReactNode }) {
+export default function RoomShell({ className, sources, fit = false, children }: { className: string; sources?: readonly SourceGroup[]; fit?: boolean; children: ReactNode }) {
   const { fonts, palette, slug } = EGYPT;
-  const museumBack = useMuseumReturn(roomReturn(EGYPT));
+  const museumBack = useMuseumReturn(EGYPT_RETURN);
   // The tomb's doors carry ?from=tomb; read once, in the browser.
   const [fromTomb, setFromTomb] = useState(false);
   useEffect(() => {
@@ -41,6 +46,7 @@ export default function RoomShell({ className, sources, children }: { className:
   const back = fromTomb ? TOMB_RETURN : museumBack;
   const style: CssVars = {
     background: palette.page,
+    '--egr-page': palette.page,
     '--pe-display': fonts.display,
     '--pe-body': fonts.body,
     '--pe-ui': fonts.ui ?? fonts.body,
@@ -51,6 +57,8 @@ export default function RoomShell({ className, sources, children }: { className:
   return (
     <div className={`pe-root eg-room ${className}`} data-exhibition={slug} style={style}>
       <style>{`@import url('${fonts.href}');`}</style>
+
+      <div className="egr-topband" aria-hidden="true" />
 
       <ExhibitionNav className="pe-nav pe-nav-left" href={back.href} onClick={() => rememberReturn(back)}>
         <span className="pe-nav-text" aria-hidden="true">M</span>
@@ -63,7 +71,7 @@ export default function RoomShell({ className, sources, children }: { className:
       </div>
 
       <SourcesDrawer groups={sources ?? []}>
-        <main className="eg-room-stage">{children}</main>
+        <main className={`eg-room-stage ${fit ? 'egr-fit' : ''}`}>{children}</main>
       </SourcesDrawer>
     </div>
   );
@@ -77,6 +85,29 @@ export function RoomHeader({ title, kicker, children }: { title: string; kicker:
       <h1 className="egr-title">{title}</h1>
       {children}
     </header>
+  );
+}
+
+/**
+ * A room told in steps: "Step 2 of 7" and a dot for each step, done or not.
+ * Each dot is a button, so a teacher can jump straight to a step.
+ */
+export function StepDots({ steps, at, done, onGo, label }: { steps: readonly { id: string; title: string }[]; at: number; done: (i: number) => boolean; onGo: (i: number) => void; label: string }) {
+  return (
+    <nav className="egr-dots-nav" aria-label={label}>
+      <p className="egr-dots-count">
+        Step {at + 1} of {steps.length}
+      </p>
+      <ol className="egr-dots">
+        {steps.map((s, i) => (
+          <li key={s.id}>
+            <button type="button" className="egr-dot" aria-current={i === at ? 'step' : undefined} data-done={(i !== at && done(i)) || undefined} aria-label={`Step ${i + 1}: ${s.title}${done(i) ? ' (done)' : ''}`} onClick={() => onGo(i)}>
+              {i !== at && done(i) ? '✓' : i + 1}
+            </button>
+          </li>
+        ))}
+      </ol>
+    </nav>
   );
 }
 

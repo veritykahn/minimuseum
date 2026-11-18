@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import FactNote from '@/components/exhibition/FactNote';
 import RoomShell, { RoomHeader, TombDoor } from '../RoomShell';
+import Modal from '../Modal';
 import { markDone } from '../tombState';
 import Scales from './Scales';
 import { CHAPTERS, DEEDS, FIGURES, HEART_WORDS, JUDGEMENT_NOTES, MY_CHOICES, PAPYRI, TIP, WEIGHING_SOURCES, wouldTip, type FigureId } from './judgement';
@@ -10,13 +11,16 @@ import './weighing.css';
 import { playEgypt } from '../egyptSound';
 
 /*
- * The Weighing of the Heart, told as a story in six chapters, each with
- * Back and Next in one place: the two papyri that show it (Ani's and
- * Hunefer's, which is which); the hall and who is in it; Ani's heart on
- * the scales; Ani's words to the judges, one deed at a time; the verdict;
- * and, last, a quiet look at the visitor's own good choices. The scales
- * start level. At each turn the visitor predicts what they will do, and
- * then they move (judgement.ts). Nothing is scored, and nothing frightens.
+ * The Weighing of the Heart, told as a story in five chapters, each with
+ * Back and Next in one place: it opens on the scales, with Ani's heart
+ * going in and the first guess; then the hall and who is in it; Ani's
+ * words to the judges, one deed at a time; the verdict; and, last, a quiet
+ * look at the visitor's own good choices. The two papyri that show it
+ * (Ani's and Hunefer's, which is which) are in the About card. The scales
+ * start level, and say so only once the visitor has guessed. At each turn
+ * the visitor predicts what they will do, and then they move
+ * (judgement.ts). Nothing is scored, and nothing frightens. The guesses
+ * come first in the panel, so they are always on screen.
  */
 
 type Phase = 'speak' | 'predict' | 'shown';
@@ -33,6 +37,7 @@ export default function WeighingOfTheHeart() {
   const [tilt, setTilt] = useState(0);
   const [mine, setMine] = useState<string[]>([]);
   const [status, setStatus] = useState('');
+  const [about, setAbout] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
   const id = CHAPTERS[chapter].id;
@@ -118,13 +123,14 @@ export default function WeighingOfTheHeart() {
     go(0);
   };
 
+  const guessed = id === 'heart' ? heartGuess !== null : id === 'words' ? phase === 'shown' : id === 'verdict' || id === 'you';
   const canGoOn = id === 'heart' ? heartGuess !== null : id === 'words' ? wordsDone : true;
   const right = guess !== null && (guess === 'tip') === wouldTip(current);
 
   return (
-    <RoomShell className="eg-weighing" sources={WEIGHING_SOURCES}>
+    <RoomShell className="eg-weighing" sources={WEIGHING_SOURCES} fit>
       <RoomHeader kicker="Interactive · The hall of judgement" title="The Weighing of the Heart">
-        <p className="egr-lede">Follow the scribe Ani through his judgement. As the story goes on, guess what the scales will do.</p>
+        <p className="egr-lede">Follow the scribe Ani through his judgement, and guess what the scales will do.</p>
       </RoomHeader>
 
       <ol className="egw-chapters" aria-label="The story">
@@ -135,11 +141,12 @@ export default function WeighingOfTheHeart() {
         ))}
       </ol>
 
-      <div className="egr-layout">
-        <div className="egr-scene egw-hall" data-chapter={id}>
-          <Scales tilt={tilt} heart={id !== 'papyri' && id !== 'hall'} focus={focus} balanced={id === 'verdict' || id === 'you'} />
+      <div className="egr-layout egr-fill">
+        <div className="egr-scene egw-hall egr-sizer" data-chapter={id}>
+          <Scales tilt={tilt} heart focus={focus} balanced={id === 'verdict' || id === 'you'} />
+          {/* What the scales show, said only once the visitor has guessed (or at the verdict). */}
           <p className="egw-reading" aria-hidden="true">
-            {tilt >= TIP ? 'Out of balance' : tilt === 0 && id !== 'papyri' ? 'Level' : ''}
+            {!guessed ? '' : tilt >= TIP ? 'Out of balance' : tilt === 0 ? 'Level' : ''}
           </p>
           {id === 'you' && mine.length > 0 && (
             <ul className="egw-mine" aria-label="Your good choices">
@@ -152,30 +159,14 @@ export default function WeighingOfTheHeart() {
 
         <section className="egr-panel egr-stepper egw-panel" aria-labelledby="egw-panel-heading">
           <div className="egr-step-body">
-            <p className="egr-label">
-              Chapter {chapter + 1} of {CHAPTERS.length}
-            </p>
-
-            {id === 'papyri' && (
-              <>
-                <h2 id="egw-panel-heading" ref={heading} tabIndex={-1}>
-                  Two papyri, one story
-                </h2>
-                <p>Two famous papyri in the British Museum show the weighing of the heart. They were made for two different men.</p>
-                <div className="egw-papyri">
-                  <article className="egw-papyrus">
-                    <p className="egr-label">EA 10470</p>
-                    <h3>The Papyrus of Ani</h3>
-                    <FactNote fact={PAPYRI.ani} className="egr-fact" />
-                  </article>
-                  <article className="egw-papyrus">
-                    <p className="egr-label">EA 9901</p>
-                    <h3>The Book of the Dead of Hunefer</h3>
-                    <FactNote fact={PAPYRI.hunefer} className="egr-fact" />
-                  </article>
-                </div>
-              </>
-            )}
+            <div className="egw-panel-top">
+              <p className="egr-label">
+                Chapter {chapter + 1} of {CHAPTERS.length}
+              </p>
+              <button type="button" className="egr-button egr-button-quiet" aria-haspopup="dialog" onClick={() => setAbout(true)}>
+                <span className="egr-q" aria-hidden="true">i</span>About the papyri
+              </button>
+            </div>
 
             {id === 'hall' && (
               <>
@@ -199,10 +190,8 @@ export default function WeighingOfTheHeart() {
                 <h2 id="egw-panel-heading" ref={heading} tabIndex={-1}>
                   Ani’s heart on the scales
                 </h2>
-                <FactNote fact={JUDGEMENT_NOTES.heartWords} className="egr-fact" />
-                <blockquote className="egw-quote">“{HEART_WORDS}”</blockquote>
-                <fieldset className="egr-choice">
-                  <legend>Guess: if Ani’s heart is true, what will the scales do?</legend>
+                <fieldset className="egr-choice egw-guess">
+                  <legend>Ani’s heart goes on the scales. Guess: if his heart is true, what will the scales do?</legend>
                   <div className="egr-options">
                     <button type="button" className="egr-option" aria-pressed={heartGuess === 'level'} onClick={() => predictHeart('level')}>
                       Stay level
@@ -218,6 +207,8 @@ export default function WeighingOfTheHeart() {
                     <FactNote fact={JUDGEMENT_NOTES.level} className="egr-fact" />
                   </>
                 )}
+                <FactNote fact={JUDGEMENT_NOTES.heartWords} className="egr-fact" />
+                <blockquote className="egw-quote">“{HEART_WORDS}”</blockquote>
               </>
             )}
 
@@ -226,7 +217,6 @@ export default function WeighingOfTheHeart() {
                 <h2 id="egw-panel-heading" ref={heading} tabIndex={-1}>
                   Ani’s words · {deed + 1} of {DEEDS.length}
                 </h2>
-                {deed === 0 && phase === 'speak' && <FactNote fact={JUDGEMENT_NOTES.confession} className="egr-fact" />}
                 <p className="egw-deed" key={current.id}>
                   {current.label}
                 </p>
@@ -244,7 +234,7 @@ export default function WeighingOfTheHeart() {
                     {spokeWrong && <p className="egw-hint">Think again: is this something kind, or something unkind?</p>}
                   </fieldset>
                 )}
-                {phase !== 'speak' && <blockquote className="egw-quote">“{current.quote}”</blockquote>}
+                {deed === 0 && phase === 'speak' && <FactNote fact={JUDGEMENT_NOTES.confession} className="egr-fact" />}
                 {phase === 'predict' && (
                   <fieldset className="egr-choice">
                     <legend>{current.kind === 'never' ? 'Ani never did this. But if he had, what would the scales do?' : 'Ani did this good deed. What will the scales do?'}</legend>
@@ -258,6 +248,7 @@ export default function WeighingOfTheHeart() {
                     </div>
                   </fieldset>
                 )}
+                {phase !== 'speak' && <blockquote className="egw-quote">“{current.quote}”</blockquote>}
                 {phase === 'shown' && (
                   <>
                     <p className={`egw-result ${right ? 'is-right' : 'is-kind'}`}>
@@ -328,6 +319,20 @@ export default function WeighingOfTheHeart() {
           </div>
         </section>
       </div>
+
+      <Modal open={about} onClose={() => setAbout(false)} kicker="About this story" title="Two papyri, one story">
+        <p>Two famous papyri in the British Museum show the weighing of the heart. They were made for two different men.</p>
+        <article className="egw-papyrus">
+          <p className="egr-label">EA 10470</p>
+          <h3>The Papyrus of Ani</h3>
+          <FactNote fact={PAPYRI.ani} className="egr-fact" />
+        </article>
+        <article className="egw-papyrus">
+          <p className="egr-label">EA 9901</p>
+          <h3>The Book of the Dead of Hunefer</h3>
+          <FactNote fact={PAPYRI.hunefer} className="egr-fact" />
+        </article>
+      </Modal>
 
       <p className="egr-status" role="status" aria-live="polite">
         {status}

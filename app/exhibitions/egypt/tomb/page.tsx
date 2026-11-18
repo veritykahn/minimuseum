@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 're
 import Link from 'next/link';
 import FactNote from '@/components/exhibition/FactNote';
 import RoomShell, { RoomHeader } from '../RoomShell';
+import Modal from '../Modal';
 import { fromTomb, useTomb } from '../tombState';
 import Chamber from './Chamber';
 import { CHAMBER, THINGS } from './things';
@@ -18,6 +19,10 @@ import { playEgypt, startTorch } from '../egyptSound';
  * other rooms, and what the visitor makes in those rooms is left here (the
  * tomb remembers, tombState.ts). Then the painted walls, one at a time,
  * each hiding three details; finding them all completes the wall.
+ *
+ * The room fits one screen: a wall's painting fills it, and beneath it a
+ * bar that never scrolls away holds what to search for ("1 of 3 found")
+ * and the way to the next wall. Each find opens in its own card.
  *
  * Each view is a tab with its own #address. The torch follows the mouse or
  * the finger, or the arrow keys; "Light the whole wall" lifts the dark at
@@ -34,6 +39,8 @@ export default function TombExplorer() {
   // The torch crackles while it is in the visitor's hand (not once the room is lit).
   useEffect(() => (lit ? undefined : startTorch()), [lit]);
   const [status, setStatus] = useState('');
+  // The detail whose card is open (on this wall), if any.
+  const [found, setFound] = useState<string | null>(null);
   const [tomb, updateTomb] = useTomb();
   const tabRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const index = VIEWS.indexOf(view as (typeof VIEWS)[number]);
@@ -55,6 +62,7 @@ export default function TombExplorer() {
     if (id !== view) playEgypt('grind');
     setView(id);
     setLit(false);
+    setFound(null);
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${id}`);
     const w = WALLS.find((x) => x.id === id);
     setStatus(w ? `${w.name}. Search with the torch for ${w.details.map((d) => d.label).join(', ')}.` : 'The burial chamber. Search the dark with the torch.');
@@ -95,6 +103,7 @@ export default function TombExplorer() {
         if (d && !(tomb.found[wall.id] ?? []).includes(d.id)) {
           const n = (tomb.found[wall.id] ?? []).length + 1;
           find(wall.id, d.id, n === wall.details.length ? `You found ${d.label}! The wall is complete.` : `You found ${d.label}!`);
+          setFound(d.id);
         }
       } else {
         const t = detailAt(THINGS, x, y);
@@ -115,10 +124,17 @@ export default function TombExplorer() {
   const roomsDone = THINGS.filter((t) => tomb.done[t.room]).length;
   const wallDone = wall ? wall.details.every((d) => foundHere.includes(d.id)) : false;
 
+  const card = wall && found ? wall.details.find((d) => d.id === found) : undefined;
+  const cardIndex = card && wall ? foundHere.indexOf(card.id) + 1 : 0;
+  const nextView = () => {
+    setFound(null);
+    choose(index < WALLS.length ? VIEWS[index + 1] : 'chamber');
+  };
+
   return (
-    <RoomShell className="eg-tomb" sources={SOURCES}>
+    <RoomShell className="eg-tomb" sources={SOURCES} fit>
       <RoomHeader kicker="Interactive · Into the dark" title="Tomb Explorer">
-        <p className="egr-lede">It is dark in the tomb. Carry your torch through it: what you find opens the tomb’s other rooms, and what you make there is left here.</p>
+        <p className="egr-lede">It is dark in the tomb. Carry your torch through it: what you find opens the tomb’s other rooms.</p>
       </RoomHeader>
 
       <div className="egr-tabs" role="tablist" aria-label="The tomb">
@@ -148,89 +164,98 @@ export default function TombExplorer() {
         })}
       </div>
 
-      <div className="egr-layout" id="egt-panel" role="tabpanel" aria-labelledby={`egt-tab-${view}`}>
-        <div className="egr-scene">
-          {wall ? (
-            <TorchStage
-              key={wall.id}
-              width={wall.width}
-              height={wall.height}
-              lit={lit}
-              rings={wall.details.filter((d) => foundHere.includes(d.id))}
-              onTorch={onTorch}
-              label={`${wall.title}. ${lit ? 'The whole wall is lit.' : 'Move the torch with the arrow keys.'} ${wall.alt}`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img data-picture src={wall.src} alt="" width={wall.width} height={wall.height} draggable={false} />
-            </TorchStage>
-          ) : (
-            <TorchStage
-              key="chamber"
-              width={CHAMBER.width}
-              height={CHAMBER.height}
-              lit={lit}
-              rings={[]}
-              onTorch={onTorch}
-              className="egt-stage-chamber"
-              label={`The burial chamber. ${lit ? 'The whole chamber is lit.' : 'Move the torch with the arrow keys.'} A dark stone chamber with a starry ceiling: a painted doorway, the doorway of the Hall of Judgement with scales beyond it, a carved cartouche, a niche in the wall, an embalmers’ table and a broken carved stone.`}
-            >
-              <Chamber tomb={tomb} />
-            </TorchStage>
-          )}
-          <p className="egt-hint" aria-hidden="true">
-            {lit ? 'Move the lens over the picture · or use the arrow keys' : 'Move your mouse or finger over the dark · or use the arrow keys'}
-          </p>
-        </div>
+      <div className="egt-view egr-fill" id="egt-panel" role="tabpanel" aria-labelledby={`egt-tab-${view}`}>
+        {wall ? (
+          <div className="egt-wall">
+            <div className="egt-stage-cell egr-sizer">
+              <TorchStage
+                key={wall.id}
+                width={wall.width}
+                height={wall.height}
+                lit={lit}
+                rings={wall.details.filter((d) => foundHere.includes(d.id))}
+                onTorch={onTorch}
+                label={`${wall.title}. ${lit ? 'The whole wall is lit.' : 'Move the torch with the arrow keys.'} ${wall.alt}`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img data-picture src={wall.src} alt="" width={wall.width} height={wall.height} draggable={false} />
+              </TorchStage>
+            </div>
 
-        <section className="egr-panel egt-panel" aria-label={wall ? wall.name : 'The burial chamber'}>
-          {wall ? (
-            <>
-              <p className="egr-label">
-                Wall {index} of {WALLS.length} · {foundHere.length} of {wall.details.length} found
-              </p>
-              <h2>{wall.title}</h2>
-              <ul className="egt-clues">
-                {wall.details.map((d) => {
-                  const got = foundHere.includes(d.id);
-                  return (
-                    <li key={d.id} className={got ? 'is-found' : ''}>
-                      <p className="egt-clue">
-                        <span className="egt-clue-mark" aria-hidden="true">{got ? '✓' : '?'}</span>
-                        <span>{got ? 'You found ' : 'Search for '}<strong>{d.label}</strong></span>
-                      </p>
-                      {got && <FactNote fact={d.tells} className="egr-fact" />}
-                    </li>
-                  );
-                })}
-              </ul>
-              {wallDone && (
-                <div className="egt-reward">
-                  <p className="egt-found">Wall complete!</p>
-                  <FactNote fact={wall.note} className="egr-fact" />
-                </div>
-              )}
-              <div className="egr-actions">
+            {/* The wall's bar: what to search for, and the way on. It never scrolls away. */}
+            <section className="egt-bar" aria-label={wall.name}>
+              <div className="egt-bar-info">
+                <p className="egr-label">
+                  Wall {index} of {WALLS.length} · <span className={`egt-count ${wallDone ? 'is-done' : ''}`}>{foundHere.length} of {wall.details.length} found</span>
+                </p>
+                <h2 className="egt-bar-title">{wall.title}</h2>
+              </div>
+              <div className="egt-bar-clues">
+                <p className="egt-hint" aria-hidden="true">
+                  {lit ? 'Move the lens over the painting to search for:' : 'Move the torch over the dark to search for:'}
+                </p>
+                <ul className="egt-clues">
+                  {wall.details.map((d) => {
+                    const got = foundHere.includes(d.id);
+                    return (
+                      <li key={d.id} className={got ? 'is-found' : ''}>
+                        {got ? (
+                          <button type="button" className="egt-clue" onClick={() => setFound(d.id)} aria-label={`Found: ${d.label}. Read about it`}>
+                            <span className="egt-clue-mark" aria-hidden="true">✓</span>
+                            <span>{d.label}</span>
+                          </button>
+                        ) : (
+                          <p className="egt-clue">
+                            <span className="egt-clue-mark" aria-hidden="true">?</span>
+                            <span>{d.label}</span>
+                          </p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+              <div className="egr-actions egt-bar-actions">
                 <button type="button" className="egr-button" aria-pressed={lit} onClick={lightAll}>
                   Light the whole wall
                 </button>
-                {index < WALLS.length ? (
-                  <button type="button" className="egr-button egr-button-primary" onClick={() => choose(VIEWS[index + 1])}>
-                    Next wall <span aria-hidden="true">→</span>
-                  </button>
-                ) : (
-                  <button type="button" className="egr-button egr-button-primary" onClick={() => choose('chamber')}>
-                    <span aria-hidden="true">←</span> Back to the chamber
-                  </button>
-                )}
+                <button type="button" className="egr-button egr-button-primary" onClick={nextView}>
+                  {index < WALLS.length ? (
+                    <>
+                      Next wall <span aria-hidden="true">→</span>
+                    </>
+                  ) : (
+                    <>
+                      <span aria-hidden="true">←</span> Back to the chamber
+                    </>
+                  )}
+                </button>
               </div>
-              <FactNote fact={TOMB_NOTES.copies} className="egr-fact" />
-            </>
-          ) : (
-            <>
+            </section>
+          </div>
+        ) : (
+          <div className="egr-layout egt-chamber-view">
+            <div className="egr-scene egt-stage-cell egr-sizer">
+              <TorchStage
+                key="chamber"
+                width={CHAMBER.width}
+                height={CHAMBER.height}
+                lit={lit}
+                rings={[]}
+                onTorch={onTorch}
+                className="egt-stage-chamber"
+                label={`The burial chamber. ${lit ? 'The whole chamber is lit.' : 'Move the torch with the arrow keys.'} A dark stone chamber with a starry ceiling: a painted doorway, the doorway of the Hall of Judgement with scales beyond it, a carved cartouche, a niche in the wall, an embalmers’ table and a broken carved stone.`}
+              >
+                <Chamber tomb={tomb} />
+              </TorchStage>
+            </div>
+
+            <section className="egr-panel egt-panel" aria-label="The burial chamber">
               <p className="egr-label">
                 {seen.length} of {THINGS.length} found · {roomsDone} of {THINGS.length} rooms finished
               </p>
               <h2>The burial chamber</h2>
+              <p className="egr-task">Move your mouse or finger over the dark, or use the arrow keys. Find the six things hidden here.</p>
               <ul className="egt-things">
                 {THINGS.map((t) => {
                   const got = seen.includes(t.id);
@@ -266,10 +291,47 @@ export default function TombExplorer() {
                   Light the whole chamber
                 </button>
               </div>
-            </>
-          )}
-        </section>
+            </section>
+          </div>
+        )}
       </div>
+
+      {/* A find, in its own card: what it is and what it tells us; the wall's story once all are found. */}
+      <Modal
+        open={!!card}
+        onClose={() => setFound(null)}
+        tone="gold"
+        kicker={wall && card ? `Found! · ${cardIndex} of ${wall.details.length}` : undefined}
+        title={card ? `${card.label[0].toUpperCase()}${card.label.slice(1)}` : ''}
+      >
+        {card && wall && (
+          <>
+            <FactNote fact={card.tells} className="egr-fact" />
+            {wallDone ? (
+              <div className="egt-reward">
+                <p className="egt-found">Wall complete!</p>
+                <FactNote fact={wall.note} className="egr-fact" />
+                <FactNote fact={TOMB_NOTES.copies} className="egr-fact" />
+              </div>
+            ) : (
+              <p className="egt-left">
+                {wall.details.length - foundHere.length} more to find on this wall.
+              </p>
+            )}
+            <div className="egr-actions">
+              {wallDone ? (
+                <button type="button" className="egr-button egr-button-primary" onClick={nextView}>
+                  {index < WALLS.length ? 'On to the next wall' : 'Back to the chamber'} <span aria-hidden="true">→</span>
+                </button>
+              ) : (
+                <button type="button" className="egr-button egr-button-primary" onClick={() => setFound(null)}>
+                  Keep searching
+                </button>
+              )}
+            </div>
+          </>
+        )}
+      </Modal>
 
       <p className="egr-status" role="status" aria-live="polite">
         {status}

@@ -2,7 +2,6 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
-import { roomReturn } from '@/components/exhibition/helpers';
 import { EGYPT } from '@/app/exhibitions/egypt/egypt';
 import { GLYPHS, SIGN_NAMES } from '@/app/exhibitions/egypt/rooms';
 import { TOMB_KEY, readTomb } from '@/app/exhibitions/egypt/tombState';
@@ -14,9 +13,9 @@ import TombExplorer from '@/app/exhibitions/egypt/tomb/page';
 import { TOMB_NOTES, WALLS, detailAt, renderedBox, toPicture, toScreen, tombSources } from '@/app/exhibitions/egypt/tomb/scenes';
 import { CHAMBER, THINGS } from '@/app/exhibitions/egypt/tomb/things';
 import Mummification from '@/app/exhibitions/egypt/mummification/page';
-import { ANUBIS_POSTER, CHECK, HEART_NOTE, JARS, STEPS, WRAP_AMULETS } from '@/app/exhibitions/egypt/mummification/steps';
+import { ANUBIS_POSTER, CHECK, HEART_NOTE, JARS, JARS_ANSWER, STAGES, STEPS, WRAP_AMULETS } from '@/app/exhibitions/egypt/mummification/steps';
 import RosettaStone from '@/app/exhibitions/egypt/rosetta-stone/page';
-import { CLEOPATRA, DEDUCE, DISTRACTORS, PTOLEMY, PTOLEMY_SOUNDS, ROSETTA_NOTES, SCRIPTS, sharedSigns, shuffledSounds } from '@/app/exhibitions/egypt/rosetta-stone/rosetta';
+import { CLEOPATRA, DEDUCE, DISTRACTORS, PTOLEMY, PTOLEMY_GREEK, PTOLEMY_SOUNDS, ROSETTA_NOTES, SCRIPTS, sharedSigns, shuffledSounds } from '@/app/exhibitions/egypt/rosetta-stone/rosetta';
 import AmuletMaker from '@/app/exhibitions/egypt/amulet/page';
 import { AMULET_NOTES, MAX_SYMBOLS, NEEDS, SYMBOLS, toggleSymbol } from '@/app/exhibitions/egypt/amulet/amulets';
 
@@ -27,7 +26,7 @@ import { AMULET_NOTES, MAX_SYMBOLS, NEEDS, SYMBOLS, toggleSymbol } from '@/app/e
  * a museum note with a source the owner trusts, cited in the room's one
  * Sources drawer and never inline; the one poster line quoted is word for
  * word. Each room opens from the display case's Interactives and from the
- * tomb, goes back the way it came, works by keyboard, stands still under
+ * tomb, goes back to the exhibition (or the way it came), works by keyboard, stands still under
  * reduced motion, and leaves what it made in the tomb.
  */
 
@@ -145,12 +144,11 @@ describe('the display case’s interactives, and the way back', () => {
     }
   });
 
-  it('takes each room back to the case’s Interactives, or to the tomb when the tomb opened it', async () => {
+  it('takes each room back to the Ancient Egypt exhibition, or to the tomb when the tomb opened it', async () => {
     window.history.replaceState(null, '', '/exhibitions/egypt/amulet');
     const { unmount } = render(<AmuletMaker />);
-    const back = screen.getByRole('link', { name: 'Display Case' });
-    expect(back).toHaveAttribute('href', roomReturn(EGYPT).href);
-    expect(back.getAttribute('href')).toBe('/exhibitions/egypt/artifacts/case?view=interactives');
+    const back = screen.getByRole('link', { name: 'Ancient Egypt' });
+    expect(back.getAttribute('href')).toBe('/exhibitions/egypt');
     unmount();
     window.history.replaceState(null, '', '/exhibitions/egypt/amulet?from=tomb');
     render(<AmuletMaker />);
@@ -262,7 +260,18 @@ describe('Tomb Explorer', () => {
     for (let i = 0; i < 8; i++) fireEvent.keyDown(wall, { key: 'ArrowDown' });
     fireEvent.keyDown(wall, { key: 'ArrowLeft' });
     expect(screen.getByRole('status')).toHaveTextContent('You found the crocodile!');
-    expect(screen.getByText(WALLS[0].details[0].tells.text)).toBeInTheDocument();
+    // The find opens in its own card; the wall's bar counts it.
+    const card = screen.getByRole('dialog', { name: 'The crocodile' });
+    expect(within(card).getByText(WALLS[0].details[0].tells.text)).toBeInTheDocument();
+    expect(card).toHaveTextContent('Found! · 2 of 3');
+    expect(screen.getByText('2 of 3 found')).toBeInTheDocument();
+    fireEvent.click(within(card).getByRole('button', { name: 'Keep searching' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    // A found clue opens its card again.
+    fireEvent.click(screen.getByRole('button', { name: /Found: the crocodile/ }));
+    expect(screen.getByRole('dialog', { name: 'The crocodile' })).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
     // Each found detail is ringed where it is (the fish was passed on the way down).
     expect(document.querySelector('[data-ring="crocodile"]')).toHaveStyle({ left: '45%' });
     expect(screen.queryByText('Wall complete!')).toBeNull();
@@ -274,8 +283,14 @@ describe('Tomb Explorer', () => {
     expect(readTomb().found['menna-marshes']).toEqual(expect.arrayContaining(['crocodile', 'cat', 'fish']));
     expect(screen.getByText('Wall complete!')).toBeInTheDocument();
     expect(screen.getByText(WALLS[0].note.text)).toBeInTheDocument();
+    expect(screen.getByText('3 of 3 found')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Light the whole wall' }));
     expect(screen.getByRole('button', { name: 'Light the whole wall' })).toHaveAttribute('aria-pressed', 'true');
+    // From the card, on to the next wall.
+    fireEvent.click(screen.getByRole('button', { name: /On to the next wall/ }));
+    expect(screen.getByRole('tab', { name: WALLS[1].name })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByRole('button', { name: /Next wall/ })).toBeInTheDocument();
   });
 
   it('still works with storage blocked: the tomb fills up while the page is open', () => {
@@ -308,6 +323,10 @@ describe('Mummification, step by step', () => {
     const jarsNote = STEPS.find((s) => s.id === 'organs')!.notes.map((n) => n.text).join(' ');
     for (const j of JARS) expect(jarsNote).toContain(j.god);
     expect(STEPS.map((s) => s.id)).toEqual(['why', 'wash', 'brain', 'organs', 'natron', 'oils', 'wrap', 'coffin']);
+    // Five steps in the room, each of the eight in exactly one, in order.
+    expect(STAGES.map((s) => s.id)).toEqual(['wash', 'organs', 'natron', 'wrap', 'coffin']);
+    expect(STAGES.flatMap((s) => s.steps)).toEqual(STEPS.map((s) => s.id));
+    for (const j of JARS) expect(JARS_ANSWER.text).toContain(j.god);
     expect(STEPS.find((s) => s.id === 'brain')!.notes[0].text).toMatch(/through the nose, and it was not kept/);
     expect(HEART_NOTE.text).toMatch(/heart was left inside/);
     expect(STEPS.find((s) => s.id === 'natron')!.notes[0].text).toMatch(/40 days/);
@@ -315,20 +334,29 @@ describe('Mummification, step by step', () => {
     expect(CHECK).toHaveLength(3);
   });
 
-  it('is played start to finish: wash, brain, jars and the heart, natron, oils, wrapping with chosen amulets, the coffin, three questions', () => {
+  it('is played start to finish: wash and the brain, the jars and the heart, natron and oils, wrapping with chosen amulets, the coffin, three questions', () => {
     reducedMotion(true);
     window.localStorage.setItem(TOMB_KEY, JSON.stringify({ done: {}, found: {}, amulet: { shape: 'scarab', material: 'gold', symbols: ['ankh', 'lotus'], owner: '' } }));
     window.history.replaceState(null, '', '/exhibitions/egypt/mummification');
     render(<Mummification />);
     const next = () => fireEvent.click(screen.getByRole('button', { name: /Next step/ }));
-    next();
+    const at = (n: number) => expect(screen.getByRole('button', { name: new RegExp(`^Step ${n}: `) })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByText('Step 1 of 5')).toBeInTheDocument();
+    // The why, and the poster's line on Anubis, are in "Did you know?".
+    fireEvent.click(screen.getByRole('button', { name: /Did you know/ }));
+    expect(within(screen.getByRole('dialog')).getByText(ANUBIS_POSTER)).toBeInTheDocument();
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Close' }));
     for (let i = 0; i < 6; i++) fireEvent.click(screen.getByRole('button', { name: /Pour water/ }));
     expect(screen.getByRole('status')).toHaveTextContent('The body is washed clean.');
-    next();
     fireEvent.click(screen.getByRole('button', { name: 'Draw out the brain' }));
     expect(screen.getByText('Gone: the brain was not kept.')).toBeInTheDocument();
     next();
-    expect(screen.getByRole('tab', { name: /Canopic jars/ })).toHaveAttribute('aria-selected', 'true');
+    // The canopic jars: a step of its own, and which organ goes where is not given away.
+    at(2);
+    expect(document.body.textContent).not.toContain(JARS_ANSWER.text);
+    fireEvent.click(screen.getByRole('button', { name: /Did you know/ }));
+    expect(screen.getByRole('dialog')).not.toHaveTextContent(JARS_ANSWER.text);
+    fireEvent.keyDown(document, { key: 'Escape' });
     fireEvent.click(screen.getByRole('button', { name: 'Liver' }));
     fireEvent.click(screen.getByRole('button', { name: /^Hapi, the baboon-headed jar/ }));
     expect(screen.getByRole('status')).toHaveTextContent('Not that jar. The liver was looked after by the god with a human’s head.');
@@ -339,14 +367,18 @@ describe('Mummification, step by step', () => {
       fireEvent.click(screen.getByRole('button', { name: new RegExp(`^${god},`) }));
     }
     fireEvent.click(screen.getByRole('button', { name: 'The heart' }));
-    expect(screen.getByText(HEART_NOTE.text)).toBeInTheDocument();
+    const heart = screen.getByRole('dialog', { name: 'The heart stays inside' });
+    expect(within(heart).getByText(HEART_NOTE.text)).toBeInTheDocument();
+    expect(within(heart).getByText(JARS_ANSWER.text)).toBeInTheDocument();
     next();
+    at(3);
+    expect(screen.queryByRole('dialog')).toBeNull();
     expect(screen.getByRole('button', { name: 'Start the 40 days' })).toBeDisabled();
     for (let i = 0; i < 6; i++) fireEvent.click(screen.getByRole('button', { name: /Pack a bag of natron/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Start the 40 days' }));
     expect(screen.getByRole('status')).toHaveTextContent('Forty days have passed.');
-    next();
     for (let i = 0; i < 3; i++) fireEvent.click(screen.getByRole('button', { name: /Rub in oil/ }));
+    expect(screen.getByText('Dried, oiled and ready to wrap.')).toBeInTheDocument();
     next();
     fireEvent.click(screen.getByRole('button', { name: /Your amulet/ }));
     expect(screen.getByRole('status')).toHaveTextContent('Your amulet is tucked into the wrappings.');
@@ -358,11 +390,19 @@ describe('Mummification, step by step', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Lay the mummy in its coffin' }));
     fireEvent.click(screen.getByRole('button', { name: 'Close the lid' }));
     expect(readTomb().done.mummification).toBe(true);
+    // Three questions, one at a time.
     fireEvent.click(screen.getByRole('button', { name: '7 days' }));
     expect(screen.getByText('Not quite. Have another go.')).toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: CHECK[1].q })).toBeNull();
     for (const c of CHECK) fireEvent.click(within(screen.getByRole('group', { name: c.q })).getByRole('button', { name: c.answer }));
     expect(screen.getByRole('link', { name: /Into the Hall of Judgement/ })).toHaveAttribute('href', '/exhibitions/egypt/weighing-of-the-heart?from=tomb');
     expect(screen.getByRole('link', { name: /Back into the tomb/ })).toHaveAttribute('href', '/exhibitions/egypt/tomb');
+  });
+
+  it('opens an old step’s address at the step it is now part of', () => {
+    window.history.replaceState(null, '', '/exhibitions/egypt/mummification#oils');
+    render(<Mummification />);
+    expect(screen.getByRole('button', { name: /^Step 3: / })).toHaveAttribute('aria-current', 'step');
   });
 });
 
@@ -392,12 +432,17 @@ describe('The Weighing of the Heart', () => {
     const tilt = () => container.querySelector('.egw-svg')!.getAttribute('data-tilt');
     const next = () => fireEvent.click(within(container.querySelector('.egr-step-nav')!).getByRole('button', { name: /Next|Finish/ }));
     expect(tilt()).toBe('0');
-    expect(screen.getByRole('heading', { name: 'Two papyri, one story' })).toBeInTheDocument();
-    next();
-    fireEvent.click(screen.getByRole('button', { name: 'Ammit' }));
-    expect(screen.getByText(FIGURES.ammit.fact.text)).toBeInTheDocument();
-    next();
-    // The heart goes in: Next waits for a guess.
+    // It opens on the scales and the guess; the scales say nothing until the visitor has guessed.
+    expect(screen.getByRole('heading', { name: 'Ani’s heart on the scales' })).toBeInTheDocument();
+    expect(container.querySelector('.egw-reading')!.textContent).toBe('');
+    // The two papyri are in the About card.
+    fireEvent.click(screen.getByRole('button', { name: /About the papyri/ }));
+    const about = screen.getByRole('dialog', { name: 'Two papyri, one story' });
+    expect(within(about).getByText(PAPYRI.ani.text)).toBeInTheDocument();
+    expect(within(about).getByText(PAPYRI.hunefer.text)).toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    // Next waits for a guess.
     expect(within(container.querySelector('.egr-step-nav')!).getByRole('button', { name: /Next/ })).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: 'Tip out of balance' }));
     expect(screen.getByText('Good guess, but look: they stay level.')).toBeInTheDocument();
@@ -405,6 +450,10 @@ describe('The Weighing of the Heart', () => {
       jest.advanceTimersByTime(2000);
     });
     expect(tilt()).toBe('0');
+    expect(container.querySelector('.egw-reading')).toHaveTextContent('Level');
+    next();
+    fireEvent.click(screen.getByRole('button', { name: 'Ammit' }));
+    expect(screen.getByText(FIGURES.ammit.fact.text)).toBeInTheDocument();
     next();
     for (const [i, d] of DEEDS.entries()) {
       if (i === 0) {
@@ -413,6 +462,7 @@ describe('The Weighing of the Heart', () => {
       }
       fireEvent.click(screen.getByRole('button', { name: d.kind === 'never' ? '“I have not …”' : '“I have …”' }));
       expect(screen.getByText(`“${d.quote}”`)).toBeInTheDocument();
+      expect(container.querySelector('.egw-reading')!.textContent).toBe('');
       fireEvent.click(screen.getByRole('button', { name: d.kind === 'never' ? 'Tip out of balance' : 'Stay level' }));
       expect(screen.getByText(/You guessed it!/)).toBeInTheDocument();
       if (d.kind === 'never') expect(Number(tilt())).toBeGreaterThan(0);
@@ -433,7 +483,7 @@ describe('The Weighing of the Heart', () => {
     expect(screen.getByRole('link', { name: /Back into the tomb/ })).toHaveAttribute('href', '/exhibitions/egypt/tomb');
     // Kind throughout: nothing is eaten, nobody is punished, nothing is scored.
     expect(container.textContent).not.toMatch(/\b(eat|eats|eaten|devour|devours|devoured|punish|wrong answer|score|fail)\b/i);
-    expect(CHAPTERS).toHaveLength(6);
+    expect(CHAPTERS.map((c) => c.id)).toEqual(['heart', 'hall', 'words', 'verdict', 'you']);
   });
 });
 
@@ -465,6 +515,9 @@ describe('The Rosetta Stone Decoder', () => {
     expect(within(columns).getAllByRole('img')).toHaveLength(3);
     fireEvent.click(screen.getByRole('button', { name: /Crack a name/ }));
     expect(window.location.hash).toBe('#ptolemy');
+    // The Greek spelling is beside the cartouche: the clue.
+    expect(PTOLEMY_GREEK.map((g) => g.letter).join('')).toBe('ΠΤΟΛΕΜΑΙΟΣ');
+    expect(screen.getByRole('list', { name: /^ΠΤΟΛΕΜΑΙΟΣ: P, T, O, L, E, M, A, I, O, S$/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Sign 1' }));
     fireEvent.click(screen.getByRole('button', { name: 'K' }));
     expect(screen.getByRole('status')).toHaveTextContent('there is no K in Ptolemy’s name');
@@ -474,7 +527,16 @@ describe('The Rosetta Stone Decoder', () => {
     });
     expect(screen.getByRole('heading', { name: 'P-T-O-L-M-I-S: Ptolemy!' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Now try Cleopatra/ }));
+    // Ptolemy's cartouche stands above Cleopatra's, to compare; each shared sign found lights up in both.
+    const known = screen.getByRole('list', { name: /Ptolemy’s cartouche, for comparing/ });
+    expect(within(known).getAllByRole('listitem')).toHaveLength(PTOLEMY.length);
+    fireEvent.click(screen.getByRole('button', { name: 'Sign 1' }));
+    expect(screen.getByRole('status')).toHaveTextContent('That sign is new');
+    expect(within(known).queryAllByRole('listitem', { name: /also in Cleopatra’s name/ })).toHaveLength(0);
     for (const i of sharedSigns()) fireEvent.click(screen.getByRole('button', { name: `Sign ${i + 1}` }));
+    expect(within(known).getByRole('listitem', { name: 'L, also in Cleopatra’s name' })).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('That was Champollion’s trick');
+    expect(within(known).getAllByRole('listitem', { name: /also in Cleopatra’s name/ })).toHaveLength(4);
     expect(screen.getByRole('heading', { name: 'Work out the new signs' })).toBeInTheDocument();
     expect(screen.getByText(ROSETTA_NOTES.cleopatra.text)).toBeInTheDocument();
     for (const d of DEDUCE) {
@@ -549,18 +611,34 @@ describe('Design an Amulet', () => {
     for (const n of NEEDS) for (const id of n.suggests) expect(SYMBOLS.some((s) => s.id === id)).toBe(true);
     window.history.replaceState(null, '', '/exhibitions/egypt/amulet');
     render(<AmuletMaker />);
+    const next = () => fireEvent.click(within(document.querySelector('.egr-step-nav') as HTMLElement).getByRole('button', { name: /Next/ }));
+    // One choice to a screen, the amulet always in view.
+    expect(screen.getByText('Step 1 of 7')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Who is it for?' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'The afterlife' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'A friend' }));
+    next();
+    expect(screen.getByRole('button', { name: /^Step 1: Who is it for\? \(done\)/ })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'The afterlife' }));
     expect(screen.getByText(/An Egyptian might choose/)).toHaveTextContent('Heart, Djed pillar, Scarab beetle');
+    next();
+    next();
+    next();
+    expect(screen.getByRole('heading', { name: 'Choose up to three symbols' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /Your amulet: a scarab/ })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Heart (suggested)' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Wedjat eye/ }));
+    expect(screen.getByText(SYMBOLS.find((s) => s.id === 'wedjat')!.meaning.text)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /Scarab beetle/ }));
     fireEvent.click(screen.getByRole('button', { name: /Lotus flower/ }));
     expect(screen.getByRole('status')).toHaveTextContent('room for 3 symbols');
     expect(screen.getByRole('button', { name: /Lotus flower/ })).toHaveAttribute('aria-pressed', 'false');
-    for (const id of ['ankh', 'wedjat', 'scarab'] as const) expect(screen.getByText(SYMBOLS.find((s) => s.id === id)!.meaning.text)).toBeInTheDocument();
+    next();
     fireEvent.change(screen.getByRole('textbox', { name: /Carve a name/ }), { target: { value: 'Ra' } });
     expect(screen.getByRole('img', { name: /a scarab of blue-green faience, carved with the ankh and the wedjat eye and the scarab beetle, and the name Ra/ })).toBeInTheDocument();
+    next();
+    expect(screen.getByRole('heading', { name: 'Your amulet is ready' })).toBeInTheDocument();
+    for (const id of ['ankh', 'wedjat', 'scarab'] as const) expect(screen.getByText(SYMBOLS.find((s) => s.id === id)!.meaning.text)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Place it in the tomb' }));
     expect(readTomb().amulet).toEqual({ shape: 'scarab', material: 'faience', symbols: ['ankh', 'wedjat', 'scarab'], owner: 'Ra' });
     expect(screen.getByRole('button', { name: 'In the tomb’s niche ✓' })).toBeDisabled();

@@ -90,3 +90,22 @@
   .egs-cartouche-long { padding: 8px 10px; }
   .egs-big { padding: 8px 14px; }
 }
+
+/* Ptolemy's name in the stone's Greek, each letter over its sound: the clue beside his cartouche. */
+.egs-greek { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; padding-top: 12px; border-top: 1px solid var(--egr-line); }
+.egs-greek .egr-label { margin: 0; }
+.egs-greek-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px clamp(4px, 1vw, 12px); margin: 0; padding: 0; list-style: none; }
+.egs-greek-row li { display: flex; flex-direction: column; align-items: center; min-width: 1.4em; }
+.egs-greek-letter { font-family: 'Playfair Display', Georgia, 'Times New Roman', serif; font-size: clamp(1.6rem, 1.1rem + 1.6vw, 2.6rem); line-height: 1.1; color: #fff; }
+.egs-greek-sound { font-family: var(--pe-body); font-size: 0.95rem; color: var(--egr-muted); }
+
+/* Ptolemy's cartouche above Cleopatra's, for comparing: a shared sign lights up in both. */
+.egs-cartouche-known { gap: 2px; padding: 8px 20px 8px 16px; opacity: 0.92; }
+.eg-room .egs-sign-known { min-width: 44px; min-height: 0; padding: 2px 4px; cursor: default; }
+.egs-sign-known .egr-glyph { font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2.2rem); }
+.egs-sign-known .egs-sound { font-size: 0.95rem; }
+.eg-room .egs-sign-known.is-match { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.14); color: var(--egr-gold); }
+.eg-room .egs-sign-known.is-match .egs-sound { color: var(--egr-gold); }
+.eg-room .egs-sign-known.is-flash { animation: egs-flash 1s ease 1; }
+@keyframes egs-flash { 0%, 100% { box-shadow: none; } 40% { box-shadow: 0 0 0 3px var(--egr-gold), 0 0 20px rgba(217, 164, 65, 0.7); } }
+.eg-rosetta .egs-board { gap: 10px; }

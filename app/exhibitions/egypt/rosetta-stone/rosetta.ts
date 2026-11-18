@@ -114,6 +114,25 @@ export const CLEOPATRA: Sign[] = [
 /** How many of Cleopatra's signs spell her name: K L E O P A T R A. */
 export const NAME_SIGNS = 9;
 
+/**
+ * Ptolemy's name as the Greek part of the stone spells it, letter by letter,
+ * with the sound of each: Champollion's way in. The hieroglyphs follow the
+ * Greek in order, skipping some of its vowels.
+ */
+// REVIEW: new text. The Greek text of the Rosetta Stone names the king ΠΤΟΛΕΜΑΙΟΣ (Ptolemaios); Budge, The Rosetta Stone (1913), compares it with the cartouche sign by sign.
+export const PTOLEMY_GREEK: { letter: string; sound: string }[] = [
+  { letter: 'Π', sound: 'P' },
+  { letter: 'Τ', sound: 'T' },
+  { letter: 'Ο', sound: 'O' },
+  { letter: 'Λ', sound: 'L' },
+  { letter: 'Ε', sound: 'E' },
+  { letter: 'Μ', sound: 'M' },
+  { letter: 'Α', sound: 'A' },
+  { letter: 'Ι', sound: 'I' },
+  { letter: 'Ο', sound: 'O' },
+  { letter: 'Σ', sound: 'S' },
+];
+
 /** The sounds offered in Ptolemy's game: his seven, and six that are not in his name, so it cannot be spelled off in order. */
 export const PTOLEMY_SOUNDS = ['S', 'L', 'P', 'I', 'O', 'T', 'M'];
 export const DISTRACTORS = ['K', 'R', 'A', 'N', 'B', 'E'];

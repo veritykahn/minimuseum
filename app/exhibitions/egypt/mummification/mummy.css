@@ -89,3 +89,58 @@
 @media (max-width: 600px) {
   .egm-jars-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* ───────── The picture keeps its own shape (the SVG's viewBox), so the jars' drop targets lie exactly on the jars ───────── */
+.egm-pic { position: relative; width: 100%; aspect-ratio: 640 / 290; margin: 0 auto; }
+.egm-pic .egm-table { position: absolute; inset: 0; }
+.egm-pic .egm-svg { width: 100%; height: 100%; max-height: none; }
+@media (min-width: 700px) and (min-height: 600px) {
+  .egr-fit .egm-room { display: flex; flex-direction: column; min-height: 0; }
+  .egr-fit .egm-scene-cell { flex: 1 1 auto; }
+  .egr-fit .egm-pic { width: min(100cqw, calc(100cqh * 640 / 290)); }
+}
+
+/* One thing to do now, its buttons, and what it has just taught */
+.egm-task { display: flex; flex-direction: column; gap: 12px; }
+.egm-learned { padding: 10px 12px; border-left: 3px solid var(--egr-gold); background: rgba(217, 164, 65, 0.06); animation: egm-heap 0.4s ease both; }
+.eg-mummy .egr-step-body { gap: 12px; }
+.eg-mummy .egr-step-body h2:focus { outline: none; }
+.eg-room .egm-nav { flex-wrap: wrap; align-items: center; }
+.egm-answered { font-size: 1em; }
+
+/* ───────── The canopic jars: the whole screen. The organs just above the picture; the jars in it are the drop targets. ───────── */
+.egm-game { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: clamp(12px, 1.6vw, 20px); border: 1px solid var(--egr-line); background: var(--egr-panel); font-family: var(--pe-body); font-weight: 300; font-size: var(--egr-text); line-height: 1.45; }
+.egm-game-head { display: grid; grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.6fr); gap: 10px 24px; align-items: start; }
+.egm-game-title { display: flex; flex-direction: column; gap: 6px; }
+.egm-game h2 { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.3rem, 1rem + 1vw, 1.9rem); line-height: 1.15; color: #fff; }
+.egm-game h2:focus { outline: none; }
+.egm-tray { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.egm-tray .egr-options { gap: 10px; }
+.eg-room .egm-organ { min-height: 52px; padding: 8px 20px; font-size: 1em; cursor: grab; }
+.eg-room .egm-organ[aria-pressed='true'] { background: var(--egr-gold); border-color: var(--egr-gold); color: #141414; }
+.egm-heart-q { padding-top: 0; border-top: 0; }
+.egm-game-scene { position: relative; min-height: 0; padding: 8px; border: 1px solid var(--egr-line); background: radial-gradient(ellipse 80% 70% at 50% 35%, #2b241b, #0f0d0b 78%); }
+.eg-room .egm-drop {
+  appearance: none;
+  position: absolute;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 0 6%;
+  border: 2px dashed rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  background: transparent;
+  color: #141414;
+  cursor: pointer;
+}
+.eg-room .egm-drop.is-ready { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.12); }
+.eg-room .egm-drop:hover { border-color: #fff; }
+.eg-room .egm-drop.is-full { border-style: solid; border-color: var(--egr-gold); }
+.egm-drop-name { padding: 1px 6px; border-radius: 999px; background: rgba(255, 255, 255, 0.85); font-family: var(--pe-body); font-size: clamp(0.62rem, 0.5rem + 0.5vw, 0.95rem); font-weight: 500; line-height: 1.3; }
+.egm-game .egm-nav { padding-top: 10px; }
+@media (min-width: 700px) and (min-height: 600px) {
+  .egr-fit .egm-game-scene { flex: 1 1 auto; }
+}
+@media (max-width: 980px) {
+  .egm-game-head { grid-template-columns: minmax(0, 1fr); }
+}

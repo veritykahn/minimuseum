@@ -51,7 +51,7 @@
 .egw-mine li { padding: 3px 10px; border-radius: 999px; background: rgba(217, 164, 65, 0.2); border: 1px solid var(--egr-gold); color: #fff; font-family: var(--pe-body); font-size: 0.82rem; animation: egw-in 0.4s ease both; }
 
 /* The story's chapters, as a quiet row */
-.egw-chapters { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 18px; padding: 0; list-style: none; font-family: var(--pe-body); font-size: clamp(0.82rem, 0.72rem + 0.3vw, 1rem); color: var(--egr-muted); }
+.egw-chapters { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0 0 10px; padding: 0; list-style: none; font-family: var(--pe-body); font-size: clamp(0.82rem, 0.72rem + 0.3vw, 1rem); color: var(--egr-muted); }
 .egw-chapters li { display: inline-flex; align-items: center; gap: 6px; }
 .egw-chapters li span { display: inline-grid; place-items: center; width: 1.7em; height: 1.7em; border: 1px solid var(--egr-line); border-radius: 50%; font-size: 0.85em; }
 .egw-chapters li.is-past span { border-color: var(--egr-gold); color: var(--egr-gold); }
@@ -81,3 +81,22 @@
 .egw-hint { margin: 0; color: #ffd2a8; }
 .egw-small { font-size: 0.85em; color: var(--egr-muted); }
 .egw-quote { margin: 0; padding: 4px 0 4px 16px; border-left: 3px solid var(--egr-gold); font-family: var(--pe-display); font-style: italic; font-size: 1.1em; line-height: 1.4; color: #fff; }
+
+/* The panel's top: the chapter, and the About card's button */
+.egw-panel-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.egw-panel-top .egr-label { margin: 0; }
+/* The guess comes first, large enough to tap */
+.egw-guess legend { text-transform: none; letter-spacing: 0; font-size: 1em; color: #fff; line-height: 1.4; }
+.eg-room .egw-guess .egr-option,
+.eg-room .egw-panel .egr-choice .egr-option { min-height: 52px; padding: 8px 20px; font-size: 1em; }
+.eg-weighing .egr-step-body { gap: 12px; }
+.eg-weighing .egw-deed { padding: 12px 14px; }
+
+/* One screen: the hall fills its side, the scales as large as fits */
+@media (min-width: 700px) and (min-height: 600px) {
+  .egr-fit .egw-hall { grid-template-rows: minmax(0, 1fr) auto; }
+  .egr-fit .egw-svg { width: 100%; height: 100%; max-height: none; }
+}
+@media (min-width: 700px) and (max-width: 980px) and (min-height: 600px) {
+  .eg-weighing .egr-fit .egr-layout.egr-fill { grid-template-rows: minmax(0, 0.9fr) minmax(0, 1fr); }
+}
