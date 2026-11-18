@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import MoonMicroscope from '@/app/exhibitions/moon/microscope/page';
 import { TIMES } from '@/app/exhibitions/moon/microscope/Eyepiece';
@@ -669,5 +671,23 @@ describe('wiring', () => {
     expect(MOON.projector.links.map((l) => l.href)).toEqual(['/exhibitions/moon/microscope']);
     expect(getRoomByPath('/exhibitions/moon/microscope')?.id).toBe('mo-microscope');
     expect(getLevelConfig('/exhibitions/moon/microscope').title).toBe('Our Incredible Moon');
+  });
+});
+
+describe('Under the Microscope, holding still', () => {
+  /* Turning to another lens changes the words under the eyepiece; nothing on the page may move for it. */
+  const css = readFileSync(join(__dirname, '..', '..', 'app/exhibitions/moon/microscope/microscope.css'), 'utf8');
+
+  it('sizes the columns and the row by the screen, never by the words in them', () => {
+    const columns = [...css.matchAll(/grid-template-columns:([^;]+);/g)].map((m) => m[1]);
+    expect(columns.length).toBeGreaterThan(0);
+    // No column sized by its content.
+    columns.forEach((c) => expect(c).not.toMatch(/\bauto\b|content/));
+    expect(css).toMatch(/\.mo-ms-body \{[^}]*grid-template-rows: minmax\(0, 1fr\);/);
+  });
+
+  it('keeps room for two lines of the prompt and of what happened', () => {
+    expect(css).toMatch(/\.mo-ms-prompt \{[^}]*min-height: calc\(2 \* 1\.35em\);/);
+    expect(css).toMatch(/\.mo-ms-status \{[^}]*min-height: calc\(2 \* 1\.35em\);/);
   });
 });

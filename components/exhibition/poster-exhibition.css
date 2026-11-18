@@ -18,6 +18,8 @@
 .pe-root :where(h1, h2, h3, p, blockquote, ul, figure) { margin: 0; padding: 0; }
 .pe-root {
   min-height: 100vh;
+  /* The screen as it is now (an iPad's with its toolbar showing), so the page is never taller than its ground. */
+  min-height: 100dvh;
   transition: background 0.5s ease;
   font-family: var(--pe-body);
 }
@@ -392,8 +394,19 @@ img.pe-effect-erase { animation: peErase 10s ease forwards; }
   gap: var(--pe-landing-gap, clamp(10px, 2.4dvh, 26px));
   overflow: hidden;
 }
+/* The whole landing page: its first screen (.pe-landing) and the Explore row
+   below it (.pe-explore), one block, so whatever ground an exhibition draws on
+   .pe-exhibition-main (a picture, a frame, color blocks) runs from the top of
+   the page to its foot, under the interactives too, at every size. It is at
+   least the screen's height, so the ground never stops short of the screen's
+   foot either. */
+.pe-root .pe-landing-page {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
 /* The live region after it would otherwise hang a pixel below the screen. */
-.pe-root .pe-landing ~ .visually-hidden { top: 0; left: 0; }
+.pe-root :is(.pe-landing, .pe-landing-page) ~ .visually-hidden { top: 0; left: 0; }
 .pe-root .pe-landing .pe-landing-head { flex: none; margin: 0; text-align: center; }
 .pe-root .pe-landing .pe-landing-head h1 {
   font-size: var(--pe-landing-h1, clamp(1.9rem, min(5.4vw, 7.6dvh), 4.4rem));

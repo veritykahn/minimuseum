@@ -80,29 +80,83 @@ describe('HallSound', () => {
     expect(isHallRoute(null)).toBe(false);
   });
 
-  it('is unlocked by the door’s sound switch, silently, and heard as the visitor walks into the Great Hall', async () => {
+  it('is started by the door’s sound switch, silently, and heard as the visitor walks into the Great Hall', async () => {
     pathname = '/';
     const { rerender } = render(<HallSound />);
-    // The press at the door: the hall's audio is made and played muted, then paused.
+    // The press at the door: the hall's audio is made and played there and then, at no volume, and left playing.
     act(() => {
       setMuseumSound(true);
       unlockHallSound();
     });
     expect(made).toHaveLength(1);
     expect(made[0].play).toHaveBeenCalledTimes(1);
-    expect(made[0].muted).toBe(true);
+    expect(made[0].volume).toBe(0);
     await act(async () => {});
-    expect(made[0].paused).toBe(true);
-    expect(made[0].muted).toBe(false);
-    // Through the door: the same audio, played and faded in.
+    expect(made[0].paused).toBe(false);
+    expect(made[0].pause).not.toHaveBeenCalled();
+    // Through the door: the same audio, still playing, faded in; no second play is needed.
     pathname = '/greathall';
     rerender(<HallSound />);
     loaded();
     await settle();
     expect(made).toHaveLength(1);
-    expect(made[0].play).toHaveBeenCalledTimes(2);
-    expect(made[0].volume).toBeGreaterThan(0);
+    expect(made[0].play).toHaveBeenCalledTimes(1);
+    expect(made[0].pause).not.toHaveBeenCalled();
+    expect(made[0].volume).toBeCloseTo(0.6);
     expect(screen.getByRole('button', { name: 'Sound on' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('is heard on the first press even when the hall opens before the door’s play has started', async () => {
+    // The sound is slow to start (still loading) and the hall is already open: the old race.
+    let startPlay: () => void = () => {};
+    playResult = () => new Promise<void>((res) => {
+      startPlay = res;
+    });
+    pathname = '/';
+    const { rerender } = render(<HallSound />);
+    act(() => {
+      setMuseumSound(true);
+      unlockHallSound();
+    });
+    pathname = '/greathall';
+    rerender(<HallSound />);
+    loaded();
+    await settle();
+    // Not started yet: the button does not claim it is on.
+    expect(screen.getByRole('button', { name: 'Hear the hall' })).toBeInTheDocument();
+    // Now it starts: it stays playing, is faded in, and the button says so.
+    await act(async () => {
+      startPlay();
+    });
+    await settle();
+    expect(made[0].paused).toBe(false);
+    expect(made[0].pause).not.toHaveBeenCalled();
+    expect(made[0].volume).toBeCloseTo(0.6);
+    expect(screen.getByRole('button', { name: 'Sound on' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('tries again in the hall if the browser refused the door’s play', async () => {
+    let refuse: () => void = () => {};
+    playResult = () => new Promise<void>((_res, rej) => {
+      refuse = () => rej(new DOMException('not allowed', 'NotAllowedError'));
+    });
+    pathname = '/';
+    const { rerender } = render(<HallSound />);
+    act(() => {
+      setMuseumSound(true);
+      unlockHallSound();
+    });
+    pathname = '/greathall';
+    rerender(<HallSound />);
+    loaded();
+    playResult = () => Promise.resolve();
+    await act(async () => {
+      refuse();
+    });
+    await settle();
+    expect(made[0].play).toHaveBeenCalledTimes(2);
+    expect(made[0].volume).toBeCloseTo(0.6);
+    expect(screen.getByRole('button', { name: 'Sound on' })).toBeInTheDocument();
   });
 
   it('shows no button while the sound file is not there', () => {
