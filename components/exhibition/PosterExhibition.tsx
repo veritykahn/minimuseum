@@ -181,8 +181,11 @@ export default function PosterExhibition<K extends string>({ config }: { config:
       )}
 
       {activeView === 'main' && !projector && (
-        <>
-        <div className="pe-exhibition-main pe-landing">
+        // The whole landing page, its first screen and the Explore row below
+        // it: the exhibition's own ground (a picture, a frame, color blocks,
+        // drawn on pe-exhibition-main by its stylesheet) runs from top to foot.
+        <div className="pe-exhibition-main pe-landing-page">
+        <div className="pe-landing">
           <div className="pe-exhibition-title pe-landing-head">
             <h1>{name}</h1>
             <p>{subtitle}</p>
@@ -202,7 +205,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
 
         {/* The interactive rooms, below the first screen; the case's Interactives tab lists the same. */}
         <ExploreRow rooms={interactives} style={{ '--pe-explore-on-accent': palette.page }} />
-        </>
+        </div>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">

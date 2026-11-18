@@ -60,6 +60,17 @@
   opacity: 0.9;
 }
 [data-exhibition='black-history'] .pe-exhibition-main > * { position: relative; z-index: 1; }
+/* The landing page is its first screen and the Explore row below it, as one
+   block (.pe-landing-page, poster-exhibition.css), on the lime to its foot.
+   The black rays keep to the first screen's corner: on a laptop or tablet
+   that is the page's own corner, behind the Explore strip; on a phone, where
+   the row is further down, the first screen keeps them as it always has. */
+[data-exhibition='black-history'] .pe-exhibition-main::after { bottom: auto; top: calc(100vh - 35vmax); }
+@supports (height: 100dvh) {
+  [data-exhibition='black-history'] .pe-exhibition-main::after { top: calc(100dvh - 35vmax); }
+}
+/* The Explore cards on solid lime, so their words read clearly over the rays. */
+[data-exhibition='black-history'] .pe-explore-card { background: color-mix(in srgb, var(--bh-ink) 5%, var(--bh-lime)); }
 [data-exhibition='black-history'] .pe-exhibition-title h1 {
   font-weight: 900;
   font-stretch: 125%;

@@ -32,14 +32,24 @@
 }
 
 /* ───────── Landing page: the color blocks, inside the white frame ───────── */
+/* The landing page is its first screen and the Explore row below it, as one
+   block (.pe-landing-page, poster-exhibition.css): the charcoal and the
+   frame keep to the first screen, where they always were (the screen's
+   height, less the Explore strip where it is on that screen), and the coral
+   runs on under the interactives to the foot of the page. */
 [data-exhibition='writing-revolution'] .pe-exhibition-main {
+  --wr-screen: calc(100vh - var(--pe-explore-peek, 0px));
   position: relative;
-  background: linear-gradient(to bottom, var(--wr-charcoal) 0 58%, var(--wr-coral) 58%);
+  background: linear-gradient(to bottom, var(--wr-charcoal) 0 calc(var(--wr-screen) * 0.58), var(--wr-coral) calc(var(--wr-screen) * 0.58));
+}
+@supports (height: 100dvh) {
+  [data-exhibition='writing-revolution'] .pe-exhibition-main { --wr-screen: calc(100dvh - var(--pe-explore-peek, 0px)); }
 }
 [data-exhibition='writing-revolution'] .pe-exhibition-main::before {
   content: '';
   position: absolute;
-  inset: 28px 28px 28px 28px;
+  inset: 28px 28px auto 28px;
+  height: calc(var(--wr-screen) - 56px);
   border: var(--wr-line) solid #fff;
   border-right-color: transparent;
   pointer-events: none;
@@ -47,6 +57,16 @@
   mask-image: linear-gradient(to bottom, #000 0 70%, transparent 70%), linear-gradient(to right, #000 0 72%, transparent 72%);
 }
 [data-exhibition='writing-revolution'] .pe-exhibition-main > * { position: relative; z-index: 1; }
+/* The Explore row on the coral: its words in ink, its cards the posters' charcoal blocks. */
+[data-exhibition='writing-revolution'] .pe-explore { --pe-explore-ink: var(--wr-ink); --pe-explore-accent: var(--wr-ink); }
+[data-exhibition='writing-revolution'] .pe-explore-go { color: var(--wr-cyan); }
+.pe-root[data-exhibition='writing-revolution'] a.pe-explore-card {
+  color: var(--wr-paper);
+  background: var(--wr-charcoal);
+  border-color: rgba(242, 240, 234, 0.25);
+}
+[data-exhibition='writing-revolution'] .pe-explore-art { background: rgba(242, 240, 234, 0.08); }
+[data-exhibition='writing-revolution'] .pe-explore-art.is-emblem { border-color: rgba(242, 240, 234, 0.3); }
 [data-exhibition='writing-revolution'] .pe-exhibition-title h1 {
   font-weight: 300;
   text-transform: uppercase;
