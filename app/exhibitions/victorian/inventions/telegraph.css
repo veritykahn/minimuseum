@@ -1,0 +1,184 @@
+/* ==========================================================================
+   The telegraph bench's own looks. Building a telegraph: the circuit across
+   the bench, five empty places pencilled in with their jobs, a tray of
+   parts on the strip below. The telegraph office: the telegram form on the
+   counter, the visitor's purse of coins beside it, then the clerk at the
+   key; the card is the counter itself, polished wood under a brass grille.
+   ========================================================================== */
+
+/* ───────── Build a telegraph ───────── */
+.vbi-build-board {
+  position: relative;
+  container-type: inline-size;
+  width: min(100cqw, 100cqh * 5 / 3, 1100px);
+  aspect-ratio: 5 / 3;
+}
+.vbi-build-circuit { position: absolute; inset: 0; width: 100%; height: 100%; }
+.vbi-wire-pencil { stroke: #6b4a32; stroke-opacity: 0.45; stroke-width: 3; stroke-dasharray: 8 8; }
+.vbi-build-circuit .vbi-part { opacity: 1; animation: vbi-part-in 0.35s ease both; }
+@keyframes vbi-part-in { from { opacity: 0; transform: translateY(-8px); } }
+.vb-room .vbi-slot {
+  appearance: none;
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 4px 6px;
+  border: 2.5px dashed rgba(107, 74, 50, 0.75);
+  border-radius: 10px;
+  background: rgba(255, 250, 238, 0.82);
+  color: #2f4a32;
+  font-family: 'Jost', sans-serif;
+  font-size: clamp(10px, 1.75cqw, 17px);
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.vb-room .vbi-slot:hover, .vb-room .vbi-slot[data-ready] { border-color: #c98a2a; background: #fff6dc; }
+.vb-room .vbi-slot[data-ready] { box-shadow: 0 0 0 4px rgba(242, 196, 90, 0.55); }
+.vb-room .vbi-slot[data-wrong] { border-style: solid; border-color: #b23a3a; background: #f8d6cf; animation: vbr-shake 0.4s ease both; }
+.vb-room .vbi-slot:focus-visible { outline: 3px solid #2f4a32; outline-offset: 2px; }
+.vbi-build-cheer { position: absolute; left: 50%; top: 40%; pointer-events: none; }
+/* With all five in place, the key at the sending station glows to be pressed. */
+.vbi-build-board[data-built] .vbi-part-key { filter: drop-shadow(0 0 10px rgba(242, 196, 90, 0.95)); }
+
+.vbi-tray { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.vb-room .vbi-tray-part {
+  appearance: none;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  width: 92px;
+  min-height: 74px;
+  padding: 6px 4px 5px;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  background: rgba(251, 246, 232, 0.96);
+  color: #2f4a32;
+  font-family: 'Jost', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.vb-room .vbi-tray-part:hover:not(:disabled) { border-color: #f2c45a; }
+.vb-room .vbi-tray-part[aria-pressed='true'] { border-color: #f2c45a; background: #ffe9a8; box-shadow: 0 0 0 4px rgba(242, 196, 90, 0.6); }
+.vb-room .vbi-tray-part:disabled { opacity: 0.45; cursor: default; background: rgba(251, 246, 232, 0.5); }
+.vb-room .vbi-tray-part:focus-visible { outline: 3px solid #f2c45a; outline-offset: 2px; }
+.vbi-part-icon { width: 52px; height: 35px; display: block; pointer-events: none; }
+.vbi-ghost { position: fixed; z-index: 80; translate: -50% -50%; pointer-events: none; padding: 4px; border-radius: 8px; background: rgba(255, 233, 168, 0.95); box-shadow: 0 8px 18px rgba(20, 10, 6, 0.4); }
+.vbi-ghost .vbi-part-icon { width: 72px; height: 48px; }
+.vbi-build-go { display: flex; flex-direction: column; align-items: stretch; gap: 8px; min-width: min(360px, 100%); }
+.vb-room .vbi-build-go .vbi-key-button { min-height: 64px; }
+
+/* ───────── The telegraph office ───────── */
+.vbi-office-desk {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(150px, 30%);
+  align-items: center;
+  gap: 2.4cqw;
+  max-width: 980px;
+}
+.vbi-office-form { max-height: 100%; min-height: min(60cqh, 420px); background: #fbf6e8 repeating-linear-gradient(to bottom, transparent 0 calc(var(--cell) * 1.05), rgba(107, 74, 50, 0.12) calc(var(--cell) * 1.05) calc(var(--cell) * 1.05 + 1px)); --cell: clamp(26px, min(5.4cqw, 7cqh), 46px); }
+.vbi-office-words { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px 8px; overflow-y: auto; min-height: 0; scrollbar-width: thin; }
+.vbi-office-word { display: inline-flex; align-items: center; gap: 6px; }
+.vb-room .vbi-office-token {
+  appearance: none;
+  position: relative;
+  min-height: 44px;
+  padding: 4px 10px;
+  border: 1.5px solid #c9a24a;
+  border-radius: 4px;
+  background: #fffdf6;
+  color: #2a2522;
+  font-family: 'Courier New', ui-monospace, monospace;
+  font-weight: 700;
+  font-size: clamp(16px, 2.6cqw, 24px);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.vb-room .vbi-office-token:hover { border-color: #6b4a32; background: #fff; }
+.vb-room .vbi-office-token:focus-visible { outline: 3px solid #2f4a32; outline-offset: 2px; }
+/* A word crossed out: struck through in red ink, faded; tap again to put it back. */
+.vb-room .vbi-office-token[aria-pressed='true'] { color: rgba(42, 37, 34, 0.45); border-style: dashed; background: transparent; }
+.vb-room .vbi-office-token[aria-pressed='true']::after { content: ''; position: absolute; left: 4px; right: 4px; top: 50%; height: 3px; border-radius: 2px; background: #b23a3a; transform: rotate(-4deg); }
+.vbi-office-sixpence { padding: 2px 8px; border-radius: 999px; background: #2f4a32; color: #f4eee3; font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 500; white-space: nowrap; }
+
+/* The purse: its coins, what is in it, and whether the telegram costs too much. */
+.vbi-purse { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 14px 16px; border-radius: 40px 40px 18px 18px; background: radial-gradient(circle at 50% 20%, #8a4f3c, #5a2e22 70%); box-shadow: 0 14px 20px rgba(20, 10, 6, 0.4), inset 0 3px 0 rgba(255, 255, 255, 0.12); color: #f8f0dc; text-align: center; }
+.vbi-purse-label { margin: 0; font-family: 'Jost', sans-serif; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; }
+.vbi-purse-coins { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.vbi-purse .vbi-coin { width: 3.4em; height: 3.4em; font-size: 0.9rem; }
+.vbi-purse .vbi-coin[data-coin='1d'] { width: 3em; height: 3em; border-color: #8a4f22; background: radial-gradient(circle at 35% 35%, #f0b07a, #a8602c); color: #3a1f0c; }
+.vbi-purse .vbi-coin[data-coin='½d'] { width: 2.4em; height: 2.4em; border-color: #8a4f22; background: radial-gradient(circle at 35% 35%, #f0b07a, #a8602c); color: #3a1f0c; }
+.vbi-purse-sum { margin: 0; display: flex; flex-direction: column; gap: 4px; }
+.vbi-purse-sum strong { font-family: var(--pe-display); font-size: 2rem; font-weight: 400; }
+.vbi-purse-cost { min-height: 1.4em; font-family: 'Jost', sans-serif; font-size: 1rem; font-weight: 500; }
+.vbi-purse[data-ok] .vbi-purse-cost { color: #a8e6b2; }
+.vbi-purse[data-short] { box-shadow: 0 0 0 4px #b23a3a, 0 14px 20px rgba(20, 10, 6, 0.4); }
+.vbi-purse[data-short] .vbi-purse-cost { color: #ffb4a8; }
+
+/* The clerk at the key: the brass key going down, the lamp, the letter on its way. */
+.vbi-clerk { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 14px; border-radius: 14px; background: rgba(42, 30, 22, 0.82); color: #f8f0dc; box-shadow: 0 14px 20px rgba(20, 10, 6, 0.4); }
+.vbi-clerk-key { width: 100%; max-width: 240px; display: block; }
+.vbi-clerk-now { margin: 0; display: flex; align-items: center; gap: 12px; min-height: 52px; }
+.vbi-clerk-letter { min-width: 1.2em; font-family: 'Courier New', ui-monospace, monospace; font-weight: 700; font-size: 2.2rem; text-align: center; }
+.vbi-clerk .vbi-tg-tapmarks { color: #f2d68a; font-size: 1.8rem; }
+.vbi-clerk-name { margin: 0; font-family: 'Jost', sans-serif; font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; }
+
+/* The card as the office's counter: polished wood under a brass grille. */
+.vb-inventions .vbi-office-card {
+  background:
+    repeating-linear-gradient(90deg, #c9a24a 0 3px, transparent 3px 26px) top / 100% 16px no-repeat,
+    linear-gradient(to bottom, #c9a24a 0 16px, #8a5a3c 16px 19px, transparent 19px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.05) 0 2px, transparent 2px 38px),
+    linear-gradient(to bottom, #6e4430, #4a2a1c);
+  border-radius: 10px;
+  padding-top: 30px;
+}
+.vbi-office-drafts { display: flex; flex-direction: column; gap: 4px; }
+.vb-inventions .vbi-office textarea { font-family: 'Courier New', ui-monospace, monospace; font-weight: 700; text-transform: uppercase; }
+.vbi-clerk-says .vbi-verdict { font-family: var(--vb-serif); font-size: 1.08rem; line-height: 1.4; }
+
+@media (min-width: 761px) and (max-height: 820px) {
+  .vbi-office .vbi-step-body { font-size: 1.04rem; }
+  .vbi-office .vbi-task { font-size: 0.98rem; }
+  .vbi-office textarea { min-height: 0; }
+}
+
+@media (max-width: 760px) {
+  .vbi-office-desk { grid-template-columns: minmax(0, 1fr) 34%; gap: 8px; }
+  .vbi-office-form { min-height: 0; }
+  .vb-room .vbi-office-token { min-height: 36px; padding: 2px 6px; font-size: 15px; }
+  .vbi-purse { padding: 10px 6px; gap: 6px; border-radius: 24px 24px 12px 12px; }
+  .vbi-purse .vbi-coin { font-size: 0.72rem; }
+  .vbi-purse-sum strong { font-size: 1.4rem; }
+  .vbi-purse-cost { font-size: 0.82rem; }
+  .vbi-clerk { padding: 8px; gap: 6px; }
+  .vbi-clerk-letter { font-size: 1.6rem; }
+  .vb-room .vbi-tray-part { width: 64px; min-height: 60px; font-size: 12px; }
+  .vbi-part-icon { width: 40px; height: 27px; }
+  /* On a phone the places on the drawing are too small for their words: each shows its number, and the card lists the jobs. */
+  .vb-room .vbi-slot { font-size: 10px; padding: 2px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vbi-build-circuit .vbi-part, .vb-room .vbi-slot[data-wrong] { animation: none !important; }
+  .vb-room .vbi-slot { transition: none; }
+}
+
+/* The places' numbers and the card's list of jobs: for a phone only. */
+.vbi-slot-n { display: none; }
+.vbi-slot-key { display: none; }
+@media (max-width: 760px) {
+  .vbi-slot-job { display: none; }
+  .vbi-slot-n { display: block; font-family: var(--pe-display); font-size: 22px; font-weight: 400; }
+  .vbi-slot-key { display: block; margin: 0; padding-left: 1.4em; font-size: 0.95rem; line-height: 1.35; }
+  .vbi-slot-key li[data-placed] { text-decoration: line-through; opacity: 0.7; }
+}

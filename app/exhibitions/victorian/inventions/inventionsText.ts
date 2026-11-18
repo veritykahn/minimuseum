@@ -25,9 +25,11 @@ export const WORKSHOP_TEXT = {
   title: 'Inventions Workshop',
   railwayHeading: 'The railway',
   telegraphHeading: 'The telegraph',
+  morseHeading: 'Morse code',
   photoHeading: 'Photography',
   railwayIntro: 'Steam down the line from London, town by town. At each station, compare the railway’s clock with the town’s own.',
-  telegraphIntro: 'Press a letter on the dial and two needles swing to point to it. Type a word and send it, and the needles spell it out.',
+  telegraphIntro: 'Build a telegraph and send the current down the wire. Press a letter on the dial and two needles swing to point to it. Send and receive telegrams.',
+  morseIntro: 'Learn a few letters in Morse code, tap them out on the key, then decode a message.',
   photoIntro: 'Make a negative of a latticed window, then print from it: as many prints as you like.',
 };
 
@@ -262,43 +264,28 @@ export const BRISTOL_CLOCK = { london: 12 * 60 + 10, behind: 11 };
 export const BRISTOL_TRAIN = 12 * 60 + 30;
 
 /*
- * The telegraph's steps: how a telegraph works, part by part, before the
- * dial. Each step lights its part of the drawing (battery, key, wire, coil,
- * needle, sounder).
+ * Build a telegraph: five parts, each put where it does its job on the
+ * drawing of the circuit. `job` is what its empty place on the drawing
+ * says; `name` is the part in the tray; `line` is said once it is in place
+ * (instruction and plain description, no claims beyond the notes).
  */
-export type WireStepId = 'battery' | 'wire' | 'coil' | 'needle' | 'morse';
-export const WIRE_STEPS: { id: WireStepId; title: string; body: string; task: string }[] = [
-  {
-    id: 'battery',
-    title: 'The battery and the key',
-    body: 'A battery makes an electric current. The key is a switch: press it and the current flows; let go and it stops.',
-    task: 'Press the key and watch the current flow.',
-  },
-  {
-    id: 'wire',
-    title: 'The wire',
-    body: 'The current runs along a wire to a station miles away. The first telegraph wires ran beside the railway.',
-    task: 'Press the key again and follow the current along the wire.',
-  },
-  {
-    id: 'coil',
-    title: 'The coil',
-    body: 'At the far end the wire is wound round and round into a coil. When the current flows through the coil, it pushes on a magnet.',
-    task: 'Press the key: the coil glows when the current reaches it.',
-  },
-  {
-    id: 'needle',
-    title: 'The needle',
-    body: 'The magnet is a needle, like a compass needle. When the current flows, it swings. A clerk at the far station watches the needles to read the message.',
-    task: 'Press the key and watch the needle swing.',
-  },
-  {
-    id: 'morse',
-    title: 'Morse’s dots and dashes',
-    body: 'In America, Samuel Morse used a code of dots and dashes instead of a dial, with a pattern for each letter. A short press of the key makes a dot, a long press a dash.',
-    task: 'Tap the key quickly for a dot, hold it for a dash.',
-  },
+export type WirePartId = 'battery' | 'key' | 'wire' | 'coil' | 'needle';
+export const WIRE_PARTS: { id: WirePartId; name: string; job: string; line: string }[] = [
+  { id: 'battery', name: 'Battery', job: 'Makes the electric current', line: 'The battery makes an electric current.' },
+  { id: 'key', name: 'Key', job: 'A switch: press it to send', line: 'The key is a switch. Press it and the current flows; let go and it stops.' },
+  { id: 'wire', name: 'Wire', job: 'Carries the current miles away', line: 'The wire carries the current to a station miles away. The first telegraph wires ran beside the railway.' },
+  { id: 'coil', name: 'Coil', job: 'Wire wound round: pushes on a magnet', line: 'At the far end the wire is wound into a coil. When the current flows through it, it pushes on a magnet.' },
+  { id: 'needle', name: 'Needle', job: 'Swings to show the message', line: 'The magnet is a needle, like a compass needle. When the current flows, it swings, and a clerk at the far station reads it.' },
 ];
+
+/*
+ * The Morse code bench: a few letters to learn first (the short ones,
+ * each made of no more than three dots and dashes), words to tap out made
+ * of only those letters, and short messages to decode, made of them too.
+ */
+export const MORSE_LEARN = ['E', 'T', 'I', 'M', 'A', 'N', 'S', 'O'];
+export const MORSE_WORDS = ['TEA', 'SEA', 'NEST', 'MOON', 'STONE', 'TOAST', 'MITTENS'];
+export const MORSE_MESSAGES = ['TEA AT TEN', 'MEET ME AT NOON', 'TIME TO EAT', 'SEE ME SOON', 'NO TOAST', 'MEN AT SEA', 'MITTENS ON', 'SAM IS IN'];
 
 /** International Morse code for each letter, to try on the key. */
 export const MORSE: Record<string, string> = {
@@ -307,29 +294,73 @@ export const MORSE: Record<string, string> = {
 };
 
 /*
- * The telegram bench: write a telegram, tap it out in International Morse
- * code, print the form; or receive one and decode it. Twelve words for
- * sixpence is the Post Office's price (BT Archives, NOTES.telegramPrice);
- * the halfpenny for each word over twelve is the room's own game rule, and
- * said so on the page.
+ * The telegraph office: write a telegram on the form, pay for it at the
+ * counter from the money in your purse (crossing words out until it fits),
+ * watch the clerk tap it out in International Morse code, then address it
+ * and print it; or receive one and decode it. Twelve words for sixpence is
+ * the Post Office's price (BT Archives, NOTES.telegramPrice); the halfpenny
+ * for each word over twelve is the room's own game rule, and said so on the
+ * page. So is the purse: the money in it is the game's, not a sum from the
+ * records.
  */
 export const TELEGRAM = {
   /** Words for the price of sixpence. */
   words: 12,
-  /** The longest telegram the bench takes, in words. */
-  maxWords: 20,
+  /** The longest telegram the form takes, in words. */
+  maxWords: 30,
   /** The game rule: each word over twelve costs a halfpenny more. */
   extraHalfpence: 1,
   rule: 'Game rule: each word over 12 costs a halfpenny more.',
   /** Said on the telegram form itself, above its letters. */
   morseNote: 'In International Morse code',
+  /** What is in the visitor's purse, in halfpence (6d, 7d, 8d): one is chosen for each visit to the counter. */
+  purses: [12, 14, 16],
+  purseNote: 'The money in your purse is the game’s.',
 };
 
-/** Telegrams to receive and decode: short, and every letter in the chart. */
-export const INCOMING = ['TEA AT FOUR', 'TRAIN IS LATE', 'COME HOME', 'ALL IS WELL', 'MEET ME AT BATH'];
+/**
+ * Letters to start from, written as you would write a letter: far too long
+ * for the money in the purse, so there is something to cut. Made up for
+ * the workshop.
+ */
+export const TELEGRAM_DRAFTS = [
+  'DEAR MOTHER I HAVE ARRIVED SAFELY IN BATH AND THE TRAIN WAS VERY FAST PLEASE SEND MY WARM COAT AND SOME CAKE LOVE FROM ADA',
+  'DEAR UNCLE I AM SO SORRY BUT I HAVE MISSED THE TRAIN TO LONDON SO I WILL ARRIVE TOMORROW AT NOON INSTEAD FROM YOUR NEPHEW TOM',
+  'HELLO GRANDMA THE NEW PUPPY HAS COME TO LIVE WITH US AND HE IS SMALL AND BROWN AND WE HAVE CALLED HIM BISCUIT PLEASE VISIT SOON',
+];
 
-/** Telegrams to start from, for anyone stuck for words. */
-export const TELEGRAM_IDEAS = ['ARRIVING BATH NOON', 'SEND MORE TEA', 'WISH YOU WERE HERE'];
+/**
+ * Telegrams to receive and decode: short, made up for the workshop in the
+ * style of the time (no real person's words), one chosen at random each
+ * time. Every letter is in the chart.
+ */
+export const INCOMING = [
+  'TEA AT FOUR',
+  'TRAIN IS LATE',
+  'COME HOME',
+  'ALL IS WELL',
+  'MEET ME AT BATH',
+  'BABY GIRL BORN',
+  'SHIP IN SAFE',
+  'MISSED TRAIN HOME LATE',
+  'BRING YOUR UMBRELLA',
+  'CAKE WON FIRST PRIZE',
+  'SNOW HERE SEND BOOTS',
+  'HAPPY BIRTHDAY',
+  'BACK ON FRIDAY',
+  'LOST MY HAT',
+  'GOOSE FOR CHRISTMAS',
+  'PARCEL SENT TODAY',
+  'WE WON AT CRICKET',
+  'AUNT ARRIVES AT NOON',
+  'KITTENS ALL FOUND HOMES',
+  'RAIN STOPPED PLAY',
+  'PONY SOLD AT FAIR',
+  'PASSED MY EXAM',
+  'BRIDGE IS OPEN',
+  'FOG IN LONDON',
+];
+export const INCOMING_NOTE = 'Made-up telegrams, in the style of the time.';
 
 /*
  * The photographs on the photography bench: Victorian photographs from the
@@ -395,12 +426,40 @@ export const POSITIVE = {
 
 export const MET_CREDIT = 'The Metropolitan Museum of Art, public domain';
 
-/** The three-ways quiz: a clue, and the photograph it describes. */
-export const PROCESS_CLUES: { photo: PhotoId; process: string; clue: string; note: keyof typeof NOTES }[] = [
-  { photo: 'daguerreotype', process: 'Daguerreotype', clue: 'I was made on a shiny silver-plated sheet. There is only one of me: I could not be copied.', note: 'daguerreotype' },
-  { photo: 'openDoor', process: 'Calotype (Talbot’s paper negative)', clue: 'My negative was made of paper, so many prints could be made from it.', note: 'calotype' },
-  { photo: 'cameron', process: 'Wet collodion (a glass negative)', clue: 'My negative was a sheet of glass, coated and used while it was still wet.', note: 'collodion' },
+/**
+ * The three ways to make a photograph: first taught (the process, the
+ * photograph that shows it, and what it was, from the notes), then the
+ * quiz, a clue for each photograph.
+ */
+export const PROCESS_CLUES: { photo: PhotoId; process: string; short: string; teach: string; clue: string; note: keyof typeof NOTES }[] = [
+  {
+    photo: 'daguerreotype',
+    process: 'Daguerreotype',
+    short: 'Daguerreotype',
+    teach: 'Made on a shiny silver-plated sheet. Each one was a single picture that could not be copied.',
+    clue: 'I was made on a shiny silver-plated sheet. There is only one of me: I could not be copied.',
+    note: 'daguerreotype',
+  },
+  {
+    photo: 'openDoor',
+    process: 'Calotype (Talbot’s paper negative)',
+    short: 'Calotype',
+    teach: 'Talbot’s way: the negative was a sheet of paper, so many prints could be made from it.',
+    clue: 'My negative was made of paper, so many prints could be made from it.',
+    note: 'calotype',
+  },
+  {
+    photo: 'cameron',
+    process: 'Wet collodion (a glass negative)',
+    short: 'Wet collodion',
+    teach: 'The negative was a sheet of glass, coated, used while still wet and developed at once. It gave very fine detail.',
+    clue: 'My negative was a sheet of glass, coated and used while it was still wet.',
+    note: 'collodion',
+  },
 ];
+
+/** The quiz asks about the photographs in another order than the lesson showed them. */
+export const QUIZ_ORDER: PhotoId[] = ['cameron', 'daguerreotype', 'openDoor'];
 
 /** The photography bench's parts, each its own tab in the card. */
 export const PHOTO_PARTS = [
@@ -411,21 +470,42 @@ export const PHOTO_PARTS = [
 ] as const;
 export type PhotoPart = (typeof PHOTO_PARTS)[number]['id'];
 
-/** How long the room's exposure takes, in seconds: a real one took a minute or more (NOTES.exposure). */
+/*
+ * Making the negative: lift the cap off the lens and count while the light
+ * falls on the paper, then put it back. The workshop's seconds (a game
+ * rule, said so on the page): under 4 the picture is too faint, over 9 the
+ * whole sheet goes too dark, and 5 to 8 makes a good negative.
+ */
+export const EXPOSURE = { faintBelow: 4, darkAbove: 9, best: [5, 8] as const, max: 14 };
+
+export type ExposureResult = 'faint' | 'good' | 'dark';
+/** How a negative exposed for `seconds` comes out. */
+export function exposureFor(seconds: number): ExposureResult {
+  if (seconds < EXPOSURE.faintBelow) return 'faint';
+  if (seconds > EXPOSURE.darkAbove) return 'dark';
+  return 'good';
+}
+export const EXPOSURE_WORDS: Record<ExposureResult, string> = {
+  faint: 'Too faint! The light had too little time. Try a new sheet, and count longer.',
+  good: 'A good negative! The bright window has come out dark, and the dark stone light.',
+  dark: 'Too dark! The light had too long, and the whole sheet darkened. Try a new sheet, and count less.',
+};
+
+/** How long the sitting takes, in seconds: a real one took a minute or more (NOTES.exposure). */
 export const EXPOSURE_S = 8;
 
 /**
  * How blurred the portrait comes out: two pixels of blur for every second
- * the sitter moved, halved with the head clamp, and never more than twelve.
+ * the sitter let go of the clamp (and so moved), and never more than twelve.
  */
-export function blurFor(movedMs: number, clamp: boolean) {
-  const px = (movedMs / 1000) * 2 * (clamp ? 0.5 : 1);
+export function blurFor(movedMs: number) {
+  const px = (movedMs / 1000) * 2;
   return Math.min(12, Math.round(px * 10) / 10);
 }
 
 /** What the portrait came out as, by its blur. */
 export function verdictFor(blur: number): { tone: 'right' | 'near' | 'wrong'; words: string } {
-  if (blur <= 0.5) return { tone: 'right', words: 'Pin sharp! You kept perfectly still.' };
-  if (blur <= 4) return { tone: 'near', words: 'A little soft. You moved once or twice.' };
-  return { tone: 'wrong', words: 'A blur! You moved too much. Try again, perhaps with the head clamp.' };
+  if (blur <= 0.5) return { tone: 'right', words: 'Pin sharp! You held the clamp the whole time, so you kept perfectly still.' };
+  if (blur <= 4) return { tone: 'near', words: 'A little soft. You let go of the clamp for a moment, and moved.' };
+  return { tone: 'wrong', words: 'A blur! You let go of the clamp for too long. Try again, and keep holding it.' };
 }
