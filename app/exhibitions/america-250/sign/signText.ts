@@ -30,11 +30,28 @@ export const SIGN_TEXT = {
   steps: ['Read it on the parchment', 'Dip the quill in the ink', 'Sign on the line at its foot'],
   stepsTyped: ['Read it on the parchment', 'Type your name below', 'Put your name to it'],
   choices: {
-    declaration: 'The Declaration of Independence, in its own words. Read it, then sign under the signers.',
+    // REVIEW: new text (the pledge question)
+    declaration: 'The Declaration of Independence, in its own words. Read it, find what its signers pledged, then sign under them.',
     class: 'Your class’s own declaration. Fill in your teacher and grade, then everyone signs, one after another.',
     mine: 'Your own declaration for the year ahead. Add your name and grade, sign it, and print it.',
   },
   chooseOther: 'Choose another',
+
+  // REVIEW: new text. Before signing the Declaration: what are you pledging?
+  // Its three choices are the Declaration's own words (declaration.ts): the
+  // rights near its start, what the colonies declare, and its last line.
+  pledge: {
+    ask: 'Before you sign, read to its last line. What do the signers pledge to each other?',
+    choices: [
+      { id: 'rights', label: 'Life, Liberty and the pursuit of Happiness', no: 'Those are rights the Declaration says everyone has, near its start. Read on, to the very last line.' },
+      { id: 'pledge', label: 'Their Lives, their Fortunes and their sacred Honor', no: '' },
+      { id: 'states', label: 'To be Free and Independent States', no: 'That is what the colonies declare they are. The pledge comes just after it, in the last line.' },
+    ],
+    answer: 'pledge',
+    right: 'Yes: “our Lives, our Fortunes and our sacred Honor.” That is what you put your name to. Now dip the quill.',
+    step: 'Read it: find the pledge',
+    first: 'First, find what you are pledging: it is in the last line of the Declaration.',
+  },
   dipFirst: 'Dip the quill in the ink',
   copiesNext: 'Next: A Copy of a Copy',
 

@@ -167,7 +167,7 @@ describe('Put Your Name to It: the way in', () => {
   });
 
   it('walks the three steps: read it, dip the quill (it starts dry), sign', () => {
-    window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign');
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#class');
     render(<America250Signing />);
     const steps = within(screen.getByRole('list', { name: 'Three steps' })).getAllByRole('listitem');
     expect(steps[0]).toHaveAttribute('aria-current', 'step');
@@ -179,6 +179,33 @@ describe('Put Your Name to It: the way in', () => {
     expect(screen.getByRole('status')).toHaveTextContent('The quill is full of ink.');
     expect(screen.queryByText(SIGN_TEXT.dipFirst, { selector: '.aps-dry' })).toBeNull();
     expect(steps[2]).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('asks what the Declaration’s signers pledge before the quill will take ink, with a hint after a wrong answer', () => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign');
+    render(<America250Signing />);
+    const steps = within(screen.getByRole('list', { name: 'Three steps' })).getAllByRole('listitem');
+    expect(steps[0]).toHaveTextContent(SIGN_TEXT.pledge.step);
+    // Every choice is the Declaration's own words.
+    const text = DECLARATION_BODY.join(' ').toLowerCase();
+    for (const c of SIGN_TEXT.pledge.choices) expect(text).toContain(c.label.toLowerCase().replace(/^to be /, '').replace(/\btheir\b/g, 'our'));
+    expect(DECLARATION_BODY.at(-1)).toMatch(/our Lives, our Fortunes and our sacred Honor\.$/);
+    // The quill stays dry until the pledge is found.
+    fireEvent.click(screen.getByRole('button', { name: 'Dip the quill in the ink' }));
+    expect(screen.getByRole('status')).toHaveTextContent(SIGN_TEXT.pledge.first);
+    expect(screen.getByText('Find the pledge first', { selector: '.aps-dry' })).toBeInTheDocument();
+    const group = screen.getByRole('group', { name: SIGN_TEXT.pledge.ask });
+    fireEvent.click(within(group).getByRole('button', { name: /Life, Liberty/ }));
+    expect(within(group).getByRole('button', { name: /Life, Liberty/ })).toBeDisabled();
+    expect(within(group).getByText(SIGN_TEXT.pledge.choices[0].no)).toBeInTheDocument();
+    fireEvent.click(within(group).getByRole('button', { name: /Their Lives, their Fortunes/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('our Lives, our Fortunes and our sacred Honor');
+    expect(steps[0]).toHaveTextContent('(done)');
+    fireEvent.click(screen.getByRole('button', { name: 'Dip the quill in the ink' }));
+    expect(screen.getByRole('status')).toHaveTextContent('The quill is full of ink.');
+    expect(steps[2]).toHaveAttribute('aria-current', 'step');
+    // Its job done, the question steps aside.
+    expect(screen.queryByRole('group', { name: SIGN_TEXT.pledge.ask })).toBeNull();
   });
 
   it('asks for a dip before the dry quill will write', () => {
@@ -207,6 +234,9 @@ describe('Put Your Name to It: the Declaration', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
     fireEvent.change(screen.getByRole('textbox', { name: SIGN_TEXT.addressLabel }), { target: { value: 'Baltimore' } });
+    // Not until the pledge is found.
+    expect(seal).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: /Their Lives, their Fortunes/ }));
     expect(seal).toBeEnabled();
     fireEvent.click(seal);
     expect(screen.getByRole('status')).toHaveTextContent('Signed.');
@@ -705,6 +735,7 @@ describe('fine tuning (regressions from trying the room)', () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
+    fireEvent.click(screen.getByRole('button', { name: /Their Lives, their Fortunes/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
     fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
     await waitFor(() => expect(window.print).toHaveBeenCalledTimes(1));
@@ -738,6 +769,7 @@ describe('fine tuning (regressions from trying the room)', () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
+    fireEvent.click(screen.getByRole('button', { name: /Their Lives, their Fortunes/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
     expect(screen.getByRole('link', { name: /Next: A Copy of a Copy/ })).toHaveAttribute('href', COPIES_HREF);
   });

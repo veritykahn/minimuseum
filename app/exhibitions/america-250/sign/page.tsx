@@ -29,6 +29,15 @@ import './sign.css';
  * declaration has its own address (#sign, #class, #mine). Nothing signed or
  * written is stored or sent.
  *
+ * The point (what the poster alone can't give): the child reads the
+ * Declaration's own words to its last line, finds what its signers were
+ * pledging ("our Lives, our Fortunes and our sacred Honor": the Declaration
+ * asks before the quill will take ink, the choices its own phrases), and
+ * then puts their own name under it, so the posters' "a death warrant"
+ * means something; and they write and sign declarations of their own, for
+ * their class and for themselves. Verity, Nov 18: explain it on entry, read
+ * on the parchment, dip the quill, sign at its foot; three separate things.
+ *
  * The Declaration's text is the National Archives' transcription, and the
  * class's and the student's are the owner's own wording (declaration.ts);
  * every line about 1776 is the posters' own (signText.ts), its source in the
@@ -80,6 +89,9 @@ export default function America250Signing() {
   const [dipped, setDipped] = useState(false);
   const [read, setRead] = useState<Record<Doc, boolean>>(() => byDoc(() => false));
   const [dipping, setDipping] = useState(false);
+  // The Declaration asks what you are pledging before the quill will take ink.
+  const [pledged, setPledged] = useState(false);
+  const [pledgeTried, setPledgeTried] = useState<string[]>([]);
   const [status, setStatus] = useState('');
   // What is being printed; `n` counts the presses, so a second press prints again even if the browser never said it was done.
   const [printing, setPrinting] = useState<{ doc: Doc; n: number } | null>(null);
@@ -126,7 +138,24 @@ export default function America250Signing() {
   // A class's parchment takes name after name; the others, one.
   const sealed = doc !== 'class' && names.length > 0;
 
+  const mustPledge = doc === 'declaration' && !pledged;
+  const answerPledge = (id: string) => {
+    if (pledged || pledgeTried.includes(id)) return;
+    const c = t.pledge.choices.find((x) => x.id === id)!;
+    if (id === t.pledge.answer) {
+      setPledged(true);
+      setStatus(t.pledge.right);
+    } else {
+      setPledgeTried((x) => [...x, id]);
+      setStatus(c.no);
+    }
+  };
+
   const dip = () => {
+    if (mustPledge) {
+      setStatus(t.pledge.first);
+      return;
+    }
     setInk(1);
     setDipped(true);
     setDipping(true);
@@ -141,7 +170,7 @@ export default function America250Signing() {
   };
 
   const seal = () => {
-    if (!hasSignature) return;
+    if (!hasSignature || mustPledge) return;
     const s: Signer = { strokes: current.strokes, typed: current.typed.trim(), address: current.address };
     if (doc === 'class') {
       setSigned((all) => ({ ...all, class: [...all.class, s] }));
@@ -187,10 +216,10 @@ export default function America250Signing() {
   const live = view === 'sign' && !sealed;
   const own = doc === 'declaration' ? null : OWN_DECLARATIONS[doc];
   // The three steps, each ticked once done, and the next one marked.
-  const stepWords = mode === 'type' ? t.stepsTyped : t.steps;
+  const stepWords = (mode === 'type' ? t.stepsTyped : t.steps).map((w, i) => (i === 0 && doc === 'declaration' ? t.pledge.step : w));
   const anySigned = sealed || (doc === 'class' && names.length > 0);
   const done = [
-    read[doc] || hasSignature || anySigned,
+    doc === 'declaration' ? pledged || anySigned : read[doc] || hasSignature || anySigned,
     (mode === 'type' ? !!pad.typed.trim() : dipped) || hasSignature || anySigned,
     anySigned,
   ];
@@ -306,13 +335,22 @@ export default function America250Signing() {
                 </div>
                 {live && mode === 'draw' && (
                   <div className="aps-well">
-                    <button type="button" className="aps-inkwell" data-low={ink < 0.25 || undefined} data-dipping={dipping || undefined} onClick={dip} aria-label="Dip the quill in the ink">
+                    <button
+                      type="button"
+                      className="aps-inkwell"
+                      data-low={ink < 0.25 || undefined}
+                      data-dipping={dipping || undefined}
+                      data-locked={mustPledge || undefined}
+                      aria-disabled={mustPledge || undefined}
+                      onClick={dip}
+                      aria-label="Dip the quill in the ink"
+                    >
                       <Inkwell level={ink} />
                       <span className="aps-inkwell-label" aria-hidden="true">Dip</span>
                     </button>
                     {ink <= 0 && (
                       <span className="aps-dry" aria-hidden="true">
-                        {dipped ? 'The quill is dry. Dip it again' : t.dipFirst}
+                        {mustPledge ? 'Find the pledge first' : dipped ? 'The quill is dry. Dip it again' : t.dipFirst}
                       </span>
                     )}
                   </div>
@@ -322,6 +360,34 @@ export default function America250Signing() {
               <section className="aps-tray" aria-label="Sign it">
                 {!sealed ? (
                   <>
+                    {/* Once pledged and the quill dipped, it steps aside for the line to sign. */}
+                    {doc === 'declaration' && !(pledged && dipped) && (
+                      <div className="aps-pledge" role="group" aria-labelledby="aps-pledge-ask" data-done={pledged || undefined}>
+                        <p className="aps-pledge-ask" id="aps-pledge-ask">{t.pledge.ask}</p>
+                        {pledged ? (
+                          <p className="aps-pledge-right">{t.pledge.right}</p>
+                        ) : (
+                          <>
+                            <ul className="aps-pledge-choices">
+                              {t.pledge.choices.map((c) => {
+                                const wrong = pledgeTried.includes(c.id);
+                                return (
+                                  <li key={c.id}>
+                                    <button type="button" className="aps-pledge-choice" data-wrong={wrong || undefined} disabled={wrong} onClick={() => answerPledge(c.id)}>
+                                      {c.label}
+                                      {wrong && <span className="aps-sr"> (not this one)</span>}
+                                    </button>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                            {pledgeTried.length > 0 && (
+                              <p className="aps-pledge-hint">{t.pledge.choices.find((c) => c.id === pledgeTried[pledgeTried.length - 1])!.no}</p>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    )}
                     <div className="aps-tray-row">
                       <button type="button" className="aps-button aps-button-quiet aps-to-foot" onClick={toFoot}>
                         {t.toFoot} <span aria-hidden="true">↓</span>
@@ -360,7 +426,7 @@ export default function America250Signing() {
                       </label>
                     </div>
                     <div className="aps-tray-row aps-actions-main">
-                      <button type="button" className="aps-button aps-button-primary" onClick={seal} disabled={!hasSignature}>
+                      <button type="button" className="aps-button aps-button-primary" onClick={seal} disabled={!hasSignature || mustPledge}>
                         {doc === 'class' ? t.addName : 'Put your name to it'}
                       </button>
                       <button type="button" className="aps-button" onClick={startAgain} disabled={!hasSignature && !pad.address}>
