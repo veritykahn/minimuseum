@@ -142,3 +142,70 @@ export type WriteUpId = (typeof WRITE_UP)[number]['id'];
 export const ORAL_SOURCES: readonly FactSource[] = [SMITHSONIAN_GUIDE, SMITHSONIAN_FAMILY, FOLKLIFE_FIELDWORK, VETERANS_HISTORY];
 
 export const INTERVIEW_COUNT =INTERVIEW.reduce((n, g) => n + g.questions.length, 0);
+
+/*
+ * Practise listening: each tip in LISTENING, met as a moment in an
+ * interview, before the real one. The visitor chooses what to do; a wrong
+ * choice gets a nudge to think again, and the right one shows the guide's
+ * tip, with its sources. Its point: a child tries out what a good
+ * interviewer does (an open question, one thing at a time, waiting through
+ * a silence, a follow-up, stopping when she is tired) before facing a real
+ * grandmother, which reading the tips alone does not give them. The
+ * moments and choices are the room's own and make no claims; the tips are
+ * the guides'.
+ */
+export type PracticeChoice = { text: string; right?: true; nudge?: string };
+export type Practice = { id: string; ask: string; choices: readonly PracticeChoice[]; tip: Tip };
+
+/* REVIEW: new text (every moment, choice and nudge below) */
+export const PRACTICE: readonly Practice[] = [
+  {
+    id: 'open',
+    ask: 'You want to hear about her school days. Which question will get her talking?',
+    choices: [
+      { text: 'Did you like school?', nudge: 'She could answer that with one word: “Yes.” What kind of question needs more than yes or no?' },
+      { text: 'What was school like for you?', right: true },
+    ],
+    tip: LISTENING[0],
+  },
+  {
+    id: 'one',
+    ask: 'Which is the better way to ask?',
+    choices: [
+      { text: 'Where did you live, what was your house like, and who lived there with you?', nudge: 'That is three questions at once. Which one will she answer first?' },
+      { text: 'Where did you live when you were my age?', right: true },
+    ],
+    tip: LISTENING[1],
+  },
+  {
+    id: 'quiet',
+    ask: 'You ask about her mother, and she goes quiet. What do you do?',
+    choices: [
+      { text: 'Wait, and give her time.', right: true },
+      { text: 'Ask the next question straight away.', nudge: 'Why might she be quiet? She may be thinking back a long way.' },
+      { text: 'Tell her it doesn’t matter.', nudge: 'It might matter a great deal to her. What could she be doing in that quiet?' },
+    ],
+    tip: LISTENING[2],
+  },
+  {
+    id: 'follow',
+    ask: 'She says, “We had to make do with very little.” What could you ask next?',
+    choices: [
+      { text: 'Can you give me an example?', right: true },
+      { text: 'Okay. What is your favorite color?', nudge: 'She has just opened the door to a story. What question would let her tell it?' },
+    ],
+    tip: LISTENING[3],
+  },
+  {
+    id: 'stop',
+    ask: 'She looks tired and says she would rather not talk about that. What do you do?',
+    choices: [
+      { text: 'Keep going: there are only two questions left.', nudge: 'Whose interview is it, really? How would she feel?' },
+      { text: 'Stop, thank her, and offer to finish another day.', right: true },
+    ],
+    tip: LISTENING[4],
+  },
+];
+
+/** The most questions to choose for the interview sheet, from the fourteen (and one of your own). */
+export const PICK_MAX = 8;

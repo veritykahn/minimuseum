@@ -370,3 +370,43 @@
 
 /* The Sources button (SourcesDrawer), in the room's navy and paper. */
 .whr-room { --mm-sources-bg: var(--whr-navy); --mm-sources-ink: var(--whr-paper); }
+
+/* ───────── Talk about it: practise listening, and choose your questions ───────── */
+.whr-practice { display: flex; flex-direction: column; gap: 12px; }
+.whr-practice-n { margin: 0; font-family: var(--pe-ui); font-size: 12px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--whr-orange-ink); }
+.whr-practice-ask { margin: 0; font-family: var(--pe-display); font-weight: 700; font-size: clamp(1.15rem, 1.8vw, 1.5rem); line-height: 1.3; color: var(--whr-navy); }
+.whr-practice-choices { display: flex; flex-direction: column; gap: 8px; }
+.whr-room .whr-practice-choice {
+  appearance: none;
+  min-height: 48px;
+  padding: 10px 14px;
+  text-align: left;
+  border: 1.5px solid rgba(34, 51, 94, 0.35);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.6);
+  color: var(--whr-ink);
+  font-family: var(--pe-body);
+  font-size: clamp(1rem, 1.3vw, 1.15rem);
+  line-height: 1.4;
+  cursor: pointer;
+}
+.whr-room .whr-practice-choice:hover:not(:disabled) { border-color: var(--whr-orange-ink); background: #fff; }
+.whr-room .whr-practice-choice:disabled { cursor: default; }
+.whr-room .whr-practice-choice.is-wrong { border-color: var(--whr-orange-ink); background: rgba(242, 102, 31, 0.08); text-decoration: line-through; text-decoration-color: rgba(163, 64, 26, 0.6); }
+.whr-room .whr-practice-choice.is-right { border-color: #2f6b3a; background: rgba(47, 107, 58, 0.1); font-weight: 600; }
+.whr-practice-say:empty { display: none; }
+.whr-practice-tip, .whr-practice-nudge { margin: 0; padding: 10px 14px; border-left: 4px solid var(--whr-orange-ink); background: rgba(34, 51, 94, 0.06); font-family: var(--pe-body); font-size: 1.05rem; line-height: 1.5; color: var(--whr-ink); outline: none; }
+.whr-practice-tip { border-left-color: #2f6b3a; }
+.whr-practice-tip p { margin: 0; }
+.whr-practice-tip:focus-visible { outline: 2px solid var(--whr-navy); outline-offset: 2px; }
+.whr-room .whr-practice .whr-button { align-self: flex-start; }
+.whr-pick-count { margin: 0; font-family: var(--pe-ui); font-size: 13px; font-weight: 500; color: var(--whr-orange-ink); }
+.whr-qgroup { border: 0; margin: 0; padding: 0; }
+.whr-pick { display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start; padding: 8px 10px; border: 1.5px solid rgba(34, 51, 94, 0.2); background: rgba(255, 255, 255, 0.45); font-family: var(--pe-display); font-weight: 700; font-size: clamp(1rem, 1.4vw, 1.2rem); line-height: 1.35; color: var(--whr-navy); cursor: pointer; }
+.whr-pick.is-on { border-color: var(--whr-orange-ink); background: rgba(242, 102, 31, 0.1); }
+.whr-pick input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--whr-navy); }
+.whr-pick:has(input:disabled) { opacity: 0.55; cursor: default; }
+@media (max-width: 760px) {
+  .whr-pick { font-size: 1rem; }
+  .whr-practice-tip, .whr-practice-nudge { font-size: 1rem; }
+}

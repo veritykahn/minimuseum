@@ -12,8 +12,8 @@ import {
   guessLine,
 } from '@/app/exhibitions/womens-history/remembered/remembered';
 import { CONFEDERATE_NAMES, FACT_CONFEDERATE, LOC_JOAN, NWHM_SACAGAWEA, NWHM_TUBMAN, THREE_WOMEN } from '@/app/exhibitions/womens-history/remembered/threeWomen';
-import { CLAIM, EVIDENCE, MAX_TILT, WEIGHING, argumentLines, evidenceTilt, isRight } from '@/app/exhibitions/womens-history/remembered/weighEvidence';
-import { AFTER, BEFORE, INTERVIEW, INTERVIEW_COUNT, LISTENING, ORAL_SOURCES, REFLECT, VETERANS_HISTORY, WRITE_UP } from '@/app/exhibitions/womens-history/remembered/oralHistoryText';
+import { CLAIM, EVIDENCE, MAX_TILT, WEIGHING, argumentLines, dealEvidence, evidenceTilt, isRight } from '@/app/exhibitions/womens-history/remembered/weighEvidence';
+import { AFTER, BEFORE, INTERVIEW, INTERVIEW_COUNT, LISTENING, ORAL_SOURCES, PICK_MAX, PRACTICE, REFLECT, VETERANS_HISTORY, WRITE_UP } from '@/app/exhibitions/womens-history/remembered/oralHistoryText';
 import { WOMENS_HISTORY } from '@/app/exhibitions/womens-history/womensHistory';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -181,19 +181,26 @@ describe('the room', () => {
     render(<WhoGetsRemembered />);
     expect(screen.getByRole('tab', { name: 'Tip the scale' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('img', { name: /level: no evidence/ })).toBeInTheDocument();
-    for (const [i, c] of EVIDENCE.entries()) {
+    // The cards come shuffled: read which one is up from the card itself.
+    const seen: string[] = [];
+    for (let i = 0; i < EVIDENCE.length; i++) {
       expect(screen.getByRole('heading', { name: `Evidence ${i + 1} of ${EVIDENCE.length}` })).toBeInTheDocument();
-      expect(screen.getByText(c.text)).toBeInTheDocument();
-      // One card is laid on wrongly, to see the room say so and let it be set aside.
+      const shown = document.querySelector('.whr-card-text:not([data-held])')!.textContent;
+      const c = EVIDENCE.find((x) => x.text === shown)!;
+      seen.push(c.id);
+      // One card is laid on wrongly: the room says so, asks a question to think with (not the answer), and lets it be set aside.
       if (c.id === 'lincoln') {
         fireEvent.click(screen.getByRole('button', { name: 'Lay it on the scale' }));
         expect(screen.getByText('It weighs nothing here.')).toBeInTheDocument();
-        expect(screen.getByRole('img', { name: /tipped toward the evidence: 1 of 3/ })).toBeInTheDocument();
+        expect(document.querySelector('.whr-verdict p:not([data-held])')).toHaveTextContent(c.hint);
+        expect(document.querySelector('.whr-verdict p:not([data-held])')).not.toHaveTextContent(c.why);
+        expect(screen.queryByRole('button', { name: /Next card|Weigh it up/ })).toBeNull();
         fireEvent.click(screen.getByRole('button', { name: 'Set it aside instead' }));
       } else fireEvent.click(screen.getByRole('button', { name: c.weighs ? 'Lay it on the scale' : 'Set it aside' }));
-      expect(document.querySelector('.whr-verdict')).toHaveTextContent(c.why);
+      expect(document.querySelector('.whr-verdict p:not([data-held])')).toHaveTextContent(c.why);
       fireEvent.click(screen.getByRole('button', { name: i < EVIDENCE.length - 1 ? 'Next card' : 'Weigh it up' }));
     }
+    expect([...seen].sort()).toEqual(EVIDENCE.map((c) => c.id).sort());
     expect(screen.getByRole('img', { name: /3 of 3 pieces/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Which evidence weighs the most?' })).toBeInTheDocument();
     expect(screen.getByText(/You got 6 of 7 right the first time/)).toBeInTheDocument();
@@ -216,7 +223,7 @@ describe('the room', () => {
     print.mockRestore();
   });
 
-  it('is an oral history in six steps, with an interview sheet and a write-up to print', () => {
+  it('is an oral history in six steps: practise listening, choose your questions, and print a sheet and a write-up', () => {
     const print = jest.spyOn(window, 'print').mockImplementation(() => {});
     render(<WhoGetsRemembered />);
     fireEvent.keyDown(screen.getByRole('tab', { name: 'Who gets a statue?' }), { key: 'End' });
@@ -225,23 +232,42 @@ describe('the room', () => {
     const panel = screen.getByRole('tabpanel', { name: 'Talk about it' });
     expect(within(panel).getByRole('heading', { name: 'Interview a woman in your family' })).toBeInTheDocument();
     for (const t of BEFORE) expect(panel).toHaveTextContent(t.text);
-    fireEvent.click(within(panel).getByRole('button', { name: /Next: The questions/ }));
-    expect(within(panel).getByRole('heading', { name: '14 questions to ask' })).toHaveFocus();
+    // Practise listening: five moments; a wrong choice gets a nudge, the right one the guide's tip.
+    fireEvent.click(within(panel).getByRole('button', { name: /Next: Practise listening/ }));
+    expect(within(panel).getByRole('heading', { name: 'Practise listening' })).toHaveFocus();
+    for (const [k, m] of PRACTICE.entries()) {
+      expect(panel).toHaveTextContent(`Moment ${k + 1} of ${PRACTICE.length}`);
+      const wrong = m.choices.find((c) => !c.right)!;
+      fireEvent.click(within(panel).getByRole('button', { name: wrong.text }));
+      expect(within(panel).getByRole('status')).toHaveTextContent(wrong.nudge!);
+      expect(within(panel).getByRole('status')).not.toHaveTextContent(m.tip.text);
+      fireEvent.click(within(panel).getByRole('button', { name: m.choices.find((c) => c.right)!.text }));
+      expect(within(panel).getByRole('status')).toHaveTextContent(m.tip.text);
+      fireEvent.click(within(panel).getByRole('button', { name: k < PRACTICE.length - 1 ? 'Next moment' : 'See all the tips' }));
+    }
+    for (const t of LISTENING) expect(panel).toHaveTextContent(t.text);
+    expect(within(panel).queryAllByRole('link', { name: VETERANS_HISTORY.label })).toHaveLength(0);
+    // Choose your questions: all fourteen to choose from, up to eight, and one of your own.
+    fireEvent.click(within(panel).getByRole('button', { name: /Next: Choose your questions/ }));
     const questions = INTERVIEW.flatMap((g) => g.questions);
     expect(questions).toHaveLength(INTERVIEW_COUNT);
     expect(INTERVIEW_COUNT).toBe(14);
-    for (const q of questions) expect(within(panel).getAllByText(q).length).toBeGreaterThan(0);
-    fireEvent.click(within(panel).getByRole('button', { name: 'While you listen' }));
-    for (const t of LISTENING) expect(panel).toHaveTextContent(t.text);
-    expect(within(panel).queryAllByRole('link', { name: VETERANS_HISTORY.label })).toHaveLength(0);
+    for (const q of questions) expect(within(panel).getByRole('checkbox', { name: q })).not.toBeChecked();
+    // With none chosen, the sheet has all fourteen.
+    const sheet = () => document.querySelector('.whr-print-sheet')!;
+    for (const q of questions) expect(sheet()).toHaveTextContent(q);
+    questions.slice(0, PICK_MAX).forEach((q) => fireEvent.click(within(panel).getByRole('checkbox', { name: q })));
+    expect(within(panel).getByRole('checkbox', { name: questions[PICK_MAX] })).toBeDisabled();
+    fireEvent.change(within(panel).getByRole('textbox', { name: 'A question of your own' }), { target: { value: 'What was your first job?' } });
     fireEvent.click(within(panel).getByRole('button', { name: 'Afterwards' }));
     for (const t of AFTER) expect(panel).toHaveTextContent(t.text);
-    // The interview sheet: the tips and all fourteen questions, to take along.
+    // The interview sheet: the tips, the chosen questions and your own, to take along.
     fireEvent.click(within(panel).getByRole('button', { name: 'Print the interview sheet' }));
     expect(print).toHaveBeenCalledTimes(1);
-    const sheet = document.querySelector('.whr-print-sheet')!;
-    for (const q of questions) expect(sheet).toHaveTextContent(q);
-    for (const r of REFLECT) expect(sheet).toHaveTextContent(r);
+    for (const q of questions.slice(0, PICK_MAX)) expect(sheet()).toHaveTextContent(q);
+    expect(sheet()).not.toHaveTextContent(questions[PICK_MAX]);
+    expect(sheet()).toHaveTextContent('What was your first job?');
+    for (const r of REFLECT) expect(sheet()).toHaveTextContent(r);
     // The write-up.
     fireEvent.click(within(panel).getByRole('button', { name: 'Write it up' }));
     fireEvent.change(within(panel).getByRole('textbox', { name: 'I interviewed' }), { target: { value: 'Grandma Rose' } });
@@ -261,8 +287,33 @@ describe('the room', () => {
     expect(onScreen(panel)).not.toMatch(/Sources?:/);
     const drawer = openSources();
     for (const s of ORAL_SOURCES) expect(drawer.getAllByRole('link', { name: s.label })[0]).toHaveAttribute('href', s.href);
-    expect(document.querySelector('.whr-print-sheet')).toHaveTextContent(`Sources: ${ORAL_SOURCES.map((x) => x.label).join('; ')}`);
+    expect(sheet()).toHaveTextContent(`Sources: ${ORAL_SOURCES.map((x) => x.label).join('; ')}`);
     print.mockRestore();
+  });
+});
+
+describe('the challenges’ own rules', () => {
+  it('deals the evidence in a shuffled order, every card once, with a hint for each', () => {
+    expect(dealEvidence(null)).toBe(EVIDENCE);
+    const orders = new Set<string>();
+    for (let seed = 1; seed < 40; seed++) {
+      const d = dealEvidence(seed);
+      expect([...d].map((c) => c.id).sort()).toEqual(EVIDENCE.map((c) => c.id).sort());
+      orders.add(d.map((c) => c.id).join());
+    }
+    expect(orders.size).toBeGreaterThan(10);
+    for (const c of EVIDENCE) {
+      expect(c.hint.length).toBeGreaterThan(10);
+      expect(c.hint).not.toBe(c.why);
+    }
+  });
+
+  it('gives each listening moment one right choice, a nudge for every other, and one of the guides’ tips', () => {
+    expect(PRACTICE.map((m) => m.tip)).toEqual([...LISTENING]);
+    for (const m of PRACTICE) {
+      expect(m.choices.filter((c) => c.right)).toHaveLength(1);
+      for (const c of m.choices) if (!c.right) expect(c.nudge).toBeTruthy();
+    }
   });
 });
 
