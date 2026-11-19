@@ -9,11 +9,11 @@ import AmuletMaker from '@/app/exhibitions/egypt/amulet/page';
 import { AMULET_INTRO, MAX_SYMBOLS, NEEDS, SYMBOLS, toggleSymbol } from '@/app/exhibitions/egypt/amulet/amulets';
 import { AMULET_KEY, readAmulet } from '@/app/exhibitions/egypt/amulet/savedAmulet';
 import MyTomb from '@/app/exhibitions/egypt/my-tomb/page';
-import { GOODS, MAX_GOODS, MY_TOMB_INTRO, STEPS as TOMB_STEPS } from '@/app/exhibitions/egypt/my-tomb/myTomb';
+import { GOODS, MAX_GOODS, MY_TOMB_INTRO } from '@/app/exhibitions/egypt/my-tomb/myTomb';
 import { CARTOUCHE_KEY, readCartouche } from '@/app/exhibitions/egypt/my-tomb/savedCartouche';
 import { GLYPHS } from '@/app/exhibitions/egypt/rooms';
 import { WALLS } from '@/app/exhibitions/egypt/tomb/scenes';
-import { TOMB_KEY, readTomb } from '@/app/exhibitions/egypt/tombState';
+import { TOMB_KEY, TOMB_PLACES, readTomb } from '@/app/exhibitions/egypt/tombState';
 
 /*
  * The four Egypt rooms where the visitor makes and does things: Mummification
@@ -305,24 +305,25 @@ describe('Build Your Own Tomb', () => {
     expect(readCartouche()).toBeNull();
   });
 
-  it('is built by tap: a painted wall, things on the floor moved by keyboard, then links to make what is missing', () => {
+  it('starts the journey: a lit tomb with six empty places, each a door to the room that fills it; furnished by tap and keyboard; sealed only when full', () => {
     window.history.replaceState(null, '', '/exhibitions/egypt/my-tomb');
     const { container } = render(<MyTomb />);
-    begin(MY_TOMB_INTRO);
-    const nav = () => within(container.querySelector('.egt-nav') as HTMLElement);
-    const next = () => fireEvent.click(nav().getByRole('button', { name: /Next/ }));
-    expect(TOMB_STEPS.map((s) => s.id)).toEqual(['wall', 'goods', 'yours', 'done']);
+    const intro = screen.getByRole('dialog', { name: 'Build Your Own Tomb' });
+    for (const l of MY_TOMB_INTRO) expect(within(intro).getByText(l)).toBeInTheDocument();
+    fireEvent.click(within(intro).getByRole('button', { name: 'Enter your tomb' }));
     // Fully lit: no torch here.
-    expect(container.querySelector('.egt-chamber')).toBeInTheDocument();
+    expect(container.querySelector('.egb-chamber')).toBeInTheDocument();
     expect(container.textContent).not.toMatch(/torch/i);
+    expect(screen.getByRole('img', { name: /an open coffin, empty/ })).toBeInTheDocument();
 
-    expect(nav().getByRole('button', { name: /Next/ })).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', { name: WALLS[1].name }));
-    expect(container.querySelector('.egt-painting')).toHaveAttribute('href', WALLS[1].src);
-    expect(screen.getByText(WALLS[1].note.text)).toBeInTheDocument();
-    next();
+    // Each empty place, in the picture and in the list, leads to its room.
+    for (const p of TOMB_PLACES) {
+      expect(screen.getByRole('link', { name: new RegExp(`empty: it waits for ${p.waits}\\. Go to ${p.room}`) })).toHaveAttribute('href', p.href);
+      expect(screen.getAllByRole('link', { name: new RegExp(p.room) }).length).toBeGreaterThanOrEqual(2);
+    }
+    expect(screen.getByRole('button', { name: 'Seal your tomb' })).toBeDisabled();
 
-    expect(nav().getByRole('button', { name: /Next/ })).toBeDisabled();
+    tap('Furnish it');
     tap('Put in a chair');
     tap('Put in bread and fruit');
     const chair = screen.getByRole('button', { name: 'A chair, on the floor' });
@@ -333,36 +334,48 @@ describe('Build Your Own Tomb', () => {
     expect(screen.queryByRole('button', { name: 'Bread and fruit, on the floor' })).toBeNull();
     for (const g of GOODS.slice(2, 2 + MAX_GOODS)) tap(`Put in ${g.name.toLowerCase()}`);
     expect(screen.getByRole('status')).toHaveTextContent(`The floor holds ${MAX_GOODS} things.`);
-    next();
+    tap(/Back to your tomb/);
 
-    // Nothing made yet in the other rooms: a link to each.
-    expect(screen.getByRole('link', { name: 'Write your name in hieroglyphs' })).toHaveAttribute('href', '/exhibitions/egypt/hieroglyph-name');
-    expect(screen.getByRole('link', { name: 'Design an amulet' })).toHaveAttribute('href', '/exhibitions/egypt/amulet');
     fireEvent.change(screen.getByRole('textbox', { name: 'Whose tomb is this?' }), { target: { value: 'Nefer' } });
     expect(screen.getByText('The tomb of Nefer')).toBeInTheDocument();
-    next();
-    expect(screen.getByRole('button', { name: 'Print my tomb' })).toBeInTheDocument();
-    // The chamber is kept in this browser, to come back to.
-    expect(JSON.parse(window.localStorage.getItem('mm-egypt-my-tomb')!)).toMatchObject({ wall: WALLS[1].id, owner: 'Nefer' });
-    expect(window.localStorage.getItem(TOMB_KEY)).toBeNull();
+    // The furnishing is kept in this browser, to come back to; nothing is put in the rooms' places.
+    expect(JSON.parse(window.localStorage.getItem('mm-egypt-my-tomb')!)).toMatchObject({ owner: 'Nefer', sealed: false });
+    expect(readTomb().kept ?? {}).toEqual({});
   });
 
-  it('carves the saved cartouche on the wall and lays the saved amulet in its niche, by tap', () => {
+  it('shows what each room put in, in its place, glowing on arrival, then seals the tomb and can start a new one', () => {
     window.localStorage.setItem(CARTOUCHE_KEY, JSON.stringify({ name: 'Maya', signs: ['G17', 'G1', 'M17', 'G1'] }));
     window.localStorage.setItem(AMULET_KEY, JSON.stringify({ shape: 'oval', material: 'faience', symbols: ['wedjat'], name: 'Maya', nameGlyphs: '' }));
-    window.localStorage.setItem('mm-egypt-my-tomb', JSON.stringify({ step: 2, wall: WALLS[0].id, goods: [{ id: 'chair', x: 300, y: 540 }], cartouche: false, amulet: false, owner: '' }));
+    window.localStorage.setItem(
+      TOMB_KEY,
+      JSON.stringify({
+        done: {},
+        found: {},
+        painting: WALLS[2].id,
+        kept: { walls: 'a painting of the cat', name: 'your name, in a cartouche', rosetta: 'a papyrus', amulet: 'your amulet', mummification: 'your mummy in its coffin', weighing: 'a heart amulet' },
+      }),
+    );
     window.history.replaceState(null, '', '/exhibitions/egypt/my-tomb');
-    render(<MyTomb />);
-    begin(MY_TOMB_INTRO);
-    expect(screen.getByRole('heading', { name: 'Make it yours' })).toBeInTheDocument();
-    expect(screen.getByText('The tomb of Maya')).toBeInTheDocument();
-    tap('Your cartouche: Maya');
-    tap(/The stone column on the wall/);
-    expect(screen.getByRole('status')).toHaveTextContent('Your name is carved on the wall of your tomb.');
+    const { container } = render(<MyTomb />);
+    // Straight in from a room: no intro, and what is new is said.
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.getByText('New in your tomb')).toBeInTheDocument();
+    expect(container.querySelectorAll('.egb-arrived')).toHaveLength(6);
+    const chamber = screen.getByRole('img', { name: /A burial chamber/ });
+    expect(chamber).toHaveAccessibleName(expect.stringMatching(/painted coffin, closed, with the mummy inside/));
+    expect(chamber).toHaveAccessibleName(expect.stringMatching(/cartouche with the name Maya/));
+    expect(chamber).toHaveAccessibleName(expect.stringMatching(/In the niche: an oval of blue-green faience, carved with the wedjat eye/));
+    expect(chamber).toHaveAccessibleName(expect.stringMatching(new RegExp(WALLS[2].title)));
     expect(screen.getByRole('img', { name: 'Your name in a cartouche: Maya' })).toBeInTheDocument();
-    tap('Your amulet');
-    tap(/The niche in the wall/);
-    expect(screen.getByRole('status')).toHaveTextContent('Your amulet rests in its niche.');
-    expect(screen.getByRole('img', { name: /In the niche: an oval of blue-green faience, carved with the wedjat eye/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /empty: it waits/ })).toBeNull();
+
+    tap('Seal your tomb');
+    expect(screen.getByRole('heading', { name: 'Your tomb is sealed' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /walled up with stone/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Print my tomb' })).toBeInTheDocument();
+    tap('Start a new tomb');
+    tap('Yes, empty it');
+    expect(readTomb().kept).toEqual({});
+    expect(screen.getByRole('button', { name: 'Seal your tomb' })).toBeDisabled();
   });
 });

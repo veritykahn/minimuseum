@@ -2,24 +2,43 @@ import type { CSSProperties, ReactNode } from 'react';
 import AmuletArt from '../amulet/AmuletArt';
 import { describeAmulet, type SavedAmulet } from '../amulet/savedAmulet';
 import Cartouche from '../hieroglyph-name/Cartouche';
-import { CoffinLid, COFFIN_OUTLINE } from '../mummification/Coffin';
+import { GLYPHS } from '../rooms';
+import { PTOLEMY } from '../rosetta-stone/rosetta';
+import type { ActivityId } from '../tombState';
 import type { Wall } from '../tomb/scenes';
+import { Heart } from '../weighing-of-the-heart/HallArt';
 import type { SavedCartouche } from './savedCartouche';
 import { GOODS, type GoodId } from './myTomb';
 
 /*
  * The visitor's own burial chamber, fully lit: no torch, nothing hidden.
  * Drawn in SVG in a gentle perspective: a painted ceiling of stars, the
- * back wall with a framed painting (the wall they chose, one of The Met's
- * facsimiles), a niche for their amulet on the left and a stone column for
- * their cartouche on the right, plastered side walls, a stone floor, two
- * lamps burning, and a painted coffin lying in the middle of the floor.
- * The things they choose stand on the floor where they put them, a little
- * smaller toward the back.
+ * plastered back and side walls, a stone floor and two lamps burning. It
+ * has six places, one for each of the other Egypt rooms to fill (PLACES,
+ * and tombState.ts's TOMB_PLACES):
+ *
+ *   the painted wall     the framed painting on the back wall: one of The
+ *                        Met's facsimiles, the wall the visitor lit in the
+ *                        Tomb Explorer
+ *   the stone column     their name in a cartouche (Your Name in Hieroglyphs)
+ *   the scroll stand     a papyrus with the royal name they decoded (the
+ *                        Rosetta Stone Decoder)
+ *   the niche            their amulet (Design an Amulet)
+ *   the coffin           in the middle of the floor: open and empty, until
+ *                        Mummification lays their mummy in it and closes
+ *                        its painted lid
+ *   the offering table   a heart amulet (the Weighing of the Heart)
+ *
+ * An empty place is drawn empty (a blank frame, a bare column, an open
+ * coffin...), and the page lays a door over it to the room that fills it.
+ * The things the visitor furnishes the tomb with stand on the floor where
+ * they put them, a little smaller toward the back.
  *
  * The cartouche is the hieroglyph room's own Cartouche, set over the wall's
- * column; the overlays the page adds (the things to move, the places to
- * drop) go over the chamber as its children, placed by `box()`.
+ * column; the overlays the page adds (the things to move, the doors) go
+ * over the chamber as its children, placed by `box()`. The coffin is drawn
+ * here, not borrowed from the mummification room, so that room can be
+ * redrawn freely.
  */
 
 export const CH_W = 1200;
@@ -30,6 +49,30 @@ const INK = '#2b1d12';
 export const PAINTING_BOX: Box = [330, 92, 540, 288];
 export const NICHE_BOX: Box = [196, 160, 112, 180];
 export const CARTOUCHE_BOX: Box = [902, 70, 100, 350];
+export const COFFIN_BOX: Box = [420, 530, 360, 130];
+export const TABLE_BOX: Box = [830, 452, 130, 120];
+export const SCROLL_BOX: Box = [236, 446, 150, 126];
+
+/** Each room's place in the chamber, as a box for its door. */
+export const PLACES: Record<ActivityId, Box> = {
+  walls: PAINTING_BOX,
+  name: CARTOUCHE_BOX,
+  rosetta: SCROLL_BOX,
+  amulet: NICHE_BOX,
+  mummification: COFFIN_BOX,
+  weighing: TABLE_BOX,
+};
+
+/** What fills each place: whatever is missing is drawn empty. */
+export type Filled = {
+  wall: Wall | null;
+  cartouche: SavedCartouche | null;
+  amulet: SavedAmulet | null;
+  mummy: boolean;
+  heart: boolean;
+  papyrus: boolean;
+};
+export const NOTHING: Filled = { wall: null, cartouche: null, amulet: null, mummy: false, heart: false, papyrus: false };
 /** Where things may stand: the floor's own bounds (in the chamber's units). */
 export const FLOOR = { top: 470, bottom: 680 };
 
@@ -54,52 +97,52 @@ export function onFloor(x: number, y: number) {
   return { x: Math.round(Math.max(BACK.left - spread + margin, Math.min(BACK.right + spread - margin, x))), y: Math.round(cy) };
 }
 
-/** Free places on the floor, in the order a tapped thing takes them. */
+/** Free places on the floor, clear of the six places, in the order a tapped thing takes them. */
 export const FLOOR_SLOTS = [
-  { x: 300, y: 540 },
-  { x: 900, y: 540 },
-  { x: 420, y: 490 },
-  { x: 780, y: 490 },
-  { x: 230, y: 650 },
-  { x: 970, y: 650 },
-  { x: 600, y: 488 },
-  { x: 340, y: 670 },
-  { x: 860, y: 670 },
+  { x: 470, y: 486 },
+  { x: 730, y: 486 },
+  { x: 200, y: 640 },
+  { x: 1000, y: 640 },
+  { x: 600, y: 478 },
+  { x: 330, y: 676 },
+  { x: 870, y: 676 },
+  { x: 1010, y: 520 },
+  { x: 190, y: 520 },
 ];
 
 export default function Chamber({
-  wall,
+  filled,
   goods,
-  amulet,
-  cartouche,
   selected,
+  sealed = false,
   label,
-  idPrefix = 'egt',
+  idPrefix = 'egb',
   children,
 }: {
-  wall: Wall | null;
+  filled: Filled;
   goods: Placed[];
-  amulet: SavedAmulet | null;
-  cartouche: SavedCartouche | null;
   selected?: GoodId | null;
+  /** The finale: the doorway walled up and sealed. */
+  sealed?: boolean;
   label: string;
   idPrefix?: string;
   children?: ReactNode;
 }) {
+  const { wall, amulet, cartouche } = filled;
   // The back of the floor first, so nearer things stand in front.
   const sorted = [...goods].sort((a, b) => a.y - b.y);
   const front = sorted.filter((g) => g.y >= 600);
   const back = sorted.filter((g) => g.y < 600);
   const thing = (g: Placed) => (
-    <g key={g.id} className={`egt-good${selected === g.id ? ' is-selected' : ''}`} transform={`translate(${g.x} ${g.y}) scale(${depthScale(g.y)})`}>
+    <g key={g.id} className={`egb-good${selected === g.id ? ' is-selected' : ''}`} transform={`translate(${g.x} ${g.y}) scale(${depthScale(g.y)})`}>
       <ellipse cx="0" cy="2" rx="52" ry="9" fill="#000" opacity="0.22" />
       <GoodArt id={g.id} />
     </g>
   );
 
   return (
-    <div className="egt-chamber">
-      <svg className="egt-svg" viewBox={`0 0 ${CH_W} ${CH_H}`} role="img" aria-label={label}>
+    <div className="egb-chamber">
+      <svg className="egb-svg" viewBox={`0 0 ${CH_W} ${CH_H}`} role="img" aria-label={label}>
         <defs>
           <linearGradient id={`${idPrefix}-wall`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0" stopColor="#efdcae" />
@@ -144,7 +187,7 @@ export default function Chamber({
         <rect x={PAINTING_BOX[0] - 12} y={PAINTING_BOX[1] - 12} width={PAINTING_BOX[2] + 24} height={PAINTING_BOX[3] + 24} fill="#d9a441" stroke={INK} strokeWidth="2" />
         <rect x={PAINTING_BOX[0] - 5} y={PAINTING_BOX[1] - 5} width={PAINTING_BOX[2] + 10} height={PAINTING_BOX[3] + 10} fill="#b23a2a" />
         {wall ? (
-          <image className="egt-painting" key={wall.id} href={wall.src} x={PAINTING_BOX[0]} y={PAINTING_BOX[1]} width={PAINTING_BOX[2]} height={PAINTING_BOX[3]} preserveAspectRatio="xMidYMid slice" clipPath={`url(#${idPrefix}-painting)`} />
+          <image className="egb-painting" key={wall.id} href={wall.src} x={PAINTING_BOX[0]} y={PAINTING_BOX[1]} width={PAINTING_BOX[2]} height={PAINTING_BOX[3]} preserveAspectRatio="xMidYMid slice" clipPath={`url(#${idPrefix}-painting)`} />
         ) : (
           <g>
             <rect x={PAINTING_BOX[0]} y={PAINTING_BOX[1]} width={PAINTING_BOX[2]} height={PAINTING_BOX[3]} fill="#f3e6c4" />
@@ -175,8 +218,8 @@ export default function Chamber({
           <g key={x} transform={`translate(${x} 690)`}>
             <path d="M-8 0 L-4 -150 L4 -150 L8 0 Z" fill="#6b4a22" stroke={INK} strokeWidth="2" />
             <path d="M-26 -150 Q0 -128 26 -150 Z" fill="#d9a441" stroke={INK} strokeWidth="2" />
-            <path className="egt-flame" d="M0 -196 C10 -180 14 -164 0 -152 C-14 -164 -10 -180 0 -196 Z" fill="#ffb238" />
-            <path className="egt-flame" d="M0 -184 C5 -174 7 -164 0 -156 C-7 -164 -5 -174 0 -184 Z" fill="#fff1a8" />
+            <path className="egb-flame" d="M0 -196 C10 -180 14 -164 0 -152 C-14 -164 -10 -180 0 -196 Z" fill="#ffb238" />
+            <path className="egb-flame" d="M0 -184 C5 -174 7 -164 0 -156 C-7 -164 -5 -174 0 -184 Z" fill="#fff1a8" />
           </g>
         ))}
 
@@ -193,20 +236,21 @@ export default function Chamber({
 
         {back.map(thing)}
 
-        {/* The coffin, lying in the middle of the floor */}
-        <g transform="translate(452 604) rotate(-90) scale(0.62)">
-          <path d={COFFIN_OUTLINE} transform="translate(10 8)" fill="#000" opacity="0.25" />
-          <CoffinLid id={`${idPrefix}-coffin`} />
-        </g>
+        {/* The scroll stand, the offering table and the coffin, on the floor */}
+        <ScrollStand papyrus={filled.papyrus} />
+        <OfferingTable heart={filled.heart} />
+        <Coffin mummy={filled.mummy} id={idPrefix} />
 
         {front.map(thing)}
 
         {/* The light of the lamps */}
         <rect x="0" y="0" width={CH_W} height={CH_H} fill={`url(#${idPrefix}-light)`} pointerEvents="none" />
+
+        {sealed && <SealedDoor id={idPrefix} cartouche={cartouche} />}
       </svg>
 
-      {cartouche && (
-        <div className="egt-cartouche" style={box(CARTOUCHE_BOX)}>
+      {cartouche && !sealed && (
+        <div className="egb-cartouche" style={box(CARTOUCHE_BOX)}>
           <Cartouche spelled={cartouche.spelled} direction="down" label={`Your name in a cartouche${cartouche.name ? `: ${cartouche.name}` : ''}`} ink={INK} />
         </div>
       )}
@@ -216,17 +260,187 @@ export default function Chamber({
 }
 
 /** What the chamber holds, said in words for its alt text. */
-export function describeChamber(wall: Wall | null, goods: Placed[], amulet: SavedAmulet | null, cartouche: SavedCartouche | null) {
+export function describeChamber(filled: Filled, goods: Placed[], sealed = false) {
+  if (sealed) return 'The doorway of the tomb, walled up with stone and plastered, and stamped with a seal. Everything is safe inside.';
+  const { wall, amulet, cartouche } = filled;
   const things = goods.map((g) => GOODS.find((x) => x.id === g.id)!.name.toLowerCase());
   return [
-    'A burial chamber, lit by two lamps, with a painted coffin lying on the floor.',
+    'A burial chamber, lit by two lamps.',
+    filled.mummy ? 'In the middle of the floor, a painted coffin, closed, with the mummy inside.' : 'In the middle of the floor, an open coffin, empty.',
     wall ? `On the back wall: ${wall.title}.` : 'The frame on the back wall is empty.',
+    cartouche ? `On the stone column, a cartouche${cartouche.name ? ` with the name ${cartouche.name}` : ''}.` : 'The stone column is bare.',
+    amulet ? `In the niche: ${describeAmulet(amulet)}.` : 'The niche is empty.',
+    filled.papyrus ? 'On the scroll stand, a papyrus with a royal name in a cartouche.' : 'The scroll stand is empty.',
+    filled.heart ? 'On the offering table, a heart amulet.' : 'The offering table is empty.',
     things.length ? `On the floor: ${things.join(', ')}.` : '',
-    amulet ? `In the niche: ${describeAmulet(amulet)}.` : '',
-    cartouche ? `On the wall, a cartouche${cartouche.name ? ` with the name ${cartouche.name}` : ''}.` : '',
   ]
     .filter(Boolean)
     .join(' ');
+}
+
+/**
+ * The coffin, lying head to the left on two low trestles: open and empty
+ * (its dark inside showing) until the mummy is laid in it, then closed
+ * with its painted lid: a gold face framed by a striped blue wig, a broad
+ * collar, and the body painted with bands of gold.
+ */
+function Coffin({ mummy, id }: { mummy: boolean; id: string }) {
+  const outline = 'M-172 0 C-172 -30 -158 -46 -128 -50 C-110 -53 -98 -56 -86 -56 C-20 -54 80 -40 140 -32 C160 -30 172 -22 172 0 C172 22 160 30 140 32 C80 40 -20 54 -86 56 C-98 56 -110 53 -128 50 C-158 46 -172 30 -172 0 Z';
+  return (
+    <g transform="translate(600 586)">
+      <ellipse cx="0" cy="58" rx="186" ry="18" fill="#000" opacity="0.25" />
+      {/* the trestles */}
+      {[-110, 110].map((x) => (
+        <path key={x} d={`M${x - 26} 66 L${x - 18} 40 H${x + 18} L${x + 26} 66`} fill="none" stroke={INK} strokeWidth="5" strokeLinejoin="round" />
+      ))}
+      {/* the coffin's side, seen below the lid */}
+      <path d={outline} transform="translate(0 16)" fill="#5a3a1c" stroke={INK} strokeWidth="2.5" />
+      {mummy ? (
+        <g className="egb-lid">
+          <defs>
+            <linearGradient id={`${id}-coffin-gold`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#fff0b0" />
+              <stop offset="0.45" stopColor="#e0b13a" />
+              <stop offset="1" stopColor="#9a6a14" />
+            </linearGradient>
+          </defs>
+          <path d={outline} fill="#22408a" stroke={INK} strokeWidth="3" />
+          {/* bands of gold across the body, and one along it */}
+          {[-30, 10, 50, 90, 128].map((x) => (
+            <path key={x} d={`M${x} -46 Q${x + 4} 0 ${x} 46`} fill="none" stroke={`url(#${id}-coffin-gold)`} strokeWidth="7" />
+          ))}
+          <path d="M-60 0 H166" stroke={`url(#${id}-coffin-gold)`} strokeWidth="12" />
+          <path d="M-60 0 H166" stroke="#b23a2a" strokeWidth="3" />
+          {/* the broad collar: rings of red, gold and blue */}
+          {[
+            ['#b23a2a', 64],
+            ['#e0b13a', 56],
+            ['#2f9e8e', 48],
+            ['#e0b13a', 40],
+          ].map(([c, r]) => (
+            <path key={r} d={`M-84 ${-r} A${r} ${r} 0 0 1 -84 ${r}`} fill="none" stroke={c as string} strokeWidth="7" />
+          ))}
+          {/* the striped wig and the gold face */}
+          <ellipse cx="-128" cy="0" rx="44" ry="50" fill="#1d2f66" stroke={INK} strokeWidth="2.5" />
+          {[-38, -26, -14, 14, 26, 38].map((y) => (
+            <path key={y} d={`M-158 ${y} L-96 ${y * 0.9}`} stroke="#e0b13a" strokeWidth="3" />
+          ))}
+          <ellipse cx="-136" cy="0" rx="24" ry="28" fill={`url(#${id}-coffin-gold)`} stroke={INK} strokeWidth="2.5" />
+          <path d="M-146 -10 h7 M-146 10 h7" stroke={INK} strokeWidth="3" strokeLinecap="round" />
+          <path d="M-128 -4 v8" stroke={INK} strokeWidth="2" />
+          <path d="M-118 -6 Q-114 0 -118 6" fill="none" stroke="#8a2a1a" strokeWidth="2.5" />
+        </g>
+      ) : (
+        <g>
+          {/* open: the coffin's rim, and the dark inside */}
+          <path d={outline} fill="#7a5128" stroke={INK} strokeWidth="3" />
+          <path d={outline} transform="scale(0.9 0.8)" fill="#140d07" stroke={INK} strokeWidth="2" />
+        </g>
+      )}
+    </g>
+  );
+}
+
+/** The offering table: a low stand of wood, its top bare, or holding the heart amulet the weighing put there. */
+function OfferingTable({ heart }: { heart: boolean }) {
+  const [x, y, w, h] = TABLE_BOX;
+  const top = y + h - 40;
+  return (
+    <g>
+      <ellipse cx={x + w / 2} cy={y + h + 2} rx={w / 2} ry="8" fill="#000" opacity="0.22" />
+      <path d={`M${x + 20} ${y + h} L${x + 26} ${top + 8} M${x + w - 20} ${y + h} L${x + w - 26} ${top + 8} M${x + w / 2} ${y + h} V${top + 10}`} stroke={INK} strokeWidth="6" strokeLinecap="round" />
+      <path d={`M${x + 4} ${top} H${x + w - 4} L${x + w - 12} ${top + 12} H${x + 12} Z`} fill="#a8743e" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
+      <path d={`M${x + 16} ${top + 6} H${x + w - 16}`} stroke="#d9a441" strokeWidth="2" />
+      {heart && (
+        <g className="egb-heart" transform={`translate(${x + w / 2} ${top - 34}) scale(2.3)`}>
+          <Heart />
+        </g>
+      )}
+    </g>
+  );
+}
+
+/**
+ * The scroll stand: a low chest with a sloping top, bare until the Rosetta
+ * room's papyrus lies open on it, the royal name the visitor cracked ringed
+ * in its cartouche.
+ */
+function ScrollStand({ papyrus }: { papyrus: boolean }) {
+  const [x, y, w, h] = SCROLL_BOX;
+  const lean = y + 50;
+  return (
+    <g>
+      <ellipse cx={x + w / 2} cy={y + h + 2} rx={w / 2 + 6} ry="8" fill="#000" opacity="0.22" />
+      <path d={`M${x + 10} ${y + h} V${lean + 24} L${x + w - 10} ${lean} V${y + h} Z`} fill="#8a5a2c" stroke={INK} strokeWidth="2.5" strokeLinejoin="round" />
+      <path d={`M${x + 10} ${lean + 24} L${x + w - 10} ${lean}`} stroke="#d9a441" strokeWidth="3" />
+      {papyrus && (
+        <g className="egb-papyrus" transform={`translate(${x + w / 2} ${lean - 8}) rotate(-9)`}>
+          <rect x="-70" y="-40" width="140" height="60" fill="#efdcae" stroke={INK} strokeWidth="2" />
+          <ellipse cx="-70" cy="-10" rx="8" ry="31" fill="#d9bf86" stroke={INK} strokeWidth="2" />
+          <ellipse cx="70" cy="-10" rx="8" ry="31" fill="#d9bf86" stroke={INK} strokeWidth="2" />
+          <rect x="-56" y="-30" width="112" height="40" rx="20" fill="none" stroke={INK} strokeWidth="2.5" />
+          <text x="0" y="-10" fill={INK} fontFamily="'Egypt Hieroglyphs', 'Noto Sans Egyptian Hieroglyphs', serif" fontSize="22" textAnchor="middle" dominantBaseline="central">
+            {PTOLEMY.map((p) => GLYPHS[p.code]).join('')}
+          </text>
+        </g>
+      )}
+    </g>
+  );
+}
+
+/**
+ * The finale: the tomb sealed. The doorway is walled up, course by course
+ * (each course rises in turn), plastered, and stamped with a seal: the
+ * visitor's own cartouche, if they made one.
+ */
+function SealedDoor({ id, cartouche }: { id: string; cartouche: SavedCartouche | null }) {
+  const courses = 9;
+  const ch = CH_H / courses;
+  return (
+    <g className="egb-sealed">
+      <rect className="egb-seal-dark" x="0" y="0" width={CH_W} height={CH_H} fill="#0b0805" />
+      {Array.from({ length: courses }, (_, row) => {
+        const y = CH_H - (row + 1) * ch;
+        const offset = row % 2 ? 60 : 0;
+        return (
+          <g key={row} className="egb-course" style={{ animationDelay: `${0.25 + row * 0.18}s` }}>
+            <rect x="0" y={y} width={CH_W} height={ch} fill="#c9a66b" />
+            {Array.from({ length: 11 }, (_, k) => (
+              <rect key={k} x={-60 + offset + k * 120} y={y + 2} width="116" height={ch - 4} rx="4" fill={`url(#${id}-stone)`} stroke="#7a5a30" strokeWidth="2" />
+            ))}
+          </g>
+        );
+      })}
+      <defs>
+        <linearGradient id={`${id}-stone`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#e3c891" />
+          <stop offset="1" stopColor="#b8925a" />
+        </linearGradient>
+      </defs>
+      <g className="egb-plaster">
+        <rect x="0" y="0" width={CH_W} height={CH_H} fill="#e9d8b0" opacity="0.92" />
+      </g>
+      <g transform={`translate(${CH_W / 2} ${CH_H / 2})`}>
+      <g className="egb-stamp">
+        <ellipse cx="0" cy="0" rx="150" ry="120" fill="#c94f2c" opacity="0.18" />
+        <ellipse cx="0" cy="0" rx="150" ry="120" fill="none" stroke="#8a2a1a" strokeWidth="8" />
+        {cartouche ? (
+          <g>
+            <rect x="-120" y="-44" width="240" height="88" rx="44" fill="none" stroke="#8a2a1a" strokeWidth="6" />
+            <path d="M126 -40 V40" stroke="#8a2a1a" strokeWidth="8" />
+            <text x="0" y="0" fill="#8a2a1a" fontFamily="'Egypt Hieroglyphs', 'Noto Sans Egyptian Hieroglyphs', serif" fontSize={Math.min(52, 200 / Math.max(1, [...cartouche.spelled.map((x) => x.glyphs).join('')].length))} textAnchor="middle" dominantBaseline="central">
+              {cartouche.spelled.map((x) => x.glyphs).join('')}
+            </text>
+          </g>
+        ) : (
+          <text x="0" y="0" fill="#8a2a1a" fontFamily="'Egypt Hieroglyphs', 'Noto Sans Egyptian Hieroglyphs', serif" fontSize="80" textAnchor="middle" dominantBaseline="central">
+            {GLYPHS.S34}
+          </text>
+        )}
+      </g>
+      </g>
+    </g>
+  );
 }
 
 const line = { stroke: INK, strokeWidth: 2.4, strokeLinejoin: 'round' as const, strokeLinecap: 'round' as const };
@@ -319,7 +533,7 @@ export function GoodArt({ id }: { id: GoodId }) {
         <g {...line}>
           <path d="M-22 0 L22 0 L14 -14 L-14 -14 Z" fill="#c99a5a" />
           <path d="M-20 -14 Q0 -36 20 -14 Z" fill="#d9a441" />
-          <path className="egt-flame" d="M18 -44 C24 -36 26 -26 18 -18 C10 -26 12 -36 18 -44 Z" fill="#ffb238" />
+          <path className="egb-flame" d="M18 -44 C24 -36 26 -26 18 -18 C10 -26 12 -36 18 -44 Z" fill="#ffb238" />
         </g>
       );
     case 'horse':

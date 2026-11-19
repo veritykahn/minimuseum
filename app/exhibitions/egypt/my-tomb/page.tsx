@@ -3,124 +3,145 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import FactNote from '@/components/exhibition/FactNote';
-import RoomShell, { RoomHeader, StepDots } from '../RoomShell';
+import RoomShell, { RoomHeader } from '../RoomShell';
 import DarkIntro from '../DarkIntro';
 import PrintSheet from '../PrintSheet';
+import { ThingIcon } from '../PutInTomb';
 import { DragGhost, toSvg, useDragDrop } from '../dragKit';
 import { playEgypt } from '../egyptSound';
-import AmuletArt from '../amulet/AmuletArt';
-import { AMULET_NOTES } from '../amulet/amulets';
-import { useSavedAmulet } from '../amulet/savedAmulet';
-import Cartouche from '../hieroglyph-name/Cartouche';
+import { AMULET_NOTES, SYMBOLS } from '../amulet/amulets';
+import { useSavedAmulet, type SavedAmulet } from '../amulet/savedAmulet';
 import { TOMB_NOTES, WALLS } from '../tomb/scenes';
-import Chamber, { CARTOUCHE_BOX, CH_H, CH_W, FLOOR_SLOTS, GoodArt, NICHE_BOX, box, depthScale, describeChamber, onFloor, type Placed } from './Chamber';
-import { GOODS, MAX_GOODS, MY_TOMB_INTRO, MY_TOMB_SOURCES, STEPS, type GoodId } from './myTomb';
-import { useSavedCartouche } from './savedCartouche';
+import { emptyTomb, keptCount, readTomb, TOMB_PLACES, useTomb, type ActivityId, type TombState } from '../tombState';
+import Chamber, { CH_H, CH_W, FLOOR_SLOTS, GoodArt, PLACES, box, depthScale, describeChamber, onFloor, type Filled, type Placed } from './Chamber';
+import { GOODS, MAX_GOODS, MY_TOMB_INTRO, MY_TOMB_SOURCES, TASKS, type GoodId, type Mode } from './myTomb';
+import { useSavedCartouche, type SavedCartouche } from './savedCartouche';
 import './myTomb.css';
 
 /*
- * Build Your Own Tomb: a fully lit chamber (no torch here) that the visitor
- * makes their own, in four steps, each with one instruction:
+ * Build Your Own Tomb: where the Egypt journey starts and ends. A fully lit
+ * chamber (no torch here: the owner loved it lit), the visitor's own burial
+ * tomb, with six empty places, one for each of the other rooms
+ * (TOMB_PLACES): the painted wall, the stone column, the scroll stand, the
+ * niche, the coffin and the offering table. Each empty place is a door (a
+ * link laid over it in the picture, and a row in the list beside it) to
+ * the room that fills it, and every room ends by putting what it made here
+ * (PutInTomb.tsx). Coming back, the new thing is already in its place,
+ * glowing, with a line saying what it is (and no intro to sit through).
  *
- *   Paint the wall    choose one of the five painted walls from Tomb Explorer
- *   Fill the chamber  drag things onto the floor (or tap one to put it in),
- *                     then drag them about, or choose one and move it with
- *                     the arrow keys; Delete takes it out
- *   Make it yours     carve the name they wrote in Your Name in Hieroglyphs
- *                     on the wall, and lay the amulet they made in Design an
- *                     Amulet in its niche (each read from this browser);
- *                     where either is missing, a link to go and make it
- *   Your tomb         the finished chamber, to print
+ *   The tomb     the places, filled or waiting; whose tomb it is
+ *   Furnish it   things to take with you, dragged onto the floor (or tapped
+ *                in), moved by drag or the arrow keys, Delete to take out
+ *   Sealed       once every place is filled: the doorway is walled up,
+ *                course by course, and stamped with the visitor's own
+ *                cartouche; then the print to take home
  *
- * The chamber is kept in this browser (localStorage `mm-egypt-my-tomb`), so
- * a visitor who goes off to make their cartouche comes back to it as they
- * left it. Nothing is sent anywhere.
+ * What the rooms put in is in tombState.ts; the furnishing, the owner's
+ * name and whether the tomb is sealed are kept here (localStorage
+ * `mm-egypt-my-tomb`). Both stay in this browser only. "Start a new tomb"
+ * empties every place, for the next visitor at a classroom's computer.
  */
 
-const TOMB_KEY = 'mm-egypt-my-tomb';
-type Carry = { kind: 'new'; id: GoodId } | { kind: 'move'; id: GoodId } | { kind: 'cartouche' } | { kind: 'amulet' };
-type Kept = { step: number; wall: string | null; goods: Placed[]; cartouche: boolean; amulet: boolean; owner: string };
+const KEY = 'mm-egypt-my-tomb';
+type Carry = { kind: 'new'; id: GoodId } | { kind: 'move'; id: GoodId };
+type Kept = { goods: Placed[]; owner: string; sealed: boolean; seen: ActivityId[] };
+const IDS = TOMB_PLACES.map((p) => p.activity);
 
 function readKept(): Kept | null {
   try {
-    const raw = window.localStorage.getItem(TOMB_KEY);
+    const raw = window.localStorage.getItem(KEY);
     if (!raw) return null;
     const k = JSON.parse(raw) as Partial<Kept>;
     return {
-      step: typeof k.step === 'number' ? Math.max(0, Math.min(STEPS.length - 1, k.step)) : 0,
-      wall: WALLS.some((w) => w.id === k.wall) ? (k.wall as string) : null,
       goods: Array.isArray(k.goods) ? k.goods.filter((g) => GOODS.some((x) => x.id === g?.id) && typeof g.x === 'number' && typeof g.y === 'number').slice(0, MAX_GOODS) : [],
-      cartouche: !!k.cartouche,
-      amulet: !!k.amulet,
       owner: typeof k.owner === 'string' ? k.owner.slice(0, 40) : '',
+      sealed: k.sealed === true,
+      seen: Array.isArray(k.seen) ? k.seen.filter((s): s is ActivityId => IDS.includes(s as ActivityId)) : [],
     };
   } catch {
     return null;
   }
 }
 
+const cap = (s: string) => (s ? s[0].toUpperCase() + s.slice(1) : s);
+
+/** What is in each place, from what the rooms kept and what they saved. */
+function filledFrom(tomb: TombState, cartouche: SavedCartouche | null, amulet: SavedAmulet | null): Filled {
+  const kept = tomb.kept ?? {};
+  return {
+    wall: kept.walls ? (WALLS.find((w) => w.id === tomb.painting) ?? WALLS[0]) : null,
+    cartouche: kept.name ? cartouche : null,
+    amulet: kept.amulet ? amulet : null,
+    mummy: !!kept.mummification,
+    heart: !!kept.weighing,
+    papyrus: !!kept.rosetta,
+  };
+}
+
 export default function MyTomb() {
+  const [tomb] = useTomb();
+  const cartouche = useSavedCartouche();
+  const amulet = useSavedAmulet();
   const [intro, setIntro] = useState(true);
-  const [index, setIndex] = useState(0);
-  const [wallId, setWallId] = useState<string | null>(null);
+  const [mode, setMode] = useState<Mode>('tomb');
   const [goods, setGoods] = useState<Placed[]>([]);
   const [selected, setSelected] = useState<GoodId | null>(null);
-  const [holding, setHolding] = useState<Carry | null>(null);
-  const [cartoucheOn, setCartoucheOn] = useState(false);
-  const [amuletOn, setAmuletOn] = useState(false);
   const [owner, setOwner] = useState('');
+  const [seen, setSeen] = useState<ActivityId[]>([]);
+  // What arrived since the last visit: shown glowing, and in words, this visit.
+  const [fresh, setFresh] = useState<ActivityId[]>([]);
+  const [asking, setAsking] = useState(false);
   const [printing, setPrinting] = useState(false);
   const [status, setStatus] = useState('');
   const [loaded, setLoaded] = useState(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const room = useRef<HTMLDivElement>(null);
-  const cartouche = useSavedCartouche();
-  const amulet = useSavedAmulet();
-  const step = STEPS[index];
-  const wall = WALLS.find((w) => w.id === wallId) ?? null;
+  const kept = tomb.kept ?? {};
+  const count = keptCount(tomb);
+  const full = count === TOMB_PLACES.length;
+  const sealed = mode === 'sealed';
+  const filled = filledFrom(tomb, cartouche, amulet);
   const name = owner.trim() || cartouche?.name || amulet?.name || '';
-  const title = name ? `The tomb of ${name}` : 'My tomb';
-  const shownCartouche = cartoucheOn ? cartouche : null;
-  const shownAmulet = amuletOn ? amulet : null;
+  const title = name ? `The tomb of ${name}` : 'Your burial tomb';
 
-  // Come back to the chamber as it was left.
+  // Come back to the tomb as it was left, and see what has arrived since.
   useEffect(() => {
-    const restore = () => {
-      const k = readKept();
-      if (k) {
-        setIndex(k.step);
-        setWallId(k.wall);
-        setGoods(k.goods);
-        setCartoucheOn(k.cartouche);
-        setAmuletOn(k.amulet);
-        setOwner(k.owner);
-      }
-      setLoaded(true);
-    };
-    restore();
+    const k = readKept();
+    const now = IDS.filter((id) => readTomb().kept?.[id]);
+    const arrived = now.filter((id) => !(k?.seen ?? []).includes(id));
+    if (k) {
+      setGoods(k.goods);
+      setOwner(k.owner);
+      if (k.sealed && arrived.length === 0 && now.length === IDS.length) setMode('sealed');
+    }
+    setSeen(now);
+    if (arrived.length) {
+      // Straight in from a room: the new thing is waiting in its place.
+      setFresh(arrived);
+      setIntro(false);
+    }
+    setLoaded(true);
   }, []);
   useEffect(() => {
     if (!loaded) return;
     try {
-      const k: Kept = { step: index, wall: wallId, goods, cartouche: cartoucheOn, amulet: amuletOn, owner };
-      window.localStorage.setItem(TOMB_KEY, JSON.stringify(k));
+      const k: Kept = { goods, owner, sealed, seen };
+      window.localStorage.setItem(KEY, JSON.stringify(k));
     } catch {
-      /* storage unavailable: the chamber lasts while the page is open */
+      /* storage unavailable: the tomb lasts while the page is open */
     }
-  }, [loaded, index, wallId, goods, cartoucheOn, amuletOn, owner]);
+  }, [loaded, goods, owner, sealed, seen]);
 
-  const go = (i: number) => {
-    const to = Math.max(0, Math.min(STEPS.length - 1, i));
-    setIndex(to);
+  const goTo = (m: Mode) => {
+    setMode(m);
     setSelected(null);
-    setHolding(null);
-    setStatus(`Step ${to + 1} of ${STEPS.length}: ${STEPS[to].title}.`);
-    heading.current?.focus();
+    setAsking(false);
+    window.requestAnimationFrame(() => heading.current?.focus({ preventScroll: true }));
   };
 
   const nameOf = (id: GoodId) => GOODS.find((g) => g.id === id)!.name;
 
-  // ── The things on the floor ──
+  // ── Furnishing: things on the floor ──
   const putIn = (id: GoodId, at?: { x: number; y: number }) => {
     if (goods.some((g) => g.id === id)) return;
     if (goods.length >= MAX_GOODS) {
@@ -159,79 +180,93 @@ export default function MyTomb() {
       takeOut(id);
     }
   };
-
-  // ── Your name and your amulet ──
-  const carveName = () => {
-    if (!cartouche) return;
-    setCartoucheOn(true);
-    setHolding(null);
-    playEgypt('chisel');
-    setStatus('Your name is carved on the wall of your tomb.');
-  };
-  const layAmulet = () => {
-    if (!amulet) return;
-    setAmuletOn(true);
-    setHolding(null);
-    playEgypt('settle');
-    setStatus('Your amulet rests in its niche.');
-  };
-
-  const svgPoint = (x: number, y: number) => {
-    const svg = room.current?.querySelector<SVGSVGElement>('.egt-svg') ?? null;
-    return toSvg(svg, x, y);
-  };
   const { drag, carrying, start } = useDragDrop<Carry>((c, at) => {
-    if ((c.kind === 'new' || c.kind === 'move') && at.target === 'floor') {
-      const p = svgPoint(at.x, at.y);
-      if (c.kind === 'new') putIn(c.id, p ?? undefined);
-      else if (p) moveTo(c.id, p.x, p.y);
-    } else if (c.kind === 'cartouche' && at.target === 'cartouche') carveName();
-    else if (c.kind === 'amulet' && at.target === 'niche') layAmulet();
+    if (at.target !== 'floor') return;
+    const p = toSvg(room.current?.querySelector<SVGSVGElement>('.egb-svg') ?? null, at.x, at.y);
+    if (c.kind === 'new') putIn(c.id, p ?? undefined);
+    else if (p) moveTo(c.id, p.x, p.y);
   });
-  const held = holding ?? carrying;
 
-  const again = () => {
-    setWallId(null);
+  // ── The finale ──
+  const seal = () => {
+    if (!full) return;
+    playEgypt('grind');
+    setFresh([]);
+    goTo('sealed');
+    setStatus('Your tomb is sealed: the doorway is walled up, and stamped with your seal.');
+  };
+  const reopen = () => {
+    goTo('tomb');
+    setStatus('Your tomb is open again.');
+  };
+  const startAgain = () => {
+    emptyTomb();
     setGoods([]);
-    setCartoucheOn(false);
-    setAmuletOn(false);
     setOwner('');
-    go(0);
+    setFresh([]);
+    setSeen([]);
+    goTo('tomb');
+    setStatus('A new tomb, empty and waiting.');
   };
 
-  const canGoOn = step.id === 'wall' ? !!wall : step.id === 'goods' ? goods.length > 0 : true;
-  const done = (i: number) => (STEPS[i].id === 'wall' ? !!wall : STEPS[i].id === 'goods' ? goods.length > 0 : STEPS[i].id === 'yours' ? cartoucheOn || amuletOn : false);
-  const label = describeChamber(wall, goods, shownAmulet, shownCartouche);
+  const task = mode === 'furnish' ? TASKS.furnish : sealed ? TASKS.sealed : full ? TASKS.full : count === 0 ? TASKS.empty : TASKS.some(count, TOMB_PLACES.length);
+  const label = describeChamber(filled, goods, sealed);
+  const newest = fresh[fresh.length - 1];
+  const arrivalNote =
+    newest === 'walls' && filled.wall ? filled.wall.note
+    : newest === 'amulet' ? AMULET_NOTES.amulets
+    : newest === 'weighing' ? SYMBOLS.find((s) => s.id === 'heart')!.meaning
+    : null;
 
   return (
     <RoomShell className="eg-my-tomb" sources={MY_TOMB_SOURCES} fit>
-      {intro && <DarkIntro title="Build Your Own Tomb" lines={MY_TOMB_INTRO} voice="my-tomb-intro" onDone={() => setIntro(false)} />}
-      <RoomHeader kicker="Interactive · Your burial chamber" title="Build Your Own Tomb" />
+      {intro && <DarkIntro title="Build Your Own Tomb" lines={MY_TOMB_INTRO} voice="my-tomb-intro" begin="Enter your tomb" onDone={() => setIntro(false)} />}
+      <RoomHeader kicker="Interactive · Your burial tomb" title="Build Your Own Tomb" />
 
-      <section className={`egt-room egr-fill is-${step.id}`} aria-labelledby="egt-title" data-carrying={held ? '' : undefined}>
-        <div className="egt-strip">
-          <StepDots steps={STEPS} at={index} done={done} onGo={go} label="The steps" />
-          <p className="egt-name-line">{title}</p>
+      <section className={`egb-room egr-fill is-${mode}`} aria-labelledby="egb-title" data-carrying={carrying ? '' : undefined}>
+        <div className="egb-strip">
+          <p className="egb-name-line">{title}</p>
+          <ol className="egb-progress" aria-label={`${count} of ${TOMB_PLACES.length} places filled`}>
+            {TOMB_PLACES.map((p) => (
+              <li key={p.activity} className={kept[p.activity] ? 'is-in' : ''} title={kept[p.activity] ? cap(kept[p.activity]!) : `Waiting for ${p.waits}`} aria-hidden="true">
+                <svg viewBox="0 0 48 48">
+                  <ThingIcon activity={p.activity} size={48} />
+                </svg>
+              </li>
+            ))}
+          </ol>
         </div>
 
         {/* ───── The chamber ───── */}
-        <div className="egt-scene" ref={room}>
-          <div className="egt-pic">
-            <Chamber wall={wall} goods={goods} amulet={shownAmulet} cartouche={shownCartouche} selected={step.id === 'goods' ? selected : null} label={label}>
-              {step.id === 'goods' && (
+        <div className="egb-scene" ref={room}>
+          <div className="egb-pic">
+            <Chamber filled={filled} goods={goods} selected={mode === 'furnish' ? selected : null} sealed={sealed} label={label}>
+              {mode === 'tomb' &&
+                TOMB_PLACES.map((p) =>
+                  kept[p.activity] ? (
+                    fresh.includes(p.activity) && <span key={p.activity} className="egb-arrived" style={box(PLACES[p.activity])} aria-hidden="true" />
+                  ) : (
+                    <Link key={p.activity} href={p.href} className="egb-door" style={box(PLACES[p.activity])} aria-label={`${cap(p.place)}, empty: it waits for ${p.waits}. Go to ${p.room}`}>
+                      <span className="egb-door-tag" aria-hidden="true">
+                        {p.room.replace(/^The /, '').replace(/, Step by Step$/, '')}
+                      </span>
+                    </Link>
+                  ),
+                )}
+              {mode === 'furnish' && (
                 <>
-                  <div className="egt-floor" data-drop="floor" style={box([0, 440, CH_W, CH_H - 440])} aria-hidden="true" />
+                  <div className="egb-floor" data-drop="floor" style={box([0, 440, CH_W, CH_H - 440])} aria-hidden="true" />
                   {goods.map((g) => {
                     const s = depthScale(g.y);
                     return (
                       <button
                         key={g.id}
                         type="button"
-                        className="egt-placed egk-carry"
+                        className="egb-placed egk-carry"
                         style={box([g.x - 60 * s, g.y - 100 * s, 120 * s, 108 * s])}
                         aria-pressed={selected === g.id}
                         aria-label={`${nameOf(g.id)}, on the floor`}
-                        aria-describedby="egt-move-help"
+                        aria-describedby="egb-move-help"
                         onPointerDown={(e) => {
                           setSelected(g.id);
                           start({ kind: 'move', id: g.id }, e);
@@ -243,61 +278,81 @@ export default function MyTomb() {
                   })}
                 </>
               )}
-              {step.id === 'yours' && cartouche && !cartoucheOn && (
-                <button type="button" className={`egt-spot${held?.kind === 'cartouche' ? ' is-ready' : ''}`} style={box(CARTOUCHE_BOX)} data-drop="cartouche" aria-label="The stone column on the wall: carve your name here" onClick={() => holding?.kind === 'cartouche' && carveName()} />
-              )}
-              {step.id === 'yours' && amulet && !amuletOn && (
-                <button type="button" className={`egt-spot${held?.kind === 'amulet' ? ' is-ready' : ''}`} style={box(NICHE_BOX)} data-drop="niche" aria-label="The niche in the wall: lay your amulet here" onClick={() => holding?.kind === 'amulet' && layAmulet()} />
-              )}
             </Chamber>
           </div>
         </div>
 
         {/* ───── The desk ───── */}
-        <div className="egt-desk">
-          <div className="egt-desk-head">
-            <h2 id="egt-title" ref={heading} tabIndex={-1}>
-              {step.title}
+        <div className="egb-desk">
+          <div className="egb-desk-head">
+            <h2 id="egb-title" ref={heading} tabIndex={-1}>
+              {mode === 'furnish' ? 'Furnish your tomb' : sealed ? 'Your tomb is sealed' : full ? 'Every place is filled' : 'Six places to fill'}
             </h2>
-            <p className="egr-task">{step.task}</p>
+            <p className="egr-task">{task}</p>
           </div>
 
-          <div className="egt-desk-body">
-            {step.id === 'wall' && (
+          <div className="egb-desk-body">
+            {mode === 'tomb' && (
               <>
-                <div className="egt-walls" role="group" aria-label="Paintings to choose from">
-                  {WALLS.map((w) => (
-                    <button
-                      key={w.id}
-                      type="button"
-                      className="egt-wall"
-                      aria-pressed={wallId === w.id}
-                      onClick={() => {
-                        setWallId(w.id);
-                        playEgypt('find');
-                        setStatus(`${w.name} is painted on your wall.`);
-                      }}
-                    >
-                      <img src={w.src} alt="" width={w.width} height={w.height} loading="lazy" draggable={false} />
-                      <span>{w.name}</span>
-                    </button>
-                  ))}
-                </div>
-                {wall && <FactNote fact={wall.note} className="egr-fact" />}
-                {wall && <FactNote fact={TOMB_NOTES.copies} className="egr-fact egt-small" />}
+                {fresh.length > 0 && (
+                  <div className="egb-arrival">
+                    <p className="egb-arrival-title">New in your tomb</p>
+                    <ul>
+                      {fresh.map((id) => (
+                        <li key={id}>
+                          {cap(kept[id] ?? '')}, in {TOMB_PLACES.find((p) => p.activity === id)!.place}.
+                        </li>
+                      ))}
+                    </ul>
+                    {arrivalNote && <FactNote fact={arrivalNote} className="egr-fact" />}
+                    {newest === 'walls' && <FactNote fact={TOMB_NOTES.copies} className="egr-fact egb-small" />}
+                  </div>
+                )}
+                <ol className="egb-places" aria-label="The places in your tomb">
+                  {TOMB_PLACES.map((p) => {
+                    const what = kept[p.activity];
+                    return (
+                      <li key={p.activity} className={`egb-place${what ? ' is-in' : ''}`}>
+                        <svg className="egb-place-icon" viewBox="0 0 48 48" aria-hidden="true">
+                          <ThingIcon activity={p.activity} size={48} />
+                        </svg>
+                        <span className="egb-place-text">
+                          <span className="egb-place-name">{cap(p.place)}</span>
+                          {what ? (
+                            <span className="egb-place-what">
+                              <span aria-hidden="true">✓ </span>
+                              {cap(what)}
+                            </span>
+                          ) : (
+                            <span className="egb-place-what">Waiting for {p.waits}</span>
+                          )}
+                        </span>
+                        {!what && (
+                          <Link href={p.href} className="egb-place-go">
+                            {p.room} <span aria-hidden="true">→</span>
+                          </Link>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ol>
+                <label className="egb-owner">
+                  <span>Whose tomb is this?</span>
+                  <input type="text" value={owner} maxLength={40} placeholder={cartouche?.name || amulet?.name || 'Your name'} onChange={(e) => setOwner(e.target.value)} />
+                </label>
               </>
             )}
 
-            {step.id === 'goods' && (
+            {mode === 'furnish' && (
               <>
-                <div className="egt-goods" role="group" aria-label="Things to take with you">
+                <div className="egb-goods" role="group" aria-label="Things to take with you">
                   {GOODS.map((g) => {
                     const on = goods.some((x) => x.id === g.id);
                     return (
                       <button
                         key={g.id}
                         type="button"
-                        className={`egt-good-tile${on ? ' is-in' : ''}${!on ? ' egk-carry' : ''}`}
+                        className={`egb-good-tile${on ? ' is-in' : ''}${!on ? ' egk-carry' : ''}`}
                         aria-label={on ? `${g.name} (in your tomb)` : `Put in ${g.name.toLowerCase()}`}
                         aria-pressed={on}
                         onPointerDown={(e) => !on && start({ kind: 'new', id: g.id }, e)}
@@ -311,22 +366,22 @@ export default function MyTomb() {
                     );
                   })}
                 </div>
-                <p className="egt-small" id="egt-move-help">
+                <p className="egb-small" id="egb-move-help">
                   Choose a thing on the floor, then move it with the arrow keys. Delete takes it out.
                 </p>
                 {selected && (
-                  <div className="egt-move" role="group" aria-label={`Move ${nameOf(selected).toLowerCase()}`}>
-                    <span className="egt-move-name">{nameOf(selected)}</span>
-                    <button type="button" className="egr-button egt-arrow" aria-label="Move it back" onClick={() => nudge(selected, 0, -24)}>
+                  <div className="egb-move" role="group" aria-label={`Move ${nameOf(selected).toLowerCase()}`}>
+                    <span className="egb-move-name">{nameOf(selected)}</span>
+                    <button type="button" className="egr-button egb-arrow" aria-label="Move it back" onClick={() => nudge(selected, 0, -24)}>
                       ↑
                     </button>
-                    <button type="button" className="egr-button egt-arrow" aria-label="Move it left" onClick={() => nudge(selected, -30, 0)}>
+                    <button type="button" className="egr-button egb-arrow" aria-label="Move it left" onClick={() => nudge(selected, -30, 0)}>
                       ←
                     </button>
-                    <button type="button" className="egr-button egt-arrow" aria-label="Move it right" onClick={() => nudge(selected, 30, 0)}>
+                    <button type="button" className="egr-button egb-arrow" aria-label="Move it right" onClick={() => nudge(selected, 30, 0)}>
                       →
                     </button>
-                    <button type="button" className="egr-button egt-arrow" aria-label="Move it forward" onClick={() => nudge(selected, 0, 24)}>
+                    <button type="button" className="egr-button egb-arrow" aria-label="Move it forward" onClick={() => nudge(selected, 0, 24)}>
                       ↓
                     </button>
                     <button type="button" className="egr-button" onClick={() => takeOut(selected)}>
@@ -337,130 +392,83 @@ export default function MyTomb() {
               </>
             )}
 
-            {step.id === 'yours' && (
+            {sealed && (
               <>
-                <div className="egt-yours">
-                  <div className="egt-own">
-                    <h3>Your name</h3>
-                    {cartouche ? (
-                      cartoucheOn ? (
-                        <>
-                          <p>Your name is carved on the wall.</p>
-                          <button type="button" className="egr-button egr-button-quiet" onClick={() => setCartoucheOn(false)}>
-                            Take it off the wall
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button type="button" className="egt-token egk-carry" aria-pressed={holding?.kind === 'cartouche'} aria-label={`Your cartouche${cartouche.name ? `: ${cartouche.name}` : ''}`} onPointerDown={(e) => start({ kind: 'cartouche' }, e)} onClick={() => (holding?.kind === 'cartouche' ? carveName() : setHolding({ kind: 'cartouche' }))}>
-                            <Cartouche spelled={cartouche.spelled} direction="across" label="" className="egt-token-cartouche" />
-                          </button>
-                          <p className="egt-small">{holding?.kind === 'cartouche' ? 'Now tap the stone column on the wall, or tap your cartouche again.' : 'Drag it onto the stone column on the wall, or tap it twice.'}</p>
-                        </>
-                      )
-                    ) : (
-                      <>
-                        <p>You haven’t written your name in hieroglyphs yet.</p>
-                        <Link href="/exhibitions/egypt/hieroglyph-name" className="egr-button">
-                          Write your name in hieroglyphs
-                        </Link>
-                      </>
-                    )}
-                  </div>
-
-                  <div className="egt-own">
-                    <h3>Your amulet</h3>
-                    {amulet ? (
-                      amuletOn ? (
-                        <>
-                          <p>Your amulet rests in its niche.</p>
-                          <button type="button" className="egr-button egr-button-quiet" onClick={() => setAmuletOn(false)}>
-                            Take it out of the niche
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button type="button" className="egt-token egk-carry" aria-pressed={holding?.kind === 'amulet'} aria-label="Your amulet" onPointerDown={(e) => start({ kind: 'amulet' }, e)} onClick={() => (holding?.kind === 'amulet' ? layAmulet() : setHolding({ kind: 'amulet' }))}>
-                            <AmuletArt shape={amulet.shape} material={amulet.material} symbols={amulet.symbols} nameGlyphs={amulet.nameGlyphs} label="" idPrefix="egt-token" className="egt-token-amulet" />
-                          </button>
-                          <p className="egt-small">{holding?.kind === 'amulet' ? 'Now tap the niche in the wall, or tap your amulet again.' : 'Drag it into the niche, or tap it twice.'}</p>
-                        </>
-                      )
-                    ) : (
-                      <>
-                        <p>You haven’t made an amulet yet.</p>
-                        <Link href="/exhibitions/egypt/amulet" className="egr-button">
-                          Design an amulet
-                        </Link>
-                      </>
-                    )}
-                  </div>
-                </div>
-                <label className="egt-owner">
-                  <span>Whose tomb is this?</span>
-                  <input type="text" value={owner} maxLength={40} placeholder={cartouche?.name || amulet?.name || 'Your name'} onChange={(e) => setOwner(e.target.value)} />
-                </label>
-                {amuletOn && <FactNote fact={AMULET_NOTES.amulets} className="egr-fact egt-small" />}
-              </>
-            )}
-
-            {step.id === 'done' && (
-              <>
-                <p className="egt-done">{title} is finished.</p>
-                <ul className="egt-list">
-                  {wall && <li>On the wall: {wall.name.toLowerCase()}</li>}
-                  {goods.length > 0 && <li>On the floor: {goods.map((g) => nameOf(g.id).toLowerCase()).join(', ')}</li>}
-                  {shownCartouche && <li>Your name, carved in a cartouche</li>}
-                  {shownAmulet && <li>Your amulet, in its niche</li>}
+                <ul className="egb-list">
+                  {TOMB_PLACES.map((p) => (
+                    <li key={p.activity}>{cap(kept[p.activity] ?? p.waits)}</li>
+                  ))}
+                  {goods.length > 0 && <li>And on the floor: {goods.map((g) => nameOf(g.id).toLowerCase()).join(', ')}</li>}
                 </ul>
-                <div className="egr-actions">
-                  <button type="button" className="egr-button egr-button-primary" onClick={() => setPrinting(true)}>
-                    Print my tomb
-                  </button>
-                  <button type="button" className="egr-button" onClick={again}>
-                    Start a new tomb
-                  </button>
-                </div>
-                <p className="egt-small">
-                  More to make: <Link href="/exhibitions/egypt/hieroglyph-name">your name in hieroglyphs</Link>, <Link href="/exhibitions/egypt/amulet">an amulet</Link>, or <Link href="/exhibitions/egypt/mummification">a mummy</Link>.
-                </p>
+                {asking && (
+                  <div className="egb-ask" role="group" aria-label="Start a new tomb?">
+                    <p>A new tomb empties every place, ready for the next visitor. Print this one first if you want to keep it.</p>
+                    <div className="egr-actions">
+                      <button type="button" className="egr-button" onClick={startAgain}>
+                        Yes, empty it
+                      </button>
+                      <button type="button" className="egr-button egr-button-quiet" onClick={() => setAsking(false)}>
+                        No, keep it
+                      </button>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>
 
-          <div className="egr-step-nav egt-nav">
-            <button type="button" className="egr-button" onClick={() => go(index - 1)} disabled={index === 0}>
-              <span aria-hidden="true">←</span> Back
-            </button>
-            <button type="button" className="egr-button egr-button-primary" onClick={() => go(index + 1)} disabled={index === STEPS.length - 1 || !canGoOn}>
-              Next <span aria-hidden="true">→</span>
-            </button>
+          <div className="egr-step-nav egb-nav">
+            {mode === 'tomb' && (
+              <>
+                <button type="button" className="egr-button" onClick={() => goTo('furnish')}>
+                  Furnish it
+                </button>
+                <button type="button" className="egr-button egr-button-primary" onClick={seal} disabled={!full}>
+                  Seal your tomb
+                </button>
+              </>
+            )}
+            {mode === 'furnish' && (
+              <button type="button" className="egr-button egr-button-primary" onClick={() => goTo('tomb')}>
+                <span aria-hidden="true">←</span> Back to your tomb
+              </button>
+            )}
+            {sealed && (
+              <>
+                <button type="button" className="egr-button egr-button-primary" onClick={() => setPrinting(true)}>
+                  Print my tomb
+                </button>
+                <button type="button" className="egr-button egr-button-quiet" onClick={reopen}>
+                  Open it again
+                </button>
+                <button type="button" className="egr-button egr-button-quiet" onClick={() => setAsking(true)}>
+                  Start a new tomb
+                </button>
+              </>
+            )}
           </div>
         </div>
       </section>
 
-      <DragGhost at={drag} className="egt-ghost">
-        {carrying?.kind === 'new' || carrying?.kind === 'move' ? (
+      <DragGhost at={drag} className="egb-ghost">
+        {carrying && (
           <svg viewBox="-64 -110 128 118" width="96" height="90">
             <GoodArt id={carrying.id} />
           </svg>
-        ) : carrying?.kind === 'cartouche' && cartouche ? (
-          <Cartouche spelled={cartouche.spelled} direction="down" label="" className="egt-ghost-cartouche" ink="#2b1d12" />
-        ) : carrying?.kind === 'amulet' && amulet ? (
-          <AmuletArt shape={amulet.shape} material={amulet.material} symbols={amulet.symbols} nameGlyphs={amulet.nameGlyphs} label="" idPrefix="egt-ghost" className="egt-ghost-amulet" />
-        ) : null}
+        )}
       </DragGhost>
 
       <PrintSheet printing={printing} onDone={() => setPrinting(false)}>
-        <div className="egt-print">
+        <div className="egb-print">
           <h1>{title}</h1>
-          <Chamber wall={wall} goods={goods} amulet={shownAmulet} cartouche={shownCartouche} label={label} idPrefix="egt-print" />
+          <Chamber filled={filled} goods={goods} label={describeChamber(filled, goods)} idPrefix="egb-print" />
           <ul>
-            {wall && (
-              <li>
-                On the wall: {wall.title}. {wall.credit.text}
+            {TOMB_PLACES.map((p) => (
+              <li key={p.activity}>
+                {cap(p.place)}: {kept[p.activity] ?? 'empty'}
+                {p.activity === 'walls' && filled.wall ? ` (${filled.wall.title}. ${filled.wall.credit.text})` : ''}
               </li>
-            )}
+            ))}
             {goods.length > 0 && <li>On the floor: {goods.map((g) => nameOf(g.id).toLowerCase()).join(', ')}.</li>}
           </ul>
           <p>Built in the Mini Museum’s Ancient Egypt exhibition.</p>
