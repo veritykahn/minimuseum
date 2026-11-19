@@ -8,10 +8,15 @@ import { BM_ANI, BM_ANI_JUDGEMENT, BM_HIEROGLYPHS, BM_HUNEFER, BM_MUMMY_NOTES, B
  * Book of the Dead "Ani's papyrus". Then the hall, where the visitor taps
  * each figure to meet them; the rule of the scales, tried out by hand (a
  * heart that matches the truth balances the feather of Maat; a wrong added
- * to its pan tips them); Ani's words, sorted card by card into the two
- * things he says ("I have not ..." and "I have ..."); the weighing itself,
- * where the visitor lays Ani's heart on the scales and predicts; the
- * verdict; and, last, a quiet look at the visitor's own good choices.
+ * to its pan tips them); a test of the rule, card by card: would this deed,
+ * in Ani's heart, tip the scales? (predicted first, then shown, with Ani's
+ * own words for it); the weighing itself, where the visitor lays Ani's
+ * heart on the scales and predicts from what Ani swore; the verdict; and,
+ * last, a quiet look at the visitor's own good choices, and a heart amulet
+ * put in the visitor's tomb.
+ *
+ * The point: you learn the rule of the scales, then use it to predict Ani's
+ * judgement before you see it.
  *
  * Two papyri in the British Museum show this judgement: the Papyrus of Ani
  * (EA10470) and the Book of the Dead of Hunefer (EA9901). The room follows
@@ -72,8 +77,9 @@ export const CHAPTERS = [
   { id: 'ani', name: 'Meet Ani', task: 'Drag the roll to the right to unroll Ani’s papyrus.' },
   { id: 'hall', name: 'The hall', task: 'Tap each figure in the hall to meet them.' },
   { id: 'rule', name: 'The rule', task: 'Put a wrong on the heart’s side and watch the scales. Then take it off.' },
-  { id: 'words', name: 'Ani’s words', task: 'Sort each card onto the scroll where Ani says it.' },
-  { id: 'weigh', name: 'The weighing', task: 'Lay Ani’s heart on the scales, then guess what they will do.' },
+  // REVIEW: new text (the test chapter's name and task; the weighing's task).
+  { id: 'test', name: 'Test the rule', task: 'For each card, predict: would it tip the scales? Then watch.' },
+  { id: 'weigh', name: 'The weighing', task: 'Lay Ani’s heart on the scales, then predict what they will do.' },
   { id: 'verdict', name: 'The verdict', task: 'The scales have spoken. Read what happens to Ani.' },
   { id: 'you', name: 'Your scales', task: 'Tap the good choices you have made this week.' },
 ] as const;
@@ -98,15 +104,34 @@ export function wouldTip(deed: Deed): boolean {
 // REVIEW: new text (a reflection, not a fact).
 export const MY_CHOICES = ['I helped someone', 'I told the truth when it was hard', 'I shared', 'I said sorry', 'I was kind to someone new', 'I kept trying', 'I listened', 'I looked after something living'];
 
-/** The two scrolls the visitor sorts Ani's words onto. */
-export const SCROLLS = [
-  { kind: 'never', name: 'I have not …', hint: 'The wrongs Ani says he never did' },
-  { kind: 'did', name: 'I have …', hint: 'The good things Ani says he did' },
-] as const;
-
-/** What the room says when a card goes onto the wrong scroll: a nudge, never a scolding. */
-// REVIEW: new text (an instruction).
-export const SORT_HINT = 'Think again: is this something kind, or something unkind?';
+/**
+ * The test of the rule: the visitor predicts what a deed in Ani's heart
+ * would do to the scales, then sees it, and hears what Ani says of it.
+ * A wrong guess is only a guess; the answer says why, kindly.
+ */
+// REVIEW: new text (instructions and feedback).
+export const TEST_TEXT = {
+  ask: 'Imagine this was in Ani’s heart. What would the scales do?',
+  level: 'Stay level',
+  tip: 'Tip out of balance',
+  nextCard: 'Next card',
+  score: (n: number, of: number) => `You predicted ${n} of ${of} right.`,
+};
+// REVIEW: new text (feedback).
+export function testFeedback(d: Deed, guessTip: boolean): { right: boolean; text: string } {
+  const tips = wouldTip(d);
+  const right = tips === guessTip;
+  if (tips) {
+    return {
+      right,
+      text: right ? 'Right! It is a wrong, so the scales tip. That is why Ani swears he never did it.' : `Look: the scales tip. ${d.label} is a wrong, and a wrong on the heart’s side tips them. That is why Ani swears he never did it.`,
+    };
+  }
+  return {
+    right,
+    text: right ? 'Right! It is a kind thing, not a wrong, so the scales stay level. Ani says he did it.' : `Look: they stay level. ${d.label} is kind, not a wrong, so it does not tip the scales. Ani says he did it.`,
+  };
+}
 
 export const PAPYRI = {
   ani: {
@@ -212,7 +237,7 @@ export const WEIGHING_SOURCES: SourceGroup[] = [
   { title: 'The hall', items: [...new Map(Object.values(FIGURES).flatMap((f) => f.fact.sources).map((s) => [s.href, s])).values()] },
   { title: 'The rule', items: RULE.sources },
   { title: 'The heart', items: [...JUDGEMENT_NOTES.heartWords.sources, ...JUDGEMENT_NOTES.level.sources.filter((s) => s !== BUDGE), ...JUDGEMENT_NOTES.heart.sources] },
-  { title: 'Ani’s words', items: [...JUDGEMENT_NOTES.ani.sources, ...JUDGEMENT_NOTES.confession.sources] },
+  { title: 'Test the rule: Ani’s words', items: [...JUDGEMENT_NOTES.ani.sources, ...JUDGEMENT_NOTES.confession.sources] },
   { title: 'The verdict', items: [...JUDGEMENT_NOTES.verdict.sources, ...JUDGEMENT_NOTES.scales.sources, ...JUDGEMENT_NOTES.maat.sources.filter((s) => s !== BM_HIEROGLYPHS)] },
   {
     title: 'Pictures',

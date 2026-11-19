@@ -4,7 +4,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import Mummification from '@/app/exhibitions/egypt/mummification/page';
 import { ANUBIS_POSTER, CHECK, HEART_NOTE, JARS, JARS_ANSWER, MUMMY_INTRO, STEPS, WRAP_AMULETS } from '@/app/exhibitions/egypt/mummification/steps';
 import WeighingOfTheHeart from '@/app/exhibitions/egypt/weighing-of-the-heart/page';
-import { ANI_INTRO, CHAPTERS, DEEDS, FIGURES, JUDGEMENT_NOTES, PAPYRI, RULE, SORT_HINT, WEIGHING_INTRO, WEIGHING_SOURCES, wouldTip } from '@/app/exhibitions/egypt/weighing-of-the-heart/judgement';
+import { ANI_INTRO, CHAPTERS, DEEDS, FIGURES, JUDGEMENT_NOTES, PAPYRI, RULE, TEST_TEXT, WEIGHING_INTRO, WEIGHING_SOURCES, testFeedback, wouldTip } from '@/app/exhibitions/egypt/weighing-of-the-heart/judgement';
 import AmuletMaker from '@/app/exhibitions/egypt/amulet/page';
 import { AMULET_INTRO, MAX_SYMBOLS, NEEDS, SYMBOLS, toggleSymbol } from '@/app/exhibitions/egypt/amulet/amulets';
 import { AMULET_KEY, readAmulet } from '@/app/exhibitions/egypt/amulet/savedAmulet';
@@ -180,11 +180,15 @@ describe('The Weighing of the Heart', () => {
     expect(FIGURES.ammit.fact.text).toMatch(/head of a crocodile, the front of a lion and the back of a hippopotamus/);
     expect(FIGURES.thoth.fact.text).toMatch(/Ibis-headed Thoth/);
     expect(WEIGHING_SOURCES.map((g) => g.title)).toEqual(expect.arrayContaining(['Meet Ani', 'The rule', 'Two papyri', 'The hall']));
-    for (const d of DEEDS) expect(wouldTip(d)).toBe(d.kind === 'never');
-    expect(CHAPTERS.map((c) => c.id)).toEqual(['ani', 'hall', 'rule', 'words', 'weigh', 'verdict', 'you']);
+    for (const d of DEEDS) {
+      expect(wouldTip(d)).toBe(d.kind === 'never');
+      expect(testFeedback(d, wouldTip(d)).right).toBe(true);
+      expect(testFeedback(d, !wouldTip(d))).toMatchObject({ right: false, text: expect.stringContaining(d.label) });
+    }
+    expect(CHAPTERS.map((c) => c.id)).toEqual(['ani', 'hall', 'rule', 'test', 'weigh', 'verdict', 'you']);
   });
 
-  it('unrolls Ani’s papyrus, meets the hall, tries the rule, sorts his words, then predicts, kindly throughout', () => {
+  it('unrolls Ani’s papyrus, meets the hall, tries the rule, tests it card by card, then predicts, kindly throughout', () => {
     jest.useFakeTimers();
     window.history.replaceState(null, '', '/exhibitions/egypt/weighing-of-the-heart');
     const { container } = render(<WeighingOfTheHeart />);
@@ -215,22 +219,26 @@ describe('The Weighing of the Heart', () => {
     expect(tilt()).toBe(0);
     expect(container.querySelector('.egw-reading')).toHaveTextContent('Level');
     next();
-    // Ani's words: sort each card, with an answer at once
+    // Test the rule: predict each card, then see; a wrong guess says why.
     expect(nav().getByRole('button', { name: /Next/ })).toBeDisabled();
-    const first = DEEDS[0];
-    tap(first.label);
-    tap(new RegExp(`The “${first.kind === 'never' ? 'I have …' : 'I have not …'}” scroll`));
-    expect(screen.getByRole('status')).toHaveTextContent(SORT_HINT);
-    for (const d of DEEDS) {
-      tap(d.label);
-      tap(new RegExp(`The “${d.kind === 'never' ? 'I have not …' : 'I have …'}” scroll`));
+    for (let i = 0; i < DEEDS.length; i++) {
+      const label = container.querySelector('.egw-deed')!.textContent!;
+      const d = DEEDS.find((x) => x.label === label)!;
+      // The first card is guessed wrong on purpose; the rest right.
+      const tip = i === 0 ? !wouldTip(d) : wouldTip(d);
+      tap(tip ? TEST_TEXT.tip : TEST_TEXT.level);
+      expect(screen.getByRole('status')).toHaveTextContent(testFeedback(d, tip).text);
       expect(screen.getByRole('status')).toHaveTextContent(d.quote);
+      expect(tilt() > 0).toBe(wouldTip(d));
+      if (i < DEEDS.length - 1) tap(/Next card/);
     }
-    expect(screen.getByText('All sorted. Ani has spoken to the judges.')).toBeInTheDocument();
+    expect(screen.getByText(TEST_TEXT.score(DEEDS.length - 1, DEEDS.length))).toBeInTheDocument();
+    expect(screen.getByText(JUDGEMENT_NOTES.confession.text)).toBeInTheDocument();
     next();
     // The weighing: lay the heart on the scales, then predict
     tap('Ani’s heart');
     tap(/The empty pan of the scales/);
+    expect(screen.getByRole('group', { name: /Ani swore he never did any of those wrongs/ })).toBeInTheDocument();
     tap('Tip out of balance');
     expect(screen.getByText('Good guess, but look: they stay level.')).toBeInTheDocument();
     act(() => {
@@ -244,10 +252,13 @@ describe('The Weighing of the Heart', () => {
     next();
     tap('I shared');
     expect(screen.getByText('Every one of those counts.')).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Build your own tomb' })).toHaveAttribute('href', '/exhibitions/egypt/my-tomb');
     expect(screen.queryByRole('link', { name: /Back into the tomb/ })).toBeNull();
     expect(container.textContent).not.toMatch(/\b(eat|eats|eaten|devour|devours|devoured|punish|wrong answer|score|fail)\b/i);
     expect(readTomb().done.weighing).toBeFalsy();
+    // Last, a heart amulet into the visitor's tomb.
+    tap('Put this in your burial tomb');
+    expect(readTomb().kept?.weighing).toBe('a heart amulet, for your judgement');
+    expect(screen.getByRole('link', { name: /Go to your tomb/ })).toHaveAttribute('href', '/exhibitions/egypt/my-tomb');
   });
 });
 

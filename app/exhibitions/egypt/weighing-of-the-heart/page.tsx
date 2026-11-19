@@ -1,13 +1,15 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import FactNote from '@/components/exhibition/FactNote';
+import { seededShuffle } from '@/components/games/scoring';
+import { useClientSeed } from '@/components/games/useClientSeed';
 import RoomShell, { RoomHeader, StepDots } from '../RoomShell';
 import DarkIntro from '../DarkIntro';
 import Modal from '../Modal';
 import { DragGhost, useDragDrop } from '../dragKit';
 import { playEgypt } from '../egyptSound';
+import PutInTomb from '../PutInTomb';
 import { Feather, Heart } from './HallArt';
 import Scales, { FIGURE_SPOTS, HALL_H, HALL_W, HEART_PAN, Wrong } from './Scales';
 import {
@@ -20,17 +22,20 @@ import {
   MY_CHOICES,
   PAPYRI,
   RULE,
-  SCROLLS,
-  SORT_HINT,
+  TEST_TEXT,
   TIP,
   WEIGHING_INTRO,
   WEIGHING_SOURCES,
-  type Deed,
+  testFeedback,
+  wouldTip,
   type FigureId,
 } from './judgement';
 import './weighing.css';
 
 /*
+ * The point: you learn the rule of the scales, then use it to predict Ani's
+ * judgement before you see it.
+ *
  * The Weighing of the Heart, in seven chapters, each with one plain
  * instruction and its own Back and Next. The painted papyrus fills the top
  * of the room; the desk beneath holds what the visitor works with.
@@ -39,11 +44,16 @@ import './weighing.css';
  *   The hall      tap each figure in the painting to meet them
  *   The rule      lay a wrong on the heart's side: the scales tip; take it
  *                 off: heart and feather balance
- *   Ani's words   sort each deed onto the scroll where Ani says it ("I have
- *                 not ..." or "I have ..."), with an answer at once
- *   The weighing  lay Ani's heart on the scales, then predict
+ *   Test the rule six deeds, one card at a time, in an order of this
+ *                 visit's own: predict whether each, in Ani's heart, would
+ *                 tip the scales; then the scales show it, and Ani's own
+ *                 words say what he swore of it (the old sort onto two
+ *                 scrolls was too easy, and told nothing)
+ *   The weighing  lay Ani's heart on the scales, then predict from what he
+ *                 swore (the question no longer gives the answer away)
  *   The verdict   the scales balance; Thoth, Horus and the Field of Reeds
- *   Your scales   a quiet look at the visitor's own good choices
+ *   Your scales   a quiet look at the visitor's own good choices, then a
+ *                 heart amulet put in the visitor's tomb (PutInTomb)
  *
  * Every drag also works as "tap the thing, then tap where it goes", and by
  * keyboard. Nothing is scored, stored or frightening; a wrong guess is only
@@ -51,7 +61,7 @@ import './weighing.css';
  */
 
 type Guess = 'level' | 'tip';
-type Carry = { kind: 'wrong' } | { kind: 'heart' } | { kind: 'deed'; id: string };
+type Carry = { kind: 'wrong' } | { kind: 'heart' };
 
 /** A box in the hall's units, as a percentage box for an overlay. */
 function pct([x, y, w, h]: [number, number, number, number]): CSSProperties {
@@ -61,6 +71,7 @@ const PAN_BOX: [number, number, number, number] = [HEART_PAN.x - 58, HEART_PAN.y
 const FIGURE_IDS = Object.keys(FIGURES) as FigureId[];
 
 export default function WeighingOfTheHeart() {
+  const seed = useClientSeed();
   const [intro, setIntro] = useState(true);
   const [chapter, setChapter] = useState(0);
   const [reached, setReached] = useState(0);
@@ -70,9 +81,9 @@ export default function WeighingOfTheHeart() {
   const [wrongs, setWrongs] = useState(0);
   const [tried, setTried] = useState({ on: false, off: false });
   const [holding, setHolding] = useState<Carry | null>(null);
-  const [sorted, setSorted] = useState<Record<string, Deed['kind']>>({});
-  const [missed, setMissed] = useState<string | null>(null);
-  const [said, setSaid] = useState<Deed | null>(null);
+  // Test the rule: the card in hand, and each card's prediction (true: tip).
+  const [card, setCard] = useState(0);
+  const [predicted, setPredicted] = useState<Record<string, boolean>>({});
   const [heartOn, setHeartOn] = useState(false);
   const [guess, setGuess] = useState<Guess | null>(null);
   const [tilt, setTilt] = useState(0);
@@ -84,7 +95,11 @@ export default function WeighingOfTheHeart() {
   const rolling = useRef(false);
   const settle = useRef<ReturnType<typeof setTimeout> | null>(null);
   const id = CHAPTERS[chapter].id;
-  const left = DEEDS.filter((d) => !sorted[d.id]);
+  const deck = useMemo(() => (seed === null ? DEEDS : seededShuffle(DEEDS, seed)), [seed]);
+  const deed = deck[Math.min(card, deck.length - 1)];
+  const shown = deed.id in predicted;
+  const tested = DEEDS.every((d) => d.id in predicted);
+  const rightCount = DEEDS.filter((d) => d.id in predicted && predicted[d.id] === wouldTip(d)).length;
 
   useEffect(() => () => {
     if (settle.current) clearTimeout(settle.current);
@@ -93,7 +108,9 @@ export default function WeighingOfTheHeart() {
   const go = (i: number) => {
     const to = Math.max(0, Math.min(CHAPTERS.length - 1, i));
     if (settle.current) clearTimeout(settle.current);
-    setTilt(to === CHAPTERS.findIndex((c) => c.id === 'rule') && wrongs ? TIP : 0);
+    const toId = CHAPTERS[to].id;
+    const testTip = toId === 'test' && deed.id in predicted && wouldTip(deed);
+    setTilt((toId === 'rule' && wrongs) || testTip ? TIP : 0);
     setFocus(null);
     setHolding(null);
     setChapter(to);
@@ -151,21 +168,20 @@ export default function WeighingOfTheHeart() {
     setStatus('The wrong is gone. The heart and the feather balance: the scales are level.');
   };
 
-  // ── Ani's words: sort the deeds ──
-  const sortDeed = (deedId: string, kind: Deed['kind']) => {
-    const d = DEEDS.find((x) => x.id === deedId)!;
-    setHolding(null);
-    if (d.kind === kind) {
-      setSorted((s) => ({ ...s, [d.id]: kind }));
-      setMissed(null);
-      setSaid(d);
-      playEgypt('find');
-      setStatus(`Yes. Ani says: “${d.quote}”`);
-    } else {
-      setMissed(d.id);
-      playEgypt('miss');
-      setStatus(SORT_HINT);
-    }
+  // ── Test the rule: predict, then see ──
+  const predictDeed = (tip: boolean) => {
+    if (shown) return;
+    setPredicted((p) => ({ ...p, [deed.id]: tip }));
+    const f = testFeedback(deed, tip);
+    setTilt(wouldTip(deed) ? TIP : 0);
+    playEgypt(wouldTip(deed) ? 'creak' : 'settle');
+    setStatus(`${f.text} Ani says: “${deed.quote}”`);
+  };
+  const nextCard = () => {
+    setCard((c) => Math.min(deck.length - 1, c + 1));
+    setTilt(0);
+    setStatus('');
+    heading.current?.focus();
   };
 
   // ── The weighing ──
@@ -192,12 +208,10 @@ export default function WeighingOfTheHeart() {
   const place = (c: Carry, target: string) => {
     if (c.kind === 'wrong' && target === 'pan') addWrong();
     else if (c.kind === 'heart' && target === 'pan') layHeart();
-    else if (c.kind === 'deed' && target.startsWith('scroll-')) sortDeed(c.id, target.slice(7) as Deed['kind']);
   };
   const { drag, carrying, start } = useDragDrop<Carry>((c, at) => place(c, at.target));
   const hold = (c: Carry) => {
-    setHolding((h) => (h && JSON.stringify(h) === JSON.stringify(c) ? null : c));
-    setMissed(null);
+    setHolding((h) => (h && h.kind === c.kind ? null : c));
   };
   const tapTarget = (target: string) => {
     if (holding) place(holding, target);
@@ -207,8 +221,8 @@ export default function WeighingOfTheHeart() {
     setUnrolled(1);
     setWrongs(0);
     setTried({ on: false, off: false });
-    setSorted({});
-    setSaid(null);
+    setPredicted({});
+    setCard(0);
     setHeartOn(false);
     setGuess(null);
     setMine([]);
@@ -220,21 +234,22 @@ export default function WeighingOfTheHeart() {
     if (c === 'ani') return unrolled >= 1;
     if (c === 'hall') return met.length === FIGURE_IDS.length;
     if (c === 'rule') return tried.on && tried.off;
-    if (c === 'words') return left.length === 0;
+    if (c === 'test') return tested;
     if (c === 'weigh') return guess !== null;
     return i < reached;
   };
-  const canGoOn = id === 'ani' || id === 'rule' || id === 'words' || id === 'weigh' ? done(chapter) : true;
+  const canGoOn = id === 'ani' || id === 'rule' || id === 'test' || id === 'weigh' ? done(chapter) : true;
   const balanced = id === 'verdict' || id === 'you';
-  const heartShown = id === 'rule' || (id === 'weigh' && heartOn) || balanced;
+  const heartShown = id === 'rule' || id === 'test' || (id === 'weigh' && heartOn) || balanced;
+  const wrongsShown = id === 'rule' ? wrongs : id === 'test' && shown && wouldTip(deed) ? 1 : 0;
   const panTarget = (id === 'rule' && !wrongs) || (id === 'weigh' && !heartOn);
   const held = holding ?? carrying;
-  const reading = id === 'rule' ? (wrongs ? 'Out of balance' : 'Level') : id === 'weigh' && guess ? (tilt ? '' : 'Level') : balanced ? 'Level' : '';
+  const reading = id === 'rule' ? (wrongs ? 'Out of balance' : 'Level') : id === 'test' ? (shown ? (wrongsShown ? 'Out of balance' : 'Level') : '') : id === 'weigh' && guess ? (tilt ? '' : 'Level') : balanced ? 'Level' : '';
   const sceneLabel =
     id === 'ani' && unrolled < 1
       ? 'A rolled-up papyrus, waiting to be unrolled.'
       : 'Ani’s papyrus: Ani and his wife Tutu, heads bowed; jackal-headed Anubis at the great scales; ibis-headed Thoth with his palette; Ammit sitting by; and Maat seated at the end. ' +
-        (heartShown ? `A heart is in one pan and the feather of Maat in the other. ${wrongs ? 'A wrong lies beside the heart, and the scales are tipped out of balance.' : 'The scales are level.'}` : 'The feather of Maat is in one pan; the other is empty.');
+        (heartShown ? `A heart is in one pan and the feather of Maat in the other. ${wrongsShown ? 'A wrong lies beside the heart, and the scales are tipped out of balance.' : 'The scales are level.'}` : 'The feather of Maat is in one pan; the other is empty.');
 
   return (
     <RoomShell className="eg-weighing" sources={WEIGHING_SOURCES} fit>
@@ -252,9 +267,9 @@ export default function WeighingOfTheHeart() {
         {/* ───── The painted papyrus ───── */}
         <div className="egw-scene">
           <div className="egw-pic" ref={pic}>
-            <Scales tilt={tilt} heart={heartShown} wrongs={id === 'rule' ? wrongs : 0} focus={id === 'hall' ? focus : null} glow={id === 'ani' ? ['ani'] : id === 'hall' ? FIGURE_IDS.filter((f) => !met.includes(f)) : []} balanced={balanced} unrolled={id === 'ani' ? unrolled : 1} label={sceneLabel} />
+            <Scales tilt={tilt} heart={heartShown} wrongs={wrongsShown} focus={id === 'hall' ? focus : null} glow={id === 'ani' ? ['ani'] : id === 'hall' ? FIGURE_IDS.filter((f) => !met.includes(f)) : []} balanced={balanced} unrolled={id === 'ani' ? unrolled : 1} label={sceneLabel} />
             {reading && (
-              <p className={`egw-reading${wrongs ? ' is-off' : ''}`} aria-hidden="true">
+              <p className={`egw-reading${wrongsShown ? ' is-off' : ''}`} aria-hidden="true">
                 {reading}
               </p>
             )}
@@ -297,23 +312,6 @@ export default function WeighingOfTheHeart() {
               <button type="button" className={`egw-pan-drop${held ? ' is-ready' : ''}`} style={pct(PAN_BOX)} data-drop="pan" aria-label={id === 'rule' ? 'The heart’s pan of the scales: put the wrong here' : 'The empty pan of the scales: lay the heart here'} onClick={() => tapTarget('pan')} />
             )}
 
-            {id === 'words' && (
-              <div className="egw-scrolls">
-                {SCROLLS.map((s) => (
-                  <button key={s.kind} type="button" className={`egw-scroll${held?.kind === 'deed' ? ' is-ready' : ''}`} data-drop={`scroll-${s.kind}`} aria-label={`The “${s.name}” scroll${holding?.kind === 'deed' ? `: put “${DEEDS.find((d) => d.id === (holding as { id: string }).id)!.label}” here` : ''}`} onClick={() => tapTarget(`scroll-${s.kind}`)}>
-                    <span className="egw-scroll-name">“{s.name}”</span>
-                    <span className="egw-scroll-hint">{s.hint}</span>
-                    <span className="egw-scroll-list">
-                      {DEEDS.filter((d) => sorted[d.id] === s.kind).map((d) => (
-                        <span key={d.id} className="egw-scroll-item">
-                          {d.label}
-                        </span>
-                      ))}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
@@ -321,7 +319,7 @@ export default function WeighingOfTheHeart() {
         <div className="egw-desk">
           <div className="egw-desk-head">
             <h2 id="egw-title" ref={heading} tabIndex={-1}>
-              {id === 'ani' ? 'Meet Ani' : id === 'hall' ? 'Into the Hall of Judgement' : id === 'rule' ? 'The rule of the scales' : id === 'words' ? 'Ani’s words to the judges' : id === 'weigh' ? 'The weighing' : id === 'verdict' ? 'The scales balance' : 'Weigh your own choices'}
+              {id === 'ani' ? 'Meet Ani' : id === 'hall' ? 'Into the Hall of Judgement' : id === 'rule' ? 'The rule of the scales' : id === 'test' ? 'Test the rule' : id === 'weigh' ? 'The weighing' : id === 'verdict' ? 'The scales balance' : 'Weigh your own choices'}
             </h2>
             <p className="egr-task">{CHAPTERS[chapter].task}</p>
           </div>
@@ -378,23 +376,46 @@ export default function WeighingOfTheHeart() {
               </>
             )}
 
-            {id === 'words' && (
+            {id === 'test' && (
               <>
-                {left.length > 0 ? (
-                  <div className="egw-cards" role="group" aria-label="Cards to sort">
-                    {left.map((d) => (
-                      <button key={d.id} type="button" className={`egw-card egk-carry${missed === d.id ? ' is-missed' : ''}`} aria-pressed={holding?.kind === 'deed' && holding.id === d.id} onPointerDown={(e) => start({ kind: 'deed', id: d.id }, e)} onClick={() => hold({ kind: 'deed', id: d.id })}>
-                        {d.label}
-                      </button>
-                    ))}
+                <div className="egw-test" key={deed.id}>
+                  <p className="egw-small">
+                    Card {card + 1} of {deck.length}
+                  </p>
+                  <p className="egw-deed">{deed.label}</p>
+                  {!shown ? (
+                    <fieldset className="egr-choice egw-guess">
+                      <legend>{TEST_TEXT.ask}</legend>
+                      <div className="egr-options">
+                        <button type="button" className="egr-option" onClick={() => predictDeed(false)}>
+                          {TEST_TEXT.level}
+                        </button>
+                        <button type="button" className="egr-option" onClick={() => predictDeed(true)}>
+                          {TEST_TEXT.tip}
+                        </button>
+                      </div>
+                    </fieldset>
+                  ) : (
+                    <>
+                      <p className={`egw-result${testFeedback(deed, predicted[deed.id]).right ? ' is-right' : ' is-look'}`}>{testFeedback(deed, predicted[deed.id]).text}</p>
+                      <blockquote className="egw-quote">Ani says: “{deed.quote}”</blockquote>
+                    </>
+                  )}
+                </div>
+                {shown && !tested && (
+                  <div className="egr-actions">
+                    <button type="button" className="egr-button" onClick={nextCard}>
+                      {TEST_TEXT.nextCard} <span aria-hidden="true">→</span>
+                    </button>
                   </div>
-                ) : (
-                  <p className="egw-result is-right">All sorted. Ani has spoken to the judges.</p>
                 )}
-                {missed && <p className="egw-hint">{SORT_HINT}</p>}
-                {said && !missed && <blockquote className="egw-quote">“{said.quote}”</blockquote>}
-                {left.length === DEEDS.length && <FactNote fact={JUDGEMENT_NOTES.confession} className="egr-fact" />}
-                {left.length === 0 && <FactNote fact={JUDGEMENT_NOTES.ani} className="egr-fact" />}
+                {tested && (
+                  <>
+                    <p className="egw-result is-right">{TEST_TEXT.score(rightCount, DEEDS.length)}</p>
+                    <FactNote fact={JUDGEMENT_NOTES.confession} className="egr-fact" />
+                    <FactNote fact={JUDGEMENT_NOTES.ani} className="egr-fact" />
+                  </>
+                )}
               </>
             )}
 
@@ -413,7 +434,8 @@ export default function WeighingOfTheHeart() {
                 )}
                 {heartOn && (
                   <fieldset className="egr-choice egw-guess">
-                    <legend>Remember the rule. Ani has done no wrong. What will the scales do?</legend>
+                    {/* REVIEW: new text */}
+                    <legend>Ani swore he never did any of those wrongs. If that is true, what will the scales do?</legend>
                     <div className="egr-options">
                       <button type="button" className="egr-option" aria-pressed={guess === 'level'} onClick={() => predict('level')}>
                         Stay level
@@ -461,10 +483,9 @@ export default function WeighingOfTheHeart() {
                   <button type="button" className="egr-button" onClick={again}>
                     Hear the story again
                   </button>
-                  <Link href="/exhibitions/egypt/my-tomb" className="egr-button">
-                    Build your own tomb
-                  </Link>
                 </div>
+                {/* REVIEW: new text */}
+                <PutInTomb activity="weighing" what="a heart amulet, for your judgement" />
               </>
             )}
           </div>
@@ -481,13 +502,9 @@ export default function WeighingOfTheHeart() {
       </section>
 
       <DragGhost at={drag} className="egw-ghost">
-        {carrying?.kind === 'deed' ? (
-          <span className="egw-card">{DEEDS.find((d) => d.id === carrying.id)?.label}</span>
-        ) : (
-          <svg viewBox="-24 -30 48 48" width="64" height="64">
-            {carrying?.kind === 'heart' ? <Heart /> : <Wrong />}
-          </svg>
-        )}
+        <svg viewBox="-24 -30 48 48" width="64" height="64">
+          {carrying?.kind === 'heart' ? <Heart /> : <Wrong />}
+        </svg>
       </DragGhost>
 
       <Modal open={about} onClose={() => setAbout(false)} kicker="About this story" title="Two papyri, one story">
