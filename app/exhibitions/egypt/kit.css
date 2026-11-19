@@ -135,3 +135,52 @@
 @media print {
   .egr-modal-scrim { display: none; }
 }
+
+/* ───────── "Put this in your burial tomb" (PutInTomb.tsx): every room's last step ─────────
+   A little doorway of the tomb with the room's thing above it; on the press
+   the thing drops through the doorway and the doorway glows. */
+.egr-put-in-tomb {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  grid-template-areas: 'door words' 'door actions';
+  align-items: center;
+  gap: 6px 14px;
+  padding: 12px 14px;
+  border: 2px solid var(--egr-gold);
+  border-radius: 10px;
+  background: linear-gradient(120deg, rgba(217, 164, 65, 0.2), rgba(217, 164, 65, 0.05));
+  color: #fff;
+}
+.egr-put-door { grid-area: door; width: 76px; }
+.egr-put-door svg { display: block; width: 100%; height: auto; overflow: visible; }
+.egr-put-words { grid-area: words; min-width: 0; }
+.egr-put-words p { margin: 0; font-size: 0.92em; line-height: 1.35; }
+.eg-room .egr-put-words .egr-put-title { font-family: var(--pe-display); font-size: 1.15em; color: var(--egr-gold); }
+.egr-put-actions { grid-area: actions; }
+.eg-room .egr-put-actions .egr-button { white-space: normal; text-align: center; }
+.egr-put-glow { opacity: 0; }
+.egr-put-thing { transform-box: view-box; }
+.egr-put-in-tomb:not(.is-put) .egr-put-thing { animation: egr-put-bob 2.4s ease-in-out infinite; }
+.egr-put-in-tomb.is-put .egr-put-thing { animation: egr-put-drop 0.9s cubic-bezier(0.5, 0, 0.6, 1) both; }
+.egr-put-in-tomb.is-put .egr-put-glow { animation: egr-put-glow 1.6s ease 0.6s both; }
+.egr-put-in-tomb.is-put { animation: egr-put-ring 0.9s ease 0.5s both; }
+@keyframes egr-put-bob { 50% { transform: translateY(4px); } }
+@keyframes egr-put-drop {
+  0% { transform: translateY(0); opacity: 1; }
+  70% { transform: translateY(62px) scale(0.9); opacity: 1; }
+  100% { transform: translateY(70px) scale(0.6); opacity: 0; }
+}
+@keyframes egr-put-glow { 0% { opacity: 0; } 40% { opacity: 0.9; } 100% { opacity: 0.35; } }
+@keyframes egr-put-ring { 50% { box-shadow: 0 0 0 6px rgba(217, 164, 65, 0.35); } }
+/* Reduced motion: shown inside straight away (rooms.css shortens every animation; the glow stays). */
+@media (prefers-reduced-motion: reduce) {
+  .egr-put-in-tomb.is-put .egr-put-thing { opacity: 0; }
+  .egr-put-in-tomb.is-put .egr-put-glow { opacity: 0.35; }
+}
+@media (max-width: 420px) {
+  .egr-put-in-tomb { grid-template-columns: 56px minmax(0, 1fr); }
+  .egr-put-door { width: 56px; }
+}
+@media print {
+  .egr-put-in-tomb { display: none; }
+}

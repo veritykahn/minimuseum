@@ -4,11 +4,18 @@ import { useCallback, useEffect, useState } from 'react';
 
 /*
  * What the Egypt rooms remember: the details found on each of the Tomb
- * Explorer's painted walls, each room finished, the visitor's amulet and the
- * name they wrote in a cartouche. (The tomb was once the way into the other
- * rooms, through a burial chamber; it is now just the Tomb Explorer, and no
- * room sends the visitor back to it. The exports stay, so rooms that still
- * use them keep working.)
+ * Explorer's painted walls, each room finished, the visitor's amulet, the
+ * name they wrote in a cartouche, and, above all, what each room has put in
+ * the visitor's own burial tomb.
+ *
+ * The journey (Nov 19): the visitor builds their burial tomb first (Build
+ * Your Own Tomb, first on the Egypt landing). It has an empty place for each
+ * of the other rooms (TOMB_PLACES), and each place is a door to the room
+ * that fills it. Every other room ends with "Put this in your burial tomb"
+ * (PutInTomb.tsx), which keeps what it made here (keepInTomb) and leads back
+ * to the tomb, where it now stands in its place. When every place is full,
+ * the visitor seals the tomb. (The Tomb Explorer's old burial chamber, which
+ * linked out to the rooms, is gone; this is its own room now.)
  *
  * It is kept in this browser only (localStorage, one key), never sent
  * anywhere. Every read and write is wrapped: in a private window, or with
@@ -43,7 +50,35 @@ export type TombState = {
    * adds it with keepInTomb, from its last step's PutInTomb button.
    */
   kept?: Partial<Record<ActivityId, string>>;
+  /** The painted wall the Tomb Explorer put in the visitor's tomb (a wall id from tomb/scenes.ts). */
+  painting?: string;
 };
+
+/**
+ * The places in the visitor's burial tomb, one for each room, in the order
+ * the Egypt landing lists the rooms: where each room's thing goes, what the
+ * empty place waits for, and the room that fills it. The tomb draws each
+ * place empty (a door to its room) or filled; PutInTomb names the place as
+ * the thing goes in.
+ */
+// REVIEW: new text (names of places and rooms; no facts).
+export const TOMB_PLACES: { activity: ActivityId; place: string; waits: string; room: string; href: string }[] = [
+  { activity: 'walls', place: 'the painted wall', waits: 'a painting for the wall', room: 'Tomb Explorer', href: '/exhibitions/egypt/tomb' },
+  { activity: 'name', place: 'the stone column', waits: 'your name, carved in a cartouche', room: 'Your Name in Hieroglyphs', href: '/exhibitions/egypt/hieroglyph-name' },
+  { activity: 'rosetta', place: 'the scroll stand', waits: 'a papyrus with a royal name you decode', room: 'The Rosetta Stone Decoder', href: '/exhibitions/egypt/rosetta-stone' },
+  { activity: 'amulet', place: 'the niche', waits: 'an amulet you design', room: 'Design an Amulet', href: '/exhibitions/egypt/amulet' },
+  { activity: 'mummification', place: 'the coffin', waits: 'a mummy, made by you', room: 'Mummification, Step by Step', href: '/exhibitions/egypt/mummification' },
+  { activity: 'weighing', place: 'the offering table', waits: 'a heart amulet, for your judgement', room: 'The Weighing of the Heart', href: '/exhibitions/egypt/weighing-of-the-heart' },
+];
+
+/** The place in the tomb for a room's thing. */
+export const placeFor = (id: ActivityId) => TOMB_PLACES.find((p) => p.activity === id)!;
+
+/** Is this room's thing in the tomb? */
+export const isKept = (s: TombState, id: ActivityId) => !!s.kept?.[id];
+
+/** How many of the tomb's places are filled. */
+export const keptCount = (s: TombState) => TOMB_PLACES.filter((p) => isKept(s, p.activity)).length;
 
 const EMPTY: TombState = { done: {}, found: {} };
 const EVENT = 'mm-egypt-tomb-change';
@@ -59,9 +94,22 @@ export function readTomb(): TombState {
       amulet: parsed.amulet,
       cartouche: typeof parsed.cartouche === 'string' ? parsed.cartouche : undefined,
       kept: parsed.kept && typeof parsed.kept === 'object' ? parsed.kept : {},
+      painting: typeof parsed.painting === 'string' ? parsed.painting : undefined,
     };
   } catch {
     return EMPTY;
+  }
+}
+
+/** Can this browser keep the tomb at all? (Not in some private windows, or with storage blocked.) */
+function storageWorks(): boolean {
+  try {
+    const k = `${TOMB_KEY}-test`;
+    window.localStorage.setItem(k, '1');
+    window.localStorage.removeItem(k);
+    return true;
+  } catch {
+    return false;
   }
 }
 
@@ -96,7 +144,12 @@ export function keepInTomb(id: ActivityId, what: string) {
   return writeTomb((s) => ({ ...s, done: { ...s.done, [id]: true }, kept: { ...(s.kept ?? {}), [id]: what } }));
 }
 
-/** The visitor's own burial tomb, where every room's last step leads. */
+/** Take a room's thing out of the tomb again (the tomb's "start again"). */
+export function emptyTomb() {
+  return writeTomb((s) => ({ ...s, kept: {}, painting: undefined }));
+}
+
+/** The visitor's own burial tomb (Build Your Own Tomb), where every room's last step leads. */
 export const MY_TOMB_PATH = '/exhibitions/egypt/my-tomb';
 
 /**
@@ -107,7 +160,12 @@ export const MY_TOMB_PATH = '/exhibitions/egypt/my-tomb';
 export function useTomb(): [TombState, (update: (s: TombState) => TombState) => void] {
   const [state, setState] = useState<TombState>(EMPTY);
   useEffect(() => {
-    const load = () => setState(readTomb());
+    // Where storage is blocked, a change elsewhere (a room's keepInTomb)
+    // cannot be read back, so the page keeps what it has rather than going
+    // blank.
+    const load = () => {
+      if (storageWorks()) setState(readTomb());
+    };
     load();
     window.addEventListener(EVENT, load);
     window.addEventListener('storage', load);

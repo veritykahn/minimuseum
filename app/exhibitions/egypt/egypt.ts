@@ -168,14 +168,17 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
   projector: {
     theme: EGYPT_PROJECTOR_THEME,
     links: [
+      // The journey (Nov 19): the visitor's own burial tomb first; each room after it ends by putting what it made in the tomb.
+      // REVIEW: new text.
+      { label: 'Build Your Own Tomb: start here. Build your burial tomb, then fill it from every room', href: '/exhibitions/egypt/my-tomb' },
       { label: 'Tomb Explorer: turn on your torch and search five painted tomb walls in the dark', href: '/exhibitions/egypt/tomb' },
       { label: 'Your Name in Hieroglyphs: write your name in a cartouche, and print it', href: '/exhibitions/egypt/hieroglyph-name' },
-      { label: 'The Rosetta Stone Decoder: three scripts, and two royal names to crack', href: '/exhibitions/egypt/rosetta-stone' },
+      // REVIEW: new text.
+      { label: 'The Rosetta Stone Decoder: crack a royal name, the way Champollion did', href: '/exhibitions/egypt/rosetta-stone' },
+      // REVIEW: new text.
+      { label: 'Design an Amulet: choose what it protects, carve the symbols that fit, and print it', href: '/exhibitions/egypt/amulet' },
       { label: 'Mummification, Step by Step: natron, canopic jars, linen and amulets', href: '/exhibitions/egypt/mummification' },
       { label: 'The Weighing of the Heart: follow Ani’s judgement, and guess what the scales will do', href: '/exhibitions/egypt/weighing-of-the-heart' },
-      { label: 'Design an Amulet: choose its symbols, learn their meanings, and print it', href: '/exhibitions/egypt/amulet' },
-      // REVIEW: new room.
-      { label: 'Build Your Own Tomb: choose its painted wall, fill the chamber, carve your name, and print it', href: '/exhibitions/egypt/my-tomb' },
     ],
   },
   cases: [
@@ -187,16 +190,28 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
   ],
   // The rooms, in the landing page's Explore row and the display case's
   // Interactives, each card with a picture of the room itself
-  // (public/exhibitions/egypt/rooms/). The tomb comes first.
+  // (public/exhibitions/egypt/rooms/). The visitor's own burial tomb comes
+  // first: every room after it ends by putting what it made in that tomb
+  // (PutInTomb.tsx), in the order a burial would gather them.
   interactives: [
+    {
+      // REVIEW: new room. It has no screenshot yet, so its card shows an emblem; a picture of the room
+      // (public/exhibitions/egypt/rooms/my-tomb.webp) can replace it once the room is on the site.
+      href: '/exhibitions/egypt/my-tomb',
+      emblem: '\u{26B1}\u{FE0F}',
+      label: 'Interactive',
+      title: 'Build Your Own Tomb',
+      // REVIEW: new text.
+      subtitle: 'Your burial tomb: build it first, then fill it from every room',
+      // The journey starts here: the Explore row and the case list it first.
+      start: 'Start here',
+    },
     {
       href: '/exhibitions/egypt/tomb',
       image: { src: '/exhibitions/egypt/rooms/tomb.webp', alt: 'The Tomb Explorer room: a torch’s circle of light in a dark burial chamber, beside the list of things hidden in the dark' },
       label: 'Interactive',
       title: 'Tomb Explorer',
       subtitle: 'Turn on your torch and search the tomb’s painted walls in the dark',
-      // The Explore row and the case list it first.
-      start: 'Start here',
     },
     {
       href: '/exhibitions/egypt/hieroglyph-name',
@@ -210,7 +225,16 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       image: { src: '/exhibitions/egypt/rooms/rosetta-stone.webp', alt: 'The Rosetta Stone Decoder room: the dark stone carved with its three scripts, beside the story of the one decree' },
       label: 'Interactive',
       title: 'The Rosetta Stone Decoder',
-      subtitle: 'Three scripts, and two royal names to crack',
+      // REVIEW: new text.
+      subtitle: 'Crack a royal name, the way Champollion did',
+    },
+    {
+      href: '/exhibitions/egypt/amulet',
+      image: { src: '/exhibitions/egypt/rooms/amulet.webp', alt: 'The Design an Amulet room: a gold scarab amulet carved with an ankh and a wedjat eye, beside the questions of who it is for and what it should protect' },
+      label: 'Interactive',
+      title: 'Design an Amulet',
+      // REVIEW: new text.
+      subtitle: 'Choose what it protects, and carve the symbols that fit',
     },
     {
       href: '/exhibitions/egypt/mummification',
@@ -225,22 +249,6 @@ export const EGYPT: ExhibitionConfig<'poster1' | 'poster2'> = {
       label: 'Interactive',
       title: 'The Weighing of the Heart',
       subtitle: 'Follow Ani’s judgement, and guess what the scales will do',
-    },
-    {
-      href: '/exhibitions/egypt/amulet',
-      image: { src: '/exhibitions/egypt/rooms/amulet.webp', alt: 'The Design an Amulet room: a gold scarab amulet carved with an ankh and a wedjat eye, beside the questions of who it is for and what it should protect' },
-      label: 'Interactive',
-      title: 'Design an Amulet',
-      subtitle: 'Choose its symbols, learn their meanings, and print it',
-    },
-    {
-      // REVIEW: new room. It has no screenshot yet, so its card shows an emblem; a picture of the room
-      // (public/exhibitions/egypt/rooms/my-tomb.webp) can replace it once the room is on the site.
-      href: '/exhibitions/egypt/my-tomb',
-      emblem: '\u{26B1}\u{FE0F}',
-      label: 'Interactive',
-      title: 'Build Your Own Tomb',
-      subtitle: 'Choose its painted wall, fill the chamber, carve your name, and print it',
     },
   ],
   posters: [

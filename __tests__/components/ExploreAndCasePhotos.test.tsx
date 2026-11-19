@@ -73,13 +73,13 @@ describe('the Explore row', () => {
     expect(caseRoomHrefs()).toEqual(explore);
   });
 
-  it('puts the Tomb Explorer first for Egypt, labelled as the way in, in both lists', () => {
+  it('puts Build Your Own Tomb first for Egypt, labelled as the way in, in both lists', () => {
     const rooms = roomsInOrder(EGYPT.interactives);
-    expect(rooms[0].href).toBe('/exhibitions/egypt/tomb');
+    expect(rooms[0].href).toBe('/exhibitions/egypt/my-tomb');
     expect(rooms[0].start).toBe('Start here');
     render(<PosterExhibition config={EGYPT} />);
     const first = document.querySelector('.pe-explore li:first-child a') as HTMLElement;
-    expect(first).toHaveAttribute('href', '/exhibitions/egypt/tomb');
+    expect(first).toHaveAttribute('href', '/exhibitions/egypt/my-tomb');
     expect(first).toHaveClass('is-start');
     expect(first).toHaveTextContent('Start here');
     expect(document.querySelectorAll('.pe-explore-start')).toHaveLength(1);

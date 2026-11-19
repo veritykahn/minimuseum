@@ -34,14 +34,15 @@ import MyTomb from '@/app/exhibitions/egypt/my-tomb/page';
  */
 
 const ROOT = join(__dirname, '..', '..');
+/** The journey's order: the visitor's own tomb first, then each room that fills it. */
 const ROOMS = [
+  '/exhibitions/egypt/my-tomb',
   '/exhibitions/egypt/tomb',
   '/exhibitions/egypt/hieroglyph-name',
   '/exhibitions/egypt/rosetta-stone',
+  '/exhibitions/egypt/amulet',
   '/exhibitions/egypt/mummification',
   '/exhibitions/egypt/weighing-of-the-heart',
-  '/exhibitions/egypt/amulet',
-  '/exhibitions/egypt/my-tomb',
 ];
 /** Rooms not yet photographed for their card: an emblem stands in for the screenshot. */
 const NO_SCREENSHOT_YET = ['/exhibitions/egypt/my-tomb'];
@@ -149,7 +150,7 @@ describe('the words and the pictures', () => {
 });
 
 describe('the display case’s interactives, and the way back', () => {
-  it('lists the seven rooms, the tomb first, each with a screenshot of the room (or, until it has one, an emblem), its alt text, and a page', () => {
+  it('lists the seven rooms, the visitor’s own tomb first, each with a screenshot of the room (or, until it has one, an emblem), its alt text, and a page', () => {
     expect(EGYPT.interactives!.map((r) => r.href)).toEqual(ROOMS);
     for (const r of EGYPT.interactives!) {
       if (NO_SCREENSHOT_YET.includes(r.href)) {
