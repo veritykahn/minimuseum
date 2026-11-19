@@ -518,6 +518,29 @@
 .aps-tray .aps-field { flex: 1 1 200px; max-width: 300px; }
 .aps-carroll { font-style: italic; font-size: 0.86rem; line-height: 1.4; color: #4a453f; text-align: center; }
 .aps-note { font-family: var(--pe-ui); font-weight: 300; font-size: 12px; color: #5e5850; text-align: center; }
+/* Before signing the Declaration: what are you pledging? One line of choices, compact. */
+.aps-pledge { display: flex; flex-direction: column; align-items: center; gap: 6px; padding-bottom: 8px; border-bottom: 1px solid rgba(86, 101, 111, 0.25); text-align: center; }
+.aps-pledge-ask { font-size: 1rem; line-height: 1.4; font-weight: 700; }
+.aps-pledge[data-done] .aps-pledge-ask { display: none; }
+.aps-pledge-choices { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 10px; }
+.ap-room .aps-pledge-choice {
+  appearance: none;
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--frame);
+  border-radius: 4px;
+  background: #fff;
+  color: #2a2724;
+  font-family: 'Libre Caslon Text', Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.ap-room .aps-pledge-choice:hover:not(:disabled) { background: #f1ede3; }
+.ap-room .aps-pledge-choice[data-wrong] { border-color: #c9b9b2; color: #8a7f78; text-decoration: line-through; background: #f3eeea; cursor: default; }
+.aps-pledge-hint { font-family: var(--pe-ui); font-size: 13px; line-height: 1.45; color: #7a3a24; }
+.aps-pledge-right { font-size: 0.95rem; line-height: 1.4; color: #2f5a3a; font-weight: 700; }
+.ap-room .aps-inkwell[data-locked] { opacity: 0.55; cursor: not-allowed; }
 .aps-quote { margin: 0; padding-left: 14px; border-left: 2px solid var(--frame); }
 .aps-quote blockquote { margin: 0; font-style: italic; font-size: 1rem; line-height: 1.5; }
 .aps-quote figcaption { margin-top: 6px; font-family: var(--pe-ui); font-weight: 300; font-size: 12px; color: #5e5850; }

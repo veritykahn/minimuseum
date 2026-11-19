@@ -2,8 +2,17 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import America250Signing from '@/app/exhibitions/america-250/sign/page';
 import ACopyOfACopy from '@/app/exhibitions/america-250/copies/page';
 import AddAStar from '@/app/exhibitions/america-250/flag/page';
-import { MISSIONS } from '@/app/exhibitions/america-250/copies/missions';
-import { DECADES, MAX_SCORE, ROUNDS, decadeOf, judge, milestoneBetween, namesOf, verdictLine } from '@/app/exhibitions/america-250/flag/game';
+import { CASE_FILES, EXHIBIT_LETTERS, HINTS, PICTURE, exhibitAlt, exhibitOrder, fileFor } from '@/app/exhibitions/america-250/copies/missions';
+import { DECADES, ERAS, MAX_SCORE, ROUNDS, decadeOf, joinedBefore, judge, milestonesBetween, namesOf, pickRounds, verdictLine } from '@/app/exhibitions/america-250/flag/game';
+import { nextSeed } from '@/components/games/useClientSeed';
+
+// A fixed seed, so the rooms that shuffle (Add a Star's states, A Copy of a
+// Copy's exhibits) can be played in a known order.
+const SEED = 7;
+jest.mock('@/components/games/useClientSeed', () => ({
+  ...jest.requireActual('@/components/games/useClientSeed'),
+  useClientSeed: () => 7,
+}));
 import { COPIES, COPIES_HREF, FLAG_HREF, FLAG_MILESTONES, FLAG_STATES, FLAG_TEXT, SIGN_TEXT, starLine } from '@/app/exhibitions/america-250/sign/signText';
 import { DECLARATION_BODY, DECLARATION_HEAD, DECLARATION_SIGNERS, DECLARATION_SOURCE, DECLARATION_TITLE, OWN_DECLARATIONS, classWords, gradeWords, ownTitle, ownWording, PRINT_SIGNATURE_LINES } from '@/app/exhibitions/america-250/sign/declaration';
 import { FLAG, starLayout, stripesFor, unionHeight } from '@/app/exhibitions/america-250/sign/flagLayout';
@@ -158,7 +167,7 @@ describe('Put Your Name to It: the way in', () => {
   });
 
   it('walks the three steps: read it, dip the quill (it starts dry), sign', () => {
-    window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign');
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#class');
     render(<America250Signing />);
     const steps = within(screen.getByRole('list', { name: 'Three steps' })).getAllByRole('listitem');
     expect(steps[0]).toHaveAttribute('aria-current', 'step');
@@ -170,6 +179,33 @@ describe('Put Your Name to It: the way in', () => {
     expect(screen.getByRole('status')).toHaveTextContent('The quill is full of ink.');
     expect(screen.queryByText(SIGN_TEXT.dipFirst, { selector: '.aps-dry' })).toBeNull();
     expect(steps[2]).toHaveAttribute('aria-current', 'step');
+  });
+
+  it('asks what the Declaration’s signers pledge before the quill will take ink, with a hint after a wrong answer', () => {
+    window.history.replaceState(null, '', '/exhibitions/america-250/sign#sign');
+    render(<America250Signing />);
+    const steps = within(screen.getByRole('list', { name: 'Three steps' })).getAllByRole('listitem');
+    expect(steps[0]).toHaveTextContent(SIGN_TEXT.pledge.step);
+    // Every choice is the Declaration's own words.
+    const text = DECLARATION_BODY.join(' ').toLowerCase();
+    for (const c of SIGN_TEXT.pledge.choices) expect(text).toContain(c.label.toLowerCase().replace(/^to be /, '').replace(/\btheir\b/g, 'our'));
+    expect(DECLARATION_BODY.at(-1)).toMatch(/our Lives, our Fortunes and our sacred Honor\.$/);
+    // The quill stays dry until the pledge is found.
+    fireEvent.click(screen.getByRole('button', { name: 'Dip the quill in the ink' }));
+    expect(screen.getByRole('status')).toHaveTextContent(SIGN_TEXT.pledge.first);
+    expect(screen.getByText('Find the pledge first', { selector: '.aps-dry' })).toBeInTheDocument();
+    const group = screen.getByRole('group', { name: SIGN_TEXT.pledge.ask });
+    fireEvent.click(within(group).getByRole('button', { name: /Life, Liberty/ }));
+    expect(within(group).getByRole('button', { name: /Life, Liberty/ })).toBeDisabled();
+    expect(within(group).getByText(SIGN_TEXT.pledge.choices[0].no)).toBeInTheDocument();
+    fireEvent.click(within(group).getByRole('button', { name: /Their Lives, their Fortunes/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('our Lives, our Fortunes and our sacred Honor');
+    expect(steps[0]).toHaveTextContent('(done)');
+    fireEvent.click(screen.getByRole('button', { name: 'Dip the quill in the ink' }));
+    expect(screen.getByRole('status')).toHaveTextContent('The quill is full of ink.');
+    expect(steps[2]).toHaveAttribute('aria-current', 'step');
+    // Its job done, the question steps aside.
+    expect(screen.queryByRole('group', { name: SIGN_TEXT.pledge.ask })).toBeNull();
   });
 
   it('asks for a dip before the dry quill will write', () => {
@@ -198,6 +234,9 @@ describe('Put Your Name to It: the Declaration', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
     fireEvent.change(screen.getByRole('textbox', { name: SIGN_TEXT.addressLabel }), { target: { value: 'Baltimore' } });
+    // Not until the pledge is found.
+    expect(seal).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: /Their Lives, their Fortunes/ }));
     expect(seal).toBeEnabled();
     fireEvent.click(seal);
     expect(screen.getByRole('status')).toHaveTextContent('Signed.');
@@ -398,72 +437,103 @@ describe('the class’s and the student’s own declarations', () => {
 describe('A Copy of a Copy', () => {
   beforeEach(() => window.history.replaceState(null, '', COPIES_HREF));
 
-  it('asks one thing to find on each copy, in the copies’ order, every answer among its choices', () => {
-    expect(MISSIONS.map((m) => m.copy)).toEqual(COPIES.map((c) => c.id));
-    for (const m of MISSIONS) {
-      expect(m.choices.map((c) => c.id)).toContain(m.answer);
-      expect(new Set(m.choices.map((c) => c.id)).size).toBe(m.choices.length);
+  it('has a case file for each copy, in the chain’s order, and muddles the exhibits out of that order', () => {
+    expect(CASE_FILES.map((f) => f.copy)).toEqual(COPIES.map((c) => c.id));
+    for (const seed of [0, 1, 2, 7, 99, 2026]) {
+      const order = exhibitOrder(seed);
+      expect([...order].sort()).toEqual([...COPIES.map((c) => c.id)].sort());
+      expect(order).not.toEqual(COPIES.map((c) => c.id));
     }
-    // What is found is what each photograph shows (its alt text) and its note says.
+    // What each file says to look for is what its photograph shows (its alt text) and its note says.
     expect(COPIES[0].alt).toContain('only John Hancock’s and Charles Thomson’s names printed at its foot');
-    expect(COPIES[1].note.text).toContain('her own name at its foot');
-    expect(COPIES[2].alt).toContain('John Hancock’s largest');
+    expect(COPIES[1].alt).toContain('the signers’ names in print, grouped by state');
+    expect(COPIES[2].alt).toContain('every signature clear and dark at the foot');
     expect(COPIES[3].alt).toContain('nearly all the signatures faded almost away');
+    // An exhibit's description gives what is to be seen, but not its name.
+    for (const c of COPIES) {
+      const alt = exhibitAlt(c.id, 'A');
+      expect(alt.startsWith('Exhibit A: ')).toBe(true);
+      expect(alt).not.toContain(c.name);
+    }
   });
+
+  const exhibits = exhibitOrder(nextSeed(SEED, 0));
+  const fileButton = (copy: (typeof exhibits)[number]) => screen.getByRole('button', { name: new RegExp(`^${fileFor(copy).title}`) });
 
   it('opens on the case: the posters’ words, what to do, and one button to start', () => {
     render(<ACopyOfACopy />);
     expect(screen.getByRole('heading', { level: 1, name: SIGN_TEXT.copiesHeading })).toBeInTheDocument();
     expect(screen.getByText(SIGN_TEXT.copiesIntro)).toBeInTheDocument();
     expect(screen.getByText(SIGN_TEXT.copiesLead)).toBeInTheDocument();
-    expect(screen.queryByRole('group', { name: COPIES[0].alt })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.copiesStart }));
-    expect(screen.getByRole('heading', { level: 1, name: /The Dunlap broadside/ })).toHaveFocus();
-    const lens = screen.getByRole('group', { name: COPIES[0].alt });
+    // The first exhibit, unlabelled: its name waits until it is matched.
+    expect(screen.getByRole('heading', { level: 1, name: 'Exhibit A' })).toHaveFocus();
+    const first = COPIES.find((c) => c.id === exhibits[0])!;
+    const lens = screen.getByRole('group', { name: exhibitAlt(first.id, 'A') });
     expect(lens).toHaveAttribute('aria-roledescription', 'magnifier');
-    expect(lens.querySelector('img')).toHaveAttribute('src', COPIES[0].src);
+    expect(lens.querySelector('img')).toHaveAttribute('src', first.src);
+    // The four case files to choose from, and the chain in date order, empty.
+    for (const f of CASE_FILES) expect(fileButton(f.copy)).toBeInTheDocument();
     const chain = within(screen.getByRole('list', { name: /The copy chain/ })).getAllByRole('listitem');
     expect(chain).toHaveLength(4);
-    expect(chain[0]).toHaveAttribute('aria-current', 'step');
-    expect(chain[1]).toHaveTextContent('Not opened yet');
+    chain.forEach((li, i) => expect(li).toHaveTextContent(CASE_FILES[i].title));
+    expect(chain[0]).toHaveTextContent('(not matched yet)');
   });
 
-  it('says where to look again after a wrong guess, then turns the slip over to what the copy is', () => {
+  it('says where to look on the sheet after a wrong match, then turns the slip over to what the copy is', () => {
     render(<ACopyOfACopy />);
     fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.copiesStart }));
-    fireEvent.click(screen.getByRole('button', { name: 'All fifty-six signers' }));
-    expect(screen.getByRole('button', { name: /All fifty-six signers/ })).toBeDisabled();
-    expect(screen.getByText(MISSIONS[0].hint)).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Not that one.');
-    expect(screen.queryByText(COPIES[0].note.text)).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Just two' }));
-    expect(screen.getByText(MISSIONS[0].found)).toBeInTheDocument();
-    expect(screen.getByText(COPIES[0].note.text)).toBeInTheDocument();
+    const right = exhibits[0];
+    const wrong = CASE_FILES.find((f) => f.copy !== right)!.copy;
+    fireEvent.click(fileButton(wrong));
+    expect(fileButton(wrong)).toBeDisabled();
+    expect(screen.getByText(HINTS[right])).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Not that file.');
+    const copy = COPIES.find((c) => c.id === right)!;
+    expect(screen.queryByText(copy.note.text)).toBeNull();
+    fireEvent.click(fileButton(right));
+    expect(screen.getByRole('heading', { level: 1, name: new RegExp(copy.name) })).toBeInTheDocument();
+    expect(screen.getByText(copy.note.text)).toBeInTheDocument();
     expect(screen.queryByText(/a star!/)).toBeNull();
     // Nothing cited on the slip: the sources and the picture's credit are in the Sources drawer.
-    for (const src of [...COPIES[0].note.sources, COPIES[0].credit]) expect(screen.queryByRole('link', { name: src.label })).toBeNull();
-    const next = screen.getByRole('button', { name: /The next copy/ });
+    for (const src of [...copy.note.sources, copy.credit]) expect(screen.queryByRole('link', { name: src.label })).toBeNull();
+    const next = screen.getByRole('button', { name: /The next exhibit/ });
     expect(next).toHaveFocus();
     fireEvent.click(next);
-    expect(screen.getByRole('heading', { level: 1, name: /The Goddard broadside/ })).toBeInTheDocument();
-    expect(within(screen.getByRole('list', { name: /The copy chain/ })).getAllByRole('listitem')[0]).toHaveTextContent('(solved)');
+    expect(screen.getByRole('heading', { level: 1, name: 'Exhibit B' })).toBeInTheDocument();
+    // The matched copy has its place on the chain, and its file says which exhibit it was.
+    const chain = within(screen.getByRole('list', { name: /The copy chain/ })).getAllByRole('listitem');
+    expect(chain[CASE_FILES.findIndex((f) => f.copy === right)]).toHaveTextContent('Exhibit A (matched)');
+    expect(fileButton(right)).toHaveTextContent('Matched: Exhibit A');
+    // Choosing a file already matched says so.
+    fireEvent.click(fileButton(right));
+    expect(screen.getByRole('status')).toHaveTextContent('That file is already matched, to Exhibit A.');
   });
 
-  it('closes the case with the stars found first time, the posters’ last word, and the way on', () => {
+  it('ends on a twist (which copy do people picture?), then closes the case with the stars and the way on', () => {
     render(<ACopyOfACopy />);
     fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.copiesStart }));
-    for (const [i, m] of MISSIONS.entries()) {
-      fireEvent.click(screen.getByRole('button', { name: m.choices.find((c) => c.id === m.answer)!.label }));
-      expect(screen.getByText(/Found first time: a star!/, { selector: '.apc-star-earned' })).toBeInTheDocument();
-      if (COPIES[i].quote) expect(screen.getByText(COPIES[i].quote!)).toBeInTheDocument();
-      fireEvent.click(screen.getByRole('button', { name: i === MISSIONS.length - 1 ? /Close the case/ : /The next copy/ }));
-    }
+    exhibits.forEach((copy, i) => {
+      fireEvent.click(fileButton(copy));
+      expect(screen.getByText(/Matched first time: a star!/, { selector: '.apc-star-earned' })).toBeInTheDocument();
+      const c = COPIES.find((x) => x.id === copy)!;
+      if (c.quote) expect(screen.getByText(c.quote)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: i === exhibits.length - 1 ? /One last question/ : /The next exhibit/ }));
+    });
+    expect(screen.getByRole('heading', { level: 1, name: PICTURE.ask })).toHaveFocus();
+    fireEvent.click(screen.getByRole('button', { name: /^The signed parchment today/ }));
+    expect(screen.getByText(PICTURE.hint)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^Stone’s engraving/ }));
+    expect(screen.getByText(PICTURE.found)).toBeInTheDocument();
+    expect(screen.getByText(SIGN_TEXT.copiesIntro)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Close the case/ }));
     expect(screen.getByRole('heading', { level: 1, name: SIGN_TEXT.copiesEnd })).toHaveFocus();
-    expect(screen.getByText('4 of 4 found first time')).toBeInTheDocument();
+    expect(screen.getByText('4 of 4 matched first time')).toBeInTheDocument();
     expect(screen.getByText(SIGN_TEXT.copiesClose)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Next: Add a Star/ })).toHaveAttribute('href', FLAG_HREF);
     fireEvent.click(screen.getByRole('button', { name: 'Play again' }));
-    expect(screen.getByRole('heading', { level: 1, name: /The Dunlap broadside/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Exhibit A' })).toBeInTheDocument();
+    expect(EXHIBIT_LETTERS).toHaveLength(4);
   });
 
   it('lists each copy’s sources and picture credit in its Sources drawer', () => {
@@ -521,7 +591,7 @@ describe('Add a Star: the flag', () => {
 describe('Add a Star: the game', () => {
   beforeEach(() => window.history.replaceState(null, '', FLAG_HREF));
 
-  it('takes the states in the order they joined, those of one year together, on a ruler of decades from the 1790s to the 1950s', () => {
+  it('groups the states by the year they joined, on a ruler of decades from the 1790s to the 1950s', () => {
     expect(ROUNDS.flatMap((r) => r.states.map((s) => s.stars))).toEqual(FLAG_STATES.map((s) => s.stars));
     expect(ROUNDS).toHaveLength(new Set(FLAG_STATES.map((s) => s.year)).size);
     expect(namesOf(ROUNDS.find((r) => r.year === 1889)!)).toBe('North Dakota, South Dakota, Montana and Washington');
@@ -533,9 +603,28 @@ describe('Add a Star: the game', () => {
     expect([judge(1790, 1791), judge(1800, 1791), judge(1780, 1791), judge(1830, 1803), judge(1790, 1803)]).toEqual(['bullseye', 'close', 'close', 'late', 'close']);
     expect(judge(1790, 1821)).toBe('early');
     expect(verdictLine('bullseye', ROUNDS[0])).toBe('Bullseye! Vermont joined the Union in 1791.');
-    expect(milestoneBetween(14, 15)?.year).toBe(1795);
-    expect(milestoneBetween(15, 16)).toBeUndefined();
-    expect(MAX_SCORE).toBe(ROUNDS.length * 3);
+    expect(milestonesBetween(14, 15).map((m) => m.year)).toEqual([1795]);
+    expect(milestonesBetween(15, 16)).toEqual([]);
+    expect(milestonesBetween(14, 22).map((m) => m.year)).toEqual([1795, 1818]);
+    expect(MAX_SCORE).toBe(ERAS.length * 3);
+  });
+
+  it('grows the flag in seven jumps, one state asked from each stretch, never the decade just answered or the next along', () => {
+    for (let seed = 0; seed < 60; seed++) {
+      const rounds = pickRounds(seed);
+      expect(rounds).toHaveLength(7);
+      // One from each era, in order, ending on Alaska and Hawaii.
+      rounds.forEach((r, i) => expect(r.year >= ERAS[i].from && r.year <= ERAS[i].to).toBe(true));
+      expect(rounds.at(-1)!.year).toBe(1959);
+      // Each answer at least two decades on from the last: "the next one along" never scores a bullseye.
+      for (let i = 1; i < rounds.length; i++) expect(decadeOf(rounds[i].year) - decadeOf(rounds[i - 1].year)).toBeGreaterThanOrEqual(20);
+    }
+    // Not the same states every game.
+    expect(new Set(Array.from({ length: 20 }, (_, s) => pickRounds(s).map((r) => r.year).join())).size).toBeGreaterThan(1);
+    // The stars that go on with a jump: every state between the flag's count and the one asked.
+    const texas = ROUNDS.find((r) => r.year === 1845)!;
+    expect(joinedBefore(23, texas).map((s) => s.state)).toEqual(['Missouri', 'Arkansas', 'Michigan']);
+    expect(joinedBefore(13, ROUNDS[0])).toEqual([]);
   });
 
   it('opens on the 13 stars and the 13 original states, and how to play', () => {
@@ -549,36 +638,46 @@ describe('Add a Star: the game', () => {
     expect(screen.queryByRole('group', { name: FLAG_TEXT.pick })).toBeNull();
   });
 
-  it('asks the decade before each star goes on, and says when the state really joined', () => {
+  const game = pickRounds(nextSeed(SEED, 0));
+
+  it('asks the decade before each jump, then puts on its star with every state that joined in between', () => {
     render(<AddAStar />);
     fireEvent.click(screen.getByRole('button', { name: FLAG_TEXT.start }));
-    expect(screen.getByRole('heading', { level: 1, name: 'Vermont' })).toHaveFocus();
+    const [a, b] = game;
+    expect(screen.getByRole('heading', { level: 1, name: namesOf(a) })).toHaveFocus();
     const ruler = screen.getByRole('group', { name: FLAG_TEXT.pick });
-    expect(within(ruler).getAllByRole('button').map((b) => b.textContent)).toEqual(DECADES.map((d) => `${d}s`));
-    fireEvent.click(within(ruler).getByRole('button', { name: '1790s' }));
-    expect(screen.getByRole('img', { name: 'The flag with 14 stars' })).toBeInTheDocument();
-    expect(screen.getByText('Bullseye! Vermont joined the Union in 1791.')).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Next: Kentucky.');
-    expect(screen.getByRole('heading', { level: 1, name: 'Kentucky' })).toBeInTheDocument();
-    // Kentucky joined in 1792: the 1810s are too late, and its star passes the 1795 milestone.
-    fireEvent.click(within(ruler).getByRole('button', { name: '1810s' }));
-    expect(screen.getByText('Too late. Kentucky joined the Union in 1792, earlier than that.')).toBeInTheDocument();
-    expect(screen.getByText(FLAG_MILESTONES[1].text)).toBeInTheDocument();
+    expect(within(ruler).getAllByRole('button').map((x) => x.textContent)).toEqual(DECADES.map((d) => `${d}s`));
+    fireEvent.click(within(ruler).getByRole('button', { name: `${decadeOf(a.year)}s` }));
+    const aStars = a.states.at(-1)!.stars;
+    expect(screen.getByRole('img', { name: `The flag with ${aStars} stars` })).toBeInTheDocument();
+    expect(screen.getByText(verdictLine('bullseye', a))).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent(`Next: ${namesOf(b)}.`);
+    expect(screen.getByRole('heading', { level: 1, name: namesOf(b) })).toBeInTheDocument();
+    // Guess far too late for the second: no points, and the states between go on too.
+    fireEvent.click(within(ruler).getByRole('button', { name: '1950s' }));
+    expect(screen.getByText(verdictLine('late', b))).toBeInTheDocument();
+    const between = joinedBefore(aStars, b).map((s) => s.state);
+    if (between.length) expect(screen.getByText(new RegExp(`^${between[0]}.* joined in between`))).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: `The flag with ${b.states.at(-1)!.stars} stars` })).toBeInTheDocument();
+    // The milestones the jump passed (the 1795 flag at 15 stars, back to 13 stripes at 20).
+    const passed = milestonesBetween(aStars, b.states.at(-1)!.stars);
+    for (const m of passed) expect(screen.getByText(m.text)).toBeInTheDocument();
     expect(screen.getByText(/Score/)).toHaveTextContent('Score 3');
   });
 
   it('grows the flag to 50 stars, and ends with the score and every milestone', () => {
     render(<AddAStar />);
     fireEvent.click(screen.getByRole('button', { name: FLAG_TEXT.start }));
-    for (const r of ROUNDS) fireEvent.click(screen.getByRole('button', { name: `${decadeOf(r.year)}s` }));
+    for (const r of game) fireEvent.click(screen.getByRole('button', { name: `${decadeOf(r.year)}s` }));
     expect(screen.getByRole('heading', { level: 1, name: FLAG_TEXT.finished })).toHaveFocus();
     expect(screen.getByRole('img', { name: 'The flag with 50 stars' })).toBeInTheDocument();
-    expect(screen.getByText(/You scored/)).toHaveTextContent(`You scored ${MAX_SCORE} of ${MAX_SCORE}, with ${ROUNDS.length} bullseyes.`);
+    expect(screen.getByText(/You scored/)).toHaveTextContent(`You scored ${MAX_SCORE} of ${MAX_SCORE}, with 7 bullseyes.`);
     const milestones = within(screen.getByRole('list', { name: 'Milestones' })).getAllByRole('listitem');
     expect(milestones.map((m) => m.textContent)).toEqual(FLAG_MILESTONES.map((m) => `${m.year} ${m.text}`));
     expect(screen.getByRole('link', { name: SIGN_TEXT.backToSign })).toHaveAttribute('href', '/exhibitions/america-250/sign');
+    // Play again draws the states afresh.
     fireEvent.click(screen.getByRole('button', { name: FLAG_TEXT.again }));
-    expect(screen.getByRole('heading', { level: 1, name: 'Vermont' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: namesOf(pickRounds(nextSeed(SEED, 1))[0]) })).toBeInTheDocument();
   });
 
   it('sets its sources, linked, in the Sources drawer', () => {
@@ -636,6 +735,7 @@ describe('fine tuning (regressions from trying the room)', () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
+    fireEvent.click(screen.getByRole('button', { name: /Their Lives, their Fortunes/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
     fireEvent.click(screen.getByRole('button', { name: 'Print it' }));
     await waitFor(() => expect(window.print).toHaveBeenCalledTimes(1));
@@ -669,6 +769,7 @@ describe('fine tuning (regressions from trying the room)', () => {
     render(<America250Signing />);
     fireEvent.click(screen.getByRole('button', { name: 'Type it instead' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Your name' }), { target: { value: 'A. Visitor' } });
+    fireEvent.click(screen.getByRole('button', { name: /Their Lives, their Fortunes/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Put your name to it' }));
     expect(screen.getByRole('link', { name: /Next: A Copy of a Copy/ })).toHaveAttribute('href', COPIES_HREF);
   });

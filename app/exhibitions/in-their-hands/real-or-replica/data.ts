@@ -210,5 +210,12 @@ export type Side = 'a' | 'b';
 /** Which side the fake sits on in each round, from a seed — never from Math.random during render. */
 export function fakeSides(seed: number, count: number): Side[] {
   const rng = mulberry32(seed);
-  return Array.from({ length: count }, () => (rng() < 0.5 ? 'a' : 'b'));
+  const sides = Array.from({ length: count }, (): Side => (rng() < 0.5 ? 'a' : 'b'));
+  // Never the fake on the same side every round: that would be a pattern to
+  // tap, not a coin to read.
+  if (count > 1 && sides.every((s) => s === sides[0])) {
+    const i = Math.floor(rng() * count);
+    sides[i] = sides[i] === 'a' ? 'b' : 'a';
+  }
+  return sides;
 }

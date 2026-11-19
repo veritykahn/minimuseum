@@ -81,7 +81,7 @@
       "title": "Guess the decade",
       "minutes": 5,
       "script": [
-        "Open *Add a Star*. *“The flag began with 13 stars. Now it has 50. In which decade do you think the most states joined?”* Students write a guess. Play the first three rounds as a class (Vermont, Kentucky, Tennessee), voting on the decade before each star goes on. A bullseye scores 3 points; one decade out scores 1. *“Today we stop guessing and let the data answer.”*"
+        "Open *Add a Star*. *“The flag began with 13 stars. Now it has 50. In which decade do you think the most states joined?”* Students write a guess. Play the first three jumps as a class, voting on the decade before each new star goes on. A bullseye scores 3 points; one decade out scores 1. *“Today we stop guessing and let the data answer.”*"
       ],
       "screen": {
         "kind": "question",
@@ -90,7 +90,7 @@
       "purpose": "Make a prediction the data can test.",
       "students": [
         "Write your guess.",
-        "Play three rounds of Add a Star: a bullseye scores 3, one decade out scores 1."
+        "Play three jumps of Add a Star: a bullseye scores 3, one decade out scores 1."
       ]
     },
     {

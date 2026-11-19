@@ -145,6 +145,8 @@
 .apf-result[data-verdict='bullseye'] .apf-result-line { color: var(--gold); font-weight: 600; }
 .apf-points { font-family: var(--pe-ui); font-weight: 700; font-size: 15px; color: #0b0f22; background: var(--gold); border-radius: 999px; padding: 1px 9px; }
 .apf-milestone { flex-basis: 100%; font-family: var(--pe-ui); font-size: 13px; line-height: 1.4; color: #d6d9e8; }
+/* The states that joined in between, whose stars went on with this jump. */
+.apf-along { flex-basis: 100%; font-family: var(--pe-ui); font-size: 13px; line-height: 1.4; color: #f3f1ea; opacity: 0.9; }
 
 .apf-play { position: relative; z-index: 2; flex: none; display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .apf-ticket { display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 2px 14px; text-align: center; }

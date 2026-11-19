@@ -30,11 +30,28 @@ export const SIGN_TEXT = {
   steps: ['Read it on the parchment', 'Dip the quill in the ink', 'Sign on the line at its foot'],
   stepsTyped: ['Read it on the parchment', 'Type your name below', 'Put your name to it'],
   choices: {
-    declaration: 'The Declaration of Independence, in its own words. Read it, then sign under the signers.',
+    // REVIEW: new text (the pledge question)
+    declaration: 'The Declaration of Independence, in its own words. Read it, find what its signers pledged, then sign under them.',
     class: 'Your class’s own declaration. Fill in your teacher and grade, then everyone signs, one after another.',
     mine: 'Your own declaration for the year ahead. Add your name and grade, sign it, and print it.',
   },
   chooseOther: 'Choose another',
+
+  // REVIEW: new text. Before signing the Declaration: what are you pledging?
+  // Its three choices are the Declaration's own words (declaration.ts): the
+  // rights near its start, what the colonies declare, and its last line.
+  pledge: {
+    ask: 'Before you sign, read to its last line. What do the signers pledge to each other?',
+    choices: [
+      { id: 'rights', label: 'Life, Liberty and the pursuit of Happiness', no: 'Those are rights the Declaration says everyone has, near its start. Read on, to the very last line.' },
+      { id: 'pledge', label: 'Their Lives, their Fortunes and their sacred Honor', no: '' },
+      { id: 'states', label: 'To be Free and Independent States', no: 'That is what the colonies declare they are. The pledge comes just after it, in the last line.' },
+    ],
+    answer: 'pledge',
+    right: 'Yes: “our Lives, our Fortunes and our sacred Honor.” That is what you put your name to. Now dip the quill.',
+    step: 'Read it: find the pledge',
+    first: 'First, find what you are pledging: it is in the last line of the Declaration.',
+  },
   dipFirst: 'Dip the quill in the ink',
   copiesNext: 'Next: A Copy of a Copy',
 
@@ -64,10 +81,11 @@ export const SIGN_TEXT = {
   ],
 
   // A Copy of a Copy, as a detective's case (instructions only: ../copies).
-  copiesLead: 'Four copies of the Declaration, from the first printing to the signed parchment today. On each one, find one thing with the lens. Then find out how that copy was made.',
+  // REVIEW: new text (the copies now come out muddled and unlabelled).
+  copiesLead: 'Four copies of the Declaration have come out of the archive box, muddled up, with no labels. Look at each one with the lens and work out which copy it is, from the first printing to the signed parchment today.',
   copiesStart: 'Open the case',
   copiesFound: 'Found it!',
-  copiesNextCopy: 'The next copy',
+  copiesNextCopy: 'The next exhibit',
   copiesEnd: 'Case closed',
   copiesAgain: 'Look again with the lens.',
   backToSign: 'Back to Put Your Name to It',
@@ -179,7 +197,8 @@ export const COPIES: Copy[] = [
 const OUR_FLAG: FactSource = { label: 'U.S. House of Representatives, “Our Flag” (H. Doc. 108-97)', href: 'https://www.govinfo.gov/content/pkg/CDOC-108hdoc97/html/CDOC-108hdoc97.htm' };
 
 export const FLAG_TEXT = {
-  intro: 'Each star on the flag stands for a state. Before each new star goes on, guess the decade its state joined the Union. The flag grows from 13 stars to 50.',
+  // REVIEW: new text (the game now grows the flag in seven jumps).
+  intro: 'Each star on the flag stands for a state. The flag grows from 13 stars to 50 in seven jumps. Before each jump, a state is named: guess the decade it joined the Union. Then its star goes on, with every state that joined before it.',
   /** How it scores (instructions only). */
   scoring: 'The right decade is a bullseye: 3 points. One decade out: 1 point.',
   ask: 'When did it join the Union?',

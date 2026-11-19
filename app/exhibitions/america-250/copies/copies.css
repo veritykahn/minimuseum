@@ -286,3 +286,67 @@
   .ap-copies-room .apc-choice { transition: none; }
   .ap-copies-room .apc-choice:hover:not(:disabled) { transform: none; }
 }
+
+/* ───────── The case files (the slip's choices) ───────── */
+.apc-files { gap: 7px; }
+.ap-copies-room .apc-file { display: flex; flex-direction: column; gap: 2px; padding: 9px 14px; }
+.apc-file-title { font-weight: 600; font-size: 15px; }
+.apc-file-when { font-weight: 400; font-size: 13px; color: #5e5850; margin-left: 4px; }
+.apc-file-look { font-size: 13.5px; line-height: 1.4; color: #3d3833; }
+.apc-file-done { align-self: flex-start; margin-top: 3px; padding: 1px 8px; border-radius: 3px; background: #e7e1d3; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: #56656f; }
+.ap-copies-room .apc-file[data-matched]:not([data-wrong]) { border-style: dashed; background: #faf8f3; }
+
+/* ───────── The last question: which one do people picture? ───────── */
+.apc-picture {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  min-height: 0;
+  width: min(1000px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(12px, 2.2dvh, 22px);
+  text-align: center;
+  animation: apc-in 0.5s ease both;
+}
+.apc-picture-ask { max-width: 34em; font-family: 'Libre Caslon Text', Georgia, serif; font-weight: 400; font-size: clamp(1.15rem, 1.8vw, 1.5rem); line-height: 1.45; color: #f4f6f7; }
+.ap-copies-room .apc-picture-ask:focus { outline: none; }
+.apc-picture-row { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(10px, 2vw, 22px); width: 100%; }
+.ap-copies-room .apc-picture-pick {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px 12px;
+  border: 1.5px solid rgba(207, 216, 220, 0.3);
+  border-radius: 8px;
+  background: rgba(14, 19, 22, 0.55);
+  color: #eef1f2;
+  font-family: var(--pe-ui);
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+.ap-copies-room .apc-picture-pick:hover:not(:disabled) { border-color: #e8c77d; transform: translateY(-3px); }
+.apc-picture-pick img { display: block; width: 100%; max-width: 150px; max-height: 32dvh; object-fit: contain; box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5); }
+.apc-picture-name { font-size: 13px; letter-spacing: 0.04em; }
+.apc-picture-date { font-size: 12px; font-weight: 300; color: #b7c3c8; }
+.ap-copies-room .apc-picture-pick[data-wrong] { opacity: 0.45; cursor: default; animation: apc-shake 0.4s ease; }
+.ap-copies-room .apc-picture-pick[data-right] { border-color: #e8c77d; box-shadow: 0 0 0 2px #e8c77d, 0 0 30px rgba(232, 199, 125, 0.4); }
+.ap-copies-room .apc-picture-pick:disabled:not([data-right]) { cursor: default; }
+.apc-picture-hint { max-width: 36em; background: rgba(248, 246, 240, 0.92); }
+.apc-picture-reveal { display: flex; flex-direction: column; align-items: center; gap: 10px; max-width: 40em; }
+.apc-picture-reveal .apc-found { color: #f4f6f7; text-align: left; }
+@media (max-width: 760px) {
+  .apc-picture-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .apc-picture-pick img { max-height: 28dvh; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .apc-picture, .ap-copies-room .apc-picture-pick[data-wrong] { animation: none; }
+  .ap-copies-room .apc-picture-pick { transition: none; }
+  .ap-copies-room .apc-picture-pick:hover:not(:disabled) { transform: none; }
+}
