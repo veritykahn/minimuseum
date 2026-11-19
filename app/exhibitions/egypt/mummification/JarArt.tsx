@@ -10,8 +10,9 @@
  * marks below its eyes. The lid can be lifted (`open`), and a filled jar
  * glows a little, its organ shown small on its band.
  *
- * The organs are simple, soft shapes (lungs, liver, stomach, intestines),
- * nothing a young visitor need look away from.
+ * The organs are simple, soft shapes (lungs, liver, stomach, intestines,
+ * and the heart, which stays in the body), nothing a young visitor need
+ * look away from.
  */
 
 const INK = '#2a1a0c';
@@ -32,6 +33,13 @@ export function Organ({ id }: { id: string }) {
       );
     case 'liver':
       return <path d="M-22 -3 C-20 -14 4 -16 20 -10 C25 -6 21 2 11 6 C1 12 -16 12 -22 4 Z" fill="#9a4330" stroke="#5a2216" strokeWidth="1.8" />;
+    case 'heart':
+      return (
+        <g stroke="#6e1f1a" strokeWidth="1.8" strokeLinejoin="round">
+          <path d="M-2 -14 C-12 -16 -18 -6 -16 4 C-14 12 -6 16 0 18 C8 14 16 6 15 -4 C14 -12 6 -16 -2 -14 Z" fill="#c8402a" />
+          <path d="M-4 -14 L-6 -21 M3 -14 L5 -21" fill="none" strokeWidth="3" strokeLinecap="round" />
+        </g>
+      );
     case 'stomach':
       return <path d="M-14 -12 C-2 -16 8 -10 6 -2 C4 6 12 8 16 4 C18 12 6 18 -6 14 C-18 10 -22 -6 -14 -12 Z" fill="#e0997a" stroke="#8a4a30" strokeWidth="1.8" />;
     default:

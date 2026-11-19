@@ -15,7 +15,9 @@ import { BM_HIEROGLYPHS, BM_MUMMY_NOTES, BM_MUMMY_VISIT, BUDGE, GLYPHS, met, typ
  * organ comes first), lay the organs in their jars, pack the natron and
  * watch the forty days, rub in the oils and resin, wrap the linen with
  * amulets between the layers, and close the coffin. Each step's notes are
- * short, and about that step alone.
+ * short, plain, and about that step alone: they are shown under "Did you
+ * know?" only once the step's work is done. (The rules of each step are in
+ * mummyGame.ts.)
  *
  * Every sentence of fact is a museum note with its source; the one poster
  * line (Anubis) is quoted from the posters' own text.
@@ -46,8 +48,9 @@ export const ANUBIS_POSTER = EGYPT_CASE.artifacts.find((a) => a.id === 'anubis')
 // REVIEW: new text, read aloud. The seventy days: British Museum visit resource (Herodotus); Anubis: poster 2.
 export const MUMMY_INTRO = ['The finest mummies took about seventy days to make.', ANUBIS_POSTER, 'Today, you work beside the embalmers.', 'Every step is yours to do.'];
 
+// REVIEW: new text, made plainer. British Museum visit resource: "The clearest written account of mummification comes from Herodotus, a Greek historian who visited Egypt in about 450 BC. In the most elaborate and expensive mummifications, he records, the whole process took 70 days."
 const HERODOTUS: ApprovedFact = {
-  text: 'The clearest written account of mummification comes from Herodotus, a Greek historian who visited Egypt in about 450 BC. In the most elaborate and expensive mummifications, he records, the whole process took 70 days.',
+  text: 'We know about the seventy days from Herodotus, a Greek historian who visited Egypt in about 450 BC. He wrote that the finest, most expensive mummies took 70 days.',
   sources: [BM_MUMMY_VISIT],
 };
 
@@ -72,8 +75,8 @@ export const STEPS: Step[] = [
     notes: [
       // REVIEW: new text. British Museum, "Ancient Egyptian mummification" visit resource, p. 4: "The brain was removed through the nose and discarded."
       { text: 'The brain was removed through the nose, and it was not kept: it was thrown away.', sources: [BM_MUMMY_VISIT] },
-      // REVIEW: new text. British Museum, "What is mummification?" notes for teachers, slide 3: "Bronze probe from Egypt, after 664 BC. Hooks such as this were used to remove the brain."
-      { text: 'The embalmers used a long bronze hook. The British Museum has one, made after 664 BC.', sources: [BM_MUMMY_NOTES] },
+      // REVIEW: new text, made plainer (the date dropped). British Museum, "What is mummification?" notes for teachers, slide 3: "Bronze probe from Egypt, after 664 BC. Hooks such as this were used to remove the brain."
+      { text: 'The embalmers used a long bronze hook like yours. The British Museum has a real one.', sources: [BM_MUMMY_NOTES] },
     ],
   },
   {
@@ -158,9 +161,6 @@ export const JARS: { god: string; head: string; glyph: GlyphCode; organ: string 
   { god: 'Qebehsenuef', head: 'falcon', glyph: 'G5', organ: 'intestines' },
 ];
 
-/** The organs in the order the tray offers them: not the jars' order. */
-export const ORGANS = ['stomach', 'liver', 'intestines', 'lungs'];
-
 export function jarFor(organ: string) {
   return JARS.find((j) => j.organ === organ)!;
 }
@@ -183,16 +183,14 @@ export const WRAP_AMULETS: { id: string; name: string; glyph: string; note: Appr
     id: 'djed',
     name: 'Djed pillar',
     glyph: GLYPHS.R11,
-    note: { text: 'A small faience djed pillar amulet, now at The Met, was found on the left arm of a mummy at Deir el-Bahri, together with a wedjat eye amulet and a Thoth amulet.', sources: [met(587565, 'Djed Pillar Amulet')] },
+    // REVIEW: new text, made plainer. The Met's record: found on the left arm of a mummy at Deir el-Bahri, with a wedjat eye amulet and a Thoth amulet.
+    note: { text: 'A small djed pillar amulet, now at The Met in New York, was found on the arm of a mummy, together with a wedjat eye amulet.', sources: [met(587565, 'Djed Pillar Amulet')] },
   },
 ];
 
-/** How many layers of linen the wrapping takes, in the room. */
-export const LAYERS = 4;
-
 /**
- * The heart, left inside: once the four jars are full, the visitor is asked
- * which organ the embalmers did not take out.
+ * The heart, left inside: it lies in the opened body with the other organs,
+ * and is caught if the visitor tries to put it in a jar.
  */
 export const HEART_NOTE: ApprovedFact = {
   // REVIEW: new text. British Museum visit resource, p. 4: "the internal organs, apart from the heart and sometimes the kidneys, were removed". E. A. Wallis Budge, The Book of the Dead (British Museum), ch. VII: "the heart was considered to be the seat of all will, emotion, feeling, reason and intelligence".
