@@ -215,3 +215,14 @@
 
 /* The Sources button (SourcesDrawer), in the linen card's sage. */
 .vb-parlour { --mm-sources-bg: var(--vb-sage); --mm-sources-ink: #fff; }
+
+/* The guess before a part comes to life: the question, three answers, and a hint after a wrong one. */
+.vb-parlour .vcp-guess-lead { margin: 0; font-style: italic; opacity: 0.85; }
+.vb-parlour .vcp-guess-ask { margin: 0; font-family: var(--vb-serif); font-size: 1.3rem; line-height: 1.45; }
+.vcp-guess-answers { display: flex; flex-direction: column; gap: 8px; }
+.vb-room .vcp-guess-answer { justify-content: flex-start; text-align: left; min-height: 48px; white-space: normal; }
+.vb-room .vcp-guess-answer[data-verdict='wrong'] { background: rgba(178, 58, 58, 0.25); border-color: #e3a1a1; text-decoration: line-through; opacity: 0.8; cursor: default; animation: vbr-shake 0.4s ease both; }
+.vcp-guess-hint { margin: 0; padding: 8px 12px; border-left: 4px solid #f2d68a; background: rgba(244, 238, 227, 0.1); }
+@media (prefers-reduced-motion: reduce) {
+  .vb-room .vcp-guess-answer[data-verdict='wrong'] { animation: none; }
+}

@@ -1,15 +1,17 @@
 'use client';
 
-import { Fragment, useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent } from 'react';
 import Link from 'next/link';
 import FactNote from '@/components/exhibition/FactNote';
 import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
+import { seededShuffle } from '@/components/games/scoring';
+import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import { usePrefersReducedMotion } from '@/lib/a11y/usePrefersReducedMotion';
 import RoomShell from '../RoomShell';
 import GhostStory from './GhostStory';
 import ParlourScene from './ParlourScene';
 import { GHOST_TEXT } from './ghostText';
-import { PARLOUR_SOURCES, PARLOUR_TEXT, PARTS, type PartId } from './parlourText';
+import { PARLOUR_GUESS, PARLOUR_SOURCES, PARLOUR_TEXT, PARTS, type PartId } from './parlourText';
 import './parlour.css';
 
 /*
@@ -20,9 +22,15 @@ import './parlour.css';
  * ParlourScene), cold at first, and beside it the green linen card. Open
  * the parts of a Victorian Christmas the poster names (the clock, the
  * tree, the cards, the book, the window, the fire), in the room or from
- * the card's list, in any order: each comes to life, the room grows
- * warmer, and the card sets the poster's line for it. With all six open,
- * the poster's last word.
+ * the card's list, in any order. Before a part comes to life, a guess:
+ * one question about it, three answers in a shuffled order; a wrong guess
+ * gives a hint and another try, and the right one brings the part to life,
+ * the room a little warmer, and the poster's line for it on the card, which
+ * says why. With all six open, the poster's last word.
+ *
+ * The point: a child finds out, by guessing and then reading, how Christmas
+ * went from hardly kept to the one we know (the royal tree, the first cards,
+ * A Christmas Carol and its message), instead of only pressing to reveal.
  *
  * A ghost story: write your own Christmas ghost story, a Victorian
  * Christmas tradition, and print it (GhostStory).
@@ -49,6 +57,18 @@ export default function VictorianChristmasParlour() {
   const [open, setOpen] = useState<Set<PartId>>(() => new Set());
   const [current, setCurrent] = useState<PartId | null>(null);
   const [status, setStatus] = useState('');
+  // The part being guessed at, and the wrong answers tried for it.
+  const [asking, setAsking] = useState<PartId | null>(null);
+  const [missed, setMissed] = useState<string[]>([]);
+  const [rounds, setRounds] = useState(0);
+  const clientSeed = useClientSeed();
+  const answers = useMemo(() => {
+    if (!asking) return [];
+    const g = PARLOUR_GUESS[asking];
+    const all = [g.right, ...g.wrong];
+    if (clientSeed === null) return [g.wrong[0], g.right, g.wrong[1]];
+    return seededShuffle(all, nextSeed(clientSeed, rounds * 8 + PARTS.findIndex((p) => p.id === asking)));
+  }, [asking, clientSeed, rounds]);
 
   const part = PARTS.find((p) => p.id === current);
   const all = open.size === PARTS.length;
@@ -90,10 +110,37 @@ export default function VictorianChristmasParlour() {
     if (all && el && el.scrollHeight > el.clientHeight) el.scrollTo?.({ top: el.scrollHeight, behavior: reduced ? 'auto' : 'smooth' });
   }, [all, reduced]);
 
+  // A part already open shows its line again; one still dark asks its question first.
+  const pressPart = (id: PartId) => {
+    if (open.has(id)) {
+      setAsking(null);
+      setCurrent(id);
+      setStatus(PARTS.find((x) => x.id === id)!.opened);
+      return;
+    }
+    setAsking(id);
+    setMissed([]);
+    setCurrent(null);
+    setStatus(`${PARTS.find((x) => x.id === id)!.name}: guess first. ${PARLOUR_GUESS[id].ask}`);
+  };
+
+  const guess = (answer: string) => {
+    if (!asking) return;
+    const g = PARLOUR_GUESS[asking];
+    if (answer === g.right) {
+      openPart(asking);
+      return;
+    }
+    if (!missed.includes(answer)) setMissed([...missed, answer]);
+    setStatus(`Not quite. Hint: ${g.hint}`);
+  };
+
   const openPart = (id: PartId) => {
     const p = PARTS.find((x) => x.id === id)!;
     const next = new Set(open).add(id);
     setOpen(next);
+    setAsking(null);
+    setMissed([]);
     setCurrent(id);
     setStatus(`${p.opened}${next.size === PARTS.length && open.size < PARTS.length ? ' Every part of the parlour is open.' : ` ${next.size} of ${PARTS.length} open.`}`);
   };
@@ -101,6 +148,9 @@ export default function VictorianChristmasParlour() {
   const startAgain = () => {
     setOpen(new Set());
     setCurrent(null);
+    setAsking(null);
+    setMissed([]);
+    setRounds((n) => n + 1);
     setStatus('The parlour is dark again.');
   };
 
@@ -140,7 +190,7 @@ export default function VictorianChristmasParlour() {
 
         <div className="vcp-panel" id="vcp-panel-parlour" role="tabpanel" aria-labelledby="vcp-tab-parlour" hidden={tab !== 'parlour'}>
           <div className="vbr-scene vcp-scene-wrap">
-            <ParlourScene open={open} current={current} onPart={openPart} reduced={reduced} />
+            <ParlourScene open={open} current={current ?? asking} onPart={pressPart} reduced={reduced} />
           </div>
 
           <section ref={card} className="vbr-card vcp-card" aria-label="The parts of a Victorian Christmas">
@@ -148,7 +198,7 @@ export default function VictorianChristmasParlour() {
             <ol className="vcp-parts" aria-label="Open each part">
               {PARTS.map((p) => (
                 <li key={p.id}>
-                  <button type="button" className="vcp-part-button" aria-pressed={open.has(p.id)} aria-current={current === p.id ? 'true' : undefined} onClick={() => openPart(p.id)}>
+                  <button type="button" className="vcp-part-button" aria-pressed={open.has(p.id)} aria-current={(current ?? asking) === p.id ? 'true' : undefined} onClick={() => pressPart(p.id)}>
                     <span className="vcp-part-mark" aria-hidden="true">{open.has(p.id) ? '✦' : '○'}</span>
                     <Italics text={p.name === 'A Christmas Carol' ? '*A Christmas Carol*' : p.name} />
                   </button>
@@ -156,7 +206,28 @@ export default function VictorianChristmasParlour() {
               ))}
             </ol>
 
-            {!part ? (
+            {asking ? (
+              <div className="vcp-part vcp-guess" key={`guess-${asking}`}>
+                <h2>
+                  <Italics text={PARTS.find((p) => p.id === asking)!.name === 'A Christmas Carol' ? '*A Christmas Carol*' : PARTS.find((p) => p.id === asking)!.name} />
+                </h2>
+                {/* REVIEW: new text */}
+                <p className="vcp-guess-lead">Guess first, then the poster will tell you.</p>
+                <p className="vcp-guess-ask" id="vcp-guess-ask">
+                  <Italics text={PARLOUR_GUESS[asking].ask.replace('A Christmas Carol', '*A Christmas Carol*')} />
+                </p>
+                <div className="vcp-guess-answers" role="group" aria-labelledby="vcp-guess-ask">
+                  {answers.map((a) => (
+                    <button key={a} type="button" className="vbr-button vcp-guess-answer" data-verdict={missed.includes(a) ? 'wrong' : undefined} disabled={missed.includes(a)} onClick={() => guess(a)}>
+                      {a}
+                    </button>
+                  ))}
+                </div>
+                <div className="vcp-guess-feedback">
+                  {missed.length > 0 && <p className="vcp-guess-hint">Not quite. Hint: {PARLOUR_GUESS[asking].hint}</p>}
+                </div>
+              </div>
+            ) : !part ? (
               <>
                 <figure className="vbr-quote">
                   <blockquote>{t.quote}</blockquote>
