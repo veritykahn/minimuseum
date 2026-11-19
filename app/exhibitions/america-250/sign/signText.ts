@@ -179,7 +179,8 @@ export const COPIES: Copy[] = [
 const OUR_FLAG: FactSource = { label: 'U.S. House of Representatives, “Our Flag” (H. Doc. 108-97)', href: 'https://www.govinfo.gov/content/pkg/CDOC-108hdoc97/html/CDOC-108hdoc97.htm' };
 
 export const FLAG_TEXT = {
-  intro: 'Each star on the flag stands for a state. Before each new star goes on, guess the decade its state joined the Union. The flag grows from 13 stars to 50.',
+  // REVIEW: new text (the game now grows the flag in seven jumps).
+  intro: 'Each star on the flag stands for a state. The flag grows from 13 stars to 50 in seven jumps. Before each jump, a state is named: guess the decade it joined the Union. Then its star goes on, with every state that joined before it.',
   /** How it scores (instructions only). */
   scoring: 'The right decade is a bullseye: 3 points. One decade out: 1 point.',
   ask: 'When did it join the Union?',
