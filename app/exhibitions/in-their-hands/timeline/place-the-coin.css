@@ -80,8 +80,12 @@
 .ptc-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 8px; }
 
 /* ───────── intro and end: one centred card ───────── */
-.ptc-intro,
-.ptc-done {
+/* The opening and closing panels inside the tray. Written as descendants of
+   .ptc, because the tray itself carries its phase as a class too (ptc-intro,
+   ptc-done): a bare .ptc-intro would also shrink the tray, and its green
+   baize, to this panel's width on the opening screen. */
+.ptc .ptc-intro,
+.ptc .ptc-done {
   margin: auto;
   width: min(820px, 100%);
   text-align: center;
