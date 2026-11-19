@@ -1,0 +1,47 @@
+[
+  {
+    "slug": "step-by-step",
+    "title": "Step by Step",
+    "sub": "Grades 5–8 · Social Studies · How the Holocaust unfolded, 1933–1945",
+    "grade": "Grades 5–8 · Social Studies",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "holStepByStep"
+  },
+  {
+    "slug": "in-their-own-words",
+    "title": "In Their Own Words",
+    "sub": "Grades 5–8 · ELA · Diaries, testimony and quotation in context",
+    "grade": "Grades 5–8 · ELA",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "holInTheirOwnWords"
+  },
+  {
+    "slug": "how-do-we-remember",
+    "title": "How Do We Remember?",
+    "sub": "Grades 5–8 · Art · Memorials as works of art",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "holHowDoWeRemember"
+  },
+  {
+    "slug": "sound-and-silence",
+    "title": "Sound and Silence",
+    "sub": "Grades 5–8 · Music · How the exhibition remembers with sound, and without it",
+    "grade": "Grades 5–8 · Music",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "holSoundAndSilence"
+  }
+]
