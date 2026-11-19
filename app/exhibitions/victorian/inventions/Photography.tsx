@@ -1,8 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 import FactNote from '@/components/exhibition/FactNote';
+import { seededShuffle } from '@/components/games/scoring';
+import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import Celebrate from '../Celebrate';
 import { usePrintSheet } from '../usePrintSheet';
 import { CardFoot } from './Steps';
@@ -13,32 +15,49 @@ import { EXPOSURE, EXPOSURE_S, EXPOSURE_WORDS, MET_CREDIT, NOTES, PHOTO_PARTS, P
  * Victorian photographs from the Met's open-access collection:
  *
  * 1. Negative to print. A wooden camera, its lens capped. Lift the cap and
- *    count while the light falls on the sensitive paper inside: Talbot's
- *    own paper negative of a window at Lacock Abbey comes up on the sheet,
- *    darker each second. Put the cap back too soon and it is too faint;
+ *    count in your head while the light falls on the sensitive paper
+ *    inside, unseen in the dark of the camera (no number on the screen):
+ *    put the cap back, and Talbot's own paper negative of a window at
+ *    Lacock Abbey shows how long it had. Put the cap back too soon and it is too faint;
  *    too late and the whole sheet goes dark (the workshop's seconds, said
  *    so). A good negative goes out in the sun on fresh paper, and the
  *    window comes back the right way round: as many prints as you like.
  *    "A new sheet" starts again with blank paper.
  * 2. Hold still! Sit for a daguerreotype. A head clamp held a sitter's head
- *    still; here, pressing and holding the clamp is holding still. The
- *    exposure starts when you first press it and runs its seconds; every
- *    moment you are not holding, your head moves and the portrait blurs.
- *    The clamp says all the time whether you are holding still or moving.
+ *    still; here, your finger (or the mouse) on the clamp is your head:
+ *    press and hold it, and keep it there. The exposure starts when you
+ *    first press it and runs its seconds; every moment you are not holding,
+ *    and every wobble of the finger, your head moves and the portrait
+ *    blurs. The clamp says all the time whether you are still or moving.
+ *    (Space on the keyboard holds it too, and cannot wobble.)
  * 3. Three ways. First learn them: tap each photograph to read how it was
  *    made (a daguerreotype, a print from Talbot's paper negative, and Julia
  *    Margaret Cameron's print from a wet collodion glass negative). Then
- *    the quiz: match each clue to its photograph, green and a burst of
- *    stars if right, red if not.
+ *    the quiz: each clue tells what happened to a photograph (a second
+ *    sitting, many copies from one paper, a hurry before the glass dried),
+ *    and the child works out which way made it. Clues and photographs come
+ *    in a shuffled order each round; green and a burst of stars if right,
+ *    and if not, red and a hint that points back to the lesson.
  * 4. Print a sheet. A page of what you made, with the photographs and their
  *    credits, to take away.
+ *
+ * The point: a child finds out by doing it what making a photograph asked
+ * of the Victorians (timing the light by counting, keeping still for a
+ * long time, one negative making many prints), and can tell a
+ * daguerreotype, a calotype and a wet collodion print apart by how each
+ * was made; the poster names photography, but not what it took.
  *
  * Under reduced motion each print appears at once and nothing shakes.
  */
 
 const PRINT_MS = 2500;
+// REVIEW: new text
+const COUNT_TIP = 'Tip: count slowly, “one elephant, two elephant…”, so each number takes a second.';
 const MAX_SHOWN = 6;
 const TICK_MS = 100;
+/** How far a finger or the mouse may drift on the clamp before it is a wobble, in pixels, and how much movement a wobble counts as. */
+const WOBBLE_PX = 12;
+const WOBBLE_MS = 600;
 
 type Sheet = 'blank' | 'exposing' | 'done';
 type Sitting = 'ready' | 'exposing' | 'done';
@@ -56,6 +75,8 @@ export default function Photography({ reduced }: { reduced: boolean }) {
   const [printing, setPrintingSun] = useState(false);
   const [prints, setPrints] = useState(0);
   const exposedRef = useRef(0);
+  // How many sheets have been tried: after a second miss, a tip on counting seconds.
+  const [tries, setTries] = useState(0);
   const seconds = Math.floor(exposedMs / 1000);
   const goodNegative = result === 'good';
 
@@ -90,7 +111,8 @@ export default function Photography({ reduced }: { reduced: boolean }) {
     exposedRef.current = 0;
     setExposedMs(0);
     setSheet('exposing');
-    setStatus('The cap is off. The light falls on the paper. Count the seconds!');
+    setTries((n) => n + 1);
+    setStatus('The cap is off. The light falls on the paper inside the dark camera. Count the seconds in your head!');
   };
   const newSheet = () => {
     exposedRef.current = 0;
@@ -133,6 +155,14 @@ export default function Photography({ reduced }: { reduced: boolean }) {
   const [blur, setBlur] = useState(0);
   const holdingRef = useRef(false);
   const clock = useRef({ elapsed: 0, moved: 0 });
+  // Where the finger (or the mouse) first pressed: holding still is holding it there. A wobble past WOBBLE_PX is a moment's movement.
+  const origin = useRef<{ x: number; y: number } | null>(null);
+  const [wobbles, setWobbles] = useState(0);
+  const [wobbling, setWobbling] = useState(false);
+  const wobbleTimer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (wobbleTimer.current !== null) window.clearTimeout(wobbleTimer.current);
+  }, []);
 
   // The exposure ticks on, counting the time the sitter was not holding the clamp; at its end, the portrait as it came out.
   useEffect(() => {
@@ -166,10 +196,26 @@ export default function Photography({ reduced }: { reduced: boolean }) {
       setElapsed(0);
       setMoved(0);
       setBlur(0);
+      setWobbles(0);
       setStatus(`The lens is open. You are holding still. Keep holding for ${EXPOSURE_S} seconds!`);
     } else setStatus('You are holding the clamp again: still.');
   };
+  const wobble = (x: number, y: number) => {
+    const o = origin.current;
+    if (!o || !holdingRef.current || sitting !== 'exposing') return;
+    if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(o.x) || !Number.isFinite(o.y)) return;
+    if (Math.hypot(x - o.x, y - o.y) < WOBBLE_PX) return;
+    origin.current = { x, y };
+    clock.current.moved += WOBBLE_MS;
+    setMoved(clock.current.moved);
+    setWobbles((n) => n + 1);
+    setWobbling(true);
+    if (wobbleTimer.current !== null) window.clearTimeout(wobbleTimer.current);
+    wobbleTimer.current = window.setTimeout(() => setWobbling(false), 500);
+    setStatus('You wobbled! Your finger moved, so your head moved. Keep perfectly still.');
+  };
   const release = () => {
+    origin.current = null;
     if (!holdingRef.current) return;
     holdingRef.current = false;
     setHolding(false);
@@ -189,8 +235,10 @@ export default function Photography({ reduced }: { reduced: boolean }) {
       try {
         e.currentTarget.setPointerCapture?.(e.pointerId);
       } catch {}
+      origin.current = { x: e.clientX, y: e.clientY };
       grip();
     },
+    onPointerMove: (e: PointerEvent<HTMLElement>) => wobble(e.clientX, e.clientY),
     onPointerUp: release,
     onPointerCancel: release,
     onLostPointerCapture: release,
@@ -212,7 +260,7 @@ export default function Photography({ reduced }: { reduced: boolean }) {
   };
   const left = Math.max(0, Math.ceil(EXPOSURE_S - elapsed / 1000));
   const verdict = sitting === 'done' ? verdictFor(blur) : null;
-  const movingNow = sitting === 'exposing' && !holding;
+  const movingNow = sitting === 'exposing' && (!holding || wobbling);
   // While the lens is open, the plate comes up; a sitter who moves shows as a shake, and the picture as it will come out.
   const liveBlur = sitting === 'exposing' ? blurFor(moved) : sitting === 'done' ? blur : 0;
 
@@ -222,9 +270,12 @@ export default function Photography({ reduced }: { reduced: boolean }) {
   const [clue, setClue] = useState(0);
   const [matched, setMatched] = useState<PhotoId[]>([]);
   const [wrong, setWrong] = useState<PhotoId | null>(null);
+  const [rounds, setRounds] = useState(0);
+  const clientSeed = useClientSeed();
+  const order = useMemo(() => quizOrder(clientSeed === null ? null : nextSeed(clientSeed, rounds)), [clientSeed, rounds]);
   const allSeen = seen.length === PROCESS_CLUES.length;
   const allMatched = matched.length === PROCESS_CLUES.length;
-  const quizClues = QUIZ_ORDER.map((id) => PROCESS_CLUES.find((c) => c.photo === id)!);
+  const quizClues = order.clues.map((id) => PROCESS_CLUES.find((c) => c.photo === id)!);
   const current = quizClues[clue];
   const justMatched = matched.includes(current.photo);
 
@@ -244,7 +295,7 @@ export default function Photography({ reduced }: { reduced: boolean }) {
       setStatus(`Right! That is a ${current.process.toLowerCase()}.${next.length === PROCESS_CLUES.length ? ' All three matched!' : ''}`);
     } else {
       setWrong(id);
-      setStatus('Not that one. Read the clue again.');
+      setStatus(`Not that one. ${current.hint}`);
     }
   };
   const nextClue = () => {
@@ -252,6 +303,7 @@ export default function Photography({ reduced }: { reduced: boolean }) {
     setWrong(null);
   };
   const startQuiz = () => {
+    if (quiz) setRounds((n) => n + 1);
     setQuiz(true);
     setClue(0);
     setMatched([]);
@@ -295,11 +347,18 @@ export default function Photography({ reduced }: { reduced: boolean }) {
                   <CameraArt open={sheet === 'exposing'} />
                 </div>
                 <figure className="vbi-photo-sheet vbi-in-camera">
-                  <div className="vbi-photo-frame vbi-paper" role="img" aria-label={sheet === 'blank' ? 'A sheet of sensitive paper in the camera, still blank' : sheet === 'exposing' ? `The paper darkening where the light falls: ${seconds} seconds` : result === 'faint' ? 'A faint, pale negative: hardly any picture' : 'A sheet gone dark all over'}>
+                  <div className="vbi-photo-frame vbi-paper" role="img" aria-label={sheet === 'blank' ? 'A sheet of sensitive paper in the camera, still blank' : sheet === 'exposing' ? 'The paper, inside the dark camera: it cannot be seen until the cap is back on' : result === 'faint' ? 'A faint, pale negative: hardly any picture' : 'A sheet gone dark all over'}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img className="vbi-neg" src={PHOTOS.negative.src} alt="" width={PHOTOS.negative.w} height={PHOTOS.negative.h} style={{ opacity: negOpacity }} />
                     <span className="vbi-fog" style={{ opacity: fog }} />
-                    {sheet !== 'blank' && (
+                    {/* Inside the camera, in the dark: the paper is seen only once the cap is back on, so the seconds are counted, not watched. */}
+                    {sheet === 'exposing' && (
+                      <span className="vbi-paper-dark" aria-hidden="true">
+                        <span>Inside the camera</span>
+                        <span className="vbi-paper-dark-sub">Count!</span>
+                      </span>
+                    )}
+                    {sheet === 'done' && (
                       <span className="vbi-seconds" data-result={result ?? undefined} aria-hidden="true">
                         <strong>{seconds}</strong> {seconds === 1 ? 'second' : 'seconds'}
                       </span>
@@ -375,7 +434,7 @@ export default function Photography({ reduced }: { reduced: boolean }) {
 
         {part === 'three' && (
           <ul className="vbi-three" data-quiz={quiz || undefined} aria-label={quiz ? 'Three photographs: which is which?' : 'Three ways to make a photograph'}>
-            {(quiz ? QUIZ_ORDER.map((id) => PROCESS_CLUES.find((c) => c.photo === id)!) : PROCESS_CLUES).map((c) => {
+            {(quiz ? order.photos.map((id) => PROCESS_CLUES.find((c) => c.photo === id)!) : PROCESS_CLUES).map((c) => {
               const ph = PHOTOS[c.photo];
               if (!quiz) {
                 const open = seen.includes(c.photo);
@@ -428,7 +487,8 @@ export default function Photography({ reduced }: { reduced: boolean }) {
             <>
               <h2 className="vbi-step-title">Make a negative</h2>
               <p className="vbi-step-body">
-                Inside the camera is paper that darkens in the light. Lift the cap off the lens, <strong>count the seconds</strong>, then put it back.
+                {/* REVIEW: new text */}
+                Inside the camera is paper that darkens in the light. You can’t see it until the cap is back on. Lift the cap off the lens, <strong>count the seconds in your head</strong>, then put it back.
               </p>
               <p className="vbi-task">
                 <span className="vbi-task-mark" aria-hidden="true">▸</span> Here, {EXPOSURE.best[0]} to {EXPOSURE.best[1]} seconds makes a good negative. Too short: too faint. Too long: too dark.
@@ -445,7 +505,15 @@ export default function Photography({ reduced }: { reduced: boolean }) {
                 )}
               </div>
               <div className="vbi-feedback" aria-live="polite" data-verdict={result ? (result === 'good' ? 'right' : 'wrong') : undefined}>
-                {result ? <p className="vbi-verdict">{EXPOSURE_WORDS[result]}</p> : <p className="vbi-verdict vbi-verdict-quiet">{sheet === 'exposing' ? `${seconds} ${seconds === 1 ? 'second' : 'seconds'}…` : 'The cap is on. The paper is blank.'}</p>}
+                {result ? (
+                  <p className="vbi-verdict">
+                    {`${seconds} ${seconds === 1 ? 'second' : 'seconds'}. `}
+                    {EXPOSURE_WORDS[result]}
+                    {result !== 'good' && tries > 1 ? ` ${COUNT_TIP}` : ''}
+                  </p>
+                ) : (
+                  <p className="vbi-verdict vbi-verdict-quiet">{sheet === 'exposing' ? 'The cap is off. Count the seconds in your head…' : 'The cap is on. The paper is blank.'}</p>
+                )}
               </div>
               <p className="vbr-note">The workshop’s seconds: a game, not the real time.</p>
             </>
@@ -475,7 +543,8 @@ export default function Photography({ reduced }: { reduced: boolean }) {
               <h2 className="vbi-step-title">Hold still!</h2>
               <p className="vbi-step-body">The first portraits took so long that the sitter had to keep perfectly still. A head clamp on a stand held the sitter’s head.</p>
               <p className="vbi-task">
-                <span className="vbi-task-mark" aria-hidden="true">▸</span> You are the sitter. <strong>Press and hold the clamp</strong> to hold your head still for {EXPOSURE_S} seconds. Let go, and your head moves!
+                {/* REVIEW: new text */}
+                <span className="vbi-task-mark" aria-hidden="true">▸</span> You are the sitter. Your finger on the clamp is your head. <strong>Press and hold the clamp</strong> for {EXPOSURE_S} seconds, and don’t let your finger move at all. Let go, or wobble, and your head moves!
               </p>
               {sitting === 'done' ? (
                 <button type="button" className="vbr-button vbr-button-primary" onClick={sitAgain}>
@@ -483,7 +552,7 @@ export default function Photography({ reduced }: { reduced: boolean }) {
                 </button>
               ) : (
                 <button type="button" className="vbi-key-button vbi-hold-button" data-live={holding || undefined} data-moving={movingNow || undefined} aria-pressed={holding} {...clampProps} {...clampKeys}>
-                  {sitting === 'exposing' ? (holding ? `Holding the clamp: still… ${left}` : `You let go! Hold on… ${left}`) : 'Press and hold the clamp'}
+                  {sitting === 'exposing' ? (holding ? (wobbling ? `You wobbled! Keep still… ${left}` : `Holding the clamp: still… ${left}`) : `You let go! Hold on… ${left}`) : 'Press and hold the clamp'}
                 </button>
               )}
               <div className="vbi-feedback" aria-live="polite" data-verdict={verdict ? verdict.tone : movingNow ? 'wrong' : undefined}>
@@ -491,7 +560,7 @@ export default function Photography({ reduced }: { reduced: boolean }) {
                   <p className="vbi-verdict">{verdict.words}</p>
                 ) : (
                   <p className={movingNow ? 'vbi-verdict' : 'vbi-verdict vbi-verdict-quiet'}>
-                    {sitting === 'exposing' ? (holding ? `Still. ${left} seconds to go.` : 'You let go of the clamp: your head is moving, and the picture blurs.') : 'The exposure starts when you press.'}
+                    {sitting === 'exposing' ? (holding ? (wobbling ? 'You wobbled: the picture blurs a little. Keep your finger perfectly still.' : `Still. ${left} seconds to go.${wobbles ? ` Wobbles: ${wobbles}.` : ''}`) : 'You let go of the clamp: your head is moving, and the picture blurs.') : 'The exposure starts when you press.'}
                   </p>
                 )}
               </div>
@@ -524,14 +593,16 @@ export default function Photography({ reduced }: { reduced: boolean }) {
                     “{current.clue}”
                   </p>
                   <p className="vbi-task">
-                    <span className="vbi-task-mark" aria-hidden="true">▸</span> Press the photograph the clue describes.
+                    {/* REVIEW: new text */}
+                    <span className="vbi-task-mark" aria-hidden="true">▸</span> Think back to the three ways. Which way could have made this photograph? Press it.
                   </p>
                 </>
               ) : (
                 <p className="vbi-step-body">All three matched: a daguerreotype on silver, a print from a paper negative, and a print from a glass negative.</p>
               )}
               <div className="vbi-feedback" aria-live="polite" data-verdict={justMatched ? 'right' : wrong ? 'wrong' : undefined}>
-                {justMatched ? <p className="vbi-verdict">Right! It is a {current.process.toLowerCase()}.</p> : wrong ? <p className="vbi-verdict">Not that one: read the clue again.</p> : null}
+                {/* REVIEW: new text */}
+                {justMatched ? <p className="vbi-verdict">Right! It is a {current.process.toLowerCase()}.</p> : wrong ? <p className="vbi-verdict">Not that one. Hint: {current.hint}</p> : null}
               </div>
               {justMatched && <FactNote fact={NOTES[current.note]} className="vbr-fact" />}
               <div className="vbr-actions">
@@ -695,4 +766,14 @@ function ClampArt({ holding }: { holding: boolean }) {
       <text x="60" y="16" textAnchor="middle" className="vbi-clamp-label">Head clamp</text>
     </svg>
   );
+}
+
+/**
+ * The quiz's order: the clues in a shuffled order, and the photographs shuffled
+ * apart from them, so the first clue is not always the first picture. With no
+ * seed yet (the server render and hydration), the fixed QUIZ_ORDER for both.
+ */
+export function quizOrder(seed: number | null): { clues: PhotoId[]; photos: PhotoId[] } {
+  if (seed === null) return { clues: QUIZ_ORDER, photos: QUIZ_ORDER };
+  return { clues: seededShuffle(QUIZ_ORDER, seed), photos: seededShuffle(QUIZ_ORDER, nextSeed(seed, 7)) };
 }

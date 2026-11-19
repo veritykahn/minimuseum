@@ -21,6 +21,11 @@ import './card.css';
  *
  * The two notes on the first Christmas card are from the V&A, fact-checked
  * and cited in the room's Sources drawer (cardText.ts), not on the card.
+ *
+ * The point: a child makes, and takes home, the kind of card the Victorians
+ * began to send (the poster's first cards of the 1840s), choosing its
+ * picture, border, paper and words for someone of their own. It is a making
+ * room, not a quiz: its challenge is the choosing and the writing.
  */
 
 const TABS = [

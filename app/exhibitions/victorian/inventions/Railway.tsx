@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type KeyboardEvent, type PointerEvent as ReactPointerEvent } from 'react';
 import Celebrate from '../Celebrate';
-import { BRISTOL_CLOCK, BRISTOL_TRAIN, MAP_TOWNS, PLYMOUTH, POSTER, RAIL_STEPS, STATION_JOB, STATIONS, TRAIN_PUZZLES, type RailStepId } from './inventionsText';
+import { BRISTOL_ASK, BRISTOL_CLOCK, BRISTOL_TRAIN, MAP_TOWNS, PLYMOUTH, POSTER, RAIL_STEPS, STATION_JOB, STATIONS, TRAIN_PUZZLES, type RailStepId } from './inventionsText';
 import { RAIL_FACTS } from './sources';
 import { CardFoot, StepDots } from './Steps';
-import { MAP, catchTrain, clockTime, dragMinute, hands, project, sunX } from './workshop';
+import { MAP, clockTime, compareBehind, dragMinute, hands, judgeTrain, nextTrain, project, sunX } from './workshop';
 import './railway.css';
 
 /*
@@ -20,17 +20,31 @@ import './railway.css';
  *    London's clock said when it did.
  * 2. Your watch says London time: a wide strip of the line, the train
  *    steaming along it town by town; under it, your pocket watch and the
- *    town's clock side by side, and how far behind the town is.
- * 3. Will you catch the train? A platform: the town clock on its tower, the
- *    departure board, the train. Count on the town's minutes to find
- *    London time, then say whether you'll catch it: it waits, or it goes.
+ *    town's clock side by side. At each town the town's clock stays covered
+ *    until you predict it: further behind London than the last town, the
+ *    same, or less far behind? (Bristol, west of Bath, keeps the same
+ *    minutes in the timetable: the one surprise.)
+ * 3. Will you catch the train? A platform: the town clock on its tower and
+ *    a board of three trains to London, by London time. Pick the next one
+ *    you can still catch. The one the town clock seems to promise has often
+ *    gone already; counting on the town's minutes on the clock face (a red
+ *    hand) is the tool, nudged after a wrong pick. Six stations, each its
+ *    own sum, and no rule of thumb works every time.
  * 4. You're the stationmaster: the job explained first; then a telegram
  *    with London time, the station clocks along the line still on their
- *    towns' times, and a winding key: work out how many minutes each clock
- *    needs, and wind it on.
+ *    towns' times, and a winding key. Read each clock from its face (its
+ *    time in figures only as a clue), work out how many minutes it needs,
+ *    and wind it on (by ones and fives, not a tap a minute).
  * 5. A clock with two minute hands: Bristol's Exchange clock. Set the red
- *    hand to London time, turn the black hand back to Bristol's own, then
- *    wind the clock on until your train leaves by the red hand.
+ *    hand to London time and turn the black hand back to Bristol's own;
+ *    then a traveller reads the black hand and thinks there is half an hour
+ *    to the train: how long is there really? Last, wind the clock on until
+ *    the train leaves by the red hand.
+ *
+ * The point: after it a child can explain why the railways needed one
+ * time for the whole country, and use it: work out London time from a
+ * town's clock, and know which train they can still catch, which the
+ * poster's one line about railways cannot give them.
  *
  * Few words; the notes, each with its source, open from "Did you know?".
  * Every drag has keys or buttons too, and under reduced motion nothing
@@ -483,24 +497,61 @@ function MiniClock({ x, y, minutes, name, reached, noon }: { x: number; y: numbe
 
 /* ───────── 2. Your watch says London time ───────── */
 
-function JourneyStep({ reduced, narrow, say, onDone }: StepProps & { narrow: boolean }) {
+type Compare = 'more' | 'same' | 'less';
+// REVIEW: new text
+/** The prediction at the first town (against London, where watch and clock agree), and at every town after it (against the last town). */
+const CHOICES_FIRST: { id: Compare; label: string }[] = [
+  { id: 'more', label: 'Behind my watch' },
+  { id: 'same', label: 'The same as my watch' },
+  { id: 'less', label: 'Ahead of my watch' },
+];
+const CHOICES: { id: Compare; label: string }[] = [
+  { id: 'more', label: 'Further behind than {prev}' },
+  { id: 'same', label: 'The same as {prev}' },
+  { id: 'less', label: 'Less far behind than {prev}' },
+];
+
+function JourneyStep({ reduced, narrow, say, cheer, onDone }: StepProps & { narrow: boolean }) {
   const last = STATIONS.length - 1;
   const [at, setAt] = useState(0);
   const [p, setP] = useState(0);
+  // At each town after London, a prediction first: the town's clock stays covered until it is made.
+  const [guess, setGuess] = useState<Record<number, Compare>>({});
+  const [right, setRight] = useState(0);
   const timer = useTimer();
   const moving = p !== at;
+  const asking = !moving && at > 0 && guess[at] === undefined;
+  const prev = at > 0 ? STATIONS[at - 1] : STATIONS[0];
 
   const arrive = (i: number) => {
     const s = STATIONS[i];
     if (i === 0) say(`London. Your watch and London’s clock both say ${clockTime(ARRIVE[0])}.`);
-    else say(`${s.name}. Your watch says ${clockTime(ARRIVE[i])}; ${s.name}’s clock says ${clockTime(ARRIVE[i] - s.behind)}: ${minutesWords(s.behind)} behind.`);
-    if (i === last) onDone();
+    else say(`${s.name}. Your watch says ${clockTime(ARRIVE[i])}. Predict ${s.name}’s clock before you see it.`);
+  };
+
+  const predict = (c: Compare) => {
+    const s = STATIONS[at];
+    const real = compareBehind(prev.behind, s.behind);
+    const ok = c === real;
+    setGuess((g) => ({ ...g, [at]: c }));
+    if (ok) {
+      setRight((n) => n + 1);
+      cheer();
+    }
+    const shows = `${s.name}’s clock says ${clockTime(ARRIVE[at] - s.behind)}: ${minutesWords(s.behind)} behind your watch`;
+    const why = at === 1 ? '' : real === 'same' ? `, the same as ${prev.name}: the 1841 timetable gives both ${minutesWords(s.behind)}.` : `, ${real === 'more' ? 'further' : 'less far'} behind than ${prev.name} (${minutesWords(prev.behind)}).`;
+    say(`${ok ? 'Right!' : 'Not quite.'} ${shows}${why || '.'}`);
+    if (at === last) onDone();
   };
 
   const steamTo = (i: number) => {
     timer.stop();
     const from = at;
     setAt(i);
+    if (i === 0) {
+      setGuess({});
+      setRight(0);
+    }
     if (reduced || i < from) {
       setP(i);
       arrive(i);
@@ -524,6 +575,10 @@ function JourneyStep({ reduced, narrow, say, onDone }: StepProps & { narrow: boo
   const view = narrow ? '330 106 540 220' : '300 100 620 226';
   const next = STATIONS[at + 1];
   const local = ARRIVE[at] - town.behind;
+  const hidden = moving || asking;
+  const mine = guess[at];
+  const real = at > 0 ? compareBehind(prev.behind, town.behind) : 'same';
+  const choices = (at === 1 ? CHOICES_FIRST : CHOICES).map((c) => ({ ...c, label: c.label.replace('{prev}', prev.name) }));
 
   return (
     <div className="vrw-journey">
@@ -560,36 +615,52 @@ function JourneyStep({ reduced, narrow, say, onDone }: StepProps & { narrow: boo
         </figure>
 
         <div className="vrw-compare-mid">
-          <p className="vrw-gap" data-zero={at === 0 || moving || undefined}>
-            {moving ? 'All aboard…' : at === 0 ? 'In London they agree.' : `${town.name}’s clock is ${minutesWords(town.behind)} behind.`}
-          </p>
-          {at < last ? (
-            <button type="button" className="vbr-button vbr-button-primary vrw-steam" onClick={() => steamTo(at + 1)} disabled={moving}>
-              Steam on to {next.name} <span aria-hidden="true">→</span>
-            </button>
+          {asking ? (
+            <div className="vrw-predict" role="group" aria-labelledby="vrw-predict-q">
+              <p id="vrw-predict-q" className="vrw-predict-q">
+                {at === 1 ? `Predict: will ${town.name}’s clock agree with your watch?` : `Predict: ${town.name} is further west than ${prev.name}. Its clock will be…`}
+              </p>
+              {choices.map((c) => (
+                <button key={c.id} type="button" className="vbi-answer" onClick={() => predict(c.id)}>
+                  {c.label}
+                </button>
+              ))}
+            </div>
           ) : (
-            <button type="button" className="vbr-button vrw-steam" onClick={() => steamTo(0)}>
-              Back to London
-            </button>
+            <>
+              <p className="vrw-gap" data-zero={at === 0 || moving || undefined} data-verdict={!moving && mine !== undefined ? (mine === real ? 'right' : 'wrong') : undefined}>
+                {moving ? 'All aboard…' : at === 0 ? 'In London they agree.' : `${mine === real ? 'Right! ' : 'Not quite: '}${town.name}’s clock is ${minutesWords(town.behind)} behind.`}
+              </p>
+              {at < last ? (
+                <button type="button" className="vbr-button vbr-button-primary vrw-steam" onClick={() => steamTo(at + 1)} disabled={moving}>
+                  Steam on to {next.name} <span aria-hidden="true">→</span>
+                </button>
+              ) : (
+                <button type="button" className="vbr-button vrw-steam" onClick={() => steamTo(0)}>
+                  Back to London
+                </button>
+              )}
+            </>
           )}
           <p className="vrw-progress">
             Station {at + 1} of {STATIONS.length}
+            {at === last && !asking && !moving ? ` · ${right} of ${last} predicted` : ''}
           </p>
         </div>
 
         <figure className="vrw-clockcard vrw-towncard">
-          <svg viewBox="-125 -150 250 275" role="img" aria-label={moving ? `${town.name}’s clock, coming into view.` : `${town.name}’s own clock says ${clockTime(local)}.`}>
+          <svg viewBox="-125 -150 250 275" role="img" aria-label={moving ? `${town.name}’s clock, coming into view.` : asking ? `${town.name}’s clock, covered until you predict it.` : `${town.name}’s own clock says ${clockTime(local)}.`}>
             <g transform="translate(0 -128)">
               <rect x="-110" y="-20" width="220" height="40" rx="5" className="vrw-nameboard" />
               <text y="9" textAnchor="middle" className="vrw-nameboard-text">
                 {town.name}
               </text>
             </g>
-            <Face r={98} minutes={local} rim="#6b4a32" numerals={12} cover={moving} />
+            <Face r={98} minutes={local} rim="#6b4a32" numerals={12} cover={hidden} />
           </svg>
           <figcaption>
             <span className="vrw-cap">{town.name}’s own time</span>
-            <strong className="vbi-tnum vrw-big-time">{moving ? '…' : clockTime(local)}</strong>
+            <strong className="vbi-tnum vrw-big-time">{hidden ? '?' : clockTime(local)}</strong>
           </figcaption>
         </figure>
       </div>
@@ -602,15 +673,14 @@ function JourneyStep({ reduced, narrow, say, onDone }: StepProps & { narrow: boo
 function CatchStep({ reduced, say, cheer, burst, onDone }: StepProps) {
   const [n, setN] = useState(0);
   const [counted, setCounted] = useState(0);
-  const [answer, setAnswer] = useState<boolean | null>(null);
+  const [picked, setPicked] = useState<{ train: number; verdict: 'right' | 'gone' | 'later' } | null>(null);
+  const [tries, setTries] = useState(0);
   const p = TRAIN_PUZZLES[n % TRAIN_PUZZLES.length];
   const behind = stationOf(p.town).behind;
-  const verdict = catchTrain(p, behind);
-  const known = counted >= behind;
-  const right = answer !== null && answer === verdict.caught;
-  const why = verdict.caught
-    ? `When ${p.town}’s clock says ${clockTime(p.clock)}, it is ${clockTime(verdict.london)} in London: ${minutesWords(verdict.spare)} to spare.`
-    : `When ${p.town}’s clock says ${clockTime(p.clock)}, it is already ${clockTime(verdict.london)} in London. The train left ${minutesWords(-verdict.spare)} ago!`;
+  const board = nextTrain(p.clock, behind, p.trains);
+  const solved = picked?.verdict === 'right';
+  // London time on the board: worked out on the clock, or shown once the train is caught.
+  const known = counted >= behind || solved;
 
   const count = (by: number) => {
     if (counted + by > behind) {
@@ -619,27 +689,31 @@ function CatchStep({ reduced, say, cheer, burst, onDone }: StepProps) {
     }
     const c = counted + by;
     setCounted(c);
-    say(c === behind ? `London time is ${clockTime(p.clock + behind)}. Will you catch the ${clockTime(p.train)} train?` : `Counted on ${minutesWords(c)}: ${clockTime(p.clock + c)}.`);
+    say(c === behind ? `London time is ${clockTime(p.clock + behind)}. Which train can you still catch?` : `Counted on ${minutesWords(c)}: ${clockTime(p.clock + c)}.`);
   };
-  const choose = (yes: boolean) => {
-    setAnswer(yes);
-    if (yes === verdict.caught) {
+  const choose = (train: number) => {
+    if (solved) return;
+    const verdict = judgeTrain(train, p.clock, behind, p.trains);
+    setPicked({ train, verdict });
+    setTries((t) => t + 1);
+    if (verdict === 'right') {
       cheer();
       onDone();
-      say(`Right! ${why}`);
-    } else say(`Not quite. Compare ${clockTime(verdict.london)} with ${clockTime(p.train)}.`);
+      say(`Right! When ${p.town}’s clock says ${clockTime(p.clock)}, it is ${clockTime(board.london)} in London. The ${clockTime(train)} is the next train: ${minutesWords(train - board.london)} to spare.`);
+    } else if (verdict === 'gone') say(`Gone already! The trains run by London time, and ${p.town}’s clock is ${minutesWords(behind)} behind it. Count on ${minutesWords(behind)} from ${clockTime(p.clock)} first.`);
+    else say(`You would catch the ${clockTime(train)}, but there is an earlier train you can still catch. Which one?`);
   };
   const another = () => {
     setN((x) => x + 1);
     setCounted(0);
-    setAnswer(null);
-    say('Another train to catch.');
+    setPicked(null);
+    setTries(0);
+    say('Another station, another train to catch.');
   };
 
-  const gone = right && !verdict.caught;
-  const label = `${p.town} station. The town clock says ${clockTime(p.clock)}. ${p.town}’s time is ${minutesWords(behind)} behind London’s. The train to London leaves at ${clockTime(p.train)} London time. ${known ? `London time is ${clockTime(verdict.london)}${right ? `: ${verdict.caught ? 'you catch it' : 'the train has gone'}` : ''}.` : 'London time is a time to work out.'}`;
+  const label = `${p.town} station. The town clock says ${clockTime(p.clock)}. ${p.town}’s time is ${minutesWords(behind)} behind London’s. The trains to London, by London time: ${list(p.trains.map(clockTime))}. ${known ? `London time is ${clockTime(board.london)}.` : 'London time is a time to work out.'}${solved && picked ? ` You catch the ${clockTime(picked.train)}.` : ''}`;
   return (
-    <div className="vrw-catch" data-solved={right || undefined}>
+    <div className="vrw-catch" data-solved={solved || undefined}>
       <div className="vrw-platform-wrap">
         <svg className="vrw-platform" viewBox="0 0 1200 520" role="img" aria-label={label}>
           {/* drawn wider and deeper than its frame, so the platform fills whatever space it has */}
@@ -670,29 +744,43 @@ function CatchStep({ reduced, say, cheer, burst, onDone }: StepProps) {
             </text>
           </g>
 
-          {/* the departure board */}
-          <g transform="translate(790 66)">
-            <rect width="360" height="236" rx="10" fill="#2f4a32" stroke="#c9a24a" strokeWidth="4" />
-            <text x="180" y="40" textAnchor="middle" className="vbi-board-small">
-              Train to London
+          {/* the departure board: three trains to London, by London time */}
+          <g transform="translate(790 46)">
+            <rect width="360" height="276" rx="10" fill="#2f4a32" stroke="#c9a24a" strokeWidth="4" />
+            <text x="180" y="36" textAnchor="middle" className="vbi-board-small">
+              Trains to London
             </text>
-            <text x="180" y="104" textAnchor="middle" className="vbi-board-big">
-              {clockTime(p.train)}
+            <text x="180" y="62" textAnchor="middle" className="vrw-board-note">
+              by London time
             </text>
-            <text x="180" y="136" textAnchor="middle" className="vrw-board-note">
-              London time
+            {[...p.trains].sort((a, z) => a - z).map((t, i) => {
+              const gone = solved && board.gone.includes(t);
+              const mine = solved && picked?.train === t;
+              return (
+                <g key={t} transform={`translate(0 ${104 + i * 50})`} className="vrw-board-row" data-gone={gone || undefined} data-mine={mine || undefined}>
+                  <text x="180" y="0" textAnchor="middle" className="vrw-board-train">
+                    {clockTime(t)}
+                  </text>
+                  {gone && <path d="M110 -14 H250" stroke="#e0566a" strokeWidth="5" strokeLinecap="round" />}
+                  {mine && (
+                    <text x="292" y="-2" textAnchor="middle" className="vrw-board-mark">
+                      ✓
+                    </text>
+                  )}
+                </g>
+              );
+            })}
+            <path d="M24 226 H336" stroke="#c9a24a" strokeWidth="1.5" />
+            <text x="120" y="260" textAnchor="middle" className="vrw-board-note">
+              London now
             </text>
-            <path d="M24 156 H336" stroke="#c9a24a" strokeWidth="1.5" />
-            <text x="180" y="186" textAnchor="middle" className="vrw-board-note">
-              London time now
-            </text>
-            <text x="180" y="224" textAnchor="middle" className="vrw-board-now" data-known={known || undefined}>
-              {known ? clockTime(verdict.london) : '?'}
+            <text x="270" y="262" textAnchor="middle" className="vrw-board-now" data-known={known || undefined}>
+              {known ? clockTime(board.london) : '?'}
             </text>
           </g>
 
-          {/* the train: waiting at the platform, or gone */}
-          <g className="vrw-catch-train" data-gone={gone || undefined}>
+          {/* the train, waiting at the platform; it steams away once you are aboard */}
+          <g className="vrw-catch-train" data-gone={solved || undefined}>
             <g transform="translate(420 420) scale(1.3)">
               <Locomotive base={64} />
               <rect x="82" y="16" width="120" height="40" rx="4" fill="#6b4a32" />
@@ -703,61 +791,70 @@ function CatchStep({ reduced, say, cheer, burst, onDone }: StepProps) {
               <circle cx="176" cy="60" r="6" fill="#2a2522" />
             </g>
           </g>
-          {right && (
-            <g className="vbi-stamp" data-caught={verdict.caught || undefined}>
-              <rect x="420" y="190" width="360" height="96" rx="14" />
-              <text x="600" y="256" textAnchor="middle">
-                {verdict.caught ? '✓ You catch it!' : '✗ Missed it!'}
+          {solved && picked && (
+            <g className="vbi-stamp vrw-stamp-wide" data-caught>
+              <rect x="360" y="190" width="480" height="96" rx="14" />
+              <text x="600" y="254" textAnchor="middle">
+                ✓ Aboard the {clockTime(picked.train)}!
               </text>
             </g>
           )}
         </svg>
         <div className="vrw-cheer">
-          <Celebrate burst={right && verdict.caught ? burst : 0} reduced={reduced} />
+          <Celebrate burst={solved ? burst : 0} reduced={reduced} />
         </div>
       </div>
 
       <div className="vrw-ticket">
         <p className="vrw-ticket-n">
-          Train {(n % TRAIN_PUZZLES.length) + 1} of {TRAIN_PUZZLES.length}
+          Station {(n % TRAIN_PUZZLES.length) + 1} of {TRAIN_PUZZLES.length}
         </p>
-        {!known && (
-          <div className="vrw-ticket-row">
-            <p className="vrw-ticket-q">
-              {p.town}’s clock says <strong>{clockTime(p.clock)}</strong>. Count on <strong>{half(behind)} minutes</strong> to find London time.
-            </p>
-            <div className="vrw-count" role="group" aria-label="Count on">
-              <button type="button" className="vbi-answer" onClick={() => count(1)}>
-                + 1 minute
-              </button>
-              <button type="button" className="vbi-answer" onClick={() => count(5)}>
-                + 5 minutes
-              </button>
-              <span className="vrw-counted vbi-tnum">
-                +{counted} of {half(behind)}
-              </span>
+        {!solved ? (
+          <>
+            <div className="vrw-ticket-row">
+              <p className="vrw-ticket-q">
+                {p.town}’s clock says <strong>{clockTime(p.clock)}</strong>. Which train to London can you still catch?
+              </p>
+              <div className="vbi-answers vrw-answers vrw-trains" role="group" aria-label="The trains to London">
+                {[...p.trains].sort((a, z) => a - z).map((t) => (
+                  <button key={t} type="button" className="vbi-answer" data-verdict={picked && picked.train === t ? 'wrong' : undefined} aria-pressed={picked?.train === t} onClick={() => choose(t)}>
+                    The {clockTime(t)}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
-        {known && !right && (
-          <div className="vrw-ticket-row">
-            <p className="vrw-ticket-q">
-              London time is <strong>{clockTime(verdict.london)}</strong>. Your train leaves at <strong>{clockTime(p.train)}</strong>. Will you catch it?
-            </p>
-            <div className="vbi-answers vbi-answers-two vrw-answers" role="group" aria-label="Will you catch it?">
-              {[true, false].map((yes) => (
-                <button key={String(yes)} type="button" className="vbi-answer" data-verdict={answer === yes ? 'wrong' : undefined} aria-pressed={answer === yes} onClick={() => choose(yes)}>
-                  {yes ? 'Yes, I’ll catch it' : 'No, it’s gone'}
+            <div className="vrw-ticket-row vrw-ticket-help" data-nudge={tries > 0 && !known ? true : undefined}>
+              <p className="vrw-ticket-hint">
+                {picked ? (picked.verdict === 'gone' ? `The ${clockTime(picked.train)} has gone already! ` : `There’s an earlier one you can still catch. `) : ''}
+                Work out London time on the clock: count on {half(behind)} minutes.
+              </p>
+              <div className="vrw-count" role="group" aria-label="Count on">
+                <button type="button" className="vbi-answer" onClick={() => count(1)} disabled={known}>
+                  + 1 minute
                 </button>
-              ))}
+                <button type="button" className="vbi-answer" onClick={() => count(5)} disabled={known}>
+                  + 5 minutes
+                </button>
+                {behind % 1 !== 0 && (
+                  <button type="button" className="vbi-answer" onClick={() => count(0.5)} disabled={known}>
+                    + ½ minute
+                  </button>
+                )}
+                <span className="vrw-counted vbi-tnum">
+                  +{half(counted)} of {half(behind)}
+                </span>
+              </div>
             </div>
-          </div>
-        )}
-        {right && (
+          </>
+        ) : (
           <div className="vrw-ticket-row">
-            <p className="vrw-ticket-q vrw-why">{why}</p>
+            <p className="vrw-ticket-q vrw-why">
+              When {p.town}’s clock says {clockTime(p.clock)}, it is already <strong>{clockTime(board.london)}</strong> in London.
+              {board.gone.length ? ` The ${list(board.gone.map(clockTime))} had gone. ` : ' '}
+              The {clockTime(board.next!)} was the one to catch{tries === 1 ? ', first time!' : '.'}
+            </p>
             <button type="button" className="vbr-button vbr-button-primary" onClick={another}>
-              Another train <span aria-hidden="true">→</span>
+              Another station <span aria-hidden="true">→</span>
             </button>
           </div>
         )}
@@ -777,7 +874,8 @@ function StationmasterStep({ reduced, say, cheer, burst, onDone }: StepProps) {
   const [sel, setSel] = useState(0);
   const [shows, setShows] = useState<number[]>(() => towns.map((t) => target - t.behind));
   const [wind, setWind] = useState(0);
-  const [clue, setClue] = useState(false);
+  // The clue comes in two: first the clock read aloud, then the timetable's minutes.
+  const [clue, setClue] = useState(0);
   const [winding, setWinding] = useState(false);
   const timer = useTimer();
   const town = towns[sel];
@@ -828,8 +926,8 @@ function StationmasterStep({ reduced, say, cheer, burst, onDone }: StepProps) {
     if (winding) return;
     setSel(i);
     setWind(0);
-    setClue(false);
-    say(`${towns[i].name} station. Its clock says ${clockTime(shows[i])}.`);
+    setClue(0);
+    say(`${towns[i].name} station. Read its clock.`);
   };
 
   if (!started)
@@ -850,7 +948,7 @@ function StationmasterStep({ reduced, say, cheer, burst, onDone }: StepProps) {
             className="vbr-button vbr-button-primary"
             onClick={() => {
               setStarted(true);
-              say(`The telegram says London time is ${clockTime(target)}. ${towns[0].name}’s clock says ${clockTime(shows[0])}.`);
+              say(`The telegram says London time is ${clockTime(target)}. Read ${towns[0].name}’s station clock.`);
             }}
           >
             Read the telegram <span aria-hidden="true">→</span>
@@ -892,7 +990,8 @@ function StationmasterStep({ reduced, say, cheer, burst, onDone }: StepProps) {
           </svg>
           <figcaption>
             <span className="vrw-cap">{town.name} station</span>
-            <strong className="vbi-tnum vrw-big-time">{clockTime(now)}</strong>
+            {/* The clock is read from its face; its time in figures only once set, or as a clue. */}
+            <strong className="vbi-tnum vrw-big-time">{isSet(sel) || clue > 0 ? clockTime(now) : 'Read the clock'}</strong>
           </figcaption>
           <div className="vrw-cheer">
             <Celebrate burst={isSet(sel) ? burst : 0} reduced={reduced} />
@@ -909,26 +1008,35 @@ function StationmasterStep({ reduced, say, cheer, burst, onDone }: StepProps) {
               <p className="vrw-winder-q">
                 How many minutes must <strong>{town.name}</strong>’s clock go {now > target ? 'back' : 'on'}?
               </p>
-              <div className="vrw-stepper" role="group" aria-label="Minutes to wind">
+              <div className="vrw-stepper vrw-stepper-wide" role="group" aria-label="Minutes to wind">
+                <button type="button" className="vbi-nudge" onClick={() => setWind((w) => clamp(w - 5, -20, 20))} aria-label="Five minutes fewer" disabled={winding}>
+                  −5
+                </button>
                 <button type="button" className="vbi-nudge" onClick={() => setWind((w) => clamp(w - 1, -20, 20))} aria-label="One minute fewer" disabled={winding}>
-                  −
+                  −1
                 </button>
                 <span className="vrw-stepper-n vbi-tnum" aria-live="polite">
                   {wind > 0 ? `+${wind}` : wind} min
                 </span>
                 <button type="button" className="vbi-nudge" onClick={() => setWind((w) => clamp(w + 1, -20, 20))} aria-label="One minute more" disabled={winding}>
-                  +
+                  +1
+                </button>
+                <button type="button" className="vbi-nudge" onClick={() => setWind((w) => clamp(w + 5, -20, 20))} aria-label="Five minutes more" disabled={winding}>
+                  +5
                 </button>
               </div>
               <button type="button" className="vbr-button vbr-button-primary vrw-wind" onClick={windOn} disabled={!wind || winding}>
                 <span aria-hidden="true">⟳</span> {wind < 0 ? 'Wind it back' : 'Wind it on'}
               </button>
-              <button type="button" className="vbr-button vbr-button-quiet vrw-clue" aria-expanded={clue} onClick={() => setClue((c) => !c)}>
-                Need a clue?
-              </button>
-              {clue && (
-                <p className="vrw-clue-text">
-                  The 1841 timetable: {town.name}’s own time is {minutesWords(town.behind)} behind London’s.
+              {clue < 2 && (
+                <button type="button" className="vbr-button vbr-button-quiet vrw-clue" onClick={() => setClue((c) => c + 1)}>
+                  {clue ? 'Another clue?' : 'Need a clue?'}
+                </button>
+              )}
+              {clue > 0 && (
+                <p className="vrw-clue-text" aria-live="polite">
+                  {`${town.name}’s clock says ${clockTime(now)}. The telegram says ${clockTime(target)}.`}
+                  {clue > 1 && ` The 1841 timetable: ${town.name}’s own time is ${minutesWords(town.behind)} behind London’s.`}
                 </p>
               )}
             </>
@@ -944,13 +1052,15 @@ function StationmasterStep({ reduced, say, cheer, burst, onDone }: StepProps) {
 
 /* ───────── 5. A clock with two minute hands ───────── */
 
-type BristolPhase = 'london' | 'bristol' | 'train' | 'done';
+type BristolPhase = 'london' | 'bristol' | 'ask' | 'train' | 'done';
 const PHASES: { id: BristolPhase; label: string }[] = [
   { id: 'london', label: 'London time' },
   { id: 'bristol', label: 'Bristol time' },
+  // REVIEW: new text
+  { id: 'ask', label: 'Help a traveller' },
   { id: 'train', label: 'Catch the train' },
 ];
-const ORDER: BristolPhase[] = ['london', 'bristol', 'train', 'done'];
+const ORDER: BristolPhase[] = ['london', 'bristol', 'ask', 'train', 'done'];
 
 function BristolStep({ reduced, say, cheer, burst, onDone }: StepProps) {
   const london = BRISTOL_CLOCK.london;
@@ -959,11 +1069,12 @@ function BristolStep({ reduced, say, cheer, burst, onDone }: StepProps) {
   const [red, setRed] = useState(NOON);
   const [black, setBlack] = useState(NOON);
   const [phase, setPhase] = useState<BristolPhase>('london');
+  const [askWrong, setAskWrong] = useState<number | null>(null);
   const svg = useRef<SVGSVGElement>(null);
   const dragging = useRef(false);
   const gap = red - black;
   // Which hands turn: both together to set London time and to wind on, the black alone to set Bristol's own.
-  const turning: 'both' | 'black' | null = phase === 'bristol' ? 'black' : phase === 'done' ? null : 'both';
+  const turning: 'both' | 'black' | null = phase === 'bristol' ? 'black' : phase === 'done' || phase === 'ask' ? null : 'both';
   const value = turning === 'black' ? black : red;
 
   const setTo = (to: number) => {
@@ -979,9 +1090,9 @@ function BristolStep({ reduced, say, cheer, burst, onDone }: StepProps) {
       const b = clamp(to, red - 30, red);
       setBlack(b);
       if (b === bristol) {
-        setPhase('train');
+        setPhase('ask');
         cheer();
-        say(`Right! The black hand says ${clockTime(bristol)}, Bristol’s own time, ${minutesWords(behind)} behind London. Now wind the clock on to catch your train.`);
+        say(`Right! The black hand says ${clockTime(bristol)}, Bristol’s own time, ${minutesWords(behind)} behind London. ${BRISTOL_ASK.says} ${BRISTOL_ASK.question}`);
       } else say(`The black hand says ${clockTime(b)}: ${minutesWords(red - b)} behind the red hand.`);
     } else if (phase === 'train') {
       const r = clamp(to, london, BRISTOL_TRAIN);
@@ -996,6 +1107,21 @@ function BristolStep({ reduced, say, cheer, burst, onDone }: StepProps) {
     }
   };
   const nudge = (by: number) => setTo(value + by);
+  const answer = (m: number) => {
+    if (m === BRISTOL_ASK.right) {
+      setAskWrong(null);
+      setPhase('train');
+      cheer();
+      say(`Right! ${minutesWords(m)}: the train goes by London time, the red hand, and that says ${clockTime(london)}. Now wind the clock on to show the traveller.`);
+      return;
+    }
+    setAskWrong(m);
+    say(
+      m === BRISTOL_ASK.answers[0]
+        ? `That is going by the black hand, Bristol’s own time. But the train goes by London time. Count from the red hand.`
+        : `${minutesWords(m)} is how far apart the two hands are. Count from the red hand, ${clockTime(london)}, to ${clockTime(BRISTOL_TRAIN)}.`,
+    );
+  };
 
   const C = { x: 500, y: 250 };
   const angleAt = (e: ReactPointerEvent) => {
@@ -1021,7 +1147,8 @@ function BristolStep({ reduced, say, cheer, burst, onDone }: StepProps) {
   const task =
     phase === 'london' ? `The telegraph says London time is ${clockTime(london)}. Turn the red hand to ${clockTime(london)}.`
     : phase === 'bristol' ? `Bristol is ${minutesWords(behind)} behind London. Turn the black hand back to Bristol’s own time.`
-    : phase === 'train' ? `Your train to London leaves at ${clockTime(BRISTOL_TRAIN)} London time. Wind the clock on until it goes.`
+    : phase === 'ask' ? `${BRISTOL_ASK.says} ${BRISTOL_ASK.question}`
+    : phase === 'train' ? `Show the traveller: the train to London leaves at ${clockTime(BRISTOL_TRAIN)} London time. Wind the clock on until it goes.`
     : `It went at ${clockTime(BRISTOL_TRAIN)} by the red hand, when the black hand said only ${clockTime(BRISTOL_TRAIN - behind)}. Go by the black hand, and you miss it by ${minutesWords(behind)}!`;
 
   return (
@@ -1151,6 +1278,15 @@ function BristolStep({ reduced, say, cheer, burst, onDone }: StepProps) {
           })}
         </ol>
         <p className="vrw-bristol-task">{task}</p>
+        {phase === 'ask' && (
+          <div className="vbi-answers vrw-ask" role="group" aria-label={BRISTOL_ASK.question}>
+            {BRISTOL_ASK.answers.map((m) => (
+              <button key={m} type="button" className="vbi-answer" data-verdict={askWrong === m ? 'wrong' : undefined} onClick={() => answer(m)}>
+                {minutesWords(m)}
+              </button>
+            ))}
+          </div>
+        )}
         {turning && (
           <div className="vrw-stepper" role="group" aria-label={turning === 'black' ? 'Turn the black hand' : 'Turn the clock'}>
             <button type="button" className="vbi-nudge" onClick={() => nudge(-1)} aria-label="Back one minute">

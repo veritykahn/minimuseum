@@ -16,7 +16,8 @@ import { GHOST_NOTES, GHOST_TEXT } from './ghostText';
 
 export const PARLOUR_TEXT = {
   title: 'Dickens’ Christmas Parlour',
-  intro: 'A parlour on Christmas Eve, waiting to be brought to life. Open each part of a Victorian Christmas: press it in the room, or choose it here.',
+  // REVIEW: new text
+  intro: 'A parlour on Christmas Eve, waiting to be brought to life. Press a part of the room, or choose it here, and make a guess about it: get it right and that part comes to life.',
   quote: '"Christmas was dead, to begin with. There is no doubt whatever about that."',
   cite: "After Charles Dickens, *A Christmas Carol* (1843): 'Marley was dead: to begin with.'",
   /** The paintings' credit, as the owner gives it. */
@@ -75,6 +76,53 @@ export const PARTS: { id: PartId; name: string; poster: string; note?: ApprovedF
     opened: 'The fire is blazing in the grate.',
   },
 ];
+
+/*
+ * Before a part comes to life, a guess: one question, three answers, and the
+ * poster's line (or its note) that opens with the part says which was right.
+ * Every right answer is the poster's line or the part's sourced note told
+ * again; the wrong answers are only wrong guesses, and claim nothing. A wrong
+ * guess gives the hint, and another try.
+ */
+// REVIEW: new text (every question, answer and hint)
+export const PARLOUR_GUESS: Record<PartId, { ask: string; right: string; wrong: [string, string]; hint: string }> = {
+  clock: {
+    ask: 'At the start of the 1800s, how did most people spend Christmas Day?',
+    right: 'Working: it was hardly a holiday at all',
+    wrong: ['Feasting for twelve days', 'Opening presents round the tree'],
+    hint: 'Think of the factories of the Industrial Revolution, and their long hours.',
+  },
+  tree: {
+    ask: 'Who made the Christmas tree popular in Britain?',
+    right: 'Queen Victoria and Prince Albert',
+    wrong: ['Charles Dickens', 'Henry Cole'],
+    hint: 'It was a German custom, brought to Britain by a royal couple.',
+  },
+  cards: {
+    ask: 'When were the first Christmas cards sent?',
+    right: 'In the 1840s',
+    wrong: ['In the 1640s', 'In the 1940s'],
+    hint: 'A Christmas Carol came out in 1843. The first card was sent that very same year.',
+  },
+  book: {
+    ask: 'Who wrote A Christmas Carol, in 1843?',
+    right: 'Charles Dickens',
+    wrong: ['Prince Albert', 'Queen Victoria'],
+    hint: 'Look at this room’s name: Dickens’ Christmas Parlour.',
+  },
+  window: {
+    ask: 'Scrooge changes in A Christmas Carol. What does the story say Christmas is for?',
+    right: 'Kindness, charity and community',
+    wrong: ['Saving every penny', 'Staying at home alone'],
+    hint: 'Look out of the window at the village: Christmas is about other people.',
+  },
+  hearth: {
+    ask: 'Dickens’ “Carol Philosophy”: what did it ask people to do at Christmas?',
+    right: 'Open their hearts to everyone',
+    wrong: ['Work even harder', 'Keep Christmas quiet and small'],
+    hint: 'Scrooge’s heart was closed at the start of the story. What happens to it?',
+  },
+};
 
 /** The room's Sources drawer, by tab: each part's note, then the ghost story's. The paintings are the owner's own and carry no credit. */
 export const PARLOUR_SOURCES: readonly SourceGroup[] = [

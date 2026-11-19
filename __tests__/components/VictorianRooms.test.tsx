@@ -7,7 +7,10 @@ import { NOTES, POSTER } from '@/app/exhibitions/victorian/inventions/inventions
 import { GHOST_NOTES, STARTERS, insertAt, planLine } from '@/app/exhibitions/victorian/christmas-parlour/ghostText';
 import fs from 'fs';
 import path from 'path';
-import { PARLOUR_NOTES, PARLOUR_TEXT, PARTS } from '@/app/exhibitions/victorian/christmas-parlour/parlourText';
+import { PARLOUR_GUESS, PARLOUR_NOTES, PARLOUR_TEXT, PARTS, type PartId } from '@/app/exhibitions/victorian/christmas-parlour/parlourText';
+
+/** Answers a part's guess rightly, which brings it to life. */
+const guessRight = (id: PartId) => fireEvent.click(screen.getByRole('button', { name: PARLOUR_GUESS[id].right }));
 import { VICTORIAN } from '@/app/exhibitions/victorian/victorian';
 import { getLevelConfig } from '@/components/museum-map/data/levels';
 import { getRoomByPath } from '@/components/museum-map/data/rooms';
@@ -127,14 +130,27 @@ describe('Dickens’ Christmas parlour', () => {
     expect(screen.getByText(PARLOUR_TEXT.quote)).toBeInTheDocument();
     // In the room, or from the list
     fireEvent.click(screen.getByRole('button', { name: 'The Christmas tree, in the room' }));
+    // A guess first: a wrong one gives a hint and leaves the part dark.
+    expect(screen.getByText(PARLOUR_GUESS.tree.ask)).toBeInTheDocument();
+    const wrong = screen.getByRole('button', { name: PARLOUR_GUESS.tree.wrong[0] });
+    fireEvent.click(wrong);
+    expect(wrong).toBeDisabled();
+    expect(document.querySelector('.vcp-guess-hint')).toHaveTextContent(`Not quite. Hint: ${PARLOUR_GUESS.tree.hint}`);
+    expect(screen.getByRole('status')).toHaveTextContent(PARLOUR_GUESS.tree.hint);
+    expect(screen.getByRole('button', { name: 'The Christmas tree, in the room' })).toHaveAttribute('aria-pressed', 'false');
+    guessRight('tree');
     expect(screen.getByRole('heading', { name: 'The Christmas tree' })).toBeInTheDocument();
     expect(screen.getByText(PARLOUR_NOTES.tree.text)).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('The candles on the tree are lit. 1 of 6 open.');
     const list = screen.getByRole('list', { name: 'Open each part' });
     fireEvent.click(within(list).getByRole('button', { name: /The Christmas cards/ }));
+    guessRight('cards');
     expect(screen.getByRole('link', { name: 'Make your own Victorian Christmas card' })).toHaveAttribute('href', '/exhibitions/victorian/christmas-card');
     expect(screen.queryByText(PARLOUR_TEXT.closing[0])).toBeNull();
-    for (const p of PARTS) fireEvent.click(within(list).getByRole('button', { name: new RegExp(p.name) }));
+    for (const p of PARTS) {
+      fireEvent.click(within(list).getByRole('button', { name: new RegExp(p.name) }));
+      if (screen.queryByRole('button', { name: PARLOUR_GUESS[p.id].right })) guessRight(p.id);
+    }
     expect(screen.getByText(plain(PARTS.find((p) => p.id === 'hearth')!.poster))).toBeInTheDocument();
     for (const c of PARLOUR_TEXT.closing) expect(screen.getByText(c)).toBeInTheDocument();
     for (const p of PARTS) expect(screen.getByRole('button', { name: `${p.name}, in the room` })).toHaveAttribute('aria-pressed', 'true');
@@ -206,9 +222,13 @@ describe('fine tuning (regressions from trying the rooms)', () => {
     try {
       render(<VictorianChristmasParlour />);
       const list = screen.getByRole('list', { name: 'Open each part' });
-      for (const p of PARTS.slice(0, 5)) fireEvent.click(within(list).getByRole('button', { name: new RegExp(p.name) }));
+      for (const p of PARTS.slice(0, 5)) {
+        fireEvent.click(within(list).getByRole('button', { name: new RegExp(p.name) }));
+        guessRight(p.id);
+      }
       expect(scrollTo).not.toHaveBeenCalled();
       fireEvent.click(within(list).getByRole('button', { name: new RegExp(PARTS[5].name) }));
+      guessRight(PARTS[5].id);
       expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ top: 900 }));
     } finally {
       tall.mockRestore();
@@ -273,6 +293,7 @@ describe('a Christmas ghost story, written in the parlour and printed', () => {
     render(<VictorianChristmasParlour />);
     const list = screen.getByRole('list', { name: 'Open each part' });
     fireEvent.click(within(list).getByRole('button', { name: /A Christmas Carol/ }));
+    guessRight('book');
     fireEvent.click(screen.getByRole('button', { name: /Write your own Christmas ghost story/ }));
     expect(screen.getByRole('tab', { name: 'Write a ghost story' })).toHaveAttribute('aria-selected', 'true');
   });

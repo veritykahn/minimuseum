@@ -108,6 +108,8 @@
 /* A word crossed out: struck through in red ink, faded; tap again to put it back. */
 .vb-room .vbi-office-token[aria-pressed='true'] { color: rgba(42, 37, 34, 0.45); border-style: dashed; background: transparent; }
 .vb-room .vbi-office-token[aria-pressed='true']::after { content: ''; position: absolute; left: 4px; right: 4px; top: 50%; height: 3px; border-radius: 2px; background: #b23a3a; transform: rotate(-4deg); }
+/* A word the clerk asked about: crossed out, but its reader needs it. */
+.vb-room .vbi-office-token[data-needed] { border: 2px solid #c98a2a; background: #fff3d0; color: #7a3b1f; animation: vbr-pop 0.4s ease 2; }
 .vbi-office-sixpence { padding: 2px 8px; border-radius: 999px; background: #2f4a32; color: #f4eee3; font-family: 'Jost', sans-serif; font-size: 12px; font-weight: 500; white-space: nowrap; }
 
 /* The purse: its coins, what is in it, and whether the telegram costs too much. */
@@ -181,4 +183,8 @@
   .vbi-slot-n { display: block; font-family: var(--pe-display); font-size: 22px; font-weight: 400; }
   .vbi-slot-key { display: block; margin: 0; padding-left: 1.4em; font-size: 0.95rem; line-height: 1.35; }
   .vbi-slot-key li[data-placed] { text-decoration: line-through; opacity: 0.7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vb-room .vbi-office-token[data-needed] { animation: none; }
 }

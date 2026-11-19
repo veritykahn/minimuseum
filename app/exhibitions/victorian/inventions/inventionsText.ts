@@ -209,38 +209,49 @@ export const RAIL_STEPS: { id: RailStepId; title: string; body: string; task: st
     id: 'journey',
     title: 'Your watch says London time',
     body: 'Your watch keeps London time. Each town’s clock keeps its own time.',
-    task: 'Press Steam on. At each town, compare your watch with the town clock.',
+    // REVIEW: new text
+    task: 'Steam on. Before each town’s clock comes into view, predict it. Then compare it with your watch.',
   },
   {
     id: 'catch',
     title: 'Will you catch the train?',
     body: 'The trains ran by London time. The town clocks did not.',
-    task: 'Count on the minutes to find London time. Then decide.',
+    // REVIEW: new text
+    task: 'Read the town clock. Work out London time. Then pick the next train you can still catch.',
   },
   {
     id: 'set',
     title: 'You’re the stationmaster',
     body: 'Your job: make every station clock on the line say London time.',
-    task: 'Work out how many minutes each clock needs. Then wind it on.',
+    // REVIEW: new text
+    task: 'Read each station clock. Work out how many minutes it needs. Then wind it on.',
   },
   {
     id: 'bristol',
     title: 'A clock with two minute hands',
     body: 'Bristol’s Exchange clock shows two times at once: London’s on its red hand, and Bristol’s own on its black hand.',
-    task: 'Set both hands. Then use the clock to catch your train.',
+    // REVIEW: new text
+    task: 'Set both hands. Then use the clock to help a traveller catch the train.',
   },
 ];
 
 /**
- * "Will you catch the train?": the town, the train's time by London time
- * and what the town's own clock says (both in minutes after midnight).
- * Whether you catch it is worked out from the timetable's minutes.
+ * "Will you catch the train?": the town, what its own clock says, and the
+ * trains to London on the board, by London time (all in minutes after
+ * midnight). The game's own times, not a timetable's. The one to catch is
+ * the earliest still to come by London time (workshop.ts, nextTrain); in
+ * most, the train the town clock seems to say you can catch has already
+ * gone, and in some the first train is still there, so no rule of thumb
+ * ("never the first") works without working it out.
  */
-export const TRAIN_PUZZLES: { town: string; train: number; clock: number }[] = [
-  { town: 'Bath', train: 12 * 60, clock: 11 * 60 + 52 },
-  { town: 'Reading', train: 15 * 60, clock: 14 * 60 + 50 },
-  { town: 'Bridgewater', train: 16 * 60, clock: 15 * 60 + 50 },
-  { town: 'Bristol', train: 12 * 60 + 30, clock: 12 * 60 + 15 },
+// REVIEW: new text (the game's trains)
+export const TRAIN_PUZZLES: { town: string; clock: number; trains: number[] }[] = [
+  { town: 'Bath', clock: 11 * 60 + 52, trains: [12 * 60, 12 * 60 + 15, 12 * 60 + 45] },
+  { town: 'Bristol', clock: 12 * 60 + 10, trains: [12 * 60 + 25, 12 * 60 + 40, 13 * 60] },
+  { town: 'Bridgewater', clock: 15 * 60 + 30, trains: [15 * 60 + 40, 15 * 60 + 50, 16 * 60 + 20] },
+  { town: 'Steventon', clock: 9 * 60 + 20, trains: [9 * 60 + 30, 9 * 60 + 45, 10 * 60 + 15] },
+  { town: 'Reading', clock: 14 * 60 + 53, trains: [14 * 60 + 55, 15 * 60 + 10, 15 * 60 + 40] },
+  { town: 'Chippenham', clock: 10 * 60 + 45, trains: [10 * 60 + 50, 11 * 60 + 5, 11 * 60 + 30] },
 ];
 
 /**
@@ -254,7 +265,8 @@ export const STATION_JOB = {
   goal: [
     'The trains run by London time, so every station clock must say London time.',
     'A message comes down the telegraph wire from London with the time.',
-    'But these station clocks still show their own town’s time. How many minutes must you wind each one on?',
+    // REVIEW: new text
+    'But these station clocks still show their own town’s time. Read each clock, and work out how many minutes to wind it on.',
   ],
 };
 
@@ -262,6 +274,20 @@ export const STATION_JOB = {
 export const BRISTOL_CLOCK = { london: 12 * 60 + 10, behind: 11 };
 /** The game's train from Bristol to London, by London time, caught with the clock. */
 export const BRISTOL_TRAIN = 12 * 60 + 30;
+/**
+ * Bristol's clock, put to use: a traveller reads the black hand (Bristol's
+ * own time) and thinks there is half an hour to the train, which goes by
+ * London time. How long is there really? The answers: the right one (from
+ * the red hand), the black hand's (the traveller's mistake), and the gap
+ * between the hands.
+ */
+// REVIEW: new text
+export const BRISTOL_ASK = {
+  says: '“My train to London is at half past twelve,” says a traveller, looking up at the black hand. “Half an hour yet!”',
+  question: 'How long has the traveller really got?',
+  answers: [BRISTOL_TRAIN - (BRISTOL_CLOCK.london - BRISTOL_CLOCK.behind), BRISTOL_TRAIN - BRISTOL_CLOCK.london, BRISTOL_CLOCK.behind],
+  right: BRISTOL_TRAIN - BRISTOL_CLOCK.london,
+};
 
 /*
  * Build a telegraph: five parts, each put where it does its job on the
@@ -321,12 +347,42 @@ export const TELEGRAM = {
 /**
  * Letters to start from, written as you would write a letter: far too long
  * for the money in the purse, so there is something to cut. Made up for
- * the workshop.
+ * the workshop. Each carries what the person it goes to must still be told
+ * (`keep`): the clerk reads the form back before sending it, and asks about
+ * any of these whose words have all been crossed out, so cutting is a
+ * choice (what can go, and what must stay), not crossing out the end.
  */
-export const TELEGRAM_DRAFTS = [
-  'DEAR MOTHER I HAVE ARRIVED SAFELY IN BATH AND THE TRAIN WAS VERY FAST PLEASE SEND MY WARM COAT AND SOME CAKE LOVE FROM ADA',
-  'DEAR UNCLE I AM SO SORRY BUT I HAVE MISSED THE TRAIN TO LONDON SO I WILL ARRIVE TOMORROW AT NOON INSTEAD FROM YOUR NEPHEW TOM',
-  'HELLO GRANDMA THE NEW PUPPY HAS COME TO LIVE WITH US AND HE IS SMALL AND BROWN AND WE HAVE CALLED HIM BISCUIT PLEASE VISIT SOON',
+// REVIEW: new text (the clerk's questions)
+export const TELEGRAM_DRAFTS: { name: string; text: string; keep: { words: string[]; ask: string }[] }[] = [
+  {
+    name: 'Ada’s letter',
+    text: 'DEAR MOTHER I HAVE ARRIVED SAFELY IN BATH AND THE TRAIN WAS VERY FAST PLEASE SEND MY WARM COAT AND SOME CAKE LOVE FROM ADA',
+    keep: [
+      { words: ['ARRIVED', 'SAFELY'], ask: 'Will your mother know you got there safely?' },
+      { words: ['BATH'], ask: 'Will your mother know where you are?' },
+      { words: ['COAT'], ask: 'Will your mother know what to send?' },
+      { words: ['ADA'], ask: 'Will your mother know who it is from?' },
+    ],
+  },
+  {
+    name: 'Tom’s letter',
+    text: 'DEAR UNCLE I AM SO SORRY BUT I HAVE MISSED THE TRAIN TO LONDON SO I WILL ARRIVE TOMORROW AT NOON INSTEAD FROM YOUR NEPHEW TOM',
+    keep: [
+      { words: ['MISSED'], ask: 'Will your uncle know what went wrong?' },
+      { words: ['TOMORROW'], ask: 'Will your uncle know which day you are coming?' },
+      { words: ['NOON'], ask: 'Will your uncle know what time to meet you?' },
+      { words: ['TOM', 'NEPHEW'], ask: 'Will your uncle know who it is from?' },
+    ],
+  },
+  {
+    name: 'The new puppy',
+    text: 'HELLO GRANDMA THE NEW PUPPY HAS COME TO LIVE WITH US AND HE IS SMALL AND BROWN AND WE HAVE CALLED HIM BISCUIT PLEASE VISIT SOON',
+    keep: [
+      { words: ['PUPPY'], ask: 'Will your grandma know what the news is?' },
+      { words: ['BISCUIT'], ask: 'Will your grandma know the puppy’s name?' },
+      { words: ['VISIT'], ask: 'Will your grandma know you want her to come?' },
+    ],
+  },
 ];
 
 /**
@@ -431,13 +487,20 @@ export const MET_CREDIT = 'The Metropolitan Museum of Art, public domain';
  * photograph that shows it, and what it was, from the notes), then the
  * quiz, a clue for each photograph.
  */
-export const PROCESS_CLUES: { photo: PhotoId; process: string; short: string; teach: string; clue: string; note: keyof typeof NOTES }[] = [
+/*
+ * The quiz's clues are not the lesson's words again: each tells what happened
+ * to a photograph, and the child works out from the lesson which way could
+ * have made it. A wrong pick brings the clue's hint, which points back to the lesson.
+ */
+// REVIEW: new text (clue and hint)
+export const PROCESS_CLUES: { photo: PhotoId; process: string; short: string; teach: string; clue: string; hint: string; note: keyof typeof NOTES }[] = [
   {
     photo: 'daguerreotype',
     process: 'Daguerreotype',
     short: 'Daguerreotype',
     teach: 'Made on a shiny silver-plated sheet. Each one was a single picture that could not be copied.',
-    clue: 'I was made on a shiny silver-plated sheet. There is only one of me: I could not be copied.',
+    clue: 'Tilt me and I shine like a mirror. My sitter wanted a second one for a friend, and had to sit for the camera all over again.',
+    hint: 'Which way made a single picture that could not be copied?',
     note: 'daguerreotype',
   },
   {
@@ -445,7 +508,8 @@ export const PROCESS_CLUES: { photo: PhotoId; process: string; short: string; te
     process: 'Calotype (Talbot’s paper negative)',
     short: 'Calotype',
     teach: 'Talbot’s way: the negative was a sheet of paper, so many prints could be made from it.',
-    clue: 'My negative was made of paper, so many prints could be made from it.',
+    clue: 'Lots of friends each have a copy of me, and every copy was printed from the same sheet of paper.',
+    hint: 'Which way had a negative made of paper?',
     note: 'calotype',
   },
   {
@@ -453,7 +517,8 @@ export const PROCESS_CLUES: { photo: PhotoId; process: string; short: string; te
     process: 'Wet collodion (a glass negative)',
     short: 'Wet collodion',
     teach: 'The negative was a sheet of glass, coated, used while still wet and developed at once. It gave very fine detail.',
-    clue: 'My negative was a sheet of glass, coated and used while it was still wet.',
+    clue: 'The photographer had to hurry: coat the glass, take me, and develop me before the coating dried.',
+    hint: 'Which way used a glass negative while it was still wet?',
     note: 'collodion',
   },
 ];
@@ -505,7 +570,8 @@ export function blurFor(movedMs: number) {
 
 /** What the portrait came out as, by its blur. */
 export function verdictFor(blur: number): { tone: 'right' | 'near' | 'wrong'; words: string } {
-  if (blur <= 0.5) return { tone: 'right', words: 'Pin sharp! You held the clamp the whole time, so you kept perfectly still.' };
-  if (blur <= 4) return { tone: 'near', words: 'A little soft. You let go of the clamp for a moment, and moved.' };
-  return { tone: 'wrong', words: 'A blur! You let go of the clamp for too long. Try again, and keep holding it.' };
+  // REVIEW: new text
+  if (blur <= 0.5) return { tone: 'right', words: 'Pin sharp! You held the clamp and kept perfectly still the whole time.' };
+  if (blur <= 4) return { tone: 'near', words: 'A little soft. You moved for a moment: a wobble, or letting go.' };
+  return { tone: 'wrong', words: 'A blur! You moved too much. Try again: hold on to the clamp, and keep perfectly still.' };
 }

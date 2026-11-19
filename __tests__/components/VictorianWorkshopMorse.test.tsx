@@ -4,7 +4,7 @@ import path from 'path';
 import VictorianInventions from '@/app/exhibitions/victorian/inventions/page';
 import { MORSE, MORSE_LEARN, MORSE_MESSAGES, MORSE_WORDS, NOTES, TELEGRAM, TELEGRAM_DRAFTS } from '@/app/exhibitions/victorian/inventions/inventionsText';
 import { DOT_MS } from '@/app/exhibitions/victorian/inventions/morseKit';
-import { coinsFor, purseFor, wordsFor } from '@/app/exhibitions/victorian/inventions/office';
+import { coinsFor, missingIdeas, purseFor, wordsFor } from '@/app/exhibitions/victorian/inventions/office';
 import { MORSE_FACTS } from '@/app/exhibitions/victorian/inventions/sources';
 import { morseTimeline, oldMoney, telegramCost, telegramWords } from '@/app/exhibitions/victorian/inventions/workshop';
 import { resetMuseumSoundForTests } from '@/lib/museumSound';
@@ -88,6 +88,10 @@ describe('the Morse code bench', () => {
     // Space on the key: held long, a dash.
     const key = screen.getByRole('button', { name: 'The Morse key: tap for a dot, hold for a dash' });
     const word = MORSE_WORDS[0];
+    // From memory: no code under the letters until asked for, or a wrong tap.
+    expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot-hidden')).toHaveLength(word.length);
+    fireEvent.click(screen.getByRole('button', { name: `Show the code for ${word[0]}` }));
+    expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot-hidden')).toHaveLength(word.length - 1);
     for (const c of word)
       for (const m of MORSE[c]) {
         fireEvent.keyDown(key, { key: ' ' });
@@ -98,6 +102,12 @@ describe('the Morse code bench', () => {
       }
     expect(screen.getByText(`You sent ${word}!`, SHOWN)).toBeInTheDocument();
     expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot[data-done]')).toHaveLength(word.length);
+    // A wrong tap shows the code it wanted.
+    fireEvent.click(screen.getByRole('button', { name: 'SEA' }));
+    expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot-hidden')).toHaveLength(3);
+    fireEvent.click(screen.getByRole('button', { name: 'Dash' }));
+    expect(screen.getByText('You tapped dash: that’s T. S is dot dot dot. Try S again.', SHOWN)).toBeInTheDocument();
+    expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot-hidden')).toHaveLength(2);
   });
 
   it('decodes a message chosen at random: the marks come in on the tape, and each letter is pressed in turn', () => {
@@ -106,7 +116,9 @@ describe('the Morse code bench', () => {
     render(<VictorianInventions />);
     fireEvent.click(screen.getByRole('button', { name: '3. Decode' }));
     const picks = screen.getByRole('group', { name: 'The letters' });
-    expect(within(picks).getByRole('button', { name: /^E: / })).toBeDisabled();
+    // From memory: the letters carry no code at first.
+    expect(within(picks).getByRole('button', { name: 'E' })).toBeDisabled();
+    expect(picks.querySelector('.vbi-morse-card-c')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Play the message' }));
     const msg = MORSE_MESSAGES[0];
     act(() => {
@@ -115,8 +127,10 @@ describe('the Morse code bench', () => {
     const letters = msg.replace(/ /g, '');
     expect(document.querySelectorAll('.vbi-morse-message .vbi-morse-slot-c[data-shown]')).toHaveLength(letters.length);
     const wrong = MORSE_LEARN.find((l) => l !== letters[0])!;
-    fireEvent.click(within(picks).getByRole('button', { name: new RegExp(`^${wrong}: `) }));
+    fireEvent.click(within(picks).getByRole('button', { name: wrong }));
     expect(document.querySelector('.vbi-morse-message [data-miss]')).not.toBeNull();
+    // After a miss, each letter shows its code.
+    expect(picks.querySelectorAll('.vbi-morse-card-c')).toHaveLength(MORSE_LEARN.length);
     for (const c of letters) fireEvent.click(within(picks).getByRole('button', { name: new RegExp(`^${c}: `) }));
     expect(screen.getByText(`Well decoded! “${msg}”`, SHOWN)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Another message' }));
@@ -171,8 +185,17 @@ describe('the telegraph office’s money', () => {
     for (const h of TELEGRAM.purses) expect(telegramCost(wordsFor(h))).toBe(h);
     expect(coinsFor(15)).toEqual(['6d', '1d', '½d']);
     // Every letter to start from costs more than any purse holds, so there is something to cut.
-    for (const d of TELEGRAM_DRAFTS) expect(telegramCost(telegramWords(d).length)).toBeGreaterThan(Math.max(...TELEGRAM.purses));
-    for (const d of TELEGRAM_DRAFTS) for (const c of d.replace(/ /g, '')) expect(LETTERS).toContain(c);
+    for (const d of TELEGRAM_DRAFTS) expect(telegramCost(telegramWords(d.text).length)).toBeGreaterThan(Math.max(...TELEGRAM.purses));
+    for (const d of TELEGRAM_DRAFTS) for (const c of d.text.replace(/ /g, '')) expect(LETTERS).toContain(c);
+    // What each letter must still say is in it, and fits in the smallest purse with room to spare.
+    for (const d of TELEGRAM_DRAFTS) {
+      for (const k of d.keep) for (const w of k.words) expect(telegramWords(d.text)).toContain(w);
+      expect(d.keep.length).toBeLessThan(wordsFor(Math.min(...TELEGRAM.purses)));
+    }
+    const ada = TELEGRAM_DRAFTS[0];
+    expect(missingIdeas(telegramWords(ada.text), ada.keep)).toEqual([]);
+    expect(missingIdeas(['ARRIVED', 'BATH', 'ADA'], ada.keep).map((k) => k.words)).toEqual([['COAT']]);
+    expect(missingIdeas(['SAFELY', 'BATH', 'COAT', 'ADA'], ada.keep)).toEqual([]);
   });
 
   it('writes a telegram, is told at the counter there is not enough money, crosses words out until it fits, and the clerk sends it', () => {
@@ -185,7 +208,7 @@ describe('the telegraph office’s money', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Hand it over the counter' }));
     expect(screen.getByText('“Your form is empty! Write your telegram first, please.”', SHOWN)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Ada’s letter' }));
-    const n = telegramWords(TELEGRAM_DRAFTS[0]).length;
+    const n = telegramWords(TELEGRAM_DRAFTS[0].text).length;
     const cost = oldMoney(telegramCost(n));
     expect(screen.getByText(`Costs ${cost}: not enough!`)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Hand it over the counter' }));
@@ -202,6 +225,17 @@ describe('the telegraph office’s money', () => {
     expect(tokens[20]).toHaveAttribute('aria-pressed', 'false');
     fireEvent.click(tokens[20]);
     expect(tokens[20]).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByText('Costs 6d: enough!')).toBeInTheDocument();
+    // Cut from the end, it no longer says what to send, or who it is from: the clerk reads it back and asks.
+    fireEvent.click(screen.getByRole('button', { name: 'Hand it over the counter' }));
+    expect(screen.getByText('The clerk reads it back. “Will your mother know what to send?” Tap a crossed-out word to put it back, and cut another instead.', SHOWN)).toBeInTheDocument();
+    const words = telegramWords(TELEGRAM_DRAFTS[0].text);
+    const coat = tokens[words.indexOf('COAT')];
+    expect(coat).toHaveAttribute('data-needed', 'true');
+    fireEvent.click(coat);
+    fireEvent.click(tokens[words.indexOf('ADA')]);
+    fireEvent.click(tokens[0]);
+    fireEvent.click(tokens[1]);
     expect(screen.getByText('Costs 6d: enough!')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Hand it over the counter' }));
     // The clerk, not the visitor, works the key.
