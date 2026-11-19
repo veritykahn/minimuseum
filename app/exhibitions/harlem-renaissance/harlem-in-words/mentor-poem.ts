@@ -62,7 +62,9 @@ export const MENTOR_NOTICES = [
   },
   {
     title: 'A refrain',
-    text: '“My soul has grown deep like the rivers” comes twice, and the poem ends where it began, with “I’ve known rivers.”',
+    // REVIEW: new text. It said the poem "ends where it began, with 'I've known
+    // rivers'", but the poem's last line is "My soul has grown deep like the rivers."
+    text: '“I’ve known rivers” and “My soul has grown deep like the rivers” each come twice. The poem ends on “My soul has grown deep like the rivers,” a line it first said near the start.',
   },
   {
     title: 'Strong verbs',
@@ -76,5 +78,18 @@ export const PROMPT_CARDS = [
   'Name a place. Choose Harlem, Lenox or Beale Street and tell what happens there.',
   'Write like a river. Pick a word from Nature and let it carry a word from Emotion.',
   'Four strong verbs. Choose four Action words and give each one its own line.',
-  'Come full circle. End your poem the way Hughes ends his: back where it began.',
+  // REVIEW: new text. It was "Come full circle. End your poem the way Hughes
+  // ends his: back where it began", which the poem does not quite do, and
+  // which the word bank made impossible (each word can be used once). Repeat
+  // a line on the poem board now copies a line.
+  'Use a refrain. Write a line you love, then bring it back with Repeat a line, the way Hughes does.',
 ] as const;
+
+/**
+ * The lines the mentor poem says more than once (its refrains), for the
+ * "find the lines that come back" task before the notes on what to notice.
+ */
+export function repeatedLines(stanzas: readonly (readonly string[])[] = MENTOR_POEM.stanzas): string[] {
+  const all = stanzas.flat();
+  return all.filter((l, i) => all.indexOf(l) !== i).filter((l, i, arr) => arr.indexOf(l) === i);
+}
