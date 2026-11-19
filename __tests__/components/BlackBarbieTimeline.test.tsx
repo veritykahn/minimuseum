@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import BlackBarbieTimeline from '@/app/exhibitions/black-history/timeline/page';
 import OrderChallenge from '@/app/exhibitions/black-history/timeline/OrderChallenge';
 import {
@@ -6,14 +6,12 @@ import {
   DATED_STOPS,
   POSTER_SENTENCES,
   TIMELINE_STOPS,
+  SORT_CARDS,
+  TIMELINE_TEXT,
   markRuns,
-  moved,
   photoFor,
-  placesRight,
-  shuffled,
   stepFor,
   stopFromHash,
-  swapped,
 } from '@/app/exhibitions/black-history/timeline/timelineStops';
 import { notesFor, resetAudioForTests } from '@/app/exhibitions/black-history/timeline/cheer';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
@@ -241,15 +239,15 @@ describe('guess the year', () => {
     render(<BlackBarbieTimeline />);
     fireEvent.keyDown(document.body, { key: 'End' });
     expect(screen.queryByRole('group', { name: /Guess the year/ })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /Final challenge: put them in order/ }));
-    expect(screen.getByRole('heading', { level: 2, name: 'Put them in order' })).toHaveFocus();
+    fireEvent.click(screen.getByRole('button', { name: /Final challenge: before or after\?/ }));
+    expect(screen.getByRole('heading', { level: 2, name: 'Before or after?' })).toHaveFocus();
     expect(window.location.hash).toBe('#order');
   });
 
   it('opens the final challenge from its address', () => {
     window.history.replaceState(null, '', '/#order');
     render(<BlackBarbieTimeline />);
-    expect(screen.getByRole('heading', { level: 2, name: 'Put them in order' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Before or after?' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Back to the timeline' }));
     expect(screen.getByRole('heading', { level: 2 })).toHaveTextContent('Guess the year: Francie');
   });
@@ -306,67 +304,95 @@ describe('sound', () => {
   });
 });
 
-describe('the final challenge', () => {
-  const ids = DATED_STOPS.map((s) => s.id);
+describe('the final challenge: before or after?', () => {
+  const ids = SORT_CARDS.map((c) => c.id);
 
-  it('mixes the cards, never already in order, and checks each card’s place', () => {
-    expect(ids).toEqual(['1967', '1968', '1980', '1990', '1991', '2008', '2022']);
-    const mixed = shuffled(ids, () => 0.3);
-    expect([...mixed].sort()).toEqual([...ids].sort());
-    expect(mixed).not.toEqual(ids);
-    // A rand that would leave them sorted turns them round instead.
-    expect(shuffled(ids, () => 0.9999)).not.toEqual(ids);
-    expect(placesRight(ids).every(Boolean)).toBe(true);
-    expect(placesRight(swapped(ids, 0, 1))).toEqual([false, false, true, true, true, true, true]);
-    expect(moved(ids, 6, 0)).toEqual(['2022', '1967', '1968', '1980', '1990', '1991', '2008']);
+  it('reasons from the words: a clue for each doll with no year in it, quoted exactly where it is the poster’s', () => {
+    expect([...ids].sort()).toEqual(['1967', '1968', '1990', '2008', '2022']);
+    for (const c of SORT_CARDS) {
+      expect(c.clue).not.toMatch(/\b(19|20)\d\d\b/);
+      if (c.from === 'poster') expect(POSTER_SENTENCES.some((s) => s.includes(c.clue))).toBe(true);
+      // Every quotation in a hint is the poster's own words.
+      for (const [, q] of c.hint.matchAll(/“([^”]+)”/g)) expect(POSTER_SENTENCES.some((s) => s.includes(q))).toBe(true);
+      const year = DATED_STOPS.find((s) => s.id === c.id)!.year!;
+      expect(c.side).toBe(year < 1980 ? 'before' : 'after');
+    }
+    // The notes' clues are their own words, without the years.
+    const plain = (t: string) => t.replace(/ \([^)]*\)/g, '').replace(/’/g, "'").replace(/\.$/, '');
+    expect(plain(ADDED_NOTES.dollsOfTheWorld.text)).toContain(plain(SORT_CARDS.find((c) => c.id === '1990')!.clue));
+    expect(plain(ADDED_NOTES.inspiringWomen.text)).toContain(plain(SORT_CARDS.find((c) => c.id === '2022')!.clue));
+    // Shani is not a card: its note does not say whether it came before or after.
+    expect(ids).not.toContain('1991');
   });
 
-  const setup = (order = swapped(ids, 0, 6)) => {
+  const deck = ['2008', '1967', '2022', '1968', '1990'];
+  const setup = () => {
     const cue = jest.fn();
     const onStartOver = jest.fn();
-    render(<OrderChallenge onBack={jest.fn()} onStartOver={onStartOver} cue={cue} reduced initialOrder={order} />);
-    const cards = () => within(screen.getByRole('list')).getAllByRole('button');
-    return { cue, onStartOver, cards };
+    render(<OrderChallenge onBack={jest.fn()} onStartOver={onStartOver} cue={cue} reduced initialDeck={deck} />);
+    return { cue, onStartOver };
   };
+  const card = () => document.querySelector('.bht-sort-card') as HTMLElement;
+  const pile = (side: 'before' | 'after') => document.querySelector(`.bht-pile-${side}`) as HTMLElement;
+  const answer = (side: 'before' | 'after') => fireEvent.click(within(card()).getByRole('button', { name: side === 'before' ? 'Before 1980' : 'After 1980' }));
 
-  it('swaps two cards by tap, and celebrates when all are in place', () => {
-    const { cue, onStartOver, cards } = setup();
-    expect(cards()[0]).toHaveAccessibleName('Card 1: Inspiring Women');
-    fireEvent.click(screen.getByRole('button', { name: 'Check my order' }));
+  it('gives a hint after a wrong try, then places the card with its year when right', async () => {
+    const { cue } = setup();
+    expect(screen.getByRole('heading', { level: 2, name: 'Before or after?' })).toHaveFocus();
+    expect(card()).toHaveTextContent('Card 1 of 5');
+    expect(card()).toHaveTextContent('AKA Centennial Barbie');
+    expect(card()).not.toHaveTextContent('2008');
+    answer('before');
+    expect(cue).toHaveBeenLastCalledWith('wrong');
+    const hint = SORT_CARDS.find((c) => c.id === '2008')!.hint;
+    expect(screen.getByRole('status')).toHaveTextContent(hint);
+    expect(card()).toHaveAttribute('data-state', 'hint');
+    answer('after');
     expect(cue).toHaveBeenLastCalledWith('right');
-    expect(cards()[0]).toHaveAccessibleName('Card 1: Inspiring Women, 2022–23, not in the right place yet');
-    expect(screen.getByText('5 of 7 in the right place')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Yes! AKA Centennial Barbie and “So In Style”: 2008–09, after 1980.');
+    expect(pile('after')).toHaveTextContent('2008–09');
+    const next = within(card()).getByRole('button', { name: 'Next card' });
+    await waitFor(() => expect(next).toHaveFocus());
+    fireEvent.click(next);
+    expect(card()).toHaveTextContent('Francie');
+    await waitFor(() => expect(card()).toHaveFocus());
+  });
 
-    fireEvent.click(cards()[0]);
-    expect(cards()[0]).toHaveAttribute('aria-pressed', 'true');
-    fireEvent.click(cards()[6]);
-    expect(cards()[0]).toHaveAccessibleName('Card 1: Francie');
-    expect(cards()[6]).toHaveAccessibleName('Card 7: Inspiring Women');
-    fireEvent.click(screen.getByRole('button', { name: 'Check my order' }));
+  it('answers by the arrow keys too, and ends on every stop in time, Shani too', async () => {
+    const { cue, onStartOver } = setup();
+    for (const id of deck) {
+      const side = SORT_CARDS.find((c) => c.id === id)!.side;
+      fireEvent.keyDown(card(), { key: side === 'before' ? 'ArrowLeft' : 'ArrowRight' });
+      fireEvent.click(within(card()).getByRole('button', { name: id === deck.at(-1) ? 'See them all in time' : 'Next card' }));
+    }
     expect(cue).toHaveBeenLastCalledWith('fanfare');
-    expect(screen.getByRole('status')).toHaveTextContent('Every one in the right place!');
+    expect(screen.getByRole('status')).toHaveTextContent('Every one right on the first try!');
+    const line = within(screen.getByRole('list')).getAllByRole('listitem').map((li) => li.textContent);
+    expect(line).toEqual(DATED_STOPS.map((s) => `${s.yearLabel ?? s.year}${s.name}`));
+    expect(line.some((l) => l!.includes('Shani'))).toBe(true);
+    await waitFor(() => expect(screen.getByText('Every one right on the first try!', { selector: 'p.bht-order-result' })).toHaveFocus());
     fireEvent.click(screen.getByRole('button', { name: 'Play again from the start' }));
     expect(onStartOver).toHaveBeenCalled();
   });
 
-  it('moves a picked-up card along by the arrow keys', () => {
-    const { cards } = setup(swapped(ids, 0, 1));
-    fireEvent.click(cards()[0]);
-    fireEvent.keyDown(cards()[0], { key: 'ArrowRight' });
-    expect(cards()[1]).toHaveAccessibleName('Card 2: Christie');
-    expect(cards()[1]).toHaveFocus();
-    expect(cards()[1]).toHaveAttribute('aria-pressed', 'true');
-    fireEvent.keyDown(cards()[1], { key: 'Escape' });
-    expect(cards()[1]).toHaveAttribute('aria-pressed', 'false');
+  it('counts only first tries, and plays again in a new order', () => {
+    const { cue } = setup();
+    for (const id of deck) {
+      const side = SORT_CARDS.find((c) => c.id === id)!.side;
+      if (id === '1967') answer('after');
+      answer(side);
+      fireEvent.click(within(card()).getByRole('button', { name: /Next card|See them all in time/ }));
+    }
+    expect(cue).not.toHaveBeenCalledWith('fanfare');
+    expect(screen.getByRole('status')).toHaveTextContent(TIMELINE_TEXT.result(4, 5));
+    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(card()).toHaveTextContent('Card 1 of 5');
+    expect(pile('before').querySelectorAll('li')).toHaveLength(0);
   });
 
-  it('drags a card to its place on a desktop', () => {
-    const { cards } = setup(moved(ids, 0, 6));
-    const slots = within(screen.getByRole('list')).getAllByRole('listitem');
-    fireEvent.dragStart(cards()[6]);
-    fireEvent.dragOver(slots[0]);
-    fireEvent.drop(slots[0]);
-    expect(cards().map((c) => c.getAttribute('aria-label'))).toEqual(DATED_STOPS.map((s, i) => `Card ${i + 1}: ${s.name}`));
+  it('shuffles the cards from the browser’s seed', () => {
+    render(<OrderChallenge onBack={jest.fn()} onStartOver={jest.fn()} cue={jest.fn()} reduced />);
+    expect(SORT_CARDS.map((c) => DATED_STOPS.find((s) => s.id === c.id)!.name).some((n) => card().textContent!.includes(n))).toBe(true);
   });
 
   it('keeps the cards in the room’s keys: the arrows don’t move the timeline behind', () => {
@@ -375,7 +401,7 @@ describe('the final challenge', () => {
     act(() => {
       fireEvent.keyDown(document.body, { key: 'ArrowRight' });
     });
-    expect(screen.getByRole('heading', { level: 2, name: 'Put them in order' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 2, name: 'Before or after?' })).toBeInTheDocument();
   });
 });
 
