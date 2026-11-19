@@ -23,6 +23,8 @@ export function Stroop({ step, broken, explain, phase, record }: BenchProps) {
   const [round, setRound] = useState<Round>(1);
   const [running, setRunning] = useState(false);
   const [times, setTimes] = useState<Partial<Record<Round, number>>>({});
+  /** The prediction, made before Round 1: which round will be slower? */
+  const [guess, setGuess] = useState<'1' | '2' | 'same' | null>(null);
   const started = useRef(0);
   const [now, setNow] = useState(0);
   // Why?: Round 2 (the words fighting the ink), or Round 3 with the trick off.
@@ -86,7 +88,20 @@ export function Stroop({ step, broken, explain, phase, record }: BenchProps) {
             <p className="pl-q">
               {shown === 1 ? 'Round 1: say the color of each patch, out loud.' : shown === 2 ? 'Round 2: say the color of the ink, not the word.' : 'Round 3: say the ink colors again. The words match now.'}
             </p>
-            {running ? (
+            {phase === 'before' && round === 1 && times[1] === undefined && (
+              // REVIEW: new text. A prediction first, so the race is a test of it.
+              <Choices
+                question="Predict first: which round will take you longer?"
+                value={guess}
+                onChoose={setGuess}
+                options={[
+                  { id: '1', label: 'Round 1, the patches' },
+                  { id: '2', label: 'Round 2, the words' },
+                  { id: 'same', label: 'About the same' },
+                ]}
+              />
+            )}
+            {phase === 'before' && !guess && times[2] === undefined ? null : running ? (
               <>
                 <p className="pl-count">
                   <strong>{now.toFixed(1)}</strong> s
@@ -100,7 +115,11 @@ export function Stroop({ step, broken, explain, phase, record }: BenchProps) {
                 Start Round {shown}
               </button>
             )}
-            {phase === 'before' && round === 2 && !running && times[1] !== undefined && <p className="pl-say">Round 1: {times[1].toFixed(1)} s.</p>}
+            {phase === 'before' && round === 2 && !running && times[1] !== undefined && times[2] === undefined && <p className="pl-say">Round 1: {times[1].toFixed(1)} s.</p>}
+            {phase === 'before' && guess && times[1] !== undefined && times[2] !== undefined && (
+              // REVIEW: new text.
+              <p className="pl-say" aria-live="polite">{predictionLine(guess, times[1], times[2])}</p>
+            )}
             {phase === 'after' && times[3] !== undefined && <p className="pl-say">Round 3: {times[3].toFixed(1)} s.</p>}
             {phase === 'before' && times[2] !== undefined && (
               <button
@@ -109,6 +128,7 @@ export function Stroop({ step, broken, explain, phase, record }: BenchProps) {
                 onClick={() => {
                   setTimes({});
                   setRound(1);
+                  setGuess(null);
                 }}
               >
                 Race again
@@ -120,6 +140,14 @@ export function Stroop({ step, broken, explain, phase, record }: BenchProps) {
       }
     />
   );
+}
+
+/** What the race said about the prediction: the slower round (half a second either way counts as the same), against the guess. */
+export function predictionLine(guess: '1' | '2' | 'same', patches: number, words: number): string {
+  const d = words - patches;
+  const slower = Math.abs(d) < 0.5 ? 'same' : d > 0 ? '2' : '1';
+  const said = slower === 'same' ? 'the two rounds took about the same time' : `Round ${slower} took you longer`;
+  return guess === slower ? `You predicted it: ${said}.` : `Not what you predicted: ${said}.`;
 }
 
 // ───────── Paris in the the springtime ("Read the sign") ─────────
@@ -136,7 +164,9 @@ export function Paris({ step, broken, explain, phase, record }: BenchProps) {
   const [after, setAfter] = useState<'yes' | 'no' | null>(null);
   const [tapped, setTapped] = useState<string | null>(null);
   const lines = PHRASES[n];
+  // The word that is there twice: tapping either of the pair finds it (the end of line 2, or the start of line 3).
   const wrong = '2-0';
+  const extra = (k: string) => k === wrong || k === `1-${lines[1].length - 1}`;
   /** Why?: the word that is there twice, numbered 1 and 2: the end of one line and the start of the next. */
   const twice = (i: number, j: number) => (i === 1 && j === lines[1].length - 1 ? '1' : `${i}-${j}` === wrong ? '2' : undefined);
 
@@ -172,7 +202,7 @@ export function Paris({ step, broken, explain, phase, record }: BenchProps) {
                         type="button"
                         className="pl-word"
                         aria-pressed={tapped === `${i}-${j}`}
-                        data-wrong={tapped === `${i}-${j}` && `${i}-${j}` === wrong ? 'yes' : undefined}
+                        data-wrong={tapped === `${i}-${j}` && extra(`${i}-${j}`) ? 'yes' : undefined}
                         data-twice={explain ? twice(i, j) : undefined}
                         onClick={() => setTapped(`${i}-${j}`)}
                         disabled={step === 'why'}
@@ -218,7 +248,7 @@ export function Paris({ step, broken, explain, phase, record }: BenchProps) {
               />
             )}
             <p className="pl-say" aria-live="polite">
-              {tapped === null ? 'Tap the word that is wrong.' : tapped === wrong ? 'Yes: that “' + lines[2][0] + '” is there twice.' : 'Not that one. Read it word by word.'}
+              {tapped === null ? 'Tap the word that is wrong.' : extra(tapped) ? 'Yes: that “' + lines[2][0] + '” is there twice.' : 'Not that one. Read it word by word, pointing at each one.'}
             </p>
             {n < PHRASES.length - 1 && (
               <button

@@ -4,6 +4,12 @@ import { useState } from 'react';
 import { Disc, PAIRS, type PairId } from './printArt';
 
 /*
+ * The point: the screen's thaumatrope can only be watched; one made by hand
+ * proves the trick works with nothing but card, string and the visitor's
+ * own eyes (and, drawing their own pair, that the two pictures must line up
+ * to join). Its sheets already ask for one test: the back is printed upside
+ * down on purpose, and the steps say why.
+ *
  * Make your own thaumatrope: a printable sheet for each pair of pictures
  * (bird and cage, fish and bowl, flower and pot) and a blank one to draw
  * on, each with what you need and what to do. Each sheet is one US Letter

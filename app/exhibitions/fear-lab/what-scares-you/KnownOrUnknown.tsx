@@ -9,6 +9,18 @@ import SoundPrompt from './SoundPrompt';
 import { SpiderArt } from './Swarm';
 
 /*
+ * The point: the poster reports what people did in fear experiments; here
+ * the visitor makes the choice themselves first, then predicts what the
+ * people in the experiment did, and checks that prediction against the
+ * finding (poster 1, or a sourced museum note).
+ *
+ * The prediction (Nov 19 rework): after each choice (or when time runs
+ * out), "What did the experiment find?", two or three answers, each worked
+ * out only from the finding shown next, with no timer. Then the finding,
+ * and whether the guess was right. The end shows how many findings were
+ * predicted. The six choices and their order are unchanged (the Grades 5-8
+ * lesson votes on them).
+ *
  * Known or unknown: "would you rather" choices, the question at the top,
  * each against a countdown ring (a teacher can pause it). The first three
  * are built from experiments on poster 1, and after each comes what the
@@ -30,7 +42,9 @@ type Picture = 'bolt' | 'big-bolt' | 'wait' | 'spider' | 'dark' | 'jar' | 'myste
 /** Each answer's effect: its sound slot (assets.ts) and the matching thing seen. */
 export type Effect = Extract<SoundSlot, 'zap' | 'big-zap' | 'clock' | 'dread' | 'skitter' | 'marbles' | 'quiet' | 'ghost' | 'haunt'>;
 type Option = { tag: string; text: string; picture: Picture; effect: Effect };
-export type Choice = { question: string; a: Option; b: Option } & ({ poster: string; fact?: undefined } | { fact: ApprovedFact; poster?: undefined });
+/** What did the experiment find? Its answers, and the one the finding gives. REVIEW: new text, each worked out from its finding only. */
+export type Guess = { question: string; options: { id: string; label: string }[]; answer: string };
+export type Choice = { question: string; a: Option; b: Option; guess: Guess } & ({ poster: string; fact?: undefined } | { fact: ApprovedFact; poster?: undefined });
 
 export const CHOICES: Choice[] = [
   {
@@ -38,23 +52,56 @@ export const CHOICES: Choice[] = [
     a: { tag: 'Known', text: 'A small electric shock, for certain.', picture: 'bolt', effect: 'zap' },
     b: { tag: 'Unknown', text: 'A 50% chance of a small electric shock.', picture: 'dark', effect: 'dread' },
     poster: C.ambiguity,
+    guess: {
+      question: 'In the experiment, what stressed people out more?',
+      options: [
+        { id: 'known', label: 'Knowing for certain they would get a shock' },
+        { id: 'maybe', label: 'A 50% chance of a shock' },
+      ],
+      answer: 'maybe',
+    },
   },
   {
     question: 'A strong shock now, or a weak one later?',
     a: { tag: 'Now', text: 'A stronger shock, right away.', picture: 'big-bolt', effect: 'big-zap' },
     b: { tag: 'Wait', text: 'A weaker shock, but you have to wait for it.', picture: 'wait', effect: 'clock' },
     poster: C.dread,
+    guess: {
+      question: 'In the study, did anyone choose the stronger shock, just to get it over with?',
+      options: [
+        { id: 'yes', label: 'Yes, some people did' },
+        { id: 'no', label: 'No, nobody did' },
+      ],
+      answer: 'yes',
+    },
   },
   {
     question: 'Which box would you reach into?',
     a: { tag: 'See it', text: 'Reach into a glass box with a spider you can see.', picture: 'spider', effect: 'skitter' },
     b: { tag: 'Unseen', text: "Reach into a box you can't see into.", picture: 'dark', effect: 'dread' },
     poster: C.amygdala,
+    guess: {
+      question: 'Which sets off your brain’s alarm louder?',
+      options: [
+        { id: 'seen', label: 'A spider you can see' },
+        { id: 'unseen', label: 'A box you can’t see into' },
+      ],
+      answer: 'unseen',
+    },
   },
   {
     question: 'Which jar would you bet on?',
     a: { tag: 'Known jar', text: 'A jar of 50 red and 50 black marbles. Pull out a red one to win.', picture: 'jar', effect: 'marbles' },
     b: { tag: 'Mystery jar', text: 'A jar of 100 red and black marbles, in a mix nobody will tell you. Pull out a red one to win.', picture: 'mystery-jar', effect: 'dread' },
+    guess: {
+      question: 'Which jar do most people pick?',
+      options: [
+        { id: 'known', label: 'The known jar' },
+        { id: 'mystery', label: 'The mystery jar' },
+        { id: 'half', label: 'Half pick each' },
+      ],
+      answer: 'known',
+    },
     fact: {
       text: 'In 1961 the economist Daniel Ellsberg described this choice. Most people pick the jar with the known mix, even though nobody has said the mystery jar is any worse. It is called the Ellsberg paradox.',
       sources: [{ label: 'Ellsberg, “Risk, Ambiguity, and the Savage Axioms,” Quarterly Journal of Economics (1961)', href: 'https://doi.org/10.2307/1884324' }],
@@ -64,6 +111,15 @@ export const CHOICES: Choice[] = [
     question: 'Fifteen minutes alone with your thoughts, or a button?',
     a: { tag: 'Just think', text: 'Sit alone in a bare room for 15 minutes, with nothing to do but think.', picture: 'room', effect: 'quiet' },
     b: { tag: 'The button', text: 'Sit there with a button that gives you a small electric shock, if you want one.', picture: 'button', effect: 'zap' },
+    guess: {
+      question: 'Out of 18 men in the study, how many gave themselves a shock rather than just sit and think?',
+      options: [
+        { id: 'none', label: 'None of them' },
+        { id: 'two', label: 'About 2' },
+        { id: 'twelve', label: '12 of them' },
+      ],
+      answer: 'twelve',
+    },
     fact: {
       text: 'In a 2014 study, 12 of 18 men and 6 of 24 women gave themselves at least one small electric shock rather than just sit alone with their thoughts for 15 minutes.',
       sources: [
@@ -76,6 +132,15 @@ export const CHOICES: Choice[] = [
     question: 'Which haunted house would you go into?',
     a: { tag: 'A bit scary', text: 'A haunted house that is only a little bit scary.', picture: 'ghost', effect: 'ghost' },
     b: { tag: 'Terrifying', text: 'The scariest haunted house in the world.', picture: 'haunted', effect: 'haunt' },
+    guess: {
+      question: 'When did the haunted house visitors enjoy it most?',
+      options: [
+        { id: 'little', label: 'Scared a little' },
+        { id: 'medium', label: 'Scared a medium amount' },
+        { id: 'most', label: 'Scared as much as possible' },
+      ],
+      answer: 'medium',
+    },
     fact: {
       text: 'In a 2020 study, 110 visitors to a haunted house in Vejle, Denmark, wore heart-rate monitors. They enjoyed it most when they were scared a medium amount: not too little, and not too much.',
       sources: [
@@ -217,10 +282,13 @@ export default function KnownOrUnknown({
   const [picks, setPicks] = useState<('a' | 'b' | 'none')[]>([]);
   const [left, setLeft] = useState(QUESTION_MS);
   const [paused, setPaused] = useState(false);
+  /** Each question's prediction of what the experiment found. */
+  const [guesses, setGuesses] = useState<string[]>([]);
   const leftRef = useRef(QUESTION_MS);
   const done = step >= CHOICES.length;
   const choice = CHOICES[Math.min(step, CHOICES.length - 1)];
   const picked = picks[step];
+  const guessed = guesses[step];
   const running = started && !done && !picked && !paused;
 
   // The countdown, which stops on a choice or a pause. At zero, time's up.
@@ -272,9 +340,11 @@ export default function KnownOrUnknown({
   const restart = () => {
     setStep(0);
     setPicks([]);
+    setGuesses([]);
     resetClock();
   };
 
+  const score = CHOICES.filter((c, i) => guesses[i] === c.guess.answer).length;
   const fright = (o: Option) => (o.effect === 'dread' || o.effect === 'clock' || o.effect === 'haunt' ? 0.55 : 0.3);
 
   return (
@@ -383,13 +453,29 @@ export default function KnownOrUnknown({
           </>
         ) : done ? (
           <>
-            <p className="fl-lab-note">Your choices stay on this screen. There are no right answers.</p>
+            <p className="fl-lab-note">Your choices stay on this screen. There are no right answers to which you would rather.</p>
+            <p className="fl-lab-note fl-ku-score">You predicted {score} of {CHOICES.length} findings.</p>
             <p className="fl-lab-poster">{C.unknown}</p>
             <button type="button" className="fl-lab-button" onClick={restart}>Start again</button>
+          </>
+        ) : picked && !guessed ? (
+          <>
+            {picked === 'none' && <p className="fl-lab-kicker">Time’s up!</p>}
+            <fieldset className="fl-ku-guess">
+              <legend className="fl-lab-note">Now predict. {choice.guess.question}</legend>
+              <div className="fl-ku-guess-row">
+                {choice.guess.options.map((o) => (
+                  <button key={o.id} type="button" className="fl-lab-button fl-lab-button-quiet" onClick={() => setGuesses((g) => { const next = [...g]; next[step] = o.id; return next; })}>
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
           </>
         ) : picked ? (
           <>
             {picked === 'none' && <p className="fl-lab-kicker">Time’s up!</p>}
+            <p className="fl-lab-kicker" aria-live="polite">{guessed === choice.guess.answer ? 'You predicted it!' : `Not quite: ${choice.guess.options.find((o) => o.id === choice.guess.answer)!.label.toLowerCase()}.`}</p>
             {choice.poster ? (
               <p className="fl-lab-poster fl-lab-reveal">{choice.poster}</p>
             ) : (
@@ -400,7 +486,7 @@ export default function KnownOrUnknown({
             </button>
           </>
         ) : (
-          <p className="fl-lab-note">Choose one before the timer runs out. Then see what {choice.poster ? 'the poster says' : 'scientists found'}.</p>
+          <p className="fl-lab-note">Choose one before the timer runs out. Then predict what {choice.poster ? 'the poster says' : 'scientists found'}.</p>
         )}
         <p className="fl-lab-status" role="status">
           {picked && !done ? (picked === 'none' ? 'Time’s up! No choice made.' : `You chose: ${choice[picked].text}`) : ''}

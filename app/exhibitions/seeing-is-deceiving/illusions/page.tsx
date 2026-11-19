@@ -25,6 +25,20 @@ import ClassVote from './lab/ClassVote';
 import './lab/lab.css';
 
 /*
+ * The point: a poster can only tell you that your eyes are fooled; here the
+ * visitor answers with their own eyes first (matches a circle, finds the
+ * middle, says which looks bigger), then tests that answer (a ruler, a
+ * slide, the trick switched off), and finds out by how much they, not
+ * "people", were fooled.
+ *
+ * Every illusion asks for the eyes' answer before its test (Nov 19 rework):
+ * nothing tells the answer first (Ponzo no longer says the bars start the
+ * same; Jastrow's and the café wall's notebook lines no longer say "they are
+ * the same" before the test), the café wall has a ruler to lay along its
+ * lines once the eyes have answered, Jastrow's slide waits for the guess,
+ * and the Stroop race starts with a prediction of which round will be
+ * slower, checked when the race is done.
+ *
  * The Perception Lab, rebuilt from the owner-approved proposal (B4): "You
  * are the scientist". Six benches and a bonus, in the order of the November
  * review: the brain filling gaps, size, brightness, lines, everything that

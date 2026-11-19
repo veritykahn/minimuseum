@@ -88,3 +88,52 @@ export function paceFor(fright: number): number {
   const f = Math.max(0, Math.min(1, fright));
   return 66 + f * 84;
 }
+
+/*
+ * The fear boxes' own experiment (Nov 19 rework): before a lid opens, how
+ * nervous the visitor feels, 1 to 5; once the lights are up, how scary it
+ * really was, 1 to 5. Poster 1 says your imagination creates horrors worse
+ * than reality; the tally tests that on the visitor.
+ */
+
+/** REVIEW: new text. The two five-point scales, in words. */
+export const BEFORE_SCALE = ['Calm', 'A bit nervous', 'Nervous', 'Very nervous', 'Terrified'] as const;
+export const AFTER_SCALE = ['Not scary at all', 'A bit scary', 'Scary', 'Very scary', 'Terrifying'] as const;
+
+/** One box: how nervous before (1–5), and how scary it really was (1–5), once rated. */
+export type Dread = { before: number; after?: number };
+
+/** What the ratings came to: boxes rated both ways, and in how many the waiting was worse, the same, or better than what was inside. */
+export function dreadTally(ds: readonly Dread[]): { rated: number; worse: number; same: number; better: number } {
+  const both = ds.filter((d): d is Required<Dread> => d.after !== undefined);
+  return {
+    rated: both.length,
+    worse: both.filter((d) => d.before > d.after).length,
+    same: both.filter((d) => d.before === d.after).length,
+    better: both.filter((d) => d.before < d.after).length,
+  };
+}
+
+/** REVIEW: new text. The tally, in a line. */
+export function dreadLine(ds: readonly Dread[]): string | null {
+  const t = dreadTally(ds);
+  if (!t.rated) return null;
+  const boxes = (n: number) => `${n} ${n === 1 ? 'box' : 'boxes'}`;
+  if (t.worse > t.better && t.worse >= t.same)
+    return `The waiting was scarier than what was inside in ${boxes(t.worse)} of ${t.rated}. Your imagination was the scariest thing in the room.`;
+  if (t.better > t.worse) return `What was inside was scarier than the waiting in ${boxes(t.better)} of ${t.rated}. For you, this time, the real thing was worse.`;
+  return `The waiting and what was inside felt about the same in ${boxes(t.same)} of ${t.rated}.`;
+}
+
+/**
+ * REVIEW: new text. What the night's calls cost, in a line, after poster 1's
+ * "better to see 100 fake threats than miss one real predator": a fake alarm
+ * costs a run for nothing; a missed tiger is the costly mistake.
+ */
+export function costLine(t: Tally): string {
+  const runs = `${t.fakeAlarms} ${t.fakeAlarms === 1 ? 'run' : 'runs'} for nothing`;
+  if (t.missed > 0)
+    return `Each fake alarm only cost you a run for nothing. A missed tiger is the costly mistake, and your brain is built to avoid it: that is why it raises so many alarms.`;
+  if (t.fakeAlarms > 0) return `No tiger missed, at the cost of ${runs}. That is just the trade your brain is built to make.`;
+  return 'Every call right: you read every clue. Most brains would have run at least once.';
+}

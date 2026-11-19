@@ -15,7 +15,7 @@ import {
 import { SURPRISES } from '@/app/exhibitions/fear-lab/what-scares-you/surprises';
 import RustlingBushes, { CLUE_MS, CLUE_TEXT, DECIDE_MS, REVEAL_MS } from '@/app/exhibitions/fear-lab/what-scares-you/RustlingBushes';
 import { CHOICES, QUESTION_MS } from '@/app/exhibitions/fear-lab/what-scares-you/KnownOrUnknown';
-import { ROUNDS, TIGERS, TIGER_CLUES, makeLayout, makeRounds, paceFor, pulseFromTaps, tally, type Call } from '@/app/exhibitions/fear-lab/what-scares-you/lab';
+import { AFTER_SCALE, BEFORE_SCALE, costLine, ROUNDS, TIGERS, TIGER_CLUES, dreadLine, dreadTally, makeLayout, makeRounds, paceFor, pulseFromTaps, tally, type Call } from '@/app/exhibitions/fear-lab/what-scares-you/lab';
 import { makeSwarm, spiderCount, swarmLength } from '@/app/exhibitions/fear-lab/what-scares-you/spiderPaths';
 import { ANIMATION_SLOTS, SLOT_FILES, SOUND_SLOTS, soundUrl } from '@/app/exhibitions/fear-lab/what-scares-you/assets';
 import { assetsOnDisk } from '@/app/exhibitions/fear-lab/what-scares-you/assetSlots';
@@ -75,6 +75,12 @@ describe('the lab’s arithmetic', () => {
     const t = tally(rounds, calls);
     expect(t.fakeAlarms + t.missed + t.spotted + t.calm).toBe(ROUNDS);
     expect(tally([{ bush: 0, tiger: false, spot: 0, clue: 'leaves' }, { bush: 1, tiger: true, spot: 0, clue: 'tail' }], ['tiger', 'wind'])).toEqual({ fakeAlarms: 1, missed: 1, spotted: 0, calm: 0 });
+  });
+
+  it('says what the night’s calls cost: a missed tiger is the costly mistake', () => {
+    expect(costLine({ fakeAlarms: 2, missed: 1, spotted: 2, calm: 3 })).toMatch(/missed tiger is the costly mistake/);
+    expect(costLine({ fakeAlarms: 3, missed: 0, spotted: 3, calm: 2 })).toBe('No tiger missed, at the cost of 3 runs for nothing. That is just the trade your brain is built to make.');
+    expect(costLine({ fakeAlarms: 0, missed: 0, spotted: 3, calm: 5 })).toMatch(/^Every call right/);
   });
 
   it('quickens the monitor with fright', () => {
@@ -149,7 +155,11 @@ function renderBoxes({ rand, motion = true, gentle = false, owned = [] as string
   // Only what the boxes play from here on.
   played.length = 0;
   const shelf = screen.getByRole('group', { name: 'Fear boxes' });
-  const open =(n: number) => fireEvent.click(within(shelf).getByRole('button', { name: `Box ${n}` }));
+  // A box, then how nervous: the lid opens on the rating.
+  const open = (n: number) => {
+    fireEvent.click(within(shelf).getByRole('button', { name: `Box ${n}` }));
+    fireEvent.click(screen.getByRole('button', { name: 'Nervous' }));
+  };
   return { ...utils, played, shelf, open };
 }
 
@@ -183,6 +193,11 @@ describe('the fear boxes', () => {
     const i = 2;
     const c = CREATURES[0];
     fireEvent.click(within(shelf).getByRole('button', { name: `Box ${i + 1}` }));
+    // First, how nervous: the box waits for the answer, and nothing is drawn yet.
+    expect(rand).not.toHaveBeenCalled();
+    expect(within(shelf).getByRole('button', { name: `Box ${i + 1}` })).toHaveAttribute('data-held', 'true');
+    expect(screen.getByRole('status')).toHaveTextContent('how nervous are you?');
+    fireEvent.click(screen.getByRole('button', { name: 'Very nervous' }));
     expect(rand).toHaveBeenCalled();
     // The whole screen goes dark, and the skip button takes focus.
     expect(document.querySelector('.fl-fb-dark')).toHaveAttribute('data-stage', 'build');
@@ -320,6 +335,7 @@ describe('the fear boxes', () => {
     expect(screen.getByRole('note')).toHaveTextContent('Mostly it’s something silly');
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
     fireEvent.click(within(screen.getByRole('group', { name: 'Fear boxes' })).getByRole('button', { name: 'Box 1' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Nervous' }));
     act(() => { jest.advanceTimersByTime(BUILD_MS); });
     expect(document.querySelectorAll('[data-spider]')).toHaveLength(spiderCount(window.innerWidth, window.innerHeight, true));
     expect(document.querySelectorAll('.fl-sp-cartoon').length).toBeGreaterThan(0);
@@ -373,10 +389,31 @@ describe('the fear boxes', () => {
     fireEvent.click(screen.getByRole('button', { name: /Motion/ }));
     fireEvent.click(screen.getByRole('button', { name: 'I’m ready' }));
     fireEvent.click(within(screen.getByRole('group', { name: 'Fear boxes' })).getByRole('button', { name: 'Box 1' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Nervous' }));
     act(() => { jest.advanceTimersByTime(BUILD_MS); });
     expect(document.querySelector('.fl-sw')).toHaveAttribute('data-still', 'true');
     act(() => { jest.advanceTimersByTime(outMs(CREATURES[0], false, true)); });
     expect(document.querySelector('.fl-fb-dark')).toBeNull();
+  });
+});
+
+describe('the fear boxes’ test: the waiting against what was inside', () => {
+  it('tallies how nervous before against how scary after, and says honestly which was worse', () => {
+    expect(BEFORE_SCALE).toHaveLength(5);
+    expect(AFTER_SCALE).toHaveLength(5);
+    expect(dreadTally([{ before: 4, after: 1 }, { before: 2, after: 2 }, { before: 1, after: 5 }, { before: 3 }])).toEqual({ rated: 3, worse: 1, same: 1, better: 1 });
+    expect(dreadLine([{ before: 3 }])).toBeNull();
+    expect(dreadLine([{ before: 4, after: 1 }, { before: 5, after: 2 }])).toMatch(/^The waiting was scarier than what was inside in 2 boxes of 2\./);
+    expect(dreadLine([{ before: 1, after: 4 }])).toMatch(/real thing was worse/);
+  });
+
+  it('asks how scary it really was once the lights are up, and keeps the tally', () => {
+    const { open } = renderBoxes({ rand: seq(0.99, 0.8) });
+    open(1);
+    act(() => { jest.advanceTimersByTime(BUILD_MS + HARMLESS_MS); });
+    expect(screen.getByText('You were nervous before it opened. How scary was it, really?')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Not scary at all' }));
+    expect(screen.getByText(/The waiting was scarier than what was inside in 1 box of 1\./)).toBeInTheDocument();
   });
 });
 
@@ -465,6 +502,12 @@ describe('known or unknown', () => {
       const b = screen.getByRole('button', { name: new RegExp(c.b.text.replace(/[.?]/g, '.')) });
       fireEvent.click(b);
       expect(b).toHaveAttribute('data-effect', c.b.effect);
+      // Predict what the experiment found before seeing it.
+      if (c.poster) expect(screen.queryByText(c.poster)).not.toBeInTheDocument();
+      else expect(screen.queryByText(c.fact!.text)).not.toBeInTheDocument();
+      expect(screen.getByText(`Now predict. ${c.guess.question}`)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: c.guess.options.find((o) => o.id === c.guess.answer)!.label }));
+      expect(screen.getByText('You predicted it!')).toBeInTheDocument();
       if (c.poster) expect(screen.getByText(c.poster)).toBeInTheDocument();
       else {
         expect(screen.getByText(c.fact!.text)).toBeInTheDocument();
@@ -473,6 +516,7 @@ describe('known or unknown', () => {
       fireEvent.click(screen.getByRole('button', { name: i + 1 < CHOICES.length ? 'Next question' : 'See your choices' }));
     });
     expect(screen.getByRole('list', { name: 'Your choices' }).children).toHaveLength(CHOICES.length);
+    expect(screen.getByText(`You predicted ${CHOICES.length} of ${CHOICES.length} findings.`)).toBeInTheDocument();
   });
 
   it('runs out of time, unless a teacher pauses it', () => {
@@ -488,7 +532,17 @@ describe('known or unknown', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Resume timer' }));
     act(() => { jest.advanceTimersByTime(QUESTION_MS); });
     expect(screen.getByRole('status')).toHaveTextContent('Time’s up!');
+    // A wrong prediction: told kindly what the finding was.
+    fireEvent.click(screen.getByRole('button', { name: 'Knowing for certain they would get a shock' }));
+    expect(screen.getByText('Not quite: a 50% chance of a shock.')).toBeInTheDocument();
     expect(screen.getByText(CHOICES[0].poster!)).toBeInTheDocument();
+  });
+
+  it('gives every question a prediction, whose answer is one of its own options', () => {
+    CHOICES.forEach((c) => {
+      expect(c.guess.options.length).toBeGreaterThanOrEqual(2);
+      expect(c.guess.options.map((o) => o.id)).toContain(c.guess.answer);
+    });
   });
 
   it('gives every new question a sourced museum note, and the shock a zap', () => {

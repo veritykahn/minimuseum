@@ -402,6 +402,26 @@
 .fl-fb-pinecone { position: relative; width: min(40%, 200px); height: auto; animation: fl-fb-fade 0.8s ease both; }
 .fl-fb-nothing { position: relative; font-family: var(--pe-display); font-size: clamp(1.6rem, 3vw, 2.4rem); letter-spacing: 0.08em; color: rgba(251, 246, 236, 0.55); animation: fl-fb-fade 1.6s ease both; }
 .fl-fb-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+/* The fear boxes' ratings (Nov 19 rework): how nervous before, how scary after, five steps in words. */
+.fl-fb-scale { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px; }
+.fl-fb-scale legend { padding: 0; margin-bottom: 8px; color: var(--cream); }
+.fl-fb-scale-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.fl-room .fl-fb-scale-step {
+  appearance: none;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid rgba(251, 246, 236, 0.35);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cream);
+  font: 600 0.85rem/1.2 var(--pe-body);
+  cursor: pointer;
+}
+.fl-room .fl-fb-scale-step:hover, .fl-room .fl-fb-scale-step:focus-visible { border-color: var(--marigold); }
+.fl-room .fl-fb-scale-step[aria-pressed='true'] { background: var(--marigold); border-color: var(--marigold); color: #0e1a2c; }
+.fl-fb-tally { color: var(--cream); }
+.fl-fb-box[data-held='true'] { outline: 3px solid var(--marigold); outline-offset: 4px; border-radius: 6px; }
+
 
 /* A creepy fact: a museum note set apart from the poster's words, with its source. */
 .fl-lab-fact { margin: 0; display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border-left: 3px solid var(--marigold); background: rgba(7, 13, 23, 0.55); }
@@ -466,6 +486,12 @@
   border-radius: 50%;
 }
 .fl-room .fl-ku-option,
+/* Known or unknown's prediction (Nov 19 rework): what did the experiment find? */
+.fl-ku-guess { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px; }
+.fl-ku-guess legend { padding: 0; margin-bottom: 8px; color: var(--cream); font-weight: 600; }
+.fl-ku-guess-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.fl-room .fl-ku-guess-row .fl-lab-button { white-space: normal; text-align: left; border: 1px solid rgba(251, 246, 236, 0.35); }
+.fl-ku-score { color: var(--cream); font-weight: 600; }
 .fl-ku-done-item {
   appearance: none;
   display: flex;

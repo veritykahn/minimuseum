@@ -247,7 +247,8 @@ export const ILLUSIONS: Illusion[] = [
     name: 'Ponzo railway',
     bench: 2,
     category: 'size',
-    task: 'The two red bars start exactly the same length. Stretch or shrink the top bar until they look the same to you. You can slide it up and down the tracks too.',
+    // REVIEW: new text. It no longer tells the visitor the bars start the same: that was the answer, given before the test.
+    task: 'Which red bar looks longer? Stretch or shrink the top bar until the two look exactly the same length to you. Then slide it down the tracks and see what happens.',
     breakLabel: 'Take the rails away',
     breakText: 'The rails are gone. Match the two bars again.',
     why: {
@@ -264,7 +265,8 @@ export const ILLUSIONS: Illusion[] = [
     name: 'Jastrow curves',
     bench: 2,
     category: 'size',
-    task: 'Which shape looks bigger? Then slide the top one down onto the bottom one.',
+    // REVIEW: new text. Guess first, then test it by sliding one onto the other.
+    task: 'Which shape looks bigger? Guess, then test it: slide the top one down onto the bottom one.',
     breakLabel: 'Stack them',
     breakText: 'The top one is stacked on the bottom one. Look closely: do they fit?',
     why: {
@@ -319,7 +321,8 @@ export const ILLUSIONS: Illusion[] = [
     name: 'Café wall',
     bench: 4,
     category: 'lines',
-    task: 'Do the lines between the rows look straight, or tilted?',
+    // REVIEW: new text. Guess first, then test it with a ruler.
+    task: 'Do the lines between the rows look straight, or tilted? Guess, then test it with a ruler.',
     breakLabel: 'Change the mortar',
     breakText: 'Slide the mortar from black to gray to white, and slide the rows into line. When does the tilt appear?',
     why: {
@@ -511,7 +514,8 @@ export const ILLUSIONS: Illusion[] = [
     name: 'Stroop race',
     bench: 6,
     category: 'brain',
-    task: 'Round 1: say the color of each patch, out loud. Round 2: say the color of the ink each word is printed in, not the word.',
+    // REVIEW: new text. A prediction first, so the race tests it.
+    task: 'Predict first: which round will take you longer? Round 1: say the color of each patch, out loud. Round 2: say the color of the ink each word is printed in, not the word.',
     breakLabel: 'Round 3, matching ink',
     breakText: 'Now every word is printed in its own color. Say the ink colors again, and time it.',
     why: {
@@ -616,6 +620,7 @@ export const LAB_TEXT = {
   kicker: 'Seeing is Deceiving',
   lead: 'You are the scientist. Measure how much each illusion fools you, switch the trick off, measure again, and write both results in your Lab Notebook.',
   rule: 'Being fooled isn’t wrong. It’s the result.',
-  how: ['Try it: measure yourself.', 'Break it: switch the trick off and measure again.', 'Why? The science (its sources are under Sources).'],
+  // REVIEW: new text (Try it's line): every illusion now asks for your eye's answer before you test it.
+  how: ['Try it: answer with your eyes first, then test yourself.', 'Break it: switch the trick off and measure again.', 'Why? The science (its sources are under Sources).'],
   noData: 'Nothing you do here is saved or sent anywhere.',
 };

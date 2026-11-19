@@ -193,6 +193,15 @@ body:has(.sid-toys) { margin: 0; }
 .vto-fact { display: flex; flex-direction: column; gap: 3px; font-size: 0.8rem; line-height: 1.5; color: var(--sid-muted); }
 .vto-fact-source { font-size: 11px; letter-spacing: 0.03em; opacity: 0.9; }
 .vto-fact-source a { color: var(--sid-blue); text-decoration: underline; text-underline-offset: 3px; }
+/* The toys' experiments (Nov 19 rework): a panel in the card, set apart by a thin rule. */
+.vto-exp { display: flex; flex-direction: column; gap: 10px; padding-top: 12px; border-top: 1px solid rgba(168, 213, 229, 0.22); }
+.vto-exp-title { margin: 0; font-family: var(--sid-serif); font-weight: 500; font-size: 1.15rem; color: var(--sid-ink); }
+.vto-exp-q { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px; }
+.vto-exp-q legend { padding: 0; margin-bottom: 8px; font-size: 0.95rem; line-height: 1.5; color: #dcd8d0; }
+.vto-exp-go, .vto-exp-say { margin: 0; font-size: 0.95rem; line-height: 1.5; color: #dcd8d0; }
+.vto-exp-say { color: var(--sid-ink); }
+.sid-toys .vto-exp-pick[aria-pressed='true'], .sid-toys .vz-frame[aria-pressed='true'] { outline: 3px solid var(--sid-blue); outline-offset: 2px; }
+.vz-frames li[data-hint] .vz-frame { outline: 3px dashed #f2b33d; outline-offset: 2px; }
 .vto-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 
 .vto-picker { display: flex; gap: 8px; }

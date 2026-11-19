@@ -2,12 +2,22 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type PointerEvent, type ReactNode } from 'react';
 import FactNote from '@/components/exhibition/FactNote';
-import { DISC, POSTER, TOY_NOTES } from './toysText';
-import { faceAt, speedAt, TAU, thaumaSeen, TOY_SPEEDS } from './spin';
+import { DISC, EXPERIMENT as X, POSTER, TOY_NOTES } from './toysText';
+import { faceAt, flickerRate, fusionReading, speedAt, TAU, thaumaSeen, TOY_SPEEDS, type Band } from './spin';
 import { useSpeed } from './useSpeed';
 import SpeedControl from './SpeedControl';
 
 /*
+ * The point: the poster says the brain joins pictures shown fast; here the
+ * visitor predicts how fast, then finds, by their own eyes, the speed at
+ * which the bird and the cage became one picture for them.
+ *
+ * The experiment (Nov 19 rework), under the speed control: a prediction
+ * (slowly, medium, really fast: the room's own three speeds), then "Now!"
+ * pressed at the moment the bird is inside the cage, read as pictures a
+ * second. Pressed while each side can still be seen going by, it asks the
+ * visitor to look again rather than keep the reading.
+ *
  * The thaumatrope: a card disc on two strings, the bird on one side and the
  * cage on the other. It works the way the real one does. The disc really
  * turns about its strings, frame by frame, so the visitor only ever sees one
@@ -258,6 +268,7 @@ export default function Thaumatrope({ reduced, intro, footer }: { reduced: boole
           />
         )}
         {reduced && sidesView && <p className="vto-note">Your device asks for less motion, so the disc stays still. To see the bird in its cage, a disc has to really spin: make your own (the Make your own tab).</p>}
+        {!reduced && !sidesView && <Experiment perSecond={flickerRate('thaumatrope', rps)} twirling={twirling} />}
         <p className="vto-caption" aria-live="polite">{seen === 'together' && !sidesView ? POSTER.discovered : POSTER.thaumatrope}</p>
         <FactNote fact={TOY_NOTES.thaumatrope} className="vto-fact" />
         {footer}
@@ -278,5 +289,58 @@ export function DiscFace({ side }: { side: Side }) {
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={FACES[side]} alt="" draggable={false} />
     </span>
+  );
+}
+
+const fmt = (n: number) => (n < 10 ? n.toFixed(1) : String(Math.round(n)));
+
+/** How fast for your eyes: predict, then press "Now!" when the bird is in its cage. */
+function Experiment({ perSecond, twirling }: { perSecond: number; twirling: boolean }) {
+  const [predicted, setPredicted] = useState<Band | null>(null);
+  const [readings, setReadings] = useState<number[]>([]);
+  const [tooSlow, setTooSlow] = useState<number | null>(null);
+  const now = () => {
+    const r = fusionReading(predicted, perSecond);
+    if (!r.kept) {
+      setTooSlow(perSecond);
+      return;
+    }
+    setTooSlow(null);
+    setReadings((x) => [...x, perSecond]);
+  };
+  const last = readings[readings.length - 1];
+  const reading = last === undefined ? null : fusionReading(predicted, last);
+  return (
+    <section className="vto-exp" aria-labelledby="vto-exp-title">
+      <h2 className="vto-exp-title" id="vto-exp-title">{X.thaumaTitle}</h2>
+      <fieldset className="vto-exp-q">
+        <legend>{X.thaumaPredict}</legend>
+        <div className="vto-actions">
+          {(Object.keys(X.thaumaBands) as Band[]).map((b) => (
+            <button key={b} type="button" className="vto-button vto-exp-pick" aria-pressed={predicted === b} onClick={() => setPredicted(b)}>
+              {X.thaumaBands[b]}
+            </button>
+          ))}
+        </div>
+      </fieldset>
+      {predicted && (
+        <>
+          <p className="vto-exp-go">{X.thaumaGo}</p>
+          <button type="button" className="vto-button vto-button-primary" onClick={now} disabled={!twirling}>
+            {X.thaumaNow}
+          </button>
+        </>
+      )}
+      <div aria-live="polite">
+        {tooSlow !== null && <p className="vto-exp-say">{X.thaumaTooSlow(fmt(tooSlow))}</p>}
+        {reading && last !== undefined && tooSlow === null && (
+          <p className="vto-exp-say">
+            {X.thaumaResult(fmt(last))} {reading.matched ? X.thaumaMatched : predicted ? X.thaumaMissed(X.thaumaBands[predicted]) : ''}
+            {readings.length > 1 && ` Your readings: ${readings.map(fmt).join(', ')} pictures a second.`}
+          </p>
+        )}
+        {readings.length === 1 && tooSlow === null && <p className="vto-exp-say">{X.thaumaAgain}</p>}
+      </div>
+    </section>
   );
 }

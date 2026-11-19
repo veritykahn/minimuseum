@@ -131,7 +131,8 @@ function pacman(dir: number, r: number) {
 }
 
 export function Kanizsa({ step, broken, explain, phase, record }: BenchProps) {
-  const [turns, setTurns] = useState([2, 4, 3]);
+  // Six turns in all to line them up (one, three and two), not nine.
+  const [turns, setTurns] = useState([5, 3, 4]);
   const [answer, setAnswer] = useState<string | null>(null);
   const [after, setAfter] = useState<string | null>(null);
   const lined = turns.every((t) => t % 6 === 0);

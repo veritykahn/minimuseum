@@ -19,7 +19,7 @@ import {
   voteLine,
 } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/results';
 import { CHECKER_TRUTH } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/Brightness';
-import { amesChildPx, amesDepth, STROOP_INKS, STROOP_WORDS } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/Brain';
+import { amesChildPx, amesDepth, predictionLine, STROOP_INKS, STROOP_WORDS } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/Brain';
 import { snakeDisc, SNAKE_ORDER, SNAKE_PLAIN } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/Motion';
 import { SLOTS, SLOT_DIR } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/slots';
 import { entryText, stroopMatchResult } from '@/app/exhibitions/seeing-is-deceiving/illusions/lab/results';
@@ -346,6 +346,9 @@ describe('a station: Try it, Break it, Why?', () => {
     const now = jest.spyOn(performance, 'now');
     at('#stroop');
     render(<PerceptionLab />);
+    // A prediction first: the race waits for it.
+    expect(screen.queryByRole('button', { name: 'Start Round 1' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Round 2, the words' }));
     now.mockReturnValue(1000);
     fireEvent.click(screen.getByRole('button', { name: 'Start Round 1' }));
     now.mockReturnValue(9000);
@@ -359,6 +362,7 @@ describe('a station: Try it, Break it, Why?', () => {
     });
     fireEvent.click(screen.getByRole('button', { name: 'Done!' }));
     expect(screen.getByText('In your notebook').parentElement).toHaveTextContent('Trick on: Round 1: 8.0 s. Round 2: 12.0 s. The words made you 4.0 s slower.');
+    expect(screen.getByText('You predicted it: Round 2 took you longer.')).toBeInTheDocument();
     // Break it: Round 3, the words matching their ink, timed into the same entry.
     fireEvent.click(screen.getByRole('tab', { name: 'Break it' }));
     now.mockReturnValue(30000);
@@ -372,7 +376,7 @@ describe('a station: Try it, Break it, Why?', () => {
   it('turns the Kanizsa shapes by tap or key until the triangle appears', () => {
     at('#kanizsa');
     render(<PerceptionLab />);
-    const turns = [4, 2, 3];
+    const turns = [1, 3, 2];
     // Every disc inside the picture, nothing cut off at its foot.
     const vb = document.querySelector('.pl-figure svg')!.getAttribute('viewBox')!.split(' ').map(Number);
     expect(vb[1] + vb[3]).toBeGreaterThan(125 + 66);
@@ -385,6 +389,43 @@ describe('a station: Try it, Break it, Why?', () => {
       }
     });
     expect(screen.getByText('Does the triangle look brighter than the white page around it?')).toBeInTheDocument();
+  });
+
+  it('checks a Stroop prediction against the race', () => {
+    expect(predictionLine('2', 8, 12)).toBe('You predicted it: Round 2 took you longer.');
+    expect(predictionLine('1', 8, 12)).toBe('Not what you predicted: Round 2 took you longer.');
+    expect(predictionLine('same', 8, 8.3)).toBe('You predicted it: the two rounds took about the same time.');
+  });
+
+  it('asks for the eyes’ answer before the test, and tells no answer first', () => {
+    expect(byId('ponzo').task).not.toMatch(/same length\./);
+    expect(byId('ponzo').task).not.toMatch(/start exactly/);
+    // Café wall: answer, then lay the ruler; the notebook line only says what the eyes saw.
+    at('#cafe-wall');
+    const { unmount } = render(<PerceptionLab />);
+    expect(screen.queryByRole('button', { name: /lay a ruler/ })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Tilted' }));
+    expect(screen.getByText('In your notebook').parentElement).not.toHaveTextContent('straight');
+    expect(document.querySelector('[data-explain="cafe-wall"]')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Test it: lay a ruler along the lines' }));
+    expect(document.querySelector('[data-explain="cafe-wall"]')).not.toBeNull();
+    expect(screen.getByText(/perfectly straight\. Your eyes were fooled\./)).toBeInTheDocument();
+    unmount();
+    // Jastrow: the slide waits for the guess, and stacking them tells the result.
+    at('#jastrow');
+    render(<PerceptionLab />);
+    expect(screen.queryByRole('slider', { name: 'Slide the top one down' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'The bottom one' }));
+    expect(screen.getByText('In your notebook').parentElement).not.toHaveTextContent('exactly the same');
+    fireEvent.change(screen.getByRole('slider', { name: 'Slide the top one down' }), { target: { value: '100' } });
+    expect(screen.getByText(/they fit exactly.*Your eyes were fooled\./)).toBeInTheDocument();
+  });
+
+  it('counts either of the doubled words as the one that is wrong', () => {
+    at('#paris');
+    render(<PerceptionLab />);
+    fireEvent.click(screen.getAllByRole('button', { name: 'THE' })[0]);
+    expect(screen.getByText('Yes: that “THE” is there twice.')).toBeInTheDocument();
   });
 
   it('never names the Paris trick before the visitor reads the sign', () => {

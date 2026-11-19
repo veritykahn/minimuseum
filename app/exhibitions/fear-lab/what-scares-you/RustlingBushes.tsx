@@ -2,11 +2,18 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { FEAR_LAB_COPY as C } from '../fearLab';
-import { ROUNDS, makeLayout, makeRounds, tally, type BushPlace, type Call, type Clue, type Round } from './lab';
+import { ROUNDS, costLine, makeLayout, makeRounds, tally, type BushPlace, type Call, type Clue, type Round } from './lab';
 import type { LabSound } from './sound';
 import SoundPrompt from './SoundPrompt';
 
 /*
+ * The point: the poster says the brain would rather raise a hundred false
+ * alarms than miss one predator; here the visitor makes the calls, from
+ * clues (tigers leave a tail, a shadow, tracks or a growl; the wind blows
+ * leaves loose, or leaves nothing), and sees what their own mistakes cost
+ * (lab.ts, costLine). The numbers (8 rounds, 5 bushes, 3 tigers, 10
+ * seconds) are the ones the PE lesson uses: keep them.
+ *
  * The rustling bushes: the startle test. A bush rustles in the dark; call
  * "Tiger!" or "Just the wind" before the time runs out. Then see what was
  * there: in three of the eight rounds, a pair of eyes. At the end, the tally
@@ -396,6 +403,7 @@ export default function RustlingBushes({
             <h2 className="fl-lab-heading">
               {t.fakeAlarms} fake {t.fakeAlarms === 1 ? 'alarm' : 'alarms'}, {t.missed} missed {t.missed === 1 ? 'tiger' : 'tigers'}
             </h2>
+            <p className="fl-lab-note fl-bushes-cost">{costLine(t)}</p>
             <p className="fl-lab-poster">{C.tigers}</p>
             <p className="fl-lab-poster">{C.byDesign}</p>
             <button type="button" className="fl-lab-button" onClick={start}>Play again</button>
