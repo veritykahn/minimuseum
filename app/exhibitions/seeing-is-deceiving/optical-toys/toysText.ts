@@ -83,3 +83,29 @@ export const STRIPS: { id: StripId; name: string; alt: string }[] = [
     alt: 'Two dancers hand in hand, hopping and kicking up their heels, her skirt swinging',
   },
 ];
+
+/*
+ * REVIEW: new text. The toys' experiments (Nov 19 rework): instructions and
+ * the visitor's own readings, no facts. The speeds' names are the room's own
+ * three bands (spin.ts, bandOf), not a scientific threshold.
+ */
+export const EXPERIMENT = {
+  thaumaTitle: 'Your experiment: how fast for your eyes?',
+  thaumaPredict: 'Predict first: how fast must the disc spin before the bird sits inside the cage?',
+  thaumaBands: { slow: 'Slowly', medium: 'Medium', fast: 'Really fast' },
+  thaumaGo: 'Now twirl it, or slide the speed up little by little. Press “Now!” the moment the bird is inside the cage.',
+  thaumaNow: 'Now! The bird is in the cage',
+  thaumaTooSlow: (n: string) => `At ${n} pictures a second you can still see each side go by on its own. Look again: is the bird really inside the cage? Go a little faster.`,
+  thaumaResult: (n: string) => `For your eyes, the bird and the cage became one picture at ${n} pictures a second.`,
+  thaumaMatched: 'Just as you predicted.',
+  thaumaMissed: (band: string) => `You predicted ${band.toLowerCase()}. Your eyes were the test.`,
+  thaumaAgain: 'Slow it right down and find the moment again: is it the same each time?',
+  zoeTitle: 'A challenge: the mixed-up strip',
+  zoeStart: 'Mix up the strip',
+  zoeIntro: 'Someone glued two pictures into each other’s places. Spin the drum and watch: where does it stumble? Then open every picture, tap the two that are in the wrong places, and they swap.',
+  zoeSwapped: 'Swapped. Spin it again to see if it runs smoothly.',
+  zoeWrong: 'It still stumbles.',
+  zoeHint: (k: number) => `Hint: picture ${k + 1} does not follow on from picture ${k === 0 ? 12 : k}. Look at the legs, from one picture to the next.`,
+  zoeFixed: 'Fixed! Every picture follows the one before it. Spin it and watch it run smoothly.',
+  zoeEnd: 'Back to the good strip',
+};

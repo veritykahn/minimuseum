@@ -148,3 +148,64 @@ export function slitsInView(angle: number, n = ZOE_FRAMES) {
  * (15 slits a second, four frames each).
  */
 export const SLIT_SHARE = 0.27;
+
+// ───────── The thaumatrope experiment: how fast, for your eyes? ─────────
+
+/** A prediction, and a reading, as the room's own three speeds: the same bands as thaumaSeen. */
+export type Band = 'slow' | 'medium' | 'fast';
+
+/** Which band a rate of pictures a second falls in: under 3 (each side seen going by), under 12 (flickering), or 12 and up (one picture). */
+export function bandOf(perSecond: number): Band {
+  if (perSecond < 3) return 'slow';
+  if (perSecond < 12) return 'medium';
+  return 'fast';
+}
+
+/**
+ * The visitor's reading: they pressed "Now!" as the bird joined its cage,
+ * at `perSecond` pictures a second. Too slow to be one picture yet (each
+ * side still goes by on its own), it asks them to look again, as a hint,
+ * and is not kept. Otherwise it is their reading, set against their
+ * prediction.
+ */
+export function fusionReading(predicted: Band | null, perSecond: number): { kept: boolean; band: Band; matched: boolean | null } {
+  const band = bandOf(perSecond);
+  return { kept: band !== 'slow', band, matched: predicted === null || band === 'slow' ? null : predicted === band };
+}
+
+// ───────── The zoetrope's mixed-up strip ─────────
+
+/** The strip in order: picture k in slot k. */
+export const inOrder = (n = ZOE_FRAMES) => Array.from({ length: n }, (_, k) => k);
+
+/**
+ * A strip with two pictures glued in each other's places, three to five
+ * slots apart, so the figure stumbles twice in every turn of the drum.
+ */
+export function mixUp(rand: () => number = Math.random, n = ZOE_FRAMES): number[] {
+  const order = inOrder(n);
+  const a = Math.floor(rand() * n) % n;
+  const b = (a + 3 + (Math.floor(rand() * 3) % 3)) % n;
+  [order[a], order[b]] = [order[b], order[a]];
+  return order;
+}
+
+/** Two slots of the strip swapped. */
+export function swapSlots(order: readonly number[], i: number, j: number): number[] {
+  const next = [...order];
+  [next[i], next[j]] = [next[j], next[i]];
+  return next;
+}
+
+/** Every picture in its own place. */
+export const isFixed = (order: readonly number[]) => order.every((p, k) => p === k);
+
+/**
+ * A hint, for after a wrong swap: the first slot whose picture does not
+ * follow the one before it (round the loop), or -1 when the strip runs true.
+ */
+export function firstStumble(order: readonly number[]): number {
+  const n = order.length;
+  for (let k = 0; k < n; k++) if (order[k] !== (order[(k - 1 + n) % n] + 1) % n) return k;
+  return -1;
+}

@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import SeeingOpticalToys from '@/app/exhibitions/seeing-is-deceiving/optical-toys/page';
-import { DISC, POSTER, STRIPS, TOY_NOTES } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/toysText';
+import { DISC, EXPERIMENT, POSTER, STRIPS, TOY_NOTES } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/toysText';
 import {
   allowedStep,
   approach,
@@ -22,6 +22,13 @@ import {
   TOY_SPEEDS,
   ZOE_FRAMES,
   zoeSeen,
+  bandOf,
+  firstStumble,
+  fusionReading,
+  inOrder,
+  isFixed,
+  mixUp,
+  swapSlots,
 } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/spin';
 import { setFlickerOk } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/useSpeed';
 import { THAUMA_SEEN_LABEL } from '@/app/exhibitions/seeing-is-deceiving/optical-toys/Thaumatrope';
@@ -285,6 +292,76 @@ describe('the zoetrope', () => {
     expect(screen.getByRole('status')).toHaveTextContent(`Picture 5 of ${ZOE_FRAMES}.`);
     fireEvent.click(screen.getByRole('button', { name: 'Next picture' }));
     expect(screen.getByRole('status')).toHaveTextContent(`Picture 6 of ${ZOE_FRAMES}.`);
+  });
+});
+
+describe('the toys’ experiments', () => {
+  beforeEach(() => setFlickerOk(false));
+
+  it('reads the thaumatrope by the room’s own three speeds, and asks to look again when each side still shows', () => {
+    expect([bandOf(1), bandOf(3), bandOf(11.9), bandOf(12), bandOf(20)]).toEqual(['slow', 'medium', 'medium', 'fast', 'fast']);
+    expect(fusionReading('fast', 2)).toEqual({ kept: false, band: 'slow', matched: null });
+    expect(fusionReading('fast', 15)).toEqual({ kept: true, band: 'fast', matched: true });
+    expect(fusionReading('slow', 15).matched).toBe(false);
+  });
+
+  it('mixes up the strip by two pictures, three to five apart, and points to where it stumbles', () => {
+    for (let r = 0; r < 1; r += 0.07) {
+      const o = mixUp(() => r);
+      const off = o.map((p, k) => (p === k ? -1 : k)).filter((k) => k >= 0);
+      expect(off).toHaveLength(2);
+      const gap = (off[1] - off[0] + ZOE_FRAMES) % ZOE_FRAMES;
+      expect(Math.min(gap, ZOE_FRAMES - gap)).toBeGreaterThanOrEqual(3);
+      expect(isFixed(o)).toBe(false);
+      expect(isFixed(swapSlots(o, off[0], off[1]))).toBe(true);
+      expect(firstStumble(o)).toBeGreaterThanOrEqual(0);
+    }
+    expect(firstStumble(inOrder())).toBe(-1);
+  });
+
+  it('thaumatrope: predicts first, then reads the speed at which the bird joined its cage', () => {
+    window.history.replaceState(null, '', '/exhibitions/seeing-is-deceiving/optical-toys');
+    render(<SeeingOpticalToys />);
+    expect(screen.queryByRole('button', { name: EXPERIMENT.thaumaNow })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Really fast' }));
+    const now = screen.getByRole('button', { name: EXPERIMENT.thaumaNow });
+    expect(now).toBeDisabled();
+    // Pressed too slow: a hint, and nothing kept.
+    const slider = screen.getByRole('slider', { name: 'Speed' });
+    fireEvent.change(slider, { target: { value: '20' } });
+    fireEvent.click(now);
+    expect(screen.getByText(/Look again: is the bird really inside the cage\?/)).toBeInTheDocument();
+    act(() => setFlickerOk(true));
+    fireEvent.change(slider, { target: { value: String(SPEED_STEPS) } });
+    fireEvent.click(now);
+    expect(screen.getByText(/became one picture at 20 pictures a second\. Just as you predicted\./)).toBeInTheDocument();
+  });
+
+  it('zoetrope: a mixed-up strip to find and fix, with a hint after a wrong swap', () => {
+    window.history.replaceState(null, '', '/exhibitions/seeing-is-deceiving/optical-toys#zoetrope');
+    render(<SeeingOpticalToys />);
+    fireEvent.click(screen.getByRole('button', { name: EXPERIMENT.zoeStart }));
+    expect(screen.getByText(EXPERIMENT.zoeIntro)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'See every picture' }));
+    const list = screen.getByRole('list', { name: /pictures, side by side/ });
+    const frames = within(list).getAllByRole('button');
+    const off = frames.map((b, k) => (Number(b.getAttribute('data-picture')) === k ? -1 : k)).filter((k) => k >= 0);
+    expect(off).toHaveLength(2);
+    // A wrong swap: a hint, and a picture marked.
+    const good = [0, 1, 2, 3, 4, 5].find((k) => !off.includes(k) && !off.includes(k + 1))!;
+    fireEvent.click(frames[good]);
+    expect(frames[good]).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(frames[good + 1]);
+    expect(screen.getByText(/It still stumbles\. Hint: picture/)).toBeInTheDocument();
+    expect(list.querySelector('li[data-hint]')).not.toBeNull();
+    // Undo it, then the right swap.
+    fireEvent.click(within(list).getAllByRole('button')[good]);
+    fireEvent.click(within(list).getAllByRole('button')[good + 1]);
+    fireEvent.click(within(list).getAllByRole('button')[off[0]]);
+    fireEvent.click(within(list).getAllByRole('button')[off[1]]);
+    expect(screen.getByText(EXPERIMENT.zoeFixed)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: EXPERIMENT.zoeEnd }));
+    expect(screen.queryByText(EXPERIMENT.zoeFixed)).not.toBeInTheDocument();
   });
 });
 

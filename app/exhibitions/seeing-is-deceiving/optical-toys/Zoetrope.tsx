@@ -3,12 +3,23 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent, type ReactNode } from 'react';
 import { drawFrame } from './strips';
 import FactNote from '@/components/exhibition/FactNote';
-import { POSTER, STRIPS, TOY_NOTES, type StripId } from './toysText';
-import { frameAt, SLIT_SHARE, slitsInView, speedAt, TAU, TOY_SPEEDS, ZOE_FRAMES, zoeSeen } from './spin';
+import { EXPERIMENT as X, POSTER, STRIPS, TOY_NOTES, type StripId } from './toysText';
+import { firstStumble, frameAt, isFixed, mixUp, SLIT_SHARE, slitsInView, speedAt, swapSlots, TAU, TOY_SPEEDS, ZOE_FRAMES, zoeSeen } from './spin';
 import { useSpeed } from './useSpeed';
 import SpeedControl from './SpeedControl';
 
 /*
+ * The point: the poster says the drawings move because they are in order
+ * and shown fast; here the visitor sees what one picture out of place does
+ * to the motion, and has to find it from the drawings themselves.
+ *
+ * The challenge (Nov 19 rework): "Mix up the strip" glues two pictures into
+ * each other's places, three to five apart (spin.ts, mixUp). Spun, the
+ * figure stumbles. In "See every picture", tapping two pictures swaps them;
+ * after a swap that does not fix it, a hint names the first picture that
+ * does not follow on from the one before it. It works under reduced motion
+ * too, from the pictures side by side.
+ *
  * The zoetrope: a drum on a stand, slits round its wall and a strip of
  * twelve drawings inside. It works the way the real one does.
  *
@@ -71,6 +82,12 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
   const [framesChoice, setFramesChoice] = useState<boolean | null>(null);
   const showFrames = framesChoice ?? reduced;
   const [thumbs, setThumbs] = useState<string[]>([]);
+  /** The mixed-up strip's order (slot to picture), or null for the good strip. */
+  const [order, setOrder] = useState<number[] | null>(null);
+  /** The first of two pictures tapped to swap. */
+  const [held, setHeld] = useState<number | null>(null);
+  const [wrongSwaps, setWrongSwaps] = useState(0);
+  const [fixNote, setFixNote] = useState('');
   const [status, setStatus] = useState('');
 
   const drum = useRef<HTMLCanvasElement>(null);
@@ -89,11 +106,12 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
   const look = useRef<HTMLImageElement | null>(null);
   const capRef = useRef(TOY_SPEEDS.zoetrope.top);
 
-  // Paint the strip's twelve pictures once, off screen.
+  // Paint the strip's twelve pictures once, off screen, in the strip's order (mixed up, for the challenge).
   useEffect(() => {
     const out: HTMLCanvasElement[] = [];
     const urls: string[] = [];
-    for (let k = 0; k < N; k++) {
+    for (let slot = 0; slot < N; slot++) {
+      const k = order ? order[slot] : slot;
       const c = document.createElement('canvas');
       c.width = FW;
       c.height = FH;
@@ -116,7 +134,7 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
     paint();
     // paint reads only refs; it is stable
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [strip]);
+  }, [strip, order]);
 
   const paint = useCallback(() => {
     drawDrum(drum.current, angle.current, before.current, frames.current, look.current);
@@ -210,6 +228,44 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
 
   const goTo = (f: number) => step(f - frameAt(angle.current));
 
+  // The mixed-up strip.
+  const mixing = order !== null;
+  const solved = mixing && isFixed(order);
+  const startMix = () => {
+    setOrder(mixUp());
+    setHeld(null);
+    setWrongSwaps(0);
+    setFixNote(X.zoeIntro);
+  };
+  const endMix = () => {
+    setOrder(null);
+    setHeld(null);
+    setFixNote('');
+  };
+  const tapFrame = (i: number) => {
+    goTo(i);
+    if (!order || solved) return;
+    if (held === null) {
+      setHeld(i);
+      return;
+    }
+    if (held === i) {
+      setHeld(null);
+      return;
+    }
+    const next = swapSlots(order, held, i);
+    setOrder(next);
+    setHeld(null);
+    if (isFixed(next)) setFixNote(X.zoeFixed);
+    else {
+      const wrong = wrongSwaps + 1;
+      setWrongSwaps(wrong);
+      const k = firstStumble(next);
+      setFixNote(`${X.zoeSwapped} ${X.zoeWrong}${k >= 0 ? ` ${X.zoeHint(k)}` : ''}`);
+    }
+  };
+  const hint = order && !solved && wrongSwaps > 0 ? firstStumble(order) : -1;
+
   // A flick sideways across the drum spins it.
   const down = (e: PointerEvent<HTMLCanvasElement>) => {
     if (reduced) return;
@@ -274,8 +330,15 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
         ) : (
           <ol className="vz-frames" aria-label={`${s.name}: the strip's ${N} pictures, side by side`}>
             {thumbs.map((src, i) => (
-              <li key={i} aria-current={frame === i ? 'step' : undefined}>
-                <button type="button" className="vz-frame" onClick={() => goTo(i)} aria-label={`Picture ${i + 1} of ${N}`}>
+              <li key={i} aria-current={frame === i ? 'step' : undefined} data-hint={hint === i ? 'true' : undefined}>
+                <button
+                  type="button"
+                  className="vz-frame"
+                  onClick={() => tapFrame(i)}
+                  aria-label={`Picture ${i + 1} of ${N}${mixing && !solved ? (held === i ? ', chosen: tap another to swap them' : ', tap to choose it') : ''}`}
+                  aria-pressed={mixing && !solved ? held === i : undefined}
+                  data-picture={order ? order[i] : i}
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {src ? <img src={src} alt="" width={FW} height={FH} /> : <span className="vz-frame-blank" />}
                   <span className="vz-frame-n" aria-hidden="true">{i + 1}</span>
@@ -330,6 +393,17 @@ export default function Zoetrope({ reduced, strip, onStrip, intro, footer }: { r
         <p className="vto-caption" aria-live="polite">
           {showFrames || seen === 'still' || seen === 'sliver' ? POSTER.zoetrope : seen === 'glimpses' ? POSTER.nothingMoves : `${POSTER.movies} ${POSTER.screens}`}
         </p>
+        <section className="vto-exp" aria-labelledby="vz-exp-title">
+          <h2 className="vto-exp-title" id="vz-exp-title">{X.zoeTitle}</h2>
+          {mixing && <p className="vto-exp-say" aria-live="polite">{fixNote}</p>}
+          <div className="vto-actions">
+            {!mixing ? (
+              <button type="button" className="vto-button" onClick={startMix}>{X.zoeStart}</button>
+            ) : (
+              <button type="button" className="vto-button vto-button-quiet" onClick={endMix}>{X.zoeEnd}</button>
+            )}
+          </div>
+        </section>
         <FactNote fact={TOY_NOTES.zoetrope} className="vto-fact" />
         {footer}
       </div>
