@@ -37,6 +37,8 @@ describe('Real or Replica?', () => {
   it('places the fakes from a seed, repeatably', () => {
     expect(fakeSides(5, 5)).toEqual(fakeSides(5, 5));
     expect(fakeSides(5, 5).every((s) => s === 'a' || s === 'b')).toBe(true);
+    // Never the same side every round.
+    for (let seed = 0; seed < 200; seed++) expect(new Set(fakeSides(seed, 5)).size).toBe(2);
   });
 
   it('never calls a zero score a numismatist', () => {

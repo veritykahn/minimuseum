@@ -33,10 +33,18 @@ const pct = (p: number) => `${(p * 100).toFixed(2)}%`;
 type Phase = 'intro' | 'play' | 'done';
 
 /**
+ * The point (what the poster alone can't give): working from the clues on a
+ * coin and its story, the child puts the New Testament's stories in their
+ * order in time, and finds that the Nativity, the Passion and Paul's journey
+ * to Rome fall under real rulers within one lifetime, about 65 years.
+ *
  * Place the Coin: the game that opens the Gospel Timeline. The coins come out
  * of the purse one at a time, in a muddled order (`order`, from coinOrder).
  * Each shows its ruler and two clues (what the coin itself tells you, what
- * happens in its story) and which book its story is in. The student drags it
+ * happens in its story); which book its story is in is held back as a third
+ * clue, shown after a first miss, so a first try is a real reasoning from
+ * the coin and its story, not a reading of "Gospel" or "Acts" off the
+ * screen. The student drags it
  * onto one of the six places on the timeline across the foot of the screen,
  * or taps the coin and then a place, or taps a place; with a keyboard, Tab to
  * a place (arrow keys move along) and press Enter. A place shows its date
@@ -133,9 +141,13 @@ export default function PlaceTheCoin({
           verdict === 'too-early'
             ? 'Too early! This coin’s story comes later. Try a place further right.'
             : 'Too late! This coin’s story comes earlier. Try a place further left.';
+        // REVIEW: new text. The first miss turns up a new clue (the book, under
+        // the coin); the second says which part of the timeline that means.
         const era = eraOf(stop);
         const hint =
-          misses.length >= 2 ? ` Hint: its story is in ${era === 'acts' ? 'Acts' : 'a Gospel'}, so look under “${ERAS[era].label}”.` : '';
+          misses.length === 1
+            ? ' A new clue: the book its story is in, under the coin.'
+            : ` Hint: its story is in ${era === 'acts' ? 'Acts' : 'a Gospel'}, so look under “${ERAS[era].label}”.`;
         setMessage(way + hint);
       }
     },
@@ -352,7 +364,9 @@ export default function PlaceTheCoin({
                 3
               </span>
               <span>
+                {/* REVIEW: new text */}
                 <strong>A place shows its date only when a coin lands there.</strong> Right first time wins a star.
+                Miss, and you get a new clue.
               </span>
             </li>
           </ol>
@@ -415,9 +429,19 @@ export default function PlaceTheCoin({
                 {clues.story}
               </p>
             </div>
-            <p className="ptc-book">
-              {stop.reference} <span>{ERAS[eraOf(stop)].book}</span>
-            </p>
+            {/* The book is a clue held back: it shows after a first miss (or once
+                the coin is placed), so the first try comes from the coin and its story. */}
+            {/* Its line is kept while hidden, so nothing jumps when it appears. */}
+            {tried.length > 0 || right ? (
+              <p className="ptc-book">
+                {!right && <span className="ptc-book-new">New clue</span>}
+                {stop.reference} <span>{ERAS[eraOf(stop)].book}</span>
+              </p>
+            ) : (
+              <p className="ptc-book ptc-book-held" aria-hidden="true">
+                {'\u00A0'}
+              </p>
+            )}
 
             <div className={`ptc-say ${tone}`}>
               <p className="ptc-message" role="status" aria-live="polite">

@@ -6,7 +6,9 @@
  * (artifacts/coin-data.ts) and Hands of History (hands/data.ts).
  *
  * `who` and `story` are shown before the coin is placed, so they never give
- * a date (a test checks). `why` is shown once it is placed, with its date.
+ * a date (a test checks), but where the room's text allows they say what a
+ * story comes before or after (the Passion, the early Church), so a coin can
+ * be placed by reasoning. `why` is shown once it is placed, with its date.
  */
 export type CoinClues = {
   /** What the coin itself tells you: whose it is, what is on it. */
@@ -35,8 +37,11 @@ export const COIN_CLUES: Record<number, CoinClues> = {
   },
   4: {
     who: 'A lepton: the smallest coin there was, worth less than half a penny.',
-    story: 'A poor widow gives two tiny coins at the Temple. Jesus says she gave more than all the rich.',
-    why: 'This was Jesus’s last public teaching before the Passion.',
+    // REVIEW: new text. The story clue now carries "last teaching before he is
+    // arrested" (the stop's own words: "his last public teaching before the
+    // Passion"), so it can be reasoned near the trial coins without a date.
+    story: 'A poor widow gives two tiny coins at the Temple. Jesus says she gave more than all the rich. It is his last teaching in public before he is arrested.',
+    why: 'This was Jesus’s last public teaching before the Passion: his arrest, trial and death.',
   },
   5: {
     who: 'A silver denarius with the face of the emperor Tiberius. It reads PONTIF MAXIM: High Priest.',

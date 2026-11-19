@@ -287,11 +287,13 @@ export default function GospelTimeline() {
           z-index: 10;
           display: flex;
           align-items: center;
-          justify-content: flex-start;
+          /* Coin, story and painting side by side, centred (Verity, Nov 18:
+             "two things left, a picture on the right"). */
+          justify-content: center;
           height: 100vh;
           height: 100dvh;
-          padding: 80px 35vw 130px 60px;
-          gap: 48px;
+          padding: 80px 40px 130px;
+          gap: clamp(24px, 3vw, 48px);
         }
 
         /* ========== COIN ========== */
@@ -320,8 +322,8 @@ export default function GospelTimeline() {
         }
 
         .tl-coin-img {
-          width: min(35vh, 35vw);
-          max-width: 360px;
+          width: min(32vh, 22vw);
+          max-width: 300px;
           height: auto;
           filter: drop-shadow(0 20px 60px rgba(0,0,0,0.5)) drop-shadow(0 8px 20px rgba(201, 168, 76, 0.1));
           animation: tl-coin-float 5s ease-in-out infinite;
@@ -445,11 +447,8 @@ export default function GospelTimeline() {
 
         /* ========== PAINTING INSET ========== */
         .tl-painting-inset {
-          position: fixed;
-          top: 50%;
-          right: 32px;
-          transform: translateY(-50%);
-          z-index: 5;
+          flex: 0 1 auto;
+          min-width: 0;
           transition: opacity 0.5s ease;
         }
         .tl-painting-inset.fading { opacity: 0; }
@@ -467,7 +466,7 @@ export default function GospelTimeline() {
           height: auto;
           width: auto;
           max-height: min(55vh, 500px);
-          max-width: calc(35vw - 56px);
+          max-width: min(26vw, 380px);
           object-fit: contain;
           border-radius: 4px;
           box-shadow:
@@ -947,15 +946,15 @@ export default function GospelTimeline() {
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Painting inset — right side, click for fullscreen */}
-      <div className={`tl-painting-inset ${transitioning ? 'fading' : ''}`}>
-        <button type="button" className="tl-painting-btn" onClick={() => setShowModal(true)}
-          aria-haspopup="dialog" aria-label={`View painting full screen: ${stop.ruler}`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={stop.painting} alt="" />
-        </button>
+        {/* The painting: third in the centred row, click for fullscreen */}
+        <div className={`tl-painting-inset ${transitioning ? 'fading' : ''}`}>
+          <button type="button" className="tl-painting-btn" onClick={() => setShowModal(true)}
+            aria-haspopup="dialog" aria-label={`View painting full screen: ${stop.ruler}`}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={stop.painting} alt="" />
+          </button>
+        </div>
       </div>
 
       {/* Fullscreen painting modal */}

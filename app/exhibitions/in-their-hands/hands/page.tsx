@@ -15,6 +15,22 @@ import { SoundSwitch, isGoodScore } from '@/components/games/feedback/FeedbackKi
 import { CLOSING, HANDS_CHARACTERS, TIERS, buildRounds } from './data';
 import HandsProjector from './HandsProjector';
 
+/*
+ * Hands of History: a pair of hands holds a coin from the room; the student
+ * chooses, from four, whose hands they are (a soldier, a priest, the widow, a
+ * merchant, a mother, Paul, the daughter of Aretas), then sees the whole
+ * person, why it is them, and the coin's story behind More. Seven rounds in
+ * a shuffled order, four names drawn afresh each time; a teacher can run it
+ * on the projector for the class to vote.
+ *
+ * The point (what the poster alone can't give): the child reasons from a
+ * coin to the ordinary person who spent it, from what they have read on the
+ * posters and in the other rooms, and so meets the coins as money real people
+ * carried, not only as objects in a case. Verity likes the choosing, guessing
+ * and voting as they are (walkthrough, Nov 18); the three clues before each
+ * guess were dropped at her word, so the guess is the child's own.
+ */
+
 const THEME = {
   '--game-accent': '#C9A84C',
   '--game-text': '#e6e1d6',

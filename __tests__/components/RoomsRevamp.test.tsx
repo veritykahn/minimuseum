@@ -149,8 +149,13 @@ describe('Gospel Timeline: Place the Coin', () => {
   it('says too early or too late, crosses the place off, then snaps the coin in, says why and moves on', () => {
     render(<PlaceTheCoin order={order} onReadStories={() => {}} />);
     fireEvent.click(screen.getByRole('button', { name: 'Open the purse' }));
+    // The book is a clue held back until a first miss.
+    expect(screen.queryByText('Acts 18:1–3')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: /^Place 1 of 6/ }));
     expect(screen.getByRole('status')).toHaveTextContent('Too early! This coin’s story comes later.');
+    expect(screen.getByRole('status')).toHaveTextContent('A new clue: the book its story is in');
+    expect(screen.getByText('New clue')).toBeInTheDocument();
+    expect(screen.getByText(/Acts 18:1–3/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Place 1 of 6.*\(not this one\)/ })).toHaveAttribute('aria-disabled', 'true');
     fireEvent.click(screen.getByRole('button', { name: /^Place 6 of 6/ }));
     expect(screen.getByRole('status')).toHaveTextContent('Too late!');

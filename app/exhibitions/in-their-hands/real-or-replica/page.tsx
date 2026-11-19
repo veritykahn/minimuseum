@@ -26,6 +26,20 @@ function calloutsFor(round: ReplicaRound, on: 'fake' | 'real'): Callout[] {
     .map(({ n, x, y }) => ({ n, x, y }));
 }
 
+/*
+ * Real or Replica?: two photographs of the same ancient coin, one genuine and
+ * one a fake; the student looks through the magnifier for the three things
+ * an expert checks (the surface, the sharpness, the wear and the edge) and
+ * says which is the fake. The answer marks what gave it away on both coins.
+ * The fake's side is shuffled each game (and is never the same side every
+ * round). Last, the room's own three replicas, honestly labelled.
+ *
+ * The point (what the poster alone can't give): the child practises looking
+ * like a numismatist, comparing two coins side by side for evidence, and
+ * learns why a museum says plainly which of its coins are replicas. Verity
+ * likes it as it is (walkthrough, Nov 18): kept, bug-checked only.
+ */
+
 const THEME = {
   '--game-accent': '#C9A84C',
   '--game-text': '#e8e0d0',
