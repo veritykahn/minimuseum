@@ -37,6 +37,12 @@ export type TombState = {
   amulet?: SavedAmulet;
   /** The name written in the cartouche room. */
   cartouche?: string;
+  /**
+   * What each room put in the visitor's burial tomb (Build Your Own Tomb), by
+   * room: a short plain name of the thing, "your mummy in its coffin". A room
+   * adds it with keepInTomb, from its last step's PutInTomb button.
+   */
+  kept?: Partial<Record<ActivityId, string>>;
 };
 
 const EMPTY: TombState = { done: {}, found: {} };
@@ -52,6 +58,7 @@ export function readTomb(): TombState {
       found: parsed.found && typeof parsed.found === 'object' ? parsed.found : {},
       amulet: parsed.amulet,
       cartouche: typeof parsed.cartouche === 'string' ? parsed.cartouche : undefined,
+      kept: parsed.kept && typeof parsed.kept === 'object' ? parsed.kept : {},
     };
   } catch {
     return EMPTY;
@@ -83,6 +90,14 @@ export function writeTomb(update: (s: TombState) => TombState): TombState {
 export function markDone(id: ActivityId) {
   return writeTomb((s) => (s.done[id] ? s : { ...s, done: { ...s.done, [id]: true } }));
 }
+
+/** A room's last step: what it made goes into the visitor's burial tomb (and the room counts as finished). */
+export function keepInTomb(id: ActivityId, what: string) {
+  return writeTomb((s) => ({ ...s, done: { ...s.done, [id]: true }, kept: { ...(s.kept ?? {}), [id]: what } }));
+}
+
+/** The visitor's own burial tomb, where every room's last step leads. */
+export const MY_TOMB_PATH = '/exhibitions/egypt/my-tomb';
 
 /**
  * The tomb's memory in a component: read once the page is in the browser
