@@ -38,7 +38,15 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
 ];
 
 /** What "Teach with this" opens: the lessons, printables and discussion questions for each role. */
-const TEACH: TeachContent = { slug: 'harlem-renaissance', name: 'The Harlem Renaissance', posters: PROJECTOR_POSTERS, links: HARLEM_POSTER_LINKS };
+const TEACH: TeachContent = {
+  slug: 'harlem-renaissance',
+  name: 'The Harlem Renaissance',
+  posters: PROJECTOR_POSTERS,
+  links: HARLEM_POSTER_LINKS,
+  rooms: HARLEM_ROOMS.map(({ href, title, subtitle, image }) => ({ href, title, subtitle, image })),
+  // The landing page's purple and cream, with the Explore row's gold where it reads.
+  theme: { bg: '#714985', ink: '#efd9b4', heading: '#efd9b4', accent: ['#e2c27a', '#efd9b4'], display: "'Cormorant Garamond', Georgia, serif", body: "'Outfit', system-ui, sans-serif" },
+};
 
 // ============================================
 // MAIN COMPONENT
@@ -855,11 +863,6 @@ export default function HarlemRenaissance() {
           </span>
         </ExhibitionNav>
 
-        <ExhibitionNav className="hr-nav hr-nav-right" href="/exhibitions/harlem-renaissance/resources">
-          <span className="hr-nav-label" style={{ color: navInk }}>Resources</span>
-          <span className="hr-nav-arrow hr-nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>&#8594;</span>
-          <span className="hr-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
-        </ExhibitionNav>
         </>
       )}
 

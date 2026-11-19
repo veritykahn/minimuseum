@@ -59,6 +59,15 @@
 /* The landing page sets both posters' colors: slate frame, rust subtitle. */
 [data-exhibition='america-250'] .pe-exhibition-main::after { border-color: var(--ap-slate); }
 [data-exhibition='america-250'] .pe-exhibition-main > * { position: relative; z-index: 1; }
+/* The landing page's sheet takes in the Explore row too (.pe-landing-page,
+   poster-exhibition.css), so the border runs on past the interactives to the
+   foot of the page. On a laptop or tablet, where the row is a strip at the
+   foot of the first screen, the strip is a border's width taller and its
+   cards stand clear inside the border. */
+@media (min-width: 641px) and (min-height: 600px) {
+  .pe-root[data-exhibition='america-250'] { --pe-explore-peek: calc(clamp(124px, 16dvh, 140px) + var(--ap-fw)); }
+  .pe-root[data-exhibition='america-250'] .pe-landing + .pe-explore { padding-bottom: calc(var(--ap-fw) + 8px); }
+}
 /* The arrows and the corner link stand inside the border. */
 [data-exhibition='america-250'] .pe-walkthrough-nav { bottom: calc(var(--ap-fw) + 14px); }
 [data-exhibition='america-250'] .pe-nav-left { left: calc(var(--ap-fw) + 18px); top: calc(var(--ap-fw) + 14px); }

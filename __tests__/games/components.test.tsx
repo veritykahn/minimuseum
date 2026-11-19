@@ -85,10 +85,10 @@ describe('Hands of History', () => {
     expect(screen.getByText(/Round 1 of 7/)).toBeInTheDocument();
   });
 
-  it('gives three clues before the guess, and keeps the long story behind More with Next in view', () => {
+  it('asks straight away with no clue list, and keeps the long story behind More with Next in view', () => {
     render(<HandsOfHistory />);
-    const clues = screen.getByRole('region', { name: 'Look for 3 clues' });
-    expect(clues.querySelectorAll('li')).toHaveLength(3);
+    // The three clues were dropped (Verity, Nov 2026): children guess from the posters and earlier rooms.
+    expect(screen.queryByRole('region', { name: 'Look for 3 clues' })).toBeNull();
     const prompt = screen.getByRole('heading', { level: 1 }).textContent ?? '';
     const answer = HANDS_CHARACTERS.find((c) => c.prompt === prompt)!;
     fireEvent.click(screen.getByRole('button', { name: answer.character }));

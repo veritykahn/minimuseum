@@ -174,6 +174,12 @@ const LEVEL1_ROOMS: MapRoom[] = [
     parent: 'greathall',
     children: GROUND_FLOOR_IDS,
   },
+  // The Resources hub: every exhibition's lessons and printables, by role.
+  {
+    id: 'resources-hub', label: 'Resources: Lessons & Printables', path: '/resources',
+    x: 100, y: 420, width: 300, height: 44, accentColor: COLORS.sage,
+    parent: 'greathall',
+  },
 ];
 
 const LEVEL1_CONNECTIONS: RoomConnection[] = [
@@ -183,11 +189,13 @@ const LEVEL1_CONNECTIONS: RoomConnection[] = [
   ['third-floor', 'second-floor'],
   ['second-floor', 'first-floor'],
   ['first-floor', 'ground-floor'],
+  // Drawn from the Ground Floor, so its line does not cross the floors.
+  ['ground-floor', 'resources-hub'],
 ];
 
 export const MUSEUM_OVERVIEW: MapLevelConfig = {
   level: 'museum',
-  viewBox: '0 0 500 410',
+  viewBox: '0 0 500 484',
   rooms: LEVEL1_ROOMS,
   connections: LEVEL1_CONNECTIONS,
 };
@@ -219,7 +227,7 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'egypt', label: 'Ancient Egypt', path: '/exhibitions/egypt',
     x: 180, y: 80, width: 140, height: 110, accentColor: COLORS.egypt,
     parent: 'ground-floor',
-    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet'],
+    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet', 'eg-my-tomb'],
   },
   {
     id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
@@ -232,7 +240,7 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'america-250', label: 'America 250', path: '/exhibitions/america-250',
     x: 102, y: 230, width: 140, height: 100, accentColor: COLORS.america250,
     parent: 'ground-floor',
-    children: ['ap-case', 'ap-sign'],
+    children: ['ap-case', 'ap-sign', 'ap-copies', 'ap-flag'],
   },
   {
     id: 'victorian', label: 'Victorian\nBritain', path: '/exhibitions/victorian',
@@ -813,7 +821,7 @@ export const GREAT_WAR: MapLevelConfig = {
 // ═══════════════════════════════════════════════════════════════════
 // LEVEL 3 — Ancient Egypt (Floor Plan)
 //
-// Layout: the Exhibition Hall, the display case beyond it, and its six
+// Layout: the Exhibition Hall, the display case beyond it, and its seven
 // interactive rooms beyond that, in the order the case lists them
 // ┌────────────────────────────────┐
 // │        Exhibition Hall         │
@@ -823,11 +831,13 @@ export const GREAT_WAR: MapLevelConfig = {
 // │ Your Name │ Rosetta  │  Tomb   │
 // ├──────╴ ╶──┼───╴ ╶───┼──╴ ╶─────┤
 // │Mummificat.│ Weighing │ Amulet  │
-// └───────────┴──────────┴─────────┘
+// ├───────────────╴ ╶──────────────┤
+// │      Build Your Own Tomb       │
+// └────────────────────────────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const EGYPT_FLOOR_PLAN: ExhibitionFloorPlan = {
-  outline: { x: 40, y: 80, width: 420, height: 320, rx: 3 },
+  outline: { x: 40, y: 80, width: 420, height: 380, rx: 3 },
   accentColor: COLORS.egypt,
   walls: [
     ...wallWithDoorway(40, 160, 460, 160),
@@ -841,6 +851,8 @@ const EGYPT_FLOOR_PLAN: ExhibitionFloorPlan = {
     ...wallWithDoorway(320, 320, 460, 320),
     ...wallWithDoorway(180, 240, 180, 400),
     ...wallWithDoorway(320, 240, 320, 400),
+    // And from the second row into the tomb builder along the foot
+    ...wallWithDoorway(40, 400, 460, 400),
   ],
   rooms: [
     {
@@ -891,6 +903,12 @@ const EGYPT_FLOOR_PLAN: ExhibitionFloorPlan = {
       x: 320, y: 320, width: 140, height: 80,
       labelX: 390, labelY: 360,
     },
+    {
+      id: 'eg-my-tomb', label: 'Build Your Own Tomb', path: '/exhibitions/egypt/my-tomb',
+      accentColor: COLORS.egypt, parent: 'egypt',
+      x: 40, y: 400, width: 420, height: 60,
+      labelX: 250, labelY: 430,
+    },
   ],
 };
 
@@ -900,7 +918,7 @@ export const EGYPT: MapLevelConfig = {
   connections: [],
   title: 'Ancient Egypt',
   ...onFloorOf('egypt'),
-  ...withLessons(EGYPT_FLOOR_PLAN, '0 0 500 450', 'egypt'),
+  ...withLessons(EGYPT_FLOOR_PLAN, '0 0 500 510', 'egypt'),
 };
 
 // ═══════════════════════════════════════════════════════════════════
@@ -965,8 +983,10 @@ export const MOON: MapLevelConfig = {
 // ├───────────────╴ ╶──────────────┤
 // │          Display Case          │
 // ├───────────────╴ ╶──────────────┤
-// │      Put Your Name to It       │
-// └────────────────────────────────┘
+// ├─────────╴ ╶┬────╴ ╶────┬╴ ╶──────┤
+// │ Put Your   ╎ A Copy of ╎ Add a   │
+// │ Name to It ╎ a Copy    ╎ Star    │
+// └────────────┴───────────┴─────────┘
 // ═══════════════════════════════════════════════════════════════════
 
 const AMERICA_250_FLOOR_PLAN: ExhibitionFloorPlan = {
@@ -974,7 +994,12 @@ const AMERICA_250_FLOOR_PLAN: ExhibitionFloorPlan = {
   accentColor: COLORS.america250,
   walls: [
     ...wallWithDoorway(40, 180, 460, 180),
-    ...wallWithDoorway(40, 280, 460, 280),
+    // Under the case, a doorway into each of the three rooms
+    ...wallWithDoorway(40, 280, 180, 280),
+    ...wallWithDoorway(180, 280, 320, 280),
+    ...wallWithDoorway(320, 280, 460, 280),
+    ...wallWithDoorway(180, 280, 180, 380),
+    ...wallWithDoorway(320, 280, 320, 380),
   ],
   rooms: [
     {
@@ -990,10 +1015,22 @@ const AMERICA_250_FLOOR_PLAN: ExhibitionFloorPlan = {
       labelX: 250, labelY: 230,
     },
     {
-      id: 'ap-sign', label: 'Put Your Name to It', path: '/exhibitions/america-250/sign',
+      id: 'ap-sign', label: 'Put Your\nName to It', path: '/exhibitions/america-250/sign',
       accentColor: COLORS.america250, parent: 'america-250',
-      x: 40, y: 280, width: 420, height: 100,
+      x: 40, y: 280, width: 140, height: 100,
+      labelX: 110, labelY: 330,
+    },
+    {
+      id: 'ap-copies', label: 'A Copy\nof a Copy', path: '/exhibitions/america-250/copies',
+      accentColor: COLORS.america250, parent: 'america-250',
+      x: 180, y: 280, width: 140, height: 100,
       labelX: 250, labelY: 330,
+    },
+    {
+      id: 'ap-flag', label: 'Add a Star', path: '/exhibitions/america-250/flag',
+      accentColor: COLORS.america250, parent: 'america-250',
+      x: 320, y: 280, width: 140, height: 100,
+      labelX: 390, labelY: 330,
     },
   ],
 };

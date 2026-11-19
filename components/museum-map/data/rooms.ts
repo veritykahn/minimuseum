@@ -88,6 +88,18 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     accentColor: '#7D8471',
     parent: 'greathall',
   },
+  // The Resources hub, off the Great Hall: every exhibition's lessons and printables.
+  {
+    id: 'resources-hub',
+    label: 'Resources',
+    path: '/resources',
+    x: 130,
+    y: 400,
+    width: 240,
+    height: 40,
+    accentColor: '#7D8471',
+    parent: 'greathall',
+  },
   // The floors, top first: the Studio's children are its tools (see
   // levels.ts), each a door to a room in its exhibition.
   ...[
@@ -170,7 +182,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 100,
     accentColor: '#56656F',
     parent: 'ground-floor',
-    children: ['ap-case', 'ap-sign'],
+    children: ['ap-case', 'ap-sign', 'ap-copies', 'ap-flag'],
   },
   {
     id: 'ap-case',
@@ -184,6 +196,22 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     id: 'ap-sign',
     label: 'Put Your Name to It',
     path: '/exhibitions/america-250/sign',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#56656F',
+    parent: 'america-250',
+  },
+  {
+    id: 'ap-copies',
+    label: 'A Copy of a Copy',
+    path: '/exhibitions/america-250/copies',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#56656F',
+    parent: 'america-250',
+  },
+  {
+    id: 'ap-flag',
+    label: 'Add a Star',
+    path: '/exhibitions/america-250/flag',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#56656F',
     parent: 'america-250',
@@ -382,7 +410,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 110,
     accentColor: '#F04A1A',
     parent: 'ground-floor',
-    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet'],
+    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet', 'eg-my-tomb'],
   },
   {
     id: 'eg-case',
@@ -436,6 +464,14 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     id: 'eg-amulet',
     label: 'Design an Amulet',
     path: '/exhibitions/egypt/amulet',
+    x: 0, y: 0, width: 0, height: 0,
+    accentColor: '#F04A1A',
+    parent: 'egypt',
+  },
+  {
+    id: 'eg-my-tomb',
+    label: 'Build Your Own Tomb',
+    path: '/exhibitions/egypt/my-tomb',
     x: 0, y: 0, width: 0, height: 0,
     accentColor: '#F04A1A',
     parent: 'egypt',

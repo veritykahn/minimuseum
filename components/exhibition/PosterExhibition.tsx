@@ -8,6 +8,8 @@ import { usePosterWalkthrough } from '@/lib/usePosterNavigation';
 import PosterProjector from '@/components/projector/PosterProjector';
 import TeachToggle from '@/components/projector/TeachToggle';
 import type { TeachContent } from '@/components/projector/TeachSheet';
+import { exhibitionTeachTheme, isResourcesLink } from '@/lib/lessons/teach';
+import { roomsInOrder } from './roomsInOrder';
 import { usePosterDeepLink, useProjectorMode } from '@/components/projector/useProjectorMode';
 import { FxDefs, FxVeil, PosterProgress, chapterMarks, usePosterFxStage } from '@/components/poster-fx/PosterFx';
 import PosterPanel from './PosterPanel';
@@ -45,9 +47,18 @@ export default function PosterExhibition<K extends string>({ config }: { config:
   const ids = useMemo(() => posters.map((p) => p.id), [posters]);
   const lengths = useMemo(() => posterLengths(posters), [posters]);
   const pjPosters = useMemo(() => projectorPosters(posters), [posters]);
+  // "Teach with this": the posters, the rooms, the teacher's note, in the exhibition's own colours.
   const teach = useMemo<TeachContent>(
-    () => ({ slug, name, posters: pjPosters, links: projectorConfig.links, note: projectorConfig.teachNote }),
-    [slug, name, pjPosters, projectorConfig.links, projectorConfig.teachNote],
+    () => ({
+      slug,
+      name,
+      posters: pjPosters,
+      links: projectorConfig.links,
+      note: projectorConfig.teachNote,
+      rooms: roomsInOrder(interactives).map(({ href, title, subtitle, image }) => ({ href, title, subtitle, image })),
+      theme: exhibitionTeachTheme(palette, projectorConfig.theme, fonts),
+    }),
+    [slug, name, pjPosters, projectorConfig.links, projectorConfig.teachNote, projectorConfig.theme, interactives, palette, fonts],
   );
   const marks = useMemo(() => Object.fromEntries(posters.map((p) => [p.id, chapterMarks(p.items)])) as Record<K, number[]>, [posters]);
 
@@ -170,7 +181,8 @@ export default function PosterExhibition<K extends string>({ config }: { config:
             <span className="pe-nav-label">{activeView === 'main' ? back.label : 'Exhibition'}</span>
           </ExhibitionNav>
 
-          {corner && (
+          {/* A corner link, never to the old resources pages: "Teach with this" is the room's one door to its materials. */}
+          {corner && !isResourcesLink(corner.href) && (
             <ExhibitionNav className="pe-nav pe-nav-right" href={corner.href}>
               <span className="pe-nav-label">{corner.label}</span>
               <span className="pe-nav-arrow pe-nav-arrow-right" aria-hidden="true">&#8594;</span>
@@ -181,8 +193,11 @@ export default function PosterExhibition<K extends string>({ config }: { config:
       )}
 
       {activeView === 'main' && !projector && (
-        <>
-        <div className="pe-exhibition-main pe-landing">
+        // The whole landing page, its first screen and the Explore row below
+        // it: the exhibition's own ground (a picture, a frame, color blocks,
+        // drawn on pe-exhibition-main by its stylesheet) runs from top to foot.
+        <div className="pe-exhibition-main pe-landing-page">
+        <div className="pe-landing">
           <div className="pe-exhibition-title pe-landing-head">
             <h1>{name}</h1>
             <p>{subtitle}</p>
@@ -202,7 +217,7 @@ export default function PosterExhibition<K extends string>({ config }: { config:
 
         {/* The interactive rooms, below the first screen; the case's Interactives tab lists the same. */}
         <ExploreRow rooms={interactives} style={{ '--pe-explore-on-accent': palette.page }} />
-        </>
+        </div>
       )}
 
       <p className="visually-hidden" aria-live="polite" aria-atomic="true">

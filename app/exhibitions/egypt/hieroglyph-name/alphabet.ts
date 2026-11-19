@@ -1,6 +1,7 @@
 import type { ApprovedFact } from '@/components/exhibition/FactNote';
 import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
-import { BM_SYMBOLS, EES_CARTOUCHE, GLYPHS, UNIKEMET, type GlyphCode } from '../rooms';
+import { BM_HIEROGLYPHS, BM_SYMBOLS, BUDGE_ROSETTA, EES_CARTOUCHE, GLYPHS, UNIKEMET, type GlyphCode } from '../rooms';
+import { PTOLEMY } from '../rosetta-stone/rosetta';
 
 /*
  * Your name in hieroglyphs: the sign for each English letter, as the Egypt
@@ -91,6 +92,13 @@ export function readOut(spelled: Spelled[]) {
   return spelled.map((s) => s.letters).join(', ');
 }
 
+/**
+ * A real royal name in its cartouche, to show what a cartouche is before the
+ * visitor writes their own: King Ptolemy's, as it is carved on the Rosetta
+ * Stone (rosetta.ts sets it sign by sign, after Budge).
+ */
+export const ROYAL_EXAMPLE: Spelled[] = PTOLEMY.map((s) => ({ letters: s.sound, glyphs: GLYPHS[s.code], codes: [s.code] }));
+
 export const NAME_NOTES = {
   chart: {
     text: 'These signs follow the Egypt Exploration Society’s chart for writing your name: a sign for each letter of the English alphabet, and one each for “ch” and “sh”. If a letter is missing, spell your name by its sounds.',
@@ -108,6 +116,11 @@ export const NAME_NOTES = {
     text: 'The straight line at one end marks the end of the name and helps show the reading direction. Hieroglyphs could be written left to right or right to left, but always top to bottom.',
     sources: [EES_CARTOUCHE],
   },
+  // REVIEW: new text. British Museum, "Hieroglyphs: unlocking ancient Egypt": "Thomas Young had already read Ptolemy's name in the stone's cartouche"; Budge, The Rosetta Stone (1913), sets the cartouche sign by sign.
+  example: {
+    text: 'This is King Ptolemy’s name, in its cartouche, as it is carved on the Rosetta Stone.',
+    sources: [BM_HIEROGLYPHS, BUDGE_ROSETTA],
+  },
   // REVIEW: new text. British Museum, "Symbols of the pharaoh": hieroglyphs wrote consonants only, with no vowels. EES chart: "we can add the sound ‘e’ to make reading the words easier. For example, the biliteral sign mn might be pronounced as ‘men’ today".
   scribe: {
     text: 'An Egyptian scribe would have left the vowels out, writing only the consonants. Today we often add an “e” to make the words easier to say: the sign mn can be said “men”.',
@@ -117,7 +130,8 @@ export const NAME_NOTES = {
 
 /** The room's Sources drawer. */
 export const NAME_SOURCES: SourceGroup[] = [
-  { title: 'The chart and the cartouche', items: [EES_CARTOUCHE, BM_SYMBOLS] },
+  { title: 'What is a cartouche?', items: [BM_SYMBOLS, EES_CARTOUCHE, BM_HIEROGLYPHS, BUDGE_ROSETTA] },
+  { title: 'The chart', items: [EES_CARTOUCHE, BM_SYMBOLS] },
   { title: 'What each sign shows', items: [UNIKEMET] },
   { title: 'Lettering', items: [{ label: 'Hieroglyphs set in Noto Sans Egyptian Hieroglyphs', licence: 'SIL Open Font License' }] },
 ];

@@ -1,12 +1,32 @@
 /* ==========================================================================
-   The Tomb Explorer: a picture (a painted wall, or the drawn burial chamber)
-   under a layer of dark, with a hole of warm torchlight at the torch's place
-   (--tx, --ty). The light flickers a little, as a flame does; under reduced
-   motion it holds steady. A found detail is ringed in gold. The stage keeps
-   the picture's own shape, sized to fill the space left on the screen
-   (its cell is a size container), so the picture is never cropped or
-   letterboxed. A wall's bar sits beneath it.
+   The Tomb Explorer: a painted wall, as large as the screen allows, in a
+   black surround, under a layer of dark. With the torch off the dark is
+   whole, and a glowing "Turn on your torch" waits in the middle. With it on,
+   a hole of warm torchlight sits at the torch's place (--tx, --ty) and
+   flickers a little, as a flame does (steady under reduced motion). A found
+   detail is ringed in gold. Once all are found, the dark lifts slowly and
+   the wall glows in a gold frame. A bar beneath the wall holds the torch's
+   on/off switch, what to search for and the way on; once the wall is lit,
+   its one big fact. The wall's painting keeps its own shape, sized to fill
+   the space left on the screen (its cell is a size container), so it is
+   never cropped.
    ========================================================================== */
+
+/* The heading: the title, and the five walls as tabs beside it. */
+.eg-tomb .egr-head { align-items: center; margin-bottom: 8px; }
+.eg-tomb .egt-tabs { order: 4; margin: 0 0 0 auto; }
+
+.egt-view { display: flex; flex-direction: column; gap: 10px; }
+
+/* The surround: a black niche with a faint warm edge, the painting in it. */
+.egt-stage-cell {
+  display: grid;
+  place-items: center;
+  padding: clamp(6px, 1vw, 14px);
+  border-radius: 6px;
+  background: radial-gradient(ellipse 80% 90% at 50% 50%, #120d09 0%, #050403 70%, #000 100%);
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.9);
+}
 
 .egt-stage {
   --tx: 50%;
@@ -15,41 +35,33 @@
   position: relative;
   margin: 0 auto;
   overflow: hidden;
-  border: 1px solid #3a2f22;
+  border: 1px solid #2a2118;
   background: #050403;
-  cursor: none;
   touch-action: none;
   user-select: none;
   -webkit-user-select: none;
+  transition: box-shadow 2.4s ease, border-color 2.4s ease;
 }
 /* Wide enough to fill, never taller than 68vh: the width follows the picture's shape. */
 .egt-stage { width: min(100%, calc(68vh * var(--egt-aspect, 1.6))); }
-.egt-stage img,
-.egt-stage .egt-chamber { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
+.egt-stage.is-on:not(.is-lit) { cursor: none; }
+.egt-stage img { display: block; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
 .egt-dark {
   position: absolute;
   inset: 0;
+  background: rgba(3, 2, 1, 0.995);
+  transition: opacity 2.4s ease;
+  pointer-events: none;
+}
+.egt-stage.is-on .egt-dark {
   background: radial-gradient(circle var(--r) at var(--tx) var(--ty), rgba(255, 190, 110, 0.12) 0%, rgba(10, 6, 3, 0.25) 45%, rgba(4, 3, 2, 0.985) 100%);
-  transition: opacity 0.8s ease;
   animation: egt-flicker 2.6s ease-in-out infinite;
-  pointer-events: none;
 }
-.egt-stage.is-lit { cursor: crosshair; }
+/* Every detail found: the dark lifts, the wall glows in gold. */
 .egt-stage.is-lit .egt-dark { opacity: 0; animation: none; }
-/* With the wall lit, a small lens shows where the torch's centre is. */
-.egt-stage.is-lit::after {
-  content: '';
-  position: absolute;
-  left: var(--tx);
-  top: var(--ty);
-  width: 34px;
-  height: 34px;
-  translate: -50% -50%;
-  border: 2px dashed rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
-  pointer-events: none;
-}
+.egt-stage.is-lit { border-color: var(--egr-gold); box-shadow: 0 0 0 2px var(--egr-gold), 0 0 70px rgba(217, 164, 65, 0.45); }
+.egt-stage.is-lit img { animation: egt-dawn 2.6s ease both; }
+@keyframes egt-dawn { from { filter: brightness(0.35) sepia(0.6); } }
 .egt-stage:focus-visible { outline: 3px solid var(--egr-orange); outline-offset: 4px; }
 @keyframes egt-flicker {
   0%, 100% { opacity: 1; }
@@ -70,19 +82,91 @@
   animation: egt-ring 0.6s ease both;
 }
 @keyframes egt-ring { from { opacity: 0; scale: 1.5; } }
-.egt-hint { margin: 10px 0 0; text-align: center; color: var(--egr-muted); font-size: 0.95rem; }
+
+/* The first thing to do: a glowing button in the middle of the dark wall. */
+.eg-room .egt-light {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 60px;
+  padding: 12px 30px 12px 22px;
+  border: 2px solid var(--egr-gold);
+  border-radius: 999px;
+  background: rgba(20, 14, 8, 0.92);
+  color: #fff;
+  font-family: var(--pe-display);
+  font-size: clamp(1.1rem, 0.9rem + 0.8vw, 1.6rem);
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: 0 0 40px rgba(217, 164, 65, 0.35);
+  animation: egt-call 2.4s ease-in-out infinite;
+}
+.eg-room .egt-light:hover { background: rgba(60, 38, 16, 0.95); }
+@keyframes egt-call { 50% { box-shadow: 0 0 70px rgba(217, 164, 65, 0.6); } }
+/* A small flame, drawn: a teardrop of orange and gold. */
+.egt-flame {
+  display: inline-block;
+  flex: none;
+  width: 22px;
+  height: 30px;
+  border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(ellipse at 50% 72%, #fff3c4 0 18%, #ffc24a 36%, #f04a1a 78%);
+  box-shadow: 0 0 16px rgba(255, 170, 60, 0.9);
+  animation: egt-burn 1.2s ease-in-out infinite alternate;
+}
+@keyframes egt-burn { to { transform: scaleY(1.1) rotate(-3deg); } }
+
+/* The torch's switch: on or off, always in the bar. */
+.eg-room .egt-switch {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 6px 14px 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 999px;
+  background: #0b0a09;
+  color: #fff;
+  font-family: var(--pe-body);
+  font-size: 0.95em;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.egt-switch-track { position: relative; flex: none; width: 54px; height: 30px; border-radius: 999px; background: #3a3530; transition: background 0.25s ease; }
+.egt-switch-knob { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #cfc8bd; transition: left 0.25s ease, background 0.25s ease, box-shadow 0.25s ease; }
+.egt-switch[aria-checked='true'] { border-color: var(--egr-gold); }
+.egt-switch[aria-checked='true'] .egt-switch-track { background: var(--egr-orange-deep); }
+.egt-switch[aria-checked='true'] .egt-switch-knob { left: 27px; background: #ffd27a; box-shadow: 0 0 14px rgba(255, 190, 90, 0.9); }
+.egt-switch-text strong { margin-left: 4px; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.85em; color: var(--egr-muted); }
+.egt-switch[aria-checked='true'] .egt-switch-text strong { color: var(--egr-gold); }
+
+.egt-hint { margin: 0; color: var(--egr-muted); font-size: 0.88em; }
 .egt-found { margin: 0; font-family: var(--pe-display); font-size: 1.3em; color: var(--egr-gold); }
 .egt-tick { margin-left: 6px; color: var(--egr-gold); }
 .egr-tab[aria-selected='true'] .egt-tick { color: #6b4a10; }
+.egt-left { color: var(--egr-muted); }
 
-/* The wall's bar, beneath the painting: where it is, what to search for, and the way on. */
-.egt-wall { display: flex; flex-direction: column; gap: 10px; }
+/* A find's card: its piece of the painting, up close. */
+.egt-crop {
+  width: min(100%, calc(44vh * 4 / 3));
+  margin: 0 auto;
+  border: 2px solid var(--egr-gold);
+  background-repeat: no-repeat;
+  background-color: #050403;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  animation: egt-ring 0.5s ease both;
+}
+
+/* The wall's bar, beneath the painting: the torch, where it is, what to search for, and the way on. */
 .egt-bar {
-  position: sticky;
-  bottom: 0;
-  z-index: 5;
   display: grid;
-  grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.6fr) auto;
+  grid-template-columns: auto minmax(160px, 0.8fr) minmax(0, 1.6fr) auto;
   align-items: center;
   gap: 8px 18px;
   padding: 10px 14px;
@@ -92,58 +176,49 @@
   font-weight: 300;
   font-size: clamp(0.92rem, 0.8rem + 0.35vw, 1.1rem);
 }
+.egt-bar.is-lit { grid-template-columns: minmax(160px, 0.7fr) minmax(0, 2fr) auto; border: 2px solid var(--egr-gold); background: linear-gradient(90deg, rgba(217, 164, 65, 0.16), rgba(217, 164, 65, 0.04)); animation: egt-ring 0.8s ease both; }
 .egt-bar-info { min-width: 0; }
 .egt-bar-info .egr-label { margin: 0; }
 .egt-count { color: #fff; }
 .egt-count.is-done { color: var(--egr-gold); }
 .egt-bar-title { margin: 2px 0 0; overflow: hidden; font-family: var(--pe-display); font-weight: 400; font-size: 1.05em; line-height: 1.25; color: #fff; text-overflow: ellipsis; white-space: nowrap; }
 .egt-bar-clues { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
-.egt-bar-clues .egt-hint { margin: 0; text-align: left; font-size: 0.88em; }
-.eg-room .egt-bar-actions { flex-wrap: nowrap; }
+.eg-room .egt-big { margin: 0; font-size: 1.02em; line-height: 1.45; color: #fff; }
+.eg-room .egt-bar-actions { flex-wrap: nowrap; justify-content: flex-end; }
 .eg-room .egt-bar-actions .egr-button { white-space: nowrap; }
 .egt-clues { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.egt-clue { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; margin: 0; padding: 4px 12px 4px 6px; border: 1px solid var(--egr-line); border-radius: 999px; color: var(--egr-ink); }
+.egt-clue { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin: 0; padding: 4px 12px 4px 6px; border: 1px solid var(--egr-line); border-radius: 999px; color: var(--egr-ink); }
 .eg-room button.egt-clue { appearance: none; border-color: rgba(217, 164, 65, 0.7); background: rgba(217, 164, 65, 0.12); font: inherit; cursor: pointer; }
 .eg-room button.egt-clue:hover { background: rgba(217, 164, 65, 0.24); }
 .egt-clue-mark { display: inline-grid; place-items: center; flex: none; width: 1.6em; height: 1.6em; border: 1px solid var(--egr-muted); border-radius: 50%; font-size: 0.85em; color: var(--egr-muted); }
 .is-found .egt-clue-mark { border-color: var(--egr-gold); background: var(--egr-gold); color: #141414; }
-.egt-reward { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border: 2px solid var(--egr-gold); background: rgba(217, 164, 65, 0.1); animation: egt-ring 0.6s ease both; }
-.egt-left { color: var(--egr-muted); }
-.egt-things { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.egt-panel { gap: 10px; }
-.egt-panel .egr-task { font-size: 0.9em; }
 
 /* One screen (the room's fit stage): the painting as large as the space allows, the bar beneath. */
 @media (min-width: 700px) and (min-height: 600px) {
-  .egr-fit .egt-view { display: grid; grid-template-rows: minmax(0, 1fr); }
-  .egr-fit .egt-wall { min-height: 0; }
-  .egr-fit .egt-stage-cell { flex: 1 1 auto; }
+  .egr-fit .egt-view { min-height: 0; }
+  .egr-fit .egt-stage-cell { flex: 1 1 auto; min-height: 0; }
   .egr-fit .egt-stage { width: min(100cqw, calc(100cqh * var(--egt-aspect, 1.6))); }
-  .egr-fit .egt-chamber-view { grid-template-rows: minmax(0, 1fr); align-items: stretch; min-height: 0; }
-  .egr-fit .egt-chamber-view > .egr-scene { position: relative; top: auto; }
-  .egr-fit .egt-chamber-view > .egr-panel { min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+  .egr-fit .egt-bar { flex: none; }
 }
-@media (min-width: 700px) and (max-width: 980px) and (min-height: 600px) {
-  .egr-fit .egt-chamber-view { grid-template-rows: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 1180px) {
+  .egt-bar { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .egt-bar-clues { grid-column: 1 / -1; grid-row: 2; }
+  .egt-bar.is-lit { grid-template-columns: minmax(0, 1fr) auto; }
+  .egt-bar.is-lit .egt-big { grid-column: 1 / -1; grid-row: 2; }
 }
-@media (max-width: 1100px) {
-  .egt-bar { grid-template-columns: minmax(0, 1fr) auto; }
-  .egt-bar-info { grid-column: 1 / -1; }
+@media (max-width: 760px) {
+  .eg-tomb .egt-tabs { margin-left: 0; }
 }
 @media (max-width: 600px) {
-  .egt-bar { grid-template-columns: minmax(0, 1fr); }
-  .eg-room .egt-bar-actions { flex-wrap: wrap; }
+  .egt-bar,
+  .egt-bar.is-lit { grid-template-columns: minmax(0, 1fr); }
+  .egt-bar-clues,
+  .egt-bar.is-lit .egt-big { grid-row: auto; }
+  .eg-room .egt-bar-actions { flex-wrap: wrap; justify-content: flex-start; }
 }
-
-.egt-things li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; align-items: center; padding: 8px 12px; border: 1px solid var(--egr-line); }
-.egt-things li.is-done { border-color: rgba(217, 164, 65, 0.6); }
-.egt-thing-name { grid-column: 1; margin: 0; font-family: var(--pe-display); color: #fff; }
-.egt-thing-name .egt-tick { margin: 0 6px 0 0; }
-.egt-thing-line { grid-column: 1; margin: 0; font-size: 0.86em; line-height: 1.4; }
-.egt-hidden { color: var(--egr-muted); font-style: italic; }
-.eg-room .egt-door { grid-column: 2; grid-row: 1 / span 2; min-height: 44px; padding: 8px 16px; font-size: 0.78em; }
-
-@media (max-width: 600px) {
-  .egt-things li { grid-template-columns: minmax(0, 1fr); }
-  .eg-room .egt-door { grid-column: 1; grid-row: auto; justify-self: start; }
+@media (prefers-reduced-motion: reduce) {
+  .egt-stage.is-on .egt-dark,
+  .eg-room .egt-light,
+  .egt-flame,
+  .egt-stage.is-lit img { animation: none; }
 }

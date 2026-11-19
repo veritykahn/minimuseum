@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { CITIES } from '@/app/exhibitions/harlem-renaissance/migration-map/cities';
 import TicketPunch from '@/app/exhibitions/harlem-renaissance/migration-map/TicketPunch';
 import {
@@ -9,7 +9,8 @@ import {
   ticketComplete,
   type TicketState,
 } from '@/app/exhibitions/harlem-renaissance/migration-map/ticket';
-import { PLACE_ZONES, isRightPlace, stopsSpan, zoneForStop } from '@/app/exhibitions/in-their-hands/timeline/place';
+import { PLACE_ZONES, coinOrder, eraOf, isRightPlace, placeVerdict, stopsSpan, zoneForStop } from '@/app/exhibitions/in-their-hands/timeline/place';
+import { COIN_CLUES } from '@/app/exhibitions/in-their-hands/timeline/clues';
 import { toAstronomical } from '@/app/exhibitions/in-their-hands/timeline/chronology';
 import { timelineStops } from '@/app/exhibitions/in-their-hands/timeline/timeline-data';
 import PlaceTheCoin from '@/app/exhibitions/in-their-hands/timeline/PlaceTheCoin';
@@ -89,8 +90,8 @@ describe('Migration Map: punch your ticket', () => {
   });
 });
 
-describe('Gospel Timeline: place the coin', () => {
-  it('gives every stop exactly one place on the ribbon, spanning exactly its stops’ dates', () => {
+describe('Gospel Timeline: Place the Coin', () => {
+  it('gives every stop exactly one place on the timeline, spanning exactly its stops’ dates', () => {
     const all = PLACE_ZONES.flatMap((z) => z.stops);
     expect([...all].sort((a, b) => a - b)).toEqual(timelineStops.map((s) => s.id));
     for (const z of PLACE_ZONES) {
@@ -106,79 +107,139 @@ describe('Gospel Timeline: place the coin', () => {
     expect(isRightPlace(1, 'z-30')).toBe(false);
   });
 
-  const stop = timelineStops[0];
-
-  it('takes a tap on a date: a wrong one is set aside, the right one snaps in and opens the story', () => {
-    jest.useFakeTimers();
-    const onPlaced = jest.fn();
-    render(<PlaceTheCoin stop={stop} placedStops={[]} enterClass="visible" onPlaced={onPlaced} onSkip={() => {}} />);
-    fireEvent.click(screen.getByRole('button', { name: /c\. 44 AD/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('Not quite: not c. 44 AD.');
-    expect(screen.getByRole('button', { name: /c\. 44 AD.*\(not this one\)/ })).toHaveAttribute('aria-disabled', 'true');
-    fireEvent.click(screen.getByRole('button', { name: /c\. 5–4 BC/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('Yes: c. 5–4 BC.');
-    expect(onPlaced).not.toHaveBeenCalled();
-    act(() => { jest.advanceTimersByTime(1000); });
-    expect(onPlaced).toHaveBeenCalledTimes(1);
-    jest.useRealTimers();
+  it('says which way to look when a place is wrong, and shuffles the coins out of story order', () => {
+    // Augustus belongs in the first place; Festus in the last.
+    expect(placeVerdict(1, 'z-5bc')).toBe('right');
+    expect(placeVerdict(1, 'z-44')).toBe('too-late');
+    expect(placeVerdict(11, 'z-30')).toBe('too-early');
+    expect(eraOf(timelineStops[0])).toBe('gospels');
+    expect(eraOf(timelineStops[10])).toBe('acts');
+    for (const seed of [1, 2, 3, 99, 2026]) {
+      const order = coinOrder(seed);
+      expect([...order.map((s) => s.id)].sort((a, b) => a - b)).toEqual(timelineStops.map((s) => s.id));
+      expect(order.map((s) => s.id)).not.toEqual(timelineStops.map((s) => s.id));
+    }
+    expect(coinOrder(7).map((s) => s.id)).toEqual(coinOrder(7).map((s) => s.id));
   });
 
-  it('works from the keyboard: pick up the coin, arrow along the ribbon without turning the page, Enter to place', () => {
+  it('gives every coin two clues and a reason, and no clue gives its date away', () => {
+    for (const s of timelineStops) {
+      const c = COIN_CLUES[s.id];
+      expect(c).toBeDefined();
+      for (const text of [c.who, c.story]) expect({ id: s.id, text, dated: /\d+\s*(BC|AD)|\bc\.\s*\d/.test(text) }).toEqual({ id: s.id, text, dated: false });
+      expect(c.why.length).toBeGreaterThan(20);
+    }
+  });
+
+  const order = [timelineStops[9], timelineStops[0], timelineStops[6]]; // Claudius, Augustus, Pilate
+
+  it('opens with how to play, explaining the timeline, before the first coin', () => {
+    render(<PlaceTheCoin order={order} onReadStories={() => {}} />);
+    expect(screen.getByRole('heading', { level: 1, name: 'Place the Coin' })).toBeInTheDocument();
+    expect(screen.getByText(/A timeline is a line of years: the earliest on the left, the latest on the right/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Open the purse' }));
+    expect(screen.getByRole('heading', { level: 2, name: 'Emperor Claudius' })).toBeInTheDocument();
+    expect(screen.getByText(COIN_CLUES[10].who)).toBeInTheDocument();
+    expect(screen.getByText('Coin 1 of 3')).toBeInTheDocument();
+    // The places keep their dates hidden until a coin lands there.
+    expect(screen.queryByText('c. 49 AD')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Place 1 of 6, the earliest (place the coin here)' })).toBeInTheDocument();
+  });
+
+  it('says too early or too late, crosses the place off, then snaps the coin in, says why and moves on', () => {
+    render(<PlaceTheCoin order={order} onReadStories={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Open the purse' }));
+    fireEvent.click(screen.getByRole('button', { name: /^Place 1 of 6/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('Too early! This coin’s story comes later.');
+    expect(screen.getByRole('button', { name: /^Place 1 of 6.*\(not this one\)/ })).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(screen.getByRole('button', { name: /^Place 6 of 6/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('Too late!');
+    expect(screen.getByRole('status')).toHaveTextContent('Hint: its story is in Acts');
+    fireEvent.click(screen.getByRole('button', { name: /^Place 5 of 6/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('Yes! The Emperor Claudius coin belongs at c. 49 AD.');
+    expect(screen.getByText(COIN_CLUES[10].why)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /c\. 49 AD \(the coin is here\)/ })).toBeInTheDocument();
+    const next = screen.getByRole('button', { name: /Next coin/ });
+    expect(next).toHaveFocus();
+    expect(screen.getByText('0 stars')).toBeInTheDocument();
+    fireEvent.click(next);
+    expect(screen.getByRole('heading', { level: 2, name: 'Augustus Caesar' })).toBeInTheDocument();
+    expect(screen.getByText('Coin 2 of 3')).toBeInTheDocument();
+    // The date found stays on the timeline.
+    expect(screen.getByRole('button', { name: /^c\. 49 AD \(place the coin here\)/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^Place 1 of 6/ }));
+    expect(screen.getByRole('status')).toHaveTextContent('Right first time: a star!');
+    expect(screen.getByText('1 star')).toBeInTheDocument();
+  });
+
+  it('works from the keyboard: pick up the coin, arrow along the timeline without turning the page, Escape to put it down', () => {
     const outer = jest.fn();
     render(
       <div onKeyDown={outer}>
-        <PlaceTheCoin stop={timelineStops[8]} placedStops={[]} enterClass="visible" onPlaced={() => {}} onSkip={() => {}} />
+        <PlaceTheCoin order={order} onReadStories={() => {}} />
       </div>,
     );
+    fireEvent.click(screen.getByRole('button', { name: 'Open the purse' }));
     const coin = screen.getByRole('button', { name: /pick it up/ });
+    expect(coin).toHaveFocus();
     fireEvent.click(coin);
     expect(coin).toHaveAttribute('aria-pressed', 'true');
-    const first = screen.getByRole('button', { name: /c\. 5–4 BC/ });
+    const first = screen.getByRole('button', { name: /^Place 1 of 6/ });
     expect(first).toHaveFocus();
     fireEvent.keyDown(first, { key: 'ArrowRight' });
     expect(outer).not.toHaveBeenCalled();
     fireEvent.keyDown(document.activeElement!, { key: 'End' });
-    expect(screen.getByRole('button', { name: /c\. 59–60 AD/ })).toHaveFocus();
+    expect(screen.getByRole('button', { name: /^Place 6 of 6/ })).toHaveFocus();
     fireEvent.keyDown(document.activeElement!, { key: 'Escape' });
     expect(coin).toHaveAttribute('aria-pressed', 'false');
   });
 
   it('drags the coin onto a place with a pointer', () => {
-    const onPlaced = jest.fn();
-    jest.useFakeTimers();
-    render(<PlaceTheCoin stop={stop} placedStops={[]} enterClass="visible" onPlaced={onPlaced} onSkip={() => {}} />);
-    const target = screen.getByRole('button', { name: /c\. 5–4 BC/ });
+    render(<PlaceTheCoin order={[timelineStops[0]]} onReadStories={() => {}} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Open the purse' }));
+    const target = screen.getByRole('button', { name: /^Place 1 of 6/ });
     const original = document.elementFromPoint;
     document.elementFromPoint = () => target;
     const coin = screen.getByRole('button', { name: /pick it up/ });
     fireEvent.pointerDown(coin, { clientX: 10, clientY: 10, button: 0, pointerType: 'touch', pointerId: 1 });
     fireEvent.pointerMove(coin, { clientX: 80, clientY: 120, pointerId: 1 });
-    expect(document.body.querySelector('.tl-place-ghost')).not.toBeNull();
+    expect(document.body.querySelector('.ptc-ghost')).not.toBeNull();
     fireEvent.pointerUp(coin, { clientX: 80, clientY: 120, pointerId: 1 });
-    expect(document.body.querySelector('.tl-place-ghost')).toBeNull();
-    expect(screen.getByRole('status')).toHaveTextContent('Yes: c. 5–4 BC.');
-    act(() => { jest.advanceTimersByTime(1000); });
-    expect(onPlaced).toHaveBeenCalled();
+    expect(document.body.querySelector('.ptc-ghost')).toBeNull();
+    expect(screen.getByRole('status')).toHaveTextContent('Yes! The Augustus Caesar coin belongs at c. 5–4 BC.');
     document.elementFromPoint = original;
-    jest.useRealTimers();
+    fireEvent.click(screen.getByRole('button', { name: /See your score/ }));
+    expect(screen.getByRole('heading', { level: 1, name: 'A perfect timeline!' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: /Read the stories/ })).toBeInTheDocument();
   });
 
-  it('opens on the coin, not the story, and keeps the date hidden until it is placed', () => {
+  it('opens on the game, not the stories, and the skip button opens the stories', () => {
+    window.history.replaceState(null, '', '/');
     render(<GospelTimeline />);
-    expect(screen.getByText('Place the coin')).toBeInTheDocument();
-    expect(screen.queryByText(stop.story)).toBeNull();
-    expect(screen.getByRole('button', { name: 'Stop 1: Augustus Caesar' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Just show me the story' }));
-    expect(screen.getByText(stop.story)).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Place the Coin' })).toBeInTheDocument();
+    expect(screen.queryByText(timelineStops[0].story)).toBeNull();
+    expect(screen.queryByRole('navigation', { name: 'Timeline stops' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Just show me the stories' }));
+    expect(screen.getByText(timelineStops[0].story)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Stop 1: Augustus Caesar, c. 5 BC' })).toBeInTheDocument();
   });
 
-  it('lets a teacher turn placing off', () => {
+  it('lets a teacher turn the game off and on', () => {
+    window.history.replaceState(null, '', '/');
     render(<GospelTimeline />);
     const toggle = screen.getByRole('button', { name: /Place the coins/ });
     expect(toggle).toHaveAttribute('aria-pressed', 'true');
     fireEvent.click(toggle);
     expect(toggle).toHaveAttribute('aria-pressed', 'false');
-    expect(screen.getByText(stop.story)).toBeInTheDocument();
+    expect(screen.getByText(timelineStops[0].story)).toBeInTheDocument();
+    fireEvent.click(toggle);
+    expect(screen.getByRole('button', { name: 'Open the purse' })).toBeInTheDocument();
+  });
+
+  it('opens a linked stop’s story straight away', () => {
+    window.history.replaceState(null, '', '/?stop=3');
+    render(<GospelTimeline />);
+    expect(screen.getByText(timelineStops[2].story)).toBeInTheDocument();
+    window.history.replaceState(null, '', '/');
   });
 });

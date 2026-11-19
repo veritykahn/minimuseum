@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
+import { type CSSProperties, type ReactNode } from 'react';
 import Link from 'next/link';
 import ExhibitionNav from '@/components/ExhibitionNav';
 import '@/components/exhibition/poster-exhibition.css';
@@ -8,7 +8,6 @@ import SourcesDrawer, { type SourceGroup } from '@/components/exhibition/Sources
 import { SoundSwitch } from '@/components/games/feedback/FeedbackKit';
 import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 import { EGYPT } from './egypt';
-import { FROM_TOMB, TOMB_PATH } from './tombState';
 import './egypt.css';
 import './rooms.css';
 import './kit.css';
@@ -18,8 +17,9 @@ import './kit.css';
  * the heart, the tomb, mummification, the Rosetta Stone, the amulet maker):
  * the posters' near-black ground, white type and orange-red, the
  * exhibition's faces, "M ← Ancient Egypt" in the corner (back to the
- * exhibition's page; "M ← Studio" when the Studio opened it; "M ← Tomb" when
- * the tomb did), and one stage that sets its own heading. A dark band sits
+ * exhibition's page; "M ← Studio" when the Studio opened it), and one stage
+ * that sets its own heading. Every room goes back to the exhibition: none
+ * sends the visitor back into the tomb. A dark band sits
  * behind the corner links, so nothing scrolls under them unseen. A room
  * that fits one screen (`fit`) sets its stage as a column the height of the
  * window: the heading, then the room, filling what is left. Each room's sources
@@ -31,19 +31,12 @@ import './kit.css';
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
-const TOMB_RETURN: MuseumReturn = { href: TOMB_PATH, label: 'Tomb' };
 /** The rooms' usual way back: the Ancient Egypt exhibition's own page. */
 export const EGYPT_RETURN: MuseumReturn = { href: '/exhibitions/egypt', label: 'Ancient Egypt' };
 
 export default function RoomShell({ className, sources, fit = false, children }: { className: string; sources?: readonly SourceGroup[]; fit?: boolean; children: ReactNode }) {
   const { fonts, palette, slug } = EGYPT;
-  const museumBack = useMuseumReturn(EGYPT_RETURN);
-  // The tomb's doors carry ?from=tomb; read once, in the browser.
-  const [fromTomb, setFromTomb] = useState(false);
-  useEffect(() => {
-    if (new URLSearchParams(window.location.search).get('from') === FROM_TOMB) setFromTomb(true);
-  }, []);
-  const back = fromTomb ? TOMB_RETURN : museumBack;
+  const back = useMuseumReturn(EGYPT_RETURN);
   const style: CssVars = {
     background: palette.page,
     '--egr-page': palette.page,
@@ -111,10 +104,14 @@ export function StepDots({ steps, at, done, onGo, label }: { steps: readonly { i
   );
 }
 
-/** The way back into the tomb, at the end of a room: what the room made is waiting there. */
-export function TombDoor({ children = 'Back into the tomb' }: { children?: ReactNode }) {
+/**
+ * The way out at the end of a room: back to the Ancient Egypt exhibition.
+ * (It once led back into the tomb's burial chamber; the chamber is gone, and
+ * the name is kept so rooms that still use it keep working.)
+ */
+export function TombDoor({ children = 'Back to Ancient Egypt' }: { children?: ReactNode }) {
   return (
-    <Link href={TOMB_PATH} className="egr-button egr-tomb-door">
+    <Link href={EGYPT_RETURN.href} className="egr-button egr-tomb-door">
       <span aria-hidden="true">←</span> {children}
     </Link>
   );

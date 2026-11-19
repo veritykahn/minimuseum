@@ -42,7 +42,8 @@ export default function Home() {
   const yesRef = useRef<HTMLButtonElement>(null);
   const noRef = useRef<HTMLButtonElement>(null);
   const enter = (withSound: boolean) => {
-    // The press itself unlocks the hall's sound, for browsers that ask for one on the sound itself.
+    // The press itself starts the hall's sound (silently, for the hall to fade
+    // in), first and synchronously, so Safari and an iPad count it as chosen.
     if (withSound) unlockHallSound();
     setSound(withSound);
     router.push('/greathall');
@@ -137,7 +138,11 @@ export default function Home() {
             href="/greathall"
             aria-haspopup={sound ? undefined : 'dialog'}
             onClick={(e) => {
-              if (sound) return;
+              if (sound) {
+                // Sound already on (a reload in the same visit): this press starts it, as the door's choice does.
+                unlockHallSound();
+                return;
+              }
               e.preventDefault();
               setAsking(true);
             }}

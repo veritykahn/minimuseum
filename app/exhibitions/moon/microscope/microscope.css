@@ -112,7 +112,18 @@
   flex: 1;
   min-height: 0;
   display: grid;
-  grid-template-columns: minmax(220px, 290px) auto minmax(300px, 440px);
+  /*
+   * Every column and the row are sized by the screen, never by what is
+   * written in them: the eyepiece's column runs from the eyepiece (and its
+   * barrel) to as wide as its words may run, and the prompt and the line of
+   * what happened each keep room for two lines. So turning to another lens (a
+   * new prompt, a new line of what happened, a new tip) never moves the
+   * eyepiece, the controls or the description. The one row is the body's own
+   * height; the description scrolls inside it.
+   */
+  --scope: minmax(calc(var(--eye) + 38px), calc(var(--eye) + 160px));
+  grid-template-columns: minmax(220px, 290px) var(--scope) minmax(300px, 440px);
+  grid-template-rows: minmax(0, 1fr);
   grid-template-areas: 'tools scope panel';
   align-items: center;
   justify-content: center;
@@ -216,12 +227,13 @@
   line-height: 1.35;
   text-align: center;
   color: #fff;
+  min-height: calc(2 * 1.35em);
 }
 .mo-ms-status {
   margin: 0;
   max-width: calc(var(--eye) + 160px);
   text-shadow: 0 1px 10px rgba(20, 15, 38, 0.95), 0 0 2px rgba(20, 15, 38, 0.8);
-  min-height: 1.4em;
+  min-height: calc(2 * 1.35em);
   font-family: var(--pe-body);
   font-style: italic;
   font-size: clamp(1rem, 1.2vw, 1.4rem);
@@ -526,7 +538,7 @@
   .mo-ms-step { font-size: 15px; padding-right: 10px; gap: 6px; }
   .mo-ms-body {
     --eye: min(44dvh, 28vw, 640px);
-    grid-template-columns: minmax(232px, 250px) auto minmax(0, 1fr);
+    grid-template-columns: minmax(232px, 250px) var(--scope) minmax(0, 1fr);
     gap: 22px;
     padding: 4px 24px 86px;
   }
@@ -565,6 +577,7 @@
     --eye: min(60vw, 42dvh);
     display: grid;
     grid-template-columns: minmax(240px, 280px) minmax(0, 1fr);
+    grid-template-rows: auto auto;
     grid-template-areas: 'scope scope' 'tools panel';
     align-items: start;
     gap: 28px 32px;

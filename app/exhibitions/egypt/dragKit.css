@@ -1,0 +1,13 @@
+/* The ghost that follows the pointer while a thing is carried (dragKit.tsx). */
+.egk-ghost {
+  position: fixed;
+  z-index: 1300;
+  translate: -50% -60%;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 14px rgba(0, 0, 0, 0.55));
+}
+/* A drop target lights up while something is carried over the room. */
+[data-carrying] [data-drop] { outline: 2px dashed rgba(217, 164, 65, 0.7); outline-offset: 2px; }
+/* A thing that can be carried: no scrolling or text selection under the finger. */
+.egk-carry { touch-action: none; user-select: none; -webkit-user-select: none; cursor: grab; }
+.egk-carry:active { cursor: grabbing; }

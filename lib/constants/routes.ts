@@ -9,6 +9,8 @@ export const ROUTES = {
   ABOUT: '/about',
   CONTACT: '/contact',
   GREAT_HALL: '/greathall',
+  /** The Resources hub: every exhibition's lessons and printables, by role. */
+  RESOURCES_HUB: '/resources',
 
   // Exhibitions
   EXHIBITIONS: '/exhibitions',
@@ -21,6 +23,7 @@ export const ROUTES = {
   SEEING_IS_DECEIVING: '/exhibitions/seeing-is-deceiving',
   ILLUSIONS: '/exhibitions/seeing-is-deceiving/illusions',
   ARTIFACTS: '/exhibitions/seeing-is-deceiving/artifacts',
+  /** The exhibition's old resources page, kept working; rooms link to "Teach with this" and the hub instead. */
   RESOURCES: '/exhibitions/seeing-is-deceiving/resources',
 
   // In Their Hands exhibition

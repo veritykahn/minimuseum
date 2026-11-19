@@ -65,6 +65,8 @@ describe('the Explore row', () => {
     // The cue at the foot of the first screen points down to it.
     expect(document.querySelector('.pe-landing .pe-explore-cue')).toHaveAttribute('href', '#explore');
     expect(document.querySelector('.pe-landing + .pe-explore')).not.toBeNull();
+    // The first screen and the row are one block, the exhibition's ground (pe-exhibition-main), so its picture or frame runs to the foot of the page.
+    expect(document.querySelector('.pe-exhibition-main.pe-landing-page > .pe-landing + .pe-explore')).not.toBeNull();
     unmount();
     window.history.replaceState(null, '', casePath(config));
     render(<CasePage config={config} data={data} />);

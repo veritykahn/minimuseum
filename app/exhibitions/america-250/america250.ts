@@ -253,7 +253,11 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
   fx: { theme: 'ap', veil: 'chapters', text: 'all' },
   projector: {
     theme: AMERICA_PROJECTOR_THEME,
-    links: [{ label: 'Put Your Name to It: sign with a quill, and follow a copy of a copy', href: '/exhibitions/america-250/sign' }],
+    links: [
+      { label: 'Put Your Name to It: read the Declaration and sign with a quill', href: '/exhibitions/america-250/sign' },
+      { label: 'A Copy of a Copy: follow the Declaration from copy to copy', href: '/exhibitions/america-250/copies' },
+      { label: 'Add a Star: guess when each state joined, and grow the flag', href: '/exhibitions/america-250/flag' },
+    ],
   },
   cases: [
     {
@@ -269,7 +273,21 @@ export const AMERICA_250: ExhibitionConfig<'poster1' | 'poster2'> = {
       image: { src: '/exhibitions/america-250/rooms/sign.webp', alt: 'The Put Your Name to It room: the Declaration on parchment beside a candle, and the signing steps' },
       label: 'Interactive',
       title: 'Put Your Name to It',
-      subtitle: 'Sign with a quill, and follow a copy of a copy',
+      subtitle: 'Read the Declaration, dip the quill and sign',
+    },
+    {
+      href: '/exhibitions/america-250/copies',
+      emblem: '×4',
+      label: 'Interactive',
+      title: 'A Copy of a Copy',
+      subtitle: 'A detective’s case: from the first printing to the faded parchment',
+    },
+    {
+      href: '/exhibitions/america-250/flag',
+      emblem: '★50',
+      label: 'Interactive',
+      title: 'Add a Star',
+      subtitle: 'Guess when each state joined, and grow the flag to 50 stars',
     },
   ],
   posters: [

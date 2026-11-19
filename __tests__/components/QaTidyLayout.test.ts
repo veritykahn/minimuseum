@@ -26,7 +26,8 @@ describe('QA readability fixes', () => {
     const page = read('app/exhibitions/seeing-is-deceiving/page.tsx');
     expect(page).toMatch(/const overImage = !isMain && currentItem\?\.type === 'full-image';/);
     expect(page).toMatch(/className=\{`nav-m nav-m-left \$\{overImage \? 'nav-m-backed' : ''\}`\}/);
-    expect(page).toMatch(/className=\{`nav-m nav-m-right \$\{overImage \? 'nav-m-backed' : ''\}`\}/);
+    // The right-hand corner held "Resources"; that is now under "Teach with this" and the /resources hub.
+    expect(page).not.toMatch(/seeing-is-deceiving\/resources/);
     expect(page).toMatch(/className=\{`walkthrough-nav \$\{overImage \? 'walkthrough-nav-backed' : ''\}`\}/);
   });
 

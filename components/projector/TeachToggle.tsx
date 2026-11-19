@@ -8,7 +8,7 @@ import TeachSheet, { type TeachContent } from './TeachSheet';
  * "Teach with this". Each exhibition places it in its own header and passes
  * colors that suit its ground; the button keeps a 44px target and a visible
  * focus ring. Given `teach`, it opens the sheet of materials for teachers,
- * librarians and parents (TeachSheet), whose "Open projector mode" calls
+ * librarians, parents and homeschoolers (TeachSheet), whose "Open projector mode" calls
  * `onClick`; without it, it opens projector mode directly.
  */
 export default function TeachToggle({

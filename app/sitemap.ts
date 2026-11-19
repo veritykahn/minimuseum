@@ -34,6 +34,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'weekly',
       priority: 0.9,
     },
+    // The Resources hub: every exhibition's lessons and printables, by role.
+    {
+      url: `${baseUrl}/resources`,
+      lastModified,
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
     // Every floor: the three of exhibitions, and the Studio.
     ...ALL_FLOORS.map((floor) => ({
       url: `${baseUrl}${floor.path}`,
@@ -175,6 +182,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
     {
       url: `${baseUrl}/exhibitions/america-250/sign`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/america-250/copies`,
+      lastModified,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
+      url: `${baseUrl}/exhibitions/america-250/flag`,
       lastModified,
       changeFrequency: 'monthly',
       priority: 0.7,
@@ -329,7 +348,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
-    ...['hieroglyph-name', 'rosetta-stone', 'tomb', 'mummification', 'weighing-of-the-heart', 'amulet'].map((room) => ({
+    ...['hieroglyph-name', 'rosetta-stone', 'tomb', 'mummification', 'weighing-of-the-heart', 'amulet', 'my-tomb'].map((room) => ({
       url: `${baseUrl}/exhibitions/egypt/${room}`,
       lastModified,
       changeFrequency: 'monthly' as const,

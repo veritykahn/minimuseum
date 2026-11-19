@@ -39,15 +39,25 @@ export const ITH_POSTER_THEME = {
   '--pj-body': "'Outfit', system-ui, sans-serif",
 } as CSSProperties;
 
+/*
+ * The projector's "For the classroom" links: each exhibition's interactive
+ * rooms. Its lessons and printables are under "Teach with this", and the
+ * Resources hub (/resources) holds every exhibition's, so the old resources
+ * pages are not linked from inside a room.
+ */
 export const SEEING_POSTER_LINKS = [
-  { label: 'Seeing is Deceiving teacher resources', href: '/exhibitions/seeing-is-deceiving/resources' },
+  { label: 'Perception Lab: test your visual system', href: '/exhibitions/seeing-is-deceiving/illusions' },
   { label: 'Optical Toys: the thaumatrope and the zoetrope', href: '/exhibitions/seeing-is-deceiving/optical-toys' },
 ];
 
 export const HARLEM_POSTER_LINKS = [
-  { label: 'Harlem Renaissance teacher resources', href: '/exhibitions/harlem-renaissance/resources' },
+  { label: 'The Jazz Lab: build a band and test your ear', href: '/exhibitions/harlem-renaissance/jazz-lab' },
+  { label: 'The Great Migration Map: trace the journey north', href: '/exhibitions/harlem-renaissance/migration-map' },
+  { label: 'Harlem in Words: poetry of the Renaissance', href: '/exhibitions/harlem-renaissance/harlem-in-words' },
 ];
 
 export const ITH_POSTER_LINKS = [
-  { label: 'Teacher resources', href: '/exhibitions/in-their-hands/resources' },
+  { label: 'The Gospel Timeline: follow the coins through the New Testament', href: '/exhibitions/in-their-hands/timeline' },
+  { label: 'Hands of History: who held these coins, and when?', href: '/exhibitions/in-their-hands/hands' },
+  { label: 'Real or Replica?: learn to authenticate ancient coins', href: '/exhibitions/in-their-hands/real-or-replica' },
 ];

@@ -109,13 +109,16 @@ export function toggleSymbol(chosen: SymbolId[], id: SymbolId): SymbolId[] {
   return chosen.length >= MAX_SYMBOLS ? chosen : [...chosen, id];
 }
 
-/** Who the amulet is for: the visitor's choice, used only for its printed title. */
+/**
+ * Who the amulet is for: the visitor's choice, used for its printed title and
+ * for whose name the room asks for (their own, or the other person's or pet's).
+ */
 // REVIEW: new text (choices, no facts).
 export const FOR_WHOM = [
-  { id: 'me', name: 'Me', title: 'My amulet' },
-  { id: 'family', name: 'Someone in my family', title: 'An amulet for my family' },
-  { id: 'friend', name: 'A friend', title: 'An amulet for a friend' },
-  { id: 'pet', name: 'A pet', title: 'An amulet for a pet' },
+  { id: 'me', name: 'Me', title: 'My amulet', ask: 'Your name', placeholder: 'Your name' },
+  { id: 'family', name: 'Someone in my family', title: 'An amulet for my family', ask: 'Their name', placeholder: 'Their name' },
+  { id: 'friend', name: 'A friend', title: 'An amulet for a friend', ask: 'Your friend’s name', placeholder: 'Their name' },
+  { id: 'pet', name: 'A pet', title: 'An amulet for a pet', ask: 'Your pet’s name', placeholder: 'Your pet’s name' },
 ] as const;
 export type ForWhomId = (typeof FOR_WHOM)[number]['id'];
 
@@ -148,4 +151,13 @@ export const AMULET_SOURCES: SourceGroup[] = [
       { label: 'Hieroglyphs set in Noto Sans Egyptian Hieroglyphs', licence: 'SIL Open Font License' },
     ],
   },
+];
+
+/** The room's dark opening, read aloud (voice: amulet-intro). */
+// REVIEW: new text, read aloud. Amulets were worn to protect their wearers (The Met's wedjat eye record, above).
+export const AMULET_INTRO = [
+  'In ancient Egypt, people wore amulets: small charms to keep them safe.',
+  'Every symbol carved on an amulet had a meaning.',
+  'Today, you are the craftsperson.',
+  'Choose who it is for, shape it, and carve its symbols.',
 ];

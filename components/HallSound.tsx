@@ -47,6 +47,12 @@ export function isHallRoute(pathname: string | null | undefined): boolean {
  * moment the visitor walks in.
  */
 let shared: HTMLAudioElement | null = null;
+/**
+ * The door's play(), while it has not yet settled. The hall waits on this one
+ * rather than taking a not-yet-started sound as playing (or starting a second
+ * play outside the press), so "Enter with sound" is heard on the first press.
+ */
+let starting: Promise<void> | null = null;
 
 function hallAudio(): HTMLAudioElement {
   if (!shared) {
@@ -60,19 +66,27 @@ function hallAudio(): HTMLAudioElement {
   return shared;
 }
 
-/** Called from a press outside the halls (the door's sound switch): readies the hall's sound and unlocks it, silently. */
+/**
+ * Called from the press at the door ("Enter with sound"), synchronously
+ * inside that press: starts the hall's sound there and then, at no volume, and
+ * leaves it playing, so the hall has only to fade it in. Started in the press
+ * itself, Safari and an iPad count it as chosen; left playing, nothing later
+ * has to ask the browser again. (An iPad will not let a page set the volume,
+ * so there it is heard from the door on.)
+ */
 export function unlockHallSound(): void {
   try {
     const a = hallAudio();
-    a.muted = true;
+    a.muted = false;
+    if (!a.paused) return;
     const p = a.play();
-    const done = () => {
-      // Already in a hall and fading in: leave it playing.
-      if (a.volume === 0) a.pause();
-      a.muted = false;
-    };
-    if (p && typeof p.then === 'function') p.then(done, () => { a.muted = false; });
-    else done();
+    if (!p || typeof p.then !== 'function') return;
+    const mine: Promise<void> = p.finally(() => {
+      if (starting === mine) starting = null;
+    });
+    starting = mine;
+    // A refusal is answered by the hall, which tries again (and shows off).
+    mine.catch(() => undefined);
   } catch {
     /* no audio in this browser: the hall stays quiet */
   }
@@ -112,6 +126,7 @@ export default function HallSound() {
       a.load();
       audio.current = null;
       shared = null;
+      starting = null;
     },
     [],
   );
@@ -143,7 +158,14 @@ export default function HallSound() {
     if (!a || !ready) return undefined;
     if (inHall && wish) {
       let live = true;
-      const started = a.paused ? a.play() : Promise.resolve();
+      // Still starting from the door's press: wait for that play to settle
+      // (and if the browser refused it, try once more here).
+      const pending = starting;
+      const started = pending
+        ? pending.catch(() => (a.paused ? a.play() : undefined))
+        : a.paused
+          ? a.play()
+          : Promise.resolve();
       started.then(
         () => {
           if (!live) return;

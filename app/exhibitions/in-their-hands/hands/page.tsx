@@ -12,7 +12,7 @@ import { useScoredGame } from '@/components/games/useScoredGame';
 import TeachToggle from '@/components/games/projector/TeachToggle';
 import { useProjectorMode } from '@/components/games/projector/useProjectorMode';
 import { SoundSwitch, isGoodScore } from '@/components/games/feedback/FeedbackKit';
-import { CLOSING, HANDS_CHARACTERS, HANDS_CLUES, TIERS, buildRounds } from './data';
+import { CLOSING, HANDS_CHARACTERS, TIERS, buildRounds } from './data';
 import HandsProjector from './HandsProjector';
 
 const THEME = {
@@ -431,33 +431,9 @@ export default function HandsOfHistory() {
         }
 
 
-        /* ========== ONE SCREEN: clues, short answer, Next in view ========== */
+        /* ========== ONE SCREEN: short answer, Next in view ========== */
         .hh-question { margin-bottom: 18px; }
         .hh-options:not(.hh-options-answered) .hh-option-btn { padding: 13px 22px; }
-        .hh-clues {
-          margin-top: 18px;
-          padding: 12px 16px;
-          border: 1px solid rgba(201, 168, 76, 0.22);
-          border-radius: 12px;
-          background: rgba(201, 168, 76, 0.05);
-        }
-        .hh-clues-title {
-          font-family: 'Outfit', sans-serif;
-          font-size: var(--game-small);
-          font-weight: 400;
-          letter-spacing: 0.16em;
-          text-transform: uppercase;
-          color: #C9A84C;
-          margin-bottom: 6px;
-        }
-        .hh-clues ol { list-style: none; display: grid; gap: 6px; }
-        .hh-clues li {
-          font-family: 'Outfit', sans-serif;
-          font-size: clamp(14px, 0.35vw + 10px, 16px);
-          line-height: 1.4;
-          color: #d0d0d0;
-        }
-        .hh-clues strong { color: #f0e6c8; font-weight: 500; }
         .hh-options-answered {
           display: grid;
           grid-template-columns: 1fr 1fr;
@@ -506,7 +482,6 @@ export default function HandsOfHistory() {
           .hh-question { font-size: clamp(1.4rem, 3vw, 1.8rem); margin-bottom: 12px; }
           .hh-options:not(.hh-options-answered) { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
           .hh-option-btn { padding: 12px 16px; }
-          .hh-clues { margin-top: 12px; }
           .hh-panel { flex: 1 1 0; min-height: 0; max-height: none; }
         }
 
@@ -603,16 +578,6 @@ export default function HandsOfHistory() {
                         </button>
                       ))}
                     </div>
-                    <section className="hh-clues" aria-labelledby="hh-clues-title">
-                      <h2 className="hh-clues-title" id="hh-clues-title">Look for 3 clues</h2>
-                      <ol>
-                        {HANDS_CLUES.map((c) => (
-                          <li key={c.title}>
-                            <strong>{c.title}</strong> {c.text}
-                          </li>
-                        ))}
-                      </ol>
-                    </section>
                   </>
                 ) : (
                   <div className="hh-reveal">

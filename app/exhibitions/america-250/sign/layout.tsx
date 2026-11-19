@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { SITE_URL } from '@/lib/site';
 
-const description = 'Sign your name with a quill, and follow the Declaration from copy to copy: the Rough Draft, the July 4 Fair Copy, the Engrossed Copy, Stone’s engraving and the transcription.';
+const description = 'Read the Declaration of Independence on parchment, dip the quill and sign your name at its foot; or sign your class’s declaration, or your own.';
 
 export const metadata: Metadata = {
   title: 'Put Your Name to It | America 250 | The Mini Museum',

@@ -1,0 +1,173 @@
+/* ==========================================================================
+   Build Your Own Tomb: a warm, fully lit chamber (no torch, nothing in the
+   dark), as large as the screen allows, with the desk beside it (beneath it
+   on a tall screen): the step's one instruction, the paintings, the things
+   to take, your name and your amulet, and Back and Next at its foot. The
+   things on the floor and the places to drop are real buttons laid over
+   the chamber. Under reduced motion nothing moves (rooms.css).
+   ========================================================================== */
+
+.egt-room {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(300px, 30vw, 410px);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: 'strip strip' 'scene desk';
+  gap: 12px 16px;
+  min-width: 0;
+  padding: clamp(10px, 1.4vw, 18px);
+  border: 1px solid rgba(217, 164, 65, 0.45);
+  background: radial-gradient(ellipse 90% 80% at 40% 40%, #4a3519, #1d140b 80%);
+  font-family: var(--pe-body);
+  font-weight: 300;
+  font-size: var(--egr-text);
+  line-height: 1.45;
+}
+.egt-strip { grid-area: strip; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; }
+.egt-name-line { margin: 0; font-family: var(--pe-display); font-size: clamp(1.05rem, 0.9rem + 0.6vw, 1.45rem); color: var(--egr-gold); }
+
+/* ───── The chamber ───── */
+.egt-scene { grid-area: scene; position: relative; min-height: 0; display: grid; place-items: center; }
+.egt-pic { width: 100%; }
+.egt-chamber { position: relative; width: 100%; aspect-ratio: 1200 / 700; box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55); }
+.egt-svg { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-select: none; }
+.egt-painting { animation: egt-in 0.6s ease both; }
+.egt-flame { transform-box: fill-box; transform-origin: 50% 100%; animation: egt-flicker 1.6s ease-in-out infinite; }
+@keyframes egt-flicker { 0%, 100% { transform: scale(1, 1); } 30% { transform: scale(0.9, 1.12); } 60% { transform: scale(1.06, 0.92); } }
+@keyframes egt-in { from { opacity: 0; } }
+.egt-good { animation: egt-in 0.35s ease both; }
+.egt-good.is-selected { filter: drop-shadow(0 0 6px #fff1a8) drop-shadow(0 0 2px #fff); }
+.egt-cartouche { position: absolute; display: grid; place-items: center; pointer-events: none; animation: egt-in 0.6s ease both; }
+.egt-cartouche svg { width: 100%; height: 100%; }
+
+/* Things laid over the chamber */
+.egt-floor { position: absolute; }
+.eg-room .egt-placed {
+  position: absolute;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 2px dashed transparent;
+  border-radius: 10px;
+  background: transparent;
+  cursor: grab;
+}
+.eg-room .egt-placed:hover,
+.eg-room .egt-placed:focus-visible,
+.eg-room .egt-placed[aria-pressed='true'] { border-color: rgba(255, 241, 168, 0.9); }
+.eg-room .egt-spot {
+  position: absolute;
+  padding: 0;
+  border: 3px dashed rgba(178, 58, 42, 0.8);
+  border-radius: 10px;
+  background: rgba(255, 241, 200, 0.2);
+  cursor: pointer;
+  animation: egt-call 1.6s ease-in-out infinite;
+}
+.eg-room .egt-spot.is-ready { background: rgba(255, 220, 140, 0.45); }
+@keyframes egt-call { 50% { box-shadow: 0 0 0 6px rgba(178, 58, 42, 0.3); } }
+
+/* ───── The desk ───── */
+.egt-desk {
+  grid-area: desk;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  padding: 14px 16px;
+  border: 1px solid var(--egr-line);
+  background: var(--egr-panel, #16120d);
+}
+.egt-desk-head { display: flex; flex-direction: column; gap: 8px; }
+.egt-desk h2 { margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: clamp(1.2rem, 1rem + 0.7vw, 1.6rem); line-height: 1.15; color: #fff; }
+.egt-desk h2:focus { outline: none; }
+.egt-desk-body { display: flex; flex-direction: column; gap: 10px; flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; }
+.egt-desk-body p, .egt-desk-body h3 { margin: 0; }
+.egt-desk-body h3 { font-family: var(--pe-display); font-weight: 400; color: var(--egr-gold); font-size: 1.1em; }
+.eg-room .egt-nav { margin: 0; padding-top: 10px; border-top: 1px solid var(--egr-line); }
+.egt-small { font-size: 0.85em; color: var(--egr-muted); }
+
+/* The paintings to choose from */
+.egt-walls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.eg-room .egt-wall {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 44px;
+  padding: 4px;
+  border: 2px solid var(--egr-line);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-size: 0.85em;
+  text-align: left;
+  cursor: pointer;
+}
+.egt-wall img { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; flex: none; object-fit: cover; border-radius: 3px; }
+.eg-room .egt-wall[aria-pressed='true'] { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.16); }
+
+/* The things to take */
+.egt-goods { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+.eg-room .egt-good-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-height: 44px;
+  padding: 6px 4px;
+  border: 2px solid var(--egr-line);
+  border-radius: 6px;
+  background: #f2e3bb;
+  color: #2b1d12;
+  font-size: 0.78em;
+  line-height: 1.2;
+  text-align: center;
+}
+.egt-good-tile svg { width: 56px; height: 52px; }
+.eg-room .egt-good-tile.is-in { opacity: 0.55; border-color: var(--egr-gold); background: #d9c48f; }
+.egt-move { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px; border: 1px solid var(--egr-line); }
+.egt-move-name { flex: 1 1 100%; color: var(--egr-gold); }
+.eg-room .egt-arrow { min-width: 44px; min-height: 44px; padding: 4px 10px; }
+
+/* Your name and your amulet */
+.egt-yours { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.egt-own { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 10px; border: 1px solid var(--egr-line); border-left: 4px solid var(--egr-gold); }
+.eg-room .egt-token { display: grid; place-items: center; width: 100%; min-height: 64px; padding: 6px; border: 2px solid var(--egr-gold); border-radius: 8px; background: #f2e3bb; color: #2b1d12; }
+.eg-room .egt-token[aria-pressed='true'] { outline: 3px solid #fff; outline-offset: 2px; }
+.egt-token-cartouche { width: 100%; max-height: 60px; }
+.egt-token-amulet { width: 64px; height: 76px; }
+.egt-owner { display: flex; flex-direction: column; gap: 4px; }
+.egt-owner span { font-size: 0.85em; color: var(--egr-muted); }
+.egt-owner input { min-height: 44px; padding: 8px 12px; border: 1px solid var(--egr-line); border-radius: 4px; background: #0f0c08; color: #fff; font: inherit; }
+.egt-owner input:focus-visible { outline: 3px solid var(--egr-gold); outline-offset: 1px; }
+.egt-done { font-family: var(--pe-display); font-size: 1.2em; color: var(--egr-gold); }
+.egt-list { margin: 0; padding-left: 1.2em; }
+.egt-desk-body a { color: var(--egr-gold); }
+.egt-desk-body a.egr-button { color: inherit; }
+
+.egt-ghost svg { display: block; }
+.egt-ghost-cartouche { width: 60px; height: 180px; }
+.egt-ghost-amulet { width: 72px; height: 86px; }
+
+/* ───── One screen: the chamber as large as its cell allows ───── */
+@media (min-width: 981px) and (min-height: 600px) {
+  .egr-fit .egt-scene { container-type: size; }
+  .egr-fit .egt-pic { width: min(100cqw, calc(100cqh * 1200 / 700)); }
+}
+@media (max-width: 980px) {
+  .egt-room { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); grid-template-areas: 'strip' 'scene' 'desk'; }
+}
+@media (min-width: 700px) and (max-width: 980px) and (min-height: 600px) {
+  /* a portrait tablet: keep the chamber from taking the whole height */
+  .egr-fit .egt-pic { width: min(100%, calc((100dvh - 420px) * 1200 / 700)); margin: 0 auto; }
+  .egt-walls { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (max-width: 699px) {
+  .egt-room { grid-template-rows: auto auto auto; }
+  .egt-yours { grid-template-columns: 1fr; }
+}
+
+@media print {
+  .egt-print { text-align: center; }
+  .egt-print .egt-chamber { width: 7.4in; margin: 10px auto; box-shadow: none; }
+  .egt-print ul { max-width: 7in; margin: 8px auto; text-align: left; font-size: 10pt; }
+}

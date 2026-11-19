@@ -37,8 +37,15 @@ const PROJECTOR_POSTERS: ProjectorPoster<'poster1' | 'poster2'>[] = [
   { id: 'poster2', title: 'The Weight of Thirty Pieces', thumb: '/exhibitions/in-their-hands/poster2-hero.jpg', items: poster2Content, talk: ITH_TALK.poster2 },
 ];
 
-/** What "Teach with this" opens: the lessons, printables and discussion questions for each role. */
-const TEACH: TeachContent = { slug: 'in-their-hands', name: 'In Their Hands', posters: PROJECTOR_POSTERS, links: ITH_POSTER_LINKS };
+/** What "Teach with this" opens: the posters, the rooms and the lesson finder, in the landing page's sepia, gold and cream. */
+const TEACH: TeachContent = {
+  slug: 'in-their-hands',
+  name: 'In Their Hands',
+  posters: PROJECTOR_POSTERS,
+  links: ITH_POSTER_LINKS,
+  rooms: ITH_ROOMS.map(({ href, title, subtitle, image }) => ({ href, title, subtitle, image })),
+  theme: { bg: '#443C31', ink: '#F0EDD8', heading: '#C9A84C', accent: '#C9A84C', muted: '#b3a68c', display: "'Cormorant Garamond', Georgia, serif", body: "'Outfit', system-ui, sans-serif" },
+};
 
 // ============================================
 // MAIN COMPONENT
@@ -469,22 +476,29 @@ export default function InTheirHands() {
 
         /* Each case stands on the page's own sepia, with no card round it: the
            photographs are cut out, so the lit cases sit straight on the poster's
-           ground. Its type is cream and the poster's gold (4.7:1 and up). */
+           ground. Its type is cream and the poster's gold (4.7:1 and up).
+           The photographs are square-shouldered (the case's glass runs to its
+           top corners), so the picture starts below the arch's curve: the top
+           padding (--ith-arch-rise + 12px) is always deeper than the arch, at
+           every width, and the case's corners stay inside the gate. */
         .ith-display-case {
           isolation: isolate;
-          --pe-case-pad-y: 60px;
-          padding: 42px 16px 18px;
+          --ith-arch-rise: clamp(40px, 7dvh, 56px);
+          --pe-case-pad-y: calc(var(--ith-arch-rise) + 12px + 18px);
+          padding: calc(var(--ith-arch-rise) + 12px) 18px 18px;
           cursor: pointer;
           transition: all 0.4s ease;
         }
         /* Its frame: a city gate's arch in the poster's gold, its inner line
-           beaded like a coin's rim. The case still stands on the sepia
-           itself, inside the line. */
+           beaded like a coin's rim. The arch is a shallow one (half the
+           case's width across, --ith-arch-rise high) rather than a full half
+           circle, whose curve would cut across the photograph's corners on a
+           wide case. The case still stands on the sepia itself, inside the line. */
         .ith-display-case .pe-case-frame {
           position: absolute;
           z-index: -1;
           inset: 0;
-          border-radius: 999px 999px 3px 3px;
+          border-radius: 50% 50% 3px 3px / var(--ith-arch-rise) var(--ith-arch-rise) 3px 3px;
           border: 1.5px solid rgba(201, 168, 76, 0.7);
           pointer-events: none;
           transition: border-color 0.4s ease;
@@ -925,19 +939,14 @@ export default function InTheirHands() {
           </span>
         </ExhibitionNav>
 
-        {/* The room sound sits beside the Resources corner, in one row with it (pe-corner-row). */}
-        <div className="pe-corner-row">
-          {!isMain && (
+        {/* The room sound, top right (pe-corner-row). The room's materials are under "Teach with this". */}
+        {!isMain && (
+          <div className="pe-corner-row">
             <div className="pe-sound-controls">
               <RoomSound sound={roomSound} color={textColor} bg={bgColor} />
             </div>
-          )}
-          <ExhibitionNav className="ith-nav ith-nav-right" href="/exhibitions/in-their-hands/resources">
-            <span className="ith-nav-label" style={{ color: navInk }}>Resources</span>
-            <span className="ith-nav-arrow ith-nav-arrow-right" aria-hidden="true" style={{ color: navInk }}>&#8594;</span>
-            <span className="ith-nav-text" aria-hidden="true" style={{ color: navM }}>M</span>
-          </ExhibitionNav>
-        </div>
+          </div>
+        )}
         </>
       )}
 

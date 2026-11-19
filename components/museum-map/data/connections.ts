@@ -12,6 +12,7 @@ export const CONNECTIONS: RoomConnection[] = [
   // From Great Hall
   ['greathall', 'about'],
   ['greathall', 'contact'],
+  ['greathall', 'resources-hub'],
   ...[...FLOORS, STUDIO].map((floor): RoomConnection => ['greathall', floorId(floor.path)]),
 
   // Each floor to its exhibitions
@@ -65,6 +66,8 @@ export const CONNECTIONS: RoomConnection[] = [
   ['vb-case', 'vb-christmas-parlour'],
   ['mo-case', 'mo-microscope'],
   ['ap-case', 'ap-sign'],
+  ['ap-case', 'ap-copies'],
+  ['ap-case', 'ap-flag'],
   ['fl-case', 'fl-what-scares-you'],
   ['eg-case', 'eg-hieroglyph-name'],
   ['eg-case', 'eg-rosetta-stone'],
@@ -72,6 +75,7 @@ export const CONNECTIONS: RoomConnection[] = [
   ['eg-case', 'eg-mummification'],
   ['eg-case', 'eg-weighing-of-the-heart'],
   ['eg-case', 'eg-amulet'],
+  ['eg-case', 'eg-my-tomb'],
 
   // Each exhibition's Lessons room, once it has lessons
   ...Object.keys(LESSON_ROOM_IDS)
