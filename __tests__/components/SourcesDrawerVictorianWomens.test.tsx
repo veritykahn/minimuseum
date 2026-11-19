@@ -110,17 +110,22 @@ describe('controls that stay put (A4)', () => {
     expect(card.firstElementChild).toHaveClass('vcp-parts');
   });
 
-  it('holds every evidence card’s words and verdict in one place, so “Lay it on the scale” and “Next card” stay put', () => {
+  it('holds every evidence card’s words and verdict in one place, so its buttons stay put', () => {
     window.history.replaceState(null, '', '/#scale');
     render(<WhoGetsRemembered />);
     const hold = document.querySelector('.whr-card .whr-hold') as HTMLElement;
     expect(hold.children).toHaveLength(EVIDENCE.length);
-    expect([...hold.children].filter((c) => !c.hasAttribute('data-held')).map((c) => c.textContent)).toEqual([EVIDENCE[0].text]);
+    // The cards come shuffled: one is shown, whichever it is.
+    const shown = [...hold.children].filter((c) => !c.hasAttribute('data-held')).map((c) => c.textContent);
+    expect(shown).toHaveLength(1);
+    const card = EVIDENCE.find((c) => c.text === shown[0])!;
+    expect(card).toBeDefined();
     fireEvent.click(screen.getByRole('button', { name: 'Lay it on the scale' }));
     const verdicts = document.querySelector('.whr-verdict .whr-hold') as HTMLElement;
     expect(verdicts.children).toHaveLength(1 + EVIDENCE.length * 2);
-    // The next card comes first in its row, wherever the "instead" button is.
-    expect(document.querySelector('.whr-verdict .whr-card-buttons')?.firstElementChild).toHaveTextContent('Next card');
+    // One button in the same place: Next card once it is right, or the other choice to think again with.
+    expect(document.querySelector('.whr-verdict .whr-card-buttons')?.children).toHaveLength(1);
+    expect(document.querySelector('.whr-verdict .whr-card-buttons')?.firstElementChild).toHaveTextContent(card.weighs ? 'Next card' : 'Set it aside instead');
     const css = read('app/exhibitions/womens-history/remembered/remembered.css');
     expect(css).toMatch(/\.whr-hold > \[data-held\] \{ visibility: hidden; \}/);
     expect(css).toMatch(/\.whr-oral-next \{[^}]*margin-top: auto; position: sticky; bottom: 0;/);

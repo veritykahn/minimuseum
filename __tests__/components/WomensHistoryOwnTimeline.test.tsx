@@ -148,7 +148,7 @@ describe('making one', () => {
   it('goes back to Violet’s life', () => {
     window.history.replaceState(null, '', '/#make');
     render(<VioletsLife />);
-    fireEvent.click(screen.getByRole('button', { name: 'Violet’s life' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Her story' }));
     expect(screen.getByRole('img', { name: 'Violet Dina Want' })).toBeInTheDocument();
   });
 
@@ -180,7 +180,7 @@ describe('making one', () => {
     });
     expect(screen.getByRole('img', { name: 'Your photograph of Grandma Rose' })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Violet’s life' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Her story' }));
     fireEvent.click(screen.getByRole('button', { name: 'Make your own' }));
     expect(screen.getByLabelText('Her name')).toHaveValue('Grandma Rose');
     expect(screen.getByRole('img', { name: 'Your photograph of Grandma Rose' })).toBeInTheDocument();
