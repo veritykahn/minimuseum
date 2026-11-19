@@ -6,7 +6,7 @@ import { ANUBIS_POSTER, CHECK, HEART_NOTE, JARS, JARS_ANSWER, MUMMY_INTRO, STEPS
 import WeighingOfTheHeart from '@/app/exhibitions/egypt/weighing-of-the-heart/page';
 import { ANI_INTRO, CHAPTERS, DEEDS, FIGURES, JUDGEMENT_NOTES, PAPYRI, RULE, TEST_TEXT, WEIGHING_INTRO, WEIGHING_SOURCES, testFeedback, wouldTip } from '@/app/exhibitions/egypt/weighing-of-the-heart/judgement';
 import AmuletMaker from '@/app/exhibitions/egypt/amulet/page';
-import { AMULET_INTRO, MAX_SYMBOLS, NEEDS, SYMBOLS, toggleSymbol } from '@/app/exhibitions/egypt/amulet/amulets';
+import { AMULET_INTRO, AMULET_STEPS, MAX_SYMBOLS, NEEDS, SYMBOLS, carveFeedback, fitSummary, toggleSymbol } from '@/app/exhibitions/egypt/amulet/amulets';
 import { AMULET_KEY, readAmulet } from '@/app/exhibitions/egypt/amulet/savedAmulet';
 import MyTomb from '@/app/exhibitions/egypt/my-tomb/page';
 import { GOODS, MAX_GOODS, MY_TOMB_INTRO } from '@/app/exhibitions/egypt/my-tomb/myTomb';
@@ -60,14 +60,20 @@ afterEach(() => {
 });
 
 describe('the craft rooms, together', () => {
-  it('marks their new words for review, and none of them takes the visitor back into the tomb or writes to it', () => {
+  it('marks their new words for review; each room ends by putting its thing in the visitor’s tomb, never by sending them back into the tomb', () => {
     for (const f of ['my-tomb/myTomb.ts', 'weighing-of-the-heart/judgement.ts', 'mummification/steps.ts', 'amulet/amulets.ts']) {
       expect(readFileSync(join(ROOT, 'app/exhibitions/egypt', f), 'utf8')).toMatch(/REVIEW:/);
     }
     for (const f of ['my-tomb/page.tsx', 'weighing-of-the-heart/page.tsx', 'mummification/page.tsx', 'amulet/page.tsx']) {
-      const src = readFileSync(join(ROOT, 'app/exhibitions/egypt', f), 'utf8');
-      expect(src).not.toMatch(/TombDoor|tombState|markDone/);
+      expect(readFileSync(join(ROOT, 'app/exhibitions/egypt', f), 'utf8')).not.toMatch(/TombDoor/);
     }
+    // The rooms write to the tomb only through PutInTomb; Build Your Own Tomb, the hub, reads it.
+    for (const [f, activity] of [['weighing-of-the-heart/page.tsx', 'weighing'], ['amulet/page.tsx', 'amulet'], ['rosetta-stone/page.tsx', 'rosetta'], ['hieroglyph-name/page.tsx', 'name'], ['tomb/page.tsx', 'walls']]) {
+      const src = readFileSync(join(ROOT, 'app/exhibitions/egypt', f), 'utf8');
+      expect(src).toMatch(new RegExp(`<PutInTomb[^>]*activity="${activity}"`));
+      expect(src).not.toMatch(/keepInTomb/);
+    }
+    expect(readFileSync(join(ROOT, 'app/exhibitions/egypt/my-tomb/page.tsx'), 'utf8')).toMatch(/tombState/);
     expect(MUMMY_INTRO).toContain(ANUBIS_POSTER);
     for (const lines of [MUMMY_INTRO, WEIGHING_INTRO, AMULET_INTRO, MY_TOMB_INTRO]) {
       expect(lines.length).toBeGreaterThanOrEqual(3);
@@ -263,26 +269,36 @@ describe('The Weighing of the Heart', () => {
 });
 
 describe('Design an Amulet, at the workbench', () => {
-  it('asks the name of the person it is for, carves by tap, keeps to three symbols, and saves the finished amulet', () => {
+  it('asks the name of the person it is for, shows each meaning before carving, says whether it fits, keeps to three symbols, and saves the finished amulet into the tomb', () => {
     expect(toggleSymbol(['ankh'], 'ankh')).toEqual([]);
     expect(toggleSymbol(['ankh', 'djed', 'lotus'], 'heart')).toEqual(['ankh', 'djed', 'lotus']);
-    for (const n of NEEDS) for (const id of n.suggests) expect(SYMBOLS.some((s) => s.id === id)).toBe(true);
+    for (const n of NEEDS) for (const id of n.fits) expect(SYMBOLS.some((s) => s.id === id)).toBe(true);
+    expect(carveFeedback('long', 'ankh').fits).toBe(true);
+    expect(carveFeedback('long', 'lotus')).toMatchObject({ fits: false, text: expect.stringContaining('Hint: look for life') });
+    expect(fitSummary('long', ['ankh', 'djed'])).toMatch(/^Every symbol/);
+    expect(fitSummary('long', ['ankh', 'lotus'])).toBe('1 of its 2 symbols fit a long life.');
+    expect(AMULET_STEPS).toHaveLength(4);
     window.history.replaceState(null, '', '/exhibitions/egypt/amulet');
     const { container } = render(<AmuletMaker />);
     begin(AMULET_INTRO);
     const next = () => fireEvent.click(within(container.querySelector('.egr-step-nav, .ega-nav') as HTMLElement).getByRole('button', { name: /Next/ }));
     tap('A friend');
     fireEvent.change(screen.getByRole('textbox', { name: /Your friend’s name/ }), { target: { value: 'Sam' } });
-    next();
+    // Who and what it protects, on one bench: Next waits for both.
+    expect(within(container.querySelector('.ega-nav') as HTMLElement).getByRole('button', { name: /Next/ })).toBeDisabled();
     tap('A long life');
     next();
     next();
     // Carve: tap a symbol, then the amulet
     const symbols = within(screen.getByRole('group', { name: 'The symbols' }));
+    // Nothing is marked in advance.
+    expect(symbols.queryByText('suggested')).toBeNull();
     for (const s of SYMBOLS.slice(0, MAX_SYMBOLS)) {
       fireEvent.click(symbols.getByRole('button', { name: new RegExp(`^${s.name}`) }));
+      // Its meaning shows before it is carved.
+      expect(screen.getByRole('complementary', { name: 'What you have learned' })).toHaveTextContent(s.meaning.text);
       tap(`Carve the ${s.name.toLowerCase()} on your amulet`);
-      expect(screen.getByRole('status')).toHaveTextContent(`${s.name} carved on your amulet.`);
+      expect(screen.getByRole('status')).toHaveTextContent(carveFeedback('long', s.id).text);
     }
     fireEvent.click(symbols.getByRole('button', { name: new RegExp(`^${SYMBOLS[MAX_SYMBOLS].name}`) }));
     expect(screen.getByRole('status')).toHaveTextContent(`Your amulet has room for ${MAX_SYMBOLS} symbols. Take one off first.`);
@@ -292,11 +308,14 @@ describe('Design an Amulet, at the workbench', () => {
     expect(saved!.name).toBe('Sam');
     expect(saved!.symbols).toEqual(SYMBOLS.slice(0, MAX_SYMBOLS).map((s) => s.id));
     expect(screen.getByRole('button', { name: 'Print my amulet' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Lay it in your tomb' })).toHaveAttribute('href', '/exhibitions/egypt/my-tomb');
+    expect(screen.getByText(fitSummary('long', saved!.symbols))).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Tuck it into a mummy' })).toHaveAttribute('href', '/exhibitions/egypt/mummification');
-    // The step bar is a row of its own, apart from the print and links.
+    // The step bar is a row of its own, apart from the print and the tomb.
     expect(container.querySelector('.ega-nav, .egr-step-nav')!.contains(screen.getByRole('button', { name: 'Print my amulet' }))).toBe(false);
     expect(window.localStorage.getItem(TOMB_KEY)).toBeNull();
+    tap('Put this in your burial tomb');
+    expect(readTomb().kept?.amulet).toBe('your amulet');
+    expect(screen.getByRole('link', { name: /Go to your tomb/ })).toHaveAttribute('href', '/exhibitions/egypt/my-tomb');
   });
 });
 

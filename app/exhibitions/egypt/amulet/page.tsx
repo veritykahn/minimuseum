@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import FactNote, { FactSources } from '@/components/exhibition/FactNote';
 import RoomShell, { Glyphs, RoomHeader, StepDots } from '../RoomShell';
+import PutInTomb from '../PutInTomb';
 import DarkIntro from '../DarkIntro';
 import PrintSheet from '../PrintSheet';
 import { DragGhost, useDragDrop } from '../dragKit';
@@ -14,12 +15,15 @@ import {
   AMULET_INTRO,
   AMULET_NOTES,
   AMULET_SOURCES,
+  AMULET_STEPS,
   FOR_WHOM,
   MATERIALS,
   MAX_SYMBOLS,
   NEEDS,
   SHAPES,
   SYMBOLS,
+  carveFeedback,
+  fitSummary,
   toggleSymbol,
   type ForWhomId,
   type MaterialId,
@@ -30,29 +34,28 @@ import './amulet.css';
 import { playEgypt } from '../egyptSound';
 
 /*
+ * The point: you read what each symbol meant to the Egyptians, and choose
+ * the ones that fit what your amulet should protect.
+ *
  * Design an Amulet, as a craft at a workbench: the amulet sits in the
  * middle on its cloth, always in view; the tools for the step are on one
  * side and what the visitor has just learned on the other, with Back and
- * Next in their own bar beneath (so nothing ever slides under them). Five
- * steps: who it is for (and their name, or the visitor's own); what it
- * should protect (the symbols an Egyptian might have chosen are marked);
- * the blank (its shape and its material, both on one bench); carving
- * (drag each symbol onto the amulet, or tap it and then the amulet; take a
- * carved one off with its button); and the finished amulet, with what its
- * symbols meant, to print. It opens with the Egypt rooms' dark intro.
+ * Next in their own bar beneath (so nothing ever slides under them). Four
+ * steps (it was five, and "a lot of clicking"): who it is for, their name
+ * (or the visitor's own) and what it should protect, all on one bench; the
+ * blank (its shape and its material); carving, the challenge: tap a symbol
+ * to pick it up and read what it meant, then tap the amulet to carve it
+ * (or drag it there); the room says whether its meaning fits, with a hint
+ * if not (nothing is marked in advance); and the finished amulet, with
+ * how its symbols fit, to print and to put in the visitor's tomb.
+ * It opens with the Egypt rooms' dark intro.
  *
  * The finished amulet is saved in this browser (savedAmulet.ts), so that
  * Mummification can tuck it into the wrappings and Build Your Own Tomb can
- * lay it in the chamber. Nothing typed is sent anywhere.
+ * lay it in the chamber's niche. Nothing typed is sent anywhere.
  */
 
-const STEPS = [
-  { id: 'who', title: 'Who is it for?' },
-  { id: 'need', title: 'What should it protect?' },
-  { id: 'blank', title: 'Choose its shape and material' },
-  { id: 'carve', title: 'Carve up to three symbols' },
-  { id: 'finish', title: 'Your amulet is ready' },
-] as const;
+const STEPS = AMULET_STEPS;
 type StepId = (typeof STEPS)[number]['id'];
 
 /** A symbol as it shows on a tile: its hieroglyph, or for the scarab a small drawn beetle. */
@@ -90,7 +93,8 @@ export default function AmuletMaker() {
   const who = FOR_WHOM.find((f) => f.id === forWhom);
   const label = `Your amulet: a ${shapeName} of ${materialName}${picked.length ? `, carved with ${picked.map((p) => `the ${p.name.toLowerCase()}`).join(' and ')}` : ''}${owner.trim() ? `, and the name ${owner.trim()} in hieroglyphs` : ''}`;
   const printed = useCallback(() => setPrinting(false), []);
-  const suggested = NEEDS.find((n) => n.id === need)?.suggests ?? [];
+  const needName = NEEDS.find((n) => n.id === need)?.name.toLowerCase() ?? '';
+  const held = holding ? SYMBOLS.find((s) => s.id === holding) : undefined;
   const title = owner.trim() ? `${owner.trim()}’s amulet` : (who?.title ?? 'My amulet');
   const latest = latestId && chosen.includes(latestId) ? SYMBOLS.find((s) => s.id === latestId) : undefined;
   const full = chosen.length >= MAX_SYMBOLS;
@@ -116,9 +120,9 @@ export default function AmuletMaker() {
 
   const stepDone = (i: number) => {
     const id = STEPS[i].id;
-    return id === 'who' ? forWhom !== null : id === 'need' ? need !== null : id === 'carve' ? chosen.length > 0 : i < at;
+    return id === 'who' ? forWhom !== null && need !== null : id === 'carve' ? chosen.length > 0 : i < at;
   };
-  const canGoOn = step === 'who' ? forWhom !== null : step === 'need' ? need !== null : step === 'carve' ? chosen.length > 0 : true;
+  const canGoOn = step === 'who' ? forWhom !== null && need !== null : step === 'carve' ? chosen.length > 0 : true;
 
   const carve = (id: SymbolId) => {
     setHolding(null);
@@ -132,7 +136,7 @@ export default function AmuletMaker() {
     playEgypt('chisel');
     setLatestId(id);
     setChosen(next);
-    setStatus(`${name} carved on your amulet.`);
+    setStatus(`${name} carved. ${carveFeedback(need, id).text}`);
   };
   const takeOff = (id: SymbolId) => {
     setChosen((c) => c.filter((s) => s !== id));
@@ -162,18 +166,20 @@ export default function AmuletMaker() {
             <input type="text" value={owner} onChange={(e) => setOwner(e.target.value)} maxLength={24} autoComplete="off" spellCheck={false} placeholder={who.placeholder} />
           </label>
         )}
+        {who && (
+          <fieldset className="egr-choice">
+            {/* REVIEW: new text */}
+            <legend>What should it protect?</legend>
+            <div className="ega-tiles">
+              {NEEDS.map((n) => (
+                <button key={n.id} type="button" className="egr-option ega-tile" aria-pressed={need === n.id} onClick={() => setNeed(n.id)}>
+                  {n.name}
+                </button>
+              ))}
+            </div>
+          </fieldset>
+        )}
       </>
-    ) : step === 'need' ? (
-      <fieldset className="egr-choice">
-        <legend>Choose one</legend>
-        <div className="ega-tiles">
-          {NEEDS.map((n) => (
-            <button key={n.id} type="button" className="egr-option ega-tile" aria-pressed={need === n.id} onClick={() => setNeed(n.id)}>
-              {n.name}
-            </button>
-          ))}
-        </div>
-      </fieldset>
     ) : step === 'blank' ? (
       <>
         <fieldset className="egr-choice">
@@ -207,15 +213,14 @@ export default function AmuletMaker() {
         <div className="ega-tray" role="group" aria-label="The symbols">
           {SYMBOLS.map((s) => {
             const on = chosen.includes(s.id);
-            const sug = suggested.includes(s.id);
             return (
               <button
                 key={s.id}
                 type="button"
-                className={`ega-symbol egk-carry ${sug ? 'is-suggested' : ''}`}
+                className="ega-symbol egk-carry"
                 aria-pressed={holding === s.id}
                 disabled={on}
-                aria-label={`${s.name}${sug ? ' (suggested)' : ''}${on ? ' (carved)' : ''}`}
+                aria-label={`${s.name}${on ? ' (carved)' : ''}`}
                 onPointerDown={(e) => !on && !full && start(s.id, e)}
                 onClick={() => {
                   if (full) {
@@ -224,16 +229,11 @@ export default function AmuletMaker() {
                   }
                   const picking = holding !== s.id;
                   setHolding(picking ? s.id : null);
-                  setStatus(picking ? `${s.name} picked up. Now tap the amulet to carve it.` : '');
+                  setStatus(picking ? `${s.name} picked up. ${s.meaning.text} Tap the amulet to carve it.` : '');
                 }}
               >
                 <SymbolMark id={s.id} />
                 <span className="ega-symbol-name">{s.name}</span>
-                {sug && (
-                  <span className="ega-tag" aria-hidden="true">
-                    suggested
-                  </span>
-                )}
               </button>
             );
           })}
@@ -255,52 +255,60 @@ export default function AmuletMaker() {
 
   /* ───── One instruction: what to do now ───── */
   const task =
+    // REVIEW: new text (the who and carve tasks).
     step === 'who'
       ? !forWhom
         ? 'Who will wear your amulet? Choose one.'
-        : forWhom === 'me'
-          ? 'Type your name to carve on it, or leave it blank.'
-          : `Type ${forWhom === 'pet' ? 'your pet’s' : 'their'} name to carve on it, or leave it blank.`
-      : step === 'need'
-        ? 'What should your amulet protect? Choose one.'
-        : step === 'blank'
-          ? 'Pick a shape and a material. Watch your amulet change.'
-          : step === 'carve'
-            ? holding
-              ? 'Now tap the amulet to carve it.'
-              : full
-                ? 'Your amulet is full. Take a symbol off to change it.'
-                : 'Drag a symbol onto the amulet to carve it. Or tap it, then the amulet.'
-            : 'Print it, or take it to another room.';
+        : !need
+          ? `Type ${forWhom === 'me' ? 'your' : forWhom === 'pet' ? 'your pet’s' : 'their'} name to carve on it (or leave it blank), and choose what it should protect.`
+          : 'Ready? Next, its shape.'
+      : step === 'blank'
+        ? 'Pick a shape and a material. Watch your amulet change.'
+        : step === 'carve'
+          ? holding
+            ? 'Does its meaning fit? Tap the amulet to carve it.'
+            : full
+              ? 'Your amulet is full. Take a symbol off to change it.'
+              : `Tap a symbol to read what it meant. Carve the ones that fit ${needName || 'your amulet'}.`
+          : 'Print it, and put it in your tomb.';
 
   /* ───── Beside the bench: what was just learned, or the finished amulet's actions ───── */
   const side =
-    step === 'need' && need ? (
-      <p className="ega-suggest">
-        An Egyptian might choose: <strong>{suggested.map((id) => SYMBOLS.find((s) => s.id === id)!.name).join(', ')}</strong>. They are marked when you carve, but you can carve any you like.
-      </p>
-    ) : step === 'blank' && material === 'faience' ? (
+    step === 'blank' && material === 'faience' ? (
       <FactNote fact={AMULET_NOTES.faience} className="egr-fact" />
+    ) : step === 'carve' && held ? (
+      <div className="ega-meaning" key={`held-${held.id}`}>
+        <p className="egr-label">Picked up</p>
+        <h3>
+          <SymbolMark id={held.id} size={28} /> {held.name}
+        </h3>
+        <FactNote fact={held.meaning} className="egr-fact" />
+        {/* REVIEW: new text */}
+        <p className="ega-ask">Does it fit {needName}? Tap the amulet to carve it, or pick another.</p>
+      </div>
     ) : step === 'carve' && latest ? (
       <div className="ega-meaning" key={latest.id}>
         <h3>
           <SymbolMark id={latest.id} size={28} /> {latest.name}
         </h3>
         <FactNote fact={latest.meaning} className="egr-fact" />
+        <p className={`ega-verdict ${carveFeedback(need, latest.id).fits ? 'is-fit' : 'is-hint'}`}>{carveFeedback(need, latest.id).text}</p>
       </div>
     ) : step === 'finish' ? (
       <div className="ega-finish">
+        {fitSummary(need, chosen) && <p className="ega-verdict is-fit">{fitSummary(need, chosen)}</p>}
         <FactNote fact={AMULET_NOTES.amulets} className="egr-fact" />
-        <button type="button" className="egr-button egr-button-primary" onClick={() => setPrinting(true)}>
+        <button type="button" className="egr-button" onClick={() => setPrinting(true)}>
           Print my amulet
         </button>
-        <p className="egr-credit">Your amulet is saved in this browser only, so you can use it in two other rooms:</p>
+        <div className="egr-put-compact">
+          {/* REVIEW: new text */}
+          <PutInTomb activity="amulet" what="your amulet" onPut={() => saveAmulet({ shape, material, symbols: chosen, name: owner.trim(), nameGlyphs })} />
+        </div>
+        <p className="egr-credit">Your amulet is saved in this browser only. You can also tuck it into a mummy:</p>
         <div className="ega-links">
           <Link className="egr-button" href="/exhibitions/egypt/mummification">
             Tuck it into a mummy
-          </Link>
-          <Link className="egr-button" href="/exhibitions/egypt/my-tomb">
-            Lay it in your tomb
           </Link>
         </div>
       </div>

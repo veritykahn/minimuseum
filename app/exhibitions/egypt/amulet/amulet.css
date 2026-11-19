@@ -110,11 +110,9 @@
 .eg-room .ega-symbol:hover:not(:disabled) { border-color: #fff; }
 .eg-room .ega-symbol[aria-pressed='true'] { border-color: var(--egr-gold); box-shadow: 0 0 0 2px var(--egr-gold); }
 .eg-room .ega-symbol:disabled { opacity: 0.4; cursor: default; }
-.eg-room .ega-symbol.is-suggested { border-color: var(--egr-gold); }
 .ega-mark { flex: none; font-size: 1.9rem; color: #f2c766; }
 svg.ega-mark { color: #f2c766; }
 .ega-symbol-name { line-height: 1.2; }
-.ega-tag { position: absolute; top: -8px; right: 6px; padding: 1px 7px; border-radius: 999px; background: var(--egr-gold); color: #141414; font-size: 0.62em; letter-spacing: 0.06em; text-transform: uppercase; }
 .ega-ghost { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(42, 27, 15, 0.92); border: 2px solid var(--egr-gold); }
 .ega-ghost .ega-mark { font-size: 2.4rem; }
 
@@ -124,7 +122,12 @@ svg.ega-mark { color: #f2c766; }
 .ega-meaning h3 { display: flex; align-items: center; gap: 8px; margin: 0; font-family: var(--pe-display); font-weight: 400; font-size: 1.1em; color: #fff; }
 .ega-meaning .ega-mark { font-size: 1.5rem; }
 @keyframes ega-in { from { opacity: 0; transform: translateY(6px); } }
-.ega-suggest { margin: 0; padding: 10px 12px; border-left: 3px solid var(--egr-gold); background: rgba(217, 164, 65, 0.08); }
+.ega-meaning .egr-label { margin: 0; }
+.ega-ask { margin: 0; color: var(--egr-gold); }
+/* Whether a carved symbol fits what the amulet protects: gold if so, a warm hint if not. */
+.ega-verdict { margin: 0; padding: 8px 12px; border-left: 3px solid; font-size: 0.95em; }
+.ega-verdict.is-fit { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.08); color: #fff; }
+.ega-verdict.is-hint { border-color: #ffd2a8; background: rgba(255, 210, 168, 0.08); color: #ffd2a8; }
 .ega-finish { display: flex; flex-direction: column; gap: 12px; }
 .ega-links { display: flex; flex-direction: column; gap: 8px; }
 .eg-room .ega-links .egr-button { font-size: 0.78em; }

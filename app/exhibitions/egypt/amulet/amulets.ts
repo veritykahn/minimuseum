@@ -3,6 +3,9 @@ import type { SourceGroup } from '@/components/exhibition/SourcesDrawer';
 import { BM_HIEROGLYPHS, BM_MUMMY_NOTES, BM_SYMBOLS, GLYPHS, met } from '../rooms';
 
 /*
+ * The point: you read what each symbol meant to the Egyptians, and choose
+ * the ones that fit what your amulet should protect.
+ *
  * The amulet maker: choose a shape, a material and up to three symbols, and
  * learn what each symbol meant. Each symbol is its hieroglyph (rooms.ts), and
  * its meaning is a museum note with its source: the British Museum's
@@ -123,21 +126,51 @@ export const FOR_WHOM = [
 export type ForWhomId = (typeof FOR_WHOM)[number]['id'];
 
 /**
- * What the amulet should protect, and the symbols an Egyptian might have
- * chosen for it: each suggestion follows from the symbol's own meaning
- * above (the wedjat eye's renewal and protection, the uraeus's protection,
- * the ankh's life, the djed's permanence, the scarab's and lotus's
- * rebirth, the heart amulet's help at the judgement). The visitor can still
- * choose any symbols they like.
+ * What the amulet should protect, and the symbols whose meanings fit it:
+ * each follows from the symbol's own meaning above (the wedjat eye's
+ * renewal and protection, the uraeus's protection, the ankh's life, the
+ * djed's permanence, the scarab's and lotus's rebirth, the heart amulet's
+ * help at the judgement). The visitor reads each meaning and decides; the
+ * room says whether a carved symbol fits, and, if not, what to look for
+ * (look). Any symbol can still be carved.
  */
-// REVIEW: new text. Each "suggests" list is drawn from the SYMBOLS meanings and their sources (British Museum; The Met).
-export const NEEDS: { id: string; name: string; suggests: SymbolId[] }[] = [
-  { id: 'harm', name: 'Keeping safe from harm', suggests: ['uraeus', 'wedjat'] },
-  { id: 'health', name: 'Getting well and strong', suggests: ['wedjat', 'ankh'] },
-  { id: 'long', name: 'A long life', suggests: ['ankh', 'djed'] },
-  { id: 'fresh', name: 'A fresh start', suggests: ['scarab', 'lotus'] },
-  { id: 'afterlife', name: 'The afterlife', suggests: ['heart', 'djed', 'scarab'] },
+// REVIEW: new text. Each "fits" list is drawn from the SYMBOLS meanings and their sources (British Museum; The Met); "look" names the meaning to look for.
+export const NEEDS: { id: string; name: string; fits: SymbolId[]; look: string }[] = [
+  { id: 'harm', name: 'Keeping safe from harm', fits: ['uraeus', 'wedjat'], look: 'protection' },
+  { id: 'health', name: 'Getting well and strong', fits: ['wedjat', 'ankh'], look: 'healing, renewal or life' },
+  { id: 'long', name: 'A long life', fits: ['ankh', 'djed'], look: 'life, or something that lasts' },
+  { id: 'fresh', name: 'A fresh start', fits: ['scarab', 'lotus'], look: 'rebirth' },
+  { id: 'afterlife', name: 'The afterlife', fits: ['heart', 'djed', 'scarab'], look: 'the judgement, or being revived or reborn' },
 ];
+
+/** Whether a symbol's meaning fits what the amulet should protect. */
+export function fits(needId: string | null, id: SymbolId): boolean {
+  return NEEDS.find((n) => n.id === needId)?.fits.includes(id) ?? false;
+}
+
+/**
+ * What the room says as a symbol is carved: whether its meaning fits what
+ * the amulet should protect, and, if not, a hint (never a no).
+ */
+// REVIEW: new text (feedback).
+export function carveFeedback(needId: string | null, id: SymbolId): { fits: boolean; text: string } {
+  const need = NEEDS.find((n) => n.id === needId);
+  const name = SYMBOLS.find((s) => s.id === id)!.name;
+  if (!need) return { fits: true, text: `${name} carved on your amulet.` };
+  if (fits(needId, id)) return { fits: true, text: `Good choice! The ${name.toLowerCase()}’s meaning fits ${need.name.toLowerCase()}.` };
+  return { fits: false, text: `Does the ${name.toLowerCase()} fit ${need.name.toLowerCase()}? Read what it meant. You can keep it, or take it off. Hint: look for ${need.look}.` };
+}
+
+/** How the finished amulet's symbols fit what it should protect, said kindly. */
+// REVIEW: new text.
+export function fitSummary(needId: string | null, chosen: SymbolId[]): string {
+  const need = NEEDS.find((n) => n.id === needId);
+  if (!need || chosen.length === 0) return '';
+  const n = chosen.filter((id) => fits(needId, id)).length;
+  if (n === chosen.length) return `Every symbol on it fits ${need.name.toLowerCase()}. An Egyptian craftsperson would be proud.`;
+  if (n === 0) return `None of its symbols’ meanings fit ${need.name.toLowerCase()}, but it is yours. Go back and look for ${need.look}, if you like.`;
+  return `${n} of its ${chosen.length} symbols fit ${need.name.toLowerCase()}.`;
+}
 
 /** The room's Sources drawer. */
 export const AMULET_SOURCES: SourceGroup[] = [
@@ -161,3 +194,11 @@ export const AMULET_INTRO = [
   'Today, you are the craftsperson.',
   'Choose who it is for, shape it, and carve its symbols.',
 ];
+
+// REVIEW: new text (the steps).
+export const AMULET_STEPS = [
+  { id: 'who', title: 'Who is it for?' },
+  { id: 'blank', title: 'Choose its shape and material' },
+  { id: 'carve', title: 'Carve symbols that fit' },
+  { id: 'finish', title: 'Your amulet is ready' },
+] as const;
