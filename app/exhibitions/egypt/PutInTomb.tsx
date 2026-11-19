@@ -36,8 +36,10 @@ export default function PutInTomb({ activity, what, onPut, label = 'Put this in 
   const place = placeFor(activity);
 
   // Was something from this room already in the tomb (from an earlier visit)?
+  // (Read once the page is in the browser, as useTomb does: the server cannot see it.)
   useEffect(() => {
-    setBefore(!!readTomb().kept?.[activity]);
+    const look = () => setBefore(!!readTomb().kept?.[activity]);
+    look();
   }, [activity]);
   useEffect(() => {
     if (put) go.current?.focus({ preventScroll: true });

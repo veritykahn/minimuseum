@@ -105,22 +105,26 @@ export default function MyTomb() {
   const title = name ? `The tomb of ${name}` : 'Your burial tomb';
 
   // Come back to the tomb as it was left, and see what has arrived since.
+  // (Read once the page is in the browser, as useTomb does: the server cannot see it.)
   useEffect(() => {
-    const k = readKept();
-    const now = IDS.filter((id) => readTomb().kept?.[id]);
-    const arrived = now.filter((id) => !(k?.seen ?? []).includes(id));
-    if (k) {
-      setGoods(k.goods);
-      setOwner(k.owner);
-      if (k.sealed && arrived.length === 0 && now.length === IDS.length) setMode('sealed');
-    }
-    setSeen(now);
-    if (arrived.length) {
-      // Straight in from a room: the new thing is waiting in its place.
-      setFresh(arrived);
-      setIntro(false);
-    }
-    setLoaded(true);
+    const restore = () => {
+      const k = readKept();
+      const now = IDS.filter((id) => readTomb().kept?.[id]);
+      const arrived = now.filter((id) => !(k?.seen ?? []).includes(id));
+      if (k) {
+        setGoods(k.goods);
+        setOwner(k.owner);
+        if (k.sealed && arrived.length === 0 && now.length === IDS.length) setMode('sealed');
+      }
+      setSeen(now);
+      if (arrived.length) {
+        // Straight in from a room: the new thing is waiting in its place.
+        setFresh(arrived);
+        setIntro(false);
+      }
+      setLoaded(true);
+    };
+    restore();
   }, []);
   useEffect(() => {
     if (!loaded) return;
