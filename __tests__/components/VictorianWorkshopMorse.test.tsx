@@ -88,6 +88,10 @@ describe('the Morse code bench', () => {
     // Space on the key: held long, a dash.
     const key = screen.getByRole('button', { name: 'The Morse key: tap for a dot, hold for a dash' });
     const word = MORSE_WORDS[0];
+    // From memory: no code under the letters until asked for, or a wrong tap.
+    expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot-hidden')).toHaveLength(word.length);
+    fireEvent.click(screen.getByRole('button', { name: `Show the code for ${word[0]}` }));
+    expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot-hidden')).toHaveLength(word.length - 1);
     for (const c of word)
       for (const m of MORSE[c]) {
         fireEvent.keyDown(key, { key: ' ' });
@@ -98,6 +102,12 @@ describe('the Morse code bench', () => {
       }
     expect(screen.getByText(`You sent ${word}!`, SHOWN)).toBeInTheDocument();
     expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot[data-done]')).toHaveLength(word.length);
+    // A wrong tap shows the code it wanted.
+    fireEvent.click(screen.getByRole('button', { name: 'SEA' }));
+    expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot-hidden')).toHaveLength(3);
+    fireEvent.click(screen.getByRole('button', { name: 'Dash' }));
+    expect(screen.getByText('You tapped dash: that’s T. S is dot dot dot. Try S again.', SHOWN)).toBeInTheDocument();
+    expect(document.querySelectorAll('.vbi-morse-word .vbi-morse-slot-hidden')).toHaveLength(2);
   });
 
   it('decodes a message chosen at random: the marks come in on the tape, and each letter is pressed in turn', () => {
@@ -106,7 +116,9 @@ describe('the Morse code bench', () => {
     render(<VictorianInventions />);
     fireEvent.click(screen.getByRole('button', { name: '3. Decode' }));
     const picks = screen.getByRole('group', { name: 'The letters' });
-    expect(within(picks).getByRole('button', { name: /^E: / })).toBeDisabled();
+    // From memory: the letters carry no code at first.
+    expect(within(picks).getByRole('button', { name: 'E' })).toBeDisabled();
+    expect(picks.querySelector('.vbi-morse-card-c')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Play the message' }));
     const msg = MORSE_MESSAGES[0];
     act(() => {
@@ -115,8 +127,10 @@ describe('the Morse code bench', () => {
     const letters = msg.replace(/ /g, '');
     expect(document.querySelectorAll('.vbi-morse-message .vbi-morse-slot-c[data-shown]')).toHaveLength(letters.length);
     const wrong = MORSE_LEARN.find((l) => l !== letters[0])!;
-    fireEvent.click(within(picks).getByRole('button', { name: new RegExp(`^${wrong}: `) }));
+    fireEvent.click(within(picks).getByRole('button', { name: wrong }));
     expect(document.querySelector('.vbi-morse-message [data-miss]')).not.toBeNull();
+    // After a miss, each letter shows its code.
+    expect(picks.querySelectorAll('.vbi-morse-card-c')).toHaveLength(MORSE_LEARN.length);
     for (const c of letters) fireEvent.click(within(picks).getByRole('button', { name: new RegExp(`^${c}: `) }));
     expect(screen.getByText(`Well decoded! “${msg}”`, SHOWN)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Another message' }));

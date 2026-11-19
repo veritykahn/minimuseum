@@ -18,11 +18,18 @@ import { useMuseumSound } from '@/lib/museumSound';
  *    museum's sound is on); then copy it on the key: a quick tap is a dot,
  *    a longer press a dash. Each letter copied gets its tick.
  * 2. Send. Choose a word made of those letters and tap it out, letter by
- *    letter, its code under each letter to follow. A wrong tap says what
- *    you tapped and starts that letter again.
+ *    letter, from memory: each letter's code is hidden until it is sent,
+ *    asked for, or a wrong tap shows it. A wrong tap says what you tapped
+ *    and starts that letter again.
  * 3. Decode. A short message, chosen at random and made of the same
  *    letters, comes in on the lamp (and the sounder); its dots and dashes
- *    come up on the tape, and you press the letter each group spells.
+ *    come up on the tape, and you press the letter each group spells. The
+ *    letters to press show no code at first (from memory again); a miss,
+ *    or "Show the codes", puts each letter's code on it.
+ *
+ * The point: a child learns that Morse code is an alphabet of long and
+ * short signals that a person had to know by heart, and finds out how
+ * hard and how quick it is to send and read, which no poster can give them.
  *
  * Every mark tapped is drawn on the tape. Dot and Dash buttons do the same
  * as the key, for anyone who cannot hold a key. Sound is off until it is
@@ -65,6 +72,8 @@ export default function Morse({ reduced }: { reduced: boolean }) {
   /* ── 2. Send ── */
   const [word, setWord] = useState(MORSE_WORDS[0]);
   const [at, setAt] = useState(0);
+  // From memory: the letter's code shows only once asked for, or after a wrong tap.
+  const [peek, setPeek] = useState(false);
   const sentWord = at >= word.length;
 
   /* ── 3. Decode ── */
@@ -75,6 +84,8 @@ export default function Morse({ reduced }: { reduced: boolean }) {
   const [heard, setHeard] = useState(-1);
   const [guesses, setGuesses] = useState<Record<number, string>>({});
   const [miss, setMiss] = useState<{ slot: number; n: number } | null>(null);
+  // The letters to press carry no code until a miss, or until asked: decoding is from memory first.
+  const [chart, setChart] = useState(false);
   const slot = letters.find((i) => !guesses[i]) ?? -1;
   const decoded = letters.length > 0 && letters.every((i) => guesses[i]);
   const playing = show !== null && part === 'decode';
@@ -139,13 +150,14 @@ export default function Morse({ reduced }: { reduced: boolean }) {
       } else {
         const next = at + 1;
         setAt(next);
+        setPeek(false);
         if (next >= word.length) {
           setBurst((b) => b + 1);
           setSaid({ ok: true, words: `You sent ${word}!` });
           setStatus(`${want}. You sent the whole word: ${word}!`);
         } else {
           setSaid({ ok: true, words: `${want}, sent. Next: ${word[next]}.` });
-          setStatus(`${want}, sent. Next: ${word[next]}, ${spoken(MORSE[word[next]])}.`);
+          setStatus(`${want}, sent. Next: ${word[next]}.`);
         }
       }
     } else if (code.startsWith(t)) {
@@ -153,6 +165,7 @@ export default function Morse({ reduced }: { reduced: boolean }) {
       setStatus(`${spoken(t)}…`);
     } else {
       setTap('');
+      if (part === 'send') setPeek(true);
       const was = FROM_MORSE[t];
       const words = `You tapped ${spoken(t)}${was ? `: that’s ${was}` : ''}. ${want} is ${spoken(code)}. Try ${want} again.`;
       setSaid({ ok: false, words });
@@ -172,9 +185,10 @@ export default function Morse({ reduced }: { reduced: boolean }) {
   const chooseWord = (w: string) => {
     setWord(w);
     setAt(0);
+    setPeek(false);
     setTap('');
     setSaid(null);
-    setStatus(`Send ${w}. First: ${w[0]}, ${spoken(MORSE[w[0]])}.`);
+    setStatus(`Send ${w}, from memory. First: ${w[0]}.`);
   };
 
   const play = () => {
@@ -191,6 +205,7 @@ export default function Morse({ reduced }: { reduced: boolean }) {
     setGuesses({});
     setHeard(-1);
     setMiss(null);
+    setChart(false);
     setShow(null);
     setLamp(false);
     setStatus('A new message is waiting. Press Play.');
@@ -207,7 +222,8 @@ export default function Morse({ reduced }: { reduced: boolean }) {
       } else setStatus(`${l}. Right!`);
     } else {
       setMiss((m) => ({ slot, n: (m?.n ?? 0) + 1 }));
-      setStatus(`Not ${l}. Look again: ${spoken(cells[slot].code)}.`);
+      setChart(true);
+      setStatus(`Not ${l}. Look again: ${spoken(cells[slot].code)}. Now each letter shows its code.`);
     }
   };
 
@@ -261,9 +277,15 @@ export default function Morse({ reduced }: { reduced: boolean }) {
               {word.split('').map((c, i) => (
                 <li key={i} className="vbi-morse-slot" data-done={i < at || undefined} data-current={i === at || undefined}>
                   <span className="vbi-morse-slot-l">{c}</span>
-                  <span className="vbi-morse-slot-c" aria-label={spoken(MORSE[c])}>
-                    <Marks code={MORSE[c]} />
-                  </span>
+                  {i < at || (i === at && peek) ? (
+                    <span className="vbi-morse-slot-c" aria-label={spoken(MORSE[c])}>
+                      <Marks code={MORSE[c]} />
+                    </span>
+                  ) : (
+                    <span className="vbi-morse-slot-c vbi-morse-slot-hidden" aria-label="from memory">
+                      ?
+                    </span>
+                  )}
                 </li>
               ))}
             </ol>
@@ -293,11 +315,13 @@ export default function Morse({ reduced }: { reduced: boolean }) {
               )}
               <div className="vbi-morse-picks" role="group" aria-label="The letters">
                 {MORSE_LEARN.map((l) => (
-                  <button key={l} type="button" className="vbi-morse-pick" onClick={() => pick(l)} disabled={heard < 0 || decoded || slot < 0 || heard < slot} aria-label={`${l}: ${spoken(MORSE[l])}`}>
+                  <button key={l} type="button" className="vbi-morse-pick" onClick={() => pick(l)} disabled={heard < 0 || decoded || slot < 0 || heard < slot} aria-label={chart ? `${l}: ${spoken(MORSE[l])}` : l}>
                     <span className="vbi-morse-card-l">{l}</span>
-                    <span className="vbi-morse-card-c">
-                      <Marks code={MORSE[l]} />
-                    </span>
+                    {chart && (
+                      <span className="vbi-morse-card-c">
+                        <Marks code={MORSE[l]} />
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -344,11 +368,13 @@ export default function Morse({ reduced }: { reduced: boolean }) {
                 Morse code spells each letter in dots and dashes. Tap a card to see and hear its code, then copy it on the key: <strong>tap quickly for a dot, hold a little longer for a dash.</strong>
               </p>
             ) : part === 'send' ? (
+              // REVIEW: new text
               <p className="vbi-step-body">
-                Tap out <strong>{word}</strong> on the key, letter by letter. Its code is under each letter.
+                Tap out <strong>{word}</strong> on the key, letter by letter, <strong>from memory</strong>. Stuck? Ask for the code.
               </p>
             ) : (
-              <p className="vbi-step-body">Press Play and watch the lamp. Then press the letter each group of dots and dashes spells.</p>
+              // REVIEW: new text
+              <p className="vbi-step-body">Press Play and watch the lamp. Then press the letter each group of dots and dashes spells, from memory. Stuck? Show the codes.</p>
             )}
             {part === 'learn' && (
               <p className="vbr-note">
@@ -375,6 +401,11 @@ export default function Morse({ reduced }: { reduced: boolean }) {
                 <button type="button" className="vbr-button" onClick={another} disabled={playing}>
                   Another message
                 </button>
+                {!chart && heard >= 0 && !decoded && (
+                  <button type="button" className="vbr-button vbr-button-quiet" onClick={() => setChart(true)}>
+                    Show the codes
+                  </button>
+                )}
               </div>
             ) : (
               <div className="vbr-actions vbi-tg-row">
@@ -387,6 +418,11 @@ export default function Morse({ reduced }: { reduced: boolean }) {
                 {part === 'learn' && learned.length === MORSE_LEARN.length && (
                   <button type="button" className="vbr-button vbr-button-primary" onClick={() => choosePart('send')}>
                     Send a word <span aria-hidden="true">→</span>
+                  </button>
+                )}
+                {part === 'send' && !sentWord && !peek && (
+                  <button type="button" className="vbr-button vbr-button-quiet" onClick={() => setPeek(true)}>
+                    Show the code for {word[at]}
                   </button>
                 )}
                 {part === 'send' && sentWord && (

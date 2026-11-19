@@ -73,6 +73,8 @@
 .vbi-morse-slot[data-current] { background: #f9d77e; }
 .vbi-morse-slot[data-done] .vbi-morse-slot-l { color: #2d6a37; border-bottom-color: #3f8a4a; }
 .vbi-morse-slot[data-done] .vbi-morse-slot-c { color: #2d6a37; }
+/* A code to send from memory: a question mark where its dots and dashes will be. */
+.vbi-morse-slot-hidden { justify-content: center; font-family: 'Jost', sans-serif; font-weight: 600; opacity: 0.5; }
 .vbi-morse-slot[data-miss] { background: #f3b3a8; }
 .vbi-morse-message .vbi-morse-slot-c:not([data-shown]) { opacity: 0; }
 .vbi-morse-message .vbi-morse-gap { width: clamp(14px, 3cqw, 34px); }
