@@ -1,0 +1,77 @@
+[
+  {
+    "slug": "hidden-in-the-dark",
+    "title": "Hidden in the Dark",
+    "sub": "PreK–Kindergarten · Tomb Explorer · A painted wall from long ago",
+    "grade": "PreK–K",
+    "minutes": 25,
+    "posters": [
+      "poster2"
+    ],
+    "import": "egyHiddenInTheDark"
+  },
+  {
+    "slug": "write-like-a-scribe",
+    "title": "Write Like a Scribe",
+    "sub": "Grades 1–2 · Your Name in Hieroglyphs · Signs, sounds and a royal oval",
+    "grade": "Grades 1–2",
+    "minutes": 30,
+    "posters": [
+      "poster1"
+    ],
+    "import": "egyWriteLikeAScribe"
+  },
+  {
+    "slug": "crack-the-code",
+    "title": "Crack the Code",
+    "sub": "Grades 3–4 · The Rosetta Stone Decoder · One message, three scripts",
+    "grade": "Grades 3–4",
+    "minutes": 40,
+    "posters": [
+      "poster1"
+    ],
+    "import": "egyCrackTheCode"
+  },
+  {
+    "slug": "who-built-the-pyramids",
+    "title": "Who Really Built the Pyramids?",
+    "sub": "Grades 5–8 · Social Studies · Testing a belief against the evidence",
+    "grade": "Grades 5–8 · Social Studies",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "egyWhoBuiltThePyramids"
+  },
+  {
+    "slug": "weighed-against-a-feather",
+    "title": "Weighed Against a Feather",
+    "sub": "Grades 5–8 · ELA · Reading the scribe Ani’s words",
+    "grade": "Grades 5–8 · ELA",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "egyWeighedAgainstAFeather"
+  },
+  {
+    "slug": "seventy-days",
+    "title": "Seventy Days",
+    "sub": "Grades 5–8 · Science · How the Egyptians preserved a body",
+    "grade": "Grades 5–8 · Science",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "egySeventyDays"
+  },
+  {
+    "slug": "stories-on-the-wall",
+    "title": "Stories on the Wall",
+    "sub": "Grades 5–8 · Art · How Egyptian tomb painters told a story",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [],
+    "import": "egyStoriesOnTheWall"
+  }
+]

@@ -1,0 +1,84 @@
+[
+  {
+    "slug": "quiet-at-eleven",
+    "title": "Quiet at Eleven",
+    "sub": "PreK–Kindergarten · Poppies, a clock and a quiet time",
+    "grade": "PreK–K",
+    "minutes": 25,
+    "posters": [
+      "poster2"
+    ],
+    "import": "gwQuietAtEleven"
+  },
+  {
+    "slug": "what-came-home",
+    "title": "What Came Home",
+    "sub": "Grades 1–2 · The display case · A helmet, a razor and the doughboys",
+    "grade": "Grades 1–2",
+    "minutes": 30,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "gwWhatCameHome"
+  },
+  {
+    "slug": "remember-a-soldier",
+    "title": "Remember a Soldier",
+    "sub": "Grades 3–4 · The Memorial · Reading a memorial card",
+    "grade": "Grades 3–4",
+    "minutes": 40,
+    "posters": [
+      "poster2"
+    ],
+    "import": "gwRememberASoldier"
+  },
+  {
+    "slug": "the-last-minute",
+    "title": "The Last Minute of the War",
+    "sub": "Grades 5–8 · Social Studies · Reading the record of November 11, 1918",
+    "grade": "Grades 5–8 · Social Studies",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "gwTheLastMinute"
+  },
+  {
+    "slug": "the-language-of-remembrance",
+    "title": "The Language of Remembrance",
+    "sub": "Grades 5–8 · ELA · How words are built to be remembered",
+    "grade": "Grades 5–8 · ELA",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "gwTheLanguageOfRemembrance"
+  },
+  {
+    "slug": "silhouette-and-poppy",
+    "title": "Silhouette and Poppy",
+    "sub": "Grades 5–8 · Art · Designing for remembrance",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "gwSilhouetteAndPoppy"
+  },
+  {
+    "slug": "music-for-remembering",
+    "title": "Music for Remembering",
+    "sub": "Grades 5–8 · Music · Marches, a Largo and the silence",
+    "grade": "Grades 5–8 · Music",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "gwMusicForRemembering"
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "slug": "violets-big-family",
+    "title": "Violet’s Big Family",
+    "sub": "PreK–Kindergarten · Home, family and the letters we keep",
+    "grade": "PreK–K",
+    "minutes": 25,
+    "posters": [
+      "poster2"
+    ],
+    "import": "whVioletsBigFamily"
+  },
+  {
+    "slug": "violets-keepsakes",
+    "title": "Violet’s Keepsakes",
+    "sub": "Grades 1–2 · Violet’s Life · A life in order",
+    "grade": "Grades 1–2",
+    "minutes": 30,
+    "posters": [
+      "poster2"
+    ],
+    "import": "whVioletsKeepsakes"
+  },
+  {
+    "slug": "history-at-home",
+    "title": "History at Home",
+    "sub": "Grades 3–4 · Who Gets Remembered? · An everyday life as history",
+    "grade": "Grades 3–4",
+    "minutes": 40,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "whHistoryAtHome"
+  },
+  {
+    "slug": "the-war-at-home",
+    "title": "The War at Home",
+    "sub": "Grades 5–8 · Social Studies · One family on the home front",
+    "grade": "Grades 5–8 · Social Studies",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "whTheWarAtHome"
+  },
+  {
+    "slug": "everybody-has-a-story",
+    "title": "Everybody Has a Story",
+    "sub": "Grades 5–8 · ELA · Biography and the oral-history interview",
+    "grade": "Grades 5–8 · ELA",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "whEverybodyHasAStory"
+  },
+  {
+    "slug": "who-counts",
+    "title": "Who Counts?",
+    "sub": "Grades 5–8 · Math · Percent, ratio and the median of a monument count",
+    "grade": "Grades 5–8 · Math",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "whWhoCounts"
+  },
+  {
+    "slug": "a-life-in-shapes",
+    "title": "A Life in Shapes",
+    "sub": "Grades 5–8 · Art · Abstraction, design and a life",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "whALifeInShapes"
+  }
+]

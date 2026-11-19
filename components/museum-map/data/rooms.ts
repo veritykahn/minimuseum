@@ -154,7 +154,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 110,
     accentColor: '#A88BEB',
     parent: 'ground-floor',
-    children: ['mo-case', 'mo-microscope'],
+    children: ['mo-case', 'mo-microscope', ...lessonsChild('moon')],
   },
   {
     id: 'mo-case',
@@ -182,7 +182,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 100,
     accentColor: '#56656F',
     parent: 'ground-floor',
-    children: ['ap-case', 'ap-sign', 'ap-copies', 'ap-flag'],
+    children: ['ap-case', 'ap-sign', 'ap-copies', 'ap-flag', ...lessonsChild('america-250')],
   },
   {
     id: 'ap-case',
@@ -226,7 +226,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 100,
     accentColor: '#D9B7B8',
     parent: 'ground-floor',
-    children: ['vb-case', 'vb-christmas-card', 'vb-inventions', 'vb-christmas-parlour'],
+    children: ['vb-case', 'vb-christmas-card', 'vb-inventions', 'vb-christmas-parlour', ...lessonsChild('victorian')],
   },
   {
     id: 'vb-case',
@@ -410,7 +410,7 @@ export const MUSEUM_ROOMS: MapRoom[] = [
     height: 110,
     accentColor: '#F04A1A',
     parent: 'ground-floor',
-    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet', 'eg-my-tomb'],
+    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet', 'eg-my-tomb', ...lessonsChild('egypt')],
   },
   {
     id: 'eg-case',

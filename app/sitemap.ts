@@ -1,6 +1,9 @@
 import { SITE_URL } from '@/lib/site';
 import { MetadataRoute } from 'next';
 import { lessonsFor } from '@/lib/lessons';
+
+/** The exhibitions whose lessons came in November 2026 (each has app/exhibitions/<slug>/lessons). */
+const NEW_LESSON_EXHIBITIONS = ['moon', 'egypt', 'america-250', 'victorian', 'great-war', 'womens-history', 'holocaust', 'black-history', 'writing-revolution', 'fear-lab'];
 import { EXHIBITION_CASES } from '@/lib/exhibitionCases';
 import { artifactPath } from '@/components/exhibition/artifacts';
 import { ALL_FLOORS } from '@/lib/floors';
@@ -522,6 +525,21 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
+    // The lessons of every exhibition that had none until November 2026: each Lessons room and its lessons.
+    ...NEW_LESSON_EXHIBITIONS.flatMap((e) => [
+      {
+        url: `${baseUrl}/exhibitions/${e}/lessons`,
+        lastModified,
+        changeFrequency: 'monthly' as const,
+        priority: 0.6,
+      },
+      ...lessonsFor(e).map((l) => ({
+        url: `${baseUrl}/exhibitions/${e}/lessons/${l.slug}`,
+        lastModified,
+        changeFrequency: 'monthly' as const,
+        priority: 0.5,
+      })),
+    ]),
     // Every artifact in the engine-built display cases, each on its own page.
     ...EXHIBITION_CASES.flatMap(({ config, data }) =>
       data.artifacts.map((a) => ({

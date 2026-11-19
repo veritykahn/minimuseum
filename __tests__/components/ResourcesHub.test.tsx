@@ -30,15 +30,18 @@ describe('The Resources hub', () => {
     expect(screen.queryByRole('button', { name: 'Religion' })).toBeNull();
   });
 
-  it('lists every open exhibition, with its lessons or word that they are on their way', () => {
+  it('lists every open exhibition, each with its lessons and its parent guide', () => {
     window.sessionStorage.setItem('mm-teach-role', 'parent');
     render(<ResourcesHub />);
     expect(screen.getByRole('button', { name: 'Parent' })).toHaveAttribute('aria-pressed', 'true');
     const active = FLOORS.flatMap((f) => f.exhibitions.filter((e) => e.active));
     const list = screen.getByRole('heading', { name: 'Every exhibition' }).parentElement as HTMLElement;
     active.forEach((e) => expect(within(list).getByRole('heading', { level: 3, name: e.title })).toBeInTheDocument());
-    expect(within(list).getByRole('link', { name: /All 7 lessons/ })).toHaveAttribute('href', '/exhibitions/in-their-hands/lessons');
-    expect(within(list).getAllByText('Lesson plans on their way').length).toBeGreaterThan(0);
-    expect(within(list).getAllByRole('link', { name: /Parent Resource Guide/ }).length).toBe(3);
+    const lessonLinks = within(list).getAllByRole('link', { name: /^All \d+ lessons/ }).map((a) => a.getAttribute('href'));
+    expect(lessonLinks).toContain('/exhibitions/in-their-hands/lessons');
+    expect(lessonLinks).toContain('/exhibitions/holocaust/lessons');
+    expect(lessonLinks.length).toBe(active.length);
+    expect(within(list).queryAllByText('Lesson plans on their way')).toEqual([]);
+    expect(within(list).getAllByRole('link', { name: /Parent Resource Guide/ }).length).toBe(active.length);
   });
 });

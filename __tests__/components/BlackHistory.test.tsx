@@ -232,6 +232,7 @@ describe('Black History Month on the museum map', () => {
       ['Display Case', '/exhibitions/black-history/artifacts/case'],
       ['The Black Barbie Timeline', '/exhibitions/black-history/timeline'],
       ['Who Do You See?', '/exhibitions/black-history/representation'],
+      ['Lessons', '/exhibitions/black-history/lessons'],
     ]);
     expect(getRoomByPath('/exhibitions/black-history')?.parent).toBe('second-floor');
     expect(getRoomByPath('/exhibitions/black-history/artifacts/case')?.parent).toBe('black-history');

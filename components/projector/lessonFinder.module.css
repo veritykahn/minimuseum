@@ -291,6 +291,12 @@
   background: var(--tw-accent);
   color: var(--tw-on-accent);
 }
+/* "Teach it online" is a link: the site's a:link { color: inherit } would
+   otherwise give it the ink colour, invisible where ink and accent match */
+.primary:link,
+.primary:visited {
+  color: var(--tw-on-accent);
+}
 .primary:hover {
   filter: brightness(1.06);
 }

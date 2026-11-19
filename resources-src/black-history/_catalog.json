@@ -1,0 +1,80 @@
+[
+  {
+    "slug": "a-doll-like-me",
+    "title": "A Doll Like Me",
+    "sub": "PreK–Kindergarten · The Importance of Black Barbie",
+    "grade": "PreK–K",
+    "minutes": 25,
+    "posters": [
+      "poster2"
+    ],
+    "import": "bhADollLikeMe"
+  },
+  {
+    "slug": "from-a-week-to-a-month",
+    "title": "From a Week to a Month",
+    "sub": "Grades 1–2 · Carter G. Woodson and Black History Month",
+    "grade": "Grades 1–2",
+    "minutes": 30,
+    "posters": [
+      "poster1"
+    ],
+    "import": "bhFromAWeekToAMonth"
+  },
+  {
+    "slug": "milestones",
+    "title": "Milestones",
+    "sub": "Grades 3–4 · The Black Barbie Timeline",
+    "grade": "Grades 3–4",
+    "minutes": 40,
+    "posters": [
+      "poster2"
+    ],
+    "import": "bhMilestones"
+  },
+  {
+    "slug": "evidence-for-the-court",
+    "title": "Evidence for the Court",
+    "sub": "Grades 5–8 · Social Studies · The Doll Test and Brown v. Board",
+    "grade": "Grades 5–8 · Social Studies",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "bhEvidenceForTheCourt"
+  },
+  {
+    "slug": "making-the-case",
+    "title": "Making the Case",
+    "sub": "Grades 5–8 · ELA · Poster 1 as an argument",
+    "grade": "Grades 5–8 · ELA",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "bhMakingTheCase"
+  },
+  {
+    "slug": "designed-to-be-seen",
+    "title": "Designed to Be Seen",
+    "sub": "Grades 5–8 · Art · Designing for representation",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "bhDesignedToBeSeen"
+  },
+  {
+    "slug": "whos-on-our-shelf",
+    "title": "Who’s on Our Shelf?",
+    "sub": "Grades 5–8 · Math · Surveying our books",
+    "grade": "Grades 5–8 · Math",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "bhWhosOnOurShelf"
+  }
+]

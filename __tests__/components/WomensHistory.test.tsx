@@ -356,6 +356,7 @@ describe("Women's History Month on the museum map", () => {
       ['Display Case', '/exhibitions/womens-history/artifacts/case'],
       ['Violet’s Life', '/exhibitions/womens-history/violet'],
       ['Who Gets\nRemembered?', '/exhibitions/womens-history/remembered'],
+      ['Lessons', '/exhibitions/womens-history/lessons'],
     ]);
     expect(getRoomByPath('/exhibitions/womens-history')?.parent).toBe('first-floor');
     expect(getRoomByPath('/exhibitions/womens-history/artifacts/case')?.parent).toBe('womens-history');
