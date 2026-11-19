@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import PutInTomb from '../PutInTomb';
 import { DragGhost, useDragDrop } from '../dragKit';
@@ -56,6 +56,11 @@ export default function CoffinStep({ kit }: { kit: StepKit }) {
   const [answers, setAnswers] = useState<Record<number, string>>(kit.done ? Object.fromEntries(CHECK.map((c, i) => [i, c.answer])) : {});
   const question = CHECK.findIndex((c, i) => answers[i] !== c.answer);
   const checked = question < 0;
+  // The ending (into the tomb) is in the tray, which may scroll: bring it into view when it appears.
+  const ending = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (checked && !kit.done) ending.current?.scrollIntoView?.({ block: 'nearest', behavior: kit.reduced ? 'auto' : 'smooth' });
+  }, [checked, kit.done, kit.reduced]);
 
   const putIn = (what: 'mummy' | 'lid') => {
     setHolding(null);
@@ -187,11 +192,9 @@ export default function CoffinStep({ kit }: { kit: StepKit }) {
             <p className="egm-small">{holding ? `You are holding the ${holding}. Now tap the coffin.` : 'Drag it to the coffin, or tap it and then tap the coffin.'}</p>
           ) : (
             <div className="egm-check">
-              <p className="egr-label">
-                Three quick questions · {checked ? CHECK.length : question + 1} of {CHECK.length}
-              </p>
+              <p className="egr-label">{checked ? 'Three questions, three right' : `Three quick questions · ${question + 1} of ${CHECK.length}`}</p>
               {CHECK.map((c, i) =>
-                i === question ? (
+                checked && i < CHECK.length - 1 ? null : i === question ? (
                   <fieldset key={c.q} className="egr-choice">
                     <legend>{c.q}</legend>
                     <div className="egr-options">
@@ -210,7 +213,7 @@ export default function CoffinStep({ kit }: { kit: StepKit }) {
                 ) : null,
               )}
               {checked && (
-                <div className="egm-ending">
+                <div className="egm-ending" ref={ending}>
                   {/* REVIEW: new text. */}
                   <p>Your mummy is ready for its burial. Put it in your tomb, then follow its heart to the Hall of Judgement, where it will be weighed.</p>
                   <PutInTomb activity="mummification" what="your mummy in its coffin" />

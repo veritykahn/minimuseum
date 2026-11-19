@@ -3,7 +3,7 @@
 import { useState, type PointerEvent, type Ref } from 'react';
 import { DragGhost, useDragDrop } from '../dragKit';
 import { playEgypt } from '../egyptSound';
-import { ARM, BODY, EAR, EYE, HAIR } from './MummyScene';
+import { BODY, EAR, EYE, HAIR } from './MummyScene';
 import { KeyHandle, Picture, Task, Tray, boxIn, usePicturePointer, type StepKit } from './kit';
 import { ENTRIES, judgeBrain, judgeEntry, type Entry } from './mummyGame';
 import { stepNotes } from './steps';
@@ -28,19 +28,19 @@ import { stepNotes } from './steps';
 
 const VIEW = { x: 0, y: 0, w: 640, h: 330 };
 const box = boxIn(VIEW);
-/** The figure's head, three times as large: x' = 3x - 430, y' = 3y - 620. */
-const HEAD = 'translate(-430 -620) scale(3)';
-const NOSTRIL = { x: 220, y: 50 };
-const BRAIN = { x: 176, y: 152 };
-const ENTRY_AT: Record<Entry, { x: number; y: number }> = { nose: NOSTRIL, ear: { x: 224, y: 152 }, crown: { x: 112, y: 128 } };
+/** The figure's head, three times as large: x' = 3x - 430, y' = 3y - 570. */
+const HEAD = 'translate(-430 -570) scale(3)';
+const NOSTRIL = { x: 220, y: 100 };
+const BRAIN = { x: 176, y: 202 };
+const ENTRY_AT: Record<Entry, { x: number; y: number }> = { nose: NOSTRIL, ear: { x: 224, y: 202 }, crown: { x: 112, y: 178 } };
 const DIR = (() => {
   const dx = BRAIN.x - NOSTRIL.x;
   const dy = BRAIN.y - NOSTRIL.y;
   const l = Math.hypot(dx, dy);
   return { x: dx / l, y: dy / l, l };
 })();
-const JAR = { x: 500, y: 300 };
-const BASKET = { x: 588, y: 300 };
+const JAR = { x: 500, y: 296 };
+const BASKET = { x: 588, y: 296 };
 
 type Phase = 'place' | 'in' | 'dispose' | 'done';
 
@@ -49,13 +49,13 @@ function Hook({ x, y, a = 0, faint = false }: { x: number; y: number; a?: number
   return (
     <g transform={`translate(${x} ${y}) rotate(${a})`} opacity={faint ? 0.45 : 1}>
       <path d="M0 0 q-6 2 -7 -5" fill="none" stroke="#c99a3d" strokeWidth="3" strokeLinecap="round" />
-      <path d={`M0 0 L${-DIR.x * 104} ${-DIR.y * 104}`} stroke="#c99a3d" strokeWidth="4" strokeLinecap="round" />
-      <circle cx={-DIR.x * 112} cy={-DIR.y * 112} r="8" fill="none" stroke="#c99a3d" strokeWidth="4" />
+      <path d={`M0 0 L${-DIR.x * 84} ${-DIR.y * 84}`} stroke="#c99a3d" strokeWidth="4" strokeLinecap="round" />
+      <circle cx={-DIR.x * 92} cy={-DIR.y * 92} r="8" fill="none" stroke="#c99a3d" strokeWidth="4" />
     </g>
   );
 }
 
-function HeadScene({ phase, depth, brainOut, holdingBrain, onPointer, svgRef }: { phase: Phase; depth: number; brainOut: boolean; holdingBrain: boolean; onPointer?: (kind: 'down' | 'move' | 'up', e: PointerEvent<SVGSVGElement>) => void; svgRef?: Ref<SVGSVGElement> }) {
+export function HeadScene({ phase, depth, brainOut, holdingBrain, onPointer, svgRef }: { phase: Phase; depth: number; brainOut: boolean; holdingBrain: boolean; onPointer?: (kind: 'down' | 'move' | 'up', e: PointerEvent<SVGSVGElement>) => void; svgRef?: Ref<SVGSVGElement> }) {
   const tip = { x: NOSTRIL.x + DIR.x * DIR.l * depth, y: NOSTRIL.y + DIR.y * DIR.l * depth };
   return (
     <svg
@@ -97,14 +97,13 @@ function HeadScene({ phase, depth, brainOut, holdingBrain, onPointer, svgRef }: 
       ))}
       <rect y="20" width="640" height="3" fill="#d9a441" />
       {/* the bed under the head */}
-      <rect x="40" y="252" width="600" height="20" rx="4" fill="#8a5a2b" stroke="#4a2c12" strokeWidth="2" />
-      <rect x="0" y="272" width="640" height="58" fill="#3a2614" />
+      <rect x="40" y="302" width="600" height="16" rx="4" fill="#8a5a2b" stroke="#4a2c12" strokeWidth="2" />
+      <rect x="0" y="318" width="640" height="12" fill="#3a2614" />
 
       {/* the head, close */}
       <g transform={HEAD}>
         <path d={BODY} fill="url(#egm-head-skin)" stroke="#5e3a20" strokeWidth="0.7" />
         <path d={HAIR} fill="#1c1410" />
-        <path d={ARM} fill="#a26a40" stroke="#5e3a20" strokeWidth="0.5" />
         <path d={EYE} fill="none" stroke="#2a1a0c" strokeWidth="0.8" strokeLinecap="round" />
         <path d={EAR} fill="none" stroke="#6e4529" strokeWidth="0.9" />
         <path d="M216.2 222.6 q1.6 0.4 1.6 1.8" fill="none" stroke="#5e3a20" strokeWidth="0.6" />
@@ -113,11 +112,11 @@ function HeadScene({ phase, depth, brainOut, holdingBrain, onPointer, svgRef }: 
       {/* the brain, seen through the head as on a plan, until it is drawn out */}
       {!brainOut && (
         <g clipPath="url(#egm-head-in)">
-          <path className="egm-brain-plan" d="M128 152 C126 126 150 110 176 112 C204 112 222 128 220 150 C218 172 200 186 176 186 C150 186 130 174 128 152 Z" />
-          <path className="egm-brain-folds" d="M142 140 q10 -8 20 0 q10 8 20 0 q10 -8 22 2 M140 160 q12 -8 22 0 q12 8 24 -2 q8 -6 18 2" />
+          <path className="egm-brain-plan" d="M128 202 C126 176 150 160 176 162 C204 162 222 178 220 200 C218 222 200 236 176 236 C150 236 130 224 128 202 Z" />
+          <path className="egm-brain-folds" d="M142 190 q10 -8 20 0 q10 8 20 0 q10 -8 22 2 M140 210 q12 -8 22 0 q12 8 24 -2 q8 -6 18 2" />
         </g>
       )}
-      <rect x="380" y="23" width="260" height="249" fill="url(#egm-head-fade)" />
+      <rect x="380" y="23" width="260" height="279" fill="url(#egm-head-fade)" />
 
       {/* the jar and the basket, for what comes out */}
       {phase !== 'place' && phase !== 'in' && (
@@ -144,8 +143,9 @@ function HeadScene({ phase, depth, brainOut, holdingBrain, onPointer, svgRef }: 
       {/* the hook: on its tray, or in the nose (faint where it is inside the head) */}
       {phase === 'place' && (
         <g>
-          <rect x="452" y="116" width="150" height="10" rx="3" fill="#6b4a24" stroke="#2a1b0e" strokeWidth="1.5" />
-          <Hook x={466} y={108} a={-64} />
+          <rect x="452" y="150" width="150" height="10" rx="3" fill="#6b4a24" stroke="#2a1b0e" strokeWidth="1.5" />
+          <path d="M470 160 l10 22 M584 160 l-10 22" stroke="#2a1b0e" strokeWidth="3" />
+          <Hook x={470} y={142} a={-64} />
         </g>
       )}
       {phase === 'in' && (
@@ -162,7 +162,7 @@ function HeadScene({ phase, depth, brainOut, holdingBrain, onPointer, svgRef }: 
           ) : null}
         </>
       )}
-      {(phase === 'dispose' || phase === 'done') && !holdingBrain && phase === 'dispose' && (
+      {phase === 'dispose' && !holdingBrain && (
         <g>
           <Hook x={NOSTRIL.x + 30} y={NOSTRIL.y - 6} />
           <ellipse className="egm-brain-bit" cx={NOSTRIL.x + 26} cy={NOSTRIL.y + 2} rx="12" ry="8" />
@@ -274,7 +274,7 @@ export default function BrainStep({ kit }: { kit: StepKit }) {
           <>
             {phase === 'place' && (
               <>
-                <button type="button" className="egm-thing-over egk-carry" style={box(440, 40, 170, 90)} aria-pressed={holding === 'hook'} aria-label="The long bronze hook" onPointerDown={(e) => start('hook', e)} onClick={() => setHolding((h) => (h === 'hook' ? null : 'hook'))} />
+                <button type="button" className="egm-thing-over egk-carry" style={box(440, 60, 170, 104)} aria-pressed={holding === 'hook'} aria-label="The long bronze hook" onPointerDown={(e) => start('hook', e)} onClick={() => setHolding((h) => (h === 'hook' ? null : 'hook'))} />
                 {ENTRIES.map((e) => (
                   <button
                     key={e.id}

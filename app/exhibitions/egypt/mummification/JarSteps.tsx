@@ -57,7 +57,7 @@ export function GodsStep({ kit }: { kit: StepKit }) {
             key={x.god}
             type="button"
             className={`egm-drop egm-meet ${met.includes(x.god) ? 'is-full' : ''}`}
-            style={{ left: `${((100 + i * 200 - 70) / 800) * 100}%`, width: `${(140 / 800) * 100}%`, top: '14%', height: '80%' }}
+            style={{ left: `${((100 + i * 200 - 64) / 800) * 100}%`, width: `${(128 / 800) * 100}%`, top: '30%', height: '66%' }}
             aria-pressed={meeting === x.god}
             onClick={() => meet(x.god)}
             aria-label={met.includes(x.god) ? `${x.god}, the ${x.head}-headed jar` : `Lift the lid of jar ${i + 1}, with a ${x.head}’s head`}
@@ -82,7 +82,7 @@ export function GodsStep({ kit }: { kit: StepKit }) {
           <rect x="0" y="292" width="800" height="38" fill="#3a2614" />
           <rect x="0" y="290" width="800" height="4" fill="#d9a441" opacity="0.6" />
           {JARS.map((x, i) => (
-            <g key={x.god} transform={`translate(${100 + i * 200} 300) scale(1.75)`}>
+            <g key={x.god} transform={`translate(${100 + i * 200} 312) scale(1.45)`}>
               <Jar id={`egm-god-${i}`} head={head(x.head)} organ={x.organ} open={meeting === x.god} full={met.includes(x.god) && meeting !== x.god} />
             </g>
           ))}

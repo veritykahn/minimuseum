@@ -212,7 +212,7 @@ export function NatronStep({ kit, base }: { kit: StepKit; base: BodyLook }) {
                   onClick={() => (holding ? pack(p) : kit.say('First pick up a bag of natron from the pile.'))}
                 />
               ))}
-            {days !== null && (
+            {days !== null && (running || result) && (
               <p className="egm-days" aria-hidden="true">
                 <span>{days}</span> {days === 1 ? 'day' : 'days'} in natron
               </p>
@@ -492,7 +492,15 @@ export function WrapStep({ kit, base }: { kit: StepKit; base: BodyLook }) {
         notes={[...(lastNote && !w.done ? [lastNote] : []), ...(w.done ? stepNotes('wrap') : [])]}
       />
       <DragGhost at={drag}>
-        {drag && <span className="egm-ghost egm-ghost-amulet">{drag.item === 'own' ? '' : <Glyphs text={WRAP_AMULETS.find((a) => a.id === drag.item)?.glyph ?? ''} />}</span>}
+        {drag && (
+          <span className="egm-ghost egm-ghost-amulet">
+            {drag.item === 'own' && own ? (
+              <AmuletArt className="egm-own-amulet" idPrefix="egm-ghost-own" shape={own.shape} material={own.material} symbols={own.symbols} nameGlyphs={own.nameGlyphs} label="" />
+            ) : (
+              <Glyphs text={WRAP_AMULETS.find((a) => a.id === drag.item)?.glyph ?? ''} />
+            )}
+          </span>
+        )}
       </DragGhost>
     </>
   );
