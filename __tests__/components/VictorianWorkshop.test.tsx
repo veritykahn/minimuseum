@@ -2,10 +2,10 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import fs from 'fs';
 import path from 'path';
 import VictorianInventions from '@/app/exhibitions/victorian/inventions/page';
-import { BRISTOL_CLOCK, BRISTOL_TRAIN, EXPOSURE, EXPOSURE_WORDS, INCOMING, INCOMING_NOTE, MAP_TOWNS, MORSE, NOTES, PHOTOS, PLYMOUTH, POSITIVE, PROCESS_CLUES, QUIZ_ORDER, RAIL_STEPS, READ_WORDS, SEND_WORDS, STATIONS, STATION_JOB, TELEGRAM, TRAIN_PUZZLES, WIRE_PARTS, blurFor, exposureFor, verdictFor } from '@/app/exhibitions/victorian/inventions/inventionsText';
+import { BRISTOL_ASK, BRISTOL_CLOCK, BRISTOL_TRAIN, EXPOSURE, EXPOSURE_WORDS, INCOMING, INCOMING_NOTE, MAP_TOWNS, MORSE, NOTES, PHOTOS, PLYMOUTH, POSITIVE, PROCESS_CLUES, QUIZ_ORDER, RAIL_STEPS, READ_WORDS, SEND_WORDS, STATIONS, STATION_JOB, TELEGRAM, TRAIN_PUZZLES, WIRE_PARTS, blurFor, exposureFor, verdictFor } from '@/app/exhibitions/victorian/inventions/inventionsText';
 import { INVENTIONS_SOURCES, RAIL_FACTS, WIRE_FACTS } from '@/app/exhibitions/victorian/inventions/sources';
 import { londonTimeUnderSun, noonBetween, trainAt, watchAt } from '@/app/exhibitions/victorian/inventions/Railway';
-import { DIAL, DIAL_LETTERS, DIAL_ROWS, MAP, catchTrain, clockTime, dragMinute, hands, morseTimeline, needleAngles, oldMoney, onDial, project, spell, sunTimeAt, sunX, telegramCost, telegramWords, toMorse } from '@/app/exhibitions/victorian/inventions/workshop';
+import { DIAL, DIAL_LETTERS, DIAL_ROWS, MAP, clockTime, compareBehind, dragMinute, hands, judgeTrain, morseTimeline, needleAngles, nextTrain, oldMoney, onDial, project, spell, sunTimeAt, sunX, telegramCost, telegramWords, toMorse } from '@/app/exhibitions/victorian/inventions/workshop';
 
 /*
  * The inventions workshop, rebuilt after the owner's "better but needs to
@@ -194,11 +194,13 @@ describe('railway time: the map', () => {
 describe('railway time: the traveller, the train and the clocks', () => {
   beforeEach(() => at());
 
-  it('step 2: steams along the line, your watch (London time) ticking on, then side by side with each town’s clock', () => {
+  it('step 2: steams along the line, your watch (London time) ticking on, and predicts each town’s clock before it is uncovered', () => {
     expect(trainAt(0)).toEqual(project(STATIONS[0].lon, STATIONS[0].lat));
     expect(trainAt(6)).toEqual(project(STATIONS[6].lon, STATIONS[6].lat));
     expect(watchAt(0)).toBe(600);
     expect(watchAt(0.5)).toBe(620);
+    // Each town further behind than the last, but for Bristol, which keeps Bath's minutes.
+    expect(STATIONS.slice(1).map((s, i) => compareBehind(STATIONS[i].behind, s.behind))).toEqual(['more', 'more', 'more', 'more', 'same', 'more']);
     jest.useFakeTimers();
     render(<VictorianInventions />);
     railStep('journey');
@@ -216,15 +218,25 @@ describe('railway time: the traveller, the train and the clocks', () => {
     });
     expect(screen.getByRole('img', { name: /A map of the railway west from London/ })).toHaveAccessibleName(expect.stringContaining('The train is at Reading.'));
     expect(screen.getByRole('img', { name: 'Your pocket watch, set in London, says 10:40.' })).toBeInTheDocument();
+    // Arrived: the clock stays covered, and there is no steaming on, until you predict it.
+    expect(screen.getByRole('img', { name: 'Reading’s clock, covered until you predict it.' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Steam on to/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Behind my watch' }));
     expect(screen.getByRole('img', { name: 'Reading’s own clock says 10:36.' })).toBeInTheDocument();
-    expect(screen.getByText('Reading’s clock is 4 minutes behind.')).toBeInTheDocument();
-    for (let i = 0; i < 5; i++) {
-      fireEvent.click(screen.getByRole('button', { name: /Steam on to/ }));
+    expect(screen.getByText('Right! Reading’s clock is 4 minutes behind.')).toBeInTheDocument();
+    const towns = ['Steventon', 'Chippenham', 'Bath', 'Bristol', 'Bridgewater'];
+    towns.forEach((town, i) => {
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`Steam on to ${town}`) }));
       act(() => {
         jest.advanceTimersByTime(1700);
       });
-    }
-    expect(screen.getByText('Bridgewater’s clock is 14 minutes behind.')).toBeInTheDocument();
+      const prev = i ? towns[i - 1] : 'Reading';
+      // Further behind every time, even at Bristol: a wrong guess is told why.
+      fireEvent.click(screen.getByRole('button', { name: `Further behind than ${prev}` }));
+    });
+    expect(screen.getByRole('status')).toHaveTextContent('Bridgewater’s clock says 1:01: 14 minutes behind your watch, further behind than Bristol (11 minutes).');
+    expect(screen.getByText('Bridgewater’s clock is 14 minutes behind.', { exact: false })).toBeInTheDocument();
+    expect(screen.getByText(/5 of 6 predicted/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Back to London' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /^Step 2: .*\(done\)/ })).toBeInTheDocument();
     const facts = openFacts();
@@ -232,18 +244,45 @@ describe('railway time: the traveller, the train and the clocks', () => {
     expect(within(facts).getByText(NOTES.railwayTime.text)).toBeInTheDocument();
   });
 
-  it('step 3: counts on the town’s minutes to London time on the platform, then the train waits or goes', () => {
-    const verdicts = TRAIN_PUZZLES.map((p) => catchTrain(p, STATIONS.find((s) => s.name === p.town)!.behind));
-    // Some caught and some missed, each by a few minutes.
-    expect(verdicts.map((v) => v.caught)).toEqual([false, true, false, true]);
-    expect(verdicts.map((v) => v.spare)).toEqual([-3, 6, -4, 4]);
+  it('step 2: at Bristol, a guess of "further behind" is told that the timetable gives Bath and Bristol the same minutes', () => {
+    media((q) => q.includes('prefers-reduced-motion'));
+    render(<VictorianInventions />);
+    railStep('journey');
+    const steps: [string, string][] = [
+      ['Reading', 'Behind my watch'],
+      ['Steventon', 'Further behind than Reading'],
+      ['Chippenham', 'Further behind than Steventon'],
+      ['Bath', 'Further behind than Chippenham'],
+      ['Bristol', 'Further behind than Bath'],
+    ];
+    for (const [town, guess] of steps) {
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`Steam on to ${town}`) }));
+      fireEvent.click(screen.getByRole('button', { name: guess }));
+    }
+    expect(screen.getByRole('status')).toHaveTextContent('Not quite. Bristol’s clock says 12:14: 11 minutes behind your watch, the same as Bath: the 1841 timetable gives both 11 minutes.');
+    expect(screen.getByText('Not quite: Bristol’s clock is 11 minutes behind.')).toBeInTheDocument();
+  });
+
+  it('step 3: picks the next train you can still catch from the board, by London time, counting on the clock as a tool', () => {
+    // The one to catch is the earliest still to come by London time; in most, the first on the board has gone.
+    const nexts = TRAIN_PUZZLES.map((p) => nextTrain(p.clock, STATIONS.find((s) => s.name === p.town)!.behind, p.trains));
+    expect(nexts.map((v) => v.gone.length)).toEqual([1, 0, 1, 0, 1, 1]);
+    expect(nexts.map((v) => clockTime(v.next!))).toEqual(['12:15', '12:25', '3:50', '9:30', '3:10', '11:05']);
+    expect(judgeTrain(12 * 60, 11 * 60 + 52, 11, [12 * 60, 12 * 60 + 15])).toBe('gone');
+    expect(judgeTrain(12 * 60 + 45, 11 * 60 + 52, 11, [12 * 60, 12 * 60 + 15, 12 * 60 + 45])).toBe('later');
     render(<VictorianInventions />);
     railStep('catch');
     const scene = () => screen.getByRole('img', { name: /station\. The town clock says/ });
     expect(scene()).toHaveAccessibleName(expect.stringContaining('London time is a time to work out.'));
     expect(scene().querySelector('.vrw-board-now')).toHaveTextContent('?');
-    // Taught first: no answer to give until London time is counted on.
-    expect(screen.queryByRole('button', { name: 'Yes, I’ll catch it' })).toBeNull();
+    // The trap: the town clock says 11:52, so the 12:00 looks fine, but it has gone.
+    fireEvent.click(screen.getByRole('button', { name: 'The 12:00' }));
+    expect(screen.getByRole('button', { name: 'The 12:00' })).toHaveAttribute('data-verdict', 'wrong');
+    expect(screen.getByRole('status')).toHaveTextContent('Gone already! The trains run by London time, and Bath’s clock is 11 minutes behind it. Count on 11 minutes from 11:52 first.');
+    expect(document.querySelector('.vrw-ticket-help')).toHaveAttribute('data-nudge', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'The 12:45' }));
+    expect(screen.getByRole('status')).toHaveTextContent('there is an earlier train you can still catch');
+    // Counting on, on the clock: a red hand moves on.
     fireEvent.click(screen.getByRole('button', { name: '+ 5 minutes' }));
     fireEvent.click(screen.getByRole('button', { name: '+ 5 minutes' }));
     expect(screen.getByText('+10 of 11')).toBeInTheDocument();
@@ -252,24 +291,33 @@ describe('railway time: the traveller, the train and the clocks', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Too far! Bath is only 11 minutes behind: 1 minute left to count.');
     fireEvent.click(screen.getByRole('button', { name: '+ 1 minute' }));
     expect(scene().querySelector('.vrw-board-now')).toHaveTextContent('12:03');
-    const yes = screen.getByRole('button', { name: 'Yes, I’ll catch it' });
-    fireEvent.click(yes);
-    expect(yes).toHaveAttribute('data-verdict', 'wrong');
-    expect(screen.getByRole('status')).toHaveTextContent('Not quite. Compare 12:03 with 12:00.');
-    fireEvent.click(screen.getByRole('button', { name: 'No, it’s gone' }));
-    expect(document.querySelector('.vrw-why')).toHaveTextContent('it is already 12:03 in London. The train left 3 minutes ago!');
-    expect(scene()).toHaveAccessibleName(expect.stringContaining('London time is 12:03: the train has gone.'));
-    expect(scene().querySelector('.vbi-stamp')).toHaveTextContent('Missed it!');
-    expect(scene().querySelector('.vrw-catch-train')).toHaveAttribute('data-gone', 'true');
+    fireEvent.click(screen.getByRole('button', { name: 'The 12:15' }));
+    expect(document.querySelector('.vrw-why')).toHaveTextContent('it is already 12:03 in London. The 12:00 had gone. The 12:15 was the one to catch.');
+    expect(scene().querySelector('.vbi-stamp')).toHaveTextContent('Aboard the 12:15!');
+    expect(scene().querySelector('.vrw-board-row[data-gone]')).toHaveTextContent('12:00');
     expect(screen.getByRole('button', { name: /^Step 3: .*\(done\)/ })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: /Another train/ }));
-    for (let i = 0; i < 4; i++) fireEvent.click(screen.getByRole('button', { name: '+ 1 minute' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Yes, I’ll catch it' }));
-    const reading = screen.getByRole('img', { name: /Reading station/ });
-    expect(reading.querySelector('.vbi-stamp')).toHaveTextContent('You catch it!');
-    expect(reading.querySelector('.vrw-catch-train')).not.toHaveAttribute('data-gone');
-    expect(document.querySelector('.vrw-why')).toHaveTextContent('6 minutes to spare');
+    // Bristol: here the first train is still there, so "never the first" does not work.
+    fireEvent.click(screen.getByRole('button', { name: /Another station/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'The 12:25' }));
+    expect(document.querySelector('.vrw-why')).toHaveTextContent('The 12:25 was the one to catch, first time!');
     expect(openFacts()).toHaveTextContent(NOTES.missTrain.text);
+  });
+
+  it('step 3: counts on half a minute where the timetable has one (Steventon, 5½ minutes behind)', () => {
+    render(<VictorianInventions />);
+    railStep('catch');
+    for (let i = 0; i < 3; i++) {
+      // The trains in board order, earliest first, until the one to catch.
+      for (const b of screen.getAllByRole('button', { name: /^The \d/ })) {
+        if (document.querySelector('.vrw-why')) break;
+        fireEvent.click(b);
+      }
+      fireEvent.click(screen.getByRole('button', { name: /Another station/ }));
+    }
+    expect(screen.getByRole('img', { name: /Steventon station/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: '+ 5 minutes' }));
+    fireEvent.click(screen.getByRole('button', { name: '+ ½ minute' }));
+    expect(screen.getByRole('img', { name: /Steventon station/ }).querySelector('.vrw-board-now')).toHaveTextContent('9:25½');
   });
 
   it('step 4: the stationmaster’s job is said first, then each station clock is wound on to the telegram’s London time', () => {
@@ -282,6 +330,8 @@ describe('railway time: the traveller, the train and the clocks', () => {
     expect(screen.getByRole('note', { name: 'Telegram from London' })).toHaveTextContent('LONDON TIME IS 12:10');
     // Each clock still shows its own town's time, by the timetable's minutes.
     expect(screen.getByRole('img', { name: 'Reading’s station clock says 12:06.' })).toBeInTheDocument();
+    // Read from its face: no time in figures until it is set, or asked for as a clue.
+    expect(document.querySelector('.vrw-bigclock .vrw-big-time')).toHaveTextContent('Read the clock');
     const more = () => fireEvent.click(screen.getByRole('button', { name: 'One minute more' }));
     const fewer = () => fireEvent.click(screen.getByRole('button', { name: 'One minute fewer' }));
     expect(screen.getByRole('button', { name: /Wind it on/ })).toBeDisabled();
@@ -295,8 +345,12 @@ describe('railway time: the traveller, the train and the clocks', () => {
     // A clue from the timetable, and a clock wound too far is wound back.
     fireEvent.click(screen.getByRole('button', { name: 'Chippenham' }));
     fireEvent.click(screen.getByRole('button', { name: 'Need a clue?' }));
-    expect(screen.getByText('The 1841 timetable: Chippenham’s own time is 8 minutes behind London’s.')).toBeInTheDocument();
-    for (let i = 0; i < 10; i++) more();
+    expect(document.querySelector('.vrw-clue-text')).toHaveTextContent('Chippenham’s clock says 12:02. The telegram says 12:10.');
+    expect(document.querySelector('.vrw-bigclock .vrw-big-time')).toHaveTextContent('12:02');
+    fireEvent.click(screen.getByRole('button', { name: 'Another clue?' }));
+    expect(document.querySelector('.vrw-clue-text')).toHaveTextContent('The 1841 timetable: Chippenham’s own time is 8 minutes behind London’s.');
+    expect(screen.queryByRole('button', { name: /clue\?/ })).toBeNull();
+    for (let i = 0; i < 2; i++) fireEvent.click(screen.getByRole('button', { name: 'Five minutes more' }));
     fireEvent.click(screen.getByRole('button', { name: /Wind it on/ }));
     expect(screen.getByRole('status')).toHaveTextContent('Chippenham’s clock says 12:12: 2 minutes too far. Wind it back.');
     expect(screen.getByText(/How many minutes must/)).toHaveTextContent('go back?');
@@ -309,7 +363,9 @@ describe('railway time: the traveller, the train and the clocks', () => {
       ['Bridgewater', 14],
     ] as const) {
       fireEvent.click(screen.getByRole('button', { name: town }));
-      for (let i = 0; i < behind; i++) more();
+      // By fives and ones, not a tap a minute.
+      for (let i = 0; i < Math.floor(behind / 5); i++) fireEvent.click(screen.getByRole('button', { name: 'Five minutes more' }));
+      for (let i = 0; i < behind % 5; i++) more();
       fireEvent.click(screen.getByRole('button', { name: /Wind it on/ }));
     }
     expect(screen.getByRole('status')).toHaveTextContent('Well done! Every station on the line says 12:10: railway time.');
@@ -354,6 +410,16 @@ describe('railway time: the traveller, the train and the clocks', () => {
     expect(clock).toHaveAccessibleName(expect.stringContaining('They are 11 minutes apart.'));
     expect(clock.querySelector('.vrw-wedge')).not.toBeNull();
     expect(screen.getByRole('status')).toHaveTextContent('Bristol’s own time, 11 minutes behind London');
+    // A traveller goes by the black hand: how long is there really, to a train that goes by London time?
+    expect(screen.queryByRole('button', { name: 'On one minute' })).toBeNull();
+    expect(BRISTOL_ASK.answers).toEqual([31, 20, 11]);
+    fireEvent.click(screen.getByRole('button', { name: '31 minutes' }));
+    expect(screen.getByRole('button', { name: '31 minutes' })).toHaveAttribute('data-verdict', 'wrong');
+    expect(screen.getByRole('status')).toHaveTextContent('That is going by the black hand, Bristol’s own time.');
+    fireEvent.click(screen.getByRole('button', { name: '11 minutes' }));
+    expect(screen.getByRole('status')).toHaveTextContent('11 minutes is how far apart the two hands are.');
+    fireEvent.click(screen.getByRole('button', { name: '20 minutes' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Right! 20 minutes: the train goes by London time, the red hand');
     for (let i = 0; i < 20; i++) fireEvent.click(screen.getByRole('button', { name: 'On one minute' }));
     expect(screen.getByRole('status')).toHaveTextContent(`The red hand says ${clockTime(BRISTOL_TRAIN)}: your train goes! The black hand says only 12:19.`);
     expect(clock.querySelector('.vrw-bristol-train')).toHaveAttribute('data-gone', 'true');

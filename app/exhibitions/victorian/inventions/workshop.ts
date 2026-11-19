@@ -126,10 +126,28 @@ export function dragMinute(current: number, angle: number) {
   return Math.round((current + delta) * 2) / 2;
 }
 
-/** Will you catch the train? London's time when the town clock says what it says, and the minutes to spare (below nothing: gone). */
-export function catchTrain(p: { train: number; clock: number }, behind: number) {
-  const london = p.clock + behind;
-  return { london, spare: p.train - london, caught: london <= p.train };
+/**
+ * Which train can you still catch? London's time when the town clock says
+ * `clock`, the trains on the board (by London time) already gone, and the
+ * earliest one still to come: the one to run for.
+ */
+export function nextTrain(clock: number, behind: number, trains: number[]) {
+  const london = clock + behind;
+  const sorted = [...trains].sort((a, z) => a - z);
+  return { london, gone: sorted.filter((t) => t < london), next: sorted.find((t) => t >= london) ?? null };
+}
+
+/** A pick from the board, judged: the train to catch, one already gone, or one you would catch but with an earlier one still to come. */
+export function judgeTrain(pick: number, clock: number, behind: number, trains: number[]): 'right' | 'gone' | 'later' {
+  const { london, next } = nextTrain(clock, behind, trains);
+  if (pick === next) return 'right';
+  return pick < london ? 'gone' : 'later';
+}
+
+/** How a town's clock compares with the last town's along the line: further behind London, the same, or less far behind. */
+export function compareBehind(prev: number, next: number): 'more' | 'same' | 'less' {
+  if (Math.abs(next - prev) < 1e-9) return 'same';
+  return next > prev ? 'more' : 'less';
 }
 
 /* ── Telegrams ── */

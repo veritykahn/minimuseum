@@ -209,38 +209,49 @@ export const RAIL_STEPS: { id: RailStepId; title: string; body: string; task: st
     id: 'journey',
     title: 'Your watch says London time',
     body: 'Your watch keeps London time. Each town’s clock keeps its own time.',
-    task: 'Press Steam on. At each town, compare your watch with the town clock.',
+    // REVIEW: new text
+    task: 'Steam on. Before each town’s clock comes into view, predict it. Then compare it with your watch.',
   },
   {
     id: 'catch',
     title: 'Will you catch the train?',
     body: 'The trains ran by London time. The town clocks did not.',
-    task: 'Count on the minutes to find London time. Then decide.',
+    // REVIEW: new text
+    task: 'Read the town clock. Work out London time. Then pick the next train you can still catch.',
   },
   {
     id: 'set',
     title: 'You’re the stationmaster',
     body: 'Your job: make every station clock on the line say London time.',
-    task: 'Work out how many minutes each clock needs. Then wind it on.',
+    // REVIEW: new text
+    task: 'Read each station clock. Work out how many minutes it needs. Then wind it on.',
   },
   {
     id: 'bristol',
     title: 'A clock with two minute hands',
     body: 'Bristol’s Exchange clock shows two times at once: London’s on its red hand, and Bristol’s own on its black hand.',
-    task: 'Set both hands. Then use the clock to catch your train.',
+    // REVIEW: new text
+    task: 'Set both hands. Then use the clock to help a traveller catch the train.',
   },
 ];
 
 /**
- * "Will you catch the train?": the town, the train's time by London time
- * and what the town's own clock says (both in minutes after midnight).
- * Whether you catch it is worked out from the timetable's minutes.
+ * "Will you catch the train?": the town, what its own clock says, and the
+ * trains to London on the board, by London time (all in minutes after
+ * midnight). The game's own times, not a timetable's. The one to catch is
+ * the earliest still to come by London time (workshop.ts, nextTrain); in
+ * most, the train the town clock seems to say you can catch has already
+ * gone, and in some the first train is still there, so no rule of thumb
+ * ("never the first") works without working it out.
  */
-export const TRAIN_PUZZLES: { town: string; train: number; clock: number }[] = [
-  { town: 'Bath', train: 12 * 60, clock: 11 * 60 + 52 },
-  { town: 'Reading', train: 15 * 60, clock: 14 * 60 + 50 },
-  { town: 'Bridgewater', train: 16 * 60, clock: 15 * 60 + 50 },
-  { town: 'Bristol', train: 12 * 60 + 30, clock: 12 * 60 + 15 },
+// REVIEW: new text (the game's trains)
+export const TRAIN_PUZZLES: { town: string; clock: number; trains: number[] }[] = [
+  { town: 'Bath', clock: 11 * 60 + 52, trains: [12 * 60, 12 * 60 + 15, 12 * 60 + 45] },
+  { town: 'Bristol', clock: 12 * 60 + 10, trains: [12 * 60 + 25, 12 * 60 + 40, 13 * 60] },
+  { town: 'Bridgewater', clock: 15 * 60 + 30, trains: [15 * 60 + 40, 15 * 60 + 50, 16 * 60 + 20] },
+  { town: 'Steventon', clock: 9 * 60 + 20, trains: [9 * 60 + 30, 9 * 60 + 45, 10 * 60 + 15] },
+  { town: 'Reading', clock: 14 * 60 + 53, trains: [14 * 60 + 55, 15 * 60 + 10, 15 * 60 + 40] },
+  { town: 'Chippenham', clock: 10 * 60 + 45, trains: [10 * 60 + 50, 11 * 60 + 5, 11 * 60 + 30] },
 ];
 
 /**
@@ -254,7 +265,8 @@ export const STATION_JOB = {
   goal: [
     'The trains run by London time, so every station clock must say London time.',
     'A message comes down the telegraph wire from London with the time.',
-    'But these station clocks still show their own town’s time. How many minutes must you wind each one on?',
+    // REVIEW: new text
+    'But these station clocks still show their own town’s time. Read each clock, and work out how many minutes to wind it on.',
   ],
 };
 
@@ -262,6 +274,20 @@ export const STATION_JOB = {
 export const BRISTOL_CLOCK = { london: 12 * 60 + 10, behind: 11 };
 /** The game's train from Bristol to London, by London time, caught with the clock. */
 export const BRISTOL_TRAIN = 12 * 60 + 30;
+/**
+ * Bristol's clock, put to use: a traveller reads the black hand (Bristol's
+ * own time) and thinks there is half an hour to the train, which goes by
+ * London time. How long is there really? The answers: the right one (from
+ * the red hand), the black hand's (the traveller's mistake), and the gap
+ * between the hands.
+ */
+// REVIEW: new text
+export const BRISTOL_ASK = {
+  says: '“My train to London is at half past twelve,” says a traveller, looking up at the black hand. “Half an hour yet!”',
+  question: 'How long has the traveller really got?',
+  answers: [BRISTOL_TRAIN - (BRISTOL_CLOCK.london - BRISTOL_CLOCK.behind), BRISTOL_TRAIN - BRISTOL_CLOCK.london, BRISTOL_CLOCK.behind],
+  right: BRISTOL_TRAIN - BRISTOL_CLOCK.london,
+};
 
 /*
  * Build a telegraph: five parts, each put where it does its job on the

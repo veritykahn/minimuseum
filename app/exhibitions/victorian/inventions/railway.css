@@ -149,6 +149,11 @@
 .vrw-gap { padding: 10px 16px; border-radius: 12px; background: #a4565c; font-family: var(--vb-serif); font-size: 1.3rem; line-height: 1.3; box-shadow: 0 8px 16px rgba(20, 10, 6, 0.3); }
 .vrw-gap[data-zero] { background: rgba(31, 47, 34, 0.9); }
 .vb-room.vb-inventions .vrw-steam { min-height: 58px; font-size: 16px; }
+/* The prediction at each town, before its clock is uncovered. */
+.vrw-predict { display: flex; flex-direction: column; gap: 8px; width: 100%; padding: 12px; border-radius: 12px; background: rgba(31, 47, 34, 0.94); box-shadow: 0 8px 16px rgba(20, 10, 6, 0.3); }
+.vrw-predict-q { font-family: var(--vb-serif); font-size: 1.12rem; line-height: 1.3; }
+.vrw-predict .vbi-answer { width: 100%; }
+.vrw-gap[data-verdict='right'] { background: #3f8a4a; }
 .vrw-progress { font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6); }
 
 /* ───────── 3. Will you catch it? The platform, and the ticket office under it ───────── */
@@ -181,6 +186,18 @@
 .vrw-count { display: flex; align-items: center; gap: 10px; }
 .vrw-counted { min-width: 6.5ch; font-size: 1.3rem; text-align: center; }
 .vrw-answers { flex: 0 1 420px; }
+/* The three trains to choose from, and the counting-on under them: a tool to use, nudged after a wrong pick. */
+.vrw-trains { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex: 0 1 460px; }
+.vrw-ticket-help { padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+.vrw-ticket-hint { flex: 1 1 300px; font-size: 1rem; line-height: 1.35; opacity: 0.92; }
+.vrw-ticket-help[data-nudge] .vrw-ticket-hint { opacity: 1; color: #f2d68a; }
+.vrw-ticket-help[data-nudge] .vrw-count { animation: vrw-glow 1.6s ease-in-out 2; border-radius: 10px; }
+@keyframes vrw-glow { 50% { box-shadow: 0 0 0 4px rgba(242, 196, 90, 0.55); } }
+.vrw-board-train { font-family: 'Jost', sans-serif; font-size: 40px; font-weight: 500; fill: #f2d68a; font-variant-numeric: tabular-nums; }
+.vrw-board-row[data-gone] .vrw-board-train { fill: rgba(244, 238, 227, 0.45); }
+.vrw-board-row[data-mine] .vrw-board-train { fill: #b9eab9; }
+.vrw-board-mark { font-family: 'Jost', sans-serif; font-size: 34px; font-weight: 700; fill: #b9eab9; }
+.vrw-stamp-wide text { font-size: 44px; }
 
 /* ───────── 4. The stationmaster: the job, then the line of stations and the desk ───────── */
 .vrw-set { display: flex; flex-direction: column; gap: 12px; }
@@ -253,6 +270,9 @@
 .vrw-winder-done { color: #b9eab9; }
 .vrw-stepper { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
 .vrw-stepper-n { min-width: 4.5ch; font-size: 1.6rem; text-align: center; }
+.vrw-stepper-wide { grid-template-columns: 1fr 1fr auto 1fr 1fr; gap: 6px; }
+.vb-room .vrw-stepper-wide .vbi-nudge { min-width: 0; padding-left: 4px; padding-right: 4px; }
+.vrw-stepper-wide .vrw-stepper-n { min-width: 0; font-size: 1.25rem; white-space: nowrap; }
 .vb-room.vb-inventions .vrw-wind { width: 100%; }
 .vb-room.vb-inventions .vrw-clue { align-self: flex-start; min-height: 44px; font-size: 14px; letter-spacing: 0.04em; text-transform: none; }
 .vrw-clue-text { font-family: var(--vb-serif); font-size: 1.02rem; line-height: 1.35; padding: 6px 10px; border-left: 4px solid #f2c45a; background: rgba(0, 0, 0, 0.18); }
@@ -277,6 +297,8 @@
 .vrw-phase-n { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: rgba(0, 0, 0, 0.2); font-weight: 600; }
 .vrw-bristol-task { flex: 1 1 320px; font-family: var(--vb-serif); font-size: 1.18rem; line-height: 1.35; }
 .vrw-bristol .vrw-stepper { grid-template-columns: auto auto; }
+/* The traveller's question: three answers in a row. */
+.vrw-ask { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; flex: 1 1 100%; }
 
 /* ───────── A laptop's short screen ───────── */
 @media (min-width: 761px) and (max-height: 820px) {
@@ -347,5 +369,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .vrw-catch-train, .vrw-bristol-train { transition: none !important; }
+  .vrw-ticket-help[data-nudge] .vrw-count { animation: none !important; }
   .vrw .vbi-steam, .vrw-drag-hint, .vrw-head, .vrw-goal, .vrw-telegram, .vrw-book-time { animation: none !important; }
 }
