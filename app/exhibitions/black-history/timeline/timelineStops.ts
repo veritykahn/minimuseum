@@ -258,15 +258,26 @@ export const TIMELINE_TEXT = {
   soundOn: 'Sound on',
   soundOff: 'Sound off',
   challenge: 'Final challenge',
-  challengeCta: 'Final challenge: put them in order',
-  orderHeading: 'Put them in order',
-  orderHow: 'Earliest first. Drag a card to move it, or tap two cards to swap them.',
-  earliest: 'Earliest',
-  latest: 'Latest',
-  check: 'Check my order',
-  shuffle: 'Mix them up',
+  // REVIEW: new text (the final challenge, "Before or after?", Nov 19 2026), down to startOver
+  challengeCta: 'Final challenge: before or after?',
+  orderHeading: 'Before or after?',
+  orderHow: 'The first Black Barbie came out in 1980. Read each clue. Did this doll come before it, or after?',
+  anchorName: 'The first Black Barbie',
+  before: 'Before 1980',
+  after: 'After 1980',
+  cardCount: (n: number, of: number) => `Card ${n} of ${of}`,
+  fromPoster: 'From the poster',
+  fromNote: 'From a museum note',
+  rightLead: 'Yes!',
+  hintLead: 'Not quite. Look again:',
+  placed: (name: string, year: string, side: SortSide) => `${name}: ${year}, ${side === 'before' ? 'before' : 'after'} 1980.`,
+  next: 'Next card',
+  seeLine: 'See them all in time',
+  result: (n: number, of: number) => `${n} of ${of} right on the first try.`,
+  allRight: 'Every one right on the first try!',
+  lineHeading: 'All of them, in time',
+  tryAgain: 'Try again',
   backToTimeline: 'Back to the timeline',
-  allRight: 'Every one in the right place!',
   startOver: 'Play again from the start',
 };
 
@@ -310,7 +321,7 @@ export function stopFromHash(hash: string): number {
   return TIMELINE_STOPS.findIndex((s) => s.id === id || !!s.aliases?.includes(id));
 }
 
-/* ───────── The game: guess the year at each stop, then put them in order ───────── */
+/* ───────── The game: guess the year at each stop, then before or after? ───────── */
 
 /** The address of the final challenge. */
 export const ORDER_HASH = 'order';
@@ -321,39 +332,65 @@ export const DATED_STOPS = TIMELINE_STOPS.filter((s) => s.year !== null);
 /** Whether a guess at a stop is right. */
 export const isRight = (stop: TimelineStop, guess: number) => guess === stop.year;
 
-/**
- * The stops' ids in a new order, never already right (or there'd be nothing
- * to do). `rand` is Math.random unless a test gives its own.
+/*
+ * The final challenge, "Before or after?": not putting the cards in order
+ * (the years have just been shown at each stop, so that only tests memory)
+ * but reasoning from the words. The first Black Barbie (1980) sits in the
+ * middle, and each card gives a clue from the poster or a museum note, with
+ * no year: did this doll come before it, or after? A wrong try gets a hint
+ * that points at the words that decide it, then another try.
+ *
+ * Shani is not a card: nothing in its note says whether it came before or
+ * after 1980, so it would be a guess. It is in the line of every stop, in
+ * time, that ends the challenge.
  */
-export function shuffled(ids: readonly string[], rand: () => number = Math.random): string[] {
-  const out = [...ids];
-  for (let tries = 0; tries < 20; tries++) {
-    for (let i = out.length - 1; i > 0; i--) {
-      const j = Math.floor(rand() * (i + 1));
-      [out[i], out[j]] = [out[j], out[i]];
-    }
-    if (out.some((id, i) => id !== ids[i])) return out;
-  }
-  // A rand that only ever leaves it sorted: turn it round instead.
-  return [...ids].reverse();
-}
 
-/** The cards with `from` and `to` swapped (tap one card, then another). */
-export function swapped(order: readonly string[], from: number, to: number): string[] {
-  const out = [...order];
-  [out[from], out[to]] = [out[to], out[from]];
-  return out;
-}
+export type SortSide = 'before' | 'after';
+export type SortCard = {
+  /** The stop's id. */
+  id: string;
+  side: SortSide;
+  /** The clue: from the poster, whole words quoted exactly; or from a museum note, its words without the years. */
+  clue: string;
+  from: 'poster' | 'note';
+  /** After a wrong try: the words that decide it. */
+  hint: string;
+};
 
-/** The cards with the one at `from` lifted out and set down at `to` (a drag). */
-export function moved(order: readonly string[], from: number, to: number): string[] {
-  const out = [...order];
-  const [card] = out.splice(from, 1);
-  out.splice(to, 0, card);
-  return out;
-}
+/** The stop every card is placed against. */
+export const ANCHOR_ID = '1980';
 
-/** For each card in the class's order, whether it is in its right place. */
-export function placesRight(order: readonly string[]): boolean[] {
-  return order.map((id, i) => DATED_STOPS[i]?.id === id);
-}
+// REVIEW: new text (the clues from the museum notes, and every hint, Nov 19 2026)
+const EARLIER_HINT = 'The poster says Mattel had “previously created two Black dolls”, Christie and Francie, and that the first Black Barbie “broke away from past missteps”. Previously: before what?';
+export const SORT_CARDS: SortCard[] = [
+  { id: '1967', side: 'before', from: 'poster', clue: 'Francie was essentially a white doll design with darker skin', hint: EARLIER_HINT },
+  { id: '1968', side: 'before', from: 'poster', clue: "Christie was presented as part of Barbie's friend group", hint: EARLIER_HINT },
+  {
+    id: '1990',
+    side: 'after',
+    from: 'note',
+    clue: 'Barbie’s Dolls of the World series included a Nigerian Barbie and a Ghanaian Barbie.',
+    hint: 'These were Black Barbie dolls. Could any Black Barbie come before the first Black Barbie?',
+  },
+  {
+    id: '2008',
+    side: 'after',
+    from: 'poster',
+    clue: 'which highlighted authentic Black features and realistic hair textures',
+    hint: 'The poster says “The success of Black Barbie paved the way for” these dolls. Can a doll’s success pave the way before it exists?',
+  },
+  {
+    id: '2022',
+    side: 'after',
+    from: 'note',
+    clue: 'Barbie’s Inspiring Women series honored Ida B. Wells, Madam C. J. Walker and Bessie Coleman.',
+    hint: 'These were Barbie dolls of three Black women. Could they come before the first Black Barbie?',
+  },
+];
+
+/** A stop's name and its year as set ("c. 1990"). */
+export const stopName = (id: string) => DATED_STOPS.find((s) => s.id === id)!.name;
+export const stopYear = (id: string) => {
+  const s = DATED_STOPS.find((x) => x.id === id)!;
+  return s.yearLabel ?? String(s.year);
+};

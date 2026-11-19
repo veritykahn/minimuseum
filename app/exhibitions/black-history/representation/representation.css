@@ -83,22 +83,29 @@
 .bhr-intro { font-family: var(--pe-body); font-weight: 500; font-size: clamp(1rem, 1.3vw, 1.15rem); line-height: 1.35; text-align: center; max-width: 52em; margin: 0 auto; text-wrap: balance; }
 
 /* ==========================================================================
-   Design a doll: the owner's doll, large, on poster 2's pink, stacked from
-   full-canvas layers in one box; beside it the choices, each a picture.
+   Design a doll: our own doll, drawn in SVG (DollArt.tsx), large on poster
+   2's pink; beside it the choices, each a picture of the child's own doll
+   with that one choice changed. "I'm done" swaps the choices for "Meet
+   your doll!" and its question.
    ========================================================================== */
 .bhr-design { width: min(1240px, 100%); min-height: 0; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 3vw; align-items: stretch; }
 .bhr-doll-stage { position: relative; min-height: 0; margin: 0; container-type: size; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; }
 /* The pink plinth behind the doll: a cheap box shadow, not a filter over the layers. */
 .bhr-doll-stage::before { content: ''; position: absolute; left: 50%; top: 50%; width: 92cqmin; aspect-ratio: 1; transform: translate(-50%, -50%); border-radius: 50%; background: var(--bh-pink); box-shadow: 8px 8px 0 #141414; }
-/* As big as the stage allows, at the art's own shape, leaving a line for the name. */
-.bhr-doll { position: relative; flex: none; width: min(100cqw, calc((100cqh - 2.6rem) * 768 / 1376)); aspect-ratio: 768 / 1376; }
-.bhr-doll-layer { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; pointer-events: none; }
+/* As big as the stage allows, at the drawing's own shape (400 x 800), leaving a line for the name. */
+.bhr-doll { position: relative; flex: none; width: min(100cqw, calc((100cqh - 2.6rem) * 400 / 800)); aspect-ratio: 400 / 800; }
+.bhr-doll svg { display: block; width: 100%; height: 100%; overflow: visible; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 /* The name on a tag, so it reads over the plinth's edge. */
 .bhr-doll-name { position: relative; max-width: 100%; padding: 0.1em 0.7em 0.15em; border: 3px solid #141414; border-radius: 999px; background: #fff; font-family: var(--bh-bubble); font-size: clamp(1rem, 1.8vw, 1.6rem); line-height: 1.15; color: #141414; text-align: center; overflow-wrap: anywhere; }
 .bhr-doll-name:empty { display: none; }
-.bhr-maker { min-height: 0; display: flex; flex-direction: column; gap: 12px; }
-.bhr-name { display: flex; align-items: center; gap: 10px; }
-.bhr-name input { flex: 1; max-width: 16em; height: 44px; padding: 0 14px; border: 3px solid #141414; border-radius: 999px; background: #fff; font-family: var(--bh-bubble); font-size: 18px; color: #141414; }
+.bhr-maker, .bhr-meet { min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.bhr-design-intro { font-family: var(--bh-bubble); font-size: clamp(1.1rem, 1.7vw, 1.55rem); line-height: 1.2; }
+.bhr-who-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.bhr-who { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.bhr-who .bhr-field-label { margin-right: 4px; }
+.bhr-who .bhr-kind span { font-size: 15px; padding: 4px 12px; }
+.bhr-name { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 10em; }
+.bhr-name input { flex: 1; width: 100%; max-width: 16em; height: 44px; padding: 0 14px; border: 3px solid #141414; border-radius: 999px; background: #fff; font-family: var(--bh-bubble); font-size: 18px; color: #141414; }
 .bhr-field-label { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.05em; font-size: 12px; color: #141414; }
 .bhr-groups { display: flex; flex-wrap: wrap; gap: 6px; }
 .bhr-room .bhr-group {
@@ -124,7 +131,9 @@
 .bhr-option input { position: absolute; opacity: 0; width: 100%; height: 100%; inset: 0; margin: 0; cursor: pointer; }
 /* A picture choice: a thumbnail with its name under it, big enough for a small finger. */
 .bhr-tile-face { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; width: 92px; padding: 4px 4px 6px; border: 2px solid #141414; border-radius: 16px; background: #fff; transition: background 0.15s ease, box-shadow 0.15s ease; }
-.bhr-tile-face img, .bhr-tile-none { display: block; width: 76px; height: 76px; border-radius: 12px; object-fit: contain; }
+.bhr-tile-art, .bhr-tile-none { display: block; width: 76px; height: 76px; border-radius: 12px; background: #fbe3ef; }
+/* Clothes, the wheelchair and the prosthetic leg: a taller picture, the body's shape. */
+.bhr-tile-tall .bhr-tile-art { height: 131px; }
 .bhr-tile-none { background: repeating-linear-gradient(45deg, #f1f1f1 0 6px, #fff 6px 12px); }
 .bhr-tile-label { font-family: var(--pe-body); font-weight: 500; font-size: 13px; line-height: 1.15; text-align: center; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; min-height: 2.3em; }
 .bhr-tile input:checked + .bhr-tile-face { background: var(--bh-pink); box-shadow: 3px 3px 0 #141414; border-width: 3px; padding: 3px 3px 5px; }
@@ -134,6 +143,24 @@
 .bhr-swatch input:checked + .bhr-swatch-dot { border: 3px solid #141414; box-shadow: 0 0 0 3px #fff, 0 0 0 6px #141414; transform: scale(1.04); }
 .bhr-option input:focus-visible + span { outline: 3px solid #141414; outline-offset: 3px; }
 .bhr-field-swatches .bhr-options { gap: 12px; padding: 4px; }
+.bhr-room .bhr-button-done { background: var(--bh-pink); color: #141414; box-shadow: 3px 3px 0 #141414; }
+
+/* Meet your doll: the question, three answers, and the way on to the room's other tabs. */
+.bhr-meet { justify-content: center; gap: 16px; max-width: 34em; }
+.bhr-meet-heading { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.8rem, 3.4vw, 3rem); line-height: 1.05; }
+.bhr-meet-heading:focus { outline: none; }
+.bhr-meet-ask { font-family: var(--pe-body); font-weight: 600; font-size: clamp(1.1rem, 1.6vw, 1.45rem); line-height: 1.3; }
+.bhr-meet-answers { display: flex; flex-wrap: wrap; gap: 10px; }
+.bhr-room .bhr-meet-answer { appearance: none; min-width: 7em; min-height: 52px; padding: 8px 22px; border: 3px solid #141414; border-radius: 999px; background: #fff; color: #141414; font-family: var(--bh-bubble); font-size: clamp(1.05rem, 1.5vw, 1.3rem); cursor: pointer; transition: transform 0.15s ease; }
+.bhr-room .bhr-meet-answer:hover { transform: translateY(-1px); }
+.bhr-room .bhr-meet-answer[aria-pressed='true'] { background: #141414; color: var(--bh-lime); }
+.bhr-meet-reply { display: flex; flex-direction: column; gap: 12px; padding: 14px 18px 16px; border: 3px solid #141414; border-radius: 22px; background: var(--bh-pink); box-shadow: 6px 6px 0 #141414; animation: bhr-pop 0.5s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+.bhr-meet-reply p { font-family: var(--pe-body); font-weight: 600; font-size: clamp(1rem, 1.35vw, 1.2rem); line-height: 1.35; color: #2a1a14; }
+.bhr-meet-go { display: grid; grid-template-columns: repeat(auto-fit, minmax(12em, 1fr)); gap: 10px; }
+.bhr-room .bhr-go { appearance: none; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 10px 14px; border: 3px solid #141414; border-radius: 16px; background: #fff; color: #141414; text-align: left; cursor: pointer; transition: transform 0.15s ease; }
+.bhr-room .bhr-go:hover { transform: translateY(-2px); }
+.bhr-go strong { font-family: var(--bh-bubble); font-weight: 400; font-size: 1.15rem; }
+.bhr-go span { font-family: var(--pe-body); font-size: 15px; line-height: 1.25; }
 
 /* ==========================================================================
    The Doll Test
@@ -210,6 +237,14 @@
 .bhr-ask { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 22px; background: rgba(255, 255, 255, 0.6); border: 3px solid #141414; }
 .bhr-ask-label { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(12px, 1vw, 16px); }
 .bhr-ask-q { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.25rem, 2.1vw, 2.3rem); line-height: 1.15; }
+/* The class's guess, before the hands go up. */
+.bhr-guess { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 12px; border-radius: 16px; background: #fff; border: 2px dashed #141414; }
+.bhr-guess-heading { flex-basis: 100%; font-family: var(--pe-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(11px, 0.9vw, 14px); }
+.bhr-guess-ask, .bhr-guess-said { flex: 1 1 14em; font-family: var(--pe-body); font-weight: 600; font-size: clamp(0.9rem, 1.2vw, 1.25rem); line-height: 1.25; }
+.bhr-guess-picks { display: flex; flex-wrap: wrap; gap: 6px; }
+.bhr-room .bhr-guess-pick, .bhr-room .bhr-guess-change { min-height: 40px; padding: 6px 14px; border-radius: 999px; border: 2px solid #141414; background: var(--bh-pink); color: #141414; font: 700 clamp(0.85rem, 1.1vw, 1.1rem) var(--pe-body); cursor: pointer; }
+.bhr-room .bhr-guess-change { background: #fff; }
+.bhr-room .bhr-guess-pick:focus-visible, .bhr-room .bhr-guess-change:focus-visible { outline: 3px solid #141414; outline-offset: 2px; }
 .bhr-steppers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .bhr-stepper { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px; padding: 4px 6px 4px 14px; border-radius: 999px; background: #fff; }
 /* Each answer's dot is its bar's color in the chart. */
@@ -267,7 +302,8 @@
 /* A projector or a big screen: the pictures and names larger, for the back of the room. */
 @media (min-width: 1600px) and (min-height: 950px) {
   .bhr-tile-face { width: 124px; }
-  .bhr-tile-face img, .bhr-tile-none { width: 108px; height: 108px; }
+  .bhr-tile-art, .bhr-tile-none { width: 108px; height: 108px; }
+  .bhr-tile-tall .bhr-tile-art { height: 186px; }
   .bhr-tile-label { font-size: 16px; }
   .bhr-swatch-dot { width: 56px; height: 56px; }
   .bhr-room .bhr-group { font-size: 20px; min-height: 52px; padding: 6px 22px; }
@@ -278,7 +314,8 @@
 @media (min-width: 761px) and (max-aspect-ratio: 4/5) {
   .bhr-design { grid-template-columns: 1fr; grid-template-rows: minmax(0, 46%) minmax(0, 1fr); gap: 16px; }
   .bhr-tile-face { width: 104px; }
-  .bhr-tile-face img, .bhr-tile-none { width: 88px; height: 88px; }
+  .bhr-tile-art, .bhr-tile-none { width: 88px; height: 88px; }
+  .bhr-tile-tall .bhr-tile-art { height: 152px; }
   .bhr-test-body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); gap: 16px; align-items: start; }
   .bhr-test-art { height: auto; }
   .bhr-test-picture { width: 26vh; }
@@ -303,7 +340,7 @@
 
   .bhr-design { grid-template-columns: 1fr; grid-template-rows: 38% minmax(0, 1fr); gap: 10px; }
   .bhr-doll-stage::before { box-shadow: 4px 4px 0 #141414; }
-  .bhr-doll { width: min(100cqw, calc((100cqh - 2.2rem) * 768 / 1376)); }
+  .bhr-doll { width: min(100cqw, calc((100cqh - 2.2rem) * 400 / 800)); }
   .bhr-doll-name { font-size: 1rem; }
   .bhr-maker { gap: 8px; }
   .bhr-name input { height: 40px; font-size: 15px; }
@@ -312,7 +349,12 @@
   .bhr-options { gap: 6px; }
   .bhr-pair { column-gap: 12px; }
   .bhr-tile-face { width: 74px; border-radius: 12px; }
-  .bhr-tile-face img, .bhr-tile-none { width: 62px; height: 62px; border-radius: 9px; }
+  .bhr-tile-art, .bhr-tile-none { width: 62px; height: 62px; border-radius: 9px; }
+  .bhr-tile-tall .bhr-tile-art { height: 107px; }
+  .bhr-design-intro { font-size: 1rem; }
+  .bhr-who .bhr-kind span { font-size: 13px; padding: 3px 9px; border-width: 2px; }
+  .bhr-meet { gap: 10px; }
+  .bhr-room .bhr-meet-answer { min-height: 44px; padding: 6px 16px; }
   .bhr-tile-label { font-size: 11.5px; }
   .bhr-swatch-dot { width: 34px; height: 34px; }
   .bhr-field-swatches .bhr-options { gap: 7px; padding: 3px; }
@@ -349,6 +391,8 @@
   .bhr-ask, .bhr-survey-side { min-height: auto; overflow: visible; }
   .bhr-ask { padding: 10px; border-width: 2px; border-radius: 16px; }
   .bhr-ask-q { font-size: 1.1rem; }
+  .bhr-guess { padding: 6px 8px; }
+  .bhr-room .bhr-guess-pick, .bhr-room .bhr-guess-change { min-height: 36px; padding: 4px 10px; }
   .bhr-steppers { gap: 4px; }
   .bhr-stepper { gap: 4px; padding-left: 10px; }
   .bhr-stepper-label { gap: 6px; }
@@ -362,7 +406,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .bhr-panel, .bhr-test-art, .bhr-test-words, .bhr-prompt, .bhr-chart-big .bhr-bar-value { animation: none; }
+  .bhr-panel, .bhr-test-art, .bhr-test-words, .bhr-prompt, .bhr-chart-big .bhr-bar-value, .bhr-meet-reply { animation: none; }
+  .bhr-room .bhr-meet-answer, .bhr-room .bhr-go { transition: none; }
   .bhr-room .bhr-step-dot, .bhr-bar-fill, .bhr-swatch-dot, .bhr-tile-face, .bhr-room .bhr-button, .bhr-room .bhr-count-btn { transition: none; }
   .bhr-swatch input:checked + .bhr-swatch-dot { transform: none; }
 }

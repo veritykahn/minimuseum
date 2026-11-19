@@ -37,8 +37,9 @@ import { useMuseumSound } from '@/lib/museumSound';
  * ("?") until someone guesses it from four big choices (or the keys 1 to 4),
  * or asks to be shown. A right guess bursts and chimes; a wrong one is told
  * gently, with the year. The words, which give the year away, wait for the
- * guess. At the end (#order) the final challenge puts the stops back in
- * order (OrderChallenge.tsx). Sound is off until the visitor turns it on.
+ * guess. At the end (#order) the final challenge asks, clue by clue, which
+ * dolls came before the first Black Barbie and which after
+ * (OrderChallenge.tsx). Sound is off until the visitor turns it on.
  */
 
 type Guess = number | 'skip';

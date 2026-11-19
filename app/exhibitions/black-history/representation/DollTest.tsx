@@ -6,6 +6,12 @@ import { srOnly } from '@/lib/a11y';
 import { DOLL_TEST_STEPS, DOLL_TEST_TEXT, type DollTestStep } from './representationText';
 
 /*
+ * Point: the class sees how a simple study of children and dolls showed the
+ * harm of segregation, and helped end it in Brown v. Board.
+ *
+ * Kept as a lesson the class talks through, not a game with right answers:
+ * what children said about the dolls is not something to score.
+ *
  * The Doll Test, as a lesson the teacher leads on the projector: a step at a
  * time, from separate schools to the Clarks' doll tests to Brown v. Board,
  * a picture on the black blob at the left and the step's checked facts
