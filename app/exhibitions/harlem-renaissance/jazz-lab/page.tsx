@@ -1,5 +1,16 @@
 'use client';
 
+/*
+ * The Jazz Lab: three tabs.
+ *  - Build a Band (BuildABand.tsx): play the bandleader's requests by
+ *    building each part of a jazz tune on stage.
+ *  - Jazz Studio (JazzStudio.tsx): a Studio tool, arranging real loops on a
+ *    timeline into a record of your own (the Studio floor links #studio).
+ *  - Name That Instrument (NameThatInstrument.tsx): name each instrument by
+ *    ear, with a second listen after a miss.
+ * Each file's header says what its tab is for.
+ */
+
 import { useRouter } from 'next/navigation';
 import { useState, useEffect, useRef } from 'react';
 import { useAudioEngine, useBandBuilder, useQuiz } from './hooks';
@@ -36,11 +47,16 @@ export default function JazzLabPage() {
   }, []);
 
   // A tab's address (#band, #studio, #quiz) opens the lab on that tab, as the
-  // Studio floor's door to the Jazz Studio does.
+  // Studio floor's door to the Jazz Studio does: straight in, past the
+  // welcome screen (which used to stand in front of the Studio, so the
+  // Studio floor's link opened on "Enter" rather than the Studio).
   useEffect(() => {
     const fromHash = () => {
       const tab = TABS.find((t) => t.id === window.location.hash.replace(/^#/, ''));
-      if (tab) setActiveTab(tab.id);
+      if (tab) {
+        setActiveTab(tab.id);
+        setView('lab');
+      }
     };
     fromHash();
     window.addEventListener('hashchange', fromHash);

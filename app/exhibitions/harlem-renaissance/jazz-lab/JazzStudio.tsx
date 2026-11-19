@@ -2,11 +2,12 @@
 
 import { Fragment, useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import {
-  SESSIONS, SESSION_MAP, TIMELINE_DURATION, loopDuration, snapToBar,
-  INST_COLORS, INST_EMOJI, INST_NAMES, TEMPLATES, checkAABA,
+  SESSIONS, SESSION_MAP, TIMELINE_DURATION, loopDuration, snapToBar, dropStart, songEnd,
+  INST_COLORS, INST_ICON, INST_NAMES, TEMPLATES, checkAABA,
   type SessionDef, type LoopDef, type InstrumentCategory,
 } from './studio-data';
 import { srOnly } from '@/lib/a11y';
+import InstrumentIcon from './InstrumentIcon';
 
 /** Mix a #rrggbb color toward white, for small text on the dark stage (AA contrast). */
 function lighten(hex: string, amount: number) {
@@ -43,6 +44,18 @@ function encodeWav(buf: AudioBuffer): Blob {
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
+/*
+ * The Jazz Studio: a Studio tool (the Studio floor links #studio). Pick a
+ * session of real loops recorded at one tempo and key, and arrange them on a
+ * three-minute timeline into a record you can play, loop and download.
+ *
+ * The point: after it, a child has built a jazz performance's shape with
+ * their own hands (the head, a solo, the head again; or the 32-bar AABA of a
+ * standard), and heard why the tune coming back matters, which a poster can
+ * only describe. The template shows the shape; the AABA challenge asks them
+ * to make one and checks it as they go.
+ */
+
 export default function JazzStudio() {
   const [sid, setSid] = useState<string | null>(null);
   const session = sid ? SESSION_MAP[sid] ?? null : null;
@@ -74,7 +87,8 @@ export default function JazzStudio() {
         .js-labels{flex-shrink:0;width:80px;border-right:1px solid rgba(201,169,78,0.1)}
         .js-ruler-label{height:28px;display:flex;align-items:center;justify-content:center;border-bottom:1px solid rgba(201,169,78,0.1);font-family:'Josefin Sans',sans-serif;font-size:7px;letter-spacing:2px;color:var(--jl-text-dim);text-transform:uppercase}
         .js-lane-label{height:52px;display:flex;align-items:center;gap:6px;padding:0 8px;border-bottom:1px solid rgba(201,169,78,0.06);border-left:3px solid}
-        .js-lane-emoji{font-size:16px}
+        .js-lane-emoji{display:flex;flex-shrink:0}
+        .js-crate-icon{display:inline-flex;vertical-align:-3px;margin-right:2px}
         .js-lane-name{font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--jl-text-dim);font-weight:600}
         .js-tracks{flex:1;position:relative;overflow-x:auto;min-width:0}
         .js-tracks-inner{min-width:1800px;position:relative}
@@ -113,7 +127,7 @@ export default function JazzStudio() {
         .js-crate-group:last-child{margin-bottom:0}
         .js-crate-title{font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:8px}
         .js-crate-tiles{display:flex;flex-wrap:wrap;gap:6px}
-        .js-tile{background:rgba(255,255,255,0.03);border:1px solid;border-radius:4px;padding:5px 10px;cursor:grab;display:flex;align-items:center;gap:6px;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:none;user-select:none}
+        .js-tile{background:rgba(255,255,255,0.03);border:1px solid;border-radius:4px;padding:5px 10px;cursor:grab;display:flex;align-items:center;gap:6px;transition:all 0.2s;-webkit-tap-highlight-color:transparent;touch-action:pan-y;user-select:none}
         .js-tile:hover{background:rgba(201,169,78,0.08)}
         .js-tile-playing{box-shadow:0 0 10px rgba(201,169,78,0.4);background:rgba(201,169,78,0.12)}
         .js-tile-name{font-family:'Josefin Sans',sans-serif;font-size:12px;font-weight:600;color:var(--jl-text)}
@@ -150,7 +164,7 @@ export default function JazzStudio() {
           .js-record-name{font-size:13px}
           .js-arr-title{font-size:18px}
           .js-labels{width:60px}
-          .js-lane-emoji{font-size:14px}
+          .js-lane-emoji svg{width:16px;height:16px}
           .js-lane-name{font-size:7px}
         }
       `}</style>
@@ -329,11 +343,18 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   const play = useCallback(() => {
     if (!blocks.length) return;
     stopPlay();
+    stopPreview();
     const ctx = ensureCtx();
+    // The record ends with its last loop, not at the end of the three-minute
+    // timeline (it used to play on in silence to 3:00 before it looped). A
+    // start point after the last loop plays from the top.
+    const end = songEnd(blocks, session);
+    const from = seekTime >= end - 0.01 ? 0 : seekTime;
     const t0 = ctx.currentTime + 0.05;
     startRef.current = t0;
     const srcs: AudioBufferSourceNode[] = [];
-    const seek = seekTime;
+    const seek = from;
+    if (from !== seekTime) setSeekTime(from);
 
     for (const b of blocks) {
       const l = session.loops.find(x => x.id === b.loopId);
@@ -368,9 +389,11 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
       if (!ctxRef.current) return;
       const elapsed = ctxRef.current.currentTime - startRef.current;
       const pos = seek + elapsed; // actual position on timeline
-      if (pos >= TIMELINE_DURATION) {
-        if (loopRef.current) playRef.current();
-        else stopPlay();
+      if (pos >= end) {
+        if (loopRef.current) { playRef.current(); return; }
+        // The end of the record: back to the start point, ready to play again.
+        stopPlay();
+        if (playheadRef.current) playheadRef.current.style.left = `${(seek / TIMELINE_DURATION) * 100}%`;
         return;
       }
       if (playheadRef.current) {
@@ -379,7 +402,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
       animRef.current = requestAnimationFrame(tick);
     };
     animRef.current = requestAnimationFrame(tick);
-  }, [blocks, session, ensureCtx, stopPlay, seekTime]);
+  }, [blocks, session, ensureCtx, stopPlay, stopPreview, seekTime]);
 
   useEffect(() => { playRef.current = play; }, [play]);
 
@@ -457,6 +480,13 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     addBlock(loop);
     setAnnouncement(`Added ${loop.label} to the ${INST_NAMES[loop.instrument]} lane at ${fmtTime(t)}.`);
   }, [blocks, findNextAvailable, addBlock]);
+
+  const dropLoopAt = useCallback((loop: LoopDef, wanted: number) => {
+    const t = dropStart(loop, wanted, blocks, session);
+    if (t === null) { addLoopFromCrate(loop); return; }
+    setBlocks(prev => [...prev, { uid: nuid(), loopId: loop.id, lane: loop.instrument, startTime: t }]);
+    setAnnouncement(`Added ${loop.label} to the ${INST_NAMES[loop.instrument]} lane at ${fmtTime(t)}.`);
+  }, [blocks, session, addLoopFromCrate]);
 
   const nudgeBlock = useCallback((uid: string, dir: -1 | 1) => {
     const b = blocks.find(x => x.uid === uid);
@@ -552,7 +582,8 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
   // ── Crate Drag (drag from crate to timeline) ──
 
   const handleCratePointerDown = useCallback((loop: LoopDef, e: React.PointerEvent) => {
-    e.preventDefault();
+    // A mouse press would start selecting text; a finger must stay free to scroll.
+    if (e.pointerType === 'mouse') e.preventDefault();
     const sx = e.clientX, sy = e.clientY;
     dragStartPos.current = { x: sx, y: sy };
     dragLoopRef.current = loop;
@@ -586,6 +617,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
     const onUp = (ev: PointerEvent) => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onCancel);
       setDragGhost(null);
       setDropLane(null);
 
@@ -593,14 +625,15 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
         // It was a tap — add the loop to its lane (the \u25B6 beside it previews)
         addLoopFromCrate(loop);
       } else {
-        // It was a drag — try to drop on the matching lane
+        // It was a drag — drop it on the matching lane, where it was let go
+        // (snapped to a bar), or in the lane's first gap if that spot is taken.
         if (tracksRef.current) {
           const lanes = tracksRef.current.querySelectorAll<HTMLElement>('[data-lane]');
           lanes.forEach(lane => {
             const rect = lane.getBoundingClientRect();
             if (ev.clientY >= rect.top && ev.clientY <= rect.bottom &&
                 lane.dataset.lane === loop.instrument) {
-              addBlock(loop);
+              dropLoopAt(loop, ((ev.clientX - rect.left) / rect.width) * TIMELINE_DURATION);
             }
           });
         }
@@ -610,9 +643,22 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
       isDraggingCrate.current = false;
     };
 
+    // A finger that scrolls the page instead (the crate lets a vertical
+    // swipe scroll) cancels the pointer: forget the drag.
+    const onCancel = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onCancel);
+      setDragGhost(null);
+      setDropLane(null);
+      dragLoopRef.current = null;
+      dragStartPos.current = null;
+      isDraggingCrate.current = false;
+    };
     window.addEventListener('pointermove', onMove);
     window.addEventListener('pointerup', onUp);
-  }, [stopPreview, addBlock, addLoopFromCrate]);
+    window.addEventListener('pointercancel', onCancel);
+  }, [stopPreview, dropLoopAt, addLoopFromCrate]);
 
   // ── Block Interaction (tap → "+", drag horizontal → reposition, drag off → remove) ──
 
@@ -804,7 +850,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
           <div className="js-ruler-label">TIME</div>
           {session.instruments.map(inst => (
             <div key={inst} className="js-lane-label" style={{ borderLeftColor: INST_COLORS[inst] }}>
-              <span className="js-lane-emoji" aria-hidden="true">{INST_EMOJI[inst]}</span>
+              <span className="js-lane-emoji" aria-hidden="true" style={{ color: lighten(INST_COLORS[inst], 0.3) }}><InstrumentIcon id={INST_ICON[inst]} size={20} /></span>
               <span className="js-lane-name">{INST_NAMES[inst]}</span>
             </div>
           ))}
@@ -982,7 +1028,7 @@ function StudioWorkspace({ session, onBack }: { session: SessionDef; onBack: () 
             {session.instruments.map(inst => (
               <div key={inst} className="js-crate-group">
                 <div className="js-crate-title" style={{ color: lighten(INST_COLORS[inst], 0.25) }}>
-                  <span aria-hidden="true">{INST_EMOJI[inst]}</span> {INST_NAMES[inst]}
+                  <span className="js-crate-icon" aria-hidden="true"><InstrumentIcon id={INST_ICON[inst]} size={16} /></span> {INST_NAMES[inst]}
                 </div>
                 <div className="js-crate-tiles">
                   {(loopsByInst.get(inst) || []).map(loop => (
