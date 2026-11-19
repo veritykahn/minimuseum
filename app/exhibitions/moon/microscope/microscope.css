@@ -597,6 +597,13 @@
   .mo-ms-step.is-now { padding-right: 12px; }
   .mo-ms-step.is-now .mo-ms-step-label { position: static; width: auto; height: auto; overflow: visible; clip-path: none; }
   .mo-ms-body { --eye: min(84vw, 46dvh); padding: 8px 16px 96px; gap: 22px; }
+  /*
+   * On a phone the lenses sit below the eyepiece, and a narrow column wraps
+   * the longest prompts and lines of what happened onto three lines. Each
+   * keeps room for three, so turning the lens (4× to 10× changes the prompt)
+   * never pushes the lens buttons down under the finger that pressed them.
+   */
+  .mo-ms-prompt, .mo-ms-status { min-height: calc(3 * 1.35em); }
   .mo-ms-eyepiece { margin-top: 20px; }
   .mo-ms-tools { gap: 22px 18px; }
   .mo-ms-tool { flex: 1 1 100%; }

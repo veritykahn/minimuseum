@@ -690,4 +690,9 @@ describe('Under the Microscope, holding still', () => {
     expect(css).toMatch(/\.mo-ms-prompt \{[^}]*min-height: calc\(2 \* 1\.35em\);/);
     expect(css).toMatch(/\.mo-ms-status \{[^}]*min-height: calc\(2 \* 1\.35em\);/);
   });
+
+  it('keeps room for three lines on a phone, where the lenses sit below the words', () => {
+    const phone = css.slice(css.indexOf('@media (max-width: 760px) {', css.indexOf('An iPad upright')));
+    expect(phone).toMatch(/\.mo-ms-prompt, \.mo-ms-status \{ min-height: calc\(3 \* 1\.35em\); \}/);
+  });
 });
