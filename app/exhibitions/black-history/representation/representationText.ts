@@ -321,6 +321,19 @@ export const SURVEY_TEXT = {
     'Which books would you add to make your shelf look more like the world?',
   ],
   compareHeading: 'Compare: books published in 2025',
+  talkHeading: 'Talk about it',
+  again: 'Start again',
+  clearAsk: (what: string) => `Clear every count for ${what}?`,
+  yes: 'Yes',
+  no: 'No',
+  // REVIEW: new text (the class's guess, Nov 19 2026)
+  guessHeading: 'Guess first',
+  guessAsk: 'Before you count: which answer do you think will have the most hands?',
+  guessed: (guess: string) => `Your guess: ${guess}. Now count the hands.`,
+  guessRight: (top: string) => `You guessed right: ${top} has the most so far.`,
+  guessWrong: (guess: string, top: string) => `You guessed ${guess}, but ${top} has the most so far. Is that what you expected? Why?`,
+  guessTie: (guess: string, tops: string) => `You guessed ${guess}. So far it is a tie: ${tops}.`,
+  changeGuess: 'Change the guess',
 };
 
 /** What each thing is called in the teacher's question. */

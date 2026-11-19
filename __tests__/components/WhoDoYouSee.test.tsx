@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import WhoDoYouSee from '@/app/exhibitions/black-history/representation/page';
-import { CCBC_2025, CCBC_FACT, DOLL_TEST_FACTS, DOLL_TEST_STEPS, DOLL_TEST_TEXT, SURVEY_QUESTIONS, askFor } from '@/app/exhibitions/black-history/representation/representationText';
+import { CCBC_2025, CCBC_FACT, DOLL_TEST_FACTS, DOLL_TEST_STEPS, DOLL_TEST_TEXT, SURVEY_QUESTIONS, SURVEY_TEXT, askFor } from '@/app/exhibitions/black-history/representation/representationText';
 import { lessonStep } from '@/app/exhibitions/black-history/representation/DollTest';
-import { BAR_COLORS, clampCount } from '@/app/exhibitions/black-history/representation/BookSurvey';
+import { BAR_COLORS, clampCount, topAnswers } from '@/app/exhibitions/black-history/representation/BookSurvey';
 import { FIRST_DOLL, describe as describeDoll } from '@/app/exhibitions/black-history/representation/dollRules';
 import { BLACK_HISTORY } from '@/app/exhibitions/black-history/blackHistory';
 import { OWNER_BARBIE_PHOTOS } from '@/app/exhibitions/black-history/timeline/timelineStops';
@@ -238,6 +238,48 @@ describe('the survey, whole-class', () => {
     expect(fills[2]).toBe('100%');
     expect(fills[3]).toBe(`${(1 / 7) * 100}%`);
     expect(fills[0]).toBe('0%');
+  });
+
+  it('has the class guess first, then says whether the count bears the guess out', async () => {
+    const opts = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
+    expect(topAnswers(opts, {})).toEqual([]);
+    expect(topAnswers(opts, { a: 2, b: 5 })).toEqual(['b']);
+    expect(topAnswers(opts, { a: 5, c: 5 })).toEqual(['a', 'c']);
+    const panel = openSurvey();
+    const guess = () => panel.querySelector('.bhr-guess') as HTMLElement;
+    expect(within(guess()).getByText(SURVEY_TEXT.guessAsk)).toBeInTheDocument();
+    fireEvent.click(within(panel).getByRole('button', { name: 'Asian' }));
+    expect(within(guess()).getByText('Your guess: Asian. Now count the hands.')).toBeInTheDocument();
+    await waitFor(() => expect(within(panel).getByRole('button', { name: SURVEY_TEXT.changeGuess })).toHaveFocus());
+    expect(within(panel).queryByRole('button', { name: 'Asian' })).toBeNull();
+    fireEvent.click(within(panel).getByRole('button', { name: 'One more: White' }));
+    expect(within(guess()).getByText(SURVEY_TEXT.guessWrong('Asian', 'White'))).toBeInTheDocument();
+    fireEvent.click(within(panel).getByRole('button', { name: 'One more: Asian' }));
+    expect(within(guess()).getByText(SURVEY_TEXT.guessTie('Asian', 'Asian, White'))).toBeInTheDocument();
+    fireEvent.click(within(panel).getByRole('button', { name: 'One more: Asian' }));
+    expect(within(guess()).getByText(SURVEY_TEXT.guessRight('Asian'))).toBeInTheDocument();
+    // Each chart has its own guess, kept in this browser with the counts.
+    fireEvent.click(within(panel).getByRole('tab', { name: 'Gender' }));
+    expect(within(guess()).getByText(SURVEY_TEXT.guessAsk)).toBeInTheDocument();
+    expect(JSON.parse(window.localStorage.getItem('mm-bh-survey-guess-v1')!)).toEqual({ 'books:background': 'asian' });
+    fireEvent.click(within(panel).getByRole('tab', { name: 'Background' }));
+    fireEvent.click(within(panel).getByRole('button', { name: SURVEY_TEXT.changeGuess }));
+    await waitFor(() => expect(within(guess()).getAllByRole('button')[0]).toHaveFocus());
+    expect(within(guess()).getByRole('button', { name: 'Asian' })).toBeInTheDocument();
+  });
+
+  it('starts again with the guesses cleared too', () => {
+    const panel = openSurvey();
+    fireEvent.click(within(panel).getByRole('button', { name: 'White' }));
+    fireEvent.click(screen.getByRole('button', { name: SURVEY_TEXT.again }));
+    fireEvent.click(screen.getByRole('button', { name: SURVEY_TEXT.yes }));
+    expect(within(panel.querySelector('.bhr-guess') as HTMLElement).getByText(SURVEY_TEXT.guessAsk)).toBeInTheDocument();
+  });
+
+  it('survives counts saved in an odd shape', () => {
+    window.localStorage.setItem('mm-bh-survey-v1', JSON.stringify({ books: null, toys: 3 }));
+    const panel = openSurvey();
+    expect(within(panel).getByRole('spinbutton', { name: 'How many: Asian' })).toHaveValue(0);
   });
 
   it('colors each answer’s dot and bar alike, from the posters’ palette', () => {

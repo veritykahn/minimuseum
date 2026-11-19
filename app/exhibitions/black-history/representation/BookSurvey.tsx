@@ -6,6 +6,9 @@ import { srOnly } from '@/lib/a11y';
 import { CCBC_FACT, SURVEY_KINDS, SURVEY_QUESTIONS, SURVEY_TEXT, askFor, type SurveyKind, type SurveyQuestion } from './representationText';
 
 /*
+ * Point: a class counts who is in its own books and toys, guessing first, so
+ * it finds out for itself who is easy to find and who is missing.
+ *
  * Who's in your books? A whole-class survey, led from the front: each child
  * picks a book (or a toy, a show or a game), the teacher reads the question
  * out ("Hands up if the main character in your book is…"), counts the
@@ -13,6 +16,9 @@ import { CCBC_FACT, SURVEY_KINDS, SURVEY_QUESTIONS, SURVEY_TEXT, askFor, type Su
  * steppers the class's chart grows as the counts change, big enough for the
  * projector, each bar in one of the posters' colors and its count popping
  * as it moves. Background, gender and disability, and the books' authors.
+ * Before counting, the class guesses which answer will have the most hands;
+ * once there are counts, the room says whether the guess held, and asks why
+ * when it didn't.
  *
  * The counts stay in this browser (localStorage, when it can) and are never
  * sent. "Print the charts" prints every chart for what was counted, with a
@@ -24,6 +30,7 @@ import { CCBC_FACT, SURVEY_KINDS, SURVEY_QUESTIONS, SURVEY_TEXT, askFor, type Su
 type Counts = Record<SurveyKind, Record<string, Record<string, number>>>;
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 const STORE = 'mm-bh-survey-v1';
+const GUESS_STORE = 'mm-bh-survey-guess-v1';
 const MAX = 999;
 const empty = (): Counts => ({ books: {}, toys: {}, screens: {} });
 
@@ -34,11 +41,31 @@ function load(): Counts {
   try {
     const raw = window.localStorage.getItem(STORE);
     if (!raw) return empty();
-    const c = JSON.parse(raw) as Partial<Counts>;
-    return { ...empty(), ...c };
+    const c = JSON.parse(raw) as Partial<Counts> | null;
+    const out = empty();
+    for (const k of Object.keys(out) as SurveyKind[]) {
+      const v = c?.[k];
+      if (v && typeof v === 'object') out[k] = v;
+    }
+    return out;
   } catch {
     return empty();
   }
+}
+
+function loadGuesses(): Record<string, string> {
+  try {
+    const g = JSON.parse(window.localStorage.getItem(GUESS_STORE) ?? '{}') as unknown;
+    return g && typeof g === 'object' ? (g as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** The answers with the most counts (none while nothing is counted). */
+export function topAnswers(options: { id: string }[], counts: Record<string, number>): string[] {
+  const max = Math.max(0, ...options.map((o) => counts[o.id] ?? 0));
+  return max === 0 ? [] : options.filter((o) => (counts[o.id] ?? 0) === max).map((o) => o.id);
 }
 
 /** Questions for what is counted: toys and screens have no authors to count. */
@@ -88,15 +115,28 @@ export default function BookSurvey() {
   const [qid, setQid] = useState(SURVEY_QUESTIONS[0].id);
   const [said, setSaid] = useState('');
   const [confirm, setConfirm] = useState(false);
+  const [guesses, setGuesses] = useState<Record<string, string>>({});
   const qRefs = useRef<Record<string, HTMLButtonElement | null>>({});
   const againRef = useRef<HTMLButtonElement>(null);
   const noRef = useRef<HTMLButtonElement>(null);
+  const changeRef = useRef<HTMLButtonElement>(null);
+  const firstPickRef = useRef<HTMLButtonElement>(null);
   const ids = useId();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- the class's counts come back from this browser
     setCounts(load());
+    setGuesses(loadGuesses());
   }, []);
+
+  const keepGuesses = (next: Record<string, string>) => {
+    setGuesses(next);
+    try {
+      window.localStorage.setItem(GUESS_STORE, JSON.stringify(next));
+    } catch {
+      // Private windows: the guesses last as long as the page.
+    }
+  };
 
   const change = (f: (c: Counts) => Counts) =>
     setCounts((c) => {
@@ -113,6 +153,22 @@ export default function BookSurvey() {
   const q = qs.find((x) => x.id === qid) ?? qs[0];
   const these = counts[kind][q.id] ?? {};
   const kindLabel = SURVEY_KINDS.find((k) => k.id === kind)!.label;
+  const labelOf = (id: string) => q.options.find((o) => o.id === id)?.label ?? id;
+  const guessKey = `${kind}:${q.id}`;
+  const guess = q.options.some((o) => o.id === guesses[guessKey]) ? guesses[guessKey] : null;
+  const tops = topAnswers(q.options, these);
+  const setGuess = (id: string | null) => {
+    const next = { ...guesses };
+    if (id) next[guessKey] = id;
+    else delete next[guessKey];
+    keepGuesses(next);
+    setSaid(id ? SURVEY_TEXT.guessed(labelOf(id)) : SURVEY_TEXT.guessAsk);
+    // The button pressed goes away, so the focus moves to what takes its place.
+    requestAnimationFrame(() => (id ? changeRef.current : firstPickRef.current)?.focus());
+  };
+  let verdict = '';
+  if (guess && tops.length === 1) verdict = tops[0] === guess ? SURVEY_TEXT.guessRight(labelOf(guess)) : SURVEY_TEXT.guessWrong(labelOf(guess), labelOf(tops[0]));
+  else if (guess && tops.length > 1) verdict = SURVEY_TEXT.guessTie(labelOf(guess), tops.map(labelOf).join(', '));
 
   /** Sets a count from the one before it, so quick taps each count. */
   const setCount = (opt: string, next: (n: number) => number) => {
@@ -145,6 +201,7 @@ export default function BookSurvey() {
   };
   const clear = () => {
     change((c) => ({ ...c, [kind]: {} }));
+    keepGuesses(Object.fromEntries(Object.entries(guesses).filter(([k]) => !k.startsWith(`${kind}:`))));
     endConfirm();
     setSaid(`Every count for ${kindLabel.toLowerCase()} is cleared.`);
   };
@@ -193,6 +250,30 @@ export default function BookSurvey() {
           <h3 id={`${ids}-ask`} className="bhr-ask-q">
             {askFor(q, kind)}
           </h3>
+          <div className="bhr-guess">
+            <p className="bhr-guess-heading" id={`${ids}-guess`}>
+              {SURVEY_TEXT.guessHeading}
+            </p>
+            {guess ? (
+              <>
+                <p className="bhr-guess-said">{verdict || SURVEY_TEXT.guessed(labelOf(guess))}</p>
+                <button ref={changeRef} type="button" className="bhr-guess-change" onClick={() => setGuess(null)}>
+                  {SURVEY_TEXT.changeGuess}
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="bhr-guess-ask">{SURVEY_TEXT.guessAsk}</p>
+                <div className="bhr-guess-picks" role="group" aria-labelledby={`${ids}-guess`}>
+                  {q.options.map((o, i) => (
+                    <button key={o.id} ref={i === 0 ? firstPickRef : undefined} type="button" className="bhr-guess-pick" onClick={() => setGuess(o.id)}>
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
           <ul className="bhr-steppers">
             {q.options.map((o, i) => (
               <li key={o.id} className="bhr-stepper" style={{ '--bar': BAR_COLORS[i % BAR_COLORS.length] } as CssVars}>
@@ -231,7 +312,7 @@ export default function BookSurvey() {
             </div>
           )}
           <div className="bhr-talk-box">
-            <p className="bhr-talk-heading">Talk about it</p>
+            <p className="bhr-talk-heading">{SURVEY_TEXT.talkHeading}</p>
             <ul className="bhr-talk">
               {SURVEY_TEXT.talk.map((t) => (
                 <li key={t}>{t}</li>
@@ -247,17 +328,17 @@ export default function BookSurvey() {
         </button>
         {confirm ? (
           <span className="bhr-confirm">
-            <span>Clear every count for {kindLabel.toLowerCase()}?</span>
+            <span>{SURVEY_TEXT.clearAsk(kindLabel.toLowerCase())}</span>
             <button type="button" className="bhr-button" onClick={clear}>
-              Yes
+              {SURVEY_TEXT.yes}
             </button>
             <button ref={noRef} type="button" className="bhr-button bhr-button-ghost" onClick={endConfirm}>
-              No
+              {SURVEY_TEXT.no}
             </button>
           </span>
         ) : (
           <button ref={againRef} type="button" className="bhr-button bhr-button-ghost" onClick={askConfirm}>
-            Start again
+            {SURVEY_TEXT.again}
           </button>
         )}
       </div>

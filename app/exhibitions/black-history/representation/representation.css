@@ -237,6 +237,14 @@
 .bhr-ask { min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; border-radius: 22px; background: rgba(255, 255, 255, 0.6); border: 3px solid #141414; }
 .bhr-ask-label { font-family: var(--pe-display); font-weight: 800; font-variation-settings: 'wdth' 110; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(12px, 1vw, 16px); }
 .bhr-ask-q { font-family: var(--bh-bubble); font-weight: 400; font-size: clamp(1.25rem, 2.1vw, 2.3rem); line-height: 1.15; }
+/* The class's guess, before the hands go up. */
+.bhr-guess { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 12px; border-radius: 16px; background: #fff; border: 2px dashed #141414; }
+.bhr-guess-heading { flex-basis: 100%; font-family: var(--pe-display); font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; font-size: clamp(11px, 0.9vw, 14px); }
+.bhr-guess-ask, .bhr-guess-said { flex: 1 1 14em; font-family: var(--pe-body); font-weight: 600; font-size: clamp(0.9rem, 1.2vw, 1.25rem); line-height: 1.25; }
+.bhr-guess-picks { display: flex; flex-wrap: wrap; gap: 6px; }
+.bhr-room .bhr-guess-pick, .bhr-room .bhr-guess-change { min-height: 40px; padding: 6px 14px; border-radius: 999px; border: 2px solid #141414; background: var(--bh-pink); color: #141414; font: 700 clamp(0.85rem, 1.1vw, 1.1rem) var(--pe-body); cursor: pointer; }
+.bhr-room .bhr-guess-change { background: #fff; }
+.bhr-room .bhr-guess-pick:focus-visible, .bhr-room .bhr-guess-change:focus-visible { outline: 3px solid #141414; outline-offset: 2px; }
 .bhr-steppers { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .bhr-stepper { display: grid; grid-template-columns: minmax(0, 1fr) auto auto auto; align-items: center; gap: 8px; padding: 4px 6px 4px 14px; border-radius: 999px; background: #fff; }
 /* Each answer's dot is its bar's color in the chart. */
@@ -383,6 +391,8 @@
   .bhr-ask, .bhr-survey-side { min-height: auto; overflow: visible; }
   .bhr-ask { padding: 10px; border-width: 2px; border-radius: 16px; }
   .bhr-ask-q { font-size: 1.1rem; }
+  .bhr-guess { padding: 6px 8px; }
+  .bhr-room .bhr-guess-pick, .bhr-room .bhr-guess-change { min-height: 36px; padding: 4px 10px; }
   .bhr-steppers { gap: 4px; }
   .bhr-stepper { gap: 4px; padding-left: 10px; }
   .bhr-stepper-label { gap: 6px; }
