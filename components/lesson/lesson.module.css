@@ -1371,6 +1371,22 @@
 .stageHolder .strip {
   min-height: 44px;
   padding-left: 150px;
+  /* and stops short of the notes, presenter and full-screen buttons */
+  padding-right: 500px;
+}
+/* a long exhibition name or title ends in an ellipsis rather than running under them */
+.stageHolder .brand {
+  min-width: 0;
+}
+.stageHolder .brand > span {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.stageHolder .brand > .brandM,
+.stageHolder .brand > .brandSep {
+  flex: none;
 }
 
 .withNotes .stageHolder {
