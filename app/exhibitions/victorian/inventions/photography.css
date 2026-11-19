@@ -1,7 +1,8 @@
 /* ==========================================================================
    The photography bench's own looks. Making a negative: a wooden camera
-   beside the sensitive paper inside it, the seconds counting on the sheet
-   while the cap is off. Hold still: the sitter's portrait beside the head
+   beside the sensitive paper inside it, dark while the cap is off (the
+   seconds are counted in the head) and shown, with how long it had, once
+   the cap is back on. Hold still: the sitter's portrait beside the head
    clamp's stand, gripped to hold still. Three ways: three photographs to
    turn over and read, then to tell apart.
    ========================================================================== */
@@ -31,6 +32,27 @@
 .vbi-seconds[data-result='good'] { background: #3f8a4a; }
 .vbi-seconds[data-result='faint'], .vbi-seconds[data-result='dark'] { background: #b23a3a; }
 .vb-room .vbi-cap-button { font-size: 1rem; padding: 12px 22px; }
+/* The paper while the cap is off: in the dark inside the camera, unseen. */
+.vbi-paper-dark {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: radial-gradient(ellipse at 50% 45%, #3a2d24, #120d0a 75%);
+  color: #f4eee3;
+  font-family: 'Jost', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.vbi-paper-dark-sub { font-family: var(--vb-serif); font-style: italic; font-size: 2rem; letter-spacing: 0; text-transform: none; color: #f2d68a; animation: vbi-breathe 2.6s ease-in-out infinite; }
+@keyframes vbi-breathe { 50% { opacity: 0.45; } }
+@media (prefers-reduced-motion: reduce) {
+  .vbi-paper-dark-sub { animation: none; }
+}
 
 /* ───────── 2. Hold still! ───────── */
 .vbi-clamp-stand {

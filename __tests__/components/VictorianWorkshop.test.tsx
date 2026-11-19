@@ -6,6 +6,7 @@ import { BRISTOL_ASK, BRISTOL_CLOCK, BRISTOL_TRAIN, EXPOSURE, EXPOSURE_WORDS, IN
 import { INVENTIONS_SOURCES, RAIL_FACTS, WIRE_FACTS } from '@/app/exhibitions/victorian/inventions/sources';
 import { londonTimeUnderSun, noonBetween, trainAt, watchAt } from '@/app/exhibitions/victorian/inventions/Railway';
 import { trayOrder } from '@/app/exhibitions/victorian/inventions/Telegraph';
+import { quizOrder } from '@/app/exhibitions/victorian/inventions/Photography';
 import { DIAL, DIAL_LETTERS, DIAL_ROWS, MAP, clockTime, compareBehind, dragMinute, hands, judgeTrain, morseTimeline, needleAngles, nextTrain, oldMoney, onDial, project, spell, sunTimeAt, sunX, telegramCost, telegramWords, toMorse } from '@/app/exhibitions/victorian/inventions/workshop';
 
 /*
@@ -769,7 +770,7 @@ describe('photography, in four parts', () => {
     });
     expect(cap()).toHaveTextContent('Put the cap back');
     fireEvent.click(cap());
-    expect(screen.getByText(EXPOSURE_WORDS.faint).closest('[data-verdict]')).toHaveAttribute('data-verdict', 'wrong');
+    expect(screen.getAllByText(EXPOSURE_WORDS.faint, { exact: false }).find((el) => el.closest('[data-verdict]'))!.closest('[data-verdict]')).toHaveAttribute('data-verdict', 'wrong');
     // A new sheet starts again with blank paper (it used to do nothing).
     fireEvent.click(screen.getByRole('button', { name: 'A new sheet' }));
     expect(screen.getByRole('img', { name: 'A sheet of sensitive paper in the camera, still blank' })).toBeInTheDocument();
@@ -778,7 +779,7 @@ describe('photography, in four parts', () => {
     act(() => {
       jest.advanceTimersByTime(EXPOSURE.max * 1000 + 200);
     });
-    expect(screen.getByText(EXPOSURE_WORDS.dark)).toBeInTheDocument();
+    expect(screen.getAllByText(EXPOSURE_WORDS.dark, { exact: false }).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole('button', { name: 'A new sheet' }));
     // Just right.
     fireEvent.click(cap());
@@ -886,18 +887,57 @@ describe('photography, in four parts', () => {
       expect(card).toHaveTextContent(c.teach);
     }
     fireEvent.click(quiz);
-    const wrongId = QUIZ_ORDER[1];
+    // The clues come in a shuffled order: read which one is showing.
+    const showing = () => PROCESS_CLUES.find((c) => screen.queryByText(`“${c.clue}”`))!;
+    const first = showing();
+    const wrongId = QUIZ_ORDER.find((id) => id !== first.photo)!;
     const wrong = screen.getByRole('button', { name: new RegExp(PHOTOS[wrongId].title) });
     fireEvent.click(wrong);
     expect(wrong).toHaveAttribute('data-verdict', 'wrong');
-    for (const id of QUIZ_ORDER) {
-      const c = PROCESS_CLUES.find((x) => x.photo === id)!;
-      expect(screen.getByText(`“${c.clue}”`)).toBeInTheDocument();
-      fireEvent.click(screen.getByRole('button', { name: new RegExp(PHOTOS[id].title) }));
+    expect(screen.getByText(`Not that one. Hint: ${first.hint}`)).toBeInTheDocument();
+    const asked: string[] = [];
+    for (let i = 0; i < QUIZ_ORDER.length; i++) {
+      const c = showing();
+      asked.push(c.photo);
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(PHOTOS[c.photo].title) }));
       expect(screen.getByText(NOTES[c.note].text)).toBeVisible();
-      if (id !== QUIZ_ORDER[QUIZ_ORDER.length - 1]) fireEvent.click(screen.getByRole('button', { name: /Next clue/ }));
+      if (i < QUIZ_ORDER.length - 1) fireEvent.click(screen.getByRole('button', { name: /Next clue/ }));
     }
+    expect([...asked].sort()).toEqual([...QUIZ_ORDER].sort());
     expect(screen.getByText(/^All three matched:/)).toBeInTheDocument();
+  });
+
+  it('shuffles the quiz: the clues and the photographs each in an order of their own, fixed until the page is live', () => {
+    expect(quizOrder(null)).toEqual({ clues: QUIZ_ORDER, photos: QUIZ_ORDER });
+    const seen = new Set<string>();
+    for (let s = 1; s < 40; s++) {
+      const o = quizOrder(s);
+      expect([...o.clues].sort()).toEqual([...QUIZ_ORDER].sort());
+      expect([...o.photos].sort()).toEqual([...QUIZ_ORDER].sort());
+      seen.add(o.clues.join());
+    }
+    expect(seen.size).toBeGreaterThan(1);
+  });
+
+  it('counts a wobble of the finger on the clamp as moving', () => {
+    // jsdom has no PointerEvent: without one the pointer's position is lost.
+    const had = 'PointerEvent' in window;
+    if (!had) (window as unknown as { PointerEvent: typeof MouseEvent }).PointerEvent = class extends MouseEvent {} as typeof MouseEvent;
+    jest.useFakeTimers();
+    render(<VictorianInventions />);
+    fireEvent.click(screen.getByRole('button', { name: '2. Hold still!' }));
+    const hold = screen.getByRole('button', { name: 'Press and hold the clamp' });
+    fireEvent.pointerDown(hold, { clientX: 100, clientY: 100 });
+    fireEvent.pointerMove(hold, { clientX: 103, clientY: 102 });
+    expect(hold).toHaveTextContent('Holding the clamp');
+    fireEvent.pointerMove(hold, { clientX: 140, clientY: 100 });
+    expect(hold).toHaveTextContent('You wobbled!');
+    act(() => {
+      jest.advanceTimersByTime(8100);
+    });
+    fireEvent.pointerUp(hold);
+    expect(screen.getByText(verdictFor(blurFor(600)).words)).toBeInTheDocument();
+    if (!had) delete (window as unknown as { PointerEvent?: unknown }).PointerEvent;
   });
 
   it('prints a sheet of the photographs and what you made, with their credits, once its pictures are in', async () => {

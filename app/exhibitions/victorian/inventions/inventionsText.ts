@@ -487,13 +487,20 @@ export const MET_CREDIT = 'The Metropolitan Museum of Art, public domain';
  * photograph that shows it, and what it was, from the notes), then the
  * quiz, a clue for each photograph.
  */
-export const PROCESS_CLUES: { photo: PhotoId; process: string; short: string; teach: string; clue: string; note: keyof typeof NOTES }[] = [
+/*
+ * The quiz's clues are not the lesson's words again: each tells what happened
+ * to a photograph, and the child works out from the lesson which way could
+ * have made it. A wrong pick brings the clue's hint, which points back to the lesson.
+ */
+// REVIEW: new text (clue and hint)
+export const PROCESS_CLUES: { photo: PhotoId; process: string; short: string; teach: string; clue: string; hint: string; note: keyof typeof NOTES }[] = [
   {
     photo: 'daguerreotype',
     process: 'Daguerreotype',
     short: 'Daguerreotype',
     teach: 'Made on a shiny silver-plated sheet. Each one was a single picture that could not be copied.',
-    clue: 'I was made on a shiny silver-plated sheet. There is only one of me: I could not be copied.',
+    clue: 'Tilt me and I shine like a mirror. My sitter wanted a second one for a friend, and had to sit for the camera all over again.',
+    hint: 'Which way made a single picture that could not be copied?',
     note: 'daguerreotype',
   },
   {
@@ -501,7 +508,8 @@ export const PROCESS_CLUES: { photo: PhotoId; process: string; short: string; te
     process: 'Calotype (Talbot’s paper negative)',
     short: 'Calotype',
     teach: 'Talbot’s way: the negative was a sheet of paper, so many prints could be made from it.',
-    clue: 'My negative was made of paper, so many prints could be made from it.',
+    clue: 'Lots of friends each have a copy of me, and every copy was printed from the same sheet of paper.',
+    hint: 'Which way had a negative made of paper?',
     note: 'calotype',
   },
   {
@@ -509,7 +517,8 @@ export const PROCESS_CLUES: { photo: PhotoId; process: string; short: string; te
     process: 'Wet collodion (a glass negative)',
     short: 'Wet collodion',
     teach: 'The negative was a sheet of glass, coated, used while still wet and developed at once. It gave very fine detail.',
-    clue: 'My negative was a sheet of glass, coated and used while it was still wet.',
+    clue: 'The photographer had to hurry: coat the glass, take me, and develop me before the coating dried.',
+    hint: 'Which way used a glass negative while it was still wet?',
     note: 'collodion',
   },
 ];
@@ -561,7 +570,8 @@ export function blurFor(movedMs: number) {
 
 /** What the portrait came out as, by its blur. */
 export function verdictFor(blur: number): { tone: 'right' | 'near' | 'wrong'; words: string } {
-  if (blur <= 0.5) return { tone: 'right', words: 'Pin sharp! You held the clamp the whole time, so you kept perfectly still.' };
-  if (blur <= 4) return { tone: 'near', words: 'A little soft. You let go of the clamp for a moment, and moved.' };
-  return { tone: 'wrong', words: 'A blur! You let go of the clamp for too long. Try again, and keep holding it.' };
+  // REVIEW: new text
+  if (blur <= 0.5) return { tone: 'right', words: 'Pin sharp! You held the clamp and kept perfectly still the whole time.' };
+  if (blur <= 4) return { tone: 'near', words: 'A little soft. You moved for a moment: a wobble, or letting go.' };
+  return { tone: 'wrong', words: 'A blur! You moved too much. Try again: hold on to the clamp, and keep perfectly still.' };
 }
