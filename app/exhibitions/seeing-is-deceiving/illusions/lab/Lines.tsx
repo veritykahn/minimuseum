@@ -16,6 +16,8 @@ export function CafeWall({ step, broken, explain, phase, record }: BenchProps) {
   const [shift, setShift] = useState(50);
   const [answer, setAnswer] = useState<'tilted' | 'little' | 'straight' | null>(null);
   const [after, setAfter] = useState<string | null>(null);
+  // Try it's test: once the eyes have answered, a ruler laid along every line.
+  const [ruler, setRuler] = useState(false);
   const cycle = [0, 0.5, 1, 0.5];
   // Try it and Why? always show the classic wall: gray mortar, rows half a tile along.
   const m = broken ? mortar : 128;
@@ -54,7 +56,7 @@ export function CafeWall({ step, broken, explain, phase, record }: BenchProps) {
                   </g>
                 );
               })}
-              {explain && (
+              {(explain || (ruler && step === 'try')) && (
                 <Explain id="cafe-wall">
                   <ExplainPath d={Array.from({ length: ROWS - 1 }, (_, r) => `M8 ${r * (TILE + MORTAR) + TILE + MORTAR / 2} H592`).join(' ')} dash="14 8" />
                   <ExplainText x={300} y={TILE / 2 + 8} size={24}>
@@ -85,25 +87,33 @@ export function CafeWall({ step, broken, explain, phase, record }: BenchProps) {
             />
           </>
         ) : phase === 'before' ? (
-          <Choices
-            question="The lines between the rows look…"
-            value={answer}
-            onChoose={(a) => {
-              setAnswer(a);
-              record(
-                'before',
-                observed(
-                  a === 'tilted' ? 'The rows looked tilted. They are perfectly straight.' : a === 'little' ? 'The rows looked a little tilted. They are perfectly straight.' : 'The rows looked straight to you, as they are.',
-                  a === 'tilted' ? 1 : a === 'little' ? 0.5 : 0,
-                ),
-              );
-            }}
-            options={[
-              { id: 'tilted', label: 'Tilted' },
-              { id: 'little', label: 'A little tilted' },
-              { id: 'straight', label: 'Straight' },
-            ]}
-          />
+          <>
+            <Choices
+              question="The lines between the rows look…"
+              value={answer}
+              onChoose={(a) => {
+                setAnswer(a);
+                // Your eyes' answer only: the ruler is the test.
+                record('before', observed(a === 'tilted' ? 'The rows looked tilted to you.' : a === 'little' ? 'The rows looked a little tilted to you.' : 'The rows looked straight to you.', a === 'tilted' ? 1 : a === 'little' ? 0.5 : 0));
+              }}
+              options={[
+                { id: 'tilted', label: 'Tilted' },
+                { id: 'little', label: 'A little tilted' },
+                { id: 'straight', label: 'Straight' },
+              ]}
+            />
+            {answer && (
+              <button type="button" className="pl-btn" aria-pressed={ruler} onClick={() => setRuler(!ruler)}>
+                {ruler ? 'Take the ruler away' : 'Test it: lay a ruler along the lines'}
+              </button>
+            )}
+            {/* REVIEW: new text. */}
+            {ruler && (
+              <p className="pl-say" aria-live="polite">
+                Every line sits along the ruler: they are perfectly straight.{answer === 'straight' ? ' Your eyes were right.' : ' Your eyes were fooled.'}
+              </p>
+            )}
+          </>
         ) : null
       }
     />

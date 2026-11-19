@@ -330,7 +330,7 @@ export function Jastrow({ step, broken, explain, phase, record }: BenchProps) {
                   'before',
                   a === 'same'
                     ? observed('You saw the two shapes as the same size.', 0)
-                    : observed(`The ${a} shape looked bigger to you. They are exactly the same.`, a === 'bottom' ? 1 : 0.6),
+                    : observed(`The ${a} shape looked bigger to you.`, a === 'bottom' ? 1 : 0.6),
                 );
               }}
               options={[
@@ -339,7 +339,14 @@ export function Jastrow({ step, broken, explain, phase, record }: BenchProps) {
                 { id: 'same', label: 'The same' },
               ]}
             />
-            <Slider label="Slide the top one down" value={drop} min={0} max={100} onChange={setDrop} />
+            {/* The test comes after the guess: the slider waits for an answer, so the eyes answer first. */}
+            {answer && <Slider label="Slide the top one down" value={drop} min={0} max={100} onChange={setDrop} />}
+            {answer && drop >= 95 && (
+              // REVIEW: new text.
+              <p className="pl-say" aria-live="polite">
+                One on top of the other, they fit exactly: the two shapes are the same size.{answer === 'same' ? ' Your eyes were right.' : ' Your eyes were fooled.'}
+              </p>
+            )}
             <button type="button" className="pl-btn" onClick={() => setSwapped(!swapped)}>
               Swap their colors
             </button>
