@@ -144,7 +144,9 @@ describe('the room', () => {
 
     fireEvent.click(screen.getByRole('radio', { name: 'Bottom row' }));
     fireEvent.click(screen.getByRole('button', { name: 'Z' }));
-    expect(screen.getByText('Every letter is on the bottom row: 1 letter.')).toBeInTheDocument();
+    // On the bottom row, but no vowel: the poster's point, and nothing to keep.
+    expect(document.getElementById('wrq-verdict')).toHaveTextContent(/^Every letter is on the bottom row: 1 letter\. No vowel: the bottom row has none at all/);
+    expect(screen.getByRole('button', { name: 'Keep it' })).toBeDisabled();
   });
 });
 

@@ -1,14 +1,20 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { FactSources } from '@/components/exhibition/FactNote';
-import { CLAIM, CONCLUSION, EVIDENCE, REASONS, WEIGHING, argumentLines, evidenceTilt, isRight, type Choice, type ReasonId } from './weighEvidence';
+import { useClientSeed } from '@/components/games/useClientSeed';
+import { CLAIM, CONCLUSION, EVIDENCE, REASONS, WEIGHING, argumentLines, dealEvidence, evidenceTilt, isRight, type Choice, type ReasonId } from './weighEvidence';
 
 /*
  * Tip the scale: weigh the evidence (weighEvidence.ts). Three steps, each
- * on the panel in turn: weigh seven cards one at a time (lay it on the
- * scale, or set it aside; only real evidence moves the beam), choose the
- * heaviest and say why, and read (and print) the argument that makes.
+ * on the panel in turn: weigh seven cards one at a time, in a shuffled
+ * order (lay it on the scale, or set it aside; only real evidence moves the
+ * beam; a wrong first choice gets a question to think again with, and the
+ * reasoning only once it is right), choose the heaviest and say why, and
+ * read (and print) the argument that makes.
+ *
+ * Its point: telling evidence that proves a claim from a fact that is
+ * merely true, the skill the poster's claim asks for but cannot practise.
  * Buttons only, so it works the same by touch, mouse, keyboard and clicker.
  */
 
@@ -26,7 +32,9 @@ export default function WeighTheEvidence({ onSay, onPrint }: { onSay: (s: string
   const headRef = useRef<HTMLHeadingElement>(null);
   const moved = useRef(false);
 
-  const card = EVIDENCE[index];
+  const seed = useClientSeed();
+  const deck = useMemo(() => dealEvidence(seed), [seed]);
+  const card = deck[index];
   const choice = choices[card.id];
   const tilt = evidenceTilt(choices);
   const onScale = EVIDENCE.filter((c) => choices[c.id] === 'scale');
@@ -43,7 +51,7 @@ export default function WeighTheEvidence({ onSay, onPrint }: { onSay: (s: string
     const right = isRight(card, c);
     setChoices((x) => ({ ...x, [card.id]: c }));
     if (firstTry[card.id] === undefined) setFirstTry((x) => ({ ...x, [card.id]: right }));
-    onSay(`${verdict(card.weighs, c)} ${card.why}`);
+    onSay(`${verdict(card.weighs, c)} ${right ? card.why : `Think again: ${card.hint}`}`);
   };
 
   const next = () => {
@@ -107,7 +115,7 @@ export default function WeighTheEvidence({ onSay, onPrint }: { onSay: (s: string
         {step === 'weigh' && (
           <section className="whr-card" aria-labelledby="whr-card-head">
             <ol className="whr-dots" aria-hidden="true">
-              {EVIDENCE.map((c, i) => (
+              {deck.map((c, i) => (
                 <li key={c.id} className={`${i === index ? 'is-now' : ''}${choices[c.id] ? ' is-done' : ''}`} />
               ))}
             </ol>
@@ -137,25 +145,26 @@ export default function WeighTheEvidence({ onSay, onPrint }: { onSay: (s: string
               </>
             ) : (
               <div className={`whr-verdict ${isRight(card, choice) ? 'is-right' : 'is-wrong'}`}>
-                {/* As with the cards: every verdict held in one place, so "Next card" stays put. */}
+                {/* As with the cards: every verdict held in one place, so the buttons stay put. Wrong: a question to think with; right: the reasoning. */}
                 <div className="whr-hold">
                   <p>
-                    <strong>{verdict(card.weighs, choice)}</strong> {card.why}
+                    <strong>{verdict(card.weighs, choice)}</strong> {isRight(card, choice) ? card.why : <span className="whr-hint">Think again: {card.hint}</span>}
                   </p>
                   {EVIDENCE.flatMap((c) =>
                     (['scale', 'aside'] as const).map((ch) => (
                       <p key={`${c.id}-${ch}`} aria-hidden="true" data-held="">
-                        {`${verdict(c.weighs, ch)} ${c.why}`}
+                        {`${verdict(c.weighs, ch)} ${isRight(c, ch) ? c.why : `Think again: ${c.hint}`}`}
                       </p>
                     )),
                   )}
                 </div>
                 <div className="whr-card-buttons">
-                  <button type="button" className="whr-button whr-button-primary" onClick={next}>
-                    {index < EVIDENCE.length - 1 ? 'Next card' : 'Weigh it up'}
-                  </button>
-                  {!isRight(card, choice) && (
-                    <button type="button" className="whr-button" onClick={() => decide(choice === 'scale' ? 'aside' : 'scale')}>
+                  {isRight(card, choice) ? (
+                    <button type="button" className="whr-button whr-button-primary" onClick={next}>
+                      {index < EVIDENCE.length - 1 ? 'Next card' : 'Weigh it up'}
+                    </button>
+                  ) : (
+                    <button type="button" className="whr-button whr-button-primary" onClick={() => decide(choice === 'scale' ? 'aside' : 'scale')}>
                       {choice === 'scale' ? 'Set it aside instead' : 'Lay it on the scale instead'}
                     </button>
                   )}

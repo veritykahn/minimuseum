@@ -1,4 +1,5 @@
 import type { FactSource } from '@/components/exhibition/FactNote';
+import { seededShuffle } from '@/components/games/scoring';
 import { AUDIT, FACT_MERMAIDS, FACT_OTHERS, FACT_TOP_50, POSTER } from './remembered';
 import { LOC_JOAN } from './threeWomen';
 
@@ -11,6 +12,13 @@ import { LOC_JOAN } from './threeWomen';
  * scale; a card that is not evidence "weighs nothing". Then the visitor
  * chooses the heaviest piece of evidence, says why, and gets their argument
  * as claim, evidence and reasoning, to print.
+ *
+ * Its point: a child learns to test a claim against evidence, telling a
+ * fact that proves the poster's claim from a fact that is merely true,
+ * which the poster, stating its claim, cannot make them do. The cards come
+ * shuffled for each visit, and a wrong first choice gets a question to
+ * think again with (`hint`), not the answer; the reasoning (`why`) comes
+ * once the choice is right.
  *
  * Every card's text is a fact already approved for the room (the audit's
  * figures, remembered.ts; the drafts' Joan of Arc and Women's History Month
@@ -31,8 +39,10 @@ export type EvidenceCard = {
   sources: readonly FactSource[];
   /** Is it evidence for the claim? */
   weighs: boolean;
-  /** Why it weighs, or why it weighs nothing: the room's reasoning, shown after the visitor decides. */
+  /** Why it weighs, or why it weighs nothing: the room's reasoning, shown once the visitor has it right. */
   why: string;
+  /** A question to think again with, shown (instead of the answer) after a wrong first choice. */
+  hint: string;
 };
 
 export const EVIDENCE: readonly EvidenceCard[] = [
@@ -42,6 +52,7 @@ export const EVIDENCE: readonly EvidenceCard[] = [
     sources: FACT_TOP_50.sources,
     weighs: true,
     why: 'It compares women with men, with numbers: of the 50 people honored most, 47 are men.',
+    hint: 'Count the women in the Top 50, and the men. Does it compare them?', // REVIEW: new text
   },
   {
     id: 'lincoln',
@@ -49,6 +60,7 @@ export const EVIDENCE: readonly EvidenceCard[] = [
     sources: [AUDIT],
     weighs: false,
     why: 'It is true, but it is about one man. On its own it says nothing about women, so it cannot show who is overlooked.',
+    hint: 'Read it again: does it say anything about women at all?', // REVIEW: new text
   },
   {
     id: 'mermaids',
@@ -56,6 +68,7 @@ export const EVIDENCE: readonly EvidenceCard[] = [
     sources: FACT_MERMAIDS.sources,
     weighs: true,
     why: 'It is a comparison: more statues of imaginary women than of real women who served in Congress.',
+    hint: 'Mermaids are not real women. Who are they being compared with?', // REVIEW: new text
   },
   {
     id: 'march8',
@@ -63,6 +76,7 @@ export const EVIDENCE: readonly EvidenceCard[] = [
     sources: [NWHM_MONTH],
     weighs: false,
     why: 'It is about the calendar: why the week falls when it does. It does not show who gets remembered.',
+    hint: 'Is it about who gets remembered, or about when the month falls?', // REVIEW: new text
   },
   {
     id: 'outnumber',
@@ -70,6 +84,7 @@ export const EVIDENCE: readonly EvidenceCard[] = [
     sources: [AUDIT],
     weighs: true,
     why: 'It comes from a careful study of tens of thousands of monuments, and compares men with women directly.',
+    hint: 'How many monuments did the study look at, and what did it find about men and women?', // REVIEW: new text
   },
   {
     id: 'orleans',
@@ -77,6 +92,7 @@ export const EVIDENCE: readonly EvidenceCard[] = [
     sources: [LOC_JOAN],
     weighs: false,
     why: 'It tells us what one woman did, not whether she was overshadowed. In fact, Joan of Arc is in the Top 50.',
+    hint: 'It tells us what one woman did. Does it show that she was overlooked?', // REVIEW: new text
   },
   {
     id: 'others',
@@ -84,12 +100,18 @@ export const EVIDENCE: readonly EvidenceCard[] = [
     sources: FACT_OTHERS.sources,
     weighs: false,
     why: 'It is strong evidence, but for a different claim: about other groups whose stories are left out. It does not count women.',
+    hint: 'Read the claim again. Is this card counting women?', // REVIEW: new text
   },
 ];
 
 export const WEIGHING = EVIDENCE.filter((c) => c.weighs);
 
 export type Choice = 'scale' | 'aside';
+
+/** The cards in a visit's own order (a seed from the browser), so the next card is never known in advance. */
+export function dealEvidence(seed: number | null): readonly EvidenceCard[] {
+  return seed === null ? EVIDENCE : seededShuffle(EVIDENCE, seed);
+}
 
 /** Is this choice right for this card? */
 export function isRight(card: EvidenceCard, choice: Choice) {

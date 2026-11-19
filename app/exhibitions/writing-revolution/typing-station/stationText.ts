@@ -137,3 +137,28 @@ export function rowCheck(word: string, row: RowName) {
   const off = [...new Set([...letters].filter((ch) => !ROWS[row].includes(ch)))];
   return { letters, off, ok: letters.length > 0 && off.length === 0 };
 }
+
+/* REVIEW: new text (the two reasons a row's letters don't make a word yet) */
+/** The vowels, with Y, as the top row checks a word for one. */
+export const VOWELS = 'aeiouy';
+
+/**
+ * Do a row's letters look like a word yet? Only two plain checks, so a
+ * kept word is at least worth looking up: it has a vowel, and no letter
+ * three times running. (Tapping one key ten times is not a word that beats
+ * ten.) Whether it is a word is still the dictionary's to say.
+ */
+export function wordLike(letters: string): { ok: true } | { ok: false; why: 'vowel' | 'run'; note: string } {
+  if (letters && ![...letters].some((ch) => VOWELS.includes(ch))) {
+    const bottom = [...letters].every((ch) => ROWS.bottom.includes(ch));
+    return {
+      ok: false,
+      why: 'vowel',
+      note: bottom
+        ? 'No vowel: the bottom row has none at all, so it can barely make a word. That is the poster’s point.'
+        : 'No vowel yet: almost every word needs one. The top row has E, U, I, O and Y.',
+    };
+  }
+  if (/(.)\1\1/.test(letters)) return { ok: false, why: 'run', note: 'The same letter three times running: real words hardly ever do that.' };
+  return { ok: true };
+}

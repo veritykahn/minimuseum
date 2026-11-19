@@ -2,8 +2,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import TypingStation from '@/app/exhibitions/writing-revolution/typing-station/page';
-import { beatTen, clockText, longestWordsMessage, mistakesLeft, raceText, raceVerdict, wordsUsed } from '@/app/exhibitions/writing-revolution/typing-station/challenges';
-import { STATION_TEXT } from '@/app/exhibitions/writing-revolution/typing-station/stationText';
+import { beatTen, clockText, longestWordsMessage, mistakesLeft, predictionLine, raceOutcome, raceText, raceVerdict, wordsUsed } from '@/app/exhibitions/writing-revolution/typing-station/challenges';
+import { STATION_TEXT, wordLike } from '@/app/exhibitions/writing-revolution/typing-station/stationText';
 import { MESSAGE_MAX } from '@/lib/classBoard';
 
 /*
@@ -88,6 +88,26 @@ describe('the challenges’ rules', () => {
   });
 });
 
+describe('a prediction, and words worth keeping', () => {
+  it('judges the race’s prediction, with a close finish counted as about the same', () => {
+    expect(raceOutcome(41_200, 18_000)).toBe('imac');
+    expect(raceOutcome(10_000, 14_000)).toBe('typewriter');
+    expect(raceOutcome(10_000, 11_500)).toBe('same');
+    expect(predictionLine('imac', 41_200, 18_000)).toEqual({ right: true, text: 'You predicted the iMac would be faster. You were right!' });
+    expect(predictionLine('typewriter', 41_200, 18_000).right).toBe(false);
+    expect(predictionLine('same', 10_000, 11_000).text).toMatch(/^You predicted about the same\. You were right/);
+  });
+
+  it('keeps only letters that look like a word: a vowel, and no key tapped three times running', () => {
+    expect(wordLike('proprietor')).toEqual({ ok: true });
+    expect(wordLike('pretty')).toEqual({ ok: true });
+    expect(wordLike('qqqqqqqqqqqq')).toMatchObject({ ok: false });
+    expect(wordLike('teeee')).toMatchObject({ ok: false, why: 'run' });
+    expect(wordLike('wrt')).toMatchObject({ ok: false, why: 'vowel' });
+    expect(wordLike('zxcvbnm')).toMatchObject({ ok: false, why: 'vowel', note: expect.stringMatching(/bottom row has none/) });
+  });
+});
+
 describe('the race', () => {
   let now: number;
   beforeEach(() => {
@@ -102,6 +122,10 @@ describe('the race', () => {
   it('times the line on each machine, stops each clock by itself, and sets the times side by side with the strike-overs', async () => {
     render(<TypingStation />);
     fireEvent.click(screen.getByRole('button', { name: /Race the machines/ }));
+    // First, a prediction.
+    const predict = screen.getByRole('group', { name: /Which will be faster/ });
+    expect(within(predict).getByRole('button', { name: 'The typewriter' })).toHaveFocus();
+    fireEvent.click(within(predict).getByRole('button', { name: 'The iMac' }));
     const bar = screen.getByRole('group', { name: 'The race' });
     expect(within(bar).getByText(STATION_TEXT.race.label)).toBeInTheDocument();
     // The clock waits for the first key.
@@ -128,7 +152,7 @@ describe('the race', () => {
     expect(within(results).getByText('0:41.2')).toBeInTheDocument();
     expect(within(results).getByText('0:18.0')).toBeInTheDocument();
     expect(within(results).getByText('2 strike-overs')).toBeInTheDocument();
-    expect(within(results).getByText('The iMac won by 23.2 seconds.')).toBeInTheDocument();
+    expect(within(results).getByRole('status')).toHaveTextContent('The iMac won by 23.2 seconds. You predicted the iMac would be faster. You were right!');
     expect(within(results).getAllByText('Every letter right')).toHaveLength(2);
     expect(within(results).getByRole('heading', { name: 'Race results' })).toHaveFocus();
 
@@ -143,6 +167,7 @@ describe('the race', () => {
     render(<TypingStation />);
     typeOn([...'old work']);
     fireEvent.click(screen.getByRole('button', { name: /Race the machines/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'About the same' }));
     expect(document.getElementById('wrt-page-text')).toHaveTextContent('The sheet is blank.');
     typeOn([...'The keyboard']);
     now += 5_000;
@@ -154,12 +179,15 @@ describe('the race', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Stop the clock' }));
     const results = screen.getByRole('region', { name: 'Race results' });
     expect(within(results).getByText('50 letters off the line')).toBeInTheDocument();
+    // Three seconds apart is not about the same.
+    expect(within(results).getByRole('status')).toHaveTextContent('Not this time');
     // Escape closes the results, and the line is back with the race's start.
     fireEvent.keyDown(within(results).getByRole('heading'), { key: 'Escape' });
     expect(screen.queryByRole('region', { name: 'Race results' })).toBeNull();
     expect(screen.getByRole('button', { name: /Race the machines/ })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: /Race the machines/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'The typewriter' }));
     fireEvent.click(screen.getByRole('button', { name: 'End the race' }));
     expect(screen.queryByRole('group', { name: 'The race' })).toBeNull();
   });
@@ -319,6 +347,16 @@ describe('beat ten on the top row', () => {
     keep('typewriter');
     expect(status()).toContain('That’s the poster’s word, ten letters. Can you find another?');
     expect(document.querySelector('.wrq-note')).not.toHaveClass('is-win');
+  });
+
+  it('won’t keep one key tapped over and over, so the meter can’t be filled by tapping', () => {
+    render(<TypingStation />);
+    fireEvent.click(screen.getByRole('tab', { name: 'Top row' }));
+    const q = screen.getByRole('button', { name: 'Q' });
+    for (let i = 0; i < 11; i++) fireEvent.click(q);
+    expect(screen.getByRole('button', { name: 'Keep it' })).toBeDisabled();
+    expect(document.querySelectorAll('.wrq-ten-cell.is-lit')).toHaveLength(0);
+    expect(document.getElementById('wrq-verdict')).toHaveTextContent(/No vowel yet/);
   });
 
   it('celebrates another ten-letter word, or a longer one, and posts the longest words to the board', () => {

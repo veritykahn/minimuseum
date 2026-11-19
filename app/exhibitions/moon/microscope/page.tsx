@@ -30,6 +30,11 @@ import './microscope.css';
  *      stage buttons) to look around; compare it with a sample from the
  *      other world, side by side.
  *
+ * Its point: a child does what a scientist does with a microscope (clean,
+ * focus, magnify, compare) and finds the poster's difference between Moon
+ * dust and Earth's soil with their own eyes and the cloth, rather than
+ * reading it.
+ *
  * Skip a step and a friendly line says what to do first. Wiping a sample
  * off a slide is the poster's difference, felt: Moon dust clings to the
  * cloth; Earth's grains brush aside.

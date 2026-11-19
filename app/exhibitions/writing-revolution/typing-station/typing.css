@@ -733,3 +733,8 @@
   .wrq-burst { display: none; }
   .wrs-chip, .wrq-ten-cell { transition: none; }
 }
+
+/* The race's prediction, asked before the first key, and judged in the results. */
+.wrs-predict .wrs-line { text-align: center; }
+.wrr-guess { display: block; margin-top: 6px; font-size: 0.8em; font-weight: 600; color: var(--wr-ink); }
+.wrr-guess.is-right { color: #1f6b3a; }

@@ -30,6 +30,10 @@ import { threadLayout, threadPath } from './violetLife';
  * and a memory, and a question beside it to start from. The words are kept
  * in this browser only; a photograph only while the page is open. Print it,
  * or save it as a picture: both are made here, in the browser.
+ *
+ * Its point: a child turns what they have learned from Violet's life into
+ * the history of a woman in their own family, asked about and set down by
+ * them, which no poster can hold.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;

@@ -10,6 +10,7 @@ import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
 import { BIOGRAPHY_MOTTO, VIOLET_DATES, VIOLET_LETTERING, VIOLET_NAME, VIOLET_NEE, WOMENS_HISTORY } from '../womensHistory';
 import Keepsake from './Keepsake';
 import OwnTimeline from './OwnTimeline';
+import SewLife from './SewLife';
 import type { OwnTimeline as Timeline } from './yourTimeline';
 import { useBox } from './useBox';
 import { LIFE, VIOLET_SOURCES, threadLayout, threadPath } from './violetLife';
@@ -28,14 +29,21 @@ import './violet.css';
  * and fact-checked, set apart from the typed biography; its source is in
  * the room's Sources drawer (violetLife.ts).
  *
- * A second mode, "Make your own" (#make), sets the same thread out for a
- * woman in the visitor's own life (OwnTimeline.tsx).
+ * The room opens on a challenge, "Sew her life" (#sew, SewLife.tsx): six
+ * keepsakes off the thread, each with a clue from her story, to be put in
+ * the order of her life by reasoning from the clues. Its point: a child
+ * works out the order of an ordinary woman's life from evidence in her own
+ * story, as a historian does, where the poster simply hands it over. Her
+ * whole story, stop by stop, is the second mode ("Her story", each stop's
+ * own address); a third, "Make your own" (#make), sets the same thread out
+ * for a woman in the visitor's own life (OwnTimeline.tsx).
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
 
-type Mode = 'violet' | 'make';
+type Mode = 'sew' | 'violet' | 'make';
 const MAKE_HASH = 'make';
+const SEW_HASH = 'sew';
 
 function stopFromHash(hash: string): number {
   const h = hash.replace(/^#/, '');
@@ -49,7 +57,7 @@ export default function VioletsLife() {
   const [visited, setVisited] = useState<Set<number>>(() => new Set([0]));
   const [announcement, setAnnouncement] = useState('');
   const [bandRef, band] = useBox<HTMLDivElement>();
-  const [mode, setMode] = useState<Mode>('violet');
+  const [mode, setMode] = useState<Mode>('sew');
   // Your own timeline, held here while Violet's life is open (its photographs live nowhere else).
   const [own, setOwn] = useState<Timeline | null>(null);
   const stopRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -75,6 +83,7 @@ export default function VioletsLife() {
   useEffect(() => {
     const fromHash = () => {
       if (window.location.hash === `#${MAKE_HASH}`) return setMode('make');
+      if (window.location.hash === `#${SEW_HASH}`) return setMode('sew');
       const i = stopFromHash(window.location.hash);
       if (i >= 0) {
         setMode('violet');
@@ -88,8 +97,8 @@ export default function VioletsLife() {
 
   const choose = (m: Mode) => {
     setMode(m);
-    window.history.replaceState(null, '', m === 'make' ? `#${MAKE_HASH}` : `#${LIFE[index].id}`);
-    setAnnouncement(m === 'make' ? 'Make your own timeline, for a woman in your life.' : 'Violet’s Life.');
+    window.history.replaceState(null, '', m === 'make' ? `#${MAKE_HASH}` : m === 'sew' ? `#${SEW_HASH}` : `#${LIFE[index].id}`);
+    setAnnouncement(m === 'make' ? 'Make your own timeline, for a woman in your life.' : m === 'sew' ? 'Sew her life together.' : 'Violet’s story.');
   };
 
   // Arrow keys, Home and End move along the thread.
@@ -140,8 +149,12 @@ export default function VioletsLife() {
             <span className="whv-title-dates">{mode === 'make' ? 'A woman in your life' : '1907 · 1988'}</span>
           </h1>
           <div className="whv-modes" role="group" aria-label="Mode">
+            {/* REVIEW: new text (the three modes' names) */}
+            <button type="button" className="whv-mode" aria-pressed={mode === 'sew'} onClick={() => choose('sew')}>
+              Sew her life
+            </button>
             <button type="button" className="whv-mode" aria-pressed={mode === 'violet'} onClick={() => choose('violet')}>
-              Violet’s life
+              Her story
             </button>
             <button type="button" className="whv-mode" aria-pressed={mode === 'make'} onClick={() => choose('make')}>
               Make your own
@@ -149,7 +162,18 @@ export default function VioletsLife() {
           </div>
         </header>
 
-        {mode === 'make' ? (
+        {/* The challenge stays mounted, hidden, so its stitches are still there when the visitor comes back to it. */}
+        <div className="whs-mode" hidden={mode !== 'sew'}>
+          <SewLife
+            announce={setAnnouncement}
+            onRead={() => {
+              choose('violet');
+              go(0, { announce: true });
+            }}
+            onMake={() => choose('make')}
+          />
+        </div>
+        {mode === 'sew' ? null : mode === 'make' ? (
           <OwnTimeline announce={setAnnouncement} kept={own} keep={setOwn} />
         ) : (
         <>

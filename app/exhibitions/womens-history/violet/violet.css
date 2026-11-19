@@ -664,3 +664,107 @@
 @media (min-width: 761px) and (max-height: 760px) {
   #whv-sheet .whv-picture-photo img { max-height: calc(100dvh - 104px - clamp(170px, 24vh, 210px) - 200px); }
 }
+
+/* ───────── Sew her life together (SewLife.tsx) ───────── */
+/* The thread's rings: Fulham sewn on, then six to fill. */
+.whs-slots { list-style: none; margin: 0; padding: 0; }
+.whs-slot-li { position: absolute; width: 0; height: 0; }
+.wh-room .whs-slot.is-start { cursor: default; }
+.whs-slot.is-empty .whv-stop-button {
+  background: rgba(246, 239, 228, 0.35);
+  box-shadow: none;
+  outline: 2px dashed rgba(34, 51, 94, 0.55);
+  outline-offset: -2px;
+}
+.whs-slot-n { font-family: var(--whv-mono); font-weight: 700; font-size: 18px; color: rgba(34, 51, 94, 0.6); }
+/* With a keepsake in hand, the rings it could go in breathe. */
+.whs-slot.is-target .whv-stop-button { animation: whs-breathe 1.4s ease-in-out infinite; }
+@keyframes whs-breathe { 50% { transform: scale(1.1); } }
+.whs-slot.is-held .whv-stop-button { box-shadow: 0 0 0 2px var(--whv-paper), 0 0 0 5px var(--whv-orange); }
+.whs-slot.is-locked .whv-stop-button { box-shadow: 0 0 0 2px var(--whv-paper), 0 0 0 4px var(--whv-orange), 0 4px 10px rgba(80, 30, 34, 0.18); }
+.wh-room .whs-slot[aria-disabled='true'] { cursor: default; }
+.whs-slot:focus-visible .whv-stop-button { box-shadow: 0 0 0 2px var(--whv-paper), 0 0 0 5px var(--whv-navy), 0 0 0 7px var(--whv-paper); }
+
+/* The sheet: what to do, the basket of clues, and what the check says. */
+.whs-inner {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: clamp(18px, 2.6vh, 28px) clamp(20px, 3vw, 40px) 10px;
+}
+.whs-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; }
+.whs-head { margin: 0; font-family: var(--pe-display); font-weight: 900; font-size: clamp(1.4rem, 2.2vw, 2rem); line-height: 1.1; color: var(--whv-navy); }
+.whs-lede { margin: 0; flex: 1 1 20em; font-family: var(--pe-ui); font-size: clamp(14px, 1.05vw, 16px); line-height: 1.5; color: var(--whv-ink); }
+.whs-basket { list-style: none; margin: 0; padding: 4px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.wh-room .whs-card {
+  appearance: none;
+  width: 100%;
+  height: 100%;
+  min-height: 64px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 12px;
+  text-align: left;
+  border: 1.5px solid rgba(34, 51, 94, 0.3);
+  border-radius: 10px;
+  background: #fffaf2;
+  color: var(--whv-ink);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+.wh-room .whs-card:hover { border-color: var(--whv-orange); }
+.wh-room .whs-card.is-held { border-color: var(--whv-orange); box-shadow: 0 0 0 3px var(--whv-orange); transform: translateY(-2px); }
+.wh-room .whs-card.is-placed:not(.is-held) { background: rgba(255, 250, 242, 0.55); border-style: dashed; }
+.whs-card-disc { flex: none; display: grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; background: var(--whv-rose-soft); color: var(--whv-navy); }
+.whs-card-art { width: 34px; height: 34px; }
+.whs-card-words { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.whs-card-label { font-family: var(--pe-ui); font-size: 13px; font-weight: 600; color: var(--whv-navy); }
+.whs-card-at { font-weight: 500; color: #a3401a; }
+.whs-card-clue { font-family: var(--whv-mono); font-size: clamp(0.85rem, 1vw, 0.95rem); line-height: 1.45; }
+.whs-said { padding: 10px 14px; border-left: 3px solid var(--whv-orange); background: rgba(34, 51, 94, 0.05); font-family: var(--pe-ui); font-size: 14px; line-height: 1.5; }
+.whs-said.is-right { border-left-color: #5d7448; }
+.whs-said p { margin: 0; }
+.whs-said-hint { margin-top: 4px !important; }
+.whs-said-hint strong { color: #a3401a; }
+.whs-done-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
+.whs-done-list li { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; color: var(--whv-navy); }
+.whs-done-art { width: 40px; height: 40px; padding: 8px; border-radius: 50%; background: var(--whv-rose-soft); box-sizing: content-box; }
+.whs-done-label { font-family: var(--pe-ui); font-size: 12px; font-weight: 600; }
+.whs-done-when { font-family: var(--whv-mono); font-size: 12px; font-weight: 700; color: #a3401a; }
+.whs-progress { font-family: var(--whv-mono); font-size: 13px; color: var(--whv-ink); }
+.whs-steps { justify-content: space-between; }
+
+@media (max-width: 1000px) and (min-width: 761px) {
+  .whs-basket { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .whs-slot-n { font-size: 13px; }
+  .whs-inner { padding: 16px 12px 6px; gap: 10px; }
+  .whs-basket { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .wh-room .whs-card { padding: 8px 10px; gap: 10px; }
+  .whs-card-disc { width: 38px; height: 38px; }
+  .whs-card-art { width: 28px; height: 28px; }
+  .whs-done-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  /* The thread's rings show no names on a phone: the basket says where each keepsake is. */
+  .whs-slot .whv-stop-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .whs-slot.is-target .whv-stop-button { animation: none; outline-color: var(--whv-orange); }
+  .wh-room .whs-card { transition: none; }
+}
+/* Three modes now share the corner: on a narrower desktop or a tablet the title moves left, clear of them. */
+@media (min-width: 761px) and (max-width: 1180px) {
+  .whv-bar { justify-content: flex-start; }
+  .whv-title { align-items: flex-start; }
+  .whv-title-dates { padding-left: 0; }
+}
+@media (max-width: 760px) {
+  /* Three modes under the title: they may run wider than the title's own margins, below the corner buttons. */
+  .whv-modes { margin-inline: -50px; }
+  .wh-room .whv-mode { padding: 8px 10px; letter-spacing: 0.04em; }
+}
