@@ -58,7 +58,7 @@ export default function PutInTomb({ activity, what, onPut, label = 'Put this in 
           </g>
         </svg>
       </div>
-      <div className="egr-put-words" role="status">
+      <div className="egr-put-words" aria-live="polite">
         {put ? (
           <>
             <p className="egr-put-title">It is in your tomb!</p>

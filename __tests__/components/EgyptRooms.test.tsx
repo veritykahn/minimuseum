@@ -348,6 +348,11 @@ describe('Tomb Explorer', () => {
     expect(screen.getByText(WALLS[0].big.text)).toBeInTheDocument();
     expect(screen.getByText('Wall complete')).toBeInTheDocument();
     expect(screen.getByRole('tab', { name: /The marshes/ })).toHaveTextContent('✓');
+    // A lit wall can be painted in the visitor's own burial tomb.
+    fireEvent.click(screen.getByRole('button', { name: 'Paint this wall in your tomb' }));
+    expect(readTomb().kept?.walls).toBe('the painting of the marshes');
+    expect(readTomb().painting).toBe('menna-marshes');
+    expect(screen.getByRole('link', { name: /Go to your tomb/ })).toHaveAttribute('href', '/exhibitions/egypt/my-tomb');
     // Search again hides the finds, for the next visitor.
     fireEvent.click(screen.getByRole('button', { name: 'Search again' }));
     expect(readTomb().found['menna-marshes']).toBeUndefined();

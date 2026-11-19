@@ -5,7 +5,8 @@ import FactNote from '@/components/exhibition/FactNote';
 import RoomShell, { RoomHeader } from '../RoomShell';
 import DarkIntro from '../DarkIntro';
 import Modal from '../Modal';
-import { useTomb } from '../tombState';
+import PutInTomb from '../PutInTomb';
+import { useTomb, writeTomb } from '../tombState';
 import { WALLS, detailAt, tombSources } from './scenes';
 import TorchStage from './TorchStage';
 import DetailCrop from './DetailCrop';
@@ -26,6 +27,16 @@ import { playEgypt, startTorch } from '../egyptSound';
  * Each wall is a tab with its own #address. What has been found is kept in
  * this browser (tombState.ts); "Search again" hides a wall's finds, for the
  * next visitor at the same computer.
+ *
+ * The room's point: the child looks closely at a real tomb painting, finds
+ * its small details in the dark the way explorers did by lamplight, and
+ * learns what each one meant to the Egyptians who painted it, which a
+ * poster's whole picture, seen at a glance, does not make them do.
+ *
+ * The journey: a lit wall can be painted in the visitor's own burial tomb
+ * (PutInTomb, "Paint this wall in your burial tomb"): its painting goes in
+ * the frame on their tomb's back wall (tombState's `painting`). Any lit
+ * wall can be chosen; the last one chosen is the one on their wall.
  */
 
 const SOURCES = tombSources();
@@ -227,6 +238,10 @@ export default function TombExplorer() {
                 <h2 className="egt-bar-title">{wall.title}</h2>
               </div>
               <FactNote fact={wall.big} className="egr-fact egt-big" />
+              <div className="egt-bar-put">
+                {/* REVIEW: new text (the button). */}
+                <PutInTomb key={wall.id} activity="walls" what={`the painting of ${wall.name.replace(/^The /, 'the ').toLowerCase()}`} label="Paint this wall in your tomb" onPut={() => writeTomb((s) => ({ ...s, painting: wall.id }))} />
+              </div>
             </>
           ) : (
             <>
