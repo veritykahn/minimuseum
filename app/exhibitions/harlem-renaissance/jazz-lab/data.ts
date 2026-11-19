@@ -13,6 +13,12 @@ export type InstrumentDef = {
   name: string;
   /** What to listen for: one generic sentence, shown after a quiz answer. */
   tip: string;
+  /**
+   * The same sound described as this instrument's own, for a wrong first
+   * answer ("Not the trumpet: a trumpet starts each note…"), so the player
+   * can compare it with what they hear before trying again.
+   */
+  listenFor: string;
   /** For a teacher in projector mode: what to ask the class after the reveal. */
   teacherTip?: string;
   variants: InstrumentVariant[];
@@ -32,6 +38,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'drums',
     name: 'Drums',
     tip: 'Rhythm without a tune: struck drums and shimmering cymbals. Those are the drums.',
+    // REVIEW: new text
+    listenFor: 'Drums play rhythm without a tune: struck drums and shimmering cymbals.',
     teacherTip:
       'Ask whether there is a tune or only rhythm, then listen again for the shimmer of the cymbals.',
     variants: [
@@ -48,6 +56,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'bass',
     name: 'Double Bass',
     tip: 'Deep, round, plucked notes underneath everything. That’s the double bass.',
+    // REVIEW: new text
+    listenFor: 'A double bass plays deep, round, plucked notes underneath everything.',
     teacherTip:
       'Ask whether the notes sit high or low, and point out that they are plucked and sit underneath everything.',
     variants: [
@@ -64,6 +74,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'piano',
     name: 'Piano',
     tip: 'Hammered notes that ring and fade, often several at once. That’s the piano.',
+    // REVIEW: new text
+    listenFor: 'A piano’s hammered notes ring and fade, often several at once.',
     teacherTip:
       'Ask whether more than one note sounds at once, then listen for notes that ring and fade.',
     variants: [
@@ -81,6 +93,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'trumpet',
     name: 'Trumpet',
     tip: 'A bright, brassy attack. That’s the trumpet.',
+    // REVIEW: new text
+    listenFor: 'A trumpet starts each note with a bright, brassy attack.',
     teacherTip:
       'Ask the class to describe the very start of each note: is it bright and brassy?',
     variants: [
@@ -98,6 +112,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'saxophone',
     name: 'Saxophone',
     tip: 'A reedy, breathy tone that bends like a voice. That’s the saxophone.',
+    // REVIEW: new text
+    listenFor: 'A saxophone has a reedy, breathy tone that bends like a voice.',
     teacherTip:
       'Ask whether the sound bends like a singing voice, then listen again for its reedy, breathy tone.',
     variants: [
@@ -115,6 +131,8 @@ export const INSTRUMENTS: InstrumentDef[] = [
     id: 'clarinet',
     name: 'Clarinet',
     tip: 'A smooth, woody tone, sweet up high and dark down low. That’s the clarinet.',
+    // REVIEW: new text
+    listenFor: 'A clarinet has a smooth, woody tone, sweet up high and dark down low.',
     teacherTip:
       'Ask the class to compare its high and low notes: sweet up high, dark down low.',
     variants: [
@@ -290,51 +308,143 @@ export const BAND_INSTRUMENT_MAP: Record<BandInstrumentId, BandInstrumentDef> = 
   BAND_INSTRUMENTS.map(i => [i.id, i])
 ) as Record<BandInstrumentId, BandInstrumentDef>;
 
-// ─── Build a Band: goals ───────────────────────────────────────────────────
+// ─── Build a Band: the bandleader's requests ─────────────────────────────────
 
-/** What a goal is checked against: the band as it stands. */
+/** What a request is checked against: the band as it stands. */
 export type BandState = { section: number; active: ReadonlySet<BandInstrumentId>; spotlight: BandInstrumentId | null };
 
 export type BandGoal = {
   id: string;
-  /** The goal, as the kid reads it. */
+  /**
+   * What the bandleader asks for, in words taken from a song section's own
+   * description (SECTIONS) but never naming the section or the players: the
+   * child works out which part of the tune it is, and who should play it.
+   */
   goal: string;
-  /** One line on how, from what the section and the stage already say. */
+  /** The part of the tune that answers the request. */
+  section: number;
+  /** Who must be playing (on top of the soloist). */
+  needs: readonly BandInstrumentId[];
+  /** Who may take the spotlight; empty means nobody: the whole band evenly. */
+  soloists: readonly BandInstrumentId[];
+  /** Everyone the section allows must be on stage (the finale). */
+  everyone?: boolean;
+  /** After a wrong try: a nudge that points the way without giving it all. */
   hint: string;
-  check: (band: BandState) => boolean;
+  /** After a right one: what the child just made, named. */
+  success: string;
 };
 
 /**
- * A few goals, taken in turn, each from what a song section already says it
- * is (SECTIONS): a piano solo, a horn solo, the walking bass, the finale.
+ * The bandleader's requests. They are dealt in a shuffled order, and the
+ * child plays each one for the bandleader to check (the check names what is
+ * still off, a hint follows a wrong try). Every request is a section from
+ * SECTIONS, described in that section's own words; the players it needs are
+ * the ones that description names ("while the rhythm section keeps time":
+ * the drums and the bass).
+ *
+ * REVIEW (Verity): new requests and wording. They replace four goals that
+ * spelled out every tap ("Pick Piano Solo. Bring on drums and bass, then give
+ * the piano the spotlight"), which made the goal a set of instructions to
+ * follow rather than a puzzle to work out. "The rhythm section" is the
+ * standard name for a jazz band's piano, bass and drums.
  */
 export const BAND_GOALS: readonly BandGoal[] = [
   {
     id: 'piano-solo',
-    goal: 'Build the band for a piano solo',
-    hint: 'Pick Piano Solo. Bring on drums and bass, then give the piano the spotlight.',
-    check: (b) => b.section === 3 && b.spotlight === 'piano' && b.active.has('drums') && b.active.has('bass'),
+    // REVIEW: new text
+    goal: 'The pianist wants a turn to invent a brand-new melody on the spot, while the drums and bass keep time.',
+    section: 3,
+    needs: ['drums', 'bass'],
+    soloists: ['piano'],
+    hint: 'Read the song sections: one of them is the pianist’s turn to improvise. Then give the piano the spotlight.',
+    success: 'That’s a piano solo: the pianist improvises over the tune’s chords.',
   },
   {
     id: 'horn-solo',
-    goal: 'Build the band for a horn solo',
-    hint: 'Pick Horn Solo. Keep drums and bass playing, and put a saxophone or trumpet in the spotlight.',
-    check: (b) =>
-      b.section === 4 && (b.spotlight === 'saxophone' || b.spotlight === 'trumpet') && b.active.has('drums') && b.active.has('bass'),
+    // REVIEW: new text
+    goal: 'A horn player wants to improvise. Give a horn its turn out front, with the drums and bass keeping time underneath.',
+    section: 4,
+    needs: ['drums', 'bass'],
+    soloists: ['saxophone', 'trumpet'],
+    hint: 'Find the section where a horn takes its turn. The saxophone and the trumpet are the horns that can solo.',
+    success: 'That’s a horn solo, with the rhythm section keeping time underneath.',
   },
   {
     id: 'walking-bass',
-    goal: 'Let the bass walk',
-    hint: 'Pick Walking Bass. Bring on the drums, then give the bass the spotlight.',
-    check: (b) => b.section === 5 && b.spotlight === 'bass' && b.active.has('drums'),
+    // REVIEW: new text
+    goal: 'Let the bass go for a walk: one steady note on every beat, up and down through the chords. The drummer keeps it company.',
+    section: 5,
+    needs: ['drums'],
+    soloists: ['bass'],
+    hint: 'Which section is named after the way the bass moves? The bass is the star of this one.',
+    success: 'That’s a walking bass: a note on every beat, walking through the chords.',
+  },
+  {
+    id: 'groove',
+    // REVIEW: new text
+    goal: 'The dancers want a repeating pattern that makes them move. Lock in the piano, bass and drums, with nobody showing off out front.',
+    section: 6,
+    needs: ['piano', 'bass', 'drums'],
+    soloists: [],
+    hint: 'Look for the section the dancers love. If someone is in the spotlight, tap them again so the band plays evenly.',
+    success: 'That’s the groove: the rhythm section locked into a pattern you can dance to.',
   },
   {
     id: 'finale',
-    goal: 'Bring the whole band on for the finale',
-    hint: 'Pick Finale and bring on every instrument. Tap the soloist so the whole band plays evenly.',
-    check: (b) =>
-      b.section === 8 &&
-      b.spotlight === null &&
-      BAND_INSTRUMENTS.filter((i) => i.sections.includes(8)).every((i) => b.active.has(i.id)),
+    // REVIEW: new text
+    goal: 'Last number of the night! Bring the tune home with the whole band together, and nobody out in front.',
+    section: 8,
+    needs: [],
+    soloists: [],
+    everyone: true,
+    hint: 'Find the ending. Every instrument that can play it should be on stage, and nobody in the spotlight.',
+    success: 'That’s the finale: the whole band brings the tune home together.',
   },
 ];
+
+export type GoalProblem = 'section' | 'missing' | 'soloist' | 'no-soloist';
+
+/**
+ * What is still off for a request, in the order a child should fix it
+ * (an empty list means the band is right). `missing` lists the players
+ * still needed on stage.
+ */
+export function judgeGoal(goal: BandGoal, band: BandState): { problems: GoalProblem[]; missing: BandInstrumentId[] } {
+  const problems: GoalProblem[] = [];
+  if (band.section !== goal.section) return { problems: ['section'], missing: [] };
+  const wanted = goal.everyone
+    ? BAND_INSTRUMENTS.filter((i) => i.sections.includes(goal.section)).map((i) => i.id)
+    : [...goal.needs, ...goal.soloists.slice(0, goal.soloists.length === 1 ? 1 : 0)];
+  const missing = wanted.filter((id) => !band.active.has(id));
+  if (missing.length > 0) problems.push('missing');
+  if (goal.soloists.length === 0) {
+    if (band.spotlight !== null) problems.push('no-soloist');
+  } else if (!band.spotlight || !goal.soloists.includes(band.spotlight)) {
+    problems.push('soloist');
+  }
+  return { problems, missing };
+}
+
+/** What the bandleader says about one problem: a pointer, not the answer. */
+export function problemLine(goal: BandGoal, problem: GoalProblem, missing: readonly BandInstrumentId[]): string {
+  // REVIEW: new text
+  switch (problem) {
+    case 'section':
+      return 'That’s not the part of the tune I asked for. Tap the song sections and read what each one is.';
+    case 'missing':
+      return `Someone is missing: bring on the ${listNames(missing)}.`;
+    case 'soloist':
+      return goal.soloists.length === 1
+        ? 'The right player isn’t in the spotlight yet. Who did I ask to take a turn?'
+        : 'The right player isn’t in the spotlight yet. Which instruments are horns?';
+    case 'no-soloist':
+      return 'Nobody should be out in front for this one. Tap the player in the spotlight so the whole band plays evenly.';
+  }
+}
+
+function listNames(ids: readonly BandInstrumentId[]): string {
+  const names = ids.map((id) => BAND_INSTRUMENT_MAP[id].name.toLowerCase());
+  if (names.length <= 1) return names.join('');
+  return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
+}

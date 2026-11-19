@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { prefersReducedMotion, srOnly } from '@/lib/a11y';
-import { BAND_GOALS, BAND_INSTRUMENTS, BAND_INSTRUMENT_MAP, SECTIONS } from './data';
+import { seededShuffle } from '@/components/games/scoring';
+import { useClientSeed } from '@/components/games/useClientSeed';
+import { BAND_GOALS, BAND_INSTRUMENTS, BAND_INSTRUMENT_MAP, SECTIONS, judgeGoal, problemLine } from './data';
 import type { useBandBuilder } from './hooks';
 import InstrumentIcon from './InstrumentIcon';
 import StagePlayers from './StagePlayers';
@@ -10,11 +12,22 @@ import StagePlayers from './StagePlayers';
 type Band = ReturnType<typeof useBandBuilder>;
 
 /**
- * The Build a Band tab: a goal to reach (BAND_GOALS, in turn, with "You
- * did it!" when the band on stage meets it), one line of how to play, the
- * song sections, and the stage, with the fact about the instrument last
- * tapped shown on the stage itself. Shares the page's jl- styles; the rules
- * it adds live in this file.
+ * The Build a Band tab: the bandleader's request (BAND_GOALS, dealt in a
+ * shuffled order), one line of how to play, the song sections, and the
+ * stage, with the fact about the instrument last tapped shown on the stage
+ * itself. Shares the page's jl- styles; the rules it adds live in this file.
+ *
+ * The point: after it, a child knows the parts of a jazz tune (intro, head,
+ * solos, walking bass, groove, bridge, finale) by what happens in each and
+ * who plays, and has heard how a band changes from one to the next, which a
+ * poster can describe but not let them hear or build.
+ *
+ * How a request works: it describes a part of the tune in that section's own
+ * words, without naming it or giving the taps. The child reads the song
+ * sections to find it, brings on the players, picks who (if anyone) is in
+ * the spotlight, then plays it for the bandleader. The check says what is
+ * still off; after a wrong try a hint appears. (It used to be four goals in a
+ * fixed order whose hints were the exact taps, and that met themselves.)
  */
 export default function BuildABand({ band }: { band: Band }) {
   const factInstrument = band.lastTouched ? BAND_INSTRUMENT_MAP[band.lastTouched] : null;
@@ -24,10 +37,31 @@ export default function BuildABand({ band }: { band: Band }) {
   const spotlightIdx = band.spotlight ? BAND_INSTRUMENTS.findIndex(i => i.id === band.spotlight) : -1;
   const spotlightX = spotlightIdx >= 0 ? `${((spotlightIdx + 0.5) / BAND_INSTRUMENTS.length) * 100}%` : '50%';
 
-  // The goal, one at a time in turn, checked against the band as it stands.
+  // The requests, shuffled once the page is live (the seed is null on the
+  // server), one at a time; the child asks the bandleader to check.
+  const seed = useClientSeed();
+  const order = useMemo(() => (seed === null ? BAND_GOALS : seededShuffle(BAND_GOALS, seed)), [seed]);
   const [goalAt, setGoalAt] = useState(0);
-  const goal = BAND_GOALS[goalAt];
-  const goalMet = goal.check({ section: band.section, active: band.active, spotlight: band.spotlight });
+  const goal = order[goalAt % order.length];
+  const [tries, setTries] = useState(0);
+  const [played, setPlayed] = useState<ReadonlySet<string>>(new Set());
+  const bandKey = `${band.section}|${[...band.active].sort().join(',')}|${band.spotlight ?? ''}`;
+  /** The band as it was when the bandleader last checked it, and the verdict. */
+  const [checked, setChecked] = useState<{ key: string; goalId: string; lines: string[] } | null>(null);
+  const verdict = checked && checked.goalId === goal.id && checked.key === bandKey ? checked : null;
+  const isRight = !!verdict && verdict.lines.length === 0;
+  const checkBand = () => {
+    const { problems, missing } = judgeGoal(goal, { section: band.section, active: band.active, spotlight: band.spotlight });
+    setChecked({ key: bandKey, goalId: goal.id, lines: problems.map((p) => problemLine(goal, p, missing)) });
+    if (problems.length === 0) setPlayed((prev) => new Set(prev).add(goal.id));
+    else setTries((t) => t + 1);
+  };
+  const nextGoal = () => {
+    setGoalAt((g) => (g + 1) % order.length);
+    setTries(0);
+    setChecked(null);
+  };
+  const allPlayed = played.size === BAND_GOALS.length;
   const tap = (id: Parameters<Band['tapInstrument']>[0]) => band.tapInstrument(id);
 
   return (
@@ -82,10 +116,16 @@ export default function BuildABand({ band }: { band: Band }) {
         .jl-goal.is-met { border-color: var(--jl-gold); background: rgba(201,169,78,0.14); }
         .jl-goal-text { margin: 0; min-width: 0; flex: 1 1 320px; }
         .jl-goal-kicker { display: block; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: #c9a94e; font-weight: 600; }
-        .jl-goal-name { display: block; font-family: 'Playfair Display', serif; font-size: clamp(18px, 1.6vw, 22px); color: var(--jl-gold-light); }
-        .jl-goal-hint { display: block; font-size: 14px; color: #cfc4ae; margin-top: 2px; }
-        .jl-goal-done { font-size: 16px; font-weight: 700; color: var(--jl-gold); }
+        .jl-goal-name { display: block; margin: 2px 0 0; font-family: 'Playfair Display', serif; font-style: italic; font-size: clamp(17px, 1.5vw, 21px); line-height: 1.35; color: var(--jl-gold-light); }
+        .jl-goal-hint { display: block; margin: 6px 0 0; font-size: 14px; color: #cfc4ae; line-height: 1.45; }
+        .jl-goal-done { margin: 6px 0 0; font-size: 15px; font-weight: 600; color: var(--jl-gold); line-height: 1.45; }
+        .jl-goal-problems { margin: 6px 0 0; padding-left: 18px; font-size: 14px; line-height: 1.45; color: #e8b9a6; }
+        .jl-goal-hint strong { color: var(--jl-gold-light); }
+        .jl-goal-btns { display: flex; gap: 8px; flex-wrap: wrap; }
         .jl-goal .jl-btn { padding: 8px 16px; }
+        .jl-goal .jl-btn-go { background: var(--jl-gold); color: #0a0a0a; border-color: var(--jl-gold); }
+        .jl-goal .jl-btn-go:hover { background: var(--jl-gold-light); }
+        .jl-goal .jl-btn:disabled { opacity: 0.45; cursor: not-allowed; }
         #jl-panel-band .jl-instructions { padding: 0 20px 10px; line-height: 1.5; font-size: 14px; color: #b9ae9a; }
 
         /* One screen: a smaller stage, the fact in the spotlight on it. */
@@ -170,22 +210,45 @@ export default function BuildABand({ band }: { band: Band }) {
         }
       `}</style>
 
-      <section className={`jl-goal ${goalMet ? 'is-met' : ''}`} aria-labelledby="jl-goal-name">
-        <p className="jl-goal-text">
-          <span className="jl-goal-kicker">Goal {goalAt + 1} of {BAND_GOALS.length}</span>
-          <span className="jl-goal-name" id="jl-goal-name">{goal.goal}</span>
-          <span className="jl-goal-hint">{goal.hint}</span>
-        </p>
-        <p className="jl-goal-done" role="status" aria-live="polite">
-          {goalMet ? <><span aria-hidden="true">{'\u2714'} </span>You did it!</> : ''}
-        </p>
-        <button type="button" className="jl-btn" onClick={() => setGoalAt((goalAt + 1) % BAND_GOALS.length)}>
-          {goalMet ? 'Next goal' : 'Another goal'}
-        </button>
+      <section className={`jl-goal ${isRight ? 'is-met' : ''}`} aria-labelledby="jl-goal-name">
+        <div className="jl-goal-text">
+          <span className="jl-goal-kicker">
+            {/* REVIEW: new text */}
+            The bandleader asks {'\u00B7'} {played.size} of {BAND_GOALS.length} played
+          </span>
+          <p className="jl-goal-name" id="jl-goal-name">{'\u201C'}{goal.goal}{'\u201D'}</p>
+          <div role="status" aria-live="polite" className="jl-goal-verdict">
+            {verdict && (isRight ? (
+              <p className="jl-goal-done">
+                <span aria-hidden="true">{'\u2714'} </span>
+                {goal.success}
+                {allPlayed ? ' You have played every request in the book.' : ''}
+              </p>
+            ) : (
+              <ul className="jl-goal-problems">
+                {verdict.lines.map((l) => <li key={l}>{l}</li>)}
+              </ul>
+            ))}
+          </div>
+          {tries > 0 && !isRight && <p className="jl-goal-hint"><strong>Hint:</strong> {goal.hint}</p>}
+        </div>
+        <div className="jl-goal-btns">
+          {isRight ? (
+            <button type="button" className="jl-btn jl-btn-go" onClick={nextGoal}>Next request</button>
+          ) : (
+            <>
+              <button type="button" className="jl-btn jl-btn-go" onClick={checkBand} disabled={band.active.size === 0}>
+                Play it for the bandleader
+              </button>
+              <button type="button" className="jl-btn" onClick={nextGoal}>Skip</button>
+            </>
+          )}
+        </div>
       </section>
 
       <p className="jl-instructions">
-        Tap an instrument to <em>bring it on and give it the spotlight</em>; <em>{'×'}</em> sends it off.
+        {/* REVIEW: new text */}
+        Pick a song section, then tap an instrument to <em>bring it on and give it the spotlight</em>; tap the soloist again for the whole band; <em>{'×'}</em> sends a player off.
       </p>
 
       {/* Section Selector */}
