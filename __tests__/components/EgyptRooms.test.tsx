@@ -16,7 +16,7 @@ import { TOMB_NOTES, WALLS, cropAround, detailAt, renderedBox, toPicture, toScre
 import Mummification from '@/app/exhibitions/egypt/mummification/page';
 import { ANUBIS_POSTER, HEART_NOTE, STEPS, WRAP_AMULETS } from '@/app/exhibitions/egypt/mummification/steps';
 import RosettaStone from '@/app/exhibitions/egypt/rosetta-stone/page';
-import { CLEOPATRA, CLEOPATRA_GREEK, NAME_SIGNS, PTOLEMY, PTOLEMY_GREEK, PTOLEMY_ORDER, ROSETTA_NOTES, ROSETTA_SOURCES, SCRIPTS, SHARED_IN_NAME, SKIPPED, STONE_CARTOUCHES, onCartouche, sharedSigns } from '@/app/exhibitions/egypt/rosetta-stone/rosetta';
+import { BY_PAIR, BY_PLACE, CLEOPATRA, CLEOPATRA_GREEK, CODE_LETTERS, NAME_SIGNS, PTOLEMY, PTOLEMY_GREEK, PTOLEMY_ORDER, ROSETTA_NOTES, ROSETTA_SOURCES, SCRIPTS, SHARED_IN_NAME, SKIPPED, STONE_CARTOUCHES, checkFill, inQueen, onCartouche, pairSound, sharedSigns } from '@/app/exhibitions/egypt/rosetta-stone/rosetta';
 import AmuletMaker from '@/app/exhibitions/egypt/amulet/page';
 import { AMULET_NOTES, SYMBOLS } from '@/app/exhibitions/egypt/amulet/amulets';
 import MyTomb from '@/app/exhibitions/egypt/my-tomb/page';
@@ -438,7 +438,37 @@ describe('The Rosetta Stone Decoder', () => {
     expect(JSON.stringify(ROSETTA_SOURCES)).toMatch(/EA24/);
   });
 
-  it('opens dark, sets the mission, and cracks Ptolemy’s name, then checks it with Cleopatra’s', () => {
+  it('cracks the code as Champollion did: the signs both names share, then the rest from where each sits', () => {
+    // The signs in both names are P, O and L, at the same number in his Greek name and in hers.
+    expect(BY_PAIR.map((i) => PTOLEMY[i].sound)).toEqual(['P', 'O', 'L']);
+    for (const i of BY_PAIR) {
+      const at = inQueen(i) as number;
+      expect(pairSound(i)).toBe(PTOLEMY[i].sound);
+      expect(PTOLEMY_GREEK[i].sound).toBe(CLEOPATRA_GREEK[at]);
+    }
+    // The bread is only in her ending; the owl-less M, the reed and the cloth are not hers at all.
+    expect(inQueen(1)).toBe('ending');
+    expect(BY_PLACE.map((i) => inQueen(i))).toEqual(['ending', null, null, null]);
+    expect(BY_PLACE.map((i) => PTOLEMY[i].sound)).toEqual(['T', 'M', 'I', 'S']);
+    // Eleven letters to choose from, each sound once.
+    expect(CODE_LETTERS.map((c) => c.sound).join('')).toBe('PTOLEMAISKR');
+    // Reading the rest: why a wrong letter is wrong.
+    const pol = [...BY_PAIR];
+    expect(checkFill(1, 1, pol)).toBe('right');
+    expect(checkFill(1, 0, pol)).toBe('used');
+    expect(checkFill(1, 5, pol)).toBe('outside');
+    const toM = [...pol, 1];
+    expect(checkFill(4, 4, toM)).toBe('vowel');
+    expect(checkFill(4, 7, toM)).toBe('later');
+    expect(checkFill(4, 5, toM)).toBe('right');
+    const toI = [...toM, 4];
+    expect(checkFill(5, 6, toI)).toBe('nearly');
+    expect(checkFill(5, 8, toI)).toBe('nearly');
+    expect(checkFill(5, 9, toI)).toBe('later');
+    expect(checkFill(6, 8, [...toI, 5])).toBe('vowel');
+  });
+
+  it('opens dark, sets the mission, and cracks Ptolemy’s name by comparing it with Cleopatra’s', () => {
     window.history.replaceState(null, '', '/exhibitions/egypt/rosetta-stone');
     render(<RosettaStone />);
     const intro = screen.getByRole('dialog', { name: 'The Rosetta Stone Decoder' });
@@ -448,71 +478,99 @@ describe('The Rosetta Stone Decoder', () => {
     // The mission, from the start.
     expect(screen.getByRole('region', { name: 'Your mission' })).toHaveTextContent('Read the king’s name in hieroglyphs');
     const next = () => screen.getByRole('button', { name: /^Next/ });
+    const status = () => screen.getByRole('status');
     expect(next()).toBeDisabled();
 
     // 1: tap the band you can read.
     fireEvent.click(screen.getByRole('button', { name: /middle band/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('Nobody could read it in 1799');
+    expect(status()).toHaveTextContent('Nobody could read it in 1799');
     expect(next()).toBeDisabled();
     fireEvent.click(screen.getByRole('button', { name: /bottom band/ }));
     expect(screen.getByText(ROSETTA_NOTES.greek.text)).toBeInTheDocument();
     fireEvent.click(next());
     expect(window.location.hash).toBe('#find');
 
-    // 2: find an oval in the top band.
+    // 2: find an oval in the top band; Thomas Young read it first.
     fireEvent.click(screen.getByRole('button', { name: /An oval on the stone \(2 of 2\)/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('You found a cartouche!');
+    expect(status()).toHaveTextContent('You found a cartouche!');
     expect(screen.getByRole('list', { name: 'The king’s name so far: ? ? ? ? ? ? ?' })).toBeInTheDocument();
+    expect(screen.getByText(ROSETTA_NOTES.cartouches.text)).toBeInTheDocument();
+    expect(screen.getByText(/Can you do better than Thomas Young/)).toBeInTheDocument();
     fireEvent.click(next());
 
-    // 3: the code. Two rules first; then each sign onto its Greek letter, in order.
-    expect(screen.getByRole('list', { name: 'The code’s two rules' })).toHaveTextContent(/same order.*left out/);
-    fireEvent.click(screen.getByRole('button', { name: 'Letter 2, Τ, says T' }));
-    expect(screen.getByRole('status')).toHaveTextContent('Not T');
-    PTOLEMY.forEach((s, i) => {
-      if (i === 4) {
-        // The owl-less M: dropped on the E first, which the scribes left out.
-        fireEvent.click(screen.getByRole('button', { name: 'Letter 5, Ε, says E' }));
-        expect(screen.getByRole('status')).toHaveTextContent('The scribes left this vowel out!');
-      }
-      fireEvent.click(screen.getByRole('button', { name: new RegExp(`^Letter ${PTOLEMY_ORDER[i] + 1},`) }));
-      expect(screen.getByRole('button', { name: `Sign ${i + 1}: ${s.sound}` })).toBeInTheDocument();
-    });
-    expect(screen.getByRole('status')).toHaveTextContent('the king’s name is Ptolemy!');
-    expect(screen.getByRole('list', { name: 'The king’s name so far: P T O L M I S' })).toBeInTheDocument();
-    expect(screen.getByRole('region', { name: 'Your mission' })).toHaveTextContent('Cracked: Ptolemy!');
-    fireEvent.click(next());
-
-    // 4: Cleopatra's cartouche under Ptolemy's; the signs she shares light up in both.
-    const known = screen.getByRole('list', { name: /Ptolemy’s cartouche, for comparing/ });
-    expect(within(known).getAllByRole('listitem')).toHaveLength(PTOLEMY.length);
+    // 3: two names, one code.
+    expect(window.location.hash).toBe('#crack');
+    expect(screen.getByRole('list', { name: 'The king’s name in Greek: ΠΤΟΛΕΜΑΙΟΣ' })).toBeInTheDocument();
+    expect(screen.getByRole('list', { name: 'The queen’s name in Greek: ΚΛΕΟΠΑΤΡΑ' })).toBeInTheDocument();
+    const king = screen.getByRole('group', { name: 'The signs in the king’s cartouche' });
     expect(next()).toBeDisabled();
-    fireEvent.click(screen.getByRole('button', { name: 'Sign 1' }));
-    expect(screen.getByRole('status')).toHaveTextContent('That sign is new');
-    fireEvent.click(screen.getByRole('button', { name: 'Sign 10: part of the ending' }));
-    expect(screen.getByRole('status')).toHaveTextContent('the bread, T, from Ptolemy’s name');
-    for (const i of SHARED_IN_NAME) fireEvent.click(screen.getByRole('button', { name: `Sign ${i + 1}` }));
-    expect(within(known).getByRole('listitem', { name: 'L, also in Cleopatra’s name' })).toBeInTheDocument();
-    expect(within(known).getAllByRole('listitem', { name: /also in Cleopatra’s name/ })).toHaveLength(3);
-    expect(screen.getByRole('status')).toHaveTextContent('Your code works!');
-    // Her whole name can be read now, the hand included.
-    expect(screen.getByRole('button', { name: 'Sign 7: T' })).toBeInTheDocument();
+    // A sign she does not have, then the bread, which is only in her ending.
+    fireEvent.click(within(king).getByRole('button', { name: 'Sign 5' }));
+    expect(status()).toHaveTextContent('this sign is not in it');
+    fireEvent.click(within(king).getByRole('button', { name: 'Sign 2' }));
+    expect(status()).toHaveTextContent('only in the two signs that close her cartouche');
+    // The lion: number 4 in his, number 2 in hers. One wrong try gets a hint.
+    fireEvent.click(within(king).getByRole('button', { name: 'Sign 4' }));
+    expect(status()).toHaveTextContent('number 4 in the king’s, number 2 in the queen’s');
+    fireEvent.click(screen.getByRole('button', { name: 'Π, says P' }));
+    expect(status()).toHaveTextContent('Π is in both names, but not in those places. Hint');
+    fireEvent.click(screen.getByRole('button', { name: 'Λ, says L' }));
+    expect(within(king).getByRole('button', { name: 'Sign 4: L' })).toBeInTheDocument();
+    expect(status()).toHaveTextContent('2 more signs in both names to find');
+    // The stool: two wrong tries, and the count is shown.
+    fireEvent.click(within(king).getByRole('button', { name: 'Sign 1' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Μ, says M' }));
+    expect(status()).toHaveTextContent('Not Μ: it is not in the queen’s name');
+    fireEvent.click(screen.getByRole('button', { name: 'Ρ, says R' }));
+    expect(status()).toHaveTextContent('Count along: letter 1 of his name is Π, and letter 5 of hers is Π too');
+    fireEvent.click(within(king).getByRole('button', { name: 'Sign 3' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ο, says O' }));
+    expect(status()).toHaveTextContent('P, O and L: three signs cracked');
+    expect(screen.getByRole('list', { name: 'The king’s name so far: P ? O L ? ? ?' })).toBeInTheDocument();
     expect(screen.getByText(ROSETTA_NOTES.cleopatra.text)).toBeInTheDocument();
     fireEvent.click(next());
 
-    // 5: cracked, and the real code-breakers in three short stops.
+    // 4: the rest of the name, from where each sign sits.
+    expect(screen.getByRole('list', { name: 'The code’s two rules' })).toHaveTextContent(/same order.*vowels/);
+    expect(next()).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: /^Letter 6, Μ/ }));
+    expect(status()).toHaveTextContent('Sign 2 comes after P and before O');
+    fireEvent.click(screen.getByRole('button', { name: /^Letter 2, Τ/ }));
+    expect(status()).toHaveTextContent('Sign 2 says T');
+    fireEvent.click(screen.getByRole('button', { name: /^Letter 5, Ε/ }));
+    expect(status()).toHaveTextContent('a vowel the scribes left out');
+    fireEvent.click(screen.getByRole('button', { name: /^Letter 8, Ι/ }));
+    expect(status()).toHaveTextContent('Ι comes later');
+    // After two wrong tries, the right letter glows.
+    expect(screen.getByRole('button', { name: /^Letter 6, Μ.*\(try this one\)/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^Letter 6, Μ/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Letter 7, Α/ }));
+    expect(status()).toHaveTextContent('Nearly!');
+    fireEvent.click(screen.getByRole('button', { name: /^Letter 8, Ι/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Letter 10, Σ/ }));
+    expect(status()).toHaveTextContent('the king’s name is Ptolemy!');
+    expect(screen.getByRole('list', { name: 'The king’s name so far: P T O L M I S' })).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Your mission' })).toHaveTextContent('Cracked: Ptolemy!');
+    // The queen's name reads too, with its twists.
+    expect(screen.getByText(ROSETTA_NOTES.hand.text)).toBeInTheDocument();
+    expect(screen.getByText(ROSETTA_NOTES.ending.text)).toBeInTheDocument();
+    fireEvent.click(next());
+
+    // 5: cracked, the real code-breakers, and into the tomb.
     expect(screen.getByText('You cracked it: Ptolemy!')).toBeInTheDocument();
     expect(within(screen.getByRole('list', { name: 'The real code-breakers' })).getAllByRole('listitem')).toHaveLength(3);
     expect(screen.getByText(ROSETTA_NOTES.youngShort.text)).toBeInTheDocument();
     expect(readTomb().done.rosetta).toBe(true);
-    expect(screen.getByRole('link', { name: /Back to Ancient Egypt/ })).toHaveAttribute('href', '/exhibitions/egypt');
+    fireEvent.click(screen.getByRole('button', { name: 'Put this in your burial tomb' }));
+    expect(readTomb().kept?.rosetta).toBe('a papyrus with the royal name you cracked, Ptolemy');
+    expect(screen.getByRole('link', { name: /Go to your tomb/ })).toHaveAttribute('href', '/exhibitions/egypt/my-tomb');
   });
 
-  it('opens an old tab’s address at the step it is now', () => {
-    window.history.replaceState(null, '', '/exhibitions/egypt/rosetta-stone#cleopatra');
+  it('opens an old step’s address at the step it is now', () => {
+    window.history.replaceState(null, '', '/exhibitions/egypt/rosetta-stone#code');
     render(<RosettaStone />);
     skipIntro();
-    expect(screen.getByRole('heading', { name: /Check it with a queen/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Two names, one code/ })).toBeInTheDocument();
   });
 });
 

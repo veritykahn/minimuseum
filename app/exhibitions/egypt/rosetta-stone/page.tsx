@@ -1,13 +1,20 @@
 'use client';
 
-import { useEffect, useRef, useState, type MouseEvent, type PointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type MouseEvent } from 'react';
 import FactNote from '@/components/exhibition/FactNote';
-import RoomShell, { Glyphs, RoomHeader, StepDots, TombDoor } from '../RoomShell';
+import { seededShuffle } from '@/components/games/scoring';
+import { useClientSeed } from '@/components/games/useClientSeed';
+import RoomShell, { Glyphs, RoomHeader, StepDots } from '../RoomShell';
 import DarkIntro from '../DarkIntro';
+import PutInTomb from '../PutInTomb';
 import { markDone } from '../tombState';
 import {
+  BY_PAIR,
+  BY_PLACE,
   CLEOPATRA,
   CLEOPATRA_GREEK,
+  CLEOPATRA_GREEK_LETTERS,
+  CODE_LETTERS,
   NAME_SIGNS,
   PTOLEMY,
   PTOLEMY_GREEK,
@@ -15,52 +22,65 @@ import {
   ROSETTA_NOTES,
   ROSETTA_SOURCES,
   SCRIPTS,
-  SHARED_IN_NAME,
   SKIPPED,
   STONE_CARTOUCHES,
+  checkFill,
   glyph,
+  inQueen,
   onCartouche,
+  pairSound,
   type Script,
 } from './rosetta';
 import './rosetta.css';
 import { playEgypt } from '../egyptSound';
 
 /*
- * The Rosetta Stone Decoder: cracking a code. It opens on the room's dark
- * intro (DarkIntro), its lines appearing one by one and read aloud, which
- * sets the mission: read a king's name in hieroglyphs. The mission bar
- * stays at the top the whole time, filling up: first the seven signs of the
- * king's cartouche, then the sound of each, until it reads P-T-O-L-M-I-S.
+ * The point: you crack a code the way Champollion did, by reasoning from a
+ * Greek name you can read to the hieroglyphs of the same name you cannot.
+ *
+ * The Rosetta Stone Decoder. It opens on the room's dark intro (DarkIntro),
+ * its lines appearing one by one and read aloud, which sets the mission:
+ * read a king's name in hieroglyphs. The mission bar stays at the top the
+ * whole time, filling up: first the seven signs of the king's cartouche,
+ * then the sound of each, until it reads P-T-O-L-M-I-S.
  *
  *   1  The stone, its three bands stacked as on the stone: tap the one you
  *      can read (it looks like our letters). Each band tapped is labelled.
  *   2  The top band, close up: find an oval (a cartouche) ringing the
- *      king's name, and tap it. The signs inside go into the mission bar.
- *   3  The code: the Greek name ΠΤΟΛΕΜΑΙΟΣ as a row of letters, each with
- *      its sound, and the cartouche beneath. Two rules, taught first: the
- *      signs go in the same order as the Greek letters, and the scribes
- *      left out some vowels. Drag each sign (or tap the letter) onto the
- *      Greek letter it says, one at a time, in order.
- *   4  The check, as Champollion made it: Cleopatra's cartouche under
- *      Ptolemy's, her Greek name over her signs. Tap the signs you already
- *      know: each lights up in both names, in the same place as its letter.
- *   5  Cracked: the name, and the real code-breakers, in three short stops.
+ *      king's name, and tap it. The signs inside go into the mission bar,
+ *      and Thomas Young comes in: he read this name first, not all of it
+ *      right. Can you do better?
+ *   3  Two names, one code (Champollion's check, made the way in): the
+ *      king's cartouche and the queen's, each under its Greek name, letters
+ *      numbered. Tap a sign of the king's that is also in the queen's; then
+ *      work out its sound: the one letter at its place in both names. Wrong
+ *      tries say why; the second shows how to count. This gives P, O, L.
+ *   4  Read the whole name: the king's other signs, one at a time, in order.
+ *      Tap the Greek letter each says, from where it sits between the
+ *      sounds already known; every consonant has a sign, some vowels were
+ *      left out. Each wrong letter says why (checkFill); after two, the
+ *      right letter glows. Then the queen's name reads too, with its two
+ *      twists (the hand, the ending).
+ *   5  Cracked: the name, the real code-breakers in three short stops, and
+ *      "Put this in your burial tomb": a papyrus with the royal name, laid
+ *      on the tomb's scroll stand.
  *
  * Each step has its own #address and a dot, so a teacher can jump to it.
  * Every fact is a museum note; the sources (and the stone's museum number)
  * are in the room's Sources drawer (rosetta.ts).
  */
 
+// REVIEW: new text (step titles 3 and 4).
 const STEPS = [
   { id: 'stone', title: 'Which writing can you read?' },
   { id: 'find', title: 'Find the king’s name' },
-  { id: 'code', title: 'Crack the code' },
-  { id: 'check', title: 'Check it with a queen' },
+  { id: 'crack', title: 'Two names, one code' },
+  { id: 'fill', title: 'Read the whole name' },
   { id: 'cracked', title: 'Cracked!' },
 ] as const;
 type StepId = (typeof STEPS)[number]['id'];
-/** The old tabs' addresses, still opened at the step they are now. */
-const OLD: Record<string, StepId> = { scripts: 'stone', ptolemy: 'code', cleopatra: 'check', eureka: 'cracked' };
+/** The old steps' and tabs' addresses, still opened at the step they are now. */
+const OLD: Record<string, StepId> = { scripts: 'stone', code: 'crack', check: 'crack', ptolemy: 'crack', cleopatra: 'fill', eureka: 'cracked' };
 
 const INTRO = [
   'In 1799, soldiers in Egypt found a broken stone.',
@@ -70,7 +90,11 @@ const INTRO = [
 ];
 
 const HIERO = SCRIPTS[0];
-const ENDING = NAME_SIGNS;
+const BREAD = CLEOPATRA.length - 2;
+const KING_LETTERS = PTOLEMY_GREEK.map((g) => g.letter);
+const KING_GREEK = KING_LETTERS.join('');
+const QUEEN_GREEK = CLEOPATRA_GREEK_LETTERS.join('');
+const letterOf = (sound: string) => CODE_LETTERS.find((c) => c.sound === sound)!.letter;
 
 /** The mission, always in view: the king's cartouche, filling up sign by sign and sound by sound. */
 function MissionBar({ signs, sounds }: { signs: boolean; sounds: number[] }) {
@@ -92,7 +116,24 @@ function MissionBar({ signs, sounds }: { signs: boolean; sounds: number[] }) {
   );
 }
 
+/** A Greek name, its letters numbered, so the decoder can count along it. */
+function GreekName({ letters, who }: { letters: readonly string[]; who: string }) {
+  return (
+    <ol className="egs-greek-row" aria-label={`${who} in Greek: ${letters.join('')}`}>
+      {letters.map((l, i) => (
+        <li key={i} aria-hidden="true">
+          <span className="egs-greek-n">{i + 1}</span>
+          <span className="egs-greek-letter" lang="grc">
+            {l}
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 export default function RosettaStone() {
+  const seed = useClientSeed();
   const [intro, setIntro] = useState(true);
   const [step, setStep] = useState<StepId>('stone');
   // 1: which bands have been tapped (each is then labelled).
@@ -100,22 +141,26 @@ export default function RosettaStone() {
   // 2: the oval found, and the last missed tap (where to show "not there").
   const [found, setFound] = useState(false);
   const [miss, setMiss] = useState<{ x: number; y: number } | null>(null);
-  // 3: the signs placed on their Greek letters, in order.
-  const [placed, setPlaced] = useState<number[]>([]);
-  const [wrong, setWrong] = useState<number | null>(null);
-  // 4: Cleopatra's signs recognised from Ptolemy's.
-  const [known, setKnown] = useState<number[]>([]);
+  // 3 and 4: the king's signs whose sound is known, in the order found.
+  const [solved, setSolved] = useState<number[]>([]);
+  // 3: the king's sign picked to crack.
+  const [pick, setPick] = useState<number | null>(null);
+  // 3 and 4: wrong tries on the sign in hand, and the last wrong answer.
+  const [tries, setTries] = useState(0);
+  const [wrong, setWrong] = useState<string | null>(null);
   const [feedback, setFeedback] = useState('');
   const [status, setStatus] = useState('');
-  const drag = useRef<{ id: number; x: number; y: number; el: HTMLElement; moved: boolean } | null>(null);
   const firstRef = useRef<HTMLElement | null>(null);
 
   const index = STEPS.findIndex((s) => s.id === step);
   const greekDone = tapped.includes('greek');
-  const codeDone = placed.length === PTOLEMY.length;
-  const checkDone = SHARED_IN_NAME.every((i) => known.includes(i));
-  const next = codeDone ? null : placed.length;
-  const done = (i: number) => [greekDone, found, codeDone, checkDone, codeDone && checkDone][i];
+  const pairDone = BY_PAIR.every((i) => solved.includes(i));
+  const fillDone = solved.length === PTOLEMY.length;
+  const nextFill = pairDone ? (BY_PLACE.find((i) => !solved.includes(i)) ?? null) : null;
+  const done = (i: number) => [greekDone, found, pairDone, fillDone, fillDone][i];
+  const queenAt = pick === null ? null : inQueen(pick);
+  // The letters to choose from, in an order of this visit's own.
+  const choices = useMemo(() => (seed === null ? CODE_LETTERS : seededShuffle(CODE_LETTERS, seed)), [seed]);
 
   useEffect(() => {
     const fromHash = () => {
@@ -129,8 +174,8 @@ export default function RosettaStone() {
   }, []);
 
   useEffect(() => {
-    if (step === 'cracked') markDone('rosetta');
-  }, [step]);
+    if (step === 'cracked' && fillDone) markDone('rosetta');
+  }, [step, fillDone]);
 
   // Into each step: its first thing to do takes the focus.
   useEffect(() => {
@@ -148,7 +193,20 @@ export default function RosettaStone() {
     setStep(id);
     setFeedback('');
     setWrong(null);
+    setTries(0);
+    setPick(null);
     window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}#${id}`);
+  };
+
+  // A sound worked out: into the mission bar.
+  const crack = (pi: number, text: string) => {
+    const now = [...solved, pi];
+    setSolved(now);
+    setPick(null);
+    setTries(0);
+    setWrong(null);
+    playEgypt(now.length === PTOLEMY.length || (BY_PAIR.includes(pi) && BY_PAIR.every((i) => now.includes(i))) ? 'find' : 'chisel');
+    say(text);
   };
 
   // 1: tap a band.
@@ -185,75 +243,94 @@ export default function RosettaStone() {
     }
   };
 
-  // 3: put the next sign on a Greek letter.
-  const place = (letter: number) => {
-    if (next === null) return;
-    const sign = PTOLEMY[next];
-    const want = PTOLEMY_ORDER[next];
-    const g = PTOLEMY_GREEK[letter];
-    if (letter === want || (g.sound === sign.sound && !PTOLEMY_ORDER.slice(0, next).includes(letter))) {
-      const now = [...placed, next];
-      setPlaced(now);
-      setWrong(null);
-      playEgypt(now.length === PTOLEMY.length ? 'find' : 'chisel');
-      say(now.length === PTOLEMY.length ? 'P, T, O, L, M, I, S: the king’s name is Ptolemy! You cracked the code.' : `Yes! Sign ${next + 1} says ${sign.sound}.${letter !== want ? ' (It goes with the first O: the signs go in order.)' : ''}`);
+  // 3: tap a sign of the king's, looking for one the queen has too.
+  // REVIEW: new text (this feedback).
+  const pickKing = (pi: number) => {
+    setWrong(null);
+    setTries(0);
+    if (solved.includes(pi)) {
+      setPick(null);
+      say(`You cracked that one: it says ${PTOLEMY[pi].sound}.`);
+      return;
+    }
+    const at = inQueen(pi);
+    if (typeof at === 'number') {
+      playEgypt('chisel');
+      setPick(pi);
+      say(`Yes! This sign is in both names: number ${pi + 1} in the king’s, number ${at + 1} in the queen’s. Now, which sound does it say?`);
+    } else if (at === 'ending') {
+      playEgypt('miss');
+      setPick(null);
+      say('The queen has this sign too, but only in the two signs that close her cartouche, after her name. It cannot help you here. Find another.');
+    } else {
+      playEgypt('miss');
+      setPick(null);
+      say('Look along the queen’s cartouche: this sign is not in it. Find a sign that is in both.');
+    }
+  };
+
+  // 3: the sound of the picked sign, from where it stands in both Greek names.
+  // REVIEW: new text (this feedback).
+  const tryPair = (sound: string) => {
+    if (pick === null || typeof queenAt !== 'number') return;
+    const want = pairSound(pick);
+    const kingLetter = KING_LETTERS[PTOLEMY_ORDER[pick]];
+    if (sound === want) {
+      const left = BY_PAIR.filter((i) => i !== pick && !solved.includes(i)).length;
+      crack(
+        pick,
+        left === 0
+          ? `${kingLetter} is number ${pick + 1} in his name and number ${queenAt + 1} in hers: this sign says ${want}. P, O and L: three signs cracked, the way Champollion did it.`
+          : `${kingLetter}! Number ${pick + 1} in his name, number ${queenAt + 1} in hers: this sign says ${want}. ${left} more sign${left === 1 ? '' : 's'} in both names to find.`,
+      );
       return;
     }
     playEgypt('miss');
-    setWrong(letter);
-    if (SKIPPED.includes(letter)) say(`Not ${g.sound}. The scribes left this vowel out! Try the next letter.`);
-    else if (letter < want) say(`Not ${g.sound}: that letter already has its sign. The signs go in order.`);
-    else say(`Not ${g.sound}. Count along: the signs go in the same order as the Greek letters.`);
-  };
-
-  // 3: dragging a sign (the pointer); a tap on a letter does the same.
-  const onDown = (e: PointerEvent<HTMLButtonElement>, i: number) => {
-    if (i !== next) return;
-    e.currentTarget.setPointerCapture?.(e.pointerId);
-    drag.current = { id: e.pointerId, x: e.clientX, y: e.clientY, el: e.currentTarget, moved: false };
-  };
-  const onMove = (e: PointerEvent<HTMLButtonElement>) => {
-    const d = drag.current;
-    if (!d || d.id !== e.pointerId) return;
-    const dx = e.clientX - d.x;
-    const dy = e.clientY - d.y;
-    if (Math.hypot(dx, dy) > 6) d.moved = true;
-    d.el.style.transform = `translate(${dx}px, ${dy}px) scale(1.12)`;
-    d.el.classList.add('is-dragging');
-  };
-  const onUp = (e: PointerEvent<HTMLButtonElement>) => {
-    const d = drag.current;
-    if (!d || d.id !== e.pointerId) return;
-    drag.current = null;
-    d.el.style.transform = '';
-    d.el.classList.remove('is-dragging');
-    if (!d.moved) return;
-    d.el.style.visibility = 'hidden';
-    const under = document.elementFromPoint(e.clientX, e.clientY)?.closest<HTMLElement>('[data-slot]');
-    d.el.style.visibility = '';
-    if (under) place(Number(under.dataset.slot));
-  };
-
-  // 4: tap a sign in Cleopatra's cartouche that is also in Ptolemy's.
-  const pickCleo = (i: number) => {
-    if (known.includes(i)) return;
-    if (SHARED_IN_NAME.includes(i)) {
-      const now = [...known, i];
-      setKnown(now);
-      playEgypt(now.length === SHARED_IN_NAME.length ? 'find' : 'chisel');
-      const p = PTOLEMY.findIndex((s) => s.code === CLEOPATRA[i].code);
-      say(
-        now.length === SHARED_IN_NAME.length
-          ? 'Your code works! L, O and P sit just where the Greek spelling puts them. Now the rest of her name can be read.'
-          : `Yes! In Ptolemy’s name this sign says ${PTOLEMY[p].sound}. In Cleopatra’s, the Greek letter above it is ${CLEOPATRA_GREEK[i]}, too.`,
-      );
-    } else if (i >= ENDING) {
-      playEgypt('miss');
-      say(i === CLEOPATRA.length - 2 ? 'That is the bread, T, from Ptolemy’s name! But here it is part of the ending after a queen’s name. Look inside her name.' : 'That sign is part of the ending after a queen’s name. Look inside her name.');
-    } else {
-      playEgypt('miss');
-      say('That sign is new: it is not in Ptolemy’s name. Find the ones you know.');
+    if (tries >= 1) {
+      crack(pick, `Count along: letter ${pick + 1} of his name is ${kingLetter}, and letter ${queenAt + 1} of hers is ${kingLetter} too. So this sign says ${want}.`);
+      return;
     }
+    setWrong(sound);
+    setTries(1);
+    const letter = letterOf(sound);
+    const inKing = PTOLEMY_GREEK.some((g) => g.sound === sound);
+    const inHers = CLEOPATRA_GREEK.includes(sound);
+    say(
+      !inKing || !inHers
+        ? `Not ${letter}: it is not in ${inKing ? 'the queen’s' : 'the king’s'} name. The sound must be in both. Hint: count along each name to the sign’s number.`
+        : `${letter} is in both names, but not in those places. Hint: count along each name. This sign is number ${pick + 1} in his, number ${queenAt + 1} in hers.`,
+    );
+  };
+
+  // 4: the Greek letter for the next of the king's signs.
+  // REVIEW: new text (this feedback).
+  const tryFill = (gi: number) => {
+    if (nextFill === null) return;
+    const g = PTOLEMY_GREEK[gi];
+    const answer = checkFill(nextFill, gi, solved);
+    if (answer === 'right') {
+      const last = solved.length + 1 === PTOLEMY.length;
+      crack(nextFill, last ? 'P, T, O, L, M, I, S: the king’s name is Ptolemy! You cracked the code. And with it, you can read the queen’s name too.' : `Yes! Sign ${nextFill + 1} says ${g.sound}.`);
+      return;
+    }
+    playEgypt('miss');
+    setWrong(String(gi));
+    setTries((t) => t + 1);
+    const known = [...solved].sort((a, b) => a - b);
+    const before = known.filter((k) => k < nextFill).map((k) => PTOLEMY[k].sound);
+    const after = known.filter((k) => k > nextFill).map((k) => PTOLEMY[k].sound);
+    const where = `Sign ${nextFill + 1} comes after ${before[before.length - 1]}${after.length ? ` and before ${after[0]}` : ''}`;
+    say(
+      answer === 'used'
+        ? `${g.letter} has its sign already. Find a letter with no sign yet.`
+        : answer === 'outside'
+          ? `Not ${g.letter}. ${where}, so its letter must sit there in the Greek name too.`
+          : answer === 'vowel'
+            ? `Not ${g.letter}. ${g.letter} says ${g.sound}, a vowel the scribes left out: it has no sign. Try the next letter.`
+            : answer === 'nearly'
+              ? `Nearly! This sign is a vowel, but not ${g.sound}: the scribes left that one out. Try the next vowel.`
+              : `Not yet: ${g.letter} comes later. Take the letters in order: is there one before it that still needs a sign?`,
+    );
   };
 
   const nav = (
@@ -267,7 +344,7 @@ export default function RosettaStone() {
           Next <span aria-hidden="true">→</span>
         </button>
       ) : (
-        <TombDoor />
+        <span className="egs-nav-end" aria-hidden="true" />
       )}
     </div>
   );
@@ -277,7 +354,7 @@ export default function RosettaStone() {
       {intro && <DarkIntro title="The Rosetta Stone Decoder" lines={INTRO} voice="rosetta-stone-intro" begin="Start the mission" onDone={() => setIntro(false)} />}
 
       <RoomHeader kicker="Interactive · Code breakers" title="The Rosetta Stone Decoder" />
-      <MissionBar signs={found || placed.length > 0} sounds={placed} />
+      <MissionBar signs={found || solved.length > 0} sounds={solved} />
 
       <div className="egs-step egr-fill" data-step={step}>
         <h2 className="egs-step-title">
@@ -315,11 +392,7 @@ export default function RosettaStone() {
                               </span>
                             )}
                           </p>
-                          {s.id === 'greek' ? (
-                            <FactNote fact={ROSETTA_NOTES.greek} className="egr-fact" />
-                          ) : (
-                            <FactNote fact={s.note} className="egr-fact" />
-                          )}
+                          {s.id === 'greek' ? <FactNote fact={ROSETTA_NOTES.greek} className="egr-fact" /> : <FactNote fact={s.note} className="egr-fact" />}
                         </>
                       ) : (
                         <p className="egs-band-place">{s.place}</p>
@@ -363,38 +436,143 @@ export default function RosettaStone() {
                 <span className="egs-zoom-oval" aria-hidden="true">
                   <Glyphs text={PTOLEMY.map(glyph).join('')} />
                 </span>
-                <p>The king’s name, inside its cartouche: seven signs. But which sign says which sound?</p>
+                <div className="egs-young">
+                  <FactNote fact={ROSETTA_NOTES.cartouches} className="egr-fact" lead="The race:" />
+                  {/* REVIEW: new text */}
+                  <p className="egs-young-ask">Seven signs. Which says which sound? Can you do better than Thomas Young?</p>
+                </div>
               </div>
             )}
           </>
         )}
 
-        {step === 'code' && (
+        {step === 'crack' && (
+          <div className="egs-crack">
+            {/* REVIEW: new text */}
+            <p className="egr-task">
+              Champollion’s trick: a sign that is in <strong>both</strong> names must say a sound that is in both. Tap a sign in the king’s name that the queen has too.
+            </p>
+            <div className="egs-two">
+              <section className="egs-name-card" aria-label="The king: Ptolemy">
+                <p className="egr-label">The king</p>
+                <GreekName letters={KING_LETTERS} who="The king’s name" />
+                <div className="egs-cartouche egs-king" role="group" aria-label="The signs in the king’s cartouche">
+                  {PTOLEMY.map((s, i) => {
+                    const known = solved.includes(i);
+                    return (
+                      <button
+                        key={i}
+                        ref={i === 0 ? (el) => void (firstRef.current = el) : undefined}
+                        type="button"
+                        className={`egs-pair ${known ? 'is-match' : ''} ${pick === i ? 'is-picked' : ''}`}
+                        aria-pressed={pick === i}
+                        aria-label={`Sign ${i + 1}${known ? `: ${s.sound}` : ''}`}
+                        onClick={() => pickKing(i)}
+                      >
+                        <span className="egs-over" aria-hidden="true">
+                          {i + 1}
+                        </span>
+                        <Glyphs text={glyph(s)} />
+                        <span className="egs-sound" aria-hidden="true">
+                          {known ? s.sound : '?'}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </section>
+              <section className="egs-name-card" aria-label="The queen: Cleopatra">
+                <p className="egr-label">The queen</p>
+                <GreekName letters={CLEOPATRA_GREEK_LETTERS} who="The queen’s name" />
+                <div className="egs-cartouche egs-queen" role="list" aria-label="The signs in the queen’s cartouche">
+                  {CLEOPATRA.map((s, i) => {
+                    const end = i >= NAME_SIGNS;
+                    const shared = !end && PTOLEMY.some((p, pi) => p.code === s.code && solved.includes(pi));
+                    const lit = !end && pick !== null && PTOLEMY[pick].code === s.code;
+                    return (
+                      <span
+                        key={i}
+                        role="listitem"
+                        className={`egs-pair ${shared ? 'is-match' : ''} ${lit ? 'is-picked' : ''} ${end ? 'is-ending' : ''}`}
+                        aria-label={end ? `Sign ${i + 1}: part of the ending` : `Sign ${i + 1}${shared ? `: ${s.sound}` : ''}${lit ? ', the same as the king’s sign you picked' : ''}`}
+                      >
+                        <span className="egs-over" aria-hidden="true">
+                          {end ? '' : i + 1}
+                        </span>
+                        <Glyphs text={glyph(s)} />
+                        <span className="egs-sound" aria-hidden="true">
+                          {end ? (i === NAME_SIGNS ? 'ending' : '') : shared ? s.sound : '?'}
+                        </span>
+                      </span>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+
+            {pick !== null && typeof queenAt === 'number' && (
+              <div className="egs-ask" role="group" aria-label={`Which letter is number ${pick + 1} in ${KING_GREEK} and number ${queenAt + 1} in ${QUEEN_GREEK}?`}>
+                {/* REVIEW: new text */}
+                <p className="egs-ask-q">
+                  Which letter is number <strong>{pick + 1}</strong> in his name, and number <strong>{queenAt + 1}</strong> in hers?
+                </p>
+                <div className="egs-letters">
+                  {choices.map((c) => (
+                    <button key={c.sound} type="button" className={`egs-letter ${wrong === c.sound ? 'is-wrong' : ''}`} aria-label={`${c.letter}, says ${c.sound}`} onClick={() => tryPair(c.sound)}>
+                      <span className="egs-greek-letter" lang="grc" aria-hidden="true">
+                        {c.letter}
+                      </span>
+                      <span className="egs-greek-sound" aria-hidden="true">
+                        {c.sound}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            <p className="egs-feedback" aria-hidden="true">
+              {feedback || (pairDone ? '' : `${BY_PAIR.filter((i) => solved.includes(i)).length} of ${BY_PAIR.length} signs in both names cracked`)}
+            </p>
+            {pairDone && pick === null && (
+              <div className="egs-notes">
+                <FactNote fact={ROSETTA_NOTES.cleopatra} className="egr-fact" lead="Champollion’s check:" />
+                <FactNote fact={ROSETTA_NOTES.notOnStone} className="egr-fact" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {step === 'fill' && (
           <div className="egs-code">
+            {!pairDone && (
+              // REVIEW: new text
+              <p className="egr-task">First crack the signs the two names share, in step 3.</p>
+            )}
             <ul className="egs-rules" aria-label="The code’s two rules">
               <li>
                 <span className="egs-rule-n" aria-hidden="true">1</span> The signs go in the <strong>same order</strong> as the Greek letters.
               </li>
               <li>
-                <span className="egs-rule-n" aria-hidden="true">2</span> The scribes <strong>left out</strong> some vowels.
+                {/* REVIEW: new text */}
+                <span className="egs-rule-n" aria-hidden="true">2</span> Every consonant has a sign. Some <strong>vowels</strong> were left out.
               </li>
             </ul>
 
-            <ol className="egs-tape" aria-label={`Ptolemy’s name in the Greek: ${PTOLEMY_GREEK.map((g) => g.letter).join('')}`}>
+            <ol className="egs-tape" aria-label={`The king’s name in Greek: ${KING_GREEK}`}>
               {PTOLEMY_GREEK.map((g, gi) => {
                 const si = PTOLEMY_ORDER.indexOf(gi);
-                const has = si >= 0 && placed.includes(si);
-                const skipped = codeDone && SKIPPED.includes(gi);
+                const has = si >= 0 && solved.includes(si);
+                const skipped = fillDone && SKIPPED.includes(gi);
+                const hint = tries >= 2 && nextFill !== null && PTOLEMY_ORDER[nextFill] === gi;
                 return (
                   <li key={gi}>
                     <button
                       ref={gi === 0 ? (el) => void (firstRef.current = el) : undefined}
                       type="button"
-                      data-slot={gi}
-                      className={`egs-slot ${has ? 'is-filled' : ''} ${wrong === gi ? 'is-wrong' : ''} ${skipped ? 'is-skipped' : ''}`}
-                      aria-label={`Letter ${gi + 1}, ${g.letter}, says ${g.sound}${has ? `: sign ${si + 1} is here` : ''}`}
-                      onClick={() => place(gi)}
-                      disabled={codeDone}
+                      className={`egs-slot ${has ? 'is-filled' : ''} ${wrong === String(gi) ? 'is-wrong' : ''} ${skipped ? 'is-skipped' : ''} ${hint ? 'is-hint' : ''}`}
+                      aria-label={`Letter ${gi + 1}, ${g.letter}, says ${g.sound}${has ? `: sign ${si + 1} is here` : ''}${hint ? ' (try this one)' : ''}`}
+                      onClick={() => tryFill(gi)}
+                      disabled={fillDone || !pairDone}
                     >
                       <span className="egs-slot-sign" aria-hidden="true">
                         {has ? <Glyphs text={glyph(PTOLEMY[si])} /> : skipped ? '–' : ''}
@@ -411,91 +589,37 @@ export default function RosettaStone() {
               })}
             </ol>
 
-            <div className="egs-cartouche egs-tiles" role="group" aria-label="The signs in the king’s cartouche, in order">
+            <div className="egs-cartouche egs-tiles" role="list" aria-label="The signs in the king’s cartouche, in order">
               {PTOLEMY.map((s, i) => {
-                const isPlaced = placed.includes(i);
+                const known = solved.includes(i);
                 return (
-                  <button
-                    key={i}
-                    type="button"
-                    className={`egs-tile ${isPlaced ? 'is-placed' : ''} ${i === next ? 'is-next' : ''}`}
-                    aria-label={isPlaced ? `Sign ${i + 1}: ${s.sound}` : `Sign ${i + 1}${i === next ? ': drag it to the Greek letter it says' : ''}`}
-                    aria-disabled={i !== next}
-                    onPointerDown={(e) => onDown(e, i)}
-                    onPointerMove={onMove}
-                    onPointerUp={onUp}
-                    onPointerCancel={onUp}
-                    onClick={() => i === next && say(`Sign ${i + 1}: which Greek letter does it say? Drag it there, or tap the letter.`)}
-                  >
+                  <span key={i} role="listitem" className={`egs-tile ${known ? 'is-placed' : ''} ${i === nextFill ? 'is-next' : ''}`} aria-label={known ? `Sign ${i + 1}: ${s.sound}` : `Sign ${i + 1}${i === nextFill ? ': which letter does it say?' : ''}`}>
                     <Glyphs text={glyph(s)} />
                     <span className="egs-sound" aria-hidden="true">
-                      {isPlaced ? s.sound : '?'}
+                      {known ? s.sound : '?'}
                     </span>
-                  </button>
+                  </span>
                 );
               })}
             </div>
             <p className="egs-feedback" aria-hidden="true">
-              {feedback || (codeDone ? '' : `Drag the glowing sign up to the Greek letter it says, or tap that letter. Start with sign ${(next ?? 0) + 1}.`)}
+              {/* REVIEW: new text */}
+              {feedback || (nextFill === null ? '' : `The glowing sign is number ${nextFill + 1}. Which Greek letter does it say? Tap it.`)}
             </p>
-            {codeDone && <p className="egs-win">P-T-O-L-M-I-S: Ptolemy!</p>}
-          </div>
-        )}
-
-        {step === 'check' && (
-          <div className="egs-check">
-            {!checkDone && <p className="egr-task">If your code is right, the same signs must say the same sounds in another royal name. Tap each sign in Cleopatra’s name that you already know from Ptolemy’s.</p>}
-            <div className="egs-compare">
-              <p className="egr-label">Ptolemy: your code</p>
-              <div className="egs-cartouche egs-known" role="list" aria-label="Ptolemy’s cartouche, for comparing">
-                {PTOLEMY.map((s, i) => {
-                  const match = known.some((k) => CLEOPATRA[k].code === s.code);
-                  return (
-                    <span key={i} role="listitem" className={`egs-pair ${match ? 'is-match' : ''}`} aria-label={`${s.sound}${match ? ', also in Cleopatra’s name' : ''}`}>
+            {fillDone && (
+              <div className="egs-queen-read">
+                <div className="egs-cartouche egs-known" role="img" aria-label="The queen’s cartouche, read: K, L, E, O, P, A, T, R, A, and the ending">
+                  {CLEOPATRA.map((s, i) => (
+                    <span key={i} className={`egs-pair ${i >= NAME_SIGNS ? 'is-ending' : PTOLEMY.some((p) => p.code === s.code) ? 'is-match' : 'is-new'}`} aria-hidden="true">
                       <Glyphs text={glyph(s)} />
-                      <span className="egs-sound" aria-hidden="true">
-                        {s.sound}
-                      </span>
+                      <span className="egs-sound">{i >= NAME_SIGNS ? (i === BREAD ? 'ending' : '') : s.sound}</span>
                     </span>
-                  );
-                })}
-              </div>
-
-              <p className="egr-label">Cleopatra: her name in Greek, over her signs</p>
-              <div className="egs-cartouche egs-cleo" role="group" aria-label="The signs in Cleopatra’s cartouche">
-                {CLEOPATRA.map((s, i) => {
-                  const isKnown = known.includes(i);
-                  const end = i >= ENDING;
-                  const sound = isKnown || (checkDone && !end) ? s.sound : null;
-                  return (
-                    <button
-                      key={i}
-                      ref={i === 0 ? (el) => void (firstRef.current = el) : undefined}
-                      type="button"
-                      className={`egs-pair ${isKnown ? 'is-match' : ''} ${sound && !isKnown ? 'is-new' : ''} ${end ? 'is-ending' : ''}`}
-                      aria-label={end ? `Sign ${i + 1}: part of the ending` : sound ? `Sign ${i + 1}: ${sound}` : `Sign ${i + 1}`}
-                      onClick={() => pickCleo(i)}
-                    >
-                      <span className="egs-over" aria-hidden="true">
-                        {end ? '' : CLEOPATRA_GREEK[i]}
-                      </span>
-                      <Glyphs text={glyph(s)} />
-                      <span className="egs-sound" aria-hidden="true">
-                        {end ? (i === ENDING ? 'ending' : '') : sound ?? '?'}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              <FactNote fact={ROSETTA_NOTES.notOnStone} className="egr-fact egs-caption" />
-            </div>
-            <p className="egs-feedback" aria-hidden="true">
-              {feedback || `${known.length} of ${SHARED_IN_NAME.length} found`}
-            </p>
-            {checkDone && (
-              <div className="egs-notes">
-                <FactNote fact={ROSETTA_NOTES.cleopatra} className="egr-fact" lead="Champollion’s check:" />
-                <FactNote fact={ROSETTA_NOTES.hand} className="egr-fact" lead="A twist:" />
+                  ))}
+                </div>
+                <div className="egs-notes">
+                  <FactNote fact={ROSETTA_NOTES.hand} className="egr-fact" lead="A twist:" />
+                  <FactNote fact={ROSETTA_NOTES.ending} className="egr-fact" lead="And the ending:" />
+                </div>
               </div>
             )}
           </div>
@@ -512,7 +636,7 @@ export default function RosettaStone() {
                   </span>
                 ))}
               </div>
-              <p className="egs-win">{codeDone && checkDone ? 'You cracked it: Ptolemy!' : 'This is the name you are cracking: Ptolemy.'}</p>
+              <p className="egs-win">{fillDone ? 'You cracked it: Ptolemy!' : 'This is the name you are cracking: Ptolemy.'}</p>
             </div>
             <ol className="egs-timeline" aria-label="The real code-breakers">
               <li>
@@ -531,6 +655,12 @@ export default function RosettaStone() {
                 <FactNote fact={ROSETTA_NOTES.eureka} className="egr-fact" />
               </li>
             </ol>
+            {fillDone && (
+              <div className="egs-put">
+                {/* REVIEW: new text */}
+                <PutInTomb activity="rosetta" what="a papyrus with the royal name you cracked, Ptolemy" />
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -543,4 +673,3 @@ export default function RosettaStone() {
     </RoomShell>
   );
 }
-

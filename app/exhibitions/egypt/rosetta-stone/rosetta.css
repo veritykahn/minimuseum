@@ -4,9 +4,10 @@
    seven empty slots that fills with signs and then sounds. Each step has
    its own look: the stone's three bands stacked, each labelled as it is
    tapped (1); the top band close up, wide, its ovals waiting to be found
-   (2); the decoder, a strip of Greek letters with the cartouche's signs
-   beneath, to be dragged up onto them (3); two cartouches one above the
-   other, matching signs lit in both (4); and the cracked name with the
+   (2); the king's and the queen's cartouches side by side, each under
+   its numbered Greek name, a shared sign lit in both and the letters to
+   choose its sound from (3); the Greek name as a strip of slots over the king's
+   signs, the next sign glowing (4); and the cracked name with the
    code-breakers' three stops (5). Back, the step dots and Next sit at the
    foot. The room fits one screen at laptop and tablet sizes.
    ========================================================================== */
@@ -106,7 +107,7 @@
 .egs-zoom-oval .egr-glyph { font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.6rem); letter-spacing: 0.06em; }
 
 /* ───────── 3: the decoder ───────── */
-.egs-code { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(10px, 2.2vh, 22px); flex: 1 1 auto; min-height: 0; }
+.egs-code { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(10px, 2.2vh, 22px); flex: 1 1 auto; min-height: 0; overflow-y: auto; }
 .egs-rules { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 0; padding: 0; list-style: none; font-family: var(--pe-body); font-weight: 300; font-size: var(--egr-text); }
 .egs-rules li { display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border: 1px solid rgba(217, 164, 65, 0.6); border-radius: 999px; background: rgba(217, 164, 65, 0.08); }
 .egs-rules strong { font-weight: 500; color: var(--egr-gold); }
@@ -169,17 +170,56 @@
   opacity: 0.55;
 }
 .egs-tile .egr-glyph { font-size: clamp(2rem, 1.5rem + 1.8vw, 3.2rem); }
-.eg-room .egs-tile.is-next { opacity: 1; border-color: var(--egr-orange); background: rgba(240, 74, 26, 0.16); cursor: grab; animation: egs-ask 1.4s ease-in-out infinite; }
+.eg-room .egs-tile.is-next { opacity: 1; border-color: var(--egr-orange); background: rgba(240, 74, 26, 0.16); animation: egs-ask 1.4s ease-in-out infinite; }
 .eg-room .egs-tile.is-placed { opacity: 1; color: var(--egr-gold); }
-.eg-room .egs-tile.is-dragging { position: relative; z-index: 20; cursor: grabbing; animation: none; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6); background: rgba(40, 20, 10, 0.95); }
 @keyframes egs-ask { 50% { background: rgba(240, 74, 26, 0.32); } }
 .egs-sound { font-family: var(--pe-display); font-size: 1.1rem; color: var(--egr-muted); }
 .egs-tile.is-placed .egs-sound { color: var(--egr-gold); }
 
-/* ───────── 4: Ptolemy above, Cleopatra below ───────── */
-.egs-check { display: flex; flex-direction: column; gap: 8px; flex: 1 1 auto; min-height: 0; }
-.egs-compare { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1 1 auto; justify-content: center; min-height: 0; padding: 10px; border: 1px solid var(--egr-line); background: radial-gradient(ellipse 80% 70% at 50% 40%, #34363a, #17181a 80%); }
-.egs-compare .egr-label { margin: 0; }
+/* ───────── 3: two names, one code ───────── */
+.egs-crack { display: flex; flex-direction: column; gap: 8px; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+.egs-two { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 12px; }
+.egs-name-card { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; padding: 10px; border: 1px solid var(--egr-line); background: radial-gradient(ellipse 80% 70% at 50% 40%, #34363a, #17181a 80%); }
+.egs-name-card .egr-label { margin: 0; }
+/* A Greek name with its letters numbered: count along it. */
+.egs-greek-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px 6px; margin: 0; padding: 0; list-style: none; }
+.egs-greek-row li { display: flex; flex-direction: column; align-items: center; min-width: 1.6em; }
+.egs-greek-n { font-family: var(--pe-body); font-size: 0.72rem; color: var(--egr-muted); }
+.egs-greek-row .egs-greek-letter { font-size: clamp(1.2rem, 0.9rem + 1vw, 1.9rem); }
+.egs-king .egs-pair { cursor: pointer; }
+.eg-room .egs-king .egs-pair:hover { border-color: rgba(255, 255, 255, 0.4); }
+.eg-room .egs-pair.is-picked { border-color: var(--egr-orange); background: rgba(240, 74, 26, 0.22); color: #fff; animation: egs-ask 1.4s ease-in-out infinite; }
+.egs-ask { display: flex; flex-direction: column; align-items: center; gap: 8px; animation: egs-pop 0.3s ease both; }
+.egs-ask-q { margin: 0; text-align: center; font-family: var(--pe-body); font-size: var(--egr-text); }
+.egs-ask-q strong { color: var(--egr-gold); font-weight: 500; }
+.egs-letters { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.eg-room .egs-letter {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 4px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  cursor: pointer;
+}
+.eg-room .egs-letter:hover { border-color: #fff; background: rgba(255, 255, 255, 0.08); }
+.eg-room .egs-letter.is-wrong { animation: egs-shake 0.4s ease; border-color: #ffd2a8; opacity: 0.6; }
+.egs-letter .egs-greek-letter { font-size: clamp(1.2rem, 1rem + 0.8vw, 1.7rem); }
+.egs-young { display: flex; flex-direction: column; gap: 4px; max-width: 56ch; }
+.egs-young .egr-fact { font-size: 0.9em; }
+.egs-young-ask { margin: 0; font-family: var(--pe-display); font-size: 1.15em; color: var(--egr-gold); }
+
+/* ───────── 4: read the whole name ───────── */
+.eg-room .egs-slot.is-hint { border-color: var(--egr-gold); box-shadow: 0 0 18px rgba(217, 164, 65, 0.6); }
+.egs-queen-read { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; animation: egs-pop 0.4s ease both; }
+.egs-known .egs-pair { cursor: default; }
+
+/* ───────── The cartouches' signs ───────── */
 .eg-room .egs-pair {
   appearance: none;
   display: flex;
@@ -197,10 +237,6 @@
   color: #f1ece2;
   font: inherit;
 }
-.egs-known .egs-pair { cursor: default; }
-.egs-cleo { width: min(100%, 860px); }
-.egs-cleo .egs-pair { cursor: pointer; }
-.eg-room .egs-cleo .egs-pair:hover { border-color: rgba(255, 255, 255, 0.4); }
 .egs-pair .egr-glyph { font-size: clamp(1.5rem, 1rem + 1.8vw, 2.8rem); }
 .eg-room .egs-pair.is-match { border-color: var(--egr-gold); background: rgba(217, 164, 65, 0.18); color: var(--egr-gold); animation: egs-pop 0.4s ease both; }
 .eg-room .egs-pair.is-match .egs-sound { color: var(--egr-gold); }
@@ -223,10 +259,13 @@
 .egs-when { margin: 0; font-size: 0.78em; letter-spacing: 0.18em; text-transform: uppercase; color: var(--egr-gold); }
 .egs-timeline h3 { margin: 2px 0 6px; font-family: var(--pe-display); font-weight: 400; font-size: 1.2em; color: #fff; }
 .egs-timeline .egr-fact { font-size: 0.86em; }
+.egs-put { width: min(100%, 640px); }
+.egs-nav-end { min-width: 90px; }
 
 /* ───────── Smaller screens ───────── */
 @media (max-width: 980px) {
   .egs-notes { grid-template-columns: minmax(0, 1fr); }
+  .egs-two { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 760px) {
   .egs-band-row { grid-template-columns: minmax(0, 1fr); }
@@ -241,5 +280,6 @@
   .egr-fit .egs-pano { width: min(100cqw, calc(100cqh * 1400 / 637)); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .eg-room .egs-tile.is-next { animation: none; }
+  .eg-room .egs-tile.is-next,
+  .eg-room .egs-pair.is-picked { animation: none; }
 }

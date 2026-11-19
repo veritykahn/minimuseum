@@ -16,6 +16,15 @@ import { BM_HIEROGLYPHS, BUDGE_ROSETTA, EES_CARTOUCHE, GLYPHS, type GlyphCode } 
  * The cartouches are set in hieroglyphs as Champollion compared them:
  * Ptolemy (Ptolmys) p t o l m i s, and Cleopatra k l e o p a t r a, with the
  * two signs that close her name.
+ *
+ * How the visitor cracks it (Nov 19 rework): not by dragging signs onto
+ * letters one after another, but as Champollion checked it. First, the two
+ * names side by side: find a sign that is in both cartouches, then reason
+ * out its sound from where it stands in both Greek names (inQueen,
+ * pairSound): that gives P, O and L. Then the rest of the king's name, sign
+ * by sign, from where each sits between the sounds already known, with the
+ * rule that every consonant has a sign and some vowels were left out
+ * (checkFill says why a wrong letter is wrong).
  */
 
 export type Script = {
@@ -172,6 +181,63 @@ export const SHARED_IN_NAME = sharedSigns().filter((i) => i < NAME_SIGNS);
 
 export const glyph = (s: Sign) => GLYPHS[s.code];
 
+/** Cleopatra's name in Greek letters, ΚΛΕΟΠΑΤΡΑ, set over her cartouche to compare. */
+export const CLEOPATRA_GREEK_LETTERS = 'ΚΛΕΟΠΑΤΡΑ'.split('');
+
+/** Every letter of the two Greek names, once each, with its sound: the choices when cracking a sign. */
+export const CODE_LETTERS: { letter: string; sound: string }[] = [
+  ...new Map(
+    [...PTOLEMY_GREEK, ...CLEOPATRA_GREEK_LETTERS.map((letter, i) => ({ letter, sound: CLEOPATRA_GREEK[i] }))].map((g) => [g.sound, g]),
+  ).values(),
+];
+
+/**
+ * Where a sign of the king's cartouche stands in the queen's: its place in
+ * her name (0-based), 'ending' if it is only in the two signs that close
+ * her name (the bread), or null if she has no such sign.
+ */
+export function inQueen(pi: number): number | 'ending' | null {
+  const code = PTOLEMY[pi].code;
+  const at = CLEOPATRA.findIndex((s, j) => j < NAME_SIGNS && s.code === code);
+  if (at >= 0) return at;
+  return CLEOPATRA.some((s) => s.code === code) ? 'ending' : null;
+}
+
+/** The king's signs that are also in the queen's name (P, O and L): cracked by comparing the two. */
+export const BY_PAIR = PTOLEMY.map((_, i) => i).filter((i) => typeof inQueen(i) === 'number');
+
+/** The sound of a shared sign: the Greek letter at its place in the king's name (and, the check, in the queen's). */
+export function pairSound(pi: number): string {
+  return PTOLEMY_GREEK[PTOLEMY_ORDER[pi]].sound;
+}
+
+/** The rest of the king's signs (T, M, I, S), read in order from where each sits between the sounds known. */
+export const BY_PLACE = PTOLEMY.map((_, i) => i).filter((i) => !BY_PAIR.includes(i));
+
+const VOWELS = new Set(['A', 'E', 'I', 'O']);
+
+/**
+ * A Greek letter tried for one of the king's signs (letter: its place in
+ * ΠΤΟΛΕΜΑΙΟΣ), given the signs already known: right; that letter has its
+ * sign already; it is outside the known sounds on either side; it is a
+ * vowel the scribes left out (when the sign is a consonant); nearly (a
+ * left-out vowel tried for a vowel sign); or too far along (a letter
+ * further on still needs its own sign first).
+ */
+export type FillAnswer = 'right' | 'used' | 'outside' | 'vowel' | 'nearly' | 'later';
+export function checkFill(pi: number, letter: number, known: readonly number[]): FillAnswer {
+  const want = PTOLEMY_ORDER[pi];
+  if (letter === want) return 'right';
+  if (known.some((k) => PTOLEMY_ORDER[k] === letter)) return 'used';
+  const before = known.filter((k) => k < pi).map((k) => PTOLEMY_ORDER[k]);
+  const after = known.filter((k) => k > pi).map((k) => PTOLEMY_ORDER[k]);
+  const lo = before.length ? Math.max(...before) : -1;
+  const hi = after.length ? Math.min(...after) : PTOLEMY_GREEK.length;
+  if (letter <= lo || letter >= hi) return 'outside';
+  if (SKIPPED.includes(letter)) return VOWELS.has(PTOLEMY[pi].sound) ? 'nearly' : 'vowel';
+  return letter > want ? 'later' : 'outside';
+}
+
 export const ROSETTA_NOTES = {
   found: {
     text: 'In July 1799, French soldiers rebuilding an old fort at the port city of Rashid found a broken stone carved with three different scripts: hieroglyphic, demotic and Greek. Europeans called Rashid “Rosette”, so the stone took the city’s name.',
@@ -242,8 +308,8 @@ export const ROSETTA_SOURCES: SourceGroup[] = [
       { ...EES_CARTOUCHE, note: 'The Rosetta Stone is in the British Museum, numbered EA24' },
     ],
   },
-  { title: 'Cracking Ptolemy’s name', items: [BM_HIEROGLYPHS, BUDGE_ROSETTA] },
-  { title: 'Checking it with Cleopatra', items: [BM_HIEROGLYPHS, BUDGE_ROSETTA] },
+  { title: 'Two names, one code', items: [BM_HIEROGLYPHS, BUDGE_ROSETTA] },
+  { title: 'Reading the whole name', items: [BM_HIEROGLYPHS, BUDGE_ROSETTA] },
   { title: 'The code-breakers', items: [...ROSETTA_NOTES.eureka.sources] },
   { title: 'Lettering', items: [{ label: 'Hieroglyphs set in Noto Sans Egyptian Hieroglyphs', licence: 'SIL Open Font License' }] },
 ];
