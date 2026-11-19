@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type CSSProperties } from 'react';
 import Announcer from '@/components/games/Announcer';
+import { srOnly } from '@/lib/a11y';
 import GameResult from '@/components/games/GameResult';
 import Verdict from '@/components/games/Verdict';
 import { plural, tierFor } from '@/components/games/scoring';
@@ -26,10 +27,22 @@ const THEME = {
   '--game-radius': '4px',
 } as CSSProperties;
 
-/** The Name That Instrument tab. Uses the page's jl- styles plus the few below. */
+/**
+ * The Name That Instrument tab. Uses the page's jl- styles plus the few below.
+ *
+ * The point: after it, a child can pick out the six instruments of a Harlem
+ * band by ear alone, and say what gave each one away (rhythm without a tune,
+ * a brassy attack, a reedy voice), which no poster can teach.
+ *
+ * A wrong first answer is not the end of the round: the child is told what
+ * the instrument they chose sounds like, hears the clip again and has one
+ * more try, so a miss becomes a comparison (the score counts first answers).
+ */
 export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTeach?: () => void }) {
   const last = quiz.lastRecord;
   const answered = quiz.gameState === 'answered';
+  const retry = quiz.gameState === 'retry';
+  const firstMiss = quiz.firstMiss;
   const isReplay = quiz.mode === 'replay';
 
   // Moving on removes the feedback (and the ending removes everything): put
@@ -41,9 +54,12 @@ export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTe
     prevState.current = quiz.gameState;
   }, [quiz.gameState, quiz.currentRound]);
 
-  const announcement = last
-    ? `${last.correct ? 'Correct.' : `Not quite. It was the ${INSTRUMENT_MAP[last.round.correctAnswer].name}.`} ${INSTRUMENT_MAP[last.round.correctAnswer].tip}`
-    : '';
+  const secondRight = !!last && !last.correct && last.secondTry === last.round.correctAnswer;
+  const announcement = retry && firstMiss
+    ? `Not the ${INSTRUMENT_MAP[firstMiss].name}. ${INSTRUMENT_MAP[firstMiss].listenFor} Listen again and try once more.`
+    : last
+      ? `${last.correct ? 'Correct.' : secondRight ? 'Right, on the second listen.' : `Not quite. It was the ${INSTRUMENT_MAP[last.round.correctAnswer].name}.`} ${INSTRUMENT_MAP[last.round.correctAnswer].tip}`
+      : '';
 
   return (
     <div role="tabpanel" id="jl-panel-quiz" aria-labelledby="jl-tab-quiz" style={THEME}>
@@ -178,7 +194,9 @@ export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTe
                   ? 'Tap play to start the quiz'
                   : answered
                     ? 'Tap play to hear it again'
-                    : 'What instrument is this?'}
+                    : retry
+                      ? 'Listen again. Which instrument is it?'
+                      : 'What instrument is this?'}
               </div>
               <div className="jl-quiz-hint">
                 {quiz.gameState === 'idle' ? '12 rounds' : 'Listen carefully...'}
@@ -194,32 +212,52 @@ export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTe
             {quiz.gameState !== 'idle' && (
               <div className="jl-quiz-answers" role="group" aria-label="Which instrument is it?">
                 {INSTRUMENTS.map((inst) => {
-                  const isChosen = last?.chosen === inst.id;
                   const isCorrectAnswer = last?.round.correctAnswer === inst.id;
+                  const missedFirst = retry ? firstMiss === inst.id : last?.chosen === inst.id && !last.correct;
                   let className = 'jl-quiz-answer';
                   if (answered && last) {
-                    if (isChosen && last.correct) className += ' correct';
-                    else if (isChosen) className += ' wrong';
-                    else if (isCorrectAnswer) className += ' correct';
+                    if (isCorrectAnswer) className += ' correct';
+                    else if (missedFirst || last.secondTry === inst.id) className += ' wrong';
                     else className += ' disabled';
+                  } else if (retry && missedFirst) {
+                    className += ' wrong';
                   }
+                  const off = answered || (retry && missedFirst);
 
                   return (
                     <button
                       type="button"
                       key={inst.id}
                       className={className}
-                      aria-disabled={answered || undefined}
+                      aria-disabled={off || undefined}
                       onClick={() => {
-                        if (quiz.gameState === 'playing') quiz.submitAnswer(inst.id);
+                        if (!off) quiz.submitAnswer(inst.id);
                       }}
                     >
                       <span className="jl-answer-icon" aria-hidden="true"><InstrumentIcon id={inst.id} /></span>
                       <span className="jl-answer-name">{inst.name}</span>
+                      {retry && missedFirst && <span style={srOnly}> (not this one)</span>}
                     </button>
                   );
                 })}
               </div>
+            )}
+
+            {retry && firstMiss && (
+              // Focus stays on the answers: the child is about to choose again.
+              <Verdict
+                key={`${quiz.mode}-${quiz.currentRound}-retry`}
+                className="jl-feedback"
+                titleClassName="jl-feedback-title"
+                tone="wrong"
+                focusOnMount={false}
+                title={`Not the ${INSTRUMENT_MAP[firstMiss].name}.`}
+              >
+                {/* REVIEW: new text */}
+                <p className="jl-feedback-tip">
+                  {INSTRUMENT_MAP[firstMiss].listenFor} Is that what you hear? Listen again and try once more.
+                </p>
+              </Verdict>
             )}
 
             {answered && last && (
@@ -227,11 +265,13 @@ export default function NameThatInstrument({ quiz, onTeach }: { quiz: Quiz; onTe
                 key={`${quiz.mode}-${quiz.currentRound}`}
                 className="jl-feedback"
                 titleClassName="jl-feedback-title"
-                tone={last.correct ? 'right' : 'wrong'}
+                tone={last.correct || secondRight ? 'right' : 'wrong'}
                 title={
                   last.correct
                     ? `Correct — it's the ${INSTRUMENT_MAP[last.round.correctAnswer].name}.`
-                    : `Not quite — it was the ${INSTRUMENT_MAP[last.round.correctAnswer].name}.`
+                    : secondRight // REVIEW: new text
+                      ? `Got it on the second listen — it's the ${INSTRUMENT_MAP[last.round.correctAnswer].name}.`
+                      : `Not quite — it was the ${INSTRUMENT_MAP[last.round.correctAnswer].name}.`
                 }
               >
                 <p className="jl-feedback-tip">{INSTRUMENT_MAP[last.round.correctAnswer].tip}</p>
@@ -271,9 +311,12 @@ function QuizResult({ quiz }: { quiz: Quiz }) {
   const tier = tierFor(quiz.score, total, QUIZ_TIERS);
 
   const title = replay ? (missed === 0 ? 'Every one, the second time around.' : 'Second listen') : tier.title;
+  const second = quiz.records.filter((r) => !r.correct && r.secondTry === r.round.correctAnswer).length;
   const message = replay
     ? `You named ${quiz.score} of the ${plural(total, 'sound')} you missed the first time.`
     : tier.message;
+  // REVIEW: new text
+  const secondLine = second > 0 ? ` And ${plural(second, 'more', 'more')} on a second listen.` : '';
 
   const actions: GameAction[] = [];
   if (!replay && missed > 0) {
@@ -292,7 +335,7 @@ function QuizResult({ quiz }: { quiz: Quiz }) {
         score={quiz.score}
         scoreCaption={`out of ${total}`}
         title={title}
-        message={<p>{message}</p>}
+        message={<p>{message}{secondLine}</p>}
         actions={actions}
         celebrate={isGoodScore(quiz.score, total)}
       >

@@ -51,7 +51,8 @@ export function TicketStrip({ ticket, colors, justStamped }: { ticket: TicketSta
 
 /**
  * At each stop: the question from this city's panel. A right answer punches
- * the stamp; a wrong one is set aside and the student tries again.
+ * the stamp and says why it is right; a wrong one is set aside and the
+ * student tries again (after one miss, the hint points at the story's words).
  */
 export default function TicketPunch({
   cityId,
@@ -92,9 +93,10 @@ export default function TicketPunch({
       {stamped ? (
         <p className="mg-punch-done" ref={doneRef} tabIndex={-1}>
           <span className="mg-punch-done-mark" aria-hidden="true">{'★'}</span>{' '}
+          {/* REVIEW: new text (the journey now begins in New Orleans, not the Delta) */}
           {complete
-            ? 'Ticket complete: all six stamps, from the Delta to Harlem!'
-            : `Stamped! ${q.answer} is right. ${STAMP_NAMES[cityId]} is on your ticket.`}
+            ? `Ticket complete: all six stamps, from New Orleans to Harlem! ${q.why}`
+            : `Stamped! ${q.why} ${STAMP_NAMES[cityId]} is on your ticket.`}
         </p>
       ) : (
         <>
@@ -134,6 +136,12 @@ export default function TicketPunch({
       {!stamped && lastWrong && (
         <p className="mg-punch-miss" aria-hidden="true">
           Not quite. Read the story again and try another.
+        </p>
+      )}
+      {!stamped && tried.length >= 1 && (
+        // REVIEW: new text
+        <p className="mg-punch-miss mg-punch-clue">
+          Look for these words in the story: {'\u201C'}{q.evidence}{'\u201D'}
         </p>
       )}
       {complete && justStamped === cityId && <Celebration />}

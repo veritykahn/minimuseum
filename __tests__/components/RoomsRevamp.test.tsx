@@ -73,7 +73,8 @@ describe('Migration Map: punch your ticket', () => {
 
     const stamped = answerTicket(missed, 'chicago', q.answer).state;
     rerender(<TicketPunch cityId="chicago" ticket={stamped} colors={COLORS} justStamped="chicago" lastWrong={null} onAnswer={onAnswer} />);
-    expect(screen.getByText(/Stamped! King Oliver is right\./)).toHaveFocus();
+    expect(screen.getByText(/^Stamped! More than five times as many people/)).toHaveFocus();
+    expect(screen.getByText(/Chicago is on your ticket\.$/)).toBeInTheDocument();
     expect(screen.queryByRole('group', { name: q.question })).toBeNull();
     const ticket = screen.getByRole('list', { name: 'Your ticket' });
     expect(ticket.querySelectorAll('[data-stamped="true"]')).toHaveLength(1);

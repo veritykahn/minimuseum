@@ -1,10 +1,12 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { mulberry32 } from '@/components/games/scoring';
 import { srOnly, useDialogFocus } from '@/lib/a11y';
 import SourcesDrawer from '@/components/exhibition/SourcesDrawer';
-import { MENTOR_POEM, MENTOR_NOTICES, MENTOR_SOURCES, PROMPT_CARDS } from './mentor-poem';
+import { MENTOR_POEM, MENTOR_NOTICES, MENTOR_SOURCES, PROMPT_CARDS, repeatedLines } from './mentor-poem';
+import { checkPrompt, poemLines as linesOf, refrainEntries, usedWords as usedWordsIn, wrapText, type PoemEntry, type WordCategory } from './poem-tools';
 import { rememberReturn, useMuseumReturn, type MuseumReturn } from '@/lib/museumReturn';
 
 /** "M ← The Harlem Renaissance": back to the exhibition, unless the Studio opened the room. */
@@ -29,7 +31,6 @@ function keepFocusNear(btn: HTMLElement, container: HTMLElement | null = btn.par
 /* ═══════════════════════════════════════════════════════════
    WORD BANK DATA
    ═══════════════════════════════════════════════════════════ */
-type WordCategory = 'dream' | 'nature' | 'music' | 'emotion' | 'action' | 'harlem';
 
 const CATEGORY_META: Record<WordCategory, { label: string; dot: string }> = {
   dream:   { label: 'Dreams',  dot: 'rgba(147,112,219,0.6)' },
@@ -124,25 +125,57 @@ function pluralise(word: string): string | null {
   return word + 's';
 }
 
+/** The display's decoration, from a seed: 20 diamonds and 40 sparks. */
+function makeDecor(seed: number) {
+  const r = mulberry32(seed);
+  const diamonds = Array.from({ length: 20 }, () => {
+    const size = `${6 + r() * 10}px`;
+    return {
+      left: `${r() * 100}%`,
+      top: `${r() * 100}%`,
+      width: size,
+      height: `${6 + r() * 10}px`,
+      '--dur': `${8 + r() * 12}s`,
+      '--delay': `${r() * 3}s`,
+    } as React.CSSProperties;
+  });
+  const particles = Array.from({ length: 40 }, () => ({
+    left: `${r() * 100}%`,
+    '--dur': `${6 + r() * 8}s`,
+    '--delay': `${r() * 6}s`,
+    '--opacity': `${0.35 + r() * 0.4}`,
+  }) as React.CSSProperties);
+  return { diamonds, particles };
+}
+
+/** The mentor poem's lines that come back: "I've known rivers:" and "My soul has grown deep like the rivers." */
+const REFRAINS = repeatedLines();
+
 /* ═══════════════════════════════════════════════════════════
    TYPES
    ═══════════════════════════════════════════════════════════ */
-type PoemEntry = {
-  uid: string;
-  text: string;
-  category: WordCategory | 'connector';
-  sourceWord?: string; // original word (for returning to bank)
-  isLineBreak?: boolean;
-};
-
 type UndoAction = {
   type: 'add' | 'remove' | 'linebreak' | 'clear';
   entries?: PoemEntry[];
   entry?: PoemEntry;
+  /** Where a removed word stood, so Undo puts it back there (not at the end). */
+  index?: number;
 };
 
 /* ═══════════════════════════════════════════════════════════
    COMPONENT
+
+   Harlem in Words: a Studio tool (the Studio floor links here). Read a
+   mentor poem, Langston Hughes's "The Negro Speaks of Rivers", then build a
+   poem of your own from a word bank, display it framed, print or save it.
+
+   The point: after it, a child has spotted a real poet's moves for
+   themselves (the lines that come back, the strong verbs, one "I" across
+   centuries) and used one in a poem of their own, which reading a poster of
+   Hughes's poem cannot do. So the mentor poem asks them to find its refrains
+   before it explains them, the chosen prompt is checked as the poem grows
+   ("not yet", never "wrong"), and Repeat a line lets a refrain be written at
+   all (each bank word is single-use, so no line could ever come back).
    ═══════════════════════════════════════════════════════════ */
 export default function HarlemInWordsPage() {
   const router = useRouter();
@@ -158,12 +191,17 @@ export default function HarlemInWordsPage() {
   const [frameOutOfView, setFrameOutOfView] = useState(false);
   const [poem, setPoem] = useState<PoemEntry[]>([]);
   const [undoStack, setUndoStack] = useState<UndoAction[]>([]);
-  const [usedWords, setUsedWords] = useState<Set<string>>(new Set());
+  // The bank words in the poem, read from the poem itself (poem-tools).
+  const usedWords = usedWordsIn(poem);
+  // Repeat a line: the list of lines to copy is open.
+  const [refrainOpen, setRefrainOpen] = useState(false);
+  // The mentor poem's "find the lines that come back" task.
+  const [foundRefrains, setFoundRefrains] = useState<ReadonlySet<string>>(new Set());
+  const [lineNote, setLineNote] = useState<{ text: string; ok: boolean }>({ text: '', ok: false });
   const [activeCategory, setActiveCategory] = useState<WordCategory>('dream');
   const [shuffledOrders, setShuffledOrders] = useState<Record<WordCategory, string[]>>({} as Record<WordCategory, string[]>);
   const [displayMode, setDisplayMode] = useState(false);
   const [displayTheme, setDisplayTheme] = useState(0);
-  const [displayReady, setDisplayReady] = useState(false);
   const [shimmerActive, setShimmerActive] = useState(false);
   const [pluralMode, setPluralMode] = useState(false);
   const [poetName, setPoetName] = useState('');
@@ -214,6 +252,24 @@ export default function HarlemInWordsPage() {
     return `w-${uidCounter.current}`;
   };
 
+  // The mentor poem's lines that come back (its refrains), and the tap that finds one.
+  const refrainsDone = REFRAINS.every(l => foundRefrains.has(l));
+  const tapMentorLine = useCallback((line: string) => {
+    // REVIEW: new text (the three lines below)
+    if (!REFRAINS.includes(line)) {
+      setLineNote({ ok: false, text: 'That line is in the poem only once. Look for one you read twice.' });
+      return;
+    }
+    const next = new Set(foundRefrains).add(line);
+    setFoundRefrains(next);
+    setLineNote({
+      ok: true,
+      text: next.size >= REFRAINS.length
+        ? 'You found both. A line that comes back like this is called a refrain.'
+        : `Yes: \u201C${line.replace(/[:.]$/, '')}\u201D comes twice. One more line comes back. Can you find it?`,
+    });
+  }, [foundRefrains]);
+
   // Each new screen starts at the top, with focus on its heading.
   useEffect(() => {
     if (view === 'mentor') {
@@ -257,7 +313,6 @@ export default function HarlemInWordsPage() {
     const text = pluralMode ? (pluralise(word) ?? word) : word;
     const entry: PoemEntry = { uid: nextUid(), text, category, sourceWord: word };
     setPoem(prev => [...prev, entry]);
-    setUsedWords(prev => new Set(prev).add(word));
     setUndoStack(prev => [...prev, { type: 'add', entry }]);
     triggerShimmer();
   }, [triggerShimmer, pluralMode]);
@@ -280,18 +335,22 @@ export default function HarlemInWordsPage() {
 
   // Remove a word from the poem (immediate — no delay)
   const removeEntry = useCallback((uid: string) => {
-    const entry = poem.find(e => e.uid === uid);
-    if (!entry) return;
+    const index = poem.findIndex(e => e.uid === uid);
+    if (index < 0) return;
+    const entry = poem[index];
     setPoem(prev => prev.filter(e => e.uid !== uid));
-    if (entry.category !== 'connector' && entry.sourceWord) {
-      setUsedWords(prev => {
-        const next = new Set(prev);
-        next.delete(entry.sourceWord!);
-        return next;
-      });
-    }
-    setUndoStack(prev => [...prev, { type: 'remove', entry }]);
+    setUndoStack(prev => [...prev, { type: 'remove', entry, index }]);
   }, [poem]);
+
+  // Repeat a line: a copy of it, on a new line at the end (a refrain).
+  const repeatLine = useCallback((lineIndex: number) => {
+    const added = refrainEntries(poem, lineIndex, nextUid);
+    if (added.length === 0) return;
+    setPoem(prev => [...prev, ...added]);
+    setUndoStack(prev => [...prev, { type: 'clear', entries: [...poem] }]);
+    setRefrainOpen(false);
+    triggerShimmer();
+  }, [poem, triggerShimmer]);
 
   // Undo
   const handleUndo = useCallback(() => {
@@ -301,27 +360,13 @@ export default function HarlemInWordsPage() {
 
     if (action.type === 'add' && action.entry) {
       setPoem(prev => prev.filter(e => e.uid !== action.entry!.uid));
-      if (action.entry.category !== 'connector' && action.entry.sourceWord) {
-        setUsedWords(prev => {
-          const next = new Set(prev);
-          next.delete(action.entry!.sourceWord!);
-          return next;
-        });
-      }
     } else if (action.type === 'remove' && action.entry) {
-      setPoem(prev => [...prev, action.entry!]);
-      if (action.entry.category !== 'connector' && action.entry.sourceWord) {
-        setUsedWords(prev => new Set(prev).add(action.entry!.sourceWord!));
-      }
+      const at = action.index ?? Infinity;
+      setPoem(prev => [...prev.slice(0, at), action.entry!, ...prev.slice(at)]);
     } else if (action.type === 'linebreak' && action.entry) {
       setPoem(prev => prev.filter(e => e.uid !== action.entry!.uid));
     } else if (action.type === 'clear' && action.entries) {
       setPoem(action.entries);
-      const words = new Set<string>();
-      action.entries.forEach(e => {
-        if (e.category !== 'connector' && e.sourceWord) words.add(e.sourceWord);
-      });
-      setUsedWords(words);
     }
   }, [undoStack]);
 
@@ -330,7 +375,6 @@ export default function HarlemInWordsPage() {
     if (poem.length === 0) return;
     setUndoStack(prev => [...prev, { type: 'clear', entries: [...poem] }]);
     setPoem([]);
-    setUsedWords(new Set());
   }, [poem]);
 
   // Shuffle current category
@@ -352,11 +396,17 @@ export default function HarlemInWordsPage() {
   // Check if current category has any pluralizable words
   const categoryHasPluralizable = availableWords.some(w => pluralise(w) !== null);
 
+  // The display's drifting diamonds and falling sparks, placed at random once
+  // each time the display opens. (They were placed with Math.random during
+  // render, so every keystroke in the name box scattered them anew.)
+  const [decorSeed, setDecorSeed] = useState(1);
+  const decor = useMemo(() => makeDecor(decorSeed), [decorSeed]);
+
   // Display mode audio (Web Audio API)
   useEffect(() => {
     if (!displayMode) return undefined;
     setDisplayTheme(Math.floor(Math.random() * 5));
-    const timer = setTimeout(() => setDisplayReady(true), 100);
+    setDecorSeed(Math.floor(Math.random() * 0xffffffff) >>> 0);
 
     let ctx: AudioContext | undefined;
     let gain: GainNode | undefined;
@@ -395,8 +445,6 @@ export default function HarlemInWordsPage() {
 
     return () => {
       stopped = true;
-      clearTimeout(timer);
-      setDisplayReady(false);
       // Fade this display's own music out, then stop it and close its
       // context. Locals, not the refs: a display opened again within the
       // fade has already put its own nodes in the refs.
@@ -420,17 +468,7 @@ export default function HarlemInWordsPage() {
   }, [displayMode]);
 
   // Build poem lines for display
-  const poemLines: PoemEntry[][] = [];
-  let currentLine: PoemEntry[] = [];
-  poem.forEach(e => {
-    if (e.isLineBreak) {
-      poemLines.push(currentLine);
-      currentLine = [];
-    } else {
-      currentLine.push(e);
-    }
-  });
-  if (currentLine.length > 0) poemLines.push(currentLine);
+  const poemLines = linesOf(poem);
 
   // Auto-capitalise first letter of each line
   const displayLines = poemLines.map(line =>
@@ -441,6 +479,7 @@ export default function HarlemInWordsPage() {
   );
 
   const hasWords = poem.some(e => !e.isLineBreak);
+  const promptCheck = promptIdx === null ? null : checkPrompt(promptIdx, poem);
 
   // Save as image
   const handleSaveImage = useCallback(() => {
@@ -476,6 +515,8 @@ export default function HarlemInWordsPage() {
     ctx.letterSpacing = '4px';
     ctx.textAlign = 'center';
     ctx.fillText('POETRY WORKSHOP', W / 2, 120);
+    // The spacing would otherwise carry on into the poem and the byline.
+    ctx.letterSpacing = '0px';
 
     // Diamond divider under label
     ctx.fillStyle = 'rgba(201,169,78,0.4)';
@@ -485,16 +526,24 @@ export default function HarlemInWordsPage() {
     ctx.fillRect(-3, -3, 6, 6);
     ctx.restore();
 
-    // Poem text
+    // Poem text: each line wrapped to fit inside the frame, and the type
+    // made smaller until the whole poem fits above the byline. (Long lines
+    // used to run off the sides of the picture, and long poems off the foot.)
     ctx.fillStyle = '#E8D48B';
-    ctx.font = '22px "Poiret One", sans-serif';
     ctx.textAlign = 'center';
+    const maxWidth = W - 200;
+    const room = H - 200 - 190;
+    let size = 22;
+    let rows: string[] = [];
+    for (; size >= 12; size -= 1) {
+      ctx.font = `${size}px "Poiret One", sans-serif`;
+      rows = displayLines.flatMap(line => wrapText(line.map(w => w.text).join(' ').toUpperCase(), maxWidth, t => ctx.measureText(t).width));
+      if (rows.length * size * 2 <= room) break;
+    }
+    const lineHeight = Math.max(size, 12) * 2;
     let y = 200;
-    const lineHeight = 44;
-
-    displayLines.forEach(line => {
-      const lineText = line.map(w => w.text).join(' ').toUpperCase();
-      ctx.fillText(lineText, W / 2, y);
+    rows.forEach(row => {
+      ctx.fillText(row, W / 2, y);
       y += lineHeight;
     });
 
@@ -1822,6 +1871,57 @@ export default function HarlemInWordsPage() {
         }
 
         /* ── Print Styles ── */
+        /* Readable sizes. The labels and buttons a child has to read or press
+           were 8 to 9px; these raise them, on every screen. */
+        .hw-frame-btn { font-size: 12px; letter-spacing: 1.5px; padding: 8px 12px; min-height: 36px; }
+        .hw-connectors-label, .hw-hint { font-size: 12px; }
+        .hw-cat-tab { font-size: 12px; letter-spacing: 1px; min-height: 36px; }
+        .hw-plural-toggle, .hw-shuffle-sm { font-size: 12px; }
+        .hw-display-btn { font-size: 12px; }
+        @media (max-width: 600px) {
+          .hw-frame-btn { font-size: 11px; letter-spacing: 1px; padding: 7px 9px; }
+          .hw-cat-tab { font-size: 11px; padding: 6px 8px; }
+          .hw-display-btn { font-size: 11px; }
+        }
+
+        /* Repeat a line: the lines to choose from. */
+        .hw-refrain {
+          position: relative; z-index: 2;
+          margin: 0 0 12px; padding: 10px 12px;
+          border: 1px dashed rgba(201,169,78,0.4); border-radius: 6px;
+          background: rgba(10,10,10,0.6);
+          display: grid; gap: 6px;
+        }
+        .hw-refrain-label { margin: 0; font-family: 'Josefin Sans', sans-serif; font-size: 13px; color: var(--hw-text); }
+        .hw-refrain-line {
+          display: flex; gap: 8px; align-items: baseline; text-align: left;
+          padding: 6px 10px; min-height: 36px;
+          font-family: 'Poiret One', 'Josefin Sans', sans-serif; font-size: 15px;
+          color: var(--hw-gold-light); background: transparent;
+          border: 1px solid rgba(201,169,78,0.25); border-radius: 4px; cursor: pointer;
+        }
+        .hw-refrain-line:hover { border-color: var(--hw-gold); }
+        .hw-refrain-line:focus-visible { outline: 2px solid #E8D48B; outline-offset: 2px; }
+        .hw-refrain-num { font-family: 'Josefin Sans', sans-serif; font-size: 12px; color: var(--hw-gold-dim); }
+
+        /* The chosen prompt, checked as the poem grows. */
+        .hw-prompt-check { margin: 0 0 8px; font-family: 'Josefin Sans', sans-serif; font-size: 13px; line-height: 1.45; color: #cfc4ae; }
+        .hw-prompt-check.done { color: #9BC77A; }
+
+        /* The mentor poem: find the lines that come back. */
+        .hw-line-btn {
+          width: 100%; text-align: left; background: none; border: none; color: inherit;
+          cursor: pointer; border-radius: 4px;
+        }
+        .hw-line-btn:hover { background: rgba(201,169,78,0.08); }
+        .hw-mentor-line.is-refrain { color: var(--hw-gold-light); background: rgba(201,169,78,0.10); }
+        .hw-find { font-family: 'Josefin Sans', sans-serif; }
+        .hw-find-ask { margin: 0 0 6px; font-size: 14px; line-height: 1.5; color: var(--hw-text); }
+        .hw-find-ask strong { color: var(--hw-gold-light); }
+        .hw-find-count { color: var(--hw-gold); white-space: nowrap; }
+        .hw-find-note { margin: 0 0 8px; min-height: 1.4em; font-size: 14px; line-height: 1.45; color: #F0B37E; }
+        .hw-find-note.ok { color: #9BC77A; }
+
         @media print {
           body, .hw-root { background: white !important; }
           .hw-compose-page, .hw-welcome, .hw-display-bg { display: none !important; }
@@ -1918,8 +2018,14 @@ export default function HarlemInWordsPage() {
               <div className="hw-mentor-stanzas">
                 {MENTOR_POEM.stanzas.map((st, i) => (
                   <p key={i} className="hw-mentor-stanza">
-                    {st.map((line, j) => (
-                      <span key={j} className="hw-mentor-line">{line}</span>
+                    {st.map((line, j) => refrainsDone ? (
+                      <span key={j} className={`hw-mentor-line ${REFRAINS.includes(line) ? 'is-refrain' : ''}`}>{line}</span>
+                    ) : (
+                      // While the child looks for the lines that come back, each line is a button.
+                      <button key={j} type="button" className={`hw-mentor-line hw-line-btn ${foundRefrains.has(line) ? 'is-refrain' : ''}`}
+                        aria-pressed={foundRefrains.has(line)} onClick={() => tapMentorLine(line)}>
+                        {line}
+                      </button>
                     ))}
                   </p>
                 ))}
@@ -1933,11 +2039,29 @@ export default function HarlemInWordsPage() {
             <div className="hw-mentor-side">
             <section className="hw-mentor-section" aria-labelledby="hw-notice-h">
               <h2 id="hw-notice-h" className="hw-mentor-h2">What to notice</h2>
-              <ul className="hw-notice-list">
-                {MENTOR_NOTICES.map(n => (
-                  <li key={n.title}><strong>{n.title}.</strong> {n.text}</li>
-                ))}
-              </ul>
+              {refrainsDone ? (
+                <ul className="hw-notice-list">
+                  {MENTOR_NOTICES.map(n => (
+                    <li key={n.title}><strong>{n.title}.</strong> {n.text}</li>
+                  ))}
+                </ul>
+              ) : (
+                // Find it before being told: the lines that come back.
+                // REVIEW: new text
+                <div className="hw-find">
+                  <p className="hw-find-ask">
+                    <strong>Find it first.</strong> Two lines in this poem come back. Tap a line you read twice.
+                    <span className="hw-find-count"> {foundRefrains.size} of {REFRAINS.length} found</span>
+                  </p>
+                  <p className={`hw-find-note ${lineNote.ok ? 'ok' : ''}`} role="status" aria-live="polite">{lineNote.text}</p>
+                  <button type="button" className="hw-shuffle-sm" onClick={() => {
+                    setFoundRefrains(new Set(REFRAINS));
+                    setLineNote({ text: '', ok: false });
+                  }}>
+                    Show me
+                  </button>
+                </div>
+              )}
             </section>
 
             <section className="hw-mentor-section" aria-labelledby="hw-prompts-h">
@@ -2014,6 +2138,12 @@ export default function HarlemInWordsPage() {
                 <span className="hw-prompt-tag">{promptIdx === null ? 'Need an idea?' : 'Your prompt'}</span>{' '}
                 {promptIdx === null ? 'Try a prompt inspired by Langston Hughes.' : PROMPT_CARDS[promptIdx]}
               </p>
+              {promptCheck && (
+                // The prompt, checked as the poem grows: "not yet", never "wrong".
+                <p className={`hw-prompt-check ${promptCheck.done ? 'done' : ''}`} role="status" aria-live="polite">
+                  <span aria-hidden="true">{promptCheck.done ? '\u2713' : '\u25CB'} </span>{promptCheck.status}
+                </p>
+              )}
               <div className="hw-prompt-btns">
                 <button type="button" className="hw-shuffle-sm" onClick={() => {
                   const next = promptIdx === null ? 0 : (promptIdx + 1) % PROMPT_CARDS.length;
@@ -2088,10 +2218,6 @@ export default function HarlemInWordsPage() {
                               removeEntry(entry.uid);
                               setAnnouncement(`Removed \u201C${entry.text}\u201D.`);
                             }}
-                            onTouchEnd={(e) => {
-                              e.preventDefault();
-                              removeEntry(entry.uid);
-                            }}
                           >
                             {entry.text}
                           </button>{' '}
@@ -2109,10 +2235,38 @@ export default function HarlemInWordsPage() {
                 tap a word in your poem to remove it
               </div>
 
+              {/* Repeat a line: which line to bring back, as a refrain */}
+              {refrainOpen && hasWords && (
+                <div className="hw-refrain" id="hw-refrain-list" role="group" aria-labelledby="hw-refrain-label">
+                  {/* REVIEW: new text */}
+                  <p className="hw-refrain-label" id="hw-refrain-label">Bring back which line? It goes at the end, as a refrain.</p>
+                  {displayLines.map((line, i) => line.length > 0 && (
+                    <button key={i} type="button" className="hw-refrain-line" onClick={() => {
+                      repeatLine(i);
+                      setAnnouncement(`Repeated line ${i + 1} at the end of your poem.`);
+                    }}>
+                      <span className="hw-refrain-num" aria-hidden="true">{i + 1}</span>
+                      {line.map(w => w.text).join(' ')}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {/* Buttons */}
               <div className="hw-frame-btns">
                 <button className="hw-frame-btn" onClick={addLineBreak} disabled={!hasWords}>
                   <span aria-hidden="true">{'\u21B5'}</span> Line
+                </button>
+                {/* REVIEW: new text */}
+                <button
+                  type="button"
+                  className="hw-frame-btn"
+                  aria-expanded={refrainOpen}
+                  aria-controls="hw-refrain-list"
+                  onClick={() => setRefrainOpen(o => !o)}
+                  disabled={!hasWords}
+                >
+                  <span aria-hidden="true">{'\u21BB'}</span> Repeat a line
                 </button>
                 <button className="hw-frame-btn" ref={undoBtnRef} onClick={handleUndo} disabled={undoStack.length === 0}>
                   <span aria-hidden="true">{'\u21A9'}</span> Undo
@@ -2251,15 +2405,8 @@ export default function HarlemInWordsPage() {
                   return <line key={i} x1="100" y1="100" x2={100 + Math.cos(rad) * 100} y2={100 + Math.sin(rad) * 100} stroke="var(--hw-gold)" strokeWidth="0.5" />;
                 })}
               </svg>
-              {Array.from({ length: 20 }).map((_, i) => (
-                <div key={i} className="hw-floating-diamond" style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  width: `${6 + Math.random() * 10}px`,
-                  height: `${6 + Math.random() * 10}px`,
-                  '--dur': `${8 + Math.random() * 12}s`,
-                  '--delay': `${Math.random() * 3}s`,
-                } as React.CSSProperties} />
+              {decor.diamonds.slice(0, 20).map((d, i) => (
+                <div key={i} className="hw-floating-diamond" style={d} />
               ))}
             </>}
 
@@ -2272,27 +2419,15 @@ export default function HarlemInWordsPage() {
                   animationDelay: `${i * 0.3}s`,
                 }} />
               ))}
-              {Array.from({ length: 15 }).map((_, i) => (
-                <div key={i} className="hw-floating-diamond" style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  width: `${6 + Math.random() * 10}px`,
-                  height: `${6 + Math.random() * 10}px`,
-                  '--dur': `${8 + Math.random() * 12}s`,
-                  '--delay': `${Math.random() * 3}s`,
-                } as React.CSSProperties} />
+              {decor.diamonds.slice(0, 15).map((d, i) => (
+                <div key={i} className="hw-floating-diamond" style={d} />
               ))}
             </>}
 
             {displayTheme === 2 && <>
               {/* Gold particle rain */}
-              {Array.from({ length: 40 }).map((_, i) => (
-                <div key={i} className="hw-particle" style={{
-                  left: `${Math.random() * 100}%`,
-                  '--dur': `${6 + Math.random() * 8}s`,
-                  '--delay': `${Math.random() * 6}s`,
-                  '--opacity': `${0.35 + Math.random() * 0.4}`,
-                } as React.CSSProperties} />
+              {decor.particles.map((d, i) => (
+                <div key={i} className="hw-particle" style={d} />
               ))}
             </>}
 
@@ -2308,15 +2443,8 @@ export default function HarlemInWordsPage() {
                   ))}
                 </div>
               ))}
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="hw-floating-diamond" style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  width: `${6 + Math.random() * 10}px`,
-                  height: `${6 + Math.random() * 10}px`,
-                  '--dur': `${8 + Math.random() * 12}s`,
-                  '--delay': `${Math.random() * 3}s`,
-                } as React.CSSProperties} />
+              {decor.diamonds.slice(0, 12).map((d, i) => (
+                <div key={i} className="hw-floating-diamond" style={d} />
               ))}
             </>}
 
@@ -2346,15 +2474,8 @@ export default function HarlemInWordsPage() {
                   );
                 })}
               </div>
-              {Array.from({ length: 18 }).map((_, i) => (
-                <div key={i} className="hw-floating-diamond" style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  width: `${6 + Math.random() * 10}px`,
-                  height: `${6 + Math.random() * 10}px`,
-                  '--dur': `${8 + Math.random() * 12}s`,
-                  '--delay': `${Math.random() * 3}s`,
-                } as React.CSSProperties} />
+              {decor.diamonds.slice(0, 18).map((d, i) => (
+                <div key={i} className="hw-floating-diamond" style={d} />
               ))}
             </>}
           </div>

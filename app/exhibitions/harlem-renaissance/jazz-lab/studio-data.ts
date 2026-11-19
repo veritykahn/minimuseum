@@ -14,12 +14,18 @@ export const INST_COLORS: Record<InstrumentCategory, string> = {
   combo: '#8B6BAE',
 };
 
-export const INST_EMOJI: Record<InstrumentCategory, string> = {
-  drums: '\u{1F941}',
-  piano: '\u{1F3B9}',
-  horns: '\u{1F3B6}',
-  bass: '\u{1F3B8}',
-  combo: '\u{1F3B5}',
+/**
+ * The line drawing beside each lane and crate group (InstrumentIcon). These
+ * replace emoji, which drew differently on every platform and showed the
+ * bass as a guitar: the horns lane takes the trumpet, the combos (loops of
+ * two instruments at once) the pair of notes.
+ */
+export const INST_ICON: Record<InstrumentCategory, 'drums' | 'piano' | 'trumpet' | 'bass' | 'horns'> = {
+  drums: 'drums',
+  piano: 'piano',
+  horns: 'trumpet',
+  bass: 'bass',
+  combo: 'horns',
 };
 
 export const INST_NAMES: Record<InstrumentCategory, string> = {
@@ -59,6 +65,38 @@ export function loopDuration(bpm: number, bars: number): number {
 export function snapToBar(time: number, bpm: number): number {
   const bar = 240 / bpm;
   return Math.max(0, Math.round(time / bar) * bar);
+}
+
+/** A loop already on the timeline, as the placing helpers need it. */
+export type LaneBlock = { loopId: string; lane: InstrumentCategory; startTime: number };
+
+/**
+ * Where a loop dropped at `wanted` seconds lands: that time snapped to the
+ * nearest bar (and kept on the timeline), if its lane is free there for the
+ * loop's whole length; otherwise null. (A loop dragged from the crate used
+ * to go to the first gap in its lane, wherever it was dropped.)
+ */
+export function dropStart(loop: LoopDef, wanted: number, blocks: readonly LaneBlock[], session: SessionDef): number | null {
+  const dur = loopDuration(session.bpm, loop.bars);
+  const t = snapToBar(Math.max(0, Math.min(wanted, TIMELINE_DURATION - dur)), session.bpm);
+  if (t + dur > TIMELINE_DURATION + 1e-6) return null;
+  const clash = blocks.some((b) => {
+    if (b.lane !== loop.instrument) return false;
+    const l = session.loops.find((x) => x.id === b.loopId);
+    const d = l ? loopDuration(session.bpm, l.bars) : 0;
+    return t < b.startTime + d - 1e-6 && t + dur > b.startTime + 1e-6;
+  });
+  return clash ? null : t;
+}
+
+/** Where the arrangement ends: the end of its last loop (0 when empty). */
+export function songEnd(blocks: readonly LaneBlock[], session: SessionDef): number {
+  let end = 0;
+  for (const b of blocks) {
+    const l = session.loops.find((x) => x.id === b.loopId);
+    if (l) end = Math.max(end, b.startTime + loopDuration(session.bpm, l.bars));
+  }
+  return Math.min(end, TIMELINE_DURATION);
 }
 
 function L(inst: InstrumentCategory, file: string, code: string, label: string, bars: number): LoopDef {

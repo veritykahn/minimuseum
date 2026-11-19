@@ -16,6 +16,22 @@ import {
 
 // ─── useAudioEngine ─────────────────────────────────────────────────────────
 
+export type PlayOptions = {
+  /** A shared clock's name: loops on it stay on the same beat. */
+  sync?: string;
+  /** Called when the sound plays to its end (not when it is stopped). */
+  onEnded?: () => void;
+};
+
+/**
+ * Where in a loop of `duration` seconds to start, `elapsed` seconds after
+ * the clock's downbeat. Zero for a loop whose length is unknown.
+ */
+export function loopOffset(elapsed: number, duration: number): number {
+  if (!(duration > 0) || !(elapsed > 0)) return 0;
+  return elapsed % duration;
+}
+
 type ActiveSource = {
   source: AudioBufferSourceNode;
   gain: GainNode;
@@ -29,6 +45,15 @@ type ActiveSource = {
  * longer current when its buffer arrives never makes a sound. Every node the
  * engine starts is also kept in one set, so stopAll silences all of them even
  * if a bookkeeping slip ever lost one from the map.
+ *
+ * Loops that must play in time with each other (the band) share a clock by
+ * name (`sync`). The first loop to start on a clock sets its downbeat; every
+ * loop that joins later starts part-way through its file, at the point the
+ * band has reached, so a bass brought on a few seconds after the drums lands
+ * on the same beat instead of a few seconds behind it. (Before, each loop
+ * began at its own top whenever it finished loading: the band drifted out of
+ * time with every instrument added.) A loop that replaces itself (a new song
+ * section) fades its old file out over a moment rather than cutting it dead.
  */
 export function useAudioEngine() {
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -43,6 +68,8 @@ export function useAudioEngine() {
   /** The volume each id should play at, kept even while it is still loading. */
   const volumesRef = useRef<Map<string, number>>(new Map());
   const aliveRef = useRef(true);
+  /** Shared downbeats by clock name: the context time a synced loop's file began. */
+  const clocksRef = useRef<Map<string, number>>(new Map());
   const stopListenersRef = useRef<Set<() => void>>(new Set());
 
   const ensureContext = useCallback((): AudioContext => {
@@ -95,7 +122,24 @@ export function useAudioEngine() {
     }
   }, [kill]);
 
+  /** A short fade, then stop: for a loop handing over to its next section. */
+  const fadeKill = useCallback((entry: ActiveSource) => {
+    const ctx = audioCtxRef.current;
+    if (!ctx) { kill(entry); return; }
+    const now = ctx.currentTime;
+    entry.gain.gain.cancelScheduledValues(now);
+    entry.gain.gain.setValueAtTime(entry.gain.gain.value, now);
+    entry.gain.gain.linearRampToValueAtTime(0, now + 0.12);
+    setTimeout(() => kill(entry), 160);
+  }, [kill]);
+
+  /** Forgets a clock's downbeat: the next loop on it starts the music afresh. */
+  const resetClock = useCallback((name: string) => {
+    clocksRef.current.delete(name);
+  }, []);
+
   const stopAll = useCallback(() => {
+    clocksRef.current.clear();
     ticketsRef.current.clear();
     activeSourcesRef.current.clear();
     allSourcesRef.current.forEach(kill);
@@ -106,8 +150,16 @@ export function useAudioEngine() {
    * Shared by playLoop and playOnce. Resolves once the sound has started, or
    * once it has been cancelled by a newer start or a stop.
    */
-  const start = useCallback(async (id: string, src: string, volume: number, loop: boolean, fadeIn: boolean) => {
-    stopSource(id);
+  const start = useCallback(async (id: string, src: string, volume: number, loop: boolean, fadeIn: boolean, opts: PlayOptions = {}) => {
+    const prev = activeSourcesRef.current.get(id);
+    if (prev && loop) {
+      // A loop handing over to its next file fades out; anything else stops.
+      ticketsRef.current.delete(id);
+      activeSourcesRef.current.delete(id);
+      fadeKill(prev);
+    } else {
+      stopSource(id);
+    }
     const ticket = ++ticketCounterRef.current;
     ticketsRef.current.set(id, ticket);
     volumesRef.current.set(id, volume);
@@ -130,10 +182,21 @@ export function useAudioEngine() {
     source.buffer = buffer;
     source.loop = loop;
 
+    // When to start, and where in the file: on a shared clock, at the beat
+    // the other loops have reached; otherwise now, from the top.
+    let when = 0;
+    let offset = 0;
+    if (opts.sync) {
+      when = ctx.currentTime + 0.03;
+      const downbeat = clocksRef.current.get(opts.sync);
+      if (downbeat === undefined) clocksRef.current.set(opts.sync, when);
+      else offset = loopOffset(when - downbeat, buffer.duration);
+    }
+
     const gainNode = ctx.createGain();
     if (fadeIn) {
-      gainNode.gain.setValueAtTime(0, ctx.currentTime);
-      gainNode.gain.linearRampToValueAtTime(level, ctx.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0, when || ctx.currentTime);
+      gainNode.gain.linearRampToValueAtTime(level, (when || ctx.currentTime) + 0.1);
     } else {
       gainNode.gain.value = level;
     }
@@ -148,17 +211,27 @@ export function useAudioEngine() {
       if (activeSourcesRef.current.get(id) === entry) {
         activeSourcesRef.current.delete(id);
         ticketsRef.current.delete(id);
+        // Only a sound that ran to its end says so: a stopped or replaced
+        // one has already left the map.
+        opts.onEnded?.();
       }
       allSourcesRef.current.delete(entry);
     };
     activeSourcesRef.current.set(id, entry);
     allSourcesRef.current.add(entry);
-    source.start(0);
-  }, [ensureContext, loadAudio, stopSource]);
+    if (opts.sync) source.start(when, offset);
+    else source.start(0);
+  }, [ensureContext, loadAudio, stopSource, fadeKill]);
 
-  const playLoop = useCallback((id: string, src: string, volume: number = 0.5) => start(id, src, volume, true, true), [start]);
+  const playLoop = useCallback(
+    (id: string, src: string, volume: number = 0.5, opts?: PlayOptions) => start(id, src, volume, true, true, opts),
+    [start],
+  );
 
-  const playOnce = useCallback((id: string, src: string, volume: number = 0.8) => start(id, src, volume, false, false), [start]);
+  const playOnce = useCallback(
+    (id: string, src: string, volume: number = 0.8, opts?: PlayOptions) => start(id, src, volume, false, false, opts),
+    [start],
+  );
 
   const setVolume = useCallback((id: string, volume: number) => {
     volumesRef.current.set(id, volume);
@@ -226,8 +299,8 @@ export function useAudioEngine() {
   // One stable object, so hooks that take the engine as a dependency don't
   // re-run on every render.
   return useMemo(
-    () => ({ ensureContext, loadAudio, playLoop, playOnce, setVolume, stopSource, fadeOutAndStop, stopAll, isPlaying, onSilenced }),
-    [ensureContext, loadAudio, playLoop, playOnce, setVolume, stopSource, fadeOutAndStop, stopAll, isPlaying, onSilenced],
+    () => ({ ensureContext, loadAudio, playLoop, playOnce, setVolume, stopSource, fadeOutAndStop, stopAll, isPlaying, onSilenced, resetClock }),
+    [ensureContext, loadAudio, playLoop, playOnce, setVolume, stopSource, fadeOutAndStop, stopAll, isPlaying, onSilenced, resetClock],
   );
 }
 
@@ -240,6 +313,9 @@ export function bandVolume(id: BandInstrumentId, spotlight: BandInstrumentId | n
   if (!spotlight) return 0.7;
   return id === spotlight ? 1.0 : 0.4;
 }
+
+/** The band's shared clock: every player keeps the same beat. */
+const BAND = { sync: 'band' } as const;
 
 /**
  * Build a Band. Tapping an instrument always does one thing — gives it the
@@ -283,7 +359,9 @@ export function useBandBuilder(audio: AudioEngine, { preload = true }: { preload
 
     if (!active.has(id)) {
       // Not playing → bring it on stage, in the spotlight.
-      audio.playLoop(id, getBandAudioSrc(id, section), bandVolume(id, id));
+      // An empty stage starts the tune afresh; anyone joining comes in on the beat.
+      if (active.size === 0) audio.resetClock(BAND.sync);
+      audio.playLoop(id, getBandAudioSrc(id, section), bandVolume(id, id), BAND);
       applyVolumes(active, id);
       const next = new Set(active);
       next.add(id);
@@ -306,6 +384,7 @@ export function useBandBuilder(audio: AudioEngine, { preload = true }: { preload
     const next = new Set(active);
     next.delete(id);
     const nextSpot = spotlight === id ? null : spotlight;
+    if (next.size === 0) audio.resetClock(BAND.sync);
     applyVolumes(next, nextSpot);
     setActive(next);
     setSpotlight(nextSpot);
@@ -328,9 +407,11 @@ export function useBandBuilder(audio: AudioEngine, { preload = true }: { preload
     // Update spotlight
     const newSpotlight = spotlight && stillActive.has(spotlight) ? spotlight : null;
 
-    // Restart all remaining instruments with new section audio (synchronized)
+    // Every player still on stage starts the new section together, from its
+    // top: a fresh downbeat on the band's clock.
+    audio.resetClock(BAND.sync);
     stillActive.forEach(id => {
-      audio.playLoop(id, getBandAudioSrc(id, newSection), bandVolume(id, newSpotlight));
+      audio.playLoop(id, getBandAudioSrc(id, newSection), bandVolume(id, newSpotlight), BAND);
     });
 
     setActive(stillActive);
@@ -353,7 +434,7 @@ export function useBandBuilder(audio: AudioEngine, { preload = true }: { preload
     const newActive = new Set<BandInstrumentId>();
     chosen.forEach(inst => {
       newActive.add(inst.id);
-      audio.playLoop(inst.id, getBandAudioSrc(inst.id, randomSection), 0.7);
+      audio.playLoop(inst.id, getBandAudioSrc(inst.id, randomSection), bandVolume(inst.id, null), BAND);
     });
 
     setSection(randomSection);
@@ -382,7 +463,8 @@ export function useBandBuilder(audio: AudioEngine, { preload = true }: { preload
 
 // ─── useQuiz ────────────────────────────────────────────────────────────────
 
-type QuizState = 'idle' | 'playing' | 'answered' | 'gameover';
+/** 'retry': the first answer was wrong; one more listen and one more try. */
+type QuizState = 'idle' | 'playing' | 'retry' | 'answered' | 'gameover';
 
 export type QuizRound = {
   id: string;
@@ -392,9 +474,32 @@ export type QuizRound = {
 
 export type QuizRecord = {
   round: QuizRound;
+  /** The first answer: the one the score counts. */
   chosen: InstrumentId;
   correct: boolean;
+  /** After a wrong first answer, the second try. */
+  secondTry?: InstrumentId;
 };
+
+/**
+ * One answer to a round. Right first time ends the round. A first miss is
+ * not the end: the player hears what the instrument they picked sounds like,
+ * listens again and has one more try (the score still counts the first). A
+ * second answer, right or wrong, ends the round. Repeating the first miss
+ * does nothing.
+ */
+export function answerRound(
+  round: QuizRound,
+  answer: InstrumentId,
+  firstMiss: InstrumentId | null,
+): { next: 'answered' | 'retry'; record?: QuizRecord } {
+  if (firstMiss === null) {
+    if (answer === round.correctAnswer) return { next: 'answered', record: { round, chosen: answer, correct: true } };
+    return { next: 'retry' };
+  }
+  if (answer === firstMiss) return { next: 'retry' };
+  return { next: 'answered', record: { round, chosen: firstMiss, correct: false, secondTry: answer } };
+}
 
 /**
  * Twelve rounds: two different clips of each instrument, in an order where
@@ -453,11 +558,15 @@ export function useQuiz(audio: AudioEngine) {
   /** 'replay' while replaying only the rounds missed in the last full game. */
   const [mode, setMode] = useState<'full' | 'replay'>('full');
   const [isQuizPlaying, setIsQuizPlaying] = useState(false);
+  /** This round's wrong first answer, while the player has a second try. */
+  const [firstMiss, setFirstMiss] = useState<InstrumentId | null>(null);
   const lastFullRecords = useRef<QuizRecord[]>([]);
 
+  // The play button shows the note while the clip sounds, and the play
+  // arrow again once it ends (it used to keep the note on for good).
   const playRound = useCallback((round: QuizRound) => {
     setIsQuizPlaying(true);
-    audio.playOnce('quiz', round.audioSrc).catch(() => setIsQuizPlaying(false));
+    audio.playOnce('quiz', round.audioSrc, 0.8, { onEnded: () => setIsQuizPlaying(false) }).catch(() => setIsQuizPlaying(false));
   }, [audio]);
 
   useEffect(() => audio.onSilenced(() => setIsQuizPlaying(false)), [audio]);
@@ -467,6 +576,7 @@ export function useQuiz(audio: AudioEngine) {
     setRounds(newRounds);
     setCurrentRound(0);
     setRecords([]);
+    setFirstMiss(null);
     setMode(newMode);
     setGameState('playing');
     playRound(newRounds[0]);
@@ -484,15 +594,25 @@ export function useQuiz(audio: AudioEngine) {
   }, [rounds, currentRound, playRound]);
 
   const submitAnswer = useCallback((answer: InstrumentId) => {
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing' && gameState !== 'retry') return;
     const round = rounds[currentRound];
-    const next = [...records, { round, chosen: answer, correct: answer === round.correctAnswer }];
+    const result = answerRound(round, answer, gameState === 'retry' ? firstMiss : null);
+    if (!result.record) {
+      if (gameState === 'playing') {
+        // A first miss: say what that instrument sounds like, play the clip again.
+        setFirstMiss(answer);
+        setGameState('retry');
+        playRound(round);
+      }
+      return;
+    }
+    const next = [...records, result.record];
     setRecords(next);
     if (mode === 'full' && currentRound + 1 >= rounds.length) lastFullRecords.current = next;
     setGameState('answered');
     setIsQuizPlaying(false);
     audio.stopSource('quiz');
-  }, [gameState, rounds, currentRound, records, mode, audio]);
+  }, [gameState, rounds, currentRound, records, mode, audio, firstMiss, playRound]);
 
   // The player decides when to move on: no timer races the feedback.
   const nextRound = useCallback(() => {
@@ -503,6 +623,7 @@ export function useQuiz(audio: AudioEngine) {
     }
     const n = currentRound + 1;
     setCurrentRound(n);
+    setFirstMiss(null);
     setGameState('playing');
     playRound(rounds[n]);
   }, [gameState, currentRound, rounds, playRound]);
@@ -519,6 +640,7 @@ export function useQuiz(audio: AudioEngine) {
     records,
     lastRecord,
     currentQuestion: rounds[currentRound] || null,
+    firstMiss: gameState === 'retry' ? firstMiss : null,
     isQuizPlaying,
     startGame,
     replayMissed,
