@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react';
 import { srOnly } from '@/lib/a11y';
 import { MESSAGE_MAX } from '@/lib/classBoard';
-import { ROWS, STATION_TEXT, rowCheck, type RowName } from './stationText';
+import { ROWS, STATION_TEXT, rowCheck, wordLike, type RowName } from './stationText';
 import { TEN, TEN_WORD, beatTen, beatsTen, longestWordsMessage } from './challenges';
 import type { SoundName } from './typingSound';
 
@@ -40,7 +40,10 @@ export default function TopRow({ play, onPost }: { play: (s: SoundName) => void;
   const [posted, setPosted] = useState('');
   const winTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => () => clearTimeout(winTimer.current), []);
-  const check = rowCheck(word, row);
+  const onRow = rowCheck(word, row);
+  const like = wordLike(onRow.letters);
+  // On the row, and like a word: only then can it be kept, or fill the meter.
+  const check = { ...onRow, ok: onRow.ok && like.ok };
   const used = new Set(check.letters);
   const rowName = row === 'top' ? 'top row' : 'bottom row';
   const n = check.letters.length;
@@ -48,9 +51,9 @@ export default function TopRow({ play, onPost }: { play: (s: SoundName) => void;
 
   const verdict = !check.letters
     ? `Type a word using only the ${rowName}.`
-    : check.ok
-      ? `Every letter is on the ${rowName}: ${n} ${n === 1 ? 'letter' : 'letters'}.`
-      : `Not on the ${rowName}: ${check.off.map((c) => c.toUpperCase()).join(', ')}.`;
+    : !onRow.ok
+      ? `Not on the ${rowName}: ${check.off.map((c) => c.toUpperCase()).join(', ')}.`
+      : `Every letter is on the ${rowName}: ${n} ${n === 1 ? 'letter' : 'letters'}.${like.ok ? '' : ` ${like.note}`}`;
 
   const keep = (e: FormEvent) => {
     e.preventDefault();

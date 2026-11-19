@@ -12,7 +12,8 @@ import IMac from './IMac';
 import TopRow from './TopRow';
 import ClassBoard from './ClassBoard';
 import { PromptLine } from './PromptPanel';
-import { RaceBar, RaceResults, newRace, raceMessage, type RaceState } from './Race';
+import { RaceBar, RacePredict, RaceResults, newRace, raceMessage, type RaceState } from './Race';
+import type { Guess } from './challenges';
 import { mistakesLeft, spokenTime } from './challenges';
 import { STATION_TEXT } from './stationText';
 import { useTypingSound } from './typingSound';
@@ -71,6 +72,8 @@ export default function TypingStation() {
   const [round, setRound] = useState(0);
   /** What the race says aloud: a clock stopping, the winner. */
   const [raceSaid, setRaceSaid] = useState('');
+  /** Asking for a prediction before the race starts. */
+  const [predicting, setPredicting] = useState(false);
 
   // A link to a saved board (?board=<code>) opens it.
   useEffect(() => {
@@ -133,11 +136,17 @@ export default function TypingStation() {
   /* ───────── The race ───────── */
   const focusMachine = (m: Machine) => requestAnimationFrame(() => document.querySelector<HTMLTextAreaElement>(m === 'imac' ? '.wri-text' : '.wrt-field')?.focus());
 
-  const startRace = () => {
+  const askPrediction = () => {
+    setRace(null);
+    setPredicting(true);
+  };
+
+  const startRace = (guess: Guess) => {
+    setPredicting(false);
     setRound((n) => n + 1);
     setTyped({ typewriter: '', imac: '' });
     strikesRef.current = 0;
-    setRace(newRace());
+    setRace(newRace(guess));
     setRaceSaid(STATION_TEXT.race.first);
     choose('typewriter');
     focusMachine('typewriter');
@@ -230,7 +239,9 @@ export default function TypingStation() {
               </button>
             ))}
           </div>
-          {racing ? (
+          {predicting && showLine ? (
+            <RacePredict onGuess={startRace} onCancel={() => setPredicting(false)} />
+          ) : racing ? (
             <RaceBar race={race} line={STATION_TEXT.line} tab={tab} onStop={() => stopClock(race.stage as Machine, typed[race.stage as Machine])} onNext={onToImac} onQuit={() => setRace(null)} />
           ) : (
             showLine && (
@@ -242,7 +253,7 @@ export default function TypingStation() {
                     <span className="wrs-line-label">{STATION_TEXT.lineLabel}</span> {STATION_TEXT.line}
                   </p>
                 )}
-                <button type="button" className="wrs-button wrs-race-start" onClick={startRace}>
+                <button type="button" className="wrs-button wrs-race-start" onClick={askPrediction}>
                   <span aria-hidden="true">⏱ </span>
                   {STATION_TEXT.race.start}
                 </button>
@@ -277,7 +288,7 @@ export default function TypingStation() {
         {race?.stage === 'done' && (
           <RaceResults
             race={race}
-            onAgain={startRace}
+            onAgain={askPrediction}
             onPost={() => {
               const r = race;
               setRace(null);

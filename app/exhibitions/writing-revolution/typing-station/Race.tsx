@@ -4,14 +4,20 @@ import { useEffect, useRef, useState } from 'react';
 import { srOnly } from '@/lib/a11y';
 import type { Machine } from '@/lib/classBoard';
 import { STATION_TEXT } from './stationText';
-import { clockText, raceVerdict, spokenTime } from './challenges';
+import { clockText, predictionLine, raceVerdict, spokenTime, type Guess } from './challenges';
 
 /*
- * The race: the line typed on the typewriter, then on the iMac, each against
- * its own stopwatch. A clock starts at the machine's first key and stops by
+ * The race: first a prediction (which machine will be faster?), then the
+ * line typed on the typewriter, then on the iMac, each against its own
+ * stopwatch. A clock starts at the machine's first key and stops by
  * itself when the line is typed right (or at "Stop the clock"). The results
  * set the two times side by side, big enough for a class to call out from a
- * projector, with the strike-overs the typewriter needed.
+ * projector, with the strike-overs the typewriter needed, and whether the
+ * prediction held.
+ *
+ * Its point: a child feels with their own hands why the word processor
+ * replaced the typewriter (and what it cost to fix a mistake before it),
+ * testing a prediction rather than taking the poster's word for it.
  */
 
 const R = STATION_TEXT.race;
@@ -26,9 +32,44 @@ export type RaceState = {
   mistakes: Partial<Record<Machine, number>>;
   /** The typewriter's strike-overs when its clock stopped. */
   strikeOvers: number;
+  /** Which machine the visitor predicted would be faster, before the race. */
+  guess?: Guess;
 };
 
-export const newRace = (): RaceState => ({ stage: 'typewriter', start: null, times: {}, mistakes: {}, strikeOvers: 0 });
+export const newRace = (guess?: Guess): RaceState => ({ stage: 'typewriter', start: null, times: {}, mistakes: {}, strikeOvers: 0, guess });
+
+/* REVIEW: new text */
+const GUESSES: { id: Guess; label: string }[] = [
+  { id: 'typewriter', label: 'The typewriter' },
+  { id: 'imac', label: 'The iMac' },
+  { id: 'same', label: 'About the same' },
+];
+
+/**
+ * Before the race: predict which machine will be faster. A guess first
+ * makes the race a test of it, and the results say whether it held.
+ */
+export function RacePredict({ onGuess, onCancel }: { onGuess: (g: Guess) => void; onCancel: () => void }) {
+  const first = useRef<HTMLButtonElement>(null);
+  useEffect(() => first.current?.focus(), []);
+  return (
+    <div className="wrs-race wrs-predict" role="group" aria-labelledby="wrs-predict-ask">
+      <p className="wrs-line" id="wrs-predict-ask">
+        <span className="wrs-line-label">Predict first</span> You will type the same line on both machines. Which will be faster?
+      </p>
+      <div className="wrs-race-row">
+        {GUESSES.map((g, i) => (
+          <button key={g.id} ref={i === 0 ? first : undefined} type="button" className="wrs-button" onClick={() => onGuess(g.id)}>
+            {g.label}
+          </button>
+        ))}
+        <button type="button" className="wrs-button wrs-button-ghost" onClick={onCancel}>
+          {R.close}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 /** A stopwatch: still, or running from `start`. Its digits are shown, not read out as they tick. */
 function Clock({ label, ms, start, active }: { label: string; ms?: number; start: number | null; active: boolean }) {
@@ -121,6 +162,7 @@ export function RaceResults({ race, onAgain, onPost, onClose }: { race: RaceStat
         </h2>
         <p className="wrr-verdict" role="status">
           {raceVerdict(tw, im)}
+          {race.guess && <span className={`wrr-guess ${predictionLine(race.guess, tw, im).right ? 'is-right' : ''}`}> {predictionLine(race.guess, tw, im).text}</span>}
         </p>
         <div className="wrr-sides">
           {side('typewriter', tw)}

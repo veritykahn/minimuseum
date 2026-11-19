@@ -60,6 +60,29 @@ export function raceVerdict(typewriter: number, imac: number): string {
   return imac < typewriter ? `The iMac won by ${spokenTime(gap)}.` : `The typewriter won by ${spokenTime(gap)}!`;
 }
 
+/* ───────── The race's prediction ───────── */
+
+/** What the visitor predicts before the race: which machine will be faster. */
+export type Guess = 'typewriter' | 'imac' | 'same';
+/** Within this, the two times count as "about the same" for a prediction. */
+export const CLOSE_MS = 2000;
+
+/** How the race came out, as a prediction is judged. */
+export function raceOutcome(typewriter: number, imac: number): Guess {
+  if (Math.abs(typewriter - imac) < CLOSE_MS) return 'same';
+  return imac < typewriter ? 'imac' : 'typewriter';
+}
+
+const GUESS_NAME: Record<Guess, string> = { typewriter: 'the typewriter', imac: 'the iMac', same: 'about the same' };
+
+/* REVIEW: new text */
+/** The prediction, against the result: right, or a question to think about. */
+export function predictionLine(guess: Guess, typewriter: number, imac: number): { right: boolean; text: string } {
+  const right = raceOutcome(typewriter, imac) === guess;
+  const said = guess === 'same' ? 'You predicted about the same.' : `You predicted ${GUESS_NAME[guess]} would be faster.`;
+  return { right, text: right ? `${said} You were right!` : `${said} Not this time: why do you think it came out the other way?` };
+}
+
 /* ───────── The teacher's word list ───────── */
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
