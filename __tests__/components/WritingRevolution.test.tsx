@@ -221,6 +221,7 @@ describe('The Writing Revolution on the museum map', () => {
       ['Exhibition Hall', '/exhibitions/writing-revolution'],
       ['Display Case', '/exhibitions/writing-revolution/artifacts/case'],
       ['The Typing Station', '/exhibitions/writing-revolution/typing-station'],
+      ['Lessons', '/exhibitions/writing-revolution/lessons'],
     ]);
     expect(getRoomByPath('/exhibitions/writing-revolution')?.parent).toBe('second-floor');
     expect(getRoomByPath('/exhibitions/writing-revolution/artifacts/case')?.parent).toBe('writing-revolution');

@@ -221,13 +221,13 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'moon', label: 'Our Incredible\nMoon', path: '/exhibitions/moon',
     x: 25, y: 80, width: 140, height: 110, accentColor: COLORS.moon,
     parent: 'ground-floor',
-    children: ['mo-case', 'mo-microscope'],
+    children: ['mo-case', 'mo-microscope', ...lessonsChild('moon')],
   },
   {
     id: 'egypt', label: 'Ancient Egypt', path: '/exhibitions/egypt',
     x: 180, y: 80, width: 140, height: 110, accentColor: COLORS.egypt,
     parent: 'ground-floor',
-    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet', 'eg-my-tomb'],
+    children: ['eg-case', 'eg-hieroglyph-name', 'eg-rosetta-stone', 'eg-tomb', 'eg-mummification', 'eg-weighing-of-the-heart', 'eg-amulet', 'eg-my-tomb', ...lessonsChild('egypt')],
   },
   {
     id: 'in-their-hands', label: 'In Their Hands', path: '/exhibitions/in-their-hands',
@@ -240,13 +240,13 @@ const GROUND_FLOOR_ROOMS: MapRoom[] = [
     id: 'america-250', label: 'America 250', path: '/exhibitions/america-250',
     x: 102, y: 230, width: 140, height: 100, accentColor: COLORS.america250,
     parent: 'ground-floor',
-    children: ['ap-case', 'ap-sign', 'ap-copies', 'ap-flag'],
+    children: ['ap-case', 'ap-sign', 'ap-copies', 'ap-flag', ...lessonsChild('america-250')],
   },
   {
     id: 'victorian', label: 'Victorian\nBritain', path: '/exhibitions/victorian',
     x: 257, y: 230, width: 140, height: 100, accentColor: COLORS.victorian,
     parent: 'ground-floor',
-    children: ['vb-case', 'vb-christmas-card', 'vb-inventions', 'vb-christmas-parlour'],
+    children: ['vb-case', 'vb-christmas-card', 'vb-inventions', 'vb-christmas-parlour', ...lessonsChild('victorian')],
   },
 ];
 

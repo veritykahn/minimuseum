@@ -133,6 +133,11 @@ describe('Teach with this: the lesson finder', () => {
       ['in-their-hands', 'the-numbers-in-the-coins'],
       ['harlem-renaissance', 'migration-by-numbers'],
       ['seeing-is-deceiving', 'geometry-of-perspective'],
+      ['moon', 'how-far-is-far'],
+      ['america-250', 'counting-a-nation'],
+      ['victorian', 'railway-time'],
+      ['womens-history', 'who-counts'],
+      ['black-history', 'whos-on-our-shelf'],
     ]);
   });
 
@@ -205,7 +210,7 @@ describe('Teach with this: printables', () => {
       expect(guidesFor(exhibition, 'homeschool').map((p) => p.label)).toEqual(['Parent Resource Guide', 'Quick Teaching Guide', 'Teacher Explanation Sheet']);
       expect(guidesFor(exhibition, 'teacher').map((p) => p.label)).not.toContain('Parent Resource Guide');
     }
-    expect(guidesFor('moon', 'teacher')).toEqual([]);
+    expect(guidesFor('no-such-exhibition', 'teacher')).toEqual([]);
   });
 
   it('knows the old resources pages, which rooms no longer link to', () => {

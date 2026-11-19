@@ -16,6 +16,18 @@
 import * as HARLEM from '@/app/exhibitions/harlem-renaissance/resources/data/resource-data';
 import * as ITH from '@/app/exhibitions/in-their-hands/resources/data/resource-data';
 import * as SEEING from '@/app/exhibitions/seeing-is-deceiving/resources/data/resource-data';
+// <every-exhibition-data>
+import * as MOON from '@/app/exhibitions/moon/resources/data/resource-data';
+import * as EGY from '@/app/exhibitions/egypt/resources/data/resource-data';
+import * as A250 from '@/app/exhibitions/america-250/resources/data/resource-data';
+import * as VIC from '@/app/exhibitions/victorian/resources/data/resource-data';
+import * as GW from '@/app/exhibitions/great-war/resources/data/resource-data';
+import * as WH from '@/app/exhibitions/womens-history/resources/data/resource-data';
+import * as HOL from '@/app/exhibitions/holocaust/resources/data/resource-data';
+import * as BH from '@/app/exhibitions/black-history/resources/data/resource-data';
+import * as WR from '@/app/exhibitions/writing-revolution/resources/data/resource-data';
+import * as FL from '@/app/exhibitions/fear-lab/resources/data/resource-data';
+// </every-exhibition-data>
 import { catalogFor, lessonPath, lessonsPath, type LessonCard } from './catalog';
 
 export { lessonPath, lessonsPath };
@@ -285,6 +297,58 @@ const RESOURCES: Record<string, { data: ResourceData; guide: string; handoutsGui
     guide: '/resources/seeing-is-deceiving/Teaching-Guide-Optical-Illusions-and-Visual-Deception.pdf',
     handoutsGuide: '/resources/seeing-is-deceiving/Using Differentiated Student Handouts.pdf',
   },
+  // <every-exhibition-resources>
+  'moon': {
+    data: MOON,
+    guide: '/resources/moon/MOON_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/moon/Using Differentiated Student Handouts.pdf',
+  },
+  'egypt': {
+    data: EGY,
+    guide: '/resources/egypt/EGY_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/egypt/Using Differentiated Student Handouts.pdf',
+  },
+  'america-250': {
+    data: A250,
+    guide: '/resources/america-250/A250_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/america-250/Using Differentiated Student Handouts.pdf',
+  },
+  'victorian': {
+    data: VIC,
+    guide: '/resources/victorian/VIC_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/victorian/Using Differentiated Student Handouts.pdf',
+  },
+  'great-war': {
+    data: GW,
+    guide: '/resources/great-war/GW_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/great-war/Using Differentiated Student Handouts.pdf',
+  },
+  'womens-history': {
+    data: WH,
+    guide: '/resources/womens-history/WH_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/womens-history/Using Differentiated Student Handouts.pdf',
+  },
+  'holocaust': {
+    data: HOL,
+    guide: '/resources/holocaust/HOL_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/holocaust/Using Differentiated Student Handouts.pdf',
+  },
+  'black-history': {
+    data: BH,
+    guide: '/resources/black-history/BH_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/black-history/Using Differentiated Student Handouts.pdf',
+  },
+  'writing-revolution': {
+    data: WR,
+    guide: '/resources/writing-revolution/WR_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/writing-revolution/Using Differentiated Student Handouts.pdf',
+  },
+  'fear-lab': {
+    data: FL,
+    guide: '/resources/fear-lab/FL_Teaching_Guide.pdf',
+    handoutsGuide: '/resources/fear-lab/Using Differentiated Student Handouts.pdf',
+  },
+  // </every-exhibition-resources>
 };
 
 /** The three levels of every handout, as the resources pages name them. */

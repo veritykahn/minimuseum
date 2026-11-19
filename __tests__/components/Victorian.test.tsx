@@ -280,6 +280,7 @@ describe('Victorian Britain on the museum map', () => {
       ['Card Maker', '/exhibitions/victorian/christmas-card'],
       ['Inventions', '/exhibitions/victorian/inventions'],
       ['Parlour', '/exhibitions/victorian/christmas-parlour'],
+      ['Lessons', '/exhibitions/victorian/lessons'],
     ]);
     expect(getRoomByPath('/exhibitions/victorian')?.parent).toBe('ground-floor');
     expect(getRoomByPath('/exhibitions/victorian/artifacts/case')?.parent).toBe('victorian');
