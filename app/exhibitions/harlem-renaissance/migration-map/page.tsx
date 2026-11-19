@@ -9,7 +9,7 @@ import { MIGRATION_SOURCES } from './sources';
 import { COAST_PLACES, CENTRAL_PATH, EAST_COAST_PATH, MUSIC_PATH, at, type LonLat } from './routes';
 import { MAP_H, MAP_W, RIVERS, STATES } from './usMap';
 import TicketPunch, { TicketStrip } from './TicketPunch';
-import { EMPTY_TICKET, answerTicket, type TicketState } from './ticket';
+import { EMPTY_TICKET, NEXT_STOP_CLUES, answerTicket, wrongStopLine, type TicketState } from './ticket';
 
 const AUDIO_BASE = '/exhibitions/harlem/audio/migration/';
 const PHOTO_BASE = '/exhibitions/harlem/images/migration/';
@@ -83,9 +83,35 @@ const PEOPLE_PLACES: { name: string; x: number; y: number; anchor: 'start' | 'en
 
 type RouteView = 'music' | 'people';
 
+/**
+ * The Great Migration map: ride the music north from New Orleans to Harlem,
+ * six stops, then see how the people moved.
+ *
+ * The point: after it, a child can trace on a real map how jazz and the
+ * blues travelled north (up the Mississippi, by riverboat and rail, to
+ * Chicago and then east to Harlem), and explain why most of Harlem's people
+ * came by a different road (up the Atlantic coast), which the posters state
+ * but a map lets them find and follow.
+ *
+ * What makes it more than tapping "next": before each ride the child finds
+ * the next stop on the map from a clue in that stop's own words (a wrong
+ * pick says why, and after two the right stop glows), and at each stop the
+ * ticket question asks what the story means, not which name it mentions.
+ * (It used to be a "Board the Train" button that named the next stop, six
+ * times over.)
+ */
 export default function MigrationMapPage() {
 
+  // The stop on screen (it can be an earlier one, opened again from the map)…
   const [currentCityIdx, setCurrentCityIdx] = useState(-1);
+  // …and the furthest stop reached: the journey goes on from here.
+  const [reachedIdx, setReachedIdx] = useState(-1);
+  const reachedRef = useRef(-1);
+  // "Where next?": the child is finding the next stop on the map from a clue.
+  const [choosing, setChoosing] = useState(false);
+  const [pickMisses, setPickMisses] = useState<string[]>([]);
+  const [pickNote, setPickNote] = useState('');
+  const clueRef = useRef<HTMLDivElement>(null);
   const [cityViewOpen, setCityViewOpen] = useState(false);
   const [cityContentVisible, setCityContentVisible] = useState(false);
   const [expandState, setExpandState] = useState<'hidden' | 'positioned' | 'expanded'>('hidden');
@@ -128,6 +154,9 @@ export default function MigrationMapPage() {
 
   const routePathRef = useRef<SVGPathElement>(null);
   const routeLengthRef = useRef(0);
+  // The route's measured length, for drawing the part travelled (state, so
+  // the drawing can read it; the ref is for the train's animation).
+  const [routeLen, setRouteLen] = useState(0);
   const [chevrons, setChevrons] = useState<{ x: number; y: number; angle: number }[]>([]);
   const cityPathPositionsRef = useRef<number[]>([]);
   const currentAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -149,6 +178,7 @@ export default function MigrationMapPage() {
     if (!path || typeof path.getTotalLength !== 'function') return;
     const len = path.getTotalLength();
     routeLengthRef.current = len;
+    setRouteLen(len);
 
     const positions: number[] = [];
     CITIES.forEach((city) => {
@@ -246,17 +276,20 @@ export default function MigrationMapPage() {
     setRouteView(view);
     setAnnouncement(view === 'people'
       ? 'Showing how the people moved: up the Atlantic coast to New York, and up the middle of the country to Chicago.'
-      : 'Showing how the music moved: the journey from the Mississippi Delta to Harlem.');
+      : 'Showing how the music moved: the journey from New Orleans to Harlem.');
   }, []);
 
   const getDotScreenPos = useCallback((idx: number) => {
     const svg = svgRef.current;
-    if (!svg) return { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    const middle = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+    // getScreenCTM is null while the map is not laid out (hidden): grow from the middle then.
+    const ctm = svg && typeof svg.getScreenCTM === 'function' ? svg.getScreenCTM() : null;
+    if (!svg || !ctm) return middle;
     const city = CITIES[idx];
     const pt = svg.createSVGPoint();
     pt.x = city.cx;
     pt.y = city.cy;
-    const screenPt = pt.matrixTransform(svg.getScreenCTM()!);
+    const screenPt = pt.matrixTransform(ctm);
     return { x: screenPt.x, y: screenPt.y };
   }, []);
 
@@ -374,6 +407,9 @@ export default function MigrationMapPage() {
     if (isAnimating) return;
     setIsAnimating(true);
     setCurrentCityIdx(0);
+    setReachedIdx(0);
+    reachedRef.current = 0;
+    setChoosing(false);
     setTravelTransition(true);
     const pct = cityPathPositionsRef.current[0] || 0;
     setTraveledOffset(1 - pct);
@@ -384,23 +420,54 @@ export default function MigrationMapPage() {
     }, 300);
   }, [isAnimating, expandCity]);
 
-  const boardToNext = useCallback(async () => {
+  /** Shows the clue to the next stop, over the map, and lets the stops be picked. */
+  const beginChoosing = useCallback(() => {
+    const nextIdx = reachedRef.current + 1;
+    if (nextIdx >= CITIES.length) return;
+    setRouteView('music');
+    setPickMisses([]);
+    setPickNote('');
+    setChoosing(true);
+    setAnnouncement(`Where next? ${NEXT_STOP_CLUES[CITIES[nextIdx].id].clue} Choose the stop on the map.`);
+    requestAnimationFrame(() => clueRef.current?.focus({ preventScroll: false }));
+  }, []);
+
+  /** From the furthest stop: back to the map, to find the next stop from its clue. */
+  const findNextStop = useCallback(async () => {
     if (isAnimating) return;
+    if (reachedRef.current + 1 >= CITIES.length) return;
     setIsAnimating(true);
+    await collapseCity();
+    setIsAnimating(false);
+    beginChoosing();
+  }, [isAnimating, collapseCity, beginChoosing]);
 
-    const nextIdx = currentCityIdxRef.current + 1;
-    if (nextIdx >= CITIES.length) { setIsAnimating(false); return; }
-
+  /** A stop chosen on the map: the right one rides there; another says why not. */
+  const pickStop = useCallback(async (i: number) => {
+    if (isAnimating) return;
+    const fromIdx = reachedRef.current;
+    const nextIdx = fromIdx + 1;
+    if (i !== nextIdx) {
+      const picked = CITIES[i];
+      const line = wrongStopLine(DOT_LABELS[picked.id] ?? picked.name, CITIES[fromIdx].name);
+      setPickMisses((m) => (m.includes(picked.id) ? m : [...m, picked.id]));
+      setPickNote(line);
+      setAnnouncement(line);
+      return;
+    }
+    setChoosing(false);
+    setPickNote('');
+    setIsAnimating(true);
     skipRef.current = false;
     setTraveling(true);
-    await collapseCity();
-    setAnnouncement(`Boarding the train to ${CITIES[nextIdx].name}\u2026`);
-    // The city view has gone; keep keyboard focus on the one control that
-    // matters during the ride.
+    setAnnouncement(`Yes: ${CITIES[nextIdx].name}. Boarding the train\u2026`);
+    // Keep keyboard focus on the one control that matters during the ride.
     requestAnimationFrame(() => skipBtnRef.current?.focus({ preventScroll: true }));
     playTrainSound();
-    await animateTrainToCity(currentCityIdxRef.current, nextIdx);
+    await animateTrainToCity(fromIdx, nextIdx);
 
+    reachedRef.current = nextIdx;
+    setReachedIdx(nextIdx);
     setCurrentCityIdx(nextIdx);
     setTimeout(() => {
       expandCity(nextIdx);
@@ -408,7 +475,7 @@ export default function MigrationMapPage() {
       setTraveling(false);
       skipRef.current = false;
     }, pace(300, 150, 1));
-  }, [isAnimating, collapseCity, playTrainSound, animateTrainToCity, expandCity, pace]);
+  }, [isAnimating, playTrainSound, animateTrainToCity, expandCity, pace]);
 
   const restartJourney = useCallback(async () => {
     if (isAnimating) return;
@@ -417,7 +484,12 @@ export default function MigrationMapPage() {
     setTicket(EMPTY_TICKET);
     setJustStamped(null);
     setLastWrong(null);
+    setChoosing(false);
+    setPickMisses([]);
+    setPickNote('');
     setCurrentCityIdx(-1);
+    setReachedIdx(-1);
+    reachedRef.current = -1;
     setTravelTransition(true);
     setTraveledOffset(1);
     setTimeout(() => {
@@ -463,13 +535,24 @@ export default function MigrationMapPage() {
   }, []);
 
   const city = currentCityIdx >= 0 ? CITIES[currentCityIdx] : null;
-  const routeLen = routeLengthRef.current;
 
+  const canOpen = (i: number) => routeView === 'music' && i <= reachedIdx;
+  const canPick = (i: number) => routeView === 'music' && choosing && i > reachedIdx;
   const getDotClass = (i: number) => {
-    if (i < currentCityIdx) return 'city-dot visited';
-    if (i === currentCityIdx) return 'city-dot current';
-    if (i === currentCityIdx + 1) return 'city-dot next-stop';
-    return 'city-dot';
+    let c = 'city-dot';
+    if (i < reachedIdx) c += ' visited';
+    if (i === reachedIdx) c += ' current';
+    if (canPick(i)) c += ' choosable';
+    if (canPick(i) && pickMisses.includes(CITIES[i].id)) c += ' missed';
+    // The glow shows the way only before the journey starts, and after two
+    // wrong picks: otherwise the child finds the stop from the clue.
+    if ((reachedIdx < 0 && i === 0) || (canPick(i) && pickMisses.length >= 2 && i === reachedIdx + 1)) c += ' next-stop';
+    return c;
+  };
+  const nextClue = reachedIdx + 1 < CITIES.length ? NEXT_STOP_CLUES[CITIES[reachedIdx + 1].id] : null;
+  const onDot = (i: number) => {
+    if (canPick(i)) void pickStop(i);
+    else if (canOpen(i)) expandCity(i);
   };
 
   return (
@@ -617,6 +700,27 @@ export default function MigrationMapPage() {
         .city-dot.visited .mg-dot-inner { opacity: 0.7; }
         .city-dot.current .mg-dot-outer { filter: drop-shadow(0 0 16px var(--dot-glow, rgba(201,169,78,0.5))); }
         .city-dot.next-stop .mg-dot-outer { animation: mg-next-pulse 2s ease-in-out infinite; }
+        /* Finding the next stop: every stop not yet reached can be picked. */
+        .city-dot.choosable .mg-dot-outer { stroke-dasharray: 4 3; }
+        .city-dot.choosable:hover .mg-dot-outer { stroke-width: 3.5; }
+        .city-dot.missed { opacity: 0.45; }
+        .mg-map-container.is-choosing { flex-direction: column; gap: 10px; }
+        .mg-clue {
+          width: min(100%, 560px);
+          margin: 0 auto;
+          padding: 12px 16px;
+          border: 1.5px dashed var(--mg-gold);
+          border-radius: 10px;
+          background: rgba(10, 10, 10, 0.82);
+          text-align: center;
+          font-family: 'Josefin Sans', sans-serif;
+          outline: none;
+        }
+        .mg-clue:focus-visible { outline: 2px solid #a8d5e5; outline-offset: 3px; }
+        .mg-clue-label { margin: 0 0 4px; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--mg-gold); font-weight: 600; }
+        .mg-clue-text { margin: 0; font-family: 'Playfair Display', serif; font-size: clamp(16px, 0.6vw + 12px, 20px); line-height: 1.45; color: var(--mg-text); }
+        .mg-clue-miss { margin: 8px 0 0; font-size: 15px; line-height: 1.45; color: #F0B37E; }
+        .mg-clue-help { margin: 4px 0 0; font-size: 14px; color: var(--mg-gold-light); }
         @keyframes mg-next-pulse {
           0%, 100% { filter: drop-shadow(0 0 6px var(--dot-glow, rgba(107,29,42,0.3))); }
           50% { filter: drop-shadow(0 0 18px var(--dot-glow, rgba(107,29,42,0.7))); }
@@ -1248,7 +1352,16 @@ export default function MigrationMapPage() {
             )}
           </div>
 
-          <div className="mg-map-container">
+          <div className={`mg-map-container${choosing && routeView === 'music' ? ' is-choosing' : ''}`}>
+          {choosing && routeView === 'music' && nextClue && (
+            // REVIEW: new text
+            <div className="mg-clue" ref={clueRef} tabIndex={-1} role="region" aria-labelledby="mg-clue-label">
+              <p className="mg-clue-label" id="mg-clue-label">Where next? Find the stop on the map</p>
+              <p className="mg-clue-text">{nextClue.clue}</p>
+              {pickNote && <p className="mg-clue-miss">{pickNote}</p>}
+              {pickMisses.length >= 2 && <p className="mg-clue-help">The next stop is glowing on the map now.</p>}
+            </div>
+          )}
           <div className="mg-map-svg-wrap">
             <svg ref={svgRef} viewBox={`0 0 ${MAP_W} ${MAP_H}`} xmlns="http://www.w3.org/2000/svg"
               style={{
@@ -1328,16 +1441,17 @@ export default function MigrationMapPage() {
               {CITIES.map((c, i) => {
                 const cc = CITY_COLORS[i];
                 return (
-                <g key={c.id} className={getDotClass(i)} onClick={() => {
-                  if (routeView === 'music' && i <= currentCityIdx) expandCity(i);
-                }}
+                <g key={c.id} className={getDotClass(i)} onClick={() => onDot(i)}
                   ref={(el) => { dotRefs.current[i] = el; }}
                   role="button"
-                  tabIndex={routeView === 'music' && i <= currentCityIdx ? 0 : -1}
+                  tabIndex={canOpen(i) || canPick(i) ? 0 : -1}
                   aria-hidden={routeView === 'people' ? true : undefined}
-                  aria-disabled={i <= currentCityIdx ? undefined : true}
-                  aria-label={`${DOT_LABELS[c.id] ?? c.name}, stop ${i + 1}${i <= currentCityIdx ? '' : ', not yet reached'}`}
-                  onKeyDown={activateOnKey(() => { if (routeView === 'music' && i <= currentCityIdx) expandCity(i); })}
+                  aria-disabled={canOpen(i) || canPick(i) ? undefined : true}
+                  // While choosing, a stop not yet reached gives no stop number: that would be the answer.
+                  aria-label={canPick(i)
+                    ? `${DOT_LABELS[c.id] ?? c.name}: choose as the next stop`
+                    : `${DOT_LABELS[c.id] ?? c.name}, stop ${i + 1}${i <= reachedIdx ? '' : ', not yet reached'}`}
+                  onKeyDown={(e) => activateOnKey(() => onDot(i))(e)}
                   style={{ '--dot-glow': `${cc.main}88` } as React.CSSProperties}>
                   <circle className="mg-dot-outer" cx={c.cx} cy={c.cy} r="14"
                     fill={cc.dim} stroke={cc.main} />
@@ -1366,16 +1480,30 @@ export default function MigrationMapPage() {
               <div className="mg-journey-prompt">
                 <div className="mg-prompt-label">Your Journey</div>
                 <p className="mg-prompt-text">
-                  Board the train and <em>ride from stop to stop</em> {'\u2014'} hear the music,
-                  see the photographs, and trace the path the music took north.
+                  {/* REVIEW: new text */}
+                  Ride the music north, stop by stop. At each stop, <em>hear the music and punch your ticket</em>;
+                  then <em>find the next stop on the map</em> from its clue.
                 </p>
-                <button ref={boardBtnRef} className="mg-board-btn" onClick={startJourney}>
-                  {'\u25C6'} Begin in New Orleans {'\u25C6'}
-                </button>
+                {reachedIdx < 0 ? (
+                  <button ref={boardBtnRef} className="mg-board-btn" onClick={startJourney}>
+                    {'\u25C6'} Begin in New Orleans {'\u25C6'}
+                  </button>
+                ) : (
+                  // Once under way, this is no longer a way back to the start.
+                  <button ref={boardBtnRef} type="button" className="mg-pace-btn" onClick={restartJourney}>
+                    Start the journey again
+                  </button>
+                )}
                 <button type="button" className="mg-pace-btn" aria-pressed={quickTrips} onClick={toggleQuickTrips}>
                   Quick trips between stops: {quickTrips ? 'on' : 'off'}
                 </button>
-                {currentCityIdx >= 0 && <TicketStrip ticket={ticket} colors={CITY_COLORS} />}
+                {reachedIdx >= 0 && reachedIdx < CITIES.length - 1 && !choosing && !traveling && !cityViewOpen && (
+                  // The way on, for a visitor who closed the stop without choosing.
+                  <button type="button" className="mg-board-btn" onClick={beginChoosing}>
+                    {'\u25C6'} Where next? {'\u25C6'}
+                  </button>
+                )}
+                {reachedIdx >= 0 && <TicketStrip ticket={ticket} colors={CITY_COLORS} />}
               </div>
             ) : (
               <div className="mg-people-key">
@@ -1499,12 +1627,22 @@ export default function MigrationMapPage() {
                 onAnswer={(choice) => punch(city.id, choice)}
               />
 
-              {currentCityIdx < CITIES.length - 1 ? (
+              {currentCityIdx < reachedIdx ? (
+                // An earlier stop, opened again from the map.
                 <div className="mg-city-actions">
-                  <button type="button" className="mg-train-ticket" onClick={boardToNext}>
+                  <div className="mg-city-minor">
+                    <button className="mg-return-map" onClick={() => backToMap()}>
+                      {'\u2190'} Back to the map
+                    </button>
+                  </div>
+                </div>
+              ) : currentCityIdx < CITIES.length - 1 ? (
+                <div className="mg-city-actions">
+                  {/* REVIEW: new text */}
+                  <button type="button" className="mg-train-ticket" onClick={findNextStop}>
                     <span className="mg-ticket-label">Next Stop</span>
-                    <span className="mg-ticket-destination">{CITIES[currentCityIdx + 1].name}</span>
-                    <span className="mg-ticket-action"><span aria-hidden="true">{'\u25C6'}</span> Board the Train <span aria-hidden="true">{'\u25C6'}</span></span>
+                    <span className="mg-ticket-destination">Where next?</span>
+                    <span className="mg-ticket-action"><span aria-hidden="true">{'\u25C6'}</span> Find it on the map <span aria-hidden="true">{'\u25C6'}</span></span>
                   </button>
                   <div className="mg-city-minor">
                     <button className="mg-return-map" onClick={() => backToMap()}>

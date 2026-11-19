@@ -1,9 +1,9 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import MigrationMapPage from '@/app/exhibitions/harlem-renaissance/migration-map/page';
 import { CITIES } from '@/app/exhibitions/harlem-renaissance/migration-map/cities';
 import { ATLANTIC_COAST, ILLINOIS_CENTRAL, MUSIC_PATH, MUSIC_ROAD, STOP_AT, at, smoothPath } from '@/app/exhibitions/harlem-renaissance/migration-map/routes';
 import { MIGRATION_SOURCES } from '@/app/exhibitions/harlem-renaissance/migration-map/sources';
-import { TICKET_QUESTIONS } from '@/app/exhibitions/harlem-renaissance/migration-map/ticket';
+import { NEXT_STOP_CLUES, TICKET_QUESTIONS, wrongStopLine } from '@/app/exhibitions/harlem-renaissance/migration-map/ticket';
 import { MAP_H, MAP_W, STATES, project } from '@/app/exhibitions/harlem-renaissance/migration-map/usMap';
 
 /*
@@ -138,5 +138,56 @@ describe('the page', () => {
     expect(within(drawer).getByText(/Library of Congress Prints and Photographs Division/)).toBeInTheDocument();
     expect(within(drawer).getByText(/Photograph by Daguerre Studio/)).toBeInTheDocument();
     expect(MIGRATION_SOURCES.filter((g) => g.title.startsWith('Stop')).map((g) => g.title)).toEqual(CITIES.map((c, i) => `Stop ${i + 1}: ${c.name}`));
+  });
+});
+
+describe('finding the next stop from a clue', () => {
+  beforeEach(() => {
+    window.history.replaceState(null, '', '/exhibitions/harlem-renaissance/migration-map');
+    jest.useFakeTimers();
+    jest.spyOn(window.HTMLMediaElement.prototype, 'play').mockImplementation(() => Promise.resolve());
+    jest.spyOn(window.HTMLMediaElement.prototype, 'pause').mockImplementation(() => {});
+  });
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+  // Timers, then the promises they settle (the city view closing, the ride).
+  const tick = async () => {
+    for (let i = 0; i < 6; i++) await act(async () => { jest.advanceTimersByTime(1000); });
+  };
+
+  it('gives every next stop a clue that its own story backs up', () => {
+    for (let i = 1; i < CITIES.length; i++) {
+      const clue = NEXT_STOP_CLUES[CITIES[i].id];
+      expect(clue).toBeDefined();
+      expect({ city: CITIES[i].id, found: CITIES[i].text.includes(clue.evidence) }).toEqual({ city: CITIES[i].id, found: true });
+      // The clue never just names the stop.
+      expect(clue.clue).not.toContain(CITIES[i].name);
+    }
+    expect(wrongStopLine('Chicago', 'New Orleans')).toMatch(/Chicago later on.*nearer New Orleans/);
+  });
+
+  it('asks the child to pick the next stop on the map, explains a wrong pick, and rides to the right one', async () => {
+    const { container } = render(<MigrationMapPage />);
+    fireEvent.click(screen.getByRole('button', { name: /Begin in New Orleans/ }));
+    await tick();
+    fireEvent.click(screen.getByRole('button', { name: /Where next\? Find it on the map/ }));
+    await tick();
+    const clue = screen.getByRole('region', { name: 'Where next? Find the stop on the map' });
+    expect(within(clue).getByText(NEXT_STOP_CLUES.delta.clue)).toBeInTheDocument();
+    // No stop glows to give the answer away, and the choosable stops give no number.
+    expect(container.querySelector('.city-dot.next-stop')).toBeNull();
+    const chicago = screen.getByRole('button', { name: 'Chicago: choose as the next stop' });
+    fireEvent.click(chicago);
+    expect(within(clue).getByText(/the music reaches Chicago later on/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Memphis: choose as the next stop' }));
+    // After two misses, the right stop glows.
+    expect(screen.getByText('The next stop is glowing on the map now.')).toBeInTheDocument();
+    expect(container.querySelector('.city-dot.next-stop')).not.toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Mississippi Delta: choose as the next stop' }));
+    await tick();
+    expect(screen.queryByRole('region', { name: 'Where next? Find the stop on the map' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Mississippi Delta, stop 2' })).toBeInTheDocument();
   });
 });
