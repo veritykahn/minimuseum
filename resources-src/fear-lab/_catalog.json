@@ -1,0 +1,80 @@
+[
+  {
+    "slug": "whats-in-the-box",
+    "title": "What’s in the Box?",
+    "sub": "PreK–Kindergarten · The Fear Boxes · Naming feelings and being brave",
+    "grade": "PreK–K",
+    "minutes": 25,
+    "posters": [
+      "poster1"
+    ],
+    "import": "flWhatsInTheBox"
+  },
+  {
+    "slug": "tiger-or-wind",
+    "title": "Tiger or Wind?",
+    "sub": "Grades 1–2 · The Rustling Bushes · Your brain’s alarm",
+    "grade": "Grades 1–2",
+    "minutes": 30,
+    "posters": [
+      "poster1"
+    ],
+    "import": "flTigerOrWind"
+  },
+  {
+    "slug": "is-it-really-a-monster",
+    "title": "Is It Really a Monster?",
+    "sub": "Grades 3–4 · Pareidolia · How your brain fills in the dark",
+    "grade": "Grades 3–4",
+    "minutes": 40,
+    "posters": [
+      "poster1"
+    ],
+    "import": "flIsItReallyAMonster"
+  },
+  {
+    "slug": "the-science-of-not-knowing",
+    "title": "The Science of Not Knowing",
+    "sub": "Grades 5–8 · Science · Ambiguity, dread and the brain’s alarm",
+    "grade": "Grades 5–8 · Science",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "flTheScienceOfNotKnowing"
+  },
+  {
+    "slug": "page-turners",
+    "title": "Page Turners",
+    "sub": "Grades 5–8 · ELA · Suspense, the Gothic and what a monster stands for",
+    "grade": "Grades 5–8 · ELA",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "flPageTurners"
+  },
+  {
+    "slug": "racing-hearts",
+    "title": "Racing Hearts",
+    "sub": "Grades 5–8 · PE · Your pulse, your alarm and the rustling bushes",
+    "grade": "Grades 5–8 · PE",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "flRacingHearts"
+  },
+  {
+    "slug": "the-shape-of-fear",
+    "title": "The Shape of Fear",
+    "sub": "Grades 5–8 · Art · Silhouette, a three-color palette and what you leave out",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "flTheShapeOfFear"
+  }
+]
