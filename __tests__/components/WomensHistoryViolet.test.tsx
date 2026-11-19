@@ -55,6 +55,9 @@ describe('the thread', () => {
 });
 
 describe('walking the thread', () => {
+  // The room opens on the sewing challenge (WomensHistorySewLife.test.tsx); her story is its own address.
+  beforeEach(() => window.history.replaceState(null, '', '/#violet'));
+
   it('opens on her name and dates, then each keepsake in turn', () => {
     render(<VioletsLife />);
     expect(screen.getByRole('img', { name: 'Violet Dina Want' })).toBeInTheDocument();
