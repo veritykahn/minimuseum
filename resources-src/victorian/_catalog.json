@@ -1,0 +1,80 @@
+[
+  {
+    "slug": "light-up-the-parlor",
+    "title": "Light Up the Parlor",
+    "sub": "PreK–Kindergarten · Dickens’ Christmas Parlour",
+    "grade": "PreK–K",
+    "minutes": 25,
+    "posters": [
+      "poster2"
+    ],
+    "import": "vicLightUpTheParlor"
+  },
+  {
+    "slug": "a-card-to-send",
+    "title": "A Card to Send",
+    "sub": "Grades 1–2 · Christmas Card Maker · The first Christmas card",
+    "grade": "Grades 1–2",
+    "minutes": 30,
+    "posters": [
+      "poster2"
+    ],
+    "import": "vicACardToSend"
+  },
+  {
+    "slug": "messages-down-the-wire",
+    "title": "Messages Down the Wire",
+    "sub": "Grades 3–4 · Inventions Workshop · The telegraph and Morse code",
+    "grade": "Grades 3–4",
+    "minutes": 40,
+    "posters": [
+      "poster1"
+    ],
+    "import": "vicMessagesDownTheWire"
+  },
+  {
+    "slug": "revolution-for-everyone",
+    "title": "Revolution for Everyone?",
+    "sub": "Grades 5–8 · Social Studies · Change, reform and who it reached",
+    "grade": "Grades 5–8 · Social Studies",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "vicRevolutionForEveryone"
+  },
+  {
+    "slug": "drawing-with-light",
+    "title": "Drawing with Light",
+    "sub": "Grades 5–8 · Science · Light, the negative and the print",
+    "grade": "Grades 5–8 · Science",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "vicDrawingWithLight"
+  },
+  {
+    "slug": "railway-time",
+    "title": "Railway Time",
+    "sub": "Grades 5–8 · Math · Elapsed time, offsets and rate",
+    "grade": "Grades 5–8 · Math",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "vicRailwayTime"
+  },
+  {
+    "slug": "good-design-for-everyone",
+    "title": "Good Design for Everyone",
+    "sub": "Grades 5–8 · Art · Motif, pattern and the decorative arts",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "vicGoodDesignForEveryone"
+  }
+]
