@@ -6,7 +6,7 @@ import Celebrate from '../Celebrate';
 import { usePrintSheet } from '../usePrintSheet';
 import { INCOMING, INCOMING_NOTE, MORSE, POSTER, TELEGRAM, TELEGRAM_DRAFTS } from './inventionsText';
 import { Marks, SoundToggle, useTone } from './morseKit';
-import { coinsFor, purseFor, wordsFor } from './office';
+import { coinsFor, missingIdeas, purseFor, wordsFor } from './office';
 import { RECEIVE_FACTS, SEND_FACTS } from './sources';
 import { CardFoot, StepDots } from './Steps';
 import { marks, morseTimeline, oldMoney, spoken, telegramCost, telegramWords, toMorse } from './workshop';
@@ -21,7 +21,10 @@ import { useMuseumSound } from '@/lib/museumSound';
  * hand it over the counter: twelve words cost sixpence, as the Post Office
  * charged, and each word more a halfpenny (the room's game rule, said so).
  * Too long, and the clerk tells you what it costs and what you have, and
- * you tap words on the form to cross them out until it fits. Then the
+ * you tap words on the form to cross them out until it fits. Started from
+ * one of the long letters, the clerk reads it back before taking it: cut
+ * so far that the reader would no longer know where you are, or who it is
+ * from, and the clerk asks, and hands it back. Then the
  * telegraph clerk, not you, taps it out on the key, letter by letter, the
  * lamp flashing (and the sounder sounding, if sound is on). Last, address
  * it and print it: your telegram with its Morse code under every letter.
@@ -29,6 +32,12 @@ import { useMuseumSound } from '@/lib/museumSound';
  * Or receive one: one of many made-up telegrams, chosen at random, comes
  * in on the lamp (with its sound, if sound is on), its dots and dashes come
  * up on the tape, and you decode it letter by letter from the chart.
+ *
+ * The point: a child finds out for themselves why telegrams were short
+ * and blunt (every word cost money, and you had only so much), by having
+ * to choose which words a message can lose and which it cannot, and that
+ * a clerk, not the sender, sent it in Morse code; the poster names the
+ * telegraph, but not what it was like to use one.
  *
  * Sound is off until it is turned on. The letters sit in fixed slots, so
  * nothing shifts as they are sent or found; only colour and opacity
@@ -40,8 +49,6 @@ import { useMuseumSound } from '@/lib/museumSound';
 const CLERK_UNIT = 90;
 const RECEIVE_UNIT = 130;
 const LETTERS = Object.keys(MORSE);
-/** The letters to start from, by a short name. */
-const DRAFT_NAMES = ['Ada’s letter', 'Tom’s letter', 'The new puppy'];
 
 export type TelegramMode = 'send' | 'receive';
 const SEND_STEPS = [
@@ -69,6 +76,9 @@ export default function TelegramBench({ mode, reduced, modes, seed }: { mode: Te
   const [from, setFrom] = useState('');
   const [clerkSays, setClerkSays] = useState<{ ok: boolean; words: string } | null>(null);
   const [handed, setHanded] = useState(false);
+  // Which letter the form started from (none once the visitor writes their own), and whether the clerk asked about a word it needs.
+  const [draft, setDraft] = useState<number | null>(null);
+  const [asked, setAsked] = useState<string[] | null>(null);
   const words = telegramWords(text);
   const kept = words.filter((_, i) => !crossed.has(i));
   const message = kept.join(' ');
@@ -102,6 +112,7 @@ export default function TelegramBench({ mode, reduced, modes, seed }: { mode: Te
     setText(out.join(''));
     setCrossed(new Set());
     setClerkSays(null);
+    setAsked(null);
   };
 
   const cross = (i: number) => {
@@ -111,6 +122,7 @@ export default function TelegramBench({ mode, reduced, modes, seed }: { mode: Te
     else next.add(i);
     setCrossed(next);
     setClerkSays(null);
+    setAsked(null);
     const n = words.length - next.size;
     const c = telegramCost(n, TELEGRAM.words, TELEGRAM.extraHalfpence);
     setStatus(`${words[i]} ${was ? 'put back' : 'crossed out'}. ${n} word${n === 1 ? '' : 's'}: ${oldMoney(c)}. You have ${oldMoney(purse)}.`);
@@ -175,6 +187,15 @@ export default function TelegramBench({ mode, reduced, modes, seed }: { mode: Te
       setStatus(says);
       return;
     }
+    // The clerk reads it back: a letter cut down so far that it no longer says what its reader needs is handed back.
+    const lost = draft === null ? [] : missingIdeas(kept, TELEGRAM_DRAFTS[draft].keep);
+    if (lost.length) {
+      const says = `The clerk reads it back. “${lost[0].ask}” Tap a crossed-out word to put it back, and cut another instead.`;
+      setAsked(lost[0].words);
+      setClerkSays({ ok: false, words: says });
+      setStatus(says);
+      return;
+    }
     const change = purse - cost;
     setClerkSays({ ok: true, words: `“${oldMoney(cost)}. Thank you!”${change ? ` Your change: ${oldMoney(change)}.` : ''}` });
     setHanded(true);
@@ -201,6 +222,8 @@ export default function TelegramBench({ mode, reduced, modes, seed }: { mode: Te
     setClerkRun(0);
     setClerkCell(-1);
     setStep(0);
+    setDraft(null);
+    setAsked(null);
     setStatus('A new telegram, and a new purse.');
   };
 
@@ -418,7 +441,7 @@ export default function TelegramBench({ mode, reduced, modes, seed }: { mode: Te
                 <ol className="vbi-office-words" aria-label="Your telegram, word by word. Tap a word to cross it out.">
                   {words.map((w, i) => (
                     <li key={i} className="vbi-office-word">
-                      <button type="button" className="vbi-office-token" aria-pressed={crossed.has(i)} onClick={() => cross(i)}>
+                      <button type="button" className="vbi-office-token" aria-pressed={crossed.has(i)} data-needed={(asked?.includes(w) && crossed.has(i)) || undefined} onClick={() => cross(i)}>
                         {w}
                       </button>
                       {i === sixpenceEnd && i < words.length - 1 && (
@@ -480,7 +503,17 @@ export default function TelegramBench({ mode, reduced, modes, seed }: { mode: Te
               </p>
               <label className="vbr-field">
                 <span className="vbr-label">Your telegram</span>
-                <textarea rows={2} value={text} onChange={(e) => write(e.target.value)} autoComplete="off" spellCheck={false} placeholder="ARRIVING BATH NOON" />
+                <textarea
+                  rows={2}
+                  value={text}
+                  onChange={(e) => {
+                    write(e.target.value);
+                    setDraft(null);
+                  }}
+                  autoComplete="off"
+                  spellCheck={false}
+                  placeholder="ARRIVING BATH NOON"
+                />
               </label>
               <div className="vbi-office-drafts">
                 <span className="vbr-label" id="vbi-drafts-label">
@@ -488,15 +521,25 @@ export default function TelegramBench({ mode, reduced, modes, seed }: { mode: Te
                 </span>
                 <div className="vbr-options" role="group" aria-labelledby="vbi-drafts-label">
                   {TELEGRAM_DRAFTS.map((d, i) => (
-                    <button key={d} type="button" className="vbr-option" onClick={() => write(d)}>
-                      {DRAFT_NAMES[i]}
+                    <button
+                      key={d.name}
+                      type="button"
+                      className="vbr-option"
+                      aria-pressed={draft === i}
+                      onClick={() => {
+                        write(d.text);
+                        setDraft(i);
+                      }}
+                    >
+                      {d.name}
                     </button>
                   ))}
                 </div>
               </div>
               {words.length > 0 && (
                 <p className="vbi-task">
-                  <span className="vbi-task-mark" aria-hidden="true">▸</span> Too long? Tap words on the form to cross them out.
+                  {/* REVIEW: new text */}
+                  <span className="vbi-task-mark" aria-hidden="true">▸</span> Too long? Tap words on the form to cross them out, but keep what they need to know.
                 </p>
               )}
               <div className="vbr-actions">

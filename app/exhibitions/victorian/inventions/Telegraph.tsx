@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type PointerEvent } from 'react';
+import { seededShuffle } from '@/components/games/scoring';
+import { nextSeed, useClientSeed } from '@/components/games/useClientSeed';
 import Celebrate from '../Celebrate';
 import { POSTER, READ_WORDS, SEND_WORDS, WIRE_PARTS, type WirePartId } from './inventionsText';
 import { NEEDLE_FACTS, WIRE_FACTS } from './sources';
@@ -26,6 +28,14 @@ import { DIAL, NEEDLES, needleAngles, spell } from './workshop';
  * finding the letter the needles point to. Then the telegraph office:
  * telegrams sent and received (Telegram.tsx). Morse code has its own bench
  * (Morse.tsx).
+ *
+ * The parts come to the tray shuffled, never in the circuit's own order,
+ * so each is matched to its place by what it does.
+ *
+ * The point: a child can say what each part of a telegraph does and why a
+ * press of a key at one station moves a needle miles away, and read a
+ * letter off Cooke and Wheatstone's needles, which the poster's one word,
+ * "the telegraph", cannot show.
  *
  * The letters to find sit in fixed slots, and a right guess changes only
  * colour and size about its own centre, so nothing shifts as it is read.
@@ -75,6 +85,10 @@ export default function Telegraph({ reduced }: { reduced: boolean }) {
   const [live, setLive] = useState(false);
   const [pressedOnce, setPressedOnce] = useState(false);
   const built = placed.length === WIRE_PARTS.length;
+  // The tray in a shuffled order (never the circuit's own), so a part is matched to its place by its job, not by its turn.
+  const clientSeed = useClientSeed();
+  const [builds, setBuilds] = useState(0);
+  const tray = useMemo(() => trayOrder(clientSeed === null ? null : nextSeed(clientSeed, builds)), [clientSeed, builds]);
 
   const place = (part: WirePartId, slot: WirePartId) => {
     if (placed.includes(slot)) return;
@@ -178,6 +192,7 @@ export default function Telegraph({ reduced }: { reduced: boolean }) {
     setWrongAt(null);
     setLive(false);
     setPressedOnce(false);
+    setBuilds((b) => b + 1);
     setStatus('The parts are back in the tray.');
   };
 
@@ -379,7 +394,7 @@ export default function Telegraph({ reduced }: { reduced: boolean }) {
               </div>
             ) : (
               <ul className="vbi-tray" aria-label="The parts tray">
-                {WIRE_PARTS.map((p) => {
+                {tray.map((p) => {
                   const has = placed.includes(p.id);
                   return (
                     <li key={p.id}>
@@ -592,6 +607,14 @@ export default function Telegraph({ reduced }: { reduced: boolean }) {
       </p>
     </div>
   );
+}
+
+/** The tray's order for a seed: shuffled, and never the circuit's own order (before the browser's seed, the circuit's order turned round once). */
+export function trayOrder(seed: number | null) {
+  const turned = [...WIRE_PARTS.slice(2), ...WIRE_PARTS.slice(0, 2)];
+  if (seed === null) return turned;
+  const s = seededShuffle(WIRE_PARTS, seed);
+  return s.every((p, i) => p.id === WIRE_PARTS[i].id) ? turned : s;
 }
 
 /** What each part does, said when another part is put in its place. */

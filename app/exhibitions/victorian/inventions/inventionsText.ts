@@ -347,12 +347,42 @@ export const TELEGRAM = {
 /**
  * Letters to start from, written as you would write a letter: far too long
  * for the money in the purse, so there is something to cut. Made up for
- * the workshop.
+ * the workshop. Each carries what the person it goes to must still be told
+ * (`keep`): the clerk reads the form back before sending it, and asks about
+ * any of these whose words have all been crossed out, so cutting is a
+ * choice (what can go, and what must stay), not crossing out the end.
  */
-export const TELEGRAM_DRAFTS = [
-  'DEAR MOTHER I HAVE ARRIVED SAFELY IN BATH AND THE TRAIN WAS VERY FAST PLEASE SEND MY WARM COAT AND SOME CAKE LOVE FROM ADA',
-  'DEAR UNCLE I AM SO SORRY BUT I HAVE MISSED THE TRAIN TO LONDON SO I WILL ARRIVE TOMORROW AT NOON INSTEAD FROM YOUR NEPHEW TOM',
-  'HELLO GRANDMA THE NEW PUPPY HAS COME TO LIVE WITH US AND HE IS SMALL AND BROWN AND WE HAVE CALLED HIM BISCUIT PLEASE VISIT SOON',
+// REVIEW: new text (the clerk's questions)
+export const TELEGRAM_DRAFTS: { name: string; text: string; keep: { words: string[]; ask: string }[] }[] = [
+  {
+    name: 'Ada’s letter',
+    text: 'DEAR MOTHER I HAVE ARRIVED SAFELY IN BATH AND THE TRAIN WAS VERY FAST PLEASE SEND MY WARM COAT AND SOME CAKE LOVE FROM ADA',
+    keep: [
+      { words: ['ARRIVED', 'SAFELY'], ask: 'Will your mother know you got there safely?' },
+      { words: ['BATH'], ask: 'Will your mother know where you are?' },
+      { words: ['COAT'], ask: 'Will your mother know what to send?' },
+      { words: ['ADA'], ask: 'Will your mother know who it is from?' },
+    ],
+  },
+  {
+    name: 'Tom’s letter',
+    text: 'DEAR UNCLE I AM SO SORRY BUT I HAVE MISSED THE TRAIN TO LONDON SO I WILL ARRIVE TOMORROW AT NOON INSTEAD FROM YOUR NEPHEW TOM',
+    keep: [
+      { words: ['MISSED'], ask: 'Will your uncle know what went wrong?' },
+      { words: ['TOMORROW'], ask: 'Will your uncle know which day you are coming?' },
+      { words: ['NOON'], ask: 'Will your uncle know what time to meet you?' },
+      { words: ['TOM', 'NEPHEW'], ask: 'Will your uncle know who it is from?' },
+    ],
+  },
+  {
+    name: 'The new puppy',
+    text: 'HELLO GRANDMA THE NEW PUPPY HAS COME TO LIVE WITH US AND HE IS SMALL AND BROWN AND WE HAVE CALLED HIM BISCUIT PLEASE VISIT SOON',
+    keep: [
+      { words: ['PUPPY'], ask: 'Will your grandma know what the news is?' },
+      { words: ['BISCUIT'], ask: 'Will your grandma know the puppy’s name?' },
+      { words: ['VISIT'], ask: 'Will your grandma know you want her to come?' },
+    ],
+  },
 ];
 
 /**

@@ -2,7 +2,8 @@ import { TELEGRAM } from './inventionsText';
 
 /*
  * The telegraph office's money, as pure functions (tested): what is in the
- * visitor's purse, what it pays for, and the coins it is made of. Twelve
+ * visitor's purse, what it pays for, the coins it is made of, and what a
+ * cut-down letter no longer tells its reader. Twelve
  * words for sixpence is the Post Office's price; a halfpenny a word more,
  * and the purse itself, are the workshop's game rules (TELEGRAM).
  */
@@ -33,4 +34,13 @@ export function coinsFor(halfpence: number) {
   }
   if (left) coins.push('½d');
   return coins;
+}
+
+/**
+ * What a telegram cut down from one of the letters no longer says: each of
+ * the letter's must-keep ideas whose words have all been crossed out.
+ */
+export function missingIdeas(kept: string[], keep: { words: string[]; ask: string }[]) {
+  const have = new Set(kept);
+  return keep.filter((k) => !k.words.some((w) => have.has(w)));
 }

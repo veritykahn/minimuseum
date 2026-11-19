@@ -5,6 +5,7 @@ import VictorianInventions from '@/app/exhibitions/victorian/inventions/page';
 import { BRISTOL_ASK, BRISTOL_CLOCK, BRISTOL_TRAIN, EXPOSURE, EXPOSURE_WORDS, INCOMING, INCOMING_NOTE, MAP_TOWNS, MORSE, NOTES, PHOTOS, PLYMOUTH, POSITIVE, PROCESS_CLUES, QUIZ_ORDER, RAIL_STEPS, READ_WORDS, SEND_WORDS, STATIONS, STATION_JOB, TELEGRAM, TRAIN_PUZZLES, WIRE_PARTS, blurFor, exposureFor, verdictFor } from '@/app/exhibitions/victorian/inventions/inventionsText';
 import { INVENTIONS_SOURCES, RAIL_FACTS, WIRE_FACTS } from '@/app/exhibitions/victorian/inventions/sources';
 import { londonTimeUnderSun, noonBetween, trainAt, watchAt } from '@/app/exhibitions/victorian/inventions/Railway';
+import { trayOrder } from '@/app/exhibitions/victorian/inventions/Telegraph';
 import { DIAL, DIAL_LETTERS, DIAL_ROWS, MAP, clockTime, compareBehind, dragMinute, hands, judgeTrain, morseTimeline, needleAngles, nextTrain, oldMoney, onDial, project, spell, sunTimeAt, sunX, telegramCost, telegramWords, toMorse } from '@/app/exhibitions/victorian/inventions/workshop';
 
 /*
@@ -502,6 +503,14 @@ describe('the telegraph: build it, and the needle dial', () => {
     const circuit = screen.getByRole('img', { name: /A telegraph circuit to build/ });
     expect(circuit).toHaveAccessibleName(expect.stringContaining('0 of 5 parts in place'));
     const tray = screen.getByRole('list', { name: 'The parts tray' });
+    // The tray is shuffled, never in the circuit's own order, so a part is matched by its job, not its turn.
+    const order = within(tray).getAllByRole('button').map((b) => b.textContent);
+    expect(order).not.toEqual(WIRE_PARTS.map((p) => p.name));
+    for (const seed of [null, 1, 2, 3, 4, 5, 6, 7, 8]) {
+      const t = trayOrder(seed).map((p) => p.id);
+      expect([...t].sort()).toEqual(WIRE_PARTS.map((p) => p.id).sort());
+      expect(t).not.toEqual(WIRE_PARTS.map((p) => p.id));
+    }
     // A place tapped with nothing picked says what to do.
     fireEvent.click(screen.getByRole('button', { name: 'Empty place: Makes the electric current' }));
     expect(screen.getByRole('status')).toHaveTextContent('First pick a part from the tray.');
