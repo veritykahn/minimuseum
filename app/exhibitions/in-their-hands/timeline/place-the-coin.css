@@ -11,6 +11,12 @@
 .ptc {
   position: relative;
   z-index: 10;
+  /* The baize is the whole screen's wallpaper in every phase, the opening
+     screen too: the room's frame centres what it holds, so the tray takes the
+     full width itself rather than shrinking to its words. */
+  width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
   height: 100vh;
   height: 100dvh;
   display: flex;
