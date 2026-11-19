@@ -1,0 +1,81 @@
+[
+  {
+    "slug": "footprints-on-the-moon",
+    "title": "Footprints on the Moon",
+    "sub": "PreK–Kindergarten · Apollo 11 and the Moon’s dust",
+    "grade": "PreK–K",
+    "minutes": 25,
+    "posters": [
+      "poster1"
+    ],
+    "import": "moonFootprintsOnTheMoon"
+  },
+  {
+    "slug": "what-made-this-sand",
+    "title": "What Made This Sand?",
+    "sub": "Grades 1–2 · Under the Microscope · Moon dust and Earth’s sand",
+    "grade": "Grades 1–2",
+    "minutes": 30,
+    "posters": [
+      "poster1"
+    ],
+    "import": "moonWhatMadeThisSand"
+  },
+  {
+    "slug": "the-moons-record-book",
+    "title": "The Moon’s Record Book",
+    "sub": "Grades 3–4 · Our Incredible Moon · Craters, a giant crash and a piece of the Moon",
+    "grade": "Grades 3–4",
+    "minutes": 40,
+    "posters": [
+      "poster1"
+    ],
+    "import": "moonTheMoonsRecordBook"
+  },
+  {
+    "slug": "planet-hunters",
+    "title": "Planet Hunters",
+    "sub": "Grades 5–8 Science · Another Earth · Finding planets we cannot see",
+    "grade": "Grades 5–8 · Science",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "moonPlanetHunters"
+  },
+  {
+    "slug": "weighing-the-evidence",
+    "title": "Weighing the Evidence",
+    "sub": "Grades 5–8 ELA · Our Incredible Moon · Claim, counterclaim and evidence",
+    "grade": "Grades 5–8 · ELA",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "moonWeighingTheEvidence"
+  },
+  {
+    "slug": "how-far-is-far",
+    "title": "How Far Is Far?",
+    "sub": "Grades 5–8 Math · Our Incredible Moon and Another Earth · Rates, scale and very large numbers",
+    "grade": "Grades 5–8 · Math",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "moonHowFarIsFar"
+  },
+  {
+    "slug": "an-artists-impression",
+    "title": "An Artist’s Impression",
+    "sub": "Grades 5–8 Art · Our Incredible Moon · Evidence and imagination",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "moonAnArtistsImpression"
+  }
+]
