@@ -177,6 +177,11 @@
   .egr-put-in-tomb.is-put .egr-put-thing { opacity: 0; }
   .egr-put-in-tomb.is-put .egr-put-glow { opacity: 0.35; }
 }
+/* Compact, where the room's picture must stay large (the Tomb Explorer's bar, the name tablet). */
+.egr-put-compact .egr-put-in-tomb { grid-template-columns: 50px minmax(0, 1fr); gap: 4px 10px; padding: 6px 10px; }
+.egr-put-compact .egr-put-door { width: 50px; }
+.egr-put-compact .egr-put-words p { font-size: 0.85em; }
+.eg-room .egr-put-compact .egr-button { min-height: 44px; padding: 8px 14px; font-size: 0.78em; }
 @media (max-width: 420px) {
   .egr-put-in-tomb { grid-template-columns: 56px minmax(0, 1fr); }
   .egr-put-door { width: 56px; }

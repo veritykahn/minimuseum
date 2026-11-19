@@ -7,6 +7,7 @@ import DarkIntro from '../DarkIntro';
 import Modal from '../Modal';
 import PrintSheet from '../PrintSheet';
 import { EES_CARTOUCHE, BM_SYMBOLS, GLYPHS, SIGN_NAMES } from '../rooms';
+import PutInTomb from '../PutInTomb';
 import { writeTomb } from '../tombState';
 import Cartouche from './Cartouche';
 import { CHART, MAX_LETTERS, NAME_NOTES, NAME_SOURCES, ROYAL_EXAMPLE, SIGNS, consonantsOnly, readOut, spell } from './alphabet';
@@ -23,11 +24,17 @@ import { playEgypt } from '../egyptSound';
  * cartouche, across or down; (2) tap any sign to see what it is a picture of
  * (a horned viper, a mouth, a loaf of bread…), and compare the name as an
  * Egyptian scribe would more likely have written it, consonants only;
- * (3) keep it: print it on one Letter page, or save it in this browser
- * (savedCartouche.ts) for Build Your Own Tomb to place on a wall. The room
+ * (3) keep it: print it on one Letter page, or put it in the visitor's
+ * burial tomb (PutInTomb: saved in this browser, savedCartouche.ts, and
+ * carved on the stone column of Build Your Own Tomb). The room
  * says plainly that this is a modern sound-alike (alphabet.ts, NAME_NOTES),
  * in its "How it works" card, with the whole chart. Nothing typed is sent
  * anywhere.
+ *
+ * The room's point: the child learns that a cartouche ringed a royal name,
+ * and, by spelling their own name sign by sign and seeing what each sign is
+ * a picture of (and how a scribe would drop the vowels), that hieroglyphs
+ * stand for sounds, which no poster can show them with their own name.
  */
 
 const INTRO = [
@@ -214,12 +221,14 @@ export default function HieroglyphName() {
             <button type="button" className="egr-button egr-button-primary" disabled={!spelled.length} onClick={() => setPrinting(true)}>
               Print my cartouche
             </button>
-            <button type="button" className="egr-button" disabled={!spelled.length || isSaved} onClick={save}>
-              {isSaved ? 'Saved for my tomb ✓' : 'Save it for my tomb'}
-            </button>
           </div>
+          {spelled.length > 0 && (
+            <div className="egn-put egr-put-compact">
+              <PutInTomb key={shown} activity="name" what="your name, carved in a cartouche" onPut={save} />
+            </div>
+          )}
           <p className="egr-credit egn-privacy">
-            {isSaved ? 'Saved in this browser only, ready to place in Build Your Own Tomb.' : 'Nothing you type is sent anywhere. If you save it, it is kept only in this browser.'}
+            {isSaved ? 'Kept in this browser only, carved on the stone column of your tomb.' : 'Nothing you type is sent anywhere. If you put it in your tomb, it is kept only in this browser.'}
           </p>
         </section>
       )}

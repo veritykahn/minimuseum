@@ -550,7 +550,7 @@ describe('Your Name in Hieroglyphs', () => {
     expect(screen.getByRole('textbox', { name: 'Your name' })).toHaveFocus();
   });
 
-  it('draws the name in a cartouche, shows what each sign is, compares the scribe’s way, prints it and saves it for the tomb', async () => {
+  it('draws the name in a cartouche, shows what each sign is, compares the scribe’s way, prints it and puts it in the visitor’s tomb', async () => {
     const print = jest.fn();
     window.print = print;
     window.history.replaceState(null, '', '/exhibitions/egypt/hieroglyph-name');
@@ -566,8 +566,9 @@ describe('Your Name in Hieroglyphs', () => {
     expect(document.querySelector('.egn-what')).toHaveTextContent('M is an owl.');
     fireEvent.click(screen.getByRole('button', { name: 'Down' }));
     expect(screen.getByRole('img', { name: /read top to bottom/ })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Save it for my tomb' }));
-    expect(screen.getByRole('button', { name: 'Saved for my tomb ✓' })).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: 'Put this in your burial tomb' }));
+    expect(screen.getByRole('link', { name: /Go to your tomb/ })).toHaveAttribute('href', '/exhibitions/egypt/my-tomb');
+    expect(readTomb().kept?.name).toBe('your name, carved in a cartouche');
     // Saved for Build Your Own Tomb: the name and exactly the signs the cartouche draws.
     expect(JSON.parse(window.localStorage.getItem(CARTOUCHE_KEY)!)).toEqual({ name: 'Maya', signs: spell('Maya') });
     expect(readCartouche()).toEqual({ name: 'Maya', signs: spell('Maya') });

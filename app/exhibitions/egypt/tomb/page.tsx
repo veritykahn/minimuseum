@@ -238,7 +238,7 @@ export default function TombExplorer() {
                 <h2 className="egt-bar-title">{wall.title}</h2>
               </div>
               <FactNote fact={wall.big} className="egr-fact egt-big" />
-              <div className="egt-bar-put">
+              <div className="egt-bar-put egr-put-compact">
                 {/* REVIEW: new text (the button). */}
                 <PutInTomb key={wall.id} activity="walls" what={`the painting of ${wall.name.replace(/^The /, 'the ').toLowerCase()}`} label="Paint this wall in your tomb" onPut={() => writeTomb((s) => ({ ...s, painting: wall.id }))} />
               </div>

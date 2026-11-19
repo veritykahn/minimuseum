@@ -160,6 +160,10 @@
 .egn-tools { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 12px; padding-top: 10px; width: 100%; border-top: 1px solid var(--egr-line); font-family: var(--pe-body); font-size: var(--egr-text); }
 .egn-tools .egr-options { flex-wrap: nowrap; }
 .egn-privacy { margin: 0; text-align: center; }
+.egn-put { width: min(100%, 560px); }
+@media (min-width: 700px) and (min-height: 600px) {
+  .egr-fit .egn-tablet { overflow-y: auto; scrollbar-width: thin; }
+}
 
 @keyframes egn-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
