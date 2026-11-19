@@ -94,78 +94,142 @@ describe('Mummification, every step by hand', () => {
     expect(CHECK).toHaveLength(3);
   });
 
-  it('is played start to finish by tap: wash, hook, meet the gods, fill the jars, natron and the forty days, oils, linen with your own amulet, the coffin, three questions', () => {
+  it('is played start to finish by tap and keyboard, choosing each tool, with every gesture done and mistakes met kindly', () => {
     window.localStorage.setItem(AMULET_KEY, JSON.stringify({ shape: 'scarab', material: 'gold', symbols: ['ankh', 'lotus'], name: 'Maya', nameGlyphs: '' }));
     window.history.replaceState(null, '', '/exhibitions/egypt/mummification');
     render(<Mummification />);
     begin(MUMMY_INTRO);
-    const next = () => tap(/Next step/);
+    const status = () => screen.getByRole('status');
+    const nextButton = () => screen.getByRole('button', { name: /Next step/ });
+    const next = () => {
+      expect(nextButton()).toBeEnabled();
+      fireEvent.click(nextButton());
+    };
     const at = (n: number) => expect(screen.getByRole('button', { name: new RegExp(`^Step ${n}: `) })).toHaveAttribute('aria-current', 'step');
+    const keys = (name: string | RegExp, ...ks: string[]) => {
+      for (const k of ks) fireEvent.keyDown(screen.getByRole('slider', { name }), { key: k });
+    };
+    const heading = () => screen.getByRole('heading', { level: 2 });
 
-    // 1. Wash
+    // 1. Wash: pour the water along the body. Next waits, and the dots cannot jump ahead.
     at(1);
-    for (let i = 0; i < 8; i++) {
-      const pour = screen.queryByRole('button', { name: /Or tap: pour water/ });
-      if (pour) fireEvent.click(pour);
-    }
-    expect(screen.getByRole('status')).toHaveTextContent('The body is washed clean.');
+    expect(nextButton()).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Step 5: still to come' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^Step 5: / }));
+    at(1);
+    keys('The jar of water', ...Array(6).fill('ArrowLeft'));
+    expect(status()).toHaveTextContent('The body is washed clean.');
     next();
-    // 2. The brain: in, then out through the nose
-    tap('Or tap: push the hook in');
-    tap('Or tap: pull the brain out');
-    expect(screen.getByRole('status')).toHaveTextContent('out through the nose');
+
+    // 2. What comes next? A wrong tool says why not yet. Then the hook: only the nose is the way in.
+    at(2);
+    expect(heading()).toHaveTextContent('What comes next?');
+    tap('Four canopic jars');
+    expect(status()).toHaveTextContent('Soon! But first, something comes out through the nose.');
+    tap('A long bronze hook');
+    expect(heading()).toHaveTextContent('The brain, through the nose');
+    tap('The long bronze hook');
+    tap('Put the hook in through the ear');
+    expect(status()).toHaveTextContent('Not through the ear. Try another way in.');
+    tap('The long bronze hook');
+    tap('Put the hook in through the nose');
+    keys('The bronze hook, up the nose', 'ArrowDown', 'ArrowDown', 'ArrowDown', 'ArrowDown');
+    expect(status()).toHaveTextContent('The hook has reached the brain.');
+    keys('The bronze hook, up the nose', 'ArrowUp', 'ArrowUp', 'ArrowUp', 'ArrowUp');
+    tap('The brain, on the hook');
+    tap('Put it in a jar');
+    expect(status()).toHaveTextContent('Not in a jar.');
+    tap('The brain, on the hook');
+    tap('Throw it in the basket');
+    expect(status()).toHaveTextContent('Thrown away. The brain was not kept.');
     next();
-    // 3. Meet the four gods first
+
+    // 3. Meet the four gods first: who guards what.
+    tap('Four canopic jars');
     at(3);
     for (const [i, j] of JARS.entries()) {
-      tap(`Meet the god on jar ${i + 1}`);
-      expect(screen.getByRole('status')).toHaveTextContent(`${j.god}, with a ${j.head}’s head, guards the ${j.organ}.`);
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(`^Lift the lid of jar ${i + 1}`) }));
+      expect(status()).toHaveTextContent(`${j.god}, with a ${j.head}’s head, guards the ${j.organ}.`);
     }
+    expect(screen.getByText(JARS_ANSWER.text)).toBeInTheDocument();
     next();
-    // 4. The organs into their jars: a wrong jar gets a kind hint
+
+    // 4. The organs: the jars are mixed up and unnamed. A wrong jar, then the heart, are caught kindly.
     at(4);
-    tap('Liver');
-    tap(/^Hapi, the baboon-headed jar/);
-    expect(screen.getByRole('status')).toHaveTextContent('Not that jar. Look for the god with a human’s head: he guards the liver.');
-    tap(/^Imset, the human-headed jar/);
-    for (const o of ['stomach', 'lungs', 'intestines']) {
-      const j = JARS.find((x) => x.organ === o)!;
-      tap(o[0].toUpperCase() + o.slice(1));
-      tap(new RegExp(`^${j.god}, the`));
-    }
-    expect(screen.getByRole('status')).toHaveTextContent('All four jars are full.');
+    tap('The liver');
+    tap('The jar with a baboon’s head');
+    expect(status()).toHaveTextContent('That is Hapi’s jar, the baboon. Hapi guards the lungs, not the liver. Try another jar.');
     tap('The heart');
-    expect(screen.getByRole('status')).toHaveTextContent('the heart stays inside the body');
+    tap('The jar with a human’s head');
+    expect(status()).toHaveTextContent('Stop! Not the heart. The heart stays inside the body.');
+    for (const j of JARS) {
+      tap(`The ${j.organ}`);
+      tap(`The jar with a ${j.head}’s head`);
+    }
+    expect(status()).toHaveTextContent('All four jars are full');
+    expect(screen.getByText(HEART_NOTE.text)).toBeInTheDocument();
     next();
-    // 5. Natron, and the forty days (all at once under reduced motion)
-    for (let i = 0; i < 6; i++) fireEvent.click(screen.getByRole('button', { name: /Bags of natron/ }));
-    expect(screen.getByRole('status')).toHaveTextContent('Forty days have passed. The body is dry.');
+
+    // 5. Natron: left too soon, it is still damp; covered inside and out, it dries.
+    tap('Oils and resin');
+    expect(status()).toHaveTextContent('Not yet. The oils and resin go on after the natron has dried the body.');
+    tap('Bags of natron');
+    at(5);
+    const pile = () => within(screen.getByRole('group', { name: 'Natron' })).getAllByRole('button')[0];
+    fireEvent.click(pile());
+    tap('Pack natron on the head');
+    tap('Leave it for forty days');
+    expect(status()).toHaveTextContent('Forty days, but it is still damp: the chest, the belly, the hips, the legs, the feet and inside the body.');
+    fireEvent.click(pile());
+    for (const p of ['on the chest', 'on the belly', 'on the hips', 'on the legs', 'on the feet', 'inside the body, through the cut']) tap(`Pack natron ${p}`);
+    tap('Leave it for forty days');
+    expect(status()).toHaveTextContent('Forty days have passed. The body is dry all through.');
     next();
-    // 6. Oils and resin
-    for (let i = 0; i < 3; i++) tap('Or tap: rub in oil and resin');
-    expect(screen.getByRole('status')).toHaveTextContent('coated in oils and resin');
+
+    // 6. Oils: two wrong picks light the right tool; then rub every part.
+    tap('Rolls of linen');
+    tap('A painted coffin');
+    expect(status()).toHaveTextContent('Try oils and resin: it is glowing on the shelf.');
+    tap('Oils and resin');
+    at(6);
+    for (let i = 0; i < 6; i++) {
+      if (i) keys('The oil cloth', 'ArrowRight');
+      keys('The oil cloth', 'ArrowDown', 'ArrowUp');
+    }
+    expect(status()).toHaveTextContent('The body is coated in oils and resin, all over.');
     next();
-    // 7. Linen, layer by layer, with the visitor's own amulet tucked in
-    tap('Or tap: wrap a layer of linen (0/4)');
-    tap('Or tap: wrap a layer of linen (1/4)');
+
+    // 7. Linen: round and round, one layer, the visitor's own amulet tucked in, then the second layer.
+    tap('Rolls of linen');
+    at(7);
+    for (let i = 0; i < 3; i++) keys('The roll of linen', 'ArrowDown', 'ArrowUp');
+    expect(status()).toHaveTextContent('The first layer of linen is on. Now tuck amulets onto it');
+    expect(screen.queryByRole('slider', { name: 'The roll of linen' })).toBeNull();
     expect(within(screen.getByRole('group', { name: 'Amulets to tuck in' })).getAllByRole('button')[0]).toHaveAccessibleName(/Your amulet/);
     tap(/Your amulet/);
-    expect(screen.getByRole('status')).toHaveTextContent('Your amulet is tucked into the wrappings.');
-    tap('Or tap: wrap a layer of linen (2/4)');
-    tap('Or tap: wrap a layer of linen (3/4)');
-    expect(screen.getByRole('status')).toHaveTextContent('The last layer of linen is on.');
+    expect(status()).toHaveTextContent('Your amulet is tucked onto the linen.');
+    for (let i = 0; i < 3; i++) keys('The roll of linen', 'ArrowDown', 'ArrowUp');
+    expect(status()).toHaveTextContent('The body is wrapped, with the amulets safe inside.');
+    expect(screen.getByText(STEPS.find((s) => s.id === 'wrap')!.notes[0].text)).toBeInTheDocument();
+    expect(WRAP_AMULETS.length).toBeGreaterThan(0);
     next();
-    // 8. The coffin and its lid, then three questions
-    tap('Or tap: lay the mummy in its coffin');
-    tap('Or tap: close the lid');
+
+    // 8. The coffin and its lid, three questions, then into the visitor's burial tomb.
+    at(8);
+    tap('The wrapped mummy');
+    tap('The open coffin: lay the mummy in it');
+    tap('The painted lid');
+    tap('The coffin: put the lid on it');
+    expect(status()).toHaveTextContent('The lid is on.');
     fireEvent.click(screen.getByRole('button', { name: '7 days' }));
-    expect(screen.getByText('Not quite. Have another go.')).toBeInTheDocument();
+    expect(within(screen.getByRole('group', { name: CHECK[0].q })).getByText('Not quite. Have another go.')).toBeInTheDocument();
     for (const c of CHECK) fireEvent.click(within(screen.getByRole('group', { name: c.q })).getByRole('button', { name: c.answer }));
     expect(screen.getByRole('link', { name: /Into the Hall of Judgement/ })).toHaveAttribute('href', '/exhibitions/egypt/weighing-of-the-heart');
-    expect(screen.getByRole('link', { name: /Build your own tomb/ })).toHaveAttribute('href', '/exhibitions/egypt/my-tomb');
     expect(screen.queryByRole('link', { name: /Back into the tomb/ })).toBeNull();
     expect(window.localStorage.getItem(TOMB_KEY)).toBeNull();
-    expect(WRAP_AMULETS.length).toBeGreaterThan(0);
+    tap('Put this in your burial tomb');
+    expect(readTomb().kept?.mummification).toBe('your mummy in its coffin');
+    expect(screen.getByRole('link', { name: 'Go to your tomb' })).toBeInTheDocument();
   });
 
   it('opens an old step’s address at the step it is now part of', () => {
