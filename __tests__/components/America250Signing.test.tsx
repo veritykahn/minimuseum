@@ -2,7 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import America250Signing from '@/app/exhibitions/america-250/sign/page';
 import ACopyOfACopy from '@/app/exhibitions/america-250/copies/page';
 import AddAStar from '@/app/exhibitions/america-250/flag/page';
-import { MISSIONS } from '@/app/exhibitions/america-250/copies/missions';
+import { CASE_FILES, EXHIBIT_LETTERS, HINTS, PICTURE, exhibitAlt, exhibitOrder, fileFor } from '@/app/exhibitions/america-250/copies/missions';
 import { DECADES, ERAS, MAX_SCORE, ROUNDS, decadeOf, joinedBefore, judge, milestonesBetween, namesOf, pickRounds, verdictLine } from '@/app/exhibitions/america-250/flag/game';
 import { nextSeed } from '@/components/games/useClientSeed';
 
@@ -407,72 +407,103 @@ describe('the class’s and the student’s own declarations', () => {
 describe('A Copy of a Copy', () => {
   beforeEach(() => window.history.replaceState(null, '', COPIES_HREF));
 
-  it('asks one thing to find on each copy, in the copies’ order, every answer among its choices', () => {
-    expect(MISSIONS.map((m) => m.copy)).toEqual(COPIES.map((c) => c.id));
-    for (const m of MISSIONS) {
-      expect(m.choices.map((c) => c.id)).toContain(m.answer);
-      expect(new Set(m.choices.map((c) => c.id)).size).toBe(m.choices.length);
+  it('has a case file for each copy, in the chain’s order, and muddles the exhibits out of that order', () => {
+    expect(CASE_FILES.map((f) => f.copy)).toEqual(COPIES.map((c) => c.id));
+    for (const seed of [0, 1, 2, 7, 99, 2026]) {
+      const order = exhibitOrder(seed);
+      expect([...order].sort()).toEqual([...COPIES.map((c) => c.id)].sort());
+      expect(order).not.toEqual(COPIES.map((c) => c.id));
     }
-    // What is found is what each photograph shows (its alt text) and its note says.
+    // What each file says to look for is what its photograph shows (its alt text) and its note says.
     expect(COPIES[0].alt).toContain('only John Hancock’s and Charles Thomson’s names printed at its foot');
-    expect(COPIES[1].note.text).toContain('her own name at its foot');
-    expect(COPIES[2].alt).toContain('John Hancock’s largest');
+    expect(COPIES[1].alt).toContain('the signers’ names in print, grouped by state');
+    expect(COPIES[2].alt).toContain('every signature clear and dark at the foot');
     expect(COPIES[3].alt).toContain('nearly all the signatures faded almost away');
+    // An exhibit's description gives what is to be seen, but not its name.
+    for (const c of COPIES) {
+      const alt = exhibitAlt(c.id, 'A');
+      expect(alt.startsWith('Exhibit A: ')).toBe(true);
+      expect(alt).not.toContain(c.name);
+    }
   });
+
+  const exhibits = exhibitOrder(nextSeed(SEED, 0));
+  const fileButton = (copy: (typeof exhibits)[number]) => screen.getByRole('button', { name: new RegExp(`^${fileFor(copy).title}`) });
 
   it('opens on the case: the posters’ words, what to do, and one button to start', () => {
     render(<ACopyOfACopy />);
     expect(screen.getByRole('heading', { level: 1, name: SIGN_TEXT.copiesHeading })).toBeInTheDocument();
     expect(screen.getByText(SIGN_TEXT.copiesIntro)).toBeInTheDocument();
     expect(screen.getByText(SIGN_TEXT.copiesLead)).toBeInTheDocument();
-    expect(screen.queryByRole('group', { name: COPIES[0].alt })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.copiesStart }));
-    expect(screen.getByRole('heading', { level: 1, name: /The Dunlap broadside/ })).toHaveFocus();
-    const lens = screen.getByRole('group', { name: COPIES[0].alt });
+    // The first exhibit, unlabelled: its name waits until it is matched.
+    expect(screen.getByRole('heading', { level: 1, name: 'Exhibit A' })).toHaveFocus();
+    const first = COPIES.find((c) => c.id === exhibits[0])!;
+    const lens = screen.getByRole('group', { name: exhibitAlt(first.id, 'A') });
     expect(lens).toHaveAttribute('aria-roledescription', 'magnifier');
-    expect(lens.querySelector('img')).toHaveAttribute('src', COPIES[0].src);
+    expect(lens.querySelector('img')).toHaveAttribute('src', first.src);
+    // The four case files to choose from, and the chain in date order, empty.
+    for (const f of CASE_FILES) expect(fileButton(f.copy)).toBeInTheDocument();
     const chain = within(screen.getByRole('list', { name: /The copy chain/ })).getAllByRole('listitem');
     expect(chain).toHaveLength(4);
-    expect(chain[0]).toHaveAttribute('aria-current', 'step');
-    expect(chain[1]).toHaveTextContent('Not opened yet');
+    chain.forEach((li, i) => expect(li).toHaveTextContent(CASE_FILES[i].title));
+    expect(chain[0]).toHaveTextContent('(not matched yet)');
   });
 
-  it('says where to look again after a wrong guess, then turns the slip over to what the copy is', () => {
+  it('says where to look on the sheet after a wrong match, then turns the slip over to what the copy is', () => {
     render(<ACopyOfACopy />);
     fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.copiesStart }));
-    fireEvent.click(screen.getByRole('button', { name: 'All fifty-six signers' }));
-    expect(screen.getByRole('button', { name: /All fifty-six signers/ })).toBeDisabled();
-    expect(screen.getByText(MISSIONS[0].hint)).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Not that one.');
-    expect(screen.queryByText(COPIES[0].note.text)).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Just two' }));
-    expect(screen.getByText(MISSIONS[0].found)).toBeInTheDocument();
-    expect(screen.getByText(COPIES[0].note.text)).toBeInTheDocument();
+    const right = exhibits[0];
+    const wrong = CASE_FILES.find((f) => f.copy !== right)!.copy;
+    fireEvent.click(fileButton(wrong));
+    expect(fileButton(wrong)).toBeDisabled();
+    expect(screen.getByText(HINTS[right])).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Not that file.');
+    const copy = COPIES.find((c) => c.id === right)!;
+    expect(screen.queryByText(copy.note.text)).toBeNull();
+    fireEvent.click(fileButton(right));
+    expect(screen.getByRole('heading', { level: 1, name: new RegExp(copy.name) })).toBeInTheDocument();
+    expect(screen.getByText(copy.note.text)).toBeInTheDocument();
     expect(screen.queryByText(/a star!/)).toBeNull();
     // Nothing cited on the slip: the sources and the picture's credit are in the Sources drawer.
-    for (const src of [...COPIES[0].note.sources, COPIES[0].credit]) expect(screen.queryByRole('link', { name: src.label })).toBeNull();
-    const next = screen.getByRole('button', { name: /The next copy/ });
+    for (const src of [...copy.note.sources, copy.credit]) expect(screen.queryByRole('link', { name: src.label })).toBeNull();
+    const next = screen.getByRole('button', { name: /The next exhibit/ });
     expect(next).toHaveFocus();
     fireEvent.click(next);
-    expect(screen.getByRole('heading', { level: 1, name: /The Goddard broadside/ })).toBeInTheDocument();
-    expect(within(screen.getByRole('list', { name: /The copy chain/ })).getAllByRole('listitem')[0]).toHaveTextContent('(solved)');
+    expect(screen.getByRole('heading', { level: 1, name: 'Exhibit B' })).toBeInTheDocument();
+    // The matched copy has its place on the chain, and its file says which exhibit it was.
+    const chain = within(screen.getByRole('list', { name: /The copy chain/ })).getAllByRole('listitem');
+    expect(chain[CASE_FILES.findIndex((f) => f.copy === right)]).toHaveTextContent('Exhibit A (matched)');
+    expect(fileButton(right)).toHaveTextContent('Matched: Exhibit A');
+    // Choosing a file already matched says so.
+    fireEvent.click(fileButton(right));
+    expect(screen.getByRole('status')).toHaveTextContent('That file is already matched, to Exhibit A.');
   });
 
-  it('closes the case with the stars found first time, the posters’ last word, and the way on', () => {
+  it('ends on a twist (which copy do people picture?), then closes the case with the stars and the way on', () => {
     render(<ACopyOfACopy />);
     fireEvent.click(screen.getByRole('button', { name: SIGN_TEXT.copiesStart }));
-    for (const [i, m] of MISSIONS.entries()) {
-      fireEvent.click(screen.getByRole('button', { name: m.choices.find((c) => c.id === m.answer)!.label }));
-      expect(screen.getByText(/Found first time: a star!/, { selector: '.apc-star-earned' })).toBeInTheDocument();
-      if (COPIES[i].quote) expect(screen.getByText(COPIES[i].quote!)).toBeInTheDocument();
-      fireEvent.click(screen.getByRole('button', { name: i === MISSIONS.length - 1 ? /Close the case/ : /The next copy/ }));
-    }
+    exhibits.forEach((copy, i) => {
+      fireEvent.click(fileButton(copy));
+      expect(screen.getByText(/Matched first time: a star!/, { selector: '.apc-star-earned' })).toBeInTheDocument();
+      const c = COPIES.find((x) => x.id === copy)!;
+      if (c.quote) expect(screen.getByText(c.quote)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: i === exhibits.length - 1 ? /One last question/ : /The next exhibit/ }));
+    });
+    expect(screen.getByRole('heading', { level: 1, name: PICTURE.ask })).toHaveFocus();
+    fireEvent.click(screen.getByRole('button', { name: /^The signed parchment today/ }));
+    expect(screen.getByText(PICTURE.hint)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^Stone’s engraving/ }));
+    expect(screen.getByText(PICTURE.found)).toBeInTheDocument();
+    expect(screen.getByText(SIGN_TEXT.copiesIntro)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Close the case/ }));
     expect(screen.getByRole('heading', { level: 1, name: SIGN_TEXT.copiesEnd })).toHaveFocus();
-    expect(screen.getByText('4 of 4 found first time')).toBeInTheDocument();
+    expect(screen.getByText('4 of 4 matched first time')).toBeInTheDocument();
     expect(screen.getByText(SIGN_TEXT.copiesClose)).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Next: Add a Star/ })).toHaveAttribute('href', FLAG_HREF);
     fireEvent.click(screen.getByRole('button', { name: 'Play again' }));
-    expect(screen.getByRole('heading', { level: 1, name: /The Dunlap broadside/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Exhibit A' })).toBeInTheDocument();
+    expect(EXHIBIT_LETTERS).toHaveLength(4);
   });
 
   it('lists each copy’s sources and picture credit in its Sources drawer', () => {

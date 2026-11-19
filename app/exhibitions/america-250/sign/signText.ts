@@ -64,10 +64,11 @@ export const SIGN_TEXT = {
   ],
 
   // A Copy of a Copy, as a detective's case (instructions only: ../copies).
-  copiesLead: 'Four copies of the Declaration, from the first printing to the signed parchment today. On each one, find one thing with the lens. Then find out how that copy was made.',
+  // REVIEW: new text (the copies now come out muddled and unlabelled).
+  copiesLead: 'Four copies of the Declaration have come out of the archive box, muddled up, with no labels. Look at each one with the lens and work out which copy it is, from the first printing to the signed parchment today.',
   copiesStart: 'Open the case',
   copiesFound: 'Found it!',
-  copiesNextCopy: 'The next copy',
+  copiesNextCopy: 'The next exhibit',
   copiesEnd: 'Case closed',
   copiesAgain: 'Look again with the lens.',
   backToSign: 'Back to Put Your Name to It',
