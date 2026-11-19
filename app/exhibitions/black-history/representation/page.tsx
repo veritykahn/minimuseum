@@ -131,8 +131,8 @@ export default function WhoDoYouSee() {
 
           {/* All three stay mounted, so each keeps its state while you try another. */}
           <section className="bhr-panel" id="bhr-panel-design" role="tabpanel" aria-labelledby="bhr-tab-design" hidden={tab !== 'design'}>
-            {/* The designer is one self-contained component: the owner's doll artwork will replace it here, whole. */}
-            <DollDesigner />
+            {/* The designer ends by sending the child on to the Doll Test or the book count. */}
+            <DollDesigner onGo={(t) => choose(t, true)} />
           </section>
           <section className="bhr-panel" id="bhr-panel-doll-test" role="tabpanel" aria-labelledby="bhr-tab-doll-test" hidden={tab !== 'doll-test'}>
             <DollTest active={tab === 'doll-test'} />

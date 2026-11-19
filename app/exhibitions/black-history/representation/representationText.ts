@@ -337,6 +337,58 @@ export function askFor(q: SurveyQuestion, kind: SurveyKind): string {
   return `Hands up if ${SUBJECT[kind]} is…`;
 }
 
+/* ───────── Design a doll ───────── */
+
+export type DollWho = 'me' | 'love' | 'new';
+export type DollAnswer = 'easy' | 'sometimes' | 'hard';
+
+/**
+ * The doll maker's words. It opens by asking who the doll is for, and ends
+ * ("I'm done") by asking how easy it is to find toys and characters who
+ * look like that person: the question the Doll Test and the book count then
+ * take up. The answers make no claims; they point on to the room's other
+ * two tabs.
+ */
+// REVIEW: new text (the whole of DESIGN_TEXT, Nov 19 2026)
+export const DESIGN_TEXT = {
+  intro: 'Make a doll that looks like you, or like someone you love.',
+  whoLegend: 'Who is your doll?',
+  who: [
+    { id: 'me', label: 'Me' },
+    { id: 'love', label: 'Someone I love' },
+    { id: 'new', label: 'Someone new' },
+  ] as { id: DollWho; label: string }[],
+  name: 'Name (you don’t have to)',
+  namePlaceholder: 'My doll',
+  done: 'I’m done',
+  surprise: 'Surprise me',
+  save: 'Save picture',
+  print: 'Print',
+  stored: 'Nothing you make here is stored or sent anywhere.',
+  meet: (name: string) => (name ? `Meet ${name}!` : 'Meet your doll!'),
+  ask: {
+    me: 'When you were little, how easy was it to find a doll, or a character in a book or on a screen, who looked like you?',
+    love: 'How easy is it to find a doll, or a character in a book or on a screen, who looks like the person you love?',
+    new: 'How easy is it to find a doll, or a character in a book or on a screen, who looks like your doll?',
+  } satisfies Record<DollWho, string>,
+  answers: [
+    { id: 'easy', label: 'Easy' },
+    { id: 'sometimes', label: 'Sometimes' },
+    { id: 'hard', label: 'Hard' },
+  ] as { id: DollAnswer; label: string }[],
+  reply: {
+    easy: 'Not everyone finds it easy. Ask a friend or a grown-up the same question, and listen to what they say.',
+    sometimes: 'Look at the shelves and toy boxes around you. Who is easy to find? Who is hard to find, or missing?',
+    hard: 'You are asking the same question as this room. Find out what children said about dolls in the 1940s, and why it mattered to the Supreme Court.',
+  } satisfies Record<DollAnswer, string>,
+  toDollTest: 'The Doll Test',
+  toDollTestWhy: 'What did children say about dolls in the 1940s?',
+  toBooks: 'Who’s in your books?',
+  toBooksWhy: 'Count who is in your class’s books.',
+  back: 'Keep designing',
+  prostheticHidden: 'Long clothes cover the prosthetic leg. Try a dress or the sports kit to see it.',
+};
+
 export const ROOM_TEXT = {
   title: 'Who Do You See?',
   designTab: 'Design a doll',

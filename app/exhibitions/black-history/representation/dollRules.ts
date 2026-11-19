@@ -1,243 +1,339 @@
-import { DOLL_ART, DOLL_BASE, thumbOf, type HairColour, type Pose, type Sex, type Tone } from './dollArt';
+import { darken, lighten, mix } from './dollShapes';
 
 /*
- * Design a doll: the choices and the manifest's rules, kept apart from the
- * screen so they can be tested whole.
+ * Design a doll: every choice a child can make, the names a screen reader
+ * says for them, and the rules that keep the doll whole. Kept apart from the
+ * screen (DollDesigner.tsx) and the drawing (DollArt.tsx) so they can be
+ * tested whole.
  *
- * The doll remembers a choice per doll and per pose (the woman's hair and the
- * man's, the standing outfit and the seated one), so switching back and forth
- * never loses what a child picked. Every change goes through `resolve`, which
- * makes an impossible doll impossible: a seated doll wears only seated
- * outfits and has no prosthetic leg, a covering that hides the hair hides it
- * (and the hair comes back when it comes off), and the kippah is the man's
- * and is lifted to sit on his hairstyle.
+ * The doll is our own: one friendly figure drawn in SVG, not a copy of any
+ * toy. It is built to be representative: twelve skin tones from the deepest
+ * to the fairest, each with its own shading; twelve hairstyles drawn for
+ * their own texture (straight to coily, afro, puffs, braids, locs, twists),
+ * in natural and fun colours, each colour with its own highlight and shadow;
+ * head coverings; eye shapes and colours, noses and lips; freckles and
+ * vitiligo; glasses, hearing aids, a wheelchair and a prosthetic leg; and
+ * clothes in any colour.
+ *
+ * The rules: a covering that hides the hair hides it (and the hair comes
+ * back when it comes off); choosing a hairstyle takes such a covering off; a
+ * kippah or kufi sits on the hair. Every other choice goes with every other.
  */
 
+/* ───────── Skin ───────── */
+
+export type Tone = { id: string; label: string; base: string };
+/** Twelve skin tones, from the deepest to the fairest. */
+export const TONES: Tone[] = [
+  { id: 's1', label: 'Deepest brown', base: '#3d2319' },
+  { id: 's2', label: 'Very deep brown', base: '#502f21' },
+  { id: 's3', label: 'Deep brown', base: '#653c28' },
+  { id: 's4', label: 'Dark brown', base: '#7a4a31' },
+  { id: 's5', label: 'Rich brown', base: '#8e5a3b' },
+  { id: 's6', label: 'Warm brown', base: '#a46b46' },
+  { id: 's7', label: 'Golden brown', base: '#b87e54' },
+  { id: 's8', label: 'Olive', base: '#b99467' },
+  { id: 's9', label: 'Tan', base: '#d2a277' },
+  { id: 's10', label: 'Light', base: '#e3bb92' },
+  { id: 's11', label: 'Fair', base: '#efcfad' },
+  { id: 's12', label: 'Very fair', base: '#f7e0cb' },
+];
+
+export type SkinPaint = { base: string; shade: string; line: string; blush: string; lip: string; lipLine: string; freckle: string; patch: string };
+
+/** A tone's whole palette: its shading, outline, cheeks, lips, freckles and vitiligo patches. */
+export function skinPaint(id: string): SkinPaint {
+  const i = Math.max(0, TONES.findIndex((t) => t.id === id));
+  const base = TONES[i].base;
+  const deep = i < 5;
+  return {
+    base,
+    shade: darken(base, deep ? 0.22 : 0.12),
+    line: darken(base, deep ? 0.48 : 0.42),
+    blush: mix(base, '#e0606a', deep ? 0.22 : 0.3),
+    lip: mix(darken(base, deep ? 0.12 : 0.05), '#b8434f', deep ? 0.22 : 0.42),
+    lipLine: darken(base, 0.5),
+    freckle: mix(base, '#6b3a1f', deep ? 0.45 : 0.42),
+    // Vitiligo: a paler patch, warm, never white.
+    patch: mix(base, '#f6e2d3', deep ? 0.72 : 0.6),
+  };
+}
+
+/* ───────── Hair ───────── */
+
+export type HairColour = { id: string; label: string; base: string; shade: string; deep: string; light: string; brow: string; fun?: true };
+
+const hairColour = (id: string, label: string, base: string, light: string, brow?: string, fun?: true): HairColour => ({
+  id,
+  label,
+  base,
+  shade: darken(base, 0.22),
+  deep: darken(base, 0.45),
+  light,
+  brow: brow ?? darken(base, 0.25),
+  ...(fun ? { fun } : {}),
+});
+
+/** Natural colours, then fun ones. Blond has its own warm highlight and golden shadow, never a flat yellow. */
+export const HAIR_COLOURS: HairColour[] = [
+  hairColour('black', 'Black', '#2b2528', '#6a6170'),
+  hairColour('darkbrown', 'Dark brown', '#4a3023', '#86604a'),
+  hairColour('brown', 'Brown', '#6e4529', '#a8784f'),
+  hairColour('auburn', 'Auburn', '#8c3d24', '#c76e48'),
+  hairColour('red', 'Red', '#c25a2c', '#f0a06a', '#9a4a26'),
+  hairColour('blond', 'Blond', '#d6a755', '#f8e3a6', '#a9783c'),
+  hairColour('lightblond', 'Light blond', '#e8cf95', '#fbf1d2', '#b08a52'),
+  hairColour('grey', 'Grey', '#a5a3a8', '#e6e5ea', '#7d7a80'),
+  hairColour('pink', 'Pink', '#e57aac', '#ffc6df', '#5a3a30', true),
+  hairColour('blue', 'Blue', '#4b86d6', '#a9cdf7', '#3a2a24', true),
+  hairColour('purple', 'Purple', '#8a63cf', '#c9b0f2', '#3a2a24', true),
+  hairColour('teal', 'Teal', '#25a596', '#94e2d6', '#3a2a24', true),
+];
+
+export type HairStyle = { id: string; label: string };
+export const HAIR_STYLES: HairStyle[] = [
+  { id: 'straight', label: 'Long and straight' },
+  { id: 'wavy', label: 'Wavy' },
+  { id: 'curly', label: 'Curly' },
+  { id: 'coily', label: 'Short coils' },
+  { id: 'afro', label: 'Afro' },
+  { id: 'puffs', label: 'Puffs' },
+  { id: 'braids', label: 'Braids' },
+  { id: 'locs', label: 'Locs' },
+  { id: 'twists', label: 'Twists' },
+  { id: 'bun', label: 'Bun' },
+  { id: 'crop', label: 'Short crop' },
+  { id: 'bald', label: 'No hair' },
+];
+
+/* ───────── Head coverings ───────── */
+
+export type Covering = { id: string; label: string; hidesHair: boolean };
+export const COVERINGS: Covering[] = [
+  { id: 'hijab', label: 'Hijab', hidesHair: true },
+  { id: 'wrap', label: 'Head wrap', hidesHair: true },
+  { id: 'scarf', label: 'Headscarf', hidesHair: true },
+  { id: 'turban', label: 'Turban', hidesHair: true },
+  { id: 'kippah', label: 'Kippah', hidesHair: false },
+  { id: 'kufi', label: 'Kufi', hidesHair: false },
+];
+
+/* ───────── Face ───────── */
+
+export const EYE_SHAPES = [
+  { id: 'round', label: 'Round' },
+  { id: 'almond', label: 'Almond' },
+  { id: 'monolid', label: 'Monolid' },
+];
+export const EYE_COLOURS = [
+  { id: 'darkbrown', label: 'Dark brown', color: '#3a2316' },
+  { id: 'brown', label: 'Brown', color: '#6b3f1f' },
+  { id: 'hazel', label: 'Hazel', color: '#8d6b2c' },
+  { id: 'green', label: 'Green', color: '#4d7a3c' },
+  { id: 'blue', label: 'Blue', color: '#4a80b8' },
+  { id: 'grey', label: 'Grey', color: '#7c8a95' },
+];
+export const NOSES = [
+  { id: 'button', label: 'Button nose' },
+  { id: 'broad', label: 'Broad nose' },
+  { id: 'long', label: 'Long nose' },
+];
+export const LIPS = [
+  { id: 'full', label: 'Full lips' },
+  { id: 'medium', label: 'Medium lips' },
+  { id: 'thin', label: 'Thin lips' },
+];
+
+/* ───────── Clothes ───────── */
+
+export type Outfit = { id: string; label: string };
+export const OUTFITS: Outfit[] = [
+  { id: 'tee', label: 'T-shirt and jeans' },
+  { id: 'dress', label: 'Party dress' },
+  { id: 'print', label: 'Print dress' },
+  { id: 'overalls', label: 'Overalls' },
+  { id: 'hoodie', label: 'Hoodie and joggers' },
+  { id: 'skirt', label: 'Long skirt' },
+  { id: 'suit', label: 'Suit' },
+  { id: 'kit', label: 'Sports kit' },
+  { id: 'lab', label: 'Lab coat' },
+];
+
+/** The colours a child can give the clothes, a head covering or the wheelchair (the posters' palette, and a few more). */
+export const CLOTH_COLOURS = [
+  { id: 'red', label: 'Red', color: '#d7262e' },
+  { id: 'pink', label: 'Pink', color: '#ee8dbf' },
+  { id: 'orange', label: 'Orange', color: '#f29a1b' },
+  { id: 'yellow', label: 'Yellow', color: '#f2cc2e' },
+  { id: 'lime', label: 'Lime', color: '#b9d334' },
+  { id: 'green', label: 'Green', color: '#1e8a4e' },
+  { id: 'teal', label: 'Teal', color: '#1c9f9a' },
+  { id: 'blue', label: 'Blue', color: '#2b6fb9' },
+  { id: 'purple', label: 'Purple', color: '#7d5cc6' },
+  { id: 'navy', label: 'Navy', color: '#24325e' },
+  { id: 'black', label: 'Black', color: '#2a2a2e' },
+  { id: 'white', label: 'White', color: '#f3efe6' },
+];
+
+export type ClothPaint = { base: string; shade: string; line: string; light: string };
+export function clothPaint(color: string): ClothPaint {
+  const pale = color === '#f3efe6';
+  return { base: color, shade: darken(color, pale ? 0.1 : 0.16), line: darken(color, pale ? 0.42 : 0.45), light: lighten(color, 0.3) };
+}
+export const clothColour = (id: string) => (CLOTH_COLOURS.find((c) => c.id === id) ?? CLOTH_COLOURS[0]).color;
+
+/* ───────── Extras ───────── */
+
+export const GLASSES = [
+  { id: 'none', label: 'No glasses' },
+  { id: 'round', label: 'Round glasses' },
+  { id: 'square', label: 'Square glasses' },
+] as const;
+
+/* ───────── The doll ───────── */
+
+export type GlassesId = (typeof GLASSES)[number]['id'];
+
 export type Doll = {
-  sex: Sex;
-  seated: boolean;
-  tone: Tone;
-  /** Each doll's hairstyle, remembered while the other is shown. */
-  hair: Record<Sex, string>;
-  hairColour: HairColour;
-  /** Each doll's head covering, or none. */
-  covering: Record<Sex, string | null>;
-  beard: boolean;
-  glasses: boolean;
+  tone: string;
+  eyes: string;
+  eyeColour: string;
+  nose: string;
+  lips: string;
+  freckles: boolean;
+  vitiligo: boolean;
+  hair: string;
+  hairColour: string;
+  /** A head covering, or none. The hairstyle under it is remembered. */
+  covering: string | null;
+  coveringColour: string;
+  outfit: string;
+  outfitColour: string;
+  glasses: GlassesId;
   hearing: boolean;
+  seated: boolean;
+  chairColour: string;
   prosthetic: boolean;
-  /** The outfit for each pose, remembered while another is shown. */
-  outfit: Record<Pose, string>;
   name: string;
 };
 
-export type Option = { id: string; label: string };
-export type Slot = 'body' | 'outfit' | 'hands' | 'hair' | 'beard' | 'head' | 'glasses' | 'hearing';
-export type Layer = { slot: Slot; file: string; src: string; lift: number };
-
-export const SEXES: Sex[] = ['W', 'M'];
-export const POSES: Pose[] = ['W', 'M', 'WS', 'MS'];
-export const SEX_LABEL: Record<Sex, string> = { W: 'Woman', M: 'Man' };
 export const NAME_MAX = 24;
 
-/** The manifest's stacking order, as layer slots: body, outfit, the seated woman's hands, hair, beard, head, then glasses and hearing aid. */
-export const SLOT_ORDER: Slot[] = DOLL_ART.order.flatMap((o): Slot[] => {
-  if (o === 'extra (beard)') return ['beard'];
-  if (/^hands\b/.test(o)) return ['hands'];
-  if (/^extra \(/.test(o)) return ['glasses', 'hearing'];
-  return [o as Slot];
-});
-
-export const poseOf = (d: Pick<Doll, 'sex' | 'seated'>): Pose => (d.seated ? (`${d.sex}S` as Pose) : d.sex);
-export const src = (file: string) => DOLL_BASE + file;
-export const thumb = (file: string) => DOLL_BASE + thumbOf(file);
-
-const entries = <T extends { label: string }>(rec: Record<string, T>): Option[] => Object.entries(rec).map(([id, v]) => ({ id, label: v.label }));
-export const hairStyles = (sex: Sex) => entries(DOLL_ART.hair[sex]);
-export const coverings = (sex: Sex) => entries(DOLL_ART.head[sex]);
-export const outfitsFor = (pose: Pose) => entries(DOLL_ART.outfits[pose]);
-
-const COLOUR_NAMES: Record<string, string> = { darkbrown: 'dark brown' };
-export const colourName = (c: HairColour) => COLOUR_NAMES[c] ?? c;
-export const hairColours = (): Option[] => DOLL_ART.hairColours.map((c) => ({ id: c, label: colourName(c)[0].toUpperCase() + colourName(c).slice(1) }));
-export const skinTones = (): Option[] => DOLL_ART.skinTones.map((t) => ({ id: t, label: DOLL_ART.skinToneLabels[t] }));
-
-/** True if this covering hides the hair (the manifest names them: hijab, head wrap, headscarf, turban). */
-export const hidesHair = (covering: string | null) => covering !== null && DOLL_ART.coversHair.includes(covering);
-/** The kippah is the man's only (it is in the manifest for him alone). */
-export const KIPPAH = 'kippah';
-/** How far to raise the kippah so it sits on top of this hairstyle, in canvas pixels. */
-export const kippahLift = (style: string) => DOLL_ART.kippahLift[style] ?? 0;
-
-const first = (xs: Option[]) => xs[0].id;
-const has = (xs: Option[], id: string | null) => id !== null && xs.some((x) => x.id === id);
-
 export const FIRST_DOLL: Doll = {
-  sex: 'W',
-  seated: false,
-  tone: 't2',
-  hair: { W: 'puffs', M: 'fade' },
+  tone: 's4',
+  eyes: 'almond',
+  eyeColour: 'darkbrown',
+  nose: 'broad',
+  lips: 'full',
+  freckles: false,
+  vitiligo: false,
+  hair: 'puffs',
   hairColour: 'black',
-  covering: { W: null, M: null },
-  beard: false,
-  glasses: false,
+  covering: null,
+  coveringColour: 'teal',
+  outfit: 'print',
+  outfitColour: 'orange',
+  glasses: 'none',
   hearing: false,
+  seated: false,
+  chairColour: 'blue',
   prosthetic: false,
-  outfit: { W: 'print', M: 'denim', WS: 'sundress', MS: 'denim' },
   name: '',
 };
 
-/** The nearest valid doll: every remembered choice is one the manifest has, and the rules hold. */
+type Listed = { id: string; label: string };
+const has = (xs: readonly { id: string }[], id: string | null) => id !== null && xs.some((x) => x.id === id);
+export const labelOf = (xs: readonly Listed[], id: string) => xs.find((x) => x.id === id)?.label ?? id;
+
+export const hairColourOf = (id: string) => HAIR_COLOURS.find((c) => c.id === id) ?? HAIR_COLOURS[0];
+export const hidesHair = (covering: string | null) => covering !== null && !!COVERINGS.find((c) => c.id === covering)?.hidesHair;
+
+/** The nearest valid doll: every choice is one this maker has. */
 export function resolve(d: Doll): Doll {
-  const out: Doll = { ...d, hair: { ...d.hair }, covering: { ...d.covering }, outfit: { ...d.outfit } };
-  if (!DOLL_ART.skinTones.includes(out.tone)) out.tone = DOLL_ART.skinTones[0];
-  if (!DOLL_ART.hairColours.includes(out.hairColour)) out.hairColour = DOLL_ART.hairColours[0];
-  for (const s of SEXES) {
-    if (!has(hairStyles(s), out.hair[s])) out.hair[s] = first(hairStyles(s));
-    if (out.covering[s] !== null && !has(coverings(s), out.covering[s])) out.covering[s] = null;
-  }
-  for (const p of POSES) if (!has(outfitsFor(p), out.outfit[p])) out.outfit[p] = first(outfitsFor(p));
-  // The prosthetic leg is for standing dolls.
-  if (out.seated) out.prosthetic = false;
+  const out = { ...d };
+  const keep = (xs: readonly { id: string }[], v: string) => (has(xs, v) ? v : xs[0].id);
+  out.tone = keep(TONES, out.tone);
+  out.eyes = keep(EYE_SHAPES, out.eyes);
+  out.eyeColour = keep(EYE_COLOURS, out.eyeColour);
+  out.nose = keep(NOSES, out.nose);
+  out.lips = keep(LIPS, out.lips);
+  out.hair = keep(HAIR_STYLES, out.hair);
+  out.hairColour = keep(HAIR_COLOURS, out.hairColour);
+  if (out.covering !== null && !has(COVERINGS, out.covering)) out.covering = null;
+  out.coveringColour = keep(CLOTH_COLOURS, out.coveringColour);
+  out.outfit = keep(OUTFITS, out.outfit);
+  out.outfitColour = keep(CLOTH_COLOURS, out.outfitColour);
+  out.chairColour = keep(CLOTH_COLOURS, out.chairColour);
+  out.glasses = keep(GLASSES, out.glasses) as GlassesId;
   out.name = out.name.slice(0, NAME_MAX);
   return out;
 }
 
-export function setSex(d: Doll, sex: Sex): Doll {
-  return resolve({ ...d, sex });
-}
-
-/**
- * Sitting down or standing up: the same outfit if the new pose has it,
- * otherwise the one last worn in that pose. An outfit that was only a stand-in
- * (the standing one had no seated version) doesn't replace the one chosen.
- */
-export function setSeated(d: Doll, seated: boolean): Doll {
-  const from = poseOf(d);
-  const to = poseOf({ sex: d.sex, seated });
-  const outfit = { ...d.outfit };
-  const wasStandIn = !has(outfitsFor(from), d.outfit[to]);
-  if (has(outfitsFor(to), d.outfit[from]) && !wasStandIn) outfit[to] = d.outfit[from];
-  return resolve({ ...d, seated, outfit, prosthetic: seated ? false : d.prosthetic });
-}
-
 /** A hairstyle shows the hair, so a covering that hides it comes off (a kippah or kufi stays on). */
 export function setHair(d: Doll, style: string): Doll {
-  const covering = hidesHair(d.covering[d.sex]) ? { ...d.covering, [d.sex]: null } : d.covering;
-  return resolve({ ...d, hair: { ...d.hair, [d.sex]: style }, covering });
+  return resolve({ ...d, hair: style, covering: hidesHair(d.covering) ? null : d.covering });
 }
 
 /** A covering, or none; the hairstyle underneath is remembered. */
 export function setCovering(d: Doll, covering: string | null): Doll {
-  return resolve({ ...d, covering: { ...d.covering, [d.sex]: covering } });
+  return resolve({ ...d, covering });
 }
 
-export function setOutfit(d: Doll, id: string): Doll {
-  return resolve({ ...d, outfit: { ...d.outfit, [poseOf(d)]: id } });
-}
+/** Does this outfit cover the lower leg (so a prosthetic leg is under it)? */
+export const coversShins = (outfit: string) => ['tee', 'overalls', 'hoodie', 'skirt', 'suit', 'lab'].includes(outfit);
 
-export function setProsthetic(d: Doll, on: boolean): Doll {
-  return resolve({ ...d, prosthetic: on && !d.seated });
-}
-
-/** The doll's layers, bottom to top, in the manifest's order. Only what shows is listed. */
-export function layersOf(d: Doll): Layer[] {
-  const pose = poseOf(d);
-  const sex = d.sex;
-  const covering = d.covering[sex];
-  const style = d.hair[sex];
-  const files: Partial<Record<Slot, { file: string; lift?: number }>> = {
-    body: { file: d.prosthetic && !d.seated ? DOLL_ART.prosthetic[sex][d.tone] : DOLL_ART.bodies[pose][d.tone] },
-    outfit: { file: DOLL_ART.outfits[pose][d.outfit[pose]].file },
-  };
-  const hands = (DOLL_ART.seatedHands as Partial<Record<Pose, Record<string, string>>>)[pose]?.[d.tone];
-  if (hands) files.hands = { file: hands };
-  if (!hidesHair(covering)) files.hair = { file: DOLL_ART.hair[sex][style].files[d.hairColour] };
-  if (sex === 'M' && d.beard) files.beard = { file: DOLL_ART.extras.M.beard.files[d.hairColour] };
-  if (covering) files.head = { file: DOLL_ART.head[sex][covering].file, lift: covering === KIPPAH ? kippahLift(style) : 0 };
-  if (d.glasses) files.glasses = { file: DOLL_ART.extras[sex].glasses.file };
-  if (d.hearing) files.hearing = { file: DOLL_ART.extras[sex].hearing.file };
-  return SLOT_ORDER.flatMap((slot) => {
-    const f = files[slot];
-    return f ? [{ slot, file: f.file, src: src(f.file), lift: f.lift ?? 0 }] : [];
-  });
-}
-
-const lower = (s: string) => (/^[A-Z][a-z ]/.test(s) ? s[0].toLowerCase() + s.slice(1) : s);
+const lower = (s: string) => s[0].toLowerCase() + s.slice(1);
 const article = (s: string) => (/^[aeiou]/i.test(s) ? `an ${s}` : `a ${s}`);
+const list = (parts: string[]) => (parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}` : parts[0]);
 
 /** The doll in words, for its picture's name and for the live region. */
 export function describe(d: Doll): string {
-  const sex = d.sex;
-  const covering = d.covering[sex];
-  const parts: string[] = [`${DOLL_ART.skinToneLabels[d.tone]} skin`];
-  if (hidesHair(covering)) parts.push(article(lower(DOLL_ART.head[sex][covering!].label)));
+  const parts: string[] = [`${lower(labelOf(TONES, d.tone))} skin`];
+  if (d.vitiligo) parts.push('vitiligo');
+  if (d.freckles) parts.push('freckles');
+  parts.push(`${lower(labelOf(EYE_COLOURS, d.eyeColour))} ${lower(labelOf(EYE_SHAPES, d.eyes))} eyes`);
+  const covering = d.covering ? lower(labelOf(COVERINGS, d.covering)) : '';
+  if (hidesHair(d.covering)) parts.push(article(`${lower(labelOf(CLOTH_COLOURS, d.coveringColour))} ${covering}`));
   else {
-    parts.push(`${colourName(d.hairColour)} hair (${lower(DOLL_ART.hair[sex][d.hair[sex]].label)})`);
-    if (covering) parts.push(article(lower(DOLL_ART.head[sex][covering].label)));
+    parts.push(d.hair === 'bald' ? 'no hair' : `${lower(hairColourOf(d.hairColour).label)} hair (${lower(labelOf(HAIR_STYLES, d.hair))})`);
+    if (covering) parts.push(article(covering));
   }
-  if (sex === 'M' && d.beard) parts.push(`${article(colourName(d.hairColour))} beard`);
-  if (d.glasses) parts.push('glasses');
-  if (d.hearing) parts.push('a hearing aid');
-  if (d.prosthetic && !d.seated) parts.push('a prosthetic leg');
-  const outfit = lower(DOLL_ART.outfits[poseOf(d)][d.outfit[poseOf(d)]].label);
-  const who = `${article(sex === 'W' ? 'woman' : 'man')} doll${d.seated ? ' in a wheelchair' : ''}`;
-  const list = parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts.at(-1)}` : parts[0];
+  if (d.glasses !== 'none') parts.push(lower(labelOf(GLASSES, d.glasses)));
+  if (d.hearing) parts.push('hearing aids');
+  if (d.prosthetic) parts.push('a prosthetic leg');
+  const outfit = `${lower(labelOf(CLOTH_COLOURS, d.outfitColour))} ${lower(labelOf(OUTFITS, d.outfit))}`;
   const name = d.name.trim();
-  return `${name ? `${name}: ` : ''}${who} with ${list}, wearing ${article(outfit)}.`;
+  return `${name ? `${name}: ` : ''}a doll${d.seated ? ' in a wheelchair' : ''} with ${list(parts)}, wearing ${article(outfit)}.`;
 }
 
 /** A whole, valid surprise doll. The name stays. */
 export function surprise(name: string, r: () => number = Math.random): Doll {
-  const pick = <T>(xs: readonly T[]) => xs[Math.min(xs.length - 1, Math.floor(r() * xs.length))];
-  const sex = pick(SEXES);
-  const seated = r() < 0.25;
-  const covering = {} as Record<Sex, string | null>;
-  for (const s of SEXES) covering[s] = r() < 0.2 ? pick(coverings(s)).id : null;
-  const outfit = {} as Record<Pose, string>;
-  for (const p of POSES) outfit[p] = pick(outfitsFor(p)).id;
+  const pick = <T extends { id: string }>(xs: readonly T[]) => xs[Math.min(xs.length - 1, Math.floor(r() * xs.length))].id;
   return resolve({
-    sex,
-    seated,
-    tone: pick(DOLL_ART.skinTones),
-    hair: { W: pick(hairStyles('W')).id, M: pick(hairStyles('M')).id },
-    hairColour: pick(DOLL_ART.hairColours),
-    covering,
-    beard: r() < 0.4,
-    glasses: r() < 0.3,
-    hearing: r() < 0.2,
-    prosthetic: !seated && r() < 0.15,
-    outfit,
+    tone: pick(TONES),
+    eyes: pick(EYE_SHAPES),
+    eyeColour: pick(EYE_COLOURS),
+    nose: pick(NOSES),
+    lips: pick(LIPS),
+    freckles: r() < 0.25,
+    vitiligo: r() < 0.1,
+    hair: pick(HAIR_STYLES),
+    // Mostly natural colours, sometimes a fun one.
+    hairColour: r() < 0.8 ? pick(HAIR_COLOURS.filter((c) => !c.fun)) : pick(HAIR_COLOURS.filter((c) => c.fun)),
+    covering: r() < 0.18 ? pick(COVERINGS) : null,
+    coveringColour: pick(CLOTH_COLOURS),
+    outfit: pick(OUTFITS),
+    outfitColour: pick(CLOTH_COLOURS),
+    glasses: pick(GLASSES) as GlassesId,
+    hearing: r() < 0.15,
+    seated: r() < 0.2,
+    chairColour: pick(CLOTH_COLOURS),
+    prosthetic: r() < 0.12,
     name,
   });
 }
 
-/** Is this a doll the manifest allows? (For tests, and as a guard.) */
+/** Is this a doll this maker can draw? (For tests, and as a guard.) */
 export function isValid(d: Doll): boolean {
-  if (!DOLL_ART.skinTones.includes(d.tone) || !DOLL_ART.hairColours.includes(d.hairColour)) return false;
-  if (d.seated && d.prosthetic) return false;
-  for (const s of SEXES) {
-    if (!has(hairStyles(s), d.hair[s])) return false;
-    if (d.covering[s] !== null && !has(coverings(s), d.covering[s])) return false;
-  }
-  return POSES.every((p) => has(outfitsFor(p), d.outfit[p]));
-}
-
-/** The layers a child is likely to pick next, from the group they have open, to fetch ahead. */
-export function nextLikely(d: Doll, group: string): string[] {
-  const sex = d.sex;
-  const pose = poseOf(d);
-  const near = <T>(xs: readonly T[], i: number) => [xs[i - 1], xs[i + 1]].filter((x): x is T => x !== undefined);
-  const out: string[] = [];
-  if (group === 'hair') {
-    const styles = hairStyles(sex).map((x) => x.id);
-    for (const s of near(styles, styles.indexOf(d.hair[sex]))) out.push(DOLL_ART.hair[sex][s].files[d.hairColour]);
-    for (const c of near(DOLL_ART.hairColours, DOLL_ART.hairColours.indexOf(d.hairColour))) out.push(DOLL_ART.hair[sex][d.hair[sex]].files[c]);
-  } else if (group === 'clothes') {
-    const ids = outfitsFor(pose).map((x) => x.id);
-    for (const o of near(ids, ids.indexOf(d.outfit[pose]))) out.push(DOLL_ART.outfits[pose][o].file);
-  } else if (group === 'doll') {
-    for (const t of near(DOLL_ART.skinTones, DOLL_ART.skinTones.indexOf(d.tone))) out.push(DOLL_ART.bodies[pose][t]);
-  }
-  return out.map(src);
+  return JSON.stringify(resolve(d)) === JSON.stringify(d);
 }
