@@ -36,6 +36,11 @@ import './typing.css';
  * Over the machines: the teacher's prompt when one is set (PromptPanel.tsx,
  * set on the class board), and the race between the two machines
  * (Race.tsx). The top row has its "beat ten" challenge (TopRow.tsx).
+ *
+ * Its point: a child feels with their own fingers what the poster can only
+ * say: a typewriter keeps every mistake (strike over it, or start again),
+ * a word processor lets you change anything, and the keyboard's layout,
+ * fixed for the typewriter, still shapes what we type.
  */
 
 type CssVars = CSSProperties & Record<`--${string}`, string>;
