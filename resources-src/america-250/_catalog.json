@@ -1,0 +1,82 @@
+[
+  {
+    "slug": "we-put-our-names-to-it",
+    "title": "We Put Our Names to It",
+    "sub": "PreK–Kindergarten · Signing the Declaration",
+    "grade": "PreK–K",
+    "minutes": 25,
+    "posters": [
+      "poster1"
+    ],
+    "import": "a250WePutOurNamesToIt"
+  },
+  {
+    "slug": "a-star-for-every-state",
+    "title": "A Star for Every State",
+    "sub": "Grades 1–2 · Add a Star",
+    "grade": "Grades 1–2",
+    "minutes": 30,
+    "posters": [
+      "poster2"
+    ],
+    "import": "a250AStarForEveryState"
+  },
+  {
+    "slug": "declaration-detectives",
+    "title": "Declaration Detectives",
+    "sub": "Grades 3–4 · A Copy of a Copy",
+    "grade": "Grades 3–4",
+    "minutes": 40,
+    "posters": [
+      "poster1"
+    ],
+    "import": "a250DeclarationDetectives"
+  },
+  {
+    "slug": "what-it-was-what-it-became",
+    "title": "What It Was, What It Became",
+    "sub": "Grades 5–8 · Social Studies · The Declaration as a primary source",
+    "grade": "Grades 5–8 · Social Studies",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "a250WhatItWasWhatItBecame"
+  },
+  {
+    "slug": "self-evident",
+    "title": "Self-Evident",
+    "sub": "Grades 5–8 · ELA · The Declaration as an argument",
+    "grade": "Grades 5–8 · ELA",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "a250SelfEvident"
+  },
+  {
+    "slug": "counting-a-nation",
+    "title": "Counting a Nation",
+    "sub": "Grades 5–8 · Math · Data and proportion from 1776 to 50 stars",
+    "grade": "Grades 5–8 · Math",
+    "minutes": 45,
+    "posters": [
+      "poster2"
+    ],
+    "import": "a250CountingANation"
+  },
+  {
+    "slug": "painting-the-moment",
+    "title": "Painting the Moment",
+    "sub": "Grades 5–8 · Art · How history paintings make a myth",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "a250PaintingTheMoment"
+  }
+]
