@@ -1,0 +1,82 @@
+[
+  {
+    "slug": "clack-clack-ding",
+    "title": "Clack, Clack, Ding!",
+    "sub": "PreK–Kindergarten · The typewriter and its keys",
+    "grade": "PreK–K",
+    "minutes": 25,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "wrClackClackDing"
+  },
+  {
+    "slug": "no-erasing",
+    "title": "No Erasing!",
+    "sub": "Grades 1–2 · The typewriter and the computer",
+    "grade": "Grades 1–2",
+    "minutes": 30,
+    "posters": [
+      "poster1"
+    ],
+    "import": "wrNoErasing"
+  },
+  {
+    "slug": "qwertys-secret",
+    "title": "QWERTY’s Secret",
+    "sub": "Grades 3–4 · Why the letters on a keyboard are where they are",
+    "grade": "Grades 3–4",
+    "minutes": 40,
+    "posters": [
+      "poster2"
+    ],
+    "import": "wrQwertysSecret"
+  },
+  {
+    "slug": "chipping-at-the-gates",
+    "title": "Chipping at the Gates",
+    "sub": "Grades 5–8 · ELA · Reading an argument, choosing words",
+    "grade": "Grades 5–8 · ELA",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "wrChippingAtTheGates"
+  },
+  {
+    "slug": "who-gets-to-write",
+    "title": "Who Gets to Write?",
+    "sub": "Grades 5–8 · Social Studies · Technology, access and voice",
+    "grade": "Grades 5–8 · Social Studies",
+    "minutes": 45,
+    "posters": [
+      "poster1"
+    ],
+    "import": "wrWhoGetsToWrite"
+  },
+  {
+    "slug": "is-it-a-fair-test",
+    "title": "Is It a Fair Test?",
+    "sub": "Grades 5–8 · Science · Claims, variables and bias",
+    "grade": "Grades 5–8 · Science",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "wrIsItAFairTest"
+  },
+  {
+    "slug": "designed-to-be-read",
+    "title": "Designed to Be Read",
+    "sub": "Grades 5–8 · Art · Graphic design and type",
+    "grade": "Grades 5–8 · Art",
+    "minutes": 45,
+    "posters": [
+      "poster1",
+      "poster2"
+    ],
+    "import": "wrDesignedToBeRead"
+  }
+]
