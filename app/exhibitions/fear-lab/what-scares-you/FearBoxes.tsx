@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type Ref } from 'react';
 import { createPortal } from 'react-dom';
 import FactNote from '@/components/exhibition/FactNote';
 import { FEAR_LAB_COPY as C } from '../fearLab';
 import { animationUrl, ownsAnimation, type OwnedAssets } from './assets';
 import { BOX_COUNT, drawOpening, type Content } from './boxes';
-import { pulseFromTaps } from './lab';
+import { AFTER_SCALE, BEFORE_SCALE, dreadLine, pulseFromTaps, type Dread } from './lab';
 import { creatureSlot, type LabSound } from './sound';
 import SoundPrompt from './SoundPrompt';
 import SurpriseBurst, { SurpriseArt } from './Surprise';
@@ -15,6 +15,18 @@ import Swarm from './Swarm';
 import { swarmLength } from './spiderPaths';
 
 /*
+ * The point: poster 1 says the waiting is scarier than what is inside; here
+ * the visitor tests it on themselves. Before each lid opens they say how
+ * nervous they are (1 to 5), and once the lights are up how scary it really
+ * was; the tally says in how many boxes the waiting was worse (lab.ts,
+ * dreadLine). It is an honest test: a real creature can be worse than the
+ * waiting, and the tally says so when it was.
+ *
+ * The rating (Nov 19 rework): tapping a box with no rating chosen yet holds
+ * the box ("Before the lid opens: how nervous are you?"), and the rating
+ * opens it; a rating chosen first opens the next box tapped. The "how
+ * scary was it really" rating waits beside the reveal and is optional.
+ *
  * The fear boxes (poster 1's mystery box, five times over): a row of closed
  * boxes on a shelf in the dark. A nudge to turn the sound on comes first,
  * with a warning, in a short pop-up ("I'm ready", or "Gentle mode", which
@@ -182,6 +194,12 @@ export default function FearBoxes({
   const history = useRef<Content[]>([]);
   const [status, setStatus] = useState('');
   const [after, setAfter] = useState(false);
+  /** How nervous, chosen before the next lid opens (1–5), and a box held until it is. */
+  const [nervous, setNervous] = useState<number | null>(null);
+  const [held, setHeld] = useState<number | null>(null);
+  /** Each opening's ratings, in order: before, and (once rated) after. */
+  const [dreads, setDreads] = useState<Dread[]>([]);
+  const rateRef = useRef<HTMLDivElement>(null);
   const [portal, setPortal] = useState<HTMLElement | null>(null);
   const root = useRef<HTMLDivElement>(null);
   const boxRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -249,6 +267,29 @@ export default function FearBoxes({
 
   const pick = (i: number) => {
     if (phase !== 'pick' || opened[i]) return;
+    // First, how nervous: the box waits for the answer.
+    if (nervous === null) {
+      setHeld(i);
+      setStatus(`Box ${i + 1}. Before the lid opens: how nervous are you?`);
+      rateRef.current?.querySelector<HTMLButtonElement>('button')?.focus();
+      return;
+    }
+    openBox(i, nervous);
+  };
+
+  /** Before a lid opens: how nervous. With a box held, it opens. */
+  const rateBefore = (v: number) => {
+    setNervous(v);
+    if (held !== null && phase === 'pick') openBox(held, v);
+  };
+
+  /** Once the lights are up: how scary it really was, for this opening. */
+  const rateAfter = (v: number) => setDreads((d) => d.map((x, k) => (k === d.length - 1 ? { ...x, after: v } : x)));
+
+  const openBox = (i: number, before: number) => {
+    setHeld(null);
+    setNervous(null);
+    setDreads((d) => [...d, { before }]);
     clearAll();
     // What is inside is drawn now, as the lid starts to lift, whichever box it is.
     const c = drawOpening(history.current, gentle, rand);
@@ -339,6 +380,7 @@ export default function FearBoxes({
 
   const refill = () => {
     clearAll();
+    setHeld(null);
     setInside(Array(BOX_COUNT).fill(null));
     setCurrent(-1);
     setContent(null);
@@ -400,6 +442,7 @@ export default function FearBoxes({
                 className="fl-fb-box"
                 data-open={isOpen ? 'true' : undefined}
                 data-closing={current === i && phase === 'closing' ? 'true' : undefined}
+                data-held={held === i && phase === 'pick' ? 'true' : undefined}
                 data-done={opened[i] && !isOpen ? 'true' : undefined}
                 aria-disabled={phase !== 'pick' || opened[i] ? 'true' : undefined}
                 aria-label={c ? `Box ${i + 1}, opened: ${said(c)}` : `Box ${i + 1}`}
@@ -501,9 +544,19 @@ export default function FearBoxes({
 
         {(phase === 'pick' || phase === 'build' || phase === 'out' || phase === 'closing') && (
           <>
-            <h2 className="fl-lab-heading">Pick a box</h2>
+            <h2 className="fl-lab-heading">{held !== null ? `Box ${held + 1}: before it opens` : 'Pick a box'}</h2>
             <p className="fl-lab-poster">{after ? C.mysteryBox : C.box}</p>
             <p className="fl-lab-note">Nothing is in a box until its lid opens: then chance decides. Something might crawl out. Or something silly. Or nothing at all.</p>
+            {phase === 'pick' && !allOpen && (
+              <Scale
+                refEl={rateRef}
+                question={held !== null ? `Before box ${held + 1} opens: how nervous are you?` : 'Before you open one: how nervous are you?'}
+                labels={BEFORE_SCALE}
+                value={nervous}
+                onChoose={rateBefore}
+              />
+            )}
+            {dreadLine(dreads) && <p className="fl-lab-note fl-fb-tally">{dreadLine(dreads)}</p>}
             {allOpen && phase === 'pick' && (
               <button type="button" className="fl-lab-button" onClick={refill}>New boxes</button>
             )}
@@ -537,6 +590,13 @@ export default function FearBoxes({
                 <p className="fl-lab-poster">{C.pinecone}</p>
               </>
             )}
+            <Scale
+              question={`You were ${BEFORE_SCALE[(dreads[dreads.length - 1]?.before ?? 1) - 1].toLowerCase()} before it opened. How scary was it, really?`}
+              labels={AFTER_SCALE}
+              value={dreads[dreads.length - 1]?.after ?? null}
+              onChoose={rateAfter}
+            />
+            {dreadLine(dreads) && <p className="fl-lab-note fl-fb-tally" aria-live="polite">{dreadLine(dreads)}</p>}
             <div className="fl-fb-actions">
               <button ref={closeRef} type="button" className="fl-lab-button" onClick={allOpen ? refill : close}>
                 {allOpen ? 'New boxes' : 'Close the box'}
@@ -549,6 +609,22 @@ export default function FearBoxes({
         <PulseTap after={after} />
       </div>
     </div>
+  );
+}
+
+/** A five-point rating, in words: how nervous before, or how scary after. */
+function Scale({ question, labels, value, onChoose, refEl }: { question: string; labels: readonly string[]; value: number | null; onChoose: (v: number) => void; refEl?: Ref<HTMLDivElement> }) {
+  return (
+    <fieldset className="fl-fb-scale">
+      <legend className="fl-lab-note">{question}</legend>
+      <div className="fl-fb-scale-row" ref={refEl}>
+        {labels.map((l, k) => (
+          <button key={l} type="button" className="fl-fb-scale-step" aria-pressed={value === k + 1} onClick={() => onChoose(k + 1)} data-level={k + 1}>
+            {l}
+          </button>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
@@ -583,7 +659,8 @@ function PulseTap({ after }: { after: boolean }) {
     <details className="fl-pulse">
       <summary>Take your own pulse</summary>
       <p className="fl-lab-note">
-        Find your pulse on your wrist or neck, then tap the heart with each beat. {after ? 'Now take it again.' : 'Take it before you open a box.'}
+        {/* REVIEW: new text (the first sentence). */}
+        The heart monitor along the foot of the lab is a drawing, not your heartbeat. To measure yours, find your pulse on your wrist or neck, then tap the heart with each beat. {after ? 'Now take it again.' : 'Take it before you open a box.'}
       </p>
       <div className="fl-pulse-row">
         <button type="button" className="fl-pulse-heart" onClick={tap} key={beat} aria-label="Tap with each beat">
