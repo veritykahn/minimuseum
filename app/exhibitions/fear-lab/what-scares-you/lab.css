@@ -486,6 +486,12 @@
   border-radius: 50%;
 }
 .fl-room .fl-ku-option,
+/* Known or unknown's prediction (Nov 19 rework): what did the experiment find? */
+.fl-ku-guess { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px; }
+.fl-ku-guess legend { padding: 0; margin-bottom: 8px; color: var(--cream); font-weight: 600; }
+.fl-ku-guess-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.fl-room .fl-ku-guess-row .fl-lab-button { white-space: normal; text-align: left; border: 1px solid rgba(251, 246, 236, 0.35); }
+.fl-ku-score { color: var(--cream); font-weight: 600; }
 .fl-ku-done-item {
   appearance: none;
   display: flex;

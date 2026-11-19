@@ -124,3 +124,16 @@ export function dreadLine(ds: readonly Dread[]): string | null {
   if (t.better > t.worse) return `What was inside was scarier than the waiting in ${boxes(t.better)} of ${t.rated}. For you, this time, the real thing was worse.`;
   return `The waiting and what was inside felt about the same in ${boxes(t.same)} of ${t.rated}.`;
 }
+
+/**
+ * REVIEW: new text. What the night's calls cost, in a line, after poster 1's
+ * "better to see 100 fake threats than miss one real predator": a fake alarm
+ * costs a run for nothing; a missed tiger is the costly mistake.
+ */
+export function costLine(t: Tally): string {
+  const runs = `${t.fakeAlarms} ${t.fakeAlarms === 1 ? 'run' : 'runs'} for nothing`;
+  if (t.missed > 0)
+    return `Each fake alarm only cost you a run for nothing. A missed tiger is the costly mistake, and your brain is built to avoid it: that is why it raises so many alarms.`;
+  if (t.fakeAlarms > 0) return `No tiger missed, at the cost of ${runs}. That is just the trade your brain is built to make.`;
+  return 'Every call right: you read every clue. Most brains would have run at least once.';
+}

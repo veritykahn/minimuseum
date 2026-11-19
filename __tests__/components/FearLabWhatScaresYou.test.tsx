@@ -15,7 +15,7 @@ import {
 import { SURPRISES } from '@/app/exhibitions/fear-lab/what-scares-you/surprises';
 import RustlingBushes, { CLUE_MS, CLUE_TEXT, DECIDE_MS, REVEAL_MS } from '@/app/exhibitions/fear-lab/what-scares-you/RustlingBushes';
 import { CHOICES, QUESTION_MS } from '@/app/exhibitions/fear-lab/what-scares-you/KnownOrUnknown';
-import { AFTER_SCALE, BEFORE_SCALE, ROUNDS, TIGERS, TIGER_CLUES, dreadLine, dreadTally, makeLayout, makeRounds, paceFor, pulseFromTaps, tally, type Call } from '@/app/exhibitions/fear-lab/what-scares-you/lab';
+import { AFTER_SCALE, BEFORE_SCALE, costLine, ROUNDS, TIGERS, TIGER_CLUES, dreadLine, dreadTally, makeLayout, makeRounds, paceFor, pulseFromTaps, tally, type Call } from '@/app/exhibitions/fear-lab/what-scares-you/lab';
 import { makeSwarm, spiderCount, swarmLength } from '@/app/exhibitions/fear-lab/what-scares-you/spiderPaths';
 import { ANIMATION_SLOTS, SLOT_FILES, SOUND_SLOTS, soundUrl } from '@/app/exhibitions/fear-lab/what-scares-you/assets';
 import { assetsOnDisk } from '@/app/exhibitions/fear-lab/what-scares-you/assetSlots';
@@ -75,6 +75,12 @@ describe('the lab’s arithmetic', () => {
     const t = tally(rounds, calls);
     expect(t.fakeAlarms + t.missed + t.spotted + t.calm).toBe(ROUNDS);
     expect(tally([{ bush: 0, tiger: false, spot: 0, clue: 'leaves' }, { bush: 1, tiger: true, spot: 0, clue: 'tail' }], ['tiger', 'wind'])).toEqual({ fakeAlarms: 1, missed: 1, spotted: 0, calm: 0 });
+  });
+
+  it('says what the night’s calls cost: a missed tiger is the costly mistake', () => {
+    expect(costLine({ fakeAlarms: 2, missed: 1, spotted: 2, calm: 3 })).toMatch(/missed tiger is the costly mistake/);
+    expect(costLine({ fakeAlarms: 3, missed: 0, spotted: 3, calm: 2 })).toBe('No tiger missed, at the cost of 3 runs for nothing. That is just the trade your brain is built to make.');
+    expect(costLine({ fakeAlarms: 0, missed: 0, spotted: 3, calm: 5 })).toMatch(/^Every call right/);
   });
 
   it('quickens the monitor with fright', () => {
@@ -496,6 +502,12 @@ describe('known or unknown', () => {
       const b = screen.getByRole('button', { name: new RegExp(c.b.text.replace(/[.?]/g, '.')) });
       fireEvent.click(b);
       expect(b).toHaveAttribute('data-effect', c.b.effect);
+      // Predict what the experiment found before seeing it.
+      if (c.poster) expect(screen.queryByText(c.poster)).not.toBeInTheDocument();
+      else expect(screen.queryByText(c.fact!.text)).not.toBeInTheDocument();
+      expect(screen.getByText(`Now predict. ${c.guess.question}`)).toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: c.guess.options.find((o) => o.id === c.guess.answer)!.label }));
+      expect(screen.getByText('You predicted it!')).toBeInTheDocument();
       if (c.poster) expect(screen.getByText(c.poster)).toBeInTheDocument();
       else {
         expect(screen.getByText(c.fact!.text)).toBeInTheDocument();
@@ -504,6 +516,7 @@ describe('known or unknown', () => {
       fireEvent.click(screen.getByRole('button', { name: i + 1 < CHOICES.length ? 'Next question' : 'See your choices' }));
     });
     expect(screen.getByRole('list', { name: 'Your choices' }).children).toHaveLength(CHOICES.length);
+    expect(screen.getByText(`You predicted ${CHOICES.length} of ${CHOICES.length} findings.`)).toBeInTheDocument();
   });
 
   it('runs out of time, unless a teacher pauses it', () => {
@@ -519,7 +532,17 @@ describe('known or unknown', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Resume timer' }));
     act(() => { jest.advanceTimersByTime(QUESTION_MS); });
     expect(screen.getByRole('status')).toHaveTextContent('Time’s up!');
+    // A wrong prediction: told kindly what the finding was.
+    fireEvent.click(screen.getByRole('button', { name: 'Knowing for certain they would get a shock' }));
+    expect(screen.getByText('Not quite: a 50% chance of a shock.')).toBeInTheDocument();
     expect(screen.getByText(CHOICES[0].poster!)).toBeInTheDocument();
+  });
+
+  it('gives every question a prediction, whose answer is one of its own options', () => {
+    CHOICES.forEach((c) => {
+      expect(c.guess.options.length).toBeGreaterThanOrEqual(2);
+      expect(c.guess.options.map((o) => o.id)).toContain(c.guess.answer);
+    });
   });
 
   it('gives every new question a sourced museum note, and the shock a zap', () => {
