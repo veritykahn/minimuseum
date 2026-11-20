@@ -14,6 +14,7 @@ import { useSavedAmulet, type SavedAmulet } from '../amulet/savedAmulet';
 import { TOMB_NOTES, WALLS } from '../tomb/scenes';
 import { emptyTomb, keptCount, readTomb, TOMB_PLACES, useTomb, type ActivityId, type TombState } from '../tombState';
 import Chamber, { CH_H, CH_W, FLOOR_SLOTS, GoodArt, PLACES, box, depthScale, describeChamber, onFloor, type Filled, type Placed } from './Chamber';
+import { goodSize } from './goodsLook';
 import { GOODS, MAX_GOODS, MY_TOMB_INTRO, MY_TOMB_SOURCES, TASKS, type GoodId, type Mode } from './myTomb';
 import { useSavedCartouche, type SavedCartouche } from './savedCartouche';
 import './myTomb.css';
@@ -262,12 +263,13 @@ export default function MyTomb() {
                   <div className="egb-floor" data-drop="floor" style={box([0, 440, CH_W, CH_H - 440])} aria-hidden="true" />
                   {goods.map((g) => {
                     const s = depthScale(g.y);
+                    const { w, h } = goodSize(g.id);
                     return (
                       <button
                         key={g.id}
                         type="button"
                         className="egb-placed egk-carry"
-                        style={box([g.x - 60 * s, g.y - 100 * s, 120 * s, 108 * s])}
+                        style={box([g.x - (w / 2) * s - 8, g.y - h * s - 8, w * s + 16, h * s + 16])}
                         aria-pressed={selected === g.id}
                         aria-label={`${nameOf(g.id)}, on the floor`}
                         aria-describedby="egb-move-help"
@@ -363,7 +365,7 @@ export default function MyTomb() {
                         onClick={() => (on ? setSelected(g.id) : putIn(g.id))}
                       >
                         <svg viewBox="-64 -110 128 118" aria-hidden="true">
-                          <GoodArt id={g.id} />
+                          <GoodArt id={g.id} fit />
                         </svg>
                         <span>{g.name}</span>
                       </button>
@@ -457,7 +459,7 @@ export default function MyTomb() {
       <DragGhost at={drag} className="egb-ghost">
         {carrying && (
           <svg viewBox="-64 -110 128 118" width="96" height="90">
-            <GoodArt id={carrying.id} />
+            <GoodArt id={carrying.id} fit />
           </svg>
         )}
       </DragGhost>

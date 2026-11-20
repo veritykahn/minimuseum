@@ -79,7 +79,7 @@ export const MY_TOMB_SOURCES: SourceGroup[] = [
   {
     title: 'Pictures',
     items: [
-      { label: 'The chamber and the things in it are drawn for the Mini Museum.' },
+      { label: 'The chamber is drawn, and the things in it pictured, for the Mini Museum.' },
       { label: 'Hieroglyphs set in Noto Sans Egyptian Hieroglyphs', licence: 'SIL Open Font License' },
     ],
   },
