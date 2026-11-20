@@ -35,7 +35,7 @@ export const FIGURE_SPOTS: Record<FigureId, { x: number; scale: number; flip?: b
   anubis: { x: 300, scale: 1.12, box: [258, 60, 92, 320] },
   thoth: { x: 700, scale: 1.12, flip: true, box: [618, 80, 112, 300] },
   ammit: { x: 875, scale: 0.95, flip: true, box: [742, 250, 226, 130] },
-  maat: { x: 1045, scale: 1.05, flip: true, box: [986, 140, 112, 240] },
+  maat: { x: 1022, scale: 1.05, flip: true, box: [956, 130, 140, 250] },
 };
 
 /** Where the heart's pan hangs when the scales are level (for its drop target), in the hall's units. */
